@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitcoin.Private.Bitcoin", "Bitcoin.Private.Bitcoin\Bitcoin.Private.Bitcoin.csproj", "{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bitcoin.Private.Bitcoin.Tests", "Bitcoin.Private.Bitcoin.Tests\Bitcoin.Private.Bitcoin.Tests.csproj", "{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

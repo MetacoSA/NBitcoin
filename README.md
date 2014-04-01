@@ -1,0 +1,4 @@
+Bitcoin
+=======
+
+Bitcoin .NET implementation
