@@ -25,7 +25,8 @@ namespace Bitcoin.Private.Bitcoin
 			}
 			if(Check(data))
 			{
-				vch = data.ToArray();
+				vch = new byte[32];
+				Array.Copy(data, 0, vch, 0, count);
 				IsCompressed = fCompressedIn;
 			}
 			else
@@ -56,6 +57,15 @@ namespace Bitcoin.Private.Bitcoin
 					return false;
 			}
 			return true;
+		}
+
+		public PubKey GetPubKey()
+		{
+			ECKey key = new ECKey();
+			key.SetSecretBytes(vch);
+			PubKey pubkey = new PubKey();
+			key.GetPubKey(pubkey, IsCompressed);
+			return pubkey;
 		}
 	}
 }

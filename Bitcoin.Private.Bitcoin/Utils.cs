@@ -307,7 +307,7 @@ namespace Bitcoin.Private.Bitcoin
 			var calculatedHash = Utils.Hash(vchRet, vchRet.Length - 4).ToBytes().Take(4).ToArray();
 			var expectedHash = vchRet.Skip(vchRet.Length - 4).Take(4).ToArray();
 
-			if(!Utils.ArrayEqual(calculatedHash,expectedHash))
+			if(!Utils.ArrayEqual(calculatedHash, expectedHash))
 			{
 				Array.Clear(vchRet, 0, vchRet.Length);
 				return false;
@@ -346,6 +346,24 @@ namespace Bitcoin.Private.Bitcoin
 			}
 		}
 
-		
+
+
+		internal static uint160 Hash160(byte[] data, int count)
+		{
+			byte[] pblank = new byte[1];
+			uint256 hash1;
+			SHA256((count == 0 ? pblank : data), count, out hash1);
+			uint160 hash2;
+			RIPEMD160(hash1.ToBytes(),hash1.Size, out hash2);
+			return hash2;
+		}
+
+		private static void RIPEMD160(byte[] data, int count, out uint160 result)
+		{
+			using(var sha1 = System.Security.Cryptography.RIPEMD160.Create())
+			{
+				result = new uint160(sha1.ComputeHash(data, 0, count));
+			}
+		}
 	}
 }

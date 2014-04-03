@@ -14,6 +14,11 @@ namespace Bitcoin.Private.Bitcoin.Tests
 		const string strSecret1C = ("Kwr371tjA9u2rFSMZjTNun2PXXP3WPZu2afRHTcta6KxEUdm1vEw");
 		const string strSecret2C = ("L3Hq7a8FEQwJkW1M2GNKDW28546Vp5miewcCzSqUD9kCAXrJdS3g");
 		const string strAddressBad = ("1HV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF");
+
+		BitcoinAddress addr1 =new BitcoinAddress("1QFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ");
+		BitcoinAddress addr2 =new BitcoinAddress("1F5y5E5FMc5YzdJtB9hLaUe43GDxEKXENJ");
+		BitcoinAddress addr1C= new BitcoinAddress("1NoJrossxPBKfCHuJXT4HadJrXRE9Fxiqs");
+		BitcoinAddress addr2C = new BitcoinAddress("1CRj2HyM1CXWzHAXLQtiGLyggNT9WQqsDs");
 		[Fact]
 		public void key_test1()
 		{
@@ -37,6 +42,16 @@ namespace Bitcoin.Private.Bitcoin.Tests
 			Assert.True(key1C.IsCompressed == true);
 			Key key2C = bsecret2C.GetKey();
 			Assert.True(key1C.IsCompressed == true);
+
+			PubKey pubkey1 = key1.GetPubKey();
+			PubKey pubkey2 = key2.GetPubKey();
+			PubKey pubkey1C = key1C.GetPubKey();
+			PubKey pubkey2C = key2C.GetPubKey();
+
+			Assert.True(addr1.Get() == pubkey1.GetID());
+			Assert.True(addr2.Get() == pubkey2.GetID());
+			Assert.True(addr1C.Get() == pubkey1C.GetID());
+			Assert.True(addr2C.Get() == pubkey2C.GetID());
 		}
 	}
 }
