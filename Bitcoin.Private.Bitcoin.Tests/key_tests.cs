@@ -33,6 +33,13 @@ namespace Bitcoin.Private.Bitcoin.Tests
 			{
 				new
 				{
+					Address = "15jZVzLc9cXz5PUFFda5A4Z7kZDYPg2NnL",
+					PrivateKey = "L3TiCqmvPkXJpzCCZJuhy6wQtJZWDkR1AuqFY4Utib5J5XLuvLdZ",
+					Message = "This is an example of a signed message.",
+					Signature = "H6sliOnVrD9r+J8boZAKHZwBIW2zLiD72IfTIF94bfZhBI0JdMu9AM9rrF7P6eH+866YvM4H9xWGVN4jMJZycFU="
+				},
+				new
+				{
 					Address = "1QFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ",
 					PrivateKey = "5HxWvvfubhXpYYpS3tJkw6fq9jE9j18THftkZjHHfmFiWtmAbrj",
 					Message = "hello world",
@@ -44,7 +51,14 @@ namespace Bitcoin.Private.Bitcoin.Tests
 					PrivateKey = null as string,
 					Message = "Localbitcoins.com will change the world",
 					Signature = "IJ/17TjGGUqmEppAliYBUesKHoHzfY4gR4DW0Yg7QzrHUB5FwX1uTJ/H21CF8ncY8HHNB5/lh8kPAOeD5QxV8Xc="
-				}
+				},
+				new
+				{
+					Address = "1GvPJp7H8UYsYDvE4GFoV4f2gSCNZzGF48",
+					PrivateKey = "5JEeah4w29axvf5Yg9v9PKv86zcCN9qVbizJDMHmiSUxBqDFoUT",
+					Message = "This is an example of a signed message2",
+					Signature = "G8YNwlo+I36Ct+hZKGSBFl3q8Kbx1pxPpwQmwdsG85io76+DUOHXqh/DfBq+Cn2R3C3dI//g3koSjxy7yNxJ9m8="
+				},
 			};
 
 
@@ -58,7 +72,7 @@ namespace Bitcoin.Private.Bitcoin.Tests
 				}
 				BitcoinAddress address = new BitcoinAddress(test.Address);
 				Assert.True(address.VerifyMessage(test.Message,test.Signature));
-				Assert.False(!address.VerifyMessage("bad message", test.Signature));
+				Assert.True(!address.VerifyMessage("bad message", test.Signature));
 			}
 		}
 
@@ -78,11 +92,19 @@ namespace Bitcoin.Private.Bitcoin.Tests
 					CompressedAddress = "1FkKMsKNJqWSDvTvETqcCeHcUQQ64kSC6s",
 					Hash160 = "3c176e659bea0f29a3e9bf7880c112b1b31b4dc8",
 					CompressedHash160 = "a1c2f92a9dacbd2991c3897724a93f338e44bdc1"
+				},
+				new
+				{
+					PrivateKeyWIF = "5J7WTMRn1vjZ9udUxNCLq7F9DYEJiqRCjstiBrY6mDjnaomd6kZ",
+					CompressedPrivateKeyWIF = "KxXj1KAMh6ApvKJ2PNZ4XLZRGLqjDehppFdEnueGSBDrC2Hfe7vt",
+					PubKey = "0493e5d305cad2588d5fb254065fe48ce446028ba380e6ee663baea9cd105500897eb030c033cdab160f31c36df0ea38330fdd69677df49cd14826902022d17f3f",
+					CompressedPubKey = "0393e5d305cad2588d5fb254065fe48ce446028ba380e6ee663baea9cd10550089",
+					Address =           "1MZmwgyMyjM11uA6ZSpgn1uK3LBWCzvV6e",
+					CompressedAddress = "1AECNr2TDye8dpC1TeDH3eJpGoZ7dNPy4g",
+					Hash160 = "e19557c8f8fb53a964c5dc7bfde86d806709f7c5",
+					CompressedHash160 = "6538094af65453ea279f14d1a04b408e3adfebd7"
 				}
 			};
-
-			//var s1 = new BitcoinSecret("KwomKti1X3tYJUUMb1TGSM2mrZk1wb1aHisUNHCQXTZq5auC2qc3");
-			//var s2 = new BitcoinSecret("KwomKti1X3tYJUUMb1TGSM2mrZk1wb1aHisUNHCQXTZq5aqzCxDY");
 
 			foreach(var test in tests)
 			{
@@ -93,8 +115,6 @@ namespace Bitcoin.Private.Bitcoin.Tests
 				Assert.Equal(new KeyId(test.Hash160), address.ID);
 				Assert.Equal(new KeyId(test.Hash160), secret.Key.PubKey.ID);
 				Assert.Equal(address.ID, secret.Key.PubKey.Address.ID);
-				//Assert.True(!address.PubKey.IsCompressed);
-
 
 				var compressedSec = secret.Copy(true);
 
@@ -186,17 +206,20 @@ namespace Bitcoin.Private.Bitcoin.Tests
 
 				// compact signatures (with key recovery)
 
-				//byte[] csign1, csign2, csign1C, csign2C;
+				ECDSASignature csign1, csign2, csign1C, csign2C;
 
-				//Assert.True(key1.SignCompact (hashMsg, csign1));
-				//Assert.True(key2.SignCompact (hashMsg, csign2));
-				//Assert.True(key1C.SignCompact(hashMsg, csign1C));
-				//Assert.True(key2C.SignCompact(hashMsg, csign2C));
+				csign1 = key1.SignCompact(hashMsg);
+				csign2 = key2.SignCompact(hashMsg);
+				csign1C = key1C.SignCompact(hashMsg);
+				csign2C = key2C.SignCompact(hashMsg);
+
 
 				//PubKey rkey1, rkey2, rkey1C, rkey2C;
 
-				//Assert.True(rkey1.RecoverCompact (hashMsg, csign1));
-				//Assert.True(rkey2.RecoverCompact (hashMsg, csign2));
+
+
+				//Assert.True(rkey1.RecoverCompact(hashMsg, csign1));
+				//Assert.True(rkey2.RecoverCompact(hashMsg, csign2));
 				//Assert.True(rkey1C.RecoverCompact(hashMsg, csign1C));
 				//Assert.True(rkey2C.RecoverCompact(hashMsg, csign2C));
 

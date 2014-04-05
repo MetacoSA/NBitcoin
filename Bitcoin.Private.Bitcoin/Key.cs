@@ -91,7 +91,7 @@ namespace Bitcoin.Private.Bitcoin
 			for(int i = 0 ; i < 4 ; i++)
 			{
 				ECKey k = ECKey.RecoverFromSignature(i, sig, hash, IsCompressed);
-				if(k != null && k.GetPubKey(IsCompressed).ToHex() == _ECKey.GetPubKey(IsCompressed).ToHex())
+				if(k != null && k.GetPubKey(IsCompressed).ToHex() == PubKey.ToHex())
 				{
 					recId = i;
 					break;
@@ -112,5 +112,10 @@ namespace Bitcoin.Private.Bitcoin
 			return Convert.ToBase64String(sigData);
 		}
 
+
+		public ECDSASignature SignCompact(uint256 hashMsg)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

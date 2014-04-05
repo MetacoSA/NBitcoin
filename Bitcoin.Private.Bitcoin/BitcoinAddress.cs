@@ -39,9 +39,16 @@ namespace Bitcoin.Private.Bitcoin
 
 		//Thanks bitcoinj source code
 		//http://bitcoinj.googlecode.com/git-history/keychain/core/src/main/java/com/google/bitcoin/core/Utils.java
-		public PubKey RecoverFromSignature(string messageText, string signatureText)
+		public PubKey GetPublicKeyFromMessageSignature(string messageText, string signatureText)
 		{
 			var signatureEncoded = Convert.FromBase64String(signatureText);
+			var message = Utils.FormatMessageForSigning(messageText);
+			var hash = Utils.Hash(message);
+			return GetPublicKeyFromSignature(hash, signatureEncoded);
+		}
+
+		private PubKey GetPublicKeyFromSignature(uint256 hash, byte[] signatureEncoded)
+		{
 			if(signatureEncoded.Length < 65)
 				throw new ArgumentException("Signature truncated, expected 65 bytes and got " + signatureEncoded.Length);
 
@@ -57,11 +64,6 @@ namespace Bitcoin.Private.Bitcoin
 			BigInteger r = new BigInteger(1, signatureEncoded.Skip(1).Take(32).ToArray());
 			BigInteger s = new BigInteger(1, signatureEncoded.Skip(33).Take(32).ToArray());
 			var sig = new ECDSASignature(r, s);
-
-			var message = Utils.FormatMessageForSigning(messageText);
-
-			var hash = Utils.Hash(message);
-
 			bool compressed = false;
 
 			if(header >= 31)
@@ -72,14 +74,13 @@ namespace Bitcoin.Private.Bitcoin
 			int recId = header - 27;
 
 			ECKey key = ECKey.RecoverFromSignature(recId, sig, hash, compressed);
-			return key.GetPubKey(false);
+			return key.GetPubKey(compressed);
 		}
-
-
+		
 		public bool VerifyMessage(string message, string signature)
 		{
-			var key = RecoverFromSignature(message, signature);
-			return key.VerifyMessage(message, signature);
+			var key = GetPublicKeyFromMessageSignature(message, signature);
+			return key.ID == ID;
 		}
 	}
 }

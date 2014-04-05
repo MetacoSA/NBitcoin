@@ -76,7 +76,7 @@ namespace Bitcoin.Private.Bitcoin
 
 		public bool VerifyMessage(string message, string signature)
 		{
-			var pubKey = this.Address.RecoverFromSignature(message, signature);
+			var pubKey = this.Address.GetPublicKeyFromMessageSignature(message, signature);
 			return pubKey.ID == this.ID;
 		}
 	}
