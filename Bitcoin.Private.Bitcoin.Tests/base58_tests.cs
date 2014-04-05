@@ -44,15 +44,15 @@ namespace Bitcoin.Private.Bitcoin.Tests
 				}
 				var expected = Utils.ParseHex(test.GetValue<string>(0));
 				var base58string = test.GetValue<string>(1);
-				Assert.True(Utils.DecodeBase58(base58string, out result), strTest);
+				result = Utils.DecodeBase58(base58string);
 				AssertEx.CollectionEquals(result, expected);
 			}
 
-			Assert.True(!Utils.DecodeBase58("invalid", out result));
+			Assert.Throws<FormatException>(() => Utils.DecodeBase58("invalid"));
 
 			// check that DecodeBase58 skips whitespace, but still fails with unexpected non-whitespace at the end.
-			Assert.True(!Utils.DecodeBase58(" \t\n\v\f\r skip \r\f\v\n\t a", out result));
-			Assert.True(Utils.DecodeBase58(" \t\n\v\f\r skip \r\f\v\n\t ", out result));
+			Assert.Throws<FormatException>(()=> Utils.DecodeBase58(" \t\n\v\f\r skip \r\f\v\n\t a"));
+			result = Utils.DecodeBase58(" \t\n\v\f\r skip \r\f\v\n\t ");
 			var expected2 = Utils.ParseHex("971a55");
 			AssertEx.CollectionEquals(result, expected2);
 		}

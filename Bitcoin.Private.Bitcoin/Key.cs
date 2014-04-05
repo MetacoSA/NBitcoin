@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.BouncyCastle.Crypto.Signers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,29 +9,29 @@ namespace Bitcoin.Private.Bitcoin
 {
 	public class Key
 	{
-		bool fValid = false;
 		byte[] vch = new byte[0];
+		ECKey _ECKey;
 		public bool IsCompressed
 		{
 			get;
 			private set;
 		}
 
-		public void Set(byte[] data, int count, bool fCompressedIn)
+		public Key(byte[] data, int count, bool fCompressedIn)
 		{
 			if(count != 32)
 			{
-				fValid = false;
-				return;
+				throw new FormatException("The size of an EC key should be 32");
 			}
 			if(Check(data))
 			{
 				vch = new byte[32];
 				Array.Copy(data, 0, vch, 0, count);
 				IsCompressed = fCompressedIn;
+				_ECKey = new ECKey(vch, true);
 			}
 			else
-				fValid = false;
+				throw new FormatException("Invalid EC key");
 		}
 
 		private bool Check(byte[] vch)
@@ -59,13 +60,57 @@ namespace Bitcoin.Private.Bitcoin
 			return true;
 		}
 
-		public PubKey GetPubKey()
+		PubKey _PubKey;
+		public PubKey PubKey
 		{
-			ECKey key = new ECKey();
-			key.SetSecretBytes(vch);
-			PubKey pubkey = new PubKey();
-			key.GetPubKey(pubkey, IsCompressed);
-			return pubkey;
+			get
+			{
+				if(_PubKey == null)
+				{
+					ECKey key = new ECKey(vch, true);
+					_PubKey = key.GetPubKey(IsCompressed);
+				}
+				return _PubKey;
+			}
 		}
+
+		public ECDSASignature Sign(uint256 hash)
+		{
+			return _ECKey.Sign(hash);
+		}
+
+
+		public string SignMessage(String message)
+		{
+			byte[] data = Utils.FormatMessageForSigning(message);
+			var hash = Utils.Hash(data);
+			var sig = Sign(hash);
+
+			// Now we have to work backwards to figure out the recId needed to recover the signature.
+			int recId = -1;
+			for(int i = 0 ; i < 4 ; i++)
+			{
+				ECKey k = ECKey.RecoverFromSignature(i, sig, hash, IsCompressed);
+				if(k != null && k.GetPubKey(IsCompressed).ToHex() == _ECKey.GetPubKey(IsCompressed).ToHex())
+				{
+					recId = i;
+					break;
+				}
+			}
+
+			if(recId == -1)
+				throw new InvalidOperationException("Could not construct a recoverable key. This should never happen.");
+
+			int headerByte = recId + 27 + (IsCompressed ? 4 : 0);
+
+			byte[] sigData = new byte[65];  // 1 header + 32 bytes for R + 32 bytes for S
+
+			sigData[0] = (byte)headerByte;
+
+			Array.Copy(Utils.BigIntegerToBytes(sig.R, 32), 0, sigData, 1, 32);
+			Array.Copy(Utils.BigIntegerToBytes(sig.S, 32), 0, sigData, 33, 32);
+			return Convert.ToBase64String(sigData);
+		}
+
 	}
 }

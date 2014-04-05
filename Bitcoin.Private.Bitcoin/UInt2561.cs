@@ -114,6 +114,18 @@ namespace Bitcoin.Private.Bitcoin
 			for (int i = 2; i < WIDTH; i++)
 				pn[i] = 0;
 		}
+		public uint256(byte[] vch, bool lendian = true)
+		{
+			if(!lendian)
+				vch = vch.Reverse().ToArray();
+			if(vch.Length == pn.Length * 4)
+			{
+				for(int i = 0, y = 0 ; i < pn.Length && y < vch.Length ; i++, y += 4)
+				{
+					pn[i] = BitConverter.ToUInt32(vch, y);
+				}
+			}
+		}
 
 		public uint256(string str)
 		{
@@ -336,15 +348,17 @@ namespace Bitcoin.Private.Bitcoin
 			return a - 1;
 		}
 		
-		public byte[] ToBytes()
-		{
-			var copy = new byte[WIDTH_BYTE];
-			for(int i = 0 ; i < WIDTH_BYTE ; i++)
-			{
-				copy[i] = GetByte(i);
-			}
-			return copy;
-		}
+		public byte[] ToBytes(bool lendian = true)
+{
+	var copy = new byte[WIDTH_BYTE];
+	for(int i = 0 ; i < WIDTH_BYTE ; i++)
+	{
+		copy[i] = GetByte(i);
+	}
+	if(!lendian)
+		Array.Reverse(copy);
+	return copy;
+}
 
 		public void Serialize(Stream stream, int nType = 0, int protocolVersion = Utils.PROTOCOL_VERSION)
 		{
@@ -514,6 +528,18 @@ namespace Bitcoin.Private.Bitcoin
 			pn[1] = (uint)(b >> 32);
 			for (int i = 2; i < WIDTH; i++)
 				pn[i] = 0;
+		}
+		public uint160(byte[] vch, bool lendian = true)
+		{
+			if(!lendian)
+				vch = vch.Reverse().ToArray();
+			if(vch.Length == pn.Length * 4)
+			{
+				for(int i = 0, y = 0 ; i < pn.Length && y < vch.Length ; i++, y += 4)
+				{
+					pn[i] = BitConverter.ToUInt32(vch, y);
+				}
+			}
 		}
 
 		public uint160(string str)
@@ -737,15 +763,17 @@ namespace Bitcoin.Private.Bitcoin
 			return a - 1;
 		}
 		
-		public byte[] ToBytes()
-		{
-			var copy = new byte[WIDTH_BYTE];
-			for(int i = 0 ; i < WIDTH_BYTE ; i++)
-			{
-				copy[i] = GetByte(i);
-			}
-			return copy;
-		}
+		public byte[] ToBytes(bool lendian = true)
+{
+	var copy = new byte[WIDTH_BYTE];
+	for(int i = 0 ; i < WIDTH_BYTE ; i++)
+	{
+		copy[i] = GetByte(i);
+	}
+	if(!lendian)
+		Array.Reverse(copy);
+	return copy;
+}
 
 		public void Serialize(Stream stream, int nType = 0, int protocolVersion = Utils.PROTOCOL_VERSION)
 		{

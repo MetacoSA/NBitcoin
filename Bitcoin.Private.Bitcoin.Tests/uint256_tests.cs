@@ -42,6 +42,13 @@ namespace Bitcoin.Private.Bitcoin.Tests
 			HalfL = OneL << 255;
 			HalfS = OneS << 159;
 		}
+
+		private byte[] ToBytes(string data)
+		{
+
+			var b = TestUtils.ToBytes(data);
+			return b;
+		}
 		ulong R1LLow64 = 0x121156cfdb4a529cUL;
 		const double R1Ldouble = 0.4887374590559308955; // R1L equals roughly R1Ldouble * 2^256
 		const double R1Sdouble = 0.7096329412477836074;
@@ -71,15 +78,7 @@ namespace Bitcoin.Private.Bitcoin.Tests
 		private byte[] MaxArray;
 		string R1ArrayHex = "7D1DE5EAF9B156D53208F033B5AA8122D2d2355d5e12292b121156cfdb4a529c";
 
-		private byte[] ToBytes(string str)
-		{
-			byte[] result = new byte[str.Length];
-			for(int i = 0 ; i < str.Length ; i++)
-			{
-				result[i] = (byte)str[i];
-			}
-			return result;
-		}
+	
 		private string ArrayToString(byte[] array)
 		{
 			StringBuilder builder = new StringBuilder();

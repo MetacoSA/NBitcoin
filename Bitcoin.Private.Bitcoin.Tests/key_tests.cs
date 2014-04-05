@@ -15,43 +15,196 @@ namespace Bitcoin.Private.Bitcoin.Tests
 		const string strSecret2C = ("L3Hq7a8FEQwJkW1M2GNKDW28546Vp5miewcCzSqUD9kCAXrJdS3g");
 		const string strAddressBad = ("1HV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF");
 
-		BitcoinAddress addr1 =new BitcoinAddress("1QFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ");
-		BitcoinAddress addr2 =new BitcoinAddress("1F5y5E5FMc5YzdJtB9hLaUe43GDxEKXENJ");
-		BitcoinAddress addr1C= new BitcoinAddress("1NoJrossxPBKfCHuJXT4HadJrXRE9Fxiqs");
+		BitcoinAddress addr1 = new BitcoinAddress("1QFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ");
+		BitcoinAddress addr2 = new BitcoinAddress("1F5y5E5FMc5YzdJtB9hLaUe43GDxEKXENJ");
+		BitcoinAddress addr1C = new BitcoinAddress("1NoJrossxPBKfCHuJXT4HadJrXRE9Fxiqs");
 		BitcoinAddress addr2C = new BitcoinAddress("1CRj2HyM1CXWzHAXLQtiGLyggNT9WQqsDs");
+
+
+		BitcoinAddress addrLocal = new BitcoinAddress("1Q1wVsNNiUo68caU7BfyFFQ8fVBqxC2DSc");
+		uint256 msgLocal = Utils.Hash(TestUtils.ToBytes("Localbitcoins.com will change the world"));
+		byte[] signatureLocal = Convert.FromBase64String("IJ/17TjGGUqmEppAliYBUesKHoHzfY4gR4DW0Yg7QzrHUB5FwX1uTJ/H21CF8ncY8HHNB5/lh8kPAOeD5QxV8Xc=");
+
+
+		[Fact]
+		public void CanVerifySignature()
+		{
+			var tests = new[]
+			{
+				new
+				{
+					Address = "1QFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ",
+					PrivateKey = "5HxWvvfubhXpYYpS3tJkw6fq9jE9j18THftkZjHHfmFiWtmAbrj",
+					Message = "hello world",
+					Signature = "G+dnSEywl3v1ijlWXvpY6zpu+AKNNXJcVmrdE35m0mMlzwFzXDiNg+uZrG9k8mpQL6sjHKrlBoDNSA+yaPW7PEA="
+				},
+				new
+				{
+					Address = "1Q1wVsNNiUo68caU7BfyFFQ8fVBqxC2DSc",
+					PrivateKey = null as string,
+					Message = "Localbitcoins.com will change the world",
+					Signature = "IJ/17TjGGUqmEppAliYBUesKHoHzfY4gR4DW0Yg7QzrHUB5FwX1uTJ/H21CF8ncY8HHNB5/lh8kPAOeD5QxV8Xc="
+				}
+			};
+
+
+			foreach(var test in tests)
+			{
+				if(test.PrivateKey != null)
+				{
+					var secret = new BitcoinSecret(test.PrivateKey);
+					var signature = secret.Key.SignMessage(test.Message);
+					Assert.True(new BitcoinAddress(test.Address).VerifyMessage(test.Message, signature));
+				}
+				BitcoinAddress address = new BitcoinAddress(test.Address);
+				Assert.True(address.VerifyMessage(test.Message,test.Signature));
+				Assert.False(!address.VerifyMessage("bad message", test.Signature));
+			}
+		}
+
+		[Fact]
+		public void CanGeneratePubKeysAndAddress()
+		{
+			//Took from http://brainwallet.org/ and http://procbits.com/2013/08/27/generating-a-bitcoin-address-with-javascript
+			var tests = new[]
+			{
+				new 
+				{
+					PrivateKeyWIF = "5Hx15HFGyep2CfPxsJKe2fXJsCVn5DEiyoeGGF6JZjGbTRnqfiD",
+					CompressedPrivateKeyWIF = "KwomKti1X3tYJUUMb1TGSM2mrZk1wb1aHisUNHCQXTZq5auC2qc3",
+					PubKey = "04d0988bfa799f7d7ef9ab3de97ef481cd0f75d2367ad456607647edde665d6f6fbdd594388756a7beaf73b4822bc22d36e9bda7db82df2b8b623673eefc0b7495",
+					CompressedPubKey = "03d0988bfa799f7d7ef9ab3de97ef481cd0f75d2367ad456607647edde665d6f6f",
+					Address =           "16UjcYNBG9GTK4uq2f7yYEbuifqCzoLMGS",
+					CompressedAddress = "1FkKMsKNJqWSDvTvETqcCeHcUQQ64kSC6s",
+					Hash160 = "3c176e659bea0f29a3e9bf7880c112b1b31b4dc8",
+					CompressedHash160 = "a1c2f92a9dacbd2991c3897724a93f338e44bdc1"
+				}
+			};
+
+			//var s1 = new BitcoinSecret("KwomKti1X3tYJUUMb1TGSM2mrZk1wb1aHisUNHCQXTZq5auC2qc3");
+			//var s2 = new BitcoinSecret("KwomKti1X3tYJUUMb1TGSM2mrZk1wb1aHisUNHCQXTZq5aqzCxDY");
+
+			foreach(var test in tests)
+			{
+				BitcoinSecret secret = new BitcoinSecret(test.PrivateKeyWIF);
+				Assert.Equal(test.PubKey, secret.Key.PubKey.ToHex());
+
+				var address = new BitcoinAddress(test.Address);
+				Assert.Equal(new KeyId(test.Hash160), address.ID);
+				Assert.Equal(new KeyId(test.Hash160), secret.Key.PubKey.ID);
+				Assert.Equal(address.ID, secret.Key.PubKey.Address.ID);
+				//Assert.True(!address.PubKey.IsCompressed);
+
+
+				var compressedSec = secret.Copy(true);
+
+				var a = secret.Key.PubKey;
+				var b = compressedSec.Key.PubKey;
+
+				Assert.Equal(test.CompressedPrivateKeyWIF, compressedSec.ToWif());
+				Assert.Equal(test.CompressedPubKey, compressedSec.Key.PubKey.ToHex());
+				Assert.True(compressedSec.Key.PubKey.IsCompressed);
+
+				var compressedAddr = new BitcoinAddress(test.CompressedAddress);
+				Assert.Equal(new KeyId(test.CompressedHash160), compressedAddr.ID);
+				Assert.Equal(new KeyId(test.CompressedHash160), compressedSec.Key.PubKey.ID);
+				//Assert.True(compressedAddr.PubKey.IsCompressed);
+			}
+		}
+
 		[Fact]
 		public void key_test1()
 		{
-			BitcoinSecret bsecret1 = new BitcoinSecret();
-			BitcoinSecret bsecret2 = new BitcoinSecret();
-			BitcoinSecret bsecret1C = new BitcoinSecret();
-			BitcoinSecret bsecret2C = new BitcoinSecret();
-			BitcoinSecret baddress1 = new BitcoinSecret();
+			BitcoinSecret bsecret1 = new BitcoinSecret(strSecret1);
+			BitcoinSecret bsecret2 = new BitcoinSecret(strSecret2);
+			BitcoinSecret bsecret1C = new BitcoinSecret(strSecret1C);
+			BitcoinSecret bsecret2C = new BitcoinSecret(strSecret2C);
+			Assert.Throws<FormatException>(() => new BitcoinSecret(strAddressBad));
 
-			Assert.True(bsecret1.SetString(strSecret1));
-			Assert.True(bsecret2.SetString(strSecret2));
-			Assert.True(bsecret1C.SetString(strSecret1C));
-			Assert.True(bsecret2C.SetString(strSecret2C));
-			Assert.True(!baddress1.SetString(strAddressBad));
-
-			Key key1 = bsecret1.GetKey();
+			Key key1 = bsecret1.Key;
 			Assert.True(key1.IsCompressed == false);
-			Key key2 = bsecret2.GetKey();
+			Assert.True(bsecret1.Copy(true).Key.IsCompressed == true);
+			Assert.True(bsecret1.Copy(true).Copy(false).IsCompressed == false);
+			Assert.True(bsecret1.Copy(true).Copy(false).ToString() == bsecret1.ToString());
+			Key key2 = bsecret2.Key;
 			Assert.True(key2.IsCompressed == false);
-			Key key1C = bsecret1C.GetKey();
+			Key key1C = bsecret1C.Key;
 			Assert.True(key1C.IsCompressed == true);
-			Key key2C = bsecret2C.GetKey();
+			Key key2C = bsecret2C.Key;
 			Assert.True(key1C.IsCompressed == true);
 
-			PubKey pubkey1 = key1.GetPubKey();
-			PubKey pubkey2 = key2.GetPubKey();
-			PubKey pubkey1C = key1C.GetPubKey();
-			PubKey pubkey2C = key2C.GetPubKey();
+			PubKey pubkey1 = key1.PubKey;
+			PubKey pubkey2 = key2.PubKey;
+			PubKey pubkey1C = key1C.PubKey;
+			PubKey pubkey2C = key2C.PubKey;
 
-			Assert.True(addr1.Get() == pubkey1.GetID());
-			Assert.True(addr2.Get() == pubkey2.GetID());
-			Assert.True(addr1C.Get() == pubkey1C.GetID());
-			Assert.True(addr2C.Get() == pubkey2C.GetID());
+			Assert.True(addr1.ID == pubkey1.ID);
+			Assert.True(addr2.ID == pubkey2.ID);
+			Assert.True(addr1C.ID == pubkey1C.ID);
+			Assert.True(addr2C.ID == pubkey2C.ID);
+
+
+
+			for(int n = 0 ; n < 16 ; n++)
+			{
+				string strMsg = String.Format("Very secret message {0}: 11", n);
+				uint256 hashMsg = Utils.Hash(TestUtils.ToBytes(strMsg));
+
+				// normal signatures
+
+				ECDSASignature sign1, sign2, sign1C, sign2C;
+
+				sign1 = key1.Sign(hashMsg);
+				sign2 = key2.Sign(hashMsg);
+				sign1C = key1C.Sign(hashMsg);
+				sign2C = key2C.Sign(hashMsg);
+
+				Assert.True(pubkey1.Verify(hashMsg, sign1));
+				Assert.True(pubkey2.Verify(hashMsg, sign2));
+				Assert.True(pubkey1C.Verify(hashMsg, sign1C));
+				Assert.True(pubkey2C.Verify(hashMsg, sign2C));
+
+				Assert.True(pubkey1.Verify(hashMsg, sign1));
+				Assert.True(!pubkey1.Verify(hashMsg, sign2));
+				Assert.True(pubkey1.Verify(hashMsg, sign1C));
+				Assert.True(!pubkey1.Verify(hashMsg, sign2C));
+
+				Assert.True(!pubkey2.Verify(hashMsg, sign1));
+				Assert.True(pubkey2.Verify(hashMsg, sign2));
+				Assert.True(!pubkey2.Verify(hashMsg, sign1C));
+				Assert.True(pubkey2.Verify(hashMsg, sign2C));
+
+				Assert.True(pubkey1C.Verify(hashMsg, sign1));
+				Assert.True(!pubkey1C.Verify(hashMsg, sign2));
+				Assert.True(pubkey1C.Verify(hashMsg, sign1C));
+				Assert.True(!pubkey1C.Verify(hashMsg, sign2C));
+
+				Assert.True(!pubkey2C.Verify(hashMsg, sign1));
+				Assert.True(pubkey2C.Verify(hashMsg, sign2));
+				Assert.True(!pubkey2C.Verify(hashMsg, sign1C));
+				Assert.True(pubkey2C.Verify(hashMsg, sign2C));
+
+				// compact signatures (with key recovery)
+
+				//byte[] csign1, csign2, csign1C, csign2C;
+
+				//Assert.True(key1.SignCompact (hashMsg, csign1));
+				//Assert.True(key2.SignCompact (hashMsg, csign2));
+				//Assert.True(key1C.SignCompact(hashMsg, csign1C));
+				//Assert.True(key2C.SignCompact(hashMsg, csign2C));
+
+				//PubKey rkey1, rkey2, rkey1C, rkey2C;
+
+				//Assert.True(rkey1.RecoverCompact (hashMsg, csign1));
+				//Assert.True(rkey2.RecoverCompact (hashMsg, csign2));
+				//Assert.True(rkey1C.RecoverCompact(hashMsg, csign1C));
+				//Assert.True(rkey2C.RecoverCompact(hashMsg, csign2C));
+
+				//Assert.True(rkey1  == pubkey1);
+				//Assert.True(rkey2  == pubkey2);
+				//Assert.True(rkey1C == pubkey1C);
+				//Assert.True(rkey2C == pubkey2C);
+			}
 		}
 	}
 }

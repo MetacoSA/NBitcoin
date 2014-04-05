@@ -19,8 +19,6 @@ namespace Bitcoin.Private.Bitcoin.Tests
 			{
 				Monitor.Enter(cs);
 				break;
-
-				AssertEx.Error("break was swallowed!");
 			} while(false);
 
 			do

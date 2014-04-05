@@ -52,6 +52,7 @@
     <Compile Include="base58_tests.cs" />
     <Compile Include="key_tests.cs" />
     <Compile Include="TestCase.cs" />
+    <Compile Include="TestUtils.cs" />
     <Compile Include="util_tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

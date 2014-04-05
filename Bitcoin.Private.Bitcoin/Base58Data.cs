@@ -10,26 +10,40 @@ namespace Bitcoin.Private.Bitcoin
 	{
 		protected byte[] vchData = new byte[0];
 		protected byte[] vchVersion = new byte[0];
-		public virtual bool SetString(string psz, uint nVersionBytes = 1)
-		{
-			byte[] vchTemp;
-			Utils.DecodeBase58Check(psz, out vchTemp);
-			if(vchTemp.Length < nVersionBytes)
-			{
-				Clean(vchData);
-				Clean(vchVersion);
-				return false;
-			}
+		protected string wifData = "";
 
+		protected virtual void SetString(string psz, uint nVersionBytes = 1)
+		{
+			byte[] vchTemp = Utils.DecodeBase58Check(psz);
 			vchVersion = vchTemp.Take((int)nVersionBytes).ToArray();
 			vchData = vchTemp.Skip((int)nVersionBytes).ToArray();
+			wifData = psz;
 			Clean(vchTemp);
-			return true;
+			if(!IsValid)
+				throw new FormatException("Invalid " + this.GetType().Name);
+		}
+
+		protected virtual bool IsValid
+		{
+			get
+			{
+				return true;
+			}
 		}
 
 		private void Clean(byte[] arr)
 		{
 			Array.Clear(arr, 0, arr.Length);
+		}
+
+		public string ToWif()
+		{
+			return wifData;
+		}
+
+		public override string ToString()
+		{
+			return wifData;
 		}
 	}
 }
