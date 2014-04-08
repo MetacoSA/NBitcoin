@@ -56,20 +56,7 @@ namespace Bitcoin.Private.Bitcoin.DataEncoders
 				return new HexEncoder();
 			}
 		}
-		public static DataEncoder Bin
-		{
-			get
-			{
-				return null;
-			}
-		}
-		public static DataEncoder Dec
-		{
-			get
-			{
-				return null;
-			}
-		}
+	
 		public static DataEncoder Base58
 		{
 			get
@@ -94,33 +81,48 @@ namespace Bitcoin.Private.Bitcoin.DataEncoders
 				return new Base64Encoder();
 			}
 		}
-		public static DataEncoder RFC1751
-		{
-			get
-			{
-				return null;
-			}
-		}
-		public static DataEncoder Poetry
-		{
-			get
-			{
-				return null;
-			}
-		}
-		public static DataEncoder Rot13
-		{
-			get
-			{
-				return null;
-			}
-		}
-		public static DataEncoder Easy16
-		{
-			get
-			{
-				return null;
-			}
-		}
+
+		//public static DataEncoder Bin
+		//{
+		//	get
+		//	{
+		//		return null;
+		//	}
+		//}
+		//public static DataEncoder Dec
+		//{
+		//	get
+		//	{
+		//		return null;
+		//	}
+		//}
+		//public static DataEncoder RFC1751
+		//{
+		//	get
+		//	{
+		//		return null;
+		//	}
+		//}
+		//public static DataEncoder Poetry
+		//{
+		//	get
+		//	{
+		//		return null;
+		//	}
+		//}
+		//public static DataEncoder Rot13
+		//{
+		//	get
+		//	{
+		//		return null;
+		//	}
+		//}
+		//public static DataEncoder Easy16
+		//{
+		//	get
+		//	{
+		//		return null;
+		//	}
+		//}
 	}
 }

@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Bitcoin.Private.Bitcoin.Tests</RootNamespace>
     <AssemblyName>Bitcoin.Private.Bitcoin.Tests</AssemblyName>
@@ -28,6 +28,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
@@ -52,6 +55,7 @@
     <Compile Include="base58_tests.cs" />
     <Compile Include="ConverterTests.cs" />
     <Compile Include="key_tests.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="TestCase.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="util_tests.cs" />

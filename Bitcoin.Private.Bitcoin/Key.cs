@@ -1,6 +1,8 @@
-﻿using Org.BouncyCastle.Crypto.Signers;
+﻿using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Crypto.Signers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -84,8 +86,13 @@ namespace Bitcoin.Private.Bitcoin
 		{
 			byte[] data = Utils.FormatMessageForSigning(message);
 			var hash = Utils.Hash(data);
-			var sig = Sign(hash);
+			return Convert.ToBase64String(SignCompact(hash));
+		}
 
+
+		public byte[] SignCompact(uint256 hash)
+		{
+			var sig = Sign(hash);
 			// Now we have to work backwards to figure out the recId needed to recover the signature.
 			int recId = -1;
 			for(int i = 0 ; i < 4 ; i++)
@@ -109,13 +116,12 @@ namespace Bitcoin.Private.Bitcoin
 
 			Array.Copy(Utils.BigIntegerToBytes(sig.R, 32), 0, sigData, 1, 32);
 			Array.Copy(Utils.BigIntegerToBytes(sig.S, 32), 0, sigData, 33, 32);
-			return Convert.ToBase64String(sigData);
+			return sigData;
 		}
 
-
-		public ECDSASignature SignCompact(uint256 hashMsg)
+		public byte[] ToDER()
 		{
-			throw new NotImplementedException();
+			return _ECKey.ToDER(IsCompressed);
 		}
 	}
 }
