@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bitcoin.Private.Bitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -53,7 +54,7 @@ namespace Bitcoin.Private.Bitcoin
 				{
 					var vchList = this.ID.ToBytes().ToList();
 					vchList.Insert(0, 0);
-					_Address = new BitcoinAddress(Utils.EncodeBase58Check(vchList.ToArray()));
+					_Address = new BitcoinAddress(Encoders.Base58Check.EncodeData(vchList.ToArray()));
 				}
 				return _Address;
 			}
@@ -66,7 +67,7 @@ namespace Bitcoin.Private.Bitcoin
 
 		public string ToHex()
 		{
-			return Utils.HexStr(vch, false);
+			return Encoders.Hex.EncodeData(vch);
 		}
 
 		public override string ToString()

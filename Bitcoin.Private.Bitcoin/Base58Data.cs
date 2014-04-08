@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bitcoin.Private.Bitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace Bitcoin.Private.Bitcoin
 
 		protected virtual void SetString(string psz, uint nVersionBytes = 1)
 		{
-			byte[] vchTemp = Utils.DecodeBase58Check(psz);
+			byte[] vchTemp = Encoders.Base58Check.DecodeData(psz);
 			vchVersion = vchTemp.Take((int)nVersionBytes).ToArray();
 			vchData = vchTemp.Skip((int)nVersionBytes).ToArray();
 			wifData = psz;

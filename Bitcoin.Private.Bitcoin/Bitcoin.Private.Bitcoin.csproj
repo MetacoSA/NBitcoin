@@ -46,8 +46,12 @@
     <Compile Include="Base58Data.cs" />
     <Compile Include="BitcoinAddress.cs" />
     <Compile Include="BitcoinSecret.cs" />
+    <Compile Include="DataEncoders\Base58Encoder.cs" />
+    <Compile Include="DataEncoders\Base64Encoder.cs" />
+    <Compile Include="DataEncoders\HexEncoder.cs" />
     <Compile Include="ECDSASignature.cs" />
     <Compile Include="ECKey.cs" />
+    <Compile Include="DataEncoders\Encoders.cs" />
     <Compile Include="Key.cs" />
     <Compile Include="KeyId.cs" />
     <Compile Include="MedianFilter1.cs">

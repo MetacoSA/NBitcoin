@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using Bitcoin.Private.Bitcoin.DataEncoders;
 
 namespace Bitcoin.Private.Bitcoin
 {
@@ -25,7 +26,7 @@ namespace Bitcoin.Private.Bitcoin
 					i += 2;
 
 			int pBegin = i;
-			while(i < str.Length && Utils.HexDigit(str[i]) != -1)
+			while(i < str.Length && HexEncoder.IsDigit(str[i]) != -1)
 				i++;
 
 			i--;
@@ -34,11 +35,11 @@ namespace Bitcoin.Private.Bitcoin
 			int pend = p1 + WIDTH * 4;
 			while(i >= pBegin && p1 < pend)
 			{
-				SetByte(p1, (byte)Utils.HexDigit(str[i]));
+				SetByte(p1, (byte)HexEncoder.IsDigit(str[i]));
 				i--;
 				if(i >= pBegin)
 				{
-					byte n = (byte)Utils.HexDigit(str[i]);
+					byte n = (byte)HexEncoder.IsDigit(str[i]);
 					n = (byte)(n << 4);
 					SetByte(p1, (byte)(GetByte(p1) | n));
 					i--;
@@ -440,7 +441,7 @@ namespace Bitcoin.Private.Bitcoin
 					i += 2;
 
 			int pBegin = i;
-			while(i < str.Length && Utils.HexDigit(str[i]) != -1)
+			while(i < str.Length && HexEncoder.IsDigit(str[i]) != -1)
 				i++;
 
 			i--;
@@ -449,11 +450,11 @@ namespace Bitcoin.Private.Bitcoin
 			int pend = p1 + WIDTH * 4;
 			while(i >= pBegin && p1 < pend)
 			{
-				SetByte(p1, (byte)Utils.HexDigit(str[i]));
+				SetByte(p1, (byte)HexEncoder.IsDigit(str[i]));
 				i--;
 				if(i >= pBegin)
 				{
-					byte n = (byte)Utils.HexDigit(str[i]);
+					byte n = (byte)HexEncoder.IsDigit(str[i]);
 					n = (byte)(n << 4);
 					SetByte(p1, (byte)(GetByte(p1) | n));
 					i--;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bitcoin.Private.Bitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -56,7 +57,7 @@ namespace Bitcoin.Private.Bitcoin
 			}
 			else
 			{
-				byte[] result = Utils.DecodeBase58Check(wifData);
+				byte[] result = Encoders.Base58Check.DecodeData(wifData);
 				var resultList = result.ToList();
 
 				if(compressed.Value)
@@ -67,7 +68,7 @@ namespace Bitcoin.Private.Bitcoin
 				{
 					resultList.RemoveAt(resultList.Count - 1);
 				}
-				return new BitcoinSecret(Utils.EncodeBase58Check(resultList.ToArray()));
+				return new BitcoinSecret(Encoders.Base58Check.EncodeData(resultList.ToArray()));
 			}
 		}
 

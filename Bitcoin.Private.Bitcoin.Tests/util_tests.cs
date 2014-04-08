@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bitcoin.Private.Bitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -68,15 +69,15 @@ namespace Bitcoin.Private.Bitcoin.Tests
 		public void util_ParseHex()
 		{
 			// Basic test vector
-			var result = Utils.ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0EA1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f");
+			var result = Encoders.Hex.DecodeData("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0EA1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f");
 			AssertEx.CollectionEquals(result, ParseHex_expected);
 
 			// Spaces between bytes must be supported
-			result = Utils.ParseHex("12 34 56 78");
+			result = Encoders.Hex.DecodeData("12 34 56 78");
 			Assert.True(result.Length == 4 && result[0] == 0x12 && result[1] == 0x34 && result[2] == 0x56 && result[3] == 0x78);
 
 			// Stop parsing at invalid value
-			result = Utils.ParseHex("1234 invalid 1234");
+			result = Encoders.Hex.DecodeData("1234 invalid 1234");
 			Assert.True(result.Length == 2 && result[0] == 0x12 && result[1] == 0x34);
 		}
 
@@ -84,21 +85,30 @@ namespace Bitcoin.Private.Bitcoin.Tests
 		public void util_HexStr()
 		{
 			AssertEx.Equal(
-	  Utils.HexStr(ParseHex_expected),
+	  new HexEncoder().EncodeData(ParseHex_expected),
 	  "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f");
 
 			AssertEx.Equal(
-				Utils.HexStr(ParseHex_expected, 5, true),
+				new HexEncoder()
+				{
+					Space = true
+				}.EncodeData(ParseHex_expected,5),
 				"04 67 8a fd b0");
 
 			AssertEx.Equal(
-				Utils.HexStr(ParseHex_expected, 0, true),
+				new HexEncoder()
+				{
+					Space = true
+				}.EncodeData(ParseHex_expected, 0),
 				"");
 
 			var ParseHex_vec = ParseHex_expected.Take(5).ToArray();
 
 			AssertEx.Equal(
-				Utils.HexStr(ParseHex_vec, true),
+				new HexEncoder()
+				{
+					Space = true
+				}.EncodeData(ParseHex_vec),
 				"04 67 8a fd b0");
 		}
 
@@ -181,17 +191,17 @@ namespace Bitcoin.Private.Bitcoin.Tests
 		[Fact]
 		public void util_IsHex()
 		{
-			Assert.True(Utils.IsHex("00"));
-			Assert.True(Utils.IsHex("00112233445566778899aabbccddeeffAABBCCDDEEFF"));
-			Assert.True(Utils.IsHex("ff"));
-			Assert.True(Utils.IsHex("FF"));
+			Assert.True(HexEncoder.IsWellFormed("00"));
+			Assert.True(HexEncoder.IsWellFormed("00112233445566778899aabbccddeeffAABBCCDDEEFF"));
+			Assert.True(HexEncoder.IsWellFormed("ff"));
+			Assert.True(HexEncoder.IsWellFormed("FF"));
 
-			Assert.True(!Utils.IsHex(""));
-			Assert.True(!Utils.IsHex("0"));
-			Assert.True(!Utils.IsHex("a"));
-			Assert.True(!Utils.IsHex("eleven"));
-			Assert.True(!Utils.IsHex("00xx00"));
-			Assert.True(!Utils.IsHex("0x0000"));
+			Assert.True(!HexEncoder.IsWellFormed(""));
+			Assert.True(!HexEncoder.IsWellFormed("0"));
+			Assert.True(!HexEncoder.IsWellFormed("a"));
+			Assert.True(!HexEncoder.IsWellFormed("eleven"));
+			Assert.True(!HexEncoder.IsWellFormed("00xx00"));
+			Assert.True(!HexEncoder.IsWellFormed("0x0000"));
 		}
 	}
 }

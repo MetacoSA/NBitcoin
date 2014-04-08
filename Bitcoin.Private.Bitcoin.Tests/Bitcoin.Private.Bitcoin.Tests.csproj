@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="AssertEx.cs" />
     <Compile Include="base58_tests.cs" />
+    <Compile Include="ConverterTests.cs" />
     <Compile Include="key_tests.cs" />
     <Compile Include="TestCase.cs" />
     <Compile Include="TestUtils.cs" />

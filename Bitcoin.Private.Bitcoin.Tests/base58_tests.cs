@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bitcoin.Private.Bitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,10 +22,10 @@ namespace Bitcoin.Private.Bitcoin.Tests
 					Assert.False(true, "Bad test: " + strTest);
 					continue;
 				}
-				var sourcedata = Utils.ParseHex(test.GetValue<string>(0));
+				var sourcedata = Encoders.Hex.DecodeData(test.GetValue<string>(0));
 				var base58string = test.GetValue<string>(1);
 				Assert.True(
-							Utils.EncodeBase58(sourcedata) == base58string,
+							Encoders.Base58.EncodeData(sourcedata) == base58string,
 							strTest);
 			}
 		}
@@ -42,18 +43,18 @@ namespace Bitcoin.Private.Bitcoin.Tests
 					Assert.False(true, "Bad test: " + strTest);
 					continue;
 				}
-				var expected = Utils.ParseHex(test.GetValue<string>(0));
+				var expected = Encoders.Hex.DecodeData(test.GetValue<string>(0));
 				var base58string = test.GetValue<string>(1);
-				result = Utils.DecodeBase58(base58string);
+				result = Encoders.Base58.DecodeData(base58string);
 				AssertEx.CollectionEquals(result, expected);
 			}
 
-			Assert.Throws<FormatException>(() => Utils.DecodeBase58("invalid"));
+			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData("invalid"));
 
 			// check that DecodeBase58 skips whitespace, but still fails with unexpected non-whitespace at the end.
-			Assert.Throws<FormatException>(()=> Utils.DecodeBase58(" \t\n\v\f\r skip \r\f\v\n\t a"));
-			result = Utils.DecodeBase58(" \t\n\v\f\r skip \r\f\v\n\t ");
-			var expected2 = Utils.ParseHex("971a55");
+			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData(" \t\n\v\f\r skip \r\f\v\n\t a"));
+			result = Encoders.Base58.DecodeData(" \t\n\v\f\r skip \r\f\v\n\t ");
+			var expected2 = Encoders.Hex.DecodeData("971a55");
 			AssertEx.CollectionEquals(result, expected2);
 		}
 

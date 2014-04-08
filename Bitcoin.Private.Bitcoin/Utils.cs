@@ -1,4 +1,5 @@
-﻿using Org.BouncyCastle.Crypto.Digests;
+﻿using Bitcoin.Private.Bitcoin.DataEncoders;
+using Org.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,89 +18,10 @@ namespace Bitcoin.Private.Bitcoin
 		public const long COIN = 100000000;
 		public const long CENT = 1000000;
 
-		public static string HexStr(byte[] bytes, bool fSpaces = false)
-		{
-			if(bytes == null)
-				throw new ArgumentNullException("bytes");
-			return HexStr(bytes, bytes.Length, fSpaces);
-		}
-		public static string HexStr(byte[] bytes, int count, bool fSpaces = false)
-		{
-			if(bytes == null)
-				throw new ArgumentNullException("bytes");
-			if(count < 0)
-				count = bytes.Length;
+		
+		
 
-			StringBuilder rv = new StringBuilder();
-			for(int i = 0 ; i < count ; i++)
-			{
-				var val = bytes[i];
-				if(fSpaces && i != 0)
-					rv.Append(' ');
-				rv.Append(hexDigits[val >> 4]);
-				rv.Append(hexDigits[val & 15]);
-			}
-
-			return rv.ToString();
-		}
-		public static byte[] ParseHex(string hex)
-		{
-			if(hex == null)
-				throw new ArgumentNullException("hex");
-
-			// convert hex dump to vector
-			Queue<byte> vch = new Queue<byte>();
-
-			int i = 0;
-
-			while(true)
-			{
-				if(i >= hex.Length)
-					break;
-				char psz = hex[i];
-				while(isspace(psz))
-				{
-					i++;
-					if(i >= hex.Length)
-						break;
-					psz = hex[i];
-				}
-				if(i >= hex.Length)
-					break;
-				psz = hex[i];
-
-				int c = HexDigit(psz);
-				i++;
-				if(i >= hex.Length)
-					break;
-				psz = hex[i];
-				if(c == -1)
-					break;
-				int n = (c << 4);
-				c = HexDigit(psz);
-				i++;
-				if(c == -1)
-					break;
-				n |= c;
-				vch.Enqueue((byte)n);
-			}
-			return vch.ToArray();
-		}
-
-		static readonly char[] hexDigits = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F' };
-		static readonly byte[] hexValues = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 10, 11, 12, 13, 14, 15 };
-		public static int HexDigit(char c)
-		{
-			var i = Array.IndexOf(hexDigits, c);
-			if(i == -1)
-				return -1;
-			return hexValues[i];
-		}
-
-		private static bool isspace(char c)
-		{
-			return c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r';
-		}
+		
 
 		public static string FormatMoney(long n, bool fPlus = false)
 		{
@@ -143,7 +65,7 @@ namespace Bitcoin.Private.Bitcoin
 			int i = 0;
 			if(i >= money.Length)
 				return false;
-			while(isspace(money[i]))
+			while(DataEncoder.IsSpace(money[i]))
 			{
 				if(i >= money.Length)
 					return false;
@@ -167,14 +89,14 @@ namespace Bitcoin.Private.Bitcoin
 					}
 					break;
 				}
-				if(isspace(money[i]))
+				if(DataEncoder.IsSpace(money[i]))
 					break;
 				if(!isdigit(money[i]))
 					return false;
 				strWhole += money[i];
 			}
 			for( ; i < money.Length ; i++)
-				if(!isspace(money[i]))
+				if(!DataEncoder.IsSpace(money[i]))
 					return false;
 			if(strWhole.Length > 10) // guard against 63 bit overflow
 				return false;
@@ -187,141 +109,7 @@ namespace Bitcoin.Private.Bitcoin
 			return true;
 		}
 
-		public static bool IsHex(string str)
-		{
-			foreach(var c in str)
-			{
-				if(HexDigit(c) < 0)
-					return false;
-			}
-			return (str.Length > 0) && (str.Length % 2 == 0);
-		}
-
-
-		const string pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-		public static string EncodeBase58(byte[] data)
-		{
-			BigInteger bn58 = 58;
-			BigInteger bn0 = 0;
-
-			// Convert big endian data to little endian
-			// Extra zero at the end make sure bignum will interpret as a positive number
-			byte[] vchTmp = data.Reverse().Concat(new byte[] { 0x00 }).ToArray();
-
-			// Convert little endian data to bignum
-			BigInteger bn = new BigInteger(vchTmp);
-
-			// Convert bignum to std::string
-			String str = "";
-			// Expected size increase from base58 conversion is approximately 137%
-			// use 138% to be safe
-
-			BigInteger dv = BigInteger.Zero;
-			BigInteger rem = BigInteger.Zero;
-			while(bn > bn0)
-			{
-				dv = BigInteger.DivRem(bn, bn58, out rem);
-				bn = dv;
-				var c = (int)rem;
-				str += pszBase58[c];
-			}
-
-			// Leading zeroes encoded as base58 zeros
-			for(int i = 0 ; i < data.Length && data[i] == 0 ; i++)
-				str += pszBase58[0];
-
-			// Convert little endian std::string to big endian
-			str = new String(str.Reverse().ToArray());
-			return str;
-		}
-
-		public static byte[] DecodeBase58(string base58string)
-		{
-			var result = new byte[0];
-			if(base58string.Length == 0)
-				return result;
-			BigInteger bn58 = 58;
-			BigInteger bn = 0;
-			BigInteger bnChar;
-			int i = 0;
-			while(isspace(base58string[i]))
-			{
-				i++;
-				if(i >= base58string.Length)
-					return result;
-			}
-
-			for(int y = i ; y < base58string.Length ; y++)
-			{
-				var p1 = pszBase58.IndexOf(base58string[y]);
-				if(p1 == -1)
-				{
-					while(isspace(base58string[y]))
-					{
-						y++;
-						if(y >= base58string.Length)
-							break;
-					}
-					if(y != base58string.Length)
-						throw new FormatException("Invalid base 58 string");
-					break;
-				}
-				bnChar = new BigInteger(p1);
-				bn = BigInteger.Multiply(bn, bn58);
-				bn += bnChar;
-			}
-
-			// Get bignum as little endian data
-			var vchTmp = bn.ToByteArray();
-			if(vchTmp.All(b => b == 0))
-				vchTmp = new byte[0];
-
-			// Trim off sign byte if present
-			if(vchTmp.Length >= 2 && vchTmp[vchTmp.Length - 1] == 0 && vchTmp[vchTmp.Length - 2] >= 0x80)
-				vchTmp = vchTmp.Take(vchTmp.Length - 1).ToArray();
-
-			// Restore leading zeros
-			int nLeadingZeros = 0;
-			for(int y = i ; y < base58string.Length && base58string[y] == pszBase58[0] ; y++)
-				nLeadingZeros++;
-
-
-			result = new byte[nLeadingZeros + vchTmp.Length];
-			Array.Copy(vchTmp.Reverse().ToArray(), 0, result, nLeadingZeros, vchTmp.Length);
-			return result;
-
-		}
-
-
-
-
-
-		public static byte[] DecodeBase58Check(string psz)
-		{
-			var vchRet = DecodeBase58(psz);
-			if(vchRet.Length < 4)
-			{
-				Array.Clear(vchRet, 0, vchRet.Length);
-				throw new FormatException("Invalid checked base 58 string");
-			}
-			var calculatedHash = Utils.Hash(vchRet, vchRet.Length - 4).ToBytes().Take(4).ToArray();
-			var expectedHash = vchRet.Skip(vchRet.Length - 4).Take(4).ToArray();
-
-			if(!Utils.ArrayEqual(calculatedHash, expectedHash))
-			{
-				Array.Clear(vchRet, 0, vchRet.Length);
-				throw new FormatException("Invalid hash of the base 58 string");
-			}
-			vchRet = vchRet.Take(vchRet.Length - 4).ToArray();
-			return vchRet;
-		}
-
-		internal static string EncodeBase58Check(byte[] data)
-		{
-			var calculatedHash = Utils.Hash(data, data.Length).ToBytes().Take(4).ToArray();
-			return EncodeBase58(data.Concat(calculatedHash).ToArray());
-		}
-
+		
 		public static bool ArrayEqual(byte[] a, byte[] b)
 		{
 			if(a.Length != b.Length)
