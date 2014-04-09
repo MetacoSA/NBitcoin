@@ -58,6 +58,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="TestCase.cs" />
     <Compile Include="TestUtils.cs" />
+    <Compile Include="transaction_tests.cs" />
     <Compile Include="util_tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -72,6 +73,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\base58_keys_valid.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\can_parse_transaction.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\README.md">

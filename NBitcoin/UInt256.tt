@@ -92,7 +92,7 @@ namespace NBitcoin
 		}
 
 	}
-	public class uint<#= t #> : base_uint<#= t #>
+	public class uint<#= t #> : base_uint<#= t #>,  IBitcoinSerializable
 	{
 
 		uint<#= t #>()
@@ -367,6 +367,13 @@ namespace NBitcoin
 		Array.Reverse(copy);
 	return copy;
 }
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			var b = ToBytes();
+			stream.ReadWrite(ref b);
+			this.pn = new uint<#= t #>(b).pn;
+		}
 
 		public void Serialize(Stream stream, int nType = 0, int protocolVersion = Utils.PROTOCOL_VERSION)
 		{

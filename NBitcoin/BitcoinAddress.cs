@@ -25,8 +25,6 @@ namespace NBitcoin
 			}
 		}
 
-
-
 		public KeyId ID
 		{
 			get

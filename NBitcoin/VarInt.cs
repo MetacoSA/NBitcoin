@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,57 +8,60 @@ using System.Threading.Tasks;
 namespace NBitcoin
 {
 	//https://en.bitcoin.it/wiki/Protocol_specification#Variable_length_integer
-	public class VarInt
+	public class VarInt : IBitcoinSerializable
 	{
-		private long _Value;
+		private byte _PrefixByte = 0;
+		private ulong _Value = 0;
 
-		public VarInt(long value)
+		public VarInt(ulong value)
 		{
 			this._Value = value;
+			if(_Value < 0xFD)
+				_PrefixByte = (byte)(int)_Value;
+			else if(_Value <= 0xffff)
+				_PrefixByte = 0xFD;
+			else if(_Value <= 0xffffffff)
+				_PrefixByte = 0xFE;
+			else
+				_PrefixByte = 0xFF;
 		}
 
-		public byte[] ToBytes()
+		public ulong ToLong()
 		{
-			if(_Value < 0xFD)
-				return new byte[1] { (byte)_Value };
-			if(_Value <= 0xffff)
+			return _Value;
+		}
+
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref _PrefixByte);
+			if(_PrefixByte < 0xFD)
 			{
-				var v = (short)_Value;
-				return new byte[3]
-				{
-					0xfd,
-					(byte)_Value,
-					(byte)(_Value >> 8)
-				};
+				_Value = _PrefixByte;
 			}
-			if(_Value <= 0xffffffff)
+			else if(_PrefixByte == 0xFD)
 			{
-				var v = (uint)_Value;
-				return new byte[5]
-				{
-					0xfe,
-					(byte)_Value,
-					(byte)(_Value >> 8),
-					(byte)(_Value >> 16),
-					(byte)(_Value >> 24)
-				};
+				var value = (ushort)_Value;
+				stream.ReadWrite(ref value);
+				_Value = value;
+			}
+			else if(_PrefixByte == 0xFE)
+			{
+				var value = (uint)_Value;
+				stream.ReadWrite(ref value);
+				_Value = value;
 			}
 			else
 			{
-				var v = (ulong)_Value;
-				return new byte[9]
-				{
-					0xff,
-					(byte)_Value,
-					(byte)(_Value >> 8),
-					(byte)(_Value >> 16),
-					(byte)(_Value >> 24),
-					(byte)(_Value >> 32),
-					(byte)(_Value >> 40),
-					(byte)(_Value >> 48),
-					(byte)(_Value >> 56)
-				};
+				var value = (ulong)_Value;
+				stream.ReadWrite(ref value);
+				_Value = value;
 			}
 		}
+
+		#endregion
+
+
 	}
 }

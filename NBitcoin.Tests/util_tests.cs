@@ -12,26 +12,6 @@ namespace NBitcoin.Tests
 	public class util_tests
 	{
 		[Fact]
-		public void util_criticalsection()
-		{
-			object cs = new object();
-
-			do
-			{
-				Monitor.Enter(cs);
-				break;
-			} while(false);
-
-			do
-			{
-				var lockTest = Monitor.TryEnter(cs);
-				if(lockTest)
-					break;
-				AssertEx.Error("break was swallowed!");
-			} while(true);
-		}
-
-		[Fact]
 		public void util_MedianFilter()
 		{
 			MedianFilterInt32 filter = new MedianFilterInt32(5, 15);

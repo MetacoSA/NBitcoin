@@ -184,7 +184,7 @@ namespace NBitcoin
 			ms.WriteByte((byte)BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.Length);
 			Write(ms, BITCOIN_SIGNED_MESSAGE_HEADER_BYTES);
 
-			VarInt size = new VarInt(message.Length);
+			VarInt size = new VarInt((ulong)message.Length);
 			Write(ms, size.ToBytes());
 			Write(ms, message);
 			return ms.ToArray();

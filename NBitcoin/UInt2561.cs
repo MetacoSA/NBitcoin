@@ -85,7 +85,7 @@ namespace NBitcoin
 		}
 
 	}
-	public class uint256 : base_uint256
+	public class uint256 : base_uint256,  IBitcoinSerializable
 	{
 
 		uint256()
@@ -361,6 +361,13 @@ namespace NBitcoin
 	return copy;
 }
 
+		public void ReadWrite(BitcoinStream stream)
+		{
+			var b = ToBytes();
+			stream.ReadWrite(ref b);
+			this.pn = new uint256(b).pn;
+		}
+
 		public void Serialize(Stream stream, int nType = 0, int protocolVersion = Utils.PROTOCOL_VERSION)
 		{
 			for(int i = 0 ; i < WIDTH_BYTE ; i++)
@@ -500,7 +507,7 @@ namespace NBitcoin
 		}
 
 	}
-	public class uint160 : base_uint160
+	public class uint160 : base_uint160,  IBitcoinSerializable
 	{
 
 		uint160()
@@ -775,6 +782,13 @@ namespace NBitcoin
 		Array.Reverse(copy);
 	return copy;
 }
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			var b = ToBytes();
+			stream.ReadWrite(ref b);
+			this.pn = new uint160(b).pn;
+		}
 
 		public void Serialize(Stream stream, int nType = 0, int protocolVersion = Utils.PROTOCOL_VERSION)
 		{
