@@ -99,7 +99,7 @@
     <Compile Include="uint256_tests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bitcoin.Private.Bitcoin\NBitcoin.csproj">
+    <ProjectReference Include="..\NBitcoin\NBitcoin.csproj">
       <Project>{7b692a4c-412a-41ba-a1f8-5df8f7450abc}</Project>
       <Name>NBitcoin</Name>
     </ProjectReference>
