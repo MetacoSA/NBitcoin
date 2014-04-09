@@ -16,7 +16,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitcoin.Private.Bitcoin
+namespace Bitcoin.Private.Bitcoin.Crypto
 {
 	public class ECKey
 	{

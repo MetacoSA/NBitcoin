@@ -1,4 +1,5 @@
-﻿using Bitcoin.Private.Bitcoin.DataEncoders;
+﻿using Bitcoin.Private.Bitcoin.Crypto;
+using Bitcoin.Private.Bitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;

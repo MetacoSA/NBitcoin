@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitcoin.Private.Bitcoin
+namespace Bitcoin.Private.Bitcoin.Crypto
 {
 	public class ECDSASignature
 	{

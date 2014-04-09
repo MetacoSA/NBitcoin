@@ -1,4 +1,5 @@
-﻿using Org.BouncyCastle.Asn1;
+﻿using Bitcoin.Private.Bitcoin.Crypto;
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Crypto.Signers;
 using System;
 using System.Collections.Generic;

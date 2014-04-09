@@ -1,4 +1,5 @@
-﻿using Bitcoin.Private.Bitcoin.DataEncoders;
+﻿using Bitcoin.Private.Bitcoin.Crypto;
+using Bitcoin.Private.Bitcoin.DataEncoders;
 using Org.BouncyCastle.Math;
 using System;
 using System.Collections.Generic;
