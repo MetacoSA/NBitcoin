@@ -1,4 +1,4 @@
-﻿using Bitcoin.Private.Bitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Crypto.Signers;
 using System;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitcoin.Private.Bitcoin
+namespace NBitcoin
 {
 	public class Key
 	{

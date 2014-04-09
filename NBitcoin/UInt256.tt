@@ -11,9 +11,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Bitcoin.Private.Bitcoin.DataEncoders;
+using NBitcoin.DataEncoders;
 
-namespace Bitcoin.Private.Bitcoin
+namespace NBitcoin
 {
 <# foreach (string t in new []{ "256","160" }) { #>
 	public class base_uint<#= t #>

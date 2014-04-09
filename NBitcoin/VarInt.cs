@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitcoin.Private.Bitcoin
+namespace NBitcoin
 {
 	//https://en.bitcoin.it/wiki/Protocol_specification#Variable_length_integer
 	public class VarInt

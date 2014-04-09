@@ -1,4 +1,4 @@
-﻿using Bitcoin.Private.Bitcoin.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
@@ -16,7 +16,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitcoin.Private.Bitcoin.Crypto
+namespace NBitcoin.Crypto
 {
 	public class ECKey
 	{

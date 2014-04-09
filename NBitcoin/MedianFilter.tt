@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitcoin.Private.Bitcoin
+namespace NBitcoin
 {
 <# foreach (string t in new []{ "Int32","Int64" }) { #>
 	public class MedianFilter<#= t #> 

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Bitcoin.Private.Bitcoin.DataEncoders;
+using NBitcoin.DataEncoders;
 
-namespace Bitcoin.Private.Bitcoin
+namespace NBitcoin
 {
 	public class base_uint256
 	{

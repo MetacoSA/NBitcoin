@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Bitcoin.Private.Bitcoin.Tests
+namespace NBitcoin.Tests
 {
 	class AssertEx
 	{

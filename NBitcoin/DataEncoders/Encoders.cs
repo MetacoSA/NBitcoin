@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitcoin.Private.Bitcoin.DataEncoders
+namespace NBitcoin.DataEncoders
 {
 	public class DataEncoder
 	{

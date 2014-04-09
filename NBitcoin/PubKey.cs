@@ -1,5 +1,5 @@
-﻿using Bitcoin.Private.Bitcoin.Crypto;
-using Bitcoin.Private.Bitcoin.DataEncoders;
+﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using Org.BouncyCastle.Math;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitcoin.Private.Bitcoin
+namespace NBitcoin
 {
 	public class PubKey
 	{

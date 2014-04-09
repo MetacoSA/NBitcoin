@@ -1,11 +1,11 @@
-﻿using Bitcoin.Private.Bitcoin.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitcoin.Private.Bitcoin
+namespace NBitcoin
 {
 	public class Base58Data
 	{

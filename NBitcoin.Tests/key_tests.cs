@@ -1,5 +1,5 @@
-﻿using Bitcoin.Private.Bitcoin.Crypto;
-using Bitcoin.Private.Bitcoin.DataEncoders;
+﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Bitcoin.Private.Bitcoin.Tests
+namespace NBitcoin.Tests
 {
 	public class key_tests
 	{

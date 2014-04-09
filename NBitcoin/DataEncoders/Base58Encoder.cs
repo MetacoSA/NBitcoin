@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitcoin.Private.Bitcoin.DataEncoders
+namespace NBitcoin.DataEncoders
 {
 	public class Base58Encoder : DataEncoder
 	{

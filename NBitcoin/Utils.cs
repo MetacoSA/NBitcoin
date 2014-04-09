@@ -1,4 +1,4 @@
-﻿using Bitcoin.Private.Bitcoin.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 using Org.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bitcoin.Private.Bitcoin
+namespace NBitcoin
 {
 	public class Utils
 	{
