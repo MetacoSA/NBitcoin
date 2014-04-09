@@ -7,8 +7,8 @@
     <ProjectGuid>{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Bitcoin.Private.Bitcoin.Tests</RootNamespace>
-    <AssemblyName>Bitcoin.Private.Bitcoin.Tests</AssemblyName>
+    <RootNamespace>NBitcoin.Tests</RootNamespace>
+    <AssemblyName>NBitcoin.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -99,9 +99,9 @@
     <Compile Include="uint256_tests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bitcoin.Private.Bitcoin\Bitcoin.Private.Bitcoin.csproj">
+    <ProjectReference Include="..\Bitcoin.Private.Bitcoin\NBitcoin.csproj">
       <Project>{7b692a4c-412a-41ba-a1f8-5df8f7450abc}</Project>
-      <Name>Bitcoin.Private.Bitcoin</Name>
+      <Name>NBitcoin</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
