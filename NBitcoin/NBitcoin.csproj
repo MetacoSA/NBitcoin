@@ -47,6 +47,7 @@
     <Compile Include="BitcoinAddress.cs" />
     <Compile Include="BitcoinSecret.cs" />
     <Compile Include="BitcoinStream.cs" />
+    <Compile Include="Crypto\Hashes.cs" />
     <Compile Include="DataEncoders\Base58Encoder.cs" />
     <Compile Include="DataEncoders\Base64Encoder.cs" />
     <Compile Include="DataEncoders\HexEncoder.cs" />

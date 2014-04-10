@@ -86,7 +86,7 @@ namespace NBitcoin
 		public string SignMessage(String message)
 		{
 			byte[] data = Utils.FormatMessageForSigning(message);
-			var hash = Utils.Hash(data);
+			var hash = Hashes.Hash256(data);
 			return Convert.ToBase64String(SignCompact(hash));
 		}
 

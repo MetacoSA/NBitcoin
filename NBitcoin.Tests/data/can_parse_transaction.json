@@ -25,5 +25,32 @@
 						}
 					]
 				}
+	}],
+	[{
+		"Raw" : "01000000017a06ea98cd40ba2e3288262b28638cec5337c1456aaf5eedc8e9e5a20f062bdf000000008a473044022037374d1135f99f95ea5fb508567c2faeb1073550a31efe8490f07f276c7be716022008f6fe71fcbc7371cd71448908df27b3bea93ddb554f996b3cff2dfb7e14dd1c014104e0ba531dc5d2ad13e2178196ade1a23989088cfbeddc7886528412087f4bff2ebc19ce739f25a63056b6026a269987fcf5383131440501b583bab70a7254b09effffffff01f0ca052a010000001976a9142dbde30815faee5bf221d6688ebad7e12f7b2b1a88ac00000000",
+		"JSON" : {
+					"hash": "496b0b0c7eb4b8190870c15a5d593071ae55158a2801d254fb849797fea1301d",
+					"ver": 1,
+					"vin_sz": 1,
+					"vout_sz": 1,
+					"lock_time": 0,
+					"size": 223,
+					"in": [
+						{
+							"prev_out": {
+								"hash": "df2b060fa2e5e9c8ed5eaf6a45c13753ec8c63282b2688322eba40cd98ea067a",
+								"n": 0
+							},
+							"scriptSig": "3044022037374d1135f99f95ea5fb508567c2faeb1073550a31efe8490f07f276c7be716022008f6fe71fcbc7371cd71448908df27b3bea93ddb554f996b3cff2dfb7e14dd1c01 04e0ba531dc5d2ad13e2178196ade1a23989088cfbeddc7886528412087f4bff2ebc19ce739f25a63056b6026a269987fcf5383131440501b583bab70a7254b09e",
+							"sequence": 4294967295
+						}
+					],
+					"out": [
+						{
+							"value": "49.99990000",
+							"scriptPubKey": "OP_DUP OP_HASH160 2dbde30815faee5bf221d6688ebad7e12f7b2b1a OP_EQUALVERIFY OP_CHECKSIG"
+						}
+					]
+				}
 	}]
 ]

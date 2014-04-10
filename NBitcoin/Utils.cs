@@ -15,8 +15,6 @@ namespace NBitcoin
 	public class Utils
 	{
 		public const int PROTOCOL_VERSION = 70002;
-		
-		
 
 		public static bool ArrayEqual(byte[] a, byte[] b)
 		{
@@ -28,55 +26,6 @@ namespace NBitcoin
 					return false;
 			}
 			return true;
-		}
-
-		public static uint256 Hash(byte[] data, int count)
-		{
-			byte[] pblank = new byte[1];
-			if(count == 0)
-				data = pblank;
-			var h1 = SHA256(data, count);
-			var h2 = SHA256(h1);
-			return new uint256(h2);
-		}
-
-		private static byte[] SHA256(byte[] data)
-		{
-			return SHA256(data, data.Length);
-		}
-		private static byte[] SHA256(byte[] data, int count)
-		{
-			Sha256Digest sha256 = new Sha256Digest();
-			sha256.BlockUpdate(data, 0, count);
-			byte[] rv = new byte[32];
-			sha256.DoFinal(rv, 0);
-			return rv;
-		}
-
-
-
-		internal static uint160 Hash160(byte[] data, int count)
-		{
-			data = count == 0 ? new byte[1] : data;
-			using(var h160 = System.Security.Cryptography.RIPEMD160.Create())
-			{
-				var h1 = SHA256(data, count);
-				var h2 = h160.ComputeHash(h1);
-				return new uint160(h2);
-			}
-		}
-
-		private static void RIPEMD160(byte[] data, int count, out uint160 result)
-		{
-			using(var sha1 = System.Security.Cryptography.RIPEMD160.Create())
-			{
-				result = new uint160(sha1.ComputeHash(data, 0, count));
-			}
-		}
-
-		public static uint256 Hash(byte[] data)
-		{
-			return Hash(data, data.Length);
 		}
 
 

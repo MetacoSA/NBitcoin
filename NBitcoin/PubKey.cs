@@ -29,7 +29,7 @@ namespace NBitcoin
 			{
 				if(_ID == null)
 				{
-					_ID = new KeyId(Utils.Hash160(vch, vch.Length));
+					_ID = new KeyId(Hashes.Hash160(vch, vch.Length));
 				}
 				return _ID;
 			}
@@ -93,7 +93,7 @@ namespace NBitcoin
 		{
 			var signatureEncoded = Convert.FromBase64String(signatureText);
 			var message = Utils.FormatMessageForSigning(messageText);
-			var hash = Utils.Hash(message);
+			var hash = Hashes.Hash256(message);
 			return RecoverCompact(hash, signatureEncoded);
 		}
 
