@@ -8,9 +8,10 @@ namespace NBitcoin.DataEncoders
 {
 	public class DataEncoder
 	{
+		public static readonly char[] SpaceCharacters = new[] { ' ', '\t', '\n', '\v', '\f', '\r' };
 		public static bool IsSpace(char c)
 		{
-			return c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r';
+			return SpaceCharacters.Contains(c);
 		}
 
 		public string Encode(string value)
@@ -56,7 +57,7 @@ namespace NBitcoin.DataEncoders
 				return new HexEncoder();
 			}
 		}
-	
+
 		public static DataEncoder Base58
 		{
 			get

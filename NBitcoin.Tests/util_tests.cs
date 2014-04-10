@@ -95,78 +95,78 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void util_FormatMoney()
 		{
-			AssertEx.Equal(Utils.FormatMoney(0, false), "0.00");
-			AssertEx.Equal(Utils.FormatMoney((Utils.COIN / 10000) * 123456789, false), "12345.6789");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN, true), "+1.00");
-			AssertEx.Equal(Utils.FormatMoney(-Utils.COIN, false), "-1.00");
-			AssertEx.Equal(Utils.FormatMoney(-Utils.COIN, true), "-1.00");
+			AssertEx.Equal(new Money(0).ToString(false), "0.00");
+			AssertEx.Equal(new Money((Money.COIN / 10000) * 123456789).ToString(false), "12345.6789");
+			AssertEx.Equal(new Money(Money.COIN).ToString(true), "+1.00");
+			AssertEx.Equal(new Money(-Money.COIN).ToString(false), "-1.00");
+			AssertEx.Equal(new Money(-Money.COIN).ToString(true), "-1.00");
 
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN * 100000000, false), "100000000.00");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN * 10000000, false), "10000000.00");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN * 1000000, false), "1000000.00");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN * 100000, false), "100000.00");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN * 10000, false), "10000.00");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN * 1000, false), "1000.00");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN * 100, false), "100.00");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN * 10, false), "10.00");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN, false), "1.00");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN / 10, false), "0.10");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN / 100, false), "0.01");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN / 1000, false), "0.001");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN / 10000, false), "0.0001");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN / 100000, false), "0.00001");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN / 1000000, false), "0.000001");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN / 10000000, false), "0.0000001");
-			AssertEx.Equal(Utils.FormatMoney(Utils.COIN / 100000000, false), "0.00000001");
+			AssertEx.Equal(new Money(Money.COIN * 100000000).ToString(false), "100000000.00");
+			AssertEx.Equal(new Money(Money.COIN * 10000000).ToString(false), "10000000.00");
+			AssertEx.Equal(new Money(Money.COIN * 1000000).ToString(false), "1000000.00");
+			AssertEx.Equal(new Money(Money.COIN * 100000).ToString(false), "100000.00");
+			AssertEx.Equal(new Money(Money.COIN * 10000).ToString(false), "10000.00");
+			AssertEx.Equal(new Money(Money.COIN * 1000).ToString(false), "1000.00");
+			AssertEx.Equal(new Money(Money.COIN * 100).ToString(false), "100.00");
+			AssertEx.Equal(new Money(Money.COIN * 10).ToString(false), "10.00");
+			AssertEx.Equal(new Money(Money.COIN).ToString(false), "1.00");
+			AssertEx.Equal(new Money(Money.COIN / 10).ToString(false), "0.10");
+			AssertEx.Equal(new Money(Money.COIN / 100).ToString(false), "0.01");
+			AssertEx.Equal(new Money(Money.COIN / 1000).ToString(false), "0.001");
+			AssertEx.Equal(new Money(Money.COIN / 10000).ToString(false), "0.0001");
+			AssertEx.Equal(new Money(Money.COIN / 100000).ToString(false), "0.00001");
+			AssertEx.Equal(new Money(Money.COIN / 1000000).ToString(false), "0.000001");
+			AssertEx.Equal(new Money(Money.COIN / 10000000).ToString(false), "0.0000001");
+			AssertEx.Equal(new Money(Money.COIN / 100000000).ToString(false), "0.00000001");
 		}
 
 		[Fact]
 		public void util_ParseMoney()
 		{
-			long ret = 0;
-			Assert.True(Utils.ParseMoney("0.0", out ret));
-			AssertEx.Equal(ret, 0);
+			Money ret = new Money(0);
+			Assert.True(Money.TryParse("0.0", out ret));
+			AssertEx.Equal(ret, new Money(0));
 
-			Assert.True(Utils.ParseMoney("12345.6789", out  ret));
-			AssertEx.Equal(ret, (Utils.COIN / 10000) * 123456789);
+			Assert.True(Money.TryParse("12345.6789", out  ret));
+			AssertEx.Equal(ret, new Money((Money.COIN / 10000) * 123456789));
 
-			Assert.True(Utils.ParseMoney("100000000.00", out  ret));
-			AssertEx.Equal(ret, Utils.COIN * 100000000);
-			Assert.True(Utils.ParseMoney("10000000.00", out  ret));
-			AssertEx.Equal(ret, Utils.COIN * 10000000);
-			Assert.True(Utils.ParseMoney("1000000.00", out  ret));
-			AssertEx.Equal(ret, Utils.COIN * 1000000);
-			Assert.True(Utils.ParseMoney("100000.00", out ret));
-			AssertEx.Equal(ret, Utils.COIN * 100000);
-			Assert.True(Utils.ParseMoney("10000.00", out  ret));
-			AssertEx.Equal(ret, Utils.COIN * 10000);
-			Assert.True(Utils.ParseMoney("1000.00", out  ret));
-			AssertEx.Equal(ret, Utils.COIN * 1000);
-			Assert.True(Utils.ParseMoney("100.00", out  ret));
-			AssertEx.Equal(ret, Utils.COIN * 100);
-			Assert.True(Utils.ParseMoney("10.00", out ret));
-			AssertEx.Equal(ret, Utils.COIN * 10);
-			Assert.True(Utils.ParseMoney("1.00", out  ret));
-			AssertEx.Equal(ret, Utils.COIN);
-			Assert.True(Utils.ParseMoney("0.1", out  ret));
-			AssertEx.Equal(ret, Utils.COIN / 10);
-			Assert.True(Utils.ParseMoney("0.01", out  ret));
-			AssertEx.Equal(ret, Utils.COIN / 100);
-			Assert.True(Utils.ParseMoney("0.001", out  ret));
-			AssertEx.Equal(ret, Utils.COIN / 1000);
-			Assert.True(Utils.ParseMoney("0.0001", out  ret));
-			AssertEx.Equal(ret, Utils.COIN / 10000);
-			Assert.True(Utils.ParseMoney("0.00001", out  ret));
-			AssertEx.Equal(ret, Utils.COIN / 100000);
-			Assert.True(Utils.ParseMoney("0.000001", out  ret));
-			AssertEx.Equal(ret, Utils.COIN / 1000000);
-			Assert.True(Utils.ParseMoney("0.0000001", out ret));
-			AssertEx.Equal(ret, Utils.COIN / 10000000);
-			Assert.True(Utils.ParseMoney("0.00000001", out  ret));
-			AssertEx.Equal(ret, Utils.COIN / 100000000);
+			Assert.True(Money.TryParse("100000000.00", out  ret));
+			AssertEx.Equal(ret,new Money( Money.COIN * 100000000));
+			Assert.True(Money.TryParse("10000000.00", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN * 10000000));
+			Assert.True(Money.TryParse("1000000.00", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN * 1000000));
+			Assert.True(Money.TryParse("100000.00", out ret));
+			AssertEx.Equal(ret, new Money(Money.COIN * 100000));
+			Assert.True(Money.TryParse("10000.00", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN * 10000));
+			Assert.True(Money.TryParse("1000.00", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN * 1000));
+			Assert.True(Money.TryParse("100.00", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN * 100));
+			Assert.True(Money.TryParse("10.00", out ret));
+			AssertEx.Equal(ret, new Money(Money.COIN * 10));
+			Assert.True(Money.TryParse("1.00", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN));
+			Assert.True(Money.TryParse("0.1", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN / 10));
+			Assert.True(Money.TryParse("0.01", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN / 100));
+			Assert.True(Money.TryParse("0.001", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN / 1000));
+			Assert.True(Money.TryParse("0.0001", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN / 10000));
+			Assert.True(Money.TryParse("0.00001", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN / 100000));
+			Assert.True(Money.TryParse("0.000001", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN / 1000000));
+			Assert.True(Money.TryParse("0.0000001", out ret));
+			AssertEx.Equal(ret, new Money(Money.COIN / 10000000));
+			Assert.True(Money.TryParse("0.00000001", out  ret));
+			AssertEx.Equal(ret, new Money(Money.COIN / 100000000));
 
 			// Attempted 63 bit overflow should fail
-			Assert.True(!Utils.ParseMoney("92233720368.54775808", out  ret));
+			Assert.True(!Money.TryParse("92233720368.54775808", out  ret));
 		}
 		[Fact]
 		public void util_IsHex()

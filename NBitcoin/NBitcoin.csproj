@@ -61,6 +61,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>MedianFilter.tt</DependentUpon>
     </Compile>
+    <Compile Include="Money.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PubKey.cs" />
     <Compile Include="Script.cs" />

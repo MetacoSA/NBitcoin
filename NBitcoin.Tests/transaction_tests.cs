@@ -31,15 +31,17 @@ namespace NBitcoin.Tests
 					Assert.Equal(new uint256((string)expectedVIn.prev_out.hash), actualVIn.PrevOut.Hash);
 					Assert.Equal((uint)expectedVIn.prev_out.n, actualVIn.PrevOut.N);
 					Assert.Equal((uint)expectedVIn.sequence, actualVIn.Sequence);
-					//Assert.Equal((string)expectedVIn.scriptSig, actualVIn.ScriptSig.ToHex());
+					Assert.Equal((string)expectedVIn.scriptSig, actualVIn.ScriptSig.ToString());
+					//Can parse the string
+					Assert.Equal((string)expectedVIn.scriptSig, new Script((string)expectedVIn.scriptSig).ToString());
 				}
 
 				for(int i = 0 ; i < tx.VOut.Length ; i++)
 				{
 					var actualVOut = tx.VOut[i];
 					var expectedVOut = test.JSON.@out[i];
-					//Assert.Equal((string)expectedVOut.scriptPubKey, actualVOut.PublicKey.ToString());
-					Assert.Equal((ulong)expectedVOut.value, actualVOut.Value);
+					Assert.Equal((string)expectedVOut.scriptPubKey, actualVOut.PublicKey.ToString());
+					Assert.Equal(Money.Parse((string)expectedVOut.value), actualVOut.Value);
 				}
 			}
 		}

@@ -154,11 +154,14 @@ namespace NBitcoin
 		}
 
 		private ulong value;
-		public ulong Value
+		Money _MoneyValue;
+		public Money Value
 		{
 			get
 			{
-				return value;
+				if(_MoneyValue == null)
+					_MoneyValue = new Money(value);
+				return _MoneyValue;
 			}
 		}
 
@@ -169,6 +172,7 @@ namespace NBitcoin
 		{
 			stream.ReadWrite(ref value);
 			stream.ReadWrite(ref publicKey);
+			_MoneyValue = null; //Might been updated
 		}
 
 		#endregion
