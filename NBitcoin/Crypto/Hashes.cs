@@ -9,41 +9,58 @@ namespace NBitcoin.Crypto
 {
 	public class Hashes
 	{
-		public static uint256 Hash(byte[] data, int count)
+		public static uint256 Hash256(byte[] data, int count)
 		{
-			byte[] pblank = new byte[1];
-			if(count == 0)
-				data = pblank;
-			var h1 = SHA256(data, count);
-			var h2 = SHA256(h1);
-			return new uint256(h2);
+			data = count == 0 ? new byte[1] : data;
+			return new uint256(SHA256(SHA256(data, count)));
 		}
+
+
 		public static uint256 Hash256(byte[] data)
 		{
-			return Hash(data, data.Length);
+			return Hash256(data, data.Length);
 		}
 
 		public static uint160 Hash160(byte[] data, int count)
 		{
 			data = count == 0 ? new byte[1] : data;
-			using(var h160 = System.Security.Cryptography.RIPEMD160.Create())
-			{
-				var h1 = SHA256(data, count);
-				var h2 = h160.ComputeHash(h1);
-				return new uint160(h2);
-			}
+			return new uint160(RIPEMD160(SHA256(data, count)));
 		}
 
-		private static byte[] SHA256(byte[] data)
+		private static byte[] RIPEMD160(byte[] data)
+		{
+			return RIPEMD160(data, data.Length);
+		}
+		public static byte[] SHA1(byte[] data, int count)
+		{
+			var sha1 = new Sha1Digest();
+			sha1.BlockUpdate(data, 0, count);
+			byte[] rv = new byte[32];
+			sha1.DoFinal(rv, 0);
+			return rv;
+		}
+
+		public static byte[] SHA256(byte[] data)
 		{
 			return SHA256(data, data.Length);
 		}
-		private static byte[] SHA256(byte[] data, int count)
+		public static byte[] SHA256(byte[] data, int count)
 		{
 			Sha256Digest sha256 = new Sha256Digest();
 			sha256.BlockUpdate(data, 0, count);
 			byte[] rv = new byte[32];
 			sha256.DoFinal(rv, 0);
+			return rv;
+		}
+
+
+
+		public static byte[] RIPEMD160(byte[] data, int count)
+		{
+			RipeMD160Digest ripemd = new RipeMD160Digest();
+			ripemd.BlockUpdate(data, 0, count);
+			byte[] rv = new byte[32];
+			ripemd.DoFinal(rv, 0);
 			return rv;
 		}
 	}

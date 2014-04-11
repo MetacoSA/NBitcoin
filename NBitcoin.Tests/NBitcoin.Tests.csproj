@@ -57,6 +57,7 @@
     <Compile Include="ConverterTests.cs" />
     <Compile Include="key_tests.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="script_tests.cs" />
     <Compile Include="TestCase.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="transaction_tests.cs" />

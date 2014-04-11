@@ -14,7 +14,7 @@ namespace NBitcoin.DataEncoders
 		{
 			if(Check)
 			{
-				var calculatedHash = Hashes.Hash(data, length).ToBytes().Take(4).ToArray();
+				var calculatedHash = Hashes.Hash256(data, length).ToBytes().Take(4).ToArray();
 				var toEncode = data.Take(length).Concat(calculatedHash).ToArray();
 				return EncodeDataCore(toEncode, toEncode.Length);
 			}
@@ -72,7 +72,7 @@ namespace NBitcoin.DataEncoders
 					Array.Clear(vchRet, 0, vchRet.Length);
 					throw new FormatException("Invalid checked base 58 string");
 				}
-				var calculatedHash = Hashes.Hash(vchRet, vchRet.Length - 4).ToBytes().Take(4).ToArray();
+				var calculatedHash = Hashes.Hash256(vchRet, vchRet.Length - 4).ToBytes().Take(4).ToArray();
 				var expectedHash = vchRet.Skip(vchRet.Length - 4).Take(4).ToArray();
 
 				if(!Utils.ArrayEqual(calculatedHash, expectedHash))

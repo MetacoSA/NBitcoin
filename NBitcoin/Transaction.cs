@@ -187,6 +187,10 @@ namespace NBitcoin
 		TxOut[] vout = new TxOut[0];
 		uint nLockTime = 0;
 
+		public Transaction()
+		{
+
+		}
 		public Transaction(string hex)
 		{
 			this.FromBytes(Encoders.Hex.DecodeData(hex));

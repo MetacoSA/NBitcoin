@@ -15,14 +15,21 @@ namespace NBitcoin
 	public class Utils
 	{
 		public const int PROTOCOL_VERSION = 70002;
-
 		public static bool ArrayEqual(byte[] a, byte[] b)
 		{
-			if(a.Length != b.Length)
+			return ArrayEqual(a, 0, b, 0, a.Length);
+		}
+		public static bool ArrayEqual(byte[] a, int startA, byte[] b, int startB, int length)
+		{
+			var alen = a.Length - startA;
+			var blen = b.Length - startB;
+
+			if(alen < length || blen < length)
 				return false;
-			for(int i = 0 ; i < a.Length ; i++)
+
+			for(int ai = startA, bi = startB ; ai < startA + length ; ai++, bi++)
 			{
-				if(a[i] != b[i])
+				if(a[ai] != b[bi])
 					return false;
 			}
 			return true;

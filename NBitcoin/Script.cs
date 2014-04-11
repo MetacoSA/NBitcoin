@@ -1,8 +1,10 @@
-﻿using NBitcoin.DataEncoders;
+﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -178,6 +180,8 @@ namespace NBitcoin
 
 	public class Script : IBitcoinSerializable
 	{
+
+
 		//Copied from satoshi's code
 		public static string GetOpName(OpcodeType opcode)
 		{
@@ -482,45 +486,915 @@ namespace NBitcoin
 				else
 				{
 					var data = Encoders.Hex.DecodeData(instruction);
-					var bitStream = new BitcoinStream(result, true);
-					if(data.Length == 0)
-					{
-						result.WriteByte((byte)OpcodeType.OP_0);
-					}
-					else if(0x01 <= data.Length && data.Length <= 0x4b)
-					{
-						result.WriteByte((byte)data.Length);
-					}
-					else if(data.Length <= 0xFF)
-					{
-						result.WriteByte((byte)OpcodeType.OP_PUSHDATA1);
-						bitStream.ReadWrite((byte)data.Length);
-					}
-					else if(data.LongLength <= 0xFFFF)
-					{
-						result.WriteByte((byte)OpcodeType.OP_PUSHDATA2);
-						bitStream.ReadWrite((ushort)data.Length);
-					}
-					else if(data.LongLength <= 0xFFFFFFFF)
-					{
-						result.WriteByte((byte)OpcodeType.OP_PUSHDATA4);
-						bitStream.ReadWrite((uint)data.Length);
-					}
-					result.Write(data, 0, data.Length);
+					PushData(data, result);
 				}
 			}
 			return result.ToArray();
 		}
 
+		private static void PushData(byte[] data, Stream result)
+		{
+			var bitStream = new BitcoinStream(result, true);
+			if(data.Length == 0)
+			{
+				result.WriteByte((byte)OpcodeType.OP_0);
+			}
+			else if(0x01 <= data.Length && data.Length <= 0x4b)
+			{
+				result.WriteByte((byte)data.Length);
+			}
+			else if(data.Length <= 0xFF)
+			{
+				result.WriteByte((byte)OpcodeType.OP_PUSHDATA1);
+				bitStream.ReadWrite((byte)data.Length);
+			}
+			else if(data.LongLength <= 0xFFFF)
+			{
+				result.WriteByte((byte)OpcodeType.OP_PUSHDATA2);
+				bitStream.ReadWrite((ushort)data.Length);
+			}
+			else if(data.LongLength <= 0xFFFFFFFF)
+			{
+				result.WriteByte((byte)OpcodeType.OP_PUSHDATA4);
+				bitStream.ReadWrite((uint)data.Length);
+			}
+			else
+				throw new NotSupportedException("Data lenght should not be bigger than 0xFFFFFFFF");
+			result.Write(data, 0, data.Length);
+		}
+		public static void PushData(BigInteger bigInteger, Stream stream)
+		{
+			PushData(bigInteger.ToByteArray(), stream);
+		}
 		public Script(byte[] data)
 		{
 			_Script = data;
 		}
+
+		static bool CastToBool(byte[] vch)
+		{
+			for(uint i = 0 ; i < vch.Length ; i++)
+			{
+				if(vch[i] != 0)
+				{
+
+					if(i == vch.Length - 1 && vch[i] == 0x80)
+						return false;
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction txTo, int nIn, ScriptVerify flags, SigHash nHashType)
+		{
+			Stack<byte[]> stack = new Stack<byte[]>();
+			Stack<byte[]> stackCopy = null;
+			if(!scriptSig.EvalScript(stack, txTo, nIn, flags, nHashType))
+				return false;
+			if((flags & ScriptVerify.P2SH) != 0)
+				stackCopy = new Stack<byte[]>(stack);
+			if(!scriptPubKey.EvalScript(stack, txTo, nIn, flags, nHashType))
+				return false;
+			if(stack.Count == 0)
+				return false;
+			if(CastToBool(stack.Peek()) == false)
+				return false;
+
+			//		// Additional validation for spend-to-script-hash transactions:
+			//if ((flags & SCRIPT_VERIFY_P2SH) && scriptPubKey.IsPayToScriptHash())
+			//{
+			//	if (!scriptSig.IsPushOnly()) // scriptSig must be literals-only
+			//		return false;            // or validation fails
+
+			//	// stackCopy cannot be empty here, because if it was the
+			//	// P2SH  HASH <> EQUAL  scriptPubKey would be evaluated with
+			//	// an empty stack and the EvalScript above would return false.
+			//	assert(!stackCopy.empty());
+
+			//	const valtype& pubKeySerialized = stackCopy.back();
+			//	CScript pubKey2(pubKeySerialized.begin(), pubKeySerialized.end());
+			//	popstack(stackCopy);
+
+			//	if (!EvalScript(stackCopy, pubKey2, txTo, nIn, flags, nHashType))
+			//		return false;
+			//	if (stackCopy.empty())
+			//		return false;
+			//	return CastToBool(stackCopy.back());
+			//}
+			return true;
+		}
+
+
+
+
+
+		static readonly byte[] vchFalse = new byte[] { 0 };
+		static readonly byte[] vchZero = new byte[] { 0 };
+		static readonly byte[] vchTrue = new byte[] { 1, 1 };
+
+		private bool EvalScript(Stack<byte[]> stack, Transaction txTo, int nIn, ScriptVerify flags, SigHash nHashType)
+		{
+			MemoryStream script = new MemoryStream(_Script);
+			int pend = (int)script.Length;
+			int pbegincodehash = 0;
+			OpcodeType opcode;
+			byte[] vchPushValue = new byte[0];
+			Stack<bool> vfExec = new Stack<bool>();
+			Stack<byte[]> altstack = new Stack<byte[]>();
+			if(_Script.Length > 10000)
+				return false;
+			int nOpCount = 0;
+
+			try
+			{
+				while(script.Position < script.Length)
+				{
+					bool fExec = vfExec.Count(o => !o) == 0; //!count(vfExec.begin(), vfExec.end(), false);
+
+					//
+					// Read instruction
+					//
+					opcode = (OpcodeType)script.ReadByte();
+					var opcodeName = GetOpName(opcode);
+
+					if(IsPushData(opcode))
+						vchPushValue = ReadData(opcode, script);
+					else if(opcodeName == "OP_UNKNOWN")
+						return false;
+
+					if(vchPushValue.Length > 520)
+						return false;
+
+					// Note how OP_RESERVED does not count towards the opcode limit.
+					if(opcode > OpcodeType.OP_16 && ++nOpCount > 201)
+						return false;
+
+					if(opcode == OpcodeType.OP_CAT ||
+						opcode == OpcodeType.OP_SUBSTR ||
+						opcode == OpcodeType.OP_LEFT ||
+						opcode == OpcodeType.OP_RIGHT ||
+						opcode == OpcodeType.OP_INVERT ||
+						opcode == OpcodeType.OP_AND ||
+						opcode == OpcodeType.OP_OR ||
+						opcode == OpcodeType.OP_XOR ||
+						opcode == OpcodeType.OP_2MUL ||
+						opcode == OpcodeType.OP_2DIV ||
+						opcode == OpcodeType.OP_MUL ||
+						opcode == OpcodeType.OP_DIV ||
+						opcode == OpcodeType.OP_MOD ||
+						opcode == OpcodeType.OP_LSHIFT ||
+						opcode == OpcodeType.OP_RSHIFT)
+						return false; // Disabled opcodes.
+
+					if(fExec && 0 <= opcode && opcode <= OpcodeType.OP_PUSHDATA4)
+						stack.Push(vchPushValue);
+					else if(fExec || (OpcodeType.OP_IF <= opcode && opcode <= OpcodeType.OP_ENDIF))
+						switch(opcode)
+						{
+							//
+							// Push value
+							//
+							case OpcodeType.OP_1NEGATE:
+							case OpcodeType.OP_1:
+							case OpcodeType.OP_2:
+							case OpcodeType.OP_3:
+							case OpcodeType.OP_4:
+							case OpcodeType.OP_5:
+							case OpcodeType.OP_6:
+							case OpcodeType.OP_7:
+							case OpcodeType.OP_8:
+							case OpcodeType.OP_9:
+							case OpcodeType.OP_10:
+							case OpcodeType.OP_11:
+							case OpcodeType.OP_12:
+							case OpcodeType.OP_13:
+							case OpcodeType.OP_14:
+							case OpcodeType.OP_15:
+							case OpcodeType.OP_16:
+								{
+									// ( -- value)
+									BigInteger bn = new BigInteger((int)opcode - (int)(OpcodeType.OP_1 - 1));
+									stack.Push(bn.ToByteArray());
+								}
+								break;
+
+
+							//
+							// Control
+							//
+							case OpcodeType.OP_NOP:
+							case OpcodeType.OP_NOP1:
+							case OpcodeType.OP_NOP2:
+							case OpcodeType.OP_NOP3:
+							case OpcodeType.OP_NOP4:
+							case OpcodeType.OP_NOP5:
+							case OpcodeType.OP_NOP6:
+							case OpcodeType.OP_NOP7:
+							case OpcodeType.OP_NOP8:
+							case OpcodeType.OP_NOP9:
+							case OpcodeType.OP_NOP10:
+								break;
+
+							case OpcodeType.OP_IF:
+							case OpcodeType.OP_NOTIF:
+								{
+									// <expression> if [statements] [else [statements]] endif
+									bool fValue = false;
+									if(fExec)
+									{
+										if(stack.Count < 1)
+											return false;
+										var vch = top(stack, -1);
+										fValue = CastToBool(vch);
+										if(opcode == OpcodeType.OP_NOTIF)
+											fValue = !fValue;
+										stack.Pop();
+									}
+									vfExec.Push(fValue);
+								}
+								break;
+
+							case OpcodeType.OP_ELSE:
+								{
+									if(vfExec.Count == 0)
+										return false;
+									var v = vfExec.Pop();
+									vfExec.Push(!v);
+									//vfExec.Peek() = !vfExec.Peek();
+								}
+								break;
+
+							case OpcodeType.OP_ENDIF:
+								{
+									if(vfExec.Count == 0)
+										return false;
+									vfExec.Pop();
+								}
+								break;
+
+							case OpcodeType.OP_VERIFY:
+								{
+									// (true -- ) or
+									// (false -- false) and return
+									if(stack.Count < 1)
+										return false;
+									bool fValue = CastToBool(top(stack, -1));
+									if(fValue)
+										stack.Pop();
+									else
+										return false;
+								}
+								break;
+
+							case OpcodeType.OP_RETURN:
+								{
+									return false;
+								}
+
+
+							//
+							// Stack ops
+							//
+							case OpcodeType.OP_TOALTSTACK:
+								{
+									if(stack.Count < 1)
+										return false;
+									altstack.Push(top(stack, -1));
+									stack.Pop();
+								}
+								break;
+
+							case OpcodeType.OP_FROMALTSTACK:
+								{
+									if(altstack.Count < 1)
+										return false;
+									stack.Push(top(altstack, -1));
+									altstack.Pop();
+								}
+								break;
+
+							case OpcodeType.OP_2DROP:
+								{
+									// (x1 x2 -- )
+									if(stack.Count < 2)
+										return false;
+									stack.Pop();
+									stack.Pop();
+								}
+								break;
+
+							case OpcodeType.OP_2DUP:
+								{
+									// (x1 x2 -- x1 x2 x1 x2)
+									if(stack.Count < 2)
+										return false;
+									var vch1 = top(stack, -2);
+									var vch2 = top(stack, -1);
+									stack.Push(vch1);
+									stack.Push(vch2);
+								}
+								break;
+
+							case OpcodeType.OP_3DUP:
+								{
+									// (x1 x2 x3 -- x1 x2 x3 x1 x2 x3)
+									if(stack.Count < 3)
+										return false;
+									var vch1 = top(stack, -3);
+									var vch2 = top(stack, -2);
+									var vch3 = top(stack, -1);
+									stack.Push(vch1);
+									stack.Push(vch2);
+									stack.Push(vch3);
+								}
+								break;
+
+							case OpcodeType.OP_2OVER:
+								{
+									// (x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2)
+									if(stack.Count < 4)
+										return false;
+									var vch1 = top(stack, -4);
+									var vch2 = top(stack, -3);
+									stack.Push(vch1);
+									stack.Push(vch2);
+								}
+								break;
+
+							case OpcodeType.OP_2ROT:
+								{
+									// (x1 x2 x3 x4 x5 x6 -- x3 x4 x5 x6 x1 x2)
+									if(stack.Count < 6)
+										return false;
+									var vch1 = top(stack, -6);
+									var vch2 = top(stack, -5);
+									erase(ref stack, stack.Count - 6, stack.Count - 4);
+									stack.Push(vch1);
+									stack.Push(vch2);
+								}
+								break;
+
+							case OpcodeType.OP_2SWAP:
+								{
+									// (x1 x2 x3 x4 -- x3 x4 x1 x2)
+									if(stack.Count < 4)
+										return false;
+									swap(ref stack, -4, -2);
+									swap(ref stack, -3, -1);
+								}
+								break;
+
+							case OpcodeType.OP_IFDUP:
+								{
+									// (x - 0 | x x)
+									if(stack.Count < 1)
+										return false;
+									var vch = top(stack, -1);
+									if(CastToBool(vch))
+										stack.Push(vch);
+								}
+								break;
+
+							case OpcodeType.OP_DEPTH:
+								{
+									// -- stacksize
+									BigInteger bn = new BigInteger(stack.Count);
+									stack.Push(bn.ToByteArray());
+								}
+								break;
+
+							case OpcodeType.OP_DROP:
+								{
+									// (x -- )
+									if(stack.Count < 1)
+										return false;
+									stack.Pop();
+								}
+								break;
+
+							case OpcodeType.OP_DUP:
+								{
+									// (x -- x x)
+									if(stack.Count < 1)
+										return false;
+									var vch = top(stack, -1);
+									stack.Push(vch);
+								}
+								break;
+
+							case OpcodeType.OP_NIP:
+								{
+									// (x1 x2 -- x2)
+									if(stack.Count < 2)
+										return false;
+									erase(ref stack, stack.Count - 2);
+								}
+								break;
+
+							case OpcodeType.OP_OVER:
+								{
+									// (x1 x2 -- x1 x2 x1)
+									if(stack.Count < 2)
+										return false;
+									var vch = top(stack, -2);
+									stack.Push(vch);
+								}
+								break;
+
+							case OpcodeType.OP_PICK:
+							case OpcodeType.OP_ROLL:
+								{
+									// (xn ... x2 x1 x0 n - xn ... x2 x1 x0 xn)
+									// (xn ... x2 x1 x0 n - ... x2 x1 x0 xn)
+									if(stack.Count < 2)
+										return false;
+									int n = (int)CastToBigNum(top(stack, -1));
+									stack.Pop();
+									if(n < 0 || n >= stack.Count)
+										return false;
+									var vch = top(stack, -n - 1);
+									if(opcode == OpcodeType.OP_ROLL)
+										erase(ref stack, stack.Count - n - 1);
+									stack.Push(vch);
+								}
+								break;
+
+							case OpcodeType.OP_ROT:
+								{
+									// (x1 x2 x3 -- x2 x3 x1)
+									//  x2 x1 x3  after first swap
+									//  x2 x3 x1  after second swap
+									if(stack.Count < 3)
+										return false;
+									swap(ref stack, -3, -2);
+									swap(ref stack, -2, -1);
+								}
+								break;
+
+							case OpcodeType.OP_SWAP:
+								{
+									// (x1 x2 -- x2 x1)
+									if(stack.Count < 2)
+										return false;
+									swap(ref stack, -2, -1);
+								}
+								break;
+
+							case OpcodeType.OP_TUCK:
+								{
+									// (x1 x2 -- x2 x1 x2)
+									if(stack.Count < 2)
+										return false;
+									var vch = top(stack, -1);
+									insert(ref stack, stack.Count - 2, vch);
+								}
+								break;
+
+
+							case OpcodeType.OP_SIZE:
+								{
+									// (in -- in size)
+									if(stack.Count < 1)
+										return false;
+									BigInteger bn = new BigInteger(top(stack, -1).Length);
+									stack.Push(bn.ToByteArray());
+								}
+								break;
+
+
+							//
+							// Bitwise logic
+							//
+							case OpcodeType.OP_EQUAL:
+							case OpcodeType.OP_EQUALVERIFY:
+								//case OpcodeType.OP_NOTEQUAL: // use OpcodeType.OP_NUMNOTEQUAL
+								{
+									// (x1 x2 - bool)
+									if(stack.Count < 2)
+										return false;
+									var vch1 = top(stack, -2);
+									var vch2 = top(stack, -1);
+									bool fEqual = Utils.ArrayEqual(vch1, vch2);
+									// OpcodeType.OP_NOTEQUAL is disabled because it would be too easy to say
+									// something like n != 1 and have some wiseguy pass in 1 with extra
+									// zero bytes after it (numerically, 0x01 == 0x0001 == 0x000001)
+									//if (opcode == OpcodeType.OP_NOTEQUAL)
+									//    fEqual = !fEqual;
+									stack.Pop();
+									stack.Pop();
+									stack.Push(fEqual ? vchTrue : vchFalse);
+									if(opcode == OpcodeType.OP_EQUALVERIFY)
+									{
+										if(fEqual)
+											stack.Pop();
+										else
+											return false;
+									}
+								}
+								break;
+
+
+							//
+							// Numeric
+							//
+							case OpcodeType.OP_1ADD:
+							case OpcodeType.OP_1SUB:
+							case OpcodeType.OP_NEGATE:
+							case OpcodeType.OP_ABS:
+							case OpcodeType.OP_NOT:
+							case OpcodeType.OP_0NOTEQUAL:
+								{
+									// (in -- out)
+									if(stack.Count < 1)
+										return false;
+									var bn = CastToBigNum(top(stack, -1));
+									switch(opcode)
+									{
+										case OpcodeType.OP_1ADD:
+											bn += BigInteger.One;
+											break;
+										case OpcodeType.OP_1SUB:
+											bn -= BigInteger.One;
+											break;
+										case OpcodeType.OP_NEGATE:
+											bn = -bn;
+											break;
+										case OpcodeType.OP_ABS:
+											if(bn < BigInteger.Zero)
+												bn = -bn;
+											break;
+										case OpcodeType.OP_NOT:
+											bn = CastToBigNum(bn == BigInteger.Zero);
+											break;
+										case OpcodeType.OP_0NOTEQUAL:
+											bn = CastToBigNum(bn != BigInteger.Zero);
+											break;
+										default:
+											throw new NotSupportedException("invalid opcode");
+									}
+									stack.Pop();
+									stack.Push(bn.ToByteArray());
+								}
+								break;
+
+							case OpcodeType.OP_ADD:
+							case OpcodeType.OP_SUB:
+							case OpcodeType.OP_BOOLAND:
+							case OpcodeType.OP_BOOLOR:
+							case OpcodeType.OP_NUMEQUAL:
+							case OpcodeType.OP_NUMEQUALVERIFY:
+							case OpcodeType.OP_NUMNOTEQUAL:
+							case OpcodeType.OP_LESSTHAN:
+							case OpcodeType.OP_GREATERTHAN:
+							case OpcodeType.OP_LESSTHANOREQUAL:
+							case OpcodeType.OP_GREATERTHANOREQUAL:
+							case OpcodeType.OP_MIN:
+							case OpcodeType.OP_MAX:
+								{
+									// (x1 x2 -- out)
+									if(stack.Count < 2)
+										return false;
+									var bn1 = CastToBigNum(top(stack, -2));
+									var bn2 = CastToBigNum(top(stack, -1));
+									BigInteger bn;
+									switch(opcode)
+									{
+										case OpcodeType.OP_ADD:
+											bn = bn1 + bn2;
+											break;
+
+										case OpcodeType.OP_SUB:
+											bn = bn1 - bn2;
+											break;
+
+										case OpcodeType.OP_BOOLAND:
+											bn = CastToBigNum(bn1 != BigInteger.Zero && bn2 != BigInteger.Zero);
+											break;
+										case OpcodeType.OP_BOOLOR:
+											bn = CastToBigNum(bn1 != BigInteger.Zero || bn2 != BigInteger.Zero);
+											break;
+										case OpcodeType.OP_NUMEQUAL:
+											bn = CastToBigNum(bn1 == bn2);
+											break;
+										case OpcodeType.OP_NUMEQUALVERIFY:
+											bn = CastToBigNum(bn1 == bn2);
+											break;
+										case OpcodeType.OP_NUMNOTEQUAL:
+											bn = CastToBigNum(bn1 != bn2);
+											break;
+										case OpcodeType.OP_LESSTHAN:
+											bn = CastToBigNum(bn1 < bn2);
+											break;
+										case OpcodeType.OP_GREATERTHAN:
+											bn = CastToBigNum(bn1 > bn2);
+											break;
+										case OpcodeType.OP_LESSTHANOREQUAL:
+											bn = CastToBigNum(bn1 <= bn2);
+											break;
+										case OpcodeType.OP_GREATERTHANOREQUAL:
+											bn = CastToBigNum(bn1 >= bn2);
+											break;
+										case OpcodeType.OP_MIN:
+											bn = (bn1 < bn2 ? bn1 : bn2);
+											break;
+										case OpcodeType.OP_MAX:
+											bn = (bn1 > bn2 ? bn1 : bn2);
+											break;
+										default:
+											throw new NotSupportedException("invalid opcode");
+									}
+									stack.Pop();
+									stack.Pop();
+									stack.Push(bn.ToByteArray());
+
+									if(opcode == OpcodeType.OP_NUMEQUALVERIFY)
+									{
+										if(CastToBool(top(stack, -1)))
+											stack.Pop();
+										else
+											return false;
+									}
+								}
+								break;
+
+							case OpcodeType.OP_WITHIN:
+								{
+									// (x min max -- out)
+									if(stack.Count < 3)
+										return false;
+									var bn1 = CastToBigNum(top(stack, -3));
+									var bn2 = CastToBigNum(top(stack, -2));
+									var bn3 = CastToBigNum(top(stack, -1));
+									bool fValue = (bn2 <= bn1 && bn1 < bn3);
+									stack.Pop();
+									stack.Pop();
+									stack.Pop();
+									stack.Push(fValue ? vchTrue : vchFalse);
+								}
+								break;
+
+
+							//
+							// Crypto
+							//
+							case OpcodeType.OP_RIPEMD160:
+							case OpcodeType.OP_SHA1:
+							case OpcodeType.OP_SHA256:
+							case OpcodeType.OP_HASH160:
+							case OpcodeType.OP_HASH256:
+								{
+									// (in -- hash)
+									if(stack.Count < 1)
+										return false;
+									var vch = top(stack, -1);
+									byte[] vchHash = null;//((opcode == OpcodeType.OP_RIPEMD160 || opcode == OpcodeType.OP_SHA1 || opcode == OpcodeType.OP_HASH160) ? 20 : 32);
+									if(opcode == OpcodeType.OP_RIPEMD160)
+										vchHash = Hashes.RIPEMD160(vch, vch.Length);
+									else if(opcode == OpcodeType.OP_SHA1)
+										vchHash = Hashes.SHA1(vch, vch.Length);
+									else if(opcode == OpcodeType.OP_SHA256)
+										vchHash = Hashes.SHA256(vch, vch.Length);
+									else if(opcode == OpcodeType.OP_HASH160)
+										vchHash = Hashes.Hash160(vch, vch.Length).ToBytes();
+									else if(opcode == OpcodeType.OP_HASH256)
+										vchHash = Hashes.Hash256(vch, vch.Length).ToBytes();
+									stack.Pop();
+									stack.Push(vchHash);
+								}
+								break;
+
+							case OpcodeType.OP_CODESEPARATOR:
+								{
+									// Hash starts after the code separator
+									pbegincodehash = (int)script.Position;
+								}
+								break;
+
+							case OpcodeType.OP_CHECKSIG:
+							case OpcodeType.OP_CHECKSIGVERIFY:
+								{
+									// (sig pubkey -- bool)
+									if(stack.Count < 2)
+										return false;
+
+									var vchSig = top(stack, -2);
+									var vchPubKey = top(stack, -1);
+
+									////// debug print
+									//PrintHex(vchSig.begin(), vchSig.end(), "sig: %s\n");
+									//PrintHex(vchPubKey.begin(), vchPubKey.end(), "pubkey: %s\n");
+
+									// Subset of script starting at the most recent codeseparator
+									var scriptCode = new Script(_Script.Skip(pbegincodehash).ToArray());
+
+									// Drop the signature, since there's no way for a signature to sign itself
+									scriptCode.FindAndDelete(new Script(vchSig));
+
+									bool fSuccess = IsCanonicalSignature(vchSig, flags) && IsCanonicalPubKey(vchPubKey, flags) &&
+										CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn, nHashType, flags);
+
+									stack.Pop();
+									stack.Pop();
+									stack.Push(fSuccess ? vchTrue : vchFalse);
+									if(opcode == OpcodeType.OP_CHECKSIGVERIFY)
+									{
+										if(fSuccess)
+											stack.Pop();
+										else
+											return false;
+									}
+								}
+								break;
+
+							case OpcodeType.OP_CHECKMULTISIG:
+							case OpcodeType.OP_CHECKMULTISIGVERIFY:
+								{
+									// ([sig ...] num_of_signatures [pubkey ...] num_of_pubkeys -- bool)
+
+									int i = 1;
+									if((int)stack.Count < i)
+										return false;
+
+									int nKeysCount = (int)CastToBigNum(top(stack, -i));
+									if(nKeysCount < 0 || nKeysCount > 20)
+										return false;
+									nOpCount += nKeysCount;
+									if(nOpCount > 201)
+										return false;
+									int ikey = ++i;
+									i += nKeysCount;
+									if((int)stack.Count < i)
+										return false;
+
+									int nSigsCount = (int)CastToBigNum(top(stack, -i));
+									if(nSigsCount < 0 || nSigsCount > nKeysCount)
+										return false;
+									int isig = ++i;
+									i += nSigsCount;
+									if((int)stack.Count < i)
+										return false;
+
+									// Subset of script starting at the most recent codeseparator
+									Script scriptCode = new Script(this._Script.Skip(pbegincodehash).ToArray());
+
+									// Drop the signatures, since there's no way for a signature to sign itself
+									for(int k = 0 ; k < nSigsCount ; k++)
+									{
+										var vchSig = top(stack, -isig - k);
+										scriptCode.FindAndDelete(new Script(vchSig));
+									}
+
+									bool fSuccess = true;
+									while(fSuccess && nSigsCount > 0)
+									{
+										var vchSig = top(stack, -isig);
+										var vchPubKey = top(stack, -ikey);
+
+										// Check signature
+										bool fOk = IsCanonicalSignature(vchSig, flags) && IsCanonicalPubKey(vchPubKey, flags) &&
+											CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn, nHashType, flags);
+
+										if(fOk)
+										{
+											isig++;
+											nSigsCount--;
+										}
+										ikey++;
+										nKeysCount--;
+
+										// If there are more signatures left than keys left,
+										// then too many signatures have failed
+										if(nSigsCount > nKeysCount)
+											fSuccess = false;
+									}
+
+									while(i-- > 0)
+										stack.Pop();
+									stack.Push(fSuccess ? vchTrue : vchFalse);
+
+									if(opcode == OpcodeType.OP_CHECKMULTISIGVERIFY)
+									{
+										if(fSuccess)
+											stack.Pop();
+										else
+											return false;
+									}
+								}
+								break;
+
+							default:
+								return false;
+						}
+
+					// Size limits
+					if(stack.Count + altstack.Count > 1000)
+						return false;
+
+				}
+			}
+			catch(Exception)
+			{
+				return false;
+			}
+
+
+			if(vfExec.Count != 0)
+				return false;
+
+			return true;
+		}
+
+		private bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, ScriptVerify flags)
 		{
 			throw new NotImplementedException();
 		}
 
+		private bool IsCanonicalPubKey(byte[] vchPubKey, ScriptVerify flags)
+		{
+			throw new NotImplementedException();
+		}
+
+		private bool IsCanonicalSignature(byte[] vchSig, ScriptVerify flags)
+		{
+			throw new NotImplementedException();
+		}
+
+		private int FindAndDelete(Script script)
+		{
+			int nFound = 0;
+			if(script._Script.Length == 0)
+				return nFound;
+
+			bool[] suppressed = new bool[_Script.Length];
+			for(int i = 0 ; i < this._Script.Length - script._Script.Length + 1 ; i++)
+			{
+				if(Utils.ArrayEqual(_Script, i, script._Script, 0, script._Script.Length))
+				{
+					i += script._Script.Length;
+					suppressed[i] = true;
+					nFound++;
+				}
+			}
+
+			_Script = _Script.Where((b, i) => !suppressed[i]).ToArray();
+			return nFound;
+		}
+
+		private void insert(ref Stack<byte[]> stack, int i, byte[] vch)
+		{
+			var newStack = new Stack<byte[]>();
+			for(int y = 0 ; y < stack.Count + 1 ; y++)
+			{
+				if(y == i)
+					newStack.Push(vch);
+				else
+					newStack.Push(stack.Pop());
+			}
+			stack = newStack;
+		}
+
+		private BigInteger CastToBigNum(bool v)
+		{
+			return new BigInteger(v ? vchTrue : vchFalse);
+		}
+		private BigInteger CastToBigNum(byte[] b)
+		{
+			return new BigInteger(new BigInteger(b).ToByteArray());
+		}
+
+		static void swap<T>(ref Stack<T> stack, int i, int i2)
+		{
+			var values = stack.ToArray();
+			Array.Reverse(values);
+			var temp = values[values.Length + i];
+			values[values.Length + i] = values[values.Length + i2];
+			values[values.Length + i2] = temp;
+			stack = new Stack<T>(values);
+		}
+
+		private void erase(ref Stack<byte[]> stack, int from, int to)
+		{
+			var values = stack.ToArray();
+			stack = new Stack<byte[]>();
+			for(int i = 0 ; i < to ; i++)
+			{
+				if(from <= i && to < i)
+					continue;
+				stack.Push(values[i]);
+			}
+		}
+		private void erase(ref Stack<byte[]> stack, int i)
+		{
+			erase(ref stack, i, i + 1);
+		}
+		static T top<T>(Stack<T> stack, int i)
+		{
+			var array = stack.ToArray();
+			Array.Reverse(array);
+			return array[stack.Count + i];
+			//stacktop(i)  (altstack.at(altstack.size()+(i)))
+		}
 		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
@@ -590,5 +1464,7 @@ namespace NBitcoin
 			stream.Read(data, 0, data.Length);
 			return data;
 		}
+
+
 	}
 }

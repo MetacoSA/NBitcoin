@@ -85,14 +85,14 @@ namespace NBitcoin.Tests
 						continue;
 					}
 
-					//var valid = Script.VerifyScript(
-					//	tx.VIn[i].ScriptSig,
-					//	mapprevOutScriptPubKeys[tx.VIn[i].PrevOut],
-					//	tx,
-					//	i,
-					//	bool.Parse(test[2].ToString()) ? ScriptVerify.P2SH : ScriptVerify.None
-					//	, 0);
-					//Assert.True(valid, strTest + " failed");
+					var valid = Script.VerifyScript(
+						tx.VIn[i].ScriptSig,
+						mapprevOutScriptPubKeys[tx.VIn[i].PrevOut],
+						tx,
+						i,
+						bool.Parse(test[2].ToString()) ? ScriptVerify.P2SH : ScriptVerify.None
+						, 0);
+					Assert.True(valid, strTest + " failed");
 				}
 			}
 
