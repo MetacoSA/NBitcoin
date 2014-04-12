@@ -88,13 +88,15 @@ namespace NBitcoin.Tests
 
 			foreach(var test in tests)
 			{
-				var encoded = test.Encoder.Encode(test.Input);
+				var expected = Encoding.UTF8.GetBytes(test.Expected);
+				var input = Encoding.UTF8.GetBytes(test.Input);
+				var encoded = test.Encoder.EncodeData(input);
 				Assert.Equal(test.Expected, encoded);
 
 				try
 				{
-					var decoded = test.Encoder.Decode(test.Expected);
-					Assert.Equal(test.Input, decoded);
+					var decoded = test.Encoder.DecodeData(encoded);
+					AssertEx.CollectionEquals(input, decoded);
 				}
 				catch(NotSupportedException)
 				{

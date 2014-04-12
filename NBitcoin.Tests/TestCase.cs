@@ -27,6 +27,10 @@ namespace NBitcoin.Tests
 			{
 				Newtonsoft.Json.JsonSerializer seria = new Newtonsoft.Json.JsonSerializer();
 				var result = (TestCase[])seria.Deserialize(new StreamReader(fs), typeof(TestCase[]));
+				for(int i = 0 ; i < result.Length ; i++)
+				{
+					result[i].Index = i;
+				}
 				return result;
 			}
 		}
@@ -34,6 +38,12 @@ namespace NBitcoin.Tests
 		public override string ToString()
 		{
 			return "[" + String.Join(",", this.Select(s => Convert.ToString(s)).ToArray()) + "]";
+		}
+
+		public int Index
+		{
+			get;
+			set;
 		}
 	}
 }

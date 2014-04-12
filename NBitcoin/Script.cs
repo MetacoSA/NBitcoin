@@ -181,286 +181,6 @@ namespace NBitcoin
 	public class Script : IBitcoinSerializable
 	{
 
-
-		//Copied from satoshi's code
-		public static string GetOpName(OpcodeType opcode)
-		{
-			switch(opcode)
-			{
-				// push value
-				case OpcodeType.OP_0:
-					return "0";
-				case OpcodeType.OP_PUSHDATA1:
-					return "OP_PUSHDATA1";
-				case OpcodeType.OP_PUSHDATA2:
-					return "OP_PUSHDATA2";
-				case OpcodeType.OP_PUSHDATA4:
-					return "OP_PUSHDATA4";
-				case OpcodeType.OP_1NEGATE:
-					return "-1";
-				case OpcodeType.OP_RESERVED:
-					return "OP_RESERVED";
-				case OpcodeType.OP_1:
-					return "1";
-				case OpcodeType.OP_2:
-					return "2";
-				case OpcodeType.OP_3:
-					return "3";
-				case OpcodeType.OP_4:
-					return "4";
-				case OpcodeType.OP_5:
-					return "5";
-				case OpcodeType.OP_6:
-					return "6";
-				case OpcodeType.OP_7:
-					return "7";
-				case OpcodeType.OP_8:
-					return "8";
-				case OpcodeType.OP_9:
-					return "9";
-				case OpcodeType.OP_10:
-					return "10";
-				case OpcodeType.OP_11:
-					return "11";
-				case OpcodeType.OP_12:
-					return "12";
-				case OpcodeType.OP_13:
-					return "13";
-				case OpcodeType.OP_14:
-					return "14";
-				case OpcodeType.OP_15:
-					return "15";
-				case OpcodeType.OP_16:
-					return "16";
-
-				// control
-				case OpcodeType.OP_NOP:
-					return "OP_NOP";
-				case OpcodeType.OP_VER:
-					return "OP_VER";
-				case OpcodeType.OP_IF:
-					return "OP_IF";
-				case OpcodeType.OP_NOTIF:
-					return "OP_NOTIF";
-				case OpcodeType.OP_VERIF:
-					return "OP_VERIF";
-				case OpcodeType.OP_VERNOTIF:
-					return "OP_VERNOTIF";
-				case OpcodeType.OP_ELSE:
-					return "OP_ELSE";
-				case OpcodeType.OP_ENDIF:
-					return "OP_ENDIF";
-				case OpcodeType.OP_VERIFY:
-					return "OP_VERIFY";
-				case OpcodeType.OP_RETURN:
-					return "OP_RETURN";
-
-				// stack ops
-				case OpcodeType.OP_TOALTSTACK:
-					return "OP_TOALTSTACK";
-				case OpcodeType.OP_FROMALTSTACK:
-					return "OP_FROMALTSTACK";
-				case OpcodeType.OP_2DROP:
-					return "OP_2DROP";
-				case OpcodeType.OP_2DUP:
-					return "OP_2DUP";
-				case OpcodeType.OP_3DUP:
-					return "OP_3DUP";
-				case OpcodeType.OP_2OVER:
-					return "OP_2OVER";
-				case OpcodeType.OP_2ROT:
-					return "OP_2ROT";
-				case OpcodeType.OP_2SWAP:
-					return "OP_2SWAP";
-				case OpcodeType.OP_IFDUP:
-					return "OP_IFDUP";
-				case OpcodeType.OP_DEPTH:
-					return "OP_DEPTH";
-				case OpcodeType.OP_DROP:
-					return "OP_DROP";
-				case OpcodeType.OP_DUP:
-					return "OP_DUP";
-				case OpcodeType.OP_NIP:
-					return "OP_NIP";
-				case OpcodeType.OP_OVER:
-					return "OP_OVER";
-				case OpcodeType.OP_PICK:
-					return "OP_PICK";
-				case OpcodeType.OP_ROLL:
-					return "OP_ROLL";
-				case OpcodeType.OP_ROT:
-					return "OP_ROT";
-				case OpcodeType.OP_SWAP:
-					return "OP_SWAP";
-				case OpcodeType.OP_TUCK:
-					return "OP_TUCK";
-
-				// splice ops
-				case OpcodeType.OP_CAT:
-					return "OP_CAT";
-				case OpcodeType.OP_SUBSTR:
-					return "OP_SUBSTR";
-				case OpcodeType.OP_LEFT:
-					return "OP_LEFT";
-				case OpcodeType.OP_RIGHT:
-					return "OP_RIGHT";
-				case OpcodeType.OP_SIZE:
-					return "OP_SIZE";
-
-				// bit logic
-				case OpcodeType.OP_INVERT:
-					return "OP_INVERT";
-				case OpcodeType.OP_AND:
-					return "OP_AND";
-				case OpcodeType.OP_OR:
-					return "OP_OR";
-				case OpcodeType.OP_XOR:
-					return "OP_XOR";
-				case OpcodeType.OP_EQUAL:
-					return "OP_EQUAL";
-				case OpcodeType.OP_EQUALVERIFY:
-					return "OP_EQUALVERIFY";
-				case OpcodeType.OP_RESERVED1:
-					return "OP_RESERVED1";
-				case OpcodeType.OP_RESERVED2:
-					return "OP_RESERVED2";
-
-				// numeric
-				case OpcodeType.OP_1ADD:
-					return "OP_1ADD";
-				case OpcodeType.OP_1SUB:
-					return "OP_1SUB";
-				case OpcodeType.OP_2MUL:
-					return "OP_2MUL";
-				case OpcodeType.OP_2DIV:
-					return "OP_2DIV";
-				case OpcodeType.OP_NEGATE:
-					return "OP_NEGATE";
-				case OpcodeType.OP_ABS:
-					return "OP_ABS";
-				case OpcodeType.OP_NOT:
-					return "OP_NOT";
-				case OpcodeType.OP_0NOTEQUAL:
-					return "OP_0NOTEQUAL";
-				case OpcodeType.OP_ADD:
-					return "OP_ADD";
-				case OpcodeType.OP_SUB:
-					return "OP_SUB";
-				case OpcodeType.OP_MUL:
-					return "OP_MUL";
-				case OpcodeType.OP_DIV:
-					return "OP_DIV";
-				case OpcodeType.OP_MOD:
-					return "OP_MOD";
-				case OpcodeType.OP_LSHIFT:
-					return "OP_LSHIFT";
-				case OpcodeType.OP_RSHIFT:
-					return "OP_RSHIFT";
-				case OpcodeType.OP_BOOLAND:
-					return "OP_BOOLAND";
-				case OpcodeType.OP_BOOLOR:
-					return "OP_BOOLOR";
-				case OpcodeType.OP_NUMEQUAL:
-					return "OP_NUMEQUAL";
-				case OpcodeType.OP_NUMEQUALVERIFY:
-					return "OP_NUMEQUALVERIFY";
-				case OpcodeType.OP_NUMNOTEQUAL:
-					return "OP_NUMNOTEQUAL";
-				case OpcodeType.OP_LESSTHAN:
-					return "OP_LESSTHAN";
-				case OpcodeType.OP_GREATERTHAN:
-					return "OP_GREATERTHAN";
-				case OpcodeType.OP_LESSTHANOREQUAL:
-					return "OP_LESSTHANOREQUAL";
-				case OpcodeType.OP_GREATERTHANOREQUAL:
-					return "OP_GREATERTHANOREQUAL";
-				case OpcodeType.OP_MIN:
-					return "OP_MIN";
-				case OpcodeType.OP_MAX:
-					return "OP_MAX";
-				case OpcodeType.OP_WITHIN:
-					return "OP_WITHIN";
-
-				// crypto
-				case OpcodeType.OP_RIPEMD160:
-					return "OP_RIPEMD160";
-				case OpcodeType.OP_SHA1:
-					return "OP_SHA1";
-				case OpcodeType.OP_SHA256:
-					return "OP_SHA256";
-				case OpcodeType.OP_HASH160:
-					return "OP_HASH160";
-				case OpcodeType.OP_HASH256:
-					return "OP_HASH256";
-				case OpcodeType.OP_CODESEPARATOR:
-					return "OP_CODESEPARATOR";
-				case OpcodeType.OP_CHECKSIG:
-					return "OP_CHECKSIG";
-				case OpcodeType.OP_CHECKSIGVERIFY:
-					return "OP_CHECKSIGVERIFY";
-				case OpcodeType.OP_CHECKMULTISIG:
-					return "OP_CHECKMULTISIG";
-				case OpcodeType.OP_CHECKMULTISIGVERIFY:
-					return "OP_CHECKMULTISIGVERIFY";
-
-				// expanson
-				case OpcodeType.OP_NOP1:
-					return "OP_NOP1";
-				case OpcodeType.OP_NOP2:
-					return "OP_NOP2";
-				case OpcodeType.OP_NOP3:
-					return "OP_NOP3";
-				case OpcodeType.OP_NOP4:
-					return "OP_NOP4";
-				case OpcodeType.OP_NOP5:
-					return "OP_NOP5";
-				case OpcodeType.OP_NOP6:
-					return "OP_NOP6";
-				case OpcodeType.OP_NOP7:
-					return "OP_NOP7";
-				case OpcodeType.OP_NOP8:
-					return "OP_NOP8";
-				case OpcodeType.OP_NOP9:
-					return "OP_NOP9";
-				case OpcodeType.OP_NOP10:
-					return "OP_NOP10";
-
-
-
-				// template matching params
-				case OpcodeType.OP_PUBKEYHASH:
-					return "OP_PUBKEYHASH";
-				case OpcodeType.OP_PUBKEY:
-					return "OP_PUBKEY";
-				case OpcodeType.OP_SMALLDATA:
-					return "OP_SMALLDATA";
-
-				case OpcodeType.OP_INVALIDOPCODE:
-					return "OP_INVALIDOPCODE";
-				default:
-					return "OP_UNKNOWN";
-			}
-		}
-		static Dictionary<string, OpcodeType> _OpcodeByName;
-		static Script()
-		{
-			_OpcodeByName = new Dictionary<string, OpcodeType>();
-			foreach(var code in Enum.GetValues(typeof(OpcodeType)).Cast<OpcodeType>().Distinct())
-			{
-				var name = GetOpName(code);
-				if(name != "OP_UNKNOWN")
-					_OpcodeByName.Add(name, code);
-			}
-		}
-		public static OpcodeType GetOpCode(string name)
-		{
-			OpcodeType code;
-			if(_OpcodeByName.TryGetValue(name, out code))
-				return code;
-			else
-				return OpcodeType.OP_INVALIDOPCODE;
-		}
-
 		byte[] _Script = new byte[0];
 		public Script()
 		{
@@ -473,59 +193,15 @@ namespace NBitcoin
 
 		private static byte[] Parse(string script)
 		{
+			var reader = new StringReader(script);
 			MemoryStream result = new MemoryStream();
-			var instructions = new Queue<string>(script.Split(DataEncoder.SpaceCharacters, StringSplitOptions.RemoveEmptyEntries));
-			while(instructions.Count != 0)
+			while(reader.Peek() != -1)
 			{
-				var instruction = instructions.Dequeue();
-				var opCode = GetOpCode(instruction);
-				if(opCode != OpcodeType.OP_INVALIDOPCODE)
-				{
-					result.WriteByte((byte)opCode);
-				}
-				else
-				{
-					var data = Encoders.Hex.DecodeData(instruction);
-					PushData(data, result);
-				}
+				Op.Read(reader).WriteTo(result);
 			}
 			return result.ToArray();
 		}
 
-		private static void PushData(byte[] data, Stream result)
-		{
-			var bitStream = new BitcoinStream(result, true);
-			if(data.Length == 0)
-			{
-				result.WriteByte((byte)OpcodeType.OP_0);
-			}
-			else if(0x01 <= data.Length && data.Length <= 0x4b)
-			{
-				result.WriteByte((byte)data.Length);
-			}
-			else if(data.Length <= 0xFF)
-			{
-				result.WriteByte((byte)OpcodeType.OP_PUSHDATA1);
-				bitStream.ReadWrite((byte)data.Length);
-			}
-			else if(data.LongLength <= 0xFFFF)
-			{
-				result.WriteByte((byte)OpcodeType.OP_PUSHDATA2);
-				bitStream.ReadWrite((ushort)data.Length);
-			}
-			else if(data.LongLength <= 0xFFFFFFFF)
-			{
-				result.WriteByte((byte)OpcodeType.OP_PUSHDATA4);
-				bitStream.ReadWrite((uint)data.Length);
-			}
-			else
-				throw new NotSupportedException("Data lenght should not be bigger than 0xFFFFFFFF");
-			result.Write(data, 0, data.Length);
-		}
-		public static void PushData(BigInteger bigInteger, Stream stream)
-		{
-			PushData(bigInteger.ToByteArray(), stream);
-		}
 		public Script(byte[] data)
 		{
 			_Script = data;
@@ -550,40 +226,49 @@ namespace NBitcoin
 		{
 			Stack<byte[]> stack = new Stack<byte[]>();
 			Stack<byte[]> stackCopy = null;
-			if(!scriptSig.EvalScript(stack, txTo, nIn, flags, nHashType))
+			if(!scriptSig.EvalScript(ref stack, txTo, nIn, flags, nHashType))
 				return false;
 			if((flags & ScriptVerify.P2SH) != 0)
-				stackCopy = new Stack<byte[]>(stack);
-			if(!scriptPubKey.EvalScript(stack, txTo, nIn, flags, nHashType))
+			{
+				var copy = stack.ToArray();
+				Array.Reverse(copy);
+				stackCopy = new Stack<byte[]>(copy);
+			}
+			if(!scriptPubKey.EvalScript(ref stack, txTo, nIn, flags, nHashType))
 				return false;
 			if(stack.Count == 0)
 				return false;
 			if(CastToBool(stack.Peek()) == false)
 				return false;
 
-			//		// Additional validation for spend-to-script-hash transactions:
-			//if ((flags & SCRIPT_VERIFY_P2SH) && scriptPubKey.IsPayToScriptHash())
-			//{
-			//	if (!scriptSig.IsPushOnly()) // scriptSig must be literals-only
-			//		return false;            // or validation fails
+			// Additional validation for spend-to-script-hash transactions:
+			if(((flags & ScriptVerify.P2SH) != 0) && scriptPubKey.IsPayToScriptHash)
+			{
+				foreach(var script in scriptSig.CreateReader().ToEnumerable())
+				{
+					if(script.PushData == null)
+						return false;
+				}
 
-			//	// stackCopy cannot be empty here, because if it was the
-			//	// P2SH  HASH <> EQUAL  scriptPubKey would be evaluated with
-			//	// an empty stack and the EvalScript above would return false.
-			//	assert(!stackCopy.empty());
+				// stackCopy cannot be empty here, because if it was the
+				// P2SH  HASH <> EQUAL  scriptPubKey would be evaluated with
+				// an empty stack and the EvalScript above would return false.
+				if(stackCopy.Count == 0)
+					throw new InvalidProgramException("stackCopy cannot be empty here");
 
-			//	const valtype& pubKeySerialized = stackCopy.back();
-			//	CScript pubKey2(pubKeySerialized.begin(), pubKeySerialized.end());
-			//	popstack(stackCopy);
+				var pubKeySerialized = stackCopy.Peek();
+				Script pubKey2 = new Script(pubKeySerialized);
+				stackCopy.Pop();
 
-			//	if (!EvalScript(stackCopy, pubKey2, txTo, nIn, flags, nHashType))
-			//		return false;
-			//	if (stackCopy.empty())
-			//		return false;
-			//	return CastToBool(stackCopy.back());
-			//}
+				if(!pubKey2.EvalScript(ref stackCopy, txTo, nIn, flags, nHashType))
+					return false;
+				if(stackCopy.Count == 0)
+					return false;
+				return CastToBool(stackCopy.Peek());
+			}
 			return true;
 		}
+
 
 
 
@@ -593,64 +278,57 @@ namespace NBitcoin
 		static readonly byte[] vchZero = new byte[] { 0 };
 		static readonly byte[] vchTrue = new byte[] { 1, 1 };
 
-		private bool EvalScript(Stack<byte[]> stack, Transaction txTo, int nIn, ScriptVerify flags, SigHash nHashType)
+		private bool EvalScript(ref Stack<byte[]> stack, Transaction txTo, int nIn, ScriptVerify flags, SigHash nHashType)
 		{
-			MemoryStream script = new MemoryStream(_Script);
-			int pend = (int)script.Length;
+			var script = CreateReader();
+			int pend = (int)script.Inner.Length;
+
 			int pbegincodehash = 0;
-			OpcodeType opcode;
-			byte[] vchPushValue = new byte[0];
 			Stack<bool> vfExec = new Stack<bool>();
 			Stack<byte[]> altstack = new Stack<byte[]>();
+			Op opcode;
 			if(_Script.Length > 10000)
 				return false;
 			int nOpCount = 0;
 
 			try
 			{
-				while(script.Position < script.Length)
+				while((opcode = script.Read()) != null)
 				{
-					bool fExec = vfExec.Count(o => !o) == 0; //!count(vfExec.begin(), vfExec.end(), false);
+					bool fExec = vfExec.All(o => o); //!count(vfExec.begin(), vfExec.end(), false);
 
 					//
 					// Read instruction
 					//
-					opcode = (OpcodeType)script.ReadByte();
-					var opcodeName = GetOpName(opcode);
 
-					if(IsPushData(opcode))
-						vchPushValue = ReadData(opcode, script);
-					else if(opcodeName == "OP_UNKNOWN")
-						return false;
-
-					if(vchPushValue.Length > 520)
+					if(opcode.PushData != null && opcode.PushData.Length > 520)
 						return false;
 
 					// Note how OP_RESERVED does not count towards the opcode limit.
-					if(opcode > OpcodeType.OP_16 && ++nOpCount > 201)
+					if(opcode.Code > OpcodeType.OP_16 && ++nOpCount > 201)
 						return false;
 
-					if(opcode == OpcodeType.OP_CAT ||
-						opcode == OpcodeType.OP_SUBSTR ||
-						opcode == OpcodeType.OP_LEFT ||
-						opcode == OpcodeType.OP_RIGHT ||
-						opcode == OpcodeType.OP_INVERT ||
-						opcode == OpcodeType.OP_AND ||
-						opcode == OpcodeType.OP_OR ||
-						opcode == OpcodeType.OP_XOR ||
-						opcode == OpcodeType.OP_2MUL ||
-						opcode == OpcodeType.OP_2DIV ||
-						opcode == OpcodeType.OP_MUL ||
-						opcode == OpcodeType.OP_DIV ||
-						opcode == OpcodeType.OP_MOD ||
-						opcode == OpcodeType.OP_LSHIFT ||
-						opcode == OpcodeType.OP_RSHIFT)
+					if(opcode.Code == OpcodeType.OP_CAT ||
+						opcode.Code == OpcodeType.OP_SUBSTR ||
+						opcode.Code == OpcodeType.OP_LEFT ||
+						opcode.Code == OpcodeType.OP_RIGHT ||
+						opcode.Code == OpcodeType.OP_INVERT ||
+						opcode.Code == OpcodeType.OP_AND ||
+						opcode.Code == OpcodeType.OP_OR ||
+						opcode.Code == OpcodeType.OP_XOR ||
+						opcode.Code == OpcodeType.OP_2MUL ||
+						opcode.Code == OpcodeType.OP_2DIV ||
+						opcode.Code == OpcodeType.OP_MUL ||
+						opcode.Code == OpcodeType.OP_DIV ||
+						opcode.Code == OpcodeType.OP_MOD ||
+						opcode.Code == OpcodeType.OP_LSHIFT ||
+						opcode.Code == OpcodeType.OP_RSHIFT)
 						return false; // Disabled opcodes.
 
-					if(fExec && 0 <= opcode && opcode <= OpcodeType.OP_PUSHDATA4)
-						stack.Push(vchPushValue);
-					else if(fExec || (OpcodeType.OP_IF <= opcode && opcode <= OpcodeType.OP_ENDIF))
-						switch(opcode)
+					if(fExec && opcode.PushData != null)
+						stack.Push(opcode.PushData);
+					else if(fExec || (OpcodeType.OP_IF <= opcode.Code && opcode.Code <= OpcodeType.OP_ENDIF))
+						switch(opcode.Code)
 						{
 							//
 							// Push value
@@ -674,8 +352,8 @@ namespace NBitcoin
 							case OpcodeType.OP_16:
 								{
 									// ( -- value)
-									BigInteger bn = new BigInteger((int)opcode - (int)(OpcodeType.OP_1 - 1));
-									stack.Push(bn.ToByteArray());
+									BigInteger bn = new BigInteger((int)opcode.Code - (int)(OpcodeType.OP_1 - 1));
+									stack.Push(Utils.BigIntegerToBytes(bn));
 								}
 								break;
 
@@ -707,7 +385,7 @@ namespace NBitcoin
 											return false;
 										var vch = top(stack, -1);
 										fValue = CastToBool(vch);
-										if(opcode == OpcodeType.OP_NOTIF)
+										if(opcode.Code == OpcodeType.OP_NOTIF)
 											fValue = !fValue;
 										stack.Pop();
 									}
@@ -860,7 +538,7 @@ namespace NBitcoin
 								{
 									// -- stacksize
 									BigInteger bn = new BigInteger(stack.Count);
-									stack.Push(bn.ToByteArray());
+									stack.Push(Utils.BigIntegerToBytes(bn));
 								}
 								break;
 
@@ -914,7 +592,7 @@ namespace NBitcoin
 									if(n < 0 || n >= stack.Count)
 										return false;
 									var vch = top(stack, -n - 1);
-									if(opcode == OpcodeType.OP_ROLL)
+									if(opcode.Code == OpcodeType.OP_ROLL)
 										erase(ref stack, stack.Count - n - 1);
 									stack.Push(vch);
 								}
@@ -958,7 +636,7 @@ namespace NBitcoin
 									if(stack.Count < 1)
 										return false;
 									BigInteger bn = new BigInteger(top(stack, -1).Length);
-									stack.Push(bn.ToByteArray());
+									stack.Push(Utils.BigIntegerToBytes(bn));
 								}
 								break;
 
@@ -984,7 +662,7 @@ namespace NBitcoin
 									stack.Pop();
 									stack.Pop();
 									stack.Push(fEqual ? vchTrue : vchFalse);
-									if(opcode == OpcodeType.OP_EQUALVERIFY)
+									if(opcode.Code == OpcodeType.OP_EQUALVERIFY)
 									{
 										if(fEqual)
 											stack.Pop();
@@ -1009,7 +687,7 @@ namespace NBitcoin
 									if(stack.Count < 1)
 										return false;
 									var bn = CastToBigNum(top(stack, -1));
-									switch(opcode)
+									switch(opcode.Code)
 									{
 										case OpcodeType.OP_1ADD:
 											bn += BigInteger.One;
@@ -1034,7 +712,7 @@ namespace NBitcoin
 											throw new NotSupportedException("invalid opcode");
 									}
 									stack.Pop();
-									stack.Push(bn.ToByteArray());
+									stack.Push(Utils.BigIntegerToBytes(bn));
 								}
 								break;
 
@@ -1058,7 +736,7 @@ namespace NBitcoin
 									var bn1 = CastToBigNum(top(stack, -2));
 									var bn2 = CastToBigNum(top(stack, -1));
 									BigInteger bn;
-									switch(opcode)
+									switch(opcode.Code)
 									{
 										case OpcodeType.OP_ADD:
 											bn = bn1 + bn2;
@@ -1106,9 +784,9 @@ namespace NBitcoin
 									}
 									stack.Pop();
 									stack.Pop();
-									stack.Push(bn.ToByteArray());
+									stack.Push(Utils.BigIntegerToBytes(bn));
 
-									if(opcode == OpcodeType.OP_NUMEQUALVERIFY)
+									if(opcode.Code == OpcodeType.OP_NUMEQUALVERIFY)
 									{
 										if(CastToBool(top(stack, -1)))
 											stack.Pop();
@@ -1149,15 +827,15 @@ namespace NBitcoin
 										return false;
 									var vch = top(stack, -1);
 									byte[] vchHash = null;//((opcode == OpcodeType.OP_RIPEMD160 || opcode == OpcodeType.OP_SHA1 || opcode == OpcodeType.OP_HASH160) ? 20 : 32);
-									if(opcode == OpcodeType.OP_RIPEMD160)
+									if(opcode.Code == OpcodeType.OP_RIPEMD160)
 										vchHash = Hashes.RIPEMD160(vch, vch.Length);
-									else if(opcode == OpcodeType.OP_SHA1)
+									else if(opcode.Code == OpcodeType.OP_SHA1)
 										vchHash = Hashes.SHA1(vch, vch.Length);
-									else if(opcode == OpcodeType.OP_SHA256)
+									else if(opcode.Code == OpcodeType.OP_SHA256)
 										vchHash = Hashes.SHA256(vch, vch.Length);
-									else if(opcode == OpcodeType.OP_HASH160)
+									else if(opcode.Code == OpcodeType.OP_HASH160)
 										vchHash = Hashes.Hash160(vch, vch.Length).ToBytes();
-									else if(opcode == OpcodeType.OP_HASH256)
+									else if(opcode.Code == OpcodeType.OP_HASH256)
 										vchHash = Hashes.Hash256(vch, vch.Length).ToBytes();
 									stack.Pop();
 									stack.Push(vchHash);
@@ -1167,7 +845,7 @@ namespace NBitcoin
 							case OpcodeType.OP_CODESEPARATOR:
 								{
 									// Hash starts after the code separator
-									pbegincodehash = (int)script.Position;
+									pbegincodehash = (int)script.Inner.Position;
 								}
 								break;
 
@@ -1197,7 +875,7 @@ namespace NBitcoin
 									stack.Pop();
 									stack.Pop();
 									stack.Push(fSuccess ? vchTrue : vchFalse);
-									if(opcode == OpcodeType.OP_CHECKSIGVERIFY)
+									if(opcode.Code == OpcodeType.OP_CHECKSIGVERIFY)
 									{
 										if(fSuccess)
 											stack.Pop();
@@ -1273,7 +951,7 @@ namespace NBitcoin
 										stack.Pop();
 									stack.Push(fSuccess ? vchTrue : vchFalse);
 
-									if(opcode == OpcodeType.OP_CHECKMULTISIGVERIFY)
+									if(opcode.Code == OpcodeType.OP_CHECKMULTISIGVERIFY)
 									{
 										if(fSuccess)
 											stack.Pop();
@@ -1303,6 +981,11 @@ namespace NBitcoin
 				return false;
 
 			return true;
+		}
+
+		private ScriptReader CreateReader()
+		{
+			return new ScriptReader(_Script);
 		}
 
 		private bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, ScriptVerify flags)
@@ -1344,7 +1027,9 @@ namespace NBitcoin
 		private void insert(ref Stack<byte[]> stack, int i, byte[] vch)
 		{
 			var newStack = new Stack<byte[]>();
-			for(int y = 0 ; y < stack.Count + 1 ; y++)
+			var count = stack.Count;
+			stack = new Stack<byte[]>(stack); //Reverse the stack
+			for(int y = 0 ; y < count + 1 ; y++)
 			{
 				if(y == i)
 					newStack.Push(vch);
@@ -1356,11 +1041,13 @@ namespace NBitcoin
 
 		private BigInteger CastToBigNum(bool v)
 		{
-			return new BigInteger(v ? vchTrue : vchFalse);
+			return new BigInteger(v ? 1 : 0);
 		}
 		private BigInteger CastToBigNum(byte[] b)
 		{
-			return new BigInteger(new BigInteger(b).ToByteArray());
+			if(b.Length > 4)
+				throw new InvalidOperationException("CastToBigNum() : overflow");
+			return Utils.BytesToBigInteger(b);
 		}
 
 		static void swap<T>(ref Stack<T> stack, int i, int i2)
@@ -1376,10 +1063,11 @@ namespace NBitcoin
 		private void erase(ref Stack<byte[]> stack, int from, int to)
 		{
 			var values = stack.ToArray();
+			Array.Reverse(values);
 			stack = new Stack<byte[]>();
-			for(int i = 0 ; i < to ; i++)
+			for(int i = 0 ; i < values.Length ; i++)
 			{
-				if(from <= i && to < i)
+				if(from <= i && i < to)
 					continue;
 				stack.Push(values[i]);
 			}
@@ -1415,56 +1103,31 @@ namespace NBitcoin
 		public override string ToString()
 		{
 			StringBuilder builder = new StringBuilder();
-			MemoryStream ms = new MemoryStream(_Script);
+			ScriptReader reader = new ScriptReader(_Script)
+			{
+				IgnoreIncoherentPushData = true
+			};
 
-			while(true)
+			Op op = null;
+			while((op = reader.Read()) != null)
 			{
 				builder.Append(" ");
-				var b = ms.ReadByte();
-				if(b == -1)
-					break;
-				var opcode = (OpcodeType)b;
-				var name = GetOpName(opcode);
-				if(IsPushData(opcode))
-				{
-					builder.Append(Encoders.Hex.EncodeData(ReadData(opcode, ms)));
-				}
-				else
-				{
-					builder.Append(name);
-				}
+				builder.Append(op.ToString());
 			}
 
 			return builder == null ? "" : builder.ToString().Trim();
 		}
 
-		static bool IsPushData(OpcodeType opcode)
+
+		public bool IsPayToScriptHash
 		{
-			return 0 <= opcode && opcode <= OpcodeType.OP_PUSHDATA4;
+			get
+			{
+				return (_Script.Length == 23 &&
+						_Script[0] == (byte)OpcodeType.OP_HASH160 &&
+						_Script[1] == 0x14 &&
+						_Script[22] == (byte)OpcodeType.OP_EQUAL);
+			}
 		}
-
-		private static byte[] ReadData(OpcodeType opcode, Stream stream)
-		{
-			uint len = 0;
-			BitcoinStream bitStream = new BitcoinStream(stream, false);
-			if(opcode == 0)
-				return new byte[0];
-			if(0x01 <= (byte)opcode && (byte)opcode <= 0x4b)
-				len = (uint)opcode;
-			else if(opcode == OpcodeType.OP_PUSHDATA1)
-				len = bitStream.ReadWrite((byte)0);
-			else if(opcode == OpcodeType.OP_PUSHDATA2)
-				len = bitStream.ReadWrite((ushort)0);
-			else if(opcode == OpcodeType.OP_PUSHDATA4)
-				len = bitStream.ReadWrite((uint)0);
-			else
-				throw new InvalidOperationException("Invalid opcode for pushing data : " + opcode);
-
-			byte[] data = new byte[len];
-			stream.Read(data, 0, data.Length);
-			return data;
-		}
-
-
 	}
 }

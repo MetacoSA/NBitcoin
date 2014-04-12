@@ -32,7 +32,6 @@ namespace NBitcoin.DataEncoders
 
 			return rv.ToString();
 		}
-
 		public override byte[] DecodeData(string encoded)
 		{
 			if(encoded == null)
@@ -76,6 +75,7 @@ namespace NBitcoin.DataEncoders
 			}
 			return vch.ToArray();
 		}
+
 
 		static readonly char[] hexDigits = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F' };
 		static readonly byte[] hexValues = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 10, 11, 12, 13, 14, 15 };

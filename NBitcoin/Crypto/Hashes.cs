@@ -35,7 +35,7 @@ namespace NBitcoin.Crypto
 		{
 			var sha1 = new Sha1Digest();
 			sha1.BlockUpdate(data, 0, count);
-			byte[] rv = new byte[32];
+			byte[] rv = new byte[20];
 			sha1.DoFinal(rv, 0);
 			return rv;
 		}
@@ -59,7 +59,7 @@ namespace NBitcoin.Crypto
 		{
 			RipeMD160Digest ripemd = new RipeMD160Digest();
 			ripemd.BlockUpdate(data, 0, count);
-			byte[] rv = new byte[32];
+			byte[] rv = new byte[20];
 			ripemd.DoFinal(rv, 0);
 			return rv;
 		}

@@ -17,7 +17,7 @@ namespace NBitcoin
 		public const int PROTOCOL_VERSION = 70002;
 		public static bool ArrayEqual(byte[] a, byte[] b)
 		{
-			return ArrayEqual(a, 0, b, 0, a.Length);
+			return ArrayEqual(a, 0, b, 0, Math.Max(a.Length,b.Length));
 		}
 		public static bool ArrayEqual(byte[] a, int startA, byte[] b, int startB, int length)
 		{
@@ -73,6 +73,44 @@ namespace NBitcoin
 			Array.Copy(biBytes, start, bytes, numBytes - length, length);
 			return bytes;
 
+		}
+
+
+
+
+		//https://en.bitcoin.it/wiki/Script
+		public static byte[] BigIntegerToBytes(BigInteger num)
+		{
+			if(num == 0)
+				//Positive 0 is represented by a null-length vector
+				return new byte[0];
+
+			bool isPositive = true;
+			if(num < 0)
+			{
+				isPositive = false;
+				num *= -1;
+			}
+			var array = num.ToByteArray();
+			if(!isPositive)
+				array[array.Length - 1] |= 0x80;
+			return array;
+		}
+
+		public static BigInteger BytesToBigInteger(byte[] data)
+		{
+			if(data == null)
+				throw new ArgumentNullException("data");
+			if(data.Length == 0)
+				return BigInteger.Zero;
+			data = data.ToArray();
+			var positive = (data[data.Length - 1] & 0x80) == 0;
+			if(!positive)
+			{
+				data[data.Length - 1] &= unchecked((byte)~0x80);
+				return -new BigInteger(data);
+			}
+			return new BigInteger(data);
 		}
 	}
 }

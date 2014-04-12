@@ -14,10 +14,7 @@ namespace NBitcoin.DataEncoders
 			return SpaceCharacters.Contains(c);
 		}
 
-		public string Encode(string value)
-		{
-			return EncodeData(ToBytes(value));
-		}
+		
 
 		public string EncodeData(byte[] data)
 		{
@@ -31,21 +28,6 @@ namespace NBitcoin.DataEncoders
 		public virtual byte[] DecodeData(string encoded)
 		{
 			throw new NotSupportedException();
-		}
-
-		private string FromBytes(byte[] data)
-		{
-			return Encoding.UTF8.GetString(data);
-		}
-
-		private byte[] ToBytes(string value)
-		{
-			return Encoding.UTF8.GetBytes(value);
-		}
-
-		public string Decode(string encoded)
-		{
-			return FromBytes(DecodeData(encoded));
 		}
 	}
 	public class Encoders

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,7 +73,7 @@ namespace NBitcoin.Tests
 				new HexEncoder()
 				{
 					Space = true
-				}.EncodeData(ParseHex_expected,5),
+				}.EncodeData(ParseHex_expected, 5),
 				"04 67 8a fd b0");
 
 			AssertEx.Equal(
@@ -131,7 +132,7 @@ namespace NBitcoin.Tests
 			AssertEx.Equal(ret, new Money((Money.COIN / 10000) * 123456789));
 
 			Assert.True(Money.TryParse("100000000.00", out  ret));
-			AssertEx.Equal(ret,new Money( Money.COIN * 100000000));
+			AssertEx.Equal(ret, new Money(Money.COIN * 100000000));
 			Assert.True(Money.TryParse("10000000.00", out  ret));
 			AssertEx.Equal(ret, new Money(Money.COIN * 10000000));
 			Assert.True(Money.TryParse("1000000.00", out  ret));
@@ -182,6 +183,27 @@ namespace NBitcoin.Tests
 			Assert.True(!HexEncoder.IsWellFormed("eleven"));
 			Assert.True(!HexEncoder.IsWellFormed("00xx00"));
 			Assert.True(!HexEncoder.IsWellFormed("0x0000"));
+		}
+
+		[Fact]
+		public void CanRoundTripBigIntegerToBytes()
+		{
+			foreach(var expected in Enumerable.Range(-100, 100))
+			{
+				var bytes = Utils.BigIntegerToBytes(expected);
+				var actual = Utils.BytesToBigInteger(bytes);
+				Assert.Equal(expected, actual);
+			}
+		}
+		[Fact]
+		public void CanConvertBigIntegerToBytes()
+		{
+			Assert.Equal<BigInteger>(0, Utils.BytesToBigInteger(new byte[0]));
+			Assert.Equal<BigInteger>(0, Utils.BytesToBigInteger(new byte[] { 0 }));
+			Assert.Equal<BigInteger>(0, Utils.BytesToBigInteger(new byte[] { 0x80 }));
+			Assert.Equal<BigInteger>(1, Utils.BytesToBigInteger(new byte[] { 1 }));
+			Assert.Equal<BigInteger>(-1, Utils.BytesToBigInteger(new byte[] { 0x81 }));
+			Assert.Equal<BigInteger>(-128, Utils.BytesToBigInteger(new byte[] { 0x80, 0x80 }));
 		}
 	}
 }
