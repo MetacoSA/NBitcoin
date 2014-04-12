@@ -115,5 +115,51 @@ namespace NBitcoin.Tests
 				Assert.True(!Script.VerifyScript(scriptSig, scriptPubKey, transaction, 0, flags, SigHash.None), "Test : " + test.Index + " " + comment);
 			}
 		}
+
+		[Fact]
+		public void script_standard_push()
+		{
+			for(int i = -1 ; i < 1000 ; i++)
+			{
+				Script script = new Script(Op.GetPushOp(i).ToBytes());
+				Assert.True(script.IsPushOnly, "Number " + i + " is not pure push.");
+				Assert.True(script.HasCanonicalPushes, "Number " + i + " push is not canonical.");
+			}
+
+			for(int i = 0 ; i < 1000 ; i++)
+			{
+				var data = Enumerable.Range(0, i).Select(_ => (byte)0x49).ToArray();
+				Script script = new Script(Op.GetPushOp(data).ToBytes());
+				Assert.True(script.IsPushOnly, "Length " + i + " is not pure push.");
+				Assert.True(script.HasCanonicalPushes, "Length " + i + " push is not canonical.");
+			}
+		}
+
+		[Fact]
+		public void script_PushData()
+		{
+			// Check that PUSHDATA1, PUSHDATA2, and PUSHDATA4 create the same value on
+			// the stack as the 1-75 opcodes do.
+			var direct = new Script(new byte[] { 1, 0x5a });
+			var pushdata1 = new Script(new byte[] { (byte)OpcodeType.OP_PUSHDATA1, 1, 0x5a });
+			var pushdata2 = new Script(new byte[] { (byte)OpcodeType.OP_PUSHDATA2, 1, 0, 0x5a });
+			var pushdata4 = new Script(new byte[] { (byte)OpcodeType.OP_PUSHDATA4, 1, 0, 0, 0, 0x5a });
+
+			Stack<byte[]> directStack = new Stack<byte[]>();
+			Assert.True(direct.EvalScript(ref directStack, new Transaction(), 0, ScriptVerify.P2SH, 0));
+
+			Stack<byte[]> pushdata1Stack = new Stack<byte[]>();
+			Assert.True(pushdata1.EvalScript(ref pushdata1Stack, new Transaction(), 0, ScriptVerify.P2SH, 0));
+			AssertEx.CollectionEquals(pushdata1Stack.SelectMany(o => o).ToArray(), directStack.SelectMany(o => o).ToArray());
+
+
+			Stack<byte[]> pushdata2Stack = new Stack<byte[]>();
+			Assert.True(pushdata2.EvalScript(ref pushdata2Stack, new Transaction(), 0, ScriptVerify.P2SH, 0));
+			AssertEx.CollectionEquals(pushdata2Stack.SelectMany(o => o).ToArray(), directStack.SelectMany(o => o).ToArray());
+
+			Stack<byte[]> pushdata4Stack = new Stack<byte[]>();
+			Assert.True(pushdata4.EvalScript(ref pushdata4Stack, new Transaction(), 0, ScriptVerify.P2SH, 0));
+			AssertEx.CollectionEquals(pushdata4Stack.SelectMany(o => o).ToArray(), directStack.SelectMany(o => o).ToArray());
+		}
 	}
 }

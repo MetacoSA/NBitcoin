@@ -273,7 +273,7 @@ namespace NBitcoin
 		}
 		internal static bool IsPushCode(OpcodeType opcode)
 		{
-			return 0 <= opcode && opcode <= OpcodeType.OP_PUSHDATA4;
+			return 0 <= opcode && opcode <= OpcodeType.OP_16 && opcode != OpcodeType.OP_RESERVED;
 		}
 
 		static Dictionary<string, OpcodeType> _OpcodeByName;
@@ -306,6 +306,10 @@ namespace NBitcoin
 			op.PushData = data;
 			if(data.Length == 0)
 				op.Code = OpcodeType.OP_0;
+			else if(data.Length == 1 && (byte)1 <= data[0] && data[0] <= (byte)16)
+				op.Code = (OpcodeType)(data[0] + (byte)OpcodeType.OP_1 - 1);
+			else if(data.Length == 1 && (byte)0x81 == data[0])
+				op.Code = OpcodeType.OP_1NEGATE;
 			else if(0x01 <= data.Length && data.Length <= 0x4b)
 				op.Code = (OpcodeType)(byte)data.Length;
 			else if(data.Length <= 0xFF)
@@ -343,8 +347,29 @@ namespace NBitcoin
 		private static void PushDataToStream(byte[] data, Stream result)
 		{
 			var bitStream = new BitcoinStream(result, true);
-			if(0x00 <= data.Length && data.Length <= 0x4b)
+
+			if(data.Length == 0.00)
 			{
+				//OP_0 already pushed
+				return;
+			}
+
+			if(data.Length == 1 &&
+						(byte)1 <= data[0] && data[0] <= (byte)16)
+			{
+				//OP_1 to OP_16 already pushed
+				return;
+			}
+			if(data.Length == 1
+						&& data[0] == 0x81)
+			{
+				//OP_1Negate already pushed
+				return;
+			}
+
+			if(0x01 <= data.Length && data.Length <= 0x4b)
+			{
+				//Data length already pushed
 			}
 			else if(data.Length <= 0xFF)
 			{
@@ -362,12 +387,24 @@ namespace NBitcoin
 				throw new NotSupportedException("Data length should not be bigger than 0xFFFFFFFF");
 			result.Write(data, 0, data.Length);
 		}
-		internal static byte[] ReadData(OpcodeType opcode, Stream stream, bool ignoreWrongPush = false)
+		internal static byte[] ReadData(Op op, Stream stream, bool ignoreWrongPush = false)
 		{
+			var opcode = op.Code;
 			uint len = 0;
 			BitcoinStream bitStream = new BitcoinStream(stream, false);
 			if(opcode == 0)
 				return new byte[0];
+
+			if((byte)OpcodeType.OP_1 <= (byte)opcode && (byte)opcode <= (byte)OpcodeType.OP_16)
+			{
+				return new byte[] { (byte)(opcode - OpcodeType.OP_1 + 1) };
+			}
+
+			if(opcode == OpcodeType.OP_1NEGATE)
+			{
+				return new byte[] { 0x81 };
+			}
+
 			if(0x01 <= (byte)opcode && (byte)opcode <= 0x4b)
 				len = (uint)opcode;
 			else if(opcode == OpcodeType.OP_PUSHDATA1)
@@ -384,7 +421,10 @@ namespace NBitcoin
 			if(readen != data.Length && !ignoreWrongPush)
 				throw new FormatException("Not enough bytes pushed with " + opcode.ToString() + " expected " + len + " but got " + readen);
 			else if(readen != data.Length)
+			{
+				op.IncompleteData = true;
 				Array.Resize(ref data, readen);
+			}
 			return data;
 		}
 
@@ -428,7 +468,11 @@ namespace NBitcoin
 			MemoryStream ms = new MemoryStream();
 			var opname = ReadWord(textReader);
 			var opcode = GetOpCode(opname);
-			if(opcode == OpcodeType.OP_INVALIDOPCODE && !opname.StartsWith(unknown) && opname != "OP_INVALIDOPCODE")
+
+			if(
+				(opcode == OpcodeType.OP_INVALIDOPCODE || Op.IsPushCode(opcode))
+				&& !opname.StartsWith(unknown)
+				&& opname != "OP_INVALIDOPCODE")
 				return GetPushOp(Encoders.Hex.DecodeData(opname));
 			else if(opname.StartsWith(unknown))
 			{
@@ -466,6 +510,12 @@ namespace NBitcoin
 				builder.Append((char)r);
 			}
 			return builder.ToString();
+		}
+
+		public bool IncompleteData
+		{
+			get;
+			set;
 		}
 	}
 	public class ScriptReader
@@ -506,7 +556,7 @@ namespace NBitcoin
 			{
 				Op op = new Op();
 				op.Code = opcode;
-				op.PushData = Op.ReadData(op.Code, Inner, IgnoreIncoherentPushData);
+				op.PushData = Op.ReadData(op, Inner, IgnoreIncoherentPushData);
 				return op;
 			}
 			return new Op()

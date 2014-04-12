@@ -244,11 +244,8 @@ namespace NBitcoin
 			// Additional validation for spend-to-script-hash transactions:
 			if(((flags & ScriptVerify.P2SH) != 0) && scriptPubKey.IsPayToScriptHash)
 			{
-				foreach(var script in scriptSig.CreateReader().ToEnumerable())
-				{
-					if(script.PushData == null)
-						return false;
-				}
+				if(!scriptSig.IsPushOnly)
+					return false;
 
 				// stackCopy cannot be empty here, because if it was the
 				// P2SH  HASH <> EQUAL  scriptPubKey would be evaluated with
@@ -278,7 +275,7 @@ namespace NBitcoin
 		static readonly byte[] vchZero = new byte[] { 0 };
 		static readonly byte[] vchTrue = new byte[] { 1, 1 };
 
-		private bool EvalScript(ref Stack<byte[]> stack, Transaction txTo, int nIn, ScriptVerify flags, SigHash nHashType)
+		public bool EvalScript(ref Stack<byte[]> stack, Transaction txTo, int nIn, ScriptVerify flags, SigHash nHashType)
 		{
 			var script = CreateReader();
 			int pend = (int)script.Inner.Length;
@@ -983,9 +980,12 @@ namespace NBitcoin
 			return true;
 		}
 
-		private ScriptReader CreateReader()
+		private ScriptReader CreateReader(bool ignoreErrors = false)
 		{
-			return new ScriptReader(_Script);
+			return new ScriptReader(_Script)
+			{
+				IgnoreIncoherentPushData = ignoreErrors
+			};
 		}
 
 		private bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, ScriptVerify flags)
@@ -1127,6 +1127,46 @@ namespace NBitcoin
 						_Script[0] == (byte)OpcodeType.OP_HASH160 &&
 						_Script[1] == 0x14 &&
 						_Script[22] == (byte)OpcodeType.OP_EQUAL);
+			}
+		}
+
+		public bool IsPushOnly
+		{
+			get
+			{
+				foreach(var script in CreateReader(true).ToEnumerable())
+				{
+					if(script.PushData == null)
+						return false;
+				}
+				return true;
+			}
+		}
+
+		public bool HasCanonicalPushes
+		{
+			get
+			{
+				foreach(var op in CreateReader(true).ToEnumerable())
+				{
+					if(op.IncompleteData)
+						return false;
+					if(op.Code > OpcodeType.OP_16)
+						continue;
+					if(op.Code < OpcodeType.OP_PUSHDATA1 && op.Code > OpcodeType.OP_0 && (op.PushData.Length == 1 && op.PushData[0] <= 16))
+						// Could have used an OP_n code, rather than a 1-byte push.
+						return false;
+					if(op.Code == OpcodeType.OP_PUSHDATA1 && op.PushData.Length < (byte)OpcodeType.OP_PUSHDATA1)
+						// Could have used a normal n-byte push, rather than OP_PUSHDATA1.
+						return false;
+					if(op.Code == OpcodeType.OP_PUSHDATA2 && op.PushData.Length <= 0xFF)
+						// Could have used an OP_PUSHDATA1.
+						return false;
+					if(op.Code == OpcodeType.OP_PUSHDATA4 && op.PushData.Length <= 0xFFFF)
+						// Could have used an OP_PUSHDATA2.
+						return false;
+				}
+				return true;
 			}
 		}
 	}
