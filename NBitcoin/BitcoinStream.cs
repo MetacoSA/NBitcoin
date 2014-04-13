@@ -69,7 +69,7 @@ namespace NBitcoin
 				ReadWriteArrayUntyped(ref d);
 				data = (T)(object)d;
 			}
-			else if(IsNumber<T>())
+			else if(IsUNumber<T>() || IsNumber<T>())
 			{
 				ReadWriteNumber(ref data);
 			}
@@ -110,16 +110,25 @@ namespace NBitcoin
 		private void ReadWriteNumber<T>(ref T data)
 		{
 			int size = 0;
-			if(data is ushort)
+			if(data is ushort || data is short)
 				size = 2;
-			else if(data is uint)
+			else if(data is uint || data is int)
 				size = 4;
-			else if(data is ulong)
+			else if(data is ulong || data is long)
 				size = 8;
 			else
 				throw new NotSupportedException("Type not supported " + typeof(T).FullName);
 
-			ulong value = (ulong)Convert.ChangeType(data, typeof(ulong));
+
+			ulong value = 0;
+			if(IsUNumber<T>())
+			{
+				value = (ulong)Convert.ChangeType(data, typeof(ulong));
+			}
+			else
+			{
+				value = (ulong)(long)Convert.ChangeType(data, typeof(long));
+			}
 			var bytes = new byte[size];
 
 			for(int i = 0 ; i < size ; i++)
@@ -134,7 +143,15 @@ namespace NBitcoin
 				valueTemp += v << (i * 8);
 			}
 			value = valueTemp;
-			data = (T)Convert.ChangeType(value, typeof(T));
+
+			if(IsUNumber<T>())
+			{
+				data = (T)Convert.ChangeType(value, typeof(T));
+			}
+			else
+			{
+				data = (T)Convert.ChangeType((long)value, typeof(T));
+			}
 		}
 
 		private void ReadWriteBytes(ref byte[] data)
@@ -160,7 +177,12 @@ namespace NBitcoin
 		}
 
 
-		static Type[] numberTypes = new[] { typeof(byte), typeof(ushort), typeof(uint), typeof(ulong) };
+		static Type[] unumberTypes = new[] { typeof(byte), typeof(ushort), typeof(uint), typeof(ulong) };
+		private bool IsUNumber<T>()
+		{
+			return unumberTypes.Contains(typeof(T));
+		}
+		static Type[] numberTypes = new[] { typeof(short), typeof(int), typeof(long) };
 		private bool IsNumber<T>()
 		{
 			return numberTypes.Contains(typeof(T));

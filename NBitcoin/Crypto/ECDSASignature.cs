@@ -56,6 +56,13 @@ namespace NBitcoin.Crypto
 
 		}
 
+		public static ECDSASignature FromDER(byte[] sig)
+		{
+			Asn1InputStream decoder = new Asn1InputStream(sig);
+			var seq = (DerSequence)decoder.ReadObject();
+			return new ECDSASignature(((DerInteger)seq[0]).Value, ((DerInteger)seq[1]).Value);
+		}
+
 		public void EnsureCanonical()
 		{
 			if(this.S.CompareTo(ECKey.HALF_CURVE_ORDER) > 0)
@@ -63,5 +70,7 @@ namespace NBitcoin.Crypto
 				this._S = ECKey.CreateCurve().N.Subtract(this.S);
 			}
 		}
+
+		
 	}
 }

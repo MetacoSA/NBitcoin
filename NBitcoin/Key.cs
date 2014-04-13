@@ -20,6 +20,20 @@ namespace NBitcoin
 			private set;
 		}
 
+		static readonly Random rand = new Random();
+
+		public Key(bool fCompressedIn)
+		{
+			byte[] data = new byte[32];
+			lock(rand)
+			{
+				do
+				{
+					rand.NextBytes(data);
+				} while(!Check(data));
+			}
+			SetBytes(data, data.Length, fCompressedIn);
+		}
 		public Key(byte[] data, int count, bool fCompressedIn)
 		{
 			if(count != 32)
@@ -28,13 +42,18 @@ namespace NBitcoin
 			}
 			if(Check(data))
 			{
-				vch = new byte[32];
-				Array.Copy(data, 0, vch, 0, count);
-				IsCompressed = fCompressedIn;
-				_ECKey = new ECKey(vch, true);
+				SetBytes(data,count, fCompressedIn);
 			}
 			else
 				throw new FormatException("Invalid EC key");
+		}
+
+		private void SetBytes(byte[] data, int count, bool fCompressedIn)
+		{
+			vch = new byte[32];
+			Array.Copy(data, 0, vch, 0, count);
+			IsCompressed = fCompressedIn;
+			_ECKey = new ECKey(vch, true);
 		}
 
 		private bool Check(byte[] vch)
@@ -77,9 +96,11 @@ namespace NBitcoin
 			}
 		}
 
-		public ECDSASignature Sign(uint256 hash)
+		public byte[] Sign(uint256 hash)
 		{
-			return _ECKey.Sign(hash);
+			var signature = _ECKey.Sign(hash);
+			signature.EnsureCanonical();
+			return signature.ToDER();
 		}
 
 
@@ -93,7 +114,7 @@ namespace NBitcoin
 
 		public byte[] SignCompact(uint256 hash)
 		{
-			var sig = Sign(hash);
+			var sig = _ECKey.Sign(hash);
 			// Now we have to work backwards to figure out the recId needed to recover the signature.
 			int recId = -1;
 			for(int i = 0 ; i < 4 ; i++)

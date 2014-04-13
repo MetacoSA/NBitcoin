@@ -74,6 +74,7 @@
       <DependentUpon>UInt256.tt</DependentUpon>
     </Compile>
     <Compile Include="Utils.cs" />
+    <Compile Include="ValidationState.cs" />
     <Compile Include="VarInt.cs" />
     <Compile Include="VarString.cs" />
   </ItemGroup>

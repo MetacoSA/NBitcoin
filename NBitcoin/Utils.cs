@@ -2,6 +2,7 @@
 using Org.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -17,7 +18,7 @@ namespace NBitcoin
 		public const int PROTOCOL_VERSION = 70002;
 		public static bool ArrayEqual(byte[] a, byte[] b)
 		{
-			return ArrayEqual(a, 0, b, 0, Math.Max(a.Length,b.Length));
+			return ArrayEqual(a, 0, b, 0, Math.Max(a.Length, b.Length));
 		}
 		public static bool ArrayEqual(byte[] a, int startA, byte[] b, int startB, int length)
 		{
@@ -111,6 +112,18 @@ namespace NBitcoin
 				return -new BigInteger(data);
 			}
 			return new BigInteger(data);
+		}
+
+		static readonly TraceSource _TraceSource = new TraceSource("NBitcoin");
+		public static bool error(string msg)
+		{
+			_TraceSource.TraceEvent(TraceEventType.Error, 0, msg);
+			return false;
+		}
+
+		internal static void log(string msg)
+		{
+			_TraceSource.TraceEvent(TraceEventType.Information, 0, msg);
 		}
 	}
 }

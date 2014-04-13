@@ -14,7 +14,7 @@ namespace NBitcoin.Tests
 	{
 
 		static Dictionary<string, OpcodeType> mapOpNames = new Dictionary<string, OpcodeType>();
-		Script ParseScript(string s)
+		public static Script ParseScript(string s)
 		{
 			MemoryStream result = new MemoryStream();
 			if(mapOpNames.Count == 0)
@@ -133,6 +133,141 @@ namespace NBitcoin.Tests
 				Assert.True(script.IsPushOnly, "Length " + i + " is not pure push.");
 				Assert.True(script.HasCanonicalPushes, "Length " + i + " push is not canonical.");
 			}
+		}
+
+
+		Script sign_multisig(Script scriptPubKey, Key[] keys, Transaction transaction)
+		{
+			uint256 hash = Script.SignatureHash(scriptPubKey, transaction, 0, SigHash.All);
+
+			List<Op> ops = new List<Op>();
+			//CScript result;
+			//
+			// NOTE: CHECKMULTISIG has an unfortunate bug; it requires
+			// one extra item on the stack, before the signatures.
+			// Putting OP_0 on the stack is the workaround;
+			// fixing the bug would mean splitting the block chain (old
+			// clients would not accept new CHECKMULTISIG transactions,
+			// and vice-versa)
+			//
+			ops.Add(OpcodeType.OP_0);
+			foreach(Key key in keys)
+			{
+				var vchSig = key.Sign(hash).ToList();
+				vchSig.Add((byte)SigHash.All);
+				ops.Add(Op.GetPushOp(vchSig.ToArray()));
+			}
+			return new Script(ops.ToArray());
+		}
+
+		Script sign_multisig(Script scriptPubKey, Key key, Transaction transaction)
+		{
+			return sign_multisig(scriptPubKey, new Key[] { key }, transaction);
+		}
+
+		[Fact]
+		public void script_CHECKMULTISIG12()
+		{
+			Key key1 = new Key(true);
+			Key key2 = new Key(false);
+			Key key3 = new Key(true);
+
+			Script scriptPubKey12 = new Script(
+					OpcodeType.OP_1,
+					Op.GetPushOp(key1.PubKey.ToBytes()),
+					Op.GetPushOp(key2.PubKey.ToBytes()),
+					OpcodeType.OP_2,
+					OpcodeType.OP_CHECKMULTISIG
+				);
+
+			Transaction txFrom12 = new Transaction();
+			txFrom12.VOut = new TxOut[] { new TxOut() };
+			txFrom12.VOut[0].PublicKey = scriptPubKey12;
+
+
+			Transaction txTo12 = new Transaction();
+			txTo12.VIn = new TxIn[] { new TxIn() };
+			txTo12.VOut = new TxOut[] { new TxOut() };
+			txTo12.VIn[0].PrevOut.N = 0;
+			txTo12.VIn[0].PrevOut.Hash = txFrom12.GetHash();
+			txTo12.VOut[0].Value = 1;
+
+			Script goodsig1 = sign_multisig(scriptPubKey12, key1, txTo12);
+			Assert.True(Script.VerifyScript(goodsig1, scriptPubKey12, txTo12, 0, flags, 0));
+			txTo12.VOut[0].Value = 2;
+			Assert.True(!Script.VerifyScript(goodsig1, scriptPubKey12, txTo12, 0, flags, 0));
+
+			Script goodsig2 = sign_multisig(scriptPubKey12, key2, txTo12);
+			Assert.True(Script.VerifyScript(goodsig2, scriptPubKey12, txTo12, 0, flags, 0));
+
+			Script badsig1 = sign_multisig(scriptPubKey12, key3, txTo12);
+			Assert.True(!Script.VerifyScript(badsig1, scriptPubKey12, txTo12, 0, flags, 0));
+		}
+
+		[Fact]
+		public void script_CHECKMULTISIG23()
+		{
+			Key key1 = new Key(true);
+			Key key2 = new Key(false);
+			Key key3 = new Key(true);
+			Key key4 = new Key(false);
+
+			Script scriptPubKey23 = new Script(
+					OpcodeType.OP_2,
+					Op.GetPushOp(key1.PubKey.ToBytes()),
+					Op.GetPushOp(key2.PubKey.ToBytes()),
+					Op.GetPushOp(key3.PubKey.ToBytes()),
+					OpcodeType.OP_3,
+					OpcodeType.OP_CHECKMULTISIG
+				);
+
+
+			Transaction txFrom23 = new Transaction();
+			txFrom23.VOut = new TxOut[] { new TxOut() };
+			txFrom23.VOut[0].PublicKey = scriptPubKey23;
+
+			Transaction txTo23 = new Transaction();
+			txTo23.VIn = new TxIn[] { new TxIn() };
+			txTo23.VOut = new TxOut[] { new TxOut() };
+			txTo23.VIn[0].PrevOut.N = 0;
+			txTo23.VIn[0].PrevOut.Hash = txFrom23.GetHash();
+			txTo23.VOut[0].Value = 1;
+
+			Key[] keys = new Key[] { key1, key2 };
+			Script goodsig1 = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(Script.VerifyScript(goodsig1, scriptPubKey23, txTo23, 0, flags, 0));
+
+			keys = new Key[] { key1, key3 };
+			Script goodsig2 = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(Script.VerifyScript(goodsig2, scriptPubKey23, txTo23, 0, flags, 0));
+
+			keys = new Key[] { key2, key3 };
+			Script goodsig3 = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(Script.VerifyScript(goodsig3, scriptPubKey23, txTo23, 0, flags, 0));
+
+			keys = new Key[] { key2, key2 }; // Can't re-use sig
+			Script badsig1 = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(badsig1, scriptPubKey23, txTo23, 0, flags, 0));
+
+			keys = new Key[] { key2, key1 }; // sigs must be in correct order
+			Script badsig2 = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(badsig2, scriptPubKey23, txTo23, 0, flags, 0));
+
+			keys = new Key[] { key3, key2 }; // sigs must be in correct order
+			Script badsig3 = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(badsig3, scriptPubKey23, txTo23, 0, flags, 0));
+
+			keys = new Key[] { key4, key2 };// sigs must match pubkeys
+			Script badsig4 = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(badsig4, scriptPubKey23, txTo23, 0, flags, 0));
+
+			keys = new Key[] { key1, key4 };// sigs must match pubkeys
+			Script badsig5 = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(badsig5, scriptPubKey23, txTo23, 0, flags, 0));
+
+			keys = new Key[0]; // Must have signatures
+			Script badsig6 = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(badsig6, scriptPubKey23, txTo23, 0, flags, 0));
 		}
 
 		[Fact]

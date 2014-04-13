@@ -323,6 +323,10 @@ namespace NBitcoin
 			return op;
 		}
 
+		internal Op()
+		{
+
+		}
 		string _Name;
 		public string Name
 		{
@@ -493,6 +497,46 @@ namespace NBitcoin
 			{
 				Code = opcode
 			};
+		}
+
+		public static implicit operator Op(OpcodeType codeType)
+		{
+			if(!IsPushCode(codeType))
+				return new Op()
+				{
+					Code = codeType,
+				};
+			else
+			{
+				if(OpcodeType.OP_1 <= codeType && codeType <= OpcodeType.OP_16)
+				{
+					return new Op()
+					{
+						Code = codeType,
+						PushData = new byte[] { (byte)((byte)codeType - (byte)OpcodeType.OP_1 + 1) }
+					};
+				}
+				else if(codeType == OpcodeType.OP_0)
+				{
+					return new Op()
+					{
+						Code = codeType,
+						PushData = new byte[0]
+					};
+				}
+				else if(codeType == OpcodeType.OP_1NEGATE)
+				{
+					return new Op()
+					{
+						Code = codeType,
+						PushData = new byte[] { 0x81 }
+					};
+				}
+				else
+				{
+					throw new InvalidOperationException("Push OP without any data provided detected, Op.PushData instead");
+				}
+			}
 		}
 
 		private static string ReadWord(TextReader textReader)

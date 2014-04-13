@@ -13,12 +13,17 @@ namespace NBitcoin
 	{
 		public PubKey(byte[] vch)
 		{
-			if(vch.Length != 65 && vch.Length != 33)
+			if(!IsValidSize(vch.Length))
 			{
 				throw new ArgumentException("Invalid public key size");
 			}
 			this.vch = vch.ToArray();
 			_Key = new ECKey(vch, false);
+		}
+
+		public static bool IsValidSize(long size)
+		{
+			return size == 65 || size == 33;
 		}
 		byte[] vch = new byte[0];
 		ECKey _Key = null;
@@ -62,9 +67,10 @@ namespace NBitcoin
 			}
 		}
 
-		public bool Verify(uint256 hash, ECDSASignature sig)
+		public bool Verify(uint256 hash, byte[] sig)
 		{
-			return _Key.Verify(hash, sig);
+
+			return _Key.Verify(hash, ECDSASignature.FromDER(sig));
 		}
 
 		public string ToHex()

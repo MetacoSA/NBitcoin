@@ -101,6 +101,10 @@ namespace NBitcoin
 		{
 			_Satoshis = new BigInteger(satoshis);
 		}
+		public Money(ulong satoshis)
+		{
+			_Satoshis = new BigInteger(satoshis);
+		}
 
 		#region IEquatable<Money> Members
 
@@ -169,6 +173,31 @@ namespace NBitcoin
 		public static Money operator --(Money left)
 		{
 			return new Money(left._Satoshis--);
+		}
+		public static implicit operator Money(long value)
+		{
+			return new Money(value);
+		}
+		public static implicit operator Money(int value)
+		{
+			return new Money(value);
+		}
+		public static implicit operator Money(ulong value)
+		{
+			return new Money(value);
+		}
+
+		public static implicit operator int(Money value)
+		{
+			return (int)value.Satoshi;
+		}
+		public static implicit operator long(Money value)
+		{
+			return (long)value.Satoshi;
+		}
+		public static implicit operator ulong(Money value)
+		{
+			return (ulong)value.Satoshi;
 		}
 
 		public override bool Equals(object obj)

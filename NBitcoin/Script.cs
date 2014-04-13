@@ -24,6 +24,7 @@ namespace NBitcoin
 	/** Signature hash types/flags */
 	public enum SigHash : byte
 	{
+		Undefined = 0,
 		All = 1,
 		None = 2,
 		Single = 3,
@@ -186,6 +187,15 @@ namespace NBitcoin
 		{
 
 		}
+		public Script(params Op[] ops)
+		{
+			MemoryStream ms = new MemoryStream();
+			foreach(var op in ops)
+			{
+				op.WriteTo(ms);
+			}
+			_Script = ms.ToArray();
+		}
 		public Script(string script)
 		{
 			_Script = Parse(script);
@@ -273,7 +283,14 @@ namespace NBitcoin
 
 		static readonly byte[] vchFalse = new byte[] { 0 };
 		static readonly byte[] vchZero = new byte[] { 0 };
-		static readonly byte[] vchTrue = new byte[] { 1, 1 };
+		static readonly byte[] vchTrue = new byte[] { 1 };
+		public int Length
+		{
+			get
+			{
+				return _Script.Length;
+			}
+		}
 
 		public bool EvalScript(ref Stack<byte[]> stack, Transaction txTo, int nIn, ScriptVerify flags, SigHash nHashType)
 		{
@@ -863,8 +880,9 @@ namespace NBitcoin
 									// Subset of script starting at the most recent codeseparator
 									var scriptCode = new Script(_Script.Skip(pbegincodehash).ToArray());
 
+									scriptCode.RemoveCodeSeparator();
 									// Drop the signature, since there's no way for a signature to sign itself
-									scriptCode.FindAndDelete(new Script(vchSig));
+									scriptCode.FindAndDelete(vchSig);
 
 									bool fSuccess = IsCanonicalSignature(vchSig, flags) && IsCanonicalPubKey(vchPubKey, flags) &&
 										CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn, nHashType, flags);
@@ -913,11 +931,12 @@ namespace NBitcoin
 									// Subset of script starting at the most recent codeseparator
 									Script scriptCode = new Script(this._Script.Skip(pbegincodehash).ToArray());
 
+									scriptCode.RemoveCodeSeparator();
 									// Drop the signatures, since there's no way for a signature to sign itself
 									for(int k = 0 ; k < nSigsCount ; k++)
 									{
 										var vchSig = top(stack, -isig - k);
-										scriptCode.FindAndDelete(new Script(vchSig));
+										scriptCode.FindAndDelete(vchSig);
 									}
 
 									bool fSuccess = true;
@@ -980,6 +999,17 @@ namespace NBitcoin
 			return true;
 		}
 
+		private void RemoveCodeSeparator()
+		{
+			MemoryStream ms = new MemoryStream();
+			foreach(var op in CreateReader().ToEnumerable())
+			{
+				if(op.Code != OpcodeType.OP_CODESEPARATOR)
+					op.WriteTo(ms);
+			}
+			_Script = ms.ToArray();
+		}
+
 		private ScriptReader CreateReader(bool ignoreErrors = false)
 		{
 			return new ScriptReader(_Script)
@@ -990,38 +1020,227 @@ namespace NBitcoin
 
 		private bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, ScriptVerify flags)
 		{
-			throw new NotImplementedException();
-		}
-
-		private bool IsCanonicalPubKey(byte[] vchPubKey, ScriptVerify flags)
-		{
-			throw new NotImplementedException();
-		}
-
-		private bool IsCanonicalSignature(byte[] vchSig, ScriptVerify flags)
-		{
-			throw new NotImplementedException();
-		}
-
-		private int FindAndDelete(Script script)
-		{
-			int nFound = 0;
-			if(script._Script.Length == 0)
-				return nFound;
-
-			bool[] suppressed = new bool[_Script.Length];
-			for(int i = 0 ; i < this._Script.Length - script._Script.Length + 1 ; i++)
+			//static CSignatureCache signatureCache;
+			if(!PubKey.IsValidSize(vchPubKey.Length))
+				return false;
+			PubKey pubkey = null;
+			try
 			{
-				if(Utils.ArrayEqual(_Script, i, script._Script, 0, script._Script.Length))
+				pubkey = new PubKey(vchPubKey);
+			}
+			catch(Exception)
+			{
+				return false;
+			}
+
+
+			// Hash type is one byte tacked on to the end of the signature
+			if(vchSig.Length == 0)
+				return false;
+			if(nHashType == SigHash.Undefined)
+				nHashType = (SigHash)vchSig[vchSig.Length - 1];
+			else if(nHashType != (SigHash)vchSig[vchSig.Length - 1])
+				return false;
+			vchSig = vchSig.Take(vchSig.Length - 1).ToArray();
+
+			uint256 sighash = SignatureHash(scriptCode, txTo, nIn, nHashType);
+
+			//if (signatureCache.Get(sighash, vchSig, pubkey))
+			//	return true;
+
+			if(!pubkey.Verify(sighash, vchSig))
+				return false;
+
+			//if (!(flags & SCRIPT_VERIFY_NOCACHE))
+			//	signatureCache.Set(sighash, vchSig, pubkey);
+
+			return true;
+		}
+
+		//https://en.bitcoin.it/wiki/OP_CHECKSIG
+		public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType)
+		{
+			if(nIn >= txTo.VIn.Length)
+			{
+				Utils.log("ERROR: SignatureHash() : nIn=" + nIn + " out of range\n");
+				return 1;
+			}
+
+			// Check for invalid use of SIGHASH_SINGLE
+			if(nHashType == SigHash.Single)
+			{
+				if(nIn >= txTo.VOut.Length)
 				{
-					i += script._Script.Length;
-					suppressed[i] = true;
-					nFound++;
+					Utils.log("ERROR: SignatureHash() : nOut=" + nIn + " out of range\n");
+					return 1;
 				}
 			}
 
-			_Script = _Script.Where((b, i) => !suppressed[i]).ToArray();
-			return nFound;
+			var txCopy = new Transaction(txTo.ToBytes());
+			//Set all TxIn script to empty string
+			foreach(var txin in txCopy.VIn)
+			{
+				txin.ScriptSig = new Script();
+			}
+			//Copy subscript into the txin script you are checking
+			txCopy.VIn[nIn].ScriptSig = scriptCode;
+
+			if(((int)nHashType & 31) == (int)SigHash.None)
+			{
+				//The output of txCopy is set to a vector of zero size.
+				txCopy.VOut = new TxOut[0];
+				//All other inputs aside from the current input in txCopy have their nSequence index set to zero
+				for(int i = 0 ; i < txCopy.VIn.Length ; i++)
+				{
+					if(i == nIn)
+						continue;
+					txCopy.VIn[i].Sequence = 0;
+				}
+			}
+
+			if(((int)nHashType & 31) == (int)SigHash.Single)
+			{
+				//The output of txCopy is resized to the size of the current input index+1.
+				txCopy.VOut = txCopy.VOut.Take(nIn + 1).ToArray();
+				//All other txCopy outputs aside from the output that is the same as the current input index are set to a blank script and a value of (long) -1.
+				for(int i = 0 ; i < txCopy.VOut.Length ; i++)
+				{
+					if(i == nIn)
+						continue;
+					txCopy.VOut[i] = new TxOut();
+				}
+				for(int i = 0 ; i < txCopy.VIn.Length ; i++)
+				{
+					//All other txCopy inputs aside from the current input are set to have an nSequence index of zero.
+					if(i == nIn)
+						continue;
+					txCopy.VIn[i].Sequence = 0;
+				}
+			}
+
+			if(((int)nHashType & (int)SigHash.AnyoneCanPay) != 0)
+			{
+				//The txCopy input vector is resized to a length of one.
+				txCopy.VIn = new TxIn[] { txCopy.VIn[nIn] };
+				//The subScript (lead in by its length as a var-integer encoded!) is set as the first and only member of this vector.
+				txCopy.VIn[0].ScriptSig = scriptCode;
+			}
+
+
+			//Serialize TxCopy, append 4 byte hashtypecode
+			MemoryStream ms = new MemoryStream();
+			BitcoinStream bitcoinStream = new BitcoinStream(ms, true);
+			txCopy.ReadWrite(bitcoinStream);
+			bitcoinStream.ReadWrite<uint>((uint)nHashType);
+
+			var hashed = ms.ToArray();
+			return Hashes.Hash256(hashed);
+		}
+
+
+		private bool IsCanonicalPubKey(byte[] vchPubKey, ScriptVerify flags)
+		{
+			if(!((flags & ScriptVerify.StrictEnc) != 0))
+				return true;
+
+			if(vchPubKey.Length < 33)
+				return false; //error("Non-canonical public key: too short");
+			if(vchPubKey[0] == 0x04)
+			{
+				if(vchPubKey.Length != 65)
+					return false; //error("Non-canonical public key: invalid length for uncompressed key");
+			}
+			else if(vchPubKey[0] == 0x02 || vchPubKey[0] == 0x03)
+			{
+				if(vchPubKey.Length != 33)
+					return false; //error("Non-canonical public key: invalid length for compressed key");
+			}
+			else
+			{
+				return false; //error("Non-canonical public key: compressed nor uncompressed");
+			}
+			return true;
+		}
+
+		public static bool IsCanonicalSignature(byte[] vchSig, ScriptVerify flags)
+		{
+			if(!((flags & ScriptVerify.StrictEnc) != 0))
+				return true;
+
+			// See https://bitcointalk.org/index.php?topic=8392.msg127623#msg127623
+			// A canonical signature exists of: <30> <total len> <02> <len R> <R> <02> <len S> <S> <hashtype>
+			// Where R and S are not negative (their first byte has its highest bit not set), and not
+			// excessively padded (do not start with a 0 byte, unless an otherwise negative number follows,
+			// in which case a single 0 byte is necessary and even required).
+			if(vchSig.Length < 9)
+				return Utils.error("Non-canonical signature: too short");
+			if(vchSig.Length > 73)
+				return Utils.error("Non-canonical signature: too long");
+			var nHashType = vchSig[vchSig.Length - 1] & (~((byte)SigHash.AnyoneCanPay));
+			if(nHashType < (byte)SigHash.All || nHashType > (byte)SigHash.Single)
+				return Utils.error("Non-canonical signature: unknown hashtype byte");
+			if(vchSig[0] != 0x30)
+				return Utils.error("Non-canonical signature: wrong type");
+			if(vchSig[1] != vchSig.Length - 3)
+				return Utils.error("Non-canonical signature: wrong length marker");
+			var nLenR = vchSig[3];
+			if(5 + nLenR >= vchSig.Length)
+				return Utils.error("Non-canonical signature: S length misplaced");
+			var nLenS = vchSig[5 + nLenR];
+			if(((int)nLenR + nLenS + 7) != vchSig.Length)
+				return Utils.error("Non-canonical signature: R+S length mismatch");
+
+			var R = 4;
+			if(vchSig[R - 2] != 0x02)
+				return Utils.error("Non-canonical signature: R value type mismatch");
+			if(nLenR == 0)
+				return Utils.error("Non-canonical signature: R length is zero");
+			if((vchSig[R + 0] & (byte)0x80) != 0)
+				return Utils.error("Non-canonical signature: R value negative");
+			if(nLenR > 1 && (vchSig[R + 0] == 0x00) && !((vchSig[R + 1] & 0x80) != 0))
+				return Utils.error("Non-canonical signature: R value excessively padded");
+
+			var S = 6 + nLenR;
+			if(vchSig[S - 2] != 0x02)
+				return Utils.error("Non-canonical signature: S value type mismatch");
+			if(nLenS == 0)
+				return Utils.error("Non-canonical signature: S length is zero");
+			if((vchSig[S + 0] & 0x80) != 0)
+				return Utils.error("Non-canonical signature: S value negative");
+			if(nLenS > 1 && (vchSig[S + 0] == 0x00) && !((vchSig[S + 1] & 0x80) != 0))
+				return Utils.error("Non-canonical signature: S value excessively padded");
+
+			if((flags & ScriptVerify.EvenS) != 0)
+			{
+				if((vchSig[S + nLenS - 1] & 1) != 0)
+					return Utils.error("Non-canonical signature: S value odd");
+			}
+
+			return true;
+		}
+
+		private int FindAndDelete(byte[] data)
+		{
+			int nFound = 0;
+			if(data.Length == 0)
+				return 0;
+
+			List<Op> operations = new List<Op>();
+			List<long> deleted = new List<long>();
+			var reader = CreateReader(true);
+			foreach(var op in reader.ToEnumerable())
+			{
+				var pushedDetected = op.PushData != null && Utils.ArrayEqual(op.PushData, data);
+				if(!pushedDetected)
+				{
+					operations.Add(op);
+					nFound++;
+				}
+			}
+			if(nFound == 0)
+				return 0;
+			_Script = new Script(operations.ToArray())._Script;
+			return deleted.Count;
 		}
 
 		private void insert(ref Stack<byte[]> stack, int i, byte[] vch)

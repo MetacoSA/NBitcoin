@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,13 @@ namespace NBitcoin
 {
 	public class OutPoint : IBitcoinSerializable
 	{
-
+		public bool IsNull
+		{
+			get
+			{
+				return (hash == 0 && n == unchecked((uint)-1));
+			}
+		}
 		private uint256 hash;
 		private uint n;
 
@@ -20,12 +27,20 @@ namespace NBitcoin
 			{
 				return hash;
 			}
+			set
+			{
+				hash = value;
+			}
 		}
 		public uint N
 		{
 			get
 			{
 				return n;
+			}
+			set
+			{
+				n = value;
 			}
 		}
 
@@ -57,13 +72,6 @@ namespace NBitcoin
 			hash = 0;
 			n = uint.MaxValue;
 		}
-		bool IsNull
-		{
-			get
-			{
-				return (hash == 0 && n == uint.MaxValue);
-			}
-		}
 
 		public static bool operator <(OutPoint a, OutPoint b)
 		{
@@ -86,7 +94,7 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			OutPoint item = obj as OutPoint;
-			if(object.ReferenceEquals(null,item))
+			if(object.ReferenceEquals(null, item))
 				return false;
 			return item == this;
 		}
@@ -95,14 +103,13 @@ namespace NBitcoin
 		{
 			return Tuple.Create(hash, n).GetHashCode();
 		}
-
 	}
 
 
 	public class TxIn : IBitcoinSerializable
 	{
 
-		OutPoint prevout;
+		OutPoint prevout = new OutPoint();
 		Script scriptSig;
 		uint nSequence;
 
@@ -111,6 +118,10 @@ namespace NBitcoin
 			get
 			{
 				return nSequence;
+			}
+			set
+			{
+				nSequence = value;
 			}
 		}
 		public OutPoint PrevOut
@@ -128,6 +139,10 @@ namespace NBitcoin
 			{
 				return scriptSig;
 			}
+			set
+			{
+				scriptSig = value;
+			}
 		}
 
 		#region IBitcoinSerializable Members
@@ -144,16 +159,20 @@ namespace NBitcoin
 
 	public class TxOut : IBitcoinSerializable
 	{
-		Script publicKey;
+		Script publicKey = new Script();
 		public Script PublicKey
 		{
 			get
 			{
 				return this.publicKey;
 			}
+			set
+			{
+				this.publicKey = value;
+			}
 		}
 
-		private ulong value;
+		private long value = -1;
 		Money _MoneyValue;
 		public Money Value
 		{
@@ -162,6 +181,15 @@ namespace NBitcoin
 				if(_MoneyValue == null)
 					_MoneyValue = new Money(value);
 				return _MoneyValue;
+			}
+			set
+			{
+				if(value == null)
+					throw new ArgumentNullException("value");
+				if(value.Satoshi > long.MaxValue || value.Satoshi < long.MinValue)
+					throw new ArgumentOutOfRangeException("satoshi's value should be between Int64.Max and Int64.Min");
+				_MoneyValue = value;
+				this.value = (long)_MoneyValue.Satoshi;
 			}
 		}
 
@@ -214,12 +242,20 @@ namespace NBitcoin
 			{
 				return vin;
 			}
+			set
+			{
+				vin = value;
+			}
 		}
 		public TxOut[] VOut
 		{
 			get
 			{
 				return vout;
+			}
+			set
+			{
+				vout = value;
 			}
 		}
 
@@ -234,5 +270,18 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public uint256 GetHash()
+		{
+			return Hashes.Hash256(this.ToBytes());
+		}
+
+		public bool IsCoinBase
+		{
+			get
+			{
+				return (VIn.Length == 1 && VIn[0].PrevOut.IsNull);
+			}
+		}
 	}
 }
