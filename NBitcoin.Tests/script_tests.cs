@@ -138,7 +138,7 @@ namespace NBitcoin.Tests
 
 		Script sign_multisig(Script scriptPubKey, Key[] keys, Transaction transaction)
 		{
-			uint256 hash = new ScriptEvaluationContext().SignatureHash(scriptPubKey, transaction, 0, SigHash.All);
+			uint256 hash = scriptPubKey.SignatureHash(transaction, 0, SigHash.All);
 
 			List<Op> ops = new List<Op>();
 			//CScript result;
