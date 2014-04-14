@@ -48,7 +48,7 @@ namespace NBitcoin.Tests
 				var hash = (string)test.JSON.hash;
 				var expectedHash = new uint256(Encoders.Hex.DecodeData(hash), false);
 				Assert.Equal(expectedHash, tx.GetHash());
-				Script.SignatureHash(tx.VIn[0].ScriptSig, tx, 0, SigHash.All);
+				new ScriptEvaluationContext().SignatureHash(tx.VIn[0].ScriptSig, tx, 0, SigHash.All);
 			}
 		}
 

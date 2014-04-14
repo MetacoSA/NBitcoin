@@ -138,7 +138,7 @@ namespace NBitcoin.Tests
 
 		Script sign_multisig(Script scriptPubKey, Key[] keys, Transaction transaction)
 		{
-			uint256 hash = Script.SignatureHash(scriptPubKey, transaction, 0, SigHash.All);
+			uint256 hash = new ScriptEvaluationContext().SignatureHash(scriptPubKey, transaction, 0, SigHash.All);
 
 			List<Op> ops = new List<Op>();
 			//CScript result;
@@ -280,21 +280,26 @@ namespace NBitcoin.Tests
 			var pushdata2 = new Script(new byte[] { (byte)OpcodeType.OP_PUSHDATA2, 1, 0, 0x5a });
 			var pushdata4 = new Script(new byte[] { (byte)OpcodeType.OP_PUSHDATA4, 1, 0, 0, 0, 0x5a });
 
-			Stack<byte[]> directStack = new Stack<byte[]>();
-			Assert.True(direct.EvalScript(ref directStack, new Transaction(), 0, ScriptVerify.P2SH, 0));
+			var context = new ScriptEvaluationContext()
+				{
+					ScriptVerify = ScriptVerify.P2SH,
+					SigHash = 0
+				};
+			var directStack = context.Clone();
+			Assert.True(directStack.EvalScript(direct, new Transaction(), 0));
 
-			Stack<byte[]> pushdata1Stack = new Stack<byte[]>();
-			Assert.True(pushdata1.EvalScript(ref pushdata1Stack, new Transaction(), 0, ScriptVerify.P2SH, 0));
-			AssertEx.CollectionEquals(pushdata1Stack.SelectMany(o => o).ToArray(), directStack.SelectMany(o => o).ToArray());
+			var pushdata1Stack = context.Clone();
+			Assert.True(pushdata1Stack.EvalScript(pushdata1, new Transaction(), 0));
+			AssertEx.StackEquals(pushdata1Stack.Stack, directStack.Stack);
 
 
-			Stack<byte[]> pushdata2Stack = new Stack<byte[]>();
-			Assert.True(pushdata2.EvalScript(ref pushdata2Stack, new Transaction(), 0, ScriptVerify.P2SH, 0));
-			AssertEx.CollectionEquals(pushdata2Stack.SelectMany(o => o).ToArray(), directStack.SelectMany(o => o).ToArray());
+			var pushdata2Stack = context.Clone();
+			Assert.True(pushdata2Stack.EvalScript(pushdata2, new Transaction(), 0));
+			AssertEx.StackEquals(pushdata2Stack.Stack, directStack.Stack);
 
-			Stack<byte[]> pushdata4Stack = new Stack<byte[]>();
-			Assert.True(pushdata4.EvalScript(ref pushdata4Stack, new Transaction(), 0, ScriptVerify.P2SH, 0));
-			AssertEx.CollectionEquals(pushdata4Stack.SelectMany(o => o).ToArray(), directStack.SelectMany(o => o).ToArray());
+			var pushdata4Stack = context.Clone();
+			Assert.True(pushdata4Stack.EvalScript(pushdata4, new Transaction(), 0));
+			AssertEx.StackEquals(pushdata4Stack.Stack, directStack.Stack);
 		}
 	}
 }

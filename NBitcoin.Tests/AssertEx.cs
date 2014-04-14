@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -31,6 +32,14 @@ namespace NBitcoin.Tests
 				if(!Object.Equals(actual[i], expected[i]))
 					Assert.False(true, "Actual[" + i + "](" + actual[i] + ") != Expected[" + i + "](" + expected[i] + ")");
 			}
+		}
+
+		[DebuggerHidden]
+		internal static void StackEquals(Stack<byte[]> stack1, Stack<byte[]> stack2)
+		{
+			var hash1 = stack1.Select(o => Hashes.Hash256(o)).ToArray();
+			var hash2 = stack2.Select(o => Hashes.Hash256(o)).ToArray();
+			AssertEx.CollectionEquals(hash1, hash2);
 		}
 	}
 }
