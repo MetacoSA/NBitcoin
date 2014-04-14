@@ -300,7 +300,7 @@ namespace NBitcoin
 			int pbegincodehash = 0;
 			Stack<bool> vfExec = new Stack<bool>();
 			Stack<byte[]> altstack = new Stack<byte[]>();
-			Op opcode;
+			Op opcode = null;
 			if(_Script.Length > 10000)
 				return false;
 			int nOpCount = 0;
@@ -987,8 +987,9 @@ namespace NBitcoin
 
 				}
 			}
-			catch(Exception)
+			catch(Exception ex)
 			{
+				Utils.error("Error in EvalScript " + ex.Message + " on opcode " + opcode);
 				return false;
 			}
 
