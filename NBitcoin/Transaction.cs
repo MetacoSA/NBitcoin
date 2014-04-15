@@ -160,7 +160,7 @@ namespace NBitcoin
 	public class TxOut : IBitcoinSerializable
 	{
 		Script publicKey = new Script();
-		public Script PublicKey
+		public Script ScriptPubKey
 		{
 			get
 			{

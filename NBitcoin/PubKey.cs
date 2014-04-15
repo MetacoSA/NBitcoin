@@ -15,7 +15,7 @@ namespace NBitcoin
 		{
 			if(!IsValidSize(vch.Length))
 			{
-				throw new ArgumentException("Invalid public key size");
+				throw new FormatException("Invalid public key size");
 			}
 			this.vch = vch.ToArray();
 			_Key = new ECKey(vch, false);

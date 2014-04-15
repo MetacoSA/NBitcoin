@@ -17,5 +17,10 @@ namespace NBitcoin.Tests
 			}
 			return result;
 		}
+
+		internal static bool TupleEquals<T1, T2>(Tuple<T1, T2> a, Tuple<T1, T2> b)
+		{
+			return a.Item1.Equals(b.Item1) && a.Item2.Equals(b.Item2);
+		}
 	}
 }

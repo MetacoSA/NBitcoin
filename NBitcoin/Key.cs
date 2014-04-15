@@ -99,7 +99,7 @@ namespace NBitcoin
 		public byte[] Sign(uint256 hash)
 		{
 			var signature = _ECKey.Sign(hash);
-			signature.EnsureCanonical();
+			signature = signature.MakeCanonical();
 			return signature.ToDER();
 		}
 

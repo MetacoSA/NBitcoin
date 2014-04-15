@@ -14,7 +14,16 @@ namespace NBitcoin
 
 	public static class BitcoinSerializableExtensions
 	{
-		public static void FromBytes(this IBitcoinSerializable serializable,byte[] bytes)
+		public static void ReadWrite(this IBitcoinSerializable serializable, Stream stream, bool serializing)
+		{
+			BitcoinStream s = new BitcoinStream(stream, serializing);
+			serializable.ReadWrite(s);
+		}
+		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes)
+		{
+			ReadWrite(serializable, new MemoryStream(bytes), false);
+		}
+		public static void FromBytes(this IBitcoinSerializable serializable, byte[] bytes)
 		{
 			serializable.ReadWrite(new BitcoinStream(bytes));
 		}

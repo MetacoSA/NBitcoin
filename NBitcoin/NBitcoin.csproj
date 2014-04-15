@@ -47,6 +47,8 @@
     <Compile Include="BitcoinAddress.cs" />
     <Compile Include="BitcoinSecret.cs" />
     <Compile Include="BitcoinStream.cs" />
+    <Compile Include="Block.cs" />
+    <Compile Include="BloomFilter.cs" />
     <Compile Include="Crypto\Hashes.cs" />
     <Compile Include="DataEncoders\Base58Encoder.cs" />
     <Compile Include="DataEncoders\Base64Encoder.cs" />
@@ -62,12 +64,16 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>MedianFilter.tt</DependentUpon>
     </Compile>
+    <Compile Include="MerkleBlock.cs" />
     <Compile Include="Money.cs" />
+    <Compile Include="PartialMerkleTree.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PubKey.cs" />
     <Compile Include="Script.cs" />
     <Compile Include="ScriptEvaluationContext.cs" />
     <Compile Include="ScriptReader.cs" />
+    <Compile Include="StandardScriptTemplate.cs" />
+    <Compile Include="StandardScripts.cs" />
     <Compile Include="Transaction.cs" />
     <Compile Include="UInt2561.cs">
       <AutoGen>True</AutoGen>

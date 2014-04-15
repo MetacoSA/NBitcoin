@@ -42,7 +42,7 @@ namespace NBitcoin.Tests
 				{
 					var actualVOut = tx.VOut[i];
 					var expectedVOut = test.JSON.@out[i];
-					Assert.Equal((string)expectedVOut.scriptPubKey, actualVOut.PublicKey.ToString());
+					Assert.Equal((string)expectedVOut.scriptPubKey, actualVOut.ScriptPubKey.ToString());
 					Assert.Equal(Money.Parse((string)expectedVOut.value), actualVOut.Value);
 				}
 				var hash = (string)test.JSON.hash;
@@ -177,6 +177,67 @@ namespace NBitcoin.Tests
 			// Check that duplicate txins fail
 			tx.VIn = tx.VIn.Concat(new[] { tx.VIn[0] }).ToArray();
 			Assert.True(!state.CheckTransaction(tx) || !state.IsValid, "Transaction with duplicate txins should be invalid.");
+		}
+
+		[Fact]
+		public void test_Get()
+		{
+			//CBasicKeyStore keystore;
+			//CCoinsView coinsDummy;
+			//CCoinsViewCache coins(coinsDummy);
+			Transaction[] dummyTransactions = SetupDummyInputs();//(keystore, coins);
+
+			Transaction t1 = new Transaction();
+			t1.VIn = Enumerable.Range(0, 3).Select(_ => new TxIn()).ToArray();
+			t1.VIn[0].PrevOut.Hash = dummyTransactions[0].GetHash();
+			t1.VIn[0].PrevOut.N = 1;
+			t1.VIn[0].ScriptSig += new byte[65];
+			t1.VIn[1].PrevOut.Hash = dummyTransactions[1].GetHash();
+			t1.VIn[1].PrevOut.N = 0;
+			t1.VIn[1].ScriptSig = t1.VIn[1].ScriptSig + new byte[65] + Enumerable.Range(0, 33).Select(_ => (byte)4);
+			t1.VIn[2].PrevOut.Hash = dummyTransactions[1].GetHash();
+			t1.VIn[2].PrevOut.N = 1;
+			t1.VIn[2].ScriptSig = t1.VIn[2].ScriptSig + new byte[65] + Enumerable.Range(0, 33).Select(_ => (byte)4);
+			t1.VOut = Enumerable.Range(0, 2).Select(_ => new TxOut()).ToArray();
+			t1.VOut[0].Value = 90 * Money.CENT;
+			t1.VOut[0].ScriptPubKey += OpcodeType.OP_1;
+
+			Assert.True(StandardScripts.AreInputsStandard(t1));
+			//Assert.Equal(coins.GetValueIn(t1), (50+21+22)*Money.CENT);
+
+			//// Adding extra junk to the scriptSig should make it non-standard:
+			t1.VIn[0].ScriptSig += OpcodeType.OP_11;
+			Assert.True(!StandardScripts.AreInputsStandard(t1));
+
+			//// ... as should not having enough:
+			t1.VIn[0].ScriptSig += new Script();
+			Assert.True(!StandardScripts.AreInputsStandard(t1));
+		}
+
+		private Transaction[] SetupDummyInputs()
+		{
+			Transaction[] dummyTransactions = Enumerable.Range(0, 2).Select(_ => new Transaction()).ToArray();
+
+			// Add some keys to the keystore:
+			Key[] key = Enumerable.Range(0, 4).Select((_, i) => new Key(i % 2 != 0)).ToArray();
+
+
+			// Create some dummy input transactions
+			dummyTransactions[0].VOut = Enumerable.Range(0, 2).Select(_ => new TxOut()).ToArray();
+			dummyTransactions[0].VOut[0].Value = 11 * Money.CENT;
+			dummyTransactions[0].VOut[0].ScriptPubKey = dummyTransactions[0].VOut[0].ScriptPubKey + key[0].PubKey.ToBytes() + OpcodeType.OP_CHECKSIG;
+			dummyTransactions[0].VOut[1].Value = 50 * Money.CENT;
+			dummyTransactions[0].VOut[1].ScriptPubKey = dummyTransactions[0].VOut[1].ScriptPubKey + key[1].PubKey.ToBytes() + OpcodeType.OP_CHECKSIG;
+			//coinsRet.SetCoins(dummyTransactions[0].GetHash(), CCoins(dummyTransactions[0], 0));
+
+			dummyTransactions[1].VOut = Enumerable.Range(0, 2).Select(_ => new TxOut()).ToArray();
+			dummyTransactions[1].VOut[0].Value = 21 * Money.CENT;
+			dummyTransactions[1].VOut[0].ScriptPubKey = StandardScripts.PayToAddress(key[2].PubKey.Address);
+			dummyTransactions[1].VOut[1].Value = 22 * Money.CENT;
+			dummyTransactions[1].VOut[1].ScriptPubKey = StandardScripts.PayToAddress(key[3].PubKey.Address);
+			//coinsRet.SetCoins(dummyTransactions[1].GetHash(), CCoins(dummyTransactions[1], 0));
+
+			return dummyTransactions;
 		}
 	}
 }

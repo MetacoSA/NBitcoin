@@ -55,22 +55,51 @@ namespace NBitcoin.Crypto
 			return bos.ToArray();
 
 		}
-
+		const string InvalidDERSignature = "Invalid DER signature";
 		public static ECDSASignature FromDER(byte[] sig)
 		{
-			Asn1InputStream decoder = new Asn1InputStream(sig);
-			var seq = (DerSequence)decoder.ReadObject();
-			return new ECDSASignature(((DerInteger)seq[0]).Value, ((DerInteger)seq[1]).Value);
-		}
-
-		public void EnsureCanonical()
-		{
-			if(this.S.CompareTo(ECKey.HALF_CURVE_ORDER) > 0)
+			try
 			{
-				this._S = ECKey.CreateCurve().N.Subtract(this.S);
+				Asn1InputStream decoder = new Asn1InputStream(sig);
+				var seq = decoder.ReadObject() as DerSequence;
+				if(seq == null || seq.Count != 2)
+					throw new FormatException(InvalidDERSignature);
+				return new ECDSASignature(((DerInteger)seq[0]).Value, ((DerInteger)seq[1]).Value);
+			}
+			catch(IOException ex)
+			{
+				throw new FormatException(InvalidDERSignature, ex);
 			}
 		}
 
-		
+		public ECDSASignature MakeCanonical()
+		{
+			if(this.S.CompareTo(ECKey.HALF_CURVE_ORDER) > 0)
+			{
+				return new ECDSASignature(this.R, ECKey.CreateCurve().N.Subtract(this.S));
+			}
+			else
+				return this;
+		}
+
+
+
+		public static bool IsValidDER(byte[] bytes)
+		{
+			try
+			{
+				ECDSASignature.FromDER(bytes);
+				return true;
+			}
+			catch(FormatException)
+			{
+				return false;
+			}
+			catch(Exception ex)
+			{
+				Utils.error("Unexpected exception in ECDSASignature.IsValidDER " + ex.Message);
+				return false;
+			}
+		}
 	}
 }

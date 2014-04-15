@@ -325,10 +325,7 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			VarString str = new VarString(_Script);
-			stream.ReadWrite(ref str);
-			if(!stream.Serializing)
-				_Script = str.GetString();
+			stream.ReadWriteAsVarString(ref _Script);
 		}
 
 		#endregion
@@ -427,7 +424,7 @@ namespace NBitcoin
 					return 1;
 				}
 			}
-			
+
 			var txCopy = new Transaction(txTo.ToBytes());
 			//Set all TxIn script to empty string
 			foreach(var txin in txCopy.VIn)
@@ -487,6 +484,41 @@ namespace NBitcoin
 
 			var hashed = ms.ToArray();
 			return Hashes.Hash256(hashed);
+		}
+
+		public static Script operator +(Script a, Script b)
+		{
+			if(a == null)
+				return new Script(a._Script);
+			return new Script(a._Script.Concat(b._Script).ToArray());
+		}
+		public static Script operator +(Script a, IEnumerable<byte> bytes)
+		{
+			if(a == null)
+				return new Script(Op.GetPushOp(bytes.ToArray()));
+			return a + Op.GetPushOp(bytes.ToArray());
+		}
+		public static Script operator +(Script a, Op op)
+		{
+			if(a == null)
+				return new Script(op);
+			return new Script(a._Script.Concat(op.ToBytes()).ToArray());
+		}
+
+		public static Script operator +(Script a, IEnumerable<Op> op)
+		{
+			if(a == null)
+				return new Script(op.ToArray());
+			return new Script(a._Script.Concat(new Script(op.ToArray())._Script).ToArray());
+		}
+
+		public IEnumerable<Op> ToOps()
+		{
+			ScriptReader reader = new ScriptReader(_Script)
+			{
+				IgnoreIncoherentPushData = true
+			};
+			return reader.ToEnumerable();
 		}
 	}
 }

@@ -85,7 +85,7 @@ namespace NBitcoin.Crypto
 			signer.Init(true, PrivateKey);
 			BigInteger[] components = signer.GenerateSignature(hash.ToBytes());
 			ECDSASignature signature = new ECDSASignature(components[0], components[1]);
-			signature.EnsureCanonical();
+			signature = signature.MakeCanonical();
 			return signature;
 		}
 

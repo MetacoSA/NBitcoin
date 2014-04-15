@@ -43,6 +43,13 @@ namespace NBitcoin
 			ReadWrite<T>(ref data);
 			return data;
 		}
+
+		public void ReadWriteAsVarString(ref byte[] bytes)
+		{
+			VarString str = new VarString(bytes);
+			ReadWrite(ref str);
+			bytes = str.GetString();
+		}
 		public void ReadWrite<T>(ref T data)
 		{
 			if(typeof(IBitcoinSerializable).IsAssignableFrom(typeof(T)))
@@ -69,6 +76,10 @@ namespace NBitcoin
 				ReadWriteArrayUntyped(ref d);
 				data = (T)(object)d;
 			}
+			else if(typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(List<>))
+			{
+				ReadWriteListUntyped(ref data);
+			}
 			else if(IsUNumber<T>() || IsNumber<T>())
 			{
 				ReadWriteNumber(ref data);
@@ -76,6 +87,8 @@ namespace NBitcoin
 			else
 				throw new NotSupportedException("Type not supported " + typeof(T).FullName + ", implement IBitcoinSerializable");
 		}
+
+		
 
 		private void ReadWriteArrayUntyped(ref Array data)
 		{
@@ -106,6 +119,29 @@ namespace NBitcoin
 				data[i] = obj;
 			}
 		}
+
+		private void ReadWriteListUntyped<T>(ref T data)
+		{
+			var elementType = data.GetType().GetGenericArguments()[0];
+			var parameters = new object[] { data };
+
+			this.GetType().GetMethod("ReadWriteList", BindingFlags.NonPublic | BindingFlags.Instance)
+				.MakeGenericMethod(elementType)
+				.Invoke(this, parameters);
+
+			data = (T)(object)parameters[0];
+		}
+		private void ReadWriteList<T>(ref List<T> data)
+		{
+			if(data == null && Serializing)
+				throw new ArgumentNullException("Impossible to serialize a null list");
+
+			var dataArray = data.ToArray();
+			ReadWriteArray(ref dataArray);
+			if(!Serializing)
+				data = dataArray.ToList();
+		}
+
 
 		private void ReadWriteNumber<T>(ref T data)
 		{

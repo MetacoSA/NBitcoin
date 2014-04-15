@@ -182,7 +182,7 @@ namespace NBitcoin.Tests
 
 			Transaction txFrom12 = new Transaction();
 			txFrom12.VOut = new TxOut[] { new TxOut() };
-			txFrom12.VOut[0].PublicKey = scriptPubKey12;
+			txFrom12.VOut[0].ScriptPubKey = scriptPubKey12;
 
 
 			Transaction txTo12 = new Transaction();
@@ -224,7 +224,7 @@ namespace NBitcoin.Tests
 
 			Transaction txFrom23 = new Transaction();
 			txFrom23.VOut = new TxOut[] { new TxOut() };
-			txFrom23.VOut[0].PublicKey = scriptPubKey23;
+			txFrom23.VOut[0].ScriptPubKey = scriptPubKey23;
 
 			Transaction txTo23 = new Transaction();
 			txTo23.VIn = new TxIn[] { new TxIn() };
