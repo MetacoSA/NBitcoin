@@ -22,7 +22,7 @@ namespace NBitcoin
 	};
 
 	/** Signature hash types/flags */
-	public enum SigHash : byte
+	public enum SigHash : uint
 	{
 		Undefined = 0,
 		All = 1,
@@ -277,16 +277,6 @@ namespace NBitcoin
 
 
 
-		internal void RemoveCodeSeparator()
-		{
-			MemoryStream ms = new MemoryStream();
-			foreach(var op in CreateReader().ToEnumerable())
-			{
-				if(op.Code != OpcodeType.OP_CODESEPARATOR)
-					op.WriteTo(ms);
-			}
-			_Script = ms.ToArray();
-		}
 
 		public ScriptReader CreateReader(bool ignoreErrors = false)
 		{
@@ -297,28 +287,47 @@ namespace NBitcoin
 		}
 
 
-		internal int FindAndDelete(byte[] data)
+		public int FindAndDelete(OpcodeType op)
+		{
+			return FindAndDelete(new Op()
+			{
+				Code = op
+			});
+		}
+		public int FindAndDelete(Op op)
+		{
+			if(op == null)
+				return 0;
+			return FindAndDelete(o => o.Code == op.Code && Utils.ArrayEqual(o.PushData, op.PushData));
+		}
+
+		public int FindAndDelete(byte[] pushedData)
+		{
+			if(pushedData.Length == 0)
+				return 0;
+			var standardOp = Op.GetPushOp(pushedData);
+			return FindAndDelete(op =>
+							op.Code == standardOp.Code &&
+							op.PushData != null && Utils.ArrayEqual(op.PushData, pushedData));
+		}
+		internal int FindAndDelete(Func<Op, bool> predicate)
 		{
 			int nFound = 0;
-			if(data.Length == 0)
-				return 0;
-
 			List<Op> operations = new List<Op>();
-			List<long> deleted = new List<long>();
-			var reader = CreateReader(true);
-			foreach(var op in reader.ToEnumerable())
+			foreach(var op in this.ToOps())
 			{
-				var pushedDetected = op.PushData != null && Utils.ArrayEqual(op.PushData, data);
-				if(!pushedDetected)
+				var shouldDelete = predicate(op);
+				if(!shouldDelete)
 				{
 					operations.Add(op);
-					nFound++;
 				}
+				else
+					nFound++;
 			}
 			if(nFound == 0)
 				return 0;
 			_Script = new Script(operations.ToArray())._Script;
-			return deleted.Count;
+			return nFound;
 		}
 
 		#region IBitcoinSerializable Members
@@ -425,6 +434,9 @@ namespace NBitcoin
 				}
 			}
 
+			var scriptCopy = new Script(_Script);
+			scriptCopy.FindAndDelete(OpcodeType.OP_CODESEPARATOR);
+
 			var txCopy = new Transaction(txTo.ToBytes());
 			//Set all TxIn script to empty string
 			foreach(var txin in txCopy.VIn)
@@ -432,7 +444,7 @@ namespace NBitcoin
 				txin.ScriptSig = new Script();
 			}
 			//Copy subscript into the txin script you are checking
-			txCopy.VIn[nIn].ScriptSig = this;
+			txCopy.VIn[nIn].ScriptSig = scriptCopy;
 
 			if(((int)nHashType & 31) == (int)SigHash.None)
 			{
@@ -472,7 +484,7 @@ namespace NBitcoin
 				//The txCopy input vector is resized to a length of one.
 				txCopy.VIn = new TxIn[] { txCopy.VIn[nIn] };
 				//The subScript (lead in by its length as a var-integer encoded!) is set as the first and only member of this vector.
-				txCopy.VIn[0].ScriptSig = this;
+				txCopy.VIn[0].ScriptSig = scriptCopy;
 			}
 
 
@@ -480,7 +492,7 @@ namespace NBitcoin
 			MemoryStream ms = new MemoryStream();
 			BitcoinStream bitcoinStream = new BitcoinStream(ms, true);
 			txCopy.ReadWrite(bitcoinStream);
-			bitcoinStream.ReadWrite<uint>((uint)nHashType);
+			bitcoinStream.ReadWrite((uint)nHashType);
 
 			var hashed = ms.ToArray();
 			return Hashes.Hash256(hashed);

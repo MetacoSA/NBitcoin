@@ -60,6 +60,7 @@
     <Compile Include="key_tests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="script_tests.cs" />
+    <Compile Include="sighash_tests.cs" />
     <Compile Include="TestCase.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="transaction_tests.cs" />
@@ -89,6 +90,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\script_valid.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\sighash.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\sig_canonical.json">

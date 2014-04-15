@@ -623,8 +623,6 @@ namespace NBitcoin
 
 									// Subset of script starting at the most recent codeseparator
 									var scriptCode = new Script(s._Script.Skip(pbegincodehash).ToArray());
-
-									scriptCode.RemoveCodeSeparator();
 									// Drop the signature, since there's no way for a signature to sign itself
 									scriptCode.FindAndDelete(vchSig);
 
@@ -675,8 +673,6 @@ namespace NBitcoin
 
 									// Subset of script starting at the most recent codeseparator
 									Script scriptCode = new Script(s._Script.Skip(pbegincodehash).ToArray());
-
-									scriptCode.RemoveCodeSeparator();
 									// Drop the signatures, since there's no way for a signature to sign itself
 									for(int k = 0 ; k < nSigsCount ; k++)
 									{

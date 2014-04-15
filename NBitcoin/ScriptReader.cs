@@ -348,42 +348,40 @@ namespace NBitcoin
 			set;
 		}
 
-		private static void PushDataToStream(byte[] data, Stream result)
+		private void PushDataToStream(byte[] data, Stream result)
 		{
 			var bitStream = new BitcoinStream(result, true);
 
-			if(data.Length == 0.00)
+			if(Code == OpcodeType.OP_0)
 			{
 				//OP_0 already pushed
 				return;
 			}
 
-			if(data.Length == 1 &&
-						(byte)1 <= data[0] && data[0] <= (byte)16)
+			if(OpcodeType.OP_1 <= Code && Code <= OpcodeType.OP_16)
 			{
 				//OP_1 to OP_16 already pushed
 				return;
 			}
-			if(data.Length == 1
-						&& data[0] == 0x81)
+			if(Code == OpcodeType.OP_1NEGATE)
 			{
 				//OP_1Negate already pushed
 				return;
 			}
 
-			if(0x01 <= data.Length && data.Length <= 0x4b)
+			if( 0x01 <= (byte)Code && (byte)Code <= 0x4b)
 			{
 				//Data length already pushed
 			}
-			else if(data.Length <= 0xFF)
+			else if(Code == OpcodeType.OP_PUSHDATA1)
 			{
 				bitStream.ReadWrite((byte)data.Length);
 			}
-			else if(data.LongLength <= 0xFFFF)
+			else if(Code == OpcodeType.OP_PUSHDATA2)
 			{
 				bitStream.ReadWrite((ushort)data.Length);
 			}
-			else if(data.LongLength <= 0xFFFFFFFF)
+			else if(Code == OpcodeType.OP_PUSHDATA4)
 			{
 				bitStream.ReadWrite((uint)data.Length);
 			}

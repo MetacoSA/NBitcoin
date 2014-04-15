@@ -159,7 +159,7 @@ namespace NBitcoin.Tests
 				}
 				Assert.True(!fValid, strTest + " failed");
 			}
-
+			
 
 		}
 

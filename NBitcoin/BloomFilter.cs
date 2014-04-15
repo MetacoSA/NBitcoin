@@ -23,7 +23,7 @@ namespace NBitcoin
 		const uint MAX_HASH_FUNCS = 50;
 		const decimal LN2SQUARED = 0.4804530139182014246671025263266649717305529515945455M;
 		const decimal LN2 = 0.6931471805599453094172321214581765680755001343602552M;
-		static readonly byte[] bit_mask = new byte[] { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
+	
 
 		byte[] vData;
 		uint nHashFuncs;
@@ -63,7 +63,7 @@ namespace NBitcoin
 			{
 				uint nIndex = Hash(i, vKey);
 				// Sets bit nIndex of vData
-				vData[nIndex >> 3] |= bit_mask[7 & nIndex];
+				vData[nIndex >> 3] |= (byte)(1 << (7 & (int)nIndex));
 			}
 			isEmpty = false;
 		}
@@ -78,7 +78,7 @@ namespace NBitcoin
 			{
 				uint nIndex = Hash(i, vKey);
 				// Checks bit nIndex of vData
-				if((vData[nIndex >> 3] & bit_mask[7 & nIndex]) == 0)
+				if((vData[nIndex >> 3] & (byte)(1 << (7 & (int)nIndex))) == 0)
 					return false;
 			}
 			return true;
