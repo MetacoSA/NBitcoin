@@ -205,5 +205,19 @@ namespace NBitcoin.Tests
 			Assert.Equal<BigInteger>(-1, Utils.BytesToBigInteger(new byte[] { 0x81 }));
 			Assert.Equal<BigInteger>(-128, Utils.BytesToBigInteger(new byte[] { 0x80, 0x80 }));
 		}
+
+		[Fact]
+		public void CanConvertToUnixTime()
+		{
+			var date = Utils.UnixTimeToDateTime(1368576000);
+			Assert.Equal(new DateTimeOffset(2013, 5, 15, 0, 0, 0, TimeSpan.Zero), date);
+			Assert.Equal((uint)1368576000, Utils.DateTimeToUnixTime(date));
+
+			Utils.DateTimeToUnixTime(Utils.UnixTimeToDateTime(uint.MaxValue));
+			Utils.DateTimeToUnixTime(Utils.UnixTimeToDateTime(0));
+
+			Assert.Throws<ArgumentOutOfRangeException>(() => Utils.DateTimeToUnixTime(Utils.UnixTimeToDateTime(uint.MaxValue) + TimeSpan.FromSeconds(1)));
+			Assert.Throws<ArgumentOutOfRangeException>(() => Utils.DateTimeToUnixTime(Utils.UnixTimeToDateTime(0) - TimeSpan.FromSeconds(1)));
+		}
 	}
 }

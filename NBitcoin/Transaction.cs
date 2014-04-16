@@ -211,6 +211,18 @@ namespace NBitcoin
 	public class Transaction : IBitcoinSerializable
 	{
 		uint nVersion = 0;
+
+		public uint Version
+		{
+			get
+			{
+				return nVersion;
+			}
+			set
+			{
+				nVersion = value;
+			}
+		}
 		TxIn[] vin = new TxIn[0];
 		TxOut[] vout = new TxOut[0];
 		uint nLockTime = 0;

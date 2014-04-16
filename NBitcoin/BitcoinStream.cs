@@ -155,7 +155,6 @@ namespace NBitcoin
 			else
 				throw new NotSupportedException("Type not supported " + typeof(T).FullName);
 
-
 			ulong value = 0;
 			if(IsUNumber<T>())
 			{

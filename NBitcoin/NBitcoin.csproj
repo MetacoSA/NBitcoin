@@ -49,6 +49,7 @@
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
     <Compile Include="BloomFilter.cs" />
+    <Compile Include="TxOutRepository.cs" />
     <Compile Include="Crypto\Hashes.cs" />
     <Compile Include="DataEncoders\Base58Encoder.cs" />
     <Compile Include="DataEncoders\Base64Encoder.cs" />

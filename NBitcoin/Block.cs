@@ -1,6 +1,7 @@
 ﻿using NBitcoin.Crypto;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,9 +25,21 @@ namespace NBitcoin
 
 		uint nTime;
 		uint nBits;
+
+		public uint NBits
+		{
+			get
+			{
+				return nBits;
+			}
+			set
+			{
+				nBits = value;
+			}
+		}
+
+
 		uint nNonce;
-
-
 		public uint256 HashMerkleRoot
 		{
 			get
@@ -81,11 +94,15 @@ namespace NBitcoin
 			return Hashes.Hash256(this.ToBytes());
 		}
 
-		public long BlockTime
+		public DateTimeOffset BlockTime
 		{
 			get
 			{
-				return (long)nTime;
+				return Utils.UnixTimeToDateTime(nTime);
+			}
+			set
+			{
+				this.nTime = Utils.DateTimeToUnixTime(value);
 			}
 		}
 	}
@@ -111,7 +128,7 @@ namespace NBitcoin
 		}
 
 		// memory only
-		uint256[] vMerkleTree;
+		public List<uint256> vMerkleTree = new List<uint256>();
 
 
 
@@ -139,7 +156,6 @@ namespace NBitcoin
 		{
 			header.SetNull();
 			vtx = new Transaction[0];
-			vMerkleTree = new uint256[0];
 		}
 
 		public BlockHeader Header
@@ -150,15 +166,68 @@ namespace NBitcoin
 			}
 		}
 
-		//uint256 BuildMerkleTree() const;
-
-		public uint256 GetTxHash(uint nIndex)
+		public uint256 BuildMerkleTree()
 		{
-			if(vMerkleTree.Length <= 0)
+			vMerkleTree.Clear();
+			foreach(var tx in Vtx)
+				vMerkleTree.Add(tx.GetHash());
+			int j = 0;
+			for(int nSize = vtx.Length ; nSize > 1 ; nSize = (nSize + 1) / 2)
+			{
+				for(int i = 0 ; i < nSize ; i += 2)
+				{
+					int i2 = Math.Min(i + 1, nSize - 1);
+					vMerkleTree.Add(Hash(vMerkleTree[j + i],
+										 vMerkleTree[j + i2]));
+				}
+				j += nSize;
+			}
+			return (vMerkleTree.Count == 0 ? 0 : vMerkleTree.Last());
+		}
+
+		private static uint256 Hash(uint256 a, uint256 b)
+		{
+			return Hashes.Hash256(a.ToBytes().Concat(b.ToBytes()).ToArray());
+		}
+
+		public uint256 GetTxHash(int nIndex)
+		{
+			if(vMerkleTree.Count <= 0)
 				throw new InvalidOperationException("BuildMerkleTree must have been called first");
 			if(nIndex >= vtx.Length)
 				throw new InvalidOperationException("nIndex >= vtx.Length");
 			return vMerkleTree[nIndex];
+		}
+
+		public List<uint256> GetMerkleBranch(int nIndex)
+		{
+			if(vMerkleTree.Count == 0)
+				BuildMerkleTree();
+			List<uint256> vMerkleBranch = new List<uint256>();
+			int j = 0;
+			for(int nSize = vtx.Length ; nSize > 1 ; nSize = (nSize + 1) / 2)
+			{
+				int i = Math.Min(nIndex ^ 1, nSize - 1);
+				vMerkleBranch.Add(vMerkleTree[j + i]);
+				nIndex >>= 1;
+				j += nSize;
+			}
+			return vMerkleBranch;
+		}
+
+		public static uint256 CheckMerkleBranch(uint256 hash, List<uint256> vMerkleBranch, int nIndex)
+		{
+			if(nIndex == -1)
+				return 0;
+			foreach(var otherside in vMerkleBranch)
+			{
+				if((nIndex & 1) != 0)
+					hash = Hash(otherside, hash);
+				else
+					hash = Hash(hash, otherside);
+				nIndex >>= 1;
+			}
+			return hash;
 		}
 
 		//std::vector<uint256> GetMerkleBranch(int nIndex) const;
@@ -169,6 +238,22 @@ namespace NBitcoin
 		{
 			//Block's hash is his header's hash
 			return Hashes.Hash256(header.ToBytes());
+		}
+
+		public int Length
+		{
+			get
+			{
+				return header.ToBytes().Length;
+			}
+		}
+
+		public void ReadWrite(byte[] array, int startIndex)
+		{
+			var ms = new MemoryStream(array);
+			ms.Position += startIndex;
+			BitcoinStream bitStream = new BitcoinStream(ms, false);
+			ReadWrite(bitStream);
 		}
 	}
 }

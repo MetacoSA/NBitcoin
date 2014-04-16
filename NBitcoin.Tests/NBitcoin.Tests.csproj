@@ -55,12 +55,14 @@
     <Compile Include="AssertEx.cs" />
     <Compile Include="base58_tests.cs" />
     <Compile Include="bloom_tests.cs" />
+    <Compile Include="checkblock_tests.cs" />
     <Compile Include="ConverterTests.cs" />
     <Compile Include="hash_tests.cs" />
     <Compile Include="key_tests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="script_tests.cs" />
     <Compile Include="sighash_tests.cs" />
+    <Compile Include="sigopcount_tests.cs" />
     <Compile Include="TestCase.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="transaction_tests.cs" />

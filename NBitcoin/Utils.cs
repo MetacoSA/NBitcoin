@@ -13,6 +13,28 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	public static class Extensions
+	{
+		/// <summary>
+/// Converts a given DateTime into a Unix timestamp
+/// </summary>
+/// <param name="value">Any DateTime</param>
+/// <returns>The given DateTime in Unix timestamp format</returns>
+public static int ToUnixTimestamp(this DateTime value)
+{
+    return (int)Math.Truncate((value.ToUniversalTime().Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
+}
+
+/// <summary>
+/// Gets a Unix timestamp representing the current moment
+/// </summary>
+/// <param name="ignored">Parameter ignored</param>
+/// <returns>Now expressed as a Unix timestamp</returns>
+public static int UnixTimestamp(this DateTime ignored)
+{
+    return (int)Math.Truncate((DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
+}
+	}
 	public class Utils
 	{
 		public const int PROTOCOL_VERSION = 70002;
@@ -136,6 +158,26 @@ namespace NBitcoin
 		internal static void log(string msg)
 		{
 			_TraceSource.TraceEvent(TraceEventType.Information, 0, msg);
+		}
+
+
+		static DateTimeOffset unixRef = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+		public static uint DateTimeToUnixTime(DateTimeOffset dt)
+		{
+			dt = dt.ToUniversalTime();
+			if(dt < unixRef)
+				throw new ArgumentOutOfRangeException("The supplied datetime can't be expressed in unix timestamp");
+			var result = (dt - unixRef).TotalSeconds;
+			if(result > UInt32.MaxValue)
+				throw new ArgumentOutOfRangeException("The supplied datetime can't be expressed in unix timestamp");
+			return (uint)result;
+		}
+
+		public static DateTimeOffset UnixTimeToDateTime(uint timestamp)
+		{
+			var span = TimeSpan.FromSeconds(timestamp);
+			return unixRef + span;
 		}
 	}
 }

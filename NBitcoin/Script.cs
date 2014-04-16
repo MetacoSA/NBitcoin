@@ -362,18 +362,6 @@ namespace NBitcoin
 			return builder == null ? "" : builder.ToString().Trim();
 		}
 
-
-		public bool IsPayToScriptHash
-		{
-			get
-			{
-				return (_Script.Length == 23 &&
-						_Script[0] == (byte)OpcodeType.OP_HASH160 &&
-						_Script[1] == 0x14 &&
-						_Script[22] == (byte)OpcodeType.OP_EQUAL);
-			}
-		}
-
 		public bool IsPushOnly
 		{
 			get
@@ -498,12 +486,7 @@ namespace NBitcoin
 			return Hashes.Hash256(hashed);
 		}
 
-		public static Script operator +(Script a, Script b)
-		{
-			if(a == null)
-				return new Script(a._Script);
-			return new Script(a._Script.Concat(b._Script).ToArray());
-		}
+
 		public static Script operator +(Script a, IEnumerable<byte> bytes)
 		{
 			if(a == null)
@@ -531,6 +514,63 @@ namespace NBitcoin
 				IgnoreIncoherentPushData = true
 			};
 			return reader.ToEnumerable();
+		}
+
+		public uint GetSigOpCount(bool fAccurate)
+		{
+			uint n = 0;
+			Op lastOpcode = null;
+			foreach(var op in ToOps())
+			{
+				if(op.Code == OpcodeType.OP_CHECKSIG || op.Code == OpcodeType.OP_CHECKSIGVERIFY)
+					n++;
+				else if(op.Code == OpcodeType.OP_CHECKMULTISIG || op.Code == OpcodeType.OP_CHECKMULTISIGVERIFY)
+				{
+					if(fAccurate && lastOpcode.Code >= OpcodeType.OP_1 && lastOpcode.Code <= OpcodeType.OP_16)
+						n += (lastOpcode.PushData == null || lastOpcode.PushData.Length == 0) ? 0U : (uint)lastOpcode.PushData[0];
+					else
+						n += 20;
+				}
+				lastOpcode = op;
+			}
+			return n;
+		}
+
+		public KeyId ID
+		{
+			get
+			{
+				return new KeyId(Hashes.Hash160(_Script));
+			}
+		}
+
+		public bool IsPayToScriptHash
+		{
+			get
+			{
+				return new PayToScriptHashScriptTemplate().CheckScripPubKey(this);
+			}
+		}
+		public uint GetSigOpCount(Script scriptSig)
+		{
+			if(!IsPayToScriptHash)
+				return GetSigOpCount(true);
+			// This is a pay-to-script-hash scriptPubKey;
+			// get the last item that the scriptSig
+			// pushes onto the stack:
+			var validSig = new PayToScriptHashScriptTemplate()
+			{
+				VerifyRedeemScript = false
+			}.CheckScriptSig(scriptSig, null);
+			if(!validSig)
+				return 0;
+			/// ... and return its opcount:
+			return new Script(scriptSig.ToOps().Last().PushData).GetSigOpCount(true);
+		}
+
+		public byte[] ToRawScript()
+		{
+			return _Script.ToArray();
 		}
 	}
 }

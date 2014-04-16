@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,6 +23,7 @@ namespace NBitcoin
 	{
 		static readonly uint MAX_BLOCK_SIZE = 1000000;
 		static readonly ulong MAX_MONEY = (ulong)21000000 * (ulong)Money.COIN;
+		static readonly uint MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE / 50;
 		enum mode_state
 		{
 			MODE_VALID,   // everything ok
@@ -41,6 +43,19 @@ namespace NBitcoin
 			mode = mode_state.MODE_VALID;
 			nDoS = 0;
 			corruptionPossible = false;
+			CheckProofOfWork = true;
+			CheckMerkleRoot = true;
+		}
+
+		public bool CheckProofOfWork
+		{
+			get;
+			set;
+		}
+		public bool CheckMerkleRoot
+		{
+			get;
+			set;
 		}
 		public
 			bool DoS(int level, bool ret = false,
@@ -168,6 +183,120 @@ namespace NBitcoin
 			}
 
 			return true;
+		}
+
+
+		public bool CheckBlock(Block block)
+		{
+			// These are checks that are independent of context
+			// that can be verified before saving an orphan block.
+
+			// Size limits
+			if(block.Vtx.Length == 0 || block.Vtx.Length > MAX_BLOCK_SIZE || block.Length > MAX_BLOCK_SIZE)
+				return DoS(100, Error("CheckBlock() : size limits failed"),
+								 RejectCode.INVALID, "bad-blk-length");
+
+			// Check proof of work matches claimed amount
+			if(CheckProofOfWork && !CheckProofOfWorkCore(block.GetHash(), block.Header.NBits))
+				return DoS(50, Error("CheckBlock() : proof of work failed"),
+								 RejectCode.INVALID, "high-hash");
+
+			// Check timestamp
+			if(block.Header.BlockTime > Now + TimeSpan.FromSeconds(2 * 60 * 60))
+				return Invalid(Error("CheckBlock() : block timestamp too far in the future"),
+									 RejectCode.INVALID, "time-too-new");
+
+			// First transaction must be coinbase, the rest must not be
+			if(block.Vtx.Length == 0 || !block.Vtx[0].IsCoinBase)
+				return DoS(100, Error("CheckBlock() : first tx is not coinbase"),
+								 RejectCode.INVALID, "bad-cb-missing");
+			for(int i = 1 ; i < block.Vtx.Length ; i++)
+				if(block.Vtx[i].IsCoinBase)
+					return DoS(100, Error("CheckBlock() : more than one coinbase"),
+									 RejectCode.INVALID, "bad-cb-multiple");
+
+			// Check transactions
+			foreach(var tx in block.Vtx)
+				if(!CheckTransaction(tx))
+					return Error("CheckBlock() : CheckTransaction failed");
+
+			// Build the merkle tree already. We need it anyway later, and it makes the
+			// block cache the transaction hashes, which means they don't need to be
+			// recalculated many times during this block's validation.
+			block.BuildMerkleTree();
+
+			// Check for duplicate txids. This is caught by ConnectInputs(),
+			// but catching it earlier avoids a potential DoS attack:
+			HashSet<uint256> uniqueTx = new HashSet<uint256>();
+			for(int i = 0 ; i < block.Vtx.Length ; i++)
+			{
+				uniqueTx.Add(block.GetTxHash(i));
+			}
+			if(uniqueTx.Count != block.Vtx.Length)
+				return DoS(100, Error("CheckBlock() : duplicate transaction"),
+								 RejectCode.INVALID, "bad-txns-duplicate", true);
+
+			int nSigOps = 0;
+			foreach(var tx in block.Vtx)
+			{
+				nSigOps += GetLegacySigOpCount(tx);
+			}
+			if(nSigOps > MAX_BLOCK_SIGOPS)
+				return DoS(100, Error("CheckBlock() : out-of-bounds SigOpCount"),
+								 RejectCode.INVALID, "bad-blk-sigops", true);
+
+			// Check merkle root
+			if(CheckMerkleRoot && block.Header.HashMerkleRoot != block.vMerkleTree.Last())
+				return DoS(100, Error("CheckBlock() : hashMerkleRoot mismatch"),
+								 RejectCode.INVALID, "bad-txnmrklroot", true);
+
+			return true;
+		}
+
+		private int GetLegacySigOpCount(Transaction tx)
+		{
+			uint nSigOps = 0;
+			foreach(var txin in tx.VIn)
+			{
+				nSigOps += txin.ScriptSig.GetSigOpCount(false);
+			}
+			foreach(var txout in tx.VOut)
+			{
+				nSigOps += txout.ScriptPubKey.GetSigOpCount(false);
+			}
+			return (int)nSigOps;
+		}
+
+		private bool CheckProofOfWorkCore(uint256 hash, uint nBits)
+		{
+			//CBigNum bnTarget;
+			//bnTarget.SetCompact(nBits);
+
+			//// Check range
+			//if(bnTarget <= 0 || bnTarget > Params().ProofOfWorkLimit())
+			//	return error("CheckProofOfWork() : nBits below minimum work");
+
+			//// Check proof of work matches claimed amount
+			//if(hash > bnTarget.getuint256())
+			//	return error("CheckProofOfWork() : hash doesn't match nBits");
+
+			return true;
+		}
+
+
+		DateTimeOffset _Now;
+		public DateTimeOffset Now
+		{
+			get
+			{
+				if(_Now == default(DateTimeOffset))
+					return DateTimeOffset.UtcNow;
+				return _Now;
+			}
+			set
+			{
+				_Now = value;
+			}
 		}
 	}
 }

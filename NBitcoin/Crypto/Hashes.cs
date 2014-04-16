@@ -153,5 +153,10 @@ namespace NBitcoin.Crypto
 				return h1;
 			}
 		}
+
+		internal static uint160 Hash160(byte[] bytes)
+		{
+			return Hash160(bytes, bytes.Length);
+		}
 	}
 }

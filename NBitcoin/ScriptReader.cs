@@ -369,7 +369,7 @@ namespace NBitcoin
 				return;
 			}
 
-			if( 0x01 <= (byte)Code && (byte)Code <= 0x4b)
+			if(0x01 <= (byte)Code && (byte)Code <= 0x4b)
 			{
 				//Data length already pushed
 			}
@@ -558,6 +558,28 @@ namespace NBitcoin
 		{
 			get;
 			set;
+		}
+
+		public bool IsSmallUInt
+		{
+			get
+			{
+				return Code == OpcodeType.OP_0 ||
+						OpcodeType.OP_1 <= Code && Code <= OpcodeType.OP_16;
+			}
+		}
+		public bool IsSmallInt
+		{
+			get
+			{
+				return IsSmallInt || Code == OpcodeType.OP_1NEGATE;
+			}
+		}
+		public BigInteger? GetValue()
+		{
+			if(PushData == null)
+				return null;
+			return Utils.BytesToBigInteger(PushData);
 		}
 	}
 	public class ScriptReader
