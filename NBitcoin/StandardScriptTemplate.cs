@@ -20,6 +20,35 @@ namespace NBitcoin
 		TX_NULL_DATA,
 	};
 
+	public class TxNullDataScriptTemplate : ScriptTemplate
+	{
+		public override bool CheckScripPubKey(Script scriptPubKey)
+		{
+			var ops = scriptPubKey.ToOps().ToList();
+			if(ops.Count < 1)
+				return false;
+			if(ops[0].Code != OpcodeType.OP_RETURN)
+				return false;
+			if(ops.Count == 2)
+			{
+				return ops[1].PushData != null && ops[1].PushData.Length <= 40;
+			}
+			return true;
+		}
+
+		public override bool CheckScriptSig(Script scriptSig, Script scriptPubKey)
+		{
+			return false;
+		}
+
+		public override TxOutType Type
+		{
+			get
+			{
+				return TxOutType.TX_NULL_DATA;
+			}
+		}
+	}
 	public class PayToMultiSigScriptTemplate : ScriptTemplate
 	{
 		public Script GenerateOutputScript(int sigCount, PubKey[] keys)

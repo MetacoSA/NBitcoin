@@ -194,6 +194,22 @@ namespace NBitcoin
 		}
 
 
+		public bool IsDust
+		{
+			get
+			{
+				// "Dust" is defined in terms of CTransaction::nMinRelayTxFee,
+				// which has units satoshis-per-kilobyte.
+				// If you'd pay more than 1/3 in fees
+				// to spend something, then we consider it dust.
+				// A typical txout is 34 bytes big, and will
+				// need a CTxIn of at least 148 bytes to spend,
+				// so dust is a txout less than 546 satoshis 
+				// with default nMinRelayTxFee.
+				return ((value * 1000) / (3 * ((int)this.GetSerializedSize() + 148)) < Transaction.nMinRelayTxFee);
+			}
+		}
+
 		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
@@ -229,7 +245,7 @@ namespace NBitcoin
 
 		public Transaction()
 		{
-
+			nVersion = CURRENT_VERSION;
 		}
 		public Transaction(string hex)
 		{
@@ -295,5 +311,11 @@ namespace NBitcoin
 				return (VIn.Length == 1 && VIn[0].PrevOut.IsNull);
 			}
 		}
+
+		public const long nMinTxFee = 10000;  // Override with -mintxfee
+		public const long nMinRelayTxFee = 1000;
+
+		public static uint CURRENT_VERSION = 2;
+		public static uint MAX_STANDARD_TX_SIZE = 100000;
 	}
 }

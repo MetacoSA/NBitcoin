@@ -19,6 +19,10 @@ namespace NBitcoin
 			BitcoinStream s = new BitcoinStream(stream, serializing);
 			serializable.ReadWrite(s);
 		}
+		public static int GetSerializedSize(this IBitcoinSerializable serializable)
+		{
+			return serializable.ToBytes().Length;
+		}
 		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes)
 		{
 			ReadWrite(serializable, new MemoryStream(bytes), false);
