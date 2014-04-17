@@ -3,8 +3,11 @@ NBitcoin
 
 #How to use ?
 With nuget :
-Install-Package NBitcoin 
+>Install-Package NBitcoin 
+
 Go on the [nuget website](https://www.nuget.org/packages/NBitcoin/) for more information.
+
+To complile it, you just have to git clone, open the project and hit the compile button on visual studio.
 
 ##What is it about ?
 This is the most complete and faithful porting I know of bitcoin.
