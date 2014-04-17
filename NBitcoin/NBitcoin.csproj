@@ -91,6 +91,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="PushNuget.bat" />
+    <None Include="NBitcoin.nuspec" />
     <None Include="UInt256.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>UInt2561.cs</LastGenOutput>

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>NBitcoin</id>
+		<version>$version$</version>
+		<title>NBitcoin</title>
+		<authors>Nicolas Dorier</authors>
+		<owners>$author$</owners>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>Implementation of bitcoin protocol</description>
+		<projectUrl>https://github.com/NicolasDorier/NBitcoin</projectUrl>
+		<copyright>Copyright 2013</copyright>
+	</metadata>
+</package>
