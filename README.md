@@ -7,7 +7,7 @@ With nuget :
 
 Go on the [nuget website](https://www.nuget.org/packages/NBitcoin/) for more information.
 
-To complile it, you just have to git clone, open the project and hit the compile button on visual studio.
+To complile it by yourself, you just have to git clone, open the project and hit the compile button on visual studio.
 
 ##What is it about ?
 This is the most complete and faithful porting I know of bitcoin.
