@@ -1,6 +1,7 @@
 ﻿using NBitcoin.Crypto;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Crypto.Signers;
+using Org.BouncyCastle.Math;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,18 +11,23 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class Key
+	public class Key : IBitcoinSerializable
 	{
 		byte[] vch = new byte[0];
 		ECKey _ECKey;
 		public bool IsCompressed
 		{
 			get;
-			private set;
+			internal set;
 		}
 
 		static readonly Random rand = new Random();
 
+		public Key()
+			: this(true)
+		{
+
+		}
 		public Key(bool fCompressedIn)
 		{
 			byte[] data = new byte[32];
@@ -34,15 +40,17 @@ namespace NBitcoin
 			}
 			SetBytes(data, data.Length, fCompressedIn);
 		}
-		public Key(byte[] data, int count, bool fCompressedIn)
+		public Key(byte[] data, int count = -1, bool fCompressedIn = true)
 		{
+			if(count == -1)
+				count = data.Length;
 			if(count != 32)
 			{
 				throw new FormatException("The size of an EC key should be 32");
 			}
 			if(Check(data))
 			{
-				SetBytes(data,count, fCompressedIn);
+				SetBytes(data, count, fCompressedIn);
 			}
 			else
 				throw new FormatException("Invalid EC key");
@@ -144,6 +152,51 @@ namespace NBitcoin
 		public byte[] ToDER()
 		{
 			return _ECKey.ToDER(IsCompressed);
+		}
+
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref vch);
+			if(!stream.Serializing)
+			{
+				_ECKey = new ECKey(vch, true);
+			}
+		}
+
+		#endregion
+
+
+		public Key Derivate(byte[] cc, uint nChild, out byte[] ccChild)
+		{
+			byte[] l = null;
+			byte[] ll = new byte[32];
+			byte[] lr = new byte[32];
+			if((nChild >> 31) == 0)
+			{
+				var pubKey = PubKey.ToBytes();
+				l = Hashes.BIP32Hash(cc, nChild, pubKey[0], pubKey.Skip(1).ToArray());
+			}
+			else
+			{
+				l = Hashes.BIP32Hash(cc, nChild, 0, this.ToBytes());
+			}
+			Array.Copy(l, ll, 32);
+			Array.Copy(l, 32, lr, 0, 32);
+			ccChild = lr;
+
+
+			BigInteger parse256LL = new BigInteger(1, ll);
+			BigInteger kPar = new BigInteger(1, vch);
+			BigInteger N = ECKey.CURVE.N;
+
+			if(parse256LL.CompareTo(N) >= 0)
+				throw new InvalidOperationException("You won a prize ! this should happen very rarely. Take a screenshot, and roll the dice again.");
+			var key = parse256LL.Add(kPar).Mod(N);
+			if(key == BigInteger.Zero)
+				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
+			return new Key(key.ToByteArrayUnsigned());
 		}
 	}
 }

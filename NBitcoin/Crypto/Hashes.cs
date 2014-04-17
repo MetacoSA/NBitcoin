@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -157,6 +158,25 @@ namespace NBitcoin.Crypto
 		internal static uint160 Hash160(byte[] bytes)
 		{
 			return Hash160(bytes, bytes.Length);
+		}
+
+		public static byte[] HMACSHA512(byte[] key, byte[] data)
+		{
+			return new HMACSHA512(key).ComputeHash(data);
+		}
+
+		public static byte[] BIP32Hash(byte[] chainCode, uint nChild, byte header, byte[] data)
+		{
+			byte[] num = new byte[4];
+			num[0] = (byte)((nChild >> 24) & 0xFF);
+			num[1] = (byte)((nChild >> 16) & 0xFF);
+			num[2] = (byte)((nChild >> 8) & 0xFF);
+			num[3] = (byte)((nChild >> 0) & 0xFF);
+
+			return HMACSHA512(chainCode,
+				new byte[] { header }
+				.Concat(data)
+				.Concat(num).ToArray());
 		}
 	}
 }

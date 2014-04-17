@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class PubKey
+	public class PubKey : IBitcoinSerializable
 	{
 		public PubKey(byte[] vch)
 		{
@@ -77,6 +77,18 @@ namespace NBitcoin
 		{
 			return Encoders.Hex.EncodeData(vch);
 		}
+
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref vch);
+			if(!stream.Serializing)
+				_Key = new ECKey(vch, false);
+		}
+
+		#endregion
+
 		public byte[] ToBytes()
 		{
 			return vch.ToArray();
@@ -133,5 +145,39 @@ namespace NBitcoin
 			return key.GetPubKey(compressed);
 		}
 
+
+		public PubKey Derivate(byte[] cc, uint nChild, out byte[] ccChild)
+		{
+			byte[] lr = null;
+			byte[] l = new byte[32];
+			byte[] r = new byte[32];
+			if((nChild >> 31) == 0)
+			{
+				var pubKey = ToBytes();
+				lr = Hashes.BIP32Hash(cc, nChild, pubKey[0], pubKey.Skip(1).ToArray());
+			}
+			else
+			{
+				throw new InvalidOperationException("Impossible to derivate a child key from a hardened one");
+			}
+			Array.Copy(lr, l, 32);
+			Array.Copy(lr, 32, r, 0, 32);
+			ccChild = r;
+
+
+			BigInteger N = ECKey.CURVE.N;
+			BigInteger kPar = new BigInteger(1, this.vch);
+			BigInteger parse256LL = new BigInteger(1, l);
+
+			if(parse256LL.CompareTo(N) >= 0)
+				throw new InvalidOperationException("You won a prize ! this should happen very rarely. Take a screenshot, and roll the dice again.");
+
+			var q = ECKey.CURVE.G.Multiply(parse256LL).Add(_Key.GetPublicKeyParameters().Q);
+			if(q.IsInfinity)
+				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
+
+			var p = new Org.BouncyCastle.Math.EC.FpPoint(ECKey.CURVE.Curve, q.X, q.Y, true);
+			return new PubKey(p.GetEncoded());
+		}
 	}
 }

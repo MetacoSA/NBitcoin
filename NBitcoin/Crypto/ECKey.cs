@@ -115,7 +115,7 @@ namespace NBitcoin.Crypto
 
 
 
-		private ECPublicKeyParameters GetPublicKeyParameters()
+		public ECPublicKeyParameters GetPublicKeyParameters()
 		{
 			if(_Key is ECPublicKeyParameters)
 				return (ECPublicKeyParameters)_Key;
@@ -263,7 +263,7 @@ namespace NBitcoin.Crypto
 			// } ASN1_SEQUENCE_END(EC_PRIVATEKEY)
 			DerSequenceGenerator seq = new DerSequenceGenerator(baos);
 			seq.AddObject(new DerInteger(1)); // version
-			seq.AddObject(new DerOctetString(PrivateKey.D.ToByteArray()));
+			seq.AddObject(new DerOctetString(PrivateKey.D.ToByteArrayUnsigned()));
 
 
 			//Did not managed to generate the same der as brainwallet by using this
@@ -282,5 +282,7 @@ namespace NBitcoin.Crypto
 			seq.Close();
 			return baos.ToArray();
 		}
+
+
 	}
 }

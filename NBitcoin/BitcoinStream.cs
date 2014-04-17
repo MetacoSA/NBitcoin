@@ -170,7 +170,11 @@ namespace NBitcoin
 			{
 				bytes[i] = (byte)(value >> i * 8);
 			}
+			if(IsBigEndian)
+				Array.Reverse(bytes);
 			ReadWriteBytes(ref bytes);
+			if(IsBigEndian)
+				Array.Reverse(bytes);
 			ulong valueTemp = 0;
 			for(int i = 0 ; i < bytes.Length ; i++)
 			{
@@ -221,6 +225,37 @@ namespace NBitcoin
 		private bool IsNumber<T>()
 		{
 			return numberTypes.Contains(typeof(T));
+		}
+
+		public bool IsBigEndian
+		{
+			get;
+			set;
+		}
+
+		class EndianScope : IDisposable
+		{
+			bool old;
+			BitcoinStream stream;
+			public EndianScope(BitcoinStream stream, bool value)
+			{
+				this.stream = stream;
+				old = stream.IsBigEndian;
+				stream.IsBigEndian = value;
+			}
+
+			#region IDisposable Members
+
+			public void Dispose()
+			{
+				stream.IsBigEndian = old;
+			}
+
+			#endregion
+		}
+		public IDisposable BigEndianScope()
+		{
+			return new EndianScope(this, true);
 		}
 	}
 }

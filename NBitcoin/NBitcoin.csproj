@@ -45,10 +45,13 @@
   <ItemGroup>
     <Compile Include="Base58Data.cs" />
     <Compile Include="BitcoinAddress.cs" />
+    <Compile Include="BitcoinExtKey.cs" />
     <Compile Include="BitcoinSecret.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
     <Compile Include="BloomFilter.cs" />
+    <Compile Include="ExtKey.cs" />
+    <Compile Include="ExtPubKey.cs" />
     <Compile Include="TxOutRepository.cs" />
     <Compile Include="Crypto\Hashes.cs" />
     <Compile Include="DataEncoders\Base58Encoder.cs" />

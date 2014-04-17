@@ -7,22 +7,37 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class Base58Data
+	public abstract class Base58Data
 	{
 		protected byte[] vchData = new byte[0];
 		protected byte[] vchVersion = new byte[0];
 		protected string wifData = "";
 
-		protected virtual void SetString(string psz, uint nVersionBytes = 1)
+		protected virtual void SetString(string psz)
 		{
 			byte[] vchTemp = Encoders.Base58Check.DecodeData(psz);
-			vchVersion = vchTemp.Take((int)nVersionBytes).ToArray();
-			vchData = vchTemp.Skip((int)nVersionBytes).ToArray();
+			vchVersion = vchTemp.Take((int)ExpectedVersion.Length).ToArray();
+			if(!Utils.ArrayEqual(vchVersion, ExpectedVersion))
+				throw new FormatException("The version prefix does not match the expected one " + String.Join(",", ExpectedVersion));
+
+			vchData = vchTemp.Skip((int)ExpectedVersion.Length).ToArray();
 			wifData = psz;
-			Clean(vchTemp);
+
 			if(!IsValid)
 				throw new FormatException("Invalid " + this.GetType().Name);
 		}
+
+
+		protected void SetData(byte[] vchData)
+		{
+			this.vchData = vchData;
+			this.vchVersion = ExpectedVersion;
+			wifData = Encoders.Base58Check.EncodeData(vchVersion.Concat(vchData).ToArray());
+
+			if(!IsValid)
+				throw new FormatException("Invalid " + this.GetType().Name);
+		}
+
 
 		protected virtual bool IsValid
 		{
@@ -32,16 +47,21 @@ namespace NBitcoin
 			}
 		}
 
-		private void Clean(byte[] arr)
+		public abstract byte[] ExpectedVersion
 		{
-			Array.Clear(arr, 0, arr.Length);
+			get;
 		}
+
+
 
 		public string ToWif()
 		{
 			return wifData;
 		}
-
+		public byte[] ToBytes()
+		{
+			return vchData.ToArray();
+		}
 		public override string ToString()
 		{
 			return wifData;

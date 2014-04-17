@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="AssertEx.cs" />
     <Compile Include="base58_tests.cs" />
+    <Compile Include="bip32_tests.cs" />
     <Compile Include="bloom_tests.cs" />
     <Compile Include="checkblock_tests.cs" />
     <Compile Include="ConverterTests.cs" />

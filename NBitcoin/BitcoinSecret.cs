@@ -10,9 +10,9 @@ namespace NBitcoin
 	public class BitcoinSecret : Base58Data
 	{
 
-		public BitcoinSecret(string str, uint nVersionBytes = 1)
+		public BitcoinSecret(string str)
 		{
-			this.SetString(str, nVersionBytes);
+			this.SetString(str);
 		}
 
 		public Key Key
@@ -77,6 +77,14 @@ namespace NBitcoin
 			get
 			{
 				return vchData.Length == 33;
+			}
+		}
+
+		public override byte[] ExpectedVersion
+		{
+			get
+			{
+				return new byte[] { 128 };
 			}
 		}
 	}
