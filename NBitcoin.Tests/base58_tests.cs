@@ -11,6 +11,7 @@ namespace NBitcoin.Tests
 	public class base58_tests
 	{
 		[Fact]
+		[Trait("Core", "Core")]
 		public void base58_EncodeBase58()
 		{
 			var tests = TestCase.read_json("Data\\base58_encode_decode.json");
@@ -31,6 +32,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void base58_DecodeBase58()
 		{
 			var tests = TestCase.read_json("Data\\base58_encode_decode.json");
@@ -59,10 +61,59 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core","Core")]
 		public void base58_keys_valid_parse()
 		{
 			var tests = TestCase.read_json("Data\\base58_keys_valid.json");
-			var o = tests[0].GetDynamic(2);
+			Network network;
+			foreach(var test in tests)
+			{
+				string strTest = test.ToString();
+				if(test.Count < 3) // Allow for extra stuff (useful for comments)
+				{
+					Assert.True(false, "Bad test " + strTest);
+					continue;
+				}
+
+				string exp_base58string = (string)test[0];
+				byte[] exp_payload = TestUtils.ParseHex((string)test[1]);
+				//const Object &metadata = test[2].get_obj();
+				bool isPrivkey = (bool)test.GetDynamic(2).isPrivkey;
+				bool isTestnet = (bool)test.GetDynamic(2).isTestnet;
+				if(isTestnet)
+					network = Network.TestNet;
+				else
+					network = Network.Main;
+
+				if(isPrivkey)
+				{
+					bool isCompressed = (bool)test.GetDynamic(2).isCompressed;
+
+					// Must be valid private key
+					// Note: CBitcoinSecret::SetString tests isValid, whereas CBitcoinAddress does not!
+					var secret = network.CreateBitcoinSecret(exp_base58string);
+					//If not valid exception would throw
+
+					Key privkey = secret.Key;
+					Assert.True(privkey.IsCompressed == isCompressed, "compressed mismatch:" + strTest);
+					Assert.True(Utils.ArrayEqual(privkey.ToBytes(), exp_payload), "key mismatch:" + strTest);
+
+					// Private key must be invalid public key
+					Assert.Throws<FormatException>(() => network.CreateBitcoinAddress(exp_base58string));
+				}
+				else
+				{
+					string exp_addrType = (string)test.GetDynamic(2).addrType; // "script" or "pubkey"
+					// Must be valid public key
+					var addr = network.CreateBitcoinAddress(exp_base58string);
+					Assert.True((addr is BitcoinScriptAddress) == (exp_addrType == "script"), "isScript mismatch" + strTest);
+					
+					//CTxDestination dest = addr.Get();
+					//Assert.True(boost::apply_visitor(TestAddrTypeVisitor(exp_addrType), dest), "addrType mismatch" + strTest);
+
+					Assert.Throws<FormatException>(() => network.CreateBitcoinSecret(exp_base58string));
+				}
+			}
 		}
 	}
 }

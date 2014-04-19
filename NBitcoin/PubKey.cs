@@ -52,19 +52,9 @@ namespace NBitcoin
 			}
 		}
 
-		BitcoinAddress _Address;
-		public BitcoinAddress Address
+		public BitcoinAddress GetAddress(Network network)
 		{
-			get
-			{
-				if(_Address == null)
-				{
-					var vchList = this.ID.ToBytes().ToList();
-					vchList.Insert(0, 0);
-					_Address = new BitcoinAddress(Encoders.Base58Check.EncodeData(vchList.ToArray()));
-				}
-				return _Address;
-			}
+			return network.CreateBitcoinAddress(this.ID.ToBytes());
 		}
 
 		public bool Verify(uint256 hash, byte[] sig)
@@ -99,11 +89,12 @@ namespace NBitcoin
 			return ToHex();
 		}
 
+		
 		public bool VerifyMessage(string message, string signature)
 		{
-			return this.Address.VerifyMessage(message, signature);
+			var key = PubKey.RecoverFromMessage(message, signature);
+			return key.ID == ID;
 		}
-		
 
 		//Thanks bitcoinj source code
 		//http://bitcoinj.googlecode.com/git-history/keychain/core/src/main/java/com/google/bitcoin/core/Utils.java

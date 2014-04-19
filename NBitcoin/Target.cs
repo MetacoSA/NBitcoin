@@ -1,0 +1,148 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace NBitcoin
+{
+	public class Target
+	{
+		static Target _Difficulty1 = new Target(new byte[] { 0x1d, 0x00, 0xff, 0xff });
+		public static Target Difficulty1
+		{
+			get
+			{
+				return _Difficulty1;
+			}
+		}
+
+		public Target(uint bits)
+			: this(ToBytes(bits))
+		{
+
+		}
+
+		private static byte[] ToBytes(uint bits)
+		{
+			return new byte[]
+			{
+				(byte)(bits >> 24),
+				(byte)(bits >> 16),
+				(byte)(bits >> 8),
+				(byte)(bits)
+			};
+		}
+
+		BigInteger _Target;
+		public Target(byte[] data)
+		{
+			if(data.Length == 4)
+			{
+				var exp = data[0];
+				var val = data.Skip(1).Take(3).Reverse().ToArray();
+				_Target = new BigInteger(val) << 8 * (exp - 3);
+			}
+			else if(data.Length == 32)
+			{
+				_Target = new BigInteger(data.Reverse().ToArray());
+			}
+			else
+				throw new FormatException("Invalid number of bytes");
+		}
+
+		public Target(BigInteger value)
+		{
+			_Target = value;
+		}
+
+		public static implicit operator Target(uint a)
+		{
+			return new Target(a);
+		}
+		public static implicit operator uint(Target a)
+		{
+			var bytes = a._Target.ToByteArray().Reverse().ToArray();
+			var val = bytes.Take(3).Reverse().ToArray();
+			var exp = (byte)(bytes.Length);
+			return (uint)val[0] + (uint)(val[1] << 8) + (uint)(val[2] << 16) + (uint)(exp << 24);
+		}
+
+		double? _Difficulty;
+		public double Difficulty
+		{
+			get
+			{
+				if(_Difficulty == null)
+				{
+					BigInteger remainder;
+					var quotient = BigInteger.DivRem(Difficulty1._Target, _Target, out remainder);
+					var decimalPart = BigInteger.Zero;
+					for(int i = 0 ; i < 12 ; i++)
+					{
+						var div = (remainder * 10) / _Target;
+
+						decimalPart *= 10;
+						decimalPart += div;
+
+						remainder = remainder * 10 - div * _Target;
+					}
+					_Difficulty = double.Parse(quotient.ToString() + "." + decimalPart.ToString(), new NumberFormatInfo()
+					{
+						NegativeSign = "-",
+						NumberDecimalSeparator = "."
+					});
+				}
+				return _Difficulty.Value;
+			}
+		}
+
+
+
+		public override bool Equals(object obj)
+		{
+			Target item = obj as Target;
+			if(item == null)
+				return false;
+			return _Target.Equals(item._Target);
+		}
+		public static bool operator ==(Target a, Target b)
+		{
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if(((object)a == null) || ((object)b == null))
+				return false;
+			return a._Target == b._Target;
+		}
+
+		public static bool operator !=(Target a, Target b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return _Target.GetHashCode();
+		}
+
+		public BigInteger ToBigInteger()
+		{
+			return _Target;
+		}
+
+		public uint256 ToUInt256()
+		{
+			var array = _Target.ToByteArray();
+			var missingZero = 32 - array.Length;
+			if(missingZero < 0)
+				throw new InvalidProgramException("Awful bug, this should never happen");
+			if(missingZero != 0)
+			{
+				array = array.Concat(new byte[missingZero]).ToArray();
+			}
+			return new uint256(array);
+		}
+	}
+}

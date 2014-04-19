@@ -91,6 +91,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void unaryOperators()
 		{
 			Assert.True(!ZeroL);
@@ -129,6 +130,7 @@ namespace NBitcoin.Tests
 				Assert.True(-(OneS << i) == (MaxS << i));
 		}
 		[Fact]
+		[Trait("Core", "Core")]
 		public void methods()
 		{
 			Assert.True(R1L.GetHex() == R1L.ToString());
@@ -267,6 +269,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void plusMinus()
 		{
 			uint256 TmpL = 0;
@@ -366,6 +369,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void getmaxcoverage()
 		{
 			// ~R1L give a base_uint<256>
@@ -407,6 +411,7 @@ namespace NBitcoin.Tests
 			CHECKBITWISEOPERATOR("R1", "NegR2", '&');
 		}
 		[Fact]
+		[Trait("Core", "Core")]
 		public void comparison()
 		{
 			uint256 TmpL;
@@ -444,6 +449,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void bitwiseOperators()
 		{
 			CHECKBITWISEOPERATOR("R1", "R2", '|');
@@ -552,6 +558,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core","Core")]
 		public void basics()
 		{
 			//Assert.True(new uint256("ababdc10a3").ToString().EndsWith("0" + "ababdc10a3"));

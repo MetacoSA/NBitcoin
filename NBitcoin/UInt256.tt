@@ -133,6 +133,8 @@ namespace NBitcoin
 					pn[i] = BitConverter.ToUInt32(vch, y);
 				}
 			}
+			else
+				throw new FormatException("the byte array should be <#= t #> byte long");
 		}
 
 		public uint<#= t #>(string str)
@@ -149,6 +151,8 @@ namespace NBitcoin
 					pn[i] = BitConverter.ToUInt32(vch, y);
 				}
 			}
+			else
+				throw new FormatException("the byte array should be <#= t #> byte long");
 		}
 
 		public override bool Equals(object obj)

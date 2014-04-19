@@ -83,12 +83,14 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void bip32_test1()
 		{
 			RunTest(test1);
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void bip32_test2()
 		{
 			RunTest(test2);
@@ -106,17 +108,13 @@ namespace NBitcoin.Tests
 				data = pubkey.ToBytes();
 				Assert.Equal(74, data.Length);
 				// Test private key
-				BitcoinExtKey b58key = new BitcoinExtKey(key);
+				BitcoinExtKey b58key = Network.Main.CreateBitcoinExtKey(key);
 
-				var kExpected = new BitcoinExtKey(derive.prv).Key;
-
-				AssertEx.CollectionEquals(kExpected.vchChainCode, b58key.Key.vchChainCode);
-				AssertEx.CollectionEquals(kExpected.vchFingerprint, b58key.Key.vchFingerprint);
-				AssertEx.CollectionEquals(kExpected.key.ToBytes(), b58key.Key.key.ToBytes());
+				var kExpected = Network.Main.CreateBitcoinExtKey(derive.prv).Key;
 
 				Assert.True(b58key.ToString() == derive.prv);
 				// Test public key
-				BitcoinExtPubKey b58pubkey = new BitcoinExtPubKey(pubkey);
+				BitcoinExtPubKey b58pubkey = Network.Main.CreateBitcoinExtPubKey(pubkey);
 				Assert.True(b58pubkey.ToString() == derive.pub);
 				// Derive new keys
 				ExtKey keyNew = key.Derive(derive.nChild);

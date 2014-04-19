@@ -8,26 +8,26 @@ namespace NBitcoin
 {
 	public abstract class BitcoinExtKeyBase : Base58Data
 	{
-		public BitcoinExtKeyBase(IBitcoinSerializable key)
+		public BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
+			: base(key.ToBytes(), network)
 		{
-			SetData(key.ToBytes());
 		}
-		public BitcoinExtKeyBase(string wif)
+		public BitcoinExtKeyBase(string base58, Network network)
+			: base(base58, network)
 		{
-			SetString(wif);
 		}
 
 	}
 
 	public class BitcoinExtKey : BitcoinExtKeyBase
 	{
-		public BitcoinExtKey(string wif)
-			: base(wif)
+		public BitcoinExtKey(string base58, Network network)
+			: base(base58, network)
 		{
 
 		}
-		public BitcoinExtKey(ExtKey key)
-			: base(key)
+		public BitcoinExtKey(ExtKey key, Network network)
+			: base(key, network)
 		{
 
 		}
@@ -54,18 +54,19 @@ namespace NBitcoin
 			}
 		}
 
-		public override byte[] ExpectedVersion
+
+		public override Base58Type Type
 		{
 			get
 			{
-				return new byte[] { (0x04), (0x88), (0xAD), (0xE4) };
+				return Base58Type.EXT_SECRET_KEY;
 			}
 		}
 	}
 	public class BitcoinExtPubKey : BitcoinExtKeyBase
 	{
-		public BitcoinExtPubKey(ExtPubKey key)
-			: base(key)
+		public BitcoinExtPubKey(ExtPubKey key, Network network)
+			: base(key, network)
 		{
 
 		}
@@ -84,11 +85,11 @@ namespace NBitcoin
 			}
 		}
 
-		public override byte[] ExpectedVersion
+		public override Base58Type Type
 		{
 			get
 			{
-				return new byte[] { (0x04), (0x88), (0xB2), (0x1E) };
+				return Base58Type.EXT_PUBLIC_KEY;
 			}
 		}
 	}

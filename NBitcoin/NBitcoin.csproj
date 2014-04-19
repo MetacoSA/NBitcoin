@@ -52,6 +52,8 @@
     <Compile Include="BloomFilter.cs" />
     <Compile Include="ExtKey.cs" />
     <Compile Include="ExtPubKey.cs" />
+    <Compile Include="Network.cs" />
+    <Compile Include="Target.cs" />
     <Compile Include="TxOutRepository.cs" />
     <Compile Include="Crypto\Hashes.cs" />
     <Compile Include="DataEncoders\Base58Encoder.cs" />

@@ -126,6 +126,8 @@ namespace NBitcoin
 					pn[i] = BitConverter.ToUInt32(vch, y);
 				}
 			}
+			else
+				throw new FormatException("the byte array should be 256 byte long");
 		}
 
 		public uint256(string str)
@@ -142,6 +144,8 @@ namespace NBitcoin
 					pn[i] = BitConverter.ToUInt32(vch, y);
 				}
 			}
+			else
+				throw new FormatException("the byte array should be 256 byte long");
 		}
 
 		public override bool Equals(object obj)
@@ -548,6 +552,8 @@ namespace NBitcoin
 					pn[i] = BitConverter.ToUInt32(vch, y);
 				}
 			}
+			else
+				throw new FormatException("the byte array should be 160 byte long");
 		}
 
 		public uint160(string str)
@@ -564,6 +570,8 @@ namespace NBitcoin
 					pn[i] = BitConverter.ToUInt32(vch, y);
 				}
 			}
+			else
+				throw new FormatException("the byte array should be 160 byte long");
 		}
 
 		public override bool Equals(object obj)

@@ -10,7 +10,8 @@ namespace NBitcoin
 {
 	public class BitcoinScriptAddress : BitcoinAddress
 	{
-		public BitcoinScriptAddress(string address) : base(address)
+		public BitcoinScriptAddress(string address, Network network)
+			: base(address, network)
 		{
 		}
 		protected override bool IsValid
@@ -20,27 +21,25 @@ namespace NBitcoin
 				return true;
 			}
 		}
-		public override byte[] ExpectedVersion
+
+		public override Base58Type Type
 		{
 			get
 			{
-				return new byte[] { 5 };
+				return Base58Type.SCRIPT_ADDRESS;
 			}
 		}
 	}
 	public class BitcoinAddress : Base58Data
 	{
-		public BitcoinAddress CreateFrom(string address)
+		public BitcoinAddress(string base58, Network network)
+			: base(base58, network)
 		{
-			if(address[0] == '1')
-				return new BitcoinAddress(address);
-			if(address[0] == '3')
-				return new BitcoinScriptAddress(address);
-			return new BitcoinAddress(address);
 		}
-		public BitcoinAddress(string address)
+
+		public BitcoinAddress(byte[] rawBytes, Network network)
+			: base(rawBytes, network)
 		{
-			this.SetString(address);
 		}
 
 		protected override bool IsValid
@@ -67,11 +66,11 @@ namespace NBitcoin
 			return key.ID == ID;
 		}
 
-		public override byte[] ExpectedVersion
+		public override Base58Type Type
 		{
 			get
 			{
-				return new byte[] { 0 };
+				return Base58Type.PUBKEY_ADDRESS;
 			}
 		}
 	}

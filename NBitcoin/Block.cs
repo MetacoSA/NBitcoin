@@ -19,14 +19,26 @@ namespace NBitcoin
 	{
 		// header
 		const int CURRENT_VERSION = 2;
-		int nVersion;
+
 		uint256 hashPrevBlock;
+
+		public uint256 HashPrevBlock
+		{
+			get
+			{
+				return hashPrevBlock;
+			}
+			set
+			{
+				hashPrevBlock = value;
+			}
+		}
 		uint256 hashMerkleRoot;
 
 		uint nTime;
 		uint nBits;
 
-		public uint NBits
+		public Target Bits
 		{
 			get
 			{
@@ -38,8 +50,33 @@ namespace NBitcoin
 			}
 		}
 
+		int nVersion;
+
+		public int Version
+		{
+			get
+			{
+				return nVersion;
+			}
+			set
+			{
+				nVersion = value;
+			}
+		}
 
 		uint nNonce;
+
+		public uint Nonce
+		{
+			get
+			{
+				return nNonce;
+			}
+			set
+			{
+				nNonce = value;
+			}
+		}
 		public uint256 HashMerkleRoot
 		{
 			get

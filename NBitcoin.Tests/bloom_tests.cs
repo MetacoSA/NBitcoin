@@ -12,6 +12,7 @@ namespace NBitcoin.Tests
 	public class bloom_tests
 	{
 		[Fact]
+		[Trait("Core", "Core")]
 		public void bloom_create_insert_serialize()
 		{
 			BloomFilter filter = new BloomFilter(3, 0.01, 0, BloomFlags.UPDATE_ALL);
@@ -39,6 +40,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void bloom_create_insert_serialize_with_tweak()
 		{
 			// Same test as bloom_create_insert_serialize, but we add a nTweak of 100
@@ -70,10 +72,11 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void bloom_create_insert_key()
 		{
 			string strSecret = "5Kg1gnAjaLfKiwhhPpGS3QfRg2m6awQvaj98JCZBZQ5SuS2F15C";
-			BitcoinSecret vchSecret = new BitcoinSecret(strSecret);
+			BitcoinSecret vchSecret = Network.Main.CreateBitcoinSecret(strSecret);
 			var pubkey = vchSecret.Key.PubKey;
 
 			BloomFilter filter = new BloomFilter(2, 0.001, 0, BloomFlags.UPDATE_ALL);
@@ -90,6 +93,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void bloom_match()
 		{
 			// Random real transaction (b4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b)
@@ -161,6 +165,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void merkle_block_1()
 		{
 			// Random real block (0000000000013b8ab2cd513b0261a14096412195a72a0c4827d229dcc7e0f7af)
@@ -207,6 +212,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void merkle_block_2()
 		{
 			// Random real block (000000005a4ded781e667e06ceefafb71410b511fe0d5adc3e5a27ecbec34ae6)
@@ -261,6 +267,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void merkle_block_2_with_update_none()
 		{
 			// Random real block (000000005a4ded781e667e06ceefafb71410b511fe0d5adc3e5a27ecbec34ae6)
@@ -312,6 +319,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void merkle_block_3_and_serialize()
 		{
 			// Random real block (000000000000dab0130bbcc991d3d7ae6b81aa6f50a798888dfe62337458dc45)
@@ -344,6 +352,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void merkle_block_4()
 		{
 			// Random real block (000000000000b731f2eef9e8c63173adfb07e41bd53eb0ef0a6b720d6cb6dea4)
@@ -390,6 +399,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void merkle_block_4_test_p2pubkey_only()
 		{
 			// Random real block (000000000000b731f2eef9e8c63173adfb07e41bd53eb0ef0a6b720d6cb6dea4)
@@ -414,6 +424,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void merkle_block_4_test_update_none()
 		{
 			// Random real block (000000000000b731f2eef9e8c63173adfb07e41bd53eb0ef0a6b720d6cb6dea4)

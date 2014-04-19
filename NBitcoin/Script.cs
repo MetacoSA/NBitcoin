@@ -486,6 +486,10 @@ namespace NBitcoin
 			return Hashes.Hash256(hashed);
 		}
 
+		public static Script operator +(Script a, int value)
+		{
+			return a + Utils.BigIntegerToBytes(value);
+		}
 
 		public static Script operator +(Script a, IEnumerable<byte> bytes)
 		{

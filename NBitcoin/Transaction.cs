@@ -111,7 +111,7 @@ namespace NBitcoin
 
 		OutPoint prevout = new OutPoint();
 		Script scriptSig;
-		uint nSequence;
+		uint nSequence = uint.MaxValue;
 
 		public uint Sequence
 		{

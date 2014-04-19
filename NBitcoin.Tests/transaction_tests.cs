@@ -53,6 +53,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void tx_valid()
 		{
 			// Read tests from test/data/tx_valid.json
@@ -81,7 +82,7 @@ namespace NBitcoin.Tests
 				}
 
 				Transaction tx = new Transaction((string)test[1]);
-				ValidationState state = new ValidationState();
+				ValidationState state = Network.Main.CreateValidationState();
 				Assert.True(state.CheckTransaction(tx), strTest);
 				Assert.True(state.IsValid);
 
@@ -109,6 +110,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void tx_invalid()
 		{
 			// Read tests from test/data/tx_valid.json
@@ -138,7 +140,7 @@ namespace NBitcoin.Tests
 
 				Transaction tx = new Transaction((string)test[1]);
 
-				ValidationState state = new ValidationState();
+				ValidationState state = Network.Main.CreateValidationState();
 				var fValid = state.CheckTransaction(tx) && state.IsValid;
 
 				for(int i = 0 ; i < tx.VIn.Length && fValid ; i++)
@@ -164,6 +166,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void basic_transaction_tests()
 		{
 			// Random real transaction (e2769b09e784f32f62ef849763d4f45b98e07ba658647343b915ff832b110436)
@@ -171,7 +174,7 @@ namespace NBitcoin.Tests
 			var vch = ch.Take(ch.Length - 1).ToArray();
 
 			Transaction tx = new Transaction(vch);
-			ValidationState state = new ValidationState();
+			ValidationState state = Network.Main.CreateValidationState();
 			Assert.True(state.CheckTransaction(tx) && state.IsValid, "Simple deserialized transaction should be valid.");
 
 			// Check that duplicate txins fail
@@ -180,6 +183,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void test_Get()
 		{
 			//CBasicKeyStore keystore;
@@ -233,9 +237,9 @@ namespace NBitcoin.Tests
 
 			dummyTransactions[1].VOut = Enumerable.Range(0, 2).Select(_ => new TxOut()).ToArray();
 			dummyTransactions[1].VOut[0].Value = 21 * Money.CENT;
-			dummyTransactions[1].VOut[0].ScriptPubKey = StandardScripts.PayToAddress(key[2].PubKey.Address);
+			dummyTransactions[1].VOut[0].ScriptPubKey = StandardScripts.PayToAddress(key[2].PubKey.GetAddress(Network.Main));
 			dummyTransactions[1].VOut[1].Value = 22 * Money.CENT;
-			dummyTransactions[1].VOut[1].ScriptPubKey = StandardScripts.PayToAddress(key[3].PubKey.Address);
+			dummyTransactions[1].VOut[1].ScriptPubKey = StandardScripts.PayToAddress(key[3].PubKey.GetAddress(Network.Main));
 			coinsRet.AddFromTransaction(dummyTransactions[1]);
 
 
@@ -244,6 +248,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void test_IsStandard()
 		{
 			var coins = new TxOutRepository();

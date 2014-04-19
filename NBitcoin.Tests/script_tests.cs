@@ -82,6 +82,7 @@ namespace NBitcoin.Tests
 
 		ScriptVerify flags = ScriptVerify.P2SH | ScriptVerify.StrictEnc;
 		[Fact]
+		[Trait("Core", "Core")]
 		public void script_valid()
 		{
 			var tests = TestCase.read_json("data/script_valid.json");
@@ -99,6 +100,7 @@ namespace NBitcoin.Tests
 			}
 		}
 		[Fact]
+		[Trait("Core", "Core")]
 		public void script_invalid()
 		{
 			var tests = TestCase.read_json("data/script_invalid.json");
@@ -117,6 +119,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void script_standard_push()
 		{
 			for(int i = -1 ; i < 1000 ; i++)
@@ -166,6 +169,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void script_CHECKMULTISIG12()
 		{
 			Key key1 = new Key(true);
@@ -205,6 +209,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void script_CHECKMULTISIG23()
 		{
 			Key key1 = new Key(true);
@@ -271,6 +276,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void script_PushData()
 		{
 			// Check that PUSHDATA1, PUSHDATA2, and PUSHDATA4 create the same value on

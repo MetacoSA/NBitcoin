@@ -13,6 +13,7 @@ namespace NBitcoin.Tests
 	public class util_tests
 	{
 		[Fact]
+		[Trait("Core", "Core")]
 		public void util_MedianFilter()
 		{
 			MedianFilterInt32 filter = new MedianFilterInt32(5, 15);
@@ -47,6 +48,7 @@ namespace NBitcoin.Tests
     0x5f};
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void util_ParseHex()
 		{
 			// Basic test vector
@@ -63,6 +65,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void util_HexStr()
 		{
 			AssertEx.Equal(
@@ -94,6 +97,46 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		//https://en.bitcoin.it/wiki/Difficulty
+		public void CanReadConvertTargetToDifficulty()
+		{
+			var packed = new Target(TestUtils.ParseHex("1b0404cb"));
+			var unpacked = new Target(TestUtils.ParseHex("00000000000404CB000000000000000000000000000000000000000000000000"));
+			Assert.Equal(packed, unpacked);
+			Assert.Equal(packed, new Target(0x1b0404cb));
+
+			packed = new Target(TestUtils.ParseHex("1b8404cb"));
+			Assert.True(packed.ToBigInteger() < 0);
+			Assert.Equal(packed, new Target(0x1b8404cb));
+
+			packed = new Target(TestUtils.ParseHex("1d00ffff"));
+			Assert.Equal(1, packed.Difficulty);
+			Assert.Equal(Target.Difficulty1, packed);
+
+			packed = new Target(TestUtils.ParseHex("1b0404cb"));
+			Assert.Equal(16307.420938523983D, packed.Difficulty, "420938523983".Length);
+
+			Assert.Equal(packed, new Target((uint)0x1b0404cb));
+			Assert.Equal((uint)packed, (uint)0x1b0404cb);
+
+			packed = new Target(0x1d00ffff);
+			Assert.Equal((uint)packed, (uint)0x1d00ffff);
+
+			//Check http://blockchain.info/block-index/392672/0000000000000000511e193e22d2dfc02aea8037988f0c58e9834f4550e97702
+			packed = new Target(419470732);
+			Assert.Equal(6978842649.592383, packed.Difficulty, "592383".Length);
+			Assert.Equal((uint)packed, (uint)419470732);
+			Assert.True(new uint256("0x0000000000000000511e193e22d2dfc02aea8037988f0c58e9834f4550e97702") < packed.ToUInt256());
+
+			//Check http://blockchain.info/block-index/394713/0000000000000000729a4a7e084c90f932d038c407a6535a51dfecdfba1c8906
+			Assert.True(new uint256("0x0000000000000000729a4a7e084c90f932d038c407a6535a51dfecdfba1c8906 ") < new Target(419470732).ToUInt256());
+
+			var genesis = Network.Main.GetGenesis();
+			Assert.True(genesis.GetHash() < genesis.Header.Bits.ToUInt256());
+		}
+
+		[Fact]
+		[Trait("Core", "Core")]
 		public void util_FormatMoney()
 		{
 			AssertEx.Equal(new Money(0).ToString(false), "0.00");
@@ -122,6 +165,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Core", "Core")]
 		public void util_ParseMoney()
 		{
 			Money ret = new Money(0);
@@ -170,6 +214,7 @@ namespace NBitcoin.Tests
 			Assert.True(!Money.TryParse("92233720368.54775808", out  ret));
 		}
 		[Fact]
+		[Trait("Core", "Core")]
 		public void util_IsHex()
 		{
 			Assert.True(HexEncoder.IsWellFormed("00"));

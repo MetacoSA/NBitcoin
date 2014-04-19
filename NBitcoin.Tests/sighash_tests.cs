@@ -49,6 +49,7 @@ namespace NBitcoin.Tests
 
 		// Goal: check that SignatureHash generates correct hash
 		[Fact]
+		[Trait("Core", "Core")]
 		public void sighash_from_data()
 		{
 			var tests = TestCase.read_json("Data/sighash.json");
@@ -81,7 +82,7 @@ namespace NBitcoin.Tests
 				tx.ReadWrite(ParseHex(raw_tx));
 
 
-				ValidationState state = new ValidationState();
+				ValidationState state = Network.Main.CreateValidationState();
 				Assert.True(state.CheckTransaction(tx), strTest);
 				Assert.True(state.IsValid);
 

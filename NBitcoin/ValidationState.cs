@@ -38,8 +38,17 @@ namespace NBitcoin
 		RejectCode chRejectCode;
 		bool corruptionPossible;
 
-		public ValidationState()
+		private readonly Network _Network;
+		public Network Network
 		{
+			get
+			{
+				return _Network;
+			}
+		}
+		public ValidationState(Network network)
+		{
+			_Network = network;
 			mode = mode_state.MODE_VALID;
 			nDoS = 0;
 			corruptionPossible = false;
@@ -197,7 +206,7 @@ namespace NBitcoin
 								 RejectCode.INVALID, "bad-blk-length");
 
 			// Check proof of work matches claimed amount
-			if(CheckProofOfWork && !CheckProofOfWorkCore(block.GetHash(), block.Header.NBits))
+			if(CheckProofOfWork && !CheckProofOfWorkCore(block.GetHash(), block.Header.Bits))
 				return DoS(50, Error("CheckBlock() : proof of work failed"),
 								 RejectCode.INVALID, "high-hash");
 
@@ -267,18 +276,16 @@ namespace NBitcoin
 			return (int)nSigOps;
 		}
 
-		private bool CheckProofOfWorkCore(uint256 hash, uint nBits)
+		private bool CheckProofOfWorkCore(uint256 hash, Target nBits)
 		{
-			//CBigNum bnTarget;
-			//bnTarget.SetCompact(nBits);
+			var bnTarget = nBits.ToBigInteger();
+			// Check range
+			if(bnTarget <= 0 || bnTarget > Network.ProofOfWorkLimit)
+				return Error("CheckProofOfWork() : nBits below minimum work");
 
-			//// Check range
-			//if(bnTarget <= 0 || bnTarget > Params().ProofOfWorkLimit())
-			//	return error("CheckProofOfWork() : nBits below minimum work");
-
-			//// Check proof of work matches claimed amount
-			//if(hash > bnTarget.getuint256())
-			//	return error("CheckProofOfWork() : hash doesn't match nBits");
+			// Check proof of work matches claimed amount
+			if(hash > nBits.ToUInt256())
+				return Error("CheckProofOfWork() : hash doesn't match nBits");
 
 			return true;
 		}

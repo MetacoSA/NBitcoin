@@ -14,6 +14,7 @@ namespace NBitcoin.Tests
 	{
 	
 		[Fact]
+		[Trait("Core", "Core")]
 		public void murmurhash3()
 		{
 			// Test MurmurHash3 with various inputs. Of course this is retested in the

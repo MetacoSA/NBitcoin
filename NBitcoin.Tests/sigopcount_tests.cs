@@ -10,6 +10,7 @@ namespace NBitcoin.Tests
 	public class sigopcount_tests
 	{
 		[Fact]
+		[Trait("Core", "Core")]
 		public void GetSigOpCount()
 		{
 			// Test CScript::GetSigOpCount()

@@ -12,6 +12,7 @@ namespace NBitcoin.Tests
 	public class checkblock_tests
 	{
 		[Fact]
+		[Trait("Core", "Core")]
 		public void May15()
 		{
 			// Putting a 1MB binary file in the git repository is not a great
@@ -19,12 +20,8 @@ namespace NBitcoin.Tests
 			// test/data/Mar12Fork.dat from
 			// http://sourceforge.net/projects/bitcoin/files/Bitcoin/blockchain/Mar12Fork.dat/download
 			var tMay15 = Utils.UnixTimeToDateTime(1368576000);
-
-			ValidationState state = new ValidationState()
-			{
-				CheckMerkleRoot = false,
-				CheckProofOfWork = false
-			};
+			ValidationState state = Network.Main.CreateValidationState();
+			state.CheckProofOfWork = false;
 			state.Now = tMay15; // Test as if it was right at May 15
 
 			Block forkingBlock = read_block("Mar12Fork.dat");

@@ -10,16 +10,16 @@ namespace NBitcoin
 	public class BitcoinSecret : Base58Data
 	{
 
-		public BitcoinSecret(string str)
+		public BitcoinSecret(string base58, Network network)
+			: base(base58,network)
 		{
-			this.SetString(str);
 		}
 
 		public Key Key
 		{
 			get
 			{
-				Key ret = new Key(vchData, 32, vchData.Length > 32 && vchData[32] == 1);
+				Key ret = new Key(vchData, 32, IsCompressed);
 				return ret;
 			}
 		}
@@ -28,20 +28,14 @@ namespace NBitcoin
 		{
 			get
 			{
-				bool compressed = IsCompressed;
-				if(compressed)
-				{
-					if(vchData[32] != 1 || (wifData[0] != 'K' && wifData[0] != 'L'))
-						return false;
-				}
-				else
-				{
-					if(vchData.Length != 32 || wifData[0] != '5')
-						return false;
-				}
+				if(vchData.Length != 33 && vchData.Length != 32)
+					return false;
 
-				bool fCorrectVersion = vchVersion[0] == 128;
-				return fCorrectVersion;
+				if(vchData.Length == 33 && IsCompressed)
+					return true;
+				if(vchData.Length == 32 && !IsCompressed)
+					return true;
+				return false;
 			}
 		}
 
@@ -53,7 +47,7 @@ namespace NBitcoin
 
 			if(compressed.Value && IsCompressed)
 			{
-				return new BitcoinSecret(wifData);
+				return new BitcoinSecret(wifData, Network);
 			}
 			else
 			{
@@ -68,7 +62,7 @@ namespace NBitcoin
 				{
 					resultList.RemoveAt(resultList.Count - 1);
 				}
-				return new BitcoinSecret(Encoders.Base58Check.EncodeData(resultList.ToArray()));
+				return new BitcoinSecret(Encoders.Base58Check.EncodeData(resultList.ToArray()), Network);
 			}
 		}
 
@@ -76,15 +70,15 @@ namespace NBitcoin
 		{
 			get
 			{
-				return vchData.Length == 33;
+				return vchData.Length > 32 && vchData[32] == 1;
 			}
 		}
 
-		public override byte[] ExpectedVersion
+		public override Base58Type Type
 		{
 			get
 			{
-				return new byte[] { 128 };
+				return Base58Type.SECRET_KEY;
 			}
 		}
 	}
