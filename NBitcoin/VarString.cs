@@ -8,7 +8,18 @@ namespace NBitcoin
 {
 	public class VarString : IBitcoinSerializable
 	{
+		public VarString()
+		{
+
+		}
 		byte[] _Bytes = new byte[0];
+		public int Length
+		{
+			get
+			{
+				return _Bytes.Length;
+			}
+		}
 		public VarString(byte[] bytes)
 		{
 			if(bytes == null)

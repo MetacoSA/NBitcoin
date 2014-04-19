@@ -1,4 +1,5 @@
 ﻿using NBitcoin.DataEncoders;
+using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,8 +128,22 @@ namespace NBitcoin
 };
 
 
-		byte[] pchMessageStart = new byte[4];
+		uint magic;
 		byte[] vAlertPubKey;
+		PubKey _AlertPubKey;
+		public PubKey AlertPubKey
+		{
+			get
+			{
+				if(_AlertPubKey == null)
+				{
+					_AlertPubKey = new PubKey(vAlertPubKey);
+				}
+				return _AlertPubKey;
+			}
+		}
+
+
 		byte[][] base58Prefixes = new byte[5][];
 		List<CDNSSeedData> vSeeds = new List<CDNSSeedData>();
 		List<Node> vFixedSeeds = new List<Node>();
@@ -180,10 +195,7 @@ namespace NBitcoin
 		private void InitReg()
 		{
 			InitTest();
-			pchMessageStart[0] = 0xfa;
-			pchMessageStart[1] = 0xbf;
-			pchMessageStart[2] = 0xb5;
-			pchMessageStart[3] = 0xda;
+			magic = 0xDAB5BFFA;
 			nSubsidyHalvingInterval = 150;
 			bnProofOfWorkLimit = new BigInteger((~new uint256(0) >> 1).ToBytes());
 			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1296688602);
@@ -222,10 +234,7 @@ namespace NBitcoin
 			// The message start string is designed to be unlikely to occur in normal data.
 			// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 			// a large 4-byte int at any alignment.
-			pchMessageStart[0] = 0xf9;
-			pchMessageStart[1] = 0xbe;
-			pchMessageStart[2] = 0xb4;
-			pchMessageStart[3] = 0xd9;
+			magic = 0xD9B4BEF9;
 			vAlertPubKey = DataEncoders.Encoders.Hex.DecodeData("04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284");
 			nDefaultPort = 8333;
 			nRPCPort = 8332;
@@ -292,10 +301,7 @@ namespace NBitcoin
 		{
 			InitMain();
 			name = "TestNet";
-			pchMessageStart[0] = 0x0b;
-			pchMessageStart[1] = 0x11;
-			pchMessageStart[2] = 0x09;
-			pchMessageStart[3] = 0x07;
+			magic = 0x0709110B;
 
 			vAlertPubKey = DataEncoders.Encoders.Hex.DecodeData("04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a");
 			nDefaultPort = 18333;
@@ -484,6 +490,19 @@ namespace NBitcoin
 		private BitcoinAddress CreateBitcoinScriptAddress(ScriptId scriptId)
 		{
 			return new BitcoinScriptAddress(scriptId, this);
+		}
+
+		public Message ParseMessage(byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		{
+			BitcoinStream bstream = new BitcoinStream(bytes);
+			Message message = new Message();
+			using(bstream.ProtocolVersionScope(version))
+			{
+				bstream.ReadWrite(ref message);
+			}
+			if(message.Magic != magic)
+				throw new FormatException("Unexpected magic field in the message");
+			return message;
 		}
 	}
 }

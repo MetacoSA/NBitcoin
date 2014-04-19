@@ -13,6 +13,11 @@ namespace NBitcoin
 		private byte _PrefixByte = 0;
 		private ulong _Value = 0;
 
+		public VarInt()
+			: this(0)
+		{
+
+		}
 		public VarInt(ulong value)
 		{
 			this._Value = value;

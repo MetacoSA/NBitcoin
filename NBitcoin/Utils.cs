@@ -179,5 +179,17 @@ public static int UnixTimestamp(this DateTime ignored)
 			var span = TimeSpan.FromSeconds(timestamp);
 			return unixRef + span;
 		}
+
+		public static string BytesToString(byte[] bytes)
+		{
+			return new String(bytes.Select(o => (char)o).ToArray()).Replace("\0", "");
+		}
+
+		internal static byte[] StringToBytes(string str)
+		{
+			if(String.IsNullOrEmpty(str))
+				return new byte[0];
+			return str.Select(o => (byte)o).ToArray();
+		}
 	}
 }

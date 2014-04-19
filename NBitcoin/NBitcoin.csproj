@@ -53,6 +53,15 @@
     <Compile Include="ExtKey.cs" />
     <Compile Include="ExtPubKey.cs" />
     <Compile Include="Network.cs" />
+    <Compile Include="RPC\AddrPayload.cs" />
+    <Compile Include="RPC\AlertPayload.cs" />
+    <Compile Include="RPC\InventoryVector.cs" />
+    <Compile Include="RPC\InvPayload.cs" />
+    <Compile Include="RPC\Message.cs" />
+    <Compile Include="RPC\NetworkAddress.cs" />
+    <Compile Include="RPC\PayloadAttribute.cs" />
+    <Compile Include="RPC\VerAckPayload.cs" />
+    <Compile Include="RPC\VersionPayload.cs" />
     <Compile Include="Target.cs" />
     <Compile Include="TxOutRepository.cs" />
     <Compile Include="Crypto\Hashes.cs" />
@@ -90,6 +99,7 @@
     <Compile Include="ValidationState.cs" />
     <Compile Include="VarInt.cs" />
     <Compile Include="VarString.cs" />
+    <Compile Include="Versions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

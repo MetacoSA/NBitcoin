@@ -408,6 +408,10 @@ namespace NBitcoin
 		{
 			return pn[0] | (ulong)pn[1] << 32;
 		}
+		public uint GetLow32()
+		{
+			return pn[0];
+		}
 		//public double GetDouble()
 		//{
 		//	double ret = 0.0;
@@ -833,6 +837,10 @@ namespace NBitcoin
 		public ulong GetLow64()
 		{
 			return pn[0] | (ulong)pn[1] << 32;
+		}
+		public uint GetLow32()
+		{
+			return pn[0];
 		}
 		//public double GetDouble()
 		//{

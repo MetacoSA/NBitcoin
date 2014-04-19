@@ -14,27 +14,36 @@ namespace NBitcoin
 
 	public static class BitcoinSerializableExtensions
 	{
-		public static void ReadWrite(this IBitcoinSerializable serializable, Stream stream, bool serializing)
+		public static void ReadWrite(this IBitcoinSerializable serializable, Stream stream, bool serializing, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
-			BitcoinStream s = new BitcoinStream(stream, serializing);
+			BitcoinStream s = new BitcoinStream(stream, serializing)
+			{
+				ProtocolVersion = version
+			};
 			serializable.ReadWrite(s);
 		}
-		public static int GetSerializedSize(this IBitcoinSerializable serializable)
+		public static int GetSerializedSize(this IBitcoinSerializable serializable, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
-			return serializable.ToBytes().Length;
+			return serializable.ToBytes(version).Length;
 		}
-		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes)
+		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
-			ReadWrite(serializable, new MemoryStream(bytes), false);
+			ReadWrite(serializable, new MemoryStream(bytes), false, version);
 		}
-		public static void FromBytes(this IBitcoinSerializable serializable, byte[] bytes)
+		public static void FromBytes(this IBitcoinSerializable serializable, byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
-			serializable.ReadWrite(new BitcoinStream(bytes));
+			serializable.ReadWrite(new BitcoinStream(bytes)
+			{
+				ProtocolVersion = version
+			});
 		}
-		public static byte[] ToBytes(this IBitcoinSerializable serializable)
+		public static byte[] ToBytes(this IBitcoinSerializable serializable, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			MemoryStream ms = new MemoryStream();
-			serializable.ReadWrite(new BitcoinStream(ms, true));
+			serializable.ReadWrite(new BitcoinStream(ms, true)
+			{
+				ProtocolVersion = version
+			});
 			return ms.ToArray();
 		}
 	}
