@@ -252,6 +252,73 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void NetworksAreValid()
+		{
+			foreach(var network in Network.GetNetworks())
+			{
+				Assert.NotNull(network);
+			}
+		}
+		[Fact]
+		//https://en.bitcoin.it/wiki/List_of_address_prefixes
+		public void CanDetectBase58NetworkAndType()
+		{
+			var tests = new[]
+				{
+					new
+					{
+						Base58 = "17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem",
+						ExpectedType = typeof(BitcoinAddress),
+						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "3EktnHQD7RiAE6uzMj2ZifT9YgRrkSgzQX",
+						ExpectedType = typeof(BitcoinScriptAddress),
+						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn",
+						ExpectedType = typeof(BitcoinAddress),
+						Network = Network.TestNet
+					},
+					new
+					{
+						Base58 = "5Hwgr3u458GLafKBgxtssHSPqJnYoGrSzgQsPwLFhLNYskDPyyA",
+						ExpectedType = typeof(BitcoinSecret),
+						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "92Pg46rUhgTT7romnV7iGW6W1gbGdeezqdbJCzShkCsYNzyyNcc",
+						ExpectedType = typeof(BitcoinSecret),
+						Network = Network.TestNet
+					},
+					new
+					{
+						Base58 = "DA1796XbaYxBwSc41yTDiirr1uuNkS446P",
+						ExpectedType = (Type)null,
+						Network = (Network)null
+					}
+				};
+
+			foreach(var test in tests)
+			{
+				var result = Network.GetFromBase58Data(test.Base58);
+				if(test.ExpectedType == null)
+				{
+					Assert.Null(result);
+				}
+				else
+				{
+					Assert.True(test.ExpectedType == result.GetType());
+					Assert.True(test.Network == result.Network);
+				}
+			}
+		}
+
+		[Fact]
 		public void CanConvertToUnixTime()
 		{
 			var date = Utils.UnixTimeToDateTime(1368576000);

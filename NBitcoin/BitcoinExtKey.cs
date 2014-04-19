@@ -71,6 +71,11 @@ namespace NBitcoin
 
 		}
 
+		public BitcoinExtPubKey(string base58, Network network)
+			: base(base58, network)
+		{
+		}
+
 		ExtPubKey _PubKey;
 		public ExtPubKey PubKey
 		{

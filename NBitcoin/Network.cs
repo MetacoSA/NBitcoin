@@ -162,6 +162,41 @@ namespace NBitcoin
 			}
 		}
 
+		static Network _RegTest;
+		public static Network RegTest
+		{
+			get
+			{
+				if(_RegTest == null)
+				{
+					var instance = new Network();
+					instance.InitReg();
+					_RegTest = instance;
+				}
+				return _RegTest;
+			}
+		}
+
+		private void InitReg()
+		{
+			InitTest();
+			pchMessageStart[0] = 0xfa;
+			pchMessageStart[1] = 0xbf;
+			pchMessageStart[2] = 0xb5;
+			pchMessageStart[3] = 0xda;
+			nSubsidyHalvingInterval = 150;
+			bnProofOfWorkLimit = new BigInteger((~new uint256(0) >> 1).ToBytes());
+			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1296688602);
+			genesis.Header.Bits = 0x207fffff;
+			genesis.Header.Nonce = 2;
+			hashGenesisBlock = genesis.GetHash();
+			nDefaultPort = 18444;
+			strDataDir = "regtest";
+			assert(hashGenesisBlock == new uint256("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
+
+			vSeeds.Clear();  // Regtest mode doesn't have any DNS seeds.
+		}
+
 
 		static Network _Main;
 		private BigInteger bnProofOfWorkLimit;
@@ -328,7 +363,46 @@ namespace NBitcoin
 			return null;
 		}
 
-		internal BitcoinAddress CreateBitcoinAddress(byte[] rawData)
+
+		/// <summary>
+		/// Find automatically the data type and the network to which belong the base58 data
+		/// </summary>
+		/// <param name="base58"></param>
+		/// <returns>null if not found</returns>
+		public static Base58Data GetFromBase58Data(string base58)
+		{
+			foreach(var network in GetNetworks())
+			{
+				var type = network.GetBase58Type(base58);
+				if(type.HasValue)
+				{
+					return network.CreateBase58Data(type.Value, base58);
+				}
+			}
+			return null;
+		}
+
+		public Base58Data CreateBase58Data(Base58Type type, string base58)
+		{
+			if(type == Base58Type.EXT_PUBLIC_KEY)
+				return CreateBitcoinExtPubKey(base58);
+			if(type == Base58Type.EXT_SECRET_KEY)
+				return CreateBitcoinExtKey(base58);
+			if(type == Base58Type.PUBKEY_ADDRESS)
+				return CreateBitcoinAddress(base58);
+			if(type == Base58Type.SCRIPT_ADDRESS)
+				return CreateBitcoinScriptAddress(base58);
+			if(type == Base58Type.SECRET_KEY)
+				return CreateBitcoinSecret(base58);
+			throw new NotSupportedException("Invalid Base58Data type : " + type.ToString());
+		}
+
+		private Base58Data CreateBitcoinExtPubKey(string base58)
+		{
+			return new BitcoinExtPubKey(base58, this);
+		}
+
+		public BitcoinAddress CreateBitcoinAddress(byte[] rawData)
 		{
 			return new BitcoinAddress(rawData, this);
 		}
@@ -376,6 +450,13 @@ namespace NBitcoin
 			var block = new Block();
 			block.ReadWrite(genesis.ToBytes());
 			return block;
+		}
+
+		public static IEnumerable<Network> GetNetworks()
+		{
+			yield return Main;
+			yield return TestNet;
+			yield return RegTest;
 		}
 	}
 }

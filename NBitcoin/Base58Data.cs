@@ -32,6 +32,11 @@ namespace NBitcoin
 			SetData(rawBytes);
 		}
 
+		public static Base58Data GetFromBase58Data(string base58)
+		{
+			return Network.GetFromBase58Data(base58);
+		}
+
 		private void SetString(string psz)
 		{
 			byte[] vchTemp = Encoders.Base58Check.DecodeData(psz);
