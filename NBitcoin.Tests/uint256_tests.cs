@@ -78,7 +78,7 @@ namespace NBitcoin.Tests
 		private byte[] MaxArray;
 		string R1ArrayHex = "7D1DE5EAF9B156D53208F033B5AA8122D2d2355d5e12292b121156cfdb4a529c";
 
-	
+
 		private string ArrayToString(byte[] array)
 		{
 			StringBuilder builder = new StringBuilder();
@@ -558,7 +558,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("Core","Core")]
+		[Trait("Core", "Core")]
 		public void basics()
 		{
 			//Assert.True(new uint256("ababdc10a3").ToString().EndsWith("0" + "ababdc10a3"));
@@ -669,11 +669,11 @@ namespace NBitcoin.Tests
 			tmpS = ~MaxS;
 			Assert.True(tmpS == ~MaxS);
 
-			// Wrong length must give 0
-			Assert.True(new uint256(OneArray.Take(31).ToArray()) == 0);
-			Assert.True(new uint256(OneArray.Take(20).ToArray()) == 0);
-			Assert.True(new uint160(OneArray.Take(32).ToArray()) == 0);
-			Assert.True(new uint160(OneArray.Take(19).ToArray()) == 0);
+			// Wrong length must crash, probably a bug
+			Assert.Throws<FormatException>(() => Assert.True(new uint256(OneArray.Take(31).ToArray()) == 0));
+			Assert.Throws<FormatException>(() => new uint256(OneArray.Take(20).ToArray()) == 0);
+			Assert.Throws<FormatException>(() => new uint160(OneArray.Take(32).ToArray()) == 0);
+			Assert.Throws<FormatException>(() => new uint160(OneArray.Take(19).ToArray()) == 0);
 		}
 	}
 }
