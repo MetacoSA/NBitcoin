@@ -305,13 +305,13 @@ namespace NBitcoin.Tests
 
 			foreach(var test in tests)
 			{
-				var result = Network.GetFromBase58Data(test.Base58);
 				if(test.ExpectedType == null)
 				{
-					Assert.Null(result);
+					Assert.Throws<FormatException>(() => Network.CreateFromBase58Data(test.Base58));
 				}
 				else
 				{
+					var result = Network.CreateFromBase58Data(test.Base58);
 					Assert.True(test.ExpectedType == result.GetType());
 					Assert.True(test.Network == result.Network);
 				}

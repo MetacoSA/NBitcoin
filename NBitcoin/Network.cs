@@ -332,6 +332,12 @@ namespace NBitcoin
 			return new BitcoinSecret(base58, this);
 		}
 
+		/// <summary>
+		/// Create a bitcoin address from base58 data, can return be a BitcoinScriptAddress
+		/// </summary>
+		/// <param name="base58"></param>
+		/// <exception cref="System.FormatException">Invalid base58 address</exception>
+		/// <returns>BitcoinScriptAddress, BitcoinAddress</returns>
 		public BitcoinAddress CreateBitcoinAddress(string base58)
 		{
 			var type = GetBase58Type(base58);
@@ -367,9 +373,9 @@ namespace NBitcoin
 		/// <summary>
 		/// Find automatically the data type and the network to which belong the base58 data
 		/// </summary>
-		/// <param name="base58"></param>
-		/// <returns>null if not found</returns>
-		public static Base58Data GetFromBase58Data(string base58)
+		/// <param name="base58">base58 data</param>
+		/// <exception cref="System.FormatException">Invalid base58 data</exception>
+		public static Base58Data CreateFromBase58Data(string base58)
 		{
 			foreach(var network in GetNetworks())
 			{
@@ -379,7 +385,7 @@ namespace NBitcoin
 					return network.CreateBase58Data(type.Value, base58);
 				}
 			}
-			return null;
+			throw new FormatException("Invalid base58 data");
 		}
 
 		public Base58Data CreateBase58Data(Base58Type type, string base58)
