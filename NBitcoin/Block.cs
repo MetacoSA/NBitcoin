@@ -142,6 +142,17 @@ namespace NBitcoin
 				this.nTime = Utils.DateTimeToUnixTime(value);
 			}
 		}
+
+		public bool CheckProofOfWork()
+		{
+			var hash = GetHash();
+			var bits = Bits;
+			var bnTarget = bits.ToBigInteger();
+			// Check proof of work matches claimed amount
+			if(hash > bits.ToUInt256())
+				return false;
+			return true;
+		}
 	}
 
 

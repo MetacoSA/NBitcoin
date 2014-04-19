@@ -206,7 +206,7 @@ namespace NBitcoin
 								 RejectCode.INVALID, "bad-blk-length");
 
 			// Check proof of work matches claimed amount
-			if(CheckProofOfWork && !CheckProofOfWorkCore(block.GetHash(), block.Header.Bits))
+			if(CheckProofOfWork && !CheckProofOfWorkCore(block))
 				return DoS(50, Error("CheckBlock() : proof of work failed"),
 								 RejectCode.INVALID, "high-hash");
 
@@ -261,7 +261,19 @@ namespace NBitcoin
 
 			return true;
 		}
+		public bool CheckProofOfWorkCore(Block block)
+		{
+			var bnTarget = block.Header.Bits.ToBigInteger();
+			// Check range
+			if(bnTarget <= 0 || bnTarget > Network.ProofOfWorkLimit)
+				return Error("CheckProofOfWork() : nBits below minimum work");
 
+			// Check proof of work matches claimed amount
+			if(block.Header.CheckProofOfWork())
+				return Error("CheckProofOfWork() : hash doesn't match nBits");
+			return true;
+
+		}
 		private int GetLegacySigOpCount(Transaction tx)
 		{
 			uint nSigOps = 0;
@@ -276,19 +288,7 @@ namespace NBitcoin
 			return (int)nSigOps;
 		}
 
-		private bool CheckProofOfWorkCore(uint256 hash, Target nBits)
-		{
-			var bnTarget = nBits.ToBigInteger();
-			// Check range
-			if(bnTarget <= 0 || bnTarget > Network.ProofOfWorkLimit)
-				return Error("CheckProofOfWork() : nBits below minimum work");
 
-			// Check proof of work matches claimed amount
-			if(hash > nBits.ToUInt256())
-				return Error("CheckProofOfWork() : hash doesn't match nBits");
-
-			return true;
-		}
 
 
 		DateTimeOffset _Now;
