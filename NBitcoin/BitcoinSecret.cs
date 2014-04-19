@@ -9,9 +9,21 @@ namespace NBitcoin
 {
 	public class BitcoinSecret : Base58Data
 	{
+		public BitcoinSecret(Key key, Network network)
+			: base(ToBytes(key), network)
+		{
+		}
 
+		private static byte[] ToBytes(Key key)
+		{
+			var keyBytes = key.ToBytes();
+			if(!key.IsCompressed)
+				return keyBytes;
+			else
+				return keyBytes.Concat(new byte[] { 0x01 }).ToArray();
+		}
 		public BitcoinSecret(string base58, Network network)
-			: base(base58,network)
+			: base(base58, network)
 		{
 		}
 

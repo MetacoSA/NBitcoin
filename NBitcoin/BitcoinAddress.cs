@@ -10,17 +10,25 @@ namespace NBitcoin
 {
 	public class BitcoinScriptAddress : BitcoinAddress
 	{
+
 		public BitcoinScriptAddress(string address, Network network)
 			: base(address, network)
 		{
 		}
-		protected override bool IsValid
+
+		public BitcoinScriptAddress(ScriptId scriptId, Network network)
+			: base(scriptId, network)
+		{
+		}
+
+		public new ScriptId ID
 		{
 			get
 			{
-				return true;
+				return new ScriptId(vchData);
 			}
 		}
+
 
 		public override Base58Type Type
 		{
@@ -42,11 +50,21 @@ namespace NBitcoin
 		{
 		}
 
+		public BitcoinAddress(KeyId keyId, Network network)
+			: base(keyId.ToBytes(), network)
+		{
+		}
+
+		protected BitcoinAddress(TxDestination dest, Network network)
+			: base(dest.ToBytes(), network)
+		{
+		}
+
 		protected override bool IsValid
 		{
 			get
 			{
-				return vchData.Length == 20;
+				return vchData.Length <= 20;
 			}
 		}
 
@@ -54,9 +72,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(vchVersion[0] == 0)
-					return new KeyId(vchData);
-				return null;
+				return new KeyId(vchData);
 			}
 		}
 

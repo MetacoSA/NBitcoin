@@ -333,9 +333,9 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Create a bitcoin address from base58 data, can return be a BitcoinScriptAddress
+		/// Create a bitcoin address from base58 data, return a BitcoinAddress or BitcoinScriptAddress
 		/// </summary>
-		/// <param name="base58"></param>
+		/// <param name="base58">base58 address</param>
 		/// <exception cref="System.FormatException">Invalid base58 address</exception>
 		/// <returns>BitcoinScriptAddress, BitcoinAddress</returns>
 		public BitcoinAddress CreateBitcoinAddress(string base58)
@@ -463,6 +463,27 @@ namespace NBitcoin
 			yield return Main;
 			yield return TestNet;
 			yield return RegTest;
+		}
+
+		public BitcoinSecret CreateBitcoinSecret(Key key)
+		{
+			return new BitcoinSecret(key, this);
+		}
+
+		public BitcoinAddress CreateBitcoinAddress(TxDestination dest)
+		{
+			if(dest == null)
+				throw new ArgumentNullException("dest");
+			if(dest is ScriptId)
+				return CreateBitcoinScriptAddress((ScriptId)dest);
+			if(dest is KeyId)
+				return new BitcoinAddress((KeyId)dest, this);
+			throw new ArgumentException("Invalid dest type", "dest");
+		}
+
+		private BitcoinAddress CreateBitcoinScriptAddress(ScriptId scriptId)
+		{
+			return new BitcoinScriptAddress(scriptId, this);
 		}
 	}
 }

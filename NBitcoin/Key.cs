@@ -198,5 +198,10 @@ namespace NBitcoin
 				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
 			return new Key(key.ToByteArrayUnsigned());
 		}
+
+		public BitcoinSecret GetBitcoinSecret(Network network)
+		{
+			return new BitcoinSecret(this, network);
+		}
 	}
 }
