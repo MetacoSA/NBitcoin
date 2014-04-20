@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin.RPC
+namespace NBitcoin.Protocol
 {
 	[Payload("inv")]
 	public class InvPayload : Payload, IBitcoinSerializable

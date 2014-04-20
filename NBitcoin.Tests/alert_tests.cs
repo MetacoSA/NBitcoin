@@ -1,4 +1,4 @@
-﻿using NBitcoin.RPC;
+﻿using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
 using System.IO;

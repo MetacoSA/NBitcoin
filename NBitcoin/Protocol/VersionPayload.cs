@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin.RPC
+namespace NBitcoin.Protocol
 {
 	[Payload("version")]
 	public class VersionPayload : Payload, IBitcoinSerializable

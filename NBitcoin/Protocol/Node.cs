@@ -8,13 +8,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin.RPC
+namespace NBitcoin.Protocol
 {
 	public class Node
 	{
 		static Random _RandNonce = new Random();
-		private readonly RPCServer _RPCServer;
-		public RPCServer RPCServer
+		private readonly ProtocolServer _RPCServer;
+		public ProtocolServer RPCServer
 		{
 			get
 			{
@@ -47,11 +47,11 @@ namespace NBitcoin.RPC
 						try
 						{
 							_Socket.Connect(Endpoint);
-							RPCTrace.Information("Connection successfull");
+							ProtocolTrace.Information("Connection successfull");
 						}
 						catch(Exception ex)
 						{
-							RPCTrace.Error("Error connecting to the remote endpoint ", ex);
+							ProtocolTrace.Error("Error connecting to the remote endpoint ", ex);
 							throw;
 						}
 						BeginListen();
@@ -79,7 +79,7 @@ namespace NBitcoin.RPC
 			{
 				using(TraceCorrelation.Open())
 				{
-					RPCTrace.Information("Start listening");
+					ProtocolTrace.Information("Start listening");
 					try
 					{
 						var stream = new NetworkStream(socket, false);
@@ -92,7 +92,7 @@ namespace NBitcoin.RPC
 							message.Magic = RPCServer.Network.Magic;
 							message.ReadWrite(bitStream);
 							message.SkipMagic = false;
-							RPCTrace.Information("Message recieved " + message.Command);
+							ProtocolTrace.Information("Message recieved " + message.Command);
 							MessageQueue.Add(message);
 						}
 					}
@@ -100,7 +100,7 @@ namespace NBitcoin.RPC
 					{
 						if(Socket != null)
 						{
-							RPCTrace.Error("Connection to server stopped unexpectedly", ex);
+							ProtocolTrace.Error("Connection to server stopped unexpectedly", ex);
 						}
 					}
 					finally
@@ -122,7 +122,7 @@ namespace NBitcoin.RPC
 						if(socket == _Socket)
 							_Socket = null;
 					}
-					RPCTrace.Information("Stop listening");
+					ProtocolTrace.Information("Stop listening");
 				}
 			});
 		}
@@ -139,7 +139,7 @@ namespace NBitcoin.RPC
 			}
 		}
 
-		public Node(NetworkAddress networkAddress, RPCServer rpcServer)
+		public Node(NetworkAddress networkAddress, ProtocolServer rpcServer)
 		{
 			_RPCServer = rpcServer;
 			LastSeen = networkAddress.Time;
@@ -163,7 +163,7 @@ namespace NBitcoin.RPC
 					_TraceCorrelation = new TraceCorrelation();
 					using(_TraceCorrelation.Open())
 					{
-						RPCTrace.Trace.TraceEvent(TraceEventType.Start, 0, "Communication with " + Endpoint.ToString());
+						ProtocolTrace.Trace.TraceEvent(TraceEventType.Start, 0, "Communication with " + Endpoint.ToString());
 					}
 				}
 				return _TraceCorrelation;
@@ -176,7 +176,7 @@ namespace NBitcoin.RPC
 				var message = new Message();
 				message.Magic = RPCServer.Network.Magic;
 				message.UpdatePayload(payload, RPCServer.Version);
-				RPCTrace.Information("Sending message " + message.Command);
+				ProtocolTrace.Information("Sending message " + message.Command);
 				Socket.Send(message.ToBytes());
 			}
 		}

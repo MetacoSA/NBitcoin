@@ -9,9 +9,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NBitcoin.RPC
+namespace NBitcoin.Protocol
 {
-	public class RPCServer
+	public class ProtocolServer
 	{
 		private readonly Network _Network;
 		public Network Network
@@ -37,7 +37,7 @@ namespace NBitcoin.RPC
 				return _Port;
 			}
 		}
-		public RPCServer(Network network, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION, int port = -1)
+		public ProtocolServer(Network network, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION, int port = -1)
 		{
 			_Port = port == -1 ? network.DefaultPort : port;
 			_Network = network;
@@ -56,7 +56,7 @@ namespace NBitcoin.RPC
 								}
 								catch(Exception ex)
 								{
-									RPCTrace.ErrorWhileRetrievingDNSSeedIp(s.Name, ex);
+									ProtocolTrace.ErrorWhileRetrievingDNSSeedIp(s.Name, ex);
 									return new IPAddress[0];
 								}
 							})
@@ -121,21 +121,21 @@ namespace NBitcoin.RPC
 			{
 
 				listenerTrace = new TraceCorrelation();
-				RPCTrace.Trace.TraceTransfer(0, "transfer", listenerTrace.Activity);
+				ProtocolTrace.Trace.TraceTransfer(0, "transfer", listenerTrace.Activity);
 				using(listenerTrace.Open())
 				{
-					RPCTrace.Trace.TraceEvent(TraceEventType.Start, 0, "RPC server listening");
+					ProtocolTrace.Trace.TraceEvent(TraceEventType.Start, 0, "RPC server listening");
 					try
 					{
 						socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
 						socket.Bind(new IPEndPoint(IPAddress.Parse("0.0.0.0"), Port));
 						socket.Listen(8);
-						RPCTrace.Information("Listening on " + socket.LocalEndPoint);
+						ProtocolTrace.Information("Listening on " + socket.LocalEndPoint);
 						BeginAccept();
 					}
 					catch(Exception ex)
 					{
-						RPCTrace.Error("Error while opening the RPC server", ex);
+						ProtocolTrace.Error("Error while opening the RPC server", ex);
 						throw;
 					}
 				}
@@ -144,7 +144,7 @@ namespace NBitcoin.RPC
 
 		private void BeginAccept()
 		{
-			RPCTrace.Information("Accepting connection...");
+			ProtocolTrace.Information("Accepting connection...");
 			socket.BeginAccept(EndAccept, null);
 		}
 		private void EndAccept(IAsyncResult ar)
@@ -154,13 +154,13 @@ namespace NBitcoin.RPC
 				try
 				{
 					var client = socket.EndAccept(ar);
-					RPCTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
+					ProtocolTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
 					//Trace.CorrelationManager.ActivityId
 					//RPCTrace.Information("New client connected");
 				}
 				catch(Exception ex)
 				{
-					RPCTrace.Error("Error while accepting connection ", ex);
+					ProtocolTrace.Error("Error while accepting connection ", ex);
 					Thread.Sleep(3000);
 				}
 			}
@@ -183,7 +183,7 @@ namespace NBitcoin.RPC
 						 }
 						 catch(Exception ex)
 						 {
-							 RPCTrace.Warning("can't resolve ip of " + site.DNS + " using hardcoded one " + site.IP, ex);
+							 ProtocolTrace.Warning("can't resolve ip of " + site.DNS + " using hardcoded one " + site.IP, ex);
 						 }
 						 WebClient client = new WebClient();
 						 var page = client.DownloadString("http://" + ip);
@@ -197,12 +197,12 @@ namespace NBitcoin.RPC
 			try
 			{
 				var result = tasks.First(t => t.IsCompleted && !t.IsFaulted).Result;
-				RPCTrace.ExternalIpRecieved(result);
+				ProtocolTrace.ExternalIpRecieved(result);
 				return IPAddress.Parse(result);
 			}
 			catch(InvalidOperationException)
 			{
-				RPCTrace.ExternalIpFailed(tasks.Select(t => t.Exception).FirstOrDefault());
+				ProtocolTrace.ExternalIpFailed(tasks.Select(t => t.Exception).FirstOrDefault());
 				throw new WebException("Impossible to detect extenal ip");
 			}
 		}

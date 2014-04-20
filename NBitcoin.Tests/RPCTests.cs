@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using NBitcoin;
-using NBitcoin.RPC;
+using NBitcoin.Protocol;
 using System.Net;
 using System.Threading;
 
@@ -91,7 +91,7 @@ namespace NBitcoin.Tests
 		[Trait("Online", "Online")]
 		public void CanGetMyIp()
 		{
-			var client = new RPCServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
+			var client = new ProtocolServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(client.GetMyExternalIP() != null);
 		}
 
@@ -99,7 +99,7 @@ namespace NBitcoin.Tests
 		[Trait("Online", "Online")]
 		public void CanGetVersion()
 		{
-			var client = new RPCServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
+			var client = new ProtocolServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
 			client.Listen();
 			client.GetDNSNodes();
 			client.DNSNodes[0].Version();

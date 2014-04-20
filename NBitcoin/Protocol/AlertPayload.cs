@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin.RPC
+namespace NBitcoin.Protocol
 {
 	[Payload("alert")]
 	public class AlertPayload : Payload, IBitcoinSerializable

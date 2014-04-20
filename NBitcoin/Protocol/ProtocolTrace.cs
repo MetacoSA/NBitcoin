@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin.RPC
+namespace NBitcoin.Protocol
 {
-	public class RPCTrace
+	public class ProtocolTrace
 	{
-		static TraceSource _Trace = new TraceSource("NBitcoin.RPC");
+		static TraceSource _Trace = new TraceSource("NBitcoin.Protocol");
 		public static TraceSource Trace
 		{
 			get

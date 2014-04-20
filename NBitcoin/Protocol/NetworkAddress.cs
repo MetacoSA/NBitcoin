@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin.RPC
+namespace NBitcoin.Protocol
 {
 	public class NetworkAddress : IBitcoinSerializable
 	{
@@ -41,7 +41,7 @@ namespace NBitcoin.RPC
 			}
 		}
 
-		public Node ToNode(RPCServer client)
+		public Node ToNode(ProtocolServer client)
 		{
 			return new Node(this, client);
 		}
