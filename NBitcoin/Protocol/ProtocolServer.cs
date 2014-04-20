@@ -124,7 +124,7 @@ namespace NBitcoin.Protocol
 				ProtocolTrace.Trace.TraceTransfer(0, "transfer", listenerTrace.Activity);
 				using(listenerTrace.Open())
 				{
-					ProtocolTrace.Trace.TraceEvent(TraceEventType.Start, 0, "RPC server listening");
+					ProtocolTrace.Trace.TraceEvent(TraceEventType.Start, 0, "Protocol server listening");
 					try
 					{
 						socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
@@ -135,7 +135,7 @@ namespace NBitcoin.Protocol
 					}
 					catch(Exception ex)
 					{
-						ProtocolTrace.Error("Error while opening the RPC server", ex);
+						ProtocolTrace.Error("Error while opening the Protocol server", ex);
 						throw;
 					}
 				}
