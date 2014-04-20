@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace NBitcoin.RPC
 {
 	[Payload("addr")]
-	public class AddrPayload : IBitcoinSerializable
+	public class AddrPayload : Payload, IBitcoinSerializable
 	{
 		NetworkAddress[] addr_list = new NetworkAddress[0];
 		public NetworkAddress[] Addresses
@@ -20,7 +20,7 @@ namespace NBitcoin.RPC
 
 		#region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public override void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref addr_list);
 		}

@@ -37,7 +37,6 @@ public static int UnixTimestamp(this DateTime ignored)
 	}
 	public class Utils
 	{
-		public const int PROTOCOL_VERSION = 70002;
 		public static bool ArrayEqual(byte[] a, byte[] b)
 		{
 			if(a == null && b == null)
@@ -191,5 +190,25 @@ public static int UnixTimestamp(this DateTime ignored)
 				return new byte[0];
 			return str.Select(o => (byte)o).ToArray();
 		}
+
+		public static string ExceptionToString(Exception exception)
+		{
+			Exception ex = exception;
+			StringBuilder stringBuilder = new StringBuilder(128);
+			while(ex != null)
+			{
+				stringBuilder.Append(ex.GetType().Name);
+				stringBuilder.Append(": ");
+				stringBuilder.Append(ex.Message);
+				stringBuilder.AppendLine(ex.StackTrace);
+				ex = ex.InnerException;
+				if(ex != null)
+				{
+					stringBuilder.Append(" ---> ");
+				}
+			}
+			return stringBuilder.ToString();
+		}
+
 	}
 }

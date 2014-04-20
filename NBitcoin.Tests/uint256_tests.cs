@@ -166,25 +166,25 @@ namespace NBitcoin.Tests
 			Assert.True(R1L.GetLow64() == R1LLow64);
 			Assert.True(HalfL.GetLow64() == 0x0000000000000000UL);
 			Assert.True(OneL.GetLow64() == 0x0000000000000001UL);
-			Assert.True(R1L.GetSerializeSize(0, Utils.PROTOCOL_VERSION) == 32);
-			Assert.True(ZeroL.GetSerializeSize(0, Utils.PROTOCOL_VERSION) == 32);
+			Assert.True(R1L.GetSerializeSize(0, ProtocolVersion.PROTOCOL_VERSION) == 32);
+			Assert.True(ZeroL.GetSerializeSize(0, ProtocolVersion.PROTOCOL_VERSION) == 32);
 
 			MemoryStream ss = new MemoryStream();
-			R1L.Serialize(ss, 0, Utils.PROTOCOL_VERSION);
+			R1L.Serialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(ArrayToString(ss.ToArray()) == ArrayToString(R1Array));
-			TmpL.Unserialize(ss, 0, Utils.PROTOCOL_VERSION);
+			TmpL.Unserialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(R1L == TmpL);
 			ss = new MemoryStream();
-			ZeroL.Serialize(ss, 0, Utils.PROTOCOL_VERSION);
+			ZeroL.Serialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(ArrayToString(ss.ToArray()) == ArrayToString(ZeroArray));
 			ss.Position = 0;
-			TmpL.Unserialize(ss, 0, Utils.PROTOCOL_VERSION);
+			TmpL.Unserialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(ZeroL == TmpL);
 			ss = new MemoryStream();
-			MaxL.Serialize(ss, 0, Utils.PROTOCOL_VERSION);
+			MaxL.Serialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(ArrayToString(ss.ToArray()) == ArrayToString(MaxArray));
 			ss.Position = 0;
-			TmpL.Unserialize(ss, 0, Utils.PROTOCOL_VERSION);
+			TmpL.Unserialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(MaxL == TmpL);
 			ss = new MemoryStream();
 
@@ -221,25 +221,25 @@ namespace NBitcoin.Tests
 			Assert.True(R1S.GetLow64() == R1LLow64);
 			Assert.True(HalfS.GetLow64() == 0x0000000000000000UL);
 			Assert.True(OneS.GetLow64() == 0x0000000000000001UL);
-			Assert.True(R1S.GetSerializeSize(0, Utils.PROTOCOL_VERSION) == 20);
-			Assert.True(ZeroS.GetSerializeSize(0, Utils.PROTOCOL_VERSION) == 20);
+			Assert.True(R1S.GetSerializeSize(0, ProtocolVersion.PROTOCOL_VERSION) == 20);
+			Assert.True(ZeroS.GetSerializeSize(0, ProtocolVersion.PROTOCOL_VERSION) == 20);
 
-			R1S.Serialize(ss, 0, Utils.PROTOCOL_VERSION);
+			R1S.Serialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(ArrayToString(ss.ToArray()) == ArrayToString(R1Array.Take(20).ToArray()));
 			ss.Position = 0;
-			TmpS.Unserialize(ss, 0, Utils.PROTOCOL_VERSION);
+			TmpS.Unserialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(R1S == TmpS);
 			ss = new MemoryStream();
-			ZeroS.Serialize(ss, 0, Utils.PROTOCOL_VERSION);
+			ZeroS.Serialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(ArrayToString(ss.ToArray()) == ArrayToString(ZeroArray.Take(20).ToArray()));
 			ss.Position = 0;
-			TmpS.Unserialize(ss, 0, Utils.PROTOCOL_VERSION);
+			TmpS.Unserialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(ZeroS == TmpS);
 			ss = new MemoryStream();
-			MaxS.Serialize(ss, 0, Utils.PROTOCOL_VERSION);
+			MaxS.Serialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(ArrayToString(ss.ToArray()) == ArrayToString(MaxArray.Take(20).ToArray()));
 			ss.Position = 0;
-			TmpS.Unserialize(ss, 0, Utils.PROTOCOL_VERSION);
+			TmpS.Unserialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(MaxS == TmpS);
 			ss = new MemoryStream();
 

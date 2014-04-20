@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Xunit;
 using NBitcoin;
 using NBitcoin.RPC;
+using System.Net;
+using System.Threading;
 
 namespace NBitcoin.Tests
 {
@@ -28,6 +30,8 @@ namespace NBitcoin.Tests
 							var version = (VersionPayload)o;
 							Assert.Equal((ulong)0x1357B43A2C209DDD, version.Nonce);
 							Assert.Equal("", version.UserAgent);
+							Assert.Equal("::ffff:10.0.0.2", version.AddressFrom.Address.ToString());
+							Assert.Equal(8333, version.AddressFrom.Port);
 							Assert.Equal(0x00018155, version.StartHeight);
 							Assert.Equal((uint)31900, version.Version);
 						})
@@ -81,6 +85,26 @@ namespace NBitcoin.Tests
 				message.FromBytes(bytes, test.Version);
 				test.Test(message.Payload);
 			}
+		}
+
+		[Fact]
+		[Trait("Online", "Online")]
+		public void CanGetMyIp()
+		{
+			var client = new RPCServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
+			Assert.True(client.GetMyExternalIP() != null);
+		}
+
+		[Fact]
+		[Trait("Online", "Online")]
+		public void CanGetVersion()
+		{
+			var client = new RPCServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
+			client.Listen();
+			client.GetDNSNodes();
+			client.DNSNodes[0].Version();
+			Thread.Sleep(10000);
+			client.DNSNodes[0].Disconnect();
 		}
 	}
 }

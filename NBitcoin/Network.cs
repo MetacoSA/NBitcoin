@@ -6,35 +6,45 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class CDNSSeedData
+	public class DNSSeedData
 	{
 		string name, host;
-		public CDNSSeedData(string name, string host)
+		public string Name
+		{
+			get
+			{
+				return name;
+			}
+		}
+		public string Host
+		{
+			get
+			{
+				return host;
+			}
+		}
+		public DNSSeedData(string name, string host)
 		{
 			this.name = name;
 			this.host = host;
 		}
-	}
-	public class Node
-	{
-		public IPEndPoint Endpoint
+
+		IPAddress[] _Addresses;
+		public IPAddress[] GetAddressNodes()
 		{
-			get;
-			private set;
-		}
-		public Node(IPEndPoint endpoint)
-		{
-			this.Endpoint = endpoint;
+			if(_Addresses != null)
+				return _Addresses;
+			return Dns.GetHostAddresses(host);
 		}
 
-		public DateTime LastSeen
+		public override string ToString()
 		{
-			get;
-			set;
+			return name + " (" + host + ")";
 		}
 	}
 	public enum Base58Type
@@ -145,15 +155,23 @@ namespace NBitcoin
 
 
 		byte[][] base58Prefixes = new byte[5][];
-		List<CDNSSeedData> vSeeds = new List<CDNSSeedData>();
-		List<Node> vFixedSeeds = new List<Node>();
+		List<DNSSeedData> vSeeds = new List<DNSSeedData>();
+		List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
 		Block genesis = new Block();
 
-		private int nDefaultPort;
 		private int nRPCPort;
+		public int RPCPort
+		{
+			get
+			{
+				return nRPCPort;
+			}
+		}
+
 		private string strDataDir;
 		private uint256 hashGenesisBlock;
 
+		private int nDefaultPort;
 		public int DefaultPort
 		{
 			get
@@ -162,20 +180,7 @@ namespace NBitcoin
 			}
 		}
 
-		static Network _TestNet;
-		public static Network TestNet
-		{
-			get
-			{
-				if(_TestNet == null)
-				{
-					var instance = new Network();
-					instance.InitTest();
-					_TestNet = instance;
-				}
-				return _TestNet;
-			}
-		}
+	
 
 		static Network _RegTest;
 		public static Network RegTest
@@ -268,12 +273,12 @@ namespace NBitcoin
 			assert(hashGenesisBlock == new uint256("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
 			assert(genesis.Header.HashMerkleRoot == new uint256("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
 
-			vSeeds.Add(new CDNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be"));
-			vSeeds.Add(new CDNSSeedData("bluematt.me", "dnsseed.bluematt.me"));
-			vSeeds.Add(new CDNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org"));
-			vSeeds.Add(new CDNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com"));
-			vSeeds.Add(new CDNSSeedData("bitnodes.io", "seed.bitnodes.io"));
-			vSeeds.Add(new CDNSSeedData("xf2.org", "bitseed.xf2.org"));
+			vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be"));
+			vSeeds.Add(new DNSSeedData("bluematt.me", "dnsseed.bluematt.me"));
+			vSeeds.Add(new DNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org"));
+			vSeeds.Add(new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com"));
+			vSeeds.Add(new DNSSeedData("bitnodes.io", "seed.bitnodes.io"));
+			vSeeds.Add(new DNSSeedData("xf2.org", "bitseed.xf2.org"));
 
 			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (0) };
 			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (5) };
@@ -283,20 +288,36 @@ namespace NBitcoin
 
 			// Convert the pnSeeds array into usable address objects.
 			Random rand = new Random();
+			TimeSpan nOneWeek = TimeSpan.FromDays(7);
 			for(int i = 0 ; i < pnSeed.Length ; i++)
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
 				// it'll get a pile of addresses with newer timestamps.
+				IPAddress ip = new IPAddress(pnSeed[i]);
+				NetworkAddress addr = new NetworkAddress();
 				// Seed nodes are given a random 'last seen time' of between one and two
 				// weeks ago.
-				var nOneWeek = TimeSpan.FromDays(7);
-				IPAddress ip = new IPAddress(i);
-				Node addr = new Node(new IPEndPoint(ip, DefaultPort));
-				addr.LastSeen = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
+				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
+				addr.Endpoint = new IPEndPoint(ip, DefaultPort);
 				vFixedSeeds.Add(addr);
 			}
 		}
 
+
+		static Network _TestNet;
+		public static Network TestNet
+		{
+			get
+			{
+				if(_TestNet == null)
+				{
+					var instance = new Network();
+					instance.InitTest();
+					_TestNet = instance;
+				}
+				return _TestNet;
+			}
+		}
 		private void InitTest()
 		{
 			InitMain();
@@ -317,8 +338,8 @@ namespace NBitcoin
 
 			vFixedSeeds.Clear();
 			vSeeds.Clear();
-			vSeeds.Add(new CDNSSeedData("bitcoin.petertodd.org", "testnet-seed.bitcoin.petertodd.org"));
-			vSeeds.Add(new CDNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
+			vSeeds.Add(new DNSSeedData("bitcoin.petertodd.org", "testnet-seed.bitcoin.petertodd.org"));
+			vSeeds.Add(new DNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
 
 			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (111) };
 			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (196) };
@@ -503,6 +524,48 @@ namespace NBitcoin
 			if(message.Magic != magic)
 				throw new FormatException("Unexpected magic field in the message");
 			return message;
+		}
+
+		public IEnumerable<NetworkAddress> SeedNodes
+		{
+			get
+			{
+				return this.vFixedSeeds;
+			}
+		}
+		public IEnumerable<DNSSeedData> DNSSeeds
+		{
+			get
+			{
+				return this.vSeeds;
+			}
+		}
+
+		public byte[] _MagicBytes;
+		public byte[] MagicBytes
+		{
+			get
+			{
+				if(_MagicBytes == null)
+				{
+					var bytes = new byte[] 
+					{ 
+						(byte)Magic,
+						(byte)(Magic >> 8),
+						(byte)(Magic >> 16),
+						(byte)(Magic >> 24)
+					};
+					_MagicBytes = bytes;
+				}
+				return _MagicBytes;
+			}
+		}
+		public uint Magic
+		{
+			get
+			{
+				return magic;
+			}
 		}
 	}
 }

@@ -78,7 +78,8 @@ namespace NBitcoin.RPC
 		public void ReadWrite(BitcoinStream stream)
 		{
 			bool verifyChechksum = false;
-			stream.ReadWrite(ref magic);
+			if(!SkipMagic)
+				stream.ReadWrite(ref magic);
 			stream.ReadWrite(ref command);
 			stream.ReadWrite(ref length);
 			if(stream.ProtocolVersion >= ProtocolVersion.MEMPOOL_GD_VERSION)
@@ -114,6 +115,26 @@ namespace NBitcoin.RPC
 		public bool VerifyChecksum()
 		{
 			return Checksum != Hashes.Hash256(payload).GetLow32();
+		}
+
+		public void UpdatePayload(Payload payload, ProtocolVersion version)
+		{
+			if(payload == null)
+				throw new ArgumentNullException("payload");
+			this.payload = payload.ToBytes(version);
+			length = (uint)this.payload.Length;
+			checksum = Hashes.Hash256(this.payload).GetLow32();
+			Command = payload.Command;
+		}
+
+
+		/// <summary>
+		/// When parsing, maybe Magic is already parsed
+		/// </summary>
+		public bool SkipMagic
+		{
+			get;
+			set;
 		}
 	}
 }

@@ -12,7 +12,7 @@ namespace NBitcoin.RPC
 		MSG_TX = 1,
 		MSG_BLOCK = 2,
 	}
-	public class InventoryVector : IBitcoinSerializable
+	public class InventoryVector : Payload, IBitcoinSerializable
 	{
 		uint type;
 		uint256 hash = new uint256(0);
@@ -42,7 +42,7 @@ namespace NBitcoin.RPC
 
 		#region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public override void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref type);
 			stream.ReadWrite(ref hash);

@@ -6,13 +6,21 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
-	[Payload("verack")]
-	public class VerAckPayload : Payload, IBitcoinSerializable
+	public class Payload : IBitcoinSerializable
 	{
+		public string Command
+		{
+			get
+			{
+				return PayloadAttribute.GetCommandName(this.GetType());
+			}
+		}
+
 		#region IBitcoinSerializable Members
 
-		public override void ReadWrite(BitcoinStream stream)
+		public virtual void ReadWrite(BitcoinStream stream)
 		{
+			
 		}
 
 		#endregion

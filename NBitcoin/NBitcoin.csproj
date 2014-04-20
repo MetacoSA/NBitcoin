@@ -59,10 +59,15 @@
     <Compile Include="RPC\InvPayload.cs" />
     <Compile Include="RPC\Message.cs" />
     <Compile Include="RPC\NetworkAddress.cs" />
+    <Compile Include="RPC\Node.cs" />
+    <Compile Include="RPC\Payload.cs" />
     <Compile Include="RPC\PayloadAttribute.cs" />
+    <Compile Include="RPC\RPCServer.cs" />
+    <Compile Include="RPC\RPCTrace.cs" />
     <Compile Include="RPC\VerAckPayload.cs" />
     <Compile Include="RPC\VersionPayload.cs" />
     <Compile Include="Target.cs" />
+    <Compile Include="TraceCorrelationScope.cs" />
     <Compile Include="TxOutRepository.cs" />
     <Compile Include="Crypto\Hashes.cs" />
     <Compile Include="DataEncoders\Base58Encoder.cs" />

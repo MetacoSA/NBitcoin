@@ -14,15 +14,37 @@ namespace NBitcoin.RPC
 		byte[] ip = new byte[16];
 		ushort port;
 
-		IPEndPoint _Endpoint;
 		public IPEndPoint Endpoint
 		{
 			get
 			{
 				return new IPEndPoint(new IPAddress(ip), port);
 			}
+			set
+			{
+				port = (ushort)value.Port;
+				var ipBytes = value.Address.GetAddressBytes();
+				if(ipBytes.Length == 16)
+				{
+					ip = ipBytes;
+				}
+				else if(ipBytes.Length == 4)
+				{
+					//Convert to ipv4 mapped to ipv6
+					//In these addresses, the first 80 bits are zero, the next 16 bits are one, and the remaining 32 bits are the IPv4 address
+					ip = new byte[16];
+					Array.Copy(ipBytes, 0, ip, 12, 4);
+					Array.Copy(new byte[] { 0xFF, 0xFF }, 0, ip, 10, 2);
+				}
+				else
+					throw new NotSupportedException("Invalid IP address type");
+			}
 		}
 
+		public Node ToNode(RPCServer client)
+		{
+			return new Node(this, client);
+		}
 
 		public DateTimeOffset Time
 		{
@@ -44,7 +66,10 @@ namespace NBitcoin.RPC
 				stream.ReadWrite(ref time);
 			stream.ReadWrite(ref service);
 			stream.ReadWrite(ref ip);
-			stream.ReadWrite(ref port);
+			using(stream.BigEndianScope())
+			{
+				stream.ReadWrite(ref port);
+			}
 		}
 
 		#endregion

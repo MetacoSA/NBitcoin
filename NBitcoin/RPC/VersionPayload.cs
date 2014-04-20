@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
 	[Payload("version")]
-	public class VersionPayload : IBitcoinSerializable
+	public class VersionPayload : Payload, IBitcoinSerializable
 	{
 		uint version;
 
@@ -24,10 +25,44 @@ namespace NBitcoin.RPC
 		}
 		ulong services;
 		long timestamp;
-		NetworkAddress addr_recv;
-		NetworkAddress addr_from;
-		ulong nonce;
 
+		public DateTimeOffset Timestamp
+		{
+			get
+			{
+				return Utils.UnixTimeToDateTime((uint)timestamp);
+			}
+			set
+			{
+				timestamp = Utils.DateTimeToUnixTime(value);
+			}
+		}
+		NetworkAddress addr_recv = new NetworkAddress();
+		public IPEndPoint AddressReciever
+		{
+			get
+			{
+				return addr_recv.Endpoint;
+			}
+			set
+			{
+				addr_recv.Endpoint = value;
+			}
+		}
+
+		NetworkAddress addr_from = new NetworkAddress();
+		public IPEndPoint AddressFrom
+		{
+			get
+			{
+				return addr_from.Endpoint;
+			}
+			set
+			{
+				addr_from.Endpoint = value;
+			}
+		}
+		ulong nonce;
 		public ulong Nonce
 		{
 			get
@@ -39,7 +74,6 @@ namespace NBitcoin.RPC
 				nonce = value;
 			}
 		}
-		VarString user_agent;
 		int start_height;
 
 		public int StartHeight
@@ -54,7 +88,7 @@ namespace NBitcoin.RPC
 			}
 		}
 		bool relay;
-
+		VarString user_agent;
 		public string UserAgent
 		{
 			get
@@ -69,7 +103,7 @@ namespace NBitcoin.RPC
 
 		#region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public override void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref version);
 			using(stream.ProtocolVersionScope((ProtocolVersion)version))
@@ -99,5 +133,7 @@ namespace NBitcoin.RPC
 		}
 
 		#endregion
+
+	
 	}
 }

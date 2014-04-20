@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace NBitcoin.RPC
 {
 	[Payload("alert")]
-	public class AlertPayload : IBitcoinSerializable
+	public class AlertPayload : Payload, IBitcoinSerializable
 	{
 		/// <summary>
 		/// Used for knowing if an alert is valid in past of future
@@ -96,7 +96,7 @@ namespace NBitcoin.RPC
 
 		#region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public override void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref payload);
 			if(!stream.Serializing)

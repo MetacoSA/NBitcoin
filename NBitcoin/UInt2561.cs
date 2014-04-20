@@ -372,7 +372,7 @@ namespace NBitcoin
 			this.pn = new uint256(b).pn;
 		}
 
-		public void Serialize(Stream stream, int nType = 0, int protocolVersion = Utils.PROTOCOL_VERSION)
+		public void Serialize(Stream stream, int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			for(int i = 0 ; i < WIDTH_BYTE ; i++)
 			{
@@ -380,7 +380,7 @@ namespace NBitcoin
 			}
 		}
 
-		public void Unserialize(Stream stream, int nType = 0, int protocolVersion = Utils.PROTOCOL_VERSION)
+		public void Unserialize(Stream stream, int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			for(int i = 0 ; i < WIDTH_BYTE ; i++)
 			{
@@ -392,7 +392,7 @@ namespace NBitcoin
 			}
 		}
 
-		public int GetSerializeSize(int nType=0, int protocolVersion = Utils.PROTOCOL_VERSION)
+		public int GetSerializeSize(int nType=0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			return WIDTH_BYTE;
 		}
@@ -802,7 +802,7 @@ namespace NBitcoin
 			this.pn = new uint160(b).pn;
 		}
 
-		public void Serialize(Stream stream, int nType = 0, int protocolVersion = Utils.PROTOCOL_VERSION)
+		public void Serialize(Stream stream, int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			for(int i = 0 ; i < WIDTH_BYTE ; i++)
 			{
@@ -810,7 +810,7 @@ namespace NBitcoin
 			}
 		}
 
-		public void Unserialize(Stream stream, int nType = 0, int protocolVersion = Utils.PROTOCOL_VERSION)
+		public void Unserialize(Stream stream, int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			for(int i = 0 ; i < WIDTH_BYTE ; i++)
 			{
@@ -822,7 +822,7 @@ namespace NBitcoin
 			}
 		}
 
-		public int GetSerializeSize(int nType=0, int protocolVersion = Utils.PROTOCOL_VERSION)
+		public int GetSerializeSize(int nType=0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			return WIDTH_BYTE;
 		}

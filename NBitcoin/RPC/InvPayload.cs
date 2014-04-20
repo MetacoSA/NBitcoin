@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace NBitcoin.RPC
 {
 	[Payload("inv")]
-	public class InvPayload :  IBitcoinSerializable
+	public class InvPayload : Payload, IBitcoinSerializable
 	{
 		InventoryVector[] inventory = new InventoryVector[0];
 		public InventoryVector[] Inventory
@@ -20,7 +20,7 @@ namespace NBitcoin.RPC
 
 		#region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public override void ReadWrite(BitcoinStream stream)
 		{
 			var old = stream.MaxArraySize;
 			stream.MaxArraySize = 5000;
