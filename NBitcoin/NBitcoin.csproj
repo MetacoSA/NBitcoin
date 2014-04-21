@@ -51,6 +51,7 @@
     <Compile Include="Block.cs" />
     <Compile Include="BloomFilter.cs" />
     <Compile Include="DataEncoders\ASCIIEncoder.cs" />
+    <Compile Include="IpExtensions.cs" />
     <Compile Include="ExtKey.cs" />
     <Compile Include="ExtPubKey.cs" />
     <Compile Include="Network.cs" />

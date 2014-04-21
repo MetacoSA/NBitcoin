@@ -41,11 +41,6 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public Node ToNode(ProtocolServer client)
-		{
-			return new Node(this, client);
-		}
-
 		public DateTimeOffset Time
 		{
 			get

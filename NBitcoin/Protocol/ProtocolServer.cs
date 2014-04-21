@@ -40,7 +40,7 @@ namespace NBitcoin.Protocol
 			_ExternalEndpoint = new IPEndPoint(_LocalEndpoint.Address, externalPort);
 			_Network = network;
 			_Version = version;
-			_HardCodedNodes = network.SeedNodes.Select(n => n.ToNode(this)).ToArray();
+			_HardCodedNodes = network.SeedNodes.Select(n => new Node(n, this, NodeOrigin.HardSeed)).ToArray();
 		}
 
 		public Node[] GetDNSNodes(CancellationToken cancellationToken = default(CancellationToken))
@@ -62,10 +62,10 @@ namespace NBitcoin.Protocol
 							{
 								Endpoint = new IPEndPoint(s, Network.DefaultPort),
 								Time = Utils.UnixTimeToDateTime(0)
-							}, this)).ToArray();
+							}, this, NodeOrigin.DNSSeed)).ToArray();
 
 			_DNSNodes = nodes;
-			Utils.Shuffle(_DNSNodes);
+			//Utils.Shuffle(_DNSNodes);
 			return nodes;
 		}
 
@@ -234,15 +234,23 @@ namespace NBitcoin.Protocol
 
 		internal void ExternalAddressDetected(IPAddress iPAddress)
 		{
-			if(ExternalEndpoint.Address.MapToIPv6().ToString() == "0.0.0.0")
+			if(ExternalEndpoint.Address.ToString() == "0.0.0.0")
 			{
-				ProtocolTrace.Trace.TraceTransfer(0, "transfer", listenerTrace.Activity);
-				using(listenerTrace.Open())
-				{
-					ProtocolTrace.Information("New externalAddress detected " + iPAddress);
-					_ExternalEndpoint = new IPEndPoint(iPAddress, ExternalEndpoint.Port);
-				}
+				ProtocolTrace.Information("New externalAddress detected " + iPAddress);
+				_ExternalEndpoint = new IPEndPoint(iPAddress, ExternalEndpoint.Port);
 			}
+		}
+
+		public Node GetNodeByHostName(string hostname)
+		{
+			var ip = Dns.GetHostAddresses(hostname).First();
+			var node = new Node(new NetworkAddress()
+			{
+				Endpoint = new IPEndPoint(ip, Network.DefaultPort),
+				Time = DateTimeOffset.Now
+			}, this, NodeOrigin.Manually);
+
+			return node;
 		}
 	}
 }

@@ -6,12 +6,47 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
+	public enum NodeState : int
+	{
+		Failed,
+		Offline,
+		Connected,
+		HandShaked
+	}
+
+	public enum NodeOrigin
+	{
+		DNSSeed,
+		HardSeed,
+		Addr,
+		Manually
+	}
 	public class Node
 	{
+		private NodeState _State;
+		public NodeState State
+		{
+			get
+			{
+				return _State;
+			}
+		}
+
+		private readonly NodeOrigin _Origin;
+		public NodeOrigin Origin
+		{
+			get
+			{
+				return _Origin;
+			}
+		}
+		bool disconnectAsked;
+
 		static Random _RandNonce = new Random();
 		private readonly ProtocolServer _RPCServer;
 		public ProtocolServer RPCServer
@@ -28,37 +63,37 @@ namespace NBitcoin.Protocol
 			private set;
 		}
 
-		Socket _Socket;
-		public Socket Socket
+		volatile Socket _Socket;
+		public Socket EnsureConnected()
 		{
-			get
+			if(_Socket == null || !_Socket.Connected)
 			{
-				if(_Socket == null || !_Socket.Connected)
+				if(_Socket != null)
 				{
-					if(_Socket != null)
-					{
-						_Socket.Dispose();
-						_Socket = null;
-					}
-					_Socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-					using(TraceCorrelation.Open())
-					{
-
-						try
-						{
-							_Socket.Connect(Endpoint);
-							ProtocolTrace.Information("Connection successfull");
-						}
-						catch(Exception ex)
-						{
-							ProtocolTrace.Error("Error connecting to the remote endpoint ", ex);
-							throw;
-						}
-						BeginListen();
-					}
+					_Socket.Dispose();
+					_Socket = null;
 				}
-				return _Socket;
+				_Socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+				using(TraceCorrelation.Open())
+				{
+
+					try
+					{
+						_Socket.Connect(Endpoint);
+						_State = NodeState.Connected;
+						_Disconnected.Reset();
+						ProtocolTrace.Information("Outbound connection successfull");
+					}
+					catch(Exception ex)
+					{
+						_State = NodeState.Failed;
+						ProtocolTrace.Error("Error connecting to the remote endpoint ", ex);
+						throw;
+					}
+					BeginListen();
+				}
 			}
+			return _Socket;
 		}
 
 		BlockingCollection<Message> _MessageQueue = new BlockingCollection<Message>(new ConcurrentQueue<Message>());
@@ -73,74 +108,82 @@ namespace NBitcoin.Protocol
 
 		private void BeginListen()
 		{
-			var socket = Socket;
-
+			var socket = _Socket;
 			Task.Run(() =>
 			{
 				using(TraceCorrelation.Open())
 				{
-					ProtocolTrace.Information("Start listening");
+					ProtocolTrace.Information("Listening");
 					try
 					{
 						var stream = new NetworkStream(socket, false);
 						BitcoinStream bitStream = new BitcoinStream(stream, false);
-						while(true)
+						while(!disconnectAsked)
 						{
-							ReadMagic(stream);
-							Message message = new Message();
-							message.SkipMagic = true;
-							message.Magic = RPCServer.Network.Magic;
-							message.ReadWrite(bitStream);
-							message.SkipMagic = false;
-							ProtocolTrace.Information("Message recieved " + message.Command);
-							MessageQueue.Add(message);
+							if(ReadMagic(stream))
+							{
+								Message message = new Message();
+								message.SkipMagic = true;
+								message.Magic = RPCServer.Network.Magic;
+								message.ReadWrite(bitStream);
+								message.SkipMagic = false;
+								ProtocolTrace.Information("Message recieved " + message.Command);
+								MessageQueue.Add(message);
+							}
 						}
 					}
 					catch(Exception ex)
 					{
-						if(Socket != null)
-						{
-							ProtocolTrace.Error("Connection to server stopped unexpectedly", ex);
-						}
-					}
-					finally
-					{
-						try
-						{
-							socket.Disconnect(false);
-						}
-						catch
-						{
-						}
-						try
-						{
-							socket.Dispose();
-						}
-						catch
-						{
-						}
-						if(socket == _Socket)
-							_Socket = null;
+						_State = NodeState.Failed;
+						ProtocolTrace.Error("Connection to server stopped unexpectedly", ex);
 					}
 					ProtocolTrace.Information("Stop listening");
+					if(_State != NodeState.Failed)
+						_State = NodeState.Offline;
+					try
+					{
+						socket.Disconnect(false);
+					}
+					catch
+					{
+					}
+					try
+					{
+						socket.Dispose();
+					}
+					catch
+					{
+						_Socket = null;
+					}
+					disconnectAsked = false;
+					_Disconnected.Set();
 				}
 			});
 		}
 
-		private void ReadMagic(NetworkStream stream)
+
+
+		private bool ReadMagic(NetworkStream stream)
 		{
 			for(int i = 0 ; i < RPCServer.Network.MagicBytes.Length ; i++)
 			{
+				if(disconnectAsked)
+					return false;
 				var v = stream.ReadByte();
-
+				if(v == -1)
+				{
+					i--;
+				}
 				if(RPCServer.Network.MagicBytes[i] != v)
 					i = -1;
 
 			}
+			return true;
 		}
 
-		public Node(NetworkAddress networkAddress, ProtocolServer rpcServer)
+		internal Node(NetworkAddress networkAddress, ProtocolServer rpcServer, NodeOrigin origin)
 		{
+			_Origin = origin;
 			_RPCServer = rpcServer;
 			LastSeen = networkAddress.Time;
 			Endpoint = networkAddress.Endpoint;
@@ -171,11 +214,12 @@ namespace NBitcoin.Protocol
 		}
 		public void SendMessage(Payload payload)
 		{
+			var socket = EnsureConnected();
 			var message = new Message();
 			message.Magic = RPCServer.Network.Magic;
 			message.UpdatePayload(payload, RPCServer.Version);
 			TraceCorrelation.LogInside(() => ProtocolTrace.Information("Sending message " + message.Command));
-			Socket.Send(message.ToBytes());
+			socket.Send(message.ToBytes());
 		}
 
 		public ProtocolVersion Version
@@ -211,7 +255,7 @@ namespace NBitcoin.Protocol
 			}
 			SendMessage(new VerAckPayload());
 			RecieveMessage<VerAckPayload>();
-			IsFullyConnected = true;
+			_State = NodeState.HandShaked;
 		}
 
 		private T RecieveMessage<T>() where T : Payload
@@ -252,36 +296,14 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		ManualResetEvent _Disconnected = new ManualResetEvent(true);
 		public void Disconnect()
 		{
-			var socket = Socket;
-			_Socket = null;
-			if(socket != null)
-			{
-				try
-				{
-					socket.Disconnect(false);
-				}
-				catch(Exception)
-				{
-				}
-				try
-				{
-					socket.Dispose();
-				}
-				catch(Exception)
-				{
-				}
-			}
+			disconnectAsked = true;
+			_Disconnected.WaitOne();
 		}
 
 		public bool IsOutdated
-		{
-			get;
-			private set;
-		}
-
-		public bool IsFullyConnected
 		{
 			get;
 			private set;

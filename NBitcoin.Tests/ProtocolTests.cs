@@ -100,10 +100,11 @@ namespace NBitcoin.Tests
 		public void CanGetVersion()
 		{
 			var client = new ProtocolServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
-			client.Listen();
-			client.GetDNSNodes();
-			client.DNSNodes[0].VersionHandshake();
-			Assert.True(client.DNSNodes[0].IsFullyConnected);
+			//client.Listen();
+			var seed = client.GetNodeByHostName("seed.bitcoin.sipa.be");
+			seed.VersionHandshake();
+			Assert.True(seed.State == NodeState.HandShaked);
+			seed.Disconnect();
 		}
 	}
 }
