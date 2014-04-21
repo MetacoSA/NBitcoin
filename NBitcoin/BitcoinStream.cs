@@ -8,6 +8,24 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	public class Scope : IDisposable
+	{
+		Action close;
+		public Scope(Action open, Action close)
+		{
+			this.close = close;
+			open();
+		}
+
+		#region IDisposable Members
+
+		public void Dispose()
+		{
+			close();
+		}
+
+		#endregion
+	}
 	public class BitcoinStream
 	{
 		int _MaxArraySize = Int32.MaxValue;
@@ -284,24 +302,6 @@ namespace NBitcoin
 			set;
 		}
 
-		class Scope : IDisposable
-		{
-			Action close;
-			public Scope(Action open, Action close)
-			{
-				this.close = close;
-				open();
-			}
-
-			#region IDisposable Members
-
-			public void Dispose()
-			{
-				close();
-			}
-
-			#endregion
-		}
 		public IDisposable BigEndianScope()
 		{
 			var old = IsBigEndian;

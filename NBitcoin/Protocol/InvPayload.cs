@@ -29,5 +29,10 @@ namespace NBitcoin.Protocol
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return "Count: " + Inventory.Length.ToString();
+		}
 	}
 }

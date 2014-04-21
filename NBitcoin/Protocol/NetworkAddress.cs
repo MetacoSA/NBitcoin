@@ -14,6 +14,25 @@ namespace NBitcoin.Protocol
 		byte[] ip = new byte[16];
 		ushort port;
 
+		public TimeSpan Ago
+		{
+			get
+			{
+				return DateTimeOffset.UtcNow - Time;
+			}
+			set
+			{
+				Time = DateTimeOffset.UtcNow - value;
+			}
+		}
+
+		public void Adjust()
+		{
+			var nNow = Utils.DateTimeToUnixTime(DateTimeOffset.UtcNow);
+			if(time <= 100000000 || time > nNow + 10 * 60)
+				time = nNow - 5 * 24 * 60 * 60;
+		}
+
 		public IPEndPoint Endpoint
 		{
 			get

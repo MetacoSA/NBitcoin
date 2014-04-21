@@ -217,5 +217,24 @@ namespace NBitcoin
 		}
 
 
+
+		internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
+		{
+			try
+			{
+				socket.Disconnect(false);
+			}
+			catch
+			{
+			}
+			try
+			{
+				socket.Dispose();
+			}
+			catch
+			{
+				
+			}
+		}
 	}
 }

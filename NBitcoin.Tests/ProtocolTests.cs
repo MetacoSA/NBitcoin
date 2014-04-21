@@ -97,14 +97,22 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Online", "Online")]
-		public void CanGetVersion()
+		public void CanDoVersionHandshake()
 		{
-			var client = new ProtocolServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
-			//client.Listen();
-			var seed = client.GetNodeByHostName("seed.bitcoin.sipa.be");
-			seed.VersionHandshake();
-			Assert.True(seed.State == NodeState.HandShaked);
-			seed.Disconnect();
+			using(var server = new ProtocolServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
+			{
+				//server.Listen();
+				var seed = server.GetNodeByHostName("seed.bitcoin.sipa.be");
+				Assert.True(seed.State == NodeState.Offline);
+				seed.EnsureConnected();
+				Assert.True(seed.State == NodeState.Connected);
+				seed.VersionHandshake();
+				Assert.True(seed.State == NodeState.HandShaked);
+				var t = seed.DisconnectAsync();
+				Assert.True(seed.State == NodeState.Disconnecting);
+				t.Wait();
+				Assert.True(seed.State == NodeState.Offline);
+			}
 		}
 	}
 }

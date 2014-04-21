@@ -26,5 +26,10 @@ namespace NBitcoin.Protocol
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return Addresses.Length + " address(es)";
+		}
 	}
 }

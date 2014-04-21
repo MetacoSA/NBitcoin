@@ -24,5 +24,10 @@ namespace NBitcoin.Protocol
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return this.GetType().Name;
+		}
 	}
 }

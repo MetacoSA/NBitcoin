@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	public class ProtocolServer
+	public class ProtocolServer : IDisposable
 	{
 		private readonly Network _Network;
 		public Network Network
@@ -36,14 +36,27 @@ namespace NBitcoin.Protocol
 		{
 			internalPort = internalPort == -1 ? network.DefaultPort : internalPort;
 			externalPort = externalPort == -1 ? internalPort : externalPort;
-			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0"), internalPort);
+			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), internalPort);
 			_ExternalEndpoint = new IPEndPoint(_LocalEndpoint.Address, externalPort);
 			_Network = network;
 			_Version = version;
 			_HardCodedNodes = network.SeedNodes.Select(n => new Node(n, this, NodeOrigin.HardSeed)).ToArray();
+			_MessageListener = new EventLoopMessageListener<IncomingMessage>(ProcessMessage);
+			_MessageProducer.AddMessageListener(_MessageListener);
 		}
 
-		public Node[] GetDNSNodes(CancellationToken cancellationToken = default(CancellationToken))
+		private readonly EventLoopMessageListener<IncomingMessage> _MessageListener;
+
+		private readonly NodeRepository _NodeRepository = new NodeRepository();
+		public NodeRepository NodeRepository
+		{
+			get
+			{
+				return _NodeRepository;
+			}
+		}
+
+		public Node[] GetDNSNodes()
 		{
 			var nodes = Network.DNSSeeds
 							.SelectMany(s =>
@@ -111,38 +124,37 @@ namespace NBitcoin.Protocol
 		}
 
 		Socket socket;
-		TraceCorrelation listenerTrace;
+		TraceCorrelation listenerTrace = new TraceCorrelation();
 
 
 		public void Listen()
 		{
-			if(_LocalEndpoint == null)
+			if(socket != null)
+				throw new InvalidOperationException("Already listening");
+			ProtocolTrace.Trace.TraceTransfer(0, "transfer", listenerTrace.Activity);
+			using(listenerTrace.Open())
 			{
-
-				listenerTrace = new TraceCorrelation();
-				ProtocolTrace.Trace.TraceTransfer(0, "transfer", listenerTrace.Activity);
-				using(listenerTrace.Open())
+				ProtocolTrace.Trace.TraceEvent(TraceEventType.Start, 0, "Protocol server trying to listen on " + LocalEndpoint);
+				try
 				{
-					ProtocolTrace.Trace.TraceEvent(TraceEventType.Start, 0, "Protocol server listening");
-					try
-					{
-						socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-						socket.Bind(new IPEndPoint(IPAddress.Parse("0.0.0.0"), LocalEndpoint.Port));
-						socket.Listen(8);
-						ProtocolTrace.Information("Listening on " + socket.LocalEndPoint);
-						BeginAccept();
-					}
-					catch(Exception ex)
-					{
-						ProtocolTrace.Error("Error while opening the Protocol server", ex);
-						throw;
-					}
+					socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+					socket.Bind(LocalEndpoint);
+					socket.Listen(8);
+					ProtocolTrace.Information("Listening...");
+					BeginAccept();
+				}
+				catch(Exception ex)
+				{
+					ProtocolTrace.Error("Error while opening the Protocol server", ex);
+					throw;
 				}
 			}
 		}
 
 		private void BeginAccept()
 		{
+			if(isDisposed)
+				return;
 			ProtocolTrace.Information("Accepting connection...");
 			socket.BeginAccept(EndAccept, null);
 		}
@@ -153,14 +165,19 @@ namespace NBitcoin.Protocol
 				try
 				{
 					var client = socket.EndAccept(ar);
+					if(isDisposed)
+						return;
 					ProtocolTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
 					//Trace.CorrelationManager.ActivityId
 					//RPCTrace.Information("New client connected");
 				}
 				catch(Exception ex)
 				{
+					if(isDisposed)
+						return;
 					ProtocolTrace.Error("Error while accepting connection ", ex);
 					Thread.Sleep(3000);
+					BeginAccept();
 				}
 			}
 		}
@@ -206,6 +223,15 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		private readonly MessageProducer<IncomingMessage> _MessageProducer = new MessageProducer<IncomingMessage>();
+		internal MessageProducer<IncomingMessage> MessageProducer
+		{
+			get
+			{
+				return _MessageProducer;
+			}
+		}
+
 		IPEndPoint _ExternalEndpoint;
 		public IPEndPoint ExternalEndpoint
 		{
@@ -234,23 +260,69 @@ namespace NBitcoin.Protocol
 
 		internal void ExternalAddressDetected(IPAddress iPAddress)
 		{
-			if(ExternalEndpoint.Address.ToString() == "0.0.0.0")
+			if(!ExternalEndpoint.Address.IsRoutable())
 			{
 				ProtocolTrace.Information("New externalAddress detected " + iPAddress);
 				_ExternalEndpoint = new IPEndPoint(iPAddress, ExternalEndpoint.Port);
 			}
 		}
 
-		public Node GetNodeByHostName(string hostname)
+		public Node GetNodeByHostName(string hostname, int port = -1)
 		{
+			if(port == -1)
+				port = Network.DefaultPort;
 			var ip = Dns.GetHostAddresses(hostname).First();
-			var node = new Node(new NetworkAddress()
-			{
-				Endpoint = new IPEndPoint(ip, Network.DefaultPort),
-				Time = DateTimeOffset.Now
-			}, this, NodeOrigin.Manually);
+			var endpoint = new IPEndPoint(ip, port);
+			return GetNodeByEndpoint(endpoint);
+		}
 
+		Dictionary<IPEndPoint, Node> _Nodes = new Dictionary<IPEndPoint, Node>();
+		private Node GetNodeByEndpoint(IPEndPoint endpoint)
+		{
+			if(endpoint.AddressFamily != AddressFamily.InterNetworkV6)
+				endpoint = new IPEndPoint(endpoint.Address.MapToIPv6(), endpoint.Port);
+
+			Node result = null;
+			if(_Nodes.TryGetValue(endpoint, out result))
+				return result;
+			var address = NodeRepository.GetAddress(endpoint);
+			if(address == null)
+				address = new NetworkAddress()
+				{
+					Endpoint = endpoint,
+					Time = Utils.UnixTimeToDateTime(0)
+				};
+			var node = new Node(address, this, NodeOrigin.Manually);
+			node.MessageProducer.AddMessageListener(_MessageListener);
+			lock(_Nodes)
+			{
+				_Nodes.Add(node.Endpoint, node);
+			}
 			return node;
 		}
+
+		void ProcessMessage(IncomingMessage message)
+		{
+			var trace = new TraceCorrelation();
+			ProtocolTrace.Trace.TraceTransfer(0, "transfer", trace.Activity);
+			using(trace.Open())
+			{
+				//ProtocolTrace.Trace.TraceEvent(TraceEventType.Start,0, "Processing inbound message
+			}
+		}
+
+		#region IDisposable Members
+
+		bool isDisposed;
+		public void Dispose()
+		{
+			if(!isDisposed)
+			{
+				_MessageListener.Dispose();
+				isDisposed = true;
+			}
+		}
+
+		#endregion
 	}
 }

@@ -139,6 +139,10 @@ namespace NBitcoin.Protocol
 
 		#endregion
 
-	
+
+		public override string ToString()
+		{
+			return Version.ToString();
+		}
 	}
 }

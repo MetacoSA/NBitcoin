@@ -178,5 +178,10 @@ namespace NBitcoin.Protocol
 					&& minVer <= nVersion && nVersion <= maxVer
 					&& (SetSubVer.Length == 0 || SetSubVer.Contains(strSubVerIn));
 		}
+
+		public override string ToString()
+		{
+			return StatusBar;
+		}
 	}
 }

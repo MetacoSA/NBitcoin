@@ -54,6 +54,10 @@
     <Compile Include="IpExtensions.cs" />
     <Compile Include="ExtKey.cs" />
     <Compile Include="ExtPubKey.cs" />
+    <Compile Include="Protocol\IncomingMessage.cs" />
+    <Compile Include="Protocol\NodeRepository.cs" />
+    <Compile Include="Protocol\IMessageProducer.cs" />
+    <Compile Include="Protocol\MessageListener.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="Protocol\AddrPayload.cs" />
     <Compile Include="Protocol\AlertPayload.cs" />

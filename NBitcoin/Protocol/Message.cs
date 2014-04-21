@@ -2,8 +2,11 @@
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
@@ -72,14 +75,14 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		
+
 
 		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
 		{
 			bool verifyChechksum = false;
-			if(!SkipMagic)
+			if(!_SkipMagic)
 				stream.ReadWrite(ref magic);
 			stream.ReadWrite(ref command);
 			stream.ReadWrite(ref length);
@@ -122,6 +125,7 @@ namespace NBitcoin.Protocol
 		{
 			if(payload == null)
 				throw new ArgumentNullException("payload");
+			this._PayloadObject = payload;
 			this.payload = payload.ToBytes(version);
 			length = (uint)this.payload.Length;
 			checksum = Hashes.Hash256(this.payload).GetLow32();
@@ -132,10 +136,68 @@ namespace NBitcoin.Protocol
 		/// <summary>
 		/// When parsing, maybe Magic is already parsed
 		/// </summary>
-		public bool SkipMagic
+		public bool _SkipMagic;
+
+		public override string ToString()
 		{
-			get;
-			set;
+			return Command + " : " + Payload;
 		}
+
+
+
+		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken)
+		{
+			var stream = new NetworkStream(socket, false);
+			BitcoinStream bitStream = new BitcoinStream(stream, false)
+			{
+				ProtocolVersion = version
+			};
+
+			var old = socket.ReceiveTimeout;
+			try
+			{
+				socket.ReceiveTimeout = 3000;
+				ReadMagic(socket, network.MagicBytes, cancellationToken);
+			}
+			finally
+			{
+				socket.ReceiveTimeout = old;
+			}
+			Message message = new Message();
+			message._SkipMagic = true;
+			message.Magic = network.Magic;
+			message.ReadWrite(bitStream);
+			message._SkipMagic = false;
+			return message;
+		}
+
+		private static void ReadMagic(Socket socket, byte[] magicBytes, CancellationToken cancellation)
+		{
+			byte[] bytes = new byte[1];
+			for(int i = 0 ; i < magicBytes.Length ; i++)
+			{
+				cancellation.ThrowIfCancellationRequested();
+				try
+				{
+					var read = socket.Receive(bytes);
+					if(read != 1)
+						i--;
+					if(magicBytes[i] != bytes[0])
+						i = -1;
+				}
+				catch(SocketException ex)
+				{
+					if(ex.SocketErrorCode == SocketError.TimedOut && socket.Connected)
+					{
+						i--;
+					}
+					else
+						throw;
+				}
+			}
+
+		}
+
+
 	}
 }
