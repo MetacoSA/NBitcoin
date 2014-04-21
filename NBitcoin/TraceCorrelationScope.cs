@@ -63,6 +63,14 @@ namespace NBitcoin
 			return new TraceCorrelationScope(activity);
 		}
 
+		public void LogInside(Action act)
+		{
+			using(Open())
+			{
+				act();
+			}
+		}
+
 		public TraceCorrelation():this(Guid.NewGuid())
 		{
 

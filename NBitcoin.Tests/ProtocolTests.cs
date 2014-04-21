@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace NBitcoin.Tests
 {
-	public class RPCTests
+	public class ProtocolTests
 	{
 
 		[Fact]
@@ -33,7 +33,7 @@ namespace NBitcoin.Tests
 							Assert.Equal("::ffff:10.0.0.2", version.AddressFrom.Address.ToString());
 							Assert.Equal(8333, version.AddressFrom.Port);
 							Assert.Equal(0x00018155, version.StartHeight);
-							Assert.Equal((uint)31900, version.Version);
+							Assert.Equal((ProtocolVersion)31900, version.Version);
 						})
 					},
 					new 
@@ -102,9 +102,8 @@ namespace NBitcoin.Tests
 			var client = new ProtocolServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
 			client.Listen();
 			client.GetDNSNodes();
-			client.DNSNodes[0].Version();
-			Thread.Sleep(10000);
-			client.DNSNodes[0].Disconnect();
+			client.DNSNodes[0].VersionHandshake();
+			Assert.True(client.DNSNodes[0].IsFullyConnected);
 		}
 	}
 }

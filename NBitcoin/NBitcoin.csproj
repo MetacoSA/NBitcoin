@@ -50,6 +50,7 @@
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
     <Compile Include="BloomFilter.cs" />
+    <Compile Include="DataEncoders\ASCIIEncoder.cs" />
     <Compile Include="ExtKey.cs" />
     <Compile Include="ExtPubKey.cs" />
     <Compile Include="Network.cs" />

@@ -29,17 +29,15 @@ namespace NBitcoin.Protocol
 				return _Version;
 			}
 		}
-		private readonly int _Port;
-		public int Port
+
+		public ProtocolServer(Network network, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION,
+			int internalPort = -1,
+			int externalPort = -1)
 		{
-			get
-			{
-				return _Port;
-			}
-		}
-		public ProtocolServer(Network network, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION, int port = -1)
-		{
-			_Port = port == -1 ? network.DefaultPort : port;
+			internalPort = internalPort == -1 ? network.DefaultPort : internalPort;
+			externalPort = externalPort == -1 ? internalPort : externalPort;
+			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0"), internalPort);
+			_ExternalEndpoint = new IPEndPoint(_LocalEndpoint.Address, externalPort);
 			_Network = network;
 			_Version = version;
 			_HardCodedNodes = network.SeedNodes.Select(n => n.ToNode(this)).ToArray();
@@ -67,6 +65,7 @@ namespace NBitcoin.Protocol
 							}, this)).ToArray();
 
 			_DNSNodes = nodes;
+			Utils.Shuffle(_DNSNodes);
 			return nodes;
 		}
 
@@ -114,7 +113,7 @@ namespace NBitcoin.Protocol
 		Socket socket;
 		TraceCorrelation listenerTrace;
 
-		
+
 		public void Listen()
 		{
 			if(_LocalEndpoint == null)
@@ -128,7 +127,7 @@ namespace NBitcoin.Protocol
 					try
 					{
 						socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-						socket.Bind(new IPEndPoint(IPAddress.Parse("0.0.0.0"), Port));
+						socket.Bind(new IPEndPoint(IPAddress.Parse("0.0.0.0"), LocalEndpoint.Port));
 						socket.Listen(8);
 						ProtocolTrace.Information("Listening on " + socket.LocalEndPoint);
 						BeginAccept();
@@ -204,6 +203,45 @@ namespace NBitcoin.Protocol
 			{
 				ProtocolTrace.ExternalIpFailed(tasks.Select(t => t.Exception).FirstOrDefault());
 				throw new WebException("Impossible to detect extenal ip");
+			}
+		}
+
+		IPEndPoint _ExternalEndpoint;
+		public IPEndPoint ExternalEndpoint
+		{
+			get
+			{
+				return _ExternalEndpoint;
+			}
+		}
+
+		bool trustedExternal = false;
+		public void ChangeExternalAddress(IPAddress iPAddress, bool trusted)
+		{
+			if(trusted)
+			{
+				_ExternalEndpoint = new IPEndPoint(iPAddress, _ExternalEndpoint.Port);
+				trustedExternal = true;
+			}
+			else
+			{
+				if(trustedExternal)
+					return;
+				_ExternalEndpoint = new IPEndPoint(iPAddress, _ExternalEndpoint.Port);
+				trustedExternal = false;
+			}
+		}
+
+		internal void ExternalAddressDetected(IPAddress iPAddress)
+		{
+			if(ExternalEndpoint.Address.MapToIPv6().ToString() == "0.0.0.0")
+			{
+				ProtocolTrace.Trace.TraceTransfer(0, "transfer", listenerTrace.Activity);
+				using(listenerTrace.Open())
+				{
+					ProtocolTrace.Information("New externalAddress detected " + iPAddress);
+					_ExternalEndpoint = new IPEndPoint(iPAddress, ExternalEndpoint.Port);
+				}
 			}
 		}
 	}

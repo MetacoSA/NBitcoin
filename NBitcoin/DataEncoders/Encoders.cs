@@ -32,6 +32,13 @@ namespace NBitcoin.DataEncoders
 	}
 	public class Encoders
 	{
+		public static ASCIIEncoder ASCII
+		{
+			get
+			{
+				return new ASCIIEncoder();
+			}
+		}
 		public static DataEncoder Hex
 		{
 			get

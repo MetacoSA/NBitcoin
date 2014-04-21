@@ -16,24 +16,24 @@ namespace NBitcoin
 	public static class Extensions
 	{
 		/// <summary>
-/// Converts a given DateTime into a Unix timestamp
-/// </summary>
-/// <param name="value">Any DateTime</param>
-/// <returns>The given DateTime in Unix timestamp format</returns>
-public static int ToUnixTimestamp(this DateTime value)
-{
-    return (int)Math.Truncate((value.ToUniversalTime().Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
-}
+		/// Converts a given DateTime into a Unix timestamp
+		/// </summary>
+		/// <param name="value">Any DateTime</param>
+		/// <returns>The given DateTime in Unix timestamp format</returns>
+		public static int ToUnixTimestamp(this DateTime value)
+		{
+			return (int)Math.Truncate((value.ToUniversalTime().Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
+		}
 
-/// <summary>
-/// Gets a Unix timestamp representing the current moment
-/// </summary>
-/// <param name="ignored">Parameter ignored</param>
-/// <returns>Now expressed as a Unix timestamp</returns>
-public static int UnixTimestamp(this DateTime ignored)
-{
-    return (int)Math.Truncate((DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
-}
+		/// <summary>
+		/// Gets a Unix timestamp representing the current moment
+		/// </summary>
+		/// <param name="ignored">Parameter ignored</param>
+		/// <returns>Now expressed as a Unix timestamp</returns>
+		public static int UnixTimestamp(this DateTime ignored)
+		{
+			return (int)Math.Truncate((DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
+		}
 	}
 	public class Utils
 	{
@@ -179,17 +179,7 @@ public static int UnixTimestamp(this DateTime ignored)
 			return unixRef + span;
 		}
 
-		public static string BytesToString(byte[] bytes)
-		{
-			return new String(bytes.Select(o => (char)o).ToArray()).Replace("\0", "");
-		}
-
-		internal static byte[] StringToBytes(string str)
-		{
-			if(String.IsNullOrEmpty(str))
-				return new byte[0];
-			return str.Select(o => (byte)o).ToArray();
-		}
+		
 
 		public static string ExceptionToString(Exception exception)
 		{
@@ -209,6 +199,23 @@ public static int UnixTimestamp(this DateTime ignored)
 			}
 			return stringBuilder.ToString();
 		}
+
+		public static void Shuffle<T>(T[] arr)
+		{
+			Random rand = new Random();
+			for(int i = 0 ; i < arr.Length ; i++)
+			{
+				var fromIndex = rand.Next(arr.Length);
+				var from = arr[fromIndex];
+
+				var toIndex = rand.Next(arr.Length);
+				var to = arr[toIndex];
+
+				arr[toIndex] = from;
+				arr[fromIndex] = to;
+			}
+		}
+
 
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -12,15 +13,19 @@ namespace NBitcoin.Protocol
 	{
 		uint version;
 
-		public uint Version
+		public ProtocolVersion Version
 		{
 			get
 			{
-				return version;
+				if(version == 10300) //A version number of 10300 is converted to 300 before being processed
+					return (ProtocolVersion)(300);  //https://en.bitcoin.it/wiki/Version_Handshake
+				return (ProtocolVersion)version;
 			}
 			set
 			{
-				version = value;
+				if(value == (ProtocolVersion)10300)
+					value = (ProtocolVersion)300;
+				version = (uint)value;
 			}
 		}
 		ulong services;
@@ -93,11 +98,11 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				return Utils.BytesToString(user_agent.GetString());
+				return Encoders.ASCII.EncodeData(user_agent.GetString());
 			}
 			set
 			{
-				user_agent = new VarString(Utils.StringToBytes(value));
+				user_agent = new VarString(Encoders.ASCII.DecodeData(value));
 			}
 		}
 

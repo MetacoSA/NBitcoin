@@ -62,7 +62,7 @@
     <Compile Include="hash_tests.cs" />
     <Compile Include="key_tests.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="RPCTests.cs" />
+    <Compile Include="ProtocolTests.cs" />
     <Compile Include="script_tests.cs" />
     <Compile Include="sighash_tests.cs" />
     <Compile Include="sigopcount_tests.cs" />

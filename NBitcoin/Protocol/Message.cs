@@ -1,4 +1,5 @@
 ﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,11 +29,11 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				return Utils.BytesToString(command);
+				return Encoders.ASCII.EncodeData(command);
 			}
 			set
 			{
-				command = Utils.StringToBytes(value.Trim().PadRight(12, '\0'));
+				command = Encoders.ASCII.DecodeData(value.Trim().PadRight(12, '\0'));
 			}
 		}
 		uint length;

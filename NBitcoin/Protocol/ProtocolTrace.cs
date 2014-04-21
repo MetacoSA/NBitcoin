@@ -48,5 +48,10 @@ namespace NBitcoin.Protocol
 		{
 			_Trace.TraceEvent(TraceEventType.Error, 0, msg + " " + Utils.ExceptionToString(ex));
 		}
+
+		internal static void Warning(string msg)
+		{
+			Warning(msg, null);
+		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -56,7 +57,7 @@ namespace NBitcoin.Protocol
 				List<string> messages = new List<string>();
 				foreach(var v in setSubVer)
 				{
-					messages.Add(Utils.BytesToString(v.GetString()));
+					messages.Add(Encoders.ASCII.EncodeData(v.GetString()));
 				}
 				return messages.ToArray();
 			}
@@ -65,7 +66,7 @@ namespace NBitcoin.Protocol
 				List<VarString> messages = new List<VarString>();
 				foreach(var v in value)
 				{
-					messages.Add(new VarString(Utils.StringToBytes(v)));
+					messages.Add(new VarString(Encoders.ASCII.DecodeData(v)));
 				}
 				setSubVer = messages.ToArray();
 			}
@@ -75,22 +76,22 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				return Utils.BytesToString(comment.GetString());
+				return Encoders.ASCII.EncodeData(comment.GetString());
 			}
 			set
 			{
-				comment = new VarString(Utils.StringToBytes(value));
+				comment = new VarString(Encoders.ASCII.DecodeData(value));
 			}
 		}
 		public string StatusBar
 		{
 			get
 			{
-				return Utils.BytesToString(statusBar.GetString());
+				return Encoders.ASCII.EncodeData(statusBar.GetString());
 			}
 			set
 			{
-				statusBar = new VarString(Utils.StringToBytes(value));
+				statusBar = new VarString(Encoders.ASCII.DecodeData(value));
 			}
 		}
 

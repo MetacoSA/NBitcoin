@@ -161,49 +161,75 @@ namespace NBitcoin.Protocol
 				if(_TraceCorrelation == null)
 				{
 					_TraceCorrelation = new TraceCorrelation();
-					using(_TraceCorrelation.Open())
-					{
-						ProtocolTrace.Trace.TraceEvent(TraceEventType.Start, 0, "Communication with " + Endpoint.ToString());
-					}
+
+					TraceCorrelation.LogInside(() =>
+						ProtocolTrace.Trace.TraceEvent(TraceEventType.Start, 0, "Communication with " + Endpoint.ToString()));
+
 				}
 				return _TraceCorrelation;
 			}
 		}
 		public void SendMessage(Payload payload)
 		{
-			using(TraceCorrelation.Open())
-			{
-				var message = new Message();
-				message.Magic = RPCServer.Network.Magic;
-				message.UpdatePayload(payload, RPCServer.Version);
-				ProtocolTrace.Information("Sending message " + message.Command);
-				Socket.Send(message.ToBytes());
-			}
+			var message = new Message();
+			message.Magic = RPCServer.Network.Magic;
+			message.UpdatePayload(payload, RPCServer.Version);
+			TraceCorrelation.LogInside(() => ProtocolTrace.Information("Sending message " + message.Command));
+			Socket.Send(message.ToBytes());
 		}
 
-		public void Version()
+		public ProtocolVersion Version
+		{
+			get;
+			private set;
+		}
+
+		public void VersionHandshake()
 		{
 			SendMessage(new VersionPayload()
 			{
 				Nonce = GetNonce(),
 				UserAgent = GetUserAgent(),
-				Version = (uint)RPCServer.Version,
+				Version = RPCServer.Version,
 				StartHeight = 0,
 				Timestamp = DateTimeOffset.UtcNow,
 				AddressReciever = Endpoint,
-				AddressFrom = new IPEndPoint(IPAddress.Parse("128.79.220.96"), RPCServer.Network.DefaultPort)
+				AddressFrom = RPCServer.ExternalEndpoint
 			});
-			var result = RecieveMessage<VersionPayload>();
+			var version = RecieveMessage<VersionPayload>();
+			Version = RPCServer.Version;
+			if(version.AddressReciever.Address != RPCServer.ExternalEndpoint.Address)
+			{
+				TraceCorrelation.LogInside(() => ProtocolTrace.Warning("Different external address detected by the node " + version.AddressReciever.Address + " instead of " + RPCServer.ExternalEndpoint));
+			}
+			RPCServer.ExternalAddressDetected(version.AddressReciever.Address);
+			if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
+			{
+				TraceCorrelation.LogInside(() => ProtocolTrace.Warning("Outdated version " + version.Version));
+				IsOutdated = true;
+				return;
+			}
+			SendMessage(new VerAckPayload());
+			RecieveMessage<VerAckPayload>();
+			IsFullyConnected = true;
 		}
 
 		private T RecieveMessage<T>() where T : Payload
 		{
+
 			var message = RecieveMessage();
 			if(message.Payload is T)
 				return (T)(message.Payload);
 			else
-				throw new FormatException("Expected message " + typeof(T).Name + " but got " + message.Payload.GetType().Name);
+			{
+				var ex = new FormatException("Expected message " + typeof(T).Name + " but got " + message.Payload.GetType().Name);
+				TraceCorrelation.LogInside(() => ProtocolTrace.Error("Unexpected message type received", ex));
+				throw ex;
+			}
+
 		}
+
+
 
 		private Message RecieveMessage()
 		{
@@ -247,6 +273,18 @@ namespace NBitcoin.Protocol
 				{
 				}
 			}
+		}
+
+		public bool IsOutdated
+		{
+			get;
+			private set;
+		}
+
+		public bool IsFullyConnected
+		{
+			get;
+			private set;
 		}
 	}
 }
