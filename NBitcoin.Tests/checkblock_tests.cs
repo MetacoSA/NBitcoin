@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,6 +31,14 @@ namespace NBitcoin.Tests
 			forkingBlock.Header.BlockTime = tMay15; // Invalidates PoW
 			Assert.True(state.CheckBlock(forkingBlock));
 
+		}
+
+		[Fact]
+		public void CanCalculateMerkleRoot()
+		{
+			Block block = new Block();
+			block.ReadWrite(Encoders.Hex.DecodeData(File.ReadAllText(@"data\block169482.txt")));
+			Assert.Equal(block.Header.HashMerkleRoot, block.ComputeMerkleRoot());
 		}
 
 		private Block read_block(string blockName)

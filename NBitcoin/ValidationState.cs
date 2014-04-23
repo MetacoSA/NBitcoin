@@ -232,7 +232,7 @@ namespace NBitcoin
 			// Build the merkle tree already. We need it anyway later, and it makes the
 			// block cache the transaction hashes, which means they don't need to be
 			// recalculated many times during this block's validation.
-			block.BuildMerkleTree();
+			block.ComputeMerkleRoot();
 
 			// Check for duplicate txids. This is caught by ConnectInputs(),
 			// but catching it earlier avoids a potential DoS attack:

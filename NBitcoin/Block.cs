@@ -214,7 +214,7 @@ namespace NBitcoin
 			}
 		}
 
-		public uint256 BuildMerkleTree()
+		public uint256 ComputeMerkleRoot()
 		{
 			vMerkleTree.Clear();
 			foreach(var tx in Vtx)
@@ -250,7 +250,7 @@ namespace NBitcoin
 		public List<uint256> GetMerkleBranch(int nIndex)
 		{
 			if(vMerkleTree.Count == 0)
-				BuildMerkleTree();
+				ComputeMerkleRoot();
 			List<uint256> vMerkleBranch = new List<uint256>();
 			int j = 0;
 			for(int nSize = vtx.Length ; nSize > 1 ; nSize = (nSize + 1) / 2)
