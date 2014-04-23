@@ -177,7 +177,7 @@ namespace NBitcoin
 		public bool IsFrom(PubKey pubKey)
 		{
 			var template = new PayToPubkeyHashScriptTemplate();
-			var result = template.ExtractInputScriptParameters(ScriptSig);
+			var result = template.ExtractScriptSigParameters(ScriptSig);
 			return result != null && result.PublicKey == pubKey;
 		}
 	}
@@ -286,8 +286,7 @@ namespace NBitcoin
 
 		private bool IsTo(KeyId keyId)
 		{
-			var expectedScript = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(keyId);
-			return Utils.ArrayEqual(expectedScript.ToRawScript(), ScriptPubKey.ToRawScript());
+			return ScriptPubKey.GetDestination() == keyId;
 		}
 
 		public bool IsTo(PubKey pubkey)
@@ -412,9 +411,10 @@ namespace NBitcoin
 		{
 			this.vout = this.vout.Concat(new[] { @out }).ToArray();
 		}
-		public void AddInput(TxIn @in)
+		public TxIn AddInput(TxIn @in)
 		{
 			this.vin = this.vin.Concat(new[] { @in }).ToArray();
+			return @in;
 		}
 
 		public TxIn AddInput(Transaction prevTx, int outIndex)

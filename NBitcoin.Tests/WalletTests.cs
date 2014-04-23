@@ -74,9 +74,9 @@ namespace NBitcoin.Tests
 			// Do some basic sanity checks.
 			Assert.True(complete);
 			Assert.Equal(1, t2.VIn.Length);
-			Assert.Equal(myAddress, t2.VIn[0].ScriptSig.GetFromPubKey().GetAddress(TestNetwork));
+			Assert.Equal(myAddress, t2.VIn[0].ScriptSig.GetSourcePubKey().GetAddress(TestNetwork));
 
-			//Assert.True(TestNetwork.CheckTransaction(t2));
+			Assert.True(MyWallet.SignedByMe(t2));
 
 			Assert.Equal(v1, MyWallet.Balance);
 			MyWallet.ReceiveTransaction(t2);
@@ -149,6 +149,7 @@ namespace NBitcoin.Tests
 			var v3 = Money.Parse("1.0");
 			Transaction spend = MyWallet.CreateSend(new Key().PubKey.GetAddress(TestNetwork), v3);
 			MyWallet.ReceiveTransaction(spend);
+			Assert.True(MyWallet.SignedByMe(spend));
 
 			// Available and estimated balances should not be the same. We don't check the exact available balance here
 			// because it depends on the coin selection algorithm.
@@ -180,6 +181,7 @@ namespace NBitcoin.Tests
 			// Send half to ourselves. We should then have a balance available to spend of zero
 			Transaction outbound1 = MyWallet.CreateSend(MyAddress, coinHalf);
 			MyWallet.ReceiveTransaction(outbound1);
+			Assert.True(MyWallet.SignedByMe(outbound1));
 
 			// we should have a zero available balance before the next block
 			Assert.Equal(Money.Zero, MyWallet.Balance);

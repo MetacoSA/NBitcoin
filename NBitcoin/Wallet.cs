@@ -12,7 +12,7 @@ namespace NBitcoin
 		Side
 	}
 	public class WalletEntry
-	{	
+	{
 		public int Confidence
 		{
 			get
@@ -22,7 +22,8 @@ namespace NBitcoin
 				return 1;
 			}
 		}
-		public PubKey PubKey
+
+		public Script ScriptPubKey
 		{
 			get;
 			set;
@@ -282,19 +283,15 @@ namespace NBitcoin
 			var oldBalance = Balance;
 
 			var txHash = tx.GetHash();
-			Func<Key, WalletEntry> createEntry = (key) => new WalletEntry()
-			{
-				PubKey = key.PubKey,
-				Block = block
-			};
-
 			for(int i = 0 ; i < tx.VOut.Length ; i++)
 			{
 				foreach(var key in _Keys)
 				{
 					if(tx.VOut[i].IsTo(key.PubKey))
 					{
-						var entry = createEntry(key);
+						var entry = new WalletEntry();
+						entry.Block = block;
+						entry.ScriptPubKey = tx.VOut[i].ScriptPubKey;
 						entry.OutPoint = new OutPoint(tx, i);
 						entry.Value = tx.VOut[i].Value;
 						_Pools.PushEntry(entry, blockType);
@@ -308,7 +305,8 @@ namespace NBitcoin
 				{
 					if(txin.IsFrom(key.PubKey))
 					{
-						var entry = createEntry(key);
+						var entry = new WalletEntry();
+						entry.Block = block;
 						entry.OutPoint = txin.PrevOut;
 						_Pools.PushEntry(entry, blockType);
 					}
@@ -352,30 +350,47 @@ namespace NBitcoin
 		}
 		public bool CompleteTx(Transaction tx, Money fees)
 		{
-			var ins = Pools.Confirmed.GetEntriesToCover(tx.TotalOut + fees);
-			if(ins == null)
+			var entries = Pools.Available.GetEntriesToCover(tx.TotalOut + fees);
+			if(entries == null)
 				return false;
 
-			foreach(var vin in ins)
+			foreach(var entry in entries)
 			{
-				tx.AddInput(new TxIn(vin.OutPoint));
+				tx.AddInput(new TxIn(entry.OutPoint));
 			}
-			for(int i = 0 ; i < tx.VIn.Length ; i++)
-			{
-				var entry = ins[i];
-				var vin = tx.VIn[i];
-				var key = GetKey(entry.PubKey);
-				tx.VIn[i].ScriptSig = new PayToPubkeyHashScriptTemplate().GenerateInputScript(entry.PubKey);
-				var hash = tx.VIn[i].ScriptSig.SignatureHash(tx, i, SigHash.All);
-				var sig = key.Sign(hash);
-				tx.VIn[i].ScriptSig = new PayToPubkeyHashScriptTemplate().GenerateInputScript(new TransactionSignature(sig, SigHash.All), entry.PubKey);
-			}
-
-			var surplus = ins.Sum(i => i.Value) - fees - tx.TotalOut;
+			var surplus = entries.Sum(i => i.Value) - fees - tx.TotalOut;
 			if(surplus != Money.Zero)
 				tx.AddOutput(surplus, GetKey().PubKey.ID);
+
+			for(int i = 0 ; i < entries.Length ; i++)
+			{
+				var entry = entries[i];
+				var vin = tx.VIn[i];
+				var key = GetKey(entry.ScriptPubKey.GetDestination());
+				tx.VIn[i].ScriptSig = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(key.PubKey);
+				var hash = tx.VIn[i].ScriptSig.SignatureHash(tx, i, SigHash.All);
+				var sig = key.Sign(hash);
+				tx.VIn[i].ScriptSig = new PayToPubkeyHashScriptTemplate().GenerateInputScript(new TransactionSignature(sig, SigHash.All), key.PubKey);
+			}
 			return true;
 		}
+
+		public bool SignedByMe(Transaction tx)
+		{
+			for(int i = 0 ; i < tx.VIn.Length ; i++)
+			{
+				var vin = tx.VIn[i];
+				var key = GetKey(vin.ScriptSig.GetSourcePubKey());
+				if(key == null)
+					return false;
+				var pubkeyScript = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(key.PubKey);
+				if(!Script.VerifyScript(vin.ScriptSig, pubkeyScript, tx, i, ScriptVerify.None, SigHash.All))
+					return false;
+			}
+			return true;
+		}
+
+
 
 		Random _RandKey = new Random();
 		private Key GetKey()
@@ -387,6 +402,10 @@ namespace NBitcoin
 		{
 			return _Keys.FirstOrDefault(k => k.PubKey == pubKey);
 		}
+		public Key GetKey(KeyId pubKeyId)
+		{
+			return _Keys.FirstOrDefault(k => k.PubKey.ID == pubKeyId);
+		}
 
 		public Transaction CreateSend(BitcoinAddress bitcoinAddress, Money value)
 		{
@@ -397,7 +416,6 @@ namespace NBitcoin
 			this.CompleteTx(tx);
 			return tx;
 		}
-
 
 
 	}

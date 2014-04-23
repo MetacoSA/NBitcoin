@@ -955,7 +955,7 @@ namespace NBitcoin
 			if(SigHash == NBitcoin.SigHash.Undefined)
 				return true;
 			else
-				return SigHash != sigHash;
+				return SigHash == sigHash;
 		}
 
 		public ScriptEvaluationContext Clone()

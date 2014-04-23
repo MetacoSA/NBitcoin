@@ -218,7 +218,7 @@ namespace NBitcoin
 		}
 
 
-		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction txTo, int nIn, ScriptVerify flags, SigHash nHashType)
+		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction txTo, int nIn, ScriptVerify flags, SigHash nHashType =  SigHash.All)
 		{
 			ScriptEvaluationContext evaluation = new ScriptEvaluationContext()
 			{
@@ -572,11 +572,16 @@ namespace NBitcoin
 			return new Script(scriptSig.ToOps().Last().PushData).GetSigOpCount(true);
 		}
 
-		public PubKey GetFromPubKey()
+		public PubKey GetSourcePubKey()
 		{
 			var template = new PayToPubkeyHashScriptTemplate();
-			var result = template.ExtractInputScriptParameters(this);
+			var result = template.ExtractScriptSigParameters(this);
 			return result == null ? null : result.PublicKey;
+		}
+
+		public KeyId GetDestination()
+		{
+			return new PayToPubkeyHashScriptTemplate().ExtractScriptPubKeyParameters(this);
 		}
 
 		public byte[] ToRawScript()

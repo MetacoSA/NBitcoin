@@ -256,7 +256,15 @@ namespace NBitcoin
 	{
 		public Script GenerateOutputScript(BitcoinAddress address)
 		{
+			if(address == null)
+				throw new ArgumentNullException("address");
 			return GenerateOutputScript(address.ID);
+		}
+		public Script GenerateOutputScript(PubKey pubKey)
+		{
+			if(pubKey == null)
+				throw new ArgumentNullException("pubKey");
+			return GenerateOutputScript(pubKey.ID);
 		}
 		public Script GenerateOutputScript(KeyId pubkeyHash)
 		{
@@ -269,14 +277,12 @@ namespace NBitcoin
 				);
 		}
 
-		public Script GenerateInputScript(PubKey publicKey)
-		{
-			return GenerateInputScript(null as TransactionSignature, publicKey);
-		}
 		public Script GenerateInputScript(TransactionSignature signature, PubKey publicKey)
 		{
 			if(signature == null)
-				signature = new TransactionSignature(new ECDSASignature(Org.BouncyCastle.Math.BigInteger.One, Org.BouncyCastle.Math.BigInteger.One), SigHash.All);
+				throw new ArgumentNullException("signature");
+			if(publicKey == null)
+				throw new ArgumentNullException("publicKey");
 			return new Script(
 				Op.GetPushOp(signature.ToBytes()),
 				Op.GetPushOp(publicKey.ToBytes())
@@ -294,6 +300,12 @@ namespace NBitcoin
 				   ops[3].Code == OpcodeType.OP_EQUALVERIFY &&
 				   ops[4].Code == OpcodeType.OP_CHECKSIG;
 		}
+		public KeyId ExtractScriptPubKeyParameters(Script script)
+		{
+			if(!CheckScripPubKey(script))
+				return null;
+			return new KeyId(script.ToOps().Skip(2).First().PushData);
+		}
 
 		public override bool CheckScriptSig(Script scriptSig, Script scriptPubKey)
 		{
@@ -309,7 +321,9 @@ namespace NBitcoin
 			return CheckScriptSig(scriptSig, null);
 		}
 
-		public PayToPubkeyHashScriptSigParameters ExtractInputScriptParameters(Script scriptSig)
+		
+
+		public PayToPubkeyHashScriptSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{
 			if(!CheckScriptSig(scriptSig))
 				return null;
@@ -330,10 +344,6 @@ namespace NBitcoin
 				return TxOutType.TX_PUBKEYHASH;
 			}
 		}
-
-
-
-
 	}
 	public abstract class ScriptTemplate
 	{
