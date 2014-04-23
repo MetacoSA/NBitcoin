@@ -95,6 +95,14 @@ namespace NBitcoin
 
 		public static bool operator ==(OutPoint a, OutPoint b)
 		{
+			if(Object.ReferenceEquals(a, null))
+			{
+				return Object.ReferenceEquals(b, null);
+			}
+			if(Object.ReferenceEquals(b, null))
+			{
+				return Object.ReferenceEquals(a, null);
+			}
 			return (a.hash == b.hash && a.n == b.n);
 		}
 
@@ -199,6 +207,7 @@ namespace NBitcoin
 
 		private long value = -1;
 		Money _MoneyValue;
+		
 
 
 		public TxOut()
@@ -219,6 +228,12 @@ namespace NBitcoin
 		{
 			Value = value;
 			SetDestination(keyId);
+		}
+
+		public TxOut(Money value, Script scriptPubKey)
+		{
+			Value = value;
+			ScriptPubKey = scriptPubKey;
 		}
 
 		private void SetDestination(KeyId keyId)

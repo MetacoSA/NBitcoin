@@ -191,5 +191,10 @@ namespace NBitcoin.Tests
 			// we should have a balance of 1 BTC after the block is received
 			Assert.Equal(coin1, MyWallet.Balance);
 		}
+
+		[Fact]
+		public void TestFork()
+		{
+		}
 	}
 }

@@ -11,6 +11,62 @@ namespace NBitcoin
 		Main,
 		Side
 	}
+
+	public class Spendable
+	{
+		public Spendable(OutPoint output, TxOut txout)
+		{
+			if(output == null)
+				throw new ArgumentNullException("output");
+			if(txout == null)
+				throw new ArgumentNullException("txout");
+			_Out = txout;
+			_OutPoint = output;
+		}
+
+		private readonly OutPoint _OutPoint;
+		public OutPoint OutPoint
+		{
+			get
+			{
+				return _OutPoint;
+			}
+		}
+		private readonly TxOut _Out;
+		public TxOut TxOut
+		{
+			get
+			{
+				return _Out;
+			}
+		}
+
+		public override bool Equals(object obj)
+		{
+			Spendable item = obj as Spendable;
+			if(item == null)
+				return false;
+			return OutPoint.Equals(item.OutPoint);
+		}
+		public static bool operator ==(Spendable a, Spendable b)
+		{
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if(((object)a == null) || ((object)b == null))
+				return false;
+			return a.OutPoint == b.OutPoint;
+		}
+
+		public static bool operator !=(Spendable a, Spendable b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return OutPoint.GetHashCode();
+		}
+	}
 	public class WalletEntry
 	{
 		public int Confidence
@@ -46,6 +102,13 @@ namespace NBitcoin
 			set;
 		}
 
+		internal Spendable GetSpendable()
+		{
+			if(Value == null || OutPoint == null)
+				return null;
+			return new Spendable(OutPoint, new TxOut(Value, ScriptPubKey));
+		}
+
 		public bool Income
 		{
 			get
@@ -53,7 +116,6 @@ namespace NBitcoin
 				return Value != null;
 			}
 		}
-
 	}
 
 
@@ -123,93 +185,86 @@ namespace NBitcoin
 		internal void PushEntry(WalletEntry entry)
 		{
 			_Entries.Add(entry);
-			InvalidateCache();
+
+			if(entry.Income)
+			{
+				if(_UnknowSpent.Contains(entry.OutPoint))
+				{
+					_UnknowSpent.Remove(entry.OutPoint);
+					_Spent.Add(entry.OutPoint, entry.GetSpendable());
+				}
+				else
+				{
+					if(_Unspent.TryAdd(entry.OutPoint, entry.GetSpendable()))
+						_Balance += entry.Value;
+				}
+			}
+			else
+			{
+				if(_Unspent.ContainsKey(entry.OutPoint))
+				{
+					var spendable = _Unspent[entry.OutPoint];
+					_Unspent.Remove(entry.OutPoint);
+					_Spent.Add(spendable.OutPoint, spendable);
+					_Balance -= spendable.TxOut.Value;
+				}
+				else
+				{
+					if(!_Spent.ContainsKey(entry.OutPoint)) //Probably already received
+						_UnknowSpent.Add(entry.OutPoint);
+				}
+			}
 		}
 
-		private void InvalidateCache()
-		{
-			_Balance = null;
-			_Unspent = null;
-			_Spent = null;
-		}
 
-		Money _Balance;
+		Money _Balance = Money.Zero;
 		public Money Balance
 		{
 			get
 			{
-				if(_Balance == null)
-				{
-					_Balance = Unspent.Sum(w => w.Value);
-				}
 				return _Balance;
 			}
 		}
 
-		WalletEntry[] _Unspent;
-		public WalletEntry[] Unspent
+		HashSet<OutPoint> _UnknowSpent = new HashSet<OutPoint>();
+		public IEnumerable<OutPoint> UnknowSpent
 		{
 			get
 			{
-				if(_Unspent == null)
-				{
-					RefreshSpent();
-				}
-				return _Unspent;
+				return _UnknowSpent;
 			}
 		}
 
-		WalletEntry[] _Spent;
-		public WalletEntry[] Spent
+		Dictionary<OutPoint, Spendable> _Unspent = new Dictionary<OutPoint, Spendable>();
+		public IEnumerable<Spendable> Unspent
 		{
 			get
 			{
-				if(_Spent == null)
-				{
-					RefreshSpent();
-				}
-				return _Spent;
+				return _Unspent.Values;
 			}
 		}
 
-		void RefreshSpent()
+		Dictionary<OutPoint, Spendable> _Spent = new Dictionary<OutPoint, Spendable>();
+		public IEnumerable<Spendable> Spent
 		{
-			HashSet<OutPoint> spent = new HashSet<OutPoint>();
-			Dictionary<OutPoint, WalletEntry> all = new Dictionary<OutPoint, WalletEntry>();
-			foreach(var entry in _Entries)
+			get
 			{
-				if(entry.Income)
-				{
-					WalletEntry existingEntry = null;
-					if(all.TryGetValue(entry.OutPoint, out existingEntry))
-					{
-						if(existingEntry.Confidence < entry.Confidence)
-							all[entry.OutPoint] = entry;
-					}
-					else
-					{
-						all.Add(entry.OutPoint, entry);
-					}
-				}
-				else
-					spent.Add(entry.OutPoint);
+				return _Spent.Values;
 			}
-			_Unspent = all.Values.Where(i => !spent.Contains(i.OutPoint)).ToArray();
-			_Spent = all.Values.Where(i => spent.Contains(i.OutPoint)).ToArray();
 		}
 
-		public WalletEntry[] GetEntriesToCover(Money money)
+		public Spendable[] GetEntriesToCover(Money money)
 		{
 			if(Balance < money)
 				return null;
-			var result = new List<WalletEntry>();
+			var result = new List<Spendable>();
 			Money current = Money.Zero;
-			var unspent = Unspent.OrderBy(o => o.Value.Satoshi).ToArray();
+			var unspent = Unspent.OrderBy(o => o.TxOut.Value.Satoshi).ToArray();
 			int i = 0;
 			while(current < money)
 			{
 				result.Add(unspent[i]);
-				current += unspent[i].Value;
+				current += unspent[i].TxOut.Value;
 				i++;
 			}
 			return result.ToArray();
@@ -358,7 +413,7 @@ namespace NBitcoin
 			{
 				tx.AddInput(new TxIn(entry.OutPoint));
 			}
-			var surplus = entries.Sum(i => i.Value) - fees - tx.TotalOut;
+			var surplus = entries.Sum(i => i.TxOut.Value) - fees - tx.TotalOut;
 			if(surplus != Money.Zero)
 				tx.AddOutput(surplus, GetKey().PubKey.ID);
 
@@ -366,7 +421,7 @@ namespace NBitcoin
 			{
 				var entry = entries[i];
 				var vin = tx.VIn[i];
-				var key = GetKey(entry.ScriptPubKey.GetDestination());
+				var key = GetKey(entry.TxOut.ScriptPubKey.GetDestination());
 				tx.VIn[i].ScriptSig = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(key.PubKey);
 				var hash = tx.VIn[i].ScriptSig.SignatureHash(tx, i, SigHash.All);
 				var sig = key.Sign(hash);

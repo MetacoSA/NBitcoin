@@ -15,6 +15,16 @@ namespace NBitcoin
 {
 	public static class Extensions
 	{
+		public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+		{
+			if(!dictionary.ContainsKey(key))
+			{
+				dictionary.Add(key, value);
+				return true;
+			}
+			return false;
+		}
+
 		/// <summary>
 		/// Converts a given DateTime into a Unix timestamp
 		/// </summary>
