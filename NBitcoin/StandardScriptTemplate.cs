@@ -155,15 +155,20 @@ namespace NBitcoin
 			var pushScript = Op.GetPushOp(script._Script);
 			return new Script(ops.Concat(new[] { pushScript }).ToArray());
 		}
-		public Script GenerateInputScript(ECDSASignature[] signatures, Script redeemScript)
+
+
+		public Script GenerateInputScript(TransactionSignature[] signatures, Script redeemScript)
 		{
 			List<Op> ops = new List<Op>();
-			signatures = signatures.Select(s => s.MakeCanonical()).ToArray();
 			foreach(var sig in signatures)
 			{
-				ops.Add(Op.GetPushOp(sig.ToDER()));
+				ops.Add(Op.GetPushOp(sig.ToBytes()));
 			}
 			return GenerateInputScript(ops.ToArray(), redeemScript);
+		}
+		public Script GenerateInputScript(ECDSASignature[] signatures, Script redeemScript)
+		{
+			return GenerateInputScript(signatures.Select(s => new TransactionSignature(s, SigHash.All)).ToArray(), redeemScript);
 		}
 		public override bool CheckScriptSig(Script scriptSig, Script scriptPubKey)
 		{
@@ -207,9 +212,12 @@ namespace NBitcoin
 
 		public Script GenerateInputScript(ECDSASignature signature)
 		{
-			signature = signature.MakeCanonical();
+			return GenerateInputScript(new TransactionSignature(signature, SigHash.All));
+		}
+		public Script GenerateInputScript(TransactionSignature signature)
+		{
 			return new Script(
-				Op.GetPushOp(signature.ToDER())
+				Op.GetPushOp(signature.ToBytes())
 				);
 		}
 
@@ -230,8 +238,26 @@ namespace NBitcoin
 			}
 		}
 	}
+
+	public class PayToPubkeyHashScriptSigParameters
+	{
+		public TransactionSignature TransactionSignature
+		{
+			get;
+			set;
+		}
+		public PubKey PublicKey
+		{
+			get;
+			set;
+		}
+	}
 	public class PayToPubkeyHashScriptTemplate : ScriptTemplate
 	{
+		public Script GenerateOutputScript(BitcoinAddress address)
+		{
+			return GenerateOutputScript(address.ID);
+		}
 		public Script GenerateOutputScript(KeyId pubkeyHash)
 		{
 			return new Script(
@@ -243,11 +269,16 @@ namespace NBitcoin
 				);
 		}
 
-		public Script GenerateInputScript(ECDSASignature signature, PubKey publicKey)
+		public Script GenerateInputScript(PubKey publicKey)
 		{
-			signature = signature.MakeCanonical();
+			return GenerateInputScript(null as TransactionSignature, publicKey);
+		}
+		public Script GenerateInputScript(TransactionSignature signature, PubKey publicKey)
+		{
+			if(signature == null)
+				signature = new TransactionSignature(new ECDSASignature(Org.BouncyCastle.Math.BigInteger.One, Org.BouncyCastle.Math.BigInteger.One), SigHash.All);
 			return new Script(
-				Op.GetPushOp(signature.ToDER()),
+				Op.GetPushOp(signature.ToBytes()),
 				Op.GetPushOp(publicKey.ToBytes())
 				);
 		}
@@ -273,6 +304,25 @@ namespace NBitcoin
 				   ops[1].PushData != null && PubKey.IsValidSize(ops[1].PushData.Length);
 		}
 
+		public bool CheckScriptSig(Script scriptSig)
+		{
+			return CheckScriptSig(scriptSig, null);
+		}
+
+		public PayToPubkeyHashScriptSigParameters ExtractInputScriptParameters(Script scriptSig)
+		{
+			if(!CheckScriptSig(scriptSig))
+				return null;
+			var ops = scriptSig.ToOps().ToArray();
+			return new PayToPubkeyHashScriptSigParameters()
+			{
+				TransactionSignature = new TransactionSignature(ops[0].PushData),
+				PublicKey = new PubKey(ops[1].PushData),
+			};
+		}
+
+
+
 		public override TxOutType Type
 		{
 			get
@@ -280,6 +330,10 @@ namespace NBitcoin
 				return TxOutType.TX_PUBKEYHASH;
 			}
 		}
+
+
+
+
 	}
 	public abstract class ScriptTemplate
 	{

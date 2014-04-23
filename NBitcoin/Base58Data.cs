@@ -93,5 +93,31 @@ namespace NBitcoin
 		{
 			return wifData;
 		}
+
+		public override bool Equals(object obj)
+		{
+			Base58Data item = obj as Base58Data;
+			if(item == null)
+				return false;
+			return ToString().Equals(item.ToString());
+		}
+		public static bool operator ==(Base58Data a, Base58Data b)
+		{
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if(((object)a == null) || ((object)b == null))
+				return false;
+			return a.ToString() == b.ToString();
+		}
+
+		public static bool operator !=(Base58Data a, Base58Data b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return ToString().GetHashCode();
+		}
 	}
 }

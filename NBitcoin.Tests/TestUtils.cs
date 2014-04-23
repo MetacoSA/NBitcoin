@@ -9,6 +9,28 @@ namespace NBitcoin.Tests
 {
 	class TestUtils
 	{
+		public static Transaction CreateFakeTx(Money coin, BitcoinAddress to)
+		{
+			// Create a fake TX of sufficient realism to exercise the unit tests. Two outputs, one to us, one to somewhere
+			// else to simulate change.
+			Transaction t = new Transaction();
+			TxOut outputToMe = new TxOut(coin, to);
+			t.AddOutput(outputToMe);
+			TxOut change = new TxOut(Money.Parse("1.11"),
+					new Key().PubKey.GetAddress(to.Network));
+			t.AddOutput(change);
+			// Make a previous tx simply to send us sufficient coins. This prev tx is not really valid but it doesn't
+			// matter for our purposes.
+			Transaction prevTx = new Transaction();
+			TxOut prevOut = new TxOut(coin, to);
+			prevTx.AddOutput(prevOut);
+			// Connect it.
+			t.AddInput(prevTx, 0);
+
+			// roundtrip tx
+			return t.Clone();
+		}
+
 		public static byte[] ToBytes(string str)
 		{
 			byte[] result = new byte[str.Length];
@@ -27,6 +49,13 @@ namespace NBitcoin.Tests
 		internal static byte[] ParseHex(string data)
 		{
 			return Encoders.Hex.DecodeData(data);
+		}
+
+		public static Block CreateFakeBlock(Transaction tx)
+		{
+			var block = new Block();
+			block.AddTransaction(tx);
+			return block;
 		}
 	}
 }

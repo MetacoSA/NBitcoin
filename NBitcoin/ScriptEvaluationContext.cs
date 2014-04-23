@@ -916,18 +916,17 @@ namespace NBitcoin
 			if(vchSig.Length == 0)
 				return false;
 
-			if(!IsAllowedSignature((SigHash)vchSig[vchSig.Length - 1]))
+			var scriptSig = new TransactionSignature(vchSig);
+
+			if(!IsAllowedSignature(scriptSig.SigHash))
 				return false;
 
-			var nHashType = (SigHash)vchSig[vchSig.Length - 1];
-			vchSig = vchSig.Take(vchSig.Length - 1).ToArray();
-
-			uint256 sighash = scriptCode.SignatureHash(txTo, nIn, nHashType);
+			uint256 sighash = scriptCode.SignatureHash(txTo, nIn, scriptSig.SigHash);
 
 			//if (signatureCache.Get(sighash, vchSig, pubkey))
 			//	return true;
 
-			if(!pubkey.Verify(sighash, vchSig))
+			if(!pubkey.Verify(sighash, scriptSig.Signature))
 			{
 				if((ScriptVerify & ScriptVerify.StrictEnc) != 0)
 					return false;

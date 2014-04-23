@@ -37,6 +37,13 @@ namespace NBitcoin
 				ProtocolVersion = version
 			});
 		}
+
+		public static T Clone<T>(this T serializable, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION) where T : IBitcoinSerializable, new()
+		{
+			var instance = new T();
+			instance.FromBytes(serializable.ToBytes(version), version);
+			return instance;
+		}
 		public static byte[] ToBytes(this IBitcoinSerializable serializable, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			MemoryStream ms = new MemoryStream();

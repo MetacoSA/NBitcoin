@@ -12,6 +12,7 @@ namespace NBitcoin
 	{
 		public const long COIN = 100000000;
 		public const long CENT = 1000000;
+		public const long NANO = CENT / 100;
 
 		public static bool TryParse(string bitcoin, out Money nRet)
 		{
@@ -258,6 +259,15 @@ namespace NBitcoin
 			return c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9';
 		}
 
-		
+
+
+		static Money _Zero = new Money(0);
+		public static Money Zero
+		{
+			get
+			{
+				return _Zero;
+			}
+		}
 	}
 }

@@ -303,5 +303,10 @@ namespace NBitcoin
 			BitcoinStream bitStream = new BitcoinStream(ms, false);
 			ReadWrite(bitStream);
 		}
+
+		public void AddTransaction(Transaction tx)
+		{
+			Vtx = Vtx.Concat(new[] { tx }).ToArray();
+		}
 	}
 }

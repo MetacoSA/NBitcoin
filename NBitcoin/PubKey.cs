@@ -57,10 +57,13 @@ namespace NBitcoin
 			return network.CreateBitcoinAddress(this.ID.ToBytes());
 		}
 
+		public bool Verify(uint256 hash, ECDSASignature sig)
+		{
+			return _Key.Verify(hash, sig);
+		}
 		public bool Verify(uint256 hash, byte[] sig)
 		{
-
-			return _Key.Verify(hash, ECDSASignature.FromDER(sig));
+			return Verify(hash, ECDSASignature.FromDER(sig));
 		}
 
 		public string ToHex()
@@ -169,6 +172,32 @@ namespace NBitcoin
 
 			var p = new Org.BouncyCastle.Math.EC.FpPoint(ECKey.CURVE.Curve, q.X, q.Y, true);
 			return new PubKey(p.GetEncoded());
+		}
+
+		public override bool Equals(object obj)
+		{
+			PubKey item = obj as PubKey;
+			if(item == null)
+				return false;
+			return ToHex().Equals(item.ToHex());
+		}
+		public static bool operator ==(PubKey a, PubKey b)
+		{
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if(((object)a == null) || ((object)b == null))
+				return false;
+			return a.ToHex() == b.ToHex();
+		}
+
+		public static bool operator !=(PubKey a, PubKey b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return ToHex().GetHashCode();
 		}
 	}
 }

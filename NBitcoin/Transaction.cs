@@ -21,6 +21,7 @@ namespace NBitcoin
 		private uint256 hash;
 		private uint n;
 
+
 		public uint256 Hash
 		{
 			get
@@ -57,6 +58,16 @@ namespace NBitcoin
 		{
 			hash = hashIn;
 			this.n = nIn == -1 ? n = uint.MaxValue : (uint)nIn;
+		}
+
+		public OutPoint(Transaction tx, int i)
+			: this(tx.GetHash(), i)
+		{
+		}
+
+		public OutPoint(OutPoint outpoint)
+		{
+			this.FromBytes(outpoint.ToBytes());
 		}
 		//IMPLEMENT_SERIALIZE( READWRITE(FLATDATA(*this)); )
 
@@ -108,7 +119,14 @@ namespace NBitcoin
 
 	public class TxIn : IBitcoinSerializable
 	{
+		public TxIn()
+		{
 
+		}
+		public TxIn(OutPoint prevout)
+		{
+			this.prevout = prevout;
+		}
 		OutPoint prevout = new OutPoint();
 		Script scriptSig;
 		uint nSequence = uint.MaxValue;
@@ -155,6 +173,13 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public bool IsFrom(PubKey pubKey)
+		{
+			var template = new PayToPubkeyHashScriptTemplate();
+			var result = template.ExtractInputScriptParameters(ScriptSig);
+			return result != null && result.PublicKey == pubKey;
+		}
 	}
 
 	public class TxOut : IBitcoinSerializable
@@ -174,6 +199,37 @@ namespace NBitcoin
 
 		private long value = -1;
 		Money _MoneyValue;
+
+
+		public TxOut()
+		{
+
+		}
+		public TxOut(Money value, BitcoinAddress bitcoinAddress)
+		{
+			if(bitcoinAddress == null)
+				throw new ArgumentNullException("bitcoinAddress");
+			if(value == null)
+				throw new ArgumentNullException("value");
+			Value = value;
+			SetDestination(bitcoinAddress);
+		}
+
+		public TxOut(Money value, KeyId keyId)
+		{
+			Value = value;
+			SetDestination(keyId);
+		}
+
+		private void SetDestination(KeyId keyId)
+		{
+			ScriptPubKey = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(keyId);
+		}
+
+		public void SetDestination(BitcoinAddress address)
+		{
+			ScriptPubKey = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(address);
+		}
 		public Money Value
 		{
 			get
@@ -220,13 +276,31 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public bool IsTo(BitcoinAddress address)
+		{
+			if(address == null)
+				throw new ArgumentNullException("address");
+			return IsTo(address.ID);
+		}
+
+		private bool IsTo(KeyId keyId)
+		{
+			var expectedScript = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(keyId);
+			return Utils.ArrayEqual(expectedScript.ToRawScript(), ScriptPubKey.ToRawScript());
+		}
+
+		public bool IsTo(PubKey pubkey)
+		{
+			return IsTo(pubkey.ID);
+		}
 	}
 
 	//https://en.bitcoin.it/wiki/Transactions
 	//https://en.bitcoin.it/wiki/Protocol_specification
 	public class Transaction : IBitcoinSerializable
 	{
-		uint nVersion = 0;
+		uint nVersion = 1;
 
 		public uint Version
 		{
@@ -254,6 +328,14 @@ namespace NBitcoin
 		public Transaction(byte[] bytes)
 		{
 			this.FromBytes(bytes);
+		}
+
+		public Money TotalOut
+		{
+			get
+			{
+				return VOut.Sum(v => v.Value);
+			}
 		}
 
 		public uint LockTime
@@ -317,5 +399,35 @@ namespace NBitcoin
 
 		public static uint CURRENT_VERSION = 2;
 		public static uint MAX_STANDARD_TX_SIZE = 100000;
+
+		public void AddOutput(Money money, BitcoinAddress address)
+		{
+			AddOutput(new TxOut(money, address));
+		}
+		public void AddOutput(Money money, KeyId keyId)
+		{
+			AddOutput(new TxOut(money, keyId));
+		}
+		public void AddOutput(TxOut @out)
+		{
+			this.vout = this.vout.Concat(new[] { @out }).ToArray();
+		}
+		public void AddInput(TxIn @in)
+		{
+			this.vin = this.vin.Concat(new[] { @in }).ToArray();
+		}
+
+		public TxIn AddInput(Transaction prevTx, int outIndex)
+		{
+			if(outIndex >= prevTx.VOut.Length)
+				throw new InvalidOperationException("Output " + outIndex + " is not present in the prevTx");
+			var @in = new TxIn();
+			@in.PrevOut.Hash = prevTx.GetHash();
+			@in.PrevOut.N = (uint)outIndex;
+			AddInput(@in);
+			return @in;
+		}
+
+		
 	}
 }

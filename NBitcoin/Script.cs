@@ -572,6 +572,13 @@ namespace NBitcoin
 			return new Script(scriptSig.ToOps().Last().PushData).GetSigOpCount(true);
 		}
 
+		public PubKey GetFromPubKey()
+		{
+			var template = new PayToPubkeyHashScriptTemplate();
+			var result = template.ExtractInputScriptParameters(this);
+			return result == null ? null : result.PublicKey;
+		}
+
 		public byte[] ToRawScript()
 		{
 			return _Script.ToArray();
