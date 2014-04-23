@@ -20,6 +20,11 @@ namespace NBitcoin
 			}
 		}
 
+		public ScriptEvaluationContext()
+		{
+			ScriptVerify = NBitcoin.ScriptVerify.P2SH | NBitcoin.ScriptVerify.StrictEnc;
+			SigHash = NBitcoin.SigHash.Undefined;
+		}
 		public ScriptVerify ScriptVerify
 		{
 			get;
@@ -31,7 +36,48 @@ namespace NBitcoin
 			set;
 		}
 
+		public bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction txTo, int nIn)
+		{
+			ScriptEvaluationContext evaluationCopy = null;
 
+			if(!EvalScript(scriptSig, txTo, nIn))
+				return false;
+			if((ScriptVerify & ScriptVerify.P2SH) != 0)
+			{
+				evaluationCopy = Clone();
+			}
+			if(!EvalScript(scriptPubKey, txTo, nIn))
+				return false;
+
+			if(Result == null || Result.Value == false)
+				return false;
+
+			// Additional validation for spend-to-script-hash transactions:
+			if(((ScriptVerify & ScriptVerify.P2SH) != 0) && scriptPubKey.IsPayToScriptHash)
+			{
+				this.Load(evaluationCopy);
+				evaluationCopy = this;
+				if(!scriptSig.IsPushOnly)
+					return false;
+
+				// stackCopy cannot be empty here, because if it was the
+				// P2SH  HASH <> EQUAL  scriptPubKey would be evaluated with
+				// an empty stack and the EvalScript above would return false.
+				if(evaluationCopy.Stack.Count == 0)
+					throw new InvalidProgramException("stackCopy cannot be empty here");
+
+				var pubKeySerialized = evaluationCopy.Stack.Pop();
+				Script pubKey2 = new Script(pubKeySerialized);
+
+				if(!evaluationCopy.EvalScript(pubKey2, txTo, nIn))
+					return false;
+
+				return evaluationCopy.Result != null && evaluationCopy.Result.Value;
+			}
+			return true;
+		}
+
+		
 		static readonly byte[] vchFalse = new byte[] { 0 };
 		static readonly byte[] vchZero = new byte[] { 0 };
 		static readonly byte[] vchTrue = new byte[] { 1 };
@@ -956,6 +1002,14 @@ namespace NBitcoin
 				return true;
 			else
 				return SigHash == sigHash;
+		}
+
+
+		private void Load(ScriptEvaluationContext other)
+		{
+			_Stack = Clone(other._Stack);
+			ScriptVerify = other.ScriptVerify;
+			SigHash = other.SigHash;
 		}
 
 		public ScriptEvaluationContext Clone()

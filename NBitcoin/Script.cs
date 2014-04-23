@@ -218,55 +218,6 @@ namespace NBitcoin
 		}
 
 
-		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction txTo, int nIn, ScriptVerify flags, SigHash nHashType =  SigHash.All)
-		{
-			ScriptEvaluationContext evaluation = new ScriptEvaluationContext()
-			{
-				SigHash = nHashType,
-				ScriptVerify = flags
-			};
-			ScriptEvaluationContext evaluationCopy = null;
-
-			if(!evaluation.EvalScript(scriptSig, txTo, nIn))
-				return false;
-			if((flags & ScriptVerify.P2SH) != 0)
-			{
-				evaluationCopy = evaluation.Clone();
-			}
-			if(!evaluation.EvalScript(scriptPubKey, txTo, nIn))
-				return false;
-
-			if(evaluation.Result == null || evaluation.Result.Value == false)
-				return false;
-
-			// Additional validation for spend-to-script-hash transactions:
-			if(((flags & ScriptVerify.P2SH) != 0) && scriptPubKey.IsPayToScriptHash)
-			{
-				if(!scriptSig.IsPushOnly)
-					return false;
-
-				// stackCopy cannot be empty here, because if it was the
-				// P2SH  HASH <> EQUAL  scriptPubKey would be evaluated with
-				// an empty stack and the EvalScript above would return false.
-				if(evaluationCopy.Stack.Count == 0)
-					throw new InvalidProgramException("stackCopy cannot be empty here");
-
-				var pubKeySerialized = evaluationCopy.Stack.Pop();
-				Script pubKey2 = new Script(pubKeySerialized);
-
-				if(!evaluationCopy.EvalScript(pubKey2, txTo, nIn))
-					return false;
-
-				return evaluationCopy.Result != null && evaluationCopy.Result.Value;
-			}
-			return true;
-		}
-
-
-
-
-
-
 		public int Length
 		{
 			get
@@ -587,6 +538,14 @@ namespace NBitcoin
 		public byte[] ToRawScript()
 		{
 			return _Script.ToArray();
+		}
+
+		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.StrictEnc | ScriptVerify.P2SH, SigHash sigHash = SigHash.Undefined)
+		{
+			ScriptEvaluationContext eval = new ScriptEvaluationContext();
+			eval.SigHash = sigHash;
+			eval.ScriptVerify = scriptVerify;
+			return eval.VerifyScript(scriptSig, scriptPubKey, tx, i);
 		}
 	}
 }

@@ -384,7 +384,9 @@ namespace NBitcoin
 				if(key == null)
 					return false;
 				var pubkeyScript = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(key.PubKey);
-				if(!Script.VerifyScript(vin.ScriptSig, pubkeyScript, tx, i, ScriptVerify.None, SigHash.All))
+				var eval = new ScriptEvaluationContext();
+				eval.SigHash = SigHash.All;
+				if(!eval.VerifyScript(vin.ScriptSig, pubkeyScript, tx, i))
 					return false;
 			}
 			return true;
