@@ -12,6 +12,13 @@ namespace NBitcoin
 		Side
 	}
 
+	public enum WalletEntryType
+	{
+		Cancel,
+		Income,
+		Outcome
+	}
+
 	public class Spendable
 	{
 		public Spendable(OutPoint output, TxOut txout)
@@ -39,32 +46,6 @@ namespace NBitcoin
 			{
 				return _Out;
 			}
-		}
-
-		public override bool Equals(object obj)
-		{
-			Spendable item = obj as Spendable;
-			if(item == null)
-				return false;
-			return OutPoint.Equals(item.OutPoint);
-		}
-		public static bool operator ==(Spendable a, Spendable b)
-		{
-			if(System.Object.ReferenceEquals(a, b))
-				return true;
-			if(((object)a == null) || ((object)b == null))
-				return false;
-			return a.OutPoint == b.OutPoint;
-		}
-
-		public static bool operator !=(Spendable a, Spendable b)
-		{
-			return !(a == b);
-		}
-
-		public override int GetHashCode()
-		{
-			return OutPoint.GetHashCode();
 		}
 	}
 	public class WalletEntry
@@ -109,12 +90,30 @@ namespace NBitcoin
 			return new Spendable(OutPoint, new TxOut(Value, ScriptPubKey));
 		}
 
-		public bool Income
+		public WalletEntryType Type
 		{
 			get
 			{
-				return Value != null;
+				if(CancelEntry != null)
+					return WalletEntryType.Cancel;
+				return Value == null ? WalletEntryType.Outcome : WalletEntryType.Income;
 			}
+		}
+
+		public WalletEntry CancelEntry
+		{
+			get;
+			set;
+		}
+		public WalletEntry Cancel()
+		{
+			if(Block == null)
+				throw new InvalidOperationException("Can only cancel transaction from a block");
+
+			return new WalletEntry()
+			{
+				CancelEntry = this
+			};
 		}
 	}
 
@@ -152,6 +151,41 @@ namespace NBitcoin
 			private set;
 		}
 
+		public void Reorganize(BlockChain chain)
+		{
+			var missed = Inactive.GetInChain(chain, true);
+
+			foreach(var miss in missed)
+			{
+				Inactive.PushEntry(miss.Cancel());
+			}
+			Inactive.EnsureLoaded();
+			var newInactives = Verified.GetInChain(chain, false);
+			foreach(var inactive in newInactives)
+			{
+				Inactive.PushEntry(inactive);
+			}
+
+			CancelNotIn(chain, Verified);
+			CancelNotIn(chain, Available);
+			CancelNotIn(chain, Confirmed);
+
+
+			foreach(var miss in missed)
+			{
+				PushEntry(miss, BlockType.Main);
+			}
+		}
+
+		private void CancelNotIn(BlockChain chain, WalletPool pool)
+		{
+			var toCancel = pool.GetInChain(chain, false);
+			foreach(var cancel in toCancel)
+			{
+				pool.PushEntry(cancel.Cancel());
+			}
+		}
+
 		public void PushEntries(IEnumerable<WalletEntry> entries, BlockType? blockType)
 		{
 			foreach(var entry in entries)
@@ -170,7 +204,7 @@ namespace NBitcoin
 				return;
 			}
 			Verified.PushEntry(entry);
-			if(!entry.Income)
+			if(entry.Type == WalletEntryType.Outcome)
 				Available.PushEntry(entry);
 			if(entry.Block != null)
 			{
@@ -182,11 +216,15 @@ namespace NBitcoin
 	public class WalletPool
 	{
 		List<WalletEntry> _Entries = new List<WalletEntry>();
+		List<WalletEntry> _CleanedEntries = new List<WalletEntry>();
+
 		internal void PushEntry(WalletEntry entry)
 		{
-			_Entries.Add(entry);
-
-			if(entry.Income)
+			if(!_Reloading)
+				_Entries.Add(entry);
+			if(entry.Type != WalletEntryType.Cancel)
+				_CleanedEntries.Add(entry);
+			if(entry.Type == WalletEntryType.Income)
 			{
 				if(_UnknowSpent.Contains(entry.OutPoint))
 				{
@@ -199,7 +237,7 @@ namespace NBitcoin
 						_Balance += entry.Value;
 				}
 			}
-			else
+			else if(entry.Type == WalletEntryType.Outcome)
 			{
 				if(_Unspent.ContainsKey(entry.OutPoint))
 				{
@@ -214,6 +252,10 @@ namespace NBitcoin
 						_UnknowSpent.Add(entry.OutPoint);
 				}
 			}
+			else if(entry.Type == WalletEntryType.Cancel)
+			{
+				_NeedReload = true;
+			}
 		}
 
 
@@ -222,15 +264,19 @@ namespace NBitcoin
 		{
 			get
 			{
+				EnsureLoaded();
 				return _Balance;
 			}
 		}
+
+
 
 		HashSet<OutPoint> _UnknowSpent = new HashSet<OutPoint>();
 		public IEnumerable<OutPoint> UnknowSpent
 		{
 			get
 			{
+				EnsureLoaded();
 				return _UnknowSpent;
 			}
 		}
@@ -240,6 +286,7 @@ namespace NBitcoin
 		{
 			get
 			{
+				EnsureLoaded();
 				return _Unspent.Values;
 			}
 		}
@@ -249,12 +296,14 @@ namespace NBitcoin
 		{
 			get
 			{
+				EnsureLoaded();
 				return _Spent.Values;
 			}
 		}
 
 		public Spendable[] GetEntriesToCover(Money money)
 		{
+			EnsureLoaded();
 			if(Balance < money)
 				return null;
 			var result = new List<Spendable>();
@@ -268,6 +317,51 @@ namespace NBitcoin
 				i++;
 			}
 			return result.ToArray();
+		}
+
+		public WalletEntry[] GetInChain(BlockChain chain, bool value)
+		{
+			EnsureLoaded();
+			List<WalletEntry> entries = new List<WalletEntry>();
+			foreach(var entry in _CleanedEntries.Where(e => e.Block != null))
+			{
+				if(chain.Contains(entry.Block) == value)
+					entries.Add(entry);
+			}
+			return entries.ToArray();
+		}
+
+		bool _NeedReload;
+		bool _Reloading;
+		internal void EnsureLoaded()
+		{
+			if(_NeedReload)
+			{
+				_Reloading = true;
+				_NeedReload = false;
+
+				_CleanedEntries.Clear();
+				_Balance = Money.Zero;
+				_Spent.Clear();
+				_UnknowSpent.Clear();
+				_Unspent.Clear();
+				List<WalletEntry> canceled = new List<WalletEntry>();
+				foreach(var canceledEntry in _Entries.Where(e => e.Type == WalletEntryType.Cancel).Select(e => e.CancelEntry))
+				{
+					canceled.Add(canceledEntry);
+				}
+				foreach(var entry in _Entries.Where(e => e.Type != WalletEntryType.Cancel))
+				{
+					if(canceled.Contains(entry))
+						canceled.Remove(entry);
+					else
+						PushEntry(entry);
+				}
+
+				_Reloading = false;
+				if(_NeedReload || canceled.Count != 0)
+					throw new NotSupportedException("A bug... should never happen");
+			}
 		}
 	}
 
@@ -475,5 +569,10 @@ namespace NBitcoin
 		}
 
 
+
+		public void Reorganize(BlockChain chain)
+		{
+			Pools.Reorganize(chain);
+		}
 	}
 }

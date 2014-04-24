@@ -193,8 +193,84 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void TestFork()
+		public void WalletIsForkProok()
 		{
+			List<Block> chain1 = new List<Block>();
+			chain1.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("3.0"), MyAddress)));
+			chain1.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("2.0"), MyAddress)));
+			chain1.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("7.0"), MyAddress)));
+			chain1.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("10.0"), MyAddress)));
+
+			List<Block> chain2 = new List<Block>();
+			chain2.Add(chain1[0]);
+			chain2.Add(chain1[1]);
+			chain2.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("1.0"), MyAddress)));
+
+			List<Block> chain3 = new List<Block>();
+			chain3.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("0.5"), MyAddress)));
+
+			BlockChain c1 = TestUtils.CreateBlockChain(chain1);
+			BlockChain c2 = TestUtils.CreateBlockChain(chain2);
+			BlockChain c3 = TestUtils.CreateBlockChain(chain3);
+
+			foreach(var b in chain1)
+			{
+				MyWallet.ReceiveBlock(b, BlockType.Main);
+			}
+			MyWallet.ReceiveBlock(chain2.Last(), BlockType.Side);
+			MyWallet.ReceiveBlock(chain3.Last(), BlockType.Side);
+			MyWallet.ReceiveTransaction(TestUtils.CreateFakeTx(Money.Parse("0.2"), MyAddress));
+
+			Assert.Equal(Money.Parse("22.0"), MyWallet.Balance);
+			Assert.Equal(Money.Parse("22.2"), MyWallet.Pools.Verified.Balance);
+			Assert.Equal(Money.Parse("1.5"), MyWallet.Pools.Inactive.Balance);
+			MyWallet.Reorganize(c1);
+
+			Assert.Equal(Money.Parse("22.0"), MyWallet.Balance);
+			Assert.Equal(Money.Parse("22.2"), MyWallet.Pools.Verified.Balance);
+			Assert.Equal(Money.Parse("1.5"), MyWallet.Pools.Inactive.Balance);
+
+			MyWallet.Reorganize(c2);
+			Assert.Equal(Money.Parse("6.0"), MyWallet.Balance);
+			Assert.Equal(Money.Parse("6.2"), MyWallet.Pools.Verified.Balance);
+			Assert.Equal(Money.Parse("17.5"), MyWallet.Pools.Inactive.Balance);
+
+			MyWallet.Reorganize(c1);
+			Assert.Equal(Money.Parse("22.0"), MyWallet.Balance);
+			Assert.Equal(Money.Parse("22.2"), MyWallet.Pools.Verified.Balance);
+			Assert.Equal(Money.Parse("1.5"), MyWallet.Pools.Inactive.Balance);
+
+			MyWallet.Reorganize(c2);
+			Assert.Equal(Money.Parse("6.0"), MyWallet.Balance);
+			Assert.Equal(Money.Parse("6.2"), MyWallet.Pools.Verified.Balance);
+			Assert.Equal(Money.Parse("17.5"), MyWallet.Pools.Inactive.Balance);
+
+			MyWallet.Reorganize(c2);
+			Assert.Equal(Money.Parse("6.0"), MyWallet.Balance);
+			Assert.Equal(Money.Parse("6.2"), MyWallet.Pools.Verified.Balance);
+			Assert.Equal(Money.Parse("17.5"), MyWallet.Pools.Inactive.Balance);
+
+			MyWallet.ReceiveTransaction(TestUtils.CreateFakeTx(Money.Parse("0.2"), MyAddress));
+			MyWallet.Reorganize(c2);
+			Assert.Equal(Money.Parse("6.0"), MyWallet.Balance);
+			Assert.Equal(Money.Parse("6.4"), MyWallet.Pools.Verified.Balance);
+			Assert.Equal(Money.Parse("17.5"), MyWallet.Pools.Inactive.Balance);
+
+			MyWallet.Reorganize(c3);
+			Assert.Equal(Money.Parse("0.5"), MyWallet.Balance);
+			Assert.Equal(Money.Parse("0.9"), MyWallet.Pools.Verified.Balance);
+			Assert.Equal(Money.Parse("23.0"), MyWallet.Pools.Inactive.Balance);
+
+			MyWallet.Reorganize(c1);
+			Assert.Equal(Money.Parse("22.0"), MyWallet.Balance);
+			Assert.Equal(Money.Parse("22.4"), MyWallet.Pools.Verified.Balance);
+			Assert.Equal(Money.Parse("1.5"), MyWallet.Pools.Inactive.Balance);
+
+			MyWallet.Reorganize(c2);
+			Assert.Equal(Money.Parse("6.0"), MyWallet.Balance);
+			Assert.Equal(Money.Parse("6.4"), MyWallet.Pools.Verified.Balance);
+			Assert.Equal(Money.Parse("17.5"), MyWallet.Pools.Inactive.Balance);
+
 		}
 	}
 }

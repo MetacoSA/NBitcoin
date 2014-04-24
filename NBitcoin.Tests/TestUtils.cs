@@ -55,7 +55,18 @@ namespace NBitcoin.Tests
 		{
 			var block = new Block();
 			block.AddTransaction(tx);
+			block.UpdateMerkleRoot();
 			return block;
+		}
+
+		public static BlockChain CreateBlockChain(List<Block> blocks)
+		{
+			BlockChain chain = new BlockChain();
+			foreach(var b in blocks)
+			{
+				chain.Add(b);
+			}
+			return chain;
 		}
 	}
 }

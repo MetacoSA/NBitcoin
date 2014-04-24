@@ -308,5 +308,10 @@ namespace NBitcoin
 		{
 			Vtx = Vtx.Concat(new[] { tx }).ToArray();
 		}
+
+		public void UpdateMerkleRoot()
+		{
+			this.Header.HashMerkleRoot = ComputeMerkleRoot();
+		}
 	}
 }
