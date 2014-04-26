@@ -128,9 +128,9 @@ namespace NBitcoin
 			if(Contains(hash))
 				fFound = true;
 
-			for(uint i = 0 ; i < tx.VOut.Count ; i++)
+			for(uint i = 0 ; i < tx.Outputs.Count ; i++)
 			{
-				TxOut txout = tx.VOut[(int)i];
+				TxOut txout = tx.Outputs[(int)i];
 				// Match if the filter contains any arbitrary script data element in any scriptPubKey in tx
 				// If this matches, also add the specific output that was matched.
 				// This means clients don't have to update the filter themselves when a new relevant tx 
@@ -157,7 +157,7 @@ namespace NBitcoin
 			if(fFound)
 				return true;
 
-			foreach(TxIn txin in tx.VIn)
+			foreach(TxIn txin in tx.Inputs)
 			{
 				// Match if the filter contains an outpoint tx spends
 				if(Contains(txin.PrevOut))

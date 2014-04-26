@@ -453,23 +453,23 @@ namespace NBitcoin
 			var oldBalance = Balance;
 
 			var txHash = tx.GetHash();
-			for(int i = 0 ; i < tx.VOut.Count ; i++)
+			for(int i = 0 ; i < tx.Outputs.Count ; i++)
 			{
 				foreach(var key in _Keys)
 				{
-					if(tx.VOut[i].IsTo(key.PubKey))
+					if(tx.Outputs[i].IsTo(key.PubKey))
 					{
 						var entry = new WalletEntry();
 						entry.Block = block;
-						entry.ScriptPubKey = tx.VOut[i].ScriptPubKey;
+						entry.ScriptPubKey = tx.Outputs[i].ScriptPubKey;
 						entry.OutPoint = new OutPoint(tx, i);
-						entry.Value = tx.VOut[i].Value;
+						entry.Value = tx.Outputs[i].Value;
 						_Pools.PushEntry(entry, blockType);
 					}
 				}
 			}
 
-			foreach(var txin in tx.VIn)
+			foreach(var txin in tx.Inputs)
 			{
 				foreach(var key in _Keys)
 				{
@@ -535,21 +535,21 @@ namespace NBitcoin
 			for(int i = 0 ; i < entries.Length ; i++)
 			{
 				var entry = entries[i];
-				var vin = tx.VIn[i];
+				var vin = tx.Inputs[i];
 				var key = GetKey(entry.TxOut.ScriptPubKey.GetDestination());
-				tx.VIn[i].ScriptSig = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(key.PubKey);
-				var hash = tx.VIn[i].ScriptSig.SignatureHash(tx, i, SigHash.All);
+				tx.Inputs[i].ScriptSig = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(key.PubKey);
+				var hash = tx.Inputs[i].ScriptSig.SignatureHash(tx, i, SigHash.All);
 				var sig = key.Sign(hash);
-				tx.VIn[i].ScriptSig = new PayToPubkeyHashScriptTemplate().GenerateInputScript(new TransactionSignature(sig, SigHash.All), key.PubKey);
+				tx.Inputs[i].ScriptSig = new PayToPubkeyHashScriptTemplate().GenerateInputScript(new TransactionSignature(sig, SigHash.All), key.PubKey);
 			}
 			return true;
 		}
 
 		public bool SignedByMe(Transaction tx)
 		{
-			for(int i = 0 ; i < tx.VIn.Count ; i++)
+			for(int i = 0 ; i < tx.Inputs.Count ; i++)
 			{
-				var vin = tx.VIn[i];
+				var vin = tx.Inputs[i];
 				var key = GetKey(vin.ScriptSig.GetSourcePubKey());
 				if(key == null)
 					return false;

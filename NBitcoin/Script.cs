@@ -357,7 +357,7 @@ namespace NBitcoin
 		//https://en.bitcoin.it/wiki/OP_CHECKSIG
 		public uint256 SignatureHash(Transaction txTo, int nIn, SigHash nHashType)
 		{
-			if(nIn >= txTo.VIn.Count)
+			if(nIn >= txTo.Inputs.Count)
 			{
 				Utils.log("ERROR: SignatureHash() : nIn=" + nIn + " out of range\n");
 				return 1;
@@ -366,7 +366,7 @@ namespace NBitcoin
 			// Check for invalid use of SIGHASH_SINGLE
 			if(nHashType == SigHash.Single)
 			{
-				if(nIn >= txTo.VOut.Count)
+				if(nIn >= txTo.Outputs.Count)
 				{
 					Utils.log("ERROR: SignatureHash() : nOut=" + nIn + " out of range\n");
 					return 1;
@@ -378,56 +378,56 @@ namespace NBitcoin
 
 			var txCopy = new Transaction(txTo.ToBytes());
 			//Set all TxIn script to empty string
-			foreach(var txin in txCopy.VIn)
+			foreach(var txin in txCopy.Inputs)
 			{
 				txin.ScriptSig = new Script();
 			}
 			//Copy subscript into the txin script you are checking
-			txCopy.VIn[nIn].ScriptSig = scriptCopy;
+			txCopy.Inputs[nIn].ScriptSig = scriptCopy;
 
 			if(((int)nHashType & 31) == (int)SigHash.None)
 			{
 				//The output of txCopy is set to a vector of zero size.
-				txCopy.VOut.Clear();
+				txCopy.Outputs.Clear();
 				//All other inputs aside from the current input in txCopy have their nSequence index set to zero
-				for(int i = 0 ; i < txCopy.VIn.Count ; i++)
+				for(int i = 0 ; i < txCopy.Inputs.Count ; i++)
 				{
 					if(i == nIn)
 						continue;
-					txCopy.VIn[i].Sequence = 0;
+					txCopy.Inputs[i].Sequence = 0;
 				}
 			}
 
 			if(((int)nHashType & 31) == (int)SigHash.Single)
 			{
 				//The output of txCopy is resized to the size of the current input index+1.
-				var remainingOut = txCopy.VOut.Take(nIn + 1).ToArray();
-				txCopy.VOut.Clear();
-				txCopy.VOut.AddRange(remainingOut);
+				var remainingOut = txCopy.Outputs.Take(nIn + 1).ToArray();
+				txCopy.Outputs.Clear();
+				txCopy.Outputs.AddRange(remainingOut);
 				//All other txCopy outputs aside from the output that is the same as the current input index are set to a blank script and a value of (long) -1.
-				for(int i = 0 ; i < txCopy.VOut.Count ; i++)
+				for(int i = 0 ; i < txCopy.Outputs.Count ; i++)
 				{
 					if(i == nIn)
 						continue;
-					txCopy.VOut[i] = new TxOut();
+					txCopy.Outputs[i] = new TxOut();
 				}
-				for(int i = 0 ; i < txCopy.VIn.Count ; i++)
+				for(int i = 0 ; i < txCopy.Inputs.Count ; i++)
 				{
 					//All other txCopy inputs aside from the current input are set to have an nSequence index of zero.
 					if(i == nIn)
 						continue;
-					txCopy.VIn[i].Sequence = 0;
+					txCopy.Inputs[i].Sequence = 0;
 				}
 			}
 
 			if(((int)nHashType & (int)SigHash.AnyoneCanPay) != 0)
 			{
 				//The txCopy input vector is resized to a length of one.
-				var script = txCopy.VIn[nIn];
-				txCopy.VIn.Clear();
-				txCopy.VIn.Add(script);
+				var script = txCopy.Inputs[nIn];
+				txCopy.Inputs.Clear();
+				txCopy.Inputs.Add(script);
 				//The subScript (lead in by its length as a var-integer encoded!) is set as the first and only member of this vector.
-				txCopy.VIn[0].ScriptSig = scriptCopy;
+				txCopy.Inputs[0].ScriptSig = scriptCopy;
 			}
 
 

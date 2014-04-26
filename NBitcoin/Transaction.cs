@@ -348,7 +348,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return VOut.Sum(v => v.Value);
+				return Outputs.Sum(v => v.Value);
 			}
 		}
 
@@ -360,14 +360,14 @@ namespace NBitcoin
 			}
 		}
 
-		public List<TxIn> VIn
+		public List<TxIn> Inputs
 		{
 			get
 			{
 				return vin;
 			}
 		}
-		public List<TxOut> VOut
+		public List<TxOut> Outputs
 		{
 			get
 			{
@@ -396,7 +396,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return (VIn.Count == 1 && VIn[0].PrevOut.IsNull);
+				return (Inputs.Count == 1 && Inputs[0].PrevOut.IsNull);
 			}
 		}
 
@@ -426,7 +426,7 @@ namespace NBitcoin
 
 		public TxIn AddInput(Transaction prevTx, int outIndex)
 		{
-			if(outIndex >= prevTx.VOut.Count)
+			if(outIndex >= prevTx.Outputs.Count)
 				throw new InvalidOperationException("Output " + outIndex + " is not present in the prevTx");
 			var @in = new TxIn();
 			@in.PrevOut.Hash = prevTx.GetHash();

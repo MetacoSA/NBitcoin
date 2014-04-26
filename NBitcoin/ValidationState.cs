@@ -140,10 +140,10 @@ namespace NBitcoin
 		public bool CheckTransaction(Transaction tx)
 		{
 			// Basic checks that don't depend on any context
-			if(tx.VIn.Count == 0)
+			if(tx.Inputs.Count == 0)
 				return DoS(10, Utils.error("CheckTransaction() : vin empty"),
 								 RejectCode.INVALID, "bad-txns-vin-empty");
-			if(tx.VOut.Count == 0)
+			if(tx.Outputs.Count == 0)
 				return DoS(10, Utils.error("CheckTransaction() : vout empty"),
 								 RejectCode.INVALID, "bad-txns-vout-empty");
 			// Size limits
@@ -153,7 +153,7 @@ namespace NBitcoin
 
 			// Check for negative or overflow output values
 			long nValueOut = 0;
-			foreach(var txout in tx.VOut)
+			foreach(var txout in tx.Outputs)
 			{
 				if(txout.Value < 0)
 					return DoS(100, Utils.error("CheckTransaction() : txout.nValue negative"),
@@ -169,7 +169,7 @@ namespace NBitcoin
 
 			// Check for duplicate inputs
 			HashSet<OutPoint> vInOutPoints = new HashSet<OutPoint>();
-			foreach(var txin in tx.VIn)
+			foreach(var txin in tx.Inputs)
 			{
 				if(vInOutPoints.Contains(txin.PrevOut))
 					return DoS(100, Utils.error("CheckTransaction() : duplicate inputs"),
@@ -179,13 +179,13 @@ namespace NBitcoin
 
 			if(tx.IsCoinBase)
 			{
-				if(tx.VIn[0].ScriptSig.Length < 2 || tx.VIn[0].ScriptSig.Length > 100)
+				if(tx.Inputs[0].ScriptSig.Length < 2 || tx.Inputs[0].ScriptSig.Length > 100)
 					return DoS(100, Utils.error("CheckTransaction() : coinbase script size"),
 									 RejectCode.INVALID, "bad-cb-length");
 			}
 			else
 			{
-				foreach(var txin in tx.VIn)
+				foreach(var txin in tx.Inputs)
 					if(txin.PrevOut.IsNull)
 						return DoS(10, Utils.error("CheckTransaction() : prevout is null"),
 										 RejectCode.INVALID, "bad-txns-prevout-null");
@@ -277,11 +277,11 @@ namespace NBitcoin
 		private int GetLegacySigOpCount(Transaction tx)
 		{
 			uint nSigOps = 0;
-			foreach(var txin in tx.VIn)
+			foreach(var txin in tx.Inputs)
 			{
 				nSigOps += txin.ScriptSig.GetSigOpCount(false);
 			}
-			foreach(var txout in tx.VOut)
+			foreach(var txout in tx.Outputs)
 			{
 				nSigOps += txout.ScriptPubKey.GetSigOpCount(false);
 			}

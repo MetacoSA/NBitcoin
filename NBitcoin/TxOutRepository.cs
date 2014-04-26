@@ -19,9 +19,9 @@ namespace NBitcoin
 		public void AddFromTransaction(Transaction transaction)
 		{
 			var hash = transaction.GetHash();
-			for(int i = 0 ; i < transaction.VOut.Count; i++)
+			for(int i = 0 ; i < transaction.Outputs.Count; i++)
 			{
-				AddTxOut(new OutPoint(hash, i), transaction.VOut[i]);
+				AddTxOut(new OutPoint(hash, i), transaction.Outputs[i]);
 			}
 		}
 

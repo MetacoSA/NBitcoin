@@ -70,7 +70,7 @@ namespace NBitcoin
 				return false;
 
 
-			foreach(TxIn txin in tx.VIn)
+			foreach(TxIn txin in tx.Inputs)
 			{
 				// Biggest 'standard' txin is a 3-signature 3-of-3 CHECKMULTISIG
 				// pay-to-script-hash, which is 3 ~80-byte signatures, 3
@@ -90,7 +90,7 @@ namespace NBitcoin
 			}
 
 			uint nDataOut = 0;
-			foreach(TxOut txout in tx.VOut)
+			foreach(TxOut txout in tx.Outputs)
 			{
 				var template = StandardScripts.GetTemplateFromScriptPubKey(txout.ScriptPubKey);
 				if(template == null)
@@ -112,7 +112,7 @@ namespace NBitcoin
 
 		public static bool AreOutputsStandard(Transaction tx)
 		{
-			return tx.VOut.All(vout => IsStandardScriptPubKey(vout.ScriptPubKey));
+			return tx.Outputs.All(vout => IsStandardScriptPubKey(vout.ScriptPubKey));
 		}
 
 		public static ScriptTemplate GetTemplateFromScriptPubKey(Script script)
@@ -150,12 +150,12 @@ namespace NBitcoin
 			if(tx.IsCoinBase)
 				return true; // Coinbases don't use vin normally
 
-			for(int i = 0 ; i < tx.VIn.Count ; i++)
+			for(int i = 0 ; i < tx.Inputs.Count ; i++)
 			{
-				TxOut prev = mapInputs.GetOutputFor(tx.VIn[i]);
+				TxOut prev = mapInputs.GetOutputFor(tx.Inputs[i]);
 				if(prev == null)
 					return false;
-				if(!IsStandardScriptSig(tx.VIn[i].ScriptSig, prev.ScriptPubKey))
+				if(!IsStandardScriptSig(tx.Inputs[i].ScriptSig, prev.ScriptPubKey))
 					return false;
 			}
 

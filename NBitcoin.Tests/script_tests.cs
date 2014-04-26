@@ -185,20 +185,20 @@ namespace NBitcoin.Tests
 				);
 
 			Transaction txFrom12 = new Transaction();
-			txFrom12.VOut.Add(new TxOut());
-			txFrom12.VOut[0].ScriptPubKey = scriptPubKey12;
+			txFrom12.Outputs.Add(new TxOut());
+			txFrom12.Outputs[0].ScriptPubKey = scriptPubKey12;
 
 
 			Transaction txTo12 = new Transaction();
-			txTo12.VIn.Add(new TxIn());
-			txTo12.VOut.Add(new TxOut());
-			txTo12.VIn[0].PrevOut.N = 0;
-			txTo12.VIn[0].PrevOut.Hash = txFrom12.GetHash();
-			txTo12.VOut[0].Value = 1;
+			txTo12.Inputs.Add(new TxIn());
+			txTo12.Outputs.Add(new TxOut());
+			txTo12.Inputs[0].PrevOut.N = 0;
+			txTo12.Inputs[0].PrevOut.Hash = txFrom12.GetHash();
+			txTo12.Outputs[0].Value = 1;
 
 			Script goodsig1 = sign_multisig(scriptPubKey12, key1, txTo12);
 			Assert.True(Script.VerifyScript(goodsig1, scriptPubKey12, txTo12, 0, flags, 0));
-			txTo12.VOut[0].Value = 2;
+			txTo12.Outputs[0].Value = 2;
 			Assert.True(!Script.VerifyScript(goodsig1, scriptPubKey12, txTo12, 0, flags, 0));
 
 			Script goodsig2 = sign_multisig(scriptPubKey12, key2, txTo12);
@@ -228,15 +228,15 @@ namespace NBitcoin.Tests
 
 
 			Transaction txFrom23 = new Transaction();
-			txFrom23.VOut.Add(new TxOut());
-			txFrom23.VOut[0].ScriptPubKey = scriptPubKey23;
+			txFrom23.Outputs.Add(new TxOut());
+			txFrom23.Outputs[0].ScriptPubKey = scriptPubKey23;
 
 			Transaction txTo23 = new Transaction();
-			txTo23.VIn.Add(new TxIn());
-			txTo23.VOut.Add(new TxOut());
-			txTo23.VIn[0].PrevOut.N = 0;
-			txTo23.VIn[0].PrevOut.Hash = txFrom23.GetHash();
-			txTo23.VOut[0].Value = 1;
+			txTo23.Inputs.Add(new TxIn());
+			txTo23.Outputs.Add(new TxOut());
+			txTo23.Inputs[0].PrevOut.N = 0;
+			txTo23.Inputs[0].PrevOut.Hash = txFrom23.GetHash();
+			txTo23.Outputs[0].Value = 1;
 
 			Key[] keys = new Key[] { key1, key2 };
 			Script goodsig1 = sign_multisig(scriptPubKey23, keys, txTo23);
