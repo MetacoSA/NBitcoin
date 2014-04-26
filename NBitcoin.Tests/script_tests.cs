@@ -190,7 +190,7 @@ namespace NBitcoin.Tests
 
 
 			Transaction txTo12 = new Transaction();
-			txTo12.VIn = new TxIn[] { new TxIn() };
+			txTo12.VIn.Add(new TxIn());
 			txTo12.VOut = new TxOut[] { new TxOut() };
 			txTo12.VIn[0].PrevOut.N = 0;
 			txTo12.VIn[0].PrevOut.Hash = txFrom12.GetHash();
@@ -232,7 +232,7 @@ namespace NBitcoin.Tests
 			txFrom23.VOut[0].ScriptPubKey = scriptPubKey23;
 
 			Transaction txTo23 = new Transaction();
-			txTo23.VIn = new TxIn[] { new TxIn() };
+			txTo23.VIn.Add(new TxIn());
 			txTo23.VOut = new TxOut[] { new TxOut() };
 			txTo23.VIn[0].PrevOut.N = 0;
 			txTo23.VIn[0].PrevOut.Hash = txFrom23.GetHash();

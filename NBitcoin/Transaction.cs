@@ -327,7 +327,7 @@ namespace NBitcoin
 				nVersion = value;
 			}
 		}
-		TxIn[] vin = new TxIn[0];
+		List<TxIn> vin = new List<TxIn>();
 		TxOut[] vout = new TxOut[0];
 		uint nLockTime = 0;
 
@@ -360,15 +360,11 @@ namespace NBitcoin
 			}
 		}
 
-		public TxIn[] VIn
+		public List<TxIn> VIn
 		{
 			get
 			{
 				return vin;
-			}
-			set
-			{
-				vin = value;
 			}
 		}
 		public TxOut[] VOut
@@ -404,7 +400,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return (VIn.Length == 1 && VIn[0].PrevOut.IsNull);
+				return (VIn.Count == 1 && VIn[0].PrevOut.IsNull);
 			}
 		}
 
@@ -428,7 +424,7 @@ namespace NBitcoin
 		}
 		public TxIn AddInput(TxIn @in)
 		{
-			this.vin = this.vin.Concat(new[] { @in }).ToArray();
+			this.vin.Add(@in);
 			return @in;
 		}
 

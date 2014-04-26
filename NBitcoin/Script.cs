@@ -357,7 +357,7 @@ namespace NBitcoin
 		//https://en.bitcoin.it/wiki/OP_CHECKSIG
 		public uint256 SignatureHash(Transaction txTo, int nIn, SigHash nHashType)
 		{
-			if(nIn >= txTo.VIn.Length)
+			if(nIn >= txTo.VIn.Count)
 			{
 				Utils.log("ERROR: SignatureHash() : nIn=" + nIn + " out of range\n");
 				return 1;
@@ -390,7 +390,7 @@ namespace NBitcoin
 				//The output of txCopy is set to a vector of zero size.
 				txCopy.VOut = new TxOut[0];
 				//All other inputs aside from the current input in txCopy have their nSequence index set to zero
-				for(int i = 0 ; i < txCopy.VIn.Length ; i++)
+				for(int i = 0 ; i < txCopy.VIn.Count ; i++)
 				{
 					if(i == nIn)
 						continue;
@@ -409,7 +409,7 @@ namespace NBitcoin
 						continue;
 					txCopy.VOut[i] = new TxOut();
 				}
-				for(int i = 0 ; i < txCopy.VIn.Length ; i++)
+				for(int i = 0 ; i < txCopy.VIn.Count ; i++)
 				{
 					//All other txCopy inputs aside from the current input are set to have an nSequence index of zero.
 					if(i == nIn)
@@ -421,7 +421,9 @@ namespace NBitcoin
 			if(((int)nHashType & (int)SigHash.AnyoneCanPay) != 0)
 			{
 				//The txCopy input vector is resized to a length of one.
-				txCopy.VIn = new TxIn[] { txCopy.VIn[nIn] };
+				var script = txCopy.VIn[nIn];
+				txCopy.VIn.Clear();
+				txCopy.VIn.Add(script);
 				//The subScript (lead in by its length as a var-integer encoded!) is set as the first and only member of this vector.
 				txCopy.VIn[0].ScriptSig = scriptCopy;
 			}

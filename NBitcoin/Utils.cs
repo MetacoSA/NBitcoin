@@ -15,6 +15,25 @@ namespace NBitcoin
 {
 	public static class Extensions
 	{
+		public static void AddOrReplace<TKey, TValue>(this Dictionary<TKey, TValue> dico, TKey key,TValue value)
+		{
+			if(dico.ContainsKey(key))
+			{
+				dico.Remove(key);
+				dico.Add(key, value);
+			}
+			else
+			{
+				dico.Add(key, value);
+			}
+		}
+		public static Money Sum(this IEnumerable<Money> money)
+		{
+			Money running = Money.Zero;
+			foreach(var m in money)
+				running += m;
+			return running;
+		}
 		public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
 		{
 			if(!dictionary.ContainsKey(key))

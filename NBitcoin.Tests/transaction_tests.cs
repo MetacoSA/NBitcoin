@@ -21,11 +21,11 @@ namespace NBitcoin.Tests
 			{
 				string raw = test.Raw;
 				Transaction tx = new Transaction(raw);
-				Assert.Equal((int)test.JSON.vin_sz, tx.VIn.Length);
+				Assert.Equal((int)test.JSON.vin_sz, tx.VIn.Count);
 				Assert.Equal((int)test.JSON.vout_sz, tx.VOut.Length);
 				Assert.Equal((uint)test.JSON.lock_time, tx.LockTime);
 
-				for(int i = 0 ; i < tx.VIn.Length ; i++)
+				for(int i = 0 ; i < tx.VIn.Count; i++)
 				{
 					var actualVIn = tx.VIn[i];
 					var expectedVIn = test.JSON.@in[i];
@@ -87,7 +87,7 @@ namespace NBitcoin.Tests
 				Assert.True(state.IsValid);
 
 
-				for(int i = 0 ; i < tx.VIn.Length ; i++)
+				for(int i = 0 ; i < tx.VIn.Count; i++)
 				{
 					if(!mapprevOutScriptPubKeys.ContainsKey(tx.VIn[i].PrevOut))
 					{
@@ -143,7 +143,7 @@ namespace NBitcoin.Tests
 				ValidationState state = Network.Main.CreateValidationState();
 				var fValid = state.CheckTransaction(tx) && state.IsValid;
 
-				for(int i = 0 ; i < tx.VIn.Length && fValid ; i++)
+				for(int i = 0 ; i < tx.VIn.Count&& fValid ; i++)
 				{
 					if(!mapprevOutScriptPubKeys.ContainsKey(tx.VIn[i].PrevOut))
 					{
@@ -178,7 +178,7 @@ namespace NBitcoin.Tests
 			Assert.True(state.CheckTransaction(tx) && state.IsValid, "Simple deserialized transaction should be valid.");
 
 			// Check that duplicate txins fail
-			tx.VIn = tx.VIn.Concat(new[] { tx.VIn[0] }).ToArray();
+			tx.VIn.Add(tx.VIn[0]);
 			Assert.True(!state.CheckTransaction(tx) || !state.IsValid, "Transaction with duplicate txins should be invalid.");
 		}
 
@@ -192,7 +192,7 @@ namespace NBitcoin.Tests
 			Transaction[] dummyTransactions = SetupDummyInputs(coins);//(keystore, coins);
 
 			Transaction t1 = new Transaction();
-			t1.VIn = Enumerable.Range(0, 3).Select(_ => new TxIn()).ToArray();
+			t1.VIn.AddRange(Enumerable.Range(0, 3).Select(_ => new TxIn()));
 			t1.VIn[0].PrevOut.Hash = dummyTransactions[0].GetHash();
 			t1.VIn[0].PrevOut.N = 1;
 			t1.VIn[0].ScriptSig += new byte[65];
@@ -255,7 +255,7 @@ namespace NBitcoin.Tests
 			Transaction[] dummyTransactions = SetupDummyInputs(coins);
 
 			Transaction t = new Transaction();
-			t.VIn = new TxIn[] { new TxIn() };
+			t.VIn.Add(new TxIn());
 			t.VIn[0].PrevOut.Hash = dummyTransactions[0].GetHash();
 			t.VIn[0].PrevOut.N = 1;
 			t.VIn[0].ScriptSig = new Script(Op.GetPushOp(new byte[65]));

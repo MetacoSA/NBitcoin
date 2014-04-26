@@ -150,7 +150,7 @@ namespace NBitcoin
 			if(tx.IsCoinBase)
 				return true; // Coinbases don't use vin normally
 
-			for(int i = 0 ; i < tx.VIn.Length ; i++)
+			for(int i = 0 ; i < tx.VIn.Count ; i++)
 			{
 				TxOut prev = mapInputs.GetOutputFor(tx.VIn[i]);
 				if(prev == null)

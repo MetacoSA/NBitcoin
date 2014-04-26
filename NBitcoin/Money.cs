@@ -200,6 +200,10 @@ namespace NBitcoin
 		{
 			return (ulong)value.Satoshi;
 		}
+		public static implicit operator Money(string value)
+		{
+			return Money.Parse(value);
+		}
 
 		public override bool Equals(object obj)
 		{

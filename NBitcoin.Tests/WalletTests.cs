@@ -1,6 +1,7 @@
 ﻿using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,266 +12,130 @@ namespace NBitcoin.Tests
 {
 	public class WalletTests
 	{
-		Network TestNetwork = Network.Main;
-		Key _MyKey;
-		private Key MyKey
+		[Fact]
+		public void CanManageMoney()
 		{
-			get
-			{
-				if(_MyKey == null)
-					_MyKey = new Key();
-				return _MyKey;
-			}
-		}
+			WalletTester tester = new WalletTester();
 
-		private BitcoinAddress myAddress;
-		public BitcoinAddress MyAddress
-		{
-			get
-			{
-				if(myAddress == null)
-					myAddress = MyKey.PubKey.GetAddress(TestNetwork);
-				return myAddress;
-			}
-		}
+			//Change C,A,U
+			tester.GiveMoney("1.0", BlockType.Main);
+			tester.AssertPools(null,
+				"+1.00",
+				"+1.00",
+				"+1.00");
 
-		Wallet myWallet;
-		public Wallet MyWallet
-		{
-			get
-			{
-				if(myWallet == null)
-				{
-					myWallet = new Wallet(TestNetwork);
-					myWallet.AddKey(MyKey);
-				}
-				return myWallet;
-			}
+			//Change U
+			var rcv = tester.GiveMoney("0.1", null);
+			tester.AssertPools(null,
+				"+1.00",
+				"+1.00",
+				"+1.00+0.10");
+
+			//Change U
+			tester.GiveMoney("0.2", BlockType.Side);
+			tester.AssertPools(null,
+				"+1.00",
+				"+1.00",
+				"+1.00+0.10+0.20");
+
+			//Change C,A
+			tester.RecieveTransaction(rcv, BlockType.Main);
+			tester.AssertPools(null,
+				"+1.00+0.10",
+				"+1.00+0.10",
+				"+1.00+0.10+0.20");
+
+			//Change A,U
+			var pay = tester.Pay("0.1", null);
+			tester.AssertPools(null,
+				"+1.00+0.10",
+				"+1.00+0.10-0.10",
+				"+1.00+0.10+0.20-0.10");
+
+			//No change
+			tester.RecieveTransaction(pay, BlockType.Side);
+			tester.AssertPools(null,
+				"+1.00+0.10",
+				"+1.00+0.10-0.10",
+				"+1.00+0.10+0.20-0.10");
+
+			//Chance C
+			tester.RecieveTransaction(pay, BlockType.Main);
+			tester.AssertPools(null,
+				"+1.00+0.10-0.10",
+				"+1.00+0.10-0.10",
+				"+1.00+0.10+0.20-0.10");
+
+			//No change
+			tester.RecieveTransaction(pay, BlockType.Main);
+			tester.AssertPools(null,
+				"+1.00+0.10-0.10",
+				"+1.00+0.10-0.10",
+				"+1.00+0.10+0.20-0.10");
 		}
 
 		[Fact]
-		public void CustomTransactionSpending()
+		public void CanChangeBlockChain()
 		{
-			// We'll set up a wallet that receives a coin, then sends a coin of lesser value and keeps the change.
-			Money v1 = Money.Parse("3.00");
-			Transaction t1 = TestUtils.CreateFakeTx(v1, MyAddress);
-			var block = new Block();
-			block.AddTransaction(t1);
+			WalletTester tester = new WalletTester();
 
-			MyWallet.ReceiveBlock(block);
-			Assert.Equal(v1, MyWallet.Balance);
-			Assert.Equal(v1, MyWallet.Pools.Available.Balance);
-			Assert.Equal(v1, MyWallet.Pools.Verified.Balance);
+			var c0 = tester.StartRecordChain();
+			var c1 = tester.StartRecordChain();
+			//Change C,A,U
+			tester.GiveMoney("1.0", BlockType.Main);
+			tester.GiveMoney("2.0", BlockType.Main);
 
-			Key k2 = new Key();
-			var a2 = k2.PubKey.GetAddress(MyAddress.Network);
+			var c2 = tester.StartRecordChain();
+			tester.GiveMoney("3.0", BlockType.Main);
+			tester.StopRecordChain(c1);
+			tester.GiveMoney("4.0", BlockType.Main);
 
-			Transaction t2 = new Transaction();
-			t2.AddOutput(Money.Parse("0.50"), a2);
-			t2.AddOutput(Money.Parse("0.75"), a2);
-			t2.AddOutput(Money.Parse("1.25"), a2);
-			bool complete = MyWallet.CompleteTx(t2);
+			tester.AssertPools(
+				null,
+				"+1.00+2.00+3.00+4.00",
+				"+1.00+2.00+3.00+4.00",
+				"+1.00+2.00+3.00+4.00");
 
-			// Do some basic sanity checks.
-			Assert.True(complete);
-			Assert.Equal(1, t2.VIn.Length);
-			Assert.Equal(myAddress, t2.VIn[0].ScriptSig.GetSourcePubKey().GetAddress(TestNetwork));
+			//4.0 canceled
+			tester.AssertPools(
+			c1,
+			"+1.00+2.00+3.00+4.00-4.00",
+			"+1.00+2.00+3.00+4.00-4.00",
+			"+1.00+2.00+3.00+4.00");
 
-			Assert.True(MyWallet.SignedByMe(t2));
 
-			Assert.Equal(v1, MyWallet.Balance);
-			MyWallet.ReceiveTransaction(t2);
-			Assert.Equal(Money.Zero, MyWallet.Balance); //Not confirmed, change did not came back
-			Assert.Equal(Money.Zero, MyWallet.Pools.Available.Balance);
-			Assert.Equal(Money.Parse("0.50"), MyWallet.Pools.Verified.Balance); //Should get 0.50 back
-			Assert.Equal(v1, MyWallet.Pools.Confirmed.Balance); //Not confirmed
+			//4.0 re introduced, 1.0, 2.0 canceled
+			tester.AssertPools(
+			c2,
+			"+1.00+2.00+3.00+4.00-4.00-1.00-2.00+4.00",
+			"+1.00+2.00+3.00+4.00-4.00-1.00-2.00+4.00",
+			"+1.00+2.00+3.00+4.00");
 
-			block = new Block();
-			block.AddTransaction(t2);
-			MyWallet.ReceiveBlock(block);//Finally confirmed
-			Assert.Equal(Money.Parse("0.50"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("0.50"), MyWallet.Pools.Available.Balance);
-			Assert.Equal(Money.Parse("0.50"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("0.50"), MyWallet.Pools.Confirmed.Balance);
 
-			block = new Block();
-			block.AddTransaction(t2);
-			MyWallet.ReceiveBlock(block); //spend again ? no
-			Assert.Equal(Money.Parse("0.50"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("0.50"), MyWallet.Pools.Available.Balance);
-			Assert.Equal(Money.Parse("0.50"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("0.50"), MyWallet.Pools.Confirmed.Balance);
+			//1.0, 2.0 re introduced
+			tester.AssertPools(
+			c0,
+			"+1.00+2.00+3.00+4.00-4.00-1.00-2.00+4.00+1.00+2.00",
+			"+1.00+2.00+3.00+4.00-4.00-1.00-2.00+4.00+1.00+2.00",
+			"+1.00+2.00+3.00+4.00");
+
+
+			//4.0 canceled
+			tester.AssertPools(
+			c1,
+			"+1.00+2.00+3.00+4.00-4.00-1.00-2.00+4.00+1.00+2.00-4.00",
+			"+1.00+2.00+3.00+4.00-4.00-1.00-2.00+4.00+1.00+2.00-4.00",
+			"+1.00+2.00+3.00+4.00");
+
+
+			//4.0 re added
+			tester.AssertPools(
+			c0,
+			"+1.00+2.00+3.00+4.00-4.00-1.00-2.00+4.00+1.00+2.00-4.00+4.00",
+			"+1.00+2.00+3.00+4.00-4.00-1.00-2.00+4.00+1.00+2.00-4.00+4.00",
+			"+1.00+2.00+3.00+4.00");
 		}
 
-		[Fact]
-		public void SideChain()
-		{
-			// The wallet receives a coin on the main chain, then on a side chain. Only main chain counts towards balance.
-			var v1 = Money.Parse("1.0");
-			Transaction t1 = TestUtils.CreateFakeTx(v1, MyAddress);
-			var block = new Block();
-			block.AddTransaction(t1);
 
-			MyWallet.ReceiveBlock(block, BlockType.Main);
-			Assert.Equal(v1, MyWallet.Balance);
-			Assert.Equal(v1, MyWallet.Pools.Available.Balance);
-			Assert.Equal(v1, MyWallet.Pools.Confirmed.Balance);
-
-			var v2 = Money.Parse("0.50");
-			Transaction t2 = TestUtils.CreateFakeTx(v2, myAddress);
-			block = new Block();
-			block.AddTransaction(t2);
-			MyWallet.ReceiveBlock(block, BlockType.Side);
-			Assert.Equal(v2, MyWallet.Pools.Inactive.Balance);
-			Assert.Equal(v1, MyWallet.Pools.Verified.Balance);
-
-			Assert.Equal(v1, MyWallet.Balance);
-		}
-
-		[Fact]
-		public void Balance()
-		{
-			// Receive 5 coins then half a coin.
-			var v1 = Money.Parse("5.0");
-			var v2 = Money.Parse("0.50");
-			Transaction t1 = TestUtils.CreateFakeTx(v1, MyAddress);
-			Transaction t2 = TestUtils.CreateFakeTx(v2, MyAddress);
-			var b1 = TestUtils.CreateFakeBlock(t1);
-			var b2 = TestUtils.CreateFakeBlock(t2);
-			var expected = Money.Parse("5.50");
-			Assert.Equal(Money.Zero, MyWallet.Balance);
-			MyWallet.ReceiveBlock(b1, BlockType.Main);
-			Assert.Equal(Money.Parse("5.0"), MyWallet.Balance);
-			MyWallet.ReceiveBlock(b2, BlockType.Main);
-			Assert.Equal(Money.Parse("5.50"), MyWallet.Balance);
-			Assert.Equal(expected, MyWallet.Balance);
-
-			// Now spend one coin.
-			var v3 = Money.Parse("1.0");
-			Transaction spend = MyWallet.CreateSend(new Key().PubKey.GetAddress(TestNetwork), v3);
-			MyWallet.ReceiveTransaction(spend);
-			Assert.True(MyWallet.SignedByMe(spend));
-
-			// Available and estimated balances should not be the same. We don't check the exact available balance here
-			// because it depends on the coin selection algorithm.
-			Assert.Equal(Money.Parse("4.5"), MyWallet.Pools.Verified.Balance);
-
-			// Now confirm the transaction by including it into a block.
-			var b3 = TestUtils.CreateFakeBlock(spend);
-			MyWallet.ReceiveBlock(b3, BlockType.Main);
-
-			// Change is confirmed. We started with 5.50 so we should have 4.50 left.
-			var v4 = Money.Parse("4.50");
-			Assert.Equal(v4, MyWallet.Balance);
-		}
-
-		[Fact]
-		public void testSpendToSameWallet()
-		{
-			// Test that a spend to the same wallet is dealt with correctly
-			// It should appear in the wallet and confirm 
-			// This is a bit of a silly thing to do in the real world as all it does is burn a fee but it is perfectly valid
-
-			var coin1 = Money.Parse("1.0");
-			var coinHalf = Money.Parse("0.50");
-
-			// Start by giving us 1 coin.
-			Transaction inbound1 = TestUtils.CreateFakeTx(coin1, MyAddress);
-			MyWallet.ReceiveBlock(TestUtils.CreateFakeBlock(inbound1), BlockType.Main);
-
-			// Send half to ourselves. We should then have a balance available to spend of zero
-			Transaction outbound1 = MyWallet.CreateSend(MyAddress, coinHalf);
-			MyWallet.ReceiveTransaction(outbound1);
-			Assert.True(MyWallet.SignedByMe(outbound1));
-
-			// we should have a zero available balance before the next block
-			Assert.Equal(Money.Zero, MyWallet.Balance);
-
-			MyWallet.ReceiveBlock(TestUtils.CreateFakeBlock(outbound1), BlockType.Main);
-
-			// we should have a balance of 1 BTC after the block is received
-			Assert.Equal(coin1, MyWallet.Balance);
-		}
-
-		[Fact]
-		public void WalletIsForkProok()
-		{
-			List<Block> chain1 = new List<Block>();
-			chain1.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("3.0"), MyAddress)));
-			chain1.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("2.0"), MyAddress)));
-			chain1.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("7.0"), MyAddress)));
-			chain1.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("10.0"), MyAddress)));
-
-			List<Block> chain2 = new List<Block>();
-			chain2.Add(chain1[0]);
-			chain2.Add(chain1[1]);
-			chain2.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("1.0"), MyAddress)));
-
-			List<Block> chain3 = new List<Block>();
-			chain3.Add(TestUtils.CreateFakeBlock(TestUtils.CreateFakeTx(Money.Parse("0.5"), MyAddress)));
-
-			BlockChain c1 = TestUtils.CreateBlockChain(chain1);
-			BlockChain c2 = TestUtils.CreateBlockChain(chain2);
-			BlockChain c3 = TestUtils.CreateBlockChain(chain3);
-
-			foreach(var b in chain1)
-			{
-				MyWallet.ReceiveBlock(b, BlockType.Main);
-			}
-			MyWallet.ReceiveBlock(chain2.Last(), BlockType.Side);
-			MyWallet.ReceiveBlock(chain3.Last(), BlockType.Side);
-			MyWallet.ReceiveTransaction(TestUtils.CreateFakeTx(Money.Parse("0.2"), MyAddress));
-
-			Assert.Equal(Money.Parse("22.0"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("22.2"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("1.5"), MyWallet.Pools.Inactive.Balance);
-			MyWallet.Reorganize(c1);
-
-			Assert.Equal(Money.Parse("22.0"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("22.2"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("1.5"), MyWallet.Pools.Inactive.Balance);
-
-			MyWallet.Reorganize(c2);
-			Assert.Equal(Money.Parse("6.0"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("6.2"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("17.5"), MyWallet.Pools.Inactive.Balance);
-
-			MyWallet.Reorganize(c1);
-			Assert.Equal(Money.Parse("22.0"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("22.2"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("1.5"), MyWallet.Pools.Inactive.Balance);
-
-			MyWallet.Reorganize(c2);
-			Assert.Equal(Money.Parse("6.0"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("6.2"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("17.5"), MyWallet.Pools.Inactive.Balance);
-
-			MyWallet.Reorganize(c2);
-			Assert.Equal(Money.Parse("6.0"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("6.2"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("17.5"), MyWallet.Pools.Inactive.Balance);
-
-			MyWallet.ReceiveTransaction(TestUtils.CreateFakeTx(Money.Parse("0.2"), MyAddress));
-			MyWallet.Reorganize(c2);
-			Assert.Equal(Money.Parse("6.0"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("6.4"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("17.5"), MyWallet.Pools.Inactive.Balance);
-
-			MyWallet.Reorganize(c3);
-			Assert.Equal(Money.Parse("0.5"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("0.9"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("23.0"), MyWallet.Pools.Inactive.Balance);
-
-			MyWallet.Reorganize(c1);
-			Assert.Equal(Money.Parse("22.0"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("22.4"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("1.5"), MyWallet.Pools.Inactive.Balance);
-
-			MyWallet.Reorganize(c2);
-			Assert.Equal(Money.Parse("6.0"), MyWallet.Balance);
-			Assert.Equal(Money.Parse("6.4"), MyWallet.Pools.Verified.Balance);
-			Assert.Equal(Money.Parse("17.5"), MyWallet.Pools.Inactive.Balance);
-
-		}
 	}
 }
