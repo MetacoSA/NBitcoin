@@ -143,7 +143,7 @@ namespace NBitcoin
 			if(tx.VIn.Count == 0)
 				return DoS(10, Utils.error("CheckTransaction() : vin empty"),
 								 RejectCode.INVALID, "bad-txns-vin-empty");
-			if(tx.VOut.Length == 0)
+			if(tx.VOut.Count == 0)
 				return DoS(10, Utils.error("CheckTransaction() : vout empty"),
 								 RejectCode.INVALID, "bad-txns-vout-empty");
 			// Size limits

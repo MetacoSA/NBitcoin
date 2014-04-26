@@ -366,7 +366,7 @@ namespace NBitcoin
 			// Check for invalid use of SIGHASH_SINGLE
 			if(nHashType == SigHash.Single)
 			{
-				if(nIn >= txTo.VOut.Length)
+				if(nIn >= txTo.VOut.Count)
 				{
 					Utils.log("ERROR: SignatureHash() : nOut=" + nIn + " out of range\n");
 					return 1;
@@ -388,7 +388,7 @@ namespace NBitcoin
 			if(((int)nHashType & 31) == (int)SigHash.None)
 			{
 				//The output of txCopy is set to a vector of zero size.
-				txCopy.VOut = new TxOut[0];
+				txCopy.VOut.Clear();
 				//All other inputs aside from the current input in txCopy have their nSequence index set to zero
 				for(int i = 0 ; i < txCopy.VIn.Count ; i++)
 				{
@@ -401,9 +401,11 @@ namespace NBitcoin
 			if(((int)nHashType & 31) == (int)SigHash.Single)
 			{
 				//The output of txCopy is resized to the size of the current input index+1.
-				txCopy.VOut = txCopy.VOut.Take(nIn + 1).ToArray();
+				var remainingOut = txCopy.VOut.Take(nIn + 1).ToArray();
+				txCopy.VOut.Clear();
+				txCopy.VOut.AddRange(remainingOut);
 				//All other txCopy outputs aside from the output that is the same as the current input index are set to a blank script and a value of (long) -1.
-				for(int i = 0 ; i < txCopy.VOut.Length ; i++)
+				for(int i = 0 ; i < txCopy.VOut.Count ; i++)
 				{
 					if(i == nIn)
 						continue;

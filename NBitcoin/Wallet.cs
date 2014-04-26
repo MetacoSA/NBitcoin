@@ -453,7 +453,7 @@ namespace NBitcoin
 			var oldBalance = Balance;
 
 			var txHash = tx.GetHash();
-			for(int i = 0 ; i < tx.VOut.Length ; i++)
+			for(int i = 0 ; i < tx.VOut.Count ; i++)
 			{
 				foreach(var key in _Keys)
 				{

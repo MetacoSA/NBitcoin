@@ -185,13 +185,13 @@ namespace NBitcoin.Tests
 				);
 
 			Transaction txFrom12 = new Transaction();
-			txFrom12.VOut = new TxOut[] { new TxOut() };
+			txFrom12.VOut.Add(new TxOut());
 			txFrom12.VOut[0].ScriptPubKey = scriptPubKey12;
 
 
 			Transaction txTo12 = new Transaction();
 			txTo12.VIn.Add(new TxIn());
-			txTo12.VOut = new TxOut[] { new TxOut() };
+			txTo12.VOut.Add(new TxOut());
 			txTo12.VIn[0].PrevOut.N = 0;
 			txTo12.VIn[0].PrevOut.Hash = txFrom12.GetHash();
 			txTo12.VOut[0].Value = 1;
@@ -228,12 +228,12 @@ namespace NBitcoin.Tests
 
 
 			Transaction txFrom23 = new Transaction();
-			txFrom23.VOut = new TxOut[] { new TxOut() };
+			txFrom23.VOut.Add(new TxOut());
 			txFrom23.VOut[0].ScriptPubKey = scriptPubKey23;
 
 			Transaction txTo23 = new Transaction();
 			txTo23.VIn.Add(new TxIn());
-			txTo23.VOut = new TxOut[] { new TxOut() };
+			txTo23.VOut.Add(new TxOut());
 			txTo23.VIn[0].PrevOut.N = 0;
 			txTo23.VIn[0].PrevOut.Hash = txFrom23.GetHash();
 			txTo23.VOut[0].Value = 1;

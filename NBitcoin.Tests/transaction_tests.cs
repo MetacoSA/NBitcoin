@@ -22,10 +22,10 @@ namespace NBitcoin.Tests
 				string raw = test.Raw;
 				Transaction tx = new Transaction(raw);
 				Assert.Equal((int)test.JSON.vin_sz, tx.VIn.Count);
-				Assert.Equal((int)test.JSON.vout_sz, tx.VOut.Length);
+				Assert.Equal((int)test.JSON.vout_sz, tx.VOut.Count);
 				Assert.Equal((uint)test.JSON.lock_time, tx.LockTime);
 
-				for(int i = 0 ; i < tx.VIn.Count; i++)
+				for(int i = 0 ; i < tx.VIn.Count ; i++)
 				{
 					var actualVIn = tx.VIn[i];
 					var expectedVIn = test.JSON.@in[i];
@@ -38,7 +38,7 @@ namespace NBitcoin.Tests
 					Assert.Equal((string)expectedVIn.scriptSig, (string)expectedVIn.scriptSig.ToString());
 				}
 
-				for(int i = 0 ; i < tx.VOut.Length ; i++)
+				for(int i = 0 ; i < tx.VOut.Count ; i++)
 				{
 					var actualVOut = tx.VOut[i];
 					var expectedVOut = test.JSON.@out[i];
@@ -87,7 +87,7 @@ namespace NBitcoin.Tests
 				Assert.True(state.IsValid);
 
 
-				for(int i = 0 ; i < tx.VIn.Count; i++)
+				for(int i = 0 ; i < tx.VIn.Count ; i++)
 				{
 					if(!mapprevOutScriptPubKeys.ContainsKey(tx.VIn[i].PrevOut))
 					{
@@ -143,7 +143,7 @@ namespace NBitcoin.Tests
 				ValidationState state = Network.Main.CreateValidationState();
 				var fValid = state.CheckTransaction(tx) && state.IsValid;
 
-				for(int i = 0 ; i < tx.VIn.Count&& fValid ; i++)
+				for(int i = 0 ; i < tx.VIn.Count && fValid ; i++)
 				{
 					if(!mapprevOutScriptPubKeys.ContainsKey(tx.VIn[i].PrevOut))
 					{
@@ -202,7 +202,7 @@ namespace NBitcoin.Tests
 			t1.VIn[2].PrevOut.Hash = dummyTransactions[1].GetHash();
 			t1.VIn[2].PrevOut.N = 1;
 			t1.VIn[2].ScriptSig = t1.VIn[2].ScriptSig + new byte[65] + Enumerable.Range(0, 33).Select(_ => (byte)4);
-			t1.VOut = Enumerable.Range(0, 2).Select(_ => new TxOut()).ToArray();
+			t1.VOut.AddRange(Enumerable.Range(0, 2).Select(_ => new TxOut()));
 			t1.VOut[0].Value = 90 * Money.CENT;
 			t1.VOut[0].ScriptPubKey += OpcodeType.OP_1;
 
@@ -227,7 +227,7 @@ namespace NBitcoin.Tests
 
 
 			// Create some dummy input transactions
-			dummyTransactions[0].VOut = Enumerable.Range(0, 2).Select(_ => new TxOut()).ToArray();
+			dummyTransactions[0].VOut.AddRange(Enumerable.Range(0, 2).Select(_ => new TxOut()));
 			dummyTransactions[0].VOut[0].Value = 11 * Money.CENT;
 			dummyTransactions[0].VOut[0].ScriptPubKey = dummyTransactions[0].VOut[0].ScriptPubKey + key[0].PubKey.ToBytes() + OpcodeType.OP_CHECKSIG;
 			dummyTransactions[0].VOut[1].Value = 50 * Money.CENT;
@@ -235,7 +235,7 @@ namespace NBitcoin.Tests
 			coinsRet.AddFromTransaction(dummyTransactions[0]);
 
 
-			dummyTransactions[1].VOut = Enumerable.Range(0, 2).Select(_ => new TxOut()).ToArray();
+			dummyTransactions[1].VOut.AddRange(Enumerable.Range(0, 2).Select(_ => new TxOut()));
 			dummyTransactions[1].VOut[0].Value = 21 * Money.CENT;
 			dummyTransactions[1].VOut[0].ScriptPubKey = StandardScripts.PayToAddress(key[2].PubKey.GetAddress(Network.Main));
 			dummyTransactions[1].VOut[1].Value = 22 * Money.CENT;
@@ -259,7 +259,7 @@ namespace NBitcoin.Tests
 			t.VIn[0].PrevOut.Hash = dummyTransactions[0].GetHash();
 			t.VIn[0].PrevOut.N = 1;
 			t.VIn[0].ScriptSig = new Script(Op.GetPushOp(new byte[65]));
-			t.VOut = new TxOut[] { new TxOut() };
+			t.VOut.Add(new TxOut());
 			t.VOut[0].Value = 90 * Money.CENT;
 			Key key = new Key(true);
 			var payToHash = new PayToPubkeyHashScriptTemplate();
@@ -285,12 +285,14 @@ namespace NBitcoin.Tests
 			Assert.True(!StandardScripts.IsStandardTransaction(t));
 
 			// TX_NULL_DATA w/o PUSHDATA
-			t.VOut = new TxOut[] { new TxOut() };
+			t.VOut.Clear();
+			t.VOut.Add(new TxOut());
 			t.VOut[0].ScriptPubKey = new Script() + OpcodeType.OP_RETURN;
 			Assert.True(StandardScripts.IsStandardTransaction(t));
 
 			// Only one TX_NULL_DATA permitted in all cases
-			t.VOut = new TxOut[] { new TxOut(), new TxOut() };
+			t.VOut.Add(new TxOut());
+			t.VOut.Add(new TxOut());
 			t.VOut[0].ScriptPubKey = new Script() + OpcodeType.OP_RETURN + ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38");
 			t.VOut[1].ScriptPubKey = new Script() + OpcodeType.OP_RETURN + ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38");
 			Assert.True(!StandardScripts.IsStandardTransaction(t));

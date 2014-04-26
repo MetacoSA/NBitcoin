@@ -207,7 +207,7 @@ namespace NBitcoin
 
 		private long value = -1;
 		Money _MoneyValue;
-		
+
 
 
 		public TxOut()
@@ -328,7 +328,7 @@ namespace NBitcoin
 			}
 		}
 		List<TxIn> vin = new List<TxIn>();
-		TxOut[] vout = new TxOut[0];
+		List<TxOut> vout = new List<TxOut>();
 		uint nLockTime = 0;
 
 		public Transaction()
@@ -367,15 +367,11 @@ namespace NBitcoin
 				return vin;
 			}
 		}
-		public TxOut[] VOut
+		public List<TxOut> VOut
 		{
 			get
 			{
 				return vout;
-			}
-			set
-			{
-				vout = value;
 			}
 		}
 
@@ -420,7 +416,7 @@ namespace NBitcoin
 		}
 		public void AddOutput(TxOut @out)
 		{
-			this.vout = this.vout.Concat(new[] { @out }).ToArray();
+			this.vout.Add(@out);
 		}
 		public TxIn AddInput(TxIn @in)
 		{
@@ -430,7 +426,7 @@ namespace NBitcoin
 
 		public TxIn AddInput(Transaction prevTx, int outIndex)
 		{
-			if(outIndex >= prevTx.VOut.Length)
+			if(outIndex >= prevTx.VOut.Count)
 				throw new InvalidOperationException("Output " + outIndex + " is not present in the prevTx");
 			var @in = new TxIn();
 			@in.PrevOut.Hash = prevTx.GetHash();
@@ -439,6 +435,6 @@ namespace NBitcoin
 			return @in;
 		}
 
-		
+
 	}
 }
