@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,52 +20,94 @@ namespace NBitcoin
 		Income,
 		Outcome
 	}
-	public class AccountEntry
+	public class AccountEntry : IBitcoinSerializable
 	{
+		public AccountEntry()
+		{
+
+		}
 		public AccountEntry(AccountEntryReason reason, uint256 block, Spendable spendable, Money balanceChange)
 		{
-			Block = block;
-			Spendable = spendable;
-			BalanceChange = balanceChange;
-			Reason = reason;
+			_Block = block;
+			_Spendable = spendable;
+			_BalanceChange = balanceChange;
+			_Reason = (byte)reason;
 		}
 
-		public AccountEntryReason Reason
-		{
-			get;
-			private set;
-		}
-
+		private uint256 _Block;
 		public uint256 Block
 		{
-			get;
-			private set;
+			get
+			{
+				return _Block;
+			}
 		}
+
+		private byte _Reason;
+		public AccountEntryReason Reason
+		{
+			get
+			{
+				return (AccountEntryReason)_Reason;
+			}
+		}
+
+
+		private Spendable _Spendable;
 		public Spendable Spendable
 		{
-			get;
-			private set;
+			get
+			{
+				return _Spendable;
+			}
 		}
+
+		private Money _BalanceChange = Money.Zero;
 		public Money BalanceChange
 		{
-			get;
-			private set;
+			get
+			{
+				return _BalanceChange;
+			}
 		}
 
 		public AccountEntry Neutralize()
 		{
 			return new AccountEntry(AccountEntryReason.ChainBlockChanged, Block, Spendable, -BalanceChange);
 		}
+
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			var b = _Block == null ? new uint256(0).ToBytes() : _Block.ToBytes();
+			stream.ReadWrite(ref b);
+			if(!stream.Serializing)
+				_Block = new uint256(b) == 0 ? null : new uint256(b);
+			stream.ReadWrite(ref _Reason);
+			stream.ReadWrite(ref _Spendable);
+
+			var change = BalanceChange.Satoshi.ToByteArray();
+			stream.ReadWriteAsVarString(ref change);
+			if(!stream.Serializing)
+				_BalanceChange = new Money(new BigInteger(change));
+		}
+
+		#endregion
 	}
 
-	public enum WalletEntryType
+	public enum WalletEntryType : byte
 	{
 		Income,
 		Outcome
 	}
 
-	public class Spendable
+	public class Spendable : IBitcoinSerializable
 	{
+		public Spendable()
+		{
+
+		}
 		public Spendable(OutPoint output, TxOut txout)
 		{
 			if(output == null)
@@ -75,7 +118,7 @@ namespace NBitcoin
 			_OutPoint = output;
 		}
 
-		private readonly OutPoint _OutPoint;
+		private OutPoint _OutPoint;
 		public OutPoint OutPoint
 		{
 			get
@@ -83,7 +126,7 @@ namespace NBitcoin
 				return _OutPoint;
 			}
 		}
-		private readonly TxOut _Out;
+		private TxOut _Out;
 		public TxOut TxOut
 		{
 			get
@@ -91,6 +134,16 @@ namespace NBitcoin
 				return _Out;
 			}
 		}
+
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref _OutPoint);
+			stream.ReadWrite(ref _Out);
+		}
+
+		#endregion
 	}
 	public class WalletEntry
 	{
@@ -144,45 +197,44 @@ namespace NBitcoin
 	}
 
 
-	public class WalletPools
+	public class WalletPools : IBitcoinSerializable
 	{
 		public WalletPools()
 		{
-			Confirmed = new WalletPool();
-			Available = new WalletPool();
-			Unconfirmed = new WalletPool();
+			_Confirmed = new WalletPool();
+			_Available = new WalletPool();
+			_Unconfirmed = new WalletPool();
 		}
 
+		private WalletPool _Unconfirmed;
 		public WalletPool Unconfirmed
 		{
-			get;
-			private set;
+			get
+			{
+				return _Unconfirmed;
+			}
 		}
-
+		private WalletPool _Available;
 		public WalletPool Available
 		{
-			get;
-			private set;
+			get
+			{
+				return _Available;
+			}
 		}
+		private WalletPool _Confirmed;
 		public WalletPool Confirmed
 		{
-			get;
-			private set;
+			get
+			{
+				return _Confirmed;
+			}
 		}
 
 		public void Reorganize(BlockChain chain)
 		{
 			NeutralizeUnconfirmed(chain, Confirmed);
 			NeutralizeUnconfirmed(chain, Available);
-
-
-			//var unconfirmed = Confirmed.GetInChain(chain, false);
-			//foreach(var unconf in unconfirmed)
-			//{
-			//	Confirmed.PushAccountEntry(unconf.Neutralize());
-			//	Unconfirmed.PushAccountEntry(unconf);
-			//}
-
 		}
 
 		private void NeutralizeUnconfirmed(BlockChain chain, WalletPool account)
@@ -235,8 +287,19 @@ namespace NBitcoin
 				Confirmed.PushEntry(entry);
 			}
 		}
+
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref _Unconfirmed);
+			stream.ReadWrite(ref _Available);
+			stream.ReadWrite(ref _Confirmed);
+		}
+
+		#endregion
 	}
-	public class WalletPool
+	public class WalletPool : IBitcoinSerializable
 	{
 		List<AccountEntry> _AccountEntries = new List<AccountEntry>();
 
@@ -380,16 +443,34 @@ namespace NBitcoin
 
 			return builder.ToString();
 		}
+
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			if(stream.Serializing)
+				stream.ReadWrite(ref _AccountEntries);
+			else
+			{
+				var entries = new List<AccountEntry>();
+				stream.ReadWrite(ref entries);
+				foreach(var e in entries)
+					PushAccountEntry(e);
+			}
+
+		}
+
+		#endregion
 	}
 
 	public delegate void WalletBalanceChangedDelegate(Wallet wallet, Transaction tx, Money oldBalance, Money newBalance);
-	public class Wallet
+	public class Wallet : IBitcoinSerializable
 	{
 		public event WalletBalanceChangedDelegate BalanceChanged;
 		public event WalletBalanceChangedDelegate CoinsReceived;
 		public event WalletBalanceChangedDelegate CoinsSent;
 
-		private readonly Network _Network;
+		private Network _Network;
 		public Network Network
 		{
 			get
@@ -397,7 +478,7 @@ namespace NBitcoin
 				return _Network;
 			}
 		}
-
+		byte _NetworkByte;
 
 		private Wallet()
 		{
@@ -405,8 +486,21 @@ namespace NBitcoin
 		}
 		public Wallet(Network network)
 		{
+			_NetworkByte = network == Network.Main ? (byte)0 :
+							network == Network.TestNet ? (byte)1 :
+							network == Network.RegTest ? (byte)2 : (byte)3;
+			InitNetwork();
 			this._Network = network;
 			this._Pools = new WalletPools();
+		}
+
+		private void InitNetwork()
+		{
+			_Network = _NetworkByte == 0 ? Network.Main :
+				_NetworkByte == 1 ? Network.TestNet :
+				_NetworkByte == 2 ? Network.RegTest : null;
+			if(_Network == null)
+				throw new FormatException("Incorrect network byte detected");
 		}
 
 
@@ -598,12 +692,27 @@ namespace NBitcoin
 
 		public void Save(Stream stream)
 		{
-			throw new NotImplementedException();
+			this.ReadWrite(stream, true);
 		}
 
 		public static Wallet Load(Stream stream)
 		{
-			throw new NotImplementedException();
+			Wallet w = new Wallet();
+			BitcoinStream bitStream = new BitcoinStream(stream, false);
+			bitStream.ReadWrite(ref w);
+			return w;
 		}
+
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref _NetworkByte);
+			InitNetwork();
+			stream.ReadWrite(ref _Keys);
+			stream.ReadWrite(ref _Pools);
+		}
+
+		#endregion
 	}
 }
