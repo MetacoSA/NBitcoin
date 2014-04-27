@@ -608,13 +608,14 @@ namespace NBitcoin
 			}
 		}
 
-		public bool CompleteTx(Transaction tx)
+		public bool CompleteTx(Transaction tx, WalletPool pool = null)
 		{
-			return CompleteTx(tx, Money.Zero);
+			return CompleteTx(tx, Money.Zero, pool);
 		}
-		public bool CompleteTx(Transaction tx, Money fees)
+		public bool CompleteTx(Transaction tx, Money fees, WalletPool pool = null)
 		{
-			var entries = Pools.Available.GetEntriesToCover(tx.TotalOut + fees);
+			pool = pool ?? Pools.Available;
+			var entries = pool.GetEntriesToCover(tx.TotalOut + fees);
 			if(entries == null)
 				return false;
 

@@ -82,11 +82,11 @@ namespace NBitcoin.Tests
 			return tx;
 		}
 
-		public Transaction Pay(Money money, BlockType? blockType)
+		public Transaction Pay(Money money, BlockType? blockType, bool fromConfirmedPool = false)
 		{
 			var tx = new Transaction();
 			tx.AddOutput(money, OtherKey.PubKey.GetAddress(TestNetwork));
-			Wallet.CompleteTx(tx);
+			Wallet.CompleteTx(tx, fromConfirmedPool ? Wallet.Pools.Confirmed : Wallet.Pools.Available);
 			return RecieveTransaction(tx, blockType);
 		}
 

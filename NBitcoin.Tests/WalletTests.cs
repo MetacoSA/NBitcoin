@@ -75,6 +75,29 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void WalletFinishInCorrectStateWhenDoubleSpending()
+		{
+			WalletTester tester = new WalletTester();
+
+			tester.GiveMoney("1.0", BlockType.Main);
+			tester.GiveMoney("0.5", BlockType.Main);
+			tester.AssertPools(null,
+				"+1.00+0.50",
+				"+1.00+0.50",
+				"+1.00+0.50");
+			var t1 = tester.Pay("0.5", null, true);
+			tester.AssertPools(null,
+				"+1.00+0.50",
+				"+1.00+0.50-0.50",
+				"+1.00+0.50-0.50");
+			var t2 = tester.Pay("1.5", BlockType.Main, true);
+			tester.AssertPools(null,
+				"+1.00+0.50-0.50-1.00",
+				"+1.00+0.50-0.50-1.00",
+				"+1.00+0.50-0.50-1.00");
+		}
+
+		[Fact]
 		public void CanChangeBlockChain()
 		{
 			WalletTester tester = new WalletTester();
