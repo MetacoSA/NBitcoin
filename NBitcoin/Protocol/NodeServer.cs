@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	public class ProtocolServer : IDisposable
+	public class NodeServer : IDisposable
 	{
 		private readonly Network _Network;
 		public Network Network
@@ -30,7 +30,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public ProtocolServer(Network network, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION,
+		public NodeServer(Network network, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION,
 			int internalPort = -1,
 			int externalPort = -1)
 		{

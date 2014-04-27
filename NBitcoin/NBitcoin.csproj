@@ -72,7 +72,7 @@
     <Compile Include="Protocol\Node.cs" />
     <Compile Include="Protocol\Payload.cs" />
     <Compile Include="Protocol\PayloadAttribute.cs" />
-    <Compile Include="Protocol\ProtocolServer.cs" />
+    <Compile Include="Protocol\NodeServer.cs" />
     <Compile Include="Protocol\ProtocolTrace.cs" />
     <Compile Include="Protocol\VerAckPayload.cs" />
     <Compile Include="Protocol\VersionPayload.cs" />

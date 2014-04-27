@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	
+
 	public interface MessageListener<T>
 	{
 		void PushMessage(T message);
@@ -85,10 +85,10 @@ namespace NBitcoin.Protocol
 				return _MessageQueue;
 			}
 		}
-		
-		public T RecieveMessage()
+
+		public T RecieveMessage(CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return MessageQueue.Take();
+			return MessageQueue.Take(cancellationToken);
 		}
 
 		#region MessageListener Members

@@ -91,7 +91,7 @@ namespace NBitcoin.Tests
 		[Trait("Online", "Online")]
 		public void CanGetMyIp()
 		{
-			var client = new ProtocolServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
+			var client = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(client.GetMyExternalIP() != null);
 		}
 
@@ -99,7 +99,7 @@ namespace NBitcoin.Tests
 		[Trait("Online", "Online")]
 		public void CanDoVersionHandshake()
 		{
-			using(var server = new ProtocolServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
+			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
 			{
 				//server.Listen();
 				var seed = server.GetNodeByHostName("seed.bitcoin.sipa.be");

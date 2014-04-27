@@ -85,12 +85,16 @@ namespace NBitcoin.Tests
 				"+1.00+0.50",
 				"+1.00+0.50",
 				"+1.00+0.50");
-			var t1 = tester.Pay("0.5", null, true);
+
+			//Only verified
+			tester.Pay("0.5", null, true);
 			tester.AssertPools(null,
 				"+1.00+0.50",
 				"+1.00+0.50-0.50",
 				"+1.00+0.50-0.50");
-			var t2 = tester.Pay("1.5", BlockType.Main, true);
+
+			//Double spending of the 0.5 coin, confirmed
+			tester.Pay("1.5", BlockType.Main, true);
 			tester.AssertPools(null,
 				"+1.00+0.50-0.50-1.00",
 				"+1.00+0.50-0.50-1.00",

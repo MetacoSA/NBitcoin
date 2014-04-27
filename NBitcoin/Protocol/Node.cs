@@ -55,8 +55,8 @@ namespace NBitcoin.Protocol
 
 
 		static Random _RandNonce = new Random();
-		private readonly ProtocolServer _RPCServer;
-		public ProtocolServer RPCServer
+		private readonly NodeServer _RPCServer;
+		public NodeServer RPCServer
 		{
 			get
 			{
@@ -152,7 +152,7 @@ namespace NBitcoin.Protocol
 
 
 
-		internal Node(NetworkAddress networkAddress, ProtocolServer rpcServer, NodeOrigin origin)
+		internal Node(NetworkAddress networkAddress, NodeServer rpcServer, NodeOrigin origin)
 		{
 			Version = rpcServer.Version;
 			_Origin = origin;
@@ -209,7 +209,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public void VersionHandshake()
+		public void VersionHandshake(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var listener = new PollMessageListener<IncomingMessage>();
 			using(MessageProducer.AddMessageListener(listener))
@@ -227,7 +227,7 @@ namespace NBitcoin.Protocol
 						AddressFrom = RPCServer.ExternalEndpoint
 					});
 
-					var version = listener.RecieveMessage().AssertPayload<VersionPayload>();
+					var version = listener.RecieveMessage(cancellationToken).AssertPayload<VersionPayload>();
 					Version = version.Version;
 					if(version.AddressReciever.Address != RPCServer.ExternalEndpoint.Address)
 					{
@@ -241,7 +241,7 @@ namespace NBitcoin.Protocol
 						return;
 					}
 					SendMessage(new VerAckPayload());
-					listener.RecieveMessage().AssertPayload<VerAckPayload>();
+					listener.RecieveMessage(cancellationToken).AssertPayload<VerAckPayload>();
 					State = NodeState.HandShaked;
 				}
 			}
