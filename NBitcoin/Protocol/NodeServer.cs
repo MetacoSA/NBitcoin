@@ -249,6 +249,7 @@ namespace NBitcoin.Protocol
 			return GetNodeByEndpoint(endpoint);
 		}
 
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		Dictionary<IPEndPoint, Node> _Nodes = new Dictionary<IPEndPoint, Node>();
 		private Node GetNodeByEndpoint(IPEndPoint endpoint)
 		{
@@ -279,21 +280,46 @@ namespace NBitcoin.Protocol
 				Node result = null;
 				if(_Nodes.TryGetValue(peer.NetworkAddress.Endpoint, out result))
 					return result;
-				return AddNode(peer);
 			}
+			return AddNode(peer);
+
 		}
 
 		private Node AddNode(Peer peer)
 		{
-			var node = new Node(peer, this);
-			node.MessageProducer.AddMessageListener(_MessageListener);
+			try
+			{
+				var node = new Node(peer, this);
+				return AddNode(node);
+			}
+			catch(Exception)
+			{
+				return null;
+			}
+		}
+
+		private Node AddNode(Node node)
+		{
 			lock(_Nodes)
 			{
+				if(node.State < NodeState.Connected)
+					return null;
+				node.MessageProducer.AddMessageListener(_MessageListener);
 				_Nodes.Add(node.Peer.NetworkAddress.Endpoint, node);
 			}
 			return node;
 		}
 
+		internal void RemoveNode(Node node)
+		{
+			lock(_Nodes)
+			{
+				if(_Nodes.Remove(node.Peer.NetworkAddress.Endpoint))
+				{
+					node.MessageProducer.RemoveMessageListener(_MessageListener);
+				}
+			}
+		}
 		void ProcessMessage(IncomingMessage message)
 		{
 			TraceCorrelation trace = null;
@@ -341,8 +367,11 @@ namespace NBitcoin.Protocol
 					Endpoint = remoteEndpoint,
 					Time = DateTimeOffset.UtcNow
 				}), this, message.Socket);
+				_PeerTable.UpdatePeer(node.Peer);
+				AddNode(node);
 			}
 		}
+
 
 		#region IDisposable Members
 
@@ -352,6 +381,12 @@ namespace NBitcoin.Protocol
 			if(!isDisposed)
 			{
 				_MessageListener.Dispose();
+				lock(_Nodes)
+				{
+					var tasks = _Nodes.Values.ToArray().Select(n => Task.Factory.StartNew(() => n.Disconnect())).ToArray();
+
+					Task.WaitAll(tasks);
+				}
 				isDisposed = true;
 			}
 		}
@@ -397,15 +432,23 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+
+		public int CountPeerRequired()
+		{
+			return Math.Max(0, 990 - PeerTable.CountUsed(true));
+		}
+
 		public void DiscoverNodes()
 		{
 			TraceCorrelation traceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Discovering nodes");
+			List<Task> tasks = new List<Task>();
 			using(traceCorrelation.Open())
 			{
-				int simultaneous = 10;
-				int countUsed = 0;
-				while((countUsed = PeerTable.CountUsed(true)) != 1000)
+				int simultaneous = 20;
+				while(CountPeerRequired() != 0)
 				{
+					NodeServerTrace.PeerTableRemainingPeerToGet(CountPeerRequired());
+					CancellationTokenSource cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(40));
 					var peers = PeerTable.GetActivePeers(simultaneous);
 					if(peers.Length == 0)
 					{
@@ -414,34 +457,52 @@ namespace NBitcoin.Protocol
 						peers = PeerTable.GetActivePeers(simultaneous);
 					}
 
-					CancellationTokenSource cancellation = new CancellationTokenSource();
-					cancellation.CancelAfter(TimeSpan.FromSeconds(40));
-					var tasks = peers
-						.Select(p => Task.Run(() =>
+
+					tasks.AddRange(peers
+						.Select(p => Task.Factory.StartNew(() =>
 						{
-							var node = GetNodeByPeer(p);
-							node.VersionHandshake(cancellation.Token);
+							var n = GetNodeByPeer(p);
+							if(n == null)
+								return;
+							try
+							{
+								if(n.State < NodeState.HandShaked)
+									n.VersionHandshake(cancellation.Token);
+								n.SendMessage(new GetAddrPayload());
+								while(!cancellation.IsCancellationRequested)
+								{
+									n.RecieveMessage<AddrPayload>(cancellation.Token);
+								}
+							}
+							finally
+							{
+								n.Disconnect();
+							}
+						}, cancellation.Token)).ToArray());
 
-							node.SendMessage(new GetAddrPayload());
-						}, cancellation.Token)).ToArray();
-
-					try
+					while(CountPeerRequired() != 0)
 					{
-						Task.WaitAll(tasks);
+						if(cancellation.IsCancellationRequested)
+							break;
+						Thread.Sleep(2000);
+						NodeServerTrace.PeerTableRemainingPeerToGet(CountPeerRequired());
 					}
-					catch(AggregateException ex)
-					{
-					}
+					if(!cancellation.IsCancellationRequested)
+						cancellation.Cancel();
+				}
+				NodeServerTrace.Trace.TraceInformation("Peer table is now full");
+				try
+				{
+					Task.WaitAll(tasks.ToArray());
+				}
+				catch(AggregateException ex)
+				{
+					if(!ex.InnerExceptions.All(i => i is OperationCanceledException))
+						throw;
 				}
 			}
 		}
 
-		internal void RemoveNode(Node node)
-		{
-			lock(_Nodes)
-			{
-				_Nodes.Remove(node.Peer.NetworkAddress.Endpoint);
-			}
-		}
+
 	}
 }

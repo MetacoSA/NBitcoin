@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -41,6 +42,7 @@ namespace NBitcoin.Protocol
 	}
 	public class PeerTable
 	{
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		Peer[] _Peers = new Peer[1000];
 		public Peer[] GetActivePeers(int maxCount)
 		{

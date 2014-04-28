@@ -16,16 +16,6 @@ namespace NBitcoin.Tests
 	public class ProtocolTests
 	{
 		[Fact]
-		public void CanRead1000Addresses()
-		{
-			var message = new Message();
-			message.FromBytes(Encoders.Hex.DecodeData(File.ReadAllText("Data/1000Addresses.txt")));
-			Assert.True(message.Payload is AddrPayload);
-			Assert.True(((AddrPayload)message.Payload).Addresses.Length == 1000);
-		}
-
-
-		[Fact]
 		//Copied from https://en.bitcoin.it/wiki/Protocol_specification (19/04/2014)
 		public void CanParseMessages()
 		{
@@ -115,14 +105,10 @@ namespace NBitcoin.Tests
 			{
 				//server.Listen();
 				var seed = server.GetNodeByHostName("seed.bitcoin.sipa.be");
-				Assert.True(seed.State == NodeState.Offline);
-				seed.EnsureConnected();
 				Assert.True(seed.State == NodeState.Connected);
 				seed.VersionHandshake();
 				Assert.True(seed.State == NodeState.HandShaked);
-				var t = seed.DisconnectAsync();
-				Assert.True(seed.State == NodeState.Disconnecting);
-				t.Wait();
+				seed.Disconnect();
 				Assert.True(seed.State == NodeState.Offline);
 			}
 		}
@@ -133,7 +119,9 @@ namespace NBitcoin.Tests
 		{
 			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
 			{
+				Assert.True(server.CountPeerRequired() > 500);
 				server.DiscoverNodes();
+				Assert.True(server.CountPeerRequired() < 10);
 			}
 		}
 	}

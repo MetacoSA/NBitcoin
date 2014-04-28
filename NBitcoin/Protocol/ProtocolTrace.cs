@@ -53,5 +53,10 @@ namespace NBitcoin.Protocol
 		{
 			Warning(msg, null);
 		}
+
+		internal static void PeerTableRemainingPeerToGet(int count)
+		{
+			_Trace.TraceInformation("Remaining peer to get : " + count);
+		}
 	}
 }

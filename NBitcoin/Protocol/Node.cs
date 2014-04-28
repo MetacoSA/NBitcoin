@@ -21,9 +21,124 @@ namespace NBitcoin.Protocol
 		HandShaked
 	}
 
+
+
 	public class Node
 	{
-		private NodeState _State = NodeState.Offline;
+		public class NodeConnection
+		{
+			private readonly Node _Node;
+			public Node Node
+			{
+				get
+				{
+					return _Node;
+				}
+			}
+			private readonly Socket _Socket;
+			public Socket Socket
+			{
+				get
+				{
+					if(_IsDisposed)
+					{
+						throw new InvalidOperationException("Connection disposed");
+					}
+					return _Socket;
+				}
+			}
+			private readonly ManualResetEvent _Disconnected;
+			public ManualResetEvent Disconnected
+			{
+				get
+				{
+					return _Disconnected;
+				}
+			}
+			private readonly CancellationTokenSource _Cancel;
+			public CancellationTokenSource Cancel
+			{
+				get
+				{
+					return _Cancel;
+				}
+			}
+			public TraceCorrelation TraceCorrelation
+			{
+				get
+				{
+					return Node.TraceCorrelation;
+				}
+			}
+
+			public NodeConnection(Node node, Socket socket)
+			{
+				_Node = node;
+				_Socket = socket;
+				_Disconnected = new ManualResetEvent(false);
+				_Cancel = new CancellationTokenSource();
+			}
+
+
+			bool _IsDisposed;
+			public void Dispose()
+			{
+				if(!_IsDisposed)
+				{
+					Utils.SafeCloseSocket(Socket);
+					_IsDisposed = true;
+				}
+			}
+
+
+
+			public void BeginListen()
+			{
+				new Thread(() =>
+				{
+					using(TraceCorrelation.Open(false))
+					{
+						NodeServerTrace.Information("Listening");
+						try
+						{
+							while(!Cancel.Token.IsCancellationRequested)
+							{
+								var message = Message.ReadNext(Socket, Node.NodeServer.Network, Node.Version, Cancel.Token);
+								NodeServerTrace.Information("Message recieved " + message);
+
+								Node.LastSeen = DateTimeOffset.UtcNow;
+								Node.MessageProducer.PushMessage(new IncomingMessage()
+								{
+									Message = message,
+									Socket = Socket,
+									Node = Node
+								});
+							}
+						}
+						catch(OperationCanceledException)
+						{
+						}
+						catch(Exception ex)
+						{
+							if(Node.State != NodeState.Disconnecting)
+							{
+								Node.State = NodeState.Failed;
+								NodeServerTrace.Error("Connection to server stopped unexpectedly", ex);
+							}
+						}
+						NodeServerTrace.Information("Stop listening");
+						if(Node.State != NodeState.Failed)
+							Node.State = NodeState.Offline;
+						Dispose();
+						_Disconnected.Set();
+					}
+				}).Start();
+			}
+
+		}
+
+
+		volatile NodeState _State = NodeState.Offline;
 		public NodeState State
 		{
 			get
@@ -52,89 +167,8 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		volatile Socket _Socket;
-		public Socket EnsureConnected()
-		{
-			if(_Socket == null || !_Socket.Connected)
-			{
-				if(_Socket != null)
-				{
-					_Socket.Dispose();
-					_Socket = null;
-				}
-				_Socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-				using(TraceCorrelation.Open())
-				{
 
-					try
-					{
-						_Socket.Connect(Peer.NetworkAddress.Endpoint);
-						State = NodeState.Connected;
-						_Connected = new CancellationTokenSource();
-						NodeServerTrace.Information("Outbound connection successfull");
-					}
-					catch(Exception ex)
-					{
-						State = NodeState.Failed;
-						NodeServerTrace.Error("Error connecting to the remote endpoint ", ex);
-						throw;
-					}
-					BeginListen();
-				}
-			}
-			return _Socket;
-		}
-
-
-		private void BeginListen()
-		{
-			if(_Socket == null)
-				throw new InvalidOperationException("Socket should not be null at this point");
-			var socket = _Socket;
-			Task.Run(() =>
-			{
-				using(TraceCorrelation.Open(false))
-				{
-					NodeServerTrace.Information("Listening");
-					try
-					{
-						while(!_Connected.IsCancellationRequested)
-						{
-							var message = Message.ReadNext(socket, NodeServer.Network, Version, _Connected.Token);
-							NodeServerTrace.Information("Message recieved " + message);
-
-							LastSeen = DateTimeOffset.UtcNow;
-							MessageProducer.PushMessage(new IncomingMessage()
-							{
-								Message = message,
-								Socket = socket,
-								Node = this
-							});
-						}
-
-					}
-					catch(OperationCanceledException)
-					{
-					}
-					catch(Exception ex)
-					{
-						if(State != NodeState.Disconnecting)
-						{
-							State = NodeState.Failed;
-							NodeServerTrace.Error("Connection to server stopped unexpectedly", ex);
-						}
-					}
-					NodeServerTrace.Information("Stop listening");
-					if(State != NodeState.Failed)
-						State = NodeState.Offline;
-					Utils.SafeCloseSocket(socket);
-					socket = null;
-					if(_Disconnected != null)
-						_Disconnected.Set();
-				}
-			});
-		}
-
+		readonly NodeConnection _Connection;
 
 
 
@@ -145,13 +179,32 @@ namespace NBitcoin.Protocol
 			_NodeServer = rpcServer;
 			_Peer = peer;
 			LastSeen = peer.NetworkAddress.Time;
+
+			var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+			using(TraceCorrelation.Open())
+			{
+				try
+				{
+					socket.Connect(Peer.NetworkAddress.Endpoint);
+					State = NodeState.Connected;
+					NodeServerTrace.Information("Outbound connection successfull");
+				}
+				catch(Exception ex)
+				{
+					State = NodeState.Failed;
+					NodeServerTrace.Error("Error connecting to the remote endpoint ", ex);
+					throw;
+				}
+				_Connection = new NodeConnection(this, socket);
+				_Connection.BeginListen();
+			}
 		}
 		internal Node(Peer peer, NodeServer rpcServer, Socket socket)
 			: this(peer, rpcServer)
 		{
-			_Socket = socket;
+			_Connection = new NodeConnection(this, socket);
 			TraceCorrelation.LogInside(() => NodeServerTrace.Information("Connected to advertised node " + _Peer.NetworkAddress.Endpoint));
-			BeginListen();
+			_Connection.BeginListen();
 		}
 
 		private readonly Peer _Peer;
@@ -184,12 +237,11 @@ namespace NBitcoin.Protocol
 		}
 		public void SendMessage(Payload payload)
 		{
-			var socket = EnsureConnected();
 			var message = new Message();
 			message.Magic = NodeServer.Network.Magic;
 			message.UpdatePayload(payload, Version);
 			TraceCorrelation.LogInside(() => NodeServerTrace.Information("Sending message " + message));
-			socket.Send(message.ToBytes());
+			_Connection.Socket.Send(message.ToBytes());
 		}
 
 		public ProtocolVersion Version
@@ -207,41 +259,48 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		public TPayload RecieveMessage<TPayload>(CancellationToken cancellationToken) where TPayload : Payload
+		{
+			var listener = new PollMessageListener<IncomingMessage>();
+			using(MessageProducer.AddMessageListener(listener))
+			{
+				while(true)
+				{
+					var message = listener.RecieveMessage(cancellationToken);
+					if(message.Message.Payload is TPayload)
+						return (TPayload)message.Message.Payload;
+				}
+			}
+			throw new InvalidProgramException("Bug in Node.RecieveMessage");
+		}
+
 		VersionPayload _FullVersion;
 		public void VersionHandshake(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var listener = new PollMessageListener<IncomingMessage>();
 			using(MessageProducer.AddMessageListener(listener))
 			{
-				try
+				using(TraceCorrelation.Open())
 				{
-					using(TraceCorrelation.Open())
-					{
-						SendMessage(NodeServer.CreateVersionPayload(Peer));
+					SendMessage(NodeServer.CreateVersionPayload(Peer));
 
-						var version = listener.RecieveMessage(cancellationToken).AssertPayload<VersionPayload>();
-						_FullVersion = version;
-						Version = version.Version;
-						if(version.AddressReciever.Address != NodeServer.ExternalEndpoint.Address)
-						{
-							NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReciever + " instead of " + NodeServer.ExternalEndpoint);
-						}
-						NodeServer.ExternalAddressDetected(version.AddressReciever.Address);
-						if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
-						{
-							NodeServerTrace.Warning("Outdated version " + version.Version);
-							IsOutdated = true;
-							return;
-						}
-						SendMessage(new VerAckPayload());
-						listener.RecieveMessage(cancellationToken).AssertPayload<VerAckPayload>();
-						State = NodeState.HandShaked;
+					var version = listener.RecieveMessage(cancellationToken).AssertPayload<VersionPayload>();
+					_FullVersion = version;
+					Version = version.Version;
+					if(version.AddressReciever.Address != NodeServer.ExternalEndpoint.Address)
+					{
+						NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReciever + " instead of " + NodeServer.ExternalEndpoint);
 					}
-				}
-				catch(OperationCanceledException)
-				{
-					if(IsConnected)
-						DisconnectAsync();
+					NodeServer.ExternalAddressDetected(version.AddressReciever.Address);
+					if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
+					{
+						NodeServerTrace.Warning("Outdated version " + version.Version);
+						IsOutdated = true;
+						return;
+					}
+					SendMessage(new VerAckPayload());
+					listener.RecieveMessage(cancellationToken).AssertPayload<VerAckPayload>();
+					State = NodeState.HandShaked;
 				}
 			}
 		}
@@ -250,8 +309,6 @@ namespace NBitcoin.Protocol
 
 
 
-		CancellationTokenSource _Connected;
-		ManualResetEvent _Disconnected;
 
 		public bool IsOutdated
 		{
@@ -259,31 +316,22 @@ namespace NBitcoin.Protocol
 			private set;
 		}
 
-		public Task DisconnectAsync()
+		public void Disconnect()
 		{
-			lock(this)
+			if(State < NodeState.Connected)
 			{
-				if(!IsConnected)
-					throw new InvalidOperationException("Node already disconnected");
-				using(TraceCorrelation.Open())
-				{
-					NodeServerTrace.Information("Disconnection request");
-					var disconnected = new ManualResetEvent(false);
-					_Disconnected = disconnected;
-					State = NodeState.Disconnecting;
-					_Connected.Cancel();
-					return Task.Run(() => disconnected.WaitOne());
-				}
+				_Connection.Disconnected.WaitOne();
+				return;
+			}
+			using(TraceCorrelation.Open())
+			{
+				NodeServerTrace.Information("Disconnection request");
+				State = NodeState.Disconnecting;
+				_Connection.Cancel.Cancel();
+				_Connection.Disconnected.WaitOne();
 			}
 		}
 
-		public bool IsConnected
-		{
-			get
-			{
-				return State >= NodeState.Connected;
-			}
-		}
 
 		public override string ToString()
 		{
