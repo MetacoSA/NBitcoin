@@ -8,11 +8,22 @@ using NBitcoin;
 using NBitcoin.Protocol;
 using System.Net;
 using System.Threading;
+using System.IO;
+using NBitcoin.DataEncoders;
 
 namespace NBitcoin.Tests
 {
 	public class ProtocolTests
 	{
+		[Fact]
+		public void CanRead1000Addresses()
+		{
+			var message = new Message();
+			message.FromBytes(Encoders.Hex.DecodeData(File.ReadAllText("Data/1000Addresses.txt")));
+			Assert.True(message.Payload is AddrPayload);
+			Assert.True(((AddrPayload)message.Payload).Addresses.Length == 1000);
+		}
+
 
 		[Fact]
 		//Copied from https://en.bitcoin.it/wiki/Protocol_specification (19/04/2014)
@@ -84,6 +95,7 @@ namespace NBitcoin.Tests
 				message = new Message();
 				message.FromBytes(bytes, test.Version);
 				test.Test(message.Payload);
+				Assert.Equal(test.Message, Encoders.Hex.EncodeData(message.ToBytes(test.Version)));
 			}
 		}
 
@@ -112,6 +124,16 @@ namespace NBitcoin.Tests
 				Assert.True(seed.State == NodeState.Disconnecting);
 				t.Wait();
 				Assert.True(seed.State == NodeState.Offline);
+			}
+		}
+
+		[Fact]
+		[Trait("Online", "Online")]
+		public void CanDiscoverNodes()
+		{
+			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
+			{
+				server.DiscoverNodes();
 			}
 		}
 	}

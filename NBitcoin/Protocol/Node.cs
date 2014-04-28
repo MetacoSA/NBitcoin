@@ -21,13 +21,6 @@ namespace NBitcoin.Protocol
 		HandShaked
 	}
 
-	public enum NodeOrigin
-	{
-		DNSSeed,
-		HardSeed,
-		Addr,
-		Manually
-	}
 	public class Node
 	{
 		private NodeState _State = NodeState.Offline;
@@ -39,35 +32,24 @@ namespace NBitcoin.Protocol
 			}
 			private set
 			{
-				TraceCorrelation.LogInside(()=>ProtocolTrace.Information("State changed from " + _State + " to " + value));
+				TraceCorrelation.LogInside(() => NodeServerTrace.Information("State changed from " + _State + " to " + value));
 				_State = value;
+				if(value == NodeState.Failed)
+					NodeServer.PeerTable.RemovePeer(Peer);
+				if(value == NodeState.Failed || value == NodeState.Offline || value == NodeState.Disconnecting)
+				{
+					NodeServer.RemoveNode(this);
+				}
 			}
 		}
 
-		private readonly NodeOrigin _Origin;
-		public NodeOrigin Origin
+		private readonly NodeServer _NodeServer;
+		public NodeServer NodeServer
 		{
 			get
 			{
-				return _Origin;
+				return _NodeServer;
 			}
-		}
-
-
-		static Random _RandNonce = new Random();
-		private readonly NodeServer _RPCServer;
-		public NodeServer RPCServer
-		{
-			get
-			{
-				return _RPCServer;
-			}
-		}
-
-		public IPEndPoint Endpoint
-		{
-			get;
-			private set;
 		}
 
 		volatile Socket _Socket;
@@ -86,15 +68,15 @@ namespace NBitcoin.Protocol
 
 					try
 					{
-						_Socket.Connect(Endpoint);
+						_Socket.Connect(Peer.NetworkAddress.Endpoint);
 						State = NodeState.Connected;
 						_Connected = new CancellationTokenSource();
-						ProtocolTrace.Information("Outbound connection successfull");
+						NodeServerTrace.Information("Outbound connection successfull");
 					}
 					catch(Exception ex)
 					{
 						State = NodeState.Failed;
-						ProtocolTrace.Error("Error connecting to the remote endpoint ", ex);
+						NodeServerTrace.Error("Error connecting to the remote endpoint ", ex);
 						throw;
 					}
 					BeginListen();
@@ -106,18 +88,22 @@ namespace NBitcoin.Protocol
 
 		private void BeginListen()
 		{
+			if(_Socket == null)
+				throw new InvalidOperationException("Socket should not be null at this point");
 			var socket = _Socket;
 			Task.Run(() =>
 			{
-				using(TraceCorrelation.Open())
+				using(TraceCorrelation.Open(false))
 				{
-					ProtocolTrace.Information("Listening");
+					NodeServerTrace.Information("Listening");
 					try
 					{
 						while(!_Connected.IsCancellationRequested)
 						{
-							var message = Message.ReadNext(socket, RPCServer.Network, Version, _Connected.Token);
-							ProtocolTrace.Information("Message recieved " + message);
+							var message = Message.ReadNext(socket, NodeServer.Network, Version, _Connected.Token);
+							NodeServerTrace.Information("Message recieved " + message);
+
+							LastSeen = DateTimeOffset.UtcNow;
 							MessageProducer.PushMessage(new IncomingMessage()
 							{
 								Message = message,
@@ -135,15 +121,16 @@ namespace NBitcoin.Protocol
 						if(State != NodeState.Disconnecting)
 						{
 							State = NodeState.Failed;
-							ProtocolTrace.Error("Connection to server stopped unexpectedly", ex);
+							NodeServerTrace.Error("Connection to server stopped unexpectedly", ex);
 						}
 					}
-					ProtocolTrace.Information("Stop listening");
+					NodeServerTrace.Information("Stop listening");
 					if(State != NodeState.Failed)
 						State = NodeState.Offline;
 					Utils.SafeCloseSocket(socket);
 					socket = null;
-					_Disconnected.Set();
+					if(_Disconnected != null)
+						_Disconnected.Set();
 				}
 			});
 		}
@@ -152,13 +139,28 @@ namespace NBitcoin.Protocol
 
 
 
-		internal Node(NetworkAddress networkAddress, NodeServer rpcServer, NodeOrigin origin)
+		internal Node(Peer peer, NodeServer rpcServer)
 		{
 			Version = rpcServer.Version;
-			_Origin = origin;
-			_RPCServer = rpcServer;
-			LastSeen = networkAddress.Time;
-			Endpoint = networkAddress.Endpoint;
+			_NodeServer = rpcServer;
+			_Peer = peer;
+			LastSeen = peer.NetworkAddress.Time;
+		}
+		internal Node(Peer peer, NodeServer rpcServer, Socket socket)
+			: this(peer, rpcServer)
+		{
+			_Socket = socket;
+			TraceCorrelation.LogInside(() => NodeServerTrace.Information("Connected to advertised node " + _Peer.NetworkAddress.Endpoint));
+			BeginListen();
+		}
+
+		private readonly Peer _Peer;
+		public Peer Peer
+		{
+			get
+			{
+				return _Peer;
+			}
 		}
 
 		public DateTimeOffset LastSeen
@@ -169,17 +171,13 @@ namespace NBitcoin.Protocol
 
 		TraceCorrelation _TraceCorrelation = null;
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		TraceCorrelation TraceCorrelation
+		public TraceCorrelation TraceCorrelation
 		{
 			get
 			{
 				if(_TraceCorrelation == null)
 				{
-					_TraceCorrelation = new TraceCorrelation();
-
-					TraceCorrelation.LogInside(() =>
-						ProtocolTrace.Trace.TraceEvent(TraceEventType.Start, 0, "Communication with " + Endpoint.ToString()));
-
+					_TraceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Communication with " + Peer.NetworkAddress.Endpoint.ToString());
 				}
 				return _TraceCorrelation;
 			}
@@ -188,9 +186,9 @@ namespace NBitcoin.Protocol
 		{
 			var socket = EnsureConnected();
 			var message = new Message();
-			message.Magic = RPCServer.Network.Magic;
+			message.Magic = NodeServer.Network.Magic;
 			message.UpdatePayload(payload, Version);
-			TraceCorrelation.LogInside(() => ProtocolTrace.Information("Sending message " + message));
+			TraceCorrelation.LogInside(() => NodeServerTrace.Information("Sending message " + message));
 			socket.Send(message.ToBytes());
 		}
 
@@ -209,61 +207,48 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		VersionPayload _FullVersion;
 		public void VersionHandshake(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var listener = new PollMessageListener<IncomingMessage>();
 			using(MessageProducer.AddMessageListener(listener))
 			{
-				using(TraceCorrelation.Open())
+				try
 				{
-					SendMessage(new VersionPayload()
+					using(TraceCorrelation.Open())
 					{
-						Nonce = GetNonce(),
-						UserAgent = GetUserAgent(),
-						Version = RPCServer.Version,
-						StartHeight = 0,
-						Timestamp = DateTimeOffset.UtcNow,
-						AddressReciever = Endpoint,
-						AddressFrom = RPCServer.ExternalEndpoint
-					});
+						SendMessage(NodeServer.CreateVersionPayload(Peer));
 
-					var version = listener.RecieveMessage(cancellationToken).AssertPayload<VersionPayload>();
-					Version = version.Version;
-					if(version.AddressReciever.Address != RPCServer.ExternalEndpoint.Address)
-					{
-						ProtocolTrace.Warning("Different external address detected by the node " + version.AddressReciever + " instead of " + RPCServer.ExternalEndpoint);
+						var version = listener.RecieveMessage(cancellationToken).AssertPayload<VersionPayload>();
+						_FullVersion = version;
+						Version = version.Version;
+						if(version.AddressReciever.Address != NodeServer.ExternalEndpoint.Address)
+						{
+							NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReciever + " instead of " + NodeServer.ExternalEndpoint);
+						}
+						NodeServer.ExternalAddressDetected(version.AddressReciever.Address);
+						if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
+						{
+							NodeServerTrace.Warning("Outdated version " + version.Version);
+							IsOutdated = true;
+							return;
+						}
+						SendMessage(new VerAckPayload());
+						listener.RecieveMessage(cancellationToken).AssertPayload<VerAckPayload>();
+						State = NodeState.HandShaked;
 					}
-					RPCServer.ExternalAddressDetected(version.AddressReciever.Address);
-					if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
-					{
-						ProtocolTrace.Warning("Outdated version " + version.Version);
-						IsOutdated = true;
-						return;
-					}
-					SendMessage(new VerAckPayload());
-					listener.RecieveMessage(cancellationToken).AssertPayload<VerAckPayload>();
-					State = NodeState.HandShaked;
+				}
+				catch(OperationCanceledException)
+				{
+					if(IsConnected)
+						DisconnectAsync();
 				}
 			}
 		}
 
 
 
-		private string GetUserAgent()
-		{
-			var version = this.GetType().Assembly.GetName().Version;
-			return "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Minor + "/";
-		}
 
-		private ulong GetNonce()
-		{
-			lock(_RandNonce)
-			{
-				var bytes = new byte[8];
-				_RandNonce.NextBytes(bytes);
-				return BitConverter.ToUInt64(bytes, 0);
-			}
-		}
 
 		CancellationTokenSource _Connected;
 		ManualResetEvent _Disconnected;
@@ -282,7 +267,7 @@ namespace NBitcoin.Protocol
 					throw new InvalidOperationException("Node already disconnected");
 				using(TraceCorrelation.Open())
 				{
-					ProtocolTrace.Information("Disconnection request");
+					NodeServerTrace.Information("Disconnection request");
 					var disconnected = new ManualResetEvent(false);
 					_Disconnected = disconnected;
 					State = NodeState.Disconnecting;
@@ -298,6 +283,11 @@ namespace NBitcoin.Protocol
 			{
 				return State >= NodeState.Connected;
 			}
+		}
+
+		public override string ToString()
+		{
+			return State + " (" + Peer.NetworkAddress.Endpoint + ") " + Peer.Origin;
 		}
 	}
 }

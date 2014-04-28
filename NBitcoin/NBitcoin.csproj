@@ -58,8 +58,8 @@
     <Compile Include="IpExtensions.cs" />
     <Compile Include="ExtKey.cs" />
     <Compile Include="ExtPubKey.cs" />
+    <Compile Include="Protocol\GetAddrPayload.cs" />
     <Compile Include="Protocol\IncomingMessage.cs" />
-    <Compile Include="Protocol\NodeRepository.cs" />
     <Compile Include="Protocol\IMessageProducer.cs" />
     <Compile Include="Protocol\MessageListener.cs" />
     <Compile Include="Network.cs" />
@@ -73,6 +73,7 @@
     <Compile Include="Protocol\Payload.cs" />
     <Compile Include="Protocol\PayloadAttribute.cs" />
     <Compile Include="Protocol\NodeServer.cs" />
+    <Compile Include="Protocol\PeerTable.cs" />
     <Compile Include="Protocol\ProtocolTrace.cs" />
     <Compile Include="Protocol\VerAckPayload.cs" />
     <Compile Include="Protocol\VersionPayload.cs" />

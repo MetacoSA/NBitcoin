@@ -33,7 +33,7 @@ namespace NBitcoin.Protocol
 							}
 							catch(Exception ex)
 							{
-								ProtocolTrace.Error("Unexpected expected during message loop", ex);
+								NodeServerTrace.Error("Unexpected expected during message loop", ex);
 							}
 						}
 					}

@@ -18,6 +18,15 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		public AddrPayload()
+		{
+
+		}
+		public AddrPayload(NetworkAddress[] addresses)
+		{
+			addr_list = addresses;
+		}
+
 		#region IBitcoinSerializable Members
 
 		public override void ReadWrite(BitcoinStream stream)

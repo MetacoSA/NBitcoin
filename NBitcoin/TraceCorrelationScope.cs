@@ -24,10 +24,20 @@ namespace NBitcoin
 			}
 		}
 
-		public TraceCorrelationScope(Guid activity)
+		bool _Transfered;
+
+		TraceSource _Source;
+		public TraceCorrelationScope(Guid activity, TraceSource source, bool traceTransfer)
 		{
 			this.old = Trace.CorrelationManager.ActivityId;
 			this.activity = activity;
+
+			_Transfered = old != activity && traceTransfer;
+			if(_Transfered)
+			{
+				_Source = source;
+				_Source.TraceTransfer(0, "transfer", activity);
+			}
 			Trace.CorrelationManager.ActivityId = activity;
 		}
 
@@ -36,6 +46,10 @@ namespace NBitcoin
 
 		public void Dispose()
 		{
+			if(_Transfered)
+			{
+				_Source.TraceTransfer(0, "transfer", old);
+			}
 			Trace.CorrelationManager.ActivityId = old;
 		}
 
@@ -43,9 +57,22 @@ namespace NBitcoin
 	}
 	public class TraceCorrelation
 	{
-		
-		Guid activity;
 
+		TraceSource _Source;
+		string _ActivityName;
+		public TraceCorrelation(TraceSource source, string activityName)
+			: this(Guid.NewGuid(), source, activityName)
+		{
+
+		}
+		public TraceCorrelation(Guid activity, TraceSource source, string activityName)
+		{
+			_Source = source;
+			_ActivityName = activityName;
+			this.activity = activity;
+		}
+
+		Guid activity;
 		public Guid Activity
 		{
 			get
@@ -58,9 +85,16 @@ namespace NBitcoin
 			}
 		}
 
-		public TraceCorrelationScope Open()
+		bool _First = true;
+		public TraceCorrelationScope Open(bool traceTransfer = true)
 		{
-			return new TraceCorrelationScope(activity);
+			var scope = new TraceCorrelationScope(activity, _Source, traceTransfer);
+			if(_First)
+			{
+				_First = false;
+				_Source.TraceEvent(TraceEventType.Start, 0, _ActivityName);
+			}
+			return scope;
 		}
 
 		public void LogInside(Action act)
@@ -71,13 +105,16 @@ namespace NBitcoin
 			}
 		}
 
-		public TraceCorrelation():this(Guid.NewGuid())
-		{
 
-		}
-		public TraceCorrelation(Guid activity)
+
+
+
+
+
+
+		public override string ToString()
 		{
-			this.activity = activity;
+			return _ActivityName;
 		}
 	}
 }

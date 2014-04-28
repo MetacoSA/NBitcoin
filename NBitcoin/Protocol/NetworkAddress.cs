@@ -10,7 +10,7 @@ namespace NBitcoin.Protocol
 	public class NetworkAddress : IBitcoinSerializable
 	{
 		uint time;
-		ulong service;
+		ulong service = 1;
 		byte[] ip = new byte[16];
 		ushort port;
 

@@ -2,6 +2,7 @@
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -82,7 +83,7 @@ namespace NBitcoin.Protocol
 		public void ReadWrite(BitcoinStream stream)
 		{
 			bool verifyChechksum = false;
-			if(!_SkipMagic)
+			if(stream.Serializing || (!stream.Serializing && !_SkipMagic))
 				stream.ReadWrite(ref magic);
 			stream.ReadWrite(ref command);
 			stream.ReadWrite(ref length);
@@ -97,13 +98,22 @@ namespace NBitcoin.Protocol
 			}
 			else
 			{
+				NodeServerTrace.Trace.TraceEvent(TraceEventType.Verbose, 0, "Message type readen : " + Command);
+				if(length > 0x02000000) //MAX_SIZE 0x02000000 Serialize.h
+				{
+					throw new FormatException("Message payload too big ( > 0x02000000 bytes)");
+				}
 				payload = new byte[length];
 				stream.ReadWrite(ref payload);
 
 				if(verifyChechksum)
 				{
-					if(VerifyChecksum())
+					if(!VerifyChecksum())
+					{
+						NodeServerTrace.Trace.TraceEvent(TraceEventType.Verbose, 0, "Invalid message checksum bytes : "
+															+ Encoders.Hex.EncodeData(this.ToBytes()));
 						throw new FormatException("Message checksum invalid");
+					}
 				}
 
 				BitcoinStream payloadStream = new BitcoinStream(payload);
@@ -118,7 +128,7 @@ namespace NBitcoin.Protocol
 
 		public bool VerifyChecksum()
 		{
-			return Checksum != Hashes.Hash256(payload).GetLow32();
+			return Checksum == Hashes.Hash256(payload).GetLow32();
 		}
 
 		public void UpdatePayload(Payload payload, ProtocolVersion version)
@@ -136,7 +146,7 @@ namespace NBitcoin.Protocol
 		/// <summary>
 		/// When parsing, maybe Magic is already parsed
 		/// </summary>
-		public bool _SkipMagic;
+		bool _SkipMagic;
 
 		public override string ToString()
 		{
@@ -164,11 +174,19 @@ namespace NBitcoin.Protocol
 				socket.ReceiveTimeout = old;
 			}
 			Message message = new Message();
-			message._SkipMagic = true;
-			message.Magic = network.Magic;
-			message.ReadWrite(bitStream);
-			message._SkipMagic = false;
+			using(message.SkipMagicScope(true))
+			{
+				message.Magic = network.Magic;
+				NodeServerTrace.Trace.TraceEvent(TraceEventType.Verbose, 0, "Message recieved");
+				message.ReadWrite(bitStream);
+			}
 			return message;
+		}
+
+		private IDisposable SkipMagicScope(bool value)
+		{
+			var old = _SkipMagic;
+			return new Scope(() => _SkipMagic = value, () => _SkipMagic = old);
 		}
 
 		private static void ReadMagic(Socket socket, byte[] magicBytes, CancellationToken cancellation)
@@ -176,13 +194,14 @@ namespace NBitcoin.Protocol
 			byte[] bytes = new byte[1];
 			for(int i = 0 ; i < magicBytes.Length ; i++)
 			{
+				i = Math.Max(0, i);
 				cancellation.ThrowIfCancellationRequested();
 				try
 				{
 					var read = socket.Receive(bytes);
 					if(read != 1)
 						i--;
-					if(magicBytes[i] != bytes[0])
+					else if(magicBytes[i] != bytes[0])
 						i = -1;
 				}
 				catch(SocketException ex)

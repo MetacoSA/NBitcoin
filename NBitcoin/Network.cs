@@ -34,7 +34,7 @@ namespace NBitcoin
 			this.host = host;
 		}
 
-		IPAddress[] _Addresses;
+		IPAddress[] _Addresses = null;
 		public IPAddress[] GetAddressNodes()
 		{
 			if(_Addresses != null)
@@ -168,7 +168,6 @@ namespace NBitcoin
 			}
 		}
 
-		private string strDataDir;
 		private uint256 hashGenesisBlock;
 
 		private int nDefaultPort;
@@ -201,14 +200,14 @@ namespace NBitcoin
 		{
 			InitTest();
 			magic = 0xDAB5BFFA;
-			nSubsidyHalvingInterval = 150;
+			//nSubsidyHalvingInterval = 150;
 			bnProofOfWorkLimit = new BigInteger((~new uint256(0) >> 1).ToBytes());
 			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1296688602);
 			genesis.Header.Bits = 0x207fffff;
 			genesis.Header.Nonce = 2;
 			hashGenesisBlock = genesis.GetHash();
 			nDefaultPort = 18444;
-			strDataDir = "regtest";
+			//strDataDir = "regtest";
 			assert(hashGenesisBlock == new uint256("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
 
 			vSeeds.Clear();  // Regtest mode doesn't have any DNS seeds.
@@ -217,7 +216,7 @@ namespace NBitcoin
 
 		static Network _Main;
 		private BigInteger bnProofOfWorkLimit;
-		private int nSubsidyHalvingInterval;
+		//private int nSubsidyHalvingInterval;
 		private string name;
 		public static Network Main
 		{
@@ -244,7 +243,7 @@ namespace NBitcoin
 			nDefaultPort = 8333;
 			nRPCPort = 8332;
 			bnProofOfWorkLimit = new BigInteger((~new uint256(0) >> 32).ToBytes());
-			nSubsidyHalvingInterval = 210000;
+			//nSubsidyHalvingInterval = 210000;
 
 			// Build the genesis block. Note that the output of the genesis coinbase cannot
 			// be spent as it did not originally exist in the database.
@@ -327,7 +326,7 @@ namespace NBitcoin
 			vAlertPubKey = DataEncoders.Encoders.Hex.DecodeData("04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a");
 			nDefaultPort = 18333;
 			nRPCPort = 18332;
-			strDataDir = "testnet3";
+			//strDataDir = "testnet3";
 
 			// Modify the testnet genesis block so the timestamp is valid for a later start.
 			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1296688602);
