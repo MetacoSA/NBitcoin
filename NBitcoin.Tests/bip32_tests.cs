@@ -109,9 +109,6 @@ namespace NBitcoin.Tests
 				Assert.Equal(74, data.Length);
 				// Test private key
 				BitcoinExtKey b58key = Network.Main.CreateBitcoinExtKey(key);
-
-				var kExpected = Network.Main.CreateBitcoinExtKey(derive.prv).Key;
-
 				Assert.True(b58key.ToString() == derive.prv);
 				// Test public key
 				BitcoinExtPubKey b58pubkey = Network.Main.CreateBitcoinExtPubKey(pubkey);
