@@ -14,8 +14,8 @@ namespace NBitcoin.Protocol
 
 		static PayloadAttribute()
 		{
-			_NameToType = new Dictionary<string,Type>();
-			_TypeToName = new Dictionary<Type,string>();
+			_NameToType = new Dictionary<string, Type>();
+			_TypeToName = new Dictionary<Type, string>();
 			foreach(var pair in typeof(PayloadAttribute).Assembly
 				.GetTypes()
 				.Where(t => t.Namespace == typeof(PayloadAttribute).Namespace)
@@ -40,7 +40,7 @@ namespace NBitcoin.Protocol
 		{
 			Type result;
 			if(!_NameToType.TryGetValue(commandName, out result))
-				throw new ArgumentException(commandName + " is not a valid command");
+				return typeof(UnknowPayload);
 			return result;
 		}
 		public PayloadAttribute(string commandName)

@@ -120,6 +120,8 @@ namespace NBitcoin.Protocol
 				payloadStream.CopyParameters(stream);
 
 				var payloadType = PayloadAttribute.GetCommandType(Command);
+				if(payloadType == typeof(UnknowPayload))
+					NodeServerTrace.Trace.TraceEvent(TraceEventType.Warning, 0, "Unknown command received : " + Command);
 				payloadStream.ReadWrite(payloadType, ref _PayloadObject);
 			}
 		}

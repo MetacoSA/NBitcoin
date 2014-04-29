@@ -75,6 +75,7 @@
     <Compile Include="Protocol\NodeServer.cs" />
     <Compile Include="Protocol\PeerTable.cs" />
     <Compile Include="Protocol\ProtocolTrace.cs" />
+    <Compile Include="Protocol\UnknowPayload.cs" />
     <Compile Include="Protocol\VerAckPayload.cs" />
     <Compile Include="Protocol\VersionPayload.cs" />
     <Compile Include="Target.cs" />
