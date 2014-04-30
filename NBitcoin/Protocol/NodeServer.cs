@@ -387,43 +387,62 @@ namespace NBitcoin.Protocol
 					message.Node.SendMessage(new AddrPayload(existingPeers));
 				}
 			}
-			if(message.Node == null && message.Message.Payload is VersionPayload)
+
+			if(message.Message.Payload is VersionPayload)
 			{
 				var version = message.AssertPayload<VersionPayload>();
-
-				var remoteEndpoint = version.AddressFrom;
-				if(!remoteEndpoint.Address.IsRoutable(AllowLocalPeers))
+				var connectedToSelf = version.Nonce == Nonce;
+				if(message.Node != null && connectedToSelf)
 				{
-					//Send his own endpoint
-					remoteEndpoint = new IPEndPoint(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
+					NodeServerTrace.ConnectionToSelfDetected();
+					message.Node.Disconnect();
+					return;
 				}
+				if(message.Node == null)
+				{
+					var remoteEndpoint = version.AddressFrom;
+					if(!remoteEndpoint.Address.IsRoutable(AllowLocalPeers))
+					{
+						//Send his own endpoint
+						remoteEndpoint = new IPEndPoint(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
+					}
 
-				var node = new Node(new Peer(PeerOrigin.Advertised, new NetworkAddress()
-				{
-					Endpoint = remoteEndpoint,
-					Time = DateTimeOffset.UtcNow
-				}), this, message.Socket, version);
+					var node = new Node(new Peer(PeerOrigin.Advertised, new NetworkAddress()
+					{
+						Endpoint = remoteEndpoint,
+						Time = DateTimeOffset.UtcNow
+					}), this, message.Socket, version);
 
-				CancellationTokenSource cancel = new CancellationTokenSource();
-				cancel.CancelAfter(TimeSpan.FromSeconds(10.0));
-				try
-				{
-					node.RespondToHandShake(cancel.Token);
-					_PeerTable.UpdatePeer(node.Peer);
-					AddNode(node);
-				}
-				catch(OperationCanceledException ex)
-				{
-					NodeServerTrace.Error("The remote node did not respond fast enough (10 seconds) to the handshake completion, dropping connection", ex);
-					node.Disconnect();
-					throw;
-				}
-				catch(Exception)
-				{
-					node.Disconnect();
-					throw;
+					if(connectedToSelf)
+					{
+						NodeServerTrace.ConnectionToSelfDetected();
+						node.Disconnect();
+						return;
+					}
+
+					CancellationTokenSource cancel = new CancellationTokenSource();
+					cancel.CancelAfter(TimeSpan.FromSeconds(10.0));
+					try
+					{
+						node.RespondToHandShake(cancel.Token);
+						_PeerTable.UpdatePeer(node.Peer);
+						AddNode(node);
+					}
+					catch(OperationCanceledException ex)
+					{
+						NodeServerTrace.Error("The remote node did not respond fast enough (10 seconds) to the handshake completion, dropping connection", ex);
+						node.Disconnect();
+						throw;
+					}
+					catch(Exception)
+					{
+						node.Disconnect();
+						throw;
+					}
 				}
 			}
+
+
 		}
 
 
@@ -456,7 +475,7 @@ namespace NBitcoin.Protocol
 		{
 			return new VersionPayload()
 					{
-						Nonce = GetNonce(),
+						Nonce = Nonce,
 						UserAgent = UserAgent,
 						Version = Version,
 						StartHeight = 0,
@@ -481,13 +500,25 @@ namespace NBitcoin.Protocol
 		}
 
 		static Random _RandNonce = new Random();
-		private ulong GetNonce()
+		ulong _Nonce;
+		public ulong Nonce
 		{
-			lock(_RandNonce)
+			get
 			{
-				var bytes = new byte[8];
-				_RandNonce.NextBytes(bytes);
-				return BitConverter.ToUInt64(bytes, 0);
+				if(_Nonce == 0)
+				{
+					lock(_RandNonce)
+					{
+						var bytes = new byte[8];
+						_RandNonce.NextBytes(bytes);
+						_Nonce = BitConverter.ToUInt64(bytes, 0);
+					}
+				}
+				return _Nonce;
+			}
+			set
+			{
+				_Nonce = value;
 			}
 		}
 

@@ -191,5 +191,19 @@ namespace NBitcoin.Tests
 				Assert.Equal(ping.Nonce, pong.Nonce);
 			}
 		}
+
+		[Fact]
+		public void CantConnectToYourself()
+		{
+			CancellationTokenSource cancel = new CancellationTokenSource();
+			using(var tester = new NodeServerTester())
+			{
+				cancel.CancelAfter(5000);
+				Assert.Throws(typeof(OperationCanceledException), () =>
+				{
+					tester.Server1.GetNodeByEndpoint(tester.Server1.ExternalEndpoint).VersionHandshake(cancel.Token);
+				});
+			}
+		}
 	}
 }

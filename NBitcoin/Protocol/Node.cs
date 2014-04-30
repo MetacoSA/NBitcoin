@@ -318,6 +318,12 @@ namespace NBitcoin.Protocol
 					var version = listener.RecieveMessage(cancellationToken).AssertPayload<VersionPayload>();
 					_FullVersion = version;
 					Version = version.Version;
+					if(version.Nonce == NodeServer.Nonce)
+					{
+						NodeServerTrace.ConnectionToSelfDetected();
+						Disconnect();
+						throw new InvalidOperationException("Impossible to connect to self");
+					}
 					if(!version.AddressReciever.Address.Equals(NodeServer.ExternalEndpoint.Address))
 					{
 						NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReciever + " instead of " + NodeServer.ExternalEndpoint);

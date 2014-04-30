@@ -58,5 +58,10 @@ namespace NBitcoin.Protocol
 		{
 			_Trace.TraceInformation("Remaining peer to get : " + count);
 		}
+
+		internal static void ConnectionToSelfDetected()
+		{
+			Warning("Connection to self detected");
+		}
 	}
 }
