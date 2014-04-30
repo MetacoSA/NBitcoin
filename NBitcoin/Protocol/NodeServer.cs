@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mono.Nat;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -41,9 +42,57 @@ namespace NBitcoin.Protocol
 			_MessageListener = new EventLoopMessageListener<IncomingMessage>(ProcessMessage);
 			_MessageProducer.AddMessageListener(_MessageListener);
 
-			listenerTrace = new TraceCorrelation(NodeServerTrace.Trace, "Node server listening on " + LocalEndpoint);
+			_Trace = new TraceCorrelation(NodeServerTrace.Trace, "Node server listening on " + LocalEndpoint);
 		}
 
+
+		int[] bitcoinPorts;
+		int[] BitcoinPorts
+		{
+			get
+			{
+				if(bitcoinPorts == null)
+				{
+					bitcoinPorts = Enumerable.Range(Network.DefaultPort, 10).ToArray();
+				}
+				return bitcoinPorts;
+			}
+		}
+
+		TimeSpan _PortLeasePeriod = TimeSpan.FromMinutes(10.0);
+		/// <summary>
+		/// When using DetectExternalEndpoint, UPNP will open ports on the gateway for a fixed amount of time before renewing
+		/// </summary>
+		public TimeSpan PortLeasePeriod
+		{
+			get
+			{
+				return _PortLeasePeriod;
+			}
+			set
+			{
+				_PortLeasePeriod = value;
+			}
+		}
+
+		UPnPLease _UPnPLease;
+		public UPnPLease DetectExternalEndpoint(CancellationToken cancellation = default(CancellationToken))
+		{
+			if(_UPnPLease != null)
+			{
+				_UPnPLease.Dispose();
+				_UPnPLease = null;
+			}
+			var lease = new UPnPLease(BitcoinPorts, LocalEndpoint.Port);
+			lease.LeasePeriod = PortLeasePeriod;
+			if(lease.DetectExternalEndpoint(cancellation))
+			{
+				_UPnPLease = lease;
+				return lease;
+			}
+			else
+				return null;
+		}
 		public bool AllowLocalPeers
 		{
 			get
@@ -106,14 +155,14 @@ namespace NBitcoin.Protocol
 		}
 
 		Socket socket;
-		TraceCorrelation listenerTrace;
+		TraceCorrelation _Trace;
 
 
 		public void Listen()
 		{
 			if(socket != null)
 				throw new InvalidOperationException("Already listening");
-			using(listenerTrace.Open())
+			using(_Trace.Open())
 			{
 				try
 				{
@@ -140,7 +189,7 @@ namespace NBitcoin.Protocol
 		}
 		private void EndAccept(IAsyncResult ar)
 		{
-			using(listenerTrace.Open())
+			using(_Trace.Open())
 			{
 				Socket client = null;
 				try
@@ -427,7 +476,7 @@ namespace NBitcoin.Protocol
 						node.Disconnect();
 						return;
 					}
-					
+
 					CancellationTokenSource cancel = new CancellationTokenSource();
 					cancel.CancelAfter(TimeSpan.FromSeconds(10.0));
 					try
@@ -470,17 +519,28 @@ namespace NBitcoin.Protocol
 			if(!isDisposed)
 			{
 				isDisposed = true;
+
 				_MessageListener.Dispose();
 				Task[] tasks = null;
 				lock(_Nodes)
 				{
 					tasks = _Nodes.Values.ToArray().Select(n => Task.Factory.StartNew(() => n.Disconnect())).ToArray();
 				}
-				Task.WaitAll(tasks);
-				if(socket != null)
+				try
 				{
-					Utils.SafeCloseSocket(socket);
-					socket = null;
+					Task.WaitAll(tasks);
+				}
+				finally
+				{
+					if(_UPnPLease != null)
+					{
+						_UPnPLease.Dispose();
+					}
+					if(socket != null)
+					{
+						Utils.SafeCloseSocket(socket);
+						socket = null;
+					}
 				}
 			}
 		}
@@ -610,5 +670,7 @@ namespace NBitcoin.Protocol
 		}
 
 
+
+	
 	}
 }

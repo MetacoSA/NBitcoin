@@ -33,6 +33,9 @@
     <Reference Include="BouncyCastle.Crypto">
       <HintPath>..\packages\BouncyCastle.1.7.0\lib\Net40-Client\BouncyCastle.Crypto.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Nat">
+      <HintPath>..\packages\Mono.Nat.1.2.7.0\lib\net40\Mono.Nat.dll</HintPath>
+    </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
@@ -81,6 +84,7 @@
     <Compile Include="Protocol\PongPayload.cs" />
     <Compile Include="Protocol\ProtocolTrace.cs" />
     <Compile Include="Protocol\UnknowPayload.cs" />
+    <Compile Include="Protocol\UPnPLease.cs" />
     <Compile Include="Protocol\VerAckPayload.cs" />
     <Compile Include="Protocol\VersionPayload.cs" />
     <Compile Include="Target.cs" />

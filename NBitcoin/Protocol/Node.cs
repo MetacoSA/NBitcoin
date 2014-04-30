@@ -331,8 +331,8 @@ namespace NBitcoin.Protocol
 					NodeServer.ExternalAddressDetected(version.AddressReciever.Address);
 					if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
 					{
-						NodeServerTrace.Warning("Outdated version " + version.Version);
-						IsOutdated = true;
+						NodeServerTrace.Warning("Outdated version " + version.Version + " disconnecting");
+						Disconnect();
 						return;
 					}
 					SendMessage(new VerAckPayload());
@@ -357,14 +357,6 @@ namespace NBitcoin.Protocol
 					_State = NodeState.HandShaked;
 				}
 			}
-		}
-
-
-
-		public bool IsOutdated
-		{
-			get;
-			private set;
 		}
 
 		public void Disconnect()

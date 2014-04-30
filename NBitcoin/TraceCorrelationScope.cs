@@ -85,7 +85,7 @@ namespace NBitcoin
 			}
 		}
 
-		bool _First = true;
+		volatile bool _First = true;
 		public TraceCorrelationScope Open(bool traceTransfer = true)
 		{
 			var scope = new TraceCorrelationScope(activity, _Source, traceTransfer);

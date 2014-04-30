@@ -207,5 +207,21 @@ namespace NBitcoin.Tests
 				});
 			}
 		}
+
+
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanUseUPNP()
+		{
+			UPnPLease lease = null;
+			//UPnPLease.ReleaseAll(); run this line in case the UPNP ports on the gateway get polluted too much
+			using(var server = new NodeServer(Network.Main))
+			{
+				lease = server.DetectExternalEndpoint();
+				Assert.NotNull(lease);
+				Assert.True(lease.IsOpen());
+			}
+			Assert.False(lease.IsOpen());
+		}
 	}
 }
