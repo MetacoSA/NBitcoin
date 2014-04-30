@@ -131,7 +131,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("Online", "Online")]
+		[Trait("Network", "Network")]
 		public void CanGetMyIp()
 		{
 			var client = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
@@ -139,7 +139,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("Online", "Online")]
+		[Trait("Network", "Network")]
 		public void CanHandshake()
 		{
 			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
@@ -155,7 +155,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("Online", "Online")]
+		[Trait("Network", "Network")]
 		public void CanDiscoverNodes()
 		{
 			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
@@ -167,7 +167,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("Server", "Server")]
+		[Trait("NodeServer", "NodeServer")]
 		public void CanReceiveHandshake()
 		{
 			using(var tester = new NodeServerTester())
@@ -180,7 +180,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("Server", "Server")]
+		[Trait("NodeServer", "NodeServer")]
 		public void CanRespondToPong()
 		{
 			using(var tester = new NodeServerTester())
@@ -195,7 +195,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("Server", "Server")]
+		[Trait("NodeServer", "NodeServer")]
 		public void CantConnectToYourself()
 		{
 			using(var tester = new NodeServerTester())
