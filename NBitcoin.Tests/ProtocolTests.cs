@@ -10,9 +10,50 @@ using System.Net;
 using System.Threading;
 using System.IO;
 using NBitcoin.DataEncoders;
+using System.Net.Sockets;
 
 namespace NBitcoin.Tests
 {
+	public class NodeServerTester : IDisposable
+	{
+		public NodeServerTester()
+		{
+			_Server1 = new NodeServer(Network.Main, internalPort: 3390);
+			_Server1.AllowLocalPeers = true;
+			_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), 3390);
+			_Server1.Listen();
+			_Server2 = new NodeServer(Network.Main, internalPort: 3391);
+			_Server2.AllowLocalPeers = true;
+			_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), 3391);
+			_Server2.Listen();
+		}
+
+		private readonly NodeServer _Server1;
+		public NodeServer Server1
+		{
+			get
+			{
+				return _Server1;
+			}
+		}
+		private readonly NodeServer _Server2;
+		public NodeServer Server2
+		{
+			get
+			{
+				return _Server2;
+			}
+		}
+		#region IDisposable Members
+
+		public void Dispose()
+		{
+			_Server1.Dispose();
+			_Server2.Dispose();
+		}
+
+		#endregion
+	}
 	public class ProtocolTests
 	{
 		[Fact]
@@ -99,7 +140,7 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Online", "Online")]
-		public void CanDoVersionHandshake()
+		public void CanHandshake()
 		{
 			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
 			{
@@ -122,6 +163,32 @@ namespace NBitcoin.Tests
 				Assert.True(server.CountPeerRequired() > 500);
 				server.DiscoverNodes();
 				Assert.True(server.CountPeerRequired() < 10);
+			}
+		}
+
+		[Fact]
+		public void CanReceiveHandshake()
+		{
+			using(var tester = new NodeServerTester())
+			{
+				var toS2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
+				toS2.VersionHandshake();
+				Assert.Equal(NodeState.HandShaked, toS2.State);
+				Assert.Equal(NodeState.HandShaked, tester.Server2.GetNodeByEndpoint(tester.Server1.ExternalEndpoint).State);
+			}
+		}
+
+		[Fact]
+		public void CanRespondToPong()
+		{
+			using(var tester = new NodeServerTester())
+			{
+				var toS2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
+				toS2.VersionHandshake();
+				var ping = new PingPayload();
+				toS2.SendMessage(ping);
+				var pong = toS2.RecieveMessage<PongPayload>(TimeSpan.FromSeconds(10.0));
+				Assert.Equal(ping.Nonce, pong.Nonce);
 			}
 		}
 	}

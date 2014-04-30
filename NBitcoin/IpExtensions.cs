@@ -117,9 +117,15 @@ namespace NBitcoin
 
 
 
-		public static bool IsRoutable(this IPAddress address)
+		public static bool IsRoutable(this IPAddress address, bool allowLocal)
 		{
-			return address.IsValid() && !(address.IsRFC1918() || address.IsRFC3927() || address.IsRFC4862() || (address.IsRFC4193() && !address.IsTor()) || address.IsRFC4843() || address.IsLocal());
+			return address.IsValid() && !(
+											(!allowLocal && address.IsRFC1918()) ||
+											address.IsRFC3927() ||
+											address.IsRFC4862() ||
+											(address.IsRFC4193() && !address.IsTor()) ||
+											address.IsRFC4843() || (!allowLocal && address.IsLocal())
+											);
 		}
 		public static bool IsValid(this IPAddress address)
 		{

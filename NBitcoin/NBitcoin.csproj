@@ -38,6 +38,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.92.0\lib\net45\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -74,6 +77,8 @@
     <Compile Include="Protocol\PayloadAttribute.cs" />
     <Compile Include="Protocol\NodeServer.cs" />
     <Compile Include="Protocol\PeerTable.cs" />
+    <Compile Include="Protocol\PingPayload.cs" />
+    <Compile Include="Protocol\PongPayload.cs" />
     <Compile Include="Protocol\ProtocolTrace.cs" />
     <Compile Include="Protocol\UnknowPayload.cs" />
     <Compile Include="Protocol\VerAckPayload.cs" />
@@ -135,6 +140,14 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="x64\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="x86\SQLite.Interop.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

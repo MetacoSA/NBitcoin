@@ -79,6 +79,7 @@ namespace NBitcoin.Protocol
 				_Cancel = new CancellationTokenSource();
 			}
 
+			EventLoopMessageListener<IncomingMessage> _PingListener;
 
 			bool _IsDisposed;
 			public void Dispose()
@@ -86,11 +87,24 @@ namespace NBitcoin.Protocol
 				if(!_IsDisposed)
 				{
 					Utils.SafeCloseSocket(Socket);
+					if(_PingListener != null)
+					{
+						Node.MessageProducer.RemoveMessageListener(_PingListener);
+						_PingListener.Dispose();
+						_PingListener = null;
+					}
 					_IsDisposed = true;
 				}
 			}
 
-
+			void MessageReceived(IncomingMessage message)
+			{
+				var ping = message.Message.Payload as PingPayload;
+				if(ping != null)
+				{
+					message.Node.SendMessage(ping.CreatePong());
+				}
+			}
 
 			public void BeginListen()
 			{
@@ -99,6 +113,8 @@ namespace NBitcoin.Protocol
 					using(TraceCorrelation.Open(false))
 					{
 						NodeServerTrace.Information("Listening");
+						_PingListener = new EventLoopMessageListener<IncomingMessage>(MessageReceived);
+						Node.MessageProducer.AddMessageListener(_PingListener);
 						try
 						{
 							while(!Cancel.Token.IsCancellationRequested)
@@ -173,10 +189,10 @@ namespace NBitcoin.Protocol
 
 
 
-		internal Node(Peer peer, NodeServer rpcServer)
+		internal Node(Peer peer, NodeServer nodeServer)
 		{
-			Version = rpcServer.Version;
-			_NodeServer = rpcServer;
+			Version = nodeServer.Version;
+			_NodeServer = nodeServer;
 			_Peer = peer;
 			LastSeen = peer.NetworkAddress.Time;
 
@@ -199,11 +215,19 @@ namespace NBitcoin.Protocol
 				_Connection.BeginListen();
 			}
 		}
-		internal Node(Peer peer, NodeServer rpcServer, Socket socket)
-			: this(peer, rpcServer)
+		internal Node(Peer peer, NodeServer nodeServer, Socket socket, VersionPayload version)
 		{
+			_Peer = peer;
+			_NodeServer = nodeServer;
 			_Connection = new NodeConnection(this, socket);
-			TraceCorrelation.LogInside(() => NodeServerTrace.Information("Connected to advertised node " + _Peer.NetworkAddress.Endpoint));
+			Version = version.Version;
+			_FullVersion = version;
+			LastSeen = peer.NetworkAddress.Time;
+			TraceCorrelation.LogInside(() =>
+			{
+				NodeServerTrace.Information("Connected to advertised node " + _Peer.NetworkAddress.Endpoint);
+				State = NodeState.Connected;
+			});
 			_Connection.BeginListen();
 		}
 
@@ -259,7 +283,14 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public TPayload RecieveMessage<TPayload>(CancellationToken cancellationToken) where TPayload : Payload
+		public TPayload RecieveMessage<TPayload>(TimeSpan timeout) where TPayload : Payload
+		{
+			var source = new CancellationTokenSource();
+			source.CancelAfter(timeout);
+			return RecieveMessage<TPayload>(source.Token);
+		}
+
+		public TPayload RecieveMessage<TPayload>(CancellationToken cancellationToken = default(CancellationToken)) where TPayload : Payload
 		{
 			var listener = new PollMessageListener<IncomingMessage>();
 			using(MessageProducer.AddMessageListener(listener))
@@ -287,7 +318,7 @@ namespace NBitcoin.Protocol
 					var version = listener.RecieveMessage(cancellationToken).AssertPayload<VersionPayload>();
 					_FullVersion = version;
 					Version = version.Version;
-					if(version.AddressReciever.Address != NodeServer.ExternalEndpoint.Address)
+					if(!version.AddressReciever.Address.Equals(NodeServer.ExternalEndpoint.Address))
 					{
 						NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReciever + " instead of " + NodeServer.ExternalEndpoint);
 					}
@@ -306,7 +337,21 @@ namespace NBitcoin.Protocol
 		}
 
 
-
+		public void RespondToHandShake(CancellationToken cancellation = default(CancellationToken))
+		{
+			using(TraceCorrelation.Open())
+			{
+				var listener = new PollMessageListener<IncomingMessage>();
+				using(MessageProducer.AddMessageListener(listener))
+				{
+					NodeServerTrace.Information("Responding to handshake");
+					SendMessage(NodeServer.CreateVersionPayload(Peer));
+					listener.RecieveMessage().AssertPayload<VerAckPayload>();
+					SendMessage(new VerAckPayload());
+					_State = NodeState.HandShaked;
+				}
+			}
+		}
 
 
 
@@ -337,5 +382,7 @@ namespace NBitcoin.Protocol
 		{
 			return State + " (" + Peer.NetworkAddress.Endpoint + ") " + Peer.Origin;
 		}
+
+
 	}
 }

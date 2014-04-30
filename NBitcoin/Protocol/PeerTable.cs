@@ -42,6 +42,11 @@ namespace NBitcoin.Protocol
 	}
 	public class PeerTable
 	{
+		public bool AllowLocalPeers
+		{
+			get;
+			set;
+		}
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		Peer[] _Peers = new Peer[1000];
 		public Peer[] GetActivePeers(int maxCount)
@@ -79,7 +84,7 @@ namespace NBitcoin.Protocol
 
 		private Peer UpdatePeerCore(Peer peer)
 		{
-			if(!peer.NetworkAddress.Endpoint.Address.IsRoutable())
+			if(!peer.NetworkAddress.Endpoint.Address.IsRoutable(AllowLocalPeers))
 				return peer;
 			var index = GetIndex(p => p != null &&
 									  p.NetworkAddress.Endpoint.Equals(peer.NetworkAddress.Endpoint));

@@ -31,14 +31,12 @@ namespace NBitcoin.Protocol
 		}
 
 		public NodeServer(Network network, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION,
-			int internalPort = -1,
-			int externalPort = -1)
+			int internalPort = -1)
 		{
 			internalPort = internalPort == -1 ? network.DefaultPort : internalPort;
-			externalPort = externalPort == -1 ? internalPort : externalPort;
 			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), internalPort);
-			_ExternalEndpoint = new IPEndPoint(_LocalEndpoint.Address, externalPort);
 			_Network = network;
+			_ExternalEndpoint = new IPEndPoint(_LocalEndpoint.Address, Network.DefaultPort);
 			_Version = version;
 			_MessageListener = new EventLoopMessageListener<IncomingMessage>(ProcessMessage);
 			_MessageProducer.AddMessageListener(_MessageListener);
@@ -46,10 +44,19 @@ namespace NBitcoin.Protocol
 			listenerTrace = new TraceCorrelation(NodeServerTrace.Trace, "Node server listening on " + LocalEndpoint);
 		}
 
+		public bool AllowLocalPeers
+		{
+			get
+			{
+				return PeerTable.AllowLocalPeers;
+			}
+			set
+			{
+				PeerTable.AllowLocalPeers = value;
+			}
+		}
+
 		private readonly EventLoopMessageListener<IncomingMessage> _MessageListener;
-
-
-
 
 		private void PopulateTableWithHardNodes()
 		{
@@ -135,23 +142,42 @@ namespace NBitcoin.Protocol
 		{
 			using(listenerTrace.Open())
 			{
+				Socket client = null;
 				try
 				{
-					var client = socket.EndAccept(ar);
+					client = socket.EndAccept(ar);
 					if(isDisposed)
 						return;
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
-					//Trace.CorrelationManager.ActivityId
-					//RPCTrace.Information("New client connected");
+					var cancel = new CancellationTokenSource();
+					cancel.CancelAfter(TimeSpan.FromSeconds(10));
+					var message = Message.ReadNext(client, Network, Version, cancel.Token);
+					_MessageProducer.PushMessage(new IncomingMessage()
+					{
+						Socket = client,
+						Message = message,
+						Node = null,
+					});
+				}
+				catch(OperationCanceledException ex)
+				{
+					NodeServerTrace.Error("The remote connecting failed to send a message within 10 seconds, dropping connection", ex);
 				}
 				catch(Exception ex)
 				{
 					if(isDisposed)
 						return;
-					NodeServerTrace.Error("Error while accepting connection ", ex);
-					Thread.Sleep(3000);
-					BeginAccept();
+					if(client == null)
+					{
+						NodeServerTrace.Error("Error while accepting connection ", ex);
+						Thread.Sleep(3000);
+					}
+					else
+					{
+						NodeServerTrace.Error("Invalid message received from the remote connecting node", ex);
+					}
 				}
+				BeginAccept();
 			}
 		}
 
@@ -212,6 +238,10 @@ namespace NBitcoin.Protocol
 			{
 				return _ExternalEndpoint;
 			}
+			set
+			{
+				_ExternalEndpoint = value;
+			}
 		}
 
 		bool trustedExternal = false;
@@ -233,10 +263,13 @@ namespace NBitcoin.Protocol
 
 		internal void ExternalAddressDetected(IPAddress iPAddress)
 		{
-			if(!ExternalEndpoint.Address.IsRoutable())
+			if(!ExternalEndpoint.Address.IsRoutable(AllowLocalPeers))
 			{
-				NodeServerTrace.Information("New externalAddress detected " + iPAddress);
-				_ExternalEndpoint = new IPEndPoint(iPAddress, ExternalEndpoint.Port);
+				if(!iPAddress.Equals(_ExternalEndpoint.Address))
+				{
+					NodeServerTrace.Information("New externalAddress detected " + iPAddress);
+					_ExternalEndpoint = new IPEndPoint(iPAddress, ExternalEndpoint.Port);
+				}
 			}
 		}
 
@@ -251,7 +284,7 @@ namespace NBitcoin.Protocol
 
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		Dictionary<IPEndPoint, Node> _Nodes = new Dictionary<IPEndPoint, Node>();
-		private Node GetNodeByEndpoint(IPEndPoint endpoint)
+		public Node GetNodeByEndpoint(IPEndPoint endpoint)
 		{
 			lock(_Nodes)
 			{
@@ -329,7 +362,7 @@ namespace NBitcoin.Protocol
 			}
 			else
 			{
-				trace = new TraceCorrelation(NodeServerTrace.Trace, "Processing inbound message" + message.Message);
+				trace = new TraceCorrelation(NodeServerTrace.Trace, "Processing inbound message " + message.Message);
 			}
 			using(trace.Open(false))
 			{
@@ -340,23 +373,26 @@ namespace NBitcoin.Protocol
 		private void ProcessMessageCore(IncomingMessage message)
 		{
 			bool isAdvertised = message.Node != null && message.Node.State == NodeState.HandShaked;
-			if(isAdvertised && message.Message.Payload is AddrPayload)
+			if(isAdvertised)
 			{
-				PeerTable.UpdatePeers(message.AssertPayload<AddrPayload>().Addresses.Select(a => new Peer(PeerOrigin.Addr, a)));
-			}
-			if(isAdvertised && message.Message.Payload is GetAddrPayload)
-			{
-				var existingPeers = PeerTable.GetActivePeers(1000)
-						 .Where(p => p.Origin != PeerOrigin.DNSSeed && p.Origin != PeerOrigin.HardSeed)
-						 .Select(p => p.NetworkAddress).ToArray();
-				message.Node.SendMessage(new AddrPayload(existingPeers));
+				if(message.Message.Payload is AddrPayload)
+				{
+					PeerTable.UpdatePeers(message.AssertPayload<AddrPayload>().Addresses.Select(a => new Peer(PeerOrigin.Addr, a)));
+				}
+				if(message.Message.Payload is GetAddrPayload)
+				{
+					var existingPeers = PeerTable.GetActivePeers(1000)
+							 .Where(p => p.Origin != PeerOrigin.DNSSeed && p.Origin != PeerOrigin.HardSeed)
+							 .Select(p => p.NetworkAddress).ToArray();
+					message.Node.SendMessage(new AddrPayload(existingPeers));
+				}
 			}
 			if(message.Node == null && message.Message.Payload is VersionPayload)
 			{
 				var version = message.AssertPayload<VersionPayload>();
 
 				var remoteEndpoint = version.AddressFrom;
-				if(!remoteEndpoint.Address.IsRoutable())
+				if(!remoteEndpoint.Address.IsRoutable(AllowLocalPeers))
 				{
 					//Send his own endpoint
 					remoteEndpoint = new IPEndPoint(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
@@ -366,9 +402,27 @@ namespace NBitcoin.Protocol
 				{
 					Endpoint = remoteEndpoint,
 					Time = DateTimeOffset.UtcNow
-				}), this, message.Socket);
-				_PeerTable.UpdatePeer(node.Peer);
-				AddNode(node);
+				}), this, message.Socket, version);
+
+				CancellationTokenSource cancel = new CancellationTokenSource();
+				cancel.CancelAfter(TimeSpan.FromSeconds(10.0));
+				try
+				{
+					node.RespondToHandShake(cancel.Token);
+					_PeerTable.UpdatePeer(node.Peer);
+					AddNode(node);
+				}
+				catch(OperationCanceledException ex)
+				{
+					NodeServerTrace.Error("The remote node did not respond fast enough (10 seconds) to the handshake completion, dropping connection", ex);
+					node.Disconnect();
+					throw;
+				}
+				catch(Exception)
+				{
+					node.Disconnect();
+					throw;
+				}
 			}
 		}
 
@@ -381,12 +435,12 @@ namespace NBitcoin.Protocol
 			if(!isDisposed)
 			{
 				_MessageListener.Dispose();
+				Task[] tasks = null;
 				lock(_Nodes)
 				{
-					var tasks = _Nodes.Values.ToArray().Select(n => Task.Factory.StartNew(() => n.Disconnect())).ToArray();
-
-					Task.WaitAll(tasks);
+					tasks = _Nodes.Values.ToArray().Select(n => Task.Factory.StartNew(() => n.Disconnect())).ToArray();
 				}
+				Task.WaitAll(tasks);
 				isDisposed = true;
 			}
 		}
