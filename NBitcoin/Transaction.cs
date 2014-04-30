@@ -1,5 +1,6 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -435,6 +436,9 @@ namespace NBitcoin
 			return @in;
 		}
 
-
+		public TxPayload CreatePayload()
+		{
+			return new TxPayload(this.Clone());
+		}
 	}
 }

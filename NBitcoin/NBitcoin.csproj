@@ -77,6 +77,7 @@
     <Compile Include="Protocol\PingPayload.cs" />
     <Compile Include="Protocol\PongPayload.cs" />
     <Compile Include="Protocol\ProtocolTrace.cs" />
+    <Compile Include="Protocol\TxPayload.cs" />
     <Compile Include="Protocol\UnknowPayload.cs" />
     <Compile Include="Protocol\UPnPLease.cs" />
     <Compile Include="Protocol\VerAckPayload.cs" />
