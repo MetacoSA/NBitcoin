@@ -11,9 +11,14 @@ namespace NBitcoin.Protocol
 {
 	public class UPnPLease : IDisposable
 	{
-		const string RuleName = "NBitcoin Node Server";
-		public UPnPLease(int[] bitcoinPorts, int internalPort)
+		public string RuleName
 		{
+			get;
+			private set;
+		}
+		public UPnPLease(int[] bitcoinPorts, int internalPort, string ruleName)
+		{
+			RuleName = ruleName;
 			_BitcoinPorts = bitcoinPorts;
 			_InternalPort = internalPort;
 			Trace = new TraceCorrelation(NodeServerTrace.Trace, "UPNP external address and port detection");
@@ -72,78 +77,66 @@ namespace NBitcoin.Protocol
 			using(Trace.Open())
 			{
 				bool result = false;
-				ManualResetEvent found = new ManualResetEvent(false);
 				IPAddress externalIp = null;
 				int externalPort = 0;
-				EventHandler<DeviceEventArgs> deviceFound = (s, e) =>
-				{
-					using(Trace.Open(false))
-					{
-						if(cancellation.IsCancellationRequested)
-							return;
-						try
-						{
-							externalIp = e.Device.GetExternalIP();
-							var mapping = e.Device.GetAllMappings();
-							externalPort = BitcoinPorts.FirstOrDefault(p => mapping.All(m => m.PublicPort != p));
-							if(externalPort != 0)
-							{
-								result = true;
-								Mapping = new Mapping(Mono.Nat.Protocol.Tcp, InternalPort, externalPort, (int)LeasePeriod.TotalSeconds)
-								{
-									Description = RuleName
-								};
-								e.Device.CreatePortMap(Mapping);
-								NodeServerTrace.Information("Port mapping added " + Mapping);
-								LogNextLeaseRenew();
-								Timer = new Timer(o =>
-								{
-									using(Trace.Open(false))
-									{
-										try
-										{
-											e.Device.CreatePortMap(Mapping);
-											NodeServerTrace.Information("Port mapping renewed");
-											LogNextLeaseRenew();
-										}
-										catch(Exception ex)
-										{
-											NodeServerTrace.Error("Error when refreshing the port mapping with UPnP", ex);
-										}
-										finally
-										{
-											Timer.Change((int)CalculateNextRefresh().TotalMilliseconds, Timeout.Infinite);
-										}
-									}
-								});
-								Device = e.Device;
-								Timer.Change((int)CalculateNextRefresh().TotalMilliseconds, Timeout.Infinite);
-							}
-							else
-								NodeServerTrace.Error("Bitcoin node ports already used " + string.Join(",", BitcoinPorts), null);
-						}
-						catch(Exception ex)
-						{
-							NodeServerTrace.Error("Error during address port detection on the upnp device", ex);
-						}
-						finally
-						{
-							try
-							{
-								found.Set();
-							}
-							catch(ObjectDisposedException)
-							{
-							}
-						}
-					}
-				};
+
 				try
 				{
-					NatUtility.DeviceFound += deviceFound;
-					NatUtility.StartDiscovery();
-					WaitHandle.WaitAny(new WaitHandle[] { found, cancellation.WaitHandle });
-					cancellation.ThrowIfCancellationRequested();
+					DiscoverDevice((s, e) =>
+					{
+						using(Trace.Open(false))
+						{
+							if(cancellation.IsCancellationRequested)
+								return;
+							try
+							{
+								externalIp = e.Device.GetExternalIP();
+								var mapping = e.Device.GetAllMappings();
+								externalPort = BitcoinPorts.FirstOrDefault(p => mapping.All(m => m.PublicPort != p));
+								if(externalPort != 0)
+								{
+									result = true;
+									Mapping = new Mapping(Mono.Nat.Protocol.Tcp, InternalPort, externalPort, (int)LeasePeriod.TotalSeconds)
+									{
+										Description = RuleName
+									};
+									e.Device.CreatePortMap(Mapping);
+									NodeServerTrace.Information("Port mapping added " + Mapping);
+									LogNextLeaseRenew();
+									Timer = new Timer(o =>
+									{
+										if(isDisposed)
+											return;
+										using(Trace.Open(false))
+										{
+											try
+											{
+												e.Device.CreatePortMap(Mapping);
+												NodeServerTrace.Information("Port mapping renewed");
+												LogNextLeaseRenew();
+											}
+											catch(Exception ex)
+											{
+												NodeServerTrace.Error("Error when refreshing the port mapping with UPnP", ex);
+											}
+											finally
+											{
+												Timer.Change((int)CalculateNextRefresh().TotalMilliseconds, Timeout.Infinite);
+											}
+										}
+									});
+									Device = e.Device;
+									Timer.Change((int)CalculateNextRefresh().TotalMilliseconds, Timeout.Infinite);
+								}
+								else
+									NodeServerTrace.Error("Bitcoin node ports already used " + string.Join(",", BitcoinPorts), null);
+							}
+							catch(Exception ex)
+							{
+								NodeServerTrace.Error("Error during address port detection on the upnp device", ex);
+							}
+						}
+					}, cancellation);
 				}
 				catch(OperationCanceledException)
 				{
@@ -153,15 +146,9 @@ namespace NBitcoin.Protocol
 				{
 					NodeServerTrace.Error("Error during upnp discovery", ex);
 				}
-				finally
-				{
-					found.Dispose();
-					NatUtility.DeviceFound -= deviceFound;
-					NatUtility.StopDiscovery();
-				}
 				if(result)
 				{
-					ExternalEndpoint = new IPEndPoint(externalIp, externalPort);
+					ExternalEndpoint = new IPEndPoint(externalIp.MapToIPv6(), externalPort);
 					NodeServerTrace.Information("External endpoint detected " + ExternalEndpoint);
 				}
 				return result;
@@ -220,32 +207,24 @@ namespace NBitcoin.Protocol
 		}
 
 
-
-		public static void ReleaseAll(CancellationToken cancellation = default(CancellationToken))
+		static void DiscoverDevice(EventHandler<DeviceEventArgs> deviceFound, CancellationToken cancellation)
 		{
-			ManualResetEvent finished = new ManualResetEvent(false);
-			EventHandler<DeviceEventArgs> deviceFound = (s, e) =>
+			UpnpSearcher searcher = new UpnpSearcher();
+			var device = searcher.SearchAndReceive(cancellation);
+			deviceFound(searcher, new DeviceEventArgs(device));
+
+		}
+
+		public static void ReleaseAll(string ruleName, CancellationToken cancellation = default(CancellationToken))
+		{
+			DiscoverDevice((s, e) =>
 				{
 					foreach(var m in e.Device.GetAllMappings())
 					{
-						if(m.Description == RuleName)
+						if(m.Description == ruleName)
 							e.Device.DeletePortMap(m);
 					}
-					finished.Set();
-				};
-
-			try
-			{
-				NatUtility.DeviceFound += deviceFound;
-				NatUtility.StartDiscovery();
-				WaitHandle.WaitAny(new WaitHandle[] { finished, cancellation.WaitHandle });
-			}
-			finally
-			{
-				NatUtility.DeviceFound -= deviceFound;
-				NatUtility.StopDiscovery();
-				finished.Dispose();
-			}
+				}, cancellation);
 		}
 	}
 }

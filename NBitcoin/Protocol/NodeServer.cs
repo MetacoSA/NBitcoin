@@ -59,19 +59,33 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		TimeSpan _PortLeasePeriod = TimeSpan.FromMinutes(10.0);
+		TimeSpan _NATLeasePeriod = TimeSpan.FromMinutes(10.0);
 		/// <summary>
 		/// When using DetectExternalEndpoint, UPNP will open ports on the gateway for a fixed amount of time before renewing
 		/// </summary>
-		public TimeSpan PortLeasePeriod
+		public TimeSpan NATLeasePeriod
 		{
 			get
 			{
-				return _PortLeasePeriod;
+				return _NATLeasePeriod;
 			}
 			set
 			{
-				_PortLeasePeriod = value;
+				_NATLeasePeriod = value;
+			}
+		}
+
+
+		string _NATRuleName = "NBitcoin Node Server";
+		public string NATRuleName
+		{
+			get
+			{
+				return _NATRuleName;
+			}
+			set
+			{
+				_NATRuleName = value;
 			}
 		}
 
@@ -83,11 +97,12 @@ namespace NBitcoin.Protocol
 				_UPnPLease.Dispose();
 				_UPnPLease = null;
 			}
-			var lease = new UPnPLease(BitcoinPorts, LocalEndpoint.Port);
-			lease.LeasePeriod = PortLeasePeriod;
+			var lease = new UPnPLease(BitcoinPorts, LocalEndpoint.Port, NATRuleName);
+			lease.LeasePeriod = NATLeasePeriod;
 			if(lease.DetectExternalEndpoint(cancellation))
 			{
 				_UPnPLease = lease;
+				ExternalEndpoint = _UPnPLease.ExternalEndpoint;
 				return lease;
 			}
 			else
@@ -293,22 +308,6 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		bool trustedExternal = false;
-		public void ChangeExternalAddress(IPAddress iPAddress, bool trusted)
-		{
-			if(trusted)
-			{
-				_ExternalEndpoint = new IPEndPoint(iPAddress, _ExternalEndpoint.Port);
-				trustedExternal = true;
-			}
-			else
-			{
-				if(trustedExternal)
-					return;
-				_ExternalEndpoint = new IPEndPoint(iPAddress, _ExternalEndpoint.Port);
-				trustedExternal = false;
-			}
-		}
 
 		internal void ExternalAddressDetected(IPAddress iPAddress)
 		{
@@ -671,6 +670,8 @@ namespace NBitcoin.Protocol
 
 
 
-	
+
+
+
 	}
 }

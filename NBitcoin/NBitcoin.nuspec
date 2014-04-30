@@ -10,5 +10,10 @@
 		<description>Implementation of bitcoin protocol</description>
 		<projectUrl>https://github.com/NicolasDorier/NBitcoin</projectUrl>
 		<copyright>Copyright 2013</copyright>
+
+		<references>
+			<reference file="Mono.Nat.dll" />
+		</references>
 	</metadata>
+	<files></files>
 </package>
