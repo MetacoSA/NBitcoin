@@ -167,6 +167,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Server", "Server")]
 		public void CanReceiveHandshake()
 		{
 			using(var tester = new NodeServerTester())
@@ -179,6 +180,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Server", "Server")]
 		public void CanRespondToPong()
 		{
 			using(var tester = new NodeServerTester())
@@ -193,15 +195,15 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("Server", "Server")]
 		public void CantConnectToYourself()
 		{
-			CancellationTokenSource cancel = new CancellationTokenSource();
 			using(var tester = new NodeServerTester())
 			{
-				cancel.CancelAfter(5000);
-				Assert.Throws(typeof(OperationCanceledException), () =>
+				tester.Server2.Nonce = tester.Server1.Nonce;
+				Assert.Throws(typeof(InvalidOperationException), () =>
 				{
-					tester.Server1.GetNodeByEndpoint(tester.Server1.ExternalEndpoint).VersionHandshake(cancel.Token);
+					tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint).VersionHandshake();
 				});
 			}
 		}

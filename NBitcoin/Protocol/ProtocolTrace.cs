@@ -61,7 +61,7 @@ namespace NBitcoin.Protocol
 
 		internal static void ConnectionToSelfDetected()
 		{
-			Warning("Connection to self detected");
+			Warning("Connection to self detected, abort connection");
 		}
 	}
 }

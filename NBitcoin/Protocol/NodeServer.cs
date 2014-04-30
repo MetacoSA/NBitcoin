@@ -407,6 +407,13 @@ namespace NBitcoin.Protocol
 						remoteEndpoint = new IPEndPoint(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
 					}
 
+					if(IsConnectedTo(remoteEndpoint))
+					{
+						NodeServerTrace.Warning("Ongoing connection with " + remoteEndpoint + " detected, aborting the incoming connection attempt");
+						Utils.SafeCloseSocket(message.Socket);
+						return;
+					}
+
 					var node = new Node(new Peer(PeerOrigin.Advertised, new NetworkAddress()
 					{
 						Endpoint = remoteEndpoint,
@@ -415,11 +422,12 @@ namespace NBitcoin.Protocol
 
 					if(connectedToSelf)
 					{
+						node.SendMessage(CreateVersionPayload(node.Peer));
 						NodeServerTrace.ConnectionToSelfDetected();
 						node.Disconnect();
 						return;
 					}
-
+					
 					CancellationTokenSource cancel = new CancellationTokenSource();
 					cancel.CancelAfter(TimeSpan.FromSeconds(10.0));
 					try
@@ -443,6 +451,14 @@ namespace NBitcoin.Protocol
 			}
 
 
+		}
+
+		public bool IsConnectedTo(IPEndPoint endpoint)
+		{
+			lock(_Nodes)
+			{
+				return _Nodes.ContainsKey(endpoint);
+			}
 		}
 
 
