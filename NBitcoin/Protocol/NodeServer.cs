@@ -434,6 +434,7 @@ namespace NBitcoin.Protocol
 		{
 			if(!isDisposed)
 			{
+				isDisposed = true;
 				_MessageListener.Dispose();
 				Task[] tasks = null;
 				lock(_Nodes)
@@ -441,7 +442,11 @@ namespace NBitcoin.Protocol
 					tasks = _Nodes.Values.ToArray().Select(n => Task.Factory.StartNew(() => n.Disconnect())).ToArray();
 				}
 				Task.WaitAll(tasks);
-				isDisposed = true;
+				if(socket != null)
+				{
+					Utils.SafeCloseSocket(socket);
+					socket = null;
+				}
 			}
 		}
 
