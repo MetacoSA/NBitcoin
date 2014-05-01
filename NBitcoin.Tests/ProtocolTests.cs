@@ -216,13 +216,18 @@ namespace NBitcoin.Tests
 		public void CanUseUPNP()
 		{
 			UPnPLease lease = null;
-			UPnPLease.ReleaseAll("NBitcoin Tests"); //Clean the gateway of previous server attempt
+			UPnPLease.ReleaseAll("NBitcoin Tests"); //Clean the gateway of previous tests attempt
 			using(var server = new NodeServer(Network.Main))
 			{
 				server.NATRuleName = "NBitcoin Tests";
 				Assert.False(server.ExternalEndpoint.Address.IsRoutable(false));
 				lease = server.DetectExternalEndpoint();
 				Assert.True(server.ExternalEndpoint.Address.IsRoutable(false));
+				Assert.NotNull(lease);
+				Assert.True(lease.IsOpen());
+				lease.Dispose();
+				Assert.False(lease.IsOpen());
+				lease = server.DetectExternalEndpoint();
 				Assert.NotNull(lease);
 				Assert.True(lease.IsOpen());
 			}
