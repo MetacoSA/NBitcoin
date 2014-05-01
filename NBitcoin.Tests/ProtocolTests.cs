@@ -161,7 +161,6 @@ namespace NBitcoin.Tests
 			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
 			{
 				server.DetectExternalEndpoint();
-				server.Listen();
 				Assert.True(server.CountPeerRequired() > 500);
 				server.DiscoverNodes();
 				Assert.True(server.CountPeerRequired() < 10);

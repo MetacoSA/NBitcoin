@@ -172,6 +172,13 @@ namespace NBitcoin.Protocol
 		Socket socket;
 		TraceCorrelation _Trace;
 
+		public bool IsListening
+		{
+			get
+			{
+				return socket != null;
+			}
+		}
 
 		public void Listen()
 		{
@@ -304,7 +311,7 @@ namespace NBitcoin.Protocol
 			}
 			set
 			{
-				_ExternalEndpoint = value;
+				_ExternalEndpoint = Utils.EnsureIPv6(value);
 			}
 		}
 
@@ -316,7 +323,7 @@ namespace NBitcoin.Protocol
 				if(!iPAddress.Equals(_ExternalEndpoint.Address))
 				{
 					NodeServerTrace.Information("New externalAddress detected " + iPAddress);
-					_ExternalEndpoint = new IPEndPoint(iPAddress, ExternalEndpoint.Port);
+					ExternalEndpoint = new IPEndPoint(iPAddress, ExternalEndpoint.Port);
 				}
 			}
 		}
@@ -336,8 +343,7 @@ namespace NBitcoin.Protocol
 		{
 			lock(_Nodes)
 			{
-				if(endpoint.AddressFamily != AddressFamily.InterNetworkV6)
-					endpoint = new IPEndPoint(endpoint.Address.MapToIPv6(), endpoint.Port);
+				endpoint = Utils.EnsureIPv6(endpoint);
 
 				Node result = null;
 				if(_Nodes.TryGetValue(endpoint, out result))
@@ -481,7 +487,6 @@ namespace NBitcoin.Protocol
 					try
 					{
 						node.RespondToHandShake(cancel.Token);
-						_PeerTable.UpdatePeer(node.Peer);
 						AddNode(node);
 					}
 					catch(OperationCanceledException ex)

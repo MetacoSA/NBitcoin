@@ -326,7 +326,7 @@ namespace NBitcoin.Protocol
 					}
 					if(!version.AddressReciever.Address.Equals(NodeServer.ExternalEndpoint.Address))
 					{
-						NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReciever + " instead of " + NodeServer.ExternalEndpoint);
+						NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReciever.Address + " instead of " + NodeServer.ExternalEndpoint.Address);
 					}
 					NodeServer.ExternalAddressDetected(version.AddressReciever.Address);
 					if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Numerics;
 using System.Security;
 using System.Security.Cryptography;
@@ -264,6 +265,13 @@ namespace NBitcoin
 			{
 				
 			}
+		}
+
+		public static System.Net.IPEndPoint EnsureIPv6(System.Net.IPEndPoint endpoint)
+		{
+			if(endpoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+				return endpoint;
+			return new IPEndPoint(endpoint.Address.MapToIPv6(), endpoint.Port);
 		}
 	}
 }

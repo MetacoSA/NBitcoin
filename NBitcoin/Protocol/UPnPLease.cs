@@ -148,7 +148,7 @@ namespace NBitcoin.Protocol
 				}
 				if(result)
 				{
-					ExternalEndpoint = new IPEndPoint(externalIp.MapToIPv6(), externalPort);
+					ExternalEndpoint = Utils.EnsureIPv6(new IPEndPoint(externalIp, externalPort));
 					NodeServerTrace.Information("External endpoint detected " + ExternalEndpoint);
 				}
 				return result;
