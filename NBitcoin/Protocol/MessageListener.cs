@@ -108,6 +108,8 @@ namespace NBitcoin.Protocol
 		CancellationTokenSource cancellationSource = new CancellationTokenSource();
 		public void Dispose()
 		{
+			if(cancellationSource.IsCancellationRequested)
+				return;
 			cancellationSource.Cancel();
 		}
 

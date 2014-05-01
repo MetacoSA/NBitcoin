@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
+using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,7 +17,7 @@ namespace NBitcoin
 {
 	public static class Extensions
 	{
-		public static void AddOrReplace<TKey, TValue>(this Dictionary<TKey, TValue> dico, TKey key,TValue value)
+		public static void AddOrReplace<TKey, TValue>(this Dictionary<TKey, TValue> dico, TKey key, TValue value)
 		{
 			if(dico.ContainsKey(key))
 			{
@@ -209,7 +210,7 @@ namespace NBitcoin
 			return unixRef + span;
 		}
 
-		
+
 
 		public static string ExceptionToString(Exception exception)
 		{
@@ -263,7 +264,7 @@ namespace NBitcoin
 			}
 			catch
 			{
-				
+
 			}
 		}
 
@@ -272,6 +273,26 @@ namespace NBitcoin
 			if(endpoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
 				return endpoint;
 			return new IPEndPoint(endpoint.Address.MapToIPv6(), endpoint.Port);
+		}
+
+		public static string Serialize<T>(T obj)
+		{
+			DataContractSerializer seria = new DataContractSerializer(typeof(T));
+			MemoryStream ms = new MemoryStream();
+			seria.WriteObject(ms, obj);
+			ms.Position = 0;
+			return new StreamReader(ms).ReadToEnd();
+		}
+
+		public static T Deserialize<T>(string str)
+		{
+			DataContractSerializer seria = new DataContractSerializer(typeof(T));
+			MemoryStream ms = new MemoryStream();
+			StreamWriter writer = new StreamWriter(ms);
+			writer.Write(str);
+			writer.Flush();
+			ms.Position = 0;
+			return (T)seria.ReadObject(ms);
 		}
 	}
 }

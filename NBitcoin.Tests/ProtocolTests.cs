@@ -160,13 +160,13 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Network", "Network")]
-		public void CanDiscoverNodes()
+		public void CanDiscoverPeers()
 		{
 			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
 			{
-				Assert.True(server.CountPeerRequired() > 500);
-				server.DiscoverPeers();
-				Assert.True(server.CountPeerRequired() < 10);
+				Assert.True(server.PeerTable.CountUsed(true) < 50);
+				server.DiscoverPeers(100);
+				Assert.True(server.PeerTable.CountUsed(true) > 50);
 			}
 		}
 
@@ -237,14 +237,29 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
-		public void CanConnectToSeveralNodes()
+		[Trait("Network", "Network")]
+		public void CanConnectToNodeSet()
 		{
-			UPnPLease.ReleaseAll(NodeServerTester.NATRuleName); //Clean the gateway of previous tests attempt
 			using(var server = new NodeServer(Network.Main))
 			{
-				server.NATRuleName = NodeServerTester.NATRuleName;
-				//var nodes = server.CreateNodeSet(10);
+				server.RegisterPeerTableRepository(PeerCache);
+				var set = server.CreateNodeSet(5);
+				Assert.Equal(5, set.GetNodes().Length);
+				foreach(var node in set.GetNodes())
+				{
+					Assert.Equal(NodeState.HandShaked, node.State);
+				}
+			}
+		}
+
+		PeerTableRepository _PeerCache;
+		public PeerTableRepository PeerCache
+		{
+			get
+			{
+				if(_PeerCache == null)
+					_PeerCache = new SqLitePeerTableRepository("PeerCache");
+				return _PeerCache;
 			}
 		}
 	}

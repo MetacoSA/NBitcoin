@@ -193,7 +193,7 @@ namespace NBitcoin.Protocol
 
 
 
-		internal Node(Peer peer, NodeServer nodeServer)
+		internal Node(Peer peer, NodeServer nodeServer, CancellationToken cancellation)
 		{
 			Version = nodeServer.Version;
 			_NodeServer = nodeServer;
@@ -205,14 +205,18 @@ namespace NBitcoin.Protocol
 			{
 				try
 				{
-					socket.Connect(Peer.NetworkAddress.Endpoint);
+					var ar = socket.BeginConnect(Peer.NetworkAddress.Endpoint, null, null);
+					WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, cancellation.WaitHandle });
+					cancellation.ThrowIfCancellationRequested();
+					socket.EndConnect(ar);
 					State = NodeState.Connected;
 					NodeServerTrace.Information("Outbound connection successfull");
 				}
 				catch(Exception ex)
 				{
-					State = NodeState.Failed;
+					Utils.SafeCloseSocket(socket);
 					NodeServerTrace.Error("Error connecting to the remote endpoint ", ex);
+					State = NodeState.Failed;
 					throw;
 				}
 				_Connection = new NodeConnection(this, socket);
@@ -330,9 +334,10 @@ namespace NBitcoin.Protocol
 						Disconnect();
 						throw new InvalidOperationException("Impossible to connect to self");
 					}
-					if(!version.AddressReciever.Address.Equals(myVersion.AddressFrom.Address))
+
+					if(!version.AddressReciever.Address.Equals(ExternalEndpoint.Address))
 					{
-						NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReciever.Address + " instead of " + NodeServer.ExternalEndpoint.Address);
+						NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReciever.Address + " instead of " + ExternalEndpoint.Address);
 					}
 					NodeServer.ExternalAddressDetected(version.AddressReciever.Address);
 					if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
@@ -388,13 +393,18 @@ namespace NBitcoin.Protocol
 
 		private VersionPayload CreateVersionPayload()
 		{
-			return NodeServer.CreateVersionPayload(Peer, (IPEndPoint)_Connection.Socket.LocalEndPoint, Version);
+			return NodeServer.CreateVersionPayload(Peer, ExternalEndpoint, Version);
 		}
 		public IPEndPoint ExternalEndpoint
 		{
 			get
 			{
-				return CreateVersionPayload().AddressFrom;
+				var me = (IPEndPoint)_Connection.Socket.LocalEndPoint;
+				if(!me.Address.IsRoutable(NodeServer.AllowLocalPeers))
+				{
+					me = new IPEndPoint(NodeServer.ExternalEndpoint.Address, me.Port);
+				}
+				return me;
 			}
 		}
 
@@ -430,6 +440,6 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		
+
 	}
 }

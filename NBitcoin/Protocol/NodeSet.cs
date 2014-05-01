@@ -83,7 +83,14 @@ namespace NBitcoin.Protocol
 
 		public void DisconnectAll(CancellationToken cancellation = default(CancellationToken))
 		{
-			var tasks = GetNodes().Select(n => Task.Factory.StartNew(() => n.Disconnect())).ToArray();
+			DisconnectNodes(GetNodes());
+		}
+
+
+
+		public void DisconnectNodes(Node[] nodes, CancellationToken cancellation = default(CancellationToken))
+		{
+			var tasks = nodes.Select(n => Task.Factory.StartNew(() => n.Disconnect())).ToArray();
 			Task.WaitAll(tasks, cancellation);
 		}
 
@@ -92,6 +99,38 @@ namespace NBitcoin.Protocol
 			lock(_Nodes)
 			{
 				return _Nodes.ContainsKey(endpoint);
+			}
+		}
+
+		public void AddNodes(Node[] nodes)
+		{
+			lock(_Nodes)
+			{
+				foreach(var node in nodes)
+				{
+					AddNode(node);
+				}
+			}
+		}
+
+		public int Count()
+		{
+			lock(_Nodes)
+			{
+				return _Nodes.Count;
+			}
+		}
+
+
+
+		public void RemoveNodes(Node[] nodes)
+		{
+			lock(_Nodes)
+			{
+				foreach(var node in nodes)
+				{
+					RemoveNode(node);
+				}
 			}
 		}
 	}

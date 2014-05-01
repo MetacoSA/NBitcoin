@@ -39,6 +39,7 @@
       <HintPath>..\packages\System.Data.SQLite.Core.1.0.92.0\lib\net45\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -80,6 +81,7 @@
     <Compile Include="Protocol\PayloadAttribute.cs" />
     <Compile Include="Protocol\NodeServer.cs" />
     <Compile Include="Protocol\PeerTable.cs" />
+    <Compile Include="Protocol\PeerTableRepository.cs" />
     <Compile Include="Protocol\PingPayload.cs" />
     <Compile Include="Protocol\PongPayload.cs" />
     <Compile Include="Protocol\ProtocolTrace.cs" />
@@ -88,6 +90,7 @@
     <Compile Include="Protocol\UPnPLease.cs" />
     <Compile Include="Protocol\VerAckPayload.cs" />
     <Compile Include="Protocol\VersionPayload.cs" />
+    <Compile Include="SqLiteUtility.cs" />
     <Compile Include="Target.cs" />
     <Compile Include="TraceCorrelationScope.cs" />
     <Compile Include="TransactionSignature.cs" />
@@ -148,10 +151,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="x64\SQLite.Interop.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="x86\SQLite.Interop.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>

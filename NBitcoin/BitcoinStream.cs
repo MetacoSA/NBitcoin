@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -160,12 +161,19 @@ namespace NBitcoin
 
 		private void ReadWriteArrayUntyped(ref Array data)
 		{
-			var elementType = data.GetType().GetElementType();
-			var parameters = new object[] { data };
-			this.GetType().GetMethod("ReadWriteArray", BindingFlags.NonPublic | BindingFlags.Instance)
-				.MakeGenericMethod(elementType)
-				.Invoke(this, parameters);
-			data = (Array)parameters[0];
+			try
+			{
+				var elementType = data.GetType().GetElementType();
+				var parameters = new object[] { data };
+				this.GetType().GetMethod("ReadWriteArray", BindingFlags.NonPublic | BindingFlags.Instance)
+					.MakeGenericMethod(elementType)
+					.Invoke(this, parameters);
+				data = (Array)parameters[0];
+			}
+			catch(TargetInvocationException ex)
+			{
+				throw ex.InnerException;
+			}
 		}
 
 		private void ReadWriteArray<T>(ref T[] data)
@@ -192,14 +200,21 @@ namespace NBitcoin
 
 		private void ReadWriteListUntyped<T>(ref T data)
 		{
-			var elementType = data.GetType().GetGenericArguments()[0];
-			var parameters = new object[] { data };
+			try
+			{
+				var elementType = data.GetType().GetGenericArguments()[0];
+				var parameters = new object[] { data };
 
-			this.GetType().GetMethod("ReadWriteList", BindingFlags.NonPublic | BindingFlags.Instance)
-				.MakeGenericMethod(elementType)
-				.Invoke(this, parameters);
+				this.GetType().GetMethod("ReadWriteList", BindingFlags.NonPublic | BindingFlags.Instance)
+					.MakeGenericMethod(elementType)
+					.Invoke(this, parameters);
 
-			data = (T)(object)parameters[0];
+				data = (T)(object)parameters[0];
+			}
+			catch(TargetInvocationException ex)
+			{
+				throw ex.InnerException;
+			}
 		}
 		private void ReadWriteList<T>(ref List<T> data)
 		{
@@ -274,6 +289,16 @@ namespace NBitcoin
 				int readen = 0;
 				while(data.Length != readen)
 				{
+					ReadCancellationToken.ThrowIfCancellationRequested();
+					NetworkStream netStream = Inner as NetworkStream;
+					if(netStream != null) //NetworkStream blocks if no data is coming, polling IsDataAvailable give a chance to cancel the call
+					{
+						if(!netStream.DataAvailable)
+						{
+							ReadCancellationToken.WaitHandle.WaitOne(500);
+							continue;
+						}
+					}
 					var justRead = Inner.Read(data, readen, data.Length - readen);
 					if(justRead == -1)
 						throw new EndOfStreamException("No more byte to read");
@@ -376,6 +401,12 @@ namespace NBitcoin
 			{
 				_NetworkFormat = old;
 			});
+		}
+
+		public System.Threading.CancellationToken ReadCancellationToken
+		{
+			get;
+			set;
 		}
 	}
 }

@@ -115,8 +115,6 @@ namespace NBitcoin.Protocol
 						throw new FormatException("Message checksum invalid");
 					}
 				}
-				NodeServerTrace.Trace.TraceEvent(TraceEventType.Verbose, 0, "Message bytes"
-															+ Encoders.Hex.EncodeData(this.ToBytes()));
 				BitcoinStream payloadStream = new BitcoinStream(payload);
 				payloadStream.CopyParameters(stream);
 
@@ -163,7 +161,8 @@ namespace NBitcoin.Protocol
 			var stream = new NetworkStream(socket, false);
 			BitcoinStream bitStream = new BitcoinStream(stream, false)
 			{
-				ProtocolVersion = version
+				ProtocolVersion = version,
+				ReadCancellationToken = cancellationToken
 			};
 
 			var old = socket.ReceiveTimeout;
