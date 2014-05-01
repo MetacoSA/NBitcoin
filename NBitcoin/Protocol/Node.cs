@@ -171,6 +171,10 @@ namespace NBitcoin.Protocol
 				{
 					NodeServer.RemoveNode(this);
 				}
+				if(value == NodeState.Failed || value == NodeState.Offline)
+				{
+					TraceCorrelation.LogInside(() => NodeServerTrace.Trace.TraceEvent(TraceEventType.Stop, 0, "Communication closed"));
+				}
 			}
 		}
 
@@ -339,7 +343,8 @@ namespace NBitcoin.Protocol
 					SendMessage(new VerAckPayload());
 					listener.RecieveMessage(cancellationToken).AssertPayload<VerAckPayload>();
 					State = NodeState.HandShaked;
-					AdvertiseMyself();
+					if(NodeServer.AdvertizeMyself)
+						AdvertiseMyself();
 				}
 			}
 		}
@@ -348,6 +353,7 @@ namespace NBitcoin.Protocol
 		{
 			if(NodeServer.IsListening && NodeServer.ExternalEndpoint.Address.IsRoutable(NodeServer.AllowLocalPeers))
 			{
+				TraceCorrelation.LogInside(() => NodeServerTrace.Information("Advertizing myself"));
 				SendMessage(new AddrPayload(new NetworkAddress()
 				{
 					Ago = TimeSpan.FromSeconds(0),
@@ -357,6 +363,7 @@ namespace NBitcoin.Protocol
 			}
 			else
 				return false;
+
 		}
 
 
@@ -372,7 +379,8 @@ namespace NBitcoin.Protocol
 					listener.RecieveMessage().AssertPayload<VerAckPayload>();
 					SendMessage(new VerAckPayload());
 					_State = NodeState.HandShaked;
-					AdvertiseMyself();
+					if(NodeServer.AdvertizeMyself)
+						AdvertiseMyself();
 				}
 			}
 		}
