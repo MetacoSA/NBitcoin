@@ -191,10 +191,24 @@ namespace Mono.Nat
 		public INatDevice SearchAndReceive(CancellationToken cancellation = default(CancellationToken))
 		{
 			Search();
+			var maxSearchTime = new CancellationTokenSource();
+			maxSearchTime.CancelAfter(TimeSpan.FromSeconds(30));
+
 			IPEndPoint received = new IPEndPoint(IPAddress.Parse("192.168.0.1"), 5351);
+
+			CancellationTokenSource resendSearch = new CancellationTokenSource();
+			resendSearch.CancelAfter(TimeSpan.FromSeconds(10));
 			while(devices.Count == 0)
 			{
 				cancellation.ThrowIfCancellationRequested();
+				if(resendSearch.IsCancellationRequested)
+				{
+					Search();
+					resendSearch = new CancellationTokenSource();
+					resendSearch.CancelAfter(TimeSpan.FromSeconds(10));
+				}
+				if(maxSearchTime.IsCancellationRequested)
+					return null;
 				foreach(UdpClient client in sockets)
 				{
 					if(client.Available > 0)

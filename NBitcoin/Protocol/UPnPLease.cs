@@ -72,6 +72,7 @@ namespace NBitcoin.Protocol
 		}
 
 
+
 		internal bool DetectExternalEndpoint(CancellationToken cancellation = default(CancellationToken))
 		{
 			using(Trace.Open())
@@ -141,6 +142,7 @@ namespace NBitcoin.Protocol
 				catch(OperationCanceledException)
 				{
 					NodeServerTrace.Information("Discovery cancelled");
+					throw;
 				}
 				catch(Exception ex)
 				{
@@ -211,7 +213,8 @@ namespace NBitcoin.Protocol
 		{
 			UpnpSearcher searcher = new UpnpSearcher();
 			var device = searcher.SearchAndReceive(cancellation);
-			deviceFound(searcher, new DeviceEventArgs(device));
+			if(device != null)
+				deviceFound(searcher, new DeviceEventArgs(device));
 
 		}
 

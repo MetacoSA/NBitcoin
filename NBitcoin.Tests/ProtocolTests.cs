@@ -142,9 +142,9 @@ namespace NBitcoin.Tests
 		[Trait("Network", "Network")]
 		public void CanHandshake()
 		{
+			
 			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
 			{
-				//server.Listen();
 				var seed = server.GetNodeByHostName("seed.bitcoin.sipa.be");
 				Assert.True(seed.State == NodeState.Connected);
 				seed.VersionHandshake();
@@ -160,7 +160,6 @@ namespace NBitcoin.Tests
 		{
 			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
 			{
-				server.DetectExternalEndpoint();
 				Assert.True(server.CountPeerRequired() > 500);
 				server.DiscoverNodes();
 				Assert.True(server.CountPeerRequired() < 10);

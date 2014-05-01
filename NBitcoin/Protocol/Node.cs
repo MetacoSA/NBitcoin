@@ -220,8 +220,8 @@ namespace NBitcoin.Protocol
 			_Peer = peer;
 			_NodeServer = nodeServer;
 			_Connection = new NodeConnection(this, socket);
-			Version = version.Version;
 			_FullVersion = version;
+			Version = version.Version;
 			LastSeen = peer.NetworkAddress.Time;
 			TraceCorrelation.LogInside(() =>
 			{
@@ -313,7 +313,8 @@ namespace NBitcoin.Protocol
 			{
 				using(TraceCorrelation.Open())
 				{
-					SendMessage(NodeServer.CreateVersionPayload(Peer));
+					var myVersion = CreateVersionPayload();
+					SendMessage(myVersion);
 
 					var version = listener.RecieveMessage(cancellationToken).AssertPayload<VersionPayload>();
 					_FullVersion = version;
@@ -324,7 +325,7 @@ namespace NBitcoin.Protocol
 						Disconnect();
 						throw new InvalidOperationException("Impossible to connect to self");
 					}
-					if(!version.AddressReciever.Address.Equals(NodeServer.ExternalEndpoint.Address))
+					if(!version.AddressReciever.Address.Equals(myVersion.AddressFrom.Address))
 					{
 						NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReciever.Address + " instead of " + NodeServer.ExternalEndpoint.Address);
 					}
@@ -351,12 +352,17 @@ namespace NBitcoin.Protocol
 				using(MessageProducer.AddMessageListener(listener))
 				{
 					NodeServerTrace.Information("Responding to handshake");
-					SendMessage(NodeServer.CreateVersionPayload(Peer));
+					SendMessage(CreateVersionPayload());
 					listener.RecieveMessage().AssertPayload<VerAckPayload>();
 					SendMessage(new VerAckPayload());
 					_State = NodeState.HandShaked;
 				}
 			}
+		}
+
+		private VersionPayload CreateVersionPayload()
+		{
+			return NodeServer.CreateVersionPayload(Peer, (IPEndPoint)_Connection.Socket.LocalEndPoint, Version);
 		}
 
 		public void Disconnect()

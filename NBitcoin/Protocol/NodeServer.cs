@@ -106,7 +106,23 @@ namespace NBitcoin.Protocol
 				return lease;
 			}
 			else
+			{
+				using(lease.Trace.Open())
+				{
+					NodeServerTrace.Information("No UPNP device found, try to use external web services to deduce external address");
+					try
+					{
+						var ip = GetMyExternalIP(cancellation);
+						if(ip != null)
+							ExternalEndpoint = new IPEndPoint(ip, ExternalEndpoint.Port);
+					}
+					catch(Exception ex)
+					{
+						NodeServerTrace.Error("Could not use web service to deduce external address", ex);
+					}
+				}
 				return null;
+			}
 		}
 		public bool AllowLocalPeers
 		{
@@ -252,7 +268,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public IPAddress GetMyExternalIP()
+		public IPAddress GetMyExternalIP(CancellationToken cancellation = default(CancellationToken))
 		{
 
 			var tasks = new[]{
@@ -279,7 +295,7 @@ namespace NBitcoin.Protocol
 			 }).ToArray();
 
 
-			Task.WaitAny(tasks);
+			Task.WaitAny(tasks, cancellation);
 			try
 			{
 				var result = tasks.First(t => t.IsCompleted && !t.IsFaulted).Result;
@@ -476,7 +492,7 @@ namespace NBitcoin.Protocol
 
 					if(connectedToSelf)
 					{
-						node.SendMessage(CreateVersionPayload(node.Peer));
+						node.SendMessage(CreateVersionPayload(node.Peer, ExternalEndpoint, Version));
 						NodeServerTrace.ConnectionToSelfDetected();
 						node.Disconnect();
 						return;
@@ -551,17 +567,22 @@ namespace NBitcoin.Protocol
 
 		#endregion
 
-		public VersionPayload CreateVersionPayload(Peer peer)
+		public VersionPayload CreateVersionPayload(Peer peer, IPEndPoint me, ProtocolVersion? version)
 		{
+			if(!me.Address.IsRoutable(AllowLocalPeers))
+			{
+				me = new IPEndPoint(ExternalEndpoint.Address, me.Port);
+			}
+			me = Utils.EnsureIPv6(me);
 			return new VersionPayload()
 					{
 						Nonce = Nonce,
 						UserAgent = UserAgent,
-						Version = Version,
+						Version = version == null ? Version : version.Value,
 						StartHeight = 0,
 						Timestamp = DateTimeOffset.UtcNow,
 						AddressReciever = peer.NetworkAddress.Endpoint,
-						AddressFrom = ExternalEndpoint
+						AddressFrom = me
 					};
 		}
 
