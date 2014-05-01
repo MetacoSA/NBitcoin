@@ -318,7 +318,7 @@ namespace NBitcoin.Protocol
 
 		internal void ExternalAddressDetected(IPAddress iPAddress)
 		{
-			if(!ExternalEndpoint.Address.IsRoutable(AllowLocalPeers))
+			if(!ExternalEndpoint.Address.IsRoutable(AllowLocalPeers) && iPAddress.IsRoutable(AllowLocalPeers))
 			{
 				if(!iPAddress.Equals(_ExternalEndpoint.Address))
 				{
