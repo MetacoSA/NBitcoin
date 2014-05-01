@@ -32,7 +32,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public override void ReadWrite(BitcoinStream stream)
+		public override void ReadWriteCore(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref _Nonce);
 		}

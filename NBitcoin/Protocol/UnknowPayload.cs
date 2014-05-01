@@ -20,7 +20,7 @@ namespace NBitcoin.Protocol
 				_Data = value;
 			}
 		}
-		public override void ReadWrite(BitcoinStream stream)
+		public override void ReadWriteCore(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref _Data);
 		}

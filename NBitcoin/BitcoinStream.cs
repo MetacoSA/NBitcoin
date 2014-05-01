@@ -356,5 +356,26 @@ namespace NBitcoin
 			IsBigEndian = stream.IsBigEndian;
 			MaxArraySize = stream.MaxArraySize;
 		}
+
+		private bool _NetworkFormat;
+		public bool NetworkFormat
+		{
+			get
+			{
+				return _NetworkFormat;
+			}
+		}
+
+		public IDisposable NetworkFormatScope(bool value)
+		{
+			var old = _NetworkFormat;
+			return new Scope(() =>
+			{
+				_NetworkFormat = value;
+			}, () =>
+			{
+				_NetworkFormat = old;
+			});
+		}
 	}
 }

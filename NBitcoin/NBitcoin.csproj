@@ -53,11 +53,16 @@
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
     <Compile Include="BlockChain.cs" />
+    <Compile Include="BlockRepository.cs" />
     <Compile Include="BloomFilter.cs" />
     <Compile Include="DataEncoders\ASCIIEncoder.cs" />
     <Compile Include="IpExtensions.cs" />
     <Compile Include="ExtKey.cs" />
     <Compile Include="ExtPubKey.cs" />
+    <Compile Include="Protocol\BitcoinSerializablePayload.cs" />
+    <Compile Include="Protocol\BlockPayload.cs" />
+    <Compile Include="Protocol\GetHeadersPayload.cs" />
+    <Compile Include="Protocol\HeadersPayload.cs" />
     <Compile Include="Protocol\GetAddrPayload.cs" />
     <Compile Include="Protocol\IncomingMessage.cs" />
     <Compile Include="Protocol\IMessageProducer.cs" />

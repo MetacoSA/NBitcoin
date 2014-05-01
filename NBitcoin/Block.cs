@@ -122,6 +122,11 @@ namespace NBitcoin
 			stream.ReadWrite(ref nTime);
 			stream.ReadWrite(ref nBits);
 			stream.ReadWrite(ref nNonce);
+			if(stream.NetworkFormat)
+			{
+				VarInt txCount = new VarInt(0);
+				stream.ReadWrite(ref txCount);
+			}
 		}
 
 		#endregion

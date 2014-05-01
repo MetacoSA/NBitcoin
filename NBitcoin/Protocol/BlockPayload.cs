@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("tx")]
-	public class TxPayload : BitcoinSerializablePayload<Transaction> 
+	[Payload("block")]
+	public class BlockPayload : BitcoinSerializablePayload<Block>
 	{
-		public TxPayload()
+		public BlockPayload()
 		{
 
 		}
-		public TxPayload(Transaction transaction): base(transaction)
+		public BlockPayload(Block block)
+			: base(block)
 		{
-			
+
 		}
 	}
 }

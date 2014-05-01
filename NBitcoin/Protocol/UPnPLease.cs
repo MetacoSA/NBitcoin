@@ -215,7 +215,6 @@ namespace NBitcoin.Protocol
 			var device = searcher.SearchAndReceive(cancellation);
 			if(device != null)
 				deviceFound(searcher, new DeviceEventArgs(device));
-
 		}
 
 		public static void ReleaseAll(string ruleName, CancellationToken cancellation = default(CancellationToken))

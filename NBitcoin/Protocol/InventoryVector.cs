@@ -42,7 +42,7 @@ namespace NBitcoin.Protocol
 
 		#region IBitcoinSerializable Members
 
-		public override void ReadWrite(BitcoinStream stream)
+		public override void ReadWriteCore(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref type);
 			stream.ReadWrite(ref hash);

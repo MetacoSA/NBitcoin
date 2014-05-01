@@ -45,6 +45,28 @@ namespace NBitcoin.Protocol
 			_Trace = new TraceCorrelation(NodeServerTrace.Trace, "Node server listening on " + LocalEndpoint);
 		}
 
+		public IDisposable RegisterBlockRepository(BlockRepository repository)
+		{
+			var listener = new NewThreadMessageListener<IncomingMessage>((m) =>
+			{
+				if(m.Node != null)
+				{
+					if(m.Message.Payload is HeadersPayload)
+					{
+						foreach(var header in ((HeadersPayload)m.Message.Payload).Headers)
+						{
+							repository.WriteBlockHeader(header);
+						}
+					}
+					if(m.Message.Payload is BlockPayload)
+					{
+						repository.WriteBlock(((BlockPayload)m.Message.Payload).Object);
+					}
+				}
+			});
+			return _MessageProducer.AddMessageListener(listener);
+		}
+
 
 		int[] bitcoinPorts;
 		int[] BitcoinPorts

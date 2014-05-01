@@ -6,25 +6,22 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	[Payload("pong")]
-	public class PongPayload : Payload
+	[Payload("headers")]
+	public class HeadersPayload : Payload
 	{
-		private uint _Nonce;
-		public uint Nonce
+		List<BlockHeader> headers = new List<BlockHeader>();
+
+		public List<BlockHeader> Headers
 		{
 			get
 			{
-				return _Nonce;
-			}
-			set
-			{
-				_Nonce = value;
+				return headers;
 			}
 		}
 
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref _Nonce);
+			stream.ReadWrite(ref headers);
 		}
 	}
 }

@@ -188,11 +188,16 @@ namespace Mono.Nat
 				DeviceFound(this, args);
 		}
 
+		/// <summary>
+		/// Search for a nat device every 10 seconds for 35 seconds
+		/// </summary>
+		/// <param name="cancellation"></param>
+		/// <returns>the nat device or null if nothing found after 35 seconds</returns>
 		public INatDevice SearchAndReceive(CancellationToken cancellation = default(CancellationToken))
 		{
 			Search();
 			var maxSearchTime = new CancellationTokenSource();
-			maxSearchTime.CancelAfter(TimeSpan.FromSeconds(30));
+			maxSearchTime.CancelAfter(TimeSpan.FromSeconds(35));
 
 			IPEndPoint received = new IPEndPoint(IPAddress.Parse("192.168.0.1"), 5351);
 

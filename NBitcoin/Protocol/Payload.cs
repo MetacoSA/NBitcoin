@@ -18,9 +18,16 @@ namespace NBitcoin.Protocol
 
 		#region IBitcoinSerializable Members
 
-		public virtual void ReadWrite(BitcoinStream stream)
+		public void ReadWrite(BitcoinStream stream)
 		{
-			
+			using(stream.NetworkFormatScope(true))
+			{
+				ReadWriteCore(stream);
+			}
+		}
+		public virtual void ReadWriteCore(BitcoinStream stream)
+		{
+
 		}
 
 		#endregion
