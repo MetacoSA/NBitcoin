@@ -339,8 +339,24 @@ namespace NBitcoin.Protocol
 					SendMessage(new VerAckPayload());
 					listener.RecieveMessage(cancellationToken).AssertPayload<VerAckPayload>();
 					State = NodeState.HandShaked;
+					AdvertiseMyself();
 				}
 			}
+		}
+
+		public bool AdvertiseMyself()
+		{
+			if(NodeServer.IsListening && NodeServer.ExternalEndpoint.Address.IsRoutable(NodeServer.AllowLocalPeers))
+			{
+				SendMessage(new AddrPayload(new NetworkAddress()
+				{
+					Ago = TimeSpan.FromSeconds(0),
+					Endpoint = NodeServer.ExternalEndpoint
+				}));
+				return true;
+			}
+			else
+				return false;
 		}
 
 
@@ -356,6 +372,7 @@ namespace NBitcoin.Protocol
 					listener.RecieveMessage().AssertPayload<VerAckPayload>();
 					SendMessage(new VerAckPayload());
 					_State = NodeState.HandShaked;
+					AdvertiseMyself();
 				}
 			}
 		}

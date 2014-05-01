@@ -22,9 +22,13 @@ namespace NBitcoin.Protocol
 		{
 
 		}
+		public AddrPayload(NetworkAddress address)
+		{
+			addr_list = new NetworkAddress[] { address };
+		}
 		public AddrPayload(NetworkAddress[] addresses)
 		{
-			addr_list = addresses;
+			addr_list = addresses.ToArray();
 		}
 
 		#region IBitcoinSerializable Members
