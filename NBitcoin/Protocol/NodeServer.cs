@@ -47,7 +47,7 @@ namespace NBitcoin.Protocol
 			_Version = version;
 			_MessageListener = new EventLoopMessageListener<IncomingMessage>(ProcessMessage);
 			_MessageProducer.AddMessageListener(_MessageListener);
-
+			_Nodes = new NodeSet(_MessageListener);
 			_Trace = new TraceCorrelation(NodeServerTrace.Trace, "Node server listening on " + LocalEndpoint);
 		}
 
@@ -382,16 +382,17 @@ namespace NBitcoin.Protocol
 		}
 
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		Dictionary<IPEndPoint, Node> _Nodes = new Dictionary<IPEndPoint, Node>();
+		readonly NodeSet _Nodes;
+
 		public Node GetNodeByEndpoint(IPEndPoint endpoint)
 		{
 			lock(_Nodes)
 			{
 				endpoint = Utils.EnsureIPv6(endpoint);
 
-				Node result = null;
-				if(_Nodes.TryGetValue(endpoint, out result))
-					return result;
+				var node = _Nodes.GetNodeByEndpoint(endpoint);
+				if(node != null)
+					return node;
 				var peer = PeerTable.GetPeer(endpoint);
 				if(peer == null)
 					peer = new Peer(PeerOrigin.Manual, new NetworkAddress()
@@ -406,12 +407,9 @@ namespace NBitcoin.Protocol
 		}
 		private Node GetNodeByPeer(Peer peer)
 		{
-			lock(_Nodes)
-			{
-				Node result = null;
-				if(_Nodes.TryGetValue(peer.NetworkAddress.Endpoint, out result))
-					return result;
-			}
+			var node = _Nodes.GetNodeByPeer(peer);
+			if(node != null)
+				return node;
 			return AddNode(peer);
 
 		}
@@ -431,25 +429,14 @@ namespace NBitcoin.Protocol
 
 		private Node AddNode(Node node)
 		{
-			lock(_Nodes)
-			{
-				if(node.State < NodeState.Connected)
-					return null;
-				node.MessageProducer.AddMessageListener(_MessageListener);
-				_Nodes.Add(node.Peer.NetworkAddress.Endpoint, node);
-			}
-			return node;
+			if(node.State < NodeState.Connected)
+				return null;
+			return _Nodes.AddNode(node);
 		}
 
 		internal void RemoveNode(Node node)
 		{
-			lock(_Nodes)
-			{
-				if(_Nodes.Remove(node.Peer.NetworkAddress.Endpoint))
-				{
-					node.MessageProducer.RemoveMessageListener(_MessageListener);
-				}
-			}
+			_Nodes.RemoveNode(node);
 		}
 		void ProcessMessage(IncomingMessage message)
 		{
@@ -552,10 +539,7 @@ namespace NBitcoin.Protocol
 
 		public bool IsConnectedTo(IPEndPoint endpoint)
 		{
-			lock(_Nodes)
-			{
-				return _Nodes.ContainsKey(endpoint);
-			}
+			return _Nodes.Contains(endpoint);
 		}
 
 
@@ -569,14 +553,9 @@ namespace NBitcoin.Protocol
 				isDisposed = true;
 
 				_MessageListener.Dispose();
-				Task[] tasks = null;
-				lock(_Nodes)
-				{
-					tasks = _Nodes.Values.ToArray().Select(n => Task.Factory.StartNew(() => n.Disconnect())).ToArray();
-				}
 				try
 				{
-					Task.WaitAll(tasks);
+					_Nodes.DisconnectAll();
 				}
 				finally
 				{
@@ -657,7 +636,10 @@ namespace NBitcoin.Protocol
 			return Math.Max(0, 990 - PeerTable.CountUsed(true));
 		}
 
-		public void DiscoverNodes()
+		/// <summary>
+		/// Fill the PeerTable with fresh addresses
+		/// </summary>
+		public void DiscoverPeers()
 		{
 			TraceCorrelation traceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Discovering nodes");
 			List<Task> tasks = new List<Task>();

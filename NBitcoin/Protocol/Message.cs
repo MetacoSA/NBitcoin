@@ -115,7 +115,8 @@ namespace NBitcoin.Protocol
 						throw new FormatException("Message checksum invalid");
 					}
 				}
-
+				NodeServerTrace.Trace.TraceEvent(TraceEventType.Verbose, 0, "Message bytes"
+															+ Encoders.Hex.EncodeData(this.ToBytes()));
 				BitcoinStream payloadStream = new BitcoinStream(payload);
 				payloadStream.CopyParameters(stream);
 

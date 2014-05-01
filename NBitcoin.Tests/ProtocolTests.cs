@@ -21,9 +21,11 @@ namespace NBitcoin.Tests
 			_Server1 = new NodeServer(Network.Main, internalPort: 3390);
 			_Server1.AllowLocalPeers = true;
 			_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), 3390);
+			_Server1.NATRuleName = NATRuleName;
 			_Server1.Listen();
 			_Server2 = new NodeServer(Network.Main, internalPort: 3391);
 			_Server2.AllowLocalPeers = true;
+			_Server2.NATRuleName = NATRuleName;
 			_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), 3391);
 			_Server2.Listen();
 		}
@@ -53,6 +55,8 @@ namespace NBitcoin.Tests
 		}
 
 		#endregion
+
+		public static string NATRuleName = "NBitcoin Tests";
 	}
 	public class ProtocolTests
 	{
@@ -142,7 +146,7 @@ namespace NBitcoin.Tests
 		[Trait("Network", "Network")]
 		public void CanHandshake()
 		{
-			
+
 			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
 			{
 				var seed = server.GetNodeByHostName("seed.bitcoin.sipa.be");
@@ -161,7 +165,7 @@ namespace NBitcoin.Tests
 			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
 			{
 				Assert.True(server.CountPeerRequired() > 500);
-				server.DiscoverNodes();
+				server.DiscoverPeers();
 				Assert.True(server.CountPeerRequired() < 10);
 			}
 		}
@@ -175,7 +179,7 @@ namespace NBitcoin.Tests
 				var toS2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
 				toS2.VersionHandshake();
 				Assert.Equal(NodeState.HandShaked, toS2.State);
-				Assert.Equal(NodeState.HandShaked, tester.Server2.GetNodeByEndpoint(tester.Server1.ExternalEndpoint).State);
+				Assert.Equal(NodeState.HandShaked, tester.Server2.GetNodeByEndpoint(toS2.ExternalEndpoint).State);
 			}
 		}
 
@@ -214,10 +218,10 @@ namespace NBitcoin.Tests
 		public void CanUseUPNP()
 		{
 			UPnPLease lease = null;
-			UPnPLease.ReleaseAll("NBitcoin Tests"); //Clean the gateway of previous tests attempt
+			UPnPLease.ReleaseAll(NodeServerTester.NATRuleName); //Clean the gateway of previous tests attempt
 			using(var server = new NodeServer(Network.Main))
 			{
-				server.NATRuleName = "NBitcoin Tests";
+				server.NATRuleName = NodeServerTester.NATRuleName;
 				Assert.False(server.ExternalEndpoint.Address.IsRoutable(false));
 				lease = server.DetectExternalEndpoint();
 				Assert.True(server.ExternalEndpoint.Address.IsRoutable(false));
@@ -230,6 +234,18 @@ namespace NBitcoin.Tests
 				Assert.True(lease.IsOpen());
 			}
 			Assert.False(lease.IsOpen());
+		}
+
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanConnectToSeveralNodes()
+		{
+			UPnPLease.ReleaseAll(NodeServerTester.NATRuleName); //Clean the gateway of previous tests attempt
+			using(var server = new NodeServer(Network.Main))
+			{
+				server.NATRuleName = NodeServerTester.NATRuleName;
+				//var nodes = server.CreateNodeSet(10);
+			}
 		}
 	}
 }

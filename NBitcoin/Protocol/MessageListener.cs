@@ -14,6 +14,17 @@ namespace NBitcoin.Protocol
 		void PushMessage(T message);
 	}
 
+	public class NullMessageListener<T> : MessageListener<T>
+	{
+		#region MessageListener<T> Members
+
+		public void PushMessage(T message)
+		{
+		}
+
+		#endregion
+	}
+
 	public class NewThreadMessageListener<T> : MessageListener<T>
 	{
 		readonly Action<T> _Process;

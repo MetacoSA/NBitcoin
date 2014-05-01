@@ -309,6 +309,7 @@ namespace NBitcoin.Protocol
 			throw new InvalidProgramException("Bug in Node.RecieveMessage");
 		}
 
+
 		VersionPayload _FullVersion;
 		public void VersionHandshake(CancellationToken cancellationToken = default(CancellationToken))
 		{
@@ -389,6 +390,13 @@ namespace NBitcoin.Protocol
 		{
 			return NodeServer.CreateVersionPayload(Peer, (IPEndPoint)_Connection.Socket.LocalEndPoint, Version);
 		}
+		public IPEndPoint ExternalEndpoint
+		{
+			get
+			{
+				return CreateVersionPayload().AddressFrom;
+			}
+		}
 
 		public void Disconnect()
 		{
@@ -413,5 +421,15 @@ namespace NBitcoin.Protocol
 		}
 
 
+
+		public Socket Socket
+		{
+			get
+			{
+				return _Connection.Socket;
+			}
+		}
+
+		
 	}
 }
