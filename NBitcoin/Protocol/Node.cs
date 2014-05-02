@@ -212,6 +212,12 @@ namespace NBitcoin.Protocol
 					State = NodeState.Connected;
 					NodeServerTrace.Information("Outbound connection successfull");
 				}
+				catch(OperationCanceledException)
+				{
+					Utils.SafeCloseSocket(socket);
+					NodeServerTrace.Information("Connection to node cancelled");
+					State = NodeState.Offline;
+				}
 				catch(Exception ex)
 				{
 					Utils.SafeCloseSocket(socket);

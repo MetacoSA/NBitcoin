@@ -132,10 +132,13 @@ namespace NBitcoin.Protocol
 			int i = 0;
 			foreach(var peer in peers)
 			{
-				builder.AppendLine("Insert INTO PeerTable(LastSeen,Data) Values(@a" + i + ",@b" + i + ");");
-				command.Parameters.Add("@a" + i, DbType.UInt64).Value = Utils.DateTimeToUnixTime(peer.NetworkAddress.Time);
-				command.Parameters.Add("@b" + i, DbType.String).Value = Utils.Serialize(new PeerBlob(peer));
-				i++;
+				if(new TimeSpan(0, -30, 0) < peer.NetworkAddress.Ago && peer.NetworkAddress.Ago < ValiditySpan)
+				{
+					builder.AppendLine("Insert INTO PeerTable(LastSeen,Data) Values(@a" + i + ",@b" + i + ");");
+					command.Parameters.Add("@a" + i, DbType.UInt64).Value = Utils.DateTimeToUnixTime(peer.NetworkAddress.Time);
+					command.Parameters.Add("@b" + i, DbType.String).Value = Utils.Serialize(new PeerBlob(peer));
+					i++;
+				}
 			}
 			command.CommandText = builder.ToString();
 			if(command.CommandText == "")

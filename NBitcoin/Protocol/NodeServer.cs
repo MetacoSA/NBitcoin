@@ -1,5 +1,6 @@
 ﻿using Mono.Nat;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -632,62 +633,61 @@ namespace NBitcoin.Protocol
 			List<Task> tasks = new List<Task>();
 			using(traceCorrelation.Open())
 			{
-				int simultaneous = 20;
 				while(CountPeerRequired(peerToFind) != 0)
 				{
 					NodeServerTrace.PeerTableRemainingPeerToGet(CountPeerRequired(peerToFind));
 					CancellationTokenSource cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(40));
-					var peers = PeerTable.GetActivePeers(simultaneous);
+					var peers = PeerTable.GetActivePeers(1000);
 					if(peers.Length == 0)
 					{
 						PopulateTableWithDNSNodes();
 						PopulateTableWithHardNodes();
-						peers = PeerTable.GetActivePeers(simultaneous);
+						peers = PeerTable.GetActivePeers(1000);
 					}
 
 
-					tasks.AddRange(peers
-						.Select(p => Task.Factory.StartNew(() =>
+					CancellationTokenSource peerTableFull = new CancellationTokenSource();
+					NodeSet connected = new NodeSet();
+					try
+					{
+						Parallel.ForEach(peers, new ParallelOptions()
 						{
-							var n = GetNodeByPeer(p, cancellation.Token);
-							if(n == null)
-								return;
+							MaxDegreeOfParallelism = 5,
+							CancellationToken = peerTableFull.Token,
+						}, p =>
+						{
+							Node n = null;
 							try
 							{
+								n = GetNodeByPeer(p, cancellation.Token);
 								if(n.State < NodeState.HandShaked)
-									n.VersionHandshake(cancellation.Token);
-								n.SendMessage(new GetAddrPayload());
-								while(!cancellation.IsCancellationRequested)
 								{
-									n.RecieveMessage<AddrPayload>(cancellation.Token);
+									connected.AddNode(n);
+									n.VersionHandshake(cancellation.Token);
 								}
+								n.SendMessage(new GetAddrPayload());
+								Thread.Sleep(2000);
 							}
-							finally
+							catch(Exception)
 							{
-								n.Disconnect();
+								if(n != null)
+									n.Disconnect();
 							}
-						}, cancellation.Token)).ToArray());
-
-					while(CountPeerRequired(peerToFind) != 0)
-					{
-						if(cancellation.IsCancellationRequested)
-							break;
-						Thread.Sleep(2000);
-						NodeServerTrace.PeerTableRemainingPeerToGet(CountPeerRequired(peerToFind));
+							if(CountPeerRequired(peerToFind) == 0)
+								peerTableFull.Cancel();
+							else
+								NodeServerTrace.Information("Need " + CountPeerRequired(peerToFind) + " more peers");
+						});
 					}
-					if(!cancellation.IsCancellationRequested)
-						cancellation.Cancel();
+					catch(OperationCanceledException)
+					{
+					}
+					finally
+					{
+						connected.DisconnectAll();
+					}
 				}
 				NodeServerTrace.Trace.TraceInformation("Peer table is now full");
-				try
-				{
-					Task.WaitAll(tasks.ToArray());
-				}
-				catch(AggregateException ex)
-				{
-					if(!ex.InnerExceptions.All(i => i is OperationCanceledException))
-						throw;
-				}
 			}
 		}
 
@@ -703,48 +703,59 @@ namespace NBitcoin.Protocol
 				while(set.Count() < size)
 				{
 					var peerToGet = size - set.Count();
-					var activePeers = PeerTable.GetActivePeers(Math.Max(10, (int)((double)peerToGet * 1.5)));
+					var activePeers = PeerTable.GetActivePeers(1000);
+					activePeers = activePeers.Where(p => !set.Contains(p.NetworkAddress.Endpoint)).ToArray();
 					if(activePeers.Length < peerToGet)
 					{
 						DiscoverPeers(size);
 						continue;
 					}
 					NodeServerTrace.Information("Need " + peerToGet + " more nodes");
-					NodeServerTrace.Information("Trying to handshake " + activePeers.Length + " peers concurrently");
 
-					CancellationTokenSource cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(20));
-					var tasks = activePeers.Select(p => Task.Factory.StartNew<Node>(() =>
-					{
-						if(set.Contains(p.NetworkAddress.Endpoint))
-							return null;
-						var node = GetNodeByPeer(p, cancellation.Token);
-						try
-						{
-							node.VersionHandshake(cancellation.Token);
-						}
-						catch(Exception)
-						{
-						}
-						if(node != null && node.State != NodeState.HandShaked)
-							node.Disconnect();
-						return node;
-					}, cancellation.Token)).ToArray();
+					BlockingCollection<Node> handshakedNodes = new BlockingCollection<Node>(peerToGet);
+					CancellationTokenSource handshakedFull = new CancellationTokenSource();
 
 					try
 					{
-						Task.WaitAll(tasks, cancellation.Token);
+						Parallel.ForEach(activePeers,
+							new ParallelOptions()
+							{
+								MaxDegreeOfParallelism = 10,
+								CancellationToken = handshakedFull.Token
+							}, p =>
+						{
+							if(set.Contains(p.NetworkAddress.Endpoint))
+								return;
+							Node node = null;
+							try
+							{
+								node = GetNodeByPeer(p, handshakedFull.Token);
+								node.VersionHandshake(handshakedFull.Token);
+								if(node != null && node.State != NodeState.HandShaked)
+									node.Disconnect();
+								if(!handshakedNodes.TryAdd(node))
+								{
+									handshakedFull.Cancel();
+									node.Disconnect();
+								}
+								else
+								{
+									NodeServerTrace.Information("Need " + (size - set.Count() - handshakedNodes.Count) + " more nodes");
+								}
+							}
+							catch(Exception)
+							{
+								if(node != null)
+									node.Disconnect();
+							}
+						});
 					}
 					catch(OperationCanceledException)
 					{
 					}
 
-					var acceptedNodes = tasks
-									.Where(t => !t.IsCanceled && !t.IsFaulted && t.Status == TaskStatus.RanToCompletion)
-									.Select(t => t.Result).Where(n => n != null).ToArray();
-					set.AddNodes(acceptedNodes);
-					var surplusNodes = acceptedNodes.Skip(peerToGet).ToArray();
-					set.DisconnectNodes(surplusNodes);
-					set.RemoveNodes(surplusNodes);
+					handshakedFull.Token.WaitHandle.WaitOne();
+					set.AddNodes(handshakedNodes.ToArray());
 				}
 			}
 			return set;

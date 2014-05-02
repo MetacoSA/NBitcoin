@@ -64,7 +64,9 @@ namespace NBitcoin.Protocol
 									.ThenBy(p => rand.Next())
 									.Take(maxCount));
 			}
-			return result.ToArray();
+			var shuffled = result.ToArray();
+			Utils.Shuffle(shuffled);
+			return shuffled;
 		}
 		public void UpdatePeers(IEnumerable<Peer> address)
 		{
