@@ -110,33 +110,33 @@ namespace NBitcoin.Tests
 
 			BloomFilter filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			filter.Insert(new uint256("0xb4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b"));
-			Assert.True(filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter didn't match tx hash");
+			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match tx hash");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			// byte-reversed tx hash
 			filter.Insert(ParseHex("6bff7fcd4f8565ef406dd5d63d4ff94f318fe82027fd4dc451b04474019f74b4"));
-			Assert.True(filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter didn't match manually serialized tx hash");
+			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match manually serialized tx hash");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			filter.Insert(ParseHex("30450220070aca44506c5cef3a16ed519d7c3c39f8aab192c4e1c90d065f37b8a4af6141022100a8e160b856c2d43d27d8fba71e5aef6405b8643ac4cb7cb3c462aced7f14711a01"));
-			Assert.True(filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter didn't match input signature");
+			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match input signature");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			filter.Insert(ParseHex("046d11fee51b0e60666d5049a9101a72741df480b96ee26488a4d3466b95c9a40ac5eeef87e10a5cd336c19a84565f80fa6c547957b7700ff4dfbdefe76036c339"));
-			Assert.True(filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter didn't match input pub key");
+			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match input pub key");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			filter.Insert(ParseHex("04943fdd508053c75000106d3bc6e2754dbcff19"));
-			Assert.True(filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter didn't match output address");
-			Assert.True(filter.IsRelevantAndUpdate(spendingTx, spendingTx.GetHash()), "Simple Bloom filter didn't add output");
+			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match output address");
+			Assert.True(filter.IsRelevantAndUpdate(spendingTx), "Simple Bloom filter didn't add output");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			filter.Insert(ParseHex("a266436d2965547608b9e15d9032a7b9d64fa431"));
-			Assert.True(filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter didn't match output address");
+			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match output address");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			filter.Insert(new OutPoint(new uint256("0x90c122d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 0));
-			Assert.True(filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter didn't match COutPoint");
+			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match COutPoint");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			OutPoint prevOutPoint = new OutPoint(new uint256("0x90c122d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 0);
@@ -144,23 +144,23 @@ namespace NBitcoin.Tests
 				var data = prevOutPoint.ToBytes();
 				filter.Insert(data);
 			}
-			Assert.True(filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter didn't match manually serialized COutPoint");
+			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match manually serialized COutPoint");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			filter.Insert(new uint256("00000009e784f32f62ef849763d4f45b98e07ba658647343b915ff832b110436"));
-			Assert.True(!filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter matched random tx hash");
+			Assert.True(!filter.IsRelevantAndUpdate(tx), "Simple Bloom filter matched random tx hash");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			filter.Insert(ParseHex("0000006d2965547608b9e15d9032a7b9d64fa431"));
-			Assert.True(!filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter matched random address");
+			Assert.True(!filter.IsRelevantAndUpdate(tx), "Simple Bloom filter matched random address");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			filter.Insert(new OutPoint(new uint256("0x90c122d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 1));
-			Assert.True(!filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter matched COutPoint for an output we didn't care about");
+			Assert.True(!filter.IsRelevantAndUpdate(tx), "Simple Bloom filter matched COutPoint for an output we didn't care about");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			filter.Insert(new OutPoint(new uint256("0x000000d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 0));
-			Assert.True(!filter.IsRelevantAndUpdate(tx, tx.GetHash()), "Simple Bloom filter matched COutPoint for an output we didn't care about");
+			Assert.True(!filter.IsRelevantAndUpdate(tx), "Simple Bloom filter matched COutPoint for an output we didn't care about");
 		}
 
 

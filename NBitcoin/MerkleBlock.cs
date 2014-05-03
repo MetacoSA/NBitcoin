@@ -55,7 +55,7 @@ namespace NBitcoin
 			for(uint i = 0 ; i < block.Vtx.Length ; i++)
 			{
 				uint256 hash = block.Vtx[i].GetHash();
-				if(filter.IsRelevantAndUpdate(block.Vtx[i], hash))
+				if(filter.IsRelevantAndUpdate(block.Vtx[i]))
 				{
 					vMatch.Add(true);
 					vMatchedTxn.Add(Tuple.Create(i, hash));

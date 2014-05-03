@@ -753,8 +753,6 @@ namespace NBitcoin.Protocol
 					catch(OperationCanceledException)
 					{
 					}
-
-					handshakedFull.Token.WaitHandle.WaitOne();
 					set.AddNodes(handshakedNodes.ToArray());
 				}
 			}

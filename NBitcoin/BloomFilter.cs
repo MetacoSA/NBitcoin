@@ -23,7 +23,7 @@ namespace NBitcoin
 		const uint MAX_HASH_FUNCS = 50;
 		const decimal LN2SQUARED = 0.4804530139182014246671025263266649717305529515945455M;
 		const decimal LN2 = 0.6931471805599453094172321214581765680755001343602552M;
-	
+
 
 		byte[] vData;
 		uint nHashFuncs;
@@ -31,7 +31,25 @@ namespace NBitcoin
 		byte nFlags;
 		private bool isFull = false;
 		private bool isEmpty;
-		public BloomFilter(uint nElements, double nFPRate, uint nTweakIn, BloomFlags nFlagsIn)
+
+		static Random _Rand = new Random();
+		private static uint GetRandomTweak()
+		{
+			lock(_Rand)
+			{
+				byte[] bytes = new byte[sizeof(uint)];
+				_Rand.NextBytes(bytes);
+				return BitConverter.ToUInt32(bytes, 0);
+			}
+		}
+
+		public BloomFilter(uint nElements, double nFPRate, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
+			: this(nElements, nFPRate, GetRandomTweak(), nFlagsIn)
+		{
+		}
+
+		
+		public BloomFilter(uint nElements, double nFPRate, uint nTweakIn, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
 		{
 			// The ideal size for a bloom filter with a given number of elements and false positive rate is:
 			// - nElements * log(fp rate) / ln(2)^2
@@ -114,10 +132,11 @@ namespace NBitcoin
 
 		#endregion
 
-		
 
-		public bool IsRelevantAndUpdate(Transaction tx, uint256 hash)
+
+		public bool IsRelevantAndUpdate(Transaction tx)
 		{
+			var hash = tx.GetHash();
 			bool fFound = false;
 			// Match if the filter contains the hash of tx
 			//  for finding tx when they appear in a block
@@ -174,6 +193,6 @@ namespace NBitcoin
 			return false;
 		}
 
-	
+
 	}
 }
