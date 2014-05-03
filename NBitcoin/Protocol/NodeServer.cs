@@ -734,7 +734,13 @@ namespace NBitcoin.Protocol
 								}
 								else
 								{
-									NodeServerTrace.Information("Need " + (size - set.Count() - handshakedNodes.Count) + " more nodes");
+									var remaining = (size - set.Count() - handshakedNodes.Count);
+									if(remaining == 0)
+									{
+										handshakedFull.Cancel();
+									}
+									else
+										NodeServerTrace.Information("Need " + remaining  + " more nodes");
 								}
 							}
 							catch(Exception)
