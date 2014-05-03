@@ -49,6 +49,7 @@ namespace NBitcoin.Protocol
 			var listener = new EventLoopMessageListener<IncomingMessage>(ProcessMessage);
 			_MessageProducer.AddMessageListener(listener);
 			OwnResource(listener);
+			RegisterPeerTableRepository(_PeerTable);
 			_Nodes = new NodeSet(listener);
 			_Trace = new TraceCorrelation(NodeServerTrace.Trace, "Node server listening on " + LocalEndpoint);
 		}
@@ -134,20 +135,14 @@ namespace NBitcoin.Protocol
 		}
 		public bool AllowLocalPeers
 		{
-			get
-			{
-				return PeerTable.AllowLocalPeers;
-			}
-			set
-			{
-				PeerTable.AllowLocalPeers = value;
-			}
+			get;
+			set;
 		}
 
 
 		private void PopulateTableWithHardNodes()
 		{
-			PeerTable.UpdatePeers(Network.SeedNodes.Select(n => new Peer(PeerOrigin.HardSeed, n)).ToArray());
+			_InternalMessageProducer.PushMessages(Network.SeedNodes.Select(n => new Peer(PeerOrigin.HardSeed, n)).ToArray());
 		}
 		private void PopulateTableWithDNSNodes()
 		{
@@ -170,10 +165,10 @@ namespace NBitcoin.Protocol
 								Time = Utils.UnixTimeToDateTime(0)
 							})).ToArray();
 
-			PeerTable.UpdatePeers(peers);
+			_InternalMessageProducer.PushMessages(peers);
 		}
 
-		private readonly PeerTable _PeerTable = new PeerTable();
+		readonly PeerTable _PeerTable = new PeerTable();
 		public PeerTable PeerTable
 		{
 			get
@@ -181,7 +176,6 @@ namespace NBitcoin.Protocol
 				return _PeerTable;
 			}
 		}
-
 
 		private IPEndPoint _LocalEndpoint;
 		public IPEndPoint LocalEndpoint
@@ -316,7 +310,8 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private readonly MessageProducer<IncomingMessage> _MessageProducer = new MessageProducer<IncomingMessage>();
+		internal readonly MessageProducer<IncomingMessage> _MessageProducer = new MessageProducer<IncomingMessage>();
+		internal readonly MessageProducer<object> _InternalMessageProducer = new MessageProducer<object>();
 
 		MessageProducer<IncomingMessage> _AllMessages = new MessageProducer<IncomingMessage>();
 		public MessageProducer<IncomingMessage> AllMessages
@@ -383,6 +378,7 @@ namespace NBitcoin.Protocol
 				return AddNode(peer, cancellation);
 			}
 		}
+
 		public Node GetNodeByPeer(Peer peer, CancellationToken cancellation = default(CancellationToken))
 		{
 			var node = _Nodes.GetNodeByPeer(peer);
@@ -436,22 +432,6 @@ namespace NBitcoin.Protocol
 
 		private void ProcessMessageCore(IncomingMessage message)
 		{
-			bool isAdvertised = message.Node != null && message.Node.State == NodeState.HandShaked;
-			if(isAdvertised)
-			{
-				if(message.Message.Payload is AddrPayload)
-				{
-					PeerTable.UpdatePeers(message.AssertPayload<AddrPayload>().Addresses.Select(a => new Peer(PeerOrigin.Addr, a)));
-				}
-				if(message.Message.Payload is GetAddrPayload)
-				{
-					var existingPeers = PeerTable.GetActivePeers(1000)
-							 .Where(p => p.Origin != PeerOrigin.DNSSeed && p.Origin != PeerOrigin.HardSeed)
-							 .Select(p => p.NetworkAddress).ToArray();
-					message.Node.SendMessage(new AddrPayload(existingPeers));
-				}
-			}
-
 			if(message.Message.Payload is VersionPayload)
 			{
 				var version = message.AssertPayload<VersionPayload>();
@@ -522,14 +502,26 @@ namespace NBitcoin.Protocol
 		}
 
 		List<IDisposable> _Resources = new List<IDisposable>();
-		void OwnResource(IDisposable resource)
+		IDisposable OwnResource(IDisposable resource)
 		{
 			if(isDisposed)
-				resource.Dispose();
-			lock(_Resources)
 			{
-				_Resources.Add(resource);
+				resource.Dispose();
+				return Scope.Nothing;
 			}
+			return new Scope(() =>
+			{
+				lock(_Resources)
+				{
+					_Resources.Add(resource);
+				}
+			}, () =>
+			{
+				lock(_Resources)
+				{
+					_Resources.Remove(resource);
+				}
+			});
 		}
 		#region IDisposable Members
 
@@ -619,10 +611,8 @@ namespace NBitcoin.Protocol
 		}
 
 
-		int CountPeerRequired(int peerToFind)
-		{
-			return Math.Max(0, peerToFind - PeerTable.CountUsed(true));
-		}
+
+
 
 		/// <summary>
 		/// Fill the PeerTable with fresh addresses
@@ -691,6 +681,10 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		int CountPeerRequired(int peerToFind)
+		{
+			return Math.Max(0, peerToFind - PeerTable.CountUsed(true));
+		}
 
 		public NodeSet CreateNodeSet(int size)
 		{
@@ -763,19 +757,31 @@ namespace NBitcoin.Protocol
 
 		public IDisposable RegisterPeerTableRepository(PeerTableRepository peerTableRepository)
 		{
-			var poll = new EventLoopMessageListener<IncomingMessage>(message =>
+			var poll = new EventLoopMessageListener<object>(o =>
 			{
-				if(message.Message.Payload is AddrPayload)
+				var message = o as IncomingMessage;
+				if(message != null)
 				{
-					peerTableRepository.WritePeers(((AddrPayload)message.Message.Payload).Addresses.Select(a => new Peer(PeerOrigin.Addr, a)));
+					if(message.Message.Payload is AddrPayload)
+					{
+						peerTableRepository.WritePeers(((AddrPayload)message.Message.Payload).Addresses
+														.Where(a => a.Endpoint.Address.IsRoutable(AllowLocalPeers))
+														.Select(a => new Peer(PeerOrigin.Addr, a)));
+					}
+				}
+				var peer = o as Peer;
+				if(peer != null)
+				{
+					if(peer.NetworkAddress.Endpoint.Address.IsRoutable(AllowLocalPeers))
+						peerTableRepository.WritePeer(peer);
 				}
 			});
-			foreach(var peer in peerTableRepository.GetPeers())
+
+			if(peerTableRepository != _PeerTable)
 			{
-				PeerTable.UpdatePeer(peer);
+				_InternalMessageProducer.PushMessages(peerTableRepository.GetPeers());
 			}
-			OwnResource(poll);
-			return AllMessages.AddMessageListener(poll);
+			return new CompositeDisposable(AllMessages.AddMessageListener(poll), _InternalMessageProducer.AddMessageListener(poll), OwnResource(poll));
 		}
 		public IDisposable RegisterBlockRepository(BlockRepository repository)
 		{
@@ -796,8 +802,7 @@ namespace NBitcoin.Protocol
 					}
 				}
 			});
-			OwnResource(listener);
-			return AllMessages.AddMessageListener(listener);
+			return new CompositeDisposable(AllMessages.AddMessageListener(listener), OwnResource(listener));
 		}
 	}
 }

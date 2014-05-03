@@ -9,6 +9,17 @@ namespace NBitcoin.Protocol
 {
 	public class IncomingMessage
 	{
+		public IncomingMessage()
+		{
+
+		}
+		public IncomingMessage(Payload payload, Network network)
+		{
+			Message = new Message();
+			Message.Command = payload.Command;
+			Message.Magic = network.Magic;
+			Message.UpdatePayload(payload, ProtocolVersion.PROTOCOL_VERSION);
+		}
 		public Message Message
 		{
 			get;

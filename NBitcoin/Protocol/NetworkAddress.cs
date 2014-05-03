@@ -88,5 +88,9 @@ namespace NBitcoin.Protocol
 
 		#endregion
 
+		public void ZeroTime()
+		{
+			this.time = 0;
+		}
 	}
 }

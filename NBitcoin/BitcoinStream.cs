@@ -27,6 +27,18 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public static IDisposable Nothing
+		{
+			get
+			{
+				return new Scope(() =>
+				{
+				}, () =>
+				{
+				});
+			}
+		}
 	}
 	public class BitcoinStream
 	{

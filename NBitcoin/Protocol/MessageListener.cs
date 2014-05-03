@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace NBitcoin.Protocol
 {
 
-	public interface MessageListener<T>
+	public interface MessageListener<in T>
 	{
 		void PushMessage(T message);
 	}

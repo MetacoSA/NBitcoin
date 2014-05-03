@@ -39,71 +39,69 @@ namespace NBitcoin.Protocol
 				return _NetworkAddress;
 			}
 		}
+
+		public Peer Clone()
+		{
+			return new Peer(Origin, NetworkAddress.Clone());
+		}
 	}
-	public class PeerTable
+	public class PeerTable : InMemoryPeerTableRepository
 	{
-		public bool AllowLocalPeers
+		Dictionary<string, Peer> _PeerSeeds = new Dictionary<string, Peer>();
+		public PeerTable()
+		{
+			ValiditySpan = TimeSpan.FromHours(3.0);
+		}
+		public bool Randomize
 		{
 			get;
 			set;
 		}
-		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		Peer[] _Peers = new Peer[1000];
+
+
+
+
 		public Peer[] GetActivePeers(int maxCount)
 		{
 			maxCount = Math.Min(1000, maxCount);
 			List<Peer> result = new List<Peer>();
 			lock(_Peers)
 			{
-				Random rand = new Random();
 				result.AddRange(_Peers
-									.Where(p => p != null)
-									.Where(p => p.NetworkAddress.Ago < TimeSpan.FromHours(3.0) || p.Origin == PeerOrigin.DNSSeed || p.Origin == PeerOrigin.HardSeed)
+									.Select(p => p.Value)
+									.Concat(_PeerSeeds.Select(p => p.Value))
 									.OrderBy(p => p.Origin)
 									.ThenBy(p => p.NetworkAddress.Ago)
-									.ThenBy(p => rand.Next())
 									.Take(maxCount));
 			}
 			var shuffled = result.ToArray();
-			Utils.Shuffle(shuffled);
+			if(Randomize)
+				Utils.Shuffle(shuffled);
 			return shuffled;
 		}
-		public void UpdatePeers(IEnumerable<Peer> address)
+
+		public override void WritePeers(IEnumerable<Peer> peers)
 		{
 			lock(_Peers)
 			{
-				foreach(var a in address)
-					UpdatePeerCore(a);
-			}
-		}
-		public Peer UpdatePeer(Peer address)
-		{
-			lock(_Peers)
-			{
-				return UpdatePeerCore(address);
+				var normalPeers = peers.Where(p => p.Origin != PeerOrigin.DNSSeed && p.Origin != PeerOrigin.HardSeed);
+				base.WritePeers(normalPeers);
+				var seedPeers = peers.Where(p => p.Origin == PeerOrigin.DNSSeed || p.Origin == PeerOrigin.HardSeed);
+				foreach(var s in seedPeers)
+				{
+					_PeerSeeds.AddOrReplace(s.NetworkAddress.Endpoint.ToString(), s);
+				}
 			}
 		}
 
-		private Peer UpdatePeerCore(Peer peer)
+		public override IEnumerable<Peer> GetPeers()
 		{
-			if(!peer.NetworkAddress.Endpoint.Address.IsRoutable(AllowLocalPeers))
-				return peer;
-			var index = GetIndex(p => p != null &&
-									  p.NetworkAddress.Endpoint.Equals(peer.NetworkAddress.Endpoint));
-			if(index == -1)
+			lock(_Peers)
 			{
-				var freeIndex = GetIndex(p => IsFree(p, false));
-				if(freeIndex == -1)
-				{
-					freeIndex = GetIndex(p => IsFree(p, true));
-					if(freeIndex == -1)
-						return peer;
-				}
-				index = freeIndex;
+				return base.GetPeers().Concat(_PeerSeeds.Select(s => s.Value)).ToList();
 			}
-			_Peers[index] = peer;
-			return peer;
 		}
+
 
 		private bool IsFree(Peer p, bool seedsAsFree = true)
 		{
@@ -120,19 +118,10 @@ namespace NBitcoin.Protocol
 		{
 			lock(_Peers)
 			{
-				return _Peers.Where(p => !IsFree(p, seedsAsFree)).Count();
+				return _Peers.Concat(_PeerSeeds).Where(p => !IsFree(p.Value, seedsAsFree)).Count();
 			}
 		}
 
-		private int GetIndex(Predicate<Peer> predicate)
-		{
-			for(int i = 0 ; i < _Peers.Length ; i++)
-			{
-				if(predicate(_Peers[i]))
-					return i;
-			}
-			return -1;
-		}
 
 
 		public Peer GetPeer(IPEndPoint endpoint)
@@ -143,22 +132,20 @@ namespace NBitcoin.Protocol
 				endpoint = new IPEndPoint(endpoint.Address.MapToIPv6(), endpoint.Port);
 			lock(_Peers)
 			{
-				return _Peers.Where(p => p != null && p.NetworkAddress.Endpoint.Equals(endpoint)).FirstOrDefault();
+				Peer existing = null;
+				_Peers.TryGetValue(endpoint.ToString(), out existing);
+				return existing;
 			}
 		}
 
-		public void RemovePeer(Peer peer)
-		{
-			RemovePeer(peer.NetworkAddress.Endpoint);
-		}
 
-		private void RemovePeer(IPEndPoint endpoint)
+
+		public void RemovePeer(Peer peer)
 		{
 			lock(_Peers)
 			{
-				var i = GetIndex(p => p != null && p.NetworkAddress.Endpoint.Equals(endpoint));
-				if(i != -1)
-					_Peers[i] = null;
+				_Peers.Remove(peer.NetworkAddress.Endpoint.ToString());
+				_PeerSeeds.Remove(peer.NetworkAddress.Endpoint.ToString());
 			}
 		}
 	}

@@ -15,6 +15,7 @@ namespace NBitcoin.Tests
 		public void CanStorePeers()
 		{
 			PeerTable table = new PeerTable();
+			table.Randomize = false;
 			AssertPeer(table, "1.0.0.0", p => Assert.Null(p));
 			AddPeer(table, "1.0.0.0", PeerOrigin.Addr, DateTimeOffset.Now);
 			AssertPeer(table, "1.0.0.0", p => Assert.NotNull(p));
@@ -22,8 +23,9 @@ namespace NBitcoin.Tests
 
 			AssertPeer(table, "1.0.0.1", p => Assert.Null(p));
 			AddPeer(table, "1.0.0.1", PeerOrigin.Addr, DateTimeOffset.Now - TimeSpan.FromHours(4.0));
-			AssertPeer(table, "1.0.0.1", p => Assert.NotNull(p));
+			AssertPeer(table, "1.0.0.1", p => Assert.Null(p));
 
+			//Second peer should be expired
 			Assert.True(table.GetActivePeers(10).Length == 1);
 
 			AddPeer(table, "1.0.0.1", PeerOrigin.Addr, DateTimeOffset.Now - TimeSpan.FromHours(2.0));
@@ -38,6 +40,9 @@ namespace NBitcoin.Tests
 			Assert.Equal(CreateEndpoint("1.0.0.1"), peers[1].NetworkAddress.Endpoint);
 			Assert.Equal(CreateEndpoint("1.0.0.2"), peers[2].NetworkAddress.Endpoint); //Seeds
 			Assert.Equal(2, table.CountUsed());
+
+			//Can add two time a seed
+			AddPeer(table, "1.0.0.2", PeerOrigin.DNSSeed, DateTimeOffset.Now);
 
 			AddPeer(table, "1.0.0.1", PeerOrigin.Addr, DateTimeOffset.Now - TimeSpan.FromHours(4.0));
 
@@ -69,11 +74,13 @@ namespace NBitcoin.Tests
 
 		private Peer AddPeer(PeerTable table, string addr, PeerOrigin peerOrigin, DateTimeOffset now)
 		{
-			return table.UpdatePeer(new Peer(peerOrigin, new NetworkAddress()
+			var peer = new Peer(peerOrigin, new NetworkAddress()
 			{
 				Endpoint = new IPEndPoint(IPAddress.Parse(addr), 100),
 				Time = now
-			}));
+			});
+			table.WritePeer(peer);
+			return peer;
 		}
 	}
 }

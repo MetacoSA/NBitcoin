@@ -166,7 +166,11 @@ namespace NBitcoin.Protocol
 				TraceCorrelation.LogInside(() => NodeServerTrace.Information("State changed from " + _State + " to " + value));
 				_State = value;
 				if(value == NodeState.Failed)
-					NodeServer.PeerTable.RemovePeer(Peer);
+				{
+					var peer = Peer.Clone();
+					peer.NetworkAddress.ZeroTime();
+					NodeServer._InternalMessageProducer.PushMessage(peer);
+				}
 				if(value == NodeState.Failed || value == NodeState.Offline || value == NodeState.Disconnecting)
 				{
 					NodeServer.RemoveNode(this);
@@ -201,6 +205,7 @@ namespace NBitcoin.Protocol
 			LastSeen = peer.NetworkAddress.Time;
 
 			var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+			_Connection = new NodeConnection(this, socket);
 			using(TraceCorrelation.Open())
 			{
 				try
@@ -217,6 +222,7 @@ namespace NBitcoin.Protocol
 					Utils.SafeCloseSocket(socket);
 					NodeServerTrace.Information("Connection to node cancelled");
 					State = NodeState.Offline;
+					return;
 				}
 				catch(Exception ex)
 				{
@@ -225,7 +231,6 @@ namespace NBitcoin.Protocol
 					State = NodeState.Failed;
 					throw;
 				}
-				_Connection = new NodeConnection(this, socket);
 				_Connection.BeginListen();
 			}
 		}

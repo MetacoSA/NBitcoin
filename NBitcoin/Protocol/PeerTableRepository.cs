@@ -17,11 +17,59 @@ namespace NBitcoin.Protocol
 {
 	public abstract class PeerTableRepository
 	{
+		public PeerTableRepository()
+		{
+			ValiditySpan = TimeSpan.FromHours(3);
+		}
+		public TimeSpan ValiditySpan
+		{
+			get;
+			set;
+		}
+
+
+
 		public abstract IEnumerable<Peer> GetPeers();
 		public abstract void WritePeers(IEnumerable<Peer> peer);
 		public void WritePeer(Peer peer)
 		{
 			WritePeers(new Peer[] { peer });
+		}
+	}
+
+	public class InMemoryPeerTableRepository : PeerTableRepository
+	{
+		protected Dictionary<string, Peer> _Peers = new Dictionary<string, Peer>();
+		public override IEnumerable<Peer> GetPeers()
+		{
+			ClearTable();
+			List<Peer> result = new List<Peer>();
+			foreach(var p in _Peers.ToArray())
+			{
+				result.Add(p.Value);
+			}
+			return result;
+		}
+
+		private void ClearTable()
+		{
+			foreach(var p in _Peers.ToArray())
+			{
+				var ago = p.Value.NetworkAddress.Ago;
+				if(ValiditySpan < ago || ago < TimeSpan.FromMinutes(-30))
+				{
+					_Peers.Remove(p.Key);
+				}
+			}
+		}
+
+		public override void WritePeers(IEnumerable<Peer> peers)
+		{
+			foreach(var peer in peers)
+			{
+				_Peers.AddOrReplace(peer.NetworkAddress.Endpoint.ToString(), peer);
+			}
+			ClearTable();
 		}
 	}
 
@@ -92,7 +140,7 @@ namespace NBitcoin.Protocol
 				_Connection.Open();
 
 				var command = _Connection.CreateCommand();
-				command.CommandText = "Create Table PeerTable(LastSeen UNSIGNED INTEGER, Data TEXT)";
+				command.CommandText = "Create Table PeerTable(Endpoint TEXT UNIQUE,LastSeen UNSIGNED INTEGER, Data TEXT)";
 				command.ExecuteNonQuery();
 			}
 			else
@@ -103,26 +151,25 @@ namespace NBitcoin.Protocol
 
 		}
 
-		public TimeSpan ValiditySpan
-		{
-			get;
-			set;
-		}
-
 		public override IEnumerable<Peer> GetPeers()
 		{
-			var command = _Connection.CreateCommand();
-			command.CommandText = "Delete from PeerTable Where LastSeen < @d";
-			command.Parameters.Add("@d", DbType.UInt64).Value = Utils.DateTimeToUnixTime(DateTimeOffset.UtcNow - ValiditySpan);
-			command.ExecuteNonQuery();
+			ClearTable();
 
-			command = _Connection.CreateCommand();
+			var command = _Connection.CreateCommand();
 			command.CommandText = "Select * from PeerTable";
 			var reader = command.ExecuteReader();
 			while(reader.Read())
 			{
 				yield return Utils.Deserialize<PeerBlob>((string)reader["Data"]).ToPeer();
 			}
+		}
+
+		private void ClearTable()
+		{
+			var command = _Connection.CreateCommand();
+			command.CommandText = "Delete from PeerTable Where LastSeen < @d";
+			command.Parameters.Add("@d", DbType.UInt64).Value = Utils.DateTimeToUnixTime(DateTimeOffset.UtcNow - ValiditySpan);
+			command.ExecuteNonQuery();
 		}
 
 		public override void WritePeers(IEnumerable<Peer> peers)
@@ -132,18 +179,17 @@ namespace NBitcoin.Protocol
 			int i = 0;
 			foreach(var peer in peers)
 			{
-				if(new TimeSpan(0, -30, 0) < peer.NetworkAddress.Ago && peer.NetworkAddress.Ago < ValiditySpan)
-				{
-					builder.AppendLine("Insert INTO PeerTable(LastSeen,Data) Values(@a" + i + ",@b" + i + ");");
-					command.Parameters.Add("@a" + i, DbType.UInt64).Value = Utils.DateTimeToUnixTime(peer.NetworkAddress.Time);
-					command.Parameters.Add("@b" + i, DbType.String).Value = Utils.Serialize(new PeerBlob(peer));
-					i++;
-				}
+				builder.AppendLine("Insert Or Replace INTO PeerTable(Endpoint, LastSeen,Data) Values(@a" + i + ",@b" + i + ",@c" + i + ");");
+				command.Parameters.Add("@a" + i, DbType.String).Value = peer.NetworkAddress.Endpoint.ToString();
+				command.Parameters.Add("@b" + i, DbType.UInt64).Value = Utils.DateTimeToUnixTime(peer.NetworkAddress.Time);
+				command.Parameters.Add("@c" + i, DbType.String).Value = Utils.Serialize(new PeerBlob(peer));
+				i++;
 			}
 			command.CommandText = builder.ToString();
 			if(command.CommandText == "")
 				return;
 			command.ExecuteNonQuery();
+			ClearTable();
 		}
 
 		#region IDisposable Members

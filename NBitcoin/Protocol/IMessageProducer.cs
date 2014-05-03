@@ -44,5 +44,20 @@ namespace NBitcoin.Protocol
 				}
 			}
 		}
+
+
+		public void PushMessages(IEnumerable<T> messages)
+		{
+			lock(_Listeners)
+			{
+				foreach(var message in messages)
+				{
+					foreach(var listener in _Listeners)
+					{
+						listener.PushMessage(message);
+					}
+				}
+			}
+		}
 	}
 }
