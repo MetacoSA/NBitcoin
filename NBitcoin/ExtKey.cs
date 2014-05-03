@@ -12,15 +12,31 @@ namespace NBitcoin
 	//https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
 	public class ExtKey : IBitcoinSerializable
 	{
-		public Key key = null;
-		public byte[] vchChainCode = new byte[32];
-		public uint nChild;
-		public byte nDepth;
-		public byte[] vchFingerprint = new byte[4];
+		Key key = null;
+		byte[] vchChainCode = new byte[32];
+		uint nChild;
+		byte nDepth;
+		byte[] vchFingerprint = new byte[4];
 
 		static readonly byte[] hashkey = new[] { 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ', 's', 'e', 'e', 'd' }.Select(o => (byte)o).ToArray();
 
 		static Random _Rand = new Random();
+
+		public byte Depth
+		{
+			get
+			{
+				return nDepth;
+			}
+		}
+		public uint Child
+		{
+			get
+			{
+				return nChild;
+			}
+		}
+
 		public ExtKey()
 		{
 			byte[] seed = new byte[64];
@@ -29,6 +45,14 @@ namespace NBitcoin
 				_Rand.NextBytes(seed);
 			}
 			SetMaster(seed);
+		}
+
+		public Key Key
+		{
+			get
+			{
+				return key;
+			}
 		}
 		public ExtKey(string seedHex)
 		{

@@ -11,13 +11,35 @@ namespace NBitcoin
 	public class ExtPubKey : IBitcoinSerializable
 	{
 		static byte[] validPubKey = Encoders.Hex.DecodeData("0374ef3990e387b5a2992797f14c031a64efd80e5cb843d7c1d4a0274a9bc75e55");
-		public byte nDepth;
-		public byte[] vchFingerprint = new byte[4];
-		public uint nChild;
+		internal byte nDepth;
+		internal byte[] vchFingerprint = new byte[4];
+		internal uint nChild;
 
 		//
-		public PubKey pubkey = new PubKey(validPubKey);
-		public byte[] vchChainCode = new byte[32];
+		internal PubKey pubkey = new PubKey(validPubKey);
+		internal byte[] vchChainCode = new byte[32];
+
+		public byte Depth
+		{
+			get
+			{
+				return nDepth;
+			}
+		}
+		public uint Child
+		{
+			get
+			{
+				return nChild;
+			}
+		}
+		public PubKey PubKey
+		{
+			get
+			{
+				return pubkey;
+			}
+		}
 
 		public ExtPubKey()
 		{
