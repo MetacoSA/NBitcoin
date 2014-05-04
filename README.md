@@ -8,7 +8,7 @@ With nuget :
 Go on the [nuget website](https://www.nuget.org/packages/NBitcoin/) for more information.
 
 To complile it by yourself, you just have to git clone, open the project and hit the compile button on visual studio.
-How to get started ? Check out this article [nuget website](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) to do some basic crypto operations.
+How to get started ? Check out this article [on CodeProject](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) to do some basic crypto operations.
 
 ##What is it about ?
 This is the most complete and faithful porting I know of bitcoin.
