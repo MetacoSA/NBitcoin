@@ -41,6 +41,17 @@ namespace NBitcoin
 			return false;
 		}
 
+		public Script GenerateOutputScript(byte[] data)
+		{
+			if(data == null)
+				throw new ArgumentNullException("data");
+			if(data.Length > 40)
+				throw new ArgumentOutOfRangeException("data", "Data should have a maximum size of 40 bytes");
+
+			return new Script(OpcodeType.OP_RETURN,
+							  Op.GetPushOp(data));
+		}
+
 		public override TxOutType Type
 		{
 			get
