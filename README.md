@@ -8,6 +8,7 @@ With nuget :
 Go on the [nuget website](https://www.nuget.org/packages/NBitcoin/) for more information.
 
 To complile it by yourself, you just have to git clone, open the project and hit the compile button on visual studio.
+How to get started ? Check out this article [nuget website](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) to do some basic crypto operations.
 
 ##What is it about ?
 This is the most complete and faithful porting I know of bitcoin.
@@ -27,19 +28,23 @@ Visual studio express for free, XUnit and you are up to go.
 * Signing/verification with private keys, support compact signature for prooving ownership
 * Hierarchical Deterministic Wallets ([BIP 32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki))
 
-The RPC client is not yet done. I need your help because I don't have any satoshi myself, so I can't emit transactions for testing. If you like my work, submit the testing satoshis to 15sYbVpRh6dyWycZMwPdxJWD4xbfxReeHe I will use any left over for buying pizza and getting ride of my fiat currency. ;)
+
+The RPC client is not yet done.
+A basic implementation of a Node server and client using the RAW protocol is done. (NodeServer)
 
 Public classes are clean and easy to use, but the implementation is a little messy due to the fact that I'm using C# convention and C++ and the same time. (I will clean that up after the RPC client implementation)
 
 I ported directly from the C++, except the OpenSSL part where I'm using BouncyCaslte instead. (BitcoinJ helped me a lot on the implementation)
 I also ported OpenSSL bugs (you can't believe how much time it took me) ;)
 
+Mono.NAT is used to open port if you intent to use host a node,
+SqLite is a database used.
+
 Please, use the code to explore/learn/debug/play/sharing/create the licence is LGPL v3, so you should be good to go.
 This is the simple way and most complete way to see the internal of bitcoin without going to C++ madness.
 
 With no so much work, it should be Mono compliant. I don't have a lot of dependency on the Windows.
 
-If you like my work, send some satoshi I can crucify for the testing of the RPC client. ;)
 
 Info :
 github : https://github.com/NicolasDorier/NBitcoin
