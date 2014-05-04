@@ -263,7 +263,7 @@ namespace NBitcoin.Tests
 			t.Outputs[0].Value = 90 * Money.CENT;
 			Key key = new Key(true);
 			var payToHash = new PayToPubkeyHashScriptTemplate();
-			t.Outputs[0].ScriptPubKey = payToHash.GenerateOutputScript(key.PubKey.ID);
+			t.Outputs[0].ScriptPubKey = payToHash.GenerateScriptPubKey(key.PubKey.ID);
 
 			Assert.True(StandardScripts.IsStandardTransaction(t));
 

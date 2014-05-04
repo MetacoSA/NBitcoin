@@ -24,12 +24,12 @@ namespace NBitcoin
 
 		private static Script PayToPubkeyHash(KeyId pubkeyHash)
 		{
-			return new PayToPubkeyHashScriptTemplate().GenerateOutputScript(pubkeyHash);
+			return new PayToPubkeyHashScriptTemplate().GenerateScriptPubKey(pubkeyHash);
 		}
 
 		public static Script PayToPubkey(PubKey pubkey)
 		{
-			return new PayToPubkeyScriptTemplate().GenerateOutputScript(pubkey);
+			return new PayToPubkeyScriptTemplate().GenerateScriptPubKey(pubkey);
 		}
 
 		public static bool IsStandardTransaction(Transaction tx)

@@ -41,7 +41,7 @@ namespace NBitcoin
 			return false;
 		}
 
-		public Script GenerateOutputScript(byte[] data)
+		public Script GenerateScriptPubKey(byte[] data)
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");
@@ -62,7 +62,7 @@ namespace NBitcoin
 	}
 	public class PayToMultiSigScriptTemplate : ScriptTemplate
 	{
-		public Script GenerateOutputScript(int sigCount, PubKey[] keys)
+		public Script GenerateScriptPubKey(int sigCount, PubKey[] keys)
 		{
 			List<Op> ops = new List<Op>();
 			var push = Op.GetPushOp(sigCount);
@@ -143,7 +143,7 @@ namespace NBitcoin
 			get;
 			set;
 		}
-		public Script GenerateOutputScript(Script scriptPubKey)
+		public Script GenerateScriptPubKey(Script scriptPubKey)
 		{
 			return new Script(
 				OpcodeType.OP_HASH160,
@@ -161,25 +161,25 @@ namespace NBitcoin
 				   ops[2].Code == OpcodeType.OP_EQUAL;
 		}
 
-		public Script GenerateInputScript(Op[] ops, Script script)
+		public Script GenerateScriptSig(Op[] ops, Script script)
 		{
 			var pushScript = Op.GetPushOp(script._Script);
 			return new Script(ops.Concat(new[] { pushScript }).ToArray());
 		}
 
 
-		public Script GenerateInputScript(TransactionSignature[] signatures, Script redeemScript)
+		public Script GenerateScriptSig(TransactionSignature[] signatures, Script redeemScript)
 		{
 			List<Op> ops = new List<Op>();
 			foreach(var sig in signatures)
 			{
 				ops.Add(Op.GetPushOp(sig.ToBytes()));
 			}
-			return GenerateInputScript(ops.ToArray(), redeemScript);
+			return GenerateScriptSig(ops.ToArray(), redeemScript);
 		}
-		public Script GenerateInputScript(ECDSASignature[] signatures, Script redeemScript)
+		public Script GenerateScriptSig(ECDSASignature[] signatures, Script redeemScript)
 		{
-			return GenerateInputScript(signatures.Select(s => new TransactionSignature(s, SigHash.All)).ToArray(), redeemScript);
+			return GenerateScriptSig(signatures.Select(s => new TransactionSignature(s, SigHash.All)).ToArray(), redeemScript);
 		}
 		public override bool CheckScriptSig(Script scriptSig, Script scriptPubKey)
 		{
@@ -205,7 +205,7 @@ namespace NBitcoin
 	}
 	public class PayToPubkeyScriptTemplate : ScriptTemplate
 	{
-		public Script GenerateOutputScript(PubKey pubkey)
+		public Script GenerateScriptPubKey(PubKey pubkey)
 		{
 			return new Script(
 					Op.GetPushOp(pubkey.ToBytes()),
@@ -221,11 +221,11 @@ namespace NBitcoin
 				   ops[1].Code == OpcodeType.OP_CHECKSIG;
 		}
 
-		public Script GenerateInputScript(ECDSASignature signature)
+		public Script GenerateScriptSig(ECDSASignature signature)
 		{
-			return GenerateInputScript(new TransactionSignature(signature, SigHash.All));
+			return GenerateScriptSig(new TransactionSignature(signature, SigHash.All));
 		}
-		public Script GenerateInputScript(TransactionSignature signature)
+		public Script GenerateScriptSig(TransactionSignature signature)
 		{
 			return new Script(
 				Op.GetPushOp(signature.ToBytes())
@@ -265,19 +265,19 @@ namespace NBitcoin
 	}
 	public class PayToPubkeyHashScriptTemplate : ScriptTemplate
 	{
-		public Script GenerateOutputScript(BitcoinAddress address)
+		public Script GenerateScriptPubKey(BitcoinAddress address)
 		{
 			if(address == null)
 				throw new ArgumentNullException("address");
-			return GenerateOutputScript(address.ID);
+			return GenerateScriptPubKey(address.ID);
 		}
-		public Script GenerateOutputScript(PubKey pubKey)
+		public Script GenerateScriptPubKey(PubKey pubKey)
 		{
 			if(pubKey == null)
 				throw new ArgumentNullException("pubKey");
-			return GenerateOutputScript(pubKey.ID);
+			return GenerateScriptPubKey(pubKey.ID);
 		}
-		public Script GenerateOutputScript(KeyId pubkeyHash)
+		public Script GenerateScriptPubKey(KeyId pubkeyHash)
 		{
 			return new Script(
 					OpcodeType.OP_DUP,
@@ -288,7 +288,7 @@ namespace NBitcoin
 				);
 		}
 
-		public Script GenerateInputScript(TransactionSignature signature, PubKey publicKey)
+		public Script GenerateScriptSig(TransactionSignature signature, PubKey publicKey)
 		{
 			if(signature == null)
 				throw new ArgumentNullException("signature");

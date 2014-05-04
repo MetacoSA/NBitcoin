@@ -239,12 +239,12 @@ namespace NBitcoin
 
 		private void SetDestination(KeyId keyId)
 		{
-			ScriptPubKey = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(keyId);
+			ScriptPubKey = new PayToPubkeyHashScriptTemplate().GenerateScriptPubKey(keyId);
 		}
 
 		public void SetDestination(BitcoinAddress address)
 		{
-			ScriptPubKey = new PayToPubkeyHashScriptTemplate().GenerateOutputScript(address);
+			ScriptPubKey = new PayToPubkeyHashScriptTemplate().GenerateScriptPubKey(address);
 		}
 		public Money Value
 		{
