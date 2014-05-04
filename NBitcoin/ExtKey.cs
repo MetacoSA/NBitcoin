@@ -20,8 +20,6 @@ namespace NBitcoin
 
 		static readonly byte[] hashkey = new[] { 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ', 's', 'e', 'e', 'd' }.Select(o => (byte)o).ToArray();
 
-		static Random _Rand = new Random();
-
 		public byte Depth
 		{
 			get
@@ -39,11 +37,7 @@ namespace NBitcoin
 
 		public ExtKey()
 		{
-			byte[] seed = new byte[64];
-			lock(_Rand)
-			{
-				_Rand.NextBytes(seed);
-			}
+			byte[] seed = RandomUtils.GetBytes(64);
 			SetMaster(seed);
 		}
 

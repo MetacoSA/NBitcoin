@@ -32,23 +32,13 @@ namespace NBitcoin
 		private bool isFull = false;
 		private bool isEmpty;
 
-		static Random _Rand = new Random();
-		private static uint GetRandomTweak()
-		{
-			lock(_Rand)
-			{
-				byte[] bytes = new byte[sizeof(uint)];
-				_Rand.NextBytes(bytes);
-				return BitConverter.ToUInt32(bytes, 0);
-			}
-		}
 
 		public BloomFilter(uint nElements, double nFPRate, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
-			: this(nElements, nFPRate, GetRandomTweak(), nFlagsIn)
+			: this(nElements, nFPRate, RandomUtils.GetUInt32(), nFlagsIn)
 		{
 		}
 
-		
+
 		public BloomFilter(uint nElements, double nFPRate, uint nTweakIn, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
 		{
 			// The ideal size for a bloom filter with a given number of elements and false positive rate is:

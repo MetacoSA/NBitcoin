@@ -9,15 +9,10 @@ namespace NBitcoin.Protocol
 	[Payload("ping")]
 	public class PingPayload : Payload
 	{
-		readonly Random _Rand = new Random();
+		
 		public PingPayload()
 		{
-			lock(_Rand)
-			{
-				byte[] nonce = new byte[sizeof(uint)];
-				_Rand.NextBytes(nonce);
-				_Nonce = BitConverter.ToUInt32(nonce, 0);
-			}
+			_Nonce = RandomUtils.GetUInt32();
 		}
 		private uint _Nonce;
 		public uint Nonce

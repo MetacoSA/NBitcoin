@@ -91,6 +91,7 @@
     <Compile Include="Protocol\UPnPLease.cs" />
     <Compile Include="Protocol\VerAckPayload.cs" />
     <Compile Include="Protocol\VersionPayload.cs" />
+    <Compile Include="RandomUtils.cs" />
     <Compile Include="SqLiteUtility.cs" />
     <Compile Include="Target.cs" />
     <Compile Include="TraceCorrelationScope.cs" />

@@ -21,8 +21,6 @@ namespace NBitcoin
 			internal set;
 		}
 
-		static readonly Random rand = new Random();
-
 		public Key()
 			: this(true)
 		{
@@ -31,13 +29,12 @@ namespace NBitcoin
 		public Key(bool fCompressedIn)
 		{
 			byte[] data = new byte[32];
-			lock(rand)
+
+			do
 			{
-				do
-				{
-					rand.NextBytes(data);
-				} while(!Check(data));
-			}
+				RandomUtils.GetBytes(data);
+			} while(!Check(data));
+
 			SetBytes(data, data.Length, fCompressedIn);
 		}
 		public Key(byte[] data, int count = -1, bool fCompressedIn = true)

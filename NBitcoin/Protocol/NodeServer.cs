@@ -587,7 +587,6 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		static Random _RandNonce = new Random();
 		ulong _Nonce;
 		public ulong Nonce
 		{
@@ -595,12 +594,7 @@ namespace NBitcoin.Protocol
 			{
 				if(_Nonce == 0)
 				{
-					lock(_RandNonce)
-					{
-						var bytes = new byte[8];
-						_RandNonce.NextBytes(bytes);
-						_Nonce = BitConverter.ToUInt64(bytes, 0);
-					}
+					_Nonce = RandomUtils.GetUInt64();
 				}
 				return _Nonce;
 			}
@@ -740,7 +734,7 @@ namespace NBitcoin.Protocol
 										handshakedFull.Cancel();
 									}
 									else
-										NodeServerTrace.Information("Need " + remaining  + " more nodes");
+										NodeServerTrace.Information("Need " + remaining + " more nodes");
 								}
 							}
 							catch(Exception)
