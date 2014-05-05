@@ -298,24 +298,10 @@ namespace NBitcoin
 			}
 			else
 			{
-				int readen = 0;
-				while(data.Length != readen)
-				{
-					ReadCancellationToken.ThrowIfCancellationRequested();
-					NetworkStream netStream = Inner as NetworkStream;
-					if(netStream != null) //NetworkStream blocks if no data is coming, polling IsDataAvailable give a chance to cancel the call
-					{
-						if(!netStream.DataAvailable)
-						{
-							ReadCancellationToken.WaitHandle.WaitOne(500);
-							continue;
-						}
-					}
-					var justRead = Inner.Read(data, readen, data.Length - readen);
-					if(justRead == -1)
-						throw new EndOfStreamException("No more byte to read");
-					readen += justRead;
-				}
+				var readen = Inner.ReadEx(data, 0, data.Length, ReadCancellationToken);
+				if(readen == -1)
+					throw new EndOfStreamException("No more byte to read");
+
 			}
 		}
 

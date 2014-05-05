@@ -11,12 +11,28 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin
 {
 	public static class Extensions
 	{
+		public static int ReadEx(this Stream stream, byte[] buffer, int offset,int count, CancellationToken cancellation = default(CancellationToken))
+		{
+			int readen = 0;
+			while(readen < count)
+			{
+				var ar = stream.BeginRead(buffer, offset + readen, count - readen, null, null);
+				WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, cancellation.WaitHandle }, -1);
+				cancellation.ThrowIfCancellationRequested();
+				var thisRead = stream.EndRead(ar);
+				if(thisRead == -1)
+					return -1;
+				readen += thisRead;
+			}
+			return readen;
+		}
 		public static void AddOrReplace<TKey, TValue>(this Dictionary<TKey, TValue> dico, TKey key, TValue value)
 		{
 			if(dico.ContainsKey(key))

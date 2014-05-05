@@ -165,16 +165,8 @@ namespace NBitcoin.Protocol
 				ReadCancellationToken = cancellationToken
 			};
 
-			var old = socket.ReceiveTimeout;
-			try
-			{
-				socket.ReceiveTimeout = 3000;
-				ReadMagic(socket, network.MagicBytes, cancellationToken);
-			}
-			finally
-			{
-				socket.ReceiveTimeout = old;
-			}
+			ReadMagic(stream, network.MagicBytes, cancellationToken);
+
 			Message message = new Message();
 			using(message.SkipMagicScope(true))
 			{
@@ -191,30 +183,20 @@ namespace NBitcoin.Protocol
 			return new Scope(() => _SkipMagic = value, () => _SkipMagic = old);
 		}
 
-		private static void ReadMagic(Socket socket, byte[] magicBytes, CancellationToken cancellation)
+		private static void ReadMagic(Stream stream, byte[] magicBytes, CancellationToken cancellation)
 		{
 			byte[] bytes = new byte[1];
 			for(int i = 0 ; i < magicBytes.Length ; i++)
 			{
 				i = Math.Max(0, i);
 				cancellation.ThrowIfCancellationRequested();
-				try
-				{
-					var read = socket.Receive(bytes);
-					if(read != 1)
-						i--;
-					else if(magicBytes[i] != bytes[0])
-						i = -1;
-				}
-				catch(SocketException ex)
-				{
-					if(ex.SocketErrorCode == SocketError.TimedOut && socket.Connected)
-					{
-						i--;
-					}
-					else
-						throw;
-				}
+
+				var read = stream.ReadEx(bytes, 0, bytes.Length, cancellation);
+				if(read != 1)
+					i--;
+				else if(magicBytes[i] != bytes[0])
+					i = -1;
+
 			}
 
 		}
