@@ -95,6 +95,20 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		public void CanStoreInBlockRepository()
+		{
+			var blockRepository = CreateBlockRepository();
+			var firstblk1 = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").First();
+			blockRepository.WriteBlockHeader(firstblk1.Block.Header);
+			var result = blockRepository.GetBlock(firstblk1.Block.GetHash());
+			Assert.True(result.HeaderOnly);
+
+			blockRepository.WriteBlock(firstblk1.Block);
+			result = blockRepository.GetBlock(firstblk1.Block.GetHash());
+			Assert.False(result.HeaderOnly);
+		}
+
 
 		[Fact]
 		public void CanReadStoredBlockFolder()
@@ -185,7 +199,8 @@ namespace NBitcoin.Tests
 			CanStorePeer(repository);
 			CanStorePeer(new InMemoryPeerTableRepository());
 		}
-
+	
+		
 		private static void CanStorePeer(PeerTableRepository repository)
 		{
 			var peer = new Peer(PeerOrigin.Addr, new NetworkAddress()
@@ -248,6 +263,11 @@ namespace NBitcoin.Tests
 			Directory.CreateDirectory(folderName);
 			Thread.Sleep(50);
 			return new BlockStore(folderName, Network.Main);
+		}
+
+		private BlockRepository CreateBlockRepository([CallerMemberName]string folderName = null)
+		{
+			return new BlockRepository(CreateIndexedStore(folderName + "-Blocks"), CreateIndexedStore(folderName + "-Headers"));
 		}
 	}
 }

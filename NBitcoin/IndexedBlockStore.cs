@@ -20,6 +20,14 @@ namespace NBitcoin
 			_Store = store;
 		}
 
+		public void ReIndex()
+		{
+			foreach(var block in _Store.Enumerate())
+			{
+				_Index.Put(block.Block.GetHash().ToString(), block.BlockPosition);
+			}
+		}
+
 		public Block Get(uint256 hash)
 		{
 			var pos = _Index.Get<DiskBlockPos>(hash.ToString());
