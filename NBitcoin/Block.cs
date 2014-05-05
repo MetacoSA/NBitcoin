@@ -204,6 +204,14 @@ namespace NBitcoin
 			stream.ReadWrite(ref vtx);
 		}
 
+		public bool HeaderOnly
+		{
+			get
+			{
+				return vtx == null || vtx.Length == 0;
+			}
+		}
+
 
 		void SetNull()
 		{

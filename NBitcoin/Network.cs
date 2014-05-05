@@ -2,6 +2,7 @@
 using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
@@ -565,6 +566,24 @@ namespace NBitcoin
 			{
 				return magic;
 			}
+		}
+
+		public void ReadMagic(Stream stream, CancellationToken cancellation)
+		{
+			byte[] bytes = new byte[1];
+			for(int i = 0 ; i < _MagicBytes.Length ; i++)
+			{
+				i = Math.Max(0, i);
+				cancellation.ThrowIfCancellationRequested();
+
+				var read = stream.ReadEx(bytes, 0, bytes.Length, cancellation);
+				if(read != 1)
+					i--;
+				else if(_MagicBytes[i] != bytes[0])
+					i = -1;
+
+			}
+
 		}
 	}
 }

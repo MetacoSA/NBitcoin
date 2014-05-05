@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -13,6 +14,34 @@ namespace NBitcoin.Tests
 {
 	public class RepositoryTests
 	{
+		public class RawData : IBitcoinSerializable
+		{
+			public RawData()
+			{
+
+			}
+			public RawData(byte[] data)
+			{
+				_Data = data;
+			}
+			#region IBitcoinSerializable Members
+
+			public void ReadWrite(BitcoinStream stream)
+			{
+				stream.ReadWriteAsVarString(ref _Data);
+			}
+
+			private byte[] _Data = new byte[0];
+			public byte[] Data
+			{
+				get
+				{
+					return _Data;
+				}
+			}
+
+			#endregion
+		}
 		[Fact]
 		public void CanReadStoredBlockFile()
 		{
@@ -26,12 +55,46 @@ namespace NBitcoin.Tests
 			}
 			Assert.Equal(300, count);
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat", new DiskBlockPos(0, 298)))
+			foreach(var stored in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat", new DiskBlockPosRange(new DiskBlockPos(0, 298))))
 			{
 				count++;
 			}
 			Assert.Equal(2, count);
 		}
+
+		[Fact]
+		public void CanIndexBlock()
+		{
+			var index = CreateIndexedStore();
+			foreach(var block in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").Take(50))
+			{
+				index.Put(block.Block);
+			}
+			var genesis = index.Get(new uint256("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
+			Assert.NotNull(genesis);
+			var invalidBlock = index.Get(new uint256("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26e"));
+			Assert.Null(invalidBlock);
+		}
+
+		[Fact]
+		public void CanStoreBlocks()
+		{
+			var store = CreateBlockStore();
+			var allBlocks = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").Take(50).ToList();
+
+			foreach(var s in allBlocks)
+			{
+				store.Append(s.Block);
+			}
+			var storedBlocks = store.Enumerate().ToList();
+			Assert.Equal(allBlocks.Count, storedBlocks.Count);
+		
+			foreach(var s in allBlocks)
+			{
+				store.Enumerate().First(b => b.BlockPosition == s.BlockPosition);
+			}
+		}
+
 
 		[Fact]
 		public void CanReadStoredBlockFolder()
@@ -53,20 +116,67 @@ namespace NBitcoin.Tests
 			Assert.Equal(600, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPos(1, 298)))
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(new DiskBlockPos(1, 298))))
 			{
 				count++;
 			}
 			Assert.Equal(2, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPos(0, 298)))
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(new DiskBlockPos(0, 298))))
 			{
 				count++;
 			}
 			Assert.Equal(302, count);
+
+			count = 0;
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(new DiskBlockPos(0, 298), new DiskBlockPos(1, 2))))
+			{
+				count++;
+			}
+			Assert.Equal(4, count);
+
+			count = 0;
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(new DiskBlockPos(0, 30), new DiskBlockPos(0, 34))))
+			{
+				count++;
+			}
+			Assert.Equal(4, count);
 		}
 
+		[Fact]
+		public void CanStoreInSQLiteNoSql()
+		{
+			SQLiteNoSqlRepository repository = CreateNoSqlRepository();
+			byte[] data1 = new byte[] { 1, 2, 3, 4, 5, 6 };
+			byte[] data2 = new byte[] { 11, 22, 33, 4, 5, 66 };
+			Assert.Null(repository.Get<RawData>("data1"));
+
+			repository.Put("data1", new RawData(data1));
+			var actual = repository.Get<RawData>("data1");
+			Assert.NotNull(actual);
+			AssertEx.CollectionEquals(actual.Data, data1);
+
+			repository.Put("data1", new RawData(data2));
+			actual = repository.Get<RawData>("data1");
+			Assert.NotNull(actual);
+			AssertEx.CollectionEquals(actual.Data, data2);
+
+			repository.Put("data1", null as RawData);
+			actual = repository.Get<RawData>("data1");
+			Assert.Null(actual);
+
+			repository.Put("data1", null as RawData);
+			actual = repository.Get<RawData>("data1");
+			Assert.Null(actual);
+		}
+
+		private SQLiteNoSqlRepository CreateNoSqlRepository([CallerMemberName]string filename = null)
+		{
+			if(File.Exists(filename))
+				File.Delete(filename);
+			return new SQLiteNoSqlRepository(filename);
+		}
 
 		[Fact]
 		public void CanStorePeers()
@@ -118,6 +228,26 @@ namespace NBitcoin.Tests
 			if(File.Exists(filename))
 				File.Delete(filename);
 			return new SqLitePeerTableRepository(filename);
+		}
+
+
+		private IndexedBlockStore CreateIndexedStore([CallerMemberName]string folderName = null)
+		{
+			if(Directory.Exists(folderName))
+				Directory.Delete(folderName, true);
+			Thread.Sleep(50);
+			Directory.CreateDirectory(folderName);
+			Thread.Sleep(50);
+			return new IndexedBlockStore(new SQLiteNoSqlRepository(Path.Combine(folderName, "Index")), new BlockStore(folderName, Network.Main));
+		}
+		private static BlockStore CreateBlockStore([CallerMemberName]string folderName = null)
+		{
+			if(Directory.Exists(folderName))
+				Directory.Delete(folderName, true);
+			Thread.Sleep(50);
+			Directory.CreateDirectory(folderName);
+			Thread.Sleep(50);
+			return new BlockStore(folderName, Network.Main);
 		}
 	}
 }

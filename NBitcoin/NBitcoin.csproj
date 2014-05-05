@@ -55,12 +55,16 @@
     <Compile Include="Block.cs" />
     <Compile Include="BlockChain.cs" />
     <Compile Include="BlockRepository.cs" />
+    <Compile Include="BlockStore.cs" />
     <Compile Include="BloomFilter.cs" />
     <Compile Include="CompositeDisposable.cs" />
     <Compile Include="DataEncoders\ASCIIEncoder.cs" />
+    <Compile Include="FileLock.cs" />
+    <Compile Include="IndexedBlockStore.cs" />
     <Compile Include="IpExtensions.cs" />
     <Compile Include="ExtKey.cs" />
     <Compile Include="ExtPubKey.cs" />
+    <Compile Include="NoSqlRepository.cs" />
     <Compile Include="Protocol\BitcoinSerializablePayload.cs" />
     <Compile Include="Protocol\BlockPayload.cs" />
     <Compile Include="Protocol\GetHeadersPayload.cs" />

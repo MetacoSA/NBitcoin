@@ -165,7 +165,7 @@ namespace NBitcoin.Protocol
 				ReadCancellationToken = cancellationToken
 			};
 
-			ReadMagic(stream, network.MagicBytes, cancellationToken);
+			network.ReadMagic(stream, cancellationToken);
 
 			Message message = new Message();
 			using(message.SkipMagicScope(true))
@@ -182,25 +182,6 @@ namespace NBitcoin.Protocol
 			var old = _SkipMagic;
 			return new Scope(() => _SkipMagic = value, () => _SkipMagic = old);
 		}
-
-		private static void ReadMagic(Stream stream, byte[] magicBytes, CancellationToken cancellation)
-		{
-			byte[] bytes = new byte[1];
-			for(int i = 0 ; i < magicBytes.Length ; i++)
-			{
-				i = Math.Max(0, i);
-				cancellation.ThrowIfCancellationRequested();
-
-				var read = stream.ReadEx(bytes, 0, bytes.Length, cancellation);
-				if(read != 1)
-					i--;
-				else if(magicBytes[i] != bytes[0])
-					i = -1;
-
-			}
-
-		}
-
 
 	}
 }
