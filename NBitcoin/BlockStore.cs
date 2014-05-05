@@ -67,5 +67,13 @@ namespace NBitcoin
 			}
 		}
 
+
+		public void AppendAll(IEnumerable<Block> blocks)
+		{
+			foreach(var block in blocks)
+			{
+				Append(block);
+			}
+		}
 	}
 }

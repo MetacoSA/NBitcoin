@@ -101,10 +101,8 @@ namespace NBitcoin.Tests
 		{
 			var source = new BlockStore(@"data\blocks", Network.Main);
 			var store = CreateBlockStore("CanReIndexFolder");
-			foreach(var b in source.Enumerate(false).Take(100))
-			{
-				store.Append(b.Block);
-			}
+			store.AppendAll(source.Enumerate(false).Take(100).Select(b => b.Block));
+
 
 			var test = new IndexedBlockStore(new SQLiteNoSqlRepository("CanReIndex", true), store);
 			var reIndexed = test.ReIndex();
