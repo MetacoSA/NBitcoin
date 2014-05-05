@@ -22,9 +22,11 @@ namespace NBitcoin
 
 		public void ReIndex()
 		{
-			foreach(var block in _Store.Enumerate())
+			int count = 0;
+			foreach(var blocks in _Store.Enumerate(true).Partition(400))
 			{
-				_Index.Put(block.Block.GetHash().ToString(), block.BlockPosition);
+				count += blocks.Count;
+				_Index.PutBatch(blocks.Select(b => new Tuple<String, IBitcoinSerializable>(b.Block.GetHash().ToString(), b.BlockPosition)));
 			}
 		}
 
@@ -33,7 +35,7 @@ namespace NBitcoin
 			var pos = _Index.Get<DiskBlockPos>(hash.ToString());
 			if(pos == null)
 				return null;
-			var stored = _Store.Enumerate(new DiskBlockPosRange(pos)).FirstOrDefault();
+			var stored = _Store.Enumerate(false, new DiskBlockPosRange(pos)).FirstOrDefault();
 			if(stored == null)
 				return null;
 			return stored.Block;

@@ -196,6 +196,12 @@ namespace NBitcoin
 	}
 	public class StoredBlock : IBitcoinSerializable
 	{
+		internal enum ParsingPart
+		{
+			StoredHeaderOnly,
+			BlockHeaderOnly,
+			Block,
+		}
 		public StoredBlock(DiskBlockPos blockPosition)
 		{
 			_BlockPosition = blockPosition;
@@ -237,7 +243,9 @@ namespace NBitcoin
 		}
 
 		Block block;
-		internal bool SkipContent;
+
+
+		internal ParsingPart Parsing = ParsingPart.Block;
 
 		public Block Block
 		{
@@ -257,21 +265,33 @@ namespace NBitcoin
 		{
 			stream.ReadWrite(ref magic);
 			stream.ReadWrite(ref blockSize);
-			if(!SkipContent)
+			if(Parsing == StoredBlock.ParsingPart.Block)
 				stream.ReadWrite(ref block);
 			else
-				stream.Inner.Position += blockSize;
+			{
+				if(Parsing == ParsingPart.StoredHeaderOnly)
+					stream.Inner.Position += blockSize;
+				else
+				{
+					var beforeReading = stream.Inner.Position;
+					BlockHeader header = block == null ? null : block.Header;
+					stream.ReadWrite(ref header);
+					if(!stream.Serializing)
+						block = new Block(header);
+					stream.Inner.Position = beforeReading + blockSize;
+				}
+			}
 		}
 
 		#endregion
 
-		public static IEnumerable<StoredBlock> EnumerateFile(FileInfo file, DiskBlockPosRange range = null)
+		public static IEnumerable<StoredBlock> EnumerateFile(FileInfo file, DiskBlockPosRange range = null, bool headersOnly = false)
 		{
 			if(range == null)
 				range = DiskBlockPosRange.All;
 			using(var fs = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
-				foreach(var block in Enumerate(fs, range))
+				foreach(var block in Enumerate(fs, range, headersOnly))
 				{
 					yield return block;
 				}
@@ -284,7 +304,7 @@ namespace NBitcoin
 			return EnumerateFile(new FileInfo(fileName), range);
 		}
 
-		static IEnumerable<StoredBlock> Enumerate(Stream stream, DiskBlockPosRange range = null)
+		static IEnumerable<StoredBlock> Enumerate(Stream stream, DiskBlockPosRange range = null, bool headersOnly = false)
 		{
 			if(range == null)
 				range = DiskBlockPosRange.All;
@@ -293,6 +313,7 @@ namespace NBitcoin
 			while(stream.Position < stream.Length)
 			{
 				StoredBlock block = new StoredBlock(position);
+				block.Parsing = headersOnly ? ParsingPart.BlockHeaderOnly : ParsingPart.Block;
 				block.ReadWrite(stream, false);
 				yield return block;
 				position++;
@@ -309,14 +330,14 @@ namespace NBitcoin
 			while(position < until && stream.Position != stream.Length)
 			{
 				StoredBlock block = new StoredBlock(position);
-				block.SkipContent = true;
+				block.Parsing = ParsingPart.BlockHeaderOnly;
 				block.ReadWrite(stream, false);
 				position++;
 			}
 			return position;
 		}
 
-		public static IEnumerable<StoredBlock> EnumerateFolder(DirectoryInfo folder, DiskBlockPosRange range = null)
+		public static IEnumerable<StoredBlock> EnumerateFolder(DirectoryInfo folder, DiskBlockPosRange range = null, bool headersOnly = false)
 		{
 			if(range == null)
 				range = DiskBlockPosRange.All;
@@ -341,7 +362,7 @@ namespace NBitcoin
 				else
 					endLocal = DiskBlockPos.End;
 
-				foreach(var block in EnumerateFile(file, new DiskBlockPosRange(startLocal, endLocal)))
+				foreach(var block in EnumerateFile(file, new DiskBlockPosRange(startLocal, endLocal), headersOnly))
 				{
 					yield return block;
 				}

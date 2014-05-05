@@ -86,14 +86,38 @@ namespace NBitcoin.Tests
 			{
 				store.Append(s.Block);
 			}
-			var storedBlocks = store.Enumerate().ToList();
+			var storedBlocks = store.Enumerate(true).ToList();
 			Assert.Equal(allBlocks.Count, storedBlocks.Count);
 		
 			foreach(var s in allBlocks)
 			{
-				store.Enumerate().First(b => b.BlockPosition == s.BlockPosition);
+				var retrieved = store.Enumerate(true).First(b => b.BlockPosition == s.BlockPosition);
+				Assert.True(retrieved.Block.HeaderOnly);
 			}
 		}
+
+		[Fact]
+		public void CanReIndex()
+		{
+			var store = new BlockStore(@"data\blocks", Network.Main);
+			var test = new IndexedBlockStore(new SQLiteNoSqlRepository("CanReIndex", true), store);
+			test.ReIndex();
+			int i = 0;
+			foreach(var b in store.Enumerate(true))
+			{
+				var result = test.Get(b.Block.GetHash());
+				Assert.Equal(result.GetHash(), b.Block.GetHash());
+				i++;
+			}
+			Assert.Equal(600, i);
+		}
+
+		//[Fact]
+		//public void Play()
+		//{
+		//	var test = new IndexedBlockStore(new SQLiteNoSqlRepository("Play", true), new BlockStore(@"E:\Bitcoin\blocks", Network.Main));
+		//	test.ReIndex();
+		//}
 
 		[Fact]
 		public void CanStoreInBlockRepository()
@@ -183,6 +207,18 @@ namespace NBitcoin.Tests
 			repository.Put("data1", null as RawData);
 			actual = repository.Get<RawData>("data1");
 			Assert.Null(actual);
+
+			//Test batch
+			repository.PutBatch(new[] {new Tuple<string,IBitcoinSerializable>("data1",new RawData(data1)),
+									   new Tuple<string,IBitcoinSerializable>("data2",new RawData(data2))});
+
+			actual = repository.Get<RawData>("data1");
+			Assert.NotNull(actual);
+			AssertEx.CollectionEquals(actual.Data, data1);
+
+			actual = repository.Get<RawData>("data2");
+			Assert.NotNull(actual);
+			AssertEx.CollectionEquals(actual.Data, data2);
 		}
 
 		private SQLiteNoSqlRepository CreateNoSqlRepository([CallerMemberName]string filename = null)

@@ -18,7 +18,27 @@ namespace NBitcoin
 {
 	public static class Extensions
 	{
-		public static int ReadEx(this Stream stream, byte[] buffer, int offset,int count, CancellationToken cancellation = default(CancellationToken))
+
+		public static IEnumerable<List<T>> Partition<T>(this IEnumerable<T> source, int max)
+		{
+			List<T> toReturn = new List<T>(max);
+			foreach(var item in source)
+			{
+				toReturn.Add(item);
+				if(toReturn.Count == max)
+				{
+					yield return toReturn;
+					toReturn = new List<T>(max);
+				}
+			}
+			if(toReturn.Any())
+			{
+				yield return toReturn;
+			}
+		}
+
+
+		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
 			int readen = 0;
 			while(readen < count)

@@ -33,13 +33,13 @@ namespace NBitcoin
 				throw new DirectoryNotFoundException(folder);
 		}
 
-		public IEnumerable<StoredBlock> Enumerate(DiskBlockPosRange range = null)
+		public IEnumerable<StoredBlock> Enumerate(bool headerOnly, DiskBlockPosRange range = null)
 		{
 			if(range == null)
 				range = DiskBlockPosRange.All;
 			using(CreateLock(FileLockType.Read))
 			{
-				foreach(var b in StoredBlock.EnumerateFolder(_Folder, range))
+				foreach(var b in StoredBlock.EnumerateFolder(_Folder, range, headerOnly))
 				{
 					if(b.Magic == Network.Magic)
 						yield return b;
