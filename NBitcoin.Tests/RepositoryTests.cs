@@ -88,7 +88,7 @@ namespace NBitcoin.Tests
 			}
 			var storedBlocks = store.Enumerate(true).ToList();
 			Assert.Equal(allBlocks.Count, storedBlocks.Count);
-		
+
 			foreach(var s in allBlocks)
 			{
 				var retrieved = store.Enumerate(true).First(b => b.BlockPosition == s.BlockPosition);
@@ -99,9 +99,16 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanReIndex()
 		{
-			var store = new BlockStore(@"data\blocks", Network.Main);
+			var source = new BlockStore(@"data\blocks", Network.Main);
+			var store = CreateBlockStore("CanReIndexFolder");
+			foreach(var b in source.Enumerate(false).Take(100))
+			{
+				store.Append(b.Block);
+			}
+
 			var test = new IndexedBlockStore(new SQLiteNoSqlRepository("CanReIndex", true), store);
-			test.ReIndex();
+			var reIndexed = test.ReIndex();
+			Assert.Equal(100, reIndexed);
 			int i = 0;
 			foreach(var b in store.Enumerate(true))
 			{
@@ -109,7 +116,16 @@ namespace NBitcoin.Tests
 				Assert.Equal(result.GetHash(), b.Block.GetHash());
 				i++;
 			}
-			Assert.Equal(600, i);
+			Assert.Equal(100, i);
+
+			var last = source.Enumerate(false).Skip(100).FirstOrDefault();
+			store.Append(last.Block);
+
+			reIndexed = test.ReIndex();
+			Assert.Equal(1, reIndexed);
+
+			reIndexed = test.ReIndex();
+			Assert.Equal(0, reIndexed);
 		}
 
 		//[Fact]
@@ -235,8 +251,8 @@ namespace NBitcoin.Tests
 			CanStorePeer(repository);
 			CanStorePeer(new InMemoryPeerTableRepository());
 		}
-	
-		
+
+
 		private static void CanStorePeer(PeerTableRepository repository)
 		{
 			var peer = new Peer(PeerOrigin.Addr, new NetworkAddress()

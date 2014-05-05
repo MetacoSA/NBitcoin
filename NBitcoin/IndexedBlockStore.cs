@@ -19,15 +19,23 @@ namespace NBitcoin
 			_Index = index;
 			_Store = store;
 		}
-
-		public void ReIndex()
+		const string LastPositionIndexKey = "Last Index Position";
+		public int ReIndex()
 		{
+			var last = _Index.Get<DiskBlockPos>(LastPositionIndexKey);
+			if(last != null)
+				last++;
 			int count = 0;
-			foreach(var blocks in _Store.Enumerate(true).Partition(400))
+			List<StoredBlock> lastBlocks = null;
+			foreach(var blocks in _Store.Enumerate(true, new DiskBlockPosRange(last)).Partition(400))
 			{
 				count += blocks.Count;
 				_Index.PutBatch(blocks.Select(b => new Tuple<String, IBitcoinSerializable>(b.Block.GetHash().ToString(), b.BlockPosition)));
+				lastBlocks = blocks;
 			}
+			if(lastBlocks != null && lastBlocks.Count > 0)
+				_Index.Put(LastPositionIndexKey, lastBlocks.Last().BlockPosition);
+			return count;
 		}
 
 		public Block Get(uint256 hash)
@@ -45,6 +53,7 @@ namespace NBitcoin
 			var hash = block.Header.GetHash();
 			var position = _Store.Append(block);
 			_Index.Put(hash.ToString(), position);
+			_Index.Put(LastPositionIndexKey, position);
 		}
 
 	}
