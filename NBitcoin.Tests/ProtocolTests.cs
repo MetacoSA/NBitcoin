@@ -179,6 +179,7 @@ namespace NBitcoin.Tests
 				var toS2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
 				toS2.VersionHandshake();
 				Assert.Equal(NodeState.HandShaked, toS2.State);
+				Thread.Sleep(100); //Let the time to Server2 to add the new node, else the test was failing sometimes.
 				Assert.Equal(NodeState.HandShaked, tester.Server2.GetNodeByEndpoint(toS2.ExternalEndpoint).State);
 			}
 		}
