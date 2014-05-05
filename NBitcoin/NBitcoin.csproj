@@ -93,6 +93,7 @@
     <Compile Include="Protocol\VersionPayload.cs" />
     <Compile Include="RandomUtils.cs" />
     <Compile Include="SqLiteUtility.cs" />
+    <Compile Include="StoredBlock.cs" />
     <Compile Include="Target.cs" />
     <Compile Include="TraceCorrelationScope.cs" />
     <Compile Include="TransactionSignature.cs" />

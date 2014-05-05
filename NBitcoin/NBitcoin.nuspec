@@ -7,7 +7,19 @@
 		<authors>Nicolas Dorier</authors>
 		<owners>$author$</owners>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<description>Implementation of bitcoin protocol</description>
+		<description>Port of Bitcoin from C++ and Java with full test suite on github (https://github.com/NicolasDorier/NBitcoin)</description>
+		<summary>
+			Full script evaluation and parsing
+			Key generation
+			Deterministic wallet : BIP 32
+			Standard script generation and parsing
+			Object model faithful to the C++ API but with C# goodness
+			Simpler API (here is how to generate a key and get the address : new Key().PubKey.Address.ToString())
+			Bloom filter, partial merkle tree
+			Serialization of Blocks, Transactions, Script
+			Signing/verification with private keys, support compact signature for prooving ownership
+			NodeServer implementation
+		</summary>
 		<projectUrl>https://github.com/NicolasDorier/NBitcoin</projectUrl>
 		<copyright>Copyright 2013</copyright>
 	</metadata>

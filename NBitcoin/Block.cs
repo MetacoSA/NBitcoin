@@ -318,5 +318,11 @@ namespace NBitcoin
 		{
 			this.Header.HashMerkleRoot = ComputeMerkleRoot();
 		}
+
+		public bool CheckMerkleRoot()
+		{
+			ComputeMerkleRoot();
+			return Header.HashMerkleRoot == vMerkleTree.Last();
+		}
 	}
 }

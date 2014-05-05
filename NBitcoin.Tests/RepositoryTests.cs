@@ -14,6 +14,43 @@ namespace NBitcoin.Tests
 	public class RepositoryTests
 	{
 		[Fact]
+		public void CanReadStoredBlockFile()
+		{
+			int count = 0;
+
+			foreach(var stored in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat"))
+			{
+				Assert.True(stored.Block.Header.CheckProofOfWork());
+				Assert.True(stored.Block.CheckMerkleRoot());
+				count++;
+			}
+
+			Assert.Equal(300, count);
+		}
+
+		[Fact]
+		public void CanReadStoredBlockFolder()
+		{
+			var firstblk1 = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").First();
+			var firstblk2 = StoredBlock.EnumerateFile(@"data\blocks\blk00001.dat").First();
+
+			int count = 0;
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks"))
+			{
+				if(count == 0)
+					Assert.Equal(firstblk1.Block.GetHash(), stored.Block.GetHash());
+				if(count == 300)
+					Assert.Equal(firstblk2.Block.GetHash(), stored.Block.GetHash());
+				Assert.True(stored.Block.Header.CheckProofOfWork());
+				Assert.True(stored.Block.CheckMerkleRoot());
+				count++;
+			}
+
+			Assert.Equal(600, count);
+		}
+
+
+		[Fact]
 		public void CanStorePeers()
 		{
 			SqLitePeerTableRepository repository = CreateTableRepository();
