@@ -24,8 +24,13 @@ namespace NBitcoin.Tests
 				Assert.True(stored.Block.CheckMerkleRoot());
 				count++;
 			}
-
 			Assert.Equal(300, count);
+			count = 0;
+			foreach(var stored in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat", new DiskBlockPos(0, 298)))
+			{
+				count++;
+			}
+			Assert.Equal(2, count);
 		}
 
 		[Fact]
@@ -45,8 +50,21 @@ namespace NBitcoin.Tests
 				Assert.True(stored.Block.CheckMerkleRoot());
 				count++;
 			}
-
 			Assert.Equal(600, count);
+
+			count = 0;
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPos(1, 298)))
+			{
+				count++;
+			}
+			Assert.Equal(2, count);
+
+			count = 0;
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPos(0, 298)))
+			{
+				count++;
+			}
+			Assert.Equal(302, count);
 		}
 
 
