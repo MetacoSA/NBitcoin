@@ -57,6 +57,7 @@
     <Compile Include="BlockRepository.cs" />
     <Compile Include="BlockStore.cs" />
     <Compile Include="BloomFilter.cs" />
+    <Compile Include="Coins.cs" />
     <Compile Include="CompositeDisposable.cs" />
     <Compile Include="DataEncoders\ASCIIEncoder.cs" />
     <Compile Include="FileLock.cs" />

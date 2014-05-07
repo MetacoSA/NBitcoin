@@ -406,5 +406,35 @@ namespace NBitcoin
 			get;
 			set;
 		}
+
+		public void ReadWriteAsVarInt(ref uint val)
+		{
+			ulong vallong = val;
+			ReadWriteAsVarInt(ref vallong);
+			if(!Serializing)
+				val = (uint)vallong;
+		}
+		public void ReadWriteAsVarInt(ref ulong val)
+		{
+			var value = new VarInt(val);
+			ReadWrite(ref value);
+			if(!Serializing)
+				val = value.ToLong();
+		}
+
+		public void ReadWriteAsCompactVarInt(ref uint val)
+		{
+			var value = new CompactVarInt(val, sizeof(uint));
+			ReadWrite(ref value);
+			if(!Serializing)
+				val = (uint)value.ToLong();
+		}
+		public void ReadWriteAsCompactVarInt(ref ulong val)
+		{
+			var value = new CompactVarInt(val, sizeof(ulong));
+			ReadWrite(ref value);
+			if(!Serializing)
+				val = value.ToLong();
+		}
 	}
 }

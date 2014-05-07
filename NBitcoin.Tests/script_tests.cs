@@ -80,6 +80,110 @@ namespace NBitcoin.Tests
 
 
 
+
+		[Fact]
+		public void CanUseCompactVarInt()
+		{
+			var tests = new[]{
+				new object[]{0UL, new byte[]{0}},
+				new object[]{1UL, new byte[]{1}},
+				new object[]{127UL, new byte[]{0x7F}},
+				new object[]{128UL, new byte[]{0x80, 0x00}},
+				new object[]{255UL, new byte[]{0x80, 0x7F}},
+				new object[]{256UL, new byte[]{0x81, 0x00}},
+				new object[]{16383UL, new byte[]{0xFE, 0x7F}},
+				//new object[]{16384UL, new byte[]{0xFF, 0x00}},
+				//new object[]{16511UL, new byte[]{0x80, 0xFF, 0x7F}},
+				//new object[]{65535UL, new byte[]{0x82, 0xFD, 0x7F}},
+				new object[]{(ulong)1 << 32, new byte[]{0x8E, 0xFE, 0xFE, 0xFF, 0x00}},
+			};
+			foreach(var test in tests)
+			{
+				ulong val = (ulong)test[0];
+				byte[] expectedBytes = (byte[])test[1];
+
+				AssertEx.CollectionEquals(new CompactVarInt(val, sizeof(ulong)).ToBytes(), expectedBytes);
+				AssertEx.CollectionEquals(new CompactVarInt(val, sizeof(uint)).ToBytes(), expectedBytes);
+
+				var compact = new CompactVarInt(sizeof(ulong));
+				compact.ReadWrite(expectedBytes);
+				Assert.Equal(val, compact.ToLong());
+
+				compact = new CompactVarInt(sizeof(uint));
+				compact.ReadWrite(expectedBytes);
+				Assert.Equal(val, compact.ToLong());
+			}
+
+			foreach(var i in Enumerable.Range(0, 65535 * 4))
+			{
+				var compact = new CompactVarInt((ulong)i, sizeof(ulong));
+				var bytes = compact.ToBytes();
+				compact = new CompactVarInt(sizeof(ulong));
+				compact.ReadWrite(bytes);
+				Assert.Equal((ulong)i, compact.ToLong());
+			}
+		}
+
+
+		[Fact]
+		public void CanCompressScript()
+		{
+			var payToHashTemplate = new PayToPubkeyHashTemplate();
+			var payToScriptTemplate = new PayToScriptHashTemplate();
+			var payToPubKeyTemplate = new PayToPubkeyTemplate();
+
+
+			var key = new Key(true);
+
+			//Pay to pubkey hash (encoded as 21 bytes)
+			var script = payToHashTemplate.GenerateScriptPubKey(key.PubKey.ID);
+			AssertCompressed(script, 21);
+			script = payToHashTemplate.GenerateScriptPubKey(key.PubKey.Decompress().ID);
+			AssertCompressed(script, 21);
+
+			//Pay to script hash (encoded as 21 bytes)
+			script = payToScriptTemplate.GenerateScriptPubKey(script);
+			AssertCompressed(script, 21);
+
+			//Pay to pubkey starting with 0x02, 0x03 or 0x04 (encoded as 33 bytes)
+			script = payToPubKeyTemplate.GenerateScriptPubKey(key.PubKey);
+			script = AssertCompressed(script, 33);
+			var readenKey = payToPubKeyTemplate.ExtractScriptPubKeyParameters(script);
+			AssertEx.CollectionEquals(readenKey.ToBytes(), key.PubKey.ToBytes());
+
+			script = payToPubKeyTemplate.GenerateScriptPubKey(key.PubKey.Decompress());
+			script = AssertCompressed(script, 33);
+			readenKey = payToPubKeyTemplate.ExtractScriptPubKeyParameters(script);
+			AssertEx.CollectionEquals(readenKey.ToBytes(), key.PubKey.Decompress().ToBytes());
+
+
+			//Other scripts up to 121 bytes require 1 byte + script length.
+			script = new Script(Enumerable.Range(0, 60).Select(_ => (Op)OpcodeType.OP_RETURN).ToArray());
+			AssertCompressed(script, 61);
+			script = new Script(Enumerable.Range(0, 120).Select(_ => (Op)OpcodeType.OP_RETURN).ToArray());
+			AssertCompressed(script, 121);
+
+			//Above that, scripts up to 16505 bytes require 2 bytes + script length.
+			script = new Script(Enumerable.Range(0, 122).Select(_ => (Op)OpcodeType.OP_RETURN).ToArray());
+			AssertCompressed(script, 124);
+		}
+
+		private Script AssertCompressed(Script script, int expectedSize)
+		{
+			var compressor = new ScriptCompressor(script);
+			var compressed = compressor.ToBytes();
+			Assert.Equal(expectedSize, compressed.Length);
+
+			compressor = new ScriptCompressor();
+			compressor.ReadWrite(compressed);
+			AssertEx.CollectionEquals(compressor.GetScript().ToRawScript(), script.ToRawScript());
+
+			var compressed2 = compressor.ToBytes();
+			AssertEx.CollectionEquals(compressed, compressed2);
+			return compressor.GetScript();
+		}
+
+
 		ScriptVerify flags = ScriptVerify.P2SH | ScriptVerify.StrictEnc;
 		[Fact]
 		[Trait("Core", "Core")]

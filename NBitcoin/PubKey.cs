@@ -21,6 +21,19 @@ namespace NBitcoin
 			_Key = new ECKey(vch, false);
 		}
 
+		public PubKey Compress()
+		{
+			if(IsCompressed)
+				return this;
+			return _Key.GetPubKey(true);
+		}
+		public PubKey Decompress()
+		{
+			if(IsCompressed)
+				return this;
+			return _Key.GetPubKey(false);
+		}
+
 		public static bool IsValidSize(long size)
 		{
 			return size == 65 || size == 33;

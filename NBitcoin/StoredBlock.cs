@@ -89,24 +89,24 @@ namespace NBitcoin
 		}
 		public DiskBlockPos(uint file, uint position)
 		{
-			_File = new VarInt(file);
-			_Position = new VarInt(position);
+			_File = file;
+			_Position = position;
 			UpdateHash();
 		}
-		private VarInt _File;
+		private uint _File;
 		public uint File
 		{
 			get
 			{
-				return (uint)_File.ToLong();
+				return _File;
 			}
 		}
-		private VarInt _Position;
+		private uint _Position;
 		public uint Position
 		{
 			get
 			{
-				return (uint)_Position.ToLong();
+				return _Position;
 			}
 		}
 
@@ -114,8 +114,8 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref _File);
-			stream.ReadWrite(ref _Position);
+			stream.ReadWriteAsCompactVarInt(ref _File);
+			stream.ReadWriteAsCompactVarInt(ref _Position);
 			if(!stream.Serializing)
 				UpdateHash();
 		}

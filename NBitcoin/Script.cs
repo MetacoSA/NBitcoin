@@ -507,7 +507,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return new PayToScriptHashScriptTemplate().CheckScripPubKey(this);
+				return new PayToScriptHashTemplate().CheckScripPubKey(this);
 			}
 		}
 		public uint GetSigOpCount(Script scriptSig)
@@ -517,7 +517,7 @@ namespace NBitcoin
 			// This is a pay-to-script-hash scriptPubKey;
 			// get the last item that the scriptSig
 			// pushes onto the stack:
-			var validSig = new PayToScriptHashScriptTemplate()
+			var validSig = new PayToScriptHashTemplate()
 			{
 				VerifyRedeemScript = false
 			}.CheckScriptSig(scriptSig, null);
@@ -529,14 +529,14 @@ namespace NBitcoin
 
 		public PubKey GetSourcePubKey()
 		{
-			var template = new PayToPubkeyHashScriptTemplate();
+			var template = new PayToPubkeyHashTemplate();
 			var result = template.ExtractScriptSigParameters(this);
 			return result == null ? null : result.PublicKey;
 		}
 
 		public KeyId GetDestination()
 		{
-			return new PayToPubkeyHashScriptTemplate().ExtractScriptPubKeyParameters(this);
+			return new PayToPubkeyHashTemplate().ExtractScriptPubKeyParameters(this);
 		}
 
 		public byte[] ToRawScript()
@@ -550,6 +550,14 @@ namespace NBitcoin
 			eval.SigHash = sigHash;
 			eval.ScriptVerify = scriptVerify;
 			return eval.VerifyScript(scriptSig, scriptPubKey, tx, i);
+		}
+
+		public bool IsUnspendable
+		{
+			get
+			{
+				return _Script.Length > 0 && _Script[0] == (byte)OpcodeType.OP_RETURN;
+			}
 		}
 	}
 }

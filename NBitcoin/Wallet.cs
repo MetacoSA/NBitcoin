@@ -632,10 +632,10 @@ namespace NBitcoin
 				var entry = entries[i];
 				var vin = tx.Inputs[i];
 				var key = GetKey(entry.TxOut.ScriptPubKey.GetDestination());
-				tx.Inputs[i].ScriptSig = new PayToPubkeyHashScriptTemplate().GenerateScriptPubKey(key.PubKey);
+				tx.Inputs[i].ScriptSig = new PayToPubkeyHashTemplate().GenerateScriptPubKey(key.PubKey);
 				var hash = tx.Inputs[i].ScriptSig.SignatureHash(tx, i, SigHash.All);
 				var sig = key.Sign(hash);
-				tx.Inputs[i].ScriptSig = new PayToPubkeyHashScriptTemplate().GenerateScriptSig(new TransactionSignature(sig, SigHash.All), key.PubKey);
+				tx.Inputs[i].ScriptSig = new PayToPubkeyHashTemplate().GenerateScriptSig(new TransactionSignature(sig, SigHash.All), key.PubKey);
 			}
 			return true;
 		}
@@ -648,7 +648,7 @@ namespace NBitcoin
 				var key = GetKey(vin.ScriptSig.GetSourcePubKey());
 				if(key == null)
 					return false;
-				var pubkeyScript = new PayToPubkeyHashScriptTemplate().GenerateScriptPubKey(key.PubKey);
+				var pubkeyScript = new PayToPubkeyHashTemplate().GenerateScriptPubKey(key.PubKey);
 				var eval = new ScriptEvaluationContext();
 				eval.SigHash = SigHash.All;
 				if(!eval.VerifyScript(vin.ScriptSig, pubkeyScript, tx, i))

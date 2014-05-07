@@ -20,7 +20,7 @@ namespace NBitcoin
 		TX_NULL_DATA,
 	};
 
-	public class TxNullDataScriptTemplate : ScriptTemplate
+	public class TxNullDataTemplate : ScriptTemplate
 	{
 		public override bool CheckScripPubKey(Script scriptPubKey)
 		{
@@ -60,7 +60,7 @@ namespace NBitcoin
 			}
 		}
 	}
-	public class PayToMultiSigScriptTemplate : ScriptTemplate
+	public class PayToMultiSigTemplate : ScriptTemplate
 	{
 		public Script GenerateScriptPubKey(int sigCount, PubKey[] keys)
 		{
@@ -132,9 +132,9 @@ namespace NBitcoin
 	}
 
 	//https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki
-	public class PayToScriptHashScriptTemplate : ScriptTemplate
+	public class PayToScriptHashTemplate : ScriptTemplate
 	{
-		public PayToScriptHashScriptTemplate()
+		public PayToScriptHashTemplate()
 		{
 			VerifyRedeemScript = true;
 		}
@@ -203,7 +203,7 @@ namespace NBitcoin
 			}
 		}
 	}
-	public class PayToPubkeyScriptTemplate : ScriptTemplate
+	public class PayToPubkeyTemplate : ScriptTemplate
 	{
 		public Script GenerateScriptPubKey(PubKey pubkey)
 		{
@@ -248,6 +248,13 @@ namespace NBitcoin
 				return TxOutType.TX_PUBKEY;
 			}
 		}
+
+		public PubKey ExtractScriptPubKeyParameters(Script script)
+		{
+			if(!CheckScripPubKey(script))
+				return null;
+			return new PubKey(script.ToOps().ToArray()[0].PushData);
+		}
 	}
 
 	public class PayToPubkeyHashScriptSigParameters
@@ -263,7 +270,7 @@ namespace NBitcoin
 			set;
 		}
 	}
-	public class PayToPubkeyHashScriptTemplate : ScriptTemplate
+	public class PayToPubkeyHashTemplate : ScriptTemplate
 	{
 		public Script GenerateScriptPubKey(BitcoinAddress address)
 		{
