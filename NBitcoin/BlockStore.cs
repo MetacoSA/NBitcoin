@@ -47,22 +47,41 @@ namespace NBitcoin
 			}
 		}
 
-		private IDisposable CreateLock(FileLockType fileLockType)
+		private FileLock CreateLock(FileLockType fileLockType)
 		{
 			return new FileLock(Path.Combine(_Folder.FullName, "BlockStoreLock"), fileLockType);
 		}
 
 		public DiskBlockPos Append(Block block)
 		{
-			using(CreateLock(FileLockType.ReadWrite))
+			using(var @lock = CreateLock(FileLockType.ReadWrite))
 			{
-				var stored = new StoredBlock(StoredBlock.SeekEnd(_Folder));
+				DiskBlockPos position = SeekEnd(@lock);
+				var stored = new StoredBlock(position);
 				stored.Magic = Network.Magic;
 				stored.Block = block;
 				stored.BlockSize = (uint)stored.Block.GetSerializedSize();
 				StoredBlock.Write(_Folder, stored);
+				position++;
+				@lock.SetString(position.ToString());
 				return stored.BlockPosition;
 			}
+		}
+
+		private DiskBlockPos SeekEnd(FileLock @lock)
+		{
+			var end = @lock.GetString();
+			if(!string.IsNullOrEmpty(end))
+				try
+				{
+					return DiskBlockPos.Parse(end);
+				}
+				catch(FormatException)
+				{
+					return StoredBlock.SeekEnd(_Folder);
+				}
+			else
+				return StoredBlock.SeekEnd(_Folder);
 		}
 
 

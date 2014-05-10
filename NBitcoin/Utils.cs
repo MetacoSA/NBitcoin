@@ -30,7 +30,7 @@ namespace NBitcoin
 				removed.Add(list[i]);
 				list.RemoveAt(i);
 			}
-			
+
 			while(list.Count < count)
 			{
 				list.Add(default(T));
@@ -62,7 +62,10 @@ namespace NBitcoin
 			while(readen < count)
 			{
 				var ar = stream.BeginRead(buffer, offset + readen, count - readen, null, null);
-				WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, cancellation.WaitHandle }, -1);
+				if(!ar.CompletedSynchronously)
+				{
+					WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, cancellation.WaitHandle }, -1);
+				}
 				cancellation.ThrowIfCancellationRequested();
 				var thisRead = stream.EndRead(ar);
 				if(thisRead == -1)

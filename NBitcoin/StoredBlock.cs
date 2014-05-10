@@ -193,6 +193,15 @@ namespace NBitcoin
 		{
 			return "f:" + File + "p:" + Position;
 		}
+
+		static readonly Regex _Reg = new Regex("f:([0-9]*)p:([0-9]*)", RegexOptions.Compiled);
+		public static DiskBlockPos Parse(string data)
+		{
+			var match = _Reg.Match(data);
+			if(!match.Success)
+				throw new FormatException("Invalid position string : " + data);
+			return new DiskBlockPos(uint.Parse(match.Groups[1].Value), uint.Parse(match.Groups[2].Value));
+		}
 	}
 	public class StoredBlock : IBitcoinSerializable
 	{

@@ -127,7 +127,7 @@ namespace NBitcoin.Tests
 		}
 
 		//[Fact]
-		//public void Play()
+		//public static void Play()
 		//{
 		//	var test = new IndexedBlockStore(new SQLiteNoSqlRepository("Play", true), new BlockStore(@"E:\Bitcoin\blocks", Network.Main));
 		//	test.ReIndex();

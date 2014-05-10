@@ -37,7 +37,7 @@ namespace NBitcoin
 					if(lockType == FileLockType.Read)
 						_Fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
 					if(lockType == FileLockType.ReadWrite)
-						_Fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None);
+						_Fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
 					break;
 				}
 				catch(IOException)
@@ -54,5 +54,20 @@ namespace NBitcoin
 			_Fs.Dispose();
 		}
 
+
+		public void SetString(string str)
+		{
+			_Fs.Position = 0;
+			StreamWriter writer = new StreamWriter(_Fs);
+			writer.Write(str);
+			writer.Flush();
+		}
+
+		public string GetString()
+		{
+			_Fs.Position = 0;
+			StreamReader reader = new StreamReader(_Fs);
+			return reader.ReadToEnd();
+		}
 	}
 }

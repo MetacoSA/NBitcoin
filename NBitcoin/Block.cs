@@ -194,7 +194,7 @@ namespace NBitcoin
 		public Block(BlockHeader blockHeader)
 		{
 			SetNull();
-			header = blockHeader.Clone();
+			header = blockHeader;
 		}
 
 

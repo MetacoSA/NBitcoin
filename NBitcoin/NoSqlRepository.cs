@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -54,6 +55,7 @@ namespace NBitcoin
 
 			SQLiteConnectionStringBuilder builder = new SQLiteConnectionStringBuilder();
 			builder.DataSource = fileName;
+			builder.BaseSchemaName = "";
 
 			if(!File.Exists(fileName))
 			{
@@ -106,9 +108,8 @@ namespace NBitcoin
 		{
 			if(kv.Item2 != null)
 			{
-				commandBuilder.AppendLine("INSERT OR REPLACE INTO Store (Key,Data) VALUES (@key" + i + ",@data" + i + ");");
-				command.Parameters.Add("@key" + i, DbType.String).Value = kv.Item1;
-				command.Parameters.Add("@data" + i, DbType.Binary).Value = kv.Item2;
+				//Sql injection possible, but parameter binding took as much time as writing in the database file
+				commandBuilder.AppendLine("INSERT OR REPLACE INTO Store (Key,Data) VALUES ('" + kv.Item1 + "', X'" + Encoders.Hex.EncodeData(kv.Item2) + "');");
 			}
 			else
 			{

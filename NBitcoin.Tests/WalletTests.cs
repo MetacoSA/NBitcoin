@@ -132,7 +132,7 @@ namespace NBitcoin.Tests
 
 
 			//spend all
-			tester.Pay("11.00", false, chain);
+			tester.Pay(tester.Wallet.Pools.Confirmed.Balance, true, chain);
 			tester.UpdateWallet(chain);
 			Assert.Equal(Money.Zero, tester.Wallet.Pools.Confirmed.Balance);
 			Assert.Equal(Money.Zero, tester.Wallet.Pools.Available.Balance);
