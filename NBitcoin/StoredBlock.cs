@@ -322,11 +322,9 @@ namespace NBitcoin
 			}
 		}
 
-		private static DiskBlockPos SkipUntil(Stream stream, DiskBlockPos until, DiskBlockPos hint = null)
+		private static DiskBlockPos SkipUntil(Stream stream, DiskBlockPos until)
 		{
 			var position = new DiskBlockPos(until.File, 0);
-			if(hint != null && hint.File == position.File)
-				position = new DiskBlockPos(position.File, hint.Position);
 			while(position < until && stream.Position != stream.Length)
 			{
 				StoredBlock block = new StoredBlock(position);
@@ -403,7 +401,7 @@ namespace NBitcoin
 		}
 
 
-		public static DiskBlockPos SeekEnd(DirectoryInfo folder, DiskBlockPos hint = null)
+		public static DiskBlockPos SeekEnd(DirectoryInfo folder)
 		{
 			var highestFile = folder.GetFiles().OrderBy(f => f.Name).Where(f => GetFileIndex(f.Name) != -1).LastOrDefault();
 			if(highestFile == null)
@@ -411,7 +409,7 @@ namespace NBitcoin
 			using(var fs = new FileStream(highestFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
 				var index = (uint)GetFileIndex(highestFile.Name);
-				return new DiskBlockPos(index, SkipUntil(fs, DiskBlockPos.End.OfFile(index), hint).Position);
+				return new DiskBlockPos(index, SkipUntil(fs, DiskBlockPos.End.OfFile(index)).Position);
 			}
 		}
 

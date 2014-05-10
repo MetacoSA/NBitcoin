@@ -296,7 +296,7 @@ namespace NBitcoin.Tests
 		}
 
 
-		private IndexedBlockStore CreateIndexedStore([CallerMemberName]string folderName = null)
+		public static IndexedBlockStore CreateIndexedStore([CallerMemberName]string folderName = null)
 		{
 			if(Directory.Exists(folderName))
 				Directory.Delete(folderName, true);

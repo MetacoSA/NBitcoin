@@ -53,10 +53,12 @@
     <Compile Include="BitcoinSecret.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
-    <Compile Include="BlockChain.cs" />
+    <Compile Include="BlockIndex.cs" />
+    <Compile Include="BlockLocator.cs" />
     <Compile Include="BlockRepository.cs" />
     <Compile Include="BlockStore.cs" />
     <Compile Include="BloomFilter.cs" />
+    <Compile Include="Chain.cs" />
     <Compile Include="Coins.cs" />
     <Compile Include="CompositeDisposable.cs" />
     <Compile Include="DataEncoders\ASCIIEncoder.cs" />

@@ -62,11 +62,11 @@
     <Compile Include="base58_tests.cs" />
     <Compile Include="bip32_tests.cs" />
     <Compile Include="bloom_tests.cs" />
+    <Compile Include="ChainTests.cs" />
     <Compile Include="checkblock_tests.cs" />
     <Compile Include="ConverterTests.cs" />
     <Compile Include="hash_tests.cs" />
     <Compile Include="key_tests.cs" />
-    <Compile Include="MockBlockChain.cs" />
     <Compile Include="PeerTableTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProtocolTests.cs" />

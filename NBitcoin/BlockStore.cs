@@ -52,17 +52,15 @@ namespace NBitcoin
 			return new FileLock(Path.Combine(_Folder.FullName, "BlockStoreLock"), fileLockType);
 		}
 
-		volatile DiskBlockPos _LastSeekEnd = DiskBlockPos.Begin;
 		public DiskBlockPos Append(Block block)
 		{
 			using(CreateLock(FileLockType.ReadWrite))
 			{
-				var stored = new StoredBlock(StoredBlock.SeekEnd(_Folder, _LastSeekEnd));
+				var stored = new StoredBlock(StoredBlock.SeekEnd(_Folder));
 				stored.Magic = Network.Magic;
 				stored.Block = block;
 				stored.BlockSize = (uint)stored.Block.GetSerializedSize();
 				StoredBlock.Write(_Folder, stored);
-				_LastSeekEnd = stored.BlockPosition;
 				return stored.BlockPosition;
 			}
 		}

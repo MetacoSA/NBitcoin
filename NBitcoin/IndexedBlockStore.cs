@@ -10,6 +10,14 @@ namespace NBitcoin
 	{
 		private readonly NoSqlRepository _Index;
 		private readonly BlockStore _Store;
+
+		public BlockStore Store
+		{
+			get
+			{
+				return _Store;
+			}
+		}
 		public IndexedBlockStore(NoSqlRepository index, BlockStore store)
 		{
 			if(index == null)
@@ -48,6 +56,17 @@ namespace NBitcoin
 				return null;
 			return stored.Block;
 		}
+		public BlockHeader GetHeader(uint256 hash)
+		{
+			var pos = _Index.Get<DiskBlockPos>(hash.ToString());
+			if(pos == null)
+				return null;
+			var stored = _Store.Enumerate(false, new DiskBlockPosRange(pos)).FirstOrDefault();
+			if(stored == null)
+				return null;
+			return stored.Block.Header;
+		}
+		
 		public void Put(Block block)
 		{
 			var hash = block.Header.GetHash();

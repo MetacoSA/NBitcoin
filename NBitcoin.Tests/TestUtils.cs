@@ -59,12 +59,13 @@ namespace NBitcoin.Tests
 			return block;
 		}
 
-		public static BlockChain CreateBlockChain(List<Block> blocks)
+		public static Chain CreateBlockChain(List<Block> blocks)
 		{
-			BlockChain chain = new BlockChain();
+			Chain chain = new Chain(Network.Main.GetGenesis().Header);
 			foreach(var b in blocks)
 			{
-				chain.Add(b);
+				b.Header.HashPrevBlock = chain.Tip.Header.GetHash();
+				chain.GetOrAdd(b.Header);
 			}
 			return chain;
 		}

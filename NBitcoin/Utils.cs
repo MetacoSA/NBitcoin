@@ -18,7 +18,25 @@ namespace NBitcoin
 {
 	public static class Extensions
 	{
+		public static IEnumerable<T> Resize<T>(this List<T> list, int count)
+		{
+			if(list.Count == count)
+				return new T[0];
 
+			List<T> removed = new List<T>();
+
+			for(int i = list.Count - 1 ; i + 1 > count ; i--)
+			{
+				removed.Add(list[i]);
+				list.RemoveAt(i);
+			}
+			
+			while(list.Count < count)
+			{
+				list.Add(default(T));
+			}
+			return removed;
+		}
 		public static IEnumerable<List<T>> Partition<T>(this IEnumerable<T> source, int max)
 		{
 			List<T> toReturn = new List<T>(max);

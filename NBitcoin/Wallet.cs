@@ -231,13 +231,13 @@ namespace NBitcoin
 			}
 		}
 
-		public void Reorganize(BlockChain chain)
+		public void Update(Chain chain)
 		{
 			NeutralizeUnconfirmed(chain, Confirmed);
 			NeutralizeUnconfirmed(chain, Available);
 		}
 
-		private void NeutralizeUnconfirmed(BlockChain chain, WalletPool account)
+		private void NeutralizeUnconfirmed(Chain chain, WalletPool account)
 		{
 			var unconfirmed = account.GetInChain(chain, false).Where(e => e.Reason != AccountEntryReason.ChainBlockChanged);
 			foreach(var e in unconfirmed)
@@ -413,7 +413,7 @@ namespace NBitcoin
 
 
 		//Do not get all entries, but only the one you can generate with spent/unspent.
-		public AccountEntry[] GetInChain(BlockChain chain, bool value)
+		public AccountEntry[] GetInChain(Chain chain, bool value)
 		{
 			Dictionary<OutPoint, AccountEntry> entries = new Dictionary<OutPoint, AccountEntry>();
 			foreach(var entry in _AccountEntries)
@@ -536,7 +536,7 @@ namespace NBitcoin
 			}
 		}
 
-		public void ReceiveTransaction(Transaction tx)
+		public void UnconfirmedTransaction(Transaction tx)
 		{
 			ReceiveTransaction(null, null, tx);
 		}
@@ -599,7 +599,7 @@ namespace NBitcoin
 			}
 		}
 
-		public void ReceiveBlock(Block block, BlockType blockType = BlockType.Main)
+		private void ReceiveBlock(Block block, BlockType blockType = BlockType.Main)
 		{
 			var hash = block.GetHash();
 			foreach(var tx in block.Vtx)
@@ -686,9 +686,32 @@ namespace NBitcoin
 
 
 
-		public void Reorganize(BlockChain chain)
+		Chain _CurrentChain;
+
+		public bool Update(Chain chain, IndexedBlockStore store)
 		{
-			Pools.Reorganize(chain);
+			if(_CurrentChain == null || !chain.Same(_CurrentChain))
+			{
+				List<BlockIndex> unprocessed = null;
+				Pools.Update(chain);
+				if(_CurrentChain == null)
+				{
+					_CurrentChain = chain.Clone();
+					unprocessed = chain.ToEnumerable(false).ToList();
+				}
+				else
+				{
+					var fork = _CurrentChain.SetTip(chain.Tip);
+					unprocessed = _CurrentChain.EnumerateAfter(fork).ToList();
+				}
+
+				foreach(var block in unprocessed)
+				{
+					ReceiveBlock(store.Get(block.HashBlock));
+				}
+				return true;
+			}
+			return false;
 		}
 
 		public void Save(Stream stream)

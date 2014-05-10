@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -11,6 +12,13 @@ namespace NBitcoin.Tests
 {
 	public class WalletTester
 	{
+		public WalletTester([CallerMemberName] string name = null)
+		{
+			_Index = RepositoryTests.CreateIndexedStore(name);
+			_Index.Put(Network.Main.GetGenesis());
+		}
+		IndexedBlockStore _Index;
+
 		Network TestNetwork = Network.Main;
 		Key _Key;
 		private Key Key
@@ -59,81 +67,76 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		internal Transaction GiveMoney(Money amount, BlockType? blockType)
+		internal Transaction GiveMoney(Money amount, params Chain[] chains)
 		{
 			var tx = TestUtils.CreateFakeTx(amount, Address);
-			return RecieveTransaction(tx, blockType);
+			return RecieveTransaction(tx, chains);
 		}
 
-		public Transaction RecieveTransaction(Transaction tx, BlockType? blockType)
+		private Transaction RecieveTransaction(Transaction tx, Chain[] chains)
 		{
-			if(blockType == null)
-			{
-				Wallet.ReceiveTransaction(tx);
-				return tx;
-			}
-
 			var block = TestUtils.CreateFakeBlock(tx);
-			Wallet.ReceiveBlock(block, blockType.Value);
-			foreach(var c in _Chains)
+			if(chains != null)
 			{
-				c.Add(block);
+				foreach(var c in chains)
+				{
+					var localBlock = block.Clone();
+					localBlock.Header.HashPrevBlock = c.Tip.Header.GetHash();
+					c.GetOrAdd(localBlock.Header);
+					_Index.Put(localBlock);
+				}
+			}
+			else
+			{
+				Wallet.UnconfirmedTransaction(tx);
 			}
 			return tx;
 		}
 
-		public Transaction Pay(Money money, BlockType? blockType, bool fromConfirmedPool = false)
+		public Transaction Pay(Money money, bool fromConfirmedPool, params Chain[] chains)
 		{
 			var tx = new Transaction();
-			tx.AddOutput(money, OtherKey.PubKey.GetAddress(TestNetwork));
+			tx.AddOutput(money, OtherKey.PubKey.GetAddress(Network.Main));
 			Wallet.CompleteTx(tx, fromConfirmedPool ? Wallet.Pools.Confirmed : Wallet.Pools.Available);
-			return RecieveTransaction(tx, blockType);
+			return RecieveTransaction(tx, chains);
 		}
 
-		List<BlockChain> _Chains = new List<BlockChain>();
-		public BlockChain StartRecordChain()
+
+		public void AssertPools(string confirmedOperations, string availableOperations, string unconfirmedOperations)
 		{
-			var c = new BlockChain();
-			_Chains.Add(c);
-			return c;
-		}
-		public void StopRecordChain(BlockChain c)
-		{
-			_Chains.Remove(c);
+			AssertPools(Wallet, confirmedOperations, availableOperations, unconfirmedOperations);
+			//MemoryStream ms = new MemoryStream();
+			//Wallet.Save(ms);
+			//ms.Position = 0;
+			//var walletCopy = Wallet.Load(ms);
+			//AssertPools(walletCopy, chain, confirmedOperations, availableOperations, unconfirmedOperations);
 		}
 
-		public void AssertPools(BlockChain chain, string confirmedOperations, string availableOperations, string unconfirmedOperations)
+		private void AssertPools(Wallet wallet, string confirmedOperations, string availableOperations, string unconfirmedOperations)
 		{
-			AssertPools(Wallet, chain, confirmedOperations, availableOperations, unconfirmedOperations);
-			MemoryStream ms = new MemoryStream();
-			Wallet.Save(ms);
-			ms.Position = 0;
-			var walletCopy = Wallet.Load(ms);
-			AssertPools(walletCopy, chain, confirmedOperations, availableOperations, unconfirmedOperations);
-		}
-
-		private void AssertPools(Wallet wallet, BlockChain chain, string confirmedOperations, string availableOperations, string unconfirmedOperations)
-		{
-			if(chain != null)
-				wallet.Reorganize(chain);
 			AssertAccount(wallet.Pools.Confirmed, confirmedOperations);
 			AssertAccount(wallet.Pools.Available, availableOperations);
 			AssertAccount(wallet.Pools.Unconfirmed, unconfirmedOperations);
-
-			if(chain != null)
-			{
-				wallet.Reorganize(chain);
-				//Nothing change
-				AssertAccount(wallet.Pools.Confirmed, confirmedOperations);
-				AssertAccount(wallet.Pools.Available, availableOperations);
-				AssertAccount(wallet.Pools.Unconfirmed, unconfirmedOperations);
-			}
 		}
 
 		[DebuggerHidden]
 		private void AssertAccount(WalletPool walletPool, string operations)
 		{
 			Assert.Equal(operations, walletPool.ToString().Replace("\r\n", ""));
+		}
+
+		public bool UpdateWallet(Chain chain)
+		{
+			return Wallet.Update(chain, _Index);
+		}
+
+		internal void AppendBlock(Transaction tx, Chain chain)
+		{
+			var block = TestUtils.CreateFakeBlock(tx);
+			block.Header.HashPrevBlock = chain.Tip.HashBlock;
+			chain.GetOrAdd(block.Header);
+			_Index.Put(block);
+			Assert.NotNull(_Index.Get(block.Header.GetHash())); //Seems not useful but already detected a bug in index thanks to that.
 		}
 	}
 }
