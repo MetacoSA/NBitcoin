@@ -169,7 +169,18 @@ namespace NBitcoin
 				throw new NotSupportedException("Type not supported " + typeof(T).FullName + ", implement IBitcoinSerializable");
 		}
 
-
+		public void ReadWrite<T>(ref List<T> list)
+		{
+			ReadWriteList<T>(ref list);
+		}
+		public void ReadWrite(ref byte[] arr)
+		{
+			ReadWriteBytes(ref arr);
+		}
+		public void ReadWrite<T>(ref T[] arr)
+		{
+			ReadWriteArray<T>(ref arr);
+		}
 
 		private void ReadWriteArrayUntyped(ref Array data)
 		{

@@ -300,6 +300,7 @@ namespace NBitcoin
 				range = DiskBlockPosRange.All;
 			using(var fs = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
 			{
+				
 				foreach(var block in Enumerate(fs, range, headersOnly))
 				{
 					yield return block;
@@ -376,7 +377,7 @@ namespace NBitcoin
 			}
 		}
 
-		static readonly Regex _FileReg = new Regex("blk([0-5]{5,5}).dat", RegexOptions.Compiled);
+		static readonly Regex _FileReg = new Regex("blk([0-9]{5,5}).dat", RegexOptions.Compiled);
 		private static int GetFileIndex(string fileName)
 		{
 			var match = _FileReg.Match(fileName);

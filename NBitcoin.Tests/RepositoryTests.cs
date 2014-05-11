@@ -1,6 +1,7 @@
 ﻿using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -126,12 +127,20 @@ namespace NBitcoin.Tests
 			Assert.Equal(0, reIndexed);
 		}
 
-		//[Fact]
-		//public static void Play()
-		//{
-		//	var test = new IndexedBlockStore(new SQLiteNoSqlRepository("Play", true), new BlockStore(@"E:\Bitcoin\blocks", Network.Main));
-		//	test.ReIndex();
-		//}
+		[Fact]
+		public static void Play()
+		{
+			//var test = new IndexedBlockStore(new SQLiteNoSqlRepository("Play", true), new BlockStore(@"E:\Bitcoin\blocks", Network.Main));
+			//test.ReIndex();
+			//var i = 0;
+			//Stopwatch watch = new Stopwatch();
+			//watch.Start();
+			//foreach(var b in test.Store.Enumerate(false, new DiskBlockPosRange(new DiskBlockPos(137,0))).Take(144))
+			//{
+			//	i++;
+			//}
+			//watch.Stop();
+		}
 
 		[Fact]
 		public void CanStoreInBlockRepository()

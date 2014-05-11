@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Numerics;
 using System.Runtime.Serialization;
 using System.Security;
@@ -61,13 +62,22 @@ namespace NBitcoin
 			int readen = 0;
 			while(readen < count)
 			{
-				var ar = stream.BeginRead(buffer, offset + readen, count - readen, null, null);
-				if(!ar.CompletedSynchronously)
+				int thisRead = 0;
+				if(stream is NetworkStream) //Big performance problem with begin read for other stream than NetworkStream
 				{
-					WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, cancellation.WaitHandle }, -1);
+					var ar = stream.BeginRead(buffer, offset + readen, count - readen, null, null);
+					if(!ar.CompletedSynchronously)
+					{
+						WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, cancellation.WaitHandle }, -1);
+					}
+					cancellation.ThrowIfCancellationRequested();
+					thisRead = stream.EndRead(ar);
 				}
-				cancellation.ThrowIfCancellationRequested();
-				var thisRead = stream.EndRead(ar);
+				else
+				{
+					cancellation.ThrowIfCancellationRequested();
+					thisRead = stream.Read(buffer, offset + readen, count - readen);
+				}
 				if(thisRead == -1)
 					return -1;
 				readen += thisRead;
