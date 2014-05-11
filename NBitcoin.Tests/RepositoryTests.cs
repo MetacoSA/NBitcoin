@@ -56,7 +56,8 @@ namespace NBitcoin.Tests
 			}
 			Assert.Equal(300, count);
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat", new DiskBlockPosRange(new DiskBlockPos(0, 298))))
+			var twoLast = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").Skip(298).ToList();
+			foreach(var stored in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat", range: new DiskBlockPosRange(twoLast[0].BlockPosition)))
 			{
 				count++;
 			}
@@ -160,16 +161,16 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanReadStoredBlockFolder()
 		{
-			var firstblk1 = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").First();
-			var firstblk2 = StoredBlock.EnumerateFile(@"data\blocks\blk00001.dat").First();
+			var blk0 = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat", (uint)0).ToList();
+			var blk1 = StoredBlock.EnumerateFile(@"data\blocks\blk00001.dat", (uint)1).ToList();
 
 			int count = 0;
 			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks"))
 			{
 				if(count == 0)
-					Assert.Equal(firstblk1.Block.GetHash(), stored.Block.GetHash());
+					Assert.Equal(blk0[0].Block.GetHash(), stored.Block.GetHash());
 				if(count == 300)
-					Assert.Equal(firstblk2.Block.GetHash(), stored.Block.GetHash());
+					Assert.Equal(blk1[0].Block.GetHash(), stored.Block.GetHash());
 				Assert.True(stored.Block.Header.CheckProofOfWork());
 				Assert.True(stored.Block.CheckMerkleRoot());
 				count++;
@@ -177,28 +178,29 @@ namespace NBitcoin.Tests
 			Assert.Equal(600, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(new DiskBlockPos(1, 298))))
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(blk1[298].BlockPosition)))
 			{
 				count++;
 			}
 			Assert.Equal(2, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(new DiskBlockPos(0, 298))))
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(blk0[298].BlockPosition)))
 			{
 				count++;
 			}
 			Assert.Equal(302, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(new DiskBlockPos(0, 298), new DiskBlockPos(1, 2))))
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks",
+														new DiskBlockPosRange(blk0[298].BlockPosition, blk1[2].BlockPosition)))
 			{
 				count++;
 			}
 			Assert.Equal(4, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(new DiskBlockPos(0, 30), new DiskBlockPos(0, 34))))
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(blk0[30].BlockPosition, blk0[34].BlockPosition)))
 			{
 				count++;
 			}

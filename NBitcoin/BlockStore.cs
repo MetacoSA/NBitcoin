@@ -62,7 +62,7 @@ namespace NBitcoin
 				stored.Block = block;
 				stored.BlockSize = (uint)stored.Block.GetSerializedSize();
 				StoredBlock.Write(_Folder, stored);
-				position++;
+				position = new DiskBlockPos(position.File, position.Position + stored.GetStoredBlockSize());
 				@lock.SetString(position.ToString());
 				return stored.BlockPosition;
 			}
