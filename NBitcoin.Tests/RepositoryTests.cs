@@ -97,6 +97,21 @@ namespace NBitcoin.Tests
 				Assert.True(retrieved.Block.HeaderOnly);
 			}
 		}
+		[Fact]
+		public void CanStoreBlocksInMultipleFiles()
+		{
+			var store = CreateBlockStore();
+			store.BlockFileSize = 10; //Verify break all block in file with extreme settings
+			var allBlocks = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").Take(50).ToList();
+			foreach(var s in allBlocks)
+			{
+				store.Append(s.Block);
+			}
+			var storedBlocks = store.Enumerate(true).ToList();
+			Assert.Equal(allBlocks.Count, storedBlocks.Count);
+			Assert.Equal(51, store.Folder.GetFiles().Length); //50 files + lock file
+		}
+
 
 		[Fact]
 		public void CanReIndex()

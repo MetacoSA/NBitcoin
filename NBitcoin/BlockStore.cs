@@ -9,6 +9,9 @@ namespace NBitcoin
 {
 	public class BlockStore
 	{
+		public const int MAX_BLOCKFILE_SIZE = 0x8000000; // 128 MiB
+
+
 		private readonly DirectoryInfo _Folder;
 		public DirectoryInfo Folder
 		{
@@ -25,8 +28,16 @@ namespace NBitcoin
 				return _Network;
 			}
 		}
+
+		public int BlockFileSize
+		{
+			get;
+			set;
+		}
+
 		public BlockStore(string folder, Network network)
 		{
+			BlockFileSize = MAX_BLOCKFILE_SIZE;
 			_Folder = new DirectoryInfo(folder);
 			_Network = network;
 			if(!_Folder.Exists)
@@ -57,6 +68,8 @@ namespace NBitcoin
 			using(var @lock = CreateLock(FileLockType.ReadWrite))
 			{
 				DiskBlockPos position = SeekEnd(@lock);
+				if(position.Position > BlockFileSize)
+					position = new DiskBlockPos(position.File + 1, 0);
 				var stored = new StoredBlock(position);
 				stored.Magic = Network.Magic;
 				stored.Block = block;
