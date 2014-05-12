@@ -1,6 +1,9 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -129,6 +132,8 @@ namespace NBitcoin
 			}
 		}
 
+
+
 		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
@@ -137,5 +142,21 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+
+		public uint256 CalculatedChecksum
+		{
+			get;
+			internal set;
+		}
+		public void ComputeChecksum(uint256 hashBlock)
+		{
+			MemoryStream ms = new MemoryStream();
+			hashBlock.ReadWrite(ms, true);
+			this.ReadWrite(ms, true);
+			CalculatedChecksum = Hashes.Hash256(ms.ToArray());
+		}
+
+		
 	}
 }

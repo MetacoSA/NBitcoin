@@ -44,19 +44,10 @@ namespace NBitcoin
 			stream.ReadWrite(ref size);
 		}
 
-		public uint GetStorageSize()
-		{
-			var ms = new MemoryStream();
-			BitcoinStream stream = new BitcoinStream(ms, true);
-			var me = this;
-			stream.ReadWrite(ref me);
-			return me.ItemSize + (uint)stream.Inner.Length;
-		}
-
 
 		#endregion
 	}
-	public abstract class StoredItem<T> : IBitcoinSerializable where T : IBitcoinSerializable
+	public class StoredItem<T> : IBitcoinSerializable where T : IBitcoinSerializable
 	{
 		public StoredItem(DiskBlockPos position)
 		{
@@ -104,18 +95,48 @@ namespace NBitcoin
 			}
 		}
 
+		public bool HasChecksum
+		{
+			get;
+			set;
+		}
+
+		private uint256 _Checksum = new uint256(0);
+		public uint256 Checksum
+		{
+			get
+			{
+				return _Checksum;
+			}
+			set
+			{
+				_Checksum = value;
+			}
+		}
+
+		public uint GetStorageSize()
+		{
+			var ms = new MemoryStream();
+			BitcoinStream stream = new BitcoinStream(ms, true);
+			stream.ReadWrite(ref _Header);
+			return _Header.ItemSize + (uint)stream.Inner.Length + (HasChecksum ? (uint)(256 / 8) : 0);
+		}
+
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref _Header);
 			if(ParseSkipItem)
-			{
 				stream.Inner.Position += _Header.ItemSize;
-				return;
-			}
-			ReadWriteItem(stream, ref _Item);
+			else
+				ReadWriteItem(stream, ref _Item);
+			if(HasChecksum)
+				stream.ReadWrite(ref _Checksum);
 		}
 
-		protected abstract void ReadWriteItem(BitcoinStream stream, ref T item);
+		protected virtual void ReadWriteItem(BitcoinStream stream, ref T item)
+		{
+			stream.ReadWrite(ref item);
+		}
 
 	}
 }

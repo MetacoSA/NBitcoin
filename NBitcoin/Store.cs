@@ -221,7 +221,7 @@ namespace NBitcoin
 					position = new DiskBlockPos(position.File + 1, 0);
 				var stored = CreateStoredItem(item,position);
 				Write(stored);
-				position = new DiskBlockPos(position.File, position.Position + stored.Header.GetStorageSize());
+				position = new DiskBlockPos(position.File, position.Position + stored.GetStorageSize());
 				@lock.SetString(position.ToString());
 				return stored.BlockPosition;
 			}

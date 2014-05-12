@@ -143,9 +143,47 @@ namespace NBitcoin.Tests
 			Assert.Equal(0, reIndexed);
 		}
 
+
+		[Fact]
+		public static void CanParseRev()
+		{
+			BlockUndoStore src = new BlockUndoStore(@"data\blocks", Network.Main);
+			BlockUndoStore dest = CreateBlockUndoStore();
+			int count = 0;
+			foreach(var un in src.EnumerateFolder())
+			{
+				var expectedSize = un.Header.ItemSize;
+				var actualSize = (uint)un.Item.GetSerializedSize();
+				Assert.Equal(expectedSize, actualSize);
+				dest.Append(un.Item);
+				count++;
+			}
+			Assert.Equal(40, count);
+
+			count = 0;
+			foreach(var un in dest.EnumerateFolder())
+			{
+				var expectedSize = un.Header.ItemSize;
+				var actualSize = (uint)un.Item.GetSerializedSize();
+				Assert.Equal(expectedSize, actualSize);
+				count++;
+			}
+			Assert.Equal(40, count);
+		}
+
 		[Fact]
 		public static void Play()
 		{
+
+
+
+			//var store = new BlockStore(@"E:\Bitcoin\blocks", Network.Main);
+			//foreach(var un in store.EnumerateFolder())
+			//{
+			//	var expectedSize = un.Header.ItemSize;
+			//	var actualSize = un.Item.GetSerializedSize();
+			//}
+
 			//var test = new IndexedBlockStore(new SQLiteNoSqlRepository("Play", true), new BlockStore(@"E:\Bitcoin\blocks", Network.Main));
 			//test.ReIndex();
 			//var i = 0;
@@ -157,6 +195,8 @@ namespace NBitcoin.Tests
 			//}
 			//watch.Stop();
 		}
+
+
 
 		[Fact]
 		public void CanStoreInBlockRepository()
@@ -340,10 +380,20 @@ namespace NBitcoin.Tests
 			Thread.Sleep(50);
 			return new BlockStore(folderName, Network.Main);
 		}
+		private static BlockUndoStore CreateBlockUndoStore([CallerMemberName]string folderName = null)
+		{
+			if(Directory.Exists(folderName))
+				Directory.Delete(folderName, true);
+			Thread.Sleep(50);
+			Directory.CreateDirectory(folderName);
+			Thread.Sleep(50);
+			return new BlockUndoStore(folderName, Network.Main);
+		}
 
 		private BlockRepository CreateBlockRepository([CallerMemberName]string folderName = null)
 		{
 			return new BlockRepository(CreateIndexedStore(folderName + "-Blocks"), CreateIndexedStore(folderName + "-Headers"));
 		}
+
 	}
 }

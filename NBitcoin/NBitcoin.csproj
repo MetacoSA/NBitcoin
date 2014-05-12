@@ -58,6 +58,7 @@
     <Compile Include="BlockRepository.cs" />
     <Compile Include="BlockStore.cs" />
     <Compile Include="BlockUndo.cs" />
+    <Compile Include="BlockUndoStore.cs" />
     <Compile Include="BloomFilter.cs" />
     <Compile Include="Chain.cs" />
     <Compile Include="Coins.cs" />

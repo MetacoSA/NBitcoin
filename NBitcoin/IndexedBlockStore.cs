@@ -42,7 +42,7 @@ namespace NBitcoin
 			if(lastBlocks != null && lastBlocks.Count > 0)
 			{
 				var block = lastBlocks.Last();
-				_Index.Put(IndexedLimit, new DiskBlockPos(block.BlockPosition.File, block.BlockPosition.Position + (uint)block.Header.GetStorageSize()));
+				_Index.Put(IndexedLimit, new DiskBlockPos(block.BlockPosition.File, block.BlockPosition.Position + (uint)block.GetStorageSize()));
 			}
 			return count;
 		}
