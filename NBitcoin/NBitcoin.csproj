@@ -57,6 +57,7 @@
     <Compile Include="BlockLocator.cs" />
     <Compile Include="BlockRepository.cs" />
     <Compile Include="BlockStore.cs" />
+    <Compile Include="BlockUndo.cs" />
     <Compile Include="BloomFilter.cs" />
     <Compile Include="Chain.cs" />
     <Compile Include="Coins.cs" />
@@ -100,7 +101,9 @@
     <Compile Include="Protocol\VersionPayload.cs" />
     <Compile Include="RandomUtils.cs" />
     <Compile Include="SqLiteUtility.cs" />
+    <Compile Include="Store.cs" />
     <Compile Include="StoredBlock.cs" />
+    <Compile Include="StoredItem.cs" />
     <Compile Include="Target.cs" />
     <Compile Include="TraceCorrelationScope.cs" />
     <Compile Include="TransactionSignature.cs" />

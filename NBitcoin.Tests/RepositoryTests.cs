@@ -50,8 +50,8 @@ namespace NBitcoin.Tests
 
 			foreach(var stored in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat"))
 			{
-				Assert.True(stored.Block.Header.CheckProofOfWork());
-				Assert.True(stored.Block.CheckMerkleRoot());
+				Assert.True(stored.Item.Header.CheckProofOfWork());
+				Assert.True(stored.Item.CheckMerkleRoot());
 				count++;
 			}
 			Assert.Equal(300, count);
@@ -70,7 +70,7 @@ namespace NBitcoin.Tests
 			var index = CreateIndexedStore();
 			foreach(var block in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").Take(50))
 			{
-				index.Put(block.Block);
+				index.Put(block.Item);
 			}
 			var genesis = index.Get(new uint256("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
 			Assert.NotNull(genesis);
@@ -86,7 +86,7 @@ namespace NBitcoin.Tests
 
 			foreach(var s in allBlocks)
 			{
-				store.Append(s.Block);
+				store.Append(s.Item);
 			}
 			var storedBlocks = store.Enumerate(true).ToList();
 			Assert.Equal(allBlocks.Count, storedBlocks.Count);
@@ -94,22 +94,22 @@ namespace NBitcoin.Tests
 			foreach(var s in allBlocks)
 			{
 				var retrieved = store.Enumerate(true).First(b => b.BlockPosition == s.BlockPosition);
-				Assert.True(retrieved.Block.HeaderOnly);
+				Assert.True(retrieved.Item.HeaderOnly);
 			}
 		}
 		[Fact]
 		public void CanStoreBlocksInMultipleFiles()
 		{
 			var store = CreateBlockStore();
-			store.BlockFileSize = 10; //Verify break all block in file with extreme settings
-			var allBlocks = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").Take(50).ToList();
+			store.MaxFileSize = 10; //Verify break all block in one respective file with extreme settings
+			var allBlocks = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").Take(10).ToList();
 			foreach(var s in allBlocks)
 			{
-				store.Append(s.Block);
+				store.Append(s.Item);
 			}
 			var storedBlocks = store.Enumerate(true).ToList();
 			Assert.Equal(allBlocks.Count, storedBlocks.Count);
-			Assert.Equal(51, store.Folder.GetFiles().Length); //50 files + lock file
+			Assert.Equal(11, store.Folder.GetFiles().Length); //10 files + lock file
 		}
 
 
@@ -118,7 +118,7 @@ namespace NBitcoin.Tests
 		{
 			var source = new BlockStore(@"data\blocks", Network.Main);
 			var store = CreateBlockStore("CanReIndexFolder");
-			store.AppendAll(source.Enumerate(false).Take(100).Select(b => b.Block));
+			store.AppendAll(source.Enumerate(false).Take(100).Select(b => b.Item));
 
 
 			var test = new IndexedBlockStore(new SQLiteNoSqlRepository("CanReIndex", true), store);
@@ -127,14 +127,14 @@ namespace NBitcoin.Tests
 			int i = 0;
 			foreach(var b in store.Enumerate(true))
 			{
-				var result = test.Get(b.Block.GetHash());
-				Assert.Equal(result.GetHash(), b.Block.GetHash());
+				var result = test.Get(b.Item.GetHash());
+				Assert.Equal(result.GetHash(), b.Item.GetHash());
 				i++;
 			}
 			Assert.Equal(100, i);
 
 			var last = source.Enumerate(false).Skip(100).FirstOrDefault();
-			store.Append(last.Block);
+			store.Append(last.Item);
 
 			reIndexed = test.ReIndex();
 			Assert.Equal(1, reIndexed);
@@ -163,12 +163,12 @@ namespace NBitcoin.Tests
 		{
 			var blockRepository = CreateBlockRepository();
 			var firstblk1 = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").First();
-			blockRepository.WriteBlockHeader(firstblk1.Block.Header);
-			var result = blockRepository.GetBlock(firstblk1.Block.GetHash());
+			blockRepository.WriteBlockHeader(firstblk1.Item.Header);
+			var result = blockRepository.GetBlock(firstblk1.Item.GetHash());
 			Assert.True(result.HeaderOnly);
 
-			blockRepository.WriteBlock(firstblk1.Block);
-			result = blockRepository.GetBlock(firstblk1.Block.GetHash());
+			blockRepository.WriteBlock(firstblk1.Item);
+			result = blockRepository.GetBlock(firstblk1.Item.GetHash());
 			Assert.False(result.HeaderOnly);
 		}
 
@@ -183,11 +183,11 @@ namespace NBitcoin.Tests
 			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks"))
 			{
 				if(count == 0)
-					Assert.Equal(blk0[0].Block.GetHash(), stored.Block.GetHash());
+					Assert.Equal(blk0[0].Item.GetHash(), stored.Item.GetHash());
 				if(count == 300)
-					Assert.Equal(blk1[0].Block.GetHash(), stored.Block.GetHash());
-				Assert.True(stored.Block.Header.CheckProofOfWork());
-				Assert.True(stored.Block.CheckMerkleRoot());
+					Assert.Equal(blk1[0].Item.GetHash(), stored.Item.GetHash());
+				Assert.True(stored.Item.Header.CheckProofOfWork());
+				Assert.True(stored.Item.CheckMerkleRoot());
 				count++;
 			}
 			Assert.Equal(600, count);

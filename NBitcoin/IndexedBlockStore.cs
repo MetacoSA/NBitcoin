@@ -36,13 +36,13 @@ namespace NBitcoin
 			foreach(var blocks in _Store.Enumerate(true, new DiskBlockPosRange(last)).Partition(400))
 			{
 				count += blocks.Count;
-				_Index.PutBatch(blocks.Select(b => new Tuple<String, IBitcoinSerializable>(b.Block.GetHash().ToString(), b.BlockPosition)));
+				_Index.PutBatch(blocks.Select(b => new Tuple<String, IBitcoinSerializable>(b.Item.GetHash().ToString(), b.BlockPosition)));
 				lastBlocks = blocks;
 			}
 			if(lastBlocks != null && lastBlocks.Count > 0)
 			{
 				var block = lastBlocks.Last();
-				_Index.Put(IndexedLimit, new DiskBlockPos(block.BlockPosition.File, block.BlockPosition.Position + (uint)block.GetStoredBlockSize()));
+				_Index.Put(IndexedLimit, new DiskBlockPos(block.BlockPosition.File, block.BlockPosition.Position + (uint)block.Header.GetStorageSize()));
 			}
 			return count;
 		}
@@ -55,7 +55,7 @@ namespace NBitcoin
 			var stored = _Store.Enumerate(false, new DiskBlockPosRange(pos)).FirstOrDefault();
 			if(stored == null)
 				return null;
-			return stored.Block;
+			return stored.Item;
 		}
 		public BlockHeader GetHeader(uint256 hash)
 		{
@@ -65,7 +65,7 @@ namespace NBitcoin
 			var stored = _Store.Enumerate(false, new DiskBlockPosRange(pos)).FirstOrDefault();
 			if(stored == null)
 				return null;
-			return stored.Block.Header;
+			return stored.Item.Header;
 		}
 
 		public void Put(Block block)

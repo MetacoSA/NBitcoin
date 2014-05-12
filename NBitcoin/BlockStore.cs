@@ -7,103 +7,70 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class BlockStore
+	public class BlockStore : Store<StoredBlock, Block>
 	{
 		public const int MAX_BLOCKFILE_SIZE = 0x8000000; // 128 MiB
 
 
-		private readonly DirectoryInfo _Folder;
-		public DirectoryInfo Folder
-		{
-			get
-			{
-				return _Folder;
-			}
-		}
-		private readonly Network _Network;
-		public Network Network
-		{
-			get
-			{
-				return _Network;
-			}
-		}
-
-		public int BlockFileSize
-		{
-			get;
-			set;
-		}
 
 		public BlockStore(string folder, Network network)
+			: base(folder, network)
 		{
-			BlockFileSize = MAX_BLOCKFILE_SIZE;
-			_Folder = new DirectoryInfo(folder);
-			_Network = network;
-			if(!_Folder.Exists)
-				throw new DirectoryNotFoundException(folder);
+			MaxFileSize = MAX_BLOCKFILE_SIZE;
+			FilePrefix = "blk";
 		}
 
-		public IEnumerable<StoredBlock> Enumerate(bool headerOnly, DiskBlockPosRange range = null)
+		public IEnumerable<StoredBlock> EnumerateFolder(DiskBlockPosRange range, bool headersOnly)
 		{
-			if(range == null)
-				range = DiskBlockPosRange.All;
-			using(CreateLock(FileLockType.Read))
+			using(HeaderOnlyScope(headerOnly))
 			{
-				foreach(var b in StoredBlock.EnumerateFolder(_Folder, range, headerOnly))
-				{
-					if(b.Magic == Network.Magic)
-						yield return b;
-				}
+				return EnumerateFolder(range);
 			}
 		}
 
-		private FileLock CreateLock(FileLockType fileLockType)
-		{
-			return new FileLock(Path.Combine(_Folder.FullName, "BlockStoreLock"), fileLockType);
-		}
 
-		public DiskBlockPos Append(Block block)
+		[ThreadStatic]
+		bool headerOnly;
+		public IEnumerable<StoredBlock> Enumerate(Stream stream, uint fileIndex = 0, DiskBlockPosRange range = null, bool headersOnly = false)
 		{
-			using(var @lock = CreateLock(FileLockType.ReadWrite))
+			using(HeaderOnlyScope(headersOnly))
 			{
-				DiskBlockPos position = SeekEnd(@lock);
-				if(position.Position > BlockFileSize)
-					position = new DiskBlockPos(position.File + 1, 0);
-				var stored = new StoredBlock(position);
-				stored.Magic = Network.Magic;
-				stored.Block = block;
-				stored.BlockSize = (uint)stored.Block.GetSerializedSize();
-				StoredBlock.Write(_Folder, stored);
-				position = new DiskBlockPos(position.File, position.Position + stored.GetStoredBlockSize());
-				@lock.SetString(position.ToString());
-				return stored.BlockPosition;
+				return Enumerate(stream, fileIndex, range);
 			}
 		}
 
-		private DiskBlockPos SeekEnd(FileLock @lock)
+		private IDisposable HeaderOnlyScope(bool headersOnly)
 		{
-			var end = @lock.GetString();
-			if(!string.IsNullOrEmpty(end))
-				try
-				{
-					return DiskBlockPos.Parse(end);
-				}
-				catch(FormatException)
-				{
-					return StoredBlock.SeekEnd(_Folder);
-				}
-			else
-				return StoredBlock.SeekEnd(_Folder);
+			var old = headersOnly;
+			return new Scope(() =>
+			{
+				this.headerOnly = headersOnly;
+			}, () =>
+			{
+				this.headerOnly = old;
+			});
+		}
+
+		public IEnumerable<StoredBlock> Enumerate(bool headersOnly, DiskBlockPosRange range = null)
+		{
+			using(HeaderOnlyScope(headersOnly))
+			{
+				return Enumerate(range);
+			}
 		}
 
 
-		public void AppendAll(IEnumerable<Block> blocks)
+		protected override StoredBlock ReadStoredItem(Stream stream, DiskBlockPos pos)
 		{
-			foreach(var block in blocks)
-			{
-				Append(block);
-			}
+			StoredBlock block = new StoredBlock(pos);
+			block.ParseSkipBlockContent = headerOnly;
+			block.ReadWrite(stream, false);
+			return block;
+		}
+
+		protected override StoredBlock CreateStoredItem(Block item, DiskBlockPos position)
+		{
+			return new StoredBlock(Network.Magic, item, position);
 		}
 	}
 }

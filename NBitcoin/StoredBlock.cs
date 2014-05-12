@@ -200,224 +200,53 @@ namespace NBitcoin
 			return new DiskBlockPos(uint.Parse(match.Groups[1].Value), uint.Parse(match.Groups[2].Value));
 		}
 	}
-	public class StoredBlock : IBitcoinSerializable
+	public class StoredBlock : StoredItem<Block>
 	{
-		internal enum ParsingPart
+		public bool ParseSkipBlockContent
 		{
-			StoredHeaderOnly,
-			BlockHeaderOnly,
-			Block,
-		}
-		public StoredBlock(DiskBlockPos blockPosition)
-		{
-			_BlockPosition = blockPosition;
+			get;
+			set;
 		}
 
-		private readonly DiskBlockPos _BlockPosition;
-		public DiskBlockPos BlockPosition
+		public StoredBlock(DiskBlockPos position)
+			: base(position)
 		{
-			get
-			{
-				return _BlockPosition;
-			}
+		}
+		public StoredBlock(uint magic, Block block, DiskBlockPos blockPosition)
+			: base(magic, block, blockPosition)
+		{
 		}
 
-		uint magic;
-		public uint Magic
-		{
-			get
-			{
-				return magic;
-			}
-			set
-			{
-				magic = value;
-			}
-		}
-
-		uint blockSize;
-		public uint BlockSize
-		{
-			get
-			{
-				return blockSize;
-			}
-			set
-			{
-				blockSize = value;
-			}
-		}
-
-		Block block;
-
-
-		internal ParsingPart Parsing = ParsingPart.Block;
-
-		public Block Block
-		{
-			get
-			{
-				return block;
-			}
-			set
-			{
-				block = value;
-			}
-		}
 
 		#region IBitcoinSerializable Members
 
-		public uint GetStoredBlockSize()
-		{
-			var ms = new MemoryStream();
-			BitcoinStream stream = new BitcoinStream(ms, true);
-			stream.ReadWrite(ref magic);
-			stream.ReadWrite(ref blockSize);
-			return blockSize + (uint)stream.Inner.Length;
-		}
 
-		public void ReadWrite(BitcoinStream stream)
+		protected override void ReadWriteItem(BitcoinStream stream, ref Block item)
 		{
-			stream.ReadWrite(ref magic);
-			stream.ReadWrite(ref blockSize);
-			if(Parsing == StoredBlock.ParsingPart.Block)
-				stream.ReadWrite(ref block);
+			if(!ParseSkipBlockContent)
+				stream.ReadWrite(ref item);
 			else
 			{
-				if(Parsing == ParsingPart.StoredHeaderOnly)
-					stream.Inner.Position += blockSize;
-				else
-				{
-					var beforeReading = stream.Inner.Position;
-					BlockHeader header = block == null ? null : block.Header;
-					stream.ReadWrite(ref header);
-					if(!stream.Serializing)
-						block = new Block(header);
-					stream.Inner.Position = beforeReading + blockSize;
-				}
+				var beforeReading = stream.Inner.Position;
+				BlockHeader header = item == null ? null : item.Header;
+				stream.ReadWrite(ref header);
+				if(!stream.Serializing)
+					item = new Block(header);
+				stream.Inner.Position = beforeReading + Header.ItemSize;
 			}
 		}
+
 
 		#endregion
 
-		public static IEnumerable<StoredBlock> EnumerateFile(FileInfo file, uint fileIndex = 0, DiskBlockPosRange range = null, bool headersOnly = false)
+		public static IEnumerable<StoredBlock> EnumerateFile(string file, uint fileIndex=0, DiskBlockPosRange range =null)
 		{
-			if(range == null)
-				range = DiskBlockPosRange.All;
-			using(var fs = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
-			{
-				fs.Position = range.Begin.Position;
-				foreach(var block in Enumerate(fs, fileIndex, range, headersOnly))
-				{
-					yield return block;
-				}
-			}
-		}
-		public static IEnumerable<StoredBlock> EnumerateFile(string fileName, uint fileIndex = 0, DiskBlockPosRange range = null)
-		{
-			if(range == null)
-				range = DiskBlockPosRange.All;
-			return EnumerateFile(new FileInfo(fileName), fileIndex, range);
+			return new BlockStore(Path.GetDirectoryName(file), Network.Main).EnumerateFile(file, fileIndex, range);
 		}
 
-		static IEnumerable<StoredBlock> Enumerate(Stream stream, uint fileIndex = 0, DiskBlockPosRange range = null, bool headersOnly = false)
+		public static IEnumerable<StoredBlock> EnumerateFolder(string folder, DiskBlockPosRange range =null)
 		{
-			if(range == null)
-				range = DiskBlockPosRange.All;
-
-			if(fileIndex < range.Begin.File || range.End.File < fileIndex)
-				yield break;
-			if(range.Begin.File < fileIndex)
-				range = new DiskBlockPosRange(DiskBlockPos.Begin.OfFile(fileIndex), range.End);
-			if(range.End.File > fileIndex)
-				range = new DiskBlockPosRange(range.Begin, DiskBlockPos.End.OfFile(fileIndex));
-
-			stream.Position = range.Begin.Position;
-			while(stream.Position < stream.Length)
-			{
-				StoredBlock block = new StoredBlock(new DiskBlockPos(fileIndex, (uint)stream.Position));
-				block.Parsing = headersOnly ? ParsingPart.BlockHeaderOnly : ParsingPart.Block;
-				block.ReadWrite(stream, false);
-				yield return block;
-				if(stream.Position >= range.End.Position)
-					break;
-			}
+			return new BlockStore(folder, Network.Main).EnumerateFolder(range);
 		}
-
-		//private static DiskBlockPos SkipUntil(Stream stream, DiskBlockPos until)
-		//{
-		//	var position = new DiskBlockPos(until.File, 0);
-		//	while(position < until && stream.Position != stream.Length)
-		//	{
-		//		StoredBlock block = new StoredBlock(position);
-		//		block.Parsing = ParsingPart.BlockHeaderOnly;
-		//		block.ReadWrite(stream, false);
-		//		position++;
-		//	}
-		//	return position;
-		//}
-
-		public static IEnumerable<StoredBlock> EnumerateFolder(DirectoryInfo folder, DiskBlockPosRange range = null, bool headersOnly = false)
-		{
-			if(range == null)
-				range = DiskBlockPosRange.All;
-			foreach(var file in folder.GetFiles().OrderBy(f => f.Name))
-			{
-				var fileIndex = GetFileIndex(file.Name);
-				if(fileIndex < 0)
-					continue;
-				foreach(var block in EnumerateFile(file, (uint)fileIndex, range, headersOnly))
-				{
-					yield return block;
-				}
-			}
-		}
-
-		static readonly Regex _FileReg = new Regex("blk([0-9]{5,5}).dat", RegexOptions.Compiled);
-		private static int GetFileIndex(string fileName)
-		{
-			var match = _FileReg.Match(fileName);
-			if(!match.Success)
-				return -1;
-			return int.Parse(match.Groups[1].Value);
-		}
-		public static void Write(DirectoryInfo folder, StoredBlock stored)
-		{
-			var fileName = string.Format("blk{0:00000}.dat", stored.BlockPosition.File);
-			using(var fs = new FileStream(Path.Combine(folder.FullName, fileName), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
-			{
-				fs.Position = stored.BlockPosition.Position;
-				stored.ReadWrite(fs, true);
-			}
-		}
-
-		public static IEnumerable<StoredBlock> EnumerateFolder(string folder, DiskBlockPosRange range = null)
-		{
-			if(range == null)
-				range = DiskBlockPosRange.All;
-			return EnumerateFolder(new DirectoryInfo(folder), range);
-		}
-
-		private static FileInfo CreateFile(DirectoryInfo folder, int file)
-		{
-			var fileName = string.Format("blk{0:00000}.dat", file);
-			var filePath = Path.Combine(folder.FullName, fileName);
-			File.Create(filePath).Close();
-			return new FileInfo(filePath);
-		}
-
-
-		public static DiskBlockPos SeekEnd(DirectoryInfo folder)
-		{
-			var highestFile = folder.GetFiles().OrderBy(f => f.Name).Where(f => GetFileIndex(f.Name) != -1).LastOrDefault();
-			if(highestFile == null)
-				return new DiskBlockPos(0, 0);
-			using(var fs = new FileStream(highestFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
-			{
-				var index = (uint)GetFileIndex(highestFile.Name);
-				return new DiskBlockPos(index, (uint)fs.Length);
-			}
-		}
-
 	}
 }
