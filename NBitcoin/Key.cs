@@ -1,4 +1,5 @@
 ﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -199,6 +201,45 @@ namespace NBitcoin
 		public BitcoinSecret GetBitcoinSecret(Network network)
 		{
 			return new BitcoinSecret(this, network);
+		}
+
+		public BitcoinEncryptedSecretNoEC GetEncryptedBitcoinSecret(string password, Network network)
+		{
+			//Compute the Bitcoin address (ASCII),
+			var addressBytes = Encoders.ASCII.DecodeData(PubKey.GetAddress(network).ToWif());
+			// and take the first four bytes of SHA256(SHA256()) of it. Let's call this "addresshash".
+			var addresshash = Hashes.Hash256(addressBytes).ToBytes().Take(4).ToArray();
+
+			var derived = NBitcoin.Crypto.SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), addresshash);
+
+			var encryptedhalf1 = new byte[16];
+			var encryptedhalf2 = new byte[16];
+
+			var aes = BitcoinEncryptedSecret.CreateAES256();
+			aes.Key = derived.Skip(32).Take(32).ToArray();
+			var encrypt = aes.CreateEncryptor();
+			for(int i = 0 ; i < 16 ; i++)
+			{
+				derived[i] = (byte)(vch[i] ^ derived[i]);
+			}
+			encrypt.TransformBlock(derived, 0, 16, encryptedhalf1, 0);
+			for(int i = 0 ; i < 16 ; i++)
+			{
+				derived[16 + i] = (byte)(vch[16 + i] ^ derived[16 + i]);
+			}
+			encrypt.TransformBlock(derived,16, 16, encryptedhalf2, 0);
+
+			var version = network.GetVersionBytes(Base58Type.ENCRYPTED_SECRET_KEY_NO_EC);
+			byte flagByte = 0;
+			flagByte |= 0x0C0;
+			flagByte |= (IsCompressed ? (byte)0x20 : (byte)0x00);
+
+			var bytes = version
+							.Concat(new byte[] { flagByte })
+							.Concat(addresshash)
+							.Concat(encryptedhalf1)
+							.Concat(encryptedhalf2).ToArray();
+			return new BitcoinEncryptedSecretNoEC(Encoders.Base58Check.EncodeData(bytes), network);
 		}
 	}
 }

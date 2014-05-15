@@ -55,7 +55,9 @@ namespace NBitcoin
 		SECRET_KEY,
 		EXT_PUBLIC_KEY,
 		EXT_SECRET_KEY,
-		MAX_BASE58_TYPES
+		ENCRYPTED_SECRET_KEY_EC,
+		ENCRYPTED_SECRET_KEY_NO_EC,
+		MAX_BASE58_TYPES,		
 	};
 	public class Network
 	{
@@ -155,7 +157,7 @@ namespace NBitcoin
 		}
 
 
-		byte[][] base58Prefixes = new byte[5][];
+		byte[][] base58Prefixes = new byte[7][];
 		List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
 		Block genesis = new Block();
@@ -180,7 +182,7 @@ namespace NBitcoin
 			}
 		}
 
-	
+
 
 		static Network _RegTest;
 		public static Network RegTest
@@ -283,6 +285,8 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (0) };
 			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (5) };
 			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (128) };
+			base58Prefixes[(int)Base58Type.ENCRYPTED_SECRET_KEY_NO_EC] = new byte[] { 0x01, 0x42 };
+			base58Prefixes[(int)Base58Type.ENCRYPTED_SECRET_KEY_EC] = new byte[] { 0x01, 0x43 };
 			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x88), (0xB2), (0x1E) };
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x88), (0xAD), (0xE4) };
 

@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Base58Data.cs" />
     <Compile Include="BitcoinAddress.cs" />
+    <Compile Include="BitcoinEncryptedSecret.cs" />
     <Compile Include="BitcoinExtKey.cs" />
     <Compile Include="BitcoinSecret.cs" />
     <Compile Include="BitcoinStream.cs" />
@@ -63,6 +64,16 @@
     <Compile Include="Chain.cs" />
     <Compile Include="Coins.cs" />
     <Compile Include="CompositeDisposable.cs" />
+    <Compile Include="Crypto\Cryptsharp\BitMath.cs" />
+    <Compile Include="Crypto\Cryptsharp\BitPacking.cs" />
+    <Compile Include="Crypto\Cryptsharp\ByteArray.cs" />
+    <Compile Include="Crypto\Cryptsharp\Check.cs" />
+    <Compile Include="Crypto\Cryptsharp\Exceptions.cs" />
+    <Compile Include="Crypto\Cryptsharp\Pbkdf2.cs" />
+    <Compile Include="Crypto\Cryptsharp\Salsa20Core.cs" />
+    <Compile Include="Crypto\Cryptsharp\SCrypt.cs" />
+    <Compile Include="Crypto\Cryptsharp\Security.cs" />
+    <Compile Include="Crypto\Crypt.cs" />
     <Compile Include="DataEncoders\ASCIIEncoder.cs" />
     <Compile Include="FileLock.cs" />
     <Compile Include="IndexedBlockStore.cs" />

@@ -61,6 +61,7 @@
     <Compile Include="AssertEx.cs" />
     <Compile Include="base58_tests.cs" />
     <Compile Include="bip32_tests.cs" />
+    <Compile Include="BIP38Tests.cs" />
     <Compile Include="bloom_tests.cs" />
     <Compile Include="ChainTests.cs" />
     <Compile Include="checkblock_tests.cs" />
