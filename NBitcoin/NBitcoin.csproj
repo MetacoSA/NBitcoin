@@ -73,7 +73,6 @@
     <Compile Include="Crypto\Cryptsharp\Salsa20Core.cs" />
     <Compile Include="Crypto\Cryptsharp\SCrypt.cs" />
     <Compile Include="Crypto\Cryptsharp\Security.cs" />
-    <Compile Include="Crypto\Crypt.cs" />
     <Compile Include="DataEncoders\ASCIIEncoder.cs" />
     <Compile Include="FileLock.cs" />
     <Compile Include="IndexedBlockStore.cs" />
