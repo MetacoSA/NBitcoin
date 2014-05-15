@@ -107,6 +107,20 @@ namespace NBitcoin
 
 
 	}
+
+	public class DecryptionResult
+	{
+		public Key Key
+		{
+			get;
+			set;
+		}
+		public LotSequence LotSequence
+		{
+			get;
+			set;
+		}
+	}
 	public class BitcoinEncryptedSecretEC : BitcoinEncryptedSecret
 	{
 
@@ -146,7 +160,7 @@ namespace NBitcoin
 			}
 		}
 
-		public byte[] _PartialEncrypted;
+		byte[] _PartialEncrypted;
 		public byte[] PartialEncrypted
 		{
 			get
@@ -159,6 +173,21 @@ namespace NBitcoin
 			}
 		}
 
+		LotSequence _LotSequence;
+		public LotSequence LotSequence
+		{
+			get
+			{
+				var hasLotSequence = (vchData[0] & (byte)0x04) != 0;
+				if(!hasLotSequence)
+					return null;
+				if(_LotSequence == null)
+				{
+					_LotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray());
+				}
+				return _LotSequence;
+			}
+		}
 
 		public override Base58Type Type
 		{
@@ -172,9 +201,20 @@ namespace NBitcoin
 		{
 			var encrypted = PartialEncrypted.ToArray();
 			//Derive passfactor using scrypt with ownerentropy and the user's passphrase and use it to recompute passpoint
-			var passfactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), OwnerEntropy, 32);
-			var passpoint = new Key(passfactor, fCompressedIn: true).PubKey.ToBytes();
+			byte[] passfactor = null;
 
+			if(LotSequence == null)
+			{
+				passfactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), OwnerEntropy, 32);
+			}
+			else
+			{
+				var ownersalt = OwnerEntropy.Take(4).ToArray();
+				var lotsequence = OwnerEntropy.Skip(4).Take(4).ToArray();
+				var prefactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), ownersalt, 32);
+				passfactor = Hashes.Hash256(prefactor.Concat(OwnerEntropy).ToArray()).ToBytes();
+			}
+			var passpoint = new Key(passfactor, fCompressedIn: true).PubKey.ToBytes();
 
 			var derived = SCrypt.BitcoinComputeDerivedKey2(passpoint, this.AddressHash.Concat(this.OwnerEntropy).ToArray());
 
@@ -194,6 +234,7 @@ namespace NBitcoin
 
 			if(!Utils.ArrayEqual(addresshash, AddressHash))
 				throw new SecurityException("Invalid password");
+
 			return key;
 		}
 	}
@@ -225,7 +266,6 @@ namespace NBitcoin
 		public BitcoinEncryptedSecret(string wif, Network network)
 			: base(wif, network)
 		{
-			//42 : non EC, 43 : EC
 		}
 
 

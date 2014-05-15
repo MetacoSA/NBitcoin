@@ -83,6 +83,7 @@ namespace NBitcoin.Tests
 			{
 				//Can generate unencrypted key with password and encrypted key
 				var encryptedKey = new BitcoinEncryptedSecretEC(test.Encrypted, Network.Main);
+				Assert.Null(encryptedKey.LotSequence);
 				var actualKey = encryptedKey.GetKey(test.Passphrase);
 				Assert.Equal(test.Unencrypted, actualKey.GetBitcoinSecret(Network.Main).ToString());
 				Assert.Equal(test.Address, actualKey.PubKey.GetAddress(Network.Main).ToString());
@@ -91,7 +92,8 @@ namespace NBitcoin.Tests
 
 				//Can generate same BitcoinPassphraseCode with by using same ownerentropy
 				var passCode = new BitcoinPassphraseCode(test.PassphraseCode, Network.Main);
-				var actualPassCode = BitcoinPassphraseCode.Generate(test.Passphrase, Network.Main, ownersalt: passCode.OwnerEntropy);
+				Assert.Null(passCode.LotSequence);
+				var actualPassCode = new BitcoinPassphraseCode(test.Passphrase, Network.Main, null, passCode.OwnerEntropy);
 				Assert.Equal(passCode.ToString(), actualPassCode.ToString());
 
 				//Can generate encrypted key from passcode
@@ -101,7 +103,72 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		
+		[Fact]
+		public void EncryptedSecretECmultiplyLotSequence()
+		{
+			var tests = new[]
+			{
+				new {
+				Passphrase= "ΜΟΛΩΝ ΛΑΒΕ",
+				PassphraseCode= "passphrased3z9rQJHSyBkNBwTRPkUGNVEVrUAcfAXDyRU1V28ie6hNFbqDwbFBvsTK7yWVK",
+				Encrypted = "6PgGWtx25kUg8QWvwuJAgorN6k9FbE25rv5dMRwu5SKMnfpfVe5mar2ngH",
+				Address = "1Lurmih3KruL4xDB5FmHof38yawNtP9oGf",
+				Unencrypted = "5KMKKuUmAkiNbA3DazMQiLfDq47qs8MAEThm4yL8R2PhV1ov33D",
+				ConfirmationCode = "cfrm38V8G4qq2ywYEFfWLD5Cc6msj9UwsG2Mj4Z6QdGJAFQpdatZLavkgRd1i4iBMdRngDqDs51",
+				LotSequence = new LotSequence(806938,1),
+				Compressed = false
+				}
+				,new {
+				Passphrase= "MOLON LABE",
+				PassphraseCode= "passphraseaB8feaLQDENqCgr4gKZpmf4VoaT6qdjJNJiv7fsKvjqavcJxvuR1hy25aTu5sX",
+				Encrypted = "6PgNBNNzDkKdhkT6uJntUXwwzQV8Rr2tZcbkDcuC9DZRsS6AtHts4Ypo1j",
+				Address = "1Jscj8ALrYu2y9TD8NrpvDBugPedmbj4Yh",
+				Unencrypted = "5JLdxTtcTHcfYcmJsNVy1v2PMDx432JPoYcBTVVRHpPaxUrdtf8",
+				ConfirmationCode = "cfrm38V8aXBn7JWA1ESmFMUn6erxeBGZGAxJPY4e36S9QWkzZKtaVqLNMgnifETYw7BPwWC9aPD",
+				LotSequence = new LotSequence(263183,1),
+				Compressed = false
+				}
+			};
+
+			foreach(var test in tests)
+			{
+				//Can generate unencrypted key with password and encrypted key
+				var encryptedKey = new BitcoinEncryptedSecretEC(test.Encrypted, Network.Main);
+				AssertSequenceEquals(test.LotSequence, encryptedKey.LotSequence);
+				var actualKey = encryptedKey.GetKey(test.Passphrase);
+				Assert.Equal(test.Unencrypted, actualKey.GetBitcoinSecret(Network.Main).ToString());
+				Assert.Equal(test.Address, actualKey.PubKey.GetAddress(Network.Main).ToString());
+				Assert.Equal(test.Compressed, actualKey.IsCompressed);
+
+
+				//Can generate same BitcoinPassphraseCode with by using same ownerentropy
+				var passCode = new BitcoinPassphraseCode(test.PassphraseCode, Network.Main);
+				AssertSequenceEquals(test.LotSequence, passCode.LotSequence);
+				var actualPassCode = new BitcoinPassphraseCode(test.Passphrase, Network.Main, test.LotSequence, passCode.OwnerEntropy);
+				Assert.Equal(passCode.ToString(), actualPassCode.ToString());
+
+				//Can generate encrypted key from passcode
+				var generatedEncryptedKey = passCode.GenerateEncryptedSecret(test.Compressed).EncryptedKey;
+				AssertEx.CollectionEquals(passCode.OwnerEntropy, generatedEncryptedKey.OwnerEntropy);
+				Assert.Equal(test.Compressed, generatedEncryptedKey.IsCompressed);
+			}
+		}
+
+		private void AssertSequenceEquals(LotSequence expected, LotSequence actual)
+		{
+			Assert.NotNull(actual);
+			Assert.True(expected.Lot == actual.Lot && expected.Sequence == expected.Sequence, "sequence different than expected");
+		}
+
+
+		[Fact]
+		public void CanParseLotSequence()
+		{
+			var sequence = new LotSequence(1048575, 1024);
+			var bytes = sequence.ToBytes();
+			var sequence2 = new LotSequence(bytes);
+			Assert.True(sequence.Lot == sequence2.Lot && sequence.Sequence == sequence.Sequence);
+		}
 
 		[Fact]
 		public void EncryptedSecretECmultiplyNoLotSimple()
@@ -109,7 +176,8 @@ namespace NBitcoin.Tests
 			var compressedValues = new[] { false, true };
 			foreach(var compressed in compressedValues)
 			{
-				var code = BitcoinPassphraseCode.Generate("test", Network.Main);
+				var code = new BitcoinPassphraseCode("test", Network.Main, null);
+				Assert.Null(code.LotSequence);
 				var result = code.GenerateEncryptedSecret(compressed);
 
 				var decryptedKey = result.EncryptedKey.GetKey("test");
