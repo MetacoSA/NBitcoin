@@ -51,6 +51,7 @@
     <Compile Include="BitcoinAddress.cs" />
     <Compile Include="BitcoinEncryptedSecret.cs" />
     <Compile Include="BitcoinExtKey.cs" />
+    <Compile Include="BitcoinPassphraseCode.cs" />
     <Compile Include="BitcoinSecret.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />

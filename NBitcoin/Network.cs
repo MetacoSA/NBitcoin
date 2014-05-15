@@ -57,10 +57,15 @@ namespace NBitcoin
 		EXT_SECRET_KEY,
 		ENCRYPTED_SECRET_KEY_EC,
 		ENCRYPTED_SECRET_KEY_NO_EC,
-		MAX_BASE58_TYPES,		
+		PASSPHRASE_CODE,
+		PASSPHRASE_CODE_LOT,
+		MAX_BASE58_TYPES,
 	};
 	public class Network
 	{
+		byte[][] base58Prefixes = new byte[9][];
+
+
 		uint[] pnSeed = new uint[]
 {
     0x7e6a692e, 0x7d04d1a2, 0x6c0c17d9, 0xdb330ab9, 0xc649c7c6, 0x7895484d, 0x047109b0, 0xb90ca5bc,
@@ -157,7 +162,6 @@ namespace NBitcoin
 		}
 
 
-		byte[][] base58Prefixes = new byte[7][];
 		List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
 		Block genesis = new Block();
@@ -289,7 +293,8 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.ENCRYPTED_SECRET_KEY_EC] = new byte[] { 0x01, 0x43 };
 			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x88), (0xB2), (0x1E) };
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x88), (0xAD), (0xE4) };
-
+			base58Prefixes[(int)Base58Type.PASSPHRASE_CODE] = new byte[] { 0x2C,0xE9,0xB3,0xE1,0xFF,0x39,0xE2,0x53 };
+			base58Prefixes[(int)Base58Type.PASSPHRASE_CODE_LOT] = new byte[] { 0x2C, 0xE9, 0xB3, 0xE1, 0xFF, 0x39, 0xE2, 0x51 };
 			// Convert the pnSeeds array into usable address objects.
 			Random rand = new Random();
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);
