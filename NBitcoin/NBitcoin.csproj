@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Base58Data.cs" />
     <Compile Include="BitcoinAddress.cs" />
+    <Compile Include="BitcoinConfirmationCode.cs" />
     <Compile Include="BitcoinEncryptedSecret.cs" />
     <Compile Include="BitcoinExtKey.cs" />
     <Compile Include="BitcoinPassphraseCode.cs" />

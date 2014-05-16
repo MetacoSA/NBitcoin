@@ -12,18 +12,35 @@ namespace NBitcoin
 {
 	public class EncryptedKeyResult
 	{
-		public EncryptedKeyResult(BitcoinEncryptedSecretEC key, BitcoinAddress address, byte[] seed)
+		public EncryptedKeyResult(BitcoinEncryptedSecretEC key, BitcoinAddress address, byte[] seed, Func<BitcoinConfirmationCode> calculateConfirmation)
 		{
 			_EncryptedKey = key;
 			_GeneratedAddress = address;
+			_CalculateConfirmation = calculateConfirmation;
 			_Seed = seed;
 		}
+
 		private readonly BitcoinEncryptedSecretEC _EncryptedKey;
 		public BitcoinEncryptedSecretEC EncryptedKey
 		{
 			get
 			{
 				return _EncryptedKey;
+			}
+		}
+
+		Func<BitcoinConfirmationCode> _CalculateConfirmation;
+		private BitcoinConfirmationCode _ConfirmationCode;
+		public BitcoinConfirmationCode ConfirmationCode
+		{
+			get
+			{
+				if(_ConfirmationCode == null)
+				{
+					_ConfirmationCode = _CalculateConfirmation();
+					_CalculateConfirmation = null;
+				}
+				return _ConfirmationCode;
 			}
 		}
 		private readonly BitcoinAddress _GeneratedAddress;
@@ -135,7 +152,7 @@ namespace NBitcoin
 
 			var bytes =
 				network.GetVersionBytes(Base58Type.PASSPHRASE_CODE)
-				.Concat(new byte[]{hasLotSequence ? (byte)0x51 : (byte)0x53})
+				.Concat(new byte[] { hasLotSequence ? (byte)0x51 : (byte)0x53 })
 				.Concat(ownerEntropy)
 				.Concat(passpoint)
 				.ToArray();
@@ -178,48 +195,64 @@ namespace NBitcoin
 
 			//ECMultiply passpoint by factorb.
 			var curve = ECKey.CreateCurve();
-			var point = curve.Curve.DecodePoint(Passpoint);
-
-			//and hash it into a Bitcoin address using either compressed or uncompressed public key methodology (specify which methodology is used inside flagbyte). This is the generated Bitcoin address, call it generatedaddress.
-			var pubPoint = point.Multiply(new BigInteger(1, factorb));
+			var passpoint = curve.Curve.DecodePoint(Passpoint);
+			var pubPoint = passpoint.Multiply(new BigInteger(1, factorb));
 
 			//Use the resulting EC point as a public key
 			var pubKey = new PubKey(pubPoint.GetEncoded());
 
 			//and hash it into a Bitcoin address using either compressed or uncompressed public key
+			//This is the generated Bitcoin address, call it generatedaddress.
 			pubKey = isCompressed ? pubKey.Compress() : pubKey.Decompress();
 
 			//call it generatedaddress.
 			var generatedaddress = pubKey.GetAddress(Network);
 
 			//Take the first four bytes of SHA256(SHA256(generatedaddress)) and call it addresshash.
-			var addresshash = Hashes.Hash256(Encoders.ASCII.DecodeData(generatedaddress.ToString())).ToBytes()
-							.Take(4).ToArray();
+			var addresshash = BitcoinEncryptedSecretEC.HashAddress(generatedaddress);
 
 			//Derive a second key from passpoint using scrypt
 			//salt is addresshash + ownerentropy
-			var derived = SCrypt.BitcoinComputeDerivedKey2(Passpoint, addresshash.Concat(this.OwnerEntropy).ToArray());
+			var derived = BitcoinEncryptedSecretEC.CalculateDecryptionKey(Passpoint, addresshash, OwnerEntropy);
 
 			//Now we will encrypt seedb.
-
 			var encrypted = BitcoinEncryptedSecret.EncryptSeed
 							(seedb,
 							derived);
 
 			//0x01 0x43 + flagbyte + addresshash + ownerentropy + encryptedpart1[0...7] + encryptedpart2 which totals 39 bytes
 			var bytes =
-				Network.GetVersionBytes(Base58Type.ENCRYPTED_SECRET_KEY_EC)
-				.Concat(new byte[] { flagByte })
+				new byte[] { flagByte }
 				.Concat(addresshash)
 				.Concat(this.OwnerEntropy)
 				.Concat(encrypted.Take(8).ToArray())
 				.Concat(encrypted.Skip(16).ToArray())
 				.ToArray();
 
-			var encryptedSecret = new BitcoinEncryptedSecretEC(Encoders.Base58Check.EncodeData(bytes), Network);
-			return new EncryptedKeyResult(encryptedSecret, generatedaddress, seedb);
+			var encryptedSecret = new BitcoinEncryptedSecretEC(bytes, Network);
+
+			return new EncryptedKeyResult(encryptedSecret, generatedaddress, seedb, () =>
+			{
+				//ECMultiply factorb by G, call the result pointb. The result is 33 bytes.
+				var pointb = new Key(factorb).PubKey.ToBytes();
+				//The first byte is 0x02 or 0x03. XOR it by (derivedhalf2[31] & 0x01), call the resulting byte pointbprefix.
+				var pointbprefix = (byte)(pointb[0] ^ (byte)(derived[63] & (byte)0x01));
+				var pointbx = BitcoinEncryptedSecret.EncryptKey(pointb.Skip(1).ToArray(), derived);
+				var encryptedpointb = new byte[] { pointbprefix }.Concat(pointbx).ToArray();
+
+				var confirmBytes =
+					Network.GetVersionBytes(Base58Type.CONFIRMATION_CODE)
+					.Concat(new byte[] { flagByte })
+					.Concat(addresshash)
+					.Concat(OwnerEntropy)
+					.Concat(encryptedpointb)
+					.ToArray();
+
+				return new BitcoinConfirmationCode(Encoders.Base58Check.EncodeData(confirmBytes), Network);
+			});
 		}
 
+		
 		byte[] _OwnerEntropy;
 		public byte[] OwnerEntropy
 		{

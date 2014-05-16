@@ -147,6 +147,10 @@ namespace NBitcoin.Tests
 				var actualPassCode = new BitcoinPassphraseCode(test.Passphrase, Network.Main, test.LotSequence, passCode.OwnerEntropy);
 				Assert.Equal(passCode.ToString(), actualPassCode.ToString());
 
+				//Can verify confirmation
+				var confirmation = new BitcoinConfirmationCode(test.ConfirmationCode, Network.Main);
+				Assert.True(confirmation.Check(test.Passphrase, new BitcoinAddress(test.Address, Network.Main)));
+
 				//Can generate encrypted key from passcode
 				var generatedEncryptedKey = passCode.GenerateEncryptedSecret(test.Compressed).EncryptedKey;
 				AssertEx.CollectionEquals(passCode.OwnerEntropy, generatedEncryptedKey.OwnerEntropy);
@@ -179,6 +183,9 @@ namespace NBitcoin.Tests
 				var code = new BitcoinPassphraseCode("test", Network.Main, null);
 				Assert.Null(code.LotSequence);
 				var result = code.GenerateEncryptedSecret(compressed);
+				Assert.True(result.ConfirmationCode.Check("test", result.GeneratedAddress));
+				Assert.False(result.ConfirmationCode.Check("toto", result.GeneratedAddress));
+				Assert.False(result.ConfirmationCode.Check("test", new Key().PubKey.GetAddress(Network.Main)));
 
 				var decryptedKey = result.EncryptedKey.GetKey("test");
 				Assert.Equal(result.GeneratedAddress.ToString(), decryptedKey.PubKey.GetAddress(Network.Main).ToString());

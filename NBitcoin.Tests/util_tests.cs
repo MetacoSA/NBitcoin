@@ -300,6 +300,30 @@ namespace NBitcoin.Tests
 						Base58 = "DA1796XbaYxBwSc41yTDiirr1uuNkS446P",
 						ExpectedType = (Type)null,
 						Network = (Network)null
+					},
+					new
+					{
+						Base58 = "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7",
+						ExpectedType = typeof(BitcoinEncryptedSecretNoEC),
+						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "6PfQu77ygVyJLZjfvMLyhLMQbYnu5uguoJJ4kMCLqWwPEdfpwANVS76gTX",
+						ExpectedType = typeof(BitcoinEncryptedSecretEC),
+						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "passphrasepxFy57B9v8HtUsszJYKReoNDV6VHjUSGt8EVJmux9n1J3Ltf1gRxyDGXqnf9qm",
+						ExpectedType = typeof(BitcoinPassphraseCode),
+						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "cfrm38V8aXBn7JWA1ESmFMUn6erxeBGZGAxJPY4e36S9QWkzZKtaVqLNMgnifETYw7BPwWC9aPD",
+						ExpectedType = typeof(BitcoinConfirmationCode),
+						Network = Network.Main
 					}
 				};
 

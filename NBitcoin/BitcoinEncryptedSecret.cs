@@ -146,6 +146,21 @@ namespace NBitcoin
 				return _OwnerEntropy;
 			}
 		}
+		LotSequence _LotSequence;
+		public LotSequence LotSequence
+		{
+			get
+			{
+				var hasLotSequence = (vchData[0] & (byte)0x04) != 0;
+				if(!hasLotSequence)
+					return null;
+				if(_LotSequence == null)
+				{
+					_LotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray());
+				}
+				return _LotSequence;
+			}
+		}
 
 		byte[] _EncryptedHalfHalf1;
 		public byte[] EncryptedHalfHalf1
@@ -173,21 +188,7 @@ namespace NBitcoin
 			}
 		}
 
-		LotSequence _LotSequence;
-		public LotSequence LotSequence
-		{
-			get
-			{
-				var hasLotSequence = (vchData[0] & (byte)0x04) != 0;
-				if(!hasLotSequence)
-					return null;
-				if(_LotSequence == null)
-				{
-					_LotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray());
-				}
-				return _LotSequence;
-			}
-		}
+		
 
 		public override Base58Type Type
 		{
@@ -201,20 +202,8 @@ namespace NBitcoin
 		{
 			var encrypted = PartialEncrypted.ToArray();
 			//Derive passfactor using scrypt with ownerentropy and the user's passphrase and use it to recompute passpoint
-			byte[] passfactor = null;
-
-			if(LotSequence == null)
-			{
-				passfactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), OwnerEntropy, 32);
-			}
-			else
-			{
-				var ownersalt = OwnerEntropy.Take(4).ToArray();
-				var lotsequence = OwnerEntropy.Skip(4).Take(4).ToArray();
-				var prefactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), ownersalt, 32);
-				passfactor = Hashes.Hash256(prefactor.Concat(OwnerEntropy).ToArray()).ToBytes();
-			}
-			var passpoint = new Key(passfactor, fCompressedIn: true).PubKey.ToBytes();
+			byte[] passfactor = CalculatePassFactor(password,LotSequence, OwnerEntropy);
+			var passpoint = CalculatePassPoint(passfactor);
 
 			var derived = SCrypt.BitcoinComputeDerivedKey2(passpoint, this.AddressHash.Concat(this.OwnerEntropy).ToArray());
 
@@ -229,14 +218,51 @@ namespace NBitcoin
 			var key = new Key(keyNum.ToByteArrayUnsigned(), fCompressedIn: IsCompressed);
 
 			var generatedaddress = key.PubKey.GetAddress(Network);
-			var addresshash = Hashes.Hash256(Encoders.ASCII.DecodeData(generatedaddress.ToString())).ToBytes()
-							.Take(4).ToArray();
+			var addresshash = HashAddress(generatedaddress);
 
 			if(!Utils.ArrayEqual(addresshash, AddressHash))
 				throw new SecurityException("Invalid password");
 
 			return key;
 		}
+
+		/// <summary>
+		/// Take the first four bytes of SHA256(SHA256(generatedaddress)) and call it addresshash.
+		/// </summary>
+		/// <param name="address"></param>
+		/// <returns></returns>
+		internal static byte[] HashAddress(BitcoinAddress address)
+		{
+			return Hashes.Hash256(Encoders.ASCII.DecodeData(address.ToString())).ToBytes().Take(4).ToArray();
+		}
+
+		internal static byte[] CalculatePassPoint(byte[] passfactor)
+		{
+			return new Key(passfactor, fCompressedIn: true).PubKey.ToBytes();
+		}
+
+		internal static byte[] CalculatePassFactor(string password, LotSequence lotSequence, byte[] ownerEntropy)
+		{
+			byte[] passfactor = null;
+			if(lotSequence == null)
+			{
+				passfactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), ownerEntropy, 32);
+			}
+			else
+			{
+				var ownersalt = ownerEntropy.Take(4).ToArray();
+				var lotsequence = ownerEntropy.Skip(4).Take(4).ToArray();
+				var prefactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), ownersalt, 32);
+				passfactor = Hashes.Hash256(prefactor.Concat(ownerEntropy).ToArray()).ToBytes();
+			}
+			return passfactor;
+		}
+
+		internal static byte[] CalculateDecryptionKey(byte[] Passpoint, byte[] addresshash, byte[] ownerEntropy)
+		{
+			return SCrypt.BitcoinComputeDerivedKey2(Passpoint, addresshash.Concat(ownerEntropy).ToArray());
+		}
+
 	}
 
 	public abstract class BitcoinEncryptedSecret : Base58Data
@@ -277,13 +303,7 @@ namespace NBitcoin
 			}
 		}
 
-		public bool IsCompressed
-		{
-			get
-			{
-				return (vchData[0] & 0x20) != 0;
-			}
-		}
+		
 
 		byte[] _AddressHash;
 		public byte[] AddressHash
@@ -295,6 +315,13 @@ namespace NBitcoin
 					_AddressHash = vchData.Skip(1).Take(4).ToArray();
 				}
 				return _AddressHash;
+			}
+		}
+		public bool IsCompressed
+		{
+			get
+			{
+				return (vchData[0] & 0x20) != 0;
 			}
 		}
 
