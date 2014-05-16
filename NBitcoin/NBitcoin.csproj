@@ -49,10 +49,10 @@
   <ItemGroup>
     <Compile Include="Base58Data.cs" />
     <Compile Include="BitcoinAddress.cs" />
-    <Compile Include="BitcoinConfirmationCode.cs" />
-    <Compile Include="BitcoinEncryptedSecret.cs" />
-    <Compile Include="BitcoinExtKey.cs" />
-    <Compile Include="BitcoinPassphraseCode.cs" />
+    <Compile Include="BIP38\BitcoinConfirmationCode.cs" />
+    <Compile Include="BIP38\BitcoinEncryptedSecret.cs" />
+    <Compile Include="BIP32\BitcoinExtKey.cs" />
+    <Compile Include="BIP38\BitcoinPassphraseCode.cs" />
     <Compile Include="BitcoinSecret.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
@@ -79,8 +79,8 @@
     <Compile Include="FileLock.cs" />
     <Compile Include="IndexedBlockStore.cs" />
     <Compile Include="IpExtensions.cs" />
-    <Compile Include="ExtKey.cs" />
-    <Compile Include="ExtPubKey.cs" />
+    <Compile Include="BIP32\ExtKey.cs" />
+    <Compile Include="BIP32\ExtPubKey.cs" />
     <Compile Include="NoSqlRepository.cs" />
     <Compile Include="Protocol\BitcoinSerializablePayload.cs" />
     <Compile Include="Protocol\BlockPayload.cs" />
@@ -189,6 +189,7 @@
       <Name>Mono.Nat</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
