@@ -95,6 +95,7 @@ namespace NBitcoin
 			_Lot = (int)(lotSequence / 4096);
 			_Sequence = (int)(lotSequence - _Lot);
 		}
+
 		private readonly int _Lot;
 		public int Lot
 		{
@@ -116,6 +117,40 @@ namespace NBitcoin
 		public byte[] ToBytes()
 		{
 			return _Bytes.ToArray();
+		}
+
+		private int Id
+		{
+			get
+			{
+				return BitConverter.ToInt32(_Bytes, 0);
+			}
+		}
+
+		public override bool Equals(object obj)
+		{
+			LotSequence item = obj as LotSequence;
+			if(item == null)
+				return false;
+			return Id.Equals(item.Id);
+		}
+		public static bool operator ==(LotSequence a, LotSequence b)
+		{
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if(((object)a == null) || ((object)b == null))
+				return false;
+			return a.Id == b.Id;
+		}
+
+		public static bool operator !=(LotSequence a, LotSequence b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return Id.GetHashCode();
 		}
 	}
 

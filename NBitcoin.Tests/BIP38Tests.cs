@@ -149,6 +149,7 @@ namespace NBitcoin.Tests
 
 				//Can verify confirmation
 				var confirmation = new BitcoinConfirmationCode(test.ConfirmationCode, Network.Main);
+				AssertSequenceEquals(confirmation.LotSequence, test.LotSequence);
 				Assert.True(confirmation.Check(test.Passphrase, new BitcoinAddress(test.Address, Network.Main)));
 
 				//Can generate encrypted key from passcode
@@ -161,7 +162,7 @@ namespace NBitcoin.Tests
 		private void AssertSequenceEquals(LotSequence expected, LotSequence actual)
 		{
 			Assert.NotNull(actual);
-			Assert.True(expected.Lot == actual.Lot && expected.Sequence == expected.Sequence, "sequence different than expected");
+			Assert.True(expected == actual, "sequence different than expected");
 		}
 
 
