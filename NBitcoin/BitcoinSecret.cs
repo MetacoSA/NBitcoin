@@ -51,6 +51,11 @@ namespace NBitcoin
 			}
 		}
 
+		public BitcoinEncryptedSecret Encrypt(string password)
+		{
+			return Key.GetEncryptedBitcoinSecret(password, Network);
+		}
+
 
 		public BitcoinSecret Copy(bool? compressed)
 		{
