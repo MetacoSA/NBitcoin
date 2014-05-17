@@ -59,11 +59,12 @@ namespace NBitcoin
 		ENCRYPTED_SECRET_KEY_NO_EC,
 		PASSPHRASE_CODE,
 		CONFIRMATION_CODE,
-		MAX_BASE58_TYPES
+		STEALTH_ADDRESS,
+		MAX_BASE58_TYPES,
 	};
 	public class Network
 	{
-		byte[][] base58Prefixes = new byte[9][];
+		byte[][] base58Prefixes = new byte[10][];
 
 
 		uint[] pnSeed = new uint[]
@@ -295,6 +296,7 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x88), (0xAD), (0xE4) };
 			base58Prefixes[(int)Base58Type.PASSPHRASE_CODE] = new byte[] { 0x2C,0xE9,0xB3,0xE1,0xFF,0x39,0xE2};
 			base58Prefixes[(int)Base58Type.CONFIRMATION_CODE] = new byte[] { 0x64, 0x3B, 0xF6, 0xA8, 0x9A};
+			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x09 };
 			// Convert the pnSeeds array into usable address objects.
 			Random rand = new Random();
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);

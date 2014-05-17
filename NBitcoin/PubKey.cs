@@ -212,5 +212,10 @@ namespace NBitcoin
 		{
 			return ToHex().GetHashCode();
 		}
+
+		public BitcoinStealthAddress CreateStealthAddress(Network network)
+		{
+			return new BitcoinStealthAddress(this, network);
+		}
 	}
 }
