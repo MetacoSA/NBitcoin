@@ -41,5 +41,10 @@ namespace NBitcoin.Tests
 			var hash2 = stack2.Select(o => Hashes.Hash256(o)).ToArray();
 			AssertEx.CollectionEquals(hash1, hash2);
 		}
+
+		internal static void CollectionEquals(System.Collections.BitArray bitArray, int p)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

@@ -116,6 +116,7 @@
     <Compile Include="RandomUtils.cs" />
     <Compile Include="SqLiteUtility.cs" />
     <Compile Include="StealthNonce.cs" />
+    <Compile Include="StealthTxOutputs.cs" />
     <Compile Include="Store.cs" />
     <Compile Include="StoredBlock.cs" />
     <Compile Include="StoredItem.cs" />

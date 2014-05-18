@@ -19,6 +19,12 @@ namespace NBitcoin
 {
 	public static class Extensions
 	{
+		public static byte[] ReadBytes(this Stream stream, int count)
+		{
+			byte[] result = new byte[count];
+			stream.Read(result, 0, count);
+			return result;
+		}
 		public static IEnumerable<T> Resize<T>(this List<T> list, int count)
 		{
 			if(list.Count == count)
@@ -360,6 +366,49 @@ namespace NBitcoin
 			writer.Flush();
 			ms.Position = 0;
 			return (T)seria.ReadObject(ms);
+		}
+
+		internal static byte[] ToBytes(uint value, bool littleEndian)
+		{
+			if(littleEndian)
+			{
+				return new byte[]
+				{
+					(byte)value,
+					(byte)(value >> 8),
+					(byte)(value >> 16),
+					(byte)(value >> 24),
+				};
+			}
+			else
+			{
+				return new byte[]
+				{
+					(byte)(value >> 24),
+					(byte)(value >> 16),
+					(byte)(value >> 8),
+					(byte)value,
+				};
+			}
+		}
+
+		internal static uint ToUInt32(byte[] value, bool littleEndian)
+		{
+			
+			if(littleEndian)
+			{
+				return value[0]
+					   + ((uint)value[1] << 8)
+					   + ((uint)value[2] << 16)
+					   + ((uint)value[3] << 24);
+			}
+			else
+			{
+				return value[3]
+					   + ((uint)value[2] << 8)
+					   + ((uint)value[1] << 16)
+					   + ((uint)value[0] << 24);
+			}
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Math.EC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,8 +86,10 @@ namespace NBitcoin
 							.Add(new BigInteger(1, receiverKey.ToBytes()))
 							.Mod(curve.N)
 							.ToByteArrayUnsigned();
-			if(priv.Length != 32)
-				return false;
+
+			if(priv.Length < 32)
+				priv = new byte[32 - priv.Length].Concat(priv).ToArray();
+
 			var key = new Key(priv, fCompressedIn: StealthKey.IsCompressed);
 
 			if(key.PubKey.GetAddress(Network).ToString() != DestinationAddress.ToString())
