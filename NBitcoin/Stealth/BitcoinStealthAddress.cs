@@ -250,18 +250,6 @@ namespace NBitcoin
 			return new StealthPayment(SignatureCount, SpendPubKeys, ephemKey, ScanPubKey, metadata);
 		}
 
-		public StealthNonce GetNonce(Key receiverKey, PubKey senderKey)
-		{
-			//var nonce = new StealthNonce(receiverKey, senderKey, PubKey, Network);
-			//if(!nonce.DeriveKey(receiverKey))
-			//{
-			//	throw new SecurityException("invalid receiver key for this nonce");
-			//}
-			//return nonce;
-			return null;
-		}
-
-
 
 	}
 }

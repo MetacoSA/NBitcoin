@@ -54,7 +54,7 @@
     <Compile Include="BIP32\BitcoinExtKey.cs" />
     <Compile Include="BIP38\BitcoinPassphraseCode.cs" />
     <Compile Include="BitcoinSecret.cs" />
-    <Compile Include="BitcoinStealthAddress.cs" />
+    <Compile Include="Stealth\BitcoinStealthAddress.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
     <Compile Include="BlockIndex.cs" />
@@ -115,8 +115,8 @@
     <Compile Include="Protocol\VersionPayload.cs" />
     <Compile Include="RandomUtils.cs" />
     <Compile Include="SqLiteUtility.cs" />
-    <Compile Include="StealthNonce.cs" />
-    <Compile Include="StealthPayment.cs" />
+    <Compile Include="Stealth\StealthMetadata.cs" />
+    <Compile Include="Stealth\StealthPayment.cs" />
     <Compile Include="Store.cs" />
     <Compile Include="StoredBlock.cs" />
     <Compile Include="StoredItem.cs" />
