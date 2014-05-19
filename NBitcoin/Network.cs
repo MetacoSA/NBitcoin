@@ -447,7 +447,14 @@ namespace NBitcoin
 				return CreateEncryptedKeyNoEC(base58);
 			if(type == Base58Type.PASSPHRASE_CODE)
 				return CreatePassphraseCode(base58);
+			if(type == Base58Type.STEALTH_ADDRESS)
+				return CreateStealthAddress(base58);
 			throw new NotSupportedException("Invalid Base58Data type : " + type.ToString());
+		}
+
+		public BitcoinStealthAddress CreateStealthAddress(string base58)
+		{
+			return new BitcoinStealthAddress(base58, Network.Main);
 		}
 
 		private BitcoinPassphraseCode CreatePassphraseCode(string base58)
