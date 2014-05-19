@@ -213,13 +213,13 @@ namespace NBitcoin
 			return ToHex().GetHashCode();
 		}
 
-		public PubKey UncoverSender(Key scan, PubKey ephem)
+		public PubKey UncoverSender(Key ephem, PubKey scan)
+		{
+			return Uncover(ephem, scan);
+		}
+		public PubKey UncoverReceiver(Key scan, PubKey ephem)
 		{
 			return Uncover(scan, ephem);
-		}
-		public PubKey UncoverReceiver(Key priv, PubKey pub)
-		{
-			return Uncover(priv, pub);
 		}
 		public PubKey Uncover(Key priv, PubKey pub)
 		{

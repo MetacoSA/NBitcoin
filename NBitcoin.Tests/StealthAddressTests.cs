@@ -220,7 +220,6 @@ namespace NBitcoin.Tests
 
 				var payment = address.CreatePayment(ephem);
 				Assert.Equal(stealth.PubKey.ID, payment.SpendKeys[0].ID);
-
 				var key = spend.Uncover(scan, payment.Metadata.EphemKey);
 				Assert.Equal(stealth.ToBytes(), key.ToBytes());
 			}
