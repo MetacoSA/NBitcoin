@@ -222,6 +222,9 @@ namespace NBitcoin.Tests
 				Assert.Equal(stealth.PubKey.ID, payment.SpendKeys[0].ID);
 				var key = spend.Uncover(scan, payment.Metadata.EphemKey);
 				Assert.Equal(stealth.ToBytes(), key.ToBytes());
+
+				var transaction = new Transaction();
+				payment.AddToTransaction(transaction, 100);
 			}
 		}
 
