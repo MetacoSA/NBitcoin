@@ -12,6 +12,8 @@
 			Full script evaluation and parsing
 			Key generation
 			Deterministic wallet : BIP 32
+			Encrypted wallet : BIP 38
+			Stealth Addresses
 			Standard script generation and parsing
 			Object model faithful to the C++ API but with C# goodness
 			Simpler API (here is how to generate a key and get the address : new Key().PubKey.Address.ToString())
