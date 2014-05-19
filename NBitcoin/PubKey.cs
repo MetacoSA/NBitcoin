@@ -105,7 +105,7 @@ namespace NBitcoin
 			return ToHex();
 		}
 
-		
+
 		public bool VerifyMessage(string message, string signature)
 		{
 			var key = PubKey.RecoverFromMessage(message, signature);
@@ -213,9 +213,46 @@ namespace NBitcoin
 			return ToHex().GetHashCode();
 		}
 
-		public BitcoinStealthAddress CreateStealthAddress(Network network)
+		public PubKey UncoverSender(Key scan, PubKey ephem)
 		{
-			return new BitcoinStealthAddress(this, network);
+			return Uncover(scan, ephem);
+		}
+		public PubKey UncoverReceiver(Key priv, PubKey pub)
+		{
+			return Uncover(priv, pub);
+		}
+		public PubKey Uncover(Key priv, PubKey pub)
+		{
+			var curve = ECKey.CreateCurve();
+			var hash = GetStealthSharedSecret(priv,pub);
+			//Q' = Q + cG
+			var qprim = curve.G.Multiply(new BigInteger(1, hash)).Add(curve.Curve.DecodePoint(this.ToBytes()));
+			return new PubKey(qprim.GetEncoded()).Compress(this.IsCompressed);
+		}
+
+		internal static byte[] GetStealthSharedSecret(Key priv, PubKey pub)
+		{
+			var curve = ECKey.CreateCurve();
+			var pubec = curve.Curve.DecodePoint(pub.ToBytes());
+			var p = pubec.Multiply(new BigInteger(1, priv.ToBytes()));
+			var pBytes = new PubKey(p.GetEncoded()).Compress().ToBytes();
+			var hash = Hashes.SHA256(pBytes);
+			return hash;
+		}
+
+		public PubKey Compress(bool compression)
+		{
+			if(IsCompressed == compression)
+				return this;
+			if(compression)
+				return this.Compress();
+			else
+				return this.Decompress();
+		}
+
+		public BitcoinStealthAddress CreateStealthAddress(PubKey scanKey, Network network)
+		{
+			return new BitcoinStealthAddress(scanKey, new PubKey[] { this }, 1, null, network);
 		}
 	}
 }

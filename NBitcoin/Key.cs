@@ -198,6 +198,21 @@ namespace NBitcoin
 			return new Key(key.ToByteArrayUnsigned());
 		}
 
+		public Key Uncover(Key scan, PubKey ephem)
+		{
+			var curve = ECKey.CreateCurve();
+			var priv = new BigInteger(1, PubKey.GetStealthSharedSecret(scan, ephem))
+							.Add(new BigInteger(1, this.ToBytes()))
+							.Mod(curve.N)
+							.ToByteArrayUnsigned();
+
+			if(priv.Length < 32)
+				priv = new byte[32 - priv.Length].Concat(priv).ToArray();
+
+			var key = new Key(priv, fCompressedIn: this.IsCompressed);
+			return key;
+		}
+
 		public BitcoinSecret GetBitcoinSecret(Network network)
 		{
 			return new BitcoinSecret(this, network);

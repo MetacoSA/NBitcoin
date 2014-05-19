@@ -120,7 +120,7 @@ namespace NBitcoin.Tests
 
 				var stealthOutput = field.GetPayments(transaction).FirstOrDefault();
 				Assert.NotNull(stealthOutput);
-				
+
 				Assert.True(field.Match(stealthOutput.Metadata.BitField));
 			}
 		}
@@ -176,36 +176,63 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanPayToStealthAddress()
+		public void CanCreatePayment()
 		{
 			var tests = new[]
 			{
 				new
 				{
-					ReceiverKey = "7a9f7f4942ebb3d7c39d0e6c5853f18e106b29b9efeb374177da289156d389af",
-					SenderKey = Encoders.Hex.EncodeData(new Key().ToBytes())
+					//sx stealth-newkey
+					StealthAddress = "vJmtjxSDxNPXL4RNapp9ARdqKz3uJyf1EDGjr1Fgqs9c8mYsVH82h8wvnA4i5rtJ57mr3kor1EVJrd4e5upACJd588xe52yXtzumxj",
+
+					ScanSecret = "3e49e7257cb31db997edb1cf8299af0f37e2663e2260e4b8033e49d39a6d02f2",
+					ScanPubKey = "025e58a31122b38c86abc119b9379fe247410aee87a533f9c07b189aef6c3c1f52",
+
+					SpendSecret = "aa3db0cfb3edc94de4d10f873f8190843f2a17484f6021a95a7742302c744748",
+					SpendPubKey = "03616562c98e7d7b74be409a787cec3a912122f3fb331a9bee9b0b73ce7b9f50af",
+
+					//sx newkey | sx wif-to-secret
+					EphemSecret = "9e63abaf8dcd5ea3919e6de0b6c544e00bf51bf92496113a01d6e369944dc091",
+					EphemPubKey = "03403d306ec35238384c7e340393335f9bc9bb4a2e574eb4e419452c4ea19f14b0",
+
+					//sx stealth-initiate [EphemSecret] [ScanPubKey] [SpendPubKey] (for sender)
+					//or 
+					//sx stealth-uncover [EphemPubKey] [ScanSecret] [SpendPubKey]  (for receiver)
+					StealthPubKey = "02726112ad39cb6bf848b1b1ef30b88e35286bf99f746c2be575f96c0e02a9357c",
+
+					//sx steatlh-uncover-secret [EphemPubKey] [ScanSecret] [SpendSecret] 
+					StealthSecret = "4e422fb1e5e1db6c1f6ab32a7706d368ceb385e7fab098e633c5c5949c3b97cd"
 				}
 			};
 
 			foreach(var test in tests)
 			{
-				var receiverKey = new Key(TestUtils.ParseHex(test.ReceiverKey));
-				var stealth = receiverKey.PubKey.CreateStealthAddress(Network.Main);
+				var scan = AssertKeys(test.ScanSecret, test.ScanPubKey);
+				var spend = AssertKeys(test.SpendSecret, test.SpendPubKey);
+				var ephem = AssertKeys(test.EphemSecret, test.EphemPubKey);
+				var stealth = AssertKeys(test.StealthSecret, test.StealthPubKey);
 
-				var senderKey = new Key(TestUtils.ParseHex(test.SenderKey));
-				var senderNonce = stealth.GetNonce(senderKey);
-				var receiverNonce = stealth.GetNonce(receiverKey, senderKey.PubKey);
-				Assert.Equal(senderNonce.ToString(), receiverNonce.ToString());
+				var address = spend.PubKey.CreateStealthAddress(scan.PubKey, Network.Main);
+				Assert.Equal(test.StealthAddress, address.ToString());
+				//Try roundtrip
+				address = new BitcoinStealthAddress(address.ToBytes(), Network.Main);
+				Assert.Equal(test.StealthAddress, address.ToString());
 
-				Assert.Equal(senderNonce.DestinationAddress.ToString(), receiverNonce.DestinationAddress.ToString());
-				Assert.Equal(senderNonce.StealthKey.ToString(), receiverNonce.StealthKey.ToString());
-				Assert.Null(senderNonce.Key);
-				Assert.NotNull(receiverNonce.Key);
-				Assert.Equal(receiverNonce.Key.PubKey.GetAddress(stealth.Network).ToString(),
-							receiverNonce.DestinationAddress.ToString());
+				var payment = address.CreatePayment(ephem);
+				Assert.Equal(stealth.PubKey.ID, payment.SpendKeys[0].ID);
 
-				Assert.False(senderNonce.DeriveKey(senderKey));
+				var key = spend.Uncover(scan, payment.Metadata.EphemKey);
+				Assert.Equal(stealth.ToBytes(), key.ToBytes());
 			}
 		}
+
+		private Key AssertKeys(string key, string pub)
+		{
+			Key k = new Key(TestUtils.ParseHex(key));
+			PubKey p = new PubKey(TestUtils.ParseHex(pub));
+			AssertEx.Equal(k.PubKey.ToBytes(), p.ToBytes());
+			return k;
+		}
+
 	}
 }

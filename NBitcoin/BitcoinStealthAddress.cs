@@ -113,7 +113,7 @@ namespace NBitcoin
 			List<StealthPayment> result = new List<StealthPayment>();
 			for(int i = 0 ; i < transaction.Outputs.Count ; i++)
 			{
-				var metadata = StealthMetadataOutput.TryParse(transaction.Outputs[i].ScriptPubKey);
+				var metadata = StealthMetadata.TryParse(transaction.Outputs[i].ScriptPubKey);
 				if(metadata != null && Match(metadata))
 				{
 					result.Add(new StealthPayment(transaction.Outputs[i + 1].ScriptPubKey, metadata));
@@ -122,13 +122,14 @@ namespace NBitcoin
 			return result.ToArray();
 		}
 
-		public bool Match(StealthMetadataOutput metadata)
+		public bool Match(StealthMetadata metadata)
 		{
 			return Match(metadata.BitField);
 		}
 	}
 	public class BitcoinStealthAddress : Base58Data
 	{
+
 		public BitcoinStealthAddress(string base58, Network network)
 			: base(base58, network)
 		{
@@ -138,19 +139,15 @@ namespace NBitcoin
 		{
 		}
 
-		public BitcoinStealthAddress(PubKey pubKey, Network network)
-			: base(GenerateBytes(pubKey, network), network)
-		{
 
+		public BitcoinStealthAddress(PubKey scanKey, PubKey[] pubKeys, int signatureCount, BitField bitfield, Network network)
+			: base(GenerateBytes(scanKey, pubKeys, bitfield, signatureCount), network)
+		{
 		}
 
-		private static byte[] GenerateBytes(PubKey pubKey, Network network)
-		{
-			return
-				pubKey.ToBytes()
-				.Concat(new byte[] { 0, 0 })
-				.ToArray();
-		}
+
+
+
 
 		public byte Options
 		{
@@ -213,6 +210,27 @@ namespace NBitcoin
 				return true;
 			}
 		}
+		private static byte[] GenerateBytes(PubKey scanKey, PubKey[] pubKeys, BitField bitField, int signatureCount)
+		{
+			MemoryStream ms = new MemoryStream();
+			ms.WriteByte(0); //Options
+			ms.Write(scanKey.Compress().ToBytes(), 0, 33);
+			ms.WriteByte((byte)pubKeys.Length);
+			foreach(var key in pubKeys)
+			{
+				ms.Write(key.Compress().ToBytes(), 0, 33);
+			}
+			ms.WriteByte((byte)signatureCount);
+			if(bitField == null)
+				ms.Write(new byte[] { 0 }, 0, 1);
+			else
+			{
+				ms.WriteByte((byte)bitField.BitCount);
+				var raw = bitField.GetRawForm();
+				ms.Write(raw, 0, raw.Length);
+			}
+			return ms.ToArray();
+		}
 
 		public override Base58Type Type
 		{
@@ -223,10 +241,13 @@ namespace NBitcoin
 		}
 
 
-		public StealthNonce GetNonce(Key senderKey)
+		public StealthPayment CreatePayment(Key ephemKey = null)
 		{
-			//return new StealthNonce(senderKey, PubKey, PubKey, Network);
-			return null;
+			if(ephemKey == null)
+				ephemKey = new Key();
+
+			var metadata = StealthMetadata.CreateMetadata(ephemKey, this.Prefix);
+			return new StealthPayment(SignatureCount, SpendPubKeys, ephemKey, ScanPubKey, metadata);
 		}
 
 		public StealthNonce GetNonce(Key receiverKey, PubKey senderKey)

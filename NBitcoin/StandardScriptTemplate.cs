@@ -60,6 +60,20 @@ namespace NBitcoin
 			}
 		}
 	}
+
+	public class PayToMultiSigTemplateParameters
+	{
+		public int SignatureCount
+		{
+			get;
+			set;
+		}
+		public PubKey[] PubKeys
+		{
+			get;
+			set;
+		}
+	}
 	public class PayToMultiSigTemplate : ScriptTemplate
 	{
 		public Script GenerateScriptPubKey(int sigCount, PubKey[] keys)
@@ -111,6 +125,28 @@ namespace NBitcoin
 				  keyCountIndex + 1 == ops.Length - 1;
 		}
 
+		public PayToMultiSigTemplateParameters ExtractScriptPubKeyParameters(Script scriptPubKey)
+		{
+			if(!CheckScripPubKey(scriptPubKey))
+				return null;
+
+			var ops = scriptPubKey.ToOps().ToArray();
+			var sigCount = (byte)ops[0].PushData[0];
+			List<PubKey> keys = new List<PubKey>();
+			for(int i = 1 ; i < ops.Length ; i++)
+			{
+				if(!PubKey.IsValidSize(ops[i].PushData.Length))
+					break;
+				keys.Add(new PubKey(ops[i].PushData));
+			}
+
+			return new PayToMultiSigTemplateParameters()
+			{
+				SignatureCount = sigCount,
+				PubKeys = keys.ToArray()
+			};
+		}
+
 		public override bool CheckScriptSig(Script scriptSig, Script scriptPubKey)
 		{
 			if(!scriptSig.IsPushOnly)
@@ -119,7 +155,9 @@ namespace NBitcoin
 				return false;
 
 			var sigCountExpected = scriptPubKey.ToOps().First().GetValue();
-			return sigCountExpected == scriptSig.ToOps().Count();
+			var sigOps = scriptSig.ToOps().ToArray();
+			return sigOps[0].Code == OpcodeType.OP_0 ?
+									sigCountExpected == sigOps.Length - 1 : sigCountExpected == sigOps.Length;
 		}
 
 		public override TxOutType Type
@@ -129,6 +167,8 @@ namespace NBitcoin
 				return TxOutType.TX_MULTISIG;
 			}
 		}
+
+
 	}
 
 	//https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki
@@ -339,7 +379,7 @@ namespace NBitcoin
 			return CheckScriptSig(scriptSig, null);
 		}
 
-		
+
 
 		public PayToPubkeyHashScriptSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{
