@@ -618,7 +618,7 @@ namespace NBitcoin
 		public void ReadMagic(Stream stream, CancellationToken cancellation)
 		{
 			byte[] bytes = new byte[1];
-			for(int i = 0 ; i < _MagicBytes.Length ; i++)
+			for(int i = 0 ; i < MagicBytes.Length ; i++)
 			{
 				i = Math.Max(0, i);
 				cancellation.ThrowIfCancellationRequested();

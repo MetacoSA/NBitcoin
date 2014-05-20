@@ -362,6 +362,10 @@ namespace NBitcoin
 		}
 
 		public abstract Key GetKey(string password);
+		public BitcoinSecret GetSecret(string password)
+		{
+			return new BitcoinSecret(GetKey(password), Network);
+		}
 
 		internal static Aes CreateAES256()
 		{

@@ -180,7 +180,7 @@ namespace NBitcoin.Tests
 		{
 			var tests = new[]
 			{
-				new
+				new CanCreatePaymentData
 				{
 					//sx stealth-newkey
 					StealthAddress = "vJmtjxSDxNPXL4RNapp9ARdqKz3uJyf1EDGjr1Fgqs9c8mYsVH82h8wvnA4i5rtJ57mr3kor1EVJrd4e5upACJd588xe52yXtzumxj",
@@ -205,6 +205,7 @@ namespace NBitcoin.Tests
 				}
 			};
 
+			tests = tests.Concat(CanCreatePaymentData.GenerateRandoms(3)).ToArray();
 			foreach(var test in tests)
 			{
 				var scan = AssertKeys(test.ScanSecret, test.ScanPubKey);
@@ -219,9 +220,17 @@ namespace NBitcoin.Tests
 				Assert.Equal(test.StealthAddress, address.ToString());
 
 				var payment = address.CreatePayment(ephem);
-				Assert.Equal(stealth.PubKey.ID, payment.SpendKeys[0].ID);
-				var key = spend.Uncover(scan, payment.Metadata.EphemKey);
-				Assert.Equal(stealth.ToBytes(), key.ToBytes());
+				var generatedKey = spend.Uncover(scan, payment.Metadata.EphemKey);
+				if(stealth != null)
+				{
+					Assert.Equal(stealth.PubKey.ID, payment.SpendKeys[0].ID);
+					Assert.Equal(stealth.ToBytes(), generatedKey.ToBytes());
+				}
+				var uncoveredSender = spend.PubKey.UncoverSender(ephem, scan.PubKey);
+				var uncovertedReceiver = spend.PubKey.UncoverReceiver(scan, ephem.PubKey);
+
+				AssertEx.CollectionEquals(uncoveredSender.ToBytes(), uncovertedReceiver.ToBytes());
+				AssertEx.CollectionEquals(generatedKey.PubKey.ToBytes(), uncovertedReceiver.ToBytes());
 
 				var transaction = new Transaction();
 				payment.AddToTransaction(transaction, 100);
@@ -230,11 +239,94 @@ namespace NBitcoin.Tests
 
 		private Key AssertKeys(string key, string pub)
 		{
+			if(key == null)
+				return null;
 			Key k = new Key(TestUtils.ParseHex(key));
-			PubKey p = new PubKey(TestUtils.ParseHex(pub));
-			AssertEx.Equal(k.PubKey.ToBytes(), p.ToBytes());
+			if(pub != null)
+			{
+				PubKey p = new PubKey(TestUtils.ParseHex(pub));
+				AssertEx.Equal(k.PubKey.ToBytes(), p.ToBytes());
+			}
 			return k;
 		}
 
+	}
+
+	public class CanCreatePaymentData
+	{
+		public string StealthAddress
+		{
+			get;
+			set;
+		}
+
+		public string ScanSecret
+		{
+			get;
+			set;
+		}
+
+		public string ScanPubKey
+		{
+			get;
+			set;
+		}
+
+		public string SpendSecret
+		{
+			get;
+			set;
+		}
+
+		public string SpendPubKey
+		{
+			get;
+			set;
+		}
+
+		public string EphemSecret
+		{
+			get;
+			set;
+		}
+
+		public string EphemPubKey
+		{
+			get;
+			set;
+		}
+
+		public string StealthPubKey
+		{
+			get;
+			set;
+		}
+
+		public string StealthSecret
+		{
+			get;
+			set;
+		}
+
+		internal static IEnumerable<CanCreatePaymentData> GenerateRandoms(int count)
+		{
+			for(int i = 0 ; i < count ; i++)
+			{
+				CanCreatePaymentData data = new CanCreatePaymentData();
+				var spend = new Key();
+				var scan = new Key();
+				var ephem = new Key();
+				data.SpendSecret = ToString(spend);
+				data.ScanSecret = ToString(scan);
+				data.EphemSecret = ToString(ephem);
+				data.StealthAddress = spend.PubKey.CreateStealthAddress(scan.PubKey, Network.Main).ToString();
+				yield return data;
+			}
+		}
+
+		private static string ToString(Key spend)
+		{
+			return Encoders.Hex.EncodeData(spend.ToBytes());
+		}
 	}
 }

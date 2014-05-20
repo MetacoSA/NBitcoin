@@ -1,4 +1,5 @@
-﻿using NBitcoin.Protocol;
+﻿using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -174,12 +175,41 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
+			//var p = new PubKey(Encoders.Hex.DecodeData("03b4e5d3cf889840c75f0dd02ebda946151bf37e56cb888c6002c2ae5288e56de7"));
+			//var o = Network.CreateFromBase58Data("mvXf4sF4C1w5KgQyasbEWxqVyqbLNtVdnY");
+			//var sender = new BitcoinSecret("cRjSUV1LqN2F8MsGnLE2JKfCP75kbWGFRroNQeXHC429jqVFgmW3", Network.TestNet).Key;
+			////var addr = secret.Key.PubKey.GetAddress(Network.TestNet); //mwdJkHRNJi1fEwHBx6ikWFFuo2rLBdri2h
+			////https://tpfaucet.appspot.com/
+			//var receiver = new BitcoinStealthAddress("waPV5rHToBq3NoR7y5J9UdE7aUbuqJybNpE88Dve7WgWhEfvMrcuaSvF6tSQ3Fbe8dErL6ks8byJPcp3QCK2HHviGCSjg42VgMAPJb", Network.TestNet);
 
+			//Key ephemKey = new Key(Encoders.Hex.DecodeData("9daed68ad37754305e82740a6252cf80765c36d29a55158b1a19ed29914f0cb1"));
+			//var ephemKeyStr = Encoders.Hex.EncodeData(ephemKey.ToBytes());
+			//var scanStr = Encoders.Hex.EncodeData(receiver.ScanPubKey.ToBytes());
+			//var spendStr = Encoders.Hex.EncodeData(receiver.SpendPubKeys[0].ToBytes());
 
+			//var payment = receiver.CreatePayment(ephemKey);
+			//var tx = new Transaction();
+			//tx.Version = 1;
+			//tx.Inputs.Add(new TxIn(new OutPoint(new uint256("d65e2274f6fde9515a35655d54e79243d5a17355f6943d6c16a63083a8769ea3"), 1)));
+			
+			//payment.AddToTransaction(tx, Money.Parse("0.51"));
 
-			//var store = new BlockStore(@"E:\Bitcoin\blocks", Network.Main);
-			//foreach(var un in store.EnumerateFolder())
-			//{
+			//tx.Inputs[0].ScriptSig = new PayToPubkeyHashTemplate().GenerateScriptPubKey(sender.PubKey.GetAddress(Network.TestNet));
+			//var hash = tx.Inputs[0].ScriptSig.SignatureHash(tx, 0, SigHash.All);
+			//var sig = sender.Sign(hash);
+			//tx.Inputs[0].ScriptSig = new PayToPubkeyHashTemplate().GenerateScriptSig(new TransactionSignature(sig, SigHash.All), sender.PubKey);
+
+			//var result = Script.VerifyScript(tx.Inputs[0].ScriptSig, new Script("OP_DUP OP_HASH160 b0b594bb2d2ca509b817f27e9280f6471807af26 OP_EQUALVERIFY OP_CHECKSIG"), tx, 0);
+
+			//var bytes = Encoders.Hex.EncodeData(tx.ToBytes());
+			//var client = new NodeServer(Network.TestNet);
+
+			//var node = client.GetNodeByEndpoint(new IPEndPoint(IPAddress.Parse("95.85.39.28"), 18333));
+			//node.VersionHandshake();
+			//node.SendMessage(new TxPayload(tx));
+			////var store = new BlockStore(@"E:\Bitcoin\blocks", Network.Main);
+			////foreach(var un in store.EnumerateFolder())
+			////{
 			//	var expectedSize = un.Header.ItemSize;
 			//	var actualSize = un.Item.GetSerializedSize();
 			//}
