@@ -1,6 +1,9 @@
-﻿using NBitcoin.RPC;
+﻿using NBitcoin.DataEncoders;
+using NBitcoin.RPC;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -38,7 +41,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("RPCClient","RPCClient")]
+		[Trait("RPCClient", "RPCClient")]
 		public void CanGetGenesisFromRPC()
 		{
 			var rpc = CreateRPCClient();
@@ -61,34 +64,48 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanDecodeAndEncodeRawTransaction()
 		{
-			var testData = File.ReadAllText("data/tx_raw.json");
-			//Can roundtrip
-			RawTransaction raw = new RawTransaction(testData);
-			var result = raw.ToString();
-			RawTransaction raw2 = new RawTransaction(result);
-			Assert.Equal(raw.ToString(), raw2.ToString());
-			//
-			AssertJsonEquals(raw.ToString(),testData);
+			var tests = TestCase.read_json("data/tx_raw.json");
+			var rpc = CreateRPCClient();
 
-			//Hash is correct
-			Transaction tx = raw.ToTransaction();
-			Assert.Equal(tx.GetHash().ToString(), raw.Hash.ToString());
-			//
+			foreach(var test in tests)
+			{
+				var format = (RawFormat)Enum.Parse(typeof(RawFormat), (string)test[0], true);
+				var network = ((string)test[1]) == "Main" ? Network.Main : Network.TestNet;
+				var testData = ((JObject)test[2]).ToString();
 
-			//Can roundtrip to rawtransaction
-			var raw4 = tx.ToRawTransaction();
-			Assert.Equal(raw.ToString(),raw4.ToString());
+
+				Transaction raw = Transaction.Parse(testData, format, network);
+
+				AssertJsonEquals(raw.ToString(format, network), testData);
+
+				var raw3 = Transaction.Parse(raw.ToString(format, network), format);
+				Assert.Equal(raw.ToString(format, network), raw3.ToString(format, network));
+			}
 		}
+		[Fact]
+		[Trait("RPCClient", "RPCClient")]
+		public void RawTransactionIsConformsToRPC()
+		{
+			//var o = 3.69140431.ToString("0.###E+00", CultureInfo.InvariantCulture);
+
+			var rpc = CreateRPCClient();
+			var tx = Network.TestNet.GetGenesis().Vtx[0];
+
+			//var t = rpc.GetRawTransaction(new uint256("e66156626a4a1278ccef7d6a04c8090e98fe35d8382b60c2fdaf161fefe2d8ee"));
+			var tx2 = rpc.DecodeRawTransaction(tx.ToBytes());
+			
+			AssertJsonEquals(tx.ToString(RawFormat.Satoshi), tx2.ToString(RawFormat.Satoshi));
+		}
+
 
 		private void AssertJsonEquals(string json1, string json2)
 		{
-			foreach(var c in new[] { '\r', '\n', ' ','\t' })
+			foreach(var c in new[] { "\r\n", " ", "\t" })
 			{
-				json1 = json1.Replace(c.ToString(),"");
-				json2 = json2.Replace(c.ToString(), "");
+				json1 = json1.Replace(c, "");
+				json2 = json2.Replace(c, "");
 			}
 
 			Assert.Equal(json1, json2);

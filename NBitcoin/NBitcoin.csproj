@@ -58,12 +58,14 @@
     <Compile Include="BIP32\BitcoinExtKey.cs" />
     <Compile Include="BIP38\BitcoinPassphraseCode.cs" />
     <Compile Include="BitcoinSecret.cs" />
-    <Compile Include="RPC\RawTransaction.cs" />
+    <Compile Include="RPC\BlockExplorerFormatter.cs" />
+    <Compile Include="RPC\RawFormatter.cs" />
     <Compile Include="RPC\RPCClient.cs" />
     <Compile Include="RPC\RPCException.cs" />
     <Compile Include="RPC\RPCRequest.cs" />
     <Compile Include="RPC\RPCResponse.cs" />
     <Compile Include="RPC\RPCOperations.cs" />
+    <Compile Include="RPC\SatoshiFormatter.cs" />
     <Compile Include="Stealth\BitcoinStealthAddress.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />

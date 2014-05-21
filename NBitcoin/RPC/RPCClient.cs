@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using NBitcoin.DataEncoders;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -135,6 +137,22 @@ namespace NBitcoin.RPC
 		{
 			var address = GetAccountAddress(account);
 			return DumpPrivKey(address);
+		}
+
+		public Transaction DecodeRawTransaction(string rawHex)
+		{
+			var response = SendCommand("decoderawtransaction", rawHex);
+			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
+		}
+		public Transaction DecodeRawTransaction(byte[] raw)
+		{
+			return DecodeRawTransaction(Encoders.Hex.EncodeData(raw));
+		}
+
+		public Transaction GetRawTransaction(uint256 txid)
+		{
+			var response = SendCommand("getrawtransaction", txid.ToString());
+			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
 		}
 	}
 }

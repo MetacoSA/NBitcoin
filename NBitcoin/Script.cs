@@ -536,7 +536,49 @@ namespace NBitcoin
 
 		public KeyId GetDestination()
 		{
-			return new PayToPubkeyHashTemplate().ExtractScriptPubKeyParameters(this);
+			var template = FindTemplate();
+			var payToPubKeyHash = template as PayToPubkeyHashTemplate;
+			if(payToPubKeyHash != null)
+			{
+				return payToPubKeyHash.ExtractScriptPubKeyParameters(this);
+			}
+			var payToPubKey = template as PayToPubkeyTemplate;
+			if(payToPubKey != null)
+			{
+				var result = new PayToPubkeyHashTemplate().ExtractScriptPubKeyParameters(this);
+				if(result == null)
+				{
+					var pub = new PayToPubkeyTemplate().ExtractScriptPubKeyParameters(this);
+					if(pub != null)
+						return pub.ID;
+				}
+			}
+			return null;
+		}
+
+		public ScriptTemplate FindTemplate()
+		{
+			return StandardScripts.GetTemplateFromScriptPubKey(this);
+		}
+
+		public IEnumerable<KeyId> GetDestinations()
+		{
+			var single = GetDestination();
+			if(single != null)
+			{
+				yield return single;
+			}
+			else
+			{
+				var result = new PayToMultiSigTemplate().ExtractScriptPubKeyParameters(this);
+				if(result != null)
+				{
+					foreach(var key in result.PubKeys)
+					{
+						yield return key.ID;
+					}
+				}
+			}
 		}
 
 		public byte[] ToRawScript()
@@ -559,5 +601,7 @@ namespace NBitcoin
 				return _Script.Length > 0 && _Script[0] == (byte)OpcodeType.OP_RETURN;
 			}
 		}
+
+		
 	}
 }

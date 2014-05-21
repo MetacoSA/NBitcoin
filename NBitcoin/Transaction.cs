@@ -1,6 +1,7 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
+using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -597,6 +598,11 @@ namespace NBitcoin
 		}
 	}
 
+	public enum RawFormat
+	{
+		Satoshi,
+		BlockExplorer,
+	}
 	//https://en.bitcoin.it/wiki/Transactions
 	//https://en.bitcoin.it/wiki/Protocol_specification
 	public class Transaction : IBitcoinSerializable
@@ -730,22 +736,45 @@ namespace NBitcoin
 			return new TxPayload(this.Clone());
 		}
 
-		public RPC.RawTransaction ToRawTransaction()
+		public static Transaction Parse(string tx, RawFormat format, Network network = null)
 		{
-			RPC.RawTransaction tx = new RPC.RawTransaction();
-			tx.Version = Version;
-			tx.LockTime = LockTime;
-			tx.Hash = GetHash();
-			tx.Size = this.GetSerializedSize();
-			foreach(var vout in Outputs)
+			return GetFormatter(format, network).Parse(tx);
+		}
+
+		public override string ToString()
+		{
+			return ToString(RawFormat.BlockExplorer);
+		}
+
+		public string ToString(RawFormat rawFormat, Network network = null)
+		{
+			var formatter = GetFormatter(rawFormat, network);
+			return ToString(formatter);
+		}
+
+		static private RawFormatter GetFormatter(RawFormat rawFormat, Network network)
+		{
+			RawFormatter formatter = null;
+			switch(rawFormat)
 			{
-				tx.Outputs.Add(vout.Clone());
+				case RawFormat.Satoshi:
+					formatter = new SatoshiFormatter();
+					break;
+				case RawFormat.BlockExplorer:
+					formatter = new BlockExplorerFormatter();
+					break;
+				default:
+					throw new NotSupportedException(rawFormat.ToString());
 			}
-			foreach(var vin in Inputs)
-			{
-				tx.Inputs.Add(vin.Clone());
-			}
-			return tx;
+			formatter.Network = network ?? formatter.Network;
+			return formatter;
+		}
+
+		internal string ToString(RawFormatter formatter)
+		{
+			if(formatter == null)
+				throw new ArgumentNullException("formatter");
+			return formatter.ToString(this);
 		}
 	}
 }
