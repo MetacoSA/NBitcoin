@@ -195,17 +195,28 @@ namespace NBitcoin.Tests
 					EphemSecret = "9e63abaf8dcd5ea3919e6de0b6c544e00bf51bf92496113a01d6e369944dc091",
 					EphemPubKey = "03403d306ec35238384c7e340393335f9bc9bb4a2e574eb4e419452c4ea19f14b0",
 
+					//sx steatlh-uncover-secret [EphemPubKey] [ScanSecret] [SpendSecret] 
+					StealthSecret = "4e422fb1e5e1db6c1f6ab32a7706d368ceb385e7fab098e633c5c5949c3b97cd",
 					//sx stealth-initiate [EphemSecret] [ScanPubKey] [SpendPubKey] (for sender)
 					//or 
 					//sx stealth-uncover [EphemPubKey] [ScanSecret] [SpendPubKey]  (for receiver)
 					StealthPubKey = "02726112ad39cb6bf848b1b1ef30b88e35286bf99f746c2be575f96c0e02a9357c",
+				},
 
-					//sx steatlh-uncover-secret [EphemPubKey] [ScanSecret] [SpendSecret] 
-					StealthSecret = "4e422fb1e5e1db6c1f6ab32a7706d368ceb385e7fab098e633c5c5949c3b97cd"
+				//Need padding for to find the stealth secret
+				new CanCreatePaymentData{
+					StealthAddress = "vJmyTEybwCKz7W8y6vP62jo7RoyfLneiANcPLBBNYwn98EXzQRStMKqKGRiZhqscuQ6WKy2J3U3zfx72V3b2J6YvxxBcxUj4XMDsw7",
+					ScanSecret = "2f517d81cf30e47dbf4809321275bbfd92192af81a6141a17aa53e40bd28fe36",
+					ScanPubKey = "039d91ae0eebea6dc500fb57b704abce3d3fa700cc762a52bc5dcaee27770a8402",
+					SpendSecret = "71e33219884fc27011f8da9adcc730f0c2e940759bdb1b615764492bce04fcea",
+					SpendPubKey = "021a3d5b40ec83fc58b5a23207eb9c99b741d8f0e9f8b80f04f49cec915b540c40",
+					EphemSecret = "578ffe42c0fbfb324a31f41dbbcd8b1f910ce2f4d803444a83b18ae9f8ccd97e",
+					EphemPubKey = "03c190be0a1c6e50577b3dd637b1fff9344de31c2544ff3d815535c0515711150f",
+					StealthSecret = "006d138b4bcef0f09c8784c0cc68f2be4497a1a822d8d7b0519c5c0378b5cb45",
+					StealthPubKey = "0223a99278a5279ea93718503a42377067e72960eb808d8bff6defdd95d4feff76"
 				}
 			};
 
-			tests = tests.Concat(CanCreatePaymentData.GenerateRandoms(3)).ToArray();
 			foreach(var test in tests)
 			{
 				var scan = AssertKeys(test.ScanSecret, test.ScanPubKey);
@@ -317,16 +328,37 @@ namespace NBitcoin.Tests
 				var scan = new Key();
 				var ephem = new Key();
 				data.SpendSecret = ToString(spend);
+				data.SpendPubKey = ToString(spend.PubKey);
 				data.ScanSecret = ToString(scan);
+				data.ScanPubKey = ToString(scan.PubKey);
 				data.EphemSecret = ToString(ephem);
+				data.EphemPubKey = ToString(ephem.PubKey);
 				data.StealthAddress = spend.PubKey.CreateStealthAddress(scan.PubKey, Network.Main).ToString();
 				yield return data;
 			}
 		}
 
-		private static string ToString(Key spend)
+		private static string ToString(IBitcoinSerializable spend)
 		{
 			return Encoders.Hex.EncodeData(spend.ToBytes());
+		}
+
+		public override string ToString()
+		{
+			return
+					"StealthAddress = \"" + StealthAddress + "\",\r\n" +
+
+					"ScanSecret = \"" + ScanSecret + "\",\r\n" +
+					"ScanPubKey = \"" + ScanPubKey + "\",\r\n" +
+
+					"SpendSecret = \"" + SpendSecret + "\",\r\n" +
+					"SpendPubKey = \"" + SpendPubKey + "\",\r\n" +
+
+					"EphemSecret = \"" + EphemSecret + "\",\r\n" +
+					"EphemPubKey = \"" + EphemPubKey + "\",\r\n" +
+
+					"StealthSecret = \"" + StealthSecret + "\",\r\n" +
+					"StealthPubKey = \"" + StealthPubKey + "\",\r\n";
 		}
 	}
 }
