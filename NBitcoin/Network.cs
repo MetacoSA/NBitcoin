@@ -426,6 +426,10 @@ namespace NBitcoin
 			}
 			throw new FormatException("Invalid base58 data");
 		}
+		public static T CreateFromBase58Data<T>(string base58) where T : Base58Data
+		{
+			return (T)CreateFromBase58Data(base58);
+		}
 
 		public Base58Data CreateBase58Data(Base58Type type, string base58)
 		{

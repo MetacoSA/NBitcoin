@@ -27,6 +27,11 @@ namespace NBitcoin
 		{
 		}
 
+		public BitcoinAddress GetAddress()
+		{
+			return Key.PubKey.GetAddress(Network);
+		}
+
 		public Key Key
 		{
 			get
