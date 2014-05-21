@@ -48,14 +48,19 @@ namespace NBitcoin.RPC
 			builder.Port= port;
 			return builder.Uri;
 		}
-		public RPCClient(NetworkCredential credentials, Uri address, Network network)
+		public RPCClient(NetworkCredential credentials, Uri address, Network network = null)
 		{
+
 			if(credentials == null)
 				throw new ArgumentNullException("credentials");
 			if(address == null)
-				throw new ArgumentNullException("endpoint");
-			if(network == null)
 				throw new ArgumentNullException("address");
+			if(network == null)
+			{
+				network = new[] { Network.Main, Network.TestNet, Network.RegTest }.FirstOrDefault(n => n.RPCPort == address.Port);
+				if(network == null)
+					throw new ArgumentNullException("network");
+			}
 			_Credentials = credentials;
 			_Address = address;
 			_Network = network;

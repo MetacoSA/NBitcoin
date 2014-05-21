@@ -58,6 +58,7 @@
     <Compile Include="BIP32\BitcoinExtKey.cs" />
     <Compile Include="BIP38\BitcoinPassphraseCode.cs" />
     <Compile Include="BitcoinSecret.cs" />
+    <Compile Include="RPC\RawTransaction.cs" />
     <Compile Include="RPC\RPCClient.cs" />
     <Compile Include="RPC\RPCException.cs" />
     <Compile Include="RPC\RPCRequest.cs" />

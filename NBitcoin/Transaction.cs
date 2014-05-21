@@ -620,7 +620,6 @@ namespace NBitcoin
 
 		public Transaction()
 		{
-			nVersion = CURRENT_VERSION;
 		}
 		public Transaction(string hex)
 		{
@@ -644,6 +643,10 @@ namespace NBitcoin
 			get
 			{
 				return nLockTime;
+			}
+			set
+			{
+				nLockTime = value;
 			}
 		}
 
@@ -725,6 +728,24 @@ namespace NBitcoin
 		public TxPayload CreatePayload()
 		{
 			return new TxPayload(this.Clone());
+		}
+
+		public RPC.RawTransaction ToRawTransaction()
+		{
+			RPC.RawTransaction tx = new RPC.RawTransaction();
+			tx.Version = Version;
+			tx.LockTime = LockTime;
+			tx.Hash = GetHash();
+			tx.Size = this.GetSerializedSize();
+			foreach(var vout in Outputs)
+			{
+				tx.Outputs.Add(vout.Clone());
+			}
+			foreach(var vin in Inputs)
+			{
+				tx.Inputs.Add(vin.Clone());
+			}
+			return tx;
 		}
 	}
 }

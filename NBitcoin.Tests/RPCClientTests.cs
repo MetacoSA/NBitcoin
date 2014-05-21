@@ -1,6 +1,7 @@
 ﻿using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -59,6 +60,39 @@ namespace NBitcoin.Tests
 			Assert.Equal(address.ToString(), secret.GetAddress().ToString());
 		}
 
+		[Fact]
+		[Trait("RPCClient", "RPCClient")]
+		public void CanDecodeAndEncodeRawTransaction()
+		{
+			var testData = File.ReadAllText("data/tx_raw.json");
+			//Can roundtrip
+			RawTransaction raw = new RawTransaction(testData);
+			var result = raw.ToString();
+			RawTransaction raw2 = new RawTransaction(result);
+			Assert.Equal(raw.ToString(), raw2.ToString());
+			//
+			AssertJsonEquals(raw.ToString(),testData);
+
+			//Hash is correct
+			Transaction tx = raw.ToTransaction();
+			Assert.Equal(tx.GetHash().ToString(), raw.Hash.ToString());
+			//
+
+			//Can roundtrip to rawtransaction
+			var raw4 = tx.ToRawTransaction();
+			Assert.Equal(raw.ToString(),raw4.ToString());
+		}
+
+		private void AssertJsonEquals(string json1, string json2)
+		{
+			foreach(var c in new[] { '\r', '\n', ' ','\t' })
+			{
+				json1 = json1.Replace(c.ToString(),"");
+				json2 = json2.Replace(c.ToString(), "");
+			}
+
+			Assert.Equal(json1, json2);
+		}
 
 		/// <summary>
 		/// "bitcoin-qt.exe" -testnet -server -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword 

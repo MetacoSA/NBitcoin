@@ -50,7 +50,7 @@ namespace NBitcoin
 			if(rawform.Length < byteCount)
 				_Rawform = rawform.Concat(new byte[byteCount - rawform.Length]).ToArray();
 			if(rawform.Length > byteCount)
-				_Rawform = rawform.Take(rawform.Length - byteCount).ToArray();
+				_Rawform = rawform.Take(byteCount).ToArray();
 
 			_Mask = new byte[byteCount];
 			int bitleft = bitcount;

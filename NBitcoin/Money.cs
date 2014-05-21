@@ -231,11 +231,13 @@ namespace NBitcoin
 			return _Satoshis.GetHashCode();
 		}
 
+		
+
 		public override string ToString()
 		{
-			return ToString(false);
+			return ToString(false, true);
 		}
-		public string ToString(bool fplus)
+		public string ToString(bool fplus, bool trimExcessZero = true)
 		{
 			// Note: not using straight sprintf here because we do NOT want
 			// localized number formatting.
@@ -245,13 +247,15 @@ namespace NBitcoin
 
 			string str = String.Format("{0}.{1:D8}", quotient, remainder);
 
-			// Right-trim excess zeros before the decimal point:
-			int nTrim = 0;
-			for(int i = str.Length - 1 ; (str[i] == '0' && isdigit(str[i - 2])) ; --i)
-				++nTrim;
-			if(nTrim != 0)
-				str = str.Remove(str.Length - nTrim, nTrim);
-
+			if(trimExcessZero)
+			{
+				// Right-trim excess zeros before the decimal point:
+				int nTrim = 0;
+				for(int i = str.Length - 1 ; (str[i] == '0' && isdigit(str[i - 2])) ; --i)
+					++nTrim;
+				if(nTrim != 0)
+					str = str.Remove(str.Length - nTrim, nTrim);
+			}
 			if(_Satoshis < 0)
 				str = "-" + str;
 			else if(fplus && _Satoshis > 0)
