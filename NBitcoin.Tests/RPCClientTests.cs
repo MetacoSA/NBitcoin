@@ -88,14 +88,10 @@ namespace NBitcoin.Tests
 		[Trait("RPCClient", "RPCClient")]
 		public void RawTransactionIsConformsToRPC()
 		{
-			//var o = 3.69140431.ToString("0.###E+00", CultureInfo.InvariantCulture);
-
 			var rpc = CreateRPCClient();
 			var tx = Network.TestNet.GetGenesis().Vtx[0];
 
-			//var t = rpc.GetRawTransaction(new uint256("e66156626a4a1278ccef7d6a04c8090e98fe35d8382b60c2fdaf161fefe2d8ee"));
 			var tx2 = rpc.DecodeRawTransaction(tx.ToBytes());
-			
 			AssertJsonEquals(tx.ToString(RawFormat.Satoshi), tx2.ToString(RawFormat.Satoshi));
 		}
 

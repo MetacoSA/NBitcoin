@@ -38,7 +38,7 @@ namespace NBitcoin.RPC
 			}
 		}
 		public RPCClient(NetworkCredential credentials, string host, Network network)
-			: this(credentials, BuildUri(host,network.RPCPort), network)
+			: this(credentials, BuildUri(host, network.RPCPort), network)
 		{
 		}
 
@@ -47,7 +47,7 @@ namespace NBitcoin.RPC
 			UriBuilder builder = new UriBuilder();
 			builder.Host = host;
 			builder.Scheme = "http";
-			builder.Port= port;
+			builder.Port = port;
 			return builder.Uri;
 		}
 		public RPCClient(NetworkCredential credentials, Uri address, Network network = null)
@@ -84,7 +84,7 @@ namespace NBitcoin.RPC
 			return SendCommand(new RPCRequest(commandName, parameters));
 		}
 
-	
+
 
 		public RPCResponse SendCommand(RPCRequest request)
 		{
@@ -120,7 +120,7 @@ namespace NBitcoin.RPC
 			return response;
 		}
 
-		
+
 		public BitcoinAddress GetAccountAddress(string account)
 		{
 			var response = SendCommand("getaccountaddress", account);
@@ -153,6 +153,11 @@ namespace NBitcoin.RPC
 		{
 			var response = SendCommand("getrawtransaction", txid.ToString());
 			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
+		}
+
+		public void SendRawTransaction(Transaction tx)
+		{
+			var response = SendCommand("getrawtransaction", Encoders.Hex.EncodeData(tx.ToBytes()));
 		}
 	}
 }
