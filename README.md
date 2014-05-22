@@ -20,6 +20,7 @@ Visual studio express for free, XUnit and you are up to go.
 
 * Full port of the test suite of bitcoin core with their own data
 * Full script evaluation and parsing
+* RPC Client
 * Two Factor keys ([BIP 38](http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part))
 * Stealth Address ([Also on codeproject](http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part))
 * Recognize standard script and permit to create them
@@ -31,8 +32,6 @@ Visual studio express for free, XUnit and you are up to go.
 * Hierarchical Deterministic Wallets ([BIP 32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki))
 
 
-The RPC client is not yet done.
-A basic implementation of a Node server and client using the RAW protocol is done. (NodeServer)
 
 Public classes are clean and easy to use, but the implementation is a little messy due to the fact that I'm using C# convention and C++ and the same time. (I will clean that up after the RPC client implementation)
 
@@ -45,8 +44,7 @@ SqLite is a database used.
 Please, use the code to explore/learn/debug/play/sharing/create the licence is LGPL v3, so you should be good to go.
 This is the simple way and most complete way to see the internal of bitcoin without going to C++ madness.
 
-With no so much work, it should be Mono compliant. I don't have a lot of dependency on the Windows.
-
+With no so much work, it should be Mono compliant. there is not a lot of dependency on the Windows.
 
 Info :
 github : https://github.com/NicolasDorier/NBitcoin
