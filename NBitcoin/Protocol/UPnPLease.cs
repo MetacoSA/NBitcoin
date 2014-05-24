@@ -101,36 +101,50 @@ namespace NBitcoin.Protocol
 									{
 										Description = RuleName
 									};
-									e.Device.CreatePortMap(Mapping);
-									NodeServerTrace.Information("Port mapping added " + Mapping);
-									LogNextLeaseRenew();
-									Timer = new Timer(o =>
+									try
 									{
-										if(isDisposed)
-											return;
-										using(Trace.Open(false))
+										e.Device.CreatePortMap(Mapping);
+									}
+									catch(MappingException ex)
+									{
+										if(ex.ErrorCode != 725) //Does not support lease
+											throw;
+
+										Mapping.Lifetime = 0;
+										e.Device.CreatePortMap(Mapping);
+									}
+									NodeServerTrace.Information("Port mapping added " + Mapping);
+									if(Mapping.Lifetime != 0)
+									{
+										LogNextLeaseRenew();
+										Timer = new Timer(o =>
 										{
-											try
+											if(isDisposed)
+												return;
+											using(Trace.Open(false))
 											{
-												e.Device.CreatePortMap(Mapping);
-												NodeServerTrace.Information("Port mapping renewed");
-												LogNextLeaseRenew();
+												try
+												{
+													e.Device.CreatePortMap(Mapping);
+													NodeServerTrace.Information("Port mapping renewed");
+													LogNextLeaseRenew();
+												}
+												catch(Exception ex)
+												{
+													NodeServerTrace.Error("Error when refreshing the port mapping with UPnP", ex);
+												}
+												finally
+												{
+													Timer.Change((int)CalculateNextRefresh().TotalMilliseconds, Timeout.Infinite);
+												}
 											}
-											catch(Exception ex)
-											{
-												NodeServerTrace.Error("Error when refreshing the port mapping with UPnP", ex);
-											}
-											finally
-											{
-												Timer.Change((int)CalculateNextRefresh().TotalMilliseconds, Timeout.Infinite);
-											}
-										}
-									});
-									Device = e.Device;
-									Timer.Change((int)CalculateNextRefresh().TotalMilliseconds, Timeout.Infinite);
+										});
+										Device = e.Device;
+										Timer.Change((int)CalculateNextRefresh().TotalMilliseconds, Timeout.Infinite);
+									}
+									else
+										NodeServerTrace.Error("Bitcoin node ports already used " + string.Join(",", BitcoinPorts), null);
 								}
-								else
-									NodeServerTrace.Error("Bitcoin node ports already used " + string.Join(",", BitcoinPorts), null);
 							}
 							catch(Exception ex)
 							{
