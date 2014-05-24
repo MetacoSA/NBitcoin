@@ -13,6 +13,7 @@ namespace Mono.Nat
 	public class UpnpSearcher : ISearcher
 	{
 		internal const string WanIPUrn = "urn:schemas-upnp-org:service:WANIPConnection:1";
+        internal const string WanPPPUrn = "urn:schemas-upnp-org:service:WANPPPConnection:1";
 
 		private const int SearchPeriod = 5 * 60; // The time in seconds between each search
 		static UpnpSearcher instance = new UpnpSearcher();
@@ -113,17 +114,25 @@ namespace Mono.Nat
 				// but there are some routers missing the '1'.
 				string log = "UPnP Response: Router advertised a '{0}' service";
 				StringComparison c = StringComparison.OrdinalIgnoreCase;
-				if(dataString.IndexOf("urn:schemas-upnp-org:service:WANIPConnection:", c) != -1)
-					NatUtility.Log(log, "urn:schemas-upnp-org:service:WANIPConnection:");
-				else if(dataString.IndexOf("urn:schemas-upnp-org:device:InternetGatewayDevice:", c) != -1)
+			    string st = "";
+                if(dataString.IndexOf("urn:schemas-upnp-org:service:WANIPConnection:", c) != -1)
+                {
+                    NatUtility.Log(log, "urn:schemas-upnp-org:service:WANIPConnection:");
+                    st = WanIPUrn;
+                }
+                else if(dataString.IndexOf("urn:schemas-upnp-org:device:InternetGatewayDevice:", c) != -1)
 					NatUtility.Log(log, "urn:schemas-upnp-org:device:InternetGatewayDevice:");
 				else if(dataString.IndexOf("urn:schemas-upnp-org:service:WANPPPConnection:", c) != -1)
-					NatUtility.Log(log, "urn:schemas-upnp-org:service:WANPPPConnection:");
+				{
+				    NatUtility.Log(log, "urn:schemas-upnp-org:service:WANPPPConnection:");
+				    st = WanPPPUrn;
+				}
+
 				else
 					return;
 
 				// We have an internet gateway device now
-				UpnpNatDevice d = new UpnpNatDevice(localAddress, dataString, WanIPUrn);
+				UpnpNatDevice d = new UpnpNatDevice(localAddress, dataString, st);
 
 				if(this.devices.Contains(d))
 				{
