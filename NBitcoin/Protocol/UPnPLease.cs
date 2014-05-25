@@ -142,9 +142,9 @@ namespace NBitcoin.Protocol
 										});
 										Timer.Change((int)CalculateNextRefresh().TotalMilliseconds, Timeout.Infinite);
 									}
-									else
-										NodeServerTrace.Error("Bitcoin node ports already used " + string.Join(",", BitcoinPorts), null);
 								}
+								else
+									NodeServerTrace.Error("Bitcoin node ports already used " + string.Join(",", BitcoinPorts), null);
 							}
 							catch(Exception ex)
 							{
