@@ -219,7 +219,6 @@ namespace NBitcoin.Tests
 		public void CanUseUPNP()
 		{
 			UPnPLease lease = null;
-			UPnPLease.ReleaseAll(NodeServerTester.NATRuleName); //Clean the gateway of previous tests attempt
 			using(var server = new NodeServer(Network.Main))
 			{
 				server.NATRuleName = NodeServerTester.NATRuleName;

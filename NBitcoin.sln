@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBitcoin.Tests", "NBitcoin.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Nat", "Mono.Nat\Mono.Nat.csproj", "{F5D74163-145F-47BF-83DC-D0E07249C6CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.Nat", "..\..\..\Visual Studio 2010\Projects\Open.Nat\Open.Nat\Open.Nat.csproj", "{2C7C07E3-FAFF-41B4-B6A9-C11C0F4CA9C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{F5D74163-145F-47BF-83DC-D0E07249C6CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5D74163-145F-47BF-83DC-D0E07249C6CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5D74163-145F-47BF-83DC-D0E07249C6CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C7C07E3-FAFF-41B4-B6A9-C11C0F4CA9C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C7C07E3-FAFF-41B4-B6A9-C11C0F4CA9C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C7C07E3-FAFF-41B4-B6A9-C11C0F4CA9C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C7C07E3-FAFF-41B4-B6A9-C11C0F4CA9C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

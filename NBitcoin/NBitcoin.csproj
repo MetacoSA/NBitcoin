@@ -199,12 +199,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mono.Nat\Mono.Nat.csproj">
-      <Project>{f5d74163-145f-47bf-83dc-d0e07249c6ca}</Project>
-      <Name>Mono.Nat</Name>
+    <ProjectReference Include="..\..\..\..\Visual Studio 2010\Projects\Open.Nat\Open.Nat\Open.Nat.csproj">
+      <Project>{2c7c07e3-faff-41b4-b6a9-c11c0f4ca9c3}</Project>
+      <Name>Open.Nat</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
