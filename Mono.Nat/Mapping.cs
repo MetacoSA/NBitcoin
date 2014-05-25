@@ -88,7 +88,7 @@ namespace Mono.Nat
 		public int Lifetime
 		{
 			get { return lifetime; }
-			internal set { lifetime = value; }
+			set { lifetime = value; }
 		}
 		
 		public DateTime Expiration

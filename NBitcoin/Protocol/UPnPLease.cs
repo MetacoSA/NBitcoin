@@ -114,6 +114,7 @@ namespace NBitcoin.Protocol
 										e.Device.CreatePortMap(Mapping);
 									}
 									NodeServerTrace.Information("Port mapping added " + Mapping);
+									Device = e.Device;
 									if(Mapping.Lifetime != 0)
 									{
 										LogNextLeaseRenew();
@@ -139,7 +140,6 @@ namespace NBitcoin.Protocol
 												}
 											}
 										});
-										Device = e.Device;
 										Timer.Change((int)CalculateNextRefresh().TotalMilliseconds, Timeout.Infinite);
 									}
 									else
