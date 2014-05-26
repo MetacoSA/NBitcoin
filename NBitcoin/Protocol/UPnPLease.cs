@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics;
 using Open.Nat;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,13 +16,6 @@ namespace NBitcoin.Protocol
 			private set;
 		}
 
-	    static UPnPLease()
-	    {
-            NatUtility.TraceSource.Listeners.Add(new ConsoleTraceListener());
-            NatUtility.TraceSource.Switch.Level = SourceLevels.All;
-            NatUtility.PortMapper = PortMapper.Upnp;
-	    }
-
 		public UPnPLease(int[] bitcoinPorts, int internalPort, string ruleName)
 		{
 			RuleName = ruleName;
@@ -32,6 +23,7 @@ namespace NBitcoin.Protocol
 			_InternalPort = internalPort;
 			Trace = new TraceCorrelation(NodeServerTrace.Trace, "UPNP external address and port detection");
 		}
+
 		private readonly int _InternalPort;
 		public int InternalPort
 		{
@@ -58,102 +50,78 @@ namespace NBitcoin.Protocol
 			get;
 			private set;
 		}
-		public TimeSpan LeasePeriod
-		{
-			get;
-			set;
-		}
 		public Mapping Mapping
 		{
 			get;
 			internal set;
 		}
 
-		NatDevice Device
+		static NatDevice Device
 		{
 			get;
 			set;
 		}
 
 
-
 		internal bool DetectExternalEndpoint(CancellationToken cancellation = default(CancellationToken))
 		{
-			using(Trace.Open())
+		    int externalPort = 0;
+
+		    using(Trace.Open())
 			{
-				bool result = false;
-				IPAddress externalIp = null;
-				int externalPort = 0;
-
-				try
+			    try
 				{
-                    var searching = new ManualResetEvent(false);
-					DiscoverDevice((s, e) =>
+					using(Trace.Open(false))
 					{
-                        NatUtility.StopDiscovery();
-						using(Trace.Open(false))
-						{
-							if(cancellation.IsCancellationRequested)
-								return;
-							try
-							{
-								externalIp = e.Device.GetExternalIPAsync().Result;
+                        SearchUpnpNatDevice();
 
-							    Mapping = new Mapping(Open.Nat.Protocol.Tcp, InternalPort, BitcoinPorts[0], RuleName);
+                        if (cancellation.IsCancellationRequested){
+                            NatUtility.StopDiscovery();
+                            NodeServerTrace.Information("Discovery cancelled");
+                            return false;
+                        }
+						IPAddress externalIp = Device.GetExternalIPAsync().Result;
 
-                                var task = Task.Run(async () => { await e.Device.CreatePortMapAsync(Mapping); });
-                                task.Wait();
+						Mapping = new Mapping(Open.Nat.Protocol.Tcp, InternalPort, BitcoinPorts[0], RuleName);
+
+                        var task = Task.Run(async () => { await Device.CreatePortMapAsync(Mapping); });
+                        task.Wait();
 								
-								NodeServerTrace.Information("Port mapping added " + Mapping);
-								Device = e.Device;
-							    result = true;
-							}
-							catch(Exception ex)
-							{
-								NodeServerTrace.Error("Error during address port detection on the upnp device", ex);
-							}
-                            finally
-							{
-                                searching.Set();
-							}
-						}
-					}, 
-                    (s,e)=> searching.Set(), 
-                    cancellation);
-				    searching.WaitOne();
-                    if(result)
-                    {
+						NodeServerTrace.Information("Port mapping added " + Mapping);
+	
                         ExternalEndpoint = Utils.EnsureIPv6(new IPEndPoint(externalIp, externalPort));
                         NodeServerTrace.Information("External endpoint detected " + ExternalEndpoint);
                         return true;
                     }
 				}
-				catch(OperationCanceledException)
-				{
-					NodeServerTrace.Information("Discovery cancelled");
-					throw;
-				}
 				catch(Exception ex)
 				{
-					NodeServerTrace.Error("Error during upnp discovery", ex);
+//                    NodeServerTrace.Error("Error during address port detection on the upnp device", ex);
+                    NodeServerTrace.Error("Error during upnp discovery", ex);
 				}
 			    return false;
 			}
 		}
 
-		private void LogNextLeaseRenew()
-		{
-			NodeServerTrace.Information("Next lease renewal at " + (DateTime.Now + CalculateNextRefresh()));
-		}
+	    private void SearchUpnpNatDevice()
+	    {
+            if(Device!=null) return;
 
+            var searching = new ManualResetEvent(false);
+            NatUtility.PortMapper = PortMapper.Upnp;
+            NatUtility.DeviceFound += (s, e) => {
+                NatUtility.StopDiscovery();
+                Device = e.Device;
+                searching.Set();
+            };
+            NatUtility.DiscoveryTimedout += (s,e) =>searching.Set();
+            NatUtility.UnhandledException += (s, e) => searching.Set();
+            NatUtility.Initialize();
+            NatUtility.StartDiscovery();
+	        searching.WaitOne();
+	    }
 
-		private TimeSpan CalculateNextRefresh()
-		{
-			return TimeSpan.FromTicks((LeasePeriod.Ticks - (LeasePeriod.Ticks / 10L)));
-		}
-
-
-		volatile bool isDisposed;
+	    volatile bool isDisposed;
 		public void Dispose()
 		{
 			if(!isDisposed)
@@ -165,20 +133,10 @@ namespace NBitcoin.Protocol
 
 		public bool IsOpen()
 		{
-			var mappingsTask = Device.GetAllMappingsAsync();
-		    mappingsTask.Wait();
-            return mappingsTask.Result.Any(m => m.Description == Mapping.Description &&
+			var mappings = Device.GetAllMappingsAsync().Result;
+            return mappings.Any(m => m.Description == Mapping.Description &&
 						  m.PublicPort == Mapping.PublicPort &&
 						  m.PrivatePort == Mapping.PrivatePort);
-		}
-
-
-		static void DiscoverDevice(EventHandler<DeviceEventArgs> deviceFound, EventHandler<UnhandledExceptionEventArgs> exea, CancellationToken cancellation)
-		{
-            NatUtility.DeviceFound += deviceFound;
-            NatUtility.UnhandledException += exea;
-            NatUtility.Initialize();
-            NatUtility.StartDiscovery();
 		}
 	}
 }

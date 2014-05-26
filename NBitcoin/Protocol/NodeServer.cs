@@ -107,7 +107,6 @@ namespace NBitcoin.Protocol
 				_UPnPLease = null;
 			}
 			var lease = new UPnPLease(BitcoinPorts, LocalEndpoint.Port, NATRuleName);
-			lease.LeasePeriod = NATLeasePeriod;
 			if(lease.DetectExternalEndpoint(cancellation))
 			{
 				_UPnPLease = lease;
