@@ -160,9 +160,40 @@ namespace NBitcoin.RPC
 			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
 		}
 
+		public void SendRawTransaction(byte[] bytes)
+		{
+			SendCommand("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
+		}
 		public void SendRawTransaction(Transaction tx)
 		{
-			var response = SendCommand("sendrawtransaction", Encoders.Hex.EncodeData(tx.ToBytes()));
+			SendRawTransaction(tx.ToBytes());
+		}
+
+		public void LockUnspent(params OutPoint[] outpoints)
+		{
+			LockUnspentCore(false, outpoints);
+		}
+		public void UnlockUnspent(params OutPoint[] outpoints)
+		{
+			LockUnspentCore(true, outpoints);
+		}
+
+		private void LockUnspentCore(bool unlock, OutPoint[] outpoints)
+		{
+			if(outpoints == null || outpoints.Length == 0)
+				return;
+			List<object> parameters = new List<object>();
+			parameters.Add(unlock);
+			JArray array = new JArray();
+			parameters.Add(array);
+			foreach(var outp in outpoints)
+			{
+				var obj = new JObject();
+				obj["txid"] = outp.Hash.ToString();
+				obj["vout"] = outp.N;
+				array.Add(obj);
+			}
+			SendCommand("lockunspent", parameters.ToArray());
 		}
 	}
 }

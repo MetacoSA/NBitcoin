@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -61,9 +62,16 @@ namespace NBitcoin.RPC
 
 			if(Params != null)
 			{
-				for(int i = Params.Length - 1 ; i >= 0 ; i--)
+				for(int i = 0 ; i < Params.Length ; i++)
 				{
-					writer.WriteValue(Params[i]);
+					if(Params[i] is JToken)
+					{
+						((JToken)Params[i]).WriteTo(writer);
+					}
+					else
+					{
+						writer.WriteValue(Params[i]);
+					}
 				}
 			}
 
