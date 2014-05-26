@@ -82,16 +82,23 @@ namespace NBitcoin.Protocol
                         }
 						IPAddress externalIp = Device.GetExternalIPAsync().Result;
 
-						Mapping = new Mapping(Open.Nat.Protocol.Tcp, InternalPort, BitcoinPorts[0], RuleName);
+						var mapping = Device.GetAllMappingsAsync().Result;
+						externalPort = BitcoinPorts.FirstOrDefault(p => mapping.All(m => m.PublicPort != p));
+						if(externalPort != 0)
+						{
+						    Mapping = new Mapping(Open.Nat.Protocol.Tcp, InternalPort, BitcoinPorts[0], RuleName);
 
-                        var task = Task.Run(async () => { await Device.CreatePortMapAsync(Mapping); });
-                        task.Wait();
-								
-						NodeServerTrace.Information("Port mapping added " + Mapping);
-	
-                        ExternalEndpoint = Utils.EnsureIPv6(new IPEndPoint(externalIp, externalPort));
-                        NodeServerTrace.Information("External endpoint detected " + ExternalEndpoint);
-                        return true;
+						    var task = Task.Run(async () => { await Device.CreatePortMapAsync(Mapping); });
+                            task.Wait();
+
+						    NodeServerTrace.Information("Port mapping added " + Mapping);
+                            ExternalEndpoint = Utils.EnsureIPv6(new IPEndPoint(externalIp, externalPort));
+                            NodeServerTrace.Information("External endpoint detected " + ExternalEndpoint);
+                            return true;
+                        }
+
+                        NodeServerTrace.Error("Bitcoin node ports already used " + string.Join(",", BitcoinPorts), null);
+						return false;
                     }
 				}
 				catch(Exception ex)
@@ -114,8 +121,12 @@ namespace NBitcoin.Protocol
                 Device = e.Device;
                 searching.Set();
             };
-            NatUtility.DiscoveryTimedout += (s,e) =>searching.Set();
-            NatUtility.UnhandledException += (s, e) => searching.Set();
+	        NatUtility.DiscoveryTimedout += (s, e) => {
+	            throw new TimeoutException("NAT discovery timed out after " + NatUtility.DiscoveryTimeout + " milliseconds");
+	        };
+	        NatUtility.UnhandledException += (s, e) => {
+	            throw (Exception) e.ExceptionObject;
+	        };
             NatUtility.Initialize();
             NatUtility.StartDiscovery();
 	        searching.WaitOne();
