@@ -120,6 +120,11 @@ namespace NBitcoin.RPC
 			return response;
 		}
 
+		public UnspentCoin[] ListUnspent()
+		{
+			var response = SendCommand("listunspent");
+			return ((JArray)response.Result).Select(i => new UnspentCoin((JObject)i)).ToArray();
+		}
 
 		public BitcoinAddress GetAccountAddress(string account)
 		{
@@ -157,7 +162,7 @@ namespace NBitcoin.RPC
 
 		public void SendRawTransaction(Transaction tx)
 		{
-			var response = SendCommand("getrawtransaction", Encoders.Hex.EncodeData(tx.ToBytes()));
+			var response = SendCommand("sendrawtransaction", Encoders.Hex.EncodeData(tx.ToBytes()));
 		}
 	}
 }

@@ -102,13 +102,6 @@ namespace NBitcoin
 				dico.Add(key, value);
 			}
 		}
-		public static Money Sum(this IEnumerable<Money> money)
-		{
-			Money running = Money.Zero;
-			foreach(var m in money)
-				running += m;
-			return running;
-		}
 		public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
 		{
 			if(!dictionary.ContainsKey(key))

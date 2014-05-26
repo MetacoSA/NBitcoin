@@ -731,6 +731,26 @@ namespace NBitcoin
 			return @in;
 		}
 
+		public void SignAll(BitcoinSecret secret)
+		{
+			SignAll(secret.Key);
+		}
+		public void SignAll(Key key)
+		{
+			for(int i = 0 ; i < Inputs.Count ; i++)
+			{
+				if(Inputs[i].ScriptSig == null)
+					Inputs[i].ScriptSig = new PayToPubkeyHashTemplate().GenerateScriptPubKey(key.PubKey);
+			}
+			for(int i = 0 ; i < Inputs.Count ; i++)
+			{
+				var hash = Inputs[i].ScriptSig.SignatureHash(this, i, SigHash.All);
+				var sig = key.Sign(hash);
+				Inputs[i].ScriptSig
+					= new PayToPubkeyHashTemplate().GenerateScriptSig(new TransactionSignature(sig, SigHash.All), key.PubKey);
+			}
+		}
+
 		public TxPayload CreatePayload()
 		{
 			return new TxPayload(this.Clone());

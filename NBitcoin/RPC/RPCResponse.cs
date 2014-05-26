@@ -15,6 +15,7 @@ namespace NBitcoin.RPC
 		public RPCError(JObject error)
 		{
 			Code = (RPCErrorCode)((int)error.GetValue("code"));
+			Message = (string)error.GetValue("message");
 		}
 		public RPCErrorCode Code
 		{

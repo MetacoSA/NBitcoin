@@ -8,6 +8,18 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	public static class MoneyExtensions
+	{
+		public static Money Sum(this IEnumerable<Money> moneys)
+		{
+			BigInteger result = BigInteger.Zero;
+			foreach(var money in moneys)
+			{
+				result += money.Satoshi;
+			}
+			return new Money(result);
+		}
+	}
 	public class Money : IComparable, IComparable<Money>, IEquatable<Money>
 	{
 		public const long COIN = 100000000;

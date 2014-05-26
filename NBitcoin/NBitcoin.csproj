@@ -66,6 +66,7 @@
     <Compile Include="RPC\RPCResponse.cs" />
     <Compile Include="RPC\RPCOperations.cs" />
     <Compile Include="RPC\SatoshiFormatter.cs" />
+    <Compile Include="RPC\UnspentCoin.cs" />
     <Compile Include="Stealth\BitcoinStealthAddress.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
