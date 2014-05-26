@@ -17,8 +17,9 @@ namespace NBitcoin
 		None = 0,
 		P2SH = 1, // evaluate P2SH (BIP16) subscripts
 		StrictEnc = 2, // enforce strict conformance to DER and SEC2 for signatures and pubkeys
-		EvenS = 4, // enforce even S values in signatures (depends on STRICTENC)
+		LowS = 4, // enforce low S values (<n/2) in signatures (depends on STRICTENC)
 		NoCache = 8, // do not store results in signature cache (but do query it)
+		NullDummy = 16, // verify dummy stack item consumed by CHECKMULTISIG is of zero-length
 	};
 
 	/** Signature hash types/flags */

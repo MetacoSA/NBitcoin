@@ -750,8 +750,21 @@ namespace NBitcoin
 											fSuccess = false;
 									}
 
-									while(i-- > 0)
+									while(i-- > 1)
 										_Stack.Pop();
+
+									// A bug causes CHECKMULTISIG to consume one extra argument
+									// whose contents were not checked in any way.
+									//
+									// Unfortunately this is a potential source of mutability,
+									// so optionally verify it is exactly equal to zero prior
+									// to removing it from the stack.
+									if(_Stack.Count < 1)
+										return false;
+									if(((ScriptVerify & ScriptVerify.NullDummy) != 0) && top(_Stack, -1).Length != 0)
+										return Utils.error("CHECKMULTISIG dummy argument not null");
+									_Stack.Pop();
+
 									_Stack.Push(fSuccess ? vchTrue : vchFalse);
 
 									if(opcode.Code == OpcodeType.OP_CHECKMULTISIGVERIFY)
@@ -933,10 +946,10 @@ namespace NBitcoin
 			if(nLenS > 1 && (vchSig[S + 0] == 0x00) && !((vchSig[S + 1] & 0x80) != 0))
 				return Utils.error("Non-canonical signature: S value excessively padded");
 
-			if((ScriptVerify & ScriptVerify.EvenS) != 0)
+			if((ScriptVerify & ScriptVerify.LowS) != 0)
 			{
 				if((vchSig[S + nLenS - 1] & 1) != 0)
-					return Utils.error("Non-canonical signature: S value odd");
+					return Utils.error("Non-canonical signature: S value is unnecessarily high");
 			}
 
 			return true;

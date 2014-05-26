@@ -69,7 +69,7 @@ namespace NBitcoin.Tests
 				if(!(test[0] is JArray))
 					continue;
 				JArray inputs = (JArray)test[0];
-				if(test.Count != 3 || !(test[1] is string) || !(test[2] is bool))
+				if(test.Count != 3 || !(test[1] is string) || !(test[2] is string))
 				{
 					Assert.False(true, "Bad test: " + strTest);
 					continue;
@@ -100,13 +100,40 @@ namespace NBitcoin.Tests
 						mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
 						tx,
 						i,
-						bool.Parse(test[2].ToString()) ? ScriptVerify.P2SH : ScriptVerify.None
+						ParseFlags(test[2].ToString())
 						, 0);
 					Assert.True(valid, strTest + " failed");
 				}
 			}
 
 
+		}
+
+		ScriptVerify ParseFlags(string strFlags)
+		{
+			ScriptVerify flags = 0;
+			var words = strFlags.Split(',');
+
+
+			// Note how NOCACHE is not included as it is a runtime-only flag.
+			Dictionary<string, ScriptVerify> mapFlagNames = new Dictionary<string, ScriptVerify>();
+			if(mapFlagNames.Count == 0)
+			{
+				mapFlagNames["NONE"] = ScriptVerify.None;
+				mapFlagNames["P2SH"] = ScriptVerify.P2SH;
+				mapFlagNames["STRICTENC"] = ScriptVerify.StrictEnc;
+				mapFlagNames["LOW_S"] = ScriptVerify.LowS;
+				mapFlagNames["NULLDUMMY"] = ScriptVerify.NullDummy;
+			}
+
+			foreach(string word in words)
+			{
+				if(!mapFlagNames.ContainsKey(word))
+					Assert.False(true, "Bad test: unknown verification flag '" + word + "'");
+				flags |= mapFlagNames[word];
+			}
+
+			return flags;
 		}
 
 		[Fact]
@@ -126,7 +153,7 @@ namespace NBitcoin.Tests
 				if(!(test[0] is JArray))
 					continue;
 				JArray inputs = (JArray)test[0];
-				if(test.Count != 3 || !(test[1] is string) || !(test[2] is bool))
+				if(test.Count != 3 || !(test[1] is string) || !(test[2] is string))
 				{
 					Assert.False(true, "Bad test: " + strTest);
 					continue;
@@ -156,7 +183,7 @@ namespace NBitcoin.Tests
 					   mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
 					   tx,
 					   i,
-					   bool.Parse(test[2].ToString()) ? ScriptVerify.P2SH : ScriptVerify.None
+					   ParseFlags(test[2].ToString())
 					   , 0);
 				}
 				Assert.True(!fValid, strTest + " failed");
