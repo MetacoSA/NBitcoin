@@ -14,7 +14,7 @@ namespace NBitcoin.Tests
 	public class PaymentTests
 	{
 		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		[Trait("UnitTest", "UnitTest2")]
 		public void CanParsePaymentUrl()
 		{
 			Assert.Equal("bitcoin:", new BitcoinUrlBuilder().Uri.ToString());
@@ -37,7 +37,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(Money.Parse("50"), url.Amount);
 			Assert.Equal("Luke-Jr", url.Label);
 			Assert.Equal("Donation for project xyz", url.Message);
-			Assert.Equal(url.Uri.ToString(), new BitcoinUrlBuilder(url.Uri.ToString()).ToString());
+			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString()).ToString());
 
 			//Some future version that has variables which are (currently) not understood and required and thus invalid: 
 			url = new BitcoinUrlBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=50&label=Luke-Jr&message=Donation%20for%20project%20xyz&unknownparam=lol");
@@ -47,12 +47,12 @@ namespace NBitcoin.Tests
 
 			url = new BitcoinUrlBuilder("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h%3D2a8628fc2fbe");
 			Assert.Equal("https://merchant.com/pay.php?h=2a8628fc2fbe", url.PaymentRequestUrl.ToString());
-			Assert.Equal(url.Uri.ToString(), new BitcoinUrlBuilder(url.Uri.ToString()).ToString());
+			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString()).ToString());
 
 			//Support no address
 			url = new BitcoinUrlBuilder("bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe");
 			Assert.Equal("https://merchant.com/pay.php?h=2a8628fc2fbe", url.PaymentRequestUrl.ToString());
-			Assert.Equal(url.Uri.ToString(), new BitcoinUrlBuilder(url.Uri.ToString()).ToString());
+			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString()).ToString());
 		}
 
 		private BitcoinUrlBuilder CreateBuilder(string uri)
@@ -60,7 +60,7 @@ namespace NBitcoin.Tests
 			var builder = new BitcoinUrlBuilder(uri);
 			Assert.Equal(builder.Uri.ToString(), uri);
 			builder = new BitcoinUrlBuilder(new Uri(uri, UriKind.Absolute));
-			Assert.Equal(builder.Uri.ToString(), uri);
+			Assert.Equal(builder.ToString(), uri);
 			return builder;
 		}
 

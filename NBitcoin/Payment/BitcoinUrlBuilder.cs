@@ -17,7 +17,7 @@ namespace NBitcoin.Payment
 
 		}
 		public BitcoinUrlBuilder(Uri uri)
-			: this(uri.ToString())
+			: this(uri.AbsoluteUri)
 		{
 
 		}
@@ -151,7 +151,7 @@ namespace NBitcoin.Payment
 
 		public override string ToString()
 		{
-			return Uri.ToString();
+			return Uri.AbsoluteUri;
 		}
 	}
 }
