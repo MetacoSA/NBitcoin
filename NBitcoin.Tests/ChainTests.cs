@@ -10,6 +10,7 @@ namespace NBitcoin.Tests
 	public class ChainTests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildChain()
 		{
 			Chain chain = new Chain(Network.Main);
@@ -23,6 +24,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanForkBackward()
 		{
 			Chain chain = new Chain(Network.Main);
@@ -65,6 +67,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanForkSide()
 		{
 			Chain side = new Chain(Network.Main);

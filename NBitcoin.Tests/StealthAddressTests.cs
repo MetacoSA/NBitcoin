@@ -14,6 +14,7 @@ namespace NBitcoin.Tests
 	public class StealthAddressTests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//https://wiki.unsystem.net/index.php/DarkWallet/Stealth#Bitfield_value
 		public void BitFieldCorrectlyInterpreted()
 		{
@@ -53,6 +54,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//https://github.com/libbitcoin/libbitcoin/blob/master/test/stealth.cpp
 		public void BitFieldCorrectlyMatchData()
 		{
@@ -84,6 +86,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest","UnitTest")]
 		//https://github.com/libbitcoin/libbitcoin/blob/master/test/stealth.cpp
 		public void BitFieldCanFetchTransaction()
 		{
@@ -126,6 +129,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanParseStealthAddress()
 		{
 			var tests = new[] 
@@ -176,6 +180,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCreatePayment()
 		{
 			var tests = new[]

@@ -29,6 +29,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanVerifySignature()
 		{
 			var tests = new[]
@@ -86,6 +87,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanGeneratePubKeysAndAddress()
 		{
 			//Took from http://brainwallet.org/ and http://procbits.com/2013/08/27/generating-a-bitcoin-address-with-javascript

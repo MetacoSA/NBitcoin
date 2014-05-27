@@ -12,6 +12,7 @@ namespace NBitcoin.Tests
 	{
 		//http://brainwallet.org/#converter
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertText()
 		{
 			string testPhrase = "é ^ç hello \"12345\"  wooorld";

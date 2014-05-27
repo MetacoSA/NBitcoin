@@ -12,6 +12,7 @@ namespace NBitcoin.Tests
 	public class PeerTableTests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanStorePeers()
 		{
 			PeerTable table = new PeerTable();

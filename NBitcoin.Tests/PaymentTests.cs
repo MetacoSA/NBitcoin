@@ -14,8 +14,11 @@ namespace NBitcoin.Tests
 	public class PaymentTests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanParsePaymentUrl()
 		{
+			Assert.Equal("bitcoin:", new BitcoinUrlBuilder().Uri.ToString());
+
 			var url = CreateBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha");
 			Assert.Equal("129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha", url.Address.ToString());
 
@@ -59,6 +62,13 @@ namespace NBitcoin.Tests
 			builder = new BitcoinUrlBuilder(new Uri(uri, UriKind.Absolute));
 			Assert.Equal(builder.Uri.ToString(), uri);
 			return builder;
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanReadPaymentRequest()
+		{
+
 		}
 	}
 }

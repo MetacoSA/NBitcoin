@@ -82,6 +82,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanUseCompactVarInt()
 		{
 			var tests = new[]{
@@ -126,6 +127,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCompressScript()
 		{
 			var payToHashTemplate = new PayToPubkeyHashTemplate();

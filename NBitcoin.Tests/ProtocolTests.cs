@@ -61,6 +61,7 @@ namespace NBitcoin.Tests
 	public class ProtocolTests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//Copied from https://en.bitcoin.it/wiki/Protocol_specification (19/04/2014)
 		public void CanParseMessages()
 		{

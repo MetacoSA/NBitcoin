@@ -64,6 +64,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanDecodeAndEncodeRawTransaction()
 		{
 			var tests = TestCase.read_json("data/tx_raw.json");
@@ -111,7 +112,7 @@ namespace NBitcoin.Tests
 		/// "bitcoin-qt.exe" -testnet -server -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword 
 		/// </summary>
 		/// <returns></returns>
-		private RPCClient CreateRPCClient()
+		public static RPCClient CreateRPCClient()
 		{
 			var client = new RPCClient(new NetworkCredential("NBitcoin", "NBitcoinPassword"), "127.0.0.1", Network.TestNet);
 			return client;

@@ -13,6 +13,7 @@ namespace NBitcoin.Tests
 	public class WalletTests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanManageMoney()
 		{
 			WalletTester tester = new WalletTester();
@@ -60,6 +61,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void WalletFinishInCorrectStateWhenDoubleSpending()
 		{
 			WalletTester tester = new WalletTester();
@@ -90,6 +92,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanManageMoneyInFork()
 		{
 			WalletTester tester = new WalletTester();

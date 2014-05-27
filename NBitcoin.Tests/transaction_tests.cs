@@ -12,6 +12,7 @@ namespace NBitcoin.Tests
 	public class transaction_tests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//http://brainwallet.org/#tx
 		public void CanParseTransaction()
 		{

@@ -97,6 +97,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//https://en.bitcoin.it/wiki/Difficulty
 		public void CanReadConvertTargetToDifficulty()
 		{
@@ -231,6 +232,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanRoundTripBigIntegerToBytes()
 		{
 			foreach(var expected in Enumerable.Range(-100, 100))
@@ -241,6 +243,7 @@ namespace NBitcoin.Tests
 			}
 		}
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertBigIntegerToBytes()
 		{
 			Assert.Equal<BigInteger>(0, Utils.BytesToBigInteger(new byte[0]));
@@ -252,6 +255,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void NetworksAreValid()
 		{
 			foreach(var network in Network.GetNetworks())
@@ -260,6 +264,7 @@ namespace NBitcoin.Tests
 			}
 		}
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//https://en.bitcoin.it/wiki/List_of_address_prefixes
 		public void CanDetectBase58NetworkAndType()
 		{
@@ -343,6 +348,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertToUnixTime()
 		{
 			var date = Utils.UnixTimeToDateTime(1368576000);

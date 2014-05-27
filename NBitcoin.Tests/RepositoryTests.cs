@@ -1,5 +1,7 @@
 ﻿using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
+using NBitcoin.RPC;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -45,6 +47,7 @@ namespace NBitcoin.Tests
 			#endregion
 		}
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanReadStoredBlockFile()
 		{
 			int count = 0;
@@ -66,6 +69,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanIndexBlock()
 		{
 			var index = CreateIndexedStore();
@@ -80,6 +84,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanStoreBlocks()
 		{
 			var store = CreateBlockStore();
@@ -99,6 +104,7 @@ namespace NBitcoin.Tests
 			}
 		}
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanStoreBlocksInMultipleFiles()
 		{
 			var store = CreateBlockStore();
@@ -115,6 +121,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanReIndex()
 		{
 			var source = new BlockStore(@"data\blocks", Network.Main);
@@ -146,6 +153,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public static void CanParseRev()
 		{
 			BlockUndoStore src = new BlockUndoStore(@"data\blocks", Network.Main);
@@ -173,13 +181,54 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public static void Play()
 		{
+			////PlaySplit();
+			//var oo = new PubKey(TestUtils.ParseHex("02bbc9fccbe03de928fc66fcd176fbe69d3641677970c6f8d558aa72f72e35e0cb")).GetAddress(Network.TestNet);
+			//RPCClient client = RPCClientTests.CreateRPCClient();
+
+			////https://tpfaucet.appspot.com/
+			//var scan = new Key(TestUtils.ParseHex("cc411aab02edcd3bccf484a9ba5280d4a774e6f81eac8ebec9cb1c2e8f73020a"));
+			//var addr = new BitcoinStealthAddress("waPYjXyrTrvXjZHmMGdqs9YTegpRDpx97H5G3xqLehkgyrrZKsxGCmnwKexpZjXTCskUWwYywdUvrZK7L2vejeVZSYHVns61gm8VfU", Network.TestNet);
+
+			//var sender = new BitcoinSecret("cRjSUV1LqN2F8MsGnLE2JKfCP75kbWGFRroNQeXHC429jqVFgmW3", Network.TestNet);
+
+			
+			//using(var fs = File.Open("Data.txt", FileMode.Create))
+			//{
+			//	StreamWriter writer = new StreamWriter(fs);
+			//	foreach(var c in client.ListUnspent())
+			//	{
+			//		var ephem = new Key();
+			//		writer.WriteLine("---");
+			//		writer.WriteLine("Ephem Private key : " + Encoders.Hex.EncodeData(ephem.ToBytes()));
+			//		Transaction tx = new Transaction();
+			//		tx.Version = 1;
+			//		tx.AddInput(new TxIn(c.OutPoint));
+			//		var pay = addr.CreatePayment(ephem);
+
+			//		writer.WriteLine("Metadata hash : " + pay.Metadata.Hash);
+			//		writer.WriteLine("Metadata script : " + pay.Metadata.Script);
+			//		writer.WriteLine("Metadata Nonce : " + pay.Metadata.Nonce);
+			//		writer.WriteLine("Metadata Ephem Key : " + pay.Metadata.EphemKey.ToHex());
+
+			//		pay.AddToTransaction(tx, c.Amount);
+
+			//		tx.SignAll(sender);
+
+			//		client.SendRawTransaction(tx);
+
+			//		fs.Flush();
+			//	}
+
+			//}
+
 			//var p = new PubKey(Encoders.Hex.DecodeData("03b4e5d3cf889840c75f0dd02ebda946151bf37e56cb888c6002c2ae5288e56de7"));
 			//var o = Network.CreateFromBase58Data("mvXf4sF4C1w5KgQyasbEWxqVyqbLNtVdnY");
 			//var sender = new BitcoinSecret("cRjSUV1LqN2F8MsGnLE2JKfCP75kbWGFRroNQeXHC429jqVFgmW3", Network.TestNet).Key;
 			////var addr = secret.Key.PubKey.GetAddress(Network.TestNet); //mwdJkHRNJi1fEwHBx6ikWFFuo2rLBdri2h
-			////https://tpfaucet.appspot.com/
+			//
 			//var receiver = new BitcoinStealthAddress("waPV5rHToBq3NoR7y5J9UdE7aUbuqJybNpE88Dve7WgWhEfvMrcuaSvF6tSQ3Fbe8dErL6ks8byJPcp3QCK2HHviGCSjg42VgMAPJb", Network.TestNet);
 
 			//Key ephemKey = new Key(Encoders.Hex.DecodeData("9daed68ad37754305e82740a6252cf80765c36d29a55158b1a19ed29914f0cb1"));
@@ -191,7 +240,7 @@ namespace NBitcoin.Tests
 			//var tx = new Transaction();
 			//tx.Version = 1;
 			//tx.Inputs.Add(new TxIn(new OutPoint(new uint256("d65e2274f6fde9515a35655d54e79243d5a17355f6943d6c16a63083a8769ea3"), 1)));
-			
+
 			//payment.AddToTransaction(tx, Money.Parse("0.51"));
 
 			//tx.Inputs[0].ScriptSig = new PayToPubkeyHashTemplate().GenerateScriptPubKey(sender.PubKey.GetAddress(Network.TestNet));
@@ -226,9 +275,43 @@ namespace NBitcoin.Tests
 			//watch.Stop();
 		}
 
+		private static void PlaySplit()
+		{
+			var scan = new Key(TestUtils.ParseHex("cc411aab02edcd3bccf484a9ba5280d4a774e6f81eac8ebec9cb1c2e8f73020a"));
+			var addr = new BitcoinStealthAddress("waPYjXyrTrvXjZHmMGdqs9YTegpRDpx97H5G3xqLehkgyrrZKsxGCmnwKexpZjXTCskUWwYywdUvrZK7L2vejeVZSYHVns61gm8VfU", Network.TestNet);
+
+			var sender = new BitcoinSecret("cRjSUV1LqN2F8MsGnLE2JKfCP75kbWGFRroNQeXHC429jqVFgmW3", Network.TestNet);
+			var tx = new Transaction();
+			tx.Version = 1;
+
+			RPCClient client = RPCClientTests.CreateRPCClient();
+			var coins = client.ListUnspent();
+			foreach(var unspent in coins)
+			{
+				tx.Inputs.Add(new TxIn(unspent.OutPoint));
+			}
+			var amount = coins.Select(c => c.Amount).Sum();
+
+			var perOut = (long)(amount.Satoshi / 13);
+
+			while(amount > 0)
+			{
+				var toSend = Math.Min(perOut, (long)amount);
+				amount -= toSend;
+
+				var tout = new TxOut(toSend, sender.GetAddress());
+				if(!tout.IsDust)
+					tx.Outputs.Add(tout);
+			}
+
+			tx.SignAll(sender);
+			client.SendRawTransaction(tx);
+		}
+
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanStoreInBlockRepository()
 		{
 			var blockRepository = CreateBlockRepository();
@@ -244,6 +327,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanReadStoredBlockFolder()
 		{
 			var blk0 = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat", (uint)0).ToList();
@@ -293,6 +377,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanStoreInSQLiteNoSql()
 		{
 			SQLiteNoSqlRepository repository = CreateNoSqlRepository();
@@ -339,6 +424,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanStorePeers()
 		{
 			SqLitePeerTableRepository repository = CreateTableRepository();

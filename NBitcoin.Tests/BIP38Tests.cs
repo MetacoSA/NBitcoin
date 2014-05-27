@@ -13,6 +13,7 @@ namespace NBitcoin.Tests
 	public class BIP38Tests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void EncryptedSecretNoECmultiply()
 		{
 			var tests = new[]
@@ -58,6 +59,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void EncryptedSecretECmultiplyNoLot()
 		{
 			var tests = new[]
@@ -104,6 +106,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void EncryptedSecretECmultiplyLotSequence()
 		{
 			var tests = new[]
@@ -167,6 +170,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanParseLotSequence()
 		{
 			var sequence = new LotSequence(1048575, 1024);
@@ -176,6 +180,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void EncryptedSecretECmultiplyNoLotSimple()
 		{
 			var compressedValues = new[] { false, true };
@@ -201,6 +206,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanRoundTripSeedEncryption()
 		{
 			//Test easily debuggable
@@ -229,6 +235,7 @@ namespace NBitcoin.Tests
 			}
 		}
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanRoundTripKeyEncryption()
 		{
 			//Test easily debuggable
