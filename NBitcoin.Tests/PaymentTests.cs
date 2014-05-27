@@ -14,7 +14,7 @@ namespace NBitcoin.Tests
 	public class PaymentTests
 	{
 		[Fact]
-		[Trait("UnitTest", "UnitTest2")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanParsePaymentUrl()
 		{
 			Assert.Equal("bitcoin:", new BitcoinUrlBuilder().Uri.ToString());
