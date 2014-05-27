@@ -7,6 +7,9 @@ using System.Web;
 
 namespace NBitcoin.Payment
 {
+	/// <summary>
+	/// https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki
+	/// </summary>
 	public class BitcoinUrlBuilder
 	{
 		public BitcoinUrlBuilder()
@@ -35,7 +38,10 @@ namespace NBitcoin.Payment
 				address = uri.Substring(0, paramStart);
 				uri = uri.Remove(0, 1); //remove ?
 			}
-			Address = Network.CreateFromBase58Data<BitcoinAddress>(address);
+			if(address != String.Empty)
+			{
+				Address = Network.CreateFromBase58Data<BitcoinAddress>(address);
+			}
 			uri = uri.Remove(0, address.Length);
 
 			var parameters = UriHelper.DecodeQueryParameters(uri);
@@ -51,10 +57,23 @@ namespace NBitcoin.Payment
 			{
 				Message = parameters["message"];
 			}
-			
-			var reqParam = parameters.Keys.FirstOrDefault(k=>k.StartsWith("req-", StringComparison.InvariantCultureIgnoreCase));
+			if(parameters.ContainsKey("r"))
+			{
+				PaymentRequestUrl = new Uri(parameters["r"], UriKind.Absolute);
+			}
+
+			var reqParam = parameters.Keys.FirstOrDefault(k => k.StartsWith("req-", StringComparison.InvariantCultureIgnoreCase));
 			if(reqParam != null)
 				throw new FormatException("Non compatible required parameter " + reqParam);
+		}
+
+		/// <summary>
+		/// https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki
+		/// </summary>
+		public Uri PaymentRequestUrl
+		{
+			get;
+			set;
 		}
 
 		public BitcoinAddress Address
@@ -77,16 +96,17 @@ namespace NBitcoin.Payment
 			get;
 			set;
 		}
-		public string Uri
+		public Uri Uri
 		{
 			get
 			{
-				if(Address == null)
-					throw new InvalidOperationException("Address should be specified");
 				Dictionary<string, string> parameters = new Dictionary<string, string>();
 				StringBuilder builder = new StringBuilder();
 				builder.Append("bitcoin:");
-				builder.Append(Address.ToString());
+				if(Address != null)
+				{
+					builder.Append(Address.ToString());
+				}
 
 				if(Amount != null)
 				{
@@ -100,10 +120,14 @@ namespace NBitcoin.Payment
 				{
 					parameters.Add("message", Message.ToString());
 				}
+				if(PaymentRequestUrl != null)
+				{
+					parameters.Add("r", PaymentRequestUrl.ToString());
+				}
 
 				WriteParameters(parameters, builder);
 
-				return builder.ToString();
+				return new System.Uri(builder.ToString(), UriKind.Absolute);
 			}
 		}
 
@@ -127,7 +151,7 @@ namespace NBitcoin.Payment
 
 		public override string ToString()
 		{
-			return Uri;
+			return Uri.ToString();
 		}
 	}
 }
