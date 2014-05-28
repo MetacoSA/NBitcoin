@@ -181,7 +181,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("UnitTest", "UnitTest")]
 		public static void Play()
 		{
 			////PlaySplit();

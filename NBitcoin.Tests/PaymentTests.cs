@@ -2,6 +2,7 @@
 using NBitcoin.Payment;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -68,7 +69,19 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadPaymentRequest()
 		{
+			var request = PaymentRequest.Load("data/payreq.dat");
+			AssertEx.CollectionEquals(request.ToBytes(), ReSerialize<Proto.PaymentRequest>("data/payreq.dat"));
+		}
 
+		private byte[] ReSerialize<T>(string file)
+		{
+			using(var fs = File.OpenRead(file))
+			{
+				var obj =  PaymentRequest.Serializer.Deserialize<T>(fs);
+				MemoryStream ms = new MemoryStream();
+				PaymentRequest.Serializer.Serialize(ms, obj);
+				return ms.ToArray();
+			}
 		}
 	}
 }
