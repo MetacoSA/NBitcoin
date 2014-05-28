@@ -1,11 +1,14 @@
-﻿using ProtoBuf;
+﻿using NBitcoin.Crypto;
+using ProtoBuf;
 using ProtoBuf.Meta;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NBitcoin.Payment
@@ -19,10 +22,15 @@ namespace NBitcoin.Payment
 
 	public class PaymentOutput
 	{
+		public PaymentOutput()
+		{
+
+		}
 		internal PaymentOutput(Proto.Output output)
 		{
 			Amount = new Money(output.amount);
 			Script = output.script == null ? null : new Script(output.script);
+			OriginalData = output;
 		}
 		public Money Amount
 		{
@@ -33,6 +41,19 @@ namespace NBitcoin.Payment
 		{
 			get;
 			set;
+		}
+		internal Proto.Output OriginalData
+		{
+			get;
+			set;
+		}
+
+		internal Proto.Output ToData()
+		{
+			var data = OriginalData == null ? new Proto.Output() : (Proto.Output)PaymentRequest.Serializer.DeepClone(OriginalData);
+			data.amount = (ulong)Amount.Satoshi;
+			data.script = Script.ToRawScript();
+			return data;
 		}
 	}
 	public class PaymentDetails
@@ -54,11 +75,12 @@ namespace NBitcoin.Payment
 			result.Expires = Utils.UnixTimeToDateTime(details.expires);
 			result.Memo = details.memo;
 			result.MerchantData = details.merchant_data;
-			result.PaymentUrl = details.payment_url == null ? null : new Uri(details.payment_url, UriKind.Absolute);
+			result.PaymentUrl = string.IsNullOrEmpty(details.payment_url) ? null : new Uri(details.payment_url, UriKind.Absolute);
 			foreach(var output in details.outputs)
 			{
 				result.Outputs.Add(new PaymentOutput(output));
 			}
+			result.OriginalData = details;
 			return result;
 		}
 
@@ -68,18 +90,25 @@ namespace NBitcoin.Payment
 			set;
 		}
 
+		/// <summary>
+		/// timestamp (seconds since 1-Jan-1970 UTC) when the PaymentRequest was created.
+		/// </summary>
 		public DateTimeOffset Time
 		{
 			get;
 			set;
 		}
-
+		/// <summary>
+		/// timestamp (UTC) after which the PaymentRequest should be considered invalid. 
+		/// </summary>
 		public DateTimeOffset Expires
 		{
 			get;
 			set;
 		}
-
+		/// <summary>
+		/// plain-text (no formatting) note that should be displayed to the customer, explaining what this PaymentRequest is for. 
+		/// </summary>
 		public string Memo
 		{
 			get;
@@ -92,6 +121,9 @@ namespace NBitcoin.Payment
 			set;
 		}
 
+		/// <summary>
+		/// Secure (usually https) location where a Payment message (see below) may be sent to obtain a PaymentACK. 
+		/// </summary>
 		public Uri PaymentUrl
 		{
 			get;
@@ -113,23 +145,32 @@ namespace NBitcoin.Payment
 			return ms.ToArray();
 		}
 
+		static byte[] GetByte<T>(T obj)
+		{
+			MemoryStream ms = new MemoryStream();
+			PaymentRequest.Serializer.Serialize(ms, obj);
+			return ms.ToArray();
+		}
 		public void WriteTo(Stream output)
 		{
-			var details = new Proto.PaymentDetails();
+			var details = OriginalData == null ? new Proto.PaymentDetails() : (Proto.PaymentDetails)PaymentRequest.Serializer.DeepClone(OriginalData);
 			details.memo = Memo;
 			details.merchant_data = MerchantData;
 			details.network = Network == Network.Main ? "main" :
 							  Network == Network.TestNet ? "test" : null;
-			details.time = Utils.DateTimeToUnixTimeLong(Time);
-			details.expires = Utils.DateTimeToUnixTimeLong(Expires);
+
+			var time = Utils.DateTimeToUnixTimeLong(Time);
+			if(time != details.time)
+				details.time = time;
+			var expires = Utils.DateTimeToUnixTimeLong(Expires);
+			if(expires != details.expires)
+				details.expires = expires;
+
 			details.payment_url = PaymentUrl == null ? null : PaymentUrl.AbsoluteUri;
+			details.outputs.Clear();
 			foreach(var o in Outputs)
 			{
-				details.outputs.Add(new Proto.Output()
-				{
-					amount = (ulong)o.Amount.Satoshi,
-					script = o.Script.ToRawScript()
-				});
+				details.outputs.Add(o.ToData());
 			}
 			PaymentRequest.Serializer.Serialize(output, details);
 		}
@@ -140,6 +181,12 @@ namespace NBitcoin.Payment
 			{
 				return 1;
 			}
+		}
+
+		internal Proto.PaymentDetails OriginalData
+		{
+			get;
+			set;
 		}
 	}
 
@@ -177,23 +224,37 @@ namespace NBitcoin.Payment
 			if(req.pki_data != null && req.pki_data.Length != 0)
 			{
 				var certs = Serializer.Deserialize<Proto.X509Certificates>(new MemoryStream(req.pki_data));
+				bool first = true;
 				foreach(var cert in certs.certificate)
 				{
-					result.Certificates.Add(new X509Certificate2(cert));
+					if(first)
+					{
+						first = false;
+						result.MerchantCertificate = new X509Certificate2(cert);
+					}
+					else
+					{
+						result.AdditionalCertificates.Add(new X509Certificate2(cert));
+					}
 				}
 			}
 			result._PaymentDetails = PaymentDetails.Load(req.serialized_payment_details);
 			result.Signature = req.signature;
+			result.OriginalData = req;
 			return result;
 		}
 
 		public void WriteTo(Stream output)
 		{
-			var req = new Proto.PaymentRequest();
+			var req = OriginalData == null ? new Proto.PaymentRequest() : (Proto.PaymentRequest)Serializer.DeepClone(OriginalData);
 			req.pki_type = ToPKITypeString(PKIType);
 
 			var certs = new Proto.X509Certificates();
-			foreach(var cert in Certificates)
+			if(this.MerchantCertificate != null)
+			{
+				certs.certificate.Add(MerchantCertificate.Export(X509ContentType.Cert));
+			}
+			foreach(var cert in AdditionalCertificates)
 			{
 				certs.certificate.Add(cert.Export(X509ContentType.Cert));
 			}
@@ -242,12 +303,37 @@ namespace NBitcoin.Payment
 			set;
 		}
 
-		private readonly List<X509Certificate2> _Certificates = new List<X509Certificate2>();
-		public List<X509Certificate2> Certificates
+		public string MerchantName
 		{
 			get
 			{
-				return _Certificates;
+				if(MerchantCertificate == null)
+					return null;
+				if(!string.IsNullOrEmpty(MerchantCertificate.FriendlyName))
+					return MerchantCertificate.FriendlyName;
+				else
+				{
+					var match = Regex.Match(MerchantCertificate.Subject, "^(CN=)?(?<Name>[^,]*)", RegexOptions.IgnoreCase);
+					if(!match.Success)
+						return MerchantCertificate.Subject;
+					return match.Groups["Name"].Value.Trim();
+				}
+			}
+		}
+
+		public X509Certificate2 MerchantCertificate
+		{
+			get;
+			set;
+		}
+
+
+		private readonly List<X509Certificate2> _AdditionalCertificates = new List<X509Certificate2>();
+		public List<X509Certificate2> AdditionalCertificates
+		{
+			get
+			{
+				return _AdditionalCertificates;
 			}
 		}
 
@@ -270,6 +356,68 @@ namespace NBitcoin.Payment
 
 
 		public byte[] Signature
+		{
+			get;
+			set;
+		}
+
+		public bool Verify()
+		{
+			bool valid = true;
+			if(this.PKIType != Payment.PKIType.None)
+				valid = this.VerifyCertificate() && VerifySignature();
+			if(!valid)
+				return valid;
+
+			return PaymentDetails.Expires < DateTimeOffset.UtcNow;
+		}
+
+		public bool VerifyCertificate(X509VerificationFlags flags = X509VerificationFlags.NoFlag)
+		{
+			if(MerchantCertificate == null || PKIType == Payment.PKIType.None)
+				return false;
+			X509Chain chain = new X509Chain();
+			chain.ChainPolicy.VerificationFlags = flags;
+			return chain.Build(MerchantCertificate);
+		}
+
+		public bool VerifySignature()
+		{
+			if(MerchantCertificate == null || PKIType == Payment.PKIType.None)
+				return false;
+
+			var key = (RSACryptoServiceProvider)MerchantCertificate.PublicKey.Key;
+			var sig = Signature;
+			Signature = new byte[0];
+			byte[] data = null;
+			try
+			{
+				data = this.ToBytes();
+			}
+			finally
+			{
+				Signature = sig;
+			}
+
+			byte[] hash = null;
+			string hashName = null;
+			if(PKIType == Payment.PKIType.X509SHA256)
+			{
+				hash = Hashes.SHA256(data);
+				hashName = "sha256";
+			}
+			else if(PKIType == Payment.PKIType.X509SHA1)
+			{
+				hash = Hashes.SHA1(data, data.Length);
+				hashName = "sha1";
+			}
+			else
+				throw new NotSupportedException(PKIType.ToString());
+
+			return key.VerifyHash(hash, hashName, Signature);
+		}
+
+		internal Proto.PaymentRequest OriginalData
 		{
 			get;
 			set;
