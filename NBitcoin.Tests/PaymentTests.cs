@@ -74,9 +74,9 @@ namespace NBitcoin.Tests
 			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq.dat"));
 
 			Assert.True(request.VerifySignature());
-			request.PaymentDetails.Memo = "lol";
+			request.Details.Memo = "lol";
 			Assert.False(request.VerifySignature());
-			request.PaymentDetails.Memo = "this is a memo";
+			request.Details.Memo = "this is a memo";
 			Assert.True(request.VerifySignature());
 			Assert.True(request.VerifyCertificate(X509VerificationFlags.IgnoreNotTimeValid));
 
@@ -84,12 +84,19 @@ namespace NBitcoin.Tests
 			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq_expired.dat"));
 		}
 
-		//[Fact]
-		//[Trait("UnitTest", "UnitTest")]
-		//public void CanCreatePaymentRequest()
-		//{
-			
-		//}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCreatePaymentRequest()
+		{
+			var cert = new X509Certificate2("Data/nicolasdorier.pfx", (string)null, X509KeyStorageFlags.Exportable);
+			var request = new PaymentRequest();
+			request.Details.Memo = "hello";
+			request.Sign(cert, PKIType.X509SHA256);
+
+			Assert.NotNull(request.MerchantCertificate);
+			Assert.True(request.VerifySignature());
+			Assert.False(request.VerifyCertificate(X509VerificationFlags.IgnoreNotTimeValid));
+		}
 
 		private T Reserialize<T>(T data)
 		{

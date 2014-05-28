@@ -26,6 +26,11 @@ namespace NBitcoin.Payment
 		{
 
 		}
+		public PaymentOutput(Money amount, Script script)
+		{
+			Amount = amount;
+			Script = script;
+		}
 		internal PaymentOutput(Proto.Output output)
 		{
 			Amount = new Money(output.amount);
@@ -58,6 +63,11 @@ namespace NBitcoin.Payment
 	}
 	public class PaymentDetails
 	{
+		public PaymentDetails()
+		{
+			Time = Utils.UnixTimeToDateTime(0);
+			Expires = Utils.UnixTimeToDateTime(0);
+		}
 		public static PaymentDetails Load(byte[] details)
 		{
 			return Load(new MemoryStream(details));
@@ -261,9 +271,9 @@ namespace NBitcoin.Payment
 			MemoryStream ms = new MemoryStream();
 			Serializer.Serialize(ms, certs);
 			req.pki_data = ms.ToArray();
-			req.serialized_payment_details = PaymentDetails.ToBytes();
+			req.serialized_payment_details = Details.ToBytes();
 			req.signature = Signature;
-			req.payment_details_version = PaymentDetails.Version;
+			req.payment_details_version = Details.Version;
 			Serializer.Serialize(output, req);
 		}
 
@@ -338,7 +348,7 @@ namespace NBitcoin.Payment
 		}
 
 		private PaymentDetails _PaymentDetails = new PaymentDetails();
-		public PaymentDetails PaymentDetails
+		public PaymentDetails Details
 		{
 			get
 			{
@@ -369,7 +379,7 @@ namespace NBitcoin.Payment
 			if(!valid)
 				return valid;
 
-			return PaymentDetails.Expires < DateTimeOffset.UtcNow;
+			return Details.Expires < DateTimeOffset.UtcNow;
 		}
 
 		public bool VerifyCertificate(X509VerificationFlags flags = X509VerificationFlags.NoFlag)
@@ -424,5 +434,33 @@ namespace NBitcoin.Payment
 		}
 
 
+		public void Sign(X509Certificate2 certificate, Payment.PKIType type)
+		{
+			if(type == Payment.PKIType.None)
+				throw new ArgumentException("PKIType can't be none if signing");
+			var privateKey = certificate.PrivateKey as RSACryptoServiceProvider;
+			if(privateKey == null)
+				throw new ArgumentException("Private key not present in the certificate, impossible to sign");
+			MerchantCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
+			PKIType = type;
+			Signature = new byte[0];
+			var data = this.ToBytes();
+			byte[] hash = null;
+			string hashName = null;
+			if(type == Payment.PKIType.X509SHA256)
+			{
+				hash = Hashes.SHA256(data);
+				hashName = "sha256";
+			}
+			else if(type == Payment.PKIType.X509SHA1)
+			{
+				hash = Hashes.SHA1(data, data.Length);
+				hashName = "sha1";
+			}
+			else
+				throw new NotSupportedException(PKIType.ToString());
+
+			Signature = privateKey.SignHash(hash, hashName);
+		}
 	}
 }
