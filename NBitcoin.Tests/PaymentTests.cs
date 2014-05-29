@@ -86,7 +86,6 @@ namespace NBitcoin.Tests
 
 			request = PaymentRequest.Load("data/payreq_expired.dat");
 			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq_expired.dat"));
-			Assert.True(request.VerifySignature());
 		}
 
 		[Fact]
@@ -104,7 +103,21 @@ namespace NBitcoin.Tests
 			Assert.True(PaymentRequest.Load(request.ToBytes(true)).VerifySignature());
 			Assert.True(PaymentRequest.Load(request.ToBytes(false)).VerifySignature());
 		}
-
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCreatePaymentMessageAndACK()
+		{
+			var request = PaymentRequest.Load("data/payreq.dat");
+			var payment = request.CreatePayment();
+			AssertEx.CollectionEquals(request.Details.MerchantData, payment.MerchantData);
+			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
+			payment.Memo = "thanks merchant !";
+			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
+			var ack = payment.CreateACK();
+			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
+			ack.Memo = "thanks customer !";
+			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
+		}
 		private T Reserialize<T>(T data)
 		{
 			MemoryStream ms = new MemoryStream();

@@ -258,7 +258,10 @@ namespace NBitcoin.Payment
 			result.OriginalData = req;
 			return result;
 		}
-
+		public PaymentMessage CreatePayment()
+		{
+			return new PaymentMessage(this);
+		}
 		public void WriteTo(Stream output, bool canonical)
 		{
 			var req = OriginalData == null ? new Proto.PaymentRequest() : (Proto.PaymentRequest)Serializer.DeepClone(OriginalData);

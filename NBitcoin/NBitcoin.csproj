@@ -63,6 +63,7 @@
     <Compile Include="BitcoinSecret.cs" />
     <Compile Include="Payment\BitcoinUrlBuilder.cs" />
     <Compile Include="Payment\HttpEncoder.cs" />
+    <Compile Include="Payment\PaymentACK.cs" />
     <Compile Include="Payment\PaymentRequest.cs" />
     <Compile Include="Payment\Proto.cs" />
     <Compile Include="Payment\UriHelper.cs" />
