@@ -80,8 +80,13 @@ namespace NBitcoin.Tests
 			Assert.True(request.VerifySignature());
 			Assert.True(request.VerifyCertificate(X509VerificationFlags.IgnoreNotTimeValid));
 
+			request = PaymentRequest.Load("data/payreq2.dat");
+			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq2.dat"));
+			Assert.True(request.VerifySignature());
+
 			request = PaymentRequest.Load("data/payreq_expired.dat");
 			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq_expired.dat"));
+			Assert.True(request.VerifySignature());
 		}
 
 		[Fact]
@@ -96,6 +101,8 @@ namespace NBitcoin.Tests
 			Assert.NotNull(request.MerchantCertificate);
 			Assert.True(request.VerifySignature());
 			Assert.False(request.VerifyCertificate(X509VerificationFlags.IgnoreNotTimeValid));
+			Assert.True(PaymentRequest.Load(request.ToBytes(true)).VerifySignature());
+			Assert.True(PaymentRequest.Load(request.ToBytes(false)).VerifySignature());
 		}
 
 		private T Reserialize<T>(T data)

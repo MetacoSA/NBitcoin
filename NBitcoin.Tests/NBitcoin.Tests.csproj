@@ -130,6 +130,9 @@
     <None Include="data\payreq_expired.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="data\payreq2.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="data\tx_raw.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
