@@ -114,6 +114,7 @@ namespace NBitcoin.Tests
 			payment.Memo = "thanks merchant !";
 			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
 			var ack = payment.CreateACK();
+			AssertEx.CollectionEquals(ack.Payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
 			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
 			ack.Memo = "thanks customer !";
 			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
