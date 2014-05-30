@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,6 +18,8 @@ namespace NBitcoin.Payment
 
 		public static PaymentACK Load(Stream source)
 		{
+			if(source.Length > 60000)
+				throw new ArgumentException("PaymentACK messages larger than 60,000 bytes should be rejected","source");
 			var data = PaymentRequest.Serializer.Deserialize<Proto.PaymentACK>(source);
 			return new PaymentACK(data);
 		}
@@ -48,7 +52,7 @@ namespace NBitcoin.Payment
 			get;
 			set;
 		}
-		
+
 		internal Proto.PaymentACK OriginalData
 		{
 			get;
@@ -87,6 +91,8 @@ namespace NBitcoin.Payment
 
 		public static PaymentMessage Load(Stream source)
 		{
+			if(source.Length > 50000)
+				throw new ArgumentException("Payment messages larger than 50,000 bytes should be rejected by the merchant's server", "source");
 			var data = PaymentRequest.Serializer.Deserialize<Proto.Payment>(source);
 			return new PaymentMessage(data);
 		}
@@ -143,6 +149,12 @@ namespace NBitcoin.Payment
 			}
 		}
 
+		public Uri ImplicitPaymentUrl
+		{
+			get;
+			set;
+		}
+
 		internal Proto.Payment OriginalData
 		{
 			get;
@@ -177,6 +189,56 @@ namespace NBitcoin.Payment
 			}
 
 			return data;
+		}
+
+		private HttpRequestMessage CreateHttpPayment(Uri paymentUrl)
+		{
+			if(paymentUrl == null)
+				throw new ArgumentNullException("paymentUrl");
+			HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, paymentUrl.OriginalString);
+			message.Headers.Clear();
+			message.Headers.Add("ContentType", "application/bitcoin-payment");
+			message.Headers.Add("Accept", "application/bitcoin-paymentack");
+			message.Content = new ByteArrayContent(this.ToBytes());
+			return message;
+		}
+
+		/// <summary>
+		/// Send the payment to given address
+		/// </summary>
+		/// <param name="paymentUrl">ImplicitPaymentUrl if null</param>
+		/// <returns>The PaymentACK</returns>
+		public PaymentACK GetACK(Uri paymentUrl = null)
+		{
+			if(paymentUrl == null)
+				paymentUrl = ImplicitPaymentUrl;
+			if(paymentUrl == null)
+				throw new ArgumentNullException("paymentUrl");
+			try
+			{
+				return GetACKAsync(paymentUrl, null).Result;
+			}
+			catch(AggregateException ex)
+			{
+				throw ex.InnerException;
+			}
+		}
+
+		public async Task<PaymentACK> GetACKAsync(Uri paymentUrl, HttpClient httpClient)
+		{
+			if(paymentUrl == null)
+				paymentUrl = ImplicitPaymentUrl;
+			if(paymentUrl == null)
+				throw new ArgumentNullException("paymentUrl");
+			if(httpClient == null)
+				httpClient = new HttpClient();
+
+			var request = CreateHttpPayment(paymentUrl);
+			var result = await httpClient.SendAsync(request);
+			if(!result.IsSuccessStatusCode)
+				throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
+			var response = await result.Content.ReadAsStreamAsync();
+			return PaymentACK.Load(response);
 		}
 	}
 }

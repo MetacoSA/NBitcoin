@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -258,9 +260,13 @@ namespace NBitcoin.Payment
 			result.OriginalData = req;
 			return result;
 		}
+
 		public PaymentMessage CreatePayment()
 		{
-			return new PaymentMessage(this);
+			return new PaymentMessage(this)
+			{
+				ImplicitPaymentUrl = Details.PaymentUrl
+			};
 		}
 		public void WriteTo(Stream output, bool canonical)
 		{

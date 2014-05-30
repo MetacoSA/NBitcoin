@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -72,20 +73,15 @@ namespace NBitcoin.Tests
 		{
 			var request = PaymentRequest.Load("data/payreq.dat");
 			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq.dat"));
-
 			Assert.True(request.VerifySignature());
 			request.Details.Memo = "lol";
 			Assert.False(request.VerifySignature());
 			request.Details.Memo = "this is a memo";
 			Assert.True(request.VerifySignature());
 			Assert.True(request.VerifyCertificate(X509VerificationFlags.IgnoreNotTimeValid));
-
 			request = PaymentRequest.Load("data/payreq2.dat");
 			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq2.dat"));
 			Assert.True(request.VerifySignature());
-
-			request = PaymentRequest.Load("data/payreq_expired.dat");
-			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq_expired.dat"));
 		}
 
 		[Fact]
