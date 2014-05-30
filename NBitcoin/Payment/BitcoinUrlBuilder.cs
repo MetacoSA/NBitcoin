@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -65,6 +67,38 @@ namespace NBitcoin.Payment
 			var reqParam = parameters.Keys.FirstOrDefault(k => k.StartsWith("req-", StringComparison.InvariantCultureIgnoreCase));
 			if(reqParam != null)
 				throw new FormatException("Non compatible required parameter " + reqParam);
+		}
+
+		public PaymentRequest GetPaymentRequest()
+		{
+			if(PaymentRequestUrl == null)
+				throw new InvalidOperationException("No PaymentRequestUrl specified");
+			try
+			{
+				return GetPaymentRequestAsync().Result;
+			}
+			catch(AggregateException ex)
+			{
+				throw ex.InnerException;
+			}
+		}
+
+		public async Task<PaymentRequest> GetPaymentRequestAsync(HttpClient httpClient = null)
+		{
+			if(PaymentRequestUrl == null)
+				throw new InvalidOperationException("No PaymentRequestUrl specified");
+			if(httpClient == null)
+				httpClient = new HttpClient();
+
+			HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, PaymentRequestUrl);
+			req.Headers.Clear();
+			req.Headers.Add("Accept", "application/bitcoin-paymentrequest");
+
+			var result = await httpClient.SendAsync(req);
+			if(!result.IsSuccessStatusCode)
+				throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
+			var stream = await result.Content.ReadAsStreamAsync();
+			return PaymentRequest.Load(stream);
 		}
 
 		/// <summary>
