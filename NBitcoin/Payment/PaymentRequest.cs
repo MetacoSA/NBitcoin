@@ -290,7 +290,14 @@ namespace NBitcoin.Payment
 			if(Details.Version == 1)
 			{
 				if(canonical)
+				{
 					req.payment_details_version = 1;
+					req.payment_details_versionSpecified = true;
+				}
+				else
+				{
+					req.payment_details_versionSpecified = false;
+				}
 			}
 			Serializer.Serialize(output, req);
 		}
@@ -480,5 +487,7 @@ namespace NBitcoin.Payment
 
 			Signature = privateKey.SignHash(hash, hashName);
 		}
+
+		public readonly static string MediaType = "application/bitcoin-paymentrequest";
 	}
 }

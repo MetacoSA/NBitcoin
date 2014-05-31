@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,7 +20,7 @@ namespace NBitcoin.Payment
 		public static PaymentACK Load(Stream source)
 		{
 			if(source.Length > 60000)
-				throw new ArgumentException("PaymentACK messages larger than 60,000 bytes should be rejected","source");
+				throw new ArgumentException("PaymentACK messages larger than 60,000 bytes should be rejected", "source");
 			var data = PaymentRequest.Serializer.Deserialize<Proto.PaymentACK>(source);
 			return new PaymentACK(data);
 		}
@@ -39,6 +40,7 @@ namespace NBitcoin.Payment
 		}
 
 		private readonly PaymentMessage _Payment = new PaymentMessage();
+		public readonly static string MediaType = "application/bitcoin-paymentack";
 		public PaymentMessage Payment
 		{
 			get
@@ -118,6 +120,7 @@ namespace NBitcoin.Payment
 		}
 
 		private readonly List<Transaction> _Transactions = new List<Transaction>();
+		public readonly static string MediaType = "application/bitcoin-payment";
 		public PaymentMessage()
 		{
 
@@ -191,24 +194,12 @@ namespace NBitcoin.Payment
 			return data;
 		}
 
-		private HttpRequestMessage CreateHttpPayment(Uri paymentUrl)
-		{
-			if(paymentUrl == null)
-				throw new ArgumentNullException("paymentUrl");
-			HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, paymentUrl.OriginalString);
-			message.Headers.Clear();
-			message.Headers.Add("ContentType", "application/bitcoin-payment");
-			message.Headers.Add("Accept", "application/bitcoin-paymentack");
-			message.Content = new ByteArrayContent(this.ToBytes());
-			return message;
-		}
-
 		/// <summary>
 		/// Send the payment to given address
 		/// </summary>
 		/// <param name="paymentUrl">ImplicitPaymentUrl if null</param>
 		/// <returns>The PaymentACK</returns>
-		public PaymentACK GetACK(Uri paymentUrl = null)
+		public PaymentACK SubmitPayment(Uri paymentUrl = null)
 		{
 			if(paymentUrl == null)
 				paymentUrl = ImplicitPaymentUrl;
@@ -216,7 +207,7 @@ namespace NBitcoin.Payment
 				throw new ArgumentNullException("paymentUrl");
 			try
 			{
-				return GetACKAsync(paymentUrl, null).Result;
+				return SubmitPaymentAsync(paymentUrl, null).Result;
 			}
 			catch(AggregateException ex)
 			{
@@ -224,7 +215,7 @@ namespace NBitcoin.Payment
 			}
 		}
 
-		public async Task<PaymentACK> GetACKAsync(Uri paymentUrl, HttpClient httpClient)
+		public async Task<PaymentACK> SubmitPaymentAsync(Uri paymentUrl, HttpClient httpClient)
 		{
 			if(paymentUrl == null)
 				paymentUrl = ImplicitPaymentUrl;
@@ -233,10 +224,21 @@ namespace NBitcoin.Payment
 			if(httpClient == null)
 				httpClient = new HttpClient();
 
-			var request = CreateHttpPayment(paymentUrl);
+
+			var request = new HttpRequestMessage(HttpMethod.Post, paymentUrl.OriginalString);
+			request.Headers.Clear();
+			request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(PaymentACK.MediaType));
+			request.Content = new ByteArrayContent(this.ToBytes());
+			request.Content.Headers.ContentType = new MediaTypeHeaderValue(PaymentMessage.MediaType);
+
 			var result = await httpClient.SendAsync(request);
 			if(!result.IsSuccessStatusCode)
 				throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
+
+			if(request.Content.Headers.ContentType == null || !request.Content.Headers.ContentType.MediaType.Equals(PaymentACK.MediaType, StringComparison.InvariantCultureIgnoreCase))
+			{
+				throw new WebException("Invalid contenttype received, expecting " + PaymentACK.MediaType + ", but got " + result.Content.Headers.ContentType);
+			}
 			var response = await result.Content.ReadAsStreamAsync();
 			return PaymentACK.Load(response);
 		}

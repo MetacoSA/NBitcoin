@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -92,11 +93,15 @@ namespace NBitcoin.Payment
 
 			HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, PaymentRequestUrl);
 			req.Headers.Clear();
-			req.Headers.Add("Accept", "application/bitcoin-paymentrequest");
+			req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(PaymentRequest.MediaType));
 
 			var result = await httpClient.SendAsync(req);
 			if(!result.IsSuccessStatusCode)
 				throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
+			if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentRequest.MediaType, StringComparison.InvariantCultureIgnoreCase))
+			{
+				throw new WebException("Invalid contenttype received, expecting " + PaymentRequest.MediaType + ", but got " + result.Content.Headers.ContentType);
+			}
 			var stream = await result.Content.ReadAsStreamAsync();
 			return PaymentRequest.Load(stream);
 		}
