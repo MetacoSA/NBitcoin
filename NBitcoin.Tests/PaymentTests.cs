@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -88,7 +89,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadTestVectorPayments()
 		{
-			var tests = new []
+			var tests = new[]
 			{
 				"data/payreq1_with_version.dat",
 				"data/payreq2_with_version.dat",
@@ -132,7 +133,7 @@ namespace NBitcoin.Tests
 			var request = PaymentRequest.Load("data/payreq1_with_version.dat");
 			var payment = request.CreatePayment();
 			AssertEx.CollectionEquals(request.Details.MerchantData, payment.MerchantData);
-			AssertEx.CollectionEquals(payment.ToBytes() ,PaymentMessage.Load(payment.ToBytes()).ToBytes());
+			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
 			payment.Memo = "thanks merchant !";
 			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
 			var ack = payment.CreateACK();
@@ -148,5 +149,92 @@ namespace NBitcoin.Tests
 			ms.Position = 0;
 			return (T)PaymentRequest.Serializer.Deserialize(ms, null, typeof(T));
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanTalkToPaymentServer()
+		{
+			using(var server = new PaymentServerTester())
+			{
+				var uri = server.GetPaymentRequestUri(2);
+				BitcoinUrlBuilder btcUri = new BitcoinUrlBuilder(uri);
+				var request = btcUri.GetPaymentRequest();
+				Assert.Equal(2, BitConverter.ToInt32(request.Details.MerchantData, 0));
+				var ack = request.CreatePayment().SubmitPayment();
+				Assert.NotNull(ack);
+			}
+		}
+	}
+
+	public class PaymentServerTester : IDisposable
+	{
+		HttpListener _Listener;
+		string _Prefix = "http://127.0.0.1:3292/";
+		public PaymentServerTester()
+		{
+			_Listener = new HttpListener();
+			_Listener.Prefixes.Add(_Prefix);
+			_Listener.Start();
+			_Listener.BeginGetContext(ListenerCallback, null);
+		}
+
+		void ListenerCallback(IAsyncResult ar)
+		{
+			try
+			{
+				var context = _Listener.EndGetContext(ar);
+				var type = context.Request.QueryString.Get("type");
+				var businessId = int.Parse(context.Request.QueryString.Get("id"));
+				if(type == "Request")
+				{
+					Assert.Equal(PaymentRequest.MediaType, context.Request.AcceptTypes[0]);
+					context.Response.ContentType = PaymentRequest.MediaType;
+					PaymentRequest request = new PaymentRequest();
+					request.Details.MerchantData = BitConverter.GetBytes(businessId);
+					request.Details.PaymentUrl = new Uri(_Prefix + "?id=" + businessId + "&type=Payment");
+					request.Sign(new X509Certificate2("data/nicolasdorier.pfx"), PKIType.X509SHA256);
+					request.WriteTo(context.Response.OutputStream, true);
+				}
+				else if(type == "Payment")
+				{
+					Assert.Equal(PaymentMessage.MediaType, context.Request.ContentType);
+					Assert.Equal(PaymentACK.MediaType, context.Request.AcceptTypes[0]);
+
+					var payment = PaymentMessage.Load(context.Request.InputStream);
+					Assert.Equal(businessId, BitConverter.ToInt32(payment.MerchantData, 0));
+
+					context.Response.ContentType = PaymentACK.MediaType;
+					var ack = payment.CreateACK();
+					ack.WriteTo(context.Response.OutputStream);
+				}
+				else
+					Assert.False(true, "Impossible");
+
+				context.Response.Close();
+				_Listener.BeginGetContext(ListenerCallback, null);
+			}
+			catch(ObjectDisposedException)
+			{
+			}
+		}
+		public Uri GetPaymentRequestUri(int businessId)
+		{
+			BitcoinUrlBuilder builder = new BitcoinUrlBuilder()
+			{
+				PaymentRequestUrl = new Uri(_Prefix + "?id=" + businessId + "&type=Request")
+			};
+			return builder.Uri;
+		}
+
+
+
+		#region IDisposable Members
+
+		public void Dispose()
+		{
+			_Listener.Close();
+		}
+
+		#endregion
 	}
 }

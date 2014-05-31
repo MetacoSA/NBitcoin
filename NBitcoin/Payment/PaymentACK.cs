@@ -12,6 +12,7 @@ namespace NBitcoin.Payment
 {
 	public class PaymentACK
 	{
+		public const int MaxLength = 60000;
 		public static PaymentACK Load(byte[] data)
 		{
 			return Load(new MemoryStream(data));
@@ -19,8 +20,8 @@ namespace NBitcoin.Payment
 
 		public static PaymentACK Load(Stream source)
 		{
-			if(source.Length > 60000)
-				throw new ArgumentException("PaymentACK messages larger than 60,000 bytes should be rejected", "source");
+			if(source.CanSeek && source.Length > MaxLength)
+				throw new ArgumentException("PaymentACK messages larger than " + MaxLength + " bytes should be rejected", "source");
 			var data = PaymentRequest.Serializer.Deserialize<Proto.PaymentACK>(source);
 			return new PaymentACK(data);
 		}
@@ -78,6 +79,7 @@ namespace NBitcoin.Payment
 	}
 	public class PaymentMessage
 	{
+		public const int MaxLength = 50000;
 		public static PaymentMessage Load(byte[] data)
 		{
 			return Load(new MemoryStream(data));
@@ -93,8 +95,8 @@ namespace NBitcoin.Payment
 
 		public static PaymentMessage Load(Stream source)
 		{
-			if(source.Length > 50000)
-				throw new ArgumentException("Payment messages larger than 50,000 bytes should be rejected by the merchant's server", "source");
+			if(source.CanSeek && source.Length > MaxLength)
+				throw new ArgumentException("Payment messages larger than " + MaxLength + " bytes should be rejected by the merchant's server", "source");
 			var data = PaymentRequest.Serializer.Deserialize<Proto.Payment>(source);
 			return new PaymentMessage(data);
 		}
@@ -235,7 +237,7 @@ namespace NBitcoin.Payment
 			if(!result.IsSuccessStatusCode)
 				throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
 
-			if(request.Content.Headers.ContentType == null || !request.Content.Headers.ContentType.MediaType.Equals(PaymentACK.MediaType, StringComparison.InvariantCultureIgnoreCase))
+			if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentACK.MediaType, StringComparison.InvariantCultureIgnoreCase))
 			{
 				throw new WebException("Invalid contenttype received, expecting " + PaymentACK.MediaType + ", but got " + result.Content.Headers.ContentType);
 			}
