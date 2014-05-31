@@ -21,6 +21,8 @@ Visual studio express for free, XUnit and you are up to go.
 * Full port of the test suite of bitcoin core with their own data
 * Full script evaluation and parsing
 * RPC Client
+* Payment Protocol ([BIP 70](https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki))
+* Payment URL ([BIP 21](https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki),[BIP 72](https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki))
 * Two Factor keys ([BIP 38](http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part))
 * Stealth Address ([Also on codeproject](http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part))
 * Recognize standard script and permit to create them
