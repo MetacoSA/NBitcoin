@@ -71,17 +71,43 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadPaymentRequest()
 		{
-			var request = PaymentRequest.Load("data/payreq.dat");
-			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq.dat"));
+			var request = PaymentRequest.Load("data/payreq1_with_version.dat");
+			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq1_with_version.dat"));
 			Assert.True(request.VerifySignature());
 			request.Details.Memo = "lol";
 			Assert.False(request.VerifySignature());
 			request.Details.Memo = "this is a memo";
 			Assert.True(request.VerifySignature());
 			Assert.True(request.VerifyCertificate(X509VerificationFlags.IgnoreNotTimeValid));
-			request = PaymentRequest.Load("data/payreq2.dat");
-			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq2.dat"));
+			request = PaymentRequest.Load("data/payreq2_with_version.dat");
+			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq2_with_version.dat"));
 			Assert.True(request.VerifySignature());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanReadTestVectorPayments()
+		{
+			var tests = new []
+			{
+				"data/payreq1_with_version.dat",
+				"data/payreq2_with_version.dat",
+				"data/payreq1_without_detailversion.dat",
+				"data/payreq2_without_detailversion.dat",
+			};
+
+			foreach(var test in tests)
+			{
+				var bytes = File.ReadAllBytes(test);
+				var request = PaymentRequest.Load(bytes);
+				Assert.True(request.VerifySignature());
+
+				request = PaymentRequest.Load(PaymentRequest.Load(bytes).ToBytes(true));
+				Assert.True(request.VerifySignature());
+
+				request = PaymentRequest.Load(PaymentRequest.Load(bytes).ToBytes(false));
+				Assert.True(request.VerifySignature());
+			}
 		}
 
 		[Fact]
@@ -103,10 +129,10 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCreatePaymentMessageAndACK()
 		{
-			var request = PaymentRequest.Load("data/payreq.dat");
+			var request = PaymentRequest.Load("data/payreq1_with_version.dat");
 			var payment = request.CreatePayment();
 			AssertEx.CollectionEquals(request.Details.MerchantData, payment.MerchantData);
-			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
+			AssertEx.CollectionEquals(payment.ToBytes() ,PaymentMessage.Load(payment.ToBytes()).ToBytes());
 			payment.Memo = "thanks merchant !";
 			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
 			var ack = payment.CreateACK();
