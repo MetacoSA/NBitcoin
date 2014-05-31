@@ -159,6 +159,7 @@ namespace NBitcoin.Tests
 				var uri = server.GetPaymentRequestUri(2);
 				BitcoinUrlBuilder btcUri = new BitcoinUrlBuilder(uri);
 				var request = btcUri.GetPaymentRequest();
+				Assert.True(request.VerifySignature());
 				Assert.Equal(2, BitConverter.ToInt32(request.Details.MerchantData, 0));
 				var ack = request.CreatePayment().SubmitPayment();
 				Assert.NotNull(ack);
