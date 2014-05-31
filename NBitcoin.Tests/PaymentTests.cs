@@ -213,8 +213,10 @@ namespace NBitcoin.Tests
 				context.Response.Close();
 				_Listener.BeginGetContext(ListenerCallback, null);
 			}
-			catch(ObjectDisposedException)
+			catch(Exception)
 			{
+				if(!_Stopped)
+					throw;
 			}
 		}
 		public Uri GetPaymentRequestUri(int businessId)
@@ -226,12 +228,13 @@ namespace NBitcoin.Tests
 			return builder.Uri;
 		}
 
-
+		volatile bool _Stopped;
 
 		#region IDisposable Members
 
 		public void Dispose()
 		{
+			_Stopped = true;
 			_Listener.Close();
 		}
 
