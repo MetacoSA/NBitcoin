@@ -13,6 +13,7 @@
 			Full script evaluation and parsing
 			Key generation
 			Deterministic wallet : BIP 32
+			Payment protocol
 			RPC Client
 			Encrypted wallet : BIP 38 (http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part)
 			Stealth Addresses (http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part)
@@ -23,6 +24,8 @@
 			Serialization of Blocks, Transactions, Script
 			Signing/verification with private keys, support compact signature for prooving ownership
 			NodeServer implementation
+
+			And more check at https://github.com/NicolasDorier/NBitcoin/blob/master/README.md
 		</summary>
 		<projectUrl>https://github.com/NicolasDorier/NBitcoin</projectUrl>
 		<copyright>Copyright 2013</copyright>
