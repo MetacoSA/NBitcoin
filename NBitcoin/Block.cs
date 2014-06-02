@@ -168,7 +168,7 @@ namespace NBitcoin
 		// network and disk
 		Transaction[] vtx;
 
-		public Transaction[] Vtx
+		public Transaction[] Transactions
 		{
 			get
 			{
@@ -230,7 +230,7 @@ namespace NBitcoin
 		public uint256 ComputeMerkleRoot()
 		{
 			vMerkleTree.Clear();
-			foreach(var tx in Vtx)
+			foreach(var tx in Transactions)
 				vMerkleTree.Add(tx.GetHash());
 			int j = 0;
 			for(int nSize = vtx.Length ; nSize > 1 ; nSize = (nSize + 1) / 2)
@@ -319,7 +319,7 @@ namespace NBitcoin
 
 		public void AddTransaction(Transaction tx)
 		{
-			Vtx = Vtx.Concat(new[] { tx }).ToArray();
+			Transactions = Transactions.Concat(new[] { tx }).ToArray();
 		}
 
 		public void UpdateMerkleRoot()

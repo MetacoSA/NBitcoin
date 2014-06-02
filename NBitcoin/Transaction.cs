@@ -512,6 +512,11 @@ namespace NBitcoin
 			Value = value;
 			SetDestination(keyId);
 		}
+		public TxOut(Money value, ScriptId scriptId)
+		{
+			Value = value;
+			SetDestination(scriptId);
+		}
 
 		public TxOut(Money value, Script scriptPubKey)
 		{
@@ -522,6 +527,11 @@ namespace NBitcoin
 		private void SetDestination(KeyId keyId)
 		{
 			ScriptPubKey = new PayToPubkeyHashTemplate().GenerateScriptPubKey(keyId);
+		}
+
+		public void SetDestination(ScriptId scriptId)
+		{
+			ScriptPubKey = new PayToScriptHashTemplate().GenerateScriptPubKey(scriptId);
 		}
 
 		public void SetDestination(BitcoinAddress address)
@@ -590,11 +600,6 @@ namespace NBitcoin
 		public bool IsTo(PubKey pubkey)
 		{
 			return IsTo(pubkey.ID);
-		}
-
-		public void SetNull()
-		{
-			Value = -1;
 		}
 	}
 

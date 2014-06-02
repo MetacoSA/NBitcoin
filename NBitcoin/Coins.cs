@@ -21,26 +21,64 @@ namespace NBitcoin
 		// as new tx version will probably only be introduced at certain heights
 		uint nVersion;
 
+		public List<TxOut> Outputs
+		{
+			get
+			{
+				return vout;
+			}
+		}
+
+		Money _Value;
+		public Money Value
+		{
+			get
+			{
+				return _Value;
+			}
+		}
+
 		public Coins()
 		{
 
 		}
 		public Coins(Transaction tx, int height)
+			: this(tx, null, height)
 		{
+		}
+		public Coins(Transaction tx, Func<TxOut, bool> belongsToCoins, int height)
+		{
+			if(belongsToCoins == null)
+				belongsToCoins = o => !o.ScriptPubKey.IsUnspendable;
 			fCoinBase = tx.IsCoinBase;
-			vout = tx.Outputs.Select(o => o.Clone()).ToList();
+			vout = tx.Outputs.ToList();
 			nVersion = tx.Version;
 			nHeight = (uint)height;
-			ClearUnspendable();
+			ClearUnused(belongsToCoins);
+			UpdateValue();
 		}
 
-		private void ClearUnspendable()
+		private void UpdateValue()
 		{
-			foreach(var o in vout)
+			_Value = Outputs.Where(o => !o.IsNull).Select(o => o.Value).Sum();
+		}
+
+		public bool IsEmpty
+		{
+			get
 			{
-				if(o.ScriptPubKey.IsUnspendable)
+				return vout.Count != 0;
+			}
+		}
+
+		private void ClearUnused(Func<TxOut, bool> belongsToCoins)
+		{
+			for(int i = 0 ; i < vout.Count ; i++)
+			{
+				var o = vout[i];
+				if(o.ScriptPubKey.IsUnspendable || !belongsToCoins(o))
 				{
-					o.SetNull();
+					vout[i] = new TxOut();
 				}
 			}
 			Cleanup();
@@ -122,9 +160,10 @@ namespace NBitcoin
 						nMaskCode--;
 				}
 				// txouts themself
-				vout = Enumerable.Range(0,vAvail.Count).Select(_=> new TxOut()).ToList();
-				for (uint i = 0; i < vAvail.Count; i++) {
-					if (vAvail[(int)i])
+				vout = Enumerable.Range(0, vAvail.Count).Select(_ => new TxOut()).ToList();
+				for(uint i = 0 ; i < vAvail.Count ; i++)
+				{
+					if(vAvail[(int)i])
 					{
 						TxOutCompressor compressed = new TxOutCompressor();
 						stream.ReadWrite(ref compressed);
@@ -134,6 +173,7 @@ namespace NBitcoin
 				//// coinbase height
 				stream.ReadWriteAsVarInt(ref nHeight);
 				Cleanup();
+				UpdateValue();
 			}
 		}
 

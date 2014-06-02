@@ -9,7 +9,14 @@ namespace NBitcoin
 {
 	public class Chain
 	{
-		BlockIndex _Genesis;
+		BlockIndex _StartBlock;
+		public bool IsPartial
+		{
+			get
+			{
+				return StartHeight != 0;
+			}
+		}
 
 		public Chain(Network network)
 			: this(network.GetGenesis().Header)
@@ -20,11 +27,18 @@ namespace NBitcoin
 		{
 			vChain = copied.vChain.ToList();
 			index = copied.index.ToDictionary(k => k.Key, k => k.Value);
-			_Genesis = vChain[0];
+			_StartBlock = vChain[0];
 		}
 		public Chain(BlockHeader genesis)
 		{
-			_Genesis = new BlockIndex(genesis, null);
+			_StartBlock = new BlockIndex(genesis, null);
+			Clear();
+		}
+
+		public Chain(BlockHeader blockHeader, int height)
+		{
+			StartHeight = height;
+			_StartBlock = new BlockIndex(blockHeader, height);
 			Clear();
 		}
 
@@ -32,18 +46,27 @@ namespace NBitcoin
 		{
 			vChain.Clear();
 			index.Clear();
-			vChain.Add(_Genesis);
-			index.Add(_Genesis.HashBlock, _Genesis);
+			vChain.Add(_StartBlock);
+			index.Add(_StartBlock.HashBlock, _StartBlock);
+
 		}
 
 		List<BlockIndex> vChain = new List<BlockIndex>();
 		Dictionary<uint256, BlockIndex> index = new Dictionary<uint256, BlockIndex>();
 
+		public int StartHeight
+		{
+			get;
+			set;
+		}
+
 		public BlockIndex Genesis
 		{
 			get
 			{
-				return vChain[0];
+				if(StartHeight == 0)
+					return vChain[0];
+				return null;
 			}
 		}
 
@@ -51,7 +74,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return vChain[Height];
+				return vChain[Height - StartHeight];
 			}
 		}
 
@@ -59,11 +82,11 @@ namespace NBitcoin
 		{
 			get
 			{
-				return vChain.Count - 1;
+				return vChain.Count - 1 + StartHeight;
 			}
 		}
 
-		public BlockIndex Get(uint256 hash)
+		public BlockIndex GetBlock(uint256 hash)
 		{
 			BlockIndex pindex = null;
 			index.TryGetValue(hash, out pindex);
@@ -71,10 +94,10 @@ namespace NBitcoin
 		}
 		public BlockIndex GetOrAdd(BlockHeader header)
 		{
-			BlockIndex pindex = Get(header.GetHash());
+			BlockIndex pindex = GetBlock(header.GetHash());
 			if(pindex != null)
 				return pindex;
-			BlockIndex previous = Get(header.HashPrevBlock);
+			BlockIndex previous = GetBlock(header.HashPrevBlock);
 			if(previous == null)
 				return null;
 			pindex = new BlockIndex(header, previous);
@@ -97,14 +120,14 @@ namespace NBitcoin
 				return null;
 			}
 
-			foreach(var removed in vChain.Resize(pindex.Height + 1))
+			foreach(var removed in vChain.Resize(pindex.Height + 1 - StartHeight))
 			{
 				index.Remove(removed.HashBlock);
 			}
-			while(pindex != null && vChain[pindex.Height] != pindex)
+			while(pindex != null && vChain[pindex.Height - StartHeight] != pindex)
 			{
-				var old = vChain[pindex.Height];
-				vChain[pindex.Height] = pindex;
+				var old = vChain[pindex.Height - StartHeight];
+				vChain[pindex.Height - StartHeight] = pindex;
 				if(old != null && index.ContainsKey(old.HashBlock))
 				{
 					index.Remove(old.HashBlock);
@@ -116,10 +139,15 @@ namespace NBitcoin
 		}
 
 
-		public BlockIndex FindFork(BlockLocator locator)
+		public BlockIndex FindFork(Chain chain)
+		{
+			return FindFork(chain.ToEnumerable(true).Select(o=>o.HashBlock));
+		}
+
+		public BlockIndex FindFork(IEnumerable<uint256> hashes)
 		{
 			// Find the first block the caller has in the main chain
-			foreach(uint256 hash in locator.Blocks)
+			foreach(uint256 hash in hashes)
 			{
 				BlockIndex mi = null;
 				if(index.TryGetValue(hash, out mi))
@@ -131,26 +159,32 @@ namespace NBitcoin
 			return Genesis;
 		}
 
+		public BlockIndex FindFork(BlockLocator locator)
+		{
+			return FindFork(locator.Blocks);
+		}
+
 		public BlockIndex GetBlock(int nHeight)
 		{
-			if(nHeight < 0 || nHeight >= (int)vChain.Count)
+			var index = nHeight - StartHeight;
+			if(index < 0 || index >= (int)vChain.Count)
 				return null;
-			return vChain[nHeight];
+			return vChain[index];
 		}
 
 		public bool Contains(uint256 hash)
 		{
-			BlockIndex pindex = Get(hash);
+			BlockIndex pindex = GetBlock(hash);
 			return pindex != null;
 		}
 		public bool Contains(BlockIndex blockIndex)
 		{
-			if(vChain.Count - 1 <= blockIndex.Height)
+			if(vChain.Count - 1 <= blockIndex.Height - StartHeight)
 				return false;
-			return vChain[blockIndex.Height] == blockIndex;
+			return vChain[blockIndex.Height - StartHeight] == blockIndex;
 		}
 
-		public bool Same(Chain chain)
+		public bool SameTip(Chain chain)
 		{
 			return Tip.HashBlock == chain.Tip.HashBlock;
 		}
@@ -167,12 +201,11 @@ namespace NBitcoin
 			if(fromTip)
 			{
 				BlockIndex b = Tip;
-				while(b != _Genesis)
+				while(b != null)
 				{
 					yield return b;
 					b = b.Previous;
 				}
-				yield return b;
 			}
 			else
 			{
@@ -184,7 +217,7 @@ namespace NBitcoin
 
 		public IEnumerable<BlockIndex> EnumerateAfter(BlockIndex block)
 		{
-			for(int i = block.Height + 1; i < vChain.Count ; i++)
+			for(int i = block.Height + 1 ; i < vChain.Count ; i++)
 			{
 				yield return vChain[i];
 			}

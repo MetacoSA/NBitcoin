@@ -496,12 +496,17 @@ namespace NBitcoin
 			return n;
 		}
 
-		public KeyId ID
+		public ScriptId ID
 		{
 			get
 			{
-				return new KeyId(Hashes.Hash160(_Script));
+				return new ScriptId(Hashes.Hash160(_Script));
 			}
+		}
+
+		public BitcoinScriptAddress GetAddress(Network network)
+		{
+			return new BitcoinScriptAddress(ID, network);
 		}
 
 		public bool IsPayToScriptHash

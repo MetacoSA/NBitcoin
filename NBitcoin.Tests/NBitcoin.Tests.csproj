@@ -85,6 +85,7 @@
     <Compile Include="ProtocolTests.cs" />
     <Compile Include="RepositoryTests.cs" />
     <Compile Include="RPCClientTests.cs" />
+    <Compile Include="ScannerTests.cs" />
     <Compile Include="script_tests.cs" />
     <Compile Include="sighash_tests.cs" />
     <Compile Include="sigopcount_tests.cs" />

@@ -69,5 +69,13 @@ namespace NBitcoin.Tests
 			}
 			return chain;
 		}
+
+		public static Block CreateFakeBlock()
+		{
+			var block = TestUtils.CreateFakeBlock(new Transaction());
+			block.Header.HashPrevBlock = new uint256(RandomUtils.GetBytes(32));
+			block.Header.Nonce = RandomUtils.GetUInt32();
+			return block;
+		}
 	}
 }

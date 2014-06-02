@@ -52,10 +52,10 @@ namespace NBitcoin
 			List<uint256> vHashes = new List<uint256>();
 
 
-			for(uint i = 0 ; i < block.Vtx.Length ; i++)
+			for(uint i = 0 ; i < block.Transactions.Length ; i++)
 			{
-				uint256 hash = block.Vtx[i].GetHash();
-				if(filter.IsRelevantAndUpdate(block.Vtx[i]))
+				uint256 hash = block.Transactions[i].GetHash();
+				if(filter.IsRelevantAndUpdate(block.Transactions[i]))
 				{
 					vMatch.Add(true);
 					vMatchedTxn.Add(Tuple.Create(i, hash));

@@ -140,7 +140,17 @@ namespace NBitcoin
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref _OutPoint);
-			stream.ReadWrite(ref _Out);
+			if(stream.Serializing)
+			{
+				TxOutCompressor compressor = new TxOutCompressor(_Out);
+				stream.ReadWrite(ref compressor);
+			}
+			else
+			{
+				TxOutCompressor compressor = new TxOutCompressor();
+				stream.ReadWrite(ref compressor);
+				_Out = compressor.TxOut;
+			}
 		}
 
 		#endregion
@@ -602,7 +612,7 @@ namespace NBitcoin
 		private void ReceiveBlock(Block block, BlockType blockType = BlockType.Main)
 		{
 			var hash = block.GetHash();
-			foreach(var tx in block.Vtx)
+			foreach(var tx in block.Transactions)
 			{
 				ReceiveTransaction(hash, blockType, tx);
 			}
@@ -690,7 +700,7 @@ namespace NBitcoin
 
 		public bool Update(Chain chain, IndexedBlockStore store)
 		{
-			if(_CurrentChain == null || !chain.Same(_CurrentChain))
+			if(_CurrentChain == null || !chain.SameTip(_CurrentChain))
 			{
 				List<BlockIndex> unprocessed = null;
 				Pools.Update(chain);

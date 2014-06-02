@@ -44,7 +44,7 @@ namespace NBitcoin
 			}
 		}
 
-	
+
 		// pointer to the index of the predecessor of this block
 		BlockIndex pprev;
 
@@ -112,7 +112,7 @@ namespace NBitcoin
 		}
 
 
-		
+
 
 		// (memory only) Sequencial id assigned to distinguish order in which blocks are received.
 		//uint nSequenceId;
@@ -138,6 +138,14 @@ namespace NBitcoin
 				if(previous.HashBlock != header.HashPrevBlock)
 					throw new ArgumentException("The previous block has not the expected hash");
 			}
+		}
+
+		public BlockIndex(BlockHeader header, int height)
+		{
+			nHeight = height;
+			//this.nDataPos = pos;
+			this.header = header;
+			this.phashBlock = header.GetHash();
 		}
 
 
@@ -191,6 +199,6 @@ namespace NBitcoin
 			return phashBlock.GetHashCode();
 		}
 
-		
+
 	}
 }

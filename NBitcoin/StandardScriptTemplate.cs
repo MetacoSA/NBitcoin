@@ -183,12 +183,16 @@ namespace NBitcoin
 			get;
 			set;
 		}
-		public Script GenerateScriptPubKey(Script scriptPubKey)
+		public Script GenerateScriptPubKey(ScriptId scriptId)
 		{
 			return new Script(
 				OpcodeType.OP_HASH160,
-				Op.GetPushOp(scriptPubKey.ID.ToBytes()),
+				Op.GetPushOp(scriptId.ToBytes()),
 				OpcodeType.OP_EQUAL);
+		}
+		public Script GenerateScriptPubKey(Script scriptPubKey)
+		{
+			return GenerateScriptPubKey(scriptPubKey.ID);
 		}
 
 		public override bool CheckScripPubKey(Script scriptPubKey)
@@ -241,6 +245,13 @@ namespace NBitcoin
 			{
 				return TxOutType.TX_SCRIPTHASH;
 			}
+		}
+
+		public ScriptId ExtractScriptPubKeyParameters(Script scriptPubKey)
+		{
+			if(!this.CheckScripPubKey(scriptPubKey))
+				return null;
+			return new ScriptId(scriptPubKey.ToOps().Skip(1).First().PushData);
 		}
 	}
 	public class PayToPubkeyTemplate : ScriptTemplate
