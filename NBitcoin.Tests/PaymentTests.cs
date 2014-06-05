@@ -91,10 +91,14 @@ namespace NBitcoin.Tests
 		{
 			var tests = new[]
 			{
-				"data/payreq1_with_version.dat",
-				"data/payreq2_with_version.dat",
-				"data/payreq1_without_detailversion.dat",
-				"data/payreq2_without_detailversion.dat",
+				"data/payreq1_sha256_omitteddefault.paymentrequest",
+				"data/payreq1_sha256.paymentrequest",
+				"data/payreq2_sha256_omitteddefault.paymentrequest",
+				"data/payreq2_sha256.paymentrequest",
+				"data/payreq1_sha1_omitteddefault.paymentrequest",
+				"data/payreq1_sha1.paymentrequest",
+				"data/payreq2_sha1_omitteddefault.paymentrequest",
+				"data/payreq2_sha1.paymentrequest",
 			};
 
 			foreach(var test in tests)
@@ -102,12 +106,10 @@ namespace NBitcoin.Tests
 				var bytes = File.ReadAllBytes(test);
 				var request = PaymentRequest.Load(bytes);
 				Assert.True(request.VerifySignature());
-
-				request = PaymentRequest.Load(PaymentRequest.Load(bytes).ToBytes(true));
+				request = PaymentRequest.Load(PaymentRequest.Load(bytes).ToBytes());
 				Assert.True(request.VerifySignature());
 
-				request = PaymentRequest.Load(PaymentRequest.Load(bytes).ToBytes(false));
-				Assert.True(request.VerifySignature());
+				AssertEx.Equal(request.ToBytes(), bytes);
 			}
 		}
 
@@ -123,8 +125,7 @@ namespace NBitcoin.Tests
 			Assert.NotNull(request.MerchantCertificate);
 			Assert.True(request.VerifySignature());
 			Assert.False(request.VerifyCertificate(X509VerificationFlags.IgnoreNotTimeValid));
-			Assert.True(PaymentRequest.Load(request.ToBytes(true)).VerifySignature());
-			Assert.True(PaymentRequest.Load(request.ToBytes(false)).VerifySignature());
+			Assert.True(PaymentRequest.Load(request.ToBytes()).VerifySignature());
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -194,7 +195,7 @@ namespace NBitcoin.Tests
 					request.Details.MerchantData = BitConverter.GetBytes(businessId);
 					request.Details.PaymentUrl = new Uri(_Prefix + "?id=" + businessId + "&type=Payment");
 					request.Sign(new X509Certificate2("data/nicolasdorier.pfx"), PKIType.X509SHA256);
-					request.WriteTo(context.Response.OutputStream, true);
+					request.WriteTo(context.Response.OutputStream);
 				}
 				else if(type == "Payment")
 				{

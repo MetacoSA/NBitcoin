@@ -268,7 +268,7 @@ namespace NBitcoin.Payment
 				ImplicitPaymentUrl = Details.PaymentUrl
 			};
 		}
-		public void WriteTo(Stream output, bool canonical)
+		public void WriteTo(Stream output)
 		{
 			var req = OriginalData == null ? new Proto.PaymentRequest() : (Proto.PaymentRequest)Serializer.DeepClone(OriginalData);
 			req.pki_type = ToPKITypeString(PKIType);
@@ -287,17 +287,9 @@ namespace NBitcoin.Payment
 			req.pki_data = ms.ToArray();
 			req.serialized_payment_details = Details.ToBytes();
 			req.signature = Signature;
-			if(Details.Version == 1)
+			if(Details.Version != 1)
 			{
-				if(canonical)
-				{
-					req.payment_details_version = 1;
-					req.payment_details_versionSpecified = true;
-				}
-				else
-				{
-					req.payment_details_versionSpecified = false;
-				}
+				req.payment_details_version = Details.Version;
 			}
 			Serializer.Serialize(output, req);
 		}
@@ -381,10 +373,10 @@ namespace NBitcoin.Payment
 			}
 		}
 
-		public byte[] ToBytes(bool canonical = true)
+		public byte[] ToBytes()
 		{
 			var ms = new MemoryStream();
-			WriteTo(ms, canonical);
+			WriteTo(ms);
 			return ms.ToArray();
 		}
 
@@ -427,7 +419,7 @@ namespace NBitcoin.Payment
 			byte[] data = null;
 			try
 			{
-				data = this.ToBytes(true);
+				data = this.ToBytes();
 			}
 			finally
 			{
@@ -469,7 +461,7 @@ namespace NBitcoin.Payment
 			MerchantCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
 			PKIType = type;
 			Signature = new byte[0];
-			var data = this.ToBytes(true);
+			var data = this.ToBytes();
 			byte[] hash = null;
 			string hashName = null;
 			if(type == Payment.PKIType.X509SHA256)
