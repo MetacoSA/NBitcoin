@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	
+
 
 	public class StealthSpendKey
 	{
@@ -63,14 +63,14 @@ namespace NBitcoin
 
 
 
-		public StealthSpendKey[] SpendKeys
+		public StealthSpendKey[] StealthKeys
 		{
 			get;
 			private set;
 		}
 		public BitcoinAddress[] GetAddresses(Network network)
 		{
-			return SpendKeys.Select(k => k.GetAddress(network)).ToArray();
+			return StealthKeys.Select(k => k.GetAddress(network)).ToArray();
 		}
 
 		public StealthPayment(Script spendable, StealthMetadata metadata)
@@ -88,7 +88,7 @@ namespace NBitcoin
 			var keyId = payToHash.ExtractScriptPubKeyParameters(SpendableScript);
 			if(keyId != null)
 			{
-				SpendKeys = new StealthSpendKey[] { new StealthSpendKey(keyId, this) };
+				StealthKeys = new StealthSpendKey[] { new StealthSpendKey(keyId, this) };
 			}
 			else
 			{
@@ -96,7 +96,7 @@ namespace NBitcoin
 				var para = payToMultiSig.ExtractScriptPubKeyParameters(SpendableScript);
 				if(para == null)
 					throw new ArgumentException("Invalid stealth spendable output script", "spendable");
-				SpendKeys = para.PubKeys.Select(k => new StealthSpendKey(k.ID, this)).ToArray();
+				StealthKeys = para.PubKeys.Select(k => new StealthSpendKey(k.ID, this)).ToArray();
 			}
 		}
 
@@ -114,7 +114,34 @@ namespace NBitcoin
 		public void AddToTransaction(Transaction transaction, Money value)
 		{
 			transaction.Outputs.Add(new TxOut(0, Metadata.Script));
-			transaction.Outputs.Add(new TxOut(value,SpendableScript));
+			transaction.Outputs.Add(new TxOut(value, SpendableScript));
+		}
+
+		public static StealthPayment[] GetPayments(Transaction transaction, PubKey[] spendKeys, BitField bitField, Key scan)
+		{
+			List<StealthPayment> result = new List<StealthPayment>();
+			for(int i = 0 ; i < transaction.Outputs.Count ; i++)
+			{
+				var metadata = StealthMetadata.TryParse(transaction.Outputs[i].ScriptPubKey);
+				if(metadata != null && bitField.Match(metadata.BitField))
+				{
+					var payment = new StealthPayment(transaction.Outputs[i + 1].ScriptPubKey, metadata);
+					if(payment.StealthKeys.Length != spendKeys.Length)
+						continue;
+
+					var expectedStealth = spendKeys.Select(s => s.UncoverReceiver(scan, metadata.EphemKey)).ToList();
+					foreach(var stealth in payment.StealthKeys)
+					{
+						var match = expectedStealth.FirstOrDefault(expected => expected.ID == stealth.ID);
+						if(match != null)
+							expectedStealth.Remove(match);
+					}
+					if(expectedStealth.Count != 0)
+						continue;
+					result.Add(payment);
+				}
+			}
+			return result.ToArray();
 		}
 	}
 }

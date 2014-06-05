@@ -105,23 +105,6 @@ namespace NBitcoin
 			}
 			return true;
 		}
-
-
-
-		public StealthPayment[] GetPayments(Transaction transaction)
-		{
-			List<StealthPayment> result = new List<StealthPayment>();
-			for(int i = 0 ; i < transaction.Outputs.Count ; i++)
-			{
-				var metadata = StealthMetadata.TryParse(transaction.Outputs[i].ScriptPubKey);
-				if(metadata != null && Match(metadata))
-				{
-					result.Add(new StealthPayment(transaction.Outputs[i + 1].ScriptPubKey, metadata));
-				}
-			}
-			return result.ToArray();
-		}
-
 		public bool Match(StealthMetadata metadata)
 		{
 			return Match(metadata.BitField);
@@ -240,6 +223,11 @@ namespace NBitcoin
 			}
 		}
 
+
+		public StealthPayment[] GetPayments(Transaction transaction, Key scanKey)
+		{
+			return StealthPayment.GetPayments(transaction, SpendPubKeys, Prefix, scanKey);
+		}
 
 		public StealthPayment CreatePayment(Key ephemKey = null)
 		{

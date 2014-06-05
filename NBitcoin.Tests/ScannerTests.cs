@@ -123,7 +123,7 @@ namespace NBitcoin.Tests
 				//Meanwhile, double spend of alice to bob
 				alice.GiveMoney("1.0", bob, main);
 				
-				//aliceFork scanner go back to main
+				//aliceFork scanner go back to main, previous 0.9 transaction is canceled
 				aliceFork.Process(main);
 				aliceFork.AssertMoney("0.5");
 
@@ -131,6 +131,15 @@ namespace NBitcoin.Tests
 				aliceFork.Process(fork);
 				//The result should be the 0.6 from last time minus the previous 0.2 the scanner should just have processed
 				aliceFork.AssertMoney("0.4");
+
+				//Now back to main
+				aliceFork.Process(main);
+				//Nothing changed on main
+				aliceFork.AssertMoney("0.5");
+
+				//Sanity check of serialization of scanstate
+				aliceFork.ReloadScanner();
+				aliceFork.AssertMoney("0.5");
 			}
 		}
 

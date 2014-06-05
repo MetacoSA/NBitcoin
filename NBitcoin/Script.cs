@@ -608,6 +608,11 @@ namespace NBitcoin
 			}
 		}
 
-		
+
+
+		public bool Same(Script script)
+		{
+			return Utils.ArrayEqual(script._Script, _Script);
+		}
 	}
 }
