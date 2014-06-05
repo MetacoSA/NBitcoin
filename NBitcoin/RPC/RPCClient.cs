@@ -157,7 +157,9 @@ namespace NBitcoin.RPC
 		public Transaction GetRawTransaction(uint256 txid)
 		{
 			var response = SendCommand("getrawtransaction", txid.ToString());
-			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
+			var tx = new Transaction();
+			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()));
+			return tx;
 		}
 
 		public void SendRawTransaction(byte[] bytes)
@@ -223,6 +225,30 @@ namespace NBitcoin.RPC
 			}
 			return header;
 		}
+
+		public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
+		{
+			if(blockHash == null)
+				throw new ArgumentNullException("blockHash");
+
+			var resp = SendCommand("getblock", blockHash.ToString());
+			
+			var tx = resp.Result["tx"] as JArray;
+			if(tx != null)
+			{
+				foreach(var item in tx)
+				{
+					yield return GetRawTransaction(new uint256(item.ToString()));
+				}
+			}
+			
+		}
+
+		public IEnumerable<Transaction> GetTransactions(int height)
+		{
+			return GetTransactions(GetBlockHash(height));
+		}
+
 		public uint256 GetBlockHash(int height)
 		{
 			var resp = SendCommand("getblockhash", height);

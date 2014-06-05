@@ -64,6 +64,15 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("RPCClient", "RPCClient")]
+		public void CanGetTransactionBlockFromRPC()
+		{
+			var rpc = CreateRPCClient();
+			var result = rpc.GetTransactions(new uint256("00000000bcd68bd3d66ae5a198bb21133e44d9fc13c0688c846037658d95b87c")).ToList();
+			Assert.Equal(11, result.Count);
+		}
+
+		[Fact]
+		[Trait("RPCClient", "RPCClient")]
 		public void CanGetPrivateKeysFromAccount()
 		{
 			var rpc = CreateRPCClient();
