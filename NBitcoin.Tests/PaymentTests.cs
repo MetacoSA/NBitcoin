@@ -72,16 +72,16 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadPaymentRequest()
 		{
-			var request = PaymentRequest.Load("data/payreq1_with_version.dat");
-			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq1_with_version.dat"));
+			var request = PaymentRequest.Load("data/payreq1_sha1.paymentrequest");
+			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq1_sha1.paymentrequest"));
 			Assert.True(request.VerifySignature());
 			request.Details.Memo = "lol";
 			Assert.False(request.VerifySignature());
 			request.Details.Memo = "this is a memo";
 			Assert.True(request.VerifySignature());
-			Assert.True(request.VerifyCertificate(X509VerificationFlags.IgnoreNotTimeValid));
-			request = PaymentRequest.Load("data/payreq2_with_version.dat");
-			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq2_with_version.dat"));
+			Assert.True(request.VerifyCertificate(X509VerificationFlags.IgnoreNotTimeValid | X509VerificationFlags.AllowUnknownCertificateAuthority));
+			request = PaymentRequest.Load("data/payreq2_sha1.paymentrequest");
+			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq2_sha1.paymentrequest"));
 			Assert.True(request.VerifySignature());
 		}
 
@@ -131,7 +131,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCreatePaymentMessageAndACK()
 		{
-			var request = PaymentRequest.Load("data/payreq1_with_version.dat");
+			var request = PaymentRequest.Load("data/payreq1_sha1.paymentrequest");
 			var payment = request.CreatePayment();
 			AssertEx.CollectionEquals(request.Details.MerchantData, payment.MerchantData);
 			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
