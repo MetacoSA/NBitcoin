@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.Scanning;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,115 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	public class ChainChange : IBitcoinSerializable
+	{
+		bool _Add;
+		public bool Add
+		{
+			get
+			{
+				return _Add;
+			}
+			set
+			{
+				_Add = value;
+			}
+		}
+		uint _HeightOrBackstep;
+		public uint HeightOrBackstep
+		{
+			get
+			{
+				return _HeightOrBackstep;
+			}
+			set
+			{
+				_HeightOrBackstep = value;
+			}
+		}
+		BlockHeader _BlockHeader;
+		public BlockHeader BlockHeader
+		{
+			get
+			{
+				return _BlockHeader;
+			}
+			set
+			{
+				_BlockHeader = value;
+			}
+		}
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref _Add);
+			stream.ReadWriteAsCompactVarInt(ref _HeightOrBackstep);
+			if(_Add)
+			{
+				stream.ReadWrite(ref _BlockHeader);
+			}
+		}
+
+		#endregion
+	}
 	public class Chain
 	{
+		public static Chain Load(ObjectStream<ChainChange> changes)
+		{
+			return Load(changes.Enumerate());
+		}
+
+		public static Chain Load(IEnumerable<ChainChange> changes)
+		{
+			Chain chain = null;
+			foreach(var change in changes)
+			{
+				if(chain == null)
+				{
+					if(change.BlockHeader == null)
+						throw new InvalidOperationException("Previous chain changes missing");
+					chain = new Chain(change.BlockHeader, (int)change.HeightOrBackstep);
+				}
+				else
+				{
+					if(change.Add)
+					{
+						var result = chain.GetOrAdd(change.BlockHeader);
+						if(result == null || result.Height != change.HeightOrBackstep)
+							throw new InvalidOperationException("Invalid height in the chain change");
+					}
+					else
+					{
+						var back = chain.GetBlock((int)(chain.Height - change.HeightOrBackstep));
+						if(back == null)
+							throw new InvalidOperationException("Previous chain changes missing");
+						chain.SetTip(back);
+					}
+				}
+			}
+			return chain;
+		}
+
+		public void Write(int startHeight, ObjectStream<ChainChange> output)
+		{
+			if(startHeight < StartHeight)
+				throw new ArgumentException("startHeight should be equal or higher than the StartHeight of this chain", "startHeight");
+
+			int height = startHeight;
+			while(height <= Height)
+			{
+				var block = this.GetBlock(height);
+				output.WriteNext(new ChainChange()
+				{
+					Add = true,
+					BlockHeader = block.Header,
+					HeightOrBackstep = (uint)block.Height
+				});
+				height++;
+			}
+		}
+
 		BlockIndex _StartBlock;
 		public bool IsPartial
 		{
@@ -141,7 +249,7 @@ namespace NBitcoin
 
 		public BlockIndex FindFork(Chain chain)
 		{
-			return FindFork(chain.ToEnumerable(true).Select(o=>o.HashBlock));
+			return FindFork(chain.ToEnumerable(true).Select(o => o.HashBlock));
 		}
 
 		public BlockIndex FindFork(IEnumerable<uint256> hashes)

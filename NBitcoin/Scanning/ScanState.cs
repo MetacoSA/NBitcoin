@@ -60,13 +60,12 @@ namespace NBitcoin.Scanning
 			_Persister = persister;
 			_OwnPersister = persister.Open(false);
 			persister.Rewind();
-			if(!persister.AccountEntries.EOF || !persister.ProcessedBlocks.EOF)
+			if(!persister.AccountEntries.EOF || !persister.ChainChanges.EOF)
 			{
 				if(_OwnPersister)
 					persister.Dispose();
 				throw new ArgumentException("This persister already have existing data", "persister");
 			}
-			persister.Init(startHeight);
 			_StartHeight = startHeight;
 			_Account = new WalletPool();
 			_Scanner = scanner;
@@ -89,28 +88,23 @@ namespace NBitcoin.Scanning
 				throw new ArgumentNullException("scanner");
 
 
-			_StartHeight = persister.GetStartHeight();
 			_Account = new WalletPool();
 			_Persister = persister;
 			_OwnPersister = persister.Open(false);
 			_Scanner = scanner;
 
-			var first = persister.ProcessedBlocks.ReadNext();
-			if(first != null)
-			{
-				_Chain = new Chain(first, StartHeight);
-				foreach(var block in persister.ProcessedBlocks.Enumerate())
-				{
-					_Chain.GetOrAdd(block);
-				}
-			}
+			var chain = Chain.Load(persister.ChainChanges);
+			if(chain == null)
+				throw new ArgumentException("The persister holds an empty chain, please use ScanState(Scanner scanner, ScanStatePersister persister, int height) if you are creating a whole new ScanState", "persister");
+			_StartHeight = chain.StartHeight;
+
 			foreach(var entry in persister.AccountEntries.Enumerate())
 			{
 				_Account.PushAccountEntry(entry);
 			}
 		}
 
-		Queue<BlockHeader> _UnsavedBlockProgress = new Queue<BlockHeader>();
+		Queue<ChainChange> _ChainChanges = new Queue<ChainChange>();
 		Queue<AccountEntry> _UnsavedAccountEntry = new Queue<AccountEntry>();
 
 		private readonly Scanner _Scanner;
@@ -162,6 +156,12 @@ namespace NBitcoin.Scanning
 			var forkBlock = mainChain.FindFork(Chain);
 			if(forkBlock.HashBlock != Chain.Tip.HashBlock)
 			{
+				_ChainChanges.Enqueue(new ChainChange()
+				{
+					Add = false,
+					HeightOrBackstep = (uint)(Chain.Tip.Height - forkBlock.Height)
+				});
+
 				Chain.SetTip(Chain.GetBlock(forkBlock.Height));
 				foreach(var e in Account.GetInChain(Chain, false)
 											.Where(e => e.Reason != AccountEntryReason.ChainBlockChanged))
@@ -172,7 +172,6 @@ namespace NBitcoin.Scanning
 				}
 				Flush();
 			}
-
 
 			var unprocessedBlocks = mainChain.ToEnumerable(true)
 									   .TakeWhile(block => block != forkBlock)
@@ -215,7 +214,12 @@ namespace NBitcoin.Scanning
 					}
 				}
 				Chain.GetOrAdd(block.Header);
-				_UnsavedBlockProgress.Enqueue(block.Header);
+				_ChainChanges.Enqueue(new ChainChange()
+				{
+					Add = true,
+					BlockHeader = block.Header,
+					HeightOrBackstep = (uint)block.Height
+				});
 				Flush();
 			}
 		}
@@ -226,9 +230,9 @@ namespace NBitcoin.Scanning
 			{
 				Persister.AccountEntries.WriteNext(_UnsavedAccountEntry.Dequeue());
 			}
-			while(_UnsavedBlockProgress.Count != 0)
+			while(_ChainChanges.Count != 0)
 			{
-				Persister.ProcessedBlocks.WriteNext(_UnsavedBlockProgress.Dequeue());
+				Persister.ChainChanges.WriteNext(_ChainChanges.Dequeue());
 			}
 		}
 

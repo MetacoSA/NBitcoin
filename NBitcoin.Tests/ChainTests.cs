@@ -1,5 +1,7 @@
-﻿using System;
+﻿using NBitcoin.Scanning;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +11,37 @@ namespace NBitcoin.Tests
 {
 	public class ChainTests
 	{
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSaveChain()
+		{
+			Chain chain = new Chain(Network.Main);
+			AppendBlock(chain);
+			AppendBlock(chain);
+			var fork = AppendBlock(chain);
+			AppendBlock(chain);
+
+			var stream = new StreamObjectStream<ChainChange>(new MemoryStream());
+			chain.Write(0, stream);
+
+			stream.Rewind();
+
+			var chain2 = Chain.Load(stream);
+			Assert.True(chain.SameTip(chain2));
+
+			stream.WriteNext(new ChainChange()
+			{
+				Add = false,
+				HeightOrBackstep = 1
+			});
+			stream.Rewind();
+
+			var chain3 = Chain.Load(stream);
+			Assert.True(chain3.Height == 3);
+			var actualFork = chain3.FindFork(chain);
+			Assert.Equal(fork.HashBlock, actualFork.HashBlock);
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildChain()

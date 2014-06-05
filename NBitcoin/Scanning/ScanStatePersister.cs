@@ -6,50 +6,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Scanning
 {
-	public abstract class ObjectStream<T> where T : class, IBitcoinSerializable, new()
-	{
-		public IEnumerable<T> Enumerate()
-		{
-			T o = null;
-			while((o = ReadNext()) != null)
-			{
-				yield return o;
-			}
-		}
-
-		public T ReadNext()
-		{
-			var result = ReadNextCore();
-			if(result == null)
-			{
-				if(!EOF)
-					throw new InvalidProgramException("EOF should be true if there is no object left in the stream");
-			}
-			return result;
-		}
-
-		public void WriteNext(T obj)
-		{
-			if(obj == null)
-				throw new ArgumentNullException("obj");
-			if(!EOF)
-				throw new InvalidOperationException("EOF should be true before writing more");
-			WriteNextCore(obj);
-		}
-
-		public abstract void Rewind();
-		protected abstract void WriteNextCore(T obj);
-		protected abstract T ReadNextCore();
-
-		public abstract bool EOF
-		{
-			get;
-		}
-	}
 	public abstract class ScanStatePersister : IDisposable
 	{
 		protected abstract ObjectStream<T> CreateObjectStream<T>() where T : class, IBitcoinSerializable, new();
-		public abstract void CloseStream<T>(ObjectStream<T> stream) where T : class, IBitcoinSerializable, new();
 
 		ObjectStream<AccountEntry> _AccountEntries;
 		public ObjectStream<AccountEntry> AccountEntries
@@ -62,25 +21,21 @@ namespace NBitcoin.Scanning
 		}
 
 
-		ObjectStream<BlockHeader> _ProcessedBlocks;
-		public ObjectStream<BlockHeader> ProcessedBlocks
+		ObjectStream<ChainChange> _ChainChanges;
+		public ObjectStream<ChainChange> ChainChanges
 		{
 			get
 			{
 				EnsureOpen();
-				return _ProcessedBlocks;
+				return _ChainChanges;
 			}
 		}
 
 		public void Rewind()
 		{
-			ProcessedBlocks.Rewind();
+			_ChainChanges.Rewind();
 			AccountEntries.Rewind();
 		}
-
-		public abstract void Init(int startHeight);
-
-		public abstract int GetStartHeight();
 
 		public bool IsReadOnly
 		{
@@ -113,7 +68,7 @@ namespace NBitcoin.Scanning
 				else
 					throw new InvalidOperationException("Persister already open with different readonly setting");
 			}
-			_ProcessedBlocks = CreateObjectStream<BlockHeader>();
+			_ChainChanges = CreateObjectStream<ChainChange>();
 			_AccountEntries = CreateObjectStream<AccountEntry>();
 			IsOpen = true;
 			IsReadOnly = isReadOnly;
@@ -127,9 +82,9 @@ namespace NBitcoin.Scanning
 		{
 			if(IsOpen)
 			{
-				CloseStream(ProcessedBlocks);
-				CloseStream(AccountEntries);
-				_ProcessedBlocks = null;
+				ChainChanges.Dispose();
+				AccountEntries.Dispose();
+				_ChainChanges = null;
 				_AccountEntries = null;
 				IsOpen = false;
 			}

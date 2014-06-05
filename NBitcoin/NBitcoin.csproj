@@ -63,6 +63,7 @@
     <Compile Include="BIP32\BitcoinExtKey.cs" />
     <Compile Include="BIP38\BitcoinPassphraseCode.cs" />
     <Compile Include="BitcoinSecret.cs" />
+    <Compile Include="ObjectStream.cs" />
     <Compile Include="Payment\BitcoinUrlBuilder.cs" />
     <Compile Include="Payment\HttpEncoder.cs" />
     <Compile Include="Payment\PaymentACK.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Scanning\ScanStatePersister.cs" />
     <Compile Include="Scanning\ScriptHashScanner.cs" />
     <Compile Include="Scanning\StealthPaymentScanner.cs" />
+    <Compile Include="StreamObjectStream.cs" />
     <Compile Include="Stealth\BitcoinStealthAddress.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
