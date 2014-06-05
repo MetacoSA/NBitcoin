@@ -479,11 +479,7 @@ namespace NBitcoin.Tests
 
 		public static IndexedBlockStore CreateIndexedStore([CallerMemberName]string folderName = null)
 		{
-			if(Directory.Exists(folderName))
-				Directory.Delete(folderName, true);
-			Thread.Sleep(50);
-			Directory.CreateDirectory(folderName);
-			Thread.Sleep(50);
+			TestUtils.EnsureNew(folderName);
 			return new IndexedBlockStore(new SQLiteNoSqlRepository(Path.Combine(folderName, "Index")), new BlockStore(folderName, Network.Main));
 		}
 		private static BlockStore CreateBlockStore([CallerMemberName]string folderName = null)
@@ -497,11 +493,7 @@ namespace NBitcoin.Tests
 		}
 		private static BlockUndoStore CreateBlockUndoStore([CallerMemberName]string folderName = null)
 		{
-			if(Directory.Exists(folderName))
-				Directory.Delete(folderName, true);
-			Thread.Sleep(50);
-			Directory.CreateDirectory(folderName);
-			Thread.Sleep(50);
+			TestUtils.EnsureNew(folderName);
 			return new BlockUndoStore(folderName, Network.Main);
 		}
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Scanning
 {
-	public class ScanState
+	public class ScanState : IDisposable
 	{
 		public class SerializedState : IBitcoinSerializable
 		{
@@ -57,15 +57,18 @@ namespace NBitcoin.Scanning
 				throw new ArgumentNullException("persister");
 			if(scanner == null)
 				throw new ArgumentNullException("scanner");
+			_Persister = persister;
+			_OwnPersister = persister.Open(false);
 			persister.Rewind();
 			if(!persister.AccountEntries.EOF || !persister.ProcessedBlocks.EOF)
 			{
+				if(_OwnPersister)
+					persister.Dispose();
 				throw new ArgumentException("This persister already have existing data", "persister");
 			}
 			persister.Init(startHeight);
 			_StartHeight = startHeight;
 			_Account = new WalletPool();
-			_Persister = persister;
 			_Scanner = scanner;
 		}
 		private readonly int _StartHeight;
@@ -77,6 +80,7 @@ namespace NBitcoin.Scanning
 			}
 		}
 
+		bool _OwnPersister;
 		public ScanState(Scanner scanner, ScanStatePersister persister)
 		{
 			if(persister == null)
@@ -85,10 +89,10 @@ namespace NBitcoin.Scanning
 				throw new ArgumentNullException("scanner");
 
 
-
 			_StartHeight = persister.GetStartHeight();
 			_Account = new WalletPool();
 			_Persister = persister;
+			_OwnPersister = persister.Open(false);
 			_Scanner = scanner;
 
 			var first = persister.ProcessedBlocks.ReadNext();
@@ -166,10 +170,9 @@ namespace NBitcoin.Scanning
 					Account.PushAccountEntry(neutralized);
 					_UnsavedAccountEntry.Enqueue(neutralized);
 				}
-
+				Flush();
 			}
 
-			Flush();
 
 			var unprocessedBlocks = mainChain.ToEnumerable(true)
 									   .TakeWhile(block => block != forkBlock)
@@ -213,10 +216,8 @@ namespace NBitcoin.Scanning
 				}
 				Chain.GetOrAdd(block.Header);
 				_UnsavedBlockProgress.Enqueue(block.Header);
-				if(fullBlock != null)
-					Flush();
+				Flush();
 			}
-			Flush();
 		}
 
 		private void Flush()
@@ -230,5 +231,15 @@ namespace NBitcoin.Scanning
 				Persister.ProcessedBlocks.WriteNext(_UnsavedBlockProgress.Dequeue());
 			}
 		}
+
+		#region IDisposable Members
+
+		public void Dispose()
+		{
+			if(_OwnPersister)
+				Persister.Dispose();
+		}
+
+		#endregion
 	}
 }

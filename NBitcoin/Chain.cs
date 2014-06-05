@@ -179,9 +179,12 @@ namespace NBitcoin
 		}
 		public bool Contains(BlockIndex blockIndex)
 		{
-			if(vChain.Count - 1 <= blockIndex.Height - StartHeight)
+			if(StartHeight <= blockIndex.Height && blockIndex.Height <= Height)
+			{
+				return vChain[blockIndex.Height - StartHeight] == blockIndex;
+			}
+			else
 				return false;
-			return vChain[blockIndex.Height - StartHeight] == blockIndex;
 		}
 
 		public bool SameTip(Chain chain)

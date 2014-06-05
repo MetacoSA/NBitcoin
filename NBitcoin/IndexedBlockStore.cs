@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.Scanning;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class IndexedBlockStore
+	public class IndexedBlockStore : IBlockProvider
 	{
 		private readonly NoSqlRepository _Index;
 		private readonly BlockStore _Store;
@@ -76,5 +77,17 @@ namespace NBitcoin
 			_Index.Put(IndexedLimit, position);
 		}
 
+
+		#region IBlockProvider Members
+
+		public Block GetBlock(uint256 id, List<byte[]> searchedData)
+		{
+			var block = Get(id);
+			if(block == null)
+				return null;
+			return block;
+		}
+
+		#endregion
 	}
 }

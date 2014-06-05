@@ -46,38 +46,29 @@ namespace NBitcoin.Scanning
 			get;
 		}
 	}
-	public abstract class ScanStatePersister
+	public abstract class ScanStatePersister : IDisposable
 	{
-		public ScanStatePersister()
-		{
-			_AccountEntries = new Lazy<ObjectStream<AccountEntry>>(() =>
-			{
-				return this.CreateObjectStream<AccountEntry>();
-			}, false);
-			_ProcessedBlocks = new Lazy<ObjectStream<BlockHeader>>(() =>
-			{
-				return this.CreateObjectStream<BlockHeader>();
-			}, false);
-		}
-
 		protected abstract ObjectStream<T> CreateObjectStream<T>() where T : class, IBitcoinSerializable, new();
+		public abstract void CloseStream<T>(ObjectStream<T> stream) where T : class, IBitcoinSerializable, new();
 
-		Lazy<ObjectStream<AccountEntry>> _AccountEntries;
+		ObjectStream<AccountEntry> _AccountEntries;
 		public ObjectStream<AccountEntry> AccountEntries
 		{
 			get
 			{
-				return _AccountEntries.Value;
+				EnsureOpen();
+				return _AccountEntries;
 			}
 		}
 
 
-		Lazy<ObjectStream<BlockHeader>> _ProcessedBlocks;
+		ObjectStream<BlockHeader> _ProcessedBlocks;
 		public ObjectStream<BlockHeader> ProcessedBlocks
 		{
 			get
 			{
-				return _ProcessedBlocks.Value;
+				EnsureOpen();
+				return _ProcessedBlocks;
 			}
 		}
 
@@ -90,5 +81,60 @@ namespace NBitcoin.Scanning
 		public abstract void Init(int startHeight);
 
 		public abstract int GetStartHeight();
+
+		public bool IsReadOnly
+		{
+			get;
+			private set;
+		}
+		public bool IsOpen
+		{
+			get;
+			private set;
+		}
+
+		private void EnsureOpen()
+		{
+			if(!IsOpen)
+				throw new InvalidOperationException("Persister must be open");
+		}
+
+		/// <summary>
+		/// Open the persister
+		/// </summary>
+		/// <param name="isReadOnly"></param>
+		/// <returns>True if just opened, false if was already open</returns>
+		public bool Open(bool isReadOnly)
+		{
+			if(IsOpen)
+			{
+				if(IsReadOnly == isReadOnly)
+					return false;
+				else
+					throw new InvalidOperationException("Persister already open with different readonly setting");
+			}
+			_ProcessedBlocks = CreateObjectStream<BlockHeader>();
+			_AccountEntries = CreateObjectStream<AccountEntry>();
+			IsOpen = true;
+			IsReadOnly = isReadOnly;
+			return true;
+		}
+
+
+		#region IDisposable Members
+
+		public void Dispose()
+		{
+			if(IsOpen)
+			{
+				CloseStream(ProcessedBlocks);
+				CloseStream(AccountEntries);
+				_ProcessedBlocks = null;
+				_AccountEntries = null;
+				IsOpen = false;
+			}
+		}
+
+		#endregion
 	}
 }

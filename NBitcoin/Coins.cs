@@ -67,7 +67,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return vout.Count != 0;
+				return vout.Count == 0;
 			}
 		}
 

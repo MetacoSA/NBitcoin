@@ -1,24 +1,28 @@
 ﻿using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin.Tests
 {
 	class TestUtils
 	{
-		public static Transaction CreateFakeTx(Money coin, BitcoinAddress to)
+		public static Transaction CreateFakeTx(Money coin, KeyId to)
 		{
 			// Create a fake TX of sufficient realism to exercise the unit tests. Two outputs, one to us, one to somewhere
 			// else to simulate change.
 			Transaction t = new Transaction();
 			TxOut outputToMe = new TxOut(coin, to);
 			t.AddOutput(outputToMe);
-			TxOut change = new TxOut(Money.Parse("1.11"),
-					new Key().PubKey.GetAddress(to.Network));
-			t.AddOutput(change);
+
+			//TxOut change = new TxOut(Money.Parse("1.11"),
+			//		new Key().PubKey.GetAddress(to.Network));
+			//t.AddOutput(change);
+
 			// Make a previous tx simply to send us sufficient coins. This prev tx is not really valid but it doesn't
 			// matter for our purposes.
 			Transaction prevTx = new Transaction();
@@ -29,6 +33,10 @@ namespace NBitcoin.Tests
 
 			// roundtrip tx
 			return t.Clone();
+		}
+		public static Transaction CreateFakeTx(Money coin, BitcoinAddress to)
+		{
+			return CreateFakeTx(coin, to.ID);
 		}
 
 		public static byte[] ToBytes(string str)
@@ -76,6 +84,24 @@ namespace NBitcoin.Tests
 			block.Header.HashPrevBlock = new uint256(RandomUtils.GetBytes(32));
 			block.Header.Nonce = RandomUtils.GetUInt32();
 			return block;
+		}
+
+		internal static void EnsureNew(string folderName)
+		{
+			if(Directory.Exists(folderName))
+				Directory.Delete(folderName, true);
+			while(true)
+			{
+				try
+				{
+					Directory.CreateDirectory(folderName);
+					break;
+				}
+				catch
+				{
+				}
+			}
+
 		}
 	}
 }

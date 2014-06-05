@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Scanning
 {
-	public class IBlockProvider
+	public interface IBlockProvider
 	{
-		internal Block GetBlock(uint256 uint256, List<byte[]> searchedData)
-		{
-			throw new NotImplementedException();
-		}
+		Block GetBlock(uint256 id, List<byte[]> searchedData);
 	}
 }

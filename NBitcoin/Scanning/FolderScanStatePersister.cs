@@ -52,6 +52,11 @@ namespace NBitcoin.Scanning
 					return _FileStream.Position == _FileStream.Length;
 				}
 			}
+
+			internal void Close()
+			{
+				_FileStream.Close();
+			}
 		}
 		private readonly DirectoryInfo _Folder;
 		public DirectoryInfo Folder
@@ -88,6 +93,11 @@ namespace NBitcoin.Scanning
 			if(!File.Exists(filePath))
 				throw new InvalidOperationException("Folder scan state persister not initialized");
 			return int.Parse(File.ReadAllText(filePath));
+		}
+
+		public override void CloseStream<T>(ObjectStream<T> stream)
+		{
+			((FileObjectStream<T>)stream).Close();
 		}
 	}
 }
