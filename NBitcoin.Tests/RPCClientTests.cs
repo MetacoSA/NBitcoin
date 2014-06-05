@@ -52,6 +52,18 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("RPCClient", "RPCClient")]
+		public void CanGetBlockFromRPC()
+		{
+			var rpc = CreateRPCClient();
+			var response = rpc.GetBlockHeader(0);
+			AssertEx.CollectionEquals(Network.TestNet.GetGenesis().Header.ToBytes(), response.ToBytes());
+
+			response = rpc.GetBlockHeader(260583);
+			Assert.Equal("00000000bcd68bd3d66ae5a198bb21133e44d9fc13c0688c846037658d95b87c", response.GetHash().ToString());
+		}
+
+		[Fact]
+		[Trait("RPCClient", "RPCClient")]
 		public void CanGetPrivateKeysFromAccount()
 		{
 			var rpc = CreateRPCClient();

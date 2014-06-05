@@ -195,5 +195,43 @@ namespace NBitcoin.RPC
 			}
 			SendCommand("lockunspent", parameters.ToArray());
 		}
+
+		public BlockHeader GetBlockHeader(int height)
+		{
+			var hash = GetBlockHash(height);
+			return GetBlockHeader(hash);
+		}
+
+		public BlockHeader GetBlockHeader(uint256 blockHash)
+		{
+			var resp = SendCommand("getblock", blockHash.ToString());
+			BlockHeader header = new BlockHeader();
+			header.Version = (int)resp.Result["version"];
+			header.Nonce = (uint)resp.Result["nonce"];
+			header.Bits = new Target(Encoders.Hex.DecodeData((string)resp.Result["bits"]));
+			if(resp.Result["previousblockhash"] != null)
+			{
+				header.HashPrevBlock = new uint256(Encoders.Hex.DecodeData((string)resp.Result["previousblockhash"]),false);
+			}
+			if(resp.Result["time"] != null)
+			{
+				header.BlockTime = Utils.UnixTimeToDateTime((uint)resp.Result["time"]);
+			}
+			if(resp.Result["merkleroot"] != null)
+			{
+				header.HashMerkleRoot = new uint256(Encoders.Hex.DecodeData((string)resp.Result["merkleroot"]),false);
+			}
+			return header;
+		}
+		public uint256 GetBlockHash(int height)
+		{
+			var resp = SendCommand("getblockhash", height);
+			return new uint256(resp.Result.ToString());
+		}
+
+		public int GetBlockCount()
+		{
+			return (int)SendCommand("getblockcount").Result;
+		}
 	}
 }
