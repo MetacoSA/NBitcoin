@@ -126,18 +126,21 @@ namespace NBitcoin
 				if(metadata != null && bitField.Match(metadata.BitField))
 				{
 					var payment = new StealthPayment(transaction.Outputs[i + 1].ScriptPubKey, metadata);
-					if(payment.StealthKeys.Length != spendKeys.Length)
-						continue;
-
-					var expectedStealth = spendKeys.Select(s => s.UncoverReceiver(scan, metadata.EphemKey)).ToList();
-					foreach(var stealth in payment.StealthKeys)
+					if(scan != null && spendKeys != null)
 					{
-						var match = expectedStealth.FirstOrDefault(expected => expected.ID == stealth.ID);
-						if(match != null)
-							expectedStealth.Remove(match);
+						if(payment.StealthKeys.Length != spendKeys.Length)
+							continue;
+
+						var expectedStealth = spendKeys.Select(s => s.UncoverReceiver(scan, metadata.EphemKey)).ToList();
+						foreach(var stealth in payment.StealthKeys)
+						{
+							var match = expectedStealth.FirstOrDefault(expected => expected.ID == stealth.ID);
+							if(match != null)
+								expectedStealth.Remove(match);
+						}
+						if(expectedStealth.Count != 0)
+							continue;
 					}
-					if(expectedStealth.Count != 0)
-						continue;
 					result.Add(payment);
 				}
 			}

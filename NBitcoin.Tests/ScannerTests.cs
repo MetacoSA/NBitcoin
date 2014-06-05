@@ -43,6 +43,47 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanScanStealthPayment()
+		{
+			var alice = CreateStealthUser();
+			var bob = CreateStealthUser();
+
+			Transaction tx = new Transaction();
+			alice.Address.CreatePayment().AddToTransaction(tx, "1.5");
+
+			var coins = alice.Scanner.ScanCoins(tx, 0);
+			Assert.NotNull(coins);
+			Assert.Equal(Money.Parse("1.5"), coins.Value);
+
+			coins = bob.Scanner.ScanCoins(tx, 0);
+			Assert.NotNull(coins);
+			Assert.Equal(Money.Parse("0"), coins.Value);
+			
+			alice.Prefix = new BitField(1, 3);
+			alice.UpdateAddress();
+
+			tx = new Transaction();
+			alice.Address.CreatePayment().AddToTransaction(tx, "1.5");
+			coins = alice.Scanner.ScanCoins(tx, 0);
+			Assert.NotNull(coins);
+			Assert.Equal(Money.Parse("1.5"), coins.Value);
+
+			alice.Prefix = new BitField(2, 3);
+			alice.UpdateAddress();
+
+			coins = alice.Scanner.ScanCoins(tx, 0);
+			Assert.NotNull(coins);
+			Assert.Equal(Money.Parse("0"), coins.Value);
+		}
+
+		private StealthTestUser CreateStealthUser()
+		{
+			return new StealthTestUser();
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanScanBlocks()
 		{
 			using(var tester = CreateTester())
@@ -94,8 +135,9 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//In this test, alice makes a double spend. In fork, she give money to satoshi, in main to bob.
-		//The code checks if the ScanState updates correctly the alice's account going back and forth main and fork.
+		//The code checks if the ScanState updates correctly alice's account going back and forth between main and fork.
 		public void ScannerCanHandleForks()
 		{
 			using(var tester = CreateTester())
@@ -122,7 +164,7 @@ namespace NBitcoin.Tests
 
 				//Meanwhile, double spend of alice to bob
 				alice.GiveMoney("1.0", bob, main);
-				
+
 				//aliceFork scanner go back to main, previous 0.9 transaction is canceled
 				aliceFork.Process(main);
 				aliceFork.AssertMoney("0.5");
@@ -293,6 +335,48 @@ namespace NBitcoin.Tests
 		{
 			_ScanState.Dispose();
 			_ScanState = new ScanState(_ScanState.Scanner, _ScanState.Persister);
+		}
+	}
+
+	class StealthTestUser
+	{
+		public StealthTestUser()
+		{
+			Scan = new Key();
+			Spend = new Key();
+			Prefix = new BitField(0, 0);
+			UpdateAddress();
+		}
+
+		public void UpdateAddress()
+		{
+			Address = new BitcoinStealthAddress(Scan.PubKey, new PubKey[] { Spend.PubKey }, 1, Prefix, Network.TestNet);
+			Scanner = new StealthPaymentScanner(Address, Scan);
+		}
+		public Scanner Scanner
+		{
+			get;
+			set;
+		}
+		public Key Scan
+		{
+			get;
+			set;
+		}
+		public Key Spend
+		{
+			get;
+			set;
+		}
+		public BitField Prefix
+		{
+			get;
+			set;
+		}
+		public BitcoinStealthAddress Address
+		{
+			get;
+			set;
 		}
 	}
 }

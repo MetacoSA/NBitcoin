@@ -109,6 +109,11 @@ namespace NBitcoin
 		{
 			return Match(metadata.BitField);
 		}
+
+		public StealthPayment[] GetPayments(Transaction transaction)
+		{
+			return StealthPayment.GetPayments(transaction, null, this, null);
+		}
 	}
 	public class BitcoinStealthAddress : Base58Data
 	{
