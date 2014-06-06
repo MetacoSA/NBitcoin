@@ -998,8 +998,11 @@ namespace NBitcoin
 				var newS = new Org.BouncyCastle.Math.BigInteger(1, vchSig, S, nLenS);
 				var newR = new Org.BouncyCastle.Math.BigInteger(1, vchSig, R, nLenR);
 				var sig2 = new ECDSASignature(newR, newS);
-				if(!pubkey.Verify(sighash, sig2.ToDER()))
-					return false;
+				if(sig2.R != scriptSig.Signature.R || sig2.S != scriptSig.Signature.S)
+				{
+					if(!pubkey.Verify(sighash, sig2))
+						return false;
+				}
 			}
 
 			//if (!(flags & SCRIPT_VERIFY_NOCACHE))
