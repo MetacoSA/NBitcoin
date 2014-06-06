@@ -804,9 +804,11 @@ namespace NBitcoin.Protocol
 			return new CompositeDisposable(AllMessages.AddMessageListener(listener), OwnResource(listener));
 		}
 
-		public Chain BuildChain(ObjectStream<ChainChange> chainChanges, CancellationToken cancellationToken = default(CancellationToken))
+		public Chain BuildChain(ObjectStream<ChainChange> changes = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var chain = Chain.LoadOrInitialize(chainChanges, Network);
+			if(changes == null)
+				changes = new StreamObjectStream<ChainChange>();
+			var chain = Chain.LoadOrInitialize(changes, Network);
 			TraceCorrelation trace = new TraceCorrelation(NodeServerTrace.Trace, "Build chain");
 			using(trace.Open())
 			{
@@ -830,7 +832,7 @@ namespace NBitcoin.Protocol
 							{
 								foreach(var header in headers.Headers)
 								{
-									chain.GetOrAdd(header, chainChanges);
+									chain.GetOrAdd(header, changes);
 								}
 								if(before.HashBlock != chain.Tip.HashBlock)
 								{
