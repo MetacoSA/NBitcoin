@@ -113,7 +113,7 @@ namespace NBitcoin
 			return chain;
 		}
 
-		BlockIndex _StartBlock;
+		ChainedBlock _StartBlock;
 		public bool IsPartial
 		{
 			get
@@ -135,14 +135,14 @@ namespace NBitcoin
 		}
 		public Chain(BlockHeader genesis)
 		{
-			_StartBlock = new BlockIndex(genesis, null);
+			_StartBlock = new ChainedBlock(genesis, null);
 			Clear();
 		}
 
 		public Chain(BlockHeader blockHeader, int height)
 		{
 			StartHeight = height;
-			_StartBlock = new BlockIndex(blockHeader, height);
+			_StartBlock = new ChainedBlock(blockHeader, height);
 			Clear();
 		}
 
@@ -155,9 +155,9 @@ namespace NBitcoin
 
 		}
 
-		List<BlockIndex> vChain = new List<BlockIndex>();
-		Dictionary<uint256, BlockIndex> index = new Dictionary<uint256, BlockIndex>();
-		Dictionary<uint256, BlockIndex> offchainIndex = new Dictionary<uint256, BlockIndex>();
+		List<ChainedBlock> vChain = new List<ChainedBlock>();
+		Dictionary<uint256, ChainedBlock> index = new Dictionary<uint256, ChainedBlock>();
+		Dictionary<uint256, ChainedBlock> offchainIndex = new Dictionary<uint256, ChainedBlock>();
 
 		public int StartHeight
 		{
@@ -165,7 +165,7 @@ namespace NBitcoin
 			set;
 		}
 
-		public BlockIndex Genesis
+		public ChainedBlock Genesis
 		{
 			get
 			{
@@ -175,7 +175,7 @@ namespace NBitcoin
 			}
 		}
 
-		public BlockIndex Tip
+		public ChainedBlock Tip
 		{
 			get
 			{
@@ -191,9 +191,9 @@ namespace NBitcoin
 			}
 		}
 
-		public BlockIndex GetBlock(uint256 hash, bool includeBranch)
+		public ChainedBlock GetBlock(uint256 hash, bool includeBranch)
 		{
-			BlockIndex pindex = null;
+			ChainedBlock pindex = null;
 			index.TryGetValue(hash, out pindex);
 			if(pindex == null && includeBranch)
 			{
@@ -201,23 +201,23 @@ namespace NBitcoin
 			}
 			return pindex;
 		}
-		public BlockIndex GetBlock(uint256 hash)
+		public ChainedBlock GetBlock(uint256 hash)
 		{
 			return GetBlock(hash, false);
 		}
-		public BlockIndex GetOrAdd(BlockHeader header)
+		public ChainedBlock GetOrAdd(BlockHeader header)
 		{
 			return GetOrAdd(header, null);
 		}
-		public BlockIndex GetOrAdd(BlockHeader header, ObjectStream<ChainChange> changes)
+		public ChainedBlock GetOrAdd(BlockHeader header, ObjectStream<ChainChange> changes)
 		{
-			BlockIndex pindex = GetBlock(header.GetHash(), true);
+			ChainedBlock pindex = GetBlock(header.GetHash(), true);
 			if(pindex != null)
 				return pindex;
-			BlockIndex previous = GetBlock(header.HashPrevBlock, true);
+			ChainedBlock previous = GetBlock(header.HashPrevBlock, true);
 			if(previous == null)
 				return null;
-			pindex = new BlockIndex(header, previous);
+			pindex = new ChainedBlock(header, previous);
 			index.AddOrReplace(pindex.HashBlock, pindex);
 			if(pindex.Height > Tip.Height)
 			{
@@ -234,11 +234,11 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="pindex"></param>
 		/// <returns>forking point</returns>
-		public BlockIndex SetTip(BlockIndex pindex)
+		public ChainedBlock SetTip(ChainedBlock pindex)
 		{
 			return SetTip(pindex, null);
 		}
-		public BlockIndex SetTip(BlockIndex pindex, ObjectStream<ChainChange> changes)
+		public ChainedBlock SetTip(ChainedBlock pindex, ObjectStream<ChainChange> changes)
 		{
 			if(pindex == null)
 			{
@@ -295,17 +295,17 @@ namespace NBitcoin
 		}
 
 
-		public BlockIndex FindFork(Chain chain)
+		public ChainedBlock FindFork(Chain chain)
 		{
 			return FindFork(chain.ToEnumerable(true).Select(o => o.HashBlock));
 		}
 
-		public BlockIndex FindFork(IEnumerable<uint256> hashes)
+		public ChainedBlock FindFork(IEnumerable<uint256> hashes)
 		{
 			// Find the first block the caller has in the main chain
 			foreach(uint256 hash in hashes)
 			{
-				BlockIndex mi = null;
+				ChainedBlock mi = null;
 				if(index.TryGetValue(hash, out mi))
 				{
 					if(Contains(mi))
@@ -315,12 +315,12 @@ namespace NBitcoin
 			return Genesis;
 		}
 
-		public BlockIndex FindFork(BlockLocator locator)
+		public ChainedBlock FindFork(BlockLocator locator)
 		{
 			return FindFork(locator.Blocks);
 		}
 
-		public BlockIndex GetBlock(int nHeight)
+		public ChainedBlock GetBlock(int nHeight)
 		{
 			var index = nHeight - StartHeight;
 			if(index < 0 || index >= (int)vChain.Count)
@@ -330,10 +330,10 @@ namespace NBitcoin
 
 		public bool Contains(uint256 hash, bool includeBranch = false)
 		{
-			BlockIndex pindex = GetBlock(hash, includeBranch);
+			ChainedBlock pindex = GetBlock(hash, includeBranch);
 			return pindex != null;
 		}
-		public bool Contains(BlockIndex blockIndex)
+		public bool Contains(ChainedBlock blockIndex)
 		{
 			if(StartHeight <= blockIndex.Height && blockIndex.Height <= Height)
 			{
@@ -355,11 +355,11 @@ namespace NBitcoin
 			return new Chain(this);
 		}
 
-		public IEnumerable<BlockIndex> ToEnumerable(bool fromTip)
+		public IEnumerable<ChainedBlock> ToEnumerable(bool fromTip)
 		{
 			if(fromTip)
 			{
-				BlockIndex b = Tip;
+				ChainedBlock b = Tip;
 				while(b != null)
 				{
 					yield return b;
@@ -374,7 +374,7 @@ namespace NBitcoin
 		}
 
 
-		public IEnumerable<BlockIndex> EnumerateAfter(BlockIndex block)
+		public IEnumerable<ChainedBlock> EnumerateAfter(ChainedBlock block)
 		{
 			for(int i = block.Height + 1 ; i < vChain.Count ; i++)
 			{

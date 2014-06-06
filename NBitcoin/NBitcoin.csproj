@@ -92,7 +92,7 @@
     <Compile Include="Stealth\BitcoinStealthAddress.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
-    <Compile Include="BlockIndex.cs" />
+    <Compile Include="ChainedBlock.cs" />
     <Compile Include="BlockLocator.cs" />
     <Compile Include="BlockRepository.cs" />
     <Compile Include="BlockStore.cs" />

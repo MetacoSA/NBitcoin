@@ -702,7 +702,7 @@ namespace NBitcoin
 		{
 			if(_CurrentChain == null || !chain.SameTip(_CurrentChain))
 			{
-				List<BlockIndex> unprocessed = null;
+				List<ChainedBlock> unprocessed = null;
 				Pools.Update(chain);
 				if(_CurrentChain == null)
 				{

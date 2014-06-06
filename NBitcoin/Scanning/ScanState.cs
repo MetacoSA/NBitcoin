@@ -167,7 +167,7 @@ namespace NBitcoin.Scanning
 
 			var unprocessedBlocks = mainChain.ToEnumerable(true)
 									   .TakeWhile(block => block != forkBlock)
-									   .Concat(newChain ? new BlockIndex[] { forkBlock } : new BlockIndex[0])
+									   .Concat(newChain ? new ChainedBlock[] { forkBlock } : new ChainedBlock[0])
 									   .Reverse().ToArray();
 			foreach(var block in unprocessedBlocks)
 			{

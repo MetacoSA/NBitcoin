@@ -267,9 +267,9 @@ namespace NBitcoin.Tests
 		}
 
 
-		private BlockIndex AppendBlock(ObjectStream<ChainChange> changes, BlockIndex previous, params Chain[] chains)
+		private ChainedBlock AppendBlock(ObjectStream<ChainChange> changes, ChainedBlock previous, params Chain[] chains)
 		{
-			BlockIndex last = null;
+			ChainedBlock last = null;
 			var nonce = RandomUtils.GetUInt32();
 			foreach(var chain in chains)
 			{
@@ -281,13 +281,13 @@ namespace NBitcoin.Tests
 			return last;
 		}
 
-		private BlockIndex AppendBlock(params Chain[] chains)
+		private ChainedBlock AppendBlock(params Chain[] chains)
 		{
 			return AppendBlock(null, chains);
 		}
-		private BlockIndex AppendBlock(ObjectStream<ChainChange> changes, params Chain[] chains)
+		private ChainedBlock AppendBlock(ObjectStream<ChainChange> changes, params Chain[] chains)
 		{
-			BlockIndex index = null;
+			ChainedBlock index = null;
 			return AppendBlock(changes, index, chains);
 		}
 	}

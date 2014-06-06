@@ -31,7 +31,7 @@ namespace NBitcoin
  * candidates to be the next block. A blockindex may have multiple pprev pointing
  * to it, but at most one of them can be part of the currently active branch.
  */
-	public class BlockIndex
+	public class ChainedBlock
 	{
 		// pointer to the hash of the block, if any. memory is owned by this CBlockIndex
 		uint256 phashBlock;
@@ -46,9 +46,9 @@ namespace NBitcoin
 
 
 		// pointer to the index of the predecessor of this block
-		BlockIndex pprev;
+		ChainedBlock pprev;
 
-		public BlockIndex Previous
+		public ChainedBlock Previous
 		{
 			get
 			{
@@ -117,7 +117,7 @@ namespace NBitcoin
 		// (memory only) Sequencial id assigned to distinguish order in which blocks are received.
 		//uint nSequenceId;
 
-		public BlockIndex(BlockHeader header, BlockIndex previous)
+		public ChainedBlock(BlockHeader header, ChainedBlock previous)
 		{
 			if(previous != null)
 			{
@@ -140,7 +140,7 @@ namespace NBitcoin
 			}
 		}
 
-		public BlockIndex(BlockHeader header, int height)
+		public ChainedBlock(BlockHeader header, int height)
 		{
 			nHeight = height;
 			//this.nDataPos = pos;
@@ -175,12 +175,12 @@ namespace NBitcoin
 
 		public override bool Equals(object obj)
 		{
-			BlockIndex item = obj as BlockIndex;
+			ChainedBlock item = obj as ChainedBlock;
 			if(item == null)
 				return false;
 			return phashBlock.Equals(item.phashBlock);
 		}
-		public static bool operator ==(BlockIndex a, BlockIndex b)
+		public static bool operator ==(ChainedBlock a, ChainedBlock b)
 		{
 			if(System.Object.ReferenceEquals(a, b))
 				return true;
@@ -189,7 +189,7 @@ namespace NBitcoin
 			return a.phashBlock == b.phashBlock;
 		}
 
-		public static bool operator !=(BlockIndex a, BlockIndex b)
+		public static bool operator !=(ChainedBlock a, ChainedBlock b)
 		{
 			return !(a == b);
 		}
