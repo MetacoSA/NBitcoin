@@ -215,7 +215,11 @@ namespace NBitcoin
 
 			//Multiply passfactor by factorb mod N to yield the private key associated with generatedaddress.
 			var keyNum = new BigInteger(1, passfactor).Multiply(new BigInteger(1, factorb)).Mod(curve.N);
-			var key = new Key(keyNum.ToByteArrayUnsigned(), fCompressedIn: IsCompressed);
+			var keyBytes = keyNum.ToByteArrayUnsigned();
+			if(keyBytes.Length < 32)
+				keyBytes = new byte[32 - keyBytes.Length].Concat(keyBytes).ToArray();
+
+			var key = new Key(keyBytes, fCompressedIn: IsCompressed);
 
 			var generatedaddress = key.PubKey.GetAddress(Network);
 			var addresshash = HashAddress(generatedaddress);
