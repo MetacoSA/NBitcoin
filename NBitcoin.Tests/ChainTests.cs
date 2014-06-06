@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -111,6 +113,36 @@ namespace NBitcoin.Tests
 			Assert.Equal(height, Chain.Load(changes).Height);
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCalculateDifficulty()
+		{
+			var o = Network.Main.ProofOfWorkLimit;
+			var main = Chain.Load(LoadMainChain());
+			var histories = File.ReadAllText("data/targethistory.csv").Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+			foreach(var history in histories)
+			{
+				var height = int.Parse(history.Split(',')[0]);
+				var expectedTarget = new Target(BigInteger.Parse(history.Split(',')[1]));
+
+				var block = main.GetBlock(height).Header;
+
+				Assert.Equal(expectedTarget, block.Bits);
+				var target = main.GetWorkRequired(Network.Main, height);
+				Assert.Equal(expectedTarget, target);
+			}
+		}
+
+		private ObjectStream<ChainChange> LoadMainChain()
+		{
+			if(!File.Exists("MainChain.dat"))
+			{
+				WebClient client = new WebClient();
+				client.DownloadFile("https://aois.blob.core.windows.net/public/MainChain.dat", "MainChain.dat");
+			}
+			return new StreamObjectStream<ChainChange>(File.Open("MainChain.dat", FileMode.Open));
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

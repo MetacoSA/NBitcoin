@@ -19,8 +19,8 @@ namespace NBitcoin
 			}
 		}
 
-		public Target(uint bits)
-			: this(ToBytes(bits))
+		public Target(uint compact)
+			: this(ToBytes(compact))
 		{
 
 		}
@@ -36,26 +36,30 @@ namespace NBitcoin
 			};
 		}
 
+		
+
 		BigInteger _Target;
-		public Target(byte[] data)
+		public Target(byte[] compact)
 		{
-			if(data.Length == 4)
+			if(compact.Length == 4)
 			{
-				var exp = data[0];
-				var val = data.Skip(1).Take(3).Reverse().ToArray();
+				var exp = compact[0];
+				var val = compact.Skip(1).Take(3).Reverse().ToArray();
 				_Target = new BigInteger(val) << 8 * (exp - 3);
-			}
-			else if(data.Length == 32)
-			{
-				_Target = new BigInteger(data.Reverse().ToArray());
 			}
 			else
 				throw new FormatException("Invalid number of bytes");
 		}
 
-		public Target(BigInteger value)
+		public Target(BigInteger target)
 		{
-			_Target = value;
+			_Target = target;
+			_Target = new Target(this.ToCompact())._Target;
+		}
+		public Target(uint256 target)
+		{
+			_Target = new BigInteger(target.ToBytes());
+			_Target = new Target(this.ToCompact())._Target;
 		}
 
 		public static implicit operator Target(uint a)
@@ -132,6 +136,11 @@ namespace NBitcoin
 			return _Target;
 		}
 
+		public uint ToCompact()
+		{
+			return (uint)this;
+		}
+
 		public uint256 ToUInt256()
 		{
 			var array = _Target.ToByteArray();
@@ -143,6 +152,11 @@ namespace NBitcoin
 				array = array.Concat(new byte[missingZero]).ToArray();
 			}
 			return new uint256(array);
+		}
+
+		public override string ToString()
+		{
+			return ToUInt256().ToString();
 		}
 	}
 }

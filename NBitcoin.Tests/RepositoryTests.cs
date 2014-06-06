@@ -70,6 +70,18 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanValidateBlocks()
+		{
+			foreach(var block in StoredBlock.EnumerateFolder(@"data\blocks"))
+			{
+				ValidationState validation = Network.Main.CreateValidationState();
+				validation.Now = block.Item.Header.BlockTime;
+				Assert.True(validation.CheckBlock(block.Item));
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanIndexBlock()
 		{
 			var index = CreateIndexedStore();
@@ -183,6 +195,15 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
+			//var txt = File.ReadAllText("data/difficultyhistory.csv");
+			//var lines = txt.Split(new string[]{"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+			//StringBuilder builder = new StringBuilder();
+			//foreach(var line in lines)
+			//{
+			//	var fields = line.Split(',');
+			//	builder.AppendLine(fields[0] + "," + fields[2]);
+			//}
+			//File.WriteAllText("targethistory.csv",builder.ToString());
 			////PlaySplit();
 			//var oo = new PubKey(TestUtils.ParseHex("02bbc9fccbe03de928fc66fcd176fbe69d3641677970c6f8d558aa72f72e35e0cb")).GetAddress(Network.TestNet);
 			//RPCClient client = RPCClientTests.CreateRPCClient();
@@ -193,7 +214,7 @@ namespace NBitcoin.Tests
 
 			//var sender = new BitcoinSecret("cRjSUV1LqN2F8MsGnLE2JKfCP75kbWGFRroNQeXHC429jqVFgmW3", Network.TestNet);
 
-			
+
 			//using(var fs = File.Open("Data.txt", FileMode.Create))
 			//{
 			//	StreamWriter writer = new StreamWriter(fs);

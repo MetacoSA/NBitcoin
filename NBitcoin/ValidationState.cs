@@ -263,13 +263,13 @@ namespace NBitcoin
 		}
 		public bool CheckProofOfWorkCore(Block block)
 		{
-			var bnTarget = block.Header.Bits.ToBigInteger();
+			var target = block.Header.Bits;
 			// Check range
-			if(bnTarget <= 0 || bnTarget > Network.ProofOfWorkLimit)
+			if(target <= 0 || target > Network.ProofOfWorkLimit)
 				return Error("CheckProofOfWork() : nBits below minimum work");
 
 			// Check proof of work matches claimed amount
-			if(block.Header.CheckProofOfWork())
+			if(!block.Header.CheckProofOfWork())
 				return Error("CheckProofOfWork() : hash doesn't match nBits");
 			return true;
 

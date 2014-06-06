@@ -10,7 +10,7 @@ namespace NBitcoin.Tests
 	{
 		public static void Main()
 		{
-			new ProtocolTests().CanBuildChain();
+			//new ProtocolTests().CanBuildChain();
 		}
 	}
 }

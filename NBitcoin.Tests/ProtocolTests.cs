@@ -215,18 +215,17 @@ namespace NBitcoin.Tests
 		}
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]
-		public void CanBuildChain()
+		public void CanDownloadChain()
 		{
 			using(var server = new NodeServer(Network.Main))
 			{
 				server.RegisterPeerTableRepository(PeerCache);
 				CancellationTokenSource cancel = new CancellationTokenSource();
-				StreamObjectStream<ChainChange> changes = new StreamObjectStream<ChainChange>(File.Open("CanBuildChain.dat", FileMode.OpenOrCreate));
-
+				StreamObjectStream<ChainChange> changes = new StreamObjectStream<ChainChange>(new MemoryStream());
 				var chain = Chain.Load(changes);
 				server.BuildChain(changes, cancel.Token);
 			}
-		}
+		}		
 
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]

@@ -422,9 +422,8 @@ namespace NBitcoin
 			}
 
 			// Go back by what we want to be 14 days worth of blocks
-			ChainedBlock pindexFirst = pindexLast;
-			for(int i = 0 ; pindexFirst != null && i < nInterval - 1 ; i++)
-				pindexFirst = pindexFirst.Previous;
+			var pastHeight = pindexLast.Height - nInterval + 1;
+			ChainedBlock pindexFirst = GetBlock((int)pastHeight);
 			assert(pindexFirst);
 
 			// Limit adjustment step
@@ -436,20 +435,18 @@ namespace NBitcoin
 
 			// Retarget
 			var bnNew = pindexLast.Header.Bits.ToBigInteger();
-			var bnOld = pindexLast.Header.Bits.ToBigInteger();
 			bnNew *= (ulong)nActualTimespan.TotalSeconds;
 			bnNew /= (ulong)nTargetTimespan.TotalSeconds;
+			var newTarget = new Target(bnNew);
+			if(newTarget > nProofOfWorkLimit)
+				newTarget = nProofOfWorkLimit;
 
-			if(bnNew > nProofOfWorkLimit)
-				bnNew = nProofOfWorkLimit.ToBigInteger();
-
-
-			return new Target(bnNew);
+			return newTarget;
 		}
 
 		private void assert(object obj)
 		{
-			if(obj != null)
+			if(obj == null)
 				throw new NotSupportedException("Impossible bug happened, contact NBitcoin devs");
 		}
 	}

@@ -102,7 +102,7 @@ namespace NBitcoin.Tests
 		public void CanReadConvertTargetToDifficulty()
 		{
 			var packed = new Target(TestUtils.ParseHex("1b0404cb"));
-			var unpacked = new Target(TestUtils.ParseHex("00000000000404CB000000000000000000000000000000000000000000000000"));
+			var unpacked = new Target(new uint256("00000000000404CB000000000000000000000000000000000000000000000000"));
 			Assert.Equal(packed, unpacked);
 			Assert.Equal(packed, new Target(0x1b0404cb));
 
