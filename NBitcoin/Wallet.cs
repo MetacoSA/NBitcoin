@@ -431,7 +431,7 @@ namespace NBitcoin
 				if(entry.Block == null)
 					continue;
 
-				if(chain.Contains(entry.Block) == value)
+				if(chain.Contains(entry.Block,false) == value)
 				{
 					if(entry.Reason == AccountEntryReason.Income && _Unspent.ContainsKey(entry.Spendable.OutPoint))
 						entries.AddOrReplace(entry.Spendable.OutPoint, entry);

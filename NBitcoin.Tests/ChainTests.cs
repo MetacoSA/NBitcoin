@@ -15,14 +15,13 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSaveChain()
 		{
-			Chain chain = new Chain(Network.Main);
-			AppendBlock(chain);
-			AppendBlock(chain);
-			var fork = AppendBlock(chain);
-			AppendBlock(chain);
-
 			var stream = new StreamObjectStream<ChainChange>(new MemoryStream());
-			chain.Write(0, stream);
+			Chain chain = Chain.LoadOrInitialize(stream, Network.Main);
+			AppendBlock(stream, chain);
+			AppendBlock(stream, chain);
+			var fork = AppendBlock(stream, chain);
+			AppendBlock(stream, chain);
+
 
 			stream.Rewind();
 
@@ -37,7 +36,7 @@ namespace NBitcoin.Tests
 			stream.Rewind();
 
 			var chain3 = Chain.Load(stream);
-			Assert.True(chain3.Height == 3);
+			AssertHeight(stream, 3);
 			var actualFork = chain3.FindFork(chain);
 			Assert.Equal(fork.HashBlock, actualFork.HashBlock);
 		}
@@ -55,6 +54,64 @@ namespace NBitcoin.Tests
 			Assert.Equal(4, b.Height);
 			Assert.Equal(b.HashBlock, chain.Tip.HashBlock);
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildChainIncrementally()
+		{
+
+			StreamObjectStream<ChainChange> changes = new StreamObjectStream<ChainChange>();
+			Chain main = Chain.LoadOrInitialize(changes, Network.Main);
+			AppendBlock(changes, main);
+			AppendBlock(changes, main);
+			var forkPoint = AppendBlock(changes, main);
+
+			AssertHeight(changes, 3);
+			AssertLength(changes, 4);
+
+			var current = AppendBlock(changes, forkPoint, main);
+			var oldFork = AppendBlock(changes, current, main);
+
+			AssertHeight(changes, 5);
+			AssertLength(changes, 6);
+
+			current = AppendBlock(changes, forkPoint, main);
+			AssertHeight(changes, 5);
+			AssertLength(changes, 6);
+
+			current = AppendBlock(changes, current, main);
+			AssertHeight(changes, 5);
+			AssertLength(changes, 6);
+
+			current = AppendBlock(changes, current, main);
+			AssertHeight(changes, 6);
+
+			//1 back track (retour à 3) + height4 + height5 + height6
+			AssertLength(changes, 10);
+
+			current = AppendBlock(changes, oldFork, main);
+			AssertHeight(changes, 6);
+			AssertLength(changes, 10);
+
+			//1 back track (retour à 3) + height4 + height5 + height6 + height7
+			current = AppendBlock(changes, current, main);
+			AssertHeight(changes, 7);
+			AssertLength(changes, 15);
+		}
+
+		private void AssertLength(StreamObjectStream<ChainChange> changes, int count)
+		{
+			changes.Rewind();
+			Assert.Equal(count, changes.Enumerate().Count());
+		}
+
+		public void AssertHeight(StreamObjectStream<ChainChange> changes, int height)
+		{
+			changes.Rewind();
+			Assert.Equal(height, Chain.Load(changes).Height);
+		}
+
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildPartialChain()
@@ -186,7 +243,7 @@ namespace NBitcoin.Tests
 		public void CanForkSidePartialChain()
 		{
 			var block = TestUtils.CreateFakeBlock();
-			Chain side = new Chain(block.Header,10);
+			Chain side = new Chain(block.Header, 10);
 			Chain main = new Chain(block.Header, 10);
 			AppendBlock(side, main);
 			AppendBlock(side, main);
@@ -209,18 +266,29 @@ namespace NBitcoin.Tests
 			Assert.NotNull(side.GetBlock(sideb.HashBlock));
 		}
 
-		private BlockIndex AppendBlock(params Chain[] chains)
+
+		private BlockIndex AppendBlock(ObjectStream<ChainChange> changes, BlockIndex previous, params Chain[] chains)
 		{
 			BlockIndex last = null;
 			var nonce = RandomUtils.GetUInt32();
 			foreach(var chain in chains)
 			{
 				var block = TestUtils.CreateFakeBlock(new Transaction());
-				block.Header.HashPrevBlock = chain.Tip.HashBlock;
+				block.Header.HashPrevBlock = previous == null ? chain.Tip.HashBlock : previous.HashBlock;
 				block.Header.Nonce = nonce;
-				last = chain.GetOrAdd(block.Header);
+				last = chain.GetOrAdd(block.Header, changes);
 			}
 			return last;
+		}
+
+		private BlockIndex AppendBlock(params Chain[] chains)
+		{
+			return AppendBlock(null, chains);
+		}
+		private BlockIndex AppendBlock(ObjectStream<ChainChange> changes, params Chain[] chains)
+		{
+			BlockIndex index = null;
+			return AppendBlock(changes, index, chains);
 		}
 	}
 }

@@ -67,6 +67,21 @@ namespace NBitcoin
 			return Load(changes.Enumerate());
 		}
 
+		public static Chain LoadOrInitialize(ObjectStream<ChainChange> changes, Network network)
+		{
+			var chain = Load(changes);
+			if(chain == null)
+			{
+				chain = new Chain(network);
+				changes.WriteNext(new ChainChange()
+				{
+					Add = true,
+					HeightOrBackstep = 0,
+					BlockHeader = chain.Genesis.Header
+				});
+			}
+			return chain;
+		}
 		public static Chain Load(IEnumerable<ChainChange> changes)
 		{
 			Chain chain = null;
@@ -96,25 +111,6 @@ namespace NBitcoin
 				}
 			}
 			return chain;
-		}
-
-		public void Write(int startHeight, ObjectStream<ChainChange> output)
-		{
-			if(startHeight < StartHeight)
-				throw new ArgumentException("startHeight should be equal or higher than the StartHeight of this chain", "startHeight");
-
-			int height = startHeight;
-			while(height <= Height)
-			{
-				var block = this.GetBlock(height);
-				output.WriteNext(new ChainChange()
-				{
-					Add = true,
-					BlockHeader = block.Header,
-					HeightOrBackstep = (uint)block.Height
-				});
-				height++;
-			}
 		}
 
 		BlockIndex _StartBlock;
@@ -161,6 +157,7 @@ namespace NBitcoin
 
 		List<BlockIndex> vChain = new List<BlockIndex>();
 		Dictionary<uint256, BlockIndex> index = new Dictionary<uint256, BlockIndex>();
+		Dictionary<uint256, BlockIndex> offchainIndex = new Dictionary<uint256, BlockIndex>();
 
 		public int StartHeight
 		{
@@ -194,26 +191,43 @@ namespace NBitcoin
 			}
 		}
 
-		public BlockIndex GetBlock(uint256 hash)
+		public BlockIndex GetBlock(uint256 hash, bool includeBranch)
 		{
 			BlockIndex pindex = null;
 			index.TryGetValue(hash, out pindex);
+			if(pindex == null && includeBranch)
+			{
+				offchainIndex.TryGetValue(hash, out pindex);
+			}
 			return pindex;
+		}
+		public BlockIndex GetBlock(uint256 hash)
+		{
+			return GetBlock(hash, false);
 		}
 		public BlockIndex GetOrAdd(BlockHeader header)
 		{
-			BlockIndex pindex = GetBlock(header.GetHash());
+			return GetOrAdd(header, null);
+		}
+		public BlockIndex GetOrAdd(BlockHeader header, ObjectStream<ChainChange> changes)
+		{
+			BlockIndex pindex = GetBlock(header.GetHash(), true);
 			if(pindex != null)
 				return pindex;
-			BlockIndex previous = GetBlock(header.HashPrevBlock);
+			BlockIndex previous = GetBlock(header.HashPrevBlock, true);
 			if(previous == null)
 				return null;
 			pindex = new BlockIndex(header, previous);
 			index.AddOrReplace(pindex.HashBlock, pindex);
 			if(pindex.Height > Tip.Height)
-				SetTip(pindex);
+			{
+				var tipBefore = Tip;
+				SetTip(pindex, changes);
+			}
 			return pindex;
 		}
+
+
 
 		/// <summary>
 		/// Change tip of the chain
@@ -222,26 +236,60 @@ namespace NBitcoin
 		/// <returns>forking point</returns>
 		public BlockIndex SetTip(BlockIndex pindex)
 		{
+			return SetTip(pindex, null);
+		}
+		public BlockIndex SetTip(BlockIndex pindex, ObjectStream<ChainChange> changes)
+		{
 			if(pindex == null)
 			{
 				Clear();
 				return null;
 			}
 
-			foreach(var removed in vChain.Resize(pindex.Height + 1 - StartHeight))
+			int backtrackCount = 0;
+			foreach(var remove in vChain.Resize(pindex.Height + 1 - StartHeight))
 			{
-				index.Remove(removed.HashBlock);
+				index.Remove(remove.HashBlock);
+				offchainIndex.AddOrReplace(remove.HashBlock, remove);
+				backtrackCount++;
 			}
+
+
+
 			while(pindex != null && vChain[pindex.Height - StartHeight] != pindex)
 			{
 				var old = vChain[pindex.Height - StartHeight];
-				vChain[pindex.Height - StartHeight] = pindex;
-				if(old != null && index.ContainsKey(old.HashBlock))
+				if(old != null)
 				{
 					index.Remove(old.HashBlock);
+					offchainIndex.AddOrReplace(old.HashBlock, old);
+					backtrackCount++;
 				}
+				vChain[pindex.Height - StartHeight] = pindex;
 				index.AddOrReplace(pindex.HashBlock, pindex);
 				pindex = pindex.Previous;
+			}
+
+			if(changes != null)
+			{
+				if(backtrackCount != 0)
+					changes.WriteNext(new ChainChange()
+					{
+						Add = false,
+						HeightOrBackstep = (uint)(backtrackCount)
+					});
+
+
+				for(int i = pindex.Height + 1 ; i <= Tip.Height ; i++)
+				{
+					var block = vChain[i - StartHeight];
+					changes.WriteNext(new ChainChange()
+					{
+						Add = true,
+						BlockHeader = block.Header,
+						HeightOrBackstep = (uint)block.Height
+					});
+				}
 			}
 			return pindex;
 		}
@@ -280,9 +328,9 @@ namespace NBitcoin
 			return vChain[index];
 		}
 
-		public bool Contains(uint256 hash)
+		public bool Contains(uint256 hash, bool includeBranch = false)
 		{
-			BlockIndex pindex = GetBlock(hash);
+			BlockIndex pindex = GetBlock(hash, includeBranch);
 			return pindex != null;
 		}
 		public bool Contains(BlockIndex blockIndex)
@@ -330,7 +378,7 @@ namespace NBitcoin
 		{
 			for(int i = block.Height + 1 ; i < vChain.Count ; i++)
 			{
-				yield return vChain[i];
+				yield return vChain[i - StartHeight];
 			}
 		}
 	}

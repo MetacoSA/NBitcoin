@@ -213,7 +213,25 @@ namespace NBitcoin.Tests
 				});
 			}
 		}
-
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanBuildChain()
+		{
+			using(var server = new NodeServer(Network.Main))
+			{
+				server.RegisterPeerTableRepository(PeerCache);
+				CancellationTokenSource cancel = new CancellationTokenSource();
+				StreamObjectStream<ChainChange> changes = new StreamObjectStream<ChainChange>(new MemoryStream());
+				//cancel.CancelAfter(TimeSpan.FromSeconds(10));
+				try
+				{
+					server.BuildChain(changes, cancel.Token);
+				}
+				catch(OperationCanceledException)
+				{
+				}
+			}
+		}
 
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]

@@ -15,6 +15,10 @@ namespace NBitcoin
 				throw new ArgumentNullException("stream");
 			_Stream = stream;
 		}
+		public StreamObjectStream():this(new MemoryStream())
+		{
+
+		}
 		private readonly Stream _Stream;
 		public Stream Stream
 		{

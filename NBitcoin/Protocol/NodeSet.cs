@@ -9,23 +9,42 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	public class NodeSet
+	public class NodeSet : IDisposable
 	{
+		class NodeListener : MessageListener<IncomingMessage>
+		{
+			NodeSet _Parent;
+			public NodeListener(NodeSet parent)
+			{
+				_Parent = parent;
+			}
+			#region MessageListener<IncomingMessage> Members
+
+			public void PushMessage(IncomingMessage message)
+			{
+				_Parent.MessageProducer.PushMessage(message);
+			}
+
+			#endregion
+		}
+
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		Dictionary<IPEndPoint, Node> _Nodes = new Dictionary<IPEndPoint, Node>();
-		readonly MessageListener<IncomingMessage> _MessageListener;
+		readonly NodeListener _MessageListener;
 		public NodeSet()
-			: this(null)
 		{
-
-		}
-		public NodeSet(MessageListener<IncomingMessage> listener)
-		{
-			if(listener == null)
-				listener = new NullMessageListener<IncomingMessage>();
-			_MessageListener = listener;
+			_MessageListener = new NodeListener(this);
 		}
 
+
+		private readonly MessageProducer<IncomingMessage> _MessageProducer = new MessageProducer<IncomingMessage>();
+		public MessageProducer<IncomingMessage> MessageProducer
+		{
+			get
+			{
+				return _MessageProducer;
+			}
+		}
 
 		public Node GetNodeByEndpoint(IPEndPoint endpoint)
 		{
@@ -132,6 +151,40 @@ namespace NBitcoin.Protocol
 					RemoveNode(node);
 				}
 			}
+		}
+
+		#region IDisposable Members
+
+		public void Dispose()
+		{
+			Task.Factory.StartNew(() =>
+			{
+				try
+				{
+					DisconnectAll();
+				}
+				catch(Exception)
+				{
+
+				}
+			}, TaskCreationOptions.LongRunning);
+		}
+
+		#endregion
+
+		public void SendMessage(Payload payload)
+		{
+			var nodes = GetNodes();
+
+			var tasks = 
+				nodes
+				.Select(n => Task.Factory.StartNew(() =>
+				{
+					n.SendMessage(payload);
+				}, TaskCreationOptions.LongRunning))
+				.ToArray();
+
+			Task.WaitAll(tasks);
 		}
 	}
 }

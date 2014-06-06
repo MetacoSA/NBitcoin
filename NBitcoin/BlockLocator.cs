@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class BlockLocator
+	public class BlockLocator : IBitcoinSerializable
 	{
 		public BlockLocator(List<uint256> hashes)
 		{
@@ -21,5 +21,14 @@ namespace NBitcoin
 				return vHave;
 			}
 		}
+
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref vHave);
+		}
+
+		#endregion
 	}
 }

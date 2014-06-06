@@ -22,17 +22,21 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		List<uint256> blockLocators = new List<uint256>();
+		BlockLocator blockLocators;
 
-		public List<uint256> BlockLocators
+		public BlockLocator BlockLocators
 		{
 			get
 			{
 				return blockLocators;
 			}
+			set
+			{
+				blockLocators = value;
+			}
 		}
 
-		uint256 hashStop;
+		uint256 hashStop = new uint256(0);
 		public uint256 HashStop
 		{
 			get

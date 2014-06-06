@@ -104,8 +104,7 @@ namespace NBitcoin.Scanning
 			}
 		}
 
-		Queue<ChainChange> _ChainChanges = new Queue<ChainChange>();
-		Queue<AccountEntry> _UnsavedAccountEntry = new Queue<AccountEntry>();
+		
 
 		private readonly Scanner _Scanner;
 		public Scanner Scanner
@@ -156,21 +155,14 @@ namespace NBitcoin.Scanning
 			var forkBlock = mainChain.FindFork(Chain);
 			if(forkBlock.HashBlock != Chain.Tip.HashBlock)
 			{
-				_ChainChanges.Enqueue(new ChainChange()
-				{
-					Add = false,
-					HeightOrBackstep = (uint)(Chain.Tip.Height - forkBlock.Height)
-				});
-
-				Chain.SetTip(Chain.GetBlock(forkBlock.Height));
+				Chain.SetTip(Chain.GetBlock(forkBlock.Height), Persister.ChainChanges);
 				foreach(var e in Account.GetInChain(Chain, false)
 											.Where(e => e.Reason != AccountEntryReason.ChainBlockChanged))
 				{
 					var neutralized = e.Neutralize();
 					Account.PushAccountEntry(neutralized);
-					_UnsavedAccountEntry.Enqueue(neutralized);
+					Persister.AccountEntries.WriteNext(neutralized);
 				}
-				Flush();
 			}
 
 			var unprocessedBlocks = mainChain.ToEnumerable(true)
@@ -195,7 +187,7 @@ namespace NBitcoin.Scanning
 													block.HashBlock,
 													spent, -spent.TxOut.Value);
 						Account.PushAccountEntry(entry);
-						_UnsavedAccountEntry.Enqueue(entry);
+						Persister.AccountEntries.WriteNext(entry);
 					}
 					foreach(var coins in Scanner.ScanCoins(fullBlock, (int)block.Height))
 					{
@@ -207,32 +199,13 @@ namespace NBitcoin.Scanning
 								var entry = new AccountEntry(AccountEntryReason.Income, block.HashBlock,
 													new Spendable(new OutPoint(coins.TxId, i), output), output.Value);
 								Account.PushAccountEntry(entry);
-								_UnsavedAccountEntry.Enqueue(entry);
+								Persister.AccountEntries.WriteNext(entry);
 							}
 							i++;
 						}
 					}
 				}
-				Chain.GetOrAdd(block.Header);
-				_ChainChanges.Enqueue(new ChainChange()
-				{
-					Add = true,
-					BlockHeader = block.Header,
-					HeightOrBackstep = (uint)block.Height
-				});
-				Flush();
-			}
-		}
-
-		private void Flush()
-		{
-			while(_UnsavedAccountEntry.Count != 0)
-			{
-				Persister.AccountEntries.WriteNext(_UnsavedAccountEntry.Dequeue());
-			}
-			while(_ChainChanges.Count != 0)
-			{
-				Persister.ChainChanges.WriteNext(_ChainChanges.Dequeue());
+				Chain.GetOrAdd(block.Header, Persister.ChainChanges);
 			}
 		}
 

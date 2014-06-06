@@ -326,6 +326,14 @@ namespace NBitcoin.Protocol
 
 
 		VersionPayload _FullVersion;
+		public VersionPayload FullVersion
+		{
+			get
+			{
+				return _FullVersion;
+			}
+		}
+
 		public void VersionHandshake(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var listener = new PollMessageListener<IncomingMessage>();
