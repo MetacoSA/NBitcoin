@@ -221,15 +221,10 @@ namespace NBitcoin.Tests
 			{
 				server.RegisterPeerTableRepository(PeerCache);
 				CancellationTokenSource cancel = new CancellationTokenSource();
-				StreamObjectStream<ChainChange> changes = new StreamObjectStream<ChainChange>(new MemoryStream());
-				//cancel.CancelAfter(TimeSpan.FromSeconds(10));
-				try
-				{
-					server.BuildChain(changes, cancel.Token);
-				}
-				catch(OperationCanceledException)
-				{
-				}
+				StreamObjectStream<ChainChange> changes = new StreamObjectStream<ChainChange>(File.Open("CanBuildChain.dat", FileMode.OpenOrCreate));
+
+				var chain = Chain.Load(changes);
+				server.BuildChain(changes, cancel.Token);
 			}
 		}
 

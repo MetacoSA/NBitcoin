@@ -117,7 +117,7 @@ namespace NBitcoin
 		// (memory only) Sequencial id assigned to distinguish order in which blocks are received.
 		//uint nSequenceId;
 
-		public ChainedBlock(BlockHeader header, ChainedBlock previous)
+		public ChainedBlock(BlockHeader header,uint256 headerHash, ChainedBlock previous)
 		{
 			if(previous != null)
 			{
@@ -126,7 +126,7 @@ namespace NBitcoin
 			this.pprev = previous;
 			//this.nDataPos = pos;
 			this.header = header;
-			this.phashBlock = header.GetHash();
+			this.phashBlock = headerHash ?? header.GetHash();
 
 			if(previous == null)
 			{

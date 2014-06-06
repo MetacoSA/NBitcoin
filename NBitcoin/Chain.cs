@@ -135,7 +135,7 @@ namespace NBitcoin
 		}
 		public Chain(BlockHeader genesis)
 		{
-			_StartBlock = new ChainedBlock(genesis, null);
+			_StartBlock = new ChainedBlock(genesis, null,null);
 			Clear();
 		}
 
@@ -211,13 +211,14 @@ namespace NBitcoin
 		}
 		public ChainedBlock GetOrAdd(BlockHeader header, ObjectStream<ChainChange> changes)
 		{
-			ChainedBlock pindex = GetBlock(header.GetHash(), true);
+			var headerHash = header.GetHash();
+			ChainedBlock pindex = GetBlock(headerHash, true);
 			if(pindex != null)
 				return pindex;
 			ChainedBlock previous = GetBlock(header.HashPrevBlock, true);
 			if(previous == null)
 				return null;
-			pindex = new ChainedBlock(header, previous);
+			pindex = new ChainedBlock(header,headerHash, previous);
 			index.AddOrReplace(pindex.HashBlock, pindex);
 			if(pindex.Height > Tip.Height)
 			{
@@ -380,6 +381,76 @@ namespace NBitcoin
 			{
 				yield return vChain[i - StartHeight];
 			}
+		}
+
+
+		static readonly TimeSpan nTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
+		static readonly TimeSpan nTargetSpacing = TimeSpan.FromSeconds(10 * 60);
+		static readonly long nInterval = nTargetTimespan.Ticks / nTargetSpacing.Ticks;
+
+		public Target GetWorkRequired(Network network, int height)
+		{
+			if(IsPartial)
+				throw new InvalidOperationException("You can't calculate work on partial chain");
+			var nProofOfWorkLimit = new Target(network.ProofOfWorkLimit);
+			var pindexLast = height == 0 ? null : GetBlock(height - 1);
+
+			// Genesis block
+			if(pindexLast == null)
+				return nProofOfWorkLimit;
+
+			// Only change once per interval
+			if((height) % nInterval != 0)
+			{
+				if(network == Network.TestNet)
+				{
+					// Special difficulty rule for testnet:
+					// If the new block's timestamp is more than 2* 10 minutes
+					// then allow mining of a min-difficulty block.
+					if(DateTimeOffset.UtcNow > pindexLast.Header.BlockTime + TimeSpan.FromTicks(nTargetSpacing.Ticks * 2))
+						return nProofOfWorkLimit;
+					else
+					{
+						// Return the last non-special-min-difficulty-rules-block
+						ChainedBlock pindex = pindexLast;
+						while(pindex.Previous != null && (pindex.Height % nInterval) != 0 && pindex.Header.Bits == nProofOfWorkLimit)
+							pindex = pindex.Previous;
+						return pindex.Header.Bits;
+					}
+				}
+				return pindexLast.Header.Bits;
+			}
+
+			// Go back by what we want to be 14 days worth of blocks
+			ChainedBlock pindexFirst = pindexLast;
+			for(int i = 0 ; pindexFirst != null && i < nInterval - 1 ; i++)
+				pindexFirst = pindexFirst.Previous;
+			assert(pindexFirst);
+
+			// Limit adjustment step
+			var nActualTimespan = pindexLast.Header.BlockTime - pindexFirst.Header.BlockTime;
+			if(nActualTimespan < TimeSpan.FromTicks(nTargetTimespan.Ticks / 4))
+				nActualTimespan = TimeSpan.FromTicks(nTargetTimespan.Ticks / 4);
+			if(nActualTimespan > TimeSpan.FromTicks(nTargetTimespan.Ticks * 4))
+				nActualTimespan = TimeSpan.FromTicks(nTargetTimespan.Ticks * 4);
+
+			// Retarget
+			var bnNew = pindexLast.Header.Bits.ToBigInteger();
+			var bnOld = pindexLast.Header.Bits.ToBigInteger();
+			bnNew *= (ulong)nActualTimespan.TotalSeconds;
+			bnNew /= (ulong)nTargetTimespan.TotalSeconds;
+
+			if(bnNew > nProofOfWorkLimit)
+				bnNew = nProofOfWorkLimit.ToBigInteger();
+
+
+			return new Target(bnNew);
+		}
+
+		private void assert(object obj)
+		{
+			if(obj != null)
+				throw new NotSupportedException("Impossible bug happened, contact NBitcoin devs");
 		}
 	}
 }
