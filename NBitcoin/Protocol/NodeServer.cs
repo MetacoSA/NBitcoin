@@ -804,7 +804,7 @@ namespace NBitcoin.Protocol
 			return new CompositeDisposable(AllMessages.AddMessageListener(listener), OwnResource(listener));
 		}
 
-		public void BuildChain(ObjectStream<ChainChange> chainChanges, CancellationToken cancellationToken = default(CancellationToken))
+		public Chain BuildChain(ObjectStream<ChainChange> chainChanges, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var chain = Chain.LoadOrInitialize(chainChanges, Network);
 			TraceCorrelation trace = new TraceCorrelation(NodeServerTrace.Trace, "Build chain");
@@ -845,6 +845,7 @@ namespace NBitcoin.Protocol
 					}
 				}
 			}
+			return chain;
 		}
 	}
 }
