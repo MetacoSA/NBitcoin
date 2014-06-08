@@ -513,7 +513,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return new PayToScriptHashTemplate().CheckScripPubKey(this);
+				return new PayToScriptHashTemplate().CheckScriptPubKey(this);
 			}
 		}
 		public uint GetSigOpCount(Script scriptSig)

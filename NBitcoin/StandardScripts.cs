@@ -117,12 +117,12 @@ namespace NBitcoin
 
 		public static ScriptTemplate GetTemplateFromScriptPubKey(Script script)
 		{
-			return _StandardTemplates.FirstOrDefault(t => t.CheckScripPubKey(script));
+			return _StandardTemplates.FirstOrDefault(t => t.CheckScriptPubKey(script));
 		}
 
 		public static bool IsStandardScriptPubKey(Script scriptPubKey)
 		{
-			return _StandardTemplates.Any(template => template.CheckScripPubKey(scriptPubKey));
+			return _StandardTemplates.Any(template => template.CheckScriptPubKey(scriptPubKey));
 		}
 		private static bool IsStandardScriptSig(Script scriptSig, Script scriptPubKey)
 		{

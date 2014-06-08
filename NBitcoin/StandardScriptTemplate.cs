@@ -22,7 +22,7 @@ namespace NBitcoin
 
 	public class TxNullDataTemplate : ScriptTemplate
 	{
-		public override bool CheckScripPubKey(Script scriptPubKey)
+		public override bool CheckScriptPubKey(Script scriptPubKey)
 		{
 			var ops = scriptPubKey.ToOps().ToList();
 			if(ops.Count < 1)
@@ -94,7 +94,7 @@ namespace NBitcoin
 			ops.Add(OpcodeType.OP_CHECKMULTISIG);
 			return new Script(ops.ToArray());
 		}
-		public override bool CheckScripPubKey(Script scriptPubKey)
+		public override bool CheckScriptPubKey(Script scriptPubKey)
 		{
 			var ops = scriptPubKey.ToOps().ToArray();
 			if(ops.Length < 3)
@@ -127,7 +127,7 @@ namespace NBitcoin
 
 		public PayToMultiSigTemplateParameters ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
-			if(!CheckScripPubKey(scriptPubKey))
+			if(!CheckScriptPubKey(scriptPubKey))
 				return null;
 
 			var ops = scriptPubKey.ToOps().ToArray();
@@ -151,7 +151,7 @@ namespace NBitcoin
 		{
 			if(!scriptSig.IsPushOnly)
 				return false;
-			if(!CheckScripPubKey(scriptPubKey))
+			if(!CheckScriptPubKey(scriptPubKey))
 				return false;
 
 			var sigCountExpected = scriptPubKey.ToOps().First().GetValue();
@@ -195,7 +195,7 @@ namespace NBitcoin
 			return GenerateScriptPubKey(scriptPubKey.ID);
 		}
 
-		public override bool CheckScripPubKey(Script scriptPubKey)
+		public override bool CheckScriptPubKey(Script scriptPubKey)
 		{
 			var ops = scriptPubKey.ToOps().ToArray();
 			if(ops.Length != 3)
@@ -249,7 +249,7 @@ namespace NBitcoin
 
 		public ScriptId ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
-			if(!this.CheckScripPubKey(scriptPubKey))
+			if(!this.CheckScriptPubKey(scriptPubKey))
 				return null;
 			return new ScriptId(scriptPubKey.ToOps().Skip(1).First().PushData);
 		}
@@ -263,7 +263,7 @@ namespace NBitcoin
 					OpcodeType.OP_CHECKSIG
 				);
 		}
-		public override bool CheckScripPubKey(Script scriptPubKey)
+		public override bool CheckScriptPubKey(Script scriptPubKey)
 		{
 			var ops = scriptPubKey.ToOps().ToList();
 			if(ops.Count != 2)
@@ -302,7 +302,7 @@ namespace NBitcoin
 
 		public PubKey ExtractScriptPubKeyParameters(Script script)
 		{
-			if(!CheckScripPubKey(script))
+			if(!CheckScriptPubKey(script))
 				return null;
 			return new PubKey(script.ToOps().ToArray()[0].PushData);
 		}
@@ -358,7 +358,7 @@ namespace NBitcoin
 				);
 		}
 
-		public override bool CheckScripPubKey(Script scriptPubKey)
+		public override bool CheckScriptPubKey(Script scriptPubKey)
 		{
 			var ops = scriptPubKey.ToOps().ToArray();
 			if(ops.Length != 5)
@@ -371,7 +371,7 @@ namespace NBitcoin
 		}
 		public KeyId ExtractScriptPubKeyParameters(Script script)
 		{
-			if(!CheckScripPubKey(script))
+			if(!CheckScriptPubKey(script))
 				return null;
 			return new KeyId(script.ToOps().Skip(2).First().PushData);
 		}
@@ -416,7 +416,7 @@ namespace NBitcoin
 	}
 	public abstract class ScriptTemplate
 	{
-		public abstract bool CheckScripPubKey(Script scriptPubKey);
+		public abstract bool CheckScriptPubKey(Script scriptPubKey);
 		public abstract bool CheckScriptSig(Script scriptSig, Script scriptPubKey);
 		public abstract TxOutType Type
 		{
