@@ -706,7 +706,7 @@ namespace NBitcoin
 				Pools.Update(chain);
 				if(_CurrentChain == null)
 				{
-					_CurrentChain = chain.Clone();
+					_CurrentChain = chain.Clone(new StreamObjectStream<ChainChange>());
 					unprocessed = chain.ToEnumerable(false).ToList();
 				}
 				else

@@ -8,68 +8,29 @@ namespace NBitcoin.Scanning
 {
 	public class ScanState : IDisposable
 	{
-		public class SerializedState : IBitcoinSerializable
-		{
-			public int StartHeight
-			{
-				get;
-				set;
-			}
-			List<uint256> _Hashes = new List<uint256>();
-			public List<uint256> Hashes
-			{
-				get
-				{
-					return _Hashes;
-				}
-				set
-				{
-					_Hashes = value;
-				}
-			}
-
-			WalletPool _Confirmed;
-			public WalletPool Confirmed
-			{
-				get
-				{
-					return _Confirmed;
-				}
-				set
-				{
-					_Confirmed = value;
-				}
-			}
-
-			#region IBitcoinSerializable Members
-
-			public void ReadWrite(BitcoinStream stream)
-			{
-				stream.ReadWrite(ref _Hashes);
-				stream.ReadWrite(ref _Confirmed);
-			}
-
-			#endregion
-		}
+		bool _OwnPersister;
 		public ScanState(Scanner scanner, ScanStatePersister persister, int startHeight)
 		{
 			if(persister == null)
 				throw new ArgumentNullException("persister");
 			if(scanner == null)
 				throw new ArgumentNullException("scanner");
+
+
+			_Account = new WalletPool();
 			_Persister = persister;
 			_OwnPersister = persister.Open(false);
 			persister.Rewind();
-			if(!persister.AccountEntries.EOF || !persister.ChainChanges.EOF)
-			{
-				if(_OwnPersister)
-					persister.Dispose();
-				throw new ArgumentException("This persister already have existing data", "persister");
-			}
-			_StartHeight = startHeight;
-			_Account = new WalletPool();
 			_Scanner = scanner;
+			_StartHeight = startHeight;
+
+			_Chain = new Chain(persister.ChainChanges);
+			foreach(var entry in persister.AccountEntries.Enumerate())
+			{
+				_Account.PushAccountEntry(entry);
+			}
 		}
+
 		private readonly int _StartHeight;
 		public int StartHeight
 		{
@@ -78,33 +39,6 @@ namespace NBitcoin.Scanning
 				return _StartHeight;
 			}
 		}
-
-		bool _OwnPersister;
-		public ScanState(Scanner scanner, ScanStatePersister persister)
-		{
-			if(persister == null)
-				throw new ArgumentNullException("persister");
-			if(scanner == null)
-				throw new ArgumentNullException("scanner");
-
-
-			_Account = new WalletPool();
-			_Persister = persister;
-			_OwnPersister = persister.Open(false);
-			_Scanner = scanner;
-
-			var chain = Chain.Load(persister.ChainChanges);
-			if(chain == null)
-				throw new ArgumentException("The persister holds an empty chain, please use ScanState(Scanner scanner, ScanStatePersister persister, int height) if you are creating a whole new ScanState", "persister");
-			_StartHeight = chain.StartHeight;
-
-			foreach(var entry in persister.AccountEntries.Enumerate())
-			{
-				_Account.PushAccountEntry(entry);
-			}
-		}
-
-		
 
 		private readonly Scanner _Scanner;
 		public Scanner Scanner
@@ -146,16 +80,17 @@ namespace NBitcoin.Scanning
 		public void Process(Chain mainChain, IBlockProvider blockProvider)
 		{
 			bool newChain = false;
-			if(Chain == null)
+			if(!Chain.Initialized)
 			{
 				newChain = true;
-				var startBlock = mainChain.GetBlock(StartHeight);
-				_Chain = new Chain(startBlock.Header, StartHeight);
+
+				var firstBlock = mainChain.GetBlock(StartHeight);
+				Chain.Initialize(firstBlock.Header, StartHeight);
 			}
 			var forkBlock = mainChain.FindFork(Chain);
 			if(forkBlock.HashBlock != Chain.Tip.HashBlock)
 			{
-				Chain.SetTip(Chain.GetBlock(forkBlock.Height), Persister.ChainChanges);
+				Chain.SetTip(Chain.GetBlock(forkBlock.Height));
 				foreach(var e in Account.GetInChain(Chain, false)
 											.Where(e => e.Reason != AccountEntryReason.ChainBlockChanged))
 				{
@@ -205,7 +140,7 @@ namespace NBitcoin.Scanning
 						}
 					}
 				}
-				Chain.GetOrAdd(block.Header, Persister.ChainChanges);
+				Chain.GetOrAdd(block.Header);
 			}
 		}
 

@@ -62,58 +62,6 @@ namespace NBitcoin
 	}
 	public class Chain
 	{
-		public static Chain Load(ObjectStream<ChainChange> changes)
-		{
-			return Load(changes.Enumerate());
-		}
-
-		public static Chain LoadOrInitialize(ObjectStream<ChainChange> changes, Network network)
-		{
-			var chain = Load(changes);
-			if(chain == null)
-			{
-				chain = new Chain(network);
-				changes.WriteNext(new ChainChange()
-				{
-					Add = true,
-					HeightOrBackstep = 0,
-					BlockHeader = chain.Genesis.Header
-				});
-			}
-			return chain;
-		}
-		public static Chain Load(IEnumerable<ChainChange> changes)
-		{
-			Chain chain = null;
-			foreach(var change in changes)
-			{
-				if(chain == null)
-				{
-					if(change.BlockHeader == null)
-						throw new InvalidOperationException("Previous chain changes missing");
-					chain = new Chain(change.BlockHeader, (int)change.HeightOrBackstep);
-				}
-				else
-				{
-					if(change.Add)
-					{
-						var result = chain.GetOrAdd(change.BlockHeader);
-						if(result == null || result.Height != change.HeightOrBackstep)
-							throw new InvalidOperationException("Invalid height in the chain change");
-					}
-					else
-					{
-						var back = chain.GetBlock((int)(chain.Height - change.HeightOrBackstep));
-						if(back == null)
-							throw new InvalidOperationException("Previous chain changes missing");
-						chain.SetTip(back);
-					}
-				}
-			}
-			return chain;
-		}
-
-		ChainedBlock _StartBlock;
 		public bool IsPartial
 		{
 			get
@@ -123,36 +71,116 @@ namespace NBitcoin
 		}
 
 		public Chain(Network network)
-			: this(network.GetGenesis().Header)
+			: this(network, null)
+		{
+		}
+
+		public Chain(Network network, ObjectStream<ChainChange> changes)
+			: this(network.GetGenesis().Header, changes)
 		{
 
 		}
 		public Chain(Chain copied)
+			: this(copied, null)
 		{
-			vChain = copied.vChain.ToList();
-			index = copied.index.ToDictionary(k => k.Key, k => k.Value);
-			_StartBlock = vChain[0];
+		}
+		public Chain(Chain copied, ObjectStream<ChainChange> changes)
+		{
+			if(changes == null)
+				changes = new StreamObjectStream<ChainChange>();
+			AssertEmpty(changes);
+			_Changes = changes;
+			copied.Changes.Rewind();
+			foreach(var change in copied.Changes.Enumerate())
+			{
+				if(_NextToProcess < copied._NextToProcess)
+				{
+					ProcessAndRecord(change, null);
+				}
+				else
+				{
+					_Changes.WriteNext(change);
+				}
+			}
+			_Changes.GoTo(copied._NextToProcess);
+			copied.Changes.GoTo(copied._NextToProcess);
+		}
+		public Chain(ObjectStream<ChainChange> changes)
+		{
+			if(changes == null)
+				changes = new StreamObjectStream<ChainChange>();
+			changes.Rewind();
+			_Changes = changes;
+			Process();
 		}
 		public Chain(BlockHeader genesis)
+			: this(genesis, 0, null)
 		{
-			_StartBlock = new ChainedBlock(genesis, null,null);
-			Clear();
+		}
+		public Chain(BlockHeader genesis, ObjectStream<ChainChange> changes)
+			: this(genesis, 0, changes)
+		{
 		}
 
-		public Chain(BlockHeader blockHeader, int height)
+		public Chain(BlockHeader blockHeader, int height, ObjectStream<ChainChange> changes)
 		{
-			StartHeight = height;
-			_StartBlock = new ChainedBlock(blockHeader, height);
-			Clear();
+			if(changes == null)
+				changes = new StreamObjectStream<ChainChange>();
+			AssertEmpty(changes);
+			_Changes = changes;
+			Initialize(blockHeader, height);
 		}
 
-		private void Clear()
-		{
-			vChain.Clear();
-			index.Clear();
-			vChain.Add(_StartBlock);
-			index.Add(_StartBlock.HashBlock, _StartBlock);
 
+		int _NextToProcess;
+
+		private void Process(int untilPosition = Int32.MaxValue)
+		{
+			if(untilPosition <= _NextToProcess)
+				return;
+
+			Changes.GoTo(_NextToProcess);
+			while(true)
+			{
+				if(untilPosition == _NextToProcess)
+					break;
+
+				var change = Changes.ReadNext();
+				if(change == null)
+					break;
+				Process(change, null);
+				_NextToProcess = Changes.Position;
+			}
+		}
+
+		private void Process(ChainChange change, uint256 blockHash)
+		{
+			if(blockHash == null && change.BlockHeader != null)
+				blockHash = change.BlockHeader.GetHash();
+			if(change.Add)
+			{
+				var previous = GetBlock(change.BlockHeader.HashPrevBlock, false);
+				if(Initialized && previous == null && change.HeightOrBackstep != StartHeight)
+					throw new InvalidOperationException("Previous block missing");
+				var block = Initialized ? new ChainedBlock(change.BlockHeader, blockHash, previous) : new ChainedBlock(change.BlockHeader, (int)change.HeightOrBackstep);
+				index.AddOrReplace(blockHash, block);
+				vChain.Add(block);
+			}
+			else
+			{
+				foreach(var removed in vChain.Resize(vChain.Count - (int)change.HeightOrBackstep).Where(r => r != null))
+				{
+					offchainIndex.AddOrReplace(removed.HashBlock, removed);
+					index.Remove(removed.HashBlock);
+				}
+			}
+		}
+
+		private void AssertEmpty(ObjectStream<ChainChange> changes)
+		{
+			changes.Rewind();
+			if(!changes.EOF)
+				throw new ArgumentException("This object stream should be empty", "changes");
 		}
 
 		List<ChainedBlock> vChain = new List<ChainedBlock>();
@@ -161,8 +189,21 @@ namespace NBitcoin
 
 		public int StartHeight
 		{
-			get;
-			set;
+			get
+			{
+				if(vChain.Count == 0)
+					return -1;
+				return vChain[0].Height;
+			}
+		}
+
+
+		public bool Initialized
+		{
+			get
+			{
+				return vChain.Count > 0;
+			}
 		}
 
 		public ChainedBlock Genesis
@@ -187,6 +228,8 @@ namespace NBitcoin
 		{
 			get
 			{
+				if(!Initialized)
+					return -1;
 				return vChain.Count - 1 + StartHeight;
 			}
 		}
@@ -207,25 +250,83 @@ namespace NBitcoin
 		}
 		public ChainedBlock GetOrAdd(BlockHeader header)
 		{
-			return GetOrAdd(header, null);
-		}
-		public ChainedBlock GetOrAdd(BlockHeader header, ObjectStream<ChainChange> changes)
-		{
+			AssertInitialized();
 			var headerHash = header.GetHash();
 			ChainedBlock pindex = GetBlock(headerHash, true);
 			if(pindex != null)
 				return pindex;
 			ChainedBlock previous = GetBlock(header.HashPrevBlock, true);
 			if(previous == null)
-				return null;
-			pindex = new ChainedBlock(header,headerHash, previous);
-			index.AddOrReplace(pindex.HashBlock, pindex);
-			if(pindex.Height > Tip.Height)
 			{
-				var tipBefore = Tip;
-				SetTip(pindex, changes);
+				return null;
+			}
+
+			pindex = new ChainedBlock(header, headerHash, previous);
+			if(previous.HashBlock == Tip.HashBlock)
+			{
+				var change = new ChainChange()
+				{
+					Add = true,
+					BlockHeader = pindex.Header,
+					HeightOrBackstep = (uint)pindex.Height
+				};
+				ProcessAndRecord(change, pindex.HashBlock);
+			}
+			else
+			{
+				if(pindex.Height <= Tip.Height)
+				{
+					offchainIndex.Add(pindex.HashBlock, pindex);
+				}
+				else
+				{
+					var fork = FindFork(pindex.EnumerateToGenesis().Select(c => c.HashBlock));
+					var change = new ChainChange()
+					{
+						Add = false,
+						HeightOrBackstep = (uint)(Tip.Height - fork.Height)
+					};
+					ProcessAndRecord(change, null);
+
+					foreach(var block in pindex.EnumerateToGenesis().TakeWhile(s => s != fork).Reverse())
+					{
+						change = new ChainChange()
+						{
+							Add = true,
+							BlockHeader = block.Header,
+							HeightOrBackstep = (uint)block.Height
+						};
+						ProcessAndRecord(change, block.HashBlock);
+					}
+				}
 			}
 			return pindex;
+		}
+
+		private void AssertInitialized()
+		{
+			if(!Initialized)
+				throw new InvalidOperationException("Please call Initialize first");
+		}
+
+		public void Initialize(BlockHeader header, int height)
+		{
+			if(Initialized)
+				throw new InvalidOperationException("Already initialized");
+			var change = new ChainChange()
+			{
+				Add = true,
+				BlockHeader = header,
+				HeightOrBackstep = (uint)height
+			};
+			ProcessAndRecord(change, header.GetHash());
+		}
+
+		private void ProcessAndRecord(ChainChange change, uint256 blockHash)
+		{
+			Process(change, blockHash);
+			_Changes.WriteNext(change);
+			_NextToProcess++;
 		}
 
 
@@ -235,18 +336,8 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="pindex"></param>
 		/// <returns>forking point</returns>
-		public ChainedBlock SetTip(ChainedBlock pindex)
+		internal ChainedBlock SetTip(ChainedBlock pindex)
 		{
-			return SetTip(pindex, null);
-		}
-		public ChainedBlock SetTip(ChainedBlock pindex, ObjectStream<ChainChange> changes)
-		{
-			if(pindex == null)
-			{
-				Clear();
-				return null;
-			}
-
 			int backtrackCount = 0;
 			foreach(var remove in vChain.Resize(pindex.Height + 1 - StartHeight))
 			{
@@ -271,30 +362,37 @@ namespace NBitcoin
 				pindex = pindex.Previous;
 			}
 
-			if(changes != null)
-			{
-				if(backtrackCount != 0)
-					changes.WriteNext(new ChainChange()
-					{
-						Add = false,
-						HeightOrBackstep = (uint)(backtrackCount)
-					});
-
-
-				for(int i = pindex.Height + 1 ; i <= Tip.Height ; i++)
+			if(backtrackCount != 0)
+				Changes.WriteNext(new ChainChange()
 				{
-					var block = vChain[i - StartHeight];
-					changes.WriteNext(new ChainChange()
-					{
-						Add = true,
-						BlockHeader = block.Header,
-						HeightOrBackstep = (uint)block.Height
-					});
-				}
+					Add = false,
+					HeightOrBackstep = (uint)(backtrackCount)
+				});
+
+
+			for(int i = pindex.Height + 1 ; i <= Tip.Height ; i++)
+			{
+				var block = vChain[i - StartHeight];
+				Changes.WriteNext(new ChainChange()
+				{
+					Add = true,
+					BlockHeader = block.Header,
+					HeightOrBackstep = (uint)block.Height
+				});
 			}
+
 			return pindex;
 		}
 
+
+		private readonly ObjectStream<ChainChange> _Changes;
+		public ObjectStream<ChainChange> Changes
+		{
+			get
+			{
+				return _Changes;
+			}
+		}
 
 		public ChainedBlock FindFork(Chain chain)
 		{
@@ -350,10 +448,13 @@ namespace NBitcoin
 		}
 
 
-
 		public Chain Clone()
 		{
-			return new Chain(this);
+			return Clone(null);
+		}
+		public Chain Clone(ObjectStream<ChainChange> changes)
+		{
+			return new Chain(this, changes);
 		}
 
 		public IEnumerable<ChainedBlock> ToEnumerable(bool fromTip)

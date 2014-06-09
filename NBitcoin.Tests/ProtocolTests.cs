@@ -222,7 +222,7 @@ namespace NBitcoin.Tests
 				server.RegisterPeerTableRepository(PeerCache);
 				CancellationTokenSource cancel = new CancellationTokenSource();
 				StreamObjectStream<ChainChange> changes = new StreamObjectStream<ChainChange>(new MemoryStream());
-				var chain = Chain.Load(changes);
+				var chain = new Chain(changes);
 				server.BuildChain(changes, cancel.Token);
 			}
 		}		

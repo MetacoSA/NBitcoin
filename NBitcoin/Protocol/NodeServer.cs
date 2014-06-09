@@ -808,7 +808,7 @@ namespace NBitcoin.Protocol
 		{
 			if(changes == null)
 				changes = new StreamObjectStream<ChainChange>();
-			var chain = Chain.LoadOrInitialize(changes, Network);
+			var chain = new Chain(Network, changes);
 			TraceCorrelation trace = new TraceCorrelation(NodeServerTrace.Trace, "Build chain");
 			using(trace.Open())
 			{
@@ -832,7 +832,7 @@ namespace NBitcoin.Protocol
 							{
 								foreach(var header in headers.Headers)
 								{
-									chain.GetOrAdd(header, changes);
+									chain.GetOrAdd(header);
 								}
 								if(before.HashBlock != chain.Tip.HashBlock)
 								{

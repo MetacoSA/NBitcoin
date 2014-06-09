@@ -20,6 +20,7 @@ namespace NBitcoin
 		public T ReadNext()
 		{
 			var result = ReadNextCore();
+			Position++;
 			if(result == null)
 			{
 				if(!EOF)
@@ -35,9 +36,16 @@ namespace NBitcoin
 			if(!EOF)
 				throw new InvalidOperationException("EOF should be true before writing more");
 			WriteNextCore(obj);
+			Position++;
 		}
 
-		public abstract void Rewind();
+		public void Rewind()
+		{
+			RewindCore();
+			Position = 0;
+		}
+
+		protected abstract void RewindCore();
 		protected abstract void WriteNextCore(T obj);
 		protected abstract T ReadNextCore();
 
@@ -54,5 +62,41 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public int Position
+		{
+			get;
+			private set;
+		}
+
+		public void GoTo(int position)
+		{
+			if(position == Position)
+				return;
+			if(position == 0)
+			{
+				Rewind();
+				return;
+			}
+			GoToCore(position);
+		}
+
+		protected virtual void GoToCore(int position)
+		{
+			if(Position < position)
+			{
+				while(Position < position)
+				{
+					var obj = ReadNext();
+					if(obj == null)
+						throw new IndexOutOfRangeException();
+				}
+			}
+			else if(Position > position)
+			{
+				Rewind();
+				GoTo(position);
+			}
+		}
 	}
 }

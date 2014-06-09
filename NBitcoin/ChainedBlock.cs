@@ -200,5 +200,15 @@ namespace NBitcoin
 		}
 
 
+
+		public IEnumerable<ChainedBlock> EnumerateToGenesis()
+		{
+			var current = this;
+			while(current != null)
+			{
+				yield return current;
+				current = current.Previous;
+			}
+		}
 	}
 }

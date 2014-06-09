@@ -27,7 +27,7 @@ namespace NBitcoin
 				return _Stream;
 			}
 		}
-		public override void Rewind()
+		protected override void RewindCore()
 		{
 			_Stream.Position = 0;
 		}

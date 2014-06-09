@@ -334,7 +334,7 @@ namespace NBitcoin.Tests
 		internal void ReloadScanner()
 		{
 			_ScanState.Dispose();
-			_ScanState = new ScanState(_ScanState.Scanner, _ScanState.Persister);
+			_ScanState = new ScanState(_ScanState.Scanner, _ScanState.Persister, ScanState.StartHeight);
 		}
 	}
 
