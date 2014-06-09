@@ -102,8 +102,6 @@ namespace NBitcoin
 					_Changes.WriteNext(change);
 				}
 			}
-			_Changes.GoTo(copied._NextToProcess);
-			copied.Changes.GoTo(copied._NextToProcess);
 		}
 		public Chain(ObjectStream<ChainChange> changes)
 		{

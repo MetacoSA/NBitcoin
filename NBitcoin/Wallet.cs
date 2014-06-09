@@ -309,57 +309,67 @@ namespace NBitcoin
 
 		#endregion
 	}
-	public class WalletPool : IBitcoinSerializable
+	public class WalletPool
 	{
-		List<AccountEntry> _AccountEntries = new List<AccountEntry>();
+		public WalletPool()
+			: this(null as ObjectStream<AccountEntry>)
+		{
+
+		}
+		public WalletPool(ObjectStream<AccountEntry> entries)
+		{
+			if(entries == null)
+				entries = new StreamObjectStream<AccountEntry>();
+			entries.Rewind();
+			_Entries = entries;
+			Process();
+		}
+
+		public WalletPool(WalletPool copied) : this(copied, null)
+		{
+		}
+		public WalletPool(WalletPool copied, ObjectStream<AccountEntry> entries)
+		{
+			if(entries == null)
+				entries = new StreamObjectStream<AccountEntry>();
+			_Entries = entries;
+			copied.Entries.Rewind();
+			entries.Rewind();
+			foreach(var entry in copied.Entries.Enumerate())
+			{
+				if(_NextToProcess < copied._NextToProcess)
+				{
+					PushAccountEntry(entry);
+				}
+				else
+					entries.WriteNext(entry);
+			}
+		}
+
+
+		private readonly ObjectStream<AccountEntry> _Entries;
+		public ObjectStream<AccountEntry> Entries
+		{
+			get
+			{
+				return _Entries;
+			}
+		}
+
+		private int _NextToProcess;
 
 		internal AccountEntry PushAccountEntry(uint256 block, Spendable spendable, Money balanceChange)
 		{
 			return PushAccountEntry(new AccountEntry(balanceChange < 0 ? AccountEntryReason.Outcome : AccountEntryReason.Income, block, spendable, balanceChange));
 		}
-		internal AccountEntry PushAccountEntry(AccountEntry entry)
+		public AccountEntry PushAccountEntry(AccountEntry entry)
 		{
-			try
+			if(Process(entry) != null)
 			{
-				if(entry.Reason != AccountEntryReason.ChainBlockChanged)
-				{
-					if(entry.BalanceChange < Money.Zero)
-					{
-						if(!_Unspent.Remove(entry.Spendable.OutPoint))
-							return null;
-					}
-					if(entry.BalanceChange > Money.Zero)
-					{
-						if(!_Unspent.TryAdd(entry.Spendable.OutPoint, entry.Spendable))
-							return null;
-					}
-					if(entry.BalanceChange == Money.Zero)
-						return null;
-				}
-				else
-				{
-					if(entry.BalanceChange < Money.Zero)
-					{
-						if(!_Unspent.Remove(entry.Spendable.OutPoint))
-							return null;
-					}
-					if(entry.BalanceChange > Money.Zero)
-					{
-						if(!_Unspent.TryAdd(entry.Spendable.OutPoint, entry.Spendable))
-							return null;
-					}
-				}
-				_AccountEntries.Add(entry);
-				_Balance += entry.BalanceChange;
-				return entry;
+				_Entries.WriteNext(entry);
+				_NextToProcess++;
 			}
-			finally
-			{
-#if DEBUG
-				if(_Balance != Unspent.Select(o => o.TxOut.Value).Sum())
-					throw new NotSupportedException("Something is going wrong");
-#endif
-			}
+			return entry;
 		}
 
 		internal void PushEntry(WalletEntry entry)
@@ -426,7 +436,7 @@ namespace NBitcoin
 		public AccountEntry[] GetInChain(Chain chain, bool value)
 		{
 			Dictionary<OutPoint, AccountEntry> entries = new Dictionary<OutPoint, AccountEntry>();
-			foreach(var entry in _AccountEntries)
+			foreach(var entry in AccountEntries)
 			{
 				if(entry.Block == null)
 					continue;
@@ -446,7 +456,7 @@ namespace NBitcoin
 		{
 			StringBuilder builder = new StringBuilder();
 
-			foreach(var entry in _AccountEntries)
+			foreach(var entry in AccountEntries)
 			{
 				builder.AppendLine(entry.BalanceChange.ToString(true));
 			}
@@ -454,23 +464,88 @@ namespace NBitcoin
 			return builder.ToString();
 		}
 
-		#region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public void Process()
 		{
-			if(stream.Serializing)
-				stream.ReadWrite(ref _AccountEntries);
-			else
+			while(true)
 			{
-				var entries = new List<AccountEntry>();
-				stream.ReadWrite(ref entries);
-				foreach(var e in entries)
-					PushAccountEntry(e);
+				var entry = Entries.ReadNext();
+				if(entry == null)
+					break;
+				if(Process(entry) != null)
+					_NextToProcess++;
 			}
-
 		}
 
-		#endregion
+		internal AccountEntry Process(AccountEntry entry)
+		{
+			try
+			{
+				if(entry.Reason != AccountEntryReason.ChainBlockChanged)
+				{
+					if(entry.BalanceChange < Money.Zero)
+					{
+						if(!_Unspent.Remove(entry.Spendable.OutPoint))
+							return null;
+					}
+					if(entry.BalanceChange > Money.Zero)
+					{
+						if(!_Unspent.TryAdd(entry.Spendable.OutPoint, entry.Spendable))
+							return null;
+					}
+					if(entry.BalanceChange == Money.Zero)
+						return null;
+				}
+				else
+				{
+					if(entry.BalanceChange < Money.Zero)
+					{
+						if(!_Unspent.Remove(entry.Spendable.OutPoint))
+							return null;
+					}
+					if(entry.BalanceChange > Money.Zero)
+					{
+						if(!_Unspent.TryAdd(entry.Spendable.OutPoint, entry.Spendable))
+							return null;
+					}
+				}
+				_Balance += entry.BalanceChange;
+				return entry;
+			}
+			finally
+			{
+#if DEBUG
+				if(_Balance != Unspent.Select(o => o.TxOut.Value).Sum())
+					throw new NotSupportedException("Something is going wrong");
+#endif
+			}
+		}
+
+
+		public IEnumerable<AccountEntry> AccountEntries
+		{
+			get
+			{
+				List<AccountEntry> entries = new List<AccountEntry>();
+				_Entries.Rewind();
+				while(_Entries.Position < _NextToProcess)
+				{
+					if(_Entries.EOF)
+						throw new InvalidOperationException("The entries stream is shorter than during initialization");
+					entries.Add(_Entries.ReadNext());
+				}
+				return entries;
+			}
+		}
+
+		public WalletPool Clone()
+		{
+			return Clone(null);
+		}
+		public WalletPool Clone(ObjectStream<AccountEntry> entries)
+		{
+			return new WalletPool(this, entries);
+		}
 	}
 
 	public delegate void WalletBalanceChangedDelegate(Wallet wallet, Transaction tx, Money oldBalance, Money newBalance);

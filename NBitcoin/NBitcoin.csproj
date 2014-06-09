@@ -80,12 +80,10 @@
     <Compile Include="RPC\RPCOperations.cs" />
     <Compile Include="RPC\SatoshiFormatter.cs" />
     <Compile Include="RPC\UnspentCoin.cs" />
-    <Compile Include="Scanning\FolderScanStatePersister.cs" />
     <Compile Include="Scanning\IBlockProvider.cs" />
     <Compile Include="Scanning\PubKeyHashScanner.cs" />
     <Compile Include="Scanning\Scanner.cs" />
     <Compile Include="Scanning\ScanState.cs" />
-    <Compile Include="Scanning\ScanStatePersister.cs" />
     <Compile Include="Scanning\ScriptHashScanner.cs" />
     <Compile Include="Scanning\StealthPaymentScanner.cs" />
     <Compile Include="StreamObjectStream.cs" />

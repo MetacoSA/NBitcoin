@@ -59,7 +59,7 @@ namespace NBitcoin.Tests
 			coins = bob.Scanner.ScanCoins(tx, 0);
 			Assert.NotNull(coins);
 			Assert.Equal(Money.Parse("0"), coins.Value);
-			
+
 			alice.Prefix = new BitField(1, 3);
 			alice.UpdateAddress();
 
@@ -289,10 +289,16 @@ namespace NBitcoin.Tests
 		}
 		public ScannerUser(KeyId keyId, int start, ScannerTester tester)
 		{
+			var folder = Path.Combine(tester._FolderName, tester.scanner.ToString());
+			TestUtils.EnsureNew(folder);
+
+			var chainStream = new StreamObjectStream<ChainChange>(File.Open(Path.Combine(folder, "Chain"), FileMode.OpenOrCreate));
+			var accountStream = new StreamObjectStream<AccountEntry>(File.Open(Path.Combine(folder, "Entries"), FileMode.OpenOrCreate));
 			_Id = keyId;
 			_Scanner = new PubKeyHashScanner(keyId);
 			_ScanState = new ScanState(new PubKeyHashScanner(keyId),
-							new FolderScanStatePersister(Path.Combine(tester._FolderName, tester.scanner.ToString())),
+							new Chain(chainStream),
+							new WalletPool(accountStream),
 							start);
 			_Tester = tester;
 		}
@@ -333,8 +339,11 @@ namespace NBitcoin.Tests
 
 		internal void ReloadScanner()
 		{
-			_ScanState.Dispose();
-			_ScanState = new ScanState(_ScanState.Scanner, _ScanState.Persister, ScanState.StartHeight);
+			var old = _ScanState;
+			_ScanState = new ScanState(_ScanState.Scanner, _ScanState.Chain.Clone(),
+				_ScanState.Account.Clone(), ScanState.StartHeight);
+			old.Dispose();
+
 		}
 	}
 

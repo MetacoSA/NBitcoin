@@ -8,27 +8,18 @@ namespace NBitcoin.Scanning
 {
 	public class ScanState : IDisposable
 	{
-		bool _OwnPersister;
-		public ScanState(Scanner scanner, ScanStatePersister persister, int startHeight)
+		public ScanState(Scanner scanner, 
+						 Chain chain,
+						 WalletPool account, int startHeight)
 		{
-			if(persister == null)
-				throw new ArgumentNullException("persister");
 			if(scanner == null)
 				throw new ArgumentNullException("scanner");
 
 
-			_Account = new WalletPool();
-			_Persister = persister;
-			_OwnPersister = persister.Open(false);
-			persister.Rewind();
+			_Account = account;
+			_Chain = chain;
 			_Scanner = scanner;
 			_StartHeight = startHeight;
-
-			_Chain = new Chain(persister.ChainChanges);
-			foreach(var entry in persister.AccountEntries.Enumerate())
-			{
-				_Account.PushAccountEntry(entry);
-			}
 		}
 
 		private readonly int _StartHeight;
@@ -49,16 +40,7 @@ namespace NBitcoin.Scanning
 			}
 		}
 
-		private readonly ScanStatePersister _Persister;
-		public ScanStatePersister Persister
-		{
-			get
-			{
-				return _Persister;
-			}
-		}
-
-
+		
 		private readonly WalletPool _Account;
 		public WalletPool Account
 		{
@@ -68,7 +50,7 @@ namespace NBitcoin.Scanning
 			}
 		}
 
-		private Chain _Chain;
+		private readonly Chain _Chain;
 		public Chain Chain
 		{
 			get
@@ -96,7 +78,6 @@ namespace NBitcoin.Scanning
 				{
 					var neutralized = e.Neutralize();
 					Account.PushAccountEntry(neutralized);
-					Persister.AccountEntries.WriteNext(neutralized);
 				}
 			}
 
@@ -122,7 +103,6 @@ namespace NBitcoin.Scanning
 													block.HashBlock,
 													spent, -spent.TxOut.Value);
 						Account.PushAccountEntry(entry);
-						Persister.AccountEntries.WriteNext(entry);
 					}
 					foreach(var coins in Scanner.ScanCoins(fullBlock, (int)block.Height))
 					{
@@ -134,7 +114,6 @@ namespace NBitcoin.Scanning
 								var entry = new AccountEntry(AccountEntryReason.Income, block.HashBlock,
 													new Spendable(new OutPoint(coins.TxId, i), output), output.Value);
 								Account.PushAccountEntry(entry);
-								Persister.AccountEntries.WriteNext(entry);
 							}
 							i++;
 						}
@@ -148,8 +127,8 @@ namespace NBitcoin.Scanning
 
 		public void Dispose()
 		{
-			if(_OwnPersister)
-				Persister.Dispose();
+			Account.Entries.Dispose();
+			Chain.Changes.Dispose();
 		}
 
 		#endregion
