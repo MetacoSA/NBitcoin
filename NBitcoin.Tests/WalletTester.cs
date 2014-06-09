@@ -120,7 +120,7 @@ namespace NBitcoin.Tests
 		}
 
 		[DebuggerHidden]
-		private void AssertAccount(WalletPool walletPool, string operations)
+		private void AssertAccount(Account walletPool, string operations)
 		{
 			Assert.Equal(operations, walletPool.ToString().Replace("\r\n", ""));
 		}

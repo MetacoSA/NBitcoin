@@ -228,7 +228,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		public void GiveMoney(Money amount, WalletPool account, KeyId returnAddress, KeyId to, params Chain[] chains)
+		public void GiveMoney(Money amount, Account account, KeyId returnAddress, KeyId to, params Chain[] chains)
 		{
 			var entries = account.GetEntriesToCover(amount);
 			var tx = new Transaction();
@@ -298,7 +298,7 @@ namespace NBitcoin.Tests
 			_Scanner = new PubKeyHashScanner(keyId);
 			_ScanState = new ScanState(new PubKeyHashScanner(keyId),
 							new Chain(chainStream),
-							new WalletPool(accountStream),
+							new Account(accountStream),
 							start);
 			_Tester = tester;
 		}

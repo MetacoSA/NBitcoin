@@ -207,33 +207,33 @@ namespace NBitcoin
 	}
 
 
-	public class WalletPools : IBitcoinSerializable
+	public class Accounts : IBitcoinSerializable
 	{
-		public WalletPools()
+		public Accounts()
 		{
-			_Confirmed = new WalletPool();
-			_Available = new WalletPool();
-			_Unconfirmed = new WalletPool();
+			_Confirmed = new Account();
+			_Available = new Account();
+			_Unconfirmed = new Account();
 		}
 
-		private WalletPool _Unconfirmed;
-		public WalletPool Unconfirmed
+		private Account _Unconfirmed;
+		public Account Unconfirmed
 		{
 			get
 			{
 				return _Unconfirmed;
 			}
 		}
-		private WalletPool _Available;
-		public WalletPool Available
+		private Account _Available;
+		public Account Available
 		{
 			get
 			{
 				return _Available;
 			}
 		}
-		private WalletPool _Confirmed;
-		public WalletPool Confirmed
+		private Account _Confirmed;
+		public Account Confirmed
 		{
 			get
 			{
@@ -247,7 +247,7 @@ namespace NBitcoin
 			NeutralizeUnconfirmed(chain, Available);
 		}
 
-		private void NeutralizeUnconfirmed(Chain chain, WalletPool account)
+		private void NeutralizeUnconfirmed(Chain chain, Account account)
 		{
 			var unconfirmed = account.GetInChain(chain, false).Where(e => e.Reason != AccountEntryReason.ChainBlockChanged);
 			foreach(var e in unconfirmed)
@@ -309,14 +309,14 @@ namespace NBitcoin
 
 		#endregion
 	}
-	public class WalletPool
+	public class Account
 	{
-		public WalletPool()
+		public Account()
 			: this(null as ObjectStream<AccountEntry>)
 		{
 
 		}
-		public WalletPool(ObjectStream<AccountEntry> entries)
+		public Account(ObjectStream<AccountEntry> entries)
 		{
 			if(entries == null)
 				entries = new StreamObjectStream<AccountEntry>();
@@ -325,10 +325,10 @@ namespace NBitcoin
 			Process();
 		}
 
-		public WalletPool(WalletPool copied) : this(copied, null)
+		public Account(Account copied) : this(copied, null)
 		{
 		}
-		public WalletPool(WalletPool copied, ObjectStream<AccountEntry> entries)
+		public Account(Account copied, ObjectStream<AccountEntry> entries)
 		{
 			if(entries == null)
 				entries = new StreamObjectStream<AccountEntry>();
@@ -538,13 +538,13 @@ namespace NBitcoin
 			}
 		}
 
-		public WalletPool Clone()
+		public Account Clone()
 		{
 			return Clone(null);
 		}
-		public WalletPool Clone(ObjectStream<AccountEntry> entries)
+		public Account Clone(ObjectStream<AccountEntry> entries)
 		{
-			return new WalletPool(this, entries);
+			return new Account(this, entries);
 		}
 	}
 
@@ -576,7 +576,7 @@ namespace NBitcoin
 							network == Network.RegTest ? (byte)2 : (byte)3;
 			InitNetwork();
 			this._Network = network;
-			this._Pools = new WalletPools();
+			this._Pools = new Accounts();
 		}
 
 		private void InitNetwork()
@@ -612,8 +612,8 @@ namespace NBitcoin
 			}
 		}
 
-		WalletPools _Pools;
-		public WalletPools Pools
+		Accounts _Pools;
+		public Accounts Pools
 		{
 			get
 			{
@@ -693,11 +693,11 @@ namespace NBitcoin
 			}
 		}
 
-		public bool CompleteTx(Transaction tx, WalletPool pool = null)
+		public bool CompleteTx(Transaction tx, Account pool = null)
 		{
 			return CompleteTx(tx, Money.Zero, pool);
 		}
-		public bool CompleteTx(Transaction tx, Money fees, WalletPool pool = null)
+		public bool CompleteTx(Transaction tx, Money fees, Account pool = null)
 		{
 			pool = pool ?? Pools.Available;
 			var entries = pool.GetEntriesToCover(tx.TotalOut + fees);

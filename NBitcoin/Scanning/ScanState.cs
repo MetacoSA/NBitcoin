@@ -10,7 +10,7 @@ namespace NBitcoin.Scanning
 	{
 		public ScanState(Scanner scanner, 
 						 Chain chain,
-						 WalletPool account, int startHeight)
+						 Account account, int startHeight)
 		{
 			if(scanner == null)
 				throw new ArgumentNullException("scanner");
@@ -41,8 +41,8 @@ namespace NBitcoin.Scanning
 		}
 
 		
-		private readonly WalletPool _Account;
-		public WalletPool Account
+		private readonly Account _Account;
+		public Account Account
 		{
 			get
 			{
