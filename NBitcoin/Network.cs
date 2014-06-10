@@ -208,7 +208,7 @@ namespace NBitcoin
 		{
 			InitTest();
 			magic = 0xDAB5BFFA;
-			//nSubsidyHalvingInterval = 150;
+			nSubsidyHalvingInterval = 150;
 			_ProofOfLimit = new Target(~new uint256(0) >> 1);
 			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1296688602);
 			genesis.Header.Bits = 0x207fffff;
@@ -224,7 +224,7 @@ namespace NBitcoin
 
 		static Network _Main;
 		private Target _ProofOfLimit;
-		//private int nSubsidyHalvingInterval;
+		private int nSubsidyHalvingInterval;
 		private string name;
 		public static Network Main
 		{
@@ -251,7 +251,7 @@ namespace NBitcoin
 			nDefaultPort = 8333;
 			nRPCPort = 8332;
 			_ProofOfLimit = new Target(~new uint256(0) >> 32);
-			//nSubsidyHalvingInterval = 210000;
+			nSubsidyHalvingInterval = 210000;
 
 			// Build the genesis block. Note that the output of the genesis coinbase cannot
 			// be spent as it did not originally exist in the database.
@@ -268,7 +268,7 @@ namespace NBitcoin
 			txNew.Inputs[0].ScriptSig = new Script(DataEncoders.Encoders.Hex.DecodeData("04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73"));
 			txNew.Outputs[0].Value = 50 * Money.COIN;
 			txNew.Outputs[0].ScriptPubKey = new Script() + DataEncoders.Encoders.Hex.DecodeData("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") + OpcodeType.OP_CHECKSIG;
-			genesis.Transactions = genesis.Transactions.Concat(new[] { txNew }).ToArray();
+			genesis.Transactions.Add(txNew);
 			genesis.Header.HashPrevBlock = 0;
 			genesis.Header.HashMerkleRoot = genesis.ComputeMerkleRoot();
 			genesis.Header.Version = 1;
@@ -617,6 +617,21 @@ namespace NBitcoin
 			{
 				return magic;
 			}
+		}
+
+		public Money GetReward(int nHeight)
+		{
+			long nSubsidy = new Money(50 * Money.COIN);
+			int halvings = nHeight / nSubsidyHalvingInterval;
+
+			// Force block reward to zero when right shift is undefined.
+			if(halvings >= 64)
+				return Money.Zero;
+
+			// Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
+			nSubsidy >>= halvings;
+
+			return new Money(nSubsidy);
 		}
 
 		public void ReadMagic(Stream stream, CancellationToken cancellation)

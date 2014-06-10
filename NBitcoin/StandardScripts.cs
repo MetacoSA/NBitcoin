@@ -19,7 +19,7 @@ namespace NBitcoin
 		};
 		public static Script PayToAddress(BitcoinAddress address)
 		{
-			return PayToPubkeyHash(address.ID);
+			return PayToPubkeyHash((KeyId)address.ID);
 		}
 
 		private static Script PayToPubkeyHash(KeyId pubkeyHash)

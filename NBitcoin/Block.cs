@@ -163,9 +163,9 @@ namespace NBitcoin
 		public const uint MAX_BLOCK_SIZE = 1000000;
 		BlockHeader header = new BlockHeader();
 		// network and disk
-		Transaction[] vtx;
+		List<Transaction> vtx = new List<Transaction>();
 
-		public Transaction[] Transactions
+		public List<Transaction> Transactions
 		{
 			get
 			{
@@ -205,7 +205,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return vtx == null || vtx.Length == 0;
+				return vtx == null || vtx.Count == 0;
 			}
 		}
 
@@ -213,7 +213,7 @@ namespace NBitcoin
 		void SetNull()
 		{
 			header.SetNull();
-			vtx = new Transaction[0];
+			vtx.Clear();
 		}
 
 		public BlockHeader Header
@@ -230,7 +230,7 @@ namespace NBitcoin
 			foreach(var tx in Transactions)
 				vMerkleTree.Add(tx.GetHash());
 			int j = 0;
-			for(int nSize = vtx.Length ; nSize > 1 ; nSize = (nSize + 1) / 2)
+			for(int nSize = vtx.Count ; nSize > 1 ; nSize = (nSize + 1) / 2)
 			{
 				for(int i = 0 ; i < nSize ; i += 2)
 				{
@@ -252,7 +252,7 @@ namespace NBitcoin
 		{
 			if(vMerkleTree.Count <= 0)
 				throw new InvalidOperationException("BuildMerkleTree must have been called first");
-			if(nIndex >= vtx.Length)
+			if(nIndex >= vtx.Count)
 				throw new InvalidOperationException("nIndex >= vtx.Length");
 			return vMerkleTree[nIndex];
 		}
@@ -263,7 +263,7 @@ namespace NBitcoin
 				ComputeMerkleRoot();
 			List<uint256> vMerkleBranch = new List<uint256>();
 			int j = 0;
-			for(int nSize = vtx.Length ; nSize > 1 ; nSize = (nSize + 1) / 2)
+			for(int nSize = vtx.Count ; nSize > 1 ; nSize = (nSize + 1) / 2)
 			{
 				int i = Math.Min(nIndex ^ 1, nSize - 1);
 				vMerkleBranch.Add(vMerkleTree[j + i]);
@@ -314,9 +314,10 @@ namespace NBitcoin
 			ReadWrite(bitStream);
 		}
 
-		public void AddTransaction(Transaction tx)
+		public Transaction AddTransaction(Transaction tx)
 		{
-			Transactions = Transactions.Concat(new[] { tx }).ToArray();
+			Transactions.Add(tx);
+			return tx;
 		}
 
 		public void UpdateMerkleRoot()
@@ -328,6 +329,23 @@ namespace NBitcoin
 		{
 			ComputeMerkleRoot();
 			return Header.HashMerkleRoot == vMerkleTree.Last();
+		}
+
+		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height)
+		{
+			return CreateNextBlockWithCoinbase(address, height, DateTimeOffset.UtcNow);
+		}
+		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height, DateTimeOffset now)
+		{
+			Block block = new Block();
+			block.Header.HashPrevBlock = this.GetHash();
+			block.Header.BlockTime = now;
+			var tx = block.AddTransaction(new Transaction());
+			tx.Outputs.Add(new TxOut(address.Network.GetReward(height), address)
+			{
+				Value = address.Network.GetReward(height)
+			});
+			return block;
 		}
 	}
 }

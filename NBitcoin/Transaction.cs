@@ -504,7 +504,7 @@ namespace NBitcoin
 			if(value == null)
 				throw new ArgumentNullException("value");
 			Value = value;
-			SetDestination(bitcoinAddress);
+			SetDestination(bitcoinAddress.ID);
 		}
 
 		public TxOut(Money value, KeyId keyId)
@@ -524,20 +524,11 @@ namespace NBitcoin
 			ScriptPubKey = scriptPubKey;
 		}
 
-		private void SetDestination(KeyId keyId)
+		private void SetDestination(TxDestination destination)
 		{
-			ScriptPubKey = new PayToPubkeyHashTemplate().GenerateScriptPubKey(keyId);
+			ScriptPubKey = destination.CreateScriptPubKey();
 		}
 
-		public void SetDestination(ScriptId scriptId)
-		{
-			ScriptPubKey = new PayToScriptHashTemplate().GenerateScriptPubKey(scriptId);
-		}
-
-		public void SetDestination(BitcoinAddress address)
-		{
-			ScriptPubKey = new PayToPubkeyHashTemplate().GenerateScriptPubKey(address);
-		}
 		public Money Value
 		{
 			get
@@ -589,7 +580,7 @@ namespace NBitcoin
 		{
 			if(address == null)
 				throw new ArgumentNullException("address");
-			return IsTo(address.ID);
+			return IsTo((KeyId)address.ID);
 		}
 
 		private bool IsTo(KeyId keyId)

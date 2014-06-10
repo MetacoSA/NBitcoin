@@ -77,6 +77,7 @@
     <Compile Include="ChainTests.cs" />
     <Compile Include="checkblock_tests.cs" />
     <Compile Include="ConverterTests.cs" />
+    <Compile Include="FullBlockTestGenerator.cs" />
     <Compile Include="hash_tests.cs" />
     <Compile Include="key_tests.cs" />
     <Compile Include="PaymentTests.cs" />

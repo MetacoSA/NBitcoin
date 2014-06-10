@@ -327,7 +327,7 @@ namespace NBitcoin
 		{
 			if(address == null)
 				throw new ArgumentNullException("address");
-			return GenerateScriptPubKey(address.ID);
+			return GenerateScriptPubKey((KeyId)address.ID);
 		}
 		public Script GenerateScriptPubKey(PubKey pubKey)
 		{

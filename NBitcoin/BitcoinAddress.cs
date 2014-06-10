@@ -21,7 +21,7 @@ namespace NBitcoin
 		{
 		}
 
-		public new ScriptId ID
+		public override TxDestination ID
 		{
 			get
 			{
@@ -68,7 +68,7 @@ namespace NBitcoin
 			}
 		}
 
-		public KeyId ID
+		public virtual TxDestination ID
 		{
 			get
 			{

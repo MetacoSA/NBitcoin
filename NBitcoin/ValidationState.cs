@@ -201,7 +201,7 @@ namespace NBitcoin
 			// that can be verified before saving an orphan block.
 
 			// Size limits
-			if(block.Transactions.Length == 0 || block.Transactions.Length > MAX_BLOCK_SIZE || block.Length > MAX_BLOCK_SIZE)
+			if(block.Transactions.Count == 0 || block.Transactions.Count > MAX_BLOCK_SIZE || block.Length > MAX_BLOCK_SIZE)
 				return DoS(100, Error("CheckBlock() : size limits failed"),
 								 RejectCode.INVALID, "bad-blk-length");
 
@@ -216,10 +216,10 @@ namespace NBitcoin
 									 RejectCode.INVALID, "time-too-new");
 
 			// First transaction must be coinbase, the rest must not be
-			if(block.Transactions.Length == 0 || !block.Transactions[0].IsCoinBase)
+			if(block.Transactions.Count == 0 || !block.Transactions[0].IsCoinBase)
 				return DoS(100, Error("CheckBlock() : first tx is not coinbase"),
 								 RejectCode.INVALID, "bad-cb-missing");
-			for(int i = 1 ; i < block.Transactions.Length ; i++)
+			for(int i = 1 ; i < block.Transactions.Count ; i++)
 				if(block.Transactions[i].IsCoinBase)
 					return DoS(100, Error("CheckBlock() : more than one coinbase"),
 									 RejectCode.INVALID, "bad-cb-multiple");
@@ -237,11 +237,11 @@ namespace NBitcoin
 			// Check for duplicate txids. This is caught by ConnectInputs(),
 			// but catching it earlier avoids a potential DoS attack:
 			HashSet<uint256> uniqueTx = new HashSet<uint256>();
-			for(int i = 0 ; i < block.Transactions.Length ; i++)
+			for(int i = 0 ; i < block.Transactions.Count ; i++)
 			{
 				uniqueTx.Add(block.GetTxHash(i));
 			}
-			if(uniqueTx.Count != block.Transactions.Length)
+			if(uniqueTx.Count != block.Transactions.Count)
 				return DoS(100, Error("CheckBlock() : duplicate transaction"),
 								 RejectCode.INVALID, "bad-txns-duplicate", true);
 

@@ -32,6 +32,11 @@ namespace NBitcoin
 			_Dest = value;
 		}
 
+		public virtual Script CreateScriptPubKey()
+		{
+			return null;
+		}
+
 		public byte[] ToBytes()
 		{
 			return Encoders.Hex.DecodeData(_Dest);
@@ -92,6 +97,11 @@ namespace NBitcoin
 		{
 		}
 
+
+		public override Script CreateScriptPubKey()
+		{
+			return new PayToPubkeyHashTemplate().GenerateScriptPubKey(this);
+		}
 	}
 	public class ScriptId : TxDestination
 	{
@@ -117,5 +127,10 @@ namespace NBitcoin
 		{
 		}
 
+
+		public override Script CreateScriptPubKey()
+		{
+			return new PayToScriptHashTemplate().GenerateScriptPubKey(this);
+		}
 	}
 }
