@@ -97,7 +97,7 @@ namespace NBitcoin.Tests
 		{
 			var tx = new Transaction();
 			tx.AddOutput(money, OtherKey.PubKey.GetAddress(Network.Main));
-			Wallet.CompleteTx(tx, fromConfirmedPool ? Wallet.Pools.Confirmed : Wallet.Pools.Available);
+			Wallet.CompleteTx(tx, fromConfirmedPool ? Wallet.Accounts.Confirmed : Wallet.Accounts.Available);
 			return RecieveTransaction(tx, chains);
 		}
 
@@ -114,9 +114,9 @@ namespace NBitcoin.Tests
 
 		private void AssertPools(Wallet wallet, string confirmedOperations, string availableOperations, string unconfirmedOperations)
 		{
-			AssertAccount(wallet.Pools.Confirmed, confirmedOperations);
-			AssertAccount(wallet.Pools.Available, availableOperations);
-			AssertAccount(wallet.Pools.Unconfirmed, unconfirmedOperations);
+			AssertAccount(wallet.Accounts.Confirmed, confirmedOperations);
+			AssertAccount(wallet.Accounts.Available, availableOperations);
+			AssertAccount(wallet.Accounts.Unconfirmed, unconfirmedOperations);
 		}
 
 		[DebuggerHidden]

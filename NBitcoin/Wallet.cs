@@ -103,7 +103,7 @@ namespace NBitcoin
 							network == Network.RegTest ? (byte)2 : (byte)3;
 			InitNetwork();
 			this._Network = network;
-			this._Pools = new Accounts();
+			this._Accounts = new Accounts();
 		}
 
 		private void InitNetwork()
@@ -135,16 +135,16 @@ namespace NBitcoin
 		{
 			get
 			{
-				return Pools.Available.Balance;
+				return Accounts.Available.Balance;
 			}
 		}
 
-		Accounts _Pools;
-		public Accounts Pools
+		Accounts _Accounts;
+		public Accounts Accounts
 		{
 			get
 			{
-				return _Pools;
+				return _Accounts;
 			}
 		}
 
@@ -170,7 +170,7 @@ namespace NBitcoin
 						entry.ScriptPubKey = tx.Outputs[i].ScriptPubKey;
 						entry.OutPoint = new OutPoint(tx, i);
 						entry.Value = tx.Outputs[i].Value;
-						_Pools.PushEntry(entry, blockType);
+						_Accounts.PushEntry(entry, blockType);
 					}
 				}
 			}
@@ -184,7 +184,7 @@ namespace NBitcoin
 						var entry = new WalletEntry();
 						entry.Block = block;
 						entry.OutPoint = txin.PrevOut;
-						_Pools.PushEntry(entry, blockType);
+						_Accounts.PushEntry(entry, blockType);
 					}
 				}
 			}
@@ -226,8 +226,8 @@ namespace NBitcoin
 		}
 		public bool CompleteTx(Transaction tx, Money fees, Account pool = null)
 		{
-			pool = pool ?? Pools.Available;
-			var entries = pool.GetEntriesToCover(tx.TotalOut + fees);
+			pool = pool ?? Accounts.Available;
+			var entries = pool.GetEntriesToCover(tx.TotalOut + fees, false);
 			if(entries == null)
 				return false;
 
@@ -305,7 +305,7 @@ namespace NBitcoin
 			if(_CurrentChain == null || !chain.SameTip(_CurrentChain))
 			{
 				List<ChainedBlock> unprocessed = null;
-				Pools.Update(chain);
+				Accounts.Update(chain);
 				if(_CurrentChain == null)
 				{
 					_CurrentChain = chain.Clone(new StreamObjectStream<ChainChange>());

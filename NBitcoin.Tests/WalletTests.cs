@@ -14,6 +14,31 @@ namespace NBitcoin.Tests
 	{
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanLockAndUnlockMoney()
+		{
+			WalletTester tester = new WalletTester();
+			Account account = new Account();
+
+			var chain = new Chain(Network.Main);
+			var fork = new Chain(Network.Main);
+			
+			//tester.GiveMoney("1.0", chain, fork);
+			tester.GiveMoney("0.5", chain, fork);
+
+			tester.UpdateWallet(chain);
+			Assert.NotNull(tester.Wallet.Accounts.Available.GetEntriesToCover("0.5", false));
+
+			var spendable = tester.Wallet.Accounts.Available.GetEntriesToCover("0.5", true);
+			Assert.NotNull(spendable);
+			Assert.Null(tester.Wallet.Accounts.Available.GetEntriesToCover("0.5", true));
+			Assert.True(tester.Wallet.Accounts.Available.Locked.Count() == 1);
+			spendable[0].IsLocked = false;
+			Assert.True(tester.Wallet.Accounts.Available.Locked.Count() == 0);
+		}
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanManageMoney()
 		{
 			WalletTester tester = new WalletTester();
@@ -135,29 +160,29 @@ namespace NBitcoin.Tests
 
 
 			//spend all
-			tester.Pay(tester.Wallet.Pools.Confirmed.Balance, true, chain);
+			tester.Pay(tester.Wallet.Accounts.Confirmed.Balance, true, chain);
 			tester.UpdateWallet(chain);
-			Assert.Equal(Money.Zero, tester.Wallet.Pools.Confirmed.Balance);
-			Assert.Equal(Money.Zero, tester.Wallet.Pools.Available.Balance);
-			Assert.Equal(Money.Parse("4.00"), tester.Wallet.Pools.Unconfirmed.Balance);
+			Assert.Equal(Money.Zero, tester.Wallet.Accounts.Confirmed.Balance);
+			Assert.Equal(Money.Zero, tester.Wallet.Accounts.Available.Balance);
+			Assert.Equal(Money.Parse("4.00"), tester.Wallet.Accounts.Unconfirmed.Balance);
 
 			//the canceled transaction (forked) become confirmed
 			tester.AppendBlock(four, chain);
 			tester.UpdateWallet(chain);
-			Assert.Equal(Money.Parse("4.00"), tester.Wallet.Pools.Confirmed.Balance);
-			Assert.Equal(Money.Parse("4.00"), tester.Wallet.Pools.Available.Balance);
-			Assert.Equal(Money.Parse("4.00"), tester.Wallet.Pools.Unconfirmed.Balance);
+			Assert.Equal(Money.Parse("4.00"), tester.Wallet.Accounts.Confirmed.Balance);
+			Assert.Equal(Money.Parse("4.00"), tester.Wallet.Accounts.Available.Balance);
+			Assert.Equal(Money.Parse("4.00"), tester.Wallet.Accounts.Unconfirmed.Balance);
 
 			var unconfirmedSpent = tester.Pay(Money.Parse("4.00"), true, null);
-			Assert.Equal(Money.Parse("4.00"), tester.Wallet.Pools.Confirmed.Balance);
-			Assert.Equal(Money.Parse("0.00"), tester.Wallet.Pools.Available.Balance);
-			Assert.Equal(Money.Parse("0.00"), tester.Wallet.Pools.Unconfirmed.Balance);
+			Assert.Equal(Money.Parse("4.00"), tester.Wallet.Accounts.Confirmed.Balance);
+			Assert.Equal(Money.Parse("0.00"), tester.Wallet.Accounts.Available.Balance);
+			Assert.Equal(Money.Parse("0.00"), tester.Wallet.Accounts.Unconfirmed.Balance);
 
 			tester.AppendBlock(unconfirmedSpent, chain);
 			tester.UpdateWallet(chain);
-			Assert.Equal(Money.Parse("0.00"), tester.Wallet.Pools.Confirmed.Balance);
-			Assert.Equal(Money.Parse("0.00"), tester.Wallet.Pools.Available.Balance);
-			Assert.Equal(Money.Parse("0.00"), tester.Wallet.Pools.Unconfirmed.Balance);
+			Assert.Equal(Money.Parse("0.00"), tester.Wallet.Accounts.Confirmed.Balance);
+			Assert.Equal(Money.Parse("0.00"), tester.Wallet.Accounts.Available.Balance);
+			Assert.Equal(Money.Parse("0.00"), tester.Wallet.Accounts.Unconfirmed.Balance);
 		}
 
 

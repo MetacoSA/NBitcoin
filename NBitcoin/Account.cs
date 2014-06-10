@@ -12,7 +12,9 @@ namespace NBitcoin
 	{
 		ChainBlockChanged,
 		Income,
-		Outcome
+		Outcome,
+		Lock,
+		Unlock
 	}
 	public class AccountEntry : IBitcoinSerializable
 	{
@@ -141,6 +143,23 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		internal Account _Account;
+
+		public bool IsLocked
+		{
+			get
+			{
+				return _Account._Locked.Contains(this.OutPoint);
+			}
+			set
+			{
+				if(value)
+					_Account.PushAccountEntry(new AccountEntry(AccountEntryReason.Lock, null, this.Clone(), Money.Zero));
+				else
+					_Account.PushAccountEntry(new AccountEntry(AccountEntryReason.Unlock, null, this.Clone(), Money.Zero));
+			}
+		}
 	}
 	public class Account
 	{
@@ -247,23 +266,40 @@ namespace NBitcoin
 				return _Unspent.Values;
 			}
 		}
-
-		public Spendable[] GetEntriesToCover(Money money)
+		public IEnumerable<Spendable> Locked
 		{
-			if(Balance < money)
-				return null;
+			get
+			{
+				return _Unspent.Values.Where(v => v.IsLocked);
+			}
+		}
+
+		public Spendable[] GetEntriesToCover(Money money, bool lockUsed = true)
+		{
 			var result = new List<Spendable>();
 			Money current = Money.Zero;
-			var unspent = Unspent.OrderBy(o => o.TxOut.Value.Satoshi).ToArray();
+			var unspent = Unspent
+							.Where(o => !o.IsLocked)
+							.OrderBy(o => o.TxOut.Value.Satoshi).ToArray();
 			int i = 0;
 			while(current < money)
 			{
+				if(unspent.Length <= i)
+					return null;
 				result.Add(unspent[i]);
 				current += unspent[i].TxOut.Value;
 				i++;
 			}
+			if(lockUsed)
+			{
+				foreach(var r in result)
+				{
+					r.IsLocked = true;
+				}
+			}
 			return result.ToArray();
 		}
+
 
 
 		//Do not get all entries, but only the one you can generate with spent/unspent.
@@ -311,11 +347,15 @@ namespace NBitcoin
 			}
 		}
 
+		internal HashSet<OutPoint> _Locked = new HashSet<OutPoint>();
 		internal AccountEntry Process(AccountEntry entry)
 		{
+			if(entry.Spendable._Account != null && entry.Spendable._Account != this)
+				throw new InvalidOperationException("Entry already processed by another account");
+			entry.Spendable._Account = this;
 			try
 			{
-				if(entry.Reason != AccountEntryReason.ChainBlockChanged)
+				if(entry.Reason == AccountEntryReason.Income || entry.Reason == AccountEntryReason.Outcome)
 				{
 					if(entry.BalanceChange < Money.Zero)
 					{
@@ -330,7 +370,18 @@ namespace NBitcoin
 					if(entry.BalanceChange == Money.Zero)
 						return null;
 				}
-				else
+				else if(entry.Reason == AccountEntryReason.Lock || entry.Reason == AccountEntryReason.Unlock)
+				{
+					if(entry.Reason == AccountEntryReason.Lock)
+					{
+						_Locked.Add(entry.Spendable.OutPoint);
+					}
+					else
+					{
+						_Locked.Remove(entry.Spendable.OutPoint);
+					}
+				}
+				else if(entry.Reason == AccountEntryReason.ChainBlockChanged)
 				{
 					if(entry.BalanceChange < Money.Zero)
 					{
