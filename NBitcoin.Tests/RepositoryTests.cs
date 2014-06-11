@@ -398,42 +398,89 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanStoreInSQLiteNoSql()
+		public void CanCacheNoSqlRepository()
 		{
-			SQLiteNoSqlRepository repository = CreateNoSqlRepository();
+			var cached = new CachedNoSqlRepository(CreateNoSqlRepository());
 			byte[] data1 = new byte[] { 1, 2, 3, 4, 5, 6 };
 			byte[] data2 = new byte[] { 11, 22, 33, 4, 5, 66 };
-			Assert.Null(repository.Get<RawData>("data1"));
+			cached.InnerRepository.Put("data1", new RawData(data1));
+			Assert.NotNull(cached.Get<RawData>("data1"));
+			cached.InnerRepository.Put("data1", new RawData(data2));
+			cached.Flush();
+			var data1Actual = cached.InnerRepository.Get<RawData>("data1");
+			AssertEx.CollectionEquals(data1Actual.Data, data2);
+			cached.Put("data1", new RawData(data1));
 
-			repository.Put("data1", new RawData(data1));
-			var actual = repository.Get<RawData>("data1");
-			Assert.NotNull(actual);
-			AssertEx.CollectionEquals(actual.Data, data1);
+			data1Actual = cached.InnerRepository.Get<RawData>("data1");
+			AssertEx.CollectionEquals(data1Actual.Data, data2);
 
-			repository.Put("data1", new RawData(data2));
-			actual = repository.Get<RawData>("data1");
-			Assert.NotNull(actual);
-			AssertEx.CollectionEquals(actual.Data, data2);
+			cached.Flush();
 
-			repository.Put("data1", null as RawData);
-			actual = repository.Get<RawData>("data1");
-			Assert.Null(actual);
+			data1Actual = cached.InnerRepository.Get<RawData>("data1");
+			AssertEx.CollectionEquals(data1Actual.Data, data1);
 
-			repository.Put("data1", null as RawData);
-			actual = repository.Get<RawData>("data1");
-			Assert.Null(actual);
+			cached.Put("data1", null);
+			cached.Flush();
+			Assert.Null(cached.InnerRepository.Get<RawData>("data1"));
 
-			//Test batch
-			repository.PutBatch(new[] {new Tuple<string,IBitcoinSerializable>("data1",new RawData(data1)),
+			cached.Put("data1", new RawData(data1));
+			cached.Put("data1", null);
+			cached.Flush();
+			Assert.Null(cached.InnerRepository.Get<RawData>("data1"));
+
+			cached.Put("data1", null);
+			cached.Put("data1", new RawData(data1));
+			cached.Flush();
+			Assert.NotNull(cached.InnerRepository.Get<RawData>("data1"));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanStoreInNoSql()
+		{
+			var repositories = new NoSqlRepository[]
+			{
+				CreateNoSqlRepository(),
+				new InMemoryNoSqlRepository(),
+				new CachedNoSqlRepository(CreateNoSqlRepository("CanStoreInNoSqlCached"))
+			};
+
+			foreach(var repository in repositories)
+			{
+				byte[] data1 = new byte[] { 1, 2, 3, 4, 5, 6 };
+				byte[] data2 = new byte[] { 11, 22, 33, 4, 5, 66 };
+				Assert.Null(repository.Get<RawData>("data1"));
+
+				repository.Put("data1", new RawData(data1));
+				var actual = repository.Get<RawData>("data1");
+				Assert.NotNull(actual);
+				AssertEx.CollectionEquals(actual.Data, data1);
+
+				repository.Put("data1", new RawData(data2));
+				actual = repository.Get<RawData>("data1");
+				Assert.NotNull(actual);
+				AssertEx.CollectionEquals(actual.Data, data2);
+
+				repository.Put("data1", null as RawData);
+				actual = repository.Get<RawData>("data1");
+				Assert.Null(actual);
+
+				repository.Put("data1", null as RawData);
+				actual = repository.Get<RawData>("data1");
+				Assert.Null(actual);
+
+				//Test batch
+				repository.PutBatch(new[] {new Tuple<string,IBitcoinSerializable>("data1",new RawData(data1)),
 									   new Tuple<string,IBitcoinSerializable>("data2",new RawData(data2))});
 
-			actual = repository.Get<RawData>("data1");
-			Assert.NotNull(actual);
-			AssertEx.CollectionEquals(actual.Data, data1);
+				actual = repository.Get<RawData>("data1");
+				Assert.NotNull(actual);
+				AssertEx.CollectionEquals(actual.Data, data1);
 
-			actual = repository.Get<RawData>("data2");
-			Assert.NotNull(actual);
-			AssertEx.CollectionEquals(actual.Data, data2);
+				actual = repository.Get<RawData>("data2");
+				Assert.NotNull(actual);
+				AssertEx.CollectionEquals(actual.Data, data2);
+			}
 		}
 
 		private SQLiteNoSqlRepository CreateNoSqlRepository([CallerMemberName]string filename = null)

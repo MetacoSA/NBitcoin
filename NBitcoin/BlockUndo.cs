@@ -17,6 +17,15 @@ namespace NBitcoin
  */
 	public class TxInUndo : IBitcoinSerializable
 	{
+		public TxInUndo()
+		{
+
+		}
+		public TxInUndo(NBitcoin.TxOut txOut)
+		{
+			this.TxOut = txOut;
+		}
+		
 		TxOut txout;         // the txout data before being spent
 
 		public TxOut TxOut
@@ -157,6 +166,10 @@ namespace NBitcoin
 			CalculatedChecksum = Hashes.Hash256(ms.ToArray());
 		}
 
-		
+		public uint256 BlockId
+		{
+			get;
+			set;
+		}
 	}
 }

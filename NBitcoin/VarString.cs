@@ -26,9 +26,14 @@ namespace NBitcoin
 				throw new ArgumentNullException("bytes");
 			_Bytes = bytes;
 		}
-
 		public byte[] GetString()
 		{
+			return GetString(false);
+		}
+		public byte[] GetString(bool @unsafe)
+		{
+			if(@unsafe)
+				return _Bytes;
 			return _Bytes.ToArray();
 		}
 		#region IBitcoinSerializable Members

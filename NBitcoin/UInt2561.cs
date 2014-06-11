@@ -88,7 +88,7 @@ namespace NBitcoin
 	public class uint256 : base_uint256,  IBitcoinSerializable
 	{
 
-		uint256()
+		public uint256()
 		{
 			for(int i = 0 ; i < WIDTH ; i++)
 				pn[i] = 0;
@@ -518,7 +518,7 @@ namespace NBitcoin
 	public class uint160 : base_uint160,  IBitcoinSerializable
 	{
 
-		uint160()
+		public uint160()
 		{
 			for(int i = 0 ; i < WIDTH ; i++)
 				pn[i] = 0;

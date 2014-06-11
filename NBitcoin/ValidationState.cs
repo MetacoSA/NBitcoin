@@ -23,7 +23,7 @@ namespace NBitcoin
 	{
 		static readonly uint MAX_BLOCK_SIZE = 1000000;
 		static readonly ulong MAX_MONEY = (ulong)21000000 * (ulong)Money.COIN;
-		static readonly uint MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE / 50;
+		internal static readonly uint MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE / 50;
 		enum mode_state
 		{
 			MODE_VALID,   // everything ok

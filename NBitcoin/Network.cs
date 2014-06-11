@@ -242,6 +242,7 @@ namespace NBitcoin
 
 		private void InitMain()
 		{
+			SpendableCoinbaseDepth = 100;
 			name = "Main";
 			// The message start string is designed to be unlikely to occur in normal data.
 			// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -650,6 +651,12 @@ namespace NBitcoin
 
 			}
 
+		}
+
+		public int SpendableCoinbaseDepth
+		{
+			get;
+			private set;
 		}
 	}
 }

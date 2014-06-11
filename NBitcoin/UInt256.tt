@@ -95,7 +95,7 @@ namespace NBitcoin
 	public class uint<#= t #> : base_uint<#= t #>,  IBitcoinSerializable
 	{
 
-		uint<#= t #>()
+		public uint<#= t #>()
 		{
 			for(int i = 0 ; i < WIDTH ; i++)
 				pn[i] = 0;

@@ -140,6 +140,7 @@ namespace NBitcoin
 		OutPoint prevout = new OutPoint();
 		Script scriptSig;
 		uint nSequence = uint.MaxValue;
+		public const uint NO_SEQUENCE = uint.MaxValue;
 
 		public uint Sequence
 		{
@@ -591,6 +592,12 @@ namespace NBitcoin
 		public bool IsTo(PubKey pubkey)
 		{
 			return IsTo(pubkey.ID);
+		}
+
+
+		internal void SetNull()
+		{
+			value = -1;
 		}
 	}
 

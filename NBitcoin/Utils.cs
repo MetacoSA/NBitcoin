@@ -245,6 +245,12 @@ namespace NBitcoin
 		}
 
 		static readonly TraceSource _TraceSource = new TraceSource("NBitcoin");
+
+		public static bool error(string msg, params object[] args)
+		{
+			_TraceSource.TraceEvent(TraceEventType.Error, 0, msg, args);
+			return false;
+		}
 		public static bool error(string msg)
 		{
 			_TraceSource.TraceEvent(TraceEventType.Error, 0, msg);
@@ -397,7 +403,7 @@ namespace NBitcoin
 
 		internal static uint ToUInt32(byte[] value, bool littleEndian)
 		{
-			
+
 			if(littleEndian)
 			{
 				return value[0]
@@ -414,6 +420,6 @@ namespace NBitcoin
 			}
 		}
 
-		
+
 	}
 }

@@ -10,16 +10,49 @@ namespace NBitcoin
 	{
 		// whether transaction is a coinbase
 		bool fCoinBase;
+		public bool Coinbase
+		{
+			get
+			{
+				return fCoinBase;
+			}
+			set
+			{
+				fCoinBase = value;
+			}
+		}
 
 		// unspent transaction outputs; spent outputs are .IsNull(); spent outputs at the end of the array are dropped
 		List<TxOut> vout = new List<TxOut>();
 
 		// at which height this transaction was included in the active block chain
 		uint nHeight;
+		public uint Height
+		{
+			get
+			{
+				return nHeight;
+			}
+			set
+			{
+				nHeight = value;
+			}
+		}
 
 		// version of the CTransaction; accesses to this value should probably check for nHeight as well,
 		// as new tx version will probably only be introduced at certain heights
 		uint nVersion;
+		public uint Version
+		{
+			get
+			{
+				return nVersion;
+			}
+			set
+			{
+				nVersion = value;
+			}
+		}
 
 		public List<TxOut> Outputs
 		{
@@ -96,6 +129,31 @@ namespace NBitcoin
 			}
 		}
 
+
+		public bool Spend(int position, out TxInUndo undo)
+		{
+			undo = null;
+			if(position >= vout.Count)
+				return false;
+			if(vout[position].IsNull)
+				return false;
+			undo = new TxInUndo(vout[position].Clone());
+			vout[position].SetNull();
+			Cleanup();
+			if(vout.Count == 0)
+			{
+				undo.Height = nHeight;
+				undo.CoinBase = fCoinBase;
+				undo.Version = nVersion;
+			}
+			return true;
+		}
+
+		public bool Spend(int position)
+		{
+			TxInUndo undo;
+			return Spend(position, out undo);
+		}
 
 		#region IBitcoinSerializable Members
 
@@ -203,6 +261,27 @@ namespace NBitcoin
 			nBytes += nLastUsedByte;
 		}
 
+		// check whether a particular output is still available
+		public bool IsAvailable(uint position)
+		{
+			return (position < vout.Count && !vout[(int)position].IsNull);
+		}
+
+		// check whether the entire CCoins is spent
+		// note that only !IsPruned() CCoins can be serialized
+		public bool IsPruned
+		{
+			get
+			{
+				return vout.All(v=>v.IsNull);
+			}
+		}
+
 		#endregion
+
+		public void ClearUnspendable()
+		{
+			ClearUnused(o => !o.ScriptPubKey.IsUnspendable);
+		}
 	}
 }

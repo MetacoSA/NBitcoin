@@ -341,9 +341,35 @@ namespace NBitcoin
 			block.Header.HashPrevBlock = this.GetHash();
 			block.Header.BlockTime = now;
 			var tx = block.AddTransaction(new Transaction());
+			tx.AddInput(new TxIn()
+			{
+				ScriptSig = new Script(Op.GetPushOp(new byte[50]))
+			});
 			tx.Outputs.Add(new TxOut(address.Network.GetReward(height), address)
 			{
 				Value = address.Network.GetReward(height)
+			});
+			return block;
+		}
+
+		public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value)
+		{
+			return CreateNextBlockWithCoinbase(pubkey, value, DateTimeOffset.UtcNow);
+		}
+		public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value, DateTimeOffset now)
+		{
+			Block block = new Block();
+			block.Header.HashPrevBlock = this.GetHash();
+			block.Header.BlockTime = now;
+			var tx = block.AddTransaction(new Transaction());
+			tx.AddInput(new TxIn()
+			{
+				ScriptSig = new Script(Op.GetPushOp(new byte[50]))
+			});
+			tx.Outputs.Add(new TxOut()
+			{
+				Value = value,
+				ScriptPubKey = new PayToPubkeyTemplate().GenerateScriptPubKey(pubkey)
 			});
 			return block;
 		}

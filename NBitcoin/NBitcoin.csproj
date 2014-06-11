@@ -65,6 +65,12 @@
     <Compile Include="BIP32\BitcoinExtKey.cs" />
     <Compile Include="BIP38\BitcoinPassphraseCode.cs" />
     <Compile Include="BitcoinSecret.cs" />
+    <Compile Include="CachedNoSqlRepository.cs" />
+    <Compile Include="CoinsView.cs" />
+    <Compile Include="DataDirectory.cs" />
+    <Compile Include="IndexedBlockUndoStore.cs" />
+    <Compile Include="IndexedStore.cs" />
+    <Compile Include="InMemoryNoSqlRepository.cs" />
     <Compile Include="ObjectStream.cs" />
     <Compile Include="Payment\BitcoinUrlBuilder.cs" />
     <Compile Include="Payment\HttpEncoder.cs" />
@@ -88,6 +94,7 @@
     <Compile Include="Scanning\ScanState.cs" />
     <Compile Include="Scanning\ScriptHashScanner.cs" />
     <Compile Include="Scanning\StealthPaymentScanner.cs" />
+    <Compile Include="Scanning\UnspentScanState.cs" />
     <Compile Include="StreamObjectStream.cs" />
     <Compile Include="Stealth\BitcoinStealthAddress.cs" />
     <Compile Include="BitcoinStream.cs" />
