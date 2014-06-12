@@ -14,6 +14,12 @@ namespace NBitcoin
 				throw new ArgumentNullException("index");
 			_Index = index;
 		}
+
+		public CoinsView()
+			: this(new InMemoryNoSqlRepository())
+		{
+
+		}
 		private readonly NoSqlRepository _Index;
 		public NoSqlRepository Index
 		{
@@ -93,6 +99,11 @@ namespace NBitcoin
 		public CoinsView CreateCached()
 		{
 			return new CoinsView(new CachedNoSqlRepository(Index));
+		}
+
+		public void AddTransaction(Transaction tx, int height)
+		{
+			SetCoins(tx.GetHash(), new Coins(tx, height));
 		}
 	}
 }

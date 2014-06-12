@@ -22,10 +22,9 @@ namespace NBitcoin.Tests
 			validation.CheckProofOfWork = false;
 			var unspentScanState = CreateScanState();
 
-			foreach(var test in generator.GetBlocksToTest(true, true, CreateBlockStore()).list.OfType<BlockAndValidity>())
+			foreach(var test in generator.GetBlocksToTest(true, true, CreateBlockStore("RunFullBlockTest2")).list.OfType<BlockAndValidity>())
 			{
-				//unspentScanState.Process(
-				if(!validation.CheckBlock(test.block))
+				if(!unspentScanState.Process(test.block))
 				{
 					Assert.True(test.throwsException);
 				}

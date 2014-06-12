@@ -145,14 +145,14 @@ namespace NBitcoin
 		// expensive-to-check-upon-redemption script like:
 		//   DUP CHECKSIG DROP ... repeated 100 times... OP_1
 		//
-		public static bool AreInputsStandard(Transaction tx, TxOutRepository mapInputs)
+		public static bool AreInputsStandard(Transaction tx, CoinsView coinsView)
 		{
 			if(tx.IsCoinBase)
 				return true; // Coinbases don't use vin normally
 
 			for(int i = 0 ; i < tx.Inputs.Count ; i++)
 			{
-				TxOut prev = mapInputs.GetOutputFor(tx.Inputs[i]);
+				TxOut prev = coinsView.GetOutputFor(tx.Inputs[i]);
 				if(prev == null)
 					return false;
 				if(!IsStandardScriptSig(tx.Inputs[i].ScriptSig, prev.ScriptPubKey))

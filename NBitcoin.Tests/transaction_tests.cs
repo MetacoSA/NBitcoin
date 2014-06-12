@@ -216,7 +216,7 @@ namespace NBitcoin.Tests
 		{
 			//CBasicKeyStore keystore;
 			//CCoinsView coinsDummy;
-			TxOutRepository coins = new TxOutRepository();//(coinsDummy);
+			CoinsView coins = new CoinsView();//(coinsDummy);
 			Transaction[] dummyTransactions = SetupDummyInputs(coins);//(keystore, coins);
 
 			Transaction t1 = new Transaction();
@@ -246,7 +246,7 @@ namespace NBitcoin.Tests
 			Assert.True(!StandardScripts.AreInputsStandard(t1, coins));
 		}
 
-		private Transaction[] SetupDummyInputs(TxOutRepository coinsRet)
+		private Transaction[] SetupDummyInputs(CoinsView coinsRet)
 		{
 			Transaction[] dummyTransactions = Enumerable.Range(0, 2).Select(_ => new Transaction()).ToArray();
 
@@ -260,7 +260,7 @@ namespace NBitcoin.Tests
 			dummyTransactions[0].Outputs[0].ScriptPubKey = dummyTransactions[0].Outputs[0].ScriptPubKey + key[0].PubKey.ToBytes() + OpcodeType.OP_CHECKSIG;
 			dummyTransactions[0].Outputs[1].Value = 50 * Money.CENT;
 			dummyTransactions[0].Outputs[1].ScriptPubKey = dummyTransactions[0].Outputs[1].ScriptPubKey + key[1].PubKey.ToBytes() + OpcodeType.OP_CHECKSIG;
-			coinsRet.AddFromTransaction(dummyTransactions[0]);
+			coinsRet.AddTransaction(dummyTransactions[0],0);
 
 
 			dummyTransactions[1].Outputs.AddRange(Enumerable.Range(0, 2).Select(_ => new TxOut()));
@@ -268,7 +268,7 @@ namespace NBitcoin.Tests
 			dummyTransactions[1].Outputs[0].ScriptPubKey = StandardScripts.PayToAddress(key[2].PubKey.GetAddress(Network.Main));
 			dummyTransactions[1].Outputs[1].Value = 22 * Money.CENT;
 			dummyTransactions[1].Outputs[1].ScriptPubKey = StandardScripts.PayToAddress(key[3].PubKey.GetAddress(Network.Main));
-			coinsRet.AddFromTransaction(dummyTransactions[1]);
+			coinsRet.AddTransaction(dummyTransactions[1],0);
 
 
 			return dummyTransactions;
@@ -279,7 +279,7 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void test_IsStandard()
 		{
-			var coins = new TxOutRepository();
+			var coins = new CoinsView();
 			Transaction[] dummyTransactions = SetupDummyInputs(coins);
 
 			Transaction t = new Transaction();

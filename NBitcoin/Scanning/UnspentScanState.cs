@@ -43,7 +43,45 @@ namespace NBitcoin.Scanning
 			if(!_Chain.Initialized)
 				throw new ArgumentException("Chain should be initialized", "chain");
 			_Chain = chain;
+
+			CheckMerkleRoot = true;
+			CheckProofOfWork = true;
+			CheckScriptPubKey = true;
+			CheckScriptSig = true;
+			CheckScriptReturn = true;
 		}
+
+		public bool CheckProofOfWork
+		{
+			get;
+			set;
+		}
+		public bool CheckMerkleRoot
+		{
+			get;
+			set;
+		}
+		public bool CheckScriptSig
+		{
+			get;
+			set;
+		}
+		public bool CheckScriptPubKey
+		{
+			get;
+			set;
+		}
+		public bool CheckScriptReturn
+		{
+			get;
+			set;
+		}
+		public ScriptVerify ScriptVerify
+		{
+			get;
+			set;
+		}
+
 		private readonly Network _Network;
 		public Network Network
 		{
@@ -105,8 +143,9 @@ namespace NBitcoin.Scanning
 				}
 			}
 
-
-			foreach(var b in prev.EnumerateToGenesis()
+			var blockIndex = Chain.GetOrAdd(block.Header);
+			BlockStore.Put(block);
+			foreach(var b in blockIndex.EnumerateToGenesis()
 								.TakeWhile(p => p != forkBlock)
 								.Reverse())
 			{
@@ -125,8 +164,8 @@ namespace NBitcoin.Scanning
 			var block = BlockStore.GetBlock(pindex.HashBlock, null);
 
 			ValidationState state = new ValidationState(Network);
-			state.CheckProofOfWork = false;
-			state.CheckMerkleRoot = false;
+			state.CheckProofOfWork = CheckProofOfWork;
+			state.CheckMerkleRoot = CheckMerkleRoot;
 
 			if(!state.CheckBlock(block))
 			{
@@ -177,8 +216,8 @@ namespace NBitcoin.Scanning
 			var nBIP16SwitchTime = Utils.UnixTimeToDateTime(1333238400);
 			bool fStrictPayToScriptHash = (pindex.Header.BlockTime >= nBIP16SwitchTime);
 
-			ScriptVerify flags = ScriptVerify.NoCache |
-								 (fStrictPayToScriptHash ? ScriptVerify.P2SH : ScriptVerify.None);
+			ScriptVerify flags = ScriptVerify | ScriptVerify.NoCache &
+								 (fStrictPayToScriptHash ? ~ScriptVerify.None : ~ScriptVerify.P2SH);
 
 			BlockUndo blockundo = new BlockUndo();
 
@@ -219,51 +258,9 @@ namespace NBitcoin.Scanning
 					nFees += view.GetValueIn(tx) - tx.TotalOut;
 
 					//std::vector<CScriptCheck> vChecks;
-					//if (!CheckInputs(tx, state, view, fScriptChecks, flags, nScriptCheckThreads ? &vChecks : NULL))
-					//	return false;
-					//control.Add(vChecks);
-				}
 
-				TxUndo txundo = new TxUndo();
-				UpdateCoins(tx, state, view, txundo, pindex.Height, block.GetTxHash(i));
-				if(!tx.IsCoinBase)
-					blockundo.TxUndo.Add(txundo);
-
-				//BlockStore.Put(block);
-			}
-
-			for(int i = 0 ; i < block.Transactions.Count ; i++)
-			{
-				Transaction tx = block.Transactions[i];
-
-				nInputs += tx.Inputs.Count;
-				nSigOps += GetLegacySigOpCount(tx);
-				if(nSigOps > ValidationState.MAX_BLOCK_SIGOPS)
-					return state.DoS(100, Utils.error("ConnectBlock() : too many sigops"),
-									 RejectCode.INVALID, "bad-blk-sigops");
-
-				if(!tx.IsCoinBase)
-				{
-					if(!view.HaveInputs(tx))
-						return state.DoS(100, Utils.error("ConnectBlock() : inputs missing/spent"),
-										 RejectCode.INVALID, "bad-txns-inputs-missingorspent");
-
-					if(fStrictPayToScriptHash)
-					{
-						// Add in sigops done by pay-to-script-hash inputs;
-						// this is to prevent a "rogue miner" from creating
-						// an incredibly-expensive-to-validate block.
-						nSigOps += GetP2SHSigOpCount(tx, view);
-						if(nSigOps > ValidationState.MAX_BLOCK_SIGOPS)
-							return state.DoS(100, Utils.error("ConnectBlock() : too many sigops"),
-											 RejectCode.INVALID, "bad-blk-sigops");
-					}
-
-					nFees += view.GetValueIn(tx) - tx.TotalOut;
-
-					//std::vector<CScriptCheck> vChecks;
-					//if (!CheckInputs(tx, state, view, fScriptChecks, flags, nScriptCheckThreads ? &vChecks : NULL))
-					//	return false;
+					if(!CheckInputs(tx, state, view, flags))
+						return false;
 					//control.Add(vChecks);
 				}
 
@@ -315,6 +312,7 @@ namespace NBitcoin.Scanning
 			//		pindex->nUndoPos = pos.nPos;
 			//		pindex->nStatus |= BLOCK_HAVE_UNDO;
 			//	}
+			UndoIndex.Put(blockundo);
 
 			//	pindex->RaiseValidity(BLOCK_VALID_SCRIPTS);
 
@@ -336,6 +334,35 @@ namespace NBitcoin.Scanning
 			//for (unsigned int i = 0; i < block.vtx.size(); i++)
 			//	g_signals.SyncTransaction(block.GetTxHash(i), block.vtx[i], &block);
 
+			return true;
+		}
+
+		private bool CheckInputs(Transaction tx, ValidationState state, CoinsView view, ScriptVerify flags)
+		{
+			if(!state.CheckTransaction(tx))
+				return false;
+
+			if(CheckScriptPubKey)
+			{
+				if(!StandardScripts.AreOutputsStandard(tx))
+					return false;
+			}
+
+			if(CheckScriptSig)
+			{
+				if(!StandardScripts.AreInputsStandard(tx, view))
+					return false;
+			}
+			if(CheckScriptReturn)
+			{
+				for(int i = 0 ; i < tx.Inputs.Count ; i++)
+				{
+					if(!Script.VerifyScript(tx.Inputs[i].ScriptSig, view.GetOutputFor(tx.Inputs[i]).ScriptPubKey, tx, i, flags))
+					{
+						return false;
+					}
+				}
+			}
 			return true;
 		}
 

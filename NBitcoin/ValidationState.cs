@@ -265,7 +265,7 @@ namespace NBitcoin
 		{
 			var target = block.Header.Bits;
 			// Check range
-			if(target <= 0 || target > Network.ProofOfWorkLimit)
+			if(target <= new Target(0) || target > Network.ProofOfWorkLimit)
 				return Error("CheckProofOfWork() : nBits below minimum work");
 
 			// Check proof of work matches claimed amount

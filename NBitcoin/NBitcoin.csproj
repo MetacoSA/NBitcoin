@@ -165,7 +165,6 @@
     <Compile Include="Target.cs" />
     <Compile Include="TraceCorrelationScope.cs" />
     <Compile Include="TransactionSignature.cs" />
-    <Compile Include="TxOutRepository.cs" />
     <Compile Include="Crypto\Hashes.cs" />
     <Compile Include="DataEncoders\Base58Encoder.cs" />
     <Compile Include="DataEncoders\Base64Encoder.cs" />
