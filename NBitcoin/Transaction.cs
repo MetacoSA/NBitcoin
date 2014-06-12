@@ -408,7 +408,7 @@ namespace NBitcoin
 				case 0x05:
 					byte[] vch = new byte[33];
 					vch[0] = (byte)(nSize - 2);
-					Array.Copy(data, vch, 32);
+					Array.Copy(data, 0, vch, 1, 32);
 					PubKey pubkey = new PubKey(vch);
 					pubkey = pubkey.Decompress();
 					return new Script(Op.GetPushOp(pubkey.ToBytes()), OpcodeType.OP_CHECKSIG);
