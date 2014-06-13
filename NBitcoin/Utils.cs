@@ -86,6 +86,11 @@ namespace NBitcoin
 				}
 				if(thisRead == -1)
 					return -1;
+				if(thisRead == 0 && stream is FileStream)
+				{
+					if(stream.Length == stream.Position)
+						return -1;
+				}
 				readen += thisRead;
 			}
 			return readen;

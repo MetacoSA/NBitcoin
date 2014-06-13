@@ -124,6 +124,11 @@ namespace NBitcoin
 		{
 			return Tuple.Create(hash, n).GetHashCode();
 		}
+
+		public override string ToString()
+		{
+			return N + "-" + Hash;
+		}
 	}
 
 

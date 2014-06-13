@@ -90,11 +90,11 @@
     <Compile Include="RPC\UnspentCoin.cs" />
     <Compile Include="Scanning\IBlockProvider.cs" />
     <Compile Include="Scanning\PubKeyHashScanner.cs" />
+    <Compile Include="Scanning\PubKeyScanner.cs" />
     <Compile Include="Scanning\Scanner.cs" />
     <Compile Include="Scanning\ScanState.cs" />
     <Compile Include="Scanning\ScriptHashScanner.cs" />
     <Compile Include="Scanning\StealthPaymentScanner.cs" />
-    <Compile Include="Scanning\UnspentScanState.cs" />
     <Compile Include="StreamObjectStream.cs" />
     <Compile Include="Stealth\BitcoinStealthAddress.cs" />
     <Compile Include="BitcoinStream.cs" />

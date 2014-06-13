@@ -15,34 +15,35 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void RunFullBlockTest()
 		{
-			Chain chain = new Chain(Network.Main);
 			var generator = new FullBlockTestGenerator(Network.Main);
+
 			ValidationState validation = new ValidationState(Network.Main);
 			validation.CheckMerkleRoot = false;
 			validation.CheckProofOfWork = false;
-			var unspentScanState = CreateScanState();
 
-			foreach(var test in generator.GetBlocksToTest(true, true, CreateBlockStore("RunFullBlockTest2")).list.OfType<BlockAndValidity>())
+			var scan =
+				new ScanState(new PubKeyHashScanner(generator.CoinbaseKey.PubKey.ID),
+						new Chain(),
+						new Account(),
+						0);
+			scan.CheckDoubleSpend = true;
+
+			var mainChain = new Chain(Network.Main);
+			var indexed = new IndexedBlockStore(new InMemoryNoSqlRepository(), CreateBlockStore());
+			indexed.Put(Network.Main.GetGenesis());
+			foreach(var test in generator.GetBlocksToTest(true, true).list.OfType<BlockAndValidity>())
 			{
-				if(!unspentScanState.Process(test.block))
-				{
-					Assert.True(test.throwsException);
-				}
-				else
-				{
-					var connect = chain.GetOrAdd(test.block.Header);
-					Assert.True((connect != null) == test.connects);
-				}
-				Assert.Equal(test.heightAfterBlock, chain.Height);
-				Assert.Equal(test.hashChainTipAfterBlock, chain.Tip.HashBlock);
-
+				indexed.Put(test.block);
+				mainChain.GetOrAdd(test.block.Header);
+				Assert.True(scan.Process(mainChain, indexed) == test.connects);
+				//if(!)
+				//{
+				//	Assert.True(test.throwsException);
+				//}
+				Assert.Equal(test.heightAfterBlock, scan.Chain.Height);
+				Assert.Equal(test.hashChainTipAfterBlock, scan.Chain.Tip.HashBlock);
+				mainChain.SetTip(scan.Chain.Tip);
 			}
-		}
-
-		private UnspentScanState CreateScanState([CallerMemberName]string folder = null)
-		{
-			TestUtils.EnsureNew(folder);
-			return new UnspentScanState(folder, Network.Main);
 		}
 
 		private BlockStore CreateBlockStore([CallerMemberName]string folder = null)
@@ -112,10 +113,14 @@ namespace NBitcoin.Tests
 	/** An arbitrary rule which the testing client must match */
 	class Rule
 	{
-		String ruleName;
+		public String ruleName;
 		internal Rule(String ruleName)
 		{
 			this.ruleName = ruleName;
+		}
+		public override string ToString()
+		{
+			return ruleName;
 		}
 	}
 	class TransactionOutPointWithValue
@@ -138,6 +143,14 @@ namespace NBitcoin.Tests
 		private Key coinbaseOutKey;
 		private PubKey coinbaseOutKeyPubKey;
 
+		public Key CoinbaseKey
+		{
+			get
+			{
+				return coinbaseOutKey;
+			}
+		}
+
 		// Used to double-check that we are always using the right next-height
 		private Dictionary<uint256, int> blockToHeightMap = new Dictionary<uint256, int>();
 
@@ -158,7 +171,7 @@ namespace NBitcoin.Tests
 			//Utils.rollMockClock(0); // Set a mock clock for timestamp tests
 		}
 
-		internal RuleList GetBlocksToTest(bool addSigExpensiveBlocks, bool runLargeReorgs, BlockStore blockStore)
+		internal RuleList GetBlocksToTest(bool addSigExpensiveBlocks, bool runLargeReorgs)
 		{
 			List<Rule> blocks = new List<Rule>();
 			RuleList ret = new RuleList(blocks, hashHeaderMap, 10);
@@ -247,7 +260,7 @@ namespace NBitcoin.Tests
 
 			// Try to create a fork that double-spends
 			// genesis -> b1 (0) -> b2 (1) -> b5 (2) -> b6 (3)
-			// \-> b7 (2) -> b8 (4)
+			// \-> b7 (3) -> b8 (4)
 			// \-> b3 (1) -> b4 (2)
 			//
 			Block b7 = createNextBlock(b5, chainHeadHeight + 4, out2, null);
@@ -303,7 +316,7 @@ namespace NBitcoin.Tests
 				// Entirely invalid scriptPubKey to ensure we aren't pre-verifying too much
 				t.AddOutput(new TxOut(new Money(0), new Script(Op.GetPushOp(1))));
 				t.AddOutput(new TxOut(Money.Parse("1"),
-						new PayToPubkeyTemplate().GenerateScriptPubKey(coinbaseOutKeyPubKey)));
+						new PayToPubkeyHashTemplate().GenerateScriptPubKey(coinbaseOutKeyPubKey)));
 				// Spendable output
 				t.AddOutput(new TxOut(Money.Zero, new Script(Op.GetPushOp(1))));
 				addOnlyInputToTransaction(t, prevOut);
@@ -328,7 +341,7 @@ namespace NBitcoin.Tests
 			t.AddInput(input);
 
 			var hash = prevOut.scriptPubKey.SignatureHash(t, 0, SigHash.All);
-			input.ScriptSig = new PayToPubkeyTemplate().GenerateScriptSig(new TransactionSignature(coinbaseOutKey.Sign(hash), SigHash.All));
+			input.ScriptSig = new PayToPubkeyHashTemplate().GenerateScriptSig(new TransactionSignature(coinbaseOutKey.Sign(hash), SigHash.All),coinbaseOutKeyPubKey);
 		}
 	}
 }

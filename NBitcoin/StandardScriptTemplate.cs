@@ -171,6 +171,19 @@ namespace NBitcoin
 
 	}
 
+	public class PayToScriptHashSigParameters
+	{
+		public Script Script
+		{
+			get;
+			set;
+		}
+		public TransactionSignature[] Signatures
+		{
+			get;
+			set;
+		}
+	}
 	//https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki
 	public class PayToScriptHashTemplate : ScriptTemplate
 	{
@@ -210,7 +223,27 @@ namespace NBitcoin
 			var pushScript = Op.GetPushOp(script._Script);
 			return new Script(ops.Concat(new[] { pushScript }).ToArray());
 		}
-
+		public PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig)
+		{
+			var ops = scriptSig.ToOps().ToArray();
+			if(!ops.All(o => o.PushData != null))
+				return null;
+			try
+			{
+				PayToScriptHashSigParameters result = new PayToScriptHashSigParameters();
+				result.Signatures = 
+					ops
+					.Take(ops.Length - 1)
+					.Select(o => new TransactionSignature(o.PushData))
+					.ToArray();
+				result.Script = new Script(ops[ops.Length - 1].PushData);
+				return result;
+			}
+			catch(Exception)
+			{
+				return null;
+			}
+		}
 
 		public Script GenerateScriptSig(TransactionSignature[] signatures, Script redeemScript)
 		{
@@ -221,6 +254,7 @@ namespace NBitcoin
 			}
 			return GenerateScriptSig(ops.ToArray(), redeemScript);
 		}
+
 		public Script GenerateScriptSig(ECDSASignature[] signatures, Script redeemScript)
 		{
 			return GenerateScriptSig(signatures.Select(s => new TransactionSignature(s, SigHash.All)).ToArray(), redeemScript);
@@ -238,6 +272,8 @@ namespace NBitcoin
 			var template = StandardScripts.GetTemplateFromScriptPubKey(redeemScript);
 			return template != null && template.Type != TxOutType.TX_SCRIPTHASH;
 		}
+
+		
 
 		public override TxOutType Type
 		{
@@ -283,6 +319,24 @@ namespace NBitcoin
 				);
 		}
 
+		public TransactionSignature ExtractScriptSigParameters(Script scriptSig)
+		{
+			if(!CheckScriptSig(scriptSig, null))
+				return null;
+
+			var data = scriptSig.ToOps().First().PushData;
+			if(!TransactionSignature.ValidLength(data.Length))
+				return null;
+			try
+			{
+				return new TransactionSignature(data);
+			}
+			catch(FormatException)
+			{
+				return null;
+			}
+		}
+
 		public override bool CheckScriptSig(Script scriptSig, Script scriptPubKey)
 		{
 			var ops = scriptSig.ToOps().ToList();
@@ -306,6 +360,8 @@ namespace NBitcoin
 				return null;
 			return new PubKey(script.ToOps().ToArray()[0].PushData);
 		}
+
+		
 	}
 
 	public class PayToPubkeyHashScriptSigParameters

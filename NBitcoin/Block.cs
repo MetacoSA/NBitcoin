@@ -338,12 +338,13 @@ namespace NBitcoin
 		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height, DateTimeOffset now)
 		{
 			Block block = new Block();
+			block.Header.Nonce = RandomUtils.GetUInt32();
 			block.Header.HashPrevBlock = this.GetHash();
 			block.Header.BlockTime = now;
 			var tx = block.AddTransaction(new Transaction());
 			tx.AddInput(new TxIn()
 			{
-				ScriptSig = new Script(Op.GetPushOp(new byte[50]))
+				ScriptSig = new Script(Op.GetPushOp(RandomUtils.GetBytes(30)))
 			});
 			tx.Outputs.Add(new TxOut(address.Network.GetReward(height), address)
 			{
@@ -359,17 +360,18 @@ namespace NBitcoin
 		public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value, DateTimeOffset now)
 		{
 			Block block = new Block();
+			block.Header.Nonce = RandomUtils.GetUInt32();
 			block.Header.HashPrevBlock = this.GetHash();
 			block.Header.BlockTime = now;
 			var tx = block.AddTransaction(new Transaction());
 			tx.AddInput(new TxIn()
 			{
-				ScriptSig = new Script(Op.GetPushOp(new byte[50]))
+				ScriptSig = new Script(Op.GetPushOp(RandomUtils.GetBytes(30)))
 			});
 			tx.Outputs.Add(new TxOut()
 			{
 				Value = value,
-				ScriptPubKey = new PayToPubkeyTemplate().GenerateScriptPubKey(pubkey)
+				ScriptPubKey = new PayToPubkeyHashTemplate().GenerateScriptPubKey(pubkey)
 			});
 			return block;
 		}

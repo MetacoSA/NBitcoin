@@ -70,6 +70,12 @@ namespace NBitcoin
 			}
 		}
 
+		public Chain()
+			: this(new StreamObjectStream<ChainChange>())
+		{
+
+		}
+
 		public Chain(Network network)
 			: this(network, null)
 		{
@@ -124,9 +130,26 @@ namespace NBitcoin
 		{
 			if(changes == null)
 				changes = new StreamObjectStream<ChainChange>();
-			AssertEmpty(changes);
 			_Changes = changes;
-			Initialize(blockHeader, height);
+			changes.Rewind();
+			if(changes.EOF)
+			{
+				Initialize(blockHeader, height);
+			}
+			else
+			{
+				var first = changes.ReadNext();
+				if(first.BlockHeader.GetHash() != blockHeader.GetHash())
+				{
+					throw new InvalidOperationException("The first block of this stream is different than the expected one at height " + height);
+				}
+				if(first.HeightOrBackstep != height)
+				{
+					throw new InvalidOperationException("The first block of this stream has height " + first.HeightOrBackstep + " but expected is " + height);
+				}
+				changes.Rewind();
+				Process();
+			}
 		}
 
 

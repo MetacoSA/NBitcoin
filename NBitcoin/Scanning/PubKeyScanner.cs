@@ -1,0 +1,44 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace NBitcoin.Scanning
+{
+	public class PubKeyScanner : Scanner
+	{
+		public PubKeyScanner(PubKey pubKey)
+		{
+			_PubKey = pubKey;
+		}
+		PayToPubkeyTemplate template = new PayToPubkeyTemplate();
+		private readonly PubKey _PubKey;
+		public PubKey PubKey
+		{
+			get
+			{
+				return _PubKey;
+			}
+		}
+
+		public override void GetScannedPushData(List<byte[]> searchedPushData)
+		{
+			searchedPushData.Add(PubKey.ToBytes());
+		}
+		public override Coins ScanCoins(Transaction tx, int height)
+		{
+			return new Coins(tx, MatchScriptHash, height);
+		}
+		public bool MatchScriptHash(TxOut output)
+		{
+			var key = template.ExtractScriptPubKeyParameters(output.ScriptPubKey);
+			return key != null && (key.ID == PubKey.ID);
+		}
+
+		protected override IEnumerable<TxIn> FindSpentCore(IEnumerable<Transaction> transactions)
+		{
+			return new TxIn[0]; //Impossible to know without pubkey
+		}
+	}
+}

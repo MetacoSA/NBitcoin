@@ -41,5 +41,19 @@ namespace NBitcoin.Scanning
 			var id = template.ExtractScriptPubKeyParameters(output.ScriptPubKey);
 			return (id == KeyId);
 		}
+
+		protected override IEnumerable<TxIn> FindSpentCore(IEnumerable<Transaction> transactions)
+		{
+			return
+				transactions
+				.SelectMany(t => t.Inputs)
+				.Select(i => new
+				{
+					TxIn = i,
+					Parameters = template.ExtractScriptSigParameters(i.ScriptSig)
+				})
+				.Where(r => r.Parameters != null && r.Parameters.PublicKey.ID == KeyId)
+				.Select(r => r.TxIn);
+		}
 	}
 }

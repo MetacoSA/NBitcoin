@@ -44,18 +44,10 @@ namespace NBitcoin.Scanning
 		{
 		}
 
-		public IEnumerable<Spendable> FindSpent(Block block, IEnumerable<Spendable> among)
+		public IEnumerable<TxIn> FindSpent(Block block)
 		{
-			var amongDico = among.ToDictionary(o => o.OutPoint);
-			foreach(var spent in block
-									.Transactions
-									.SelectMany(t => t.Inputs)
-									.Where(input => amongDico.ContainsKey(input.PrevOut)))
-			{
-				var spendable = amongDico[spent.PrevOut];
-				amongDico.Remove(spent.PrevOut);
-				yield return spendable;
-			}
+			return FindSpentCore(block.Transactions.Where(t => !t.IsCoinBase));
 		}
+		protected abstract IEnumerable<TxIn> FindSpentCore(IEnumerable<Transaction> transactions);
 	}
 }

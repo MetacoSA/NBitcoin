@@ -9,7 +9,6 @@ namespace NBitcoin
 {
 	public class TransactionSignature
 	{
-		
 		public TransactionSignature(ECDSASignature signature, SigHash sigHash)
 		{
 			if(sigHash == SigHash.Undefined)
@@ -57,6 +56,11 @@ namespace NBitcoin
 			Array.Copy(sig, 0, result, 0, sig.Length);
 			result[result.Length - 1] = (byte)_SigHash;
 			return result;
+		}
+
+		public static bool ValidLength(int length)
+		{
+			return 67 <= length && length <= 80;
 		}
 	}
 }

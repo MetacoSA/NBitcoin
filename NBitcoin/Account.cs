@@ -150,15 +150,26 @@ namespace NBitcoin
 		{
 			get
 			{
+				if(_Account == null)
+					return false;
 				return _Account._Locked.Contains(this.OutPoint);
 			}
 			set
 			{
+				if(_Account == null)
+					throw new InvalidOperationException("This spendable is not associated to an account, impossible to lock");
 				if(value)
 					_Account.PushAccountEntry(new AccountEntry(AccountEntryReason.Lock, null, this.Clone(), Money.Zero));
 				else
 					_Account.PushAccountEntry(new AccountEntry(AccountEntryReason.Unlock, null, this.Clone(), Money.Zero));
 			}
+		}
+
+		public override string ToString()
+		{
+			if(TxOut != null && TxOut.Value != null)
+				return TxOut.Value.ToString() + (IsLocked ? "(locked)" : "");
+			return "?";
 		}
 	}
 	public class Account
@@ -217,7 +228,8 @@ namespace NBitcoin
 		}
 		public AccountEntry PushAccountEntry(AccountEntry entry)
 		{
-			if(Process(entry) != null)
+			entry = Process(entry);
+			if(entry != null)
 			{
 				_Entries.WriteNext(entry);
 				_NextToProcess++;
@@ -316,6 +328,8 @@ namespace NBitcoin
 					if(entry.Reason == AccountEntryReason.Income && _Unspent.ContainsKey(entry.Spendable.OutPoint))
 						entries.AddOrReplace(entry.Spendable.OutPoint, entry);
 					if(entry.Reason == AccountEntryReason.ChainBlockChanged && !_Unspent.ContainsKey(entry.Spendable.OutPoint))
+						entries.AddOrReplace(entry.Spendable.OutPoint, entry);
+					if(entry.Reason == AccountEntryReason.Outcome && !_Unspent.ContainsKey(entry.Spendable.OutPoint))
 						entries.AddOrReplace(entry.Spendable.OutPoint, entry);
 				}
 			}

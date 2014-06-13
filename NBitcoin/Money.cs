@@ -200,10 +200,6 @@ namespace NBitcoin
 			return new Money(value);
 		}
 
-		public static implicit operator int(Money value)
-		{
-			return (int)value.Satoshi;
-		}
 		public static implicit operator long(Money value)
 		{
 			return (long)value.Satoshi;
