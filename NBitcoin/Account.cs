@@ -90,6 +90,11 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return Reason + " " + BalanceChange.ToString(true, false);
+		}
 	}
 	public class Spendable : IBitcoinSerializable
 	{
@@ -317,23 +322,18 @@ namespace NBitcoin
 		//Do not get all entries, but only the one you can generate with spent/unspent.
 		public AccountEntry[] GetInChain(Chain chain, bool value)
 		{
-			Dictionary<OutPoint, AccountEntry> entries = new Dictionary<OutPoint, AccountEntry>();
-			foreach(var entry in AccountEntries)
+			List<AccountEntry> entries = new List<AccountEntry>();
+			foreach(var entry in AccountEntries.Where(e => e.Reason != AccountEntryReason.ChainBlockChanged))
 			{
 				if(entry.Block == null)
 					continue;
 
 				if(chain.Contains(entry.Block, false) == value)
 				{
-					if(entry.Reason == AccountEntryReason.Income && _Unspent.ContainsKey(entry.Spendable.OutPoint))
-						entries.AddOrReplace(entry.Spendable.OutPoint, entry);
-					if(entry.Reason == AccountEntryReason.ChainBlockChanged && !_Unspent.ContainsKey(entry.Spendable.OutPoint))
-						entries.AddOrReplace(entry.Spendable.OutPoint, entry);
-					if(entry.Reason == AccountEntryReason.Outcome && !_Unspent.ContainsKey(entry.Spendable.OutPoint))
-						entries.AddOrReplace(entry.Spendable.OutPoint, entry);
+					entries.Add(entry);
 				}
 			}
-			return entries.Values.ToArray();
+			return entries.ToArray();
 		}
 
 		public override string ToString()
@@ -342,22 +342,30 @@ namespace NBitcoin
 
 			foreach(var entry in AccountEntries)
 			{
-				builder.AppendLine(entry.BalanceChange.ToString(true));
+				if(entry.Reason != AccountEntryReason.Lock && entry.Reason != AccountEntryReason.Unlock)
+					builder.AppendLine(entry.BalanceChange.ToString(true));
 			}
 
 			return builder.ToString();
 		}
 
 
-		public void Process()
+		public void Process(int untilPosition = Int32.MaxValue)
 		{
+			if(untilPosition <= _NextToProcess)
+				return;
+
+			Entries.GoTo(_NextToProcess);
 			while(true)
 			{
-				var entry = Entries.ReadNext();
-				if(entry == null)
+				if(untilPosition == _NextToProcess)
 					break;
-				if(Process(entry) != null)
-					_NextToProcess++;
+
+				var change = Entries.ReadNext();
+				if(change == null)
+					break;
+				Process(change);
+				_NextToProcess = Entries.Position;
 			}
 		}
 

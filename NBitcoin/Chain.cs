@@ -155,7 +155,7 @@ namespace NBitcoin
 
 		int _NextToProcess;
 
-		private void Process(int untilPosition = Int32.MaxValue)
+		public void Process(int untilPosition = Int32.MaxValue)
 		{
 			if(untilPosition <= _NextToProcess)
 				return;
@@ -570,6 +570,36 @@ namespace NBitcoin
 		{
 			if(obj == null)
 				throw new NotSupportedException("Impossible bug happened, contact NBitcoin devs");
+		}
+
+		public Chain CreateSubChain(ChainedBlock from,
+									bool fromIncluded,
+									ChainedBlock to,
+									bool toIncluded,
+									ObjectStream<ChainChange> output = null)
+		{
+			if(output == null)
+				output = new StreamObjectStream<ChainChange>();
+
+			var blocks
+				=
+				to.EnumerateToGenesis()
+				.Skip(toIncluded ? 0 : 1)
+				.TakeWhile(c => c.HashBlock != from.HashBlock);
+			if(fromIncluded)
+				blocks = blocks.Concat(new ChainedBlock[] { from });
+
+			var array = blocks.Reverse().ToArray();
+			foreach(var b in array)
+			{
+				output.WriteNext(new ChainChange()
+				{
+					Add = true,
+					BlockHeader = b.Header,
+					HeightOrBackstep = (uint)b.Height
+				});
+			}
+			return new Chain(output);
 		}
 	}
 }

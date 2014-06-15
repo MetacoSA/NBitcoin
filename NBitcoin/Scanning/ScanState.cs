@@ -67,23 +67,30 @@ namespace NBitcoin.Scanning
 
 		public bool Process(Chain mainChain, IBlockProvider blockProvider)
 		{
+			var chain = Chain.Clone();
+			var chainPosition = chain.Changes.Position;
+			var account = Account.Clone();
+			var accountPosition = account.Entries.Position;
+
 			bool newChain = false;
-			if(!Chain.Initialized)
+			if(!chain.Initialized)
 			{
 				newChain = true;
 
 				var firstBlock = mainChain.GetBlock(StartHeight);
-				Chain.Initialize(firstBlock.Header, StartHeight);
+				chain.Initialize(firstBlock.Header, StartHeight);
 			}
-			var forkBlock = mainChain.FindFork(Chain);
-			if(forkBlock.HashBlock != Chain.Tip.HashBlock)
+			var forkBlock = mainChain.FindFork(chain);
+			if(forkBlock.HashBlock != chain.Tip.HashBlock)
 			{
-				Chain.SetTip(Chain.GetBlock(forkBlock.Height));
-				foreach(var e in Account.GetInChain(Chain, false)
-											.Where(e => e.Reason != AccountEntryReason.ChainBlockChanged))
+				var subChain = chain.CreateSubChain(forkBlock, false, chain.Tip, true);
+				chain.SetTip(chain.GetBlock(forkBlock.Height));
+				foreach(var e in account.GetInChain(subChain, true)
+										.Where(c => c.Reason != AccountEntryReason.Lock && c.Reason != AccountEntryReason.Unlock)
+										.Reverse())
 				{
 					var neutralized = e.Neutralize();
-					Account.PushAccountEntry(neutralized);
+					account.PushAccountEntry(neutralized);
 				}
 			}
 
@@ -95,7 +102,7 @@ namespace NBitcoin.Scanning
 			{
 				List<byte[]> searchedData = new List<byte[]>();
 				Scanner.GetScannedPushData(searchedData);
-				foreach(var unspent in Account.Unspent)
+				foreach(var unspent in account.Unspent)
 				{
 					searchedData.Add(unspent.OutPoint.ToBytes());
 				}
@@ -105,7 +112,7 @@ namespace NBitcoin.Scanning
 					continue;
 
 				List<Tuple<OutPoint, AccountEntry>> spents = new List<Tuple<OutPoint, AccountEntry>>();
-				foreach(var spent in FindSpent(fullBlock, Account.Unspent))
+				foreach(var spent in FindSpent(fullBlock, account.Unspent))
 				{
 					var entry = new AccountEntry(AccountEntryReason.Outcome,
 												block.HashBlock,
@@ -125,7 +132,7 @@ namespace NBitcoin.Scanning
 
 				foreach(var spent in spents)
 				{
-					if(Account.PushAccountEntry(spent.Item2) == null)
+					if(account.PushAccountEntry(spent.Item2) == null)
 						return false;
 				}
 
@@ -138,15 +145,23 @@ namespace NBitcoin.Scanning
 						{
 							var entry = new AccountEntry(AccountEntryReason.Income, block.HashBlock,
 												new Spendable(new OutPoint(coins.TxId, i), output), output.Value);
-							if(Account.PushAccountEntry(entry) == null)
+							if(account.PushAccountEntry(entry) == null)
 								return false;
 						}
 						i++;
 					}
 				}
 
-				Chain.GetOrAdd(block.Header);
+				chain.GetOrAdd(block.Header);
 			}
+
+			account.Entries.GoTo(accountPosition);
+			Account.Entries.WriteNext(account.Entries);
+			Account.Process();
+
+			chain.Changes.GoTo(chainPosition);
+			Chain.Changes.WriteNext(chain.Changes);
+			Chain.Process();
 			return true;
 		}
 
@@ -155,7 +170,7 @@ namespace NBitcoin.Scanning
 			var amongDico = among.ToDictionary(o => o.OutPoint);
 			foreach(var spent in block
 									.Transactions
-									.Where(t=>!t.IsCoinBase)
+									.Where(t => !t.IsCoinBase)
 									.SelectMany(t => t.Inputs)
 									.Where(input => amongDico.ContainsKey(input.PrevOut)))
 			{

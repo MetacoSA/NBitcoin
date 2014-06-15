@@ -98,5 +98,13 @@ namespace NBitcoin
 				GoTo(position);
 			}
 		}
+
+		public void WriteNext(ObjectStream<T> stream)
+		{
+			foreach(var o in stream.Enumerate())
+			{
+				WriteNext(o);
+			}
+		}
 	}
 }

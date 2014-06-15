@@ -200,31 +200,57 @@ namespace NBitcoin.Tests
 
 			//NodeServer server = new NodeServer(Network.Main);
 			//server.RegisterPeerTableRepository(new SqLitePeerTableRepository("PeerCachePlay"));
-			//var chain = server.BuildChain(new StreamObjectStream<ChainChange>(File.Open("MainChain.dat", FileMode.OpenOrCreate)));
+			//server.BuildChain(new StreamObjectStream<ChainChange>(File.Open("MainChain.dat", FileMode.OpenOrCreate)));
 
-			//var from = new DateTimeOffset(new DateTime(2012, 12, 1));
-			//var to = new DateTimeOffset(new DateTime(2012, 12, 20));
+			var from = new DateTimeOffset(new DateTime(2012, 12, 1));
+			var to = new DateTimeOffset(new DateTime(2013, 1, 20));
 
-			//var chain = new Chain(new StreamObjectStream<ChainChange>(File.Open("MainChain.dat", FileMode.OpenOrCreate)));
-			//var blocks =
-			//	chain.ToEnumerable(false)
-			//	 .SkipWhile(c => c.Header.BlockTime < from)
-			//	 .TakeWhile(c => c.Header.BlockTime < to)
-			//	 .ToArray();
+			var chain = new Chain(new StreamObjectStream<ChainChange>(File.Open("MainChain.dat", FileMode.OpenOrCreate)));
+			var blocks =
+				chain.ToEnumerable(false)
+					.SkipWhile(c => c.Header.BlockTime < from)
+					.TakeWhile(c => c.Header.BlockTime < to)
+					.ToArray();
 
-			//BlockStore store = new BlockStore("E:\\Bitcoin\\blocks", Network.Main);
-			//var index = new IndexedBlockStore(new SQLiteNoSqlRepository("PlayIndex"), store);
-			////index.ReIndex();
-			////Console.WriteLine("");
+			//index.ReIndex();
+			//Console.WriteLine("");
 
-			//var target = Money.Parse("1132");
-			//var margin = Money.Parse("10");
 
-			//var en = new CultureInfo("en-US");
+			BlockStore store = new BlockStore("E:\\Bitcoin\\blocks", Network.Main);
+			IndexedBlockStore index = new IndexedBlockStore(new SQLiteNoSqlRepository("PlayIndex"), store);
+			var target = Money.Parse("1100");
+			var margin = Money.Parse("1");
+			var dest = Network.CreateFromBase58Data<BitcoinAddress>("1FrtkNXastDoMAaorowys27AKQERxgmZjY");
+			var en = new CultureInfo("en-US");
 
-			//FileStream fs = File.Open("logs", FileMode.Create);
-			//var writer = new StreamWriter(fs);
-			//writer.WriteLine("time,height,txid,value");
+			FileStream fs = File.Open("logs", FileMode.Create);
+			var writer = new StreamWriter(fs);
+			writer.WriteLine("time,height,txid,value");
+
+			var lines = from header in blocks
+						let block = index.Get(header.HashBlock)
+						from tx in block.Transactions
+						from txout in tx.Outputs
+						//where txout.ScriptPubKey.GetDestination() == dest.ID
+						where target - margin < txout.Value && txout.Value < target + margin
+						select new
+						{
+							Block = block,
+							Height = header.Height,
+							Transaction = tx,
+							TxOut = txout
+						};
+			foreach(var line in lines)
+			{
+				writer.WriteLine(
+					line.Block.Header.BlockTime.ToString(en) + "," +
+					line.Height + "," +
+					line.Transaction.GetHash() + "," +
+					line.TxOut.Value.ToString());
+			}
+			writer.Flush();
+			Process.Start(@"E:\Chocolatey\lib\notepadplusplus.commandline.6.4.5\tools\notepad++.exe", "\"" + new FileInfo(fs.Name).FullName + "\"");
+
 			//foreach(var b in blocks)
 			//{
 			//	var block = index.Get(b.HashBlock);
@@ -232,16 +258,19 @@ namespace NBitcoin.Tests
 			//	{
 			//		foreach(var txout in tx.Outputs)
 			//		{
-
-			//			if(target - margin < txout.Value && txout.Value < target + margin)
+			//			var pa = new PayToPubkeyHashTemplate()
+			//					.ExtractScriptPubKeyParameters(txout.ScriptPubKey);
+			//			if(pa != null && pa == dest.ID)
 			//			{
-			//				writer.WriteLine(b.Header.BlockTime.ToString(en) + "," + b.Height + "," + tx.GetHash() + "," + txout.Value.ToString());
+			//				if(target - margin < txout.Value && txout.Value < target + margin)
+			//				{
+			//					writer.WriteLine(b.Header.BlockTime.ToString(en) + "," + b.Height + "," + tx.GetHash() + "," + txout.Value.ToString());
+			//				}
 			//			}
 			//		}
 			//	}
 
 			//}
-			//writer.Flush();
 
 			//They were purchased anonymously at a restaurant halfway between Sandwich, IL, and Chicago, in Naperville, IL, about the second week of December, 2012. Taxing my memory, the total was 1,132 + x(single digit).xxx... and immediately put in a freshly created InstaWallet bitcoin wallet. A couple/three days later I split the three accounts up into 1,000, 132, and x.xxx... wallets, always using InstaWallet while in my possession. Hope that helps with your plans.
 

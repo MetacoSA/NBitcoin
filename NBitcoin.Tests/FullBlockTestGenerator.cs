@@ -13,6 +13,7 @@ namespace NBitcoin.Tests
 	public class FullBlockTest
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void RunFullBlockTest()
 		{
 			var generator = new FullBlockTestGenerator(Network.Main);
@@ -270,32 +271,6 @@ namespace NBitcoin.Tests
 
 			Block b8 = createNextBlock(b7, chainHeadHeight + 5, out4, null);
 			blocks.Add(new BlockAndValidity(blockToHeightMap, hashHeaderMap, b8, false, true, b6.GetHash(), chainHeadHeight + 4, "b8"));
-
-			// Try to create a block that has too much fee
-			// genesis -> b1 (0) -> b2 (1) -> b5 (2) -> b6 (3)
-			// \-> b9 (4)
-			// \-> b3 (1) -> b4 (2)
-			//
-			Block b9 = createNextBlock(b6, chainHeadHeight + 5, out4, Money.Parse("1"));
-			blocks.Add(new BlockAndValidity(blockToHeightMap, hashHeaderMap, b9, false, true, b6.GetHash(), chainHeadHeight + 4, "b9"));
-
-			// Create a fork that ends in a block with too much fee (the one that causes the reorg)
-			// genesis -> b1 (0) -> b2 (1) -> b5 (2) -> b6 (3)
-			// \-> b10 (3) -> b11 (4)
-			// \-> b3 (1) -> b4 (2)
-			//
-			Block b10 = createNextBlock(b5, chainHeadHeight + 4, out3, null);
-			blocks.Add(new BlockAndValidity(blockToHeightMap, hashHeaderMap, b10, true, false, b6.GetHash(), chainHeadHeight + 4, "b10"));
-
-			Block b11 = createNextBlock(b10, chainHeadHeight + 5, out4, Money.Parse("1"));
-			blocks.Add(new BlockAndValidity(blockToHeightMap, hashHeaderMap, b11, false, true, b6.GetHash(), chainHeadHeight + 4, "b11"));
-
-			// Try again, but with a valid fork first
-			// genesis -> b1 (0) -> b2 (1) -> b5 (2) -> b6 (3)
-			// \-> b12 (3) -> b13 (4) -> b14 (5)
-			// (b12 added last)
-			// \-> b3 (1) -> b4 (2)
-			//
 
 			return ret;
 		}
