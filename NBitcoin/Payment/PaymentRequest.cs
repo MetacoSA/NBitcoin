@@ -392,19 +392,28 @@ namespace NBitcoin.Payment
 		{
 			bool valid = true;
 			if(this.PKIType != Payment.PKIType.None)
-				valid = this.VerifyCertificate() && VerifySignature();
+				valid = this.VerifyChain() && VerifySignature();
 			if(!valid)
 				return valid;
 
 			return Details.Expires < DateTimeOffset.UtcNow;
 		}
 
-		public bool VerifyCertificate(X509VerificationFlags flags = X509VerificationFlags.NoFlag)
+		public bool VerifyChain(X509VerificationFlags flags = X509VerificationFlags.NoFlag)
 		{
+			X509Chain chain;
+			return VerifyChain(out chain, flags);
+		}
+
+		public bool VerifyChain(out X509Chain chain, X509VerificationFlags flags = X509VerificationFlags.NoFlag)
+		{
+			chain = null;
 			if(MerchantCertificate == null || PKIType == Payment.PKIType.None)
 				return false;
-			X509Chain chain = new X509Chain();
+			chain = new X509Chain();
 			chain.ChainPolicy.VerificationFlags = flags;
+			foreach(var additional in AdditionalCertificates)
+				chain.ChainPolicy.ExtraStore.Add(additional);
 			return chain.Build(MerchantCertificate);
 		}
 
