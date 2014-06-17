@@ -88,6 +88,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void IETFDetailedExample()
 		{
 			ECPrivateKeyParameters key = ParseKey(
@@ -127,6 +128,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void DeterministicSignatureTestVectors()
 		{
 			foreach(var test in ParseTestsDump(File.ReadAllText("Data/determiniticECDSA.txt")))
