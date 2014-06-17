@@ -4,6 +4,7 @@ using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
@@ -81,12 +82,10 @@ namespace NBitcoin.Crypto
 		public ECDSASignature Sign(uint256 hash)
 		{
 			AssertPrivateKey();
-			ECDsaSigner signer = new ECDsaSigner();
-			signer.Init(true, PrivateKey);
-			BigInteger[] components = signer.GenerateSignature(hash.ToBytes());
-			ECDSASignature signature = new ECDSASignature(components[0], components[1]);
-			signature = signature.MakeCanonical();
-			return signature;
+			DeterministicECDSA signer = new DeterministicECDSA();
+			signer.setPrivateKey(PrivateKey);
+			var sig = ECDSASignature.FromDER(signer.signHash(hash.ToBytes()));
+			return sig.MakeCanonical();
 		}
 
 		private void AssertPrivateKey()

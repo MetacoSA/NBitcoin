@@ -77,6 +77,7 @@
     <Compile Include="ChainTests.cs" />
     <Compile Include="checkblock_tests.cs" />
     <Compile Include="ConverterTests.cs" />
+    <Compile Include="DeterministicSignatureTests.cs" />
     <Compile Include="FullBlockTestGenerator.cs" />
     <Compile Include="hash_tests.cs" />
     <Compile Include="key_tests.cs" />
@@ -125,6 +126,9 @@
     <None Include="data\can_parse_transaction.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="data\determiniticECDSA.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="data\NicolasDorierCA.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
