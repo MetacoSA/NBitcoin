@@ -95,7 +95,7 @@ namespace NBitcoin.Tests
 		public void CanVerifyValidChain()
 		{
 			var req =PaymentRequest.Load("data/payreq3_validchain.paymentrequest");
-			Assert.True(req.VerifyChain());
+			Assert.True(req.VerifyChain(X509VerificationFlags.IgnoreNotTimeValid));
 			Assert.True(req.VerifySignature());
 		}
 
