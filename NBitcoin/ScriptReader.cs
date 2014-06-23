@@ -572,7 +572,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return IsSmallInt || Code == OpcodeType.OP_1NEGATE;
+				return IsSmallUInt || Code == OpcodeType.OP_1NEGATE;
 			}
 		}
 		public BigInteger? GetValue()

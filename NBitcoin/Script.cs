@@ -614,5 +614,10 @@ namespace NBitcoin
 		{
 			return Utils.ArrayEqual(script._Script, _Script);
 		}
+
+		public static Script FromBitcoinAddress(BitcoinAddress address)
+		{
+			return new PayToPubkeyHashTemplate().GenerateScriptPubKey(address);
+		}
 	}
 }
