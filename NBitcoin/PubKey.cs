@@ -29,7 +29,7 @@ namespace NBitcoin
 		}
 		public PubKey Decompress()
 		{
-			if(IsCompressed)
+			if(!IsCompressed)
 				return this;
 			return _Key.GetPubKey(false);
 		}

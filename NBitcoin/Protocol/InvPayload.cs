@@ -9,12 +9,12 @@ namespace NBitcoin.Protocol
 	[Payload("inv")]
 	public class InvPayload : Payload, IBitcoinSerializable
 	{
-		InventoryVector[] inventory = new InventoryVector[0];
-		public InventoryVector[] Inventory
+		List<InventoryVector> _Inventory = new List<InventoryVector>();
+		public List<InventoryVector> Inventory
 		{
 			get
 			{
-				return inventory;
+				return _Inventory;
 			}
 		}
 
@@ -24,7 +24,7 @@ namespace NBitcoin.Protocol
 		{
 			var old = stream.MaxArraySize;
 			stream.MaxArraySize = 5000;
-			stream.ReadWrite(ref inventory);
+			stream.ReadWrite(ref _Inventory);
 			stream.MaxArraySize = old;
 		}
 
@@ -32,7 +32,7 @@ namespace NBitcoin.Protocol
 
 		public override string ToString()
 		{
-			return "Count: " + Inventory.Length.ToString();
+			return "Count: " + Inventory.Count.ToString();
 		}
 	}
 }
