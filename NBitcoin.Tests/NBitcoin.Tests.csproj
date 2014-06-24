@@ -76,6 +76,7 @@
     <Compile Include="bloom_tests.cs" />
     <Compile Include="ChainTests.cs" />
     <Compile Include="checkblock_tests.cs" />
+    <Compile Include="ColoredCoinsTests.cs" />
     <Compile Include="ConverterTests.cs" />
     <Compile Include="DeterministicSignatureTests.cs" />
     <Compile Include="FullBlockTestGenerator.cs" />
@@ -118,6 +119,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\blocks\blk00001.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\blocks\Block1.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\blocks\rev00000.dat">
