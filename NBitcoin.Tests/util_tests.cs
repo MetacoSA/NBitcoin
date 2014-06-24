@@ -353,7 +353,6 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseBlockJSON()
 		{
-			Script script = new Script("1 033e48aba7e933ef2f0ad715309b7447ea45711cf8cbca837b70f18269df72baee 1c434e54525052545900000000000000233ec171ca0000002ec09cd80000000000 2 OP_CHECKMULTISIG");
 			var jobj = JObject.Parse(File.ReadAllText("Data/blocks/Block1.json"));
 			var array = (JArray)jobj["mrkl_tree"];
 			var expected = array.OfType<JValue>().Select(v=>new uint256(v.ToString())).ToList();
