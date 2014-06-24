@@ -23,6 +23,11 @@ namespace NBitcoin.RPC
 		public Transaction Parse(string str)
 		{
 			JObject obj = JObject.Parse(str);
+			return Parse(obj);
+		}
+
+		public Transaction Parse(JObject obj)
+		{
 			Transaction tx = new Transaction();
 			BuildTransaction(obj, tx);
 			return tx;

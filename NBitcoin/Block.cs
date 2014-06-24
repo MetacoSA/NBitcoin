@@ -1,6 +1,9 @@
 ﻿using NBitcoin.Crypto;
+using NBitcoin.RPC;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -374,6 +377,25 @@ namespace NBitcoin
 				ScriptPubKey = new PayToPubkeyHashTemplate().GenerateScriptPubKey(pubkey)
 			});
 			return block;
+		}
+
+		public static Block Parse(string json)
+		{
+			var formatter = new BlockExplorerFormatter();
+			var block = JObject.Parse(json);
+			var txs = (JArray)block["tx"];
+			Block blk = new Block();
+			blk.Header.Bits = new Target((uint)block["bits"]);
+			blk.Header.BlockTime = Utils.UnixTimeToDateTime((uint)block["time"]);
+			blk.Header.Nonce = (uint)block["nonce"];
+			blk.Header.Version = (int)block["ver"];
+			blk.Header.HashPrevBlock = new uint256((string)block["prev_block"]);
+			blk.Header.HashMerkleRoot = new uint256((string)block["mrkl_root"]);
+			foreach(var tx in txs)
+			{
+				blk.AddTransaction(formatter.Parse((JObject)tx));
+			}
+			return blk;
 		}
 	}
 }

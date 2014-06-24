@@ -442,8 +442,9 @@ namespace NBitcoin
 			if(PushData != null)
 			{
 				if(PushData.Length == 0)
-					return "00";
-				return Encoders.Hex.EncodeData(PushData);
+					return "0";
+				var result = Encoders.Hex.EncodeData(PushData);
+				return result.Length == 2 && result[0] == '0' ? result.Substring(1) : result;
 			}
 			else if(Name == "OP_UNKNOWN")
 			{
@@ -475,7 +476,11 @@ namespace NBitcoin
 				(opcode == OpcodeType.OP_INVALIDOPCODE || Op.IsPushCode(opcode))
 				&& !opname.StartsWith(unknown)
 				&& opname != "OP_INVALIDOPCODE")
-				return GetPushOp(Encoders.Hex.DecodeData(opname));
+			{
+				if(opcode == OpcodeType.OP_0)
+					return GetPushOp(new byte[0]);
+				return GetPushOp(Encoders.Hex.DecodeData(opname.Length == 1 ? "0" + opname : opname));
+			}
 			else if(opname.StartsWith(unknown))
 			{
 				try

@@ -99,6 +99,7 @@ namespace NBitcoin.Tests
 
 
 				Transaction raw = Transaction.Parse(testData, format, network);
+				
 
 				AssertJsonEquals(raw.ToString(format, network), testData);
 
