@@ -138,6 +138,11 @@ namespace NBitcoin.RPC
 			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
 		}
 
+		public uint256 GetBestBlockHash()
+		{
+			return new uint256((string)SendCommand("getbestblockhash").Result);
+		}
+
 		public BitcoinSecret GetAccountSecret(string account)
 		{
 			var address = GetAccountAddress(account);

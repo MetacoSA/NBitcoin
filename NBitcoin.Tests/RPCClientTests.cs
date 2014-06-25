@@ -52,6 +52,15 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("RPCClient", "RPCClient")]
+		public void CanGetBestBlockHash()
+		{
+			var rpc = CreateRPCClient();
+			var hash = rpc.GetBestBlockHash();
+			Assert.NotNull(hash);
+		}
+
+		[Fact]
+		[Trait("RPCClient", "RPCClient")]
 		public void CanGetBlockFromRPC()
 		{
 			var rpc = CreateRPCClient();

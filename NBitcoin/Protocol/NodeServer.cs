@@ -809,6 +809,11 @@ namespace NBitcoin.Protocol
 			if(changes == null)
 				changes = new StreamObjectStream<ChainChange>();
 			var chain = new Chain(Network, changes);
+			return BuildChain(chain, cancellationToken);
+		}
+
+		public Chain BuildChain(Chain chain, CancellationToken cancellationToken = default(CancellationToken))
+		{
 			TraceCorrelation trace = new TraceCorrelation(NodeServerTrace.Trace, "Build chain");
 			using(trace.Open())
 			{
