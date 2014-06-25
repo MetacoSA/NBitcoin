@@ -19,12 +19,12 @@ namespace NBitcoin
 			}
 		}
 		public IndexedBlockStore(NoSqlRepository index, BlockStore store)
-			:base(index,store)
+			: base(index, store)
 		{
 			_Store = store;
 			IndexedLimit = "Last Index Position";
 		}
-		
+
 		public BlockHeader GetHeader(uint256 hash)
 		{
 			var pos = Index.Get<DiskBlockPos>(hash.ToString());
@@ -47,7 +47,7 @@ namespace NBitcoin
 		{
 			var block = Get(id.ToString());
 			if(block == null)
-				return null;
+				throw new Exception("Block " + id + " not present in the index");
 			return block;
 		}
 

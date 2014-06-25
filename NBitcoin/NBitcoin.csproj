@@ -65,6 +65,7 @@
     <Compile Include="BIP32\BitcoinExtKey.cs" />
     <Compile Include="BIP38\BitcoinPassphraseCode.cs" />
     <Compile Include="BitcoinSecret.cs" />
+    <Compile Include="CachedBlockProvider.cs" />
     <Compile Include="CachedNoSqlRepository.cs" />
     <Compile Include="CoinsView.cs" />
     <Compile Include="Crypto\DeterministicECDSA.cs" />

@@ -83,6 +83,13 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanEnumerateIncompleteBlk()
+		{
+			Assert.Equal(300, StoredBlock.EnumerateFile(@"data\blocks\incompleteblk.dat").Count());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanIndexBlock()
 		{
 			var index = CreateIndexedStore();

@@ -108,7 +108,10 @@ namespace NBitcoin
 			stream.Position = range.Begin.Position;
 			while(stream.Position < stream.Length)
 			{
-				yield return ReadStoredItem(stream, new DiskBlockPos(fileIndex, (uint)stream.Position));
+				var storedItem =  ReadStoredItem(stream, new DiskBlockPos(fileIndex, (uint)stream.Position));;
+				if(storedItem.Header.Magic == 0)
+					break;
+				yield return storedItem;
 				if(stream.Position >= range.End.Position)
 					break;
 			}
