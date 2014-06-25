@@ -202,6 +202,8 @@ namespace NBitcoin.Tests
 			_FolderName = folderName;
 			string index = Path.Combine(folderName, "Index.dat");
 			_Index = new IndexedBlockStore(new SQLiteNoSqlRepository(index, true), new BlockStore(folderName, Network.TestNet));
+			var genesis = Network.TestNet.GetGenesis();
+			_Index.Put(genesis);
 		}
 		internal string _FolderName;
 		private readonly IndexedBlockStore _Index;
