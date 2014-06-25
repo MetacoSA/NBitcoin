@@ -121,7 +121,7 @@ namespace NBitcoin
 		{
 			if(range == null)
 				range = DiskBlockPosRange.All;
-			using(var fs = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read))
+			using(var fs = file.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 			{
 				fs.Position = range.Begin.Position;
 				foreach(var block in Enumerate(fs, fileIndex, range))
