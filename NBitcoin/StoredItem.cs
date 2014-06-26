@@ -126,9 +126,14 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref _Header);
-			if(_Header.Magic == 0)
-				return;
+			while(true)
+			{
+				stream.ReadWrite(ref _Header);
+				if(_Header.Magic != 0)
+					break;
+				if(stream.Inner.Length - stream.Inner.Position < 4)
+					return;
+			}
 			if(ParseSkipItem)
 				stream.Inner.Position += _Header.ItemSize;
 			else
