@@ -10,6 +10,7 @@ namespace NBitcoin.Tests
 	{
 		public static void Main()
 		{
+			new Benchmark().BlockDirectoryScanSpeed();
 			//new ProtocolTests().CanBuildChain();
 		}
 	}

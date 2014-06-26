@@ -65,6 +65,11 @@
     <Compile Include="BIP32\BitcoinExtKey.cs" />
     <Compile Include="BIP38\BitcoinPassphraseCode.cs" />
     <Compile Include="BitcoinSecret.cs" />
+    <Compile Include="BitcoinStream.Partial.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>BitcoinStream.Partial.tt</DependentUpon>
+    </Compile>
     <Compile Include="CachedBlockProvider.cs" />
     <Compile Include="CachedNoSqlRepository.cs" />
     <Compile Include="CoinsView.cs" />
@@ -206,6 +211,10 @@
     <Compile Include="Wallet.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="BitcoinStream.Partial.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BitcoinStream.Partial.cs</LastGenOutput>
+    </None>
     <None Include="packages.config" />
     <None Include="NBitcoin.nuspec" />
     <None Include="PushNuget.ps1" />

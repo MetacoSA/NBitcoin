@@ -40,7 +40,7 @@ namespace NBitcoin
 			}
 		}
 	}
-	public class BitcoinStream
+	public partial class BitcoinStream
 	{
 		int _MaxArraySize = Int32.MaxValue;
 		public int MaxArraySize
@@ -98,7 +98,7 @@ namespace NBitcoin
 		{
 		}
 
-		public T ReadWrite<T>(T data)
+		public T ReadWrite<T>(T data) where T : IBitcoinSerializable
 		{
 			ReadWrite<T>(ref data);
 			return data;
@@ -125,51 +125,32 @@ namespace NBitcoin
 			}
 		}
 
-		public void ReadWrite<T>(ref T data)
+		public void ReadWrite(ref byte data)
 		{
-			if(typeof(IBitcoinSerializable).IsAssignableFrom(typeof(T)))
-			{
-				if(data == null)
-					data = Activator.CreateInstance<T>();
-				((IBitcoinSerializable)data).ReadWrite(this);
-			}
-			else if(data is byte)
-			{
-				var d = (byte)(object)data;
-				ReadWriteByte(ref d);
-				data = (T)(object)d;
-			}
-			else if(data is bool)
-			{
-				byte d = (bool)(object)data ? (byte)1 : (byte)0;
-				ReadWriteByte(ref d);
-				data = (T)(object)(d == 0 ? false : true);
-			}
-			else if(typeof(byte[]).IsAssignableFrom(typeof(T)))
-			{
-				var d = (byte[])(object)data;
-				ReadWriteBytes(ref d);
-				data = (T)(object)d;
-			}
-			else if(typeof(Array).IsAssignableFrom(typeof(T)))
-			{
-				var d = (Array)(object)data;
-				ReadWriteArrayUntyped(ref d);
-				data = (T)(object)d;
-			}
-			else if(typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(List<>))
-			{
-				ReadWriteListUntyped(ref data);
-			}
-			else if(IsUNumber<T>() || IsNumber<T>())
-			{
-				ReadWriteNumber(ref data);
-			}
-			else
-				throw new NotSupportedException("Type not supported " + typeof(T).FullName + ", implement IBitcoinSerializable");
+			ReadWriteByte(ref data);
+		}
+		public byte ReadWrite(byte data)
+		{
+			ReadWrite(ref data);
+			return data;
 		}
 
-		public void ReadWrite<T>(ref List<T> list)
+		public void ReadWrite(ref bool data)
+		{
+			byte d = data ? (byte)1 : (byte)0;
+			ReadWriteByte(ref d);
+			data = (d == 0 ? false : true);
+		}
+
+
+		public void ReadWrite<T>(ref T data) where T : IBitcoinSerializable
+		{
+			if(data == null)
+				data = Activator.CreateInstance<T>();
+			((IBitcoinSerializable)data).ReadWrite(this);
+		}
+
+		public void ReadWrite<T>(ref List<T> list) where T : IBitcoinSerializable
 		{
 			ReadWriteList<T>(ref list);
 		}
@@ -177,94 +158,27 @@ namespace NBitcoin
 		{
 			ReadWriteBytes(ref arr);
 		}
-		public void ReadWrite<T>(ref T[] arr)
+		public void ReadWrite<T>(ref T[] arr) where T : IBitcoinSerializable
 		{
 			ReadWriteArray<T>(ref arr);
 		}
 
-		private void ReadWriteArrayUntyped(ref Array data)
+		//private void ReadWriteList<T>(ref List<T> data)
+		//{
+		//	if(data == null && Serializing)
+		//		throw new ArgumentNullException("Impossible to serialize a null list");
+
+		//	var dataArray = data.ToArray();
+		//	ReadWriteArray(ref dataArray);
+		//	if(!Serializing)
+		//		data = dataArray.ToList();
+		//}
+
+
+		private void ReadWriteNumber<T>(ref T data, int size, bool unsigned)
 		{
-			try
-			{
-				var elementType = data.GetType().GetElementType();
-				var parameters = new object[] { data };
-				this.GetType().GetMethod("ReadWriteArray", BindingFlags.NonPublic | BindingFlags.Instance)
-					.MakeGenericMethod(elementType)
-					.Invoke(this, parameters);
-				data = (Array)parameters[0];
-			}
-			catch(TargetInvocationException ex)
-			{
-				throw ex.InnerException;
-			}
-		}
-
-		private void ReadWriteArray<T>(ref T[] data)
-		{
-			if(data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
-
-
-			var length = new VarInt(data == null ? 0 : (ulong)data.Length);
-			ReadWrite(ref length);
-
-			if(length.ToLong() > (uint)MaxArraySize)
-				throw new ArgumentOutOfRangeException("Array size not big");
-			if(!Serializing)
-				data = new T[length.ToLong()];
-
-			for(int i = 0 ; i < data.Length ; i++)
-			{
-				T obj = data[i];
-				ReadWrite(ref obj);
-				data[i] = obj;
-			}
-		}
-
-		private void ReadWriteListUntyped<T>(ref T data)
-		{
-			try
-			{
-				var elementType = data.GetType().GetGenericArguments()[0];
-				var parameters = new object[] { data };
-
-				this.GetType().GetMethod("ReadWriteList", BindingFlags.NonPublic | BindingFlags.Instance)
-					.MakeGenericMethod(elementType)
-					.Invoke(this, parameters);
-
-				data = (T)(object)parameters[0];
-			}
-			catch(TargetInvocationException ex)
-			{
-				throw ex.InnerException;
-			}
-		}
-		private void ReadWriteList<T>(ref List<T> data)
-		{
-			if(data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null list");
-
-			var dataArray = data.ToArray();
-			ReadWriteArray(ref dataArray);
-			if(!Serializing)
-				data = dataArray.ToList();
-		}
-
-
-		private void ReadWriteNumber<T>(ref T data)
-		{
-			int size = 0;
-			if(data is ushort || data is short)
-				size = 2;
-			else if(data is uint || data is int)
-				size = 4;
-			else if(data is ulong || data is long)
-				size = 8;
-			else
-				throw new NotSupportedException("Type not supported " + typeof(T).FullName);
-
 			ulong value = 0;
-			if(IsUNumber<T>())
+			if(unsigned)
 			{
 				value = (ulong)Convert.ChangeType(data, typeof(ulong));
 			}
@@ -291,7 +205,7 @@ namespace NBitcoin
 			}
 			value = valueTemp;
 
-			if(IsUNumber<T>())
+			if(unsigned)
 			{
 				data = (T)Convert.ChangeType(value, typeof(T));
 			}
@@ -327,16 +241,63 @@ namespace NBitcoin
 		}
 
 
-		static Type[] unumberTypes = new[] { typeof(byte), typeof(ushort), typeof(uint), typeof(ulong) };
-		private bool IsUNumber<T>()
+		public void ReadWrite(ref ushort data)
 		{
-			return unumberTypes.Contains(typeof(T));
+			ReadWriteNumber(ref data, sizeof(ushort), true);
 		}
-		static Type[] numberTypes = new[] { typeof(short), typeof(int), typeof(long) };
-		private bool IsNumber<T>()
+		public ushort ReadWrite(ushort data)
 		{
-			return numberTypes.Contains(typeof(T));
+			ReadWrite(ref data);
+			return data;
 		}
+		public void ReadWrite(ref uint data)
+		{
+			ReadWriteNumber(ref data, sizeof(uint), true);
+		}
+		public uint ReadWrite(uint data)
+		{
+			ReadWrite(ref data);
+			return data;
+		}
+		public void ReadWrite(ref ulong data)
+		{
+			ReadWriteNumber(ref data, sizeof(ulong), true);
+		}
+		public ulong ReadWrite(ulong data)
+		{
+			ReadWrite(ref data);
+			return data;
+		}
+
+		public short ReadWrite(short data)
+		{
+			ReadWrite(ref data);
+			return data;
+		}
+		public void ReadWrite(ref short data)
+		{
+			ReadWriteNumber(ref data, sizeof(short), false);
+		}
+		public int ReadWrite(int data)
+		{
+			ReadWrite(ref data);
+			return data;
+		}
+		public void ReadWrite(ref int data)
+		{
+			ReadWriteNumber(ref data, sizeof(int), false);
+		}
+		public long ReadWrite(long data)
+		{
+			ReadWrite(ref data);
+			return data;
+		}
+		public void ReadWrite(ref long data)
+		{
+			ReadWriteNumber(ref data, sizeof(long), false);
+		}
+
+
 
 		public bool IsBigEndian
 		{
