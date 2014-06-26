@@ -57,7 +57,7 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			if(_ExpectedNetwork == null)
+			if(_ExpectedNetwork == null || stream.Serializing)
 			{
 				stream.ReadWrite(ref magic);
 			}
