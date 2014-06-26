@@ -635,7 +635,7 @@ namespace NBitcoin
 			return new Money(nSubsidy);
 		}
 
-		public void ReadMagic(Stream stream, CancellationToken cancellation)
+		public bool ReadMagic(Stream stream, CancellationToken cancellation)
 		{
 			byte[] bytes = new byte[1];
 			for(int i = 0 ; i < MagicBytes.Length ; i++)
@@ -644,13 +644,14 @@ namespace NBitcoin
 				cancellation.ThrowIfCancellationRequested();
 
 				var read = stream.ReadEx(bytes, 0, bytes.Length, cancellation);
+				if(read == -1)
+					return false;
 				if(read != 1)
 					i--;
 				else if(_MagicBytes[i] != bytes[0])
 					i = -1;
-
 			}
-
+			return true;
 		}
 
 		public int SpendableCoinbaseDepth

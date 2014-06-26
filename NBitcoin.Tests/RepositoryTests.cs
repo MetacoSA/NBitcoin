@@ -83,9 +83,10 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		//The last block is off by 1 byte + lots of padding zero at the end
 		public void CanEnumerateIncompleteBlk()
 		{
-			Assert.Equal(300, StoredBlock.EnumerateFile(@"data\blocks\incompleteblk.dat").Count());
+			Assert.Equal(301, StoredBlock.EnumerateFile(@"data\blocks\incompleteblk.dat").Count());
 		}
 
 		[Fact]

@@ -208,8 +208,8 @@ namespace NBitcoin
 			set;
 		}
 
-		public StoredBlock(DiskBlockPos position)
-			: base(position)
+		public StoredBlock(Network expectedNetwork, DiskBlockPos position)
+			: base(expectedNetwork, position)
 		{
 		}
 		public StoredBlock(uint magic, Block block, DiskBlockPos blockPosition)
@@ -239,12 +239,12 @@ namespace NBitcoin
 
 		#endregion
 
-		public static IEnumerable<StoredBlock> EnumerateFile(string file, uint fileIndex=0, DiskBlockPosRange range =null)
+		public static IEnumerable<StoredBlock> EnumerateFile(string file, uint fileIndex = 0, DiskBlockPosRange range = null)
 		{
 			return new BlockStore(Path.GetDirectoryName(file), Network.Main).EnumerateFile(file, fileIndex, range);
 		}
 
-		public static IEnumerable<StoredBlock> EnumerateFolder(string folder, DiskBlockPosRange range =null)
+		public static IEnumerable<StoredBlock> EnumerateFolder(string folder, DiskBlockPosRange range = null)
 		{
 			return new BlockStore(folder, Network.Main).EnumerateFolder(range);
 		}

@@ -31,7 +31,7 @@ namespace NBitcoin
 
 		protected override StoredItem<BlockUndo> ReadStoredItem(System.IO.Stream stream, DiskBlockPos pos)
 		{
-			StoredItem<BlockUndo> item = new StoredItem<BlockUndo>(pos);
+			StoredItem<BlockUndo> item = new StoredItem<BlockUndo>(Network, pos);
 			item.HasChecksum = true;
 			item.ReadWrite(stream, false);
 			item.Item.CalculatedChecksum = item.Checksum;

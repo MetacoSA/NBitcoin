@@ -62,7 +62,7 @@ namespace NBitcoin
 
 		protected override StoredBlock ReadStoredItem(Stream stream, DiskBlockPos pos)
 		{
-			StoredBlock block = new StoredBlock(pos);
+			StoredBlock block = new StoredBlock(Network, pos);
 			block.ParseSkipBlockContent = headerOnly;
 			block.ReadWrite(stream, false);
 			return block;

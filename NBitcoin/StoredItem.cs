@@ -4,12 +4,29 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin
 {
 	public class StoredHeader : IBitcoinSerializable
 	{
+		public StoredHeader()
+		{
+
+		}
+		private readonly Network _ExpectedNetwork;
+		public Network ExpectedNetwork
+		{
+			get
+			{
+				return _ExpectedNetwork;
+			}
+		}
+		public StoredHeader(Network expectedNetwork)
+		{
+			_ExpectedNetwork = expectedNetwork;
+		}
 		uint magic;
 		public uint Magic
 		{
@@ -40,7 +57,16 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref magic);
+			if(_ExpectedNetwork == null)
+			{
+				stream.ReadWrite(ref magic);
+			}
+			else
+			{
+				if(!_ExpectedNetwork.ReadMagic(stream.Inner, default(CancellationToken)))
+					return;
+				magic = ExpectedNetwork.Magic;
+			}
 			if(magic == 0)
 				return;
 			stream.ReadWrite(ref size);
@@ -51,8 +77,9 @@ namespace NBitcoin
 	}
 	public class StoredItem<T> : IBitcoinSerializable where T : IBitcoinSerializable
 	{
-		public StoredItem(DiskBlockPos position)
+		public StoredItem(Network expectedNetwork, DiskBlockPos position)
 		{
+			_Header = new StoredHeader(expectedNetwork);
 			_BlockPosition = position;
 		}
 		public StoredItem(uint magic, T item, DiskBlockPos position)
@@ -126,14 +153,10 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			while(true)
-			{
-				stream.ReadWrite(ref _Header);
-				if(_Header.Magic != 0)
-					break;
-				if(stream.Inner.Length - stream.Inner.Position < 4)
-					return;
-			}
+			stream.ReadWrite(ref _Header);
+			if(_Header.Magic == 0)
+				return;
+
 			if(ParseSkipItem)
 				stream.Inner.Position += _Header.ItemSize;
 			else
