@@ -91,5 +91,51 @@ namespace NBitcoin
 		}
 
 		<# } #>
+
+
+			<# foreach(String type in new string[]
+		{
+			"ulong",
+			"ushort",
+			"uint",
+		}){ #>
+
+		public void ReadWrite(ref <#= type #> data)
+		{
+			ulong l = (ulong)data;
+			ReadWriteNumber(ref l, sizeof(<#= type #>));
+			data = (<#= type #>)l;
+		}
+
+		public <#= type #> ReadWrite(<#= type #> data)
+		{
+			ReadWrite(ref data);
+			return data;
+		}
+
+		<# } #>
+
+
+			<# foreach(String type in new string[]
+		{
+			"long",
+			"short",
+			"int",
+		}){ #>
+
+		public void ReadWrite(ref <#= type #> data)
+		{
+			long l = (long)data;
+			ReadWriteNumber(ref l, sizeof(<#= type #>));
+			data = (<#= type #>)l;
+		}
+
+		public <#= type #> ReadWrite(<#= type #> data)
+		{
+			ReadWrite(ref data);
+			return data;
+		}
+
+		<# } #>
 	}
 }

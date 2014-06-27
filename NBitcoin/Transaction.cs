@@ -143,7 +143,7 @@ namespace NBitcoin
 			this.prevout = prevout;
 		}
 		OutPoint prevout = new OutPoint();
-		Script scriptSig;
+		Script scriptSig = new Script();
 		uint nSequence = uint.MaxValue;
 		public const uint NO_SEQUENCE = uint.MaxValue;
 

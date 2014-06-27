@@ -75,7 +75,7 @@ namespace NBitcoin
 
 		#endregion
 	}
-	public class StoredItem<T> : IBitcoinSerializable where T : IBitcoinSerializable
+	public class StoredItem<T> : IBitcoinSerializable where T : IBitcoinSerializable, new()
 	{
 		public StoredItem(Network expectedNetwork, DiskBlockPos position)
 		{
@@ -115,7 +115,7 @@ namespace NBitcoin
 			}
 		}
 
-		private T _Item;
+		private T _Item = new T();
 		public T Item
 		{
 			get

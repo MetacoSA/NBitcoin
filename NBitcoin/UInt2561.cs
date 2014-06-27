@@ -367,9 +367,17 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			var b = ToBytes();
-			stream.ReadWrite(ref b);
-			this.pn = new uint256(b).pn;
+			if(stream.Serializing)
+			{
+				var b = ToBytes();
+				stream.ReadWrite(ref b);
+			}
+			else
+			{
+				byte[] b = new byte[WIDTH_BYTE];
+				stream.ReadWrite(ref b);
+				this.pn = new uint256(b).pn;
+			}
 		}
 
 		public void Serialize(Stream stream, int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
@@ -797,9 +805,17 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			var b = ToBytes();
-			stream.ReadWrite(ref b);
-			this.pn = new uint160(b).pn;
+			if(stream.Serializing)
+			{
+				var b = ToBytes();
+				stream.ReadWrite(ref b);
+			}
+			else
+			{
+				byte[] b = new byte[WIDTH_BYTE];
+				stream.ReadWrite(ref b);
+				this.pn = new uint160(b).pn;
+			}
 		}
 
 		public void Serialize(Stream stream, int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)

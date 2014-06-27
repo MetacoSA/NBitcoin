@@ -10,7 +10,7 @@ namespace NBitcoin
 {
 	public abstract class Store<TStoredItem, TItem>
 		where TStoredItem : StoredItem<TItem>
-		where TItem : IBitcoinSerializable
+		where TItem : IBitcoinSerializable, new()
 	{
 		public int MaxFileSize
 		{
@@ -108,7 +108,8 @@ namespace NBitcoin
 			stream.Position = range.Begin.Position;
 			while(stream.Position < stream.Length)
 			{
-				var storedItem =  ReadStoredItem(stream, new DiskBlockPos(fileIndex, (uint)stream.Position));;
+				var storedItem = ReadStoredItem(stream, new DiskBlockPos(fileIndex, (uint)stream.Position));
+				;
 				if(storedItem.Header.Magic == 0)
 					break;
 				yield return storedItem;
@@ -222,7 +223,7 @@ namespace NBitcoin
 				DiskBlockPos position = SeekEnd(@lock);
 				if(position.Position > MaxFileSize)
 					position = new DiskBlockPos(position.File + 1, 0);
-				var stored = CreateStoredItem(item,position);
+				var stored = CreateStoredItem(item, position);
 				Write(stored);
 				position = new DiskBlockPos(position.File, position.Position + stored.GetStorageSize());
 				@lock.SetString(position.ToString());

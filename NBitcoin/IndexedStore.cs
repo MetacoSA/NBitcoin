@@ -8,7 +8,7 @@ namespace NBitcoin
 {
 	public abstract class IndexedStore<TStoredItem, TItem>
 		where TStoredItem : StoredItem<TItem>
-		where TItem : IBitcoinSerializable
+		where TItem : IBitcoinSerializable,new()
 	{
 		private readonly NoSqlRepository _Index;
 		private readonly Store<TStoredItem, TItem> _Store;

@@ -17,7 +17,7 @@ namespace NBitcoin.Tests
 			Stopwatch watch = new Stopwatch();
 			watch.Start();
 			BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
-			var count = store.EnumerateFile(@"E:\Bitcoin\blocks\blk00150.dat").Count();
+			var count = store.EnumerateFolder().Take(150000).Count();
 			watch.Stop();
 			var spentByBlock = TimeSpan.FromTicks(watch.ElapsedTicks / count);
 		}

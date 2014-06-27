@@ -108,7 +108,7 @@ namespace NBitcoin
 		{
 			VarString str = new VarString(bytes);
 			ReadWrite(ref str);
-			bytes = str.GetString();
+			bytes = str.GetString(true);
 		}
 
 		public void ReadWrite(Type type, ref object obj)
@@ -150,7 +150,7 @@ namespace NBitcoin
 			((IBitcoinSerializable)data).ReadWrite(this);
 		}
 
-		public void ReadWrite<T>(ref List<T> list) where T : IBitcoinSerializable
+		public void ReadWrite<T>(ref List<T> list) where T : IBitcoinSerializable, new()
 		{
 			ReadWriteList<T>(ref list);
 		}
@@ -158,34 +158,20 @@ namespace NBitcoin
 		{
 			ReadWriteBytes(ref arr);
 		}
-		public void ReadWrite<T>(ref T[] arr) where T : IBitcoinSerializable
+		public void ReadWrite<T>(ref T[] arr) where T : IBitcoinSerializable, new()
 		{
 			ReadWriteArray<T>(ref arr);
 		}
 
-		//private void ReadWriteList<T>(ref List<T> data)
-		//{
-		//	if(data == null && Serializing)
-		//		throw new ArgumentNullException("Impossible to serialize a null list");
-
-		//	var dataArray = data.ToArray();
-		//	ReadWriteArray(ref dataArray);
-		//	if(!Serializing)
-		//		data = dataArray.ToList();
-		//}
-
-
-		private void ReadWriteNumber<T>(ref T data, int size, bool unsigned)
+		private void ReadWriteNumber(ref long value, int size)
 		{
-			ulong value = 0;
-			if(unsigned)
-			{
-				value = (ulong)Convert.ChangeType(data, typeof(ulong));
-			}
-			else
-			{
-				value = (ulong)(long)Convert.ChangeType(data, typeof(long));
-			}
+			ulong uvalue = unchecked((ulong)value);
+			ReadWriteNumber(ref uvalue, size);
+			value = unchecked((long)uvalue);
+		}
+
+		private void ReadWriteNumber(ref ulong value, int size)
+		{
 			var bytes = new byte[size];
 
 			for(int i = 0 ; i < size ; i++)
@@ -204,15 +190,6 @@ namespace NBitcoin
 				valueTemp += v << (i * 8);
 			}
 			value = valueTemp;
-
-			if(unsigned)
-			{
-				data = (T)Convert.ChangeType(value, typeof(T));
-			}
-			else
-			{
-				data = (T)Convert.ChangeType((long)value, typeof(T));
-			}
 		}
 
 		private void ReadWriteBytes(ref byte[] data)
@@ -239,65 +216,6 @@ namespace NBitcoin
 			else
 				data = (byte)Inner.ReadByte();
 		}
-
-
-		public void ReadWrite(ref ushort data)
-		{
-			ReadWriteNumber(ref data, sizeof(ushort), true);
-		}
-		public ushort ReadWrite(ushort data)
-		{
-			ReadWrite(ref data);
-			return data;
-		}
-		public void ReadWrite(ref uint data)
-		{
-			ReadWriteNumber(ref data, sizeof(uint), true);
-		}
-		public uint ReadWrite(uint data)
-		{
-			ReadWrite(ref data);
-			return data;
-		}
-		public void ReadWrite(ref ulong data)
-		{
-			ReadWriteNumber(ref data, sizeof(ulong), true);
-		}
-		public ulong ReadWrite(ulong data)
-		{
-			ReadWrite(ref data);
-			return data;
-		}
-
-		public short ReadWrite(short data)
-		{
-			ReadWrite(ref data);
-			return data;
-		}
-		public void ReadWrite(ref short data)
-		{
-			ReadWriteNumber(ref data, sizeof(short), false);
-		}
-		public int ReadWrite(int data)
-		{
-			ReadWrite(ref data);
-			return data;
-		}
-		public void ReadWrite(ref int data)
-		{
-			ReadWriteNumber(ref data, sizeof(int), false);
-		}
-		public long ReadWrite(long data)
-		{
-			ReadWrite(ref data);
-			return data;
-		}
-		public void ReadWrite(ref long data)
-		{
-			ReadWriteNumber(ref data, sizeof(long), false);
-		}
-
-
 
 		public bool IsBigEndian
 		{
