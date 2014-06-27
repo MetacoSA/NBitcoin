@@ -120,9 +120,9 @@ namespace NBitcoin
 		private void Cleanup()
 		{
 			// remove spent outputs at the end of vout
-			foreach(var o in Enumerable.Reverse(vout).Reverse().ToList())
+			foreach(var o in Enumerable.Reverse(vout).ToList())
 			{
-				if(o.ScriptPubKey == null)
+				if(o.IsNull)
 					vout.Remove(o);
 				else
 					break;
@@ -282,6 +282,26 @@ namespace NBitcoin
 		public void ClearUnspendable()
 		{
 			ClearUnused(o => !o.ScriptPubKey.IsUnspendable);
+		}
+
+		public void MergeFrom(Coins otherCoin)
+		{
+			var diff = otherCoin.Outputs.Count - this.Outputs.Count;
+			if(diff > 0)
+			{
+				Outputs.Resize(otherCoin.Outputs.Count);
+				for(int i = 0 ; i < Outputs.Count ; i++)
+				{
+					if(Outputs[i] == null)
+						Outputs[i] = new TxOut();
+				}
+			}
+			for(int i = 0 ; i < otherCoin.Outputs.Count ; i++)
+			{
+				if(!otherCoin.Outputs[i].IsNull)
+					Outputs[i] = otherCoin.Outputs[i];
+			}
+			UpdateValue();
 		}
 	}
 }

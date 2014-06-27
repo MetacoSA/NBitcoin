@@ -44,6 +44,31 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanScanComposite()
+		{
+			var alice = new Script(OpcodeType.OP_RETURN).ID;
+			var bob = new Key().PubKey.ID;
+			var satoshi = new Key().PubKey.ID;
+			Transaction tx = new Transaction();
+			tx.Outputs.Add(new TxOut(Money.Parse("1.5"), alice));
+			tx.Outputs.Add(new TxOut(Money.Parse("2.0"), bob));
+			tx.Outputs.Add(new TxOut(Money.Parse("0.9"), satoshi));
+			tx.Outputs.Add(new TxOut(Money.Parse("0.5"), bob));
+			var scanner = new CompositeScanner()
+			{
+				Scanners = 
+				{	
+				  new ScriptHashScanner(alice),
+				  new PubKeyHashScanner(bob)
+				}
+			};
+			var coins = scanner.ScanCoins(tx, 0);
+			Assert.NotNull(coins);
+			Assert.Equal(Money.Parse("4.0"), coins.Value);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanScanStealthPayment()
 		{
 			var alice = CreateStealthUser();

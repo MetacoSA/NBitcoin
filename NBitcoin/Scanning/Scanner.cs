@@ -46,8 +46,8 @@ namespace NBitcoin.Scanning
 
 		public IEnumerable<TxIn> FindSpent(Block block)
 		{
-			return FindSpentCore(block.Transactions.Where(t => !t.IsCoinBase));
+			return FindSpent(block.Transactions.Where(t => !t.IsCoinBase));
 		}
-		protected abstract IEnumerable<TxIn> FindSpentCore(IEnumerable<Transaction> transactions);
+		public abstract IEnumerable<TxIn> FindSpent(IEnumerable<Transaction> transactions);
 	}
 }

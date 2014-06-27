@@ -56,7 +56,7 @@ namespace NBitcoin.Scanning
 			return payments.Any(p=>p.SpendableScript.Same(txout.ScriptPubKey) && !txout.IsDust);
 		}
 
-		protected override IEnumerable<TxIn> FindSpentCore(IEnumerable<Transaction> transactions)
+		public override IEnumerable<TxIn> FindSpent(IEnumerable<Transaction> transactions)
 		{
 			return new TxIn[0]; //Impossible to know withtout the initial payment
 		}

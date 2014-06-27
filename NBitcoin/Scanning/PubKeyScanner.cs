@@ -36,7 +36,7 @@ namespace NBitcoin.Scanning
 			return key != null && (key.ID == PubKey.ID);
 		}
 
-		protected override IEnumerable<TxIn> FindSpentCore(IEnumerable<Transaction> transactions)
+		public override IEnumerable<TxIn> FindSpent(IEnumerable<Transaction> transactions)
 		{
 			return new TxIn[0]; //Impossible to know without pubkey
 		}

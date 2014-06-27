@@ -95,6 +95,7 @@
     <Compile Include="RPC\RPCOperations.cs" />
     <Compile Include="RPC\SatoshiFormatter.cs" />
     <Compile Include="RPC\UnspentCoin.cs" />
+    <Compile Include="Scanning\CompositeScanner.cs" />
     <Compile Include="Scanning\IBlockProvider.cs" />
     <Compile Include="Scanning\PubKeyHashScanner.cs" />
     <Compile Include="Scanning\PubKeyScanner.cs" />

@@ -42,7 +42,7 @@ namespace NBitcoin.Scanning
 			return (id == KeyId);
 		}
 
-		protected override IEnumerable<TxIn> FindSpentCore(IEnumerable<Transaction> transactions)
+		public override IEnumerable<TxIn> FindSpent(IEnumerable<Transaction> transactions)
 		{
 			return
 				transactions
