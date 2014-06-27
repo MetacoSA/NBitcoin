@@ -120,7 +120,7 @@ namespace NBitcoin
 		public static StealthPayment[] GetPayments(Transaction transaction, PubKey[] spendKeys, BitField bitField, Key scan)
 		{
 			List<StealthPayment> result = new List<StealthPayment>();
-			for(int i = 0 ; i < transaction.Outputs.Count ; i++)
+			for(int i = 0 ; i < transaction.Outputs.Count - 1 ; i++)
 			{
 				var metadata = StealthMetadata.TryParse(transaction.Outputs[i].ScriptPubKey);
 				if(metadata != null && bitField.Match(metadata.BitField))
