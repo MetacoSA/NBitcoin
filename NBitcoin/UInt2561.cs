@@ -66,7 +66,7 @@ namespace NBitcoin
 			for(int i = 0 ; i < WIDTH_BYTE; i++)
 			{
 				var b = GetByte(WIDTH_BYTE - i - 1);
-				builder.Append(String.Format("{0:x2}", b));
+				builder.Append(b.ToString("x2"));
 			}
 			return builder.ToString();
 		}
@@ -504,7 +504,7 @@ namespace NBitcoin
 			for(int i = 0 ; i < WIDTH_BYTE; i++)
 			{
 				var b = GetByte(WIDTH_BYTE - i - 1);
-				builder.Append(String.Format("{0:x2}", b));
+				builder.Append(b.ToString("x2"));
 			}
 			return builder.ToString();
 		}

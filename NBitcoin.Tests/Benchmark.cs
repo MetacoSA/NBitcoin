@@ -50,6 +50,18 @@ namespace NBitcoin.Tests
 			var result = times.Select(o => o.Result).ToArray();
 		}
 
+		[Fact]
+		[Trait("Benchmark", "Benchmark")]
+		public void BenchmarkBlockIndexing()
+		{
+			Stopwatch watch = new Stopwatch();
+			watch.Start();
+			BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
+			IndexedBlockStore indexed = new IndexedBlockStore(new SQLiteNoSqlRepository("indexbench", true), store);
+			indexed.ReIndex();
+			watch.Stop();
+			var time = watch.Elapsed;
+		}
 
 		private TimeSpan BenchmarkTemplate(Action<TxOut> act)
 		{
