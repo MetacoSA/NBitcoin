@@ -459,7 +459,7 @@ namespace NBitcoin
 
 		public BitcoinStealthAddress CreateStealthAddress(string base58)
 		{
-			return new BitcoinStealthAddress(base58, Network.Main);
+			return new BitcoinStealthAddress(base58, this);
 		}
 
 		private BitcoinPassphraseCode CreatePassphraseCode(string base58)
