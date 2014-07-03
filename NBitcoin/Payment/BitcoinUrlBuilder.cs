@@ -51,23 +51,36 @@ namespace NBitcoin.Payment
 			if(parameters.ContainsKey("amount"))
 			{
 				Amount = Money.Parse(parameters["amount"]);
+				parameters.Remove("amount");
 			}
 			if(parameters.ContainsKey("label"))
 			{
 				Label = parameters["label"];
+				parameters.Remove("label");
 			}
 			if(parameters.ContainsKey("message"))
 			{
 				Message = parameters["message"];
+				parameters.Remove("message");
 			}
 			if(parameters.ContainsKey("r"))
 			{
 				PaymentRequestUrl = new Uri(parameters["r"], UriKind.Absolute);
+				parameters.Remove("r");
 			}
-
+			_UnknowParameters = parameters;
 			var reqParam = parameters.Keys.FirstOrDefault(k => k.StartsWith("req-", StringComparison.InvariantCultureIgnoreCase));
 			if(reqParam != null)
 				throw new FormatException("Non compatible required parameter " + reqParam);
+		}
+
+		private readonly Dictionary<string, string> _UnknowParameters = new Dictionary<string,string>();
+		public Dictionary<string,string> UnknowParameters
+		{
+			get
+			{
+				return _UnknowParameters;
+			}
 		}
 
 		public PaymentRequest GetPaymentRequest()
@@ -162,6 +175,11 @@ namespace NBitcoin.Payment
 				if(PaymentRequestUrl != null)
 				{
 					parameters.Add("r", PaymentRequestUrl.ToString());
+				}
+
+				foreach(var kv in UnknowParameters)
+				{
+					parameters.Add(kv.Key, kv.Value);
 				}
 
 				WriteParameters(parameters, builder);

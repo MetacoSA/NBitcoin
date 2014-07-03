@@ -59,6 +59,16 @@ namespace NBitcoin.Tests
 			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString()).ToString());
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void BitcoinUrlKeepUnknowParameter()
+		{
+			BitcoinUrlBuilder url = new BitcoinUrlBuilder("bitcoin:?r=https://merchant.com/pay.php?h%3D2a8628fc2fbe&idontknow=test");
+
+			Assert.Equal("test", url.UnknowParameters["idontknow"]);
+			Assert.Equal(1, url.UnknowParameters.Count);
+		}
+
 		private BitcoinUrlBuilder CreateBuilder(string uri)
 		{
 			var builder = new BitcoinUrlBuilder(uri);
@@ -186,6 +196,8 @@ namespace NBitcoin.Tests
 				Assert.NotNull(ack);
 			}
 		}
+
+		
 	}
 
 	public class PaymentServerTester : IDisposable
