@@ -77,8 +77,11 @@ namespace NBitcoin.Tests
 		public void CanGetTransactionBlockFromRPC()
 		{
 			var rpc = CreateRPCClient();
-			var result = rpc.GetTransactions(rpc.GetBestBlockHash()).ToList();
-			Assert.True(result.Count > 0);
+			var blockId = rpc.GetBestBlockHash();
+			var result = rpc.GetTransactions(blockId).ToList();
+			var block = rpc.GetBlock(blockId);
+			Assert.True(block.CheckMerkleRoot());
+			Assert.True(block.Transactions.Count == result.Count);
 		}
 
 		[Fact]

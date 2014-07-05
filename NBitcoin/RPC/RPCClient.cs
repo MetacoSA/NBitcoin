@@ -223,9 +223,32 @@ namespace NBitcoin.RPC
 			return GetBlockHeader(hash);
 		}
 
+		/// <summary>
+		/// Get the a whole block, will fail if bitcoinq does not run with txindex=1 and one of the transaction of the block is entirely spent
+		/// </summary>
+		/// <param name="blockId"></param>
+		/// <returns></returns>
+		public Block GetBlock(uint256 blockId)
+		{
+			var resp = SendCommand("getblock", blockId.ToString());
+			var header = ParseBlockHeader(resp);
+			Block block = new Block(header);
+			var transactions = resp.Result["tx"] as JArray;
+			foreach(var tx in transactions)
+			{
+				block.AddTransaction(GetRawTransaction(new uint256(tx.ToString())));
+			}
+			return block;
+		}
+
 		public BlockHeader GetBlockHeader(uint256 blockHash)
 		{
 			var resp = SendCommand("getblock", blockHash.ToString());
+			return ParseBlockHeader(resp);
+		}
+
+		private BlockHeader ParseBlockHeader(RPCResponse resp)
+		{
 			BlockHeader header = new BlockHeader();
 			header.Version = (int)resp.Result["version"];
 			header.Nonce = (uint)resp.Result["nonce"];
@@ -284,6 +307,6 @@ namespace NBitcoin.RPC
 		public int GetBlockCount()
 		{
 			return (int)SendCommand("getblockcount").Result;
-		}
+		}		
 	}
 }
