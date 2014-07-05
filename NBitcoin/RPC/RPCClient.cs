@@ -86,7 +86,7 @@ namespace NBitcoin.RPC
 
 
 
-		public RPCResponse SendCommand(RPCRequest request)
+		public RPCResponse SendCommand(RPCRequest request, bool throwIfRPCError = true)
 		{
 			HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(Address);
 			webRequest.Credentials = Credentials;
@@ -108,14 +108,16 @@ namespace NBitcoin.RPC
 			{
 				WebResponse webResponse = webRequest.GetResponse();
 				response = RPCResponse.Load(webResponse.GetResponseStream());
-				response.ThrowIfError();
+				if(throwIfRPCError)
+					response.ThrowIfError();
 			}
 			catch(WebException ex)
 			{
 				if(ex.Response == null)
 					throw;
 				response = RPCResponse.Load(ex.Response.GetResponseStream());
-				response.ThrowIfError();
+				if(throwIfRPCError)
+					response.ThrowIfError();
 			}
 			return response;
 		}
@@ -159,9 +161,21 @@ namespace NBitcoin.RPC
 			return DecodeRawTransaction(Encoders.Hex.EncodeData(raw));
 		}
 
-		public Transaction GetRawTransaction(uint256 txid)
+		/// <summary>
+		/// getrawtransaction only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
+		/// </summary>
+		/// <param name="txid"></param>
+		/// <returns></returns>
+		public Transaction GetRawTransaction(uint256 txid, bool throwIfNotFound = true)
 		{
-			var response = SendCommand("getrawtransaction", txid.ToString());
+			var response = SendCommand(new RPCRequest("getrawtransaction", new[] { txid.ToString() }), throwIfNotFound);
+			if(throwIfNotFound)
+				response.ThrowIfError();
+			if(response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
+				return null;
+			else
+				response.ThrowIfError();
+
 			var tx = new Transaction();
 			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()));
 			return tx;
@@ -218,7 +232,7 @@ namespace NBitcoin.RPC
 			header.Bits = new Target(Encoders.Hex.DecodeData((string)resp.Result["bits"]));
 			if(resp.Result["previousblockhash"] != null)
 			{
-				header.HashPrevBlock = new uint256(Encoders.Hex.DecodeData((string)resp.Result["previousblockhash"]),false);
+				header.HashPrevBlock = new uint256(Encoders.Hex.DecodeData((string)resp.Result["previousblockhash"]), false);
 			}
 			if(resp.Result["time"] != null)
 			{
@@ -226,27 +240,34 @@ namespace NBitcoin.RPC
 			}
 			if(resp.Result["merkleroot"] != null)
 			{
-				header.HashMerkleRoot = new uint256(Encoders.Hex.DecodeData((string)resp.Result["merkleroot"]),false);
+				header.HashMerkleRoot = new uint256(Encoders.Hex.DecodeData((string)resp.Result["merkleroot"]), false);
 			}
 			return header;
 		}
 
+		/// <summary>
+		/// GetTransactions only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
+		/// </summary>
+		/// <param name="blockHash"></param>
+		/// <returns></returns>
 		public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
 		{
 			if(blockHash == null)
 				throw new ArgumentNullException("blockHash");
 
 			var resp = SendCommand("getblock", blockHash.ToString());
-			
+
 			var tx = resp.Result["tx"] as JArray;
 			if(tx != null)
 			{
 				foreach(var item in tx)
 				{
-					yield return GetRawTransaction(new uint256(item.ToString()));
+					var result = GetRawTransaction(new uint256(item.ToString()), false);
+					if(result != null)
+						yield return result;
 				}
 			}
-			
+
 		}
 
 		public IEnumerable<Transaction> GetTransactions(int height)

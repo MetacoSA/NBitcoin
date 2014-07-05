@@ -1,5 +1,6 @@
 ﻿using NBitcoin.DataEncoders;
 using NBitcoin.RPC;
+using NBitcoin.Watcher;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -76,8 +77,8 @@ namespace NBitcoin.Tests
 		public void CanGetTransactionBlockFromRPC()
 		{
 			var rpc = CreateRPCClient();
-			var result = rpc.GetTransactions(new uint256("00000000bcd68bd3d66ae5a198bb21133e44d9fc13c0688c846037658d95b87c")).ToList();
-			Assert.Equal(11, result.Count);
+			var result = rpc.GetTransactions(rpc.GetBestBlockHash()).ToList();
+			Assert.True(result.Count > 0);
 		}
 
 		[Fact]
@@ -108,7 +109,7 @@ namespace NBitcoin.Tests
 
 
 				Transaction raw = Transaction.Parse(testData, format, network);
-				
+
 
 				AssertJsonEquals(raw.ToString(format, network), testData);
 
@@ -145,8 +146,11 @@ namespace NBitcoin.Tests
 		/// <returns></returns>
 		public static RPCClient CreateRPCClient()
 		{
-			var client = new RPCClient(new NetworkCredential("NBitcoin", "NBitcoinPassword"), "127.0.0.1", Network.TestNet);
-			return client;
+			var process = BitcoinQProcess.List()
+				.FirstOrDefault(p => p.Server && p.Testnet);
+			if(process == null)
+				throw new InvalidOperationException("No bitcoin-qt or bitcoinq process running with rpc server on test net (\"bitcoin-qt.exe\" -testnet -server -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword )");
+			return process.CreateClient();
 		}
 
 		void AssertException<T>(Action act, Action<T> assert) where T : Exception
