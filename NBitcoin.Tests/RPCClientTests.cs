@@ -98,7 +98,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		[Trait("RPCClient", "RPCClient")]
 		public void CanDecodeAndEncodeRawTransaction()
 		{
 			var tests = TestCase.read_json("data/tx_raw.json");

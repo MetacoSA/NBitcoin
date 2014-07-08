@@ -44,6 +44,23 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest","UnitTest")]
+		public void IncompleteScriptDoesNotHang()
+		{
+			new Script(new byte[] { 0x4d }).ToString();
+		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParseRandomScripts()
+		{
+			for(int i = 0 ; i < 600 ; i++)
+			{
+				var bytes = RandomUtils.GetBytes(120);
+				new Script(bytes).ToString();
+			}
+		}
+
+		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildChain()
 		{

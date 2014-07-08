@@ -407,17 +407,34 @@ namespace NBitcoin
 				return new byte[] { 0x81 };
 			}
 
-			if(0x01 <= (byte)opcode && (byte)opcode <= 0x4b)
-				len = (uint)opcode;
-			else if(opcode == OpcodeType.OP_PUSHDATA1)
-				len = bitStream.ReadWrite((byte)0);
-			else if(opcode == OpcodeType.OP_PUSHDATA2)
-				len = bitStream.ReadWrite((ushort)0);
-			else if(opcode == OpcodeType.OP_PUSHDATA4)
-				len = bitStream.ReadWrite((uint)0);
-			else
-				throw new FormatException("Invalid opcode for pushing data : " + opcode);
+			try
+			{
+				if(0x01 <= (byte)opcode && (byte)opcode <= 0x4b)
+					len = (uint)opcode;
+				else if(opcode == OpcodeType.OP_PUSHDATA1)
+					len = bitStream.ReadWrite((byte)0);
+				else if(opcode == OpcodeType.OP_PUSHDATA2)
+					len = bitStream.ReadWrite((ushort)0);
+				else if(opcode == OpcodeType.OP_PUSHDATA4)
+					len = bitStream.ReadWrite((uint)0);
+				else
+					throw new FormatException("Invalid opcode for pushing data : " + opcode);
+			}
+			catch(EndOfStreamException)
+			{
+				if(!ignoreWrongPush)
+					throw new FormatException("Incomplete script");
+				op.IncompleteData = true;
+				return new byte[0];
+			}
 
+			if(stream.CanSeek && stream.Length - stream.Position < len)
+			{
+				len = (uint)(stream.Length - stream.Position);
+				if(!ignoreWrongPush)
+					throw new FormatException("Not enough bytes pushed with " + opcode.ToString() + " expected " + len + " but got " + len);
+				op.IncompleteData = true;
+			}
 			byte[] data = new byte[len];
 			var readen = stream.Read(data, 0, data.Length);
 			if(readen != data.Length && !ignoreWrongPush)
@@ -626,6 +643,8 @@ namespace NBitcoin
 				Op op = new Op();
 				op.Code = opcode;
 				op.PushData = Op.ReadData(op, Inner, IgnoreIncoherentPushData);
+				if(op.IncompleteData == true)
+					return null;
 				return op;
 			}
 			return new Op()
