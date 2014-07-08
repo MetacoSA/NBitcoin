@@ -101,8 +101,6 @@
     <Compile Include="transaction_tests.cs" />
     <Compile Include="util_tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WalletTester.cs" />
-    <Compile Include="WalletTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

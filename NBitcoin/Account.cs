@@ -22,12 +22,24 @@ namespace NBitcoin
 		{
 
 		}
-		public AccountEntry(AccountEntryReason reason, uint256 block, Spendable spendable, Money balanceChange)
+		public AccountEntry(AccountEntryReason reason, uint256 block, Spendable spendable, Money balanceChange, uint256 txId)
 		{
 			_Block = block;
 			_Spendable = spendable;
 			_BalanceChange = balanceChange;
 			_Reason = (byte)reason;
+			_TxId = txId;
+		}
+
+		uint256 _TxId;
+		public uint256 TxId
+		{
+			get
+			{
+				if(Reason == AccountEntryReason.Income)
+					return Spendable.OutPoint.Hash;
+				return _TxId;
+			}
 		}
 
 		private uint256 _Block;
@@ -69,7 +81,7 @@ namespace NBitcoin
 
 		public AccountEntry Neutralize()
 		{
-			return new AccountEntry(AccountEntryReason.ChainBlockChanged, Block, Spendable, -BalanceChange);
+			return new AccountEntry(AccountEntryReason.ChainBlockChanged, Block, Spendable, -BalanceChange, null);
 		}
 
 		#region IBitcoinSerializable Members
@@ -81,6 +93,15 @@ namespace NBitcoin
 			if(!stream.Serializing)
 				_Block = new uint256(b) == 0 ? null : new uint256(b);
 			stream.ReadWrite(ref _Reason);
+			if(_Reason != (byte)AccountEntryReason.Income)
+			{
+				var bytes = _TxId == null ? new byte[0] : _TxId.ToBytes();
+				stream.ReadWriteAsVarString(ref bytes);
+				if(!stream.Serializing)
+				{
+					_TxId = bytes.Length == 0 ? null : new uint256(bytes);
+				}
+			}
 			stream.ReadWrite(ref _Spendable);
 
 			var change = BalanceChange.Satoshi.ToByteArray();
@@ -164,9 +185,9 @@ namespace NBitcoin
 				if(_Account == null)
 					throw new InvalidOperationException("This spendable is not associated to an account, impossible to lock");
 				if(value)
-					_Account.PushAccountEntry(new AccountEntry(AccountEntryReason.Lock, null, this.Clone(), Money.Zero));
+					_Account.PushAccountEntry(new AccountEntry(AccountEntryReason.Lock, null, this.Clone(), Money.Zero, null));
 				else
-					_Account.PushAccountEntry(new AccountEntry(AccountEntryReason.Unlock, null, this.Clone(), Money.Zero));
+					_Account.PushAccountEntry(new AccountEntry(AccountEntryReason.Unlock, null, this.Clone(), Money.Zero, null));
 			}
 		}
 
@@ -227,10 +248,7 @@ namespace NBitcoin
 
 		private int _NextToProcess;
 
-		internal AccountEntry PushAccountEntry(uint256 block, Spendable spendable, Money balanceChange)
-		{
-			return PushAccountEntry(new AccountEntry(balanceChange < 0 ? AccountEntryReason.Outcome : AccountEntryReason.Income, block, spendable, balanceChange));
-		}
+
 		public AccountEntry PushAccountEntry(AccountEntry entry)
 		{
 			entry = Process(entry);
@@ -240,23 +258,6 @@ namespace NBitcoin
 				_NextToProcess++;
 			}
 			return entry;
-		}
-
-		internal void PushEntry(WalletEntry entry)
-		{
-			if(entry.Type == WalletEntryType.Income)
-			{
-				var spendable = entry.GetSpendable();
-				PushAccountEntry(entry.Block, spendable, spendable.TxOut.Value);
-			}
-			else if(entry.Type == WalletEntryType.Outcome)
-			{
-				if(_Unspent.ContainsKey(entry.OutPoint))
-				{
-					var spendable = _Unspent[entry.OutPoint];
-					PushAccountEntry(entry.Block, spendable, -spendable.TxOut.Value);
-				}
-			}
 		}
 
 

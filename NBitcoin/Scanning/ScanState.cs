@@ -116,7 +116,7 @@ namespace NBitcoin.Scanning
 				{
 					var entry = new AccountEntry(AccountEntryReason.Outcome,
 												block.HashBlock,
-												spent, -spent.TxOut.Value);
+												spent.Spendable, -spent.Spendable.TxOut.Value, spent.TxId);
 					spents.Add(Tuple.Create(entry.Spendable.OutPoint, entry));
 				}
 
@@ -144,7 +144,7 @@ namespace NBitcoin.Scanning
 						if(!output.IsNull)
 						{
 							var entry = new AccountEntry(AccountEntryReason.Income, block.HashBlock,
-												new Spendable(new OutPoint(coins.TxId, i), output), output.Value);
+												new Spendable(new OutPoint(coins.TxId, i), output), output.Value, null);
 							if(accountCopy.PushAccountEntry(entry) == null)
 								return false;
 						}
@@ -165,18 +165,31 @@ namespace NBitcoin.Scanning
 			return true;
 		}
 
-		public IEnumerable<Spendable> FindSpent(Block block, IEnumerable<Spendable> among)
+		class Spent
+		{
+			public uint256 TxId;
+			public Spendable Spendable;
+		}
+		IEnumerable<Spent> FindSpent(Block block, IEnumerable<Spendable> among)
 		{
 			var amongDico = among.ToDictionary(o => o.OutPoint);
 			foreach(var spent in block
 									.Transactions
 									.Where(t => !t.IsCoinBase)
-									.SelectMany(t => t.Inputs)
-									.Where(input => amongDico.ContainsKey(input.PrevOut)))
+									.SelectMany(t => t.Inputs.Select(i => new
+									{
+										Tx = t,
+										Input = i
+									}))
+									.Where(o => amongDico.ContainsKey(o.Input.PrevOut)))
 			{
-				var spendable = amongDico[spent.PrevOut];
-				amongDico.Remove(spent.PrevOut);
-				yield return spendable;
+				var spendable = amongDico[spent.Input.PrevOut];
+				amongDico.Remove(spent.Input.PrevOut);
+				yield return new Spent()
+				{
+					TxId = spent.Tx.GetHash(),
+					Spendable = spendable
+				};
 			}
 		}
 
