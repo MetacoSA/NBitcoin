@@ -26,7 +26,7 @@ namespace NBitcoin.Scanning
 			foreach(var tx in block.Transactions)
 			{
 				var txId = tx.GetHash();
-				var coins = ScanCoins(tx, height);
+				var coins = ScanCoins(txId, tx, height);
 				if(coins == null || coins.IsEmpty)
 					continue;
 				else
@@ -38,7 +38,12 @@ namespace NBitcoin.Scanning
 			}
 		}
 
-		public abstract Coins ScanCoins(Transaction tx, int height);
+		public Coins ScanCoins(Transaction tx, int height)
+		{
+			return ScanCoins(tx.GetHash(), tx, height);
+		}
+
+		public abstract Coins ScanCoins(uint256 txId, Transaction tx, int height);
 
 		public virtual void GetScannedPushData(List<byte[]> searchedPushData)
 		{

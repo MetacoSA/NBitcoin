@@ -26,7 +26,7 @@ namespace NBitcoin.Scanning
 		{
 			searchedPushData.Add(ScriptId.ToBytes());
 		}
-		public override Coins ScanCoins(Transaction tx, int height)
+		public override Coins ScanCoins(uint256 txId, Transaction tx, int height)
 		{
 			return new Coins(tx, MatchScriptHash, height);
 		}

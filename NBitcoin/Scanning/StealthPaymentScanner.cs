@@ -45,7 +45,7 @@ namespace NBitcoin.Scanning
 		}
 
 
-		public override Coins ScanCoins(Transaction tx, int height)
+		public override Coins ScanCoins(uint256 txId, Transaction tx, int height)
 		{
 			var payments = StealthPayment.GetPayments(tx, SpendKeys, Prefix, Scan);
 			return new Coins(tx, txout => Match(txout, payments), height);

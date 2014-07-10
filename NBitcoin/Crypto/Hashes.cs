@@ -48,11 +48,18 @@ namespace NBitcoin.Crypto
 		}
 		public static byte[] SHA256(byte[] data, int count)
 		{
+#if BOUNCY_ONLY
 			Sha256Digest sha256 = new Sha256Digest();
 			sha256.BlockUpdate(data, 0, count);
 			byte[] rv = new byte[32];
 			sha256.DoFinal(rv, 0);
 			return rv;
+#else
+			using(var sha = System.Security.Cryptography.SHA256.Create())
+			{
+				return sha.ComputeHash(data, 0, count);
+			}
+#endif
 		}
 
 

@@ -14,6 +14,11 @@ namespace NBitcoin.Scanning
 				throw new ArgumentNullException("pubKeyHash");
 			_PubKeyHash = pubKeyHash;
 		}
+		public PubKeyHashScanner(BitcoinAddress address)
+			: this((KeyId)address.ID)
+		{
+
+		}
 		PayToPubkeyHashTemplate template = new PayToPubkeyHashTemplate();
 		private readonly KeyId _PubKeyHash;
 		public KeyId KeyId
@@ -30,9 +35,8 @@ namespace NBitcoin.Scanning
 		}
 
 
-		public override Coins ScanCoins(Transaction tx, int height)
+		public override Coins ScanCoins(uint256 txId, Transaction tx, int height)
 		{
-			var hash = tx.GetHash();
 			return new Coins(tx, MatchPubKeyHash, height);
 		}
 

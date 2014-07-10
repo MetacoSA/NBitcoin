@@ -16,12 +16,12 @@ namespace NBitcoin.Scanning
 				return _Scanners;
 			}
 		}
-		public override Coins ScanCoins(Transaction tx, int height)
+		public override Coins ScanCoins(uint256 txId, Transaction tx, int height)
 		{
 			Coins coin = null;
 			foreach(var scanner in Scanners)
 			{
-				Coins localCoin = scanner.ScanCoins(tx, height);
+				Coins localCoin = scanner.ScanCoins(txId, tx, height);
 				if(coin == null)
 					coin = localCoin;
 				else

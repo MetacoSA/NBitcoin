@@ -117,7 +117,7 @@ namespace NBitcoin.Watcher
 		private void ParseConfigurationFile()
 		{
 			var testnet = GetConfigField("testnet");
-			if(testnet == null)
+			if(testnet != null)
 				Parameters.Add("testnet", testnet);
 
 			var server = GetConfigField("server");

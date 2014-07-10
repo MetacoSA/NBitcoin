@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
+using NBitcoin.Scanning;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -40,10 +42,10 @@ namespace NBitcoin.Tests
 		{
 			List<Task<TimeSpan>> times = new List<Task<TimeSpan>>();
 			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => new PayToMultiSigTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
-			times.Add(Task.Factory.StartNew(()=>BenchmarkTemplate((txout) => new PayToPubkeyHashTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
-			times.Add(Task.Factory.StartNew(()=>BenchmarkTemplate((txout) => new PayToScriptHashTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
-			times.Add(Task.Factory.StartNew(()=>BenchmarkTemplate((txout) => new PayToPubkeyTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
-			times.Add(Task.Factory.StartNew(()=>BenchmarkTemplate((txout) => new TxNullDataTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
+			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => new PayToPubkeyHashTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
+			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => new PayToScriptHashTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
+			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => new PayToPubkeyTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
+			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => new TxNullDataTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
 
 			Task.WaitAll(times.ToArray());
 

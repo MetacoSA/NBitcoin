@@ -10,7 +10,6 @@ namespace NBitcoin.Tests
 	{
 		public static void Main()
 		{
-			new Benchmark().BenchmarkBlockIndexing();
 			//new ProtocolTests().CanBuildChain();
 		}
 	}

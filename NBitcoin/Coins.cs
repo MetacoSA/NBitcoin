@@ -119,11 +119,12 @@ namespace NBitcoin
 
 		private void Cleanup()
 		{
+			var count = vout.Count;
 			// remove spent outputs at the end of vout
-			foreach(var o in Enumerable.Reverse(vout).ToList())
+			for(int i = count - 1 ; i >= 0 ; i--)
 			{
-				if(o.IsNull)
-					vout.Remove(o);
+				if(vout[i].IsNull)
+					vout.RemoveAt(i);
 				else
 					break;
 			}
@@ -273,7 +274,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return vout.All(v=>v.IsNull);
+				return vout.All(v => v.IsNull);
 			}
 		}
 
