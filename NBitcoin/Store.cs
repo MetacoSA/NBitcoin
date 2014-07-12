@@ -54,6 +54,19 @@ namespace NBitcoin
 			}
 		}
 
+		int _BufferSize = 1024 * 4;
+		public int BufferSize
+		{
+			get
+			{
+				return _BufferSize;
+			}
+			set
+			{
+				_BufferSize = value;
+			}
+		}
+
 		public Store(string folder, Network network)
 			: this(new DirectoryInfo(folder), network)
 		{
@@ -122,8 +135,9 @@ namespace NBitcoin
 		{
 			if(range == null)
 				range = DiskBlockPosRange.All;
-			using(var fs = file.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+			using(var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, BufferSize))
 			{
+
 				fs.Position = range.Begin.Position;
 				foreach(var block in Enumerate(fs, fileIndex, range))
 				{

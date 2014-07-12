@@ -19,7 +19,7 @@ namespace NBitcoin.Tests
 			Stopwatch watch = new Stopwatch();
 			watch.Start();
 			BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
-			var count = store.EnumerateFolder().Take(150000).Count();
+			var count = store.Enumerate(false).Take(150000).Count();
 			watch.Stop();
 			var spentByBlock = TimeSpan.FromTicks(watch.ElapsedTicks / count);
 		}
@@ -65,6 +65,16 @@ namespace NBitcoin.Tests
 			var time = watch.Elapsed;
 		}
 
+		[Fact]
+		[Trait("Benchmark", "Benchmark")]
+		public void BenchmarkCreateChainFromBlocks()
+		{
+			Stopwatch watch = new Stopwatch();
+			watch.Start();
+			BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
+			var chain = store.BuildChain();
+			watch.Stop();
+		}
 		private TimeSpan BenchmarkTemplate(Action<TxOut> act)
 		{
 			Stopwatch watch = new Stopwatch();

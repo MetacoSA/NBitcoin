@@ -91,6 +91,15 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildChainFromBlocks()
+		{
+			var store = new BlockStore(@"data\blocks", Network.Main);
+			var chain = store.BuildChain();
+			Assert.True(chain.Height == 599);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanIndexBlock()
 		{
 			var index = CreateIndexedStore();

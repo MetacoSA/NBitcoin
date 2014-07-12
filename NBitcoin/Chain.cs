@@ -442,6 +442,7 @@ namespace NBitcoin
 
 		public ChainedBlock GetBlock(int nHeight)
 		{
+			AssertInitialized();
 			var index = nHeight - StartHeight;
 			if(index < 0 || index >= (int)vChain.Count)
 				return null;

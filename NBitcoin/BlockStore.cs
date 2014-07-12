@@ -20,12 +20,52 @@ namespace NBitcoin
 			FilePrefix = "blk";
 		}
 
-		public IEnumerable<StoredBlock> EnumerateFolder(DiskBlockPosRange range, bool headersOnly)
+
+		public Chain BuildChain()
 		{
-			using(HeaderOnlyScope(headerOnly))
+			return BuildChain(Network.GetGenesis().Header, 0);
+		}
+		public Chain BuildChain(BlockHeader firstBlock, int height)
+		{
+			Chain chain = new Chain();
+			chain.Initialize(firstBlock, height);
+			return BuildChain(chain);
+		}
+		public Chain BuildChain(ObjectStream<ChainChange> changes)
+		{
+			Chain chain = new Chain(changes);
+			return BuildChain(chain);
+		}
+
+		public Chain BuildChain(Chain chain)
+		{
+			Dictionary<uint256, BlockHeader> headers = new Dictionary<uint256, BlockHeader>();
+			HashSet<uint256> inChain = new HashSet<uint256>();
+			inChain.Add(chain.GetBlock(chain.StartHeight).HashBlock);
+			foreach(var header in Enumerate(true).Select(b => b.Item.Header))
 			{
-				return EnumerateFolder(range);
+				var hash = header.GetHash();
+				headers.Add(hash, header);
 			}
+			List<uint256> toRemove = new List<uint256>();
+			while(headers.Count != 0)
+			{
+				foreach(var header in headers)
+				{
+					if(inChain.Contains(header.Value.HashPrevBlock))
+					{
+						toRemove.Add(header.Key);
+						chain.GetOrAdd(header.Value);
+						inChain.Add(header.Key);
+					}
+				}
+				foreach(var item in toRemove)
+					headers.Remove(item);
+				if(toRemove.Count == 0)
+					break;
+				toRemove.Clear();
+			}
+			return chain;
 		}
 
 
@@ -35,19 +75,36 @@ namespace NBitcoin
 		{
 			using(HeaderOnlyScope(headersOnly))
 			{
-				return Enumerate(stream, fileIndex, range);
+				foreach(var r in Enumerate(stream, fileIndex, range))
+				{
+					yield return r;
+				}
 			}
 		}
 
+		public IEnumerable<StoredBlock> EnumerateFolder(DiskBlockPosRange range, bool headersOnly)
+		{
+			using(HeaderOnlyScope(headerOnly))
+			{
+				foreach(var r in EnumerateFolder(range))
+				{
+					yield return r;
+				}
+			}
+		}
 		private IDisposable HeaderOnlyScope(bool headersOnly)
 		{
 			var old = headersOnly;
+			var oldBuff= BufferSize;
 			return new Scope(() =>
 			{
 				this.headerOnly = headersOnly;
+				if(!headerOnly)
+					BufferSize = 1024 * 1024;
 			}, () =>
 			{
 				this.headerOnly = old;
+				BufferSize = oldBuff;
 			});
 		}
 
@@ -55,7 +112,10 @@ namespace NBitcoin
 		{
 			using(HeaderOnlyScope(headersOnly))
 			{
-				return Enumerate(range);
+				foreach(var result in Enumerate(range))
+				{
+					yield return result;
+				}
 			}
 		}
 
