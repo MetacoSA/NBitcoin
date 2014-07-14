@@ -254,5 +254,10 @@ namespace NBitcoin
 		{
 			return new BitcoinStealthAddress(scanKey, new PubKey[] { this }, 1, null, network);
 		}
+
+		public string ToString(Network network)
+		{
+			return new BitcoinAddress(this.ID, network).ToString();
+		}
 	}
 }

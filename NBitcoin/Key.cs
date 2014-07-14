@@ -217,10 +217,24 @@ namespace NBitcoin
 		{
 			return new BitcoinSecret(this, network);
 		}
+		/// <summary>
+		/// Same than GetBitcoinSecret
+		/// </summary>
+		/// <param name="network"></param>
+		/// <returns></returns>
+		public BitcoinSecret GetWif(Network network)
+		{
+			return new BitcoinSecret(this, network);
+		}
 
 		public BitcoinEncryptedSecretNoEC GetEncryptedBitcoinSecret(string password, Network network)
 		{
 			return new BitcoinEncryptedSecretNoEC(this, password, network);
+		}
+
+		public string ToString(Network network)
+		{
+			return new BitcoinSecret(this, network).ToString();
 		}
 	}
 }

@@ -84,7 +84,10 @@ namespace NBitcoin
 			return result;
 		}
 
-
+		public BitcoinExtKey GetWif(Network network)
+		{
+			return new BitcoinExtKey(this, network);
+		}
 
 		#region IBitcoinSerializable Members
 
@@ -103,5 +106,10 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public string ToString(Network network)
+		{
+			return new BitcoinExtKey(this, network).ToString();
+		}
 	}
 }

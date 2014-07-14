@@ -54,6 +54,11 @@ namespace NBitcoin
 			return result;
 		}
 
+		public BitcoinExtPubKey GetWif(Network network)
+		{
+			return new BitcoinExtPubKey(this, network);
+		}
+
 		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
@@ -103,5 +108,10 @@ namespace NBitcoin
 			return Hash.GetHashCode();
 		}
 		#endregion
+
+		public string ToString(Network network)
+		{
+			return new BitcoinExtPubKey(this, network).ToString();
+		}
 	}
 }
