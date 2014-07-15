@@ -41,7 +41,7 @@ namespace NBitcoin
 		}
 
 		ExtKey _Key;
-		public ExtKey Key
+		public ExtKey ExtKey
 		{
 			get
 			{
@@ -77,7 +77,7 @@ namespace NBitcoin
 		}
 
 		ExtPubKey _PubKey;
-		public ExtPubKey PubKey
+		public ExtPubKey ExtPubKey
 		{
 			get
 			{

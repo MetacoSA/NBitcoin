@@ -14,7 +14,7 @@ namespace NBitcoin
 	{
 		public static ExtKey Parse(string wif, Network expectedNetwork = null)
 		{
-			return Network.CreateFromBase58Data<BitcoinExtKey>(wif, expectedNetwork).Key;
+			return Network.CreateFromBase58Data<BitcoinExtKey>(wif, expectedNetwork).ExtKey;
 		}
 
 		Key key = null;

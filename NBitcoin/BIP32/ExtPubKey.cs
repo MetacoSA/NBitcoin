@@ -12,7 +12,7 @@ namespace NBitcoin
 	{
 		public static ExtPubKey Parse(string wif, Network expectedNetwork = null)
 		{
-			return Network.CreateFromBase58Data<BitcoinExtPubKey>(wif, expectedNetwork).PubKey;
+			return Network.CreateFromBase58Data<BitcoinExtPubKey>(wif, expectedNetwork).ExtPubKey;
 		}
 
 		static byte[] validPubKey = Encoders.Hex.DecodeData("0374ef3990e387b5a2992797f14c031a64efd80e5cb843d7c1d4a0274a9bc75e55");
