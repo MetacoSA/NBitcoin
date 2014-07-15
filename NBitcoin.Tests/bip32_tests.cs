@@ -96,6 +96,15 @@ namespace NBitcoin.Tests
 			RunTest(test2);
 		}
 
+		[Fact]
+		public void CanRoundTripExtKeyBase58Data()
+		{
+			var key = new ExtKey();
+			var pubkey = key.Neuter();
+			Assert.True(ExtKey.Parse(key.ToString(Network.Main)).ToString(Network.Main) == key.ToString(Network.Main));
+			Assert.True(ExtPubKey.Parse(pubkey.ToString(Network.Main)).ToString(Network.Main) == pubkey.ToString(Network.Main));
+		}
+
 		private void RunTest(TestVector test)
 		{
 			var seed = TestUtils.ParseHex(test.strHexMaster);
