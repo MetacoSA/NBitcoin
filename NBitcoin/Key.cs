@@ -15,6 +15,15 @@ namespace NBitcoin
 {
 	public class Key : IBitcoinSerializable
 	{
+		public static Key Parse(string wif, Network network = null)
+		{
+			return Network.CreateFromBase58Data<BitcoinSecret>(wif, network).Key;
+		}
+		public static Key Parse(string wif, string password, Network network = null)
+		{
+			return Network.CreateFromBase58Data<BitcoinEncryptedSecretNoEC>(wif, network).GetKey(password);
+		}
+
 		byte[] vch = new byte[0];
 		ECKey _ECKey;
 		public bool IsCompressed

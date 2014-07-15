@@ -12,6 +12,11 @@ namespace NBitcoin
 	//https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
 	public class ExtKey : IBitcoinSerializable
 	{
+		public static ExtKey Parse(string wif, Network expectedNetwork = null)
+		{
+			return Network.CreateFromBase58Data<BitcoinExtKey>(wif, expectedNetwork).Key;
+		}
+
 		Key key = null;
 		byte[] vchChainCode = new byte[32];
 		uint nChild;
