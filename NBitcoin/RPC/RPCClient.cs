@@ -307,6 +307,13 @@ namespace NBitcoin.RPC
 		public int GetBlockCount()
 		{
 			return (int)SendCommand("getblockcount").Result;
-		}		
+		}
+
+		public uint256[] GetRawMempool()
+		{
+			var result = SendCommand("getrawmempool");
+			var array = (JArray)result.Result;
+			return array.Select(o => (string)o).Select(s => new uint256(s)).ToArray();
+		}
 	}
 }

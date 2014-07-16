@@ -53,6 +53,14 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("RPCClient", "RPCClient")]
+		public void CanGetRawMemPool()
+		{
+			var rpc = CreateRPCClient();
+			var ids = rpc.GetRawMempool();
+		}
+
+		[Fact]
+		[Trait("RPCClient", "RPCClient")]
 		public void CanGetBestBlockHash()
 		{
 			var rpc = CreateRPCClient();
