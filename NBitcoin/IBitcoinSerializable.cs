@@ -51,7 +51,9 @@ namespace NBitcoin
 			{
 				ProtocolVersion = version
 			});
-			return ms.ToArray();
+			var bytes = ms.GetBuffer();
+			Array.Resize(ref bytes, (int)ms.Length);
+			return bytes;
 		}
 	}
 }
