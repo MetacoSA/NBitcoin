@@ -125,6 +125,18 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCompressScript2()
+		{
+			var payToHashTemplate = new PayToPubkeyHashTemplate();
+			var key = new Key(true);
+			var script = payToHashTemplate.GenerateScriptPubKey(key.PubKey.ID);
+			var compressed = script.ToCompressedRawScript();
+			Assert.Equal(21, compressed.Length);
+
+			Assert.Equal(script.ToString(), new Script(compressed, true).ToString());
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

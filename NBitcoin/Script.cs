@@ -217,7 +217,17 @@ namespace NBitcoin
 		{
 			_Script = data.ToArray();
 		}
-
+		public Script(byte[] data, bool compressed)
+		{
+			if(!compressed)
+				_Script = data.ToArray();
+			else
+			{
+				ScriptCompressor compressor = new ScriptCompressor();
+				compressor.ReadWrite(data);
+				_Script = compressor.GetScript()._Script;
+			}
+		}
 
 		public int Length
 		{
@@ -590,6 +600,17 @@ namespace NBitcoin
 		public byte[] ToRawScript()
 		{
 			return _Script.ToArray();
+		}
+		public byte[] ToRawScript(bool @unsafe)
+		{
+			if(@unsafe)
+				return _Script;
+			return _Script.ToArray();
+		}
+		public byte[] ToCompressedRawScript()
+		{
+			ScriptCompressor compressor = new ScriptCompressor(this);
+			return compressor.ToBytes();
 		}
 
 		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.StrictEnc | ScriptVerify.P2SH, SigHash sigHash = SigHash.Undefined)

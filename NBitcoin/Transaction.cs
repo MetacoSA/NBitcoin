@@ -320,7 +320,7 @@ namespace NBitcoin
 		}
 		public ScriptCompressor(Script script)
 		{
-			_Script = script.ToRawScript();
+			_Script = script.ToRawScript(true);
 		}
 		public ScriptCompressor()
 		{
