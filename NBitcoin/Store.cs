@@ -114,9 +114,19 @@ namespace NBitcoin
 			if(fileIndex < range.Begin.File || range.End.File < fileIndex)
 				yield break;
 			if(range.Begin.File < fileIndex)
-				range = new DiskBlockPosRange(DiskBlockPos.Begin.OfFile(fileIndex), range.End);
+			{
+				var start = DiskBlockPos.Begin.OfFile(fileIndex);
+				if(start >= range.End)
+					yield break;
+				range = new DiskBlockPosRange(start, range.End);
+			}
 			if(range.End.File > fileIndex)
-				range = new DiskBlockPosRange(range.Begin, DiskBlockPos.End.OfFile(fileIndex));
+			{
+				var end = DiskBlockPos.End.OfFile(fileIndex);
+				if(range.Begin >= end)
+					yield break;
+				range = new DiskBlockPosRange(range.Begin, end);
+			}
 
 			stream.Position = range.Begin.Position;
 			while(stream.Position < stream.Length)

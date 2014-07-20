@@ -83,6 +83,15 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanEnumerateBlockInAFileRange()
+		{
+			var store = new BlockStore(@"data\blocks", Network.Main);
+			var result = store.Enumerate(new DiskBlockPosRange(new DiskBlockPos(0, 0), new DiskBlockPos(1, 0))).ToList();
+			Assert.Equal(300, result.Count);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanValidateBlocks()
 		{
 			foreach(var block in StoredBlock.EnumerateFolder(@"data\blocks"))
