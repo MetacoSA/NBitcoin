@@ -71,6 +71,18 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanEnumerateBlockCountRange()
+		{
+			var store = new BlockStore(@"data\blocks", Network.Main);
+			var expectedBlock = store.Enumerate(false).Skip(4).First();
+			var actualBlocks = store.Enumerate(false, 4, 2).ToArray();
+			Assert.Equal(2, actualBlocks.Length);
+			Assert.Equal(expectedBlock.Item.Header.GetHash(), actualBlocks[0].Item.Header.GetHash());
+			Assert.True(actualBlocks[0].Item.CheckMerkleRoot());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanValidateBlocks()
 		{
 			foreach(var block in StoredBlock.EnumerateFolder(@"data\blocks"))

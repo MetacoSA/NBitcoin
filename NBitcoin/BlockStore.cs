@@ -82,20 +82,11 @@ namespace NBitcoin
 			}
 		}
 
-		public IEnumerable<StoredBlock> EnumerateFolder(DiskBlockPosRange range, bool headersOnly)
-		{
-			using(HeaderOnlyScope(headerOnly))
-			{
-				foreach(var r in EnumerateFolder(range))
-				{
-					yield return r;
-				}
-			}
-		}
+
 		private IDisposable HeaderOnlyScope(bool headersOnly)
 		{
 			var old = headersOnly;
-			var oldBuff= BufferSize;
+			var oldBuff = BufferSize;
 			return new Scope(() =>
 			{
 				this.headerOnly = headersOnly;
@@ -106,6 +97,40 @@ namespace NBitcoin
 				this.headerOnly = old;
 				BufferSize = oldBuff;
 			});
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="headersOnly"></param>
+		/// <param name="blockStart">Inclusive block count</param>
+		/// <param name="blockEnd">Exclusive block count</param>
+		/// <returns></returns>
+		public IEnumerable<StoredBlock> Enumerate(bool headersOnly, int blockCountStart, int count = 999999999)
+		{
+			int blockCount = 0;
+			DiskBlockPos start = null;
+			foreach(var block in Enumerate(true, null))
+			{
+				if(blockCount == blockCountStart)
+				{
+					start = block.BlockPosition;
+				}
+				blockCount++;
+			}
+			if(start == null)
+				yield break;
+
+
+			int i = 0;
+			foreach(var result in Enumerate(headersOnly, new DiskBlockPosRange(start)))
+			{
+				if(i >= count)
+					break;
+				yield return result;
+				i++;
+			}
+
 		}
 
 		public IEnumerable<StoredBlock> Enumerate(bool headersOnly, DiskBlockPosRange range = null)
