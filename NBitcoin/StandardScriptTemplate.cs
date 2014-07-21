@@ -158,13 +158,29 @@ namespace NBitcoin
 		{
 			if(!scriptSig.IsPushOnly)
 				return false;
-			if(!CheckScriptPubKeyCore(scriptPubKey, scriptPubKeyOps))
+			if(scriptSigOps[0].Code != OpcodeType.OP_0)
 				return false;
+			if(scriptSigOps.Length == 1)
+				return false;
+			if(!scriptSigOps.Skip(1).All(s => TransactionSignature.ValidLength(s.PushData.Length)))
+				return false;
+			if(scriptPubKeyOps != null)
+			{
+				if(!CheckScriptPubKeyCore(scriptPubKey, scriptPubKeyOps))
+					return false;
+				var sigCountExpected = scriptPubKeyOps[0].GetValue();
+				return sigCountExpected == scriptSigOps.Length + 1;
+			}
+			return true;
 
-			var sigCountExpected = scriptPubKeyOps[0].GetValue();
-			var sigOps = scriptSigOps;
-			return sigOps[0].Code == OpcodeType.OP_0 ?
-									sigCountExpected == sigOps.Length - 1 : sigCountExpected == sigOps.Length;
+		}
+
+		public TransactionSignature[] ExtractScriptSigParameters(Script scriptSig)
+		{
+			var ops = scriptSig.ToOps().ToArray();
+			if(!CheckScriptSigCore(scriptSig, ops, null, null))
+				return null;
+			return ops.Skip(1).Select(i => new TransactionSignature(i.PushData)).ToArray();
 		}
 
 		public override TxOutType Type
@@ -175,12 +191,21 @@ namespace NBitcoin
 			}
 		}
 
-
+		public Script GenerateScriptSig(TransactionSignature[] signatures)
+		{
+			List<Op> ops = new List<Op>();
+			ops.Add(OpcodeType.OP_0);
+			foreach(var sig in signatures)
+			{
+				ops.Add(Op.GetPushOp(sig.ToBytes()));
+			}
+			return new Script(ops.ToArray());
+		}
 	}
 
 	public class PayToScriptHashSigParameters
 	{
-		public Script Script
+		public Script RedeemScript
 		{
 			get;
 			set;
@@ -233,7 +258,7 @@ namespace NBitcoin
 		public PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{
 			var ops = scriptSig.ToOps().ToArray();
-			if(!ops.All(o => o.PushData != null))
+			if(!CheckScriptSigCore(scriptSig, ops, null, null))
 				return null;
 			try
 			{
@@ -243,7 +268,7 @@ namespace NBitcoin
 					.Take(ops.Length - 1)
 					.Select(o => new TransactionSignature(o.PushData))
 					.ToArray();
-				result.Script = new Script(ops[ops.Length - 1].PushData);
+				result.RedeemScript = new Script(ops[ops.Length - 1].PushData);
 				return result;
 			}
 			catch(Exception)

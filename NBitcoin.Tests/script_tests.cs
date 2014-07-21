@@ -425,5 +425,67 @@ namespace NBitcoin.Tests
 			Assert.True(pushdata4Stack.EvalScript(pushdata4, new Transaction(), 0));
 			AssertEx.StackEquals(pushdata4Stack.Stack, directStack.Stack);
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParseAndGeneratePayToPubKeyScript()
+		{
+			var payToPubHash = new PayToPubkeyHashTemplate();
+			var scriptPubKey = new Script("OP_DUP OP_HASH160 b72a6481ec2c2e65aa6bd9b42e213dce16fc6217 OP_EQUALVERIFY OP_CHECKSIG");
+			var pubKey = payToPubHash.ExtractScriptPubKeyParameters(scriptPubKey);
+			Assert.Equal("b72a6481ec2c2e65aa6bd9b42e213dce16fc6217", pubKey.ToString());
+			var scriptSig = new Script("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c");
+
+			var sigResult = payToPubHash.ExtractScriptSigParameters(scriptSig);
+			Assert.Equal("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301", Encoders.Hex.EncodeData(sigResult.TransactionSignature.ToBytes()));
+			Assert.Equal("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c", sigResult.PublicKey.ToString());
+
+			Assert.Equal(payToPubHash.GenerateScriptSig(sigResult.TransactionSignature, sigResult.PublicKey).ToString(), scriptSig.ToString());
+			Assert.Equal(payToPubHash.GenerateScriptPubKey(pubKey).ToString(), scriptPubKey.ToString());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParseAndGeneratePayToMultiSig()
+		{
+			var template = new PayToMultiSigTemplate();
+			string scriptPubKey = "1 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d 2 OP_CHECKMULTISIG";
+			var scriptPubKeyResult = template.ExtractScriptPubKeyParameters(new Script(scriptPubKey));
+			Assert.Equal("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c", scriptPubKeyResult.PubKeys[0].ToString());
+			Assert.Equal("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d", scriptPubKeyResult.PubKeys[1].ToString());
+			Assert.Equal(1, scriptPubKeyResult.SignatureCount);
+			Assert.Equal(scriptPubKey, template.GenerateScriptPubKey(1, scriptPubKeyResult.PubKeys).ToString());
+
+			var scriptSig = "0 3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301 3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9302";
+
+			var result = template.ExtractScriptSigParameters(new Script(scriptSig));
+			Assert.Equal("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301", Encoders.Hex.EncodeData(result[0].ToBytes()));
+			Assert.Equal("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9302", Encoders.Hex.EncodeData(result[1].ToBytes()));
+
+			Assert.Equal(scriptSig, template.GenerateScriptSig(result).ToString());
+		}
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParseAndGeneratePayToScript()
+		{
+			var template = new PayToScriptHashTemplate();
+			var redeem = "1 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d 2 OP_CHECKMULTISIG";
+
+			var scriptPubkey = "OP_HASH160 b5b88dd9befc9236915fcdbb7fd50052df50c855 OP_EQUAL";
+
+			var scriptSig = "3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301 51210364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c210364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d52ae";
+
+			var pubParams = template.ExtractScriptPubKeyParameters(new Script(scriptPubkey));
+			Assert.Equal("b5b88dd9befc9236915fcdbb7fd50052df50c855", pubParams.ToString());
+			Assert.Equal(scriptPubkey, template.GenerateScriptPubKey(pubParams).ToString());
+
+			var sigParams = template.ExtractScriptSigParameters(new Script(scriptSig));
+			Assert.Equal("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301", Encoders.Hex.EncodeData(sigParams.Signatures[0].ToBytes()));
+			Assert.Equal(redeem, sigParams.RedeemScript.ToString());
+			Assert.Equal(scriptSig, template.GenerateScriptSig(sigParams.Signatures, sigParams.RedeemScript).ToString());
+
+		}
 	}
 }

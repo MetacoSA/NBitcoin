@@ -46,7 +46,7 @@ namespace NBitcoin.Scanning
 					TxIn = i,
 					Parameters = template.ExtractScriptSigParameters(i.ScriptSig)
 				})
-				.Where(r => r.Parameters != null && r.Parameters.Script.ID == ScriptId)
+				.Where(r => r.Parameters != null && r.Parameters.RedeemScript.ID == ScriptId)
 				.Select(r=>r.TxIn);
 		}
 	}
