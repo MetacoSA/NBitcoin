@@ -183,50 +183,54 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void util_ParseMoney()
 		{
-			Money ret = new Money(0);
-			Assert.True(Money.TryParse("0.0", out ret));
-			AssertEx.Equal(ret, new Money(0));
+			foreach(var prefix in new string[] { "", "+", "-" })
+			{
+				int multiplier = prefix == "-" ? -1 : 1;
+				Money ret = new Money(0);
+				Assert.True(Money.TryParse(prefix + "0.0", out ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(0));
 
-			Assert.True(Money.TryParse("12345.6789", out  ret));
-			AssertEx.Equal(ret, new Money((Money.COIN / 10000) * 123456789));
+				Assert.True(Money.TryParse(prefix + "12345.6789", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money((Money.COIN / 10000) * 123456789));
 
-			Assert.True(Money.TryParse("100000000.00", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN * 100000000));
-			Assert.True(Money.TryParse("10000000.00", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN * 10000000));
-			Assert.True(Money.TryParse("1000000.00", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN * 1000000));
-			Assert.True(Money.TryParse("100000.00", out ret));
-			AssertEx.Equal(ret, new Money(Money.COIN * 100000));
-			Assert.True(Money.TryParse("10000.00", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN * 10000));
-			Assert.True(Money.TryParse("1000.00", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN * 1000));
-			Assert.True(Money.TryParse("100.00", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN * 100));
-			Assert.True(Money.TryParse("10.00", out ret));
-			AssertEx.Equal(ret, new Money(Money.COIN * 10));
-			Assert.True(Money.TryParse("1.00", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN));
-			Assert.True(Money.TryParse("0.1", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN / 10));
-			Assert.True(Money.TryParse("0.01", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN / 100));
-			Assert.True(Money.TryParse("0.001", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN / 1000));
-			Assert.True(Money.TryParse("0.0001", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN / 10000));
-			Assert.True(Money.TryParse("0.00001", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN / 100000));
-			Assert.True(Money.TryParse("0.000001", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN / 1000000));
-			Assert.True(Money.TryParse("0.0000001", out ret));
-			AssertEx.Equal(ret, new Money(Money.COIN / 10000000));
-			Assert.True(Money.TryParse("0.00000001", out  ret));
-			AssertEx.Equal(ret, new Money(Money.COIN / 100000000));
+				Assert.True(Money.TryParse(prefix + "100000000.00", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN * 100000000));
+				Assert.True(Money.TryParse(prefix + "10000000.00", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN * 10000000));
+				Assert.True(Money.TryParse(prefix + "1000000.00", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN * 1000000));
+				Assert.True(Money.TryParse(prefix + "100000.00", out ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN * 100000));
+				Assert.True(Money.TryParse(prefix + "10000.00", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN * 10000));
+				Assert.True(Money.TryParse(prefix + "1000.00", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN * 1000));
+				Assert.True(Money.TryParse(prefix + "100.00", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN * 100));
+				Assert.True(Money.TryParse(prefix + "10.00", out ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN * 10));
+				Assert.True(Money.TryParse(prefix + "1.00", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN));
+				Assert.True(Money.TryParse(prefix + "0.1", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN / 10));
+				Assert.True(Money.TryParse(prefix + "0.01", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN / 100));
+				Assert.True(Money.TryParse(prefix + "0.001", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN / 1000));
+				Assert.True(Money.TryParse(prefix + "0.0001", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN / 10000));
+				Assert.True(Money.TryParse(prefix + "0.00001", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN / 100000));
+				Assert.True(Money.TryParse(prefix + "0.000001", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN / 1000000));
+				Assert.True(Money.TryParse("0.0000001", out ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN / 10000000));
+				Assert.True(Money.TryParse(prefix + "0.00000001", out  ret));
+				AssertEx.Equal(multiplier * ret, multiplier * new Money(Money.COIN / 100000000));
 
-			// Attempted 63 bit overflow should fail
-			Assert.True(!Money.TryParse("92233720368.54775808", out  ret));
+				// Attempted 63 bit overflow should fail
+				Assert.True(!Money.TryParse(prefix + "92233720368.54775808", out  ret));
+			}
 		}
 		[Fact]
 		[Trait("Core", "Core")]
@@ -379,7 +383,7 @@ namespace NBitcoin.Tests
 		{
 			var jobj = JObject.Parse(File.ReadAllText("Data/blocks/Block1.json"));
 			var array = (JArray)jobj["mrkl_tree"];
-			var expected = array.OfType<JValue>().Select(v=>new uint256(v.ToString())).ToList();
+			var expected = array.OfType<JValue>().Select(v => new uint256(v.ToString())).ToList();
 			var block = Block.Parse(File.ReadAllText("Data/blocks/Block1.json"));
 			Assert.Equal("000000000000000040cd080615718eb68f00a0138706e7afd4068f3e08d4ca20", block.GetHash().ToString());
 			block.CheckMerkleRoot();

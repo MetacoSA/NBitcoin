@@ -45,6 +45,12 @@ namespace NBitcoin
 					return false;
 				i++;
 			}
+			if(i >= bitcoin.Length)
+				return false;
+			bool minus = bitcoin[i] == '-';
+			if(minus || bitcoin[i] == '+')
+				i++;
+
 			for( ; i < bitcoin.Length ; i++)
 			{
 				if(bitcoin[i] == '.')
@@ -148,6 +154,10 @@ namespace NBitcoin
 		public static Money operator -(Money left, Money right)
 		{
 			return new Money(left._Satoshis - right._Satoshis);
+		}
+		public static Money operator -(Money left)
+		{
+			return new Money(-left._Satoshis);
 		}
 		public static Money operator +(Money left, Money right)
 		{
