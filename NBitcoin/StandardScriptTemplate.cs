@@ -180,7 +180,14 @@ namespace NBitcoin
 			var ops = scriptSig.ToOps().ToArray();
 			if(!CheckScriptSigCore(scriptSig, ops, null, null))
 				return null;
-			return ops.Skip(1).Select(i => new TransactionSignature(i.PushData)).ToArray();
+			try
+			{
+				return ops.Skip(1).Select(i => new TransactionSignature(i.PushData)).ToArray();
+			}
+			catch(FormatException)
+			{
+				return null;
+			}
 		}
 
 		public override TxOutType Type
@@ -489,11 +496,18 @@ namespace NBitcoin
 			var ops = scriptSig.ToOps().ToArray();
 			if(!CheckScriptSigCore(scriptSig, ops, null, null))
 				return null;
-			return new PayToPubkeyHashScriptSigParameters()
+			try
 			{
-				TransactionSignature = new TransactionSignature(ops[0].PushData),
-				PublicKey = new PubKey(ops[1].PushData),
-			};
+				return new PayToPubkeyHashScriptSigParameters()
+				{
+					TransactionSignature = new TransactionSignature(ops[0].PushData),
+					PublicKey = new PubKey(ops[1].PushData),
+				};
+			}
+			catch(FormatException)
+			{
+				return null;
+			}
 		}
 
 

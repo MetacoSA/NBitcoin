@@ -140,6 +140,16 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void PayToPubkeyHashTemplateDoNotCrashOnInvalidSig()
+		{
+			var data = Encoders.Hex.DecodeData("035c030441ef8fa580553f149a5422ba4b0038d160b07a28e6fe2e1041b940fe95b1553c040000000000000050db680300000000000002b0466f722050696572636520616e64205061756c");
+
+			new PayToPubkeyHashTemplate()
+			.ExtractScriptSigParameters(new Script(data));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCompressScript()
 		{
 			var payToHashTemplate = new PayToPubkeyHashTemplate();
