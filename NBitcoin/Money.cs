@@ -85,7 +85,7 @@ namespace NBitcoin
 			var nWhole = BigInteger.Parse(strWhole);
 			var nValue = nWhole * COIN + nUnits;
 
-			nRet = new Money(nValue);
+			nRet = new Money(minus ? -nValue : nValue);
 			return true;
 		}
 		public static Money Parse(string bitcoin)
