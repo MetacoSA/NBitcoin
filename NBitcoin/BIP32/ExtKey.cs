@@ -79,11 +79,31 @@ namespace NBitcoin
 			return ret;
 		}
 
+		public bool IsChildOf(ExtKey parentKey)
+		{
+			return parentKey.CalculateChildFingerprint().SequenceEqual(Fingerprint);
+		}
+		public bool IsParentOf(ExtKey childKey)
+		{
+			return childKey.IsChildOf(this);
+		}
+		private byte[] CalculateChildFingerprint()
+		{
+			return key.PubKey.ID.ToBytes().Take(vchFingerprint.Length).ToArray();
+		}
+
+		public byte[] Fingerprint
+		{
+			get
+			{
+				return vchFingerprint;
+			}
+		}
 		public ExtKey Derive(uint nChild)
 		{
 			var result = new ExtKey();
 			result.nDepth = (byte)(nDepth + 1);
-			result.vchFingerprint = key.PubKey.ID.ToBytes().Take(result.vchFingerprint.Length).ToArray();
+			result.vchFingerprint = CalculateChildFingerprint();
 			result.nChild = nChild;
 			result.key = key.Derivate(this.vchChainCode, nChild, out result.vchChainCode);
 			return result;

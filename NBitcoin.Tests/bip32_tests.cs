@@ -105,7 +105,24 @@ namespace NBitcoin.Tests
 			Assert.True(ExtKey.Parse(key.ToString(Network.Main)).ToString(Network.Main) == key.ToString(Network.Main));
 			Assert.True(ExtPubKey.Parse(pubkey.ToString(Network.Main)).ToString(Network.Main) == pubkey.ToString(Network.Main));
 		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCheckChildKey()
+		{
+			var parent = new ExtKey();
+			var child = parent.Derive(1);
+			var notchild = new ExtKey();
 
+			Assert.True(child.IsChildOf(parent));
+			Assert.True(parent.IsParentOf(child));
+			Assert.False(notchild.IsChildOf(parent));
+			Assert.False(parent.IsParentOf(notchild));
+
+			Assert.True(child.Neuter().IsChildOf(parent.Neuter()));
+			Assert.True(parent.Neuter().IsParentOf(child.Neuter()));
+			Assert.False(notchild.Neuter().IsChildOf(parent.Neuter()));
+			Assert.False(parent.Neuter().IsParentOf(notchild.Neuter()));
+		}
 		private void RunTest(TestVector test)
 		{
 			var seed = TestUtils.ParseHex(test.strHexMaster);

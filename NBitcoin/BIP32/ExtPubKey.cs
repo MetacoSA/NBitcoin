@@ -49,15 +49,38 @@ namespace NBitcoin
 		internal ExtPubKey()
 		{
 		}
+
+		public bool IsChildOf(ExtPubKey parentKey)
+		{
+			return parentKey.CalculateChildFingerprint().SequenceEqual(Fingerprint);
+		}
+		public bool IsParentOf(ExtPubKey childKey)
+		{
+			return childKey.IsChildOf(this);
+		}
+		private byte[] CalculateChildFingerprint()
+		{
+			return pubkey.ID.ToBytes().Take(vchFingerprint.Length).ToArray();
+		}
+
+		public byte[] Fingerprint
+		{
+			get
+			{
+				return vchFingerprint;
+			}
+		}
 		public ExtPubKey Derive(uint nChild)
 		{
 			var result = new ExtPubKey();
 			result.nDepth = (byte)(nDepth + 1);
-			result.vchFingerprint = pubkey.ID.ToBytes().Take(result.vchFingerprint.Length).ToArray();
+			result.vchFingerprint = CalculateChildFingerprint();
 			result.nChild = nChild;
 			result.pubkey = pubkey.Derivate(this.vchChainCode, nChild, out result.vchChainCode);
 			return result;
 		}
+
+		
 
 		public BitcoinExtPubKey GetWif(Network network)
 		{
