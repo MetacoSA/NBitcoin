@@ -81,6 +81,8 @@ namespace NBitcoin
 
 		public bool IsChildOf(ExtKey parentKey)
 		{
+			if(Depth != parentKey.Depth + 1)
+				return false;
 			return parentKey.CalculateChildFingerprint().SequenceEqual(Fingerprint);
 		}
 		public bool IsParentOf(ExtKey childKey)
