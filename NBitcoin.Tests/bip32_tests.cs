@@ -97,6 +97,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest","UnitTest")]
 		public void CanRoundTripExtKeyBase58Data()
 		{
 			var key = new ExtKey();
