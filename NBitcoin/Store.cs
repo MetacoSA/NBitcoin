@@ -201,6 +201,7 @@ namespace NBitcoin
 		{
 			var fileName = string.Format(FilePrefix + "{0:00000}.dat", file);
 			var filePath = Path.Combine(_Folder.FullName, fileName);
+            Directory.CreateDirectory(_Folder.FullName);
 			File.Create(filePath).Close();
 			return new FileInfo(filePath);
 		}
