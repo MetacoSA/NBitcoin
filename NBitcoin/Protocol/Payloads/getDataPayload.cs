@@ -11,6 +11,21 @@ namespace NBitcoin.Protocol
 	{
         List<InventoryVector> inventory;
 
+        public GetDataPayload()
+        {
+            inventory=new List<InventoryVector>();
+        }
+
+        public GetDataPayload(IEnumerable<InventoryVector> Invs):this()
+        {
+            inventory.AddRange(Invs);
+        }
+
+        public GetDataPayload(InventoryVector Inv):this()
+        {
+            inventory.Add(Inv);
+        }
+
         public List<InventoryVector> Inventory
         {
             set
