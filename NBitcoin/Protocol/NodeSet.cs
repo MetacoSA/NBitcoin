@@ -68,6 +68,14 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+        Random rnd = new Random();  //Allways be carefull with Random in multithreading TODO init better
+        public Node GetRandomNode()
+        {
+            lock(_Nodes)
+            {
+                return _Nodes.ElementAt(rnd.Next(_Nodes.Count)).Value;
+            }
+        }
 
 		public Node AddNode(Node node)
 		{
