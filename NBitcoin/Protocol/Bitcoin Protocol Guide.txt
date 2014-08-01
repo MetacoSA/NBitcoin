@@ -1,0 +1,13 @@
+﻿Hello!
+
+Protocol is simple:
+
+Connect to some nodes
+If they send you a PingPayload, send back a PongPayload
+
+How to get a Block:
+send to a Node a GetHeadersPayload
+Now the Node sends you a List of his Blockheaders
+You get the Blockheader of the Block you want and save the Hash of that Block.
+Now you send to the Node a GetDataPayload with that Hash and the Wish for a Block with that Hash.
+The Node now will send you a BlockPayload with that hole Block in it.
