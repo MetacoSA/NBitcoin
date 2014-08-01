@@ -80,6 +80,9 @@ namespace NBitcoin
 				throw new ArgumentNullException("network");
 			_Folder = folder;
 			_Network = network;
+
+            //Create folders if needed
+            Directory.CreateDirectory(_Folder.FullName);
 		}
 		private readonly Network _Network;
 		public Network Network
@@ -195,15 +198,6 @@ namespace NBitcoin
 				fs.Position = stored.BlockPosition.Position;
 				stored.ReadWrite(fs, true);
 			}
-		}
-
-		public FileInfo CreateFile(int file)
-		{
-			var fileName = string.Format(FilePrefix + "{0:00000}.dat", file);
-			var filePath = Path.Combine(_Folder.FullName, fileName);
-            Directory.CreateDirectory(_Folder.FullName);
-			File.Create(filePath).Close();
-			return new FileInfo(filePath);
 		}
 
 		public DiskBlockPos SeekEnd()
