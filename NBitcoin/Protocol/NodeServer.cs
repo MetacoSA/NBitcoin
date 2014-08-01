@@ -574,6 +574,13 @@ namespace NBitcoin.Protocol
 					};
 		}
 
+        public VersionPayload CreateVersionPayload(Peer peer, IPEndPoint me, ProtocolVersion? version, bool relay)
+        {
+            VersionPayload NewVersionPayLoad = this.CreateVersionPayload(peer, me, version);
+            NewVersionPayLoad.Relay = relay;
+            return NewVersionPayLoad;
+        }
+
 		string _UserAgent;
 		public string UserAgent
 		{

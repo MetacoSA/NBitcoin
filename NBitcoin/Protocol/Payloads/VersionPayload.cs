@@ -92,7 +92,20 @@ namespace NBitcoin.Protocol
 				start_height = value;
 			}
 		}
+
 		bool relay;
+        public bool Relay
+        {
+            get
+            {
+                return relay;
+            }
+            set
+            {
+                relay = value;
+            }
+        }
+
 		VarString user_agent;
 		public string UserAgent
 		{
