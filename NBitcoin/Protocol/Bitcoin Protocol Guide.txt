@@ -2,7 +2,7 @@
 
 Protocol is simple:
 
-Connect to some nodes
+Connect to some nodes and make the Versionhandshake
 If they send you a PingPayload, send back a PongPayload
 
 How to get a Block:
