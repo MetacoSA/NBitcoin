@@ -85,6 +85,7 @@
     <Compile Include="Payment\Proto.cs" />
     <Compile Include="Payment\UriHelper.cs" />
     <Compile Include="Payment\HttpUtility.cs" />
+    <Compile Include="Protocol\NetworkInterface.cs" />
     <Compile Include="Protocol\Payloads\getDataPayload.cs" />
     <Compile Include="RPC\BlockExplorerFormatter.cs" />
     <Compile Include="RPC\RawFormatter.cs" />
@@ -215,6 +216,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BitcoinStream.Partial.cs</LastGenOutput>
     </None>
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="NBitcoin.nuspec" />
     <None Include="PushNuget.ps1" />
