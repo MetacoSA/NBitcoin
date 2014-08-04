@@ -216,7 +216,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BitcoinStream.Partial.cs</LastGenOutput>
     </None>
-    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="NBitcoin.nuspec" />
     <None Include="PushNuget.ps1" />
