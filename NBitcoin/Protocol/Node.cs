@@ -22,7 +22,9 @@ namespace NBitcoin.Protocol
 	}
 
 
-
+    /// <summary>
+    /// Every Node handels the Ping/Pong himself!
+    /// </summary>
 	public class Node
 	{
 		public class NodeConnection
