@@ -134,6 +134,16 @@ namespace NBitcoin
 
 		#endregion
 
+		public ExtKey Derive(KeyPath derivation)
+		{
+			ExtKey result = this;
+			foreach(var index in derivation.Indexes)
+			{
+				result = result.Derive(index);
+			}
+			return result;
+		}
+
 		public string ToString(Network network)
 		{
 			return new BitcoinExtKey(this, network).ToString();

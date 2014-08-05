@@ -97,7 +97,22 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("UnitTest","UnitTest")]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanUseKeyPath()
+		{
+			var keyPath = new KeyPath("0/1/2/3");
+			Assert.Equal(keyPath.ToString(), "0/1/2/3");
+			var key = new ExtKey();
+			Assert.Equal(key
+							.Derive(0)
+							.Derive(1)
+							.Derive(2)
+							.Derive(3)
+							.ToString(Network.Main), key.Derive(keyPath).ToString(Network.Main));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanRoundTripExtKeyBase58Data()
 		{
 			var key = new ExtKey();

@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Account.cs" />
     <Compile Include="Base58Data.cs" />
+    <Compile Include="BIP32\KeyPath.cs" />
     <Compile Include="BitcoinAddress.cs" />
     <Compile Include="BIP38\BitcoinConfirmationCode.cs" />
     <Compile Include="BIP38\BitcoinEncryptedSecret.cs" />

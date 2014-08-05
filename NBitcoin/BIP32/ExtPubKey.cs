@@ -82,6 +82,16 @@ namespace NBitcoin
 			return result;
 		}
 
+		public ExtPubKey Derive(KeyPath derivation)
+		{
+			ExtPubKey result = this;
+			foreach(var index in derivation.Indexes)
+			{
+				result = result.Derive(index);
+			}
+			return result;
+		}
+
 		
 
 		public BitcoinExtPubKey GetWif(Network network)
