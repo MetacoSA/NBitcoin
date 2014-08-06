@@ -191,42 +191,42 @@ namespace NBitcoin.Tests
 				AssertEx.Equal(ret, multiplier * new Money(0));
 
 				Assert.True(Money.TryParse(prefix + "12345.6789", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money((Money.COIN / 10000) * 123456789));
+				AssertEx.Equal(ret, multiplier * new Money((Money.COIN / 10000) * 123456789));
 
 				Assert.True(Money.TryParse(prefix + "100000000.00", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN * 100000000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 100000000));
 				Assert.True(Money.TryParse(prefix + "10000000.00", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN * 10000000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 10000000));
 				Assert.True(Money.TryParse(prefix + "1000000.00", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN * 1000000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 1000000));
 				Assert.True(Money.TryParse(prefix + "100000.00", out ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN * 100000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 100000));
 				Assert.True(Money.TryParse(prefix + "10000.00", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN * 10000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 10000));
 				Assert.True(Money.TryParse(prefix + "1000.00", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN * 1000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 1000));
 				Assert.True(Money.TryParse(prefix + "100.00", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN * 100));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 100));
 				Assert.True(Money.TryParse(prefix + "10.00", out ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN * 10));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 10));
 				Assert.True(Money.TryParse(prefix + "1.00", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN));
 				Assert.True(Money.TryParse(prefix + "0.1", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN / 10));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 10));
 				Assert.True(Money.TryParse(prefix + "0.01", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN / 100));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 100));
 				Assert.True(Money.TryParse(prefix + "0.001", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN / 1000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 1000));
 				Assert.True(Money.TryParse(prefix + "0.0001", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN / 10000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 10000));
 				Assert.True(Money.TryParse(prefix + "0.00001", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN / 100000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 100000));
 				Assert.True(Money.TryParse(prefix + "0.000001", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN / 1000000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 1000000));
 				Assert.True(Money.TryParse(prefix + "0.0000001", out ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN / 10000000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 10000000));
 				Assert.True(Money.TryParse(prefix + "0.00000001", out  ret));
-				AssertEx.Equal( ret, multiplier * new Money(Money.COIN / 100000000));
+				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 100000000));
 
 				// Attempted 63 bit overflow should fail
 				Assert.True(!Money.TryParse(prefix + "92233720368.54775808", out  ret));
@@ -280,6 +280,24 @@ namespace NBitcoin.Tests
 			{
 				Assert.NotNull(network);
 			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanGenerateScriptFromAddress()
+		{
+			var address = new BitcoinAddress(new KeyId("47376c6f537d62177a2c41c4ca9b45829ab99083"), Network.Main);
+			Assert.Equal("OP_DUP OP_HASH160 47376c6f537d62177a2c41c4ca9b45829ab99083 OP_EQUALVERIFY OP_CHECKSIG", address.PaymentScript.ToString());
+
+			var scriptAddress = new BitcoinScriptAddress(new ScriptId("8f55563b9a19f321c211e9b9f38cdf686ea07845"), Network.Main);
+			Assert.Equal("OP_HASH160 8f55563b9a19f321c211e9b9f38cdf686ea07845 OP_EQUAL", scriptAddress.PaymentScript.ToString());
+
+			var pubKey = new PubKey("0359d3092e4a8d5f3b3948235b5dec7395259273ccf3c4e9d5e16695a3fc9588d6");
+			Assert.Equal("OP_DUP OP_HASH160 4d29186f76581c7375d70499afd1d585149d42cd OP_EQUALVERIFY OP_CHECKSIG", pubKey.HashPaymentScript.ToString());
+			Assert.Equal("0359d3092e4a8d5f3b3948235b5dec7395259273ccf3c4e9d5e16695a3fc9588d6 OP_CHECKSIG", pubKey.PaymentScript.ToString());
+
+			Script script = new Script("0359d3092e4a8d5f3b3948235b5dec7395259273ccf3c4e9d5e16695a3fc9588d6 OP_CHECKSIG");
+			Assert.Equal("OP_HASH160 a216e3bce8c1b3adf376731b6cd0b6936c4e053f OP_EQUAL", script.PaymentScript.ToString());
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

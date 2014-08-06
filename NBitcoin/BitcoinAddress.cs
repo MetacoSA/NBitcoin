@@ -37,6 +37,11 @@ namespace NBitcoin
 				return Base58Type.SCRIPT_ADDRESS;
 			}
 		}
+
+		protected override Script GeneratePaymentScript()
+		{
+			return new PayToScriptHashTemplate().GenerateScriptPubKey((ScriptId)ID);
+		}
 	}
 	public class BitcoinAddress : Base58Data
 	{
@@ -74,6 +79,24 @@ namespace NBitcoin
 			{
 				return new KeyId(vchData);
 			}
+		}
+
+		Script _PaymentScript;
+		public Script PaymentScript
+		{
+			get
+			{
+				if(_PaymentScript == null)
+				{
+					_PaymentScript = GeneratePaymentScript();
+				}
+				return _PaymentScript;
+			}
+		}
+
+		protected virtual Script GeneratePaymentScript()
+		{
+			return new PayToPubkeyHashTemplate().GenerateScriptPubKey((KeyId)this.ID);
 		}
 
 		public bool VerifyMessage(string message, string signature)

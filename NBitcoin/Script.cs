@@ -306,6 +306,19 @@ namespace NBitcoin
 			return Encoders.Hex.EncodeData(_Script);
 		}
 
+		Script _PaymentScript;
+		public Script PaymentScript
+		{
+			get
+			{
+				if(_PaymentScript == null)
+				{
+					_PaymentScript = new PayToScriptHashTemplate().GenerateScriptPubKey(this.ID);
+				}
+				return _PaymentScript;
+			}
+		}
+
 		public override string ToString()
 		{
 			StringBuilder builder = new StringBuilder();
@@ -506,11 +519,16 @@ namespace NBitcoin
 			return n;
 		}
 
+		ScriptId _ID;
 		public ScriptId ID
 		{
 			get
 			{
-				return new ScriptId(Hashes.Hash160(_Script));
+				if(_ID == null)
+				{
+					_ID = new ScriptId(Hashes.Hash160(_Script));
+				}
+				return _ID;
 			}
 		}
 
