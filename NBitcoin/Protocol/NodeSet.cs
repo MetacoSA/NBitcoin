@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -35,7 +36,6 @@ namespace NBitcoin.Protocol
 		{
 			_MessageListener = new NodeListener(this);
 		}
-
 
 		private readonly MessageProducer<IncomingMessage> _MessageProducer = new MessageProducer<IncomingMessage>();
 		public MessageProducer<IncomingMessage> MessageProducer
@@ -194,5 +194,22 @@ namespace NBitcoin.Protocol
 
 			Task.WaitAll(tasks);
 		}
-	}
+
+        /// <summary>
+        /// Blocking if empty!
+        /// </summary>
+        /// <returns></returns>
+        internal Node GetIdleNode()
+        {
+            Node IdleNode=null;
+
+            while(IdleNode==null)
+            {
+                IdleNode = GetNodes().FirstOrDefault((Node N) => { return N.idle; });
+                if(IdleNode==null)
+                    Thread.Sleep(100);
+            }
+            return IdleNode;
+        }
+    }
 }

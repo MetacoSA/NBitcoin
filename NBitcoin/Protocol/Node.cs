@@ -155,6 +155,22 @@ namespace NBitcoin.Protocol
 
 		}
 
+        public bool idle = true; //TODO tidy up
+
+
+        /// <summary>
+        /// GetDataPayloads makes the Node not idle, until we got the data or error TODO not perfectly implemented yet
+        /// </summary>
+        /// <param name="GDPayload"></param>
+        public void SendGetDataPayload(GetDataPayload GDPayload)
+        {
+            if(idle==false)
+            {
+                throw new Exception("Provided work to node that wasnt idle - check Logic!");
+            }
+            idle = false;
+            SendMessage(GDPayload);
+        }
 
 		volatile NodeState _State = NodeState.Offline;
 		public NodeState State
