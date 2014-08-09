@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NBitcoin;
 using System.Threading;
+using System.Collections.Concurrent;
 
 namespace NBitcoin.Protocol
 {
@@ -67,7 +68,7 @@ namespace NBitcoin.Protocol
             if (network == null)
                 network = Network.Main;
 
-            Thread Managementloopthread = new Thread(ManagementLoop);
+            Thread Managementloopthread = new Thread(ManagementLoops);
             Managementloopthread.IsBackground = true;
             Managementloopthread.Start();
         }
@@ -86,20 +87,53 @@ namespace NBitcoin.Protocol
 
         #endregion
 
-        private void ManagementLoop()
+        private void ManagementLoops()
         {
             //todo is this sleep really needed?
             Thread.Sleep(100);//wait for the Nodeset to be created
-            while(true)
-            {
-                if(connectedNodes.Count()<wantedConnectedNodeSetSize)
+            int OldTickCount = System.Environment.TickCount;
+
+            Thread NodeSetWatcher = new Thread(() => {
+                while (true)
                 {
-                    Info("Not connected to enough Nodes.("+connectedNodes.Count()+"/"+wantedConnectedNodeSetSize+")");
-                    connectedNodes.AddNode(GetNewConnectedNode());
-                    Info("Connected to new Node");
+                    if (connectedNodes.Count() < wantedConnectedNodeSetSize)
+                    {
+                        Info("Not connected to enough Nodes.(" + connectedNodes.Count() + "/" + wantedConnectedNodeSetSize + ")");
+                        try
+                        {
+                            connectedNodes.AddNode(GetNewConnectedNode());
+                            Info("Connected to new Node");
+                        }
+                        catch(Exception e)
+                        {
+                            Warning(e.Message);
+                        }
+                        
+                    }
+                    System.Threading.Thread.Sleep(100);
                 }
-                System.Threading.Thread.Sleep(1);
-            }
+            });
+            NodeSetWatcher.IsBackground = true;
+            NodeSetWatcher.Start();
+
+            Thread IdleWatcher = new Thread(() => {
+                while (true)
+                {
+                    if (IdleNodes.Count == 0 || System.Environment.TickCount - OldTickCount > 100)
+                    {
+                        OldTickCount = System.Environment.TickCount;
+                        var NewIdlers = from node in connectedNodes.GetNodes() where node.idle select node;
+                        foreach (var node in NewIdlers)
+                        {
+                            if(IdleNodes.Contains(node)==false)
+                                IdleNodes.Add(node);
+                        }
+                    }
+                    System.Threading.Thread.Sleep(1);
+                }
+            });
+            IdleWatcher.IsBackground = true;
+            IdleWatcher.Start();
         }
 
         private Node GetNewConnectedNode()
@@ -176,12 +210,15 @@ namespace NBitcoin.Protocol
             object MyLockToIndex=new object();
             
             //list of all hashes from blocks we need to download
-            Console.WriteLine("Calculating List of Blocks we need to download");
+            Info("Calculating List of Blocks we need to download");
+            var DoneSet = new HashSet<uint256>(from storedItem in MyIndexedBlockStore.Store.Enumerate(true) select storedItem.Item.GetHash());
+            Info("Donethat, now get List of Blocks not done yet");
             var work = from head
                       in headerChain.EnumerateAfter(headerChain.Genesis)
-                       where MyIndexedBlockStore.GetHeader(head.Header.GetHash()) == null //TODO add an contains() function to Index
+                       where DoneSet.Contains(head.Header.GetHash()) == false //TODO add an contains() function to Index
                        select head.Header.GetHash();
 
+            
             //WaitUntillConnectedToHealthyCountOfNodes();
 
             work.AsParallel().WithDegreeOfParallelism(10).ForAll(
@@ -201,9 +238,6 @@ namespace NBitcoin.Protocol
                             lock (MyLockToIndex)
                             {
                                 Console.WriteLine("Downloaded Block ("+ block.Transactions.Count() +") with Timestamp:" + block.Header.BlockTime.ToString());
-                                Console.WriteLine("Downloaded Block (" + block.HeaderOnly + ") with Timestamp:" + block.Header.BlockTime.ToString());
-                                Console.WriteLine(block.Header.GetHash());
-                                Console.WriteLine(block.CheckMerkleRoot());
                                 MyIndexedBlockStore.Put(block);
                             }
                         }
@@ -254,9 +288,20 @@ namespace NBitcoin.Protocol
 
         public Node GetDataScheduler(GetDataPayload GDPayload)
         {
-            Node Provider = connectedNodes.GetIdleNode();
+            Node Provider = GetIdleNode();
             Provider.SendGetDataPayload(GDPayload);
             return Provider;
+        }
+
+        public BlockingCollection<Node> IdleNodes = new BlockingCollection<Node>();
+
+        /// <summary>
+        /// Blocking if empty!
+        /// </summary>
+        /// <returns></returns>
+        internal Node GetIdleNode()
+        {
+            return IdleNodes.Take();
         }
 
     }

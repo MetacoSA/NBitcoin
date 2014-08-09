@@ -194,22 +194,5 @@ namespace NBitcoin.Protocol
 
 			Task.WaitAll(tasks);
 		}
-
-        /// <summary>
-        /// Blocking if empty!
-        /// </summary>
-        /// <returns></returns>
-        internal Node GetIdleNode()
-        {
-            Node IdleNode=null;
-
-            while(IdleNode==null)
-            {
-                IdleNode = GetNodes().FirstOrDefault((Node N) => { return N.idle; });
-                if(IdleNode==null)
-                    Thread.Sleep(100);
-            }
-            return IdleNode;
-        }
     }
 }
