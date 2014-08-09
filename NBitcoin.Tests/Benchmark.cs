@@ -16,12 +16,17 @@ namespace NBitcoin.Tests
 		[Trait("Benchmark", "Benchmark")]
 		public void BlockDirectoryScanSpeed()
 		{
-			Stopwatch watch = new Stopwatch();
-			watch.Start();
-			BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
-			var count = store.Enumerate(false).Take(150000).Count();
-			watch.Stop();
-			var spentByBlock = TimeSpan.FromTicks(watch.ElapsedTicks / count);
+			//var completeScan = Bench(() =>
+			//{
+			//	BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
+			//	var count = store.Enumerate(false).Take(150000).Count();
+			//});
+
+			var headersOnlyScan = Bench(() =>
+			{
+				BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
+				var count = store.Enumerate(true).Count();
+			});
 		}
 
 		[Fact]
@@ -65,15 +70,43 @@ namespace NBitcoin.Tests
 			var time = watch.Elapsed;
 		}
 
+		TimeSpan Bench(Action act)
+		{
+			Stopwatch watch = new Stopwatch();
+			watch.Start();
+			act();
+			watch.Stop();
+			return watch.Elapsed;
+		}
 		[Fact]
 		[Trait("Benchmark", "Benchmark")]
 		public void BenchmarkCreateChainFromBlocks()
 		{
-			Stopwatch watch = new Stopwatch();
-			watch.Start();
 			BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
-			var chain = store.BuildChain();
-			watch.Stop();
+			Chain chain = null;
+			var fullBuild = Bench(() =>
+			{
+
+				chain = store.BuildChain();
+			});
+
+			chain.Changes.Rewind();
+			var rebuildFromMemory = Bench(() =>
+			{
+				var chain2 = new Chain(chain.Changes);
+			});
+
+			chain.Changes.Rewind();
+			var halfChain = new StreamObjectStream<ChainChange>();
+			for(int i = 0 ; i < 300000 ; i++)
+			{
+				halfChain.WriteNext(chain.Changes.ReadNext());
+			}
+
+			var halfBuild = Bench(() =>
+			{
+				var fullChain = store.BuildChain(halfChain);
+			});
 		}
 		private TimeSpan BenchmarkTemplate(Action<TxOut> act)
 		{
