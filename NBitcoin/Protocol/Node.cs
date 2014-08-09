@@ -312,14 +312,23 @@ namespace NBitcoin.Protocol
 		public TPayload RecieveMessage<TPayload>(CancellationToken cancellationToken = default(CancellationToken)) where TPayload : Payload
 		{
 			var listener = new PollMessageListener<IncomingMessage>();
-			using(MessageProducer.AddMessageListener(listener))
+			try
 			{
-				while(true)
+				using(MessageProducer.AddMessageListener(listener))
 				{
-					var message = listener.RecieveMessage(cancellationToken);
-					if(message.Message.Payload is TPayload)
-						return (TPayload)message.Message.Payload;
+					while(true)
+					{
+						var message = listener.RecieveMessage(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _Connection.Cancel.Token).Token);
+						if(message.Message.Payload is TPayload)
+							return (TPayload)message.Message.Payload;
+					}
 				}
+			}
+			catch(OperationCanceledException ex)
+			{
+				if(ex.CancellationToken == _Connection.Cancel.Token)
+					throw new InvalidOperationException("Connection dropped");
+				throw;
 			}
 			throw new InvalidProgramException("Bug in Node.RecieveMessage");
 		}
