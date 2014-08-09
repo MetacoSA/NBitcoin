@@ -52,6 +52,8 @@ namespace NBitcoin
 
 		public bool IsChildOf(ExtPubKey parentKey)
 		{
+			if(Depth != parentKey.Depth + 1)
+				return false;
 			return parentKey.CalculateChildFingerprint().SequenceEqual(Fingerprint);
 		}
 		public bool IsParentOf(ExtPubKey childKey)
@@ -77,6 +79,16 @@ namespace NBitcoin
 			result.vchFingerprint = CalculateChildFingerprint();
 			result.nChild = nChild;
 			result.pubkey = pubkey.Derivate(this.vchChainCode, nChild, out result.vchChainCode);
+			return result;
+		}
+
+		public ExtPubKey Derive(KeyPath derivation)
+		{
+			ExtPubKey result = this;
+			foreach(var index in derivation.Indexes)
+			{
+				result = result.Derive(index);
+			}
 			return result;
 		}
 

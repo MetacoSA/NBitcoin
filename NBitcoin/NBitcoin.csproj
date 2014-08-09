@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Account.cs" />
     <Compile Include="Base58Data.cs" />
+    <Compile Include="BIP32\KeyPath.cs" />
     <Compile Include="BitcoinAddress.cs" />
     <Compile Include="BIP38\BitcoinConfirmationCode.cs" />
     <Compile Include="BIP38\BitcoinEncryptedSecret.cs" />
@@ -85,8 +86,7 @@
     <Compile Include="Payment\Proto.cs" />
     <Compile Include="Payment\UriHelper.cs" />
     <Compile Include="Payment\HttpUtility.cs" />
-    <Compile Include="Protocol\NetworkInterface.cs" />
-    <Compile Include="Protocol\Payloads\getDataPayload.cs" />
+    <Compile Include="Protocol\Payloads\GetDataPayload.cs" />
     <Compile Include="RPC\BlockExplorerFormatter.cs" />
     <Compile Include="RPC\RawFormatter.cs" />
     <Compile Include="RPC\RPCClient.cs" />
@@ -232,7 +232,6 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Protocol\Bitcoin Protocol Guide.txt" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

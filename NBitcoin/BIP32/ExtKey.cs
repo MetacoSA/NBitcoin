@@ -81,6 +81,8 @@ namespace NBitcoin
 
 		public bool IsChildOf(ExtKey parentKey)
 		{
+			if(Depth != parentKey.Depth + 1)
+				return false;
 			return parentKey.CalculateChildFingerprint().SequenceEqual(Fingerprint);
 		}
 		public bool IsParentOf(ExtKey childKey)
@@ -131,6 +133,16 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public ExtKey Derive(KeyPath derivation)
+		{
+			ExtKey result = this;
+			foreach(var index in derivation.Indexes)
+			{
+				result = result.Derive(index);
+			}
+			return result;
+		}
 
 		public string ToString(Network network)
 		{

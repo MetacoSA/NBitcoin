@@ -11,6 +11,11 @@ namespace NBitcoin
 {
 	public class PubKey : IBitcoinSerializable
 	{
+		public PubKey(string hex)
+			: this(Encoders.Hex.DecodeData(hex))
+		{
+
+		}
 		public PubKey(byte[] vch)
 		{
 			if(!IsValidSize(vch.Length))
@@ -69,6 +74,12 @@ namespace NBitcoin
 		{
 			return network.CreateBitcoinAddress(this.ID.ToBytes());
 		}
+		public BitcoinScriptAddress GetScriptAddress(Network network)
+		{
+			var redeem = new PayToScriptHashTemplate().GenerateScriptPubKey(new PayToPubkeyTemplate().GenerateScriptPubKey(this));
+			return new BitcoinScriptAddress(redeem.ID, network);
+		}
+
 
 		public bool Verify(uint256 hash, ECDSASignature sig)
 		{
@@ -77,6 +88,31 @@ namespace NBitcoin
 		public bool Verify(uint256 hash, byte[] sig)
 		{
 			return Verify(hash, ECDSASignature.FromDER(sig));
+		}
+
+		Script _HashPaymentScript;
+		public Script HashPaymentScript
+		{
+			get
+			{
+				if(_HashPaymentScript == null)
+				{
+					_HashPaymentScript = new PayToPubkeyHashTemplate().GenerateScriptPubKey(ID);
+				}
+				return _HashPaymentScript;
+			}
+		}
+		Script _PaymentScript;
+		public Script PaymentScript
+		{
+			get
+			{
+				if(_PaymentScript == null)
+				{
+					_PaymentScript = new PayToPubkeyTemplate().GenerateScriptPubKey(this);
+				}
+				return _PaymentScript;
+			}
 		}
 
 		public string ToHex()
@@ -224,7 +260,7 @@ namespace NBitcoin
 		public PubKey Uncover(Key priv, PubKey pub)
 		{
 			var curve = ECKey.CreateCurve();
-			var hash = GetStealthSharedSecret(priv,pub);
+			var hash = GetStealthSharedSecret(priv, pub);
 			//Q' = Q + cG
 			var qprim = curve.G.Multiply(new BigInteger(1, hash)).Add(curve.Curve.DecodePoint(this.ToBytes()));
 			return new PubKey(qprim.GetEncoded()).Compress(this.IsCompressed);

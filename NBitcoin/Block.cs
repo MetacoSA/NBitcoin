@@ -200,7 +200,10 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref header);
+			using(stream.NetworkFormatScope(false))
+			{
+				stream.ReadWrite(ref header);
+			}
 			stream.ReadWrite(ref vtx);
 		}
 
