@@ -225,7 +225,27 @@ namespace NBitcoin.Tests
 				var chain = new Chain(changes);
 				server.BuildChain(changes, cancel.Token);
 			}
-		}		
+		}
+
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanDownloadBlock()
+		{
+			using(var server = new NodeServer(Network.Main))
+			{
+				server.RegisterPeerTableRepository(PeerCache);
+				var node = server.GetNodeByEndpoint(new IPEndPoint(IPAddress.Loopback, server.ExternalEndpoint.Port));
+				node.VersionHandshake();
+				node.SendMessage(new GetDataPayload(new InventoryVector()
+						{
+							Hash = new uint256("0000000000000000125a28cc9e9209ddb75718f599a8039f6c9e7d9f1fb021e0"),
+							Type = InventoryType.MSG_BLOCK
+						}));
+
+				var block = node.RecieveMessage<BlockPayload>();
+				Assert.True(block.Object.CheckMerkleRoot());
+			}
+		}
 
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]

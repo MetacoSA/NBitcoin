@@ -9,7 +9,14 @@ namespace NBitcoin.Protocol
     [Payload("getdata")]
 	public class GetDataPayload : Payload
 	{
-        List<InventoryVector> inventory;
+		public GetDataPayload()
+		{
+		}
+		public GetDataPayload(params InventoryVector[] vectors)
+		{
+			inventory.AddRange(vectors);
+		}
+        List<InventoryVector> inventory = new List<InventoryVector>();
 
         public List<InventoryVector> Inventory
         {

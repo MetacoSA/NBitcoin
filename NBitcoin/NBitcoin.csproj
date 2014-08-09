@@ -86,7 +86,7 @@
     <Compile Include="Payment\Proto.cs" />
     <Compile Include="Payment\UriHelper.cs" />
     <Compile Include="Payment\HttpUtility.cs" />
-    <Compile Include="Protocol\Payloads\getDataPayload.cs" />
+    <Compile Include="Protocol\Payloads\GetDataPayload.cs" />
     <Compile Include="RPC\BlockExplorerFormatter.cs" />
     <Compile Include="RPC\RawFormatter.cs" />
     <Compile Include="RPC\RPCClient.cs" />
