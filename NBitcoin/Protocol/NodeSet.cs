@@ -129,7 +129,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public void AddNodes(Node[] nodes)
+		public void AddNodes(IEnumerable<Node> nodes)
 		{
 			lock(_Nodes)
 			{
