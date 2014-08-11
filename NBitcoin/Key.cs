@@ -204,7 +204,11 @@ namespace NBitcoin
 			var key = parse256LL.Add(kPar).Mod(N);
 			if(key == BigInteger.Zero)
 				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
-			return new Key(key.ToByteArrayUnsigned());
+
+			var keyBytes = key.ToByteArrayUnsigned();
+			if(keyBytes.Length < 32)
+				keyBytes = new byte[32 - keyBytes.Length].Concat(keyBytes).ToArray();
+			return new Key(keyBytes);
 		}
 
 		public Key Uncover(Key scan, PubKey ephem)
