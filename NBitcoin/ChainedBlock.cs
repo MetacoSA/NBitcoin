@@ -210,5 +210,10 @@ namespace NBitcoin
 				current = current.Previous;
 			}
 		}
+
+		public override string ToString()
+		{
+			return Height + " - " + HashBlock;
+		}
 	}
 }

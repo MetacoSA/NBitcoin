@@ -119,8 +119,8 @@ namespace NBitcoin.Protocol
 						{
 							while(!Cancel.Token.IsCancellationRequested)
 							{
-								var message = Message.ReadNext(Socket, Node.NodeServer.Network, Node.Version, Cancel.Token);
-								NodeServerTrace.Information("Message recieved " + message);
+								PerformanceCounter counter;
+								var message = Message.ReadNext(Socket, Node.NodeServer.Network, Node.Version, Cancel.Token, out counter);
 
 								Node.LastSeen = DateTimeOffset.UtcNow;
 								Node.MessageProducer.PushMessage(new IncomingMessage()
@@ -129,6 +129,7 @@ namespace NBitcoin.Protocol
 									Socket = Socket,
 									Node = Node
 								});
+								Node.Counter.Add(counter);
 							}
 						}
 						catch(OperationCanceledException)
@@ -192,7 +193,7 @@ namespace NBitcoin.Protocol
 		}
 
 
-		readonly NodeConnection _Connection;
+		internal readonly NodeConnection _Connection;
 
 
 
@@ -283,8 +284,22 @@ namespace NBitcoin.Protocol
 			var message = new Message();
 			message.Magic = NodeServer.Network.Magic;
 			message.UpdatePayload(payload, Version);
-			TraceCorrelation.LogInside(() => NodeServerTrace.Information("Sending message " + message));
-			_Connection.Socket.Send(message.ToBytes());
+			TraceCorrelation.LogInside(() => NodeServerTrace.Verbose("Sending message " + message));
+
+			var bytes = message.ToBytes();
+			Counter.AddWritten(bytes.LongLength);
+			var result = _Connection.Socket.Send(bytes);
+		}
+
+		private PerformanceCounter _Counter;
+		public PerformanceCounter Counter
+		{
+			get
+			{
+				if(_Counter == null)
+					_Counter = new PerformanceCounter();
+				return _Counter;
+			}
 		}
 
 		public ProtocolVersion Version
@@ -309,28 +324,14 @@ namespace NBitcoin.Protocol
 			return RecieveMessage<TPayload>(source.Token);
 		}
 
+
+
 		public TPayload RecieveMessage<TPayload>(CancellationToken cancellationToken = default(CancellationToken)) where TPayload : Payload
 		{
-			var listener = new PollMessageListener<IncomingMessage>();
-			try
+			using(var listener = new NodeListener(this))
 			{
-				using(MessageProducer.AddMessageListener(listener))
-				{
-					while(true)
-					{
-						var message = listener.RecieveMessage(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _Connection.Cancel.Token).Token);
-						if(message.Message.Payload is TPayload)
-							return (TPayload)message.Message.Payload;
-					}
-				}
+				return listener.ReceivePayload<TPayload>(cancellationToken);
 			}
-			catch(OperationCanceledException ex)
-			{
-				if(ex.CancellationToken == _Connection.Cancel.Token)
-					throw new InvalidOperationException("Connection dropped");
-				throw;
-			}
-			throw new InvalidProgramException("Bug in Node.RecieveMessage");
 		}
 
 
@@ -468,6 +469,140 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		public Chain BuildChain(CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var ms = new MemoryStream();
+			Chain chain = new Chain(NodeServer.Network, new StreamObjectStream<ChainChange>(ms));
+			return BuildChain(chain, cancellationToken);
+		}
 
+		public Chain BuildChain(Chain chain, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			AssertState(NodeState.HandShaked, cancellationToken);
+			using(TraceCorrelation.Open())
+			{
+				NodeServerTrace.Information("Building chain");
+				if(FullVersion.StartHeight <= chain.Height)
+				{
+					NodeServerTrace.Information("Local chain already ahead");
+					return chain;
+				}
+
+				while(chain.Height < FullVersion.StartHeight)
+				{
+					NodeServerTrace.Information("Chain progress : " + chain.Height + "/" + FullVersion.StartHeight);
+					SendMessage(new GetHeadersPayload()
+					{
+						BlockLocators = chain.Tip.GetLocator()
+					});
+					var headers = this.RecieveMessage<HeadersPayload>(cancellationToken);
+					foreach(var header in headers.Headers)
+					{
+						var prev = chain.GetBlock(header.HashPrevBlock);
+						if(prev == null || prev.Height != chain.Height)
+						{
+							NodeServerTrace.Error("Block Header received out of order " + header.GetHash(), null);
+							throw new InvalidOperationException("Block Header received out of order");
+						}
+						var chained = chain.GetOrAdd(header);
+						chain.SetTip(chained);
+					}
+				}
+			}
+			return chain;
+		}
+
+		public IEnumerable<Block> GetBlocks(CancellationToken cancellationToken = default(CancellationToken))
+		{
+			Chain chain = new Chain(NodeServer.Network);
+			return GetBlocks(chain, cancellationToken);
+		}
+		public IEnumerable<Block> GetBlocks(Chain chain, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			AssertState(NodeState.HandShaked, cancellationToken);
+			using(TraceCorrelation.Open())
+			{
+				NodeServerTrace.Information("Downloading blocks");
+				if(FullVersion.StartHeight <= chain.Height)
+				{
+					NodeServerTrace.Information("Local chain already ahead");
+					yield break;
+				}
+
+				int simultaneous = 70;
+				PerformanceSnapshot lastSpeed = null;
+				using(var listener = CreateListener()
+									.Where(inc => inc.Message.Payload is InvPayload || inc.Message.Payload is BlockPayload))
+				{
+					while(chain.Height < FullVersion.StartHeight)
+					{
+						SendMessage(new GetBlocksPayload()
+						{
+							BlockLocators = chain.Tip.GetLocator(),
+						});
+						InvPayload blocks = listener.ReceivePayload<InvPayload>(cancellationToken);
+						foreach(var invs in blocks
+											.Inventory
+											.Where(i => i.Type == InventoryType.MSG_BLOCK)
+											.Partition(() => simultaneous))
+						{
+							NodeServerTrace.Information("Download progress : " + chain.Height + "/" + FullVersion.StartHeight + " (" + lastSpeed + " look ahead " + simultaneous + ")");
+							var begin = Counter.Snapshot();
+
+
+							this.SendMessage(new GetDataPayload(invs.ToArray()));
+
+							List<Block> downloaded = new List<Block>();
+							while(downloaded.Count != invs.Count)
+							{
+								var block = listener.ReceivePayload<BlockPayload>(cancellationToken);
+								downloaded.Add(block.Object);
+							}
+
+							while(downloaded.Count != 0)
+							{
+								var nextBlock = downloaded
+												.Select(b => new
+													{
+														Block = b,
+														Prev = chain.GetBlock(b.Header.HashPrevBlock)
+													})
+												.Where(b => b.Prev != null)
+												.FirstOrDefault();
+								if(nextBlock == null)
+								{
+									downloaded.Clear();
+									continue;
+								}
+								var hash = nextBlock.Block.Header.GetHash();
+								if(chain.GetBlock(hash) != null)
+								{
+									continue;
+								}
+								yield return nextBlock.Block;
+								chain.SetTip(new ChainedBlock(nextBlock.Block.Header, hash, nextBlock.Prev));
+								downloaded.Remove(nextBlock.Block);
+							}
+							var end = Counter.Snapshot();
+							lastSpeed = end - begin;
+						}
+					}
+				}
+			}
+		}
+
+		private NodeListener CreateListener()
+		{
+			return new NodeListener(this);
+		}
+
+
+		private void AssertState(NodeState nodeState, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			if(nodeState == NodeState.HandShaked && State == NodeState.Connected)
+				this.VersionHandshake(cancellationToken);
+			if(nodeState != State)
+				throw new InvalidOperationException("Invalid Node state, needed=" + nodeState + ", current= " + State);
+		}
 	}
 }

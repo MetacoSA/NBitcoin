@@ -9,8 +9,8 @@ namespace NBitcoin.Protocol
 	[Payload("pong")]
 	public class PongPayload : Payload
 	{
-		private uint _Nonce;
-		public uint Nonce
+		private ulong _Nonce;
+		public ulong Nonce
 		{
 			get
 			{

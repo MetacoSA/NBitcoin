@@ -371,7 +371,7 @@ namespace NBitcoin
 		}
 
 		internal HashSet<OutPoint> _Locked = new HashSet<OutPoint>();
-		internal AccountEntry Process(AccountEntry entry)
+		AccountEntry Process(AccountEntry entry)
 		{
 			if(entry.Spendable._Account != null && entry.Spendable._Account != this)
 				throw new InvalidOperationException("Entry already processed by another account");
@@ -453,6 +453,14 @@ namespace NBitcoin
 		public Account Clone(ObjectStream<AccountEntry> entries)
 		{
 			return new Account(this, entries);
+		}
+
+		public void PushAccountEntries(ObjectStream<AccountEntry> entries)
+		{
+			foreach(var entry in entries.Enumerate())
+			{
+				PushAccountEntry(entry);
+			}
 		}
 	}
 }

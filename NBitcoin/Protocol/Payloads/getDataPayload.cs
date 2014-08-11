@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-    [Payload("getdata")]
+	[Payload("getdata")]
 	public class GetDataPayload : Payload
 	{
 		public GetDataPayload()
@@ -16,20 +16,19 @@ namespace NBitcoin.Protocol
 		{
 			inventory.AddRange(vectors);
 		}
-        List<InventoryVector> inventory = new List<InventoryVector>();
+		List<InventoryVector> inventory = new List<InventoryVector>();
 
-        public List<InventoryVector> Inventory
-        {
-            set
-            {
-                inventory = value;
-            }
-            get
-            {
-                return inventory;
-            }
-        }
-
+		public List<InventoryVector> Inventory
+		{
+			set
+			{
+				inventory = value;
+			}
+			get
+			{
+				return inventory;
+			}
+		}
 
 		public override void ReadWriteCore(BitcoinStream stream)
 		{

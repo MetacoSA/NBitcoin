@@ -152,16 +152,19 @@ namespace NBitcoin.Scanning
 					}
 				}
 
-				chainCopy.GetOrAdd(block.Header);
+				chainCopy.PushChange(new ChainChange()
+				{
+					Add = true,
+					BlockHeader = block.Header,
+					HeightOrBackstep = (uint)(chainCopy.Height + 1)
+				}, block.HashBlock);
 			}
 
 			accountCopy.Entries.GoTo(accountPosition);
-			Account.Entries.WriteNext(accountCopy.Entries);
-			Account.Process();
+			Account.PushAccountEntries(accountCopy.Entries);
 
 			chainCopy.Changes.GoTo(chainPosition);
-			Chain.Changes.WriteNext(chainCopy.Changes);
-			Chain.Process();
+			Chain.PushChanges(chainCopy.Changes);
 			return true;
 		}
 

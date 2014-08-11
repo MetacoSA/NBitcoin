@@ -63,5 +63,10 @@ namespace NBitcoin.Protocol
 		{
 			Warning("Connection to self detected, abort connection");
 		}
+
+		internal static void Verbose(string str)
+		{
+			_Trace.TraceEvent(TraceEventType.Verbose, 0, str);
+		}
 	}
 }

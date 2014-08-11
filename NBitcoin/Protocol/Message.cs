@@ -122,6 +122,7 @@ namespace NBitcoin.Protocol
 				if(payloadType == typeof(UnknowPayload))
 					NodeServerTrace.Trace.TraceEvent(TraceEventType.Warning, 0, "Unknown command received : " + Command);
 				payloadStream.ReadWrite(payloadType, ref _PayloadObject);
+				NodeServerTrace.Verbose("Payload : " + _PayloadObject);
 			}
 		}
 
@@ -155,8 +156,13 @@ namespace NBitcoin.Protocol
 		}
 
 
-
 		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken)
+		{
+			PerformanceCounter counter;
+			return ReadNext(socket, network, version, cancellationToken, out counter);
+		}
+
+		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken, out PerformanceCounter counter)
 		{
 			var stream = new NetworkStream(socket, false);
 			BitcoinStream bitStream = new BitcoinStream(stream, false)
@@ -171,9 +177,9 @@ namespace NBitcoin.Protocol
 			using(message.SkipMagicScope(true))
 			{
 				message.Magic = network.Magic;
-				NodeServerTrace.Trace.TraceEvent(TraceEventType.Verbose, 0, "Message recieved");
 				message.ReadWrite(bitStream);
 			}
+			counter = bitStream.Counter;
 			return message;
 		}
 

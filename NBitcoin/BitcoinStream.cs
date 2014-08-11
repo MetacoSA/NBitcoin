@@ -197,24 +197,39 @@ namespace NBitcoin
 			if(Serializing)
 			{
 				Inner.Write(data, 0, data.Length);
+				Counter.AddWritten(data.Length);
 			}
 			else
 			{
 				var readen = Inner.ReadEx(data, 0, data.Length, ReadCancellationToken);
 				if(readen == -1)
 					throw new EndOfStreamException("No more byte to read");
+				Counter.AddReaden(readen);
 
 			}
 		}
-
+		private PerformanceCounter _Counter;
+		public PerformanceCounter Counter
+		{
+			get
+			{
+				if(_Counter == null)
+					_Counter = new PerformanceCounter();
+				return _Counter;
+			}
+		}
 		private void ReadWriteByte(ref byte data)
 		{
 			if(Serializing)
 			{
 				Inner.WriteByte(data);
+				Counter.AddWritten(1);
 			}
 			else
+			{
 				data = (byte)Inner.ReadByte();
+				Counter.AddReaden(1);
+			}
 		}
 
 		public bool IsBigEndian
