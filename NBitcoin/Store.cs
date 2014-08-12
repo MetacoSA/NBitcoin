@@ -81,8 +81,8 @@ namespace NBitcoin
 			_Folder = folder;
 			_Network = network;
 
-            //Create folders if needed
-            Directory.CreateDirectory(_Folder.FullName);
+			//Create folders if needed
+			Directory.CreateDirectory(_Folder.FullName);
 		}
 		private readonly Network _Network;
 		public Network Network
@@ -218,20 +218,13 @@ namespace NBitcoin
 		}
 
 
+		DiskBlockPos _last;
 		protected DiskBlockPos SeekEnd(FileLock @lock)
 		{
-			var end = @lock.GetString();
-			if(!string.IsNullOrEmpty(end))
-				try
-				{
-					return DiskBlockPos.Parse(end);
-				}
-				catch(FormatException)
-				{
-					return SeekEnd();
-				}
-			else
-				return SeekEnd();
+			if(_last != null)
+				return _last;								
+			_last = SeekEnd();
+			return _last;
 		}
 
 		public DiskBlockPos Append(TItem item)
@@ -244,7 +237,7 @@ namespace NBitcoin
 				var stored = CreateStoredItem(item, position);
 				Write(stored);
 				position = new DiskBlockPos(position.File, position.Position + stored.GetStorageSize());
-				@lock.SetString(position.ToString());
+				_last = position;
 				return stored.BlockPosition;
 			}
 		}
