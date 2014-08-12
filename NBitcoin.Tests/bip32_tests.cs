@@ -109,6 +109,16 @@ namespace NBitcoin.Tests
 							.Derive(2)
 							.Derive(3)
 							.ToString(Network.Main), key.Derive(keyPath).ToString(Network.Main));
+
+			var neuter = key.Neuter();
+			Assert.Equal(neuter
+							.Derive(0)
+							.Derive(1)
+							.Derive(2)
+							.Derive(3)
+							.ToString(Network.Main), neuter.Derive(keyPath).ToString(Network.Main));
+
+			Assert.Equal(neuter.Derive(keyPath).ToString(Network.Main), key.Derive(keyPath).Neuter().ToString(Network.Main));
 		}
 
 		[Fact]

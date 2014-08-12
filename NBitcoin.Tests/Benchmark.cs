@@ -17,10 +17,15 @@ namespace NBitcoin.Tests
 		[Trait("Benchmark", "Benchmark")]
 		public void BlockDirectoryScanSpeed()
 		{
+			//TestUtils.EnsureNew("BlockDirectoryScanSpeed");
 			var completeScan = Bench(() =>
 			{
 				BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
-				var count = store.Enumerate(false).Count();
+				//BlockStore other = new BlockStore(@"BlockDirectoryScanSpeed", Network.Main);
+				foreach(var block in store.Enumerate(false, new DiskBlockPosRange(new DiskBlockPos(50, 0))))
+				{
+					//other.Append(block.Item);
+				}
 			});
 
 			var headersOnlyScan = Bench(() =>

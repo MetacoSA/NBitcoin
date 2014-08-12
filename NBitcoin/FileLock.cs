@@ -55,19 +55,19 @@ namespace NBitcoin
 		}
 
 
-		public void SetString(string str)
-		{
-			_Fs.Position = 0;
-			StreamWriter writer = new StreamWriter(_Fs);
-			writer.Write(str);
-			writer.Flush();
-		}
+		//public void SetString(string str)
+		//{
+		//	_Fs.Position = 0;
+		//	StreamWriter writer = new StreamWriter(_Fs);
+		//	writer.Write(str);
+		//	writer.Flush();
+		//}
 
-		public string GetString()
-		{
-			_Fs.Position = 0;
-			StreamReader reader = new StreamReader(_Fs);
-			return reader.ReadToEnd();
-		}
+		//public string GetString()
+		//{
+		//	_Fs.Position = 0;
+		//	StreamReader reader = new StreamReader(_Fs);
+		//	return reader.ReadToEnd();
+		//}
 	}
 }
