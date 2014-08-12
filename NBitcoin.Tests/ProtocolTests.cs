@@ -234,7 +234,7 @@ namespace NBitcoin.Tests
 			using(var server = new NodeServer(Network.Main))
 			{
 				server.RegisterPeerTableRepository(PeerCache);
-				var node = server.GetNodeByEndpoint(new IPEndPoint(IPAddress.Loopback, server.ExternalEndpoint.Port));
+				var node = server.GetLocalNode();
 				node.VersionHandshake();
 				node.SendMessage(new GetDataPayload(new InventoryVector()
 						{
@@ -244,6 +244,70 @@ namespace NBitcoin.Tests
 
 				var block = node.RecieveMessage<BlockPayload>();
 				Assert.True(block.Object.CheckMerkleRoot());
+			}
+		}
+
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanDownloadHeaders()
+		{
+			using(var server = new NodeServer(Network.Main))
+			{
+				var node = server.GetLocalNode();
+				node.VersionHandshake();
+				var begin = node.Counter.Snapshot();
+				var result = node.BuildChain();
+				var end = node.Counter.Snapshot();
+				var diff = end - begin;
+				Assert.True(node.FullVersion.StartHeight <= result.Height);
+			}
+		}
+
+
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanDownloadBlocks()
+		{
+			using(var server = new NodeServer(Network.Main))
+			{
+				var node = server.GetLocalNode();
+				var blocks = node.GetBlocks().Take(10).ToList();
+				foreach(var block in blocks)
+				{
+					Assert.True(block.CheckMerkleRoot());
+				}
+				Assert.Equal(10, blocks.Count);
+			}
+		}
+
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanDownloadLastBlocks()
+		{
+			using(var server = new NodeServer(Network.Main))
+			{
+				var originalNode = server.GetLocalNode();
+				var original = originalNode.BuildChain();
+				
+				Assert.True(originalNode.FullVersion.StartHeight <= original.Height);
+
+				var node = new NodeServer(Network.Main).GetLocalNode();
+				original.PushChange(new ChainChange()
+				{
+					Add = false,
+					HeightOrBackstep = 1000
+				}, null);
+
+				var begin = node.Counter.Snapshot();
+				var blocks = node.GetBlocks(original).Select(_=>1).ToList();
+				var end = node.Counter.Snapshot();
+				var diff = end - begin;
+				Assert.True(diff.Start == begin.Taken);
+				Assert.True(diff.Taken == end.Taken);
+				Assert.True(diff.TotalReadenBytes == end.TotalReadenBytes - begin.TotalReadenBytes);
+				Assert.True(diff.TotalWrittenBytes == end.TotalWrittenBytes - begin.TotalWrittenBytes);
+
+				Assert.True(blocks.Count == 1000 || blocks.Count == 1001);
 			}
 		}
 

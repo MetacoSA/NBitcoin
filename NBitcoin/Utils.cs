@@ -46,14 +46,19 @@ namespace NBitcoin
 		}
 		public static IEnumerable<List<T>> Partition<T>(this IEnumerable<T> source, int max)
 		{
-			List<T> toReturn = new List<T>(max);
+			return Partition<T>(source, () => max);
+		}
+		public static IEnumerable<List<T>> Partition<T>(this IEnumerable<T> source, Func<int> max)
+		{
+			var partitionSize = max();
+			List<T> toReturn = new List<T>(partitionSize);
 			foreach(var item in source)
 			{
 				toReturn.Add(item);
-				if(toReturn.Count == max)
+				if(toReturn.Count == partitionSize)
 				{
 					yield return toReturn;
-					toReturn = new List<T>(max);
+					toReturn = new List<T>(partitionSize);
 				}
 			}
 			if(toReturn.Any())

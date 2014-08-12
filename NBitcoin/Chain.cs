@@ -101,7 +101,7 @@ namespace NBitcoin
 			{
 				if(_NextToProcess < copied._NextToProcess)
 				{
-					ProcessAndRecord(change, null);
+					PushChange(change, null);
 				}
 				else
 				{
@@ -174,7 +174,7 @@ namespace NBitcoin
 			}
 		}
 
-		private void Process(ChainChange change, uint256 blockHash)
+		void Process(ChainChange change, uint256 blockHash)
 		{
 			if(blockHash == null && change.BlockHeader != null)
 				blockHash = change.BlockHeader.GetHash();
@@ -291,13 +291,13 @@ namespace NBitcoin
 					BlockHeader = pindex.Header,
 					HeightOrBackstep = (uint)pindex.Height
 				};
-				ProcessAndRecord(change, pindex.HashBlock);
+				PushChange(change, pindex.HashBlock);
 			}
 			else
 			{
 				if(pindex.Height <= Tip.Height)
 				{
-					offchainIndex.Add(pindex.HashBlock, pindex);
+					offchainIndex.AddOrReplace(pindex.HashBlock, pindex);
 				}
 				else
 				{
@@ -307,7 +307,7 @@ namespace NBitcoin
 						Add = false,
 						HeightOrBackstep = (uint)(Tip.Height - fork.Height)
 					};
-					ProcessAndRecord(change, null);
+					PushChange(change, null);
 
 					foreach(var block in pindex.EnumerateToGenesis().TakeWhile(s => s != fork).Reverse())
 					{
@@ -317,7 +317,7 @@ namespace NBitcoin
 							BlockHeader = block.Header,
 							HeightOrBackstep = (uint)block.Height
 						};
-						ProcessAndRecord(change, block.HashBlock);
+						PushChange(change, block.HashBlock);
 					}
 				}
 			}
@@ -340,10 +340,10 @@ namespace NBitcoin
 				BlockHeader = header,
 				HeightOrBackstep = (uint)height
 			};
-			ProcessAndRecord(change, header.GetHash());
+			PushChange(change, header.GetHash());
 		}
 
-		private void ProcessAndRecord(ChainChange change, uint256 blockHash)
+		public void PushChange(ChainChange change, uint256 blockHash)
 		{
 			Process(change, blockHash);
 			_Changes.WriteNext(change);
@@ -357,52 +357,34 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="pindex"></param>
 		/// <returns>forking point</returns>
-		internal ChainedBlock SetTip(ChainedBlock pindex)
+		public ChainedBlock SetTip(ChainedBlock pindex)
 		{
-			int backtrackCount = 0;
-			foreach(var remove in vChain.Resize(pindex.Height + 1 - StartHeight))
+			if(pindex.HashBlock == Tip.HashBlock)
+				return pindex;
+			var fork = FindFork(pindex.EnumerateToGenesis().Select(g => g.HashBlock));
+
+			var backStep = (uint)(Tip.Height - fork.Height);
+			if(backStep != 0)
 			{
-				index.Remove(remove.HashBlock);
-				offchainIndex.AddOrReplace(remove.HashBlock, remove);
-				backtrackCount++;
-			}
-
-
-
-			while(pindex != null && vChain[pindex.Height - StartHeight] != pindex)
-			{
-				var old = vChain[pindex.Height - StartHeight];
-				if(old != null)
-				{
-					index.Remove(old.HashBlock);
-					offchainIndex.AddOrReplace(old.HashBlock, old);
-					backtrackCount++;
-				}
-				vChain[pindex.Height - StartHeight] = pindex;
-				index.AddOrReplace(pindex.HashBlock, pindex);
-				pindex = pindex.Previous;
-			}
-
-			if(backtrackCount != 0)
-				Changes.WriteNext(new ChainChange()
+				PushChange(new ChainChange()
 				{
 					Add = false,
-					HeightOrBackstep = (uint)(backtrackCount)
-				});
-
-
-			for(int i = pindex.Height + 1 ; i <= Tip.Height ; i++)
+					HeightOrBackstep = backStep
+				}, null);
+			}
+			var newBranch = pindex.EnumerateToGenesis().TakeWhile(b => b.Height != fork.Height).ToList();
+			newBranch.Reverse();
+			foreach(var block in newBranch)
 			{
-				var block = vChain[i - StartHeight];
-				Changes.WriteNext(new ChainChange()
+				PushChange(new ChainChange()
 				{
 					Add = true,
 					BlockHeader = block.Header,
 					HeightOrBackstep = (uint)block.Height
-				});
+				}, block.HashBlock);
 			}
 
-			return pindex;
+			return fork;
 		}
 
 
@@ -601,6 +583,22 @@ namespace NBitcoin
 				});
 			}
 			return new Chain(output);
+		}
+
+		public void PushChanges(ObjectStream<ChainChange> changes)
+		{
+			foreach(var change in changes.Enumerate())
+			{
+				PushChange(change, null);
+			}
+		}
+
+		public override string ToString()
+		{
+			if(IsPartial)
+				return "Partial " + StartHeight + "-" + Height;
+			else
+				return "Full chain " + Height;
 		}
 	}
 }

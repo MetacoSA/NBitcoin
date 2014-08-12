@@ -574,12 +574,12 @@ namespace NBitcoin.Protocol
 					};
 		}
 
-        public VersionPayload CreateVersionPayload(Peer peer, IPEndPoint me, ProtocolVersion? version, bool relay)
-        {
-            VersionPayload NewVersionPayLoad = this.CreateVersionPayload(peer, me, version);
-            NewVersionPayLoad.Relay = relay;
-            return NewVersionPayLoad;
-        }
+		public VersionPayload CreateVersionPayload(Peer peer, IPEndPoint me, ProtocolVersion? version, bool relay)
+		{
+			VersionPayload NewVersionPayLoad = this.CreateVersionPayload(peer, me, version);
+			NewVersionPayLoad.Relay = relay;
+			return NewVersionPayLoad;
+		}
 
 		string _UserAgent;
 		public string UserAgent
@@ -818,10 +818,45 @@ namespace NBitcoin.Protocol
             
         }
 
+<<<<<<< HEAD
         public Chain BuildChain(Chain chain, CancellationToken cancellationToken = default(CancellationToken))
         {
             //TODO this function is only in nodeServer for the Tests to work, should be removed            
             return new NetworkInterface(_Network, CreateNodeSet(5)).BuildChain(chain, cancellationToken);
         }
+=======
+					using(pool.MessageProducer.AddMessageListener(listener))
+					{
+						while(chain.Height != height)
+						{
+							var before = chain.Tip;
+							var headers = listener.RecieveMessage(cancellationToken).Message.Payload as HeadersPayload;
+							if(headers != null)
+							{
+								foreach(var header in headers.Headers)
+								{
+									chain.GetOrAdd(header);
+								}
+								if(before.HashBlock != chain.Tip.HashBlock)
+								{
+									NodeServerTrace.Information("Chain progress : " + chain.Height + "/" + height);
+									pool.SendMessage(new GetHeadersPayload()
+									{
+										BlockLocators = chain.Tip.GetLocator()
+									});
+								}
+							}
+						}
+					}
+				}
+			}
+			return chain;
+		}
+
+		public Node GetLocalNode()
+		{
+			return GetNodeByEndpoint(new IPEndPoint(IPAddress.Loopback, ExternalEndpoint.Port));
+		}
+>>>>>>> bf34dd2bbfe0363a68cad47ddd4516d55dbfd6c9
 	}
 }

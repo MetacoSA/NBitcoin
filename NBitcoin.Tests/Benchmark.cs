@@ -1,4 +1,5 @@
 ﻿using NBitcoin.Crypto;
+using NBitcoin.Protocol;
 using NBitcoin.Scanning;
 using System;
 using System.Collections.Generic;
@@ -16,17 +17,54 @@ namespace NBitcoin.Tests
 		[Trait("Benchmark", "Benchmark")]
 		public void BlockDirectoryScanSpeed()
 		{
-			//var completeScan = Bench(() =>
-			//{
-			//	BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
-			//	var count = store.Enumerate(false).Take(150000).Count();
-			//});
+			var completeScan = Bench(() =>
+			{
+				BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
+				var count = store.Enumerate(false).Count();
+			});
 
 			var headersOnlyScan = Bench(() =>
 			{
 				BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
 				var count = store.Enumerate(true).Count();
 			});
+		}
+
+		[Fact]
+		[Trait("Benchmark", "Benchmark")]
+		public void BlockDownloadFromNetwork()
+		{
+			using(var server = new NodeServer(Network.Main))
+			{
+				var originalNode = server.GetLocalNode();
+				var original = originalNode.BuildChain();
+				Assert.True(originalNode.FullVersion.StartHeight <= original.Height);
+
+				int simultaneous = 3;
+				var chaines = Enumerable.Range(0, simultaneous).Select(i => original.Clone()).ToArray();
+				var time = Benchmark.Bench(() =>
+				{
+					Parallel.For(0, simultaneous, new ParallelOptions()
+					{
+						MaxDegreeOfParallelism = simultaneous
+					}, i =>
+					{
+						var chain = chaines[i];
+						var node = new NodeServer(Network.Main).GetLocalNode();
+						var localTime = Benchmark.Bench(() =>
+						{
+							chain.PushChange(new ChainChange()
+							{
+								Add = false,
+								HeightOrBackstep = 100
+							}, null);
+							var blocks = node.GetBlocks(chain).ToList();
+							Assert.True(blocks.Count == 100 || blocks.Count == 101);
+						});
+					});
+				});
+				Console.WriteLine(time);
+			}
 		}
 
 		[Fact]
@@ -70,7 +108,7 @@ namespace NBitcoin.Tests
 			var time = watch.Elapsed;
 		}
 
-		TimeSpan Bench(Action act)
+		public static TimeSpan Bench(Action act)
 		{
 			Stopwatch watch = new Stopwatch();
 			watch.Start();

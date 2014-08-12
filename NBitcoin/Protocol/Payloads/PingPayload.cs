@@ -12,10 +12,10 @@ namespace NBitcoin.Protocol
 		
 		public PingPayload()
 		{
-			_Nonce = RandomUtils.GetUInt32();
+			_Nonce = RandomUtils.GetUInt64();
 		}
-		private uint _Nonce;
-		public uint Nonce
+		private ulong _Nonce;
+		public ulong Nonce
 		{
 			get
 			{
