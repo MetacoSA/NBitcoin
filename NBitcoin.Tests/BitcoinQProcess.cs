@@ -16,7 +16,7 @@ namespace NBitcoin.Watcher
 		public static IEnumerable<BitcoinQProcess> List()
 		{
 			return Process.GetProcesses()
-					   .Where(n => n.ProcessName == "bitcoin-qt" || n.ProcessName == "bitcoinq")
+					   .Where(n => n.ProcessName == "bitcoin-qt" || n.ProcessName == "bitcoind")
 					   .Select(p => new BitcoinQProcess(p));
 		}
 

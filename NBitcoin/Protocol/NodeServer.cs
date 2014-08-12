@@ -810,58 +810,6 @@ namespace NBitcoin.Protocol
 			});
 			return new CompositeDisposable(AllMessages.AddMessageListener(listener), OwnResource(listener));
 		}
-
-		public Chain BuildChain(ObjectStream<ChainChange> changes = null, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			if(changes == null)
-				changes = new StreamObjectStream<ChainChange>();
-			var chain = new Chain(Network, changes);
-			return BuildChain(chain, cancellationToken);
-		}
-
-		public Chain BuildChain(Chain chain, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			TraceCorrelation trace = new TraceCorrelation(NodeServerTrace.Trace, "Build chain");
-			using(trace.Open())
-			{
-				using(var pool = CreateNodeSet(3))
-				{
-					int height = pool.GetNodes().Max(o => o.FullVersion.StartHeight);
-					var listener = new PollMessageListener<IncomingMessage>();
-
-					pool.SendMessage(new GetHeadersPayload()
-					{
-						BlockLocators = chain.Tip.GetLocator()
-					});
-
-					using(pool.MessageProducer.AddMessageListener(listener))
-					{
-						while(chain.Height != height)
-						{
-							var before = chain.Tip;
-							var headers = listener.RecieveMessage(cancellationToken).Message.Payload as HeadersPayload;
-							if(headers != null)
-							{
-								foreach(var header in headers.Headers)
-								{
-									chain.GetOrAdd(header);
-								}
-								if(before.HashBlock != chain.Tip.HashBlock)
-								{
-									NodeServerTrace.Information("Chain progress : " + chain.Height + "/" + height);
-									pool.SendMessage(new GetHeadersPayload()
-									{
-										BlockLocators = chain.Tip.GetLocator()
-									});
-								}
-							}
-						}
-					}
-				}
-			}
-			return chain;
-		}
-
 		public Node GetLocalNode()
 		{
 			return GetNodeByEndpoint(new IPEndPoint(IPAddress.Loopback, ExternalEndpoint.Port));
