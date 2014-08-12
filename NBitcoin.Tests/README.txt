@@ -17,3 +17,8 @@ Then read the error message that tells you the location where you need to create
 rpcuser=bitcoinrpc
 rpcpassword=passwordyouwant
 
+The test network dns seed does not always work, if so download
+https://aois.blob.core.windows.net/public/peers.dat
+
+And replace your BITCOIN_FOLDER\testnet3\peers.dat
+
