@@ -234,9 +234,18 @@ namespace NBitcoin.RPC
 			var header = ParseBlockHeader(resp);
 			Block block = new Block(header);
 			var transactions = resp.Result["tx"] as JArray;
-			foreach(var tx in transactions)
+			try
 			{
-				block.AddTransaction(GetRawTransaction(new uint256(tx.ToString())));
+				foreach(var tx in transactions)
+				{
+					block.AddTransaction(GetRawTransaction(new uint256(tx.ToString())));
+				}
+			}
+			catch(RPCException ex)
+			{
+				if(ex.RPCCode == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
+					return null;
+				throw;
 			}
 			return block;
 		}
