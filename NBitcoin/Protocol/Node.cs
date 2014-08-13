@@ -504,7 +504,7 @@ namespace NBitcoin.Protocol
 							NodeServerTrace.Error("Block Header received out of order " + header.GetHash(), null);
 							throw new InvalidOperationException("Block Header received out of order");
 						}
-						var chained = chain.GetOrAdd(header);
+						var chained = chain.CreateChainedBlock(header);
 						chain.SetTip(chained);
 					}
 				}

@@ -60,7 +60,7 @@ namespace NBitcoin.Tests
 						{
 							chain.PushChange(new ChainChange()
 							{
-								Add = false,
+								ChangeType = ChainChangeType.BackStep,
 								HeightOrBackstep = 100
 							}, null);
 							var blocks = node.GetBlocks(chain).ToList();

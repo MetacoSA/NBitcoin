@@ -15,6 +15,27 @@ namespace NBitcoin.Tests
 	{
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanSaveForkedBlockInChain()
+		{
+			var chain = new Chain(Network.Main);
+			var common = AppendBlock(chain);
+			var fork = AppendBlock(chain);
+			var fork2 = AppendBlock(common, chain);
+
+			Assert.True(chain.Tip == fork);
+
+			var chain2 = chain.Clone();
+			var newTip = AppendBlock(fork2, chain);
+			Assert.True(chain.Tip == newTip);
+
+			Assert.True(chain2.Tip == fork);
+			newTip = AppendBlock(fork2, chain2);
+			Assert.True(chain2.Tip == newTip);
+		}
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSaveChain()
 		{
 			var stream = new StreamObjectStream<ChainChange>();
@@ -32,7 +53,7 @@ namespace NBitcoin.Tests
 
 			stream.WriteNext(new ChainChange()
 			{
-				Add = false,
+				ChangeType = ChainChangeType.BackStep,
 				HeightOrBackstep = 1
 			});
 			stream.Rewind();
@@ -44,7 +65,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("UnitTest","UnitTest")]
+		[Trait("UnitTest", "UnitTest")]
 		public void IncompleteScriptDoesNotHang()
 		{
 			new Script(new byte[] { 0x4d }).ToString();
@@ -74,6 +95,12 @@ namespace NBitcoin.Tests
 			Assert.Equal(b.HashBlock, chain.Tip.HashBlock);
 		}
 
+
+		List<ChainChange> EnumerateFromBeginning(Chain chain)
+		{
+			chain.Changes.Rewind();
+			return chain.Changes.Enumerate().ToList();
+		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildChainIncrementally()
@@ -96,26 +123,26 @@ namespace NBitcoin.Tests
 
 			current = AppendBlock(forkPoint, main);
 			AssertHeight(changes, 5);
-			AssertLength(changes, 6);
+			AssertLength(changes, 7);
 
 			current = AppendBlock(current, main);
 			AssertHeight(changes, 5);
-			AssertLength(changes, 6);
+			AssertLength(changes, 8);
 
 			current = AppendBlock(current, main);
 			AssertHeight(changes, 6);
 
-			//1 back track (retour à 3) + height4 + height5 + height6
+			//1 back track (retour à 3) + 1 set tip
 			AssertLength(changes, 10);
 
 			current = AppendBlock(oldFork, main);
 			AssertHeight(changes, 6);
-			AssertLength(changes, 10);
+			AssertLength(changes, 11);
 
-			//1 back track (retour à 3) + height4 + height5 + height6 + height7
+			//1 back track (retour à 3) + 1 set tip à 7
 			current = AppendBlock(current, main);
 			AssertHeight(changes, 7);
-			AssertLength(changes, 15);
+			AssertLength(changes, 13);
 		}
 
 		private void AssertLength(StreamObjectStream<ChainChange> changes, int count)
@@ -316,7 +343,7 @@ namespace NBitcoin.Tests
 		}
 
 
-		private ChainedBlock AppendBlock(ChainedBlock previous, params Chain[] chains)
+		public ChainedBlock AppendBlock(ChainedBlock previous, params Chain[] chains)
 		{
 			ChainedBlock last = null;
 			var nonce = RandomUtils.GetUInt32();
@@ -326,6 +353,8 @@ namespace NBitcoin.Tests
 				block.Header.HashPrevBlock = previous == null ? chain.Tip.HashBlock : previous.HashBlock;
 				block.Header.Nonce = nonce;
 				last = chain.GetOrAdd(block.Header);
+				if(last == null)
+					throw new InvalidOperationException("Previous not existing");
 			}
 			return last;
 		}
