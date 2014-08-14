@@ -627,7 +627,8 @@ namespace NBitcoin
 			if(fromIncluded)
 				blocks = blocks.Concat(new ChainedBlock[] { from });
 
-			var array = blocks.Reverse().ToArray();
+			var array = blocks.ToArray();
+			Array.Reverse(array);
 			foreach(var b in array)
 			{
 				output.WriteNext(new ChainChange()

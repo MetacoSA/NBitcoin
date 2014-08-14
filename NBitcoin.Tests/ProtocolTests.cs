@@ -257,7 +257,9 @@ namespace NBitcoin.Tests
 			using(var server = new NodeServer(Network.TestNet))
 			{
 				var node = server.GetLocalNode();
-				var blocks = node.GetBlocks().Take(10).ToList();
+				var chain = node.BuildChain();
+				chain.SetTip(chain.GetBlock(9));
+				var blocks = node.GetBlocks(chain).ToList();
 				foreach(var block in blocks)
 				{
 					Assert.True(block.CheckMerkleRoot());
@@ -277,10 +279,10 @@ namespace NBitcoin.Tests
 
 				Assert.True(node.FullVersion.StartHeight <= chain.Height);
 
-				chain.SetTip(chain.GetBlock(chain.Height-101));
+				var subChain = chain.CreateSubChain(chain.ToEnumerable(true).Skip(99).First(), true, chain.Tip, true);
 
 				var begin = node.Counter.Snapshot();
-				var blocks = node.GetBlocks(chain).Select(_ => 1).ToList();
+				var blocks = node.GetBlocks(subChain).Select(_ => 1).ToList();
 				var end = node.Counter.Snapshot();
 				var diff = end - begin;
 				Assert.True(diff.Start == begin.Taken);
@@ -288,7 +290,7 @@ namespace NBitcoin.Tests
 				Assert.True(diff.TotalReadenBytes == end.TotalReadenBytes - begin.TotalReadenBytes);
 				Assert.True(diff.TotalWrittenBytes == end.TotalWrittenBytes - begin.TotalWrittenBytes);
 
-				Assert.True(blocks.Count == 100 || blocks.Count == 101);
+				Assert.True(blocks.Count == 100);
 			}
 		}
 
