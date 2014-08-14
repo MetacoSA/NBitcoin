@@ -352,8 +352,7 @@ namespace NBitcoin.Tests
 				var block = TestUtils.CreateFakeBlock(new Transaction());
 				block.Header.HashPrevBlock = previous == null ? chain.Tip.HashBlock : previous.HashBlock;
 				block.Header.Nonce = nonce;
-				last = chain.GetOrAdd(block.Header);
-				if(last == null)
+				if(!chain.TrySetTip(block.Header, out last))
 					throw new InvalidOperationException("Previous not existing");
 			}
 			return last;

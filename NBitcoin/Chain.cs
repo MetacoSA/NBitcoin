@@ -299,66 +299,53 @@ namespace NBitcoin
 		{
 			return GetBlock(hash, false);
 		}
-		public ChainedBlock GetOrAdd(BlockHeader header)
+
+		/// <summary>
+		/// Set the tip if header is higher than current tip and previous blocks are present
+		/// </summary>
+		/// <param name="header"></param>
+		/// <returns>True if header is the new Tip</returns>
+		public bool TrySetTip(BlockHeader header)
+		{
+			ChainedBlock block;
+			return TrySetTip(header, out block);
+		}
+
+		/// <summary>
+		/// Set the tip if header is higher than current tip and previous blocks are present
+		/// </summary>
+		/// <param name="header"></param>
+		/// <param name="chainedBlock">null if header could not be chained with previous blocks</param>
+		/// <returns>True if header is the new Tip</returns>
+		public bool TrySetTip(BlockHeader header, out ChainedBlock chainedBlock)
 		{
 			AssertInitialized();
 			var headerHash = header.GetHash();
-			ChainedBlock pindex = GetBlock(headerHash, true);
-			if(pindex != null)
-				return pindex;
+			chainedBlock = GetBlock(headerHash, true);
+			if(chainedBlock != null)
+				return false;
 			ChainedBlock previous = GetBlock(header.HashPrevBlock, true);
 			if(previous == null)
 			{
-				return null;
+				return false;
 			}
 
-			pindex = new ChainedBlock(header, headerHash, previous);
-			if(previous.HashBlock == Tip.HashBlock)
+			chainedBlock = new ChainedBlock(header, headerHash, previous);
+			if(chainedBlock.Height > Tip.Height)
 			{
-				var change = new ChainChange()
-				{
-					ChangeType = ChainChangeType.SetTip,
-					BlockHeader = pindex.Header,
-					HeightOrBackstep = (uint)pindex.Height
-				};
-				PushChange(change, pindex.HashBlock);
+				SetTip(chainedBlock);
 			}
 			else
 			{
-				if(pindex.Height <= Tip.Height)
+				var change = new ChainChange()
 				{
-					var change = new ChainChange()
-					{
-						ChangeType = ChainChangeType.AddBlock,
-						HeightOrBackstep = (uint)pindex.Height,
-						BlockHeader = pindex.Header
-					};
-					PushChange(change, pindex.HashBlock);
-				}
-				else
-				{
-					var fork = FindFork(pindex.EnumerateToGenesis().Select(c => c.HashBlock));
-					var change = new ChainChange()
-					{
-						ChangeType = ChainChangeType.BackStep,
-						HeightOrBackstep = (uint)(Tip.Height - fork.Height)
-					};
-					PushChange(change, null);
-
-					var newTip = pindex.EnumerateToGenesis().TakeWhile(s => s != fork).Reverse().LastOrDefault();
-					if(newTip != null)
-					{
-						change = new ChainChange()
-						{
-							ChangeType = ChainChangeType.SetTip,
-							BlockHeader = newTip.Header,
-							HeightOrBackstep = (uint)newTip.Height
-						};
-						PushChange(change, newTip.HashBlock);
-					}
-				}
+					ChangeType = ChainChangeType.AddBlock,
+					HeightOrBackstep = (uint)chainedBlock.Height,
+					BlockHeader = chainedBlock.Header
+				};
+				PushChange(change, chainedBlock.HashBlock);
 			}
-			return pindex;
+			return true;
 		}
 
 		private void AssertInitialized()
@@ -404,9 +391,10 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Change tip of the chain
+		/// Force a new tip for the chain
 		/// </summary>
 		/// <param name="pindex"></param>
+		/// <exception cref="System.InvalidOperationException">Previous block not in the chain or any of its branch</exception>
 		/// <returns>forking point</returns>
 		public ChainedBlock SetTip(BlockHeader header)
 		{
@@ -415,7 +403,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Change tip of the chain
+		/// Force a new tip for the chain
 		/// </summary>
 		/// <param name="pindex"></param>
 		/// <returns>forking point</returns>
@@ -437,16 +425,20 @@ namespace NBitcoin
 			}
 			var newBranch = pindex.EnumerateToGenesis().TakeWhile(b => b.Height != fork.Height).ToList();
 			newBranch.Reverse();
+			var newTip = newBranch.Count == 0 ? null : newBranch[newBranch.Count - 1];
 			foreach(var block in newBranch)
 			{
-				PushChange(new ChainChange()
+				var existing = GetBlock(block.HashBlock, true);
+				if(existing == null || block == newTip)
 				{
-					ChangeType = ChainChangeType.SetTip,
-					BlockHeader = block.Header,
-					HeightOrBackstep = (uint)block.Height
-				}, block.HashBlock);
+					PushChange(new ChainChange()
+					{
+						ChangeType = ChainChangeType.SetTip,
+						BlockHeader = block.Header,
+						HeightOrBackstep = (uint)block.Height
+					}, block.HashBlock);
+				}
 			}
-
 			return fork;
 		}
 

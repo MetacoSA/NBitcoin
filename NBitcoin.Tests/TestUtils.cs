@@ -73,7 +73,7 @@ namespace NBitcoin.Tests
 			foreach(var b in blocks)
 			{
 				b.Header.HashPrevBlock = chain.Tip.Header.GetHash();
-				chain.GetOrAdd(b.Header);
+				chain.TrySetTip(b.Header);
 			}
 			return chain;
 		}
