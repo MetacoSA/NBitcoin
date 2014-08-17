@@ -132,7 +132,8 @@ namespace NBitcoin
 			}
 
 			stream.Position = range.Begin.Position;
-			while(stream.Position < stream.Length)
+			var len = stream.Length;
+			while(stream.Position < len)
 			{
 				var storedItem = ReadStoredItem(stream, new DiskBlockPos(fileIndex, (uint)stream.Position));
 				if(storedItem.Header.Magic == 0)
@@ -222,7 +223,7 @@ namespace NBitcoin
 		protected DiskBlockPos SeekEnd(FileLock @lock)
 		{
 			if(_last != null)
-				return _last;								
+				return _last;
 			_last = SeekEnd();
 			return _last;
 		}

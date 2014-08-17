@@ -221,6 +221,7 @@ namespace NBitcoin
 		#region IBitcoinSerializable Members
 
 
+		static byte[] _Unused = new byte[1024 * 4];
 		protected override void ReadWriteItem(BitcoinStream stream, ref Block item)
 		{
 			if(!ParseSkipBlockContent)
@@ -232,7 +233,17 @@ namespace NBitcoin
 				stream.ReadWrite(ref header);
 				if(!stream.Serializing)
 					item = new Block(header);
-				stream.Inner.Position = beforeReading + Header.ItemSize;
+
+				var headerSize = stream.Inner.Position - beforeReading;
+				var bodySize = this.Header.ItemSize - headerSize;
+				if(bodySize > 1024 * 4)
+				{
+					stream.Inner.Position = beforeReading + Header.ItemSize;
+				}
+				else //Does not refill internal buffer, thus quicker than Seek
+				{
+					stream.Inner.Read(_Unused, 0, (int)bodySize);
+				}
 			}
 		}
 
