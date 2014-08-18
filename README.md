@@ -34,19 +34,17 @@ Visual studio express for free, XUnit and you are up to go.
 * Hierarchical Deterministic Wallets ([BIP 32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki))
 
 
-
-Public classes are clean and easy to use, but the implementation is a little messy due to the fact that I'm using C# convention and C++ and the same time. (I will clean that up after the RPC client implementation)
-
 I ported directly from the C++, except the OpenSSL part where I'm using BouncyCaslte instead. (BitcoinJ helped me a lot on the implementation)
 I also ported OpenSSL bugs (you can't believe how much time it took me) ;)
 
 Mono.NAT is used to open port if you intent to use host a node,
 SqLite is a database used.
 
-Please, use the code to explore/learn/debug/play/sharing/create the licence is LGPL v3, so you should be good to go.
+Please, use the code to explore/learn/debug/play/sharing/create the licence is MIT, so you should be good to go.
 This is the simple way and most complete way to see the internal of bitcoin without going to C++ madness.
 
-With no so much work, it should be Mono compliant. there is not a lot of dependency on the Windows.
+Making NBitcoin Portable is possible and easy, but I can't develop it immediately for reasons expressed ([here](https://github.com/NicolasDorier/NBitcoin/issues/8))  
+
 
 Info :
 github : https://github.com/NicolasDorier/NBitcoin
