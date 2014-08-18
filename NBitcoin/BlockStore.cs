@@ -55,7 +55,7 @@ namespace NBitcoin
 					if(inChain.Contains(header.Value.HashPrevBlock))
 					{
 						toRemove.Add(header.Key);
-						chain.GetOrAdd(header.Value);
+						chain.TrySetTip(header.Value);
 						inChain.Add(header.Key);
 					}
 				}

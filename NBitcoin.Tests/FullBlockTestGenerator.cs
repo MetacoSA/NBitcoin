@@ -35,7 +35,7 @@ namespace NBitcoin.Tests
 			foreach(var test in generator.GetBlocksToTest(true, true).list.OfType<BlockAndValidity>())
 			{
 				indexed.Put(test.block);
-				mainChain.GetOrAdd(test.block.Header);
+				mainChain.TrySetTip(test.block.Header);
 				Assert.True(scan.Process(mainChain, indexed) == test.connects);
 				//if(!)
 				//{

@@ -144,13 +144,13 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("Network", "Network")]
+		[Trait("NodeServer", "NodeServer")]
 		public void CanHandshake()
 		{
 
-			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
+			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
 			{
-				var seed = server.GetNodeByHostName("seed.bitcoin.sipa.be");
+				var seed = server.GetLocalNode();
 				Assert.True(seed.State == NodeState.Connected);
 				seed.VersionHandshake();
 				Assert.True(seed.State == NodeState.HandShaked);
@@ -213,32 +213,18 @@ namespace NBitcoin.Tests
 				});
 			}
 		}
-		[Fact]
-		[Trait("NodeServer", "NodeServer")]
-		public void CanDownloadChain()
-		{
-			using(var server = new NodeServer(Network.Main))
-			{
-				server.RegisterPeerTableRepository(PeerCache);
-				CancellationTokenSource cancel = new CancellationTokenSource();
-				StreamObjectStream<ChainChange> changes = new StreamObjectStream<ChainChange>(new MemoryStream());
-				var chain = new Chain(changes);
-				server.BuildChain(changes, cancel.Token);
-			}
-		}
 
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]
 		public void CanDownloadBlock()
 		{
-			using(var server = new NodeServer(Network.Main))
+			using(var server = new NodeServer(Network.TestNet))
 			{
-				server.RegisterPeerTableRepository(PeerCache);
 				var node = server.GetLocalNode();
 				node.VersionHandshake();
 				node.SendMessage(new GetDataPayload(new InventoryVector()
 						{
-							Hash = new uint256("0000000000000000125a28cc9e9209ddb75718f599a8039f6c9e7d9f1fb021e0"),
+							Hash = new uint256("00000000278d16a190be56f541b3fda44c3168b43dcc05d9c664e6f27ffe2c78"),
 							Type = InventoryType.MSG_BLOCK
 						}));
 
@@ -251,7 +237,7 @@ namespace NBitcoin.Tests
 		[Trait("NodeServer", "NodeServer")]
 		public void CanDownloadHeaders()
 		{
-			using(var server = new NodeServer(Network.Main))
+			using(var server = new NodeServer(Network.TestNet))
 			{
 				var node = server.GetLocalNode();
 				node.VersionHandshake();
@@ -268,10 +254,12 @@ namespace NBitcoin.Tests
 		[Trait("NodeServer", "NodeServer")]
 		public void CanDownloadBlocks()
 		{
-			using(var server = new NodeServer(Network.Main))
+			using(var server = new NodeServer(Network.TestNet))
 			{
 				var node = server.GetLocalNode();
-				var blocks = node.GetBlocks().Take(10).ToList();
+				var chain = node.BuildChain();
+				chain.SetTip(chain.GetBlock(9));
+				var blocks = node.GetBlocks(chain).ToList();
 				foreach(var block in blocks)
 				{
 					Assert.True(block.CheckMerkleRoot());
@@ -284,22 +272,17 @@ namespace NBitcoin.Tests
 		[Trait("NodeServer", "NodeServer")]
 		public void CanDownloadLastBlocks()
 		{
-			using(var server = new NodeServer(Network.Main))
+			using(var server = new NodeServer(Network.TestNet))
 			{
-				var originalNode = server.GetLocalNode();
-				var original = originalNode.BuildChain();
-				
-				Assert.True(originalNode.FullVersion.StartHeight <= original.Height);
+				var node = server.GetLocalNode();
+				var chain = node.BuildChain();
 
-				var node = new NodeServer(Network.Main).GetLocalNode();
-				original.PushChange(new ChainChange()
-				{
-					Add = false,
-					HeightOrBackstep = 1000
-				}, null);
+				Assert.True(node.FullVersion.StartHeight <= chain.Height);
+
+				var subChain = chain.CreateSubChain(chain.ToEnumerable(true).Skip(99).First(), true, chain.Tip, true);
 
 				var begin = node.Counter.Snapshot();
-				var blocks = node.GetBlocks(original).Select(_=>1).ToList();
+				var blocks = node.GetBlocks(subChain).Select(_ => 1).ToList();
 				var end = node.Counter.Snapshot();
 				var diff = end - begin;
 				Assert.True(diff.Start == begin.Taken);
@@ -307,12 +290,11 @@ namespace NBitcoin.Tests
 				Assert.True(diff.TotalReadenBytes == end.TotalReadenBytes - begin.TotalReadenBytes);
 				Assert.True(diff.TotalWrittenBytes == end.TotalWrittenBytes - begin.TotalWrittenBytes);
 
-				Assert.True(blocks.Count == 1000 || blocks.Count == 1001);
+				Assert.True(blocks.Count == 100);
 			}
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
 		public void CanUseUPNP()
 		{
 			UPnPLease lease = null;

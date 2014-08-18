@@ -249,7 +249,7 @@ namespace NBitcoin.Tests
 				{
 					var localBlock = block.Clone();
 					localBlock.Header.HashPrevBlock = c.Tip.Header.GetHash();
-					c.GetOrAdd(localBlock.Header);
+					c.TrySetTip(localBlock.Header);
 					_Index.Put(localBlock);
 				}
 			}
@@ -279,7 +279,7 @@ namespace NBitcoin.Tests
 				{
 					var localBlock = block.Clone();
 					localBlock.Header.HashPrevBlock = c.Tip.Header.GetHash();
-					c.GetOrAdd(localBlock.Header);
+					c.TrySetTip(localBlock.Header);
 					_Index.Put(localBlock);
 				}
 			}

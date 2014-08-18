@@ -158,6 +158,11 @@ namespace NBitcoin
 				return false;
 			return true;
 		}
+
+		public override string ToString()
+		{
+			return GetHash().ToString();
+		}
 	}
 
 

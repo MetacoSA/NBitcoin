@@ -522,7 +522,7 @@ namespace NBitcoin.Protocol
 							NodeServerTrace.Error("Block Header received out of order " + header.GetHash(), null);
 							throw new InvalidOperationException("Block Header received out of order");
 						}
-						var chained = chain.GetOrAdd(header);
+						var chained = chain.CreateChainedBlock(header);
 						chain.SetTip(chained);
 					}
 				}
@@ -530,81 +530,64 @@ namespace NBitcoin.Protocol
 			return chain;
 		}
 
-		public IEnumerable<Block> GetBlocks(CancellationToken cancellationToken = default(CancellationToken))
-		{
-			Chain chain = new Chain(NodeServer.Network);
-			return GetBlocks(chain, cancellationToken);
-		}
-		public IEnumerable<Block> GetBlocks(Chain chain, CancellationToken cancellationToken = default(CancellationToken))
+		//public IEnumerable<Block> GetBlocks(CancellationToken cancellationToken = default(CancellationToken))
+		//{
+		//	Chain chain = new Chain(NodeServer.Network);
+		//	return GetBlocks(chain, cancellationToken);
+		//}
+		public IEnumerable<Block> GetBlocks(Chain neededBlocks, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			AssertState(NodeState.HandShaked, cancellationToken);
 			using(TraceCorrelation.Open())
 			{
 				NodeServerTrace.Information("Downloading blocks");
-				if(FullVersion.StartHeight <= chain.Height)
-				{
-					NodeServerTrace.Information("Local chain already ahead");
-					yield break;
-				}
-
 				int simultaneous = 70;
 				PerformanceSnapshot lastSpeed = null;
 				using(var listener = CreateListener()
 									.Where(inc => inc.Message.Payload is InvPayload || inc.Message.Payload is BlockPayload))
 				{
-					while(chain.Height < FullVersion.StartHeight)
+					foreach(var invs in neededBlocks
+										.ToEnumerable(false)
+										.Select(b => new
+										{
+											Vector = new InventoryVector()
+											{
+												Type = InventoryType.MSG_BLOCK,
+												Hash = b.HashBlock
+											},
+											Block = b
+										})
+										.Partition(simultaneous))
 					{
-						SendMessage(new GetBlocksPayload()
+						NodeServerTrace.Information("Download progress : " + neededBlocks.Height + "/" + FullVersion.StartHeight + " (" + lastSpeed + " look ahead " + simultaneous + ")");
+						var begin = Counter.Snapshot();
+
+						var minHeight = invs.Min(i => i.Block.Height);
+						var invsByHash = invs.ToDictionary(k => k.Block.HashBlock);
+
+						this.SendMessage(new GetDataPayload(invs.Select(i => i.Vector).ToArray()));
+
+						Block[] downloadedBlocks = new Block[invs.Count];
+						while(invsByHash.Count != 0)
 						{
-							BlockLocators = chain.Tip.GetLocator(),
-						});
-						InvPayload blocks = listener.ReceivePayload<InvPayload>(cancellationToken);
-						foreach(var invs in blocks
-											.Inventory
-											.Where(i => i.Type == InventoryType.MSG_BLOCK)
-											.Partition(() => simultaneous))
+							var block = listener.ReceivePayload<BlockPayload>(cancellationToken).Object;
+							var thisHash = block.GetHash();
+							if(invsByHash.ContainsKey(thisHash))
+							{
+								var toDownload = invsByHash[thisHash];
+								downloadedBlocks[toDownload.Block.Height - minHeight] = block;
+								invsByHash.Remove(thisHash);
+							}
+						}
+						var end = Counter.Snapshot();
+						lastSpeed = end - begin;
+
+						foreach(var downloadedBlock in downloadedBlocks)
 						{
-							NodeServerTrace.Information("Download progress : " + chain.Height + "/" + FullVersion.StartHeight + " (" + lastSpeed + " look ahead " + simultaneous + ")");
-							var begin = Counter.Snapshot();
-
-
-							this.SendMessage(new GetDataPayload(invs.ToArray()));
-
-							List<Block> downloaded = new List<Block>();
-							while(downloaded.Count != invs.Count)
-							{
-								var block = listener.ReceivePayload<BlockPayload>(cancellationToken);
-								downloaded.Add(block.Object);
-							}
-
-							while(downloaded.Count != 0)
-							{
-								var nextBlock = downloaded
-												.Select(b => new
-													{
-														Block = b,
-														Prev = chain.GetBlock(b.Header.HashPrevBlock)
-													})
-												.Where(b => b.Prev != null)
-												.FirstOrDefault();
-								if(nextBlock == null)
-								{
-									downloaded.Clear();
-									continue;
-								}
-								var hash = nextBlock.Block.Header.GetHash();
-								if(chain.GetBlock(hash) != null)
-								{
-									continue;
-								}
-								yield return nextBlock.Block;
-								chain.SetTip(new ChainedBlock(nextBlock.Block.Header, hash, nextBlock.Prev));
-								downloaded.Remove(nextBlock.Block);
-							}
-							var end = Counter.Snapshot();
-							lastSpeed = end - begin;
+							yield return downloadedBlock;
 						}
 					}
+
 				}
 			}
 		}
