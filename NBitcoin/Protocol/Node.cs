@@ -22,7 +22,8 @@ namespace NBitcoin.Protocol
 	}
 
 
-
+	public delegate void NodeEventHandler(Node node);
+	public delegate void NodeStateEventHandler(Node node, NodeState oldState);
 	public class Node
 	{
 		public class NodeConnection
@@ -165,7 +166,13 @@ namespace NBitcoin.Protocol
 			private set
 			{
 				TraceCorrelation.LogInside(() => NodeServerTrace.Information("State changed from " + _State + " to " + value));
+				var previous = _State;
 				_State = value;
+				if(previous != _State)
+				{
+					OnStateChanged(previous);
+				}
+
 				if(value == NodeState.Failed)
 				{
 					var peer = Peer.Clone();
@@ -179,6 +186,43 @@ namespace NBitcoin.Protocol
 				if(value == NodeState.Failed || value == NodeState.Offline)
 				{
 					TraceCorrelation.LogInside(() => NodeServerTrace.Trace.TraceEvent(TraceEventType.Stop, 0, "Communication closed"));
+				}
+
+				if(value == NodeState.Offline || value == NodeState.Failed)
+				{
+					OnDisconnected();
+				}
+			}
+		}
+
+		public event NodeStateEventHandler StateChanged;
+		private void OnStateChanged(NodeState previous)
+		{
+			if(StateChanged != null)
+			{
+				try
+				{
+					StateChanged(this, previous);
+				}
+				catch(Exception ex)
+				{
+					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while Disconnected event raised", ex));
+				}
+			}
+		}
+
+		public event NodeEventHandler Disconnected;
+		private void OnDisconnected()
+		{
+			if(Disconnected != null)
+			{
+				try
+				{
+					Disconnected(this);
+				}
+				catch(Exception ex)
+				{
+					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while Disconnected event raised", ex));
 				}
 			}
 		}
@@ -517,7 +561,12 @@ namespace NBitcoin.Protocol
 		//	Chain chain = new Chain(NodeServer.Network);
 		//	return GetBlocks(chain, cancellationToken);
 		//}
+
 		public IEnumerable<Block> GetBlocks(Chain neededBlocks, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return GetBlocks(neededBlocks.ToEnumerable(false).Select(e => e.HashBlock), cancellationToken);
+		}
+		public IEnumerable<Block> GetBlocks(IEnumerable<uint256> neededBlocks, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			AssertState(NodeState.HandShaked, cancellationToken);
 			using(TraceCorrelation.Open())
@@ -529,25 +578,19 @@ namespace NBitcoin.Protocol
 									.Where(inc => inc.Message.Payload is InvPayload || inc.Message.Payload is BlockPayload))
 				{
 					foreach(var invs in neededBlocks
-										.ToEnumerable(false)
-										.Select(b => new
-										{
-											Vector = new InventoryVector()
+										.Select(b =>  new InventoryVector()
 											{
 												Type = InventoryType.MSG_BLOCK,
-												Hash = b.HashBlock
-											},
-											Block = b
-										})
+												Hash = b
+											})
 										.Partition(simultaneous))
 					{
-						NodeServerTrace.Information("Download progress : " + neededBlocks.Height + "/" + FullVersion.StartHeight + " (" + lastSpeed + " look ahead " + simultaneous + ")");
+						NodeServerTrace.Information("Speed " + lastSpeed);
 						var begin = Counter.Snapshot();
 
-						var minHeight = invs.Min(i => i.Block.Height);
-						var invsByHash = invs.ToDictionary(k => k.Block.HashBlock);
+						var invsByHash = invs.ToDictionary(k => k.Hash);
 
-						this.SendMessage(new GetDataPayload(invs.Select(i => i.Vector).ToArray()));
+						this.SendMessage(new GetDataPayload(invs.ToArray()));
 
 						Block[] downloadedBlocks = new Block[invs.Count];
 						while(invsByHash.Count != 0)
@@ -556,8 +599,7 @@ namespace NBitcoin.Protocol
 							var thisHash = block.GetHash();
 							if(invsByHash.ContainsKey(thisHash))
 							{
-								var toDownload = invsByHash[thisHash];
-								downloadedBlocks[toDownload.Block.Height - minHeight] = block;
+								downloadedBlocks[invs.IndexOf(invsByHash[thisHash])] = block;
 								invsByHash.Remove(thisHash);
 							}
 						}
