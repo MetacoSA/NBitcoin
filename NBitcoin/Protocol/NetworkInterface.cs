@@ -186,7 +186,8 @@ namespace NBitcoin.Protocol
                         {
                             foreach (var header in headers.Headers)
                             {
-                                chain.GetOrAdd(header);
+                                chain.PushChange(new ChainChange() { BlockHeader = header, ChangeType = ChainChangeType.AddBlock }, header.GetHash());
+                                //chain.GetOrAdd(header);
                             }
                             if (before.HashBlock != chain.Tip.HashBlock)
                             {

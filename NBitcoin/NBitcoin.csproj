@@ -89,7 +89,6 @@
     <Compile Include="Protocol\NodeListener.cs" />
     <Compile Include="Protocol\Payloads\GetBlocksPayload.cs" />
     <Compile Include="Protocol\Payloads\GetDataPayload.cs" />
-    <Compile Include="Protocol\NetworkInterface.cs" />
     <Compile Include="Protocol\Payloads\RejectPayload.cs" />
     <Compile Include="Protocol\PerformanceCounter.cs" />
     <Compile Include="RPC\BlockExplorerFormatter.cs" />
@@ -237,7 +236,6 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Protocol\Bitcoin Protocol Guide.txt" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

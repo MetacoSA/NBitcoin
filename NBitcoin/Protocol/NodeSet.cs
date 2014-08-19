@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -37,6 +36,7 @@ namespace NBitcoin.Protocol
 			_MessageListener = new NodeListener(this);
 		}
 
+
 		private readonly MessageProducer<IncomingMessage> _MessageProducer = new MessageProducer<IncomingMessage>();
 		public MessageProducer<IncomingMessage> MessageProducer
 		{
@@ -68,14 +68,6 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-        Random rnd = new Random();  //Allways be carefull with Random in multithreading TODO init better
-        public Node GetRandomNode()
-        {
-            lock(_Nodes)
-            {
-                return _Nodes.ElementAt(rnd.Next(_Nodes.Count)).Value;
-            }
-        }
 
 		public Node AddNode(Node node)
 		{
@@ -129,7 +121,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public void AddNodes(IEnumerable<Node> nodes)
+		public void AddNodes(Node[] nodes)
 		{
 			lock(_Nodes)
 			{
@@ -194,28 +186,5 @@ namespace NBitcoin.Protocol
 
 			Task.WaitAll(tasks);
 		}
-
-        public static IEnumerable<IEnumerable<T>>
-    Section<T>(this IEnumerable<T> source, int length)
-        {
-            if (length <= 0)
-                throw new ArgumentOutOfRangeException("length");
-
-            var section = new List<T>(length);
-
-            foreach (var item in source)
-            {
-                section.Add(item);
-
-                if (section.Count == length)
-                {
-                    yield return section.AsReadOnly();
-                    section = new List<T>(length);
-                }
-            }
-
-            if (section.Count > 0)
-                yield return section.AsReadOnly();
-        }
-    }
+	}
 }
