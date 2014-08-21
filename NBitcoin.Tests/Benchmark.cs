@@ -42,7 +42,7 @@ namespace NBitcoin.Tests
 			using(var server = new NodeServer(Network.Main))
 			{
 				var originalNode = server.GetLocalNode();
-				var original = originalNode.BuildChain();
+				var original = originalNode.GetChain();
 				Assert.True(originalNode.FullVersion.StartHeight <= original.Height);
 
 				int simultaneous = 3;
@@ -63,7 +63,7 @@ namespace NBitcoin.Tests
 								ChangeType = ChainChangeType.BackStep,
 								HeightOrBackstep = 100
 							}, null);
-							var blocks = node.GetBlocks(chain).ToList();
+							var blocks = node.GetBlocks(chain.ToEnumerable(true).Select(c => c.HashBlock)).ToList();
 							Assert.True(blocks.Count == 100 || blocks.Count == 101);
 						});
 					});

@@ -55,9 +55,9 @@ namespace NBitcoin.Protocol
 					}
 				}
 			}
-			catch(OperationCanceledException ex)
+			catch(OperationCanceledException)
 			{
-				if(ex.CancellationToken == Node._Connection.Cancel.Token)
+				if(Node._Connection.Cancel.IsCancellationRequested)
 					throw new InvalidOperationException("Connection dropped");
 				throw;
 			}

@@ -235,6 +235,20 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
+
+			CancellationTokenSource s1 = new CancellationTokenSource();
+			CancellationTokenSource s2 = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+
+			try
+			{
+				Thread.Sleep(3000);
+				CancellationTokenSource.CreateLinkedTokenSource(s1.Token, s2.Token).Token.ThrowIfCancellationRequested();
+			}
+			catch(OperationCanceledException ex)
+			{
+				bool a = s2.Token == ex.CancellationToken;
+			}
+
 			//1,132
 
 			//NodeServer server = new NodeServer(Network.Main);
@@ -420,30 +434,31 @@ namespace NBitcoin.Tests
 			var scan = new Key(TestUtils.ParseHex("cc411aab02edcd3bccf484a9ba5280d4a774e6f81eac8ebec9cb1c2e8f73020a"));
 			var addr = new BitcoinStealthAddress("waPYjXyrTrvXjZHmMGdqs9YTegpRDpx97H5G3xqLehkgyrrZKsxGCmnwKexpZjXTCskUWwYywdUvrZK7L2vejeVZSYHVns61gm8VfU", Network.TestNet);
 
-			var sender = new BitcoinSecret("cRjSUV1LqN2F8MsGnLE2JKfCP75kbWGFRroNQeXHC429jqVFgmW3", Network.TestNet);
+			var sender = new BitcoinSecret("privatekey", Network.TestNet);
+			var receiver = new BitcoinSecret("privatekey", Network.TestNet);
+
+			MakePayment(sender, receiver, Money.Parse("1.00"));
+		}
+
+		private static void MakePayment(BitcoinSecret sender, BitcoinSecret receiver, Money amount)
+		{
+			Money fees = Money.Parse("0.0001");
 			var tx = new Transaction();
 			tx.Version = 1;
-
-			RPCClient client = RPCClientTests.CreateRPCClient();
+			RPCClient client = new RPCClient(new NetworkCredential("...", "..."), "localhost", Network.TestNet);
 			var coins = client.ListUnspent();
-			foreach(var unspent in coins)
+			Money totalSent = Money.Zero;
+			foreach(var unspent in coins.Where(c => c.Address == sender.GetAddress()))
 			{
 				tx.Inputs.Add(new TxIn(unspent.OutPoint));
+				totalSent = totalSent + unspent.Amount;
+				if(totalSent > amount + fees)
+					break;
 			}
-			var amount = coins.Select(c => c.Amount).Sum();
-
-			var perOut = (long)(amount.Satoshi / 13);
-
-			while(amount > 0)
-			{
-				var toSend = Math.Min(perOut, (long)amount);
-				amount -= toSend;
-
-				var tout = new TxOut(toSend, sender.GetAddress());
-				if(!tout.IsDust)
-					tx.Outputs.Add(tout);
-			}
-
+			if(totalSent < amount + fees)
+				throw new Exception("Not enough funds");
+			tx.Outputs.Add(new TxOut(amount + fees, receiver.GetAddress()));
+			tx.Outputs.Add(new TxOut(totalSent - amount - fees, sender.GetAddress()));
 			tx.SignAll(sender);
 			client.SendRawTransaction(tx);
 		}

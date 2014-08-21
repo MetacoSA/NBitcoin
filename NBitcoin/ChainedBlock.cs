@@ -215,5 +215,15 @@ namespace NBitcoin
 		{
 			return Height + " - " + HashBlock;
 		}
+
+		public ChainedBlock FindAncestorOrSelf(uint256 blockHash)
+		{
+			ChainedBlock currentBlock = this;
+			while(currentBlock != null && currentBlock.HashBlock != blockHash)
+			{
+				currentBlock = currentBlock.Previous;
+			}
+			return currentBlock;
+		}
 	}
 }

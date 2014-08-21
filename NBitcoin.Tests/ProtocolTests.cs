@@ -242,10 +242,13 @@ namespace NBitcoin.Tests
 				var node = server.GetLocalNode();
 				node.VersionHandshake();
 				var begin = node.Counter.Snapshot();
-				var result = node.BuildChain();
+				var result = node.GetChain();
 				var end = node.Counter.Snapshot();
 				var diff = end - begin;
 				Assert.True(node.FullVersion.StartHeight <= result.Height);
+
+				var subChain = node.GetChain(result.GetBlock(10).HashBlock);
+				Assert.Equal(10, subChain.Height);
 			}
 		}
 
@@ -257,9 +260,9 @@ namespace NBitcoin.Tests
 			using(var server = new NodeServer(Network.TestNet))
 			{
 				var node = server.GetLocalNode();
-				var chain = node.BuildChain();
+				var chain = node.GetChain();
 				chain.SetTip(chain.GetBlock(9));
-				var blocks = node.GetBlocks(chain).ToList();
+				var blocks = node.GetBlocks(chain.ToEnumerable(true).Select(c => c.HashBlock)).ToList();
 				foreach(var block in blocks)
 				{
 					Assert.True(block.CheckMerkleRoot());
@@ -275,14 +278,14 @@ namespace NBitcoin.Tests
 			using(var server = new NodeServer(Network.TestNet))
 			{
 				var node = server.GetLocalNode();
-				var chain = node.BuildChain();
+				var chain = node.GetChain();
 
 				Assert.True(node.FullVersion.StartHeight <= chain.Height);
 
 				var subChain = chain.CreateSubChain(chain.ToEnumerable(true).Skip(99).First(), true, chain.Tip, true);
 
 				var begin = node.Counter.Snapshot();
-				var blocks = node.GetBlocks(subChain).Select(_ => 1).ToList();
+				var blocks = node.GetBlocks(subChain.ToEnumerable(true).Select(c=>c.HashBlock)).Select(_ => 1).ToList();
 				var end = node.Counter.Snapshot();
 				var diff = end - begin;
 				Assert.True(diff.Start == begin.Taken);

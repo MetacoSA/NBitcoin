@@ -513,58 +513,83 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public Chain BuildChain(CancellationToken cancellationToken = default(CancellationToken))
+		public Chain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var ms = new MemoryStream();
 			Chain chain = new Chain(NodeServer.Network, new StreamObjectStream<ChainChange>(ms));
-			return BuildChain(chain, cancellationToken);
+			SynchronizeChain(chain, hashStop, cancellationToken);
+			return chain;
 		}
-
-		public Chain BuildChain(Chain chain, CancellationToken cancellationToken = default(CancellationToken))
+		public IEnumerable<ChainedBlock> GetHeadersFromFork(ChainedBlock currentTip,
+														uint256 hashStop = null,
+														CancellationToken cancellationToken = default(CancellationToken))
 		{
 			AssertState(NodeState.HandShaked, cancellationToken);
 			using(TraceCorrelation.Open())
 			{
 				NodeServerTrace.Information("Building chain");
-				if(FullVersion.StartHeight <= chain.Height)
+				while(true)
 				{
-					NodeServerTrace.Information("Local chain already ahead");
-					return chain;
-				}
-
-				while(chain.Height < FullVersion.StartHeight)
-				{
-					NodeServerTrace.Information("Chain progress : " + chain.Height + "/" + FullVersion.StartHeight);
 					SendMessage(new GetHeadersPayload()
 					{
-						BlockLocators = chain.Tip.GetLocator()
+						BlockLocators = currentTip.GetLocator(),
+						HashStop = hashStop
 					});
 					var headers = this.RecieveMessage<HeadersPayload>(cancellationToken);
+					if(headers.Headers.Count == 0)
+						break;
 					foreach(var header in headers.Headers)
 					{
-						var prev = chain.GetBlock(header.HashPrevBlock);
-						if(prev == null || prev.Height != chain.Height)
+						var prev = currentTip.FindAncestorOrSelf(header.HashPrevBlock);
+						if(prev == null)
 						{
 							NodeServerTrace.Error("Block Header received out of order " + header.GetHash(), null);
 							throw new InvalidOperationException("Block Header received out of order");
 						}
-						var chained = chain.CreateChainedBlock(header);
-						chain.SetTip(chained);
+						currentTip = new ChainedBlock(header, header.GetHash(), prev);
+						yield return currentTip;
 					}
+					if(currentTip.HashBlock == hashStop)
+						break;
 				}
 			}
-			return chain;
 		}
 
-		//public IEnumerable<Block> GetBlocks(CancellationToken cancellationToken = default(CancellationToken))
-		//{
-		//	Chain chain = new Chain(NodeServer.Network);
-		//	return GetBlocks(chain, cancellationToken);
-		//}
-
-		public IEnumerable<Block> GetBlocks(Chain neededBlocks, CancellationToken cancellationToken = default(CancellationToken))
+		public IEnumerable<ChainedBlock> SynchronizeChain(Chain chain, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return GetBlocks(neededBlocks.ToEnumerable(false).Select(e => e.HashBlock), cancellationToken);
+			List<ChainedBlock> headers = new List<ChainedBlock>();
+			foreach(var header in GetHeadersFromFork(chain.Tip, hashStop, cancellationToken))
+			{
+				chain.SetTip(header);
+				headers.Add(header);
+			}
+			return headers;
+		}
+
+		public IEnumerable<Block> GetBlocks(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var genesis = new ChainedBlock(NodeServer.Network.GetGenesis().Header, 0);
+			return GetBlocksFromFork(genesis, hashStop, cancellationToken);
+		}
+
+
+		public IEnumerable<Block> GetBlocksFromFork(ChainedBlock currentTip, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			using(var listener = CreateListener())
+			{
+				SendMessage(new GetBlocksPayload()
+				{
+					BlockLocators = currentTip.GetLocator(),
+				});
+
+				var headers = GetHeadersFromFork(currentTip, hashStop, cancellationToken);
+
+				foreach(var block in GetBlocks(headers.Select(b => b.HashBlock), cancellationToken))
+				{
+					yield return block;
+				}
+			}
+			//GetBlocks(neededBlocks.ToEnumerable(false).Select(e => e.HashBlock), cancellationToken);
 		}
 		public IEnumerable<Block> GetBlocks(IEnumerable<uint256> neededBlocks, CancellationToken cancellationToken = default(CancellationToken))
 		{
@@ -578,7 +603,7 @@ namespace NBitcoin.Protocol
 									.Where(inc => inc.Message.Payload is InvPayload || inc.Message.Payload is BlockPayload))
 				{
 					foreach(var invs in neededBlocks
-										.Select(b =>  new InventoryVector()
+										.Select(b => new InventoryVector()
 											{
 												Type = InventoryType.MSG_BLOCK,
 												Hash = b
