@@ -654,5 +654,12 @@ namespace NBitcoin.Protocol
 			if(nodeState != State)
 				throw new InvalidOperationException("Invalid Node state, needed=" + nodeState + ", current= " + State);
 		}
+
+		public uint256[] GetMempool(CancellationToken cancellationToken = default(CancellationToken))
+		{
+			AssertState(NodeState.HandShaked);
+			this.SendMessage(new MempoolPayload());
+			return this.RecieveMessage<InvPayload>(cancellationToken).Inventory.Select(i=>i.Hash).ToArray();
+		}
 	}
 }

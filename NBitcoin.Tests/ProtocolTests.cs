@@ -157,6 +157,18 @@ namespace NBitcoin.Tests
 				Assert.True(seed.State == NodeState.Offline);
 			}
 		}
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanGetMemPool()
+		{
+			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
+			{
+				var seed = server.GetLocalNode();
+				var o = seed.GetMempool();
+				Assert.True(seed.GetMempool().Length > 0);
+			}
+		}
+
 
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]

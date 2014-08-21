@@ -89,6 +89,7 @@
     <Compile Include="Protocol\NodeListener.cs" />
     <Compile Include="Protocol\Payloads\GetBlocksPayload.cs" />
     <Compile Include="Protocol\Payloads\GetDataPayload.cs" />
+    <Compile Include="Protocol\Payloads\MempoolPayload.cs" />
     <Compile Include="Protocol\Payloads\RejectPayload.cs" />
     <Compile Include="Protocol\PerformanceCounter.cs" />
     <Compile Include="RPC\BlockExplorerFormatter.cs" />
