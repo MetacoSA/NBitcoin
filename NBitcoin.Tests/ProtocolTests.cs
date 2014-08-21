@@ -147,7 +147,6 @@ namespace NBitcoin.Tests
 		[Trait("NodeServer", "NodeServer")]
 		public void CanHandshake()
 		{
-
 			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
 			{
 				var seed = server.GetLocalNode();
@@ -156,6 +155,26 @@ namespace NBitcoin.Tests
 				Assert.True(seed.State == NodeState.HandShaked);
 				seed.Disconnect();
 				Assert.True(seed.State == NodeState.Offline);
+			}
+		}
+
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void ServerDisconnectCorrectlyFromDroppingClient()
+		{
+			using(var tester = new NodeServerTester())
+			{
+				var to2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
+				to2.VersionHandshake();
+				var s1Endpoint = (IPEndPoint)to2.Socket.LocalEndPoint;
+				Assert.True(tester.Server1.IsConnectedTo(tester.Server2.ExternalEndpoint));
+				Thread.Sleep(500);
+				Assert.True(tester.Server2.IsConnectedTo(s1Endpoint));
+				to2.Disconnect();
+				Assert.False(tester.Server1.IsConnectedTo(tester.Server2.ExternalEndpoint));
+				Thread.Sleep(500);
+				Assert.False(tester.Server2.IsConnectedTo(s1Endpoint));
+				//to2.Disconnect();
 			}
 		}
 
@@ -285,7 +304,7 @@ namespace NBitcoin.Tests
 				var subChain = chain.CreateSubChain(chain.ToEnumerable(true).Skip(99).First(), true, chain.Tip, true);
 
 				var begin = node.Counter.Snapshot();
-				var blocks = node.GetBlocks(subChain.ToEnumerable(true).Select(c=>c.HashBlock)).Select(_ => 1).ToList();
+				var blocks = node.GetBlocks(subChain.ToEnumerable(true).Select(c => c.HashBlock)).Select(_ => 1).ToList();
 				var end = node.Counter.Snapshot();
 				var diff = end - begin;
 				Assert.True(diff.Start == begin.Taken);

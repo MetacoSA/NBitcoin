@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Cryptography;
@@ -68,6 +69,7 @@ namespace NBitcoin
 		}
 
 
+		static PropertyInfo _StreamConnected = typeof(NetworkStream).GetProperty("Connected", BindingFlags.NonPublic | BindingFlags.Instance);
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
 			int readen = 0;
@@ -83,6 +85,10 @@ namespace NBitcoin
 					}
 					cancellation.ThrowIfCancellationRequested();
 					thisRead = stream.EndRead(ar);
+					if(thisRead == 0 && (bool)_StreamConnected.GetValue(stream))
+					{
+						return -1;
+					}
 				}
 				else
 				{
