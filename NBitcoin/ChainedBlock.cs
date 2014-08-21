@@ -216,6 +216,19 @@ namespace NBitcoin
 			return Height + " - " + HashBlock;
 		}
 
+		public ChainedBlock FindAncestorOrSelf(int height)
+		{
+			if(height > Height)
+				throw new InvalidOperationException("Can only find blocks below or equals to current height");
+			if(height < 0)
+				throw new ArgumentOutOfRangeException("height");
+			ChainedBlock currentBlock = this;
+			while(height != currentBlock.Height)
+			{
+				currentBlock = currentBlock.Previous;
+			}
+			return currentBlock;
+		}
 		public ChainedBlock FindAncestorOrSelf(uint256 blockHash)
 		{
 			ChainedBlock currentBlock = this;
