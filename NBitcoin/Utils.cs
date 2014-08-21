@@ -1,4 +1,5 @@
 ﻿using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 using Org.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
@@ -69,7 +70,7 @@ namespace NBitcoin
 		}
 
 
-		static PropertyInfo _StreamConnected = typeof(NetworkStream).GetProperty("Connected", BindingFlags.NonPublic | BindingFlags.Instance);
+
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
 			int readen = 0;
@@ -85,7 +86,7 @@ namespace NBitcoin
 					}
 					cancellation.ThrowIfCancellationRequested();
 					thisRead = stream.EndRead(ar);
-					if(thisRead == 0 && (bool)_StreamConnected.GetValue(stream))
+					if(thisRead == 0 && (stream is Message.CustomNetworkStream) && ((Message.CustomNetworkStream)stream).Connected)
 					{
 						return -1;
 					}

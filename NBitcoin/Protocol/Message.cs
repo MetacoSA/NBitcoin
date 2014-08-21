@@ -162,9 +162,25 @@ namespace NBitcoin.Protocol
 			return ReadNext(socket, network, version, cancellationToken, out counter);
 		}
 
+		internal class CustomNetworkStream : NetworkStream
+		{
+			public CustomNetworkStream(Socket socket, bool own)
+				: base(socket, own)
+			{
+
+			}
+
+			public bool Connected
+			{
+				get
+				{
+					return Socket.Connected;
+				}
+			}
+		}
 		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken, out PerformanceCounter counter)
 		{
-			var stream = new NetworkStream(socket, false);
+			var stream = new CustomNetworkStream(socket, false);
 			BitcoinStream bitStream = new BitcoinStream(stream, false)
 			{
 				ProtocolVersion = version,

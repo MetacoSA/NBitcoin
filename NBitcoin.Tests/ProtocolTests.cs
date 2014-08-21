@@ -186,7 +186,6 @@ namespace NBitcoin.Tests
 				Assert.False(tester.Server1.IsConnectedTo(tester.Server2.ExternalEndpoint));
 				Thread.Sleep(500);
 				Assert.False(tester.Server2.IsConnectedTo(s1Endpoint));
-				//to2.Disconnect();
 			}
 		}
 
