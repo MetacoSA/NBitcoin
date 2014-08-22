@@ -163,12 +163,23 @@ namespace NBitcoin.Tests
 		{
 			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
 			{
-				var seed = server.GetLocalNode();
-				var o = seed.GetMempool();
-				Assert.True(seed.GetMempool().Length > 0);
+				var node = server.GetLocalNode();
+				var txIds = node.GetMempool();
+				Assert.True(txIds.Length > 0);
 			}
 		}
 
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanGetTransactionsFromMemPool()
+		{
+			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
+			{
+				var node = server.GetLocalNode();
+				var transactions = node.GetTransactions(node.GetMempool());
+				Assert.True(transactions.Length > 0);
+			}
+		}
 
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]

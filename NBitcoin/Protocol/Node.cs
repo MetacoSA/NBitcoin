@@ -659,7 +659,39 @@ namespace NBitcoin.Protocol
 		{
 			AssertState(NodeState.HandShaked);
 			this.SendMessage(new MempoolPayload());
-			return this.RecieveMessage<InvPayload>(cancellationToken).Inventory.Select(i=>i.Hash).ToArray();
+			return this.RecieveMessage<InvPayload>(cancellationToken).Inventory.Select(i => i.Hash).ToArray();
+		}
+
+		public Transaction[] GetTransactions(uint256[] txIds, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			AssertState(NodeState.HandShaked);
+			List<Transaction> result = new List<Transaction>();
+			using(var listener = CreateListener().OfType<TxPayload>())
+			{
+				this.SendMessage(new GetDataPayload(txIds.Select(txid => new InventoryVector()
+				{
+					Type = InventoryType.MSG_TX,
+					Hash = txid
+				}).ToArray()));
+				try
+				{
+					while(result.Count < txIds.Length)
+					{
+						CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2.0));
+						result.Add(listener.ReceivePayload<TxPayload>(
+							CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token).Token).Object);
+
+					}
+				}
+				catch(OperationCanceledException)
+				{
+					if(cancellationToken.IsCancellationRequested)
+					{
+						throw;
+					}
+				}
+			}
+			return result.ToArray();
 		}
 	}
 }
