@@ -658,8 +658,11 @@ namespace NBitcoin.Protocol
 		public uint256[] GetMempool(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			AssertState(NodeState.HandShaked);
-			this.SendMessage(new MempoolPayload());
-			return this.RecieveMessage<InvPayload>(cancellationToken).Inventory.Select(i => i.Hash).ToArray();
+			using(var listener = CreateListener().OfType<InvPayload>())
+			{
+				this.SendMessage(new MempoolPayload());
+				return listener.ReceivePayload<InvPayload>(cancellationToken).Inventory.Select(i => i.Hash).ToArray();
+			}
 		}
 
 		public Transaction[] GetTransactions(uint256[] txIds, CancellationToken cancellationToken = default(CancellationToken))
