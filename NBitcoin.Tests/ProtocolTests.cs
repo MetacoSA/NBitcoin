@@ -176,7 +176,7 @@ namespace NBitcoin.Tests
 			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
 			{
 				var node = server.GetLocalNode();
-				var transactions = node.GetTransactions(node.GetMempool());
+				var transactions = node.GetMempoolTransactions();
 				Assert.True(transactions.Length > 0);
 			}
 		}

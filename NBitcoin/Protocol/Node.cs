@@ -665,9 +665,16 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public Transaction[] GetTransactions(uint256[] txIds, CancellationToken cancellationToken = default(CancellationToken))
+		public Transaction[] GetMempoolTransactions(CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return GetMempoolTransactions(GetMempool(), cancellationToken);
+		}
+
+		public Transaction[] GetMempoolTransactions(uint256[] txIds, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			AssertState(NodeState.HandShaked);
+			if(txIds.Length == 0)
+				return new Transaction[0];
 			List<Transaction> result = new List<Transaction>();
 			using(var listener = CreateListener().OfType<TxPayload>())
 			{
