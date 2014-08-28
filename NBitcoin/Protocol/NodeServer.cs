@@ -380,6 +380,22 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		public Node GetNodeByEndpoint(string endpoint)
+		{
+			var splitted = endpoint.Split(':');
+			var port = splitted.Length == 1 ? Network.DefaultPort : int.Parse(splitted[1]);
+			IPAddress address = null;
+			try
+			{
+				address = IPAddress.Parse(splitted[0]);
+			}
+			catch(FormatException)
+			{
+				address = Dns.GetHostEntry(splitted[0]).AddressList[0];
+			}
+			return GetNodeByEndpoint(new IPEndPoint(address, port));
+		}
+
 		public Node GetNodeByPeer(Peer peer, CancellationToken cancellation = default(CancellationToken))
 		{
 			var node = _Nodes.GetNodeByPeer(peer);
