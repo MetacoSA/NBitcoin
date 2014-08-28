@@ -641,7 +641,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private NodeListener CreateListener()
+		public NodeListener CreateListener()
 		{
 			return new NodeListener(this);
 		}
