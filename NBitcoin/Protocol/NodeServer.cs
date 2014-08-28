@@ -586,15 +586,15 @@ namespace NBitcoin.Protocol
 						StartHeight = 0,
 						Timestamp = DateTimeOffset.UtcNow,
 						AddressReciever = peer.NetworkAddress.Endpoint,
-						AddressFrom = me
+						AddressFrom = me,
+						Relay = IsRelay
 					};
 		}
 
-		public VersionPayload CreateVersionPayload(Peer peer, IPEndPoint me, ProtocolVersion? version, bool relay)
+		public bool IsRelay
 		{
-			VersionPayload NewVersionPayLoad = this.CreateVersionPayload(peer, me, version);
-			NewVersionPayLoad.Relay = relay;
-			return NewVersionPayLoad;
+			get;
+			set;
 		}
 
 		string _UserAgent;
