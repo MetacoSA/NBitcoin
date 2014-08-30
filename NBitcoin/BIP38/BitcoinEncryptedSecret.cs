@@ -14,8 +14,8 @@ namespace NBitcoin
 	public class BitcoinEncryptedSecretNoEC : BitcoinEncryptedSecret
 	{
 
-		public BitcoinEncryptedSecretNoEC(string wif, Network network)
-			: base(wif, network)
+		public BitcoinEncryptedSecretNoEC(string wif, Network expectedNetwork = null)
+			: base(wif, expectedNetwork)
 		{
 		}
 
@@ -124,8 +124,8 @@ namespace NBitcoin
 	public class BitcoinEncryptedSecretEC : BitcoinEncryptedSecret
 	{
 
-		public BitcoinEncryptedSecretEC(string wif, Network network)
-			: base(wif, network)
+		public BitcoinEncryptedSecretEC(string wif, Network expectedNetwork = null)
+			: base(wif, expectedNetwork)
 		{
 		}
 
@@ -188,7 +188,7 @@ namespace NBitcoin
 			}
 		}
 
-		
+
 
 		public override Base58Type Type
 		{
@@ -202,7 +202,7 @@ namespace NBitcoin
 		{
 			var encrypted = PartialEncrypted.ToArray();
 			//Derive passfactor using scrypt with ownerentropy and the user's passphrase and use it to recompute passpoint
-			byte[] passfactor = CalculatePassFactor(password,LotSequence, OwnerEntropy);
+			byte[] passfactor = CalculatePassFactor(password, LotSequence, OwnerEntropy);
 			var passpoint = CalculatePassPoint(passfactor);
 
 			var derived = SCrypt.BitcoinComputeDerivedKey2(passpoint, this.AddressHash.Concat(this.OwnerEntropy).ToArray());
@@ -271,15 +271,9 @@ namespace NBitcoin
 
 	public abstract class BitcoinEncryptedSecret : Base58Data
 	{
-		public static BitcoinEncryptedSecret Create(string wif, Network network)
+		public static BitcoinEncryptedSecret Create(string wif, Network expectedNetwork = null)
 		{
-			var raw = Encoders.Base58Check.DecodeData(wif);
-			var version = raw.Take(2).ToArray();
-			if(Utils.ArrayEqual(version, network.GetVersionBytes(Base58Type.ENCRYPTED_SECRET_KEY_NO_EC)))
-				return new BitcoinEncryptedSecretNoEC(wif, network);
-			if(Utils.ArrayEqual(version, network.GetVersionBytes(Base58Type.ENCRYPTED_SECRET_KEY_EC)))
-				return new BitcoinEncryptedSecretEC(wif, network);
-			throw new FormatException("Invalid encrypted secret");
+			return Network.CreateFromBase58Data<BitcoinEncryptedSecret>(wif, expectedNetwork);
 		}
 
 		public static BitcoinEncryptedSecretNoEC Generate(Key key, string password, Network network)
@@ -307,7 +301,7 @@ namespace NBitcoin
 			}
 		}
 
-		
+
 
 		byte[] _AddressHash;
 		public byte[] AddressHash

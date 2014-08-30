@@ -21,8 +21,8 @@ namespace NBitcoin
 
 	public class BitcoinExtKey : BitcoinExtKeyBase
 	{
-		public BitcoinExtKey(string base58, Network network)
-			: base(base58, network)
+		public BitcoinExtKey(string base58, Network expectedNetwork = null)
+			: base(base58, expectedNetwork)
 		{
 
 		}
@@ -71,8 +71,8 @@ namespace NBitcoin
 
 		}
 
-		public BitcoinExtPubKey(string base58, Network network)
-			: base(base58, network)
+		public BitcoinExtPubKey(string base58, Network expectedNetwork = null)
+			: base(base58, expectedNetwork)
 		{
 		}
 

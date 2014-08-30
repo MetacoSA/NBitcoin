@@ -194,8 +194,8 @@ namespace NBitcoin
 			return Encoders.Base58Check.EncodeData(bytes);
 		}
 
-		public BitcoinPassphraseCode(string wif, Network network)
-			: base(wif, network)
+		public BitcoinPassphraseCode(string wif, Network expectedNetwork = null)
+			: base(wif, expectedNetwork)
 		{
 		}
 
@@ -287,7 +287,7 @@ namespace NBitcoin
 			});
 		}
 
-		
+
 		byte[] _OwnerEntropy;
 		public byte[] OwnerEntropy
 		{

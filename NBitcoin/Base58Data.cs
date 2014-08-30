@@ -12,7 +12,7 @@ namespace NBitcoin
 		protected byte[] vchData = new byte[0];
 		protected byte[] vchVersion = new byte[0];
 		protected string wifData = "";
-		private readonly Network _Network;
+		private Network _Network;
 		public Network Network
 		{
 			get
@@ -21,13 +21,15 @@ namespace NBitcoin
 			}
 		}
 
-		public Base58Data(string base64, Network network)
+		public Base58Data(string base64, Network expectedNetwork = null)
 		{
-			_Network = network;
+			_Network = expectedNetwork;
 			SetString(base64);
 		}
 		public Base58Data(byte[] rawBytes, Network network)
 		{
+			if(network == null)
+				throw new ArgumentNullException("network");
 			_Network = network;
 			SetData(rawBytes);
 		}
@@ -39,6 +41,13 @@ namespace NBitcoin
 
 		private void SetString(string psz)
 		{
+			if(_Network == null)
+			{
+				_Network = Network.GetNetworkFromBase58Data(psz);
+				if(_Network == null)
+					throw new FormatException("Invalid " + this.GetType().Name);
+			}
+
 			byte[] vchTemp = Encoders.Base58Check.DecodeData(psz);
 			var expectedVersion = _Network.GetVersionBytes(Type);
 
@@ -52,6 +61,7 @@ namespace NBitcoin
 
 			if(!IsValid)
 				throw new FormatException("Invalid " + this.GetType().Name);
+
 		}
 
 

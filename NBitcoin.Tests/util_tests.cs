@@ -299,6 +299,16 @@ namespace NBitcoin.Tests
 			Script script = new Script("0359d3092e4a8d5f3b3948235b5dec7395259273ccf3c4e9d5e16695a3fc9588d6 OP_CHECKSIG");
 			Assert.Equal("OP_HASH160 a216e3bce8c1b3adf376731b6cd0b6936c4e053f OP_EQUAL", script.PaymentScript.ToString());
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		//https://en.bitcoin.it/wiki/List_of_address_prefixes
+		public void CanDeduceNetworkInBase58Constructor()
+		{
+			BitcoinAddress addr = new BitcoinAddress("17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem");
+			Assert.Equal(addr.Network, Network.Main);
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		//https://en.bitcoin.it/wiki/List_of_address_prefixes
@@ -391,6 +401,9 @@ namespace NBitcoin.Tests
 					var result = Network.CreateFromBase58Data(test.Base58);
 					Assert.True(test.ExpectedType == result.GetType());
 					Assert.True(test.Network == result.Network);
+					Network.CreateFromBase58Data(test.Base58, test.Network);
+
+					Assert.Throws<FormatException>(() => Network.CreateFromBase58Data(test.Base58, Network.GetNetworks().First(n => n != test.Network)));
 				}
 			}
 		}

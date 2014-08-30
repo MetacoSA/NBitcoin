@@ -72,7 +72,7 @@ namespace NBitcoin
 
 		public BitcoinAddress GetAddress(Network network)
 		{
-			return network.CreateBitcoinAddress(this.ID.ToBytes());
+			return network.CreateBitcoinAddress(this.ID);
 		}
 		public BitcoinScriptAddress GetScriptAddress(Network network)
 		{

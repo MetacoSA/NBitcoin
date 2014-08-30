@@ -45,13 +45,12 @@ namespace NBitcoin
 	}
 	public class BitcoinAddress : Base58Data
 	{
-		public BitcoinAddress(string base58, Network network)
-			: base(base58, network)
+		public static BitcoinAddress Create(string base58, Network expectedNetwork = null)
 		{
+			return Network.CreateFromBase58Data<BitcoinAddress>(base58, expectedNetwork);
 		}
-
-		public BitcoinAddress(byte[] rawBytes, Network network)
-			: base(rawBytes, network)
+		public BitcoinAddress(string base58, Network expectedNetwork = null)
+			: base(base58, expectedNetwork)
 		{
 		}
 

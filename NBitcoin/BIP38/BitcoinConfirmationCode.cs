@@ -13,8 +13,8 @@ namespace NBitcoin
 	public class BitcoinConfirmationCode : Base58Data
 	{
 
-		public BitcoinConfirmationCode(string wif, Network network)
-			: base(wif, network)
+		public BitcoinConfirmationCode(string wif, Network expectedNetwork = null)
+			: base(wif, expectedNetwork)
 		{
 		}
 		public BitcoinConfirmationCode(byte[] rawBytes, Network network)

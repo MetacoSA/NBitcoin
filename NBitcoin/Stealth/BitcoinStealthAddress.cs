@@ -118,8 +118,8 @@ namespace NBitcoin
 	public class BitcoinStealthAddress : Base58Data
 	{
 
-		public BitcoinStealthAddress(string base58, Network network)
-			: base(base58, network)
+		public BitcoinStealthAddress(string base58, Network expectedNetwork = null)
+			: base(base58, expectedNetwork)
 		{
 		}
 		public BitcoinStealthAddress(byte[] raw, Network network)
