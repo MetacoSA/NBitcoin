@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.Protocol;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -7,18 +8,6 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	[Flags]
-	public enum RejectCode : byte
-	{
-		MALFORMED = 0x01,
-		INVALID = 0x10,
-		OBSOLETE = 0x11,
-		DUPLICATE = 0x12,
-		NONSTANDARD = 0x40,
-		DUST = 0x41,
-		INSUFFICIENTFEE = 0x42,
-		CHECKPOINT = 0x43
-	}
 	public class ValidationState
 	{
 		static readonly uint MAX_BLOCK_SIZE = 1000000;

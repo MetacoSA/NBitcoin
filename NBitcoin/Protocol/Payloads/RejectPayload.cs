@@ -7,21 +7,29 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
+	[Flags]
 	public enum RejectCode : byte
 	{
-		Malformed = 0x01,
-		Invalid = 0x10,
-		Obsolete = 0x11,
-		Duplicate = 0x12,
-		NonStandard = 0x40,
-		Dust = 0x41,
-		Insufficientfee = 0x42,
-		Checkpoint = 0x43
+		MALFORMED = 0x01,
+		INVALID = 0x10,
+		OBSOLETE = 0x11,
+		DUPLICATE = 0x12,
+		NONSTANDARD = 0x40,
+		DUST = 0x41,
+		INSUFFICIENTFEE = 0x42,
+		CHECKPOINT = 0x43
+	}
+	public enum RejectCodeType
+	{
+		Common,
+		Version,
+		Transaction,
+		Block
 	}
 	[Payload("reject")]
 	public class RejectPayload : Payload
 	{
-		VarString _Message= new VarString();
+		VarString _Message = new VarString();
 		public string Message
 		{
 			get
@@ -45,7 +53,32 @@ namespace NBitcoin.Protocol
 				_Code = (byte)value;
 			}
 		}
-		VarString _Reason= new VarString();
+
+		public RejectCodeType CodeType
+		{
+			get
+			{
+				switch(Code)
+				{
+					case RejectCode.MALFORMED:
+					case RejectCode.INVALID:
+						return RejectCodeType.Common;
+					case RejectCode.OBSOLETE:
+					case RejectCode.DUPLICATE:
+						return RejectCodeType.Version;
+					case RejectCode.NONSTANDARD:
+					case RejectCode.DUST:
+					case RejectCode.INSUFFICIENTFEE:
+						return RejectCodeType.Transaction;
+					case RejectCode.CHECKPOINT:
+						return RejectCodeType.Block;
+					default:
+						return RejectCodeType.Common;
+				}
+			}
+		}
+
+		VarString _Reason = new VarString();
 		public string Reason
 		{
 			get
