@@ -16,17 +16,18 @@ namespace NBitcoin.Tests
 {
 	public class NodeServerTester : IDisposable
 	{
+		static Random _Rand = new Random();
 		public NodeServerTester()
 		{
 			_Server1 = new NodeServer(Network.Main, internalPort: 3390);
 			_Server1.AllowLocalPeers = true;
-			_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), 3390);
+			_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), _Rand.Next(4000,60000));
 			_Server1.NATRuleName = NATRuleName;
 			_Server1.Listen();
 			_Server2 = new NodeServer(Network.Main, internalPort: 3391);
 			_Server2.AllowLocalPeers = true;
 			_Server2.NATRuleName = NATRuleName;
-			_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), 3391);
+			_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), _Rand.Next(4000, 60000));
 			_Server2.Listen();
 		}
 
