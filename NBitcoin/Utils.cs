@@ -107,7 +107,7 @@ namespace NBitcoin
 			}
 			return readen;
 		}
-		public static void AddOrReplace<TKey, TValue>(this Dictionary<TKey, TValue> dico, TKey key, TValue value)
+		public static void AddOrReplace<TKey, TValue>(this IDictionary<TKey, TValue> dico, TKey key, TValue value)
 		{
 			if(dico.ContainsKey(key))
 			{
@@ -119,7 +119,7 @@ namespace NBitcoin
 				dico.Add(key, value);
 			}
 		}
-		public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
+		public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
 		{
 			if(!dictionary.ContainsKey(key))
 			{
