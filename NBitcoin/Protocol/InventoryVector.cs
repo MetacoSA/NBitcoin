@@ -17,6 +17,15 @@ namespace NBitcoin.Protocol
 		uint type;
 		uint256 hash = new uint256(0);
 
+		public InventoryVector()
+		{
+
+		}
+		public InventoryVector(InventoryType type, uint256 hash)
+		{
+			Type = type;
+			Hash = hash;
+		}
 		public InventoryType Type
 		{
 			get

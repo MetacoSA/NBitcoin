@@ -9,6 +9,14 @@ namespace NBitcoin.Protocol
 	[Payload("inv")]
 	public class InvPayload : Payload, IBitcoinSerializable
 	{
+		public InvPayload()
+		{
+
+		}
+		public InvPayload(params InventoryVector[] invs)
+		{
+			_Inventory.AddRange(invs);
+		}
 		List<InventoryVector> _Inventory = new List<InventoryVector>();
 		public List<InventoryVector> Inventory
 		{
