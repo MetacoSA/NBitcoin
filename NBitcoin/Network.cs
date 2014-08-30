@@ -443,10 +443,7 @@ namespace NBitcoin
 		
 		public static T CreateFromBase58Data<T>(string base58, Network expectedNetwork = null) where T : Base58Data
 		{
-			var result = CreateFromBase58Data<T>(base58);
-			if(expectedNetwork != null && result.Network != expectedNetwork)
-				throw new FormatException("Invalid network");
-			return result;
+			return (T)CreateFromBase58Data(base58, expectedNetwork);
 		}
 
 		public Base58Data CreateBase58Data(Base58Type type, string base58)
