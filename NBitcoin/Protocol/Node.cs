@@ -729,7 +729,7 @@ namespace NBitcoin.Protocol
 
 		public void PingPong(CancellationToken cancellation = default(CancellationToken))
 		{
-			using(var listener = CreateListener())
+			using(var listener = CreateListener().OfType<PongPayload>())
 			{
 				var ping = new PingPayload()
 				{
@@ -737,7 +737,7 @@ namespace NBitcoin.Protocol
 				};
 				SendMessage(ping);
 
-				while(RecieveMessage<PongPayload>(cancellation).Nonce != ping.Nonce)
+				while(listener.ReceivePayload<PongPayload>(cancellation).Nonce != ping.Nonce)
 				{
 				}
 			}
