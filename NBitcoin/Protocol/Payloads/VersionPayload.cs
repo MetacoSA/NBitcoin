@@ -11,6 +11,16 @@ namespace NBitcoin.Protocol
 	[Payload("version")]
 	public class VersionPayload : Payload, IBitcoinSerializable
 	{
+		static string _NUserAgent;
+		public static string GetNBitcoinUserAgent()
+		{
+			if(_NUserAgent == null)
+			{
+				var version = typeof(VersionPayload).Assembly.GetName().Version;
+				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Minor + "/";
+			}
+			return _NUserAgent;
+		}
 		uint version;
 
 		public ProtocolVersion Version
@@ -94,17 +104,17 @@ namespace NBitcoin.Protocol
 		}
 
 		bool relay;
-        public bool Relay
-        {
-            get
-            {
-                return relay;
-            }
-            set
-            {
-                relay = value;
-            }
-        }
+		public bool Relay
+		{
+			get
+			{
+				return relay;
+			}
+			set
+			{
+				relay = value;
+			}
+		}
 
 		VarString user_agent;
 		public string UserAgent

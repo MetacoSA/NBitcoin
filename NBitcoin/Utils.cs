@@ -438,5 +438,21 @@ namespace NBitcoin
 		}
 
 
+
+		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort)
+		{
+			var splitted = endpoint.Split(':');
+			var port = splitted.Length == 1 ? defaultPort : int.Parse(splitted[1]);
+			IPAddress address = null;
+			try
+			{
+				address = IPAddress.Parse(splitted[0]);
+			}
+			catch(FormatException)
+			{
+				address = Dns.GetHostEntry(splitted[0]).AddressList[0];
+			}
+			return new IPEndPoint(address, port);
+		}
 	}
 }

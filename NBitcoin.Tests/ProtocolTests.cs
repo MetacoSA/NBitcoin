@@ -192,14 +192,13 @@ namespace NBitcoin.Tests
 			{
 				var to2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
 				to2.VersionHandshake();
-				var s1Endpoint = (IPEndPoint)to2.Socket.LocalEndPoint;
 				Assert.True(tester.Server1.IsConnectedTo(tester.Server2.ExternalEndpoint));
 				Thread.Sleep(500);
-				Assert.True(tester.Server2.IsConnectedTo(s1Endpoint));
+				Assert.True(tester.Server2.IsConnectedTo(tester.Server1.ExternalEndpoint));
 				to2.Disconnect();
 				Assert.False(tester.Server1.IsConnectedTo(tester.Server2.ExternalEndpoint));
 				Thread.Sleep(500);
-				Assert.False(tester.Server2.IsConnectedTo(s1Endpoint));
+				Assert.False(tester.Server2.IsConnectedTo(tester.Server1.ExternalEndpoint));
 			}
 		}
 
@@ -225,7 +224,7 @@ namespace NBitcoin.Tests
 				toS2.VersionHandshake();
 				Assert.Equal(NodeState.HandShaked, toS2.State);
 				Thread.Sleep(100); //Let the time to Server2 to add the new node, else the test was failing sometimes.
-				Assert.Equal(NodeState.HandShaked, tester.Server2.GetNodeByEndpoint(toS2.ExternalEndpoint).State);
+				Assert.Equal(NodeState.HandShaked, tester.Server2.GetNodeByEndpoint(toS2.MyVersion.AddressFrom).State);
 			}
 		}
 
@@ -260,11 +259,30 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]
+		public void CanConnectMultipleTimeToServer()
+		{
+			using(var tester = new NodeServerTester())
+			{
+				var n1 = Node.Connect(tester.Server1.Network, tester.Server1.ExternalEndpoint);
+				n1.VersionHandshake();
+				n1.PingPong();
+				var n2 = Node.Connect(tester.Server1.Network, tester.Server1.ExternalEndpoint);
+				n2.VersionHandshake();
+				Thread.Sleep(100);
+				n2.PingPong();
+				n1.PingPong();
+				Assert.Throws<InvalidOperationException>(() => n2.VersionHandshake());
+				Thread.Sleep(100);
+				n2.PingPong();
+			}
+		}
+
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
 		public void CanDownloadBlock()
 		{
-			using(var server = new NodeServer(Network.TestNet))
+			using(var node = Node.ConnectToLocal(Network.TestNet))
 			{
-				var node = server.GetLocalNode();
 				node.VersionHandshake();
 				node.SendMessage(new GetDataPayload(new InventoryVector()
 						{
@@ -281,15 +299,14 @@ namespace NBitcoin.Tests
 		[Trait("NodeServer", "NodeServer")]
 		public void CanDownloadHeaders()
 		{
-			using(var server = new NodeServer(Network.TestNet))
+			using(var node = Node.ConnectToLocal(Network.TestNet))
 			{
-				var node = server.GetLocalNode();
 				node.VersionHandshake();
 				var begin = node.Counter.Snapshot();
 				var result = node.GetChain();
 				var end = node.Counter.Snapshot();
 				var diff = end - begin;
-				Assert.True(node.FullVersion.StartHeight <= result.Height);
+				Assert.True(node.PeerVersion.StartHeight <= result.Height);
 
 				var subChain = node.GetChain(result.GetBlock(10).HashBlock);
 				Assert.Equal(10, subChain.Height);
@@ -301,9 +318,8 @@ namespace NBitcoin.Tests
 		[Trait("NodeServer", "NodeServer")]
 		public void CanDownloadBlocks()
 		{
-			using(var server = new NodeServer(Network.TestNet))
+			using(var node = Node.ConnectToLocal(Network.TestNet))
 			{
-				var node = server.GetLocalNode();
 				var chain = node.GetChain();
 				chain.SetTip(chain.GetBlock(9));
 				var blocks = node.GetBlocks(chain.ToEnumerable(true).Select(c => c.HashBlock)).ToList();
@@ -319,12 +335,11 @@ namespace NBitcoin.Tests
 		[Trait("NodeServer", "NodeServer")]
 		public void CanDownloadLastBlocks()
 		{
-			using(var server = new NodeServer(Network.TestNet))
+			using(var node = Node.ConnectToLocal(Network.TestNet))
 			{
-				var node = server.GetLocalNode();
 				var chain = node.GetChain();
 
-				Assert.True(node.FullVersion.StartHeight <= chain.Height);
+				Assert.True(node.PeerVersion.StartHeight <= chain.Height);
 
 				var subChain = chain.CreateSubChain(chain.ToEnumerable(true).Skip(99).First(), true, chain.Tip, true);
 

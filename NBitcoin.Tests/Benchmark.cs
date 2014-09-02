@@ -43,7 +43,7 @@ namespace NBitcoin.Tests
 			{
 				var originalNode = server.GetLocalNode();
 				var original = originalNode.GetChain();
-				Assert.True(originalNode.FullVersion.StartHeight <= original.Height);
+				Assert.True(originalNode.PeerVersion.StartHeight <= original.Height);
 
 				int simultaneous = 3;
 				var chaines = Enumerable.Range(0, simultaneous).Select(i => original.Clone()).ToArray();

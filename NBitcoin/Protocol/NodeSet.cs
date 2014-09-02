@@ -29,7 +29,7 @@ namespace NBitcoin.Protocol
 		}
 
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		Dictionary<IPEndPoint, Node> _Nodes = new Dictionary<IPEndPoint, Node>();
+		Dictionary<IPEndPoint, List<Node>> _Nodes = new Dictionary<IPEndPoint, List<Node>>();
 		readonly NodeListener _MessageListener;
 		public NodeSet()
 		{
@@ -51,10 +51,7 @@ namespace NBitcoin.Protocol
 			lock(_Nodes)
 			{
 				endpoint = Utils.EnsureIPv6(endpoint);
-
-				Node result = null;
-				_Nodes.TryGetValue(endpoint, out result);
-				return result;
+				return GetNodesList(endpoint).FirstOrDefault();
 			}
 		}
 
@@ -62,12 +59,17 @@ namespace NBitcoin.Protocol
 		{
 			lock(_Nodes)
 			{
-				Node result = null;
-				_Nodes.TryGetValue(peer.NetworkAddress.Endpoint, out result);
-				return result;
+				return GetNodesList(peer.NetworkAddress.Endpoint).FirstOrDefault();
 			}
 		}
 
+		List<Node> GetNodesList(IPEndPoint endpoint)
+		{
+			List<Node> result = null;
+			if(!_Nodes.TryGetValue(endpoint, out result))
+				result = new List<Node>();
+			return result;
+		}
 
 		public Node AddNode(Node node)
 		{
@@ -75,10 +77,23 @@ namespace NBitcoin.Protocol
 			{
 				if(node.State < NodeState.Connected)
 					return null;
+				node.StateChanged += node_StateChanged;
 				node.MessageProducer.AddMessageListener(_MessageListener);
-				_Nodes.Add(node.Peer.NetworkAddress.Endpoint, node);
+
+				var list = GetNodesList(node.Peer.NetworkAddress.Endpoint);
+				list.Add(node);
+				if(list.Count == 1)
+					_Nodes.Add(node.Peer.NetworkAddress.Endpoint, list);
 			}
 			return node;
+		}
+		void node_StateChanged(Node node, NodeState oldState)
+		{
+			if(node.State == NodeState.Offline || node.State == NodeState.Disconnecting || node.State == NodeState.Failed)
+			{
+				node.StateChanged -= node_StateChanged;
+				RemoveNode(node);
+			}
 		}
 
 		public void RemoveNode(Node node)
@@ -96,7 +111,7 @@ namespace NBitcoin.Protocol
 		{
 			lock(_Nodes)
 			{
-				return _Nodes.Values.ToArray();
+				return _Nodes.Values.SelectMany(s => s).ToArray();
 			}
 		}
 
@@ -176,7 +191,7 @@ namespace NBitcoin.Protocol
 		{
 			var nodes = GetNodes();
 
-			var tasks = 
+			var tasks =
 				nodes
 				.Select(n => Task.Factory.StartNew(() =>
 				{

@@ -382,18 +382,8 @@ namespace NBitcoin.Protocol
 
 		public Node GetNodeByEndpoint(string endpoint)
 		{
-			var splitted = endpoint.Split(':');
-			var port = splitted.Length == 1 ? Network.DefaultPort : int.Parse(splitted[1]);
-			IPAddress address = null;
-			try
-			{
-				address = IPAddress.Parse(splitted[0]);
-			}
-			catch(FormatException)
-			{
-				address = Dns.GetHostEntry(splitted[0]).AddressList[0];
-			}
-			return GetNodeByEndpoint(new IPEndPoint(address, port));
+			IPEndPoint ip = Utils.ParseIpEndpoint(endpoint, Network.DefaultPort);
+			return GetNodeByEndpoint(ip);
 		}
 
 		public Node GetNodeByPeer(Peer peer, CancellationToken cancellation = default(CancellationToken))
@@ -409,7 +399,7 @@ namespace NBitcoin.Protocol
 		{
 			try
 			{
-				var node = new Node(peer, this, cancellationToken);
+				var node = new Node(peer, Network, CreateVersionPayload(peer, ExternalEndpoint, Version), cancellationToken);
 				return AddNode(node);
 			}
 			catch(Exception)
@@ -459,6 +449,7 @@ namespace NBitcoin.Protocol
 					message.Node.Disconnect();
 					return;
 				}
+
 				if(message.Node == null)
 				{
 					var remoteEndpoint = version.AddressFrom;
@@ -468,18 +459,12 @@ namespace NBitcoin.Protocol
 						remoteEndpoint = new IPEndPoint(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
 					}
 
-					if(IsConnectedTo(remoteEndpoint))
-					{
-						NodeServerTrace.Warning("Ongoing connection with " + remoteEndpoint + " detected, aborting the incoming connection attempt");
-						Utils.SafeCloseSocket(message.Socket);
-						return;
-					}
-
-					var node = new Node(new Peer(PeerOrigin.Advertised, new NetworkAddress()
+					var peer = new Peer(PeerOrigin.Advertised, new NetworkAddress()
 					{
 						Endpoint = remoteEndpoint,
 						Time = DateTimeOffset.UtcNow
-					}), this, message.Socket, version);
+					});
+					var node = new Node(peer, Network, CreateVersionPayload(peer, ExternalEndpoint, Version), message.Socket, version);
 
 					if(connectedToSelf)
 					{
@@ -513,9 +498,32 @@ namespace NBitcoin.Protocol
 
 		}
 
+
 		public bool IsConnectedTo(IPEndPoint endpoint)
 		{
 			return _Nodes.Contains(endpoint);
+		}
+
+		ConcurrentDictionary<Node, Node> _ConnectedNodes = new ConcurrentDictionary<Node, Node>();
+
+		public bool AdvertiseMyself()
+		{
+			if(IsListening && ExternalEndpoint.Address.IsRoutable(AllowLocalPeers))
+			{
+				NodeServerTrace.Information("Advertizing myself");
+				foreach(var node in _ConnectedNodes)
+				{
+					node.Value.SendMessage(new AddrPayload(new NetworkAddress()
+					{
+						Ago = TimeSpan.FromSeconds(0),
+						Endpoint = ExternalEndpoint
+					}));
+				}
+				return true;
+			}
+			else
+				return false;
+
 		}
 
 		List<IDisposable> _Resources = new List<IDisposable>();
@@ -575,9 +583,9 @@ namespace NBitcoin.Protocol
 
 		#endregion
 
-		public VersionPayload CreateVersionPayload(Peer peer, IPEndPoint me, ProtocolVersion? version)
+		public VersionPayload CreateVersionPayload(Peer peer, IPEndPoint myExternal, ProtocolVersion? version)
 		{
-			me = Utils.EnsureIPv6(me);
+			myExternal = Utils.EnsureIPv6(myExternal);
 			return new VersionPayload()
 					{
 						Nonce = Nonce,
@@ -586,7 +594,7 @@ namespace NBitcoin.Protocol
 						StartHeight = 0,
 						Timestamp = DateTimeOffset.UtcNow,
 						AddressReciever = peer.NetworkAddress.Endpoint,
-						AddressFrom = me,
+						AddressFrom = myExternal,
 						Relay = IsRelay
 					};
 		}
@@ -604,8 +612,7 @@ namespace NBitcoin.Protocol
 			{
 				if(_UserAgent == null)
 				{
-					var version = this.GetType().Assembly.GetName().Version;
-					_UserAgent = "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Minor + "/";
+					_UserAgent = VersionPayload.GetNBitcoinUserAgent();
 				}
 				return _UserAgent;
 			}
