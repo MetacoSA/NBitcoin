@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
+	public delegate void NodeServerNodeEventHandler(NodeServer sender, Node node);
+	public delegate void NodeServerMessageEventHandler(NodeServer sender, IncomingMessage message);
 	public class NodeServer : IDisposable
 	{
 		private readonly Network _Network;
@@ -51,8 +53,29 @@ namespace NBitcoin.Protocol
 			OwnResource(listener);
 			RegisterPeerTableRepository(_PeerTable);
 			_Nodes = new NodeSet();
+			_Nodes.NodeAdded += _Nodes_NodeAdded;
+			_Nodes.NodeRemoved += _Nodes_NodeRemoved;
 			_Nodes.MessageProducer.AddMessageListener(listener);
 			_Trace = new TraceCorrelation(NodeServerTrace.Trace, "Node server listening on " + LocalEndpoint);
+		}
+
+
+		public event NodeServerNodeEventHandler NodeRemoved;
+		public event NodeServerNodeEventHandler NodeAdded;
+		public event NodeServerMessageEventHandler MessageReceived;
+
+		void _Nodes_NodeRemoved(NodeSet sender, Node node)
+		{
+			var removed = NodeRemoved;
+			if(removed != null)
+				removed(this, node);
+		}
+
+		void _Nodes_NodeAdded(NodeSet sender, Node node)
+		{
+			var added = NodeAdded;
+			if(added != null)
+				added(this, node);
 		}
 
 
@@ -478,8 +501,8 @@ namespace NBitcoin.Protocol
 					cancel.CancelAfter(TimeSpan.FromSeconds(10.0));
 					try
 					{
-						node.RespondToHandShake(cancel.Token);
 						AddNode(node);
+						node.RespondToHandShake(cancel.Token);
 					}
 					catch(OperationCanceledException ex)
 					{
@@ -495,7 +518,9 @@ namespace NBitcoin.Protocol
 				}
 			}
 
-
+			var messageReceived = MessageReceived;
+			if(messageReceived != null)
+				messageReceived(this, message);
 		}
 
 

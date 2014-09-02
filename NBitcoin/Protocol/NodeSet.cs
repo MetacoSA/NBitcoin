@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
+	public delegate void NodeSetEventHandler(NodeSet sender, Node node);
 	public class NodeSet : IDisposable
 	{
 		class NodeListener : MessageListener<IncomingMessage>
@@ -73,37 +74,59 @@ namespace NBitcoin.Protocol
 
 		public Node AddNode(Node node)
 		{
+			var added = false;
 			lock(_Nodes)
 			{
 				if(node.State < NodeState.Connected)
 					return null;
 				node.StateChanged += node_StateChanged;
 				node.MessageProducer.AddMessageListener(_MessageListener);
-
 				var list = GetNodesList(node.Peer.NetworkAddress.Endpoint);
 				list.Add(node);
+				added = true;
 				if(list.Count == 1)
 					_Nodes.Add(node.Peer.NetworkAddress.Endpoint, list);
 			}
+			if(added)
+			{
+				var nodeAdded = NodeAdded;
+				if(nodeAdded != null)
+					nodeAdded(this, node);
+			}
 			return node;
 		}
+
+		public event NodeSetEventHandler NodeAdded;
+		public event NodeSetEventHandler NodeRemoved;
 		void node_StateChanged(Node node, NodeState oldState)
 		{
 			if(node.State == NodeState.Offline || node.State == NodeState.Disconnecting || node.State == NodeState.Failed)
 			{
-				node.StateChanged -= node_StateChanged;
 				RemoveNode(node);
 			}
 		}
 
 		public void RemoveNode(Node node)
 		{
+			bool removed = false;
 			lock(_Nodes)
 			{
-				if(_Nodes.Remove(node.Peer.NetworkAddress.Endpoint))
+				var endpoint = node.Peer.NetworkAddress.Endpoint;
+				var nodes = GetNodesList(endpoint);
+				if(nodes.Remove(node))
 				{
+					removed = true;
 					node.MessageProducer.RemoveMessageListener(_MessageListener);
+					node.StateChanged -= node_StateChanged;
+					if(nodes.Count == 0)
+						_Nodes.Remove(endpoint);
 				}
+			}
+			if(removed)
+			{
+				var nodeRemoved = NodeRemoved;
+				if(nodeRemoved != null)
+					nodeRemoved(this, node);
 			}
 		}
 

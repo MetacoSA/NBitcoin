@@ -263,19 +263,31 @@ namespace NBitcoin.Tests
 		{
 			using(var tester = new NodeServerTester())
 			{
+				int nodeCount = 0;
+				tester.Server1.NodeAdded += (s,a)=> nodeCount++;
+				tester.Server1.NodeRemoved += (s, a) => nodeCount--;
+
 				var n1 = Node.Connect(tester.Server1.Network, tester.Server1.ExternalEndpoint);
 				n1.VersionHandshake();
+				Thread.Sleep(100);
+				Assert.Equal(1, nodeCount);
 				n1.PingPong();
 				var n2 = Node.Connect(tester.Server1.Network, tester.Server1.ExternalEndpoint);
 				n2.VersionHandshake();
 				Thread.Sleep(100);
+				Assert.Equal(2, nodeCount);
 				n2.PingPong();
 				n1.PingPong();
 				Assert.Throws<InvalidOperationException>(() => n2.VersionHandshake());
 				Thread.Sleep(100);
 				n2.PingPong();
+				Assert.Equal(2, nodeCount);
+				n2.Disconnect();
+				Thread.Sleep(100);
+				Assert.Equal(1, nodeCount);
 			}
 		}
+
 
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]

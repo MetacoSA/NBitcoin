@@ -23,6 +23,7 @@ namespace NBitcoin.Protocol
 
 
 	public delegate void NodeEventHandler(Node node);
+	public delegate void NodeEventMessageIncoming(Node node, IncomingMessage message);
 	public delegate void NodeStateEventHandler(Node node, NodeState oldState);
 	public class Node : IDisposable
 	{
@@ -115,6 +116,7 @@ namespace NBitcoin.Protocol
 							Code = RejectCode.DUPLICATE
 						});
 				}
+				Node.OnMessageReceived(message);
 			}
 
 			public void BeginListen()
@@ -313,6 +315,16 @@ namespace NBitcoin.Protocol
 				_Connection.BeginListen();
 			}
 		}
+
+
+		public event NodeEventMessageIncoming MessageReceived;
+		protected void OnMessageReceived(IncomingMessage message)
+		{
+			var messageReceived = MessageReceived;
+			if(messageReceived != null)
+				messageReceived(this, message);
+		}
+
 		internal Node(Peer peer, Network network, VersionPayload myVersion, Socket socket, VersionPayload peerVersion)
 		{
 			_MyVersion = myVersion;
