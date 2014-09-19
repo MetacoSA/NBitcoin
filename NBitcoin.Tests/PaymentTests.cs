@@ -50,6 +50,7 @@ namespace NBitcoin.Tests
 			Assert.Throws<FormatException>(() => new BitcoinUrlBuilder("bitcoin:129mVqKUmJ9uwPxKJBnNdABbuaaNfho4Ha?amount=50&label=Luke-Jr&message=Donation%20for%20project%20xyz&req-unknownparam=lol"));
 
 			url = new BitcoinUrlBuilder("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h%3D2a8628fc2fbe");
+			Assert.Equal("bitcoin:mq7se9wy2egettFxPbmn99cK8v5AFq55Lx?amount=0.11&r=https://merchant.com/pay.php?h%3d2a8628fc2fbe", url.ToString());
 			Assert.Equal("https://merchant.com/pay.php?h=2a8628fc2fbe", url.PaymentRequestUrl.ToString());
 			Assert.Equal(url.ToString(), new BitcoinUrlBuilder(url.ToString()).ToString());
 
@@ -104,7 +105,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanVerifyValidChain()
 		{
-			var req =PaymentRequest.Load("data/payreq3_validchain.paymentrequest");
+			var req = PaymentRequest.Load("data/payreq3_validchain.paymentrequest");
 			Assert.True(req.VerifyChain(X509VerificationFlags.IgnoreNotTimeValid));
 			Assert.True(req.VerifySignature());
 		}
@@ -197,7 +198,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		
+
 	}
 
 	public class PaymentServerTester : IDisposable

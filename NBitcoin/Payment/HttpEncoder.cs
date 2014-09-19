@@ -10,6 +10,7 @@
 // (C) 2005-2010 Novell, Inc (http://novell.com/)
 //
 
+using NBitcoin.DataEncoders;
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -32,7 +33,6 @@
 //
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -233,7 +233,7 @@ namespace System.Web.Util
 			for(int i = 0 ; i < length ; i++)
 				UrlPathEncodeChar(value[i], result);
 
-			return Encoding.ASCII.GetString(result.ToArray());
+			return Encoders.ASCII.EncodeData(result.ToArray());
 		}
 
 		internal static byte[] UrlEncodeToBytes(byte[] bytes, int offset, int count)
@@ -525,9 +525,9 @@ namespace System.Web.Util
 #endif
 						have_trailing_digits = false;
 					}
-					else if(is_hex_value && Uri.IsHexDigit(c))
+					else if(is_hex_value && (HexEncoder.IsDigit(c) != -1))
 					{
-						number = number * 16 + Uri.FromHex(c);
+						number = number * 16 + HexEncoder.IsDigit(c);
 						have_trailing_digits = true;
 #if NET_4_0
 						rawEntity.Append (c);
@@ -574,7 +574,10 @@ namespace System.Web.Util
 
 		internal static bool NotEncoded(char c)
 		{
-			return (c == '!' || c == '(' || c == ')' || c == '*' || c == '-' || c == '.' || c == '_'
+			//query strings are allowed to contain both ? and / characters, see section 3.4 of http://www.ietf.org/rfc/rfc3986.txt, which is basically the spec written by Tim Berners-Lee and friends governing how the web should operate.
+			//pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+			//query         = *( pchar / "/" / "?" )
+			return (c == '!' || c == '(' || c == ')' || c == '*' || c == '-' || c == '.' || c == '_' || c == '?' || c == '/' || c == ':'
 #if !NET_4_0
  || c == '\''
 #endif

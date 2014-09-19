@@ -34,20 +34,18 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.IO;
-using System.Security.Permissions;
 using System.Text;
+using System.Linq;
 using System.Web.Util;
+using NBitcoin.DataEncoders;
 
 namespace System.Web
 {
 
-#if !MOBILE
-	// CAS - no InheritanceDemand here as the class is sealed
-	[AspNetHostingPermission(SecurityAction.LinkDemand, Level = AspNetHostingPermissionLevel.Minimal)]
-#endif
-	internal sealed class HttpUtility
+
+	public sealed class HttpUtility
 	{
-		sealed class HttpQSCollection : NameValueCollection
+		sealed class HttpQSCollection : Dictionary<string, string>
 		{
 			public override string ToString()
 			{
@@ -55,7 +53,7 @@ namespace System.Web
 				if(count == 0)
 					return "";
 				StringBuilder sb = new StringBuilder();
-				string[] keys = AllKeys;
+				string[] keys = Keys.OfType<string>().ToArray();
 				for(int i = 0 ; i < count ; i++)
 				{
 					sb.AppendFormat("{0}={1}&", keys[i], this[keys[i]]);
@@ -115,7 +113,7 @@ namespace System.Web
 
 		static char[] GetChars(MemoryStream b, Encoding e)
 		{
-			return e.GetChars(b.GetBuffer(), 0, (int)b.Length);
+			return e.GetChars(b.ToArray(), 0, (int)b.Length);
 		}
 
 		static void WriteCharBytes(IList buf, char ch, Encoding e)
@@ -182,7 +180,7 @@ namespace System.Web
 
 			byte[] buf = bytes.ToArray();
 			bytes = null;
-			return e.GetString(buf);
+			return e.GetString(buf, 0, buf.Length);
 
 		}
 
@@ -412,7 +410,7 @@ namespace System.Web
 			// avoided GetByteCount call
 			byte[] bytes = new byte[Enc.GetMaxByteCount(s.Length)];
 			int realLen = Enc.GetBytes(s, 0, s.Length, bytes, 0);
-			return Encoding.ASCII.GetString(UrlEncodeToBytes(bytes, 0, realLen));
+			return Encoders.ASCII.EncodeData(UrlEncodeToBytes(bytes, 0, realLen));
 		}
 
 		public static string UrlEncode(byte[] bytes)
@@ -423,7 +421,7 @@ namespace System.Web
 			if(bytes.Length == 0)
 				return String.Empty;
 
-			return Encoding.ASCII.GetString(UrlEncodeToBytes(bytes, 0, bytes.Length));
+			return Encoders.ASCII.EncodeData(UrlEncodeToBytes(bytes, 0, bytes.Length));
 		}
 
 		public static string UrlEncode(byte[] bytes, int offset, int count)
@@ -434,7 +432,7 @@ namespace System.Web
 			if(bytes.Length == 0)
 				return String.Empty;
 
-			return Encoding.ASCII.GetString(UrlEncodeToBytes(bytes, offset, count));
+			return Encoders.ASCII.EncodeData(UrlEncodeToBytes(bytes, offset, count));
 		}
 
 		public static byte[] UrlEncodeToBytes(string str)
@@ -481,7 +479,7 @@ namespace System.Web
 			if(str == null)
 				return null;
 
-			return Encoding.ASCII.GetString(UrlEncodeUnicodeToBytes(str));
+			return Encoders.ASCII.EncodeData(UrlEncodeUnicodeToBytes(str));
 		}
 
 		public static byte[] UrlEncodeUnicodeToBytes(string str)
@@ -684,12 +682,12 @@ namespace System.Web
 #endif
 		}
 
-		public static NameValueCollection ParseQueryString(string query)
+		public static Dictionary<string, string> ParseQueryString(string query)
 		{
 			return ParseQueryString(query, Encoding.UTF8);
 		}
 
-		public static NameValueCollection ParseQueryString(string query, Encoding encoding)
+		public static Dictionary<string, string> ParseQueryString(string query, Encoding encoding)
 		{
 			if(query == null)
 				throw new ArgumentNullException("query");
@@ -700,12 +698,12 @@ namespace System.Web
 			if(query[0] == '?')
 				query = query.Substring(1);
 
-			NameValueCollection result = new HttpQSCollection();
+			Dictionary<string, string> result = new HttpQSCollection();
 			ParseQueryString(query, encoding, result);
 			return result;
 		}
 
-		internal static void ParseQueryString(string query, Encoding encoding, NameValueCollection result)
+		internal static void ParseQueryString(string query, Encoding encoding, Dictionary<string, string> result)
 		{
 			if(query.Length == 0)
 				return;
