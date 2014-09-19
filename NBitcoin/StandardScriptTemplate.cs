@@ -269,10 +269,12 @@ namespace NBitcoin
 				return null;
 			try
 			{
+				var multiSig = ops.Length > 0 && ops[0].Code == OpcodeType.OP_0;
 				PayToScriptHashSigParameters result = new PayToScriptHashSigParameters();
 				result.Signatures =
 					ops
-					.Take(ops.Length - 1)
+					.Skip(multiSig ? 1 : 0)
+					.Take(ops.Length - 1 - (multiSig ? 1 : 0))
 					.Select(o => new TransactionSignature(o.PushData))
 					.ToArray();
 				result.RedeemScript = new Script(ops[ops.Length - 1].PushData);
@@ -287,6 +289,9 @@ namespace NBitcoin
 		public Script GenerateScriptSig(TransactionSignature[] signatures, Script redeemScript)
 		{
 			List<Op> ops = new List<Op>();
+			bool multiSig = signatures.Length > 1;
+			if(multiSig)
+				ops.Add(OpcodeType.OP_0);
 			foreach(var sig in signatures)
 			{
 				ops.Add(Op.GetPushOp(sig.ToBytes()));
