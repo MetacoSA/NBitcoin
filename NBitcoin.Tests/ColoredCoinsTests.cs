@@ -18,10 +18,10 @@ namespace NBitcoin.Tests
 			var address = key.PubKey.Decompress().GetAddress(Network.Main);
 			Assert.Equal("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM", address.ToString());
 
-			Script script = Script.FromBitcoinAddress(address);
+			Script script = Script.CreateFromDestinationAddress(address);
 			Assert.Equal("OP_DUP OP_HASH160 010966776006953D5567439E5E39F86A0D273BEE OP_EQUALVERIFY OP_CHECKSIG", script.ToString().ToUpper());
 
-			var scriptAddress = script.GetAddress(Network.Main);
+			var scriptAddress = script.GetScriptAddress(Network.Main);
 			Assert.Equal("36hBrMeUfevFPZdY2iYSHVaP9jdLd9Np4R", scriptAddress.ToString());
 		}
 

@@ -32,6 +32,11 @@ namespace NBitcoin
 			_Dest = value;
 		}
 
+		public BitcoinAddress GetAddress(Network network)
+		{
+			return BitcoinAddress.Create(this, network);
+		}
+
 		public virtual Script CreateScriptPubKey()
 		{
 			return null;

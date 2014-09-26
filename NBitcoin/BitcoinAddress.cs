@@ -111,5 +111,17 @@ namespace NBitcoin
 				return Base58Type.PUBKEY_ADDRESS;
 			}
 		}
+
+		public static BitcoinAddress Create(TxDestination id, Network network)
+		{
+			if(network == null)
+				throw new ArgumentNullException("network");
+			if(id is KeyId)
+				return new BitcoinAddress(id, network);
+			else if(id is ScriptId)
+				return new BitcoinScriptAddress((ScriptId)id, network);
+			else
+				throw new NotSupportedException();
+		}
 	}
 }

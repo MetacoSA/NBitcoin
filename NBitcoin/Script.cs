@@ -532,7 +532,7 @@ namespace NBitcoin
 			}
 		}
 
-		public BitcoinScriptAddress GetAddress(Network network)
+		public BitcoinScriptAddress GetScriptAddress(Network network)
 		{
 			return new BitcoinScriptAddress(ID, network);
 		}
@@ -561,64 +561,126 @@ namespace NBitcoin
 			return new Script(scriptSig.ToOps().Last().PushData).GetSigOpCount(true);
 		}
 
-		public PubKey GetSourcePubKey()
-		{
-			var template = new PayToPubkeyHashTemplate();
-			var result = template.ExtractScriptSigParameters(this);
-			return result == null ? null : result.PublicKey;
-		}
-
-		public KeyId GetDestination()
-		{
-			var template = FindTemplate();
-			var payToPubKeyHash = template as PayToPubkeyHashTemplate;
-			if(payToPubKeyHash != null)
-			{
-				return payToPubKeyHash.ExtractScriptPubKeyParameters(this);
-			}
-			var payToPubKey = template as PayToPubkeyTemplate;
-			if(payToPubKey != null)
-			{
-				var result = new PayToPubkeyHashTemplate().ExtractScriptPubKeyParameters(this);
-				if(result == null)
-				{
-					var pub = new PayToPubkeyTemplate().ExtractScriptPubKeyParameters(this);
-					if(pub != null)
-						return pub.ID;
-				}
-			}
-			return null;
-		}
-
 		public ScriptTemplate FindTemplate()
 		{
 			return StandardScripts.GetTemplateFromScriptPubKey(this);
 		}
+		static readonly PayToScriptHashTemplate _PayToScriptHash = new PayToScriptHashTemplate();
+		static readonly PayToPubkeyHashTemplate _PayToPubkeyHash = new PayToPubkeyHashTemplate();
 
-		public IEnumerable<KeyId> GetDestinations()
+		/// <summary>
+		/// Extract P2SH or P2PH address from scriptSig
+		/// </summary>
+		/// <param name="network"></param>
+		/// <returns></returns>
+		public BitcoinAddress GetSignerAddress(Network network)
 		{
+			var sig = GetSigner();
+			if(sig == null)
+				return null;
+			return BitcoinAddress.Create(sig, network);
+		}
+
+		/// <summary>
+		/// Extract P2SH or P2PH id from scriptSig
+		/// </summary>
+		/// <returns></returns>
+		public TxDestination GetSigner()
+		{
+			var pubKey = _PayToPubkeyHash.ExtractScriptSigParameters(this);
+			if(pubKey != null)
+			{
+				return pubKey.PublicKey.ID;
+			}
+			var p2sh = _PayToScriptHash.ExtractScriptSigParameters(this);
+			if(p2sh != null)
+			{
+				return p2sh.RedeemScript.ID;
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Extract P2SH or P2PH address from scriptPubKey
+		/// </summary>
+		/// <param name="network"></param>
+		/// <returns></returns>
+		public BitcoinAddress GetDestinationAddress(Network network)
+		{
+			var dest = GetDestination();
+			if(dest == null)
+				return null;
+			return BitcoinAddress.Create(dest, network);
+		}
+
+		/// <summary>
+		/// Extract P2SH or P2PH id from scriptPubKey
+		/// </summary>
+		/// <param name="network"></param>
+		/// <returns></returns>
+		public TxDestination GetDestination()
+		{
+			var pubKeyHashParams = _PayToPubkeyHash.ExtractScriptPubKeyParameters(this);
+			if(pubKeyHashParams != null)
+				return pubKeyHashParams;
+			var scriptHashParams = _PayToScriptHash.ExtractScriptPubKeyParameters(this);
+			if(scriptHashParams != null)
+				return scriptHashParams;
+			return null;
+		}
+
+		/// <summary>
+		/// Extract P2SH, P2PH address or multiple P2PHs addresses if this script is a multi sig from scriptPubKey
+		/// </summary>
+		/// <param name="network"></param>
+		/// <returns></returns>
+		public BitcoinAddress[] GetDestinationAddresses(Network network)
+		{
+			return GetDestinations()
+					.Select(id => BitcoinAddress.Create(id, network))
+					.ToArray();
+		}
+		/// <summary>
+		/// Extract P2SH, P2PH id or multiple P2PHs ids if this script is a multi sig scriptPubKey
+		/// </summary>
+		/// <param name="network"></param>
+		/// <returns></returns>
+		public TxDestination[] GetDestinations()
+		{
+			List<TxDestination> result = new List<TxDestination>();
 			var single = GetDestination();
 			if(single != null)
 			{
-				yield return single;
+				result.Add(single);
 			}
 			else
 			{
-				var result = new PayToMultiSigTemplate().ExtractScriptPubKeyParameters(this);
-				if(result != null)
+				var multiSig = new PayToMultiSigTemplate().ExtractScriptPubKeyParameters(this);
+				if(multiSig != null)
 				{
-					foreach(var key in result.PubKeys)
+					foreach(var key in multiSig.PubKeys)
 					{
-						yield return key.ID;
+						result.Add(key.ID);
 					}
 				}
 			}
+			return result.ToArray();
 		}
 
+		/// <summary>
+		/// Get script byte array
+		/// </summary>
+		/// <returns></returns>
 		public byte[] ToRawScript()
 		{
-			return _Script.ToArray();
+			return ToRawScript(false);
 		}
+
+		/// <summary>
+		/// Get script byte array
+		/// </summary>
+		/// <param name="unsafe">if false, returns a copy of the internal byte array</param>
+		/// <returns></returns>
 		public byte[] ToRawScript(bool @unsafe)
 		{
 			if(@unsafe)
@@ -654,9 +716,29 @@ namespace NBitcoin
 			return Utils.ArrayEqual(script._Script, _Script);
 		}
 
-		public static Script FromBitcoinAddress(BitcoinAddress address)
+		/// <summary>
+		/// Create scriptPubKey from destination id
+		/// </summary>
+		/// <param name="id"></param>
+		/// <returns></returns>
+		public static Script CreateFromDestination(TxDestination id)
 		{
-			return new PayToPubkeyHashTemplate().GenerateScriptPubKey(address);
+			if(id is ScriptId)
+				return new PayToScriptHashTemplate().GenerateScriptPubKey((ScriptId)id);
+			else if(id is KeyId)
+				return new PayToPubkeyHashTemplate().GenerateScriptPubKey((KeyId)id);
+			else
+				throw new NotSupportedException();
+		}
+
+		/// <summary>
+		/// Create scriptPubKey from destination address
+		/// </summary>
+		/// <param name="address"></param>
+		/// <returns></returns>
+		public static Script CreateFromDestinationAddress(BitcoinAddress address)
+		{
+			return CreateFromDestination(address.ID);
 		}
 	}
 }
