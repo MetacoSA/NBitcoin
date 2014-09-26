@@ -289,7 +289,8 @@ namespace NBitcoin
 		public Script GenerateScriptSig(TransactionSignature[] signatures, Script redeemScript)
 		{
 			List<Op> ops = new List<Op>();
-			bool multiSig = signatures.Length > 1;
+			PayToMultiSigTemplate multiSigTemplate = new PayToMultiSigTemplate();
+			bool multiSig = multiSigTemplate.CheckScriptPubKey(redeemScript);
 			if(multiSig)
 				ops.Add(OpcodeType.OP_0);
 			foreach(var sig in signatures)
