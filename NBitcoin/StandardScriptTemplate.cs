@@ -33,7 +33,7 @@ namespace NBitcoin
 			{
 				return ops[1].PushData != null && ops[1].PushData.Length <= 40;
 			}
-			return false;
+			return true;
 		}
 
 		public byte[] ExtractScriptPubKeyParameters(Script scriptPubKey)
@@ -41,6 +41,8 @@ namespace NBitcoin
 			var ops = scriptPubKey.ToOps().ToArray();
 			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
+			if(ops.Length == 1)
+				return new byte[0];
 			return ops[1].PushData;
 		}
 
