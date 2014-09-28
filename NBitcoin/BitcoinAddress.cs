@@ -122,6 +122,8 @@ namespace NBitcoin
 
 		public static BitcoinAddress Create(TxDestination id, Network network)
 		{
+			if(id == null)
+				throw new ArgumentNullException("id");
 			if(network == null)
 				throw new ArgumentNullException("network");
 			if(id is KeyId)

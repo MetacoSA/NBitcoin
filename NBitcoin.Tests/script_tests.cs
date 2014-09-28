@@ -482,10 +482,10 @@ namespace NBitcoin.Tests
 			var payToMultiSig = new Script("1 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d 2 OP_CHECKMULTISIG");
 
 			Assert.Null(payToMultiSig.GetSigner());
-			var destinations = payToMultiSig.GetDestinations();
+			var destinations = payToMultiSig.GetDestinationPublicKeys();
 			Assert.Equal(2, destinations.Length);
-			Assert.Equal(new PubKey("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c").ID, destinations[0]);
-			Assert.Equal(new PubKey("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d").ID, destinations[1]);
+			Assert.Equal("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c", destinations[0].ToHex());
+			Assert.Equal("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d", destinations[1].ToHex());
 
 			var payToScriptHash = new Script("OP_HASH160 b5b88dd9befc9236915fcdbb7fd50052df50c855 OP_EQUAL");
 			Assert.NotNull(payToScriptHash.GetDestination());

@@ -630,25 +630,14 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Extract P2SH, P2PH address or multiple P2PHs addresses if this script is a multi sig from scriptPubKey
+		/// Extract public keys if this script is a multi sig or pay to pub key scriptPubKey
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
-		public BitcoinAddress[] GetDestinationAddresses(Network network)
+		public PubKey[] GetDestinationPublicKeys()
 		{
-			return GetDestinations()
-					.Select(id => BitcoinAddress.Create(id, network))
-					.ToArray();
-		}
-		/// <summary>
-		/// Extract P2SH, P2PH id or multiple P2PHs ids if this script is a multi sig scriptPubKey
-		/// </summary>
-		/// <param name="network"></param>
-		/// <returns></returns>
-		public TxDestination[] GetDestinations()
-		{
-			List<TxDestination> result = new List<TxDestination>();
-			var single = GetDestination();
+			List<PubKey> result = new List<PubKey>();
+			var single = new PayToPubkeyTemplate().ExtractScriptPubKeyParameters(this);
 			if(single != null)
 			{
 				result.Add(single);
@@ -660,7 +649,7 @@ namespace NBitcoin
 				{
 					foreach(var key in multiSig.PubKeys)
 					{
-						result.Add(key.ID);
+						result.Add(key);
 					}
 				}
 			}

@@ -108,10 +108,14 @@ namespace NBitcoin.RPC
 				WritePropertyValue(writer, "asm", txout.ScriptPubKey.ToString());
 				WritePropertyValue(writer, "hex", Encoders.Hex.EncodeData(txout.ScriptPubKey.ToRawScript()));
 
-				var destinations = txout.ScriptPubKey.GetDestinations().ToArray();
-
-
-				if(destinations.Length == 1)
+				var destinations = new List<TxDestination>() { txout.ScriptPubKey.GetDestination() };
+				if(destinations[0] == null)
+				{
+					destinations = txout.ScriptPubKey.GetDestinationPublicKeys()
+														.Select(p => p.ID)
+														.ToList<TxDestination>();
+				}
+				if(destinations.Count == 1)
 				{
 					WritePropertyValue(writer, "reqSigs", 1);
 					WritePropertyValue(writer, "type", GetScriptType(txout.ScriptPubKey.FindTemplate()));
