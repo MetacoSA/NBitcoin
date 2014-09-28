@@ -74,9 +74,10 @@ namespace NBitcoin
 		{
 			return network.CreateBitcoinAddress(this.ID);
 		}
+
 		public BitcoinScriptAddress GetScriptAddress(Network network)
 		{
-			var redeem = new PayToPubkeyHashTemplate().GenerateScriptPubKey(this);
+			var redeem = new PayToPubkeyTemplate().GenerateScriptPubKey(this);
 			return new BitcoinScriptAddress(redeem.ID, network);
 		}
 

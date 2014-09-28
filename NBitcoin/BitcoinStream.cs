@@ -227,7 +227,10 @@ namespace NBitcoin
 			}
 			else
 			{
-				data = (byte)Inner.ReadByte();
+				var readen = Inner.ReadByte();
+				if(readen == -1)
+					throw new EndOfStreamException("No more byte to read");
+				data = (byte)readen;
 				Counter.AddReaden(1);
 			}
 		}

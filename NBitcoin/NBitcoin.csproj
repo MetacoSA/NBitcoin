@@ -79,6 +79,7 @@
     <Compile Include="IndexedStore.cs" />
     <Compile Include="InMemoryNoSqlRepository.cs" />
     <Compile Include="ObjectStream.cs" />
+    <Compile Include="OpenAsset\OpenAssetPayload.cs" />
     <Compile Include="Payment\BitcoinUrlBuilder.cs" />
     <Compile Include="Payment\HttpEncoder.cs" />
     <Compile Include="Payment\PaymentACK.cs" />
@@ -250,9 +251,7 @@
       <Name>Mono.Nat</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ColoredCoin\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

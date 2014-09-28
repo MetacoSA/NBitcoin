@@ -93,6 +93,14 @@ namespace NBitcoin
 			}
 		}
 
+		public BitcoinScriptAddress GetScriptAddress()
+		{
+			if(this is BitcoinScriptAddress)
+				return (BitcoinScriptAddress)this;
+			var redeem = new PayToPubkeyHashTemplate().GenerateScriptPubKey(this);
+			return new BitcoinScriptAddress(redeem.ID, Network);
+		}
+
 		protected virtual Script GeneratePaymentScript()
 		{
 			return new PayToPubkeyHashTemplate().GenerateScriptPubKey((KeyId)this.ID);
