@@ -78,7 +78,14 @@
     <Compile Include="IndexedBlockUndoStore.cs" />
     <Compile Include="IndexedStore.cs" />
     <Compile Include="InMemoryNoSqlRepository.cs" />
+    <Compile Include="ITransactionRepository.cs" />
+    <Compile Include="NoSqlTransactionRepository.cs" />
     <Compile Include="ObjectStream.cs" />
+    <Compile Include="OpenAsset\Asset.cs" />
+    <Compile Include="OpenAsset\ColoredTransaction.cs" />
+    <Compile Include="OpenAsset\Extensions.cs" />
+    <Compile Include="OpenAsset\IColoredTransactionRepository.cs" />
+    <Compile Include="OpenAsset\NoSqlColoredTransactionRepository.cs" />
     <Compile Include="OpenAsset\OpenAssetPayload.cs" />
     <Compile Include="Payment\BitcoinUrlBuilder.cs" />
     <Compile Include="Payment\HttpEncoder.cs" />
@@ -179,6 +186,7 @@
     <Compile Include="StoredItem.cs" />
     <Compile Include="Target.cs" />
     <Compile Include="TraceCorrelationScope.cs" />
+    <Compile Include="TransactionNotFoundException.cs" />
     <Compile Include="TransactionSignature.cs" />
     <Compile Include="Crypto\Hashes.cs" />
     <Compile Include="DataEncoders\Base58Encoder.cs" />

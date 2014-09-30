@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.OpenAsset
 {
-	public class OpenAssetPayload
+	public class OpenAssetPayload : IBitcoinSerializable
 	{
 		const ushort Tag = 0x414f;
 		public static OpenAssetPayload TryParse(Script script)
@@ -15,39 +15,46 @@ namespace NBitcoin.OpenAsset
 			try
 			{
 				OpenAssetPayload result = new OpenAssetPayload();
-				var data = _NullTemplate.ExtractScriptPubKeyParameters(script);
-				if(data == null)
+				if(!result.ReadScript(script))
 					return null;
-				BitcoinStream stream = new BitcoinStream(data);
-				ushort marker = 0;
-				stream.ReadWrite(ref marker);
-				if(marker != Tag)
-					return null;
-				stream.ReadWrite(ref result._Version);
-				if(result._Version != 1)
-					return null;
-
-				ulong quantityCount = 0;
-				stream.ReadWriteAsVarInt(ref quantityCount);
-				result.Quantities = new ulong[quantityCount];
-				try
-				{
-					for(ulong i = 0 ; i < quantityCount ; i++)
-					{
-						result.Quantities[i] = ReadLEB128(stream);
-					}
-				}
-				catch(FormatException)
-				{
-					return null;
-				}
-				stream.ReadWriteAsVarString(ref result._Metadata);
 				return result;
 			}
 			catch(EndOfStreamException)
 			{
 				return null;
 			}
+		}
+
+		private bool ReadScript(Script script)
+		{
+			var data = _NullTemplate.ExtractScriptPubKeyParameters(script);
+			if(data == null)
+				return false;
+			BitcoinStream stream = new BitcoinStream(data);
+			ushort marker = 0;
+			stream.ReadWrite(ref marker);
+			if(marker != Tag)
+				return false;
+			stream.ReadWrite(ref _Version);
+			if(_Version != 1)
+				return false;
+
+			ulong quantityCount = 0;
+			stream.ReadWriteAsVarInt(ref quantityCount);
+			Quantities = new ulong[quantityCount];
+			try
+			{
+				for(ulong i = 0 ; i < quantityCount ; i++)
+				{
+					Quantities[i] = ReadLEB128(stream);
+				}
+			}
+			catch(FormatException)
+			{
+				return false;
+			}
+			stream.ReadWriteAsVarString(ref _Metadata);
+			return true;
 		}
 
 		private static ulong ReadLEB128(BitcoinStream stream)
@@ -183,5 +190,45 @@ namespace NBitcoin.OpenAsset
 			stream.ReadWriteAsVarString(ref _Metadata);
 			return _NullTemplate.GenerateScriptPubKey(ms.ToArray());
 		}
+
+		public static OpenAssetPayload Get(Transaction transaction)
+		{
+			int i = 0;
+			return Get(transaction, out i);
+		}
+
+		public static OpenAssetPayload Get(Transaction transaction, out int markerPosition)
+		{
+			int resultIndex = 0;
+			var result = transaction.Outputs.Select(o => TryParse(o.ScriptPubKey)).Where((o, i) =>
+			{
+				resultIndex = i;
+				return o != null;
+			}).FirstOrDefault();
+			markerPosition = resultIndex;
+			return result;
+		}
+
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			if(stream.Serializing)
+			{
+				var script = GetScript().ToRawScript(true);
+				stream.ReadWrite(ref script);
+			}
+			else
+			{
+				byte[] script = null;
+				stream.ReadWrite(ref script);
+				if(!ReadScript(new Script(script)))
+				{
+					throw new FormatException("Invalid OpenAssetPayload");
+				}
+			}
+		}
+
+		#endregion
 	}
 }
