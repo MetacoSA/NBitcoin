@@ -47,6 +47,8 @@ namespace NBitcoin.OpenAsset
 				for(ulong i = 0 ; i < quantityCount ; i++)
 				{
 					Quantities[i] = ReadLEB128(stream);
+					if(Quantities[i] > MAX_QUANTITY)
+						throw new FormatException();
 				}
 			}
 			catch(FormatException)
@@ -142,7 +144,11 @@ namespace NBitcoin.OpenAsset
 		{
 
 		}
-
+		public OpenAssetPayload(Script script)
+		{
+			if(!ReadScript(script))
+				throw new FormatException("Not a Open asset payload");
+		}
 		ushort _Version;
 		public ushort Version
 		{
@@ -175,6 +181,7 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 		static TxNullDataTemplate _NullTemplate = new TxNullDataTemplate();
+		private const ulong MAX_QUANTITY = ((1UL << 63) - 1);
 		public Script GetScript()
 		{
 			MemoryStream ms = new MemoryStream();
@@ -185,6 +192,8 @@ namespace NBitcoin.OpenAsset
 			stream.ReadWriteAsVarInt(ref quantityCount);
 			for(int i = 0 ; i < quantityCount ; i++)
 			{
+				if(Quantities[i] > MAX_QUANTITY)
+					throw new ArgumentOutOfRangeException("Quantity should not exceed " + Quantities[i]);
 				WriteLEB128(Quantities[i], stream);
 			}
 			stream.ReadWriteAsVarString(ref _Metadata);
@@ -215,14 +224,14 @@ namespace NBitcoin.OpenAsset
 		{
 			if(stream.Serializing)
 			{
-				var script = GetScript().ToRawScript(true);
+				var script = GetScript();
 				stream.ReadWrite(ref script);
 			}
 			else
 			{
-				byte[] script = null;
+				Script script = null;
 				stream.ReadWrite(ref script);
-				if(!ReadScript(new Script(script)))
+				if(!ReadScript(script))
 				{
 					throw new FormatException("Invalid OpenAssetPayload");
 				}
@@ -230,5 +239,10 @@ namespace NBitcoin.OpenAsset
 		}
 
 		#endregion
+
+		public static bool HasPayload(Transaction tx)
+		{
+			return Get(tx) != null;
+		}
 	}
 }

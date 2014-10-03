@@ -6,6 +6,46 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.OpenAsset
 {
+	public class ColoredEntry : IBitcoinSerializable
+	{
+		public ColoredEntry()
+		{
+
+		}
+		uint _Index;
+		public int Index
+		{
+			get
+			{
+				return (int)_Index;
+			}
+			set
+			{
+				_Index = (uint)value;
+			}
+		}
+		Asset _Asset = new Asset();
+		public Asset Asset
+		{
+			get
+			{
+				return _Asset;
+			}
+			set
+			{
+				_Asset = value;
+			}
+		}
+		#region IBitcoinSerializable Members
+
+		public void ReadWrite(BitcoinStream stream)
+		{
+			stream.ReadWriteAsVarInt(ref _Index);
+			stream.ReadWrite(ref _Asset);
+		}
+
+		#endregion
+	}
 	public class ColoredTransaction : IBitcoinSerializable
 	{
 		public static ColoredTransaction FetchColors(Transaction tx, IColoredTransactionRepository repo)
@@ -28,21 +68,55 @@ namespace NBitcoin.OpenAsset
 			var result = repo.Get(txId);
 			if(result != null)
 				return result;
-			int markerPos = 0;
+
 			ColoredTransaction colored = new ColoredTransaction();
+
+			Queue<ColoredEntry> previousAssetQueue = new Queue<ColoredEntry>();
+			for(int i = 0 ; i < tx.Inputs.Count ; i++)
+			{
+				var txin = tx.Inputs[i];
+				var prevColored = repo.Get(txin.PrevOut.Hash);
+				if(prevColored == null)
+				{
+					var prevTx = repo.Transactions.Get(txin.PrevOut.Hash);
+					if(prevTx == null)
+						throw new TransactionNotFoundException("Transaction " + txin.PrevOut.Hash + " not found in transaction repository", txId);
+					if(!prevTx.HasColoredMarker())
+					{
+						continue;
+					}
+					prevColored = FetchColors(txin.PrevOut.Hash, prevTx, repo);
+				}
+
+				var prevAsset = prevColored.GetColoredEntry(txin.PrevOut.N);
+				if(prevAsset != null)
+				{
+					previousAssetQueue.Enqueue(prevAsset);
+					colored.Inputs.Add(new ColoredEntry()
+					{
+						Index = i,
+						Asset = prevAsset.Asset
+					});
+				}
+			}
+
+			int markerPos = 0;
 			colored.TxId = txId;
 			var payload = OpenAssetPayload.Get(tx, out markerPos);
 			if(payload == null)
+			{
+				repo.Put(txId, colored);
 				return colored;
+			}
 
 			colored.Payload = payload;
 			ScriptId issuedAsset = null;
 			for(int i = 0 ; i < markerPos ; i++)
 			{
-				var asset = new Asset();
-				asset.Index = i;
-				asset.Quantity = i >= payload.Quantities.Length ? 0 : payload.Quantities[i];
-				if(asset.Quantity == 0)
+				var entry = new ColoredEntry();
+				entry.Index = i;
+				entry.Asset.Quantity = i >= payload.Quantities.Length ? 0 : payload.Quantities[i];
+				if(entry.Asset.Quantity == 0)
 					continue;
 
 				if(issuedAsset == null)
@@ -55,67 +129,62 @@ namespace NBitcoin.OpenAsset
 						throw new TransactionNotFoundException("This open asset transaction is issuing assets, but it needs a parent transaction in the TransactionRepository to know the address of the issued asset (missing : " + txIn.PrevOut.Hash + ")", txIn.PrevOut.Hash);
 					issuedAsset = prev.Outputs[(int)txIn.PrevOut.N].ScriptPubKey.ID;
 				}
-				asset.AssetId = issuedAsset;
-				colored.Issuances.Add(asset);
+				entry.Asset.Id = issuedAsset;
+				colored.Issuances.Add(entry);
 			}
 
+			//If there are more items in the  asset quantity list  than the number of colorable outputs, the transaction is deemed invalid, and all outputs are uncolored.
+			if(payload.Quantities.Length > tx.Outputs.Count - 1)
+			{
+				repo.Put(txId, colored);
+				return colored;
+			}
 
-			Queue<Asset> spentAssets = null;
-			uint used = 0;
+			ulong used = 0;
 			for(int i = markerPos + 1 ; i < tx.Outputs.Count ; i++)
 			{
-				var asset = new Asset();
-				asset.Index = i;
-				asset.Quantity = (i - 1) >= payload.Quantities.Length ? 0 : payload.Quantities[i - 1];
-				if(asset.Quantity == 0)
+				var entry = new ColoredEntry();
+				entry.Index = i;
+				//If there are less items in the  asset quantity list  than the number of colorable outputs (all the outputs except the marker output), the outputs in excess receive an asset quantity of zero.
+				entry.Asset.Quantity = (i - 1) >= payload.Quantities.Length ? 0 : payload.Quantities[i - 1];
+				if(entry.Asset.Quantity == 0)
 					continue;
 
-				if(spentAssets == null)
+				//If there are less asset units in the input sequence than in the output sequence, the transaction is considered invalid and all outputs are uncolored. 
+				if(previousAssetQueue.Count == 0)
 				{
-					spentAssets = new Queue<Asset>();
-					foreach(var txin in tx.Inputs)
-					{
-						var prevColored = FetchColors(txin.PrevOut.Hash, repo);
-						if(prevColored != null)
-						{
-							var prevAsset = prevColored.GetAsset(txin.PrevOut.N);
-							if(prevAsset != null)
-							{
-								spentAssets.Enqueue(prevAsset);
-								colored.Inputs.Add(prevAsset);
-							}
-						}
-					}
-				}
-				if(spentAssets.Count == 0)
-				{
-					//Invalid
+					colored.Transfers.Clear();
+					colored.Issuances.Clear();
 					break;
 				}
-				asset.AssetId = spentAssets.Peek().AssetId;
-				var remaining = asset.Quantity;
+				entry.Asset.Id = previousAssetQueue.Peek().Asset.Id;
+				var remaining = entry.Asset.Quantity;
 				while(remaining != 0)
 				{
-					if(spentAssets.Count == 0 || spentAssets.Peek().AssetId != asset.AssetId)
+					if(previousAssetQueue.Count == 0 || previousAssetQueue.Peek().Asset.Id != entry.Asset.Id)
 					{
-						//Invalid
+						colored.Transfers.Clear();
+						colored.Issuances.Clear();
 						break;
 					}
-					var assertPart = Math.Min(spentAssets.Peek().Quantity - used, remaining);
+					var assertPart = Math.Min(previousAssetQueue.Peek().Asset.Quantity - used, remaining);
 					remaining = remaining - assertPart;
-					if(used == spentAssets.Peek().Quantity)
+					used += assertPart;
+					if(used == previousAssetQueue.Peek().Asset.Quantity)
 					{
-						spentAssets.Dequeue();
+						previousAssetQueue.Dequeue();
 						used = 0;
 					}
 				}
-				colored.Transfers.Add(asset);
+				if(remaining != 0)
+					break;
+				colored.Transfers.Add(entry);
 			}
 			repo.Put(txId, colored);
 			return colored;
 		}
 
-		public Asset GetAsset(uint n)
+		public ColoredEntry GetColoredEntry(uint n)
 		{
 			return Issuances
 				.Concat(Transfers)
@@ -123,9 +192,9 @@ namespace NBitcoin.OpenAsset
 		}
 		public ColoredTransaction()
 		{
-			Issuances = new List<Asset>();
-			Transfers = new List<Asset>();
-			Inputs = new List<Asset>();
+			Issuances = new List<ColoredEntry>();
+			Transfers = new List<ColoredEntry>();
+			Inputs = new List<ColoredEntry>();
 		}
 		uint256 _TxId;
 		public uint256 TxId
@@ -153,20 +222,8 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		List<Asset> _Inputs;
-		public List<Asset> Inputs
-		{
-			get
-			{
-				return _Inputs;
-			}
-			set
-			{
-				_Inputs = value;
-			}
-		}
-		List<Asset> _Issuances;
-		public List<Asset> Issuances
+		List<ColoredEntry> _Issuances;
+		public List<ColoredEntry> Issuances
 		{
 			get
 			{
@@ -178,8 +235,8 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		List<Asset> _Transfers;
-		public List<Asset> Transfers
+		List<ColoredEntry> _Transfers;
+		public List<ColoredEntry> Transfers
 		{
 			get
 			{
@@ -197,11 +254,43 @@ namespace NBitcoin.OpenAsset
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref _TxId);
+			if(stream.Serializing)
+			{
+				if(_Payload != null)
+					stream.ReadWrite(ref _Payload);
+				else
+					stream.ReadWrite(new Script());
+			}
+			else
+			{
+				Script script = new Script();
+				stream.ReadWrite(ref script);
+				if(script.Length != 0)
+				{
+					_Payload = new OpenAssetPayload(script);
+				}
+				else
+				{
+				}
+			}
 			stream.ReadWrite(ref _Inputs);
 			stream.ReadWrite(ref _Issuances);
 			stream.ReadWrite(ref _Transfers);
 		}
 
 		#endregion
+
+		List<ColoredEntry> _Inputs;
+		public List<ColoredEntry> Inputs
+		{
+			get
+			{
+				return _Inputs;
+			}
+			set
+			{
+				_Inputs = value;
+			}
+		}
 	}
 }

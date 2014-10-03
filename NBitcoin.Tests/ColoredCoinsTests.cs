@@ -97,17 +97,89 @@ namespace NBitcoin.Tests
 		public void CanColorizeOutputs()
 		{
 			var tester = CreateTester("CanColorizeIssuanceTransaction");
-			var colored = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
-			Assert.True(colored.Issuances.Count == 1);
-			Assert.Equal("3QzJDrSsi4Pm2DhcZFXR9MGJsXXtsYhUsq", colored.Issuances[0].AssetId.GetAddress(Network.Main).ToString());
+
+			var colored1 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
+			Assert.True(colored1.Inputs.Count == 0);
+			Assert.True(colored1.Issuances.Count == 1);
+			Assert.True(colored1.Transfers.Count == 0);
+			Assert.Equal("3QzJDrSsi4Pm2DhcZFXR9MGJsXXtsYhUsq", colored1.Issuances[0].Asset.Id.GetAddress(Network.Main).ToString());
+
+			tester = CreateTester("CanColorizeTransferTransaction");
+			var colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
+			Assert.True(colored2.Inputs.Count == 1);
+			Assert.True(colored2.Inputs[0].Asset.ToBytes().SequenceEqual(colored1.Issuances[0].Asset.ToBytes()));
+			Assert.True(colored2.Issuances.Count == 0);
+			Assert.True(colored2.Transfers.Count == 2);
+			Assert.Equal("3QzJDrSsi4Pm2DhcZFXR9MGJsXXtsYhUsq", colored2.Transfers[0].Asset.Id.GetAddress(Network.Main).ToString());
+
+			tester = CreateTester("CanColorizeTransferTransaction");
+			var tx = tester.Repository.Transactions.Get(tester.TestedTxId);
+			//If there are less items in the  asset quantity list  than the number of colorable outputs (all the outputs except the marker output), the outputs in excess receive an asset quantity of zero.
+			tx.Outputs.Add(new TxOut());
+			tx.Outputs.Add(new TxOut());
+			tx.Outputs.Add(new TxOut());
+			tester.TestedTxId = tx.GetHash();
+			tester.Repository.Transactions.Put(tester.TestedTxId, tx);
+			colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
+			Assert.True(colored2.Inputs.Count == 1);
+			Assert.True(colored2.Inputs[0].Asset.ToBytes().SequenceEqual(colored1.Issuances[0].Asset.ToBytes()));
+			Assert.True(colored2.Issuances.Count == 0);
+			Assert.True(colored2.Transfers.Count == 2);
+			Assert.Equal("3QzJDrSsi4Pm2DhcZFXR9MGJsXXtsYhUsq", colored2.Transfers[0].Asset.Id.GetAddress(Network.Main).ToString());
+
+			tester = CreateTester("CanColorizeTransferTransaction");
+			tx = tester.Repository.Transactions.Get(tester.TestedTxId);
+			//If there are more items in the  asset quantity list  than the number of colorable outputs, the transaction is deemed invalid, and all outputs are uncolored.
+			var payload = tx.GetColoredPayload();
+			payload.Quantities = payload.Quantities.Concat(new ulong[] { 1, 2, 3, 4, 5 }).ToArray();
+			tx.Outputs[0].ScriptPubKey = payload.GetScript();
+			tester.TestedTxId = tx.GetHash();
+			tester.Repository.Transactions.Put(tester.TestedTxId, tx);
+			colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
+			Assert.True(colored2.Inputs.Count == 1);
+			Assert.True(colored2.Issuances.Count == 0);
+			Assert.True(colored2.Transfers.Count == 0);
+
+			tester = CreateTester("CanColorizeTransferTransaction");
+			tx = tester.Repository.Transactions.Get(tester.TestedTxId);
+			//If the marker output is malformed, the transaction is invalid, and all outputs are uncolored.
+			tx.Outputs[0].ScriptPubKey = new Script();
+			tester.TestedTxId = tx.GetHash();
+			tester.Repository.Transactions.Put(tester.TestedTxId, tx);
+			colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
+			Assert.True(colored2.Inputs.Count == 1);
+			Assert.True(colored2.Issuances.Count == 0);
+			Assert.True(colored2.Transfers.Count == 0);
 
 
 			tester = CreateTester("CanColorizeTransferTransaction");
-			tester.AutoDownloadMissingTransaction(() =>
-			{
-				 colored = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
-			});
+			tx = tester.Repository.Transactions.Get(tester.TestedTxId);
+			 //If there are less asset units in the input sequence than in the output sequence, the transaction is considered invalid and all outputs are uncolored.
+			payload = tx.GetColoredPayload();
+			payload.Quantities[0] = 1001;
+			tx.Outputs[0].ScriptPubKey = payload.GetScript();
+			tester.TestedTxId = tx.GetHash();
+			tester.Repository.Transactions.Put(tester.TestedTxId, tx);
+			colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
+			Assert.True(colored2.Inputs.Count == 1);
+			Assert.True(colored2.Issuances.Count == 0);
+			Assert.True(colored2.Transfers.Count == 0);
 
+
+			tester = CreateTester("CanColorizeTransferTransaction");
+			tx = tester.Repository.Transactions.Get(tester.TestedTxId);
+			//If there are more asset units in the input sequence than in the output sequence, the transaction is considered valid
+			payload = tx.GetColoredPayload();
+			payload.Quantities[0] = 999;
+			tx.Outputs[0].ScriptPubKey = payload.GetScript();
+			tester.TestedTxId = tx.GetHash();
+			tester.Repository.Transactions.Put(tester.TestedTxId, tx);
+			colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
+			Assert.True(colored2.Inputs.Count == 1);
+			Assert.True(colored2.Issuances.Count == 0);
+			Assert.True(colored2.Transfers.Count == 2);
+
+			//Finally, for each transfer output, if the asset units forming that output all have the same asset address, the output gets assigned that asset address. If any output contains units from more than one distinct asset address, the whole transaction is considered invalid, and all outputs are uncolored.
 		}
 
 

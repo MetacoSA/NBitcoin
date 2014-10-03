@@ -8,9 +8,17 @@ namespace NBitcoin.OpenAsset
 {
 	public static class Extensions
 	{
-		public static ColoredTransaction FetchColors(this Transaction tx, IColoredTransactionRepository repo)
+		public static ColoredTransaction GetColoredTransaction(this Transaction tx, IColoredTransactionRepository repo)
 		{
 			return ColoredTransaction.FetchColors(tx, repo);
+		}
+		public static OpenAssetPayload GetColoredPayload(this Transaction tx)
+		{
+			return OpenAssetPayload.Get(tx);
+		}
+		public static bool HasColoredMarker(this Transaction tx)
+		{
+			return OpenAssetPayload.HasPayload(tx);
 		}
 	}
 }

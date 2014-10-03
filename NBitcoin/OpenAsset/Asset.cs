@@ -8,19 +8,6 @@ namespace NBitcoin.OpenAsset
 {
 	public class Asset : IBitcoinSerializable
 	{
-		int _Index;
-		public int Index
-		{
-			get
-			{
-				return _Index;
-			}
-			set
-			{
-				_Index = value;
-			}
-		}
-
 		ulong _Quantity;
 		public ulong Quantity
 		{
@@ -34,16 +21,16 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		ScriptId _AssetId = new ScriptId(0);
-		public ScriptId AssetId
+		ScriptId _Id = new ScriptId(0);
+		public ScriptId Id
 		{
 			get
 			{
-				return _AssetId;
+				return _Id;
 			}
 			set
 			{
-				_AssetId = value;
+				_Id = value;
 			}
 		}
 
@@ -51,11 +38,10 @@ namespace NBitcoin.OpenAsset
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			byte[] assetId = _AssetId.ToBytes();
+			byte[] assetId = _Id.ToBytes();
 			stream.ReadWrite(ref assetId);
 			if(!stream.Serializing)
-				_AssetId = new ScriptId(assetId);
-			stream.ReadWrite(ref _Index);
+				_Id = new ScriptId(assetId);
 			stream.ReadWrite(ref _Quantity);
 		}
 
