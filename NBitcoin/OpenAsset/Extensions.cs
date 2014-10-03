@@ -16,9 +16,9 @@ namespace NBitcoin.OpenAsset
 		{
 			return OpenAssetPayload.Get(tx);
 		}
-		public static bool HasColoredMarker(this Transaction tx)
+		public static bool HasWellFormedColoredMarker(this Transaction tx)
 		{
-			return OpenAssetPayload.HasPayload(tx);
+			return OpenAssetPayload.HasWellFormedPayload(tx);
 		}
 	}
 }

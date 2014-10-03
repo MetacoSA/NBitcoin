@@ -149,7 +149,14 @@ namespace NBitcoin.OpenAsset
 			if(!ReadScript(script))
 				throw new FormatException("Not a Open asset payload");
 		}
-		ushort _Version;
+
+		public OpenAssetPayload(ulong[] quantities)
+		{
+			if(quantities == null)
+				throw new ArgumentNullException("quantities");
+			Quantities = quantities;
+		}
+		ushort _Version = 1;
 		public ushort Version
 		{
 			get
@@ -182,6 +189,7 @@ namespace NBitcoin.OpenAsset
 		}
 		static TxNullDataTemplate _NullTemplate = new TxNullDataTemplate();
 		private const ulong MAX_QUANTITY = ((1UL << 63) - 1);
+
 		public Script GetScript()
 		{
 			MemoryStream ms = new MemoryStream();
@@ -240,9 +248,18 @@ namespace NBitcoin.OpenAsset
 
 		#endregion
 
-		public static bool HasPayload(Transaction tx)
+		public static bool HasWellFormedPayload(Transaction tx)
 		{
-			return Get(tx) != null;
+			var payload = Get(tx);
+			if(payload == null)
+				return false;
+			//If there are more items in the  asset quantity list  than the number of colorable outputs, the transaction is deemed invalid, and all outputs are uncolored.
+			return payload.HasValidQuantitiesCount(tx);
+		}
+
+		public bool HasValidQuantitiesCount(Transaction tx)
+		{
+			return Quantities.Length <= tx.Outputs.Count - 1;
 		}
 	}
 }

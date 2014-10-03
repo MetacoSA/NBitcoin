@@ -1,4 +1,5 @@
 ﻿using NBitcoin.Crypto;
+using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;
 using NBitcoin.Scanning;
 using System;
@@ -22,9 +23,21 @@ namespace NBitcoin.Tests
 			{
 				BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
 				//BlockStore other = new BlockStore(@"BlockDirectoryScanSpeed", Network.Main);
-				foreach(var block in store.Enumerate(false, new DiskBlockPosRange(new DiskBlockPos(50, 0))))
+				foreach(var block in store.Enumerate(false, new DiskBlockPosRange(new DiskBlockPos(120, 0))))
 				{
-					//other.Append(block.Item);
+					if(block.Item.Header.BlockTime < ColoredTransaction.FirstColoredDate)
+						continue;
+					foreach(var tx in block.Item.Transactions)
+					{
+						int index = 0;
+						var pay = OpenAsset.OpenAssetPayload.Get(tx, out index);
+						if(pay != null && index != 0 && index != tx.Outputs.Count - 1)
+						{
+							if(pay.Quantities.Length > index)
+								Debugger.Break();
+						}
+
+					}
 				}
 			});
 

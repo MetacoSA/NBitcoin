@@ -100,6 +100,8 @@ namespace NBitcoin
 			var redeem = new PayToPubkeyHashTemplate().GenerateScriptPubKey(this);
 			return new BitcoinScriptAddress(redeem.ID, Network);
 		}
+		
+
 
 		protected virtual Script GeneratePaymentScript()
 		{

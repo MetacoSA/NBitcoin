@@ -13,6 +13,13 @@ namespace NBitcoin.OpenAsset
 		{
 
 		}
+		public ColoredEntry(int index, Asset asset)
+		{
+			if(asset == null)
+				throw new ArgumentNullException("asset");
+			Index = index;
+			Asset = asset;
+		}
 		uint _Index;
 		public int Index
 		{
@@ -46,6 +53,14 @@ namespace NBitcoin.OpenAsset
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			if(Asset == null)
+				return "[" + Index + "]";
+			else
+				return "[" + Index + "] " + Asset; 
+		}
 	}
 	public class ColoredTransaction : IBitcoinSerializable
 	{
@@ -82,7 +97,7 @@ namespace NBitcoin.OpenAsset
 					var prevTx = repo.Transactions.Get(txin.PrevOut.Hash);
 					if(prevTx == null)
 						throw new TransactionNotFoundException("Transaction " + txin.PrevOut.Hash + " not found in transaction repository", txId);
-					if(!prevTx.HasColoredMarker())
+					if(!prevTx.HasWellFormedColoredMarker())
 					{
 						continue;
 					}
@@ -92,25 +107,30 @@ namespace NBitcoin.OpenAsset
 				var prevAsset = prevColored.GetColoredEntry(txin.PrevOut.N);
 				if(prevAsset != null)
 				{
-					previousAssetQueue.Enqueue(prevAsset);
-					colored.Inputs.Add(new ColoredEntry()
+					var input = new ColoredEntry()
 					{
 						Index = i,
 						Asset = prevAsset.Asset
-					});
+					};
+					previousAssetQueue.Enqueue(input);
+					colored.Inputs.Add(input);
 				}
 			}
 
 			int markerPos = 0;
-			colored.TxId = txId;
 			var payload = OpenAssetPayload.Get(tx, out markerPos);
 			if(payload == null)
 			{
 				repo.Put(txId, colored);
 				return colored;
 			}
-
 			colored.Payload = payload;
+			if(!payload.HasValidQuantitiesCount(tx))
+			{
+				repo.Put(txId, colored);
+				return colored;
+			}
+
 			ScriptId issuedAsset = null;
 			for(int i = 0 ; i < markerPos ; i++)
 			{
@@ -134,13 +154,6 @@ namespace NBitcoin.OpenAsset
 				colored.Issuances.Add(entry);
 			}
 
-			//If there are more items in the  asset quantity list  than the number of colorable outputs, the transaction is deemed invalid, and all outputs are uncolored.
-			if(payload.Quantities.Length > tx.Outputs.Count - 1)
-			{
-				repo.Put(txId, colored);
-				return colored;
-			}
-
 			ulong used = 0;
 			for(int i = markerPos + 1 ; i < tx.Outputs.Count ; i++)
 			{
@@ -156,7 +169,8 @@ namespace NBitcoin.OpenAsset
 				{
 					colored.Transfers.Clear();
 					colored.Issuances.Clear();
-					break;
+					repo.Put(txId, colored);
+					return colored;
 				}
 				entry.Asset.Id = previousAssetQueue.Peek().Asset.Id;
 				var remaining = entry.Asset.Quantity;
@@ -166,7 +180,8 @@ namespace NBitcoin.OpenAsset
 					{
 						colored.Transfers.Clear();
 						colored.Issuances.Clear();
-						break;
+						repo.Put(txId, colored);
+						return colored;
 					}
 					var assertPart = Math.Min(previousAssetQueue.Peek().Asset.Quantity - used, remaining);
 					remaining = remaining - assertPart;
@@ -177,8 +192,6 @@ namespace NBitcoin.OpenAsset
 						used = 0;
 					}
 				}
-				if(remaining != 0)
-					break;
 				colored.Transfers.Add(entry);
 			}
 			repo.Put(txId, colored);
@@ -196,18 +209,6 @@ namespace NBitcoin.OpenAsset
 			Issuances = new List<ColoredEntry>();
 			Transfers = new List<ColoredEntry>();
 			Inputs = new List<ColoredEntry>();
-		}
-		uint256 _TxId;
-		public uint256 TxId
-		{
-			get
-			{
-				return _TxId;
-			}
-			set
-			{
-				_TxId = value;
-			}
 		}
 
 		OpenAssetPayload _Payload;
@@ -283,7 +284,6 @@ namespace NBitcoin.OpenAsset
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref _TxId);
 			if(stream.Serializing)
 			{
 				if(_Payload != null)
@@ -322,5 +322,8 @@ namespace NBitcoin.OpenAsset
 				_Inputs = value;
 			}
 		}
+
+		//00000000000000001c7a19e8ef62d815d84a473f543de77f23b8342fc26812a9 at 299220 Monday, May 5, 2014 3:47:37 PM first block
+		public static readonly DateTimeOffset FirstColoredDate = new DateTimeOffset(2014, 05, 4, 0, 0, 0, TimeSpan.Zero);
 	}
 }

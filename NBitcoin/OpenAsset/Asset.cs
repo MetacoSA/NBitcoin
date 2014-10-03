@@ -22,6 +22,18 @@ namespace NBitcoin.OpenAsset
 		}
 
 		ScriptId _Id = new ScriptId(0);
+
+		public Asset(ScriptId id, ulong quantity)
+		{
+			if(id == null)
+				throw new ArgumentNullException("id");
+			Quantity = quantity;
+			Id = id;
+		}
+		public Asset()
+		{
+
+		}
 		public ScriptId Id
 		{
 			get
@@ -46,5 +58,10 @@ namespace NBitcoin.OpenAsset
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return Quantity + "-" + Id;
+		}
 	}
 }
