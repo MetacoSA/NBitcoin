@@ -72,6 +72,7 @@
     </Compile>
     <Compile Include="CachedBlockProvider.cs" />
     <Compile Include="CachedNoSqlRepository.cs" />
+    <Compile Include="CachedTransactionRepository.cs" />
     <Compile Include="CoinsView.cs" />
     <Compile Include="Crypto\DeterministicECDSA.cs" />
     <Compile Include="DataDirectory.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="NoSqlTransactionRepository.cs" />
     <Compile Include="ObjectStream.cs" />
     <Compile Include="OpenAsset\Asset.cs" />
+    <Compile Include="OpenAsset\CachedColoredTransactionRepository.cs" />
     <Compile Include="OpenAsset\ColoredTransaction.cs" />
     <Compile Include="OpenAsset\Extensions.cs" />
     <Compile Include="OpenAsset\IColoredTransactionRepository.cs" />

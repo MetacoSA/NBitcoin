@@ -59,7 +59,7 @@ namespace NBitcoin.OpenAsset
 			if(Asset == null)
 				return "[" + Index + "]";
 			else
-				return "[" + Index + "] " + Asset; 
+				return "[" + Index + "] " + Asset;
 		}
 	}
 	public class ColoredTransaction : IBitcoinSerializable
@@ -84,7 +84,47 @@ namespace NBitcoin.OpenAsset
 			var result = repo.Get(txId);
 			if(result != null)
 				return result;
+			repo = new CachedColoredTransactionRepository(repo);
+			HashSet<uint256> invalidColored = new HashSet<uint256>();
+			Stack<Tuple<uint256, Transaction>> ancestors = new Stack<Tuple<uint256, Transaction>>();
+			ancestors.Push(Tuple.Create(txId, tx));
+			while(ancestors.Count != 0)
+			{
+				var peek = ancestors.Peek();
+				txId = peek.Item1;
+				tx = peek.Item2;
+				bool isComplete = true;
+				if(!tx.HasWellFormedColoredMarker() && ancestors.Count != 1)
+				{
+					invalidColored.Add(txId);
+					ancestors.Pop();
+					continue;
+				}
 
+				for(int i = 0 ; i < tx.Inputs.Count ; i++)
+				{
+					var txin = tx.Inputs[i];
+					if(repo.Get(txin.PrevOut.Hash) == null && !invalidColored.Contains(txin.PrevOut.Hash))
+					{
+						var prevTx = repo.Transactions.Get(txin.PrevOut.Hash);
+						if(prevTx == null)
+							throw new TransactionNotFoundException("Transaction " + txin.PrevOut.Hash + " not found in transaction repository", txId);
+						ancestors.Push(Tuple.Create(txin.PrevOut.Hash, prevTx));
+						isComplete = false;
+					}
+				}
+				if(isComplete)
+				{
+					FetchColorsWithAncestorsSolved(txId, tx, repo);
+					ancestors.Pop();
+				}
+			}
+
+			return FetchColorsWithAncestorsSolved(txId, tx, repo);
+		}
+
+		private static ColoredTransaction FetchColorsWithAncestorsSolved(uint256 txId, Transaction tx, IColoredTransactionRepository repo)
+		{
 			ColoredTransaction colored = new ColoredTransaction();
 
 			Queue<ColoredEntry> previousAssetQueue = new Queue<ColoredEntry>();
@@ -93,17 +133,7 @@ namespace NBitcoin.OpenAsset
 				var txin = tx.Inputs[i];
 				var prevColored = repo.Get(txin.PrevOut.Hash);
 				if(prevColored == null)
-				{
-					var prevTx = repo.Transactions.Get(txin.PrevOut.Hash);
-					if(prevTx == null)
-						throw new TransactionNotFoundException("Transaction " + txin.PrevOut.Hash + " not found in transaction repository", txId);
-					if(!prevTx.HasWellFormedColoredMarker())
-					{
-						continue;
-					}
-					prevColored = FetchColors(txin.PrevOut.Hash, prevTx, repo);
-				}
-
+					continue;
 				var prevAsset = prevColored.GetColoredEntry(txin.PrevOut.N);
 				if(prevAsset != null)
 				{
