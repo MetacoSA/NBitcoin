@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -248,6 +249,35 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
+		public Asset[] GetDestroyedAssets()
+		{
+			var burned = Inputs
+				.GroupBy(i => i.Asset.Id)
+				.Select(g => new
+				{
+					Id = g.Key,
+					Quantity = g.Aggregate(BigInteger.Zero, (a, o) => a + o.Asset.Quantity)
+				});
+
+			var transfered =
+				Transfers
+				.GroupBy(i => i.Asset.Id)
+				.Select(g => new
+				{
+					Id = g.Key,
+					Quantity = -g.Aggregate(BigInteger.Zero, (a, o) => a + o.Asset.Quantity)
+				});
+
+			return burned.Concat(transfered)
+				.GroupBy(o => o.Id)
+				.Select(g => new Asset()
+				{
+					Id = g.Key,
+					Quantity = (ulong)g.Aggregate(BigInteger.Zero, (a, o) => a + o.Quantity)
+				})
+				.Where(a => a.Quantity != 0)
+				.ToArray();
+		}
 
 		#region IBitcoinSerializable Members
 

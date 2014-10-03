@@ -126,6 +126,8 @@ namespace NBitcoin.Tests
 			Assert.True(colored2.Issuances.Count == 0);
 			Assert.True(colored2.Transfers.Count == 2);
 			Assert.Equal("3QzJDrSsi4Pm2DhcZFXR9MGJsXXtsYhUsq", colored2.Transfers[0].Asset.Id.GetAddress(Network.Main).ToString());
+			var destroyed = colored2.GetDestroyedAssets();
+			Assert.True(destroyed.Length == 0);
 
 			tester = CreateTester("CanColorizeTransferTransaction");
 			tx = tester.Repository.Transactions.Get(tester.TestedTxId);
@@ -154,7 +156,7 @@ namespace NBitcoin.Tests
 
 			tester = CreateTester("CanColorizeTransferTransaction");
 			tx = tester.Repository.Transactions.Get(tester.TestedTxId);
-			 //If there are less asset units in the input sequence than in the output sequence, the transaction is considered invalid and all outputs are uncolored.
+			//If there are less asset units in the input sequence than in the output sequence, the transaction is considered invalid and all outputs are uncolored.
 			payload = tx.GetColoredPayload();
 			payload.Quantities[0] = 1001;
 			tx.Outputs[0].ScriptPubKey = payload.GetScript();
@@ -178,6 +180,10 @@ namespace NBitcoin.Tests
 			Assert.True(colored2.Inputs.Count == 1);
 			Assert.True(colored2.Issuances.Count == 0);
 			Assert.True(colored2.Transfers.Count == 2);
+			destroyed = colored2.GetDestroyedAssets();
+			Assert.True(destroyed.Length == 1);
+			Assert.True(destroyed[0].Quantity == 1);
+			Assert.True(destroyed[0].Id == colored2.Inputs[0].Asset.Id);
 
 			//Finally, for each transfer output, if the asset units forming that output all have the same asset address, the output gets assigned that asset address. If any output contains units from more than one distinct asset address, the whole transaction is considered invalid, and all outputs are uncolored.
 		}
