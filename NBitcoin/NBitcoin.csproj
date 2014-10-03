@@ -88,7 +88,7 @@
     <Compile Include="OpenAsset\Extensions.cs" />
     <Compile Include="OpenAsset\IColoredTransactionRepository.cs" />
     <Compile Include="OpenAsset\NoSqlColoredTransactionRepository.cs" />
-    <Compile Include="OpenAsset\OpenAssetPayload.cs" />
+    <Compile Include="OpenAsset\ColorMarker.cs" />
     <Compile Include="Payment\BitcoinUrlBuilder.cs" />
     <Compile Include="Payment\HttpEncoder.cs" />
     <Compile Include="Payment\PaymentACK.cs" />

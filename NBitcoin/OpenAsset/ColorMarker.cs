@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.OpenAsset
 {
-	public class OpenAssetPayload : IBitcoinSerializable
+	public class ColorMarker : IBitcoinSerializable
 	{
 		const ushort Tag = 0x414f;
-		public static OpenAssetPayload TryParse(Script script)
+		public static ColorMarker TryParse(Script script)
 		{
 			try
 			{
-				OpenAssetPayload result = new OpenAssetPayload();
+				ColorMarker result = new ColorMarker();
 				if(!result.ReadScript(script))
 					return null;
 				return result;
@@ -140,17 +140,17 @@ namespace NBitcoin.OpenAsset
 			stream.ReadWrite(ref bytes);
 		}
 
-		public OpenAssetPayload()
+		public ColorMarker()
 		{
 
 		}
-		public OpenAssetPayload(Script script)
+		public ColorMarker(Script script)
 		{
 			if(!ReadScript(script))
-				throw new FormatException("Not a Open asset payload");
+				throw new FormatException("Not a color marker");
 		}
 
-		public OpenAssetPayload(ulong[] quantities)
+		public ColorMarker(ulong[] quantities)
 		{
 			if(quantities == null)
 				throw new ArgumentNullException("quantities");
@@ -208,13 +208,13 @@ namespace NBitcoin.OpenAsset
 			return _NullTemplate.GenerateScriptPubKey(ms.ToArray());
 		}
 
-		public static OpenAssetPayload Get(Transaction transaction)
+		public static ColorMarker Get(Transaction transaction)
 		{
 			int i = 0;
 			return Get(transaction, out i);
 		}
 
-		public static OpenAssetPayload Get(Transaction transaction, out int markerPosition)
+		public static ColorMarker Get(Transaction transaction, out int markerPosition)
 		{
 			int resultIndex = 0;
 			var result = transaction.Outputs.Select(o => TryParse(o.ScriptPubKey)).Where((o, i) =>
@@ -241,20 +241,20 @@ namespace NBitcoin.OpenAsset
 				stream.ReadWrite(ref script);
 				if(!ReadScript(script))
 				{
-					throw new FormatException("Invalid OpenAssetPayload");
+					throw new FormatException("Invalid ColorMarker");
 				}
 			}
 		}
 
 		#endregion
 
-		public static bool HasWellFormedPayload(Transaction tx)
+		public static bool HasValidColorMarker(Transaction tx)
 		{
-			var payload = Get(tx);
-			if(payload == null)
+			var marker = Get(tx);
+			if(marker == null)
 				return false;
 			//If there are more items in the  asset quantity list  than the number of colorable outputs, the transaction is deemed invalid, and all outputs are uncolored.
-			return payload.HasValidQuantitiesCount(tx);
+			return marker.HasValidQuantitiesCount(tx);
 		}
 
 		public bool HasValidQuantitiesCount(Transaction tx)

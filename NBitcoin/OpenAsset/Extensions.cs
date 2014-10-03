@@ -12,13 +12,13 @@ namespace NBitcoin.OpenAsset
 		{
 			return ColoredTransaction.FetchColors(tx, repo);
 		}
-		public static OpenAssetPayload GetColoredPayload(this Transaction tx)
+		public static ColorMarker GetColoredMarker(this Transaction tx)
 		{
-			return OpenAssetPayload.Get(tx);
+			return ColorMarker.Get(tx);
 		}
-		public static bool HasWellFormedColoredMarker(this Transaction tx)
+		public static bool HasValidColoredMarker(this Transaction tx)
 		{
-			return OpenAssetPayload.HasWellFormedPayload(tx);
+			return ColorMarker.HasValidColorMarker(tx);
 		}
 	}
 }

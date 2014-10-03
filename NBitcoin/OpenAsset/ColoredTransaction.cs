@@ -84,6 +84,8 @@ namespace NBitcoin.OpenAsset
 			var result = repo.Get(txId);
 			if(result != null)
 				return result;
+
+			//The following code is to prevent recursion of FetchColors that would fire a StackOverflow if the origin of traded asset were deep in the transaction dependency tree
 			repo = new CachedColoredTransactionRepository(repo);
 			HashSet<uint256> invalidColored = new HashSet<uint256>();
 			Stack<Tuple<uint256, Transaction>> ancestors = new Stack<Tuple<uint256, Transaction>>();
@@ -94,7 +96,7 @@ namespace NBitcoin.OpenAsset
 				txId = peek.Item1;
 				tx = peek.Item2;
 				bool isComplete = true;
-				if(!tx.HasWellFormedColoredMarker() && ancestors.Count != 1)
+				if(!tx.HasValidColoredMarker() && ancestors.Count != 1)
 				{
 					invalidColored.Add(txId);
 					ancestors.Pop();
@@ -148,14 +150,14 @@ namespace NBitcoin.OpenAsset
 			}
 
 			int markerPos = 0;
-			var payload = OpenAssetPayload.Get(tx, out markerPos);
-			if(payload == null)
+			var marker = ColorMarker.Get(tx, out markerPos);
+			if(marker == null)
 			{
 				repo.Put(txId, colored);
 				return colored;
 			}
-			colored.Payload = payload;
-			if(!payload.HasValidQuantitiesCount(tx))
+			colored.Marker = marker;
+			if(!marker.HasValidQuantitiesCount(tx))
 			{
 				repo.Put(txId, colored);
 				return colored;
@@ -166,7 +168,7 @@ namespace NBitcoin.OpenAsset
 			{
 				var entry = new ColoredEntry();
 				entry.Index = i;
-				entry.Asset.Quantity = i >= payload.Quantities.Length ? 0 : payload.Quantities[i];
+				entry.Asset.Quantity = i >= marker.Quantities.Length ? 0 : marker.Quantities[i];
 				if(entry.Asset.Quantity == 0)
 					continue;
 
@@ -190,7 +192,7 @@ namespace NBitcoin.OpenAsset
 				var entry = new ColoredEntry();
 				entry.Index = i;
 				//If there are less items in the  asset quantity list  than the number of colorable outputs (all the outputs except the marker output), the outputs in excess receive an asset quantity of zero.
-				entry.Asset.Quantity = (i - 1) >= payload.Quantities.Length ? 0 : payload.Quantities[i - 1];
+				entry.Asset.Quantity = (i - 1) >= marker.Quantities.Length ? 0 : marker.Quantities[i - 1];
 				if(entry.Asset.Quantity == 0)
 					continue;
 
@@ -241,16 +243,16 @@ namespace NBitcoin.OpenAsset
 			Inputs = new List<ColoredEntry>();
 		}
 
-		OpenAssetPayload _Payload;
-		public OpenAssetPayload Payload
+		ColorMarker _Marker;
+		public ColorMarker Marker
 		{
 			get
 			{
-				return _Payload;
+				return _Marker;
 			}
 			set
 			{
-				_Payload = value;
+				_Marker = value;
 			}
 		}
 
@@ -316,8 +318,8 @@ namespace NBitcoin.OpenAsset
 		{
 			if(stream.Serializing)
 			{
-				if(_Payload != null)
-					stream.ReadWrite(ref _Payload);
+				if(_Marker != null)
+					stream.ReadWrite(ref _Marker);
 				else
 					stream.ReadWrite(new Script());
 			}
@@ -327,7 +329,7 @@ namespace NBitcoin.OpenAsset
 				stream.ReadWrite(ref script);
 				if(script.Length != 0)
 				{
-					_Payload = new OpenAssetPayload(script);
+					_Marker = new ColorMarker(script);
 				}
 				else
 				{

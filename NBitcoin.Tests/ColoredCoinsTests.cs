@@ -129,7 +129,7 @@ namespace NBitcoin.Tests
 			var sender = new Key().PubKey.GetAddress(Network.Main);
 			var receiver = new Key().PubKey.GetAddress(Network.Main);
 
-			colored.Payload = new OpenAssetPayload(new ulong[] { 0, 10, 6, 0, 7, 3 });
+			colored.Marker = new ColorMarker(new ulong[] { 0, 10, 6, 0, 7, 3 });
 			colored.Inputs.Add(new ColoredEntry(0, new Asset(a1.Id, 3UL)));
 			colored.Inputs.Add(new ColoredEntry(1, new Asset(a1.Id, 2UL)));
 			colored.Inputs.Add(new ColoredEntry(3, new Asset(a1.Id, 5UL)));
@@ -162,13 +162,13 @@ namespace NBitcoin.Tests
 			issuanceA1.Outputs.Add(new TxOut(dust, sender));
 			issuanceA1.Outputs.Add(new TxOut(dust, sender));
 			issuanceA1.Outputs.Add(new TxOut(dust, sender));
-			issuanceA1.Outputs.Add(new TxOut(dust, new OpenAssetPayload(new ulong[] { 3, 2, 5, 3 }).GetScript()));
+			issuanceA1.Outputs.Add(new TxOut(dust, new ColorMarker(new ulong[] { 3, 2, 5, 3 }).GetScript()));
 			repo.Transactions.Put(issuanceA1.GetHash(), issuanceA1);
 
 			var issuanceA2 = new Transaction();
 			issuanceA2.Inputs.Add(new TxIn(new OutPoint(prior.GetHash(), 1)));
 			issuanceA2.Outputs.Add(new TxOut(dust, sender));
-			issuanceA2.Outputs.Add(new TxOut(dust, new OpenAssetPayload(new ulong[] { 9 }).GetScript()));
+			issuanceA2.Outputs.Add(new TxOut(dust, new ColorMarker(new ulong[] { 9 }).GetScript()));
 			repo.Transactions.Put(issuanceA2.GetHash(), issuanceA2);
 
 			var testedTx = CreateSpecTransaction(repo, dust, receiver, prior, issuanceA1, issuanceA2);
@@ -180,7 +180,7 @@ namespace NBitcoin.Tests
 			//Finally, for each transfer output, if the asset units forming that output all have the same asset address, the output gets assigned that asset address. If any output contains units from more than one distinct asset address, the whole transaction is considered invalid, and all outputs are uncolored.
 
 			var testedBadTx = CreateSpecTransaction(repo, dust, receiver, prior, issuanceA1, issuanceA2);
-			testedBadTx.Outputs[2] = new TxOut(dust, new OpenAssetPayload(new ulong[] { 0, 10, 6, 0, 6, 4 }).GetScript());
+			testedBadTx.Outputs[2] = new TxOut(dust, new ColorMarker(new ulong[] { 0, 10, 6, 0, 6, 4 }).GetScript());
 			repo.Transactions.Put(testedBadTx.GetHash(), testedBadTx);
 			colored = testedBadTx.GetColoredTransaction(repo);
 
@@ -194,7 +194,7 @@ namespace NBitcoin.Tests
 
 			//If there are more items in the  asset quantity list  than the number of colorable outputs, the transaction is deemed invalid, and all outputs are uncolored.
 			testedBadTx = CreateSpecTransaction(repo, dust, receiver, prior, issuanceA1, issuanceA2);
-			testedBadTx.Outputs[2] = new TxOut(dust, new OpenAssetPayload(new ulong[] { 0, 10, 6, 0, 7, 4, 10, 10 }).GetScript());
+			testedBadTx.Outputs[2] = new TxOut(dust, new ColorMarker(new ulong[] { 0, 10, 6, 0, 7, 4, 10, 10 }).GetScript());
 			repo.Transactions.Put(testedBadTx.GetHash(), testedBadTx);
 
 			colored = testedBadTx.GetColoredTransaction(repo);
@@ -219,7 +219,7 @@ namespace NBitcoin.Tests
 
 			testedTx.Outputs.Add(new TxOut(Money.Parse("0.6"), receiver));
 			testedTx.Outputs.Add(new TxOut(dust, receiver));
-			testedTx.Outputs.Add(new TxOut(dust, new OpenAssetPayload(new ulong[] { 0, 10, 6, 0, 7, 3 }).GetScript()));
+			testedTx.Outputs.Add(new TxOut(dust, new ColorMarker(new ulong[] { 0, 10, 6, 0, 7, 3 }).GetScript()));
 			testedTx.Outputs.Add(new TxOut(dust, receiver));
 			testedTx.Outputs.Add(new TxOut(dust, receiver));
 			testedTx.Outputs.Add(new TxOut(dust, receiver));
@@ -271,10 +271,10 @@ namespace NBitcoin.Tests
 			tester = CreateTester("CanColorizeTransferTransaction");
 			tx = tester.Repository.Transactions.Get(tester.TestedTxId);
 			//If there are more items in the  asset quantity list  than the number of colorable outputs, the transaction is deemed invalid, and all outputs are uncolored.
-			var payload = tx.GetColoredPayload();
+			var payload = tx.GetColoredMarker();
 			payload.Quantities = payload.Quantities.Concat(new ulong[] { 1, 2 }).ToArray();
 			tx.Outputs[0].ScriptPubKey = payload.GetScript();
-			Assert.False(tx.HasWellFormedColoredMarker());
+			Assert.False(tx.HasValidColoredMarker());
 			tester.TestedTxId = tx.GetHash();
 			tester.Repository.Transactions.Put(tester.TestedTxId, tx);
 			colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
@@ -297,7 +297,7 @@ namespace NBitcoin.Tests
 			tester = CreateTester("CanColorizeTransferTransaction");
 			tx = tester.Repository.Transactions.Get(tester.TestedTxId);
 			//If there are less asset units in the input sequence than in the output sequence, the transaction is considered invalid and all outputs are uncolored.
-			payload = tx.GetColoredPayload();
+			payload = tx.GetColoredMarker();
 			payload.Quantities[0] = 1001;
 			tx.Outputs[0].ScriptPubKey = payload.GetScript();
 			tester.TestedTxId = tx.GetHash();
@@ -311,7 +311,7 @@ namespace NBitcoin.Tests
 			tester = CreateTester("CanColorizeTransferTransaction");
 			tx = tester.Repository.Transactions.Get(tester.TestedTxId);
 			//If there are more asset units in the input sequence than in the output sequence, the transaction is considered valid
-			payload = tx.GetColoredPayload();
+			payload = tx.GetColoredMarker();
 			payload.Quantities[0] = 999;
 			tx.Outputs[0].ScriptPubKey = payload.GetScript();
 			tester.TestedTxId = tx.GetHash();
@@ -353,16 +353,16 @@ namespace NBitcoin.Tests
 		//00000000000000001c7a19e8ef62d815d84a473f543de77f23b8342fc26812a9 at 299220 Monday, May 5, 2014 3:47:37 PM first block
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanParseOpenAssetPayload()
+		public void CanParseColorMarker()
 		{
 			var script = new Script(Encoders.Hex.DecodeData("6a104f41010003ac0200e58e260412345678"));
-			var payload = OpenAssetPayload.TryParse(script);
-			Assert.NotNull(payload);
-			Assert.Equal(1, payload.Version);
-			Assert.Equal(3, payload.Quantities.Length);
-			Assert.True(payload.Quantities.SequenceEqual(new ulong[] { 300, 0, 624485 }));
-			Assert.True(payload.Metadata.SequenceEqual(new byte[] { 0x12, 0x34, 0x56, 0x78 }));
-			Assert.Equal(script.ToString(), payload.GetScript().ToString());
+			var marker = ColorMarker.TryParse(script);
+			Assert.NotNull(marker);
+			Assert.Equal(1, marker.Version);
+			Assert.Equal(3, marker.Quantities.Length);
+			Assert.True(marker.Quantities.SequenceEqual(new ulong[] { 300, 0, 624485 }));
+			Assert.True(marker.Metadata.SequenceEqual(new byte[] { 0x12, 0x34, 0x56, 0x78 }));
+			Assert.Equal(script.ToString(), marker.GetScript().ToString());
 		}
 
 		[Fact]
