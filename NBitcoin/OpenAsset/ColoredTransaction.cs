@@ -70,6 +70,9 @@ namespace NBitcoin.OpenAsset
 		}
 		public static ColoredTransaction FetchColors(uint256 txId, IColoredTransactionRepository repo)
 		{
+			if(repo == null)
+				throw new ArgumentNullException("repo");
+			repo = EnsureCachedRepository(repo);
 			var colored = repo.Get(txId);
 			if(colored != null)
 				return colored;
@@ -85,8 +88,9 @@ namespace NBitcoin.OpenAsset
 			if(result != null)
 				return result;
 
+			ColoredTransaction lastColored = null;
 			//The following code is to prevent recursion of FetchColors that would fire a StackOverflow if the origin of traded asset were deep in the transaction dependency tree
-			repo = new CachedColoredTransactionRepository(repo);
+			repo = EnsureCachedRepository(repo);
 			HashSet<uint256> invalidColored = new HashSet<uint256>();
 			Stack<Tuple<uint256, Transaction>> ancestors = new Stack<Tuple<uint256, Transaction>>();
 			ancestors.Push(Tuple.Create(txId, tx));
@@ -117,12 +121,20 @@ namespace NBitcoin.OpenAsset
 				}
 				if(isComplete)
 				{
-					FetchColorsWithAncestorsSolved(txId, tx, repo);
+					lastColored = FetchColorsWithAncestorsSolved(txId, tx, repo);
 					ancestors.Pop();
 				}
 			}
 
-			return FetchColorsWithAncestorsSolved(txId, tx, repo);
+			return lastColored;
+		}
+
+		private static IColoredTransactionRepository EnsureCachedRepository(IColoredTransactionRepository repo)
+		{
+			if(repo is CachedColoredTransactionRepository)
+				return repo;
+			repo = new CachedColoredTransactionRepository(repo);
+			return repo;
 		}
 
 		private static ColoredTransaction FetchColorsWithAncestorsSolved(uint256 txId, Transaction tx, IColoredTransactionRepository repo)

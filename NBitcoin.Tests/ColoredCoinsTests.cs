@@ -114,6 +114,13 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		//[Fact]
+		//public void TestFun()
+		//{
+		//	var repo = new NoSqlColoredTransactionRepository(new BlockrTransactionRepository());
+		//	var colored = ColoredTransaction.FetchColors(new uint256("b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a6"), repo);
+
+		//}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

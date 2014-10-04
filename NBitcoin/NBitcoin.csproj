@@ -83,6 +83,7 @@
     <Compile Include="NoSqlTransactionRepository.cs" />
     <Compile Include="ObjectStream.cs" />
     <Compile Include="OpenAsset\Asset.cs" />
+    <Compile Include="BlockrTransactionRepository.cs" />
     <Compile Include="OpenAsset\CachedColoredTransactionRepository.cs" />
     <Compile Include="OpenAsset\ColoredTransaction.cs" />
     <Compile Include="OpenAsset\Extensions.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Protocol\Payloads\MempoolPayload.cs" />
     <Compile Include="Protocol\Payloads\RejectPayload.cs" />
     <Compile Include="Protocol\PerformanceCounter.cs" />
+    <Compile Include="RPCTransactionRepository.cs" />
     <Compile Include="RPC\BlockExplorerFormatter.cs" />
     <Compile Include="RPC\RawFormatter.cs" />
     <Compile Include="RPC\RPCClient.cs" />

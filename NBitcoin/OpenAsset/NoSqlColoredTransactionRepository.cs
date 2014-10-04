@@ -9,16 +9,21 @@ namespace NBitcoin.OpenAsset
 	public class NoSqlColoredTransactionRepository : IColoredTransactionRepository
 	{
 		public NoSqlColoredTransactionRepository()
-			: this(new NoSqlTransactionRepository(), new InMemoryNoSqlRepository())
+			: this(null, null)
+		{
+
+		}
+		public NoSqlColoredTransactionRepository(ITransactionRepository transactionRepository)
+			: this(transactionRepository, null)
 		{
 
 		}
 		public NoSqlColoredTransactionRepository(ITransactionRepository transactionRepository, NoSqlRepository repository)
 		{
 			if(transactionRepository == null)
-				throw new ArgumentNullException("transactionRepository");
+				transactionRepository = new NoSqlTransactionRepository();
 			if(repository == null)
-				throw new ArgumentNullException("repository");
+				repository = new InMemoryNoSqlRepository();
 			_Transactions = transactionRepository;
 			_Repository = repository;
 		}
