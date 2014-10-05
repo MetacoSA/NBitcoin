@@ -85,6 +85,7 @@
     <Compile Include="OpenAsset\Asset.cs" />
     <Compile Include="BlockrTransactionRepository.cs" />
     <Compile Include="OpenAsset\CachedColoredTransactionRepository.cs" />
+    <Compile Include="OpenAsset\CoinprismColoredTransactionRepository.cs" />
     <Compile Include="OpenAsset\ColoredTransaction.cs" />
     <Compile Include="OpenAsset\Extensions.cs" />
     <Compile Include="OpenAsset\IColoredTransactionRepository.cs" />

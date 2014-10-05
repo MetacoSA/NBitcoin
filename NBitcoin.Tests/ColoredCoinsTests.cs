@@ -115,12 +115,15 @@ namespace NBitcoin.Tests
 		}
 
 		//[Fact]
-		//public void TestFun()
-		//{
-		//	var repo = new NoSqlColoredTransactionRepository(new BlockrTransactionRepository());
-		//	var colored = ColoredTransaction.FetchColors(new uint256("b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a6"), repo);
+		public void TestFun()
+		{
+			var repo = new NoSqlColoredTransactionRepository(new BlockrTransactionRepository());
+			var colored = ColoredTransaction.FetchColors(new uint256("b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a6"), repo);
 
-		//}
+			var prismColored = new CoinprismColoredTransactionRepository().Get(new uint256("b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a6"));
+
+			Assert.True(colored.ToBytes().SequenceEqual(prismColored.ToBytes()));
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -233,6 +236,24 @@ namespace NBitcoin.Tests
 			testedTx.Outputs.Add(new TxOut(dust, receiver));
 			repo.Transactions.Put(testedTx.GetHash(), testedTx);
 			return testedTx;
+		}
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanFetchTransactionFromCoinprism()
+		{
+			CanFetchTransactionFromCoinprismCore("CanColorizeIssuanceTransaction");
+			CanFetchTransactionFromCoinprismCore("CanColorizeTransferTransaction");
+			Assert.Null(new CoinprismColoredTransactionRepository().Get(new uint256("b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a5")));
+		}
+
+		private void CanFetchTransactionFromCoinprismCore(string test)
+		{
+			var tester = CreateTester(test);
+			var expected = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
+			var actual = new CoinprismColoredTransactionRepository().Get(tester.TestedTxId);
+			Assert.True(actual.ToBytes().SequenceEqual(expected.ToBytes()));
 		}
 
 		//https://www.coinprism.info/tx/b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a6

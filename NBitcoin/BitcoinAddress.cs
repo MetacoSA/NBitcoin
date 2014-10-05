@@ -11,8 +11,8 @@ namespace NBitcoin
 	public class BitcoinScriptAddress : BitcoinAddress
 	{
 
-		public BitcoinScriptAddress(string address, Network network)
-			: base(address, network)
+		public BitcoinScriptAddress(string address, Network expectedNetwork)
+			: base(address, expectedNetwork)
 		{
 		}
 

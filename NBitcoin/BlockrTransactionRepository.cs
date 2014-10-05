@@ -61,7 +61,7 @@ namespace NBitcoin
 
 		public void Put(uint256 txId, Transaction tx)
 		{
-			throw new NotSupportedException();
+			
 		}
 
 		#endregion

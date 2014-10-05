@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,10 @@ namespace NBitcoin.OpenAsset
 	public class ColorMarker : IBitcoinSerializable
 	{
 		const ushort Tag = 0x414f;
+		public static ColorMarker TryParse(string script)
+		{
+			return TryParse(new Script(script));
+		}
 		public static ColorMarker TryParse(Script script)
 		{
 			try
