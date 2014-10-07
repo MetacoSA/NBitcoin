@@ -39,7 +39,7 @@ using System.Linq;
 using System.Web.Util;
 using NBitcoin.DataEncoders;
 
-namespace System.Web
+namespace System.Web.NBitcoin
 {
 
 
