@@ -29,6 +29,7 @@
 		</summary>
 		<projectUrl>https://github.com/NicolasDorier/NBitcoin</projectUrl>
 		<copyright>Copyright 2013</copyright>
+		<tags>bitcoin</tags>
 	</metadata>
 	<files></files>
 </package>
