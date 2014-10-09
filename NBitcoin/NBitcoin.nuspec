@@ -7,9 +7,10 @@
 		<authors>Nicolas Dorier</authors>
 		<owners>$author$</owners>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<description>Port of Bitcoin from C++ and Java with full test suite on github (https://github.com/NicolasDorier/NBitcoin)</description>
+		<description>.NET Bitcoin Framework</description>
 		<summary>
-			See http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt to get started.
+			Source sur github (https://github.com/NicolasDorier/NBitcoin)
+			Getting started (http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt)
 			Full script evaluation and parsing
 			Key generation
 			Deterministic wallet : BIP 32
