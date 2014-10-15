@@ -454,5 +454,22 @@ namespace NBitcoin
 			}
 			return new IPEndPoint(address, port);
 		}
+
+		public static int GetHashCode(byte[] array)
+		{
+			unchecked
+			{
+				if(array == null)
+				{
+					return 0;
+				}
+				int hash = 17;
+				for(int i = 0 ; i < array.Length ; i++)
+				{
+					hash = hash * 31 + array[i];
+				}
+				return hash;
+			}
+		}
 	}
 }
