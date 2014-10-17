@@ -116,7 +116,12 @@ namespace NBitcoin
 			_Satoshis = new BigInteger(satoshis);
 		}
 
-		public Money(long satoshis)
+        public Money(uint satoshis)
+        {
+            _Satoshis = new BigInteger(satoshis);
+        }
+
+        public Money(long satoshis)
 		{
 			_Satoshis = new BigInteger(satoshis);
 		}
@@ -124,6 +129,41 @@ namespace NBitcoin
 		{
 			_Satoshis = new BigInteger(satoshis);
 		}
+
+        public Money(decimal satoshis)
+            : this(new BigInteger(satoshis))
+        {
+        }
+
+        public static Money Coins(decimal coins)
+        {
+            return new Money(coins * COIN);
+        }
+
+        public static Money Bits(decimal bits)
+        {
+            return new Money(bits * CENT);
+        }
+
+        public static Money Cents(decimal cents)
+        {
+            return new Money(cents * CENT);
+        }
+
+        public static Money Satoshis(decimal sats)
+        {
+            return new Money(sats);
+        }
+
+        public static Money Satoshis(ulong sats)
+        {
+            return new Money(sats);
+        }
+
+        public static Money Satoshis(long sats)
+        {
+            return new Money(sats);
+        }
 
 		#region IEquatable<Money> Members
 
@@ -205,7 +245,13 @@ namespace NBitcoin
 		{
 			return new Money(value);
 		}
-		public static implicit operator Money(ulong value)
+
+        public static implicit operator Money(uint value)
+        {
+            return new Money(value);
+        }
+
+        public static implicit operator Money(ulong value)
 		{
 			return new Money(value);
 		}
@@ -214,14 +260,26 @@ namespace NBitcoin
 		{
 			return (long)value.Satoshi;
 		}
+
 		public static implicit operator ulong(Money value)
 		{
 			return (ulong)value.Satoshi;
 		}
+
 		public static implicit operator Money(string value)
 		{
 			return Money.Parse(value);
-		}
+        }
+
+        public static implicit operator Money(decimal value)
+        {
+            return new Money(value);
+        }
+
+        public static implicit operator decimal(Money value)
+        {
+            return (decimal)value.Satoshi;
+        }
 
 		public override bool Equals(object obj)
 		{
