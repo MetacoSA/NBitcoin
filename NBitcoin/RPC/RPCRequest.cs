@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
+    [DataContract]
 	public class RPCRequest
 	{
 		public RPCRequest(string method, object[] parameters)
@@ -22,26 +24,18 @@ namespace NBitcoin.RPC
 			JsonRpc = "1.0";
 			Id = 1;
 		}
-		public string JsonRpc
-		{
-			get;
-			set;
-		}
-		public int Id
-		{
-			get;
-			set;
-		}
-		public string Method
-		{
-			get;
-			set;
-		}
-		public object[] Params
-		{
-			get;
-			set;
-		}
+
+        [DataMember(Name="jsonrpc")]
+        public string JsonRpc { get; set; }
+
+        [DataMember(Name="id")]
+        public int Id { get; set; }
+
+        [DataMember(Name="method")]
+        public string Method { get; set; }
+
+        [DataMember(Name="params")]
+        public object[] Params { get; set; }
 
 		public void WriteJSON(TextWriter writer)
 		{
