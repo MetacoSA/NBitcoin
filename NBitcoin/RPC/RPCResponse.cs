@@ -12,11 +12,15 @@ namespace NBitcoin.RPC
 	//{"code":-32601,"message":"Method not found"}
 	public class RPCError
 	{
-		public RPCError(JObject error)
-		{
-			Code = (RPCErrorCode)((int)error.GetValue("code"));
-			Message = (string)error.GetValue("message");
-		}
+        public RPCError()
+        { }
+
+        public RPCError(JObject error)
+        {
+            Code = (RPCErrorCode)((int)error.GetValue("code"));
+            Message = (string)error.GetValue("message");
+        }
+
 		public RPCErrorCode Code
 		{
 			get;
@@ -32,6 +36,9 @@ namespace NBitcoin.RPC
 	//{"result":null,"error":{"code":-32601,"message":"Method not found"},"id":1}
 	public class RPCResponse
 	{
+        public RPCResponse()
+        { }
+
 		public RPCResponse(JObject json)
 		{
 			var error = json.GetValue("error") as JObject;
@@ -41,6 +48,7 @@ namespace NBitcoin.RPC
 			}
 			Result = json.GetValue("result") as JToken;
 		}
+
 		public RPCError Error
 		{
 			get;
@@ -61,7 +69,7 @@ namespace NBitcoin.RPC
 
 		public void ThrowIfError()
 		{
-			if(Error != null)
+			if(Error != null && Error.Code != RPCErrorCode.NO_ERROR)
 			{
 				throw new RPCException(Error.Code, Error.Message, this);
 			}
