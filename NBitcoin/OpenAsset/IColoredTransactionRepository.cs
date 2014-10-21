@@ -14,5 +14,8 @@ namespace NBitcoin.OpenAsset
 		}
 		ColoredTransaction Get(uint256 txId);
 		void Put(uint256 txId, ColoredTransaction tx);
-	}
+
+        Task<ColoredTransaction> GetAsync(uint256 txId);
+        Task PutAsync(uint256 txId, ColoredTransaction tx);
+    }
 }

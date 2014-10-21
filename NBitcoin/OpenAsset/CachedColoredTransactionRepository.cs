@@ -28,24 +28,34 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		public ColoredTransaction Get(uint256 txId)
+        public ColoredTransaction Get(uint256 txId)
+        {
+            return GetAsync(txId).Result;
+        }
+
+		public async Task<ColoredTransaction> GetAsync(uint256 txId)
 		{
 			ColoredTransaction result = null;
 			if(!_ColoredTransactions.TryGetValue(txId, out result))
 			{
-				result = _Inner.Get(txId);
+				result = await _Inner.GetAsync(txId);
 				_ColoredTransactions.Add(txId, result);
 			}
 			return result;
 		}
 
 		public void Put(uint256 txId, ColoredTransaction tx)
+        {
+            PutAsync(txId, tx).RunSynchronously();
+        }
+
+		public async Task PutAsync(uint256 txId, ColoredTransaction tx)
 		{
 			if(!_ColoredTransactions.ContainsKey(txId))
 				_ColoredTransactions.Add(txId, tx);
 			else
 				_ColoredTransactions[txId] = tx;
-			_Inner.Put(txId, tx);
+			await _Inner.PutAsync(txId, tx);
 		}
 
 		#endregion

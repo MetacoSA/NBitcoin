@@ -19,23 +19,33 @@ namespace NBitcoin
 		#region ITransactionRepository Members
 
 		public Transaction Get(uint256 txId)
+        {
+            return GetAsync(txId).Result;
+        }
+
+		public async Task<Transaction> GetAsync(uint256 txId)
 		{
 			Transaction result = null;
 			if(!_Transactions.TryGetValue(txId, out result))
 			{
-				result = _Inner.Get(txId);
+				result = await _Inner.GetAsync(txId);
 				_Transactions.Add(txId, result);
 			}
 			return result;
 		}
 
 		public void Put(uint256 txId, Transaction tx)
+        {
+            PutAsync(txId, tx).RunSynchronously();
+        }
+
+		public async Task PutAsync(uint256 txId, Transaction tx)
 		{
 			if(!_Transactions.ContainsKey(txId))
 				_Transactions.Add(txId, tx);
 			else
 				_Transactions[txId] = tx;
-			_Inner.Put(txId, tx);
+			await _Inner.PutAsync(txId, tx);
 		}
 
 		#endregion
