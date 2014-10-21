@@ -66,10 +66,9 @@ namespace NBitcoin
 				if(evaluationCopy.Stack.Count == 0)
 					throw new InvalidProgramException("stackCopy cannot be empty here");
 
-				var pubKeySerialized = evaluationCopy.Stack.Pop();
-				Script pubKey2 = new Script(pubKeySerialized);
+				Script redeem = new Script(evaluationCopy.Stack.Pop());
 
-				if(!evaluationCopy.EvalScript(pubKey2, txTo, nIn))
+				if(!evaluationCopy.EvalScript(redeem, txTo, nIn))
 					return false;
 
 				return evaluationCopy.Result != null && evaluationCopy.Result.Value;

@@ -10,15 +10,18 @@ namespace NBitcoin
 {
 	public class TxDestination
 	{
-		string _Dest;
+		byte[] _DestBytes;
+
 		public TxDestination()
 		{
-			_Dest = "00";
+			_DestBytes = new byte[] { 0 };
 		}
 
 		public TxDestination(byte[] value)
 		{
-			_Dest = Encoders.Hex.EncodeData(value);
+			if(value == null)
+				throw new ArgumentNullException("value");
+			_DestBytes = value;
 		}
 		public TxDestination(uint160 value)
 			: this(value.ToBytes())
@@ -27,9 +30,8 @@ namespace NBitcoin
 
 		public TxDestination(string value)
 		{
-			//Ensure is hex
-			Encoders.Hex.DecodeData(value);
-			_Dest = value;
+			_DestBytes = Encoders.Hex.DecodeData(value);
+			_Str = value;
 		}
 
 		public BitcoinAddress GetAddress(Network network)
@@ -41,10 +43,17 @@ namespace NBitcoin
 		{
 			return null;
 		}
-
 		public byte[] ToBytes()
 		{
-			return Encoders.Hex.DecodeData(_Dest);
+			return ToBytes(false);
+		}
+		public byte[] ToBytes(bool @unsafe)
+		{
+			if(@unsafe)
+				return _DestBytes;
+			var array = new byte[_DestBytes.Length];
+			Array.Copy(_DestBytes, array, _DestBytes.Length);
+			return array;
 		}
 
 		public override bool Equals(object obj)
@@ -52,7 +61,7 @@ namespace NBitcoin
 			TxDestination item = obj as TxDestination;
 			if(item == null)
 				return false;
-			return _Dest.Equals(item._Dest);
+			return Utils.ArrayEqual(_DestBytes, item._DestBytes);
 		}
 		public static bool operator ==(TxDestination a, TxDestination b)
 		{
@@ -60,7 +69,7 @@ namespace NBitcoin
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;
-			return a._Dest == b._Dest;
+			return Utils.ArrayEqual(a._DestBytes, b._DestBytes);
 		}
 
 		public static bool operator !=(TxDestination a, TxDestination b)
@@ -70,12 +79,15 @@ namespace NBitcoin
 
 		public override int GetHashCode()
 		{
-			return _Dest.GetHashCode();
+			return Utils.GetHashCode(_DestBytes);
 		}
 
+		string _Str;
 		public override string ToString()
 		{
-			return _Dest;
+			if(_Str == null)
+				_Str = Encoders.Hex.EncodeData(_DestBytes);
+			return _Str;
 		}
 	}
 	public class KeyId : TxDestination

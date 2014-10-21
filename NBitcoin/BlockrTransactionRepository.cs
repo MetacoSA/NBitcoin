@@ -33,10 +33,21 @@ namespace NBitcoin
 	public class BlockrTransactionRepository : ITransactionRepository
 	{
 		public BlockrTransactionRepository()
+			: this(null)
 		{
 
 		}
+		public BlockrTransactionRepository(Network network)
+		{
+			if(network == null)
+				Network = Network.Main;
+		}
 
+		public Network Network
+		{
+			get;
+			set;
+		}
 
 
 		#region ITransactionRepository Members
@@ -46,7 +57,7 @@ namespace NBitcoin
 			while(true)
 			{
 				WebClient client = new WebClient();
-				var result = client.DownloadString("http://btc.blockr.io/api/v1/tx/raw/" + txId);
+				var result = client.DownloadString("http://" + (Network == Network.Main ? "" : "t") + "btc.blockr.io/api/v1/tx/raw/" + txId);
 				var json = JObject.Parse(result);
 				var status = json["status"];
 				var code = json["code"];
@@ -61,7 +72,7 @@ namespace NBitcoin
 
 		public void Put(uint256 txId, Transaction tx)
 		{
-			
+
 		}
 
 		#endregion

@@ -235,6 +235,17 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
+			var tx2 = new Transaction("010000000188932931d6bc23d3182183ab5e9707980ab4aaf9db3c6d3be42e5c0ce783b0ba00000000844730440220100aaa46e8a4f9d4589f935f5457f263a911f3712ee50688732c1274face6bb30220155b48760fd6ffbc0842761db03d824954567e8cd499883318d1f1c705f7d4d7012103dccb6bd324ae3c60afb85d9a0e5f300284faf2d71c40dbb7732d8fa79ee930f71976a914edc80be0e4f342a54a4fbe6e31e8e58b6849972a88acffffffff02204e0000000000001976a91430a5d35558ade668b8829a2a0f60a3f10358327e88ac70110100000000001976a914edc80be0e4f342a54a4fbe6e31e8e58b6849972a88ac00000000");
+
+			var oo = tx2.GetHash();
+
+
+			var scriptPubKey = new Script(Encoders.Hex.DecodeData("a91467c205a82218e3b1327095f1e10dd676c6ce09df87"));
+			ScriptEvaluationContext eval = new ScriptEvaluationContext();
+
+			var result = eval.VerifyScript(tx2.Inputs[0].ScriptSig, scriptPubKey, tx2, 0);
+
+
 
 			CancellationTokenSource s1 = new CancellationTokenSource();
 			CancellationTokenSource s2 = new CancellationTokenSource(TimeSpan.FromSeconds(1));
