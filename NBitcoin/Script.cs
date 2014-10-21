@@ -729,5 +729,10 @@ namespace NBitcoin
 		{
 			return CreateFromDestination(address.ID);
 		}
+
+		public static bool IsNullOrEmpty(Script script)
+		{
+			return script == null || script._Script.Length == 0;
+		}
 	}
 }

@@ -136,7 +136,13 @@ namespace NBitcoin
 		{
 			return vch.ToArray();
 		}
-
+		public byte[] ToBytes(bool @unsafe)
+		{
+			if(@unsafe)
+				return vch;
+			else
+				return vch.ToArray();
+		}
 		public override string ToString()
 		{
 			return ToHex();
