@@ -676,7 +676,6 @@ namespace NBitcoin.Protocol
 				while(CountPeerRequired(peerToFind) != 0)
 				{
 					NodeServerTrace.PeerTableRemainingPeerToGet(CountPeerRequired(peerToFind));
-					CancellationTokenSource cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(40));
 					var peers = PeerTable.GetActivePeers(1000);
 					if(peers.Length == 0)
 					{
@@ -696,6 +695,7 @@ namespace NBitcoin.Protocol
 							CancellationToken = peerTableFull.Token,
 						}, p =>
 						{
+							CancellationTokenSource cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(40));
 							Node n = null;
 							try
 							{
