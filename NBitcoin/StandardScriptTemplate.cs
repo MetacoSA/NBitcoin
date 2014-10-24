@@ -90,6 +90,12 @@ namespace NBitcoin
 			get;
 			set;
 		}
+
+		public byte[][] InvalidPubKeys
+		{
+			get;
+			set;
+		}
 	}
 	public class PayToMultiSigTemplate : ScriptTemplate
 	{
@@ -120,46 +126,55 @@ namespace NBitcoin
 			var sigCount = ops[0];
 			if(!sigCount.IsSmallUInt)
 				return false;
-
-			var expectedKeyCount = 0;
-			var keyCountIndex = 0;
-			for(int i = 1 ; i < ops.Length ; i++)
+			var pubKeyCount = ops[ops.Length - 2];
+			if(!pubKeyCount.IsSmallUInt)
+				return false;
+			var keyCount = (uint)pubKeyCount.GetValue();
+			if(1 + keyCount + 1 + 1 != ops.Length)
+				return false;
+			for(int i = 1 ; i < keyCount + 1; i++)
 			{
 				if(ops[i].PushData == null)
 					return false;
-				if(!PubKey.IsValidSize(ops[i].PushData.Length))
-				{
-					keyCountIndex = i;
-					break;
-				}
-				expectedKeyCount++;
 			}
-			if(!ops[keyCountIndex].IsSmallUInt)
-				return false;
-			if(ops[keyCountIndex].GetValue() != expectedKeyCount)
-				return false;
-			return ops[keyCountIndex + 1].Code == OpcodeType.OP_CHECKMULTISIG &&
-				  keyCountIndex + 1 == ops.Length - 1;
+			return ops[ops.Length - 1].Code == OpcodeType.OP_CHECKMULTISIG;
 		}
 
 		public PayToMultiSigTemplateParameters ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
+			if(!FastCheckScriptPubKey(scriptPubKey))
+				return null;
 			var ops = scriptPubKey.ToOps().ToArray();
 			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
-			var sigCount = (byte)ops[0].PushData[0];
+
+			var sigCount = (int)ops[0].GetValue();
+			var keyCount = (int)ops[ops.Length - 2].GetValue();
+
 			List<PubKey> keys = new List<PubKey>();
-			for(int i = 1 ; i < ops.Length ; i++)
+			List<byte[]> invalidKeys = new List<byte[]>();
+			for(int i = 1 ; i < keyCount + 1; i++)
 			{
 				if(!PubKey.IsValidSize(ops[i].PushData.Length))
-					break;
-				keys.Add(new PubKey(ops[i].PushData));
+					invalidKeys.Add(ops[i].PushData);
+				else
+				{
+					try
+					{
+						keys.Add(new PubKey(ops[i].PushData));
+					}
+					catch(FormatException)
+					{
+						invalidKeys.Add(ops[i].PushData);
+					}
+				}
 			}
 
 			return new PayToMultiSigTemplateParameters()
 			{
 				SignatureCount = sigCount,
-				PubKeys = keys.ToArray()
+				PubKeys = keys.ToArray(),
+				InvalidPubKeys = invalidKeys.ToArray()
 			};
 		}
 

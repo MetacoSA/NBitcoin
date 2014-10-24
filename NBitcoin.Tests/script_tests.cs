@@ -140,6 +140,18 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void PayToMultiSigTemplateShouldAcceptNonKeyParameters()
+		{
+			var tx = new Transaction("0100000002f9cbafc519425637ba4227f8d0a0b7160b4e65168193d5af39747891de98b5b5000000006b4830450221008dd619c563e527c47d9bd53534a770b102e40faa87f61433580e04e271ef2f960220029886434e18122b53d5decd25f1f4acb2480659fea20aabd856987ba3c3907e0121022b78b756e2258af13779c1a1f37ea6800259716ca4b7f0b87610e0bf3ab52a01ffffffff42e7988254800876b69f24676b3e0205b77be476512ca4d970707dd5c60598ab00000000fd260100483045022015bd0139bcccf990a6af6ec5c1c52ed8222e03a0d51c334df139968525d2fcd20221009f9efe325476eb64c3958e4713e9eefe49bf1d820ed58d2112721b134e2a1a53034930460221008431bdfa72bc67f9d41fe72e94c88fb8f359ffa30b33c72c121c5a877d922e1002210089ef5fc22dd8bfc6bf9ffdb01a9862d27687d424d1fefbab9e9c7176844a187a014c9052483045022015bd0139bcccf990a6af6ec5c1c52ed8222e03a0d51c334df139968525d2fcd20221009f9efe325476eb64c3958e4713e9eefe49bf1d820ed58d2112721b134e2a1a5303210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c7153aeffffffff01a08601000000000017a914d8dacdadb7462ae15cd906f1878706d0da8660e68700000000");
+			var redeemScript = new PayToScriptHashTemplate().ExtractScriptSigParameters(tx.Inputs[1].ScriptSig).RedeemScript;
+			var result = new PayToMultiSigTemplate().ExtractScriptPubKeyParameters(redeemScript);
+			Assert.Equal(2, result.PubKeys.Length);
+			Assert.Equal(2, result.SignatureCount);
+			Assert.Equal(1, result.InvalidPubKeys.Length);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void PayToPubkeyHashTemplateDoNotCrashOnInvalidSig()
 		{
 			var data = Encoders.Hex.DecodeData("035c030441ef8fa580553f149a5422ba4b0038d160b07a28e6fe2e1041b940fe95b1553c040000000000000050db680300000000000002b0466f722050696572636520616e64205061756c");
