@@ -23,7 +23,7 @@ namespace NBitcoin
 		}
 		public TransactionSignature(byte[] sigSigHash)
 		{
-			_Signature = ECDSASignature.FromDER(sigSigHash.Take(sigSigHash.Length - 1).ToArray()).MakeCanonical();
+			_Signature = ECDSASignature.FromDER(sigSigHash).MakeCanonical();
 			_SigHash = (SigHash)sigSigHash[sigSigHash.Length - 1];
 		}
 		public TransactionSignature(byte[] sig, SigHash sigHash)
