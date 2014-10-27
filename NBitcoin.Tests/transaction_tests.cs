@@ -76,28 +76,31 @@ namespace NBitcoin.Tests
 			var stealthKeys = Enumerable.Range(0, 3).Select(_ => new Key()).ToArray();
 			var scanKey = new Key();
 
-			var stealthAddress = new BitcoinStealthAddress(scanKey.PubKey, stealthKeys.Select(k => k.PubKey).ToArray(), 2, new BitField(3, 5), Network.Main);
+			var satoshi = new BitcoinStealthAddress(scanKey.PubKey, stealthKeys.Select(k => k.PubKey).ToArray(), 2, new BitField(3, 5), Network.Main);
 
 			var bob = new Key();
 			var coins = new Coin[] { 
-							new Coin() 
-							{ 
-								Outpoint = RandOutpoint(),
-								TxOut = new TxOut("1.00",bob.PubKey.ID)
-							} };
+				new Coin() 
+				{ 
+					Outpoint = RandOutpoint(),
+					TxOut = new TxOut("1.00",bob.PubKey.ID)
+				} };
 
+			//Bob send money to satoshi
 			TransactionBuilder builder = new TransactionBuilder();
 			var tx =
 				builder
 				.AddCoins(coins)
 				.AddKeys(bob)
-				.SendTo(stealthAddress, "1.00")
+				.SendTo(satoshi, "1.00")
 				.BuildTransaction(true);
 			Assert.True(builder.Verify(tx));
 
-			var stealthCoin = StealthCoin.Find(tx, stealthAddress, scanKey);
+			//Satoshi scan a StealthCoin in the transaction with his scan key
+			var stealthCoin = StealthCoin.Find(tx, satoshi, scanKey);
 			Assert.NotNull(stealthCoin);
 
+			//Satoshi send back the money to Bob
 			builder = new TransactionBuilder();
 			tx =
 				builder
@@ -107,30 +110,33 @@ namespace NBitcoin.Tests
 					.SendTo(bob.PubKey.ID, "1.00")
 					.BuildTransaction(true);
 
-			Assert.True(builder.Verify(tx));
+			Assert.True(builder.Verify(tx)); //Signed !
 
-			//Testing if partial signing works
+
+			//Same scenario, Satoshi want to send money back to Bob
+			//However, his keys are spread on two machines
+			//He partially sign on the 1st machine
 			builder = new TransactionBuilder();
 			tx =
 				builder
 					.AddCoins(stealthCoin)
-					.AddKeys(stealthKeys.Skip(2).ToArray())
+					.AddKeys(stealthKeys.Skip(2).ToArray()) //Only one Stealth Key
 					.AddKeys(scanKey)
 					.SendTo(bob.PubKey.ID, "1.00")
 					.BuildTransaction(true);
 
-			//Not fully signed
-			Assert.False(builder.Verify(tx));
+			Assert.False(builder.Verify(tx)); //Not fully signed
 
+			//Then he partially sign on the 2nd machine
 			builder = new TransactionBuilder();
 			tx =
 				builder
-					.AddCoins(stealthCoin) //Necessary so builder can verify transaction
-					.AddKeys(stealthKeys[0])
+					.AddCoins(stealthCoin)
+					.AddKeys(stealthKeys[0]) //Other key
 					.AddKeys(scanKey)
 					.SignTransaction(tx);
 
-			Assert.True(builder.Verify(tx));
+			Assert.True(builder.Verify(tx)); //Fully signed !
 		}
 
 		private OutPoint RandOutpoint()
