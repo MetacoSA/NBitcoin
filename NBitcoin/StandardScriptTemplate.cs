@@ -99,6 +99,14 @@ namespace NBitcoin
 	}
 	public class PayToMultiSigTemplate : ScriptTemplate
 	{
+		private static readonly PayToMultiSigTemplate _Instance = new PayToMultiSigTemplate();
+		public static PayToMultiSigTemplate Instance
+		{
+			get
+			{
+				return _Instance;
+			}
+		}
 		public Script GenerateScriptPubKey(int sigCount, PubKey[] keys)
 		{
 			List<Op> ops = new List<Op>();
@@ -259,6 +267,14 @@ namespace NBitcoin
 	//https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki
 	public class PayToScriptHashTemplate : ScriptTemplate
 	{
+		private static readonly PayToScriptHashTemplate _Instance = new PayToScriptHashTemplate();
+		public static PayToScriptHashTemplate Instance
+		{
+			get
+			{
+				return _Instance;
+			}
+		}
 		public PayToScriptHashTemplate()
 		{
 			VerifyRedeemScript = true;
@@ -382,6 +398,14 @@ namespace NBitcoin
 	}
 	public class PayToPubkeyTemplate : ScriptTemplate
 	{
+		private static readonly PayToPubkeyTemplate _Instance = new PayToPubkeyTemplate();
+		public static PayToPubkeyTemplate Instance
+		{
+			get
+			{
+				return _Instance;
+			}
+		}
 		public Script GenerateScriptPubKey(PubKey pubkey)
 		{
 			return new Script(
@@ -478,6 +502,14 @@ namespace NBitcoin
 	}
 	public class PayToPubkeyHashTemplate : ScriptTemplate
 	{
+		private static readonly PayToPubkeyHashTemplate _Instance = new PayToPubkeyHashTemplate();
+		public static PayToPubkeyHashTemplate Instance
+		{
+			get
+			{
+				return _Instance;
+			}
+		}
 		public Script GenerateScriptPubKey(BitcoinAddress address)
 		{
 			if(address == null)

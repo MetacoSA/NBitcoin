@@ -470,7 +470,7 @@ namespace NBitcoin.Tests
 				throw new Exception("Not enough funds");
 			tx.Outputs.Add(new TxOut(amount + fees, receiver.GetAddress()));
 			tx.Outputs.Add(new TxOut(totalSent - amount - fees, sender.GetAddress()));
-			tx.SignAll(sender);
+			//tx.SignAll(sender);
 			client.SendRawTransaction(tx);
 		}
 

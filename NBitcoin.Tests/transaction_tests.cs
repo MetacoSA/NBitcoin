@@ -20,12 +20,53 @@ namespace NBitcoin.Tests
 			var scriptPubKey = template.GenerateScriptPubKey(key.PubKey);
 
 			Transaction tx = new Transaction();
-			tx.AddInput(new TxIn(new OutPoint(tx.GetHash(), 0)));
-			tx.AddInput(new TxIn(new OutPoint(tx.GetHash(), 1)));
+			tx.AddInput(new TxIn(new OutPoint(tx.GetHash(), 0))
+			{
+				ScriptSig = scriptPubKey
+			});
+			tx.AddInput(new TxIn(new OutPoint(tx.GetHash(), 1))
+			{
+				ScriptSig = scriptPubKey
+			});
 			tx.AddOutput(new TxOut("21", key.PubKey.ID));
-			tx.SignAll(key);
-
+			var clone = tx.Clone();
+			tx.Sign(key, false);
 			AssertCorrectlySigned(tx, scriptPubKey);
+			clone.Sign(key, true);
+			AssertCorrectlySigned(clone, scriptPubKey.ID.CreateScriptPubKey());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSelectCoin()
+		{
+			var selector = new DefaultCoinSelector(0);
+			Assert.Null(selector.Select(new Coin[] { CreateCoin("9") }, "10.0"));
+			Assert.NotNull(selector.Select(new Coin[] { CreateCoin("9"), CreateCoin("1") }, "10.0"));
+			Assert.NotNull(selector.Select(new Coin[] { CreateCoin("10.0") }, "10.0"));
+			Assert.NotNull(selector.Select(new Coin[] 
+			{ 
+				CreateCoin("5.0"),
+				CreateCoin("4.0"),
+				CreateCoin("11.0"),
+			}, "10.0"));
+
+			Assert.NotNull(selector.Select(new Coin[] 
+			{ 
+				CreateCoin("3.0"),
+				CreateCoin("3.0"),
+				CreateCoin("3.0"),
+				CreateCoin("3.0"),
+				CreateCoin("3.0")
+			}, "10.0"));
+		}
+
+		private Coin CreateCoin(Money amount)
+		{
+			return new Coin(new OutPoint(Rand(), 0), new TxOut()
+			{
+				Value = amount
+			});
 		}
 
 		[Fact]
@@ -39,8 +80,8 @@ namespace NBitcoin.Tests
 			var payToScriptHash = new PayToScriptHashTemplate();
 
 			var multiSigPubKey = payToMultiSig.GenerateScriptPubKey(2, keys.Select(k => k.PubKey).Take(3).ToArray());
-			var pubKeyPubKey = payToPubKey.GenerateScriptPubKey(keys[0].PubKey);
-			var pubKeyHashPubKey = payToPubKeyHash.GenerateScriptPubKey(keys[0].PubKey.ID);
+			var pubKeyPubKey = payToPubKey.GenerateScriptPubKey(keys[4].PubKey);
+			var pubKeyHashPubKey = payToPubKeyHash.GenerateScriptPubKey(keys[4].PubKey.ID);
 			var scriptHashPubKey1 = payToScriptHash.GenerateScriptPubKey(multiSigPubKey.ID);
 			var scriptHashPubKey2 = payToScriptHash.GenerateScriptPubKey(pubKeyPubKey.ID);
 			var scriptHashPubKey3 = payToScriptHash.GenerateScriptPubKey(pubKeyHashPubKey.ID);
@@ -63,35 +104,59 @@ namespace NBitcoin.Tests
 			scriptCoins[1].Redeem = pubKeyPubKey;
 			scriptCoins[2].Redeem = pubKeyHashPubKey;
 
+			var allCoins = coins.Concat(scriptCoins).ToArray();
 			var destinations = keys.Select(k => k.PubKey.GetAddress(Network.Main)).ToArray();
 
 			var txBuilder = new TransactionBuilder(0);
 			var tx = txBuilder
-				.AddCoins(coins.Concat(scriptCoins).ToArray())
+				.AddCoins(allCoins)
 				.AddKeys(keys)
 				.SendTo(destinations[0], Money.Parse("6"))
 				.SendTo(destinations[2], Money.Parse("5"))
 				.SendTo(destinations[2], Money.Parse("0.9999"))
 				.SetFees(Money.Parse("0.0001"))
 				.SendChange(destinations[3])
-				.BuildTransaction();
+				.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx));
 
 			Assert.Equal(3, tx.Outputs.Count);
 
 			txBuilder = new TransactionBuilder(0);
 			tx = txBuilder
-			   .AddCoins(coins.Concat(scriptCoins).ToArray())
+			   .AddCoins(allCoins)
 			   .AddKeys(keys)
-			   .SetCoinSelector(new DefaultCoinSelector(0))
 			   .SendTo(destinations[0], Money.Parse("6"))
 			   .SendTo(destinations[2], Money.Parse("5"))
 			   .SendTo(destinations[2], Money.Parse("0.9998"))
 			   .SetFees(Money.Parse("0.0001"))
 			   .SendChange(destinations[3])
-			   .BuildTransaction();
+			   .BuildTransaction(true);
 
 			Assert.Equal(4, tx.Outputs.Count); //+ Change
+
+			txBuilder.SendTo(destinations[4], Money.Parse("1"));
+			Assert.Throws<NotEnoughFundsException>(() => txBuilder.BuildTransaction(true));
+
+			//Can sign partially
+			txBuilder = new TransactionBuilder(0);
+			tx = txBuilder
+					.AddCoins(allCoins)
+					.AddKeys(keys.Skip(2).ToArray())  //One of the multi key missing
+					.SendTo(destinations[0], Money.Parse("6"))
+					.SendTo(destinations[2], Money.Parse("5"))
+					.SendTo(destinations[2], Money.Parse("0.9998"))
+					.SetFees(Money.Parse("0.0001"))
+					.SendChange(destinations[3])
+					.BuildTransaction(true);
+			Assert.False(txBuilder.Verify(tx));
+
+			txBuilder = new TransactionBuilder(0);
+			tx = txBuilder
+					.AddKeys(keys[0])
+					.AddCoins(allCoins)
+					.SignTransaction(tx);
+
+			Assert.True(txBuilder.Verify(tx));
 		}
 
 		private uint256 Rand()
@@ -133,43 +198,38 @@ namespace NBitcoin.Tests
 				ScriptPubKey = new Script("OP_DUP OP_HASH160 ae56b4db13554d321c402db3961187aed1bbed5b OP_EQUALVERIFY OP_CHECKSIG")
 			});
 
+			spendTransaction.Inputs[0].ScriptSig = redeem; //The redeem should be in the scriptSig before signing
+
+			var partiallySigned = spendTransaction.Clone();
 			//... Now I can partially sign it using one private key:
 
-			var partiallySigned = spendTransaction.CreatePartiallySignedTransaction(redeem);
-			partiallySigned.SignAll(privKeys[0]);
+			partiallySigned.Sign(privKeys[0], true);
 
 			//the other private keys (note the "hex" result getting longer):
-			partiallySigned.SignAll(privKeys[1]);
+			partiallySigned.Sign(privKeys[1], true);
 
-			var signed = partiallySigned.BuildSignedTransaction();
-			AssertCorrectlySigned(signed, fundingTransaction.Outputs[0].ScriptPubKey);
+
+			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0].ScriptPubKey);
 
 			//Verify the transaction from the gist is also correctly signed
 			var gistTransaction = new Transaction("0100000001aca7f3b45654c230e0886a57fb988c3044ef5e8f7f39726d305c61d5e818903c00000000fd5d010048304502200187af928e9d155c4b1ac9c1c9118153239aba76774f775d7c1f9c3e106ff33c0221008822b0f658edec22274d0b6ae9de10ebf2da06b1bbdaaba4e50eb078f39e3d78014730440220795f0f4f5941a77ae032ecb9e33753788d7eb5cb0c78d805575d6b00a1d9bfed02203e1f4ad9332d1416ae01e27038e945bc9db59c732728a383a6f1ed2fb99da7a4014cc952410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353aeffffffff0140420f00000000001976a914ae56b4db13554d321c402db3961187aed1bbed5b88ac00000000");
 			AssertCorrectlySigned(gistTransaction, fundingTransaction.Outputs[0].ScriptPubKey);
 
 			//Can sign out of order
-			partiallySigned = spendTransaction.CreatePartiallySignedTransaction(redeem);
-			partiallySigned.SignAll(privKeys[2]);
-			partiallySigned.SignAll(privKeys[0]);
-			signed = partiallySigned.BuildSignedTransaction();
-			AssertCorrectlySigned(signed, fundingTransaction.Outputs[0].ScriptPubKey);
-
-			//Can clone partially signed transaction
-			partiallySigned = partiallySigned.Clone();
-			signed = partiallySigned.BuildSignedTransaction();
-			AssertCorrectlySigned(signed, fundingTransaction.Outputs[0].ScriptPubKey);
+			partiallySigned = spendTransaction.Clone();
+			partiallySigned.Sign(privKeys[2], true);
+			partiallySigned.Sign(privKeys[0], true);
+			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0].ScriptPubKey);
 
 			//Can sign multiple inputs
-			spendTransaction.Inputs.Add(new TxIn()
+			partiallySigned = spendTransaction.Clone();
+			partiallySigned.Inputs.Add(new TxIn()
 			{
 				PrevOut = new OutPoint(fundingTransaction.GetHash(), 1),
 			});
-			partiallySigned = spendTransaction.CreatePartiallySignedTransaction(redeem);
-			partiallySigned.SignAll(privKeys[2]);
-			partiallySigned.SignAll(privKeys[0]);
-			signed = partiallySigned.BuildSignedTransaction();
-			AssertCorrectlySigned(signed, fundingTransaction.Outputs[0].ScriptPubKey);
+			partiallySigned.Inputs[1].ScriptSig = redeem; //The redeem should be in the scriptSig before signing
+			partiallySigned.Sign(privKeys[2], true);
+			partiallySigned.Sign(privKeys[0], true);
 		}
 
 		private void AssertCorrectlySigned(Transaction tx, Script scriptPubKey)
