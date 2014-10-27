@@ -30,6 +30,77 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildTransaction()
+		{
+			var keys = Enumerable.Range(0, 5).Select(i => new Key()).ToArray();
+			var payToMultiSig = new PayToMultiSigTemplate();
+			var payToPubKey = new PayToPubkeyTemplate();
+			var payToPubKeyHash = new PayToPubkeyHashTemplate();
+			var payToScriptHash = new PayToScriptHashTemplate();
+
+			var multiSigPubKey = payToMultiSig.GenerateScriptPubKey(2, keys.Select(k => k.PubKey).Take(3).ToArray());
+			var pubKeyPubKey = payToPubKey.GenerateScriptPubKey(keys[0].PubKey);
+			var pubKeyHashPubKey = payToPubKeyHash.GenerateScriptPubKey(keys[0].PubKey.ID);
+			var scriptHashPubKey1 = payToScriptHash.GenerateScriptPubKey(multiSigPubKey.ID);
+			var scriptHashPubKey2 = payToScriptHash.GenerateScriptPubKey(pubKeyPubKey.ID);
+			var scriptHashPubKey3 = payToScriptHash.GenerateScriptPubKey(pubKeyHashPubKey.ID);
+
+
+			var coins = new[] { multiSigPubKey, pubKeyPubKey, pubKeyHashPubKey }.Select((script, i) =>
+				new Coin
+					(
+					new OutPoint(Rand(), i),
+					new TxOut(new Money((i + 1) * Money.COIN), script)
+					)).ToList();
+
+			var scriptCoins = new[] { scriptHashPubKey1, scriptHashPubKey2, scriptHashPubKey3 }.Select((script, i) =>
+				new ScriptCoin
+					(
+					new OutPoint(Rand(), i),
+					new TxOut(new Money((i + 1) * Money.COIN), script), null
+					)).ToList();
+			scriptCoins[0].Redeem = multiSigPubKey;
+			scriptCoins[1].Redeem = pubKeyPubKey;
+			scriptCoins[2].Redeem = pubKeyHashPubKey;
+
+			var destinations = keys.Select(k => k.PubKey.GetAddress(Network.Main)).ToArray();
+
+			var txBuilder = new TransactionBuilder(0);
+			var tx = txBuilder
+				.AddCoins(coins.Concat(scriptCoins).ToArray())
+				.AddKeys(keys)
+				.SendTo(destinations[0], Money.Parse("6"))
+				.SendTo(destinations[2], Money.Parse("5"))
+				.SendTo(destinations[2], Money.Parse("0.9999"))
+				.SetFees(Money.Parse("0.0001"))
+				.SendChange(destinations[3])
+				.BuildTransaction();
+			Assert.True(txBuilder.Verify(tx));
+
+			Assert.Equal(3, tx.Outputs.Count);
+
+			txBuilder = new TransactionBuilder(0);
+			tx = txBuilder
+			   .AddCoins(coins.Concat(scriptCoins).ToArray())
+			   .AddKeys(keys)
+			   .SetCoinSelector(new DefaultCoinSelector(0))
+			   .SendTo(destinations[0], Money.Parse("6"))
+			   .SendTo(destinations[2], Money.Parse("5"))
+			   .SendTo(destinations[2], Money.Parse("0.9998"))
+			   .SetFees(Money.Parse("0.0001"))
+			   .SendChange(destinations[3])
+			   .BuildTransaction();
+
+			Assert.Equal(4, tx.Outputs.Count); //+ Change
+		}
+
+		private uint256 Rand()
+		{
+			return new uint256(RandomUtils.GetBytes(32));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//https://gist.github.com/gavinandresen/3966071
 		public void CanPartiallySignTransaction()
 		{

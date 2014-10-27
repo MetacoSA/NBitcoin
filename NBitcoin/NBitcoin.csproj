@@ -73,6 +73,7 @@
     <Compile Include="CachedBlockProvider.cs" />
     <Compile Include="CachedNoSqlRepository.cs" />
     <Compile Include="CachedTransactionRepository.cs" />
+    <Compile Include="Coin.cs" />
     <Compile Include="CoinsView.cs" />
     <Compile Include="Crypto\DeterministicECDSA.cs" />
     <Compile Include="DataDirectory.cs" />
@@ -191,6 +192,7 @@
     <Compile Include="StoredItem.cs" />
     <Compile Include="Target.cs" />
     <Compile Include="TraceCorrelationScope.cs" />
+    <Compile Include="TransactionBuilder.cs" />
     <Compile Include="TransactionNotFoundException.cs" />
     <Compile Include="TransactionSignature.cs" />
     <Compile Include="Crypto\Hashes.cs" />
