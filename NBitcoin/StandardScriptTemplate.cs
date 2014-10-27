@@ -22,6 +22,14 @@ namespace NBitcoin
 
 	public class TxNullDataTemplate : ScriptTemplate
 	{
+		private static readonly TxNullDataTemplate _Instance = new TxNullDataTemplate();
+		public static TxNullDataTemplate Instance
+		{
+			get
+			{
+				return _Instance;
+			}
+		}
 		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
 		{
 			var bytes = scriptPubKey.ToRawScript(true);

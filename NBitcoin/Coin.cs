@@ -46,4 +46,43 @@ namespace NBitcoin
 			set;
 		}
 	}
+
+	public class StealthCoin : Coin
+	{
+		public StealthCoin()
+		{
+		}
+		public StealthCoin(OutPoint outpoint, TxOut txOut, StealthMetadata stealthMetadata, BitcoinStealthAddress address)
+			: base(outpoint, txOut)
+		{
+			StealthMetadata = stealthMetadata;
+			Address = address;
+		}
+		public StealthMetadata StealthMetadata
+		{
+			get;
+			set;
+		}
+
+		public BitcoinStealthAddress Address
+		{
+			get;
+			set;
+		}
+
+		public static StealthCoin Find(Transaction tx, BitcoinStealthAddress address, Key scan)
+		{
+			var payment = address.GetPayments(tx, scan).FirstOrDefault();
+			if(payment == null)
+				return null;
+			var txId = tx.GetHash();
+			var txout = tx.Outputs.First(o => o.ScriptPubKey == payment.SpendableScript);
+			return new StealthCoin(new OutPoint(txId, tx.Outputs.IndexOf(txout)), txout, payment.Metadata, address);
+		}
+
+		public StealthPayment GetPayment()
+		{
+			return new StealthPayment(TxOut.ScriptPubKey, StealthMetadata);
+		}
+	}
 }

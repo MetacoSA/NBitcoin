@@ -192,6 +192,7 @@ namespace NBitcoin
 			_Keys.AddRange(keys);
 			return this;
 		}
+
 		public TransactionBuilder AddCoins(params Coin[] coins)
 		{
 			Coins.AddRange(coins);
@@ -207,6 +208,21 @@ namespace NBitcoin
 			_Builders.Add(tx =>
 			{
 				tx.Outputs.Add(new TxOut(money, id.CreateScriptPubKey()));
+			});
+			return this;
+		}
+
+		BitcoinStealthAddress _StealthAddress;
+		public TransactionBuilder SendTo(BitcoinStealthAddress address, Money money, Key ephemKey = null)
+		{
+			if(_StealthAddress != null && _StealthAddress != address)
+				throw new InvalidOperationException("Can only pay one stealth address per transaction");
+			_StealthAddress = address;
+			_SupportTxOutShuffle = false;
+			_Builders.Add(tx =>
+			{
+				var payment = address.CreatePayment(ephemKey);
+				payment.AddToTransaction(tx, money);
 			});
 			return this;
 		}
@@ -239,6 +255,8 @@ namespace NBitcoin
 			return this;
 		}
 
+		bool _SupportTxOutShuffle = true;
+
 		public Transaction BuildTransaction(bool sign)
 		{
 			Transaction tx = new Transaction();
@@ -257,7 +275,8 @@ namespace NBitcoin
 					throw new InvalidOperationException("A change address should be specified");
 				tx.Outputs.Add(new TxOut(total - target, ChangeScript));
 			}
-			DefaultCoinSelector.Shuffle(tx.Outputs, _Rand);
+			if(_SupportTxOutShuffle)
+				DefaultCoinSelector.Shuffle(tx.Outputs, _Rand);
 			foreach(var coin in selection)
 			{
 				tx.AddInput(new TxIn(coin.Outpoint));
@@ -342,11 +361,37 @@ namespace NBitcoin
 					input.ScriptSig = new Script(ops.ToArray());
 				}
 			}
+			else if(coin is StealthCoin)
+			{
+				var stealthCoin = (StealthCoin)coin;
+				List<Key> tempKeys = new List<Key>();
+				var scanKey = FindKey(stealthCoin.Address.ScanPubKey);
+				if(scanKey == null)
+					throw new KeyNotFoundException("Scan key for decrypting StealthCoin not found");
+				foreach(var key in stealthCoin.Address.SpendPubKeys.Select(p => FindKey(p)).Where(p => p != null))
+				{
+					tempKeys.Add(key.Uncover(scanKey, stealthCoin.StealthMetadata.EphemKey));
+				}
+				_Keys.AddRange(tempKeys);
+				try
+				{
+					input.ScriptSig = CreateScriptSig(tx, input, coin, n, coin.TxOut.ScriptPubKey);
+
+				}
+				finally
+				{
+					foreach(var tempKey in tempKeys)
+					{
+						_Keys.Remove(tempKey);
+					}
+				}
+			}
 			else
 			{
 				input.ScriptSig = CreateScriptSig(tx, input, coin, n, coin.TxOut.ScriptPubKey);
 			}
 		}
+
 
 		private Script CreateScriptSig(Transaction tx, TxIn input, Coin coin, int n, Script scriptPubKey)
 		{

@@ -83,17 +83,14 @@ namespace NBitcoin
 		private void ParseSpendable()
 		{
 			List<KeyId> pubkeys = new List<KeyId>();
-
-			var payToHash = new PayToPubkeyHashTemplate();
-			var keyId = payToHash.ExtractScriptPubKeyParameters(SpendableScript);
+			var keyId = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(SpendableScript);
 			if(keyId != null)
 			{
 				StealthKeys = new StealthSpendKey[] { new StealthSpendKey(keyId, this) };
 			}
 			else
 			{
-				var payToMultiSig = new PayToMultiSigTemplate();
-				var para = payToMultiSig.ExtractScriptPubKeyParameters(SpendableScript);
+				var para = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(SpendableScript);
 				if(para == null)
 					throw new ArgumentException("Invalid stealth spendable output script", "spendable");
 				StealthKeys = para.PubKeys.Select(k => new StealthSpendKey(k.ID, this)).ToArray();

@@ -71,6 +71,75 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildStealthTransaction()
+		{
+			var stealthKeys = Enumerable.Range(0, 3).Select(_ => new Key()).ToArray();
+			var scanKey = new Key();
+
+			var stealthAddress = new BitcoinStealthAddress(scanKey.PubKey, stealthKeys.Select(k => k.PubKey).ToArray(), 2, new BitField(3, 5), Network.Main);
+
+			var bob = new Key();
+			var coins = new Coin[] { 
+							new Coin() 
+							{ 
+								Outpoint = RandOutpoint(),
+								TxOut = new TxOut("1.00",bob.PubKey.ID)
+							} };
+
+			TransactionBuilder builder = new TransactionBuilder();
+			var tx =
+				builder
+				.AddCoins(coins)
+				.AddKeys(bob)
+				.SendTo(stealthAddress, "1.00")
+				.BuildTransaction(true);
+			Assert.True(builder.Verify(tx));
+
+			var stealthCoin = StealthCoin.Find(tx, stealthAddress, scanKey);
+			Assert.NotNull(stealthCoin);
+
+			builder = new TransactionBuilder();
+			tx =
+				builder
+					.AddCoins(stealthCoin)
+					.AddKeys(stealthKeys)
+					.AddKeys(scanKey)
+					.SendTo(bob.PubKey.ID, "1.00")
+					.BuildTransaction(true);
+
+			Assert.True(builder.Verify(tx));
+
+			//Testing if partial signing works
+			builder = new TransactionBuilder();
+			tx =
+				builder
+					.AddCoins(stealthCoin)
+					.AddKeys(stealthKeys.Skip(2).ToArray())
+					.AddKeys(scanKey)
+					.SendTo(bob.PubKey.ID, "1.00")
+					.BuildTransaction(true);
+
+			//Not fully signed
+			Assert.False(builder.Verify(tx));
+
+			builder = new TransactionBuilder();
+			tx =
+				builder
+					.AddCoins(stealthCoin) //Necessary so builder can verify transaction
+					.AddKeys(stealthKeys[0])
+					.AddKeys(scanKey)
+					.SignTransaction(tx);
+
+			Assert.True(builder.Verify(tx));
+		}
+
+		private OutPoint RandOutpoint()
+		{
+			return new OutPoint(Rand(), 0);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildTransaction()
 		{
 			var keys = Enumerable.Range(0, 5).Select(i => new Key()).ToArray();
