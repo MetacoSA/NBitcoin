@@ -214,6 +214,9 @@ namespace NBitcoin.Tests
 			Assert.True(tx.Outputs[5].ScriptPubKey == satoshi.PubKey.PaymentScript);
 			Assert.True(tx.Outputs[6].Value == Money.Parse("1.1"));
 			Assert.True(tx.Outputs[6].ScriptPubKey == bob.PubKey.PaymentScript);
+
+			tx = txBuilder.AddKeys(satoshi, bob).SignTransaction(tx);
+			Assert.True(txBuilder.Verify(tx));
 		}
 
 		private void AssertHasAsset(Transaction tx, ColoredTransaction colored, ColoredEntry entry, ScriptId assetId, int quantity, PubKey destination)
