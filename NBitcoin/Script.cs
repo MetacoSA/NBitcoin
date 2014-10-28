@@ -249,21 +249,21 @@ namespace NBitcoin
 		}
 
 
-		public int FindAndDelete(OpcodeType op)
+		internal int FindAndDelete(OpcodeType op)
 		{
 			return FindAndDelete(new Op()
 			{
 				Code = op
 			});
 		}
-		public int FindAndDelete(Op op)
+		internal int FindAndDelete(Op op)
 		{
 			if(op == null)
 				return 0;
 			return FindAndDelete(o => o.Code == op.Code && Utils.ArrayEqual(o.PushData, op.PushData));
 		}
 
-		public int FindAndDelete(byte[] pushedData)
+		internal int FindAndDelete(byte[] pushedData)
 		{
 			if(pushedData.Length == 0)
 				return 0;
@@ -696,13 +696,6 @@ namespace NBitcoin
 			}
 		}
 
-
-
-		public bool Same(Script script)
-		{
-			return Utils.ArrayEqual(script._Script, _Script);
-		}
-
 		/// <summary>
 		/// Create scriptPubKey from destination id
 		/// </summary>
@@ -731,6 +724,32 @@ namespace NBitcoin
 		public static bool IsNullOrEmpty(Script script)
 		{
 			return script == null || script._Script.Length == 0;
+		}
+
+		public override bool Equals(object obj)
+		{
+			Script item = obj as Script;
+			if(item == null)
+				return false;
+			return ID.Equals(item.ID);
+		}
+		public static bool operator ==(Script a, Script b)
+		{
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if(((object)a == null) || ((object)b == null))
+				return false;
+			return a.ID == b.ID;
+		}
+
+		public static bool operator !=(Script a, Script b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return ID.GetHashCode();
 		}
 	}
 }

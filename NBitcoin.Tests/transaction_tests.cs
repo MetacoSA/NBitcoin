@@ -141,8 +141,8 @@ namespace NBitcoin.Tests
 			Assert.Equal(500UL, colored.Inputs[0].Asset.Quantity);
 			Assert.Equal(1, colored.Issuances.Count);
 			Assert.Equal(2, colored.Transfers.Count);
-			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 30, satoshi.PubKey);
-			AssertHasAsset(tx, colored, colored.Transfers[1], goldId, 470, bob.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 470, bob.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[1], goldId, 30, satoshi.PubKey);
 
 			repo.Transactions.Put(tx.GetHash(), tx);
 
@@ -185,7 +185,7 @@ namespace NBitcoin.Tests
 			repo.Transactions.Put(tx.GetHash(), tx);
 
 			var bobCoin = ColoredCoin.Find(tx, repo).First();
-			var bobBitcoin = new Coin(new OutPoint(tx.GetHash(), 1), tx.Outputs[1]);
+			var bobBitcoin = new Coin(new OutPoint(tx.GetHash(), 2), tx.Outputs[2]);
 
 			txBuilder = new TransactionBuilder();
 			tx = txBuilder
@@ -204,16 +204,16 @@ namespace NBitcoin.Tests
 			AssertHasAsset(tx, colored, colored.Inputs[0], goldId, 1000, null);
 			AssertHasAsset(tx, colored, colored.Inputs[1], silverId, 300, null);
 
-			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 100, bob.PubKey);
-			AssertHasAsset(tx, colored, colored.Transfers[1], goldId, 900, satoshi.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 900, satoshi.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[1], goldId, 100, bob.PubKey);
 
-			AssertHasAsset(tx, colored, colored.Transfers[2], silverId, 200, satoshi.PubKey);
-			AssertHasAsset(tx, colored, colored.Transfers[3], silverId, 100, bob.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[2], silverId, 100, bob.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[3], silverId, 200, satoshi.PubKey);
 
-			Assert.True(tx.Outputs[5].Value == Money.Parse("0.9"));
-			Assert.True(tx.Outputs[5].ScriptPubKey == satoshi.PubKey.PaymentScript);
-			Assert.True(tx.Outputs[6].Value == Money.Parse("1.1"));
-			Assert.True(tx.Outputs[6].ScriptPubKey == bob.PubKey.PaymentScript);
+			Assert.True(tx.Outputs[5].Value == Money.Parse("1.1"));
+			Assert.True(tx.Outputs[5].ScriptPubKey == bob.PubKey.PaymentScript);
+			Assert.True(tx.Outputs[6].Value == Money.Parse("0.9"));
+			Assert.True(tx.Outputs[6].ScriptPubKey == satoshi.PubKey.PaymentScript);
 
 			tx = txBuilder.AddKeys(satoshi, bob).SignTransaction(tx);
 			Assert.True(txBuilder.Verify(tx));
@@ -350,7 +350,7 @@ namespace NBitcoin.Tests
 				.Send(destinations[0], Money.Parse("6"))
 				.Send(destinations[2], Money.Parse("5"))
 				.Send(destinations[2], Money.Parse("0.9999"))
-				.SetFees(Money.Parse("0.0001"))
+				.SendFees(Money.Parse("0.0001"))
 				.SetChange(destinations[3])
 				.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx));
@@ -364,7 +364,7 @@ namespace NBitcoin.Tests
 			   .Send(destinations[0], Money.Parse("6"))
 			   .Send(destinations[2], Money.Parse("5"))
 			   .Send(destinations[2], Money.Parse("0.9998"))
-			   .SetFees(Money.Parse("0.0001"))
+			   .SendFees(Money.Parse("0.0001"))
 			   .SetChange(destinations[3])
 			   .BuildTransaction(true);
 
@@ -381,7 +381,7 @@ namespace NBitcoin.Tests
 					.Send(destinations[0], Money.Parse("6"))
 					.Send(destinations[2], Money.Parse("5"))
 					.Send(destinations[2], Money.Parse("0.9998"))
-					.SetFees(Money.Parse("0.0001"))
+					.SendFees(Money.Parse("0.0001"))
 					.SetChange(destinations[3])
 					.BuildTransaction(true);
 			Assert.False(txBuilder.Verify(tx));

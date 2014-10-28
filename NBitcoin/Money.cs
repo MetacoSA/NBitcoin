@@ -295,5 +295,14 @@ namespace NBitcoin
 				return _Zero;
 			}
 		}
+
+		static Money _Dust = new Money(600);
+		public static Money Dust
+		{
+			get
+			{
+				return _Dust;
+			}
+		}
 	}
 }

@@ -53,7 +53,7 @@ namespace NBitcoin.Scanning
 
 		private bool Match(TxOut txout, StealthPayment[] payments)
 		{
-			return payments.Any(p=>p.SpendableScript.Same(txout.ScriptPubKey) && !txout.IsDust);
+			return payments.Any(p=>p.SpendableScript == txout.ScriptPubKey && !txout.IsDust);
 		}
 
 		public override IEnumerable<TxIn> FindSpent(IEnumerable<Transaction> transactions)

@@ -152,6 +152,12 @@ namespace NBitcoin
 		{
 			Builder = builder;
 			Transaction = new Transaction();
+			ChangeAmount = Money.Zero;
+		}
+		public TransactionBuilder.BuilderGroup Group
+		{
+			get;
+			set;
 		}
 		public TransactionBuilder Builder
 		{
@@ -165,29 +171,33 @@ namespace NBitcoin
 		}
 
 		ColorMarker _Marker;
-		TxOut _MarkerOutput;
+
 		public ColorMarker GetColorMarker(bool issuance)
 		{
 			if(_Marker == null)
 				_Marker = new ColorMarker();
-			if(!issuance && _MarkerOutput == null)
-			{
-				_MarkerOutput = Transaction.AddOutput(new TxOut());
-				_MarkerOutput.Value = Money.Zero;
-			}
+			if(!issuance)
+				EnsureMarkerInserted();
 			return _Marker;
+		}
+
+		private TxOut EnsureMarkerInserted()
+		{
+			var txout = Transaction.Outputs.FirstOrDefault(o => Script.IsNullOrEmpty(o.ScriptPubKey));
+			if(txout == null)
+			{
+				txout = Transaction.AddOutput(new TxOut());
+				txout.Value = Money.Zero;
+			}
+			return txout;
 		}
 
 		public void Finish()
 		{
 			if(_Marker != null)
 			{
-				if(_MarkerOutput == null)
-				{
-					_MarkerOutput = Transaction.AddOutput(new TxOut());
-					_MarkerOutput.Value = Money.Zero;
-				}
-				_MarkerOutput.ScriptPubKey = _Marker.GetScript();
+				var txout = EnsureMarkerInserted();
+				txout.ScriptPubKey = _Marker.GetScript();
 			}
 		}
 
@@ -195,6 +205,25 @@ namespace NBitcoin
 		{
 			get;
 			set;
+		}
+
+		public Money ChangeAmount
+		{
+			get;
+			set;
+		}
+
+		public TransactionBuildingContext CreateMemento()
+		{
+			var memento = new TransactionBuildingContext(Builder);
+			memento.RestoreMemento(this);
+			return memento;
+		}
+
+		public void RestoreMemento(TransactionBuildingContext memento)
+		{
+			_Marker = memento._Marker == null ? null : new ColorMarker(memento._Marker.GetScript());
+			Transaction = memento.Transaction.Clone();
 		}
 	}
 	public class TransactionBuilder
@@ -205,6 +234,15 @@ namespace NBitcoin
 			public BuilderGroup(TransactionBuilder parent)
 			{
 				_Parent = parent;
+				Builders.Add(SetChange);
+			}
+
+			Money SetChange(TransactionBuildingContext ctx)
+			{
+				if(ctx.ChangeAmount == Money.Zero)
+					return Money.Zero;
+				ctx.Transaction.AddOutput(new TxOut(ctx.ChangeAmount, ctx.Group.ChangeScript));
+				return ctx.ChangeAmount;
 			}
 			internal List<Builder> Builders = new List<Builder>();
 			internal List<ICoin> Coins = new List<ICoin>();
@@ -225,40 +263,31 @@ namespace NBitcoin
 		}
 
 		List<BuilderGroup> _BuilderGroups = new List<BuilderGroup>();
-		BuilderGroup _CurrrentGroup = null;
+		BuilderGroup _CurrentGroup = null;
 		internal BuilderGroup CurrentGroup
 		{
 			get
 			{
-				if(_CurrrentGroup == null)
+				if(_CurrentGroup == null)
 				{
-					_CurrrentGroup = new BuilderGroup(this);
-					_BuilderGroups.Add(_CurrrentGroup);
+					_CurrentGroup = new BuilderGroup(this);
+					_BuilderGroups.Add(_CurrentGroup);
 				}
-				return _CurrrentGroup;
+				return _CurrentGroup;
 			}
 		}
-
-		delegate TxOut SetChangeDelegate(TransactionBuildingContext ctx, Money change, Script changeScript);
 		public TransactionBuilder()
 		{
-			Fees = Money.Zero;
 			_Rand = new Random();
 			CoinSelector = new DefaultCoinSelector();
-			ColoredDust = Money.Parse("0.000006");
+			ColoredDust = Money.Dust;
 		}
 		internal Random _Rand;
 		public TransactionBuilder(int seed)
 		{
-			Fees = Money.Zero;
 			_Rand = new Random(seed);
 			CoinSelector = new DefaultCoinSelector(seed);
-			ColoredDust = Money.Parse("0.000006");
-		}
-		public Money Fees
-		{
-			get;
-			set;
+			ColoredDust = Money.Dust;
 		}
 
 		public ICoinSelector CoinSelector
@@ -322,6 +351,16 @@ namespace NBitcoin
 			return this;
 		}
 
+		Money SetColoredChange(TransactionBuildingContext ctx)
+		{
+			if(ctx.ChangeAmount == Money.Zero)
+				return Money.Zero;
+			var marker = ctx.GetColorMarker(false);
+			var txout = ctx.Transaction.AddOutput(new TxOut(ColoredDust, ctx.Group.ChangeScript));
+			marker.SetQuantity(ctx.Transaction.Outputs.Count - 2, ctx.ChangeAmount);
+			return ctx.ChangeAmount;
+		}
+
 		public TransactionBuilder SendAsset(Script scriptPubKey, Asset asset)
 		{
 			AssertOpReturn("Colored Coin");
@@ -330,6 +369,7 @@ namespace NBitcoin
 			{
 				builders = new List<Builder>();
 				CurrentGroup.BuildersByAsset.Add(asset.Id, builders);
+				builders.Add(SetColoredChange);
 			}
 			builders.Add(ctx =>
 			{
@@ -421,11 +461,11 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder SetFees(Money fees)
+		public TransactionBuilder SendFees(Money fees)
 		{
 			if(fees == null)
 				throw new ArgumentNullException("fees");
-			Fees = fees;
+			CurrentGroup.Builders.Add(ctx => fees);
 			return this;
 		}
 
@@ -458,23 +498,12 @@ namespace NBitcoin
 			return this;
 		}
 
-		private TxOut AddColoredChange(TransactionBuildingContext ctx, Money change, Script changeScript)
-		{
-			var txout = ctx.Transaction.AddOutput(new TxOut(ColoredDust, changeScript));
-			ctx.GetColorMarker(false).SetQuantity(ctx.Transaction.Outputs.Count - 2, change);
-			return txout;
-		}
-
-		private TxOut AddChange(TransactionBuildingContext ctx, Money change, Script changeScript)
-		{
-			return ctx.Transaction.AddOutput(new TxOut(change, changeScript));
-		}
-
 		public Transaction BuildTransaction(bool sign)
 		{
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			foreach(var group in _BuilderGroups)
 			{
+				ctx.Group = group;
 				foreach(var builder in group.IssuanceBuilders)
 					builder(ctx);
 
@@ -482,10 +511,10 @@ namespace NBitcoin
 				foreach(var builders in buildersByAsset)
 				{
 					var coins = group.Coins.OfType<ColoredCoin>().Where(c => c.Asset.Id == builders.Key).OfType<ICoin>();
-					BuildTransaction(ctx, builders.Value, coins, Money.Zero, group.ChangeScript, AddColoredChange);
+					BuildTransaction(ctx, builders.Value, coins, group.ChangeScript, Money.Zero);
 				}
 
-				BuildTransaction(ctx, group.Builders, group.Coins.OfType<Coin>(), Fees, group.ChangeScript, AddChange);
+				BuildTransaction(ctx, group.Builders, group.Coins.OfType<Coin>(), group.ChangeScript, Money.Dust);
 			}
 			ctx.Finish();
 
@@ -500,30 +529,40 @@ namespace NBitcoin
 			TransactionBuildingContext ctx,
 			List<Builder> builders,
 			IEnumerable<ICoin> coins,
-			Money fees,
 			Script changeScript,
-			SetChangeDelegate setChange)
+			Money dust)
 		{
-			builders = builders.ToList();
-
-			var amount = builders.Select(b => b(ctx)).Sum();
-			var target = amount + fees;
+			var originalCtx = ctx.CreateMemento();
+			var target = builders.Select(b => b(ctx)).Sum();
 			var selection = CoinSelector.Select(coins, target);
 			if(selection == null)
 				throw new NotEnoughFundsException("Not enough fund to cover the target");
 			var total = selection.Select(s => s.Amount).Sum();
-			if(total < target)
+			var change = total - target;
+			if(change < Money.Zero)
 				throw new NotEnoughFundsException("Not enough fund to cover the target");
-			if(total != target)
+			if(change > dust)
 			{
 				if(changeScript == null)
 					throw new InvalidOperationException("A change address should be specified");
-				setChange(ctx, total - target, changeScript);
+
+				ctx.RestoreMemento(originalCtx);
+				ctx.ChangeAmount = change;
+				try
+				{
+					BuildTransaction(ctx, builders, coins, changeScript, dust);
+					return;
+				}
+				finally
+				{
+					ctx.ChangeAmount = Money.Zero;
+				}
 			}
 			foreach(var coin in selection)
 			{
 				ctx.Transaction.AddInput(new TxIn(coin.Outpoint));
 			}
+
 		}
 		public Transaction SignTransaction(Transaction transaction)
 		{
@@ -720,7 +759,7 @@ namespace NBitcoin
 
 		public TransactionBuilder Flush()
 		{
-			_CurrrentGroup = null;
+			_CurrentGroup = null;
 			return this;
 		}
 
