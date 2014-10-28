@@ -316,6 +316,7 @@ namespace NBitcoin
 
 		public TransactionBuilder Shuffle()
 		{
+			DefaultCoinSelector.Shuffle(_BuilderGroups, _Rand);
 			foreach(var group in _BuilderGroups)
 				group.Shuffle();
 			return this;
