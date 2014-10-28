@@ -1,4 +1,5 @@
 ﻿using NBitcoin.DataEncoders;
+using NBitcoin.OpenAsset;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -71,6 +72,161 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildColoredTransaction()
+		{
+			var gold = new Key();
+			var silver = new Key();
+			var goldId = gold.PubKey.PaymentScript.ID;
+			var silverId = silver.PubKey.PaymentScript.ID;
+
+			var satoshi = new Key();
+			var bob = new Key();
+
+			var repo = new NoSqlColoredTransactionRepository(new NoSqlTransactionRepository(), new InMemoryNoSqlRepository());
+
+			var init = new Transaction()
+			{
+				Outputs =
+				{
+					new TxOut(Money.Zero, gold.PubKey),
+					new TxOut(Money.Zero, silver.PubKey)
+				}
+			};
+			repo.Transactions.Put(init.GetHash(), init);
+
+			var issuanceCoins =
+				init
+				.Outputs
+				.Select((o, i) => new IssuanceCoin(new OutPoint(init.GetHash(), i), init.Outputs[i]))
+				.OfType<ICoin>().ToArray();
+
+			var coins = new List<ICoin>();
+			coins.AddRange(issuanceCoins);
+			var txBuilder = new TransactionBuilder();
+
+			//Can issue gold to satoshi and bob
+			var tx = txBuilder
+				.AddCoins(coins.ToArray())
+				.AddKeys(gold)
+				.IssueAsset(satoshi.PubKey, new Asset(goldId, 1000))
+				.IssueAsset(bob.PubKey, new Asset(goldId, 500))
+				.BuildTransaction(true);
+			Assert.True(txBuilder.Verify(tx));
+			repo.Transactions.Put(tx.GetHash(), tx);
+
+			var colored = tx.GetColoredTransaction(repo);
+			Assert.Equal(2, colored.Issuances.Count);
+			Assert.True(colored.Issuances.All(i => i.Asset.Id == goldId));
+			AssertHasAsset(tx, colored, colored.Issuances[0], goldId, 1000, satoshi.PubKey);
+			AssertHasAsset(tx, colored, colored.Issuances[1], goldId, 500, bob.PubKey);
+
+			var coloredCoins = ColoredCoin.Find(tx, colored).ToArray();
+			Assert.Equal(2, coloredCoins.Length);
+
+			//Can issue silver to bob, and send some gold to satoshi
+			coins.Add(coloredCoins.First(c => c.ScriptPubKey == bob.PubKey.PaymentScript));
+			txBuilder = new TransactionBuilder();
+			tx = txBuilder
+				.AddCoins(coins.ToArray())
+				.AddKeys(silver, bob)
+				.SetChange(bob.PubKey)
+				.IssueAsset(bob.PubKey, new Asset(silverId, 10))
+				.SendAsset(satoshi.PubKey, new Asset(goldId, 30))
+				.BuildTransaction(true);
+
+			Assert.True(txBuilder.Verify(tx));
+			colored = tx.GetColoredTransaction(repo);
+			Assert.Equal(1, colored.Inputs.Count);
+			Assert.Equal(goldId, colored.Inputs[0].Asset.Id);
+			Assert.Equal(500UL, colored.Inputs[0].Asset.Quantity);
+			Assert.Equal(1, colored.Issuances.Count);
+			Assert.Equal(2, colored.Transfers.Count);
+			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 30, satoshi.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[1], goldId, 470, bob.PubKey);
+
+			repo.Transactions.Put(tx.GetHash(), tx);
+
+
+			//Can swap : satoshi wants to send 100 gold to bob against 200 silver and 0.9 BTC
+
+			//Satoshi receive gold
+			txBuilder = new TransactionBuilder();
+			tx = txBuilder
+					.AddKeys(gold)
+					.AddCoins(issuanceCoins)
+					.IssueAsset(satoshi.PubKey, new Asset(goldId, 1000UL))
+					.BuildTransaction(true);
+			Assert.True(txBuilder.Verify(tx));
+			repo.Transactions.Put(tx.GetHash(), tx);
+			var satoshiCoin = ColoredCoin.Find(tx, repo).First();
+
+
+			//Gold receive 2.5 BTC
+			tx = new Transaction()
+			{
+				Outputs =
+				{
+					new TxOut("2.5",gold.PubKey)
+				}
+			};
+			repo.Transactions.Put(tx.GetHash(), tx);
+
+			//Bob receive silver and 2 btc
+			txBuilder = new TransactionBuilder();
+			tx = txBuilder
+					.AddKeys(silver)
+					.AddCoins(issuanceCoins)
+					.AddCoins(new Coin(new OutPoint(tx.GetHash(), 0), new TxOut("2.5", silver.PubKey.PaymentScript)))
+					.IssueAsset(bob.PubKey, new Asset(silverId, 300UL))
+					.Send(bob.PubKey, "2.00")
+					.SetChange(gold.PubKey)
+					.BuildTransaction(true);
+			Assert.True(txBuilder.Verify(tx));
+			repo.Transactions.Put(tx.GetHash(), tx);
+
+			var bobCoin = ColoredCoin.Find(tx, repo).First();
+			var bobBitcoin = new Coin(new OutPoint(tx.GetHash(), 1), tx.Outputs[1]);
+
+			txBuilder = new TransactionBuilder();
+			tx = txBuilder
+				.AddCoins(satoshiCoin)
+				.SendAsset(bob.PubKey, new Asset(goldId, 100))
+				.SetChange(satoshi.PubKey)
+				.Flush()
+				.AddCoins(bobCoin, bobBitcoin)
+				.SendAsset(satoshi.PubKey, new Asset(silverId, 200))
+				.Send(satoshi.PubKey, "0.9")
+				.SetChange(bob.PubKey)
+				.BuildTransaction(false);
+
+			colored = tx.GetColoredTransaction(repo);
+
+			AssertHasAsset(tx, colored, colored.Inputs[0], goldId, 1000, null);
+			AssertHasAsset(tx, colored, colored.Inputs[1], silverId, 300, null);
+
+			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 100, bob.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[1], goldId, 900, satoshi.PubKey);
+
+			AssertHasAsset(tx, colored, colored.Transfers[2], silverId, 200, satoshi.PubKey);
+			AssertHasAsset(tx, colored, colored.Transfers[3], silverId, 100, bob.PubKey);
+
+			Assert.True(tx.Outputs[5].Value == Money.Parse("0.9"));
+			Assert.True(tx.Outputs[5].ScriptPubKey == satoshi.PubKey.PaymentScript);
+			Assert.True(tx.Outputs[6].Value == Money.Parse("1.1"));
+			Assert.True(tx.Outputs[6].ScriptPubKey == bob.PubKey.PaymentScript);
+		}
+
+		private void AssertHasAsset(Transaction tx, ColoredTransaction colored, ColoredEntry entry, ScriptId assetId, int quantity, PubKey destination)
+		{
+			var txout = tx.Outputs[entry.Index];
+			Assert.True(entry.Asset.Id == assetId);
+			Assert.True(entry.Asset.Quantity == (ulong)quantity);
+			if(destination != null)
+				Assert.True(txout.ScriptPubKey == destination.PaymentScript);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildStealthTransaction()
 		{
 			var stealthKeys = Enumerable.Range(0, 3).Select(_ => new Key()).ToArray();
@@ -86,48 +242,50 @@ namespace NBitcoin.Tests
 					TxOut = new TxOut("1.00",bob.PubKey.ID)
 				} };
 
-			//Bob send money to satoshi
+			//Bob sends money to satoshi
 			TransactionBuilder builder = new TransactionBuilder();
 			var tx =
 				builder
 				.AddCoins(coins)
 				.AddKeys(bob)
-				.SendTo(satoshi, "1.00")
+				.Send(satoshi, "1.00")
 				.BuildTransaction(true);
 			Assert.True(builder.Verify(tx));
 
-			//Satoshi scan a StealthCoin in the transaction with his scan key
+			Assert.NotNull(satoshi.GetPayments(tx, scanKey).FirstOrDefault());
+
+			//Satoshi scans a StealthCoin in the transaction with his scan key
 			var stealthCoin = StealthCoin.Find(tx, satoshi, scanKey);
 			Assert.NotNull(stealthCoin);
 
-			//Satoshi send back the money to Bob
+			//Satoshi sends back the money to Bob
 			builder = new TransactionBuilder();
 			tx =
 				builder
 					.AddCoins(stealthCoin)
 					.AddKeys(stealthKeys)
 					.AddKeys(scanKey)
-					.SendTo(bob.PubKey.ID, "1.00")
+					.Send(bob.PubKey.ID, "1.00")
 					.BuildTransaction(true);
 
 			Assert.True(builder.Verify(tx)); //Signed !
 
 
-			//Same scenario, Satoshi want to send money back to Bob
+			//Same scenario, Satoshi wants to send money back to Bob
 			//However, his keys are spread on two machines
-			//He partially sign on the 1st machine
+			//He partially signs on the 1st machine
 			builder = new TransactionBuilder();
 			tx =
 				builder
 					.AddCoins(stealthCoin)
 					.AddKeys(stealthKeys.Skip(2).ToArray()) //Only one Stealth Key
 					.AddKeys(scanKey)
-					.SendTo(bob.PubKey.ID, "1.00")
+					.Send(bob.PubKey.ID, "1.00")
 					.BuildTransaction(true);
 
 			Assert.False(builder.Verify(tx)); //Not fully signed
 
-			//Then he partially sign on the 2nd machine
+			//Then he partially signs on the 2nd machine
 			builder = new TransactionBuilder();
 			tx =
 				builder
@@ -186,11 +344,11 @@ namespace NBitcoin.Tests
 			var tx = txBuilder
 				.AddCoins(allCoins)
 				.AddKeys(keys)
-				.SendTo(destinations[0], Money.Parse("6"))
-				.SendTo(destinations[2], Money.Parse("5"))
-				.SendTo(destinations[2], Money.Parse("0.9999"))
+				.Send(destinations[0], Money.Parse("6"))
+				.Send(destinations[2], Money.Parse("5"))
+				.Send(destinations[2], Money.Parse("0.9999"))
 				.SetFees(Money.Parse("0.0001"))
-				.SendChange(destinations[3])
+				.SetChange(destinations[3])
 				.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx));
 
@@ -200,16 +358,16 @@ namespace NBitcoin.Tests
 			tx = txBuilder
 			   .AddCoins(allCoins)
 			   .AddKeys(keys)
-			   .SendTo(destinations[0], Money.Parse("6"))
-			   .SendTo(destinations[2], Money.Parse("5"))
-			   .SendTo(destinations[2], Money.Parse("0.9998"))
+			   .Send(destinations[0], Money.Parse("6"))
+			   .Send(destinations[2], Money.Parse("5"))
+			   .Send(destinations[2], Money.Parse("0.9998"))
 			   .SetFees(Money.Parse("0.0001"))
-			   .SendChange(destinations[3])
+			   .SetChange(destinations[3])
 			   .BuildTransaction(true);
 
 			Assert.Equal(4, tx.Outputs.Count); //+ Change
 
-			txBuilder.SendTo(destinations[4], Money.Parse("1"));
+			txBuilder.Send(destinations[4], Money.Parse("1"));
 			Assert.Throws<NotEnoughFundsException>(() => txBuilder.BuildTransaction(true));
 
 			//Can sign partially
@@ -217,11 +375,11 @@ namespace NBitcoin.Tests
 			tx = txBuilder
 					.AddCoins(allCoins)
 					.AddKeys(keys.Skip(2).ToArray())  //One of the multi key missing
-					.SendTo(destinations[0], Money.Parse("6"))
-					.SendTo(destinations[2], Money.Parse("5"))
-					.SendTo(destinations[2], Money.Parse("0.9998"))
+					.Send(destinations[0], Money.Parse("6"))
+					.Send(destinations[2], Money.Parse("5"))
+					.Send(destinations[2], Money.Parse("0.9998"))
 					.SetFees(Money.Parse("0.0001"))
-					.SendChange(destinations[3])
+					.SetChange(destinations[3])
 					.BuildTransaction(true);
 			Assert.False(txBuilder.Verify(tx));
 

@@ -533,6 +533,11 @@ namespace NBitcoin
 			Value = value;
 			ScriptPubKey = scriptPubKey;
 		}
+		public TxOut(Money value, PubKey pubkey)
+		{
+			Value = value;
+			ScriptPubKey = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(pubkey);
+		}
 
 		private void SetDestination(TxDestination destination)
 		{
@@ -714,17 +719,22 @@ namespace NBitcoin
 		public static uint CURRENT_VERSION = 2;
 		public static uint MAX_STANDARD_TX_SIZE = 100000;
 
-		public void AddOutput(Money money, BitcoinAddress address)
+		public TxOut AddOutput(Money money, BitcoinAddress address)
 		{
-			AddOutput(new TxOut(money, address));
+			return AddOutput(new TxOut(money, address));
 		}
-		public void AddOutput(Money money, KeyId keyId)
+		public TxOut AddOutput(Money money, KeyId keyId)
 		{
-			AddOutput(new TxOut(money, keyId));
+			return AddOutput(new TxOut(money, keyId));
 		}
-		public void AddOutput(TxOut @out)
+		public TxOut AddOutput(Money money, Script scriptPubKey)
+		{
+			return AddOutput(new TxOut(money, scriptPubKey));
+		}
+		public TxOut AddOutput(TxOut @out)
 		{
 			this.vout.Add(@out);
+			return @out;
 		}
 		public TxIn AddInput(TxIn @in)
 		{

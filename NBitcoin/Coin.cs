@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.OpenAsset;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,154 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class Coin
+	public interface ICoin
+	{
+		OutPoint Outpoint
+		{
+			get;
+		}
+		Script ScriptPubKey
+		{
+			get;
+		}
+		Money Amount
+		{
+			get;
+		}
+	}
+
+	public class IssuanceCoin : ICoin
+	{
+		public IssuanceCoin()
+		{
+
+		}
+		public IssuanceCoin(OutPoint outpoint, TxOut txOut)
+		{
+			Outpoint = outpoint;
+			TxOut = txOut;
+		}
+
+		public ScriptId AssetId
+		{
+			get
+			{
+				return TxOut.ScriptPubKey.ID;
+			}
+		}
+
+		public OutPoint Outpoint
+		{
+			get;
+			set;
+		}
+		public TxOut TxOut
+		{
+			get;
+			set;
+		}
+
+		#region ICoin Members
+
+
+		public Money Amount
+		{
+			get
+			{
+				return TxOut.Value;
+			}
+			set
+			{
+				TxOut.Value = value;
+			}
+		}
+
+		#endregion
+
+		public Script ScriptPubKey
+		{
+			get
+			{
+				return TxOut.ScriptPubKey;
+			}
+		}
+	}
+
+	public class ColoredCoin : ICoin
+	{
+		public ColoredCoin(Asset asset, Coin bearer)
+		{
+			Asset = asset;
+			Bearer = bearer;
+		}
+
+		public Asset Asset
+		{
+			get;
+			set;
+		}
+
+		public Coin Bearer
+		{
+			get;
+			set;
+		}
+		#region ICoin Members
+
+		public OutPoint Outpoint
+		{
+			get
+			{
+				return Bearer.Outpoint;
+			}
+		}
+
+		public Script ScriptPubKey
+		{
+			get
+			{
+				return Bearer.ScriptPubKey;
+			}
+		}
+
+		public Money Amount
+		{
+			get
+			{
+				return Asset.Quantity;
+			}
+		}
+
+		#endregion
+
+		public static IEnumerable<ColoredCoin> Find(Transaction tx, ColoredTransaction colored)
+		{
+			return Find(null, tx, colored);
+		}
+		public static IEnumerable<ColoredCoin> Find(uint256 txId, Transaction tx, ColoredTransaction colored)
+		{
+			if(txId == null)
+				txId = tx.GetHash();
+			foreach(var entry in colored.Issuances.Concat(colored.Transfers))
+			{
+				var txout = tx.Outputs[entry.Index];
+				yield return new ColoredCoin(entry.Asset, new Coin(new OutPoint(txId, entry.Index), txout));
+			}
+		}
+
+		public static IEnumerable<ColoredCoin> Find(Transaction tx, NoSqlColoredTransactionRepository repo)
+		{
+			return Find(null, tx, repo);
+		}
+		public static IEnumerable<ColoredCoin> Find(uint256 txId, Transaction tx, NoSqlColoredTransactionRepository repo)
+		{
+			if(txId == null)
+				txId = tx.GetHash();
+			var colored = tx.GetColoredTransaction(repo);
+			return Find(txId, tx, colored);
+		}
+	}
+	public class Coin : ICoin
 	{
 		public Coin()
 		{
@@ -26,6 +174,31 @@ namespace NBitcoin
 		{
 			get;
 			set;
+		}
+
+		#region ICoin Members
+
+
+		public Money Amount
+		{
+			get
+			{
+				return TxOut.Value;
+			}
+			set
+			{
+				TxOut.Value = value;
+			}
+		}
+
+		#endregion
+
+		public Script ScriptPubKey
+		{
+			get
+			{
+				return TxOut.ScriptPubKey;
+			}
 		}
 	}
 
