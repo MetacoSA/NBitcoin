@@ -731,7 +731,7 @@ namespace NBitcoin
 			Script item = obj as Script;
 			if(item == null)
 				return false;
-			return ID.Equals(item.ID);
+			return Utils.ArrayEqual(item._Script, _Script);
 		}
 		public static bool operator ==(Script a, Script b)
 		{
@@ -739,7 +739,7 @@ namespace NBitcoin
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;
-			return a.ID == b.ID;
+			return Utils.ArrayEqual(a._Script, b._Script);
 		}
 
 		public static bool operator !=(Script a, Script b)
@@ -749,7 +749,7 @@ namespace NBitcoin
 
 		public override int GetHashCode()
 		{
-			return ID.GetHashCode();
+			return Encoders.Hex.EncodeData(_Script).GetHashCode();
 		}
 	}
 }
