@@ -1,5 +1,6 @@
 ﻿using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
+using NBitcoin.Stealth;
 using System;
 using System.Collections.Generic;
 using System.IO;

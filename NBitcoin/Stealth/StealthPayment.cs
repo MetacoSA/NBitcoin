@@ -7,10 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace NBitcoin.Stealth
 {
-
-
 	public class StealthSpendKey
 	{
 		private readonly StealthPayment _Payment;

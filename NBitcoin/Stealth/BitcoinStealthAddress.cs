@@ -10,7 +10,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace NBitcoin.Stealth
 {
 	public class BitField
 	{

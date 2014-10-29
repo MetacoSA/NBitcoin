@@ -1,6 +1,7 @@
 ﻿using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
+using NBitcoin.Stealth;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;

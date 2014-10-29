@@ -1,4 +1,5 @@
 ﻿using NBitcoin.Scanning;
+using NBitcoin.Stealth;
 using System;
 using System.Collections.Generic;
 using System.IO;

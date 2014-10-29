@@ -1,5 +1,6 @@
 ﻿using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
+using NBitcoin.Stealth;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
