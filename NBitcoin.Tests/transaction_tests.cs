@@ -256,7 +256,7 @@ namespace NBitcoin.Tests
 				.AddCoins(satoshiCoin)
 				.SendAsset(bob.PubKey, new Asset(goldId, 100))
 				.SetChange(satoshi.PubKey)
-				.Flush()
+				.Then()
 				.AddCoins(bobSilverCoin, bobGoldCoin, bobBitcoin)
 				.SendAsset(satoshi.PubKey, new Asset(silverId, 200))
 				.Send(satoshi.PubKey, "0.9")

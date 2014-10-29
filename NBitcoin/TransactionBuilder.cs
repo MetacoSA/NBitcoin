@@ -775,7 +775,7 @@ namespace NBitcoin
 			return _Keys.FirstOrDefault(k => k.PubKey == pubKeyParams);
 		}
 
-		public TransactionBuilder Flush()
+		public TransactionBuilder Then()
 		{
 			_CurrentGroup = null;
 			return this;
