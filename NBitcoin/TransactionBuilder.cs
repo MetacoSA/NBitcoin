@@ -263,6 +263,13 @@ namespace NBitcoin
 			}
 		}
 
+
+		public bool AllowColoredCoinAboveDust
+		{
+			get;
+			set;
+		}
+
 		List<BuilderGroup> _BuilderGroups = new List<BuilderGroup>();
 		BuilderGroup _CurrentGroup = null;
 		internal BuilderGroup CurrentGroup
@@ -307,7 +314,16 @@ namespace NBitcoin
 
 		public TransactionBuilder AddCoins(params ICoin[] coins)
 		{
-			CurrentGroup.Coins.AddRange(coins);
+			foreach(var coin in coins)
+			{
+				var cc = coin as IColoredCoin;
+				if(cc != null)
+				{
+					if(cc.Bearer.Amount > Money.Dust && !AllowColoredCoinAboveDust)
+						throw new InvalidOperationException("The bitcoin amount of this colored coin is more than dust. The TransactionBuilder does not try to send those bitcoin back to the change address, wasting them as mining fees. If you still want to spend such coin, set AllowColoredCoinAboveDust to true");
+				}
+				CurrentGroup.Coins.Add(coin);
+			}
 			return this;
 		}
 		public TransactionBuilder Send(BitcoinAddress destination, Money amount)
