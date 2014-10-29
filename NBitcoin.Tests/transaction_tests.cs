@@ -72,17 +72,18 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanBuildMultiSigIssuanceColoredTransaction()
+		public void CanBuildIssueColoredCoinWithMultiSigP2SH()
 		{
 			var satoshi = new Key();
 			var bob = new Key();
 			var alice = new Key();
 
-			var gold = PayToMultiSigTemplate.Instance
+			var goldRedeem = PayToMultiSigTemplate.Instance
 									.GenerateScriptPubKey(2, new[] { satoshi.PubKey, bob.PubKey, alice.PubKey });
 
-			var goldScriptPubKey = gold.ID.CreateScriptPubKey();
-			var issuanceCoin = new IssuanceCoin(new ScriptCoin(RandOutpoint(), new TxOut(Money.Zero, goldScriptPubKey), gold));
+			var goldScriptPubKey = goldRedeem.ID.CreateScriptPubKey();
+			var issuanceCoin = new IssuanceCoin(
+				new ScriptCoin(RandOutpoint(), new TxOut(Money.Zero, goldScriptPubKey), goldRedeem));
 
 			var nico = new Key();
 
