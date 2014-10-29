@@ -616,10 +616,11 @@ namespace NBitcoin
 				var scriptCoin = coin as ScriptCoin;
 				if(scriptCoin == null)
 				{
+					var expectedId = payToScriptHash.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
 					//Try to extract redeem from this transaction
 					var p2shParams = payToScriptHash.ExtractScriptSigParameters(input.ScriptSig);
-					if(p2shParams == null)
-						throw new InvalidOperationException("A coin with a P2SH scriptPubKey was detected, however this coin is not a ScriptCoin");
+					if(p2shParams == null || p2shParams.RedeemScript.ID != expectedId)
+						throw new InvalidOperationException("A coin with a P2SH scriptPubKey was detected, however this coin is not a ScriptCoin, and no information about the redeem script was found in the input");
 					else
 					{
 						scriptCoin = new ScriptCoin(coin.Outpoint, ((Coin)coin).TxOut, p2shParams.RedeemScript);
