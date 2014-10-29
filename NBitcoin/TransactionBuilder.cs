@@ -247,7 +247,7 @@ namespace NBitcoin
 			internal List<Builder> Builders = new List<Builder>();
 			internal List<ICoin> Coins = new List<ICoin>();
 			internal List<Builder> IssuanceBuilders = new List<Builder>();
-			internal Dictionary<ScriptId, List<Builder>> BuildersByAsset = new Dictionary<ScriptId, List<Builder>>();
+			internal Dictionary<AssetId, List<Builder>> BuildersByAsset = new Dictionary<AssetId, List<Builder>>();
 			internal Script ChangeScript;
 			internal void Shuffle()
 			{
@@ -432,7 +432,7 @@ namespace NBitcoin
 			return IssueAsset(destination.PaymentScript, asset);
 		}
 
-		ScriptId _IssuedAsset;
+		AssetId _IssuedAsset;
 
 		private TransactionBuilder IssueAsset(Script scriptPubKey, Asset asset)
 		{

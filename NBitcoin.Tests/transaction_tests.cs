@@ -82,6 +82,8 @@ namespace NBitcoin.Tests
 									.GenerateScriptPubKey(2, new[] { satoshi.PubKey, bob.PubKey, alice.PubKey });
 
 			var goldScriptPubKey = goldRedeem.ID.CreateScriptPubKey();
+			var goldAssetId = goldScriptPubKey.ID.ToAssetId();
+
 			var issuanceCoin = new IssuanceCoin(
 				new ScriptCoin(RandOutpoint(), new TxOut(Money.Zero, goldScriptPubKey), goldRedeem));
 
@@ -91,7 +93,7 @@ namespace NBitcoin.Tests
 				new TransactionBuilder()
 				.AddCoins(issuanceCoin)
 				.AddKeys(bob)
-				.IssueAsset(nico.PubKey, new Asset(goldScriptPubKey.ID, 1000))
+				.IssueAsset(nico.PubKey, new Asset(goldAssetId, 1000))
 				.BuildTransaction(true);
 
 			var aliceSigned =
@@ -112,7 +114,7 @@ namespace NBitcoin.Tests
 				builder
 				.AddCoins(issuanceCoin)
 				.AddKeys(alice, satoshi)
-				.IssueAsset(nico.PubKey, new Asset(goldScriptPubKey.ID, 1000))
+				.IssueAsset(nico.PubKey, new Asset(goldAssetId, 1000))
 				.BuildTransaction(true);
 			Assert.True(builder.Verify(tx));
 		}
@@ -123,8 +125,8 @@ namespace NBitcoin.Tests
 		{
 			var gold = new Key();
 			var silver = new Key();
-			var goldId = gold.PubKey.PaymentScript.ID;
-			var silverId = silver.PubKey.PaymentScript.ID;
+			var goldId = gold.PubKey.PaymentScript.ID.ToAssetId();
+			var silverId = silver.PubKey.PaymentScript.ID.ToAssetId();
 
 			var satoshi = new Key();
 			var bob = new Key();
@@ -284,7 +286,7 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Verify(tx));
 		}
 
-		private void AssertHasAsset(Transaction tx, ColoredTransaction colored, ColoredEntry entry, ScriptId assetId, int quantity, PubKey destination)
+		private void AssertHasAsset(Transaction tx, ColoredTransaction colored, ColoredEntry entry, AssetId assetId, int quantity, PubKey destination)
 		{
 			var txout = tx.Outputs[entry.Index];
 			Assert.True(entry.Asset.Id == assetId);

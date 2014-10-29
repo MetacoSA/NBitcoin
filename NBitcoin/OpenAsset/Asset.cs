@@ -21,9 +21,9 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		ScriptId _Id = new ScriptId(0);
+		AssetId _Id = new AssetId(0);
 
-		public Asset(ScriptId id, ulong quantity)
+		public Asset(AssetId id, ulong quantity)
 		{
 			if(id == null)
 				throw new ArgumentNullException("id");
@@ -34,7 +34,7 @@ namespace NBitcoin.OpenAsset
 		{
 
 		}
-		public ScriptId Id
+		public AssetId Id
 		{
 			get
 			{
@@ -53,7 +53,7 @@ namespace NBitcoin.OpenAsset
 			byte[] assetId = _Id.ToBytes();
 			stream.ReadWrite(ref assetId);
 			if(!stream.Serializing)
-				_Id = new ScriptId(assetId);
+				_Id = new AssetId(assetId);
 			stream.ReadWrite(ref _Quantity);
 		}
 

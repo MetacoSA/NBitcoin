@@ -47,11 +47,11 @@ namespace NBitcoin
 		}
 
 
-		public ScriptId AssetId
+		public AssetId AssetId
 		{
 			get
 			{
-				return Bearer.TxOut.ScriptPubKey.ID;
+				return Bearer.TxOut.ScriptPubKey.ID.ToAssetId();
 			}
 		}
 
