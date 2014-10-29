@@ -221,9 +221,9 @@ namespace NBitcoin.Tests
 			//Bob receive silver and 2 btc
 			txBuilder = new TransactionBuilder();
 			tx = txBuilder
-					.AddKeys(silver)
+					.AddKeys(silver, gold)
 					.AddCoins(issuanceCoins)
-					.AddCoins(new Coin(new OutPoint(tx.GetHash(), 0), new TxOut("2.5", silver.PubKey.PaymentScript)))
+					.AddCoins(new Coin(new OutPoint(tx.GetHash(), 0), new TxOut("2.5", gold.PubKey.PaymentScript)))
 					.IssueAsset(bob.PubKey, new Asset(silverId, 300UL))
 					.Send(bob.PubKey, "2.00")
 					.SetChange(gold.PubKey)
