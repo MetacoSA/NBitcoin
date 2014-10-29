@@ -609,8 +609,8 @@ namespace NBitcoin
 
 		private void Sign(Transaction tx, TxIn input, ICoin coin, int n)
 		{
-			if(coin is ColoredCoin)
-				coin = ((ColoredCoin)coin).Bearer;
+			if(coin is IColoredCoin)
+				coin = ((IColoredCoin)coin).Bearer;
 			if(payToScriptHash.CheckScriptPubKey(coin.ScriptPubKey))
 			{
 				var scriptCoin = coin as ScriptCoin;

@@ -72,6 +72,41 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildMultiSigIssuanceColoredTransaction()
+		{
+			var satoshi = new Key();
+			var bob = new Key();
+			var alice = new Key();
+
+			var gold = PayToMultiSigTemplate.Instance
+									.GenerateScriptPubKey(2, new[] { satoshi.PubKey, bob.PubKey, alice.PubKey });
+
+			var goldScriptPubKey = gold.ID.CreateScriptPubKey();
+			var issuanceCoin = new IssuanceCoin(new ScriptCoin(RandOutpoint(), new TxOut(Money.Zero, goldScriptPubKey), gold));
+
+			var nico = new Key();
+
+			var bobSigned =
+				new TransactionBuilder()
+				.AddCoins(issuanceCoin)
+				.AddKeys(bob)
+				.IssueAsset(nico.PubKey, new Asset(goldScriptPubKey.ID, 1000))
+				.BuildTransaction(true);
+
+			var aliceSigned =
+				new TransactionBuilder()
+					.AddCoins(issuanceCoin)
+					.AddKeys(alice)
+					.SignTransaction(bobSigned);
+
+			Assert.True(
+				new TransactionBuilder()
+					.AddCoins(issuanceCoin)
+					.Verify(aliceSigned));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildColoredTransaction()
 		{
 			var gold = new Key();
@@ -383,6 +418,7 @@ namespace NBitcoin.Tests
 					.Send(destinations[2], Money.Parse("0.9998"))
 					.SendFees(Money.Parse("0.0001"))
 					.SetChange(destinations[3])
+					.Shuffle()
 					.BuildTransaction(true);
 			Assert.False(txBuilder.Verify(tx));
 

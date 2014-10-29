@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	public interface IColoredCoin : ICoin
+	{
+		Coin Bearer
+		{
+			get;
+		}
+	}
 	public interface ICoin
 	{
 		OutPoint Outpoint
@@ -23,36 +30,32 @@ namespace NBitcoin
 		}
 	}
 
-	public class IssuanceCoin : ICoin
+	public class IssuanceCoin : IColoredCoin
 	{
 		public IssuanceCoin()
 		{
 
 		}
-		public IssuanceCoin(OutPoint outpoint, TxOut txOut)
+		public IssuanceCoin(Coin bearer)
 		{
-			Outpoint = outpoint;
-			TxOut = txOut;
+			Bearer = bearer;
 		}
+
+		public IssuanceCoin(OutPoint outpoint, TxOut txout)
+		{
+			Bearer = new Coin(outpoint, txout);
+		}
+
 
 		public ScriptId AssetId
 		{
 			get
 			{
-				return TxOut.ScriptPubKey.ID;
+				return Bearer.TxOut.ScriptPubKey.ID;
 			}
 		}
 
-		public OutPoint Outpoint
-		{
-			get;
-			set;
-		}
-		public TxOut TxOut
-		{
-			get;
-			set;
-		}
+	
 
 		#region ICoin Members
 
@@ -61,11 +64,11 @@ namespace NBitcoin
 		{
 			get
 			{
-				return TxOut.Value;
+				return Bearer.TxOut.Value;
 			}
 			set
 			{
-				TxOut.Value = value;
+				Bearer.TxOut.Value = value;
 			}
 		}
 
@@ -75,12 +78,32 @@ namespace NBitcoin
 		{
 			get
 			{
-				return TxOut.ScriptPubKey;
+				return Bearer.TxOut.ScriptPubKey;
 			}
 		}
+
+		#region IColoredCoin Members
+
+
+		public Coin Bearer
+		{
+			get;
+			set;
+		}
+
+		
+		public OutPoint Outpoint
+		{
+			get
+			{
+				return Bearer.Outpoint;
+			}
+		}
+
+		#endregion
 	}
 
-	public class ColoredCoin : ICoin
+	public class ColoredCoin : IColoredCoin
 	{
 		public ColoredCoin(Asset asset, Coin bearer)
 		{
