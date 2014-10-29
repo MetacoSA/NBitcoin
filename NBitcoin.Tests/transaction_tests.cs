@@ -103,6 +103,17 @@ namespace NBitcoin.Tests
 				new TransactionBuilder()
 					.AddCoins(issuanceCoin)
 					.Verify(aliceSigned));
+
+			//In one two one line
+
+			var builder = new TransactionBuilder();
+			var tx =
+				builder
+				.AddCoins(issuanceCoin)
+				.AddKeys(alice, satoshi)
+				.IssueAsset(nico.PubKey, new Asset(goldScriptPubKey.ID, 1000))
+				.BuildTransaction(true);
+			Assert.True(builder.Verify(tx));
 		}
 
 		[Fact]
