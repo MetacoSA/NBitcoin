@@ -660,10 +660,11 @@ namespace NBitcoin
 				var scanKey = FindKey(stealthCoin.Address.ScanPubKey);
 				if(scanKey == null)
 					throw new KeyNotFoundException("Scan key for decrypting StealthCoin not found");
-				foreach(var key in stealthCoin.Address.SpendPubKeys.Select(p => FindKey(p)).Where(p => p != null))
-				{
-					tempKeys.Add(key.Uncover(scanKey, stealthCoin.StealthMetadata.EphemKey));
-				}
+
+				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => FindKey(p)).Where(p => p != null).ToArray();
+
+				tempKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
+
 				_Keys.AddRange(tempKeys);
 				try
 				{

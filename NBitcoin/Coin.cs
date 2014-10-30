@@ -56,7 +56,7 @@ namespace NBitcoin
 			}
 		}
 
-	
+
 
 		#region ICoin Members
 
@@ -92,7 +92,7 @@ namespace NBitcoin
 			set;
 		}
 
-		
+
 		public OutPoint Outpoint
 		{
 			get
@@ -280,6 +280,26 @@ namespace NBitcoin
 		public StealthPayment GetPayment()
 		{
 			return new StealthPayment(TxOut.ScriptPubKey, StealthMetadata);
+		}
+
+		public PubKey[] Uncover(PubKey[] spendPubKeys, Key scanKey)
+		{
+			var pubKeys = new PubKey[spendPubKeys.Length];
+			for(int i = 0 ; i < pubKeys.Length ; i++)
+			{
+				pubKeys[i] = spendPubKeys[i].UncoverReceiver(scanKey, StealthMetadata.EphemKey);
+			}
+			return pubKeys;	
+		}
+
+		public Key[] Uncover(Key[] spendKeys, Key scanKey)
+		{
+			var keys = new Key[spendKeys.Length];
+			for(int i = 0 ; i < keys.Length ; i++)
+			{
+				keys[i] = spendKeys[i].Uncover(scanKey, StealthMetadata.EphemKey);
+			}
+			return keys;
 		}
 	}
 }
