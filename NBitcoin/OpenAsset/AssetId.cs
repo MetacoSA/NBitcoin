@@ -36,7 +36,7 @@ namespace NBitcoin.OpenAsset
 			_Str = value;
 		}
 
-		public BitcoinAssetId ToWif(Network network)
+		public BitcoinAssetId GetWif(Network network)
 		{
 			return new BitcoinAssetId(_Bytes, network);
 		}

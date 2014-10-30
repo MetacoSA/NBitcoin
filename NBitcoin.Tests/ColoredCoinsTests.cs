@@ -269,7 +269,7 @@ namespace NBitcoin.Tests
 			Assert.True(colored1.Inputs.Count == 0);
 			Assert.True(colored1.Issuances.Count == 1);
 			Assert.True(colored1.Transfers.Count == 0);
-			Assert.Equal("Af59wop4VJjXk2DAzoX9scAUCcAsghPHFX", colored1.Issuances[0].Asset.Id.ToWif(Network.Main).ToString());
+			Assert.Equal("Af59wop4VJjXk2DAzoX9scAUCcAsghPHFX", colored1.Issuances[0].Asset.Id.GetWif(Network.Main).ToString());
 
 			tester = CreateTester("CanColorizeTransferTransaction");
 			var colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
@@ -277,7 +277,7 @@ namespace NBitcoin.Tests
 			Assert.True(colored2.Inputs[0].Asset.ToBytes().SequenceEqual(colored1.Issuances[0].Asset.ToBytes()));
 			Assert.True(colored2.Issuances.Count == 0);
 			Assert.True(colored2.Transfers.Count == 2);
-			Assert.Equal("Af59wop4VJjXk2DAzoX9scAUCcAsghPHFX", colored2.Transfers[0].Asset.Id.ToWif(Network.Main).ToString());
+			Assert.Equal("Af59wop4VJjXk2DAzoX9scAUCcAsghPHFX", colored2.Transfers[0].Asset.Id.GetWif(Network.Main).ToString());
 
 			tester = CreateTester("CanColorizeTransferTransaction");
 			var tx = tester.Repository.Transactions.Get(tester.TestedTxId);
@@ -292,7 +292,7 @@ namespace NBitcoin.Tests
 			Assert.True(colored2.Inputs[0].Asset.ToBytes().SequenceEqual(colored1.Issuances[0].Asset.ToBytes()));
 			Assert.True(colored2.Issuances.Count == 0);
 			Assert.True(colored2.Transfers.Count == 2);
-			Assert.Equal("Af59wop4VJjXk2DAzoX9scAUCcAsghPHFX", colored2.Transfers[0].Asset.Id.ToWif(Network.Main).ToString());
+			Assert.Equal("Af59wop4VJjXk2DAzoX9scAUCcAsghPHFX", colored2.Transfers[0].Asset.Id.GetWif(Network.Main).ToString());
 			var destroyed = colored2.GetDestroyedAssets();
 			Assert.True(destroyed.Length == 0);
 
@@ -412,7 +412,7 @@ namespace NBitcoin.Tests
 
 			Assert.Equal("36e0ea8e93eaa0285d641305f4c81e563aa570a2", key.PubKey.Decompress().HashPaymentScript.ID.ToString());
 			//Finally, the hash is converted to a base 58 string with checksum using version byte 23: ALn3aK1fSuG27N96UGYB1kUYUpGKRhBuBC. 
-			Assert.Equal("ALn3aK1fSuG27N96UGYB1kUYUpGKRhBuBC", script.ID.ToAssetId().ToWif(Network.Main).ToString());
+			Assert.Equal("ALn3aK1fSuG27N96UGYB1kUYUpGKRhBuBC", script.ID.ToAssetId().GetWif(Network.Main).ToString());
 		}
 
 	}
