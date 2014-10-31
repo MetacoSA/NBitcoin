@@ -234,6 +234,12 @@ namespace NBitcoin
 			Transaction = memento.Transaction.Clone();
 			AdditionalFees = memento.AdditionalFees;
 		}
+
+		public bool NonFinalSequenceSet
+		{
+			get;
+			set;
+		}
 	}
 	public class TransactionBuilder
 	{
@@ -303,6 +309,13 @@ namespace NBitcoin
 		{
 			get;
 			set;
+		}
+
+		LockTime? _LockTime;
+		public TransactionBuilder SetLockTime(LockTime lockTime)
+		{
+			_LockTime = lockTime;
+			return this;
 		}
 
 		List<Key> _Keys = new List<Key>();
@@ -523,6 +536,8 @@ namespace NBitcoin
 		public Transaction BuildTransaction(bool sign)
 		{
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
+			if(_LockTime != null && _LockTime.HasValue)
+				ctx.Transaction.LockTime = _LockTime.Value;
 			foreach(var group in _BuilderGroups)
 			{
 				ctx.Group = group;
@@ -588,7 +603,12 @@ namespace NBitcoin
 			}
 			foreach(var coin in selection)
 			{
-				ctx.Transaction.AddInput(new TxIn(coin.Outpoint));
+				var input = ctx.Transaction.AddInput(new TxIn(coin.Outpoint));
+				if(_LockTime != null && _LockTime.HasValue && !ctx.NonFinalSequenceSet)
+				{
+					input.Sequence = 0;
+					ctx.NonFinalSequenceSet = true;
+				}
 			}
 			return selection;
 		}

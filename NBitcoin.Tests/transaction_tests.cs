@@ -561,6 +561,22 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanUseLockTime()
+		{
+			Assert.Equal("Height : 0", new LockTime().ToString());
+			Assert.Equal(3, (int)new LockTime(3));
+			Assert.Equal((uint)3, (uint)new LockTime(3));
+			Assert.Throws<InvalidOperationException>(() => (DateTimeOffset)new LockTime(3));
+
+			var now = DateTimeOffset.UtcNow;
+			Assert.Equal("Date : " + now, new LockTime(now).ToString());
+			Assert.Equal((int)Utils.DateTimeToUnixTime(now), (int)new LockTime(now));
+			Assert.Equal(Utils.DateTimeToUnixTime(now), (uint)new LockTime(now));
+			Assert.Equal(now.ToString(), ((DateTimeOffset)new LockTime(now)).ToString());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//http://brainwallet.org/#tx
 		public void CanParseTransaction()
 		{
@@ -572,7 +588,7 @@ namespace NBitcoin.Tests
 				Transaction tx = new Transaction(raw);
 				Assert.Equal((int)test.JSON.vin_sz, tx.Inputs.Count);
 				Assert.Equal((int)test.JSON.vout_sz, tx.Outputs.Count);
-				Assert.Equal((uint)test.JSON.lock_time, tx.LockTime);
+				Assert.Equal((uint)test.JSON.lock_time, (uint)tx.LockTime);
 
 				for(int i = 0 ; i < tx.Inputs.Count ; i++)
 				{

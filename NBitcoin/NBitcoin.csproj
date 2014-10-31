@@ -81,6 +81,7 @@
     <Compile Include="IndexedStore.cs" />
     <Compile Include="InMemoryNoSqlRepository.cs" />
     <Compile Include="ITransactionRepository.cs" />
+    <Compile Include="LockTime.cs" />
     <Compile Include="NoSqlTransactionRepository.cs" />
     <Compile Include="ObjectStream.cs" />
     <Compile Include="OpenAsset\Asset.cs" />

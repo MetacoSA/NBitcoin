@@ -639,7 +639,7 @@ namespace NBitcoin
 		}
 		List<TxIn> vin = new List<TxIn>();
 		List<TxOut> vout = new List<TxOut>();
-		uint nLockTime = 0;
+		LockTime nLockTime;
 
 		public Transaction()
 		{
@@ -661,7 +661,7 @@ namespace NBitcoin
 			}
 		}
 
-		public uint LockTime
+		public LockTime LockTime
 		{
 			get
 			{
