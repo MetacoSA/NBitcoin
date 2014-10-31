@@ -62,7 +62,7 @@ namespace NBitcoin.RPC
 		{
 			WritePropertyValue(writer, "txid", tx.GetHash().ToString());
 			WritePropertyValue(writer, "version", tx.Version);
-			WritePropertyValue(writer, "locktime", tx.LockTime);
+			WritePropertyValue(writer, "locktime", tx.LockTime.Value);
 
 			writer.WritePropertyName("vin");
 			writer.WriteStartArray();
