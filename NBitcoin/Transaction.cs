@@ -695,7 +695,7 @@ namespace NBitcoin
 			stream.ReadWrite(ref nVersion);
 			stream.ReadWrite(ref vin);
 			stream.ReadWrite(ref vout);
-			nLockTime.ReadWrite(stream);
+			stream.ReadWrite(ref nLockTime);
 		}
 
 		#endregion

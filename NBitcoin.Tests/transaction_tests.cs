@@ -563,12 +563,6 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanUseLockTime()
 		{
-			//LockTime lockTime = new LockTime(5);
-			//var bytes = lockTime.ToBytes();
-
-			//LockTime cloneLockTime = default(LockTime);
-			//new BitcoinStream(bytes).ReadWrite(ref cloneLockTime);
-
 			var tx = new Transaction();
 			tx.LockTime = new LockTime(4);
 			var clone = tx.Clone();
