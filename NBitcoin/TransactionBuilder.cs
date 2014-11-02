@@ -6,7 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using Builder = System.Func<NBitcoin.TransactionBuildingContext, NBitcoin.Money>;
+using Builder = System.Func<NBitcoin.TransactionBuilder.TransactionBuildingContext, NBitcoin.Money>;
 
 namespace NBitcoin
 {
@@ -147,102 +147,132 @@ namespace NBitcoin
 		}
 	}
 
-	class TransactionBuildingContext
-	{
-		public TransactionBuildingContext(TransactionBuilder builder)
-		{
-			Builder = builder;
-			Transaction = new Transaction();
-			ChangeAmount = Money.Zero;
-			AdditionalFees = Money.Zero;
-		}
-		public TransactionBuilder.BuilderGroup Group
-		{
-			get;
-			set;
-		}
-		public TransactionBuilder Builder
-		{
-			get;
-			set;
-		}
-		public Transaction Transaction
-		{
-			get;
-			set;
-		}
 
-		public Money AdditionalFees
-		{
-			get;
-			set;
-		}
-
-		ColorMarker _Marker;
-
-		public ColorMarker GetColorMarker(bool issuance)
-		{
-			if(_Marker == null)
-				_Marker = new ColorMarker();
-			if(!issuance)
-				EnsureMarkerInserted();
-			return _Marker;
-		}
-
-		private TxOut EnsureMarkerInserted()
-		{
-			var txout = Transaction.Outputs.FirstOrDefault(o => Script.IsNullOrEmpty(o.ScriptPubKey));
-			if(txout == null)
-			{
-				txout = Transaction.AddOutput(new TxOut());
-				txout.Value = Money.Zero;
-			}
-			return txout;
-		}
-
-		public void Finish()
-		{
-			if(_Marker != null)
-			{
-				var txout = EnsureMarkerInserted();
-				txout.ScriptPubKey = _Marker.GetScript();
-			}
-		}
-
-		public IssuanceCoin IssuanceCoin
-		{
-			get;
-			set;
-		}
-
-		public Money ChangeAmount
-		{
-			get;
-			set;
-		}
-
-		public TransactionBuildingContext CreateMemento()
-		{
-			var memento = new TransactionBuildingContext(Builder);
-			memento.RestoreMemento(this);
-			return memento;
-		}
-
-		public void RestoreMemento(TransactionBuildingContext memento)
-		{
-			_Marker = memento._Marker == null ? null : new ColorMarker(memento._Marker.GetScript());
-			Transaction = memento.Transaction.Clone();
-			AdditionalFees = memento.AdditionalFees;
-		}
-
-		public bool NonFinalSequenceSet
-		{
-			get;
-			set;
-		}
-	}
 	public class TransactionBuilder
 	{
+		internal class TransactionSigningContext
+		{
+			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction)
+			{
+				Builder = builder;
+				Transaction = transaction;
+			}
+
+			public Transaction Transaction
+			{
+				get;
+				set;
+			}
+			public TransactionBuilder Builder
+			{
+				get;
+				set;
+			}
+
+			private readonly List<Key> _AdditionalKeys = new List<Key>();
+			public List<Key> AdditionalKeys
+			{
+				get
+				{
+					return _AdditionalKeys;
+				}
+			}
+		}
+		internal class TransactionBuildingContext
+		{
+			public TransactionBuildingContext(TransactionBuilder builder)
+			{
+				Builder = builder;
+				Transaction = new Transaction();
+				ChangeAmount = Money.Zero;
+				AdditionalFees = Money.Zero;
+			}
+			public TransactionBuilder.BuilderGroup Group
+			{
+				get;
+				set;
+			}
+			public TransactionBuilder Builder
+			{
+				get;
+				set;
+			}
+			public Transaction Transaction
+			{
+				get;
+				set;
+			}
+
+			public Money AdditionalFees
+			{
+				get;
+				set;
+			}
+
+			ColorMarker _Marker;
+
+			public ColorMarker GetColorMarker(bool issuance)
+			{
+				if(_Marker == null)
+					_Marker = new ColorMarker();
+				if(!issuance)
+					EnsureMarkerInserted();
+				return _Marker;
+			}
+
+			private TxOut EnsureMarkerInserted()
+			{
+				var txout = Transaction.Outputs.FirstOrDefault(o => Script.IsNullOrEmpty(o.ScriptPubKey));
+				if(txout == null)
+				{
+					txout = Transaction.AddOutput(new TxOut());
+					txout.Value = Money.Zero;
+				}
+				return txout;
+			}
+
+			public void Finish()
+			{
+				if(_Marker != null)
+				{
+					var txout = EnsureMarkerInserted();
+					txout.ScriptPubKey = _Marker.GetScript();
+				}
+			}
+
+			public IssuanceCoin IssuanceCoin
+			{
+				get;
+				set;
+			}
+
+			public Money ChangeAmount
+			{
+				get;
+				set;
+			}
+
+			public TransactionBuildingContext CreateMemento()
+			{
+				var memento = new TransactionBuildingContext(Builder);
+				memento.RestoreMemento(this);
+				return memento;
+			}
+
+			public void RestoreMemento(TransactionBuildingContext memento)
+			{
+				_Marker = memento._Marker == null ? null : new ColorMarker(memento._Marker.GetScript());
+				Transaction = memento.Transaction.Clone();
+				AdditionalFees = memento.AdditionalFees;
+			}
+
+			public bool NonFinalSequenceSet
+			{
+				get;
+				set;
+			}
+		}
+
 		internal class BuilderGroup
 		{
 			TransactionBuilder _Parent;
@@ -620,13 +650,14 @@ namespace NBitcoin
 		}
 		public void SignTransactionInPlace(Transaction transaction)
 		{
+			TransactionSigningContext ctx = new TransactionSigningContext(this, transaction);
 			for(int i = 0 ; i < transaction.Inputs.Count ; i++)
 			{
 				var txIn = transaction.Inputs[i];
 				var coin = FindCoin(txIn.PrevOut);
 				if(coin != null)
 				{
-					Sign(transaction, txIn, coin, i);
+					Sign(ctx, txIn, coin, i);
 				}
 			}
 		}
@@ -663,67 +694,56 @@ namespace NBitcoin
 		readonly static PayToPubkeyTemplate payToPubKey = new PayToPubkeyTemplate();
 		readonly static PayToMultiSigTemplate payToMultiSig = new PayToMultiSigTemplate();
 
-		private void Sign(Transaction tx, TxIn input, ICoin coin, int n)
+		private void Sign(TransactionSigningContext ctx, TxIn input, ICoin coin, int n)
 		{
 			if(coin is IColoredCoin)
 				coin = ((IColoredCoin)coin).Bearer;
-			List<Key> tempKeys = new List<Key>();
 
 			if(coin is StealthCoin)
 			{
 				var stealthCoin = (StealthCoin)coin;
-				var scanKey = FindKey(stealthCoin.Address.ScanPubKey);
+				var scanKey = FindKey(ctx, stealthCoin.Address.ScanPubKey);
 				if(scanKey == null)
 					throw new KeyNotFoundException("Scan key for decrypting StealthCoin not found");
-				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => FindKey(p)).Where(p => p != null).ToArray();
-				tempKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
-				_Keys.AddRange(tempKeys);
+				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => FindKey(ctx, p)).Where(p => p != null).ToArray();
+				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
 			}
 
-			try
+
+			if(payToScriptHash.CheckScriptPubKey(coin.ScriptPubKey))
 			{
-
-				if(payToScriptHash.CheckScriptPubKey(coin.ScriptPubKey))
+				var scriptCoin = coin as IScriptCoin;
+				if(scriptCoin == null)
 				{
-					var scriptCoin = coin as IScriptCoin;
-					if(scriptCoin == null)
+					var expectedId = payToScriptHash.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+					//Try to extract redeem from this transaction
+					var p2shParams = payToScriptHash.ExtractScriptSigParameters(input.ScriptSig);
+					if(p2shParams == null || p2shParams.RedeemScript.ID != expectedId)
+						throw new InvalidOperationException("A coin with a P2SH scriptPubKey was detected, however this coin is not a ScriptCoin, and no information about the redeem script was found in the input");
+					else
 					{
-						var expectedId = payToScriptHash.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
-						//Try to extract redeem from this transaction
-						var p2shParams = payToScriptHash.ExtractScriptSigParameters(input.ScriptSig);
-						if(p2shParams == null || p2shParams.RedeemScript.ID != expectedId)
-							throw new InvalidOperationException("A coin with a P2SH scriptPubKey was detected, however this coin is not a ScriptCoin, and no information about the redeem script was found in the input");
-						else
-						{
-							scriptCoin = new ScriptCoin(coin.Outpoint, ((Coin)coin).TxOut, p2shParams.RedeemScript);
-						}
-					}
-
-					var original = input.ScriptSig;
-					input.ScriptSig = CreateScriptSig(tx, input, coin, n, scriptCoin.Redeem);
-					if(original != input.ScriptSig)
-					{
-						var ops = input.ScriptSig.ToOps().ToList();
-						ops.Add(Op.GetPushOp(scriptCoin.Redeem.ToRawScript(true)));
-						input.ScriptSig = new Script(ops.ToArray());
+						scriptCoin = new ScriptCoin(coin.Outpoint, ((Coin)coin).TxOut, p2shParams.RedeemScript);
 					}
 				}
-				else
+
+				var original = input.ScriptSig;
+				input.ScriptSig = CreateScriptSig(ctx, input, coin, n, scriptCoin.Redeem);
+				if(original != input.ScriptSig)
 				{
-					input.ScriptSig = CreateScriptSig(tx, input, coin, n, coin.ScriptPubKey);
+					var ops = input.ScriptSig.ToOps().ToList();
+					ops.Add(Op.GetPushOp(scriptCoin.Redeem.ToRawScript(true)));
+					input.ScriptSig = new Script(ops.ToArray());
 				}
 			}
-			finally
+			else
 			{
-				foreach(var tempKey in tempKeys)
-				{
-					_Keys.Remove(tempKey);
-				}
+				input.ScriptSig = CreateScriptSig(ctx, input, coin, n, coin.ScriptPubKey);
 			}
+
 		}
 
 
-		private Script CreateScriptSig(Transaction tx, TxIn input, ICoin coin, int n, Script scriptPubKey)
+		private Script CreateScriptSig(TransactionSigningContext ctx, TxIn input, ICoin coin, int n, Script scriptPubKey)
 		{
 			var originalScriptSig = input.ScriptSig;
 			input.ScriptSig = scriptPubKey;
@@ -731,10 +751,10 @@ namespace NBitcoin
 			var pubKeyHashParams = payToPubKeyHash.ExtractScriptPubKeyParameters(scriptPubKey);
 			if(pubKeyHashParams != null)
 			{
-				var key = FindKey(pubKeyHashParams);
+				var key = FindKey(ctx, pubKeyHashParams);
 				if(key == null)
 					return originalScriptSig;
-				var hash = input.ScriptSig.SignatureHash(tx, n, SigHash.All);
+				var hash = input.ScriptSig.SignatureHash(ctx.Transaction, n, SigHash.All);
 				var sig = key.Sign(hash);
 				return payToPubKeyHash.GenerateScriptSig(new TransactionSignature(sig, SigHash.All), key.PubKey);
 			}
@@ -757,7 +777,7 @@ namespace NBitcoin
 				var keys =
 					multiSigParams
 					.PubKeys
-					.Select(p => FindKey(p))
+					.Select(p => FindKey(ctx, p))
 					.ToArray();
 
 				int sigCount = signatures.Where(s => s != TransactionSignature.Empty).Count();
@@ -772,7 +792,7 @@ namespace NBitcoin
 					}
 					if(keys[i] != null)
 					{
-						var hash = input.ScriptSig.SignatureHash(tx, n, SigHash.All);
+						var hash = input.ScriptSig.SignatureHash(ctx.Transaction, n, SigHash.All);
 						var sig = keys[i].Sign(hash);
 						signatures[i] = new TransactionSignature(sig, SigHash.All);
 						sigCount++;
@@ -791,10 +811,10 @@ namespace NBitcoin
 			var pubKeyParams = payToPubKey.ExtractScriptPubKeyParameters(scriptPubKey);
 			if(pubKeyParams != null)
 			{
-				var key = FindKey(pubKeyParams);
+				var key = FindKey(ctx, pubKeyParams);
 				if(key == null)
 					return originalScriptSig;
-				var hash = input.ScriptSig.SignatureHash(tx, n, SigHash.All);
+				var hash = input.ScriptSig.SignatureHash(ctx.Transaction, n, SigHash.All);
 				var sig = key.Sign(hash);
 				return payToPubKey.GenerateScriptSig(new TransactionSignature(sig, SigHash.All));
 			}
@@ -803,14 +823,18 @@ namespace NBitcoin
 		}
 
 
-		private Key FindKey(TxDestination id)
+		private Key FindKey(TransactionSigningContext ctx, TxDestination id)
 		{
-			return _Keys.FirstOrDefault(k => k.PubKey.ID == id);
+			return _Keys
+					.Concat(ctx.AdditionalKeys)
+					.FirstOrDefault(k => k.PubKey.ID == id);
 		}
 
-		private Key FindKey(PubKey pubKeyParams)
+		private Key FindKey(TransactionSigningContext ctx, PubKey pubKey)
 		{
-			return _Keys.FirstOrDefault(k => k.PubKey == pubKeyParams);
+			return _Keys
+				.Concat(ctx.AdditionalKeys)
+				.FirstOrDefault(k => k.PubKey == pubKey);
 		}
 
 		public TransactionBuilder Then()
