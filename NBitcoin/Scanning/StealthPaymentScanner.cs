@@ -9,16 +9,24 @@ namespace NBitcoin.Scanning
 {
 	public class StealthPaymentScanner : Scanner
 	{
-		public StealthPaymentScanner(BitField prefix, PubKey[] spendKeys, Key scan)
-		{
-			_Scan = scan;
-			_Prefix = prefix;
-			_SpendKeys = spendKeys.ToArray();
-		}
+		
 		public StealthPaymentScanner(BitcoinStealthAddress address, Key scan)
-			: this(address.Prefix, address.SpendPubKeys, scan)
 		{
+			if(address == null)
+				throw new ArgumentNullException("address");
+			if(scan == null)
+				throw new ArgumentNullException("scan");
+			_Address = address;
+			_Scan = scan;
+		}
 
+		private readonly BitcoinStealthAddress _Address;
+		public BitcoinStealthAddress Address
+		{
+			get
+			{
+				return _Address;
+			}
 		}
 		private readonly Key _Scan;
 		public Key Scan
@@ -28,33 +36,16 @@ namespace NBitcoin.Scanning
 				return _Scan;
 			}
 		}
-		private readonly PubKey[] _SpendKeys;
-		public PubKey[] SpendKeys
-		{
-			get
-			{
-				return _SpendKeys;
-			}
-		}
-		private readonly BitField _Prefix;
-		public BitField Prefix
-		{
-			get
-			{
-				return _Prefix;
-			}
-		}
-
 
 		public override Coins ScanCoins(uint256 txId, Transaction tx, int height)
 		{
-			var payments = StealthPayment.GetPayments(tx, SpendKeys, Prefix, Scan);
+			var payments = StealthPayment.GetPayments(tx, Address, Scan);
 			return new Coins(tx, txout => Match(txout, payments), height);
 		}
 
 		private bool Match(TxOut txout, StealthPayment[] payments)
 		{
-			return payments.Any(p=>p.SpendableScript == txout.ScriptPubKey && !txout.IsDust);
+			return payments.Any(p=>p.ScriptPubKey == txout.ScriptPubKey && !txout.IsDust);
 		}
 
 		public override IEnumerable<TxIn> FindSpent(IEnumerable<Transaction> transactions)

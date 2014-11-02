@@ -226,7 +226,15 @@ namespace NBitcoin
 		}
 	}
 
-	public class ScriptCoin : Coin
+	public interface IScriptCoin : ICoin
+	{
+		Script Redeem
+		{
+			get;
+		}
+	}
+
+	public class ScriptCoin : Coin, IScriptCoin
 	{
 		public ScriptCoin()
 		{
@@ -244,16 +252,17 @@ namespace NBitcoin
 		}
 	}
 
-	public class StealthCoin : Coin
+	public class StealthCoin : Coin, IScriptCoin
 	{
 		public StealthCoin()
 		{
 		}
-		public StealthCoin(OutPoint outpoint, TxOut txOut, StealthMetadata stealthMetadata, BitcoinStealthAddress address)
+		public StealthCoin(OutPoint outpoint, TxOut txOut, Script redeem, StealthMetadata stealthMetadata, BitcoinStealthAddress address)
 			: base(outpoint, txOut)
 		{
 			StealthMetadata = stealthMetadata;
 			Address = address;
+			Redeem = redeem;
 		}
 		public StealthMetadata StealthMetadata
 		{
@@ -267,19 +276,25 @@ namespace NBitcoin
 			set;
 		}
 
+		public Script Redeem
+		{
+			get;
+			set;
+		}
+
 		public static StealthCoin Find(Transaction tx, BitcoinStealthAddress address, Key scan)
 		{
 			var payment = address.GetPayments(tx, scan).FirstOrDefault();
 			if(payment == null)
 				return null;
 			var txId = tx.GetHash();
-			var txout = tx.Outputs.First(o => o.ScriptPubKey == payment.SpendableScript);
-			return new StealthCoin(new OutPoint(txId, tx.Outputs.IndexOf(txout)), txout, payment.Metadata, address);
+			var txout = tx.Outputs.First(o => o.ScriptPubKey == payment.ScriptPubKey);
+			return new StealthCoin(new OutPoint(txId, tx.Outputs.IndexOf(txout)), txout, payment.Redeem, payment.Metadata, address);
 		}
 
 		public StealthPayment GetPayment()
 		{
-			return new StealthPayment(TxOut.ScriptPubKey, StealthMetadata);
+			return new StealthPayment(TxOut.ScriptPubKey, Redeem, StealthMetadata);
 		}
 
 		public PubKey[] Uncover(PubKey[] spendPubKeys, Key scanKey)
@@ -289,7 +304,7 @@ namespace NBitcoin
 			{
 				pubKeys[i] = spendPubKeys[i].UncoverReceiver(scanKey, StealthMetadata.EphemKey);
 			}
-			return pubKeys;	
+			return pubKeys;
 		}
 
 		public Key[] Uncover(Key[] spendKeys, Key scanKey)

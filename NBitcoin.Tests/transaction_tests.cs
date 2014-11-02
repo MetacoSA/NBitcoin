@@ -314,10 +314,16 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildStealthTransaction()
 		{
+			CanBuildStealthTransactionCore(false);
+			CanBuildStealthTransactionCore(true);
+		}
+
+		void CanBuildStealthTransactionCore(bool p2sh)
+		{
 			var stealthKeys = Enumerable.Range(0, 3).Select(_ => new Key()).ToArray();
 			var scanKey = new Key();
 
-			var satoshi = new BitcoinStealthAddress(scanKey.PubKey, stealthKeys.Select(k => k.PubKey).ToArray(), 2, new BitField(3, 5), Network.Main);
+			var darkSatoshi = new BitcoinStealthAddress(scanKey.PubKey, stealthKeys.Select(k => k.PubKey).ToArray(), 2, new BitField(3, 5), Network.Main);
 
 			var bob = new Key();
 			var coins = new Coin[] { 
@@ -333,14 +339,14 @@ namespace NBitcoin.Tests
 				builder
 				.AddCoins(coins)
 				.AddKeys(bob)
-				.Send(satoshi, "1.00")
+				.Send(darkSatoshi, "1.00", p2sh: p2sh)
 				.BuildTransaction(true);
 			Assert.True(builder.Verify(tx));
 
-			Assert.NotNull(satoshi.GetPayments(tx, scanKey).FirstOrDefault());
+			Assert.NotNull(darkSatoshi.GetPayments(tx, scanKey).FirstOrDefault());
 
 			//Satoshi scans a StealthCoin in the transaction with his scan key
-			var stealthCoin = StealthCoin.Find(tx, satoshi, scanKey);
+			var stealthCoin = StealthCoin.Find(tx, darkSatoshi, scanKey);
 			Assert.NotNull(stealthCoin);
 
 			//Satoshi sends back the money to Bob

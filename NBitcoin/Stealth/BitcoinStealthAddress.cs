@@ -112,7 +112,7 @@ namespace NBitcoin.Stealth
 
 		public StealthPayment[] GetPayments(Transaction transaction)
 		{
-			return StealthPayment.GetPayments(transaction, null, this, null);
+			return StealthPayment.GetPayments(transaction, null, null);
 		}
 	}
 	public class BitcoinStealthAddress : Base58Data
@@ -231,16 +231,16 @@ namespace NBitcoin.Stealth
 
 		public StealthPayment[] GetPayments(Transaction transaction, Key scanKey)
 		{
-			return StealthPayment.GetPayments(transaction, SpendPubKeys, Prefix, scanKey);
+			return StealthPayment.GetPayments(transaction, this, scanKey);
 		}
 
-		public StealthPayment CreatePayment(Key ephemKey = null)
+		public StealthPayment CreatePayment(Key ephemKey = null, bool p2sh = false)
 		{
 			if(ephemKey == null)
 				ephemKey = new Key();
 
 			var metadata = StealthMetadata.CreateMetadata(ephemKey, this.Prefix);
-			return new StealthPayment(SignatureCount, SpendPubKeys, ephemKey, ScanPubKey, metadata);
+			return new StealthPayment(this, ephemKey, metadata, p2sh);
 		}
 
 

@@ -435,7 +435,7 @@ namespace NBitcoin
 			}
 		}
 
-		public TransactionBuilder Send(BitcoinStealthAddress address, Money money, Key ephemKey = null)
+		public TransactionBuilder Send(BitcoinStealthAddress address, Money money, Key ephemKey = null, bool p2sh = false)
 		{
 			if(_OpReturnUser == null)
 				_OpReturnUser = "Stealth Payment";
@@ -444,7 +444,7 @@ namespace NBitcoin
 
 			CurrentGroup.Builders.Add(ctx =>
 			{
-				var payment = address.CreatePayment(ephemKey);
+				var payment = address.CreatePayment(ephemKey, p2sh);
 				payment.AddToTransaction(ctx.Transaction, money);
 				return money;
 			});
@@ -667,60 +667,58 @@ namespace NBitcoin
 		{
 			if(coin is IColoredCoin)
 				coin = ((IColoredCoin)coin).Bearer;
-			if(payToScriptHash.CheckScriptPubKey(coin.ScriptPubKey))
-			{
-				var scriptCoin = coin as ScriptCoin;
-				if(scriptCoin == null)
-				{
-					var expectedId = payToScriptHash.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
-					//Try to extract redeem from this transaction
-					var p2shParams = payToScriptHash.ExtractScriptSigParameters(input.ScriptSig);
-					if(p2shParams == null || p2shParams.RedeemScript.ID != expectedId)
-						throw new InvalidOperationException("A coin with a P2SH scriptPubKey was detected, however this coin is not a ScriptCoin, and no information about the redeem script was found in the input");
-					else
-					{
-						scriptCoin = new ScriptCoin(coin.Outpoint, ((Coin)coin).TxOut, p2shParams.RedeemScript);
-					}
-				}
+			List<Key> tempKeys = new List<Key>();
 
-				var original = input.ScriptSig;
-				input.ScriptSig = CreateScriptSig(tx, input, coin, n, scriptCoin.Redeem);
-				if(original != input.ScriptSig)
-				{
-					var ops = input.ScriptSig.ToOps().ToList();
-					ops.Add(Op.GetPushOp(scriptCoin.Redeem.ToRawScript(true)));
-					input.ScriptSig = new Script(ops.ToArray());
-				}
-			}
-			else if(coin is StealthCoin)
+			if(coin is StealthCoin)
 			{
 				var stealthCoin = (StealthCoin)coin;
-				List<Key> tempKeys = new List<Key>();
 				var scanKey = FindKey(stealthCoin.Address.ScanPubKey);
 				if(scanKey == null)
 					throw new KeyNotFoundException("Scan key for decrypting StealthCoin not found");
-
 				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => FindKey(p)).Where(p => p != null).ToArray();
-
 				tempKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
-
 				_Keys.AddRange(tempKeys);
-				try
-				{
-					input.ScriptSig = CreateScriptSig(tx, input, coin, n, coin.ScriptPubKey);
+			}
 
-				}
-				finally
+			try
+			{
+
+				if(payToScriptHash.CheckScriptPubKey(coin.ScriptPubKey))
 				{
-					foreach(var tempKey in tempKeys)
+					var scriptCoin = coin as IScriptCoin;
+					if(scriptCoin == null)
 					{
-						_Keys.Remove(tempKey);
+						var expectedId = payToScriptHash.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+						//Try to extract redeem from this transaction
+						var p2shParams = payToScriptHash.ExtractScriptSigParameters(input.ScriptSig);
+						if(p2shParams == null || p2shParams.RedeemScript.ID != expectedId)
+							throw new InvalidOperationException("A coin with a P2SH scriptPubKey was detected, however this coin is not a ScriptCoin, and no information about the redeem script was found in the input");
+						else
+						{
+							scriptCoin = new ScriptCoin(coin.Outpoint, ((Coin)coin).TxOut, p2shParams.RedeemScript);
+						}
+					}
+
+					var original = input.ScriptSig;
+					input.ScriptSig = CreateScriptSig(tx, input, coin, n, scriptCoin.Redeem);
+					if(original != input.ScriptSig)
+					{
+						var ops = input.ScriptSig.ToOps().ToList();
+						ops.Add(Op.GetPushOp(scriptCoin.Redeem.ToRawScript(true)));
+						input.ScriptSig = new Script(ops.ToArray());
 					}
 				}
+				else
+				{
+					input.ScriptSig = CreateScriptSig(tx, input, coin, n, coin.ScriptPubKey);
+				}
 			}
-			else
+			finally
 			{
-				input.ScriptSig = CreateScriptSig(tx, input, coin, n, coin.ScriptPubKey);
+				foreach(var tempKey in tempKeys)
+				{
+					_Keys.Remove(tempKey);
+				}
 			}
 		}
 
