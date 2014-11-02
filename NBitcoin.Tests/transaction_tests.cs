@@ -343,10 +343,8 @@ namespace NBitcoin.Tests
 				.BuildTransaction(true);
 			Assert.True(builder.Verify(tx));
 
-			Assert.NotNull(darkSatoshi.GetPayments(tx, scanKey).FirstOrDefault());
-
 			//Satoshi scans a StealthCoin in the transaction with his scan key
-			var stealthCoin = StealthCoin.Find(tx, darkSatoshi, scanKey);
+			var stealthCoin = StealthCoin.Find(tx, darkSatoshi, scanKey, allowP2sh: p2sh);
 			Assert.NotNull(stealthCoin);
 
 			//Satoshi sends back the money to Bob

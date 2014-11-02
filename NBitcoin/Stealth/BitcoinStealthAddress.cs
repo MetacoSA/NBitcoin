@@ -110,9 +110,9 @@ namespace NBitcoin.Stealth
 			return Match(metadata.BitField);
 		}
 
-		public StealthPayment[] GetPayments(Transaction transaction)
+		public StealthPayment[] GetPayments(Transaction transaction, bool allowP2sh = false)
 		{
-			return StealthPayment.GetPayments(transaction, null, null);
+			return StealthPayment.GetPayments(transaction, null, null, allowP2sh);
 		}
 	}
 	public class BitcoinStealthAddress : Base58Data
@@ -229,9 +229,17 @@ namespace NBitcoin.Stealth
 		}
 
 
-		public StealthPayment[] GetPayments(Transaction transaction, Key scanKey)
+		/// <summary>
+		/// Scan the Transaction for StealthCoin given address and scan key
+		/// </summary>
+		/// <param name="tx">The transaction to scan</param>
+		/// <param name="address">The stealth address</param>
+		/// <param name="scan">The scan private key</param>
+		/// <param name="allowP2sh">Support P2SH stealth payment, this weaken the scanner to DDOS attacks</param>
+		/// <returns></returns>
+		public StealthPayment[] GetPayments(Transaction transaction, Key scanKey, bool allowP2sh = false)
 		{
-			return StealthPayment.GetPayments(transaction, this, scanKey);
+			return StealthPayment.GetPayments(transaction, this, scanKey, allowP2sh);
 		}
 
 		public StealthPayment CreatePayment(Key ephemKey = null, bool p2sh = false)

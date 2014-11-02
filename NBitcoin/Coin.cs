@@ -282,9 +282,17 @@ namespace NBitcoin
 			set;
 		}
 
-		public static StealthCoin Find(Transaction tx, BitcoinStealthAddress address, Key scan)
+		/// <summary>
+		/// Scan the Transaction for StealthCoin given address and scan key
+		/// </summary>
+		/// <param name="tx">The transaction to scan</param>
+		/// <param name="address">The stealth address</param>
+		/// <param name="scan">The scan private key</param>
+		/// <param name="allowP2sh">Support P2SH stealth payment, this weaken the scanner to DDOS attacks</param>
+		/// <returns></returns>
+		public static StealthCoin Find(Transaction tx, BitcoinStealthAddress address, Key scan, bool allowP2sh = false)
 		{
-			var payment = address.GetPayments(tx, scan).FirstOrDefault();
+			var payment = address.GetPayments(tx, scan, allowP2sh).FirstOrDefault();
 			if(payment == null)
 				return null;
 			var txId = tx.GetHash();

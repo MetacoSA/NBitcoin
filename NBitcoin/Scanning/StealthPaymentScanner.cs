@@ -9,7 +9,7 @@ namespace NBitcoin.Scanning
 {
 	public class StealthPaymentScanner : Scanner
 	{
-		
+
 		public StealthPaymentScanner(BitcoinStealthAddress address, Key scan)
 		{
 			if(address == null)
@@ -39,13 +39,13 @@ namespace NBitcoin.Scanning
 
 		public override Coins ScanCoins(uint256 txId, Transaction tx, int height)
 		{
-			var payments = StealthPayment.GetPayments(tx, Address, Scan);
+			var payments = StealthPayment.GetPayments(tx, Address, Scan, false);
 			return new Coins(tx, txout => Match(txout, payments), height);
 		}
 
 		private bool Match(TxOut txout, StealthPayment[] payments)
 		{
-			return payments.Any(p=>p.ScriptPubKey == txout.ScriptPubKey && !txout.IsDust);
+			return payments.Any(p => p.ScriptPubKey == txout.ScriptPubKey && !txout.IsDust);
 		}
 
 		public override IEnumerable<TxIn> FindSpent(IEnumerable<Transaction> transactions)
