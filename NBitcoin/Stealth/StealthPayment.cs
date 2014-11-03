@@ -41,11 +41,12 @@ namespace NBitcoin.Stealth
 
 	public class StealthPayment
 	{
-		public StealthPayment(BitcoinStealthAddress address, Key ephemKey, StealthMetadata metadata, bool p2sh)
+		public StealthPayment(BitcoinStealthAddress address, Key ephemKey, StealthMetadata metadata)
 		{
 			Metadata = metadata;
 			ScriptPubKey = CreatePaymentScript(address.SignatureCount, address.SpendPubKeys, ephemKey, address.ScanPubKey);
-			if(p2sh)
+
+			if(address.SignatureCount > 1)
 			{
 				Redeem = ScriptPubKey;
 				ScriptPubKey = ScriptPubKey.ID.CreateScriptPubKey();
@@ -140,7 +141,7 @@ namespace NBitcoin.Stealth
 			transaction.Outputs.Add(new TxOut(value, ScriptPubKey));
 		}
 
-		public static StealthPayment[] GetPayments(Transaction transaction, BitcoinStealthAddress address, Key scan, bool allowP2sh = false)
+		public static StealthPayment[] GetPayments(Transaction transaction, BitcoinStealthAddress address, Key scan)
 		{
 			List<StealthPayment> result = new List<StealthPayment>();
 			for(int i = 0 ; i < transaction.Outputs.Count - 1 ; i++)
@@ -155,8 +156,6 @@ namespace NBitcoin.Stealth
 
 					if(scriptId != null)
 					{
-						if(!allowP2sh)
-							continue;
 						if(address == null)
 							throw new ArgumentNullException("address");
 						redeem = CreatePaymentScript(address, metadata.EphemKey, scan);

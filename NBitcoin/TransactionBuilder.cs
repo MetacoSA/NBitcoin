@@ -465,7 +465,7 @@ namespace NBitcoin
 			}
 		}
 
-		public TransactionBuilder Send(BitcoinStealthAddress address, Money money, Key ephemKey = null, bool p2sh = false)
+		public TransactionBuilder Send(BitcoinStealthAddress address, Money money, Key ephemKey = null)
 		{
 			if(_OpReturnUser == null)
 				_OpReturnUser = "Stealth Payment";
@@ -474,7 +474,7 @@ namespace NBitcoin
 
 			CurrentGroup.Builders.Add(ctx =>
 			{
-				var payment = address.CreatePayment(ephemKey, p2sh);
+				var payment = address.CreatePayment(ephemKey);
 				payment.AddToTransaction(ctx.Transaction, money);
 				return money;
 			});
