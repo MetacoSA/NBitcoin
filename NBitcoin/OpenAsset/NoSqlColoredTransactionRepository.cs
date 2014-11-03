@@ -53,6 +53,11 @@ namespace NBitcoin.OpenAsset
 			return _Repository.Get<ColoredTransaction>(GetId(txId));
 		}
 
+   		public Task<ColoredTransaction> GetAsync(uint256 txId)
+        {
+            return Task.Run(() => Get(txId));
+        }
+
 		private string GetId(uint256 txId)
 		{
 			return "ctx-" + txId;
@@ -62,6 +67,11 @@ namespace NBitcoin.OpenAsset
 		{
 			_Repository.Put(GetId(txId), tx);
 		}
+
+  		public Task PutAsync(uint256 txId, ColoredTransaction tx)
+        {
+            return Task.Run(() => Put(txId, tx));
+        }
 
 		#endregion
 	}

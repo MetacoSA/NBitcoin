@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -66,69 +67,100 @@ namespace NBitcoin.OpenAsset
 	public class ColoredTransaction : IBitcoinSerializable
 	{
 		public static ColoredTransaction FetchColors(Transaction tx, IColoredTransactionRepository repo)
+        {
+            return FetchColorsAsync(tx, repo).Result;
+        }
+
+		public static async Task<ColoredTransaction> FetchColorsAsync(Transaction tx, IColoredTransactionRepository repo)
 		{
-			return FetchColors(null, tx, repo);
+			return await FetchColorsAsync(null, tx, repo);
 		}
+
 		public static ColoredTransaction FetchColors(uint256 txId, IColoredTransactionRepository repo)
+        {
+            return FetchColorsAsync(txId, repo).Result;
+        }
+
+		public static async Task<ColoredTransaction> FetchColorsAsync(uint256 txId, IColoredTransactionRepository repo)
 		{
 			if(repo == null)
 				throw new ArgumentNullException("repo");
 			repo = EnsureCachedRepository(repo);
-			var colored = repo.Get(txId);
+			var colored = await repo.GetAsync(txId);
 			if(colored != null)
 				return colored;
-			var tx = repo.Transactions.Get(txId);
+			var tx = await repo.Transactions.GetAsync(txId);
 			if(tx == null)
 				throw new TransactionNotFoundException("Transaction " + txId + " not found in transaction repository", txId);
-			return FetchColors(txId, tx, repo);
+			return await FetchColorsAsync(txId, tx, repo);
 		}
+
 		public static ColoredTransaction FetchColors(uint256 txId, Transaction tx, IColoredTransactionRepository repo)
+        {
+            return FetchColorsAsync(txId, tx, repo).Result;
+        }
+
+        public static async Task<ColoredTransaction> FetchColorsAsync(uint256 txId, Transaction tx, IColoredTransactionRepository repo)
 		{
+            Debug.Assert(tx != null);
+
 			txId = txId ?? tx.GetHash();
-			var result = repo.Get(txId);
+			var result = await repo.GetAsync(txId);
 			if(result != null)
 				return result;
 
-			ColoredTransaction lastColored = null;
 			//The following code is to prevent recursion of FetchColors that would fire a StackOverflow if the origin of traded asset were deep in the transaction dependency tree
 			repo = EnsureCachedRepository(repo);
-			HashSet<uint256> invalidColored = new HashSet<uint256>();
-			Stack<Tuple<uint256, Transaction>> ancestors = new Stack<Tuple<uint256, Transaction>>();
-			ancestors.Push(Tuple.Create(txId, tx));
-			while(ancestors.Count != 0)
-			{
-				var peek = ancestors.Peek();
-				txId = peek.Item1;
-				tx = peek.Item2;
-				bool isComplete = true;
-				if(!tx.HasValidColoredMarker() && ancestors.Count != 1)
-				{
-					invalidColored.Add(txId);
-					ancestors.Pop();
-					continue;
-				}
+            ColoredTransaction coloredTx = await ResolveAncestorsAsync(txId, tx, repo);
 
-				for(int i = 0 ; i < tx.Inputs.Count ; i++)
-				{
-					var txin = tx.Inputs[i];
-					if(repo.Get(txin.PrevOut.Hash) == null && !invalidColored.Contains(txin.PrevOut.Hash))
-					{
-						var prevTx = repo.Transactions.Get(txin.PrevOut.Hash);
-						if(prevTx == null)
-							throw new TransactionNotFoundException("Transaction " + txin.PrevOut.Hash + " not found in transaction repository", txId);
-						ancestors.Push(Tuple.Create(txin.PrevOut.Hash, prevTx));
-						isComplete = false;
-					}
-				}
-				if(isComplete)
-				{
-					lastColored = FetchColorsWithAncestorsSolved(txId, tx, repo);
-					ancestors.Pop();
-				}
-			}
+            if (coloredTx != null)
+            {
+                coloredTx.Tx = tx;
+            }
 
-			return lastColored;
+			return coloredTx;
 		}
+
+        private static async Task<ColoredTransaction> ResolveAncestorsAsync(uint256 txId, Transaction tx, IColoredTransactionRepository repo)
+        {
+            ColoredTransaction lastColored = null;
+            HashSet<uint256> invalidColored = new HashSet<uint256>();
+            Stack<Tuple<uint256, Transaction>> ancestors = new Stack<Tuple<uint256, Transaction>>();
+            ancestors.Push(Tuple.Create(txId, tx));
+            while (ancestors.Count != 0)
+            {
+                var peek = ancestors.Peek();
+                txId = peek.Item1;
+                tx = peek.Item2;
+                bool isComplete = true;
+                if (!tx.HasValidColoredMarker() && ancestors.Count != 1)
+                {
+                    invalidColored.Add(txId);
+                    ancestors.Pop();
+                    continue;
+                }
+
+                for (int i = 0; i < tx.Inputs.Count; i++)
+                {
+                    var txin = tx.Inputs[i];
+                    if (await repo.GetAsync(txin.PrevOut.Hash) == null && !invalidColored.Contains(txin.PrevOut.Hash))
+                    {
+                        var prevTx = await repo.Transactions.GetAsync(txin.PrevOut.Hash);
+                        if (prevTx == null)
+                            throw new TransactionNotFoundException("Transaction " + txin.PrevOut.Hash + " not found in transaction repository", txId);
+                        ancestors.Push(Tuple.Create(txin.PrevOut.Hash, prevTx));
+                        isComplete = false;
+                    }
+                }
+                if (isComplete)
+                {
+                    lastColored = await FetchColorsWithAncestorsSolved(txId, tx, repo);
+                    ancestors.Pop();
+                }
+            }
+
+            return lastColored;
+        }
 
 		private static IColoredTransactionRepository EnsureCachedRepository(IColoredTransactionRepository repo)
 		{
@@ -138,7 +170,7 @@ namespace NBitcoin.OpenAsset
 			return repo;
 		}
 
-		private static ColoredTransaction FetchColorsWithAncestorsSolved(uint256 txId, Transaction tx, IColoredTransactionRepository repo)
+		private static async Task<ColoredTransaction> FetchColorsWithAncestorsSolved(uint256 txId, Transaction tx, IColoredTransactionRepository repo)
 		{
 			ColoredTransaction colored = new ColoredTransaction();
 
@@ -146,7 +178,7 @@ namespace NBitcoin.OpenAsset
 			for(int i = 0 ; i < tx.Inputs.Count ; i++)
 			{
 				var txin = tx.Inputs[i];
-				var prevColored = repo.Get(txin.PrevOut.Hash);
+				var prevColored = await repo.GetAsync(txin.PrevOut.Hash);
 				if(prevColored == null)
 					continue;
 				var prevAsset = prevColored.GetColoredEntry(txin.PrevOut.N);
@@ -166,13 +198,13 @@ namespace NBitcoin.OpenAsset
 			var marker = ColorMarker.Get(tx, out markerPos);
 			if(marker == null)
 			{
-				repo.Put(txId, colored);
+				await repo.PutAsync(txId, colored);
 				return colored;
 			}
 			colored.Marker = marker;
 			if(!marker.HasValidQuantitiesCount(tx))
 			{
-				repo.Put(txId, colored);
+				await repo.PutAsync(txId, colored);
 				return colored;
 			}
 
@@ -190,7 +222,7 @@ namespace NBitcoin.OpenAsset
 					var txIn = tx.Inputs.FirstOrDefault();
 					if(txIn == null)
 						continue;
-					var prev = repo.Transactions.Get(txIn.PrevOut.Hash);
+					var prev = await repo.Transactions.GetAsync(txIn.PrevOut.Hash);
 					if(prev == null)
 						throw new TransactionNotFoundException("This open asset transaction is issuing assets, but it needs a parent transaction in the TransactionRepository to know the address of the issued asset (missing : " + txIn.PrevOut.Hash + ")", txIn.PrevOut.Hash);
 					issuedAsset = prev.Outputs[(int)txIn.PrevOut.N].ScriptPubKey.ID.ToAssetId();
@@ -214,7 +246,7 @@ namespace NBitcoin.OpenAsset
 				{
 					colored.Transfers.Clear();
 					colored.Issuances.Clear();
-					repo.Put(txId, colored);
+					await repo.PutAsync(txId, colored);
 					return colored;
 				}
 				entry.Asset.Id = previousAssetQueue.Peek().Asset.Id;
@@ -225,7 +257,7 @@ namespace NBitcoin.OpenAsset
 					{
 						colored.Transfers.Clear();
 						colored.Issuances.Clear();
-						repo.Put(txId, colored);
+						await repo.PutAsync(txId, colored);
 						return colored;
 					}
 					var assertPart = Math.Min(previousAssetQueue.Peek().Asset.Quantity - used, remaining);
@@ -239,7 +271,7 @@ namespace NBitcoin.OpenAsset
 				}
 				colored.Transfers.Add(entry);
 			}
-			repo.Put(txId, colored);
+			await repo.PutAsync(txId, colored);
 			return colored;
 		}
 
@@ -255,6 +287,8 @@ namespace NBitcoin.OpenAsset
 			Transfers = new List<ColoredEntry>();
 			Inputs = new List<ColoredEntry>();
 		}
+
+        public Transaction Tx { get; set; }
 
 		ColorMarker _Marker;
 		public ColorMarker Marker

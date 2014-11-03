@@ -45,6 +45,16 @@ namespace NBitcoin.OpenAsset
 
 			}
 
+            public Task<Transaction> GetAsync(uint256 txId)
+            {
+                return Task.FromResult<Transaction>(null);
+            }
+
+            public async Task PutAsync(uint256 txId, Transaction tx)
+            {
+                await Task.Yield();
+            }
+
 			#endregion
 		}
 		#region IColoredTransactionRepository Members
@@ -132,9 +142,19 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
+        public Task<ColoredTransaction> GetAsync(uint256 txId)
+        {
+            return Task.Run(() => Get(txId));
+        }
+
 		public void Put(uint256 txId, ColoredTransaction tx)
 		{
 		}
+
+        public Task PutAsync(uint256 txId, ColoredTransaction tx)
+        {
+            return Task.Run(() => Put(txId, tx));
+        }
 
 		#endregion
 	}
