@@ -17,7 +17,7 @@ This is the most complete and faithful porting I know of bitcoin.
 Why is it a big deal ? Because you can run it and debug into it without any linux-voodoo-setup to make bitcoin running.
 Visual studio express for free, XUnit and you are up to go.
 
-
+* A [TransactionBuilder](http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All) supporting Stealth, Open Asset, and all standard transactions
 * Full port of the test suite of bitcoin core with their own data
 * Full script evaluation and parsing
 * RPC Client
