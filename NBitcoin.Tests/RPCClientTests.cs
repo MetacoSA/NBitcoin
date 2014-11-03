@@ -61,6 +61,15 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("RPCClient", "RPCClient")]
+		public void CanUseAsyncRPC()
+		{
+			var rpc = CreateRPCClient();
+			var blkCount = rpc.GetBlockCountAsync().Result;
+			Assert.True(blkCount != 0);
+		}
+
+		[Fact]
+		[Trait("RPCClient", "RPCClient")]
 		public void CanGetBestBlockHash()
 		{
 			var rpc = CreateRPCClient();
