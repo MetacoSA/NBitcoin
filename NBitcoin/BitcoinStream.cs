@@ -147,7 +147,7 @@ namespace NBitcoin
 		{
 			if(data == null)
 				data = Activator.CreateInstance<T>();
-			((IBitcoinSerializable)data).ReadWrite(this);
+			data.ReadWrite(this);
 		}
 
 		public void ReadWrite<T>(ref List<T> list) where T : IBitcoinSerializable, new()

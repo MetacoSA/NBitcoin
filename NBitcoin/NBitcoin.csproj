@@ -73,6 +73,7 @@
     <Compile Include="CachedBlockProvider.cs" />
     <Compile Include="CachedNoSqlRepository.cs" />
     <Compile Include="CachedTransactionRepository.cs" />
+    <Compile Include="Coin.cs" />
     <Compile Include="CoinsView.cs" />
     <Compile Include="Crypto\DeterministicECDSA.cs" />
     <Compile Include="DataDirectory.cs" />
@@ -80,10 +81,13 @@
     <Compile Include="IndexedStore.cs" />
     <Compile Include="InMemoryNoSqlRepository.cs" />
     <Compile Include="ITransactionRepository.cs" />
+    <Compile Include="LockTime.cs" />
     <Compile Include="NoSqlTransactionRepository.cs" />
     <Compile Include="ObjectStream.cs" />
     <Compile Include="OpenAsset\Asset.cs" />
     <Compile Include="BlockrTransactionRepository.cs" />
+    <Compile Include="OpenAsset\AssetId.cs" />
+    <Compile Include="OpenAsset\BitcoinAssetId.cs" />
     <Compile Include="OpenAsset\CachedColoredTransactionRepository.cs" />
     <Compile Include="OpenAsset\CoinprismColoredTransactionRepository.cs" />
     <Compile Include="OpenAsset\ColoredTransaction.cs" />
@@ -192,6 +196,7 @@
     <Compile Include="StoredItem.cs" />
     <Compile Include="Target.cs" />
     <Compile Include="TraceCorrelationScope.cs" />
+    <Compile Include="TransactionBuilder.cs" />
     <Compile Include="TransactionNotFoundException.cs" />
     <Compile Include="TransactionSignature.cs" />
     <Compile Include="Crypto\Hashes.cs" />

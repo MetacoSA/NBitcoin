@@ -1,5 +1,6 @@
 ﻿using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
+using NBitcoin.Stealth;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -60,11 +61,12 @@ namespace NBitcoin
 		PASSPHRASE_CODE,
 		CONFIRMATION_CODE,
 		STEALTH_ADDRESS,
+		ASSET_ID,
 		MAX_BASE58_TYPES,
 	};
 	public class Network
 	{
-		byte[][] base58Prefixes = new byte[10][];
+		byte[][] base58Prefixes = new byte[11][];
 
 
 		uint[] pnSeed = new uint[]
@@ -298,6 +300,8 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.PASSPHRASE_CODE] = new byte[] { 0x2C, 0xE9, 0xB3, 0xE1, 0xFF, 0x39, 0xE2 };
 			base58Prefixes[(int)Base58Type.CONFIRMATION_CODE] = new byte[] { 0x64, 0x3B, 0xF6, 0xA8, 0x9A };
 			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2a };
+			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 23 };
+
 			// Convert the pnSeeds array into usable address objects.
 			Random rand = new Random();
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);
@@ -359,6 +363,7 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x35), (0x87), (0xCF) };
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
 			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2b };
+			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 115 };
 		}
 
 		private static void assert(bool v)
@@ -468,7 +473,14 @@ namespace NBitcoin
 				return CreatePassphraseCode(base58);
 			if(type == Base58Type.STEALTH_ADDRESS)
 				return CreateStealthAddress(base58);
+			if(type == Base58Type.ASSET_ID)
+				return CreateAssetId(base58);
 			throw new NotSupportedException("Invalid Base58Data type : " + type.ToString());
+		}
+
+		public NBitcoin.OpenAsset.BitcoinAssetId CreateAssetId(string base58)
+		{
+			return new NBitcoin.OpenAsset.BitcoinAssetId(base58, this);
 		}
 
 		public BitcoinStealthAddress CreateStealthAddress(string base58)

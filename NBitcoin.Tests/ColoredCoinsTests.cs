@@ -95,7 +95,7 @@ namespace NBitcoin.Tests
 			{
 				Key = new Key();
 				ScriptPubKey = Key.PubKey.GetAddress(Network.Main).PaymentScript;
-				Id = ScriptPubKey.ID;
+				Id = ScriptPubKey.ID.ToAssetId();
 			}
 			public Key Key
 			{
@@ -107,7 +107,7 @@ namespace NBitcoin.Tests
 				get;
 				set;
 			}
-			public ScriptId Id
+			public AssetId Id
 			{
 				get;
 				set;
@@ -269,7 +269,7 @@ namespace NBitcoin.Tests
 			Assert.True(colored1.Inputs.Count == 0);
 			Assert.True(colored1.Issuances.Count == 1);
 			Assert.True(colored1.Transfers.Count == 0);
-			Assert.Equal("3QzJDrSsi4Pm2DhcZFXR9MGJsXXtsYhUsq", colored1.Issuances[0].Asset.Id.GetAddress(Network.Main).ToString());
+			Assert.Equal("Af59wop4VJjXk2DAzoX9scAUCcAsghPHFX", colored1.Issuances[0].Asset.Id.GetWif(Network.Main).ToString());
 
 			tester = CreateTester("CanColorizeTransferTransaction");
 			var colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
@@ -277,7 +277,7 @@ namespace NBitcoin.Tests
 			Assert.True(colored2.Inputs[0].Asset.ToBytes().SequenceEqual(colored1.Issuances[0].Asset.ToBytes()));
 			Assert.True(colored2.Issuances.Count == 0);
 			Assert.True(colored2.Transfers.Count == 2);
-			Assert.Equal("3QzJDrSsi4Pm2DhcZFXR9MGJsXXtsYhUsq", colored2.Transfers[0].Asset.Id.GetAddress(Network.Main).ToString());
+			Assert.Equal("Af59wop4VJjXk2DAzoX9scAUCcAsghPHFX", colored2.Transfers[0].Asset.Id.GetWif(Network.Main).ToString());
 
 			tester = CreateTester("CanColorizeTransferTransaction");
 			var tx = tester.Repository.Transactions.Get(tester.TestedTxId);
@@ -292,7 +292,7 @@ namespace NBitcoin.Tests
 			Assert.True(colored2.Inputs[0].Asset.ToBytes().SequenceEqual(colored1.Issuances[0].Asset.ToBytes()));
 			Assert.True(colored2.Issuances.Count == 0);
 			Assert.True(colored2.Transfers.Count == 2);
-			Assert.Equal("3QzJDrSsi4Pm2DhcZFXR9MGJsXXtsYhUsq", colored2.Transfers[0].Asset.Id.GetAddress(Network.Main).ToString());
+			Assert.Equal("Af59wop4VJjXk2DAzoX9scAUCcAsghPHFX", colored2.Transfers[0].Asset.Id.GetWif(Network.Main).ToString());
 			var destroyed = colored2.GetDestroyedAssets();
 			Assert.True(destroyed.Length == 0);
 
@@ -406,12 +406,13 @@ namespace NBitcoin.Tests
 			Script script = Script.CreateFromDestinationAddress(address);
 			Assert.Equal("OP_DUP OP_HASH160 010966776006953D5567439E5E39F86A0D273BEE OP_EQUALVERIFY OP_CHECKSIG", script.ToString().ToUpper());
 
-			//36hBrMeUfevFPZdY2iYSHVaP9jdLd9Np4R.
-			var scriptAddress = script.GetScriptAddress(Network.Main);
-			Assert.Equal("36hBrMeUfevFPZdY2iYSHVaP9jdLd9Np4R", scriptAddress.ToString());
+			var oo = script.GetScriptAddress(Network.Main);
+			//The script is hashed: 36e0ea8e93eaa0285d641305f4c81e563aa570a2.
+			Assert.Equal("36e0ea8e93eaa0285d641305f4c81e563aa570a2", script.ID.ToString());
 
-
-			Assert.Equal("36hBrMeUfevFPZdY2iYSHVaP9jdLd9Np4R", key.PubKey.Decompress().GetAddress(Network.Main).GetScriptAddress().ToString());
+			Assert.Equal("36e0ea8e93eaa0285d641305f4c81e563aa570a2", key.PubKey.Decompress().HashPaymentScript.ID.ToString());
+			//Finally, the hash is converted to a base 58 string with checksum using version byte 23: ALn3aK1fSuG27N96UGYB1kUYUpGKRhBuBC. 
+			Assert.Equal("ALn3aK1fSuG27N96UGYB1kUYUpGKRhBuBC", script.ID.ToAssetId().GetWif(Network.Main).ToString());
 		}
 
 	}

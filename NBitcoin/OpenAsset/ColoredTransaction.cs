@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -175,7 +176,7 @@ namespace NBitcoin.OpenAsset
 				return colored;
 			}
 
-			ScriptId issuedAsset = null;
+			AssetId issuedAsset = null;
 			for(int i = 0 ; i < markerPos ; i++)
 			{
 				var entry = new ColoredEntry();
@@ -192,7 +193,7 @@ namespace NBitcoin.OpenAsset
 					var prev = repo.Transactions.Get(txIn.PrevOut.Hash);
 					if(prev == null)
 						throw new TransactionNotFoundException("This open asset transaction is issuing assets, but it needs a parent transaction in the TransactionRepository to know the address of the issued asset (missing : " + txIn.PrevOut.Hash + ")", txIn.PrevOut.Hash);
-					issuedAsset = prev.Outputs[(int)txIn.PrevOut.N].ScriptPubKey.ID;
+					issuedAsset = prev.Outputs[(int)txIn.PrevOut.N].ScriptPubKey.ID.ToAssetId();
 				}
 				entry.Asset.Id = issuedAsset;
 				colored.Issuances.Add(entry);
@@ -365,6 +366,55 @@ namespace NBitcoin.OpenAsset
 			{
 				_Inputs = value;
 			}
+		}
+
+		public override string ToString()
+		{
+			return ToString(Network.Main);
+		}
+
+		public string ToString(Network network)
+		{
+			JObject obj = new JObject();
+			var inputs = new JArray();
+			obj.Add(new JProperty("inputs", inputs));
+			foreach(var input in Inputs)
+			{
+				WriteEntry(network, inputs, input);
+			}
+
+			var issuances = new JArray();
+			obj.Add(new JProperty("issuances", issuances));
+			foreach(var issuance in Issuances)
+			{
+				WriteEntry(network, issuances, issuance);
+			}
+
+			var transfers = new JArray();
+			obj.Add(new JProperty("transfers", transfers));
+			foreach(var transfer in Transfers)
+			{
+				WriteEntry(network, transfers, transfer);
+			}
+
+			var destructions = new JArray();
+			obj.Add(new JProperty("destructions", destructions));
+			foreach(var destuction in GetDestroyedAssets())
+			{
+				JProperty asset = new JProperty("asset", destuction.Id.GetWif(network).ToString());
+				JProperty quantity = new JProperty("quantity", destuction.Quantity);
+				inputs.Add(new JObject(asset, quantity));
+			}
+
+			return obj.ToString(Newtonsoft.Json.Formatting.Indented);
+		}
+
+		private static void WriteEntry(Network network, JArray inputs, ColoredEntry entry)
+		{
+			JProperty index = new JProperty("index", entry.Index);
+			JProperty asset = new JProperty("asset", entry.Asset.Id.GetWif(network).ToString());
+			JProperty quantity = new JProperty("quantity", entry.Asset.Quantity);
+			inputs.Add(new JObject(index, asset, quantity));
 		}
 
 		//00000000000000001c7a19e8ef62d815d84a473f543de77f23b8342fc26812a9 at 299220 Monday, May 5, 2014 3:47:37 PM first block

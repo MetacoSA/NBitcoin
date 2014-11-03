@@ -71,7 +71,7 @@ namespace NBitcoin.RPC
 			WritePropertyValue(writer, "vin_sz", tx.Inputs.Count);
 			WritePropertyValue(writer, "vout_sz", tx.Outputs.Count);
 
-			WritePropertyValue(writer, "lock_time", tx.LockTime);
+			WritePropertyValue(writer, "lock_time", tx.LockTime.Value);
 
 			WritePropertyValue(writer, "size", tx.GetSerializedSize());
 

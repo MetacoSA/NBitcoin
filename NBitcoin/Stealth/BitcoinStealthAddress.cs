@@ -10,7 +10,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace NBitcoin.Stealth
 {
 	public class BitField
 	{
@@ -112,7 +112,7 @@ namespace NBitcoin
 
 		public StealthPayment[] GetPayments(Transaction transaction)
 		{
-			return StealthPayment.GetPayments(transaction, null, this, null);
+			return StealthPayment.GetPayments(transaction, null, null);
 		}
 	}
 	public class BitcoinStealthAddress : Base58Data
@@ -229,9 +229,16 @@ namespace NBitcoin
 		}
 
 
+		/// <summary>
+		/// Scan the Transaction for StealthCoin given address and scan key
+		/// </summary>
+		/// <param name="tx">The transaction to scan</param>
+		/// <param name="address">The stealth address</param>
+		/// <param name="scan">The scan private key</param>
+		/// <returns></returns>
 		public StealthPayment[] GetPayments(Transaction transaction, Key scanKey)
 		{
-			return StealthPayment.GetPayments(transaction, SpendPubKeys, Prefix, scanKey);
+			return StealthPayment.GetPayments(transaction, this, scanKey);
 		}
 
 		public StealthPayment CreatePayment(Key ephemKey = null)
@@ -240,7 +247,7 @@ namespace NBitcoin
 				ephemKey = new Key();
 
 			var metadata = StealthMetadata.CreateMetadata(ephemKey, this.Prefix);
-			return new StealthPayment(SignatureCount, SpendPubKeys, ephemKey, ScanPubKey, metadata);
+			return new StealthPayment(this, ephemKey, metadata);
 		}
 
 

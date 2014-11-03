@@ -174,10 +174,26 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
+		ulong[] _Quantities;
 		public ulong[] Quantities
 		{
-			get;
-			set;
+			get
+			{
+				return _Quantities;
+			}
+			set
+			{
+				_Quantities = value;
+			}
+		}
+
+		public void SetQuantity(int index, ulong quantity)
+		{
+			if(Quantities == null)
+				Quantities = new ulong[0];
+			if(Quantities.Length <= index)
+				Array.Resize(ref _Quantities, index + 1);
+			Quantities[index] = quantity;
 		}
 
 		byte[] _Metadata = new byte[0];

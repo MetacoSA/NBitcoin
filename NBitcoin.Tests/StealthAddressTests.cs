@@ -1,5 +1,6 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+using NBitcoin.Stealth;
 using Org.BouncyCastle.Math;
 using System;
 using System.Collections.Generic;

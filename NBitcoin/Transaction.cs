@@ -533,6 +533,11 @@ namespace NBitcoin
 			Value = value;
 			ScriptPubKey = scriptPubKey;
 		}
+		public TxOut(Money value, PubKey pubkey)
+		{
+			Value = value;
+			ScriptPubKey = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(pubkey);
+		}
 
 		private void SetDestination(TxDestination destination)
 		{
@@ -634,7 +639,7 @@ namespace NBitcoin
 		}
 		List<TxIn> vin = new List<TxIn>();
 		List<TxOut> vout = new List<TxOut>();
-		uint nLockTime = 0;
+		LockTime nLockTime;
 
 		public Transaction()
 		{
@@ -656,7 +661,7 @@ namespace NBitcoin
 			}
 		}
 
-		public uint LockTime
+		public LockTime LockTime
 		{
 			get
 			{
@@ -714,17 +719,22 @@ namespace NBitcoin
 		public static uint CURRENT_VERSION = 2;
 		public static uint MAX_STANDARD_TX_SIZE = 100000;
 
-		public void AddOutput(Money money, BitcoinAddress address)
+		public TxOut AddOutput(Money money, BitcoinAddress address)
 		{
-			AddOutput(new TxOut(money, address));
+			return AddOutput(new TxOut(money, address));
 		}
-		public void AddOutput(Money money, KeyId keyId)
+		public TxOut AddOutput(Money money, KeyId keyId)
 		{
-			AddOutput(new TxOut(money, keyId));
+			return AddOutput(new TxOut(money, keyId));
 		}
-		public void AddOutput(TxOut @out)
+		public TxOut AddOutput(Money money, Script scriptPubKey)
+		{
+			return AddOutput(new TxOut(money, scriptPubKey));
+		}
+		public TxOut AddOutput(TxOut @out)
 		{
 			this.vout.Add(@out);
+			return @out;
 		}
 		public TxIn AddInput(TxIn @in)
 		{
@@ -743,36 +753,62 @@ namespace NBitcoin
 			return @in;
 		}
 
-		public void SignAll(BitcoinSecret secret)
+
+		/// <summary>
+		/// Sign the transaction with a private key
+		/// <para>ScriptSigs should be filled with previous ScriptPubKeys</para>
+		/// <para>For more complex scenario, use TransactionBuilder</para>
+		/// </summary>
+		/// <param name="secret"></param>
+		public void Sign(BitcoinSecret secret, bool assumeP2SH)
 		{
-			SignAll(secret.Key);
-		}
-		public void SignAll(Key key)
-		{
-			for(int i = 0 ; i < Inputs.Count ; i++)
-			{
-				if(Script.IsNullOrEmpty(Inputs[i].ScriptSig))
-					Inputs[i].ScriptSig = new PayToPubkeyHashTemplate().GenerateScriptPubKey(key.PubKey);
-			}
-			for(int i = 0 ; i < Inputs.Count ; i++)
-			{
-				var hash = Inputs[i].ScriptSig.SignatureHash(this, i, SigHash.All);
-				var sig = key.Sign(hash);
-				Inputs[i].ScriptSig
-					= new PayToPubkeyHashTemplate().GenerateScriptSig(new TransactionSignature(sig, SigHash.All), key.PubKey);
-			}
+			Sign(secret.Key, assumeP2SH);
 		}
 
 		/// <summary>
-		/// Sign with one key from a multi sig
+		/// Sign the transaction with a private key
+		/// <para>ScriptSigs should be filled with either previous scriptPubKeys or redeem script (for P2SH)</para>
+		/// <para>For more complex scenario, use TransactionBuilder</para>
 		/// </summary>
-		/// <param name="key"></param>
-		public void SignPartially(Key key)
+		/// <param name="secret"></param>
+		public void Sign(Key key, bool assumeP2SH)
 		{
-			return;
+			TransactionBuilder builder = new TransactionBuilder();
+			builder.AddKeys(key);
+			for(int i = 0 ; i < Inputs.Count ; i++)
+			{
+				var txin = Inputs[i];
+				if(Script.IsNullOrEmpty(txin.ScriptSig))
+					throw new InvalidOperationException("ScriptSigs should be filled with either previous scriptPubKeys or redeem script (for P2SH)");
+				if(assumeP2SH)
+				{
+					var p2shSig = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txin.ScriptSig);
+					if(p2shSig == null)
+					{
+						builder.AddCoins(new ScriptCoin(txin.PrevOut, new TxOut()
+						{
+							ScriptPubKey = txin.ScriptSig.PaymentScript,
+						}, txin.ScriptSig));
+					}
+					else
+					{
+						builder.AddCoins(new ScriptCoin(txin.PrevOut, new TxOut()
+						{
+							ScriptPubKey = p2shSig.RedeemScript.PaymentScript
+						}, p2shSig.RedeemScript));
+					}
+				}
+				else
+				{
+					builder.AddCoins(new Coin(txin.PrevOut, new TxOut()
+					{
+						ScriptPubKey = txin.ScriptSig
+					}));
+				}
+
+			}
+			builder.SignTransactionInPlace(this);
 		}
-
-
 
 		public TxPayload CreatePayload()
 		{
@@ -819,234 +855,6 @@ namespace NBitcoin
 				throw new ArgumentNullException("formatter");
 			return formatter.ToString(this);
 		}
-
-
-		/// <summary>
-		/// Get a PartiallySignedTransaction that can be signed by multi sig keys (P2SH only)
-		/// </summary>
-		/// <param name="sigRequired"></param>
-		/// <param name="pubKeys"></param>
-		/// <returns></returns>
-		public PartiallySignedTransaction CreatePartiallySignedTransaction(int sigRequired, PubKey[] pubKeys)
-		{
-			return new PartiallySignedTransaction(sigRequired, pubKeys, this.Clone());
-		}
-
-		/// <summary>
-		/// Get a PartiallySignedTransaction that can be signed by multi sig keys (P2SH only)
-		/// </summary>
-		/// <param name="redeem"></param>
-		/// <returns></returns>
-		public PartiallySignedTransaction CreatePartiallySignedTransaction(Script redeem)
-		{
-			return new PartiallySignedTransaction(redeem, this.Clone());
-		}
 	}
 
-	public class PartiallySignedInput : IBitcoinSerializable
-	{
-		TransactionSignature[] _Signatures;
-		public TransactionSignature[] Signatures
-		{
-			get
-			{
-				return _Signatures;
-			}
-			set
-			{
-				_Signatures = value;
-			}
-		}
-
-		#region IBitcoinSerializable Members
-
-		public void ReadWrite(BitcoinStream stream)
-		{
-			if(stream.Serializing)
-			{
-				var varStrings = _Signatures
-									.Select(v => v == null
-													? new VarString(new byte[0])
-													: new VarString(v.ToBytes())).ToArray();
-				stream.ReadWrite(ref varStrings);
-			}
-			else
-			{
-				var varStrings = new VarString[0];
-				stream.ReadWrite(ref varStrings);
-				_Signatures =
-					varStrings
-					.Select(v => v.GetString(true).Length == 0
-									? null
-									: new TransactionSignature(v.GetString())).ToArray();
-			}
-		}
-
-		#endregion
-	}
-	public class PartiallySignedTransaction : IBitcoinSerializable
-	{
-		public PartiallySignedTransaction()
-		{
-
-		}
-		public PartiallySignedTransaction(Script redeem, Transaction transaction)
-		{
-			RedeemScript = redeem;
-			UnsignedTransaction = transaction;
-			Init();
-		}
-
-		private void Init()
-		{
-			var result = new PayToMultiSigTemplate().ExtractScriptPubKeyParameters(RedeemScript);
-			if(result == null)
-				throw new ArgumentException("The script is not a valid ScriptPubKey multi sig", "redeem");
-			SignatureRequired = result.SignatureCount;
-			PubKeys = result.PubKeys;
-			PartiallySignedInputs = new PartiallySignedInput[UnsignedTransaction.Inputs.Count];
-			for(int i = 0 ; i < PartiallySignedInputs.Length ; i++)
-			{
-				PartiallySignedInputs[i] = new PartiallySignedInput();
-				PartiallySignedInputs[i].Signatures = new TransactionSignature[PubKeys.Length];
-				UnsignedTransaction.Inputs[i].ScriptSig = RedeemScript;
-			}
-		}
-		public PartiallySignedTransaction(int sigRequired, PubKey[] pubKeys, Transaction transaction)
-		{
-			if(transaction == null)
-				throw new ArgumentNullException("transaction");
-			UnsignedTransaction = transaction;
-			RedeemScript = new PayToMultiSigTemplate().GenerateScriptPubKey(sigRequired, pubKeys);
-			Init();
-		}
-
-
-
-		public void SignAll(Key key)
-		{
-			var pubkeyIndex = Array.IndexOf(PubKeys, key.PubKey);
-			if(pubkeyIndex == -1)
-				throw new ArgumentException("This key does not belongs to the signing keys", "key");
-			for(int i = 0 ; i < UnsignedTransaction.Inputs.Count ; i++)
-			{
-				var hash = UnsignedTransaction.Inputs[i].ScriptSig.SignatureHash(UnsignedTransaction, i, SigHash.All);
-				var sig = key.Sign(hash);
-				PartiallySignedInputs[i].Signatures[pubkeyIndex] = new TransactionSignature(sig, SigHash.All);
-			}
-		}
-
-
-
-		PartiallySignedInput[] _PartiallySignedInputs;
-		public PartiallySignedInput[] PartiallySignedInputs
-		{
-			get
-			{
-				return _PartiallySignedInputs;
-			}
-			private set
-			{
-				_PartiallySignedInputs = value;
-			}
-		}
-
-		Transaction _UnsignedTransaction;
-		public Transaction UnsignedTransaction
-		{
-			get
-			{
-				return _UnsignedTransaction;
-			}
-			private set
-			{
-				_UnsignedTransaction = value;
-			}
-		}
-
-		Script _RedeemScript;
-		public Script RedeemScript
-		{
-			get
-			{
-				return _RedeemScript;
-			}
-			private set
-			{
-				_RedeemScript = value;
-			}
-		}
-
-		public Transaction BuildSignedTransaction()
-		{
-			if(!IsFullySigned)
-				throw new InvalidOperationException("Transaction not fully signed");
-			var tx = UnsignedTransaction.Clone();
-			var payToScriptHash = new PayToScriptHashTemplate();
-			for(int i = 0 ; i < tx.Inputs.Count ; i++)
-			{
-				tx.Inputs[i].ScriptSig = payToScriptHash.GenerateScriptSig(
-											PartiallySignedInputs[i].Signatures.Where(s => s != null).ToArray(),
-											RedeemScript);
-			}
-			return tx;
-		}
-
-		public bool IsFullySigned
-		{
-			get
-			{
-				return PartiallySignedInputs.All(p => p.Signatures.Length >= SignatureRequired);
-			}
-		}
-
-		int _SignatureRequired;
-		public int SignatureRequired
-		{
-			get
-			{
-				return _SignatureRequired;
-			}
-			private set
-			{
-				_SignatureRequired = value;
-			}
-		}
-
-		PubKey[] _PubKeys;
-		public PubKey[] PubKeys
-		{
-			get
-			{
-				return _PubKeys;
-			}
-			private set
-			{
-				_PubKeys = value;
-			}
-		}
-
-		#region IBitcoinSerializable Members
-
-		public void ReadWrite(BitcoinStream stream)
-		{
-			stream.ReadWrite(ref _PartiallySignedInputs);
-			if(stream.Serializing)
-			{
-				var varStrings = _PubKeys.Select(p => new VarString(p.ToBytes(true))).ToArray();
-				stream.ReadWrite(ref varStrings);
-			}
-			else
-			{
-				VarString[] varStrings = new VarString[0];
-				stream.ReadWrite(ref varStrings);
-				_PubKeys = varStrings.Select(b => new PubKey(b.GetString(true))).ToArray();
-			}
-			stream.ReadWrite(ref _RedeemScript);
-			stream.ReadWrite(ref _UnsignedTransaction);
-			stream.ReadWrite(ref _SignatureRequired);
-		}
-
-		#endregion
-	}
 }

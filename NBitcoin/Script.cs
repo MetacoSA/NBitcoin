@@ -249,21 +249,21 @@ namespace NBitcoin
 		}
 
 
-		public int FindAndDelete(OpcodeType op)
+		internal int FindAndDelete(OpcodeType op)
 		{
 			return FindAndDelete(new Op()
 			{
 				Code = op
 			});
 		}
-		public int FindAndDelete(Op op)
+		internal int FindAndDelete(Op op)
 		{
 			if(op == null)
 				return 0;
 			return FindAndDelete(o => o.Code == op.Code && Utils.ArrayEqual(o.PushData, op.PushData));
 		}
 
-		public int FindAndDelete(byte[] pushedData)
+		internal int FindAndDelete(byte[] pushedData)
 		{
 			if(pushedData.Length == 0)
 				return 0;
@@ -565,8 +565,6 @@ namespace NBitcoin
 		{
 			return StandardScripts.GetTemplateFromScriptPubKey(this);
 		}
-		static readonly PayToScriptHashTemplate _PayToScriptHash = new PayToScriptHashTemplate();
-		static readonly PayToPubkeyHashTemplate _PayToPubkeyHash = new PayToPubkeyHashTemplate();
 
 		/// <summary>
 		/// Extract P2SH or P2PH address from scriptSig
@@ -587,12 +585,12 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TxDestination GetSigner()
 		{
-			var pubKey = _PayToPubkeyHash.ExtractScriptSigParameters(this);
+			var pubKey = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(this);
 			if(pubKey != null)
 			{
 				return pubKey.PublicKey.ID;
 			}
-			var p2sh = _PayToScriptHash.ExtractScriptSigParameters(this);
+			var p2sh = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(this);
 			if(p2sh != null)
 			{
 				return p2sh.RedeemScript.ID;
@@ -620,10 +618,10 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TxDestination GetDestination()
 		{
-			var pubKeyHashParams = _PayToPubkeyHash.ExtractScriptPubKeyParameters(this);
+			var pubKeyHashParams = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
 			if(pubKeyHashParams != null)
 				return pubKeyHashParams;
-			var scriptHashParams = _PayToScriptHash.ExtractScriptPubKeyParameters(this);
+			var scriptHashParams = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
 			if(scriptHashParams != null)
 				return scriptHashParams;
 			return null;
@@ -637,14 +635,14 @@ namespace NBitcoin
 		public PubKey[] GetDestinationPublicKeys()
 		{
 			List<PubKey> result = new List<PubKey>();
-			var single = new PayToPubkeyTemplate().ExtractScriptPubKeyParameters(this);
+			var single = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(this);
 			if(single != null)
 			{
 				result.Add(single);
 			}
 			else
 			{
-				var multiSig = new PayToMultiSigTemplate().ExtractScriptPubKeyParameters(this);
+				var multiSig = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(this);
 				if(multiSig != null)
 				{
 					foreach(var key in multiSig.PubKeys)
@@ -698,13 +696,6 @@ namespace NBitcoin
 			}
 		}
 
-
-
-		public bool Same(Script script)
-		{
-			return Utils.ArrayEqual(script._Script, _Script);
-		}
-
 		/// <summary>
 		/// Create scriptPubKey from destination id
 		/// </summary>
@@ -713,9 +704,9 @@ namespace NBitcoin
 		public static Script CreateFromDestination(TxDestination id)
 		{
 			if(id is ScriptId)
-				return new PayToScriptHashTemplate().GenerateScriptPubKey((ScriptId)id);
+				return PayToScriptHashTemplate.Instance.GenerateScriptPubKey((ScriptId)id);
 			else if(id is KeyId)
-				return new PayToPubkeyHashTemplate().GenerateScriptPubKey((KeyId)id);
+				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey((KeyId)id);
 			else
 				throw new NotSupportedException();
 		}
@@ -733,6 +724,32 @@ namespace NBitcoin
 		public static bool IsNullOrEmpty(Script script)
 		{
 			return script == null || script._Script.Length == 0;
+		}
+
+		public override bool Equals(object obj)
+		{
+			Script item = obj as Script;
+			if(item == null)
+				return false;
+			return Utils.ArrayEqual(item._Script, _Script);
+		}
+		public static bool operator ==(Script a, Script b)
+		{
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if(((object)a == null) || ((object)b == null))
+				return false;
+			return Utils.ArrayEqual(a._Script, b._Script);
+		}
+
+		public static bool operator !=(Script a, Script b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return Encoders.Hex.EncodeData(_Script).GetHashCode();
 		}
 	}
 }

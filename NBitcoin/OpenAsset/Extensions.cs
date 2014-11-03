@@ -20,5 +20,9 @@ namespace NBitcoin.OpenAsset
 		{
 			return ColorMarker.HasValidColorMarker(tx);
 		}
+		public static AssetId ToAssetId(this ScriptId id)
+		{
+			return new AssetId(id);
+		}
 	}
 }
