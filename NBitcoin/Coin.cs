@@ -200,6 +200,13 @@ namespace NBitcoin
 			Outpoint = outpoint;
 			TxOut = txOut;
 		}
+
+        public Coin(uint256 txHash, uint outputIndex, Money amount, Script scriptPubKey)
+        {
+            Outpoint = new OutPoint(txHash, outputIndex);
+            TxOut = new TxOut(amount, scriptPubKey);
+        }
+
 		public OutPoint Outpoint
 		{
 			get;
