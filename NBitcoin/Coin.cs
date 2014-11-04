@@ -10,6 +10,10 @@ namespace NBitcoin
 {
 	public interface IColoredCoin : ICoin
 	{
+		AssetId AssetId
+		{
+			get;
+		}
 		Coin Bearer
 		{
 			get;
@@ -112,6 +116,13 @@ namespace NBitcoin
 			Bearer = bearer;
 		}
 
+		public AssetId AssetId
+		{
+			get
+			{
+				return Asset.Id;
+			}
+		}
 		public Asset Asset
 		{
 			get;
