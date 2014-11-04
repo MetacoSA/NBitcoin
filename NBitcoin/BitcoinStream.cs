@@ -166,12 +166,17 @@ namespace NBitcoin
 			data = (d == 0 ? false : true);
 		}
 
+		public void ReadWriteStruct<T>(ref T data) where T : struct, IBitcoinSerializable
+		{
+			data.ReadWrite(this);
+		}
 
 		public void ReadWrite<T>(ref T data) where T : IBitcoinSerializable
 		{
-			if(data == null)
+			if(data == null && !Serializing)
 				data = Activator.CreateInstance<T>();
-			data.ReadWrite(this);
+			if(data != null)
+				data.ReadWrite(this);
 		}
 
 		public void ReadWrite<T>(ref List<T> list) where T : IBitcoinSerializable, new()
