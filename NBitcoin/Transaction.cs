@@ -591,21 +591,39 @@ namespace NBitcoin
 
 		#endregion
 
+		/// <summary>
+		/// Verify belongs to the given address
+		/// </summary>
+		/// <param name="address">P2PKH or P2SH address</param>
+		/// <returns></returns>
 		public bool IsTo(BitcoinAddress address)
 		{
 			if(address == null)
 				throw new ArgumentNullException("address");
-			return IsTo((KeyId)address.ID);
+			return IsTo(address.ID);
 		}
 
-		private bool IsTo(KeyId keyId)
+		/// <summary>
+		/// Verify belongs to the given address
+		/// </summary>
+		/// <param name="address">P2PKH or P2SH address</param>
+		/// <returns></returns>
+		public bool IsTo(TxDestination destination)
 		{
-			return ScriptPubKey.GetDestination() == keyId;
+			return ScriptPubKey.GetDestination() == destination;
 		}
 
+		/// <summary>
+		/// Verify is a P2PK of the given public key
+		/// </summary>
+		/// <param name="pubkey"></param>
+		/// <returns></returns>
 		public bool IsTo(PubKey pubkey)
 		{
-			return IsTo(pubkey.ID);
+			var owners = ScriptPubKey.GetDestinationPublicKeys();
+			if(owners.Length != 1)
+				return false;
+			return owners[0] == pubkey;
 		}
 
 

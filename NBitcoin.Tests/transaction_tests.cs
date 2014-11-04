@@ -15,6 +15,25 @@ namespace NBitcoin.Tests
 	{
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanExtractTxOutDestinationEasily()
+		{
+			var secret = new BitcoinSecret("KyJTjvFpPF6DDX4fnT56d2eATPfxjdUPXFFUb85psnCdh34iyXRQ");
+
+			var tx = new Transaction();
+			var p2pkh = new TxOut(new Money((UInt64)45000000), secret.GetAddress());
+			var p2pk = new TxOut(new Money((UInt64)80000000), secret.Key.PubKey);
+
+			tx.AddOutput(p2pkh);
+			tx.AddOutput(p2pk);
+
+			Assert.False(p2pkh.IsTo(secret.Key.PubKey));
+			Assert.True(p2pkh.IsTo(secret.GetAddress()));
+			Assert.True(p2pk.IsTo(secret.Key.PubKey));
+			Assert.False(p2pk.IsTo(secret.GetAddress()));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSignTransaction()
 		{
 			var key = new Key();
