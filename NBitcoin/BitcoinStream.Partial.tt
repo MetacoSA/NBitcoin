@@ -70,7 +70,7 @@ namespace NBitcoin
 			var dataArray = data.ToArray();
 			ReadWriteArray(ref dataArray);
 			if(!Serializing)
-			data = dataArray.ToList();
+				data = dataArray.ToList();
 		}
 
 		<# } #>
@@ -104,7 +104,8 @@ namespace NBitcoin
 		{
 			ulong l = (ulong)data;
 			ReadWriteNumber(ref l, sizeof(<#= type #>));
-			data = (<#= type #>)l;
+			if(!Serializing)
+				data = (<#= type #>)l;
 		}
 
 		public <#= type #> ReadWrite(<#= type #> data)
@@ -127,7 +128,8 @@ namespace NBitcoin
 		{
 			long l = (long)data;
 			ReadWriteNumber(ref l, sizeof(<#= type #>));
-			data = (<#= type #>)l;
+			if(!Serializing)
+				data = (<#= type #>)l;
 		}
 
 		public <#= type #> ReadWrite(<#= type #> data)

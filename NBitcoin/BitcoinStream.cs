@@ -98,6 +98,30 @@ namespace NBitcoin
 		{
 		}
 
+		public Script ReadWrite(Script data)
+		{
+			if(Serializing)
+			{
+				var bytes = data == null ? Script.Empty.ToRawScript(true) : data.ToRawScript(true);
+				ReadWriteAsVarString(ref bytes);
+				return data;
+			}
+			else
+			{
+				var varString = new VarString();
+				varString.ReadWrite(this);
+				return new Script(varString.GetString());
+			}
+		}
+
+		public void ReadWrite(ref Script script)
+		{
+			if(Serializing)
+				ReadWrite(script);
+			else
+				script = ReadWrite(script);
+		}
+
 		public T ReadWrite<T>(T data) where T : IBitcoinSerializable
 		{
 			ReadWrite<T>(ref data);
@@ -142,12 +166,19 @@ namespace NBitcoin
 			data = (d == 0 ? false : true);
 		}
 
+		public void ReadWriteStruct<T>(ref T data) where T : struct, IBitcoinSerializable
+		{
+			data.ReadWrite(this);
+		}
 
 		public void ReadWrite<T>(ref T data) where T : IBitcoinSerializable
 		{
-			if(data == null)
-				data = Activator.CreateInstance<T>();
-			data.ReadWrite(this);
+			var obj = data;
+			if(obj == null)
+				obj = Activator.CreateInstance<T>();
+			obj.ReadWrite(this);
+			if(!Serializing)
+				data = obj;
 		}
 
 		public void ReadWrite<T>(ref List<T> list) where T : IBitcoinSerializable, new()

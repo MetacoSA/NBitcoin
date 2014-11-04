@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -72,6 +73,10 @@ namespace NBitcoin.RPC
 		{
 			return SendCommand(commandName.ToString(), parameters);
 		}
+		public Task<RPCResponse> SendCommandAsync(RPCOperations commandName, params object[] parameters)
+		{
+			return SendCommandAsync(commandName.ToString(), parameters);
+		}
 
 		/// <summary>
 		/// Send a command
@@ -83,10 +88,25 @@ namespace NBitcoin.RPC
 		{
 			return SendCommand(new RPCRequest(commandName, parameters));
 		}
-
-
+		public Task<RPCResponse> SendCommandAsync(string commandName, params object[] parameters)
+		{
+			return SendCommandAsync(new RPCRequest(commandName, parameters));
+		}
 
 		public RPCResponse SendCommand(RPCRequest request, bool throwIfRPCError = true)
+		{
+			try
+			{
+				return SendCommandAsync(request, throwIfRPCError).Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				return null; //Can't happen
+			}
+		}
+
+		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
 		{
 			HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(Address);
 			webRequest.Credentials = Credentials;
@@ -99,14 +119,13 @@ namespace NBitcoin.RPC
 			var json = writer.ToString();
 			var bytes = Encoding.UTF8.GetBytes(json);
 			webRequest.ContentLength = bytes.Length;
-			Stream dataStream = webRequest.GetRequestStream();
+			Stream dataStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false);
 			dataStream.Write(bytes, 0, bytes.Length);
 			dataStream.Close();
-
 			RPCResponse response = null;
 			try
 			{
-				WebResponse webResponse = webRequest.GetResponse();
+				WebResponse webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false);
 				response = RPCResponse.Load(webResponse.GetResponseStream());
 				if(throwIfRPCError)
 					response.ThrowIfError();
@@ -127,10 +146,20 @@ namespace NBitcoin.RPC
 			var response = SendCommand("listunspent");
 			return ((JArray)response.Result).Select(i => new UnspentCoin((JObject)i)).ToArray();
 		}
+		public async Task<UnspentCoin[]> ListUnspentAsync()
+		{
+			var response = await SendCommandAsync("listunspent");
+			return ((JArray)response.Result).Select(i => new UnspentCoin((JObject)i)).ToArray();
+		}
 
 		public BitcoinAddress GetAccountAddress(string account)
 		{
 			var response = SendCommand("getaccountaddress", account);
+			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
+		}
+		public async Task<BitcoinAddress> GetAccountAddressAsync(string account)
+		{
+			var response = await SendCommandAsync("getaccountaddress", account);
 			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
 		}
 
@@ -139,16 +168,30 @@ namespace NBitcoin.RPC
 			var response = SendCommand("dumpprivkey", address.ToString());
 			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
 		}
+		public async Task<BitcoinSecret> DumpPrivKeyAsync(BitcoinAddress address)
+		{
+			var response = await SendCommandAsync("dumpprivkey", address.ToString());
+			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
+		}
 
 		public uint256 GetBestBlockHash()
 		{
 			return new uint256((string)SendCommand("getbestblockhash").Result);
+		}
+		public async Task<uint256> GetBestBlockHashAsync()
+		{
+			return new uint256((string)(await SendCommandAsync("getbestblockhash")).Result);
 		}
 
 		public BitcoinSecret GetAccountSecret(string account)
 		{
 			var address = GetAccountAddress(account);
 			return DumpPrivKey(address);
+		}
+		public async Task<BitcoinSecret> GetAccountSecretAsync(string account)
+		{
+			var address = await GetAccountAddressAsync(account);
+			return await DumpPrivKeyAsync(address);
 		}
 
 		public Transaction DecodeRawTransaction(string rawHex)
@@ -159,6 +202,15 @@ namespace NBitcoin.RPC
 		public Transaction DecodeRawTransaction(byte[] raw)
 		{
 			return DecodeRawTransaction(Encoders.Hex.EncodeData(raw));
+		}
+		public async Task<Transaction> DecodeRawTransactionAsync(string rawHex)
+		{
+			var response = await SendCommandAsync("decoderawtransaction", rawHex);
+			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
+		}
+		public Task<Transaction> DecodeRawTransactionAsync(byte[] raw)
+		{
+			return DecodeRawTransactionAsync(Encoders.Hex.EncodeData(raw));
 		}
 
 		/// <summary>
@@ -189,6 +241,14 @@ namespace NBitcoin.RPC
 		{
 			SendRawTransaction(tx.ToBytes());
 		}
+		public Task SendRawTransactionAsync(byte[] bytes)
+		{
+			return SendCommandAsync("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
+		}
+		public Task SendRawTransactionAsync(Transaction tx)
+		{
+			return SendRawTransactionAsync(tx.ToBytes());
+		}
 
 		public void LockUnspent(params OutPoint[] outpoints)
 		{
@@ -199,7 +259,28 @@ namespace NBitcoin.RPC
 			LockUnspentCore(true, outpoints);
 		}
 
+		public Task LockUnspentAsync(params OutPoint[] outpoints)
+		{
+			return LockUnspentCoreAsync(false, outpoints);
+		}
+		public Task UnlockUnspentAsync(params OutPoint[] outpoints)
+		{
+			return LockUnspentCoreAsync(true, outpoints);
+		}
+
 		private void LockUnspentCore(bool unlock, OutPoint[] outpoints)
+		{
+			try
+			{
+				LockUnspentCoreAsync(unlock, outpoints).Wait();
+			}
+			catch(AggregateException ex)
+			{
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return;
+			}
+		}
+		private async Task LockUnspentCoreAsync(bool unlock, OutPoint[] outpoints)
 		{
 			if(outpoints == null || outpoints.Length == 0)
 				return;
@@ -214,13 +295,18 @@ namespace NBitcoin.RPC
 				obj["vout"] = outp.N;
 				array.Add(obj);
 			}
-			SendCommand("lockunspent", parameters.ToArray());
+			await SendCommandAsync("lockunspent", parameters.ToArray());
 		}
 
 		public BlockHeader GetBlockHeader(int height)
 		{
 			var hash = GetBlockHash(height);
 			return GetBlockHeader(hash);
+		}
+		public async Task<BlockHeader> GetBlockHeaderAsync(int height)
+		{
+			var hash = await GetBlockHashAsync(height);
+			return await GetBlockHeaderAsync(hash);
 		}
 
 		/// <summary>
@@ -253,6 +339,11 @@ namespace NBitcoin.RPC
 		public BlockHeader GetBlockHeader(uint256 blockHash)
 		{
 			var resp = SendCommand("getblock", blockHash.ToString());
+			return ParseBlockHeader(resp);
+		}
+		public async Task<BlockHeader> GetBlockHeaderAsync(uint256 blockHash)
+		{
+			var resp = await SendCommandAsync("getblock", blockHash.ToString());
 			return ParseBlockHeader(resp);
 		}
 
@@ -313,14 +404,31 @@ namespace NBitcoin.RPC
 			return new uint256(resp.Result.ToString());
 		}
 
+		public async Task<uint256> GetBlockHashAsync(int height)
+		{
+			var resp = await SendCommandAsync("getblockhash", height);
+			return new uint256(resp.Result.ToString());
+		}
+
+
 		public int GetBlockCount()
 		{
 			return (int)SendCommand("getblockcount").Result;
+		}
+		public async Task<int> GetBlockCountAsync()
+		{
+			return (int)(await SendCommandAsync("getblockcount")).Result;
 		}
 
 		public uint256[] GetRawMempool()
 		{
 			var result = SendCommand("getrawmempool");
+			var array = (JArray)result.Result;
+			return array.Select(o => (string)o).Select(s => new uint256(s)).ToArray();
+		}
+		public async Task<uint256[]> GetRawMempoolAsync()
+		{
+			var result = await SendCommandAsync("getrawmempool");
 			var array = (JArray)result.Result;
 			return array.Select(o => (string)o).Select(s => new uint256(s)).ToArray();
 		}
