@@ -180,8 +180,16 @@ namespace NBitcoin
 	};
 
 
-	public class Script : IBitcoinSerializable
+	public class Script
 	{
+		static readonly Script _Empty = new Script();
+		public static Script Empty
+		{
+			get
+			{
+				return _Empty;
+			}
+		}
 
 		internal byte[] _Script = new byte[0];
 		public Script()
@@ -291,15 +299,6 @@ namespace NBitcoin
 			_Script = new Script(operations.ToArray())._Script;
 			return nFound;
 		}
-
-		#region IBitcoinSerializable Members
-
-		public void ReadWrite(BitcoinStream stream)
-		{
-			stream.ReadWriteAsVarString(ref _Script);
-		}
-
-		#endregion
 
 		public string ToHex()
 		{
@@ -750,6 +749,11 @@ namespace NBitcoin
 		public override int GetHashCode()
 		{
 			return Encoders.Hex.EncodeData(_Script).GetHashCode();
+		}
+
+		public Script Clone()
+		{
+			return new Script(_Script);
 		}
 	}
 }

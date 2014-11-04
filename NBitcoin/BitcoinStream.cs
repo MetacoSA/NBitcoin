@@ -98,6 +98,30 @@ namespace NBitcoin
 		{
 		}
 
+		public Script ReadWrite(Script data)
+		{
+			if(Serializing)
+			{
+				var bytes = data == null ? Script.Empty.ToRawScript(true) : data.ToRawScript(true);
+				ReadWriteAsVarString(ref bytes);
+				return data;
+			}
+			else
+			{
+				var varString = new VarString();
+				varString.ReadWrite(this);
+				return new Script(varString.GetString());
+			}
+		}
+
+		public void ReadWrite(ref Script script)
+		{
+			if(Serializing)
+				ReadWrite(script);
+			else
+				script = ReadWrite(script);
+		}
+
 		public T ReadWrite<T>(T data) where T : IBitcoinSerializable
 		{
 			ReadWrite<T>(ref data);

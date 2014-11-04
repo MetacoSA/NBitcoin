@@ -143,7 +143,7 @@ namespace NBitcoin
 			this.prevout = prevout;
 		}
 		OutPoint prevout = new OutPoint();
-		Script scriptSig = new Script();
+		Script scriptSig = Script.Empty;
 		uint nSequence = uint.MaxValue;
 		public const uint NO_SEQUENCE = uint.MaxValue;
 
@@ -478,7 +478,7 @@ namespace NBitcoin
 
 	public class TxOut : IBitcoinSerializable
 	{
-		Script publicKey = new Script();
+		Script publicKey = Script.Empty;
 		public Script ScriptPubKey
 		{
 			get
