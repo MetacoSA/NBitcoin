@@ -489,21 +489,37 @@ namespace NBitcoin
 
 		public TransactionBuilder IssueAsset(BitcoinAddress address, Asset asset)
 		{
-			return IssueAsset(address.ID, asset);
+			return IssueAsset(address, asset, null);
+		}
+
+		public TransactionBuilder IssueAsset(BitcoinAddress address, Asset asset, byte[] metadata)
+		{
+			return IssueAsset(address.ID, asset, metadata);
 		}
 
 		public TransactionBuilder IssueAsset(TxDestination destination, Asset asset)
 		{
-			return IssueAsset(destination.CreateScriptPubKey(), asset);
+			return IssueAsset(destination, asset, null);
 		}
+
+		public TransactionBuilder IssueAsset(TxDestination destination, Asset asset, byte[] metadata)
+		{
+			return IssueAsset(destination.CreateScriptPubKey(), asset, metadata);
+		}
+
 		public TransactionBuilder IssueAsset(PubKey destination, Asset asset)
 		{
-			return IssueAsset(destination.PaymentScript, asset);
+			return IssueAsset(destination, asset, null);
+		}
+
+		public TransactionBuilder IssueAsset(PubKey destination, Asset asset, byte[] metadata)
+		{
+			return IssueAsset(destination.PaymentScript, asset, metadata);
 		}
 
 		AssetId _IssuedAsset;
 
-		private TransactionBuilder IssueAsset(Script scriptPubKey, Asset asset)
+		private TransactionBuilder IssueAsset(Script scriptPubKey, Asset asset, byte[] metadata)
 		{
 			AssertOpReturn("Colored Coin");
 			if(_IssuedAsset == null)
@@ -526,6 +542,10 @@ namespace NBitcoin
 
 				ctx.Transaction.AddOutput(ColoredDust, scriptPubKey);
 				marker.SetQuantity(ctx.Transaction.Outputs.Count - 1, asset.Quantity);
+				if (metadata != null)
+				{
+					marker.Metadata = metadata;
+				}
 				ctx.AdditionalFees += ColoredDust;
 				return asset.Quantity;
 			});
