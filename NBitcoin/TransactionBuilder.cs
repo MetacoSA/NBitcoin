@@ -370,7 +370,7 @@ namespace NBitcoin
         public TransactionBuilder AddCoins(IEnumerable<ICoin> coins)
         {
 			foreach(var coin in coins)
-			{
+			{ 
 				CurrentGroup.Coins.Add(coin);
 			}
 			return this;
