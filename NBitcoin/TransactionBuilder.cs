@@ -363,13 +363,19 @@ namespace NBitcoin
 		}
 
 		public TransactionBuilder AddCoins(params ICoin[] coins)
-		{
+        {
+            return AddCoins((IEnumerable<ICoin>)coins);
+        }
+
+        public TransactionBuilder AddCoins(IEnumerable<ICoin> coins)
+        {
 			foreach(var coin in coins)
-			{
+			{ 
 				CurrentGroup.Coins.Add(coin);
 			}
 			return this;
 		}
+
 		public TransactionBuilder Send(BitcoinAddress destination, Money amount)
 		{
 			return Send(destination.ID, amount);
