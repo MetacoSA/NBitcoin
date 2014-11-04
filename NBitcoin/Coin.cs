@@ -201,6 +201,12 @@ namespace NBitcoin
 			TxOut = txOut;
 		}
 
+        public Coin(Transaction tx, uint outputIndex)
+        {
+            Outpoint = new OutPoint(tx, (int)outputIndex);
+            TxOut = tx.Outputs[(int)outputIndex];
+        }
+
         public Coin(uint256 txHash, uint outputIndex, Money amount, Script scriptPubKey)
         {
             Outpoint = new OutPoint(txHash, outputIndex);
