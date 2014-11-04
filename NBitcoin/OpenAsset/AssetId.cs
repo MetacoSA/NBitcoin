@@ -15,6 +15,17 @@ namespace NBitcoin.OpenAsset
 		{
 			_Bytes = new byte[] { 0 };
 		}
+
+		public AssetId(BitcoinSecret assetIssuanceKey)
+			: this(assetIssuanceKey.GetAddress())
+		{
+		}
+
+		public AssetId(BitcoinAddress assetIssuanceKeyAddress)
+			: this(assetIssuanceKeyAddress.ID.CreateScriptPubKey().ID)
+		{
+		}
+
 		public AssetId(ScriptId scriptId)
 		{
 			_Bytes = scriptId.ToBytes(true);
