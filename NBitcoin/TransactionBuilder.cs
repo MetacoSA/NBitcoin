@@ -736,9 +736,7 @@ namespace NBitcoin
 				input.ScriptSig = CreateScriptSig(ctx, input, coin, n, scriptCoin.Redeem);
 				if(original != input.ScriptSig)
 				{
-					var ops = input.ScriptSig.ToOps().ToList();
-					ops.Add(Op.GetPushOp(scriptCoin.Redeem.ToRawScript(true)));
-					input.ScriptSig = new Script(ops.ToArray());
+					input.ScriptSig = input.ScriptSig + Op.GetPushOp(scriptCoin.Redeem.ToRawScript(true));
 				}
 			}
 			else
@@ -747,7 +745,6 @@ namespace NBitcoin
 			}
 
 		}
-
 
 		private Script CreateScriptSig(TransactionSigningContext ctx, TxIn input, ICoin coin, int n, Script scriptPubKey)
 		{
