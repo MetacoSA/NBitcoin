@@ -226,6 +226,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>UInt256.tt</DependentUpon>
     </Compile>
+    <Compile Include="UnsignedList.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ValidationState.cs" />
     <Compile Include="VarInt.cs" />

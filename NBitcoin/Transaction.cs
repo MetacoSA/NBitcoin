@@ -62,6 +62,11 @@ namespace NBitcoin
 			this.n = nIn == -1 ? n = uint.MaxValue : (uint)nIn;
 		}
 
+		public OutPoint(Transaction tx, uint i)
+			: this(tx.GetHash(), i)
+		{
+		}
+
 		public OutPoint(Transaction tx, int i)
 			: this(tx.GetHash(), i)
 		{
@@ -633,6 +638,33 @@ namespace NBitcoin
 		}
 	}
 
+	public class TxInList: UnsignedList<TxIn>
+	{
+		public TxIn this[OutPoint outpoint]
+		{
+			get { return this[outpoint.N]; }
+			set { this[outpoint.N] = value; }
+		}
+	}
+
+	public class TxOutList: UnsignedList<TxOut>
+	{
+		public IEnumerable<TxOut> To(BitcoinAddress address)
+		{
+			return this.Where(r => r.IsTo(address));
+		}
+
+		public IEnumerable<TxOut> To(PubKey pubKey)
+		{
+			return this.Where(r => r.IsTo(pubKey));
+		}
+
+		public IEnumerable<TxOut> To(TxDestination destination)
+		{
+			return this.Where(r => r.IsTo(destination));
+		}
+	}
+
 	public enum RawFormat
 	{
 		Satoshi,
@@ -655,8 +687,8 @@ namespace NBitcoin
 				nVersion = value;
 			}
 		}
-		List<TxIn> vin = new List<TxIn>();
-		List<TxOut> vout = new List<TxOut>();
+		TxInList vin = new TxInList();
+		TxOutList vout = new TxOutList();
 		LockTime nLockTime;
 
 		public Transaction()
@@ -691,14 +723,14 @@ namespace NBitcoin
 			}
 		}
 
-		public List<TxIn> Inputs
+		public TxInList Inputs
 		{
 			get
 			{
 				return vin;
 			}
 		}
-		public List<TxOut> Outputs
+		public TxOutList Outputs
 		{
 			get
 			{
