@@ -275,7 +275,6 @@ namespace Org.BouncyCastle.Utilities
             return hc;
         }
 
-        [CLSCompliantAttribute(false)]
         public static int GetHashCode(uint[] data)
         {
             if (data == null)
@@ -293,7 +292,6 @@ namespace Org.BouncyCastle.Utilities
             return hc;
         }
 
-        [CLSCompliantAttribute(false)]
         public static int GetHashCode(uint[] data, int off, int len)
         {
             if (data == null)
@@ -344,14 +342,12 @@ namespace Org.BouncyCastle.Utilities
             return data == null ? null : (long[])data.Clone();
         }
 
-        [CLSCompliantAttribute(false)]
         public static ulong[] Clone(
             ulong[] data)
         {
             return data == null ? null : (ulong[]) data.Clone();
         }
 
-        [CLSCompliantAttribute(false)]
         public static ulong[] Clone(
             ulong[] data, 
             ulong[] existing)
