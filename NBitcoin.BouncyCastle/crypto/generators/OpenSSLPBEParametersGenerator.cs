@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Crypto.Digests;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Generators
+namespace NBitcoin.BouncyCastle.Crypto.Generators
 {
 	/**
 	 * Generator for PBE derived keys and ivs as usd by OpenSSL.

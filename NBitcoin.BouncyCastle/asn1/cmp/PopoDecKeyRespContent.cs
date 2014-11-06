@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Cmp
+namespace NBitcoin.BouncyCastle.Asn1.Cmp
 {
 	public class PopoDecKeyRespContent
 		: Asn1Encodable

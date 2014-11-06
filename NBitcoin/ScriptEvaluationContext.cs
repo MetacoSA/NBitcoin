@@ -994,8 +994,8 @@ namespace NBitcoin
 				var nLenS = vchSig[5 + nLenR];
 				var R = 4;
 				var S = 6 + nLenR;
-				var newS = new Org.BouncyCastle.Math.BigInteger(1, vchSig, S, nLenS);
-				var newR = new Org.BouncyCastle.Math.BigInteger(1, vchSig, R, nLenR);
+				var newS = new NBitcoin.BouncyCastle.Math.BigInteger(1, vchSig, S, nLenS);
+				var newR = new NBitcoin.BouncyCastle.Math.BigInteger(1, vchSig, R, nLenR);
 				var sig2 = new ECDSASignature(newR, newS);
 				if(sig2.R != scriptSig.Signature.R || sig2.S != scriptSig.Signature.S)
 				{

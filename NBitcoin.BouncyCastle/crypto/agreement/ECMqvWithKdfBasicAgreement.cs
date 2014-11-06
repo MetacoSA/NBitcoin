@@ -1,16 +1,16 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto.Agreement.Kdf;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.Nist;
+using NBitcoin.BouncyCastle.Asn1.Pkcs;
+using NBitcoin.BouncyCastle.Asn1.X9;
+using NBitcoin.BouncyCastle.Crypto.Agreement.Kdf;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Agreement
+namespace NBitcoin.BouncyCastle.Crypto.Agreement
 {
 	public class ECMqvWithKdfBasicAgreement
 		: ECMqvBasicAgreement

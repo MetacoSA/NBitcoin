@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Utilities.Collections;
+using NBitcoin.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Asn1.Esf
+namespace NBitcoin.BouncyCastle.Asn1.Esf
 {
 	/// <remarks>
 	/// <code>

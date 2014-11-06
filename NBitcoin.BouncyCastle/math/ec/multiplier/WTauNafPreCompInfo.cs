@@ -1,4 +1,4 @@
-namespace Org.BouncyCastle.Math.EC.Multiplier
+namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 {
     /**
      * Class holding precomputation data for the WTNAF (Window
@@ -10,7 +10,7 @@ namespace Org.BouncyCastle.Math.EC.Multiplier
         /**
          * Array holding the precomputed <code>F2mPoint</code>s used for the
          * WTNAF multiplication in <code>
-         * {@link org.bouncycastle.math.ec.multiplier.WTauNafMultiplier.multiply()
+         * {@link NBitcoin.BouncyCastle.math.ec.multiplier.WTauNafMultiplier.multiply()
          * WTauNafMultiplier.multiply()}</code>.
          */
         protected F2mPoint[] m_preComp;

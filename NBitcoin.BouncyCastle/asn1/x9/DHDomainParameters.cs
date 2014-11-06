@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-namespace Org.BouncyCastle.Asn1.X9
+namespace NBitcoin.BouncyCastle.Asn1.X9
 {
 	public class DHDomainParameters
 		: Asn1Encodable

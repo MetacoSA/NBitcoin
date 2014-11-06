@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Pkcs
+namespace NBitcoin.BouncyCastle.Asn1.Pkcs
 {
     public class PbeS2Parameters
         : Asn1Encodable
@@ -24,7 +24,6 @@ namespace Org.BouncyCastle.Asn1.Pkcs
             this.scheme = encScheme;
         }
 
-        [Obsolete("Use GetInstance() instead")]
         public PbeS2Parameters(
             Asn1Sequence seq)
         {

@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.Asn1.Icao
+namespace NBitcoin.BouncyCastle.Asn1.Icao
 {
     /**
     * The DataGroupHash object.

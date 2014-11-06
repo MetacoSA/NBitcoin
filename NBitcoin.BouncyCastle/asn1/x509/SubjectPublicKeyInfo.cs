@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.IO;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace NBitcoin.BouncyCastle.Asn1.X509
 {
     /**
      * The object that contains the public key stored in a certficate.

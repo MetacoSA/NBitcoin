@@ -1,11 +1,10 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Sec;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Asn1.Sec;
+using NBitcoin.BouncyCastle.Asn1.X9;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math.EC;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,6 +13,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xunit;
+using NBitcoin.BouncyCastle.Asn1;
 
 namespace NBitcoin.Tests
 {

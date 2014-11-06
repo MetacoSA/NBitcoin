@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Cms
+namespace NBitcoin.BouncyCastle.Asn1.Cms
 {
     public class OtherRecipientInfo
         : Asn1Encodable
@@ -16,7 +16,6 @@ namespace Org.BouncyCastle.Asn1.Cms
             this.oriValue = oriValue;
         }
 
-        [Obsolete("Use GetInstance() instead")]
         public OtherRecipientInfo(
             Asn1Sequence seq)
         {

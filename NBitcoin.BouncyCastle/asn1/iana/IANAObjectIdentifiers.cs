@@ -1,4 +1,4 @@
-namespace Org.BouncyCastle.Asn1.Iana
+namespace NBitcoin.BouncyCastle.Asn1.Iana
 {
 	public abstract class IanaObjectIdentifiers
 	{

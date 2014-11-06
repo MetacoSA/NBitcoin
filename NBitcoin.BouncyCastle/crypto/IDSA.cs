@@ -1,7 +1,7 @@
 using System;
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
     /**
      * interface for classes implementing the Digital Signature Algorithm

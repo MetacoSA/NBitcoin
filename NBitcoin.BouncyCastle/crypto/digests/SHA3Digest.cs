@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Digests
+namespace NBitcoin.BouncyCastle.Crypto.Digests
 {
     /// <summary>
     /// Implementation of SHA-3 based on following KeccakNISTInterface.c from http://keccak.noekeon.org/

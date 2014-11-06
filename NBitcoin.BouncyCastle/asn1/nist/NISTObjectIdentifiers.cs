@@ -1,6 +1,6 @@
-using Org.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.Asn1.Nist
+namespace NBitcoin.BouncyCastle.Asn1.Nist
 {
     public sealed class NistObjectIdentifiers
     {

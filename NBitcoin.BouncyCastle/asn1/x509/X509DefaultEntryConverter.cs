@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace NBitcoin.BouncyCastle.Asn1.X509
 {
     /**
      * The default converter for X509 DN entries when going from their

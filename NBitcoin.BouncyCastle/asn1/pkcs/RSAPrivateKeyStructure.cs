@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.Pkcs
+namespace NBitcoin.BouncyCastle.Asn1.Pkcs
 {
     public class RsaPrivateKeyStructure
         : Asn1Encodable
@@ -52,7 +52,6 @@ namespace Org.BouncyCastle.Asn1.Pkcs
             this.coefficient = coefficient;
         }
 
-        [Obsolete("Use 'GetInstance' method(s) instead")]
         public RsaPrivateKeyStructure(
             Asn1Sequence seq)
         {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Esf
+namespace NBitcoin.BouncyCastle.Asn1.Esf
 {
 	/// <remarks>
 	/// RFC 3126: 4.2.2 Complete Revocation Refs Attribute Definition

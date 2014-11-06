@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Crypto.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Engines
+namespace NBitcoin.BouncyCastle.Crypto.Engines
 {
     /**
     * Implementation of Bob Jenkin's ISAAC (Indirection Shift Accumulate Add and Count).

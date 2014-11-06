@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Cms
+namespace NBitcoin.BouncyCastle.Asn1.Cms
 {
 	public class KeyAgreeRecipientIdentifier
 		: Asn1Encodable, IAsn1Choice

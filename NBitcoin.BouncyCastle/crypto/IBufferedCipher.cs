@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
 	/// <remarks>Block cipher engines are expected to conform to this interface.</remarks>
     public interface IBufferedCipher

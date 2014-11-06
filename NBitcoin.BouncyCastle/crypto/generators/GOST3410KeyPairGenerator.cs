@@ -1,12 +1,12 @@
 using System;
 
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC.Multiplier;
-using Org.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Asn1.CryptoPro;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math.EC.Multiplier;
+using NBitcoin.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Generators
+namespace NBitcoin.BouncyCastle.Crypto.Generators
 {
     /**
      * a GOST3410 key pair generator.

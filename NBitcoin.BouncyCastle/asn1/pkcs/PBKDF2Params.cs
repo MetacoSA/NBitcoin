@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.Pkcs
+namespace NBitcoin.BouncyCastle.Asn1.Pkcs
 {
 	public class Pbkdf2Params
 		: Asn1Encodable

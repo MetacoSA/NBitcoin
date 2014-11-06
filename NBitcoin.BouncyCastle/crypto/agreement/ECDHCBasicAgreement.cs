@@ -1,11 +1,11 @@
 using System;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
 
-namespace Org.BouncyCastle.Crypto.Agreement
+namespace NBitcoin.BouncyCastle.Crypto.Agreement
 {
     /**
      * P1363 7.2.2 ECSVDP-DHC

@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.X9
+namespace NBitcoin.BouncyCastle.Asn1.X9
 {
     /**
      * ASN.1 def for Elliptic-Curve Field ID structure. See

@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
     /**
      * all parameter classes implement this.

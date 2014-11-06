@@ -2,9 +2,9 @@ using System;
 using System.Globalization;
 using System.Text;
 
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
     /**
      * Generalized time object.

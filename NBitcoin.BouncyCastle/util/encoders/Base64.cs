@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Org.BouncyCastle.Utilities.Encoders
+namespace NBitcoin.BouncyCastle.Utilities.Encoders
 {
     public sealed class Base64
     {

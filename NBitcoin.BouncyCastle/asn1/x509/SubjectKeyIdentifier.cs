@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Digests;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto.Digests;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace NBitcoin.BouncyCastle.Asn1.X509
 {
     /**
      * The SubjectKeyIdentifier object.

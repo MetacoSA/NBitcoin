@@ -1,10 +1,10 @@
 using System;
 using System.Globalization;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Math.EC;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
     public class ECPublicKeyParameters
         : ECKeyParameters

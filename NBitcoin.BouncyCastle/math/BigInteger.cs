@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math
+namespace NBitcoin.BouncyCastle.Math
 {
 #if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT)
     [Serializable]

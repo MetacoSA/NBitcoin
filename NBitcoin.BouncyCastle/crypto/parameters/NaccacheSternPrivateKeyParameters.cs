@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
 	/**
 	 * Private key parameters for NaccacheStern cipher. For details on this cipher,

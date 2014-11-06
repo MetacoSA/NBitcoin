@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Asn1.Pkcs
+namespace NBitcoin.BouncyCastle.Asn1.Pkcs
 {
     /**
      * a Pkcs#7 signer info object.

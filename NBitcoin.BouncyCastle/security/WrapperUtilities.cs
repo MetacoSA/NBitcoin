@@ -1,16 +1,16 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Kisa;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Ntt;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.Kisa;
+using NBitcoin.BouncyCastle.Asn1.Nist;
+using NBitcoin.BouncyCastle.Asn1.Ntt;
+using NBitcoin.BouncyCastle.Asn1.Pkcs;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto.Engines;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Security
+namespace NBitcoin.BouncyCastle.Security
 {
     /// <remarks>
     ///  Utility class for creating IWrapper objects from their names/Oids

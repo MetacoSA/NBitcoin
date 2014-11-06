@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
 
-using Org.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.Asn1.Cms
+namespace NBitcoin.BouncyCastle.Asn1.Cms
 {
     public class Time
         : Asn1Encodable, IAsn1Choice

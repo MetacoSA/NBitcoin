@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Tsp
+namespace NBitcoin.BouncyCastle.Asn1.Tsp
 {
 	public class Accuracy
 		: Asn1Encodable

@@ -4,14 +4,14 @@ using System;
 using System.Security.Cryptography;
 using SystemX509 = System.Security.Cryptography.X509Certificates;
 
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Asn1.Pkcs;
+using NBitcoin.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Security
+namespace NBitcoin.BouncyCastle.Security
 {
 	/// <summary>
 	/// A class containing methods to interface the BouncyCastle world to the .NET Crypto world.

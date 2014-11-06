@@ -1,20 +1,20 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Sec;
-using Org.BouncyCastle.Asn1.TeleTrust;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.EC;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
-using Org.BouncyCastle.Math.EC.Multiplier;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.Nist;
+using NBitcoin.BouncyCastle.Asn1.Sec;
+using NBitcoin.BouncyCastle.Asn1.TeleTrust;
+using NBitcoin.BouncyCastle.Asn1.X9;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto.EC;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Math.EC.Multiplier;
+using NBitcoin.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Generators
+namespace NBitcoin.BouncyCastle.Crypto.Generators
 {
     public class ECKeyPairGenerator
         : IAsymmetricCipherKeyPairGenerator

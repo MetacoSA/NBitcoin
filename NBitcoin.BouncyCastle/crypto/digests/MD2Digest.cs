@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Digests
+namespace NBitcoin.BouncyCastle.Crypto.Digests
 {
 
     /**

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Asn1.Cmp
+namespace NBitcoin.BouncyCastle.Asn1.Cmp
 {
     /**
      * Example InfoTypeAndValue contents include, but are not limited

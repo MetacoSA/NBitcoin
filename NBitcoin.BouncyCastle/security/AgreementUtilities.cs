@@ -1,14 +1,14 @@
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Agreement;
-using Org.BouncyCastle.Crypto.Agreement.Kdf;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.X9;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto.Agreement;
+using NBitcoin.BouncyCastle.Crypto.Agreement.Kdf;
+using NBitcoin.BouncyCastle.Crypto.Digests;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Security
+namespace NBitcoin.BouncyCastle.Security
 {
 	/// <remarks>
 	///  Utility class for creating IBasicAgreement objects from their names/Oids

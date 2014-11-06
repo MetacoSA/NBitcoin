@@ -1,6 +1,6 @@
-using Org.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
 
-namespace Org.BouncyCastle.Crypto.Modes
+namespace NBitcoin.BouncyCastle.Crypto.Modes
 {
 	/// <summary>
 	/// A block cipher mode that includes authenticated encryption with a streaming mode

@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math.Field
+namespace NBitcoin.BouncyCastle.Math.Field
 {
     internal class GF2Polynomial
         : IPolynomial

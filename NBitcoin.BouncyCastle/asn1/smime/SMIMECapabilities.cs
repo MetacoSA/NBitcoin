@@ -1,13 +1,13 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.Pkcs;
+using NBitcoin.BouncyCastle.Asn1.X509;
 
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1.Smime
+namespace NBitcoin.BouncyCastle.Asn1.Smime
 {
     /**
      * Handler class for dealing with S/MIME Capabilities

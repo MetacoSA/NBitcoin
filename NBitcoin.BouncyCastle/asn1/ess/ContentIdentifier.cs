@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Ess
+namespace NBitcoin.BouncyCastle.Asn1.Ess
 {
 	public class ContentIdentifier
 		: Asn1Encodable

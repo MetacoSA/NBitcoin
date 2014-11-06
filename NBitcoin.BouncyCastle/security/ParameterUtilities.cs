@@ -1,19 +1,19 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.Kisa;
-using Org.BouncyCastle.Asn1.Misc;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Ntt;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.CryptoPro;
+using NBitcoin.BouncyCastle.Asn1.Kisa;
+using NBitcoin.BouncyCastle.Asn1.Misc;
+using NBitcoin.BouncyCastle.Asn1.Nist;
+using NBitcoin.BouncyCastle.Asn1.Ntt;
+using NBitcoin.BouncyCastle.Asn1.Oiw;
+using NBitcoin.BouncyCastle.Asn1.Pkcs;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Security
+namespace NBitcoin.BouncyCastle.Security
 {
     public sealed class ParameterUtilities
     {

@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Crypto.Digests;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Signers
+namespace NBitcoin.BouncyCastle.Crypto.Signers
 {
 	/// <summary> RSA-PSS as described in Pkcs# 1 v 2.1.
 	/// <p>

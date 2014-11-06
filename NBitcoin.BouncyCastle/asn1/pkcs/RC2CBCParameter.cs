@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1.Pkcs
+namespace NBitcoin.BouncyCastle.Asn1.Pkcs
 {
     public class RC2CbcParameter
         : Asn1Encodable

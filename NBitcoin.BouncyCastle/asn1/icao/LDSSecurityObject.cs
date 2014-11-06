@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.Icao
+namespace NBitcoin.BouncyCastle.Asn1.Icao
 {
 	/**
 	 * The LDSSecurityObject object (V1.8).

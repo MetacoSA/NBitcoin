@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1.Cmp;
-using Org.BouncyCastle.Asn1.Cms;
+using NBitcoin.BouncyCastle.Asn1.Cmp;
+using NBitcoin.BouncyCastle.Asn1.Cms;
 
-namespace Org.BouncyCastle.Asn1.Tsp
+namespace NBitcoin.BouncyCastle.Asn1.Tsp
 {
 	public class TimeStampResp
 		: Asn1Encodable

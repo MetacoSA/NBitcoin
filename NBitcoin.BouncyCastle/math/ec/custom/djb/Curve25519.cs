@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Org.BouncyCastle.Math.EC.Custom.Sec;
-using Org.BouncyCastle.Utilities.Encoders;
+using NBitcoin.BouncyCastle.Math.EC.Custom.Sec;
+using NBitcoin.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Math.EC.Custom.Djb
+namespace NBitcoin.BouncyCastle.Math.EC.Custom.Djb
 {
     internal class Curve25519
         : AbstractFpCurve

@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Modes.Gcm
+namespace NBitcoin.BouncyCastle.Crypto.Modes.Gcm
 {
 	public class Tables1kGcmExponentiator
 		: IGcmExponentiator

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Utilities
+namespace NBitcoin.BouncyCastle.Utilities
 {
     public sealed class Times
     {

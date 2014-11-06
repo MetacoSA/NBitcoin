@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Utilities.Encoders
+namespace NBitcoin.BouncyCastle.Utilities.Encoders
 {
     public class HexEncoder
         : IEncoder

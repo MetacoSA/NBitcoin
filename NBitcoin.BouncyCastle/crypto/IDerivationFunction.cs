@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
     /**
      * base interface for general purpose byte derivation functions.

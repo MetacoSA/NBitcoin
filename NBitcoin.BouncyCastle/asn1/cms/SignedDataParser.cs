@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Asn1.Cms
+namespace NBitcoin.BouncyCastle.Asn1.Cms
 {
 	/**
 	* <pre>

@@ -1,4 +1,4 @@
-namespace Org.BouncyCastle.Asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
 	public abstract class DerStringBase
 		: Asn1Object, IAsn1String

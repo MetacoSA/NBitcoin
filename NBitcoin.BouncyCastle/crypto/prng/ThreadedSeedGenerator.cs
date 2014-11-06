@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace Org.BouncyCastle.Crypto.Prng
+namespace NBitcoin.BouncyCastle.Crypto.Prng
 {
 	/**
 	 * A thread based seed generator - one source of randomness.

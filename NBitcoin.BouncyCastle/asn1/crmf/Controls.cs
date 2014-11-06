@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Crmf
+namespace NBitcoin.BouncyCastle.Asn1.Crmf
 {
     public class Controls
         : Asn1Encodable

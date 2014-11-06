@@ -1,8 +1,8 @@
 using System.IO;
 
-using Org.BouncyCastle.Utilities.IO;
+using NBitcoin.BouncyCastle.Utilities.IO;
 
-namespace Org.BouncyCastle.Asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
     internal abstract class LimitedInputStream
         : BaseInputStream

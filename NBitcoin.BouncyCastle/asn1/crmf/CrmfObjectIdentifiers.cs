@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Asn1.Pkcs;
+using NBitcoin.BouncyCastle.Asn1.Pkcs;
 
-namespace Org.BouncyCastle.Asn1.Crmf
+namespace NBitcoin.BouncyCastle.Asn1.Crmf
 {
     public abstract class CrmfObjectIdentifiers
     {

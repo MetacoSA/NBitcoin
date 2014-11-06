@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Math.EC
+namespace NBitcoin.BouncyCastle.Math.EC
 {
     public interface ECPointMap
     {

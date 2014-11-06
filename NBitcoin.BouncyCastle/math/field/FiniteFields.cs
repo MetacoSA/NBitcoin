@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Math.Field
+namespace NBitcoin.BouncyCastle.Math.Field
 {
     public abstract class FiniteFields
     {

@@ -1,7 +1,7 @@
 using System;
-using Org.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
     public class RC5Parameters
 		: KeyParameter

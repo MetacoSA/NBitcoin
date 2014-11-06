@@ -1,7 +1,7 @@
 using System;
-using Org.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
 	/**
 	* parameters for Key derivation functions for ISO-18033

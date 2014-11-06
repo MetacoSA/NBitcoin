@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
 
-namespace Org.BouncyCastle.Crypto.Engines
+namespace NBitcoin.BouncyCastle.Crypto.Engines
 {
     /**
     * A class that provides a basic International Data Encryption Algorithm (IDEA) engine.

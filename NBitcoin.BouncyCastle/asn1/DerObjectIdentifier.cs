@@ -3,10 +3,10 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
     public class DerObjectIdentifier
         : Asn1Object

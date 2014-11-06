@@ -1,4 +1,4 @@
-﻿namespace Org.BouncyCastle.Math.EC.Multiplier
+﻿namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 {
     public class ZSignedDigitL2RMultiplier 
         : AbstractECMultiplier

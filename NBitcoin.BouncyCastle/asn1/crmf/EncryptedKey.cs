@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Asn1.Cms;
+using NBitcoin.BouncyCastle.Asn1.Cms;
 
-namespace Org.BouncyCastle.Asn1.Crmf
+namespace NBitcoin.BouncyCastle.Asn1.Crmf
 {
     public class EncryptedKey
         : Asn1Encodable, IAsn1Choice

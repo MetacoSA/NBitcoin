@@ -1,15 +1,15 @@
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Iana;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Macs;
-using Org.BouncyCastle.Crypto.Paddings;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.Iana;
+using NBitcoin.BouncyCastle.Asn1.Pkcs;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto.Engines;
+using NBitcoin.BouncyCastle.Crypto.Macs;
+using NBitcoin.BouncyCastle.Crypto.Paddings;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Security
+namespace NBitcoin.BouncyCastle.Security
 {
     /// <remarks>
     ///  Utility class for creating HMac object from their names/Oids

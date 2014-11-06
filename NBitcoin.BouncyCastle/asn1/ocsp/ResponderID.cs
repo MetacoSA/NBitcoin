@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Asn1.Ocsp
+namespace NBitcoin.BouncyCastle.Asn1.Ocsp
 {
     public class ResponderID
         : Asn1Encodable, IAsn1Choice

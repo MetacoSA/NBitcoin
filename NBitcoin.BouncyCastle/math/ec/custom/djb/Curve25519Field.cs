@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 
-using Org.BouncyCastle.Math.EC.Custom.Sec;
+using NBitcoin.BouncyCastle.Math.EC.Custom.Sec;
 
-namespace Org.BouncyCastle.Math.EC.Custom.Djb
+namespace NBitcoin.BouncyCastle.Math.EC.Custom.Djb
 {
     internal class Curve25519Field
     {

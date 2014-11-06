@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Utilities.IO
+namespace NBitcoin.BouncyCastle.Utilities.IO
 {
 #if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT)
     [Serializable]

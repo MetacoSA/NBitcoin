@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace NBitcoin.BouncyCastle.Asn1.X509
 {
 	/**
 	 * <code>DisplayText</code> class, used in

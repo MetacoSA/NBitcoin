@@ -1,9 +1,9 @@
-using Org.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1;
 
 using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Asn1.Utilities
+namespace NBitcoin.BouncyCastle.Asn1.Utilities
 {
     public sealed class Dump
     {

@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.Asn1.Esf
+namespace NBitcoin.BouncyCastle.Asn1.Esf
 {
     /**
     * Commitment type qualifiers, used in the Commitment-Type-Indication attribute (RFC3126).

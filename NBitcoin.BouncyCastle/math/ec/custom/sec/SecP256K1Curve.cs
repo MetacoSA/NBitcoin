@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Utilities.Encoders;
+using NBitcoin.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Math.EC.Custom.Sec
+namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 {
     internal class SecP256K1Curve
         : AbstractFpCurve

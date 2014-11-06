@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Utilities.Collections;
+using NBitcoin.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Utilities.IO.Pem
+namespace NBitcoin.BouncyCastle.Utilities.IO.Pem
 {
 	public class PemObject
 		: PemObjectGenerator

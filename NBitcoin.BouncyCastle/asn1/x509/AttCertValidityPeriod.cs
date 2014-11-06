@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace NBitcoin.BouncyCastle.Asn1.X509
 {
     public class AttCertValidityPeriod
         : Asn1Encodable

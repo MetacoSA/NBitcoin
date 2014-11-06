@@ -2,10 +2,10 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-using Org.BouncyCastle.Asn1.Utilities;
-using Org.BouncyCastle.Utilities.IO;
+using NBitcoin.BouncyCastle.Asn1.Utilities;
+using NBitcoin.BouncyCastle.Utilities.IO;
 
-namespace Org.BouncyCastle.Asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
     /**
      * a general purpose ASN.1 decoder - note: this class differs from the

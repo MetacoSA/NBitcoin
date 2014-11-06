@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Collections;
 #endif
 
-namespace Org.BouncyCastle.Utilities
+namespace NBitcoin.BouncyCastle.Utilities
 {
     internal abstract class Platform
     {

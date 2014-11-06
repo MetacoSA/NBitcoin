@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
     public class RsaPrivateCrtKeyParameters
 		: RsaKeyParameters

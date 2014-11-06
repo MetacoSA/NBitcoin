@@ -1,10 +1,10 @@
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Math;
 
 using System;
 using System.Collections;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace NBitcoin.BouncyCastle.Asn1.X509
 {
     public class RsaPublicKeyStructure
         : Asn1Encodable

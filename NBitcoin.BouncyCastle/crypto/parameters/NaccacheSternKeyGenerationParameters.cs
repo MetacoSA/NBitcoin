@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
 	/**
 	 * Parameters for NaccacheStern public private key generation. For details on

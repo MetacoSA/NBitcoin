@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math.EC.Abc;
+using NBitcoin.BouncyCastle.Math.EC.Abc;
 
-namespace Org.BouncyCastle.Math.EC.Multiplier
+namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 {
     /**
     * Class implementing the WTNAF (Window
@@ -15,7 +15,7 @@ namespace Org.BouncyCastle.Math.EC.Multiplier
         internal static readonly string PRECOMP_NAME = "bc_wtnaf";
 
         /**
-        * Multiplies a {@link org.bouncycastle.math.ec.F2mPoint F2mPoint}
+        * Multiplies a {@link NBitcoin.BouncyCastle.math.ec.F2mPoint F2mPoint}
         * by <code>k</code> using the reduced <code>&#964;</code>-adic NAF (RTNAF)
         * method.
         * @param p The F2mPoint to multiply.
@@ -40,7 +40,7 @@ namespace Org.BouncyCastle.Math.EC.Multiplier
         }
 
         /**
-        * Multiplies a {@link org.bouncycastle.math.ec.F2mPoint F2mPoint}
+        * Multiplies a {@link NBitcoin.BouncyCastle.math.ec.F2mPoint F2mPoint}
         * by an element <code>&#955;</code> of <code><b>Z</b>[&#964;]</code> using
         * the <code>&#964;</code>-adic NAF (TNAF) method.
         * @param p The F2mPoint to multiply.
@@ -63,7 +63,7 @@ namespace Org.BouncyCastle.Math.EC.Multiplier
         }
         
         /**
-        * Multiplies a {@link org.bouncycastle.math.ec.F2mPoint F2mPoint}
+        * Multiplies a {@link NBitcoin.BouncyCastle.math.ec.F2mPoint F2mPoint}
         * by an element <code>&#955;</code> of <code><b>Z</b>[&#964;]</code>
         * using the window <code>&#964;</code>-adic NAF (TNAF) method, given the
         * WTNAF of <code>&#955;</code>.

@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.Cmp
+namespace NBitcoin.BouncyCastle.Asn1.Cmp
 {
 	public class CertStatus
 		: Asn1Encodable

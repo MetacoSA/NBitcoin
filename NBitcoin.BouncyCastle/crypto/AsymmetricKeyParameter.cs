@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto;
 
-namespace Org.BouncyCastle.Crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
     public abstract class AsymmetricKeyParameter
 		: ICipherParameters

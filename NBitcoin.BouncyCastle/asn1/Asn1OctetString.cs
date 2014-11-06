@@ -2,10 +2,10 @@ using System;
 using System.Collections;
 using System.IO;
 
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using NBitcoin.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
     public abstract class Asn1OctetString
         : Asn1Object, Asn1OctetStringParser

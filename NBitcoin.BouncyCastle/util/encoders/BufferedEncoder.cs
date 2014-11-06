@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Utilities.Encoders
+namespace NBitcoin.BouncyCastle.Utilities.Encoders
 {
     /// <summary>
     /// A class that allows encoding of data using a specific encoder to be processed in chunks.

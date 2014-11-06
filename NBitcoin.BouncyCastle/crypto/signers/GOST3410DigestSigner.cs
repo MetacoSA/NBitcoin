@@ -3,13 +3,13 @@ using System.Collections;
 using System.IO;
 using System.Text;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Crypto.Signers;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Crypto.Signers;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Signers
+namespace NBitcoin.BouncyCastle.Crypto.Signers
 {
 	public class Gost3410DigestSigner
 		: ISigner

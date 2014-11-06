@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 
-using Org.BouncyCastle.Crypto.Utilities;
+using NBitcoin.BouncyCastle.Crypto.Utilities;
 
-namespace Org.BouncyCastle.Math.EC.Custom.Sec
+namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 {
     internal abstract class Nat224
     {

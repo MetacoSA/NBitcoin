@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Engines
+namespace NBitcoin.BouncyCastle.Crypto.Engines
 {
 	/**
 	* NaccacheStern Engine. For details on this cipher, please see
@@ -30,8 +30,8 @@ namespace Org.BouncyCastle.Crypto.Engines
 		/**
 		* Initializes this algorithm. Must be called before all other Functions.
 		*
-		* @see org.bouncycastle.crypto.AsymmetricBlockCipher#init(bool,
-		*      org.bouncycastle.crypto.CipherParameters)
+		* @see NBitcoin.BouncyCastle.crypto.AsymmetricBlockCipher#init(bool,
+		*      NBitcoin.BouncyCastle.crypto.CipherParameters)
 		*/
 		public void Init(
 			bool				forEncryption,
@@ -91,7 +91,7 @@ namespace Org.BouncyCastle.Crypto.Engines
 		/**
 		* Returns the input block size of this algorithm.
 		*
-		* @see org.bouncycastle.crypto.AsymmetricBlockCipher#GetInputBlockSize()
+		* @see NBitcoin.BouncyCastle.crypto.AsymmetricBlockCipher#GetInputBlockSize()
 		*/
 		public int GetInputBlockSize()
 		{
@@ -111,7 +111,7 @@ namespace Org.BouncyCastle.Crypto.Engines
 		/**
 		* Returns the output block size of this algorithm.
 		*
-		* @see org.bouncycastle.crypto.AsymmetricBlockCipher#GetOutputBlockSize()
+		* @see NBitcoin.BouncyCastle.crypto.AsymmetricBlockCipher#GetOutputBlockSize()
 		*/
 		public int GetOutputBlockSize()
 		{
@@ -131,7 +131,7 @@ namespace Org.BouncyCastle.Crypto.Engines
 		/**
 		* Process a single Block using the Naccache-Stern algorithm.
 		*
-		* @see org.bouncycastle.crypto.AsymmetricBlockCipher#ProcessBlock(byte[],
+		* @see NBitcoin.BouncyCastle.crypto.AsymmetricBlockCipher#ProcessBlock(byte[],
 		*      int, int)
 		*/
 		public byte[] ProcessBlock(

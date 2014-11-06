@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Utilities.IO
+namespace NBitcoin.BouncyCastle.Utilities.IO
 {
 	public sealed class Streams
 	{

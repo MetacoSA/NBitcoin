@@ -3,9 +3,9 @@ using System.Collections;
 using System.IO;
 using System.Text;
 
-using Org.BouncyCastle.Utilities.Encoders;
+using NBitcoin.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Utilities.IO.Pem
+namespace NBitcoin.BouncyCastle.Utilities.IO.Pem
 {
 	public class PemReader
 	{

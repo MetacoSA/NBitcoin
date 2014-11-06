@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Asn1.Oiw;
+using NBitcoin.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Asn1.Esf
+namespace NBitcoin.BouncyCastle.Asn1.Esf
 {
 	/// <remarks>
 	/// <code>

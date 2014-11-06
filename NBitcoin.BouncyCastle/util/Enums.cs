@@ -6,9 +6,9 @@ using System.Collections;
 using System.Reflection;
 #endif
 
-using Org.BouncyCastle.Utilities.Date;
+using NBitcoin.BouncyCastle.Utilities.Date;
 
-namespace Org.BouncyCastle.Utilities
+namespace NBitcoin.BouncyCastle.Utilities
 {
     internal abstract class Enums
     {

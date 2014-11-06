@@ -1,6 +1,6 @@
-using Org.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.Asn1.Ocsp
+namespace NBitcoin.BouncyCastle.Asn1.Ocsp
 {
     public abstract class OcspObjectIdentifiers
     {

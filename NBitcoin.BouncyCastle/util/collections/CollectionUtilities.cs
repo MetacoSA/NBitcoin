@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Text;
 
-namespace Org.BouncyCastle.Utilities.Collections
+namespace NBitcoin.BouncyCastle.Utilities.Collections
 {
     public abstract class CollectionUtilities
     {

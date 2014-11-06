@@ -1,6 +1,6 @@
 ﻿using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using Org.BouncyCastle.Crypto.Digests;
+using NBitcoin.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -216,7 +216,7 @@ namespace NBitcoin
 			ms.Write(bytes, 0, bytes.Length);
 		}
 
-		internal static Array BigIntegerToBytes(Org.BouncyCastle.Math.BigInteger b, int numBytes)
+		internal static Array BigIntegerToBytes(NBitcoin.BouncyCastle.Math.BigInteger b, int numBytes)
 		{
 			if(b == null)
 			{

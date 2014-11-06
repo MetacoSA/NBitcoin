@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-namespace Org.BouncyCastle.Asn1.Cmp
+namespace NBitcoin.BouncyCastle.Asn1.Cmp
 {
 	public class PkiFreeText
 		: Asn1Encodable

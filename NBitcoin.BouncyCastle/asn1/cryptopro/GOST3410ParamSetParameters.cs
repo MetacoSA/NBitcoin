@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.CryptoPro
+namespace NBitcoin.BouncyCastle.Asn1.CryptoPro
 {
     public class Gost3410ParamSetParameters
         : Asn1Encodable

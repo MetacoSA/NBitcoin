@@ -3,9 +3,9 @@ using System.Collections;
 using System.Diagnostics;
 using System.Text;
 
-using Org.BouncyCastle.Math.EC.Multiplier;
+using NBitcoin.BouncyCastle.Math.EC.Multiplier;
 
-namespace Org.BouncyCastle.Math.EC
+namespace NBitcoin.BouncyCastle.Math.EC
 {
     /**
      * base class for points on elliptic curves.
@@ -102,7 +102,6 @@ namespace Org.BouncyCastle.Math.EC
          * Note: normalization can be expensive, this method is deprecated in favour
          * of caller-controlled normalization.
          */
-        [Obsolete("Use AffineXCoord, or Normalize() and XCoord, instead")]
         public virtual ECFieldElement X
         {
             get { return Normalize().XCoord; }
@@ -114,7 +113,6 @@ namespace Org.BouncyCastle.Math.EC
          * Note: normalization can be expensive, this method is deprecated in favour
          * of caller-controlled normalization.
          */
-        [Obsolete("Use AffineYCoord, or Normalize() and YCoord, instead")]
         public virtual ECFieldElement Y
         {
             get { return Normalize().YCoord; }
@@ -1598,7 +1596,7 @@ namespace Org.BouncyCastle.Math.EC
         }
 
         /* (non-Javadoc)
-         * @see org.bouncycastle.math.ec.ECPoint#add(org.bouncycastle.math.ec.ECPoint)
+         * @see NBitcoin.BouncyCastle.math.ec.ECPoint#add(NBitcoin.BouncyCastle.math.ec.ECPoint)
          */
         public override ECPoint Add(ECPoint b)
         {
@@ -1801,7 +1799,7 @@ namespace Org.BouncyCastle.Math.EC
         }
 
         /* (non-Javadoc)
-         * @see org.bouncycastle.math.ec.ECPoint#subtract(org.bouncycastle.math.ec.ECPoint)
+         * @see NBitcoin.BouncyCastle.math.ec.ECPoint#subtract(NBitcoin.BouncyCastle.math.ec.ECPoint)
          */
         public override ECPoint Subtract(
             ECPoint b)
@@ -1863,7 +1861,7 @@ namespace Org.BouncyCastle.Math.EC
         }
 
         /* (non-Javadoc)
-         * @see Org.BouncyCastle.Math.EC.ECPoint#twice()
+         * @see NBitcoin.BouncyCastle.Math.EC.ECPoint#twice()
          */
         public override ECPoint Twice()
         {

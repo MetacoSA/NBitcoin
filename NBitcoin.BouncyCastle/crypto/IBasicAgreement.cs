@@ -1,7 +1,7 @@
 using System;
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
     /**
      * The basic interface that basic Diffie-Hellman implementations

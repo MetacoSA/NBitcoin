@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.Asn1.Ocsp
+namespace NBitcoin.BouncyCastle.Asn1.Ocsp
 {
     public class CertStatus
         : Asn1Encodable, IAsn1Choice

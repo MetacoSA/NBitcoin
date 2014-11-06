@@ -1,5 +1,5 @@
 
-namespace Org.BouncyCastle.Asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
 	/**
 	 * Marker interface for CHOICE objects - if you implement this in a roll-your-own

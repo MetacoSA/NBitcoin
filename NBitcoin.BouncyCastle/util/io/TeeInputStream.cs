@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace Org.BouncyCastle.Utilities.IO
+namespace NBitcoin.BouncyCastle.Utilities.IO
 {
 	public class TeeInputStream
 		: BaseInputStream

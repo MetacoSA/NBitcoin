@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.Crypto.Agreement.Kdf
+namespace NBitcoin.BouncyCastle.Crypto.Agreement.Kdf
 {
 	public class DHKdfParameters
 		: IDerivationParameters

@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace NBitcoin.BouncyCastle.Asn1.X509
 {
     /**
      * class for breaking up an X500 Name into it's component tokens, ala

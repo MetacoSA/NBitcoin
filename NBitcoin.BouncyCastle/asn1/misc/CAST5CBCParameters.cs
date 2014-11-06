@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1.Misc
+namespace NBitcoin.BouncyCastle.Asn1.Misc
 {
     public class Cast5CbcParameters
         : Asn1Encodable

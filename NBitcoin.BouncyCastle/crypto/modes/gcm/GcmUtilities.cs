@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Crypto.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Modes.Gcm
+namespace NBitcoin.BouncyCastle.Crypto.Modes.Gcm
 {
     internal abstract class GcmUtilities
     {

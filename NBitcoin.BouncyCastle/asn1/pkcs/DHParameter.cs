@@ -1,10 +1,10 @@
-using Org.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1;
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.Pkcs
+namespace NBitcoin.BouncyCastle.Asn1.Pkcs
 {
     public class DHParameter
         : Asn1Encodable

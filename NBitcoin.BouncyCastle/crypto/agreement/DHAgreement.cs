@@ -1,12 +1,12 @@
 using System;
 using System.Diagnostics;
 
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Crypto.Generators;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Agreement
+namespace NBitcoin.BouncyCastle.Crypto.Agreement
 {
 	/**
 	 * a Diffie-Hellman key exchange engine.

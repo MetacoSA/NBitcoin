@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
 #if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT)
     [Serializable]

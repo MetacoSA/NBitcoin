@@ -1,8 +1,8 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Crypto.Signers;
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Crypto.Signers;
+using NBitcoin.BouncyCastle.Math;
 using System;
 using System.Collections.Generic;
 using System.IO;

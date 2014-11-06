@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.Cms
+namespace NBitcoin.BouncyCastle.Asn1.Cms
 {
     public class IssuerAndSerialNumber
         : Asn1Encodable
@@ -22,7 +22,6 @@ namespace Org.BouncyCastle.Asn1.Cms
             return new IssuerAndSerialNumber(Asn1Sequence.GetInstance(obj));
         }
 
-        [Obsolete("Use GetInstance() instead")]
         public IssuerAndSerialNumber(
             Asn1Sequence seq)
         {

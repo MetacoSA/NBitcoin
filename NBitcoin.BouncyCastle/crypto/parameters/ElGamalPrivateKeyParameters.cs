@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
     public class ElGamalPrivateKeyParameters
 		: ElGamalKeyParameters

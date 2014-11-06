@@ -1,10 +1,10 @@
 using System;
-//using Org.BouncyCastle.Math;
-//using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
+//using NBitcoin.BouncyCastle.Math;
+//using NBitcoin.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
 
-namespace Org.BouncyCastle.Crypto.Generators
+namespace NBitcoin.BouncyCastle.Crypto.Generators
 {
     /**
     * Generator for MGF1 as defined in Pkcs 1v2

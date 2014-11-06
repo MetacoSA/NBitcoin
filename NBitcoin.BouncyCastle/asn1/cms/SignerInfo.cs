@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Asn1.Cms
+namespace NBitcoin.BouncyCastle.Asn1.Cms
 {
     public class SignerInfo
         : Asn1Encodable
@@ -63,7 +63,6 @@ namespace Org.BouncyCastle.Asn1.Cms
             this.unauthenticatedAttributes = Asn1Set.GetInstance(unauthenticatedAttributes);
         }
 
-        [Obsolete("Use 'GetInstance' instead")]
         public SignerInfo(
             Asn1Sequence seq)
         {

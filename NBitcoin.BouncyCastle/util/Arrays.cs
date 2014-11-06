@@ -1,9 +1,9 @@
 using System;
 using System.Text;
 
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Utilities
+namespace NBitcoin.BouncyCastle.Utilities
 {
     /// <summary> General array utilities.</summary>
     public abstract class Arrays
@@ -97,7 +97,6 @@ namespace Org.BouncyCastle.Utilities
             return HaveSameContents(a, b);
         }
 
-        [CLSCompliantAttribute(false)]
         public static bool AreEqual(uint[] a, uint[] b)
         {
             if (a == b)

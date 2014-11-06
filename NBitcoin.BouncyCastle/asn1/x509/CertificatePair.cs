@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace NBitcoin.BouncyCastle.Asn1.X509
 {
 	/**
 	* This class helps to support crossCerfificatePairs in a LDAP directory

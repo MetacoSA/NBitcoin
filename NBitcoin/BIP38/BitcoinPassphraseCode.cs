@@ -1,7 +1,7 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math.EC;
 using System;
 using System.Collections.Generic;
 using System.Linq;

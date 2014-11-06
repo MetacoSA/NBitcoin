@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Sec;
-using Org.BouncyCastle.Asn1.TeleTrust;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
+using NBitcoin.BouncyCastle.Asn1.Nist;
+using NBitcoin.BouncyCastle.Asn1.Sec;
+using NBitcoin.BouncyCastle.Asn1.TeleTrust;
+using NBitcoin.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Asn1.X9
+namespace NBitcoin.BouncyCastle.Asn1.X9
 {
     /**
      * A general class that reads all X9.62 style EC curve tables.

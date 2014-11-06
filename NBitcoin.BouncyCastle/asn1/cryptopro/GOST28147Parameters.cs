@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.Asn1.CryptoPro
+namespace NBitcoin.BouncyCastle.Asn1.CryptoPro
 {
     public class Gost28147Parameters
         : Asn1Encodable

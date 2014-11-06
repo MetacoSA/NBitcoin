@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace Org.BouncyCastle.Asn1.X9
+namespace NBitcoin.BouncyCastle.Asn1.X9
 {
     /**
      * ANS.1 def for Diffie-Hellman key exchange OtherInfo structure. See

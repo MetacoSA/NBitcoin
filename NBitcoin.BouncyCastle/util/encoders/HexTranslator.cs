@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Utilities.Encoders
+namespace NBitcoin.BouncyCastle.Utilities.Encoders
 {
     /// <summary>
     /// A hex translator.

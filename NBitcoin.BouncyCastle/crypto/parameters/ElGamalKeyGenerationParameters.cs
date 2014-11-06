@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
     public class ElGamalKeyGenerationParameters
 		: KeyGenerationParameters

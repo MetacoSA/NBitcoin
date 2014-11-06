@@ -1,9 +1,9 @@
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.X509;
 
 using System;
 
-namespace Org.BouncyCastle.Asn1.Ocsp
+namespace NBitcoin.BouncyCastle.Asn1.Ocsp
 {
     public class SingleResponse
         : Asn1Encodable

@@ -1,8 +1,8 @@
 using System;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Paddings
+namespace NBitcoin.BouncyCastle.Crypto.Paddings
 {
 
     /// <summary> A padder that adds Null byte padding to a block.</summary>

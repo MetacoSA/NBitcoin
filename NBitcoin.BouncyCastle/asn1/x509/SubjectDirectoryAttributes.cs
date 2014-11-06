@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
+using NBitcoin.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace NBitcoin.BouncyCastle.Asn1.X509
 {
 	/**
 	 * This extension may contain further X.500 attributes of the subject. See also
@@ -23,7 +23,7 @@ namespace Org.BouncyCastle.Asn1.X509
 	 *     AttributeValue ::= ANY DEFINED BY AttributeType
 	 * </pre>
 	 *
-	 * @see org.bouncycastle.asn1.x509.X509Name for AttributeType ObjectIdentifiers.
+	 * @see NBitcoin.BouncyCastle.asn1.x509.X509Name for AttributeType ObjectIdentifiers.
 	 */
 	public class SubjectDirectoryAttributes
 		: Asn1Encodable

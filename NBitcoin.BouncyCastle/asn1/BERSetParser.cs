@@ -1,4 +1,4 @@
-namespace Org.BouncyCastle.Asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
 	public class BerSetParser
 		: Asn1SetParser

@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-namespace Org.BouncyCastle.Utilities.Collections
+namespace NBitcoin.BouncyCastle.Utilities.Collections
 {
 	public abstract class UnmodifiableSet
 		: ISet

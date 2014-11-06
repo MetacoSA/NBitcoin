@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Icao
+namespace NBitcoin.BouncyCastle.Asn1.Icao
 {
 	public abstract class IcaoObjectIdentifiers
 	{

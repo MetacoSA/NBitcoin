@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.CryptoPro
+namespace NBitcoin.BouncyCastle.Asn1.CryptoPro
 {
     public class ECGost3410ParamSetParameters
         : Asn1Encodable

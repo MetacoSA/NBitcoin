@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Asn1.Crmf;
-using Org.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Asn1.Crmf;
+using NBitcoin.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Asn1.Cmp
+namespace NBitcoin.BouncyCastle.Asn1.Cmp
 {
 	public class RevDetails
 		: Asn1Encodable

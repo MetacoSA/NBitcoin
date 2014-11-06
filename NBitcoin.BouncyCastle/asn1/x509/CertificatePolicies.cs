@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace NBitcoin.BouncyCastle.Asn1.X509
 {
     public class CertificatePolicies
         : Asn1Encodable

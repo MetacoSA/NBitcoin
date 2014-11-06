@@ -1,14 +1,14 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Crypto.Generators
+namespace NBitcoin.BouncyCastle.Crypto.Generators
 {
 	/**
 	 * Key generation parameters for NaccacheStern cipher. For details on this cipher, please see
@@ -34,7 +34,7 @@ namespace Org.BouncyCastle.Crypto.Generators
 		/*
 		 * (non-Javadoc)
 		 *
-		 * @see org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator#init(org.bouncycastle.crypto.KeyGenerationParameters)
+		 * @see NBitcoin.BouncyCastle.crypto.AsymmetricCipherKeyPairGenerator#init(NBitcoin.BouncyCastle.crypto.KeyGenerationParameters)
 		 */
 		public void Init(KeyGenerationParameters parameters)
 		{
@@ -44,7 +44,7 @@ namespace Org.BouncyCastle.Crypto.Generators
 		/*
 		 * (non-Javadoc)
 		 *
-		 * @see org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator#generateKeyPair()
+		 * @see NBitcoin.BouncyCastle.crypto.AsymmetricCipherKeyPairGenerator#generateKeyPair()
 		 */
 		public AsymmetricCipherKeyPair GenerateKeyPair()
 		{

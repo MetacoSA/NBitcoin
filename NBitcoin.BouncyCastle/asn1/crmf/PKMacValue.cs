@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Org.BouncyCastle.Asn1.Cmp;
-using Org.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Asn1.Cmp;
+using NBitcoin.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Asn1.Crmf
+namespace NBitcoin.BouncyCastle.Asn1.Crmf
 {
     /**
      * Password-based MAC value for use with POPOSigningKeyInput.

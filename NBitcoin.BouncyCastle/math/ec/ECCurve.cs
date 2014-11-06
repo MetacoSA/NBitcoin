@@ -1,13 +1,13 @@
 using System;
 using System.Collections;
 
-using Org.BouncyCastle.Math.EC.Abc;
-using Org.BouncyCastle.Math.EC.Endo;
-using Org.BouncyCastle.Math.EC.Multiplier;
-using Org.BouncyCastle.Math.Field;
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Math.EC.Abc;
+using NBitcoin.BouncyCastle.Math.EC.Endo;
+using NBitcoin.BouncyCastle.Math.EC.Multiplier;
+using NBitcoin.BouncyCastle.Math.Field;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math.EC
+namespace NBitcoin.BouncyCastle.Math.EC
 {
     /// <remarks>Base class for an elliptic curve.</remarks>
     public abstract class ECCurve
@@ -112,7 +112,6 @@ namespace Org.BouncyCastle.Math.EC
             return p;
         }
 
-        [Obsolete("Per-point compression property will be removed")]
         public virtual ECPoint ValidatePoint(BigInteger x, BigInteger y, bool withCompression)
         {
             ECPoint p = CreatePoint(x, y, withCompression);
@@ -128,7 +127,6 @@ namespace Org.BouncyCastle.Math.EC
             return CreatePoint(x, y, false);
         }
 
-        [Obsolete("Per-point compression property will be removed")]
         public virtual ECPoint CreatePoint(BigInteger x, BigInteger y, bool withCompression)
         {
             return CreateRawPoint(FromBigInteger(x), FromBigInteger(y), withCompression);
@@ -880,7 +878,6 @@ namespace Org.BouncyCastle.Math.EC
             return new F2mFieldElement(this.m, this.k1, this.k2, this.k3, x);
         }
 
-        [Obsolete("Per-point compression property will be removed")]
         public override ECPoint CreatePoint(BigInteger x, BigInteger y, bool withCompression)
         {
             ECFieldElement X = FromBigInteger(x), Y = FromBigInteger(y);

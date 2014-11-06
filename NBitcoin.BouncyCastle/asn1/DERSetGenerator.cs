@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace Org.BouncyCastle.Asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
 	public class DerSetGenerator
 		: DerGenerator

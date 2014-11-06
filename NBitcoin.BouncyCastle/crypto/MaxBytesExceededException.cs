@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
 	/// <summary>
 	/// This exception is thrown whenever a cipher requires a change of key, iv

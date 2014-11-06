@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
 
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math.EC
+namespace NBitcoin.BouncyCastle.Math.EC
 {
     public abstract class ECFieldElement
     {
@@ -113,7 +113,6 @@ namespace Org.BouncyCastle.Math.EC
             return null;
         }
 
-        [Obsolete("Use ECCurve.FromBigInteger to construct field elements")]
         public FpFieldElement(BigInteger q, BigInteger x)
             : this(q, CalculateResidue(q), x)
         {

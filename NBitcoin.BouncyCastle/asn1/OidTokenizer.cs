@@ -1,4 +1,4 @@
-namespace Org.BouncyCastle.Asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
     /**
      * class for breaking up an Oid into it's component tokens, ala

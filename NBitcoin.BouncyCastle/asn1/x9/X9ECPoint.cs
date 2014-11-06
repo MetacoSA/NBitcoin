@@ -1,6 +1,6 @@
-using Org.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Math.EC;
 
-namespace Org.BouncyCastle.Asn1.X9
+namespace NBitcoin.BouncyCastle.Asn1.X9
 {
     /**
      * class for describing an ECPoint as a Der object.

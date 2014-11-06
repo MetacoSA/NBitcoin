@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Sec;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
-using Org.BouncyCastle.Math.EC.Custom.Djb;
-using Org.BouncyCastle.Math.EC.Custom.Sec;
-using Org.BouncyCastle.Math.EC.Endo;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
-using Org.BouncyCastle.Utilities.Encoders;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.Sec;
+using NBitcoin.BouncyCastle.Asn1.X9;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Math.EC.Custom.Djb;
+using NBitcoin.BouncyCastle.Math.EC.Custom.Sec;
+using NBitcoin.BouncyCastle.Math.EC.Endo;
+using NBitcoin.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities.Collections;
+using NBitcoin.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Crypto.EC
+namespace NBitcoin.BouncyCastle.Crypto.EC
 {
     public sealed class CustomNamedCurves
     {

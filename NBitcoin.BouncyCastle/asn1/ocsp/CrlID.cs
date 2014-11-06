@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-namespace Org.BouncyCastle.Asn1.Ocsp
+namespace NBitcoin.BouncyCastle.Asn1.Ocsp
 {
     public class CrlID
         : Asn1Encodable

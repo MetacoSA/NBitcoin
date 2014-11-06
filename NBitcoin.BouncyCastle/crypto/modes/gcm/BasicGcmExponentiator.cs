@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Modes.Gcm
+namespace NBitcoin.BouncyCastle.Crypto.Modes.Gcm
 {
 	public class BasicGcmExponentiator
 		: IGcmExponentiator

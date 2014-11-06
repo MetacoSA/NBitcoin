@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Math.EC.Endo
+namespace NBitcoin.BouncyCastle.Math.EC.Endo
 {
     public class GlvTypeBEndomorphism
         :   GlvEndomorphism

@@ -1,4 +1,4 @@
-﻿using Org.BouncyCastle.Crypto.Digests;
+﻿using NBitcoin.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
 using System.IO;

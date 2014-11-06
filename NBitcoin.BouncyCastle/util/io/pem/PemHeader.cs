@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Utilities.IO.Pem
+namespace NBitcoin.BouncyCastle.Utilities.IO.Pem
 {
 	public class PemHeader
 	{

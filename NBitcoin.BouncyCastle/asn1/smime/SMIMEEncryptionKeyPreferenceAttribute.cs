@@ -1,8 +1,8 @@
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Cms;
-using Org.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Asn1.Cms;
+using NBitcoin.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Asn1.Smime
+namespace NBitcoin.BouncyCastle.Asn1.Smime
 {
     /**
      * The SmimeEncryptionKeyPreference object.
