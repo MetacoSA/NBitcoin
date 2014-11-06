@@ -147,7 +147,7 @@ namespace NBitcoin.OpenAsset
 
 		public ColorMarker()
 		{
-
+			Quantities = new ulong[0];
 		}
 		public ColorMarker(Script script)
 		{
