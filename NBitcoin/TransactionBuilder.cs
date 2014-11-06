@@ -225,8 +225,17 @@ namespace NBitcoin
 				var txout = Transaction.Outputs.FirstOrDefault(o => Script.IsNullOrEmpty(o.ScriptPubKey));
 				if(txout == null)
 				{
-					txout = Transaction.AddOutput(new TxOut());
-					txout.Value = Money.Zero;
+					int i = 0;
+					var cm = ColorMarker.Get(Transaction, out i);
+					if (cm == null)
+					{
+						txout = Transaction.AddOutput(new TxOut());
+						txout.Value = Money.Zero;
+					}
+					else
+					{
+						txout = Transaction.Outputs[i];
+					}
 				}
 				return txout;
 			}
