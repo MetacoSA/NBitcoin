@@ -195,21 +195,28 @@ namespace NBitcoin
 		{
 
 		}
-		public Coin(OutPoint outpoint, TxOut txOut)
+		public Coin(OutPoint fromOutpoint, TxOut fromTxOut)
 		{
-			Outpoint = outpoint;
-			TxOut = txOut;
+			Outpoint = fromOutpoint;
+			TxOut = fromTxOut;
 		}
 
-        public Coin(Transaction tx, uint outputIndex)
+        public Coin(Transaction fromTx, uint fromOutputIndex)
         {
-            Outpoint = new OutPoint(tx, (int)outputIndex);
-            TxOut = tx.Outputs[(int)outputIndex];
+            Outpoint = new OutPoint(fromTx, fromOutputIndex);
+            TxOut = fromTx.Outputs[fromOutputIndex];
         }
 
-        public Coin(uint256 txHash, uint outputIndex, Money amount, Script scriptPubKey)
+		public Coin(Transaction fromTx, TxOut fromOutput)
+		{
+			uint outputIndex = (uint)fromTx.Outputs.FindIndex(r => Object.ReferenceEquals(fromOutput, r));
+			Outpoint = new OutPoint(fromTx, outputIndex);
+			TxOut = fromOutput;
+		}
+
+        public Coin(uint256 fromTxHash, uint fromOutputIndex, Money amount, Script scriptPubKey)
         {
-            Outpoint = new OutPoint(txHash, outputIndex);
+            Outpoint = new OutPoint(fromTxHash, fromOutputIndex);
             TxOut = new TxOut(amount, scriptPubKey);
         }
 
@@ -264,11 +271,31 @@ namespace NBitcoin
 		{
 
 		}
-		public ScriptCoin(OutPoint outpoint, TxOut txOut, Script redeem)
-			: base(outpoint, txOut)
+
+		public ScriptCoin(OutPoint fromOutpoint, TxOut fromTxOut, Script redeem)
+			: base(fromOutpoint, fromTxOut)
 		{
 			Redeem = redeem;
 		}
+
+		public ScriptCoin(Transaction fromTx, uint fromOutputIndex, Script redeem)
+			:base(fromTx, fromOutputIndex)
+		{
+			Redeem = Redeem;
+		}
+
+		public ScriptCoin(Transaction fromTx, TxOut fromOutput, Script redeem)
+			: base(fromTx, fromOutput)
+		{
+			Redeem = redeem;
+		}
+
+        public ScriptCoin(uint256 txHash, uint outputIndex, Money amount, Script redeem)
+			: base(txHash, outputIndex, amount, redeem.ID.CreateScriptPubKey())
+		{
+			Redeem = redeem;
+		}
+
 		public Script Redeem
 		{
 			get;
