@@ -30,9 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BouncyCastle.Crypto">
-      <HintPath>..\packages\BouncyCastle.1.7.0\lib\Net40-Client\BouncyCastle.Crypto.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -267,6 +264,10 @@
     <ProjectReference Include="..\Mono.Nat\Mono.Nat.csproj">
       <Project>{f5d74163-145f-47bf-83dc-d0e07249c6ca}</Project>
       <Name>Mono.Nat</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NBitcoin.BouncyCastle\NBitcoin.BouncyCastle.csproj">
+      <Project>{19a848a9-333a-4918-ab7f-769a1f368051}</Project>
+      <Name>NBitcoin.BouncyCastle</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
