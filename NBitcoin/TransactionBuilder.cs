@@ -222,12 +222,14 @@ namespace NBitcoin
 
 			private TxOut EnsureMarkerInserted()
 			{
-				var txout = Transaction.Outputs.FirstOrDefault(o => Script.IsNullOrEmpty(o.ScriptPubKey));
-				if(txout == null)
+				int position;
+				if(ColorMarker.Get(Transaction, out position) != null)
+					return Transaction.Outputs[position];
+				var txout = Transaction.AddOutput(new TxOut()
 				{
-					txout = Transaction.AddOutput(new TxOut());
-					txout.Value = Money.Zero;
-				}
+					ScriptPubKey = new ColorMarker().GetScript()
+				});
+				txout.Value = Money.Zero;
 				return txout;
 			}
 
@@ -363,14 +365,14 @@ namespace NBitcoin
 		}
 
 		public TransactionBuilder AddCoins(params ICoin[] coins)
-        {
-            return AddCoins((IEnumerable<ICoin>)coins);
-        }
+		{
+			return AddCoins((IEnumerable<ICoin>)coins);
+		}
 
-        public TransactionBuilder AddCoins(IEnumerable<ICoin> coins)
-        {
+		public TransactionBuilder AddCoins(IEnumerable<ICoin> coins)
+		{
 			foreach(var coin in coins)
-			{ 
+			{
 				CurrentGroup.Coins.Add(coin);
 			}
 			return this;
