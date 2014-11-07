@@ -518,7 +518,7 @@ namespace NBitcoin
 				var marker = ctx.GetColorMarker(true);
 				if(ctx.IssuanceCoin == null)
 				{
-					var issuance = CurrentGroup.Coins.OfType<IssuanceCoin>().Where(i => i.AssetId == asset.Id).FirstOrDefault();
+					var issuance = ctx.Group.Coins.OfType<IssuanceCoin>().Where(i => i.AssetId == asset.Id).FirstOrDefault();
 					if(issuance == null)
 						throw new InvalidOperationException("No issuance coin for emitting asset found");
 					ctx.IssuanceCoin = issuance;
