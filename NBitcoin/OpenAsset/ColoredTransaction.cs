@@ -14,7 +14,7 @@ namespace NBitcoin.OpenAsset
 		{
 
 		}
-		public ColoredEntry(int index, Asset asset)
+		public ColoredEntry(uint index, Asset asset)
 		{
 			if(asset == null)
 				throw new ArgumentNullException("asset");
@@ -22,15 +22,15 @@ namespace NBitcoin.OpenAsset
 			Asset = asset;
 		}
 		uint _Index;
-		public int Index
+		public uint Index
 		{
 			get
 			{
-				return (int)_Index;
+				return _Index;
 			}
 			set
 			{
-				_Index = (uint)value;
+				_Index = value;
 			}
 		}
 		Asset _Asset = new Asset();
@@ -143,7 +143,7 @@ namespace NBitcoin.OpenAsset
 			ColoredTransaction colored = new ColoredTransaction();
 
 			Queue<ColoredEntry> previousAssetQueue = new Queue<ColoredEntry>();
-			for(int i = 0 ; i < tx.Inputs.Count ; i++)
+			for(uint i = 0 ; i < tx.Inputs.Count ; i++)
 			{
 				var txin = tx.Inputs[i];
 				var prevColored = repo.Get(txin.PrevOut.Hash);
@@ -162,7 +162,7 @@ namespace NBitcoin.OpenAsset
 				}
 			}
 
-			int markerPos = 0;
+			uint markerPos = 0;
 			var marker = ColorMarker.Get(tx, out markerPos);
 			if(marker == null)
 			{
@@ -177,7 +177,7 @@ namespace NBitcoin.OpenAsset
 			}
 
 			AssetId issuedAsset = null;
-			for(int i = 0 ; i < markerPos ; i++)
+			for(uint i = 0 ; i < markerPos ; i++)
 			{
 				var entry = new ColoredEntry();
 				entry.Index = i;
@@ -200,7 +200,7 @@ namespace NBitcoin.OpenAsset
 			}
 
 			ulong used = 0;
-			for(int i = markerPos + 1 ; i < tx.Outputs.Count ; i++)
+			for(uint i = markerPos + 1 ; i < tx.Outputs.Count ; i++)
 			{
 				var entry = new ColoredEntry();
 				entry.Index = i;

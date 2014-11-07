@@ -68,7 +68,7 @@ namespace NBitcoin.OpenAsset
 				var inputs = json["inputs"] as JArray;
 				if(inputs != null)
 				{
-					for(int i = 0 ; i < inputs.Count ; i++)
+					for(uint i = 0 ; i < inputs.Count ; i++)
 					{
 						if(inputs[i]["asset_address"].Value<string>() == null)
 							continue;
@@ -86,7 +86,7 @@ namespace NBitcoin.OpenAsset
 				if(outputs != null)
 				{
 					bool issuance = true;
-					for(int i = 0 ; i < outputs.Count ; i++)
+					for(uint i = 0 ; i < outputs.Count ; i++)
 					{
 						var marker = ColorMarker.TryParse(new Script(Encoders.Hex.DecodeData(outputs[i]["script"].ToString())));
 						if(marker != null)
