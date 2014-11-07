@@ -17,7 +17,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return (hash == 0 && n == unchecked((uint)-1));
+				return (hash == 0 && n == uint.MaxValue);
 			}
 		}
 		private uint256 hash;
