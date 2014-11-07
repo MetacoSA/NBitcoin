@@ -116,6 +116,11 @@ namespace NBitcoin
 			Bearer = bearer;
 		}
 
+		public ColoredCoin(Transaction tx, ColoredEntry entry)
+			: this(entry.Asset, new Coin(tx, entry.Index))
+		{
+		}
+
 		public AssetId AssetId
 		{
 			get
@@ -281,7 +286,7 @@ namespace NBitcoin
 		public ScriptCoin(Transaction fromTx, uint fromOutputIndex, Script redeem)
 			:base(fromTx, fromOutputIndex)
 		{
-			Redeem = Redeem;
+			Redeem = redeem;
 		}
 
 		public ScriptCoin(Transaction fromTx, TxOut fromOutput, Script redeem)
