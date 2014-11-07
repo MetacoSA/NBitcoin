@@ -402,14 +402,29 @@ namespace NBitcoin
 			return SendAsset(destination.ID, asset);
 		}
 
+		public TransactionBuilder SendAsset(BitcoinAddress destination, AssetId assetId, ulong quantity)
+		{
+			return SendAsset(destination.ID, new Asset(assetId, quantity));
+		}
+
 		public TransactionBuilder SendAsset(PubKey pubKey, Asset asset)
 		{
 			return SendAsset(pubKey.PaymentScript, asset);
 		}
 
+		public TransactionBuilder SendAsset(PubKey pubKey, AssetId assetId, ulong quantity)
+		{
+			return SendAsset(pubKey.PaymentScript, new Asset(assetId, quantity));
+		}
+
 		public TransactionBuilder SendAsset(TxDestination id, Asset asset)
 		{
 			return SendAsset(id.CreateScriptPubKey(), asset);
+		}
+
+		public TransactionBuilder SendAsset(TxDestination id, AssetId assetId, ulong quantity)
+		{
+			return SendAsset(id.CreateScriptPubKey(), new Asset(assetId, quantity));
 		}
 
 		public TransactionBuilder Shuffle()
