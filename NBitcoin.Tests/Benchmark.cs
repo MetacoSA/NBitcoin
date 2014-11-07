@@ -29,7 +29,7 @@ namespace NBitcoin.Tests
 						continue;
 					foreach(var tx in block.Item.Transactions)
 					{
-						int index = 0;
+						uint index = 0;
 						var pay = OpenAsset.ColorMarker.Get(tx, out index);
 						if(pay != null && index != 0 && index != tx.Outputs.Count - 1)
 						{
