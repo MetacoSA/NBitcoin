@@ -187,13 +187,18 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
+		public void SetQuantity(uint index, ulong quantity)
+		{
+			if (Quantities == null)
+				Quantities = new ulong[0];
+			if (Quantities.Length <= index)
+				Array.Resize(ref _Quantities, (int)index + 1);
+			Quantities[index] = quantity;
+		}
+
 		public void SetQuantity(int index, ulong quantity)
 		{
-			if(Quantities == null)
-				Quantities = new ulong[0];
-			if(Quantities.Length <= index)
-				Array.Resize(ref _Quantities, index + 1);
-			Quantities[index] = quantity;
+			SetQuantity((uint)index, quantity);
 		}
 
 		byte[] _Metadata = new byte[0];
@@ -231,16 +236,16 @@ namespace NBitcoin.OpenAsset
 
 		public static ColorMarker Get(Transaction transaction)
 		{
-			int i = 0;
+			uint i = 0;
 			return Get(transaction, out i);
 		}
 
-		public static ColorMarker Get(Transaction transaction, out int markerPosition)
+		public static ColorMarker Get(Transaction transaction, out uint markerPosition)
 		{
-			int resultIndex = 0;
+			uint resultIndex = 0;
 			var result = transaction.Outputs.Select(o => TryParse(o.ScriptPubKey)).Where((o, i) =>
 			{
-				resultIndex = i;
+				resultIndex = (uint)i;
 				return o != null;
 			}).FirstOrDefault();
 			markerPosition = resultIndex;

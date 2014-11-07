@@ -222,7 +222,7 @@ namespace NBitcoin
 
 			private TxOut EnsureMarkerInserted()
 			{
-				int position;
+				uint position;
 				if(ColorMarker.Get(Transaction, out position) != null)
 					return Transaction.Outputs[position];
 				var txout = Transaction.AddOutput(new TxOut()
