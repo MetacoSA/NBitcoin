@@ -68,12 +68,12 @@ namespace NBitcoin.OpenAsset
 				var inputs = json["inputs"] as JArray;
 				if(inputs != null)
 				{
-					for(uint i = 0 ; i < inputs.Count ; i++)
+					for(int i = 0 ; i < inputs.Count ; i++)
 					{
 						if(inputs[i]["asset_address"].Value<string>() == null)
 							continue;
 						var entry = new ColoredEntry();
-						entry.Index = i;
+						entry.Index = (uint)i;
 						entry.Asset = new Asset(
 							new AssetId((ScriptId)new BitcoinScriptAddress(inputs[i]["asset_address"].ToString(), null).ID),
 							inputs[i]["asset_quantity"].Value<ulong>());
@@ -86,7 +86,7 @@ namespace NBitcoin.OpenAsset
 				if(outputs != null)
 				{
 					bool issuance = true;
-					for(uint i = 0 ; i < outputs.Count ; i++)
+					for(int i = 0 ; i < outputs.Count ; i++)
 					{
 						var marker = ColorMarker.TryParse(new Script(Encoders.Hex.DecodeData(outputs[i]["script"].ToString())));
 						if(marker != null)
@@ -98,7 +98,7 @@ namespace NBitcoin.OpenAsset
 						if(outputs[i]["asset_address"].Value<string>() == null)
 							continue;
 						ColoredEntry entry = new ColoredEntry();
-						entry.Index = i;
+						entry.Index = (uint)i;
 						entry.Asset = new Asset(
 							new AssetId((ScriptId)new BitcoinScriptAddress(outputs[i]["asset_address"].ToString(), null).ID),
 							outputs[i]["asset_quantity"].Value<ulong>()
