@@ -176,75 +176,136 @@ namespace NBitcoin
 		
 
 		
-		private void ReadWriteList<T>(ref List<T> data) where T : IBitcoinSerializable
-		{
-			var dataArray = data.ToArray();
-			ReadWriteArray(ref dataArray);
-			if(!Serializing)
-				data = dataArray.ToList();
-		}
-
-		
 		private void ReadWriteList(ref List<ulong> data)
 		{
-			var dataArray = data.ToArray();
+			var dataArray = data == null ? null : data.ToArray();
+			if(Serializing && dataArray == null)
+			{
+				dataArray = new ulong[0];
+			}
 			ReadWriteArray(ref dataArray);
 			if(!Serializing)
-				data = dataArray.ToList();
+			{
+				if(data == null)
+					data = new List<ulong>();
+				else
+					data.Clear();
+				data.AddRange(dataArray);
+			}
 		}
 
 		
 		private void ReadWriteList(ref List<ushort> data)
 		{
-			var dataArray = data.ToArray();
+			var dataArray = data == null ? null : data.ToArray();
+			if(Serializing && dataArray == null)
+			{
+				dataArray = new ushort[0];
+			}
 			ReadWriteArray(ref dataArray);
 			if(!Serializing)
-				data = dataArray.ToList();
+			{
+				if(data == null)
+					data = new List<ushort>();
+				else
+					data.Clear();
+				data.AddRange(dataArray);
+			}
 		}
 
 		
 		private void ReadWriteList(ref List<uint> data)
 		{
-			var dataArray = data.ToArray();
+			var dataArray = data == null ? null : data.ToArray();
+			if(Serializing && dataArray == null)
+			{
+				dataArray = new uint[0];
+			}
 			ReadWriteArray(ref dataArray);
 			if(!Serializing)
-				data = dataArray.ToList();
+			{
+				if(data == null)
+					data = new List<uint>();
+				else
+					data.Clear();
+				data.AddRange(dataArray);
+			}
 		}
 
 		
 		private void ReadWriteList(ref List<byte> data)
 		{
-			var dataArray = data.ToArray();
+			var dataArray = data == null ? null : data.ToArray();
+			if(Serializing && dataArray == null)
+			{
+				dataArray = new byte[0];
+			}
 			ReadWriteArray(ref dataArray);
 			if(!Serializing)
-				data = dataArray.ToList();
+			{
+				if(data == null)
+					data = new List<byte>();
+				else
+					data.Clear();
+				data.AddRange(dataArray);
+			}
 		}
 
 		
 		private void ReadWriteList(ref List<long> data)
 		{
-			var dataArray = data.ToArray();
+			var dataArray = data == null ? null : data.ToArray();
+			if(Serializing && dataArray == null)
+			{
+				dataArray = new long[0];
+			}
 			ReadWriteArray(ref dataArray);
 			if(!Serializing)
-				data = dataArray.ToList();
+			{
+				if(data == null)
+					data = new List<long>();
+				else
+					data.Clear();
+				data.AddRange(dataArray);
+			}
 		}
 
 		
 		private void ReadWriteList(ref List<short> data)
 		{
-			var dataArray = data.ToArray();
+			var dataArray = data == null ? null : data.ToArray();
+			if(Serializing && dataArray == null)
+			{
+				dataArray = new short[0];
+			}
 			ReadWriteArray(ref dataArray);
 			if(!Serializing)
-				data = dataArray.ToList();
+			{
+				if(data == null)
+					data = new List<short>();
+				else
+					data.Clear();
+				data.AddRange(dataArray);
+			}
 		}
 
 		
 		private void ReadWriteList(ref List<int> data)
 		{
-			var dataArray = data.ToArray();
+			var dataArray = data == null ? null : data.ToArray();
+			if(Serializing && dataArray == null)
+			{
+				dataArray = new int[0];
+			}
 			ReadWriteArray(ref dataArray);
 			if(!Serializing)
-				data = dataArray.ToList();
+			{
+				if(data == null)
+					data = new List<int>();
+				else
+					data.Clear();
+				data.AddRange(dataArray);
+			}
 		}
 
 		

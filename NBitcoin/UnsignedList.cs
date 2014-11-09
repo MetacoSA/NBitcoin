@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class UnsignedList<T>: List<T>, IBitcoinSerializable
+	public class UnsignedList<T>: List<T>
 		where T: IBitcoinSerializable, new()
 	{
 		public UnsignedList()
@@ -27,17 +27,6 @@ namespace NBitcoin
 		{
 			get { return base[(int)index]; }
 			set { base[(int)index] = value; }
-		}
-
-		public void ReadWrite(BitcoinStream stream)
-		{
-			var dataArray = this.ToArray();
-			stream.ReadWrite(ref dataArray);
-			if (!stream.Serializing)
-			{
-				this.Clear();
-				this.AddRange(dataArray);
-			}
 		}
 	}
 }

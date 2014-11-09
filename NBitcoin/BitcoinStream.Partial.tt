@@ -53,24 +53,33 @@ namespace NBitcoin
 		<# } #>
 
 
-		<# foreach(String signature in new string[]
+		<# foreach(String type in new string[]
 		{
-			"<T>(ref List<T> data) where T : IBitcoinSerializable",
-			"(ref List<ulong> data)",
-			"(ref List<ushort> data)",
-			"(ref List<uint> data)",
-			"(ref List<byte> data)",
-			"(ref List<long> data)",
-			"(ref List<short> data)",
-			"(ref List<int> data)",
+			"ulong",
+			"ushort",
+			"uint",
+			"byte",
+			"long",
+			"short",
+			"int"
 		}){ #>
 
-		private void ReadWriteList<#= signature #>
+		private void ReadWriteList(ref List<<#= type #>> data)
 		{
-			var dataArray = data.ToArray();
+			var dataArray = data == null ? null : data.ToArray();
+			if(Serializing && dataArray == null)
+			{
+				dataArray = new <#= type #>[0];
+			}
 			ReadWriteArray(ref dataArray);
 			if(!Serializing)
-				data = dataArray.ToList();
+			{
+				if(data == null)
+					data = new List<<#= type #>>();
+				else
+					data.Clear();
+				data.AddRange(dataArray);
+			}
 		}
 
 		<# } #>

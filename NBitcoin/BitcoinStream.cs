@@ -183,8 +183,36 @@ namespace NBitcoin
 
 		public void ReadWrite<T>(ref List<T> list) where T : IBitcoinSerializable, new()
 		{
-			ReadWriteList<T>(ref list);
+			ReadWriteList<List<T>, T>(ref list);
 		}
+
+		public void ReadWrite<TList, TItem>(ref TList list)
+			where TList : List<TItem>, new()
+			where TItem : IBitcoinSerializable, new()
+		{
+			ReadWriteList<TList, TItem>(ref list);
+		}
+
+		private void ReadWriteList<TList, TItem>(ref TList data)
+				where TList : List<TItem>, new()
+				where TItem : IBitcoinSerializable, new()
+		{
+			var dataArray = data == null ? null : data.ToArray();
+			if(Serializing && dataArray == null)
+			{
+				dataArray = new TItem[0];
+			}
+			ReadWriteArray(ref dataArray);
+			if(!Serializing)
+			{
+				if(data == null)
+					data = new TList();
+				else
+					data.Clear();
+				data.AddRange(dataArray);
+			}
+		}
+
 		public void ReadWrite(ref byte[] arr)
 		{
 			ReadWriteBytes(ref arr);

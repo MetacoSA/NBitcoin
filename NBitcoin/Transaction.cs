@@ -743,8 +743,8 @@ namespace NBitcoin
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref nVersion);
-			stream.ReadWrite(ref vin);
-			stream.ReadWrite(ref vout);
+			stream.ReadWrite<TxInList,TxIn>(ref vin);
+			stream.ReadWrite<TxOutList, TxOut>(ref vout);
 			stream.ReadWriteStruct(ref nLockTime);
 		}
 
