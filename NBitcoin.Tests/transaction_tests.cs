@@ -174,15 +174,15 @@ namespace NBitcoin.Tests
 				.Send(carlaKey.PubKey.ID, "0.01")
 				//and Carla pays Alice
 				.Send(aliceKey.PubKey.ID, "0.02")
-				.CoverOnly("0.02")
+				.CoverOnly("0.01")
 				.SetChange(aliceBobRedeemScript.ID)
 				// Bob does not sign anything yet
 				.BuildTransaction(false);
 
 			Assert.True(unsigned.Outputs.Count == 3);
 			Assert.True(unsigned.Outputs[0].IsTo(aliceBobRedeemScript.ID));
-			//Only 0.02 should be covered, not 0.03 so 0.48 goes back to Alice+Bob
-			Assert.True(unsigned.Outputs[0].Value == Money.Parse("0.48"));
+			//Only 0.01 should be covered, not 0.03 so 0.49 goes back to Alice+Bob
+			Assert.True(unsigned.Outputs[0].Value == Money.Parse("0.49"));
 
 
 			Assert.True(unsigned.Outputs[1].IsTo(carlaKey.PubKey.ID));
@@ -198,23 +198,51 @@ namespace NBitcoin.Tests
 					.AddKeys(aliceKey)
 					.SignTransaction(unsigned, SigHash.All | SigHash.AnyoneCanPay);
 
-			var carlaCoins = GetCoinSource(carlaKey, "1.0", "0.8", "0.6", "0.2", "0.04");
+			var carlaCoins = GetCoinSource(carlaKey, "1.0", "0.8", "0.6", "0.2", "0.05");
+
+			//Scenario 1 : Carla knows aliceBobCoins so she can calculate how much coin she need to complete the transaction
 			//Carla fills and signs
 			txBuilder = new TransactionBuilder();
 			var carlaSigned = txBuilder
 				.AddCoins(aliceBobCoins)
 				.Then()
 				.AddKeys(carlaKey)
-				//Carla should complete 0.01, but with 0.03 of fees, she should have a coins of 0.04
+				//Carla should complete 0.02, but with 0.03 of fees, she should have a coins of 0.05
 				.AddCoins(carlaCoins)
+				.ContinueToBuild(aliceSigned)
 				.SendFees("0.03")
-				.CompleteTransaction(aliceSigned)
+				.CoverTheRest()
 				.BuildTransaction(true);
 
 
 			//Bob review and signs
 			txBuilder = new TransactionBuilder();
 			var bobSigned = txBuilder
+				.AddCoins(aliceBobCoins)
+				.AddKeys(bobKey)
+				.SignTransaction(carlaSigned);
+
+			txBuilder.AddCoins(carlaCoins);
+			Assert.True(txBuilder.Verify(bobSigned));
+
+
+			//Scenario 2 : Carla is told by Bob to complete 0.05 BTC
+			//Carla fills and signs
+			txBuilder = new TransactionBuilder();
+			carlaSigned = txBuilder
+				.AddCoins(aliceBobCoins)
+				.Then()
+				.AddKeys(carlaKey)
+				.AddCoins(carlaCoins)
+				//Carla should complete 0.02, but with 0.03 of fees, she should have a coins of 0.05
+				.ContinueToBuild(aliceSigned)
+				.CoverOnly("0.05")
+				.BuildTransaction(true);
+
+
+			//Bob review and signs
+			txBuilder = new TransactionBuilder();
+			bobSigned = txBuilder
 				.AddCoins(aliceBobCoins)
 				.AddKeys(bobKey)
 				.SignTransaction(carlaSigned);

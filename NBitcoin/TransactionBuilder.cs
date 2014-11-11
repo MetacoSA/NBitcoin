@@ -945,32 +945,45 @@ namespace NBitcoin
 		Transaction _CompletedTransaction;
 
 		/// <summary>
-		/// Find Coins to complete TxOut of the transaction (Does not support colored coins)
+		/// Allows to keep building on the top of a partially built transaction
 		/// </summary>
-		/// <param name="transaction"></param>
+		/// <param name="transaction">Transaction to complete</param>
 		/// <returns></returns>
-		public TransactionBuilder CompleteTransaction(Transaction transaction)
+		public TransactionBuilder ContinueToBuild(Transaction transaction)
 		{
 			if(_CompletedTransaction != null)
 				throw new InvalidOperationException("Transaction to complete already set");
 			_CompletedTransaction = transaction.Clone();
+			return this;
+		}
 
-			var spent = transaction.Inputs.Select(txin =>
-				{
-					var c = FindCoin(txin.PrevOut);
-					if(c == null)
-						throw CoinNotFound(txin);
-					if(c is IColoredCoin)
-						return null;
-					return c;
-				})
-				.Where(c => c != null)
-				.Select(c => c.Amount)
-				.Sum();
+		/// <summary>
+		/// Will cover the remaining amount of TxOut of a partially built transaction (to call after ContinueToBuild)
+		/// </summary>
+		/// <returns></returns>
+		public TransactionBuilder CoverTheRest()
+		{
+			if(_CompletedTransaction == null)
+				throw new InvalidOperationException("A partially built transaction should be specified by calling ContinueToBuild");
 
-			var toComplete = transaction.TotalOut - spent;
+			var spent = _CompletedTransaction.Inputs.Select(txin =>
+			{
+				var c = FindCoin(txin.PrevOut);
+				if(c == null)
+					throw CoinNotFound(txin);
+				if(c is IColoredCoin)
+					return null;
+				return c;
+			})
+					.Where(c => c != null)
+					.Select(c => c.Amount)
+					.Sum();
+
+			var toComplete = _CompletedTransaction.TotalOut - spent;
 			CurrentGroup.Builders.Add(ctx =>
 			{
+				if(toComplete < Money.Zero)
+					return Money.Zero;
 				return toComplete;
 			});
 			return this;
