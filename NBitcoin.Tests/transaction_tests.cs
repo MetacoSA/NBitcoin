@@ -230,8 +230,6 @@ namespace NBitcoin.Tests
 			//Carla fills and signs
 			txBuilder = new TransactionBuilder();
 			carlaSigned = txBuilder
-				.AddCoins(aliceBobCoins)
-				.Then()
 				.AddKeys(carlaKey)
 				.AddCoins(carlaCoins)
 				//Carla should complete 0.02, but with 0.03 of fees, she should have a coins of 0.05
