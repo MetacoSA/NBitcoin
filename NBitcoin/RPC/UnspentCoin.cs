@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using NBitcoin.DataEncoders;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace NBitcoin.RPC
 			OutPoint = new OutPoint(new uint256((string)unspent["txid"]), (uint)unspent["vout"]);
 			Address = Network.CreateFromBase58Data<BitcoinAddress>((string)unspent["address"]);
 			Account = (string)unspent["account"];
-			ScriptPubKey = new Script((string)unspent["scriptPubKey"]);
+			ScriptPubKey = new Script(Encoders.Hex.DecodeData((string)unspent["scriptPubKey"]));
 			var amount = (decimal)unspent["amount"];
 			Amount = new Money((long)(amount * Money.COIN));
 			Confirmations = (uint)unspent["confirmations"];

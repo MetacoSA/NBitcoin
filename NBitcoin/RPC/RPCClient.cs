@@ -12,6 +12,63 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
+	public class RPCAccount
+	{
+		public Money Amount
+		{
+			get;
+			set;
+		}
+		public String AccountName
+		{
+			get;
+			set;
+		}
+	}
+
+	public class ChangeAddress
+	{
+		public Money Amount
+		{
+			get;
+			set;
+		}
+		public BitcoinAddress Address
+		{
+			get;
+			set;
+		}
+	}
+
+	public class AddressGrouping
+	{
+		public AddressGrouping()
+		{
+			ChangeAddresses = new List<ChangeAddress>();
+		}
+		public BitcoinAddress PublicAddress
+		{
+			get;
+			set;
+		}
+		public Money Amount
+		{
+			get;
+			set;
+		}
+		public string Account
+		{
+			get;
+			set;
+		}
+
+		public List<ChangeAddress> ChangeAddresses
+		{
+			get;
+			set;
+		}
+	}
+
 	public class RPCClient
 	{
 		private readonly NetworkCredential _Credentials;
@@ -431,6 +488,54 @@ namespace NBitcoin.RPC
 			var result = await SendCommandAsync("getrawmempool");
 			var array = (JArray)result.Result;
 			return array.Select(o => (string)o).Select(s => new uint256(s)).ToArray();
+		}
+
+		public IEnumerable<BitcoinSecret> ListSecrets()
+		{
+			foreach(var grouping in ListAddressGroupings())
+			{
+				yield return DumpPrivKey(grouping.PublicAddress);
+				foreach(var change in grouping.ChangeAddresses)
+					yield return DumpPrivKey(change.Address);
+			}
+		}
+
+		public IEnumerable<AddressGrouping> ListAddressGroupings()
+		{
+			var result = SendCommand(RPCOperations.listaddressgroupings);
+			var array = (JArray)result.Result;
+			foreach(var group in array.Children<JArray>())
+			{
+				var grouping = new AddressGrouping();
+				grouping.PublicAddress = BitcoinAddress.Create(group[0][0].ToString());
+				grouping.Amount = Money.Coins(group[0][1].Value<decimal>());
+				grouping.Account = group[0][2].ToString();
+
+				foreach(var subgroup in group.Skip(1))
+				{
+					var change = new ChangeAddress();
+					change.Address = BitcoinAddress.Create(subgroup[0].ToString());
+					change.Amount = Money.Coins(subgroup[1].Value<decimal>());
+					grouping.ChangeAddresses.Add(change);
+				}
+
+				yield return grouping;
+			}
+		}
+		
+
+		public IEnumerable<RPCAccount> ListAccounts()
+		{
+			var result = SendCommand(RPCOperations.listaccounts);
+			var obj = (JObject)result.Result;
+			foreach(var prop in obj.Properties())
+			{
+				yield return new RPCAccount()
+				{
+					AccountName = prop.Name,
+					Amount = Money.Coins((decimal)prop.Value)
+				};
+			}
 		}
 	}
 }
