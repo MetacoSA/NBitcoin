@@ -46,7 +46,8 @@ This is the simple way and most complete way to see the internal of bitcoin with
 Making NBitcoin Portable is possible and easy, but I can't develop it immediately for reasons expressed ([here](https://github.com/NicolasDorier/NBitcoin/issues/8))  
 
 
-Info :
+## Useful doc :
+
 NBitcoin Github : https://github.com/NicolasDorier/NBitcoin
 
 NBitcoin Nuget : https://www.nuget.org/packages/NBitcoin/
@@ -66,6 +67,6 @@ Bitcoin address : 15sYbVpRh6dyWycZMwPdxJWD4xbfxReeHe
 if you want to contact me : http://nicolas-dorier.com/Contact will do the rest by email :)
 
 
-Useful link :
+##Useful link :
 Visual studio express : http://www.visualstudio.com/en-us/products/visual-studio-express-vs.aspx
 XUnit runner (only if using vs express) : http://xunit.codeplex.com/releases
