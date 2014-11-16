@@ -533,7 +533,8 @@ namespace NBitcoin
 				var marker = ctx.GetColorMarker(true);
 				if(ctx.IssuanceCoin == null)
 				{
-					var issuance = ctx.Group.Coins.OfType<IssuanceCoin>().Where(i => i.AssetId == asset.Id).FirstOrDefault();
+					IssuanceCoin issuance = SelectIssuanceCoin(ctx.Group.Coins, asset.Id);
+
 					if(issuance == null)
 						throw new InvalidOperationException("No issuance coin for emitting asset found");
 					ctx.IssuanceCoin = issuance;
@@ -586,6 +587,31 @@ namespace NBitcoin
 			return this;
 		}
 
+		protected virtual IEnumerable<ICoin> SelectCoins(IEnumerable<ICoin> coins, Money target)
+		{
+			return CoinSelector.Select(coins, target);
+		}
+
+		protected virtual IEnumerable<IColoredCoin> SelectColoredCoins(IEnumerable<ICoin> coins, AssetId assetId, ulong quantity)
+		{
+			return SelectCoins(coins, quantity).OfType<IColoredCoin>();
+		}
+
+		protected virtual IssuanceCoin SelectIssuanceCoin(IEnumerable<ICoin> coins, AssetId assetId)
+		{
+			return coins.OfType<IssuanceCoin>().Where(i => i.AssetId == assetId).FirstOrDefault();
+		}
+
+		public Transaction BuildAndSignTransaction()
+		{
+			return BuildTransaction(true);
+		}
+
+		public Transaction BuildUnsignedTransaction()
+		{
+			return BuildTransaction(false);
+		}
+
 		public Transaction BuildTransaction(bool sign)
 		{
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
@@ -604,14 +630,14 @@ namespace NBitcoin
 				{
 					var coins = group.Coins.OfType<ColoredCoin>().Where(c => c.Asset.Id == builders.Key).OfType<ICoin>();
 
-					var btcSpent = BuildTransaction(ctx, builders.Value, coins, group.ChangeScript, Money.Zero)
+					var btcSpent = BuildTransaction(ctx, builders.Value, coins, group.ChangeScript, Money.Zero, (c,t) => SelectColoredCoins(c, builders.Key, t))
 						.OfType<IColoredCoin>().Select(c => c.Bearer.Amount).Sum();
 					ctx.AdditionalFees -= btcSpent;
 				}
 
 				var coinBuilders = group.Builders.ToList();
 				coinBuilders.Add(_ => _.AdditionalFees);
-				BuildTransaction(ctx, coinBuilders, group.Coins.OfType<Coin>(), group.ChangeScript, Money.Dust);
+				BuildTransaction(ctx, coinBuilders, group.Coins.OfType<Coin>(), group.ChangeScript, Money.Dust, (c,t) => SelectCoins(c, t));
 			}
 			ctx.Finish();
 
@@ -627,11 +653,12 @@ namespace NBitcoin
 			List<Builder> builders,
 			IEnumerable<ICoin> coins,
 			Script changeScript,
-			Money dust)
+			Money dust,
+			Func<IEnumerable<ICoin>, Money, IEnumerable<ICoin>> selectCoins )
 		{
 			var originalCtx = ctx.CreateMemento();
 			var target = builders.Select(b => b(ctx)).Sum();
-			var selection = CoinSelector.Select(coins, target);
+			var selection = selectCoins(coins, target);
 			if(selection == null)
 				throw new NotEnoughFundsException("Not enough fund to cover the target");
 			var total = selection.Select(s => s.Amount).Sum();
@@ -647,7 +674,7 @@ namespace NBitcoin
 				ctx.ChangeAmount = change;
 				try
 				{
-					return BuildTransaction(ctx, builders, coins, changeScript, dust);
+					return BuildTransaction(ctx, builders, selection, changeScript, dust, selectCoins);
 				}
 				finally
 				{
@@ -707,7 +734,7 @@ namespace NBitcoin
 			return true;
 		}
 
-		private ICoin FindCoin(OutPoint outPoint)
+		protected virtual ICoin FindCoin(OutPoint outPoint)
 		{
 			return _BuilderGroups.SelectMany(c => c.Coins).FirstOrDefault(c => c.Outpoint == outPoint);
 		}
