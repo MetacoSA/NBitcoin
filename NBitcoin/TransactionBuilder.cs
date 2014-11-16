@@ -446,6 +446,11 @@ namespace NBitcoin
 			return ctx.ChangeAmount;
 		}
 
+		public TransactionBuilder SendAsset(Script scriptPubKey, AssetId assetId, ulong assetQuantity)
+		{
+			return SendAsset(scriptPubKey, new Asset(assetId, assetQuantity));
+		}
+
 		public TransactionBuilder SendAsset(Script scriptPubKey, Asset asset)
 		{
 			AssertOpReturn("Colored Coin");
@@ -520,7 +525,7 @@ namespace NBitcoin
 
 		AssetId _IssuedAsset;
 
-		private TransactionBuilder IssueAsset(Script scriptPubKey, Asset asset)
+		public TransactionBuilder IssueAsset(Script scriptPubKey, Asset asset)
 		{
 			AssertOpReturn("Colored Coin");
 			if(_IssuedAsset == null)
@@ -671,7 +676,8 @@ namespace NBitcoin
 			SignTransactionInPlace(tx);
 			return tx;
 		}
-		public void SignTransactionInPlace(Transaction transaction)
+
+		public Transaction SignTransactionInPlace(Transaction transaction)
 		{
 			TransactionSigningContext ctx = new TransactionSigningContext(this, transaction);
 			for(int i = 0 ; i < transaction.Inputs.Count ; i++)
