@@ -689,6 +689,7 @@ namespace NBitcoin
 					Sign(ctx, txIn, coin, i);
 				}
 			}
+			return transaction; 
 		}
 
 		public bool Verify(Transaction tx, Money expectFees = null)
