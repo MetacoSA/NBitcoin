@@ -37,6 +37,14 @@ namespace NBitcoin
             return _address;
 		}
 
+		public KeyId ID
+		{
+			get
+			{
+				return Key.PubKey.ID;
+			}
+		}
+
 		public Key Key
 		{
 			get
