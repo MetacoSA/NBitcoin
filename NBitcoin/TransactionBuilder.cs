@@ -40,9 +40,13 @@ namespace NBitcoin
 			if(targetCoin != null)
 				return new[] { targetCoin };
 
-			var orderedCoins = coins.OrderBy(s => s.Amount).ToArray();
 			List<ICoin> result = new List<ICoin>();
 			Money total = Money.Zero;
+
+			if (target == Money.Zero)
+				return result;
+
+			var orderedCoins = coins.OrderBy(s => s.Amount).ToArray();
 
 			foreach(var coin in orderedCoins)
 			{
