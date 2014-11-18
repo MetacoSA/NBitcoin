@@ -182,11 +182,11 @@ namespace NBitcoin
 			}
 		}
 
-		public static IEnumerable<ColoredCoin> Find(Transaction tx, NoSqlColoredTransactionRepository repo)
+		public static IEnumerable<ColoredCoin> Find(Transaction tx, IColoredTransactionRepository repo)
 		{
 			return Find(null, tx, repo);
 		}
-		public static IEnumerable<ColoredCoin> Find(uint256 txId, Transaction tx, NoSqlColoredTransactionRepository repo)
+		public static IEnumerable<ColoredCoin> Find(uint256 txId, Transaction tx, IColoredTransactionRepository repo)
 		{
 			if(txId == null)
 				txId = tx.GetHash();
