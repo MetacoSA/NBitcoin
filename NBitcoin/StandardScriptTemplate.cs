@@ -399,7 +399,7 @@ namespace NBitcoin
 			if(!FastCheckScriptPubKey(scriptPubKey))
 				return null;
 			var ops = scriptPubKey.ToOps().ToArray();
-			if(!this.CheckScriptPubKeyCore(scriptPubKey, ops))
+			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
 			return new ScriptId(ops[1].PushData);
 		}
