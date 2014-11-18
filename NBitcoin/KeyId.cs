@@ -117,7 +117,7 @@ namespace NBitcoin
 
 		public override Script CreateScriptPubKey()
 		{
-			return PayToPubkeyHashTemplate.GenerateScriptPubKey(this);
+			return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(this);
 		}
 	}
 	public class ScriptId : TxDestination
@@ -147,7 +147,7 @@ namespace NBitcoin
 
 		public override Script CreateScriptPubKey()
 		{
-			return PayToScriptHashTemplate.GenerateScriptPubKey(this);
+			return PayToScriptHashTemplate.Instance.GenerateScriptPubKey(this);
 		}
 	}
 }

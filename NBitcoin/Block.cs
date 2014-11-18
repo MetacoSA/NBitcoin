@@ -384,7 +384,7 @@ namespace NBitcoin
 			tx.Outputs.Add(new TxOut()
 			{
 				Value = value,
-				ScriptPubKey = PayToPubkeyHashTemplate.GenerateScriptPubKey(pubkey)
+				ScriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(pubkey)
 			});
 			return block;
 		}

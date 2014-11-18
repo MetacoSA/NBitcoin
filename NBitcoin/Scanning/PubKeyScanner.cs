@@ -31,7 +31,7 @@ namespace NBitcoin.Scanning
 		}
 		public bool MatchScriptHash(TxOut output)
 		{
-			var key = PayToPubkeyTemplate.ExtractScriptPubKeyParameters(output.ScriptPubKey);
+			var key = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(output.ScriptPubKey);
 			return key != null && (key.ID == PubKey.ID);
 		}
 

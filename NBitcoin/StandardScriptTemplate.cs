@@ -49,9 +49,9 @@ namespace NBitcoin
 			}
 			return true;
 		}
-		public static byte[] ExtractScriptPubKeyParameters(Script scriptPubKey)
+		public byte[] ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
-			if(!Instance.FastCheckScriptPubKey(scriptPubKey))
+			if(!FastCheckScriptPubKey(scriptPubKey))
 				return null;
 			var ops = scriptPubKey.ToOps().ToArray();
 			if(ops.Length != 2)
@@ -66,7 +66,7 @@ namespace NBitcoin
 			return false;
 		}
 
-		public static Script GenerateScriptPubKey(byte[] data)
+		public Script GenerateScriptPubKey(byte[] data)
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");
@@ -115,7 +115,7 @@ namespace NBitcoin
 				return _Instance;
 			}
 		}
-		public static Script GenerateScriptPubKey(int sigCount, PubKey[] keys)
+		public Script GenerateScriptPubKey(int sigCount, PubKey[] keys)
 		{
 			List<Op> ops = new List<Op>();
 			var push = Op.GetPushOp(sigCount);
@@ -156,7 +156,7 @@ namespace NBitcoin
 			return ops[ops.Length - 1].Code == OpcodeType.OP_CHECKMULTISIG;
 		}
 
-		public static PayToMultiSigTemplateParameters ExtractScriptPubKeyParameters(Script scriptPubKey)
+		public PayToMultiSigTemplateParameters ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
 			if(!Instance.FastCheckScriptPubKey(scriptPubKey))
 				return null;
@@ -222,7 +222,7 @@ namespace NBitcoin
 
 		}
 
-		public static TransactionSignature[] ExtractScriptSigParameters(Script scriptSig)
+		public TransactionSignature[] ExtractScriptSigParameters(Script scriptSig)
 		{
 			if(!Instance.FastCheckScriptSig(scriptSig, null))
 				return null;
@@ -247,7 +247,7 @@ namespace NBitcoin
 			}
 		}
 
-		public static Script GenerateScriptSig(TransactionSignature[] signatures)
+		public Script GenerateScriptSig(TransactionSignature[] signatures)
 		{
 			List<Op> ops = new List<Op>();
 			ops.Add(OpcodeType.OP_0);
@@ -292,14 +292,14 @@ namespace NBitcoin
 			get;
 			set;
 		}
-		public static Script GenerateScriptPubKey(ScriptId scriptId)
+		public Script GenerateScriptPubKey(ScriptId scriptId)
 		{
 			return new Script(
 				OpcodeType.OP_HASH160,
 				Op.GetPushOp(scriptId.ToBytes()),
 				OpcodeType.OP_EQUAL);
 		}
-		public static Script GenerateScriptPubKey(Script scriptPubKey)
+		public Script GenerateScriptPubKey(Script scriptPubKey)
 		{
 			return GenerateScriptPubKey(scriptPubKey.ID);
 		}
@@ -323,12 +323,12 @@ namespace NBitcoin
 				   ops[2].Code == OpcodeType.OP_EQUAL;
 		}
 
-		public static Script GenerateScriptSig(Op[] ops, Script script)
+		public Script GenerateScriptSig(Op[] ops, Script script)
 		{
 			var pushScript = Op.GetPushOp(script._Script);
 			return new Script(ops.Concat(new[] { pushScript }).ToArray());
 		}
-		public static PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig)
+		public PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{
 			var ops = scriptSig.ToOps().ToArray();
 			if(!Instance.CheckScriptSigCore(scriptSig, ops, null, null))
@@ -352,7 +352,7 @@ namespace NBitcoin
 			}
 		}
 
-		public static Script GenerateScriptSig(TransactionSignature[] signatures, Script redeemScript)
+		public Script GenerateScriptSig(TransactionSignature[] signatures, Script redeemScript)
 		{
 			List<Op> ops = new List<Op>();
 			PayToMultiSigTemplate multiSigTemplate = new PayToMultiSigTemplate();
@@ -366,7 +366,7 @@ namespace NBitcoin
 			return GenerateScriptSig(ops.ToArray(), redeemScript);
 		}
 
-		public static Script GenerateScriptSig(ECDSASignature[] signatures, Script redeemScript)
+		public Script GenerateScriptSig(ECDSASignature[] signatures, Script redeemScript)
 		{
 			return GenerateScriptSig(signatures.Select(s => new TransactionSignature(s, SigHash.All)).ToArray(), redeemScript);
 		}
@@ -394,7 +394,7 @@ namespace NBitcoin
 			}
 		}
 
-		public static ScriptId ExtractScriptPubKeyParameters(Script scriptPubKey)
+		public ScriptId ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
 			if(!Instance.FastCheckScriptPubKey(scriptPubKey))
 				return null;
@@ -414,7 +414,7 @@ namespace NBitcoin
 				return _Instance;
 			}
 		}
-		public static Script GenerateScriptPubKey(PubKey pubkey)
+		public Script GenerateScriptPubKey(PubKey pubkey)
 		{
 			return new Script(
 					Op.GetPushOp(pubkey.ToBytes()),
@@ -430,18 +430,18 @@ namespace NBitcoin
 				   ops[1].Code == OpcodeType.OP_CHECKSIG;
 		}
 
-		public static Script GenerateScriptSig(ECDSASignature signature)
+		public Script GenerateScriptSig(ECDSASignature signature)
 		{
 			return GenerateScriptSig(new TransactionSignature(signature, SigHash.All));
 		}
-		public static Script GenerateScriptSig(TransactionSignature signature)
+		public Script GenerateScriptSig(TransactionSignature signature)
 		{
 			return new Script(
 				Op.GetPushOp(signature.ToBytes())
 				);
 		}
 
-		public static TransactionSignature ExtractScriptSigParameters(Script scriptSig)
+		public TransactionSignature ExtractScriptSigParameters(Script scriptSig)
 		{
 			var ops = scriptSig.ToOps().ToArray();
 			if(!Instance.CheckScriptSigCore(scriptSig, ops, null, null))
@@ -477,7 +477,7 @@ namespace NBitcoin
 			}
 		}
 
-		public static PubKey ExtractScriptPubKeyParameters(Script script)
+		public PubKey ExtractScriptPubKeyParameters(Script script)
 		{
 			var ops = script.ToOps().ToArray();
 			if(!Instance.CheckScriptPubKeyCore(script, ops))
@@ -518,19 +518,19 @@ namespace NBitcoin
 				return _Instance;
 			}
 		}
-		public static Script GenerateScriptPubKey(BitcoinAddress address)
+		public Script GenerateScriptPubKey(BitcoinAddress address)
 		{
 			if(address == null)
 				throw new ArgumentNullException("address");
 			return GenerateScriptPubKey((KeyId)address.ID);
 		}
-		public static Script GenerateScriptPubKey(PubKey pubKey)
+		public Script GenerateScriptPubKey(PubKey pubKey)
 		{
 			if(pubKey == null)
 				throw new ArgumentNullException("pubKey");
 			return GenerateScriptPubKey(pubKey.ID);
 		}
-		public static Script GenerateScriptPubKey(KeyId pubkeyHash)
+		public Script GenerateScriptPubKey(KeyId pubkeyHash)
 		{
 			return new Script(
 					OpcodeType.OP_DUP,
@@ -541,7 +541,7 @@ namespace NBitcoin
 				);
 		}
 
-		public static Script GenerateScriptSig(TransactionSignature signature, PubKey publicKey)
+		public Script GenerateScriptSig(TransactionSignature signature, PubKey publicKey)
 		{
 			if(signature == null)
 				throw new ArgumentNullException("signature");
@@ -573,7 +573,7 @@ namespace NBitcoin
 				   ops[3].Code == OpcodeType.OP_EQUALVERIFY &&
 				   ops[4].Code == OpcodeType.OP_CHECKSIG;
 		}
-		public static KeyId ExtractScriptPubKeyParameters(Script scriptPubKey)
+		public KeyId ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
 			var ops = scriptPubKey.ToOps().ToArray();
 			if(!Instance.CheckScriptPubKeyCore(scriptPubKey, ops))
@@ -597,7 +597,7 @@ namespace NBitcoin
 
 
 
-		public static PayToPubkeyHashScriptSigParameters ExtractScriptSigParameters(Script scriptSig)
+		public PayToPubkeyHashScriptSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{
 			var ops = scriptSig.ToOps().ToArray();
 			if(!Instance.CheckScriptSigCore(scriptSig, ops, null, null))

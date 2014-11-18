@@ -130,7 +130,7 @@ namespace NBitcoin.Tests
 		public void CanCompressScript2()
 		{
 			var key = new Key(true);
-			var script = PayToPubkeyHashTemplate.GenerateScriptPubKey(key.PubKey.ID);
+			var script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.ID);
 			var compressed = script.ToCompressedRawScript();
 			Assert.Equal(21, compressed.Length);
 
@@ -142,8 +142,8 @@ namespace NBitcoin.Tests
 		public void PayToMultiSigTemplateShouldAcceptNonKeyParameters()
 		{
 			var tx = new Transaction("0100000002f9cbafc519425637ba4227f8d0a0b7160b4e65168193d5af39747891de98b5b5000000006b4830450221008dd619c563e527c47d9bd53534a770b102e40faa87f61433580e04e271ef2f960220029886434e18122b53d5decd25f1f4acb2480659fea20aabd856987ba3c3907e0121022b78b756e2258af13779c1a1f37ea6800259716ca4b7f0b87610e0bf3ab52a01ffffffff42e7988254800876b69f24676b3e0205b77be476512ca4d970707dd5c60598ab00000000fd260100483045022015bd0139bcccf990a6af6ec5c1c52ed8222e03a0d51c334df139968525d2fcd20221009f9efe325476eb64c3958e4713e9eefe49bf1d820ed58d2112721b134e2a1a53034930460221008431bdfa72bc67f9d41fe72e94c88fb8f359ffa30b33c72c121c5a877d922e1002210089ef5fc22dd8bfc6bf9ffdb01a9862d27687d424d1fefbab9e9c7176844a187a014c9052483045022015bd0139bcccf990a6af6ec5c1c52ed8222e03a0d51c334df139968525d2fcd20221009f9efe325476eb64c3958e4713e9eefe49bf1d820ed58d2112721b134e2a1a5303210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71210378d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c7153aeffffffff01a08601000000000017a914d8dacdadb7462ae15cd906f1878706d0da8660e68700000000");
-			var redeemScript = PayToScriptHashTemplate.ExtractScriptSigParameters(tx.Inputs[1].ScriptSig).RedeemScript;
-			var result = PayToMultiSigTemplate.ExtractScriptPubKeyParameters(redeemScript);
+			var redeemScript = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(tx.Inputs[1].ScriptSig).RedeemScript;
+			var result = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(redeemScript);
 			Assert.Equal(2, result.PubKeys.Length);
 			Assert.Equal(2, result.SignatureCount);
 			Assert.Equal(1, result.InvalidPubKeys.Length);
@@ -155,7 +155,7 @@ namespace NBitcoin.Tests
 		{
 			var data = Encoders.Hex.DecodeData("035c030441ef8fa580553f149a5422ba4b0038d160b07a28e6fe2e1041b940fe95b1553c040000000000000050db680300000000000002b0466f722050696572636520616e64205061756c");
 
-			PayToPubkeyHashTemplate.ExtractScriptSigParameters(new Script(data));
+			PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(new Script(data));
 		}
 
 		[Fact]
@@ -165,24 +165,24 @@ namespace NBitcoin.Tests
 			var key = new Key(true);
 
 			//Pay to pubkey hash (encoded as 21 bytes)
-			var script = PayToPubkeyHashTemplate.GenerateScriptPubKey(key.PubKey.ID);
+			var script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.ID);
 			AssertCompressed(script, 21);
-			script = PayToPubkeyHashTemplate.GenerateScriptPubKey(key.PubKey.Decompress().ID);
+			script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.Decompress().ID);
 			AssertCompressed(script, 21);
 
 			//Pay to script hash (encoded as 21 bytes)
-			script = PayToScriptHashTemplate.GenerateScriptPubKey(script);
+			script = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(script);
 			AssertCompressed(script, 21);
 
 			//Pay to pubkey starting with 0x02, 0x03 or 0x04 (encoded as 33 bytes)
-			script = PayToPubkeyTemplate.GenerateScriptPubKey(key.PubKey);
+			script = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(key.PubKey);
 			script = AssertCompressed(script, 33);
-			var readenKey = PayToPubkeyTemplate.ExtractScriptPubKeyParameters(script);
+			var readenKey = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(script);
 			AssertEx.CollectionEquals(readenKey.ToBytes(), key.PubKey.ToBytes());
 
-			script = PayToPubkeyTemplate.GenerateScriptPubKey(key.PubKey.Decompress());
+			script = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(key.PubKey.Decompress());
 			script = AssertCompressed(script, 33);
-			readenKey = PayToPubkeyTemplate.ExtractScriptPubKeyParameters(script);
+			readenKey = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(script);
 			AssertEx.CollectionEquals(readenKey.ToBytes(), key.PubKey.Decompress().ToBytes());
 
 
@@ -446,16 +446,16 @@ namespace NBitcoin.Tests
 		public void CanParseAndGeneratePayToPubKeyScript()
 		{
 			var scriptPubKey = new Script("OP_DUP OP_HASH160 b72a6481ec2c2e65aa6bd9b42e213dce16fc6217 OP_EQUALVERIFY OP_CHECKSIG");
-			var pubKey = PayToPubkeyHashTemplate.ExtractScriptPubKeyParameters(scriptPubKey);
+			var pubKey = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 			Assert.Equal("b72a6481ec2c2e65aa6bd9b42e213dce16fc6217", pubKey.ToString());
 			var scriptSig = new Script("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c");
 
-			var sigResult = PayToPubkeyHashTemplate.ExtractScriptSigParameters(scriptSig);
+			var sigResult = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(scriptSig);
 			Assert.Equal("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301", Encoders.Hex.EncodeData(sigResult.TransactionSignature.ToBytes()));
 			Assert.Equal("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c", sigResult.PublicKey.ToString());
 
-			Assert.Equal(PayToPubkeyHashTemplate.GenerateScriptSig(sigResult.TransactionSignature, sigResult.PublicKey).ToString(), scriptSig.ToString());
-			Assert.Equal(PayToPubkeyHashTemplate.GenerateScriptPubKey(pubKey).ToString(), scriptPubKey.ToString());
+			Assert.Equal(PayToPubkeyHashTemplate.Instance.GenerateScriptSig(sigResult.TransactionSignature, sigResult.PublicKey).ToString(), scriptSig.ToString());
+			Assert.Equal(PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(pubKey).ToString(), scriptPubKey.ToString());
 		}
 
 		[Fact]
@@ -463,19 +463,19 @@ namespace NBitcoin.Tests
 		public void CanParseAndGeneratePayToMultiSig()
 		{
 			string scriptPubKey = "1 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d 2 OP_CHECKMULTISIG";
-			var scriptPubKeyResult = PayToMultiSigTemplate.ExtractScriptPubKeyParameters(new Script(scriptPubKey));
+			var scriptPubKeyResult = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(new Script(scriptPubKey));
 			Assert.Equal("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c", scriptPubKeyResult.PubKeys[0].ToString());
 			Assert.Equal("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d", scriptPubKeyResult.PubKeys[1].ToString());
 			Assert.Equal(1, scriptPubKeyResult.SignatureCount);
-			Assert.Equal(scriptPubKey, PayToMultiSigTemplate.GenerateScriptPubKey(1, scriptPubKeyResult.PubKeys).ToString());
+			Assert.Equal(scriptPubKey, PayToMultiSigTemplate.Instance.GenerateScriptPubKey(1, scriptPubKeyResult.PubKeys).ToString());
 
 			var scriptSig = "0 3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301 3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9302";
 
-			var result = PayToMultiSigTemplate.ExtractScriptSigParameters(new Script(scriptSig));
+			var result = PayToMultiSigTemplate.Instance.ExtractScriptSigParameters(new Script(scriptSig));
 			Assert.Equal("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301", Encoders.Hex.EncodeData(result[0].ToBytes()));
 			Assert.Equal("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9302", Encoders.Hex.EncodeData(result[1].ToBytes()));
 
-			Assert.Equal(scriptSig, PayToMultiSigTemplate.GenerateScriptSig(result).ToString());
+			Assert.Equal(scriptSig, PayToMultiSigTemplate.Instance.GenerateScriptSig(result).ToString());
 		}
 
 		[Fact]
@@ -526,14 +526,14 @@ namespace NBitcoin.Tests
 
 			var scriptSig = "0 3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301 51210364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c210364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d52ae";
 
-			var pubParams = PayToScriptHashTemplate.ExtractScriptPubKeyParameters(new Script(scriptPubkey));
+			var pubParams = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(new Script(scriptPubkey));
 			Assert.Equal("b5b88dd9befc9236915fcdbb7fd50052df50c855", pubParams.ToString());
-			Assert.Equal(scriptPubkey, PayToScriptHashTemplate.GenerateScriptPubKey(pubParams).ToString());
+			Assert.Equal(scriptPubkey, PayToScriptHashTemplate.Instance.GenerateScriptPubKey(pubParams).ToString());
 
-			var sigParams = PayToScriptHashTemplate.ExtractScriptSigParameters(new Script(scriptSig));
+			var sigParams = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(new Script(scriptSig));
 			Assert.Equal("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301", Encoders.Hex.EncodeData(sigParams.Signatures[0].ToBytes()));
 			Assert.Equal(redeem, sigParams.RedeemScript.ToString());
-			Assert.Equal(scriptSig, PayToScriptHashTemplate.GenerateScriptSig(sigParams.Signatures, sigParams.RedeemScript).ToString());
+			Assert.Equal(scriptSig, PayToScriptHashTemplate.Instance.GenerateScriptSig(sigParams.Signatures, sigParams.RedeemScript).ToString());
 
 		}
 	}

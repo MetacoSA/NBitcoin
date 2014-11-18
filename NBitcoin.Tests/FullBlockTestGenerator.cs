@@ -291,7 +291,7 @@ namespace NBitcoin.Tests
 				// Entirely invalid scriptPubKey to ensure we aren't pre-verifying too much
 				t.AddOutput(new TxOut(new Money(0), new Script(Op.GetPushOp(1))));
 				t.AddOutput(new TxOut(Money.Parse("1"),
-						PayToPubkeyHashTemplate.GenerateScriptPubKey(coinbaseOutKeyPubKey)));
+						PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(coinbaseOutKeyPubKey)));
 				// Spendable output
 				t.AddOutput(new TxOut(Money.Zero, new Script(Op.GetPushOp(1))));
 				addOnlyInputToTransaction(t, prevOut);
@@ -316,7 +316,7 @@ namespace NBitcoin.Tests
 			t.AddInput(input);
 
 			var hash = prevOut.scriptPubKey.SignatureHash(t, 0, SigHash.All);
-			input.ScriptSig = PayToPubkeyHashTemplate.GenerateScriptSig(
+			input.ScriptSig = PayToPubkeyHashTemplate.Instance.GenerateScriptSig(
 				new TransactionSignature(coinbaseOutKey.Sign(hash), SigHash.All),coinbaseOutKeyPubKey);
 		}
 	}

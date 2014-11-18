@@ -31,7 +31,7 @@ namespace NBitcoin.Scanning
 		}
 		public bool MatchScriptHash(TxOut output)
 		{
-			ScriptId id = PayToScriptHashTemplate.ExtractScriptPubKeyParameters(output.ScriptPubKey);
+			ScriptId id = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(output.ScriptPubKey);
 			return (id == ScriptId);
 		}
 
@@ -43,7 +43,7 @@ namespace NBitcoin.Scanning
 				.Select(i => new
 				{
 					TxIn = i,
-					Parameters = PayToScriptHashTemplate.ExtractScriptSigParameters(i.ScriptSig)
+					Parameters = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(i.ScriptSig)
 				})
 				.Where(r => r.Parameters != null && r.Parameters.RedeemScript.ID == ScriptId)
 				.Select(r=>r.TxIn);

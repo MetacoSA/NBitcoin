@@ -25,17 +25,17 @@ namespace NBitcoin.Tests
 			Assert.Equal(s1.GetSigOpCount(true), 3U);
 			Assert.Equal(s1.GetSigOpCount(false), 21U);
 
-			Script p2sh = PayToScriptHashTemplate.GenerateScriptPubKey(s1);
-			Script scriptSig = PayToScriptHashTemplate.GenerateScriptSig(new[] { (Op)OpcodeType.OP_0 }, s1);
+			Script p2sh = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(s1);
+			Script scriptSig = PayToScriptHashTemplate.Instance.GenerateScriptSig(new[] { (Op)OpcodeType.OP_0 }, s1);
 			Assert.Equal(p2sh.GetSigOpCount(scriptSig), 3U);
 
 			PubKey[] keys = Enumerable.Range(0, 3).Select(_ => new Key(true).PubKey).ToArray();
 
-			Script s2 = PayToMultiSigTemplate.GenerateScriptPubKey(1, keys);
+			Script s2 = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(1, keys);
 			Assert.Equal(s2.GetSigOpCount(true), 3U);
 			Assert.Equal(s2.GetSigOpCount(false), 20U);
 
-			p2sh = PayToScriptHashTemplate.GenerateScriptPubKey(s2);
+			p2sh = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(s2);
 			Assert.Equal(p2sh.GetSigOpCount(true), 0U);
 			Assert.Equal(p2sh.GetSigOpCount(false), 0U);
 			Script scriptSig2 = new Script();
