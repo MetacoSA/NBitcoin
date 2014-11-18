@@ -49,9 +49,9 @@ namespace NBitcoin
 			}
 			return true;
 		}
-		public byte[] ExtractScriptPubKeyParameters(Script scriptPubKey)
+		public static byte[] ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
-			if(!FastCheckScriptPubKey(scriptPubKey))
+			if(!Instance.FastCheckScriptPubKey(scriptPubKey))
 				return null;
 			var ops = scriptPubKey.ToOps().ToArray();
 			if(ops.Length != 2)
@@ -66,7 +66,7 @@ namespace NBitcoin
 			return false;
 		}
 
-		public Script GenerateScriptPubKey(byte[] data)
+		public static Script GenerateScriptPubKey(byte[] data)
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");
@@ -115,7 +115,7 @@ namespace NBitcoin
 				return _Instance;
 			}
 		}
-		public Script GenerateScriptPubKey(int sigCount, PubKey[] keys)
+		public static Script GenerateScriptPubKey(int sigCount, PubKey[] keys)
 		{
 			List<Op> ops = new List<Op>();
 			var push = Op.GetPushOp(sigCount);
@@ -156,12 +156,12 @@ namespace NBitcoin
 			return ops[ops.Length - 1].Code == OpcodeType.OP_CHECKMULTISIG;
 		}
 
-		public PayToMultiSigTemplateParameters ExtractScriptPubKeyParameters(Script scriptPubKey)
+		public static PayToMultiSigTemplateParameters ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
-			if(!FastCheckScriptPubKey(scriptPubKey))
+			if(!Instance.FastCheckScriptPubKey(scriptPubKey))
 				return null;
 			var ops = scriptPubKey.ToOps().ToArray();
-			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
+			if(!Instance.CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
 
 			var sigCount = (int)ops[0].GetValue();
@@ -222,12 +222,12 @@ namespace NBitcoin
 
 		}
 
-		public TransactionSignature[] ExtractScriptSigParameters(Script scriptSig)
+		public static TransactionSignature[] ExtractScriptSigParameters(Script scriptSig)
 		{
-			if(!FastCheckScriptSig(scriptSig, null))
+			if(!Instance.FastCheckScriptSig(scriptSig, null))
 				return null;
 			var ops = scriptSig.ToOps().ToArray();
-			if(!CheckScriptSigCore(scriptSig, ops, null, null))
+			if(!Instance.CheckScriptSigCore(scriptSig, ops, null, null))
 				return null;
 			try
 			{
@@ -247,7 +247,7 @@ namespace NBitcoin
 			}
 		}
 
-		public Script GenerateScriptSig(TransactionSignature[] signatures)
+		public static Script GenerateScriptSig(TransactionSignature[] signatures)
 		{
 			List<Op> ops = new List<Op>();
 			ops.Add(OpcodeType.OP_0);
@@ -292,14 +292,14 @@ namespace NBitcoin
 			get;
 			set;
 		}
-		public Script GenerateScriptPubKey(ScriptId scriptId)
+		public static Script GenerateScriptPubKey(ScriptId scriptId)
 		{
 			return new Script(
 				OpcodeType.OP_HASH160,
 				Op.GetPushOp(scriptId.ToBytes()),
 				OpcodeType.OP_EQUAL);
 		}
-		public Script GenerateScriptPubKey(Script scriptPubKey)
+		public static Script GenerateScriptPubKey(Script scriptPubKey)
 		{
 			return GenerateScriptPubKey(scriptPubKey.ID);
 		}
@@ -323,15 +323,15 @@ namespace NBitcoin
 				   ops[2].Code == OpcodeType.OP_EQUAL;
 		}
 
-		public Script GenerateScriptSig(Op[] ops, Script script)
+		public static Script GenerateScriptSig(Op[] ops, Script script)
 		{
 			var pushScript = Op.GetPushOp(script._Script);
 			return new Script(ops.Concat(new[] { pushScript }).ToArray());
 		}
-		public PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig)
+		public static PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{
 			var ops = scriptSig.ToOps().ToArray();
-			if(!CheckScriptSigCore(scriptSig, ops, null, null))
+			if(!Instance.CheckScriptSigCore(scriptSig, ops, null, null))
 				return null;
 			try
 			{
@@ -352,7 +352,7 @@ namespace NBitcoin
 			}
 		}
 
-		public Script GenerateScriptSig(TransactionSignature[] signatures, Script redeemScript)
+		public static Script GenerateScriptSig(TransactionSignature[] signatures, Script redeemScript)
 		{
 			List<Op> ops = new List<Op>();
 			PayToMultiSigTemplate multiSigTemplate = new PayToMultiSigTemplate();
@@ -366,7 +366,7 @@ namespace NBitcoin
 			return GenerateScriptSig(ops.ToArray(), redeemScript);
 		}
 
-		public Script GenerateScriptSig(ECDSASignature[] signatures, Script redeemScript)
+		public static Script GenerateScriptSig(ECDSASignature[] signatures, Script redeemScript)
 		{
 			return GenerateScriptSig(signatures.Select(s => new TransactionSignature(s, SigHash.All)).ToArray(), redeemScript);
 		}
@@ -394,12 +394,12 @@ namespace NBitcoin
 			}
 		}
 
-		public ScriptId ExtractScriptPubKeyParameters(Script scriptPubKey)
+		public static ScriptId ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
-			if(!FastCheckScriptPubKey(scriptPubKey))
+			if(!Instance.FastCheckScriptPubKey(scriptPubKey))
 				return null;
 			var ops = scriptPubKey.ToOps().ToArray();
-			if(!this.CheckScriptPubKeyCore(scriptPubKey, ops))
+			if(!Instance.CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
 			return new ScriptId(ops[1].PushData);
 		}
@@ -414,7 +414,7 @@ namespace NBitcoin
 				return _Instance;
 			}
 		}
-		public Script GenerateScriptPubKey(PubKey pubkey)
+		public static Script GenerateScriptPubKey(PubKey pubkey)
 		{
 			return new Script(
 					Op.GetPushOp(pubkey.ToBytes()),
@@ -430,21 +430,21 @@ namespace NBitcoin
 				   ops[1].Code == OpcodeType.OP_CHECKSIG;
 		}
 
-		public Script GenerateScriptSig(ECDSASignature signature)
+		public static Script GenerateScriptSig(ECDSASignature signature)
 		{
 			return GenerateScriptSig(new TransactionSignature(signature, SigHash.All));
 		}
-		public Script GenerateScriptSig(TransactionSignature signature)
+		public static Script GenerateScriptSig(TransactionSignature signature)
 		{
 			return new Script(
 				Op.GetPushOp(signature.ToBytes())
 				);
 		}
 
-		public TransactionSignature ExtractScriptSigParameters(Script scriptSig)
+		public static TransactionSignature ExtractScriptSigParameters(Script scriptSig)
 		{
 			var ops = scriptSig.ToOps().ToArray();
-			if(!CheckScriptSigCore(scriptSig, ops, null, null))
+			if(!Instance.CheckScriptSigCore(scriptSig, ops, null, null))
 				return null;
 
 			var data = ops[0].PushData;
@@ -477,10 +477,10 @@ namespace NBitcoin
 			}
 		}
 
-		public PubKey ExtractScriptPubKeyParameters(Script script)
+		public static PubKey ExtractScriptPubKeyParameters(Script script)
 		{
 			var ops = script.ToOps().ToArray();
-			if(!CheckScriptPubKeyCore(script, ops))
+			if(!Instance.CheckScriptPubKeyCore(script, ops))
 				return null;
 			try
 			{
@@ -518,19 +518,19 @@ namespace NBitcoin
 				return _Instance;
 			}
 		}
-		public Script GenerateScriptPubKey(BitcoinAddress address)
+		public static Script GenerateScriptPubKey(BitcoinAddress address)
 		{
 			if(address == null)
 				throw new ArgumentNullException("address");
 			return GenerateScriptPubKey((KeyId)address.ID);
 		}
-		public Script GenerateScriptPubKey(PubKey pubKey)
+		public static Script GenerateScriptPubKey(PubKey pubKey)
 		{
 			if(pubKey == null)
 				throw new ArgumentNullException("pubKey");
 			return GenerateScriptPubKey(pubKey.ID);
 		}
-		public Script GenerateScriptPubKey(KeyId pubkeyHash)
+		public static Script GenerateScriptPubKey(KeyId pubkeyHash)
 		{
 			return new Script(
 					OpcodeType.OP_DUP,
@@ -541,7 +541,7 @@ namespace NBitcoin
 				);
 		}
 
-		public Script GenerateScriptSig(TransactionSignature signature, PubKey publicKey)
+		public static Script GenerateScriptSig(TransactionSignature signature, PubKey publicKey)
 		{
 			if(signature == null)
 				throw new ArgumentNullException("signature");
@@ -573,10 +573,10 @@ namespace NBitcoin
 				   ops[3].Code == OpcodeType.OP_EQUALVERIFY &&
 				   ops[4].Code == OpcodeType.OP_CHECKSIG;
 		}
-		public KeyId ExtractScriptPubKeyParameters(Script scriptPubKey)
+		public static KeyId ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
 			var ops = scriptPubKey.ToOps().ToArray();
-			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
+			if(!Instance.CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
 			return new KeyId(ops[2].PushData);
 		}
@@ -597,10 +597,10 @@ namespace NBitcoin
 
 
 
-		public PayToPubkeyHashScriptSigParameters ExtractScriptSigParameters(Script scriptSig)
+		public static PayToPubkeyHashScriptSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{
 			var ops = scriptSig.ToOps().ToArray();
-			if(!CheckScriptSigCore(scriptSig, ops, null, null))
+			if(!Instance.CheckScriptSigCore(scriptSig, ops, null, null))
 				return null;
 			try
 			{

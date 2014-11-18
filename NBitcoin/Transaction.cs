@@ -201,8 +201,7 @@ namespace NBitcoin
 
 		public bool IsFrom(PubKey pubKey)
 		{
-			var template = new PayToPubkeyHashTemplate();
-			var result = template.ExtractScriptSigParameters(ScriptSig);
+			var result = PayToPubkeyHashTemplate.ExtractScriptSigParameters(ScriptSig);
 			return result != null && result.PublicKey == pubKey;
 		}
 	}
@@ -364,8 +363,7 @@ namespace NBitcoin
 
 		private PubKey GetPubKey()
 		{
-			var payToPubKeyTemplate = new PayToPubkeyTemplate();
-			return payToPubKeyTemplate.ExtractScriptPubKeyParameters(new Script(_Script));
+			return PayToPubkeyTemplate.ExtractScriptPubKeyParameters(new Script(_Script));
 		}
 
 		byte[] Compress()
@@ -541,7 +539,7 @@ namespace NBitcoin
 		public TxOut(Money value, PubKey pubkey)
 		{
 			Value = value;
-			ScriptPubKey = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(pubkey);
+			ScriptPubKey = PayToPubkeyTemplate.GenerateScriptPubKey(pubkey);
 		}
 
 		private void SetDestination(TxDestination destination)
@@ -832,7 +830,7 @@ namespace NBitcoin
 					throw new InvalidOperationException("ScriptSigs should be filled with either previous scriptPubKeys or redeem script (for P2SH)");
 				if(assumeP2SH)
 				{
-					var p2shSig = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txin.ScriptSig);
+					var p2shSig = PayToScriptHashTemplate.ExtractScriptSigParameters(txin.ScriptSig);
 					if(p2shSig == null)
 					{
 						builder.AddCoins(new ScriptCoin(txin.PrevOut, new TxOut()

@@ -312,7 +312,7 @@ namespace NBitcoin
 			{
 				if(_PaymentScript == null)
 				{
-					_PaymentScript = new PayToScriptHashTemplate().GenerateScriptPubKey(this.ID);
+					_PaymentScript = PayToScriptHashTemplate.GenerateScriptPubKey(this.ID);
 				}
 				return _PaymentScript;
 			}
@@ -540,7 +540,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return new PayToScriptHashTemplate().CheckScriptPubKey(this);
+				return PayToScriptHashTemplate.Instance.CheckScriptPubKey(this);
 			}
 		}
 		public uint GetSigOpCount(Script scriptSig)
@@ -584,12 +584,12 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TxDestination GetSigner()
 		{
-			var pubKey = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(this);
+			var pubKey = PayToPubkeyHashTemplate.ExtractScriptSigParameters(this);
 			if(pubKey != null)
 			{
 				return pubKey.PublicKey.ID;
 			}
-			var p2sh = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(this);
+			var p2sh = PayToScriptHashTemplate.ExtractScriptSigParameters(this);
 			if(p2sh != null)
 			{
 				return p2sh.RedeemScript.ID;
@@ -617,10 +617,10 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TxDestination GetDestination()
 		{
-			var pubKeyHashParams = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
+			var pubKeyHashParams = PayToPubkeyHashTemplate.ExtractScriptPubKeyParameters(this);
 			if(pubKeyHashParams != null)
 				return pubKeyHashParams;
-			var scriptHashParams = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
+			var scriptHashParams = PayToScriptHashTemplate.ExtractScriptPubKeyParameters(this);
 			if(scriptHashParams != null)
 				return scriptHashParams;
 			return null;
@@ -634,14 +634,14 @@ namespace NBitcoin
 		public PubKey[] GetDestinationPublicKeys()
 		{
 			List<PubKey> result = new List<PubKey>();
-			var single = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(this);
+			var single = PayToPubkeyTemplate.ExtractScriptPubKeyParameters(this);
 			if(single != null)
 			{
 				result.Add(single);
 			}
 			else
 			{
-				var multiSig = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(this);
+				var multiSig = PayToMultiSigTemplate.ExtractScriptPubKeyParameters(this);
 				if(multiSig != null)
 				{
 					foreach(var key in multiSig.PubKeys)
@@ -703,9 +703,9 @@ namespace NBitcoin
 		public static Script CreateFromDestination(TxDestination id)
 		{
 			if(id is ScriptId)
-				return PayToScriptHashTemplate.Instance.GenerateScriptPubKey((ScriptId)id);
+				return PayToScriptHashTemplate.GenerateScriptPubKey((ScriptId)id);
 			else if(id is KeyId)
-				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey((KeyId)id);
+				return PayToPubkeyHashTemplate.GenerateScriptPubKey((KeyId)id);
 			else
 				throw new NotSupportedException();
 		}

@@ -19,7 +19,6 @@ namespace NBitcoin.Scanning
 		{
 
 		}
-		PayToPubkeyHashTemplate template = new PayToPubkeyHashTemplate();
 		private readonly KeyId _PubKeyHash;
 		public KeyId KeyId
 		{
@@ -42,7 +41,7 @@ namespace NBitcoin.Scanning
 
 		public bool MatchPubKeyHash(TxOut output)
 		{
-			var id = template.ExtractScriptPubKeyParameters(output.ScriptPubKey);
+			var id = PayToPubkeyHashTemplate.ExtractScriptPubKeyParameters(output.ScriptPubKey);
 			return (id == KeyId);
 		}
 
@@ -54,7 +53,7 @@ namespace NBitcoin.Scanning
 				.Select(i => new
 				{
 					TxIn = i,
-					Parameters = template.ExtractScriptSigParameters(i.ScriptSig)
+					Parameters = PayToPubkeyHashTemplate.ExtractScriptSigParameters(i.ScriptSig)
 				})
 				.Where(r => r.Parameters != null && r.Parameters.PublicKey.ID == KeyId)
 				.Select(r => r.TxIn);

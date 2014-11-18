@@ -12,7 +12,6 @@ namespace NBitcoin.Scanning
 		{
 			_ScriptId = scriptId;
 		}
-		PayToScriptHashTemplate template = new PayToScriptHashTemplate();
 		private readonly ScriptId _ScriptId;
 		public ScriptId ScriptId
 		{
@@ -32,7 +31,7 @@ namespace NBitcoin.Scanning
 		}
 		public bool MatchScriptHash(TxOut output)
 		{
-			ScriptId id = template.ExtractScriptPubKeyParameters(output.ScriptPubKey);
+			ScriptId id = PayToScriptHashTemplate.ExtractScriptPubKeyParameters(output.ScriptPubKey);
 			return (id == ScriptId);
 		}
 
@@ -44,7 +43,7 @@ namespace NBitcoin.Scanning
 				.Select(i => new
 				{
 					TxIn = i,
-					Parameters = template.ExtractScriptSigParameters(i.ScriptSig)
+					Parameters = PayToScriptHashTemplate.ExtractScriptSigParameters(i.ScriptSig)
 				})
 				.Where(r => r.Parameters != null && r.Parameters.RedeemScript.ID == ScriptId)
 				.Select(r=>r.TxIn);

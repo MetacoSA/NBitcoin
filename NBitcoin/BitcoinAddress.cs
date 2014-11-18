@@ -40,7 +40,7 @@ namespace NBitcoin
 
 		protected override Script GeneratePaymentScript()
 		{
-			return new PayToScriptHashTemplate().GenerateScriptPubKey((ScriptId)ID);
+			return PayToScriptHashTemplate.GenerateScriptPubKey((ScriptId)ID);
 		}
 	}
 	public class BitcoinAddress : Base58Data
@@ -97,7 +97,7 @@ namespace NBitcoin
 		{
 			if(this is BitcoinScriptAddress)
 				return (BitcoinScriptAddress)this;
-			var redeem = new PayToPubkeyHashTemplate().GenerateScriptPubKey(this);
+			var redeem = PayToPubkeyHashTemplate.GenerateScriptPubKey(this);
 			return new BitcoinScriptAddress(redeem.ID, Network);
 		}
 		
@@ -105,7 +105,7 @@ namespace NBitcoin
 
 		protected virtual Script GeneratePaymentScript()
 		{
-			return new PayToPubkeyHashTemplate().GenerateScriptPubKey((KeyId)this.ID);
+			return PayToPubkeyHashTemplate.GenerateScriptPubKey((KeyId)this.ID);
 		}
 
 		public bool VerifyMessage(string message, string signature)

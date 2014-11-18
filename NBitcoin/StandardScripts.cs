@@ -11,11 +11,11 @@ namespace NBitcoin
 	{
 		static readonly ScriptTemplate[] _StandardTemplates = new ScriptTemplate[] 
 		{
-			new PayToPubkeyHashTemplate(), 
-			new PayToPubkeyTemplate(),
-			new PayToScriptHashTemplate(),
-			new PayToMultiSigTemplate(),
-			new TxNullDataTemplate()
+			PayToPubkeyHashTemplate.Instance, 
+			PayToPubkeyTemplate.Instance,
+			PayToScriptHashTemplate.Instance,
+			PayToMultiSigTemplate.Instance,
+			TxNullDataTemplate.Instance
 		};
 		public static Script PayToAddress(BitcoinAddress address)
 		{
@@ -24,12 +24,12 @@ namespace NBitcoin
 
 		private static Script PayToPubkeyHash(KeyId pubkeyHash)
 		{
-			return new PayToPubkeyHashTemplate().GenerateScriptPubKey(pubkeyHash);
+			return PayToPubkeyHashTemplate.GenerateScriptPubKey(pubkeyHash);
 		}
 
 		public static Script PayToPubkey(PubKey pubkey)
 		{
-			return new PayToPubkeyTemplate().GenerateScriptPubKey(pubkey);
+			return PayToPubkeyTemplate.GenerateScriptPubKey(pubkey);
 		}
 
 		public static bool IsStandardTransaction(Transaction tx)

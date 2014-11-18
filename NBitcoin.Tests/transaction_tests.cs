@@ -37,8 +37,7 @@ namespace NBitcoin.Tests
 		public void CanSignTransaction()
 		{
 			var key = new Key();
-			PayToPubkeyHashTemplate template = new PayToPubkeyHashTemplate();
-			var scriptPubKey = template.GenerateScriptPubKey(key.PubKey);
+			var scriptPubKey = PayToPubkeyHashTemplate.GenerateScriptPubKey(key.PubKey);
 
 			Transaction tx = new Transaction();
 			tx.AddInput(new TxIn(new OutPoint(tx.GetHash(), 0))
@@ -98,7 +97,7 @@ namespace NBitcoin.Tests
 			var bob = new Key();
 			var alice = new Key();
 
-			var goldRedeem = PayToMultiSigTemplate.Instance
+			var goldRedeem = PayToMultiSigTemplate
 									.GenerateScriptPubKey(2, new[] { satoshi.PubKey, bob.PubKey, alice.PubKey });
 
 			var goldScriptPubKey = goldRedeem.ID.CreateScriptPubKey();
@@ -150,7 +149,7 @@ namespace NBitcoin.Tests
 			var carlaKey = new Key();
 
 			// Alice + Bob 2 of 2 multisig "wallet"
-			var aliceBobRedeemScript = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new PubKey[] { aliceKey.PubKey, bobKey.PubKey });
+			var aliceBobRedeemScript = PayToMultiSigTemplate.GenerateScriptPubKey(2, new PubKey[] { aliceKey.PubKey, bobKey.PubKey });
 
 			var txBuilder = new TransactionBuilder();
 			var funding = txBuilder
@@ -529,17 +528,13 @@ namespace NBitcoin.Tests
 		public void CanBuildTransaction()
 		{
 			var keys = Enumerable.Range(0, 5).Select(i => new Key()).ToArray();
-			var payToMultiSig = new PayToMultiSigTemplate();
-			var payToPubKey = new PayToPubkeyTemplate();
-			var payToPubKeyHash = new PayToPubkeyHashTemplate();
-			var payToScriptHash = new PayToScriptHashTemplate();
 
-			var multiSigPubKey = payToMultiSig.GenerateScriptPubKey(2, keys.Select(k => k.PubKey).Take(3).ToArray());
-			var pubKeyPubKey = payToPubKey.GenerateScriptPubKey(keys[4].PubKey);
-			var pubKeyHashPubKey = payToPubKeyHash.GenerateScriptPubKey(keys[4].PubKey.ID);
-			var scriptHashPubKey1 = payToScriptHash.GenerateScriptPubKey(multiSigPubKey.ID);
-			var scriptHashPubKey2 = payToScriptHash.GenerateScriptPubKey(pubKeyPubKey.ID);
-			var scriptHashPubKey3 = payToScriptHash.GenerateScriptPubKey(pubKeyHashPubKey.ID);
+			var multiSigPubKey = PayToMultiSigTemplate.GenerateScriptPubKey(2, keys.Select(k => k.PubKey).Take(3).ToArray());
+			var pubKeyPubKey = PayToPubkeyTemplate.GenerateScriptPubKey(keys[4].PubKey);
+			var pubKeyHashPubKey = PayToPubkeyHashTemplate.GenerateScriptPubKey(keys[4].PubKey.ID);
+			var scriptHashPubKey1 = PayToScriptHashTemplate.GenerateScriptPubKey(multiSigPubKey.ID);
+			var scriptHashPubKey2 = PayToScriptHashTemplate.GenerateScriptPubKey(pubKeyPubKey.ID);
+			var scriptHashPubKey3 = PayToScriptHashTemplate.GenerateScriptPubKey(pubKeyHashPubKey.ID);
 
 
 			var coins = new[] { multiSigPubKey, pubKeyPubKey, pubKeyHashPubKey }.Select((script, i) =>
@@ -631,8 +626,7 @@ namespace NBitcoin.Tests
 						.Select(k => new BitcoinSecret(k).Key).ToArray();
 
 			//First: combine the three keys into a multisig address
-			var multiSigTemplate = new PayToMultiSigTemplate();
-			var redeem = multiSigTemplate.GenerateScriptPubKey(2, privKeys.Select(k => k.PubKey).ToArray());
+			var redeem = PayToMultiSigTemplate.GenerateScriptPubKey(2, privKeys.Select(k => k.PubKey).ToArray());
 			var scriptAddress = redeem.ID.GetAddress(Network.Main);
 			Assert.Equal("3QJmV3qfvL9SuYo34YihAf3sRCW3qSinyC", scriptAddress.ToString());
 
@@ -996,8 +990,7 @@ namespace NBitcoin.Tests
 			t.Outputs.Add(new TxOut());
 			t.Outputs[0].Value = 90 * Money.CENT;
 			Key key = new Key(true);
-			var payToHash = new PayToPubkeyHashTemplate();
-			t.Outputs[0].ScriptPubKey = payToHash.GenerateScriptPubKey(key.PubKey.ID);
+			t.Outputs[0].ScriptPubKey = PayToPubkeyHashTemplate.GenerateScriptPubKey(key.PubKey.ID);
 
 			Assert.True(StandardScripts.IsStandardTransaction(t));
 

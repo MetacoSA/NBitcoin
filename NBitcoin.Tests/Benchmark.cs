@@ -90,11 +90,11 @@ namespace NBitcoin.Tests
 		public void BlockDirectoryScanScriptSpeed()
 		{
 			List<TimeSpan> times = new List<TimeSpan>();
-			times.Add(BenchmarkTemplate((txout) => new PayToMultiSigTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)));
-			times.Add(BenchmarkTemplate((txout) => new PayToPubkeyHashTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)));
-			times.Add(BenchmarkTemplate((txout) => new PayToScriptHashTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)));
-			times.Add(BenchmarkTemplate((txout) => new PayToPubkeyTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)));
-			times.Add(BenchmarkTemplate((txout) => new TxNullDataTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)));
+			times.Add(BenchmarkTemplate((txout) => PayToMultiSigTemplate.ExtractScriptPubKeyParameters(txout.ScriptPubKey)));
+			times.Add(BenchmarkTemplate((txout) => PayToPubkeyHashTemplate.ExtractScriptPubKeyParameters(txout.ScriptPubKey)));
+			times.Add(BenchmarkTemplate((txout) => PayToScriptHashTemplate.ExtractScriptPubKeyParameters(txout.ScriptPubKey)));
+			times.Add(BenchmarkTemplate((txout) => PayToPubkeyTemplate.ExtractScriptPubKeyParameters(txout.ScriptPubKey)));
+			times.Add(BenchmarkTemplate((txout) => TxNullDataTemplate.ExtractScriptPubKeyParameters(txout.ScriptPubKey)));
 		}
 
 		[Fact]
@@ -102,11 +102,11 @@ namespace NBitcoin.Tests
 		public void BlockDirectoryScanScriptSpeedParallel()
 		{
 			List<Task<TimeSpan>> times = new List<Task<TimeSpan>>();
-			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => new PayToMultiSigTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
-			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => new PayToPubkeyHashTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
-			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => new PayToScriptHashTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
-			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => new PayToPubkeyTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
-			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => new TxNullDataTemplate().ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
+			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => PayToMultiSigTemplate.ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
+			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => PayToPubkeyHashTemplate.ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
+			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => PayToScriptHashTemplate.ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
+			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => PayToPubkeyTemplate.ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
+			times.Add(Task.Factory.StartNew(() => BenchmarkTemplate((txout) => TxNullDataTemplate.ExtractScriptPubKeyParameters(txout.ScriptPubKey)), TaskCreationOptions.LongRunning));
 
 			Task.WaitAll(times.ToArray());
 

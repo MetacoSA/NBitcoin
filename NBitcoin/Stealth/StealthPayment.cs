@@ -63,13 +63,11 @@ namespace NBitcoin.Stealth
 		{
 			if(sigCount == 1 && uncoveredPubKeys.Length == 1)
 			{
-				var template = new PayToPubkeyHashTemplate();
-				return template.GenerateScriptPubKey(uncoveredPubKeys[0].ID);
+				return PayToPubkeyHashTemplate.GenerateScriptPubKey(uncoveredPubKeys[0].ID);
 			}
 			else
 			{
-				var template = new PayToMultiSigTemplate();
-				return template.GenerateScriptPubKey(sigCount, uncoveredPubKeys);
+				return PayToMultiSigTemplate.GenerateScriptPubKey(sigCount, uncoveredPubKeys);
 			}
 		}
 
@@ -81,14 +79,14 @@ namespace NBitcoin.Stealth
 
 		public static KeyId[] ExtractKeyIDs(Script script)
 		{
-			var keyId = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(script);
+			var keyId = PayToPubkeyHashTemplate.ExtractScriptPubKeyParameters(script);
 			if(keyId != null)
 			{
 				return new[] { keyId };
 			}
 			else
 			{
-				var para = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(script);
+				var para = PayToMultiSigTemplate.ExtractScriptPubKeyParameters(script);
 				if(para == null)
 					throw new ArgumentException("Invalid stealth spendable output script", "spendable");
 				return para.PubKeys.Select(k => k.ID).ToArray();
@@ -150,7 +148,7 @@ namespace NBitcoin.Stealth
 				if(metadata != null && (address == null || address.Prefix.Match(metadata.BitField)))
 				{
 					var scriptPubKey = transaction.Outputs[i + 1].ScriptPubKey;
-					var scriptId = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+					var scriptId = PayToScriptHashTemplate.ExtractScriptPubKeyParameters(scriptPubKey);
 					Script expectedScriptPubKey = address == null ? scriptPubKey : null;
 					Script redeem = null;
 
