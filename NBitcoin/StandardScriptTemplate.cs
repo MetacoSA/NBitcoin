@@ -158,10 +158,10 @@ namespace NBitcoin
 
 		public PayToMultiSigTemplateParameters ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
-			if(!Instance.FastCheckScriptPubKey(scriptPubKey))
+			if(!FastCheckScriptPubKey(scriptPubKey))
 				return null;
 			var ops = scriptPubKey.ToOps().ToArray();
-			if(!Instance.CheckScriptPubKeyCore(scriptPubKey, ops))
+			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
 
 			var sigCount = (int)ops[0].GetValue();
@@ -224,10 +224,10 @@ namespace NBitcoin
 
 		public TransactionSignature[] ExtractScriptSigParameters(Script scriptSig)
 		{
-			if(!Instance.FastCheckScriptSig(scriptSig, null))
+			if(!FastCheckScriptSig(scriptSig, null))
 				return null;
 			var ops = scriptSig.ToOps().ToArray();
-			if(!Instance.CheckScriptSigCore(scriptSig, ops, null, null))
+			if(!CheckScriptSigCore(scriptSig, ops, null, null))
 				return null;
 			try
 			{
@@ -331,7 +331,7 @@ namespace NBitcoin
 		public PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{
 			var ops = scriptSig.ToOps().ToArray();
-			if(!Instance.CheckScriptSigCore(scriptSig, ops, null, null))
+			if(!CheckScriptSigCore(scriptSig, ops, null, null))
 				return null;
 			try
 			{
@@ -396,10 +396,10 @@ namespace NBitcoin
 
 		public ScriptId ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
-			if(!Instance.FastCheckScriptPubKey(scriptPubKey))
+			if(!FastCheckScriptPubKey(scriptPubKey))
 				return null;
 			var ops = scriptPubKey.ToOps().ToArray();
-			if(!Instance.CheckScriptPubKeyCore(scriptPubKey, ops))
+			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
 			return new ScriptId(ops[1].PushData);
 		}
@@ -444,7 +444,7 @@ namespace NBitcoin
 		public TransactionSignature ExtractScriptSigParameters(Script scriptSig)
 		{
 			var ops = scriptSig.ToOps().ToArray();
-			if(!Instance.CheckScriptSigCore(scriptSig, ops, null, null))
+			if(!CheckScriptSigCore(scriptSig, ops, null, null))
 				return null;
 
 			var data = ops[0].PushData;
@@ -480,7 +480,7 @@ namespace NBitcoin
 		public PubKey ExtractScriptPubKeyParameters(Script script)
 		{
 			var ops = script.ToOps().ToArray();
-			if(!Instance.CheckScriptPubKeyCore(script, ops))
+			if(!CheckScriptPubKeyCore(script, ops))
 				return null;
 			try
 			{
@@ -576,7 +576,7 @@ namespace NBitcoin
 		public KeyId ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
 			var ops = scriptPubKey.ToOps().ToArray();
-			if(!Instance.CheckScriptPubKeyCore(scriptPubKey, ops))
+			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
 			return new KeyId(ops[2].PushData);
 		}
@@ -600,7 +600,7 @@ namespace NBitcoin
 		public PayToPubkeyHashScriptSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{
 			var ops = scriptSig.ToOps().ToArray();
-			if(!Instance.CheckScriptSigCore(scriptSig, ops, null, null))
+			if(!CheckScriptSigCore(scriptSig, ops, null, null))
 				return null;
 			try
 			{
