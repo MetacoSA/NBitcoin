@@ -63,13 +63,11 @@ namespace NBitcoin.Stealth
 		{
 			if(sigCount == 1 && uncoveredPubKeys.Length == 1)
 			{
-				var template = new PayToPubkeyHashTemplate();
-				return template.GenerateScriptPubKey(uncoveredPubKeys[0].ID);
+				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(uncoveredPubKeys[0].ID);
 			}
 			else
 			{
-				var template = new PayToMultiSigTemplate();
-				return template.GenerateScriptPubKey(sigCount, uncoveredPubKeys);
+				return PayToMultiSigTemplate.Instance.GenerateScriptPubKey(sigCount, uncoveredPubKeys);
 			}
 		}
 

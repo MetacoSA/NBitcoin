@@ -201,8 +201,7 @@ namespace NBitcoin
 
 		public bool IsFrom(PubKey pubKey)
 		{
-			var template = new PayToPubkeyHashTemplate();
-			var result = template.ExtractScriptSigParameters(ScriptSig);
+			var result = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(ScriptSig);
 			return result != null && result.PublicKey == pubKey;
 		}
 	}
@@ -364,8 +363,7 @@ namespace NBitcoin
 
 		private PubKey GetPubKey()
 		{
-			var payToPubKeyTemplate = new PayToPubkeyTemplate();
-			return payToPubKeyTemplate.ExtractScriptPubKeyParameters(new Script(_Script));
+			return PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(new Script(_Script));
 		}
 
 		byte[] Compress()

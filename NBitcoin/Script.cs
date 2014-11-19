@@ -335,7 +335,7 @@ namespace NBitcoin
 			{
 				if(_PaymentScript == null)
 				{
-					_PaymentScript = new PayToScriptHashTemplate().GenerateScriptPubKey(this.ID);
+					_PaymentScript = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(this.ID);
 				}
 				return _PaymentScript;
 			}
@@ -563,7 +563,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return new PayToScriptHashTemplate().CheckScriptPubKey(this);
+				return PayToScriptHashTemplate.Instance.CheckScriptPubKey(this);
 			}
 		}
 		public uint GetSigOpCount(Script scriptSig)
