@@ -1,6 +1,7 @@
 ﻿using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -220,7 +221,6 @@ namespace NBitcoin.Tests
 		}
 
 
-		ScriptVerify flags = ScriptVerify.P2SH | ScriptVerify.StrictEnc;
 		[Fact]
 		[Trait("Core", "Core")]
 		public void script_valid()
@@ -228,17 +228,20 @@ namespace NBitcoin.Tests
 			var tests = TestCase.read_json("data/script_valid.json");
 			foreach(var test in tests)
 			{
-				var comment = test.Count == 3 ? (string)test[2] : "no comment";
+				if(test.Count == 1)
+					continue;
+				var comment = test.Count == 4 ? (string)test[3] : "no comment";
+				var flag = ParseFlag((string)test[2]);
 				var scriptSig = ParseScript((string)test[0]);
 				var scriptPubKey = ParseScript((string)test[1]);
 
 				Assert.Equal(scriptSig.ToString(), new Script(scriptSig.ToString()).ToString());
 				Assert.Equal(scriptPubKey.ToString(), new Script(scriptPubKey.ToString()).ToString());
 
-				var transaction = new Transaction();
-				Assert.True(Script.VerifyScript(scriptSig, scriptPubKey, transaction, 0, flags, SigHash.None), "Test : " + test.Index + " " + comment);
+				AssertVerifyScript(scriptSig, scriptPubKey, flag, test.Index, comment, true);
 			}
 		}
+
 		[Fact]
 		[Trait("Core", "Core")]
 		public void script_invalid()
@@ -246,16 +249,81 @@ namespace NBitcoin.Tests
 			var tests = TestCase.read_json("data/script_invalid.json");
 			foreach(var test in tests)
 			{
-				var comment = test.Count == 3 ? (string)test[2] : "no comment";
+				if(test.Count == 1)
+					continue;
+				var comment = test.Count == 4 ? (string)test[3] : "no comment";
+				var flag = ParseFlag((string)test[2]);
 				var scriptSig = ParseScript((string)test[0]);
 				var scriptPubKey = ParseScript((string)test[1]);
 
 				Assert.Equal(scriptSig.ToString(), new Script(scriptSig.ToString()).ToString());
 				Assert.Equal(scriptPubKey.ToString(), new Script(scriptPubKey.ToString()).ToString());
 
-				var transaction = new Transaction();
-				Assert.True(!Script.VerifyScript(scriptSig, scriptPubKey, transaction, 0, flags, SigHash.None), "Test : " + test.Index + " " + comment);
+
+				AssertVerifyScript(scriptSig, scriptPubKey, flag, test.Index, comment, false);
 			}
+		}
+
+		private void AssertVerifyScript(Script scriptSig, Script scriptPubKey, ScriptVerify flags, int testIndex, string comment, bool expected)
+		{
+			var creditingTransaction = new Transaction();
+			creditingTransaction.AddInput(new TxIn()
+			{
+				ScriptSig = new Script(OpcodeType.OP_0, OpcodeType.OP_0)
+			});
+			creditingTransaction.AddOutput(Money.Zero, scriptPubKey);
+
+			var spendingTransaction = new Transaction();
+			spendingTransaction.AddInput(new TxIn(new OutPoint(creditingTransaction, 0))
+			{
+				ScriptSig = scriptSig
+			});
+			spendingTransaction.AddOutput(new TxOut()
+			{
+				ScriptPubKey = new Script(),
+				Value = Money.Zero
+			});
+
+			var actual = Script.VerifyScript(scriptSig, scriptPubKey, spendingTransaction, 0, flags, SigHash.Undefined);
+			Assert.True(expected == actual, "Test : " + testIndex + " " + comment);
+		}
+
+		private ScriptVerify ParseFlag(string flag)
+		{
+			ScriptVerify result = ScriptVerify.None;
+			foreach(var p in flag.Split(',', '|').Select(p => p.Trim().ToUpperInvariant()))
+			{
+				if(p == "P2SH")
+					result |= ScriptVerify.P2SH;
+				else if(p == "STRICTENC")
+					result |= ScriptVerify.StrictEnc;
+				else if(p == "MINIMALDATA")
+				{
+					result |= ScriptVerify.MinimalData;
+				}
+				else if(p == "DERSIG")
+				{
+					result |= ScriptVerify.DerSig;
+				}
+				else if(p == "SIGPUSHONLY")
+				{
+					result |= ScriptVerify.SigPushOnly;
+				}
+				else if(p == "NULLDUMMY")
+				{
+					result |= ScriptVerify.NullDummy;
+				}
+				else if(p == "LOW_S")
+				{
+					result |= ScriptVerify.LowS;
+				}
+				else if(p == "")
+				{
+				}
+				else
+					throw new NotSupportedException(p);
+			}
+			return result;
 		}
 
 		[Fact]
@@ -307,7 +375,7 @@ namespace NBitcoin.Tests
 		{
 			return sign_multisig(scriptPubKey, new Key[] { key }, transaction);
 		}
-
+		ScriptVerify flags = ScriptVerify.P2SH | ScriptVerify.StrictEnc;
 		[Fact]
 		[Trait("Core", "Core")]
 		public void script_CHECKMULTISIG12()

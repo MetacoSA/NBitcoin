@@ -12,15 +12,38 @@ namespace NBitcoin
 {
 	/** Script verification flags */
 	[Flags]
-	public enum ScriptVerify
+	public enum ScriptVerify : uint
 	{
 		None = 0,
-		P2SH = 1, // evaluate P2SH (BIP16) subscripts
-		StrictEnc = 2, // enforce strict conformance to DER and SEC2 for signatures and pubkeys
-		LowS = 4, // enforce low S values (<n/2) in signatures (depends on STRICTENC)
-		NoCache = 8, // do not store results in signature cache (but do query it)
-		NullDummy = 16, // verify dummy stack item consumed by CHECKMULTISIG is of zero-length
-	};
+
+		// Evaluate P2SH subscripts (softfork safe, BIP16).
+		P2SH = (1U << 0),
+
+		// Passing a non-strict-DER signature or one with undefined hashtype to a checksig operation causes script failure.
+		// Passing a pubkey that is not (0x04 + 64 bytes) or (0x02 or 0x03 + 32 bytes) to checksig causes that pubkey to be
+		// skipped (not softfork safe: this flag can widen the validity of OP_CHECKSIG OP_NOT).
+		StrictEnc = (1U << 1),
+
+		// Passing a non-strict-DER signature to a checksig operation causes script failure (softfork safe, BIP62 rule 1)
+		DerSig = (1U << 2),
+
+		// Passing a non-strict-DER signature or one with S > order/2 to a checksig operation causes script failure
+		// (softfork safe, BIP62 rule 5).
+		LowS = (1U << 3),
+
+		// verify dummy stack item consumed by CHECKMULTISIG is of zero-length (softfork safe, BIP62 rule 7).
+		NullDummy = (1U << 4),
+
+		// Using a non-push operator in the scriptSig causes script failure (softfork safe, BIP62 rule 2).
+		SigPushOnly = (1U << 5),
+
+		// Require minimal encodings for all push operations (OP_0... OP_16, OP_1NEGATE where possible, direct
+		// pushes up to 75 bytes, OP_PUSHDATA up to 255 bytes, OP_PUSHDATA2 for anything larger). Evaluating
+		// any other push causes the script to fail (BIP62 rule 3).
+		// In addition, whenever a stack element is interpreted as a number, it must be of minimal length (BIP62 rule 4).
+		// (softfork safe)
+		MinimalData = (1U << 6)
+	}
 
 	/** Signature hash types/flags */
 	public enum SigHash : uint

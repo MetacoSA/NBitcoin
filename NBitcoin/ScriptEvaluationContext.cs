@@ -1,5 +1,6 @@
 ﻿using NBitcoin.Crypto;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,221 @@ namespace NBitcoin
 {
 	public class ScriptEvaluationContext
 	{
+		class CScriptNum
+		{
+			const long nMaxNumSize = 4;
+			/**
+			 * Numeric opcodes (OP_1ADD, etc) are restricted to operating on 4-byte integers.
+			 * The semantics are subtle, though: operands must be in the range [-2^31 +1...2^31 -1],
+			 * but results may overflow (and are valid as long as they are not used in a subsequent
+			 * numeric operation). CScriptNum enforces those semantics by storing results as
+			 * an int64 and allowing out-of-range values to be returned as a vector of bytes but
+			 * throwing an exception if arithmetic is done or the result is interpreted as an integer.
+			 */
+
+			public CScriptNum(long n)
+			{
+				m_value = n;
+			}
+			private long m_value;
+
+			public CScriptNum(byte[] vch, bool fRequireMinimal)
+			{
+				if(vch.Length > nMaxNumSize)
+				{
+					throw new ArgumentException("script number overflow", "vch");
+				}
+				if(fRequireMinimal && vch.Length > 0)
+				{
+					// Check that the number is encoded with the minimum possible
+					// number of bytes.
+					//
+					// If the most-significant-byte - excluding the sign bit - is zero
+					// then we're not minimal. Note how this test also rejects the
+					// negative-zero encoding, 0x80.
+					if((vch[vch.Length - 1] & 0x7f) == 0)
+					{
+						// One exception: if there's more than one byte and the most
+						// significant bit of the second-most-significant-byte is set
+						// it would conflict with the sign bit. An example of this case
+						// is +-255, which encode to 0xff00 and 0xff80 respectively.
+						// (big-endian).
+						if(vch.Length <= 1 || (vch[vch.Length - 2] & 0x80) == 0)
+						{
+							throw new ArgumentException("non-minimally encoded script number", "vch");
+						}
+					}
+				}
+				m_value = set_vch(vch);
+			}
+
+			public override int GetHashCode()
+			{
+				return getint();
+			}
+			public override bool Equals(object obj)
+			{
+				if(obj == null || !(obj is CScriptNum))
+					return false;
+				CScriptNum item = (CScriptNum)obj;
+				return m_value == item.m_value;
+			}
+			public static bool operator ==(CScriptNum num, long rhs)
+			{
+				return num.m_value == rhs;
+			}
+			public static bool operator !=(CScriptNum num, long rhs)
+			{
+				return num.m_value != rhs;
+			}
+			public static bool operator <=(CScriptNum num, long rhs)
+			{
+				return num.m_value <= rhs;
+			}
+			public static bool operator <(CScriptNum num, long rhs)
+			{
+				return num.m_value < rhs;
+			}
+			public static bool operator >=(CScriptNum num, long rhs)
+			{
+				return num.m_value >= rhs;
+			}
+			public static bool operator >(CScriptNum num, long rhs)
+			{
+				return num.m_value > rhs;
+			}
+
+			public static bool operator ==(CScriptNum a, CScriptNum b)
+			{
+				return a.m_value == b.m_value;
+			}
+			public static bool operator !=(CScriptNum a, CScriptNum b)
+			{
+				return a.m_value != b.m_value;
+			}
+			public static bool operator <=(CScriptNum a, CScriptNum b)
+			{
+				return a.m_value <= b.m_value;
+			}
+			public static bool operator <(CScriptNum a, CScriptNum b)
+			{
+				return a.m_value < b.m_value;
+			}
+			public static bool operator >=(CScriptNum a, CScriptNum b)
+			{
+				return a.m_value >= b.m_value;
+			}
+			public static bool operator >(CScriptNum a, CScriptNum b)
+			{
+				return a.m_value > b.m_value;
+			}
+
+			public static CScriptNum operator +(CScriptNum num, long rhs)
+			{
+				return new CScriptNum(num.m_value + rhs);
+			}
+			public static CScriptNum operator -(CScriptNum num, long rhs)
+			{
+				return new CScriptNum(num.m_value - rhs);
+			}
+			public static CScriptNum operator +(CScriptNum a, CScriptNum b)
+			{
+				return new CScriptNum(a.m_value + b.m_value);
+			}
+			public static CScriptNum operator -(CScriptNum a, CScriptNum b)
+			{
+				return new CScriptNum(a.m_value - b.m_value);
+			}
+
+
+			public static CScriptNum operator -(CScriptNum num)
+			{
+				assert(num.m_value != Int64.MinValue);
+				return new CScriptNum(-num.m_value);
+			}
+
+			private static void assert(bool result)
+			{
+				if(!result)
+					throw new InvalidOperationException("Assertion fail for CScriptNum");
+			}
+
+			public static implicit operator CScriptNum(long rhs)
+			{
+				return new CScriptNum(rhs);
+			}
+
+
+
+
+			public int getint()
+			{
+				if(m_value > int.MaxValue)
+					return int.MaxValue;
+				else if(m_value < int.MinValue)
+					return int.MinValue;
+				return (int)m_value;
+			}
+
+			public byte[] getvch()
+			{
+				return serialize(m_value);
+			}
+
+			static byte[] serialize(long value)
+			{
+				if(value == 0)
+					return new byte[0];
+
+				List<byte> result = new List<byte>();
+				bool neg = value < 0;
+				long absvalue = neg ? -value : value;
+
+				while(absvalue != 0)
+				{
+					result.Add((byte)(absvalue & 0xff));
+					absvalue >>= 8;
+				}
+
+				//    - If the most significant byte is >= 0x80 and the value is positive, push a
+				//    new zero-byte to make the significant byte < 0x80 again.
+
+				//    - If the most significant byte is >= 0x80 and the value is negative, push a
+				//    new 0x80 byte that will be popped off when converting to an integral.
+
+				//    - If the most significant byte is < 0x80 and the value is negative, add
+				//    0x80 to it, since it will be subtracted and interpreted as a negative when
+				//    converting to an integral.
+
+				if((result[result.Count - 1] & 0x80) != 0)
+					result.Add((byte)(neg ? 0x80 : 0));
+				else if(neg)
+					result[result.Count - 1] |= 0x80;
+
+				return result.ToArray();
+			}
+
+			static long set_vch(byte[] vch)
+			{
+				if(vch.Length == 0)
+					return 0;
+
+				long result = 0;
+				for(int i = 0 ; i != vch.Length ; ++i)
+					result |= ((long)(vch[i])) << 8 * i;
+
+				// If the input vector's most significant byte is 0x80, remove it from
+				// the result's msb and return a negative.
+				if((vch[vch.Length - 1] & 0x80) != 0)
+				{
+					var temp = ~(0x80UL << (8 * (vch.Length - 1)));
+					return -((long)((ulong)result & temp));
+				}
+
+				return result;
+			}
+
+		}
 		Stack<byte[]> _Stack = new Stack<byte[]>();
 		public Stack<byte[]> Stack
 		{
@@ -38,6 +254,11 @@ namespace NBitcoin
 
 		public bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction txTo, int nIn)
 		{
+			if((ScriptVerify & ScriptVerify.SigPushOnly) != 0 && !scriptSig.IsPushOnly)
+			{
+				return false;
+			}
+
 			ScriptEvaluationContext evaluationCopy = null;
 
 			if(!EvalScript(scriptSig, txTo, nIn))
@@ -76,7 +297,7 @@ namespace NBitcoin
 			return true;
 		}
 
-		
+
 		static readonly byte[] vchFalse = new byte[] { 0 };
 		static readonly byte[] vchZero = new byte[] { 0 };
 		static readonly byte[] vchTrue = new byte[] { 1 };
@@ -93,6 +314,7 @@ namespace NBitcoin
 			if(s.Length > 10000)
 				return false;
 			int nOpCount = 0;
+			bool fRequireMinimal = (ScriptVerify & ScriptVerify.MinimalData) != 0;
 
 			try
 			{
@@ -128,8 +350,16 @@ namespace NBitcoin
 						opcode.Code == OpcodeType.OP_RSHIFT)
 						return false; // Disabled opcodes.
 
-					if(fExec && opcode.PushData != null)
+					if(fExec && 0 <= (int)opcode.Code && (int)opcode.Code <= (int)OpcodeType.OP_PUSHDATA4)
+					{
+						if(fRequireMinimal && !CheckMinimalPush(opcode.PushData, opcode.Code))
+						{
+							return false;
+						}
 						_Stack.Push(opcode.PushData);
+					}
+					//if(fExec && opcode.PushData != null)
+					//	_Stack.Push(opcode.PushData);
 					else if(fExec || (OpcodeType.OP_IF <= opcode.Code && opcode.Code <= OpcodeType.OP_ENDIF))
 						switch(opcode.Code)
 						{
@@ -155,8 +385,8 @@ namespace NBitcoin
 							case OpcodeType.OP_16:
 								{
 									// ( -- value)
-									BigInteger bn = new BigInteger((int)opcode.Code - (int)(OpcodeType.OP_1 - 1));
-									_Stack.Push(Utils.BigIntegerToBytes(bn));
+									CScriptNum bn = new CScriptNum((int)opcode.Code - (int)(OpcodeType.OP_1 - 1));
+									_Stack.Push(bn.getvch());
 								}
 								break;
 
@@ -340,8 +570,8 @@ namespace NBitcoin
 							case OpcodeType.OP_DEPTH:
 								{
 									// -- stacksize
-									BigInteger bn = new BigInteger(_Stack.Count);
-									_Stack.Push(Utils.BigIntegerToBytes(bn));
+									CScriptNum bn = new CScriptNum(_Stack.Count);
+									_Stack.Push(bn.getvch());
 								}
 								break;
 
@@ -390,7 +620,7 @@ namespace NBitcoin
 									// (xn ... x2 x1 x0 n - ... x2 x1 x0 xn)
 									if(_Stack.Count < 2)
 										return false;
-									int n = (int)CastToBigNum(top(_Stack, -1));
+									int n = new CScriptNum(top(_Stack, -1), fRequireMinimal).getint();
 									_Stack.Pop();
 									if(n < 0 || n >= _Stack.Count)
 										return false;
@@ -438,8 +668,8 @@ namespace NBitcoin
 									// (in -- in size)
 									if(_Stack.Count < 1)
 										return false;
-									BigInteger bn = new BigInteger(top(_Stack, -1).Length);
-									_Stack.Push(Utils.BigIntegerToBytes(bn));
+									CScriptNum bn = new CScriptNum(top(_Stack, -1).Length);
+									_Stack.Push(bn.getvch());
 								}
 								break;
 
@@ -489,33 +719,33 @@ namespace NBitcoin
 									// (in -- out)
 									if(_Stack.Count < 1)
 										return false;
-									var bn = CastToBigNum(top(_Stack, -1));
+									var bn = new CScriptNum(top(_Stack, -1), fRequireMinimal);
 									switch(opcode.Code)
 									{
 										case OpcodeType.OP_1ADD:
-											bn += BigInteger.One;
+											bn += 1;
 											break;
 										case OpcodeType.OP_1SUB:
-											bn -= BigInteger.One;
+											bn -= 1;
 											break;
 										case OpcodeType.OP_NEGATE:
 											bn = -bn;
 											break;
 										case OpcodeType.OP_ABS:
-											if(bn < BigInteger.Zero)
+											if(bn < 0)
 												bn = -bn;
 											break;
 										case OpcodeType.OP_NOT:
-											bn = CastToBigNum(bn == BigInteger.Zero);
+											bn = bn == 0 ? 1 : 0;
 											break;
 										case OpcodeType.OP_0NOTEQUAL:
-											bn = CastToBigNum(bn != BigInteger.Zero);
+											bn = bn != 0 ? 1 : 0;
 											break;
 										default:
 											throw new NotSupportedException("invalid opcode");
 									}
 									_Stack.Pop();
-									_Stack.Push(Utils.BigIntegerToBytes(bn));
+									_Stack.Push(bn.getvch());
 								}
 								break;
 
@@ -536,9 +766,9 @@ namespace NBitcoin
 									// (x1 x2 -- out)
 									if(_Stack.Count < 2)
 										return false;
-									var bn1 = CastToBigNum(top(_Stack, -2));
-									var bn2 = CastToBigNum(top(_Stack, -1));
-									BigInteger bn;
+									var bn1 = new CScriptNum(top(_Stack, -2), fRequireMinimal);
+									var bn2 = new CScriptNum(top(_Stack, -1), fRequireMinimal);
+									CScriptNum bn = new CScriptNum(0);
 									switch(opcode.Code)
 									{
 										case OpcodeType.OP_ADD:
@@ -550,31 +780,31 @@ namespace NBitcoin
 											break;
 
 										case OpcodeType.OP_BOOLAND:
-											bn = CastToBigNum(bn1 != BigInteger.Zero && bn2 != BigInteger.Zero);
+											bn = bn1 != 0 && bn2 != 0 ? 1 : 0;
 											break;
 										case OpcodeType.OP_BOOLOR:
-											bn = CastToBigNum(bn1 != BigInteger.Zero || bn2 != BigInteger.Zero);
+											bn = bn1 != 0 || bn2 != 0 ? 1 : 0;
 											break;
 										case OpcodeType.OP_NUMEQUAL:
-											bn = CastToBigNum(bn1 == bn2);
+											bn = (bn1 == bn2) ? 1 : 0;
 											break;
 										case OpcodeType.OP_NUMEQUALVERIFY:
-											bn = CastToBigNum(bn1 == bn2);
+											bn = (bn1 == bn2) ? 1 : 0;
 											break;
 										case OpcodeType.OP_NUMNOTEQUAL:
-											bn = CastToBigNum(bn1 != bn2);
+											bn = (bn1 != bn2) ? 1 : 0;
 											break;
 										case OpcodeType.OP_LESSTHAN:
-											bn = CastToBigNum(bn1 < bn2);
+											bn = (bn1 < bn2) ? 1 : 0;
 											break;
 										case OpcodeType.OP_GREATERTHAN:
-											bn = CastToBigNum(bn1 > bn2);
+											bn = (bn1 > bn2) ? 1 : 0;
 											break;
 										case OpcodeType.OP_LESSTHANOREQUAL:
-											bn = CastToBigNum(bn1 <= bn2);
+											bn = (bn1 <= bn2) ? 1 : 0;
 											break;
 										case OpcodeType.OP_GREATERTHANOREQUAL:
-											bn = CastToBigNum(bn1 >= bn2);
+											bn = (bn1 >= bn2) ? 1 : 0;
 											break;
 										case OpcodeType.OP_MIN:
 											bn = (bn1 < bn2 ? bn1 : bn2);
@@ -587,7 +817,7 @@ namespace NBitcoin
 									}
 									_Stack.Pop();
 									_Stack.Pop();
-									_Stack.Push(Utils.BigIntegerToBytes(bn));
+									_Stack.Push(bn.getvch());
 
 									if(opcode.Code == OpcodeType.OP_NUMEQUALVERIFY)
 									{
@@ -604,9 +834,9 @@ namespace NBitcoin
 									// (x min max -- out)
 									if(_Stack.Count < 3)
 										return false;
-									var bn1 = CastToBigNum(top(_Stack, -3));
-									var bn2 = CastToBigNum(top(_Stack, -2));
-									var bn3 = CastToBigNum(top(_Stack, -1));
+									var bn1 = new CScriptNum(top(_Stack, -3), fRequireMinimal);
+									var bn2 = new CScriptNum(top(_Stack, -2), fRequireMinimal);
+									var bn3 = new CScriptNum(top(_Stack, -1), fRequireMinimal);
 									bool fValue = (bn2 <= bn1 && bn1 < bn3);
 									_Stack.Pop();
 									_Stack.Pop();
@@ -671,8 +901,13 @@ namespace NBitcoin
 									// Drop the signature, since there's no way for a signature to sign itself
 									scriptCode.FindAndDelete(vchSig);
 
+									if(!CheckSignatureEncoding(vchSig))
+									{
+										//serror is set
+										return false;
+									}
 
-									bool fSuccess = IsCanonicalSignature(vchSig) && IsCanonicalPubKey(vchPubKey) &&
+									bool fSuccess = CheckPubKeyEncoding(vchPubKey) &&
 										CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn);
 
 									_Stack.Pop();
@@ -697,7 +932,7 @@ namespace NBitcoin
 									if((int)_Stack.Count < i)
 										return false;
 
-									int nKeysCount = (int)CastToBigNum(top(_Stack, -i));
+									int nKeysCount = new CScriptNum(top(_Stack, -i), fRequireMinimal).getint();
 									if(nKeysCount < 0 || nKeysCount > 20)
 										return false;
 									nOpCount += nKeysCount;
@@ -708,7 +943,7 @@ namespace NBitcoin
 									if((int)_Stack.Count < i)
 										return false;
 
-									int nSigsCount = (int)CastToBigNum(top(_Stack, -i));
+									int nSigsCount = new CScriptNum(top(_Stack, -i), fRequireMinimal).getint();
 									if(nSigsCount < 0 || nSigsCount > nKeysCount)
 										return false;
 									int isig = ++i;
@@ -731,8 +966,15 @@ namespace NBitcoin
 										var vchSig = top(_Stack, -isig);
 										var vchPubKey = top(_Stack, -ikey);
 
+
+										if(!CheckSignatureEncoding(vchSig))
+										{
+											// serror is set
+											return false;
+										}
+
 										// Check signature
-										bool fOk = IsCanonicalSignature(vchSig) && IsCanonicalPubKey(vchPubKey) &&
+										bool fOk = CheckPubKeyEncoding(vchPubKey) &&
 											CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn);
 
 										if(fOk)
@@ -799,6 +1041,232 @@ namespace NBitcoin
 			return true;
 		}
 
+		private bool CheckPubKeyEncoding(byte[] vchPubKey)
+		{
+			if((ScriptVerify & ScriptVerify.StrictEnc) != 0 && !IsCompressedOrUncompressedPubKey(vchPubKey))
+			{
+				return false;
+			}
+			return true;
+		}
+
+		private bool IsCompressedOrUncompressedPubKey(byte[] vchPubKey)
+		{
+			if(vchPubKey.Length < 33)
+			{
+				//  Non-canonical public key: too short
+				return false;
+			}
+			if(vchPubKey[0] == 0x04)
+			{
+				if(vchPubKey.Length != 65)
+				{
+					//  Non-canonical public key: invalid length for uncompressed key
+					return false;
+				}
+			}
+			else if(vchPubKey[0] == 0x02 || vchPubKey[0] == 0x03)
+			{
+				if(vchPubKey.Length != 33)
+				{
+					//  Non-canonical public key: invalid length for compressed key
+					return false;
+				}
+			}
+			else
+			{
+				//  Non-canonical public key: neither compressed nor uncompressed
+				return false;
+			}
+			return true;
+		}
+
+		private bool CheckSignatureEncoding(byte[] vchSig)
+		{
+			if((ScriptVerify & (ScriptVerify.DerSig | ScriptVerify.LowS | ScriptVerify.StrictEnc)) != 0 && !IsDERSignature(vchSig))
+			{
+				return false;
+			}
+			else if((ScriptVerify & ScriptVerify.LowS) != 0 && !IsLowDERSignature(vchSig))
+			{
+				// serror is set
+				return false;
+			}
+			else if((ScriptVerify & ScriptVerify.StrictEnc) != 0 && !IsDefinedHashtypeSignature(vchSig))
+			{
+				return false;
+			}
+			return true;
+		}
+
+		private bool IsDefinedHashtypeSignature(byte[] vchSig)
+		{
+			if(vchSig.Length == 0)
+			{
+				return false;
+			}
+
+			var temp = ~(SigHash.AnyoneCanPay);
+			byte nHashType = (byte)(vchSig[vchSig.Length - 1] & (byte)temp);
+			if(nHashType < (byte)SigHash.All || nHashType > (byte)SigHash.Single)
+				return false;
+
+			return true;
+		}
+
+		private bool IsLowDERSignature(byte[] vchSig)
+		{
+			if(!IsDERSignature(vchSig))
+			{
+				return false;
+			}
+			int nLenR = vchSig[3];
+			int nLenS = vchSig[5 + nLenR];
+			var S = 6 + nLenR;
+			// If the S value is above the order of the curve divided by two, its
+			// complement modulo the order could have been used instead, which is
+			// one byte shorter when encoded correctly.
+			if(!CheckSignatureElement(vchSig, S, nLenS, true))
+				return false;
+
+			return true;
+		}
+
+		static byte[] vchMaxModOrder = new byte[]{
+0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+ 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFE,
+ 0xBA,0xAE,0xDC,0xE6,0xAF,0x48,0xA0,0x3B,
+0xBF,0xD2,0x5E,0x8C,0xD0,0x36,0x41,0x40
+};
+
+		static byte[] vchMaxModHalfOrder = new byte[]{
+ 0x7F,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+ 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+ 0x5D,0x57,0x6E,0x73,0x57,0xA4,0x50,0x1D,
+0xDF,0xE9,0x2F,0x46,0x68,0x1B,0x20,0xA0
+};
+
+		private bool CheckSignatureElement(byte[] vchSig, int i, int len, bool half)
+		{
+			return vchSig != null
+						&&
+						 CompareBigEndian(vchSig, i, len, vchZero, 0) > 0 &&
+						 CompareBigEndian(vchSig, i, len, half ? vchMaxModHalfOrder : vchMaxModOrder, 32) <= 0;
+		}
+
+		private int CompareBigEndian(byte[] c1, int ic1, int c1len, byte[] c2, int c2len)
+		{
+			int ic2 = 0;
+			while(c1len > c2len)
+			{
+				if(c1[ic1] != 0)
+					return 1;
+				ic1++;
+				c1len--;
+			}
+			while(c2len > c1len)
+			{
+				if(c2[ic2] != 0)
+					return -1;
+				ic2++;
+				c2len--;
+			}
+			while(c1len > 0)
+			{
+				if(c1[ic1] > c2[ic2])
+					return 1;
+				if(c2[ic2] > c1[ic1])
+					return -1;
+				ic1++;
+				ic2++;
+				c1len--;
+			}
+			return 0;
+		}
+
+
+
+		private bool IsDERSignature(byte[] vchSig)
+		{
+			if(vchSig.Length < 9)
+			{
+				//  Non-canonical signature: too short
+				return false;
+			}
+			if(vchSig.Length > 73)
+			{
+				// Non-canonical signature: too long
+				return false;
+			}
+			if(vchSig[0] != 0x30)
+			{
+				//  Non-canonical signature: wrong type
+				return false;
+			}
+			if(vchSig[1] != vchSig.Length - 3)
+			{
+				//  Non-canonical signature: wrong length marker
+				return false;
+			}
+			uint nLenR = vchSig[3];
+			if(5 + nLenR >= vchSig.Length)
+			{
+				//  Non-canonical signature: S length misplaced
+				return false;
+			}
+			uint nLenS = vchSig[5 + nLenR];
+			if((ulong)(nLenR + nLenS + 7) != (ulong)vchSig.Length)
+			{
+				//  Non-canonical signature: R+S length mismatch
+				return false;
+			}
+
+			var R = 4;
+			if(vchSig[R + -2] != 0x02)
+			{
+				//  Non-canonical signature: R value type mismatch
+				return false;
+			}
+			if(nLenR == 0)
+			{
+				//  Non-canonical signature: R length is zero
+				return false;
+			}
+			if((vchSig[R] & 0x80) != 0)
+			{
+				//  Non-canonical signature: R value negative
+				return false;
+			}
+			if(nLenR > 1 && (vchSig[R] == 0x00) && !((vchSig[R + 1] & 0x80) != 0))
+			{
+				//  Non-canonical signature: R value excessively padded
+				return false;
+			}
+
+			var S = 6 + nLenR;
+			if(vchSig[S + -2] != 0x02)
+			{
+				//  Non-canonical signature: S value type mismatch
+				return false;
+			}
+			if(nLenS == 0)
+			{
+				//  Non-canonical signature: S length is zero
+				return false;
+			}
+			if((vchSig[S] & 0x80) != 0)
+			{
+				//  Non-canonical signature: S value negative
+				return false;
+			}
+			if(nLenS > 1 && (vchSig[S] == 0x00) && !((vchSig[S + 1] & 0x80) != 0))
+			{
+				//  Non-canonical signature: S value excessively padded
+				return false;
+			}
+			return true;
+		}
+
 		private void insert(ref Stack<byte[]> stack, int i, byte[] vch)
 		{
 			var newStack = new Stack<byte[]>();
@@ -814,16 +1282,46 @@ namespace NBitcoin
 			stack = newStack;
 		}
 
+		bool CheckMinimalPush(byte[] data, OpcodeType opcode)
+		{
+			if(data.Length == 0)
+			{
+				// Could have used OP_0.
+				return opcode == OpcodeType.OP_0;
+			}
+			else if(data.Length == 1 && data[0] >= 1 && data[0] <= 16)
+			{
+				// Could have used OP_1 .. OP_16.
+				return (int)opcode == ((int)OpcodeType.OP_1) + (data[0] - 1);
+			}
+			else if(data.Length == 1 && data[0] == 0x81)
+			{
+				// Could have used OP_1NEGATE.
+				return opcode == OpcodeType.OP_1NEGATE;
+			}
+			else if(data.Length <= 75)
+			{
+				// Could have used a direct push (opcode indicating number of bytes pushed + those bytes).
+				return (int)opcode == data.Length;
+			}
+			else if(data.Length <= 255)
+			{
+				// Could have used OP_PUSHDATA.
+				return opcode == OpcodeType.OP_PUSHDATA1;
+			}
+			else if(data.Length <= 65535)
+			{
+				// Could have used OP_PUSHDATA2.
+				return opcode == OpcodeType.OP_PUSHDATA2;
+			}
+			return true;
+		}
+
 		private BigInteger CastToBigNum(bool v)
 		{
 			return new BigInteger(v ? 1 : 0);
 		}
-		private BigInteger CastToBigNum(byte[] b)
-		{
-			if(b.Length > 4)
-				throw new InvalidOperationException("CastToBigNum() : overflow");
-			return Utils.BytesToBigInteger(b);
-		}
+
 		private static bool CastToBool(byte[] vch)
 		{
 			for(uint i = 0 ; i < vch.Length ; i++)
@@ -871,87 +1369,6 @@ namespace NBitcoin
 			Array.Reverse(array);
 			return array[stack.Count + i];
 			//stacktop(i)  (altstack.at(altstack.size()+(i)))
-		}
-
-		public bool IsCanonicalPubKey(byte[] vchPubKey)
-		{
-			if(!((ScriptVerify & ScriptVerify.StrictEnc) != 0))
-				return true;
-
-			if(vchPubKey.Length < 33)
-				return false; //error("Non-canonical public key: too short");
-			if(vchPubKey[0] == 0x04)
-			{
-				if(vchPubKey.Length != 65)
-					return false; //error("Non-canonical public key: invalid length for uncompressed key");
-			}
-			else if(vchPubKey[0] == 0x02 || vchPubKey[0] == 0x03)
-			{
-				if(vchPubKey.Length != 33)
-					return false; //error("Non-canonical public key: invalid length for compressed key");
-			}
-			else
-			{
-				return false; //error("Non-canonical public key: compressed nor uncompressed");
-			}
-			return true;
-		}
-
-		public bool IsCanonicalSignature(byte[] vchSig)
-		{
-			if(!((ScriptVerify & ScriptVerify.StrictEnc) != 0))
-				return true;
-
-			// See https://bitcointalk.org/index.php?topic=8392.msg127623#msg127623
-			// A canonical signature exists of: <30> <total len> <02> <len R> <R> <02> <len S> <S> <hashtype>
-			// Where R and S are not negative (their first byte has its highest bit not set), and not
-			// excessively padded (do not start with a 0 byte, unless an otherwise negative number follows,
-			// in which case a single 0 byte is necessary and even required).
-			if(vchSig.Length < 9)
-				return Utils.error("Non-canonical signature: too short");
-			if(vchSig.Length > 73)
-				return Utils.error("Non-canonical signature: too long");
-			var nHashType = vchSig[vchSig.Length - 1] & (~((byte)SigHash.AnyoneCanPay));
-			if(nHashType < (byte)SigHash.All || nHashType > (byte)SigHash.Single)
-				return Utils.error("Non-canonical signature: unknown hashtype byte");
-			if(vchSig[0] != 0x30)
-				return Utils.error("Non-canonical signature: wrong type");
-			if(vchSig[1] != vchSig.Length - 3)
-				return Utils.error("Non-canonical signature: wrong length marker");
-			var nLenR = vchSig[3];
-			if(5 + nLenR >= vchSig.Length)
-				return Utils.error("Non-canonical signature: S length misplaced");
-			var nLenS = vchSig[5 + nLenR];
-			if(((int)nLenR + nLenS + 7) != vchSig.Length)
-				return Utils.error("Non-canonical signature: R+S length mismatch");
-
-			var R = 4;
-			if(vchSig[R - 2] != 0x02)
-				return Utils.error("Non-canonical signature: R value type mismatch");
-			if(nLenR == 0)
-				return Utils.error("Non-canonical signature: R length is zero");
-			if((vchSig[R + 0] & (byte)0x80) != 0)
-				return Utils.error("Non-canonical signature: R value negative");
-			if(nLenR > 1 && (vchSig[R + 0] == 0x00) && !((vchSig[R + 1] & 0x80) != 0))
-				return Utils.error("Non-canonical signature: R value excessively padded");
-
-			var S = 6 + nLenR;
-			if(vchSig[S - 2] != 0x02)
-				return Utils.error("Non-canonical signature: S value type mismatch");
-			if(nLenS == 0)
-				return Utils.error("Non-canonical signature: S length is zero");
-			if((vchSig[S + 0] & 0x80) != 0)
-				return Utils.error("Non-canonical signature: S value negative");
-			if(nLenS > 1 && (vchSig[S + 0] == 0x00) && !((vchSig[S + 1] & 0x80) != 0))
-				return Utils.error("Non-canonical signature: S value excessively padded");
-
-			if((ScriptVerify & ScriptVerify.LowS) != 0)
-			{
-				if((vchSig[S + nLenS - 1] & 1) != 0)
-					return Utils.error("Non-canonical signature: S value is unnecessarily high");
-			}
-
-			return true;
 		}
 
 		private bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn)
