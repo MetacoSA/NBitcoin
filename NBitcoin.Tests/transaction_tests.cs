@@ -608,6 +608,36 @@ namespace NBitcoin.Tests
 					.SignTransaction(tx);
 
 			Assert.True(txBuilder.Verify(tx));
+
+			//Test if signing separatly
+			txBuilder = new TransactionBuilder(0);
+			tx = txBuilder
+					.AddCoins(allCoins)
+					.AddKeys(keys.Skip(2).ToArray())  //One of the multi key missing
+					.Send(destinations[0], Money.Parse("6"))
+					.Send(destinations[2], Money.Parse("5"))
+					.Send(destinations[2], Money.Parse("0.9998"))
+					.SendFees(Money.Parse("0.0001"))
+					.SetChange(destinations[3])
+					.Shuffle()
+					.BuildTransaction(false);
+
+			var signed1 = txBuilder.SignTransaction(tx);
+
+			txBuilder = new TransactionBuilder(0);
+			var signed2 = txBuilder
+					.AddKeys(keys[0])
+					.AddCoins(allCoins)
+					.SignTransaction(tx);
+
+			Assert.False(txBuilder.Verify(signed1));
+			Assert.False(txBuilder.Verify(signed2));
+
+			txBuilder = new TransactionBuilder(0);
+			tx = txBuilder
+				.AddCoins(allCoins)
+				.CombineSignatures(signed1, signed2);
+			Assert.True(txBuilder.Verify(tx));
 		}
 
 		private uint256 Rand()

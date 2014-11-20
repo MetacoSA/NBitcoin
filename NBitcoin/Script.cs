@@ -809,17 +809,17 @@ namespace NBitcoin
 
 			if(template is PayToScriptHashTemplate)
 			{
-				if(sigs1.Length == 0 || sigs1[0].Length == 0)
+				if(sigs1.Length == 0 || sigs1[sigs1.Length - 1].Length == 0)
 					return PushAll(sigs2);
-				else if(sigs2.Length == 0 || sigs2[0].Length == 0)
+				else if(sigs2.Length == 0 || sigs2[sigs2.Length - 1].Length == 0)
 					return PushAll(sigs1);
 				else
 				{
 					var redeemBytes = sigs1[sigs1.Length - 1];
 					var redeem = new Script(redeemBytes);
 					sigs1 = sigs1.Take(sigs1.Length - 1).ToArray();
-					sigs2 = sigs2.Take(sigs1.Length - 1).ToArray();
-					Script result = CombineSignatures(scriptPubKey, transaction, n, sigs1, sigs2);
+					sigs2 = sigs2.Take(sigs2.Length - 1).ToArray();
+					Script result = CombineSignatures(redeem, transaction, n, sigs1, sigs2);
 					result += Op.GetPushOp(redeemBytes);
 					return result;
 				}
