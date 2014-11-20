@@ -1069,11 +1069,13 @@ namespace NBitcoin
 					break;
 
 				var txIn = tx.Inputs[i];
+
 				var coin = FindCoin(txIn.PrevOut);
-				if(coin != null)
+				var scriptPubKey = coin == null ? DeduceScriptPubKey(txIn.ScriptSig) : coin.ScriptPubKey;
+				if(scriptPubKey != null)
 				{
 					tx.Inputs[i].ScriptSig = Script.CombineSignatures(
-											coin.ScriptPubKey,
+											scriptPubKey,
 											tx,
 											 i,
 											 signed1.Inputs[i].ScriptSig,
@@ -1081,6 +1083,16 @@ namespace NBitcoin
 				}
 			}
 			return tx;
+		}
+
+		private Script DeduceScriptPubKey(Script scriptSig)
+		{
+			var p2sh = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(scriptSig);
+			if(p2sh != null)
+			{
+				return p2sh.RedeemScript.ID.CreateScriptPubKey();
+			}
+			return null;
 		}
 	}
 }
