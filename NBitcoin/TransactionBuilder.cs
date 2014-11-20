@@ -43,7 +43,7 @@ namespace NBitcoin
 			List<ICoin> result = new List<ICoin>();
 			Money total = Money.Zero;
 
-			if (target == Money.Zero)
+			if(target == Money.Zero)
 				return result;
 
 			var orderedCoins = coins.OrderBy(s => s.Amount).ToArray();
@@ -380,7 +380,11 @@ namespace NBitcoin
 			set;
 		}
 
-		public Func<OutPoint, ICoin> CoinFinder { get; set; }
+		public Func<OutPoint, ICoin> CoinFinder
+		{
+			get;
+			set;
+		}
 
 		LockTime? _LockTime;
 		public TransactionBuilder SetLockTime(LockTime lockTime)
@@ -751,7 +755,7 @@ namespace NBitcoin
 					Sign(ctx, txIn, coin, i);
 				}
 			}
-			return transaction; 
+			return transaction;
 		}
 
 		public bool Verify(Transaction tx, Money expectFees = null)
@@ -785,7 +789,7 @@ namespace NBitcoin
 		{
 			var result = _BuilderGroups.SelectMany(c => c.Coins).FirstOrDefault(c => c.Outpoint == outPoint);
 
-			if (result == null && CoinFinder != null)
+			if(result == null && CoinFinder != null)
 				result = CoinFinder(outPoint);
 
 			return result;
@@ -806,7 +810,7 @@ namespace NBitcoin
 				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
 			}
 
-			if (PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.ScriptPubKey))
+			if(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.ScriptPubKey))
 			{
 				var scriptCoin = coin as IScriptCoin;
 				if(scriptCoin == null)
@@ -815,7 +819,13 @@ namespace NBitcoin
 					//Try to extract redeem from this transaction
 					var p2shParams = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(input.ScriptSig);
 					if(p2shParams == null || p2shParams.RedeemScript.ID != expectedId)
-						throw new InvalidOperationException("A coin with a P2SH scriptPubKey was detected, however this coin is not a ScriptCoin, and no information about the redeem script was found in the input");
+					{
+						var redeem = _ScriptIdToRedeem.TryGet(expectedId);
+						if(redeem == null)
+							throw new InvalidOperationException("A coin with a P2SH scriptPubKey was detected, however this coin is not a ScriptCoin, and no information about the redeem script was found in the input, and from the KnownRedeems");
+						else
+							scriptCoin = new ScriptCoin(coin.Outpoint, ((Coin)coin).TxOut, redeem);
+					}
 					else
 					{
 						scriptCoin = new ScriptCoin(coin.Outpoint, ((Coin)coin).TxOut, p2shParams.RedeemScript);
@@ -997,6 +1007,23 @@ namespace NBitcoin
 					return Money.Zero;
 				return toComplete;
 			});
+			return this;
+		}
+
+		public TransactionBuilder AddCoins(Transaction transaction)
+		{
+			var txId = transaction.GetHash();
+			AddCoins(transaction.Outputs.Select((o, i) => new Coin(txId, (uint)i, o.Value, o.ScriptPubKey)).ToArray());
+			return this;
+		}
+
+		Dictionary<ScriptId, Script> _ScriptIdToRedeem = new Dictionary<ScriptId, Script>();
+		public TransactionBuilder AddKnownRedeems(params Script[] knownRedeems)
+		{
+			foreach(var redeem in knownRedeems)
+			{
+				_ScriptIdToRedeem.AddOrReplace(redeem.ID, redeem);
+			}
 			return this;
 		}
 	}

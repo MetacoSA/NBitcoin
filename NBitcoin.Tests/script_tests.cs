@@ -259,13 +259,15 @@ namespace NBitcoin.Tests
 
 		private void AssertVerifyScript(Script scriptSig, Script scriptPubKey, ScriptVerify flags, int testIndex, string comment, bool expected)
 		{
-			var creditingTransaction = new Transaction();
-			creditingTransaction.AddInput(new TxIn()
-			{
-				ScriptSig = new Script(OpcodeType.OP_0, OpcodeType.OP_0)
-			});
-			creditingTransaction.AddOutput(Money.Zero, scriptPubKey);
+			var creditingTransaction = CreateCreditingTransaction(scriptPubKey);
+			var spendingTransaction = CreateSpendingTransaction(scriptSig, creditingTransaction);
 
+			var actual = Script.VerifyScript(scriptSig, scriptPubKey, spendingTransaction, 0, flags, SigHash.Undefined);
+			Assert.True(expected == actual, "Test : " + testIndex + " " + comment);
+		}
+
+		private static Transaction CreateSpendingTransaction(Script scriptSig, Transaction creditingTransaction)
+		{
 			var spendingTransaction = new Transaction();
 			spendingTransaction.AddInput(new TxIn(new OutPoint(creditingTransaction, 0))
 			{
@@ -276,9 +278,18 @@ namespace NBitcoin.Tests
 				ScriptPubKey = new Script(),
 				Value = Money.Zero
 			});
+			return spendingTransaction;
+		}
 
-			var actual = Script.VerifyScript(scriptSig, scriptPubKey, spendingTransaction, 0, flags, SigHash.Undefined);
-			Assert.True(expected == actual, "Test : " + testIndex + " " + comment);
+		private static Transaction CreateCreditingTransaction(Script scriptPubKey)
+		{
+			var creditingTransaction = new Transaction();
+			creditingTransaction.AddInput(new TxIn()
+			{
+				ScriptSig = new Script(OpcodeType.OP_0, OpcodeType.OP_0)
+			});
+			creditingTransaction.AddOutput(Money.Zero, scriptPubKey);
+			return creditingTransaction;
 		}
 
 		private ScriptVerify ParseFlag(string flag)
@@ -474,6 +485,131 @@ namespace NBitcoin.Tests
 			keys = new Key[0]; // Must have signatures
 			Script badsig6 = sign_multisig(scriptPubKey23, keys, txTo23);
 			Assert.True(!Script.VerifyScript(badsig6, scriptPubKey23, txTo23, 0, flags, 0));
+		}
+
+
+		[Fact]
+		[Trait("Core", "Core")]
+		public void script_combineSigs()
+		{
+			Key[] keys = new[] { new Key(), new Key(), new Key() };
+			var txFrom = CreateCreditingTransaction(keys[0].PubKey.ID.CreateScriptPubKey());
+			var txTo = CreateSpendingTransaction(new Script(), txFrom);
+
+			Script scriptPubKey = txFrom.Outputs[0].ScriptPubKey;
+			Script scriptSig = txTo.Inputs[0].ScriptSig;
+
+			Script empty = new Script();
+			Script combined = Script.CombineSignatures(scriptPubKey, txTo, 0, empty, empty);
+			Assert.True(combined.ToRawScript().Length == 0);
+
+			// Single signature case:
+			SignSignature(keys, txFrom, txTo, 0); // changes scriptSig
+			scriptSig = txTo.Inputs[0].ScriptSig;
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, scriptSig, empty);
+			Assert.True(combined == scriptSig);
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, empty, scriptSig);
+			Assert.True(combined == scriptSig);
+			Script scriptSigCopy = scriptSig.Clone();
+			// Signing again will give a different, valid signature:
+			SignSignature(keys, txFrom, txTo, 0);
+			scriptSig = txTo.Inputs[0].ScriptSig;
+
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, scriptSigCopy, scriptSig);
+			Assert.True(combined == scriptSigCopy || combined == scriptSig);
+
+
+			// P2SH, single-signature case:
+			Script pkSingle = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(keys[0].PubKey);
+			scriptPubKey = pkSingle.ID.CreateScriptPubKey();
+			txFrom.Outputs[0].ScriptPubKey = scriptPubKey;
+			txTo.Inputs[0].PrevOut = new OutPoint(txFrom, 0);
+
+			SignSignature(keys, txFrom, txTo, 0, pkSingle);
+			scriptSig = txTo.Inputs[0].ScriptSig;
+
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, scriptSig, empty);
+			Assert.True(combined == scriptSig);
+
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, empty, scriptSig);
+			scriptSig = txTo.Inputs[0].ScriptSig;
+			Assert.True(combined == scriptSig);
+			scriptSigCopy = scriptSig.Clone();
+
+			SignSignature(keys, txFrom, txTo, 0);
+			scriptSig = txTo.Inputs[0].ScriptSig;
+
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, scriptSigCopy, scriptSig);
+			Assert.True(combined == scriptSigCopy || combined == scriptSig);
+			// dummy scriptSigCopy with placeholder, should always choose non-placeholder:
+			scriptSigCopy = new Script(OpcodeType.OP_0, Op.GetPushOp(pkSingle.ToRawScript()));
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, scriptSigCopy, scriptSig);
+			Assert.True(combined == scriptSig);
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, scriptSig, scriptSigCopy);
+			Assert.True(combined == scriptSig);
+
+			// Hardest case:  Multisig 2-of-3
+			scriptPubKey = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, keys.Select(k => k.PubKey).ToArray());
+			txFrom.Outputs[0].ScriptPubKey = scriptPubKey;
+			txTo.Inputs[0].PrevOut = new OutPoint(txFrom, 0);
+
+			SignSignature(keys, txFrom, txTo, 0);
+			scriptSig = txTo.Inputs[0].ScriptSig;
+
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, scriptSig, empty);
+			Assert.True(combined == scriptSig);
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, empty, scriptSig);
+			Assert.True(combined == scriptSig);
+
+			// A couple of partially-signed versions:
+			uint256 hash1 = scriptPubKey.SignatureHash(txTo, 0, SigHash.All);
+			var sig1 = new TransactionSignature(keys[0].Sign(hash1), SigHash.All);
+
+			uint256 hash2 = scriptPubKey.SignatureHash(txTo, 0, SigHash.None);
+			var sig2 = new TransactionSignature(keys[1].Sign(hash2), SigHash.None);
+
+
+			uint256 hash3 = scriptPubKey.SignatureHash(txTo, 0, SigHash.Single);
+			var sig3 = new TransactionSignature(keys[2].Sign(hash3), SigHash.Single);
+
+
+			// Not fussy about order (or even existence) of placeholders or signatures:
+			Script partial1a = new Script() + OpcodeType.OP_0 + Op.GetPushOp(sig1.ToBytes()) + OpcodeType.OP_0;
+			Script partial1b = new Script() + OpcodeType.OP_0 + OpcodeType.OP_0 + Op.GetPushOp(sig1.ToBytes());
+			Script partial2a = new Script() + OpcodeType.OP_0 + Op.GetPushOp(sig2.ToBytes());
+			Script partial2b = new Script() + Op.GetPushOp(sig2.ToBytes()) + OpcodeType.OP_0;
+			Script partial3a = new Script() + Op.GetPushOp(sig3.ToBytes());
+			Script partial3b = new Script() + OpcodeType.OP_0 + OpcodeType.OP_0 + Op.GetPushOp(sig3.ToBytes());
+			Script partial3c = new Script() + OpcodeType.OP_0 + Op.GetPushOp(sig3.ToBytes()) + OpcodeType.OP_0;
+			Script complete12 = new Script() + OpcodeType.OP_0 + Op.GetPushOp(sig1.ToBytes()) + Op.GetPushOp(sig2.ToBytes());
+			Script complete13 = new Script() + OpcodeType.OP_0 + Op.GetPushOp(sig1.ToBytes()) + Op.GetPushOp(sig3.ToBytes());
+			Script complete23 = new Script() + OpcodeType.OP_0 + Op.GetPushOp(sig2.ToBytes()) + Op.GetPushOp(sig3.ToBytes());
+
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, partial1a, partial1b);
+			Assert.True(combined == partial1a);
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, partial1a, partial2a);
+			Assert.True(combined == complete12);
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, partial2a, partial1a);
+			Assert.True(combined == complete12);
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, partial1b, partial2b);
+			Assert.True(combined == complete12);
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, partial3b, partial1b);
+			Assert.True(combined == complete13);
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, partial2a, partial3a);
+			Assert.True(combined == complete23);
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, partial3b, partial2b);
+			Assert.True(combined == complete23);
+			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, partial3b, partial3a);
+			Assert.True(combined == partial3c);
+		}
+
+		private void SignSignature(Key[] keys, Transaction txFrom, Transaction txTo, int n, params Script[] knownRedeems)
+		{
+			new TransactionBuilder()
+				.AddKeys(keys)
+				.AddKnownRedeems(knownRedeems)
+				.AddCoins(txFrom)
+				.SignTransactionInPlace(txTo);
 		}
 
 		[Fact]

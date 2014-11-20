@@ -1371,7 +1371,7 @@ namespace NBitcoin
 			//stacktop(i)  (altstack.at(altstack.size()+(i)))
 		}
 
-		private bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn)
+		public bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn)
 		{
 			//static CSignatureCache signatureCache;
 			if(!PubKey.IsValidSize(vchPubKey.Length))
@@ -1398,9 +1398,6 @@ namespace NBitcoin
 
 			uint256 sighash = scriptCode.SignatureHash(txTo, nIn, scriptSig.SigHash);
 
-			//if (signatureCache.Get(sighash, vchSig, pubkey))
-			//	return true;
-
 			if(!pubkey.Verify(sighash, scriptSig.Signature))
 			{
 				if((ScriptVerify & ScriptVerify.StrictEnc) != 0)
@@ -1420,9 +1417,6 @@ namespace NBitcoin
 						return false;
 				}
 			}
-
-			//if (!(flags & SCRIPT_VERIFY_NOCACHE))
-			//	signatureCache.Set(sighash, vchSig, pubkey);
 
 			return true;
 		}

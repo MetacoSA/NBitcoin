@@ -778,5 +778,147 @@ namespace NBitcoin
 		{
 			return new Script(_Script);
 		}
+
+		public static Script CombineSignatures(Script scriptPubKey, Transaction transaction, int n, Script scriptSig1, Script scriptSig2)
+		{
+			ScriptEvaluationContext context = new ScriptEvaluationContext();
+			context.ScriptVerify = ScriptVerify.StrictEnc;
+			context.EvalScript(scriptSig1, transaction, n);
+
+			var stack1 = context.Stack.Reverse().ToArray();
+			context = new ScriptEvaluationContext();
+			context.ScriptVerify = ScriptVerify.StrictEnc;
+			context.EvalScript(scriptSig2, transaction, n);
+
+			var stack2 = context.Stack.Reverse().ToArray();
+
+			return CombineSignatures(scriptPubKey, transaction, n, stack1, stack2);
+
+
+
+		}
+
+		private static Script CombineSignatures(Script scriptPubKey, Transaction transaction, int n, byte[][] sigs1, byte[][] sigs2)
+		{
+			var template = StandardScripts.GetTemplateFromScriptPubKey(scriptPubKey);
+			if(template == null || template is TxNullDataTemplate)
+				return PushAll(Max(sigs1, sigs2));
+
+			if(template is PayToPubkeyTemplate || template is PayToPubkeyHashTemplate)
+				if(sigs1.Length == 0 || sigs1[0].Length == 0)
+					return PushAll(sigs2);
+				else
+					return PushAll(sigs1);
+
+			if(template is PayToScriptHashTemplate)
+			{
+				if(sigs1.Length == 0 || sigs1[0].Length == 0)
+					return PushAll(sigs2);
+				else if(sigs2.Length == 0 || sigs2[0].Length == 0)
+					return PushAll(sigs1);
+				else
+				{
+					var redeemBytes = sigs1[sigs1.Length - 1];
+					var redeem = new Script(redeemBytes);
+					sigs1 = sigs1.Take(sigs1.Length - 1).ToArray();
+					sigs2 = sigs2.Take(sigs1.Length - 1).ToArray();
+					Script result = CombineSignatures(scriptPubKey, transaction, n, sigs1, sigs2);
+					result += Op.GetPushOp(redeemBytes);
+					return result;
+				}
+			}
+
+			if(template is PayToMultiSigTemplate)
+			{
+				return CombineMultisig(scriptPubKey, transaction, n, sigs1, sigs2);
+			}
+
+			throw new NotSupportedException("An impossible thing happen !");
+		}
+
+		private static Script CombineMultisig(Script scriptPubKey, Transaction transaction, int n, byte[][] sigs1, byte[][] sigs2)
+		{
+			// Combine all the signatures we've got:
+			List<TransactionSignature> allsigs = new List<TransactionSignature>();
+			foreach(var v in sigs1)
+			{
+				try
+				{
+					allsigs.Add(new TransactionSignature(v));
+				}
+				catch(FormatException)
+				{
+				}
+			}
+
+
+			foreach(var v in sigs2)
+			{
+				try
+				{
+					allsigs.Add(new TransactionSignature(v));
+				}
+				catch(FormatException)
+				{
+				}
+			}
+
+			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			if(multiSigParams == null)
+				throw new InvalidOperationException("The scriptPubKey is not a valid multi sig");
+
+			Dictionary<PubKey, TransactionSignature> sigs = new Dictionary<PubKey, TransactionSignature>();
+
+			foreach(var sig in allsigs)
+			{
+				foreach(var pubkey in multiSigParams.PubKeys)
+				{
+					if(sigs.ContainsKey(pubkey))
+						continue; // Already got a sig for this pubkey
+
+					ScriptEvaluationContext eval = new ScriptEvaluationContext();
+					if(eval.CheckSig(sig.ToBytes(), pubkey.ToBytes(), scriptPubKey, transaction, n))
+					{
+						sigs.AddOrReplace(pubkey, sig);
+					}
+				}
+			}
+
+
+			// Now build a merged CScript:
+			int nSigsHave = 0;
+			Script result = new Script(OpcodeType.OP_0); // pop-one-too-many workaround
+			foreach(var pubkey in multiSigParams.PubKeys)
+			{
+				if(sigs.ContainsKey(pubkey))
+				{
+					result += Op.GetPushOp(sigs[pubkey].ToBytes());
+					nSigsHave++;
+				}
+				if(nSigsHave >= multiSigParams.SignatureCount)
+					break;
+			}
+
+			// Fill any missing with OP_0:
+			for(int i = nSigsHave ; i < multiSigParams.SignatureCount ; i++)
+				result += OpcodeType.OP_0;
+
+			return result;
+		}
+
+		private static Script PushAll(byte[][] stack)
+		{
+			Script s = new Script();
+			foreach(var push in stack)
+			{
+				s += Op.GetPushOp(push);
+			}
+			return s;
+		}
+
+		private static byte[][] Max(byte[][] scriptSig1, byte[][] scriptSig2)
+		{
+			return scriptSig1.Length >= scriptSig2.Length ? scriptSig1 : scriptSig2;
+		}
 	}
 }
