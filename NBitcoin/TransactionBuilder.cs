@@ -1040,7 +1040,23 @@ namespace NBitcoin
 			return this;
 		}
 
-		public Transaction CombineSignatures(Transaction signed1, Transaction signed2)
+		public Transaction CombineSignatures(params Transaction[] transactions)
+		{
+			if(transactions.Length == 1)
+				return transactions[0];
+			if(transactions.Length == 0)
+				return null;
+
+			Transaction tx = transactions[0].Clone();
+			for(int i = 1 ; i < transactions.Length ; i++)
+			{
+				var signed = transactions[i];
+				tx = CombineSignaturesCore(tx, signed);
+			}
+			return tx;
+		}
+
+		private Transaction CombineSignaturesCore(Transaction signed1, Transaction signed2)
 		{
 			if(signed1 == null)
 				return signed2;
