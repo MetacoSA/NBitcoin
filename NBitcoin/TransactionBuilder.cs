@@ -883,7 +883,7 @@ namespace NBitcoin
 					.Select(p => FindKey(ctx, p))
 					.ToArray();
 
-				int sigCount = signatures.Where(s => s != TransactionSignature.Empty).Count();
+				int sigCount = signatures.Where(s => s != TransactionSignature.Empty && s != null).Count();
 				for(int i = 0 ; i < keys.Length ; i++)
 				{
 					if(sigCount == multiSigParams.SignatureCount)
@@ -891,7 +891,7 @@ namespace NBitcoin
 
 					if(i >= signatures.Count)
 					{
-						signatures.Add(TransactionSignature.Empty);
+						signatures.Add(null);
 					}
 					if(keys[i] != null)
 					{
@@ -904,7 +904,7 @@ namespace NBitcoin
 
 				if(sigCount == multiSigParams.SignatureCount)
 				{
-					signatures = signatures.Where(s => s != TransactionSignature.Empty).ToList();
+					signatures = signatures.Where(s => s != TransactionSignature.Empty && s != null).ToList();
 				}
 
 				return PayToMultiSigTemplate.Instance.GenerateScriptSig(

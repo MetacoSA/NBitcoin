@@ -148,7 +148,7 @@ namespace NBitcoin
 			var keyCount = (uint)pubKeyCount.GetValue();
 			if(1 + keyCount + 1 + 1 != ops.Length)
 				return false;
-			for(int i = 1 ; i < keyCount + 1; i++)
+			for(int i = 1 ; i < keyCount + 1 ; i++)
 			{
 				if(ops[i].PushData == null)
 					return false;
@@ -169,7 +169,7 @@ namespace NBitcoin
 
 			List<PubKey> keys = new List<PubKey>();
 			List<byte[]> invalidKeys = new List<byte[]>();
-			for(int i = 1 ; i < keyCount + 1; i++)
+			for(int i = 1 ; i < keyCount + 1 ; i++)
 			{
 				if(!PubKey.IsValidSize(ops[i].PushData.Length))
 					invalidKeys.Add(ops[i].PushData);
@@ -209,7 +209,7 @@ namespace NBitcoin
 				return false;
 			if(scriptSigOps.Length == 1)
 				return false;
-			if(!scriptSigOps.Skip(1).All(s => TransactionSignature.ValidLength(s.PushData.Length)))
+			if(!scriptSigOps.Skip(1).All(s => TransactionSignature.ValidLength(s.PushData.Length) || s.Code == OpcodeType.OP_0))
 				return false;
 			if(scriptPubKeyOps != null)
 			{
@@ -231,7 +231,7 @@ namespace NBitcoin
 				return null;
 			try
 			{
-				return ops.Skip(1).Select(i => new TransactionSignature(i.PushData)).ToArray();
+				return ops.Skip(1).Select(i => i.Code == OpcodeType.OP_0 ? null : new TransactionSignature(i.PushData)).ToArray();
 			}
 			catch(FormatException)
 			{
@@ -253,7 +253,10 @@ namespace NBitcoin
 			ops.Add(OpcodeType.OP_0);
 			foreach(var sig in signatures)
 			{
-				ops.Add(Op.GetPushOp(sig.ToBytes()));
+				if(sig == null)
+					ops.Add(OpcodeType.OP_0);
+				else
+					ops.Add(Op.GetPushOp(sig.ToBytes()));
 			}
 			return new Script(ops.ToArray());
 		}
@@ -341,7 +344,7 @@ namespace NBitcoin
 					ops
 					.Skip(multiSig ? 1 : 0)
 					.Take(ops.Length - 1 - (multiSig ? 1 : 0))
-					.Select(o => new TransactionSignature(o.PushData))
+					.Select(o => o.Code == OpcodeType.OP_0 ? null : new TransactionSignature(o.PushData))
 					.ToArray();
 				result.RedeemScript = new Script(ops[ops.Length - 1].PushData);
 				return result;

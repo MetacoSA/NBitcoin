@@ -793,9 +793,6 @@ namespace NBitcoin
 			var stack2 = context.Stack.Reverse().ToArray();
 
 			return CombineSignatures(scriptPubKey, transaction, n, stack1, stack2);
-
-
-
 		}
 
 		private static Script CombineSignatures(Script scriptPubKey, Transaction transaction, int n, byte[][] sigs1, byte[][] sigs2)
