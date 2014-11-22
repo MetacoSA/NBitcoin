@@ -126,8 +126,6 @@ namespace NBitcoin.Protocol
 		private readonly SQLiteConnection _Connection;
 		public SqLitePeerTableRepository(string fileName)
 		{
-			SqLiteUtility.EnsureSqLiteInstalled();
-
 			ValiditySpan = TimeSpan.FromDays(1.0);
 
 			SQLiteConnectionStringBuilder builder = new SQLiteConnectionStringBuilder();

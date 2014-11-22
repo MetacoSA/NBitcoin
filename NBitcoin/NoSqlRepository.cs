@@ -47,8 +47,6 @@ namespace NBitcoin
 		private readonly SQLiteConnection _Connection;
 		public SQLiteNoSqlRepository(string fileName, bool? createNew = null)
 		{
-			SqLiteUtility.EnsureSqLiteInstalled();
-
 			if(createNew.HasValue && createNew.Value)
 				if(File.Exists(fileName))
 					File.Delete(fileName);
