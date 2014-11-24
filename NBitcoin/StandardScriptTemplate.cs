@@ -131,7 +131,7 @@ namespace NBitcoin
 			}
 			ops.Add(keyCount);
 			ops.Add(OpcodeType.OP_CHECKMULTISIG);
-			return new Script(ops.ToArray());
+			return new Script(ops);
 		}
 		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
 		{
@@ -249,13 +249,18 @@ namespace NBitcoin
 
 		public Script GenerateScriptSig(TransactionSignature[] signatures)
 		{
+			return GenerateScriptSig((IEnumerable<TransactionSignature>)signatures);
+		}
+
+		public Script GenerateScriptSig(IEnumerable<TransactionSignature> signatures)
+		{
 			List<Op> ops = new List<Op>();
 			ops.Add(OpcodeType.OP_0);
-			foreach(var sig in signatures)
+			foreach (var sig in signatures)
 			{
 				ops.Add(Op.GetPushOp(sig.ToBytes()));
 			}
-			return new Script(ops.ToArray());
+			return new Script(ops);
 		}
 	}
 
@@ -326,7 +331,7 @@ namespace NBitcoin
 		public Script GenerateScriptSig(Op[] ops, Script script)
 		{
 			var pushScript = Op.GetPushOp(script._Script);
-			return new Script(ops.Concat(new[] { pushScript }).ToArray());
+			return new Script(ops.Concat(new[] { pushScript }));
 		}
 		public PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{

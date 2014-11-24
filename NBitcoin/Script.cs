@@ -220,14 +220,20 @@ namespace NBitcoin
 
 		}
 		public Script(params Op[] ops)
+			:this((IEnumerable<Op>)ops)
+		{
+		}
+
+		public Script(IEnumerable<Op> ops)
 		{
 			MemoryStream ms = new MemoryStream();
-			foreach(var op in ops)
+			foreach (var op in ops)
 			{
 				op.WriteTo(ms);
 			}
 			_Script = ms.ToArray();
 		}
+
 		public Script(string script)
 		{
 			_Script = Parse(script);
@@ -245,9 +251,14 @@ namespace NBitcoin
 		}
 
 		public Script(byte[] data)
+			:this((IEnumerable<byte>)data)
+		{}
+
+		public Script(IEnumerable<byte> data)
 		{
 			_Script = data.ToArray();
 		}
+
 		public Script(byte[] data, bool compressed)
 		{
 			if(!compressed)
@@ -319,7 +330,7 @@ namespace NBitcoin
 			}
 			if(nFound == 0)
 				return 0;
-			_Script = new Script(operations.ToArray())._Script;
+			_Script = new Script(operations)._Script;
 			return nFound;
 		}
 
@@ -502,14 +513,14 @@ namespace NBitcoin
 		{
 			if(a == null)
 				return new Script(op);
-			return new Script(a._Script.Concat(op.ToBytes()).ToArray());
+			return new Script(a._Script.Concat(op.ToBytes()));
 		}
 
-		public static Script operator +(Script a, IEnumerable<Op> op)
+		public static Script operator +(Script a, IEnumerable<Op> ops)
 		{
 			if(a == null)
-				return new Script(op.ToArray());
-			return new Script(a._Script.Concat(new Script(op.ToArray())._Script).ToArray());
+				return new Script(ops);
+			return new Script(a._Script.Concat(new Script(ops)._Script));
 		}
 
 		public IEnumerable<Op> ToOps()
