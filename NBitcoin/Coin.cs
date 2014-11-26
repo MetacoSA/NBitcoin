@@ -110,6 +110,10 @@ namespace NBitcoin
 
 	public class ColoredCoin : IColoredCoin
 	{
+		public ColoredCoin()
+		{
+
+		}
 		public ColoredCoin(Asset asset, Coin bearer)
 		{
 			Asset = asset;

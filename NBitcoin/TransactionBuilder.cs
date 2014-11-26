@@ -819,7 +819,7 @@ namespace NBitcoin
 			return new KeyNotFoundException("Impossible to find the scriptPubKey of outpoint " + txIn.PrevOut);
 		}
 
-		private ICoin FindCoin(OutPoint outPoint)
+		public ICoin FindCoin(OutPoint outPoint)
 		{
 			var result = _BuilderGroups.SelectMany(c => c.Coins).FirstOrDefault(c => c.Outpoint == outPoint);
 
