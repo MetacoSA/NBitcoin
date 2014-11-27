@@ -16,10 +16,12 @@ namespace NBitcoin.OpenAsset
 		public CoinprismException()
 		{
 		}
-		public CoinprismException(string message) : base(message)
+		public CoinprismException(string message)
+			: base(message)
 		{
 		}
-		public CoinprismException(string message, Exception inner) : base(message, inner)
+		public CoinprismException(string message, Exception inner)
+			: base(message, inner)
 		{
 		}
 		protected CoinprismException(
@@ -70,12 +72,12 @@ namespace NBitcoin.OpenAsset
 				{
 					for(int i = 0 ; i < inputs.Count ; i++)
 					{
-						if(inputs[i]["asset_address"].Value<string>() == null)
+						if(inputs[i]["asset_id"].Value<string>() == null)
 							continue;
 						var entry = new ColoredEntry();
 						entry.Index = (uint)i;
 						entry.Asset = new Asset(
-							new AssetId((ScriptId)new BitcoinScriptAddress(inputs[i]["asset_address"].ToString(), null).ID),
+							new BitcoinAssetId(inputs[i]["asset_id"].ToString(), null).AssetId,
 							inputs[i]["asset_quantity"].Value<ulong>());
 
 						result.Inputs.Add(entry);
@@ -95,12 +97,12 @@ namespace NBitcoin.OpenAsset
 							result.Marker = marker;
 							continue;
 						}
-						if(outputs[i]["asset_address"].Value<string>() == null)
+						if(outputs[i]["asset_id"].Value<string>() == null)
 							continue;
 						ColoredEntry entry = new ColoredEntry();
 						entry.Index = (uint)i;
 						entry.Asset = new Asset(
-							new AssetId((ScriptId)new BitcoinScriptAddress(outputs[i]["asset_address"].ToString(), null).ID),
+							new BitcoinAssetId(outputs[i]["asset_id"].ToString(), null).AssetId,
 							outputs[i]["asset_quantity"].Value<ulong>()
 							);
 
