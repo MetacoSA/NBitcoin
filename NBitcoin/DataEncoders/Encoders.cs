@@ -32,43 +32,50 @@ namespace NBitcoin.DataEncoders
 	}
 	public class Encoders
 	{
-		public static ASCIIEncoder ASCII
+		static readonly ASCIIEncoder _ASCII = new ASCIIEncoder();
+		public static DataEncoder ASCII
 		{
 			get
 			{
-				return new ASCIIEncoder();
+				return _ASCII;
 			}
 		}
+		static readonly HexEncoder _Hex = new HexEncoder();
 		public static DataEncoder Hex
 		{
 			get
 			{
-				return new HexEncoder();
+				return _Hex;
 			}
 		}
 
+		static readonly Base58Encoder _Base58 = new Base58Encoder();
 		public static DataEncoder Base58
 		{
 			get
 			{
-				return new Base58Encoder();
+				return _Base58;
 			}
 		}
+
+		static readonly Base58Encoder _Base58Check = new Base58Encoder()
+				{
+					Check = true
+				};
 		public static DataEncoder Base58Check
 		{
 			get
 			{
-				return new Base58Encoder()
-				{
-					Check = true
-				};
+				return _Base58Check;
 			}
 		}
+
+		static readonly Base64Encoder _Base64 = new Base64Encoder();
 		public static DataEncoder Base64
 		{
 			get
 			{
-				return new Base64Encoder();
+				return _Base64;
 			}
 		}
 
