@@ -210,6 +210,7 @@ namespace NBitcoin
 		{
 			InitTest();
 			magic = 0xDAB5BFFA;
+			name = "RegTest";
 			nSubsidyHalvingInterval = 150;
 			_ProofOfLimit = new Target(~new uint256(0) >> 1);
 			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1296688602);
@@ -228,6 +229,9 @@ namespace NBitcoin
 		private Target _ProofOfLimit;
 		private int nSubsidyHalvingInterval;
 		private string name;
+
+		public string Name { get { return name; } }
+
 		public static Network Main
 		{
 			get
@@ -564,6 +568,26 @@ namespace NBitcoin
 			yield return Main;
 			yield return TestNet;
 			yield return RegTest;
+		}
+
+		public static Network GetNetwork(uint magic)
+		{
+			return GetNetworks().FirstOrDefault(r => r.Magic == magic);
+		}
+
+		public static Network GetNetwork(string name)
+		{
+			name = name.ToLowerInvariant();
+			switch (name)
+			{
+				case "main": return Network.Main;
+				case "testnet":
+				case "testnet3": return Network.TestNet;
+				case "reg":
+				case "regtest": return Network.RegTest;
+				default:
+					throw new ArgumentException(String.Format("Invalid network name '{0}'", name));
+			}
 		}
 
 		public BitcoinSecret CreateBitcoinSecret(Key key)
