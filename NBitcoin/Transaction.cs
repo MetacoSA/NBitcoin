@@ -636,16 +636,36 @@ namespace NBitcoin
 		}
 	}
 
-	public class TxInList: UnsignedList<TxIn>
+	public class TxInList : UnsignedList<TxIn>
 	{
 		public TxIn this[OutPoint outpoint]
 		{
-			get { return this[outpoint.N]; }
-			set { this[outpoint.N] = value; }
+			get
+			{
+				return this[outpoint.N];
+			}
+			set
+			{
+				this[outpoint.N] = value;
+			}
 		}
 	}
 
-	public class TxOutList: UnsignedList<TxOut>
+	public class IndexedTxOut
+	{
+		public TxOut TxOut
+		{
+			get;
+			set;
+		}
+		public uint N
+		{
+			get;
+			set;
+		}
+	}
+
+	public class TxOutList : UnsignedList<TxOut>
 	{
 		public IEnumerable<TxOut> To(BitcoinAddress address)
 		{
@@ -662,23 +682,20 @@ namespace NBitcoin
 			return this.Where(r => r.IsTo(destination));
 		}
 
-		public IEnumerable<IndexedTxOut> Spendable()
+		public IEnumerable<IndexedTxOut> AsIndexedOutputs()
 		{
 			// We want i as the index of txOut in Outputs[], not index in enumerable after where filter
-			return this.Select((r, i) => new TxOutIndex() { txOut = r, i = (uint)i })
-				.Where(r => !r.txOut.ScriptPubKey.IsUnspendable);
+			return this.Select((r, i) => new IndexedTxOut()
+			{
+				TxOut = r,
+				N = (uint)i
+			});
 		}
 
-		public interface IndexedTxOut
+		public IEnumerable<IndexedTxOut> AsSpendableIndexedOutputs()
 		{
-			TxOut txOut {get;}
-			uint i {get;}
-		}
-
-		private class TxOutIndex: IndexedTxOut
-		{
-			public TxOut txOut { get; set; }
-			public uint i { get; set; }
+			return AsIndexedOutputs()
+					.Where(r => !r.TxOut.ScriptPubKey.IsUnspendable);
 		}
 	}
 
@@ -760,7 +777,7 @@ namespace NBitcoin
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref nVersion);
-			stream.ReadWrite<TxInList,TxIn>(ref vin);
+			stream.ReadWrite<TxInList, TxIn>(ref vin);
 			stream.ReadWrite<TxOutList, TxOut>(ref vout);
 			stream.ReadWriteStruct(ref nLockTime);
 		}
