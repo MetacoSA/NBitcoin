@@ -661,6 +661,25 @@ namespace NBitcoin
 		{
 			return this.Where(r => r.IsTo(destination));
 		}
+
+		public IEnumerable<IndexedTxOut> Spendable()
+		{
+			// We want i as the index of txOut in Outputs[], not index in enumerable after where filter
+			return this.Select((r, i) => new TxOutIndex() { txOut = r, i = (uint)i })
+				.Where(r => !r.txOut.ScriptPubKey.IsUnspendable);
+		}
+
+		public interface IndexedTxOut
+		{
+			TxOut txOut {get;}
+			uint i {get;}
+		}
+
+		private class TxOutIndex: IndexedTxOut
+		{
+			public TxOut txOut { get; set; }
+			public uint i { get; set; }
+		}
 	}
 
 	public enum RawFormat
