@@ -323,7 +323,7 @@ namespace NBitcoin
 				return ctx.ChangeAmount;
 			}
 			internal List<Builder> Builders = new List<Builder>();
-			internal List<ICoin> Coins = new List<ICoin>();
+			internal Dictionary<OutPoint, ICoin> Coins = new Dictionary<OutPoint, ICoin>();
 			internal List<Builder> IssuanceBuilders = new List<Builder>();
 			internal Dictionary<AssetId, List<Builder>> BuildersByAsset = new Dictionary<AssetId, List<Builder>>();
 			internal Script ChangeScript;
@@ -416,7 +416,7 @@ namespace NBitcoin
 		{
 			foreach(var coin in coins)
 			{
-				CurrentGroup.Coins.Add(coin);
+				CurrentGroup.Coins.AddOrReplace(coin.Outpoint, coin);
 			}
 			return this;
 		}
@@ -581,7 +581,7 @@ namespace NBitcoin
 				var marker = ctx.GetColorMarker(true);
 				if(ctx.IssuanceCoin == null)
 				{
-					var issuance = ctx.Group.Coins.OfType<IssuanceCoin>().Where(i => i.AssetId == asset.Id).FirstOrDefault();
+					var issuance = ctx.Group.Coins.Values.OfType<IssuanceCoin>().Where(i => i.AssetId == asset.Id).FirstOrDefault();
 					if(issuance == null)
 						throw new InvalidOperationException("No issuance coin for emitting asset found");
 					ctx.IssuanceCoin = issuance;
@@ -657,7 +657,7 @@ namespace NBitcoin
 				var buildersByAsset = group.BuildersByAsset.ToList();
 				foreach(var builders in buildersByAsset)
 				{
-					var coins = group.Coins.OfType<ColoredCoin>().Where(c => c.Asset.Id == builders.Key).OfType<ICoin>();
+					var coins = group.Coins.Values.OfType<ColoredCoin>().Where(c => c.Asset.Id == builders.Key).OfType<ICoin>();
 
 					ctx.Dust = Money.Zero;
 					ctx.CoverOnly = null;
@@ -669,7 +669,7 @@ namespace NBitcoin
 				ctx.AdditionalBuilders.Add(_ => _.AdditionalFees);
 				ctx.Dust = Money.Dust;
 				ctx.CoverOnly = group.CoverOnly;
-				BuildTransaction(ctx, group, group.Builders, group.Coins.OfType<Coin>());
+				BuildTransaction(ctx, group, group.Builders, group.Coins.Values.OfType<Coin>());
 			}
 			ctx.Finish();
 
@@ -821,11 +821,9 @@ namespace NBitcoin
 
 		public ICoin FindCoin(OutPoint outPoint)
 		{
-			var result = _BuilderGroups.SelectMany(c => c.Coins).FirstOrDefault(c => c.Outpoint == outPoint);
-
+			var result = _BuilderGroups.Select(c => c.Coins.TryGet(outPoint)).Where(r => r != null).SingleOrDefault();
 			if(result == null && CoinFinder != null)
 				result = CoinFinder(outPoint);
-
 			return result;
 		}
 
