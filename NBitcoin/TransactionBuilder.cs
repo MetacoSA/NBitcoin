@@ -1,4 +1,5 @@
-﻿using NBitcoin.OpenAsset;
+﻿using NBitcoin.DataEncoders;
+using NBitcoin.OpenAsset;
 using NBitcoin.Stealth;
 using System;
 using System.Collections.Generic;
@@ -825,6 +826,78 @@ namespace NBitcoin
 			if(result == null && CoinFinder != null)
 				result = CoinFinder(outPoint);
 			return result;
+		}
+
+		public int EstimateSize(Transaction tx)
+		{
+			var clone = tx.Clone();
+			clone.Inputs.Clear();
+			var baseSize = clone.ToBytes().Length;
+
+			int inputSize = 0;
+			for(int i = 0 ; i < tx.Inputs.Count ; i++)
+			{
+				var txin = tx.Inputs[i];
+				var coin = FindCoin(txin.PrevOut);
+				if(coin == null)
+					throw CoinNotFound(txin);
+				inputSize += EstimateScriptSigSize(coin) + 41;
+			}
+
+			return baseSize + inputSize;
+		}
+
+		static PubKey DummyPubKey = new PubKey(Encoders.Hex.DecodeData("022c2b9e61169fb1b1f2f3ff15ad52a21745e268d358ba821d36da7d7cd92dee0e"));
+		static TransactionSignature DummySignature = new TransactionSignature(Encoders.Hex.DecodeData("3045022100b9d685584f46554977343009c04b3091e768c23884fa8d2ce2fb59e5290aa45302203b2d49201c7f695f434a597342eb32dfd81137014fcfb3bb5edc7a19c77774d201"));
+		private int EstimateScriptSigSize(ICoin coin)
+		{
+			if(coin is IColoredCoin)
+				coin = ((IColoredCoin)coin).Bearer;
+
+			int size = 0;
+			if(coin is ScriptCoin)
+			{
+				var scriptCoin = (ScriptCoin)coin;
+				coin = new Coin(scriptCoin.Outpoint, new TxOut(scriptCoin.Amount, scriptCoin.Redeem));
+				size += new Script(Op.GetPushOp(scriptCoin.Redeem.ToRawScript(true))).Length;
+			}
+
+			var p2pk = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+			if(p2pk != null)
+			{
+				size += PayToPubkeyTemplate.Instance.GenerateScriptSig(DummySignature).Length;
+				return size;
+			}
+
+			var p2pkh = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+			if(p2pkh != null)
+			{
+				size += PayToPubkeyHashTemplate.Instance.GenerateScriptSig(DummySignature, DummyPubKey).Length;
+				return size;
+			}
+
+			var p2mk = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+			if(p2mk != null)
+			{
+				size += PayToMultiSigTemplate.Instance.GenerateScriptSig(Enumerable.Range(0, p2mk.SignatureCount).Select(o => DummySignature).ToArray()).Length;
+				return size;
+			}
+
+			size += coin.ScriptPubKey.Length; //Using heurestic to approximate size of unknown scriptPubKey
+			return size;
+		}
+
+		/// <summary>
+		/// Estimate fees of an unsigned transaction
+		/// </summary>
+		/// <param name="tx"></param>
+		/// <returns></returns>
+		public Money EstimateFees(Transaction tx)
+		{
+			var len = EstimateSize(tx);
+			long nBaseFee = 10000;
+			long nMinFee = (1 + (long)len / 1000) * nBaseFee;
+			return new Money(nMinFee);
 		}
 
 		private void Sign(TransactionSigningContext ctx, TxIn input, ICoin coin, int n)

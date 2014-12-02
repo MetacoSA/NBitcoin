@@ -204,6 +204,11 @@ namespace NBitcoin
 		{
 
 		}
+		public Coin(Spendable spendable)
+		{
+			Outpoint = spendable.OutPoint;
+			TxOut = spendable.TxOut;
+		}
 		public Coin(OutPoint fromOutpoint, TxOut fromTxOut)
 		{
 			Outpoint = fromOutpoint;

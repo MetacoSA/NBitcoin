@@ -115,7 +115,7 @@ namespace NBitcoin
 				return _Instance;
 			}
 		}
-		public Script GenerateScriptPubKey(int sigCount, PubKey[] keys)
+		public Script GenerateScriptPubKey(int sigCount, params PubKey[] keys)
 		{
 			List<Op> ops = new List<Op>();
 			var push = Op.GetPushOp(sigCount);

@@ -523,6 +523,63 @@ namespace NBitcoin.Tests
 			return new OutPoint(Rand(), 0);
 		}
 
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanEstimateFees()
+		{
+			var alice = new Key();
+			var bob = new Key();
+			var satoshi = new Key();
+			var bobAlice = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, alice.PubKey, bob.PubKey);
+
+			//Alice sends money to bobAlice
+			//Bob sends money to bobAlice
+			//bobAlice sends money to satoshi
+
+			var aliceCoins = new ICoin[] { RandomCoin("0.4", alice), RandomCoin("0.6", alice) };
+			var bobCoins = new ICoin[] { RandomCoin("0.2", bob), RandomCoin("0.3", bob) };
+			var bobAliceCoins = new ICoin[] { RandomCoin("1.5", bobAlice, false), RandomCoin("0.25", bobAlice, true) };
+
+			TransactionBuilder builder = new TransactionBuilder();
+			var unsigned = builder
+				.AddCoins(aliceCoins)
+				.Send(bobAlice, "1.0")
+				.Then()
+				.AddCoins(bobCoins)
+				.Send(bobAlice, "0.5")
+				.Then()
+				.AddCoins(bobAliceCoins)
+				.Send(satoshi.PubKey, "1.75")
+				.BuildTransaction(false);
+
+			builder.AddKeys(alice, bob, satoshi);
+			var signed = builder.BuildTransaction(true);
+			Assert.True(builder.Verify(signed));
+
+			Assert.True(Math.Abs(signed.ToBytes().Length - builder.EstimateSize(unsigned)) < 20);
+
+			var fees = builder.EstimateFees(unsigned);
+		}
+
+		private Coin RandomCoin(Money amount, Script scriptPubKey, bool p2sh)
+		{
+			var outpoint = RandOutpoint();
+			if(!p2sh)
+				return new Coin(outpoint, new TxOut(amount, scriptPubKey));
+			return new ScriptCoin(outpoint, new TxOut(amount, scriptPubKey.ID), scriptPubKey);
+		}
+		private Coin RandomCoin(Money amount, Key receiver)
+		{
+			return RandomCoin(amount, receiver.PubKey.GetAddress(Network.Main));
+		}
+		private Coin RandomCoin(Money amount, BitcoinAddress receiver)
+		{
+			var outpoint = RandOutpoint();
+			return new Coin(outpoint, new TxOut(amount, receiver));
+		}
+
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildTransaction()
