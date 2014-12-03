@@ -904,6 +904,11 @@ namespace NBitcoin
 			return GetFormatter(format, network).Parse(tx);
 		}
 
+		public string ToHex()
+		{
+			return Encoders.Hex.EncodeData(this.ToBytes());
+		}
+
 		public override string ToString()
 		{
 			return ToString(RawFormat.BlockExplorer);
