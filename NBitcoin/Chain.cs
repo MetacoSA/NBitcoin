@@ -461,7 +461,7 @@ namespace NBitcoin
 			return vChain[index];
 		}
 
-		public bool Contains(uint256 hash, bool includeBranch = false)
+		public bool Contains(uint256 hash, bool includeBranch)
 		{
 			ChainedBlock pindex = GetBlock(hash, includeBranch);
 			return pindex != null;

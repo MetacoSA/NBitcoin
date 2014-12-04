@@ -26,6 +26,13 @@ namespace NBitcoin
 			get;
 		}
 
+		public bool Contains(uint256 hash)
+		{
+			ChainedBlock pindex = GetBlock(hash);
+			return pindex != null;
+		}
+		
+
 		public IEnumerable<ChainedBlock> ToEnumerable(bool fromTip)
 		{
 			if(fromTip)
