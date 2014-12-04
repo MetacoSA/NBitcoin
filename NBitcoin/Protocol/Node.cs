@@ -575,7 +575,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public IEnumerable<ChainedBlock> SynchronizeChain(Chain chain, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		public IEnumerable<ChainedBlock> SynchronizeChain(ChainBase chain, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			List<ChainedBlock> headers = new List<ChainedBlock>();
 			foreach(var header in GetHeadersFromFork(chain.Tip, hashStop, cancellationToken))

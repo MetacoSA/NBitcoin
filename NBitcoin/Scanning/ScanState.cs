@@ -65,7 +65,7 @@ namespace NBitcoin.Scanning
 			set;
 		}
 
-		public bool Process(Chain mainChain, IBlockProvider blockProvider)
+		public bool Process(ChainBase mainChain, IBlockProvider blockProvider)
 		{
 			var chainCopy = Chain.Clone();
 			var chainPosition = chainCopy.Changes.Position;

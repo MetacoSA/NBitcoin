@@ -83,6 +83,58 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildConcurrentChain()
+		{
+			ConcurrentChain cchain = new ConcurrentChain();
+			Chain chain = new Chain(Network.Main);
+			Assert.Null(cchain.SetTip(chain.Tip));
+			var b0 = cchain.Tip;
+			Assert.Equal(cchain.Tip, chain.Tip);
+
+			var b1 = AddBlock(chain);
+			var b2 = AddBlock(chain);
+			AddBlock(chain);
+			AddBlock(chain);
+			var b5 = AddBlock(chain);
+
+			Assert.Equal(cchain.SetTip(chain.Tip), b0);
+			Assert.Equal(cchain.Tip, chain.Tip);
+
+			Assert.Equal(cchain.GetBlock(5), chain.Tip);
+			Assert.Equal(cchain.GetBlock(b5.HashBlock), chain.Tip);
+
+			Assert.Equal(cchain.SetTip(b1), b1);
+			Assert.Equal(cchain.GetBlock(b5.HashBlock), null);
+			Assert.Equal(cchain.GetBlock(b2.HashBlock), null);
+
+			Assert.Equal(cchain.SetTip(b5), b1);
+			Assert.Equal(cchain.GetBlock(b5.HashBlock), chain.Tip);
+
+			chain.SetTip(b2);
+			AddBlock(chain);
+			AddBlock(chain);
+			var b5b = AddBlock(chain);
+			var b6b = AddBlock(chain);
+
+			Assert.Equal(cchain.SetTip(b6b), b2);
+
+			Assert.Equal(cchain.GetBlock(b5.HashBlock), null);
+			Assert.Equal(cchain.GetBlock(b2.HashBlock), b2);
+			Assert.Equal(cchain.GetBlock(6), b6b);
+			Assert.Equal(cchain.GetBlock(5), b5b);
+		}
+
+		private ChainedBlock AddBlock(Chain chain)
+		{
+			BlockHeader header = new BlockHeader();
+			header.Nonce = RandomUtils.GetUInt32();
+			header.HashPrevBlock = chain.Tip.HashBlock;
+			chain.SetTip(header);
+			return chain.GetBlock(header.GetHash());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildChain()
 		{
 			Chain chain = new Chain(Network.Main);

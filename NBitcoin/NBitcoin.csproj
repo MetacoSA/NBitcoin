@@ -73,8 +73,10 @@
     <Compile Include="CachedTransactionRepository.cs" />
     <Compile Include="Coin.cs" />
     <Compile Include="CoinsView.cs" />
+    <Compile Include="ConcurrentChain.cs" />
     <Compile Include="Crypto\DeterministicECDSA.cs" />
     <Compile Include="DataDirectory.cs" />
+    <Compile Include="ChainBase.cs" />
     <Compile Include="IndexedBlockUndoStore.cs" />
     <Compile Include="IndexedStore.cs" />
     <Compile Include="InMemoryNoSqlRepository.cs" />
