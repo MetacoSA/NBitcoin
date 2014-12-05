@@ -455,6 +455,16 @@ namespace NBitcoin
 			return (T)CreateFromBase58Data(base58, expectedNetwork);
 		}
 
+		public T Parse<T>(string base58) where T: Base58Data
+		{
+			var type = GetBase58Type(base58);
+			if (type.HasValue)
+			{
+				return (T)CreateBase58Data(type.Value, base58);
+			}
+			throw new FormatException("Invalid base58 data");
+		}
+
 		public Base58Data CreateBase58Data(Base58Type type, string base58)
 		{
 			if(type == Base58Type.EXT_PUBLIC_KEY)
