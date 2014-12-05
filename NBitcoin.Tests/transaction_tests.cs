@@ -269,6 +269,7 @@ namespace NBitcoin.Tests
 
 			var satoshi = new Key();
 			var bob = new Key();
+			var alice = new Key();
 
 			var repo = new NoSqlColoredTransactionRepository(new NoSqlTransactionRepository(), new InMemoryNoSqlRepository());
 
@@ -437,6 +438,57 @@ namespace NBitcoin.Tests
 
 			tx = txBuilder.AddKeys(satoshi, bob).SignTransaction(tx);
 			Assert.True(txBuilder.Verify(tx));
+
+
+			//Bob send coins to Satoshi, but alice pay for the dust
+			var funding =
+				new TransactionBuilder()
+				.AddCoins(issuanceCoins)
+				.AddKeys(gold)
+				.IssueAsset(bob.PubKey.ID, new Asset(goldId, 100UL))
+				.SetChange(gold.PubKey.ID)
+				.BuildTransaction(true);
+
+			repo.Transactions.Put(funding.GetHash(), funding);
+
+			var bobGold = ColoredCoin.Find(funding, repo).ToArray();
+
+			Transaction transfer = null;
+			try
+			{
+				transfer =
+					new TransactionBuilder()
+					.AddCoins(bobGold)
+					.SendAsset(alice.PubKey.ID, new Asset(goldId, 40UL))
+					.SetChange(bob.PubKey.ID)
+					.BuildTransaction(true);
+				Assert.False(true, "Should have thrown");
+			}
+			catch(NotEnoughFundsException) //Not enough dust to send the change
+			{
+				txBuilder = new TransactionBuilder();
+				transfer =
+					txBuilder
+					.AddCoins(bobGold)
+					.AddCoins(((IssuanceCoin)issuanceCoins[0]).Bearer)
+					.AddKeys(gold, bob)
+					.SendAsset(alice.PubKey, new Asset(goldId, 40UL))
+					.SetChange(bob.PubKey, ChangeType.Colored)
+					.SetChange(gold.PubKey.ID, ChangeType.Uncolored)
+					.SendFees(new Money(655))
+					.BuildTransaction(true);
+				Assert.True(txBuilder.Verify(transfer, new Money(655)));
+
+				repo.Transactions.Put(funding.GetHash(), funding);
+
+				colored = ColoredTransaction.FetchColors(transfer, repo);
+				AssertHasAsset(transfer, colored, colored.Transfers[0], goldId, 60, bob.PubKey);
+				AssertHasAsset(transfer, colored, colored.Transfers[1], goldId, 40, alice.PubKey);
+
+				var change = transfer.Outputs[3];
+				Assert.Equal(Money.Parse("1") - new Money(655) - txBuilder.ColoredDust, change.Value);
+				Assert.Equal(gold.PubKey.ID, change.ScriptPubKey.GetDestination());
+			}
 		}
 
 		private void AssertHasAsset(Transaction tx, ColoredTransaction colored, ColoredEntry entry, AssetId assetId, int quantity, PubKey destination)

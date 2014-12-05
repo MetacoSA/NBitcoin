@@ -11,6 +11,13 @@ using Builder = System.Func<NBitcoin.TransactionBuilder.TransactionBuildingConte
 
 namespace NBitcoin
 {
+	[Flags]
+	public enum ChangeType : int
+	{
+		All = 3,
+		Colored = 1,
+		Uncolored = 2
+	}
 	public interface ICoinSelector
 	{
 		IEnumerable<ICoin> Select(IEnumerable<ICoin> coins, Money target);
@@ -305,6 +312,12 @@ namespace NBitcoin
 				get;
 				set;
 			}
+
+			public ChangeType ChangeType
+			{
+				get;
+				set;
+			}
 		}
 
 		internal class BuilderGroup
@@ -320,14 +333,14 @@ namespace NBitcoin
 			{
 				if(ctx.ChangeAmount == Money.Zero)
 					return Money.Zero;
-				ctx.Transaction.AddOutput(new TxOut(ctx.ChangeAmount, ctx.Group.ChangeScript));
+				ctx.Transaction.AddOutput(new TxOut(ctx.ChangeAmount, ctx.Group.ChangeScript[(int)ChangeType.Uncolored]));
 				return ctx.ChangeAmount;
 			}
 			internal List<Builder> Builders = new List<Builder>();
 			internal Dictionary<OutPoint, ICoin> Coins = new Dictionary<OutPoint, ICoin>();
 			internal List<Builder> IssuanceBuilders = new List<Builder>();
 			internal Dictionary<AssetId, List<Builder>> BuildersByAsset = new Dictionary<AssetId, List<Builder>>();
-			internal Script ChangeScript;
+			internal Script[] ChangeScript = new Script[3];
 			internal void Shuffle()
 			{
 				Shuffle(Builders);
@@ -484,7 +497,7 @@ namespace NBitcoin
 			if(ctx.ChangeAmount == Money.Zero)
 				return Money.Zero;
 			var marker = ctx.GetColorMarker(false);
-			var txout = ctx.Transaction.AddOutput(new TxOut(ColoredDust, ctx.Group.ChangeScript));
+			var txout = ctx.Transaction.AddOutput(new TxOut(ColoredDust, ctx.Group.ChangeScript[(int)ChangeType.Colored]));
 			marker.SetQuantity(ctx.Transaction.Outputs.Count - 2, ctx.ChangeAmount);
 			ctx.AdditionalFees += ColoredDust;
 			return ctx.ChangeAmount;
@@ -606,24 +619,31 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder SetChange(BitcoinAddress destination)
+		public TransactionBuilder SetChange(BitcoinAddress destination, ChangeType changeType = ChangeType.All)
 		{
-			return SetChange(destination.ID);
+			return SetChange(destination.ID, changeType);
 		}
 
-		public TransactionBuilder SetChange(TxDestination destination)
+		public TransactionBuilder SetChange(TxDestination destination, ChangeType changeType = ChangeType.All)
 		{
-			return SetChange(destination.CreateScriptPubKey());
+			return SetChange(destination.CreateScriptPubKey(), changeType);
 		}
 
-		public TransactionBuilder SetChange(PubKey pubKey)
+		public TransactionBuilder SetChange(PubKey pubKey, ChangeType changeType = ChangeType.All)
 		{
-			return SetChange(pubKey.PaymentScript);
+			return SetChange(pubKey.PaymentScript, changeType);
 		}
 
-		public TransactionBuilder SetChange(Script scriptPubKey)
+		public TransactionBuilder SetChange(Script scriptPubKey, ChangeType changeType = ChangeType.All)
 		{
-			CurrentGroup.ChangeScript = scriptPubKey;
+			if((changeType & ChangeType.Colored) != 0)
+			{
+				CurrentGroup.ChangeScript[(int)ChangeType.Colored] = scriptPubKey;
+			}
+			if((changeType & ChangeType.Uncolored) != 0)
+			{
+				CurrentGroup.ChangeScript[(int)ChangeType.Uncolored] = scriptPubKey;
+			}
 			return this;
 		}
 
@@ -652,6 +672,7 @@ namespace NBitcoin
 				ctx.AdditionalBuilders.Clear();
 				ctx.AdditionalFees = Money.Zero;
 
+				ctx.ChangeType = ChangeType.Colored;
 				foreach(var builder in group.IssuanceBuilders)
 					builder(ctx);
 
@@ -670,6 +691,7 @@ namespace NBitcoin
 				ctx.AdditionalBuilders.Add(_ => _.AdditionalFees);
 				ctx.Dust = Money.Dust;
 				ctx.CoverOnly = group.CoverOnly;
+				ctx.ChangeType = ChangeType.Uncolored;
 				BuildTransaction(ctx, group, group.Builders, group.Coins.Values.OfType<Coin>());
 			}
 			ctx.Finish();
@@ -702,8 +724,8 @@ namespace NBitcoin
 				throw new NotEnoughFundsException("Not enough fund to cover the target");
 			if(change > ctx.Dust)
 			{
-				if(group.ChangeScript == null)
-					throw new InvalidOperationException("A change address should be specified");
+				if(group.ChangeScript[(int)ctx.ChangeType] == null)
+					throw new InvalidOperationException("A change address should be specified (" + ctx.ChangeType + ")");
 
 				ctx.RestoreMemento(originalCtx);
 				ctx.ChangeAmount = change;

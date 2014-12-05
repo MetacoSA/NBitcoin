@@ -177,6 +177,10 @@ namespace NBitcoin
 		}
 		public static IEnumerable<ColoredCoin> Find(uint256 txId, Transaction tx, ColoredTransaction colored)
 		{
+			if(colored == null)
+				throw new ArgumentNullException("colored");
+			if(tx == null)
+				throw new ArgumentNullException("tx");
 			if(txId == null)
 				txId = tx.GetHash();
 			foreach(var entry in colored.Issuances.Concat(colored.Transfers))
