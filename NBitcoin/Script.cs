@@ -745,7 +745,7 @@ namespace NBitcoin
 			return _Script.ToArray();
 		}
 
-		public byte[] ToCompressedRawScript()
+		public byte[] ToCompressedBytes()
 		{
 			ScriptCompressor compressor = new ScriptCompressor(this);
 			return compressor.ToBytes();

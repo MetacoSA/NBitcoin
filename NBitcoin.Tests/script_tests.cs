@@ -132,7 +132,7 @@ namespace NBitcoin.Tests
 		{
 			var key = new Key(true);
 			var script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.Hash);
-			var compressed = script.ToCompressedRawScript();
+			var compressed = script.ToCompressedBytes();
 			Assert.Equal(21, compressed.Length);
 
 			Assert.Equal(script.ToString(), new Script(compressed, true).ToString());
