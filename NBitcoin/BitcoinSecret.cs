@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class BitcoinSecret : Base58Data
+	public class BitcoinSecret : Base58Data, IDestination
 	{
 		public BitcoinSecret(Key key, Network network)
 			: base(ToBytes(key), network)
@@ -124,5 +124,17 @@ namespace NBitcoin
 				return Base58Type.SECRET_KEY;
 			}
 		}
+
+		#region IDestination Members
+
+		public Script ScriptPubKey
+		{
+			get
+			{
+				return GetAddress().ScriptPubKey;
+			}
+		}
+
+		#endregion
 	}
 }

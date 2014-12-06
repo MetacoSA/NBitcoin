@@ -16,13 +16,13 @@ namespace NBitcoin.OpenAsset
 			_Bytes = new byte[] { 0 };
 		}
 
-		public AssetId(BitcoinSecret assetIssuanceKey)
-			: this(assetIssuanceKey.GetAddress())
+		public AssetId(IDestination assetScriptPubKey)
+			: this(assetScriptPubKey.ScriptPubKey)
 		{
 		}
 
-		public AssetId(BitcoinAddress assetIssuanceKeyAddress)
-			: this(assetIssuanceKeyAddress.Hash.ScriptPubKey.Hash)
+		public AssetId(Script assetScriptPubKey)
+			: this(assetScriptPubKey.Hash)
 		{
 		}
 

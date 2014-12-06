@@ -510,41 +510,18 @@ namespace NBitcoin
 		{
 
 		}
-		public TxOut(Money value, BitcoinAddress bitcoinAddress)
-		{
-			if(bitcoinAddress == null)
-				throw new ArgumentNullException("bitcoinAddress");
-			if(value == null)
-				throw new ArgumentNullException("value");
-			Value = value;
-			SetDestination(bitcoinAddress.Hash);
-		}
 
-		public TxOut(Money value, KeyId keyId)
+		public TxOut(Money value, IDestination destination)
 		{
 			Value = value;
-			SetDestination(keyId);
-		}
-		public TxOut(Money value, ScriptId scriptId)
-		{
-			Value = value;
-			SetDestination(scriptId);
+			if(destination != null)
+				ScriptPubKey = destination.ScriptPubKey;
 		}
 
 		public TxOut(Money value, Script scriptPubKey)
 		{
 			Value = value;
 			ScriptPubKey = scriptPubKey;
-		}
-		public TxOut(Money value, PubKey pubkey)
-		{
-			Value = value;
-			ScriptPubKey = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(pubkey);
-		}
-
-		private void SetDestination(TxDestination destination)
-		{
-			ScriptPubKey = destination.ScriptPubKey;
 		}
 
 		public Money Value

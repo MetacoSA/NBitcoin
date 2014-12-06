@@ -454,34 +454,14 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder SendAsset(BitcoinAddress destination, Asset asset)
+		public TransactionBuilder SendAsset(IDestination destination, Asset asset)
 		{
-			return SendAsset(destination.Hash, asset);
+			return SendAsset(destination.ScriptPubKey, asset);
 		}
 
-		public TransactionBuilder SendAsset(BitcoinAddress destination, AssetId assetId, ulong quantity)
+		public TransactionBuilder SendAsset(IDestination destination, AssetId assetId, ulong quantity)
 		{
-			return SendAsset(destination.Hash, new Asset(assetId, quantity));
-		}
-
-		public TransactionBuilder SendAsset(PubKey pubKey, Asset asset)
-		{
-			return SendAsset(pubKey.ScriptPubKey, asset);
-		}
-
-		public TransactionBuilder SendAsset(PubKey pubKey, AssetId assetId, ulong quantity)
-		{
-			return SendAsset(pubKey.ScriptPubKey, new Asset(assetId, quantity));
-		}
-
-		public TransactionBuilder SendAsset(TxDestination id, Asset asset)
-		{
-			return SendAsset(id.ScriptPubKey, asset);
-		}
-
-		public TransactionBuilder SendAsset(TxDestination id, AssetId assetId, ulong quantity)
-		{
-			return SendAsset(id.ScriptPubKey, new Asset(assetId, quantity));
+			return SendAsset(destination, new Asset(assetId, quantity));
 		}
 
 		public TransactionBuilder Shuffle()
@@ -566,16 +546,7 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder IssueAsset(BitcoinAddress address, Asset asset)
-		{
-			return IssueAsset(address.Hash, asset);
-		}
-
-		public TransactionBuilder IssueAsset(TxDestination destination, Asset asset)
-		{
-			return IssueAsset(destination.ScriptPubKey, asset);
-		}
-		public TransactionBuilder IssueAsset(PubKey destination, Asset asset)
+		public TransactionBuilder IssueAsset(IDestination destination, Asset asset)
 		{
 			return IssueAsset(destination.ScriptPubKey, asset);
 		}
@@ -619,19 +590,9 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder SetChange(BitcoinAddress destination, ChangeType changeType = ChangeType.All)
-		{
-			return SetChange(destination.Hash, changeType);
-		}
-
-		public TransactionBuilder SetChange(TxDestination destination, ChangeType changeType = ChangeType.All)
+		public TransactionBuilder SetChange(IDestination destination, ChangeType changeType = ChangeType.All)
 		{
 			return SetChange(destination.ScriptPubKey, changeType);
-		}
-
-		public TransactionBuilder SetChange(PubKey pubKey, ChangeType changeType = ChangeType.All)
-		{
-			return SetChange(pubKey.ScriptPubKey, changeType);
 		}
 
 		public TransactionBuilder SetChange(Script scriptPubKey, ChangeType changeType = ChangeType.All)
