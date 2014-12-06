@@ -939,7 +939,7 @@ namespace NBitcoin
 			{
 				var scriptCoin = (IScriptCoin)coin;
 				var original = input.ScriptSig;
-				input.ScriptSig = CreateScriptSig(ctx, input, coin, n, scriptCoin.Redeem);
+				input.ScriptSig = CreateScriptSig(ctx, input, n, scriptCoin.Redeem);
 				if(original != input.ScriptSig)
 				{
 					input.ScriptSig = input.ScriptSig + Op.GetPushOp(scriptCoin.Redeem.ToRawScript(true));
@@ -947,12 +947,12 @@ namespace NBitcoin
 			}
 			else
 			{
-				input.ScriptSig = CreateScriptSig(ctx, input, coin, n, coin.ScriptPubKey);
+				input.ScriptSig = CreateScriptSig(ctx, input, n, coin.ScriptPubKey);
 			}
 
 		}
 
-		private Script CreateScriptSig(TransactionSigningContext ctx, TxIn input, ICoin coin, int n, Script scriptPubKey)
+		private Script CreateScriptSig(TransactionSigningContext ctx, TxIn input, int n, Script scriptPubKey)
 		{
 			var originalScriptSig = input.ScriptSig;
 			input.ScriptSig = scriptPubKey;
@@ -976,7 +976,7 @@ namespace NBitcoin
 				{
 					var ops = originalScriptSig.ToOps().ToList();
 					ops.RemoveAt(ops.Count - 1);
-					alreadySigned = PayToMultiSigTemplate.Instance.ExtractScriptSigParameters(new Script(ops.ToArray()));
+					alreadySigned = PayToMultiSigTemplate.Instance.ExtractScriptSigParameters(new Script(ops));
 				}
 				List<TransactionSignature> signatures = new List<TransactionSignature>();
 				if(alreadySigned != null)
@@ -1008,13 +1008,13 @@ namespace NBitcoin
 					}
 				}
 
+				IEnumerable<TransactionSignature> sigs = signatures;
 				if(sigCount == multiSigParams.SignatureCount)
 				{
-					signatures = signatures.Where(s => s != TransactionSignature.Empty && s != null).ToList();
+					sigs = sigs.Where(s => s != TransactionSignature.Empty && s != null);
 				}
 
-				return PayToMultiSigTemplate.Instance.GenerateScriptSig(
-					signatures.ToArray());
+				return PayToMultiSigTemplate.Instance.GenerateScriptSig(sigs);
 			}
 
 			var pubKeyParams = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
