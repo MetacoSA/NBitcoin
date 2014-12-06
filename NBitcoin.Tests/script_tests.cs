@@ -753,8 +753,15 @@ namespace NBitcoin.Tests
 			var sigParams = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(new Script(scriptSig));
 			Assert.Equal("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301", Encoders.Hex.EncodeData(sigParams.Signatures[0].ToBytes()));
 			Assert.Equal(redeem, sigParams.RedeemScript.ToString());
-			Assert.Equal(scriptSig, PayToScriptHashTemplate.Instance.GenerateScriptSig(sigParams.Signatures, sigParams.RedeemScript).ToString());
+			Assert.Equal(scriptSig, PayToScriptHashTemplate.Instance.GenerateScriptSig(sigParams).ToString());
 
+			scriptSig = "0 0 51210364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c210364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d52ae";
+
+			sigParams = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(new Script(scriptSig));
+			Assert.Null(sigParams.Signatures[0]);
+
+			var scriptSig2 = PayToScriptHashTemplate.Instance.GenerateScriptSig(sigParams);
+			Assert.Equal(scriptSig2.ToString(), scriptSig);
 		}
 	}
 }

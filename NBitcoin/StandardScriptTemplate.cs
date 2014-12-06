@@ -364,7 +364,7 @@ namespace NBitcoin
 				ops.Add(OpcodeType.OP_0);
 			foreach(var sig in signatures)
 			{
-				ops.Add(Op.GetPushOp(sig.ToBytes()));
+				ops.Add(sig == null ? OpcodeType.OP_0 : Op.GetPushOp(sig.ToBytes()));
 			}
 			return GenerateScriptSig(ops.ToArray(), redeemScript);
 		}
@@ -405,6 +405,11 @@ namespace NBitcoin
 			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
 			return new ScriptId(ops[1].PushData);
+		}
+
+		public Script GenerateScriptSig(PayToScriptHashSigParameters parameters)
+		{
+			return GenerateScriptSig(parameters.Signatures, parameters.RedeemScript);
 		}
 	}
 	public class PayToPubkeyTemplate : ScriptTemplate
