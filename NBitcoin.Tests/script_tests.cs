@@ -680,6 +680,14 @@ namespace NBitcoin.Tests
 			Assert.Equal("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9302", Encoders.Hex.EncodeData(result[1].ToBytes()));
 
 			Assert.Equal(scriptSig, PayToMultiSigTemplate.Instance.GenerateScriptSig(result).ToString());
+
+			scriptSig = "0 0 3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9302";
+			result = PayToMultiSigTemplate.Instance.ExtractScriptSigParameters(new Script(scriptSig));
+			Assert.Null(result[0]);
+			Assert.Equal("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9302", Encoders.Hex.EncodeData(result[1].ToBytes()));
+
+			var scriptSig2 = PayToMultiSigTemplate.Instance.GenerateScriptSig(result);
+			Assert.Equal(scriptSig, scriptSig2.ToString());
 		}
 
 		[Fact]
