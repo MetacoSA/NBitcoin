@@ -309,7 +309,7 @@ namespace NBitcoin
 		}
 
         public ScriptCoin(uint256 txHash, uint outputIndex, Money amount, Script redeem)
-			: base(txHash, outputIndex, amount, redeem.Hash.CreateScriptPubKey())
+			: base(txHash, outputIndex, amount, redeem.Hash.ScriptPubKey)
 		{
 			Redeem = redeem;
 		}

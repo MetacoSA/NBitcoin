@@ -77,6 +77,7 @@
     <Compile Include="Crypto\DeterministicECDSA.cs" />
     <Compile Include="DataDirectory.cs" />
     <Compile Include="ChainBase.cs" />
+    <Compile Include="IDestination.cs" />
     <Compile Include="IndexedBlockUndoStore.cs" />
     <Compile Include="IndexedStore.cs" />
     <Compile Include="InMemoryNoSqlRepository.cs" />

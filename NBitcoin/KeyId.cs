@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class TxDestination
+	public class TxDestination : IDestination
 	{
 		byte[] _DestBytes;
 
@@ -39,10 +39,25 @@ namespace NBitcoin
 			return BitcoinAddress.Create(this, network);
 		}
 
-		public virtual Script CreateScriptPubKey()
+		[Obsolete("Use ScriptPubKey instead")]
+		public Script CreateScriptPubKey()
 		{
-			return null;
+			return ScriptPubKey;
 		}
+
+		#region IDestination Members
+
+		public virtual Script ScriptPubKey
+		{
+			get
+			{
+				return null;
+			}
+		}
+
+		#endregion
+
+
 		public byte[] ToBytes()
 		{
 			return ToBytes(false);
@@ -114,10 +129,12 @@ namespace NBitcoin
 		{
 		}
 
-
-		public override Script CreateScriptPubKey()
+		public override Script ScriptPubKey
 		{
-			return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(this);
+			get
+			{
+				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(this);
+			}
 		}
 	}
 	public class ScriptId : TxDestination
@@ -144,10 +161,12 @@ namespace NBitcoin
 		{
 		}
 
-
-		public override Script CreateScriptPubKey()
+		public override Script ScriptPubKey
 		{
-			return PayToScriptHashTemplate.Instance.GenerateScriptPubKey(this);
+			get
+			{
+				return PayToScriptHashTemplate.Instance.GenerateScriptPubKey(this);
+			}
 		}
 	}
 }

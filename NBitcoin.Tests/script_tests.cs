@@ -493,7 +493,7 @@ namespace NBitcoin.Tests
 		public void script_combineSigs()
 		{
 			Key[] keys = new[] { new Key(), new Key(), new Key() };
-			var txFrom = CreateCreditingTransaction(keys[0].PubKey.Hash.CreateScriptPubKey());
+			var txFrom = CreateCreditingTransaction(keys[0].PubKey.Hash.ScriptPubKey);
 			var txTo = CreateSpendingTransaction(new Script(), txFrom);
 
 			Script scriptPubKey = txFrom.Outputs[0].ScriptPubKey;
@@ -521,7 +521,7 @@ namespace NBitcoin.Tests
 
 			// P2SH, single-signature case:
 			Script pkSingle = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(keys[0].PubKey);
-			scriptPubKey = pkSingle.Hash.CreateScriptPubKey();
+			scriptPubKey = pkSingle.Hash.ScriptPubKey;
 			txFrom.Outputs[0].ScriptPubKey = scriptPubKey;
 			txTo.Inputs[0].PrevOut = new OutPoint(txFrom, 0);
 

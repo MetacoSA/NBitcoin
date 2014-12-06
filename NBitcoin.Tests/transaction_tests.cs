@@ -53,7 +53,7 @@ namespace NBitcoin.Tests
 			tx.Sign(key, false);
 			AssertCorrectlySigned(tx, scriptPubKey);
 			clone.Sign(key, true);
-			AssertCorrectlySigned(clone, scriptPubKey.Hash.CreateScriptPubKey());
+			AssertCorrectlySigned(clone, scriptPubKey.Hash.ScriptPubKey);
 		}
 
 		[Fact]
@@ -100,7 +100,7 @@ namespace NBitcoin.Tests
 			var goldRedeem = PayToMultiSigTemplate.Instance
 									.GenerateScriptPubKey(2, new[] { satoshi.PubKey, bob.PubKey, alice.PubKey });
 
-			var goldScriptPubKey = goldRedeem.Hash.CreateScriptPubKey();
+			var goldScriptPubKey = goldRedeem.Hash.ScriptPubKey;
 			var goldAssetId = goldScriptPubKey.Hash.ToAssetId();
 
 			var issuanceCoin = new IssuanceCoin(
@@ -264,8 +264,8 @@ namespace NBitcoin.Tests
 		{
 			var gold = new Key();
 			var silver = new Key();
-			var goldId = gold.PubKey.PaymentScript.Hash.ToAssetId();
-			var silverId = silver.PubKey.PaymentScript.Hash.ToAssetId();
+			var goldId = gold.PubKey.ScriptPubKey.Hash.ToAssetId();
+			var silverId = silver.PubKey.ScriptPubKey.Hash.ToAssetId();
 
 			var satoshi = new Key();
 			var bob = new Key();
@@ -310,7 +310,7 @@ namespace NBitcoin.Tests
 
 			//Ensure BTC from the IssuanceCoin are returned
 			Assert.Equal(Money.Parse("0.89998800"), tx.Outputs[2].Value);
-			Assert.Equal(gold.PubKey.PaymentScript, tx.Outputs[2].ScriptPubKey);
+			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
 
 			repo.Transactions.Put(tx.GetHash(), tx);
 
@@ -324,7 +324,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(2, coloredCoins.Length);
 
 			//Can issue silver to bob, and send some gold to satoshi
-			coins.Add(coloredCoins.First(c => c.ScriptPubKey == bob.PubKey.PaymentScript));
+			coins.Add(coloredCoins.First(c => c.ScriptPubKey == bob.PubKey.ScriptPubKey));
 			txBuilder = new TransactionBuilder();
 			tx = txBuilder
 				.AddCoins(coins.ToArray())
@@ -379,7 +379,7 @@ namespace NBitcoin.Tests
 			tx = txBuilder
 					.AddKeys(silver, gold)
 					.AddCoins(issuanceCoins)
-					.AddCoins(new Coin(new OutPoint(tx.GetHash(), 0), new TxOut("2.5", gold.PubKey.PaymentScript)))
+					.AddCoins(new Coin(new OutPoint(tx.GetHash(), 0), new TxOut("2.5", gold.PubKey.ScriptPubKey)))
 					.IssueAsset(bob.PubKey, new Asset(silverId, 300UL))
 					.Send(bob.PubKey, "2.00")
 					.SetChange(gold.PubKey)
@@ -432,9 +432,9 @@ namespace NBitcoin.Tests
 			AssertHasAsset(tx, colored, colored.Transfers[5], goldId, 5, satoshi.PubKey);
 
 			Assert.True(tx.Outputs[8].Value == Money.Parse("1.099988"));
-			Assert.True(tx.Outputs[8].ScriptPubKey == bob.PubKey.PaymentScript);
+			Assert.True(tx.Outputs[8].ScriptPubKey == bob.PubKey.ScriptPubKey);
 			Assert.True(tx.Outputs[9].Value == Money.Parse("0.9"));
-			Assert.True(tx.Outputs[9].ScriptPubKey == satoshi.PubKey.PaymentScript);
+			Assert.True(tx.Outputs[9].ScriptPubKey == satoshi.PubKey.ScriptPubKey);
 
 			tx = txBuilder.AddKeys(satoshi, bob).SignTransaction(tx);
 			Assert.True(txBuilder.Verify(tx));
@@ -497,7 +497,7 @@ namespace NBitcoin.Tests
 			Assert.True(entry.Asset.Id == assetId);
 			Assert.True(entry.Asset.Quantity == (ulong)quantity);
 			if(destination != null)
-				Assert.True(txout.ScriptPubKey == destination.PaymentScript);
+				Assert.True(txout.ScriptPubKey == destination.ScriptPubKey);
 		}
 
 		[Fact]

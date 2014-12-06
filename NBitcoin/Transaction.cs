@@ -479,7 +479,7 @@ namespace NBitcoin
 		#endregion
 	}
 
-	public class TxOut : IBitcoinSerializable
+	public class TxOut : IBitcoinSerializable, IDestination
 	{
 		Script publicKey = Script.Empty;
 		public Script ScriptPubKey
@@ -544,7 +544,7 @@ namespace NBitcoin
 
 		private void SetDestination(TxDestination destination)
 		{
-			ScriptPubKey = destination.CreateScriptPubKey();
+			ScriptPubKey = destination.ScriptPubKey;
 		}
 
 		public Money Value

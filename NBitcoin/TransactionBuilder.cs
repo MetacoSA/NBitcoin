@@ -442,7 +442,7 @@ namespace NBitcoin
 
 		public TransactionBuilder Send(TxDestination id, Money amount)
 		{
-			return Send(id.CreateScriptPubKey(), amount);
+			return Send(id.ScriptPubKey, amount);
 		}
 		public TransactionBuilder Send(Script scriptPubKey, Money amount)
 		{
@@ -466,22 +466,22 @@ namespace NBitcoin
 
 		public TransactionBuilder SendAsset(PubKey pubKey, Asset asset)
 		{
-			return SendAsset(pubKey.PaymentScript, asset);
+			return SendAsset(pubKey.ScriptPubKey, asset);
 		}
 
 		public TransactionBuilder SendAsset(PubKey pubKey, AssetId assetId, ulong quantity)
 		{
-			return SendAsset(pubKey.PaymentScript, new Asset(assetId, quantity));
+			return SendAsset(pubKey.ScriptPubKey, new Asset(assetId, quantity));
 		}
 
 		public TransactionBuilder SendAsset(TxDestination id, Asset asset)
 		{
-			return SendAsset(id.CreateScriptPubKey(), asset);
+			return SendAsset(id.ScriptPubKey, asset);
 		}
 
 		public TransactionBuilder SendAsset(TxDestination id, AssetId assetId, ulong quantity)
 		{
-			return SendAsset(id.CreateScriptPubKey(), new Asset(assetId, quantity));
+			return SendAsset(id.ScriptPubKey, new Asset(assetId, quantity));
 		}
 
 		public TransactionBuilder Shuffle()
@@ -573,11 +573,11 @@ namespace NBitcoin
 
 		public TransactionBuilder IssueAsset(TxDestination destination, Asset asset)
 		{
-			return IssueAsset(destination.CreateScriptPubKey(), asset);
+			return IssueAsset(destination.ScriptPubKey, asset);
 		}
 		public TransactionBuilder IssueAsset(PubKey destination, Asset asset)
 		{
-			return IssueAsset(destination.PaymentScript, asset);
+			return IssueAsset(destination.ScriptPubKey, asset);
 		}
 
 		AssetId _IssuedAsset;
@@ -626,12 +626,12 @@ namespace NBitcoin
 
 		public TransactionBuilder SetChange(TxDestination destination, ChangeType changeType = ChangeType.All)
 		{
-			return SetChange(destination.CreateScriptPubKey(), changeType);
+			return SetChange(destination.ScriptPubKey, changeType);
 		}
 
 		public TransactionBuilder SetChange(PubKey pubKey, ChangeType changeType = ChangeType.All)
 		{
-			return SetChange(pubKey.PaymentScript, changeType);
+			return SetChange(pubKey.ScriptPubKey, changeType);
 		}
 
 		public TransactionBuilder SetChange(Script scriptPubKey, ChangeType changeType = ChangeType.All)
@@ -1054,7 +1054,7 @@ namespace NBitcoin
 
 		public TransactionBuilder Send(PubKey pubKey, Money amount)
 		{
-			return Send(pubKey.PaymentScript, amount);
+			return Send(pubKey.ScriptPubKey, amount);
 		}
 
 		/// <summary>
@@ -1183,7 +1183,7 @@ namespace NBitcoin
 			var p2sh = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(scriptSig);
 			if(p2sh != null)
 			{
-				return p2sh.RedeemScript.Hash.CreateScriptPubKey();
+				return p2sh.RedeemScript.Hash.ScriptPubKey;
 			}
 			return null;
 		}

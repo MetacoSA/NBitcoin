@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class PubKey : IBitcoinSerializable
+	public class PubKey : IBitcoinSerializable, IDestination
 	{
 		public PubKey(string hex)
 			: this(Encoders.Hex.DecodeData(hex))
@@ -105,29 +105,13 @@ namespace NBitcoin
 		{
 			return Verify(hash, ECDSASignature.FromDER(sig));
 		}
-
-		Script _HashPaymentScript;
-		public Script HashPaymentScript
-		{
-			get
-			{
-				if(_HashPaymentScript == null)
-				{
-					_HashPaymentScript = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(Hash);
-				}
-				return _HashPaymentScript;
-			}
-		}
-		Script _PaymentScript;
+		
+		[Obsolete("Use ScriptPubKey instead")]
 		public Script PaymentScript
 		{
 			get
 			{
-				if(_PaymentScript == null)
-				{
-					_PaymentScript = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(this);
-				}
-				return _PaymentScript;
+				return ScriptPubKey;
 			}
 		}
 
@@ -317,5 +301,22 @@ namespace NBitcoin
 		{
 			return new BitcoinAddress(this.Hash, network).ToString();
 		}
+
+		#region IDestination Members
+
+		Script _ScriptPubKey;
+		public Script ScriptPubKey
+		{
+			get
+			{
+				if(_ScriptPubKey == null)
+				{
+					_ScriptPubKey = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(this);
+				}
+				return _ScriptPubKey;
+			}
+		}
+
+		#endregion
 	}
 }

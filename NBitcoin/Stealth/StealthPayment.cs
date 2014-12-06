@@ -49,7 +49,7 @@ namespace NBitcoin.Stealth
 			if(address.SignatureCount > 1)
 			{
 				Redeem = ScriptPubKey;
-				ScriptPubKey = ScriptPubKey.Hash.CreateScriptPubKey();
+				ScriptPubKey = ScriptPubKey.Hash.ScriptPubKey;
 			}
 			SetStealthKeys();
 		}
@@ -157,7 +157,7 @@ namespace NBitcoin.Stealth
 						if(address == null)
 							throw new ArgumentNullException("address");
 						redeem = CreatePaymentScript(address, metadata.EphemKey, scan);
-						expectedScriptPubKey = redeem.Hash.CreateScriptPubKey();
+						expectedScriptPubKey = redeem.Hash.ScriptPubKey;
 						if(expectedScriptPubKey != scriptPubKey)
 							continue;
 					}

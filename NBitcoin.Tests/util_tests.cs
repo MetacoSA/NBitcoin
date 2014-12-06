@@ -287,14 +287,14 @@ namespace NBitcoin.Tests
 		public void CanGenerateScriptFromAddress()
 		{
 			var address = new BitcoinAddress(new KeyId("47376c6f537d62177a2c41c4ca9b45829ab99083"), Network.Main);
-			Assert.Equal("OP_DUP OP_HASH160 47376c6f537d62177a2c41c4ca9b45829ab99083 OP_EQUALVERIFY OP_CHECKSIG", address.PaymentScript.ToString());
+			Assert.Equal("OP_DUP OP_HASH160 47376c6f537d62177a2c41c4ca9b45829ab99083 OP_EQUALVERIFY OP_CHECKSIG", address.ScriptPubKey.ToString());
 
 			var scriptAddress = new BitcoinScriptAddress(new ScriptId("8f55563b9a19f321c211e9b9f38cdf686ea07845"), Network.Main);
-			Assert.Equal("OP_HASH160 8f55563b9a19f321c211e9b9f38cdf686ea07845 OP_EQUAL", scriptAddress.PaymentScript.ToString());
+			Assert.Equal("OP_HASH160 8f55563b9a19f321c211e9b9f38cdf686ea07845 OP_EQUAL", scriptAddress.ScriptPubKey.ToString());
 
 			var pubKey = new PubKey("0359d3092e4a8d5f3b3948235b5dec7395259273ccf3c4e9d5e16695a3fc9588d6");
-			Assert.Equal("OP_DUP OP_HASH160 4d29186f76581c7375d70499afd1d585149d42cd OP_EQUALVERIFY OP_CHECKSIG", pubKey.HashPaymentScript.ToString());
-			Assert.Equal("0359d3092e4a8d5f3b3948235b5dec7395259273ccf3c4e9d5e16695a3fc9588d6 OP_CHECKSIG", pubKey.PaymentScript.ToString());
+			Assert.Equal("OP_DUP OP_HASH160 4d29186f76581c7375d70499afd1d585149d42cd OP_EQUALVERIFY OP_CHECKSIG", pubKey.Hash.ScriptPubKey.ToString());
+			Assert.Equal("0359d3092e4a8d5f3b3948235b5dec7395259273ccf3c4e9d5e16695a3fc9588d6 OP_CHECKSIG", pubKey.ScriptPubKey.ToString());
 
 			Script script = new Script("0359d3092e4a8d5f3b3948235b5dec7395259273ccf3c4e9d5e16695a3fc9588d6 OP_CHECKSIG");
 			Assert.Equal("OP_HASH160 a216e3bce8c1b3adf376731b6cd0b6936c4e053f OP_EQUAL", script.PaymentScript.ToString());

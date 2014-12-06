@@ -43,7 +43,7 @@ namespace NBitcoin
 			return PayToScriptHashTemplate.Instance.GenerateScriptPubKey((ScriptId)Hash);
 		}
 	}
-	public class BitcoinAddress : Base58Data
+	public class BitcoinAddress : Base58Data, IDestination
 	{
 		public static BitcoinAddress Create(string base58, Network expectedNetwork = null)
 		{
@@ -88,18 +88,28 @@ namespace NBitcoin
 			}
 		}
 
-		Script _PaymentScript;
+		[Obsolete("Use ScriptPubKey instead")]
 		public Script PaymentScript
 		{
 			get
 			{
-				if(_PaymentScript == null)
-				{
-					_PaymentScript = GeneratePaymentScript();
-				}
-				return _PaymentScript;
+				return ScriptPubKey;
 			}
 		}
+
+		Script _ScriptPubKey;
+		public Script ScriptPubKey
+		{
+			get
+			{
+				if(_ScriptPubKey == null)
+				{
+					_ScriptPubKey = GeneratePaymentScript();
+				}
+				return _ScriptPubKey;
+			}
+		}
+
 
 		public BitcoinScriptAddress GetScriptAddress()
 		{
