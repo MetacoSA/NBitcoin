@@ -517,7 +517,7 @@ namespace NBitcoin
 			if(value == null)
 				throw new ArgumentNullException("value");
 			Value = value;
-			SetDestination(bitcoinAddress.ID);
+			SetDestination(bitcoinAddress.Hash);
 		}
 
 		public TxOut(Money value, KeyId keyId)
@@ -603,7 +603,7 @@ namespace NBitcoin
 		{
 			if(address == null)
 				throw new ArgumentNullException("address");
-			return IsTo(address.ID);
+			return IsTo(address.Hash);
 		}
 
 		/// <summary>

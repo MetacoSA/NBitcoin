@@ -36,7 +36,7 @@ namespace NBitcoin.Tests
 		}
 		public static Transaction CreateFakeTx(Money coin, BitcoinAddress to)
 		{
-			return CreateFakeTx(coin, (KeyId)to.ID);
+			return CreateFakeTx(coin, (KeyId)to.Hash);
 		}
 
 		public static byte[] ToBytes(string str)

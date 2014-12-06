@@ -91,7 +91,7 @@ namespace NBitcoin
 		}
 		private byte[] CalculateChildFingerprint()
 		{
-			return key.PubKey.ID.ToBytes().Take(vchFingerprint.Length).ToArray();
+			return key.PubKey.Hash.ToBytes().Take(vchFingerprint.Length).ToArray();
 		}
 
 		public byte[] Fingerprint

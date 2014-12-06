@@ -22,7 +22,7 @@ namespace NBitcoin.OpenAsset
 		}
 
 		public AssetId(BitcoinAddress assetIssuanceKeyAddress)
-			: this(assetIssuanceKeyAddress.ID.CreateScriptPubKey().ID)
+			: this(assetIssuanceKeyAddress.Hash.CreateScriptPubKey().Hash)
 		{
 		}
 

@@ -56,7 +56,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return Bearer.TxOut.ScriptPubKey.ID.ToAssetId();
+				return Bearer.TxOut.ScriptPubKey.Hash.ToAssetId();
 			}
 		}
 
@@ -309,7 +309,7 @@ namespace NBitcoin
 		}
 
         public ScriptCoin(uint256 txHash, uint outputIndex, Money amount, Script redeem)
-			: base(txHash, outputIndex, amount, redeem.ID.CreateScriptPubKey())
+			: base(txHash, outputIndex, amount, redeem.Hash.CreateScriptPubKey())
 		{
 			Redeem = redeem;
 		}

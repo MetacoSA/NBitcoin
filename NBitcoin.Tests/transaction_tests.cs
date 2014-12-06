@@ -48,12 +48,12 @@ namespace NBitcoin.Tests
 			{
 				ScriptSig = scriptPubKey
 			});
-			tx.AddOutput(new TxOut("21", key.PubKey.ID));
+			tx.AddOutput(new TxOut("21", key.PubKey.Hash));
 			var clone = tx.Clone();
 			tx.Sign(key, false);
 			AssertCorrectlySigned(tx, scriptPubKey);
 			clone.Sign(key, true);
-			AssertCorrectlySigned(clone, scriptPubKey.ID.CreateScriptPubKey());
+			AssertCorrectlySigned(clone, scriptPubKey.Hash.CreateScriptPubKey());
 		}
 
 		[Fact]
@@ -100,8 +100,8 @@ namespace NBitcoin.Tests
 			var goldRedeem = PayToMultiSigTemplate.Instance
 									.GenerateScriptPubKey(2, new[] { satoshi.PubKey, bob.PubKey, alice.PubKey });
 
-			var goldScriptPubKey = goldRedeem.ID.CreateScriptPubKey();
-			var goldAssetId = goldScriptPubKey.ID.ToAssetId();
+			var goldScriptPubKey = goldRedeem.Hash.CreateScriptPubKey();
+			var goldAssetId = goldScriptPubKey.Hash.ToAssetId();
 
 			var issuanceCoin = new IssuanceCoin(
 				new ScriptCoin(RandOutpoint(), new TxOut(new Money(600), goldScriptPubKey), goldRedeem));
@@ -155,39 +155,39 @@ namespace NBitcoin.Tests
 			var funding = txBuilder
 				.AddCoins(GetCoinSource(aliceKey))
 				.AddKeys(aliceKey)
-				.Send(aliceBobRedeemScript.ID, "0.5")
-				.SetChange(aliceKey.PubKey.ID)
+				.Send(aliceBobRedeemScript.Hash, "0.5")
+				.SetChange(aliceKey.PubKey.Hash)
 				.SendFees(Money.Dust)
 				.BuildTransaction(true);
 
 			Assert.True(txBuilder.Verify(funding));
 
 			List<ICoin> aliceBobCoins = new List<ICoin>();
-			aliceBobCoins.Add(new ScriptCoin(funding, funding.Outputs.To(aliceBobRedeemScript.ID).First(), aliceBobRedeemScript));
+			aliceBobCoins.Add(new ScriptCoin(funding, funding.Outputs.To(aliceBobRedeemScript.Hash).First(), aliceBobRedeemScript));
 
 			// first Bob constructs the TX
 			txBuilder = new TransactionBuilder();
 			var unsigned = txBuilder
 				// spend from the Alice+Bob wallet to Carla
 				.AddCoins(aliceBobCoins)
-				.Send(carlaKey.PubKey.ID, "0.01")
+				.Send(carlaKey.PubKey.Hash, "0.01")
 				//and Carla pays Alice
-				.Send(aliceKey.PubKey.ID, "0.02")
+				.Send(aliceKey.PubKey.Hash, "0.02")
 				.CoverOnly("0.01")
-				.SetChange(aliceBobRedeemScript.ID)
+				.SetChange(aliceBobRedeemScript.Hash)
 				// Bob does not sign anything yet
 				.BuildTransaction(false);
 
 			Assert.True(unsigned.Outputs.Count == 3);
-			Assert.True(unsigned.Outputs[0].IsTo(aliceBobRedeemScript.ID));
+			Assert.True(unsigned.Outputs[0].IsTo(aliceBobRedeemScript.Hash));
 			//Only 0.01 should be covered, not 0.03 so 0.49 goes back to Alice+Bob
 			Assert.True(unsigned.Outputs[0].Value == Money.Parse("0.49"));
 
 
-			Assert.True(unsigned.Outputs[1].IsTo(carlaKey.PubKey.ID));
+			Assert.True(unsigned.Outputs[1].IsTo(carlaKey.PubKey.Hash));
 			Assert.True(unsigned.Outputs[1].Value == Money.Parse("0.01"));
 
-			Assert.True(unsigned.Outputs[2].IsTo(aliceKey.PubKey.ID));
+			Assert.True(unsigned.Outputs[2].IsTo(aliceKey.PubKey.Hash));
 			Assert.True(unsigned.Outputs[2].Value == Money.Parse("0.02"));
 
 			//Alice signs	
@@ -254,7 +254,7 @@ namespace NBitcoin.Tests
 				amounts = new[] { Money.Parse("100.0") };
 
 			return amounts
-				.Select(a => new Coin(RandOutpoint(), new TxOut(a, destination.PubKey.ID)))
+				.Select(a => new Coin(RandOutpoint(), new TxOut(a, destination.PubKey.Hash)))
 				.ToArray();
 		}
 
@@ -264,8 +264,8 @@ namespace NBitcoin.Tests
 		{
 			var gold = new Key();
 			var silver = new Key();
-			var goldId = gold.PubKey.PaymentScript.ID.ToAssetId();
-			var silverId = silver.PubKey.PaymentScript.ID.ToAssetId();
+			var goldId = gold.PubKey.PaymentScript.Hash.ToAssetId();
+			var silverId = silver.PubKey.PaymentScript.Hash.ToAssetId();
 
 			var satoshi = new Key();
 			var bob = new Key();
@@ -445,8 +445,8 @@ namespace NBitcoin.Tests
 				new TransactionBuilder()
 				.AddCoins(issuanceCoins)
 				.AddKeys(gold)
-				.IssueAsset(bob.PubKey.ID, new Asset(goldId, 100UL))
-				.SetChange(gold.PubKey.ID)
+				.IssueAsset(bob.PubKey.Hash, new Asset(goldId, 100UL))
+				.SetChange(gold.PubKey.Hash)
 				.BuildTransaction(true);
 
 			repo.Transactions.Put(funding.GetHash(), funding);
@@ -459,8 +459,8 @@ namespace NBitcoin.Tests
 				transfer =
 					new TransactionBuilder()
 					.AddCoins(bobGold)
-					.SendAsset(alice.PubKey.ID, new Asset(goldId, 40UL))
-					.SetChange(bob.PubKey.ID)
+					.SendAsset(alice.PubKey.Hash, new Asset(goldId, 40UL))
+					.SetChange(bob.PubKey.Hash)
 					.BuildTransaction(true);
 				Assert.False(true, "Should have thrown");
 			}
@@ -474,7 +474,7 @@ namespace NBitcoin.Tests
 					.AddKeys(gold, bob)
 					.SendAsset(alice.PubKey, new Asset(goldId, 40UL))
 					.SetChange(bob.PubKey, ChangeType.Colored)
-					.SetChange(gold.PubKey.ID, ChangeType.Uncolored)
+					.SetChange(gold.PubKey.Hash, ChangeType.Uncolored)
 					.SendFees(new Money(655))
 					.BuildTransaction(true);
 				Assert.True(txBuilder.Verify(transfer, new Money(655)));
@@ -487,7 +487,7 @@ namespace NBitcoin.Tests
 
 				var change = transfer.Outputs[3];
 				Assert.Equal(Money.Parse("1") - new Money(655) - txBuilder.ColoredDust, change.Value);
-				Assert.Equal(gold.PubKey.ID, change.ScriptPubKey.GetDestination());
+				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetDestination());
 			}
 		}
 
@@ -514,7 +514,7 @@ namespace NBitcoin.Tests
 				new Coin() 
 				{ 
 					Outpoint = RandOutpoint(),
-					TxOut = new TxOut("1.00",bob.PubKey.ID)
+					TxOut = new TxOut("1.00",bob.PubKey.Hash)
 				} };
 
 			//Bob sends money to satoshi
@@ -538,7 +538,7 @@ namespace NBitcoin.Tests
 					.AddCoins(stealthCoin)
 					.AddKeys(stealthKeys)
 					.AddKeys(scanKey)
-					.Send(bob.PubKey.ID, "1.00")
+					.Send(bob.PubKey.Hash, "1.00")
 					.BuildTransaction(true);
 
 			Assert.True(builder.Verify(tx)); //Signed !
@@ -553,7 +553,7 @@ namespace NBitcoin.Tests
 					.AddCoins(stealthCoin)
 					.AddKeys(stealthKeys.Skip(2).ToArray()) //Only one Stealth Key
 					.AddKeys(scanKey)
-					.Send(bob.PubKey.ID, "1.00")
+					.Send(bob.PubKey.Hash, "1.00")
 					.BuildTransaction(true);
 
 			Assert.False(builder.Verify(tx)); //Not fully signed
@@ -619,7 +619,7 @@ namespace NBitcoin.Tests
 			var outpoint = RandOutpoint();
 			if(!p2sh)
 				return new Coin(outpoint, new TxOut(amount, scriptPubKey));
-			return new ScriptCoin(outpoint, new TxOut(amount, scriptPubKey.ID), scriptPubKey);
+			return new ScriptCoin(outpoint, new TxOut(amount, scriptPubKey.Hash), scriptPubKey);
 		}
 		private Coin RandomCoin(Money amount, Key receiver)
 		{
@@ -640,10 +640,10 @@ namespace NBitcoin.Tests
 
 			var multiSigPubKey = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, keys.Select(k => k.PubKey).Take(3).ToArray());
 			var pubKeyPubKey = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(keys[4].PubKey);
-			var pubKeyHashPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(keys[4].PubKey.ID);
-			var scriptHashPubKey1 = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(multiSigPubKey.ID);
-			var scriptHashPubKey2 = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(pubKeyPubKey.ID);
-			var scriptHashPubKey3 = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(pubKeyHashPubKey.ID);
+			var pubKeyHashPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(keys[4].PubKey.Hash);
+			var scriptHashPubKey1 = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(multiSigPubKey.Hash);
+			var scriptHashPubKey2 = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(pubKeyPubKey.Hash);
+			var scriptHashPubKey3 = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(pubKeyHashPubKey.Hash);
 
 
 			var coins = new[] { multiSigPubKey, pubKeyPubKey, pubKeyHashPubKey }.Select((script, i) =>
@@ -766,7 +766,7 @@ namespace NBitcoin.Tests
 
 			//First: combine the three keys into a multisig address
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, privKeys.Select(k => k.PubKey).ToArray());
-			var scriptAddress = redeem.ID.GetAddress(Network.Main);
+			var scriptAddress = redeem.Hash.GetAddress(Network.Main);
 			Assert.Equal("3QJmV3qfvL9SuYo34YihAf3sRCW3qSinyC", scriptAddress.ToString());
 
 			// Next, create a transaction to send funds into that multisig. Transaction d6f72... is
@@ -1129,7 +1129,7 @@ namespace NBitcoin.Tests
 			t.Outputs.Add(new TxOut());
 			t.Outputs[0].Value = 90 * Money.CENT;
 			Key key = new Key(true);
-			t.Outputs[0].ScriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.ID);
+			t.Outputs[0].ScriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.Hash);
 
 			Assert.True(StandardScripts.IsStandardTransaction(t));
 

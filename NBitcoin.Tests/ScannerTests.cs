@@ -17,8 +17,8 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanScanPubKeyHash()
 		{
-			var alice = new Key().PubKey.ID;
-			var bob = new Key().PubKey.ID;
+			var alice = new Key().PubKey.Hash;
+			var bob = new Key().PubKey.Hash;
 			Transaction tx = new Transaction();
 			tx.Outputs.Add(new TxOut(Money.Parse("1.5"), alice));
 			tx.Outputs.Add(new TxOut(Money.Parse("2.0"), bob));
@@ -32,8 +32,8 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanScanScriptHash()
 		{
-			var alice = new Script(OpcodeType.OP_RETURN).ID;
-			var bob = new Key().PubKey.ID;
+			var alice = new Script(OpcodeType.OP_RETURN).Hash;
+			var bob = new Key().PubKey.Hash;
 			Transaction tx = new Transaction();
 			tx.Outputs.Add(new TxOut(Money.Parse("1.5"), alice));
 			tx.Outputs.Add(new TxOut(Money.Parse("2.0"), bob));
@@ -47,9 +47,9 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanScanComposite()
 		{
-			var alice = new Script(OpcodeType.OP_RETURN).ID;
-			var bob = new Key().PubKey.ID;
-			var satoshi = new Key().PubKey.ID;
+			var alice = new Script(OpcodeType.OP_RETURN).Hash;
+			var bob = new Key().PubKey.Hash;
+			var satoshi = new Key().PubKey.Hash;
 			Transaction tx = new Transaction();
 			tx.Outputs.Add(new TxOut(Money.Parse("1.5"), alice));
 			tx.Outputs.Add(new TxOut(Money.Parse("2.0"), bob));
@@ -114,8 +114,8 @@ namespace NBitcoin.Tests
 		{
 			using(var tester = CreateTester())
 			{
-				var alice = tester.CreateScannerUser(new Key().PubKey.ID, 1);
-				var bob = tester.CreateScannerUser(new Key().PubKey.ID, 1);
+				var alice = tester.CreateScannerUser(new Key().PubKey.Hash, 1);
+				var bob = tester.CreateScannerUser(new Key().PubKey.Hash, 1);
 
 				Chain main = new Chain(Network.TestNet);
 				tester.GiveMoney("1.5", alice, main);
@@ -168,9 +168,9 @@ namespace NBitcoin.Tests
 		{
 			using(var tester = CreateTester())
 			{
-				var alice = tester.CreateScannerUser(new Key().PubKey.ID, 0);
-				var bob = tester.CreateScannerUser(new Key().PubKey.ID, 0);
-				var satoshi = tester.CreateScannerUser(new Key().PubKey.ID, 0);
+				var alice = tester.CreateScannerUser(new Key().PubKey.Hash, 0);
+				var bob = tester.CreateScannerUser(new Key().PubKey.Hash, 0);
+				var satoshi = tester.CreateScannerUser(new Key().PubKey.Hash, 0);
 
 				var aliceFork = tester.CreateScannerUser(alice.Id, 0);
 

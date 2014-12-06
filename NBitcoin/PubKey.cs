@@ -47,7 +47,21 @@ namespace NBitcoin
 		byte[] vch = new byte[0];
 		ECKey _Key = null;
 		KeyId _ID;
+
+		[Obsolete("Use Hash instead")]
 		public KeyId ID
+		{
+			get
+			{
+				if(_ID == null)
+				{
+					_ID = new KeyId(Hashes.Hash160(vch, vch.Length));
+				}
+				return _ID;
+			}
+		}
+
+		public KeyId Hash
 		{
 			get
 			{
@@ -73,13 +87,13 @@ namespace NBitcoin
 
 		public BitcoinAddress GetAddress(Network network)
 		{
-			return network.CreateBitcoinAddress(this.ID);
+			return network.CreateBitcoinAddress(this.Hash);
 		}
 
 		public BitcoinScriptAddress GetScriptAddress(Network network)
 		{
 			var redeem = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(this);
-			return new BitcoinScriptAddress(redeem.ID, network);
+			return new BitcoinScriptAddress(redeem.Hash, network);
 		}
 
 
@@ -99,7 +113,7 @@ namespace NBitcoin
 			{
 				if(_HashPaymentScript == null)
 				{
-					_HashPaymentScript = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(ID);
+					_HashPaymentScript = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(Hash);
 				}
 				return _HashPaymentScript;
 			}
@@ -153,7 +167,7 @@ namespace NBitcoin
 		public bool VerifyMessage(string message, string signature)
 		{
 			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.ID == ID;
+			return key.Hash == Hash;
 		}
 
 		//Thanks bitcoinj source code
@@ -301,7 +315,7 @@ namespace NBitcoin
 
 		public string ToString(Network network)
 		{
-			return new BitcoinAddress(this.ID, network).ToString();
+			return new BitcoinAddress(this.Hash, network).ToString();
 		}
 	}
 }

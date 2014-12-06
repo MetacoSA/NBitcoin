@@ -45,7 +45,7 @@ namespace NBitcoin.Scanning
 					TxIn = i,
 					Parameters = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(i.ScriptSig)
 				})
-				.Where(r => r.Parameters != null && r.Parameters.RedeemScript.ID == ScriptId)
+				.Where(r => r.Parameters != null && r.Parameters.RedeemScript.Hash == ScriptId)
 				.Select(r=>r.TxIn);
 		}
 	}

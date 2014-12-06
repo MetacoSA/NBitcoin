@@ -112,7 +112,7 @@ namespace NBitcoin.RPC
 				if(destinations[0] == null)
 				{
 					destinations = txout.ScriptPubKey.GetDestinationPublicKeys()
-														.Select(p => p.ID)
+														.Select(p => p.Hash)
 														.ToList<TxDestination>();
 				}
 				if(destinations.Count == 1)
@@ -132,7 +132,7 @@ namespace NBitcoin.RPC
 					writer.WriteStartArray();
 					foreach(var key in multi.PubKeys)
 					{
-						writer.WriteValue(BitcoinAddress.Create(key.ID, Network).ToString());
+						writer.WriteValue(BitcoinAddress.Create(key.Hash, Network).ToString());
 					}
 					writer.WriteEndArray();
 				}

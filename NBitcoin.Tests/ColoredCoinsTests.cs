@@ -95,7 +95,7 @@ namespace NBitcoin.Tests
 			{
 				Key = new Key();
 				ScriptPubKey = Key.PubKey.GetAddress(Network.Main).PaymentScript;
-				Id = ScriptPubKey.ID.ToAssetId();
+				Id = ScriptPubKey.Hash.ToAssetId();
 			}
 			public Key Key
 			{
@@ -409,11 +409,11 @@ namespace NBitcoin.Tests
 
 			var oo = script.GetScriptAddress(Network.Main);
 			//The script is hashed: 36e0ea8e93eaa0285d641305f4c81e563aa570a2.
-			Assert.Equal("36e0ea8e93eaa0285d641305f4c81e563aa570a2", script.ID.ToString());
+			Assert.Equal("36e0ea8e93eaa0285d641305f4c81e563aa570a2", script.Hash.ToString());
 
-			Assert.Equal("36e0ea8e93eaa0285d641305f4c81e563aa570a2", key.PubKey.Decompress().HashPaymentScript.ID.ToString());
+			Assert.Equal("36e0ea8e93eaa0285d641305f4c81e563aa570a2", key.PubKey.Decompress().HashPaymentScript.Hash.ToString());
 			//Finally, the hash is converted to a base 58 string with checksum using version byte 23: ALn3aK1fSuG27N96UGYB1kUYUpGKRhBuBC. 
-			Assert.Equal("ALn3aK1fSuG27N96UGYB1kUYUpGKRhBuBC", script.ID.ToAssetId().GetWif(Network.Main).ToString());
+			Assert.Equal("ALn3aK1fSuG27N96UGYB1kUYUpGKRhBuBC", script.Hash.ToAssetId().GetWif(Network.Main).ToString());
 		}
 
 	}

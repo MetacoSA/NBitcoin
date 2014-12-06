@@ -309,7 +309,7 @@ namespace NBitcoin
 		}
 		public Script GenerateScriptPubKey(Script scriptPubKey)
 		{
-			return GenerateScriptPubKey(scriptPubKey.ID);
+			return GenerateScriptPubKey(scriptPubKey.Hash);
 		}
 
 		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
@@ -535,13 +535,13 @@ namespace NBitcoin
 		{
 			if(address == null)
 				throw new ArgumentNullException("address");
-			return GenerateScriptPubKey((KeyId)address.ID);
+			return GenerateScriptPubKey((KeyId)address.Hash);
 		}
 		public Script GenerateScriptPubKey(PubKey pubKey)
 		{
 			if(pubKey == null)
 				throw new ArgumentNullException("pubKey");
-			return GenerateScriptPubKey(pubKey.ID);
+			return GenerateScriptPubKey(pubKey.Hash);
 		}
 		public Script GenerateScriptPubKey(KeyId pubkeyHash)
 		{

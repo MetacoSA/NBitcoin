@@ -32,7 +32,7 @@ namespace NBitcoin.Scanning
 		public bool MatchScriptHash(TxOut output)
 		{
 			var key = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(output.ScriptPubKey);
-			return key != null && (key.ID == PubKey.ID);
+			return key != null && (key.Hash == PubKey.Hash);
 		}
 
 		public override IEnumerable<TxIn> FindSpent(IEnumerable<Transaction> transactions)

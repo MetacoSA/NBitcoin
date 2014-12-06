@@ -346,7 +346,7 @@ namespace NBitcoin
 			{
 				if(_PaymentScript == null)
 				{
-					_PaymentScript = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(this.ID);
+					_PaymentScript = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(this.Hash);
 				}
 				return _PaymentScript;
 			}
@@ -553,7 +553,21 @@ namespace NBitcoin
 		}
 
 		ScriptId _ID;
+
+		[Obsolete("Use Hash instead")]
 		public ScriptId ID
+		{
+			get
+			{
+				if(_ID == null)
+				{
+					_ID = new ScriptId(Hashes.Hash160(_Script));
+				}
+				return _ID;
+			}
+		}
+
+		public ScriptId Hash
 		{
 			get
 			{
@@ -567,7 +581,7 @@ namespace NBitcoin
 
 		public BitcoinScriptAddress GetScriptAddress(Network network)
 		{
-			return new BitcoinScriptAddress(ID, network);
+			return new BitcoinScriptAddress(Hash, network);
 		}
 
 		public bool IsPayToScriptHash
@@ -621,12 +635,12 @@ namespace NBitcoin
 			var pubKey = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(this);
 			if(pubKey != null)
 			{
-				return pubKey.PublicKey.ID;
+				return pubKey.PublicKey.Hash;
 			}
 			var p2sh = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(this);
 			if(p2sh != null)
 			{
-				return p2sh.RedeemScript.ID;
+				return p2sh.RedeemScript.Hash;
 			}
 			return null;
 		}
@@ -751,7 +765,7 @@ namespace NBitcoin
 		/// <returns></returns>
 		public static Script CreateFromDestinationAddress(BitcoinAddress address)
 		{
-			return CreateFromDestination(address.ID);
+			return CreateFromDestination(address.Hash);
 		}
 
 		public static bool IsNullOrEmpty(Script script)

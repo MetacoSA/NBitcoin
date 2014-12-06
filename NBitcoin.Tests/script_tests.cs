@@ -131,7 +131,7 @@ namespace NBitcoin.Tests
 		public void CanCompressScript2()
 		{
 			var key = new Key(true);
-			var script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.ID);
+			var script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.Hash);
 			var compressed = script.ToCompressedRawScript();
 			Assert.Equal(21, compressed.Length);
 
@@ -166,9 +166,9 @@ namespace NBitcoin.Tests
 			var key = new Key(true);
 
 			//Pay to pubkey hash (encoded as 21 bytes)
-			var script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.ID);
+			var script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.Hash);
 			AssertCompressed(script, 21);
-			script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.Decompress().ID);
+			script = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey.Decompress().Hash);
 			AssertCompressed(script, 21);
 
 			//Pay to script hash (encoded as 21 bytes)
@@ -493,7 +493,7 @@ namespace NBitcoin.Tests
 		public void script_combineSigs()
 		{
 			Key[] keys = new[] { new Key(), new Key(), new Key() };
-			var txFrom = CreateCreditingTransaction(keys[0].PubKey.ID.CreateScriptPubKey());
+			var txFrom = CreateCreditingTransaction(keys[0].PubKey.Hash.CreateScriptPubKey());
 			var txTo = CreateSpendingTransaction(new Script(), txFrom);
 
 			Script scriptPubKey = txFrom.Outputs[0].ScriptPubKey;
@@ -521,7 +521,7 @@ namespace NBitcoin.Tests
 
 			// P2SH, single-signature case:
 			Script pkSingle = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(keys[0].PubKey);
-			scriptPubKey = pkSingle.ID.CreateScriptPubKey();
+			scriptPubKey = pkSingle.Hash.CreateScriptPubKey();
 			txFrom.Outputs[0].ScriptPubKey = scriptPubKey;
 			txTo.Inputs[0].PrevOut = new OutPoint(txFrom, 0);
 

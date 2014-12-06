@@ -240,7 +240,7 @@ namespace NBitcoin.Tests
 				var generatedKey = spend.Uncover(scan, payment.Metadata.EphemKey);
 				if(stealth != null)
 				{
-					Assert.Equal(stealth.PubKey.ID, payment.StealthKeys[0].ID);
+					Assert.Equal(stealth.PubKey.Hash, payment.StealthKeys[0].ID);
 					Assert.Equal(stealth.ToBytes(), generatedKey.ToBytes());
 				}
 				var uncoveredSender = spend.PubKey.UncoverSender(ephem, scan.PubKey);

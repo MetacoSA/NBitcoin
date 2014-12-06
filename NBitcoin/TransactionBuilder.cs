@@ -437,7 +437,7 @@ namespace NBitcoin
 
 		public TransactionBuilder Send(BitcoinAddress destination, Money amount)
 		{
-			return Send(destination.ID, amount);
+			return Send(destination.Hash, amount);
 		}
 
 		public TransactionBuilder Send(TxDestination id, Money amount)
@@ -456,12 +456,12 @@ namespace NBitcoin
 
 		public TransactionBuilder SendAsset(BitcoinAddress destination, Asset asset)
 		{
-			return SendAsset(destination.ID, asset);
+			return SendAsset(destination.Hash, asset);
 		}
 
 		public TransactionBuilder SendAsset(BitcoinAddress destination, AssetId assetId, ulong quantity)
 		{
-			return SendAsset(destination.ID, new Asset(assetId, quantity));
+			return SendAsset(destination.Hash, new Asset(assetId, quantity));
 		}
 
 		public TransactionBuilder SendAsset(PubKey pubKey, Asset asset)
@@ -568,7 +568,7 @@ namespace NBitcoin
 
 		public TransactionBuilder IssueAsset(BitcoinAddress address, Asset asset)
 		{
-			return IssueAsset(address.ID, asset);
+			return IssueAsset(address.Hash, asset);
 		}
 
 		public TransactionBuilder IssueAsset(TxDestination destination, Asset asset)
@@ -621,7 +621,7 @@ namespace NBitcoin
 
 		public TransactionBuilder SetChange(BitcoinAddress destination, ChangeType changeType = ChangeType.All)
 		{
-			return SetChange(destination.ID, changeType);
+			return SetChange(destination.Hash, changeType);
 		}
 
 		public TransactionBuilder SetChange(TxDestination destination, ChangeType changeType = ChangeType.All)
@@ -797,7 +797,7 @@ namespace NBitcoin
 					var expectedId = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
 					//Try to extract redeem from this transaction
 					var p2shParams = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txIn.ScriptSig);
-					if(p2shParams == null || p2shParams.RedeemScript.ID != expectedId)
+					if(p2shParams == null || p2shParams.RedeemScript.Hash != expectedId)
 					{
 						var redeem = _ScriptIdToRedeem.TryGet(expectedId);
 						if(redeem == null)
@@ -1036,7 +1036,7 @@ namespace NBitcoin
 		{
 			return _Keys
 					.Concat(ctx.AdditionalKeys)
-					.FirstOrDefault(k => k.PubKey.ID == id);
+					.FirstOrDefault(k => k.PubKey.Hash == id);
 		}
 
 		private Key FindKey(TransactionSigningContext ctx, PubKey pubKey)
@@ -1128,7 +1128,7 @@ namespace NBitcoin
 		{
 			foreach(var redeem in knownRedeems)
 			{
-				_ScriptIdToRedeem.AddOrReplace(redeem.ID, redeem);
+				_ScriptIdToRedeem.AddOrReplace(redeem.Hash, redeem);
 			}
 			return this;
 		}
@@ -1183,7 +1183,7 @@ namespace NBitcoin
 			var p2sh = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(scriptSig);
 			if(p2sh != null)
 			{
-				return p2sh.RedeemScript.ID.CreateScriptPubKey();
+				return p2sh.RedeemScript.Hash.CreateScriptPubKey();
 			}
 			return null;
 		}

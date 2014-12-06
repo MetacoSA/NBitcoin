@@ -130,9 +130,9 @@ namespace NBitcoin.Tests
 				TestDEREqual(test.DER, secret);
 
 				var address = Network.Main.CreateBitcoinAddress(test.Address);
-				Assert.Equal(new KeyId(test.Hash160), address.ID);
-				Assert.Equal(new KeyId(test.Hash160), secret.Key.PubKey.ID);
-				Assert.Equal(address.ID, secret.Key.PubKey.GetAddress(Network.Main).ID);
+				Assert.Equal(new KeyId(test.Hash160), address.Hash);
+				Assert.Equal(new KeyId(test.Hash160), secret.Key.PubKey.Hash);
+				Assert.Equal(address.Hash, secret.Key.PubKey.GetAddress(Network.Main).Hash);
 
 				var compressedSec = secret.Copy(true);
 				TestDERCoherence(compressedSec);
@@ -146,8 +146,8 @@ namespace NBitcoin.Tests
 				Assert.True(compressedSec.Key.PubKey.IsCompressed);
 
 				var compressedAddr = Network.Main.CreateBitcoinAddress(test.CompressedAddress);
-				Assert.Equal(new KeyId(test.CompressedHash160), compressedAddr.ID);
-				Assert.Equal(new KeyId(test.CompressedHash160), compressedSec.Key.PubKey.ID);
+				Assert.Equal(new KeyId(test.CompressedHash160), compressedAddr.Hash);
+				Assert.Equal(new KeyId(test.CompressedHash160), compressedSec.Key.PubKey.Hash);
 
 
 			}
@@ -196,10 +196,10 @@ namespace NBitcoin.Tests
 			PubKey pubkey1C = key1C.PubKey;
 			PubKey pubkey2C = key2C.PubKey;
 
-			Assert.True(addr1.ID == pubkey1.ID);
-			Assert.True(addr2.ID == pubkey2.ID);
-			Assert.True(addr1C.ID == pubkey1C.ID);
-			Assert.True(addr2C.ID == pubkey2C.ID);
+			Assert.True(addr1.Hash == pubkey1.Hash);
+			Assert.True(addr2.Hash == pubkey2.Hash);
+			Assert.True(addr1C.Hash == pubkey1C.Hash);
+			Assert.True(addr2C.Hash == pubkey2C.Hash);
 
 
 

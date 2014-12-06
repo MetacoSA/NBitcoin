@@ -15,7 +15,7 @@ namespace NBitcoin.Scanning
 			_PubKeyHash = pubKeyHash;
 		}
 		public PubKeyHashScanner(BitcoinAddress address)
-			: this((KeyId)address.ID)
+			: this((KeyId)address.Hash)
 		{
 
 		}
@@ -55,7 +55,7 @@ namespace NBitcoin.Scanning
 					TxIn = i,
 					Parameters = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(i.ScriptSig)
 				})
-				.Where(r => r.Parameters != null && r.Parameters.PublicKey.ID == KeyId)
+				.Where(r => r.Parameters != null && r.Parameters.PublicKey.Hash == KeyId)
 				.Select(r => r.TxIn);
 		}
 	}

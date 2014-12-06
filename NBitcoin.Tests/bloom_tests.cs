@@ -81,7 +81,7 @@ namespace NBitcoin.Tests
 
 			BloomFilter filter = new BloomFilter(2, 0.001, 0, BloomFlags.UPDATE_ALL);
 			filter.Insert(pubkey.ToBytes());
-			filter.Insert(pubkey.ID.ToBytes());
+			filter.Insert(pubkey.Hash.ToBytes());
 
 			var ms = new MemoryStream();
 			BitcoinStream bitcoinStream = new BitcoinStream(ms, true);

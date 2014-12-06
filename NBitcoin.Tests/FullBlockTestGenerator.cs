@@ -23,7 +23,7 @@ namespace NBitcoin.Tests
 			validation.CheckProofOfWork = false;
 
 			var scan =
-				new ScanState(new PubKeyHashScanner(generator.CoinbaseKey.PubKey.ID),
+				new ScanState(new PubKeyHashScanner(generator.CoinbaseKey.PubKey.Hash),
 						new Chain(),
 						new Account(),
 						0);

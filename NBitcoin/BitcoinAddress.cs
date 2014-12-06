@@ -21,7 +21,7 @@ namespace NBitcoin
 		{
 		}
 
-		public override TxDestination ID
+		public override TxDestination Hash
 		{
 			get
 			{
@@ -40,7 +40,7 @@ namespace NBitcoin
 
 		protected override Script GeneratePaymentScript()
 		{
-			return PayToScriptHashTemplate.Instance.GenerateScriptPubKey((ScriptId)ID);
+			return PayToScriptHashTemplate.Instance.GenerateScriptPubKey((ScriptId)Hash);
 		}
 	}
 	public class BitcoinAddress : Base58Data
@@ -72,7 +72,15 @@ namespace NBitcoin
 			}
 		}
 
+		[Obsolete("Use Hash instead")]
 		public virtual TxDestination ID
+		{
+			get
+			{
+				return new KeyId(vchData);
+			}
+		}
+		public virtual TxDestination Hash
 		{
 			get
 			{
@@ -98,20 +106,20 @@ namespace NBitcoin
 			if(this is BitcoinScriptAddress)
 				return (BitcoinScriptAddress)this;
 			var redeem = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(this);
-			return new BitcoinScriptAddress(redeem.ID, Network);
+			return new BitcoinScriptAddress(redeem.Hash, Network);
 		}
 		
 
 
 		protected virtual Script GeneratePaymentScript()
 		{
-			return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey((KeyId)this.ID);
+			return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey((KeyId)this.Hash);
 		}
 
 		public bool VerifyMessage(string message, string signature)
 		{
 			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.ID == ID;
+			return key.Hash == Hash;
 		}
 
 		public override Base58Type Type
