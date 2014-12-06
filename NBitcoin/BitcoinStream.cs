@@ -102,7 +102,7 @@ namespace NBitcoin
 		{
 			if(Serializing)
 			{
-				var bytes = data == null ? Script.Empty.ToRawScript(true) : data.ToRawScript(true);
+				var bytes = data == null ? Script.Empty.ToBytes(true) : data.ToBytes(true);
 				ReadWriteAsVarString(ref bytes);
 				return data;
 			}

@@ -72,7 +72,7 @@ namespace NBitcoin.RPC
 
 				if(txin.PrevOut.Hash == new uint256(0))
 				{
-					WritePropertyValue(writer, "coinbase", Encoders.Hex.EncodeData(txin.ScriptSig.ToRawScript()));
+					WritePropertyValue(writer, "coinbase", Encoders.Hex.EncodeData(txin.ScriptSig.ToBytes()));
 				}
 				else
 				{
@@ -82,7 +82,7 @@ namespace NBitcoin.RPC
 					writer.WriteStartObject();
 
 					WritePropertyValue(writer, "asm", txin.ScriptSig.ToString());
-					WritePropertyValue(writer, "hex", Encoders.Hex.EncodeData(txin.ScriptSig.ToRawScript()));
+					WritePropertyValue(writer, "hex", Encoders.Hex.EncodeData(txin.ScriptSig.ToBytes()));
 
 					writer.WriteEndObject();
 				}
@@ -106,7 +106,7 @@ namespace NBitcoin.RPC
 				writer.WriteStartObject();
 
 				WritePropertyValue(writer, "asm", txout.ScriptPubKey.ToString());
-				WritePropertyValue(writer, "hex", Encoders.Hex.EncodeData(txout.ScriptPubKey.ToRawScript()));
+				WritePropertyValue(writer, "hex", Encoders.Hex.EncodeData(txout.ScriptPubKey.ToBytes()));
 
 				var destinations = new List<TxDestination>() { txout.ScriptPubKey.GetDestination() };
 				if(destinations[0] == null)

@@ -32,7 +32,7 @@ namespace NBitcoin
 		}
 		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
 		{
-			var bytes = scriptPubKey.ToRawScript(true);
+			var bytes = scriptPubKey.ToBytes(true);
 			return bytes.Length >= 1 && bytes[0] == (byte)OpcodeType.OP_RETURN;
 		}
 		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
@@ -196,7 +196,7 @@ namespace NBitcoin
 
 		protected override bool FastCheckScriptSig(Script scriptSig, Script scriptPubKey)
 		{
-			var bytes = scriptSig.ToRawScript(true);
+			var bytes = scriptSig.ToBytes(true);
 			return bytes.Length >= 1 &&
 				   bytes[0] == (byte)OpcodeType.OP_0;
 		}
@@ -314,7 +314,7 @@ namespace NBitcoin
 
 		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
 		{
-			var bytes = scriptPubKey.ToRawScript(true);
+			var bytes = scriptPubKey.ToBytes(true);
 			return
 				   bytes.Length >= 2 &&
 				   bytes[0] == (byte)OpcodeType.OP_HASH160 &&
@@ -566,7 +566,7 @@ namespace NBitcoin
 
 		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
 		{
-			var bytes = scriptPubKey.ToRawScript(true);
+			var bytes = scriptPubKey.ToBytes(true);
 			return bytes.Length >= 3 &&
 				   bytes[0] == (byte)OpcodeType.OP_DUP &&
 				   bytes[1] == (byte)OpcodeType.OP_HASH160 &&

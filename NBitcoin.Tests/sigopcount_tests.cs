@@ -39,7 +39,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(p2sh.GetSigOpCount(true), 0U);
 			Assert.Equal(p2sh.GetSigOpCount(false), 0U);
 			Script scriptSig2 = new Script();
-			scriptSig2 = scriptSig2 + OpcodeType.OP_1 + dummy.ToBytes() + dummy.ToBytes() + s2.ToRawScript();
+			scriptSig2 = scriptSig2 + OpcodeType.OP_1 + dummy.ToBytes() + dummy.ToBytes() + s2.ToBytes();
 			Assert.Equal(p2sh.GetSigOpCount(scriptSig2), 3U);
 		}
 

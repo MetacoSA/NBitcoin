@@ -59,7 +59,7 @@ namespace NBitcoin.Payment
 		{
 			var data = OriginalData == null ? new Proto.Output() : (Proto.Output)PaymentRequest.Serializer.DeepClone(OriginalData);
 			data.amount = (ulong)Amount.Satoshi;
-			data.script = Script.ToRawScript();
+			data.script = Script.ToBytes();
 			return data;
 		}
 	}

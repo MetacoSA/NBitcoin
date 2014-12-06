@@ -705,9 +705,19 @@ namespace NBitcoin
 		/// Get script byte array
 		/// </summary>
 		/// <returns></returns>
+		[Obsolete("Use ToBytes instead")]
 		public byte[] ToRawScript()
 		{
-			return ToRawScript(false);
+			return ToBytes(false);
+		}
+
+		/// <summary>
+		/// Get script byte array
+		/// </summary>
+		/// <returns></returns>
+		public byte[] ToBytes()
+		{
+			return ToBytes(false);
 		}
 
 		/// <summary>
@@ -715,12 +725,26 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="unsafe">if false, returns a copy of the internal byte array</param>
 		/// <returns></returns>
+		[Obsolete("Use ToBytes instead")]
 		public byte[] ToRawScript(bool @unsafe)
 		{
 			if(@unsafe)
 				return _Script;
 			return _Script.ToArray();
 		}
+
+		/// <summary>
+		/// Get script byte array
+		/// </summary>
+		/// <param name="unsafe">if false, returns a copy of the internal byte array</param>
+		/// <returns></returns>
+		public byte[] ToBytes(bool @unsafe)
+		{
+			if(@unsafe)
+				return _Script;
+			return _Script.ToArray();
+		}
+
 		public byte[] ToCompressedRawScript()
 		{
 			ScriptCompressor compressor = new ScriptCompressor(this);

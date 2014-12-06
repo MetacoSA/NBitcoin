@@ -881,7 +881,7 @@ namespace NBitcoin
 			{
 				var scriptCoin = (ScriptCoin)coin;
 				coin = new Coin(scriptCoin.Outpoint, new TxOut(scriptCoin.Amount, scriptCoin.Redeem));
-				size += new Script(Op.GetPushOp(scriptCoin.Redeem.ToRawScript(true))).Length;
+				size += new Script(Op.GetPushOp(scriptCoin.Redeem.ToBytes(true))).Length;
 			}
 
 			var p2pk = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
@@ -942,7 +942,7 @@ namespace NBitcoin
 				input.ScriptSig = CreateScriptSig(ctx, input, n, scriptCoin.Redeem);
 				if(original != input.ScriptSig)
 				{
-					input.ScriptSig = input.ScriptSig + Op.GetPushOp(scriptCoin.Redeem.ToRawScript(true));
+					input.ScriptSig = input.ScriptSig + Op.GetPushOp(scriptCoin.Redeem.ToBytes(true));
 				}
 			}
 			else

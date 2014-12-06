@@ -328,7 +328,7 @@ namespace NBitcoin
 		}
 		public ScriptCompressor(Script script)
 		{
-			_Script = script.ToRawScript(true);
+			_Script = script.ToBytes(true);
 		}
 		public ScriptCompressor()
 		{
@@ -456,7 +456,7 @@ namespace NBitcoin
 				{
 					byte[] vch = new byte[GetSpecialSize(nSize)];
 					stream.ReadWrite(ref vch);
-					_Script = Decompress(nSize, vch).ToRawScript();
+					_Script = Decompress(nSize, vch).ToBytes();
 					return;
 				}
 				nSize -= nSpecialScripts;

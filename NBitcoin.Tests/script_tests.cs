@@ -206,7 +206,7 @@ namespace NBitcoin.Tests
 
 			compressor = new ScriptCompressor();
 			compressor.ReadWrite(compressed);
-			AssertEx.CollectionEquals(compressor.GetScript().ToRawScript(), script.ToRawScript());
+			AssertEx.CollectionEquals(compressor.GetScript().ToBytes(), script.ToBytes());
 
 			var compressed2 = compressor.ToBytes();
 			AssertEx.CollectionEquals(compressed, compressed2);
@@ -501,7 +501,7 @@ namespace NBitcoin.Tests
 
 			Script empty = new Script();
 			Script combined = Script.CombineSignatures(scriptPubKey, txTo, 0, empty, empty);
-			Assert.True(combined.ToRawScript().Length == 0);
+			Assert.True(combined.ToBytes().Length == 0);
 
 			// Single signature case:
 			SignSignature(keys, txFrom, txTo, 0); // changes scriptSig
@@ -542,7 +542,7 @@ namespace NBitcoin.Tests
 			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, scriptSigCopy, scriptSig);
 			Assert.True(combined == scriptSigCopy || combined == scriptSig);
 			// dummy scriptSigCopy with placeholder, should always choose non-placeholder:
-			scriptSigCopy = new Script(OpcodeType.OP_0, Op.GetPushOp(pkSingle.ToRawScript()));
+			scriptSigCopy = new Script(OpcodeType.OP_0, Op.GetPushOp(pkSingle.ToBytes()));
 			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, scriptSigCopy, scriptSig);
 			Assert.True(combined == scriptSig);
 			combined = Script.CombineSignatures(scriptPubKey, txTo, 0, scriptSig, scriptSigCopy);
