@@ -546,12 +546,10 @@ namespace NBitcoin
 
 		public Script GenerateScriptSig(TransactionSignature signature, PubKey publicKey)
 		{
-			if(signature == null)
-				throw new ArgumentNullException("signature");
 			if(publicKey == null)
 				throw new ArgumentNullException("publicKey");
 			return new Script(
-				Op.GetPushOp(signature.ToBytes()),
+				signature == null ? OpcodeType.OP_0 : Op.GetPushOp(signature.ToBytes()),
 				Op.GetPushOp(publicKey.ToBytes())
 				);
 		}
@@ -609,7 +607,7 @@ namespace NBitcoin
 			{
 				return new PayToPubkeyHashScriptSigParameters()
 				{
-					TransactionSignature = new TransactionSignature(ops[0].PushData),
+					TransactionSignature = ops[0].Code == OpcodeType.OP_0 ? null : new TransactionSignature(ops[0].PushData),
 					PublicKey = new PubKey(ops[1].PushData),
 				};
 			}
@@ -627,6 +625,11 @@ namespace NBitcoin
 			{
 				return TxOutType.TX_PUBKEYHASH;
 			}
+		}
+
+		public Script GenerateScriptSig(PayToPubkeyHashScriptSigParameters parameters)
+		{
+			return GenerateScriptSig(parameters.TransactionSignature, parameters.PublicKey);
 		}
 	}
 	public abstract class ScriptTemplate
