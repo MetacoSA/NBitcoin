@@ -571,41 +571,10 @@ namespace NBitcoin
 
 		#endregion
 
-		/// <summary>
-		/// Verify belongs to the given address
-		/// </summary>
-		/// <param name="address">P2PKH or P2SH address</param>
-		/// <returns></returns>
-		public bool IsTo(BitcoinAddress address)
+		public bool IsTo(IDestination destination)
 		{
-			if(address == null)
-				throw new ArgumentNullException("address");
-			return IsTo(address.Hash);
+			return ScriptPubKey == destination.ScriptPubKey;
 		}
-
-		/// <summary>
-		/// Verify belongs to the given address
-		/// </summary>
-		/// <param name="address">P2PKH or P2SH address</param>
-		/// <returns></returns>
-		public bool IsTo(TxDestination destination)
-		{
-			return ScriptPubKey.GetDestination() == destination;
-		}
-
-		/// <summary>
-		/// Verify is a P2PK of the given public key
-		/// </summary>
-		/// <param name="pubkey"></param>
-		/// <returns></returns>
-		public bool IsTo(PubKey pubkey)
-		{
-			var owners = ScriptPubKey.GetDestinationPublicKeys();
-			if(owners.Length != 1)
-				return false;
-			return owners[0] == pubkey;
-		}
-
 
 		internal void SetNull()
 		{
@@ -644,19 +613,14 @@ namespace NBitcoin
 
 	public class TxOutList : UnsignedList<TxOut>
 	{
-		public IEnumerable<TxOut> To(BitcoinAddress address)
-		{
-			return this.Where(r => r.IsTo(address));
-		}
 
-		public IEnumerable<TxOut> To(PubKey pubKey)
-		{
-			return this.Where(r => r.IsTo(pubKey));
-		}
-
-		public IEnumerable<TxOut> To(TxDestination destination)
+		public IEnumerable<TxOut> To(IDestination destination)
 		{
 			return this.Where(r => r.IsTo(destination));
+		}
+		public IEnumerable<TxOut> To(Script scriptPubKey)
+		{
+			return this.Where(r => r.ScriptPubKey == scriptPubKey);
 		}
 
 		public IEnumerable<IndexedTxOut> AsIndexedOutputs()
