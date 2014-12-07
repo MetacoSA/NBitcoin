@@ -155,7 +155,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return Key.PubKey.ID.ScriptPubKey;
+				return Key.PubKey.Hash.ScriptPubKey;
 			}
 		}
 

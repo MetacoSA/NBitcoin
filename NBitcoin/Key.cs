@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class Key : IBitcoinSerializable
+	public class Key : IBitcoinSerializable, IDestination
 	{
 		public static Key Parse(string wif, Network network = null)
 		{
@@ -249,5 +249,17 @@ namespace NBitcoin
 		{
 			return new BitcoinSecret(this, network).ToString();
 		}
+
+		#region IDestination Members
+
+		public Script ScriptPubKey
+		{
+			get
+			{
+				return PubKey.Hash.ScriptPubKey;
+			}
+		}
+
+		#endregion
 	}
 }
