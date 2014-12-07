@@ -830,6 +830,8 @@ namespace NBitcoin
 
 		public static Script CombineSignatures(Script scriptPubKey, Transaction transaction, int n, Script scriptSig1, Script scriptSig2)
 		{
+			if(scriptPubKey == null)
+				scriptPubKey = new Script();
 			ScriptEvaluationContext context = new ScriptEvaluationContext();
 			context.ScriptVerify = ScriptVerify.StrictEnc;
 			context.EvalScript(scriptSig1, transaction, n);

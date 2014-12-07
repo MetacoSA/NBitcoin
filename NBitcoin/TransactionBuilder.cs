@@ -435,15 +435,11 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder Send(BitcoinAddress destination, Money amount)
+		public TransactionBuilder Send(IDestination destination, Money amount)
 		{
-			return Send(destination.Hash, amount);
+			return Send(destination.ScriptPubKey, amount);
 		}
 
-		public TransactionBuilder Send(TxDestination id, Money amount)
-		{
-			return Send(id.ScriptPubKey, amount);
-		}
 		public TransactionBuilder Send(Script scriptPubKey, Money amount)
 		{
 			CurrentGroup.Builders.Add(ctx =>
@@ -1013,11 +1009,6 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder Send(PubKey pubKey, Money amount)
-		{
-			return Send(pubKey.ScriptPubKey, amount);
-		}
-
 		/// <summary>
 		/// Specify the amount of money to cover txouts, if not specified all txout will be covered
 		/// </summary>
@@ -1125,24 +1116,28 @@ namespace NBitcoin
 				var txIn = tx.Inputs[i];
 
 				var coin = FindCoin(txIn.PrevOut);
-				var scriptPubKey = coin == null ? DeduceScriptPubKey(txIn.ScriptSig) : coin.ScriptPubKey;
-				if(scriptPubKey != null)
-				{
-					tx.Inputs[i].ScriptSig = Script.CombineSignatures(
-											scriptPubKey,
-											tx,
-											 i,
-											 signed1.Inputs[i].ScriptSig,
-											 signed2.Inputs[i].ScriptSig);
-				}
+				var scriptPubKey = coin == null 
+					? (DeduceScriptPubKey(txIn.ScriptSig) ?? DeduceScriptPubKey(signed2.Inputs[i].ScriptSig))
+					: coin.ScriptPubKey;
+				tx.Inputs[i].ScriptSig = Script.CombineSignatures(
+										scriptPubKey,
+										tx,
+										 i,
+										 signed1.Inputs[i].ScriptSig,
+										 signed2.Inputs[i].ScriptSig);
 			}
 			return tx;
 		}
 
 		private Script DeduceScriptPubKey(Script scriptSig)
 		{
+			var p2pkh = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(scriptSig);
+			if(p2pkh != null && p2pkh.PublicKey != null)
+			{
+				return p2pkh.PublicKey.Hash.ScriptPubKey;
+			}
 			var p2sh = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(scriptSig);
-			if(p2sh != null)
+			if(p2sh != null && p2sh.RedeemScript != null)
 			{
 				return p2sh.RedeemScript.Hash.ScriptPubKey;
 			}

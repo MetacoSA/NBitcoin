@@ -747,6 +747,38 @@ namespace NBitcoin.Tests
 				.AddCoins(allCoins)
 				.CombineSignatures(signed1, signed2);
 			Assert.True(txBuilder.Verify(tx));
+
+			//Check if can deduce scriptPubKey from P2SH and P2SPKH scriptSig
+			allCoins = new[]
+				{ 
+					RandomCoin(Money.Parse("1.0"), keys[0].PubKey.Hash.ScriptPubKey, false),
+					RandomCoin(Money.Parse("1.0"), keys[0].PubKey.Hash.ScriptPubKey, false),
+					RandomCoin(Money.Parse("1.0"), keys[1].PubKey.Hash.ScriptPubKey, false)
+				};
+
+			txBuilder = new TransactionBuilder(0);
+			tx =
+				txBuilder.AddCoins(allCoins)
+					 .Send(destinations[0], Money.Parse("3.0"))
+					 .BuildTransaction(false);
+
+			signed1 = new TransactionBuilder(0)
+						.AddCoins(allCoins)
+						.AddKeys(keys[0])
+						.SignTransaction(tx);
+
+			signed2 = new TransactionBuilder(0)
+						.AddCoins(allCoins)
+						.AddKeys(keys[1])
+						.SignTransaction(tx);
+
+			Assert.False(txBuilder.Verify(signed1));
+			Assert.False(txBuilder.Verify(signed2));
+
+			tx = new TransactionBuilder(0)
+				.CombineSignatures(signed1, signed2);
+
+			Assert.True(txBuilder.Verify(tx));
 		}
 
 		private uint256 Rand()
