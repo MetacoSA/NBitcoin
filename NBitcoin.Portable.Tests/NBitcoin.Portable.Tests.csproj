@@ -111,9 +111,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin.BouncyCastle\NBitcoin.BouncyCastle.csproj">
-      <Project>{19a848a9-333a-4918-ab7f-769a1f368051}</Project>
-      <Name>NBitcoin.BouncyCastle</Name>
+    <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle.csproj">
+      <Project>{e405ea2f-fd7a-4369-b376-ebfe3dd19c14}</Project>
+      <Name>NBitcoin.Portable.BouncyCastle</Name>
     </ProjectReference>
     <ProjectReference Include="..\NBitcoin.Portable\NBitcoin.Portable.csproj">
       <Project>{e902c15b-0e9f-4512-9f5a-ec4c888c0651}</Project>

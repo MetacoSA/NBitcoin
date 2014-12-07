@@ -33,12 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin.BouncyCastle\NBitcoin.BouncyCastle.csproj">
-      <Project>{19a848a9-333a-4918-ab7f-769a1f368051}</Project>
-      <Name>NBitcoin.BouncyCastle</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="..\NBitcoin\Base58Data.cs">
       <Link>Base58Data.cs</Link>
     </Compile>
@@ -317,7 +311,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle.csproj">
+      <Project>{e405ea2f-fd7a-4369-b376-ebfe3dd19c14}</Project>
+      <Name>NBitcoin.Portable.BouncyCastle</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
