@@ -60,7 +60,7 @@ namespace NBitcoin.BouncyCastle.Security
             XTEA,
         };
         
-        private enum CipherMode { ECB, NONE, CBC, CCM, CFB, CTR, CTS, EAX, GCM, GOFB, OCB, OFB, OPENPGPCFB, SIC };
+        private enum CipherMode { ECB, NONE, CBC, CFB, CTR, CTS, EAX, GCM, GOFB, OCB, OFB, OPENPGPCFB, SIC };
         private enum CipherPadding
         {
             NOPADDING,
@@ -585,9 +585,6 @@ namespace NBitcoin.BouncyCastle.Security
                             break;
                         case CipherMode.CBC:
                             blockCipher = new CbcBlockCipher(blockCipher);
-                            break;
-                        case CipherMode.CCM:
-                            aeadBlockCipher = new CcmBlockCipher(blockCipher);
                             break;
                         case CipherMode.CFB:
                         {

@@ -30,10 +30,11 @@ namespace NBitcoin.BouncyCastle.Asn1.Utilities
             get { return s.Position; }
             set { s.Position = value; }
         }
-        public override void Close()
-        {
-            s.Close();
-        }
+		protected override void Dispose(bool disposing)
+		{
+			if(disposing)
+				s.Dispose();
+		}
         public override void Flush()
         {
             s.Flush();

@@ -239,7 +239,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 					outBytes.Write(emailAddress);
 					outBytes.Write(" ");
 					outBytes.Write(distinguisher);
-					outBytes.Close();
+					outBytes.Dispose();
 					return Set(PARAM_TYPE_PERSONALISATION, bout.ToArray());
 				}
 				catch (IOException e)

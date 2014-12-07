@@ -33,7 +33,7 @@ namespace NBitcoin.BouncyCastle.Utilities
         internal static int CompareIgnoreCase(string a, string b)
         {
 #if SILVERLIGHT
-            return String.Compare(a, b, StringComparison.InvariantCultureIgnoreCase);
+            return String.Compare(a, b, StringComparison.OrdinalIgnoreCase);
 #else
             return String.Compare(a, b, true);
 #endif
@@ -165,12 +165,12 @@ namespace NBitcoin.BouncyCastle.Utilities
 
         internal static string ToLowerInvariant(string s)
         {
-            return s.ToLower(CultureInfo.InvariantCulture);
+			return s.ToLowerInvariant();
         }
 
         internal static string ToUpperInvariant(string s)
         {
-            return s.ToUpper(CultureInfo.InvariantCulture);
+            return s.ToUpperInvariant();
         }
 
         internal static readonly string NewLine = GetNewLine();

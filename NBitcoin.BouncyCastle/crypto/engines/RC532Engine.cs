@@ -1,5 +1,5 @@
 using System;
-
+using System.Reflection;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 
 namespace NBitcoin.BouncyCastle.Crypto.Engines
@@ -83,7 +83,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 
                 SetKey(p.GetKey());
             }
-            else if (typeof(KeyParameter).IsInstanceOfType(parameters))
+			else if(typeof(KeyParameter).IsInstanceOfType(parameters))
             {
                 KeyParameter p = (KeyParameter)parameters;
 

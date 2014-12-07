@@ -102,15 +102,15 @@ namespace NBitcoin.BouncyCastle.Asn1
 				}
 			}
 
-			public override void Close()
+			protected override void Dispose(bool disposing)
 			{
-				if (_off != 0)
+				if(_off != 0)
 				{
 					DerOctetString.Encode(_derOut, _buf, 0, _off);
 				}
 
 				_gen.WriteBerEnd();
-				base.Close();
+				base.Dispose(disposing);
 			}
 		}
 	}
