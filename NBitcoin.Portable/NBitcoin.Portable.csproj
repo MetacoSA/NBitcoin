@@ -8,8 +8,8 @@
     <ProjectGuid>{E902C15B-0E9F-4512-9F5A-EC4C888C0651}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NBitcoin.Portable</RootNamespace>
-    <AssemblyName>NBitcoin.Portable</AssemblyName>
+    <RootNamespace>NBitcoin</RootNamespace>
+    <AssemblyName>NBitcoin</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -59,6 +59,9 @@
     </Compile>
     <Compile Include="..\NBitcoin\BIP38\BitcoinEncryptedSecret.cs">
       <Link>BitcoinEncryptedSecret.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\NBitcoin\BIP38\BitcoinPassphraseCode.cs">
       <Link>BitcoinPassphraseCode.cs</Link>
@@ -312,6 +315,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

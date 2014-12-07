@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9062E694-B97D-4243-B766-8D1A9230DC90}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NBitcoin.Portable.Tests</RootNamespace>
+    <AssemblyName>NBitcoin.Portable.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="xunit">
+      <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.extensions">
+      <HintPath>..\packages\xunit.extensions.1.9.2\lib\net20\xunit.extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\portable-net45+wp80+win8+wpa81+aspnetcore50\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\NBitcoin.Tests\AssertEx.cs">
+      <Link>AssertEx.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\base58_tests.cs">
+      <Link>base58_tests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\bip32_tests.cs">
+      <Link>bip32_tests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\ChainTests.cs">
+      <Link>ChainTests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\ColoredCoinsTests.cs">
+      <Link>ColoredCoinsTests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\ConverterTests.cs">
+      <Link>ConverterTests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\DeterministicSignatureTests.cs">
+      <Link>DeterministicSignatureTests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\hash_tests.cs">
+      <Link>hash_tests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\key_tests.cs">
+      <Link>key_tests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\RepositoryTests.cs">
+      <Link>RepositoryTests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\script_tests.cs">
+      <Link>script_tests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\sighash_tests.cs">
+      <Link>sighash_tests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\sigopcount_tests.cs">
+      <Link>sigopcount_tests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\StealthAddressTests.cs">
+      <Link>StealthAddressTests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\TestCase.cs">
+      <Link>TestCase.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\TestUtils.cs">
+      <Link>TestUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\transaction_tests.cs">
+      <Link>transaction_tests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\uint256_tests.cs">
+      <Link>uint256_tests.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin.Tests\util_tests.cs">
+      <Link>util_tests.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NBitcoin.BouncyCastle\NBitcoin.BouncyCastle.csproj">
+      <Project>{19a848a9-333a-4918-ab7f-769a1f368051}</Project>
+      <Name>NBitcoin.BouncyCastle</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NBitcoin.Portable\NBitcoin.Portable.csproj">
+      <Project>{e902c15b-0e9f-4512-9f5a-ec4c888c0651}</Project>
+      <Name>NBitcoin.Portable</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

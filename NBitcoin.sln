@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Nat", "Mono.Nat\Mono.N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBitcoin.BouncyCastle", "NBitcoin.BouncyCastle\NBitcoin.BouncyCastle.csproj", "{19A848A9-333A-4918-AB7F-769A1F368051}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBitcoin.Portable", "NBitcoin.Portable\NBitcoin.Portable.csproj", "{E902C15B-0E9F-4512-9F5A-EC4C888C0651}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,10 +31,6 @@ Global
 		{19A848A9-333A-4918-AB7F-769A1F368051}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19A848A9-333A-4918-AB7F-769A1F368051}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19A848A9-333A-4918-AB7F-769A1F368051}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E902C15B-0E9F-4512-9F5A-EC4C888C0651}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E902C15B-0E9F-4512-9F5A-EC4C888C0651}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E902C15B-0E9F-4512-9F5A-EC4C888C0651}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E902C15B-0E9F-4512-9F5A-EC4C888C0651}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
