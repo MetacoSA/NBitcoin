@@ -13,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -224,7 +223,11 @@ namespace NBitcoin.Crypto
 			CheckArgument(((DerInteger)seq[0]).Value.Equals(BigInteger.One),
 					"Input is of wrong version");
 			byte[] bits = ((DerOctetString)seq[1]).GetOctets();
+#if !PORTABLE
 			decoder.Close();
+#else
+			decoder.Dispose();
+#endif
 			return new ECKey(bits, true);
 		}
 
@@ -237,7 +240,11 @@ namespace NBitcoin.Crypto
 			builder.AppendLine("Private : " + Encoders.Hex.EncodeData(seq[1].GetDerEncoded()));
 			builder.AppendLine("Params : " + Encoders.Hex.EncodeData(((DerTaggedObject)seq[2]).GetObject().GetDerEncoded()));
 			builder.AppendLine("Public : " + Encoders.Hex.EncodeData(seq[3].GetDerEncoded()));
+#if !PORTABLE
 			decoder.Close();
+#else
+			decoder.Dispose();
+#endif
 			return builder.ToString();
 		}
 

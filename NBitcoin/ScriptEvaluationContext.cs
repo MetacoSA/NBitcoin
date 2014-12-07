@@ -285,7 +285,7 @@ namespace NBitcoin
 				// P2SH  HASH <> EQUAL  scriptPubKey would be evaluated with
 				// an empty stack and the EvalScript above would return false.
 				if(evaluationCopy.Stack.Count == 0)
-					throw new InvalidProgramException("stackCopy cannot be empty here");
+					throw new InvalidOperationException("stackCopy cannot be empty here");
 
 				Script redeem = new Script(evaluationCopy.Stack.Pop());
 

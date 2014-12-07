@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.OpenAsset
 {
-	[Serializable]
 	public class CoinprismException : Exception
 	{
 		public CoinprismException()
@@ -22,12 +21,6 @@ namespace NBitcoin.OpenAsset
 		}
 		public CoinprismException(string message, Exception inner)
 			: base(message, inner)
-		{
-		}
-		protected CoinprismException(
-		  System.Runtime.Serialization.SerializationInfo info,
-		  System.Runtime.Serialization.StreamingContext context)
-			: base(info, context)
 		{
 		}
 	}

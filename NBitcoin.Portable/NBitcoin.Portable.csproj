@@ -20,7 +20,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -28,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;PORTABLE;USEBC</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -37,6 +37,281 @@
       <Project>{19a848a9-333a-4918-ab7f-769a1f368051}</Project>
       <Name>NBitcoin.BouncyCastle</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\NBitcoin\Base58Data.cs">
+      <Link>Base58Data.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BIP32\BitcoinExtKey.cs">
+      <Link>BitcoinExtKey.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BIP32\ExtKey.cs">
+      <Link>ExtKey.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BIP32\ExtPubKey.cs">
+      <Link>ExtPubKey.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BIP32\KeyPath.cs">
+      <Link>KeyPath.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BIP38\BitcoinConfirmationCode.cs">
+      <Link>BitcoinConfirmationCode.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BIP38\BitcoinEncryptedSecret.cs">
+      <Link>BitcoinEncryptedSecret.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BIP38\BitcoinPassphraseCode.cs">
+      <Link>BitcoinPassphraseCode.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BitcoinAddress.cs">
+      <Link>BitcoinAddress.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BitcoinSecret.cs">
+      <Link>BitcoinSecret.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BitcoinStream.cs">
+      <Link>BitcoinStream.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BitcoinStream.Partial.cs">
+      <Link>BitcoinStream.Partial.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Block.cs">
+      <Link>Block.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\CachedNoSqlRepository.cs">
+      <Link>CachedNoSqlRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\CachedTransactionRepository.cs">
+      <Link>CachedTransactionRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Chain.cs">
+      <Link>Chain.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\ChainBase.cs">
+      <Link>ChainBase.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\ChainedBlock.cs">
+      <Link>ChainedBlock.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Coin.cs">
+      <Link>Coin.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\CompositeDisposable.cs">
+      <Link>CompositeDisposable.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\Cryptsharp\BitMath.cs">
+      <Link>BitMath.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\Cryptsharp\BitPacking.cs">
+      <Link>BitPacking.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\Cryptsharp\ByteArray.cs">
+      <Link>ByteArray.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\Cryptsharp\Check.cs">
+      <Link>Check.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\Cryptsharp\Exceptions.cs">
+      <Link>Exceptions.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\Cryptsharp\Pbkdf2.cs">
+      <Link>Pbkdf2.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\Cryptsharp\Salsa20Core.cs">
+      <Link>Salsa20Core.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\Cryptsharp\SCrypt.cs">
+      <Link>SCrypt.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\Cryptsharp\Security.cs">
+      <Link>Security.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\DeterministicECDSA.cs">
+      <Link>DeterministicECDSA.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\ECDSASignature.cs">
+      <Link>ECDSASignature.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\ECKey.cs">
+      <Link>ECKey.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Crypto\Hashes.cs">
+      <Link>Hashes.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\DataEncoders\ASCIIEncoder.cs">
+      <Link>ASCIIEncoder.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\DataEncoders\Base58Encoder.cs">
+      <Link>Base58Encoder.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\DataEncoders\Base64Encoder.cs">
+      <Link>Base64Encoder.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\DataEncoders\Encoders.cs">
+      <Link>Encoders.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\DataEncoders\HexEncoder.cs">
+      <Link>HexEncoder.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\IBitcoinSerializable.cs">
+      <Link>IBitcoinSerializable.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\IDestination.cs">
+      <Link>IDestination.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\InMemoryNoSqlRepository.cs">
+      <Link>InMemoryNoSqlRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\ITransactionRepository.cs">
+      <Link>ITransactionRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Key.cs">
+      <Link>Key.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\KeyId.cs">
+      <Link>KeyId.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\LockTime.cs">
+      <Link>LockTime.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Money.cs">
+      <Link>Money.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Network.cs">
+      <Link>Network.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\NoSqlRepository.cs">
+      <Link>NoSqlRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\NoSqlTransactionRepository.cs">
+      <Link>NoSqlTransactionRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\ObjectStream.cs">
+      <Link>ObjectStream.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\OpenAsset\Asset.cs">
+      <Link>Asset.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\OpenAsset\AssetId.cs">
+      <Link>AssetId.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\OpenAsset\BitcoinAssetId.cs">
+      <Link>BitcoinAssetId.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\OpenAsset\CachedColoredTransactionRepository.cs">
+      <Link>CachedColoredTransactionRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\OpenAsset\ColoredTransaction.cs">
+      <Link>ColoredTransaction.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\OpenAsset\ColorMarker.cs">
+      <Link>ColorMarker.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\OpenAsset\Extensions.cs">
+      <Link>Extensions.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\OpenAsset\IColoredTransactionRepository.cs">
+      <Link>IColoredTransactionRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\OpenAsset\NoSqlColoredTransactionRepository.cs">
+      <Link>NoSqlColoredTransactionRepository.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Protocol\Payloads\RejectPayload.cs">
+      <Link>RejectPayload.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Protocol\PerformanceCounter.cs">
+      <Link>PerformanceCounter.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\PubKey.cs">
+      <Link>PubKey.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\RandomUtils.cs">
+      <Link>RandomUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\RPC\BlockExplorerFormatter.cs">
+      <Link>BlockExplorerFormatter.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\RPC\RawFormatter.cs">
+      <Link>RawFormatter.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\RPC\SatoshiFormatter.cs">
+      <Link>SatoshiFormatter.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Script.cs">
+      <Link>Script.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\ScriptEvaluationContext.cs">
+      <Link>ScriptEvaluationContext.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\ScriptReader.cs">
+      <Link>ScriptReader.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Spendable.cs">
+      <Link>Spendable.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\StandardScripts.cs">
+      <Link>StandardScripts.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\StandardScriptTemplate.cs">
+      <Link>StandardScriptTemplate.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Stealth\BitcoinStealthAddress.cs">
+      <Link>BitcoinStealthAddress.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Stealth\StealthMetadata.cs">
+      <Link>StealthMetadata.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Stealth\StealthPayment.cs">
+      <Link>StealthPayment.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\StreamObjectStream.cs">
+      <Link>StreamObjectStream.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Target.cs">
+      <Link>Target.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Transaction.cs">
+      <Link>Transaction.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\TransactionBuilder.cs">
+      <Link>TransactionBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\TransactionNotFoundException.cs">
+      <Link>TransactionNotFoundException.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\TransactionSignature.cs">
+      <Link>TransactionSignature.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\UInt2561.cs">
+      <Link>UInt2561.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\UnsignedList.cs">
+      <Link>UnsignedList.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Utils.cs">
+      <Link>Utils.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\ValidationState.cs">
+      <Link>ValidationState.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\VarInt.cs">
+      <Link>VarInt.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\VarString.cs">
+      <Link>VarString.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Versions.cs">
+      <Link>Versions.cs</Link>
+    </Compile>
+    <Compile Include="TraceStub\TraceSource.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\portable-net45+wp80+win8+wpa81+aspnetcore50\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

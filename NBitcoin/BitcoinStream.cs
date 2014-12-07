@@ -3,10 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+#if !PORTABLE
+using System.Net.Sockets;
+#endif
+
 
 namespace NBitcoin
 {
@@ -61,7 +64,8 @@ namespace NBitcoin
 		{
 			_ReadWriteTyped =
 				typeof(BitcoinStream)
-				.GetMethods()
+				.GetTypeInfo()
+				.DeclaredMethods
 				.Where(m => m.Name == "ReadWrite")
 				.Where(m => m.IsGenericMethodDefinition)
 				.Where(m => m.GetParameters().Length == 1)

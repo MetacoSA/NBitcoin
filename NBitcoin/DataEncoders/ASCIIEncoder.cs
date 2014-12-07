@@ -12,7 +12,7 @@ namespace NBitcoin.DataEncoders
 		{
 			if(String.IsNullOrEmpty(encoded))
 				return new byte[0];
-			return encoded.Select(o => (byte)o).ToArray();
+			return encoded.ToCharArray().Select(o => (byte)o).ToArray();
 		}
 		public override string EncodeData(byte[] data, int length)
 		{

@@ -5,9 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+
+#if !USEBC
+using System.Security.Cryptography;
+
 
 namespace NBitcoin
 {
@@ -97,7 +100,7 @@ namespace NBitcoin
 
 			var key = new Key(bitcoinprivkey, fCompressedIn: IsCompressed);
 
-			var addressBytes = Encoding.ASCII.GetBytes(key.PubKey.GetAddress(Network).ToString());
+			var addressBytes = Encoders.ASCII.DecodeData(key.PubKey.GetAddress(Network).ToString());
 			var salt = Hashes.Hash256(addressBytes).ToBytes().Take(4).ToArray();
 
 			if(!Utils.ArrayEqual(salt, AddressHash))
@@ -364,7 +367,7 @@ namespace NBitcoin
 		{
 			return new BitcoinSecret(GetKey(password), Network);
 		}
-
+#if !USEBC
 		internal static Aes CreateAES256()
 		{
 			var aes = Aes.Create();
@@ -373,7 +376,7 @@ namespace NBitcoin
 			aes.IV = new byte[16];
 			return aes;
 		}
-
+#endif
 		internal static byte[] EncryptKey(byte[] key, byte[] derived)
 		{
 			var keyhalf1 = key.Take(16).ToArray();
@@ -516,3 +519,4 @@ namespace NBitcoin
 		}
 	}
 }
+#endif

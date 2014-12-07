@@ -18,7 +18,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #endregion
 
 using System;
-using System.Security.Cryptography;
 
 namespace NBitcoin.Crypto.Internal
 {
@@ -27,14 +26,6 @@ namespace NBitcoin.Crypto.Internal
         public static void Clear(Array array)
         {
             if (array != null) { Array.Clear(array, 0, array.Length); }
-        }
-
-        public static byte[] GenerateRandomBytes(int count)
-        {
-			Check.Range("count", count, 0, int.MaxValue);
-
-            RandomNumberGenerator rng = RandomNumberGenerator.Create();
-			byte[] bytes = new byte[count]; rng.GetBytes(bytes); return bytes;
         }
     }
 }

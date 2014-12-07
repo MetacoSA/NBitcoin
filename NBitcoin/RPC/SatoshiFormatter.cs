@@ -150,7 +150,7 @@ namespace NBitcoin.RPC
 			var btc = satoshis / Money.COIN;
 			//return btc.ToString("0.###E+00", CultureInfo.InvariantCulture);
 			var result = ((double)btc).ToString(CultureInfo.InvariantCulture);
-			if(!result.Contains('.'))
+			if(!result.ToCharArray().Contains('.'))
 				result = result + ".0";
 			return result;
 		}

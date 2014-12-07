@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+#if !USEBC
 namespace NBitcoin
 {
 	public class BitcoinConfirmationCode : Base58Data
@@ -148,3 +148,4 @@ namespace NBitcoin
 		}
 	}
 }
+#endif

@@ -35,7 +35,7 @@ namespace NBitcoin
 			this.name = name;
 			this.host = host;
 		}
-
+#if !PORTABLE
 		IPAddress[] _Addresses = null;
 		public IPAddress[] GetAddressNodes()
 		{
@@ -43,7 +43,7 @@ namespace NBitcoin
 				return _Addresses;
 			return Dns.GetHostAddresses(host);
 		}
-
+#endif
 		public override string ToString()
 		{
 			return name + " (" + host + ")";
@@ -164,9 +164,10 @@ namespace NBitcoin
 			}
 		}
 
-
+#if !PORTABLE
 		List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
+#endif
 		Block genesis = new Block();
 
 		private int nRPCPort;
@@ -221,7 +222,9 @@ namespace NBitcoin
 			//strDataDir = "regtest";
 			assert(hashGenesisBlock == new uint256("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
 
+#if !PORTABLE
 			vSeeds.Clear();  // Regtest mode doesn't have any DNS seeds.
+#endif
 		}
 
 
@@ -230,7 +233,13 @@ namespace NBitcoin
 		private int nSubsidyHalvingInterval;
 		private string name;
 
-		public string Name { get { return name; } }
+		public string Name
+		{
+			get
+			{
+				return name;
+			}
+		}
 
 		public static Network Main
 		{
@@ -286,14 +295,14 @@ namespace NBitcoin
 			hashGenesisBlock = genesis.GetHash();
 			assert(hashGenesisBlock == new uint256("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
 			assert(genesis.Header.HashMerkleRoot == new uint256("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
-
+#if !PORTABLE
 			vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be"));
 			vSeeds.Add(new DNSSeedData("bluematt.me", "dnsseed.bluematt.me"));
 			vSeeds.Add(new DNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org"));
 			vSeeds.Add(new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com"));
 			vSeeds.Add(new DNSSeedData("bitnodes.io", "seed.bitnodes.io"));
 			vSeeds.Add(new DNSSeedData("xf2.org", "bitseed.xf2.org"));
-
+#endif
 			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (0) };
 			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (5) };
 			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (128) };
@@ -309,6 +318,7 @@ namespace NBitcoin
 			// Convert the pnSeeds array into usable address objects.
 			Random rand = new Random();
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);
+#if !PORTABLE
 			for(int i = 0 ; i < pnSeed.Length ; i++)
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
@@ -321,6 +331,7 @@ namespace NBitcoin
 				addr.Endpoint = new IPEndPoint(ip, DefaultPort);
 				vFixedSeeds.Add(addr);
 			}
+#endif
 		}
 
 
@@ -355,12 +366,12 @@ namespace NBitcoin
 			hashGenesisBlock = genesis.GetHash();
 			assert(hashGenesisBlock == new uint256("0x000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
 
-
+#if !PORTABLE
 			vFixedSeeds.Clear();
 			vSeeds.Clear();
 			vSeeds.Add(new DNSSeedData("bitcoin.petertodd.org", "testnet-seed.bitcoin.petertodd.org"));
 			vSeeds.Add(new DNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
-
+#endif
 			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (111) };
 			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (196) };
 			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (239) };
@@ -449,16 +460,16 @@ namespace NBitcoin
 			}
 			throw new FormatException("Invalid base58 data");
 		}
-		
+
 		public static T CreateFromBase58Data<T>(string base58, Network expectedNetwork = null) where T : Base58Data
 		{
 			return (T)CreateFromBase58Data(base58, expectedNetwork);
 		}
 
-		public T Parse<T>(string base58) where T: Base58Data
+		public T Parse<T>(string base58) where T : Base58Data
 		{
 			var type = GetBase58Type(base58);
-			if (type.HasValue)
+			if(type.HasValue)
 			{
 				return (T)CreateBase58Data(type.Value, base58);
 			}
@@ -477,6 +488,7 @@ namespace NBitcoin
 				return CreateBitcoinScriptAddress(base58);
 			if(type == Base58Type.SECRET_KEY)
 				return CreateBitcoinSecret(base58);
+#if !USEBC
 			if(type == Base58Type.CONFIRMATION_CODE)
 				return CreateConfirmationCode(base58);
 			if(type == Base58Type.ENCRYPTED_SECRET_KEY_EC)
@@ -485,6 +497,7 @@ namespace NBitcoin
 				return CreateEncryptedKeyNoEC(base58);
 			if(type == Base58Type.PASSPHRASE_CODE)
 				return CreatePassphraseCode(base58);
+#endif
 			if(type == Base58Type.STEALTH_ADDRESS)
 				return CreateStealthAddress(base58);
 			if(type == Base58Type.ASSET_ID)
@@ -502,6 +515,7 @@ namespace NBitcoin
 			return new BitcoinStealthAddress(base58, this);
 		}
 
+#if !USEBC
 		private BitcoinPassphraseCode CreatePassphraseCode(string base58)
 		{
 			return new BitcoinPassphraseCode(base58, this);
@@ -521,13 +535,13 @@ namespace NBitcoin
 		{
 			return new BitcoinConfirmationCode(base58, this);
 		}
-
+#endif
 		private Base58Data CreateBitcoinExtPubKey(string base58)
 		{
 			return new BitcoinExtPubKey(base58, this);
 		}
 
-		
+
 		public BitcoinExtKey CreateBitcoinExtKey(ExtKey key)
 		{
 			return new BitcoinExtKey(key, this);
@@ -588,13 +602,16 @@ namespace NBitcoin
 		public static Network GetNetwork(string name)
 		{
 			name = name.ToLowerInvariant();
-			switch (name)
+			switch(name)
 			{
-				case "main": return Network.Main;
+				case "main":
+					return Network.Main;
 				case "testnet":
-				case "testnet3": return Network.TestNet;
+				case "testnet3":
+					return Network.TestNet;
 				case "reg":
-				case "regtest": return Network.RegTest;
+				case "regtest":
+					return Network.RegTest;
 				default:
 					throw new ArgumentException(String.Format("Invalid network name '{0}'", name));
 			}
@@ -620,7 +637,7 @@ namespace NBitcoin
 		{
 			return new BitcoinScriptAddress(scriptId, this);
 		}
-
+#if !PORTABLE
 		public Message ParseMessage(byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			BitcoinStream bstream = new BitcoinStream(bytes);
@@ -648,7 +665,7 @@ namespace NBitcoin
 				return this.vSeeds;
 			}
 		}
-
+#endif
 		public byte[] _MagicBytes;
 		public byte[] MagicBytes
 		{

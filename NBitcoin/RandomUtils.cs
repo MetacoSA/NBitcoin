@@ -2,21 +2,56 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+#if !USEBC
+		using System.Security.Cryptography;
+#endif
 
 namespace NBitcoin
 {
 	public class RandomUtils
 	{
-		//Thread safe http://msdn.microsoft.com/en-us/library/system.security.cryptography.rngcryptoserviceprovider(v=vs.110).aspx
-		static readonly RNGCryptoServiceProvider _Rand = new RNGCryptoServiceProvider();
+#if !USEBC
+		static RandomUtils()
+		{
+			//Thread safe http://msdn.microsoft.com/en-us/library/system.security.cryptography.rngcryptoserviceprovider(v=vs.110).aspx
+			Random = new RNGCryptoServiceProviderRandom();
+		}
+		class RNGCryptoServiceProviderRandom : IRandom
+		{
+			readonly RNGCryptoServiceProvider _Instance;
+			public RNGCryptoServiceProviderRandom()
+			{
+				_Instance = new RNGCryptoServiceProvider();
+			}
+		#region IRandom Members
+
+			public void GetBytes(byte[] output)
+			{
+				_Instance.GetBytes(output);
+			}
+
+			#endregion
+		}
+#endif
+		public interface IRandom
+		{
+			void GetBytes(byte[] output);
+		}
+
+		public static IRandom Random
+		{
+			get;
+			set;
+		}
 
 		public static byte[] GetBytes(int length)
 		{
 			byte[] data = new byte[length];
-			_Rand.GetBytes(data);
+			if(Random == null)
+				throw new InvalidOperationException("You must set the RNG (RandomUtils.Random) before generating random numbers");
+			Random.GetBytes(data);
 			return data;
 		}
 
@@ -41,7 +76,9 @@ namespace NBitcoin
 
 		public static void GetBytes(byte[] output)
 		{
-			_Rand.GetBytes(output);
+			if(Random == null)
+				throw new InvalidOperationException("You must set the RNG (RandomUtils.Random) before generating random numbers");
+			Random.GetBytes(output);
 		}
 	}
 }

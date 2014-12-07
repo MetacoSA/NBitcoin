@@ -26,6 +26,7 @@ namespace NBitcoin.Protocol
 		Transaction,
 		Block
 	}
+#if !PORTABLE
 	[Payload("reject")]
 	public class RejectPayload : Payload
 	{
@@ -98,4 +99,5 @@ namespace NBitcoin.Protocol
 			stream.ReadWrite(ref _Reason);
 		}
 	}
+#endif
 }

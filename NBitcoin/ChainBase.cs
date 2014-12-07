@@ -31,7 +31,7 @@ namespace NBitcoin
 			ChainedBlock pindex = GetBlock(hash);
 			return pindex != null;
 		}
-		
+
 
 		public IEnumerable<ChainedBlock> ToEnumerable(bool fromTip)
 		{
@@ -151,11 +151,12 @@ namespace NBitcoin
 			}
 			return Genesis;
 		}
-
+#if !PORTABLE
 		public ChainedBlock FindFork(BlockLocator locator)
 		{
 			return FindFork(locator.Blocks);
 		}
+#endif
 
 
 		public virtual IEnumerable<ChainedBlock> EnumerateAfter(ChainedBlock block)

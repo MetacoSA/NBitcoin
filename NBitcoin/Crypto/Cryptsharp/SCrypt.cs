@@ -17,11 +17,16 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 #endregion
 
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Security;
 using NBitcoin.Crypto.Internal;
 using System;
+#if !USEBC
 using System.Security.Cryptography;
+#endif
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NBitcoin.Crypto
 {
@@ -136,6 +141,7 @@ namespace NBitcoin.Crypto
 		///     <c>null</c> will use as many threads as possible.
 		/// </param>
 		/// <returns>The derived key stream.</returns>
+#if !USEBC
 		public static Pbkdf2 GetStream(byte[] key, byte[] salt,
 									   int cost, int blockSize, int parallel, int? maxThreads)
 		{
@@ -144,6 +150,19 @@ namespace NBitcoin.Crypto
 			Security.Clear(B);
 			return kdf;
 		}
+
+#else
+		public static Pbkdf2 GetStream(byte[] key, byte[] salt,
+									   int cost, int blockSize, int parallel, int? maxThreads)
+		{
+			byte[] B = GetEffectivePbkdf2Salt(key, salt, cost, blockSize, parallel, maxThreads);
+			var mac = MacUtilities.GetMac("HMAC-SHA_256");
+			mac.Init(new KeyParameter(key));
+			Pbkdf2 kdf = new Pbkdf2(mac, B, 1);
+			Security.Clear(B);
+			return kdf;
+		}
+#endif
 
 		static byte[] MFcrypt(byte[] P, byte[] S,
 							  int cost, int blockSize, int parallel, int? maxThreads)
@@ -162,8 +181,13 @@ namespace NBitcoin.Crypto
 			Check.Range("parallel", parallel, 1, int.MaxValue / MFLen);
 			Check.Range("maxThreads", (int)maxThreads, 1, int.MaxValue);
 
+#if !USEBC
 			byte[] B = Pbkdf2.ComputeDerivedKey(new HMACSHA256(P), S, 1, parallel * MFLen);
-
+#else
+			var mac = MacUtilities.GetMac("HMAC-SHA_256");
+			mac.Init(new KeyParameter(P));
+			byte[] B = Pbkdf2.ComputeDerivedKey(mac, S, 1, parallel * MFLen);
+#endif
 			uint[] B0 = new uint[B.Length / 4];
 			for(int i = 0 ; i < B0.Length ; i++)
 			{
@@ -178,7 +202,7 @@ namespace NBitcoin.Crypto
 
 			return B;
 		}
-
+#if !USEBC
 		static void ThreadSMixCalls(uint[] B0, int MFLen,
 									int cost, int blockSize, int parallel, int maxThreads)
 		{
@@ -210,6 +234,38 @@ namespace NBitcoin.Crypto
 			}
 		}
 
+#else
+		static void ThreadSMixCalls(uint[] B0, int MFLen,
+									int cost, int blockSize, int parallel, int maxThreads)
+		{
+			int current = 0;
+			Action workerThread = delegate()
+			{
+				while(true)
+				{
+					int j = Interlocked.Increment(ref current) - 1;
+					if(j >= parallel)
+					{
+						break;
+					}
+
+					SMix(B0, j * MFLen / 4, B0, j * MFLen / 4, (uint)cost, blockSize);
+				}
+			};
+
+			int threadCount = Math.Max(1, Math.Min(Environment.ProcessorCount, Math.Min(maxThreads, parallel)));
+			Task[] threads = new Task[threadCount - 1];
+			for(int i = 0 ; i < threads.Length ; i++)
+			{
+				threads[i] = Task.Run(workerThread);
+			}
+			workerThread();
+			for(int i = 0 ; i < threads.Length ; i++)
+			{
+				threads[i].Wait();
+			}
+		}
+#endif
 		static void SMix(uint[] B, int Boffset, uint[] Bp, int Bpoffset, uint N, int r)
 		{
 			uint Nmask = N - 1;
@@ -296,7 +352,7 @@ namespace NBitcoin.Crypto
 		//The preliminary values of 16384, 8, and 8 are hoped to offer the following properties: 
 		//•Encryption/decryption in javascript requiring several seconds per operation
 		//•Use of the parallelization parameter provides a modest opportunity for speedups in environments where concurrent threading is available - such environments would be selected for processes that must handle bulk quantities of encryption/decryption operations. Estimated time for an operation is in the tens or hundreds of milliseconds.
-		public static byte[] BitcoinComputeDerivedKey(byte[] password, byte[] salt, int outputCount=64)
+		public static byte[] BitcoinComputeDerivedKey(byte[] password, byte[] salt, int outputCount = 64)
 		{
 			return NBitcoin.Crypto.SCrypt.ComputeDerivedKey(password, salt, 16384, 8, 8, 8, outputCount);
 		}

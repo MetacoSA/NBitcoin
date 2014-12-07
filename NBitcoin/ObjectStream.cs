@@ -24,7 +24,7 @@ namespace NBitcoin
 			if(result == null)
 			{
 				if(!EOF)
-					throw new InvalidProgramException("EOF should be true if there is no object left in the stream");
+					throw new InvalidOperationException("EOF should be true if there is no object left in the stream");
 			}
 			return result;
 		}

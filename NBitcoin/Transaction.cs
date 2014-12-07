@@ -834,11 +834,12 @@ namespace NBitcoin
 			}
 			builder.SignTransactionInPlace(this);
 		}
-
+#if !PORTABLE
 		public TxPayload CreatePayload()
 		{
 			return new TxPayload(this.Clone());
 		}
+#endif
 
 		public static Transaction Parse(string tx, RawFormat format, Network network = null)
 		{

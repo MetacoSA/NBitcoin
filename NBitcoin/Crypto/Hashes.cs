@@ -1,11 +1,16 @@
 ﻿using NBitcoin.BouncyCastle.Crypto.Digests;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+
+#if !USEBC
+using System.Security.Cryptography;
+#endif
 
 namespace NBitcoin.Crypto
 {
@@ -48,17 +53,17 @@ namespace NBitcoin.Crypto
 		}
 		public static byte[] SHA256(byte[] data, int count)
 		{
-#if BOUNCY_ONLY
+#if !USEBC
+			using(var sha = System.Security.Cryptography.SHA256.Create())
+			{
+				return sha.ComputeHash(data, 0, count);
+			}
+#else
 			Sha256Digest sha256 = new Sha256Digest();
 			sha256.BlockUpdate(data, 0, count);
 			byte[] rv = new byte[32];
 			sha256.DoFinal(rv, 0);
 			return rv;
-#else
-			using(var sha = System.Security.Cryptography.SHA256.Create())
-			{
-				return sha.ComputeHash(data, 0, count);
-			}
 #endif
 		}
 
@@ -166,12 +171,22 @@ namespace NBitcoin.Crypto
 		{
 			return Hash160(bytes, bytes.Length);
 		}
-
+#if !USEBC
 		public static byte[] HMACSHA512(byte[] key, byte[] data)
 		{
 			return new HMACSHA512(key).ComputeHash(data);
 		}
-
+#else
+		public static byte[] HMACSHA512(byte[] key, byte[] data)
+		{
+			var mac = MacUtilities.GetMac("HMAC-SHA_512");
+			mac.Init(new KeyParameter(key));
+			mac.Update(data);
+			byte[] result = new byte[mac.GetMacSize()];
+			mac.DoFinal(result, 0);
+			return result;
+		}
+#endif
 		public static byte[] BIP32Hash(byte[] chainCode, uint nChild, byte header, byte[] data)
 		{
 			byte[] num = new byte[4];

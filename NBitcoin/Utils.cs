@@ -1,5 +1,4 @@
 ﻿using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
 using NBitcoin.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
@@ -7,15 +6,19 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
+#if !PORTABLE
+using System.Security.Cryptography;
+using System.Net.Sockets;
+using NBitcoin.Protocol;
+#endif
 
 namespace NBitcoin
 {
@@ -69,8 +72,7 @@ namespace NBitcoin
 			}
 		}
 
-
-
+#if !PORTABLE
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
 			int readen = 0;
@@ -107,6 +109,30 @@ namespace NBitcoin
 			}
 			return readen;
 		}
+#else
+
+		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
+		{
+			int readen = 0;
+			while(readen < count)
+			{
+				int thisRead = 0;
+
+				cancellation.ThrowIfCancellationRequested();
+				thisRead = stream.Read(buffer, offset + readen, count - readen);
+
+				if(thisRead == -1)
+					return -1;
+				if(thisRead == 0 && (stream is MemoryStream))
+				{
+					if(stream.Length == stream.Position)
+						return -1;
+				}
+				readen += thisRead;
+			}
+			return readen;
+		}
+#endif
 		public static void AddOrReplace<TKey, TValue>(this IDictionary<TKey, TValue> dico, TKey key, TValue value)
 		{
 			if(dico.ContainsKey(key))
@@ -355,7 +381,7 @@ namespace NBitcoin
 		}
 
 
-
+#if !PORTABLE
 		internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
 		{
 			try
@@ -381,7 +407,7 @@ namespace NBitcoin
 				return endpoint;
 			return new IPEndPoint(endpoint.Address.MapToIPv6(), endpoint.Port);
 		}
-
+#endif
 		public static string Serialize<T>(T obj)
 		{
 			DataContractSerializer seria = new DataContractSerializer(typeof(T));
@@ -446,7 +472,7 @@ namespace NBitcoin
 		}
 
 
-
+#if !PORTABLE
 		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort)
 		{
 			var splitted = endpoint.Split(':');
@@ -462,7 +488,7 @@ namespace NBitcoin
 			}
 			return new IPEndPoint(address, port);
 		}
-
+#endif
 		public static int GetHashCode(byte[] array)
 		{
 			unchecked

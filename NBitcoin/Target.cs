@@ -151,7 +151,7 @@ namespace NBitcoin
 			var array = _Target.ToByteArray();
 			var missingZero = 32 - array.Length;
 			if(missingZero < 0)
-				throw new InvalidProgramException("Awful bug, this should never happen");
+				throw new InvalidOperationException("Awful bug, this should never happen");
 			if(missingZero != 0)
 			{
 				array = array.Concat(new byte[missingZero]).ToArray();

@@ -76,12 +76,12 @@ namespace NBitcoin
 				return false;
 			}
 		}
-
+#if !USEBC
 		public BitcoinEncryptedSecret Encrypt(string password)
 		{
 			return Key.GetEncryptedBitcoinSecret(password, Network);
 		}
-
+#endif
 
 		public BitcoinSecret Copy(bool? compressed)
 		{

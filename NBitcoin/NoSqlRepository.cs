@@ -1,12 +1,14 @@
 ﻿using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if !PORTABLE
+using System.Data;
+using System.Data.SQLite;
+#endif
 
 namespace NBitcoin
 {
@@ -41,7 +43,7 @@ namespace NBitcoin
 			PutBytesBatch(new[] { new Tuple<string, byte[]>(key, data) });
 		}
 	}
-
+#if !PORTABLE
 	public class SQLiteNoSqlRepository : NoSqlRepository
 	{
 		private readonly SQLiteConnection _Connection;
@@ -134,4 +136,5 @@ namespace NBitcoin
 			command.ExecuteNonQuery();
 		}
 	}
+#endif
 }
