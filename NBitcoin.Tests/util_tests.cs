@@ -352,6 +352,7 @@ namespace NBitcoin.Tests
 						ExpectedType = (Type)null,
 						Network = (Network)null
 					},
+#if !PORTABLE
 					new
 					{
 						Base58 = "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7",
@@ -376,6 +377,7 @@ namespace NBitcoin.Tests
 						ExpectedType = typeof(BitcoinConfirmationCode),
 						Network = Network.Main
 					},
+#endif
 					new
 					{
 						Base58 = "xprv9s21ZrQH143K3Gx1VAAD1ueDmwoPQUApekxWYSJ1f4W4m1nUPpRGdV5sTVhixZJT5cP2NqtEMZ2mrwHdW5RWpohCwspWidCpcLALvioXDyz",

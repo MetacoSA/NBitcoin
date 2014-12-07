@@ -10,6 +10,21 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	public class UnsecureRandom : RandomUtils.IRandom
+	{
+		Random _Rand = new Random();
+		#region IRandom Members
+
+		public void GetBytes(byte[] output)
+		{
+			lock(_Rand)
+			{
+				_Rand.NextBytes(output);
+			}
+		}
+
+		#endregion
+	}
 	public class RandomUtils
 	{
 #if !USEBC
@@ -33,6 +48,12 @@ namespace NBitcoin
 			}
 
 			#endregion
+		}
+#endif
+#if USEBC && DEBUG 
+		static RandomUtils()
+		{
+			Random = new UnsecureRandom();
 		}
 #endif
 		public interface IRandom

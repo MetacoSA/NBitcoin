@@ -130,7 +130,7 @@ namespace NBitcoin
 			}
 		}
 
-
+#if !PORTABLE
 		public bool Spend(int position, out TxInUndo undo)
 		{
 			undo = null;
@@ -155,7 +155,7 @@ namespace NBitcoin
 			TxInUndo undo;
 			return Spend(position, out undo);
 		}
-
+#endif
 		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)

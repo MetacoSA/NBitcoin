@@ -54,6 +54,18 @@
     <Compile Include="..\NBitcoin\BIP38\BitcoinEncryptedSecret.cs">
       <Link>BitcoinEncryptedSecret.cs</Link>
     </Compile>
+    <Compile Include="..\NBitcoin\Coins.cs">
+      <Link>Coins.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\CoinsView.cs">
+      <Link>CoinsView.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\MedianFilter.cs">
+      <Link>MedianFilter.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MedianFilter.tt</DependentUpon>
+    </Compile>
     <Compile Include="..\NBitcoin\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
@@ -308,6 +320,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\NBitcoin\MedianFilter.tt">
+      <Link>MedianFilter.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MedianFilter.cs</LastGenOutput>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -315,6 +332,9 @@
       <Project>{e405ea2f-fd7a-4369-b376-ebfe3dd19c14}</Project>
       <Name>NBitcoin.Portable.BouncyCastle</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

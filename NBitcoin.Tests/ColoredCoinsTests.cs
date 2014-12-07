@@ -114,6 +114,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
+#if !PORTABLE
 		//[Fact]
 		public void TestFun()
 		{
@@ -124,7 +125,7 @@ namespace NBitcoin.Tests
 
 			Assert.True(colored.ToBytes().SequenceEqual(prismColored.ToBytes()));
 		}
-
+#endif
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		//https://github.com/OpenAssets/open-assets-protocol/blob/master/specification.mediawiki
@@ -238,7 +239,7 @@ namespace NBitcoin.Tests
 			return testedTx;
 		}
 
-
+#if !PORTABLE
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanFetchTransactionFromCoinprism()
@@ -255,7 +256,7 @@ namespace NBitcoin.Tests
 			var actual = new CoinprismColoredTransactionRepository().Get(tester.TestedTxId);
 			Assert.True(actual.ToBytes().SequenceEqual(expected.ToBytes()));
 		}
-
+#endif
 		//https://www.coinprism.info/tx/b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a6
 		//Asset Id : 3QzJDrSsi4Pm2DhcZFXR9MGJsXXtsYhUsq
 		//1BvvRfz4XnxSWJ524TusetYKrtZnAbgV3r to 18Jcv42cRknPmxrQPb2zSBuEVWq3egjCKq

@@ -133,7 +133,6 @@ namespace NBitcoin
 			return template.CheckScriptSig(scriptSig, scriptPubKey);
 		}
 
-#if !PORTABLE
 		//
 		// Check transaction inputs, and make sure any
 		// pay-to-script-hash transactions are evaluating IsStandard scripts
@@ -161,6 +160,5 @@ namespace NBitcoin
 
 			return true;
 		}
-#endif
 	}
 }
