@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public abstract class BitcoinExtKeyBase : Base58Data
+	public abstract class BitcoinExtKeyBase : Base58Data, IDestination
 	{
 		public BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
 			: base(key.ToBytes(), network)
@@ -17,6 +17,15 @@ namespace NBitcoin
 		{
 		}
 
+
+		#region IDestination Members
+
+		public abstract Script ScriptPubKey
+		{
+			get;
+		}
+
+		#endregion
 	}
 
 	public class BitcoinExtKey : BitcoinExtKeyBase
@@ -62,6 +71,14 @@ namespace NBitcoin
 				return Base58Type.EXT_SECRET_KEY;
 			}
 		}
+
+		public override Script ScriptPubKey
+		{
+			get
+			{
+				return ExtKey.ScriptPubKey;
+			}
+		}
 	}
 	public class BitcoinExtPubKey : BitcoinExtKeyBase
 	{
@@ -95,6 +112,14 @@ namespace NBitcoin
 			get
 			{
 				return Base58Type.EXT_PUBLIC_KEY;
+			}
+		}
+
+		public override Script ScriptPubKey
+		{
+			get
+			{
+				return ExtPubKey.ScriptPubKey;
 			}
 		}
 	}

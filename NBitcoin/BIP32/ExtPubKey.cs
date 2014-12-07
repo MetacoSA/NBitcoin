@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class ExtPubKey : IBitcoinSerializable
+	public class ExtPubKey : IBitcoinSerializable, IDestination
 	{
 		public static ExtPubKey Parse(string wif, Network expectedNetwork = null)
 		{
@@ -153,5 +153,17 @@ namespace NBitcoin
 		{
 			return new BitcoinExtPubKey(this, network).ToString();
 		}
+
+		#region IDestination Members
+
+		public Script ScriptPubKey
+		{
+			get
+			{
+				return PubKey.Hash.ScriptPubKey;
+			}
+		}
+
+		#endregion
 	}
 }

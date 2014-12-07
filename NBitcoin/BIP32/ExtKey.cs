@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace NBitcoin
 {
 	//https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
-	public class ExtKey : IBitcoinSerializable
+	public class ExtKey : IBitcoinSerializable, IDestination
 	{
 		public static ExtKey Parse(string wif, Network expectedNetwork = null)
 		{
@@ -148,5 +148,17 @@ namespace NBitcoin
 		{
 			return new BitcoinExtKey(this, network).ToString();
 		}
+
+		#region IDestination Members
+
+		public Script ScriptPubKey
+		{
+			get
+			{
+				return Key.PubKey.ID.ScriptPubKey;
+			}
+		}
+
+		#endregion
 	}
 }
