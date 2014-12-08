@@ -407,7 +407,7 @@ namespace NBitcoin
 				return endpoint;
 			return new IPEndPoint(endpoint.Address.MapToIPv6(), endpoint.Port);
 		}
-#endif
+
 		public static string Serialize<T>(T obj)
 		{
 			DataContractSerializer seria = new DataContractSerializer(typeof(T));
@@ -427,7 +427,7 @@ namespace NBitcoin
 			ms.Position = 0;
 			return (T)seria.ReadObject(ms);
 		}
-
+#endif
 		internal static byte[] ToBytes(uint value, bool littleEndian)
 		{
 			if(littleEndian)
