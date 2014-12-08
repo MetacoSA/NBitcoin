@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class UnsecureRandom : RandomUtils.IRandom
+	public class UnsecureRandom : IRandom
 	{
 		Random _Rand = new Random();
 		#region IRandom Members
@@ -24,43 +24,17 @@ namespace NBitcoin
 		}
 
 		#endregion
+
 	}
-	public class RandomUtils
+
+
+	public interface IRandom
 	{
-#if !USEBC
-		static RandomUtils()
-		{
-			//Thread safe http://msdn.microsoft.com/en-us/library/system.security.cryptography.rngcryptoserviceprovider(v=vs.110).aspx
-			Random = new RNGCryptoServiceProviderRandom();
-		}
-		class RNGCryptoServiceProviderRandom : IRandom
-		{
-			readonly RNGCryptoServiceProvider _Instance;
-			public RNGCryptoServiceProviderRandom()
-			{
-				_Instance = new RNGCryptoServiceProvider();
-			}
-		#region IRandom Members
+		void GetBytes(byte[] output);
+	}
 
-			public void GetBytes(byte[] output)
-			{
-				_Instance.GetBytes(output);
-			}
-
-			#endregion
-		}
-#endif
-#if USEBC && DEBUG 
-		static RandomUtils()
-		{
-			Random = new UnsecureRandom();
-		}
-#endif
-		public interface IRandom
-		{
-			void GetBytes(byte[] output);
-		}
-
+	public partial class RandomUtils
+	{
 		public static IRandom Random
 		{
 			get;

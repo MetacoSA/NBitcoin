@@ -312,6 +312,7 @@
     <Compile Include="..\NBitcoin\Versions.cs">
       <Link>Versions.cs</Link>
     </Compile>
+    <Compile Include="RandomUtils.partial.cs" />
     <Compile Include="TraceStub\TraceSource.cs" />
   </ItemGroup>
   <ItemGroup>
