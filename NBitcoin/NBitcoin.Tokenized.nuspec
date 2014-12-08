@@ -46,8 +46,8 @@
 	<files>
 
 		<file src="bin\Release\*.*" target="lib\net45" />
-		<file src="..\NBitcoin.Portable\bin\Release\*.*" target="lib\portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1" />
-		<file src="..\NBitcoin.Portable\bin\WP8\Release\*.*" target="lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1" />
+		<file src="..\NBitcoin.Portable\bin\Release\*.*" target="lib\portable-net45+win+wpa81+Xamarin.iOS10+MonoAndroid10+MonoTouch10" />
+		<file src="..\NBitcoin.Portable\bin\WP8\Release\*.*" target="lib\portable-net45+win+wpa81+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10" />
 		<file src="..\NBitcoin.Android\bin\Release\*.*" target="lib\portable-net45+MonoAndroid1" />
 
 	</files>
