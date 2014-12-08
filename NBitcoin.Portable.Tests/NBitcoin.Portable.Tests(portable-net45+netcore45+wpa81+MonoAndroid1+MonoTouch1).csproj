@@ -32,7 +32,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -116,16 +115,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle%28portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1%29.csproj">
-      <Project>{e405ea2f-fd7a-4369-b376-ebfe3dd19c14}</Project>
-      <Name>NBitcoin.Portable.BouncyCastle%28portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1%29</Name>
+    <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle%28portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1%29.csproj">
+      <Project>{9a4e20fa-d79b-4ab2-93d3-2cf7101f75f8}</Project>
+      <Name>NBitcoin.Portable.BouncyCastle%28portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NBitcoin.Portable\NBitcoin.Portable%28portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1%29.csproj">
-      <Project>{e902c15b-0e9f-4512-9f5a-ec4c888c0651}</Project>
-      <Name>NBitcoin.Portable%28portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1%29</Name>
+    <ProjectReference Include="..\NBitcoin.Portable\NBitcoin.Portable%28portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1%29.csproj">
+      <Project>{7d64fe62-6350-4b33-a728-e4b5ba1e333d}</Project>
+      <Name>NBitcoin.Portable%28portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1%29</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

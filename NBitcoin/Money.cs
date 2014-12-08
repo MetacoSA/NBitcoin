@@ -80,6 +80,7 @@ namespace NBitcoin
 				return false;
 			if(nUnits < 0 || nUnits > COIN)
 				return false;
+
 			var nWhole = BigInteger.Parse(strWhole);
 			var nValue = nWhole * COIN + nUnits;
 
