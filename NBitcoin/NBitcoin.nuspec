@@ -2,10 +2,10 @@
 <package >
 	<metadata>
 		<id>NBitcoin</id>
-		<version>$version$</version>
+		<version>1.0.6.11</version>
 		<title>NBitcoin</title>
 		<authors>Nicolas Dorier</authors>
-		<owners>$author$</owners>
+		<owners>dzd</owners>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>.NET Bitcoin Framework</description>
 		<summary>
@@ -31,6 +31,36 @@
 		<projectUrl>https://github.com/NicolasDorier/NBitcoin</projectUrl>
 		<copyright>Copyright 2014</copyright>
 		<tags>bitcoin</tags>
+		<dependencies>
+			<group targetFramework="net45">
+				<dependency id="protobuf-net" version="2.0.0.668" />
+				<dependency id="System.Data.SQLite.Core" version="1.0.94.0" />
+			</group>
+
+			<group>
+				<dependency id="Newtonsoft.Json" version="6.0.1" />
+			</group>
+		</dependencies>
 	</metadata>
-	<files></files>
+
+	<files>
+
+		<file src="bin\Release\NBitcoin.dll" target="lib\net45" />
+		<file src="bin\Release\NBitcoin.pdb" target="lib\net45" />
+		<file src="..\NBitcoin.BouncyCastle\bin\Release\NBitcoin.BouncyCastle.dll" target="lib\net45" />
+		<file src="..\NBitcoin.BouncyCastle\bin\Release\NBitcoin.BouncyCastle.pdb" target="lib\net45" />		
+		<file src="..\Mono.Nat\bin\Release\Mono.Nat.dll" target="lib\net45" />
+		<file src="..\Mono.Nat\bin\Release\Mono.Nat.pdb" target="lib\net45" />
+
+		<file src="..\NBitcoin.Portable\bin\Release\NBitcoin.dll" target="lib\portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1" />
+		<file src="..\NBitcoin.Portable\bin\Release\NBitcoin.pdb" target="lib\portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1" />
+		<file src="..\NBitcoin.Portable.BouncyCastle\bin\Release\NBitcoin.BouncyCastle.dll" target="lib\portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1" />
+		<file src="..\NBitcoin.Portable.BouncyCastle\bin\Release\NBitcoin.BouncyCastle.pdb" target="lib\portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1" />
+
+		<file src="..\NBitcoin.Android\bin\Release\NBitcoin.dll" target="lib\portable-net45+MonoAndroid1" />
+		<file src="..\NBitcoin.Android\bin\Release\NBitcoin.pdb" target="lib\portable-net45+MonoAndroid1" />
+		<file src="..\NBitcoin.Portable.BouncyCastle\bin\Release\NBitcoin.BouncyCastle.dll" target="lib\portable-net45+MonoAndroid1" />
+		<file src="..\NBitcoin.Portable.BouncyCastle\bin\Release\NBitcoin.BouncyCastle.pdb" target="lib\portable-net45+MonoAndroid1" />
+
+	</files>
 </package>

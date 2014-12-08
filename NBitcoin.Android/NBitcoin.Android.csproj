@@ -14,7 +14,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NBitcoin.Android</RootNamespace>
-    <AssemblyName>NBitcoin.Android</AssemblyName>
+    <AssemblyName>NBitcoin</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
