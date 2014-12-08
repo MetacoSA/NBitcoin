@@ -58,6 +58,9 @@
     <Compile Include="..\NBitcoin.Tests\bip32_tests.cs">
       <Link>bip32_tests.cs</Link>
     </Compile>
+    <Compile Include="..\NBitcoin.Tests\BIP38Tests.cs">
+      <Link>BIP38Tests.cs</Link>
+    </Compile>
     <Compile Include="..\NBitcoin.Tests\ChainTests.cs">
       <Link>ChainTests.cs</Link>
     </Compile>
@@ -106,7 +109,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="..\NBitcoin.Tests\data\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  <Link>data\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <Link>data\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -122,9 +125,7 @@
       <Name>NBitcoin.Portable</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

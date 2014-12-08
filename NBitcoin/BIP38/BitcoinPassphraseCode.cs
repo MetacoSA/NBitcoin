@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-#if !USEBC
+
 namespace NBitcoin
 {
 	public class EncryptedKeyResult
@@ -332,4 +332,3 @@ namespace NBitcoin
 		}
 	}
 }
-#endif

@@ -18,12 +18,12 @@ namespace NBitcoin
 		{
 			return Network.CreateFromBase58Data<BitcoinSecret>(wif, network).Key;
 		}
-#if !USEBC
+
 		public static Key Parse(string wif, string password, Network network = null)
 		{
 			return Network.CreateFromBase58Data<BitcoinEncryptedSecretNoEC>(wif, network).GetKey(password);
 		}
-#endif
+
 		byte[] vch = new byte[0];
 		ECKey _ECKey;
 		public bool IsCompressed
@@ -239,12 +239,12 @@ namespace NBitcoin
 		{
 			return new BitcoinSecret(this, network);
 		}
-#if !USEBC
+
 		public BitcoinEncryptedSecretNoEC GetEncryptedBitcoinSecret(string password, Network network)
 		{
 			return new BitcoinEncryptedSecretNoEC(this, password, network);
 		}
-#endif
+
 		public string ToString(Network network)
 		{
 			return new BitcoinSecret(this, network).ToString();
