@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<UsingTask TaskName="Build.TokenizeTask" AssemblyFile="bin/Build.dll"></UsingTask>
+	<Target Name="Build">
+		<Build.TokenizeTask InputFile="..\NBitcoin\NBitcoin.Tokenized.nuspec"
+							AssemblyFile="..\NBitcoin\Properties\AssemblyInfo.cs"
+							OutputFile="..\NBitcoin\NBitcoin.nuspec"
+							></Build.TokenizeTask>
+	</Target>
+</Project>

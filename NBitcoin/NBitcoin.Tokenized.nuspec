@@ -2,10 +2,10 @@
 <package >
 	<metadata>
 		<id>NBitcoin</id>
-		<version>1.0.6.11</version>
+		<version>$version$</version>
 		<title>NBitcoin</title>
 		<authors>Nicolas Dorier</authors>
-		<owners>dzd</owners>
+		<owners>$author$</owners>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>.NET Bitcoin Framework</description>
 		<summary>
