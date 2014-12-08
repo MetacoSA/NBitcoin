@@ -488,7 +488,6 @@ namespace NBitcoin
 				return CreateBitcoinScriptAddress(base58);
 			if(type == Base58Type.SECRET_KEY)
 				return CreateBitcoinSecret(base58);
-#if !USEBC
 			if(type == Base58Type.CONFIRMATION_CODE)
 				return CreateConfirmationCode(base58);
 			if(type == Base58Type.ENCRYPTED_SECRET_KEY_EC)
@@ -497,7 +496,6 @@ namespace NBitcoin
 				return CreateEncryptedKeyNoEC(base58);
 			if(type == Base58Type.PASSPHRASE_CODE)
 				return CreatePassphraseCode(base58);
-#endif
 			if(type == Base58Type.STEALTH_ADDRESS)
 				return CreateStealthAddress(base58);
 			if(type == Base58Type.ASSET_ID)
@@ -515,7 +513,6 @@ namespace NBitcoin
 			return new BitcoinStealthAddress(base58, this);
 		}
 
-#if !USEBC
 		private BitcoinPassphraseCode CreatePassphraseCode(string base58)
 		{
 			return new BitcoinPassphraseCode(base58, this);
@@ -535,7 +532,7 @@ namespace NBitcoin
 		{
 			return new BitcoinConfirmationCode(base58, this);
 		}
-#endif
+
 		private Base58Data CreateBitcoinExtPubKey(string base58)
 		{
 			return new BitcoinExtPubKey(base58, this);
