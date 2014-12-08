@@ -328,9 +328,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle.csproj">
+    <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle%28portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1%29.csproj">
       <Project>{e405ea2f-fd7a-4369-b376-ebfe3dd19c14}</Project>
-      <Name>NBitcoin.Portable.BouncyCastle</Name>
+      <Name>NBitcoin.Portable.BouncyCastle%28portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1%29</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
