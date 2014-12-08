@@ -189,9 +189,9 @@ namespace NBitcoin.OpenAsset
 
 		public void SetQuantity(uint index, ulong quantity)
 		{
-			if (Quantities == null)
+			if(Quantities == null)
 				Quantities = new ulong[0];
-			if (Quantities.Length <= index)
+			if(Quantities.Length <= index)
 				Array.Resize(ref _Quantities, (int)index + 1);
 			Quantities[index] = quantity;
 		}
@@ -285,6 +285,29 @@ namespace NBitcoin.OpenAsset
 		public bool HasValidQuantitiesCount(Transaction tx)
 		{
 			return Quantities.Length <= tx.Outputs.Count - 1;
+		}
+
+		public Uri GetMetadataUrl()
+		{
+			if(Metadata == null || Metadata.Length == 0)
+				return null;
+			var result = Encoders.ASCII.EncodeData(Metadata);
+			if(!result.StartsWith("u="))
+				return null;
+			Uri uri = null;
+			Uri.TryCreate(result.Substring(2), UriKind.Absolute, out uri);
+			return uri;
+		}
+
+		public void SetMetadataUrl(Uri uri)
+		{
+			if(uri == null)
+			{
+				Metadata = new byte[0];
+				return;
+			}
+			Metadata = Encoders.ASCII.DecodeData("u=" + uri.AbsoluteUri);
+			return;
 		}
 	}
 }

@@ -488,6 +488,32 @@ namespace NBitcoin.Tests
 				var change = transfer.Outputs[3];
 				Assert.Equal(Money.Parse("1") - new Money(655) - txBuilder.ColoredDust, change.Value);
 				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetDestination());
+
+				//Verify issuancecoin can have an url
+				var issuanceCoin = (IssuanceCoin)issuanceCoins[0];
+				issuanceCoin.DefinitionUrl = new Uri("http://toto.com/");
+				txBuilder = new TransactionBuilder();
+				tx = txBuilder
+					.AddKeys(gold)
+					.AddCoins(issuanceCoin)
+					.IssueAsset(bob, new Asset(gold.PubKey, 10))
+					.SetChange(gold)
+					.BuildTransaction(true);
+
+				Assert.Equal("http://toto.com/", tx.GetColoredMarker().GetMetadataUrl().AbsoluteUri);
+
+				//But not too big !!!
+				issuanceCoin.DefinitionUrl = new Uri("http://opipoioppoioipidpoqipdipsoidpqio.com/");
+				Assert.Throws<ArgumentOutOfRangeException>(() =>
+				{
+					txBuilder = new TransactionBuilder();
+					tx = txBuilder
+						.AddKeys(gold)
+						.AddCoins(issuanceCoin)
+						.IssueAsset(bob, new Asset(gold.PubKey, 10))
+						.SetChange(gold)
+						.BuildTransaction(true);
+				});
 			}
 		}
 

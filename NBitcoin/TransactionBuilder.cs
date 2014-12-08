@@ -567,6 +567,10 @@ namespace NBitcoin
 					ctx.IssuanceCoin = issuance;
 					ctx.Transaction.Inputs.Insert(0, new TxIn(issuance.Outpoint));
 					ctx.AdditionalFees -= issuance.Bearer.Amount;
+					if(issuance.DefinitionUrl != null)
+					{
+						marker.SetMetadataUrl(issuance.DefinitionUrl);
+					}
 				}
 
 				ctx.Transaction.AddOutput(ColoredDust, scriptPubKey);

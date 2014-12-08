@@ -60,7 +60,11 @@ namespace NBitcoin
 			}
 		}
 
-
+		public Uri DefinitionUrl
+		{
+			get;
+			set;
+		}
 
 		#region ICoin Members
 
