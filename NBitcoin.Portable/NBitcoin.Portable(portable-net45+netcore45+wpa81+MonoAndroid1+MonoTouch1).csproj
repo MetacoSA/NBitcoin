@@ -8,7 +8,7 @@
     <ProjectGuid>{E902C15B-0E9F-4512-9F5A-EC4C888C0651}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-	<Portable Condition=" '$(Portable)' == '' ">1</Portable>
+    <Portable Condition=" '$(Portable)' == '' ">1</Portable>
     <RootNamespace>NBitcoin</RootNamespace>
     <AssemblyName>NBitcoin</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -317,11 +317,6 @@
     <Compile Include="TraceStub\TraceSource.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\portable-net45+wp80+win8+wpa81+aspnetcore50\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\NBitcoin\MedianFilter.tt">
       <Link>MedianFilter.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -333,6 +328,10 @@
     <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle%28portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1%29.csproj">
       <Project>{e405ea2f-fd7a-4369-b376-ebfe3dd19c14}</Project>
       <Name>NBitcoin.Portable.BouncyCastle%28portable-net45+netcore45+wpa81+MonoAndroid1+MonoTouch1%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Newtonsoft.Json%28portable%29\Newtonsoft.Json.Portable.csproj">
+      <Project>{959f7f85-c98b-4876-971a-9036224578e4}</Project>
+      <Name>Newtonsoft.Json.Portable</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

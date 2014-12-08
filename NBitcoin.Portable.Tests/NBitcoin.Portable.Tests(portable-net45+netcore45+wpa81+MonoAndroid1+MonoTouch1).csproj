@@ -43,9 +43,6 @@
     <Reference Include="xunit.extensions">
       <HintPath>..\packages\xunit.extensions.1.9.2\lib\net20\xunit.extensions.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\portable-net45+wp80+win8+wpa81+aspnetcore50\Newtonsoft.Json.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\NBitcoin.Tests\AssertEx.cs">
@@ -122,6 +119,10 @@
     <ProjectReference Include="..\NBitcoin.Portable\NBitcoin.Portable%28portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1%29.csproj">
       <Project>{7d64fe62-6350-4b33-a728-e4b5ba1e333d}</Project>
       <Name>NBitcoin.Portable%28portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Newtonsoft.Json%28portable%29\Newtonsoft.Json.Portable.csproj">
+      <Project>{959f7f85-c98b-4876-971a-9036224578e4}</Project>
+      <Name>Newtonsoft.Json.Portable</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
