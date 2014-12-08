@@ -29,16 +29,14 @@ namespace NBitcoin
 		public static bool TryParse(string bitcoin, out Money nRet)
 		{
 			nRet = new Money(0);
-			if(bitcoin.Length == 0)
+            if (string.IsNullOrEmpty(bitcoin))
 				return false;
 
 			string strWhole = "";
 			long nUnits = 0;
 
-
 			int i = 0;
-			if(i >= bitcoin.Length)
-				return false;
+
 			while(DataEncoder.IsSpace(bitcoin[i]))
 			{
 				if(i >= bitcoin.Length)

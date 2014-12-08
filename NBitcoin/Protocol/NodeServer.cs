@@ -298,7 +298,7 @@ namespace NBitcoin.Protocol
 
 			var tasks = new[]{
 						new {IP = "91.198.22.70", DNS ="checkip.dyndns.org"}, 
-						new {IP = "74.208.43.192", DNS = "www.showmyip.com"}
+						new {IP = "209.68.27.16", DNS = "www.ipchicken.com"}
 			 }.Select(site =>
 			 {
 				 return Task.Run(() =>
