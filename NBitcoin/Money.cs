@@ -23,10 +23,10 @@ namespace NBitcoin
 
 	public enum MoneyUnit : int
 	{
-		BTC = 1,
-		MilliBTC = 1000,
-		MicroBTC = 1000000,
-		Bit = 1000000
+		BTC = 100000000,
+		MilliBTC = 100000,
+		Bit = 100,
+		Satoshi = 1
 	}
 	public class Money : IComparable, IComparable<Money>, IEquatable<Money>
 	{

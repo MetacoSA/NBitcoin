@@ -180,6 +180,37 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanConvertMoney()
+		{
+			var tests = new[]
+			{
+				new object[]{ 1.23456789m, MoneyUnit.BTC, 123456789m, MoneyUnit.Satoshi  },
+				new object[]{ 1.23456789m, MoneyUnit.BTC, 1234.56789m, MoneyUnit.MilliBTC  },
+				new object[]{ 1.23456789m, MoneyUnit.BTC, 1234567.89m, MoneyUnit.Bit  },
+				new object[]{ 1.23456789m, MoneyUnit.BTC, 1.23456789m, MoneyUnit.BTC  },
+			};
+
+			foreach(var test in tests)
+			{
+				var inputAmount = (decimal)test[0];
+				var inputUnit = (MoneyUnit)test[1];
+				var outputAmount = (decimal)test[2];
+				var outputUnit = (MoneyUnit)test[3];
+
+				var result = new Money(inputAmount, inputUnit);
+				var actual = result.ToUnit(outputUnit);
+
+				Assert.Equal(outputAmount, actual);
+
+				result = new Money(outputAmount, outputUnit);
+				actual = result.ToUnit(inputUnit);
+
+				Assert.Equal(inputAmount, actual);
+			}
+		}
+
+		[Fact]
 		[Trait("Core", "Core")]
 		public void util_ParseMoney()
 		{
