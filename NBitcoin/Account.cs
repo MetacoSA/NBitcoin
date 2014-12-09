@@ -104,7 +104,7 @@ namespace NBitcoin
 			}
 			stream.ReadWrite(ref _Spendable);
 
-			var change = BalanceChange.Satoshi.ToByteArray();
+			var change = new BigInteger(BalanceChange.Satoshi).ToByteArray();
 			stream.ReadWriteAsVarString(ref change);
 			if(!stream.Serializing)
 				_BalanceChange = new Money(new BigInteger(change));

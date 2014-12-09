@@ -27,7 +27,7 @@ namespace System.Numerics {
 #if !SILVERLIGHT
     [Serializable]
 #endif // !SILVERLIGHT
-    public struct Complex : IEquatable<Complex>, IFormattable {
+    internal struct Complex : IEquatable<Complex>, IFormattable {
 
         // --------------SECTION: Private Data members ----------- //
 

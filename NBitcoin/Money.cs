@@ -96,8 +96,8 @@ namespace NBitcoin
 			}
 			throw new FormatException("Impossible to parse the string in a bitcoin amount");
 		}
-		BigInteger _Satoshis;
-		public BigInteger Satoshi
+		long _Satoshis;
+		public long Satoshi
 		{
 			get
 			{
@@ -105,53 +105,52 @@ namespace NBitcoin
 			}
 		}
 
+#if !NOBIGINT
 		public Money(BigInteger satoshis)
+#else
+		internal Money(BigInteger satoshis)
+#endif
 		{
-			_Satoshis = satoshis;
+			_Satoshis = (long)satoshis;
 		}
 
 		public Money(int satoshis)
 		{
-			_Satoshis = new BigInteger(satoshis);
+			_Satoshis = satoshis;
 		}
 
         public Money(uint satoshis)
         {
-            _Satoshis = new BigInteger(satoshis);
+			_Satoshis = satoshis;
         }
 
         public Money(long satoshis)
 		{
-			_Satoshis = new BigInteger(satoshis);
+			_Satoshis = satoshis;
 		}
 		public Money(ulong satoshis)
 		{
-			_Satoshis = new BigInteger(satoshis);
+			_Satoshis = (long)satoshis;
 		}
-
-        public Money(decimal satoshis)
-            : this(new BigInteger(satoshis))
-        {
-        }
 
         public static Money Coins(decimal coins)
         {
-            return new Money(coins * COIN);
+            return new Money((long)(coins * COIN));
         }
 
         public static Money Bits(decimal bits)
         {
-            return new Money(bits * CENT);
+            return new Money((long)(bits * CENT));
         }
 
         public static Money Cents(decimal cents)
         {
-            return new Money(cents * CENT);
+            return new Money((long)(cents * CENT));
         }
 
         public static Money Satoshis(decimal sats)
         {
-            return new Money(sats);
+            return new Money((long)(sats));
         }
 
         public static Money Satoshis(ulong sats)
@@ -272,11 +271,6 @@ namespace NBitcoin
 		public static implicit operator Money(string value)
 		{
 			return Money.Parse(value);
-        }
-
-        public static implicit operator Money(decimal value)
-        {
-            return new Money(value);
         }
 
         public static implicit operator decimal(Money value)

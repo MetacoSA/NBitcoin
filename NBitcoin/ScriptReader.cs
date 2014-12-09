@@ -296,7 +296,11 @@ namespace NBitcoin
 				return OpcodeType.OP_INVALIDOPCODE;
 		}
 
+#if !NOBIGINT
 		public static Op GetPushOp(BigInteger data)
+#else
+		internal static Op GetPushOp(BigInteger data)
+#endif
 		{
 			return GetPushOp(Utils.BigIntegerToBytes(data));
 		}
@@ -602,7 +606,11 @@ namespace NBitcoin
 				return IsSmallUInt || Code == OpcodeType.OP_1NEGATE;
 			}
 		}
+#if !NOBIGINT
 		public BigInteger? GetValue()
+#else
+		internal BigInteger? GetValue()
+#endif
 		{
 			if(PushData == null)
 				return null;

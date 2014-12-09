@@ -24,7 +24,7 @@ namespace System.Numerics
 #if !SILVERLIGHT
     [Serializable]
 #endif // !SILVERLIGHT
-    public struct BigInteger : IFormattable, IComparable, IComparable<BigInteger>, IEquatable<BigInteger>                             
+    internal struct BigInteger : IFormattable, IComparable, IComparable<BigInteger>, IEquatable<BigInteger>                             
     {
         // ---- SECTION:  members supporting exposed properties -------------*
         #region members supporting exposed properties

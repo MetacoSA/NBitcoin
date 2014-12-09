@@ -259,9 +259,12 @@ namespace NBitcoin
 
 
 
-
+#if !NOBIGINT
 		//https://en.bitcoin.it/wiki/Script
 		public static byte[] BigIntegerToBytes(BigInteger num)
+#else
+		internal static byte[] BigIntegerToBytes(BigInteger num)
+#endif
 		{
 			if(num == 0)
 				//Positive 0 is represented by a null-length vector
@@ -279,7 +282,11 @@ namespace NBitcoin
 			return array;
 		}
 
+#if !NOBIGINT
 		public static BigInteger BytesToBigInteger(byte[] data)
+#else
+		internal static BigInteger BytesToBigInteger(byte[] data)
+#endif
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");

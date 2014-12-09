@@ -22,7 +22,7 @@
     <Optimize>false</Optimize>
     <BaseIntermediateOutputPath>obj\WP8</BaseIntermediateOutputPath>
     <OutputPath>bin\WP8\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;SILVERLIGHT</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -32,7 +32,7 @@
     <Optimize>true</Optimize>
     <BaseIntermediateOutputPath>obj\WP8</BaseIntermediateOutputPath>
     <OutputPath>bin\WP8\Release</OutputPath>
-    <DefineConstants>TRACE;PORTABLE;USEBC;SILVERLIGHT</DefineConstants>
+    <DefineConstants>TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
