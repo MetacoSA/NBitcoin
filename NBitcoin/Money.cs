@@ -20,6 +20,14 @@ namespace NBitcoin
 			return new Money(result);
 		}
 	}
+
+	public enum MoneyUnit : int
+	{
+		BTC = 1,
+		MilliBTC = 1000,
+		MicroBTC = 1000000,
+		Bit = 1000000
+	}
 	public class Money : IComparable, IComparable<Money>, IEquatable<Money>
 	{
 		public const long COIN = 100000000;
@@ -131,6 +139,21 @@ namespace NBitcoin
 		public Money(ulong satoshis)
 		{
 			_Satoshis = (long)satoshis;
+		}
+
+		public Money(decimal amount, MoneyUnit unit)
+		{
+			_Satoshis = (long)(amount * (int)unit);
+		}
+
+		public static Money FromUnit(decimal amount, MoneyUnit unit)
+		{
+			return new Money(amount, unit);
+		}
+
+		public decimal ToUnit(MoneyUnit unit)
+		{
+			return (decimal)Satoshi / (int)unit;
 		}
 
         public static Money Coins(decimal coins)
