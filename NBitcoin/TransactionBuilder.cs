@@ -785,7 +785,15 @@ namespace NBitcoin
 				if(coin == null)
 					throw CoinNotFound(txIn);
 				spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : coin.Amount;
-				if(!Script.VerifyScript(txIn.ScriptSig, coin.ScriptPubKey, tx, i))
+				if(!Script.VerifyScript(txIn.ScriptSig, coin.ScriptPubKey, tx, i,
+							ScriptVerify.LowS |
+							ScriptVerify.MinimalData |
+							ScriptVerify.DerSig |
+							ScriptVerify.NullDummy |
+							ScriptVerify.P2SH |
+							ScriptVerify.SigPushOnly |
+							ScriptVerify.StrictEnc
+							))
 					return false;
 			}
 			if(spent < tx.TotalOut)
@@ -1119,7 +1127,7 @@ namespace NBitcoin
 				var txIn = tx.Inputs[i];
 
 				var coin = FindCoin(txIn.PrevOut);
-				var scriptPubKey = coin == null 
+				var scriptPubKey = coin == null
 					? (DeduceScriptPubKey(txIn.ScriptSig) ?? DeduceScriptPubKey(signed2.Inputs[i].ScriptSig))
 					: coin.ScriptPubKey;
 				tx.Inputs[i].ScriptSig = Script.CombineSignatures(
