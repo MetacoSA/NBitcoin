@@ -202,7 +202,6 @@ namespace NBitcoin
 		OP_INVALIDOPCODE = 0xff,
 	};
 
-
 	public class Script
 	{
 		static readonly Script _Empty = new Script();
@@ -220,14 +219,14 @@ namespace NBitcoin
 
 		}
 		public Script(params Op[] ops)
-			:this((IEnumerable<Op>)ops)
+			: this((IEnumerable<Op>)ops)
 		{
 		}
 
 		public Script(IEnumerable<Op> ops)
 		{
 			MemoryStream ms = new MemoryStream();
-			foreach (var op in ops)
+			foreach(var op in ops)
 			{
 				op.WriteTo(ms);
 			}
@@ -250,9 +249,24 @@ namespace NBitcoin
 			return result.ToArray();
 		}
 
+		public static Script FromBytesUnsafe(byte[] data)
+		{
+			return new Script(data, true, true);
+		}
+
 		public Script(byte[] data)
-			:this((IEnumerable<byte>)data)
-		{}
+			: this((IEnumerable<byte>)data)
+		{
+		}
+
+
+		private Script(byte[] data, bool @unsafe, bool unused)
+		{
+			if(@unsafe)
+				_Script = data;
+			else
+				_Script = data.ToArray();
+		}
 
 		public Script(IEnumerable<byte> data)
 		{
