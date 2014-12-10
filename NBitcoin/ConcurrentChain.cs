@@ -3,15 +3,48 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin
 {
 	public class ConcurrentChain : ChainBase
 	{
+		class ReaderWriterLock
+		{
+			class FuncDisposable : IDisposable
+			{
+				Action onEnter, onLeave;
+				public FuncDisposable(Action onEnter, Action onLeave)
+				{
+					this.onEnter = onEnter;
+					this.onLeave = onLeave;
+					onEnter();
+				}
+
+				#region IDisposable Members
+
+				public void Dispose()
+				{
+					onLeave();
+				}
+
+				#endregion
+			}
+			ReaderWriterLockSlim @lock = new ReaderWriterLockSlim();
+
+			public IDisposable LockRead()
+			{
+				return new FuncDisposable(() => @lock.EnterReadLock(), () => @lock.ExitReadLock());
+			}
+			public IDisposable LockWrite()
+			{
+				return new FuncDisposable(() => @lock.EnterWriteLock(), () => @lock.ExitWriteLock());
+			}
+		}
 		ConcurrentDictionary<uint256, ChainedBlock> _BlocksById = new ConcurrentDictionary<uint256, ChainedBlock>();
 		ConcurrentDictionary<int, ChainedBlock> _BlocksByHeight = new ConcurrentDictionary<int, ChainedBlock>();
-		object @lock = new object();
+		ReaderWriterLock @lock = new ReaderWriterLock();
 
 		/// <summary>
 		/// Force a new tip for the chain
@@ -20,7 +53,7 @@ namespace NBitcoin
 		/// <returns>forking point</returns>
 		public override ChainedBlock SetTip(ChainedBlock block)
 		{
-			lock(@lock)
+			using(@lock.LockWrite())
 			{
 				int height = Tip == null ? -1 : Tip.Height;
 				foreach(var orphaned in EnumerateThisToFork(block))
@@ -30,7 +63,7 @@ namespace NBitcoin
 					_BlocksByHeight.TryRemove(orphaned.Height, out unused);
 					height--;
 				}
-				var fork = GetBlock(height);
+				var fork = GetBlockNoLock(height);
 				foreach(var newBlock in block.EnumerateToGenesis()
 					.TakeWhile(c => c != Tip))
 				{
@@ -40,8 +73,9 @@ namespace NBitcoin
 				_Tip = block;
 				return fork;
 			}
-			
 		}
+
+		
 
 		private IEnumerable<ChainedBlock> EnumerateThisToFork(ChainedBlock block)
 		{
@@ -74,17 +108,29 @@ namespace NBitcoin
 
 		public override ChainedBlock GetBlock(uint256 id)
 		{
-			ChainedBlock result;
-			_BlocksById.TryGetValue(id, out result);
-			return result;
+			using(@lock.LockRead())
+			{
+				ChainedBlock result;
+				_BlocksById.TryGetValue(id, out result);
+				return result;
+			}
 		}
 
-		public override ChainedBlock GetBlock(int height)
+		private ChainedBlock GetBlockNoLock(int height)
 		{
 			ChainedBlock result;
 			_BlocksByHeight.TryGetValue(height, out result);
 			return result;
 		}
+
+		public override ChainedBlock GetBlock(int height)
+		{
+			using(@lock.LockRead())
+			{
+				return GetBlockNoLock(height);
+			}
+		}
+
 
 		volatile ChainedBlock _Tip;
 		public override ChainedBlock Tip
@@ -107,14 +153,17 @@ namespace NBitcoin
 
 		protected override IEnumerable<ChainedBlock> EnumerateFromStart()
 		{
-			int i = 0;
-			while(true)
+			using(@lock.LockRead())
 			{
-				var block = GetBlock(i);
-				if(block == null)
-					yield break;
-				yield return block;
-				i++;
+				int i = 0;
+				while(true)
+				{
+					var block = GetBlockNoLock(i);
+					if(block == null)
+						yield break;
+					yield return block;
+					i++;
+				}
 			}
 		}
 	}
