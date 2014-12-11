@@ -50,9 +50,6 @@ SqLite is a database used.
 Please, use the code to explore/learn/debug/play/sharing/create the licence is MIT, so you should be good to go.
 This is the simple way and most complete way to see the internal of bitcoin without going to C++ madness.
 
-Making NBitcoin Portable is possible and easy, but I can't develop it immediately for reasons expressed ([here](https://github.com/NicolasDorier/NBitcoin/issues/8))  
-
-
 ## Useful doc :
 
 NBitcoin Github : https://github.com/NicolasDorier/NBitcoin
