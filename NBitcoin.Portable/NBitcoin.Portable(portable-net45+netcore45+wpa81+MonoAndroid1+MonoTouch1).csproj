@@ -314,17 +314,72 @@
       <Link>Versions.cs</Link>
     </Compile>
     <Compile Include="..\NBitcoin\Payment\HttpEncoder.cs">
-		<Link>Payment\HttpEncoder.cs</Link>
-	</Compile>
+      <Link>Payment\HttpEncoder.cs</Link>
+    </Compile>
     <Compile Include="..\NBitcoin\Payment\HttpUtility.cs">
-		<Link>Payment\HttpUtility.cs</Link>
-	</Compile>
+      <Link>Payment\HttpUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Protocol\BitcoinSerializablePayload.cs" >
+      <Link>Protocol\BitcoinSerializablePayload.cs</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\Protocol\Payload.cs" >
+      <Link>Protocol\Payload.cs</Link>
+    </Compile>
+    <Compile Include="Protocol\PayloadAttribute.cs" />
+    <Compile Include="..\NBitcoin\Protocol\UnknowPayload.cs">
+      <Link>Protocol\UnknowPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\InventoryVector.cs">
+      <Link>Protocol\InventoryVector.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\TxPayload.cs">
+      <Link>Protocol\TxPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\AlertPayload.cs">
+      <Link>Protocol\Payloads\AlertPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\BlockPayload.cs">
+      <Link>Protocol\Payloads\BlockPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\GetAddrPayload.cs">
+      <Link>Protocol\Payloads\GetAddrPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\GetBlocksPayload.cs">
+      <Link>Protocol\Payloads\GetBlocksPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\GetDataPayload.cs">
+      <Link>Protocol\Payloads\GetDataPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\GetHeadersPayload.cs">
+      <Link>Protocol\Payloads\GetHeadersPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\HeadersPayload.cs">
+      <Link>Protocol\Payloads\HeadersPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\InvPayload.cs">
+      <Link>Protocol\Payloads\InvPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\MempoolPayload.cs">
+      <Link>Protocol\Payloads\MempoolPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\PingPayload.cs">
+      <Link>Protocol\Payloads\PingPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\PongPayload.cs">
+      <Link>Protocol\Payloads\PongPayload.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\Protocol\Payloads\VerAckPayload.cs">
+      <Link>Protocol\Payloads\VerAckPayload.cs</Link>
+    </Compile>
     <Compile Include="RandomUtils.partial.cs" />
     <Compile Include="TraceStub\TraceSource.cs" />
     <Compile Include="Payment\BitcoinUrlBuilder.cs" />
-    <Compile Include="..\NBitcoin\Payment\UriHelper.cs" >
-		<Link>Payment\UriHelper.cs</Link>
-	</Compile>
+    <Compile Include="..\NBitcoin\Payment\UriHelper.cs">
+      <Link>Payment\UriHelper.cs</Link>
+    </Compile>
+	<Compile Include="..\NBitcoin\BlockLocator.cs">
+      <Link>BlockLocator.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\NBitcoin\MedianFilter.tt">
