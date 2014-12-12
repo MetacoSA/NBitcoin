@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+#if !PORTABLE
 using System.Net.Http;
+#endif
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -78,7 +80,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(builder.ToString(), uri);
 			return builder;
 		}
-
+#if !PORTABLE
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadPaymentRequest()
@@ -274,5 +276,6 @@ namespace NBitcoin.Tests
 		}
 
 		#endregion
+#endif
 	}
 }

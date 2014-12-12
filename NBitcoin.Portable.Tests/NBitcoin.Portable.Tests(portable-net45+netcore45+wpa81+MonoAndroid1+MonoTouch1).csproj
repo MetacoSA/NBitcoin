@@ -75,6 +75,9 @@
     <Compile Include="..\NBitcoin.Tests\key_tests.cs">
       <Link>key_tests.cs</Link>
     </Compile>
+    <Compile Include="..\NBitcoin.Tests\PaymentTests.cs">
+      <Link>PaymentTests.cs</Link>
+    </Compile>
     <Compile Include="..\NBitcoin.Tests\script_tests.cs">
       <Link>script_tests.cs</Link>
     </Compile>
