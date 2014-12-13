@@ -44,9 +44,9 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle%28portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1%29.csproj">
+    <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle%28Profile259%29.csproj">
       <Project>{9a4e20fa-d79b-4ab2-93d3-2cf7101f75f8}</Project>
-      <Name>NBitcoin.Portable.BouncyCastle%28portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1%29</Name>
+      <Name>NBitcoin.Portable.BouncyCastle%28Profile259%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\Newtonsoft.Json%28portable%29\Newtonsoft.Json.Portable.csproj">
       <Project>{959f7f85-c98b-4876-971a-9036224578e4}</Project>
