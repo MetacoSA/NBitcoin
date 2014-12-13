@@ -7,8 +7,8 @@ C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\Build\Deploy.cspro
 
 nuGet pack NBitcoin.nuspec
 
-#forfiles /m *.nupkg /c "cmd /c NuGet.exe push @FILE"
-#(((dir *.nupkg).Name) -match "[0-9]+?\.[0-9]+?\.[0-9]+?\.[0-9]+")
-#$ver = $Matches.Item(0)
-#git tag -a "v$ver" -m "$ver"
-#git push --tags
+forfiles /m *.nupkg /c "cmd /c NuGet.exe push @FILE"
+(((dir *.nupkg).Name) -match "[0-9]+?\.[0-9]+?\.[0-9]+?\.[0-9]+")
+$ver = $Matches.Item(0)
+git tag -a "v$ver" -m "$ver"
+git push --tags
