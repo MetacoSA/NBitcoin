@@ -15,14 +15,14 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+	<BaseIntermediateOutputPath>obj\Profile259</BaseIntermediateOutputPath>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <BaseIntermediateOutputPath>obj\WP8</BaseIntermediateOutputPath>
-    <OutputPath>bin\WP8\Debug</OutputPath>
+    <OutputPath>bin\Profile259\Debug</OutputPath>
     <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT;NOSOCKET;NOPROTOBUF;NOTRACESOURCE;NOFILEIO;NODEFAULTRNG;NOSQLITE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -31,8 +31,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <BaseIntermediateOutputPath>obj\WP8</BaseIntermediateOutputPath>
-    <OutputPath>bin\WP8\Release</OutputPath>
+    <OutputPath>bin\Profile259\Release</OutputPath>
     <DefineConstants>TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT;NOSOCKET;NOPROTOBUF;NOTRACESOURCE;NOFILEIO;NODEFAULTRNG;NOSQLITE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>

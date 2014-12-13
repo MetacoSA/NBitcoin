@@ -15,6 +15,7 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
+	  <BaseIntermediateOutputPath>obj\MonoAndroid</BaseIntermediateOutputPath>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>True</AndroidUseLatestPlatformSdk>
     <DevInstrumentationEnabled>True</DevInstrumentationEnabled>
@@ -23,7 +24,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\MonoAndroid\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE;USEBC;NOPROTOBUF;NOFILEIO;NOTRACESOURCE;NOSQLITE;NOIPDUALMODE;NOUPNP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>2</WarningLevel>
@@ -31,7 +32,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\MonoAndroid\Release\</OutputPath>
     <DefineConstants>TRACE;USEBC;NOPROTOBUF;NOFILEIO;NOTRACESOURCE;NOSQLITE;NOIPDUALMODE;NOUPNP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
