@@ -170,7 +170,7 @@ namespace NBitcoin.Tests
 		public static RPCClient CreateRPCClient()
 		{
 #if !NOSOCKET
-			var process = BitcoinQProcess.List()
+			var process = NBitcoin.Watcher.BitcoinQProcess.List()
 				.FirstOrDefault(p => p.Server && p.Testnet);
 			if(process == null)
 				throw new InvalidOperationException("No bitcoin-qt or bitcoinq process running with rpc server on test net (\"bitcoin-qt.exe\" -testnet -server -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword )");
