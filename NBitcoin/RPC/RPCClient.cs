@@ -175,10 +175,12 @@ namespace NBitcoin.RPC
 			writer.Flush();
 			var json = writer.ToString();
 			var bytes = Encoding.UTF8.GetBytes(json);
+#if !PORTABLE
 			webRequest.ContentLength = bytes.Length;
+#endif
 			Stream dataStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false);
 			dataStream.Write(bytes, 0, bytes.Length);
-			dataStream.Close();
+			dataStream.Dispose();
 			RPCResponse response = null;
 			try
 			{

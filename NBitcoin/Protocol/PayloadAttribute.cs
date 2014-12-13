@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,8 +17,10 @@ namespace NBitcoin.Protocol
 		{
 			_NameToType = new Dictionary<string, Type>();
 			_TypeToName = new Dictionary<Type, string>();
-			foreach(var pair in typeof(PayloadAttribute).Assembly
-				.GetTypes()
+			foreach(var pair in typeof(PayloadAttribute)
+				.GetType()
+				.GetTypeInfo()
+				.Assembly.DefinedTypes
 				.Where(t => t.Namespace == typeof(PayloadAttribute).Namespace)
 				.Where(t => t.IsDefined(typeof(PayloadAttribute), true))
 				.Select(t =>
@@ -27,8 +30,8 @@ namespace NBitcoin.Protocol
 						Type = t
 					}))
 			{
-				_NameToType.Add(pair.Attr.Name, pair.Type);
-				_TypeToName.Add(pair.Type, pair.Attr.Name);
+				_NameToType.Add(pair.Attr.Name, pair.Type.AsType());
+				_TypeToName.Add(pair.Type.AsType(), pair.Attr.Name);
 			}
 		}
 

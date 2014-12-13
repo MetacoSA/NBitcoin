@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-#if !PORTABLE
+#if !NOSQLITE
 using System.Data;
 using System.Data.SQLite;
 #endif
@@ -43,7 +43,7 @@ namespace NBitcoin
 			PutBytesBatch(new[] { new Tuple<string, byte[]>(key, data) });
 		}
 	}
-#if !PORTABLE
+#if !NOSQLITE
 	public class SQLiteNoSqlRepository : NoSqlRepository
 	{
 		private readonly SQLiteConnection _Connection;

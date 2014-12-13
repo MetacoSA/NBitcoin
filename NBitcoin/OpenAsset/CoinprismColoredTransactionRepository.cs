@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿#if !PORTABLE
+using NBitcoin.DataEncoders;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -134,3 +135,4 @@ namespace NBitcoin.OpenAsset
 		#endregion
 	}
 }
+#endif

@@ -414,26 +414,6 @@ namespace NBitcoin
 				return endpoint;
 			return new IPEndPoint(endpoint.Address.MapToIPv6(), endpoint.Port);
 		}
-
-		public static string Serialize<T>(T obj)
-		{
-			DataContractSerializer seria = new DataContractSerializer(typeof(T));
-			MemoryStream ms = new MemoryStream();
-			seria.WriteObject(ms, obj);
-			ms.Position = 0;
-			return new StreamReader(ms).ReadToEnd();
-		}
-
-		public static T Deserialize<T>(string str)
-		{
-			DataContractSerializer seria = new DataContractSerializer(typeof(T));
-			MemoryStream ms = new MemoryStream();
-			StreamWriter writer = new StreamWriter(ms);
-			writer.Write(str);
-			writer.Flush();
-			ms.Position = 0;
-			return (T)seria.ReadObject(ms);
-		}
 #endif
 		internal static byte[] ToBytes(uint value, bool littleEndian)
 		{

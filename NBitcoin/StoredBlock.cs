@@ -191,7 +191,11 @@ namespace NBitcoin
 			return "f:" + File + "p:" + Position;
 		}
 
-		static readonly Regex _Reg = new Regex("f:([0-9]*)p:([0-9]*)", RegexOptions.Compiled);
+		static readonly Regex _Reg = new Regex("f:([0-9]*)p:([0-9]*)"
+#if !PORTABLE
+			,RegexOptions.Compiled
+#endif			
+			);
 		public static DiskBlockPos Parse(string data)
 		{
 			var match = _Reg.Match(data);
@@ -249,7 +253,7 @@ namespace NBitcoin
 
 
 		#endregion
-
+#if !NOFILEIO
 		public static IEnumerable<StoredBlock> EnumerateFile(string file, uint fileIndex = 0, DiskBlockPosRange range = null)
 		{
 			return new BlockStore(Path.GetDirectoryName(file), Network.Main).EnumerateFile(file, fileIndex, range);
@@ -259,5 +263,6 @@ namespace NBitcoin
 		{
 			return new BlockStore(folder, Network.Main).EnumerateFolder(range);
 		}
+#endif
 	}
 }

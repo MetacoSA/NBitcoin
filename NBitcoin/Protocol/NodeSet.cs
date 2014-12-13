@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NOSOCKET
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -226,3 +227,4 @@ namespace NBitcoin.Protocol
 		}
 	}
 }
+#endif

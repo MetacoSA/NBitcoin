@@ -58,7 +58,7 @@ namespace NBitcoin
 		}
 
 		#endregion
-#if !PORTABLE
+
 		internal Account _Account;
 
 		public bool IsLocked
@@ -85,6 +85,6 @@ namespace NBitcoin
 				return TxOut.Value.ToString() + (IsLocked ? "(locked)" : "");
 			return "?";
 		}
-#endif
+
 	}
 }

@@ -10,7 +10,7 @@ namespace NBitcoin.Protocol
 	public class NodeServerTrace
 	{
 		static TraceSource _Trace = new TraceSource("NBitcoin.NodeServer");
-		public static TraceSource Trace
+		internal static TraceSource Trace
 		{
 			get
 			{

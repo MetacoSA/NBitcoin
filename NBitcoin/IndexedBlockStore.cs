@@ -1,4 +1,5 @@
-﻿using NBitcoin.Scanning;
+﻿#if !NOFILEIO
+using NBitcoin.Scanning;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace NBitcoin
 			return Get(id.ToString());
 		}
 
-		#region IBlockProvider Members
+#region IBlockProvider Members
 
 		public Block GetBlock(uint256 id, List<byte[]> searchedData)
 		{
@@ -69,3 +70,4 @@ namespace NBitcoin
 		}
 	}
 }
+#endif

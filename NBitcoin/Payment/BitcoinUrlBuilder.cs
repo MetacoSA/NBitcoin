@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+#if !NOPROTOBUF
 using System.Net.Http;
 using System.Net.Http.Headers;
+#endif
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -27,7 +29,7 @@ namespace NBitcoin.Payment
 		}
 		public BitcoinUrlBuilder(string uri)
 		{
-			if(!uri.StartsWith("bitcoin:", StringComparison.InvariantCultureIgnoreCase))
+			if(!uri.StartsWith("bitcoin:", StringComparison.OrdinalIgnoreCase))
 				throw new FormatException("Invalid scheme");
 			uri = uri.Remove(0, "bitcoin:".Length);
 			if(uri.StartsWith("//"))
@@ -70,7 +72,7 @@ namespace NBitcoin.Payment
 				parameters.Remove("r");
 			}
 			_UnknowParameters = parameters;
-			var reqParam = parameters.Keys.FirstOrDefault(k => k.StartsWith("req-", StringComparison.InvariantCultureIgnoreCase));
+			var reqParam = parameters.Keys.FirstOrDefault(k => k.StartsWith("req-", StringComparison.OrdinalIgnoreCase));
 			if(reqParam != null)
 				throw new FormatException("Non compatible required parameter " + reqParam);
 		}
@@ -83,7 +85,7 @@ namespace NBitcoin.Payment
 				return _UnknowParameters;
 			}
 		}
-
+#if !NOPROTOBUF
 		public PaymentRequest GetPaymentRequest()
 		{
 			if(PaymentRequestUrl == null)
@@ -119,7 +121,7 @@ namespace NBitcoin.Payment
 			var stream = await result.Content.ReadAsStreamAsync();
 			return PaymentRequest.Load(stream);
 		}
-
+#endif
 		/// <summary>
 		/// https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki
 		/// </summary>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NOSOCKET
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -65,7 +66,12 @@ namespace NBitcoin.Protocol
 					return _Cancel;
 				}
 			}
-			public TraceCorrelation TraceCorrelation
+#if NOTRACESOURCE
+			internal
+#else
+				public
+#endif
+			TraceCorrelation TraceCorrelation
 			{
 				get
 				{
@@ -263,6 +269,7 @@ namespace NBitcoin.Protocol
 				Time = DateTimeOffset.UtcNow,
 				Endpoint = endpoint
 			});
+			
 			VersionPayload version = new VersionPayload()
 			{
 				Nonce = 12345,
@@ -285,7 +292,10 @@ namespace NBitcoin.Protocol
 			_Peer = peer;
 			LastSeen = peer.NetworkAddress.Time;
 
-			var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+			var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+#if !NOIPDUALMODE
+			socket.DualMode = true;
+#endif
 			_Connection = new NodeConnection(this, socket);
 			using(TraceCorrelation.Open())
 			{
@@ -359,7 +369,12 @@ namespace NBitcoin.Protocol
 
 		TraceCorrelation _TraceCorrelation = null;
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		public TraceCorrelation TraceCorrelation
+#if NOTRACESOURCE
+		internal
+#else
+		public
+#endif
+ TraceCorrelation TraceCorrelation
 		{
 			get
 			{
@@ -756,3 +771,4 @@ namespace NBitcoin.Protocol
 		}
 	}
 }
+#endif

@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿#if !NOSOCKET
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,6 +53,7 @@ namespace NBitcoin.Protocol
 				timestamp = Utils.DateTimeToUnixTime(value);
 			}
 		}
+
 		NetworkAddress addr_recv = new NetworkAddress();
 		public IPEndPoint AddressReciever
 		{
@@ -64,7 +66,6 @@ namespace NBitcoin.Protocol
 				addr_recv.Endpoint = value;
 			}
 		}
-
 		NetworkAddress addr_from = new NetworkAddress();
 		public IPEndPoint AddressFrom
 		{
@@ -77,6 +78,7 @@ namespace NBitcoin.Protocol
 				addr_from.Endpoint = value;
 			}
 		}
+
 		ulong nonce;
 		public ulong Nonce
 		{
@@ -169,3 +171,4 @@ namespace NBitcoin.Protocol
 		}
 	}
 }
+#endif

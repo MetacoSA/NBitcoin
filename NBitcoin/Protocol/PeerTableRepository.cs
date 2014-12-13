@@ -1,8 +1,11 @@
-﻿using System;
+﻿#if !NOSOCKET
+using System;
 using System.Collections.Generic;
+#if !NOSQLITE
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SQLite;
+#endif
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -73,6 +76,7 @@ namespace NBitcoin.Protocol
 		}
 	}
 
+#if !NOSQLITE
 	public class SqLitePeerTableRepository : PeerTableRepository, IDisposable
 	{
 		[DataContract]
@@ -158,7 +162,7 @@ namespace NBitcoin.Protocol
 			var reader = command.ExecuteReader();
 			while(reader.Read())
 			{
-				yield return Utils.Deserialize<PeerBlob>((string)reader["Data"]).ToPeer();
+				yield return Deserialize<PeerBlob>((string)reader["Data"]).ToPeer();
 			}
 		}
 
@@ -180,7 +184,7 @@ namespace NBitcoin.Protocol
 				builder.AppendLine("Insert Or Replace INTO PeerTable(Endpoint, LastSeen,Data) Values(@a" + i + ",@b" + i + ",@c" + i + ");");
 				command.Parameters.Add("@a" + i, DbType.String).Value = peer.NetworkAddress.Endpoint.ToString();
 				command.Parameters.Add("@b" + i, DbType.UInt64).Value = Utils.DateTimeToUnixTime(peer.NetworkAddress.Time);
-				command.Parameters.Add("@c" + i, DbType.String).Value = Utils.Serialize(new PeerBlob(peer));
+				command.Parameters.Add("@c" + i, DbType.String).Value = Serialize(new PeerBlob(peer));
 				i++;
 			}
 			command.CommandText = builder.ToString();
@@ -190,7 +194,27 @@ namespace NBitcoin.Protocol
 			ClearTable();
 		}
 
-		#region IDisposable Members
+		public static string Serialize<T>(T obj)
+		{
+			DataContractSerializer seria = new DataContractSerializer(typeof(T));
+			MemoryStream ms = new MemoryStream();
+			seria.WriteObject(ms, obj);
+			ms.Position = 0;
+			return new StreamReader(ms).ReadToEnd();
+		}
+
+		public static T Deserialize<T>(string str)
+		{
+			DataContractSerializer seria = new DataContractSerializer(typeof(T));
+			MemoryStream ms = new MemoryStream();
+			StreamWriter writer = new StreamWriter(ms);
+			writer.Write(str);
+			writer.Flush();
+			ms.Position = 0;
+			return (T)seria.ReadObject(ms);
+		}
+
+	#region IDisposable Members
 
 		public void Dispose()
 		{
@@ -199,4 +223,6 @@ namespace NBitcoin.Protocol
 
 		#endregion
 	}
+#endif
 }
+#endif

@@ -1,4 +1,7 @@
-﻿using Mono.Nat;
+﻿#if !NOSOCKET
+#if !NOUPNP
+using Mono.Nat;
+#endif
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -121,7 +124,7 @@ namespace NBitcoin.Protocol
 				_NATRuleName = value;
 			}
 		}
-
+#if !NOUPNP
 		UPnPLease _UPnPLease;
 		public UPnPLease DetectExternalEndpoint(CancellationToken cancellation = default(CancellationToken))
 		{
@@ -157,6 +160,7 @@ namespace NBitcoin.Protocol
 				return null;
 			}
 		}
+#endif
 		public bool AllowLocalPeers
 		{
 			get;
@@ -229,7 +233,11 @@ namespace NBitcoin.Protocol
 			{
 				try
 				{
-					socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+					socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+#if !NOIPDUALMODE
+					socket.DualMode = true;
+#endif
+
 					socket.Bind(LocalEndpoint);
 					socket.Listen(8);
 					NodeServerTrace.Information("Listening...");
@@ -593,10 +601,12 @@ namespace NBitcoin.Protocol
 				}
 				finally
 				{
+#if !NOUPNP
 					if(_UPnPLease != null)
 					{
 						_UPnPLease.Dispose();
 					}
+#endif
 					if(socket != null)
 					{
 						Utils.SafeCloseSocket(socket);
@@ -837,6 +847,8 @@ namespace NBitcoin.Protocol
 			}
 			return new CompositeDisposable(AllMessages.AddMessageListener(poll), _InternalMessageProducer.AddMessageListener(poll), OwnResource(poll));
 		}
+
+#if !NOFILEIO
 		public IDisposable RegisterBlockRepository(BlockRepository repository)
 		{
 			var listener = new EventLoopMessageListener<IncomingMessage>((m) =>
@@ -858,9 +870,11 @@ namespace NBitcoin.Protocol
 			});
 			return new CompositeDisposable(AllMessages.AddMessageListener(listener), OwnResource(listener));
 		}
+#endif
 		public Node GetLocalNode()
 		{
 			return GetNodeByEndpoint(new IPEndPoint(IPAddress.Loopback, ExternalEndpoint.Port));
 		}
 	}
 }
+#endif

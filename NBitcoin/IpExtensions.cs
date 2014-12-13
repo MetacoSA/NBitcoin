@@ -1,8 +1,10 @@
-﻿using System;
+﻿#if !NOSOCKET
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace NBitcoin
@@ -21,7 +23,13 @@ namespace NBitcoin
 
 		public static bool IsIPv4(this IPAddress address)
 		{
-			return address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork || address.IsIPv4MappedToIPv6;
+			return address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork ||
+#if WIN				
+				address.IsIPv4MappedToIPv6;
+#else
+				address.IsIPv4MappedToIPv6();
+#endif
+
 		}
 
 		public static bool IsRFC3927(this IPAddress address)
@@ -154,3 +162,4 @@ namespace NBitcoin
 		}
 	}
 }
+#endif

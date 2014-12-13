@@ -11,8 +11,10 @@ namespace System.Diagnostics
 	{
 		Error,
 		Information,
-		Start
-
+		Start,
+		Warning,
+		Verbose,
+		Stop,
 	}
 
 	internal class CorrelationManager
@@ -55,6 +57,11 @@ namespace System.Diagnostics
 		}
 
 		internal void TraceTransfer(int p1, string p2, Guid activity)
+		{
+			
+		}
+
+		internal void TraceInformation(string p)
 		{
 			
 		}

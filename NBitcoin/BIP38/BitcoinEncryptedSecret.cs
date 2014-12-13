@@ -533,7 +533,7 @@ namespace NBitcoin
 			var derivedhalf2 = derived.Skip(32).Take(32).ToArray();
 
 			var encryptedhalf2 = encrypted.Skip(16).Take(16).ToArray();
-#if !PORTABLE
+#if !USEBC
 			var aes = CreateAES256();
 			aes.Key = derivedhalf2;
 			var decrypt = aes.CreateDecryptor();
@@ -542,7 +542,7 @@ namespace NBitcoin
 #endif
 			byte[] half = new byte[16];
 			//Decrypt encryptedpart2 using AES256Decrypt to yield the last 8 bytes of seedb and the last 8 bytes of encryptedpart1.
-#if !PORTABLE
+#if !USEBC
 			decrypt.TransformBlock(encryptedhalf2, 0, 16, half, 0);
 			decrypt.TransformBlock(encryptedhalf2, 0, 16, half, 0);
 #else
@@ -567,7 +567,7 @@ namespace NBitcoin
 				encrypted[i + 8] = half[i];
 			}
 			var encryptedhalf1 = encrypted.Take(16).ToArray();
-#if !PORTABLE
+#if !USEBC
 			decrypt.TransformBlock(encryptedhalf1, 0, 16, seedb, 0);
 			decrypt.TransformBlock(encryptedhalf1, 0, 16, seedb, 0);
 #else

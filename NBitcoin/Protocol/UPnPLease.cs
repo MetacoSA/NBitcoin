@@ -1,4 +1,5 @@
-﻿using Mono.Nat;
+﻿#if !NOSOCKET && !NOUPNP
+using Mono.Nat;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -243,3 +244,4 @@ namespace NBitcoin.Protocol
 		}
 	}
 }
+#endif

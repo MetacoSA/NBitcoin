@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NOFILEIO
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -84,3 +85,4 @@ namespace NBitcoin
 		protected abstract IEnumerable<TStoredItem> EnumerateForGet(DiskBlockPosRange range);
 	}
 }
+#endif

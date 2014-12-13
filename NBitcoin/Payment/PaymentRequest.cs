@@ -1,4 +1,5 @@
-﻿using NBitcoin.Crypto;
+﻿#if !USEBC
+using NBitcoin.Crypto;
 using ProtoBuf;
 using ProtoBuf.Meta;
 using System;
@@ -492,3 +493,4 @@ namespace NBitcoin.Payment
 		public readonly static string MediaType = "application/bitcoin-paymentrequest";
 	}
 }
+#endif

@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+#if !NOSOCKET
 using System.Net.Sockets;
+#endif
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -155,7 +157,7 @@ namespace NBitcoin.Protocol
 			return Command + " : " + Payload;
 		}
 
-
+#if !NOSOCKET
 		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken)
 		{
 			PerformanceCounter counter;
@@ -198,7 +200,7 @@ namespace NBitcoin.Protocol
 			counter = bitStream.Counter;
 			return message;
 		}
-
+#endif
 		private IDisposable SkipMagicScope(bool value)
 		{
 			var old = _SkipMagic;

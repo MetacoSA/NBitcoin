@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿#if !PORTABLE
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	[Serializable]
 	public class BlockrException : Exception
 	{
 		public BlockrException(JObject response)
@@ -78,3 +78,4 @@ namespace NBitcoin
 		#endregion
 	}
 }
+#endif

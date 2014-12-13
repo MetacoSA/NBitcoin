@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,8 +41,8 @@ namespace NBitcoin
 				return new FuncDisposable(() => @lock.EnterWriteLock(), () => @lock.ExitWriteLock());
 			}
 		}
-		ConcurrentDictionary<uint256, ChainedBlock> _BlocksById = new ConcurrentDictionary<uint256, ChainedBlock>();
-		ConcurrentDictionary<int, ChainedBlock> _BlocksByHeight = new ConcurrentDictionary<int, ChainedBlock>();
+		Dictionary<uint256, ChainedBlock> _BlocksById = new Dictionary<uint256, ChainedBlock>();
+		Dictionary<int, ChainedBlock> _BlocksByHeight = new Dictionary<int, ChainedBlock>();
 		ReaderWriterLock @lock = new ReaderWriterLock();
 
 		/// <summary>
@@ -58,17 +57,16 @@ namespace NBitcoin
 				int height = Tip == null ? -1 : Tip.Height;
 				foreach(var orphaned in EnumerateThisToFork(block))
 				{
-					ChainedBlock unused;
-					_BlocksById.TryRemove(orphaned.HashBlock, out unused);
-					_BlocksByHeight.TryRemove(orphaned.Height, out unused);
+					_BlocksById.Remove(orphaned.HashBlock);
+					_BlocksByHeight.Remove(orphaned.Height);
 					height--;
 				}
 				var fork = GetBlockNoLock(height);
 				foreach(var newBlock in block.EnumerateToGenesis()
 					.TakeWhile(c => c != Tip))
 				{
-					_BlocksById.AddOrUpdate(newBlock.HashBlock, newBlock, (a, b) => newBlock);
-					_BlocksByHeight.AddOrUpdate(newBlock.Height, newBlock, (a, b) => newBlock);
+					_BlocksById.Add(newBlock.HashBlock, newBlock);
+					_BlocksByHeight.Add(newBlock.Height, newBlock);
 				}
 				_Tip = block;
 				return fork;

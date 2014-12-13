@@ -7,7 +7,12 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class TraceCorrelationScope : IDisposable
+#if NOTRACESOURCE
+		internal
+#else
+		public
+#endif
+	 class TraceCorrelationScope : IDisposable
 	{
 		private Guid activity;
 		private Guid old;
@@ -55,7 +60,12 @@ namespace NBitcoin
 
 		#endregion
 	}
-	public class TraceCorrelation
+#if NOTRACESOURCE
+		internal
+#else
+		public
+#endif 
+	class TraceCorrelation
 	{
 
 		TraceSource _Source;
