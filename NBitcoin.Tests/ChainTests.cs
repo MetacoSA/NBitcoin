@@ -79,7 +79,7 @@ namespace NBitcoin.Tests
 				new Script(bytes).ToString();
 			}
 		}
-#if !PORTABLE
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildConcurrentChain()
@@ -122,7 +122,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(cchain.GetBlock(6), b6b);
 			Assert.Equal(cchain.GetBlock(5), b5b);
 		}
-#endif
+
 		private ChainedBlock AddBlock(Chain chain)
 		{
 			BlockHeader header = new BlockHeader();

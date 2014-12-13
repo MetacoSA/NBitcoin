@@ -65,8 +65,8 @@ namespace NBitcoin
 				foreach(var newBlock in block.EnumerateToGenesis()
 					.TakeWhile(c => c != Tip))
 				{
-					_BlocksById.Add(newBlock.HashBlock, newBlock);
-					_BlocksByHeight.Add(newBlock.Height, newBlock);
+					_BlocksById.AddOrReplace(newBlock.HashBlock, newBlock);
+					_BlocksByHeight.AddOrReplace(newBlock.Height, newBlock);
 				}
 				_Tip = block;
 				return fork;
