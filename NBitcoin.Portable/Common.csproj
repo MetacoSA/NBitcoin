@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{EBBB4E11-1136-49CA-BEBD-D3970E870990}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <ExcludedStuff Include="..\NBitcoin\obj\**\*.cs">
+      <Visible>false</Visible>
+    </ExcludedStuff>
+    <ExcludedStuff Include="..\NBitcoin\bin\**\*.cs">
+      <Visible>false</Visible>
+    </ExcludedStuff>
+    <ExcludedStuff Include="..\NBitcoin\**\*.partial.cs">
+      <Visible>false</Visible>
+    </ExcludedStuff>
+    <ExcludedStuff Include="..\NBitcoin\**\*.partial.cs">
+      <Visible>false</Visible>
+    </ExcludedStuff>
+    <ExcludedStuff Include="..\NBitcoin\MedianFilter.cs">
+      <Visible>false</Visible>
+    </ExcludedStuff>
+    <Compile Include="..\NBitcoin\**\*.cs" Exclude="@(ExcludedStuff)">
+      <Link>Linked\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="..\NBitcoin\BitcoinStream.partial.cs">
+      <Link>Linked\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="DefaultRNG.partial.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="System.Net\HttpWebRequest.cs" />
+    <Compile Include="System.Numerics\*.cs">
+    </Compile>
+    <Compile Include="TraceStub\*.cs">
+    </Compile>
+  </ItemGroup>
+</Project>
