@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿#if !NOFILEIO
+using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
 using NBitcoin.Stealth;
@@ -719,3 +720,4 @@ namespace NBitcoin.Tests
 
 	}
 }
+#endif

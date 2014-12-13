@@ -1,4 +1,5 @@
-﻿using NBitcoin.Scanning;
+﻿#if !NOFILEIO
+using NBitcoin.Scanning;
 using NBitcoin.Stealth;
 using System;
 using System.Collections.Generic;
@@ -417,3 +418,4 @@ namespace NBitcoin.Tests
 		}
 	}
 }
+#endif

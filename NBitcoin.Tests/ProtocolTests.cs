@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NOSOCKET
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,7 +50,7 @@ namespace NBitcoin.Tests
 				return _Server2;
 			}
 		}
-		#region IDisposable Members
+#region IDisposable Members
 
 		public void Dispose()
 		{
@@ -406,6 +407,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
+
 		PeerTableRepository _PeerCache;
 		public PeerTableRepository PeerCache
 		{
@@ -416,5 +418,7 @@ namespace NBitcoin.Tests
 				return _PeerCache;
 			}
 		}
+
 	}
 }
+#endif

@@ -1,4 +1,5 @@
-﻿using NBitcoin.Crypto;
+﻿#if !NOFILEIO
+using NBitcoin.Crypto;
 using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;
 using NBitcoin.Scanning;
@@ -178,3 +179,4 @@ namespace NBitcoin.Tests
 		}
 	}
 }
+#endif

@@ -1,4 +1,5 @@
-﻿using NBitcoin.RPC;
+﻿#if !NOSOCKET
+using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -276,3 +277,4 @@ namespace NBitcoin.Watcher
 
 
 }
+#endif

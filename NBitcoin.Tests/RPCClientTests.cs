@@ -1,6 +1,5 @@
 ﻿using NBitcoin.DataEncoders;
 using NBitcoin.RPC;
-using NBitcoin.Watcher;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -170,11 +169,15 @@ namespace NBitcoin.Tests
 		/// <returns></returns>
 		public static RPCClient CreateRPCClient()
 		{
+#if !NOSOCKET
 			var process = BitcoinQProcess.List()
 				.FirstOrDefault(p => p.Server && p.Testnet);
 			if(process == null)
 				throw new InvalidOperationException("No bitcoin-qt or bitcoinq process running with rpc server on test net (\"bitcoin-qt.exe\" -testnet -server -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword )");
 			return process.CreateClient();
+#else
+			return new RPCClient(new NetworkCredential("NBitcoin", "NBitcoinPassword"), "127.0.0.1", Network.TestNet);
+#endif
 		}
 
 		void AssertException<T>(Action act, Action<T> assert) where T : Exception
