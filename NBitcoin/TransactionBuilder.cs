@@ -573,8 +573,8 @@ namespace NBitcoin
 					}
 				}
 
-				ctx.Transaction.AddOutput(ColoredDust, scriptPubKey);
-				marker.SetQuantity(ctx.Transaction.Outputs.Count - 1, asset.Quantity);
+				ctx.Transaction.Outputs.Insert(0, new TxOut(ColoredDust, scriptPubKey));
+				marker.Quantities = new[] { asset.Quantity }.Concat(marker.Quantities).ToArray();
 				ctx.AdditionalFees += ColoredDust;
 				return asset.Quantity;
 			});

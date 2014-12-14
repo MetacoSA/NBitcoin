@@ -260,6 +260,89 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildShuffleColoredTransaction()
+		{
+			var gold = new Key();
+			var silver = new Key();
+			var goldId = gold.PubKey.ScriptPubKey.Hash.ToAssetId();
+			var silverId = silver.PubKey.ScriptPubKey.Hash.ToAssetId();
+
+			var satoshi = new Key();
+			var bob = new Key();
+
+			var repo = new NoSqlColoredTransactionRepository(new NoSqlTransactionRepository(), new InMemoryNoSqlRepository());
+
+			var init = new Transaction()
+			{
+				Outputs =
+				{
+					new TxOut("1.0", gold.PubKey),
+					new TxOut("1.0", silver.PubKey),
+					new TxOut("1.0", satoshi.PubKey)
+				}
+			};
+			repo.Transactions.Put(init.GetHash(), init);
+
+			var issuanceCoins =
+				init
+				.Outputs
+				.Take(2)
+				.Select((o, i) => new IssuanceCoin(new OutPoint(init.GetHash(), i), init.Outputs[i]))
+				.OfType<ICoin>().ToArray();
+
+			var satoshiBTC = new Coin(new OutPoint(init.GetHash(), 2), init.Outputs[2]);
+
+			var coins = new List<ICoin>();
+			coins.AddRange(issuanceCoins);
+			var txBuilder = new TransactionBuilder(1);
+
+			//Can issue gold to satoshi and bob
+			var tx = txBuilder
+				.AddCoins(coins.ToArray())
+				.AddKeys(gold)
+				.IssueAsset(satoshi.PubKey, new Asset(goldId, 1000))
+				.IssueAsset(bob.PubKey, new Asset(goldId, 500))
+				.SendFees("0.1")
+				.SetChange(gold.PubKey)
+				.BuildTransaction(true);
+			Assert.True(txBuilder.Verify(tx, "0.1"));
+
+			//Ensure BTC from the IssuanceCoin are returned
+			Assert.Equal(Money.Parse("0.89998800"), tx.Outputs[2].Value);
+			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
+
+			//Can issue and send in same transaction
+			repo.Transactions.Put(tx.GetHash(), tx);
+
+
+			var cc = ColoredCoin.Find(tx, repo);
+			for(int i = 0 ; i < 20 ; i++)
+			{
+				txBuilder = new TransactionBuilder(i);
+				tx = txBuilder
+					.AddCoins(satoshiBTC)
+					.AddCoins(cc)
+					.AddKeys(satoshi)
+					.SendAsset(gold, new Asset(goldId, 10))
+					.SetChange(satoshi)
+					.Then()
+					.AddKeys(gold)
+					.AddCoins(issuanceCoins)
+					.IssueAsset(bob, new Asset(goldId, 1))
+					.SetChange(gold)
+					.Shuffle()
+					.BuildTransaction(true);
+
+				repo.Transactions.Put(tx.GetHash(), tx);
+
+				var ctx = tx.GetColoredTransaction(repo);
+				Assert.Equal(1, ctx.Issuances.Count);
+				Assert.Equal(2, ctx.Transfers.Count);
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildColoredTransaction()
 		{
 			var gold = new Key();
@@ -317,8 +400,8 @@ namespace NBitcoin.Tests
 			var colored = tx.GetColoredTransaction(repo);
 			Assert.Equal(2, colored.Issuances.Count);
 			Assert.True(colored.Issuances.All(i => i.Asset.Id == goldId));
-			AssertHasAsset(tx, colored, colored.Issuances[0], goldId, 1000, satoshi.PubKey);
-			AssertHasAsset(tx, colored, colored.Issuances[1], goldId, 500, bob.PubKey);
+			AssertHasAsset(tx, colored, colored.Issuances[0], goldId, 500, bob.PubKey);
+			AssertHasAsset(tx, colored, colored.Issuances[1], goldId, 1000, satoshi.PubKey);
 
 			var coloredCoins = ColoredCoin.Find(tx, colored).ToArray();
 			Assert.Equal(2, coloredCoins.Length);
