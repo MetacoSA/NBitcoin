@@ -148,7 +148,6 @@ namespace NBitcoin
 			this.phashBlock = header.GetHash();
 		}
 
-#if !PORTABLE
 		public BlockLocator GetLocator()
 		{
 			int nStep = 1;
@@ -171,7 +170,6 @@ namespace NBitcoin
 
 			return new BlockLocator(vHave);
 		}
-#endif
 
 		public override bool Equals(object obj)
 		{

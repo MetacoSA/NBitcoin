@@ -18,7 +18,7 @@ namespace NBitcoin
 		}
 
 		List<uint256> vHave = new List<uint256>();
-		public IEnumerable<uint256> Blocks
+		public List<uint256> Blocks
 		{
 			get
 			{
