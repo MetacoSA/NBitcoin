@@ -45,6 +45,19 @@ namespace NBitcoin
 		Dictionary<int, ChainedBlock> _BlocksByHeight = new Dictionary<int, ChainedBlock>();
 		ReaderWriterLock @lock = new ReaderWriterLock();
 
+		public ConcurrentChain()
+		{
+
+		}
+		public ConcurrentChain(Network network)
+		{
+			if(network != null)
+			{
+				var genesis = network.GetGenesis();
+				SetTip(new ChainedBlock(genesis.Header, 0));
+			}
+		}
+
 		/// <summary>
 		/// Force a new tip for the chain
 		/// </summary>
