@@ -635,7 +635,7 @@ namespace NBitcoin.Protocol
 				int simultaneous = 70;
 				PerformanceSnapshot lastSpeed = null;
 				using(var listener = CreateListener()
-									.Where(inc => inc.Message.Payload is InvPayload || inc.Message.Payload is BlockPayload))
+									.OfType<BlockPayload>())
 				{
 					foreach(var invs in neededBlocks
 										.Select(b => new InventoryVector()
