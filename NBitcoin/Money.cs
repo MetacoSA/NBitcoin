@@ -228,13 +228,37 @@ namespace NBitcoin
 		{
 			return new Money(left._Satoshis + right._Satoshis);
 		}
-		public static Money operator *(Money left, Money right)
+		public static Money operator *(decimal left, Money right)
 		{
-			return new Money(left._Satoshis * right._Satoshis);
+			return Money.Satoshis(left * right._Satoshis);
 		}
-		public static Money operator /(Money left, Money right)
+		public static Money operator /(decimal left, Money right)
 		{
-			return new Money(left._Satoshis / right._Satoshis);
+			return Money.Satoshis(left / right._Satoshis);
+		}
+		public static Money operator *(double left, Money right)
+		{
+			return Money.Satoshis((decimal)(left * right._Satoshis));
+		}
+		public static Money operator /(double left, Money right)
+		{
+			return Money.Satoshis((decimal)(left / right._Satoshis));
+		}
+		public static Money operator *(int left, Money right)
+		{
+			return Money.Satoshis(left * right._Satoshis);
+		}
+		public static Money operator /(int left, Money right)
+		{
+			return Money.Satoshis(left / right._Satoshis);
+		}
+		public static Money operator *(long left, Money right)
+		{
+			return Money.Satoshis(left * right._Satoshis);
+		}
+		public static Money operator /(long left, Money right)
+		{
+			return Money.Satoshis(left / right._Satoshis);
 		}
 
 		public static bool operator <(Money left, Money right)
