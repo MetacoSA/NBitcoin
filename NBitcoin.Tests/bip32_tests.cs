@@ -119,6 +119,31 @@ namespace NBitcoin.Tests
 							.ToString(Network.Main), neuter.Derive(keyPath).ToString(Network.Main));
 
 			Assert.Equal(neuter.Derive(keyPath).ToString(Network.Main), key.Derive(keyPath).Neuter().ToString(Network.Main));
+
+			keyPath = new KeyPath(new uint[] { 0x8000002Cu, 1u });
+			Assert.Equal(keyPath.ToString(), "44'/1");
+
+			keyPath = new KeyPath("44'/1");
+			Assert.False(keyPath.IsHardened);
+			Assert.True(new KeyPath("44'/1'").IsHardened);
+			Assert.Equal(keyPath[0], 0x8000002Cu);
+			Assert.Equal(keyPath[1], 1u);
+
+			key = new ExtKey();
+			Assert.Equal(key.Derive(keyPath).ToString(Network.Main), key.Derive(44, true).Derive(1, false).ToString(Network.Main));
+
+			keyPath = new KeyPath("");
+			keyPath = keyPath.Derive(44, true).Derive(1,false);
+			Assert.Equal(keyPath.ToString(), "44'/1");
+			Assert.Equal(key.Derive(keyPath).ToString(Network.Main), key.Derive(44, true).Derive(1, false).ToString(Network.Main));
+
+			Assert.True(key.Derive(44, true).IsHardened);
+			Assert.False(key.Derive(44, false).IsHardened);
+
+			neuter = key.Derive(44, true).Neuter();
+			Assert.True(neuter.IsHardened);
+			neuter = key.Derive(44, false).Neuter();
+			Assert.False(neuter.IsHardened);
 		}
 
 		[Fact]

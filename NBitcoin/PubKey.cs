@@ -207,7 +207,7 @@ namespace NBitcoin
 			}
 			else
 			{
-				throw new InvalidOperationException("Impossible to derivate a child key from a hardened one");
+				throw new InvalidOperationException("A public key can't derivate an hardened child");
 			}
 			Array.Copy(lr, l, 32);
 			Array.Copy(lr, 32, r, 0, 32);

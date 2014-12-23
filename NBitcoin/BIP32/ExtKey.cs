@@ -101,14 +101,23 @@ namespace NBitcoin
 				return vchFingerprint;
 			}
 		}
-		public ExtKey Derive(uint nChild)
+		public ExtKey Derive(uint index)
 		{
 			var result = new ExtKey();
 			result.nDepth = (byte)(nDepth + 1);
 			result.vchFingerprint = CalculateChildFingerprint();
-			result.nChild = nChild;
-			result.key = key.Derivate(this.vchChainCode, nChild, out result.vchChainCode);
+			result.nChild = index;
+			result.key = key.Derivate(this.vchChainCode, index, out result.vchChainCode);
 			return result;
+		}
+
+		public ExtKey Derive(int index, bool hardened)
+		{
+			if(nChild < 0)
+				throw new ArgumentOutOfRangeException("index", "the index can't be negative");
+			uint realIndex = (uint)index;
+			realIndex = hardened ? realIndex | 0x80000000u : realIndex;
+			return Derive(realIndex);
 		}
 
 		public BitcoinExtKey GetWif(Network network)
@@ -160,5 +169,13 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public bool IsHardened
+		{
+			get
+			{
+				return (nChild & 0x80000000u) != 0;
+			}
+		}
 	}
 }

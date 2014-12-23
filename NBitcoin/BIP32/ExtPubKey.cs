@@ -31,11 +31,20 @@ namespace NBitcoin
 				return nDepth;
 			}
 		}
+
 		public uint Child
 		{
 			get
 			{
 				return nChild;
+			}
+		}
+
+		public bool IsHardened
+		{
+			get
+			{
+				return (nChild & 0x80000000u) != 0;
 			}
 		}
 		public PubKey PubKey
@@ -72,13 +81,14 @@ namespace NBitcoin
 				return vchFingerprint;
 			}
 		}
-		public ExtPubKey Derive(uint nChild)
+
+		public ExtPubKey Derive(uint index)
 		{
 			var result = new ExtPubKey();
 			result.nDepth = (byte)(nDepth + 1);
 			result.vchFingerprint = CalculateChildFingerprint();
-			result.nChild = nChild;
-			result.pubkey = pubkey.Derivate(this.vchChainCode, nChild, out result.vchChainCode);
+			result.nChild = index;
+			result.pubkey = pubkey.Derivate(this.vchChainCode, index, out result.vchChainCode);
 			return result;
 		}
 

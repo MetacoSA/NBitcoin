@@ -13,9 +13,17 @@ namespace NBitcoin
 			_Indexes =
 				path
 				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-				.Select(c => uint.Parse(c))
+				.Select(c => Parse(c))
 				.ToArray();
 
+		}
+
+		private uint Parse(string i)
+		{
+			bool hardened = i.EndsWith("'");
+			var nonhardened = hardened ? i.Substring(0, i.Length - 1) : i;
+			var index = uint.Parse(nonhardened);
+			return hardened ? index | 0x80000000u : index;
 		}
 
 		public KeyPath(params uint[] indexes)
@@ -37,6 +45,15 @@ namespace NBitcoin
 			{
 				return _Indexes;
 			}
+		}
+
+		public KeyPath Derive(int index, bool hardened)
+		{
+			if(index < 0)
+				throw new ArgumentOutOfRangeException("index", "the index can't be negative");
+			uint realIndex = (uint)index;
+			realIndex = hardened ? realIndex | 0x80000000u : realIndex;
+			return Derive(new KeyPath(realIndex));
 		}
 
 		public KeyPath Derive(uint index)
@@ -83,9 +100,26 @@ namespace NBitcoin
 		{
 			if(_Path == null)
 			{
-				_Path = string.Join("/", _Indexes);
+				_Path = string.Join("/", _Indexes.Select(i=>ToString(i)).ToArray());
 			}
 			return _Path;
+		}
+
+		private string ToString(uint i)
+		{
+			var hardened = (i & 0x80000000u) != 0;
+			var nonhardened = (i & ~0x80000000u);
+			return hardened ? nonhardened.ToString() + "'" : nonhardened.ToString();
+		}
+
+		public bool IsHardened
+		{
+			get
+			{
+				if(_Indexes.Length == 0)
+					throw new InvalidOperationException("No indice found in this KeyPath");
+				return (_Indexes[_Indexes.Length - 1] & 0x80000000u) != 0;
+			}
 		}
 	}
 }
