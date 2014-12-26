@@ -587,7 +587,7 @@ namespace NBitcoin
 			{
 				if(_ID == null)
 				{
-					_ID = new ScriptId(Hashes.Hash160(_Script));
+					_ID = new ScriptId(this);
 				}
 				return _ID;
 			}
@@ -612,10 +612,7 @@ namespace NBitcoin
 			// This is a pay-to-script-hash scriptPubKey;
 			// get the last item that the scriptSig
 			// pushes onto the stack:
-			var validSig = new PayToScriptHashTemplate()
-			{
-				VerifyRedeemScript = false
-			}.CheckScriptSig(scriptSig, null);
+			var validSig = new PayToScriptHashTemplate().CheckScriptSig(scriptSig, this);
 			if(!validSig)
 				return 0;
 			/// ... and return its opcount:

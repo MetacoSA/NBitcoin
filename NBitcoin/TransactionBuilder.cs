@@ -756,7 +756,7 @@ namespace NBitcoin
 				{
 					var expectedId = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
 					//Try to extract redeem from this transaction
-					var p2shParams = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txIn.ScriptSig);
+					var p2shParams = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txIn.ScriptSig, coin.ScriptPubKey);
 					if(p2shParams == null || p2shParams.RedeemScript.Hash != expectedId)
 					{
 						var redeem = _ScriptIdToRedeem.TryGet(expectedId);

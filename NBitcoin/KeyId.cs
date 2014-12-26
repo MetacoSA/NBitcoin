@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -139,6 +140,7 @@ namespace NBitcoin
 	}
 	public class ScriptId : TxDestination
 	{
+
 		public ScriptId()
 			: base(0)
 		{
@@ -158,6 +160,11 @@ namespace NBitcoin
 
 		public ScriptId(string value)
 			: base(value)
+		{
+		}
+
+		public ScriptId(Script script)
+			: this(Hashes.Hash160(script._Script))
 		{
 		}
 

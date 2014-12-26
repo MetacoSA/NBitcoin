@@ -256,7 +256,7 @@ namespace NBitcoin
 		{
 			List<Op> ops = new List<Op>();
 			ops.Add(OpcodeType.OP_0);
-			foreach (var sig in signatures)
+			foreach(var sig in signatures)
 			{
 				if(sig == null)
 					ops.Add(OpcodeType.OP_0);
@@ -290,15 +290,6 @@ namespace NBitcoin
 			{
 				return _Instance;
 			}
-		}
-		public PayToScriptHashTemplate()
-		{
-			VerifyRedeemScript = true;
-		}
-		public bool VerifyRedeemScript
-		{
-			get;
-			set;
 		}
 		public Script GenerateScriptPubKey(ScriptId scriptId)
 		{
@@ -338,8 +329,13 @@ namespace NBitcoin
 		}
 		public PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{
+			return ExtractScriptSigParameters(scriptSig, null);
+		}
+		public PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig, Script scriptPubKey)
+		{
 			var ops = scriptSig.ToOps().ToArray();
-			if(!CheckScriptSigCore(scriptSig, ops, null, null))
+			var ops2 = scriptPubKey == null ? null : scriptPubKey.ToOps().ToArray();
+			if(!CheckScriptSigCore(scriptSig, ops, scriptPubKey, ops2))
 				return null;
 			try
 			{
@@ -385,11 +381,15 @@ namespace NBitcoin
 				return false;
 			if(!scriptSig.IsPushOnly)
 				return false;
-			if(!VerifyRedeemScript)
-				return true;
-			var redeemScript = new Script(ops[ops.Length - 1].PushData);
-			var template = StandardScripts.GetTemplateFromScriptPubKey(redeemScript);
-			return template != null && template.Type != TxOutType.TX_SCRIPTHASH;
+			if(scriptPubKey != null)
+			{
+				var expectedHash =ExtractScriptPubKeyParameters(scriptPubKey);
+				if(expectedHash == null)
+					return false;
+				if(expectedHash != Script.FromBytesUnsafe(ops[ops.Length - 1].PushData).Hash)
+					return false;
+			}
+			return ops[ops.Length - 1].PushData.Length <= 520;
 		}
 
 
