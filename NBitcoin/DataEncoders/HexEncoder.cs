@@ -37,43 +37,18 @@ namespace NBitcoin.DataEncoders
 			if(encoded == null)
 				throw new ArgumentNullException("encoded");
 
-			// convert hex dump to vector
-			Queue<byte> vch = new Queue<byte>();
-
-			int i = 0;
-
-			while(true)
+			if(encoded.Length % 2 == 1)
+				throw new FormatException("Invalid Hex String");
+			var result = new byte[encoded.Length /2];
+			for(int i = 0,j = 0; i < encoded.Length ; i+=2,j++)
 			{
-				if(i >= encoded.Length)
-					break;
-				char psz = encoded[i];
-				while(IsSpace(psz))
-				{
-					i++;
-					if(i >= encoded.Length)
-						break;
-					psz = encoded[i];
-				}
-				if(i >= encoded.Length)
-					break;
-				psz = encoded[i];
-
-				int c = IsDigit(psz);
-				i++;
-				if(i >= encoded.Length)
-					break;
-				psz = encoded[i];
-				if(c == -1)
-					break;
-				int n = (c << 4);
-				c = IsDigit(psz);
-				i++;
-				if(c == -1)
-					break;
-				n |= c;
-				vch.Enqueue((byte)n);
+				var a = IsDigit(encoded[i]);
+				var b = IsDigit(encoded[i + 1]);
+				if(a == -1 || b == -1)
+					throw new FormatException("Invalid Hex String");
+				result[j] = (byte)(((uint)a << 4) | (uint)b);
 			}
-			return vch.ToArray();
+			return result;
 		}
 
 
@@ -89,12 +64,15 @@ namespace NBitcoin.DataEncoders
 
 		public static bool IsWellFormed(string str)
 		{
-			foreach(var c in str)
+			try
 			{
-				if(IsDigit(c) < 0)
-					return false;
+				Encoders.Hex.DecodeData(str);
+				return true;
 			}
-			return (str.Length > 0) && (str.Length % 2 == 0);
+			catch(FormatException)
+			{
+				return false;
+			}
 		}
 	}
 }

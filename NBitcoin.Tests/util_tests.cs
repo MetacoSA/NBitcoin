@@ -58,13 +58,11 @@ namespace NBitcoin.Tests
 			var result = Encoders.Hex.DecodeData("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0EA1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f");
 			AssertEx.CollectionEquals(result, ParseHex_expected);
 
-			// Spaces between bytes must be supported
-			result = Encoders.Hex.DecodeData("12 34 56 78");
-			Assert.True(result.Length == 4 && result[0] == 0x12 && result[1] == 0x34 && result[2] == 0x56 && result[3] == 0x78);
+			// Spaces between bytes must not be supported
+			Assert.Throws<FormatException>(()=> Encoders.Hex.DecodeData("12 34 56 78"));
 
 			// Stop parsing at invalid value
-			result = Encoders.Hex.DecodeData("1234 invalid 1234");
-			Assert.True(result.Length == 2 && result[0] == 0x12 && result[1] == 0x34);
+			Assert.Throws<FormatException>(() => Encoders.Hex.DecodeData("1234 invalid 1234"));
 		}
 
 		[Fact]
@@ -272,7 +270,7 @@ namespace NBitcoin.Tests
 			Assert.True(HexEncoder.IsWellFormed("ff"));
 			Assert.True(HexEncoder.IsWellFormed("FF"));
 
-			Assert.True(!HexEncoder.IsWellFormed(""));
+			Assert.True(HexEncoder.IsWellFormed(""));
 			Assert.True(!HexEncoder.IsWellFormed("0"));
 			Assert.True(!HexEncoder.IsWellFormed("a"));
 			Assert.True(!HexEncoder.IsWellFormed("eleven"));
