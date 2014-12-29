@@ -16,13 +16,26 @@ using NBitcoin.DataEncoders;
 namespace NBitcoin
 {
 <# foreach (string t in new []{ "256","160" }) { #>
-	public class base_uint<#= t #>
+	public class uint<#= t #> :  IBitcoinSerializable
 	{
+
+		public uint<#= t #>()
+		{
+			for(int i = 0 ; i < WIDTH ; i++)
+				pn[i] = 0;
+		}
+
+		public uint<#= t #>(uint<#= t #> b)
+		{
+			for(int i = 0 ; i < WIDTH ; i++)
+				pn[i] = b.pn[i];
+		}
+
 		protected const int WIDTH = <#= t #> / 32;
 		protected const int WIDTH_BYTE = <#= t #> / 8;
 		protected internal UInt32[] pn = new UInt32[WIDTH];
 
-		public void SetHex(string str)
+		internal void SetHex(string str)
 		{
 			Array.Clear(pn, 0, pn.Length);
 			str = str.TrimStart();
@@ -54,7 +67,7 @@ namespace NBitcoin
 				}
 			}
 		}
-		protected void SetByte(int index, byte value)
+		internal void SetByte(int index, byte value)
 		{
 			var uintIndex = index / sizeof(uint);
 			var byteIndex = index % sizeof(uint);
@@ -67,7 +80,7 @@ namespace NBitcoin
 			pn[uintIndex] = currentValue;
 		}
 
-		public string GetHex()
+		internal string GetHex()
 		{
 			StringBuilder builder = new StringBuilder();
 			for(int i = 0 ; i < WIDTH_BYTE; i++)
@@ -90,29 +103,6 @@ namespace NBitcoin
 		{
 			return GetHex();
 		}
-
-	}
-	public class uint<#= t #> : base_uint<#= t #>,  IBitcoinSerializable
-	{
-
-		public uint<#= t #>()
-		{
-			for(int i = 0 ; i < WIDTH ; i++)
-				pn[i] = 0;
-		}
-
-		public uint<#= t #>(base_uint<#= t #> b)
-		{
-			for(int i = 0 ; i < WIDTH ; i++)
-				pn[i] = b.pn[i];
-		}
-
-		//uint256 operator=(base_uint<#= t #>& b)
-		//{
-		//	for (int i = 0; i < WIDTH; i++)
-		//		pn[i] = b.pn[i];
-		//	return  *this;
-		//}
 
 
 		public uint<#= t #>(ulong b)

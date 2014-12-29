@@ -9,13 +9,26 @@ using NBitcoin.DataEncoders;
 
 namespace NBitcoin
 {
-	public class base_uint256
+	public class uint256 :  IBitcoinSerializable
 	{
+
+		public uint256()
+		{
+			for(int i = 0 ; i < WIDTH ; i++)
+				pn[i] = 0;
+		}
+
+		public uint256(uint256 b)
+		{
+			for(int i = 0 ; i < WIDTH ; i++)
+				pn[i] = b.pn[i];
+		}
+
 		protected const int WIDTH = 256 / 32;
 		protected const int WIDTH_BYTE = 256 / 8;
 		protected internal UInt32[] pn = new UInt32[WIDTH];
 
-		public void SetHex(string str)
+		internal void SetHex(string str)
 		{
 			Array.Clear(pn, 0, pn.Length);
 			str = str.TrimStart();
@@ -47,7 +60,7 @@ namespace NBitcoin
 				}
 			}
 		}
-		protected void SetByte(int index, byte value)
+		internal void SetByte(int index, byte value)
 		{
 			var uintIndex = index / sizeof(uint);
 			var byteIndex = index % sizeof(uint);
@@ -60,7 +73,7 @@ namespace NBitcoin
 			pn[uintIndex] = currentValue;
 		}
 
-		public string GetHex()
+		internal string GetHex()
 		{
 			StringBuilder builder = new StringBuilder();
 			for(int i = 0 ; i < WIDTH_BYTE; i++)
@@ -83,29 +96,6 @@ namespace NBitcoin
 		{
 			return GetHex();
 		}
-
-	}
-	public class uint256 : base_uint256,  IBitcoinSerializable
-	{
-
-		public uint256()
-		{
-			for(int i = 0 ; i < WIDTH ; i++)
-				pn[i] = 0;
-		}
-
-		public uint256(base_uint256 b)
-		{
-			for(int i = 0 ; i < WIDTH ; i++)
-				pn[i] = b.pn[i];
-		}
-
-		//uint256 operator=(base_uint256& b)
-		//{
-		//	for (int i = 0; i < WIDTH; i++)
-		//		pn[i] = b.pn[i];
-		//	return  *this;
-		//}
 
 
 		public uint256(ulong b)
@@ -447,13 +437,26 @@ namespace NBitcoin
 			}
 		}
 	}
-	public class base_uint160
+	public class uint160 :  IBitcoinSerializable
 	{
+
+		public uint160()
+		{
+			for(int i = 0 ; i < WIDTH ; i++)
+				pn[i] = 0;
+		}
+
+		public uint160(uint160 b)
+		{
+			for(int i = 0 ; i < WIDTH ; i++)
+				pn[i] = b.pn[i];
+		}
+
 		protected const int WIDTH = 160 / 32;
 		protected const int WIDTH_BYTE = 160 / 8;
 		protected internal UInt32[] pn = new UInt32[WIDTH];
 
-		public void SetHex(string str)
+		internal void SetHex(string str)
 		{
 			Array.Clear(pn, 0, pn.Length);
 			str = str.TrimStart();
@@ -485,7 +488,7 @@ namespace NBitcoin
 				}
 			}
 		}
-		protected void SetByte(int index, byte value)
+		internal void SetByte(int index, byte value)
 		{
 			var uintIndex = index / sizeof(uint);
 			var byteIndex = index % sizeof(uint);
@@ -498,7 +501,7 @@ namespace NBitcoin
 			pn[uintIndex] = currentValue;
 		}
 
-		public string GetHex()
+		internal string GetHex()
 		{
 			StringBuilder builder = new StringBuilder();
 			for(int i = 0 ; i < WIDTH_BYTE; i++)
@@ -521,29 +524,6 @@ namespace NBitcoin
 		{
 			return GetHex();
 		}
-
-	}
-	public class uint160 : base_uint160,  IBitcoinSerializable
-	{
-
-		public uint160()
-		{
-			for(int i = 0 ; i < WIDTH ; i++)
-				pn[i] = 0;
-		}
-
-		public uint160(base_uint160 b)
-		{
-			for(int i = 0 ; i < WIDTH ; i++)
-				pn[i] = b.pn[i];
-		}
-
-		//uint256 operator=(base_uint160& b)
-		//{
-		//	for (int i = 0; i < WIDTH; i++)
-		//		pn[i] = b.pn[i];
-		//	return  *this;
-		//}
 
 
 		public uint160(ulong b)
