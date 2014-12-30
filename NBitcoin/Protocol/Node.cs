@@ -69,9 +69,9 @@ namespace NBitcoin.Protocol
 #if NOTRACESOURCE
 			internal
 #else
-				public
+			public
 #endif
-			TraceCorrelation TraceCorrelation
+ TraceCorrelation TraceCorrelation
 			{
 				get
 				{
@@ -269,7 +269,7 @@ namespace NBitcoin.Protocol
 				Time = DateTimeOffset.UtcNow,
 				Endpoint = endpoint
 			});
-			
+
 			VersionPayload version = new VersionPayload()
 			{
 				Nonce = 12345,
@@ -563,29 +563,32 @@ namespace NBitcoin.Protocol
 			using(TraceCorrelation.Open())
 			{
 				NodeServerTrace.Information("Building chain");
-				while(true)
+				using(var listener = this.CreateListener().OfType<HeadersPayload>())
 				{
-					SendMessage(new GetHeadersPayload()
+					while(true)
 					{
-						BlockLocators = currentTip.GetLocator(),
-						HashStop = hashStop
-					});
-					var headers = this.RecieveMessage<HeadersPayload>(cancellationToken);
-					if(headers.Headers.Count == 0)
-						break;
-					foreach(var header in headers.Headers)
-					{
-						var prev = currentTip.FindAncestorOrSelf(header.HashPrevBlock);
-						if(prev == null)
+						SendMessage(new GetHeadersPayload()
 						{
-							NodeServerTrace.Error("Block Header received out of order " + header.GetHash(), null);
-							throw new InvalidOperationException("Block Header received out of order");
+							BlockLocators = currentTip.GetLocator(),
+							HashStop = hashStop
+						});
+						var headers = listener.ReceivePayload<HeadersPayload>(cancellationToken);
+						if(headers.Headers.Count == 0)
+							break;
+						foreach(var header in headers.Headers)
+						{
+							var prev = currentTip.FindAncestorOrSelf(header.HashPrevBlock);
+							if(prev == null)
+							{
+								NodeServerTrace.Error("Block Header received out of order " + header.GetHash(), null);
+								throw new InvalidOperationException("Block Header received out of order");
+							}
+							currentTip = new ChainedBlock(header, header.GetHash(), prev);
+							yield return currentTip;
 						}
-						currentTip = new ChainedBlock(header, header.GetHash(), prev);
-						yield return currentTip;
+						if(currentTip.HashBlock == hashStop)
+							break;
 					}
-					if(currentTip.HashBlock == hashStop)
-						break;
 				}
 			}
 		}
