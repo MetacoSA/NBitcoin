@@ -86,7 +86,7 @@ namespace NBitcoin
 			}
 		}
 
-		
+
 
 		private IEnumerable<ChainedBlock> EnumerateThisToFork(ChainedBlock block)
 		{
@@ -176,6 +176,11 @@ namespace NBitcoin
 					i++;
 				}
 			}
+		}
+
+		public override string ToString()
+		{
+			return Tip == null ? "no tip" : Tip.Height.ToString();
 		}
 	}
 }
