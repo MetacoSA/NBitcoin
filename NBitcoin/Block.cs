@@ -1,4 +1,5 @@
 ﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using System;
@@ -20,6 +21,18 @@ namespace NBitcoin
 	 */
 	public class BlockHeader : IBitcoinSerializable
 	{
+		public BlockHeader(string hex)
+			:this(Encoders.Hex.DecodeData(hex))
+		{
+
+		}
+
+		public BlockHeader(byte[] bytes)
+		{
+			this.ReadWrite(bytes);
+		}
+
+
 		// header
 		const int CURRENT_VERSION = 2;
 
