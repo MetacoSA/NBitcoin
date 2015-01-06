@@ -820,6 +820,8 @@ namespace NBitcoin
 
 		public int EstimateSize(Transaction tx)
 		{
+			if(tx == null)
+				throw new ArgumentNullException("tx");
 			var clone = tx.Clone();
 			clone.Inputs.Clear();
 			var baseSize = clone.ToBytes().Length;
