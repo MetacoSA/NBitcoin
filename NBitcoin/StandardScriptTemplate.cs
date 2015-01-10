@@ -171,7 +171,7 @@ namespace NBitcoin
 			List<byte[]> invalidKeys = new List<byte[]>();
 			for(int i = 1 ; i < keyCount + 1 ; i++)
 			{
-				if(!PubKey.IsValidSize(ops[i].PushData.Length))
+				if(!PubKey.QuickCheck(ops[i].PushData))
 					invalidKeys.Add(ops[i].PushData);
 				else
 				{
@@ -439,7 +439,7 @@ namespace NBitcoin
 			var ops = scriptPubKeyOps;
 			if(ops.Length != 2)
 				return false;
-			return ops[0].PushData != null && PubKey.IsValidSize(ops[0].PushData.Length) &&
+			return ops[0].PushData != null && PubKey.QuickCheck(ops[0].PushData) &&
 				   ops[1].Code == OpcodeType.OP_CHECKSIG;
 		}
 
@@ -479,7 +479,7 @@ namespace NBitcoin
 			if(ops.Length != 1)
 				return false;
 
-			return ops[0].PushData != null && PubKey.IsValidSize(ops[0].PushData.Length);
+			return ops[0].PushData != null && PubKey.QuickCheck(ops[0].PushData);
 		}
 
 		public override TxOutType Type
@@ -598,7 +598,7 @@ namespace NBitcoin
 			if(ops.Length != 2)
 				return false;
 			return ops[0].PushData != null &&
-				   ops[1].PushData != null && PubKey.IsValidSize(ops[1].PushData.Length);
+				   ops[1].PushData != null && PubKey.QuickCheck(ops[1].PushData);
 		}
 
 		public bool CheckScriptSig(Script scriptSig)

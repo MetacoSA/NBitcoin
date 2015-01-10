@@ -25,14 +25,16 @@ namespace NBitcoin
 		{
 			if(vch == null)
 				throw new ArgumentNullException("vch");
-			if(!IsValidSize(vch.Length))
+			if(!QuickCheck(vch))
 			{
-				throw new FormatException("Invalid public key size");
+				throw new FormatException("Invalid public key");
 			}
 			if(@unsafe)
 				this.vch = vch;
 			else
+			{
 				this.vch = vch.ToArray();
+			}
 		}
 
 		ECKey _ECKey;
@@ -59,10 +61,12 @@ namespace NBitcoin
 			return ECKey.GetPubKey(false);
 		}
 
-		public static bool IsValidSize(long size)
+		public static bool QuickCheck(byte[] data)
 		{
-			return size == 65 || size == 33;
+			return data != null &&
+					((data[0] == 0x02 && data.Length == 33) || (data[0] == 0x03 && data.Length == 65));
 		}
+
 		byte[] vch = new byte[0];
 		KeyId _ID;
 
