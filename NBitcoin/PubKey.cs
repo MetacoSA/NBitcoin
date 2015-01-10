@@ -66,8 +66,8 @@ namespace NBitcoin
 		{
 			return data != null &&
 					(
-						((data[0] == 0x02 || data[0] == 0x03) && data.Length == 33) ||
-						((data[0] == 0x04 || data[0] == 0x06 || data[0] == 0x07) && data.Length == 65)
+						(data.Length == 33 && (data[0] == 0x02 || data[0] == 0x03)) ||
+						(data.Length == 65 && (data[0] == 0x04 || data[0] == 0x06 || data[0] == 0x07))
 					);
 		}
 
