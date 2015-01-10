@@ -18,26 +18,45 @@ namespace NBitcoin
 
 		}
 		public PubKey(byte[] vch)
+			: this(vch, false)
 		{
+		}
+		public PubKey(byte[] vch, bool @unsafe)
+		{
+			if(vch == null)
+				throw new ArgumentNullException("vch");
 			if(!IsValidSize(vch.Length))
 			{
 				throw new FormatException("Invalid public key size");
 			}
-			this.vch = vch.ToArray();
-			_Key = new ECKey(vch, false);
+			if(@unsafe)
+				this.vch = vch;
+			else
+				this.vch = vch.ToArray();
+		}
+
+		ECKey _ECKey;
+		private ECKey ECKey
+		{
+			get
+			{
+				if(_ECKey == null)
+					_ECKey = new ECKey(vch, false);
+				return _ECKey;
+			}
 		}
 
 		public PubKey Compress()
 		{
 			if(IsCompressed)
 				return this;
-			return _Key.GetPubKey(true);
+			return ECKey.GetPubKey(true);
 		}
 		public PubKey Decompress()
 		{
 			if(!IsCompressed)
 				return this;
-			return _Key.GetPubKey(false);
+			return ECKey.GetPubKey(false);
 		}
 
 		public static bool IsValidSize(long size)
@@ -45,7 +64,6 @@ namespace NBitcoin
 			return size == 65 || size == 33;
 		}
 		byte[] vch = new byte[0];
-		ECKey _Key = null;
 		KeyId _ID;
 
 		[Obsolete("Use Hash instead")]
@@ -99,13 +117,13 @@ namespace NBitcoin
 
 		public bool Verify(uint256 hash, ECDSASignature sig)
 		{
-			return _Key.Verify(hash, sig);
+			return ECKey.Verify(hash, sig);
 		}
 		public bool Verify(uint256 hash, byte[] sig)
 		{
 			return Verify(hash, ECDSASignature.FromDER(sig));
 		}
-		
+
 		[Obsolete("Use ScriptPubKey instead")]
 		public Script PaymentScript
 		{
@@ -126,7 +144,7 @@ namespace NBitcoin
 		{
 			stream.ReadWrite(ref vch);
 			if(!stream.Serializing)
-				_Key = new ECKey(vch, false);
+				_ECKey = new ECKey(vch, false);
 		}
 
 		#endregion
@@ -221,7 +239,7 @@ namespace NBitcoin
 			if(parse256LL.CompareTo(N) >= 0)
 				throw new InvalidOperationException("You won a prize ! this should happen very rarely. Take a screenshot, and roll the dice again.");
 
-			var q = ECKey.CURVE.G.Multiply(parse256LL).Add(_Key.GetPublicKeyParameters().Q);
+			var q = ECKey.CURVE.G.Multiply(parse256LL).Add(ECKey.GetPublicKeyParameters().Q);
 			if(q.IsInfinity)
 				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
 

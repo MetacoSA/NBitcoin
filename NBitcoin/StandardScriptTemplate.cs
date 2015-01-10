@@ -383,7 +383,7 @@ namespace NBitcoin
 				return false;
 			if(scriptPubKey != null)
 			{
-				var expectedHash =ExtractScriptPubKeyParameters(scriptPubKey);
+				var expectedHash = ExtractScriptPubKeyParameters(scriptPubKey);
 				if(expectedHash == null)
 					return false;
 				if(expectedHash != Script.FromBytesUnsafe(ops[ops.Length - 1].PushData).Hash)
@@ -618,7 +618,7 @@ namespace NBitcoin
 				return new PayToPubkeyHashScriptSigParameters()
 				{
 					TransactionSignature = ops[0].Code == OpcodeType.OP_0 ? null : new TransactionSignature(ops[0].PushData),
-					PublicKey = new PubKey(ops[1].PushData),
+					PublicKey = new PubKey(ops[1].PushData, true),
 				};
 			}
 			catch(FormatException)
