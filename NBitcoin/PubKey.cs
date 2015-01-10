@@ -64,7 +64,7 @@ namespace NBitcoin
 		public static bool QuickCheck(byte[] data)
 		{
 			return data != null &&
-					((data[0] == 0x02 && data.Length == 33) || (data[0] == 0x03 && data.Length == 65));
+					(((data[0] == 0x02 || data[0] == 0x03) && data.Length == 33) || (data[0] == 0x04 && data.Length == 65));
 		}
 
 		byte[] vch = new byte[0];
