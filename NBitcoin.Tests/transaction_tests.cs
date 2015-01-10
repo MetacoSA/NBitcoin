@@ -1190,10 +1190,17 @@ namespace NBitcoin.Tests
 			Assert.True(!state.CheckTransaction(tx) || !state.IsValid, "Transaction with duplicate txins should be invalid.");
 		}
 
+
+
 		[Fact]
 		[Trait("Core", "Core")]
 		public void test_Get()
 		{
+			byte[] dummyPubKey = new byte[65];
+			dummyPubKey[0] = 0x04;
+
+			byte[] dummyPubKey2 = new byte[33];
+			dummyPubKey2[0] = 0x02;
 			//CBasicKeyStore keystore;
 			//CCoinsView coinsDummy;
 			CoinsView coins = new CoinsView();//(coinsDummy);
@@ -1203,13 +1210,13 @@ namespace NBitcoin.Tests
 			t1.Inputs.AddRange(Enumerable.Range(0, 3).Select(_ => new TxIn()));
 			t1.Inputs[0].PrevOut.Hash = dummyTransactions[0].GetHash();
 			t1.Inputs[0].PrevOut.N = 1;
-			t1.Inputs[0].ScriptSig += new byte[65];
+			t1.Inputs[0].ScriptSig += dummyPubKey; 
 			t1.Inputs[1].PrevOut.Hash = dummyTransactions[1].GetHash();
 			t1.Inputs[1].PrevOut.N = 0;
-			t1.Inputs[1].ScriptSig = t1.Inputs[1].ScriptSig + new byte[65] + Enumerable.Range(0, 33).Select(_ => (byte)4);
+			t1.Inputs[1].ScriptSig = t1.Inputs[1].ScriptSig + dummyPubKey + dummyPubKey2;
 			t1.Inputs[2].PrevOut.Hash = dummyTransactions[1].GetHash();
 			t1.Inputs[2].PrevOut.N = 1;
-			t1.Inputs[2].ScriptSig = t1.Inputs[2].ScriptSig + new byte[65] + Enumerable.Range(0, 33).Select(_ => (byte)4);
+			t1.Inputs[2].ScriptSig = t1.Inputs[2].ScriptSig + dummyPubKey + dummyPubKey2;
 			t1.Outputs.AddRange(Enumerable.Range(0, 2).Select(_ => new TxOut()));
 			t1.Outputs[0].Value = 90 * Money.CENT;
 			t1.Outputs[0].ScriptPubKey += OpcodeType.OP_1;
