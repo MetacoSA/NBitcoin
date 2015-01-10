@@ -12,29 +12,49 @@ namespace NBitcoin
 {
 	public class PubKey : IBitcoinSerializable, IDestination
 	{
+		/// <summary>
+		/// Create a new Public key from string
+		/// </summary>
 		public PubKey(string hex)
 			: this(Encoders.Hex.DecodeData(hex))
 		{
 
 		}
-		public PubKey(byte[] vch)
-			: this(vch, false)
+
+		/// <summary>
+		/// Create a new Public key from byte array
+		/// </summary>
+		public PubKey(byte[] bytes)
+			: this(bytes, false)
 		{
 		}
-		public PubKey(byte[] vch, bool @unsafe)
+
+		/// <summary>
+		/// Create a new Public key from byte array
+		/// </summary>
+		/// <param name="bytes">byte array</param>
+		/// <param name="unsafe">If false, make internal copy of bytes and does perform only a costly check for PubKey format. If true, the bytes array is used as is and only PubKey.QuickCheck is used for validating the format. </param>	 
+		public PubKey(byte[] bytes, bool @unsafe)
 		{
-			if(vch == null)
-				throw new ArgumentNullException("vch");
-			if(!QuickCheck(vch))
+			if(bytes == null)
+				throw new ArgumentNullException("bytes");
+			if(!Check(bytes, false))
 			{
 				throw new FormatException("Invalid public key");
 			}
 			if(@unsafe)
-				this.vch = vch;
+				this.vch = bytes;
 			else
 			{
-				this.vch = vch.ToArray();
-				_ECKey = new ECKey(vch, false);
+				this.vch = bytes.ToArray();
+				try
+				{
+					_ECKey = new ECKey(bytes, false);
+				}
+				catch(Exception ex)
+				{
+					throw new FormatException("Invalid public key", ex);
+				}
 			}
 		}
 
@@ -62,13 +82,30 @@ namespace NBitcoin
 			return ECKey.GetPubKey(false);
 		}
 
-		public static bool QuickCheck(byte[] data)
+		/// <summary>
+		/// Check on public key format.
+		/// </summary>
+		/// <param name="data">bytes array</param>
+		/// <param name="deep">If false, will only check the first byte and length of the array. If true, will also check that the ECC coordinates are correct.</param>
+		/// <returns>true if byte array is valid</returns>
+		public static bool Check(byte[] data, bool deep)
 		{
-			return data != null &&
+			var quick = data != null &&
 					(
 						(data.Length == 33 && (data[0] == 0x02 || data[0] == 0x03)) ||
 						(data.Length == 65 && (data[0] == 0x04 || data[0] == 0x06 || data[0] == 0x07))
 					);
+			if(!deep || !quick)
+				return quick;
+			try
+			{
+				new ECKey(data, false);
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
 		}
 
 		byte[] vch = new byte[0];
@@ -344,5 +381,6 @@ namespace NBitcoin
 		}
 
 		#endregion
+
 	}
 }

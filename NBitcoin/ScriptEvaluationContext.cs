@@ -1373,9 +1373,6 @@ namespace NBitcoin
 
 		public bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn)
 		{
-			//static CSignatureCache signatureCache;
-			if(!PubKey.QuickCheck(vchPubKey))
-				return false;
 			PubKey pubkey = null;
 			try
 			{
