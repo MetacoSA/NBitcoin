@@ -100,7 +100,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRecoverExtKeyFromExtPubKeyAndSecret()
 		{
-			ExtKey key = new ExtKey();
+			ExtKey key = new ExtKey().Derive(1);
 			var underlying = key.Key.GetBitcoinSecret(Network.Main);
 			var pubKey = key.Neuter().GetWif(Network.Main);
 			ExtKey key2 = new ExtKey(pubKey, underlying);
