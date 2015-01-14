@@ -68,11 +68,10 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanAddEntropyToRandom()
 		{
-			var derived = SCrypt.BitcoinComputeDerivedKey("hello", new byte[] { 1, 2, 3 });
 			RandomUtils.AddEntropy("hello2");
 			for(int i = 0 ; i < 100 ; i++)
 			{
-				RandomUtils.GetBytes(50);
+				Assert.Equal(50, RandomUtils.GetBytes(50).Length);
 			}
 		}
 		[Fact]

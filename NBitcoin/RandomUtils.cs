@@ -57,13 +57,19 @@ namespace NBitcoin
 			if(additionalEntropy == null || data.Length == 0)
 				return;
 			int pos = entropyIndex;
+			var entropy = additionalEntropy;
 			for(int i = 0 ; i < data.Length ; i++)
 			{
-				data[i] ^= additionalEntropy[pos % 32];
+				data[i] ^= entropy[pos % 32];
+				pos++;
+			}
+			entropy = Hashes.SHA256(data);
+			for(int i = 0 ; i < data.Length ; i++)
+			{
+				data[i] ^= entropy[pos % 32];
 				pos++;
 			}
 			entropyIndex = pos % 32;
-			data = Hashes.SHA256(data);
 		}
 
 		static volatile byte[] additionalEntropy = null;
