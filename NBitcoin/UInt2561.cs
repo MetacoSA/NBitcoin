@@ -73,15 +73,28 @@ namespace NBitcoin
 			pn[uintIndex] = currentValue;
 		}
 
+		private static readonly uint[] _lookup32 = CreateLookup32();
+		private static uint[] CreateLookup32()
+		{
+			var result = new uint[256];
+			for(int i = 0 ; i < 256 ; i++)
+			{
+				string s = i.ToString("x2");
+				result[i] = ((uint)s[0]) + ((uint)s[1] << 16);
+			}
+			return result;
+		}
 		internal string GetHex()
 		{
-			StringBuilder builder = new StringBuilder();
-			for(int i = 0 ; i < WIDTH_BYTE; i++)
+			var lookup32 = _lookup32;
+			var result = new char[WIDTH_BYTE * 2];
+			for(int i = 0 ; i < WIDTH_BYTE ; i++)
 			{
-				var b = GetByte(WIDTH_BYTE - i - 1);
-				builder.Append(b.ToString("x2"));
+				var val = lookup32[GetByte(WIDTH_BYTE - i - 1)];
+				result[2 * i] = (char)val;
+				result[2 * i + 1] = (char)(val >> 16);
 			}
-			return builder.ToString();
+			return new string(result);
 		}
 		
 		public byte GetByte(int index)
@@ -501,15 +514,28 @@ namespace NBitcoin
 			pn[uintIndex] = currentValue;
 		}
 
+		private static readonly uint[] _lookup32 = CreateLookup32();
+		private static uint[] CreateLookup32()
+		{
+			var result = new uint[256];
+			for(int i = 0 ; i < 256 ; i++)
+			{
+				string s = i.ToString("x2");
+				result[i] = ((uint)s[0]) + ((uint)s[1] << 16);
+			}
+			return result;
+		}
 		internal string GetHex()
 		{
-			StringBuilder builder = new StringBuilder();
-			for(int i = 0 ; i < WIDTH_BYTE; i++)
+			var lookup32 = _lookup32;
+			var result = new char[WIDTH_BYTE * 2];
+			for(int i = 0 ; i < WIDTH_BYTE ; i++)
 			{
-				var b = GetByte(WIDTH_BYTE - i - 1);
-				builder.Append(b.ToString("x2"));
+				var val = lookup32[GetByte(WIDTH_BYTE - i - 1)];
+				result[2 * i] = (char)val;
+				result[2 * i + 1] = (char)(val >> 16);
 			}
-			return builder.ToString();
+			return new string(result);
 		}
 		
 		public byte GetByte(int index)
