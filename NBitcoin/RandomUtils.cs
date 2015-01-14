@@ -54,7 +54,7 @@ namespace NBitcoin
 
 		private static void PushEntropy(byte[] data)
 		{
-			if(additionalEntropy == null)
+			if(additionalEntropy == null || data.Length == 0)
 				return;
 			int pos = entropyIndex;
 			for(int i = 0 ; i < data.Length ; i++)
@@ -63,6 +63,7 @@ namespace NBitcoin
 				pos++;
 			}
 			entropyIndex = pos % 32;
+			data = Hashes.SHA256(data);
 		}
 
 		static volatile byte[] additionalEntropy = null;
@@ -81,10 +82,13 @@ namespace NBitcoin
 			if(additionalEntropy == null)
 				additionalEntropy = entropy;
 			else
+			{
 				for(int i = 0 ; i < 32 ; i++)
 				{
 					additionalEntropy[i] ^= entropy[i];
 				}
+				additionalEntropy = Hashes.SHA256(additionalEntropy);
+			}
 		}
 
 		public static uint GetUInt32()

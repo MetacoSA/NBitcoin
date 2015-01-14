@@ -59,7 +59,7 @@ namespace NBitcoin.Tests
 			AssertEx.CollectionEquals(result, ParseHex_expected);
 
 			// Spaces between bytes must not be supported
-			Assert.Throws<FormatException>(()=> Encoders.Hex.DecodeData("12 34 56 78"));
+			Assert.Throws<FormatException>(() => Encoders.Hex.DecodeData("12 34 56 78"));
 
 			// Stop parsing at invalid value
 			Assert.Throws<FormatException>(() => Encoders.Hex.DecodeData("1234 invalid 1234"));
@@ -68,7 +68,8 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanAddEntropyToRandom()
 		{
-			RandomUtils.AddEntropy("hello");
+			var derived = SCrypt.BitcoinComputeDerivedKey("hello", new byte[] { 1, 2, 3 });
+			RandomUtils.AddEntropy("hello2");
 			for(int i = 0 ; i < 100 ; i++)
 			{
 				RandomUtils.GetBytes(50);
