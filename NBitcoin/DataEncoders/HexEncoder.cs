@@ -20,17 +20,24 @@ namespace NBitcoin.DataEncoders
 			if(length < 0)
 				length = data.Length;
 
-			StringBuilder rv = new StringBuilder();
+			char[] result = new char[length * 2 + (Space ? Math.Max((length - 1), 0) : 0)];
+
+			int pos = 0;
 			for(int i = 0 ; i < length ; i++)
 			{
 				var val = data[i];
 				if(Space && i != 0)
-					rv.Append(' ');
-				rv.Append(hexDigits[val >> 4]);
-				rv.Append(hexDigits[val & 15]);
+				{
+					result[pos] = ' ';
+					pos++;
+				}
+				result[pos] = (hexDigits[val >> 4]);
+				pos++;
+				result[pos] = (hexDigits[val & 15]);
+				pos++;
 			}
 
-			return rv.ToString();
+			return new String(result);
 		}
 		public override byte[] DecodeData(string encoded)
 		{
@@ -39,8 +46,8 @@ namespace NBitcoin.DataEncoders
 
 			if(encoded.Length % 2 == 1)
 				throw new FormatException("Invalid Hex String");
-			var result = new byte[encoded.Length /2];
-			for(int i = 0,j = 0; i < encoded.Length ; i+=2,j++)
+			var result = new byte[encoded.Length / 2];
+			for(int i = 0, j = 0 ; i < encoded.Length ; i += 2, j++)
 			{
 				var a = IsDigit(encoded[i]);
 				var b = IsDigit(encoded[i + 1]);
