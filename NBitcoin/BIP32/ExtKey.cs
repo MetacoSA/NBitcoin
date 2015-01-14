@@ -40,6 +40,22 @@ namespace NBitcoin
 			}
 		}
 
+		public ExtKey(BitcoinExtPubKey extPubKey, BitcoinSecret key)
+			: this(extPubKey.ExtPubKey, key.Key)
+		{
+		}
+		public ExtKey(ExtPubKey extPubKey, Key privateKey)
+		{
+			if(extPubKey == null)
+				throw new ArgumentNullException("extPubKey");
+			if(privateKey == null)
+				throw new ArgumentNullException("privateKey");
+			this.nChild = extPubKey.nChild;
+			this.nDepth = extPubKey.nDepth;
+			this.vchChainCode = extPubKey.vchChainCode;
+			this.vchFingerprint = extPubKey.vchFingerprint;
+			this.key = privateKey;
+		}
 		public ExtKey()
 		{
 			byte[] seed = RandomUtils.GetBytes(64);

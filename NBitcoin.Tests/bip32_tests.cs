@@ -98,6 +98,17 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanRecoverExtKeyFromExtPubKeyAndSecret()
+		{
+			ExtKey key = new ExtKey();
+			var underlying = key.Key.GetBitcoinSecret(Network.Main);
+			var pubKey = key.Neuter().GetWif(Network.Main);
+			ExtKey key2 = new ExtKey(pubKey, underlying);
+			Assert.Equal(key.ToString(Network.Main), key2.ToString(Network.Main));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanUseKeyPath()
 		{
 			var keyPath = new KeyPath("0/1/2/3");
