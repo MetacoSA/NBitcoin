@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 #if !USEBC
 		using System.Security.Cryptography;
+using NBitcoin.Crypto;
 #endif
 
 namespace NBitcoin
@@ -47,7 +48,43 @@ namespace NBitcoin
 			if(Random == null)
 				throw new InvalidOperationException("You must set the RNG (RandomUtils.Random) before generating random numbers");
 			Random.GetBytes(data);
+			PushEntropy(data);
 			return data;
+		}
+
+		private static void PushEntropy(byte[] data)
+		{
+			if(additionalEntropy == null)
+				return;
+			int pos = entropyIndex;
+			for(int i = 0 ; i < data.Length ; i++)
+			{
+				data[i] ^= additionalEntropy[pos % 32];
+				pos++;
+			}
+			entropyIndex = pos % 32;
+		}
+
+		static volatile byte[] additionalEntropy = null;
+		static volatile int entropyIndex = 0;
+		public static void AddEntropy(string data)
+		{
+			if(data == null)
+				throw new ArgumentNullException("data");
+			AddEntropy(Encoding.UTF7.GetBytes(data));
+		}
+		public static void AddEntropy(byte[] data)
+		{
+			if(data == null)
+				throw new ArgumentNullException("data");
+			var entropy = Hashes.SHA256(data);
+			if(additionalEntropy == null)
+				additionalEntropy = entropy;
+			else
+				for(int i = 0 ; i < 32 ; i++)
+				{
+					additionalEntropy[i] ^= entropy[i];
+				}
 		}
 
 		public static uint GetUInt32()
@@ -74,6 +111,7 @@ namespace NBitcoin
 			if(Random == null)
 				throw new InvalidOperationException("You must set the RNG (RandomUtils.Random) before generating random numbers");
 			Random.GetBytes(output);
+			PushEntropy(output);
 		}
 	}
 }

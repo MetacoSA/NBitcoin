@@ -64,7 +64,16 @@ namespace NBitcoin.Tests
 			// Stop parsing at invalid value
 			Assert.Throws<FormatException>(() => Encoders.Hex.DecodeData("1234 invalid 1234"));
 		}
-
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanAddEntropyToRandom()
+		{
+			RandomUtils.AddEntropy("hello");
+			for(int i = 0 ; i < 100 ; i++)
+			{
+				RandomUtils.GetBytes(50);
+			}
+		}
 		[Fact]
 		[Trait("Core", "Core")]
 		public void util_HexStr()
