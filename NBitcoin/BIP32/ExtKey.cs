@@ -193,5 +193,50 @@ namespace NBitcoin
 				return (nChild & 0x80000000u) != 0;
 			}
 		}
+
+		public ExtKey GetParentExtKey(ExtPubKey parent)
+		{
+			if(parent == null)
+				throw new ArgumentNullException("parent");
+			if(Depth == 0)
+				throw new InvalidOperationException("This ExtKey is the root key of the HD tree");
+			if(IsHardened)
+				throw new InvalidOperationException("This private key is hardened, so you can't get its parent");
+			var expectedFingerPrint = parent.CalculateChildFingerprint();
+			if(parent.Depth != this.Depth - 1 || !expectedFingerPrint.SequenceEqual(vchFingerprint))
+				throw new ArgumentException("The parent ExtPubKey is not the immediate parent of this ExtKey", "parent");
+
+			byte[] l = null;
+			byte[] ll = new byte[32];
+			byte[] lr = new byte[32];
+
+			var pubKey = parent.PubKey.ToBytes();
+			l = Hashes.BIP32Hash(parent.vchChainCode, nChild, pubKey[0], pubKey.Skip(1).ToArray());
+			Array.Copy(l, ll, 32);
+			Array.Copy(l, 32, lr, 0, 32);
+			var ccChild = lr;
+
+			BigInteger parse256LL = new BigInteger(1, ll);
+			BigInteger N = ECKey.CURVE.N;
+
+			if(!ccChild.SequenceEqual(vchChainCode))
+				throw new InvalidOperationException("The derived chain code of the parent is not equal to this child chain code");
+
+			var keyBytes = Key.ToBytes();
+			var key = new BigInteger(1, keyBytes);
+
+			BigInteger kPar = key.Add(parse256LL.Negate()).Mod(N);
+			var keyParentBytes = kPar.ToByteArrayUnsigned();
+			if(keyParentBytes.Length < 32)
+				keyParentBytes = new byte[32 - keyParentBytes.Length].Concat(keyParentBytes).ToArray();
+
+			var parentExtKey = new ExtKey();
+			parentExtKey.vchChainCode = parent.vchChainCode;
+			parentExtKey.nDepth = parent.Depth;
+			parentExtKey.vchFingerprint = parent.Fingerprint;
+			parentExtKey.nChild = parent.nChild;
+			parentExtKey.key = new Key(keyParentBytes);
+			return parentExtKey;
+		}
 	}
 }

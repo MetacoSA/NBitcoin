@@ -98,6 +98,39 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanRecoverExtKeyFromExtPubKeyAndOneChildExtKey()
+		{
+			ExtKey key = ExtKey.Parse("xprv9s21ZrQH143K3Z9EwCXrA5VbypnvWGiE9z22S1cLLPi7r8DVUkTabBvMjeirS8KCyppw24KoD4sFmja8UDU4VL32SBdip78LY6sz3X2GPju")
+				.Derive(1);
+			var pubkey = key.Neuter();
+			var childKey = key.Derive(1);
+
+			ExtKey recovered = childKey.GetParentExtKey(pubkey);
+			Assert.Equal(recovered.ToString(Network.Main), key.ToString(Network.Main));
+
+			childKey = key.Derive(1, true);
+			Assert.Throws<InvalidOperationException>(() => childKey.GetParentExtKey(pubkey));
+
+			childKey = key.Derive(1).Derive(1);
+			Assert.Throws<ArgumentException>(() => childKey.GetParentExtKey(pubkey));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanRecoverExtKeyFromExtPubKeyAndOneChildExtKey2()
+		{
+			for(int i = 0 ; i < 255 ; i++)
+			{
+				ExtKey key = new ExtKey().Derive((uint)i);
+				var childKey = key.Derive((uint)i);
+				var pubKey = key.Neuter();
+				ExtKey recovered = childKey.GetParentExtKey(pubKey);
+				Assert.Equal(recovered.ToString(Network.Main), key.ToString(Network.Main));
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanRecoverExtKeyFromExtPubKeyAndSecret()
 		{
 			ExtKey key = new ExtKey().Derive(1);
@@ -144,7 +177,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(key.Derive(keyPath).ToString(Network.Main), key.Derive(44, true).Derive(1, false).ToString(Network.Main));
 
 			keyPath = new KeyPath("");
-			keyPath = keyPath.Derive(44, true).Derive(1,false);
+			keyPath = keyPath.Derive(44, true).Derive(1, false);
 			Assert.Equal(keyPath.ToString(), "44'/1");
 			Assert.Equal(key.Derive(keyPath).ToString(Network.Main), key.Derive(44, true).Derive(1, false).ToString(Network.Main));
 

@@ -69,7 +69,7 @@ namespace NBitcoin
 		{
 			return childKey.IsChildOf(this);
 		}
-		private byte[] CalculateChildFingerprint()
+		public byte[] CalculateChildFingerprint()
 		{
 			return pubkey.Hash.ToBytes().Take(vchFingerprint.Length).ToArray();
 		}

@@ -175,7 +175,6 @@ namespace NBitcoin
 
 		#endregion
 
-
 		public Key Derivate(byte[] cc, uint nChild, out byte[] ccChild)
 		{
 			byte[] l = null;
