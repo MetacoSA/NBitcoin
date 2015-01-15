@@ -52,6 +52,8 @@ This is the simple way and most complete way to see the internal of bitcoin with
 
 ## Useful doc :
 
+Blockchain Programming in C# : https://aois.blob.core.windows.net/public/Blockchain Programming in CSharp.pdf
+
 NBitcoin Github : https://github.com/NicolasDorier/NBitcoin
 
 NBitcoin Nuget : https://www.nuget.org/packages/NBitcoin/
