@@ -21,7 +21,7 @@ namespace NBitcoin
 
 		public static Key Parse(string wif, string password, Network network = null)
 		{
-			return Network.CreateFromBase58Data<BitcoinEncryptedSecretNoEC>(wif, network).GetKey(password);
+			return Network.CreateFromBase58Data<BitcoinEncryptedSecret>(wif, network).GetKey(password);
 		}
 
 		byte[] vch = new byte[0];
