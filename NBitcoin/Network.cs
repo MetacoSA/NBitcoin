@@ -384,7 +384,10 @@ namespace NBitcoin
 
 		public static T CreateFromBase58Data<T>(string base58, Network expectedNetwork = null) where T : Base58Data
 		{
-			return (T)CreateFromBase58Data(base58, expectedNetwork);
+			var result = CreateFromBase58Data(base58, expectedNetwork) as T;
+			if(result == null)
+				throw new FormatException("Invalid base58 data");
+			return result;
 		}
 
 		public T Parse<T>(string base58) where T : Base58Data
