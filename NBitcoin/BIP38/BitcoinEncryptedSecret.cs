@@ -111,7 +111,7 @@ namespace NBitcoin
 			var salt = Hashes.Hash256(addressBytes).ToBytes().Take(4).ToArray();
 
 			if(!Utils.ArrayEqual(salt, AddressHash))
-				throw new SecurityException("Invalid password");
+				throw new SecurityException("Invalid password (or invalid Network)");
 			return key;
 		}
 
@@ -235,7 +235,7 @@ namespace NBitcoin
 			var addresshash = HashAddress(generatedaddress);
 
 			if(!Utils.ArrayEqual(addresshash, AddressHash))
-				throw new SecurityException("Invalid password");
+				throw new SecurityException("Invalid password (or invalid Network)");
 
 			return key;
 		}

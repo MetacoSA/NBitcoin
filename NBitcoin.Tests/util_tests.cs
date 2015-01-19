@@ -68,7 +68,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanAddEntropyToRandom()
 		{
-			RandomUtils.AddEntropy("hello2");
+			RandomUtils.AddEntropy(new byte[] { 1, 2, 3 });
 			for(int i = 0 ; i < 100 ; i++)
 			{
 				Assert.Equal(50, RandomUtils.GetBytes(50).Length);
@@ -390,32 +390,30 @@ namespace NBitcoin.Tests
 						ExpectedType = (Type)null,
 						Network = (Network)null
 					},
-#if !PORTABLE
 					new
 					{
 						Base58 = "6PYLtMnXvfG3oJde97zRyLYFZCYizPU5T3LwgdYJz1fRhh16bU7u6PPmY7",
 						ExpectedType = typeof(BitcoinEncryptedSecretNoEC),
-						Network = Network.Main
+						Network = (Network)null
 					},
 					new
 					{
 						Base58 = "6PfQu77ygVyJLZjfvMLyhLMQbYnu5uguoJJ4kMCLqWwPEdfpwANVS76gTX",
 						ExpectedType = typeof(BitcoinEncryptedSecretEC),
-						Network = Network.Main
+						Network = (Network)null
 					},
 					new
 					{
 						Base58 = "passphrasepxFy57B9v8HtUsszJYKReoNDV6VHjUSGt8EVJmux9n1J3Ltf1gRxyDGXqnf9qm",
 						ExpectedType = typeof(BitcoinPassphraseCode),
-						Network = Network.Main
+						Network = (Network)null
 					},
 					new
 					{
 						Base58 = "cfrm38V8aXBn7JWA1ESmFMUn6erxeBGZGAxJPY4e36S9QWkzZKtaVqLNMgnifETYw7BPwWC9aPD",
 						ExpectedType = typeof(BitcoinConfirmationCode),
-						Network = Network.Main
+						Network = (Network)null
 					},
-#endif
 					new
 					{
 						Base58 = "xprv9s21ZrQH143K3Gx1VAAD1ueDmwoPQUApekxWYSJ1f4W4m1nUPpRGdV5sTVhixZJT5cP2NqtEMZ2mrwHdW5RWpohCwspWidCpcLALvioXDyz",
@@ -440,10 +438,12 @@ namespace NBitcoin.Tests
 				{
 					var result = Network.CreateFromBase58Data(test.Base58);
 					Assert.True(test.ExpectedType == result.GetType());
-					Assert.True(test.Network == result.Network);
+					if(test.Network != null)
+						Assert.True(test.Network == result.Network);
 					Network.CreateFromBase58Data(test.Base58, test.Network);
 
-					Assert.Throws<FormatException>(() => Network.CreateFromBase58Data(test.Base58, Network.GetNetworks().First(n => n != test.Network)));
+					if(test.Network != null)
+						Assert.Throws<FormatException>(() => Network.CreateFromBase58Data(test.Base58, Network.GetNetworks().First(n => n != test.Network)));
 				}
 			}
 		}
