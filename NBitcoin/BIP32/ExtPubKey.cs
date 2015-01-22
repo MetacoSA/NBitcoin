@@ -1,10 +1,6 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -15,7 +11,7 @@ namespace NBitcoin
 			return Network.CreateFromBase58Data<BitcoinExtPubKey>(wif, expectedNetwork).ExtPubKey;
 		}
 
-		static byte[] validPubKey = Encoders.Hex.DecodeData("0374ef3990e387b5a2992797f14c031a64efd80e5cb843d7c1d4a0274a9bc75e55");
+		static readonly byte[] validPubKey = Encoders.Hex.DecodeData("0374ef3990e387b5a2992797f14c031a64efd80e5cb843d7c1d4a0274a9bc75e55");
 		internal byte nDepth;
 		internal byte[] vchFingerprint = new byte[4];
 		internal uint nChild;
@@ -84,26 +80,22 @@ namespace NBitcoin
 
 		public ExtPubKey Derive(uint index)
 		{
-			var result = new ExtPubKey();
-			result.nDepth = (byte)(nDepth + 1);
-			result.vchFingerprint = CalculateChildFingerprint();
-			result.nChild = index;
-			result.pubkey = pubkey.Derivate(this.vchChainCode, index, out result.vchChainCode);
+			var result = new ExtPubKey
+			{
+			    nDepth = (byte) (nDepth + 1), 
+                vchFingerprint = CalculateChildFingerprint(), 
+                nChild = index
+			};
+		    result.pubkey = pubkey.Derivate(this.vchChainCode, index, out result.vchChainCode);
 			return result;
 		}
 
 		public ExtPubKey Derive(KeyPath derivation)
 		{
 			ExtPubKey result = this;
-			foreach(var index in derivation.Indexes)
-			{
-				result = result.Derive(index);
-			}
-			return result;
+		    return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
 		}
-
-		
-
+        
 		public BitcoinExtPubKey GetWif(Network network)
 		{
 			return new BitcoinExtPubKey(this, network);

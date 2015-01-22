@@ -3,11 +3,7 @@ using NBitcoin.DataEncoders;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -26,14 +22,7 @@ namespace NBitcoin
 		byte[] _AddressHash;
 		public byte[] AddressHash
 		{
-			get
-			{
-				if(_AddressHash == null)
-				{
-					_AddressHash = vchData.Skip(1).Take(4).ToArray();
-				}
-				return _AddressHash;
-			}
+			get { return _AddressHash ?? (_AddressHash = vchData.Skip(1).Take(4).ToArray()); }
 		}
 		public bool IsCompressed
 		{
@@ -45,21 +34,14 @@ namespace NBitcoin
 		byte[] _OwnerEntropy;
 		public byte[] OwnerEntropy
 		{
-			get
-			{
-				if(_OwnerEntropy == null)
-				{
-					_OwnerEntropy = vchData.Skip(1).Skip(4).Take(8).ToArray();
-				}
-				return _OwnerEntropy;
-			}
+			get { return _OwnerEntropy ?? (_OwnerEntropy = vchData.Skip(1).Skip(4).Take(8).ToArray()); }
 		}
 		LotSequence _LotSequence;
 		public LotSequence LotSequence
 		{
 			get
 			{
-				var hasLotSequence = (vchData[0] & (byte)0x04) != 0;
+				var hasLotSequence = (vchData[0] & 0x04) != 0;
 				if(!hasLotSequence)
 					return null;
 				if(_LotSequence == null)
@@ -73,14 +55,7 @@ namespace NBitcoin
 		byte[] _EncryptedPointB;
 		byte[] EncryptedPointB
 		{
-			get
-			{
-				if(_EncryptedPointB == null)
-				{
-					_EncryptedPointB = vchData.Skip(1).Skip(4).Skip(8).ToArray();
-				}
-				return _EncryptedPointB;
-			}
+			get { return _EncryptedPointB ?? (_EncryptedPointB = vchData.Skip(1).Skip(4).Skip(8).ToArray()); }
 		}
 
 		public override Base58Type Type
@@ -123,7 +98,7 @@ namespace NBitcoin
 
 			//4.ECMultiply pointb by passfactor. Use the resulting EC point as a public key
 			var curve = ECKey.CreateCurve();
-			ECPoint pointbec = null;
+			ECPoint pointbec;
 			try
 			{
 				pointbec = curve.Curve.DecodePoint(pointb);

@@ -2,10 +2,7 @@
 using NBitcoin.DataEncoders;
 using NBitcoin.BouncyCastle.Math;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -17,7 +14,7 @@ namespace NBitcoin
 			return Network.CreateFromBase58Data<BitcoinExtKey>(wif, expectedNetwork).ExtKey;
 		}
 
-		Key key = null;
+		Key key;
 		byte[] vchChainCode = new byte[32];
 		uint nChild;
 		byte nDepth;
@@ -86,13 +83,15 @@ namespace NBitcoin
 
 		public ExtPubKey Neuter()
 		{
-			ExtPubKey ret = new ExtPubKey();
-			ret.nDepth = nDepth;
-			ret.vchFingerprint = vchFingerprint.ToArray();
-			ret.nChild = nChild;
-			ret.pubkey = key.PubKey;
-			ret.vchChainCode = vchChainCode.ToArray();
-			return ret;
+			ExtPubKey ret = new ExtPubKey
+			{
+			    nDepth = nDepth, 
+                vchFingerprint = vchFingerprint.ToArray(), 
+                nChild = nChild, 
+                pubkey = key.PubKey, 
+                vchChainCode = vchChainCode.ToArray()
+			};
+		    return ret;
 		}
 
 		public bool IsChildOf(ExtKey parentKey)
@@ -119,17 +118,19 @@ namespace NBitcoin
 		}
 		public ExtKey Derive(uint index)
 		{
-			var result = new ExtKey();
-			result.nDepth = (byte)(nDepth + 1);
-			result.vchFingerprint = CalculateChildFingerprint();
-			result.nChild = index;
-			result.key = key.Derivate(this.vchChainCode, index, out result.vchChainCode);
+			var result = new ExtKey
+			{
+			    nDepth = (byte) (nDepth + 1), 
+                vchFingerprint = CalculateChildFingerprint(), 
+                nChild = index
+			};
+		    result.key = key.Derivate(this.vchChainCode, index, out result.vchChainCode);
 			return result;
 		}
 
 		public ExtKey Derive(int index, bool hardened)
 		{
-			if(nChild < 0)
+			if(index < 0)
 				throw new ArgumentOutOfRangeException("index", "the index can't be negative");
 			uint realIndex = (uint)index;
 			realIndex = hardened ? realIndex | 0x80000000u : realIndex;
@@ -162,11 +163,7 @@ namespace NBitcoin
 		public ExtKey Derive(KeyPath derivation)
 		{
 			ExtKey result = this;
-			foreach(var index in derivation.Indexes)
-			{
-				result = result.Derive(index);
-			}
-			return result;
+		    return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
 		}
 
 		public string ToString(Network network)
@@ -230,13 +227,15 @@ namespace NBitcoin
 			if(keyParentBytes.Length < 32)
 				keyParentBytes = new byte[32 - keyParentBytes.Length].Concat(keyParentBytes).ToArray();
 
-			var parentExtKey = new ExtKey();
-			parentExtKey.vchChainCode = parent.vchChainCode;
-			parentExtKey.nDepth = parent.Depth;
-			parentExtKey.vchFingerprint = parent.Fingerprint;
-			parentExtKey.nChild = parent.nChild;
-			parentExtKey.key = new Key(keyParentBytes);
-			return parentExtKey;
+			var parentExtKey = new ExtKey
+			{
+			    vchChainCode = parent.vchChainCode, 
+                nDepth = parent.Depth, 
+                vchFingerprint = parent.Fingerprint, 
+                nChild = parent.nChild, 
+                key = new Key(keyParentBytes)
+			};
+		    return parentExtKey;
 		}
 	}
 }

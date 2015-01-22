@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NBitcoin
+﻿namespace NBitcoin
 {
 	public abstract class BitcoinExtKeyBase : Base58Data, IDestination
 	{
-		public BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
+	    protected BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
 			: base(key.ToBytes(), network)
 		{
 		}
-		public BitcoinExtKeyBase(string base58, Network network)
+
+	    protected BitcoinExtKeyBase(string base58, Network network)
 			: base(base58, network)
 		{
 		}
