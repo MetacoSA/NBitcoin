@@ -1,10 +1,6 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -15,20 +11,20 @@ namespace NBitcoin
 			return Network.CreateFromBase58Data<BitcoinExtPubKey>(wif, expectedNetwork).ExtPubKey;
 		}
 
-		static byte[] validPubKey = Encoders.Hex.DecodeData("0374ef3990e387b5a2992797f14c031a64efd80e5cb843d7c1d4a0274a9bc75e55");
-		internal byte nDepth;
-		internal byte[] vchFingerprint = new byte[4];
-		internal uint nChild;
+		static readonly byte[] ValidPubKey = Encoders.Hex.DecodeData("0374ef3990e387b5a2992797f14c031a64efd80e5cb843d7c1d4a0274a9bc75e55");
+		internal byte NDepth;
+		internal byte[] VchFingerprint = new byte[4];
+		internal uint NChild;
 
 		//
-		internal PubKey pubkey = new PubKey(validPubKey);
-		internal byte[] vchChainCode = new byte[32];
+		internal PubKey Pubkey = new PubKey(ValidPubKey);
+		internal byte[] VchChainCode = new byte[32];
 
 		public byte Depth
 		{
 			get
 			{
-				return nDepth;
+				return NDepth;
 			}
 		}
 
@@ -36,7 +32,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return nChild;
+				return NChild;
 			}
 		}
 
@@ -44,14 +40,14 @@ namespace NBitcoin
 		{
 			get
 			{
-				return (nChild & 0x80000000u) != 0;
+				return (NChild & 0x80000000u) != 0;
 			}
 		}
 		public PubKey PubKey
 		{
 			get
 			{
-				return pubkey;
+				return Pubkey;
 			}
 		}
 
@@ -71,39 +67,35 @@ namespace NBitcoin
 		}
 		public byte[] CalculateChildFingerprint()
 		{
-			return pubkey.Hash.ToBytes().Take(vchFingerprint.Length).ToArray();
+			return Pubkey.Hash.ToBytes().Take(VchFingerprint.Length).ToArray();
 		}
 
 		public byte[] Fingerprint
 		{
 			get
 			{
-				return vchFingerprint;
+				return VchFingerprint;
 			}
 		}
 
 		public ExtPubKey Derive(uint index)
 		{
-			var result = new ExtPubKey();
-			result.nDepth = (byte)(nDepth + 1);
-			result.vchFingerprint = CalculateChildFingerprint();
-			result.nChild = index;
-			result.pubkey = pubkey.Derivate(this.vchChainCode, index, out result.vchChainCode);
+			var result = new ExtPubKey
+			{
+			    NDepth = (byte) (NDepth + 1), 
+                VchFingerprint = CalculateChildFingerprint(), 
+                NChild = index
+			};
+		    result.Pubkey = Pubkey.Derivate(VchChainCode, index, out result.VchChainCode);
 			return result;
 		}
 
 		public ExtPubKey Derive(KeyPath derivation)
 		{
 			ExtPubKey result = this;
-			foreach(var index in derivation.Indexes)
-			{
-				result = result.Derive(index);
-			}
-			return result;
+		    return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
 		}
-
-		
-
+        
 		public BitcoinExtPubKey GetWif(Network network)
 		{
 			return new BitcoinExtPubKey(this, network);
@@ -115,15 +107,14 @@ namespace NBitcoin
 		{
 			using(stream.BigEndianScope())
 			{
-				stream.ReadWrite(ref nDepth);
-				stream.ReadWrite(ref vchFingerprint);
-				stream.ReadWrite(ref nChild);
-				stream.ReadWrite(ref vchChainCode);
-				stream.ReadWrite(ref pubkey);
+				stream.ReadWrite(ref NDepth);
+				stream.ReadWrite(ref VchFingerprint);
+				stream.ReadWrite(ref NChild);
+				stream.ReadWrite(ref VchChainCode);
+				stream.ReadWrite(ref Pubkey);
 			}
 		}
-
-
+        
 		private uint256 Hash
 		{
 			get
@@ -135,13 +126,11 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			ExtPubKey item = obj as ExtPubKey;
-			if(item == null)
-				return false;
-			return Hash.Equals(item.Hash);
+			return item != null && Hash.Equals(item.Hash);
 		}
 		public static bool operator ==(ExtPubKey a, ExtPubKey b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if(ReferenceEquals(a, b))
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;

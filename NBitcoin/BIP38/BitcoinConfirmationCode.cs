@@ -3,11 +3,7 @@ using NBitcoin.DataEncoders;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -18,69 +14,52 @@ namespace NBitcoin
 			: base(wif, expectedNetwork)
 		{
 		}
-		public BitcoinConfirmationCode(byte[] rawBytes, Network network)
+		
+        public BitcoinConfirmationCode(byte[] rawBytes, Network network)
 			: base(rawBytes, network)
 		{
 		}
 
-		byte[] _AddressHash;
-		public byte[] AddressHash
+		byte[] _addressHash;
+		
+        public byte[] AddressHash
 		{
-			get
-			{
-				if(_AddressHash == null)
-				{
-					_AddressHash = vchData.Skip(1).Take(4).ToArray();
-				}
-				return _AddressHash;
-			}
+			get { return _addressHash ?? (_addressHash = vchData.Skip(1).Take(4).ToArray()); }
 		}
-		public bool IsCompressed
+		
+        public bool IsCompressed
 		{
 			get
 			{
 				return (vchData[0] & 0x20) != 0;
 			}
 		}
-		byte[] _OwnerEntropy;
-		public byte[] OwnerEntropy
+		
+        byte[] _ownerEntropy;
+		
+        public byte[] OwnerEntropy
 		{
-			get
-			{
-				if(_OwnerEntropy == null)
-				{
-					_OwnerEntropy = vchData.Skip(1).Skip(4).Take(8).ToArray();
-				}
-				return _OwnerEntropy;
-			}
+			get { return _ownerEntropy ?? (_ownerEntropy = vchData.Skip(1).Skip(4).Take(8).ToArray()); }
 		}
-		LotSequence _LotSequence;
+		
+        LotSequence _lotSequence;
+
 		public LotSequence LotSequence
 		{
 			get
 			{
-				var hasLotSequence = (vchData[0] & (byte)0x04) != 0;
+				var hasLotSequence = (vchData[0] & 0x04) != 0;
 				if(!hasLotSequence)
 					return null;
-				if(_LotSequence == null)
-				{
-					_LotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray());
-				}
-				return _LotSequence;
+			    return _lotSequence ?? (_lotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray()));
 			}
 		}
 
-		byte[] _EncryptedPointB;
+		byte[] _encryptedPointB;
+
 		byte[] EncryptedPointB
 		{
-			get
-			{
-				if(_EncryptedPointB == null)
-				{
-					_EncryptedPointB = vchData.Skip(1).Skip(4).Skip(8).ToArray();
-				}
-				return _EncryptedPointB;
-			}
+			get { return _encryptedPointB ?? (_encryptedPointB = vchData.Skip(1).Skip(4).Skip(8).ToArray()); }
 		}
 
 		public override Base58Type Type
@@ -116,14 +95,14 @@ namespace NBitcoin
 			if(pointbprefix != 0x02 && pointbprefix != 0x03)
 				return false;
 			var pointb = BitcoinEncryptedSecret.DecryptKey(EncryptedPointB.Skip(1).ToArray(), derived);
-			pointb = new byte[] { pointbprefix }.Concat(pointb).ToArray();
+			pointb = new[] { pointbprefix }.Concat(pointb).ToArray();
 
 			var param1 = Encoders.Hex.EncodeData(EncryptedPointB.Skip(1).ToArray());
 			var param2 = Encoders.Hex.EncodeData(derived);
 
 			//4.ECMultiply pointb by passfactor. Use the resulting EC point as a public key
 			var curve = ECKey.CreateCurve();
-			ECPoint pointbec = null;
+			ECPoint pointbec;
 			try
 			{
 				pointbec = curve.Curve.DecodePoint(pointb);

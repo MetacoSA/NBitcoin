@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NBitcoin
+﻿namespace NBitcoin
 {
 	public abstract class BitcoinExtKeyBase : Base58Data, IDestination
 	{
-		public BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
+	    protected BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
 			: base(key.ToBytes(), network)
 		{
 		}
-		public BitcoinExtKeyBase(string base58, Network network)
+
+	    protected BitcoinExtKeyBase(string base58, Network network)
 			: base(base58, network)
 		{
 		}
@@ -49,17 +44,17 @@ namespace NBitcoin
 			}
 		}
 
-		ExtKey _Key;
+		ExtKey _key;
 		public ExtKey ExtKey
 		{
 			get
 			{
-				if(_Key == null)
+				if(_key == null)
 				{
-					_Key = new ExtKey();
-					_Key.ReadWrite(vchData);
+					_key = new ExtKey();
+					_key.ReadWrite(vchData);
 				}
-				return _Key;
+				return _key;
 			}
 		}
 
@@ -93,17 +88,17 @@ namespace NBitcoin
 		{
 		}
 
-		ExtPubKey _PubKey;
+		ExtPubKey _pubKey;
 		public ExtPubKey ExtPubKey
 		{
 			get
 			{
-				if(_PubKey == null)
+				if(_pubKey == null)
 				{
-					_PubKey = new ExtPubKey();
-					_PubKey.ReadWrite(vchData);
+					_pubKey = new ExtPubKey();
+					_pubKey.ReadWrite(vchData);
 				}
-				return _PubKey;
+				return _pubKey;
 			}
 		}
 

@@ -1,13 +1,10 @@
-﻿using NBitcoin.Crypto;
+﻿using System.Collections.Generic;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.BouncyCastle.Math;
-using NBitcoin.BouncyCastle.Math.EC;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-
 
 namespace NBitcoin
 {
@@ -15,50 +12,50 @@ namespace NBitcoin
 	{
 		public EncryptedKeyResult(BitcoinEncryptedSecretEC key, BitcoinAddress address, byte[] seed, Func<BitcoinConfirmationCode> calculateConfirmation)
 		{
-			_EncryptedKey = key;
-			_GeneratedAddress = address;
-			_CalculateConfirmation = calculateConfirmation;
-			_Seed = seed;
+			_encryptedKey = key;
+			_generatedAddress = address;
+			_calculateConfirmation = calculateConfirmation;
+			_seed = seed;
 		}
 
-		private readonly BitcoinEncryptedSecretEC _EncryptedKey;
+		private readonly BitcoinEncryptedSecretEC _encryptedKey;
 		public BitcoinEncryptedSecretEC EncryptedKey
 		{
 			get
 			{
-				return _EncryptedKey;
+				return _encryptedKey;
 			}
 		}
 
-		Func<BitcoinConfirmationCode> _CalculateConfirmation;
-		private BitcoinConfirmationCode _ConfirmationCode;
+		Func<BitcoinConfirmationCode> _calculateConfirmation;
+		private BitcoinConfirmationCode _confirmationCode;
 		public BitcoinConfirmationCode ConfirmationCode
 		{
 			get
 			{
-				if(_ConfirmationCode == null)
+				if(_confirmationCode == null)
 				{
-					_ConfirmationCode = _CalculateConfirmation();
-					_CalculateConfirmation = null;
+					_confirmationCode = _calculateConfirmation();
+					_calculateConfirmation = null;
 				}
-				return _ConfirmationCode;
+				return _confirmationCode;
 			}
 		}
-		private readonly BitcoinAddress _GeneratedAddress;
+		private readonly BitcoinAddress _generatedAddress;
 		public BitcoinAddress GeneratedAddress
 		{
 			get
 			{
-				return _GeneratedAddress;
+				return _generatedAddress;
 			}
 		}
 
-		private readonly byte[] _Seed;
+		private readonly byte[] _seed;
 		public byte[] Seed
 		{
 			get
 			{
-				return _Seed;
+				return _seed;
 			}
 		}
 	}
@@ -72,11 +69,11 @@ namespace NBitcoin
 			if(sequence > 1024 || sequence < 0)
 				throw new ArgumentOutOfRangeException("sequence");
 
-			_Lot = lot;
-			_Sequence = sequence;
+			_lot = lot;
+			_sequence = sequence;
 			uint lotSequence = (uint)lot * (uint)4096 + (uint)sequence;
-			_Bytes =
-				new byte[]
+			_bytes =
+				new[]
 					{
 						(byte)(lotSequence >> 24),
 						(byte)(lotSequence >> 16),
@@ -84,60 +81,59 @@ namespace NBitcoin
 						(byte)(lotSequence)
 					};
 		}
-		public LotSequence(byte[] bytes)
+		public LotSequence(IEnumerable<byte> bytes)
 		{
-			_Bytes = bytes.ToArray();
+			_bytes = bytes.ToArray();
 			uint lotSequence =
-				((uint)_Bytes[0] << 24) +
-				((uint)_Bytes[1] << 16) +
-				((uint)_Bytes[2] << 8) +
-				((uint)_Bytes[3] << 0);
+				((uint)_bytes[0] << 24) +
+				((uint)_bytes[1] << 16) +
+				((uint)_bytes[2] << 8) +
+				((uint)_bytes[3] << 0);
 
-			_Lot = (int)(lotSequence / 4096);
-			_Sequence = (int)(lotSequence - _Lot);
+			_lot = (int)(lotSequence / 4096);
+			_sequence = (int)(lotSequence - _lot);
 		}
 
-		private readonly int _Lot;
+		private readonly int _lot;
 		public int Lot
 		{
 			get
 			{
-				return _Lot;
+				return _lot;
 			}
 		}
-		private readonly int _Sequence;
+		private readonly int _sequence;
 		public int Sequence
 		{
 			get
 			{
-				return _Sequence;
+				return _sequence;
 			}
 		}
 
-		byte[] _Bytes;
+	    readonly byte[] _bytes;
 		public byte[] ToBytes()
 		{
-			return _Bytes.ToArray();
+			return _bytes.ToArray();
 		}
 
 		private int Id
 		{
 			get
 			{
-				return BitConverter.ToInt32(_Bytes, 0);
+				return BitConverter.ToInt32(_bytes, 0);
 			}
 		}
 
 		public override bool Equals(object obj)
 		{
 			LotSequence item = obj as LotSequence;
-			if(item == null)
-				return false;
-			return Id.Equals(item.Id);
+			return item != null && Id.Equals(item.Id);
 		}
+
 		public static bool operator ==(LotSequence a, LotSequence b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if(ReferenceEquals(a, b))
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;
@@ -162,6 +158,7 @@ namespace NBitcoin
 			: base(GenerateWif(passphrase, network, lotsequence, ownersalt), network)
 		{
 		}
+
 		private static string GenerateWif(string passphrase, Network network, LotSequence lotsequence, byte[] ownersalt)
 		{
 			bool hasLotSequence = lotsequence != null;
@@ -179,6 +176,7 @@ namespace NBitcoin
 
 			var prefactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(passphrase), ownersalt, 32);
 			var passfactor = prefactor;
+
 			if(hasLotSequence)
 			{
 				passfactor = Hashes.Hash256(prefactor.Concat(ownerEntropy).ToArray()).ToBytes();
@@ -188,10 +186,11 @@ namespace NBitcoin
 
 			var bytes =
 				network.GetVersionBytes(Base58Type.PASSPHRASE_CODE)
-				.Concat(new byte[] { hasLotSequence ? (byte)0x51 : (byte)0x53 })
+				.Concat(new[] { hasLotSequence ? (byte)0x51 : (byte)0x53 })
 				.Concat(ownerEntropy)
 				.Concat(passpoint)
 				.ToArray();
+
 			return Encoders.Base58Check.EncodeData(bytes);
 		}
 
@@ -200,7 +199,7 @@ namespace NBitcoin
 		{
 		}
 
-		LotSequence _LotSequence;
+		LotSequence _lotSequence;
 		public LotSequence LotSequence
 		{
 			get
@@ -208,11 +207,7 @@ namespace NBitcoin
 				var hasLotSequence = (vchData[0]) == 0x51;
 				if(!hasLotSequence)
 					return null;
-				if(_LotSequence == null)
-				{
-					_LotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray());
-				}
-				return _LotSequence;
+			    return _lotSequence ?? (_lotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray()));
 			}
 		}
 
@@ -258,9 +253,9 @@ namespace NBitcoin
 
 			//0x01 0x43 + flagbyte + addresshash + ownerentropy + encryptedpart1[0...7] + encryptedpart2 which totals 39 bytes
 			var bytes =
-				new byte[] { flagByte }
+				new[] { flagByte }
 				.Concat(addresshash)
-				.Concat(this.OwnerEntropy)
+				.Concat(OwnerEntropy)
 				.Concat(encrypted.Take(8).ToArray())
 				.Concat(encrypted.Skip(16).ToArray())
 				.ToArray();
@@ -272,13 +267,13 @@ namespace NBitcoin
 				//ECMultiply factorb by G, call the result pointb. The result is 33 bytes.
 				var pointb = new Key(factorb).PubKey.ToBytes();
 				//The first byte is 0x02 or 0x03. XOR it by (derivedhalf2[31] & 0x01), call the resulting byte pointbprefix.
-				var pointbprefix = (byte)(pointb[0] ^ (byte)(derived[63] & (byte)0x01));
+				var pointbprefix = (byte)(pointb[0] ^ (byte)(derived[63] & 0x01));
 				var pointbx = BitcoinEncryptedSecret.EncryptKey(pointb.Skip(1).ToArray(), derived);
-				var encryptedpointb = new byte[] { pointbprefix }.Concat(pointbx).ToArray();
+				var encryptedpointb = new[] { pointbprefix }.Concat(pointbx).ToArray();
 
 				var confirmBytes =
 					Network.GetVersionBytes(Base58Type.CONFIRMATION_CODE)
-					.Concat(new byte[] { flagByte })
+					.Concat(new[] { flagByte })
 					.Concat(addresshash)
 					.Concat(OwnerEntropy)
 					.Concat(encryptedpointb)
@@ -287,31 +282,19 @@ namespace NBitcoin
 				return new BitcoinConfirmationCode(Encoders.Base58Check.EncodeData(confirmBytes), Network);
 			});
 		}
+        
+		byte[] _ownerEntropy;
 
-
-		byte[] _OwnerEntropy;
 		public byte[] OwnerEntropy
 		{
-			get
-			{
-				if(_OwnerEntropy == null)
-				{
-					_OwnerEntropy = vchData.Skip(1).Take(8).ToArray();
-				}
-				return _OwnerEntropy;
-			}
+			get { return _ownerEntropy ?? (_ownerEntropy = vchData.Skip(1).Take(8).ToArray()); }
 		}
-		byte[] _Passpoint;
+
+		byte[] _passpoint;
+
 		public byte[] Passpoint
 		{
-			get
-			{
-				if(_Passpoint == null)
-				{
-					_Passpoint = vchData.Skip(1).Skip(8).ToArray();
-				}
-				return _Passpoint;
-			}
+			get { return _passpoint ?? (_passpoint = vchData.Skip(1).Skip(8).ToArray()); }
 		}
 
 		protected override bool IsValid
@@ -321,8 +304,7 @@ namespace NBitcoin
 				return 1 + 8 + 33 == vchData.Length && (vchData[0] == 0x53 || vchData[0] == 0x51);
 			}
 		}
-
-
+        
 		public override Base58Type Type
 		{
 			get

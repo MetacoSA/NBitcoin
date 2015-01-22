@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -10,15 +8,15 @@ namespace NBitcoin
 	{
 		public KeyPath(string path)
 		{
-			_Indexes =
+			_indexes =
 				path
 				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-				.Select(c => Parse(c))
+				.Select(Parse)
 				.ToArray();
 
 		}
 
-		private uint Parse(string i)
+		private static uint Parse(string i)
 		{
 			bool hardened = i.EndsWith("'");
 			var nonhardened = hardened ? i.Substring(0, i.Length - 1) : i;
@@ -28,14 +26,16 @@ namespace NBitcoin
 
 		public KeyPath(params uint[] indexes)
 		{
-			_Indexes = indexes;
+			_indexes = indexes;
 		}
-		uint[] _Indexes;
+
+	    readonly uint[] _indexes;
+
 		public uint this[int index]
 		{
 			get
 			{
-				return _Indexes[index];
+				return _indexes[index];
 			}
 		}
 
@@ -43,7 +43,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return _Indexes;
+				return _indexes;
 			}
 		}
 
@@ -64,21 +64,19 @@ namespace NBitcoin
 		public KeyPath Derive(KeyPath derivation)
 		{
 			return new KeyPath(
-				_Indexes
-				.Concat(derivation._Indexes)
+				_indexes
+				.Concat(derivation._indexes)
 				.ToArray());
 		}
 
 		public override bool Equals(object obj)
 		{
 			KeyPath item = obj as KeyPath;
-			if(item == null)
-				return false;
-			return ToString().Equals(item.ToString());
+			return item != null && ToString().Equals(item.ToString());
 		}
 		public static bool operator ==(KeyPath a, KeyPath b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if(ReferenceEquals(a, b))
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;
@@ -95,30 +93,27 @@ namespace NBitcoin
 			return ToString().GetHashCode();
 		}
 
-		string _Path;
+		string _path;
+
 		public override string ToString()
 		{
-			if(_Path == null)
-			{
-				_Path = string.Join("/", _Indexes.Select(i=>ToString(i)).ToArray());
-			}
-			return _Path;
+		    return _path ?? (_path = string.Join("/", _indexes.Select(ToString).ToArray()));
 		}
 
-		private string ToString(uint i)
+	    private static string ToString(uint i)
 		{
 			var hardened = (i & 0x80000000u) != 0;
 			var nonhardened = (i & ~0x80000000u);
-			return hardened ? nonhardened.ToString() + "'" : nonhardened.ToString();
+			return hardened ? nonhardened + "'" : nonhardened.ToString(CultureInfo.InvariantCulture);
 		}
 
 		public bool IsHardened
 		{
 			get
 			{
-				if(_Indexes.Length == 0)
+				if(_indexes.Length == 0)
 					throw new InvalidOperationException("No indice found in this KeyPath");
-				return (_Indexes[_Indexes.Length - 1] & 0x80000000u) != 0;
+				return (_indexes[_indexes.Length - 1] & 0x80000000u) != 0;
 			}
 		}
 	}
