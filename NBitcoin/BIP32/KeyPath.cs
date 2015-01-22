@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -13,12 +11,12 @@ namespace NBitcoin
 			_Indexes =
 				path
 				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-				.Select(c => Parse(c))
+				.Select(Parse)
 				.ToArray();
 
 		}
 
-		private uint Parse(string i)
+		private static uint Parse(string i)
 		{
 			bool hardened = i.EndsWith("'");
 			var nonhardened = hardened ? i.Substring(0, i.Length - 1) : i;
@@ -30,7 +28,8 @@ namespace NBitcoin
 		{
 			_Indexes = indexes;
 		}
-		uint[] _Indexes;
+
+	    readonly uint[] _Indexes;
 		public uint this[int index]
 		{
 			get
@@ -78,7 +77,7 @@ namespace NBitcoin
 		}
 		public static bool operator ==(KeyPath a, KeyPath b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if(ReferenceEquals(a, b))
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;
@@ -98,18 +97,14 @@ namespace NBitcoin
 		string _Path;
 		public override string ToString()
 		{
-			if(_Path == null)
-			{
-				_Path = string.Join("/", _Indexes.Select(i=>ToString(i)).ToArray());
-			}
-			return _Path;
+		    return _Path ?? (_Path = string.Join("/", _Indexes.Select(ToString).ToArray()));
 		}
 
-		private string ToString(uint i)
+	    private static string ToString(uint i)
 		{
 			var hardened = (i & 0x80000000u) != 0;
 			var nonhardened = (i & ~0x80000000u);
-			return hardened ? nonhardened.ToString() + "'" : nonhardened.ToString();
+			return hardened ? nonhardened + "'" : nonhardened.ToString(CultureInfo.InvariantCulture);
 		}
 
 		public bool IsHardened

@@ -1,20 +1,9 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.BouncyCastle.Math;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Text;
-using System.Threading.Tasks;
-using NBitcoin.BouncyCastle.Crypto;
-using NBitcoin.BouncyCastle.Security;
-using NBitcoin.BouncyCastle.Asn1.Nist;
-using NBitcoin.BouncyCastle.Crypto.Parameters;
-using NBitcoin.BouncyCastle.Crypto.Paddings;
-using NBitcoin.BouncyCastle.Crypto.Engines;
-using NBitcoin.BouncyCastle.Crypto.Modes;
-
 #if !USEBC
 using System.Security.Cryptography;
 #endif
@@ -48,7 +37,7 @@ namespace NBitcoin
 			// and take the first four bytes of SHA256(SHA256()) of it. Let's call this "addresshash".
 			var addresshash = Hashes.Hash256(addressBytes).ToBytes().Take(4).ToArray();
 
-			var derived = NBitcoin.Crypto.SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), addresshash);
+			var derived = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), addresshash);
 
 			var encrypted = EncryptKey(vch, derived);
 
@@ -60,7 +49,7 @@ namespace NBitcoin
 			flagByte |= (key.IsCompressed ? (byte)0x20 : (byte)0x00);
 
 			var bytes = version
-							.Concat(new byte[] { flagByte })
+							.Concat(new[] { flagByte })
 							.Concat(addresshash)
 							.Concat(encrypted).ToArray();
 			return Encoders.Base58Check.EncodeData(bytes);
@@ -69,27 +58,13 @@ namespace NBitcoin
 		byte[] _FirstHalf;
 		public byte[] EncryptedHalf1
 		{
-			get
-			{
-				if(_FirstHalf == null)
-				{
-					_FirstHalf = vchData.Skip(ValidLength - 32).Take(16).ToArray();
-				}
-				return _FirstHalf;
-			}
+			get { return _FirstHalf ?? (_FirstHalf = vchData.Skip(ValidLength - 32).Take(16).ToArray()); }
 		}
 
 		public byte[] _Encrypted;
 		public byte[] Encrypted
 		{
-			get
-			{
-				if(_Encrypted == null)
-				{
-					_Encrypted = EncryptedHalf1.Concat(EncryptedHalf2).ToArray();
-				}
-				return _Encrypted;
-			}
+			get { return _Encrypted ?? (_Encrypted = EncryptedHalf1.Concat(EncryptedHalf2).ToArray()); }
 		}
 
 		public override Base58Type Type
@@ -102,7 +77,7 @@ namespace NBitcoin
 
 		public override Key GetKey(string password)
 		{
-			var derived = NBitcoin.Crypto.SCrypt.BitcoinComputeDerivedKey(password, AddressHash);
+			var derived = SCrypt.BitcoinComputeDerivedKey(password, AddressHash);
 			var bitcoinprivkey = DecryptKey(Encrypted, derived);
 
 			var key = new Key(bitcoinprivkey, fCompressedIn: IsCompressed);
@@ -147,55 +122,30 @@ namespace NBitcoin
 		byte[] _OwnerEntropy;
 		public byte[] OwnerEntropy
 		{
-			get
-			{
-				if(_OwnerEntropy == null)
-				{
-					_OwnerEntropy = vchData.Skip(ValidLength - 32).Take(8).ToArray();
-				}
-				return _OwnerEntropy;
-			}
+			get { return _OwnerEntropy ?? (_OwnerEntropy = vchData.Skip(ValidLength - 32).Take(8).ToArray()); }
 		}
 		LotSequence _LotSequence;
 		public LotSequence LotSequence
 		{
 			get
 			{
-				var hasLotSequence = (vchData[0] & (byte)0x04) != 0;
+				var hasLotSequence = (vchData[0] & 0x04) != 0;
 				if(!hasLotSequence)
 					return null;
-				if(_LotSequence == null)
-				{
-					_LotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray());
-				}
-				return _LotSequence;
+			    return _LotSequence ?? (_LotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray()));
 			}
 		}
 
 		byte[] _EncryptedHalfHalf1;
 		public byte[] EncryptedHalfHalf1
 		{
-			get
-			{
-				if(_EncryptedHalfHalf1 == null)
-				{
-					_EncryptedHalfHalf1 = vchData.Skip(ValidLength - 32 + 8).Take(8).ToArray();
-				}
-				return _EncryptedHalfHalf1;
-			}
+			get { return _EncryptedHalfHalf1 ?? (_EncryptedHalfHalf1 = vchData.Skip(ValidLength - 32 + 8).Take(8).ToArray()); }
 		}
 
 		byte[] _PartialEncrypted;
 		public byte[] PartialEncrypted
 		{
-			get
-			{
-				if(_PartialEncrypted == null)
-				{
-					_PartialEncrypted = EncryptedHalfHalf1.Concat(new byte[8]).Concat(EncryptedHalf2).ToArray();
-				}
-				return _PartialEncrypted;
-			}
+			get { return _PartialEncrypted ?? (_PartialEncrypted = EncryptedHalfHalf1.Concat(new byte[8]).Concat(EncryptedHalf2).ToArray()); }
 		}
 
 
@@ -218,7 +168,7 @@ namespace NBitcoin
 			var derived = SCrypt.BitcoinComputeDerivedKey2(passpoint, this.AddressHash.Concat(this.OwnerEntropy).ToArray());
 
 			//Decrypt encryptedpart1 to yield the remainder of seedb.
-			var seedb = BitcoinEncryptedSecret.DecryptSeed(encrypted, derived);
+			var seedb = DecryptSeed(encrypted, derived);
 			var factorb = Hashes.Hash256(seedb).ToBytes();
 
 			var curve = ECKey.CreateCurve();
@@ -257,7 +207,7 @@ namespace NBitcoin
 
 		internal static byte[] CalculatePassFactor(string password, LotSequence lotSequence, byte[] ownerEntropy)
 		{
-			byte[] passfactor = null;
+			byte[] passfactor;
 			if(lotSequence == null)
 			{
 				passfactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), ownerEntropy, 32);
@@ -292,12 +242,12 @@ namespace NBitcoin
 		}
 
 
-		public BitcoinEncryptedSecret(byte[] raw, Network network)
+	    protected BitcoinEncryptedSecret(byte[] raw, Network network)
 			: base(raw, network)
 		{
 		}
 
-		public BitcoinEncryptedSecret(string wif, Network network)
+	    protected BitcoinEncryptedSecret(string wif, Network network)
 			: base(wif, network)
 		{
 		}
@@ -316,14 +266,7 @@ namespace NBitcoin
 		byte[] _AddressHash;
 		public byte[] AddressHash
 		{
-			get
-			{
-				if(_AddressHash == null)
-				{
-					_AddressHash = vchData.Skip(1).Take(4).ToArray();
-				}
-				return _AddressHash;
-			}
+			get { return _AddressHash ?? (_AddressHash = vchData.Skip(1).Take(4).ToArray()); }
 		}
 		public bool IsCompressed
 		{
@@ -336,14 +279,7 @@ namespace NBitcoin
 		byte[] _LastHalf;
 		public byte[] EncryptedHalf2
 		{
-			get
-			{
-				if(_LastHalf == null)
-				{
-					_LastHalf = vchData.Skip(ValidLength - 16).ToArray();
-				}
-				return _LastHalf;
-			}
+			get { return _LastHalf ?? (_LastHalf = vchData.Skip(ValidLength - 16).ToArray()); }
 		}
 		protected int ValidLength = (1 + 4 + 16 + 16);
 
@@ -407,7 +343,7 @@ namespace NBitcoin
 			var encryptedhalf1 = new byte[16];
 			var encryptedhalf2 = new byte[16];
 #if !USEBC
-			var aes = BitcoinEncryptedSecret.CreateAES256();
+			var aes = CreateAES256();
 			aes.Key = derivedhalf2;
 			var encrypt = aes.CreateEncryptor();
 #else
