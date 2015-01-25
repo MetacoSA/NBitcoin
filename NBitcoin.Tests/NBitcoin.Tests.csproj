@@ -71,6 +71,7 @@
     <Compile Include="Benchmark.cs" />
     <Compile Include="bip32_tests.cs" />
     <Compile Include="BIP38Tests.cs" />
+    <Compile Include="bip39_tests.cs" />
     <Compile Include="BitcoinQProcess.cs" />
     <Compile Include="bloom_tests.cs" />
     <Compile Include="ChainTests.cs" />
@@ -133,6 +134,12 @@
     <Content Include="data\determiniticECDSA.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="data\bip39_vectors.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\bip39_JP.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="data\openasset-known-tx.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

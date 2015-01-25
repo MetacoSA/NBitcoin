@@ -85,13 +85,13 @@ namespace NBitcoin
 		{
 			ExtPubKey ret = new ExtPubKey
 			{
-			    nDepth = nDepth, 
-                vchFingerprint = vchFingerprint.ToArray(), 
-                nChild = nChild, 
-                pubkey = key.PubKey, 
-                vchChainCode = vchChainCode.ToArray()
+				nDepth = nDepth,
+				vchFingerprint = vchFingerprint.ToArray(),
+				nChild = nChild,
+				pubkey = key.PubKey,
+				vchChainCode = vchChainCode.ToArray()
 			};
-		    return ret;
+			return ret;
 		}
 
 		public bool IsChildOf(ExtKey parentKey)
@@ -120,11 +120,11 @@ namespace NBitcoin
 		{
 			var result = new ExtKey
 			{
-			    nDepth = (byte) (nDepth + 1), 
-                vchFingerprint = CalculateChildFingerprint(), 
-                nChild = index
+				nDepth = (byte)(nDepth + 1),
+				vchFingerprint = CalculateChildFingerprint(),
+				nChild = index
 			};
-		    result.key = key.Derivate(this.vchChainCode, index, out result.vchChainCode);
+			result.key = key.Derivate(this.vchChainCode, index, out result.vchChainCode);
 			return result;
 		}
 
@@ -163,7 +163,7 @@ namespace NBitcoin
 		public ExtKey Derive(KeyPath derivation)
 		{
 			ExtKey result = this;
-		    return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
+			return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
 		}
 
 		public string ToString(Network network)
@@ -229,13 +229,23 @@ namespace NBitcoin
 
 			var parentExtKey = new ExtKey
 			{
-			    vchChainCode = parent.vchChainCode, 
-                nDepth = parent.Depth, 
-                vchFingerprint = parent.Fingerprint, 
-                nChild = parent.nChild, 
-                key = new Key(keyParentBytes)
+				vchChainCode = parent.vchChainCode,
+				nDepth = parent.Depth,
+				vchFingerprint = parent.Fingerprint,
+				nChild = parent.nChild,
+				key = new Key(keyParentBytes)
 			};
-		    return parentExtKey;
+			return parentExtKey;
 		}
+
+		public BIP39 EncryptToMnemonic(string passphrase, Wordlist wordList = null, byte[] entropy = null)
+		{
+			if(passphrase == null)
+				passphrase = "";
+			if(wordList == null)
+				wordList = Wordlist.English;
+			return new BIP39(passphrase, wordList, entropy);
+		}
+
 	}
 }
