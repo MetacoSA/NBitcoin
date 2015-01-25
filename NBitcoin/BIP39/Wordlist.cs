@@ -114,7 +114,7 @@ namespace NBitcoin
 			}
 			if(result != null)
 				return await Task.FromResult<Wordlist>(result).ConfigureAwait(false);
-			
+
 
 			if(WordlistSource == null)
 				throw new InvalidOperationException("Wordlist.WordlistSource is not set, impossible to fetch word list.");
@@ -139,11 +139,21 @@ namespace NBitcoin
 		/// Constructor used by inheritence only
 		/// </summary>
 		/// <param name="words">The words to be used in the wordlist</param>
-		public Wordlist(String[] words)
+		public Wordlist(String[] words, char space = ' ')
 		{
 			_words = words
-						.Select(w=>w.Normalize(NormalizationForm.FormKD))
+						.Select(w => w.Normalize(NormalizationForm.FormKD))
 						.ToArray();
+			_Space = space;
+		}
+
+		private readonly char _Space;
+		public char Space
+		{
+			get
+			{
+				return _Space;
+			}
 		}
 
 		/// <summary>
@@ -184,6 +194,100 @@ namespace NBitcoin
 			{
 				return _words.Length;
 			}
+		}
+
+
+		public static Task<Wordlist> AutoDetectAsync(string sentence)
+		{
+			return LoadWordList(AutoDetectLanguage(sentence));
+		}
+		public static Wordlist AutoDetect(string sentence)
+		{
+			return LoadWordList(AutoDetectLanguage(sentence)).Result;
+		}
+		public static Language AutoDetectLanguage(string[] words)
+		{
+			List<int> languageCount = new List<int>(new int[] { 0, 0, 0, 0, 0 });
+			int index;
+
+			foreach(string s in words)
+			{
+				if(Wordlist.English.WordExists(s, out index))
+				{
+					//english is at 0
+					languageCount[0]++;
+				}
+
+				if(Wordlist.Japanese.WordExists(s, out index))
+				{
+					//japanese is at 1
+					languageCount[1]++;
+				}
+
+				if(Wordlist.Spanish.WordExists(s, out index))
+				{
+					//spanish is at 2
+					languageCount[2]++;
+				}
+
+				if(Wordlist.ChineseSimplified.WordExists(s, out index))
+				{
+					//chinese simplified is at 3
+					languageCount[3]++;
+				}
+
+				if(Wordlist.ChineseTraditional.WordExists(s, out index) && !Wordlist.ChineseSimplified.WordExists(s, out index))
+				{
+					//chinese traditional is at 4
+					languageCount[4]++;
+				}
+			}
+
+			//no hits found for any language unknown
+			if(languageCount.Max() == 0)
+			{
+				return Language.Unknown;
+			}
+
+			if(languageCount.IndexOf(languageCount.Max()) == 0)
+			{
+				return Language.English;
+			}
+			else if(languageCount.IndexOf(languageCount.Max()) == 1)
+			{
+				return Language.Japanese;
+			}
+			else if(languageCount.IndexOf(languageCount.Max()) == 2)
+			{
+				return Language.Spanish;
+			}
+			else if(languageCount.IndexOf(languageCount.Max()) == 3)
+			{
+				if(languageCount[4] > 0)
+				{
+					//has traditional characters so not simplified but instead traditional
+					return Language.ChineseTraditional;
+				}
+
+				return Language.ChineseSimplified;
+			}
+			else if(languageCount.IndexOf(languageCount.Max()) == 4)
+			{
+				return Language.ChineseTraditional;
+			}
+
+			return Language.Unknown;
+		}
+		public static Language AutoDetectLanguage(string sentence)
+		{
+			string[] words = sentence.Split(new char[] { ' ', '　' }); //normal space and JP space
+
+			return AutoDetectLanguage(words);
+		}
+
+		public string[] Split(string mnemonic)
+		{
+			return mnemonic.Split(new char[]{Space}, StringSplitOptions.RemoveEmptyEntries);
 		}
 	}
 }

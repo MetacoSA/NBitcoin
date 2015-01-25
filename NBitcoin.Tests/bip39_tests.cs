@@ -26,13 +26,13 @@ namespace NBitcoin.Tests
 				foreach(var langTest in ((JArray)language.Value).OfType<JArray>().Take(2))
 				{
 					var entropy = Encoders.Hex.DecodeData(langTest[0].ToString());
-					string mnemonic = langTest[1].ToString();
+					string mnemonicStr = langTest[1].ToString();
 					string seed = langTest[2].ToString();
-					var bip39 = new BIP39(mnemonic, "TREZOR", lang);
-					Assert.Equal(seed, Encoders.Hex.EncodeData(bip39.SeedBytes));
+					var mnemonic = new Mnemonic(mnemonicStr, lang);
+					Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.GetSeed("TREZOR")));
 
-					var bip392 = new BIP39("TREZOR", lang, entropy);
-					Assert.Equal(seed, Encoders.Hex.EncodeData(bip392.SeedBytes));
+					mnemonic = new Mnemonic("TREZOR", lang, entropy);
+					Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.GetSeed("TREZOR")));
 				}
 			}
 		}
@@ -46,21 +46,21 @@ namespace NBitcoin.Tests
 			foreach(var unitTest in test.OfType<JObject>())
 			{
 				var entropy = Encoders.Hex.DecodeData(unitTest["entropy"].ToString());
-				string mnemonic = unitTest["mnemonic"].ToString();
+				string mnemonicStr = unitTest["mnemonic"].ToString();
 				string seed = unitTest["seed"].ToString();
 				string passphrase = unitTest["passphrase"].ToString();
-				var bip39 = new BIP39(mnemonic, passphrase, Wordlist.Japanese);
-				Assert.Equal(seed, Encoders.Hex.EncodeData(bip39.SeedBytes));
+				var mnemonic = new Mnemonic(mnemonicStr, Wordlist.Japanese);
+				Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.GetSeed(passphrase)));
 				var bip32 = unitTest["bip32_xprv"].ToString();
-				var bip32Actual = bip39.ExtKey.ToString(Network.Main);
+				var bip32Actual = mnemonic.GetExtKey(passphrase).ToString(Network.Main);
 				Assert.Equal(bip32, bip32Actual.ToString());
 
-				var bip392 = new BIP39(passphrase, Wordlist.Japanese, entropy);
-				bip32Actual = bip392.ExtKey.ToString(Network.Main);
+				mnemonic = new Mnemonic(passphrase, Wordlist.Japanese, entropy);
+				bip32Actual = mnemonic.GetExtKey(passphrase).ToString(Network.Main);
 				Assert.Equal(bip32, bip32Actual.ToString());
 
-				var bip393 = bip39.ExtKey.EncryptToMnemonic(passphrase, Wordlist.Japanese, entropy);
-				bip32Actual = bip393.ExtKey.ToString(Network.Main);
+				var bip393 = mnemonic.GetExtKey(passphrase).EncryptToMnemonic(passphrase, Wordlist.Japanese, entropy);
+				bip32Actual = bip393.GetExtKey(passphrase).ToString(Network.Main);
 				Assert.Equal(bip32, bip32Actual.ToString());
 			}
 		}
@@ -69,42 +69,42 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void TestKnownEnglish()
 		{
-			Assert.Equal(Language.English, BIP39.AutoDetectLanguageOfWords(new string[] { "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "about" }));
+			Assert.Equal(Language.English, Wordlist.AutoDetectLanguage(new string[] { "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "abandon", "about" }));
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void TestKnownJapenese()
 		{
-			Assert.Equal(Language.Japanese, BIP39.AutoDetectLanguageOfWords(new string[] { "あいこくしん", "あいさつ", "あいだ", "あおぞら", "あかちゃん", "あきる", "あけがた", "あける", "あこがれる", "あさい", "あさひ", "あしあと", "あじわう", "あずかる", "あずき", "あそぶ", "あたえる", "あたためる", "あたりまえ", "あたる", "あつい", "あつかう", "あっしゅく", "あつまり", "あつめる", "あてな", "あてはまる", "あひる", "あぶら", "あぶる", "あふれる", "あまい", "あまど", "あまやかす", "あまり", "あみもの", "あめりか" }));
+			Assert.Equal(Language.Japanese, Wordlist.AutoDetectLanguage(new string[] { "あいこくしん", "あいさつ", "あいだ", "あおぞら", "あかちゃん", "あきる", "あけがた", "あける", "あこがれる", "あさい", "あさひ", "あしあと", "あじわう", "あずかる", "あずき", "あそぶ", "あたえる", "あたためる", "あたりまえ", "あたる", "あつい", "あつかう", "あっしゅく", "あつまり", "あつめる", "あてな", "あてはまる", "あひる", "あぶら", "あぶる", "あふれる", "あまい", "あまど", "あまやかす", "あまり", "あみもの", "あめりか" }));
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void TestKnownSpanish()
 		{
-			Assert.Equal(Language.Spanish, BIP39.AutoDetectLanguageOfWords(new string[] { "yoga", "yogur", "zafiro", "zanja", "zapato", "zarza", "zona", "zorro", "zumo", "zurdo" }));
+			Assert.Equal(Language.Spanish, Wordlist.AutoDetectLanguage(new string[] { "yoga", "yogur", "zafiro", "zanja", "zapato", "zarza", "zona", "zorro", "zumo", "zurdo" }));
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void TestKnownChineseSimplified()
 		{
-			Assert.Equal(Language.ChineseSimplified, BIP39.AutoDetectLanguageOfWords(new string[] { "的", "一", "是", "在", "不", "了", "有", "和", "人", "这" }));
+			Assert.Equal(Language.ChineseSimplified, Wordlist.AutoDetectLanguage(new string[] { "的", "一", "是", "在", "不", "了", "有", "和", "人", "这" }));
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void TestKnownChineseTraditional()
 		{
-			Assert.Equal(Language.ChineseTraditional, BIP39.AutoDetectLanguageOfWords(new string[] { "的", "一", "是", "在", "不", "了", "有", "和", "載" }));
+			Assert.Equal(Language.ChineseTraditional, Wordlist.AutoDetectLanguage(new string[] { "的", "一", "是", "在", "不", "了", "有", "和", "載" }));
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void TestKnownUnknown()
 		{
-			Assert.Equal(Language.Unknown, BIP39.AutoDetectLanguageOfWords(new string[] { "gffgfg", "khjkjk", "kjkkj" }));
+			Assert.Equal(Language.Unknown, Wordlist.AutoDetectLanguage(new string[] { "gffgfg", "khjkjk", "kjkkj" }));
 		}
 
 

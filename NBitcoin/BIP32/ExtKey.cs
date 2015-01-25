@@ -238,13 +238,13 @@ namespace NBitcoin
 			return parentExtKey;
 		}
 
-		public BIP39 EncryptToMnemonic(string passphrase, Wordlist wordList = null, byte[] entropy = null)
+		public Mnemonic EncryptToMnemonic(string passphrase, Wordlist wordList = null, byte[] entropy = null)
 		{
 			if(passphrase == null)
 				passphrase = "";
 			if(wordList == null)
 				wordList = Wordlist.English;
-			return new BIP39(passphrase, wordList, entropy);
+			return new Mnemonic(passphrase, wordList, entropy);
 		}
 
 	}

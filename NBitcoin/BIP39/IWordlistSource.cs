@@ -27,7 +27,9 @@ namespace NBitcoin
 			if(result.StatusCode == System.Net.HttpStatusCode.NotFound)
 				return null;
 			var list = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
-			return new Wordlist(list.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries));
+			return new Wordlist(list.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries),
+				name == "japanese" ? '　' : ' '
+				);
 		}
 
 		#endregion

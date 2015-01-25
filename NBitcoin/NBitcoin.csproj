@@ -57,7 +57,7 @@
     <Compile Include="Account.cs" />
     <Compile Include="Base58Data.cs" />
     <Compile Include="BIP32\KeyPath.cs" />
-    <Compile Include="BIP39\BIP39.cs" />
+    <Compile Include="BIP39\Mnemonic.cs" />
     <Compile Include="BIP39\IWordlistSource.cs" />
     <Compile Include="BIP39\Language.cs" />
     <Compile Include="BIP39\Wordlist.cs" />
