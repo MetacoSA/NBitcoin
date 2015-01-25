@@ -139,14 +139,23 @@ namespace NBitcoin
 		/// Constructor used by inheritence only
 		/// </summary>
 		/// <param name="words">The words to be used in the wordlist</param>
-		public Wordlist(String[] words, char space = ' ')
+		public Wordlist(String[] words, char space, string name)
 		{
 			_words = words
 						.Select(w => w.Normalize(NormalizationForm.FormKD))
 						.ToArray();
 			_Space = space;
+			_Name = name;
 		}
 
+		private readonly string _Name;
+		public string Name
+		{
+			get
+			{
+				return _Name;
+			}
+		}
 		private readonly char _Space;
 		public char Space
 		{
@@ -288,6 +297,11 @@ namespace NBitcoin
 		public string[] Split(string mnemonic)
 		{
 			return mnemonic.Split(new char[]{Space}, StringSplitOptions.RemoveEmptyEntries);
+		}
+
+		public override string ToString()
+		{
+			return _Name;
 		}
 	}
 }

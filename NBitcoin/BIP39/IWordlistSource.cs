@@ -28,7 +28,7 @@ namespace NBitcoin
 				return null;
 			var list = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
 			return new Wordlist(list.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries),
-				name == "japanese" ? '　' : ' '
+				name == "japanese" ? '　' : ' ', name
 				);
 		}
 
