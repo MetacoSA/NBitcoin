@@ -75,14 +75,14 @@ namespace NBitcoin
 
 		static volatile byte[] additionalEntropy = null;
 		static volatile int entropyIndex = 0;
-#if WIN
+
 		public static void AddEntropy(string data)
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");
-			AddEntropy(Encoding.UTF7.GetBytes(data));
+			AddEntropy(Encoding.UTF8.GetBytes(data));
 		}
-#endif
+
 		public static void AddEntropy(byte[] data)
 		{
 			if(data == null)

@@ -4,6 +4,9 @@ using NBitcoin.BouncyCastle.Math;
 using System.Linq;
 using System.Security;
 using System.Text;
+using NBitcoin.BouncyCastle.Crypto.Paddings;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Crypto.Engines;
 #if !USEBC
 using System.Security.Cryptography;
 #endif

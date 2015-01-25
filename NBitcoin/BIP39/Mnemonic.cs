@@ -1,11 +1,16 @@
-﻿﻿using System;
+﻿#if !NOSTRNORMALIZE
+﻿using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NBitcoin.Crypto;
+#if !USEBC
 using System.Security.Cryptography;
+#endif
+using NBitcoin.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
 
 namespace NBitcoin
 {
@@ -229,8 +234,19 @@ namespace NBitcoin
 			passphrase = passphrase ?? "";
 			var salt = Concat(UTF8Encoding.UTF8.GetBytes("mnemonic"), UTF8Encoding.UTF8.GetBytes(passphrase.Normalize(NormalizationForm.FormKD)));
 			var bytes = Encoding.UTF8.GetBytes(_Mnemonic.Normalize(NormalizationForm.FormKD));
+
+#if !USEBC
 			return Pbkdf2.ComputeDerivedKey(new HMACSHA512(bytes), salt, 2048, 64);
+#else
+			var mac = MacUtilities.GetMac("HMAC-SHA_512");
+			mac.Init(new KeyParameter(bytes));
+			return Pbkdf2.ComputeDerivedKey(mac, salt, 2048, 64);
+#endif
+
 		}
+
+
+
 		public ExtKey DeriveExtKey(string passphrase)
 		{
 			return new ExtKey(DeriveSeed(passphrase));
@@ -254,3 +270,4 @@ namespace NBitcoin
 		}
 	}
 }
+#endif
