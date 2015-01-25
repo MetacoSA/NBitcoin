@@ -237,15 +237,5 @@ namespace NBitcoin
 			};
 			return parentExtKey;
 		}
-
-		public Mnemonic EncryptToMnemonic(string passphrase, Wordlist wordList = null, byte[] entropy = null)
-		{
-			if(passphrase == null)
-				passphrase = "";
-			if(wordList == null)
-				wordList = Wordlist.English;
-			return new Mnemonic(passphrase, wordList, entropy);
-		}
-
 	}
 }

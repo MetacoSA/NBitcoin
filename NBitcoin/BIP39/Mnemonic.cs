@@ -93,17 +93,18 @@ namespace NBitcoin
 			return indices;
 		}
 
-		public Mnemonic(string passphrase, Wordlist wordList, byte[] entropy = null)
+		/// <summary>
+		/// Generate a mnemonic
+		/// </summary>
+		/// <param name="passphrase"></param>
+		/// <param name="wordList"></param>
+		/// <param name="entropy"></param>
+		public Mnemonic(Wordlist wordList, byte[] entropy = null)
 		{
-			passphrase = passphrase ?? "";
 			wordList = wordList ?? Wordlist.English;
 			_WordList = wordList;
 			if(entropy == null)
 				entropy = RandomUtils.GetBytes(32);
-
-
-
-
 			byte[] allChecksumBytes = Hashes.SHA256(entropy); //sha256 the entropy bytes to get all the checksum bits
 
 			int numberOfChecksumBits = (entropy.Length * 8) / 32; //number of bits to take from the checksum bits, varies on entropy size as per spec
@@ -223,15 +224,16 @@ namespace NBitcoin
 			}
 		}
 
-		public byte[] GetSeed(string passphrase)
+		public byte[] DeriveSeed(string passphrase)
 		{
+			passphrase = passphrase ?? "";
 			var salt = Concat(UTF8Encoding.UTF8.GetBytes("mnemonic"), UTF8Encoding.UTF8.GetBytes(passphrase.Normalize(NormalizationForm.FormKD)));
 			var bytes = Encoding.UTF8.GetBytes(_Mnemonic.Normalize(NormalizationForm.FormKD));
 			return Pbkdf2.ComputeDerivedKey(new HMACSHA512(bytes), salt, 2048, 64);
 		}
-		public ExtKey GetExtKey(string passphrase)
+		public ExtKey DeriveExtKey(string passphrase)
 		{
-			return new ExtKey(GetSeed(passphrase));
+			return new ExtKey(DeriveSeed(passphrase));
 		}
 
 		static Byte[] Concat(Byte[] source1, Byte[] source2)

@@ -29,10 +29,10 @@ namespace NBitcoin.Tests
 					string mnemonicStr = langTest[1].ToString();
 					string seed = langTest[2].ToString();
 					var mnemonic = new Mnemonic(mnemonicStr, lang);
-					Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.GetSeed("TREZOR")));
+					Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.DeriveSeed("TREZOR")));
 
-					mnemonic = new Mnemonic("TREZOR", lang, entropy);
-					Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.GetSeed("TREZOR")));
+					mnemonic = new Mnemonic(lang, entropy);
+					Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.DeriveSeed("TREZOR")));
 				}
 			}
 		}
@@ -50,17 +50,13 @@ namespace NBitcoin.Tests
 				string seed = unitTest["seed"].ToString();
 				string passphrase = unitTest["passphrase"].ToString();
 				var mnemonic = new Mnemonic(mnemonicStr, Wordlist.Japanese);
-				Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.GetSeed(passphrase)));
+				Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.DeriveSeed(passphrase)));
 				var bip32 = unitTest["bip32_xprv"].ToString();
-				var bip32Actual = mnemonic.GetExtKey(passphrase).ToString(Network.Main);
+				var bip32Actual = mnemonic.DeriveExtKey(passphrase).ToString(Network.Main);
 				Assert.Equal(bip32, bip32Actual.ToString());
 
-				mnemonic = new Mnemonic(passphrase, Wordlist.Japanese, entropy);
-				bip32Actual = mnemonic.GetExtKey(passphrase).ToString(Network.Main);
-				Assert.Equal(bip32, bip32Actual.ToString());
-
-				var bip393 = mnemonic.GetExtKey(passphrase).EncryptToMnemonic(passphrase, Wordlist.Japanese, entropy);
-				bip32Actual = bip393.GetExtKey(passphrase).ToString(Network.Main);
+				mnemonic = new Mnemonic(Wordlist.Japanese, entropy);
+				bip32Actual = mnemonic.DeriveExtKey(passphrase).ToString(Network.Main);
 				Assert.Equal(bip32, bip32Actual.ToString());
 			}
 		}
