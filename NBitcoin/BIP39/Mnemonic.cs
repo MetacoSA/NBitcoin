@@ -232,8 +232,8 @@ namespace NBitcoin
 		public byte[] DeriveSeed(string passphrase)
 		{
 			passphrase = passphrase ?? "";
-			var salt = Concat(UTF8Encoding.UTF8.GetBytes("mnemonic"), UTF8Encoding.UTF8.GetBytes(passphrase.Normalize(NormalizationForm.FormKD)));
-			var bytes = Encoding.UTF8.GetBytes(_Mnemonic.Normalize(NormalizationForm.FormKD));
+			var salt = Concat(UTF8Encoding.UTF8.GetBytes("mnemonic"), Normalize(passphrase));
+			var bytes = Normalize(_Mnemonic);
 
 #if !USEBC
 			return Pbkdf2.ComputeDerivedKey(new HMACSHA512(bytes), salt, 2048, 64);
@@ -245,7 +245,15 @@ namespace NBitcoin
 
 		}
 
+		internal static byte[] Normalize(string str)
+		{
+			return Encoding.UTF8.GetBytes(str.Normalize(NormalizationForm.FormKD));
+		}
 
+		internal static string NormalizeString(string word)
+		{
+			return word.Normalize(NormalizationForm.FormKD);
+		}
 
 		public ExtKey DeriveExtKey(string passphrase)
 		{
@@ -268,6 +276,8 @@ namespace NBitcoin
 		{
 			return _Mnemonic;
 		}
+
+		
 	}
 }
 #endif

@@ -142,7 +142,7 @@ namespace NBitcoin
 		public Wordlist(String[] words, char space, string name)
 		{
 			_words = words
-						.Select(w => w.Normalize(NormalizationForm.FormKD))
+						.Select(w => Mnemonic.NormalizeString(w))
 						.ToArray();
 			_Space = space;
 			_Name = name;
@@ -172,7 +172,7 @@ namespace NBitcoin
 		/// <returns>Exists (true/false)</returns>
 		public bool WordExists(string word, out int index)
 		{
-			word = word.Normalize(NormalizationForm.FormKD);
+			word = Mnemonic.NormalizeString(word);
 			if(_words.Contains(word))
 			{
 				index = Array.IndexOf(_words, word);
