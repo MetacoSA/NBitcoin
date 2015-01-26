@@ -93,6 +93,7 @@
     <Compile Include="BlockrTransactionRepository.cs" />
     <Compile Include="OpenAsset\AssetId.cs" />
     <Compile Include="OpenAsset\BitcoinAssetId.cs" />
+    <Compile Include="OpenAsset\BitcoinColoredAddress.cs" />
     <Compile Include="OpenAsset\CachedColoredTransactionRepository.cs" />
     <Compile Include="OpenAsset\CoinprismColoredTransactionRepository.cs" />
     <Compile Include="OpenAsset\ColoredTransaction.cs" />

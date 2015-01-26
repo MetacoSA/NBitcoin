@@ -126,6 +126,32 @@ namespace NBitcoin.Tests
 			Assert.True(colored.ToBytes().SequenceEqual(prismColored.ToBytes()));
 		}
 #endif
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParseColoredAddress()
+		{
+			var address = new BitcoinAddress("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM");
+			var colored = address.ToColoredAddress();
+			Assert.Equal("akB4NBW9UuCmHuepksob6yfZs6naHtRCPNy", colored.ToWif());
+			Assert.Equal(address.ScriptPubKey, colored.ScriptPubKey);
+
+			var testAddress = address.ToNetwork(Network.TestNet);
+			var testColored = testAddress.ToColoredAddress();
+
+			Assert.Equal(Network.TestNet, testAddress.Network);
+			Assert.Equal(address.Hash, testAddress.Hash);
+
+			Assert.Equal(colored.ToNetwork(Network.TestNet), testColored);
+
+			Assert.Equal(testAddress.ScriptPubKey, testColored.ScriptPubKey);
+
+			Assert.Equal(Network.TestNet, testColored.Network);
+			testColored = new BitcoinColoredAddress("bWqaKUZETiECYgmJNbNZUoanBxnAzoVjCNx");
+			Assert.Equal(Network.TestNet, testColored.Network);
+			Assert.Equal(colored.ToNetwork(Network.TestNet), testColored);
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		//https://github.com/OpenAssets/open-assets-protocol/blob/master/specification.mediawiki

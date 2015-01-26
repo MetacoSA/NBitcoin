@@ -49,6 +49,7 @@ namespace NBitcoin
 		{
 			return Network.CreateFromBase58Data<BitcoinAddress>(base58, expectedNetwork);
 		}
+
 		public BitcoinAddress(string base58, Network expectedNetwork = null)
 			: base(base58, expectedNetwork)
 		{
@@ -118,7 +119,7 @@ namespace NBitcoin
 			var redeem = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(this);
 			return new BitcoinScriptAddress(redeem.Hash, Network);
 		}
-		
+
 
 
 		protected virtual Script GeneratePaymentScript()
@@ -152,6 +153,11 @@ namespace NBitcoin
 				return new BitcoinScriptAddress((ScriptId)id, network);
 			else
 				throw new NotSupportedException();
+		}
+
+		public BitcoinColoredAddress ToColoredAddress()
+		{
+			return new BitcoinColoredAddress(this);
 		}
 	}
 }

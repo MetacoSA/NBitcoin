@@ -425,6 +425,18 @@ namespace NBitcoin.Tests
 						Base58 = "xpub661MyMwAqRbcEhHavVcryjNF2uA5woK6JCNRNJB8Z3dxPU8VNBd9E8GP7fusw2bhgYe7BXt6izr5iUaYo483919jjdtfEpG8j97djnEgJqo",
 						ExpectedType = typeof(BitcoinExtPubKey),
 						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "akB4NBW9UuCmHuepksob6yfZs6naHtRCPNy",
+						ExpectedType = typeof(BitcoinColoredAddress),
+						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "bWqaKUZETiECYgmJNbNZUoanBxnAzoVjCNx",
+						ExpectedType = typeof(BitcoinColoredAddress),
+						Network = Network.TestNet
 					}
 				};
 
