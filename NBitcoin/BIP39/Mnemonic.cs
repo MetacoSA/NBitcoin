@@ -1,5 +1,5 @@
-﻿#if !NOSTRNORMALIZE
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
@@ -247,12 +247,16 @@ namespace NBitcoin
 
 		internal static byte[] Normalize(string str)
 		{
-			return Encoding.UTF8.GetBytes(str.Normalize(NormalizationForm.FormKD));
+			return Encoding.UTF8.GetBytes(NormalizeString(str));
 		}
 
 		internal static string NormalizeString(string word)
 		{
+#if !NOSTRNORMALIZE
 			return word.Normalize(NormalizationForm.FormKD);
+#else
+			return KDTable.NormalizeKD(word);
+#endif
 		}
 
 		public ExtKey DeriveExtKey(string passphrase)
@@ -280,4 +284,3 @@ namespace NBitcoin
 		
 	}
 }
-#endif

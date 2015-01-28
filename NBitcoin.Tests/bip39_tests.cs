@@ -37,6 +37,17 @@ namespace NBitcoin.Tests
 			}
 		}
 
+#if NOSTRNORMALIZE
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void KDTableCanNormalize()
+		{
+			var input = "あおぞら";
+			var expected = "あおぞら";
+			Assert.False(input == expected);
+			Assert.Equal(expected, KDTable.NormalizeKD(input));
+		}
+#endif
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void JapTest()
@@ -111,4 +122,121 @@ namespace NBitcoin.Tests
 			throw new NotSupportedException(lang);
 		}
 	}
+#if !PORTABLE
+	public class bip39_Codegen
+	{
+		//[Fact]
+		public void GenerateHardcodedBIP39Dictionary()
+		{
+			StringBuilder builder = new StringBuilder();
+			foreach(var lang in new[] { Language.ChineseSimplified, Language.ChineseTraditional, Language.English, Language.Japanese, Language.Spanish })
+			{
+				string name = Wordlist.GetLanguageFileName(lang);
+				builder.AppendLine("dico.Add(\"" + name + "\",\"" + GetLanguage(lang) + "\");");
+			}
+			var dico = builder.ToString();
+		}
+
+		[Fact]
+		public void GenerateHardcodedNormalization()
+		{
+			StringBuilder builder = new StringBuilder();
+			builder.Append("\"");
+			HashSet<char> chars = new HashSet<char>();
+			List<CharRangeT> ranges = new List<CharRangeT>();
+			ranges.Add(CharRange(0, 1000)); //Some latin language accent
+			ranges.Add(CharRange(0x3040, 0x309F)); //Hiragana
+			ranges.Add(CharRange(0x30A0, 0x30FF)); //Katakana
+
+			//CJK Unified Ideographs                  4E00-9FFF   Common
+			//CJK Unified Ideographs Extension A      3400-4DFF   Rare
+			//CJK Unified Ideographs Extension B      20000-2A6DF Rare, historic
+			//CJK Compatibility Ideographs            F900-FAFF   Duplicates, unifiable variants, corporate characters
+			//CJK Compatibility Ideographs Supplement 2F800-2FA1F Unifiable variants
+
+			ranges.Add(CharRange(0x4e00, 0x9FFF));
+			ranges.Add(CharRange(0x3400, 0x4DFF));
+			ranges.Add(CharRange(0x20000, 0x2A6DF));
+			ranges.Add(CharRange(0xF900, 0xFAFF));
+			ranges.Add(CharRange(0x2F800, 0x2FA1F));
+			ranges.Add(CharRange(0x3300, 0x33FF));
+			ranges.Add(CharRange(0x3000, 0x303F));
+			ranges.Add(CharRange(0xFF00, 0xFFFF));
+			ranges.Add(CharRange(0x2000, 0x206F));
+			ranges.Add(CharRange(0x20A0, 0x20CF));
+			
+			foreach(var letter in ranges.SelectMany(c => c).OrderBy(c => c))
+			{
+				string nonNormal = new String(new[] { letter });
+				try
+				{
+					string normal = nonNormal.Normalize(NormalizationForm.FormKD);
+					if(nonNormal != normal && chars.Add(letter))
+					{
+						builder.Append(nonNormal + normal + "\\n");
+					}
+				}
+				catch(ArgumentException)
+				{
+				}
+			}
+
+			builder.Append("\"");
+			var substitutionTable = builder.ToString();
+
+			builder = new StringBuilder();
+			builder.AppendLine("{");
+			foreach(var range in ranges)
+			{
+				builder.AppendLine("new[]{" + range.From + "," + range.To + "},");
+			}
+			builder.AppendLine("}");
+			var rangeTable = builder.ToString();
+		}
+
+		class CharRangeT : IEnumerable<char>
+		{
+			public int From;
+			public int To;
+
+			public IEnumerable<char> Chars;
+
+
+			public IEnumerator<char> GetEnumerator()
+			{
+				return Chars.GetEnumerator();
+			}
+
+
+			IEnumerator IEnumerable.GetEnumerator()
+			{
+				return GetEnumerator();
+			}
+		}
+
+		private CharRangeT CharRange(char[] chars)
+		{
+			var min = chars.Select(c => (int)c).Min();
+			var max = chars.Select(c => (int)c).Max();
+			return CharRange(min, max);
+		}
+
+		private CharRangeT CharRange(int from, int to)
+		{
+			var result = new CharRangeT();
+			result.From = from;
+			result.To = to;
+			result.Chars = Enumerable.Range(from, to - from + 1).Select(i => (char)i);
+			return result;
+		}
+
+		private string GetLanguage(Language lang)
+		{
+			string name = Wordlist.GetLanguageFileName(lang);
+			System.Net.Http.HttpClient client = new System.Net.Http.HttpClient();
+			var data = client.GetAsync("https://raw.githubusercontent.com/bitcoin/bips/master/bip-0039/" + name + ".txt").Result.Content.ReadAsStringAsync().Result;
+			return data.Replace("\n", "\\n");
+		}
+	}
+#endif
 }

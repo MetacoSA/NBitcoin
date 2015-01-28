@@ -1,6 +1,4 @@
-﻿#if !NOSTRNORMALIZE
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +10,7 @@ namespace NBitcoin
 	{
 		static Wordlist()
 		{
-			WordlistSource = new GithubWordlistSource();
+			WordlistSource = new HardcodedWordlistSource();
 		}
 		private static Wordlist _Japanese;
 		public static Wordlist Japanese
@@ -76,7 +74,7 @@ namespace NBitcoin
 			return LoadWordList(name);
 		}
 
-		private static string GetLanguageFileName(Language language)
+		internal static string GetLanguageFileName(Language language)
 		{
 			string name = null;
 			switch(language)
@@ -305,4 +303,3 @@ namespace NBitcoin
 		}
 	}
 }
-#endif
