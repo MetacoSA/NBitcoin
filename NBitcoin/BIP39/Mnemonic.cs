@@ -229,7 +229,7 @@ namespace NBitcoin
 			}
 		}
 
-		public byte[] DeriveSeed(string passphrase)
+		public byte[] DeriveSeed(string passphrase = null)
 		{
 			passphrase = passphrase ?? "";
 			var salt = Concat(UTF8Encoding.UTF8.GetBytes("mnemonic"), Normalize(passphrase));
@@ -259,7 +259,7 @@ namespace NBitcoin
 #endif
 		}
 
-		public ExtKey DeriveExtKey(string passphrase)
+		public ExtKey DeriveExtKey(string passphrase = null)
 		{
 			return new ExtKey(DeriveSeed(passphrase));
 		}
@@ -281,6 +281,6 @@ namespace NBitcoin
 			return _Mnemonic;
 		}
 
-		
+
 	}
 }
