@@ -664,6 +664,10 @@ namespace NBitcoin
 			get;
 			set;
 		}
+		public Coin ToCoin()
+		{
+			return new Coin(this);
+		}
 	}
 
 	public class TxOutList : UnsignedList<TxOut>
@@ -695,6 +699,11 @@ namespace NBitcoin
 				N = (uint)i,
 				Transaction = Transaction
 			});
+		}
+
+		public IEnumerable<Coin> AsCoins()
+		{
+			return AsIndexedOutputs().Select(i => i.ToCoin());
 		}
 
 		public IEnumerable<IndexedTxOut> AsSpendableIndexedOutputs()

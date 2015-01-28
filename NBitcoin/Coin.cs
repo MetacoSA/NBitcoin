@@ -223,11 +223,11 @@ namespace NBitcoin
 			TxOut = fromTxOut;
 		}
 
-        public Coin(Transaction fromTx, uint fromOutputIndex)
-        {
-            Outpoint = new OutPoint(fromTx, fromOutputIndex);
-            TxOut = fromTx.Outputs[fromOutputIndex];
-        }
+		public Coin(Transaction fromTx, uint fromOutputIndex)
+		{
+			Outpoint = new OutPoint(fromTx, fromOutputIndex);
+			TxOut = fromTx.Outputs[fromOutputIndex];
+		}
 
 		public Coin(Transaction fromTx, TxOut fromOutput)
 		{
@@ -235,12 +235,17 @@ namespace NBitcoin
 			Outpoint = new OutPoint(fromTx, outputIndex);
 			TxOut = fromOutput;
 		}
+		public Coin(IndexedTxOut txOut)
+		{
+			Outpoint = new OutPoint(txOut.Transaction.GetHash(), txOut.N);
+			TxOut = txOut.TxOut;
+		}
 
-        public Coin(uint256 fromTxHash, uint fromOutputIndex, Money amount, Script scriptPubKey)
-        {
-            Outpoint = new OutPoint(fromTxHash, fromOutputIndex);
-            TxOut = new TxOut(amount, scriptPubKey);
-        }
+		public Coin(uint256 fromTxHash, uint fromOutputIndex, Money amount, Script scriptPubKey)
+		{
+			Outpoint = new OutPoint(fromTxHash, fromOutputIndex);
+			TxOut = new TxOut(amount, scriptPubKey);
+		}
 
 		public OutPoint Outpoint
 		{
@@ -301,7 +306,7 @@ namespace NBitcoin
 		}
 
 		public ScriptCoin(Transaction fromTx, uint fromOutputIndex, Script redeem)
-			:base(fromTx, fromOutputIndex)
+			: base(fromTx, fromOutputIndex)
 		{
 			Redeem = redeem;
 		}
@@ -311,8 +316,13 @@ namespace NBitcoin
 		{
 			Redeem = redeem;
 		}
+		public ScriptCoin(IndexedTxOut txOut, Script redeem)
+			: base(txOut)
+		{
+			Redeem = redeem;
+		}
 
-        public ScriptCoin(uint256 txHash, uint outputIndex, Money amount, Script redeem)
+		public ScriptCoin(uint256 txHash, uint outputIndex, Money amount, Script redeem)
 			: base(txHash, outputIndex, amount, redeem.Hash.ScriptPubKey)
 		{
 			Redeem = redeem;
