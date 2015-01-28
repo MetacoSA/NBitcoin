@@ -762,15 +762,20 @@ namespace NBitcoin.Tests
 					new TxOut(new Money((i + 1) * Money.COIN), script)
 					)).ToList();
 
-			var scriptCoins = new[] { scriptHashPubKey1, scriptHashPubKey2, scriptHashPubKey3 }.Select((script, i) =>
+			var scriptCoins =
+				new[] { scriptHashPubKey1, scriptHashPubKey2, scriptHashPubKey3 }
+				.Zip(new[] { multiSigPubKey, pubKeyPubKey, pubKeyHashPubKey },
+					(script, redeem) => new
+					{
+						script,
+						redeem
+					})
+				.Select((_, i) =>
 				new ScriptCoin
 					(
 					new OutPoint(Rand(), i),
-					new TxOut(new Money((i + 1) * Money.COIN), script), null
+					new TxOut(new Money((i + 1) * Money.COIN), _.script), _.redeem
 					)).ToList();
-			scriptCoins[0].Redeem = multiSigPubKey;
-			scriptCoins[1].Redeem = pubKeyPubKey;
-			scriptCoins[2].Redeem = pubKeyHashPubKey;
 
 			var allCoins = coins.Concat(scriptCoins).ToArray();
 			var destinations = keys.Select(k => k.PubKey.GetAddress(Network.Main)).ToArray();
@@ -1210,7 +1215,7 @@ namespace NBitcoin.Tests
 			t1.Inputs.AddRange(Enumerable.Range(0, 3).Select(_ => new TxIn()));
 			t1.Inputs[0].PrevOut.Hash = dummyTransactions[0].GetHash();
 			t1.Inputs[0].PrevOut.N = 1;
-			t1.Inputs[0].ScriptSig += dummyPubKey; 
+			t1.Inputs[0].ScriptSig += dummyPubKey;
 			t1.Inputs[1].PrevOut.Hash = dummyTransactions[1].GetHash();
 			t1.Inputs[1].PrevOut.N = 0;
 			t1.Inputs[1].ScriptSig = t1.Inputs[1].ScriptSig + dummyPubKey + dummyPubKey2;

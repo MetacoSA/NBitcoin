@@ -247,6 +247,13 @@ namespace NBitcoin
 			TxOut = new TxOut(amount, scriptPubKey);
 		}
 
+		public ScriptCoin ToScriptCoin(Script redeemScript)
+		{
+			if(redeemScript == null)
+				throw new ArgumentNullException("redeemScript");
+			return new ScriptCoin(this, redeemScript);
+		}
+
 		public OutPoint Outpoint
 		{
 			get;
@@ -303,29 +310,51 @@ namespace NBitcoin
 			: base(fromOutpoint, fromTxOut)
 		{
 			Redeem = redeem;
+			AssertCoherent();
 		}
 
 		public ScriptCoin(Transaction fromTx, uint fromOutputIndex, Script redeem)
 			: base(fromTx, fromOutputIndex)
 		{
 			Redeem = redeem;
+			AssertCoherent();
 		}
 
 		public ScriptCoin(Transaction fromTx, TxOut fromOutput, Script redeem)
 			: base(fromTx, fromOutput)
 		{
 			Redeem = redeem;
+			AssertCoherent();
+		}
+		public ScriptCoin(Coin coin, Script redeem)
+			: base(coin.Outpoint, coin.TxOut)
+		{
+			Redeem = redeem;
+			AssertCoherent();
+		}
+
+		private void AssertCoherent()
+		{
+			if(Redeem == null)
+				throw new ArgumentException("redeem cannot be null", "redeem");
+			var destination = TxOut.ScriptPubKey.GetDestination() as ScriptId;
+			if(destination == null)
+				throw new ArgumentException("the provided scriptPubKey is not P2SH");
+			if(destination.ScriptPubKey != Redeem.Hash.ScriptPubKey)
+				throw new ArgumentException("The redeem provided does not match the scriptPubKey of the coin");
 		}
 		public ScriptCoin(IndexedTxOut txOut, Script redeem)
 			: base(txOut)
 		{
 			Redeem = redeem;
+			AssertCoherent();
 		}
 
 		public ScriptCoin(uint256 txHash, uint outputIndex, Money amount, Script redeem)
 			: base(txHash, outputIndex, amount, redeem.Hash.ScriptPubKey)
 		{
 			Redeem = redeem;
+			AssertCoherent();
 		}
 
 		public Script Redeem
