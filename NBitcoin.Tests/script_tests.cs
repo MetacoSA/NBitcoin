@@ -368,7 +368,7 @@ namespace NBitcoin.Tests
 			ops.Add(OpcodeType.OP_0);
 			foreach(Key key in keys)
 			{
-				var vchSig = key.Sign(hash).ToList();
+				var vchSig = key.Sign(hash).ToDER().ToList();
 				vchSig.Add((byte)SigHash.All);
 				ops.Add(Op.GetPushOp(vchSig.ToArray()));
 			}

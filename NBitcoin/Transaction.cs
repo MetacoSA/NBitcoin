@@ -582,8 +582,46 @@ namespace NBitcoin
 		}
 	}
 
+	public class IndexedTxIn
+	{
+		public TxIn TxIn
+		{
+			get;
+			set;
+		}
+		public uint N
+		{
+			get;
+			set;
+		}
+
+		public Transaction Transaction
+		{
+			get;
+			set;
+		}
+
+		public uint256 GetSignatureHash(Script scriptPubKey, SigHash sigHash = SigHash.All)
+		{
+			return scriptPubKey.SignatureHash(Transaction, (int)N, sigHash);
+		}
+		public TransactionSignature Sign(Key key, Script scriptPubKey, SigHash sigHash = SigHash.All)
+		{
+			var hash = GetSignatureHash(scriptPubKey, sigHash);
+			return key.Sign(hash, sigHash);
+		}
+	}
 	public class TxInList : UnsignedList<TxIn>
 	{
+		public TxInList()
+		{
+
+		}
+		public TxInList(Transaction parent)
+			: base(parent)
+		{
+
+		}
 		public TxIn this[OutPoint outpoint]
 		{
 			get
@@ -594,6 +632,17 @@ namespace NBitcoin
 			{
 				this[outpoint.N] = value;
 			}
+		}
+
+		public IEnumerable<IndexedTxIn> AsIndexedInputs()
+		{
+			// We want i as the index of txIn in Intputs[], not index in enumerable after where filter
+			return this.Select((r, i) => new IndexedTxIn()
+			{
+				TxIn = r,
+				N = (uint)i,
+				Transaction = Transaction
+			});
 		}
 	}
 
@@ -609,11 +658,25 @@ namespace NBitcoin
 			get;
 			set;
 		}
+
+		public Transaction Transaction
+		{
+			get;
+			set;
+		}
 	}
 
 	public class TxOutList : UnsignedList<TxOut>
 	{
+		public TxOutList()
+		{
 
+		}
+		public TxOutList(Transaction parent)
+			: base(parent)
+		{
+
+		}
 		public IEnumerable<TxOut> To(IDestination destination)
 		{
 			return this.Where(r => r.IsTo(destination));
@@ -629,7 +692,8 @@ namespace NBitcoin
 			return this.Select((r, i) => new IndexedTxOut()
 			{
 				TxOut = r,
-				N = (uint)i
+				N = (uint)i,
+				Transaction = Transaction
 			});
 		}
 
@@ -662,19 +726,28 @@ namespace NBitcoin
 				nVersion = value;
 			}
 		}
-		TxInList vin = new TxInList();
-		TxOutList vout = new TxOutList();
+		TxInList vin;
+		TxOutList vout;
 		LockTime nLockTime;
 
 		public Transaction()
 		{
+			Init();
+		}
+
+		private void Init()
+		{
+			vin = new TxInList(this);
+			vout = new TxOutList(this);
 		}
 		public Transaction(string hex)
 		{
+			Init();
 			this.FromBytes(Encoders.Hex.DecodeData(hex));
 		}
 		public Transaction(byte[] bytes)
 		{
+			Init();
 			this.FromBytes(bytes);
 		}
 
@@ -719,7 +792,9 @@ namespace NBitcoin
 		{
 			stream.ReadWrite(ref nVersion);
 			stream.ReadWrite<TxInList, TxIn>(ref vin);
+			vin.Transaction = this;
 			stream.ReadWrite<TxOutList, TxOut>(ref vout);
+			vout.Transaction = this;
 			stream.ReadWriteStruct(ref nLockTime);
 		}
 
@@ -728,6 +803,14 @@ namespace NBitcoin
 		public uint256 GetHash()
 		{
 			return Hashes.Hash256(this.ToBytes());
+		}
+		public uint256 GetSignatureHash(Script scriptPubKey, int nIn, SigHash sigHash = SigHash.All)
+		{
+			return Inputs.AsIndexedInputs().ToArray()[nIn].GetSignatureHash(scriptPubKey, sigHash);
+		}
+		public TransactionSignature SignInput(Key key, Script scriptPubKey, int nIn, SigHash sigHash = SigHash.All)
+		{
+			return Inputs.AsIndexedInputs().ToArray()[nIn].Sign(key, scriptPubKey, sigHash);
 		}
 
 		public bool IsCoinBase

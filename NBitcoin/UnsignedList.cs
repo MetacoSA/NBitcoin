@@ -11,6 +11,19 @@ namespace NBitcoin
 	{
 		public UnsignedList()
 		{
+
+		}
+		public UnsignedList(Transaction parent)
+		{
+			if(parent == null)
+				throw new ArgumentNullException("parent");
+			Transaction = parent;
+		}
+
+		public Transaction Transaction
+		{
+			get;
+			internal set;
 		}
 
 		public UnsignedList(IEnumerable<T> collection)

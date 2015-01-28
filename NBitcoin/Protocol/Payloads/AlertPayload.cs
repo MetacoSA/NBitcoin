@@ -143,7 +143,7 @@ namespace NBitcoin.Protocol
 		public void UpdateSignature(Key key, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			UpdatePayload();
-			signature = new VarString(key.Sign(Hashes.Hash256(payload.GetString())));
+			signature = new VarString(key.Sign(Hashes.Hash256(payload.GetString())).ToDER());
 		}
 
 		public void UpdatePayload(ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)

@@ -729,13 +729,12 @@ namespace NBitcoin
 		{
 			TransactionSigningContext ctx = new TransactionSigningContext(this, transaction);
 			ctx.SigHash = sigHash;
-			for(int i = 0 ; i < transaction.Inputs.Count ; i++)
+			foreach(var input in transaction.Inputs.AsIndexedInputs())
 			{
-				var txIn = transaction.Inputs[i];
-				var coin = FindSignableCoin(txIn);
+				var coin = FindSignableCoin(input.TxIn);
 				if(coin != null)
 				{
-					Sign(ctx, txIn, coin, i);
+					Sign(ctx, coin, input);
 				}
 			}
 			return transaction;
@@ -892,9 +891,9 @@ namespace NBitcoin
 			return new Money(nMinFee);
 		}
 
-		private void Sign(TransactionSigningContext ctx, TxIn input, ICoin coin, int n)
+		private void Sign(TransactionSigningContext ctx, ICoin coin, IndexedTxIn txIn)
 		{
-
+			var input = txIn.TxIn;
 			if(coin is StealthCoin)
 			{
 				var stealthCoin = (StealthCoin)coin;
@@ -909,7 +908,7 @@ namespace NBitcoin
 			{
 				var scriptCoin = (IScriptCoin)coin;
 				var original = input.ScriptSig;
-				input.ScriptSig = CreateScriptSig(ctx, input, n, scriptCoin.Redeem);
+				input.ScriptSig = CreateScriptSig(ctx, scriptCoin.Redeem, txIn);
 				if(original != input.ScriptSig)
 				{
 					input.ScriptSig = input.ScriptSig + Op.GetPushOp(scriptCoin.Redeem.ToBytes(true));
@@ -917,15 +916,15 @@ namespace NBitcoin
 			}
 			else
 			{
-				input.ScriptSig = CreateScriptSig(ctx, input, n, coin.ScriptPubKey);
+				input.ScriptSig = CreateScriptSig(ctx, coin.ScriptPubKey, txIn);
 			}
 
 		}
 
-		private Script CreateScriptSig(TransactionSigningContext ctx, TxIn input, int n, Script scriptPubKey)
+		private Script CreateScriptSig(TransactionSigningContext ctx, Script scriptPubKey, IndexedTxIn txIn)
 		{
-			var originalScriptSig = input.ScriptSig;
-			input.ScriptSig = scriptPubKey;
+			var originalScriptSig = txIn.TxIn.ScriptSig;
+			txIn.TxIn.ScriptSig = scriptPubKey;
 
 			var pubKeyHashParams = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 			if(pubKeyHashParams != null)
@@ -933,9 +932,8 @@ namespace NBitcoin
 				var key = FindKey(ctx, pubKeyHashParams);
 				if(key == null)
 					return originalScriptSig;
-				var hash = input.ScriptSig.SignatureHash(ctx.Transaction, n, ctx.SigHash);
-				var sig = key.Sign(hash);
-				return PayToPubkeyHashTemplate.Instance.GenerateScriptSig(new TransactionSignature(sig, ctx.SigHash), key.PubKey);
+				var sig = txIn.Sign(key,scriptPubKey,ctx.SigHash);
+				return PayToPubkeyHashTemplate.Instance.GenerateScriptSig(sig, key.PubKey);
 			}
 
 			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
@@ -971,9 +969,8 @@ namespace NBitcoin
 					}
 					if(keys[i] != null)
 					{
-						var hash = input.ScriptSig.SignatureHash(ctx.Transaction, n, ctx.SigHash);
-						var sig = keys[i].Sign(hash);
-						signatures[i] = new TransactionSignature(sig, ctx.SigHash);
+						var sig = txIn.Sign(keys[i], scriptPubKey, ctx.SigHash);
+						signatures[i] = sig;
 						sigCount++;
 					}
 				}
@@ -993,9 +990,8 @@ namespace NBitcoin
 				var key = FindKey(ctx, pubKeyParams);
 				if(key == null)
 					return originalScriptSig;
-				var hash = input.ScriptSig.SignatureHash(ctx.Transaction, n, ctx.SigHash);
-				var sig = key.Sign(hash);
-				return PayToPubkeyTemplate.Instance.GenerateScriptSig(new TransactionSignature(sig, ctx.SigHash));
+				var sig = txIn.Sign(key, scriptPubKey, ctx.SigHash);
+				return PayToPubkeyTemplate.Instance.GenerateScriptSig(sig);
 			}
 
 			throw new NotSupportedException("Unsupported scriptPubKey");

@@ -112,11 +112,11 @@ namespace NBitcoin
 			}
 		}
 
-		public byte[] Sign(uint256 hash)
+		public ECDSASignature Sign(uint256 hash)
 		{
 			var signature = _ECKey.Sign(hash);
 			signature = signature.MakeCanonical();
-			return signature.ToDER();
+			return signature;
 		}
 
 
@@ -260,5 +260,10 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public TransactionSignature Sign(uint256 hash, SigHash sigHash)
+		{
+			return new TransactionSignature(Sign(hash), sigHash);
+		}
 	}
 }

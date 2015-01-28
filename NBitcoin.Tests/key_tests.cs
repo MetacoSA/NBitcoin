@@ -215,7 +215,7 @@ namespace NBitcoin.Tests
 
 				// normal signatures
 
-				byte[] sign1 = null, sign2 = null, sign1C = null, sign2C = null;
+				ECDSASignature sign1 = null, sign2 = null, sign1C = null, sign2C = null;
 				List<Task> tasks = new List<Task>();
 				tasks.Add(Task.Run(() => sign1 = key1.Sign(hashMsg)));
 				tasks.Add(Task.Run(() => sign2 = key2.Sign(hashMsg)));
