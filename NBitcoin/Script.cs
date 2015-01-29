@@ -4,9 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -262,13 +260,10 @@ namespace NBitcoin
 
 		private Script(byte[] data, bool @unsafe, bool unused)
 		{
-			if(@unsafe)
-				_Script = data;
-			else
-				_Script = data.ToArray();
+		    _Script = @unsafe ? data : data.ToArray();
 		}
 
-		public Script(IEnumerable<byte> data)
+	    public Script(IEnumerable<byte> data)
 		{
 			_Script = data.ToArray();
 		}
@@ -314,12 +309,10 @@ namespace NBitcoin
 		}
 		internal int FindAndDelete(Op op)
 		{
-			if(op == null)
-				return 0;
-			return FindAndDelete(o => o.Code == op.Code && Utils.ArrayEqual(o.PushData, op.PushData));
+		    return op == null ? 0 : FindAndDelete(o => o.Code == op.Code && Utils.ArrayEqual(o.PushData, op.PushData));
 		}
 
-		internal int FindAndDelete(byte[] pushedData)
+	    internal int FindAndDelete(byte[] pushedData)
 		{
 			if(pushedData.Length == 0)
 				return 0;
@@ -332,7 +325,7 @@ namespace NBitcoin
 		{
 			int nFound = 0;
 			List<Op> operations = new List<Op>();
-			foreach(var op in this.ToOps())
+			foreach(var op in ToOps())
 			{
 				var shouldDelete = predicate(op);
 				if(!shouldDelete)
@@ -356,14 +349,7 @@ namespace NBitcoin
 		Script _PaymentScript;
 		public Script PaymentScript
 		{
-			get
-			{
-				if(_PaymentScript == null)
-				{
-					_PaymentScript = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(this.Hash);
-				}
-				return _PaymentScript;
-			}
+			get { return _PaymentScript ?? (_PaymentScript = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(Hash)); }
 		}
 
 		public override string ToString()
@@ -374,14 +360,14 @@ namespace NBitcoin
 				IgnoreIncoherentPushData = true
 			};
 
-			Op op = null;
+			Op op;
 			while((op = reader.Read()) != null)
 			{
 				builder.Append(" ");
-				builder.Append(op.ToString());
+				builder.Append(op);
 			}
 
-			return builder == null ? "" : builder.ToString().Trim();
+			return builder.Length == 0 ? "" : builder.ToString().Trim();
 		}
 
 		public bool IsPushOnly
@@ -525,19 +511,15 @@ namespace NBitcoin
 		}
 		public static Script operator +(Script a, Op op)
 		{
-			if(a == null)
-				return new Script(op);
-			return new Script(a._Script.Concat(op.ToBytes()));
+		    return a == null ? new Script(op) : new Script(a._Script.Concat(op.ToBytes()));
 		}
 
-		public static Script operator +(Script a, IEnumerable<Op> ops)
-		{
-			if(a == null)
-				return new Script(ops);
-			return new Script(a._Script.Concat(new Script(ops)._Script));
-		}
+	    public static Script operator +(Script a, IEnumerable<Op> ops)
+	    {
+	        return a == null ? new Script(ops) : new Script(a._Script.Concat(new Script(ops)._Script));
+	    }
 
-		public IEnumerable<Op> ToOps()
+	    public IEnumerable<Op> ToOps()
 		{
 			ScriptReader reader = new ScriptReader(_Script)
 			{
@@ -556,7 +538,7 @@ namespace NBitcoin
 					n++;
 				else if(op.Code == OpcodeType.OP_CHECKMULTISIG || op.Code == OpcodeType.OP_CHECKMULTISIGVERIFY)
 				{
-					if(fAccurate && lastOpcode.Code >= OpcodeType.OP_1 && lastOpcode.Code <= OpcodeType.OP_16)
+					if(fAccurate && lastOpcode != null && lastOpcode.Code >= OpcodeType.OP_1 && lastOpcode.Code <= OpcodeType.OP_16)
 						n += (lastOpcode.PushData == null || lastOpcode.PushData.Length == 0) ? 0U : (uint)lastOpcode.PushData[0];
 					else
 						n += 20;
@@ -571,26 +553,12 @@ namespace NBitcoin
 		[Obsolete("Use Hash instead")]
 		public ScriptId ID
 		{
-			get
-			{
-				if(_ID == null)
-				{
-					_ID = new ScriptId(Hashes.Hash160(_Script));
-				}
-				return _ID;
-			}
+			get { return _ID ?? (_ID = new ScriptId(Hashes.Hash160(_Script))); }
 		}
 
 		public ScriptId Hash
 		{
-			get
-			{
-				if(_ID == null)
-				{
-					_ID = new ScriptId(this);
-				}
-				return _ID;
-			}
+			get { return _ID ?? (_ID = new ScriptId(this)); }
 		}
 
 		public BitcoinScriptAddress GetScriptAddress(Network network)
@@ -613,10 +581,8 @@ namespace NBitcoin
 			// get the last item that the scriptSig
 			// pushes onto the stack:
 			var validSig = new PayToScriptHashTemplate().CheckScriptSig(scriptSig, this);
-			if(!validSig)
-				return 0;
-			/// ... and return its opcount:
-			return new Script(scriptSig.ToOps().Last().PushData).GetSigOpCount(true);
+			return !validSig ? 0 : new Script(scriptSig.ToOps().Last().PushData).GetSigOpCount(true);
+			// ... and return its opcount:
 		}
 
 		public ScriptTemplate FindTemplate()
@@ -632,9 +598,7 @@ namespace NBitcoin
 		public BitcoinAddress GetSignerAddress(Network network)
 		{
 			var sig = GetSigner();
-			if(sig == null)
-				return null;
-			return BitcoinAddress.Create(sig, network);
+			return sig == null ? null : BitcoinAddress.Create(sig, network);
 		}
 
 		/// <summary>
@@ -649,11 +613,7 @@ namespace NBitcoin
 				return pubKey.PublicKey.Hash;
 			}
 			var p2sh = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(this);
-			if(p2sh != null)
-			{
-				return p2sh.RedeemScript.Hash;
-			}
-			return null;
+			return p2sh != null ? p2sh.RedeemScript.Hash : null;
 		}
 
 		/// <summary>
@@ -664,9 +624,7 @@ namespace NBitcoin
 		public BitcoinAddress GetDestinationAddress(Network network)
 		{
 			var dest = GetDestination();
-			if(dest == null)
-				return null;
-			return BitcoinAddress.Create(dest, network);
+			return dest == null ? null : BitcoinAddress.Create(dest, network);
 		}
 
 		/// <summary>
@@ -680,9 +638,7 @@ namespace NBitcoin
 			if(pubKeyHashParams != null)
 				return pubKeyHashParams;
 			var scriptHashParams = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
-			if(scriptHashParams != null)
-				return scriptHashParams;
-			return null;
+			return scriptHashParams;
 		}
 
 		/// <summary>
@@ -703,10 +659,7 @@ namespace NBitcoin
 				var multiSig = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(this);
 				if(multiSig != null)
 				{
-					foreach(var key in multiSig.PubKeys)
-					{
-						result.Add(key);
-					}
+				    result.AddRange(multiSig.PubKeys);
 				}
 			}
 			return result.ToArray();
@@ -739,24 +692,20 @@ namespace NBitcoin
 		[Obsolete("Use ToBytes instead")]
 		public byte[] ToRawScript(bool @unsafe)
 		{
-			if(@unsafe)
-				return _Script;
-			return _Script.ToArray();
+		    return @unsafe ? _Script : _Script.ToArray();
 		}
 
-		/// <summary>
+	    /// <summary>
 		/// Get script byte array
 		/// </summary>
 		/// <param name="unsafe">if false, returns a copy of the internal byte array</param>
 		/// <returns></returns>
 		public byte[] ToBytes(bool @unsafe)
-		{
-			if(@unsafe)
-				return _Script;
-			return _Script.ToArray();
-		}
+	    {
+	        return @unsafe ? _Script : _Script.ToArray();
+	    }
 
-		public byte[] ToCompressedBytes()
+	    public byte[] ToCompressedBytes()
 		{
 			ScriptCompressor compressor = new ScriptCompressor(this);
 			return compressor.ToBytes();
@@ -764,10 +713,8 @@ namespace NBitcoin
 
 		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.StrictEnc | ScriptVerify.P2SH, SigHash sigHash = SigHash.Undefined)
 		{
-			ScriptEvaluationContext eval = new ScriptEvaluationContext();
-			eval.SigHash = sigHash;
-			eval.ScriptVerify = scriptVerify;
-			return eval.VerifyScript(scriptSig, scriptPubKey, tx, i);
+			ScriptEvaluationContext eval = new ScriptEvaluationContext {SigHash = sigHash, ScriptVerify = scriptVerify};
+		    return eval.VerifyScript(scriptSig, scriptPubKey, tx, i);
 		}
 
 		public bool IsUnspendable
@@ -785,15 +732,14 @@ namespace NBitcoin
 		/// <returns></returns>
 		public static Script CreateFromDestination(TxDestination id)
 		{
-			if(id is ScriptId)
+		    if(id is ScriptId)
 				return PayToScriptHashTemplate.Instance.GenerateScriptPubKey((ScriptId)id);
-			else if(id is KeyId)
-				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey((KeyId)id);
-			else
-				throw new NotSupportedException();
+		    if(id is KeyId)
+		        return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey((KeyId)id);
+		    throw new NotSupportedException();
 		}
 
-		/// <summary>
+	    /// <summary>
 		/// Create scriptPubKey from destination address
 		/// </summary>
 		/// <param name="address"></param>
@@ -811,13 +757,11 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			Script item = obj as Script;
-			if(item == null)
-				return false;
-			return Utils.ArrayEqual(item._Script, _Script);
+			return item != null && Utils.ArrayEqual(item._Script, _Script);
 		}
 		public static bool operator ==(Script a, Script b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if(ReferenceEquals(a, b))
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;
@@ -871,23 +815,22 @@ namespace NBitcoin
 
 			if(template is PayToScriptHashTemplate)
 			{
-				if(sigs1.Length == 0 || sigs1[sigs1.Length - 1].Length == 0)
+			    if(sigs1.Length == 0 || sigs1[sigs1.Length - 1].Length == 0)
 					return PushAll(sigs2);
-				else if(sigs2.Length == 0 || sigs2[sigs2.Length - 1].Length == 0)
-					return PushAll(sigs1);
-				else
-				{
-					var redeemBytes = sigs1[sigs1.Length - 1];
-					var redeem = new Script(redeemBytes);
-					sigs1 = sigs1.Take(sigs1.Length - 1).ToArray();
-					sigs2 = sigs2.Take(sigs2.Length - 1).ToArray();
-					Script result = CombineSignatures(redeem, transaction, n, sigs1, sigs2);
-					result += Op.GetPushOp(redeemBytes);
-					return result;
-				}
+			    
+                if(sigs2.Length == 0 || sigs2[sigs2.Length - 1].Length == 0)
+			        return PushAll(sigs1);
+			    
+                var redeemBytes = sigs1[sigs1.Length - 1];
+			    var redeem = new Script(redeemBytes);
+			    sigs1 = sigs1.Take(sigs1.Length - 1).ToArray();
+			    sigs2 = sigs2.Take(sigs2.Length - 1).ToArray();
+			    Script result = CombineSignatures(redeem, transaction, n, sigs1, sigs2);
+			    result += Op.GetPushOp(redeemBytes);
+			    return result;
 			}
 
-			if(template is PayToMultiSigTemplate)
+		    if(template is PayToMultiSigTemplate)
 			{
 				return CombineMultisig(scriptPubKey, transaction, n, sigs1, sigs2);
 			}
