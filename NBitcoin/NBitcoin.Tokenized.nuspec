@@ -6,10 +6,11 @@
 		<title>NBitcoin</title>
 		<authors>Nicolas Dorier</authors>
 		<owners>$author$</owners>
+		<iconUrl>https://aois.blob.core.windows.net/public/Bitcoin.png</iconUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>.NET Bitcoin Framework</description>
 		<summary>
-			Source sur github (https://github.com/NicolasDorier/NBitcoin)
+			The most complete and portable Bitcoin Framework in .NET
 			Getting started (http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt)
 			Full script evaluation and parsing
 			Key generation
