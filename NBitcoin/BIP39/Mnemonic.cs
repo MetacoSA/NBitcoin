@@ -73,9 +73,9 @@ namespace NBitcoin
 
 			var words = mnemonic.Split(new char[] { ' ', '　' }, StringSplitOptions.RemoveEmptyEntries);
 			//if the sentence is not at least 12 characters or cleanly divisible by 3, it is bad!
-			if(words.Length < 12 || words.Length % 3 != 0)
+			if(!CorrectWordCount(words.Length))
 			{
-				throw new FormatException("Mnemonic sentence must be at least 12 words and it will increase by 3 words for each increment in entropy. Please ensure your sentence is at leas 12 words and has no remainder when word count is divided by 3");
+				throw new FormatException("Word count should be equals to 12,15,18,21 or 24");
 			}
 			_Words = words;
 			_WordList = wordlist;
@@ -187,12 +187,17 @@ namespace NBitcoin
 		private static byte[] GenerateEntropy(WordCount wordCount)
 		{
 			var ms = (int)wordCount;
-			if(!new[] { 12, 15, 18, 21, 24 }.Any(_ => _ == ms))
-				throw new ArgumentException("Word count should be equals to 12,15,18,21 or 24", "wordCount");
+			if(!CorrectWordCount(ms))
+				throw new ArgumentException("Word count should be equal to 12,15,18,21 or 24", "wordCount");
 			var entcs = ms * 11;
 			var cs = entcs / 32;
 			var ent = cs * 32;
 			return RandomUtils.GetBytes(ent / 8);
+		}
+
+		private static bool CorrectWordCount(int ms)
+		{
+			return new[] { 12, 15, 18, 21, 24 }.Any(_ => _ == ms);
 		}
 
 
