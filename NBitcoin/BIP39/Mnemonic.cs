@@ -71,7 +71,7 @@ namespace NBitcoin
 			if(wordlist == null)
 				wordlist = Wordlist.AutoDetect(mnemonic) ?? Wordlist.English;
 
-			var words = wordlist.Split(mnemonic);
+			var words = mnemonic.Split(new char[] { ' ', '　' }, StringSplitOptions.RemoveEmptyEntries);
 			//if the sentence is not at least 12 characters or cleanly divisible by 3, it is bad!
 			if(words.Length < 12 || words.Length % 3 != 0)
 			{
@@ -101,7 +101,6 @@ namespace NBitcoin
 		/// <summary>
 		/// Generate a mnemonic
 		/// </summary>
-		/// <param name="passphrase"></param>
 		/// <param name="wordList"></param>
 		/// <param name="entropy"></param>
 		public Mnemonic(Wordlist wordList, byte[] entropy = null)
@@ -178,6 +177,24 @@ namespace NBitcoin
 			}
 			_Mnemonic = builder.ToString();
 		}
+
+		public Mnemonic(Wordlist wordList, WordCount wordCount)
+			: this(wordList, GenerateEntropy(wordCount))
+		{
+
+		}
+
+		private static byte[] GenerateEntropy(WordCount wordCount)
+		{
+			var ms = (int)wordCount;
+			if(!new[] { 12, 15, 18, 21, 24 }.Any(_ => _ == ms))
+				throw new ArgumentException("Word count should be equals to 12,15,18,21 or 24", "wordCount");
+			var entcs = ms * 11;
+			var cs = entcs / 32;
+			var ent = cs * 32;
+			return RandomUtils.GetBytes(ent / 8);
+		}
+
 
 		private int ToInt(BitArray bits)
 		{
@@ -282,5 +299,13 @@ namespace NBitcoin
 		}
 
 
+	}
+	public enum WordCount : int
+	{
+		Twelve = 12,
+		Fifteen = 15,
+		Eighteen = 18,
+		TwentyOne = 21,
+		TwentyFour = 24
 	}
 }

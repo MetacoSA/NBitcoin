@@ -16,6 +16,16 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanGenerateMnemonicOfSpecificLength()
+		{
+			foreach(var count in new[] { WordCount.Twelve, WordCount.TwentyFour, WordCount.TwentyOne, WordCount.Fifteen, WordCount.Eighteen })
+			{
+				Assert.Equal((int)count, new Mnemonic(Wordlist.English, count).Words.Length);
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void EngTest()
 		{
 			var test = JObject.Parse(File.ReadAllText("data/bip39_vectors.json"));
@@ -164,7 +174,7 @@ namespace NBitcoin.Tests
 			ranges.Add(CharRange(0xFF00, 0xFFFF));
 			ranges.Add(CharRange(0x2000, 0x206F));
 			ranges.Add(CharRange(0x20A0, 0x20CF));
-			
+
 			foreach(var letter in ranges.SelectMany(c => c).OrderBy(c => c))
 			{
 				string nonNormal = new String(new[] { letter });
