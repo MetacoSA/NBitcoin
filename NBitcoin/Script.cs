@@ -260,10 +260,10 @@ namespace NBitcoin
 
 		private Script(byte[] data, bool @unsafe, bool unused)
 		{
-		    _Script = @unsafe ? data : data.ToArray();
+			_Script = @unsafe ? data : data.ToArray();
 		}
 
-	    public Script(IEnumerable<byte> data)
+		public Script(IEnumerable<byte> data)
 		{
 			_Script = data.ToArray();
 		}
@@ -309,10 +309,10 @@ namespace NBitcoin
 		}
 		internal int FindAndDelete(Op op)
 		{
-		    return op == null ? 0 : FindAndDelete(o => o.Code == op.Code && Utils.ArrayEqual(o.PushData, op.PushData));
+			return op == null ? 0 : FindAndDelete(o => o.Code == op.Code && Utils.ArrayEqual(o.PushData, op.PushData));
 		}
 
-	    internal int FindAndDelete(byte[] pushedData)
+		internal int FindAndDelete(byte[] pushedData)
 		{
 			if(pushedData.Length == 0)
 				return 0;
@@ -349,7 +349,10 @@ namespace NBitcoin
 		Script _PaymentScript;
 		public Script PaymentScript
 		{
-			get { return _PaymentScript ?? (_PaymentScript = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(Hash)); }
+			get
+			{
+				return _PaymentScript ?? (_PaymentScript = PayToScriptHashTemplate.Instance.GenerateScriptPubKey(Hash));
+			}
 		}
 
 		public override string ToString()
@@ -367,7 +370,7 @@ namespace NBitcoin
 				builder.Append(op);
 			}
 
-			return builder.Length == 0 ? "" : builder.ToString().Trim();
+			return builder.ToString().Trim();
 		}
 
 		public bool IsPushOnly
@@ -511,15 +514,15 @@ namespace NBitcoin
 		}
 		public static Script operator +(Script a, Op op)
 		{
-		    return a == null ? new Script(op) : new Script(a._Script.Concat(op.ToBytes()));
+			return a == null ? new Script(op) : new Script(a._Script.Concat(op.ToBytes()));
 		}
 
-	    public static Script operator +(Script a, IEnumerable<Op> ops)
-	    {
-	        return a == null ? new Script(ops) : new Script(a._Script.Concat(new Script(ops)._Script));
-	    }
+		public static Script operator +(Script a, IEnumerable<Op> ops)
+		{
+			return a == null ? new Script(ops) : new Script(a._Script.Concat(new Script(ops)._Script));
+		}
 
-	    public IEnumerable<Op> ToOps()
+		public IEnumerable<Op> ToOps()
 		{
 			ScriptReader reader = new ScriptReader(_Script)
 			{
@@ -553,12 +556,18 @@ namespace NBitcoin
 		[Obsolete("Use Hash instead")]
 		public ScriptId ID
 		{
-			get { return _ID ?? (_ID = new ScriptId(Hashes.Hash160(_Script))); }
+			get
+			{
+				return _ID ?? (_ID = new ScriptId(Hashes.Hash160(_Script)));
+			}
 		}
 
 		public ScriptId Hash
 		{
-			get { return _ID ?? (_ID = new ScriptId(this)); }
+			get
+			{
+				return _ID ?? (_ID = new ScriptId(this));
+			}
 		}
 
 		public BitcoinScriptAddress GetScriptAddress(Network network)
@@ -659,7 +668,7 @@ namespace NBitcoin
 				var multiSig = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(this);
 				if(multiSig != null)
 				{
-				    result.AddRange(multiSig.PubKeys);
+					result.AddRange(multiSig.PubKeys);
 				}
 			}
 			return result.ToArray();
@@ -692,20 +701,20 @@ namespace NBitcoin
 		[Obsolete("Use ToBytes instead")]
 		public byte[] ToRawScript(bool @unsafe)
 		{
-		    return @unsafe ? _Script : _Script.ToArray();
+			return @unsafe ? _Script : _Script.ToArray();
 		}
 
-	    /// <summary>
+		/// <summary>
 		/// Get script byte array
 		/// </summary>
 		/// <param name="unsafe">if false, returns a copy of the internal byte array</param>
 		/// <returns></returns>
 		public byte[] ToBytes(bool @unsafe)
-	    {
-	        return @unsafe ? _Script : _Script.ToArray();
-	    }
+		{
+			return @unsafe ? _Script : _Script.ToArray();
+		}
 
-	    public byte[] ToCompressedBytes()
+		public byte[] ToCompressedBytes()
 		{
 			ScriptCompressor compressor = new ScriptCompressor(this);
 			return compressor.ToBytes();
@@ -713,8 +722,12 @@ namespace NBitcoin
 
 		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.StrictEnc | ScriptVerify.P2SH, SigHash sigHash = SigHash.Undefined)
 		{
-			ScriptEvaluationContext eval = new ScriptEvaluationContext {SigHash = sigHash, ScriptVerify = scriptVerify};
-		    return eval.VerifyScript(scriptSig, scriptPubKey, tx, i);
+			ScriptEvaluationContext eval = new ScriptEvaluationContext
+			{
+				SigHash = sigHash,
+				ScriptVerify = scriptVerify
+			};
+			return eval.VerifyScript(scriptSig, scriptPubKey, tx, i);
 		}
 
 		public bool IsUnspendable
@@ -732,14 +745,14 @@ namespace NBitcoin
 		/// <returns></returns>
 		public static Script CreateFromDestination(TxDestination id)
 		{
-		    if(id is ScriptId)
+			if(id is ScriptId)
 				return PayToScriptHashTemplate.Instance.GenerateScriptPubKey((ScriptId)id);
-		    if(id is KeyId)
-		        return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey((KeyId)id);
-		    throw new NotSupportedException();
+			if(id is KeyId)
+				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey((KeyId)id);
+			throw new NotSupportedException();
 		}
 
-	    /// <summary>
+		/// <summary>
 		/// Create scriptPubKey from destination address
 		/// </summary>
 		/// <param name="address"></param>
@@ -815,22 +828,22 @@ namespace NBitcoin
 
 			if(template is PayToScriptHashTemplate)
 			{
-			    if(sigs1.Length == 0 || sigs1[sigs1.Length - 1].Length == 0)
+				if(sigs1.Length == 0 || sigs1[sigs1.Length - 1].Length == 0)
 					return PushAll(sigs2);
-			    
-                if(sigs2.Length == 0 || sigs2[sigs2.Length - 1].Length == 0)
-			        return PushAll(sigs1);
-			    
-                var redeemBytes = sigs1[sigs1.Length - 1];
-			    var redeem = new Script(redeemBytes);
-			    sigs1 = sigs1.Take(sigs1.Length - 1).ToArray();
-			    sigs2 = sigs2.Take(sigs2.Length - 1).ToArray();
-			    Script result = CombineSignatures(redeem, transaction, n, sigs1, sigs2);
-			    result += Op.GetPushOp(redeemBytes);
-			    return result;
+
+				if(sigs2.Length == 0 || sigs2[sigs2.Length - 1].Length == 0)
+					return PushAll(sigs1);
+
+				var redeemBytes = sigs1[sigs1.Length - 1];
+				var redeem = new Script(redeemBytes);
+				sigs1 = sigs1.Take(sigs1.Length - 1).ToArray();
+				sigs2 = sigs2.Take(sigs2.Length - 1).ToArray();
+				Script result = CombineSignatures(redeem, transaction, n, sigs1, sigs2);
+				result += Op.GetPushOp(redeemBytes);
+				return result;
 			}
 
-		    if(template is PayToMultiSigTemplate)
+			if(template is PayToMultiSigTemplate)
 			{
 				return CombineMultisig(scriptPubKey, transaction, n, sigs1, sigs2);
 			}
