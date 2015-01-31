@@ -1,185 +1,77 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9062E694-B97D-4243-B766-8D1A9230DC90}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NBitcoin.Portable.Tests</RootNamespace>
-    <AssemblyName>NBitcoin.Portable.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT;NOSOCKET;NOPROTOBUF;NOTRACESOURCE;NOFILEIO;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT;NOSOCKET;NOPROTOBUF;NOTRACESOURCE;NOFILEIO;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="xunit">
-      <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.extensions">
-      <HintPath>..\packages\xunit.extensions.1.9.2\lib\net20\xunit.extensions.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\NBitcoin.Tests\alert_tests.cs">
-      <Link>Linked\alert_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\AssertEx.cs">
-      <Link>Linked\AssertEx.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\base58_tests.cs">
-      <Link>Linked\base58_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\Benchmark.cs">
-      <Link>Linked\Benchmark.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\bip32_tests.cs">
-      <Link>Linked\bip32_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\BIP38Tests.cs">
-      <Link>Linked\BIP38Tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\BitcoinQProcess.cs">
-      <Link>Linked\BitcoinQProcess.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\bloom_tests.cs">
-      <Link>Linked\bloom_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\ChainTests.cs">
-      <Link>Linked\ChainTests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\checkblock_tests.cs">
-      <Link>Linked\checkblock_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\ColoredCoinsTests.cs">
-      <Link>Linked\ColoredCoinsTests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\ConverterTests.cs">
-      <Link>Linked\ConverterTests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\DeterministicSignatureTests.cs">
-      <Link>Linked\DeterministicSignatureTests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\FullBlockTestGenerator.cs">
-      <Link>Linked\FullBlockTestGenerator.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\hash_tests.cs">
-      <Link>Linked\hash_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\key_tests.cs">
-      <Link>Linked\key_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs">
-      <Link>Linked\obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\obj\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs">
-      <Link>Linked\obj\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\obj\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs">
-      <Link>Linked\obj\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\PaymentTests.cs">
-      <Link>Linked\PaymentTests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\PeerTableTests.cs">
-      <Link>Linked\PeerTableTests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\Program.cs">
-      <Link>Linked\Program.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\Properties\AssemblyInfo.cs">
-      <Link>Linked\Properties\AssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\ProtocolTests.cs">
-      <Link>Linked\ProtocolTests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\RepositoryTests.cs">
-      <Link>Linked\RepositoryTests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\RPCClientTests.cs">
-      <Link>Linked\RPCClientTests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\ScannerTests.cs">
-      <Link>Linked\ScannerTests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\script_tests.cs">
-      <Link>Linked\script_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\sighash_tests.cs">
-      <Link>Linked\sighash_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\sigopcount_tests.cs">
-      <Link>Linked\sigopcount_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\StealthAddressTests.cs">
-      <Link>Linked\StealthAddressTests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\TestCase.cs">
-      <Link>Linked\TestCase.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\TestUtils.cs">
-      <Link>Linked\TestUtils.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\transaction_tests.cs">
-      <Link>Linked\transaction_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\bip39_tests.cs">
-      <Link>Linked\bip39_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\uint256_tests.cs">
-      <Link>Linked\uint256_tests.cs</Link>
-    </Compile>
-    <Compile Include="..\NBitcoin.Tests\util_tests.cs">
-      <Link>Linked\util_tests.cs</Link>
-    </Compile>
-    <None Include="..\NBitcoin.Tests\data\**\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>data\%(RecursiveDir)%(Filename)%(Extension)</Link>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle%28Profile259%29.csproj">
-      <Project>{9a4e20fa-d79b-4ab2-93d3-2cf7101f75f8}</Project>
-      <Name>NBitcoin.Portable.BouncyCastle%28Profile259%29</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NBitcoin.Portable\NBitcoin.Portable%28Profile259%29.csproj">
-      <Project>{7d64fe62-6350-4b33-a728-e4b5ba1e333d}</Project>
-      <Name>NBitcoin.Portable%28Profile259%29</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Newtonsoft.Json%28portable%29\Newtonsoft.Json.Portable.csproj">
-      <Project>{959f7f85-c98b-4876-971a-9036224578e4}</Project>
-      <Name>Newtonsoft.Json.Portable</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+		<ProjectGuid>{9062E694-B97D-4243-B766-8D1A9230DC90}</ProjectGuid>
+		<OutputType>Library</OutputType>
+		<AppDesignerFolder>Properties</AppDesignerFolder>
+		<RootNamespace>NBitcoin.Portable.Tests</RootNamespace>
+		<AssemblyName>NBitcoin.Portable.Tests</AssemblyName>
+		<TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+		<FileAlignment>512</FileAlignment>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<DebugSymbols>true</DebugSymbols>
+		<DebugType>full</DebugType>
+		<Optimize>false</Optimize>
+		<OutputPath>bin\Debug\</OutputPath>
+		<DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT;NOSOCKET;NOPROTOBUF;NOTRACESOURCE;NOFILEIO;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<OutputPath>bin\Release\</OutputPath>
+		<DefineConstants>TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT;NOSOCKET;NOPROTOBUF;NOTRACESOURCE;NOFILEIO;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	<ItemGroup>
+		<Reference Include="System" />
+		<Reference Include="System.Core" />
+		<Reference Include="System.Xml.Linq" />
+		<Reference Include="System.Data.DataSetExtensions" />
+		<Reference Include="Microsoft.CSharp" />
+		<Reference Include="System.Data" />
+		<Reference Include="System.Xml" />
+		<Reference Include="xunit">
+			<HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
+		</Reference>
+		<Reference Include="xunit.extensions">
+			<HintPath>..\packages\xunit.extensions.1.9.2\lib\net20\xunit.extensions.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="..\NBitcoin.Tests\**\*.cs">
+			<Link>Linked\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</Compile>
+		<None Include="..\NBitcoin.Tests\data\**\*.*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Link>data\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="packages.config" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle%28Profile259%29.csproj">
+			<Project>{9a4e20fa-d79b-4ab2-93d3-2cf7101f75f8}</Project>
+			<Name>NBitcoin.Portable.BouncyCastle%28Profile259%29</Name>
+		</ProjectReference>
+		<ProjectReference Include="..\NBitcoin.Portable\NBitcoin.Portable%28Profile259%29.csproj">
+			<Project>{7d64fe62-6350-4b33-a728-e4b5ba1e333d}</Project>
+			<Name>NBitcoin.Portable%28Profile259%29</Name>
+		</ProjectReference>
+		<ProjectReference Include="..\Newtonsoft.Json%28portable%29\Newtonsoft.Json.Portable.csproj">
+			<Project>{959f7f85-c98b-4876-971a-9036224578e4}</Project>
+			<Name>Newtonsoft.Json.Portable</Name>
+		</ProjectReference>
+	</ItemGroup>
+	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+	<!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

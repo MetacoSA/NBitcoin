@@ -1,4 +1,8 @@
-﻿using System;
+﻿#if !PORTABLE
+using System.Net.Sockets;
+#endif
+using NBitcoin.Protocol;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -6,10 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-#if !PORTABLE
-using System.Net.Sockets;
-using NBitcoin.Protocol;
-#endif
+
 
 
 namespace NBitcoin
