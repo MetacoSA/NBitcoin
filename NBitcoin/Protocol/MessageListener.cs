@@ -129,7 +129,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public virtual T RecieveMessage(CancellationToken cancellationToken = default(CancellationToken))
+		public virtual T ReceiveMessage(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			return MessageQueue.Take(cancellationToken);
 		}

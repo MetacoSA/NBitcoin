@@ -324,7 +324,7 @@ namespace NBitcoin.Protocol
 			try
 			{
 				var result = tasks.First(t => t.IsCompleted && !t.IsFaulted).Result;
-				NodeServerTrace.ExternalIpRecieved(result);
+				NodeServerTrace.ExternalIpReceived(result);
 				return IPAddress.Parse(result);
 			}
 			catch(InvalidOperationException)
@@ -618,7 +618,7 @@ namespace NBitcoin.Protocol
 						Version = version == null ? Version : version.Value,
 						StartHeight = 0,
 						Timestamp = DateTimeOffset.UtcNow,
-						AddressReciever = peer.NetworkAddress.Endpoint,
+						AddressReceiver = peer.NetworkAddress.Endpoint,
 						AddressFrom = myExternal,
 						Relay = IsRelay
 					};

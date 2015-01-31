@@ -270,7 +270,7 @@ namespace NBitcoin.Protocol
 				Version = myVersion,
 				StartHeight = 0,
 				Timestamp = DateTimeOffset.UtcNow,
-				AddressReciever = peer.NetworkAddress.Endpoint,
+				AddressReceiver = peer.NetworkAddress.Endpoint,
 				AddressFrom = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), network.DefaultPort),
 				Relay = isRelay
 			};
@@ -408,16 +408,16 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public TPayload RecieveMessage<TPayload>(TimeSpan timeout) where TPayload : Payload
+		public TPayload ReceiveMessage<TPayload>(TimeSpan timeout) where TPayload : Payload
 		{
 			var source = new CancellationTokenSource();
 			source.CancelAfter(timeout);
-			return RecieveMessage<TPayload>(source.Token);
+			return ReceiveMessage<TPayload>(source.Token);
 		}
 
 
 
-		public TPayload RecieveMessage<TPayload>(CancellationToken cancellationToken = default(CancellationToken)) where TPayload : Payload
+		public TPayload ReceiveMessage<TPayload>(CancellationToken cancellationToken = default(CancellationToken)) where TPayload : Payload
 		{
 			using(var listener = new NodeListener(this))
 			{
@@ -462,9 +462,9 @@ namespace NBitcoin.Protocol
 					var version = (VersionPayload)payload;
 					_PeerVersion = version;
 					Version = version.Version;
-					if(!version.AddressReciever.Address.Equals(MyVersion.AddressFrom.Address))
+					if(!version.AddressReceiver.Address.Equals(MyVersion.AddressFrom.Address))
 					{
-						NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReciever.Address + " instead of " + MyVersion.AddressFrom.Address);
+						NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReceiver.Address + " instead of " + MyVersion.AddressFrom.Address);
 					}
 					if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
 					{
@@ -491,7 +491,7 @@ namespace NBitcoin.Protocol
 				{
 					NodeServerTrace.Information("Responding to handshake");
 					SendMessage(MyVersion);
-					listener.RecieveMessage().AssertPayload<VerAckPayload>();
+					listener.ReceiveMessage().AssertPayload<VerAckPayload>();
 					SendMessage(new VerAckPayload());
 					_State = NodeState.HandShaked;
 				}
@@ -555,7 +555,7 @@ namespace NBitcoin.Protocol
 						BlockLocators = currentTip.GetLocator(),
 						HashStop = hashStop
 					});
-					var headers = this.RecieveMessage<HeadersPayload>(cancellationToken);
+					var headers = this.ReceiveMessage<HeadersPayload>(cancellationToken);
 					if(headers.Headers.Count == 0)
 						break;
 					foreach(var header in headers.Headers)

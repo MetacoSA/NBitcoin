@@ -43,7 +43,7 @@ namespace NBitcoin.Protocol
 			{
 				while(true)
 				{
-					var message = RecieveMessage(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, Node._Connection.Cancel.Token).Token);
+					var message = ReceiveMessage(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, Node._Connection.Cancel.Token).Token);
 					if(_Predicates.All(p => p(message)))
 					{
 						if(message.Message.Payload is TPayload)
@@ -66,7 +66,7 @@ namespace NBitcoin.Protocol
 				while(pushedAside.Count != 0)
 					PushMessage(pushedAside.Dequeue());
 			}
-			throw new InvalidProgramException("Bug in Node.RecieveMessage");
+			throw new InvalidProgramException("Bug in Node.ReceiveMessage");
 		}
 
 		List<Func<IncomingMessage, bool>> _Predicates = new List<Func<IncomingMessage, bool>>();
