@@ -72,18 +72,18 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>BitcoinStream.Partial.tt</DependentUpon>
     </Compile>
-    <Compile Include="CachedBlockProvider.cs" />
+    <Compile Include="BitcoinCore\CachedBlockProvider.cs" />
     <Compile Include="CachedNoSqlRepository.cs" />
     <Compile Include="CachedTransactionRepository.cs" />
     <Compile Include="Coin.cs" />
-    <Compile Include="CoinsView.cs" />
+    <Compile Include="BitcoinCore\CoinsView.cs" />
     <Compile Include="ConcurrentChain.cs" />
     <Compile Include="Crypto\DeterministicECDSA.cs" />
-    <Compile Include="DataDirectory.cs" />
+    <Compile Include="BitcoinCore\DataDirectory.cs" />
     <Compile Include="ChainBase.cs" />
     <Compile Include="IDestination.cs" />
-    <Compile Include="IndexedBlockUndoStore.cs" />
-    <Compile Include="IndexedStore.cs" />
+    <Compile Include="BitcoinCore\IndexedBlockUndoStore.cs" />
+    <Compile Include="BitcoinCore\IndexedStore.cs" />
     <Compile Include="InMemoryNoSqlRepository.cs" />
     <Compile Include="ISecret.cs" />
     <Compile Include="ITransactionRepository.cs" />
@@ -128,7 +128,7 @@
     <Compile Include="RPC\RPCOperations.cs" />
     <Compile Include="RPC\SatoshiFormatter.cs" />
     <Compile Include="RPC\UnspentCoin.cs" />
-    <Compile Include="IBlockProvider.cs" />
+    <Compile Include="BitcoinCore\IBlockProvider.cs" />
     <Compile Include="Spendable.cs" />
     <Compile Include="StreamObjectStream.cs" />
     <Compile Include="Stealth\BitcoinStealthAddress.cs" />
@@ -136,13 +136,13 @@
     <Compile Include="Block.cs" />
     <Compile Include="ChainedBlock.cs" />
     <Compile Include="BlockLocator.cs" />
-    <Compile Include="BlockRepository.cs" />
-    <Compile Include="BlockStore.cs" />
-    <Compile Include="BlockUndo.cs" />
-    <Compile Include="BlockUndoStore.cs" />
+    <Compile Include="BitcoinCore\BlockRepository.cs" />
+    <Compile Include="BitcoinCore\BlockStore.cs" />
+    <Compile Include="BitcoinCore\BlockUndo.cs" />
+    <Compile Include="BitcoinCore\BlockUndoStore.cs" />
     <Compile Include="BloomFilter.cs" />
     <Compile Include="Chain.cs" />
-    <Compile Include="Coins.cs" />
+    <Compile Include="BitcoinCore\Coins.cs" />
     <Compile Include="CompositeDisposable.cs" />
     <Compile Include="Crypto\Cryptsharp\BitMath.cs" />
     <Compile Include="Crypto\Cryptsharp\BitPacking.cs" />
@@ -155,7 +155,7 @@
     <Compile Include="Crypto\Cryptsharp\Security.cs" />
     <Compile Include="DataEncoders\ASCIIEncoder.cs" />
     <Compile Include="FileLock.cs" />
-    <Compile Include="IndexedBlockStore.cs" />
+    <Compile Include="BitcoinCore\IndexedBlockStore.cs" />
     <Compile Include="IpExtensions.cs" />
     <Compile Include="BIP32\ExtKey.cs" />
     <Compile Include="BIP32\ExtPubKey.cs" />
@@ -193,9 +193,9 @@
     <Compile Include="RandomUtils.cs" />
     <Compile Include="Stealth\StealthMetadata.cs" />
     <Compile Include="Stealth\StealthPayment.cs" />
-    <Compile Include="Store.cs" />
-    <Compile Include="StoredBlock.cs" />
-    <Compile Include="StoredItem.cs" />
+    <Compile Include="BitcoinCore\Store.cs" />
+    <Compile Include="BitcoinCore\StoredBlock.cs" />
+    <Compile Include="BitcoinCore\StoredItem.cs" />
     <Compile Include="Target.cs" />
     <Compile Include="TraceCorrelationScope.cs" />
     <Compile Include="TransactionBuilder.cs" />

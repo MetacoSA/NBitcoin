@@ -6,7 +6,7 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace NBitcoin.BitcoinCore
 {
 	public abstract class IndexedStore<TStoredItem, TItem>
 		where TStoredItem : StoredItem<TItem>

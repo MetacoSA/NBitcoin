@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace NBitcoin.BitcoinCore
 {
 	public class DiskBlockPosRange
 	{
