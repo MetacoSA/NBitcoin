@@ -320,11 +320,6 @@ namespace NBitcoin
 			return Money.Parse(value);
         }
 
-        public static implicit operator decimal(Money value)
-        {
-            return (decimal)value.Satoshi;
-        }
-
 		public override bool Equals(object obj)
 		{
 			Money item = obj as Money;
