@@ -99,19 +99,29 @@ namespace NBitcoin.OpenAsset
 			if(repo == null)
 				throw new ArgumentNullException("repo");
 			repo = EnsureCachedRepository(repo);
-			if(txId != null && tx == null)
+
+			ColoredTransaction result = null;
+			if(txId != null)
+			{
+				result = await repo.GetAsync(txId).ConfigureAwait(false);
+			}
+			else
+			{
+				if(tx == null)
+					throw new ArgumentException("txId or tx should be different of null");
+				txId = tx.GetHash();
+				result = await repo.GetAsync(txId).ConfigureAwait(false);
+			}
+			if(result != null)
+				return result;
+
+			if(tx == null)
 			{
 				tx = await repo.Transactions.GetAsync(txId).ConfigureAwait(false);
 				if(tx == null)
 					throw new TransactionNotFoundException("Transaction " + txId + " not found in transaction repository", txId);
 			}
-			if(txId == null && tx == null)
-				throw new ArgumentException("txId or tx should be different of null");
 
-			txId = txId ?? tx.GetHash();
-			var result = await repo.GetAsync(txId).ConfigureAwait(false);
-			if(result != null)
-				return result;
 
 			ColoredTransaction lastColored = null;
 			//The following code is to prevent recursion of FetchColors that would fire a StackOverflow if the origin of traded asset were deep in the transaction dependency tree
@@ -131,7 +141,10 @@ namespace NBitcoin.OpenAsset
 					continue;
 				}
 
-				for(int i = 0 ; i < tx.Inputs.Count ; i++)
+				var parentsToResolve = 
+					Enumerable
+					.Range(0, tx.Inputs.Count)
+					.Select(async i =>
 				{
 					var txin = tx.Inputs[i];
 					var color = await repo.GetAsync(txin.PrevOut.Hash).ConfigureAwait(false);
@@ -140,10 +153,22 @@ namespace NBitcoin.OpenAsset
 						var prevTx = await repo.Transactions.GetAsync(txin.PrevOut.Hash).ConfigureAwait(false);
 						if(prevTx == null)
 							throw new TransactionNotFoundException("Transaction " + txin.PrevOut.Hash + " not found in transaction repository", txId);
-						ancestors.Push(Tuple.Create(txin.PrevOut.Hash, prevTx));
+						return Tuple.Create(txin.PrevOut.Hash, prevTx);
+					}
+					return null;
+				}).ToArray();
+
+				foreach(var parent in parentsToResolve)
+				{
+					var toResolve = await parent.ConfigureAwait(false);
+					if(toResolve != null)
+					{
+						ancestors.Push(toResolve);
 						isComplete = false;
 					}
 				}
+
+
 				if(isComplete)
 				{
 					lastColored = await FetchColorsWithAncestorsSolved(txId, tx, (CachedColoredTransactionRepository)repo).ConfigureAwait(false);
@@ -159,7 +184,7 @@ namespace NBitcoin.OpenAsset
 		{
 			if(repo is CachedColoredTransactionRepository)
 				return repo;
-			repo = new CachedColoredTransactionRepository(repo);
+			repo = new CachedColoredTransactionRepository(new NoDuplicateColoredTransactionRepository(repo));
 			return repo;
 		}
 

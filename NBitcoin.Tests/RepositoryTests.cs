@@ -261,7 +261,7 @@ namespace NBitcoin.Tests
 			Assert.Null(result);
 		}
 
-		[Fact]
+		//[Fact]
 		public static void Play()
 		{
 			Stopwatch watch = new Stopwatch();
