@@ -70,7 +70,7 @@ namespace NBitcoin
 			return ChangeType.ToString() + "-" + HeightOrBackstep;
 		}
 	}
-	public class Chain : ChainBase
+	public class PersistantChain : ChainBase
 	{
 		public bool IsPartial
 		{
@@ -80,27 +80,27 @@ namespace NBitcoin
 			}
 		}
 
-		public Chain()
+		public PersistantChain()
 			: this(new StreamObjectStream<ChainChange>())
 		{
 
 		}
 
-		public Chain(Network network)
+		public PersistantChain(Network network)
 			: this(network, null)
 		{
 		}
 
-		public Chain(Network network, ObjectStream<ChainChange> changes)
+		public PersistantChain(Network network, ObjectStream<ChainChange> changes)
 			: this(network.GetGenesis().Header, changes)
 		{
 
 		}
-		public Chain(Chain copied)
+		public PersistantChain(PersistantChain copied)
 			: this(copied, null)
 		{
 		}
-		public Chain(Chain copied, ObjectStream<ChainChange> changes)
+		public PersistantChain(PersistantChain copied, ObjectStream<ChainChange> changes)
 		{
 			if(changes == null)
 				changes = new StreamObjectStream<ChainChange>();
@@ -119,7 +119,7 @@ namespace NBitcoin
 				}
 			}
 		}
-		public Chain(ObjectStream<ChainChange> changes)
+		public PersistantChain(ObjectStream<ChainChange> changes)
 		{
 			if(changes == null)
 				changes = new StreamObjectStream<ChainChange>();
@@ -127,16 +127,16 @@ namespace NBitcoin
 			_Changes = changes;
 			Process();
 		}
-		public Chain(BlockHeader genesis)
+		public PersistantChain(BlockHeader genesis)
 			: this(genesis, 0, null)
 		{
 		}
-		public Chain(BlockHeader genesis, ObjectStream<ChainChange> changes)
+		public PersistantChain(BlockHeader genesis, ObjectStream<ChainChange> changes)
 			: this(genesis, 0, changes)
 		{
 		}
 
-		public Chain(BlockHeader blockHeader, int height, ObjectStream<ChainChange> changes)
+		public PersistantChain(BlockHeader blockHeader, int height, ObjectStream<ChainChange> changes)
 		{
 			if(changes == null)
 				changes = new StreamObjectStream<ChainChange>();
@@ -468,13 +468,13 @@ namespace NBitcoin
 		
 
 
-		public Chain Clone()
+		public PersistantChain Clone()
 		{
 			return Clone(null);
 		}
-		public Chain Clone(ObjectStream<ChainChange> changes)
+		public PersistantChain Clone(ObjectStream<ChainChange> changes)
 		{
-			return new Chain(this, changes);
+			return new PersistantChain(this, changes);
 		}
 
 		public override IEnumerable<ChainedBlock> EnumerateAfter(ChainedBlock block)
@@ -488,7 +488,7 @@ namespace NBitcoin
 
 		
 
-		public Chain CreateSubChain(ChainedBlock from,
+		public PersistantChain CreateSubChain(ChainedBlock from,
 									bool fromIncluded,
 									ChainedBlock to,
 									bool toIncluded,
@@ -516,7 +516,7 @@ namespace NBitcoin
 					HeightOrBackstep = (uint)b.Height
 				});
 			}
-			return new Chain(output);
+			return new PersistantChain(output);
 		}
 
 		public void PushChanges(ObjectStream<ChainChange> changes)

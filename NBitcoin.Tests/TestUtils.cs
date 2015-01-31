@@ -67,9 +67,9 @@ namespace NBitcoin.Tests
 			return block;
 		}
 
-		public static Chain CreateBlockChain(List<Block> blocks)
+		public static PersistantChain CreateBlockChain(List<Block> blocks)
 		{
-			Chain chain = new Chain(Network.Main.GetGenesis().Header);
+			PersistantChain chain = new PersistantChain(Network.Main.GetGenesis().Header);
 			foreach(var b in blocks)
 			{
 				b.Header.HashPrevBlock = chain.Tip.Header.GetHash();

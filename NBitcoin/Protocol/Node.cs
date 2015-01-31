@@ -548,10 +548,10 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public Chain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		public PersistantChain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var ms = new MemoryStream();
-			Chain chain = new Chain(Network, new StreamObjectStream<ChainChange>(ms));
+			PersistantChain chain = new PersistantChain(Network, new StreamObjectStream<ChainChange>(ms));
 			SynchronizeChain(chain, hashStop, cancellationToken);
 			return chain;
 		}

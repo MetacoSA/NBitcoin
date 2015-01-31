@@ -16,7 +16,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSaveForkedBlockInChain()
 		{
-			var chain = new Chain(Network.Main);
+			var chain = new PersistantChain(Network.Main);
 			var common = AppendBlock(chain);
 			var fork = AppendBlock(chain);
 			var fork2 = AppendBlock(common, chain);
@@ -38,7 +38,7 @@ namespace NBitcoin.Tests
 		public void CanSaveChain()
 		{
 			var stream = new StreamObjectStream<ChainChange>();
-			Chain chain = new Chain(Network.Main, stream);
+			PersistantChain chain = new PersistantChain(Network.Main, stream);
 			AppendBlock(chain);
 			AppendBlock(chain);
 			var fork = AppendBlock(chain);
@@ -47,7 +47,7 @@ namespace NBitcoin.Tests
 
 			stream.Rewind();
 
-			var chain2 = new Chain(stream);
+			var chain2 = new PersistantChain(stream);
 			Assert.True(chain.SameTip(chain2));
 
 			stream.WriteNext(new ChainChange()
@@ -57,7 +57,7 @@ namespace NBitcoin.Tests
 			});
 			stream.Rewind();
 
-			var chain3 = new Chain(stream);
+			var chain3 = new PersistantChain(stream);
 			AssertHeight(stream, 3);
 			var actualFork = chain3.FindFork(chain);
 			Assert.Equal(fork.HashBlock, actualFork.HashBlock);
@@ -85,7 +85,7 @@ namespace NBitcoin.Tests
 		public void CanBuildConcurrentChain()
 		{
 			ConcurrentChain cchain = new ConcurrentChain();
-			Chain chain = new Chain(Network.Main);
+			PersistantChain chain = new PersistantChain(Network.Main);
 			Assert.Null(cchain.SetTip(chain.Tip));
 			var b0 = cchain.Tip;
 			Assert.Equal(cchain.Tip, chain.Tip);
@@ -123,7 +123,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(cchain.GetBlock(5), b5b);
 		}
 
-		private ChainedBlock AddBlock(Chain chain)
+		private ChainedBlock AddBlock(PersistantChain chain)
 		{
 			BlockHeader header = new BlockHeader();
 			header.Nonce = RandomUtils.GetUInt32();
@@ -136,7 +136,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildChain()
 		{
-			Chain chain = new Chain(Network.Main);
+			PersistantChain chain = new PersistantChain(Network.Main);
 			AppendBlock(chain);
 			AppendBlock(chain);
 			AppendBlock(chain);
@@ -147,7 +147,7 @@ namespace NBitcoin.Tests
 		}
 
 
-		List<ChainChange> EnumerateFromBeginning(Chain chain)
+		List<ChainChange> EnumerateFromBeginning(PersistantChain chain)
 		{
 			chain.Changes.Rewind();
 			return chain.Changes.Enumerate().ToList();
@@ -158,7 +158,7 @@ namespace NBitcoin.Tests
 		{
 
 			StreamObjectStream<ChainChange> changes = new StreamObjectStream<ChainChange>();
-			Chain main = new Chain(Network.Main, changes);
+			PersistantChain main = new PersistantChain(Network.Main, changes);
 			AppendBlock(main);
 			AppendBlock(main);
 			var forkPoint = AppendBlock(main);
@@ -205,7 +205,7 @@ namespace NBitcoin.Tests
 		public void AssertHeight(StreamObjectStream<ChainChange> changes, int height)
 		{
 			changes.Rewind();
-			Assert.Equal(height, new Chain(changes).Height);
+			Assert.Equal(height, new PersistantChain(changes).Height);
 		}
 
 		[Fact]
@@ -213,7 +213,7 @@ namespace NBitcoin.Tests
 		public void CanCalculateDifficulty()
 		{
 			var o = Network.Main.ProofOfWorkLimit;
-			var main = new Chain(LoadMainChain());
+			var main = new PersistantChain(LoadMainChain());
 			var histories = File.ReadAllText("data/targethistory.csv").Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
 
 			foreach(var history in histories)
@@ -243,7 +243,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildPartialChain()
 		{
-			Chain chain = new Chain(TestUtils.CreateFakeBlock().Header, 10, new StreamObjectStream<ChainChange>());
+			PersistantChain chain = new PersistantChain(TestUtils.CreateFakeBlock().Header, 10, new StreamObjectStream<ChainChange>());
 			AppendBlock(chain);
 			AppendBlock(chain);
 			AppendBlock(chain);
@@ -257,7 +257,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanForkBackward()
 		{
-			Chain chain = new Chain(Network.Main);
+			PersistantChain chain = new PersistantChain(Network.Main);
 			AppendBlock(chain);
 			AppendBlock(chain);
 			var fork = AppendBlock(chain);
@@ -300,7 +300,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanForkBackwardPartialChain()
 		{
-			Chain chain = new Chain(TestUtils.CreateFakeBlock().Header, 10, new StreamObjectStream<ChainChange>());
+			PersistantChain chain = new PersistantChain(TestUtils.CreateFakeBlock().Header, 10, new StreamObjectStream<ChainChange>());
 			AppendBlock(chain);
 			AppendBlock(chain);
 			var fork = AppendBlock(chain);
@@ -343,8 +343,8 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanForkSide()
 		{
-			Chain side = new Chain(Network.Main);
-			Chain main = new Chain(Network.Main);
+			PersistantChain side = new PersistantChain(Network.Main);
+			PersistantChain main = new PersistantChain(Network.Main);
 			AppendBlock(side, main);
 			AppendBlock(side, main);
 			var common = AppendBlock(side, main);
@@ -370,8 +370,8 @@ namespace NBitcoin.Tests
 		public void CanForkSidePartialChain()
 		{
 			var block = TestUtils.CreateFakeBlock();
-			Chain side = new Chain(block.Header, 10, new StreamObjectStream<ChainChange>());
-			Chain main = new Chain(block.Header, 10, new StreamObjectStream<ChainChange>());
+			PersistantChain side = new PersistantChain(block.Header, 10, new StreamObjectStream<ChainChange>());
+			PersistantChain main = new PersistantChain(block.Header, 10, new StreamObjectStream<ChainChange>());
 			AppendBlock(side, main);
 			AppendBlock(side, main);
 			var common = AppendBlock(side, main);
@@ -394,7 +394,7 @@ namespace NBitcoin.Tests
 		}
 
 
-		public ChainedBlock AppendBlock(ChainedBlock previous, params Chain[] chains)
+		public ChainedBlock AppendBlock(ChainedBlock previous, params PersistantChain[] chains)
 		{
 			ChainedBlock last = null;
 			var nonce = RandomUtils.GetUInt32();
@@ -408,7 +408,7 @@ namespace NBitcoin.Tests
 			}
 			return last;
 		}
-		private ChainedBlock AppendBlock(params Chain[] chains)
+		private ChainedBlock AppendBlock(params PersistantChain[] chains)
 		{
 			ChainedBlock index = null;
 			return AppendBlock(index, chains);

@@ -141,7 +141,7 @@
     <Compile Include="BitcoinCore\BlockUndo.cs" />
     <Compile Include="BitcoinCore\BlockUndoStore.cs" />
     <Compile Include="BloomFilter.cs" />
-    <Compile Include="Chain.cs" />
+    <Compile Include="PersistantChain.cs" />
     <Compile Include="BitcoinCore\Coins.cs" />
     <Compile Include="CompositeDisposable.cs" />
     <Compile Include="Crypto\Cryptsharp\BitMath.cs" />

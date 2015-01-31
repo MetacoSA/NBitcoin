@@ -22,23 +22,23 @@ namespace NBitcoin.BitcoinCore
 		}
 
 
-		public Chain BuildChain()
+		public PersistantChain BuildChain()
 		{
 			return BuildChain(Network.GetGenesis().Header, 0);
 		}
-		public Chain BuildChain(BlockHeader firstBlock, int height)
+		public PersistantChain BuildChain(BlockHeader firstBlock, int height)
 		{
-			Chain chain = new Chain();
+			PersistantChain chain = new PersistantChain();
 			chain.Initialize(firstBlock, height);
 			return BuildChain(chain);
 		}
-		public Chain BuildChain(ObjectStream<ChainChange> changes)
+		public PersistantChain BuildChain(ObjectStream<ChainChange> changes)
 		{
-			Chain chain = new Chain(changes);
+			PersistantChain chain = new PersistantChain(changes);
 			return BuildChain(chain);
 		}
 
-		public Chain BuildChain(Chain chain)
+		public PersistantChain BuildChain(PersistantChain chain)
 		{
 			Dictionary<uint256, BlockHeader> headers = new Dictionary<uint256, BlockHeader>();
 			HashSet<uint256> inChain = new HashSet<uint256>();

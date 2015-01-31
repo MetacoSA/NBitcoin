@@ -63,7 +63,7 @@ namespace NBitcoin
 			return GetBlock(blockIndex.Height) != null;
 		}
 
-		public bool SameTip(Chain chain)
+		public bool SameTip(PersistantChain chain)
 		{
 			return Tip.HashBlock == chain.Tip.HashBlock;
 		}
@@ -133,7 +133,7 @@ namespace NBitcoin
 
 
 
-		public ChainedBlock FindFork(Chain chain)
+		public ChainedBlock FindFork(PersistantChain chain)
 		{
 			return FindFork(chain.ToEnumerable(true).Select(o => o.HashBlock));
 		}
