@@ -1,4 +1,4 @@
-﻿#if !PORTABLE
+﻿#if !NOHTTPCLIENT
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json.Linq;
 using System;
@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,14 +32,14 @@ namespace NBitcoin.OpenAsset
 		{
 			#region ITransactionRepository Members
 
-			public Transaction Get(uint256 txId)
+			public Task<Transaction> GetAsync(uint256 txId)
 			{
-				return null;
+				return Task.FromResult<Transaction>(null);
 			}
 
-			public void Put(uint256 txId, Transaction tx)
+			public Task PutAsync(uint256 txId, Transaction tx)
 			{
-
+				return Task.FromResult(true);
 			}
 
 			#endregion
@@ -53,57 +54,62 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		public ColoredTransaction Get(uint256 txId)
+		public async Task<ColoredTransaction> GetAsync(uint256 txId)
 		{
 			try
 			{
 				ColoredTransaction result = new ColoredTransaction();
-				WebClient client = new WebClient();
-				var str = client.DownloadString("https://api.coinprism.com/v1/transactions/" + txId);
-				var json = JObject.Parse(str);
-				var inputs = json["inputs"] as JArray;
-				if(inputs != null)
+				using(HttpClient client = new HttpClient())
 				{
-					for(int i = 0 ; i < inputs.Count ; i++)
+					var response = await client.GetAsync("https://api.coinprism.com/v1/transactions/" + txId).ConfigureAwait(false);
+					if(response.StatusCode != HttpStatusCode.OK)
+						return null;
+					var str = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+					var json = JObject.Parse(str);
+					var inputs = json["inputs"] as JArray;
+					if(inputs != null)
 					{
-						if(inputs[i]["asset_id"].Value<string>() == null)
-							continue;
-						var entry = new ColoredEntry();
-						entry.Index = (uint)i;
-						entry.Asset = new Asset(
-							new BitcoinAssetId(inputs[i]["asset_id"].ToString(), null).AssetId,
-							inputs[i]["asset_quantity"].Value<ulong>());
-
-						result.Inputs.Add(entry);
-					}
-				}
-
-				var outputs = json["outputs"] as JArray;
-				if(outputs != null)
-				{
-					bool issuance = true;
-					for(int i = 0 ; i < outputs.Count ; i++)
-					{
-						var marker = ColorMarker.TryParse(new Script(Encoders.Hex.DecodeData(outputs[i]["script"].ToString())));
-						if(marker != null)
+						for(int i = 0 ; i < inputs.Count ; i++)
 						{
-							issuance = false;
-							result.Marker = marker;
-							continue;
-						}
-						if(outputs[i]["asset_id"].Value<string>() == null)
-							continue;
-						ColoredEntry entry = new ColoredEntry();
-						entry.Index = (uint)i;
-						entry.Asset = new Asset(
-							new BitcoinAssetId(outputs[i]["asset_id"].ToString(), null).AssetId,
-							outputs[i]["asset_quantity"].Value<ulong>()
-							);
+							if(inputs[i]["asset_id"].Value<string>() == null)
+								continue;
+							var entry = new ColoredEntry();
+							entry.Index = (uint)i;
+							entry.Asset = new Asset(
+								new BitcoinAssetId(inputs[i]["asset_id"].ToString(), null).AssetId,
+								inputs[i]["asset_quantity"].Value<ulong>());
 
-						if(issuance)
-							result.Issuances.Add(entry);
-						else
-							result.Transfers.Add(entry);
+							result.Inputs.Add(entry);
+						}
+					}
+
+					var outputs = json["outputs"] as JArray;
+					if(outputs != null)
+					{
+						bool issuance = true;
+						for(int i = 0 ; i < outputs.Count ; i++)
+						{
+							var marker = ColorMarker.TryParse(new Script(Encoders.Hex.DecodeData(outputs[i]["script"].ToString())));
+							if(marker != null)
+							{
+								issuance = false;
+								result.Marker = marker;
+								continue;
+							}
+							if(outputs[i]["asset_id"].Value<string>() == null)
+								continue;
+							ColoredEntry entry = new ColoredEntry();
+							entry.Index = (uint)i;
+							entry.Asset = new Asset(
+								new BitcoinAssetId(outputs[i]["asset_id"].ToString(), null).AssetId,
+								outputs[i]["asset_quantity"].Value<ulong>()
+								);
+
+							if(issuance)
+								result.Issuances.Add(entry);
+							else
+								result.Transfers.Add(entry);
+						}
 					}
 				}
 				return result;
@@ -128,8 +134,9 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		public void Put(uint256 txId, ColoredTransaction tx)
+		public Task PutAsync(uint256 txId, ColoredTransaction tx)
 		{
+			return Task.FromResult(false);
 		}
 
 		#endregion

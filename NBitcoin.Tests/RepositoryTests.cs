@@ -1,5 +1,6 @@
 ﻿#if !NOFILEIO
 using NBitcoin.DataEncoders;
+using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
 using NBitcoin.Stealth;
@@ -233,10 +234,48 @@ namespace NBitcoin.Tests
 			}
 			Assert.Equal(40, count);
 		}
+		[Fact]
+		public static void CanRequestBlockr()
+		{
+			var repo = new BlockrTransactionRepository(Network.Main);
+			var result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de");
+			Assert.NotNull(result);
+			Assert.Equal("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de", result.GetHash().ToString());
+
+			result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927df");
+			Assert.Null(result);
+
+			repo = new BlockrTransactionRepository(Network.TestNet);
+			result = repo.Get("7d4c5d69a85c70ff70daff789114b9b76fb6d2613ac18764bd96f0a2b9358782");
+			Assert.NotNull(result);
+		}
+		[Fact]
+		public static void CanRequestTransactionOnRapidBase()
+		{
+			var repo = new RapidBaseTransactionRepository("http://rapidbase-test.azurewebsites.net/");
+			var result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de");
+			Assert.NotNull(result);
+			Assert.Equal("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de", result.GetHash().ToString());
+
+			result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927df");
+			Assert.Null(result);
+		}
 
 		[Fact]
 		public static void Play()
 		{
+			Stopwatch watch = new Stopwatch();
+			watch.Start();
+			System.Net.ServicePointManager.DefaultConnectionLimit = 100;
+			System.Net.ServicePointManager.Expect100Continue = false;
+			var repo = new RapidBaseTransactionRepository("http://rapidbase-test.azurewebsites.net/");
+			var colored = new OpenAsset.NoSqlColoredTransactionRepository(repo);
+
+			
+			var result = repo
+				.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de")
+				.GetColoredTransaction(colored);
+			watch.Stop();
 			//for(int i = 0 ; i < 100 ; i++)
 			//{
 			//	using(var node = Node.ConnectToLocal(Network.Main))

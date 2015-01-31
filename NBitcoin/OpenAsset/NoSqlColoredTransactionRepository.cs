@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,9 +49,9 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		public ColoredTransaction Get(uint256 txId)
+		public Task<ColoredTransaction> GetAsync(uint256 txId)
 		{
-			return _Repository.Get<ColoredTransaction>(GetId(txId));
+			return _Repository.GetAsync<ColoredTransaction>(GetId(txId));
 		}
 
 		private string GetId(uint256 txId)
@@ -58,9 +59,9 @@ namespace NBitcoin.OpenAsset
 			return "ctx-" + txId;
 		}
 
-		public void Put(uint256 txId, ColoredTransaction tx)
+		public Task PutAsync(uint256 txId, ColoredTransaction tx)
 		{
-			_Repository.Put(GetId(txId), tx);
+			return _Repository.PutAsync(GetId(txId), tx);
 		}
 
 		#endregion

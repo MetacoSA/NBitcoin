@@ -18,14 +18,14 @@ namespace NBitcoin
 		}
 		#region ITransactionRepository Members
 
-		public Transaction Get(uint256 txId)
+		public Task<Transaction> GetAsync(uint256 txId)
 		{
-			return _Client.GetRawTransaction(txId, false);
+			return _Client.GetRawTransactionAsync(txId, false);
 		}
 
-		public void Put(uint256 txId, Transaction tx)
+		public Task PutAsync(uint256 txId, Transaction tx)
 		{
-			
+			return Task.FromResult(false);
 		}
 
 		#endregion

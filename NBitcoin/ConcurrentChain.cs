@@ -9,38 +9,6 @@ namespace NBitcoin
 {
 	public class ConcurrentChain : ChainBase
 	{
-		class ReaderWriterLock
-		{
-			class FuncDisposable : IDisposable
-			{
-				Action onEnter, onLeave;
-				public FuncDisposable(Action onEnter, Action onLeave)
-				{
-					this.onEnter = onEnter;
-					this.onLeave = onLeave;
-					onEnter();
-				}
-
-				#region IDisposable Members
-
-				public void Dispose()
-				{
-					onLeave();
-				}
-
-				#endregion
-			}
-			ReaderWriterLockSlim @lock = new ReaderWriterLockSlim();
-
-			public IDisposable LockRead()
-			{
-				return new FuncDisposable(() => @lock.EnterReadLock(), () => @lock.ExitReadLock());
-			}
-			public IDisposable LockWrite()
-			{
-				return new FuncDisposable(() => @lock.EnterWriteLock(), () => @lock.ExitWriteLock());
-			}
-		}
 		Dictionary<uint256, ChainedBlock> _BlocksById = new Dictionary<uint256, ChainedBlock>();
 		Dictionary<int, ChainedBlock> _BlocksByHeight = new Dictionary<int, ChainedBlock>();
 		ReaderWriterLock @lock = new ReaderWriterLock();
@@ -181,6 +149,39 @@ namespace NBitcoin
 		public override string ToString()
 		{
 			return Tip == null ? "no tip" : Tip.Height.ToString();
+		}
+	}
+
+	internal class ReaderWriterLock
+	{
+		class FuncDisposable : IDisposable
+		{
+			Action onEnter, onLeave;
+			public FuncDisposable(Action onEnter, Action onLeave)
+			{
+				this.onEnter = onEnter;
+				this.onLeave = onLeave;
+				onEnter();
+			}
+
+			#region IDisposable Members
+
+			public void Dispose()
+			{
+				onLeave();
+			}
+
+			#endregion
+		}
+		ReaderWriterLockSlim @lock = new ReaderWriterLockSlim();
+
+		public IDisposable LockRead()
+		{
+			return new FuncDisposable(() => @lock.EnterReadLock(), () => @lock.ExitReadLock());
+		}
+		public IDisposable LockWrite()
+		{
+			return new FuncDisposable(() => @lock.EnterWriteLock(), () => @lock.ExitWriteLock());
 		}
 	}
 }

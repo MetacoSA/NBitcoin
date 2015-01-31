@@ -10,32 +10,54 @@ namespace NBitcoin
 	{
 		ITransactionRepository _Inner;
 		Dictionary<uint256, Transaction> _Transactions = new Dictionary<uint256, Transaction>();
+		ReaderWriterLock @lock = new ReaderWriterLock();
 		public CachedTransactionRepository(ITransactionRepository inner)
 		{
 			if(inner == null)
 				throw new ArgumentNullException("inner");
 			_Inner = inner;
 		}
-		#region ITransactionRepository Members
 
-		public Transaction Get(uint256 txId)
+		public Transaction GetFromCache(uint256 txId)
 		{
-			Transaction result = null;
-			if(!_Transactions.TryGetValue(txId, out result))
+			using(@lock.LockRead())
 			{
-				result = _Inner.Get(txId);
-				_Transactions.Add(txId, result);
+				return _Transactions.TryGet(txId);
 			}
-			return result;
 		}
 
-		public void Put(uint256 txId, Transaction tx)
+		#region ITransactionRepository Members
+
+		public async Task<Transaction> GetAsync(uint256 txId)
 		{
-			if(!_Transactions.ContainsKey(txId))
-				_Transactions.Add(txId, tx);
-			else
-				_Transactions[txId] = tx;
-			_Inner.Put(txId, tx);
+			bool found = false;
+			Transaction result = null;
+			using(@lock.LockRead())
+			{
+				found = _Transactions.TryGetValue(txId, out result);
+			}
+			if(!found)
+			{
+				result = await _Inner.GetAsync(txId).ConfigureAwait(false);
+				using(@lock.LockWrite())
+				{
+					_Transactions.AddOrReplace(txId, result);
+				}
+			}
+			return result;
+
+		}
+
+		public Task PutAsync(uint256 txId, Transaction tx)
+		{
+			using(@lock.LockWrite())
+			{
+				if(!_Transactions.ContainsKey(txId))
+					_Transactions.AddOrReplace(txId, tx);
+				else
+					_Transactions[txId] = tx;
+			}
+			return _Inner.PutAsync(txId, tx);
 		}
 
 		#endregion

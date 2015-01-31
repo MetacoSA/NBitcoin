@@ -10,7 +10,7 @@ namespace NBitcoin
 	{
 		Dictionary<string, byte[]> _Table = new Dictionary<string, byte[]>();
 
-		protected override void PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable)
+		protected override Task PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable)
 		{
 			foreach(var data in enumerable)
 			{
@@ -21,13 +21,14 @@ namespace NBitcoin
 				else
 					_Table.AddOrReplace(data.Item1, data.Item2);
 			}
+			return Task.FromResult(true);
 		}
 
-		protected override byte[] GetBytes(string key)
+		protected override Task<byte[]> GetBytes(string key)
 		{
 			byte[] result = null;
 			_Table.TryGetValue(key, out result);
-			return result;
+			return Task.FromResult(result);
 		}
 	}
 }

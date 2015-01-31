@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.ExceptionServices;
+
 #if !NOSQLITE
 using System.Data;
 using System.Data.SQLite;
@@ -15,14 +17,26 @@ namespace NBitcoin
 	public abstract class NoSqlRepository
 	{
 
-		public void Put(string key, IBitcoinSerializable obj)
+		public Task PutAsync(string key, IBitcoinSerializable obj)
 		{
-			PutBytes(key, obj == null ? null : obj.ToBytes());
+			return PutBytes(key, obj == null ? null : obj.ToBytes());
 		}
 
-		public T Get<T>(string key) where T : IBitcoinSerializable, new()
+		public void Put(string key, IBitcoinSerializable obj)
 		{
-			var data = GetBytes(key);
+			try
+			{
+				PutAsync(key, obj).Wait();
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+			}
+		}
+
+		public async Task<T> GetAsync<T>(string key) where T : IBitcoinSerializable, new()
+		{
+			var data = await GetBytes(key).ConfigureAwait(false);
 			if(data == null)
 				return default(T);
 			T obj = new T();
@@ -30,17 +44,30 @@ namespace NBitcoin
 			return obj;
 		}
 
-		public void PutBatch(IEnumerable<Tuple<string, IBitcoinSerializable>> values)
+		public T Get<T>(string key) where T : IBitcoinSerializable, new()
 		{
-			PutBytesBatch(values.Select(s => new Tuple<string, byte[]>(s.Item1, s.Item2 == null ? null : s.Item2.ToBytes())));
+			try
+			{
+				return GetAsync<T>(key).Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				return default(T);
+			}
 		}
 
-		protected abstract void PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable);
-		protected abstract byte[] GetBytes(string key);
-
-		protected virtual void PutBytes(string key, byte[] data)
+		public virtual Task PutBatch(IEnumerable<Tuple<string, IBitcoinSerializable>> values)
 		{
-			PutBytesBatch(new[] { new Tuple<string, byte[]>(key, data) });
+			return PutBytesBatch(values.Select(s => new Tuple<string, byte[]>(s.Item1, s.Item2 == null ? null : s.Item2.ToBytes())));
+		}
+
+		protected abstract Task PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable);
+		protected abstract Task<byte[]> GetBytes(string key);
+
+		protected virtual Task PutBytes(string key, byte[] data)
+		{
+			return PutBytesBatch(new[] { new Tuple<string, byte[]>(key, data) });
 		}
 	}
 #if !NOSQLITE
@@ -75,16 +102,16 @@ namespace NBitcoin
 				_Connection.Open();
 			}
 		}
-		protected override byte[] GetBytes(string key)
+		protected override async Task<byte[]> GetBytes(string key)
 		{
 			var command = _Connection.CreateCommand();
 			command.CommandText = "SELECT Data FROM Store WHERE Key = @key";
 			command.Parameters.Add("@key", DbType.String).Value = key;
-			using(var reader = command.ExecuteReader())
+			using(var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
 			{
-				if(!reader.Read())
+				if(!await reader.ReadAsync().ConfigureAwait(false))
 					return null;
-				return GetBytes(reader);
+				return GetBytes(reader as SQLiteDataReader);
 			}
 		}
 		static byte[] GetBytes(SQLiteDataReader reader)
@@ -118,7 +145,7 @@ namespace NBitcoin
 			}
 		}
 
-		protected override void PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable)
+		protected override Task PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable)
 		{
 			var command = _Connection.CreateCommand();
 			StringBuilder commandString = new StringBuilder();
@@ -132,8 +159,8 @@ namespace NBitcoin
 			commandString.AppendLine("END TRANSACTION;");
 			command.CommandText = commandString.ToString();
 			if(i == 0)
-				return;
-			command.ExecuteNonQuery();
+				return Task.FromResult(true);
+			return command.ExecuteNonQueryAsync();
 		}
 	}
 #endif

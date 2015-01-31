@@ -279,18 +279,31 @@ namespace NBitcoin.RPC
 		/// <returns></returns>
 		public Transaction GetRawTransaction(uint256 txid, bool throwIfNotFound = true)
 		{
-			var response = SendCommand(new RPCRequest("getrawtransaction", new[] { txid.ToString() }), throwIfNotFound);
+			try
+			{
+				return GetRawTransactionAsync(txid, throwIfNotFound).Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				return null; //Can't happen
+			}
+		}
+
+		public async Task<Transaction> GetRawTransactionAsync(uint256 txid, bool throwIfNotFound = true)
+		{
+			var response = await SendCommandAsync(new RPCRequest("getrawtransaction", new[] { txid.ToString() }), throwIfNotFound).ConfigureAwait(false);
 			if(throwIfNotFound)
 				response.ThrowIfError();
 			if(response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
 				return null;
 			else
 				response.ThrowIfError();
-
 			var tx = new Transaction();
 			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()));
 			return tx;
 		}
+
 
 		public void SendRawTransaction(byte[] bytes)
 		{
@@ -539,5 +552,7 @@ namespace NBitcoin.RPC
 				};
 			}
 		}
+
+		
 	}
 }

@@ -1,9 +1,10 @@
-﻿#if !PORTABLE
+﻿#if !NOHTTPCLIENT
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,7 +41,8 @@ namespace NBitcoin
 		public BlockrTransactionRepository(Network network)
 		{
 			if(network == null)
-				Network = Network.Main;
+				network = Network.Main;
+			Network = network;
 		}
 
 		public Network Network
@@ -52,27 +54,32 @@ namespace NBitcoin
 
 		#region ITransactionRepository Members
 
-		public Transaction Get(uint256 txId)
+		public async Task<Transaction> GetAsync(uint256 txId)
 		{
 			while(true)
 			{
-				WebClient client = new WebClient();
-				var result = client.DownloadString("http://" + (Network == Network.Main ? "" : "t") + "btc.blockr.io/api/v1/tx/raw/" + txId);
-				var json = JObject.Parse(result);
-				var status = json["status"];
-				var code = json["code"];
-				if(status != null && status.ToString() == "error")
+				using(HttpClient client = new HttpClient())
 				{
-					throw new BlockrException(json);
+					var response = await client.GetAsync("http://" + (Network == Network.Main ? "" : "t") + "btc.blockr.io/api/v1/tx/raw/" + txId).ConfigureAwait(false);
+					if(response.StatusCode == HttpStatusCode.NotFound)
+						return null;
+					var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+					var json = JObject.Parse(result);
+					var status = json["status"];
+					var code = json["code"];
+					if(status != null && status.ToString() == "error")
+					{
+						throw new BlockrException(json);
+					}
+					var tx = new Transaction(json["data"]["tx"]["hex"].ToString());
+					return tx;
 				}
-				var tx = new Transaction(json["data"]["tx"]["hex"].ToString());
-				return tx;
 			}
 		}
 
-		public void Put(uint256 txId, Transaction tx)
+		public Task PutAsync(uint256 txId, Transaction tx)
 		{
-
+			return Task.FromResult(false);
 		}
 
 		#endregion

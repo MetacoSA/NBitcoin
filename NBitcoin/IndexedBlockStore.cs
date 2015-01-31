@@ -3,6 +3,7 @@ using NBitcoin.Scanning;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,7 +29,20 @@ namespace NBitcoin
 
 		public BlockHeader GetHeader(uint256 hash)
 		{
-			var pos = Index.Get<DiskBlockPos>(hash.ToString());
+			try
+			{
+				return GetHeaderAsync(hash).Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				return null; //Can't happen
+			}
+		}
+
+		public async Task<BlockHeader> GetHeaderAsync(uint256 hash)
+		{
+			var pos = await Index.GetAsync<DiskBlockPos>(hash.ToString()).ConfigureAwait(false);
 			if(pos == null)
 				return null;
 			var stored = _Store.Enumerate(false, new DiskBlockPosRange(pos)).FirstOrDefault();
@@ -39,7 +53,19 @@ namespace NBitcoin
 
 		public Block Get(uint256 id)
 		{
-			return Get(id.ToString());
+			try
+			{
+				return GetAsync(id).Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				return null; //Can't happen
+			}
+		}
+		public Task<Block> GetAsync(uint256 id)
+		{
+			return GetAsync(id.ToString());
 		}
 
 #region IBlockProvider Members

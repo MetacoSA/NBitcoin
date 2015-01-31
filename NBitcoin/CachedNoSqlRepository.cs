@@ -53,36 +53,55 @@ namespace NBitcoin
 		Dictionary<string, byte[]> _Table = new Dictionary<string, byte[]>();
 		HashSet<string> _Removed = new HashSet<string>();
 		HashSet<string> _Added = new HashSet<string>();
+		ReaderWriterLock @lock = new ReaderWriterLock();
 
-		protected override void PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable)
+		public override async Task PutBatch(IEnumerable<Tuple<string, IBitcoinSerializable>> values)
 		{
-			foreach(var data in enumerable)
-			{
-				if(data.Item2 == null)
-				{
-					_Table.Remove(data.Item1);
-					_Removed.Add(data.Item1);
-					_Added.Remove(data.Item1);
-				}
-				else
-				{
-					_Table.AddOrReplace(data.Item1, data.Item2);
-					_Removed.Remove(data.Item1);
-					_Added.Add(data.Item1);
-				}
-			}
+			await base.PutBatch(values).ConfigureAwait(false);
+			await _InnerRepository.PutBatch(values).ConfigureAwait(false);
 		}
 
-		protected override byte[] GetBytes(string key)
+		protected override Task PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable)
+		{
+			lock(@lock.LockWrite())
+			{
+				foreach(var data in enumerable)
+				{
+					if(data.Item2 == null)
+					{
+						_Table.Remove(data.Item1);
+						_Removed.Add(data.Item1);
+						_Added.Remove(data.Item1);
+					}
+					else
+					{
+						_Table.AddOrReplace(data.Item1, data.Item2);
+						_Removed.Remove(data.Item1);
+						_Added.Add(data.Item1);
+					}
+				}
+			}
+			return Task.FromResult(true);
+		}
+
+		protected override async Task<byte[]> GetBytes(string key)
 		{
 			byte[] result = null;
-			if(!_Table.TryGetValue(key, out result))
+			bool found;
+			lock(@lock.LockRead())
 			{
-				var raw = InnerRepository.Get<Raw>(key);
+				found = _Table.TryGetValue(key, out result);
+			}
+			if(!found)
+			{
+				var raw = await InnerRepository.GetAsync<Raw>(key).ConfigureAwait(false);
 				if(raw != null)
 				{
 					result = raw.Data;
-					_Table.Add(key, raw.Data);
+					lock(@lock.LockWrite())
+					{
+						_Table.AddOrReplace(key, raw.Data);
+					}
 				}
 			}
 			return result;
@@ -90,12 +109,15 @@ namespace NBitcoin
 
 		public void Flush()
 		{
-			InnerRepository
-				.PutBatch(_Removed.Select(k => Tuple.Create<string, IBitcoinSerializable>(k, null))
-						  .Concat(_Added.Select(k => Tuple.Create<string, IBitcoinSerializable>(k, new Raw(_Table[k])))));
-			_Removed.Clear();
-			_Added.Clear();
-			_Table.Clear();
+			using(@lock.LockWrite())
+			{
+				InnerRepository
+					.PutBatch(_Removed.Select(k => Tuple.Create<string, IBitcoinSerializable>(k, null))
+							  .Concat(_Added.Select(k => Tuple.Create<string, IBitcoinSerializable>(k, new Raw(_Table[k])))));
+				_Removed.Clear();
+				_Added.Clear();
+				_Table.Clear();
+			}
 		}
 	}
 }

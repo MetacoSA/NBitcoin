@@ -29,9 +29,9 @@ namespace NBitcoin
 		}
 		#region ITransactionRepository Members
 
-		public Transaction Get(uint256 txId)
+		public Task<Transaction> GetAsync(uint256 txId)
 		{
-			return _Repository.Get<Transaction>(GetId(txId));
+			return _Repository.GetAsync<Transaction>(GetId(txId));
 		}
 
 		private string GetId(uint256 txId)
@@ -39,9 +39,9 @@ namespace NBitcoin
 			return "tx-" + txId.ToString();
 		}
 
-		public void Put(uint256 txId, Transaction tx)
+		public Task PutAsync(uint256 txId, Transaction tx)
 		{
-			_Repository.Put(GetId(txId), tx);
+			return _Repository.PutAsync(GetId(txId), tx);
 		}
 
 		#endregion

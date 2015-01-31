@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,12 +32,26 @@ namespace NBitcoin
 
 		public Coins GetCoins(uint256 txId)
 		{
-			return Index.Get<Coins>(txId.ToString());
+			try
+			{
+				return Index.GetAsync<Coins>(txId.ToString()).Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				return null; //Can't happen
+			}
 		}
+
+		public Task<Coins> GetCoinsAsync(uint256 txId)
+		{
+			return Index.GetAsync<Coins>(txId.ToString());
+		}
+
 
 		public void SetCoins(uint256 txId, Coins coins)
 		{
-			Index.Put(txId.ToString(), coins);
+			Index.PutAsync(txId.ToString(), coins);
 		}
 
 		public bool HaveCoins(uint256 txId)
@@ -46,13 +61,25 @@ namespace NBitcoin
 
 		public uint256 GetBestBlock()
 		{
-			var block = Index.Get<uint256>("B");
+			try
+			{
+				return GetBestBlockAsync().Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				return null; //Can't happen
+			}
+		}
+		public async Task<uint256> GetBestBlockAsync()
+		{
+			var block = await Index.GetAsync<uint256>("B").ConfigureAwait(false);
 			return block ?? new uint256(0);
 		}
 
 		public void SetBestBlock(uint256 blockId)
 		{
-			Index.Put("B", blockId);
+			Index.PutAsync("B", blockId);
 		}
 
 		public bool HaveInputs(Transaction tx)
