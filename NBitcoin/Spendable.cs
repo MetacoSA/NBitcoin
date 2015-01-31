@@ -59,30 +59,11 @@ namespace NBitcoin
 
 		#endregion
 
-		internal Account _Account;
 
-		public bool IsLocked
-		{
-			get
-			{
-				if(_Account == null)
-					return false;
-				return _Account._Locked.Contains(this.OutPoint);
-			}
-			set
-			{
-				if(_Account == null)
-					throw new InvalidOperationException("This spendable is not associated to an account, impossible to lock");
-				if(value)
-					_Account.PushAccountEntry(new AccountEntry(AccountEntryReason.Lock, null, this.Clone(), Money.Zero, null));
-				else
-					_Account.PushAccountEntry(new AccountEntry(AccountEntryReason.Unlock, null, this.Clone(), Money.Zero, null));
-			}
-		}
 		public override string ToString()
 		{
 			if(TxOut != null && TxOut.Value != null)
-				return TxOut.Value.ToString() + (IsLocked ? "(locked)" : "");
+				return TxOut.Value.ToString();
 			return "?";
 		}
 

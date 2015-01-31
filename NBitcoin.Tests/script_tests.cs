@@ -1,4 +1,5 @@
 ﻿using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

@@ -54,7 +54,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Account.cs" />
     <Compile Include="Base58Data.cs" />
     <Compile Include="BIP32\KeyPath.cs" />
     <Compile Include="BIP39\KDTable.cs" />
@@ -236,9 +235,9 @@
     <Compile Include="UnsignedList.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="ValidationState.cs" />
-    <Compile Include="VarInt.cs" />
-    <Compile Include="VarString.cs" />
-    <Compile Include="Versions.cs" />
+    <Compile Include="Protocol\VarInt.cs" />
+    <Compile Include="Protocol\VarString.cs" />
+    <Compile Include="Protocol\Versions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BitcoinStream.Partial.tt">

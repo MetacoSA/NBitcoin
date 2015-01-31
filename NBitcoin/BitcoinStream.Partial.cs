@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 #if !PORTABLE
 using System.Net.Sockets;
+using NBitcoin.Protocol;
 #endif
 
 namespace NBitcoin
