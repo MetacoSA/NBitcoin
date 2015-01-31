@@ -129,14 +129,7 @@
     <Compile Include="RPC\RPCOperations.cs" />
     <Compile Include="RPC\SatoshiFormatter.cs" />
     <Compile Include="RPC\UnspentCoin.cs" />
-    <Compile Include="Scanning\CompositeScanner.cs" />
-    <Compile Include="Scanning\IBlockProvider.cs" />
-    <Compile Include="Scanning\PubKeyHashScanner.cs" />
-    <Compile Include="Scanning\PubKeyScanner.cs" />
-    <Compile Include="Scanning\Scanner.cs" />
-    <Compile Include="Scanning\ScanState.cs" />
-    <Compile Include="Scanning\ScriptHashScanner.cs" />
-    <Compile Include="Scanning\StealthPaymentScanner.cs" />
+    <Compile Include="IBlockProvider.cs" />
     <Compile Include="Spendable.cs" />
     <Compile Include="StreamObjectStream.cs" />
     <Compile Include="Stealth\BitcoinStealthAddress.cs" />

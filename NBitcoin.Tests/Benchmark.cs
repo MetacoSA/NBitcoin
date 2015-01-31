@@ -2,7 +2,6 @@
 using NBitcoin.Crypto;
 using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;
-using NBitcoin.Scanning;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

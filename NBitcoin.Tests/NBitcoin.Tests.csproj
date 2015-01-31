@@ -79,7 +79,6 @@
     <Compile Include="ColoredCoinsTests.cs" />
     <Compile Include="ConverterTests.cs" />
     <Compile Include="DeterministicSignatureTests.cs" />
-    <Compile Include="FullBlockTestGenerator.cs" />
     <Compile Include="hash_tests.cs" />
     <Compile Include="key_tests.cs" />
     <Compile Include="PaymentTests.cs" />
@@ -88,7 +87,6 @@
     <Compile Include="ProtocolTests.cs" />
     <Compile Include="RepositoryTests.cs" />
     <Compile Include="RPCClientTests.cs" />
-    <Compile Include="ScannerTests.cs" />
     <Compile Include="script_tests.cs" />
     <Compile Include="sighash_tests.cs" />
     <Compile Include="sigopcount_tests.cs" />
