@@ -101,7 +101,7 @@ namespace NBitcoin.OpenAsset
 			repo = EnsureCachedRepository(repo);
 			if(txId != null && tx == null)
 			{
-				tx = repo.Transactions.Get(txId);
+				tx = await repo.Transactions.GetAsync(txId).ConfigureAwait(false);
 				if(tx == null)
 					throw new TransactionNotFoundException("Transaction " + txId + " not found in transaction repository", txId);
 			}
