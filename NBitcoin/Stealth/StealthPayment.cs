@@ -135,6 +135,10 @@ namespace NBitcoin.Stealth
 
 		public void AddToTransaction(Transaction transaction, Money value)
 		{
+			if(transaction == null)
+				throw new ArgumentNullException("transaction");
+			if(value == null)
+				throw new ArgumentNullException("value");
 			transaction.Outputs.Add(new TxOut(0, Metadata.Script));
 			transaction.Outputs.Add(new TxOut(value, ScriptPubKey));
 		}

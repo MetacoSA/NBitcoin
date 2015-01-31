@@ -253,6 +253,11 @@ namespace NBitcoin.Stealth
 			return GetPayments(transaction, scanKey.PrivateKey);
 		}
 
+		/// <summary>
+		/// Prepare a stealth payment 
+		/// </summary>
+		/// <param name="ephemKey">Ephem Key</param>
+		/// <returns>Stealth Payment</returns>
 		public StealthPayment CreatePayment(Key ephemKey = null)
 		{
 			if(ephemKey == null)
@@ -262,6 +267,15 @@ namespace NBitcoin.Stealth
 			return new StealthPayment(this, ephemKey, metadata);
 		}
 
-
+		/// <summary>
+		/// Add a stealth payment to the transaction
+		/// </summary>
+		/// <param name="transaction">Destination transaction</param>
+		/// <param name="value">Money to send</param>
+		/// <param name="ephemKey">Ephem Key</param>
+		public void SendTo(Transaction transaction, Money value, Key ephemKey = null)
+		{
+			CreatePayment(ephemKey).AddToTransaction(transaction, value);
+		}
 	}
 }
