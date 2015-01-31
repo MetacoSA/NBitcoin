@@ -55,7 +55,7 @@ namespace NBitcoin.Protocol
 		}
 
 		NetworkAddress addr_recv = new NetworkAddress();
-		public IPEndPoint AddressReciever
+		public IPEndPoint AddressReceiver
 		{
 			get
 			{

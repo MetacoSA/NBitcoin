@@ -29,9 +29,9 @@ namespace NBitcoin.Protocol
 			_Trace.TraceEvent(TraceEventType.Warning, 0, msg + " " + Utils.ExceptionToString(ex));
 		}
 
-		public static void ExternalIpRecieved(string ip)
+		public static void ExternalIpReceived(string ip)
 		{
-			_Trace.TraceInformation("External ip recieved : " + ip);
+			_Trace.TraceInformation("External ip received : " + ip);
 		}
 
 		internal static void ExternalIpFailed(Exception ex)

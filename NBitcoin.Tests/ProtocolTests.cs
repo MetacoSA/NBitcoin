@@ -239,7 +239,7 @@ namespace NBitcoin.Tests
 				toS2.VersionHandshake();
 				var ping = new PingPayload();
 				toS2.SendMessage(ping);
-				var pong = toS2.RecieveMessage<PongPayload>(TimeSpan.FromSeconds(10.0));
+				var pong = toS2.ReceiveMessage<PongPayload>(TimeSpan.FromSeconds(10.0));
 				Assert.Equal(ping.Nonce, pong.Nonce);
 			}
 		}
@@ -303,7 +303,7 @@ namespace NBitcoin.Tests
 							Type = InventoryType.MSG_BLOCK
 						}));
 
-				var block = node.RecieveMessage<BlockPayload>();
+				var block = node.ReceiveMessage<BlockPayload>();
 				Assert.True(block.Object.CheckMerkleRoot());
 			}
 		}
