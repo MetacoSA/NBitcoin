@@ -16,7 +16,7 @@ namespace NBitcoin
 	{
 		public static Key Parse(string wif, Network network = null)
 		{
-			return Network.CreateFromBase58Data<BitcoinSecret>(wif, network).Key;
+			return Network.CreateFromBase58Data<BitcoinSecret>(wif, network).PrivateKey;
 		}
 
 		public static Key Parse(string wif, string password, Network network = null)

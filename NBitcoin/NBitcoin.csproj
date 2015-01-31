@@ -86,6 +86,7 @@
     <Compile Include="IndexedBlockUndoStore.cs" />
     <Compile Include="IndexedStore.cs" />
     <Compile Include="InMemoryNoSqlRepository.cs" />
+    <Compile Include="ISecret.cs" />
     <Compile Include="ITransactionRepository.cs" />
     <Compile Include="LockTime.cs" />
     <Compile Include="NoSqlTransactionRepository.cs" />

@@ -241,6 +241,18 @@ namespace NBitcoin.Stealth
 			return StealthPayment.GetPayments(transaction, this, scanKey);
 		}
 
+		/// <summary>
+		/// Scan the Transaction for StealthCoin given address and scan key
+		/// </summary>
+		/// <param name="tx">The transaction to scan</param>
+		/// <param name="address">The stealth address</param>
+		/// <param name="scan">The scan private key</param>
+		/// <returns></returns>
+		public StealthPayment[] GetPayments(Transaction transaction, ISecret scanKey)
+		{
+			return GetPayments(transaction, scanKey.PrivateKey);
+		}
+
 		public StealthPayment CreatePayment(Key ephemKey = null)
 		{
 			if(ephemKey == null)

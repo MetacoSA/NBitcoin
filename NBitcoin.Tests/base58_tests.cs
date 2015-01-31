@@ -94,7 +94,7 @@ namespace NBitcoin.Tests
 					var secret = network.CreateBitcoinSecret(exp_base58string);
 					//If not valid exception would throw
 
-					Key privkey = secret.Key;
+					Key privkey = secret.PrivateKey;
 					Assert.True(privkey.IsCompressed == isCompressed, "compressed mismatch:" + strTest);
 					Assert.True(Utils.ArrayEqual(privkey.ToBytes(), exp_payload), "key mismatch:" + strTest);
 

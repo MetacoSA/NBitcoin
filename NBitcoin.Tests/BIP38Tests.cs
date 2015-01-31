@@ -48,7 +48,7 @@ namespace NBitcoin.Tests
 			Parallel.ForEach(tests, test =>
 			{
 				var secret = new BitcoinSecret(test.Unencrypted, Network.Main);
-				var encryptedKey = secret.Key.GetEncryptedBitcoinSecret(test.Passphrase, Network.Main);
+				var encryptedKey = secret.PrivateKey.GetEncryptedBitcoinSecret(test.Passphrase, Network.Main);
 				Assert.Equal(test.Encrypted, encryptedKey.ToString());
 
 				var actualSecret = encryptedKey.GetKey(test.Passphrase);

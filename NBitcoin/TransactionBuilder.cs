@@ -408,9 +408,9 @@ namespace NBitcoin
 
 		List<Key> _Keys = new List<Key>();
 
-		public TransactionBuilder AddKeys(params BitcoinSecret[] keys)
+		public TransactionBuilder AddKeys(params ISecret[] keys)
 		{
-			_Keys.AddRange(keys.Select(k => k.Key));
+			_Keys.AddRange(keys.Select(k => k.PrivateKey));
 			return this;
 		}
 

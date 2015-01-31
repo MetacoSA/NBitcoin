@@ -21,14 +21,14 @@ namespace NBitcoin.Tests
 
 			var tx = new Transaction();
 			var p2pkh = new TxOut(new Money((UInt64)45000000), secret.GetAddress());
-			var p2pk = new TxOut(new Money((UInt64)80000000), secret.Key.PubKey);
+			var p2pk = new TxOut(new Money((UInt64)80000000), secret.PrivateKey.PubKey);
 
 			tx.AddOutput(p2pkh);
 			tx.AddOutput(p2pk);
 
-			Assert.False(p2pkh.IsTo(secret.Key.PubKey));
+			Assert.False(p2pkh.IsTo(secret.PrivateKey.PubKey));
 			Assert.True(p2pkh.IsTo(secret.GetAddress()));
-			Assert.True(p2pk.IsTo(secret.Key.PubKey));
+			Assert.True(p2pk.IsTo(secret.PrivateKey.PubKey));
 			Assert.False(p2pk.IsTo(secret.GetAddress()));
 		}
 
@@ -908,7 +908,7 @@ namespace NBitcoin.Tests
 			var privKeys = new[]{"5JaTXbAUmfPYZFRwrYaALK48fN6sFJp4rHqq2QSXs8ucfpE4yQU",
 						"5Jb7fCeh1Wtm4yBBg3q3XbT6B525i17kVhy3vMC9AqfR6FH2qGk",
 						"5JFjmGo5Fww9p8gvx48qBYDJNAzR9pmH5S389axMtDyPT8ddqmw"}
-						.Select(k => new BitcoinSecret(k).Key).ToArray();
+						.Select(k => new BitcoinSecret(k).PrivateKey).ToArray();
 
 			//First: combine the three keys into a multisig address
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, privKeys.Select(k => k.PubKey).ToArray());

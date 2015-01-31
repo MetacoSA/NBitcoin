@@ -23,7 +23,7 @@
 		#endregion
 	}
 
-	public class BitcoinExtKey : BitcoinExtKeyBase
+	public class BitcoinExtKey : BitcoinExtKeyBase, ISecret
 	{
 		public BitcoinExtKey(string base58, Network expectedNetwork = null)
 			: base(base58, expectedNetwork)
@@ -74,6 +74,18 @@
 				return ExtKey.ScriptPubKey;
 			}
 		}
+
+		#region ISecret Members
+
+		public Key PrivateKey
+		{
+			get
+			{
+				return ExtKey.PrivateKey;
+			}
+		}
+
+		#endregion
 	}
 	public class BitcoinExtPubKey : BitcoinExtKeyBase
 	{

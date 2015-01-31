@@ -7,7 +7,7 @@ using System.Linq;
 namespace NBitcoin
 {
 	//https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
-	public class ExtKey : IBitcoinSerializable, IDestination
+	public class ExtKey : IBitcoinSerializable, IDestination, ISecret
 	{
 		public static ExtKey Parse(string wif, Network expectedNetwork = null)
 		{
@@ -38,7 +38,7 @@ namespace NBitcoin
 		}
 
 		public ExtKey(BitcoinExtPubKey extPubKey, BitcoinSecret key)
-			: this(extPubKey.ExtPubKey, key.Key)
+			: this(extPubKey.ExtPubKey, key.PrivateKey)
 		{
 		}
 		public ExtKey(ExtPubKey extPubKey, Key privateKey)
@@ -58,7 +58,14 @@ namespace NBitcoin
 			byte[] seed = RandomUtils.GetBytes(64);
 			SetMaster(seed);
 		}
-
+		public Key PrivateKey
+		{
+			get
+			{
+				return key;
+			}
+		}
+		[Obsolete("Use PrivateKey instead")]
 		public Key Key
 		{
 			get
@@ -177,7 +184,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return Key.PubKey.Hash.ScriptPubKey;
+				return PrivateKey.PubKey.Hash.ScriptPubKey;
 			}
 		}
 
@@ -219,7 +226,7 @@ namespace NBitcoin
 			if(!ccChild.SequenceEqual(vchChainCode))
 				throw new InvalidOperationException("The derived chain code of the parent is not equal to this child chain code");
 
-			var keyBytes = Key.ToBytes();
+			var keyBytes = PrivateKey.ToBytes();
 			var key = new BigInteger(1, keyBytes);
 
 			BigInteger kPar = key.Add(parse256LL.Negate()).Mod(N);
@@ -237,5 +244,6 @@ namespace NBitcoin
 			};
 			return parentExtKey;
 		}
+
 	}
 }

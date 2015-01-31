@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class BitcoinSecret : Base58Data, IDestination
+	public class BitcoinSecret : Base58Data, IDestination, ISecret
 	{
 		public BitcoinSecret(Key key, Network network)
 			: base(ToBytes(key), network)
@@ -27,14 +27,14 @@ namespace NBitcoin
 		{
 		}
 
-        private BitcoinAddress _address; 
+		private BitcoinAddress _address;
 
 		public BitcoinAddress GetAddress()
 		{
-            if (_address == null)
-                _address = Key.PubKey.GetAddress(Network);
+			if(_address == null)
+				_address = PrivateKey.PubKey.GetAddress(Network);
 
-            return _address;
+			return _address;
 		}
 
 		[Obsolete("Use PubKeyHash instead")]
@@ -42,25 +42,38 @@ namespace NBitcoin
 		{
 			get
 			{
-				return Key.PubKey.Hash;
+				return PrivateKey.PubKey.Hash;
 			}
 		}
 		public virtual KeyId PubKeyHash
 		{
 			get
 			{
-				return Key.PubKey.Hash;
+				return PrivateKey.PubKey.Hash;
 			}
 		}
 
+		[Obsolete("Use PrivateKey instead")]
 		public Key Key
 		{
 			get
 			{
-				Key ret = new Key(vchData, 32, IsCompressed);
-				return ret;
+				return PrivateKey;
 			}
 		}
+
+		#region ISecret Members
+		Key _Key;
+		public Key PrivateKey
+		{
+			get
+			{
+				if(_Key == null)
+					_Key = new Key(vchData, 32, IsCompressed);
+				return _Key;
+			}
+		}
+		#endregion
 
 		protected override bool IsValid
 		{
@@ -79,7 +92,7 @@ namespace NBitcoin
 
 		public BitcoinEncryptedSecret Encrypt(string password)
 		{
-			return Key.GetEncryptedBitcoinSecret(password, Network);
+			return PrivateKey.GetEncryptedBitcoinSecret(password, Network);
 		}
 
 
@@ -136,5 +149,7 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+
 	}
 }

@@ -605,6 +605,10 @@ namespace NBitcoin
 		{
 			return scriptPubKey.SignatureHash(Transaction, (int)N, sigHash);
 		}
+		public TransactionSignature Sign(ISecret secret, Script scriptPubKey, SigHash sigHash = SigHash.All)
+		{
+			return Sign(secret.PrivateKey, scriptPubKey, sigHash);
+		}
 		public TransactionSignature Sign(Key key, Script scriptPubKey, SigHash sigHash = SigHash.All)
 		{
 			var hash = GetSignatureHash(scriptPubKey, sigHash);
@@ -817,6 +821,10 @@ namespace NBitcoin
 		{
 			return Inputs.AsIndexedInputs().ToArray()[nIn].GetSignatureHash(scriptPubKey, sigHash);
 		}
+		public TransactionSignature SignInput(ISecret secret, Script scriptPubKey, int nIn, SigHash sigHash = SigHash.All)
+		{
+			return SignInput(secret.PrivateKey, scriptPubKey, nIn, sigHash);
+		}
 		public TransactionSignature SignInput(Key key, Script scriptPubKey, int nIn, SigHash sigHash = SigHash.All)
 		{
 			return Inputs.AsIndexedInputs().ToArray()[nIn].Sign(key, scriptPubKey, sigHash);
@@ -877,9 +885,9 @@ namespace NBitcoin
 		/// <para>For more complex scenario, use TransactionBuilder</para>
 		/// </summary>
 		/// <param name="secret"></param>
-		public void Sign(BitcoinSecret secret, bool assumeP2SH)
+		public void Sign(ISecret secret, bool assumeP2SH)
 		{
-			Sign(secret.Key, assumeP2SH);
+			Sign(secret.PrivateKey, assumeP2SH);
 		}
 
 		/// <summary>
