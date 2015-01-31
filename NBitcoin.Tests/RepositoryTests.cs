@@ -1,4 +1,5 @@
 ﻿#if !NOFILEIO
+using NBitcoin.BitcoinCore;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;
