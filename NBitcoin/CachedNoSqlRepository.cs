@@ -63,7 +63,7 @@ namespace NBitcoin
 
 		protected override Task PutBytesBatch(IEnumerable<Tuple<string, byte[]>> enumerable)
 		{
-			lock(@lock.LockWrite())
+			using(@lock.LockWrite())
 			{
 				foreach(var data in enumerable)
 				{
@@ -88,7 +88,7 @@ namespace NBitcoin
 		{
 			byte[] result = null;
 			bool found;
-			lock(@lock.LockRead())
+			using(@lock.LockRead())
 			{
 				found = _Table.TryGetValue(key, out result);
 			}
@@ -98,7 +98,7 @@ namespace NBitcoin
 				if(raw != null)
 				{
 					result = raw.Data;
-					lock(@lock.LockWrite())
+					using(@lock.LockWrite())
 					{
 						_Table.AddOrReplace(key, raw.Data);
 					}
