@@ -82,6 +82,24 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanLoadAndSaveConcurrentChain()
+		{
+			ConcurrentChain cchain = new ConcurrentChain();
+			PersistantChain chain = new PersistantChain(Network.Main);
+			AddBlock(chain);
+			AddBlock(chain);
+			AddBlock(chain);
+
+			cchain.SetTip(chain);
+
+			var bytes = cchain.ToBytes();
+			cchain = new ConcurrentChain();
+			cchain.Load(bytes);
+
+			Assert.Equal(cchain.Tip, chain.Tip);
+		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildConcurrentChain()
 		{
 			ConcurrentChain cchain = new ConcurrentChain();

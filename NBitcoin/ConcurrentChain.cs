@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -26,6 +27,71 @@ namespace NBitcoin
 			}
 		}
 
+		public void Load(byte[] chain)
+		{
+			Load(new MemoryStream(chain));
+		}
+
+		public void Load(Stream stream)
+		{
+			Load(new BitcoinStream(stream, false));
+		}
+
+		public void Load(BitcoinStream stream)
+		{
+			using(@lock.LockWrite())
+			{
+				try
+				{
+					int height = 0;
+					while(true)
+					{
+						uint256 id = null;
+						stream.ReadWrite<uint256>(ref id);
+						BlockHeader header = null;
+						stream.ReadWrite<BlockHeader>(ref header);
+						if(height == 0)
+						{
+							_BlocksByHeight.Clear();
+							_BlocksById.Clear();
+							SetTipNoLock(new ChainedBlock(header, 0));
+						}
+						else
+							SetTipNoLock(new ChainedBlock(header, id, Tip));
+						height++;
+					}
+				}
+				catch(EndOfStreamException)
+				{
+				}
+			}
+		}
+
+		public byte[] ToBytes()
+		{
+			MemoryStream ms = new MemoryStream();
+			WriteTo(ms);
+			return ms.ToArray();
+		}
+
+		public void WriteTo(Stream stream)
+		{
+			WriteTo(new BitcoinStream(stream, true));
+		}
+
+		public void WriteTo(BitcoinStream stream)
+		{
+			using(@lock.LockRead())
+			{
+				for(int i = 0 ; i < Tip.Height + 1 ; i++)
+				{
+					var block = GetBlockNoLock(i);
+					stream.ReadWrite(block.HashBlock);
+					stream.ReadWrite(block.Header);
+				}
+			}
+		}
+
 		/// <summary>
 		/// Force a new tip for the chain
 		/// </summary>
@@ -35,23 +101,28 @@ namespace NBitcoin
 		{
 			using(@lock.LockWrite())
 			{
-				int height = Tip == null ? -1 : Tip.Height;
-				foreach(var orphaned in EnumerateThisToFork(block))
-				{
-					_BlocksById.Remove(orphaned.HashBlock);
-					_BlocksByHeight.Remove(orphaned.Height);
-					height--;
-				}
-				var fork = GetBlockNoLock(height);
-				foreach(var newBlock in block.EnumerateToGenesis()
-					.TakeWhile(c => c != Tip))
-				{
-					_BlocksById.AddOrReplace(newBlock.HashBlock, newBlock);
-					_BlocksByHeight.AddOrReplace(newBlock.Height, newBlock);
-				}
-				_Tip = block;
-				return fork;
+				return SetTipNoLock(block);
 			}
+		}
+
+		private ChainedBlock SetTipNoLock(ChainedBlock block)
+		{
+			int height = Tip == null ? -1 : Tip.Height;
+			foreach(var orphaned in EnumerateThisToFork(block))
+			{
+				_BlocksById.Remove(orphaned.HashBlock);
+				_BlocksByHeight.Remove(orphaned.Height);
+				height--;
+			}
+			var fork = GetBlockNoLock(height);
+			foreach(var newBlock in block.EnumerateToGenesis()
+				.TakeWhile(c => c != Tip))
+			{
+				_BlocksById.AddOrReplace(newBlock.HashBlock, newBlock);
+				_BlocksByHeight.AddOrReplace(newBlock.Height, newBlock);
+			}
+			_Tip = block;
+			return fork;
 		}
 
 
