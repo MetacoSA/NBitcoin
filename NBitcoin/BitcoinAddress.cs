@@ -21,6 +21,14 @@ namespace NBitcoin
 		{
 		}
 
+		public override TxDestination ID
+		{
+			get
+			{
+				return Hash;
+			}
+		}
+
 		public override TxDestination Hash
 		{
 			get
