@@ -675,7 +675,8 @@ namespace NBitcoin
 			{
 				target = ctx.CoverOnly + ctx.ChangeAmount;
 			}
-			var selection = CoinSelector.Select(coins, target);
+			var unspent = coins.Where(c => !ctx.Transaction.Inputs.Select(i => i.PrevOut).Any(o => o == c.Outpoint));
+			var selection = CoinSelector.Select(unspent, target);
 			if(selection == null)
 				throw new NotEnoughFundsException("Not enough fund to cover the target");
 			var total = selection.Select(s => s.Amount).Sum();
@@ -780,6 +781,9 @@ namespace NBitcoin
 			for(int i = 0 ; i < tx.Inputs.Count ; i++)
 			{
 				var txIn = tx.Inputs[i];
+				var duplicates = tx.Inputs.Where(_ => _.PrevOut == txIn.PrevOut).Count();
+				if(duplicates != 1)
+					return false;
 				var coin = FindCoin(txIn.PrevOut);
 				if(coin == null)
 					throw CoinNotFound(txIn);
@@ -811,7 +815,7 @@ namespace NBitcoin
 
 		public ICoin FindCoin(OutPoint outPoint)
 		{
-			var result = _BuilderGroups.Select(c => c.Coins.TryGet(outPoint)).Where(r => r != null).SingleOrDefault();
+			var result = _BuilderGroups.Select(c => c.Coins.TryGet(outPoint)).Where(r => r != null).FirstOrDefault();
 			if(result == null && CoinFinder != null)
 				result = CoinFinder(outPoint);
 			return result;

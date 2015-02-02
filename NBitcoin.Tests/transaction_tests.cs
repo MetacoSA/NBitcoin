@@ -741,7 +741,6 @@ namespace NBitcoin.Tests
 			return new Coin(outpoint, new TxOut(amount, receiver));
 		}
 
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildTransaction()
@@ -894,6 +893,23 @@ namespace NBitcoin.Tests
 				.CombineSignatures(signed1, signed2);
 
 			Assert.True(txBuilder.Verify(tx));
+
+			//Using the same set of coin in 2 group should not use two times the sames coins
+			for(int i = 0 ; i < 3 ; i++)
+			{
+				txBuilder = new TransactionBuilder();
+				tx =
+					txBuilder
+					.AddCoins(allCoins)
+					.AddKeys(keys)
+					.Send(destinations[0], Money.Parse("2.0"))
+					.Then()
+					.AddCoins(allCoins)
+					.AddKeys(keys)
+					.Send(destinations[0], Money.Parse("1.0"))
+					.BuildTransaction(true);
+				Assert.True(txBuilder.Verify(tx));
+			}
 		}
 
 		private uint256 Rand()
