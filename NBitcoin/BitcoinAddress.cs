@@ -21,6 +21,7 @@ namespace NBitcoin
 		{
 		}
 
+		[Obsolete("Use Hash instead")]
 		public override TxDestination ID
 		{
 			get

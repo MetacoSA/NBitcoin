@@ -749,14 +749,14 @@ namespace NBitcoin
 			if(coin is IColoredCoin)
 				coin = ((IColoredCoin)coin).Bearer;
 
-			if(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.ScriptPubKey))
+			if(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey))
 			{
 				var scriptCoin = coin as IScriptCoin;
 				if(scriptCoin == null)
 				{
-					var expectedId = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+					var expectedId = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
 					//Try to extract redeem from this transaction
-					var p2shParams = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txIn.ScriptSig, coin.ScriptPubKey);
+					var p2shParams = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txIn.ScriptSig, coin.TxOut.ScriptPubKey);
 					if(p2shParams == null || p2shParams.RedeemScript.Hash != expectedId)
 					{
 						var redeem = _ScriptIdToRedeem.TryGet(expectedId);
@@ -788,7 +788,7 @@ namespace NBitcoin
 				if(coin == null)
 					throw CoinNotFound(txIn);
 				spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : coin.Amount;
-				if(!Script.VerifyScript(txIn.ScriptSig, coin.ScriptPubKey, tx, i,
+				if(!Script.VerifyScript(txIn.ScriptSig, coin.TxOut.ScriptPubKey, tx, i,
 							ScriptVerify.LowS |
 							ScriptVerify.MinimalData |
 							ScriptVerify.DerSig |
@@ -857,28 +857,28 @@ namespace NBitcoin
 				size += new Script(Op.GetPushOp(scriptCoin.Redeem.ToBytes(true))).Length;
 			}
 
-			var p2pk = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+			var p2pk = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
 			if(p2pk != null)
 			{
 				size += PayToPubkeyTemplate.Instance.GenerateScriptSig(DummySignature).Length;
 				return size;
 			}
 
-			var p2pkh = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+			var p2pkh = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
 			if(p2pkh != null)
 			{
 				size += PayToPubkeyHashTemplate.Instance.GenerateScriptSig(DummySignature, DummyPubKey).Length;
 				return size;
 			}
 
-			var p2mk = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(coin.ScriptPubKey);
+			var p2mk = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
 			if(p2mk != null)
 			{
 				size += PayToMultiSigTemplate.Instance.GenerateScriptSig(Enumerable.Range(0, p2mk.SignatureCount).Select(o => DummySignature).ToArray()).Length;
 				return size;
 			}
 
-			size += coin.ScriptPubKey.Length; //Using heurestic to approximate size of unknown scriptPubKey
+			size += coin.TxOut.ScriptPubKey.Length; //Using heurestic to approximate size of unknown scriptPubKey
 			return size;
 		}
 
@@ -908,7 +908,7 @@ namespace NBitcoin
 				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
 			}
 
-			if(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.ScriptPubKey))
+			if(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey))
 			{
 				var scriptCoin = (IScriptCoin)coin;
 				var original = input.ScriptSig;
@@ -920,7 +920,7 @@ namespace NBitcoin
 			}
 			else
 			{
-				input.ScriptSig = CreateScriptSig(ctx, coin.ScriptPubKey, txIn);
+				input.ScriptSig = CreateScriptSig(ctx, coin.TxOut.ScriptPubKey, txIn);
 			}
 
 		}
@@ -1131,7 +1131,7 @@ namespace NBitcoin
 				var coin = FindCoin(txIn.PrevOut);
 				var scriptPubKey = coin == null
 					? (DeduceScriptPubKey(txIn.ScriptSig) ?? DeduceScriptPubKey(signed2.Inputs[i].ScriptSig))
-					: coin.ScriptPubKey;
+					: coin.TxOut.ScriptPubKey;
 				tx.Inputs[i].ScriptSig = Script.CombineSignatures(
 										scriptPubKey,
 										tx,

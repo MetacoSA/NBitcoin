@@ -21,15 +21,15 @@ namespace NBitcoin
 	}
 	public interface ICoin
 	{
+		Money Amount
+		{
+			get;
+		}
 		OutPoint Outpoint
 		{
 			get;
 		}
-		Script ScriptPubKey
-		{
-			get;
-		}
-		Money Amount
+		TxOut TxOut
 		{
 			get;
 		}
@@ -78,6 +78,14 @@ namespace NBitcoin
 			set
 			{
 				Bearer.TxOut.Value = value;
+			}
+		}
+
+		public TxOut TxOut
+		{
+			get
+			{
+				return Bearer.TxOut;
 			}
 		}
 
@@ -147,6 +155,15 @@ namespace NBitcoin
 			get;
 			set;
 		}
+
+		public TxOut TxOut
+		{
+			get
+			{
+				return Bearer.TxOut;
+			}
+		}
+
 		#region ICoin Members
 
 		public OutPoint Outpoint
@@ -251,7 +268,14 @@ namespace NBitcoin
 		{
 			if(redeemScript == null)
 				throw new ArgumentNullException("redeemScript");
+			if(this is ScriptCoin)
+				return (ScriptCoin)this;
 			return new ScriptCoin(this, redeemScript);
+		}
+
+		public ColoredCoin ToColoredCoin(Asset asset)
+		{
+			return new ColoredCoin(asset, this);
 		}
 
 		public OutPoint Outpoint
