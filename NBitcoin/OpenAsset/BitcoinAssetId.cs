@@ -17,6 +17,11 @@ namespace NBitcoin.OpenAsset
 		{
 		}
 
+		public BitcoinAssetId(AssetId assetId, Network network)
+			: this(assetId._Bytes, network)
+		{
+		}
+
 		AssetId _AssetId;
 		public AssetId AssetId
 		{

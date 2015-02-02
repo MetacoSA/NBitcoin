@@ -9,7 +9,7 @@ namespace NBitcoin.OpenAsset
 {
 	public class AssetId
 	{
-		byte[] _Bytes;
+		internal byte[] _Bytes;
 
 		public AssetId()
 		{
@@ -49,7 +49,7 @@ namespace NBitcoin.OpenAsset
 
 		public BitcoinAssetId GetWif(Network network)
 		{
-			return new BitcoinAssetId(_Bytes, network);
+			return new BitcoinAssetId(this, network);
 		}
 
 		public byte[] ToBytes()
