@@ -209,6 +209,15 @@ namespace NBitcoin
 				get;
 				set;
 			}
+
+			private readonly List<ICoin> _ConsumedCoins = new List<ICoin>();
+			public List<ICoin> ConsumedCoins
+			{
+				get
+				{
+					return _ConsumedCoins;
+				}
+			}
 			public TransactionBuilder Builder
 			{
 				get;
@@ -675,8 +684,9 @@ namespace NBitcoin
 			{
 				target = ctx.CoverOnly + ctx.ChangeAmount;
 			}
-			var unspent = coins.Where(c => !ctx.Transaction.Inputs.Select(i => i.PrevOut).Any(o => o == c.Outpoint));
-			var selection = CoinSelector.Select(unspent, target);
+
+			var unconsumed = coins.Where(c => !ctx.ConsumedCoins.Any(cc => cc.Outpoint == c.Outpoint));
+			var selection = CoinSelector.Select(unconsumed, target);
 			if(selection == null)
 				throw new NotEnoughFundsException("Not enough fund to cover the target");
 			var total = selection.Select(s => s.Amount).Sum();
@@ -701,7 +711,10 @@ namespace NBitcoin
 			}
 			foreach(var coin in selection)
 			{
-				var input = ctx.Transaction.AddInput(new TxIn(coin.Outpoint));
+				ctx.ConsumedCoins.Add(coin);
+				var input = ctx.Transaction.Inputs.FirstOrDefault(i => i.PrevOut == coin.Outpoint);
+				if(input == null)
+					input = ctx.Transaction.AddInput(new TxIn(coin.Outpoint));
 				if(_LockTime != null && _LockTime.HasValue && !ctx.NonFinalSequenceSet)
 				{
 					input.Sequence = 0;
@@ -764,11 +777,11 @@ namespace NBitcoin
 							return null;
 						//throw new InvalidOperationException("A coin with a P2SH scriptPubKey was detected, however this coin is not a ScriptCoin, and no information about the redeem script was found in the input, and from the KnownRedeems");
 						else
-							return new ScriptCoin(coin.Outpoint, ((Coin)coin).TxOut, redeem);
+							return ((Coin)coin).ToScriptCoin(redeem);
 					}
 					else
 					{
-						return new ScriptCoin(coin.Outpoint, ((Coin)coin).TxOut, p2shParams.RedeemScript);
+						return ((Coin)coin).ToScriptCoin(p2shParams.RedeemScript);
 					}
 				}
 			}
@@ -936,7 +949,7 @@ namespace NBitcoin
 				var key = FindKey(ctx, pubKeyHashParams);
 				if(key == null)
 					return originalScriptSig;
-				var sig = txIn.Sign(key,scriptPubKey,ctx.SigHash);
+				var sig = txIn.Sign(key, scriptPubKey, ctx.SigHash);
 				return PayToPubkeyHashTemplate.Instance.GenerateScriptSig(sig, key.PubKey);
 			}
 
