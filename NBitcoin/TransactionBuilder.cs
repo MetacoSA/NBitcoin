@@ -549,7 +549,14 @@ namespace NBitcoin
 			});
 			return this;
 		}
-
+		public TransactionBuilder IssueAsset(IDestination destination, AssetId assetId, ulong quantity)
+		{
+			return IssueAsset(destination, new Asset(assetId, quantity));
+		}
+		public TransactionBuilder IssueAsset(Script scriptPubKey, AssetId assetId, ulong quantity)
+		{
+			return IssueAsset(scriptPubKey, new Asset(assetId, quantity));
+		}
 		public TransactionBuilder IssueAsset(IDestination destination, Asset asset)
 		{
 			return IssueAsset(destination.ScriptPubKey, asset);
