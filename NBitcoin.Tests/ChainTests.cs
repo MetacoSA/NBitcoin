@@ -97,6 +97,11 @@ namespace NBitcoin.Tests
 			cchain.Load(bytes);
 
 			Assert.Equal(cchain.Tip, chain.Tip);
+			Assert.NotNull(cchain.GetBlock(0));
+
+			cchain = new ConcurrentChain(Network.TestNet);
+			cchain.Load(cchain.ToBytes());
+			Assert.NotNull(cchain.GetBlock(0));
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

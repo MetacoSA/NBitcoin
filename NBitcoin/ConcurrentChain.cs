@@ -54,6 +54,7 @@ namespace NBitcoin
 						{
 							_BlocksByHeight.Clear();
 							_BlocksById.Clear();
+							_Tip = null;
 							SetTipNoLock(new ChainedBlock(header, 0));
 						}
 						else
