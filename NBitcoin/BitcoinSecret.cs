@@ -62,6 +62,14 @@ namespace NBitcoin
 			}
 		}
 
+		public PubKey PubKey
+		{
+			get
+			{
+				return PrivateKey.PubKey;
+			}
+		}
+
 		#region ISecret Members
 		Key _Key;
 		public Key PrivateKey
