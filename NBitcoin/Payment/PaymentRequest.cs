@@ -34,6 +34,12 @@ namespace NBitcoin.Payment
 			Amount = amount;
 			Script = script;
 		}
+		public PaymentOutput(Money amount, IDestination destination)
+		{
+			Amount = amount;
+			if(destination != null)
+				Script = destination.ScriptPubKey;
+		}
 		internal PaymentOutput(Proto.Output output)
 		{
 			Amount = new Money(output.amount);
@@ -331,6 +337,9 @@ namespace NBitcoin.Payment
 			set;
 		}
 
+		/// <summary>
+		/// Get the merchant name from the certificate subject
+		/// </summary>
 		public string MerchantName
 		{
 			get
@@ -389,6 +398,10 @@ namespace NBitcoin.Payment
 			set;
 		}
 
+		/// <summary>
+		/// Verify that the certificate chain is trusted and signature correct.
+		/// </summary>
+		/// <returns>true if the certificate chain and the signature is trusted or if PKIType == None</returns>
 		public bool Verify()
 		{
 			bool valid = true;
