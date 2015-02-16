@@ -104,22 +104,34 @@ namespace NBitcoin.Payment
 		{
 			if(PaymentRequestUrl == null)
 				throw new InvalidOperationException("No PaymentRequestUrl specified");
+
+			bool own = false;
 			if(httpClient == null)
-				httpClient = new HttpClient();
-
-			HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, PaymentRequestUrl);
-			req.Headers.Clear();
-			req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(PaymentRequest.MediaType));
-
-			var result = await httpClient.SendAsync(req);
-			if(!result.IsSuccessStatusCode)
-				throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
-			if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentRequest.MediaType, StringComparison.InvariantCultureIgnoreCase))
 			{
-				throw new WebException("Invalid contenttype received, expecting " + PaymentRequest.MediaType + ", but got " + result.Content.Headers.ContentType);
+				httpClient = new HttpClient();
+				own = true;
 			}
-			var stream = await result.Content.ReadAsStreamAsync();
-			return PaymentRequest.Load(stream);
+			try
+			{
+				HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, PaymentRequestUrl);
+				req.Headers.Clear();
+				req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(PaymentRequest.MediaType));
+
+				var result = await httpClient.SendAsync(req);
+				if(!result.IsSuccessStatusCode)
+					throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
+				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentRequest.MediaType, StringComparison.InvariantCultureIgnoreCase))
+				{
+					throw new WebException("Invalid contenttype received, expecting " + PaymentRequest.MediaType + ", but got " + result.Content.Headers.ContentType);
+				}
+				var stream = await result.Content.ReadAsStreamAsync();
+				return PaymentRequest.Load(stream);
+			}
+			finally
+			{
+				if(own)
+					httpClient.Dispose();
+			}
 		}
 #endif
 		/// <summary>
