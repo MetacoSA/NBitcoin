@@ -44,7 +44,7 @@ namespace NBitcoin
 				return false;
 			if(ops.Length == 2)
 			{
-				return ops[1].PushData != null && ops[1].PushData.Length <= 40;
+				return ops[1].PushData != null && ops[1].PushData.Length <= MAX_OPRETURN_SIZE;
 				throw new NotSupportedException();
 			}
 			return true;
@@ -56,7 +56,7 @@ namespace NBitcoin
 			var ops = scriptPubKey.ToOps().ToArray();
 			if(ops.Length != 2)
 				return null;
-			if(ops[1].PushData == null || ops[1].PushData.Length > 40)
+			if(ops[1].PushData == null || ops[1].PushData.Length > MAX_OPRETURN_SIZE)
 				return null;
 			return ops[1].PushData;
 		}
@@ -66,12 +66,13 @@ namespace NBitcoin
 			return false;
 		}
 
+		public const int MAX_OPRETURN_SIZE = 80;
 		public Script GenerateScriptPubKey(byte[] data)
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");
-			if(data.Length > 40)
-				throw new ArgumentOutOfRangeException("data", "Data in OP_RETURN should have a maximum size of 40 bytes");
+			if(data.Length > MAX_OPRETURN_SIZE)
+				throw new ArgumentOutOfRangeException("data", "Data in OP_RETURN should have a maximum size of " + MAX_OPRETURN_SIZE + " bytes");
 
 			return new Script(OpcodeType.OP_RETURN,
 							  Op.GetPushOp(data));
