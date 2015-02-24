@@ -601,6 +601,20 @@ namespace NBitcoin
 			set;
 		}
 
+		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify = ScriptVerify.Standard)
+		{
+			ScriptError unused;
+			return VerifyScript(scriptPubKey, scriptVerify, out unused);
+		}
+		public bool VerifyScript(Script scriptPubKey, out ScriptError error)
+		{
+			return Script.VerifyScript(Transaction.Inputs[N].ScriptSig, scriptPubKey, Transaction, (int)N, out error);
+		}
+		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify, out ScriptError error)
+		{
+			return Script.VerifyScript(Transaction.Inputs[N].ScriptSig, scriptPubKey, Transaction, (int)N, scriptVerify, SigHash.Undefined, out error);
+		}
+
 		public uint256 GetSignatureHash(Script scriptPubKey, SigHash sigHash = SigHash.All)
 		{
 			return scriptPubKey.SignatureHash(Transaction, (int)N, sigHash);

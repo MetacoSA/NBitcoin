@@ -763,12 +763,24 @@ namespace NBitcoin
 
 		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
 		{
+			ScriptError unused;
+			return VerifyScript(scriptSig, scriptPubKey, tx, i, scriptVerify, sigHash, out unused);
+		}
+		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, out ScriptError error)
+		{
+			return VerifyScript(scriptSig, scriptPubKey, tx, i, ScriptVerify.Standard, SigHash.Undefined, out error);
+		}
+
+		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
+		{
 			ScriptEvaluationContext eval = new ScriptEvaluationContext
 			{
 				SigHash = sigHash,
 				ScriptVerify = scriptVerify
 			};
-			return eval.VerifyScript(scriptSig, scriptPubKey, tx, i);
+			var result = eval.VerifyScript(scriptSig, scriptPubKey, tx, i);
+			error = eval.Error;
+			return result;
 		}
 
 		public bool IsUnspendable
