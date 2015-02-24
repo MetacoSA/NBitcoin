@@ -1108,7 +1108,13 @@ namespace NBitcoin
 			if(vfExec.Count != 0)
 				return SetError(ScriptError.UnbalancedConditional);
 
-			return SetError(ScriptError.OK);
+			return SetSuccess(ScriptError.OK);
+		}
+
+		private bool SetSuccess(ScriptError scriptError)
+		{
+			Error = ScriptError.OK;
+			return true;
 		}
 
 		private bool IsCompressedOrUncompressedPubKey(byte[] vchPubKey)

@@ -595,6 +595,14 @@ namespace NBitcoin
 			set;
 		}
 
+		public OutPoint PrevOut
+		{
+			get
+			{
+				return TxIn.PrevOut;
+			}
+		}
+
 		public Transaction Transaction
 		{
 			get;

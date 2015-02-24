@@ -791,19 +791,16 @@ namespace NBitcoin
 		public bool Verify(Transaction tx, Money expectFees = null)
 		{
 			Money spent = Money.Zero;
-			for(int i = 0 ; i < tx.Inputs.Count ; i++)
+			foreach(var input in tx.Inputs.AsIndexedInputs())
 			{
-				var txIn = tx.Inputs[i];
-				var duplicates = tx.Inputs.Where(_ => _.PrevOut == txIn.PrevOut).Count();
+				var duplicates = tx.Inputs.Where(_ => _.PrevOut == input.PrevOut).Count();
 				if(duplicates != 1)
 					return false;
-				var coin = FindCoin(txIn.PrevOut);
+				var coin = FindCoin(input.PrevOut);
 				if(coin == null)
-					throw CoinNotFound(txIn);
+					throw CoinNotFound(input.TxIn);
 				spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : coin.Amount;
-				if(!Script.VerifyScript(txIn.ScriptSig, coin.TxOut.ScriptPubKey, tx, i,
-							ScriptVerify.Standard
-							))
+				if(!input.VerifyScript(coin.TxOut.ScriptPubKey))
 					return false;
 			}
 			if(spent < tx.TotalOut)
