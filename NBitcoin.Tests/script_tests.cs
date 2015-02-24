@@ -325,6 +325,14 @@ namespace NBitcoin.Tests
 				else if(p == "")
 				{
 				}
+				else if(p == "DISCOURAGE_UPGRADABLE_NOPS")
+				{
+					result |= ScriptVerify.DiscourageUpgradableNops;
+				}
+				else if(p == "CLEANSTACK")
+				{
+					result |= ScriptVerify.CleanStack;
+				}
 				else
 					throw new NotSupportedException(p);
 			}

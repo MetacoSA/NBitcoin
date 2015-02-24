@@ -802,13 +802,7 @@ namespace NBitcoin
 					throw CoinNotFound(txIn);
 				spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : coin.Amount;
 				if(!Script.VerifyScript(txIn.ScriptSig, coin.TxOut.ScriptPubKey, tx, i,
-							ScriptVerify.LowS |
-							ScriptVerify.MinimalData |
-							ScriptVerify.DerSig |
-							ScriptVerify.NullDummy |
-							ScriptVerify.P2SH |
-							ScriptVerify.SigPushOnly |
-							ScriptVerify.StrictEnc
+							ScriptVerify.Standard
 							))
 					return false;
 			}

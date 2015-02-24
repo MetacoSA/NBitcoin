@@ -292,8 +292,28 @@ namespace NBitcoin
 				if(!evaluationCopy.EvalScript(redeem, txTo, nIn))
 					return false;
 
-				return evaluationCopy.Result != null && evaluationCopy.Result.Value;
+				if(evaluationCopy.Result == null)
+					return false;
+				if(!evaluationCopy.Result.Value)
+					return false;
 			}
+
+			// The CLEANSTACK check is only performed after potential P2SH evaluation,
+			// as the non-P2SH evaluation of a P2SH script will obviously not result in
+			// a clean stack (the P2SH inputs remain).
+			if((ScriptVerify & ScriptVerify.CleanStack) != 0)
+			{
+				// Disallow CLEANSTACK without P2SH, as otherwise a switch CLEANSTACK->P2SH+CLEANSTACK
+				// would be possible, which is not a softfork (and P2SH should be one).
+				if((ScriptVerify & ScriptVerify.P2SH) == 0)
+					throw new InvalidOperationException("ScriptVerify : CleanStack without P2SH is not allowed");
+				if(Stack.Count != 1)
+				{
+					return false;
+				}
+			}
+
+
 			return true;
 		}
 
@@ -395,6 +415,7 @@ namespace NBitcoin
 							// Control
 							//
 							case OpcodeType.OP_NOP:
+								break;
 							case OpcodeType.OP_NOP1:
 							case OpcodeType.OP_NOP2:
 							case OpcodeType.OP_NOP3:
@@ -405,6 +426,10 @@ namespace NBitcoin
 							case OpcodeType.OP_NOP8:
 							case OpcodeType.OP_NOP9:
 							case OpcodeType.OP_NOP10:
+								{
+									if((ScriptVerify & ScriptVerify.DiscourageUpgradableNops) != 0)
+										return false;
+								}
 								break;
 
 							case OpcodeType.OP_IF:
@@ -901,14 +926,13 @@ namespace NBitcoin
 									// Drop the signature, since there's no way for a signature to sign itself
 									scriptCode.FindAndDelete(vchSig);
 
-									if(!CheckSignatureEncoding(vchSig))
+									if(!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey))
 									{
 										//serror is set
 										return false;
 									}
 
-									bool fSuccess = CheckPubKeyEncoding(vchPubKey) &&
-										CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn);
+									bool fSuccess = CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn);
 
 									_Stack.Pop();
 									_Stack.Pop();
@@ -967,15 +991,16 @@ namespace NBitcoin
 										var vchPubKey = top(_Stack, -ikey);
 
 
-										if(!CheckSignatureEncoding(vchSig))
+										// Note how this makes the exact order of pubkey/signature evaluation
+										// distinguishable by CHECKMULTISIG NOT if the STRICTENC flag is set.
+										// See the script_(in)valid tests for details.
+										if(!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey))
 										{
 											// serror is set
 											return false;
 										}
 
-										// Check signature
-										bool fOk = CheckPubKeyEncoding(vchPubKey) &&
-											CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn);
+										bool fOk = CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn);
 
 										if(fOk)
 										{
@@ -1083,6 +1108,12 @@ namespace NBitcoin
 
 		private bool CheckSignatureEncoding(byte[] vchSig)
 		{
+			// Empty signature. Not strictly DER encoded, but allowed to provide a
+			// compact way to provide an invalid signature for use with CHECK(MULTI)SIG
+			if(vchSig.Length == 0)
+			{
+				return true;
+			}
 			if((ScriptVerify & (ScriptVerify.DerSig | ScriptVerify.LowS | ScriptVerify.StrictEnc)) != 0 && !IsDERSignature(vchSig))
 			{
 				return false;
@@ -1388,7 +1419,17 @@ namespace NBitcoin
 			if(vchSig.Length == 0)
 				return false;
 
-			var scriptSig = new TransactionSignature(vchSig);
+			TransactionSignature scriptSig = null;
+			try
+			{
+				scriptSig = new TransactionSignature(vchSig);
+			}
+			catch(Exception)
+			{
+				if((ScriptVerify.DerSig & ScriptVerify) != 0)
+					throw;
+				return false;
+			}
 
 			if(!IsAllowedSignature(scriptSig.SigHash))
 				return false;

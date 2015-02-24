@@ -40,7 +40,48 @@ namespace NBitcoin
 		// any other push causes the script to fail (BIP62 rule 3).
 		// In addition, whenever a stack element is interpreted as a number, it must be of minimal length (BIP62 rule 4).
 		// (softfork safe)
-		MinimalData = (1U << 6)
+		MinimalData = (1U << 6),
+
+		// Discourage use of NOPs reserved for upgrades (NOP1-10)
+		//
+		// Provided so that nodes can avoid accepting or mining transactions
+		// containing executed NOP's whose meaning may change after a soft-fork,
+		// thus rendering the script invalid; with this flag set executing
+		// discouraged NOPs fails the script. This verification flag will never be
+		// a mandatory flag applied to scripts in a block. NOPs that are not
+		// executed, e.g.  within an unexecuted IF ENDIF block, are *not* rejected.
+		DiscourageUpgradableNops = (1U << 7),
+
+		// Require that only a single stack element remains after evaluation. This changes the success criterion from
+		// "At least one stack element must remain, and when interpreted as a boolean, it must be true" to
+		// "Exactly one stack element must remain, and when interpreted as a boolean, it must be true".
+		// (softfork safe, BIP62 rule 6)
+		// Note: CLEANSTACK should never be used without P2SH.
+		CleanStack = (1U << 8),
+
+		/**
+ * Mandatory script verification flags that all new blocks must comply with for
+ * them to be valid. (but old blocks may not comply with) Currently just P2SH,
+ * but in the future other flags may be added, such as a soft-fork to enforce
+ * strict DER encoding.
+ * 
+ * Failing one of these tests may trigger a DoS ban - see CheckInputs() for
+ * details.
+ */
+		Mandatory = P2SH,
+		/**
+ * Standard script verification flags that standard transactions will comply
+ * with. However scripts violating these flags may still be present in valid
+ * blocks and we must accept those blocks.
+ */
+		Standard =
+			Mandatory |
+			DerSig |
+			StrictEnc |
+			MinimalData |
+			NullDummy |
+			DiscourageUpgradableNops |
+			CleanStack,
 	}
 
 	/** Signature hash types/flags */
@@ -720,7 +761,7 @@ namespace NBitcoin
 			return compressor.ToBytes();
 		}
 
-		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.StrictEnc | ScriptVerify.P2SH, SigHash sigHash = SigHash.Undefined)
+		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
 		{
 			ScriptEvaluationContext eval = new ScriptEvaluationContext
 			{
