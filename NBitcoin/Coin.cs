@@ -273,6 +273,14 @@ namespace NBitcoin
 			return new ScriptCoin(this, redeemScript);
 		}
 
+		public ColoredCoin ToColoredCoin(AssetId asset, ulong quantity)
+		{
+			return ToColoredCoin(new Asset(asset, quantity));
+		}
+		public ColoredCoin ToColoredCoin(BitcoinAssetId asset, ulong quantity)
+		{
+			return ToColoredCoin(new Asset(asset, quantity));
+		}
 		public ColoredCoin ToColoredCoin(Asset asset)
 		{
 			return new ColoredCoin(asset, this);
