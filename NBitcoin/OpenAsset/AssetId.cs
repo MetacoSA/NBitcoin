@@ -21,6 +21,13 @@ namespace NBitcoin.OpenAsset
 		{
 		}
 
+		public AssetId(BitcoinAssetId assetId)
+		{
+			if(assetId == null)
+				throw new ArgumentNullException("assetId");
+			_Bytes = assetId.AssetId._Bytes;
+		}
+
 		public AssetId(Script assetScriptPubKey)
 			: this(assetScriptPubKey.Hash)
 		{
