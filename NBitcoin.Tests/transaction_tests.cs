@@ -1312,12 +1312,12 @@ namespace NBitcoin.Tests
 			t.Outputs[0].ScriptPubKey = new Script() + OpcodeType.OP_1;
 			Assert.True(!StandardScripts.IsStandardTransaction(t));
 
-			// 80-byte TX_NULL_DATA (standard)
-			t.Outputs[0].ScriptPubKey = new Script() + OpcodeType.OP_RETURN + ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef3804678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38");
+			// 40-byte TX_NULL_DATA (standard)
+			t.Outputs[0].ScriptPubKey = new Script() + OpcodeType.OP_RETURN + ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38");
 			Assert.True(StandardScripts.IsStandardTransaction(t));
 
-			// 81-byte TX_NULL_DATA (non-standard)
-			t.Outputs[0].ScriptPubKey = new Script() + OpcodeType.OP_RETURN + ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef3804678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef3800");
+			// 41-byte TX_NULL_DATA (non-standard)
+			t.Outputs[0].ScriptPubKey = new Script() + OpcodeType.OP_RETURN + ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef3800");
 			Assert.True(!StandardScripts.IsStandardTransaction(t));
 
 			// TX_NULL_DATA w/o PUSHDATA
