@@ -355,7 +355,7 @@ namespace NBitcoin.Tests
 			var bob = new Key();
 			var alice = new Key();
 
-			var repo = new NoSqlColoredTransactionRepository(new NoSqlTransactionRepository(), new InMemoryNoSqlRepository());
+			var repo = new NoSqlColoredTransactionRepository();
 
 			var init = new Transaction()
 			{
@@ -366,16 +366,18 @@ namespace NBitcoin.Tests
 					new TxOut("1.0", satoshi.PubKey)
 				}
 			};
-			repo.Transactions.Put(init.GetHash(), init);
+
+			repo.Transactions.Put(init);
 
 			var issuanceCoins =
 				init
 				.Outputs
+				.AsCoins()
 				.Take(2)
-				.Select((o, i) => new IssuanceCoin(new OutPoint(init.GetHash(), i), init.Outputs[i]))
+				.Select((c, i) => new IssuanceCoin(c))
 				.OfType<ICoin>().ToArray();
 
-			var satoshiBTC = new Coin(new OutPoint(init.GetHash(), 2), init.Outputs[2]);
+			var satoshiBTC = init.Outputs.AsCoins().Last();
 
 			var coins = new List<ICoin>();
 			coins.AddRange(issuanceCoins);
@@ -396,7 +398,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(Money.Parse("0.89998800"), tx.Outputs[2].Value);
 			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
 
-			repo.Transactions.Put(tx.GetHash(), tx);
+			repo.Transactions.Put(tx);
 
 			var colored = tx.GetColoredTransaction(repo);
 			Assert.Equal(2, colored.Issuances.Count);
@@ -428,7 +430,7 @@ namespace NBitcoin.Tests
 			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 470, bob.PubKey);
 			AssertHasAsset(tx, colored, colored.Transfers[1], goldId, 30, satoshi.PubKey);
 
-			repo.Transactions.Put(tx.GetHash(), tx);
+			repo.Transactions.Put(tx);
 
 
 			//Can swap : 
@@ -444,7 +446,7 @@ namespace NBitcoin.Tests
 					.SetChange(gold.PubKey)
 					.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx));
-			repo.Transactions.Put(tx.GetHash(), tx);
+			repo.Transactions.Put(tx);
 			var satoshiCoin = ColoredCoin.Find(tx, repo).First();
 
 
@@ -469,7 +471,7 @@ namespace NBitcoin.Tests
 					.SetChange(gold.PubKey)
 					.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx));
-			repo.Transactions.Put(tx.GetHash(), tx);
+			repo.Transactions.Put(tx);
 
 			var bobSilverCoin = ColoredCoin.Find(tx, repo).First();
 			var bobBitcoin = new Coin(new OutPoint(tx.GetHash(), 2), tx.Outputs[2]);
@@ -533,7 +535,7 @@ namespace NBitcoin.Tests
 				.SetChange(gold.PubKey.Hash)
 				.BuildTransaction(true);
 
-			repo.Transactions.Put(funding.GetHash(), funding);
+			repo.Transactions.Put(funding);
 
 			var bobGold = ColoredCoin.Find(funding, repo).ToArray();
 
