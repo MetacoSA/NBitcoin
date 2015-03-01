@@ -301,5 +301,35 @@ namespace NBitcoin
 		{
 			return _Name;
 		}
+
+		public string[] GetWords(int[] indices)
+		{
+			return
+				indices
+				.Select(i => GetWordAtIndex(i))
+				.ToArray();
+		}
+
+		public string GetSentence(int[] indices)
+		{
+			return String.Join(Space.ToString(), GetWords(indices));
+					
+		}
+
+		public int[] GetIndices(string[] words)
+		{
+			var indices = new int[words.Length];
+			for(int i = 0 ; i < words.Length ; i++)
+			{
+				int idx = -1;
+
+				if(!WordExists(words[i], out idx))
+				{
+					throw new FormatException("Word " + words[i] + " is not in the wordlist for this language, cannot continue to rebuild entropy from wordlist");
+				}
+				indices[i] = idx;
+			}
+			return indices;
+		}
 	}
 }

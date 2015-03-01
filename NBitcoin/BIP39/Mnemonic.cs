@@ -24,43 +24,84 @@ namespace NBitcoin
 	/// </summary>
 	public class Mnemonic
 	{
-		static byte[] SwapEndianBytes(byte[] bytes)
+		class BitWriter
 		{
-			byte[] output = new byte[bytes.Length];
-
-			int index = 0;
-
-			foreach(byte b in bytes)
+			List<bool> values = new List<bool>();
+			public void Write(bool value)
 			{
-				byte[] ba = { b };
-				BitArray bits = new BitArray(ba);
-
-				int newByte = 0;
-				if(bits.Get(7))
-					newByte++;
-				if(bits.Get(6))
-					newByte += 2;
-				if(bits.Get(5))
-					newByte += 4;
-				if(bits.Get(4))
-					newByte += 8;
-				if(bits.Get(3))
-					newByte += 16;
-				if(bits.Get(2))
-					newByte += 32;
-				if(bits.Get(1))
-					newByte += 64;
-				if(bits.Get(0))
-					newByte += 128;
-
-				output[index] = Convert.ToByte(newByte);
-
-				index++;
+				values.Add(value);
 			}
 
-			//I love lamp
-			return output;
+			internal void Write(byte[] bytes)
+			{
+				Write(bytes, bytes.Length * 8);
+			}
+
+			public void Write(byte[] bytes, int bitCount)
+			{
+				bytes = SwapEndianBytes(bytes);
+				BitArray array = new BitArray(bytes);
+				values.AddRange(array.OfType<bool>().Take(bitCount));
+			}
+
+			public BitArray ToBitArray()
+			{
+				return new BitArray(values.ToArray());
+			}
+
+			public int[] ToIntegers()
+			{
+				return
+					values
+					.Select((v, i) => new
+					{
+						Group = i / 11,
+						Value = v ? 1 << (10 - (i % 11)) : 0
+					})
+					.GroupBy(_ => _.Group, _ => _.Value)
+					.Select(g => g.Sum())
+					.ToArray();
+			}
+
+			static byte[] SwapEndianBytes(byte[] bytes)
+			{
+				byte[] output = new byte[bytes.Length];
+
+				int index = 0;
+
+				foreach(byte b in bytes)
+				{
+					byte[] ba = { b };
+					BitArray bits = new BitArray(ba);
+
+					int newByte = 0;
+					if(bits.Get(7))
+						newByte++;
+					if(bits.Get(6))
+						newByte += 2;
+					if(bits.Get(5))
+						newByte += 4;
+					if(bits.Get(4))
+						newByte += 8;
+					if(bits.Get(3))
+						newByte += 16;
+					if(bits.Get(2))
+						newByte += 32;
+					if(bits.Get(1))
+						newByte += 64;
+					if(bits.Get(0))
+						newByte += 128;
+
+					output[index] = Convert.ToByte(newByte);
+
+					index++;
+				}
+
+				//I love lamp
+				return output;
+			}
 		}
+	
 
 		public Mnemonic(string mnemonic, Wordlist wordlist = null)
 		{
@@ -79,23 +120,7 @@ namespace NBitcoin
 			}
 			_Words = words;
 			_WordList = wordlist;
-			_Indices = CreateIndicesArrayFromWords(words, wordlist);
-		}
-
-		private static int[] CreateIndicesArrayFromWords(string[] words, Wordlist wordList)
-		{
-			var indices = new int[words.Length];
-			for(int i = 0 ; i < words.Length ; i++)
-			{
-				int idx = -1;
-
-				if(!wordList.WordExists(words[i], out idx))
-				{
-					throw new FormatException("Word " + words[i] + " is not in the wordlist for this language, cannot continue to rebuild entropy from wordlist");
-				}
-				indices[i] = idx;
-			}
-			return indices;
+			_Indices = wordlist.GetIndices(words);
 		}
 
 		/// <summary>
@@ -109,73 +134,22 @@ namespace NBitcoin
 			_WordList = wordList;
 			if(entropy == null)
 				entropy = RandomUtils.GetBytes(32);
-			byte[] allChecksumBytes = Hashes.SHA256(entropy); //sha256 the entropy bytes to get all the checksum bits
 
-			int numberOfChecksumBits = (entropy.Length * 8) / 32; //number of bits to take from the checksum bits, varies on entropy size as per spec
-			BitArray entropyConcatChecksumBits = new BitArray((entropy.Length * 8) + numberOfChecksumBits);
+			var i = Array.IndexOf(entArray, entropy.Length * 8);
+			if(i == -1)
+				throw new ArgumentException("The length for entropy should be : " + String.Join(",", entArray), "entropy");
 
-			allChecksumBytes = SwapEndianBytes(allChecksumBytes); //yet another endianess change of some different bytes to match the test vectors.....             
+			int entcs = entcsArray[i];
+			int ent = entArray[i];
+			int cs = csArray[i];
+			byte[] checksum = Hashes.SHA256(entropy);
+			BitWriter entcsResult = new BitWriter();
 
-			entropy = SwapEndianBytes(entropy);
-
-			int index = 0;
-
-			foreach(bool b in new BitArray(entropy))
-			{
-				entropyConcatChecksumBits.Set(index, b);
-				index++;
-			}
-
-			/*sooooo I'm doing below for future proofing....I know right now we are using up to 256 bits entropy in real world implementation and therefore max 8 bits (1 byte) of checksum....buuuut I figgure it's easy enough
-			to accomodate more entropy by chaining more checksum bytes so maximum 256 * 32 = 8192 theoretical maximum entropy (plus CS).*/
-			List<byte> checksumBytesToUse = new List<byte>();
-
-			double byteCount = Math.Ceiling((double)numberOfChecksumBits / 8);
-
-			for(int i = 0 ; i < byteCount ; i++)
-			{
-				checksumBytesToUse.Add(allChecksumBytes[i]);
-			}
-
-			BitArray ba = new BitArray(checksumBytesToUse.ToArray());
-
-			//add checksum bits
-			for(int i = 0 ; i < numberOfChecksumBits ; i++)
-			{
-				entropyConcatChecksumBits.Set(index, ba.Get(i));
-				index++;
-			}
-
-
-			List<int> wordIndexList = new List<int>();
-
-			//yea....loop in a loop....what of it!!! Outer loop is segregating bits into 11 bit groups and the inner loop is processing the 11 bits before sending them to be encoded as an int.
-			for(int i = 0 ; i < entropyConcatChecksumBits.Length ; i = i + 11)
-			{
-				BitArray toInt = new BitArray(11);
-				for(int i2 = 0 ; i2 < 11 && i < entropyConcatChecksumBits.Length ; i2++)
-				{
-					toInt.Set(i2, entropyConcatChecksumBits.Get(i + i2));
-				}
-
-				wordIndexList.Add(ToInt(toInt)); //adding encoded int to word index               
-			}
-
-			_Indices = wordIndexList.ToArray();
-			_Words = new string[_Indices.Length];
-
-			StringBuilder builder = new StringBuilder();
-			for(int i = 0 ; i < _Indices.Length ; i++)
-			{
-				var word = _WordList.GetWordAtIndex(_Indices[i]);
-				_Words[i] = word;
-				builder.Append(word);
-				if(i + 1 < _Indices.Length)
-				{
-					builder.Append(_WordList.Space);
-				}
-			}
-			_Mnemonic = builder.ToString();
+			entcsResult.Write(entropy);
+			entcsResult.Write(checksum, cs);
+			_Indices = entcsResult.ToIntegers();
+			_Words = _WordList.GetWords(_Indices);
+			_Mnemonic = _WordList.GetSentence(_Indices);
 		}
 
 		public Mnemonic(Wordlist wordList, WordCount wordCount)
@@ -189,15 +163,40 @@ namespace NBitcoin
 			var ms = (int)wordCount;
 			if(!CorrectWordCount(ms))
 				throw new ArgumentException("Word count should be equal to 12,15,18,21 or 24", "wordCount");
-			var entcs = ms * 11;
-			var cs = entcs / 32;
-			var ent = cs * 32;
-			return RandomUtils.GetBytes(ent / 8);
+			int i = Array.IndexOf(msArray, (int)wordCount);
+			return RandomUtils.GetBytes(entArray[i] / 8);
 		}
+
+		static readonly int[] msArray = new[] { 12, 15, 18, 21, 24 };
+		static readonly int[] entcsArray = new[] { 132, 165, 198, 231, 264 };
+		static readonly int[] csArray = new[] { 4, 5, 6, 7, 8 };
+		static readonly int[] entArray = new[] { 128, 160, 192, 224, 256 };
+
+		//bool? _IsValidChecksum;
+		//public bool IsValidChecksum
+		//{
+		//	get
+		//	{
+		//		if(_IsValidChecksum == null)
+		//		{
+		//			int i = Array.IndexOf(msArray, _Indices.Length);
+		//			int cs = csArray[i];
+		//			int ent = entArray[i];
+		//			_Indices
+		//				.SelectMany(v => ToBits(v));
+		//		}
+		//		return _IsValidChecksum.Value;
+		//	}
+		//}
+
+		//private IEnumerable<bool> ToBits(int value)
+		//{
+		//	return null;
+		//}
 
 		private static bool CorrectWordCount(int ms)
 		{
-			return new[] { 12, 15, 18, 21, 24 }.Any(_ => _ == ms);
+			return msArray.Any(_ => _ == ms);
 		}
 
 
