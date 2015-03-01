@@ -234,8 +234,6 @@ namespace NBitcoin
 					var entropy = writer.ToBytes();
 					var checksum = Hashes.SHA256(entropy);
 
-					writer = new BitWriter();
-					writer.Write(entropy);
 					writer.Write(checksum, cs);
 					var expectedIndices = writer.ToIntegers();
 					_IsValidChecksum = expectedIndices.SequenceEqual(_Indices);
