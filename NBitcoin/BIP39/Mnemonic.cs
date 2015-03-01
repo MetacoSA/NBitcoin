@@ -44,6 +44,49 @@ namespace NBitcoin
 				values.AddRange(array.OfType<bool>().Take(bitCount));
 			}
 
+			public byte[] ToBytes()
+			{
+				var array = ToBitArray();
+				var bytes = ToByteArray(array);
+				bytes = SwapEndianBytes(bytes);
+				return bytes;
+			}
+
+			//BitArray.CopyTo do not exist in portable lib
+			static byte[] ToByteArray(BitArray bits)
+			{
+				int arrayLength = bits.Length / 8;
+				byte[] array = new byte[arrayLength];
+
+				for(int i = 0 ; i < bits.Length ; i++)
+				{
+					int b = i / 8;
+					int offset = i % 8;
+					array[b] |= bits.Get(i) ? (byte)(1 << offset) : (byte)0;
+				}
+				return array;
+			}
+
+
+			public void Write(int[] indices)
+			{
+				Write(indices, indices.Length * 11);
+			}
+			public void Write(int[] indices, int bitCount)
+			{
+				foreach(var i in indices)
+				{
+					for(int p = 0 ; p < 11 ; p++)
+					{
+						if(bitCount <= 0)
+							return;
+						var v = (i & (1 << (10 - p))) != 0;
+						Write(v);
+						bitCount--;
+					}
+				}
+			}
+
 			public BitArray ToBitArray()
 			{
 				return new BitArray(values.ToArray());
@@ -62,6 +105,7 @@ namespace NBitcoin
 					.Select(g => g.Sum())
 					.ToArray();
 			}
+
 
 			static byte[] SwapEndianBytes(byte[] bytes)
 			{
@@ -100,8 +144,10 @@ namespace NBitcoin
 				//I love lamp
 				return output;
 			}
+
+
 		}
-	
+
 
 		public Mnemonic(string mnemonic, Wordlist wordlist = null)
 		{
@@ -172,22 +218,31 @@ namespace NBitcoin
 		static readonly int[] csArray = new[] { 4, 5, 6, 7, 8 };
 		static readonly int[] entArray = new[] { 128, 160, 192, 224, 256 };
 
-		//bool? _IsValidChecksum;
-		//public bool IsValidChecksum
-		//{
-		//	get
-		//	{
-		//		if(_IsValidChecksum == null)
-		//		{
-		//			int i = Array.IndexOf(msArray, _Indices.Length);
-		//			int cs = csArray[i];
-		//			int ent = entArray[i];
-		//			_Indices
-		//				.SelectMany(v => ToBits(v));
-		//		}
-		//		return _IsValidChecksum.Value;
-		//	}
-		//}
+		bool? _IsValidChecksum;
+		public bool IsValidChecksum
+		{
+			get
+			{
+				if(_IsValidChecksum == null)
+				{
+					int i = Array.IndexOf(msArray, _Indices.Length);
+					int cs = csArray[i];
+					int ent = entArray[i];
+
+					BitWriter writer = new BitWriter();
+					writer.Write(_Indices, ent);
+					var entropy = writer.ToBytes();
+					var checksum = Hashes.SHA256(entropy);
+
+					writer = new BitWriter();
+					writer.Write(entropy);
+					writer.Write(checksum, cs);
+					var expectedIndices = writer.ToIntegers();
+					_IsValidChecksum = expectedIndices.SequenceEqual(_Indices);
+				}
+				return _IsValidChecksum.Value;
+			}
+		}
 
 		//private IEnumerable<bool> ToBits(int value)
 		//{

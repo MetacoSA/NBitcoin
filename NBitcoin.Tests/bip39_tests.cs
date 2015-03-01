@@ -26,6 +26,16 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanDetectBadChecksum()
+		{
+			var mnemonic = new Mnemonic("turtle front uncle idea crush write shrug there lottery flower risk shell", Wordlist.English);
+			Assert.True(mnemonic.IsValidChecksum);
+			mnemonic = new Mnemonic("front front uncle idea crush write shrug there lottery flower risk shell", Wordlist.English);
+			Assert.False(mnemonic.IsValidChecksum);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void EngTest()
 		{
 			var test = JObject.Parse(File.ReadAllText("data/bip39_vectors.json"));
@@ -39,9 +49,11 @@ namespace NBitcoin.Tests
 					string mnemonicStr = langTest[1].ToString();
 					string seed = langTest[2].ToString();
 					var mnemonic = new Mnemonic(mnemonicStr, lang);
+					Assert.True(mnemonic.IsValidChecksum);
 					Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.DeriveSeed("TREZOR")));
 
 					mnemonic = new Mnemonic(lang, entropy);
+					Assert.True(mnemonic.IsValidChecksum);
 					Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.DeriveSeed("TREZOR")));
 				}
 			}
@@ -71,12 +83,13 @@ namespace NBitcoin.Tests
 				string seed = unitTest["seed"].ToString();
 				string passphrase = unitTest["passphrase"].ToString();
 				var mnemonic = new Mnemonic(mnemonicStr, Wordlist.Japanese);
+				Assert.True(mnemonic.IsValidChecksum);
 				Assert.Equal(seed, Encoders.Hex.EncodeData(mnemonic.DeriveSeed(passphrase)));
 				var bip32 = unitTest["bip32_xprv"].ToString();
 				var bip32Actual = mnemonic.DeriveExtKey(passphrase).ToString(Network.Main);
 				Assert.Equal(bip32, bip32Actual.ToString());
-
 				mnemonic = new Mnemonic(Wordlist.Japanese, entropy);
+				Assert.True(mnemonic.IsValidChecksum);
 				bip32Actual = mnemonic.DeriveExtKey(passphrase).ToString(Network.Main);
 				Assert.Equal(bip32, bip32Actual.ToString());
 			}
