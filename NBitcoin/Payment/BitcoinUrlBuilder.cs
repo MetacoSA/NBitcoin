@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.NBitcoin;
+using System.Runtime.ExceptionServices;
 
 namespace NBitcoin.Payment
 {
@@ -102,9 +103,10 @@ namespace NBitcoin.Payment
 			{
 				return GetPaymentRequestAsync().Result;
 			}
-			catch(AggregateException ex)
+			catch(AggregateException aex)
 			{
-				throw ex.InnerException;
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				return null;
 			}
 		}
 
@@ -125,14 +127,14 @@ namespace NBitcoin.Payment
 				req.Headers.Clear();
 				req.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(PaymentRequest.MediaType));
 
-				var result = await httpClient.SendAsync(req);
+				var result = await httpClient.SendAsync(req).ConfigureAwait(false);
 				if(!result.IsSuccessStatusCode)
 					throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
 				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentRequest.MediaType, StringComparison.InvariantCultureIgnoreCase))
 				{
 					throw new WebException("Invalid contenttype received, expecting " + PaymentRequest.MediaType + ", but got " + result.Content.Headers.ContentType);
 				}
-				var stream = await result.Content.ReadAsStreamAsync();
+				var stream = await result.Content.ReadAsStreamAsync().ConfigureAwait(false);
 				return PaymentRequest.Load(stream);
 			}
 			finally
