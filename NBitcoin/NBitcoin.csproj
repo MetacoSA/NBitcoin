@@ -73,6 +73,8 @@
       <DependentUpon>BitcoinStream.Partial.tt</DependentUpon>
     </Compile>
     <Compile Include="BitcoinCore\CachedBlockProvider.cs" />
+    <Compile Include="BitWriter.cs" />
+    <Compile Include="BrainAddress.cs" />
     <Compile Include="CachedNoSqlRepository.cs" />
     <Compile Include="CachedTransactionRepository.cs" />
     <Compile Include="Coin.cs" />
@@ -81,6 +83,7 @@
     <Compile Include="Crypto\DeterministicECDSA.cs" />
     <Compile Include="BitcoinCore\DataDirectory.cs" />
     <Compile Include="ChainBase.cs" />
+    <Compile Include="IBlockRepository.cs" />
     <Compile Include="IDestination.cs" />
     <Compile Include="BitcoinCore\IndexedBlockUndoStore.cs" />
     <Compile Include="BitcoinCore\IndexedStore.cs" />
@@ -88,6 +91,7 @@
     <Compile Include="ISecret.cs" />
     <Compile Include="ITransactionRepository.cs" />
     <Compile Include="LockTime.cs" />
+    <Compile Include="NoSqlBlockRepository.cs" />
     <Compile Include="NoSqlTransactionRepository.cs" />
     <Compile Include="ObjectStream.cs" />
     <Compile Include="OpenAsset\Asset.cs" />

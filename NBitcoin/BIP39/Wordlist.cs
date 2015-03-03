@@ -331,5 +331,10 @@ namespace NBitcoin
 			}
 			return indices;
 		}
+
+		public int[] GetIndices(string sentence)
+		{
+			return GetIndices(Split(sentence));
+		}
 	}
 }

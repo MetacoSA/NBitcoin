@@ -74,6 +74,7 @@
     <Compile Include="bip39_tests.cs" />
     <Compile Include="BitcoinQProcess.cs" />
     <Compile Include="bloom_tests.cs" />
+    <Compile Include="brainaddress_tests.cs" />
     <Compile Include="ChainTests.cs" />
     <Compile Include="checkblock_tests.cs" />
     <Compile Include="ColoredCoinsTests.cs" />

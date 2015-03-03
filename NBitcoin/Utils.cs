@@ -17,12 +17,27 @@ using NBitcoin.Protocol;
 #if !PORTABLE
 using System.Security.Cryptography;
 using System.Net.Sockets;
+using System.Runtime.ExceptionServices;
 #endif
 
 namespace NBitcoin
 {
 	public static class Extensions
 	{
+		public static Block GetBlock(this IBlockRepository repository, uint256 blockId)
+		{
+			try
+			{
+				return repository.GetBlockAsync(blockId).Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				return null; //Can't happen
+			}
+		}
+
+
 		public static T ToNetwork<T>(this T base58, Network network) where T : Base58Data
 		{
 			if(network == null)

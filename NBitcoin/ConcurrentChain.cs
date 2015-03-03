@@ -106,6 +106,12 @@ namespace NBitcoin
 			}
 		}
 
+
+		public void SetTip(BlockHeader header)
+		{
+			SetTip(new ChainedBlock(header, header.GetHash(), GetBlock(header.HashPrevBlock)));
+		}
+
 		private ChainedBlock SetTipNoLock(ChainedBlock block)
 		{
 			int height = Tip == null ? -1 : Tip.Height;
@@ -222,6 +228,7 @@ namespace NBitcoin
 		{
 			return Tip == null ? "no tip" : Tip.Height.ToString();
 		}
+
 	}
 
 	internal class ReaderWriterLock
