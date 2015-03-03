@@ -50,7 +50,15 @@ namespace NBitcoin.Payment
 			}
 			uri = uri.Remove(0, address.Length);
 
-			var parameters = UriHelper.DecodeQueryParameters(uri);
+			Dictionary<string, string> parameters;
+			try
+			{
+				parameters = UriHelper.DecodeQueryParameters(uri);
+			}
+			catch(ArgumentException)
+			{
+				throw new FormatException("A URI parameter is duplicated");
+			}
 			if(parameters.ContainsKey("amount"))
 			{
 				Amount = Money.Parse(parameters["amount"]);
