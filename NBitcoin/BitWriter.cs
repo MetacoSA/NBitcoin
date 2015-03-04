@@ -175,38 +175,15 @@ namespace NBitcoin
 		static byte[] SwapEndianBytes(byte[] bytes)
 		{
 			byte[] output = new byte[bytes.Length];
-
-			int index = 0;
-
-			foreach(byte b in bytes)
+			for(int i = 0 ; i < output.Length ; i++)
 			{
-				byte[] ba = { b };
-				BitArray bits = new BitArray(ba);
-
-				int newByte = 0;
-				if(bits.Get(7))
-					newByte++;
-				if(bits.Get(6))
-					newByte += 2;
-				if(bits.Get(5))
-					newByte += 4;
-				if(bits.Get(4))
-					newByte += 8;
-				if(bits.Get(3))
-					newByte += 16;
-				if(bits.Get(2))
-					newByte += 32;
-				if(bits.Get(1))
-					newByte += 64;
-				if(bits.Get(0))
-					newByte += 128;
-
-				output[index] = Convert.ToByte(newByte);
-
-				index++;
+				byte newByte = 0;
+				for(int ib = 0 ; ib < 8 ; ib++)
+				{
+					newByte += (byte)(((bytes[i] >> ib) & 1) << (7 - ib));
+				}
+				output[i] = newByte;
 			}
-
-			//I love lamp
 			return output;
 		}
 
