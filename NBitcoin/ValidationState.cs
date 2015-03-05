@@ -249,6 +249,7 @@ namespace NBitcoin
 
 			return true;
 		}
+
 		public bool CheckProofOfWorkCore(Block block)
 		{
 			var target = block.Header.Bits;

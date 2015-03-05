@@ -102,7 +102,7 @@ namespace NBitcoin
 
 		public MerkleNode GetLeaf(int i)
 		{
-			return EnumerateDescendants().Skip(i).Where(l => l.IsLeaf).FirstOrDefault();
+			return GetLeafs().Skip(i).FirstOrDefault();
 		}
 		public IEnumerable<MerkleNode> GetLeafs()
 		{
