@@ -128,12 +128,15 @@ namespace NBitcoin
 				throw new InvalidBrainAddressException("This block does not exists");
 			if(header.HashBlock != merkleBlock.Header.GetHash())
 				throw new InvalidBrainAddressException("The provided merkleblock do not match the block of the sentence");
-			if(!merkleBlock.PartialMerkleTree.Check(header.Header.HashMerkleRoot))
+
+			MerkleNode root = merkleBlock.PartialMerkleTree.TryGetMerkleRoot();
+
+			if(root == null || root.Hash != header.Header.HashMerkleRoot)
 				throw new InvalidBrainAddressException("Invalid partial merkle tree");
 
 			var txIndex = infoReader.ReadUInt(BitCount((int)merkleBlock.PartialMerkleTree.TransactionCount));
-			var txIds = merkleBlock.PartialMerkleTree.GetMatchedTransactions();
-			if(!txIds.Contains(transaction.GetHash()))
+			var txLeaf = root.GetLeafs().Skip((int)txIndex).FirstOrDefault();
+			if(txLeaf == null || txLeaf.Hash != transaction.GetHash())
 				throw new InvalidBrainAddressException("The transaction do not appear in the block");
 			var txOutIndex = infoReader.ReadUInt(BitCount(transaction.Outputs.Count));
 

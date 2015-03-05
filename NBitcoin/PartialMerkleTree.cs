@@ -176,5 +176,17 @@ namespace NBitcoin
 				node.UpdateHash();
 			return left.Concat(right);
 		}
+
+		public MerkleNode TryGetMerkleRoot()
+		{
+			try
+			{
+				return GetMerkleRoot();
+			}
+			catch(Exception)
+			{
+				return null;
+			}
+		}
 	}
 }
