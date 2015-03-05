@@ -469,9 +469,6 @@ namespace NBitcoin.Tests
 			var expected = array.OfType<JValue>().Select(v => new uint256(v.ToString())).ToList();
 			var block = Block.Parse(File.ReadAllText("Data/blocks/Block1.json"));
 			Assert.Equal("000000000000000040cd080615718eb68f00a0138706e7afd4068f3e08d4ca20", block.GetHash().ToString());
-			block.CheckMerkleRoot();
-
-			AssertEx.CollectionEquals(block.vMerkleTree.ToArray(), expected.ToArray());
 			Assert.True(block.CheckMerkleRoot());
 		}
 

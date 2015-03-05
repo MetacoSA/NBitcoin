@@ -202,7 +202,7 @@ namespace NBitcoin
 			txNew.Outputs[0].ScriptPubKey = new Script() + DataEncoders.Encoders.Hex.DecodeData("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") + OpcodeType.OP_CHECKSIG;
 			genesis.Transactions.Add(txNew);
 			genesis.Header.HashPrevBlock = 0;
-			genesis.Header.HashMerkleRoot = genesis.ComputeMerkleRoot();
+			genesis.UpdateMerkleRoot();
 			genesis.Header.Version = 1;
 			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1231006505);
 			genesis.Header.Bits = 0x1d00ffff;

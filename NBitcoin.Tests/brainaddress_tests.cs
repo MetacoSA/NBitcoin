@@ -37,7 +37,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanCreateBrainAddress2()
 		{
-			Test(1782, 50, 1000, 1, 2);
+			Test(1782, 123, 1000, 1, 2);
 		}
 
 		class MockChain : ChainBase
@@ -88,11 +88,14 @@ namespace NBitcoin.Tests
 			var repo = new NoSqlBlockRepository();
 			var chain = new MockChain();
 			var block = new Block();
+			Transaction relevantTx = null;
+
 			for(int i = 0 ; i < txCount ; i++)
 			{
 				var tx = block.AddTransaction(new Transaction());
 				if(i == txIndex)
 				{
+					relevantTx = tx;
 					for(int ii = 0 ; ii < txOutCount ; ii++)
 					{
 						var txout = tx.AddOutput(new TxOut());
@@ -101,7 +104,7 @@ namespace NBitcoin.Tests
 					}
 				}
 			}
-			block.ComputeMerkleRoot();
+			block.UpdateMerkleRoot();
 			chain.Return(block.Header);
 
 			repo.PutAsync(block).Wait();
@@ -112,6 +115,10 @@ namespace NBitcoin.Tests
 			Assert.Equal(address.ToString(), address2.ToString());
 			Assert.Equal(Money.Coins(1.0m), address.Output.Value);
 			Assert.Equal(Money.Coins(1.0m), address2.Output.Value);
+
+			var merkleBlock = block.Filter(relevantTx.GetHash());
+			var address3 = BrainAddress.Fetch(chain, Wordlist.English, address.ToString(), relevantTx, merkleBlock);
+			Assert.Equal(address.ToString(), address3.ToString());
 		}
 	}
 }

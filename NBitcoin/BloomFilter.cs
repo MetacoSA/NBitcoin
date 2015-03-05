@@ -182,7 +182,5 @@ namespace NBitcoin
 
 			return false;
 		}
-
-
 	}
 }

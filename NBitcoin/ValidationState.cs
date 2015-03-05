@@ -190,6 +190,9 @@ namespace NBitcoin
 			// that can be verified before saving an orphan block.
 
 			// Size limits
+
+			var root = block.GetMerkleRoot();
+
 			if(block.Transactions.Count == 0 || block.Transactions.Count > MAX_BLOCK_SIZE || block.Length > MAX_BLOCK_SIZE)
 				return DoS(100, Error("CheckBlock() : size limits failed"),
 								 RejectCode.INVALID, "bad-blk-length");
@@ -218,17 +221,13 @@ namespace NBitcoin
 				if(!CheckTransaction(tx))
 					return Error("CheckBlock() : CheckTransaction failed");
 
-			// Build the merkle tree already. We need it anyway later, and it makes the
-			// block cache the transaction hashes, which means they don't need to be
-			// recalculated many times during this block's validation.
-			block.ComputeMerkleRoot();
-
+		
 			// Check for duplicate txids. This is caught by ConnectInputs(),
 			// but catching it earlier avoids a potential DoS attack:
 			HashSet<uint256> uniqueTx = new HashSet<uint256>();
 			for(int i = 0 ; i < block.Transactions.Count ; i++)
 			{
-				uniqueTx.Add(block.GetTxHash(i));
+				uniqueTx.Add(root.GetLeaf(i).Hash);
 			}
 			if(uniqueTx.Count != block.Transactions.Count)
 				return DoS(100, Error("CheckBlock() : duplicate transaction"),
@@ -244,7 +243,7 @@ namespace NBitcoin
 								 RejectCode.INVALID, "bad-blk-sigops", true);
 
 			// Check merkle root
-			if(CheckMerkleRoot && block.Header.HashMerkleRoot != block.vMerkleTree.Last())
+			if(CheckMerkleRoot && block.Header.HashMerkleRoot != root.Hash)
 				return DoS(100, Error("CheckBlock() : hashMerkleRoot mismatch"),
 								 RejectCode.INVALID, "bad-txnmrklroot", true);
 

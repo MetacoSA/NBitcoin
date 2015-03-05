@@ -23,7 +23,7 @@ namespace NBitcoin
 	public class BlockHeader : IBitcoinSerializable
 	{
 		public BlockHeader(string hex)
-			:this(Encoders.Hex.DecodeData(hex))
+			: this(Encoders.Hex.DecodeData(hex))
 		{
 
 		}
@@ -199,10 +199,10 @@ namespace NBitcoin
 			}
 		}
 
-		// memory only
-		public List<uint256> vMerkleTree = new List<uint256>();
-
-
+		public MerkleNode GetMerkleRoot()
+		{
+			return MerkleNode.GetRoot(Transactions.Select(t => t.GetHash()));
+		}
 
 
 		public Block()
@@ -249,69 +249,37 @@ namespace NBitcoin
 			}
 		}
 
-		public uint256 ComputeMerkleRoot()
-		{
-			vMerkleTree.Clear();
-			foreach(var tx in Transactions)
-				vMerkleTree.Add(tx.GetHash());
-			int j = 0;
-			for(int nSize = vtx.Count ; nSize > 1 ; nSize = (nSize + 1) / 2)
-			{
-				for(int i = 0 ; i < nSize ; i += 2)
-				{
-					int i2 = Math.Min(i + 1, nSize - 1);
-					vMerkleTree.Add(Hash(vMerkleTree[j + i],
-										 vMerkleTree[j + i2]));
-				}
-				j += nSize;
-			}
-			return (vMerkleTree.Count == 0 ? 0 : vMerkleTree.Last());
-		}
 
-		private static uint256 Hash(uint256 a, uint256 b)
-		{
-			return Hashes.Hash256(a.ToBytes().Concat(b.ToBytes()).ToArray());
-		}
+		//public MerkleBranch GetMerkleBranch(int txIndex)
+		//{
+		//	if(vMerkleTree.Count == 0)
+		//		ComputeMerkleRoot();
+		//	List<uint256> vMerkleBranch = new List<uint256>();
+		//	int j = 0;
+		//	for(int nSize = vtx.Count ; nSize > 1 ; nSize = (nSize + 1) / 2)
+		//	{
+		//		int i = Math.Min(txIndex, nSize - 1);
+		//		vMerkleBranch.Add(vMerkleTree[j + i]);
+		//		txIndex >>= 1;
+		//		j += nSize;
+		//	}
+		//	return new MerkleBranch(vMerkleBranch);
+		//}
 
-		public uint256 GetTxHash(int nIndex)
-		{
-			if(vMerkleTree.Count <= 0)
-				throw new InvalidOperationException("BuildMerkleTree must have been called first");
-			if(nIndex >= vtx.Count)
-				throw new InvalidOperationException("nIndex >= vtx.Length");
-			return vMerkleTree[nIndex];
-		}
-
-		public List<uint256> GetMerkleBranch(int nIndex)
-		{
-			if(vMerkleTree.Count == 0)
-				ComputeMerkleRoot();
-			List<uint256> vMerkleBranch = new List<uint256>();
-			int j = 0;
-			for(int nSize = vtx.Count ; nSize > 1 ; nSize = (nSize + 1) / 2)
-			{
-				int i = Math.Min(nIndex ^ 1, nSize - 1);
-				vMerkleBranch.Add(vMerkleTree[j + i]);
-				nIndex >>= 1;
-				j += nSize;
-			}
-			return vMerkleBranch;
-		}
-
-		public static uint256 CheckMerkleBranch(uint256 hash, List<uint256> vMerkleBranch, int nIndex)
-		{
-			if(nIndex == -1)
-				return 0;
-			foreach(var otherside in vMerkleBranch)
-			{
-				if((nIndex & 1) != 0)
-					hash = Hash(otherside, hash);
-				else
-					hash = Hash(hash, otherside);
-				nIndex >>= 1;
-			}
-			return hash;
-		}
+		//public static uint256 CheckMerkleBranch(uint256 hash, List<uint256> vMerkleBranch, int nIndex)
+		//{
+		//	if(nIndex == -1)
+		//		return 0;
+		//	foreach(var otherside in vMerkleBranch)
+		//	{
+		//		if((nIndex & 1) != 0)
+		//			hash = Hash(otherside, hash);
+		//		else
+		//			hash = Hash(hash, otherside);
+		//		nIndex >>= 1;
+		//	}
+		//	return hash;
+		//}
 
 		//std::vector<uint256> GetMerkleBranch(int nIndex) const;
 		//static uint256 CheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex);
@@ -347,15 +315,26 @@ namespace NBitcoin
 
 		public void UpdateMerkleRoot()
 		{
-			this.Header.HashMerkleRoot = ComputeMerkleRoot();
+			this.Header.HashMerkleRoot = GetMerkleRoot().Hash;
+		}
+
+		/// <summary>
+		/// Check proof of work and merkle root
+		/// </summary>
+		/// <returns></returns>
+		public bool Check()
+		{
+			return CheckMerkleRoot() && Header.CheckProofOfWork();
+		}
+
+		public bool CheckProofOfWork()
+		{
+			return Header.CheckProofOfWork();
 		}
 
 		public bool CheckMerkleRoot()
 		{
-			ComputeMerkleRoot();
-			if(vMerkleTree.Count == 0)
-				return false;
-			return Header.HashMerkleRoot == vMerkleTree.Last();
+			return Header.HashMerkleRoot == GetMerkleRoot().Hash;
 		}
 
 		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height)
@@ -420,6 +399,16 @@ namespace NBitcoin
 				blk.AddTransaction(formatter.Parse((JObject)tx));
 			}
 			return blk;
+		}
+
+		public MerkleBlock Filter(params uint256[] txIds)
+		{
+			return new MerkleBlock(this, txIds);
+		}
+
+		public MerkleBlock Filter(BloomFilter filter)
+		{
+			return new MerkleBlock(this, filter);
 		}
 	}
 }

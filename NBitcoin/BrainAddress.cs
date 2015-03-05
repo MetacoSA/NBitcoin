@@ -39,8 +39,6 @@ namespace NBitcoin
 			var block = await blockRepository.GetBlockAsync(header.HashBlock).ConfigureAwait(false);
 			if(block == null || block.GetHash() != header.HashBlock)
 				throw new InvalidBrainAddressException("This block does not exists");
-			if(block.Transactions.Count <= txIndex)
-				throw new InvalidBrainAddressException("The transaction index is out of the block");
 			var transaction = block.Transactions[txIndex];
 			if(transaction.Outputs.Count <= txOutIndex)
 				throw new InvalidBrainAddressException("The TxOut index is out of the transaction");
@@ -82,6 +80,8 @@ namespace NBitcoin
 
 			var infoReader = info.ToReader();
 			var version = infoReader.Read();
+			if(!version)
+				throw new InvalidBrainAddressException("Invalid version number");
 			var blockHeight = infoReader.ReadUInt(22);
 
 			var header = chain.GetBlock((int)blockHeight);
@@ -92,18 +92,9 @@ namespace NBitcoin
 				throw new InvalidBrainAddressException("This block does not exists");
 
 			var txIndex = infoReader.ReadUInt(BitCount(block.Transactions.Count));
-			if(block.Transactions.Count <= txIndex)
-				throw new InvalidBrainAddressException("The transaction index is out of the block");
 			var transaction = block.Transactions[(int)txIndex];
 			var txOutIndex = infoReader.ReadUInt(BitCount(block.Transactions[(int)txIndex].Outputs.Count));
-			if(transaction.Outputs.Count <= txOutIndex)
-				throw new InvalidBrainAddressException("The TxOut index is out of the transaction");
-
-			var bytes = info.ToBytes();
-			var hashed = bytes.Concat(header.HashBlock.ToBytes()).ToArray();
-			BitReader expectedChecksum = new BitReader(Hashes.SHA256(hashed), ChecksumBitCount);
-			if(!expectedChecksum.ToBitArray().OfType<bool>().SequenceEqual(checksum.ToBitArray().OfType<bool>()))
-				throw new InvalidBrainAddressException("Invalid checksum");
+			AssertChecksum(checksum, info, header);
 
 			return new BrainAddress()
 			{
@@ -114,6 +105,58 @@ namespace NBitcoin
 				Checksum = checksum.ToBitArray(),
 				Output = transaction.Outputs[txOutIndex]
 			};
+		}
+
+		public static BrainAddress Fetch(
+											  ChainBase chain,
+											  Wordlist wordList,
+											  string sentence,
+											  Transaction transaction,
+											  MerkleBlock merkleBlock)
+		{
+			var reader = new BitReader(wordList.GetIndices(sentence));
+			var checksum = new BitWriter();
+			var info = new BitWriter();
+			UnBlendChecksum(reader, info, checksum);
+			var infoReader = info.ToReader();
+			var version = infoReader.Read();
+			if(!version)
+				throw new InvalidBrainAddressException("Invalid version number");
+			var blockHeight = infoReader.ReadUInt(22);
+			var header = chain.GetBlock((int)blockHeight);
+			if(header == null)
+				throw new InvalidBrainAddressException("This block does not exists");
+			if(header.HashBlock != merkleBlock.Header.GetHash())
+				throw new InvalidBrainAddressException("The provided merkleblock do not match the block of the sentence");
+			if(!merkleBlock.PartialMerkleTree.Check(header.Header.HashMerkleRoot))
+				throw new InvalidBrainAddressException("Invalid partial merkle tree");
+
+			var txIndex = infoReader.ReadUInt(BitCount((int)merkleBlock.PartialMerkleTree.TransactionCount));
+			var txIds = merkleBlock.PartialMerkleTree.GetMatchedTransactions();
+			if(!txIds.Contains(transaction.GetHash()))
+				throw new InvalidBrainAddressException("The transaction do not appear in the block");
+			var txOutIndex = infoReader.ReadUInt(BitCount(transaction.Outputs.Count));
+
+			AssertChecksum(checksum, info, header);
+
+			return new BrainAddress()
+			{
+				BlockHeight = (int)blockHeight,
+				OutputIndex = (int)txOutIndex,
+				TransactionIndex = (int)txIndex,
+				Indices = reader.ToWriter().ToIntegers(),
+				Checksum = checksum.ToBitArray(),
+				Output = transaction.Outputs[txOutIndex]
+			};
+		}
+
+		private static void AssertChecksum(BitWriter checksum, BitWriter info, ChainedBlock header)
+		{
+			var bytes = info.ToBytes();
+			var hashed = bytes.Concat(header.HashBlock.ToBytes()).ToArray();
+			BitReader expectedChecksum = new BitReader(Hashes.SHA256(hashed), ChecksumBitCount);
+			if(!expectedChecksum.ToBitArray().OfType<bool>().SequenceEqual(checksum.ToBitArray().OfType<bool>()))
+				throw new InvalidBrainAddressException("Invalid checksum");
 		}
 
 		const int ChecksumBitCount = 16;

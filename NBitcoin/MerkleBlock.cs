@@ -22,24 +22,19 @@ namespace NBitcoin
 				header = value;
 			}
 		}
-		PartialMerkleTree txn;
+		PartialMerkleTree _PartialMerkleTree;
 
-		public PartialMerkleTree Txn
+		public PartialMerkleTree PartialMerkleTree
 		{
 			get
 			{
-				return txn;
+				return _PartialMerkleTree;
 			}
 			set
 			{
-				txn = value;
+				_PartialMerkleTree = value;
 			}
 		}
-
-
-		// Public only for unit testing and relay testing
-		// (not relayed)
-		public List<Tuple<uint, uint256>> vMatchedTxn = new List<Tuple<uint, uint256>>();
 
 		// Create from a CBlock, filtering transactions according to filter
 		// Note that this will call IsRelevantAndUpdate on the filter for each transaction,
@@ -55,17 +50,26 @@ namespace NBitcoin
 			for(uint i = 0 ; i < block.Transactions.Count ; i++)
 			{
 				uint256 hash = block.Transactions[(int)i].GetHash();
-				if(filter.IsRelevantAndUpdate(block.Transactions[(int)i]))
-				{
-					vMatch.Add(true);
-					vMatchedTxn.Add(Tuple.Create(i, hash));
-				}
-				else
-					vMatch.Add(false);
+				vMatch.Add(filter.IsRelevantAndUpdate(block.Transactions[(int)i]));
 				vHashes.Add(hash);
 			}
 
-			txn = new PartialMerkleTree(vHashes.ToArray(), vMatch.ToArray());
+			_PartialMerkleTree = new PartialMerkleTree(vHashes.ToArray(), vMatch.ToArray());
+		}
+
+		public MerkleBlock(Block block, uint256[] txIds)
+		{
+			header = block.Header;
+
+			List<bool> vMatch = new List<bool>();
+			List<uint256> vHashes = new List<uint256>();
+			for(int i = 0 ; i < block.Transactions.Count ; i++)
+			{
+				var hash = block.Transactions[i].GetHash();
+				vHashes.Add(hash);
+				vMatch.Add(txIds.Contains(hash));
+			}
+			_PartialMerkleTree = new PartialMerkleTree(vHashes.ToArray(), vMatch.ToArray());
 		}
 
 		#region IBitcoinSerializable Members
@@ -73,7 +77,7 @@ namespace NBitcoin
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref header);
-			stream.ReadWrite(ref txn);
+			stream.ReadWrite(ref _PartialMerkleTree);
 		}
 
 		#endregion

@@ -91,6 +91,7 @@
     <Compile Include="ISecret.cs" />
     <Compile Include="ITransactionRepository.cs" />
     <Compile Include="LockTime.cs" />
+    <Compile Include="MerkleNode.cs" />
     <Compile Include="NoSqlBlockRepository.cs" />
     <Compile Include="NoSqlTransactionRepository.cs" />
     <Compile Include="ObjectStream.cs" />
