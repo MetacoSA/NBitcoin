@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NBitcoin
@@ -19,8 +19,8 @@ namespace NBitcoin
 
 		public BitReader(BitArray array)
 		{
-			this.array = new BitArray(array.Count);
-			for(int i = 0 ; i < array.Count ; i++)
+			this.array = new BitArray(array.Length);
+			for(int i = 0 ; i < array.Length ; i++)
 				this.array.Set(i, array.Get(i));
 		}
 

@@ -64,8 +64,8 @@ namespace NBitcoin
 			}
 			else
 			{
-				vBytes = new byte[(_Flags.Count + 7) / 8];
-				for(int p = 0 ; p < _Flags.Count ; p++)
+				vBytes = new byte[(_Flags.Length + 7) / 8];
+				for(int p = 0 ; p < _Flags.Length ; p++)
 					vBytes[p / 8] |= (byte)(ToByte(_Flags.Get(p)) << (p % 8));
 				stream.ReadWriteAsVarString(ref vBytes);
 			}

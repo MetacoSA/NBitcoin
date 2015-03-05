@@ -14,10 +14,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NBitcoin.Protocol;
+using System.Runtime.ExceptionServices;
 #if !PORTABLE
 using System.Security.Cryptography;
 using System.Net.Sockets;
-using System.Runtime.ExceptionServices;
 #endif
 
 namespace NBitcoin
