@@ -7,7 +7,7 @@ using Xunit;
 
 namespace NBitcoin.Tests
 {
-	public class brainaddress_tests
+	public class MnemonicReference_tests
 	{
 		[Fact]
 		public void CanCreateBrainAddress()
@@ -30,8 +30,8 @@ namespace NBitcoin.Tests
 			chain.SetTip(b.Header);
 
 
-			BrainAddress address = BrainAddress.FetchAsync(chain, repo, 0, 1, 1).Result;
-			BrainAddress address2 = BrainAddress.FetchAsync(chain, repo, Wordlist.English, address.ToString(Wordlist.English)).Result;
+			MnemonicReference address = MnemonicReference.FetchAsync(chain, repo, 0, 1, 1).Result;
+			MnemonicReference address2 = MnemonicReference.FetchAsync(chain, repo, Wordlist.English, address.ToString(Wordlist.English)).Result;
 			Assert.Equal(address.ToString(), address2.ToString());
 		}
 		[Fact]
@@ -110,14 +110,14 @@ namespace NBitcoin.Tests
 			repo.PutAsync(block).Wait();
 
 
-			var address = BrainAddress.FetchAsync(chain, repo, blockHeight, txIndex, txOutIndex).Result;
-			var address2 = BrainAddress.FetchAsync(chain, repo, Wordlist.English, address.ToString()).Result;
+			var address = MnemonicReference.FetchAsync(chain, repo, blockHeight, txIndex, txOutIndex).Result;
+			var address2 = MnemonicReference.FetchAsync(chain, repo, Wordlist.English, address.ToString()).Result;
 			Assert.Equal(address.ToString(), address2.ToString());
 			Assert.Equal(Money.Coins(1.0m), address.Output.Value);
 			Assert.Equal(Money.Coins(1.0m), address2.Output.Value);
 
 			var merkleBlock = block.Filter(relevantTx.GetHash());
-			var address3 = BrainAddress.Fetch(chain, Wordlist.English, address.ToString(), relevantTx, merkleBlock);
+			var address3 = MnemonicReference.Fetch(chain, Wordlist.English, address.ToString(), relevantTx, merkleBlock);
 			Assert.Equal(address.ToString(), address3.ToString());
 		}
 	}

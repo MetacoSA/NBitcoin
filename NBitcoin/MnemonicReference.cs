@@ -17,7 +17,7 @@ namespace NBitcoin
 		}
 	}
 
-	public class BrainAddress
+	public class MnemonicReference
 	{
 		/// <summary>
 		/// 
@@ -29,7 +29,7 @@ namespace NBitcoin
 		/// <param name="txOutIndex"></param>
 		/// <exception cref="NBitcoin.InvalidBrainAddressException"></exception>
 		/// <returns></returns>
-		public static async Task<BrainAddress> FetchAsync(ChainBase chain,
+		public static async Task<MnemonicReference> FetchAsync(ChainBase chain,
 											  IBlockRepository blockRepository,
 											  int blockHeight, int txIndex, int txOutIndex)
 		{
@@ -40,49 +40,89 @@ namespace NBitcoin
 			if(block == null || block.GetHash() != header.HashBlock)
 				throw new InvalidBrainAddressException("This block does not exists");
 			var transaction = block.Transactions[txIndex];
-			if(transaction.Outputs.Count <= txOutIndex)
-				throw new InvalidBrainAddressException("The TxOut index is out of the transaction");
+			if(txOutIndex >= transaction.Outputs.Count)
+				throw new InvalidBrainAddressException("The specified txout index is outside of the transaction bounds");
+			var txOut = transaction.Outputs[txOutIndex];
 
-			BitWriter info = new BitWriter();
-			info.Write(true); //Version
-			info.Write((uint)blockHeight, 22);
-			info.Write((uint)txIndex, BitCount(block.Transactions.Count));
-			info.Write((uint)txOutIndex, BitCount(transaction.Outputs.Count));
+			BitWriter rawAddress = new BitWriter();
+			WriteBlockHeight(rawAddress, blockHeight);
+			rawAddress.Write((uint)txIndex, BitCount(block.Transactions.Count));
+			rawAddress.Write((uint)txOutIndex, BitCount(transaction.Outputs.Count));
 
-			var bytes = info.ToBytes();
-			var hashed = bytes.Concat(header.HashBlock.ToBytes()).ToArray();
-			var checksum = Hashes.SHA256(hashed);
-			BitReader checksumReader = new BitReader(checksum, ChecksumBitCount);
+			var checksumSize = RoundTo(rawAddress.Count, 11) - (rawAddress.Count + 1);
+			while(checksumSize < ChecksumBitCount)
+				checksumSize += 11;
 
-			BitWriter result = new BitWriter();
-			BlendChecksum(result, info.ToReader(), checksumReader);
+			var checksum = CalculateChecksum(block.GetHash(), txIndex, txOutIndex, txOut.ScriptPubKey);
 
-			return new BrainAddress()
+			var finalAddress = new BitWriter();
+			BitReader checksumReader = new BitReader(checksum.ToBytes(), checksumSize);
+			rawAddress.Write(checksumReader);
+			BlendChecksum(finalAddress, rawAddress.ToReader());
+
+			return new MnemonicReference()
 			{
 				BlockHeight = blockHeight,
 				TransactionIndex = txIndex,
 				OutputIndex = txOutIndex,
 				Checksum = checksumReader.ToBitArray(),
-				Indices = result.ToIntegers(),
+				Indices = finalAddress.ToIntegers(),
 				Output = transaction.Outputs[txOutIndex]
 			};
 		}
 
-		public static async Task<BrainAddress> FetchAsync(ChainBase chain,
+		private static void Xor(BitWriter result, BitReader a, int count, BitReader b)
+		{
+			while(count != 0)
+			{
+				if(b.Position == b.Count)
+					b.Position = 0;
+				result.Write(a.Read() ^ b.Read());
+				count--;
+			}
+		}
+
+		private static uint256 CalculateChecksum(uint256 blockId, int txIndex, int txOutIndex, Script scriptPubKey)
+		{
+			//All in little endian
+			var hashed =
+				blockId
+				.ToBytes()
+				.Concat(Utils.ToBytes((uint)txIndex, true))
+				.Concat(Utils.ToBytes((uint)txOutIndex, true))
+				.Concat(scriptPubKey.ToBytes(true))
+				.ToArray();
+			return Hashes.Hash256(hashed);
+		}
+
+		private static void WriteBlockHeight(BitWriter info, int blockHeight)
+		{
+			if(blockHeight <= 1048575)
+			{
+				info.Write(false);
+				info.Write((uint)blockHeight, 20);
+			}
+			else
+			{
+				info.Write(true);
+				info.Write((uint)blockHeight, 22);
+			}
+		}
+		private static int ReadBlockHeight(BitReader info)
+		{
+			return (int)(info.Read() ? info.ReadUInt(22) : info.ReadUInt(20));
+		}
+
+		public static async Task<MnemonicReference> FetchAsync(ChainBase chain,
 											  IBlockRepository blockRepository,
 											  Wordlist wordList,
 											  string sentence)
 		{
 			var reader = new BitReader(wordList.GetIndices(sentence));
-			var checksum = new BitWriter();
 			var info = new BitWriter();
-			UnBlendChecksum(reader, info, checksum);
-
+			UnBlendChecksum(reader, info);
 			var infoReader = info.ToReader();
-			var version = infoReader.Read();
-			if(!version)
-				throw new InvalidBrainAddressException("Invalid version number");
-			var blockHeight = infoReader.ReadUInt(22);
+			var blockHeight = ReadBlockHeight(infoReader);
 
 			var header = chain.GetBlock((int)blockHeight);
 			if(header == null)
@@ -94,9 +134,12 @@ namespace NBitcoin
 			var txIndex = infoReader.ReadUInt(BitCount(block.Transactions.Count));
 			var transaction = block.Transactions[(int)txIndex];
 			var txOutIndex = infoReader.ReadUInt(BitCount(block.Transactions[(int)txIndex].Outputs.Count));
-			AssertChecksum(checksum, info, header);
+			if(txOutIndex >= transaction.Outputs.Count)
+				throw new InvalidBrainAddressException("The specified txout index is outside of the transaction bounds");
+			var txOut = transaction.Outputs[txOutIndex];
+			var checksum = AssertChecksum(infoReader, block.GetHash(),txIndex,txOutIndex, txOut.ScriptPubKey);
 
-			return new BrainAddress()
+			return new MnemonicReference()
 			{
 				BlockHeight = (int)blockHeight,
 				OutputIndex = (int)txOutIndex,
@@ -107,7 +150,19 @@ namespace NBitcoin
 			};
 		}
 
-		public static BrainAddress Fetch(
+		private static BitReader AssertChecksum(BitReader rawAddress, uint256 blockId, uint txIndex, uint txOutIndex, Script scriptPubKey)
+		{
+			var expectedChecksum = CalculateChecksum(blockId, (int)txIndex, (int)txOutIndex, scriptPubKey);
+			var expectChecksumBits = new BitReader(expectedChecksum.ToBytes(), rawAddress.Count - rawAddress.Position);
+			if(!rawAddress.Same(expectChecksumBits))
+				throw new InvalidBrainAddressException("Invalid checksum");
+			expectChecksumBits.Position = 0;
+			return expectChecksumBits;
+		}
+
+
+
+		public static MnemonicReference Fetch(
 											  ChainBase chain,
 											  Wordlist wordList,
 											  string sentence,
@@ -115,14 +170,10 @@ namespace NBitcoin
 											  MerkleBlock merkleBlock)
 		{
 			var reader = new BitReader(wordList.GetIndices(sentence));
-			var checksum = new BitWriter();
 			var info = new BitWriter();
-			UnBlendChecksum(reader, info, checksum);
+			UnBlendChecksum(reader, info);
 			var infoReader = info.ToReader();
-			var version = infoReader.Read();
-			if(!version)
-				throw new InvalidBrainAddressException("Invalid version number");
-			var blockHeight = infoReader.ReadUInt(22);
+			var blockHeight = ReadBlockHeight(infoReader);
 			var header = chain.GetBlock((int)blockHeight);
 			if(header == null)
 				throw new InvalidBrainAddressException("This block does not exists");
@@ -139,10 +190,11 @@ namespace NBitcoin
 			if(txLeaf == null || txLeaf.Hash != transaction.GetHash())
 				throw new InvalidBrainAddressException("The transaction do not appear in the block");
 			var txOutIndex = infoReader.ReadUInt(BitCount(transaction.Outputs.Count));
-
-			AssertChecksum(checksum, info, header);
-
-			return new BrainAddress()
+			if(txOutIndex >= transaction.Outputs.Count)
+				throw new InvalidBrainAddressException("The specified txout index is outside of the transaction bounds");
+			var txOut = transaction.Outputs[txOutIndex];
+			var checksum = AssertChecksum(infoReader, header.Header.GetHash(), txIndex, txOutIndex, txOut.ScriptPubKey);
+			return new MnemonicReference()
 			{
 				BlockHeight = (int)blockHeight,
 				OutputIndex = (int)txOutIndex,
@@ -162,40 +214,34 @@ namespace NBitcoin
 				throw new InvalidBrainAddressException("Invalid checksum");
 		}
 
-		const int ChecksumBitCount = 16;
+		const int ChecksumBitCount = 20;
 
 
-		static void UnBlendChecksum(BitReader reader, BitWriter info, BitWriter checksum)
+		static void UnBlendChecksum(BitReader finalAddress, BitWriter rawAddress)
 		{
-			int wordCount = RoundTo(reader.Count, 11) / 11;
-			int checksumBitPerWord = ChecksumBitCount / wordCount;
-
-			for(int i = 0 ; i < wordCount - 1 ; i++)
-			{
-				checksum.Write(reader, checksumBitPerWord);
-				info.Write(reader, 11 - checksumBitPerWord);
-			}
-			checksum.Write(reader, ChecksumBitCount - checksum.Count);
-			info.Write(reader);
-			while(reader.Count != reader.Position)
-				if(reader.Read())
-					throw new InvalidBrainAddressException("Invalid checksum");
+			finalAddress.Position = finalAddress.Count - 1 - ChecksumBitCount;
+			BitWriter encryptionKey = new BitWriter();
+			encryptionKey.Write(finalAddress, ChecksumBitCount);
+			if(finalAddress.Read())
+				throw new InvalidBrainAddressException("Invalid version bit");
+			finalAddress.Position = 0;
+			Xor(rawAddress, finalAddress, finalAddress.Count - ChecksumBitCount - 1, encryptionKey.ToReader());
+			rawAddress.Write(encryptionKey.ToReader());
 		}
 
-		static void BlendChecksum(BitWriter result, BitReader info, BitReader checksum)
+		static void BlendChecksum(BitWriter finalAddress, BitReader rawAddress)
 		{
-			int wordCount = RoundTo(checksum.Count + info.Count, 11) / 11;
-			int checksumBitPerWord = checksum.Count / wordCount;
+			rawAddress.Position = rawAddress.Count - ChecksumBitCount;
 
-			for(int i = 0 ; i < wordCount - 1 ; i++)
-			{
-				result.Write(checksum, checksumBitPerWord);
-				result.Write(info, 11 - checksumBitPerWord);
-			}
-			result.Write(checksum);
-			result.Write(info);
-			while(result.Count % 11 != 0)
-				result.Write(false);
+			var encryptionKey = new BitWriter();
+			encryptionKey.Write(rawAddress);
+
+			rawAddress.Position = 0;
+
+			Xor(finalAddress, rawAddress, rawAddress.Count - ChecksumBitCount, encryptionKey.ToReader());
+
+			finalAddress.Write(encryptionKey.ToReader());
+			finalAddress.Write(false); //version
 		}
 
 		static int RoundTo(int value, int roundTo)
@@ -205,10 +251,11 @@ namespace NBitcoin
 				result += roundTo;
 			return result;
 		}
-
-
 		static int BitCount(int value)
 		{
+			value = Math.Max(0, value);
+			if(value == 1)
+				value = 0; //So encoding 1 possibility takes 0 bit
 			int bitCount = 0;
 			while(value != 0)
 			{
@@ -218,7 +265,7 @@ namespace NBitcoin
 			return bitCount;
 		}
 
-		private BrainAddress()
+		private MnemonicReference()
 		{
 
 		}

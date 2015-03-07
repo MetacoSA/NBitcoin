@@ -74,7 +74,7 @@
     </Compile>
     <Compile Include="BitcoinCore\CachedBlockProvider.cs" />
     <Compile Include="BitWriter.cs" />
-    <Compile Include="BrainAddress.cs" />
+    <Compile Include="MnemonicReference.cs" />
     <Compile Include="CachedNoSqlRepository.cs" />
     <Compile Include="CachedTransactionRepository.cs" />
     <Compile Include="Coin.cs" />

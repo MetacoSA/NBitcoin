@@ -77,6 +77,23 @@ namespace NBitcoin
 			writer.Write(array);
 			return writer;
 		}
+
+		public void Consume(int count)
+		{
+			Position += count;
+		}
+
+		public bool Same(BitReader b)
+		{
+			while(Position != Count && b.Position != b.Count)
+			{
+				var valuea = Read();
+				var valueb = b.Read();
+				if(valuea != valueb)
+					return false;
+			}
+			return true;
+		}
 	}
 	class BitWriter
 	{
