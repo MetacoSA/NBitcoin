@@ -94,6 +94,18 @@ namespace NBitcoin
 			}
 			return true;
 		}
+
+		public override string ToString()
+		{
+			StringBuilder builder = new StringBuilder(array.Length);
+			for(int i = 0 ; i < Count ; i++)
+			{
+				if(i != 0 && i % 8 == 0)
+					builder.Append(' ');
+				builder.Append(array.Get(i) ? "1" : "0");
+			}
+			return builder.ToString();
+		}
 	}
 	class BitWriter
 	{
@@ -252,6 +264,18 @@ namespace NBitcoin
 		public BitReader ToReader()
 		{
 			return new BitReader(ToBitArray());
+		}
+
+		public override string ToString()
+		{
+			StringBuilder builder = new StringBuilder(values.Count);
+			for(int i = 0 ; i < Count ; i++)
+			{
+				if(i != 0 && i % 8 == 0)
+					builder.Append(' ');
+				builder.Append(values[i] ? "1" : "0");
+			}
+			return builder.ToString();
 		}
 	}
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.Protocol;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,6 +34,30 @@ namespace NBitcoin.Tests
 			MnemonicReference address = MnemonicReference.CreateAsync(chain, repo, 0, 1, 1).Result;
 			MnemonicReference address2 = MnemonicReference.ParseAsync(chain, repo, Wordlist.English, address.ToString(Wordlist.English)).Result;
 			Assert.Equal(address.ToString(), address2.ToString());
+
+
+			chain = new ConcurrentChain(Network.Main);
+			var block = Network.Main.GetGenesis();
+			var mnemo = MnemonicReference.Create(chain, block.Transactions[0], block, 0);
+
+		}
+		[Fact]
+		public void CanCreateBrainAddressFromNetwork()
+		{
+			using(var node = Node.ConnectToLocal(Network.Main))
+			{
+				node.VersionHandshake();
+				using(var listener = node.CreateListener())
+				{
+					node.SendMessage(new GetDataPayload(new InventoryVector(InventoryType.MSG_BLOCK, new uint256(" 00000000000000001790ced14940f5dc4a61cec2547b78f6dbfc1ebcbf1192d9 "))));
+					var payload = listener.ReceivePayload<BlockPayload>();
+					var block= payload.Object;
+					var tx = block.Transactions.First(t => t.GetHash() == new uint256("4a85f6cc29aca334c1a78c5db74b492b741e67958aee59ff827c4c0862f4fbc1"));
+
+					var chain = node.GetChain();
+					var result = MnemonicReference.Create(chain, tx, block, 1);
+				}
+			}
 		}
 		[Fact]
 		public void CanCreateBrainAddress2()

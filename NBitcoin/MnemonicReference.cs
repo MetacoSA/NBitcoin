@@ -293,15 +293,14 @@ namespace NBitcoin
 				result += roundTo;
 			return result;
 		}
-		static int BitCount(int value)
+		static int BitCount(int possibilities)
 		{
-			value = Math.Max(0, value);
-			if(value == 1)
-				value = 0; //So encoding 1 possibility takes 0 bit
+			possibilities = Math.Max(0, possibilities);
+			possibilities--;
 			int bitCount = 0;
-			while(value != 0)
+			while(possibilities != 0)
 			{
-				value = value >> 1;
+				possibilities = possibilities >> 1;
 				bitCount++;
 			}
 			return bitCount;
