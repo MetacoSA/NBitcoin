@@ -25,13 +25,13 @@ namespace NBitcoin.Tests
 					new TxOut(Money.Zero,BitcoinAddress.Create("15sYbVpRh6dyWycZMwPdxJWD4xbfxReeHe"))
 				}
 			});
-
+			b.UpdateMerkleRoot();
 			repo.PutAsync(b).Wait();
 			chain.SetTip(b.Header);
 
 
-			MnemonicReference address = MnemonicReference.FetchAsync(chain, repo, 0, 1, 1).Result;
-			MnemonicReference address2 = MnemonicReference.FetchAsync(chain, repo, Wordlist.English, address.ToString(Wordlist.English)).Result;
+			MnemonicReference address = MnemonicReference.CreateAsync(chain, repo, 0, 1, 1).Result;
+			MnemonicReference address2 = MnemonicReference.ParseAsync(chain, repo, Wordlist.English, address.ToString(Wordlist.English)).Result;
 			Assert.Equal(address.ToString(), address2.ToString());
 		}
 		[Fact]
@@ -42,19 +42,19 @@ namespace NBitcoin.Tests
 
 		class MockChain : ChainBase
 		{
-			public void Return(BlockHeader header)
+			public void Return(BlockHeader header, int height)
 			{
-				_Return = header;
+				_Return = new ChainedBlock(header, height);
 			}
-			BlockHeader _Return;
+			ChainedBlock _Return;
 			public override ChainedBlock GetBlock(uint256 id)
 			{
-				throw new NotImplementedException();
+				return _Return;
 			}
 
 			public override ChainedBlock GetBlock(int height)
 			{
-				return new ChainedBlock(_Return, height);
+				return _Return;
 			}
 
 			public override ChainedBlock Tip
@@ -105,19 +105,19 @@ namespace NBitcoin.Tests
 				}
 			}
 			block.UpdateMerkleRoot();
-			chain.Return(block.Header);
+			chain.Return(block.Header, blockHeight);
 
 			repo.PutAsync(block).Wait();
 
 
-			var address = MnemonicReference.FetchAsync(chain, repo, blockHeight, txIndex, txOutIndex).Result;
-			var address2 = MnemonicReference.FetchAsync(chain, repo, Wordlist.English, address.ToString()).Result;
+			var address = MnemonicReference.CreateAsync(chain, repo, blockHeight, txIndex, txOutIndex).Result;
+			var address2 = MnemonicReference.ParseAsync(chain, repo, Wordlist.English, address.ToString()).Result;
 			Assert.Equal(address.ToString(), address2.ToString());
 			Assert.Equal(Money.Coins(1.0m), address.Output.Value);
 			Assert.Equal(Money.Coins(1.0m), address2.Output.Value);
 
 			var merkleBlock = block.Filter(relevantTx.GetHash());
-			var address3 = MnemonicReference.Fetch(chain, Wordlist.English, address.ToString(), relevantTx, merkleBlock);
+			var address3 = MnemonicReference.Parse(chain, Wordlist.English, address.ToString(), relevantTx, merkleBlock);
 			Assert.Equal(address.ToString(), address3.ToString());
 		}
 	}
