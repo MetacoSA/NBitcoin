@@ -220,30 +220,41 @@ namespace NBitcoin.Payment
 
 		public async Task<PaymentACK> SubmitPaymentAsync(Uri paymentUrl, HttpClient httpClient)
 		{
+			bool own = false;
 			if(paymentUrl == null)
 				paymentUrl = ImplicitPaymentUrl;
 			if(paymentUrl == null)
 				throw new ArgumentNullException("paymentUrl");
 			if(httpClient == null)
-				httpClient = new HttpClient();
-
-
-			var request = new HttpRequestMessage(HttpMethod.Post, paymentUrl.OriginalString);
-			request.Headers.Clear();
-			request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(PaymentACK.MediaType));
-			request.Content = new ByteArrayContent(this.ToBytes());
-			request.Content.Headers.ContentType = new MediaTypeHeaderValue(PaymentMessage.MediaType);
-
-			var result = await httpClient.SendAsync(request);
-			if(!result.IsSuccessStatusCode)
-				throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
-
-			if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentACK.MediaType, StringComparison.InvariantCultureIgnoreCase))
 			{
-				throw new WebException("Invalid contenttype received, expecting " + PaymentACK.MediaType + ", but got " + result.Content.Headers.ContentType);
+				httpClient = new HttpClient();
+				own = true;
 			}
-			var response = await result.Content.ReadAsStreamAsync();
-			return PaymentACK.Load(response);
+
+			try
+			{
+				var request = new HttpRequestMessage(HttpMethod.Post, paymentUrl.OriginalString);
+				request.Headers.Clear();
+				request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(PaymentACK.MediaType));
+				request.Content = new ByteArrayContent(this.ToBytes());
+				request.Content.Headers.ContentType = new MediaTypeHeaderValue(PaymentMessage.MediaType);
+
+				var result = await httpClient.SendAsync(request).ConfigureAwait(false);
+				if(!result.IsSuccessStatusCode)
+					throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
+
+				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentACK.MediaType, StringComparison.InvariantCultureIgnoreCase))
+				{
+					throw new WebException("Invalid contenttype received, expecting " + PaymentACK.MediaType + ", but got " + result.Content.Headers.ContentType);
+				}
+				var response = await result.Content.ReadAsStreamAsync().ConfigureAwait(false);
+				return PaymentACK.Load(response);
+			}
+			finally
+			{
+				if(own)
+					httpClient.Dispose();
+			}
 		}
 	}
 }
