@@ -24,13 +24,6 @@ namespace NBitcoin
 				this.array.Set(i, array.Get(i));
 		}
 
-		public BitReader(int[] indices)
-		{
-			BitWriter writer = new BitWriter();
-			writer.Write(indices);
-			array = writer.ToBitArray();
-		}
-
 		public bool Read()
 		{
 			var v = array.Get(Position);
@@ -162,25 +155,6 @@ namespace NBitcoin
 		}
 
 
-		public void Write(int[] indices)
-		{
-			Write(indices, indices.Length * 11);
-		}
-		public void Write(int[] indices, int bitCount)
-		{
-			foreach(var i in indices)
-			{
-				for(int p = 0 ; p < 11 ; p++)
-				{
-					if(bitCount <= 0)
-						return;
-					var v = (i & (1 << (10 - p))) != 0;
-					Write(v);
-					bitCount--;
-				}
-			}
-		}
-
 		public BitArray ToBitArray()
 		{
 			return new BitArray(values.ToArray());
@@ -242,9 +216,13 @@ namespace NBitcoin
 
 		public void Write(BitArray bitArray)
 		{
-			foreach(bool bit in bitArray)
+			Write(bitArray, bitArray.Length);
+		}
+		public void Write(BitArray bitArray, int bitCount)
+		{
+			for(int i = 0 ; i < bitCount ; i++)
 			{
-				Write(bit);
+				Write(bitArray.Get(i));
 			}
 		}
 

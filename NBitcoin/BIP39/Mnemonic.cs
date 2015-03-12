@@ -105,7 +105,8 @@ namespace NBitcoin
 					int ent = entArray[i];
 
 					BitWriter writer = new BitWriter();
-					writer.Write(_Indices, ent);
+					var bits = Wordlist.ToBits(_Indices);
+					writer.Write(bits, ent);
 					var entropy = writer.ToBytes();
 					var checksum = Hashes.SHA256(entropy);
 

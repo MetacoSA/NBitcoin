@@ -212,7 +212,7 @@ namespace NBitcoin
 			int w = indices.Length;
 
 			//Convert mnemonic code into finalAddress following BIP-0039
-			var finalAddress = new BitReader(indices).ToBitArray();
+			var finalAddress = Wordlist.ToBits(indices);
 
 			var rawAddress = DecryptFinalAddress(finalAddress);
 			int blockHeight = 0;
