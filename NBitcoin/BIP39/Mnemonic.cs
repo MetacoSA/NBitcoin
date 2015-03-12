@@ -41,7 +41,7 @@ namespace NBitcoin
 			}
 			_Words = words;
 			_WordList = wordlist;
-			_Indices = wordlist.GetIndices(words);
+			_Indices = wordlist.ToIndices(words);
 		}
 
 		/// <summary>

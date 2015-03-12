@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -294,7 +295,7 @@ namespace NBitcoin
 
 		public string[] Split(string mnemonic)
 		{
-			return mnemonic.Split(new char[]{Space}, StringSplitOptions.RemoveEmptyEntries);
+			return mnemonic.Split(new char[] { Space }, StringSplitOptions.RemoveEmptyEntries);
 		}
 
 		public override string ToString()
@@ -313,10 +314,10 @@ namespace NBitcoin
 		public string GetSentence(int[] indices)
 		{
 			return String.Join(Space.ToString(), GetWords(indices));
-					
+
 		}
 
-		public int[] GetIndices(string[] words)
+		public int[] ToIndices(string[] words)
 		{
 			var indices = new int[words.Length];
 			for(int i = 0 ; i < words.Length ; i++)
@@ -332,9 +333,51 @@ namespace NBitcoin
 			return indices;
 		}
 
-		public int[] GetIndices(string sentence)
+		public int[] ToIndices(string sentence)
 		{
-			return GetIndices(Split(sentence));
+			return ToIndices(Split(sentence));
+		}
+
+		public static BitArray ToBits(int[] values)
+		{
+			if(values.Any(v => v >= 2048))
+				throw new ArgumentException("values should be between 0 and 2048", "values");
+			BitArray result = new BitArray(values.Length * 11);
+			int i = 0;
+			foreach(var val in values)
+			{
+				for(int p = 0 ; p < 11 ; p++)
+				{
+					var v = (val & (1 << (10 - p))) != 0;
+					result.Set(i, v);
+					i++;
+				}
+			}
+			return result;
+		}
+		public static int[] ToIntegers(BitArray bits)
+		{
+			return
+				bits
+				.OfType<bool>()
+				.Select((v, i) => new
+				{
+					Group = i / 11,
+					Value = v ? 1 << (10 - (i % 11)) : 0
+				})
+				.GroupBy(_ => _.Group, _ => _.Value)
+				.Select(g => g.Sum())
+				.ToArray();
+		}
+
+		public BitArray ToBits(string sentence)
+		{
+			return ToBits(ToIndices(sentence));
+		}
+
+		public string[] GetWords(string sentence)
+		{
+			return ToIndices(sentence).Select(i => GetWordAtIndex(i)).ToArray();
 		}
 	}
 }

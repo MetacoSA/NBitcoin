@@ -49,19 +49,24 @@ namespace NBitcoin
 			Wordlist wordList,
 			string sentence)
 		{
-			var reader = new BitReader(wordList.GetIndices(sentence));
-			var info = new BitWriter();
-			UnBlendChecksum(reader, info);
-			var infoReader = info.ToReader();
-			var blockHeight = ReadBlockHeight(infoReader);
+			var w = wordList.GetWords(sentence).Length;
+			var finalAddress = wordList.ToBits(sentence);
+			var rawAddress = DecryptFinalAddress(finalAddress);
 
-			var header = chain.GetBlock((int)blockHeight);
+			int blockHeight;
+			int x = DecodeBlockHeight(rawAddress, out blockHeight);
+
+			var header = chain.GetBlock(blockHeight);
 			if(header == null)
 				throw new InvalidBrainAddressException("This block does not exists");
 			var block = await blockRepository.GetBlockAsync(header.HashBlock).ConfigureAwait(false);
 			if(block == null || block.GetHash() != header.HashBlock)
 				throw new InvalidBrainAddressException("This block does not exists");
-			var txIndex = infoReader.ReadUInt(BitCount(block.Transactions.Count));
+
+			int y1 = BitCount((int)block.Transactions.Count);
+			int y2 = 11 * w - 1 - x - c;
+			int y = Math.Min(y1, y2);
+			int txIndex = Decode(Substring(rawAddress, x, y));
 			if(txIndex >= block.Transactions.Count)
 				throw new InvalidBrainAddressException("The Transaction Index is out of the bound of the block");
 
@@ -121,34 +126,69 @@ namespace NBitcoin
 			var txOut = transaction.Outputs[txOutIndex];
 			var block = chain.GetBlock(blockId);
 
-			BitWriter rawAddress = new BitWriter();
-			WriteBlockHeight(rawAddress, blockHeight);
-			rawAddress.Write((uint)txIndex, BitCount((int)merkleBlock.PartialMerkleTree.TransactionCount));
-			rawAddress.Write((uint)txOutIndex, BitCount(transaction.Outputs.Count));
 
-			var checksumSize = RoundTo(rawAddress.Count, 11) - (rawAddress.Count + 1);
-			while(checksumSize < ChecksumBitCount)
-				checksumSize += 11;
+			BitArray encodedBlockHeight = EncodeBlockHeight(blockHeight);
+			int x = encodedBlockHeight.Length;
 
-			var checksum = CalculateChecksum(blockId, txIndex, txOutIndex, txOut.ScriptPubKey);
+			//ymin = ceiling(log(txIndex + 1, 2))
+			int ymin = BitCount(txIndex + 1);
+			//zmin = ceiling(log(outputIndex + 1, 2))
+			int zmin = BitCount(txOutIndex + 1);
 
-			var finalAddress = new BitWriter();
-			BitReader checksumReader = new BitReader(checksum.ToBytes(), checksumSize);
-			rawAddress.Write(checksumReader);
-			BlendChecksum(finalAddress, rawAddress.ToReader());
+			//w = ceiling((x + ymin + zmin + c + 1)/11)
+			int w = RoundTo(x + ymin + zmin + c + 1, 11) / 11;
+			int y = 0;
+			int z = 0;
+			for( ; ; w++)
+			{
+				int y1 = BitCount((int)merkleBlock.PartialMerkleTree.TransactionCount);
+				int y2 = 11 * w - 1 - x;
+				y = Math.Min(y1, y2);
+				if(ymin > y)
+					continue;
+				int z1 = BitCount(transaction.Outputs.Count);
+				int z2 = 11 * w - 1 - x - y - c;
+				z = Math.Min(z1, z2);
+				if(zmin > z)
+					continue;
+				break;
+			}
+
+			var cs = 11 * w - 1 - x - y - z;
+			var checksum = CalculateChecksum(blockId, txIndex, txOutIndex, txOut.ScriptPubKey, cs);
+
+			var rawAddress = Concat(encodedBlockHeight, Encode(txIndex, y), Encode(txOutIndex, z), checksum);
+
+			var finalAddress = EncryptRawAddress(rawAddress);
 
 			return new MnemonicReference()
 			{
 				BlockHeight = blockHeight,
 				TransactionIndex = txIndex,
 				OutputIndex = txOutIndex,
-				Checksum = checksumReader.ToBitArray(),
-				WordIndices = finalAddress.ToIntegers(),
+				Checksum = checksum,
+				WordIndices = Wordlist.ToIntegers(finalAddress),
 				Output = transaction.Outputs[txOutIndex],
 				Transaction = transaction,
 				BlockId = blockId
 			};
 		}
+
+
+		private static BitArray Concat(params BitArray[] arrays)
+		{
+			BitArray result = new BitArray(arrays.Select(a => a.Length).Sum());
+			int i = 0;
+			foreach(var v in arrays.SelectMany(a => a.OfType<bool>()))
+			{
+				result.Set(i, v);
+				i++;
+			}
+			return result;
+		}
+
+
+
 
 		public static MnemonicReference Parse
 			(ChainBase chain,
@@ -166,11 +206,18 @@ namespace NBitcoin
 			Transaction transaction,
 			MerkleBlock merkleBlock)
 		{
-			var reader = new BitReader(wordList.GetIndices(sentence));
-			var info = new BitWriter();
-			UnBlendChecksum(reader, info);
-			var infoReader = info.ToReader();
-			var blockHeight = ReadBlockHeight(infoReader);
+			var indices = wordList.ToIndices(sentence);
+
+			//Step1: Determine w = number of words in the mnemonic code 
+			int w = indices.Length;
+
+			//Convert mnemonic code into finalAddress following BIP-0039
+			var finalAddress = new BitReader(indices).ToBitArray();
+
+			var rawAddress = DecryptFinalAddress(finalAddress);
+			int blockHeight = 0;
+			var x = DecodeBlockHeight(rawAddress, out blockHeight);
+
 			var header = chain.GetBlock((int)blockHeight);
 			if(header == null)
 				throw new InvalidBrainAddressException("This block does not exists");
@@ -178,30 +225,81 @@ namespace NBitcoin
 				throw new InvalidBrainAddressException("The provided merkleblock do not match the block of the sentence");
 			var blockId = header.HashBlock;
 			MerkleNode root = merkleBlock.PartialMerkleTree.TryGetMerkleRoot();
-
 			if(root == null || root.Hash != header.Header.HashMerkleRoot)
 				throw new InvalidBrainAddressException("Invalid partial merkle tree");
 
-			var txIndex = infoReader.ReadUInt(BitCount((int)merkleBlock.PartialMerkleTree.TransactionCount));
+			int y1 = BitCount((int)merkleBlock.PartialMerkleTree.TransactionCount);
+			int y2 = 11 * w - 1 - x - c;
+			int y = Math.Min(y1, y2);
+			int txIndex = Decode(Substring(rawAddress, x, y));
+
 			var txLeaf = root.GetLeafs().Skip((int)txIndex).FirstOrDefault();
 			if(txLeaf == null || txLeaf.Hash != transaction.GetHash())
 				throw new InvalidBrainAddressException("The transaction do not appear in the block");
-			var txOutIndex = infoReader.ReadUInt(BitCount(transaction.Outputs.Count));
-			if(txOutIndex >= transaction.Outputs.Count)
+
+			int z1 = BitCount(transaction.Outputs.Count);
+			int z2 = 11 * w - 1 - x - y - c;
+			int z = Math.Min(z1, z2);
+			int outputIndex = Decode(Substring(rawAddress, x + y, z));
+
+			if(outputIndex >= transaction.Outputs.Count)
 				throw new InvalidBrainAddressException("The specified txout index is outside of the transaction bounds");
-			var txOut = transaction.Outputs[txOutIndex];
-			var checksum = AssertChecksum(infoReader, blockId, txIndex, txOutIndex, txOut.ScriptPubKey);
+			var txOut = transaction.Outputs[outputIndex];
+
+
+			var cs = 11 * w - 1 - x - y - z;
+			var actualChecksum = Substring(rawAddress, x + y + z, cs);
+			var expectedChecksum = CalculateChecksum(blockId, txIndex, outputIndex, txOut.ScriptPubKey, cs);
+
+			if(!actualChecksum.OfType<bool>().SequenceEqual(expectedChecksum.OfType<bool>()))
+				throw new InvalidBrainAddressException("Invalid checksum");
+
 			return new MnemonicReference()
 			{
 				BlockHeight = (int)blockHeight,
 				TransactionIndex = (int)txIndex,
-				WordIndices = reader.ToWriter().ToIntegers(),
-				Checksum = checksum.ToBitArray(),
-				Output = transaction.Outputs[txOutIndex],
-				OutputIndex = (int)txOutIndex,
+				WordIndices = indices,
+				Checksum = actualChecksum,
+				Output = transaction.Outputs[outputIndex],
+				OutputIndex = (int)outputIndex,
 				BlockId = blockId,
 				Transaction = transaction
 			};
+		}
+
+		const int c = 20;
+		private static BitArray DecryptFinalAddress(BitArray finalAddress)
+		{
+			if(finalAddress[finalAddress.Length - 1] != false)
+				throw new InvalidBrainAddressException("Invalid version bit");
+			var encryptionKey = Substring(finalAddress, finalAddress.Length - 1 - c, c);
+			var encryptedAddress = Xor(Substring(finalAddress, 0, finalAddress.Length - 1 - c), encryptionKey);
+			return Concat(encryptedAddress, encryptionKey);
+		}
+		private static BitArray EncryptRawAddress(BitArray rawAddress)
+		{
+			var encryptionKey = Substring(rawAddress, rawAddress.Length - c, c);
+			var encryptedAddress = Xor(Substring(rawAddress, 0, rawAddress.Length - c), encryptionKey);
+			var finalAddress = Concat(encryptedAddress, encryptionKey, new BitArray(new[] { false }));
+			return finalAddress;
+		}
+
+
+		public static BitArray Xor(BitArray a, BitArray b)
+		{
+			BitArray result = new BitArray(a.Length);
+			for(int i = 0, y = 0 ; i < a.Length ; i++, y++)
+			{
+				if(y >= b.Length)
+					y = 0;
+				result.Set(i, a.Get(i) ^ b.Get(y));
+			}
+			return result;
+		}
+
+		private static BitArray Substring(BitArray input, int from, int count)
+		{
+			return new BitArray(input.OfType<bool>().Skip(from).Take(count).ToArray());
 		}
 
 		private static void Xor(BitWriter result, BitReader a, int count, BitReader b)
@@ -215,45 +313,83 @@ namespace NBitcoin
 			}
 		}
 
-		private static uint256 CalculateChecksum(uint256 blockId, int txIndex, int txOutIndex, Script scriptPubKey)
+
+		private static BitArray CalculateChecksum(uint256 blockId, int txIndex, int txOutIndex, Script scriptPubKey, int bitCount)
 		{
 			//All in little endian
 			var hashed =
 				blockId
-				.ToBytes()
+				.ToBytes(true)
 				.Concat(Utils.ToBytes((uint)txIndex, true))
 				.Concat(Utils.ToBytes((uint)txOutIndex, true))
 				.Concat(scriptPubKey.ToBytes(true))
 				.ToArray();
-			return Hashes.Hash256(hashed);
+			var hash = Hashes.Hash256(hashed);
+			var bytes = hash.ToBytes(true);
+			BitArray result = new BitArray(bitCount);
+			for(int i = 0 ; i < bitCount ; i++)
+			{
+				int byteIndex = i / 8;
+				int bitIndex = i % 8;
+				result.Set(i, ((bytes[i] >> bitIndex) & 1) == 1);
+			}
+			return result;
 		}
 
-		private static BitReader AssertChecksum(BitReader rawAddress, uint256 blockId, uint txIndex, uint txOutIndex, Script scriptPubKey)
-		{
-			var expectedChecksum = CalculateChecksum(blockId, (int)txIndex, (int)txOutIndex, scriptPubKey);
-			var expectChecksumBits = new BitReader(expectedChecksum.ToBytes(), rawAddress.Count - rawAddress.Position);
-			if(!rawAddress.Same(expectChecksumBits))
-				throw new InvalidBrainAddressException("Invalid checksum");
-			expectChecksumBits.Position = 0;
-			return expectChecksumBits;
-		}
+		//Step1: Determine the number of bits and encoding of blockHeight
+		//blockHeight takes x bits and is encoded as follow:
 
-		private static void WriteBlockHeight(BitWriter info, int blockHeight)
+		//	For height =< 1,048,575 (0-1111-1111-1111-1111-1111), blockHeight is the height as 21bit interger
+		//	For 1,048,575 < height =< 8,388,607, blockHeight is Concat(1, height as 23 bit integer), which totally takes 24bit. For example, block 1234567 is 1001-0010-1101-0110-1000-0111
+		//	For height > 8,388,607, it is undefined and returns error
+		private static BitArray EncodeBlockHeight(int blockHeight)
 		{
 			if(blockHeight <= 1048575)
 			{
-				info.Write(false);
-				info.Write((uint)blockHeight, 20);
+				return Concat(new BitArray(new[] { false }), Encode(blockHeight, 21));
+			}
+			else if(1048575 < blockHeight && blockHeight <= 8388607)
+			{
+				return Concat(new BitArray(new[] { false }), Encode(blockHeight, 23));
 			}
 			else
 			{
-				info.Write(true);
-				info.Write((uint)blockHeight, 22);
+				throw new ArgumentOutOfRangeException("Impossible to reference an output after block 8,388,607");
 			}
 		}
-		private static int ReadBlockHeight(BitReader info)
+		private static int DecodeBlockHeight(BitArray rawAddress, out int blockHeight)
 		{
-			return (int)(info.Read() ? info.ReadUInt(22) : info.ReadUInt(20));
+			if(!rawAddress.Get(0))
+			{
+				blockHeight = Decode(Substring(rawAddress, 1, 21));
+				return 22;
+			}
+			else
+			{
+				blockHeight = Decode(Substring(rawAddress, 1, 23));
+				return 24;
+			}
+		}
+
+		private static BitArray Encode(int value, int bitCount)
+		{
+			var result = new BitArray(bitCount);
+			for(int i = 0 ; i < bitCount ; i++)
+			{
+				result.Set(i, (((value >> i) & 1) == 1));
+			}
+			return result;
+		}
+
+		private static int Decode(BitArray array)
+		{
+			int result = 0;
+			for(int i = 0 ; i < array.Length ; i++)
+			{
+				if(array.Get(i))
+					result += 1 << i;
+			}
+			return result;
 		}
 
 		const int ChecksumBitCount = 20;

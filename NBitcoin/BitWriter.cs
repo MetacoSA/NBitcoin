@@ -188,16 +188,8 @@ namespace NBitcoin
 
 		public int[] ToIntegers()
 		{
-			return
-				values
-				.Select((v, i) => new
-				{
-					Group = i / 11,
-					Value = v ? 1 << (10 - (i % 11)) : 0
-				})
-				.GroupBy(_ => _.Group, _ => _.Value)
-				.Select(g => g.Sum())
-				.ToArray();
+			var array = new BitArray(values.ToArray());
+			return Wordlist.ToIntegers(array);
 		}
 
 
