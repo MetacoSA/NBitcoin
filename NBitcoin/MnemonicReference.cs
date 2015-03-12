@@ -285,7 +285,7 @@ namespace NBitcoin
 		}
 
 
-		public static BitArray Xor(BitArray a, BitArray b)
+		static BitArray Xor(BitArray a, BitArray b)
 		{
 			BitArray result = new BitArray(a.Length);
 			for(int i = 0, y = 0 ; i < a.Length ; i++, y++)
@@ -301,18 +301,6 @@ namespace NBitcoin
 		{
 			return new BitArray(input.OfType<bool>().Skip(from).Take(count).ToArray());
 		}
-
-		private static void Xor(BitWriter result, BitReader a, int count, BitReader b)
-		{
-			while(count != 0)
-			{
-				if(b.Position == b.Count)
-					b.Position = 0;
-				result.Write(a.Read() ^ b.Read());
-				count--;
-			}
-		}
-
 
 		private static BitArray CalculateChecksum(uint256 blockId, int txIndex, int txOutIndex, Script scriptPubKey, int bitCount)
 		{
