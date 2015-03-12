@@ -392,36 +392,6 @@ namespace NBitcoin
 			return result;
 		}
 
-		const int ChecksumBitCount = 20;
-
-
-		static void UnBlendChecksum(BitReader finalAddress, BitWriter rawAddress)
-		{
-			finalAddress.Position = finalAddress.Count - 1 - ChecksumBitCount;
-			BitWriter encryptionKey = new BitWriter();
-			encryptionKey.Write(finalAddress, ChecksumBitCount);
-			if(finalAddress.Read())
-				throw new InvalidBrainAddressException("Invalid version bit");
-			finalAddress.Position = 0;
-			Xor(rawAddress, finalAddress, finalAddress.Count - ChecksumBitCount - 1, encryptionKey.ToReader());
-			rawAddress.Write(encryptionKey.ToReader());
-		}
-
-		static void BlendChecksum(BitWriter finalAddress, BitReader rawAddress)
-		{
-			rawAddress.Position = rawAddress.Count - ChecksumBitCount;
-
-			var encryptionKey = new BitWriter();
-			encryptionKey.Write(rawAddress);
-
-			rawAddress.Position = 0;
-
-			Xor(finalAddress, rawAddress, rawAddress.Count - ChecksumBitCount, encryptionKey.ToReader());
-
-			finalAddress.Write(encryptionKey.ToReader());
-			finalAddress.Write(false); //version
-		}
-
 		static int RoundTo(int value, int roundTo)
 		{
 			var result = (value / roundTo) * roundTo;
