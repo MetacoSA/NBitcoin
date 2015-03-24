@@ -279,5 +279,21 @@ namespace NBitcoin.Tests
 				Assert.True(rkey2C.ToHex() == pubkey2C.ToHex());
 			}
 		}
+
+
+        [Fact]
+        [Trait("Core", "Core")]
+        public void key_test_from_bytes()
+        {
+            //Example private key taken from https://en.bitcoin.it/wiki/Private_key
+            Byte[] privateKey = new Byte[32] { 0xE9, 0x87, 0x3D, 0x79, 0xC6, 0xD8, 0x7D, 0xC0, 0xFB, 0x6A, 0x57, 0x78, 0x63, 0x33, 0x89, 0xF4, 0x45, 0x32, 0x13, 0x30, 0x3D, 0xA6, 0x1F, 0x20, 0xBD, 0x67, 0xFC, 0x23, 0x3A, 0xA3, 0x32, 0x62 };
+            Key key1 = new Key(privateKey, -1, false);
+
+            ISecret wifKey = key1.GetWif(NBitcoin.Network.Main);
+
+            //Example wif private key taken from https://en.bitcoin.it/wiki/Private_key
+            const String expected = "5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF";
+            Assert.True(wifKey.ToString() == expected);
+        }
 	}
 }
