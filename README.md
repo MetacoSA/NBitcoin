@@ -76,4 +76,3 @@ if you want to contact me : http://nicolas-dorier.com/Contact will do the rest b
 
 ##Useful link :
 Visual studio express : http://www.visualstudio.com/en-us/products/visual-studio-express-vs.aspx
-XUnit runner (only if using vs express) : http://xunit.codeplex.com/releases
