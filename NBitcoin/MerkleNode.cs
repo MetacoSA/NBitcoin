@@ -12,6 +12,8 @@ namespace NBitcoin
 		public static MerkleNode GetRoot(IEnumerable<uint256> leafs)
 		{
 			var row = leafs.Select(l => new MerkleNode(l)).ToList();
+			if(row.Count == 0)
+				return new MerkleNode(new uint256(0));
 			while(row.Count != 1)
 			{
 				var parentRow = new List<MerkleNode>();
