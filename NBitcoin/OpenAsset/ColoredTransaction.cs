@@ -238,7 +238,7 @@ namespace NBitcoin.OpenAsset
 					var txIn = tx.Inputs.FirstOrDefault();
 					if(txIn == null)
 						continue;
-					var prev = await repo.Transactions.GetAsync(txIn.PrevOut.Hash);
+					var prev = await repo.Transactions.GetAsync(txIn.PrevOut.Hash).ConfigureAwait(false);
 					if(prev == null)
 						throw new TransactionNotFoundException("This open asset transaction is issuing assets, but it needs a parent transaction in the TransactionRepository to know the address of the issued asset (missing : " + txIn.PrevOut.Hash + ")", txIn.PrevOut.Hash);
 					issuedAsset = prev.Outputs[(int)txIn.PrevOut.N].ScriptPubKey.Hash.ToAssetId();

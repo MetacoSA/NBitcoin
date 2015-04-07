@@ -26,7 +26,7 @@ namespace NBitcoin.OpenAsset
 		{
 			try
 			{
-				return await ColoredTransaction.FetchColorsAsync(tx, repo);
+				return await ColoredTransaction.FetchColorsAsync(tx, repo).ConfigureAwait(false);
 			}
 			catch(TransactionNotFoundException)
 			{
