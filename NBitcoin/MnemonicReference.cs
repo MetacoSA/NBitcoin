@@ -334,7 +334,7 @@ namespace NBitcoin
 		{
 			if(blockHeight <= 1048575)
 			{
-				return Concat(new BitArray(new[] { false }), Encode(blockHeight, 21));
+				return Concat(new BitArray(new[] { false }), Encode(blockHeight, 20));
 			}
 			else if(1048575 < blockHeight && blockHeight <= 8388607)
 			{
@@ -367,6 +367,18 @@ namespace NBitcoin
 				result.Set(i, (((value >> i) & 1) == 1));
 			}
 			return result;
+		}
+		static string ToBitString(BitArray bits)
+		{
+			var sb = new StringBuilder();
+
+			for(int i = 0 ; i < bits.Count ; i++)
+			{
+				char c = bits[i] ? '1' : '0';
+				sb.Append(c);
+			}
+
+			return sb.ToString();
 		}
 
 		private static int Decode(BitArray array)

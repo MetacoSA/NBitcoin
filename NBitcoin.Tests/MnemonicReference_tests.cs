@@ -11,6 +11,7 @@ namespace NBitcoin.Tests
 	public class MnemonicReference_tests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCreateBrainAddress()
 		{
 			var repo = new NoSqlBlockRepository();
@@ -44,6 +45,7 @@ namespace NBitcoin.Tests
 
 #if !NOSOCKET
 		[Fact]
+		[Trait("MainNet", "MainNet")]
 		public void CanCreateBrainAddressFromNetwork()
 		{
 			using(var node = Node.ConnectToLocal(Network.Main))
@@ -55,7 +57,7 @@ namespace NBitcoin.Tests
 					var payload = listener.ReceivePayload<BlockPayload>();
 					var block = payload.Object;
 					var tx = block.Transactions.First(t => t.GetHash() == new uint256("4a85f6cc29aca334c1a78c5db74b492b741e67958aee59ff827c4c0862f4fbc1"));
-
+				//http://www.xbt.hk/cgi-bin/ma1.pl?txid=4a85f6cc29aca334c1a78c5db74b492b741e67958aee59ff827c4c0862f4fbc1&txo=2&mincs=20
 					var chain = node.GetChain();
 					var result = MnemonicReference.Create(chain, tx, block, 1);
 				}
@@ -63,6 +65,7 @@ namespace NBitcoin.Tests
 		}
 #endif
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCreateBrainAddress2()
 		{
 			Test(1782, 123, 1000, 1, 2);
