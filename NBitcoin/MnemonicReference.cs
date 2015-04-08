@@ -349,8 +349,8 @@ namespace NBitcoin
 		{
 			if(!rawAddress.Get(0))
 			{
-				blockHeight = Decode(Substring(rawAddress, 1, 21));
-				return 22;
+				blockHeight = Decode(Substring(rawAddress, 1, 20));
+				return 21;
 			}
 			else
 			{
