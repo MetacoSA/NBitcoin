@@ -136,6 +136,7 @@ namespace NBitcoin.Tests
 				.AddKeys(alice, satoshi)
 				.IssueAsset(nico.PubKey, new Asset(goldAssetId, 1000))
 				.BuildTransaction(true);
+			var o = tx.Outputs[0].IsDust;
 			Assert.True(builder.Verify(tx));
 		}
 
@@ -917,6 +918,38 @@ namespace NBitcoin.Tests
 		private uint256 Rand()
 		{
 			return new uint256(RandomUtils.GetBytes(32));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		//https://gist.github.com/gavinandresen/3966071
+		public void CanBuildTransactionWithDustPrevention()
+		{
+			var bob = new Key();
+			var alice = new Key();
+			var tx = new Transaction()
+			{
+				Outputs =
+				{
+					new TxOut(Money.Coins(1.0m), bob)
+				}
+			};
+			var coins = tx.Outputs.AsCoins().ToArray();
+
+			var builder = new TransactionBuilder();
+			var signed = 
+				builder
+				.AddCoins(coins)
+				.AddKeys(bob)
+				.Send(alice, Money.Coins(0.99m))
+				.Send(alice, Money.Satoshis(599))
+				.SendFees(Money.Coins(0.0001m))
+				.SetChange(bob)
+				.BuildTransaction(true);
+			Assert.True(signed.Outputs.Count == 2);
+			Assert.True(builder.Verify(signed, Money.Coins(0.0001m)));
+			builder.DustPrevention = false;
+			Assert.Throws<NotEnoughFundsException>(() => builder.Verify(signed, Money.Coins(0.0001m)));
 		}
 
 		[Fact]

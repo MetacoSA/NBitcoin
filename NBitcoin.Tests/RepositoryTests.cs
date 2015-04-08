@@ -265,6 +265,16 @@ namespace NBitcoin.Tests
 		//[Fact]
 		public static void Play()
 		{
+			//var node = Node.ConnectToLocal(Network.Main);
+			//node.VersionHandshake();
+			//var chain = node.GetChain();
+			//var v3 = chain.Tip
+			//	.EnumerateToGenesis()
+			//	.Take(1000)
+			//	.Aggregate(0, (a, b) => b.Header.Version == 3 ? a+1 : a);
+
+			//var r = (double)v3 / (double)1000;
+
 			Stopwatch watch = new Stopwatch();
 			watch.Start();
 			System.Net.ServicePointManager.DefaultConnectionLimit = 100;

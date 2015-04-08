@@ -387,6 +387,7 @@ namespace NBitcoin
 			_Rand = new Random();
 			CoinSelector = new DefaultCoinSelector();
 			ColoredDust = Money.Dust;
+			DustPrevention = true;
 		}
 		internal Random _Rand;
 		public TransactionBuilder(int seed)
@@ -394,9 +395,19 @@ namespace NBitcoin
 			_Rand = new Random(seed);
 			CoinSelector = new DefaultCoinSelector(seed);
 			ColoredDust = Money.Dust;
+			DustPrevention = true;
 		}
 
 		public ICoinSelector CoinSelector
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Will transform transfers below 600 satoshi to fees, so the transaction get correctly relayed by the network.
+		/// </summary>
+		public bool DustPrevention
 		{
 			get;
 			set;
@@ -450,6 +461,13 @@ namespace NBitcoin
 
 		public TransactionBuilder Send(Script scriptPubKey, Money amount)
 		{
+			if(amount < Money.Zero)
+				throw new ArgumentOutOfRangeException("amount", "amount can't be negative");
+			if(DustPrevention && amount < ColoredDust)
+			{
+				SendFees(amount);
+				return this;
+			}
 			CurrentGroup.Builders.Add(ctx =>
 			{
 				ctx.Transaction.Outputs.Add(new TxOut(amount, scriptPubKey));
@@ -534,18 +552,26 @@ namespace NBitcoin
 			}
 		}
 
-		public TransactionBuilder Send(BitcoinStealthAddress address, Money money, Key ephemKey = null)
+		public TransactionBuilder Send(BitcoinStealthAddress address, Money amount, Key ephemKey = null)
 		{
+			if(amount < Money.Zero)
+				throw new ArgumentOutOfRangeException("amount", "amount can't be negative");
+
 			if(_OpReturnUser == null)
 				_OpReturnUser = "Stealth Payment";
 			else
 				throw new InvalidOperationException("Op return already used for " + _OpReturnUser);
 
+			if(DustPrevention && amount < ColoredDust)
+			{
+				SendFees(amount);
+				return this;
+			}
 			CurrentGroup.Builders.Add(ctx =>
 			{
 				var payment = address.CreatePayment(ephemKey);
-				payment.AddToTransaction(ctx.Transaction, money);
-				return money;
+				payment.AddToTransaction(ctx.Transaction, amount);
+				return amount;
 			});
 			return this;
 		}
@@ -788,7 +814,7 @@ namespace NBitcoin
 			return coin;
 		}
 
-		public bool Verify(Transaction tx, Money expectFees = null)
+		public bool Verify(Transaction tx, Money expectedFees = null)
 		{
 			Money spent = Money.Zero;
 			foreach(var input in tx.Inputs.AsIndexedInputs())
@@ -807,8 +833,15 @@ namespace NBitcoin
 				throw new NotEnoughFundsException("Not enough funds in this transaction");
 
 			var fees = (spent - tx.TotalOut);
-			if(expectFees != null && expectFees != fees)
-				throw new NotEnoughFundsException("Fees different than expect (" + fees.ToString() + ")");
+			if(expectedFees != null)
+			{
+				//Fees might be slightly different than expected because of dust prevention, so allow an error margin of 10%
+				var margin = 0.1m;
+				if(!DustPrevention)
+					margin = 0.0m;
+				if(!expectedFees.Almost(fees, margin))
+					throw new NotEnoughFundsException("Fees different than expected (" + fees.ToString() + ")");
+			}
 			return true;
 		}
 
