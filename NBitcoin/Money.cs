@@ -113,6 +113,20 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Get absolute value of the instance
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
+		/// <returns></returns>
+		public Money Abs()
+		{
+			var a = this;
+			if(a < Money.Zero)
+				a = -a;
+			return a;
+		}
+
 #if !NOBIGINT
 		public Money(BigInteger satoshis)
 #else
@@ -400,6 +414,44 @@ namespace NBitcoin
 			{
 				return _Dust;
 			}
+		}
+
+		/// <summary>
+		/// Tell if amount is almost equal to this instance
+		/// </summary>
+		/// <param name="amount"></param>
+		/// <param name="dust">more or less dust (default : 600 satoshi)</param>
+		/// <returns>true if equals, else false</returns>
+		public bool Almost(Money amount, Money dust = null)
+		{
+			if(dust == null)
+				dust = Dust;
+			return (amount - this).Abs() <= dust;
+		}
+		
+		/// <summary>
+		/// Tell if amount is almost equal to this instance
+		/// </summary>
+		/// <param name="amount"></param>
+		/// <param name="margin">error margin (between 0 and 1)</param>
+		/// <returns>true if equals, else false</returns>
+		public bool Almost(Money amount, decimal margin)
+		{
+			if(margin < 0.0m || margin > 1.0m)
+				throw new ArgumentOutOfRangeException("margin", "margin should be between 0 and 1");
+			 var dust = Money.Satoshis((decimal)amount.Satoshi * margin);
+			 return Almost(amount, dust);
+		}
+
+		public static Money Min(Money a, Money b)
+		{
+			if(a == null)
+				throw new ArgumentNullException("a");
+			if(b == null)
+				throw new ArgumentNullException("b");
+			if(a <= b)
+				return a;
+			return b;
 		}
 	}
 }

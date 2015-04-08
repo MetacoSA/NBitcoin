@@ -1465,6 +1465,16 @@ namespace NBitcoin
 			//stacktop(i)  (altstack.at(altstack.size()+(i)))
 		}
 
+
+		public bool CheckSig(TransactionSignature signature, PubKey pubKey, Script scriptPubKey, IndexedTxIn txIn)
+		{
+			return CheckSig(signature, pubKey, scriptPubKey, txIn.Transaction, txIn.N);
+		}
+		public bool CheckSig(TransactionSignature signature, PubKey pubKey, Script scriptPubKey, Transaction txTo, uint nIn)
+		{
+			return CheckSig(signature.ToBytes(), pubKey.ToBytes(), scriptPubKey, txTo, (int)nIn);
+		}
+
 		public bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn)
 		{
 			PubKey pubkey = null;
