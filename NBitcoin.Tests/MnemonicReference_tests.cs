@@ -41,6 +41,8 @@ namespace NBitcoin.Tests
 			var mnemo = MnemonicReference.Create(chain, block.Transactions[0], block, 0);
 
 		}
+
+#if !NOSOCKET
 		[Fact]
 		public void CanCreateBrainAddressFromNetwork()
 		{
@@ -51,7 +53,7 @@ namespace NBitcoin.Tests
 				{
 					node.SendMessage(new GetDataPayload(new InventoryVector(InventoryType.MSG_BLOCK, new uint256(" 00000000000000001790ced14940f5dc4a61cec2547b78f6dbfc1ebcbf1192d9 "))));
 					var payload = listener.ReceivePayload<BlockPayload>();
-					var block= payload.Object;
+					var block = payload.Object;
 					var tx = block.Transactions.First(t => t.GetHash() == new uint256("4a85f6cc29aca334c1a78c5db74b492b741e67958aee59ff827c4c0862f4fbc1"));
 
 					var chain = node.GetChain();
@@ -59,6 +61,7 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
+#endif
 		[Fact]
 		public void CanCreateBrainAddress2()
 		{
