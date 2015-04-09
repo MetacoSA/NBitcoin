@@ -319,7 +319,7 @@ namespace NBitcoin
 			{
 				int byteIndex = i / 8;
 				int bitIndex = i % 8;
-				result.Set(i, ((bytes[i] >> bitIndex) & 1) == 1);
+				result.Set(i, ((bytes[byteIndex] >> bitIndex) & 1) == 1);
 			}
 			return result;
 		}
