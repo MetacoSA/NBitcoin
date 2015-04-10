@@ -142,7 +142,7 @@ namespace NBitcoin
 			for( ; ; w++)
 			{
 				int y1 = BitCount((int)merkleBlock.PartialMerkleTree.TransactionCount);
-				int y2 = 11 * w - 1 - x;
+				int y2 = 11 * w - 1 - x - c;
 				y = Math.Min(y1, y2);
 				if(ymin > y)
 					continue;
