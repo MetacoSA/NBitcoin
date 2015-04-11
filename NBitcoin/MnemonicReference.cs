@@ -338,7 +338,7 @@ namespace NBitcoin
 			}
 			else if(1048575 < blockHeight && blockHeight <= 8388607)
 			{
-				return Concat(new BitArray(new[] { false }), Encode(blockHeight, 23));
+				return Concat(new BitArray(new[] { true }), Encode(blockHeight, 23));
 			}
 			else
 			{
