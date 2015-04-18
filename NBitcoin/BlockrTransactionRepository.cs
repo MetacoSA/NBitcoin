@@ -82,8 +82,8 @@ namespace NBitcoin
 			return Task.FromResult(false);
 		}
 		
-		public async Task<Dictionary<TxIn, Money>> GetUnspentAsync(string Address)
-	        {
+		public async Task<List<Coin>> GetUnspentAsync(string Address)
+        	{
 	            while (true)
 	            {
 	                using (HttpClient client = new HttpClient())
@@ -99,21 +99,15 @@ namespace NBitcoin
 	                    {
 	                        throw new BlockrException(json);
 	                    }
-	                    Dictionary<TxIn, Money> dic = new Dictionary<TxIn, Money>();
+	                    List<Coin> list = new List<Coin>();
 	                    foreach (var element in json["data"]["unspent"])
 	                    {
-	                        TxIn UnspentTxIn = new TxIn()
-	                        {
-	                            PrevOut = new OutPoint(new uint256(element["tx"].ToString()), (Int32)element["n"]),
-	                            ScriptSig = new Script(element["script"].ToString())
-	                        };
-	                        Money UnspentMoney = new Money((decimal)element["amount"], MoneyUnit.BTC);
-	                        dic.Add(UnspentTxIn, UnspentMoney);
+	                        list.Add(new Coin(new uint256(element["tx"].ToString()), (uint)element["n"], new Money((decimal)element["amount"], MoneyUnit.BTC), new Script(element["script"].ToString())));
 	                    }
-	                    return dic;
+	                    return list;
 	                }
 	            }
-	        }
+        	}
 		#endregion
 	}
 }
