@@ -81,7 +81,39 @@ namespace NBitcoin
 		{
 			return Task.FromResult(false);
 		}
-
+		
+		public async Task<Dictionary<TxIn, Money>> GetUnspentAsync(string Address)
+	        {
+	            while (true)
+	            {
+	                using (HttpClient client = new HttpClient())
+	                {
+	                    var response = await client.GetAsync("http://btc.blockr.io/api/v1/address/unspent/" + Address).ConfigureAwait(false);
+	                    if (response.StatusCode == HttpStatusCode.NotFound)
+	                        return null;
+	                    var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+	                    var json = JObject.Parse(result);
+	                    var status = json["status"];
+	                    var code = json["code"];
+	                    if ((status != null && status.ToString() == "error") || (json["data"]["address"].ToString() != Address))
+	                    {
+	                        throw new BlockrException(json);
+	                    }
+	                    Dictionary<TxIn, Money> dic = new Dictionary<TxIn, Money>();
+	                    foreach (var element in json["data"]["unspent"])
+	                    {
+	                        TxIn UnspentTxIn = new TxIn()
+	                        {
+	                            PrevOut = new OutPoint(new uint256(element["tx"].ToString()), (Int32)element["n"]),
+	                            ScriptSig = new Script(element["script"].ToString())
+	                        };
+	                        Money UnspentMoney = new Money((decimal)element["amount"], MoneyUnit.BTC);
+	                        dic.Add(UnspentTxIn, UnspentMoney);
+	                    }
+	                    return dic;
+	                }
+	            }
+	        }
 		#endregion
 	}
 }
