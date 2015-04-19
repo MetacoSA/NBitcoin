@@ -102,7 +102,7 @@ namespace NBitcoin
 	                    List<Coin> list = new List<Coin>();
 	                    foreach (var element in json["data"]["unspent"])
 	                    {
-	                        list.Add(new Coin(new uint256(element["tx"].ToString()), (uint)element["n"], new Money((decimal)element["amount"], MoneyUnit.BTC), new Script(element["script"].ToString())));
+	                        list.Add(new Coin(new uint256(element["tx"].ToString()), (uint)element["n"], new Money((decimal)element["amount"], MoneyUnit.BTC), new Script(Encoders.Hex.DecodeData(element["script"].ToString()))));
 	                    }
 	                    return list;
 	                }
