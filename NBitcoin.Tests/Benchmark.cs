@@ -30,13 +30,13 @@ namespace NBitcoin.Tests
 						continue;
 					foreach(var tx in block.Item.Transactions)
 					{
-						uint index = 0;
-						var pay = OpenAsset.ColorMarker.Get(tx, out index);
-						if(pay != null && index != 0 && index != tx.Outputs.Count - 1)
-						{
-							if(pay.Quantities.Length > index)
-								Debugger.Break();
-						}
+						//uint index = 0;
+						//var pay = OpenAsset.ColorMarker.Get(tx, out index);
+						//if(pay != null && index != 0 && index != tx.Outputs.Count - 1)
+						//{
+						//	if(pay.Quantities.Length > index)
+						//		Debugger.Break();
+						//}
 
 					}
 				}
@@ -56,33 +56,26 @@ namespace NBitcoin.Tests
 			using(var server = new NodeServer(Network.Main))
 			{
 				var originalNode = server.GetLocalNode();
-				var original = originalNode.GetChain();
-				Assert.True(originalNode.PeerVersion.StartHeight <= original.Height);
+				var chain = originalNode.GetChain();
+				List<ulong> speeds = new List<ulong>();
 
-				int simultaneous = 3;
-				var chaines = Enumerable.Range(0, simultaneous).Select(i => original.Clone()).ToArray();
-				var time = Benchmark.Bench(() =>
+				Stopwatch watch = new Stopwatch();
+				watch.Start();
+				PerformanceSnapshot snap = null;
+				foreach(var block in originalNode.GetBlocks(chain.Tip.EnumerateToGenesis().Select(c => c.HashBlock)))
 				{
-					Parallel.For(0, simultaneous, new ParallelOptions()
+					if(watch.Elapsed > TimeSpan.FromSeconds(5.0))
 					{
-						MaxDegreeOfParallelism = simultaneous
-					}, i =>
-					{
-						var chain = chaines[i];
-						var node = new NodeServer(Network.Main).GetLocalNode();
-						var localTime = Benchmark.Bench(() =>
+						var newSnap = originalNode.Counter.Snapshot();
+						if(snap != null)
 						{
-							chain.PushChange(new ChainChange()
-							{
-								ChangeType = ChainChangeType.BackStep,
-								HeightOrBackstep = 100
-							}, null);
-							var blocks = node.GetBlocks(chain.ToEnumerable(true).Select(c => c.HashBlock)).ToList();
-							Assert.True(blocks.Count == 100 || blocks.Count == 101);
-						});
-					});
-				});
-				Console.WriteLine(time);
+							var perf =  newSnap - snap;
+							speeds.Add(perf.ReadenBytesPerSecond / 1024);
+						}
+						snap = newSnap;
+						watch.Restart();
+					}
+				}				
 			}
 		}
 
