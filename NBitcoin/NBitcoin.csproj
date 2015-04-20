@@ -133,7 +133,7 @@
     <Compile Include="Protocol\Payloads\RejectPayload.cs" />
     <Compile Include="Protocol\PerformanceCounter.cs" />
     <Compile Include="RandomUtils.partial.cs" />
-    <Compile Include="QBitTransactionRepository.cs" />
+    <Compile Include="QBitNinjaTransactionRepository.cs" />
     <Compile Include="RPCTransactionRepository.cs" />
     <Compile Include="RPC\BlockExplorerFormatter.cs" />
     <Compile Include="RPC\RawFormatter.cs" />
