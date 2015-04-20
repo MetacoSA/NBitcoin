@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class QBitTransactionRepository : ITransactionRepository
+	public class QBitNinjaTransactionRepository : ITransactionRepository
 	{
 		private readonly Uri _BaseUri;
 		public Uri BaseUri
@@ -23,20 +23,20 @@ namespace NBitcoin
 		/// Use qbitninja public servers
 		/// </summary>
 		/// <param name="network"></param>
-		public QBitTransactionRepository(Network network)
+		public QBitNinjaTransactionRepository(Network network)
 		{
 			if(network == null)
 				throw new ArgumentNullException("network");
 			_BaseUri = new Uri("http://" + (network == Network.Main ? "" : "t") + "api.qbit.ninja/");
 		}
 
-		public QBitTransactionRepository(Uri baseUri)
+		public QBitNinjaTransactionRepository(Uri baseUri)
 			: this(baseUri.AbsoluteUri)
 		{
 
 		}
 
-		public QBitTransactionRepository(string baseUri)
+		public QBitNinjaTransactionRepository(string baseUri)
 		{
 			if(!baseUri.EndsWith("/"))
 				baseUri += "/";
