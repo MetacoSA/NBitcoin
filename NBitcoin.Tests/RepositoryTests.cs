@@ -119,7 +119,7 @@ namespace NBitcoin.Tests
 		public void CanBuildChainFromBlocks()
 		{
 			var store = new BlockStore(@"data\blocks", Network.Main);
-			var chain = store.BuildChain();
+			var chain = store.GetChain();
 			Assert.True(chain.Height == 599);
 
 		}

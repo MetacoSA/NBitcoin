@@ -369,10 +369,10 @@ namespace NBitcoin.Tests
 
 				Assert.True(node.PeerVersion.StartHeight <= chain.Height);
 
-				var subChain = chain.CreateSubChain(chain.ToEnumerable(true).Skip(99).First(), true, chain.Tip, true);
+				var subChain = chain.ToEnumerable(true).Take(100).Select(s=>s.HashBlock).ToArray();
 
 				var begin = node.Counter.Snapshot();
-				var blocks = node.GetBlocks(subChain.ToEnumerable(true).Select(c => c.HashBlock)).Select(_ => 1).ToList();
+				var blocks = node.GetBlocks(subChain).Select(_ => 1).ToList();
 				var end = node.Counter.Snapshot();
 				var diff = end - begin;
 				Assert.True(diff.Start == begin.Taken);

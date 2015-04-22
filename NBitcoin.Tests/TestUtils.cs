@@ -67,13 +67,13 @@ namespace NBitcoin.Tests
 			return block;
 		}
 
-		public static PersistantChain CreateBlockChain(List<Block> blocks)
+		public static ConcurrentChain CreateBlockChain(List<Block> blocks)
 		{
-			PersistantChain chain = new PersistantChain(Network.Main.GetGenesis().Header);
+			ConcurrentChain chain = new ConcurrentChain(Network.Main.GetGenesis().Header);
 			foreach(var b in blocks)
 			{
 				b.Header.HashPrevBlock = chain.Tip.Header.GetHash();
-				chain.TrySetTip(b.Header);
+				chain.SetTip(b.Header);
 			}
 			return chain;
 		}

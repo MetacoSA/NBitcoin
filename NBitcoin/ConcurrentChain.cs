@@ -18,6 +18,10 @@ namespace NBitcoin
 		{
 
 		}
+		public ConcurrentChain(BlockHeader genesis)
+		{
+			SetTip(new ChainedBlock(genesis, 0));
+		}
 		public ConcurrentChain(Network network)
 		{
 			if(network != null)
@@ -25,6 +29,11 @@ namespace NBitcoin
 				var genesis = network.GetGenesis();
 				SetTip(new ChainedBlock(genesis.Header, 0));
 			}
+		}
+
+		public ConcurrentChain(byte[] bytes)
+		{
+			Load(bytes);
 		}
 
 		public void Load(byte[] chain)
@@ -93,6 +102,24 @@ namespace NBitcoin
 			}
 		}
 
+		public ConcurrentChain Clone()
+		{
+			ConcurrentChain chain = new ConcurrentChain();
+			chain._Tip = _Tip;
+			using(@lock.LockRead())
+			{
+				foreach(var kv in _BlocksById)
+				{
+					chain._BlocksById.Add(kv.Key, kv.Value);
+				}
+				foreach(var kv in _BlocksByHeight)
+				{
+					chain._BlocksByHeight.Add(kv.Key, kv.Value);
+				}
+			}
+			return chain;
+		}
+
 		/// <summary>
 		/// Force a new tip for the chain
 		/// </summary>
@@ -104,12 +131,6 @@ namespace NBitcoin
 			{
 				return SetTipNoLock(block);
 			}
-		}
-
-
-		public void SetTip(BlockHeader header)
-		{
-			SetTip(new ChainedBlock(header, header.GetHash(), GetBlock(header.HashPrevBlock)));
 		}
 
 		private ChainedBlock SetTipNoLock(ChainedBlock block)
@@ -229,6 +250,8 @@ namespace NBitcoin
 			return Tip == null ? "no tip" : Tip.Height.ToString();
 		}
 
+
+		
 	}
 
 	internal class ReaderWriterLock
@@ -261,6 +284,6 @@ namespace NBitcoin
 		public IDisposable LockWrite()
 		{
 			return new FuncDisposable(() => @lock.EnterWriteLock(), () => @lock.ExitWriteLock());
-		}
+		}		
 	}
 }

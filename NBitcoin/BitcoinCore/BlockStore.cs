@@ -22,27 +22,18 @@ namespace NBitcoin.BitcoinCore
 		}
 
 
-		public PersistantChain BuildChain()
+		public ConcurrentChain GetChain()
 		{
-			return BuildChain(Network.GetGenesis().Header, 0);
-		}
-		public PersistantChain BuildChain(BlockHeader firstBlock, int height)
-		{
-			PersistantChain chain = new PersistantChain();
-			chain.Initialize(firstBlock, height);
-			return BuildChain(chain);
-		}
-		public PersistantChain BuildChain(ObjectStream<ChainChange> changes)
-		{
-			PersistantChain chain = new PersistantChain(changes);
-			return BuildChain(chain);
+			ConcurrentChain chain = new ConcurrentChain(Network);
+			SynchronizeChain(chain);
+			return chain;
 		}
 
-		public PersistantChain BuildChain(PersistantChain chain)
+		public void SynchronizeChain(ChainBase chain)
 		{
 			Dictionary<uint256, BlockHeader> headers = new Dictionary<uint256, BlockHeader>();
 			HashSet<uint256> inChain = new HashSet<uint256>();
-			inChain.Add(chain.GetBlock(chain.StartHeight).HashBlock);
+			inChain.Add(chain.GetBlock(0).HashBlock);
 			foreach(var header in Enumerate(true).Select(b => b.Item.Header))
 			{
 				var hash = header.GetHash();
@@ -56,7 +47,7 @@ namespace NBitcoin.BitcoinCore
 					if(inChain.Contains(header.Value.HashPrevBlock))
 					{
 						toRemove.Add(header.Key);
-						chain.TrySetTip(header.Value);
+						chain.SetTip(header.Value);
 						inChain.Add(header.Key);
 					}
 				}
@@ -66,7 +57,6 @@ namespace NBitcoin.BitcoinCore
 					break;
 				toRemove.Clear();
 			}
-			return chain;
 		}
 
 
