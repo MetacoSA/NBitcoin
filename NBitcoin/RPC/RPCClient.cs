@@ -222,15 +222,7 @@ namespace NBitcoin.RPC
 		public Money EstimateFee(int nblock)
 		{
 			var response = SendCommand(RPCOperations.estimatefee, nblock);
-			decimal result = 0.0m;
-			try
-			{
-				result = decimal.Parse(response.Result.ToString(), NumberStyles.AllowExponent | NumberStyles.AllowDecimalPoint);
-			}
-			catch(FormatException)
-			{
-				result = decimal.Parse(response.Result.ToString(), NumberStyles.AllowExponent | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture);
-			}
+			decimal result = response.Result.Value<decimal>();
 			return Money.Coins(result);
 		}
 
