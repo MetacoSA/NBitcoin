@@ -623,12 +623,17 @@ namespace NBitcoin
 			CurrentGroup.Builders.Add(ctx => fees);
 			return this;
 		}
-		public TransactionBuilder SendEstimatedFees()
+
+		public TransactionBuilder SendEstimatedFees(Money feesPerKB)
 		{
 			var tx = BuildTransaction(false);
-			var fees = EstimateFees(tx);
+			var fees = EstimateFees(tx, feesPerKB);
 			SendFees(fees);
 			return this;
+		}
+		public TransactionBuilder SendEstimatedFees()
+		{
+			return SendEstimatedFees(null);
 		}
 
 		/// <summary>
@@ -636,11 +641,15 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="fees"></param>
 		/// <returns></returns>
-		public TransactionBuilder SendEstimatedFeesSplit()
+		public TransactionBuilder SendEstimatedFeesSplit(Money feesPerKB)
 		{
 			var tx = BuildTransaction(false);
-			var fees = EstimateFees(tx);
+			var fees = EstimateFees(tx, feesPerKB);
 			return SendFeesSplit(fees);
+		}
+		public TransactionBuilder SendEstimatedFeesSplit()
+		{
+			return SendEstimatedFeesSplit(null);
 		}
 		/// <summary>
 		/// Split the fees accross the several groups (separated by Then())
@@ -959,12 +968,23 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="tx"></param>
 		/// <returns></returns>
-		public Money EstimateFees(Transaction tx)
+		public Money EstimateFees(Transaction tx, Money feesPerKB)
 		{
+			if(feesPerKB == null)
+				feesPerKB = Money.Satoshis(10000);
 			var len = EstimateSize(tx);
-			long nBaseFee = 10000;
+			long nBaseFee = feesPerKB.Satoshi;
 			long nMinFee = (1 + (long)len / 1000) * nBaseFee;
 			return new Money(nMinFee);
+		}
+		/// <summary>
+		/// Estimate fees of an unsigned transaction
+		/// </summary>
+		/// <param name="tx"></param>
+		/// <returns></returns>
+		public Money EstimateFees(Transaction tx)
+		{
+			return EstimateFees(tx, null);
 		}
 
 		private void Sign(TransactionSigningContext ctx, ICoin coin, IndexedTxIn txIn)

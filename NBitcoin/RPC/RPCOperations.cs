@@ -85,5 +85,6 @@ namespace NBitcoin.RPC
 		gettxoutsetinfo,
 		gettxout,
 		verifychain,
+		estimatefee,
 	}
 }

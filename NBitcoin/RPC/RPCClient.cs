@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -211,6 +212,37 @@ namespace NBitcoin.RPC
 		{
 			var response = await SendCommandAsync("listunspent").ConfigureAwait(false);
 			return ((JArray)response.Result).Select(i => new UnspentCoin((JObject)i)).ToArray();
+		}
+
+		/// <summary>
+		/// Get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="nblock"></param>
+		/// <returns></returns>
+		public Money EstimateFee(int nblock)
+		{
+			var response = SendCommand(RPCOperations.estimatefee, nblock);
+			decimal result = 0.0m;
+			try
+			{
+				result = decimal.Parse(response.Result.ToString(), NumberStyles.AllowExponent | NumberStyles.AllowDecimalPoint);
+			}
+			catch(FormatException)
+			{
+				result = decimal.Parse(response.Result.ToString(), NumberStyles.AllowExponent | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture);
+			}
+			return Money.Coins(result);
+		}
+
+		/// <summary>
+		/// Get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="nblock"></param>
+		/// <returns></returns>
+		public async Task<Money> EstimateFeeAsync(int nblock)
+		{
+			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
+			return Money.Parse(response.Result.ToString());
 		}
 
 		public BitcoinAddress GetAccountAddress(string account)
