@@ -715,7 +715,8 @@ namespace NBitcoin.Tests
 				.Send(bobAlice, "0.5")
 				.Then()
 				.AddCoins(bobAliceCoins)
-				.Send(satoshi.PubKey, "1.75")
+				.Send(satoshi.PubKey, "1.74")
+				.SetChange(bobAlice)
 				.BuildTransaction(false);
 
 			builder.AddKeys(alice, bob, satoshi);
@@ -724,7 +725,10 @@ namespace NBitcoin.Tests
 
 			Assert.True(Math.Abs(signed.ToBytes().Length - builder.EstimateSize(unsigned)) < 20);
 
-			var fees = builder.EstimateFees(unsigned);
+			var estimatedFees = builder.EstimateFees(unsigned);
+			builder.SendEstimatedFees();
+			signed = builder.BuildTransaction(true);
+			Assert.True(builder.Verify(signed, estimatedFees));
 		}
 
 		private Coin RandomCoin(Money amount, Script scriptPubKey, bool p2sh)
@@ -937,7 +941,7 @@ namespace NBitcoin.Tests
 			var coins = tx.Outputs.AsCoins().ToArray();
 
 			var builder = new TransactionBuilder();
-			var signed = 
+			var signed =
 				builder
 				.AddCoins(coins)
 				.AddKeys(bob)
