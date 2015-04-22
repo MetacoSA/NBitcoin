@@ -88,6 +88,16 @@ namespace NBitcoin.Tests
 			Assert.Equal("00000000bcd68bd3d66ae5a198bb21133e44d9fc13c0688c846037658d95b87c", response.GetHash().ToString());
 		}
 
+
+		[Fact]
+		[Trait("RPCClient", "RPCClient")]
+		public void CanEstimateFees()
+		{
+			var rpc = CreateRPCClient();
+			var result = rpc.EstimateFee(10);
+			Assert.NotNull(result);
+		}
+
 		[Fact]
 		[Trait("RPCClient", "RPCClient")]
 		public void CanGetTransactionBlockFromRPC()
