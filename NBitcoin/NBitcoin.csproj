@@ -105,7 +105,6 @@
     <Compile Include="MerkleNode.cs" />
     <Compile Include="NoSqlBlockRepository.cs" />
     <Compile Include="NoSqlTransactionRepository.cs" />
-    <Compile Include="ObjectStream.cs" />
     <Compile Include="OpenAsset\Asset.cs" />
     <Compile Include="BlockrTransactionRepository.cs" />
     <Compile Include="OpenAsset\AssetId.cs" />
