@@ -628,11 +628,33 @@ namespace NBitcoin
 			var tx = BuildTransaction(false);
 			var fees = EstimateFees(tx);
 			SendFees(fees);
-			var fees2 = EstimateFees(tx);
-			if(fees != fees2)
+			return this;
+		}
+
+		/// <summary>
+		/// Split the estimated fees accross the several groups (separated by Then())
+		/// </summary>
+		/// <param name="fees"></param>
+		/// <returns></returns>
+		public TransactionBuilder SendEstimatedFeesSplit()
+		{
+			var tx = BuildTransaction(false);
+			var fees = EstimateFees(tx);
+			return SendFeesSplit(fees);
+		}
+		/// <summary>
+		/// Split the fees accross the several groups (separated by Then())
+		/// </summary>
+		/// <param name="fees"></param>
+		/// <returns></returns>
+		public TransactionBuilder SendFeesSplit(Money fees)
+		{
+			if(fees == null)
+				throw new ArgumentNullException("fees");
+			var perGroup = fees / _BuilderGroups.Count;
+			foreach(var group in _BuilderGroups)
 			{
-				SendFees(-fees);
-				SendFees(fees2);
+				group.Builders.Add(ctx => perGroup);
 			}
 			return this;
 		}

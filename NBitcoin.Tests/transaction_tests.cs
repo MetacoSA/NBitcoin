@@ -688,6 +688,35 @@ namespace NBitcoin.Tests
 			return new OutPoint(Rand(), 0);
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSplitFees()
+		{
+			var satoshi = new Key();
+			var alice = new Key();
+			var bob = new Key();
+
+			var aliceCoins = new ICoin[] { RandomCoin("0.4", alice), RandomCoin("0.6", alice) };
+			var bobCoins = new ICoin[] { RandomCoin("0.2", bob), RandomCoin("0.3", bob) };
+
+			TransactionBuilder builder = new TransactionBuilder();
+			var tx = builder
+				.AddCoins(aliceCoins)
+				.AddKeys(alice)
+				.Send(satoshi, Money.Coins(0.1m))
+				.SetChange(alice)
+				.Then()
+				.AddCoins(bobCoins)
+				.AddKeys(bob)
+				.Send(satoshi, Money.Coins(0.01m))
+				.SetChange(bob)
+				.SendEstimatedFeesSplit()
+				.BuildTransaction(true);
+
+			var estimated = builder.EstimateFees(tx);
+
+			Assert.True(builder.Verify(tx, estimated));
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
