@@ -162,6 +162,8 @@ namespace NBitcoin
 			var tip = _Tip;
 			while(true)
 			{
+				if(object.ReferenceEquals(null, block) || object.ReferenceEquals(null, tip))
+					throw new InvalidOperationException("No fork found between the two chains");
 				if(tip.Height > block.Height)
 				{
 					yield return tip;
