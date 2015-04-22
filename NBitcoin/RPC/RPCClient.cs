@@ -69,7 +69,7 @@ namespace NBitcoin.RPC
 		}
 	}
 
-	public class RPCClient
+	public class RPCClient : IBlockRepository
 	{
 		private readonly NetworkCredential _Credentials;
 		public NetworkCredential Credentials
@@ -179,13 +179,15 @@ namespace NBitcoin.RPC
 			webRequest.ContentLength = bytes.Length;
 #endif
 			Stream dataStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false);
-			dataStream.Write(bytes, 0, bytes.Length);
+			await dataStream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
 			dataStream.Dispose();
 			RPCResponse response = null;
 			try
 			{
-				WebResponse webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false);
-				response = RPCResponse.Load(webResponse.GetResponseStream());
+				using(WebResponse webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false))
+				{
+					response = RPCResponse.Load(webResponse.GetResponseStream());
+				}
 				if(throwIfRPCError)
 					response.ThrowIfError();
 			}
@@ -382,30 +384,32 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// Get the a whole block, will fail if bitcoinq does not run with txindex=1 and one of the transaction of the block is entirely spent
+		/// Get the a whole block
 		/// </summary>
 		/// <param name="blockId"></param>
 		/// <returns></returns>
-		public Block GetBlock(uint256 blockId)
+		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
-			var resp = SendCommand("getblock", blockId.ToString());
-			var header = ParseBlockHeader(resp);
-			Block block = new Block(header);
-			var transactions = resp.Result["tx"] as JArray;
+			var resp = await SendCommandAsync("getblock", blockId.ToString(), false).ConfigureAwait(false);
+			return new Block(Encoders.Hex.DecodeData(resp.Result.ToString()));
+		}
+
+		/// <summary>
+		/// Get the a whole block
+		/// </summary>
+		/// <param name="blockId"></param>
+		/// <returns></returns>
+		public  Block GetBlock(uint256 blockId)
+		{
 			try
 			{
-				foreach(var tx in transactions)
-				{
-					block.AddTransaction(GetRawTransaction(new uint256(tx.ToString())));
-				}
+				return GetBlockAsync(blockId).Result;
 			}
-			catch(RPCException ex)
+			catch(AggregateException aex)
 			{
-				if(ex.RPCCode == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
-					return null;
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
 				throw;
 			}
-			return block;
 		}
 
 		public BlockHeader GetBlockHeader(uint256 blockHash)
@@ -553,6 +557,6 @@ namespace NBitcoin.RPC
 			}
 		}
 
-		
+
 	}
 }

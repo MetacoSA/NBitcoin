@@ -215,6 +215,10 @@ namespace NBitcoin
 			SetNull();
 			header = blockHeader;
 		}
+		public Block(byte[] bytes)
+		{
+			this.ReadWrite(bytes);
+		}
 
 
 		public void ReadWrite(BitcoinStream stream)
