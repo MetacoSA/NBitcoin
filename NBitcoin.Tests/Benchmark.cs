@@ -133,29 +133,10 @@ namespace NBitcoin.Tests
 		public void BenchmarkCreateChainFromBlocks()
 		{
 			BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
-			PersistantChain chain = null;
+			ConcurrentChain chain = null;
 			var fullBuild = Bench(() =>
 			{
-
-				chain = store.BuildChain();
-			});
-
-			chain.Changes.Rewind();
-			var rebuildFromMemory = Bench(() =>
-			{
-				var chain2 = new PersistantChain(chain.Changes);
-			});
-
-			chain.Changes.Rewind();
-			var halfChain = new StreamObjectStream<ChainChange>();
-			for(int i = 0 ; i < 300000 ; i++)
-			{
-				halfChain.WriteNext(chain.Changes.ReadNext());
-			}
-
-			var halfBuild = Bench(() =>
-			{
-				var fullChain = store.BuildChain(halfChain);
+				chain = store.GetChain();
 			});
 		}
 		private TimeSpan BenchmarkTemplate(Action<TxOut> act)

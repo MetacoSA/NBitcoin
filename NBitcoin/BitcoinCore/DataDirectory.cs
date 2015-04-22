@@ -40,13 +40,6 @@ namespace NBitcoin.BitcoinCore
 				Directory.CreateDirectory(folder);
 		}
 
-		public PersistantChain GetChain()
-		{
-			var path = Path.Combine(Folder, "chainstate");
-			EnsureExist(path);
-			return new PersistantChain(Network, new StreamObjectStream<ChainChange>(File.Open(Path.Combine(path, "chainchanges"), FileMode.OpenOrCreate)));
-		}
-
 		public IndexedBlockUndoStore GetIndexedBlockUndoStore()
 		{
 			var path = Path.Combine(Folder, "blocks");

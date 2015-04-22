@@ -55,6 +55,22 @@ namespace NBitcoin
 		{
 			return SetTip(otherChain.Tip);
 		}
+		public bool SetTip(BlockHeader header)
+		{
+			ChainedBlock chainedHeader;
+			return TrySetTip(header, out chainedHeader);
+		}
+
+		public bool TrySetTip(BlockHeader header, out ChainedBlock chainedHeader)
+		{
+			chainedHeader = null;
+			var prev = GetBlock(header.HashPrevBlock);
+			if(prev == null)
+				return false;
+			chainedHeader = new ChainedBlock(header, header.GetHash(), GetBlock(header.HashPrevBlock));
+			SetTip(chainedHeader);
+			return true;
+		}
 
 		protected abstract IEnumerable<ChainedBlock> EnumerateFromStart();
 
@@ -63,7 +79,7 @@ namespace NBitcoin
 			return GetBlock(blockIndex.Height) != null;
 		}
 
-		public bool SameTip(PersistantChain chain)
+		public bool SameTip(ChainBase chain)
 		{
 			return Tip.HashBlock == chain.Tip.HashBlock;
 		}
@@ -133,7 +149,7 @@ namespace NBitcoin
 
 
 
-		public ChainedBlock FindFork(PersistantChain chain)
+		public ChainedBlock FindFork(ChainBase chain)
 		{
 			return FindFork(chain.ToEnumerable(true).Select(o => o.HashBlock));
 		}

@@ -11,7 +11,7 @@ namespace NBitcoin.Tests
 	public class MnemonicReference_tests
 	{
 		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanCreateBrainAddress()
 		{
 			var repo = new NoSqlBlockRepository();
