@@ -174,17 +174,26 @@ namespace NBitcoin
 		}
 #endif
 
+		public IEnumerable<ChainedBlock> EnumerateAfter(uint256 blockHash)
+		{
+			var block = GetBlock(blockHash);
+			if(block == null)
+				return new ChainedBlock[0];
+			return EnumerateAfter(block);
+		}
 
 		public virtual IEnumerable<ChainedBlock> EnumerateAfter(ChainedBlock block)
 		{
 			int i = block.Height + 1;
+			var prev = block;
 			while(true)
 			{
 				var b = GetBlock(i);
-				if(b == null)
+				if(b == null || b.Previous != prev)
 					yield break;
 				yield return b;
 				i++;
+				prev = b;
 			}
 		}
 

@@ -180,7 +180,30 @@ namespace NBitcoin.Tests
 			}
 			return File.ReadAllBytes("MainChain1.dat");
 		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanEnumerateAfterChainedBlock()
+		{
+			ConcurrentChain chain = new ConcurrentChain(Network.Main);
+			AppendBlock(chain);
+			var a = AppendBlock(chain);
+			var b = AppendBlock(chain);
+			var c = AppendBlock(chain);
 
+			Assert.True(chain.EnumerateAfter(a).SequenceEqual(new[] { b, c }));
+
+			var d = AppendBlock(chain);
+
+			var enumerator = chain.EnumerateAfter(b).GetEnumerator();
+			enumerator.MoveNext();
+			Assert.True(enumerator.Current == c);
+
+			chain.SetTip(b);
+			var cc = AppendBlock(chain);
+			var dd = AppendBlock(chain);
+
+			Assert.False(enumerator.MoveNext());
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
