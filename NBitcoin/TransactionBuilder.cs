@@ -623,6 +623,19 @@ namespace NBitcoin
 			CurrentGroup.Builders.Add(ctx => fees);
 			return this;
 		}
+		public TransactionBuilder SendEstimatedFees()
+		{
+			var tx = BuildTransaction(false);
+			var fees = EstimateFees(tx);
+			SendFees(fees);
+			var fees2 = EstimateFees(tx);
+			if(fees != fees2)
+			{
+				SendFees(-fees);
+				SendFees(fees2);
+			}
+			return this;
+		}
 
 		public TransactionBuilder SetChange(IDestination destination, ChangeType changeType = ChangeType.All)
 		{
