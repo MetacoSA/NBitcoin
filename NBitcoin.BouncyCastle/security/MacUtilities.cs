@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 
 using NBitcoin.BouncyCastle.Asn1;
@@ -112,15 +113,15 @@ namespace NBitcoin.BouncyCastle.Security
                 mechanism = upper;
             }
 
-            if (mechanism.StartsWith("PBEWITH"))
+            if (mechanism.StartsWith("PBEWITH", StringComparison.InvariantCulture))
             {
                 mechanism = mechanism.Substring("PBEWITH".Length);
             }
 
-            if (mechanism.StartsWith("HMAC"))
+            if (mechanism.StartsWith("HMAC", StringComparison.InvariantCulture))
             {
                 string digestName;
-                if (mechanism.StartsWith("HMAC-") || mechanism.StartsWith("HMAC/"))
+                if (mechanism.StartsWith("HMAC-", StringComparison.InvariantCulture) || mechanism.StartsWith("HMAC/", StringComparison.InvariantCulture))
                 {
                     digestName = mechanism.Substring(5);
                 }
