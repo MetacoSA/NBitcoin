@@ -8,6 +8,7 @@ using NBitcoin.BouncyCastle.Crypto.Engines;
 using NBitcoin.BouncyCastle.Crypto.Macs;
 using NBitcoin.BouncyCastle.Crypto.Paddings;
 using NBitcoin.BouncyCastle.Utilities;
+using System;
 
 namespace NBitcoin.BouncyCastle.Security
 {
@@ -112,12 +113,12 @@ namespace NBitcoin.BouncyCastle.Security
                 mechanism = upper;
             }
 
-            if (mechanism.StartsWith("PBEWITH"))
+            if (mechanism.StartsWith("PBEWITH", StringComparison.OrdinalIgnoreCase))
             {
                 mechanism = mechanism.Substring("PBEWITH".Length);
             }
 
-            if (mechanism.StartsWith("HMAC"))
+			if(mechanism.StartsWith("HMAC", StringComparison.OrdinalIgnoreCase))
             {
                 string digestName;
                 if (mechanism.StartsWith("HMAC-") || mechanism.StartsWith("HMAC/"))
@@ -132,92 +133,92 @@ namespace NBitcoin.BouncyCastle.Security
                 return new HMac(DigestUtilities.GetDigest(digestName));
             }
 
-            if (mechanism == "AESCMAC")
+            if (mechanism.Equals("AESCMAC", StringComparison.OrdinalIgnoreCase))
             {
                 return new CMac(new AesFastEngine());
             }
-            if (mechanism == "DESMAC")
+            if (mechanism.Equals("DESMAC", StringComparison.OrdinalIgnoreCase))
             {
                 return new CbcBlockCipherMac(new DesEngine());
             }
-            if (mechanism == "DESMAC/CFB8")
+            if (mechanism.Equals("DESMAC/CFB8", StringComparison.OrdinalIgnoreCase))
             {
                 return new CfbBlockCipherMac(new DesEngine());
             }
-            if (mechanism == "DESMAC64")
+            if (mechanism.Equals("DESMAC64", StringComparison.OrdinalIgnoreCase))
             {
                 return new CbcBlockCipherMac(new DesEngine(), 64);
             }
-            if (mechanism == "DESEDECMAC")
+            if (mechanism.Equals("DESEDECMAC", StringComparison.OrdinalIgnoreCase))
             {
                 return new CMac(new DesEdeEngine());
             }
-            if (mechanism == "DESEDEMAC")
+            if (mechanism.Equals("DESEDEMAC", StringComparison.OrdinalIgnoreCase))
             {
                 return new CbcBlockCipherMac(new DesEdeEngine());
             }
-            if (mechanism == "DESEDEMAC/CFB8")
+            if (mechanism.Equals("DESEDEMAC/CFB8", StringComparison.OrdinalIgnoreCase))
             {
                 return new CfbBlockCipherMac(new DesEdeEngine());
             }
-            if (mechanism == "DESEDEMAC64")
+            if (mechanism.Equals("DESEDEMAC64", StringComparison.OrdinalIgnoreCase))
             {
                 return new CbcBlockCipherMac(new DesEdeEngine(), 64);
             }
-            if (mechanism == "DESEDEMAC64WITHISO7816-4PADDING")
+            if (mechanism.Equals("DESEDEMAC64WITHISO7816-4PADDING", StringComparison.OrdinalIgnoreCase))
             {
                 return new CbcBlockCipherMac(new DesEdeEngine(), 64, new ISO7816d4Padding());
             }
-            if (mechanism == "DESWITHISO9797"
-                || mechanism == "ISO9797ALG3MAC")
+            if (mechanism.Equals("DESWITHISO9797", StringComparison.OrdinalIgnoreCase)
+                || mechanism.Equals("ISO9797ALG3MAC", StringComparison.OrdinalIgnoreCase))
             {
                 return new ISO9797Alg3Mac(new DesEngine());
             }
-            if (mechanism == "ISO9797ALG3WITHISO7816-4PADDING")
+            if (mechanism.Equals("ISO9797ALG3WITHISO7816-4PADDING", StringComparison.OrdinalIgnoreCase))
             {
                 return new ISO9797Alg3Mac(new DesEngine(), new ISO7816d4Padding());
             }
-            if (mechanism == "SKIPJACKMAC")
+            if (mechanism.Equals("SKIPJACKMAC", StringComparison.OrdinalIgnoreCase))
             {
                 return new CbcBlockCipherMac(new SkipjackEngine());
             }
-            if (mechanism == "SKIPJACKMAC/CFB8")
+            if (mechanism.Equals("SKIPJACKMAC/CFB8", StringComparison.OrdinalIgnoreCase))
             {
                 return new CfbBlockCipherMac(new SkipjackEngine());
             }
-            if (mechanism == "IDEAMAC")
+            if (mechanism.Equals("IDEAMAC", StringComparison.OrdinalIgnoreCase))
             {
                 return new CbcBlockCipherMac(new IdeaEngine());
             }
-            if (mechanism == "IDEAMAC/CFB8")
+            if (mechanism.Equals("IDEAMAC/CFB8", StringComparison.OrdinalIgnoreCase))
             {
                 return new CfbBlockCipherMac(new IdeaEngine());
             }
-            if (mechanism == "RC2MAC")
+            if (mechanism.Equals("RC2MAC", StringComparison.OrdinalIgnoreCase))
             {
                 return new CbcBlockCipherMac(new RC2Engine());
             }
-            if (mechanism == "RC2MAC/CFB8")
+            if (mechanism.Equals("RC2MAC/CFB8", StringComparison.OrdinalIgnoreCase))
             {
                 return new CfbBlockCipherMac(new RC2Engine());
             }
-            if (mechanism == "RC5MAC")
+            if (mechanism.Equals("RC5MAC", StringComparison.OrdinalIgnoreCase))
             {
                 return new CbcBlockCipherMac(new RC532Engine());
             }
-            if (mechanism == "RC5MAC/CFB8")
+            if (mechanism.Equals("RC5MAC/CFB8", StringComparison.OrdinalIgnoreCase))
             {
                 return new CfbBlockCipherMac(new RC532Engine());
             }
-            if (mechanism == "GOST28147MAC")
+            if (mechanism.Equals("GOST28147MAC", StringComparison.OrdinalIgnoreCase))
             {
                 return new Gost28147Mac();
             }
-            if (mechanism == "VMPCMAC")
+            if (mechanism.Equals("VMPCMAC", StringComparison.OrdinalIgnoreCase))
             {
                 return new VmpcMac();
             }
-            if (mechanism == "SIPHASH-2-4")
+            if (mechanism.Equals("SIPHASH-2-4", StringComparison.OrdinalIgnoreCase))
             {
                 return new SipHash();
             }
