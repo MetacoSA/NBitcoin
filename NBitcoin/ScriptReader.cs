@@ -255,18 +255,6 @@ namespace NBitcoin
 				case OpcodeType.OP_NOP10:
 					return "OP_NOP10";
 
-
-
-				// template matching params
-				case OpcodeType.OP_PUBKEYHASH:
-					return "OP_PUBKEYHASH";
-				case OpcodeType.OP_PUBKEY:
-					return "OP_PUBKEY";
-				case OpcodeType.OP_SMALLDATA:
-					return "OP_SMALLDATA";
-
-				case OpcodeType.OP_INVALIDOPCODE:
-					return "OP_INVALIDOPCODE";
 				default:
 					return "OP_UNKNOWN";
 			}
@@ -287,13 +275,9 @@ namespace NBitcoin
 					_OpcodeByName.Add(name, code);
 			}
 		}
-		public static OpcodeType GetOpCode(string name)
+		public static bool GetOpCode(string name, out OpcodeType result)
 		{
-			OpcodeType code;
-			if(_OpcodeByName.TryGetValue(name, out code))
-				return code;
-			else
-				return OpcodeType.OP_INVALIDOPCODE;
+			return _OpcodeByName.TryGetValue(name, out result);
 		}
 
 #if !NOBIGINT
@@ -346,10 +330,19 @@ namespace NBitcoin
 				return _Name;
 			}
 		}
+
+		OpcodeType _Code;
 		public OpcodeType Code
 		{
-			get;
-			set;
+			get
+			{
+				return _Code;
+			}
+			set
+			{
+				_Code = value;
+				IsInvalid = GetOpName(value).StartsWith("OP_UNKNOWN") && !IsPushCode(value);
+			}
 		}
 		public byte[] PushData
 		{
@@ -398,62 +391,75 @@ namespace NBitcoin
 				throw new NotSupportedException("Data length should not be bigger than 0xFFFFFFFF");
 			result.Write(data, 0, data.Length);
 		}
-		internal static byte[] ReadData(Op op, Stream stream, bool ignoreWrongPush = false)
+		internal byte[] ReadData(Stream stream)
 		{
-			var opcode = op.Code;
 			uint len = 0;
 			BitcoinStream bitStream = new BitcoinStream(stream, false);
-			if(opcode == 0)
+			if(Code == 0)
 				return new byte[0];
 
-			if((byte)OpcodeType.OP_1 <= (byte)opcode && (byte)opcode <= (byte)OpcodeType.OP_16)
+			if((byte)OpcodeType.OP_1 <= (byte)Code && (byte)Code <= (byte)OpcodeType.OP_16)
 			{
-				return new byte[] { (byte)(opcode - OpcodeType.OP_1 + 1) };
+				return new byte[] { (byte)(Code - OpcodeType.OP_1 + 1) };
 			}
 
-			if(opcode == OpcodeType.OP_1NEGATE)
+			if(Code == OpcodeType.OP_1NEGATE)
 			{
 				return new byte[] { 0x81 };
 			}
 
 			try
 			{
-				if(0x01 <= (byte)opcode && (byte)opcode <= 0x4b)
-					len = (uint)opcode;
-				else if(opcode == OpcodeType.OP_PUSHDATA1)
+				if(0x01 <= (byte)Code && (byte)Code <= 0x4b)
+					len = (uint)Code;
+				else if(Code == OpcodeType.OP_PUSHDATA1)
 					len = bitStream.ReadWrite((byte)0);
-				else if(opcode == OpcodeType.OP_PUSHDATA2)
+				else if(Code == OpcodeType.OP_PUSHDATA2)
 					len = bitStream.ReadWrite((ushort)0);
-				else if(opcode == OpcodeType.OP_PUSHDATA4)
+				else if(Code == OpcodeType.OP_PUSHDATA4)
 					len = bitStream.ReadWrite((uint)0);
 				else
-					throw new FormatException("Invalid opcode for pushing data : " + opcode);
+				{
+					IsInvalid = true;
+					return new byte[0];
+				}
+
+
+				byte[] data = null;
+
+				if(len <= MAX_SCRIPT_ELEMENT_SIZE) //Most of the time
+				{
+					data = new byte[len];
+					var readen = stream.Read(data, 0, data.Length);
+					if(readen != data.Length)
+					{
+						IsInvalid = true;
+						return new byte[0];
+					}
+				}
+				else //Mitigate against a big array allocation
+				{
+					List<byte> bytes = new List<byte>();
+					for(int i = 0; i < len; i++)
+					{
+						var b = stream.ReadByte();
+						if(b < 0)
+						{
+							IsInvalid = true;
+							return new byte[0];
+						}
+						bytes.Add((byte)b);
+					}
+					data = bytes.ToArray();
+				}
+				return data;
+
 			}
 			catch(EndOfStreamException)
 			{
-				if(!ignoreWrongPush)
-					throw new FormatException("Incomplete script");
-				op.IncompleteData = true;
+				IsInvalid = true;
 				return new byte[0];
 			}
-
-			if(stream.CanSeek && stream.Length - stream.Position < len)
-			{
-				len = (uint)(stream.Length - stream.Position);
-				if(!ignoreWrongPush)
-					throw new FormatException("Not enough bytes pushed with " + opcode.ToString() + " expected " + len + " but got " + len);
-				op.IncompleteData = true;
-			}
-			byte[] data = new byte[len];
-			var readen = stream.Read(data, 0, data.Length);
-			if(readen != data.Length && !ignoreWrongPush)
-				throw new FormatException("Not enough bytes pushed with " + opcode.ToString() + " expected " + len + " but got " + readen);
-			else if(readen != data.Length)
-			{
-				op.IncompleteData = true;
-				Array.Resize(ref data, readen);
-			}
-			return data;
 		}
 
 		public byte[] ToBytes()
@@ -492,18 +498,20 @@ namespace NBitcoin
 		}
 
 		static string unknown = "OP_UNKNOWN(0x";
+		const int MAX_SCRIPT_ELEMENT_SIZE = 520;
 		internal static Op Read(TextReader textReader)
 		{
 			MemoryStream ms = new MemoryStream();
 			var opname = ReadWord(textReader);
-			var opcode = GetOpCode(opname);
+			OpcodeType opcode;
+
+			var isOpCode = GetOpCode(opname, out opcode);
 
 			if(
-				(opcode == OpcodeType.OP_INVALIDOPCODE || Op.IsPushCode(opcode))
-				&& !opname.StartsWith(unknown)
-				&& opname != "OP_INVALIDOPCODE")
+				(!isOpCode || Op.IsPushCode(opcode))
+				&& !opname.StartsWith(unknown))
 			{
-				if(opcode == OpcodeType.OP_0)
+				if(isOpCode && opcode == OpcodeType.OP_0)
 					return GetPushOp(new byte[0]);
 				return GetPushOp(Encoders.Hex.DecodeData(opname.Length == 1 ? "0" + opname : opname));
 			}
@@ -585,10 +593,11 @@ namespace NBitcoin
 			return builder.ToString();
 		}
 
-		public bool IncompleteData
+
+		public bool IsInvalid
 		{
 			get;
-			set;
+			private set;
 		}
 
 		public bool IsSmallUInt
@@ -619,11 +628,6 @@ namespace NBitcoin
 	}
 	public class ScriptReader
 	{
-		public bool IgnoreIncoherentPushData
-		{
-			get;
-			set;
-		}
 		private readonly Stream _Inner;
 		public Stream Inner
 		{
@@ -655,9 +659,7 @@ namespace NBitcoin
 			{
 				Op op = new Op();
 				op.Code = opcode;
-				op.PushData = Op.ReadData(op, Inner, IgnoreIncoherentPushData);
-				if(op.IncompleteData == true)
-					return null;
+				op.PushData = op.ReadData(Inner);
 				return op;
 			}
 			return new Op()
@@ -666,7 +668,11 @@ namespace NBitcoin
 			};
 		}
 
-
+		public bool HasError
+		{
+			get;
+			private set;
+		}
 
 		public IEnumerable<Op> ToEnumerable()
 		{

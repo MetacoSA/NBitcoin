@@ -348,7 +348,7 @@ namespace NBitcoin
 					.Take(ops.Length - 1 - (multiSig ? 1 : 0))
 					.Select(o => o.Code == OpcodeType.OP_0 ? null : new TransactionSignature(o.PushData))
 					.ToArray();
-				result.RedeemScript = new Script(ops[ops.Length - 1].PushData);
+				result.RedeemScript = Script.FromBytesUnsafe(ops[ops.Length - 1].PushData);
 				return result;
 			}
 			catch(Exception)
@@ -390,7 +390,11 @@ namespace NBitcoin
 				if(expectedHash != Script.FromBytesUnsafe(ops[ops.Length - 1].PushData).Hash)
 					return false;
 			}
-			return ops[ops.Length - 1].PushData.Length <= 520;
+
+			var redeemBytes = ops[ops.Length - 1].PushData;
+			if(redeemBytes.Length > 520)
+				return false;			
+			return Script.FromBytesUnsafe(ops[ops.Length - 1].PushData).IsValid;
 		}
 
 
