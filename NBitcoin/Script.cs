@@ -228,17 +228,6 @@ namespace NBitcoin
 		OP_NOP8 = 0xb7,
 		OP_NOP9 = 0xb8,
 		OP_NOP10 = 0xb9,
-
-
-
-		// template matching params
-		OP_SMALLDATA = 0xf9,
-		OP_SMALLINTEGER = 0xfa,
-		OP_PUBKEYS = 0xfb,
-		OP_PUBKEYHASH = 0xfd,
-		OP_PUBKEY = 0xfe,
-
-		OP_INVALIDOPCODE = 0xff,
 	};
 
 	public class Script
@@ -332,12 +321,9 @@ namespace NBitcoin
 
 
 
-		public ScriptReader CreateReader(bool ignoreErrors = false)
+		public ScriptReader CreateReader()
 		{
-			return new ScriptReader(_Script)
-			{
-				IgnoreIncoherentPushData = ignoreErrors
-			};
+			return new ScriptReader(_Script);
 		}
 
 
@@ -399,10 +385,7 @@ namespace NBitcoin
 		public override string ToString()
 		{
 			StringBuilder builder = new StringBuilder();
-			ScriptReader reader = new ScriptReader(_Script)
-			{
-				IgnoreIncoherentPushData = true
-			};
+			ScriptReader reader = new ScriptReader(_Script);		
 
 			Op op;
 			while((op = reader.Read()) != null)
@@ -418,7 +401,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				foreach(var script in CreateReader(true).ToEnumerable())
+				foreach(var script in CreateReader().ToEnumerable())
 				{
 					if(script.PushData == null)
 						return false;
@@ -431,9 +414,9 @@ namespace NBitcoin
 		{
 			get
 			{
-				foreach(var op in CreateReader(true).ToEnumerable())
+				foreach(var op in CreateReader().ToEnumerable())
 				{
-					if(op.IncompleteData)
+					if(op.IsInvalid)
 						return false;
 					if(op.Code > OpcodeType.OP_16)
 						continue;
@@ -565,10 +548,7 @@ namespace NBitcoin
 
 		public IEnumerable<Op> ToOps()
 		{
-			ScriptReader reader = new ScriptReader(_Script)
-			{
-				IgnoreIncoherentPushData = true
-			};
+			ScriptReader reader = new ScriptReader(_Script);
 			return reader.ToEnumerable();
 		}
 
@@ -987,6 +967,14 @@ namespace NBitcoin
 		private static byte[][] Max(byte[][] scriptSig1, byte[][] scriptSig2)
 		{
 			return scriptSig1.Length >= scriptSig2.Length ? scriptSig1 : scriptSig2;
+		}
+
+		public bool IsValid
+		{
+			get
+			{
+				return ToOps().All(o => !o.IsInvalid);
+			}
 		}
 	}
 }

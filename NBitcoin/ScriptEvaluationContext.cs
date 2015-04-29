@@ -386,7 +386,14 @@ namespace NBitcoin
 				while((opcode = script.Read()) != null)
 				{
 					bool fExec = vfExec.All(o => o); //!count(vfExec.begin(), vfExec.end(), false);
-
+					if(fExec)
+					{
+						if(opcode.IsInvalid)
+						{
+							SetError(ScriptError.UnknownError);
+							return false;
+						}
+					}
 					//
 					// Read instruction
 					//
