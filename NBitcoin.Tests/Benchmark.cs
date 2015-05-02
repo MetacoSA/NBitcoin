@@ -53,7 +53,7 @@ namespace NBitcoin.Tests
 		[Trait("Benchmark", "Benchmark")]
 		public void BlockDownloadFromNetwork()
 		{
-			using(var server = new NodeServer(Network.Main))
+			using(var server = new NodeServer(Network.TestNet))
 			{
 				var originalNode = server.GetLocalNode();
 				var chain = originalNode.GetChain();
@@ -62,20 +62,21 @@ namespace NBitcoin.Tests
 				Stopwatch watch = new Stopwatch();
 				watch.Start();
 				PerformanceSnapshot snap = null;
-				foreach(var block in originalNode.GetBlocks(chain.Tip.EnumerateToGenesis().Select(c => c.HashBlock)))
+				foreach(var block in originalNode.GetBlocks(chain.Tip.EnumerateToGenesis()))
 				{
-					if(watch.Elapsed > TimeSpan.FromSeconds(5.0))
+					if(watch.Elapsed > TimeSpan.FromSeconds(10.0))
 					{
 						var newSnap = originalNode.Counter.Snapshot();
 						if(snap != null)
 						{
-							var perf =  newSnap - snap;
+							var perf = newSnap - snap;
 							speeds.Add(perf.ReadenBytesPerSecond / 1024);
 						}
 						snap = newSnap;
 						watch.Restart();
 					}
-				}				
+
+				}
 			}
 		}
 

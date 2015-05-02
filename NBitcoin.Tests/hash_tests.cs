@@ -12,7 +12,7 @@ namespace NBitcoin.Tests
 {
 	public class hash_tests
 	{
-	
+
 		[Fact]
 		[Trait("Core", "Core")]
 		public void murmurhash3()
@@ -40,6 +40,22 @@ namespace NBitcoin.Tests
 			T(0xb074502c, 0x00000000, "00112233445566");
 			T(0x8034d2a0, 0x00000000, "0011223344556677");
 			T(0xb4698def, 0x00000000, "001122334455667788");
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void hash256()
+		{
+			Assert.Equal(new uint256("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), Network.Main.GetGenesis().GetHash());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void hash160()
+		{
+			var data = new byte[] { 1, 2, 3, 4 };
+			var result = Hashes.Hash160(data);
+			Assert.Equal("706ea1768da7f0c489bf931b362c2d26d8cbd2ec", result.ToString());
 		}
 
 		[DebuggerHidden]

@@ -99,6 +99,7 @@ namespace NBitcoin
 				if(toReturn.Count == partitionSize)
 				{
 					yield return toReturn;
+					partitionSize = max();					
 					toReturn = new List<T>(partitionSize);
 				}
 			}

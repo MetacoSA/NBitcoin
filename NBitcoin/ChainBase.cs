@@ -182,6 +182,20 @@ namespace NBitcoin
 			return EnumerateAfter(block);
 		}
 
+		public IEnumerable<ChainedBlock> EnumerateToTip(ChainedBlock block)
+		{
+			return EnumerateToTip(block.HashBlock);
+		}
+		public IEnumerable<ChainedBlock> EnumerateToTip(uint256 blockHash)
+		{
+			var block = GetBlock(blockHash);
+			if(block == null)
+				yield break;
+			yield return block;
+			foreach(var r in EnumerateAfter(blockHash))
+				yield return r;
+		}
+
 		public virtual IEnumerable<ChainedBlock> EnumerateAfter(ChainedBlock block)
 		{
 			int i = block.Height + 1;

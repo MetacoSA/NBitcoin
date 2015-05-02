@@ -121,7 +121,7 @@ namespace NBitcoin.BouncyCastle.Security
 			if(mechanism.StartsWith("HMAC", StringComparison.OrdinalIgnoreCase))
             {
                 string digestName;
-                if (mechanism.StartsWith("HMAC-") || mechanism.StartsWith("HMAC/"))
+				if(mechanism.StartsWith("HMAC-", StringComparison.OrdinalIgnoreCase) || mechanism.StartsWith("HMAC/", StringComparison.OrdinalIgnoreCase))
                 {
                     digestName = mechanism.Substring(5);
                 }

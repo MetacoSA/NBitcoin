@@ -628,6 +628,12 @@ namespace NBitcoin.Protocol
 			}
 			//GetBlocks(neededBlocks.ToEnumerable(false).Select(e => e.HashBlock), cancellationToken);
 		}
+
+		public IEnumerable<Block> GetBlocks(IEnumerable<ChainedBlock> blocks, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return GetBlocks(blocks.Select(c => c.HashBlock), cancellationToken);
+		}
+
 		public IEnumerable<Block> GetBlocks(IEnumerable<uint256> neededBlocks, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			AssertState(NodeState.HandShaked, cancellationToken);
@@ -635,7 +641,6 @@ namespace NBitcoin.Protocol
 			{
 				NodeServerTrace.Information("Downloading blocks");
 				int simultaneous = 70;
-				PerformanceSnapshot lastSpeed = null;
 				using(var listener = CreateListener()
 									.OfType<BlockPayload>())
 				{
@@ -645,35 +650,30 @@ namespace NBitcoin.Protocol
 												Type = InventoryType.MSG_BLOCK,
 												Hash = b
 											})
-										.Partition(simultaneous))
+										.Partition(() => simultaneous))
 					{
-						NodeServerTrace.Information("Speed " + lastSpeed);
-						var begin = Counter.Snapshot();
 
-						var invsByHash = invs.ToDictionary(k => k.Hash);
-
+						var remaining = new Queue<uint256>(invs.Select(k => k.Hash));
 						this.SendMessage(new GetDataPayload(invs.ToArray()));
 
-						Block[] downloadedBlocks = new Block[invs.Count];
-						while(invsByHash.Count != 0)
+						int maxQueued = 0;
+						while(remaining.Count != 0)
 						{
 							var block = listener.ReceivePayload<BlockPayload>(cancellationToken).Object;
-							var thisHash = block.GetHash();
-							if(invsByHash.ContainsKey(thisHash))
+							maxQueued = Math.Max(listener.MessageQueue.Count, maxQueued);
+							if(remaining.Peek() == block.GetHash())
 							{
-								downloadedBlocks[invs.IndexOf(invsByHash[thisHash])] = block;
-								invsByHash.Remove(thisHash);
+								remaining.Dequeue();
+								yield return block;
 							}
 						}
-						var end = Counter.Snapshot();
-						lastSpeed = end - begin;
-
-						foreach(var downloadedBlock in downloadedBlocks)
-						{
-							yield return downloadedBlock;
-						}
+						if(maxQueued < 10)
+							simultaneous *= 2;
+						else
+							simultaneous /= 2;
+						simultaneous = Math.Max(10, simultaneous);
+						simultaneous = Math.Min(10000, simultaneous);
 					}
-
 				}
 			}
 		}
