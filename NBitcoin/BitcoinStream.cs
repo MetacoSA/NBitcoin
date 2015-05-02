@@ -116,7 +116,7 @@ namespace NBitcoin
 			{
 				var varString = new VarString();
 				varString.ReadWrite(this);
-				return new Script(varString.GetString());
+				return Script.FromBytesUnsafe(varString.GetString(true));
 			}
 		}
 

@@ -19,7 +19,21 @@ namespace NBitcoin.Crypto
 		public static uint256 Hash256(byte[] data, int count)
 		{
 			data = count == 0 ? new byte[1] : data;
-			return new uint256(SHA256(SHA256(data, count)));
+#if !USEBC
+			using(var sha = System.Security.Cryptography.SHA256.Create())
+			{
+				var h = sha.ComputeHash(data, 0, count);
+				return new uint256(sha.ComputeHash(h, 0, h.Length));
+			}
+#else
+			Sha256Digest sha256 = new Sha256Digest();
+			sha256.BlockUpdate(data, 0, count);
+			byte[] rv = new byte[32];
+			sha256.DoFinal(rv, 0);
+			sha256.BlockUpdate(rv, 0, rv.Length);
+			sha256.DoFinal(rv, 0);
+			return new uint256(rv);
+#endif
 		}
 
 
@@ -71,11 +85,18 @@ namespace NBitcoin.Crypto
 
 		public static byte[] RIPEMD160(byte[] data, int count)
 		{
+#if !USEBC
+			using(var ripm = System.Security.Cryptography.RIPEMD160.Create())
+			{
+				return ripm.ComputeHash(data, 0, count);
+			}
+#else
 			RipeMD160Digest ripemd = new RipeMD160Digest();
 			ripemd.BlockUpdate(data, 0, count);
 			byte[] rv = new byte[20];
 			ripemd.DoFinal(rv, 0);
 			return rv;
+#endif
 		}
 
 		private static uint rotl32(uint x, byte r)

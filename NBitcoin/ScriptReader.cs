@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using ooo = NBitcoin.BouncyCastle.Math;
+using System.Reflection;
 
 namespace NBitcoin
 {
@@ -15,6 +16,8 @@ namespace NBitcoin
 		//Copied from satoshi's code
 		public static string GetOpName(OpcodeType opcode)
 		{
+			if(!_ValidOpCode[(byte)opcode])
+				return "OP_UNKNOWN";
 			switch(opcode)
 			{
 				// push value
@@ -256,7 +259,7 @@ namespace NBitcoin
 					return "OP_NOP10";
 
 				default:
-					return "OP_UNKNOWN";
+					return Enum.GetName(typeof(OpcodeType), opcode);
 			}
 		}
 		internal static bool IsPushCode(OpcodeType opcode)
@@ -267,6 +270,7 @@ namespace NBitcoin
 		static Dictionary<string, OpcodeType> _OpcodeByName;
 		static Op()
 		{
+			_ValidOpCode = GetValidOpCode();
 			_OpcodeByName = new Dictionary<string, OpcodeType>();
 			foreach(var code in Enum.GetValues(typeof(OpcodeType)).Cast<OpcodeType>().Distinct())
 			{
@@ -332,6 +336,25 @@ namespace NBitcoin
 		}
 
 		OpcodeType _Code;
+		static readonly bool[] _ValidOpCode;		
+
+		private static bool[] GetValidOpCode()
+		{
+			var valid = new bool[256];
+			foreach(var val in Enum.GetValues(typeof(OpcodeType)))
+			{
+				valid[(byte)val] = true;
+			}
+			for(byte i = 0 ; ; i++)
+			{
+				if(IsPushCode((OpcodeType)i))
+					valid[i] = true;
+				if(i == 255)
+					break;
+			}
+			return valid;
+		}
+
 		public OpcodeType Code
 		{
 			get
@@ -341,7 +364,7 @@ namespace NBitcoin
 			set
 			{
 				_Code = value;
-				IsInvalid = GetOpName(value).StartsWith("OP_UNKNOWN") && !IsPushCode(value);
+				IsInvalid = !_ValidOpCode[(byte)value];
 			}
 		}
 		public byte[] PushData
@@ -440,7 +463,7 @@ namespace NBitcoin
 				else //Mitigate against a big array allocation
 				{
 					List<byte> bytes = new List<byte>();
-					for(int i = 0; i < len; i++)
+					for(int i = 0 ; i < len ; i++)
 					{
 						var b = stream.ReadByte();
 						if(b < 0)
