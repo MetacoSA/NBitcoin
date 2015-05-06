@@ -99,7 +99,7 @@ namespace NBitcoin
 				if(toReturn.Count == partitionSize)
 				{
 					yield return toReturn;
-					partitionSize = max();					
+					partitionSize = max();
 					toReturn = new List<T>(partitionSize);
 				}
 			}
@@ -475,10 +475,40 @@ namespace NBitcoin
 				};
 			}
 		}
+		internal static byte[] ToBytes(ulong value, bool littleEndian)
+		{
+			if(littleEndian)
+			{
+				return new byte[]
+				{
+					(byte)value,
+					(byte)(value >> 8),
+					(byte)(value >> 16),
+					(byte)(value >> 24),
+					(byte)(value >> 32),
+					(byte)(value >> 40),
+					(byte)(value >> 48),
+					(byte)(value >> 56),
+				};
+			}
+			else
+			{
+				return new byte[]
+				{
+					(byte)(value >> 56),
+					(byte)(value >> 48),
+					(byte)(value >> 40),
+					(byte)(value >> 32),
+					(byte)(value >> 24),
+					(byte)(value >> 16),
+					(byte)(value >> 8),
+					(byte)value,
+				};
+			}
+		}
 
 		internal static uint ToUInt32(byte[] value, bool littleEndian)
 		{
-
 			if(littleEndian)
 			{
 				return value[0]
@@ -492,6 +522,31 @@ namespace NBitcoin
 					   + ((uint)value[2] << 8)
 					   + ((uint)value[1] << 16)
 					   + ((uint)value[0] << 24);
+			}
+		}
+		internal static ulong ToUInt64(byte[] value, bool littleEndian)
+		{
+			if(littleEndian)
+			{
+				return value[0]
+					   + ((ulong)value[1] << 8)
+					   + ((ulong)value[2] << 16)
+					   + ((ulong)value[3] << 24)
+					   + ((ulong)value[4] << 32)
+					   + ((ulong)value[5] << 40)
+					   + ((ulong)value[6] << 48)
+					   + ((ulong)value[7] << 56);
+			}
+			else
+			{
+				return value[7]
+					+ ((ulong)value[6] << 8)
+					+ ((ulong)value[5] << 16)
+					+ ((ulong)value[4] << 24)
+					+ ((ulong)value[3] << 32)
+					   + ((ulong)value[2] << 40)
+					   + ((ulong)value[1] << 48)
+					   + ((ulong)value[0] << 56);
 			}
 		}
 

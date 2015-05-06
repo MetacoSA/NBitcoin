@@ -69,6 +69,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="addrman_tests.cs" />
     <Compile Include="alert_tests.cs" />
     <Compile Include="AssertEx.cs" />
     <Compile Include="base58_tests.cs" />
@@ -180,6 +181,7 @@
     <None Include="data\payreq3_validchain.paymentrequest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="data\peers.dat" />
     <None Include="data\targethistory.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
