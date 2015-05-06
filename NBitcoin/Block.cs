@@ -139,7 +139,7 @@ namespace NBitcoin
 			stream.ReadWrite(ref nTime);
 			stream.ReadWrite(ref nBits);
 			stream.ReadWrite(ref nNonce);
-			if(stream.NetworkFormat)
+			if(stream.Type == SerializationType.Network)
 			{
 				VarInt txCount = new VarInt(0);
 				stream.ReadWrite(ref txCount);
@@ -223,7 +223,7 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			using(stream.NetworkFormatScope(false))
+			using(stream.SerializationTypeScope(SerializationType.Disk))
 			{
 				stream.ReadWrite(ref header);
 			}

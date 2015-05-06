@@ -15,6 +15,12 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	public enum SerializationType
+	{
+		Disk,
+		Network,
+		Hash
+	}
 	public class Scope : IDisposable
 	{
 		Action close;
@@ -353,24 +359,22 @@ namespace NBitcoin
 			MaxArraySize = stream.MaxArraySize;
 		}
 
-		private bool _NetworkFormat;
-		public bool NetworkFormat
+
+		public SerializationType Type
 		{
-			get
-			{
-				return _NetworkFormat;
-			}
+			get;
+			set;
 		}
 
-		public IDisposable NetworkFormatScope(bool value)
+		public IDisposable SerializationTypeScope(SerializationType value)
 		{
-			var old = _NetworkFormat;
+			var old = Type;
 			return new Scope(() =>
 			{
-				_NetworkFormat = value;
+				Type = value;
 			}, () =>
 			{
-				_NetworkFormat = old;
+				Type = old;
 			});
 		}
 

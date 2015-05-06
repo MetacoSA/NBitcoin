@@ -13,6 +13,7 @@ namespace NBitcoin
 	{
 		public static bool IsRFC1918(this IPAddress address)
 		{
+			address = address.EnsureIPv6();
 			var bytes = address.GetAddressBytes();
 			return address.IsIPv4() && (
 				bytes[15 - 3] == 10 ||
@@ -24,8 +25,8 @@ namespace NBitcoin
 		public static bool IsIPv4(this IPAddress address)
 		{
 			return address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork ||
-#if WIN				
-				address.IsIPv4MappedToIPv6;
+#if WIN
+ address.IsIPv4MappedToIPv6;
 #else
 				address.IsIPv4MappedToIPv6();
 #endif
@@ -34,6 +35,7 @@ namespace NBitcoin
 
 		public static bool IsRFC3927(this IPAddress address)
 		{
+			address = address.EnsureIPv6();
 			var bytes = address.GetAddressBytes();
 			return address.IsIPv4() && (bytes[15 - 3] == 169 && bytes[15 - 2] == 254);
 		}
@@ -89,15 +91,92 @@ namespace NBitcoin
 			return (bytes[15 - 15] == 0x20 && bytes[15 - 14] == 0x01 && bytes[15 - 13] == 0x00 && (bytes[15 - 12] & 0xF0) == 0x10);
 		}
 
+		public static byte[] GetGroup(this IPAddress address)
+		{
+			List<byte> vchRet = new List<byte>();
+			int nClass = 2;
+			int nStartByte = 0;
+			int nBits = 16;
+
+			address = address.EnsureIPv6();
+			var bytes = address.GetAddressBytes();
+
+			// all local addresses belong to the same group
+			if(address.IsLocal())
+			{
+				nClass = 255;
+				nBits = 0;
+			}
+
+			// all unroutable addresses belong to the same group
+			if(!address.IsRoutable(true))
+			{
+				nClass = 0;
+				nBits = 0;
+			}
+			// for IPv4 addresses, '1' + the 16 higher-order bits of the IP
+			// includes mapped IPv4, SIIT translated IPv4, and the well-known prefix
+			else if(address.IsIPv4() || address.IsRFC6145() || address.IsRFC6052())
+			{
+				nClass = 1;
+				nStartByte = 12;
+			}
+			// for 6to4 tunnelled addresses, use the encapsulated IPv4 address
+			else if(address.IsRFC3964())
+			{
+				nClass = 1;
+				nStartByte = 2;
+			}
+			// for Teredo-tunnelled IPv6 addresses, use the encapsulated IPv4 address
+
+			else if(address.IsRFC4380())
+			{
+				vchRet.Add(1);
+				vchRet.Add((byte)(bytes[15 - 3] ^ 0xFF));
+				vchRet.Add((byte)(bytes[15 - 2] ^ 0xFF));
+				return vchRet.ToArray();
+			}
+			else if(address.IsTor())
+			{
+				nClass = 3;
+				nStartByte = 6;
+				nBits = 4;
+			}
+			// for he.net, use /36 groups
+			else if(bytes[15 - 15] == 0x20 && bytes[15 - 14] == 0x01 && bytes[15 - 13] == 0x04 && bytes[15 - 12] == 0x70)
+				nBits = 36;
+			// for the rest of the IPv6 network, use /32 groups
+			else
+				nBits = 32;
+
+			vchRet.Add((byte)nClass);
+			while(nBits >= 8)
+			{
+				vchRet.Add(bytes[15 - (15 - nStartByte)]);
+				nStartByte++;
+				nBits -= 8;
+			}
+			if(nBits > 0)
+				vchRet.Add((byte)(bytes[15 - (15 - nStartByte)] | ((1 << nBits) - 1)));
+
+			return vchRet.ToArray();
+		}
+
 		static byte[] pchOnionCat = new byte[] { 0xFD, 0x87, 0xD8, 0x7E, 0xEB, 0x43 };
 		public static bool IsTor(this IPAddress address)
 		{
 			var bytes = address.GetAddressBytes();
 			return (memcmp(bytes, pchOnionCat, pchOnionCat.Length) == 0);
 		}
-
+		public static IPAddress EnsureIPv6(this IPAddress address)
+		{
+			if(address.AddressFamily == AddressFamily.InterNetworkV6)
+				return address;
+			return address.MapToIPv6();
+		}
 		public static bool IsLocal(this IPAddress address)
 		{
+			address = address.EnsureIPv6();
 			var bytes = address.GetAddressBytes();
 			// IPv4 loopback
 			if(address.IsIPv4() && (bytes[15 - 3] == 127 || bytes[15 - 3] == 0))
@@ -118,6 +197,7 @@ namespace NBitcoin
 
 		public static bool IsMulticast(this IPAddress address)
 		{
+			address = address.EnsureIPv6();
 			var bytes = address.GetAddressBytes();
 			return (address.IsIPv4() && (bytes[15 - 3] & 0xF0) == 0xE0)
 				   || (bytes[15 - 15] == 0xFF);
@@ -137,6 +217,7 @@ namespace NBitcoin
 		}
 		public static bool IsValid(this IPAddress address)
 		{
+			address = address.EnsureIPv6();
 			var ip = address.GetAddressBytes();
 			// unspecified IPv6 address (::/128)
 			byte[] ipNone = new byte[16];
