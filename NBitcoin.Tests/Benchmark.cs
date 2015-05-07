@@ -22,40 +22,28 @@ namespace NBitcoin.Tests
 			//TestUtils.EnsureNew("BlockDirectoryScanSpeed");
 			var completeScan = Bench(() =>
 			{
-				BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
+				BlockStore store = new BlockStore(@"Z:\Bitcoin\blocks", Network.Main);
 				//BlockStore other = new BlockStore(@"BlockDirectoryScanSpeed", Network.Main);
-				foreach(var block in store.Enumerate(false, new DiskBlockPosRange(new DiskBlockPos(120, 0))))
+				foreach(var block in store.Enumerate(false))
 				{
-					if(block.Item.Header.BlockTime < ColoredTransaction.FirstColoredDate)
-						continue;
-					foreach(var tx in block.Item.Transactions)
-					{
-						//uint index = 0;
-						//var pay = OpenAsset.ColorMarker.Get(tx, out index);
-						//if(pay != null && index != 0 && index != tx.Outputs.Count - 1)
-						//{
-						//	if(pay.Quantities.Length > index)
-						//		Debugger.Break();
-						//}
-
-					}
+					
 				}
 			});
 
-			var headersOnlyScan = Bench(() =>
-			{
-				BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
-				var count = store.Enumerate(true).Count();
-			});
+			//var headersOnlyScan = Bench(() =>
+			//{
+			//	BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
+			//	var count = store.Enumerate(true).Count();
+			//});
 		}
 
 		[Fact]
 		[Trait("Benchmark", "Benchmark")]
 		public void BlockDownloadFromNetwork()
 		{
-			using(var server = new NodeServer(Network.TestNet))
+			using(var node = Node.Connect(Network.Main,"192.168.0.7"))
 			{
-				var originalNode = server.GetLocalNode();
+				var originalNode = node;
 				var chain = originalNode.GetChain();
 				List<ulong> speeds = new List<ulong>();
 

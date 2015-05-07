@@ -126,6 +126,9 @@
     <Compile Include="Payment\UriHelper.cs" />
     <Compile Include="Payment\HttpUtility.cs" />
     <Compile Include="Protocol\AddressManager.cs" />
+    <Compile Include="Protocol\Behaviors\BehaviorsCollection.cs" />
+    <Compile Include="Protocol\Behaviors\NodeBehavior.cs" />
+    <Compile Include="Protocol\Behaviors\PingPongBehavior.cs" />
     <Compile Include="Protocol\NodeListener.cs" />
     <Compile Include="Protocol\Payloads\GetBlocksPayload.cs" />
     <Compile Include="Protocol\Payloads\GetDataPayload.cs" />

@@ -12,6 +12,7 @@ using System.Threading;
 using System.IO;
 using NBitcoin.DataEncoders;
 using System.Net.Sockets;
+using NBitcoin.Protocol.Behaviors;
 
 namespace NBitcoin.Tests
 {
@@ -239,8 +240,13 @@ namespace NBitcoin.Tests
 				toS2.VersionHandshake();
 				var ping = new PingPayload();
 				toS2.SendMessage(ping);
-				var pong = toS2.ReceiveMessage<PongPayload>(TimeSpan.FromSeconds(10.0));
-				Assert.Equal(ping.Nonce, pong.Nonce);
+				while(true)
+				{
+					var pong = toS2.ReceiveMessage<PongPayload>(TimeSpan.FromSeconds(10.0));
+					if(ping.Nonce == pong.Nonce)
+						break;
+				}
+
 			}
 		}
 
@@ -255,6 +261,39 @@ namespace NBitcoin.Tests
 				{
 					tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint).VersionHandshake();
 				});
+			}
+		}
+
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanExchangeFastPingPong()
+		{
+			using(var tester = new NodeServerTester())
+			{
+				var n1 = tester.Server2.GetNodeByEndpoint(tester.Server1.ExternalEndpoint);
+				n1.Behaviors.Clear();
+				n1.Behaviors.Add(new PingPongBehavior()
+				{
+					PingInterval = TimeSpan.FromSeconds(0.1),
+					TimeoutInterval = TimeSpan.FromSeconds(0.1)
+				});
+				n1.VersionHandshake();
+				Assert.True(!n1.Inbound);
+
+				var n2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
+				n2.Behaviors.Clear();
+				n2.Behaviors.Add(new PingPongBehavior()
+				{
+					PingInterval = TimeSpan.FromSeconds(0.1),
+					TimeoutInterval = TimeSpan.FromSeconds(0.1)
+				});
+				Assert.True(n2.Inbound);
+				Thread.Sleep(500);
+				Assert.True(n2.State == NodeState.HandShaked);
+				n1.Behaviors.Clear();
+				Thread.Sleep(500);
+				Assert.True(n2.State == NodeState.Disconnecting || n2.State == NodeState.Offline);
+				Assert.True(n2.DisconnectReason.Reason == "Pong timeout");
 			}
 		}
 
@@ -369,7 +408,7 @@ namespace NBitcoin.Tests
 
 				Assert.True(node.PeerVersion.StartHeight <= chain.Height);
 
-				var subChain = chain.ToEnumerable(true).Take(100).Select(s=>s.HashBlock).ToArray();
+				var subChain = chain.ToEnumerable(true).Take(100).Select(s => s.HashBlock).ToArray();
 
 				var begin = node.Counter.Snapshot();
 				var blocks = node.GetBlocks(subChain).Select(_ => 1).ToList();
