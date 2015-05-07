@@ -1,4 +1,5 @@
 ﻿#if !NOSOCKET
+using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -20,6 +21,20 @@ namespace NBitcoin.Protocol
 		Disconnecting,
 		Connected,
 		HandShaked
+	}
+
+	public class NodeDisconnectReason
+	{
+		public string Reason
+		{
+			get;
+			set;
+		}
+		public Exception Exception
+		{
+			get;
+			set;
+		}
 	}
 
 
@@ -87,7 +102,7 @@ namespace NBitcoin.Protocol
 				_Cancel = new CancellationTokenSource();
 			}
 
-			EventLoopMessageListener<IncomingMessage> _PingListener;
+			EventLoopMessageListener<IncomingMessage> _MessageListener;
 
 			bool _IsDisposed;
 			public void Dispose()
@@ -95,24 +110,22 @@ namespace NBitcoin.Protocol
 				if(!_IsDisposed)
 				{
 					Utils.SafeCloseSocket(Socket);
-					if(_PingListener != null)
+					if(_MessageListener != null)
 					{
-						Node.MessageProducer.RemoveMessageListener(_PingListener);
-						_PingListener.Dispose();
-						_PingListener = null;
+						Node.MessageProducer.RemoveMessageListener(_MessageListener);
+						_MessageListener.Dispose();
+						_MessageListener = null;
 					}
 					_IsDisposed = true;
+					foreach(var behavior in _Node.Behaviors)
+					{
+						behavior.Detach();
+					}
 				}
 			}
 
 			void MessageReceived(IncomingMessage message)
 			{
-				var ping = message.Message.Payload as PingPayload;
-				if(ping != null)
-				{
-					message.Node.SendMessage(ping.CreatePong());
-				}
-
 				var version = message.Message.Payload as VersionPayload;
 				if(version != null && Node.State == NodeState.HandShaked)
 				{
@@ -132,8 +145,8 @@ namespace NBitcoin.Protocol
 					using(TraceCorrelation.Open(false))
 					{
 						NodeServerTrace.Information("Listening");
-						_PingListener = new EventLoopMessageListener<IncomingMessage>(MessageReceived);
-						Node.MessageProducer.AddMessageListener(_PingListener);
+						_MessageListener = new EventLoopMessageListener<IncomingMessage>(MessageReceived);
+						Node.MessageProducer.AddMessageListener(_MessageListener);
 						try
 						{
 							while(!Cancel.Token.IsCancellationRequested)
@@ -160,11 +173,17 @@ namespace NBitcoin.Protocol
 							{
 								Node.State = NodeState.Failed;
 								NodeServerTrace.Error("Connection to server stopped unexpectedly", ex);
+								Node.DisconnectReason = new NodeDisconnectReason()
+								{
+									Reason = "Unexpected exception while connecting to socket",
+									Exception = ex
+								};
 							}
 						}
 						NodeServerTrace.Information("Stop listening");
 						if(Node.State != NodeState.Failed)
 							Node.State = NodeState.Offline;
+
 						Dispose();
 
 						_Cancel.Cancel();
@@ -286,6 +305,8 @@ namespace NBitcoin.Protocol
 
 		internal Node(Peer peer, Network network, VersionPayload myVersion, CancellationToken cancellation)
 		{
+			Inbound = false;
+			_Behaviors = new BehaviorsCollection(this);
 			_MyVersion = myVersion;
 			Version = _MyVersion.Version;
 			Network = network;
@@ -320,23 +341,21 @@ namespace NBitcoin.Protocol
 					Utils.SafeCloseSocket(socket);
 					NodeServerTrace.Error("Error connecting to the remote endpoint ", ex);
 					State = NodeState.Failed;
+					DisconnectReason = new NodeDisconnectReason()
+					{
+						Reason = "Unexpected exception while connecting to socket",
+						Exception = ex
+					};
 					throw;
 				}
+				InitDefaultBehaviors();
 				_Connection.BeginListen();
 			}
 		}
-
-
-		public event NodeEventMessageIncoming MessageReceived;
-		protected void OnMessageReceived(IncomingMessage message)
-		{
-			var messageReceived = MessageReceived;
-			if(messageReceived != null)
-				messageReceived(this, message);
-		}
-
 		internal Node(Peer peer, Network network, VersionPayload myVersion, Socket socket, VersionPayload peerVersion)
 		{
+			Inbound = true;
+			_Behaviors = new BehaviorsCollection(this);
 			_MyVersion = myVersion;
 			Network = network;
 			_Peer = peer;
@@ -349,7 +368,36 @@ namespace NBitcoin.Protocol
 				NodeServerTrace.Information("Connected to advertised node " + _Peer.NetworkAddress.Endpoint);
 				State = NodeState.Connected;
 			});
+			InitDefaultBehaviors();
 			_Connection.BeginListen();
+		}
+
+		public bool Inbound
+		{
+			get;
+			private set;
+		}
+
+		public event NodeEventMessageIncoming MessageReceived;
+		protected void OnMessageReceived(IncomingMessage message)
+		{
+			var messageReceived = MessageReceived;
+			if(messageReceived != null)
+				messageReceived(this, message);
+		}
+
+		private void InitDefaultBehaviors()
+		{
+			_Behaviors.Add(new PingPongBehavior());
+		}
+
+		private readonly BehaviorsCollection _Behaviors;
+		public BehaviorsCollection Behaviors
+		{
+			get
+			{
+				return _Behaviors;
+			}
 		}
 
 		private readonly Peer _Peer;
@@ -513,8 +561,11 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-
 		public void Disconnect()
+		{
+			Disconnect(null, null);
+		}
+		public void Disconnect(string reason, Exception exception = null)
 		{
 			if(State == NodeState.Offline)
 				return;
@@ -529,9 +580,20 @@ namespace NBitcoin.Protocol
 				State = NodeState.Disconnecting;
 				_Connection.Cancel.Cancel();
 				_Connection.Disconnected.WaitOne();
+				if(DisconnectReason == null)
+					DisconnectReason = new NodeDisconnectReason()
+					{
+						Reason = reason,
+						Exception = exception
+					};
 			}
 		}
 
+		public NodeDisconnectReason DisconnectReason
+		{
+			get;
+			private set;
+		}
 
 		public override string ToString()
 		{
@@ -751,12 +813,17 @@ namespace NBitcoin.Protocol
 
 		public void Dispose()
 		{
-			Disconnect();
+			Disconnect("Node disposed");
 		}
 
 		#endregion
 
-		public void PingPong(CancellationToken cancellation = default(CancellationToken))
+		/// <summary>
+		/// Emit a ping and wait the pong
+		/// </summary>
+		/// <param name="cancellation"></param>
+		/// <returns>Latency</returns>
+		public TimeSpan PingPong(CancellationToken cancellation = default(CancellationToken))
 		{
 			using(var listener = CreateListener().OfType<PongPayload>())
 			{
@@ -764,11 +831,14 @@ namespace NBitcoin.Protocol
 				{
 					Nonce = RandomUtils.GetUInt64()
 				};
+				var before = DateTimeOffset.UtcNow;
 				SendMessage(ping);
 
 				while(listener.ReceivePayload<PongPayload>(cancellation).Nonce != ping.Nonce)
 				{
 				}
+				var after = DateTimeOffset.UtcNow;
+				return after - before;
 			}
 		}
 	}
