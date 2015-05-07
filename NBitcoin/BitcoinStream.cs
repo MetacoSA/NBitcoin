@@ -357,6 +357,7 @@ namespace NBitcoin
 			ProtocolVersion = stream.ProtocolVersion;
 			IsBigEndian = stream.IsBigEndian;
 			MaxArraySize = stream.MaxArraySize;
+			Type = stream.Type;
 		}
 
 

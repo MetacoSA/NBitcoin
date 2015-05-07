@@ -108,7 +108,7 @@ namespace NBitcoin.Protocol
 			}
 			if(
 				stream.Type == SerializationType.Disk ||
-				(version >= (uint)ProtocolVersion.CADDR_TIME_VERSION && stream.Type != SerializationType.Hash))
+				(stream.ProtocolVersion >= ProtocolVersion.CADDR_TIME_VERSION && stream.Type != SerializationType.Hash))
 				stream.ReadWrite(ref ntime);
 			stream.ReadWrite(ref service);
 			stream.ReadWrite(ref ip);
