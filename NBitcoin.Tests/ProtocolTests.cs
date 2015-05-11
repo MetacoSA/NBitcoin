@@ -234,20 +234,27 @@ namespace NBitcoin.Tests
 		[Trait("NodeServer", "NodeServer")]
 		public void CanRespondToPong()
 		{
+
 			using(var tester = new NodeServerTester())
 			{
 				var toS2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
 				toS2.VersionHandshake();
 				var ping = new PingPayload();
-				toS2.SendMessage(ping);
-				while(true)
+				CancellationTokenSource cancel = new CancellationTokenSource();
+				cancel.CancelAfter(10000);
+				using(var list = toS2.CreateListener())
 				{
-					var pong = toS2.ReceiveMessage<PongPayload>(TimeSpan.FromSeconds(10.0));
-					if(ping.Nonce == pong.Nonce)
-						break;
+					toS2.SendMessage(ping);
+					while(true)
+					{
+						var pong = list.ReceivePayload<PongPayload>(cancel.Token);
+						if(ping.Nonce == pong.Nonce)
+							break;
+					}
 				}
 
 			}
+
 		}
 
 		[Fact]
@@ -275,21 +282,25 @@ namespace NBitcoin.Tests
 				n1.Behaviors.Add(new PingPongBehavior()
 				{
 					PingInterval = TimeSpan.FromSeconds(0.1),
-					TimeoutInterval = TimeSpan.FromSeconds(0.1)
+					TimeoutInterval = TimeSpan.FromSeconds(0.25)
 				});
+
 				n1.VersionHandshake();
+				Assert.Equal(NodeState.HandShaked, n1.State);
 				Assert.True(!n1.Inbound);
 
+				//Thread.Sleep(15000);
+				//return;
 				var n2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
-				n2.Behaviors.Clear();
 				n2.Behaviors.Add(new PingPongBehavior()
 				{
 					PingInterval = TimeSpan.FromSeconds(0.1),
-					TimeoutInterval = TimeSpan.FromSeconds(0.1)
+					TimeoutInterval = TimeSpan.FromSeconds(0.25)
 				});
+
 				Assert.True(n2.Inbound);
 				Thread.Sleep(500);
-				Assert.True(n2.State == NodeState.HandShaked);
+				Assert.Equal(NodeState.HandShaked, n2.State);
 				n1.Behaviors.Clear();
 				Thread.Sleep(500);
 				Assert.True(n2.State == NodeState.Disconnecting || n2.State == NodeState.Offline);
