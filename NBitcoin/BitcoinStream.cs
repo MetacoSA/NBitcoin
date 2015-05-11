@@ -206,8 +206,8 @@ namespace NBitcoin
 		}
 
 		private void ReadWriteList<TList, TItem>(ref TList data)
-				where TList : List<TItem>, new()
-				where TItem : IBitcoinSerializable, new()
+			where TList : List<TItem>, new()
+			where TItem : IBitcoinSerializable, new()
 		{
 			var dataArray = data == null ? null : data.ToArray();
 			if(Serializing && dataArray == null)
@@ -228,6 +228,10 @@ namespace NBitcoin
 		public void ReadWrite(ref byte[] arr)
 		{
 			ReadWriteBytes(ref arr);
+		}
+		public void ReadWrite(ref byte[] arr, int offset, int count)
+		{
+			ReadWriteBytes(ref arr, offset, count);
 		}
 		public void ReadWrite<T>(ref T[] arr) where T : IBitcoinSerializable, new()
 		{
@@ -263,16 +267,17 @@ namespace NBitcoin
 			value = valueTemp;
 		}
 
-		private void ReadWriteBytes(ref byte[] data)
+		private void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
 		{
+			count = count == -1 ? data.Length : count;
 			if(Serializing)
 			{
-				Inner.Write(data, 0, data.Length);
-				Counter.AddWritten(data.Length);
+				Inner.Write(data, offset, count);
+				Counter.AddWritten(count);
 			}
 			else
 			{
-				var readen = Inner.ReadEx(data, 0, data.Length, ReadCancellationToken);
+				var readen = Inner.ReadEx(data, offset, count, ReadCancellationToken);
 				if(readen == -1)
 					throw new EndOfStreamException("No more byte to read");
 				Counter.AddReaden(readen);

@@ -147,12 +147,13 @@ namespace NBitcoin.Protocol
 						NodeServerTrace.Information("Listening");
 						_MessageListener = new EventLoopMessageListener<IncomingMessage>(MessageReceived);
 						Node.MessageProducer.AddMessageListener(_MessageListener);
+						byte[] buffer = new byte[1024 * 1024];
 						try
 						{
 							while(!Cancel.Token.IsCancellationRequested)
 							{
 								PerformanceCounter counter;
-								var message = Message.ReadNext(Socket, Node.Network, Node.Version, Cancel.Token, out counter);
+								var message = Message.ReadNext(Socket, Node.Network, Node.Version, Cancel.Token, buffer, out counter);
 
 								Node.LastSeen = DateTimeOffset.UtcNow;
 								Node.MessageProducer.PushMessage(new IncomingMessage()
@@ -318,6 +319,8 @@ namespace NBitcoin.Protocol
 			socket.DualMode = true;
 #endif
 			_Connection = new NodeConnection(this, socket);
+			socket.ReceiveBufferSize = 1000 * 5000;
+			socket.SendBufferSize = 1000 * 1000;
 			using(TraceCorrelation.Open())
 			{
 				try
@@ -437,10 +440,9 @@ namespace NBitcoin.Protocol
 		{
 			var message = new Message();
 			message.Magic = Network.Magic;
-			message.UpdatePayload(payload, Version);
+			message.Payload = payload;
 			TraceCorrelation.LogInside(() => NodeServerTrace.Verbose("Sending message " + message));
-
-			var bytes = message.ToBytes();
+			var bytes = message.ToBytes(Version);
 			Counter.AddWritten(bytes.LongLength);
 			var result = _Connection.Socket.Send(bytes);
 		}
@@ -576,7 +578,7 @@ namespace NBitcoin.Protocol
 			}
 			using(TraceCorrelation.Open())
 			{
-				NodeServerTrace.Information("Disconnection request");
+				NodeServerTrace.Information("Disconnection request " + reason);
 				State = NodeState.Disconnecting;
 				_Connection.Cancel.Cancel();
 				_Connection.Disconnected.WaitOne();

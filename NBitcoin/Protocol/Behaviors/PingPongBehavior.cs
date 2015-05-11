@@ -19,7 +19,7 @@ namespace NBitcoin.Protocol.Behaviors
 		public PingPongBehavior()
 		{
 			Mode = PingPongMode.Both;
-			TimeoutInterval = TimeSpan.FromMinutes(2.0);
+			TimeoutInterval = TimeSpan.FromMinutes(20.0);
 			PingInterval = TimeSpan.FromMinutes(2.0);
 		}
 		PingPongMode _Mode;
@@ -66,9 +66,17 @@ namespace NBitcoin.Protocol.Behaviors
 
 		protected override void AttachCore()
 		{
+			if(AttachedNode.PeerVersion != null && !PingVersion()) //If not handshaked, still attach (the callback will also check version)
+				return;
 			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
 			RegisterDisposable(new Timer(Ping, null, 0, (int)PingInterval.TotalMilliseconds));
+		}
+
+		private bool PingVersion()
+		{
+			var node = AttachedNode;
+			return node != null && node.Version > ProtocolVersion.BIP0031_VERSION;
 		}
 
 		void AttachedNode_StateChanged(Node node, NodeState oldState)
@@ -79,6 +87,8 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void Ping(object unused)
 		{
+			if(!PingVersion())
+				return;
 			if(AttachedNode.State != NodeState.HandShaked)
 				return;
 			if(_CurrentPing != null)
@@ -111,6 +121,8 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void AttachedNode_MessageReceived(Node node, IncomingMessage message)
 		{
+			if(!PingVersion())
+				return;
 			var ping = message.Message.Payload as PingPayload;
 			if(ping != null && Mode.HasFlag(PingPongMode.RespondPong))
 			{

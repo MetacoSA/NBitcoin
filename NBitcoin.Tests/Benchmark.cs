@@ -26,7 +26,7 @@ namespace NBitcoin.Tests
 				//BlockStore other = new BlockStore(@"BlockDirectoryScanSpeed", Network.Main);
 				foreach(var block in store.Enumerate(false))
 				{
-					
+
 				}
 			});
 
@@ -41,31 +41,42 @@ namespace NBitcoin.Tests
 		[Trait("Benchmark", "Benchmark")]
 		public void BlockDownloadFromNetwork()
 		{
-			using(var node = Node.Connect(Network.Main,"192.168.0.7"))
+			Task.WaitAll(Enumerable.Range(0, 1)
+				.Select(_ => Task.Factory.StartNew(Core))
+				.ToArray());
+		}
+
+		private static void Core()
+		{
+
+			var complete = Bench(() =>
 			{
-				var originalNode = node;
-				var chain = originalNode.GetChain();
-				List<ulong> speeds = new List<ulong>();
-
-				Stopwatch watch = new Stopwatch();
-				watch.Start();
-				PerformanceSnapshot snap = null;
-				foreach(var block in originalNode.GetBlocks(chain.Tip.EnumerateToGenesis()))
+				using(var node = Node.Connect(Network.Main, "192.168.0.7"))
 				{
-					if(watch.Elapsed > TimeSpan.FromSeconds(10.0))
-					{
-						var newSnap = originalNode.Counter.Snapshot();
-						if(snap != null)
-						{
-							var perf = newSnap - snap;
-							speeds.Add(perf.ReadenBytesPerSecond / 1024);
-						}
-						snap = newSnap;
-						watch.Restart();
-					}
+					var originalNode = node;
+					var chain = originalNode.GetChain();
+					List<ulong> speeds = new List<ulong>();
 
+					Stopwatch watch = new Stopwatch();
+					watch.Start();
+					PerformanceSnapshot snap = null;
+					foreach(var block in originalNode.GetBlocks(chain.Tip.EnumerateToGenesis()))
+					{
+						if(watch.Elapsed > TimeSpan.FromSeconds(10.0))
+						{
+							var newSnap = originalNode.Counter.Snapshot();
+							if(snap != null)
+							{
+								var perf = newSnap - snap;
+								speeds.Add(perf.ReadenBytesPerSecond / 1024);
+							}
+							snap = newSnap;
+							watch.Restart();
+						}
+
+					}
 				}
-			}
+			});
 		}
 
 		[Fact]
