@@ -13,6 +13,7 @@ using System.IO;
 using NBitcoin.DataEncoders;
 using System.Net.Sockets;
 using NBitcoin.Protocol.Behaviors;
+using System.Diagnostics;
 
 namespace NBitcoin.Tests
 {
@@ -213,6 +214,27 @@ namespace NBitcoin.Tests
 				Assert.True(server.PeerTable.CountUsed(true) < 50);
 				server.DiscoverPeers(100);
 				Assert.True(server.PeerTable.CountUsed(true) > 50);
+			}
+		}
+
+		[Fact]
+		[Trait("Network", "Network")]
+		public void CanConnectToRandomNode()
+		{
+			Stopwatch watch = new Stopwatch();
+			NodeConnectionParameters parameters = new NodeConnectionParameters();
+			parameters.AddressManager = new AddressManager();
+			watch.Start();
+			using(var node = Node.Connect(Network.Main, parameters))
+			{
+				var timeToFind = watch.Elapsed;
+				node.VersionHandshake();
+				node.Dispose();
+				watch.Restart();
+				using(var node2 = Node.Connect(Network.Main, parameters))
+				{
+					var timeToFind2 = watch.Elapsed;
+				}
 			}
 		}
 
