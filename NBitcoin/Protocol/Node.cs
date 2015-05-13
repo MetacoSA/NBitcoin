@@ -23,6 +23,105 @@ namespace NBitcoin.Protocol
 		HandShaked
 	}
 
+	public class NodeSelectionCriteria
+	{
+		public NodeSelectionCriteria()
+		{
+			RequiredNodeServices = NodeServices.Network;
+			MinVersion = ProtocolVersion.PROTOCOL_VERSION;
+		}
+		public NodeServices RequiredNodeServices
+		{
+			get;
+			set;
+		}
+		public ProtocolVersion MinVersion
+		{
+			get;
+			set;
+		}
+		List<byte[]> _ExcludedGroups = new List<byte[]>();
+		public List<byte[]> ExcludedGroups
+		{
+			get
+			{
+				return _ExcludedGroups;
+			}
+		}
+	}
+
+	public class NodeConnectionParameters
+	{
+
+		public NodeConnectionParameters()
+		{
+			Version = ProtocolVersion.PROTOCOL_VERSION;
+			IsRelay = true;
+			Services = NodeServices.Nothing;
+			Cancellation = default(CancellationToken);
+			ReceiveBufferSize = 1000 * 5000;
+			SendBufferSize = 1000 * 1000;
+			UserAgent = VersionPayload.GetNBitcoinUserAgent();
+		}
+
+		public NodeConnectionParameters(NodeConnectionParameters other)
+		{
+			Version = other.Version;
+			IsRelay = other.IsRelay;
+			Services = other.Services;
+			AddressManager = other.AddressManager;
+			ReceiveBufferSize = other.ReceiveBufferSize;
+			SendBufferSize = other.SendBufferSize;
+			Cancellation = other.Cancellation;
+			UserAgent = other.UserAgent;
+		}
+		public ProtocolVersion Version
+		{
+			get;
+			set;
+		}
+		public bool IsRelay
+		{
+			get;
+			set;
+		}
+		public NodeServices Services
+		{
+			get;
+			set;
+		}
+		public AddressManager AddressManager
+		{
+			get;
+			set;
+		}
+		public string UserAgent
+		{
+			get;
+			set;
+		}
+		public int ReceiveBufferSize
+		{
+			get;
+			set;
+		}
+		public int SendBufferSize
+		{
+			get;
+			set;
+		}
+		public CancellationToken Cancellation
+		{
+			get;
+			set;
+		}
+
+		public NodeConnectionParameters Clone()
+		{
+			return new NodeConnectionParameters(this);
+		}
+	}
+
 	public class NodeDisconnectReason
 	{
 		public string Reason
@@ -147,12 +246,27 @@ namespace NBitcoin.Protocol
 						NodeServerTrace.Information("Listening");
 						_MessageListener = new EventLoopMessageListener<IncomingMessage>(MessageReceived);
 						Node.MessageProducer.AddMessageListener(_MessageListener);
+
+						Stopwatch watch = null;
 						byte[] buffer = new byte[1024 * 1024];
 						try
 						{
 							while(!Cancel.Token.IsCancellationRequested)
 							{
 								PerformanceCounter counter;
+
+								if(Socket.Available == 0)
+								{
+									watch = new Stopwatch();
+									watch.Start();
+								}
+								else
+								{
+									if(watch != null)
+										Console.WriteLine((int)watch.Elapsed.TotalMilliseconds);
+									watch = null;
+								}
+
 								var message = Message.ReadNext(Socket, Node.Network, Node.Version, Cancel.Token, buffer, out counter);
 
 								Node.LastSeen = DateTimeOffset.UtcNow;
@@ -261,13 +375,84 @@ namespace NBitcoin.Protocol
 
 		internal readonly NodeConnection _Connection;
 
+		/// <summary>
+		/// Connect to a random node on the network
+		/// </summary>
+		/// <param name="network"></param>
+		/// <param name="addrman"></param>
+		/// <param name="connectedAddresses">The already connected addresses, the new address will be select outside of existing groups</param>
+		/// <returns></returns>
+		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPAddress[] connectedAddresses = null)
+		{
+			connectedAddresses = connectedAddresses ?? new IPAddress[0];
+			parameters = parameters ?? new NodeConnectionParameters();
+			var addrman = parameters.AddressManager ?? new AddressManager();
+			DateTimeOffset start = DateTimeOffset.UtcNow;
+			while(true)
+			{
+				parameters.Cancellation.ThrowIfCancellationRequested();
+				if(addrman.Count == 0 || DateTimeOffset.UtcNow - start > TimeSpan.FromSeconds(30))
+				{
+					addrman.DiscoverPeers(network, parameters);
+				}
+				NetworkAddress addr = null;
+				while(true)
+				{
+					addr = addrman.Select();
+					if(addr == null)
+						break;
+					if(!addr.Endpoint.Address.IsValid())
+						continue;
+					var groupExist = connectedAddresses.Any(a => a.GetGroup().SequenceEqual(addr.Endpoint.Address.GetGroup()));
+					if(groupExist)
+						continue;
+					break;
+				}
+				if(addr == null)
+					continue;
+				try
+				{
+					var timeout = new CancellationTokenSource(5000);
+					var param2 = parameters.Clone();
+					param2.Cancellation = CancellationTokenSource.CreateLinkedTokenSource(parameters.Cancellation, timeout.Token).Token;
+					var node = Node.Connect(network, addr.Endpoint, param2);
+					return node;
+				}
+				catch(OperationCanceledException ex)
+				{
+					if(ex.CancellationToken == parameters.Cancellation)
+						throw;
+				}
+				catch
+				{
+					parameters.Cancellation.WaitHandle.WaitOne(500);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Connect to the node of this machine
+		/// </summary>
+		/// <param name="network"></param>
+		/// <param name="parameters"></param>
+		/// <returns></returns>
+		public static Node ConnectToLocal(Network network,
+								NodeConnectionParameters parameters)
+		{
+			return Connect(network, Utils.ParseIpEndpoint("localhost", network.DefaultPort), parameters);
+		}
 
 		public static Node ConnectToLocal(Network network,
 								ProtocolVersion myVersion = ProtocolVersion.PROTOCOL_VERSION,
 								bool isRelay = true,
 								CancellationToken cancellation = default(CancellationToken))
 		{
-			return Connect(network, Utils.ParseIpEndpoint("localhost", network.DefaultPort), myVersion, isRelay, cancellation);
+			return ConnectToLocal(network, new NodeConnectionParameters()
+			{
+				Cancellation = cancellation,
+				IsRelay = isRelay,
+				Version = myVersion
+			});
 		}
 
 		public static Node Connect(Network network,
@@ -278,11 +463,10 @@ namespace NBitcoin.Protocol
 		{
 			return Connect(network, Utils.ParseIpEndpoint(endpoint, network.DefaultPort), myVersion, isRelay, cancellation);
 		}
+
 		public static Node Connect(Network network,
-								 IPEndPoint endpoint,
-								 ProtocolVersion myVersion = ProtocolVersion.PROTOCOL_VERSION,
-								bool isRelay = true,
-								CancellationToken cancellation = default(CancellationToken))
+							 IPEndPoint endpoint,
+							 NodeConnectionParameters connectionParameters)
 		{
 			var peer = new Peer(PeerOrigin.Manual, new NetworkAddress()
 			{
@@ -292,20 +476,38 @@ namespace NBitcoin.Protocol
 
 			VersionPayload version = new VersionPayload()
 			{
-				Nonce = 12345,
-				UserAgent = VersionPayload.GetNBitcoinUserAgent(),
-				Version = myVersion,
+				Nonce = RandomUtils.GetUInt64(),
+				UserAgent = connectionParameters.UserAgent,
+				Version = connectionParameters.Version,
 				StartHeight = 0,
 				Timestamp = DateTimeOffset.UtcNow,
 				AddressReceiver = peer.NetworkAddress.Endpoint,
 				AddressFrom = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), network.DefaultPort),
-				Relay = isRelay
+				Relay = connectionParameters.IsRelay,
+				Services = connectionParameters.Services
 			};
-			return new Node(peer, network, version, cancellation);
+			return new Node(peer, network, version, connectionParameters.Cancellation, connectionParameters);
 		}
 
-		internal Node(Peer peer, Network network, VersionPayload myVersion, CancellationToken cancellation)
+		public static Node Connect(Network network,
+								 IPEndPoint endpoint,
+								 ProtocolVersion myVersion = ProtocolVersion.PROTOCOL_VERSION,
+								bool isRelay = true,
+								CancellationToken cancellation = default(CancellationToken))
 		{
+			return Connect(network, endpoint, new NodeConnectionParameters()
+			{
+				Cancellation = cancellation,
+				IsRelay = isRelay,
+				Version = myVersion,
+				Services = NodeServices.Nothing,
+				AddressManager = null
+			});
+		}
+
+		internal Node(Peer peer, Network network, VersionPayload myVersion, CancellationToken cancellation, NodeConnectionParameters parameters = null)
+		{
+			parameters = parameters ?? new NodeConnectionParameters();
 			Inbound = false;
 			_Behaviors = new BehaviorsCollection(this);
 			_MyVersion = myVersion;
@@ -319,8 +521,8 @@ namespace NBitcoin.Protocol
 			socket.DualMode = true;
 #endif
 			_Connection = new NodeConnection(this, socket);
-			socket.ReceiveBufferSize = 1000 * 5000;
-			socket.SendBufferSize = 1000 * 1000;
+			socket.ReceiveBufferSize = parameters.ReceiveBufferSize;
+			socket.SendBufferSize = parameters.SendBufferSize;
 			using(TraceCorrelation.Open())
 			{
 				try
@@ -331,13 +533,17 @@ namespace NBitcoin.Protocol
 					socket.EndConnect(ar);
 					State = NodeState.Connected;
 					NodeServerTrace.Information("Outbound connection successfull");
+					if(parameters.AddressManager != null)
+						parameters.AddressManager.Attempt(Peer.NetworkAddress);
 				}
 				catch(OperationCanceledException)
 				{
 					Utils.SafeCloseSocket(socket);
 					NodeServerTrace.Information("Connection to node cancelled");
 					State = NodeState.Offline;
-					return;
+					if(parameters.AddressManager != null)
+						parameters.AddressManager.Attempt(Peer.NetworkAddress);
+					throw;
 				}
 				catch(Exception ex)
 				{
@@ -349,9 +555,11 @@ namespace NBitcoin.Protocol
 						Reason = "Unexpected exception while connecting to socket",
 						Exception = ex
 					};
+					if(parameters.AddressManager != null)
+						parameters.AddressManager.Attempt(Peer.NetworkAddress);
 					throw;
 				}
-				InitDefaultBehaviors();
+				InitDefaultBehaviors(parameters);
 				_Connection.BeginListen();
 			}
 		}
@@ -371,7 +579,7 @@ namespace NBitcoin.Protocol
 				NodeServerTrace.Information("Connected to advertised node " + _Peer.NetworkAddress.Endpoint);
 				State = NodeState.Connected;
 			});
-			InitDefaultBehaviors();
+			InitDefaultBehaviors(new NodeConnectionParameters());
 			_Connection.BeginListen();
 		}
 
@@ -389,9 +597,13 @@ namespace NBitcoin.Protocol
 				messageReceived(this, message);
 		}
 
-		private void InitDefaultBehaviors()
+		private void InitDefaultBehaviors(NodeConnectionParameters parameters)
 		{
 			_Behaviors.Add(new PingPongBehavior());
+			if(parameters.AddressManager != null)
+			{
+				_Behaviors.Add(new AddressManagerBehavior(parameters.AddressManager));
+			}
 		}
 
 		private readonly BehaviorsCollection _Behaviors;

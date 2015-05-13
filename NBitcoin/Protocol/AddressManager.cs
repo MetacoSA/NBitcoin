@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
@@ -1107,6 +1108,116 @@ namespace NBitcoin.Protocol
 					vAddr.Add(ai.Address);
 			}
 			return vAddr;
+		}
+
+		public int Count
+		{
+			get
+			{
+				return vRandom.Count;
+			}
+		}
+
+		internal void DiscoverPeers(Network network, NodeConnectionParameters parameters)
+		{
+			int peerToFind = 1000;
+			TraceCorrelation traceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Discovering nodes");
+			List<Task> tasks = new List<Task>();
+			int found = 0;
+
+			using(traceCorrelation.Open())
+			{
+				while(found <= peerToFind)
+				{
+					parameters.Cancellation.ThrowIfCancellationRequested();
+					NodeServerTrace.PeerTableRemainingPeerToGet(-found + peerToFind);
+					List<NetworkAddress> peers = new List<NetworkAddress>();
+					peers.AddRange(this.GetAddr());
+					if(peers.Count == 0)
+					{
+						PopulateTableWithDNSNodes(network, peers);
+						PopulateTableWithHardNodes(network, peers);
+						peers = new List<NetworkAddress>(peers.OrderBy(a => RandomUtils.GetInt32()));
+					}
+
+
+					CancellationTokenSource peerTableFull = new CancellationTokenSource();
+					CancellationToken loopCancel = CancellationTokenSource.CreateLinkedTokenSource(peerTableFull.Token, parameters.Cancellation).Token;
+					try
+					{
+						Parallel.ForEach(peers, new ParallelOptions()
+						{
+							MaxDegreeOfParallelism = 5,
+							CancellationToken = loopCancel,
+						}, p =>
+						{
+							CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+							var cancelConnection = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, loopCancel);
+							Node n = null;
+							try
+							{
+								var param2 = parameters.Clone();
+								param2.Cancellation = cancelConnection.Token;
+								param2.AddressManager = this;
+								n = Node.Connect(network, p.Endpoint, param2);
+								n.VersionHandshake(cancelConnection.Token);
+								n.MessageReceived += (s, a) =>
+								{
+									var addr = (a.Message.Payload as AddrPayload);
+									if(addr != null)
+									{
+										Interlocked.Add(ref found, addr.Addresses.Length);
+										if(found >= peerToFind)
+											peerTableFull.Cancel();
+									}
+								};
+								n.SendMessage(new GetAddrPayload());
+								loopCancel.WaitHandle.WaitOne(2000);
+							}
+							catch
+							{
+							}
+							finally
+							{
+								if(n != null)
+									n.Disconnect();
+							}
+							if(found >= peerToFind)
+								peerTableFull.Cancel();
+							else
+								NodeServerTrace.Information("Need " + (-found + peerToFind) + " more peers");
+						});
+					}
+					catch(OperationCanceledException ex)
+					{
+						if(ex.CancellationToken == parameters.Cancellation)
+							throw;
+					}
+				}
+			}
+		}
+
+		private void PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers)
+		{
+			peers.AddRange(network.DNSSeeds
+				.SelectMany(d =>
+				{
+					try
+					{
+						return d.GetAddressNodes();
+					}
+					catch(Exception)
+					{
+						return new IPAddress[0];
+					}
+				})
+				.Select(d => new NetworkAddress(d, network.DefaultPort))
+				.ToArray());
+		}
+
+		private void PopulateTableWithHardNodes(Network network, List<NetworkAddress> peers)
+		{
+			peers.AddRange(network.SeedNodes);
 		}
 	}
 }

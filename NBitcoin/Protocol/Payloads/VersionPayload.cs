@@ -12,6 +12,7 @@ namespace NBitcoin.Protocol
 	[Flags]
 	public enum NodeServices : ulong
 	{
+		Nothing = 0,
 		/// <summary>
 		/// NODE_NETWORK means that the node is capable of serving the block chain. It is currently
 		/// set by all Bitcoin Core nodes, and is unset by SPV clients or other peers that just want
