@@ -9,6 +9,17 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
+	[Flags]
+	public enum NodeServices : ulong
+	{
+		/// <summary>
+		/// NODE_NETWORK means that the node is capable of serving the block chain. It is currently
+		/// set by all Bitcoin Core nodes, and is unset by SPV clients or other peers that just want
+		/// network services but don't provide them.
+		/// </summary>
+		Network = (1 << 0),
+
+	}
 	[Payload("version")]
 	public class VersionPayload : Payload, IBitcoinSerializable
 	{
@@ -18,7 +29,7 @@ namespace NBitcoin.Protocol
 			if(_NUserAgent == null)
 			{
 				var version = typeof(VersionPayload).Assembly.GetName().Version;
-				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Minor + "/";
+				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Build + "/";
 			}
 			return _NUserAgent;
 		}
@@ -40,6 +51,19 @@ namespace NBitcoin.Protocol
 			}
 		}
 		ulong services;
+
+		public NodeServices Services
+		{
+			get
+			{
+				return (NodeServices)services;
+			}
+			set
+			{
+				services = (ulong)value;
+			}
+		}
+
 		long timestamp;
 
 		public DateTimeOffset Timestamp
