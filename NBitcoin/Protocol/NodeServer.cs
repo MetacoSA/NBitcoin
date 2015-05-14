@@ -47,6 +47,7 @@ namespace NBitcoin.Protocol
 		public NodeServer(Network network, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION,
 			int internalPort = -1)
 		{
+			AllowLocalPeers = true;
 			DefaultNodeConnectionParameters = new NodeConnectionParameters();
 			internalPort = internalPort == -1 ? network.DefaultPort : internalPort;
 			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), internalPort);
