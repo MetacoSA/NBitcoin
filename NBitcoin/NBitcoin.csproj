@@ -200,8 +200,6 @@
     <Compile Include="Protocol\Payload.cs" />
     <Compile Include="Protocol\PayloadAttribute.cs" />
     <Compile Include="Protocol\NodeServer.cs" />
-    <Compile Include="Protocol\PeerTable.cs" />
-    <Compile Include="Protocol\PeerTableRepository.cs" />
     <Compile Include="Protocol\Payloads\PingPayload.cs" />
     <Compile Include="Protocol\Payloads\PongPayload.cs" />
     <Compile Include="Protocol\ProtocolTrace.cs" />

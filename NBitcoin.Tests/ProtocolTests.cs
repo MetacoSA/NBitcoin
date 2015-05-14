@@ -514,19 +514,6 @@ namespace NBitcoin.Tests
 			}
 			Assert.False(lease.IsOpen());
 		}
-
-
-		PeerTableRepository _PeerCache;
-		public PeerTableRepository PeerCache
-		{
-			get
-			{
-				if(_PeerCache == null)
-					_PeerCache = new SqLitePeerTableRepository("PeerCache");
-				return _PeerCache;
-			}
-		}
-
 	}
 }
 #endif

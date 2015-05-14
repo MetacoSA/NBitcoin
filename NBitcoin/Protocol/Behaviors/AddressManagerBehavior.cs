@@ -53,9 +53,9 @@ namespace NBitcoin.Protocol.Behaviors
 		void AttachedNode_StateChanged(Node node, NodeState oldState)
 		{
 			if(node.State <= NodeState.Disconnecting && oldState == NodeState.HandShaked)
-				AddressManager.Connected(node.Peer.NetworkAddress);
+				AddressManager.Connected(node.Peer);
 			if(node.State == NodeState.HandShaked)
-				AddressManager.Good(node.Peer.NetworkAddress);
+				AddressManager.Good(node.Peer);
 		}
 
 		protected override void DetachCore()

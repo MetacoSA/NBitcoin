@@ -89,7 +89,6 @@
     <Compile Include="hash_tests.cs" />
     <Compile Include="key_tests.cs" />
     <Compile Include="PaymentTests.cs" />
-    <Compile Include="PeerTableTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProtocolTests.cs" />
     <Compile Include="RepositoryTests.cs" />
