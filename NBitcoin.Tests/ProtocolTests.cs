@@ -20,16 +20,17 @@ namespace NBitcoin.Tests
 	public class NodeServerTester : IDisposable
 	{
 		static Random _Rand = new Random();
-		public NodeServerTester()
+		public NodeServerTester(Network network = null)
 		{
+			network = network ?? Network.TestNet;
 			var a = _Rand.Next(4000, 60000);
 			var b = _Rand.Next(4000, 60000);
-			_Server1 = new NodeServer(Network.Main, internalPort: a);
+			_Server1 = new NodeServer(network, internalPort: a);
 			_Server1.AllowLocalPeers = true;
 			_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), a);
 			_Server1.NATRuleName = NATRuleName;
 			_Server1.Listen();
-			_Server2 = new NodeServer(Network.Main, internalPort: b);
+			_Server2 = new NodeServer(network, internalPort: b);
 			_Server2.AllowLocalPeers = true;
 			_Server2.NATRuleName = NATRuleName;
 			_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), b);
@@ -52,6 +53,27 @@ namespace NBitcoin.Tests
 				return _Server2;
 			}
 		}
+
+		Node _Node1;
+		public Node Node1
+		{
+			get
+			{
+				_Node1 = _Node1 ?? Server2.GetNodeByEndpoint(Server1.ExternalEndpoint);
+				return _Node1;
+			}
+		}
+
+		Node _Node2;
+		public Node Node2
+		{
+			get
+			{
+				_Node2 = _Node2 ?? Server1.GetNodeByEndpoint(Server2.ExternalEndpoint);
+				return _Node2;
+			}
+		}
+
 		#region IDisposable Members
 
 		public void Dispose()
@@ -153,9 +175,8 @@ namespace NBitcoin.Tests
 		[Trait("NodeServer", "NodeServer")]
 		public void CanHandshake()
 		{
-			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
+			using(var seed = Node.ConnectToLocal(Network.TestNet))
 			{
-				var seed = server.GetLocalNode();
 				Assert.True(seed.State == NodeState.Connected);
 				seed.VersionHandshake();
 				Assert.True(seed.State == NodeState.HandShaked);
@@ -167,9 +188,8 @@ namespace NBitcoin.Tests
 		[Trait("NodeServer", "NodeServer")]
 		public void CanGetMemPool()
 		{
-			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
+			using(var node = Node.ConnectToLocal(Network.TestNet))
 			{
-				var node = server.GetLocalNode();
 				var txIds = node.GetMempool();
 				Assert.True(txIds.Length > 0);
 			}
@@ -177,11 +197,40 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]
+		public void CanMaintainChainWithChainBehavior()
+		{
+			using(var node = Node.ConnectToLocal(Network.TestNet))
+			{
+				var chain = node.GetChain(new uint256("00000000a2424460c992803ed44cfe0c0333e91af04fde9a6a97b468bf1b5f70"));
+				Assert.True(chain.Height == 500);
+				using(var tester = new NodeServerTester(Network.TestNet))
+				{
+					var n1 = tester.Node1;
+					n1.Behaviors.Add(new ChainBehavior(chain));
+					n1.VersionHandshake();
+					Assert.True(n1.MyVersion.StartHeight == 500);
+					var n2 = tester.Node2;
+					Assert.True(n2.MyVersion.StartHeight == 0);
+					Assert.True(n2.PeerVersion.StartHeight == 500);
+					Assert.True(n1.State == NodeState.HandShaked);
+					Assert.True(n2.State == NodeState.HandShaked);
+					var behavior = new ChainBehavior(new ConcurrentChain(Network.TestNet));
+					n2.Behaviors.Add(behavior);
+					Thread.Sleep(100);
+					Assert.True(behavior.Chain.Height == 500);
+
+					var chain2 = n2.GetChain(new uint256("00000000a2424460c992803ed44cfe0c0333e91af04fde9a6a97b468bf1b5f70"));
+					Assert.True(chain2.Height == 500);
+				}
+			}
+		}
+
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
 		public void CanGetTransactionsFromMemPool()
 		{
-			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
+			using(var node = Node.ConnectToLocal(Network.TestNet))
 			{
-				var node = server.GetLocalNode();
 				var transactions = node.GetMempoolTransactions();
 				Assert.True(transactions.Length > 0);
 			}
@@ -193,7 +242,7 @@ namespace NBitcoin.Tests
 		{
 			using(var tester = new NodeServerTester())
 			{
-				var to2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
+				var to2 = tester.Node1;
 				to2.VersionHandshake();
 				Assert.True(tester.Server1.IsConnectedTo(tester.Server2.ExternalEndpoint));
 				Thread.Sleep(500);
@@ -244,11 +293,11 @@ namespace NBitcoin.Tests
 		{
 			using(var tester = new NodeServerTester())
 			{
-				var toS2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
+				var toS2 = tester.Node1;
 				toS2.VersionHandshake();
 				Assert.Equal(NodeState.HandShaked, toS2.State);
 				Thread.Sleep(100); //Let the time to Server2 to add the new node, else the test was failing sometimes.
-				Assert.Equal(NodeState.HandShaked, tester.Server2.GetNodeByEndpoint(toS2.MyVersion.AddressFrom).State);
+				Assert.Equal(NodeState.HandShaked, tester.Node2.State);
 			}
 		}
 
@@ -259,7 +308,7 @@ namespace NBitcoin.Tests
 
 			using(var tester = new NodeServerTester())
 			{
-				var toS2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
+				var toS2 = tester.Node1;
 				toS2.VersionHandshake();
 				var ping = new PingPayload();
 				CancellationTokenSource cancel = new CancellationTokenSource();
@@ -288,7 +337,7 @@ namespace NBitcoin.Tests
 				tester.Server2.Nonce = tester.Server1.Nonce;
 				Assert.Throws(typeof(InvalidOperationException), () =>
 				{
-					tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint).VersionHandshake();
+					tester.Node1.VersionHandshake();
 				});
 			}
 		}
@@ -299,7 +348,7 @@ namespace NBitcoin.Tests
 		{
 			using(var tester = new NodeServerTester())
 			{
-				var n1 = tester.Server2.GetNodeByEndpoint(tester.Server1.ExternalEndpoint);
+				var n1 = tester.Node1;
 				n1.Behaviors.Clear();
 				n1.Behaviors.Add(new PingPongBehavior()
 				{
@@ -311,9 +360,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(NodeState.HandShaked, n1.State);
 				Assert.True(!n1.Inbound);
 
-				//Thread.Sleep(15000);
-				//return;
-				var n2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
+				var n2 = tester.Node2;
 				n2.Behaviors.Add(new PingPongBehavior()
 				{
 					PingInterval = TimeSpan.FromSeconds(0.1),

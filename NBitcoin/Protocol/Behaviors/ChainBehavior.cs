@@ -51,6 +51,10 @@ namespace NBitcoin.Protocol.Behaviors
 				TrySync();
 			}, null, 0, (int)TimeSpan.FromMinutes(10).TotalMilliseconds);
 			RegisterDisposable(_Refresh);
+			if(AttachedNode.State == NodeState.Connected)
+			{
+				AttachedNode.MyVersion.StartHeight = Chain.Height;
+			}
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
 			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
 		}
@@ -91,10 +95,10 @@ namespace NBitcoin.Protocol.Behaviors
 					var prev = tip.FindAncestorOrSelf(header.HashPrevBlock);
 					if(prev == null)
 						break;
-					var newtip = new ChainedBlock(header, header.GetHash(), prev);
+					tip = new ChainedBlock(header, header.GetHash(), prev);
 					if(!AttachedNode.IsTrusted)
 					{
-						if(!newtip.Validate(AttachedNode.Network))
+						if(!tip.Validate(AttachedNode.Network))
 						{
 							invalidHeaderReceived = true;
 							break;
@@ -110,7 +114,10 @@ namespace NBitcoin.Protocol.Behaviors
 					TrySync();
 			}
 		}
-		ChainedBlock _PendingTip;
+
+
+		ChainedBlock _PendingTip; //Might be different than Chain.Tip, in the rare event of large fork > 2000 blocks
+
 		private bool invalidHeaderReceived;
 		void AttachedNode_StateChanged(Node node, NodeState oldState)
 		{
