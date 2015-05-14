@@ -128,6 +128,7 @@
     <Compile Include="Protocol\AddressManager.cs" />
     <Compile Include="Protocol\Behaviors\AddressManagerBehavior.cs" />
     <Compile Include="Protocol\Behaviors\BehaviorsCollection.cs" />
+    <Compile Include="Protocol\Behaviors\ChainBehavior.cs" />
     <Compile Include="Protocol\Behaviors\NodeBehavior.cs" />
     <Compile Include="Protocol\Behaviors\PingPongBehavior.cs" />
     <Compile Include="Protocol\NodeListener.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="Protocol\Payloads\MempoolPayload.cs" />
     <Compile Include="Protocol\Payloads\RejectPayload.cs" />
     <Compile Include="Protocol\PerformanceCounter.cs" />
+    <Compile Include="Protocol\ProtocolException.cs" />
     <Compile Include="RandomUtils.partial.cs" />
     <Compile Include="QBitNinjaTransactionRepository.cs" />
     <Compile Include="RPCTransactionRepository.cs" />

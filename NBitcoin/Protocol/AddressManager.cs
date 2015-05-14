@@ -1129,7 +1129,7 @@ namespace NBitcoin.Protocol
 			{
 				while(found <= peerToFind)
 				{
-					parameters.Cancellation.ThrowIfCancellationRequested();
+					parameters.ConnectCancellation.ThrowIfCancellationRequested();
 					NodeServerTrace.PeerTableRemainingPeerToGet(-found + peerToFind);
 					List<NetworkAddress> peers = new List<NetworkAddress>();
 					peers.AddRange(this.GetAddr());
@@ -1142,7 +1142,7 @@ namespace NBitcoin.Protocol
 
 
 					CancellationTokenSource peerTableFull = new CancellationTokenSource();
-					CancellationToken loopCancel = CancellationTokenSource.CreateLinkedTokenSource(peerTableFull.Token, parameters.Cancellation).Token;
+					CancellationToken loopCancel = CancellationTokenSource.CreateLinkedTokenSource(peerTableFull.Token, parameters.ConnectCancellation).Token;
 					try
 					{
 						Parallel.ForEach(peers, new ParallelOptions()
@@ -1157,8 +1157,10 @@ namespace NBitcoin.Protocol
 							try
 							{
 								var param2 = parameters.Clone();
-								param2.Cancellation = cancelConnection.Token;
+								param2.ConnectCancellation = cancelConnection.Token;
 								param2.AddressManager = this;
+								param2.IsTrusted = false;
+								param2.Chain = null;
 								n = Node.Connect(network, p.Endpoint, param2);
 								n.VersionHandshake(cancelConnection.Token);
 								n.MessageReceived += (s, a) =>
@@ -1190,7 +1192,7 @@ namespace NBitcoin.Protocol
 					}
 					catch(OperationCanceledException ex)
 					{
-						if(ex.CancellationToken == parameters.Cancellation)
+						if(ex.CancellationToken == parameters.ConnectCancellation)
 							throw;
 					}
 				}

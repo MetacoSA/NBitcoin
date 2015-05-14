@@ -253,7 +253,7 @@ namespace NBitcoin
 		}
 
 
-		
+
 	}
 
 	internal class ReaderWriterLock
@@ -286,6 +286,19 @@ namespace NBitcoin
 		public IDisposable LockWrite()
 		{
 			return new FuncDisposable(() => @lock.EnterWriteLock(), () => @lock.ExitWriteLock());
-		}		
+		}
+
+		internal bool TryLockWrite(out IDisposable locked)
+		{
+			locked = null;
+			if(this.@lock.TryEnterWriteLock(0))
+			{
+				locked = new FuncDisposable(() =>
+				{
+				}, () => this.@lock.ExitWriteLock());
+				return true;
+			}
+			return false;
+		}
 	}
 }

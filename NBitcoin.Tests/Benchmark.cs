@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -51,10 +52,15 @@ namespace NBitcoin.Tests
 
 			var complete = Bench(() =>
 			{
-				using(var node = Node.Connect(Network.Main, "192.168.0.7"))
+				using(var node = Node.Connect(Network.Main, "192.168.0.7", new NodeConnectionParameters()
+				{
+					IsTrusted = true,
+					IsRelay = false
+				}))
 				{
 					var originalNode = node;
-					var chain = originalNode.GetChain();
+					node.VersionHandshake();
+					var chain = node.GetChain();
 					List<ulong> speeds = new List<ulong>();
 
 					Stopwatch watch = new Stopwatch();
