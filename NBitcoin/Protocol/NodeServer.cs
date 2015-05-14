@@ -381,16 +381,16 @@ namespace NBitcoin.Protocol
 						remoteEndpoint = new IPEndPoint(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
 					}
 
-					var peer = new Peer(PeerOrigin.Advertised, new NetworkAddress()
+					var peer = new NetworkAddress()
 					{
 						Endpoint = remoteEndpoint,
 						Time = DateTimeOffset.UtcNow
-					});
+					};
 					var node = new Node(peer, Network, CreateNodeConnectionParameters(), message.Socket, version);
 
 					if(connectedToSelf)
 					{
-						node.SendMessage(CreateNodeConnectionParameters().CreateVersion(node.Peer, Network));
+						node.SendMessage(CreateNodeConnectionParameters().CreateVersion(node.Peer.Endpoint, Network));
 						NodeServerTrace.ConnectionToSelfDetected();
 						node.Disconnect();
 						return;

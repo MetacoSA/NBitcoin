@@ -177,7 +177,7 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
-		public VersionPayload CreateVersion(Peer peer, Network network)
+		public VersionPayload CreateVersion(IPEndPoint peer, Network network)
 		{
 			VersionPayload version = new VersionPayload()
 			{
@@ -185,7 +185,7 @@ namespace NBitcoin.Protocol
 				UserAgent = UserAgent,
 				Version = Version,
 				Timestamp = DateTimeOffset.UtcNow,
-				AddressReceiver = peer.NetworkAddress.Endpoint,
+				AddressReceiver = peer,
 				AddressFrom = AddressFrom ?? new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), network.DefaultPort),
 				Relay = IsRelay,
 				Services = Services
@@ -529,16 +529,23 @@ namespace NBitcoin.Protocol
 		}
 
 		public static Node Connect(Network network,
-							 IPEndPoint endpoint,
-							 NodeConnectionParameters connectionParameters)
+							 NetworkAddress endpoint,
+							 NodeConnectionParameters parameters)
 		{
-			var peer = new Peer(PeerOrigin.Manual, new NetworkAddress()
+			return new Node(endpoint, network, parameters);
+		}
+
+		public static Node Connect(Network network,
+							 IPEndPoint endpoint,
+							 NodeConnectionParameters parameters)
+		{
+			var peer = new NetworkAddress()
 			{
 				Time = DateTimeOffset.UtcNow,
 				Endpoint = endpoint
-			});
+			};
 
-			return new Node(peer, network, connectionParameters);
+			return new Node(peer, network, parameters);
 		}
 
 		public static Node Connect(Network network,
@@ -557,10 +564,10 @@ namespace NBitcoin.Protocol
 			});
 		}
 
-		internal Node(Peer peer, Network network, NodeConnectionParameters parameters)
+		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters)
 		{
 			parameters = parameters ?? new NodeConnectionParameters();
-			VersionPayload version = parameters.CreateVersion(peer, network);
+			VersionPayload version = parameters.CreateVersion(peer.Endpoint, network);
 
 			Inbound = false;
 			_Behaviors = new BehaviorsCollection(this);
@@ -568,7 +575,7 @@ namespace NBitcoin.Protocol
 			Version = _MyVersion.Version;
 			Network = network;
 			_Peer = peer;
-			LastSeen = peer.NetworkAddress.Time;
+			LastSeen = peer.Time;
 
 			var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
 #if !NOIPDUALMODE
@@ -581,14 +588,14 @@ namespace NBitcoin.Protocol
 			{
 				try
 				{
-					var ar = socket.BeginConnect(Peer.NetworkAddress.Endpoint, null, null);
+					var ar = socket.BeginConnect(Peer.Endpoint, null, null);
 					WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, parameters.ConnectCancellation.WaitHandle });
 					parameters.ConnectCancellation.ThrowIfCancellationRequested();
 					socket.EndConnect(ar);
 					State = NodeState.Connected;
 					NodeServerTrace.Information("Outbound connection successfull");
 					if(parameters.AddressManager != null)
-						parameters.AddressManager.Attempt(Peer.NetworkAddress);
+						parameters.AddressManager.Attempt(Peer);
 				}
 				catch(OperationCanceledException)
 				{
@@ -596,7 +603,7 @@ namespace NBitcoin.Protocol
 					NodeServerTrace.Information("Connection to node cancelled");
 					State = NodeState.Offline;
 					if(parameters.AddressManager != null)
-						parameters.AddressManager.Attempt(Peer.NetworkAddress);
+						parameters.AddressManager.Attempt(Peer);
 					throw;
 				}
 				catch(Exception ex)
@@ -610,7 +617,7 @@ namespace NBitcoin.Protocol
 						Exception = ex
 					};
 					if(parameters.AddressManager != null)
-						parameters.AddressManager.Attempt(Peer.NetworkAddress);
+						parameters.AddressManager.Attempt(Peer);
 					throw;
 				}
 				InitDefaultBehaviors(parameters);
@@ -618,20 +625,20 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		internal Node(Peer peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
+		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
 		{
 			Inbound = true;
 			_Behaviors = new BehaviorsCollection(this);
-			_MyVersion = parameters.CreateVersion(peer, network);
+			_MyVersion = parameters.CreateVersion(peer.Endpoint, network);
 			Network = network;
 			_Peer = peer;
 			_Connection = new NodeConnection(this, socket);
 			_PeerVersion = peerVersion;
 			Version = peerVersion.Version;
-			LastSeen = peer.NetworkAddress.Time;
+			LastSeen = peer.Time;
 			TraceCorrelation.LogInside(() =>
 			{
-				NodeServerTrace.Information("Connected to advertised node " + _Peer.NetworkAddress.Endpoint);
+				NodeServerTrace.Information("Connected to advertised node " + _Peer.Endpoint);
 				State = NodeState.Connected;
 			});
 			InitDefaultBehaviors(parameters);
@@ -654,7 +661,7 @@ namespace NBitcoin.Protocol
 
 		private void InitDefaultBehaviors(NodeConnectionParameters parameters)
 		{
-			IsTrusted = parameters.IsTrusted != null ? parameters.IsTrusted.Value : Peer.NetworkAddress.Endpoint.Address.IsLocal();
+			IsTrusted = parameters.IsTrusted != null ? parameters.IsTrusted.Value : Peer.Endpoint.Address.IsLocal();
 			Advertize = parameters.Advertize;
 			_Behaviors.Add(new PingPongBehavior());
 			if(parameters.AddressManager != null)
@@ -676,8 +683,8 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private readonly Peer _Peer;
-		public Peer Peer
+		private readonly NetworkAddress _Peer;
+		public NetworkAddress Peer
 		{
 			get
 			{
@@ -704,7 +711,7 @@ namespace NBitcoin.Protocol
 			{
 				if(_TraceCorrelation == null)
 				{
-					_TraceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Communication with " + Peer.NetworkAddress.Endpoint.ToString());
+					_TraceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Communication with " + Peer.Endpoint.ToString());
 				}
 				return _TraceCorrelation;
 			}
@@ -888,7 +895,7 @@ namespace NBitcoin.Protocol
 
 		public override string ToString()
 		{
-			return State + " (" + Peer.NetworkAddress.Endpoint + ") " + Peer.Origin;
+			return State + " (" + Peer.Endpoint + ")";
 		}
 
 
