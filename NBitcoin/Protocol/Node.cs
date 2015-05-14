@@ -184,7 +184,6 @@ namespace NBitcoin.Protocol
 				Nonce = Nonce == null ? RandomUtils.GetUInt64() : Nonce.Value,
 				UserAgent = UserAgent,
 				Version = Version,
-				StartHeight = Chain == null ? 0 : Chain.Height,
 				Timestamp = DateTimeOffset.UtcNow,
 				AddressReceiver = peer.NetworkAddress.Endpoint,
 				AddressFrom = AddressFrom ?? new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), network.DefaultPort),
