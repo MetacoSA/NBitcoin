@@ -1158,9 +1158,7 @@ namespace NBitcoin.Protocol
 							{
 								var param2 = parameters.Clone();
 								param2.ConnectCancellation = cancelConnection.Token;
-								param2.AddressManager = this;
-								param2.IsTrusted = false;
-								param2.Chain = null;
+								param2.TemplateBehaviors.Clear();
 								n = Node.Connect(network, p.Endpoint, param2);
 								n.VersionHandshake(cancelConnection.Token);
 								n.MessageReceived += (s, a) =>

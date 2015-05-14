@@ -23,177 +23,6 @@ namespace NBitcoin.Protocol
 		HandShaked
 	}
 
-	public class NodeSelectionCriteria
-	{
-		public NodeSelectionCriteria()
-		{
-			RequiredNodeServices = NodeServices.Network;
-			MinVersion = ProtocolVersion.PROTOCOL_VERSION;
-		}
-		public NodeServices RequiredNodeServices
-		{
-			get;
-			set;
-		}
-		public ProtocolVersion MinVersion
-		{
-			get;
-			set;
-		}
-		List<byte[]> _ExcludedGroups = new List<byte[]>();
-		public List<byte[]> ExcludedGroups
-		{
-			get
-			{
-				return _ExcludedGroups;
-			}
-		}
-	}
-
-	public class NodeConnectionParameters
-	{
-
-		public NodeConnectionParameters()
-		{
-			Version = ProtocolVersion.PROTOCOL_VERSION;
-			IsRelay = true;
-			Services = NodeServices.Nothing;
-			ConnectCancellation = default(CancellationToken);
-			ReceiveBufferSize = 1000 * 5000;
-			SendBufferSize = 1000 * 1000;
-			UserAgent = VersionPayload.GetNBitcoinUserAgent();
-		}
-
-		public NodeConnectionParameters(NodeConnectionParameters other)
-		{
-			Version = other.Version;
-			IsRelay = other.IsRelay;
-			Services = other.Services;
-			AddressManager = other.AddressManager;
-			ReceiveBufferSize = other.ReceiveBufferSize;
-			SendBufferSize = other.SendBufferSize;
-			ConnectCancellation = other.ConnectCancellation;
-			UserAgent = other.UserAgent;
-			AddressFrom = other.AddressFrom;
-			Chain = other.Chain;
-			IsTrusted = other.IsTrusted;
-			Nonce = other.Nonce;
-			Advertize = other.Advertize;
-		}
-
-		/// <summary>
-		/// Send addr unsollicited message of the AddressFrom peer when passing to Handshaked state
-		/// </summary>
-		public bool Advertize
-		{
-			get;
-			set;
-		}
-		public ProtocolVersion Version
-		{
-			get;
-			set;
-		}
-
-		/// <summary>
-		/// If true, the node will receive all incoming transactions if no bloomfilter are set
-		/// </summary>
-		public bool IsRelay
-		{
-			get;
-			set;
-		}
-
-		public NodeServices Services
-		{
-			get;
-			set;
-		}
-		public AddressManager AddressManager
-		{
-			get;
-			set;
-		}
-
-		ConcurrentChain _Chain;
-		/// <summary>
-		/// Synchronize the chain upon connection and respond to getheaders
-		/// </summary>
-		public ConcurrentChain Chain
-		{
-			get
-			{
-				return _Chain;
-			}
-			set
-			{
-				_Chain = value;
-			}
-		}
-		/// <summary>
-		/// If true, then no proof of work is checked on incoming headers, if null, will trust localhost
-		/// </summary>
-		public bool? IsTrusted
-		{
-			get;
-			set;
-		}
-		public string UserAgent
-		{
-			get;
-			set;
-		}
-		public int ReceiveBufferSize
-		{
-			get;
-			set;
-		}
-		public int SendBufferSize
-		{
-			get;
-			set;
-		}
-
-		public CancellationToken ConnectCancellation
-		{
-			get;
-			set;
-		}
-
-		public NodeConnectionParameters Clone()
-		{
-			return new NodeConnectionParameters(this);
-		}
-
-		public IPEndPoint AddressFrom
-		{
-			get;
-			set;
-		}
-
-		public ulong? Nonce
-		{
-			get;
-			set;
-		}
-
-		public VersionPayload CreateVersion(IPEndPoint peer, Network network)
-		{
-			VersionPayload version = new VersionPayload()
-			{
-				Nonce = Nonce == null ? RandomUtils.GetUInt64() : Nonce.Value,
-				UserAgent = UserAgent,
-				Version = Version,
-				Timestamp = DateTimeOffset.UtcNow,
-				AddressReceiver = peer,
-				AddressFrom = AddressFrom ?? new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), network.DefaultPort),
-				Relay = IsRelay,
-				Services = Services
-			};
-			return version;
-		}
-	}
-
 	public class NodeDisconnectReason
 	{
 		public string Reason
@@ -444,7 +273,7 @@ namespace NBitcoin.Protocol
 		{
 			connectedAddresses = connectedAddresses ?? new IPAddress[0];
 			parameters = parameters ?? new NodeConnectionParameters();
-			var addrman = parameters.AddressManager ?? new AddressManager();
+			var addrman = Node.GetAddrman(parameters) ?? new AddressManager();
 			DateTimeOffset start = DateTimeOffset.UtcNow;
 			while(true)
 			{
@@ -560,7 +389,6 @@ namespace NBitcoin.Protocol
 				IsRelay = isRelay,
 				Version = myVersion,
 				Services = NodeServices.Nothing,
-				AddressManager = null
 			});
 		}
 
@@ -568,7 +396,7 @@ namespace NBitcoin.Protocol
 		{
 			parameters = parameters ?? new NodeConnectionParameters();
 			VersionPayload version = parameters.CreateVersion(peer.Endpoint, network);
-
+			var addrman = GetAddrman(parameters);
 			Inbound = false;
 			_Behaviors = new BehaviorsCollection(this);
 			_MyVersion = version;
@@ -594,16 +422,16 @@ namespace NBitcoin.Protocol
 					socket.EndConnect(ar);
 					State = NodeState.Connected;
 					NodeServerTrace.Information("Outbound connection successfull");
-					if(parameters.AddressManager != null)
-						parameters.AddressManager.Attempt(Peer);
+					if(addrman != null)
+						addrman.Attempt(Peer);
 				}
 				catch(OperationCanceledException)
 				{
 					Utils.SafeCloseSocket(socket);
 					NodeServerTrace.Information("Connection to node cancelled");
 					State = NodeState.Offline;
-					if(parameters.AddressManager != null)
-						parameters.AddressManager.Attempt(Peer);
+					if(addrman != null)
+						addrman.Attempt(Peer);
 					throw;
 				}
 				catch(Exception ex)
@@ -616,13 +444,21 @@ namespace NBitcoin.Protocol
 						Reason = "Unexpected exception while connecting to socket",
 						Exception = ex
 					};
-					if(parameters.AddressManager != null)
-						parameters.AddressManager.Attempt(Peer);
+					if(addrman != null)
+						addrman.Attempt(Peer);
 					throw;
 				}
 				InitDefaultBehaviors(parameters);
 				_Connection.BeginListen();
 			}
+		}
+
+		private static AddressManager GetAddrman(NodeConnectionParameters parameters)
+		{
+			var behavior = parameters.TemplateBehaviors.Find<AddressManagerBehavior>();
+			if(behavior == null)
+				return null;
+			return behavior.AddressManager;
 		}
 
 		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
@@ -634,7 +470,6 @@ namespace NBitcoin.Protocol
 			_Peer = peer;
 			_Connection = new NodeConnection(this, socket);
 			_PeerVersion = peerVersion;
-			Version = peerVersion.Version;
 			LastSeen = peer.Time;
 			TraceCorrelation.LogInside(() =>
 			{
@@ -642,6 +477,7 @@ namespace NBitcoin.Protocol
 				State = NodeState.Connected;
 			});
 			InitDefaultBehaviors(parameters);
+			Version = peerVersion.Version;
 			_Connection.BeginListen();
 		}
 
@@ -663,14 +499,11 @@ namespace NBitcoin.Protocol
 		{
 			IsTrusted = parameters.IsTrusted != null ? parameters.IsTrusted.Value : Peer.Endpoint.Address.IsLocal();
 			Advertize = parameters.Advertize;
-			_Behaviors.Add(new PingPongBehavior());
-			if(parameters.AddressManager != null)
+			Version = parameters.Version;
+
+			foreach(var behavior in parameters.TemplateBehaviors)
 			{
-				_Behaviors.Add(new AddressManagerBehavior(parameters.AddressManager));
-			}
-			if(parameters.Chain != null)
-			{
-				_Behaviors.Add(new ChainBehavior(parameters.Chain));
+				_Behaviors.Add((NodeBehavior)((ICloneable)behavior).Clone());
 			}
 		}
 

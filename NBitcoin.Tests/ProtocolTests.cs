@@ -262,7 +262,7 @@ namespace NBitcoin.Tests
 		{
 			Stopwatch watch = new Stopwatch();
 			NodeConnectionParameters parameters = new NodeConnectionParameters();
-			parameters.AddressManager = new AddressManager();
+			parameters.TemplateBehaviors.Add(new AddressManagerBehavior(new AddressManager()));
 			watch.Start();
 			using(var node = Node.Connect(Network.Main, parameters))
 			{

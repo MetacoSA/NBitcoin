@@ -14,7 +14,11 @@ namespace NBitcoin.Protocol.Behaviors
 		RespondPong = 2,
 		Both = 3
 	}
-	public class PingPongBehavior : NodeBehavior
+
+	/// <summary>
+	/// The PingPongBehavior is responsible for firing ping message every PingInterval and responding with pong message, and close the connection if the Ping has not been completed after TimeoutInterval.
+	/// </summary>
+	public class PingPongBehavior : NodeBehavior, ICloneable
 	{
 		public PingPongBehavior()
 		{
@@ -23,6 +27,11 @@ namespace NBitcoin.Protocol.Behaviors
 			PingInterval = TimeSpan.FromMinutes(2.0);
 		}
 		PingPongMode _Mode;
+
+
+		/// <summary>
+		/// Whether the behavior send Ping and respond with Pong (Default : Both)
+		/// </summary>
 		public PingPongMode Mode
 		{
 			get
@@ -37,6 +46,10 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 
 		TimeSpan _TimeoutInterval;
+
+		/// <summary>
+		/// Interval after which an unresponded Ping will result in a disconnection. (Default : 20 minutes)
+		/// </summary>
 		public TimeSpan TimeoutInterval
 		{
 			get
@@ -51,6 +64,10 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 
 		TimeSpan _PingInterval;
+
+		/// <summary>
+		/// Interval after which a Ping message is fired after the last received Pong (Default : 2 minutes)
+		/// </summary>
 		public TimeSpan PingInterval
 		{
 			get
@@ -160,5 +177,19 @@ namespace NBitcoin.Protocol.Behaviors
 			AttachedNode.StateChanged -= AttachedNode_StateChanged;
 			ClearCurrentPing();
 		}
+
+		#region ICloneable Members
+
+		public object Clone()
+		{
+			return new PingPongBehavior()
+			{
+				Mode = Mode,
+				PingInterval = PingInterval,
+				TimeoutInterval = TimeoutInterval
+			};
+		}
+
+		#endregion
 	}
 }
