@@ -312,8 +312,13 @@ namespace NBitcoin
 			var genesisCorrect = Height == 0 ? HashBlock == network.GetGenesis().GetHash() : true;
 			var hashPrevCorrect = Height == 0 ? true : Header.HashPrevBlock == Previous.HashBlock;
 			var hashCorrect = HashBlock == Header.GetHash();
-			var workCorrect = Header.CheckProofOfWork() && Header.Bits <= GetWorkRequired(network);
+			var workCorrect = CheckProofOfWorkAndTarget(network);
 			return heightCorrect && genesisCorrect && hashPrevCorrect && hashCorrect && workCorrect;
+		}
+
+		public bool CheckProofOfWorkAndTarget(Network network)
+		{
+			return Header.CheckProofOfWork() && Header.Bits <= GetWorkRequired(network);
 		}
 	}
 }

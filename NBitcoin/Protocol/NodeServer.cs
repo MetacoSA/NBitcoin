@@ -37,7 +37,8 @@ namespace NBitcoin.Protocol
 				return _Version;
 			}
 		}
-		public bool AdvertizeMyself
+
+		public NodeConnectionParameters DefaultNodeConnectionParameters
 		{
 			get;
 			set;
@@ -46,7 +47,7 @@ namespace NBitcoin.Protocol
 		public NodeServer(Network network, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION,
 			int internalPort = -1)
 		{
-			AdvertizeMyself = false;
+			DefaultNodeConnectionParameters = new NodeConnectionParameters();
 			internalPort = internalPort == -1 ? network.DefaultPort : internalPort;
 			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), internalPort);
 			_Network = network;
@@ -431,7 +432,9 @@ namespace NBitcoin.Protocol
 		{
 			try
 			{
-				var node = new Node(peer, Network, CreateVersionPayload(peer, ExternalEndpoint, Version), cancellationToken);
+				var param2 = CreateNodeConnectionParameters(ExternalEndpoint, Version);
+				param2.ConnectCancellation = CancellationTokenSource.CreateLinkedTokenSource(param2.ConnectCancellation, cancellationToken).Token;
+				var node = new Node(peer, Network, param2);
 				return AddNode(node);
 			}
 			catch(Exception)
@@ -496,11 +499,11 @@ namespace NBitcoin.Protocol
 						Endpoint = remoteEndpoint,
 						Time = DateTimeOffset.UtcNow
 					});
-					var node = new Node(peer, Network, CreateVersionPayload(peer, ExternalEndpoint, Version), message.Socket, version);
+					var node = new Node(peer, Network, CreateNodeConnectionParameters(ExternalEndpoint, Version), message.Socket, version);
 
 					if(connectedToSelf)
 					{
-						node.SendMessage(CreateVersionPayload(node.Peer, ExternalEndpoint, Version));
+						node.SendMessage(CreateNodeConnectionParameters(ExternalEndpoint, Version).CreateVersion(node.Peer, Network));
 						NodeServerTrace.ConnectionToSelfDetected();
 						node.Disconnect();
 						return;
@@ -619,38 +622,37 @@ namespace NBitcoin.Protocol
 
 		#endregion
 
-		public VersionPayload CreateVersionPayload(Peer peer, IPEndPoint myExternal, ProtocolVersion? version)
+		internal NodeConnectionParameters CreateNodeConnectionParameters(IPEndPoint myExternal, ProtocolVersion? version)
 		{
 			myExternal = Utils.EnsureIPv6(myExternal);
-			return new VersionPayload()
-					{
-						Nonce = Nonce,
-						UserAgent = UserAgent,
-						Version = version == null ? Version : version.Value,
-						StartHeight = 0,
-						Timestamp = DateTimeOffset.UtcNow,
-						AddressReceiver = peer.NetworkAddress.Endpoint,
-						AddressFrom = myExternal,
-						Relay = IsRelay
-					};
+			var param2 = DefaultNodeConnectionParameters.Clone();
+			param2.Nonce = Nonce;
+			param2.Version = version == null ? Version : version.Value;
+			param2.AddressFrom = myExternal;
+			return param2;
 		}
 
 		public bool IsRelay
 		{
-			get;
-			set;
+			get
+			{
+				return DefaultNodeConnectionParameters.IsRelay;
+			}
+			set
+			{
+				DefaultNodeConnectionParameters.IsRelay = value;
+			}
 		}
 
-		string _UserAgent;
 		public string UserAgent
 		{
 			get
 			{
-				if(_UserAgent == null)
-				{
-					_UserAgent = VersionPayload.GetNBitcoinUserAgent();
-				}
-				return _UserAgent;
+				return DefaultNodeConnectionParameters.UserAgent;
+			}
+			set
+			{
+				DefaultNodeConnectionParameters.UserAgent = value;
 			}
 		}
 

@@ -21,10 +21,20 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			lock(cs)
 			{
-				behavior.Attach(_Node);
+				if(CanAttach)
+					behavior.Attach(_Node);
 				_Behaviors.Add(behavior);
 			}
 		}
+
+		bool CanAttach
+		{
+			get
+			{
+				return _Node != null && _Node.State != NodeState.Offline && _Node.State != NodeState.Failed && _Node.State != NodeState.Disconnecting;
+			}
+		}
+
 		public bool Remove(NodeBehavior behavior)
 		{
 			lock(cs)
@@ -46,11 +56,37 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
-		public T Find<T>()
+		public T FindOrCreate<T>() where T : NodeBehavior, new()
+		{
+			lock(cs)
+			{
+				var result = _Behaviors.OfType<T>().FirstOrDefault();
+				if(result == null)
+				{
+					result = new T();
+					_Behaviors.Add(result);
+					if(CanAttach)
+						result.Attach(_Node);
+				}
+				return result;
+			}
+		}
+		public T Find<T>() where T : NodeBehavior
 		{
 			lock(cs)
 			{
 				return _Behaviors.OfType<T>().FirstOrDefault();
+			}
+		}
+
+		public void Remove<T>() where T : NodeBehavior
+		{
+			lock(cs)
+			{
+				foreach(var b in _Behaviors.OfType<T>().ToList())
+				{
+					_Behaviors.Remove(b);
+				}
 			}
 		}
 

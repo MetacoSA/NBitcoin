@@ -11,6 +11,7 @@ namespace NBitcoin.Protocol
 		Error = 0,
 		MSG_TX = 1,
 		MSG_BLOCK = 2,
+		MSG_FILTERED_BLOCK = 3
 	}
 	public class InventoryVector : Payload, IBitcoinSerializable
 	{
