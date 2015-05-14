@@ -11,14 +11,14 @@ namespace NBitcoin.Protocol.Behaviors
 		Node _Node;
 		public BehaviorsCollection(Node node)
 		{
-			if(node == null)
-				throw new ArgumentNullException("node");
 			_Node = node;
 		}
 		List<NodeBehavior> _Behaviors = new List<NodeBehavior>();
 		object cs = new object();
 		public void Add(NodeBehavior behavior)
 		{
+			if(_Node == null && !(behavior is ICloneable))
+				throw new InvalidOperationException("NodeBehaviors added to NodeCollectionTemplate.TemplateBehaviors must be cloneable");
 			lock(cs)
 			{
 				if(CanAttach)
@@ -58,12 +58,16 @@ namespace NBitcoin.Protocol.Behaviors
 
 		public T FindOrCreate<T>() where T : NodeBehavior, new()
 		{
+			return FindOrCreate<T>(() => new T());
+		}
+		public T FindOrCreate<T>(Func<T> create) where T : NodeBehavior
+		{
 			lock(cs)
 			{
 				var result = _Behaviors.OfType<T>().FirstOrDefault();
 				if(result == null)
 				{
-					result = new T();
+					result = create();
 					_Behaviors.Add(result);
 					if(CanAttach)
 						result.Attach(_Node);

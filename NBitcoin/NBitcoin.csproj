@@ -131,6 +131,7 @@
     <Compile Include="Protocol\Behaviors\ChainBehavior.cs" />
     <Compile Include="Protocol\Behaviors\NodeBehavior.cs" />
     <Compile Include="Protocol\Behaviors\PingPongBehavior.cs" />
+    <Compile Include="Protocol\NodeConnectionParameters.cs" />
     <Compile Include="Protocol\NodeListener.cs" />
     <Compile Include="Protocol\NodesCollection.cs" />
     <Compile Include="Protocol\Payloads\GetBlocksPayload.cs" />

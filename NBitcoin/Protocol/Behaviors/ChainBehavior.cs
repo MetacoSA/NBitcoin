@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol.Behaviors
 {
-	public class ChainBehavior : NodeBehavior
+
+	/// <summary>
+	/// The Chain Behavior is responsible for keeping a ConcurrentChain up to date with the peer, it also responds to getheaders messages.
+	/// </summary>
+	public class ChainBehavior : NodeBehavior, ICloneable
 	{
 		public ChainBehavior(ConcurrentChain chain)
 		{
@@ -17,12 +21,17 @@ namespace NBitcoin.Protocol.Behaviors
 			CanSync = true;
 			CanRespondToGetHeaders = true;
 		}
-
+		/// <summary>
+		/// Keep the chain in Sync (Default : true)
+		/// </summary>
 		public bool CanSync
 		{
 			get;
 			set;
 		}
+		/// <summary>
+		/// Respond to getheaders messages (Default : true)
+		/// </summary>
 		public bool CanRespondToGetHeaders
 		{
 			get;
@@ -153,5 +162,18 @@ namespace NBitcoin.Protocol.Behaviors
 			AttachedNode.StateChanged -= AttachedNode_StateChanged;
 			AttachedNode.MessageReceived -= AttachedNode_MessageReceived;
 		}
+
+		#region ICloneable Members
+
+		public object Clone()
+		{
+			return new ChainBehavior(Chain)
+			{
+				CanSync = CanSync,
+				CanRespondToGetHeaders = CanRespondToGetHeaders
+			};
+		}
+
+		#endregion
 	}
 }

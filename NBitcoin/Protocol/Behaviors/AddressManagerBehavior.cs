@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol.Behaviors
 {
-	public class AddressManagerBehavior : NodeBehavior
+	/// <summary>
+	/// The AddressManagerBehavior class will respond to getaddr and register advertised nodes from addr messages to the AddressManager.
+	/// The AddressManagerBehavior will also receive feedback about connection attempt and success of discovered peers to the AddressManager, so it can be used later to find valid peer faster.
+	/// </summary>
+	public class AddressManagerBehavior : NodeBehavior, ICloneable
 	{
 		public AddressManagerBehavior(AddressManager manager)
 		{
@@ -62,5 +66,14 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			AttachedNode.StateChanged -= AttachedNode_StateChanged;
 		}
+
+		#region ICloneable Members
+
+		public object Clone()
+		{
+			return new AddressManagerBehavior(AddressManager);
+		}
+
+		#endregion
 	}
 }
