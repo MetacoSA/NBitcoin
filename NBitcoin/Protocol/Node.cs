@@ -224,7 +224,7 @@ namespace NBitcoin.Protocol
 					return _Node;
 				}
 			}
-			private readonly Socket _Socket;
+			readonly Socket _Socket;
 			public Socket Socket
 			{
 				get

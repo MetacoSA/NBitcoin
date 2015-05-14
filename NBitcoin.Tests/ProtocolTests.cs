@@ -59,7 +59,7 @@ namespace NBitcoin.Tests
 		{
 			get
 			{
-				_Node1 = _Node1 ?? Server2.GetNodeByEndpoint(Server1.ExternalEndpoint);
+				_Node1 = _Node1 ?? Server2.FindOrConnect(Server1.ExternalEndpoint);
 				return _Node1;
 			}
 		}
@@ -69,7 +69,7 @@ namespace NBitcoin.Tests
 		{
 			get
 			{
-				_Node2 = _Node2 ?? Server1.GetNodeByEndpoint(Server2.ExternalEndpoint);
+				_Node2 = _Node2 ?? Server1.FindOrConnect(Server2.ExternalEndpoint);
 				return _Node2;
 			}
 		}
@@ -245,26 +245,16 @@ namespace NBitcoin.Tests
 				var to2 = tester.Node1;
 				to2.VersionHandshake();
 				Assert.True(tester.Server1.IsConnectedTo(tester.Server2.ExternalEndpoint));
-				Thread.Sleep(500);
+				Thread.Sleep(100);
 				Assert.True(tester.Server2.IsConnectedTo(tester.Server1.ExternalEndpoint));
 				to2.Disconnect();
+				Thread.Sleep(100);
 				Assert.False(tester.Server1.IsConnectedTo(tester.Server2.ExternalEndpoint));
-				Thread.Sleep(500);
+				Thread.Sleep(100);
 				Assert.False(tester.Server2.IsConnectedTo(tester.Server1.ExternalEndpoint));
 			}
 		}
 
-		[Fact]
-		[Trait("Network", "Network")]
-		public void CanDiscoverPeers()
-		{
-			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
-			{
-				Assert.True(server.PeerTable.CountUsed(true) < 50);
-				server.DiscoverPeers(100);
-				Assert.True(server.PeerTable.CountUsed(true) > 50);
-			}
-		}
 
 		[Fact]
 		[Trait("Network", "Network")]
@@ -523,22 +513,6 @@ namespace NBitcoin.Tests
 				Assert.True(lease.IsOpen());
 			}
 			Assert.False(lease.IsOpen());
-		}
-
-		[Fact]
-		[Trait("Network", "Network")]
-		public void CanConnectToNodeSet()
-		{
-			using(var server = new NodeServer(Network.Main))
-			{
-				server.RegisterPeerTableRepository(PeerCache);
-				var set = server.CreateNodeSet(5);
-				Assert.Equal(5, set.GetNodes().Length);
-				foreach(var node in set.GetNodes())
-				{
-					Assert.Equal(NodeState.HandShaked, node.State);
-				}
-			}
 		}
 
 
