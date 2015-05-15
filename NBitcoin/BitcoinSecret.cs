@@ -37,28 +37,11 @@ namespace NBitcoin
 			return _address;
 		}
 
-		[Obsolete("Use PubKeyHash instead")]
-		public virtual KeyId ID
-		{
-			get
-			{
-				return PrivateKey.PubKey.Hash;
-			}
-		}
 		public virtual KeyId PubKeyHash
 		{
 			get
 			{
 				return PrivateKey.PubKey.Hash;
-			}
-		}
-
-		[Obsolete("Use PrivateKey instead")]
-		public Key Key
-		{
-			get
-			{
-				return PrivateKey;
 			}
 		}
 

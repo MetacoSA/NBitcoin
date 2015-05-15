@@ -111,18 +111,6 @@ namespace NBitcoin
 		byte[] vch = new byte[0];
 		KeyId _ID;
 
-		[Obsolete("Use Hash instead")]
-		public KeyId ID
-		{
-			get
-			{
-				if(_ID == null)
-				{
-					_ID = new KeyId(Hashes.Hash160(vch, vch.Length));
-				}
-				return _ID;
-			}
-		}
 
 		public KeyId Hash
 		{
