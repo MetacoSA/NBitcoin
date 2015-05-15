@@ -501,10 +501,12 @@ namespace NBitcoin.Protocol
 			Advertize = parameters.Advertize;
 			Version = parameters.Version;
 
+			_Behaviors.DelayAttach = true;
 			foreach(var behavior in parameters.TemplateBehaviors)
 			{
 				_Behaviors.Add((NodeBehavior)((ICloneable)behavior).Clone());
 			}
+			_Behaviors.DelayAttach = false;
 		}
 
 		private readonly BehaviorsCollection _Behaviors;

@@ -154,6 +154,7 @@
     <Compile Include="RPC\UnspentCoin.cs" />
     <Compile Include="BitcoinCore\IBlockProvider.cs" />
     <Compile Include="Spendable.cs" />
+    <Compile Include="SPV\Tracker.cs" />
     <Compile Include="Stealth\BitcoinStealthAddress.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
