@@ -117,13 +117,27 @@ namespace NBitcoin.Tests
 
 			transactions = tracker.GetWalletTransactions(builder.Chain);
 			Assert.True(transactions.Count == 3);
+			Assert.True(transactions.Summary.UnConfirmed.TransactionCount == 0);
 			Assert.True(transactions[0].Transaction.GetHash() == block.Transactions[0].GetHash());
 
 			Assert.Equal(2, transactions.GetSpendableCoins().Count()); // the 1 change + 1 gift
 
 			builder.Chain.SetTip(builder.Chain.Tip.Previous);
 			transactions = tracker.GetWalletTransactions(builder.Chain);
-			Assert.True(transactions.Count == 2);
+			Assert.True(transactions.Count == 3);
+			Assert.True(transactions.Summary.UnConfirmed.TransactionCount == 1);
+		}
+
+		[Fact]
+		public void CanTrackScriptCoins()
+		{
+			BlockchainBuilder builder = new BlockchainBuilder();
+			Tracker tracker = new Tracker();
+			Key bob = new Key();
+			tracker.Add(bob.PubKey, true);
+			var tx1 = builder.GiveMoney(bob.PubKey.ScriptPubKey.Hash, Money.Coins(1.0m));
+			Assert.True(tracker.NotifyTransaction(tx1));
+			Assert.True(tracker.GetWalletTransactions(builder.Chain)[0].ReceivedCoins[0] is ScriptCoin);
 		}
 
 		[Fact]
@@ -169,6 +183,8 @@ namespace NBitcoin.Tests
 				Assert.True(transactions.Summary.Confirmed.Amount == Money.Coins(1.0m));
 				Assert.True(transactions.Summary.Spendable.TransactionCount == 3);
 				Assert.True(transactions.Summary.Spendable.Amount == Money.Coins(0.7m));
+				Assert.True(transactions.Summary.UnConfirmed.TransactionCount == 2);
+				Assert.True(transactions.Summary.UnConfirmed.Amount == -Money.Coins(0.3m));
 			};
 			_();
 			tracker.NotifyTransaction(tx2);	//Notifying tx2 should have no effect, since it already is accounted because it was orphaned
