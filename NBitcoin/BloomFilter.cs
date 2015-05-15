@@ -110,6 +110,11 @@ namespace NBitcoin
 			Insert(value.ToBytes());
 		}
 
+		public bool IsWithinSizeConstraints()
+		{
+			return vData.Length <= MAX_BLOOM_FILTER_SIZE && nHashFuncs <= MAX_HASH_FUNCS;
+		}
+
 		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)

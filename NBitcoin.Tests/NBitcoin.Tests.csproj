@@ -96,6 +96,7 @@
     <Compile Include="script_tests.cs" />
     <Compile Include="sighash_tests.cs" />
     <Compile Include="sigopcount_tests.cs" />
+    <Compile Include="spv_tests.cs" />
     <Compile Include="StealthAddressTests.cs" />
     <Compile Include="TestCase.cs" />
     <Compile Include="TestUtils.cs" />

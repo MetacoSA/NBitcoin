@@ -31,7 +31,7 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			get
 			{
-				return _Node != null && _Node.State != NodeState.Offline && _Node.State != NodeState.Failed && _Node.State != NodeState.Disconnecting;
+				return _Node != null && !DelayAttach && _Node.State != NodeState.Offline && _Node.State != NodeState.Failed && _Node.State != NodeState.Disconnecting;
 			}
 		}
 
@@ -114,5 +114,21 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 
 		#endregion
+
+		bool _DelayAttach;
+		internal bool DelayAttach
+		{
+			get
+			{
+				return _DelayAttach;
+			}
+			set
+			{
+				_DelayAttach = value;
+				if(CanAttach)
+					foreach(var b in _Behaviors)
+						b.Attach(_Node);
+			}
+		}
 	}
 }
