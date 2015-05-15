@@ -37,6 +37,20 @@ namespace NBitcoin.Protocol
 		}
 	}
 
+	public class NodeRequirement
+	{
+		public ProtocolVersion? MinVersion
+		{
+			get;
+			set;
+		}
+		public NodeServices RequiredServices
+		{
+			get;
+			set;
+		}
+	}
+
 
 	public delegate void NodeEventHandler(Node node);
 	public delegate void NodeEventMessageIncoming(Node node, IncomingMessage message);
@@ -634,6 +648,11 @@ namespace NBitcoin.Protocol
 
 		public void VersionHandshake(CancellationToken cancellationToken = default(CancellationToken))
 		{
+			VersionHandshake(null, cancellationToken);
+		}
+		public void VersionHandshake(NodeRequirement requirements, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			requirements = requirements ?? new NodeRequirement();
 			using(var listener = CreateListener()
 									.Where(p => p.Message.Payload is VersionPayload ||
 												p.Message.Payload is RejectPayload ||
@@ -658,9 +677,23 @@ namespace NBitcoin.Protocol
 					if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
 					{
 						NodeServerTrace.Warning("Outdated version " + version.Version + " disconnecting");
-						Disconnect();
+						Disconnect("Outdated version");
 						return;
 					}
+					if(requirements.MinVersion != null)
+					{
+						if(version.Version < requirements.MinVersion.Value)
+						{
+							Disconnect("The peer does not support the version requirement");
+							return;
+						}
+					}
+					if((requirements.RequiredServices & version.Services) != requirements.RequiredServices)
+					{
+						Disconnect("The peer does not support the required services requirement");
+						return;
+					}
+
 					SendMessage(new VerAckPayload());
 					listener.ReceivePayload<VerAckPayload>(cancellationToken);
 					State = NodeState.HandShaked;
