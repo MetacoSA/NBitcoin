@@ -21,15 +21,6 @@ namespace NBitcoin
 		{
 		}
 
-		[Obsolete("Use Hash instead")]
-		public override TxDestination ID
-		{
-			get
-			{
-				return Hash;
-			}
-		}
-
 		public override TxDestination Hash
 		{
 			get
@@ -82,28 +73,11 @@ namespace NBitcoin
 			}
 		}
 
-		[Obsolete("Use Hash instead")]
-		public virtual TxDestination ID
-		{
-			get
-			{
-				return new KeyId(vchData);
-			}
-		}
 		public virtual TxDestination Hash
 		{
 			get
 			{
 				return new KeyId(vchData);
-			}
-		}
-
-		[Obsolete("Use ScriptPubKey instead")]
-		public Script PaymentScript
-		{
-			get
-			{
-				return ScriptPubKey;
 			}
 		}
 

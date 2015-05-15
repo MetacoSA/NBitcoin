@@ -574,15 +574,6 @@ namespace NBitcoin
 
 		ScriptId _ID;
 
-		[Obsolete("Use Hash instead")]
-		public ScriptId ID
-		{
-			get
-			{
-				return _ID ?? (_ID = new ScriptId(Hashes.Hash160(_Script)));
-			}
-		}
-
 		public ScriptId Hash
 		{
 			get
