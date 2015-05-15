@@ -65,6 +65,7 @@ namespace NBitcoin.SPV
 					BlockId = block.HashBlock;
 					Proof = proof;
 				}
+				UnconfirmedSeen = DateTimeOffset.UtcNow;
 				AddedDate = DateTimeOffset.UtcNow;
 			}
 			public uint256 BlockId
@@ -100,6 +101,8 @@ namespace NBitcoin.SPV
 			}
 			internal Operation Merge(Operation other)
 			{
+				if(UnconfirmedSeen > other.UnconfirmedSeen)
+					UnconfirmedSeen = other.UnconfirmedSeen;
 				Merge(ReceivedCoins, other.ReceivedCoins);
 				Merge(SpentCoins, other.SpentCoins);
 				return this;
@@ -113,10 +116,71 @@ namespace NBitcoin.SPV
 						a.Add(coin);
 				}
 			}
+
+			public DateTimeOffset UnconfirmedSeen
+			{
+				get;
+				set;
+			}
 			public DateTimeOffset AddedDate
 			{
 				get;
 				set;
+			}
+
+			public WalletTransaction ToWalletTransaction(ChainBase chain, ConcurrentDictionary<string, TrackedScript> trackedScripts)
+			{
+				var chainHeight = chain.Height;
+				var tx = new WalletTransaction()
+				{
+					Proof = Proof,
+					Transaction = Transaction,
+					UnconfirmedSeen = UnconfirmedSeen,
+					AddedDate = AddedDate
+				};
+
+				tx.ReceivedCoins = GetCoins(ReceivedCoins, trackedScripts);
+				tx.SpentCoins = GetCoins(SpentCoins, trackedScripts);
+
+				if(BlockId != null)
+				{
+					var header = chain.GetBlock(BlockId);
+					if(header != null)
+					{
+						tx.BlockInformation = new BlockInformation()
+						{
+							Confirmations = chainHeight - header.Height + 1,
+							Height = header.Height,
+							Header = header.Header
+						};
+					}
+				}
+				return tx;
+			}
+
+			private Coin[] GetCoins(List<Tuple<Coin, string>> coins, ConcurrentDictionary<string, TrackedScript> trackedScripts)
+			{
+				return coins.Select(c => new
+									{
+										Coin = c.Item1,
+										TrackedScript = trackedScripts[c.Item2]
+									})
+									.Select(c => c.TrackedScript.RedeemScript != null ? c.Coin.ToScriptCoin(c.TrackedScript.RedeemScript) : c.Coin)
+									.ToArray();
+			}
+
+			internal bool CheckProof()
+			{
+				if(BlockId != null)
+				{
+					if(Proof == null)
+						return false;
+					if(!Proof.PartialMerkleTree.Check(Proof.Header.HashMerkleRoot))
+						return false;
+					if(Proof.Header.GetHash() != BlockId)
+						return false;
+				}
+				return true;
 			}
 		}
 		class TrackedScript
@@ -293,6 +357,18 @@ namespace NBitcoin.SPV
 			return interesting;
 		}
 
+		public WalletTransactionsCollection GetWalletTransactions(ChainBase chain)
+		{
+			lock(cs)
+			{
+				return new WalletTransactionsCollection(_Operations
+					.Select(op => op.Value)
+					.Where(op => op.CheckProof())
+					.Select(o => o.ToWalletTransaction(chain, _TrackedScripts))
+					.ToArray());
+			}
+		}
+
 
 
 
@@ -300,7 +376,34 @@ namespace NBitcoin.SPV
 		{
 			var operation = new Operation(txin.Transaction, block, proof);
 			operation.SpentCoins.Add(Tuple.Create(coin, metadata.GetId()));
+			SetUnconfirmedSeenIfPossible(txin.Transaction, block, operation);
 			_Operations.AddOrUpdate(operation.GetId(), operation, (k, old) => old.Merge(operation));
+		}
+
+		private void Received(TrackedScript match, IndexedTxOut txout, ChainedBlock block, MerkleBlock proof)
+		{
+			var operation = new Operation(txout.Transaction, block, proof);
+			SetUnconfirmedSeenIfPossible(txout.Transaction, block, operation);
+			var coin = new Coin(txout);
+			operation.ReceivedCoins.Add(Tuple.Create(coin, match.GetId()));
+			_Operations.AddOrUpdate(operation.GetId(), operation, (k, old) => old.Merge(operation));
+			var trackedOutpoint = new TrackedOutpoint()
+			{
+				Coin = coin,
+				TrackedScriptId = match.GetId(),
+			};
+			_TrackedOutpoints.TryAdd(trackedOutpoint.GetId(), trackedOutpoint);
+		}
+
+
+		private void SetUnconfirmedSeenIfPossible(Transaction tx, ChainedBlock block, Operation operation)
+		{
+			if(block != null)
+			{
+				Operation unconf;
+				if(_Operations.TryGetValue(Operation.GetId(tx.GetHash(), null), out unconf))
+					operation.UnconfirmedSeen = unconf.UnconfirmedSeen;
+			}
 		}
 
 		public IEnumerable<byte[]> GetDataToTrack()
@@ -347,24 +450,6 @@ namespace NBitcoin.SPV
 			}
 		}
 
-		private void Received(TrackedScript match, IndexedTxOut txout, ChainedBlock block, MerkleBlock proof)
-		{
-			var operation = new Operation(txout.Transaction, block, proof);
-
-			var coin = new Coin(txout);
-			operation.ReceivedCoins.Add(Tuple.Create(coin, match.GetId()));
-
-			_Operations.AddOrUpdate(operation.GetId(), operation, (k, old) => old.Merge(operation));
-
-			var trackedOutpoint = new TrackedOutpoint()
-			 {
-				 Coin = coin,
-				 TrackedScriptId = match.GetId(),
-			 };
-			_TrackedOutpoints.TryAdd(trackedOutpoint.GetId(), trackedOutpoint);
-
-		}
-
 		/// <summary>
 		/// Check internal consistency
 		/// </summary>
@@ -373,15 +458,8 @@ namespace NBitcoin.SPV
 		{
 			foreach(var op in _Operations)
 			{
-				if(op.Value.BlockId != null)
-				{
-					if(op.Value.Proof == null)
-						return false;
-					if(!op.Value.Proof.PartialMerkleTree.Check(op.Value.Proof.Header.HashMerkleRoot))
-						return false;
-					if(op.Value.Proof.Header.GetHash() != op.Value.BlockId)
-						return false;
-				}
+				if(!op.Value.CheckProof())
+					return false;
 			}
 			return true;
 		}

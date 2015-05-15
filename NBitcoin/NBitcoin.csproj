@@ -155,6 +155,9 @@
     <Compile Include="BitcoinCore\IBlockProvider.cs" />
     <Compile Include="Spendable.cs" />
     <Compile Include="SPV\Tracker.cs" />
+    <Compile Include="SPV\WalletSummary.cs" />
+    <Compile Include="SPV\WalletTransaction.cs" />
+    <Compile Include="SPV\WalletTransactionsCollection.cs" />
     <Compile Include="Stealth\BitcoinStealthAddress.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
