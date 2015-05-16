@@ -141,6 +141,73 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanPrune()
+		{
+			BlockchainBuilder builder = new BlockchainBuilder();
+			Tracker tracker = new Tracker();
+			Key bob = new Key();
+			Key alice = new Key();
+			tracker.Add(bob);
+
+			var oldUnconf = builder.GiveMoney(bob, Money.Coins(1.0m));
+			Assert.True(tracker.NotifyTransaction(oldUnconf));
+
+			builder.Mempool.Clear();
+
+			var oldConf = builder.GiveMoney(bob, Money.Coins(0.9m));
+			var oldConfSpent = builder.SpendCoin(oldConf.Outputs.AsCoins().First(), alice, Money.Coins(0.01m));
+
+			var block = builder.FindBlock();
+
+			Assert.True(tracker.NotifyTransaction(oldConf, builder.Chain.Tip, block));
+			Assert.True(tracker.NotifyTransaction(oldConfSpent, builder.Chain.Tip, block));
+
+			for(int i = 0 ; i < 9 ; i++)
+			{
+				builder.FindBlock();
+			}
+			Assert.True(tracker.Prune(builder.Chain, 10).Count == 0);
+			builder.FindBlock();
+
+			//Prune tracked outpoint
+			var pruned = tracker.Prune(builder.Chain, 10);
+			Assert.Equal(1, pruned.Count);
+			Assert.True(pruned.First() is Tracker.TrackedOutpoint);
+
+			//Prune old unconf
+			pruned = tracker.Prune(builder.Chain, timeExpiration: TimeSpan.Zero);
+			Assert.Equal(1, pruned.Count);
+			var op = pruned.OfType<Tracker.Operation>().First();
+			Assert.True(op.BlockId == null);
+
+			var conf = builder.GiveMoney(bob, Money.Coins(0.9m));
+			block = builder.FindBlock();
+			Assert.True(tracker.NotifyTransaction(conf, builder.Chain.Tip, block));
+
+			var oldSpentForked = builder.SpendCoin(conf.Outputs.AsCoins().First(), alice, Money.Coins(0.021m));
+			block = builder.FindBlock();
+			Assert.True(tracker.NotifyTransaction(oldSpentForked, builder.Chain.Tip, block));
+
+			var forked = builder.Chain.Tip;
+			builder.Chain.SetTip(builder.Chain.Tip.Previous);
+
+			for(int i = 0 ; i < 10 ; i++)
+			{
+				builder.FindBlock();
+			}
+
+			pruned = tracker.Prune(builder.Chain, 10);
+			Assert.True(pruned.Count == 1); //Tracked outpoint of conf
+			Assert.True(pruned.First() is Tracker.TrackedOutpoint);
+			block = builder.FindBlock();
+
+			pruned = tracker.Prune(builder.Chain, 10); //Old forked spent
+			Assert.Equal(1, pruned.Count);
+			op = pruned.OfType<Tracker.Operation>().First();
+			Assert.Equal(forked.HashBlock, op.BlockId);
+		}
+
+		[Fact]
 		public void UnconfirmedTransactionsWithoutReceivedCoinsShouldNotShowUp()
 		{
 			BlockchainBuilder builder = new BlockchainBuilder();
