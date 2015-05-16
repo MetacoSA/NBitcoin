@@ -27,11 +27,11 @@ namespace NBitcoin.SPV
 	}
 
 	/// <summary>
-	/// Idempotent and thread safe class for registering and querying operations belonging to specified ScriptPubKeys
+	/// Idempotent and thread safe for tracking operations belonging to a set of ScriptPubKeys
 	/// </summary>
 	public class Tracker
 	{
-		class Operation
+		internal class Operation
 		{
 			public string GetId()
 			{
@@ -183,7 +183,7 @@ namespace NBitcoin.SPV
 				return true;
 			}
 		}
-		class TrackedScript
+		internal class TrackedScript
 		{
 			public string GetId()
 			{
@@ -222,7 +222,7 @@ namespace NBitcoin.SPV
 			}
 
 		}
-		class TrackedOutpoint
+		internal class TrackedOutpoint
 		{
 			public string GetId()
 			{
@@ -417,37 +417,55 @@ namespace NBitcoin.SPV
 		}
 
 		/// <summary>
-		/// Remove old spent & confirmed TrackedOutpoint and old unconf operations
+		/// Remove old spent & confirmed TrackedOutpoint, old unconf operations, and old forked operations
 		/// </summary>
 		/// <param name="chain"></param>
-		void Prune(ConcurrentChain chain)
+		internal List<object> Prune(ConcurrentChain chain, int blockExpiration = 2000, TimeSpan? timeExpiration = null)
 		{
+			List<object> removed = new List<object>();
+			timeExpiration = timeExpiration == null ? TimeSpan.FromDays(7.0) : timeExpiration;
 			foreach(var op in _Operations)
 			{
 				if(op.Value.BlockId != null)
 				{
 					var chained = chain.GetBlock(op.Value.BlockId);
-					if(chained != null)
+					var isForked = chained == null;
+					if(!isForked)
 					{
-						if(chain.Height - chained.Height > 2000)
+						bool isOldConfirmed = chain.Height - chained.Height + 1 > blockExpiration;
+						if(isOldConfirmed)
 						{
-							foreach(var spent in op.Value.SpentCoins)
+							foreach(var spent in op.Value.SpentCoins) //Stop tracking the outpoints
 							{
 								TrackedOutpoint unused;
-								_TrackedOutpoints.TryRemove(TrackedOutpoint.GetId(spent.Item1.Outpoint), out unused);
+								if(_TrackedOutpoints.TryRemove(TrackedOutpoint.GetId(spent.Item1.Outpoint), out unused))
+									removed.Add(unused);
 							}
+						}
+					}
+					else
+					{
+						var isOldFork = chain.Height - op.Value.Height + 1 > blockExpiration;
+						if(isOldFork) //clear any operation belonging to an old fork
+						{
+							Operation unused;
+							if(_Operations.TryRemove(op.Key, out unused))
+								removed.Add(unused);
 						}
 					}
 				}
 				else
 				{
-					if((DateTimeOffset.UtcNow - op.Value.AddedDate) > TimeSpan.FromDays(14.0))
+					var isOldUnconf = (DateTimeOffset.UtcNow - op.Value.AddedDate) > timeExpiration;
+					if(isOldUnconf) //clear any old unconfirmed
 					{
 						Operation unused;
-						_Operations.TryRemove(op.Key, out unused);
+						if(_Operations.TryRemove(op.Key, out unused))
+							removed.Add(unused);
 					}
 				}
 			}
+			return removed;
 		}
 
 		/// <summary>
