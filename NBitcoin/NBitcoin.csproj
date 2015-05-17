@@ -129,6 +129,7 @@
     <Compile Include="Protocol\Behaviors\AddressManagerBehavior.cs" />
     <Compile Include="Protocol\Behaviors\BehaviorsCollection.cs" />
     <Compile Include="Protocol\Behaviors\ChainBehavior.cs" />
+    <Compile Include="Protocol\Behaviors\ConnectedNodesBehavior.cs" />
     <Compile Include="Protocol\Behaviors\NodeBehavior.cs" />
     <Compile Include="Protocol\Behaviors\PingPongBehavior.cs" />
     <Compile Include="Protocol\NodeConnectionParameters.cs" />
@@ -155,6 +156,8 @@
     <Compile Include="BitcoinCore\IBlockProvider.cs" />
     <Compile Include="Spendable.cs" />
     <Compile Include="SPV\Tracker.cs" />
+    <Compile Include="SPV\TrackerBehavior.cs" />
+    <Compile Include="SPV\Wallet.cs" />
     <Compile Include="SPV\WalletSummary.cs" />
     <Compile Include="SPV\WalletTransaction.cs" />
     <Compile Include="SPV\WalletTransactionsCollection.cs" />

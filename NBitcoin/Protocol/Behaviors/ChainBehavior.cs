@@ -52,6 +52,15 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
+		int _SynchingCount;
+		public bool Synching
+		{
+			get
+			{
+				return _SynchingCount != 0;
+			}
+		}
+
 		Timer _Refresh;
 		protected override void AttachCore()
 		{
@@ -121,6 +130,7 @@ namespace NBitcoin.Protocol.Behaviors
 				}
 				if(newheaders.Headers.Count != 0)
 					TrySync();
+				Interlocked.Decrement(ref _SynchingCount);
 			}
 		}
 
@@ -140,6 +150,7 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			if(AttachedNode.State == NodeState.HandShaked && CanSync && !invalidHeaderReceived)
 			{
+				Interlocked.Increment(ref _SynchingCount);
 				AttachedNode.SendMessage(new GetHeadersPayload()
 				{
 					BlockLocators = GetPendingTip().GetLocator()
@@ -167,11 +178,12 @@ namespace NBitcoin.Protocol.Behaviors
 
 		public object Clone()
 		{
-			return new ChainBehavior(Chain)
+			var clone = new ChainBehavior(Chain)
 			{
 				CanSync = CanSync,
 				CanRespondToGetHeaders = CanRespondToGetHeaders
 			};
+			return clone;
 		}
 
 		#endregion

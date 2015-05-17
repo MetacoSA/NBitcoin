@@ -65,14 +65,6 @@ namespace NBitcoin
 				return key;
 			}
 		}
-		[Obsolete("Use PrivateKey instead")]
-		public Key Key
-		{
-			get
-			{
-				return key;
-			}
-		}
 		public ExtKey(string seedHex)
 		{
 			SetMaster(Encoders.Hex.DecodeData(seedHex));

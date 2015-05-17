@@ -33,13 +33,13 @@ namespace NBitcoin
 		private bool isEmpty;
 
 
-		public BloomFilter(uint nElements, double nFPRate, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
+		public BloomFilter(int nElements, double nFPRate, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
 			: this(nElements, nFPRate, RandomUtils.GetUInt32(), nFlagsIn)
 		{
 		}
 
 
-		public BloomFilter(uint nElements, double nFPRate, uint nTweakIn, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
+		public BloomFilter(int nElements, double nFPRate, uint nTweakIn, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
 		{
 			// The ideal size for a bloom filter with a given number of elements and false positive rate is:
 			// - nElements * log(fp rate) / ln(2)^2

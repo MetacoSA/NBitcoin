@@ -221,6 +221,12 @@ namespace NBitcoin.SPV
 				set;
 			}
 
+
+			public string Filter
+			{
+				get;
+				set;
+			}
 		}
 		internal class TrackedOutpoint
 		{
@@ -244,6 +250,12 @@ namespace NBitcoin.SPV
 				get;
 				set;
 			}
+
+			public string Filter
+			{
+				get;
+				set;
+			}
 		}
 
 		object cs = new object();
@@ -255,9 +267,10 @@ namespace NBitcoin.SPV
 		/// <param name="destination">The destination</param>
 		/// <param name="isRedeemScript">If true, the P2SH of the destination's script will be tracked (Default: false)</param>
 		/// <param name="isInternal">If true, the scriptPubKey will not belong to tracked data, typically, change addresses (Default: false)</param>
-		public void Add(IDestination destination, bool isRedeemScript = false, bool isInternal = false)
+		/// <param name="filter">The filter in which this key will appear (http://eprint.iacr.org/2014/763.pdf)</param>
+		public void Add(IDestination destination, bool isRedeemScript = false, bool isInternal = false, string filter = "a")
 		{
-			Add(destination.ScriptPubKey, isRedeemScript, isInternal);
+			Add(destination.ScriptPubKey, isRedeemScript, isInternal, filter);
 		}
 
 		/// <summary>
@@ -266,8 +279,11 @@ namespace NBitcoin.SPV
 		/// <param name="scriptPubKey">The ScriptPubKey</param>
 		/// <param name="isRedeemScript">If true, the P2SH of the destination's script will be tracked (Default: false)</param>
 		/// <param name="isInternal">If true, the scriptPubKey will not belong to tracked data, typically, change addresses (Default: false)</param>
-		public void Add(Script scriptPubKey, bool isRedeemScript = false, bool isInternal = false)
+		/// <param name="filter">The filter in which this key will appear (http://eprint.iacr.org/2014/763.pdf)</param>
+		public void Add(Script scriptPubKey, bool isRedeemScript = false, bool isInternal = false, string filter = "a")
 		{
+			if(filter == null)
+				throw new ArgumentNullException("filter");
 			Script redeem = isRedeemScript ? scriptPubKey : null;
 			scriptPubKey = isRedeemScript ? scriptPubKey.Hash.ScriptPubKey : scriptPubKey;
 			var data = scriptPubKey.ToOps().First(o => o.PushData != null).PushData;
@@ -277,7 +293,8 @@ namespace NBitcoin.SPV
 				ScriptPubKey = scriptPubKey,
 				RedeemScript = redeem,
 				AddedDate = DateTimeOffset.UtcNow,
-				IsInternal = isInternal
+				IsInternal = isInternal,
+				Filter = filter
 			};
 
 			bool added = false;
@@ -285,17 +302,6 @@ namespace NBitcoin.SPV
 			{
 				added = _TrackedScripts.TryAdd(trackedScript.GetId(), trackedScript);
 			}
-			if(added && !isInternal)
-			{
-				OnNewDataToTrack();
-			}
-		}
-
-		private void OnNewDataToTrack()
-		{
-			var track = NewDataToTrack;
-			if(track != null)
-				track(this, EventArgs.Empty);
 		}
 
 
@@ -391,6 +397,7 @@ namespace NBitcoin.SPV
 			{
 				Coin = coin,
 				TrackedScriptId = match.GetId(),
+				Filter = match.Filter
 			};
 			_TrackedOutpoints.TryAdd(trackedOutpoint.GetId(), trackedOutpoint);
 		}
@@ -406,12 +413,12 @@ namespace NBitcoin.SPV
 			}
 		}
 
-		public IEnumerable<byte[]> GetDataToTrack()
+		public IEnumerable<byte[]> GetDataToTrack(string filter = "a")
 		{
 			return _TrackedScripts
-				.Where(t => !t.Value.IsInternal)
+				.Where(t => !t.Value.IsInternal && filter == t.Value.Filter)
 				.SelectMany(m => m.Value.GetTrackedData())
-				.Concat(_TrackedOutpoints.Select(o => o.Value.Coin.Outpoint.ToBytes()))
+				.Concat(_TrackedOutpoints.Where(t=>t.Value.Filter == filter).Select(o => o.Value.Coin.Outpoint.ToBytes()))
 				.Where(m => m != null)
 				.ToList();
 		}
@@ -482,7 +489,6 @@ namespace NBitcoin.SPV
 			return true;
 		}
 
-		public event EventHandler NewDataToTrack;
 
 		ConcurrentDictionary<string, Operation> _Operations = new ConcurrentDictionary<string, Operation>();
 		ConcurrentDictionary<string, TrackedScript> _TrackedScripts = new ConcurrentDictionary<string, TrackedScript>();

@@ -50,7 +50,7 @@ namespace NBitcoin.Protocol.Behaviors
 			var addr = message.Message.Payload as AddrPayload;
 			if(addr != null)
 			{
-				AddressManager.Add(addr.Addresses, (IPAddress)((System.Net.IPEndPoint)node.Socket.RemoteEndPoint).Address);
+				AddressManager.Add(addr.Addresses, node.RemoteSocketAddress);
 			}
 		}
 

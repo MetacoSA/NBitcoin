@@ -29,7 +29,6 @@ namespace NBitcoin.Protocol.Behaviors
 			lock(cs)
 			{
 				AttachedNode = node;
-				node.StateChanged += node_StateChanged;
 				if(Disconnected(node))
 					return;
 				AttachCore();
@@ -45,12 +44,6 @@ namespace NBitcoin.Protocol.Behaviors
 		private static bool Disconnected(Node node)
 		{
 			return node.State == NodeState.Disconnecting || node.State == NodeState.Failed || node.State == NodeState.Offline;
-		}
-
-		void node_StateChanged(Node node, NodeState oldState)
-		{
-			if(Disconnected(node))
-				Detach();
 		}
 
 		protected abstract void AttachCore();
