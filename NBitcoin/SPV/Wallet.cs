@@ -1,4 +1,5 @@
-﻿using NBitcoin.Protocol;
+﻿#if !NOSOCKET
+using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Collections.Concurrent;
@@ -139,7 +140,7 @@ namespace NBitcoin.SPV
 			parameters.TemplateBehaviors.FindOrCreate<PingPongBehavior>();	//Ping Pong
 			parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));	//Listen addr, help for node discovery
 			parameters.TemplateBehaviors.Add(new ChainBehavior(chain));	//Keep chain in sync
-			parameters.TemplateBehaviors.Add(new TrackerBehavior(_Tracker)); //Set bloom filters and scan the blockchain
+			parameters.TemplateBehaviors.Add(new TrackerBehavior(_Tracker, chain)); //Set bloom filters and scan the blockchain
 			parameters.TemplateBehaviors.Add(new ConnectedNodesBehavior(_Network, parameters, new NodeRequirement() //Keep a set of connected nodes
 			{
 				MinVersion = ProtocolVersion.PROTOCOL_VERSION,
@@ -177,3 +178,4 @@ namespace NBitcoin.SPV
 		}
 	}
 }
+#endif

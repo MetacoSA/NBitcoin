@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace NBitcoin.Protocol
 {
 	[Payload("inv")]
-	public class InvPayload : Payload, IBitcoinSerializable
+	public class InvPayload : Payload, IBitcoinSerializable, IEnumerable<InventoryVector>
 	{
 		public InvPayload()
 		{
@@ -57,5 +57,23 @@ namespace NBitcoin.Protocol
 		{
 			return "Count: " + Inventory.Count.ToString();
 		}
+
+		#region IEnumerable<uint256> Members
+
+		public IEnumerator<InventoryVector> GetEnumerator()
+		{
+			return Inventory.GetEnumerator();
+		}
+
+		#endregion
+
+		#region IEnumerable Members
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+
+		#endregion
 	}
 }
