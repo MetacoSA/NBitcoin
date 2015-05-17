@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -254,15 +255,40 @@ namespace NBitcoin.Protocol
 		public event NodeStateEventHandler StateChanged;
 		private void OnStateChanged(NodeState previous)
 		{
-			if(StateChanged != null)
+			var stateChanged = StateChanged;
+			if(stateChanged != null)
 			{
-				try
+				foreach(var handler in stateChanged.GetInvocationList().Cast<NodeStateEventHandler>())
 				{
-					StateChanged(this, previous);
+					try
+					{
+						handler.DynamicInvoke(this, previous);
+					}
+					catch(TargetInvocationException ex)
+					{
+						TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while StateChanged event raised", ex.InnerException));
+					}
 				}
-				catch(Exception ex)
+			}
+		}
+
+
+		public event NodeEventMessageIncoming MessageReceived;
+		protected void OnMessageReceived(IncomingMessage message)
+		{
+			var messageReceived = MessageReceived;
+			if(messageReceived != null)
+			{
+				foreach(var handler in messageReceived.GetInvocationList().Cast<NodeEventMessageIncoming>())
 				{
-					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while Disconnected event raised", ex));
+					try
+					{
+						handler.DynamicInvoke(this, message);
+					}
+					catch(TargetInvocationException ex)
+					{
+						TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while OnMessageReceived event raised", ex.InnerException));
+					}
 				}
 			}
 		}
@@ -270,15 +296,19 @@ namespace NBitcoin.Protocol
 		public event NodeEventHandler Disconnected;
 		private void OnDisconnected()
 		{
-			if(Disconnected != null)
+			var disconnected = Disconnected;
+			if(disconnected != null)
 			{
-				try
+				foreach(var handler in disconnected.GetInvocationList().Cast<NodeEventHandler>())
 				{
-					Disconnected(this);
-				}
-				catch(Exception ex)
-				{
-					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while Disconnected event raised", ex));
+					try
+					{
+						handler.DynamicInvoke(this);
+					}
+					catch(TargetInvocationException ex)
+					{
+						TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while Disconnected event raised", ex.InnerException));
+					}
 				}
 			}
 		}
@@ -525,14 +555,6 @@ namespace NBitcoin.Protocol
 		{
 			get;
 			private set;
-		}
-
-		public event NodeEventMessageIncoming MessageReceived;
-		protected void OnMessageReceived(IncomingMessage message)
-		{
-			var messageReceived = MessageReceived;
-			if(messageReceived != null)
-				messageReceived(this, message);
 		}
 
 		bool _ReuseBuffer;
