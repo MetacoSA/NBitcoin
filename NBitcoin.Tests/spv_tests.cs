@@ -1,7 +1,10 @@
-﻿using NBitcoin.SPV;
+﻿using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
+using NBitcoin.SPV;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -140,6 +143,43 @@ namespace NBitcoin.Tests
 			Assert.True(tracker.GetWalletTransactions(builder.Chain)[0].ReceivedCoins[0] is ScriptCoin);
 		}
 
+		[Fact]
+		public void CanMaintainConnectionToNodes()
+		{
+			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
+			{
+				servers.Server1.DefaultNodeConnectionParameters.Services = NodeServices.Network;
+				AddressManagerBehavior behavior = new AddressManagerBehavior(new AddressManager());
+				behavior.AddressManager.Add(new NetworkAddress(servers.Server1.ExternalEndpoint), IPAddress.Parse("127.0.0.1"));
+				NodeConnectionParameters parameters = new NodeConnectionParameters();
+				parameters.TemplateBehaviors.Add(behavior);
+				ConnectedNodesBehavior connected = new ConnectedNodesBehavior(Network.TestNet, parameters, new NodeRequirement()
+				{
+					RequiredServices = NodeServices.Network
+				});
+				connected.AllowSameGroup = true;
+				connected.MaximumNodeConnection = 2;
+				connected.Connect();
+
+				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
+
+				//Server crash abruptly
+				servers.Server1.ConnectedNodes.First().Disconnect();
+				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 1);
+
+				//Reconnect ?
+				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
+
+				//Client crash abruptly
+				connected.ConnectedNodes.First().Disconnect();
+				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 1);
+
+				//Reconnect ?
+				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
+			}
+		}
+
+		
 		[Fact]
 		public void CanPrune()
 		{

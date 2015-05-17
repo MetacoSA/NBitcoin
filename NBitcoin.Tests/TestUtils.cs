@@ -34,6 +34,16 @@ namespace NBitcoin.Tests
 			// roundtrip tx
 			return t.Clone();
 		}
+
+		public static void Eventually(Func<bool> act)
+		{
+			var cancel = new CancellationTokenSource(5000);
+			while(!act())
+			{
+				cancel.Token.ThrowIfCancellationRequested();
+			}
+		}
+
 		public static Transaction CreateFakeTx(Money coin, BitcoinAddress to)
 		{
 			return CreateFakeTx(coin, (KeyId)to.Hash);

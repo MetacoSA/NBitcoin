@@ -162,7 +162,7 @@ namespace NBitcoin.Protocol
 						_MessageListener = new EventLoopMessageListener<IncomingMessage>(MessageReceived);
 						Node.MessageProducer.AddMessageListener(_MessageListener);
 
-						byte[] buffer = new byte[1024 * 1024];
+						byte[] buffer = _Node._ReuseBuffer ? new byte[1024 * 1024] : null;
 						try
 						{
 							while(!Cancel.Token.IsCancellationRequested)
@@ -201,10 +201,20 @@ namespace NBitcoin.Protocol
 							Node.State = NodeState.Offline;
 
 						Dispose();
-
 						_Cancel.Cancel();
 						_Disconnected.Set();
 
+						foreach(var behavior in _Node.Behaviors)
+						{
+							try
+							{
+								behavior.Detach();
+							}
+							catch(Exception ex)
+							{
+								NodeServerTrace.Error("Error while detaching behavior " + behavior.GetType().FullName, ex);
+							}
+						}
 					}
 				}).Start();
 			}
@@ -495,6 +505,22 @@ namespace NBitcoin.Protocol
 			_Connection.BeginListen();
 		}
 
+		public IPAddress RemoteSocketAddress
+		{
+			get
+			{
+				return ((IPEndPoint)Socket.RemoteEndPoint).Address;
+			}
+		}
+
+		public int RemoteSocketPort
+		{
+			get
+			{
+				return ((IPEndPoint)Socket.RemoteEndPoint).Port;
+			}
+		}
+
 		public bool Inbound
 		{
 			get;
@@ -509,11 +535,13 @@ namespace NBitcoin.Protocol
 				messageReceived(this, message);
 		}
 
+		bool _ReuseBuffer;
 		private void InitDefaultBehaviors(NodeConnectionParameters parameters)
 		{
 			IsTrusted = parameters.IsTrusted != null ? parameters.IsTrusted.Value : Peer.Endpoint.Address.IsLocal();
 			Advertize = parameters.Advertize;
 			Version = parameters.Version;
+			_ReuseBuffer = parameters.ReuseBuffer;
 
 			_Behaviors.DelayAttach = true;
 			foreach(var behavior in parameters.TemplateBehaviors)
@@ -768,7 +796,7 @@ namespace NBitcoin.Protocol
 
 
 
-		public Socket Socket
+		private Socket Socket
 		{
 			get
 			{

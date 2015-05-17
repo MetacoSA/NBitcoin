@@ -1,5 +1,6 @@
 ﻿#if !NOSOCKET
 using NBitcoin.Crypto;
+using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -1158,7 +1159,9 @@ namespace NBitcoin.Protocol
 							{
 								var param2 = parameters.Clone();
 								param2.ConnectCancellation = cancelConnection.Token;
+								var addrman = param2.TemplateBehaviors.Find<AddressManagerBehavior>();
 								param2.TemplateBehaviors.Clear();
+								param2.TemplateBehaviors.Add(addrman);
 								n = Node.Connect(network, p.Endpoint, param2);
 								n.VersionHandshake(cancelConnection.Token);
 								n.MessageReceived += (s, a) =>

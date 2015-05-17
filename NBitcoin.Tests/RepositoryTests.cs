@@ -4,6 +4,7 @@ using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
+using NBitcoin.SPV;
 using NBitcoin.Stealth;
 using Newtonsoft.Json.Linq;
 using System;
@@ -274,9 +275,18 @@ namespace NBitcoin.Tests
 			Assert.NotNull(result);
 		}
 
-		//[Fact]
+		[Fact]
 		public static void Play()
 		{
+			//Wallet wallet = new Wallet(new ExtKey(), Network.Main);
+			//wallet.Connect(addrman: AddressManager.LoadPeerFile(@"E:\Program Files\Bitcoin\peers.dat", Network.Main));
+			//while(true)
+			//{
+			//	Thread.Sleep(1000);
+			//	Console.WriteLine(wallet.ConnectedNodes + " " + wallet.State);
+
+			//}
+
 			//var node = Node.ConnectToLocal(Network.Main);
 			//node.VersionHandshake();
 			//var chain = node.GetChain();
@@ -471,7 +481,7 @@ namespace NBitcoin.Tests
 			return new SQLiteNoSqlRepository(filename);
 		}
 
-		
+
 
 		public static IndexedBlockStore CreateIndexedStore([CallerMemberName]string folderName = null)
 		{

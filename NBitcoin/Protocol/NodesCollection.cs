@@ -142,12 +142,12 @@ namespace NBitcoin.Protocol
 		{
 			if(port.HasValue)
 			{
-				return (n.State > NodeState.Disconnecting && ((IPEndPoint)n.Socket.RemoteEndPoint).Address.Equals(ip) && ((IPEndPoint)n.Socket.RemoteEndPoint).Port == port.Value) ||
+				return (n.State > NodeState.Disconnecting && n.RemoteSocketAddress.Equals(ip) && n.RemoteSocketPort == port.Value) ||
 						(n.PeerVersion.AddressFrom.Address.Equals(ip) && n.PeerVersion.AddressFrom.Port == port.Value);
 			}
 			else
 			{
-				return (n.State > NodeState.Disconnecting && ((IPEndPoint)n.Socket.RemoteEndPoint).Address.Equals(ip)) ||
+				return (n.State > NodeState.Disconnecting && n.RemoteSocketAddress.Equals(ip)) ||
 						n.PeerVersion.AddressFrom.Address.Equals(ip);
 			}
 		}
@@ -175,6 +175,11 @@ namespace NBitcoin.Protocol
 		{
 			var tasks = _Nodes.Select(n => n.Key).Select(n => Task.Factory.StartNew(() => n.Disconnect())).ToArray();
 			Task.WaitAll(tasks, cancellation);
+		}
+
+		public void Clear()
+		{
+			_Nodes.Clear();
 		}
 	}
 }

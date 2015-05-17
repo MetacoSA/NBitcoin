@@ -6,6 +6,10 @@ namespace NBitcoin
 {
 	public class KeyPath
 	{
+		public KeyPath()
+		{
+			_Indexes = new uint[0];
+		}
 		public KeyPath(string path)
 		{
 			_Indexes =
