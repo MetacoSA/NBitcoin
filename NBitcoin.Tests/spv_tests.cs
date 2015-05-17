@@ -1,4 +1,5 @@
-﻿using NBitcoin.Protocol;
+﻿#if !NOSOCKET
+using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.SPV;
 using System;
@@ -299,3 +300,4 @@ namespace NBitcoin.Tests
 		}
 	}
 }
+#endif

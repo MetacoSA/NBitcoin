@@ -1,4 +1,5 @@
-﻿using NBitcoin.Crypto;
+﻿#if !NOSOCKET
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Concurrent;
@@ -128,7 +129,7 @@ namespace NBitcoin.SPV
 				set;
 			}
 
-			public WalletTransaction ToWalletTransaction(ChainBase chain, ConcurrentDictionary<string, TrackedScript> trackedScripts)
+			public WalletTransaction ToWalletTransaction(ChainBase chain, ConcurrentDictionary<string, TrackedScript> trackedScripts, string wallet)
 			{
 				var chainHeight = chain.Height;
 				var tx = new WalletTransaction()
@@ -139,8 +140,8 @@ namespace NBitcoin.SPV
 					AddedDate = AddedDate
 				};
 
-				tx.ReceivedCoins = GetCoins(ReceivedCoins, trackedScripts);
-				tx.SpentCoins = GetCoins(SpentCoins, trackedScripts);
+				tx.ReceivedCoins = GetCoins(ReceivedCoins, trackedScripts, wallet);
+				tx.SpentCoins = GetCoins(SpentCoins, trackedScripts, wallet);
 
 				if(BlockId != null)
 				{
@@ -158,13 +159,14 @@ namespace NBitcoin.SPV
 				return tx;
 			}
 
-			private Coin[] GetCoins(List<Tuple<Coin, string>> coins, ConcurrentDictionary<string, TrackedScript> trackedScripts)
+			private Coin[] GetCoins(List<Tuple<Coin, string>> coins, ConcurrentDictionary<string, TrackedScript> trackedScripts, string wallet)
 			{
 				return coins.Select(c => new
 									{
 										Coin = c.Item1,
 										TrackedScript = trackedScripts[c.Item2]
 									})
+									.Where(c => c.TrackedScript.Wallet.Equals(wallet, StringComparison.Ordinal))
 									.Select(c => c.TrackedScript.RedeemScript != null ? c.Coin.ToScriptCoin(c.TrackedScript.RedeemScript) : c.Coin)
 									.ToArray();
 			}
@@ -227,6 +229,12 @@ namespace NBitcoin.SPV
 				get;
 				set;
 			}
+
+			public string Wallet
+			{
+				get;
+				set;
+			}
 		}
 		internal class TrackedOutpoint
 		{
@@ -268,9 +276,10 @@ namespace NBitcoin.SPV
 		/// <param name="isRedeemScript">If true, the P2SH of the destination's script will be tracked (Default: false)</param>
 		/// <param name="isInternal">If true, the scriptPubKey will not belong to tracked data, typically, change addresses (Default: false)</param>
 		/// <param name="filter">The filter in which this key will appear (http://eprint.iacr.org/2014/763.pdf)</param>
-		public void Add(IDestination destination, bool isRedeemScript = false, bool isInternal = false, string filter = "a")
+		/// <param name="wallet">The wallet name to which it belongs</param>
+		public void Add(IDestination destination, bool isRedeemScript = false, bool isInternal = false, string filter = "a", string wallet = "default")
 		{
-			Add(destination.ScriptPubKey, isRedeemScript, isInternal, filter);
+			Add(destination.ScriptPubKey, isRedeemScript, isInternal, filter, wallet);
 		}
 
 		/// <summary>
@@ -280,10 +289,13 @@ namespace NBitcoin.SPV
 		/// <param name="isRedeemScript">If true, the P2SH of the destination's script will be tracked (Default: false)</param>
 		/// <param name="isInternal">If true, the scriptPubKey will not belong to tracked data, typically, change addresses (Default: false)</param>
 		/// <param name="filter">The filter in which this key will appear (http://eprint.iacr.org/2014/763.pdf)</param>
-		public void Add(Script scriptPubKey, bool isRedeemScript = false, bool isInternal = false, string filter = "a")
+		/// <param name="wallet">The wallet name to which it belongs</param>
+		public void Add(Script scriptPubKey, bool isRedeemScript = false, bool isInternal = false, string filter = "a", string wallet = "default")
 		{
 			if(filter == null)
 				throw new ArgumentNullException("filter");
+			if(wallet == null)
+				throw new ArgumentNullException("wallet");
 			Script redeem = isRedeemScript ? scriptPubKey : null;
 			scriptPubKey = isRedeemScript ? scriptPubKey.Hash.ScriptPubKey : scriptPubKey;
 			var data = scriptPubKey.ToOps().First(o => o.PushData != null).PushData;
@@ -294,7 +306,8 @@ namespace NBitcoin.SPV
 				RedeemScript = redeem,
 				AddedDate = DateTimeOffset.UtcNow,
 				IsInternal = isInternal,
-				Filter = filter
+				Filter = filter,
+				Wallet = wallet
 			};
 
 			bool added = false;
@@ -319,8 +332,6 @@ namespace NBitcoin.SPV
 
 		public bool NotifyTransaction(Transaction transaction, ChainedBlock chainedBlock, MerkleBlock proof)
 		{
-			bool interesting = false;
-
 			if(chainedBlock != null)
 			{
 				if(proof == null)
@@ -332,6 +343,8 @@ namespace NBitcoin.SPV
 				if(!proof.PartialMerkleTree.GetMatchedTransactions().Contains(transaction.GetHash()))
 					throw new InvalidOperationException("The MerkleBlock does not contains the input transaction");
 			}
+
+			var interesting = false;
 			lock(cs)
 			{
 				foreach(var txin in transaction.Inputs.AsIndexedInputs())
@@ -363,14 +376,16 @@ namespace NBitcoin.SPV
 			return interesting;
 		}
 
-		public WalletTransactionsCollection GetWalletTransactions(ChainBase chain)
+		
+		public WalletTransactionsCollection GetWalletTransactions(ChainBase chain, string wallet = "default")
 		{
 			lock(cs)
 			{
 				return new WalletTransactionsCollection(_Operations
 					.Select(op => op.Value)
 					.Where(op => op.CheckProof())
-					.Select(o => o.ToWalletTransaction(chain, _TrackedScripts))
+					.Select(o => o.ToWalletTransaction(chain, _TrackedScripts, wallet))
+					.Where(o => o.ReceivedCoins.Length != 0 || o.SpentCoins.Length != 0)
 					.ToArray());
 			}
 		}
@@ -418,7 +433,7 @@ namespace NBitcoin.SPV
 			return _TrackedScripts
 				.Where(t => !t.Value.IsInternal && filter == t.Value.Filter)
 				.SelectMany(m => m.Value.GetTrackedData())
-				.Concat(_TrackedOutpoints.Where(t=>t.Value.Filter == filter).Select(o => o.Value.Coin.Outpoint.ToBytes()))
+				.Concat(_TrackedOutpoints.Where(t => t.Value.Filter == filter).Select(o => o.Value.Coin.Outpoint.ToBytes()))
 				.Where(m => m != null)
 				.ToList();
 		}
@@ -493,5 +508,11 @@ namespace NBitcoin.SPV
 		ConcurrentDictionary<string, Operation> _Operations = new ConcurrentDictionary<string, Operation>();
 		ConcurrentDictionary<string, TrackedScript> _TrackedScripts = new ConcurrentDictionary<string, TrackedScript>();
 		ConcurrentDictionary<string, TrackedOutpoint> _TrackedOutpoints = new ConcurrentDictionary<string, TrackedOutpoint>();
+
+		public Transaction GetKnownTransaction(uint256 txId)
+		{
+			return _Operations.Select(o => o.Value.Transaction).Where(o => o.GetHash() == txId).FirstOrDefault();
+		}
 	}
 }
+#endif

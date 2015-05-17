@@ -135,9 +135,11 @@
     <Compile Include="Protocol\NodeConnectionParameters.cs" />
     <Compile Include="Protocol\NodeListener.cs" />
     <Compile Include="Protocol\NodesCollection.cs" />
+    <Compile Include="Protocol\Payloads\FilterLoadPayload.cs" />
     <Compile Include="Protocol\Payloads\GetBlocksPayload.cs" />
     <Compile Include="Protocol\Payloads\GetDataPayload.cs" />
     <Compile Include="Protocol\Payloads\MempoolPayload.cs" />
+    <Compile Include="Protocol\Payloads\MerkleBlockPayload.cs" />
     <Compile Include="Protocol\Payloads\RejectPayload.cs" />
     <Compile Include="Protocol\PerformanceCounter.cs" />
     <Compile Include="Protocol\ProtocolException.cs" />
@@ -260,6 +262,7 @@
     </Compile>
     <Compile Include="UnsignedList.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="Utils\BoundedDictionary.cs" />
     <Compile Include="ValidationState.cs" />
     <Compile Include="Protocol\VarInt.cs" />
     <Compile Include="Protocol\VarString.cs" />

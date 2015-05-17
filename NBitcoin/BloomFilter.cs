@@ -18,6 +18,10 @@ namespace NBitcoin
 	};
 	public class BloomFilter : IBitcoinSerializable
 	{
+		public BloomFilter()
+		{
+
+		}
 		// 20,000 items with fp rate < 0.1% or 10,000 items and <0.0001%
 		const uint MAX_BLOOM_FILTER_SIZE = 36000; // bytes
 		const uint MAX_HASH_FUNCS = 50;

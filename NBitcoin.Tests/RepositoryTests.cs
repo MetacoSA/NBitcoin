@@ -278,6 +278,10 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
+			var node = Node.ConnectToLocal(Network.TestNet);
+			node.VersionHandshake();
+
+
 			//Wallet wallet = new Wallet(new ExtKey(), Network.Main);
 			//wallet.Connect(addrman: AddressManager.LoadPeerFile(@"E:\Program Files\Bitcoin\peers.dat", Network.Main));
 			//while(true)

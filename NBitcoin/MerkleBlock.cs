@@ -8,6 +8,10 @@ namespace NBitcoin
 {
 	public class MerkleBlock : IBitcoinSerializable
 	{
+		public MerkleBlock()
+		{
+
+		}
 		// Public only for unit testing
 		BlockHeader header;
 

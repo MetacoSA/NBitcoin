@@ -1,5 +1,8 @@
-﻿using NBitcoin.Protocol.Behaviors;
+﻿#if !NOSOCKET
+using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,13 +10,20 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.SPV
 {
-	internal class TrackerBehavior : NodeBehavior, ICloneable
+	/// <summary>
+	/// Load a bloom filter based on the data of the tracker, refreshable manually
+	/// </summary>
+	public class TrackerBehavior : NodeBehavior, ICloneable
 	{
 		Tracker _Tracker;
-		public TrackerBehavior(Tracker tracker)
+		ConcurrentChain _Chain;
+		public TrackerBehavior(Tracker tracker, ConcurrentChain chain)
 		{
 			if(tracker == null)
 				throw new ArgumentNullException("tracker");
+			if(chain == null)
+				throw new ArgumentNullException("chain");
+			_Chain = chain;
 			_Tracker = tracker;
 			_Tweak = RandomUtils.GetUInt32();
 		}
@@ -34,6 +44,63 @@ namespace NBitcoin.SPV
 		protected override void DetachCore()
 		{
 			AttachedNode.StateChanged -= AttachedNode_StateChanged;
+			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
+		}
+
+		BoundedDictionary<uint256, MerkleBlock> _TransactionsToBlock = new BoundedDictionary<uint256, MerkleBlock>(1000);
+		BoundedDictionary<uint256, Transaction> _KnownTxs = new BoundedDictionary<uint256, Transaction>(1000);
+		void AttachedNode_MessageReceived(Protocol.Node node, Protocol.IncomingMessage message)
+		{
+			var merkleBlock = message.Message.Payload as MerkleBlockPayload;
+			if(merkleBlock != null)
+			{
+				foreach(var txId in merkleBlock.Object.PartialMerkleTree.GetMatchedTransactions())
+				{
+					_TransactionsToBlock.AddOrUpdate(txId, merkleBlock.Object, (k, v) => merkleBlock.Object);
+					var tx = _Tracker.GetKnownTransaction(txId);
+					if(tx != null)
+						Notify(tx, merkleBlock.Object);
+				}
+			}
+
+			var invs = message.Message.Payload as InvPayload;
+			if(invs != null)
+			{
+				foreach(var inv in invs)
+				{
+					node.SendMessage(new GetDataPayload(inv));
+				}
+			}
+
+			var txPayload = message.Message.Payload as TxPayload;
+			if(txPayload != null)
+			{
+				var tx = txPayload.Object;
+				MerkleBlock blk;
+				_TransactionsToBlock.TryGetValue(tx.GetHash(), out blk);
+				Notify(tx, blk);
+			}
+		}
+
+		private void Notify(Transaction tx, MerkleBlock blk)
+		{
+			if(blk == null)
+			{
+				_Tracker.NotifyTransaction(tx);
+			}
+			else
+			{
+				var prev = _Chain.GetBlock(blk.Header.HashPrevBlock);
+				if(prev != null)
+				{
+					var header = new ChainedBlock(blk.Header, null, prev);
+					_Tracker.NotifyTransaction(tx, header, blk);
+				}
+				else
+				{
+					_Tracker.NotifyTransaction(tx);
+				}
+			}
 		}
 
 
@@ -49,7 +116,10 @@ namespace NBitcoin.SPV
 				{
 					filter.Insert(data);
 				}
-
+				Task.Factory.StartNew(() =>
+				{
+					node.SendMessage(new FilterLoadPayload(filter));
+				});
 			}
 		}
 
@@ -57,7 +127,7 @@ namespace NBitcoin.SPV
 
 		public object Clone()
 		{
-			var clone = new TrackerBehavior(_Tracker);
+			var clone = new TrackerBehavior(_Tracker, _Chain);
 			clone._Tweak = _Tweak;
 			return clone;
 		}
@@ -65,3 +135,4 @@ namespace NBitcoin.SPV
 		#endregion
 	}
 }
+#endif

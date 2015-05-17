@@ -36,6 +36,13 @@ namespace System.Diagnostics
 			}
 		}
 	}
+	internal class Switch
+	{
+		public bool ShouldTrace(TraceEventType level)
+		{
+			return false;
+		}
+	}
 	internal class TraceSource
 	{
 		private string p;
@@ -44,6 +51,13 @@ namespace System.Diagnostics
 		{
 			
 			this.p = p;
+			Switch = new Switch();
+		}
+
+		public Switch Switch
+		{
+			get;
+			set;
 		}
 
 		internal void TraceEvent(TraceEventType traceEventType, int p, string msg, object[] args)
