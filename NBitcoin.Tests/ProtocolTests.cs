@@ -197,19 +197,25 @@ namespace NBitcoin.Tests
 				using(var list = node.CreateListener()
 										.Where(m => m.Message.Payload is MerkleBlockPayload || m.Message.Payload is TxPayload))
 				{
-					BloomFilter filter = new BloomFilter(1, 0.005, BloomFlags.UPDATE_NONE);
+					BloomFilter filter = new BloomFilter(1, 0.005, 50, BloomFlags.UPDATE_NONE);
 					filter.Insert(BitcoinAddress.Create("mwdJkHRNJi1fEwHBx6ikWFFuo2rLBdri2h", Network.TestNet).Hash.ToBytes());
 					node.SendMessage(new FilterLoadPayload(filter));
 					node.SendMessage(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, knownBlock)));
 					var merkle = list.ReceivePayload<MerkleBlockPayload>();
-					Assert.True(merkle.Object.PartialMerkleTree.Check(new uint256("89b905cdf2ab70c1acd9b538cf6738937ae28fca86c1514ebbf130962312e478")));
-					Assert.True(merkle.Object.PartialMerkleTree.GetMatchedTransactions().Contains(knownTx));
+					var tree = merkle.Object.PartialMerkleTree;
+					Assert.True(tree.Check(new uint256("89b905cdf2ab70c1acd9b538cf6738937ae28fca86c1514ebbf130962312e478")));
+					Assert.True(tree.GetMatchedTransactions().Count() > 1);
+					Assert.True(tree.GetMatchedTransactions().Contains(knownTx));
 
 					List<Transaction> matched = new List<Transaction>();
-					for(int i = 0 ; i < merkle.Object.PartialMerkleTree.GetMatchedTransactions().Count() ; i++)
+					for(int i = 0 ; i < tree.GetMatchedTransactions().Count() ; i++)
 					{
 						matched.Add(list.ReceivePayload<TxPayload>().Object);
 					}
+					Assert.True(matched.Count > 1);
+					tree = tree.Trim(knownTx);
+					Assert.True(tree.GetMatchedTransactions().Count() == 1);
+					Assert.True(tree.GetMatchedTransactions().Contains(knownTx));
 
 					Action act = () =>
 					{
@@ -226,9 +232,9 @@ namespace NBitcoin.Tests
 					node.SendMessage(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, Network.TestNet.GetGenesis().GetHash())));
 
 					merkle = list.ReceivePayload<MerkleBlockPayload>();
-
-					Assert.True(merkle.Object.PartialMerkleTree.Check(merkle.Object.Header.HashMerkleRoot));
-					Assert.True(!merkle.Object.PartialMerkleTree.GetMatchedTransactions().Contains(knownTx));
+					tree = merkle.Object.PartialMerkleTree;
+					Assert.True(tree.Check(merkle.Object.Header.HashMerkleRoot));
+					Assert.True(!tree.GetMatchedTransactions().Contains(knownTx));
 				}
 			}
 		}

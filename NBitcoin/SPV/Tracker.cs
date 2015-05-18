@@ -62,6 +62,8 @@ namespace NBitcoin.SPV
 				Transaction = transaction;
 				if(block != null)
 				{
+					proof = proof.Clone();
+					proof.PartialMerkleTree = proof.PartialMerkleTree.Trim(transaction.GetHash());
 					Height = block.Height;
 					BlockId = block.HashBlock;
 					Proof = proof;
