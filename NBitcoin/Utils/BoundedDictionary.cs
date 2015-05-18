@@ -65,12 +65,14 @@ namespace NBitcoin
 
 		private void Clean()
 		{
-			while(_Queue.Count < _MaxItems)
+			while(_Queue.Count > _MaxItems)
 			{
 				TKey result;
-				_Queue.TryDequeue(out result);
-				TValue result2;
-				_Dictionnary.TryRemove(result, out result2);
+				if(_Queue.TryDequeue(out result))
+				{
+					TValue result2;
+					_Dictionnary.TryRemove(result, out result2);
+				}
 			}
 		}
 	}

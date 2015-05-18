@@ -15,9 +15,8 @@ namespace NBitcoin.SPV
 	public enum WalletState
 	{
 		Created,
-		Connecting,
-		Connected,
-		Disconnecting,
+		Disconnected,
+		Connected
 	}
 
 
@@ -35,7 +34,10 @@ namespace NBitcoin.SPV
 		Tracker _Tracker;
 
 		int _CurrentIndex;
-		Dictionary<Script, int> _KnownScripts = new Dictionary<Script, int>();
+		int _LoadedKeys;
+		int _KeyPoolSize;
+
+		Dictionary<Script, KeyPath> _KnownScripts = new Dictionary<Script, KeyPath>();
 
 		/// <summary>
 		/// Blocks below this date will not be processed
@@ -45,12 +47,12 @@ namespace NBitcoin.SPV
 			get;
 			set;
 		}
-
-		public Wallet(BitcoinExtKey masterKey, string passphrase = null, KeyPath derivationPath = null)
-			: this(masterKey.ExtKey, masterKey.Network, passphrase, derivationPath)
+		
+		public Wallet(BitcoinExtKey masterKey, string passphrase = null, KeyPath derivationPath = null, int keyPoolSize = 500)
+			: this(masterKey.ExtKey, masterKey.Network, passphrase, derivationPath, keyPoolSize)
 		{
 		}
-		public Wallet(ExtKey masterKey, Network network, string passphrase = null, KeyPath derivationPath = null)
+		public Wallet(ExtKey masterKey, Network network, string passphrase = null, KeyPath derivationPath = null, int keyPoolSize = 500)
 		{
 			if(network == null)
 				throw new ArgumentNullException("network");
@@ -69,9 +71,65 @@ namespace NBitcoin.SPV
 				_Network.GetGenesis().GetHash()
 			});
 			_ExtPubKey = masterKey.Neuter();
-			_Tracker = new Tracker();
-			MaximumNodeConnection = 8;
+			_KeyPoolSize = keyPoolSize;
 			Created = DateTimeOffset.UtcNow;
+		}
+
+		private void LoadPool(int indexFrom, int count)
+		{
+			var parent = _ExtPubKey.Derive(_DerivationPath);
+			var walletName = GetWalletName();
+			for(int i = indexFrom ; i < indexFrom + count ; i++)
+			{
+				var external = new KeyPath((uint)0, (uint)i);
+				var child = parent.Derive(external);
+				_Tracker.Add(child.PubKey.Hash, wallet: walletName);
+				_KnownScripts.Add(child.PubKey.Hash.ScriptPubKey, external);
+
+				var intern = new KeyPath((uint)1, (uint)i);
+				child = parent.Derive(intern);
+				_Tracker.Add(child.PubKey.Hash, isInternal: true, wallet: walletName);
+				_KnownScripts.Add(child.PubKey.Hash.ScriptPubKey, intern);
+			}
+			_LoadedKeys += count;
+			_Tracker.UpdateTweak();
+		}
+
+		private string GetWalletName()
+		{
+			return _ExtPubKey.Derive(_DerivationPath).PubKey.Hash.ToString();
+		}
+
+		public WalletTransactionsCollection GetTransactions()
+		{
+			if(State == WalletState.Created)
+				throw new InvalidOperationException("Wallet should be in Connected/Disconnected state to get the transactions");
+			return _Tracker.GetWalletTransactions(_Chain, GetWalletName());
+		}
+
+		private ConcurrentChain _Chain;
+		public ConcurrentChain Chain
+		{
+			get
+			{
+				return _Chain;
+			}
+		}
+		AddressManager _AddressManager;
+		public AddressManager AddressManager
+		{
+			get
+			{
+				return _AddressManager;
+			}
+		}
+
+		public Tracker Tracker
+		{
+			get
+			{
+				return _Tracker;
+			}
 		}
 
 		object cs = new object();
@@ -82,12 +140,15 @@ namespace NBitcoin.SPV
 			{
 				var key = GetKey(0, _CurrentIndex);
 				_CurrentIndex++;
-				_Tracker.Add(key.PubKey.Hash);
-				_KnownScripts.Add(key.PubKey.Hash.ScriptPubKey, _CurrentIndex - 1);
 				result = new BitcoinExtPubKey(key, _Network);
+
+				var created = (double)_CurrentIndex / (double)_LoadedKeys;
+				if(created > 0.9)
+				{
+					LoadPool(_LoadedKeys, _KeyPoolSize);
+					_ConnectedNodes.Purge("New bloom filter");
+				}
 			}
-			if(_TrackerBehavior != null)
-				_TrackerBehavior.RefreshBloomFilter();
 			return result;
 		}
 
@@ -102,15 +163,13 @@ namespace NBitcoin.SPV
 		{
 			get
 			{
-				return _State;
+				if(_State == WalletState.Created)
+					return _State;
+				return _ConnectedNodes.ConnectedNodes.Count == _ConnectedNodes.MaximumNodeConnection ? WalletState.Connected : WalletState.Disconnected;
 			}
 		}
 
-		public int MaximumNodeConnection
-		{
-			get;
-			set;
-		}
+
 
 		/// <summary>
 		/// Connect the wallet to the bitcoin network asynchronously
@@ -118,16 +177,89 @@ namespace NBitcoin.SPV
 		/// <param name="chain">The chain to keep in sync, if not provided the whole chain will be downloaded on the network (more than 30MB)</param>
 		/// <param name="addrman">The Address Manager for speeding up peer discovery</param>
 		public void Connect(ConcurrentChain chain = null,
-							AddressManager addrman = null)
+							AddressManager addrman = null,
+							Tracker tracker = null)
 		{
 			if(State != WalletState.Created)
 				throw new InvalidOperationException("The wallet is already connecting or connected");
-			if(MaximumNodeConnection < 1)
-				throw new InvalidOperationException("Invalid MaximumNodeConnection value");
+
 			addrman = addrman ?? new AddressManager();
 			chain = chain ?? new ConcurrentChain(_Network);
+			tracker = tracker ?? new Tracker();
 
 			var parameters = new NodeConnectionParameters();
+			ConfigureDefaultNodeConnectionParameters(parameters);
+
+
+			//Pick the behaviors
+			if(addrman != null)
+				parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));	//Listen addr, help for node discovery
+			if(chain != null)
+				parameters.TemplateBehaviors.Add(new ChainBehavior(chain));	//Keep chain in sync
+			if(tracker != null)
+				parameters.TemplateBehaviors.Add(new TrackerBehavior(tracker, chain)); //Set bloom filters and scan the blockchain
+
+			Connect(parameters);
+		}
+
+		public void Connect(NodeConnectionParameters parameters)
+		{
+			var connectedNodes = parameters.TemplateBehaviors.Find<ConnectedNodesBehavior>();
+			if(connectedNodes == null)
+			{
+				connectedNodes = new ConnectedNodesBehavior(_Network, parameters)
+				{
+					MaximumNodeConnection = 8
+				};
+				parameters.TemplateBehaviors.Add(connectedNodes);
+			}
+			connectedNodes.Requirements.MinVersion = ProtocolVersion.PROTOCOL_VERSION;
+			connectedNodes.Requirements.RequiredServices = NodeServices.Network;
+
+			var chain = parameters.TemplateBehaviors.Find<ChainBehavior>();
+			if(chain == null)
+			{
+				chain = new ChainBehavior(new ConcurrentChain(_Network));
+				parameters.TemplateBehaviors.Add(chain);
+			}
+			if(chain.Chain.Genesis.HashBlock != _Network.GetGenesis().GetHash())
+				throw new InvalidOperationException("ChainBehavior with invalid network chain detected");
+
+			var addrman = parameters.TemplateBehaviors.Find<AddressManagerBehavior>();
+			if(addrman == null)
+			{
+				addrman = new AddressManagerBehavior(new AddressManager());
+				parameters.TemplateBehaviors.Add(addrman);
+			}
+
+			var tracker = parameters.TemplateBehaviors.Find<TrackerBehavior>();
+			if(tracker == null)
+			{
+				tracker = new TrackerBehavior(new Tracker(), chain.Chain);
+				parameters.TemplateBehaviors.Add(tracker);
+			}
+
+			_Chain = chain.Chain;
+			_AddressManager = addrman.AddressManager;
+			_Tracker = tracker.Tracker;
+			_TrackerBehavior = tracker;
+			_ConnectedNodes = connectedNodes;
+
+			if(_LoadedKeys == 0)
+			{
+				LoadPool(0, _KeyPoolSize);
+				_ConnectedNodes.Purge("New bloom filter");
+			}
+
+			_State = WalletState.Disconnected;
+			_ConnectedNodes.Connect();
+			_ConnectedNodes.ConnectedNodes.Added += ConnectedNodes_Added;
+			_ConnectedNodes.ConnectedNodes.Removed += ConnectedNodes_Added;
+		}
+
+		public static void ConfigureDefaultNodeConnectionParameters(NodeConnectionParameters parameters)
+		{
+			parameters = parameters ?? new NodeConnectionParameters();
 			parameters.IsTrusted = false; //Connecting to the wild
 
 			//Optimize for small device
@@ -136,24 +268,15 @@ namespace NBitcoin.SPV
 			parameters.ReceiveBufferSize = 1024 * 100;
 			parameters.IsRelay = false;
 
-			//Pick the behaviors
 			parameters.TemplateBehaviors.FindOrCreate<PingPongBehavior>();	//Ping Pong
-			parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));	//Listen addr, help for node discovery
-			parameters.TemplateBehaviors.Add(new ChainBehavior(chain));	//Keep chain in sync
-			parameters.TemplateBehaviors.Add(new TrackerBehavior(_Tracker, chain)); //Set bloom filters and scan the blockchain
-			parameters.TemplateBehaviors.Add(new ConnectedNodesBehavior(_Network, parameters, new NodeRequirement() //Keep a set of connected nodes
-			{
-				MinVersion = ProtocolVersion.PROTOCOL_VERSION,
-				RequiredServices = NodeServices.Network
-			})
-			{
-				MaximumNodeConnection = MaximumNodeConnection
-			});
+		}
 
-			_State = WalletState.Connecting;
-			_TrackerBehavior = parameters.TemplateBehaviors.Find<TrackerBehavior>();
-			_ConnectedNodes = parameters.TemplateBehaviors.Find<ConnectedNodesBehavior>();
-			_ConnectedNodes.Connect();
+		void ConnectedNodes_Added(object sender, NodeEventArgs e)
+		{
+			if(_State != WalletState.Created)
+			{
+				_State = ((NodesCollection)sender).Count == 0 ? WalletState.Disconnected : WalletState.Connected;
+			}
 		}
 
 		TrackerBehavior _TrackerBehavior;
@@ -162,10 +285,11 @@ namespace NBitcoin.SPV
 
 		public void Disconnect()
 		{
-			if(_State == WalletState.Disconnecting || _State == WalletState.Created)
+			if(_State == WalletState.Created)
 				return;
-			_State = WalletState.Disconnecting;
 			_ConnectedNodes.Disconnect();
+			_ConnectedNodes.ConnectedNodes.Added -= ConnectedNodes_Added;
+			_ConnectedNodes.ConnectedNodes.Removed -= ConnectedNodes_Added;
 			_State = WalletState.Created;
 		}
 

@@ -158,6 +158,9 @@ namespace NBitcoin
 
 		#region IDestination Members
 
+		/// <summary>
+		/// The P2PKH payment script
+		/// </summary>
 		public Script ScriptPubKey
 		{
 			get

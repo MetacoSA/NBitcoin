@@ -42,8 +42,12 @@ namespace NBitcoin.Protocol
 		{
 			 var len = new VarInt((ulong)_Bytes.Length);
 			 stream.ReadWrite(ref len);
-			if(!stream.Serializing)
-				_Bytes = new byte[len.ToLong()];
+			 if(!stream.Serializing)
+			 {
+				 if(len.ToLong() > (uint)stream.MaxArraySize)
+					 throw new ArgumentOutOfRangeException("Array size not big");
+				 _Bytes = new byte[len.ToLong()];
+			 }
 			stream.ReadWrite(ref _Bytes);
 		}
 

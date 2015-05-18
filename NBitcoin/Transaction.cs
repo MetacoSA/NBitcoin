@@ -143,6 +143,15 @@ namespace NBitcoin
 		{
 
 		}
+		public TxIn(Script scriptSig)
+		{
+			this.scriptSig = scriptSig;
+		}
+		public TxIn(OutPoint prevout, Script scriptSig)
+		{
+			this.prevout = prevout;
+			this.scriptSig = scriptSig;
+		}
 		public TxIn(OutPoint prevout)
 		{
 			this.prevout = prevout;
