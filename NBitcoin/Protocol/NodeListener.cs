@@ -39,6 +39,8 @@ namespace NBitcoin.Protocol
 		public TPayload ReceivePayload<TPayload>(CancellationToken cancellationToken = default(CancellationToken))
 			where TPayload : Payload
 		{
+			if(!Node.IsConnected)
+				throw new InvalidOperationException("The node is not in a connected state");
 			Queue<IncomingMessage> pushedAside = new Queue<IncomingMessage>();
 			try
 			{
@@ -59,7 +61,7 @@ namespace NBitcoin.Protocol
 			catch(OperationCanceledException)
 			{
 				if(Node._Connection.Cancel.IsCancellationRequested)
-					throw new InvalidOperationException("Connection dropped");
+					throw new InvalidOperationException("The node is not in a connected state");
 				throw;
 			}
 			finally

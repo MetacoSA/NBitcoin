@@ -53,7 +53,7 @@ namespace NBitcoin.Tests
 				node.VersionHandshake();
 				using(var listener = node.CreateListener())
 				{
-					node.SendMessage(new GetDataPayload(new InventoryVector(InventoryType.MSG_BLOCK, new uint256(" 000000000000000001d6ec8218c6fdb1a757855238543e05def13a363b8ff95e"))));
+					node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_BLOCK, new uint256(" 000000000000000001d6ec8218c6fdb1a757855238543e05def13a363b8ff95e"))));
 					var payload = listener.ReceivePayload<BlockPayload>();
 					var block = payload.Object;
 					var tx = block.Transactions.First(t => t.GetHash() == new uint256("d1bc46420e21e0f7b059c04a851f3558669c67ea0dd1441836abc37413e1857d"));

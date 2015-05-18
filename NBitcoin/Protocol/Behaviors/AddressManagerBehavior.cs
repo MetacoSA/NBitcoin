@@ -46,7 +46,7 @@ namespace NBitcoin.Protocol.Behaviors
 			var getaddr = message.Message.Payload as GetAddrPayload;
 			if(getaddr != null)
 			{
-				node.SendMessage(new AddrPayload(AddressManager.GetAddr().Take(1000).ToArray()));
+				node.SendMessageAsync(new AddrPayload(AddressManager.GetAddr().Take(1000).ToArray()));
 			}
 			var addr = message.Message.Payload as AddrPayload;
 			if(addr != null)

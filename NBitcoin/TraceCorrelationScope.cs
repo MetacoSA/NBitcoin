@@ -10,9 +10,9 @@ namespace NBitcoin
 #if NOTRACESOURCE
 		internal
 #else
-		public
+	public
 #endif
-	 class TraceCorrelationScope : IDisposable
+ class TraceCorrelationScope : IDisposable
 	{
 		private Guid activity;
 		private Guid old;
@@ -41,7 +41,7 @@ namespace NBitcoin
 			if(_Transfered)
 			{
 				_Source = source;
-				_Source.TraceTransfer(0, "transfer", activity);
+				_Source.TraceTransfer(0, "t", activity);
 			}
 			Trace.CorrelationManager.ActivityId = activity;
 		}
@@ -63,9 +63,9 @@ namespace NBitcoin
 #if NOTRACESOURCE
 		internal
 #else
-		public
-#endif 
-	class TraceCorrelation
+	public
+#endif
+ class TraceCorrelation
 	{
 
 		TraceSource _Source;
@@ -107,9 +107,9 @@ namespace NBitcoin
 			return scope;
 		}
 
-		public void LogInside(Action act)
+		public void LogInside(Action act, bool traceTransfer = true)
 		{
-			using(Open())
+			using(Open(traceTransfer))
 			{
 				act();
 			}

@@ -1174,7 +1174,7 @@ namespace NBitcoin.Protocol
 											peerTableFull.Cancel();
 									}
 								};
-								n.SendMessage(new GetAddrPayload());
+								n.SendMessageAsync(new GetAddrPayload());
 								loopCancel.WaitHandle.WaitOne(2000);
 							}
 							catch

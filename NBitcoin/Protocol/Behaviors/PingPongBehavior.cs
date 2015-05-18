@@ -116,7 +116,7 @@ namespace NBitcoin.Protocol.Behaviors
 				return;
 			_CurrentPing = new PingPayload();
 			_DateSent = DateTimeOffset.UtcNow;
-			node.SendMessage(_CurrentPing);
+			node.SendMessageAsync(_CurrentPing);
 			_PingTimeoutTimer = new Timer(PingTimeout, null, (int)TimeoutInterval.TotalMilliseconds, Timeout.Infinite);
 		}
 
@@ -144,7 +144,7 @@ namespace NBitcoin.Protocol.Behaviors
 			var ping = message.Message.Payload as PingPayload;
 			if(ping != null && Mode.HasFlag(PingPongMode.RespondPong))
 			{
-				node.SendMessage(new PongPayload()
+				node.SendMessageAsync(new PongPayload()
 				{
 					Nonce = ping.Nonce
 				});

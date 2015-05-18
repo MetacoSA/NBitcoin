@@ -103,9 +103,9 @@ namespace NBitcoin.SPV
 				foreach(var inv in invs)
 				{
 					if(inv.Type == InventoryType.MSG_BLOCK)
-						node.SendMessage(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, inv.Hash)));
+						node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, inv.Hash)));
 					if(inv.Type == InventoryType.MSG_TX)
-						node.SendMessage(new GetDataPayload(inv));
+						node.SendMessageAsync(new GetDataPayload(inv));
 				}
 			}
 
@@ -153,10 +153,7 @@ namespace NBitcoin.SPV
 			if(node != null)
 			{
 				var filter = _Tracker.CreateBloomFilter(FalsePositiveRate);
-				Task.Factory.StartNew(() =>
-				{
-					node.SendMessage(new FilterLoadPayload(filter));
-				});
+				node.SendMessageAsync(new FilterLoadPayload(filter));
 			}
 		}
 
