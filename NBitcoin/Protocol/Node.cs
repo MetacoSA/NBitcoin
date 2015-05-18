@@ -364,7 +364,7 @@ namespace NBitcoin.Protocol
 					if(ex.CancellationToken == parameters.ConnectCancellation)
 						throw;
 				}
-				catch
+				catch(SocketException)
 				{
 					parameters.ConnectCancellation.WaitHandle.WaitOne(500);
 				}
@@ -474,6 +474,8 @@ namespace NBitcoin.Protocol
 					WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, parameters.ConnectCancellation.WaitHandle });
 					parameters.ConnectCancellation.ThrowIfCancellationRequested();
 					socket.EndConnect(ar);
+					_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
+					_RemoteSocketPort = ((IPEndPoint)socket.RemoteEndPoint).Port;
 					State = NodeState.Connected;
 					NodeServerTrace.Information("Outbound connection successfull");
 					if(addrman != null)
@@ -517,6 +519,8 @@ namespace NBitcoin.Protocol
 
 		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
 		{
+			_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
+			_RemoteSocketPort = ((IPEndPoint)socket.RemoteEndPoint).Port;
 			Inbound = true;
 			_Behaviors = new BehaviorsCollection(this);
 			_MyVersion = parameters.CreateVersion(peer.Endpoint, network);
@@ -535,19 +539,21 @@ namespace NBitcoin.Protocol
 			_Connection.BeginListen();
 		}
 
+		IPAddress _RemoteSocketAddress;
 		public IPAddress RemoteSocketAddress
 		{
 			get
 			{
-				return ((IPEndPoint)Socket.RemoteEndPoint).Address;
+				return _RemoteSocketAddress;
 			}
 		}
 
+		int _RemoteSocketPort;
 		public int RemoteSocketPort
 		{
 			get
 			{
-				return ((IPEndPoint)Socket.RemoteEndPoint).Port;
+				return _RemoteSocketPort;
 			}
 		}
 

@@ -3,6 +3,7 @@ using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.SPV;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -33,6 +34,7 @@ namespace NBitcoin.Tests
 			tx.Outputs.Add(new TxOut(value, scriptPubKey));
 			var h = tx.GetHash();
 			Mempool.Add(h, tx);
+			OnNewTransaction(tx);
 			return tx;
 		}
 
@@ -67,23 +69,198 @@ namespace NBitcoin.Tests
 			tx.Outputs.Add(new TxOut(coin.Amount - value, coin.ScriptPubKey));
 			var h = tx.GetHash();
 			Mempool.Add(h, tx);
+			OnNewTransaction(tx);
 			return tx;
+		}
+
+		private void OnNewTransaction(Transaction tx)
+		{
+			if(!Quiet)
+				if(NewTransaction != null)
+					NewTransaction(tx);
 		}
 
 		public Block FindBlock()
 		{
 			Block b = new Block();
+			b.Transactions.Add(new Transaction()
+			{
+				Inputs =
+				{
+					new TxIn(new Script(RandomUtils.GetBytes(32)))
+				}
+			});
 			foreach(var tx in Mempool)
 				b.Transactions.Add(tx.Value);
+			b.Header.BlockTime = DateTimeOffset.UtcNow;
 			b.UpdateMerkleRoot();
 			b.Header.HashPrevBlock = Chain.Tip.HashBlock;
 			Chain.SetTip(b.Header);
 			Mempool.Clear();
+			if(!Quiet)
+				if(NewBlock != null)
+					NewBlock(b);
 			return b;
 		}
+
+		public event Action<Transaction> NewTransaction;
+		public event Action<Block> NewBlock;
+
+		public bool Quiet
+		{
+			get;
+			set;
+		}
 	}
+
+	public class SPVBehavior : NodeBehavior, ICloneable
+	{
+		BlockchainBuilder _Builder;
+		public SPVBehavior(BlockchainBuilder builder)
+		{
+			_Builder = builder;
+		}
+		protected override void AttachCore()
+		{
+			_Builder.NewBlock += _Builder_NewBlock;
+			_Builder.NewTransaction += _Builder_NewTransaction;
+			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
+		}
+
+		void AttachedNode_MessageReceived(Node node, IncomingMessage message)
+		{
+			var filterload = message.Message.Payload as FilterLoadPayload;
+			if(filterload != null)
+			{
+				_Filter = filterload.Object;
+			}
+			var getdata = message.Message.Payload as GetDataPayload;
+			if(getdata != null)
+			{
+				foreach(var inv in getdata.Inventory)
+				{
+					if(inv.Type == InventoryType.MSG_FILTERED_BLOCK && _Filter != null)
+					{
+						var merkle = new MerkleBlock(_Blocks[inv.Hash], _Filter);
+						AttachedNode.SendMessage(new MerkleBlockPayload(merkle));
+						foreach(var tx in merkle.PartialMerkleTree.GetMatchedTransactions())
+						{
+							if(_Known.TryAdd(tx, tx))
+							{
+								AttachedNode.SendMessage(new InvPayload(InventoryType.MSG_TX, tx));
+							}
+						}
+					}
+					if(inv.Type == InventoryType.MSG_TX)
+						AttachedNode.SendMessage(new TxPayload(_Transactions[inv.Hash]));
+				}
+			}
+		}
+		public BloomFilter _Filter;
+		ConcurrentDictionary<uint256, Block> _Blocks = new ConcurrentDictionary<uint256, Block>();
+		ConcurrentDictionary<uint256, Transaction> _Transactions = new ConcurrentDictionary<uint256, Transaction>();
+		ConcurrentDictionary<uint256, uint256> _Known = new ConcurrentDictionary<uint256, uint256>();
+		void _Builder_NewTransaction(Transaction obj)
+		{
+			_Transactions.AddOrReplace(obj.GetHash(), obj);
+			if(_Filter != null && _Filter.IsRelevantAndUpdate(obj) && _Known.TryAdd(obj.GetHash(), obj.GetHash()))
+			{
+				AttachedNode.SendMessage(new InvPayload(obj));
+			}
+		}
+
+		void _Builder_NewBlock(Block obj)
+		{
+			_Blocks.AddOrReplace(obj.GetHash(), obj);
+			foreach(var tx in obj.Transactions)
+				_Transactions.TryAdd(tx.GetHash(), tx);
+			AttachedNode.SendMessage(new InvPayload(obj));
+		}
+
+		protected override void DetachCore()
+		{
+			_Builder.NewTransaction -= _Builder_NewTransaction;
+			_Builder.NewBlock -= _Builder_NewBlock;
+			AttachedNode.MessageReceived -= AttachedNode_MessageReceived;
+		}
+
+		#region ICloneable Members
+
+		public object Clone()
+		{
+			return new SPVBehavior(_Builder);
+		}
+
+		#endregion
+	}
+
 	public class spv_tests
 	{
+		[Fact]
+		public void CanSyncWallet()
+		{
+			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
+			{
+				var chainBuilder = new BlockchainBuilder();
+
+				//Simulate SPV compatible server
+				servers.Server1.InboundNodeConnectionParameters.Services = NodeServices.Network;
+				servers.Server1.InboundNodeConnectionParameters.TemplateBehaviors.Add(new ChainBehavior(chainBuilder.Chain)
+				{
+					AutoSync = false
+				});
+				servers.Server1.InboundNodeConnectionParameters.TemplateBehaviors.Add(new SPVBehavior(chainBuilder));
+				/////////////
+
+				//The SPV client does not verify the chain and keep one connection alive with Server1
+				NodeConnectionParameters parameters = new NodeConnectionParameters();
+				Wallet.ConfigureDefaultNodeConnectionParameters(parameters);
+				parameters.IsTrusted = true;
+				AddressManagerBehavior addrman = new AddressManagerBehavior(new AddressManager());
+				addrman.AddressManager.Add(new NetworkAddress(servers.Server1.ExternalEndpoint), IPAddress.Parse("127.0.0.1"));
+				parameters.TemplateBehaviors.Add(addrman);
+				ConnectedNodesBehavior connected = new ConnectedNodesBehavior(Network.TestNet, parameters);
+				connected.AllowSameGroup = true;
+				connected.MaximumNodeConnection = 1;
+				parameters.TemplateBehaviors.Add(connected);
+				/////////////
+
+				var bob = new ExtKey();
+				Wallet wallet = new Wallet(bob, Network.TestNet, keyPoolSize: 11);
+				Assert.True(wallet.State == WalletState.Created);
+				wallet.Connect(parameters);
+				Assert.True(wallet.State == WalletState.Disconnected);
+				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 1);
+				Assert.True(wallet.State == WalletState.Connected);
+
+				chainBuilder.FindBlock();
+				TestUtils.Eventually(() => wallet.Chain.Height == 1);
+				for(int i = 0 ; i < 9 ; i++)
+				{
+					wallet.NewKey();
+				}
+				wallet.NewKey(); //Should provoke purge
+				TestUtils.Eventually(() => wallet.State == WalletState.Disconnected && wallet.ConnectedNodes == 0);
+				TestUtils.Eventually(() => wallet.ConnectedNodes == 1);
+				TestUtils.Eventually(() => servers.Server1.ConnectedNodes.Count == 1);
+				var spv = servers.Server1.ConnectedNodes.First().Behaviors.Find<SPVBehavior>();
+				TestUtils.Eventually(() => spv._Filter != null);
+
+				var k = wallet.NewKey();
+				chainBuilder.GiveMoney(k.ExtPubKey.ScriptPubKey, Money.Coins(1.0m));
+				TestUtils.Eventually(() => wallet.GetTransactions().Count == 1);
+				chainBuilder.FindBlock();
+				TestUtils.Eventually(() => wallet.GetTransactions().Where(t => t.BlockInformation != null).Count() == 1);
+
+				chainBuilder.Quiet = true;
+				chainBuilder.GiveMoney(k.ExtPubKey.ScriptPubKey, Money.Coins(1.5m));
+				chainBuilder.Quiet = false;
+				chainBuilder.FindBlock();
+				TestUtils.Eventually(() => wallet.GetTransactions().Summary.Confirmed.TransactionCount == 2);
+			}
+		}
+
+
 		[Fact]
 		public void CanTrackKey()
 		{
@@ -149,7 +326,7 @@ namespace NBitcoin.Tests
 		{
 			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
 			{
-				servers.Server1.DefaultNodeConnectionParameters.Services = NodeServices.Network;
+				servers.Server1.InboundNodeConnectionParameters.Services = NodeServices.Network;
 				AddressManagerBehavior behavior = new AddressManagerBehavior(new AddressManager());
 				behavior.AddressManager.Add(new NetworkAddress(servers.Server1.ExternalEndpoint), IPAddress.Parse("127.0.0.1"));
 				NodeConnectionParameters parameters = new NodeConnectionParameters();
@@ -180,7 +357,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		
+
 		[Fact]
 		public void CanPrune()
 		{

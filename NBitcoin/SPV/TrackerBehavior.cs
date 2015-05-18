@@ -10,41 +10,75 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.SPV
 {
+	public class TrackerScanPosition
+	{
+		public BlockLocator Locator
+		{
+			get;
+			set;
+		}
+		public DateTimeOffset From
+		{
+			get;
+			set;
+		}
+	}
 	/// <summary>
-	/// Load a bloom filter based on the data of the tracker, refreshable manually
+	/// Load a bloom filter on the node, and scan the blockchain
 	/// </summary>
 	public class TrackerBehavior : NodeBehavior, ICloneable
 	{
 		Tracker _Tracker;
 		ConcurrentChain _Chain;
-		public TrackerBehavior(Tracker tracker, ConcurrentChain chain)
+		ConcurrentChain _ExplicitChain;
+		/// <summary>
+		/// Create a new TrackerBehavior instance
+		/// </summary>
+		/// <param name="tracker">The Tracker registering transactions and confirmations</param>
+		/// <param name="chain">The chain used to fetch height of incoming blocks, if null, use the chain of ChainBehavior</param>
+		public TrackerBehavior(Tracker tracker, ConcurrentChain chain = null)
 		{
 			if(tracker == null)
 				throw new ArgumentNullException("tracker");
-			if(chain == null)
-				throw new ArgumentNullException("chain");
+			FalsePositiveRate = 0.0005;
 			_Chain = chain;
+			_ExplicitChain = chain;
 			_Tracker = tracker;
-			_Tweak = RandomUtils.GetUInt32();
+		}
+
+		public Tracker Tracker
+		{
+			get
+			{
+				return _Tracker;
+			}
 		}
 
 		protected override void AttachCore()
 		{
+			if(_Chain == null)
+			{
+				var chainBehavior = AttachedNode.Behaviors.Find<ChainBehavior>();
+				if(chainBehavior == null)
+					throw new InvalidOperationException("A chain should either be passed in the constructor of TrackerBehavior, or a ChainBehavior should be attached on the node");
+				_Chain = chainBehavior.Chain;
+			}
 			if(AttachedNode.State == Protocol.NodeState.HandShaked)
-				RefreshBloomFilter();
+				SetBloomFilter();
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
+			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
 		}
 
 		void AttachedNode_StateChanged(Protocol.Node node, Protocol.NodeState oldState)
 		{
 			if(node.State == Protocol.NodeState.HandShaked)
-				RefreshBloomFilter();
+				SetBloomFilter();
 		}
 
 		protected override void DetachCore()
 		{
 			AttachedNode.StateChanged -= AttachedNode_StateChanged;
-			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
+			AttachedNode.MessageReceived -= AttachedNode_MessageReceived;
 		}
 
 		BoundedDictionary<uint256, MerkleBlock> _TransactionsToBlock = new BoundedDictionary<uint256, MerkleBlock>(1000);
@@ -68,7 +102,10 @@ namespace NBitcoin.SPV
 			{
 				foreach(var inv in invs)
 				{
-					node.SendMessage(new GetDataPayload(inv));
+					if(inv.Type == InventoryType.MSG_BLOCK)
+						node.SendMessage(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, inv.Hash)));
+					if(inv.Type == InventoryType.MSG_TX)
+						node.SendMessage(new GetDataPayload(inv));
 				}
 			}
 
@@ -103,19 +140,19 @@ namespace NBitcoin.SPV
 			}
 		}
 
+		public double FalsePositiveRate
+		{
+			get;
+			set;
+		}
 
-		uint _Tweak; //Tweak must be constant or the peer might attempt to intersect 2 filters to find out what belong to us
-		public void RefreshBloomFilter()
+
+		void SetBloomFilter()
 		{
 			var node = AttachedNode;
 			if(node != null)
 			{
-				var datas = _Tracker.GetDataToTrack().ToList();
-				BloomFilter filter = new BloomFilter(datas.Count, 0.005, _Tweak);
-				foreach(var data in datas)
-				{
-					filter.Insert(data);
-				}
+				var filter = _Tracker.CreateBloomFilter(FalsePositiveRate);
 				Task.Factory.StartNew(() =>
 				{
 					node.SendMessage(new FilterLoadPayload(filter));
@@ -127,12 +164,14 @@ namespace NBitcoin.SPV
 
 		public object Clone()
 		{
-			var clone = new TrackerBehavior(_Tracker, _Chain);
-			clone._Tweak = _Tweak;
+			var clone = new TrackerBehavior(_Tracker, _ExplicitChain);
+			clone.FalsePositiveRate = FalsePositiveRate;
 			return clone;
 		}
 
 		#endregion
+
+
 	}
 }
 #endif

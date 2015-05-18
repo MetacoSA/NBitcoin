@@ -19,6 +19,7 @@ namespace NBitcoin.Protocol.Behaviors
 			if(chain == null)
 				throw new ArgumentNullException("chain");
 			_Chain = chain;
+			AutoSync = true;
 			CanSync = true;
 			CanRespondToGetHeaders = true;
 		}
@@ -67,7 +68,8 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			_Refresh = new Timer(o =>
 			{
-				TrySync();
+				if(AutoSync)
+					TrySync();
 			}, null, 0, (int)TimeSpan.FromMinutes(10).TotalMilliseconds);
 			RegisterDisposable(_Refresh);
 			if(AttachedNode.State == NodeState.Connected)
@@ -86,7 +88,8 @@ namespace NBitcoin.Protocol.Behaviors
 				if(inv.Inventory.Any(i => (i.Type == InventoryType.MSG_BLOCK) && !Chain.Contains(i.Hash)))
 				{
 					_Refresh.Dispose(); //No need of periodical refresh, the peer is notifying us
-					TrySync();
+					if(AutoSync)
+						TrySync();
 				}
 			}
 
@@ -135,6 +138,14 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
+		/// <summary>
+		/// Sync the chain as headers come from the network (Default : true)
+		/// </summary>
+		public bool AutoSync
+		{
+			get;
+			set;
+		}
 
 		ChainedBlock _PendingTip; //Might be different than Chain.Tip, in the rare event of large fork > 2000 blocks
 
@@ -182,7 +193,8 @@ namespace NBitcoin.Protocol.Behaviors
 			var clone = new ChainBehavior(Chain)
 			{
 				CanSync = CanSync,
-				CanRespondToGetHeaders = CanRespondToGetHeaders
+				CanRespondToGetHeaders = CanRespondToGetHeaders,
+				AutoSync = AutoSync
 			};
 			return clone;
 		}

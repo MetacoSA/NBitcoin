@@ -184,6 +184,55 @@ namespace NBitcoin.Tests
 				Assert.True(seed.State == NodeState.Offline);
 			}
 		}
+
+		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanGetMerkleRoot()
+		{
+			using(var node = Node.ConnectToLocal(Network.TestNet, isRelay: false))
+			{
+				var knownBlock = new uint256("00000000db9a24016f87f98ddaf08d32383319431d27c37dee2c91898ef57066");
+				var knownTx = new uint256("dabf4960a5c6d9affec746734cbd8ba68287126b8c4514de846a9702a813a449");
+				node.VersionHandshake();
+				using(var list = node.CreateListener()
+										.Where(m => m.Message.Payload is MerkleBlockPayload || m.Message.Payload is TxPayload))
+				{
+					BloomFilter filter = new BloomFilter(1, 0.005, BloomFlags.UPDATE_NONE);
+					filter.Insert(BitcoinAddress.Create("mwdJkHRNJi1fEwHBx6ikWFFuo2rLBdri2h", Network.TestNet).Hash.ToBytes());
+					node.SendMessage(new FilterLoadPayload(filter));
+					node.SendMessage(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, knownBlock)));
+					var merkle = list.ReceivePayload<MerkleBlockPayload>();
+					Assert.True(merkle.Object.PartialMerkleTree.Check(new uint256("89b905cdf2ab70c1acd9b538cf6738937ae28fca86c1514ebbf130962312e478")));
+					Assert.True(merkle.Object.PartialMerkleTree.GetMatchedTransactions().Contains(knownTx));
+
+					List<Transaction> matched = new List<Transaction>();
+					for(int i = 0 ; i < merkle.Object.PartialMerkleTree.GetMatchedTransactions().Count() ; i++)
+					{
+						matched.Add(list.ReceivePayload<TxPayload>().Object);
+					}
+
+					Action act = () =>
+					{
+						foreach(var match in matched)
+						{
+							Assert.True(filter.IsRelevantAndUpdate(match));
+						}
+					};
+					act();
+					filter = filter.Clone();
+					act();
+
+					var unknownBlock = new uint256("00000000ad262227291eaf90cafdc56a8f8451e2d7653843122c5bb0bf2dfcdd");
+					node.SendMessage(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, Network.TestNet.GetGenesis().GetHash())));
+
+					merkle = list.ReceivePayload<MerkleBlockPayload>();
+
+					Assert.True(merkle.Object.PartialMerkleTree.Check(merkle.Object.Header.HashMerkleRoot));
+					Assert.True(!merkle.Object.PartialMerkleTree.GetMatchedTransactions().Contains(knownTx));
+				}
+			}
+		}
+
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]
 		public void CanGetMemPool()

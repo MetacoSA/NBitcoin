@@ -55,10 +55,25 @@ namespace NBitcoin.Protocol.Behaviors
 
 		#endregion
 
+		/// <summary>
+		/// The number of node that this behavior will try to maintain online (Default : 8)
+		/// </summary>
 		public int MaximumNodeConnection
 		{
 			get;
 			set;
+		}
+
+		public NodeRequirement Requirements
+		{
+			get
+			{
+				return _Requirements;
+			}
+			set
+			{
+				_Requirements = value;
+			}
 		}
 
 		private NodesCollection _ConnectedNodes;
@@ -179,6 +194,24 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			_Disconnect.Cancel();
 			_ConnectedNodes.DisconnectAll();
+		}
+
+		/// <summary>
+		/// Asynchronously create a new set of nodes
+		/// </summary>
+		internal void Purge(string reason)
+		{
+			Task.Factory.StartNew(() =>
+			{
+				var initialNodes = _ConnectedNodes.ToDictionary(n => n);
+				while(!_Disconnect.IsCancellationRequested && initialNodes.Count != 0)
+				{
+					var node = initialNodes.First();
+					node.Value.Disconnect(reason);
+					initialNodes.Remove(node.Value);
+					_Disconnect.Token.WaitHandle.WaitOne(5000);
+				}
+			});
 		}
 	}
 }

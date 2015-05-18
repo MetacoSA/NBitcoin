@@ -266,6 +266,21 @@ namespace NBitcoin.SPV
 			}
 		}
 
+		public Tracker()
+		{
+			UpdateTweak();
+		}
+
+		public BloomFilter CreateBloomFilter(double fp, BloomFlags flags = BloomFlags.UPDATE_ALL)
+		{
+			var toTrack = GetDataToTrack().ToArray();
+			var scriptCount = _TrackedScripts.Where(s => !s.Value.IsInternal).Count();
+			var filter = new BloomFilter(scriptCount, fp, _Tweak, flags);
+			foreach(var data in toTrack)
+				filter.Insert(data);
+			return filter;
+		}
+
 		object cs = new object();
 
 
@@ -376,7 +391,7 @@ namespace NBitcoin.SPV
 			return interesting;
 		}
 
-		
+
 		public WalletTransactionsCollection GetWalletTransactions(ChainBase chain, string wallet = "default")
 		{
 			lock(cs)
@@ -505,6 +520,7 @@ namespace NBitcoin.SPV
 		}
 
 
+		uint _Tweak;
 		ConcurrentDictionary<string, Operation> _Operations = new ConcurrentDictionary<string, Operation>();
 		ConcurrentDictionary<string, TrackedScript> _TrackedScripts = new ConcurrentDictionary<string, TrackedScript>();
 		ConcurrentDictionary<string, TrackedOutpoint> _TrackedOutpoints = new ConcurrentDictionary<string, TrackedOutpoint>();
@@ -512,6 +528,11 @@ namespace NBitcoin.SPV
 		public Transaction GetKnownTransaction(uint256 txId)
 		{
 			return _Operations.Select(o => o.Value.Transaction).Where(o => o.GetHash() == txId).FirstOrDefault();
+		}
+
+		public void UpdateTweak()
+		{
+			_Tweak = RandomUtils.GetUInt32();
 		}
 	}
 }

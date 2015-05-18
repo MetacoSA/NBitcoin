@@ -53,7 +53,7 @@ namespace NBitcoin
 	}
 	public partial class BitcoinStream
 	{
-		int _MaxArraySize = Int32.MaxValue;
+		int _MaxArraySize = 1024 * 1024;
 		public int MaxArraySize
 		{
 			get
@@ -142,9 +142,17 @@ namespace NBitcoin
 
 		public void ReadWriteAsVarString(ref byte[] bytes)
 		{
-			VarString str = new VarString(bytes);
-			ReadWrite(ref str);
-			bytes = str.GetString(true);
+			if(Serializing)
+			{
+				VarString str = new VarString(bytes);
+				str.ReadWrite(this);
+			}
+			else
+			{
+				VarString str = new VarString();
+				str.ReadWrite(this);
+				bytes = str.GetString(true);
+			}
 		}
 
 		public void ReadWrite(Type type, ref object obj)

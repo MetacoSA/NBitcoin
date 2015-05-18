@@ -38,7 +38,10 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public NodeConnectionParameters DefaultNodeConnectionParameters
+		/// <summary>
+		/// The parameters that will be cloned and applied for each node connecting to the NodeServer
+		/// </summary>
+		public NodeConnectionParameters InboundNodeConnectionParameters
 		{
 			get;
 			set;
@@ -48,7 +51,7 @@ namespace NBitcoin.Protocol
 			int internalPort = -1)
 		{
 			AllowLocalPeers = true;
-			DefaultNodeConnectionParameters = new NodeConnectionParameters();
+			InboundNodeConnectionParameters = new NodeConnectionParameters();
 			internalPort = internalPort == -1 ? network.DefaultPort : internalPort;
 			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), internalPort);
 			_Network = network;
@@ -503,7 +506,7 @@ namespace NBitcoin.Protocol
 		internal NodeConnectionParameters CreateNodeConnectionParameters()
 		{
 			var myExternal = Utils.EnsureIPv6(ExternalEndpoint);
-			var param2 = DefaultNodeConnectionParameters.Clone();
+			var param2 = InboundNodeConnectionParameters.Clone();
 			param2.Nonce = Nonce;
 			param2.Version = Version;
 			param2.AddressFrom = myExternal;
@@ -514,11 +517,11 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				return DefaultNodeConnectionParameters.IsRelay;
+				return InboundNodeConnectionParameters.IsRelay;
 			}
 			set
 			{
-				DefaultNodeConnectionParameters.IsRelay = value;
+				InboundNodeConnectionParameters.IsRelay = value;
 			}
 		}
 
@@ -526,11 +529,11 @@ namespace NBitcoin.Protocol
 		{
 			get
 			{
-				return DefaultNodeConnectionParameters.UserAgent;
+				return InboundNodeConnectionParameters.UserAgent;
 			}
 			set
 			{
-				DefaultNodeConnectionParameters.UserAgent = value;
+				InboundNodeConnectionParameters.UserAgent = value;
 			}
 		}
 

@@ -10,6 +10,10 @@ namespace NBitcoin
 {
 	public class PartialMerkleTree : IBitcoinSerializable
 	{
+		public PartialMerkleTree()
+		{
+
+		}
 		uint _TransactionCount;
 		public uint TransactionCount
 		{
@@ -59,8 +63,7 @@ namespace NBitcoin
 				BitWriter writer = new BitWriter();
 				for(int p = 0 ; p < vBytes.Length * 8 ; p++)
 					writer.Write((vBytes[p / 8] & (1 << (p % 8))) != 0);
-
-
+				_Flags = writer.ToBitArray();
 			}
 			else
 			{
