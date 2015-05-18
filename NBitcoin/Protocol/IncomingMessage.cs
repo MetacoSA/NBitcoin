@@ -36,13 +36,13 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
-		public T AssertPayload<T>() where T : Payload
+		internal T AssertPayload<T>() where T : Payload
 		{
 			if(Message.Payload is T)
 				return (T)(Message.Payload);
 			else
 			{
-				var ex = new FormatException("Expected message " + typeof(T).Name + " but got " + Message.Payload.GetType().Name);
+				var ex = new ProtocolException("Expected message " + typeof(T).Name + " but got " + Message.Payload.GetType().Name);
 				throw ex;
 			}
 		}

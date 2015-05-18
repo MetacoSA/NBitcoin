@@ -18,6 +18,11 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		public static void Transfer(Guid activityId)
+		{
+			_Trace.TraceTransfer(0, "t", activityId);
+		}
+
 		public static void ErrorWhileRetrievingDNSSeedIp(string name, Exception ex)
 		{
 			_Trace.TraceEvent(TraceEventType.Warning, 0, "Impossible to resolve dns for seed " + name + " " + Utils.ExceptionToString(ex));

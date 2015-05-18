@@ -142,17 +142,17 @@ namespace NBitcoin.Tests
 					if(inv.Type == InventoryType.MSG_FILTERED_BLOCK && _Filter != null)
 					{
 						var merkle = new MerkleBlock(_Blocks[inv.Hash], _Filter);
-						AttachedNode.SendMessage(new MerkleBlockPayload(merkle));
+						AttachedNode.SendMessageAsync(new MerkleBlockPayload(merkle));
 						foreach(var tx in merkle.PartialMerkleTree.GetMatchedTransactions())
 						{
 							if(_Known.TryAdd(tx, tx))
 							{
-								AttachedNode.SendMessage(new InvPayload(InventoryType.MSG_TX, tx));
+								AttachedNode.SendMessageAsync(new InvPayload(InventoryType.MSG_TX, tx));
 							}
 						}
 					}
 					if(inv.Type == InventoryType.MSG_TX)
-						AttachedNode.SendMessage(new TxPayload(_Transactions[inv.Hash]));
+						AttachedNode.SendMessageAsync(new TxPayload(_Transactions[inv.Hash]));
 				}
 			}
 		}
@@ -165,7 +165,7 @@ namespace NBitcoin.Tests
 			_Transactions.AddOrReplace(obj.GetHash(), obj);
 			if(_Filter != null && _Filter.IsRelevantAndUpdate(obj) && _Known.TryAdd(obj.GetHash(), obj.GetHash()))
 			{
-				AttachedNode.SendMessage(new InvPayload(obj));
+				AttachedNode.SendMessageAsync(new InvPayload(obj));
 			}
 		}
 
@@ -174,7 +174,7 @@ namespace NBitcoin.Tests
 			_Blocks.AddOrReplace(obj.GetHash(), obj);
 			foreach(var tx in obj.Transactions)
 				_Transactions.TryAdd(tx.GetHash(), tx);
-			AttachedNode.SendMessage(new InvPayload(obj));
+			AttachedNode.SendMessageAsync(new InvPayload(obj));
 		}
 
 		protected override void DetachCore()
@@ -280,8 +280,11 @@ namespace NBitcoin.Tests
 
 			foreach(var btx in block.Transactions)
 			{
-				Assert.True(tracker.NotifyTransaction(btx, builder.Chain.GetBlock(block.GetHash()), block));
-				Assert.True(tracker.NotifyTransaction(btx, builder.Chain.GetBlock(block.GetHash()), block)); //Idempotent
+				if(!btx.IsCoinBase)
+				{
+					Assert.True(tracker.NotifyTransaction(btx, builder.Chain.GetBlock(block.GetHash()), block));
+					Assert.True(tracker.NotifyTransaction(btx, builder.Chain.GetBlock(block.GetHash()), block)); //Idempotent
+				}
 			}
 
 			var transactions = tracker.GetWalletTransactions(builder.Chain);
@@ -294,12 +297,12 @@ namespace NBitcoin.Tests
 			var tx3 = builder.GiveMoney(bob, Money.Coins(0.01m));
 			coin = tx3.Outputs.AsCoins().First();
 			block = builder.FindBlock();
-			Assert.True(tracker.NotifyTransaction(block.Transactions[0], builder.Chain.GetBlock(block.GetHash()), block));
+			Assert.True(tracker.NotifyTransaction(block.Transactions[1], builder.Chain.GetBlock(block.GetHash()), block));
 
 			transactions = tracker.GetWalletTransactions(builder.Chain);
 			Assert.True(transactions.Count == 3);
 			Assert.True(transactions.Summary.UnConfirmed.TransactionCount == 0);
-			Assert.True(transactions[0].Transaction.GetHash() == block.Transactions[0].GetHash());
+			Assert.True(transactions[0].Transaction.GetHash() == block.Transactions[1].GetHash());
 
 			Assert.Equal(2, transactions.GetSpendableCoins().Count()); // the 1 change + 1 gift
 

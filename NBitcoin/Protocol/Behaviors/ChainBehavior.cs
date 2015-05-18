@@ -105,7 +105,7 @@ namespace NBitcoin.Protocol.Behaviors
 						if(header.HashBlock == getheaders.HashStop || headers.Headers.Count == 2000)
 							break;
 					}
-				node.SendMessage(headers);
+				node.SendMessageAsync(headers);
 			}
 
 			var newheaders = message.Message.Payload as HeadersPayload;
@@ -163,7 +163,7 @@ namespace NBitcoin.Protocol.Behaviors
 			if(AttachedNode.State == NodeState.HandShaked && CanSync && !invalidHeaderReceived)
 			{
 				Interlocked.Increment(ref _SynchingCount);
-				AttachedNode.SendMessage(new GetHeadersPayload()
+				AttachedNode.SendMessageAsync(new GetHeadersPayload()
 				{
 					BlockLocators = GetPendingTip().GetLocator()
 				});
