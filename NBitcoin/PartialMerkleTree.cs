@@ -103,12 +103,17 @@ namespace NBitcoin
 			{
 				if(matches.Read())
 				{
-					leaf.IsMarked = true;
-					foreach(var ancestor in leaf.Ancestors())
-					{
-						ancestor.IsMarked = true;
-					}
+					MarkToTop(leaf, true);
 				}
+			}
+		}
+
+		private static void MarkToTop(MerkleNode leaf, bool value)
+		{
+			leaf.IsMarked = value;
+			foreach(var ancestor in leaf.Ancestors())
+			{
+				ancestor.IsMarked = value;
 			}
 		}
 
@@ -132,7 +137,7 @@ namespace NBitcoin
 				return false;
 			}
 		}
-		
+
 
 
 		private void BuildCore(MerkleNode node, BitWriter flags)
@@ -190,6 +195,30 @@ namespace NBitcoin
 			{
 				return null;
 			}
+		}
+
+		/// <summary>
+		/// Remove superflous branches
+		/// </summary>
+		/// <param name="transaction"></param>
+		/// <returns></returns>
+		public PartialMerkleTree Trim(params uint256[] matchedTransactions)
+		{
+			PartialMerkleTree trimmed = new PartialMerkleTree();
+			trimmed.TransactionCount = TransactionCount;
+			var root = GetMerkleRoot();
+			foreach(var leaf in root.GetLeafs())
+			{
+				MarkToTop(leaf, false);
+			}
+			BitWriter flags = new BitWriter();
+			foreach(var leaf in root.GetLeafs().Where(l => matchedTransactions.Contains(l.Hash)))
+			{
+				MarkToTop(leaf, true);
+			}
+			trimmed.BuildCore(root, flags);
+			trimmed.Flags = flags.ToBitArray();
+			return trimmed;
 		}
 	}
 }
