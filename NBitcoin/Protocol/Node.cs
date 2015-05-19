@@ -1,5 +1,6 @@
 ﻿#if !NOSOCKET
 using NBitcoin.Protocol.Behaviors;
+using NBitcoin.Protocol.Filters;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -153,6 +154,7 @@ namespace NBitcoin.Protocol
 							Code = RejectCode.DUPLICATE
 						});
 				}
+
 				Node.OnMessageReceived(message);
 			}
 
@@ -346,23 +348,53 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		private readonly NodeFiltersCollection _Filters = new NodeFiltersCollection();
+		public NodeFiltersCollection Filters
+		{
+			get
+			{
+				return _Filters;
+			}
+		}
 
 		public event NodeEventMessageIncoming MessageReceived;
 		protected void OnMessageReceived(IncomingMessage message)
 		{
-			var messageReceived = MessageReceived;
-			if(messageReceived != null)
+			var last = new ActionFilter((m, n) =>
 			{
-				foreach(var handler in messageReceived.GetInvocationList().Cast<NodeEventMessageIncoming>())
+				var messageReceived = MessageReceived;
+				if(messageReceived != null)
 				{
-					try
+					foreach(var handler in messageReceived.GetInvocationList().Cast<NodeEventMessageIncoming>())
 					{
-						handler.DynamicInvoke(this, message);
+						try
+						{
+							handler.DynamicInvoke(this, m);
+						}
+						catch(TargetInvocationException ex)
+						{
+							TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while OnMessageReceived event raised", ex.InnerException), false);
+						}
 					}
-					catch(TargetInvocationException ex)
-					{
-						TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while OnMessageReceived event raised", ex.InnerException));
-					}
+				}
+			});
+
+			var enumerator = Filters.Concat(new[] { last }).GetEnumerator();
+			FireFilters(enumerator, message);
+		}
+
+		private void FireFilters(IEnumerator<INodeFilter> enumerator, IncomingMessage message)
+		{
+			if(enumerator.MoveNext())
+			{
+				var filter = enumerator.Current;
+				try
+				{
+					filter.Invoke(message, () => FireFilters(enumerator, message));
+				}
+				catch(Exception ex)
+				{
+					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter", ex.InnerException), false);
 				}
 			}
 		}
@@ -390,18 +422,35 @@ namespace NBitcoin.Protocol
 
 		internal readonly NodeConnection _Connection;
 
+
+
 		/// <summary>
 		/// Connect to a random node on the network
 		/// </summary>
-		/// <param name="network"></param>
-		/// <param name="addrman"></param>
+		/// <param name="network">The network to connect to</param>
+		/// <param name="addrman">The addrman used for finding peers</param>
+		/// <param name="parameters">The parameters used by the found node</param>
+		/// <param name="connectedAddresses">The already connected addresses, the new address will be select outside of existing groups</param>
+		/// <returns></returns>
+		public static Node Connect(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, IPAddress[] connectedAddresses = null)
+		{
+			parameters = parameters ?? new NodeConnectionParameters();
+			AddressManagerBehavior.SetAddrman(parameters, addrman);
+			return Connect(network, parameters, connectedAddresses);
+		}
+
+		/// <summary>
+		/// Connect to a random node on the network
+		/// </summary>
+		/// <param name="network">The network to connect to</param>
+		/// <param name="parameters">The parameters used by the found node, use AddressManagerBehavior.GetAddrman for finding peers</param>
 		/// <param name="connectedAddresses">The already connected addresses, the new address will be select outside of existing groups</param>
 		/// <returns></returns>
 		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPAddress[] connectedAddresses = null)
 		{
 			connectedAddresses = connectedAddresses ?? new IPAddress[0];
 			parameters = parameters ?? new NodeConnectionParameters();
-			var addrman = Node.GetAddrman(parameters) ?? new AddressManager();
+			var addrman = AddressManagerBehavior.GetAddrman(parameters) ?? new AddressManager();
 			DateTimeOffset start = DateTimeOffset.UtcNow;
 			while(true)
 			{
@@ -524,7 +573,7 @@ namespace NBitcoin.Protocol
 		{
 			parameters = parameters ?? new NodeConnectionParameters();
 			VersionPayload version = parameters.CreateVersion(peer.Endpoint, network);
-			var addrman = GetAddrman(parameters);
+			var addrman = AddressManagerBehavior.GetAddrman(parameters);
 			Inbound = false;
 			_Behaviors = new NodeBehaviorsCollection(this);
 			_MyVersion = version;
@@ -582,15 +631,6 @@ namespace NBitcoin.Protocol
 				_Connection.BeginListen();
 			}
 		}
-
-		private static AddressManager GetAddrman(NodeConnectionParameters parameters)
-		{
-			var behavior = parameters.TemplateBehaviors.Find<AddressManagerBehavior>();
-			if(behavior == null)
-				return null;
-			return behavior.AddressManager;
-		}
-
 		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
 		{
 			_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
@@ -695,7 +735,6 @@ namespace NBitcoin.Protocol
 				return _TraceCorrelation;
 			}
 		}
-
 
 		/// <summary>
 		/// Send a message to the peer asynchronously

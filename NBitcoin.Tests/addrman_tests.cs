@@ -16,9 +16,14 @@ namespace NBitcoin.Tests
 	public class addrman_tests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSerializeDeserializePeerTable()
 		{
-			AddressManager addrman = AddressManager.LoadPeerFile("../../data/peers.dat", Network.Main);
+			AddressManager addrman = new AddressManager();
+			addrman.SavePeerFile("CanSerializeDeserializePeerTable.dat", Network.Main);
+			AddressManager.LoadPeerFile("CanSerializeDeserializePeerTable.dat", Network.Main);
+
+			addrman = AddressManager.LoadPeerFile("../../data/peers.dat", Network.Main);
 			addrman.DebugMode = true;
 			addrman.Check();
 			addrman.SavePeerFile("serializerPeer.dat", Network.Main);
@@ -34,6 +39,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanUseAddrManager()
 		{
 			AddressManager addrman = new AddressManager();
@@ -57,6 +63,7 @@ namespace NBitcoin.Tests
 			Assert.True(addr.Ago < TimeSpan.FromSeconds(10.0));
 		}
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanStressAddrManager()
 		{
 			Exception exception = null;

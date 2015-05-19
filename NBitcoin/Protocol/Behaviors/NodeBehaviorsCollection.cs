@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol.Behaviors
 {
-	public class NodeBehaviorsCollection : IEnumerable<INodeBehavior>
+	public class NodeBehaviorsCollection : ThreadSafeCollection<INodeBehavior>
 	{
 		Node _Node;
 		public NodeBehaviorsCollection(Node node)
@@ -16,19 +16,6 @@ namespace NBitcoin.Protocol.Behaviors
 			_Node = node;
 		}
 
-		List<INodeBehavior> _Behaviors = new List<INodeBehavior>();
-		object cs = new object();
-		public void Add(INodeBehavior behavior)
-		{
-			if(behavior == null)
-				throw new ArgumentNullException("behavior");
-			lock(cs)
-			{
-				if(CanAttach)
-					behavior.Attach(_Node);
-				_Behaviors.Add(behavior);
-			}
-		}
 
 		bool CanAttach
 		{
@@ -38,86 +25,17 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
-		public bool Remove(INodeBehavior behavior)
+		protected override void OnAdding(INodeBehavior obj)
 		{
-			lock(cs)
-			{
-				var removed = _Behaviors.Remove(behavior);
-				if(removed)
-					behavior.Detach();
-				return removed;
-			}
+			if(CanAttach)
+				obj.Attach(_Node);
 		}
 
-		public void Clear()
+		protected override void OnRemoved(INodeBehavior obj)
 		{
-			lock(cs)
-			{
-				foreach(var behavior in _Behaviors)
-					behavior.Detach();
-				_Behaviors.Clear();
-			}
+			if(obj.AttachedNode != null)
+				obj.Detach();
 		}
-
-		public T FindOrCreate<T>() where T : INodeBehavior, new()
-		{
-			return FindOrCreate<T>(() => new T());
-		}
-		public T FindOrCreate<T>(Func<T> create) where T : INodeBehavior
-		{
-			lock(cs)
-			{
-				var result = _Behaviors.OfType<T>().FirstOrDefault();
-				if(result == null)
-				{
-					result = create();
-					_Behaviors.Add(result);
-					if(CanAttach)
-						result.Attach(_Node);
-				}
-				return result;
-			}
-		}
-		public T Find<T>() where T : INodeBehavior
-		{
-			lock(cs)
-			{
-				return _Behaviors.OfType<T>().FirstOrDefault();
-			}
-		}
-
-		public void Remove<T>() where T : INodeBehavior
-		{
-			lock(cs)
-			{
-				foreach(var b in _Behaviors.OfType<T>().ToList())
-				{
-					_Behaviors.Remove(b);
-				}
-			}
-		}
-
-		#region IEnumerable<NodeBehavior> Members
-
-		public IEnumerator<INodeBehavior> GetEnumerator()
-		{
-			lock(cs)
-			{
-				return _Behaviors.ToList().GetEnumerator();
-			}
-		}
-
-		#endregion
-
-		#region IEnumerable Members
-
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-
-		#endregion
-
 		bool _DelayAttach;
 		internal bool DelayAttach
 		{
@@ -129,7 +47,7 @@ namespace NBitcoin.Protocol.Behaviors
 			{
 				_DelayAttach = value;
 				if(CanAttach)
-					foreach(var b in _Behaviors)
+					foreach(var b in this)
 						b.Attach(_Node);
 			}
 		}

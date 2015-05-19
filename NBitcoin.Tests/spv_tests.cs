@@ -204,6 +204,7 @@ namespace NBitcoin.Tests
 	public class spv_tests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSyncWallet()
 		{
 			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
@@ -280,6 +281,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanTrackKey()
 		{
 			BlockchainBuilder builder = new BlockchainBuilder();
@@ -331,6 +333,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanTrackScriptCoins()
 		{
 			BlockchainBuilder builder = new BlockchainBuilder();
@@ -343,6 +346,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanMaintainConnectionToNodes()
 		{
 			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
@@ -380,6 +384,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanPrune()
 		{
 			BlockchainBuilder builder = new BlockchainBuilder();
@@ -447,6 +452,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void UnconfirmedTransactionsWithoutReceivedCoinsShouldNotShowUp()
 		{
 			BlockchainBuilder builder = new BlockchainBuilder();

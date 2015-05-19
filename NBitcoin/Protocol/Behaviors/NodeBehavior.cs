@@ -10,6 +10,10 @@ namespace NBitcoin.Protocol.Behaviors
 {
 	public interface INodeBehavior : ICloneable
 	{
+		Node AttachedNode
+		{
+			get;
+		}
 		void Attach(Node node);
 		void Detach();
 	}
