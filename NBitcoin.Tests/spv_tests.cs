@@ -21,6 +21,7 @@ namespace NBitcoin.Tests
 			Chain = new ConcurrentChain(Network.TestNet);
 			Mempool = new Dictionary<uint256, Transaction>();
 			Blocks = new Dictionary<uint256, Block>();
+			Broadcast = true;
 		}
 
 		public Transaction GiveMoney(IDestination destination, Money value)
@@ -75,9 +76,8 @@ namespace NBitcoin.Tests
 
 		private void OnNewTransaction(Transaction tx)
 		{
-			if(!Quiet)
-				if(NewTransaction != null)
-					NewTransaction(tx);
+			if(NewTransaction != null)
+				NewTransaction(tx);
 		}
 
 		public Block FindBlock()
@@ -97,16 +97,18 @@ namespace NBitcoin.Tests
 			b.Header.HashPrevBlock = Chain.Tip.HashBlock;
 			Chain.SetTip(b.Header);
 			Mempool.Clear();
-			if(!Quiet)
-				if(NewBlock != null)
-					NewBlock(b);
+			if(NewBlock != null)
+				NewBlock(b);
 			return b;
 		}
 
 		public event Action<Transaction> NewTransaction;
 		public event Action<Block> NewBlock;
 
-		public bool Quiet
+		/// <summary>
+		/// The true the remote server will not broadcast new tx and blocks
+		/// </summary>
+		public bool Broadcast
 		{
 			get;
 			set;
@@ -163,10 +165,11 @@ namespace NBitcoin.Tests
 		void _Builder_NewTransaction(Transaction obj)
 		{
 			_Transactions.AddOrReplace(obj.GetHash(), obj);
-			if(_Filter != null && _Filter.IsRelevantAndUpdate(obj) && _Known.TryAdd(obj.GetHash(), obj.GetHash()))
-			{
-				AttachedNode.SendMessageAsync(new InvPayload(obj));
-			}
+			if(_Builder.Broadcast)
+				if(_Filter != null && _Filter.IsRelevantAndUpdate(obj) && _Known.TryAdd(obj.GetHash(), obj.GetHash()))
+				{
+					AttachedNode.SendMessageAsync(new InvPayload(obj));
+				}
 		}
 
 		void _Builder_NewBlock(Block obj)
@@ -174,7 +177,8 @@ namespace NBitcoin.Tests
 			_Blocks.AddOrReplace(obj.GetHash(), obj);
 			foreach(var tx in obj.Transactions)
 				_Transactions.TryAdd(tx.GetHash(), tx);
-			AttachedNode.SendMessageAsync(new InvPayload(obj));
+			if(_Builder.Broadcast)
+				AttachedNode.SendMessageAsync(new InvPayload(obj));
 		}
 
 		protected override void DetachCore()
@@ -188,7 +192,10 @@ namespace NBitcoin.Tests
 
 		public override object Clone()
 		{
-			return new SPVBehavior(_Builder);
+			var behavior = new SPVBehavior(_Builder);
+			behavior._Blocks = _Blocks;
+			behavior._Transactions = _Transactions;
+			return behavior;
 		}
 
 		#endregion
@@ -251,11 +258,23 @@ namespace NBitcoin.Tests
 				chainBuilder.FindBlock();
 				TestUtils.Eventually(() => wallet.GetTransactions().Where(t => t.BlockInformation != null).Count() == 1);
 
-				chainBuilder.Quiet = true;
+				chainBuilder.Broadcast = false;
 				chainBuilder.GiveMoney(k.ExtPubKey.ScriptPubKey, Money.Coins(1.5m));
-				chainBuilder.Quiet = false;
+				chainBuilder.Broadcast = true;
 				chainBuilder.FindBlock();
 				TestUtils.Eventually(() => wallet.GetTransactions().Summary.Confirmed.TransactionCount == 2);
+
+				chainBuilder.Broadcast = false;
+				for(int i = 0 ; i < 50 ; i++)
+				{
+					chainBuilder.FindBlock();
+				}
+				chainBuilder.GiveMoney(k.ExtPubKey.ScriptPubKey, Money.Coins(0.001m));
+				chainBuilder.FindBlock();
+				chainBuilder.Broadcast = true;
+				chainBuilder.FindBlock();
+				//Sync automatically
+				TestUtils.Eventually(() => wallet.GetTransactions().Summary.Confirmed.TransactionCount == 3);
 			}
 		}
 

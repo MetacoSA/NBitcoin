@@ -141,6 +141,7 @@
     <Compile Include="Protocol\Payloads\GetDataPayload.cs" />
     <Compile Include="Protocol\Payloads\MempoolPayload.cs" />
     <Compile Include="Protocol\Payloads\MerkleBlockPayload.cs" />
+    <Compile Include="Protocol\Payloads\NotFoundPayload.cs" />
     <Compile Include="Protocol\Payloads\RejectPayload.cs" />
     <Compile Include="Protocol\PerformanceCounter.cs" />
     <Compile Include="Protocol\ProtocolException.cs" />
