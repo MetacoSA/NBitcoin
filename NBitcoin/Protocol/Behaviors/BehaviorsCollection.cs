@@ -20,8 +20,6 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			if(behavior == null)
 				throw new ArgumentNullException("behavior");
-			if(_Node == null && !(behavior is ICloneable))
-				throw new InvalidOperationException("NodeBehaviors added to NodeCollectionTemplate.TemplateBehaviors must be cloneable");
 			lock(cs)
 			{
 				if(CanAttach)

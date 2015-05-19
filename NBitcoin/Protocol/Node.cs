@@ -898,7 +898,7 @@ namespace NBitcoin.Protocol
 					if(reject != null)
 						throw new ProtocolException("Version rejected " + reject.Code + " : " + reject.Reason);
 					SendMessageAsync(new VerAckPayload());
-					_State = NodeState.HandShaked;
+					State = NodeState.HandShaked;
 				}
 			}
 		}

@@ -12,7 +12,7 @@ namespace NBitcoin.Protocol.Behaviors
 	/// <summary>
 	/// The Chain Behavior is responsible for keeping a ConcurrentChain up to date with the peer, it also responds to getheaders messages.
 	/// </summary>
-	public class ChainBehavior : NodeBehavior, ICloneable
+	public class ChainBehavior : NodeBehavior
 	{
 		public ChainBehavior(ConcurrentChain chain)
 		{
@@ -55,7 +55,10 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 
 		int _SynchingCount;
-		public bool Synching
+		/// <summary>
+		/// Using for test, this might not be reliable
+		/// </summary>
+		internal bool Synching
 		{
 			get
 			{
@@ -188,7 +191,7 @@ namespace NBitcoin.Protocol.Behaviors
 
 		#region ICloneable Members
 
-		public object Clone()
+		public override object Clone()
 		{
 			var clone = new ChainBehavior(Chain)
 			{

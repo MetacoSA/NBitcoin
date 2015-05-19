@@ -1,4 +1,4 @@
-﻿#if !NOSOCKET
+﻿using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,20 +6,29 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NBitcoin.Protocol.Behaviors
+namespace NBitcoin.Protocol
 {
-	/// <summary>
-	/// Maintain connection to a given set of nodes
-	/// </summary>
-	public class ConnectedNodesBehavior : NodeBehavior, ICloneable
+	public class NodesGroup
 	{
 		NodeConnectionParameters _ConnectionParameters;
+		public NodeConnectionParameters NodeConnectionParameters
+		{
+			get
+			{
+				return _ConnectionParameters;
+			}
+			set
+			{
+				_ConnectionParameters = value;
+			}
+		}
+
 		NodeRequirement _Requirements;
 		CancellationTokenSource _Disconnect;
 		Network _Network;
 		object cs;
 
-		public ConnectedNodesBehavior(
+		public NodesGroup(
 			Network network,
 			NodeConnectionParameters connectionParameters = null,
 			NodeRequirement requirements = null)
@@ -30,92 +39,24 @@ namespace NBitcoin.Protocol.Behaviors
 			cs = new object();
 			_ConnectedNodes = new NodesCollection();
 			_ConnectionParameters = connectionParameters ?? new NodeConnectionParameters();
+			_ConnectionParameters = _ConnectionParameters.Clone();
 			_Requirements = requirements ?? new NodeRequirement();
 			_Disconnect = new CancellationTokenSource();
-		}
-		ConnectedNodesBehavior()
-		{
+			_ConnectionParameters.TemplateBehaviors.Add(CreateBehavior());
 		}
 
-		#region ICloneable Members
-
-		public object Clone()
+		public void Connect()
 		{
-			var clone = new ConnectedNodesBehavior();
-			clone._ConnectedNodes = _ConnectedNodes;
-			clone._ConnectionParameters = _ConnectionParameters;
-			clone.MaximumNodeConnection = MaximumNodeConnection;
-			clone._Requirements = _Requirements;
-			clone._Network = _Network;
-			clone.cs = cs;
-			clone._Disconnect = _Disconnect;
-			clone.AllowSameGroup = AllowSameGroup;
-			return clone;
+			StartConnecting();
 		}
-
-		#endregion
-
-		/// <summary>
-		/// The number of node that this behavior will try to maintain online (Default : 8)
-		/// </summary>
-		public int MaximumNodeConnection
+		public void Disconnect()
 		{
-			get;
-			set;
-		}
-
-		public NodeRequirement Requirements
-		{
-			get
-			{
-				return _Requirements;
-			}
-			set
-			{
-				_Requirements = value;
-			}
-		}
-
-		private NodesCollection _ConnectedNodes;
-		public NodesCollection ConnectedNodes
-		{
-			get
-			{
-				return _ConnectedNodes;
-			}
-		}
-
-		/// <summary>
-		/// If false, the search process will do its best to connect to Node in different network group to prevent sybil attacks (Default : false)
-		/// </summary>
-		public bool AllowSameGroup
-		{
-			get;
-			set;
-		}
-
-
-		protected override void AttachCore()
-		{
-			AttachedNode.StateChanged += AttachedNode_StateChanged;
-		}
-
-		void AttachedNode_StateChanged(Node node, NodeState oldState)
-		{
-			if(node.State == NodeState.Failed || node.State == NodeState.Disconnecting || node.State == NodeState.Offline)
-			{
-				_ConnectedNodes.Remove(AttachedNode);
-				StartConnecting();
-			}
-		}
-
-		protected override void DetachCore()
-		{
-			AttachedNode.StateChanged -= AttachedNode_StateChanged;
+			_Disconnect.Cancel();
+			_ConnectedNodes.DisconnectAll();
 		}
 
 		AddressManager _TempAddressManager;
-		private void StartConnecting()
+		internal void StartConnecting()
 		{
 			if(_Disconnect.IsCancellationRequested)
 				return;
@@ -140,11 +81,6 @@ namespace NBitcoin.Protocol.Behaviors
 							{
 								_TempAddressManager = _TempAddressManager ?? new AddressManager();
 								parameters.TemplateBehaviors.Add(new AddressManagerBehavior(_TempAddressManager));
-							}
-							var me = parameters.TemplateBehaviors.Find<ConnectedNodesBehavior>();
-							if(me == null)
-							{
-								parameters.TemplateBehaviors.Add(this);
 							}
 							Node node = null;
 							try
@@ -177,23 +113,19 @@ namespace NBitcoin.Protocol.Behaviors
 			});
 		}
 
-		void node_StateChanged(Node node, NodeState oldState)
+
+		public static NodesGroup GetNodeGroup(Node node)
 		{
-			if(node.State == NodeState.Failed || node.State == NodeState.Disconnecting || node.State == NodeState.Offline)
-			{
-				_ConnectedNodes.Remove(node);
-				StartConnecting();
-			}
+			return GetNodeGroup(node.Behaviors);
+		}
+		public static NodesGroup GetNodeGroup(NodeConnectionParameters parameters)
+		{
+			return GetNodeGroup(parameters.TemplateBehaviors);
 		}
 
-		public void Connect()
+		public static NodesGroup GetNodeGroup(BehaviorsCollection behaviors)
 		{
-			StartConnecting();
-		}
-		public void Disconnect()
-		{
-			_Disconnect.Cancel();
-			_ConnectedNodes.DisconnectAll();
+			return behaviors.OfType<NodesGroupBehavior>().Select(c => c._Parent).FirstOrDefault();
 		}
 
 		/// <summary>
@@ -213,6 +145,63 @@ namespace NBitcoin.Protocol.Behaviors
 				}
 			});
 		}
+
+		/// <summary>
+		/// The number of node that this behavior will try to maintain online (Default : 8)
+		/// </summary>
+		public int MaximumNodeConnection
+		{
+			get;
+			set;
+		}
+
+		public NodeRequirement Requirements
+		{
+			get
+			{
+				return _Requirements;
+			}
+			set
+			{
+				_Requirements = value;
+			}
+		}
+
+		internal NodesCollection _ConnectedNodes;
+		public NodesCollection ConnectedNodes
+		{
+			get
+			{
+				return _ConnectedNodes;
+			}
+		}
+
+		/// <summary>
+		/// If false, the search process will do its best to connect to Node in different network group to prevent sybil attacks (Default : false)
+		/// </summary>
+		public bool AllowSameGroup
+		{
+			get;
+			set;
+		}
+
+
+
+	
+		void node_StateChanged(Node node, NodeState oldState)
+		{
+			if(node.State == NodeState.Failed || node.State == NodeState.Disconnecting || node.State == NodeState.Offline)
+			{
+				_ConnectedNodes.Remove(node);
+				StartConnecting();
+			}
+		}
+		
+
+		NodesGroupBehavior CreateBehavior()
+		{
+			return new NodesGroupBehavior(this);
+		}
+
 	}
 }
-#endif

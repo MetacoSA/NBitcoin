@@ -26,7 +26,7 @@ namespace NBitcoin.SPV
 	/// <summary>
 	/// Load a bloom filter on the node, and scan the blockchain
 	/// </summary>
-	public class TrackerBehavior : NodeBehavior, ICloneable
+	public class TrackerBehavior : NodeBehavior
 	{
 		Tracker _Tracker;
 		ConcurrentChain _Chain;
@@ -157,17 +157,13 @@ namespace NBitcoin.SPV
 			}
 		}
 
-		#region ICloneable Members
-
-		public object Clone()
+		
+		public override object Clone()
 		{
 			var clone = new TrackerBehavior(_Tracker, _ExplicitChain);
 			clone.FalsePositiveRate = FalsePositiveRate;
 			return clone;
 		}
-
-		#endregion
-
 
 	}
 }

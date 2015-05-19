@@ -113,7 +113,7 @@ namespace NBitcoin.Tests
 		}
 	}
 
-	public class SPVBehavior : NodeBehavior, ICloneable
+	public class SPVBehavior : NodeBehavior
 	{
 		BlockchainBuilder _Builder;
 		public SPVBehavior(BlockchainBuilder builder)
@@ -186,7 +186,7 @@ namespace NBitcoin.Tests
 
 		#region ICloneable Members
 
-		public object Clone()
+		public override object Clone()
 		{
 			return new SPVBehavior(_Builder);
 		}
@@ -219,16 +219,15 @@ namespace NBitcoin.Tests
 				AddressManagerBehavior addrman = new AddressManagerBehavior(new AddressManager());
 				addrman.AddressManager.Add(new NetworkAddress(servers.Server1.ExternalEndpoint), IPAddress.Parse("127.0.0.1"));
 				parameters.TemplateBehaviors.Add(addrman);
-				ConnectedNodesBehavior connected = new ConnectedNodesBehavior(Network.TestNet, parameters);
+				NodesGroup connected = new NodesGroup(Network.TestNet, parameters);
 				connected.AllowSameGroup = true;
 				connected.MaximumNodeConnection = 1;
-				parameters.TemplateBehaviors.Add(connected);
 				/////////////
 
 				var bob = new ExtKey();
 				Wallet wallet = new Wallet(bob, Network.TestNet, keyPoolSize: 11);
 				Assert.True(wallet.State == WalletState.Created);
-				wallet.Connect(parameters);
+				wallet.Connect(connected);
 				Assert.True(wallet.State == WalletState.Disconnected);
 				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 1);
 				Assert.True(wallet.State == WalletState.Connected);
@@ -334,7 +333,7 @@ namespace NBitcoin.Tests
 				behavior.AddressManager.Add(new NetworkAddress(servers.Server1.ExternalEndpoint), IPAddress.Parse("127.0.0.1"));
 				NodeConnectionParameters parameters = new NodeConnectionParameters();
 				parameters.TemplateBehaviors.Add(behavior);
-				ConnectedNodesBehavior connected = new ConnectedNodesBehavior(Network.TestNet, parameters, new NodeRequirement()
+				NodesGroup connected = new NodesGroup(Network.TestNet, parameters, new NodeRequirement()
 				{
 					RequiredServices = NodeServices.Network
 				});
