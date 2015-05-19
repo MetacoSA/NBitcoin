@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol.Behaviors
 {
-	public abstract class NodeBehavior
+	public abstract class NodeBehavior : ICloneable
 	{
 		List<IDisposable> _Disposables = new List<IDisposable>();
 		protected void RegisterDisposable(IDisposable disposable)
@@ -71,6 +71,8 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 
 		protected abstract void DetachCore();
+
+		public abstract object Clone();
 	}
 }
 #endif

@@ -47,7 +47,7 @@ namespace NBitcoin.SPV
 			get;
 			set;
 		}
-		
+
 		public Wallet(BitcoinExtKey masterKey, string passphrase = null, KeyPath derivationPath = null, int keyPoolSize = 500)
 			: this(masterKey.ExtKey, masterKey.Network, passphrase, derivationPath, keyPoolSize)
 		{
@@ -146,7 +146,7 @@ namespace NBitcoin.SPV
 				if(created > 0.9)
 				{
 					LoadPool(_LoadedKeys, _KeyPoolSize);
-					_ConnectedNodes.Purge("New bloom filter");
+					_Group.Purge("New bloom filter");
 				}
 			}
 			return result;
@@ -165,7 +165,7 @@ namespace NBitcoin.SPV
 			{
 				if(_State == WalletState.Created)
 					return _State;
-				return _ConnectedNodes.ConnectedNodes.Count == _ConnectedNodes.MaximumNodeConnection ? WalletState.Connected : WalletState.Disconnected;
+				return _Group.ConnectedNodes.Count == _Group.MaximumNodeConnection ? WalletState.Connected : WalletState.Disconnected;
 			}
 		}
 
@@ -202,19 +202,20 @@ namespace NBitcoin.SPV
 			Connect(parameters);
 		}
 
+		public void Connect(NodesGroup group)
+		{
+			Connect(group.NodeConnectionParameters);
+		}
 		public void Connect(NodeConnectionParameters parameters)
 		{
-			var connectedNodes = parameters.TemplateBehaviors.Find<ConnectedNodesBehavior>();
-			if(connectedNodes == null)
+			var group = NodesGroup.GetNodeGroup(parameters);
+			if(group == null)
 			{
-				connectedNodes = new ConnectedNodesBehavior(_Network, parameters)
-				{
-					MaximumNodeConnection = 8
-				};
-				parameters.TemplateBehaviors.Add(connectedNodes);
+				group = new NodesGroup(_Network, parameters);
 			}
-			connectedNodes.Requirements.MinVersion = ProtocolVersion.PROTOCOL_VERSION;
-			connectedNodes.Requirements.RequiredServices = NodeServices.Network;
+			parameters = group.NodeConnectionParameters;
+			group.Requirements.MinVersion = ProtocolVersion.PROTOCOL_VERSION;
+			group.Requirements.RequiredServices = NodeServices.Network;
 
 			var chain = parameters.TemplateBehaviors.Find<ChainBehavior>();
 			if(chain == null)
@@ -243,18 +244,18 @@ namespace NBitcoin.SPV
 			_AddressManager = addrman.AddressManager;
 			_Tracker = tracker.Tracker;
 			_TrackerBehavior = tracker;
-			_ConnectedNodes = connectedNodes;
+			_Group = group;
 
 			if(_LoadedKeys == 0)
 			{
 				LoadPool(0, _KeyPoolSize);
-				_ConnectedNodes.Purge("New bloom filter");
+				_Group.Purge("New bloom filter");
 			}
 
 			_State = WalletState.Disconnected;
-			_ConnectedNodes.Connect();
-			_ConnectedNodes.ConnectedNodes.Added += ConnectedNodes_Added;
-			_ConnectedNodes.ConnectedNodes.Removed += ConnectedNodes_Added;
+			_Group.Connect();
+			_Group.ConnectedNodes.Added += ConnectedNodes_Added;
+			_Group.ConnectedNodes.Removed += ConnectedNodes_Added;
 		}
 
 		public static void ConfigureDefaultNodeConnectionParameters(NodeConnectionParameters parameters)
@@ -281,15 +282,15 @@ namespace NBitcoin.SPV
 
 		TrackerBehavior _TrackerBehavior;
 
-		ConnectedNodesBehavior _ConnectedNodes;
+		NodesGroup _Group;
 
 		public void Disconnect()
 		{
 			if(_State == WalletState.Created)
 				return;
-			_ConnectedNodes.Disconnect();
-			_ConnectedNodes.ConnectedNodes.Added -= ConnectedNodes_Added;
-			_ConnectedNodes.ConnectedNodes.Removed -= ConnectedNodes_Added;
+			_Group.Disconnect();
+			_Group.ConnectedNodes.Added -= ConnectedNodes_Added;
+			_Group.ConnectedNodes.Removed -= ConnectedNodes_Added;
 			_State = WalletState.Created;
 		}
 
@@ -297,7 +298,7 @@ namespace NBitcoin.SPV
 		{
 			get
 			{
-				return _ConnectedNodes.ConnectedNodes.Count;
+				return _Group.ConnectedNodes.Count;
 			}
 		}
 	}

@@ -19,7 +19,7 @@ namespace NBitcoin.Protocol.Behaviors
 	/// <summary>
 	/// The PingPongBehavior is responsible for firing ping message every PingInterval and responding with pong message, and close the connection if the Ping has not been completed after TimeoutInterval.
 	/// </summary>
-	public class PingPongBehavior : NodeBehavior, ICloneable
+	public class PingPongBehavior : NodeBehavior
 	{
 		public PingPongBehavior()
 		{
@@ -181,7 +181,7 @@ namespace NBitcoin.Protocol.Behaviors
 
 		#region ICloneable Members
 
-		public object Clone()
+		public override object Clone()
 		{
 			return new PingPongBehavior()
 			{

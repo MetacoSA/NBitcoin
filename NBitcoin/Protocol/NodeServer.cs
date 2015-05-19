@@ -238,13 +238,20 @@ namespace NBitcoin.Protocol
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
 					var cancel = new CancellationTokenSource();
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
-					var message = Message.ReadNext(client, Network, Version, cancel.Token);
-					_MessageProducer.PushMessage(new IncomingMessage()
+					while(true)
 					{
-						Socket = client,
-						Message = message,
-						Node = null,
-					});
+						var message = Message.ReadNext(client, Network, Version, cancel.Token);
+						_MessageProducer.PushMessage(new IncomingMessage()
+						{
+							Socket = client,
+							Message = message,
+							Node = null,
+						});
+						if(message.Payload is VersionPayload)
+							break;
+						else
+							NodeServerTrace.Error("The first message of the remote peer did not contained a Version payload", null);
+					}
 				}
 				catch(OperationCanceledException ex)
 				{
