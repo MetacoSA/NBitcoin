@@ -14,6 +14,40 @@ namespace NBitcoin.Protocol.Behaviors
 	/// </summary>
 	public class AddressManagerBehavior : NodeBehavior
 	{
+		public static AddressManager GetAddrman(Node node)
+		{
+			return GetAddrman(node.Behaviors);
+		}
+		public static AddressManager GetAddrman(NodeConnectionParameters parameters)
+		{
+			return GetAddrman(parameters.TemplateBehaviors);
+		}
+		public static AddressManager GetAddrman(NodeBehaviorsCollection behaviors)
+		{
+			var behavior = behaviors.Find<AddressManagerBehavior>();
+			if(behavior == null)
+				return null;
+			return behavior.AddressManager;
+		}
+		public static void SetAddrman(Node node, AddressManager addrman)
+		{
+			GetAddrman(node.Behaviors);
+		}
+		public static void SetAddrman(NodeConnectionParameters parameters, AddressManager addrman)
+		{
+			GetAddrman(parameters.TemplateBehaviors);
+		}
+		public static void SetAddrman(NodeBehaviorsCollection behaviors, AddressManager addrman)
+		{
+			var behavior = behaviors.Find<AddressManagerBehavior>();
+			if(behavior == null)
+			{
+				behavior = new AddressManagerBehavior(addrman);
+				return;
+			}
+			behavior.AddressManager = addrman;
+		}
+
 		public AddressManagerBehavior(AddressManager manager)
 		{
 			if(manager == null)

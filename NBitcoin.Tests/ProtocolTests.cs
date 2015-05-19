@@ -293,7 +293,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("UnitTest", "UnitTest")]
 		public void ServerDisconnectCorrectlyFromDroppingClient()
 		{
 			using(var tester = new NodeServerTester())
@@ -318,7 +318,8 @@ namespace NBitcoin.Tests
 		{
 			Stopwatch watch = new Stopwatch();
 			NodeConnectionParameters parameters = new NodeConnectionParameters();
-			parameters.TemplateBehaviors.Add(new AddressManagerBehavior(new AddressManager()));
+			var addrman = GetCachedAddrMan("addrmancache.dat");
+			parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));
 			watch.Start();
 			using(var node = Node.Connect(Network.Main, parameters))
 			{
@@ -331,10 +332,20 @@ namespace NBitcoin.Tests
 					var timeToFind2 = watch.Elapsed;
 				}
 			}
+			addrman.SavePeerFile("addrmancache.dat", Network.Main);
+		}
+
+		private AddressManager GetCachedAddrMan(string file)
+		{
+			if(File.Exists(file))
+			{
+				return AddressManager.LoadPeerFile(file);
+			}
+			return new AddressManager();
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanReceiveHandshake()
 		{
 			using(var tester = new NodeServerTester())
@@ -348,7 +359,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanRespondToPong()
 		{
 
@@ -375,7 +386,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CantConnectToYourself()
 		{
 			using(var tester = new NodeServerTester())
@@ -389,7 +400,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanExchangeFastPingPong()
 		{
 			using(var tester = new NodeServerTester())
@@ -424,7 +435,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanConnectMultipleTimeToServer()
 		{
 			using(var tester = new NodeServerTester())

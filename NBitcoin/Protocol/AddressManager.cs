@@ -362,7 +362,7 @@ namespace NBitcoin.Protocol
 		}
 
 		byte nVersion = 1;
-		byte nKeySize;
+		byte nKeySize = 32;
 		internal uint256 nKey;
 		internal int nNew;
 		internal int nTried;

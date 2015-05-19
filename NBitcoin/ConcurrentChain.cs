@@ -258,34 +258,15 @@ namespace NBitcoin
 
 	internal class ReaderWriterLock
 	{
-		class FuncDisposable : IDisposable
-		{
-			Action onEnter, onLeave;
-			public FuncDisposable(Action onEnter, Action onLeave)
-			{
-				this.onEnter = onEnter;
-				this.onLeave = onLeave;
-				onEnter();
-			}
-
-			#region IDisposable Members
-
-			public void Dispose()
-			{
-				onLeave();
-			}
-
-			#endregion
-		}
 		ReaderWriterLockSlim @lock = new ReaderWriterLockSlim();
 
 		public IDisposable LockRead()
 		{
-			return new FuncDisposable(() => @lock.EnterReadLock(), () => @lock.ExitReadLock());
+			return new ActionDisposable(() => @lock.EnterReadLock(), () => @lock.ExitReadLock());
 		}
 		public IDisposable LockWrite()
 		{
-			return new FuncDisposable(() => @lock.EnterWriteLock(), () => @lock.ExitWriteLock());
+			return new ActionDisposable(() => @lock.EnterWriteLock(), () => @lock.ExitWriteLock());
 		}
 
 		internal bool TryLockWrite(out IDisposable locked)
@@ -293,7 +274,7 @@ namespace NBitcoin
 			locked = null;
 			if(this.@lock.TryEnterWriteLock(0))
 			{
-				locked = new FuncDisposable(() =>
+				locked = new ActionDisposable(() =>
 				{
 				}, () => this.@lock.ExitWriteLock());
 				return true;

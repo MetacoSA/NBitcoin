@@ -80,10 +80,10 @@ namespace NBitcoin.Protocol.Behaviors
 				AttachedNode.MyVersion.StartHeight = Chain.Height;
 			}
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
-			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
+			RegisterDisposable(AttachedNode.Filters.Add(Intercept));
 		}
 
-		void AttachedNode_MessageReceived(Node node, IncomingMessage message)
+		void Intercept(IncomingMessage message, Action act)
 		{
 			var inv = message.Message.Payload as InvPayload;
 			if(inv != null)
@@ -108,7 +108,7 @@ namespace NBitcoin.Protocol.Behaviors
 						if(header.HashBlock == getheaders.HashStop || headers.Headers.Count == 2000)
 							break;
 					}
-				node.SendMessageAsync(headers);
+				AttachedNode.SendMessageAsync(headers);
 			}
 
 			var newheaders = message.Message.Payload as HeadersPayload;
@@ -139,6 +139,8 @@ namespace NBitcoin.Protocol.Behaviors
 					TrySync();
 				Interlocked.Decrement(ref _SynchingCount);
 			}
+
+			act();
 		}
 
 		/// <summary>
@@ -186,7 +188,6 @@ namespace NBitcoin.Protocol.Behaviors
 		protected override void DetachCore()
 		{
 			AttachedNode.StateChanged -= AttachedNode_StateChanged;
-			AttachedNode.MessageReceived -= AttachedNode_MessageReceived;
 		}
 
 		#region ICloneable Members

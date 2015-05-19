@@ -129,9 +129,14 @@
     <Compile Include="Protocol\Behaviors\AddressManagerBehavior.cs" />
     <Compile Include="Protocol\Behaviors\NodeBehaviorsCollection.cs" />
     <Compile Include="Protocol\Behaviors\ChainBehavior.cs" />
+    <Compile Include="Protocol\Filters\ActionFilter.cs" />
+    <Compile Include="Protocol\Filters\NodeFilter.cs" />
+    <Compile Include="Protocol\Filters\NodeFiltersCollection.cs" />
     <Compile Include="Protocol\Behaviors\NodesGroupBehavior.cs" />
     <Compile Include="Protocol\Behaviors\NodeBehavior.cs" />
     <Compile Include="Protocol\Behaviors\PingPongBehavior.cs" />
+    <Compile Include="Utils\ActionDisposable.cs" />
+    <Compile Include="Utils\ThreadSafeCollection.cs" />
     <Compile Include="Protocol\NodeConnectionParameters.cs" />
     <Compile Include="Protocol\NodeListener.cs" />
     <Compile Include="Protocol\NodesCollection.cs" />
