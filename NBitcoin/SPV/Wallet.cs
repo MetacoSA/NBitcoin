@@ -256,6 +256,10 @@ namespace NBitcoin.SPV
 			_Group.Connect();
 			_Group.ConnectedNodes.Added += ConnectedNodes_Added;
 			_Group.ConnectedNodes.Removed += ConnectedNodes_Added;
+			foreach(var node in _Group.ConnectedNodes)
+			{
+				node.Behaviors.Find<TrackerBehavior>().Scan(_ScanLocation, Created);
+			}
 		}
 
 		public static void ConfigureDefaultNodeConnectionParameters(NodeConnectionParameters parameters)
@@ -274,10 +278,7 @@ namespace NBitcoin.SPV
 
 		void ConnectedNodes_Added(object sender, NodeEventArgs e)
 		{
-			if(_State != WalletState.Created)
-			{
-				_State = ((NodesCollection)sender).Count == 0 ? WalletState.Disconnected : WalletState.Connected;
-			}
+			e.Node.Behaviors.Find<TrackerBehavior>().Scan(_ScanLocation, Created);
 		}
 
 		TrackerBehavior _TrackerBehavior;

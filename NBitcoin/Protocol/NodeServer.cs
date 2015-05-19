@@ -220,7 +220,7 @@ namespace NBitcoin.Protocol
 
 		private void BeginAccept()
 		{
-			if(isDisposed)
+			if(_Cancel.IsCancellationRequested)
 				return;
 			NodeServerTrace.Information("Accepting connection...");
 			socket.BeginAccept(EndAccept, null);
@@ -233,12 +233,12 @@ namespace NBitcoin.Protocol
 				try
 				{
 					client = socket.EndAccept(ar);
-					if(isDisposed)
+					if(_Cancel.IsCancellationRequested)
 						return;
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
 					var cancel = new CancellationTokenSource();
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
-					while(true)
+					while(!_Cancel.IsCancellationRequested)
 					{
 						var message = Message.ReadNext(client, Network, Version, cancel.Token);
 						_MessageProducer.PushMessage(new IncomingMessage()
@@ -255,11 +255,12 @@ namespace NBitcoin.Protocol
 				}
 				catch(OperationCanceledException ex)
 				{
-					NodeServerTrace.Error("The remote connecting failed to send a message within 10 seconds, dropping connection", ex);
+					if(ex.CancellationToken != _Cancel.Token)
+						NodeServerTrace.Error("The remote connecting failed to send a message within 10 seconds, dropping connection", ex);
 				}
 				catch(Exception ex)
 				{
-					if(isDisposed)
+					if(_Cancel.IsCancellationRequested)
 						return;
 					if(client == null)
 					{
@@ -454,7 +455,7 @@ namespace NBitcoin.Protocol
 		List<IDisposable> _Resources = new List<IDisposable>();
 		IDisposable OwnResource(IDisposable resource)
 		{
-			if(isDisposed)
+			if(_Cancel.IsCancellationRequested)
 			{
 				resource.Dispose();
 				return Scope.Nothing;
@@ -475,12 +476,12 @@ namespace NBitcoin.Protocol
 		}
 		#region IDisposable Members
 
-		bool isDisposed;
+		CancellationTokenSource _Cancel = new CancellationTokenSource();
 		public void Dispose()
 		{
-			if(!isDisposed)
+			if(!_Cancel.IsCancellationRequested)
 			{
-				isDisposed = true;
+				_Cancel.Cancel();
 
 				lock(_Resources)
 				{
