@@ -123,7 +123,7 @@ namespace NBitcoin.Protocol
 			return GetNodeGroup(parameters.TemplateBehaviors);
 		}
 
-		public static NodesGroup GetNodeGroup(BehaviorsCollection behaviors)
+		public static NodesGroup GetNodeGroup(NodeBehaviorsCollection behaviors)
 		{
 			return behaviors.OfType<NodesGroupBehavior>().Select(c => c._Parent).FirstOrDefault();
 		}

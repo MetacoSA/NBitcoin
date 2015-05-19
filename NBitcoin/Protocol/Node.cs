@@ -526,7 +526,7 @@ namespace NBitcoin.Protocol
 			VersionPayload version = parameters.CreateVersion(peer.Endpoint, network);
 			var addrman = GetAddrman(parameters);
 			Inbound = false;
-			_Behaviors = new BehaviorsCollection(this);
+			_Behaviors = new NodeBehaviorsCollection(this);
 			_MyVersion = version;
 			Version = _MyVersion.Version;
 			Network = network;
@@ -596,7 +596,7 @@ namespace NBitcoin.Protocol
 			_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
 			_RemoteSocketPort = ((IPEndPoint)socket.RemoteEndPoint).Port;
 			Inbound = true;
-			_Behaviors = new BehaviorsCollection(this);
+			_Behaviors = new NodeBehaviorsCollection(this);
 			_MyVersion = parameters.CreateVersion(peer.Endpoint, network);
 			Network = network;
 			_Peer = peer;
@@ -653,8 +653,8 @@ namespace NBitcoin.Protocol
 			_Behaviors.DelayAttach = false;
 		}
 
-		private readonly BehaviorsCollection _Behaviors;
-		public BehaviorsCollection Behaviors
+		private readonly NodeBehaviorsCollection _Behaviors;
+		public NodeBehaviorsCollection Behaviors
 		{
 			get
 			{

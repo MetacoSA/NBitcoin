@@ -114,8 +114,8 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
-		private readonly BehaviorsCollection _TemplateBehaviors = new BehaviorsCollection(null);
-		public BehaviorsCollection TemplateBehaviors
+		private readonly NodeBehaviorsCollection _TemplateBehaviors = new NodeBehaviorsCollection(null);
+		public NodeBehaviorsCollection TemplateBehaviors
 		{
 			get
 			{

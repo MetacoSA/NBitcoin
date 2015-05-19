@@ -3,11 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol.Behaviors
 {
-	public abstract class NodeBehavior : ICloneable
+	public interface INodeBehavior : ICloneable
+	{
+		void Attach(Node node);
+		void Detach();
+	}
+	public abstract class NodeBehavior : INodeBehavior
 	{
 		List<IDisposable> _Disposables = new List<IDisposable>();
 		protected void RegisterDisposable(IDisposable disposable)
@@ -20,8 +26,10 @@ namespace NBitcoin.Protocol.Behaviors
 			get;
 			private set;
 		}
+
 		object cs = new object();
-		internal void Attach(Node node)
+
+		public void Attach(Node node)
 		{
 			if(node == null)
 				throw new ArgumentNullException("node");
@@ -49,22 +57,17 @@ namespace NBitcoin.Protocol.Behaviors
 
 		protected abstract void AttachCore();
 
-		internal void Detach()
+		public void Detach()
 		{
 			lock(cs)
 			{
 				if(AttachedNode == null)
 					return;
-				try
-				{
-					DetachCore();
-					foreach(var dispo in _Disposables)
-						dispo.Dispose();
-				}
-				catch(Exception ex)
-				{
-					NodeServerTrace.Error("Error while detaching behavior", ex);
-				}
+
+				DetachCore();
+				foreach(var dispo in _Disposables)
+					dispo.Dispose();
+
 				_Disposables.Clear();
 				AttachedNode = null;
 			}
