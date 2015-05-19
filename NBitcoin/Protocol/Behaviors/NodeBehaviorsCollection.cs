@@ -1,5 +1,6 @@
 ﻿#if !NOSOCKET
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,16 +8,17 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol.Behaviors
 {
-	public class BehaviorsCollection : IEnumerable<NodeBehavior>
+	public class NodeBehaviorsCollection : IEnumerable<INodeBehavior>
 	{
 		Node _Node;
-		public BehaviorsCollection(Node node)
+		public NodeBehaviorsCollection(Node node)
 		{
 			_Node = node;
 		}
-		List<NodeBehavior> _Behaviors = new List<NodeBehavior>();
+
+		List<INodeBehavior> _Behaviors = new List<INodeBehavior>();
 		object cs = new object();
-		public void Add(NodeBehavior behavior)
+		public void Add(INodeBehavior behavior)
 		{
 			if(behavior == null)
 				throw new ArgumentNullException("behavior");
@@ -36,7 +38,7 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
-		public bool Remove(NodeBehavior behavior)
+		public bool Remove(INodeBehavior behavior)
 		{
 			lock(cs)
 			{
@@ -57,11 +59,11 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
-		public T FindOrCreate<T>() where T : NodeBehavior, new()
+		public T FindOrCreate<T>() where T : INodeBehavior, new()
 		{
 			return FindOrCreate<T>(() => new T());
 		}
-		public T FindOrCreate<T>(Func<T> create) where T : NodeBehavior
+		public T FindOrCreate<T>(Func<T> create) where T : INodeBehavior
 		{
 			lock(cs)
 			{
@@ -76,7 +78,7 @@ namespace NBitcoin.Protocol.Behaviors
 				return result;
 			}
 		}
-		public T Find<T>() where T : NodeBehavior
+		public T Find<T>() where T : INodeBehavior
 		{
 			lock(cs)
 			{
@@ -84,7 +86,7 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
-		public void Remove<T>() where T : NodeBehavior
+		public void Remove<T>() where T : INodeBehavior
 		{
 			lock(cs)
 			{
@@ -97,7 +99,7 @@ namespace NBitcoin.Protocol.Behaviors
 
 		#region IEnumerable<NodeBehavior> Members
 
-		public IEnumerator<NodeBehavior> GetEnumerator()
+		public IEnumerator<INodeBehavior> GetEnumerator()
 		{
 			lock(cs)
 			{
