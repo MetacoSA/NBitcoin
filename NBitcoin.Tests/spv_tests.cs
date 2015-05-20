@@ -204,7 +204,7 @@ namespace NBitcoin.Tests
 	public class spv_tests
 	{
 		[Fact]
-		[Trait("UnitTest", "Buggy")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSyncWallet()
 		{
 			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
@@ -346,7 +346,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("UnitTest", "Buggy")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanMaintainConnectionToNodes()
 		{
 			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
