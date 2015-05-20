@@ -221,7 +221,10 @@ namespace NBitcoin.Protocol
 		private void BeginAccept()
 		{
 			if(_Cancel.IsCancellationRequested)
+			{
+				NodeServerTrace.Information("Stop accepting connection...");
 				return;
+			}
 			NodeServerTrace.Information("Accepting connection...");
 			socket.BeginAccept(EndAccept, null);
 		}
@@ -486,7 +489,7 @@ namespace NBitcoin.Protocol
 			if(!_Cancel.IsCancellationRequested)
 			{
 				_Cancel.Cancel();
-
+				_Trace.LogInside(() => NodeServerTrace.Information("Stopping node server..."));
 				lock(_Resources)
 				{
 					foreach(var resource in _Resources)

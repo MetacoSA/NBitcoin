@@ -178,8 +178,11 @@ namespace NBitcoin.Protocol
 							if(isVerbose)
 							{
 								Trace.CorrelationManager.ActivityId = kv.ActivityId;
-								NodeServerTrace.Transfer(TraceCorrelation.Activity);
-								Trace.CorrelationManager.ActivityId = TraceCorrelation.Activity;
+								if(kv.ActivityId != TraceCorrelation.Activity)
+								{
+									NodeServerTrace.Transfer(TraceCorrelation.Activity);
+									Trace.CorrelationManager.ActivityId = TraceCorrelation.Activity;
+								}
 								NodeServerTrace.Verbose("Sending message " + message);
 							}
 							var bytes = message.ToBytes(_Node.Version);
@@ -210,7 +213,7 @@ namespace NBitcoin.Protocol
 						if(isVerbose)
 						{
 							Trace.CorrelationManager.ActivityId = pending.ActivityId;
-							if(pending != processing)
+							if(pending != processing && pending.ActivityId != TraceCorrelation.Activity)
 								NodeServerTrace.Transfer(TraceCorrelation.Activity);
 							Trace.CorrelationManager.ActivityId = TraceCorrelation.Activity;
 							NodeServerTrace.Verbose("The connection cancelled before the message was sent");
@@ -869,52 +872,51 @@ namespace NBitcoin.Protocol
 												p.Message.Payload is RejectPayload ||
 												p.Message.Payload is VerAckPayload))
 			{
-				using(TraceCorrelation.Open())
-				{
-					SendMessageAsync(MyVersion);
-					var payload = listener.ReceivePayload<Payload>(cancellationToken);
-					if(payload is RejectPayload)
-					{
-						throw new ProtocolException("Handshake rejected : " + ((RejectPayload)payload).Reason);
-					}
-					var version = (VersionPayload)payload;
-					_PeerVersion = version;
-					Version = version.Version;
-					if(!version.AddressReceiver.Address.Equals(MyVersion.AddressFrom.Address))
-					{
-						NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReceiver.Address + " instead of " + MyVersion.AddressFrom.Address);
-					}
-					if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
-					{
-						NodeServerTrace.Warning("Outdated version " + version.Version + " disconnecting");
-						Disconnect("Outdated version");
-						return;
-					}
-					if(requirements.MinVersion != null)
-					{
-						if(version.Version < requirements.MinVersion.Value)
-						{
-							Disconnect("The peer does not support the version requirement");
-							return;
-						}
-					}
-					if((requirements.RequiredServices & version.Services) != requirements.RequiredServices)
-					{
-						Disconnect("The peer does not support the required services requirement");
-						return;
-					}
 
-					SendMessageAsync(new VerAckPayload());
-					listener.ReceivePayload<VerAckPayload>(cancellationToken);
-					State = NodeState.HandShaked;
-					if(Advertize && MyVersion.AddressFrom.Address.IsRoutable(true))
+				SendMessageAsync(MyVersion);
+				var payload = listener.ReceivePayload<Payload>(cancellationToken);
+				if(payload is RejectPayload)
+				{
+					throw new ProtocolException("Handshake rejected : " + ((RejectPayload)payload).Reason);
+				}
+				var version = (VersionPayload)payload;
+				_PeerVersion = version;
+				Version = version.Version;
+				if(!version.AddressReceiver.Address.Equals(MyVersion.AddressFrom.Address))
+				{
+					NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReceiver.Address + " instead of " + MyVersion.AddressFrom.Address);
+				}
+				if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
+				{
+					NodeServerTrace.Warning("Outdated version " + version.Version + " disconnecting");
+					Disconnect("Outdated version");
+					return;
+				}
+				if(requirements.MinVersion != null)
+				{
+					if(version.Version < requirements.MinVersion.Value)
 					{
-						SendMessageAsync(new AddrPayload(new NetworkAddress(MyVersion.AddressFrom)
-						{
-							Time = DateTimeOffset.UtcNow
-						}));
+						Disconnect("The peer does not support the version requirement");
+						return;
 					}
 				}
+				if((requirements.RequiredServices & version.Services) != requirements.RequiredServices)
+				{
+					Disconnect("The peer does not support the required services requirement");
+					return;
+				}
+
+				SendMessageAsync(new VerAckPayload());
+				listener.ReceivePayload<VerAckPayload>(cancellationToken);
+				State = NodeState.HandShaked;
+				if(Advertize && MyVersion.AddressFrom.Address.IsRoutable(true))
+				{
+					SendMessageAsync(new AddrPayload(new NetworkAddress(MyVersion.AddressFrom)
+					{
+						Time = DateTimeOffset.UtcNow
+					}));
+				}
+
 			}
 		}
 
