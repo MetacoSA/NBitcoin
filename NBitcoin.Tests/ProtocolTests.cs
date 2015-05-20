@@ -271,7 +271,6 @@ namespace NBitcoin.Tests
 					Assert.True(n2.State == NodeState.HandShaked);
 					var behavior = new ChainBehavior(new ConcurrentChain(Network.TestNet));
 					n2.Behaviors.Add(behavior);
-					CancellationTokenSource timeout = new CancellationTokenSource(5000);
 					TestUtils.Eventually(() => behavior.Synching);
 					TestUtils.Eventually(() => !behavior.Synching);
 					Assert.True(behavior.Chain.Height == 500);
@@ -410,7 +409,7 @@ namespace NBitcoin.Tests
 				n1.Behaviors.Add(new PingPongBehavior()
 				{
 					PingInterval = TimeSpan.FromSeconds(0.1),
-					TimeoutInterval = TimeSpan.FromSeconds(0.25)
+					TimeoutInterval = TimeSpan.FromSeconds(1.0)
 				});
 
 				n1.VersionHandshake();
@@ -421,14 +420,14 @@ namespace NBitcoin.Tests
 				n2.Behaviors.Add(new PingPongBehavior()
 				{
 					PingInterval = TimeSpan.FromSeconds(0.1),
-					TimeoutInterval = TimeSpan.FromSeconds(0.25)
+					TimeoutInterval = TimeSpan.FromSeconds(1.0)
 				});
 
 				Assert.True(n2.Inbound);
-				Thread.Sleep(500);
+				Thread.Sleep(2000);
 				Assert.Equal(NodeState.HandShaked, n2.State);
 				n1.Behaviors.Clear();
-				Thread.Sleep(500);
+				Thread.Sleep(2000);
 				Assert.True(n2.State == NodeState.Disconnecting || n2.State == NodeState.Offline);
 				Assert.True(n2.DisconnectReason.Reason == "Pong timeout");
 			}
