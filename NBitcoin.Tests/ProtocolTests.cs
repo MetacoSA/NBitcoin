@@ -183,7 +183,7 @@ namespace NBitcoin.Tests
 				seed.Disconnect();
 				Assert.True(seed.State == NodeState.Offline);
 			}
-		}		
+		}
 
 		[Fact]
 		[Trait("NodeServer", "NodeServer")]
@@ -282,10 +282,10 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("MainNet", "MainNet")]
 		public void CanGetTransactionsFromMemPool()
 		{
-			using(var node = Node.ConnectToLocal(Network.TestNet))
+			using(var node = Node.ConnectToLocal(Network.Main))
 			{
 				var transactions = node.GetMempoolTransactions();
 				Assert.True(transactions.Length > 0);

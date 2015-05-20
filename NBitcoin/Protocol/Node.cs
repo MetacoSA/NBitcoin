@@ -1171,13 +1171,13 @@ namespace NBitcoin.Protocol
 			return GetMempoolTransactions(GetMempool(), cancellationToken);
 		}
 
-		public Transaction[] GetMempoolTransactions(uint256[] txIds, CancellationToken cancellationToken = default(CancellationToken))
+		Transaction[] GetMempoolTransactions(uint256[] txIds, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			AssertState(NodeState.HandShaked);
 			if(txIds.Length == 0)
 				return new Transaction[0];
 			List<Transaction> result = new List<Transaction>();
-			using(var listener = CreateListener().OfType<TxPayload>())
+			using(var listener = CreateListener().Where(m => m.Message.Payload is TxPayload || m.Message.Payload is NotFoundPayload))
 			{
 				this.SendMessageAsync(new GetDataPayload(txIds.Select(txid => new InventoryVector()
 				{
@@ -1189,9 +1189,11 @@ namespace NBitcoin.Protocol
 					while(result.Count < txIds.Length)
 					{
 						CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2.0));
-						result.Add(listener.ReceivePayload<TxPayload>(
-							CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token).Token).Object);
-
+						var payload = listener.ReceivePayload<Payload>(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token).Token);
+						if(payload is NotFoundPayload)
+							result.Add(null);
+						else
+							result.Add(((TxPayload)payload).Object);
 					}
 				}
 				catch(OperationCanceledException)
@@ -1202,7 +1204,7 @@ namespace NBitcoin.Protocol
 					}
 				}
 			}
-			return result.ToArray();
+			return result.Where(r => r != null).ToArray();
 		}
 
 		public Network Network
