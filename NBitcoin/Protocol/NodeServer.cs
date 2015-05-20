@@ -236,7 +236,7 @@ namespace NBitcoin.Protocol
 					if(_Cancel.IsCancellationRequested)
 						return;
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
-					var cancel = new CancellationTokenSource();
+					var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token);
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
 					while(!_Cancel.IsCancellationRequested)
 					{
@@ -256,7 +256,10 @@ namespace NBitcoin.Protocol
 				catch(OperationCanceledException ex)
 				{
 					if(ex.CancellationToken != _Cancel.Token)
+					{
+						Utils.SafeCloseSocket(client);
 						NodeServerTrace.Error("The remote connecting failed to send a message within 10 seconds, dropping connection", ex);
+					}
 				}
 				catch(Exception ex)
 				{
@@ -269,6 +272,7 @@ namespace NBitcoin.Protocol
 					}
 					else
 					{
+						Utils.SafeCloseSocket(client);
 						NodeServerTrace.Error("Invalid message received from the remote connecting node", ex);
 					}
 				}
