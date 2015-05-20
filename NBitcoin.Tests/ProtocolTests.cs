@@ -271,9 +271,7 @@ namespace NBitcoin.Tests
 					Assert.True(n2.State == NodeState.HandShaked);
 					var behavior = new ChainBehavior(new ConcurrentChain(Network.TestNet));
 					n2.Behaviors.Add(behavior);
-					TestUtils.Eventually(() => behavior.Synching);
-					TestUtils.Eventually(() => !behavior.Synching);
-					Assert.True(behavior.Chain.Height == 500);
+					TestUtils.Eventually(() => behavior.Chain.Height == 500);
 					var chain2 = n2.GetChain(new uint256("00000000a2424460c992803ed44cfe0c0333e91af04fde9a6a97b468bf1b5f70"));
 					Assert.True(chain2.Height == 500);
 				}
