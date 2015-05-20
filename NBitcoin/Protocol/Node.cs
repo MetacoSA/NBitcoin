@@ -1008,13 +1008,15 @@ namespace NBitcoin.Protocol
 			{
 				while(true)
 				{
+					//Get before last so, at the end, we should only receive 1 header equals to this one (so we will not have race problems with concurrent GetChains)
+					var awaited = currentTip.Previous == null ? currentTip.GetLocator() : currentTip.Previous.GetLocator();
 					SendMessageAsync(new GetHeadersPayload()
 					{
-						BlockLocators = currentTip.GetLocator(),
+						BlockLocators = awaited,
 						HashStop = hashStop
 					});
 					var headers = listener.ReceivePayload<HeadersPayload>(cancellationToken);
-					if(headers.Headers.Count == 0)
+					if(headers.Headers.Count == 1 && headers.Headers[0].GetHash() == currentTip.HashBlock)
 						break;
 					foreach(var header in headers.Headers)
 					{

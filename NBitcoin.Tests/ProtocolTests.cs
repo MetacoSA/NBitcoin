@@ -274,6 +274,11 @@ namespace NBitcoin.Tests
 					TestUtils.Eventually(() => behavior.Chain.Height == 500);
 					var chain2 = n2.GetChain(new uint256("00000000a2424460c992803ed44cfe0c0333e91af04fde9a6a97b468bf1b5f70"));
 					Assert.True(chain2.Height == 500);
+					var chain1 = n1.GetChain(new uint256("00000000a2424460c992803ed44cfe0c0333e91af04fde9a6a97b468bf1b5f70"));
+					Assert.True(chain1.Height == 500);
+					chain1 = n1.GetChain(new uint256("000000008cd4b1bdaa1278e3f1708258f862da16858324e939dc650627cd2e27"));
+					Assert.True(chain1.Height == 499);
+					Thread.Sleep(5000);
 				}
 			}
 		}
@@ -415,12 +420,13 @@ namespace NBitcoin.Tests
 				Assert.True(!n1.Inbound);
 
 				var n2 = tester.Node2;
+				n2.Behaviors.Clear();
 				n2.Behaviors.Add(new PingPongBehavior()
 				{
 					PingInterval = TimeSpan.FromSeconds(0.1),
 					TimeoutInterval = TimeSpan.FromSeconds(1.0)
 				});
-
+				Assert.Equal(NodeState.HandShaked, n2.State);
 				Assert.True(n2.Inbound);
 				Thread.Sleep(2000);
 				Assert.Equal(NodeState.HandShaked, n2.State);
