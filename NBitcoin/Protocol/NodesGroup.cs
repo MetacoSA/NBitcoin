@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	public class NodesGroup
+	public class NodesGroup : IDisposable
 	{
 		NodeConnectionParameters _ConnectionParameters;
 		public NodeConnectionParameters NodeConnectionParameters
@@ -49,23 +49,31 @@ namespace NBitcoin.Protocol
 		{
 			StartConnecting();
 		}
+		/// <summary>
+		/// Drop connection to all connected nodes
+		/// </summary>
 		public void Disconnect()
 		{
 			_Disconnect.Cancel();
 			_ConnectedNodes.DisconnectAll();
 		}
 
-		AddressManager _TempAddressManager;
+		AddressManager _DefaultAddressManager = new AddressManager();
+		volatile bool _Connecting;
+
 		internal void StartConnecting()
 		{
 			if(_Disconnect.IsCancellationRequested)
 				return;
 			if(_ConnectedNodes.Count >= MaximumNodeConnection)
 				return;
+			if(_Connecting)
+				return;
 			Task.Factory.StartNew(() =>
 			{
 				if(Monitor.TryEnter(cs))
 				{
+					_Connecting = true;
 					try
 					{
 						while(!_Disconnect.IsCancellationRequested)
@@ -76,11 +84,11 @@ namespace NBitcoin.Protocol
 							}
 
 							var parameters = _ConnectionParameters.Clone();
-							var addrman = parameters.TemplateBehaviors.Find<AddressManagerBehavior>();
+							var addrman = AddressManagerBehavior.GetAddrman(parameters);
 							if(addrman == null)
 							{
-								_TempAddressManager = _TempAddressManager ?? new AddressManager();
-								parameters.TemplateBehaviors.Add(new AddressManagerBehavior(_TempAddressManager));
+								addrman = _DefaultAddressManager;
+								AddressManagerBehavior.SetAddrman(parameters, addrman);
 							}
 							Node node = null;
 							try
@@ -108,9 +116,10 @@ namespace NBitcoin.Protocol
 					finally
 					{
 						Monitor.Exit(cs);
+						_Connecting = false;
 					}
 				}
-			});
+			}, TaskCreationOptions.LongRunning);
 		}
 
 
@@ -187,7 +196,7 @@ namespace NBitcoin.Protocol
 
 
 
-	
+
 		void node_StateChanged(Node node, NodeState oldState)
 		{
 			if(node.State == NodeState.Failed || node.State == NodeState.Disconnecting || node.State == NodeState.Offline)
@@ -196,12 +205,25 @@ namespace NBitcoin.Protocol
 				StartConnecting();
 			}
 		}
-		
+
 
 		NodesGroupBehavior CreateBehavior()
 		{
 			return new NodesGroupBehavior(this);
 		}
 
+
+		#region IDisposable Members
+
+
+		/// <summary>
+		/// Same as Disconnect
+		/// </summary>
+		public void Dispose()
+		{
+			Disconnect();
+		}
+
+		#endregion
 	}
 }
