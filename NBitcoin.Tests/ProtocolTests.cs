@@ -402,7 +402,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("UnitTest", "Buggy")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanExchangeFastPingPong()
 		{
 			using(var tester = new NodeServerTester())
