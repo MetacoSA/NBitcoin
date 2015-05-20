@@ -24,7 +24,7 @@ namespace NBitcoin.Protocol.Behaviors
 		public PingPongBehavior()
 		{
 			Mode = PingPongMode.Both;
-			TimeoutInterval = TimeSpan.FromMinutes(20.0);
+			TimeoutInterval = TimeSpan.FromMinutes(20.0); //Long time, if in middle of download of a large bunch of blocks, it can takes time
 			PingInterval = TimeSpan.FromMinutes(2.0);
 		}
 		PingPongMode _Mode;
@@ -117,13 +117,13 @@ namespace NBitcoin.Protocol.Behaviors
 			_CurrentPing = new PingPayload();
 			_DateSent = DateTimeOffset.UtcNow;
 			node.SendMessageAsync(_CurrentPing);
-			_PingTimeoutTimer = new Timer(PingTimeout, null, (int)TimeoutInterval.TotalMilliseconds, Timeout.Infinite);
+			_PingTimeoutTimer = new Timer(PingTimeout, _CurrentPing, (int)TimeoutInterval.TotalMilliseconds, Timeout.Infinite);
 		}
 
-		void PingTimeout(object unused)
+		void PingTimeout(object ping)
 		{
 			var node = AttachedNode;
-			if(node != null)
+			if(node != null && ((PingPayload)ping) == _CurrentPing)
 				node.Disconnect("Pong timeout");
 		}
 
