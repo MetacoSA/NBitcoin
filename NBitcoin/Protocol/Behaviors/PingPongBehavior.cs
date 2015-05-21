@@ -103,21 +103,32 @@ namespace NBitcoin.Protocol.Behaviors
 				Ping(null);
 		}
 
+		object cs = new object();
 		void Ping(object unused)
 		{
-			if(!PingVersion())
-				return;
-			if(AttachedNode.State != NodeState.HandShaked)
-				return;
-			if(_CurrentPing != null)
-				return;
-			var node = AttachedNode;
-			if(node == null)
-				return;
-			_CurrentPing = new PingPayload();
-			_DateSent = DateTimeOffset.UtcNow;
-			node.SendMessageAsync(_CurrentPing);
-			_PingTimeoutTimer = new Timer(PingTimeout, _CurrentPing, (int)TimeoutInterval.TotalMilliseconds, Timeout.Infinite);
+			if(Monitor.TryEnter(cs))
+			{
+				try
+				{
+					var node = AttachedNode;
+					if(node == null)
+						return;
+					if(!PingVersion())
+						return;
+					if(node.State != NodeState.HandShaked)
+						return;
+					if(_CurrentPing != null)
+						return;
+					_CurrentPing = new PingPayload();
+					_DateSent = DateTimeOffset.UtcNow;
+					node.SendMessageAsync(_CurrentPing);
+					_PingTimeoutTimer = new Timer(PingTimeout, _CurrentPing, (int)TimeoutInterval.TotalMilliseconds, Timeout.Infinite);
+				}
+				finally
+				{
+					Monitor.Exit(cs);
+				}
+			}
 		}
 
 		void PingTimeout(object ping)
@@ -162,14 +173,17 @@ namespace NBitcoin.Protocol.Behaviors
 
 		private void ClearCurrentPing()
 		{
-			var old = _CurrentPing;
-			_CurrentPing = null;
-			_DateSent = default(DateTimeOffset);
-			var timeout = _PingTimeoutTimer;
-			if(timeout != null)
+			lock(cs)
 			{
-				timeout.Dispose();
-				_PingTimeoutTimer = null;
+				var old = _CurrentPing;
+				_CurrentPing = null;
+				_DateSent = default(DateTimeOffset);
+				var timeout = _PingTimeoutTimer;
+				if(timeout != null)
+				{
+					timeout.Dispose();
+					_PingTimeoutTimer = null;
+				}
 			}
 		}
 
