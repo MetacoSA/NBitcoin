@@ -121,23 +121,6 @@ namespace NBitcoin.Protocol
 				_Cancel = new CancellationTokenSource();
 			}
 
-			EventLoopMessageListener<IncomingMessage> _MessageListener;
-
-			void MessageReceived(IncomingMessage message)
-			{
-				var version = message.Message.Payload as VersionPayload;
-				if(version != null && Node.State == NodeState.HandShaked)
-				{
-					if((uint)message.Node.Version >= 70002)
-						message.Node.SendMessageAsync(new RejectPayload()
-						{
-							Code = RejectCode.DUPLICATE
-						});
-				}
-
-				Node.OnMessageReceived(message);
-			}
-
 			internal BlockingCollection<SentMessage> Messages = new BlockingCollection<SentMessage>(new ConcurrentQueue<SentMessage>());
 			public void BeginListen()
 			{
@@ -206,11 +189,10 @@ namespace NBitcoin.Protocol
 				}).Start();
 				new Thread(() =>
 				{
+					_ListenerThreadId = Thread.CurrentThread.ManagedThreadId;
 					using(TraceCorrelation.Open(false))
 					{
 						NodeServerTrace.Information("Listening");
-						_MessageListener = new EventLoopMessageListener<IncomingMessage>(MessageReceived);
-						Node.MessageProducer.AddMessageListener(_MessageListener);
 						Exception unhandledException = null;
 						byte[] buffer = _Node._ReuseBuffer ? new byte[1024 * 1024] : null;
 						try
@@ -223,13 +205,13 @@ namespace NBitcoin.Protocol
 								if(NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose))
 									NodeServerTrace.Verbose("Receiving message : " + message.Command + " (" + message.Payload + ")");
 								Node.LastSeen = DateTimeOffset.UtcNow;
-								Node.MessageProducer.PushMessage(new IncomingMessage()
+								Node.Counter.Add(counter);
+								Node.OnMessageReceived(new IncomingMessage()
 								{
 									Message = message,
 									Socket = Socket,
 									Node = Node
 								});
-								Node.Counter.Add(counter);
 							}
 						}
 						catch(OperationCanceledException)
@@ -246,6 +228,7 @@ namespace NBitcoin.Protocol
 			}
 
 			int _CleaningUp;
+			public int _ListenerThreadId;
 			private void Cleanup(Exception unhandledException)
 			{
 				if(Interlocked.CompareExchange(ref _CleaningUp, 1, 0) == 1)
@@ -266,12 +249,6 @@ namespace NBitcoin.Protocol
 
 				_Cancel.Cancel();
 				Utils.SafeCloseSocket(Socket);
-				if(_MessageListener != null)
-				{
-					Node.MessageProducer.RemoveMessageListener(_MessageListener);
-					_MessageListener.Dispose();
-					_MessageListener = null;
-				}
 				_Disconnected.Set(); //Set before behavior detach to prevent deadlock
 				foreach(var behavior in _Node.Behaviors)
 				{
@@ -350,8 +327,19 @@ namespace NBitcoin.Protocol
 		public event NodeEventMessageIncoming MessageReceived;
 		protected void OnMessageReceived(IncomingMessage message)
 		{
+			var version = message.Message.Payload as VersionPayload;
+			if(version != null && State == NodeState.HandShaked)
+			{
+				if((uint)message.Node.Version >= 70002)
+					message.Node.SendMessageAsync(new RejectPayload()
+					{
+						Code = RejectCode.DUPLICATE
+					});
+			}
+
 			var last = new ActionFilter((m, n) =>
 			{
+				MessageProducer.PushMessage(m);
 				var messageReceived = MessageReceived;
 				if(messageReceived != null)
 				{
@@ -373,6 +361,30 @@ namespace NBitcoin.Protocol
 			FireFilters(enumerator, message);
 		}
 
+
+		private void OnSendingMessage(Payload payload, Action final)
+		{
+			var enumerator = Filters.Concat(new[] { new ActionFilter(null, (n, p, a) => final()) }).GetEnumerator();
+			FireFilters(enumerator, payload);
+		}
+
+		private void FireFilters(IEnumerator<INodeFilter> enumerator, Payload payload)
+		{
+			if(enumerator.MoveNext())
+			{
+				var filter = enumerator.Current;
+				try
+				{
+					filter.OnSendingMessage(this, payload, () => FireFilters(enumerator, payload));
+				}
+				catch(Exception ex)
+				{
+					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnSendingMessage)", ex.InnerException), false);
+				}
+			}
+		}
+
+
 		private void FireFilters(IEnumerator<INodeFilter> enumerator, IncomingMessage message)
 		{
 			if(enumerator.MoveNext())
@@ -380,11 +392,11 @@ namespace NBitcoin.Protocol
 				var filter = enumerator.Current;
 				try
 				{
-					filter.Invoke(message, () => FireFilters(enumerator, message));
+					filter.OnReceivingMessage(message, () => FireFilters(enumerator, message));
 				}
 				catch(Exception ex)
 				{
-					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter", ex.InnerException), false);
+					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnReceivingMessage)", ex.InnerException), false);
 				}
 			}
 		}
@@ -741,14 +753,21 @@ namespace NBitcoin.Protocol
 				completion.SetException(new OperationCanceledException("The peer has been disconnected"));
 				return completion.Task;
 			}
-			_Connection.Messages.Add(new SentMessage()
+
+			Action final = () =>
 			{
-				Payload = payload,
-				ActivityId = Trace.CorrelationManager.ActivityId,
-				Completion = completion
-			});
+				_Connection.Messages.Add(new SentMessage()
+				{
+					Payload = payload,
+					ActivityId = Trace.CorrelationManager.ActivityId,
+					Completion = completion
+				});
+			};
+			OnSendingMessage(payload, final);
 			return completion.Task;
 		}
+
+
 
 		/// <summary>
 		/// Send a message to the peer synchronously
@@ -941,6 +960,8 @@ namespace NBitcoin.Protocol
 		public void Disconnect(string reason, Exception exception = null)
 		{
 			DisconnectAsync(reason, exception);
+			if(_Connection._ListenerThreadId == Thread.CurrentThread.ManagedThreadId)
+				throw new InvalidOperationException("Using Disconnect on this thread would result in a deadlock, use DisconnectAsync instead");
 			_Connection.Disconnected.WaitOne();
 		}
 		public void DisconnectAsync()
@@ -988,12 +1009,12 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		 /// <summary>
-		 /// Get the chain of headers from the peer (thread safe)
-		 /// </summary>
-		 /// <param name="hashStop">The highest block wanted</param>
-		 /// <param name="cancellationToken"></param>
-		 /// <returns>The chain of headers</returns>
+		/// <summary>
+		/// Get the chain of headers from the peer (thread safe)
+		/// </summary>
+		/// <param name="hashStop">The highest block wanted</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>The chain of headers</returns>
 		public ConcurrentChain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			ConcurrentChain chain = new ConcurrentChain(Network);
