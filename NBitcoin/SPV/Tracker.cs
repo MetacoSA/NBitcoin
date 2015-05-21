@@ -1,9 +1,12 @@
 ﻿#if !NOSOCKET
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,7 +53,7 @@ namespace NBitcoin.SPV
 					+ txId;
 			}
 
-			private Operation()
+			public Operation()
 			{
 				ReceivedCoins = new List<Tuple<Coin, string>>();
 				SpentCoins = new List<Tuple<Coin, string>>();
@@ -186,6 +189,110 @@ namespace NBitcoin.SPV
 				}
 				return true;
 			}
+
+
+			internal JObject ToJson()
+			{
+				var obj = new JObject();
+				if(BlockId != null)
+				{
+					obj.Add("Height", Height);
+					obj.Add("BlockId", BlockId.ToString());
+					obj.Add("Proof", Encoders.Hex.EncodeData(this.Proof.ToBytes()));
+				}
+				obj.Add("AddedDate", AddedDate);
+				obj.Add("UnconfirmedSeen", UnconfirmedSeen);
+				obj.Add("Transaction", Encoders.Hex.EncodeData(this.Transaction.ToBytes()));
+				if(this.ReceivedCoins != null)
+				{
+					obj.Add("ReceivedCoins", new JArray(ReceivedCoins.Select(c => ToJson(c))));
+				}
+				if(this.SpentCoins != null)
+				{
+					obj.Add("SpentCoins", new JArray(SpentCoins.Select(c => ToJson(c))));
+				}
+				return obj;
+			}
+
+			internal static Operation FromJson(JObject obj)
+			{
+				var op = new Operation();
+
+				var blockId = (string)obj["BlockId"];
+				if(blockId != null)
+				{
+					op.Height = (int)(long)obj["Height"];
+					op.BlockId = new uint256(blockId);
+					op.Proof = new MerkleBlock();
+					op.Proof.FromBytes(Encoders.Hex.DecodeData((string)obj["Proof"]));
+				}
+				op.AddedDate = ((JValue)obj["AddedDate"]).Value<DateTimeOffset>();
+				op.UnconfirmedSeen = ((JValue)obj["UnconfirmedSeen"]).Value<DateTimeOffset>();
+				op.Transaction = new Transaction();
+				op.Transaction.FromBytes(Encoders.Hex.DecodeData((string)obj["Transaction"]));
+				var coins = obj["ReceivedCoins"] as JArray;
+				if(coins != null)
+				{
+					foreach(var c in coins)
+					{
+						op.ReceivedCoins.Add(FromJson(c));
+					}
+				}
+				coins = obj["SpentCoins"] as JArray;
+				if(coins != null)
+				{
+					foreach(var c in coins)
+					{
+						op.SpentCoins.Add(FromJson(c));
+					}
+				}
+				return op;
+			}
+
+			private static Tuple<Coin, string> FromJson(JToken obj)
+			{
+				var tracked = (string)obj["TrackedScript"];
+				var coin = FromJsonCoin(obj);
+				return Tuple.Create(coin, tracked);
+			}
+
+
+			internal static JObject ToJson(Tuple<Coin, string> c)
+			{
+				JObject obj = new JObject();
+				obj.Add("TrackedScript", c.Item2);
+				ToJson(c.Item1, obj);
+				return obj;
+			}
+
+			internal static JToken ToJson(Coin c)
+			{
+				return ToJson(c, new JObject());
+			}
+
+			internal static Coin FromJsonCoin(JToken obj)
+			{
+				OutPoint outpoint = new OutPoint();
+				outpoint.FromBytes(Encoders.Hex.DecodeData((string)obj["Outpoint"]));
+				TxOut txout = new TxOut();
+				txout.FromBytes(Encoders.Hex.DecodeData((string)obj["TxOut"]));
+				return new Coin(outpoint, txout);
+			}
+
+			private static JToken ToJson(Coin c, JObject obj)
+			{
+				obj.Add("Outpoint", Encoders.Hex.EncodeData(c.Outpoint.ToBytes()));
+				obj.Add("TxOut", Encoders.Hex.EncodeData(c.TxOut.ToBytes()));
+				return obj;
+			}
+
+			public override string ToString()
+			{
+				return JsonConvert.SerializeObject(ToJson(), Formatting.Indented);
+			}
+
+
+
 		}
 		internal class TrackedScript
 		{
@@ -237,6 +344,39 @@ namespace NBitcoin.SPV
 				get;
 				set;
 			}
+
+
+			internal JObject ToJson()
+			{
+				var obj = new JObject();
+				obj.Add("ScriptPubKey", Encoders.Hex.EncodeData(ScriptPubKey.ToBytes(true)));
+				obj.Add("IsInternal", IsInternal);
+				if(RedeemScript != null)
+					obj.Add("RedeemScript", Encoders.Hex.EncodeData(RedeemScript.ToBytes(true)));
+				obj.Add("AddedDate", AddedDate);
+				obj.Add("Filter", Filter);
+				obj.Add("Wallet", Wallet);
+				return obj;
+			}
+			internal static TrackedScript FromJson(JObject obj)
+			{
+				TrackedScript script = new TrackedScript();
+				script.ScriptPubKey = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)obj["ScriptPubKey"]));
+				var redeem = (string)obj["RedeemScript"];
+				if(redeem != null)
+				{
+					script.RedeemScript = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)obj["RedeemScript"]));
+				}
+				script.AddedDate = obj["AddedDate"].Value<DateTimeOffset>();
+				script.Filter = (string)obj["Filter"];
+				script.Wallet = (string)obj["Wallet"];
+				return script;
+			}
+			public override string ToString()
+			{
+				return JsonConvert.SerializeObject(ToJson(), Formatting.Indented);
+			}
+
 		}
 		internal class TrackedOutpoint
 		{
@@ -266,6 +406,31 @@ namespace NBitcoin.SPV
 				get;
 				set;
 			}
+
+			internal static TrackedOutpoint FromJson(JObject obj)
+			{
+				TrackedOutpoint tracked = new TrackedOutpoint();
+				tracked.TrackedScriptId = (string)obj["TrackedScriptId"];
+				tracked.Filter = (string)obj["Filter"];
+				obj = (JObject)obj["Coin"];
+				tracked.Coin = Operation.FromJsonCoin(obj);
+				return tracked;
+			}
+
+			internal JObject ToJson()
+			{
+				var obj = new JObject();
+				obj.Add("TrackedScriptId", TrackedScriptId);
+				obj.Add("Filter", Filter);
+				obj.Add("Coin", Operation.ToJson(Coin));
+				return obj;
+			}
+			public override string ToString()
+			{
+				return JsonConvert.SerializeObject(ToJson(), Formatting.Indented);
+			}
+
+
 		}
 
 		public Tracker()
@@ -536,6 +701,53 @@ namespace NBitcoin.SPV
 		{
 			_Tweak = RandomUtils.GetUInt32();
 		}
+
+		public void Save(Stream stream)
+		{
+			JObject obj = new JObject();
+			obj.Add("Tweak", _Tweak);
+			obj.Add("Operations", new JArray(_Operations.Select(o => o.Value.ToJson()).ToArray()));
+			obj.Add("Outpoints", new JArray(_TrackedOutpoints.Select(o => o.Value.ToJson()).ToArray()));
+			obj.Add("Scripts", new JArray(_TrackedScripts.Select(o => o.Value.ToJson()).ToArray()));
+			var writer = new StreamWriter(stream);
+			writer.Write(JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
+			{
+				DateParseHandling = DateParseHandling.DateTimeOffset
+			}));
+			writer.Flush();
+		}
+
+		public void Load(Stream stream)
+		{
+			_Operations.Clear();
+			_TrackedOutpoints.Clear();
+			_TrackedScripts.Clear();
+			JObject obj = JObject.Load(new JsonTextReader(new StreamReader(stream))
+			{
+				 DateParseHandling = DateParseHandling.DateTimeOffset
+			});
+			_Tweak = (uint)(long)obj["Tweak"];
+			var operations = (JArray)obj["Operations"];
+			foreach(var operation in operations.OfType<JObject>())
+			{
+				var op = Operation.FromJson(operation);
+				_Operations.TryAdd(op.GetId(), op);
+			}
+			var outpoints = (JArray)obj["Outpoints"];
+			foreach(var outpoint in outpoints.OfType<JObject>())
+			{
+				var op = TrackedOutpoint.FromJson(outpoint);
+				_TrackedOutpoints.TryAdd(op.GetId(), op);
+			}
+
+			var scripts = (JArray)obj["Scripts"];
+			foreach(var script in scripts.OfType<JObject>())
+			{
+				var op = TrackedScript.FromJson(script);
+				_TrackedScripts.TryAdd(op.GetId(), op);
+			}
+		}
+
 	}
 }
 #endif
