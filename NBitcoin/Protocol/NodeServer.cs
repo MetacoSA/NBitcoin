@@ -386,7 +386,7 @@ namespace NBitcoin.Protocol
 				if(message.Node != null && connectedToSelf)
 				{
 					NodeServerTrace.ConnectionToSelfDetected();
-					message.Node.Disconnect();
+					message.Node.DisconnectAsync();
 					return;
 				}
 
@@ -425,12 +425,12 @@ namespace NBitcoin.Protocol
 					catch(OperationCanceledException ex)
 					{
 						NodeServerTrace.Error("The remote node did not respond fast enough (10 seconds) to the handshake completion, dropping connection", ex);
-						node.Disconnect();
+						node.DisconnectAsync();
 						throw;
 					}
 					catch(Exception)
 					{
-						node.Disconnect();
+						node.DisconnectAsync();
 						throw;
 					}
 				}
@@ -587,7 +587,7 @@ namespace NBitcoin.Protocol
 				node.StateChanged += node_StateChanged;
 				if(!_ConnectedNodes.Add(node))
 				{
-					node.Disconnect();
+					node.DisconnectAsync();
 				}
 				else
 					return node;

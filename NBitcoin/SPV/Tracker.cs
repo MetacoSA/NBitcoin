@@ -13,23 +13,6 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.SPV
 {
-	[Flags]
-	public enum ScriptPubKeyMode
-	{
-		/// <summary>
-		/// Use key as a P2PKH
-		/// </summary>
-		P2PKH = 0,
-		/// <summary>
-		/// Use key as a P2PK
-		/// </summary>
-		P2PK = 1,
-		/// <summary>
-		/// Use key as a P2SH
-		/// </summary>
-		P2SH = 2,
-	}
-
 	/// <summary>
 	/// Idempotent and thread safe for tracking operations belonging to a set of ScriptPubKeys
 	/// </summary>
