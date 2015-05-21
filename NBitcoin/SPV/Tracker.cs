@@ -720,7 +720,13 @@ namespace NBitcoin.SPV
 			}
 		}
 
-		public void Load(Stream stream)
+		public static Tracker Load(Stream stream)
+		{
+			var tracker = new Tracker();
+			tracker.LoadCore(stream);
+			return tracker;
+		}
+		void LoadCore(Stream stream)
 		{
 			lock(cs)
 			{
