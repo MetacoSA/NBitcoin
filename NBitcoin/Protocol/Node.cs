@@ -753,13 +753,13 @@ namespace NBitcoin.Protocol
 				completion.SetException(new OperationCanceledException("The peer has been disconnected"));
 				return completion.Task;
 			}
-
+			var activity = Trace.CorrelationManager.ActivityId;
 			Action final = () =>
 			{
 				_Connection.Messages.Add(new SentMessage()
 				{
 					Payload = payload,
-					ActivityId = Trace.CorrelationManager.ActivityId,
+					ActivityId = activity,
 					Completion = completion
 				});
 			};
@@ -960,9 +960,14 @@ namespace NBitcoin.Protocol
 		public void Disconnect(string reason, Exception exception = null)
 		{
 			DisconnectAsync(reason, exception);
+			AssertNoListeningThread();
+			_Connection.Disconnected.WaitOne();
+		}
+
+		private void AssertNoListeningThread()
+		{
 			if(_Connection._ListenerThreadId == Thread.CurrentThread.ManagedThreadId)
 				throw new InvalidOperationException("Using Disconnect on this thread would result in a deadlock, use DisconnectAsync instead");
-			_Connection.Disconnected.WaitOne();
 		}
 		public void DisconnectAsync()
 		{
@@ -1179,8 +1184,14 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		/// <summary>
+		/// Create a listener that will queue messages until diposed
+		/// </summary>
+		/// <returns>The listener</returns>
+		/// <exception cref="System.InvalidOperationException">Thrown if used on the listener's thread, as it would result in a deadlock</exception>
 		public NodeListener CreateListener()
 		{
+			AssertNoListeningThread();
 			return new NodeListener(this);
 		}
 

@@ -174,8 +174,8 @@ namespace NBitcoin.Protocol
 
 		public void DisconnectAll(CancellationToken cancellation = default(CancellationToken))
 		{
-			var tasks = _Nodes.Select(n => n.Key).Select(n => Task.Factory.StartNew(() => n.Disconnect())).ToArray();
-			Task.WaitAll(tasks, cancellation);
+			foreach(var node in _Nodes)
+				node.Key.DisconnectAsync();
 		}
 
 		public void Clear()

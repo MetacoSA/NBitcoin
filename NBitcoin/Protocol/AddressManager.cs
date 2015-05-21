@@ -1183,7 +1183,7 @@ namespace NBitcoin.Protocol
 							finally
 							{
 								if(n != null)
-									n.Disconnect();
+									n.DisconnectAsync();
 							}
 							if(found >= peerToFind)
 								peerTableFull.Cancel();

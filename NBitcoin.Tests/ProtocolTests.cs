@@ -60,6 +60,7 @@ namespace NBitcoin.Tests
 			get
 			{
 				_Node1 = _Node1 ?? Server2.FindOrConnect(Server1.ExternalEndpoint);
+				Thread.Sleep(0); //Don't underestimate thread preemption... without that the tests crash in mono proc... :(
 				return _Node1;
 			}
 		}
@@ -70,6 +71,7 @@ namespace NBitcoin.Tests
 			get
 			{
 				_Node2 = _Node2 ?? Server1.FindOrConnect(Server2.ExternalEndpoint);
+				Thread.Sleep(0);  //Don't underestimate thread preemption... without that the tests crash in mono proc... :(
 				return _Node2;
 			}
 		}
