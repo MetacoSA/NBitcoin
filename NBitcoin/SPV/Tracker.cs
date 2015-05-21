@@ -704,47 +704,53 @@ namespace NBitcoin.SPV
 
 		public void Save(Stream stream)
 		{
-			JObject obj = new JObject();
-			obj.Add("Tweak", _Tweak);
-			obj.Add("Operations", new JArray(_Operations.Select(o => o.Value.ToJson()).ToArray()));
-			obj.Add("Outpoints", new JArray(_TrackedOutpoints.Select(o => o.Value.ToJson()).ToArray()));
-			obj.Add("Scripts", new JArray(_TrackedScripts.Select(o => o.Value.ToJson()).ToArray()));
-			var writer = new StreamWriter(stream);
-			writer.Write(JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
+			lock(cs)
 			{
-				DateParseHandling = DateParseHandling.DateTimeOffset
-			}));
-			writer.Flush();
+				JObject obj = new JObject();
+				obj.Add("Tweak", _Tweak);
+				obj.Add("Operations", new JArray(_Operations.Select(o => o.Value.ToJson()).ToArray()));
+				obj.Add("Outpoints", new JArray(_TrackedOutpoints.Select(o => o.Value.ToJson()).ToArray()));
+				obj.Add("Scripts", new JArray(_TrackedScripts.Select(o => o.Value.ToJson()).ToArray()));
+				var writer = new StreamWriter(stream);
+				writer.Write(JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
+				{
+					DateParseHandling = DateParseHandling.DateTimeOffset
+				}));
+				writer.Flush();
+			}
 		}
 
 		public void Load(Stream stream)
 		{
-			_Operations.Clear();
-			_TrackedOutpoints.Clear();
-			_TrackedScripts.Clear();
-			JObject obj = JObject.Load(new JsonTextReader(new StreamReader(stream))
+			lock(cs)
 			{
-				 DateParseHandling = DateParseHandling.DateTimeOffset
-			});
-			_Tweak = (uint)(long)obj["Tweak"];
-			var operations = (JArray)obj["Operations"];
-			foreach(var operation in operations.OfType<JObject>())
-			{
-				var op = Operation.FromJson(operation);
-				_Operations.TryAdd(op.GetId(), op);
-			}
-			var outpoints = (JArray)obj["Outpoints"];
-			foreach(var outpoint in outpoints.OfType<JObject>())
-			{
-				var op = TrackedOutpoint.FromJson(outpoint);
-				_TrackedOutpoints.TryAdd(op.GetId(), op);
-			}
+				_Operations.Clear();
+				_TrackedOutpoints.Clear();
+				_TrackedScripts.Clear();
+				JObject obj = JObject.Load(new JsonTextReader(new StreamReader(stream))
+				{
+					DateParseHandling = DateParseHandling.DateTimeOffset
+				});
+				_Tweak = (uint)(long)obj["Tweak"];
+				var operations = (JArray)obj["Operations"];
+				foreach(var operation in operations.OfType<JObject>())
+				{
+					var op = Operation.FromJson(operation);
+					_Operations.TryAdd(op.GetId(), op);
+				}
+				var outpoints = (JArray)obj["Outpoints"];
+				foreach(var outpoint in outpoints.OfType<JObject>())
+				{
+					var op = TrackedOutpoint.FromJson(outpoint);
+					_TrackedOutpoints.TryAdd(op.GetId(), op);
+				}
 
-			var scripts = (JArray)obj["Scripts"];
-			foreach(var script in scripts.OfType<JObject>())
-			{
-				var op = TrackedScript.FromJson(script);
-				_TrackedScripts.TryAdd(op.GetId(), op);
+				var scripts = (JArray)obj["Scripts"];
+				foreach(var script in scripts.OfType<JObject>())
+				{
+					var op = TrackedScript.FromJson(script);
+					_TrackedScripts.TryAdd(op.GetId(), op);
+				}
 			}
 		}
 
