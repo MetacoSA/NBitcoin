@@ -89,8 +89,6 @@ namespace NBitcoin.Protocol
 			}
 			else
 			{
-				if(NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose))
-					NodeServerTrace.Trace.TraceEvent(TraceEventType.Verbose, 0, "Message type readen : " + Command);
 				if(length > 0x02000000) //MAX_SIZE 0x02000000 Serialize.h
 				{
 					throw new FormatException("Message payload too big ( > 0x02000000 bytes)");
@@ -117,8 +115,6 @@ namespace NBitcoin.Protocol
 				object payload = _PayloadObject;
 				payloadStream.ReadWrite(payloadType, ref payload);
 				Payload = (Payload)payload;
-				if(NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose))
-					NodeServerTrace.Verbose("Payload : " + Payload);
 			}
 		}
 
@@ -194,8 +190,8 @@ namespace NBitcoin.Protocol
 				ReadCancellationToken = cancellationToken
 			};
 
-			if(!network.ReadMagic(stream, cancellationToken))
-				throw new FormatException("Connection dropped or message from another bitcoin network received");
+			if(!network.ReadMagic(stream, cancellationToken, true))
+				throw new FormatException("Magic incorrect, the message comes from another network");
 
 			Message message = new Message();
 			message._Buffer = buffer;
