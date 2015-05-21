@@ -81,10 +81,6 @@ namespace NBitcoin.Protocol
 			{
 				get
 				{
-					if(_IsDisposed)
-					{
-						throw new InvalidOperationException("Connection disposed");
-					}
 					return _Socket;
 				}
 			}
@@ -126,22 +122,6 @@ namespace NBitcoin.Protocol
 			}
 
 			EventLoopMessageListener<IncomingMessage> _MessageListener;
-
-			bool _IsDisposed;
-			public void Dispose()
-			{
-				if(!_IsDisposed)
-				{
-					Utils.SafeCloseSocket(Socket);
-					if(_MessageListener != null)
-					{
-						Node.MessageProducer.RemoveMessageListener(_MessageListener);
-						_MessageListener.Dispose();
-						_MessageListener = null;
-					}
-					_IsDisposed = true;
-				}
-			}
 
 			void MessageReceived(IncomingMessage message)
 			{
@@ -285,9 +265,14 @@ namespace NBitcoin.Protocol
 					Node.State = NodeState.Offline;
 
 				_Cancel.Cancel();
-				Dispose();
+				Utils.SafeCloseSocket(Socket);
+				if(_MessageListener != null)
+				{
+					Node.MessageProducer.RemoveMessageListener(_MessageListener);
+					_MessageListener.Dispose();
+					_MessageListener = null;
+				}
 				_Disconnected.Set(); //Set before behavior detach to prevent deadlock
-
 				foreach(var behavior in _Node.Behaviors)
 				{
 					try
@@ -950,21 +935,29 @@ namespace NBitcoin.Protocol
 		{
 			Disconnect(null, null);
 		}
+
+		int _Disconnecting;
+
 		public void Disconnect(string reason, Exception exception = null)
 		{
-			if(State == NodeState.Offline)
+			DisconnectAsync(reason, exception);
+			_Connection.Disconnected.WaitOne();
+		}
+		public void DisconnectAsync()
+		{
+			DisconnectAsync(null, null);
+		}
+		public void DisconnectAsync(string reason, Exception exception = null)
+		{
+			if(!IsConnected)
 				return;
-			if(State < NodeState.Connected)
-			{
-				_Connection.Disconnected.WaitOne();
+			if(Interlocked.CompareExchange(ref _Disconnecting, 1, 0) == 1)
 				return;
-			}
 			using(TraceCorrelation.Open())
 			{
 				NodeServerTrace.Information("Disconnection request " + reason);
 				State = NodeState.Disconnecting;
 				_Connection.Cancel.Cancel();
-				_Connection.Disconnected.WaitOne();
 				if(DisconnectReason == null)
 					DisconnectReason = new NodeDisconnectReason()
 					{
@@ -995,6 +988,12 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		 /// <summary>
+		 /// Get the chain of headers from the peer (thread safe)
+		 /// </summary>
+		 /// <param name="hashStop">The highest block wanted</param>
+		 /// <param name="cancellationToken"></param>
+		 /// <returns>The chain of headers</returns>
 		public ConcurrentChain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			ConcurrentChain chain = new ConcurrentChain(Network);
@@ -1019,28 +1018,39 @@ namespace NBitcoin.Protocol
 						BlockLocators = awaited,
 						HashStop = hashStop
 					});
-					var headers = listener.ReceivePayload<HeadersPayload>(cancellationToken);
-					if(headers.Headers.Count == 1 && headers.Headers[0].GetHash() == currentTip.HashBlock)
-						break;
-					foreach(var header in headers.Headers)
+
+					while(true)
 					{
-						var prev = currentTip.FindAncestorOrSelf(header.HashPrevBlock);
-						if(prev == null)
+						bool isOurs = false;
+						var headers = listener.ReceivePayload<HeadersPayload>(cancellationToken);
+						if(headers.Headers.Count == 1 && headers.Headers[0].GetHash() == currentTip.HashBlock)
+							yield break;
+						foreach(var header in headers.Headers)
 						{
-							throw new ProtocolException("Unknown block header received");
+							var h = header.GetHash();
+							if(h == currentTip.HashBlock)
+								continue;
+							if(header.HashPrevBlock == currentTip.HashBlock)
+							{
+								isOurs = true;
+								currentTip = new ChainedBlock(header, h, currentTip);
+								yield return currentTip;
+								if(currentTip.HashBlock == hashStop)
+									yield break;
+							}
+							else
+								break; //Not our headers, continue receive
 						}
-						currentTip = new ChainedBlock(header, header.GetHash(), prev);
-						yield return currentTip;
+						if(isOurs)
+							break;  //Go ask for next header
 					}
-					if(currentTip.HashBlock == hashStop)
-						break;
 				}
 			}
 		}
 
 
 		/// <summary>
-		/// Synchronize a given Chain to the tip of this node
+		/// Synchronize a given Chain to the tip of this node if its height is higher. (Thread safe)
 		/// </summary>
 		/// <param name="chain">The chain to synchronize</param>
 		/// <param name="hashStop">The location until which it synchronize</param>

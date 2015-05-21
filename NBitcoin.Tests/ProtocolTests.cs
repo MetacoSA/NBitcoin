@@ -295,6 +295,31 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("NodeServer", "NodeServer")]
+		public void CanGetChainsConcurrenty()
+		{
+			using(var node = Node.ConnectToLocal(Network.TestNet))
+			{
+				node.VersionHandshake();
+				var stop = new uint256("0000000000005e5fd51f764d230441092f1b69d1a1eeab334c5bb32412e8dc51");
+				Random rand = new Random();
+				var chains =
+					Enumerable.Range(0, 5)
+					.Select(_ => Task.Factory.StartNew(() =>
+					{
+						Thread.Sleep(rand.Next(0, 1000));
+						return node.GetChain(hashStop: stop);
+					}))
+					.ToArray();
+				var highest = chains.Select(c => c.Result.Height).Max();
+				foreach(var c in chains)
+				{
+					Assert.True(c.Result.Height == 150000);
+				}
+			}
+		}
+
+		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void ServerDisconnectCorrectlyFromDroppingClient()
 		{
