@@ -657,7 +657,7 @@ namespace NBitcoin
 			return new Money(nSubsidy);
 		}
 
-		public bool ReadMagic(Stream stream, CancellationToken cancellation)
+		public bool ReadMagic(Stream stream, CancellationToken cancellation, bool throwIfEOF = false)
 		{
 			byte[] bytes = new byte[1];
 			for(int i = 0 ; i < MagicBytes.Length ; i++)
@@ -667,7 +667,10 @@ namespace NBitcoin
 
 				var read = stream.ReadEx(bytes, 0, bytes.Length, cancellation);
 				if(read == -1)
-					return false;
+					if(throwIfEOF)
+						throw new EndOfStreamException("No more bytes to read");
+					else
+						return false;
 				if(read != 1)
 					i--;
 				else if(_MagicBytes[i] != bytes[0])

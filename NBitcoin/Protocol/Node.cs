@@ -240,6 +240,8 @@ namespace NBitcoin.Protocol
 								PerformanceCounter counter;
 
 								var message = Message.ReadNext(Socket, Node.Network, Node.Version, Cancel.Token, buffer, out counter);
+								if(NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose))
+									NodeServerTrace.Verbose("Receiving message : " + message.Command + " (" + message.Payload + ")");
 								Node.LastSeen = DateTimeOffset.UtcNow;
 								Node.MessageProducer.PushMessage(new IncomingMessage()
 								{

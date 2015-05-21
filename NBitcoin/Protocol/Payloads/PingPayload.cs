@@ -39,5 +39,10 @@ namespace NBitcoin.Protocol
 				Nonce = Nonce
 			};
 		}
+
+		public override string ToString()
+		{
+			return base.ToString() + " : " + Nonce;
+		}
 	}
 }

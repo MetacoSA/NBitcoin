@@ -10,6 +10,7 @@ namespace NBitcoin.Protocol
 {
 	public class NodesGroup : IDisposable
 	{
+		TraceCorrelation _Trace = new TraceCorrelation(NodeServerTrace.Trace, "Group connection");
 		NodeConnectionParameters _ConnectionParameters;
 		public NodeConnectionParameters NodeConnectionParameters
 		{
@@ -74,15 +75,14 @@ namespace NBitcoin.Protocol
 				if(Monitor.TryEnter(cs))
 				{
 					_Connecting = true;
+					TraceCorrelationScope scope = null;
 					try
 					{
-						while(!_Disconnect.IsCancellationRequested)
+						while(!_Disconnect.IsCancellationRequested && _ConnectedNodes.Count < MaximumNodeConnection)
 						{
-							if(_ConnectedNodes.Count >= MaximumNodeConnection)
-							{
-								break;
-							}
+							scope = scope ?? _Trace.Open();
 
+							NodeServerTrace.Information("Connected nodes : " + _ConnectedNodes.Count + "/" + MaximumNodeConnection);
 							var parameters = _ConnectionParameters.Clone();
 							var addrman = AddressManagerBehavior.GetAddrman(parameters);
 							if(addrman == null)
@@ -102,21 +102,27 @@ namespace NBitcoin.Protocol
 									node.StateChanged += node_StateChanged;
 									_ConnectedNodes.Add(node);
 								}
+								NodeServerTrace.Information("Node successfully connected to and handshaked");
 							}
-							catch(OperationCanceledException)
+							catch(OperationCanceledException ex)
 							{
 								if(_Disconnect.Token.IsCancellationRequested)
 									throw;
+								NodeServerTrace.Error("Timeout for picked node", ex);
 							}
-							catch
+							catch(Exception ex)
 							{
+								NodeServerTrace.Error("Error while connecting to node", ex);
 							}
+
 						}
 					}
 					finally
 					{
 						Monitor.Exit(cs);
 						_Connecting = false;
+						if(scope != null)
+							scope.Dispose();
 					}
 				}
 			}, TaskCreationOptions.LongRunning);

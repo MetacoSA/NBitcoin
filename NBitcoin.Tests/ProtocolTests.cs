@@ -408,11 +408,10 @@ namespace NBitcoin.Tests
 			using(var tester = new NodeServerTester())
 			{
 				var n1 = tester.Node1;
-				n1.Behaviors.Clear();
 				n1.Behaviors.Add(new PingPongBehavior()
 				{
 					PingInterval = TimeSpan.FromSeconds(0.1),
-					TimeoutInterval = TimeSpan.FromSeconds(1.0)
+					TimeoutInterval = TimeSpan.FromSeconds(0.5)
 				});
 
 				n1.VersionHandshake();
@@ -420,18 +419,17 @@ namespace NBitcoin.Tests
 				Assert.True(!n1.Inbound);
 
 				var n2 = tester.Node2;
-				n2.Behaviors.Clear();
 				n2.Behaviors.Add(new PingPongBehavior()
 				{
 					PingInterval = TimeSpan.FromSeconds(0.1),
-					TimeoutInterval = TimeSpan.FromSeconds(1.0)
+					TimeoutInterval = TimeSpan.FromSeconds(0.5)
 				});
 				Assert.Equal(NodeState.HandShaked, n2.State);
 				Assert.True(n2.Inbound);
-				Thread.Sleep(2000);
+				Thread.Sleep(1500);
 				Assert.Equal(NodeState.HandShaked, n2.State);
 				n1.Behaviors.Clear();
-				Thread.Sleep(2000);
+				Thread.Sleep(1500);
 				Assert.True(n2.State == NodeState.Disconnecting || n2.State == NodeState.Offline);
 				Assert.True(n2.DisconnectReason.Reason == "Pong timeout");
 			}
