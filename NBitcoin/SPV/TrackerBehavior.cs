@@ -201,6 +201,14 @@ namespace NBitcoin.SPV
 		uint256 _LastSeen;
 		DateTimeOffset _SkipBefore;
 
+		public BlockLocator CurrentProgress
+		{
+			get
+			{
+				return _CurrentProgress;
+			}
+		}
+
 		/// <summary>
 		/// Start a scan
 		/// </summary>

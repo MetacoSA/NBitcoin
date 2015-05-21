@@ -103,7 +103,7 @@ namespace NBitcoin.SPV
 	public class Wallet
 	{
 
-		BlockLocator _ScanLocation;
+		internal BlockLocator _ScanLocation;
 		Tracker _Tracker;
 		int _CurrentIndex;
 		int _LoadedKeys;
@@ -399,10 +399,37 @@ namespace NBitcoin.SPV
 
 		NodesGroup _Group;
 
+
+		private void TryUpdateLocation()
+		{
+			var group = _Group;
+			if(group != null)
+			{
+				var progress =
+						group.ConnectedNodes
+					   .Select(f => f.Behaviors.Find<TrackerBehavior>().CurrentProgress)
+					   .Where(p => p != null)
+					   .Select(l => new
+					   {
+						   Locator = l,
+						   Block = Chain.FindFork(l)
+					   })
+					   .OrderByDescending(o => o.Block.Height)
+					   .Select(o => o.Block)
+					   .FirstOrDefault();
+				if(progress != null)
+				{
+					progress = progress.EnumerateToGenesis().Skip(5).FirstOrDefault() ?? progress; //Step down 5 blocks, it does not cost a lot to rescan them in case we missed something
+					_ScanLocation = progress.GetLocator();
+				}
+			}
+		}
+
 		public void Disconnect()
 		{
 			if(_State == WalletState.Created)
 				return;
+			TryUpdateLocation();
 			_Group.Disconnect();
 			_Group.ConnectedNodes.Added -= ConnectedNodes_Added;
 			_Group.ConnectedNodes.Removed -= ConnectedNodes_Added;
@@ -434,6 +461,10 @@ namespace NBitcoin.SPV
 				obj.Add("LoadedKeys", this._LoadedKeys);
 				obj.Add("Created", this.Created);
 				obj.Add("Parameters", this._Parameters.ToJson());
+
+				TryUpdateLocation();
+				obj.Add("Location", Encoders.Hex.EncodeData(this._ScanLocation.ToBytes()));
+
 				var knownScripts = new JArray();
 				foreach(var knownScript in _KnownScripts)
 				{
@@ -452,6 +483,7 @@ namespace NBitcoin.SPV
 			}
 		}
 
+
 		void LoadCore(Stream stream)
 		{
 			JObject obj = JObject.Load(new JsonTextReader(new StreamReader(stream))
@@ -462,6 +494,8 @@ namespace NBitcoin.SPV
 			_KeyPoolSize = (int)(long)obj["KeyPoolSize"];
 			_LoadedKeys = (int)(long)obj["LoadedKeys"];
 			Created = (DateTimeOffset)obj["Created"];
+			_ScanLocation = new BlockLocator();
+			_ScanLocation.FromBytes(Encoders.Hex.DecodeData((string)obj["Location"]));
 			_Parameters = WalletCreation.FromJson((JObject)obj["Parameters"]);
 			_KnownScripts.Clear();
 			var knownScripts = (JArray)obj["KnownScripts"];
