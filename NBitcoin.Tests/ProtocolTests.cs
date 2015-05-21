@@ -164,7 +164,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("Network", "Network")]
 		public void CanGetMyIp()
 		{
 			var client = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
@@ -172,7 +171,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("TestNet", "TestNet")]
 		public void CanHandshake()
 		{
 			using(var seed = Node.ConnectToLocal(Network.TestNet))
@@ -186,7 +185,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("TestNet", "TestNet")]
 		public void CanGetMerkleRoot()
 		{
 			using(var node = Node.ConnectToLocal(Network.TestNet, isRelay: false))
@@ -240,7 +239,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("TestNet", "TestNet")]
 		public void CanGetMemPool()
 		{
 			using(var node = Node.ConnectToLocal(Network.TestNet))
@@ -251,7 +250,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("TestNet", "TestNet")]
 		public void CanMaintainChainWithChainBehavior()
 		{
 			using(var node = Node.ConnectToLocal(Network.TestNet))
@@ -295,7 +294,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("TestNet", "TestNet")]
 		public void CanGetChainsConcurrenty()
 		{
 			using(var node = Node.ConnectToLocal(Network.TestNet))
@@ -340,7 +339,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
-		[Trait("Network", "Network")]
+		[Trait("MainNet", "MainNet")]
 		public void CanConnectToRandomNode()
 		{
 			Stopwatch watch = new Stopwatch();
@@ -508,7 +507,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("TestNet", "TestNet")]
 		public void CanDownloadBlock()
 		{
 			using(var node = Node.ConnectToLocal(Network.TestNet))
@@ -526,7 +525,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("TestNet", "TestNet")]
 		public void CanDownloadHeaders()
 		{
 			using(var node = Node.ConnectToLocal(Network.TestNet))
@@ -545,7 +544,7 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("TestNet", "TestNet")]
 		public void CanDownloadBlocks()
 		{
 			using(var node = Node.ConnectToLocal(Network.TestNet))
@@ -562,7 +561,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("TestNet", "TestNet")]
 		public void CanDownloadLastBlocks()
 		{
 			using(var node = Node.ConnectToLocal(Network.TestNet))
