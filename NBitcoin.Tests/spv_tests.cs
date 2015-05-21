@@ -309,6 +309,14 @@ namespace NBitcoin.Tests
 				chainBuilder.FindBlock();
 				//Sync automatically
 				TestUtils.Eventually(() => wallet.GetTransactions().Summary.Confirmed.TransactionCount == 3);
+
+				MemoryStream ms = new MemoryStream();
+				wallet.Save(ms);
+				ms.Position = 0;
+				var wallet2 = Wallet.Load(ms);
+				Assert.Equal(wallet.Created, wallet2.Created);
+				Assert.Equal(wallet.GetNextScriptPubKey(), wallet2.GetNextScriptPubKey());
+				Assert.True(wallet.GetKnownScripts().Length == wallet2.GetKnownScripts().Length);
 			}
 		}
 
@@ -370,7 +378,7 @@ namespace NBitcoin.Tests
 			tracker.Save(ms);
 			tracker = new Tracker();
 			ms.Position = 0;
-			tracker.Load(ms);
+			tracker = Tracker.Load(ms);
 			transactions = tracker.GetWalletTransactions(builder.Chain);
 			Assert.True(transactions.Count == 3);
 			Assert.True(transactions.Summary.UnConfirmed.TransactionCount == 1);

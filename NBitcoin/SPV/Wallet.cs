@@ -1,9 +1,13 @@
 ﻿#if !NOSOCKET
+using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -68,6 +72,29 @@ namespace NBitcoin.SPV
 			get;
 			set;
 		}
+
+		internal JObject ToJson()
+		{
+			JObject obj = new JObject();
+			obj["SignatureRequired"] = SignatureRequired;
+			obj["DerivationPath"] = DerivationPath.ToString();
+			obj["UseP2SH"] = UseP2SH;
+			obj["RootKeys"] = new JArray(RootKeys.Select(c => c.GetWif(Network).ToString()));
+			return obj;
+		}
+
+		static internal WalletCreation FromJson(JObject obj)
+		{
+			WalletCreation creation = new WalletCreation();
+			creation.SignatureRequired = (int)(long)obj["SignatureRequired"];
+			creation.DerivationPath = new KeyPath((string)obj["DerivationPath"]);
+			creation.UseP2SH = (bool)obj["UseP2SH"];
+			var array = (JArray)obj["RootKeys"];
+			var keys = array.Select(i => new BitcoinExtPubKey((string)i)).ToArray();
+			creation.Network = keys[0].Network;
+			creation.RootKeys = keys.Select(k => k.ExtPubKey).ToArray();
+			return creation;
+		}
 	}
 
 	/// <summary>
@@ -95,7 +122,10 @@ namespace NBitcoin.SPV
 			set;
 		}
 
+		private Wallet()
+		{
 
+		}
 
 		/// <summary>
 		/// Create a new wallet
@@ -385,6 +415,72 @@ namespace NBitcoin.SPV
 			{
 				return _Group.ConnectedNodes.Count;
 			}
+		}
+
+
+		public static Wallet Load(Stream stream)
+		{
+			Wallet wallet = new Wallet();
+			wallet.LoadCore(stream);
+			return wallet;
+		}
+		public void Save(Stream stream)
+		{
+			lock(cs)
+			{
+				JObject obj = new JObject();
+				obj.Add("CurrentIndex", this._CurrentIndex);
+				obj.Add("KeyPoolSize", this._KeyPoolSize);
+				obj.Add("LoadedKeys", this._LoadedKeys);
+				obj.Add("Created", this.Created);
+				obj.Add("Parameters", this._Parameters.ToJson());
+				var knownScripts = new JArray();
+				foreach(var knownScript in _KnownScripts)
+				{
+					JObject known = new JObject();
+					known.Add("ScriptPubKey", Encoders.Hex.EncodeData(knownScript.Key.ToBytes()));
+					known.Add("KeyPath", knownScript.Value.ToString());
+					knownScripts.Add(known);
+				}
+				obj.Add("KnownScripts", knownScripts);
+				var writer = new StreamWriter(stream);
+				writer.Write(JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
+				{
+					DateParseHandling = DateParseHandling.DateTimeOffset
+				}));
+				writer.Flush();
+			}
+		}
+
+		void LoadCore(Stream stream)
+		{
+			JObject obj = JObject.Load(new JsonTextReader(new StreamReader(stream))
+			{
+				DateParseHandling = DateParseHandling.DateTimeOffset
+			});
+			_CurrentIndex = (int)(long)obj["CurrentIndex"];
+			_KeyPoolSize = (int)(long)obj["KeyPoolSize"];
+			_LoadedKeys = (int)(long)obj["LoadedKeys"];
+			Created = (DateTimeOffset)obj["Created"];
+			_Parameters = WalletCreation.FromJson((JObject)obj["Parameters"]);
+			_KnownScripts.Clear();
+			var knownScripts = (JArray)obj["KnownScripts"];
+			foreach(var known in knownScripts.OfType<JObject>())
+			{
+				Script script = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)known["ScriptPubKey"]));
+				KeyPath keypath = new KeyPath((string)known["KeyPath"]);
+				_KnownScripts.Add(script, keypath);
+			}
+		}
+
+		public KeyValuePair<Script, KeyPath>[] GetKnownScripts()
+		{
+			KeyValuePair<Script, KeyPath>[] result;
+			lock(cs)
+			{
+				result = _KnownScripts.ToArray();
+			}
+			return result;
 		}
 	}
 }
