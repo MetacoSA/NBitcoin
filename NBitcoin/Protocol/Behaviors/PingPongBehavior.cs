@@ -124,7 +124,7 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			var node = AttachedNode;
 			if(node != null && ((PingPayload)ping) == _CurrentPing)
-				node.Disconnect("Pong timeout");
+				node.Disconnect("Pong timeout for " + ((PingPayload)ping).Nonce);
 		}
 
 		Timer _PingTimeoutTimer;
@@ -162,13 +162,14 @@ namespace NBitcoin.Protocol.Behaviors
 
 		private void ClearCurrentPing()
 		{
+			var old = _CurrentPing;
 			_CurrentPing = null;
 			_DateSent = default(DateTimeOffset);
 			var timeout = _PingTimeoutTimer;
 			if(timeout != null)
 			{
 				timeout.Dispose();
-				timeout = null;
+				_PingTimeoutTimer = null;
 			}
 		}
 
