@@ -5,6 +5,7 @@ using NBitcoin.SPV;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -330,6 +331,20 @@ namespace NBitcoin.Tests
 			transactions = tracker.GetWalletTransactions(builder.Chain);
 			Assert.True(transactions.Count == 3);
 			Assert.True(transactions.Summary.UnConfirmed.TransactionCount == 1);
+
+			//Test roundtrip serialization
+			var filterBefore = tracker.CreateBloomFilter(0.005);
+			MemoryStream ms = new MemoryStream();
+			tracker.Save(ms);
+			tracker = new Tracker();
+			ms.Position = 0;
+			tracker.Load(ms);
+			transactions = tracker.GetWalletTransactions(builder.Chain);
+			Assert.True(transactions.Count == 3);
+			Assert.True(transactions.Summary.UnConfirmed.TransactionCount == 1);
+			var filterAfter = tracker.CreateBloomFilter(0.005);
+			Assert.True(filterBefore.ToBytes().SequenceEqual(filterAfter.ToBytes()));
+			/////
 		}
 
 		[Fact]
@@ -381,7 +396,6 @@ namespace NBitcoin.Tests
 				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
 			}
 		}
-
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
