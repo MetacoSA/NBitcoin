@@ -25,7 +25,7 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
-		public Socket Socket
+		internal Socket Socket
 		{
 			get;
 			set;
