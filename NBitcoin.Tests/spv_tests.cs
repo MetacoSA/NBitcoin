@@ -208,6 +208,38 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSyncWallet()
 		{
+			CanSyncWalletCore(new WalletCreation()
+			{
+				Network = Network.TestNet,
+				RootKeys = new[] { new ExtKey().Neuter() },
+				UseP2SH = false
+			});
+			CanSyncWalletCore(new WalletCreation()
+			{
+				Network = Network.TestNet,
+				RootKeys = new[] { new ExtKey().Neuter() },
+				UseP2SH = true
+			});
+
+			CanSyncWalletCore(new WalletCreation()
+			{
+				Network = Network.TestNet,
+				RootKeys = new[] { new ExtKey().Neuter(), new ExtKey().Neuter() },
+				SignatureRequired = 2,
+				UseP2SH = false
+			});
+
+			CanSyncWalletCore(new WalletCreation()
+			{
+				Network = Network.TestNet,
+				RootKeys = new[] { new ExtKey().Neuter(), new ExtKey().Neuter() },
+				SignatureRequired = 2,
+				UseP2SH = true
+			});
+		}
+
+		public void CanSyncWalletCore(WalletCreation creation)
+		{
 			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
 			{
 				var chainBuilder = new BlockchainBuilder();
@@ -233,8 +265,7 @@ namespace NBitcoin.Tests
 				connected.MaximumNodeConnection = 1;
 				/////////////
 
-				var bob = new ExtKey();
-				Wallet wallet = new Wallet(bob, Network.TestNet, keyPoolSize: 11);
+				Wallet wallet = new Wallet(creation, keyPoolSize: 11);
 				Assert.True(wallet.State == WalletState.Created);
 				wallet.Connect(connected);
 				Assert.True(wallet.State == WalletState.Disconnected);
@@ -245,23 +276,24 @@ namespace NBitcoin.Tests
 				TestUtils.Eventually(() => wallet.Chain.Height == 1);
 				for(int i = 0 ; i < 9 ; i++)
 				{
-					wallet.NewKey();
+					wallet.GetNextScriptPubKey();
 				}
-				wallet.NewKey(); //Should provoke purge
+				wallet.GetNextScriptPubKey(); //Should provoke purge
 				TestUtils.Eventually(() => wallet.State == WalletState.Disconnected && wallet.ConnectedNodes == 0);
 				TestUtils.Eventually(() => wallet.ConnectedNodes == 1);
 				TestUtils.Eventually(() => servers.Server1.ConnectedNodes.Count == 1);
 				var spv = servers.Server1.ConnectedNodes.First().Behaviors.Find<SPVBehavior>();
 				TestUtils.Eventually(() => spv._Filter != null);
 
-				var k = wallet.NewKey();
-				chainBuilder.GiveMoney(k.ExtPubKey.ScriptPubKey, Money.Coins(1.0m));
+				var k = wallet.GetNextScriptPubKey();
+				Assert.Equal(creation.UseP2SH, k.GetDestinationAddress(Network.TestNet) is BitcoinScriptAddress);
+				chainBuilder.GiveMoney(k, Money.Coins(1.0m));
 				TestUtils.Eventually(() => wallet.GetTransactions().Count == 1);
 				chainBuilder.FindBlock();
 				TestUtils.Eventually(() => wallet.GetTransactions().Where(t => t.BlockInformation != null).Count() == 1);
 
 				chainBuilder.Broadcast = false;
-				chainBuilder.GiveMoney(k.ExtPubKey.ScriptPubKey, Money.Coins(1.5m));
+				chainBuilder.GiveMoney(k, Money.Coins(1.5m));
 				chainBuilder.Broadcast = true;
 				chainBuilder.FindBlock();
 				TestUtils.Eventually(() => wallet.GetTransactions().Summary.Confirmed.TransactionCount == 2);
@@ -271,7 +303,7 @@ namespace NBitcoin.Tests
 				{
 					chainBuilder.FindBlock();
 				}
-				chainBuilder.GiveMoney(k.ExtPubKey.ScriptPubKey, Money.Coins(0.001m));
+				chainBuilder.GiveMoney(k, Money.Coins(0.001m));
 				chainBuilder.FindBlock();
 				chainBuilder.Broadcast = true;
 				chainBuilder.FindBlock();

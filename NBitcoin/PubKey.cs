@@ -157,15 +157,6 @@ namespace NBitcoin
 			return Verify(hash, ECDSASignature.FromDER(sig));
 		}
 
-		[Obsolete("Use ScriptPubKey instead")]
-		public Script PaymentScript
-		{
-			get
-			{
-				return ScriptPubKey;
-			}
-		}
-
 		public string ToHex()
 		{
 			return Encoders.Hex.EncodeData(vch);
