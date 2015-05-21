@@ -299,7 +299,7 @@ namespace NBitcoin.Tests
 				TestUtils.Eventually(() => wallet.GetTransactions().Summary.Confirmed.TransactionCount == 2);
 
 				chainBuilder.Broadcast = false;
-				for(int i = 0 ; i < 50 ; i++)
+				for(int i = 0 ; i < 30 ; i++)
 				{
 					chainBuilder.FindBlock();
 				}
@@ -317,6 +317,9 @@ namespace NBitcoin.Tests
 				Assert.Equal(wallet.Created, wallet2.Created);
 				Assert.Equal(wallet.GetNextScriptPubKey(), wallet2.GetNextScriptPubKey());
 				Assert.True(wallet.GetKnownScripts().Length == wallet2.GetKnownScripts().Length);
+
+				var fork = wallet.Chain.FindFork(wallet2._ScanLocation);
+				Assert.True(fork.Height == chainBuilder.Chain.Height - 5);
 			}
 		}
 

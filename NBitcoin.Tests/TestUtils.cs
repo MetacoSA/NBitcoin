@@ -37,7 +37,7 @@ namespace NBitcoin.Tests
 
 		public static void Eventually(Func<bool> act)
 		{
-			var cancel = new CancellationTokenSource(7000);
+			var cancel = new CancellationTokenSource(10000);
 			while(!act())
 			{
 				cancel.Token.ThrowIfCancellationRequested();
