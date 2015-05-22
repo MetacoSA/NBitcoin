@@ -120,7 +120,7 @@ namespace NBitcoin.Tests
 			Stopwatch watch = new Stopwatch();
 			watch.Start();
 			BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
-			IndexedBlockStore indexed = new IndexedBlockStore(new SQLiteNoSqlRepository("indexbench", true), store);
+			IndexedBlockStore indexed = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
 			indexed.ReIndex();
 			watch.Stop();
 			var time = watch.Elapsed;

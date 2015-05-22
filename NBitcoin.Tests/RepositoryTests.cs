@@ -140,6 +140,13 @@ namespace NBitcoin.Tests
 			Assert.Null(invalidBlock);
 		}
 
+
+		public static IndexedBlockStore CreateIndexedStore([CallerMemberName]string folderName = null)
+		{
+			TestUtils.EnsureNew(folderName);
+			return new IndexedBlockStore(new InMemoryNoSqlRepository(), new BlockStore(folderName, Network.Main));
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanStoreBlocks()
@@ -186,7 +193,7 @@ namespace NBitcoin.Tests
 			store.AppendAll(source.Enumerate(false).Take(100).Select(b => b.Item));
 
 
-			var test = new IndexedBlockStore(new SQLiteNoSqlRepository("CanReIndex", true), store);
+			var test = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
 			var reIndexed = test.ReIndex();
 			Assert.Equal(100, reIndexed);
 			int i = 0;
@@ -395,7 +402,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCacheNoSqlRepository()
 		{
-			var cached = new CachedNoSqlRepository(CreateNoSqlRepository());
+			var cached = new CachedNoSqlRepository(new InMemoryNoSqlRepository());
 			byte[] data1 = new byte[] { 1, 2, 3, 4, 5, 6 };
 			byte[] data2 = new byte[] { 11, 22, 33, 4, 5, 66 };
 			cached.InnerRepository.Put("data1", new RawData(data1));
@@ -435,9 +442,8 @@ namespace NBitcoin.Tests
 		{
 			var repositories = new NoSqlRepository[]
 			{
-				CreateNoSqlRepository(),
 				new InMemoryNoSqlRepository(),
-				new CachedNoSqlRepository(CreateNoSqlRepository("CanStoreInNoSqlCached"))
+				new CachedNoSqlRepository(new InMemoryNoSqlRepository())
 			};
 
 			foreach(var repository in repositories)
@@ -478,20 +484,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		private SQLiteNoSqlRepository CreateNoSqlRepository([CallerMemberName]string filename = null)
-		{
-			if(File.Exists(filename))
-				File.Delete(filename);
-			return new SQLiteNoSqlRepository(filename);
-		}
 
-
-
-		public static IndexedBlockStore CreateIndexedStore([CallerMemberName]string folderName = null)
-		{
-			TestUtils.EnsureNew(folderName);
-			return new IndexedBlockStore(new SQLiteNoSqlRepository(Path.Combine(folderName, "Index")), new BlockStore(folderName, Network.Main));
-		}
 		private static BlockStore CreateBlockStore([CallerMemberName]string folderName = null)
 		{
 			if(Directory.Exists(folderName))

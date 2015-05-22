@@ -39,29 +39,6 @@ namespace NBitcoin.BitcoinCore
 			if(!Directory.Exists(folder))
 				Directory.CreateDirectory(folder);
 		}
-
-		public IndexedBlockUndoStore GetIndexedBlockUndoStore()
-		{
-			var path = Path.Combine(Folder, "blocks");
-			EnsureExist(path);
-			return new IndexedBlockUndoStore(new SQLiteNoSqlRepository(Path.Combine(path, "undoindex")),
-										 new BlockUndoStore(path, Network));
-		}
-
-		public IndexedBlockStore GetIndexedBlockStore()
-		{
-			var path = Path.Combine(Folder, "blocks");
-			EnsureExist(path);
-			return new IndexedBlockStore(new SQLiteNoSqlRepository(Path.Combine(path, "blockindex")), 
-										 new BlockStore(path, Network));
-		}
-
-		public CoinsView GetCoinsView()
-		{
-			var path = Path.Combine(Folder, "coins");
-			EnsureExist(path);
-			return new CoinsView(new SQLiteNoSqlRepository(Path.Combine(path, "coinsIndex"))); 
-		}
 	}
 }
 #endif
