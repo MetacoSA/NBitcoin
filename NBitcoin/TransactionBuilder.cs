@@ -413,7 +413,19 @@ namespace NBitcoin
 			set;
 		}
 
+		/// <summary>
+		/// A callback used by the TransactionBuilder when it does not find the coin for an input
+		/// </summary>
 		public Func<OutPoint, ICoin> CoinFinder
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// A callback used by the TransactionBuilder when it does not find the key for a scriptPubKey
+		/// </summary>
+		public Func<Script, Key> KeyFinder
 		{
 			get;
 			set;
@@ -993,10 +1005,10 @@ namespace NBitcoin
 			if(coin is StealthCoin)
 			{
 				var stealthCoin = (StealthCoin)coin;
-				var scanKey = FindKey(ctx, stealthCoin.Address.ScanPubKey);
+				var scanKey = FindKey(ctx, stealthCoin.Address.ScanPubKey.ScriptPubKey);
 				if(scanKey == null)
 					throw new KeyNotFoundException("Scan key for decrypting StealthCoin not found");
-				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => FindKey(ctx, p)).Where(p => p != null).ToArray();
+				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => FindKey(ctx, p.ScriptPubKey)).Where(p => p != null).ToArray();
 				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
 			}
 
@@ -1017,6 +1029,7 @@ namespace NBitcoin
 
 		}
 
+
 		private Script CreateScriptSig(TransactionSigningContext ctx, Script scriptPubKey, IndexedTxIn txIn)
 		{
 			var originalScriptSig = txIn.TxIn.ScriptSig;
@@ -1025,7 +1038,7 @@ namespace NBitcoin
 			var pubKeyHashParams = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 			if(pubKeyHashParams != null)
 			{
-				var key = FindKey(ctx, pubKeyHashParams);
+				var key = FindKey(ctx, scriptPubKey);
 				if(key == null)
 					return originalScriptSig;
 				var sig = txIn.Sign(key, scriptPubKey, ctx.SigHash);
@@ -1050,7 +1063,7 @@ namespace NBitcoin
 				var keys =
 					multiSigParams
 					.PubKeys
-					.Select(p => FindKey(ctx, p))
+					.Select(p => FindKey(ctx, p.ScriptPubKey))
 					.ToArray();
 
 				int sigCount = signatures.Where(s => s != TransactionSignature.Empty && s != null).Count();
@@ -1083,7 +1096,7 @@ namespace NBitcoin
 			var pubKeyParams = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 			if(pubKeyParams != null)
 			{
-				var key = FindKey(ctx, pubKeyParams);
+				var key = FindKey(ctx, scriptPubKey);
 				if(key == null)
 					return originalScriptSig;
 				var sig = txIn.Sign(key, scriptPubKey, ctx.SigHash);
@@ -1094,18 +1107,19 @@ namespace NBitcoin
 		}
 
 
-		private Key FindKey(TransactionSigningContext ctx, TxDestination id)
+		private Key FindKey(TransactionSigningContext ctx, Script scriptPubKey)
 		{
-			return _Keys
-					.Concat(ctx.AdditionalKeys)
-					.FirstOrDefault(k => k.PubKey.Hash == id);
-		}
-
-		private Key FindKey(TransactionSigningContext ctx, PubKey pubKey)
-		{
-			return _Keys
+			var key = _Keys
 				.Concat(ctx.AdditionalKeys)
-				.FirstOrDefault(k => k.PubKey == pubKey);
+				.FirstOrDefault(k => k.PubKey.ScriptPubKey == scriptPubKey ||  //P2PK
+									k.PubKey.Hash.ScriptPubKey == scriptPubKey || //P2PKH
+									k.PubKey.ScriptPubKey.Hash.ScriptPubKey == scriptPubKey || //P2PK P2SH
+									k.PubKey.Hash.ScriptPubKey.Hash.ScriptPubKey == scriptPubKey); //P2PKH P2SH
+			if(key == null && KeyFinder != null)
+			{
+				key = KeyFinder(scriptPubKey);
+			}
+			return key;
 		}
 
 		public TransactionBuilder Then()
