@@ -84,6 +84,7 @@ namespace NBitcoin.Protocol
 
 							NodeServerTrace.Information("Connected nodes : " + _ConnectedNodes.Count + "/" + MaximumNodeConnection);
 							var parameters = _ConnectionParameters.Clone();
+							parameters.ConnectCancellation = _Disconnect.Token;
 							var addrman = AddressManagerBehavior.GetAddrman(parameters);
 							if(addrman == null)
 							{
@@ -146,7 +147,7 @@ namespace NBitcoin.Protocol
 		/// <summary>
 		/// Asynchronously create a new set of nodes
 		/// </summary>
-		internal void Purge(string reason)
+		public void Purge(string reason)
 		{
 			Task.Factory.StartNew(() =>
 			{

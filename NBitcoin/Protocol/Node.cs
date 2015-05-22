@@ -265,6 +265,11 @@ namespace NBitcoin.Protocol
 
 		}
 
+		public DateTimeOffset ConnectedAt
+		{
+			get;
+			private set;
+		}
 
 		volatile NodeState _State = NodeState.Offline;
 		public NodeState State
@@ -602,6 +607,7 @@ namespace NBitcoin.Protocol
 					_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
 					_RemoteSocketPort = ((IPEndPoint)socket.RemoteEndPoint).Port;
 					State = NodeState.Connected;
+					ConnectedAt = DateTimeOffset.UtcNow;
 					NodeServerTrace.Information("Outbound connection successfull");
 					if(addrman != null)
 						addrman.Attempt(Peer);
@@ -645,6 +651,7 @@ namespace NBitcoin.Protocol
 			_Connection = new NodeConnection(this, socket);
 			_PeerVersion = peerVersion;
 			LastSeen = peer.Time;
+			ConnectedAt = DateTimeOffset.UtcNow;
 			TraceCorrelation.LogInside(() =>
 			{
 				NodeServerTrace.Information("Connected to advertised node " + _Peer.Endpoint);

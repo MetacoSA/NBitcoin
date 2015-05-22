@@ -143,6 +143,7 @@ namespace NBitcoin.SPV
 			});
 			_KeyPoolSize = keyPoolSize;
 			Created = DateTimeOffset.UtcNow;
+			LoadPool(0, keyPoolSize);
 		}
 
 		/// <summary>
@@ -162,15 +163,28 @@ namespace NBitcoin.SPV
 			for(int i = indexFrom ; i < indexFrom + count ; i++)
 			{
 				var child = GetScriptPubKey(0, i);
-				_Tracker.Add(child, isRedeemScript: _Parameters.UseP2SH, wallet: walletName);
 				_KnownScripts.Add(child, new KeyPath((uint)0, (uint)i));
 
 				child = GetScriptPubKey(1, i);
-				_Tracker.Add(child, isInternal: true, isRedeemScript: _Parameters.UseP2SH, wallet: walletName);
 				_KnownScripts.Add(child, new KeyPath((uint)1, (uint)i));
 			}
 			_LoadedKeys += count;
-			_Tracker.UpdateTweak();
+		}
+
+		private bool AddKnownScriptToTracker()
+		{
+			string walletName = GetWalletName();
+			bool added = false;
+			foreach(var known in _KnownScripts)
+			{
+				var child = known.Key;
+				var isInternal = known.Value.Indexes[0] == 1;
+				if(_Tracker.Add(child, _Parameters.UseP2SH, isInternal, wallet: walletName))
+					added = true;
+			}
+			if(added)
+				_Tracker.UpdateTweak();
+			return added;
 		}
 
 		private string GetWalletName()
@@ -213,6 +227,8 @@ namespace NBitcoin.SPV
 		object cs = new object();
 		public Script GetNextScriptPubKey()
 		{
+			if(_Tracker == null)
+				throw new InvalidOperationException("Wallet.Connect should have been called");
 			Script result;
 			lock(cs)
 			{
@@ -224,7 +240,8 @@ namespace NBitcoin.SPV
 				if(created > 0.9)
 				{
 					LoadPool(_LoadedKeys, _KeyPoolSize);
-					_Group.Purge("New bloom filter");
+					if(AddKnownScriptToTracker())
+						_Group.Purge("New bloom filter");
 				}
 			}
 			return result;
@@ -316,12 +333,23 @@ namespace NBitcoin.SPV
 			Connect(parameters);
 		}
 
+		/// <summary>
+		/// Connect the wallet by using the group's parameters
+		/// </summary>
+		/// <param name="group"></param>
 		public void Connect(NodesGroup group)
 		{
 			Connect(group.NodeConnectionParameters);
 		}
+
+		/// <summary>
+		/// Connect the wallet with the given connection parameters
+		/// </summary>
+		/// <param name="parameters"></param>
 		public void Connect(NodeConnectionParameters parameters)
 		{
+			if(State != WalletState.Created)
+				throw new InvalidOperationException("The wallet is already connecting or connected");
 			var group = NodesGroup.GetNodeGroup(parameters);
 			if(group == null)
 			{
@@ -359,13 +387,8 @@ namespace NBitcoin.SPV
 			_Tracker = tracker.Tracker;
 			_TrackerBehavior = tracker;
 			_Group = group;
-
-			if(_LoadedKeys == 0)
-			{
-				LoadPool(0, _KeyPoolSize);
-				_Group.Purge("New bloom filter");
-			}
-
+			if(AddKnownScriptToTracker())
+				_Group.Purge("Bloom filter renew");
 			_State = WalletState.Disconnected;
 			_Group.Connect();
 			_Group.ConnectedNodes.Added += ConnectedNodes_Added;
@@ -507,12 +530,12 @@ namespace NBitcoin.SPV
 			}
 		}
 
-		public KeyValuePair<Script, KeyPath>[] GetKnownScripts()
+		public KeyValuePair<Script, KeyPath>[] GetKnownScripts(bool onlyGenerated=false)
 		{
 			KeyValuePair<Script, KeyPath>[] result;
 			lock(cs)
 			{
-				result = _KnownScripts.ToArray();
+				result = _KnownScripts.Where(s=> !onlyGenerated || s.Value[1] < _CurrentIndex).ToArray();
 			}
 			return result;
 		}

@@ -314,6 +314,7 @@ namespace NBitcoin.Tests
 				wallet.Save(ms);
 				ms.Position = 0;
 				var wallet2 = Wallet.Load(ms);
+				wallet2.Connect(connected);
 				Assert.Equal(wallet.Created, wallet2.Created);
 				Assert.Equal(wallet.GetNextScriptPubKey(), wallet2.GetNextScriptPubKey());
 				Assert.True(wallet.GetKnownScripts().Length == wallet2.GetKnownScripts().Length);
