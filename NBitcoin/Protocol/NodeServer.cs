@@ -1,6 +1,6 @@
 ﻿#if !NOSOCKET
 #if !NOUPNP
-using Mono.Nat;
+using Open.Nat;
 #endif
 using System;
 using System.Collections.Concurrent;
@@ -131,24 +131,26 @@ namespace NBitcoin.Protocol
 		}
 #if !NOUPNP
 		UPnPLease _UPnPLease;
-		public UPnPLease DetectExternalEndpoint(CancellationToken cancellation = default(CancellationToken))
+		public async Task<UPnPLease> DetectExternalEndpoint(CancellationToken cancellation = default(CancellationToken))
 		{
 			if(_UPnPLease != null)
 			{
 				_UPnPLease.Dispose();
 				_UPnPLease = null;
 			}
-			var lease = new UPnPLease(BitcoinPorts, LocalEndpoint.Port, NATRuleName);
-			lease.LeasePeriod = NATLeasePeriod;
-			if(lease.DetectExternalEndpoint(cancellation))
-			{
-				_UPnPLease = lease;
-				ExternalEndpoint = _UPnPLease.ExternalEndpoint;
-				return lease;
-			}
-			else
-			{
-				using(lease.Trace.Open())
+
+            var lease = new UPnPLease(BitcoinPorts, LocalEndpoint.Port, NATRuleName);
+            try
+            {
+                lease.LeasePeriod = NATLeasePeriod;
+                await lease.DetectExternalEndpoint(cancellation);
+                _UPnPLease = lease;
+                ExternalEndpoint = _UPnPLease.ExternalEndpoint;
+                return lease;
+            }
+            catch
+            {
+		        using(lease.Trace.Open())
 				{
 					NodeServerTrace.Information("No UPNP device found, try to use external web services to deduce external address");
 					try
