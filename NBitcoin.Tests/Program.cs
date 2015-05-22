@@ -10,7 +10,7 @@ namespace NBitcoin.Tests
 	{
 		public static void Main()
 		{
-			new spv_tests().CanSyncWallet();
+			//new spv_tests().CanSyncWallet();
 			//RepositoryTests.Play();
 		}
 	}
