@@ -162,10 +162,10 @@ namespace NBitcoin.SPV
 			var walletName = GetWalletName();
 			for(int i = indexFrom ; i < indexFrom + count ; i++)
 			{
-				var child = GetScriptPubKey(0, i);
+				var child = GetScriptPubKey(false, i);
 				_KnownScripts.Add(child, new KeyPath((uint)0, (uint)i));
 
-				child = GetScriptPubKey(1, i);
+				child = GetScriptPubKey(true, i);
 				_KnownScripts.Add(child, new KeyPath((uint)1, (uint)i));
 			}
 			_LoadedKeys += count;
@@ -225,14 +225,14 @@ namespace NBitcoin.SPV
 		}
 
 		object cs = new object();
-		public Script GetNextScriptPubKey()
+		public Script GetNextScriptPubKey(bool changeAddress = false)
 		{
 			if(_Tracker == null)
 				throw new InvalidOperationException("Wallet.Connect should have been called");
 			Script result;
 			lock(cs)
 			{
-				result = GetScriptPubKey(0, _CurrentIndex);
+				result = GetScriptPubKey(changeAddress, _CurrentIndex);
 				if(_Parameters.UseP2SH)
 					result = result.Hash.ScriptPubKey;
 				_CurrentIndex++;
@@ -255,37 +255,37 @@ namespace NBitcoin.SPV
 			}
 		}
 
-		protected Script GetScriptPubKey(int chain, int index)
+		protected Script GetScriptPubKey(bool isChange, int index)
 		{
 			if(_Parameters.UseP2SH)
 			{
 				if(_Parameters.RootKeys.Length == 1)
-					return Derivate(0, chain, index).PubKey.ScriptPubKey;
+					return Derivate(0, isChange, index).PubKey.ScriptPubKey;
 				else
-					return CreateMultiSig(chain, index);
+					return CreateMultiSig(isChange, index);
 			}
 			else
 			{
 				if(_Parameters.RootKeys.Length == 1)
-					return Derivate(0, chain, index).PubKey.Hash.ScriptPubKey;
+					return Derivate(0, isChange, index).PubKey.Hash.ScriptPubKey;
 				else
-					return CreateMultiSig(chain, index);
+					return CreateMultiSig(isChange, index);
 			}
 		}
 
-		private Script CreateMultiSig(int chain, int index)
+		private Script CreateMultiSig(bool isChange, int index)
 		{
-			return PayToMultiSigTemplate.Instance.GenerateScriptPubKey(_Parameters.SignatureRequired, _Parameters.RootKeys.Select((r, i) => Derivate(i, chain, index).PubKey).ToArray());
+			return PayToMultiSigTemplate.Instance.GenerateScriptPubKey(_Parameters.SignatureRequired, _Parameters.RootKeys.Select((r, i) => Derivate(i, isChange, index).PubKey).ToArray());
 		}
 
 		ExtPubKey[] _ParentKeys;
-		private ExtPubKey Derivate(int rootKeyIndex, int chain, int index)
+		private ExtPubKey Derivate(int rootKeyIndex, bool isChange, int index)
 		{
 			if(_ParentKeys == null)
 			{
 				_ParentKeys = _Parameters.RootKeys.Select(r => r.Derive(_Parameters.DerivationPath)).ToArray();
 			}
-			return _ParentKeys[rootKeyIndex].Derive((uint)chain).Derive((uint)index);
+			return _ParentKeys[rootKeyIndex].Derive((uint)(isChange ? 1 : 0)).Derive((uint)index);
 		}
 
 		WalletState _State;
@@ -530,12 +530,12 @@ namespace NBitcoin.SPV
 			}
 		}
 
-		public KeyValuePair<Script, KeyPath>[] GetKnownScripts(bool onlyGenerated=false)
+		public KeyValuePair<Script, KeyPath>[] GetKnownScripts(bool onlyGenerated = false)
 		{
 			KeyValuePair<Script, KeyPath>[] result;
 			lock(cs)
 			{
-				result = _KnownScripts.Where(s=> !onlyGenerated || s.Value[1] < _CurrentIndex).ToArray();
+				result = _KnownScripts.Where(s => !onlyGenerated || s.Value[1] < _CurrentIndex).ToArray();
 			}
 			return result;
 		}
