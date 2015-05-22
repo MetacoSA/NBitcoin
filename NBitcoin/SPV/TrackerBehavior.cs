@@ -210,15 +210,17 @@ namespace NBitcoin.SPV
 		}
 
 		/// <summary>
-		/// Start a scan
+		/// Start a scan, if a scan is already running, will change only if the parameters are anterior
 		/// </summary>
 		/// <param name="locator"></param>
 		public void Scan(BlockLocator locator, DateTimeOffset skipBefore)
 		{
 			lock(cs)
 			{
-				_SkipBefore = skipBefore;
-				_CurrentProgress = locator;
+				if(_SkipBefore == default(DateTimeOffset) || skipBefore < _SkipBefore)
+					_SkipBefore = skipBefore;
+				if(_CurrentProgress == null || _Chain.FindFork(locator).Height < _Chain.FindFork(_CurrentProgress).Height)
+					_CurrentProgress = locator;
 			}
 		}
 

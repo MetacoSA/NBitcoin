@@ -75,6 +75,11 @@
 			}
 		}
 
+		public BitcoinExtPubKey Neuter()
+		{
+			return ExtKey.Neuter().GetWif(Network);
+		}
+
 		#region ISecret Members
 
 		public Key PrivateKey

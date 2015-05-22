@@ -287,7 +287,8 @@ namespace NBitcoin.Tests
 		{
 			var node = Node.ConnectToLocal(Network.TestNet);
 			node.VersionHandshake();
-
+			var chain = node.GetChain();
+			var r = chain.Validate(Network.TestNet, true);
 
 			//Wallet wallet = new Wallet(new ExtKey(), Network.Main);
 			//wallet.Connect(addrman: AddressManager.LoadPeerFile(@"E:\Program Files\Bitcoin\peers.dat", Network.Main));

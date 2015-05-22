@@ -455,7 +455,7 @@ namespace NBitcoin.SPV
 		/// <param name="isInternal">If true, the scriptPubKey will not belong to tracked data, typically, change addresses (Default: false)</param>
 		/// <param name="filter">The filter in which this key will appear (http://eprint.iacr.org/2014/763.pdf)</param>
 		/// <param name="wallet">The wallet name to which it belongs</param>
-		public void Add(Script scriptPubKey, bool isRedeemScript = false, bool isInternal = false, string filter = "a", string wallet = "default")
+		public bool Add(Script scriptPubKey, bool isRedeemScript = false, bool isInternal = false, string filter = "a", string wallet = "default")
 		{
 			if(filter == null)
 				throw new ArgumentNullException("filter");
@@ -480,6 +480,7 @@ namespace NBitcoin.SPV
 			{
 				added = _TrackedScripts.TryAdd(trackedScript.GetId(), trackedScript);
 			}
+			return added;
 		}
 
 

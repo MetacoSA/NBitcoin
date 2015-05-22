@@ -112,6 +112,7 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 
 			var newheaders = message.Message.Payload as HeadersPayload;
+            var pendingTipBefore = GetPendingTip();
 			if(newheaders != null && CanSync)
 			{
 				var tip = GetPendingTip();
@@ -135,7 +136,7 @@ namespace NBitcoin.Protocol.Behaviors
 				{
 					Chain.SetTip(_PendingTip);
 				}
-				if(newheaders.Headers.Count != 0)
+                if (newheaders.Headers.Count != 0 && pendingTipBefore.HashBlock != GetPendingTip().HashBlock)
 					TrySync();
 				Interlocked.Decrement(ref _SynchingCount);
 			}
@@ -178,10 +179,6 @@ namespace NBitcoin.Protocol.Behaviors
 		private ChainedBlock GetPendingTip()
 		{
 			_PendingTip = _PendingTip ?? Chain.Tip;
-			if(Chain.Contains(_PendingTip))
-			{
-				_PendingTip = Chain.Tip;  //The chain was updated beyond what this behavior knows
-			}
 			return _PendingTip;
 		}
 

@@ -131,6 +131,14 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
+		/// <summary>
+		/// Send a ping asynchronously
+		/// </summary>
+		public void Probe()
+		{
+			Ping(null);
+		}
+
 		void PingTimeout(object ping)
 		{
 			var node = AttachedNode;

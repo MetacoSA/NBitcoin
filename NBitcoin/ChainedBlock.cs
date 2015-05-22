@@ -261,7 +261,7 @@ namespace NBitcoin
 					// Special difficulty rule for testnet:
 					// If the new block's timestamp is more than 2* 10 minutes
 					// then allow mining of a min-difficulty block.
-					if(DateTimeOffset.UtcNow > pindexLast.Header.BlockTime + TimeSpan.FromTicks(nTargetSpacing.Ticks * 2))
+					if(this.Header.BlockTime > pindexLast.Header.BlockTime + TimeSpan.FromTicks(nTargetSpacing.Ticks * 2))
 						return nProofOfWorkLimit;
 					else
 					{
