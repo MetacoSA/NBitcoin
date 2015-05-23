@@ -23,6 +23,9 @@
 		#endregion
 	}
 
+	/// <summary>
+	/// Base58 representation of an ExtKey
+	/// </summary>
 	public class BitcoinExtKey : BitcoinExtKeyBase, ISecret
 	{
 		public BitcoinExtKey(string base58, Network expectedNetwork = null)
@@ -92,6 +95,10 @@
 
 		#endregion
 	}
+
+	/// <summary>
+	/// Base58 representation of an ExtPubKey
+	/// </summary>
 	public class BitcoinExtPubKey : BitcoinExtKeyBase
 	{
 		public BitcoinExtPubKey(ExtPubKey key, Network network)

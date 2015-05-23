@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	/// <summary>
+	/// Compact representation of one's chain position which can be used to find forks with another chain
+	/// </summary>
 	public class BlockLocator : IBitcoinSerializable
 	{
 		public BlockLocator()

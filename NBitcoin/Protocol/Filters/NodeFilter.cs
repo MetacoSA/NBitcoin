@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol.Filters
 {
+	/// <summary>
+	/// A NodeFilter can intercept messages received and sent.
+	/// </summary>
 	public interface INodeFilter
 	{
 		/// <summary>

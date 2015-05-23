@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	/// <summary>
+	/// Base class for all Base58 check representation of data
+	/// </summary>
 	public abstract class Base58Data
 	{
 		protected byte[] vchData = new byte[0];

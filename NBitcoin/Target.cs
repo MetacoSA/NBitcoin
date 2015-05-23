@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	/// <summary>
+	/// Represent the challenge that miners must solve for finding a new block
+	/// </summary>
 	public class Target
 	{
 		static Target _Difficulty1 = new Target(new byte[] { 0x1d, 0x00, 0xff, 0xff });

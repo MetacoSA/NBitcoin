@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.OpenAsset
 {
+	/// <summary>
+	/// Base58 representation of an asset id
+	/// </summary>
 	public class BitcoinAssetId : Base58Data
 	{
 		public BitcoinAssetId(string base58, Network expectedNetwork = null)

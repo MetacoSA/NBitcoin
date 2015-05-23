@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	/// <summary>
+	/// Base58 representaiton of a script hash
+	/// </summary>
 	public class BitcoinScriptAddress : BitcoinAddress
 	{
-
 		public BitcoinScriptAddress(string address, Network expectedNetwork)
 			: base(address, expectedNetwork)
 		{
@@ -43,10 +45,23 @@ namespace NBitcoin
 			return PayToScriptHashTemplate.Instance.GenerateScriptPubKey((ScriptId)Hash);
 		}
 	}
+
+	/// <summary>
+	/// Base58 representation of a pubkey hash and base class for the representation of a script hash
+	/// </summary>
 	public class BitcoinAddress : Base58Data, IDestination
 	{
+		/// <summary>
+		/// Detect whether the input base58 is a pubkey hash or a script hash
+		/// </summary>
+		/// <param name="base58">The Base58 string to parse</param>
+		/// <param name="expectedNetwork">The expected network to which it belongs</param>
+		/// <returns>A BitcoinAddress or BitcoinScriptAddress</returns>
+		/// <exception cref="System.FormatException">Invalid format</exception>
 		public static BitcoinAddress Create(string base58, Network expectedNetwork = null)
 		{
+			if(base58 == null)
+				throw new ArgumentNullException("base58");
 			return Network.CreateFromBase58Data<BitcoinAddress>(base58, expectedNetwork);
 		}
 

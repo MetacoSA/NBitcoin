@@ -27,10 +27,17 @@ namespace NBitcoin.Protocol
 		Block
 	}
 #if !PORTABLE
+
+	/// <summary>
+	/// A transaction or block are rejected being transmitted through tx or block messages
+	/// </summary>
 	[Payload("reject")]
 	public class RejectPayload : Payload
 	{
 		VarString _Message = new VarString();
+		/// <summary>
+		/// "tx" or "block"
+		/// </summary>
 		public string Message
 		{
 			get
@@ -91,6 +98,9 @@ namespace NBitcoin.Protocol
 		}
 
 		VarString _Reason = new VarString();
+		/// <summary>
+		/// Details of the error
+		/// </summary>
 		public string Reason
 		{
 			get
@@ -104,6 +114,9 @@ namespace NBitcoin.Protocol
 		}
 
 		uint256 _Hash;
+		/// <summary>
+		/// The hash being rejected
+		/// </summary>
 		public uint256 Hash
 		{
 			get

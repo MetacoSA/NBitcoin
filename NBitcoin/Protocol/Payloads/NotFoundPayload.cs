@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
+	/// <summary>
+	/// A getdata message for an asked hash is not found by the remote peer
+	/// </summary>
 	public class NotFoundPayload : Payload, IEnumerable<InventoryVector>
 	{
 		public NotFoundPayload()

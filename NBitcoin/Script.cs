@@ -14,25 +14,38 @@ namespace NBitcoin
 	{
 		None = 0,
 
-		// Evaluate P2SH subscripts (softfork safe, BIP16).
+		/// <summary>
+		/// Evaluate P2SH subscripts (softfork safe, BIP16).
+		/// </summary>
 		P2SH = (1U << 0),
 
-		// Passing a non-strict-DER signature or one with undefined hashtype to a checksig operation causes script failure.
-		// Passing a pubkey that is not (0x04 + 64 bytes) or (0x02 or 0x03 + 32 bytes) to checksig causes that pubkey to be
-		// skipped (not softfork safe: this flag can widen the validity of OP_CHECKSIG OP_NOT).
+		/// <summary>
+		/// Passing a non-strict-DER signature or one with undefined hashtype to a checksig operation causes script failure.
+		/// Passing a pubkey that is not (0x04 + 64 bytes) or (0x02 or 0x03 + 32 bytes) to checksig causes that pubkey to be
+		/// +
+		/// skipped (not softfork safe: this flag can widen the validity of OP_CHECKSIG OP_NOT).
+		/// </summary>
 		StrictEnc = (1U << 1),
 
-		// Passing a non-strict-DER signature to a checksig operation causes script failure (softfork safe, BIP62 rule 1)
+		/// <summary>
+		/// Passing a non-strict-DER signature to a checksig operation causes script failure (softfork safe, BIP62 rule 1)
+		/// </summary>
 		DerSig = (1U << 2),
-
-		// Passing a non-strict-DER signature or one with S > order/2 to a checksig operation causes script failure
-		// (softfork safe, BIP62 rule 5).
+		
+		/// <summary>
+		/// Passing a non-strict-DER signature or one with S > order/2 to a checksig operation causes script failure
+		/// (softfork safe, BIP62 rule 5).
+		/// </summary>
 		LowS = (1U << 3),
 
-		// verify dummy stack item consumed by CHECKMULTISIG is of zero-length (softfork safe, BIP62 rule 7).
+		/// <summary>
+		/// verify dummy stack item consumed by CHECKMULTISIG is of zero-length (softfork safe, BIP62 rule 7).
+		/// </summary>
 		NullDummy = (1U << 4),
 
-		// Using a non-push operator in the scriptSig causes script failure (softfork safe, BIP62 rule 2).
+		/// <summary>
+		/// Using a non-push operator in the scriptSig causes script failure (softfork safe, BIP62 rule 2).
+		/// </summary>
 		SigPushOnly = (1U << 5),
 
 		// Require minimal encodings for all push operations (OP_0... OP_16, OP_1NEGATE where possible, direct
@@ -88,9 +101,21 @@ namespace NBitcoin
 	public enum SigHash : uint
 	{
 		Undefined = 0,
+		/// <summary>
+		/// All outputs are signed
+		/// </summary>
 		All = 1,
+		/// <summary>
+		/// No outputs as signed
+		/// </summary>
 		None = 2,
+		/// <summary>
+		/// Only the output with the same index as this input is signed
+		/// </summary>
 		Single = 3,
+		/// <summary>
+		/// If set, no inputs, except this, are part of the signature
+		/// </summary>
 		AnyoneCanPay = 0x80,
 	};
 

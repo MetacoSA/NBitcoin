@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.OpenAsset
 {
+	/// <summary>
+	/// A unique Id for an asset
+	/// </summary>
 	public class AssetId
 	{
 		internal byte[] _Bytes;

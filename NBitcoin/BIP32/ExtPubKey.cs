@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace NBitcoin
 {
+	/// <summary>
+	/// A public HD key
+	/// </summary>
 	public class ExtPubKey : IBitcoinSerializable, IDestination
 	{
 		public static ExtPubKey Parse(string wif, Network expectedNetwork = null)

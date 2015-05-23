@@ -6,9 +6,20 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
+	/// <summary>
+	/// Ask block headers that happened since BlockLocators
+	/// </summary>
 	[Payload("getheaders")]
 	public class GetHeadersPayload : Payload
 	{
+		public GetHeadersPayload()
+		{
+
+		}
+		public GetHeadersPayload(BlockLocator locator)
+		{
+			BlockLocators = locator;
+		}
 		uint version = (uint)ProtocolVersion.PROTOCOL_VERSION;
 		public ProtocolVersion Version
 		{

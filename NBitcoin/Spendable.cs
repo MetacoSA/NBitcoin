@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	[Obsolete("Use Coin instead")]
 	public class Spendable : IBitcoinSerializable
 	{
 		public Spendable()

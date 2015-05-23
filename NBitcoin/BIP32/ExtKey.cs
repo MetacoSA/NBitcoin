@@ -6,7 +6,9 @@ using System.Linq;
 
 namespace NBitcoin
 {
-	//https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
+	/// <summary>
+	/// A private HD key
+	/// </summary>
 	public class ExtKey : IBitcoinSerializable, IDestination, ISecret
 	{
 		public static ExtKey Parse(string wif, Network expectedNetwork = null)
@@ -80,6 +82,10 @@ namespace NBitcoin
 			Array.Copy(hashMAC.Skip(32).Take(32).ToArray(), 0, vchChainCode, 0, vchChainCode.Length);
 		}
 
+		/// <summary>
+		/// Create the public key from this key
+		/// </summary>
+		/// <returns></returns>
 		public ExtPubKey Neuter()
 		{
 			ExtPubKey ret = new ExtPubKey

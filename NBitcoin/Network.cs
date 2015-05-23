@@ -375,6 +375,8 @@ namespace NBitcoin
 		/// <exception cref="System.FormatException">Invalid base58 data</exception>
 		public static Base58Data CreateFromBase58Data(string base58, Network expectedNetwork = null)
 		{
+			if(base58 == null)
+				throw new ArgumentNullException("base58");
 			bool invalidNetwork = false;
 			foreach(var network in GetNetworks())
 			{
@@ -402,6 +404,8 @@ namespace NBitcoin
 
 		public static T CreateFromBase58Data<T>(string base58, Network expectedNetwork = null) where T : Base58Data
 		{
+			if(base58 == null)
+				throw new ArgumentNullException("base58");
 			var result = CreateFromBase58Data(base58, expectedNetwork) as T;
 			if(result == null)
 				throw new FormatException("Invalid base58 data");

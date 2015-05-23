@@ -4,23 +4,37 @@ using System.Linq;
 
 namespace NBitcoin
 {
+
+	/// <summary>
+	/// Represent a path in the hierarchy of HD keys (BIP32)
+	/// </summary>
 	public class KeyPath
 	{
 		public KeyPath()
 		{
 			_Indexes = new uint[0];
 		}
+
+		/// <summary>
+		/// Parse a KeyPath
+		/// </summary>
+		/// <param name="path">The KeyPath formated like 10/0/2'/3</param>
+		/// <returns></returns>
+		public static KeyPath Parse(string path)
+		{
+			return new KeyPath(path);
+		}
 		public KeyPath(string path)
 		{
 			_Indexes =
 				path
 				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-				.Select(Parse)
+				.Select(ParseCore)
 				.ToArray();
 
 		}
 
-		private static uint Parse(string i)
+		private static uint ParseCore(string i)
 		{
 			bool hardened = i.EndsWith("'");
 			var nonhardened = hardened ? i.Substring(0, i.Length - 1) : i;

@@ -14,6 +14,7 @@ namespace NBitcoin.Protocol
 {
 
 	/// <summary>
+	/// The AddressManager, keep a set of peers discovered on the network in cache can update their actual states.
 	/// Replicate AddressManager of Bitcoin Core, the Buckets and BucketPosition are not guaranteed to be coherent with Bitcoin Core
 	/// </summary>
 	public class AddressManager : IBitcoinSerializable
@@ -1011,10 +1012,10 @@ namespace NBitcoin.Protocol
 				info.nTime = nTime;
 		}
 
-		/**
-     * Choose an address to connect to.
-     * nUnkBias determines how much "new" entries are favored over "tried" ones (0-100).
-     */
+		/// <summary>
+		/// Choose an address to connect to.
+		/// </summary>
+		/// <returns>The network address of a peer, or null if none are found</returns>
 		public NetworkAddress Select()
 		{
 			AddressInfo addrRet = null;
@@ -1076,7 +1077,10 @@ namespace NBitcoin.Protocol
 			return (int)(RandomUtils.GetUInt32() % (uint)max);
 		}
 
-		//! Return a bunch of addresses, selected at random.
+		/// <summary>
+		/// Return a bunch of addresses, selected at random.
+		/// </summary>
+		/// <returns></returns>
 		public NetworkAddress[] GetAddr()
 		{
 			NetworkAddress[] result = null;

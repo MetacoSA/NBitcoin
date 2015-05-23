@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	/// <summary>
+	/// Thread safe class representing a chain of headers from genesis
+	/// </summary>
 	public class ConcurrentChain : ChainBase
 	{
 		Dictionary<uint256, ChainedBlock> _BlocksById = new Dictionary<uint256, ChainedBlock>();

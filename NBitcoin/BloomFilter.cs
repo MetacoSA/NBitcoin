@@ -16,6 +16,10 @@ namespace NBitcoin
 		UPDATE_P2PUBKEY_ONLY = 2,
 		UPDATE_MASK = 3,
 	};
+
+	/// <summary>
+	/// Used by SPV client, represent the set of interesting addresses tracked by SPV client with plausible deniability
+	/// </summary>
 	public class BloomFilter : IBitcoinSerializable
 	{
 		public BloomFilter()

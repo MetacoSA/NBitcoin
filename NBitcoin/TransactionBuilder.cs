@@ -158,7 +158,9 @@ namespace NBitcoin
 		}
 	}
 
-
+	/// <summary>
+	/// A class for building and signing all sort of transactions easily (http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All)
+	/// </summary>
 	public class TransactionBuilder
 	{
 		internal class TransactionSigningContext
@@ -543,6 +545,9 @@ namespace NBitcoin
 			return this;
 		}
 
+		/// <summary>
+		/// The amount of satoshi to use for outputs bearing an Asset
+		/// </summary>
 		public Money ColoredDust
 		{
 			get;
