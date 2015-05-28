@@ -1,7 +1,4 @@
 ﻿#if !NOSOCKET
-#if !NOUPNP
-using Mono.Nat;
-#endif
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -129,43 +126,27 @@ namespace NBitcoin.Protocol
 				_NATRuleName = value;
 			}
 		}
-#if !NOUPNP
-		UPnPLease _UPnPLease;
-		public UPnPLease DetectExternalEndpoint(CancellationToken cancellation = default(CancellationToken))
+
+		public bool DetectExternalEndpoint(CancellationToken cancellation = default(CancellationToken))
 		{
-			if(_UPnPLease != null)
+			NodeServerTrace.Information("No UPNP device found, try to use external web services to deduce external address");
+			try
 			{
-				_UPnPLease.Dispose();
-				_UPnPLease = null;
+				var ip = GetMyExternalIP(cancellation);
+				if(ip != null)
+					ExternalEndpoint = new IPEndPoint(ip, ExternalEndpoint.Port);
+				else
+					return false;
 			}
-			var lease = new UPnPLease(BitcoinPorts, LocalEndpoint.Port, NATRuleName);
-			lease.LeasePeriod = NATLeasePeriod;
-			if(lease.DetectExternalEndpoint(cancellation))
+			catch(Exception ex)
 			{
-				_UPnPLease = lease;
-				ExternalEndpoint = _UPnPLease.ExternalEndpoint;
-				return lease;
+				NodeServerTrace.Error("Could not use web service to deduce external address", ex);
+				return false;
 			}
-			else
-			{
-				using(lease.Trace.Open())
-				{
-					NodeServerTrace.Information("No UPNP device found, try to use external web services to deduce external address");
-					try
-					{
-						var ip = GetMyExternalIP(cancellation);
-						if(ip != null)
-							ExternalEndpoint = new IPEndPoint(ip, ExternalEndpoint.Port);
-					}
-					catch(Exception ex)
-					{
-						NodeServerTrace.Error("Could not use web service to deduce external address", ex);
-					}
-				}
-				return null;
-			}
+
+			return true;
 		}
-#endif
+
 		public bool AllowLocalPeers
 		{
 			get;
@@ -501,12 +482,6 @@ namespace NBitcoin.Protocol
 				}
 				finally
 				{
-#if !NOUPNP
-					if(_UPnPLease != null)
-					{
-						_UPnPLease.Dispose();
-					}
-#endif
 					if(socket != null)
 					{
 						Utils.SafeCloseSocket(socket);

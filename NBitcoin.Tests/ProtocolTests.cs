@@ -586,28 +586,6 @@ namespace NBitcoin.Tests
 				Assert.True(blocks.Count == 100);
 			}
 		}
-
-		[Fact]
-		public void CanUseUPNP()
-		{
-			UPnPLease lease = null;
-			UPnPLease.ReleaseAll(NodeServerTester.NATRuleName); //Clean the gateway of previous tests attempt
-			using(var server = new NodeServer(Network.Main))
-			{
-				server.NATRuleName = NodeServerTester.NATRuleName;
-				Assert.False(server.ExternalEndpoint.Address.IsRoutable(false));
-				lease = server.DetectExternalEndpoint();
-				Assert.True(server.ExternalEndpoint.Address.IsRoutable(false));
-				Assert.NotNull(lease);
-				Assert.True(lease.IsOpen());
-				lease.Dispose();
-				Assert.False(lease.IsOpen());
-				lease = server.DetectExternalEndpoint();
-				Assert.NotNull(lease);
-				Assert.True(lease.IsOpen());
-			}
-			Assert.False(lease.IsOpen());
-		}
 	}
 }
 #endif
