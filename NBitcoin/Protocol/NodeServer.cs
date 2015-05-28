@@ -143,7 +143,7 @@ namespace NBitcoin.Protocol
 			try
 			{
 				lease.LeasePeriod = NATLeasePeriod;
-				await lease.DetectExternalEndpoint(cancellation);
+				await lease.DetectExternalEndpoint(cancellation).ConfigureAwait(false);
 				_UPnPLease = lease;
 				ExternalEndpoint = _UPnPLease.ExternalEndpoint;
 				return lease;
