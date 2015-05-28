@@ -28,6 +28,7 @@ Visual studio express for free, XUnit and you are up to go.
 * Full port of the test suite of bitcoin core with their own data
 * Full script evaluation and parsing
 * RPC Client
+* SPV Wallet implementation [with sample](https://github.com/NicolasDorier/NBitcoin.SPVSample)
 * Mnemonic code for generating deterministic keys ([BIP 39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)), credits to [Thasshiznets](https://github.com/Thashiznets/BIP39.NET)
 * Payment Protocol ([BIP 70](https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki))
 * Payment URL ([BIP 21](https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki),[BIP 72](https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki))
