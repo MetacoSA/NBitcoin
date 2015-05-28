@@ -588,25 +588,28 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanUseUPNP()
+		public async Task CanUseUPNP()
 		{
 			UPnPLease lease = null;
 			UPnPLease.ReleaseAll(NodeServerTester.NATRuleName); //Clean the gateway of previous tests attempt
 			using(var server = new NodeServer(Network.Main))
 			{
+				var cts1 = new CancellationTokenSource(5000);
+				var cts2 = new CancellationTokenSource(5000);
+
 				server.NATRuleName = NodeServerTester.NATRuleName;
 				Assert.False(server.ExternalEndpoint.Address.IsRoutable(false));
-				lease = server.DetectExternalEndpoint();
+				lease = await server.DetectExternalEndpoint(cts1.Token);
 				Assert.True(server.ExternalEndpoint.Address.IsRoutable(false));
 				Assert.NotNull(lease);
-				Assert.True(lease.IsOpen());
+				Assert.True(await lease.IsOpenAsync());
 				lease.Dispose();
-				Assert.False(lease.IsOpen());
-				lease = server.DetectExternalEndpoint();
+				Assert.False(await lease.IsOpenAsync());
+				lease = await server.DetectExternalEndpoint(cts2.Token);
 				Assert.NotNull(lease);
-				Assert.True(lease.IsOpen());
+				Assert.True(await lease.IsOpenAsync());
 			}
-			Assert.False(lease.IsOpen());
+			Assert.False(await lease.IsOpenAsync());
 		}
 	}
 }
