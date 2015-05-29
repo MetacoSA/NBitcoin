@@ -1060,7 +1060,7 @@ namespace NBitcoin.Protocol
 						HeadersPayload headers = null;
 						try
 						{
-							listener.ReceivePayload<HeadersPayload>(headersCancel.Token);
+							headers = listener.ReceivePayload<HeadersPayload>(headersCancel.Token);
 						}
 						catch(OperationCanceledException)
 						{
