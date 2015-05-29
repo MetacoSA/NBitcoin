@@ -36,6 +36,13 @@ namespace NBitcoin
 						  NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
 						| NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint;
 
+
+		/// <summary>
+		/// Parse a bitcoin amount (Culture Invariant)
+		/// </summary>
+		/// <param name="bitcoin"></param>
+		/// <param name="nRet"></param>
+		/// <returns></returns>
 		public static bool TryParse(string bitcoin, out Money nRet)
 		{
 			nRet = null;
@@ -46,19 +53,24 @@ namespace NBitcoin
 				return false;
 			}
 
-			// guard against 63 bit overflow
-			var maxAllowedValue = (decimal) Math.Pow(10, 10) - 1;
-			var integralPart = decimal.Truncate(value);
-			if (Math.Abs(integralPart) > maxAllowedValue)
-			{
+			var satoshi = (decimal)(value * (int)MoneyUnit.BTC);
+			if(!CheckOverflow(satoshi))
 				return false;
-			}
-
-			var satoshies = (long) (value*(int) MoneyUnit.BTC);
-			nRet = new Money(satoshies);
+			nRet = new Money((long)satoshi);
 			return true;
 		}
 
+		public static bool CheckOverflow(decimal satoshis)
+		{
+			// guard against 63 bit overflow http://en.wikipedia.org/wiki/9223372036854775807
+			return Math.Abs(satoshis) <= 9223372036854775807m;
+		}
+
+		/// <summary>
+		/// Parse a bitcoin amount (Culture Invariant)
+		/// </summary>
+		/// <param name="bitcoin"></param>
+		/// <returns></returns>
 		public static Money Parse(string bitcoin)
 		{
 			Money result;
@@ -121,7 +133,10 @@ namespace NBitcoin
 
 		public Money(decimal amount, MoneyUnit unit)
 		{
-			_Satoshis = (long)(amount * (int)unit);
+			var satoshi = (decimal)(amount * (int)unit);
+			if(!CheckOverflow(satoshi))
+				throw new OverflowException("amount too high");
+			_Satoshis = (long)satoshi;
 		}
 
 		public static Money FromUnit(decimal amount, MoneyUnit unit)
