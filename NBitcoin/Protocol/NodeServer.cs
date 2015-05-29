@@ -243,7 +243,7 @@ namespace NBitcoin.Protocol
 					Utils.SafeCloseSocket(client);
 					if(!_Cancel.Token.IsCancellationRequested)
 					{
-						NodeServerTrace.Error("The remote connecting failed to send a message within 10 seconds, dropping connection", ex);
+						NodeServerTrace.Error("The remote connecting failed to send a message within 10 seconds, dropping connection", null);
 					}
 				}
 				catch(Exception ex)
