@@ -57,13 +57,14 @@ namespace NBitcoin
 			if(!CheckOverflow(satoshi))
 				return false;
 			nRet = new Money((long)satoshi);
+			nRet.ToString();
 			return true;
 		}
 
 		public static bool CheckOverflow(decimal satoshis)
 		{
 			// guard against 63 bit overflow http://en.wikipedia.org/wiki/9223372036854775807
-			return Math.Abs(satoshis) <= 9223372036854775807m;
+			return long.MinValue + 1 <= satoshis && satoshis <= long.MaxValue;
 		}
 
 		/// <summary>
@@ -117,13 +118,15 @@ namespace NBitcoin
 			_Satoshis = satoshis;
 		}
 
-        public Money(uint satoshis)
-        {
-			_Satoshis = satoshis;
-        }
-
-        public Money(long satoshis)
+		public Money(uint satoshis)
 		{
+			_Satoshis = satoshis;
+		}
+
+		public Money(long satoshis)
+		{
+			if(satoshis == long.MinValue)
+				throw new OverflowException("satoshis amount should be less than long.MinValue");
 			_Satoshis = satoshis;
 		}
 		public Money(ulong satoshis)
@@ -149,35 +152,35 @@ namespace NBitcoin
 			return (decimal)Satoshi / (int)unit;
 		}
 
-        public static Money Coins(decimal coins)
-        {
-            return new Money((long)(coins * COIN));
-        }
+		public static Money Coins(decimal coins)
+		{
+			return new Money(coins * COIN, MoneyUnit.Satoshi);
+		}
 
-        public static Money Bits(decimal bits)
-        {
-            return new Money((long)(bits * CENT));
-        }
+		public static Money Bits(decimal bits)
+		{
+			return new Money(bits * CENT, MoneyUnit.Satoshi);
+		}
 
-        public static Money Cents(decimal cents)
-        {
-            return new Money((long)(cents * CENT));
-        }
+		public static Money Cents(decimal cents)
+		{
+			return new Money(cents * CENT, MoneyUnit.Satoshi);
+		}
 
-        public static Money Satoshis(decimal sats)
-        {
-            return new Money((long)(sats));
-        }
+		public static Money Satoshis(decimal sats)
+		{
+			return new Money(sats, MoneyUnit.Satoshi);
+		}
 
-        public static Money Satoshis(ulong sats)
-        {
-            return new Money(sats);
-        }
+		public static Money Satoshis(ulong sats)
+		{
+			return new Money(checked((long)sats));
+		}
 
-        public static Money Satoshis(long sats)
-        {
-            return new Money(sats);
-        }
+		public static Money Satoshis(long sats)
+		{
+			return new Money(sats);
+		}
 
 		#region IEquatable<Money> Members
 
@@ -211,7 +214,7 @@ namespace NBitcoin
 
 		public static Money operator -(Money left, Money right)
 		{
-			return new Money(left._Satoshis - right._Satoshis);
+			return new Money(checked(left._Satoshis - right._Satoshis));
 		}
 		public static Money operator -(Money left)
 		{
@@ -219,39 +222,71 @@ namespace NBitcoin
 		}
 		public static Money operator +(Money left, Money right)
 		{
-			return new Money(left._Satoshis + right._Satoshis);
+			return new Money(checked(left._Satoshis + right._Satoshis));
 		}
 		public static Money operator *(decimal left, Money right)
 		{
 			return Money.Satoshis(left * right._Satoshis);
 		}
+		public static Money operator *(Money left, decimal right)
+		{
+			return Money.Satoshis(right * left._Satoshis);
+		}
 		public static Money operator /(decimal left, Money right)
 		{
 			return Money.Satoshis(left / right._Satoshis);
+		}
+		public static Money operator /(Money left, decimal right)
+		{
+			return Money.Satoshis(left._Satoshis / right);
 		}
 		public static Money operator *(double left, Money right)
 		{
 			return Money.Satoshis((decimal)(left * right._Satoshis));
 		}
+		public static Money operator *(Money left, double right)
+		{
+			return Money.Satoshis((decimal)(left._Satoshis * right));
+		}
 		public static Money operator /(double left, Money right)
 		{
 			return Money.Satoshis((decimal)(left / right._Satoshis));
 		}
+		public static Money operator /(Money left, double right)
+		{
+			return Money.Satoshis((decimal)(left._Satoshis / right));
+		}
 		public static Money operator *(int left, Money right)
 		{
-			return Money.Satoshis(left * right._Satoshis);
+			return Money.Satoshis(checked(left * right._Satoshis));
+		}
+		public static Money operator *(Money right, int left)
+		{
+			return Money.Satoshis(checked(right._Satoshis * left));
 		}
 		public static Money operator /(int left, Money right)
 		{
-			return Money.Satoshis(left / right._Satoshis);
+			return Money.Satoshis(checked(left / right._Satoshis));
+		}
+		public static Money operator /(Money left, int right)
+		{
+			return Money.Satoshis(checked(left._Satoshis / right));
 		}
 		public static Money operator *(long left, Money right)
 		{
-			return Money.Satoshis(left * right._Satoshis);
+			return Money.Satoshis(checked(left * right._Satoshis));
+		}
+		public static Money operator *(Money right, long left)
+		{
+			return Money.Satoshis(checked(left * right._Satoshis));
 		}
 		public static Money operator /(long left, Money right)
 		{
-			return Money.Satoshis(left / right._Satoshis);
+			return Money.Satoshis(checked(left / right._Satoshis));
+		}
+		public static Money operator /(Money right, long left)
+		{
+			return Money.Satoshis(checked(right._Satoshis / left));
 		}
 
 		public static bool operator <(Money left, Money right)
@@ -273,11 +308,11 @@ namespace NBitcoin
 
 		public static Money operator ++(Money left)
 		{
-			return new Money(left._Satoshis++);
+			return new Money(checked(left._Satoshis++));
 		}
 		public static Money operator --(Money left)
 		{
-			return new Money(left._Satoshis--);
+			return new Money(checked(left._Satoshis--));
 		}
 		public static implicit operator Money(long value)
 		{
@@ -288,30 +323,30 @@ namespace NBitcoin
 			return new Money(value);
 		}
 
-        public static implicit operator Money(uint value)
-        {
-            return new Money(value);
-        }
-
-        public static implicit operator Money(ulong value)
+		public static implicit operator Money(uint value)
 		{
 			return new Money(value);
 		}
 
+		public static implicit operator Money(ulong value)
+		{
+			return new Money(checked((long)(value)));
+		}
+
 		public static implicit operator long(Money value)
 		{
-			return (long)value.Satoshi;
+			return value.Satoshi;
 		}
 
 		public static implicit operator ulong(Money value)
 		{
-			return (ulong)value.Satoshi;
+			return checked((ulong)value.Satoshi);
 		}
 
 		public static implicit operator Money(string value)
 		{
 			return Money.Parse(value);
-        }
+		}
 
 		public override bool Equals(object obj)
 		{
@@ -339,12 +374,21 @@ namespace NBitcoin
 			return _Satoshis.GetHashCode();
 		}
 
-		
 
+		/// <summary>
+		/// Returns a culture invariant string representation of Bitcoin amount
+		/// </summary>
+		/// <returns></returns>
 		public override string ToString()
 		{
 			return ToString(false, true);
 		}
+		/// <summary>
+		/// Returns a culture invariant string representation of Bitcoin amount
+		/// </summary>
+		/// <param name="fplus">True if show + for a positive amount</param>
+		/// <param name="trimExcessZero">True if trim excess zeroes</param>
+		/// <returns></returns>
 		public string ToString(bool fplus, bool trimExcessZero = true)
 		{
 			// Note: not using straight sprintf here because we do NOT want
@@ -407,7 +451,7 @@ namespace NBitcoin
 				dust = Dust;
 			return (amount - this).Abs() <= dust;
 		}
-		
+
 		/// <summary>
 		/// Tell if amount is almost equal to this instance
 		/// </summary>
@@ -418,8 +462,8 @@ namespace NBitcoin
 		{
 			if(margin < 0.0m || margin > 1.0m)
 				throw new ArgumentOutOfRangeException("margin", "margin should be between 0 and 1");
-			 var dust = Money.Satoshis((decimal)amount.Satoshi * margin);
-			 return Almost(amount, dust);
+			var dust = Money.Satoshis((decimal)amount.Satoshi * margin);
+			return Almost(amount, dust);
 		}
 
 		public static Money Min(Money a, Money b)
