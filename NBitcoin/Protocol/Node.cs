@@ -1055,7 +1055,19 @@ namespace NBitcoin.Protocol
 					while(true)
 					{
 						bool isOurs = false;
-						var headers = listener.ReceivePayload<HeadersPayload>(cancellationToken);
+						var headersCancel = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken); //30 sec delay before reasking GetHeadesr
+						headersCancel.CancelAfter(TimeSpan.FromMinutes(1.0));
+						HeadersPayload headers = null;
+						try
+						{
+							listener.ReceivePayload<HeadersPayload>(headersCancel.Token);
+						}
+						catch(OperationCanceledException)
+						{
+							if(cancellationToken.IsCancellationRequested)
+								throw;
+							break; //Send a new GetHeaders
+						}
 						if(headers.Headers.Count == 1 && headers.Headers[0].GetHash() == currentTip.HashBlock)
 							yield break;
 						foreach(var header in headers.Headers)

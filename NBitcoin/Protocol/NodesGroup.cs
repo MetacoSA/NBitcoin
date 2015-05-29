@@ -47,6 +47,9 @@ namespace NBitcoin.Protocol
 			_ConnectionParameters.TemplateBehaviors.Add(CreateBehavior());
 		}
 
+		/// <summary>
+		/// Start connecting asynchronously to remote peers
+		/// </summary>
 		public void Connect()
 		{
 			StartConnecting();

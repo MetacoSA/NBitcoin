@@ -112,7 +112,7 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 
 			var newheaders = message.Message.Payload as HeadersPayload;
-            var pendingTipBefore = GetPendingTip();
+			var pendingTipBefore = GetPendingTip();
 			if(newheaders != null && CanSync)
 			{
 				var tip = GetPendingTip();
@@ -124,7 +124,8 @@ namespace NBitcoin.Protocol.Behaviors
 					tip = new ChainedBlock(header, header.GetHash(), prev);
 					if(!AttachedNode.IsTrusted)
 					{
-						if(!tip.Validate(AttachedNode.Network))
+						var validated = Chain.GetBlock(tip.HashBlock) != null || tip.Validate(AttachedNode.Network);
+						if(!validated)
 						{
 							invalidHeaderReceived = true;
 							break;
@@ -136,7 +137,13 @@ namespace NBitcoin.Protocol.Behaviors
 				{
 					Chain.SetTip(_PendingTip);
 				}
-                if (newheaders.Headers.Count != 0 && pendingTipBefore.HashBlock != GetPendingTip().HashBlock)
+
+				var chainedPendingTip = Chain.GetBlock(_PendingTip.HashBlock);
+				if(chainedPendingTip != null)
+				{
+					_PendingTip = chainedPendingTip; //This allows garbage collection to collect the duplicated pendingtip and ancestors
+				}
+				if(newheaders.Headers.Count != 0 && pendingTipBefore.HashBlock != GetPendingTip().HashBlock)
 					TrySync();
 				Interlocked.Decrement(ref _SynchingCount);
 			}

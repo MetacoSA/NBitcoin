@@ -1195,9 +1195,9 @@ namespace NBitcoin.Protocol
 								NodeServerTrace.Information("Need " + (-found + peerToFind) + " more peers");
 						});
 					}
-					catch(OperationCanceledException ex)
+					catch(OperationCanceledException)
 					{
-						if(ex.CancellationToken == parameters.ConnectCancellation)
+						if(parameters.ConnectCancellation.IsCancellationRequested)
 							throw;
 					}
 				}
