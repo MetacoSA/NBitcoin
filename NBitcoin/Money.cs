@@ -1,10 +1,7 @@
-﻿using NBitcoin.DataEncoders;
+﻿using System.Globalization;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -31,70 +28,37 @@ namespace NBitcoin
 	public class Money : IComparable, IComparable<Money>, IEquatable<Money>
 	{
 		public const long COIN = 100000000;
-		public const long CENT = 1000000;
+		public const long CENT = COIN / 100;
 		public const long NANO = CENT / 100;
+
+		// for decimal.TryParse. None of the NumberStyles' composed values is useful for bitcoin style
+		private const NumberStyles BitcoinStyle =
+						  NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
+						| NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint;
 
 		public static bool TryParse(string bitcoin, out Money nRet)
 		{
-			nRet = new Money(0);
-            if (string.IsNullOrEmpty(bitcoin))
-				return false;
+			nRet = null;
 
-			string strWhole = "";
-			long nUnits = 0;
-
-			int i = 0;
-
-			while(DataEncoder.IsSpace(bitcoin[i]))
+			decimal value;
+			if(!decimal.TryParse(bitcoin, BitcoinStyle, CultureInfo.InvariantCulture, out value))
 			{
-				if(i >= bitcoin.Length)
-					return false;
-				i++;
-			}
-			if(i >= bitcoin.Length)
 				return false;
-			bool minus = bitcoin[i] == '-';
-			if(minus || bitcoin[i] == '+')
-				i++;
+			}
 
-			for( ; i < bitcoin.Length ; i++)
+			// guard against 63 bit overflow
+			var maxAllowedValue = (decimal) Math.Pow(10, 10) - 1;
+			var integralPart = decimal.Truncate(value);
+			if (Math.Abs(integralPart) > maxAllowedValue)
 			{
-				if(bitcoin[i] == '.')
-				{
-					i++;
-					if(i >= bitcoin.Length)
-						break;
-					long nMult = CENT * 10;
-					while(isdigit(bitcoin[i]) && (nMult > 0))
-					{
-						nUnits += nMult * (bitcoin[i] - '0');
-						i++;
-						if(i >= bitcoin.Length)
-							break;
-						nMult /= 10;
-					}
-					break;
-				}
-				if(DataEncoder.IsSpace(bitcoin[i]))
-					break;
-				if(!isdigit(bitcoin[i]))
-					return false;
-				strWhole += bitcoin[i];
+				return false;
 			}
-			for( ; i < bitcoin.Length ; i++)
-				if(!DataEncoder.IsSpace(bitcoin[i]))
-					return false;
-			if(strWhole.Length > 10) // guard against 63 bit overflow
-				return false;
-			if(nUnits < 0 || nUnits > COIN)
-				return false;
 
-			var nWhole = BigInteger.Parse(strWhole);
-			var nValue = nWhole * COIN + nUnits;
-
-			nRet = new Money(minus ? -nValue : nValue);
+			var satoshies = (long) (value*(int) MoneyUnit.BTC);
+			nRet = new Money(satoshies);
 			return true;
 		}
+
 		public static Money Parse(string bitcoin)
 		{
 			Money result;
