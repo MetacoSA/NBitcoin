@@ -221,7 +221,7 @@ namespace NBitcoin.Tests
 		public void util_ParseMoney()
 		{
 			Money ret;
-			foreach (var prefix in new string[] { "", "+", "-" })
+			foreach(var prefix in new string[] { "", "+", "-" })
 			{
 				int multiplier = prefix == "-" ? -1 : 1;
 				Assert.True(Money.TryParse(prefix + "0.0", out ret));
@@ -271,6 +271,29 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSplitMoney()
+		{
+			CanSplitMoneyCore(Money.Satoshis(1234), 3);
+			CanSplitMoneyCore(Money.Satoshis(1234), 2);
+			CanSplitMoneyCore(Money.Satoshis(1234), 10);
+			CanSplitMoneyCore(Money.Satoshis(1), 3);
+			Assert.Throws<ArgumentOutOfRangeException>(() => CanSplitMoneyCore(Money.Satoshis(1000), 0));
+			CanSplitMoneyCore(Money.Satoshis(0), 10);
+		}
+
+		private void CanSplitMoneyCore(Money money, int parts)
+		{
+			var splitted = money.Split(parts).ToArray();
+			Assert.True(splitted.Length == parts);
+			Assert.True(splitted.Sum() == money);
+			var groups = splitted.Select(s => s.Satoshi).GroupBy(o => o);
+			var differentValues = groups.Count();
+			Assert.True(differentValues == 1 || ((differentValues == 2) && groups.Any(g => g.Count() == 1)));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void MoneyUnitSanityCheck()
 		{
 			Assert.DoesNotThrow(() => Money.FromUnit(10m, MoneyUnit.BTC));
@@ -288,6 +311,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void Overflow()
 		{
 			Assert.Throws<OverflowException>(() => Money.Satoshis(decimal.MaxValue));
@@ -297,8 +321,16 @@ namespace NBitcoin.Tests
 
 			Assert.Throws<OverflowException>(() => -1 * (Money)long.MinValue);
 
-			Assert.Throws<OverflowException>(() => { var m = (Money) long.MaxValue; m++; });
-			Assert.Throws<OverflowException>(() => { var m = (Money)(long.MinValue+1); m--; });
+			Assert.Throws<OverflowException>(() =>
+			{
+				var m = (Money)long.MaxValue;
+				m++;
+			});
+			Assert.Throws<OverflowException>(() =>
+			{
+				var m = (Money)(long.MinValue + 1);
+				m--;
+			});
 			Assert.Throws<OverflowException>(() => -1 * (Money)long.MinValue);
 		}
 

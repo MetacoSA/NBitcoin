@@ -59,7 +59,7 @@ namespace NBitcoin
 				nRet = new Money(value, MoneyUnit.BTC);
 				return true;
 			}
-			catch (OverflowException)
+			catch(OverflowException)
 			{
 				return false;
 			}
@@ -136,7 +136,7 @@ namespace NBitcoin
 		public Money(ulong satoshis)
 		{
 			// overflow check. 
- 			// ulong.MaxValue is greater than long.MaxValue
+			// ulong.MaxValue is greater than long.MaxValue
 			checked
 			{
 				Satoshi = (long)satoshis;
@@ -146,11 +146,36 @@ namespace NBitcoin
 		public Money(decimal amount, MoneyUnit unit)
 		{
 			// sanity check. Only valid units are allowed
-			CheckMoneyUnit(unit, "unit"); 
+			CheckMoneyUnit(unit, "unit");
 			checked
 			{
-				var satoshi = amount*(int) unit;
-				Satoshi = (long) satoshi;
+				var satoshi = amount * (int)unit;
+				Satoshi = (long)satoshi;
+			}
+		}
+
+
+		/// <summary>
+		/// Split the Money in parts without loss
+		/// </summary>
+		/// <param name="parts">The number of parts (must be more than 0)</param>
+		/// <returns>The splitted money</returns>
+		public IEnumerable<Money> Split(int parts)
+		{
+			if(parts <= 0)
+				throw new ArgumentOutOfRangeException("Parts should be more than 0", "parts");
+			long remain;
+			long result = Math.DivRem(_Satoshis, parts, out remain);
+			for(int i = 0 ; i < parts ; i++)
+			{
+				if(i != parts - 1)
+				{
+					yield return Money.Satoshis(result);
+				}
+				else
+				{
+					yield return Money.Satoshis(result + remain);
+				}
 			}
 		}
 
@@ -256,21 +281,6 @@ namespace NBitcoin
 			return Money.Satoshis(right * left._Satoshis);
 		}
 
-		//FIXME: divide a number by money? 
-		public static Money operator /(decimal left, Money right)
-		{
-			return Money.Satoshis(left / right._Satoshis);
-		}
-
-		//FIXME: what is the use case for this? it is wrong.
-		//for example: 10000 Satoshis / 7 = 1428 Satoshis each
-		//        but:  1428 Satoshis * 7 = 9996 (we've lost 4 satoshies here)
-		//NBitcoin should never lose money.
-		public static Money operator /(Money left, decimal right)
-		{
-			return Money.Satoshis(left._Satoshis / right);
-		}
-
 		public static Money operator *(double left, Money right)
 		{
 			return Money.Satoshis((decimal)(left * right._Satoshis));
@@ -278,14 +288,6 @@ namespace NBitcoin
 		public static Money operator *(Money left, double right)
 		{
 			return Money.Satoshis((decimal)(left._Satoshis * right));
-		}
-		public static Money operator /(double left, Money right)
-		{
-			return Money.Satoshis((decimal)(left / right._Satoshis));
-		}
-		public static Money operator /(Money left, double right)
-		{
-			return Money.Satoshis((decimal)(left._Satoshis / right));
 		}
 
 		public static Money operator *(int left, Money right)
@@ -297,14 +299,6 @@ namespace NBitcoin
 		{
 			return Money.Satoshis(checked(right._Satoshis * left));
 		}
-		public static Money operator /(int left, Money right)
-		{
-			return Money.Satoshis((decimal)left / right._Satoshis);
-		}
-		public static Money operator /(Money left, int right)
-		{
-			return Money.Satoshis(left._Satoshis / (decimal)right);
-		}
 		public static Money operator *(long left, Money right)
 		{
 			return Money.Satoshis(checked(left * right._Satoshis));
@@ -312,14 +306,6 @@ namespace NBitcoin
 		public static Money operator *(Money right, long left)
 		{
 			return Money.Satoshis(checked(left * right._Satoshis));
-		}
-		public static Money operator /(long left, Money right)
-		{
-			return Money.Satoshis((decimal)left / right._Satoshis);
-		}
-		public static Money operator /(Money right, long left)
-		{
-			return Money.Satoshis(right._Satoshis / (decimal)left);
 		}
 
 		public static bool operator <(Money left, Money right)
@@ -339,18 +325,6 @@ namespace NBitcoin
 			return left._Satoshis >= right._Satoshis;
 		}
 
-		//FIXME: Money class is not inmutable because of this method
-		public static Money operator ++(Money left)
-		{
-			return new Money(checked(left._Satoshis++));
-		}
-
-		//FIXME: Money class is not inmutable because of this method
-		public static Money operator --(Money left)
-		{
-			CheckLongMinValue(left._Satoshis-1);
-			return new Money(checked(left._Satoshis--));
-		}
 		public static implicit operator Money(long value)
 		{
 			return new Money(value);
@@ -430,8 +404,8 @@ namespace NBitcoin
 		public string ToString(bool fplus, bool trimExcessZero = true)
 		{
 			var fmt = string.Format("{{0:{0}{1}B}}",
-			                        (fplus ? "+" : null),
-			                        (trimExcessZero ? "2" : "8"));
+									(fplus ? "+" : null),
+									(trimExcessZero ? "2" : "8"));
 			return string.Format(BitcoinFormatter.Formatter, fmt, _Satoshis);
 		}
 
@@ -501,14 +475,14 @@ namespace NBitcoin
 
 		private static void CheckLongMinValue(long value)
 		{
-			if (value == long.MinValue)
+			if(value == long.MinValue)
 				throw new OverflowException("satoshis amount should be greater than long.MinValue");
 		}
 
 		private static void CheckMoneyUnit(MoneyUnit value, string paramName)
 		{
-			var typeOfMoneyUnit = typeof (MoneyUnit);
-			if ( !Enum.IsDefined(typeOfMoneyUnit, value) )
+			var typeOfMoneyUnit = typeof(MoneyUnit);
+			if(!Enum.IsDefined(typeOfMoneyUnit, value))
 			{
 				throw new ArgumentException("Invalid value for MoneyUnit", paramName);
 			}
@@ -518,7 +492,7 @@ namespace NBitcoin
 	static class CharExtensions
 	{
 		// .NET Char class already provides an static IsDigit method however
- 		// it behaves differently depending on if char is a Latin or not.
+		// it behaves differently depending on if char is a Latin or not.
 		public static bool IsDigit(this char c)
 		{
 			return c == '0' || c == '1' || c == '2' || c == '3' || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9';
@@ -536,21 +510,22 @@ namespace NBitcoin
 
 		public string Format(string format, object arg, IFormatProvider formatProvider)
 		{
-			if (!this.Equals(formatProvider))
+			if(!this.Equals(formatProvider))
 			{
 				return null;
 			}
 			var i = 0;
 			var plus = format[i] == '+';
-			if(plus) i++;
+			if(plus)
+				i++;
 			int decPos = 0;
- 			if(int.TryParse(format.Substring(i,1), out decPos))
- 			{
- 				i++;
- 			}
+			if(int.TryParse(format.Substring(i, 1), out decPos))
+			{
+				i++;
+			}
 			var unit = format[i];
 			var unitToUseInCalc = MoneyUnit.BTC;
-			switch (unit)
+			switch(unit)
 			{
 				case 'B':
 					unitToUseInCalc = MoneyUnit.BTC;
@@ -561,7 +536,7 @@ namespace NBitcoin
 			var rest = new string('#', 10 - decPos);
 			var fmt = plus && val > 0 ? "+" : string.Empty;
 
-			fmt += "{0:0" + (decPos > 0 ? "."+zeros+rest : string.Empty) + "}";
+			fmt += "{0:0" + (decPos > 0 ? "." + zeros + rest : string.Empty) + "}";
 			return string.Format(CultureInfo.InvariantCulture, fmt, val);
 		}
 	}
