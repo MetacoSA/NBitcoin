@@ -44,8 +44,8 @@ namespace NBitcoin.Tests
 			{
 				if(w == "")
 					continue;
-				if(w.All(l => Money.isdigit(l)) ||
-					(w.StartsWith("-") && w.Substring(1).All(l => Money.isdigit(l))))
+				if(w.All(l => l.IsDigit()) ||
+					(w.StartsWith("-") && w.Substring(1).All(l => l.IsDigit())))
 				{
 
 					// Number
