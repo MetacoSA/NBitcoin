@@ -2,13 +2,10 @@
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -186,6 +183,8 @@ namespace NBitcoin.Tests
 			AssertEx.Equal(new Money(Money.COIN / 100000000).ToString(false), "0.00000001");
 		}
 
+
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertMoney()
@@ -221,10 +220,10 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void util_ParseMoney()
 		{
-			foreach(var prefix in new string[] { "", "+", "-" })
+			Money ret;
+			foreach (var prefix in new string[] { "", "+", "-" })
 			{
 				int multiplier = prefix == "-" ? -1 : 1;
-				Money ret = new Money(0);
 				Assert.True(Money.TryParse(prefix + "0.0", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(0));
 
@@ -267,9 +266,42 @@ namespace NBitcoin.Tests
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 100000000));
 
 				// Attempted 63 bit overflow should fail
-				Assert.True(!Money.TryParse(prefix + "92233720368.54775808", out  ret));
+				Assert.False(Money.TryParse(prefix + "92233720368.54775808", out  ret));
 			}
 		}
+
+		[Fact]
+		public void MoneyUnitSanityCheck()
+		{
+			Assert.DoesNotThrow(() => Money.FromUnit(10m, MoneyUnit.BTC));
+			Assert.DoesNotThrow(() => Money.FromUnit(10m, MoneyUnit.MilliBTC));
+			Assert.DoesNotThrow(() => Money.FromUnit(10m, MoneyUnit.Bit));
+			Assert.DoesNotThrow(() => Money.FromUnit(10m, MoneyUnit.Satoshi));
+
+			Assert.DoesNotThrow(() => Money.FromUnit(10m, (MoneyUnit)100000000));
+			Assert.DoesNotThrow(() => Money.FromUnit(10m, (MoneyUnit)100000));
+			Assert.DoesNotThrow(() => Money.FromUnit(10m, (MoneyUnit)100));
+			Assert.DoesNotThrow(() => Money.FromUnit(10m, (MoneyUnit)1));
+
+			Assert.Throws<ArgumentException>(() => Money.FromUnit(10, (MoneyUnit)14));
+			Assert.Throws<ArgumentException>(() => Money.FromUnit(10, (MoneyUnit)(-41)));
+		}
+
+		[Fact]
+		public void Overflow()
+		{
+			Assert.Throws<OverflowException>(() => Money.Satoshis(decimal.MaxValue));
+			Assert.Throws<OverflowException>(() => Money.Satoshis(decimal.MinValue));
+			Assert.Throws<OverflowException>(() => Money.Satoshis(ulong.MaxValue));
+			Assert.Throws<OverflowException>(() => Money.Satoshis(long.MinValue));
+
+			Assert.Throws<OverflowException>(() => -1 * (Money)long.MinValue);
+
+			Assert.Throws<OverflowException>(() => { var m = (Money) long.MaxValue; m++; });
+			Assert.Throws<OverflowException>(() => { var m = (Money)(long.MinValue+1); m--; });
+			Assert.Throws<OverflowException>(() => -1 * (Money)long.MinValue);
+		}
+
 		[Fact]
 		[Trait("Core", "Core")]
 		public void util_IsHex()
