@@ -166,16 +166,11 @@ namespace NBitcoin
 				throw new ArgumentOutOfRangeException("Parts should be more than 0", "parts");
 			long remain;
 			long result = Math.DivRem(_Satoshis, parts, out remain);
+
 			for(int i = 0 ; i < parts ; i++)
 			{
-				if(i != parts - 1)
-				{
-					yield return Money.Satoshis(result);
-				}
-				else
-				{
-					yield return Money.Satoshis(result + remain);
-				}
+				yield return Money.Satoshis(result + (remain > 0 ? 1 : 0));
+				remain--;
 			}
 		}
 

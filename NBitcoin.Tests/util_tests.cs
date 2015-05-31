@@ -280,6 +280,11 @@ namespace NBitcoin.Tests
 			CanSplitMoneyCore(Money.Satoshis(1), 3);
 			Assert.Throws<ArgumentOutOfRangeException>(() => CanSplitMoneyCore(Money.Satoshis(1000), 0));
 			CanSplitMoneyCore(Money.Satoshis(0), 10);
+
+			var result = Money.Satoshis(20).Split(3).ToArray();
+			Assert.True(result[0].Satoshi == 7);
+			Assert.True(result[1].Satoshi == 7);
+			Assert.True(result[2].Satoshi == 6);
 		}
 
 		private void CanSplitMoneyCore(Money money, int parts)
@@ -289,7 +294,7 @@ namespace NBitcoin.Tests
 			Assert.True(splitted.Sum() == money);
 			var groups = splitted.Select(s => s.Satoshi).GroupBy(o => o);
 			var differentValues = groups.Count();
-			Assert.True(differentValues == 1 || ((differentValues == 2) && groups.Any(g => g.Count() == 1)));
+			Assert.True(differentValues == 1 || differentValues == 2);
 		}
 
 		[Fact]
