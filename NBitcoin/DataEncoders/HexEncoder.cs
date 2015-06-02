@@ -19,14 +19,17 @@ namespace NBitcoin.DataEncoders
 			if (data == null)
 				throw new ArgumentNullException("data");
 
-			var s = new StringBuilder();
-			for (var index = offset; index < offset + count; index++)
+			int pos = 0;
+			var spaces = (Space ? Math.Max((count - 1), 0) : 0);
+			var s = new char[2 * count + spaces];
+			for (var i = offset; i < offset + count; i++)
 			{
-				var v = data[index];
-				s.Append(HexTbl[v]);
-				if (Space && index < offset + count -1) s.Append(' ');
+				if (Space && i != 0) s[pos++] = ' ';
+				var c = HexTbl[data[i]];
+				s[pos++] = c[0];
+				s[pos++] = c[1];
 			}
-			return s.ToString();
+			return new string(s);
 		}
 
 		public override byte[] DecodeData(string encoded)
