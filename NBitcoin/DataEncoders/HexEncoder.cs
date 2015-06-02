@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin.DataEncoders
 {
@@ -13,58 +11,48 @@ namespace NBitcoin.DataEncoders
 			get;
 			set;
 		}
-		public override string EncodeData(byte[] data, int length)
+
+		private static readonly string[] HexTbl = Enumerable.Range(0, 256).Select(v => v.ToString("x2")).ToArray();
+
+		public override string EncodeData(byte[] data, int offset, int count)
 		{
-			if(data == null)
+			if (data == null)
 				throw new ArgumentNullException("data");
-			if(length < 0)
-				length = data.Length;
 
-			char[] result = new char[length * 2 + (Space ? Math.Max((length - 1), 0) : 0)];
-
-			int pos = 0;
-			for(int i = 0 ; i < length ; i++)
+			var s = new StringBuilder();
+			for (var index = offset; index < offset + count; index++)
 			{
-				var val = data[i];
-				if(Space && i != 0)
-				{
-					result[pos] = ' ';
-					pos++;
-				}
-				result[pos] = (hexDigits[val >> 4]);
-				pos++;
-				result[pos] = (hexDigits[val & 15]);
-				pos++;
+				var v = data[index];
+				s.Append(HexTbl[v]);
+				if (Space && index < offset + count -1) s.Append(' ');
 			}
-
-			return new String(result);
+			return s.ToString();
 		}
+
 		public override byte[] DecodeData(string encoded)
 		{
-			if(encoded == null)
+			if (encoded == null)
 				throw new ArgumentNullException("encoded");
-
-			if(encoded.Length % 2 == 1)
+			if (encoded.Length % 2 == 1)
 				throw new FormatException("Invalid Hex String");
+
 			var result = new byte[encoded.Length / 2];
-			for(int i = 0, j = 0 ; i < encoded.Length ; i += 2, j++)
+			for (int i = 0, j = 0; i < encoded.Length; i += 2, j++)
 			{
 				var a = IsDigit(encoded[i]);
 				var b = IsDigit(encoded[i + 1]);
-				if(a == -1 || b == -1)
+				if (a == -1 || b == -1)
 					throw new FormatException("Invalid Hex String");
 				result[j] = (byte)(((uint)a << 4) | (uint)b);
-			}
-			return result;
+			} return result;
 		}
-
 
 		static readonly char[] hexDigits = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F' };
 		static readonly byte[] hexValues = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 10, 11, 12, 13, 14, 15 };
 		public static int IsDigit(char c)
 		{
 			var i = Array.IndexOf(hexDigits, c);
-			if(i == -1)
+			if (i == -1)
 				return -1;
 			return hexValues[i];
 		}
@@ -76,7 +64,7 @@ namespace NBitcoin.DataEncoders
 				Encoders.Hex.DecodeData(str);
 				return true;
 			}
-			catch(FormatException)
+			catch (FormatException)
 			{
 				return false;
 			}

@@ -83,14 +83,14 @@ namespace NBitcoin.Tests
 				new HexEncoder()
 				{
 					Space = true
-				}.EncodeData(ParseHex_expected, 5),
+				}.EncodeData(ParseHex_expected, 0, 5),
 				"04 67 8a fd b0");
 
 			AssertEx.Equal(
 				new HexEncoder()
 				{
 					Space = true
-				}.EncodeData(ParseHex_expected, 0),
+				}.EncodeData(ParseHex_expected, 0, 0),
 				"");
 
 			var ParseHex_vec = ParseHex_expected.Take(5).ToArray();

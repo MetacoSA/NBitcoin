@@ -134,10 +134,10 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void methods()
 		{
-			Assert.True(R1L.GetHex() == R1L.ToString());
-			Assert.True(R2L.GetHex() == R2L.ToString());
-			Assert.True(OneL.GetHex() == OneL.ToString());
-			Assert.True(MaxL.GetHex() == MaxL.ToString());
+			Assert.True(R1L.ToString() == R1L.ToString());
+			Assert.True(R2L.ToString() == R2L.ToString());
+			Assert.True(OneL.ToString() == OneL.ToString());
+			Assert.True(MaxL.ToString() == MaxL.ToString());
 			uint256 TmpL = new uint256(R1L);
 			Assert.True(TmpL == R1L);
 			TmpL.SetHex(R2L.ToString());
@@ -173,6 +173,7 @@ namespace NBitcoin.Tests
 			MemoryStream ss = new MemoryStream();
 			R1L.Serialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(ArrayToString(ss.ToArray()) == ArrayToString(R1Array));
+			ss.Position = 0;
 			TmpL.Unserialize(ss, 0, ProtocolVersion.PROTOCOL_VERSION);
 			Assert.True(R1L == TmpL);
 			ss = new MemoryStream();
@@ -189,10 +190,6 @@ namespace NBitcoin.Tests
 			Assert.True(MaxL == TmpL);
 			ss = new MemoryStream();
 
-			Assert.True(R1S.GetHex() == R1S.ToString());
-			Assert.True(R2S.GetHex() == R2S.ToString());
-			Assert.True(OneS.GetHex() == OneS.ToString());
-			Assert.True(MaxS.GetHex() == MaxS.ToString());
 			uint160 TmpS = new uint160(R1S);
 			Assert.True(TmpS == R1S);
 			TmpS.SetHex(R2S.ToString());

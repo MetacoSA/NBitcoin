@@ -66,6 +66,11 @@ namespace NBitcoin
 			stream.Read(result, 0, count);
 			return result;
 		}
+		public static int ReadBytes(this Stream stream, int count, out byte[] result)
+		{
+			result = new byte[count];
+			return stream.Read(result, 0, count);
+		}
 		public static IEnumerable<T> Resize<T>(this List<T> list, int count)
 		{
 			if(list.Count == count)

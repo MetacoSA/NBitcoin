@@ -92,7 +92,7 @@ namespace NBitcoin.Tests
 
 
 				var sh = scriptCode.SignatureHash(tx, nIn, (SigHash)nHashType);
-				Assert.True(sh.GetHex() == sigHashHex, strTest);
+				Assert.True(sh.ToString() == sigHashHex, strTest);
 			}
 		}
 		private byte[] ParseHex(string data)

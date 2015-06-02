@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin.DataEncoders
 {
@@ -10,13 +7,19 @@ namespace NBitcoin.DataEncoders
 	{
 		public override byte[] DecodeData(string encoded)
 		{
-			if(String.IsNullOrEmpty(encoded))
-				return new byte[0];
-			return encoded.ToCharArray().Select(o => (byte)o).ToArray();
+			if (encoded == null)
+			{
+				throw new ArgumentNullException("encoded");
+			}
+
+			return String.IsNullOrEmpty(encoded) 
+				? new byte[0] 
+				: Encoding.ASCII.GetBytes(encoded);
 		}
-		public override string EncodeData(byte[] data, int length)
+
+		public override string EncodeData(byte[] data, int offset, int count)
 		{
-			return new String(data.Take(length).Select(o => (char)o).ToArray()).Replace("\0", "");
+			return Encoding.ASCII.GetString(data, offset, count).Replace("\0", "");
 		}
 	}
 }
