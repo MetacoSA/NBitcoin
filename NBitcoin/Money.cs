@@ -165,13 +165,19 @@ namespace NBitcoin
 			if(parts <= 0)
 				throw new ArgumentOutOfRangeException("Parts should be more than 0", "parts");
 			long remain;
-			long result = Math.DivRem(_Satoshis, parts, out remain);
+			long result = DivRem(_Satoshis, parts, out remain);
 
 			for(int i = 0 ; i < parts ; i++)
 			{
 				yield return Money.Satoshis(result + (remain > 0 ? 1 : 0));
 				remain--;
 			}
+		}
+
+		private long DivRem(long a, long b, out long result)
+		{
+			result = a % b;
+			return a / b;
 		}
 
 		public static Money FromUnit(decimal amount, MoneyUnit unit)
@@ -265,26 +271,6 @@ namespace NBitcoin
 		{
 			return new Money(checked(left._Satoshis + right._Satoshis));
 		}
-		public static Money operator *(decimal left, Money right)
-		{
-			// overflow safe.
-			// decimal operations are checked by default
-			return Money.Satoshis(left * right._Satoshis);
-		}
-		public static Money operator *(Money left, decimal right)
-		{
-			return Money.Satoshis(right * left._Satoshis);
-		}
-
-		public static Money operator *(double left, Money right)
-		{
-			return Money.Satoshis((decimal)(left * right._Satoshis));
-		}
-		public static Money operator *(Money left, double right)
-		{
-			return Money.Satoshis((decimal)(left._Satoshis * right));
-		}
-
 		public static Money operator *(int left, Money right)
 		{
 			return Money.Satoshis(checked(left * right._Satoshis));
