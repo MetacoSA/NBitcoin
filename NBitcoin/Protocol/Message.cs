@@ -79,7 +79,7 @@ namespace NBitcoin.Protocol
 			if(stream.ProtocolVersion >= ProtocolVersion.MEMPOOL_GD_VERSION)
 			{
 				if(stream.Serializing)
-					checksum = Hashes.Hash256(payloadBytes, length).GetLow32();
+					checksum = Hashes.Hash256(payloadBytes, 0, length).GetLow32();
 				stream.ReadWrite(ref checksum);
 				hasChecksum = true;
 			}
@@ -139,7 +139,7 @@ namespace NBitcoin.Protocol
 
 		internal static bool VerifyChecksum(uint256 checksum, byte[] payload, int length)
 		{
-			return checksum == Hashes.Hash256(payload, length).GetLow32();
+			return checksum == Hashes.Hash256(payload, 0, length).GetLow32();
 		}
 
 
