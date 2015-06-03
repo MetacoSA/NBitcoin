@@ -516,14 +516,14 @@ namespace NBitcoin
 		{
 			if(littleEndian)
 			{
-				return value[0]
+				return value[index]
 					   + ((uint)value[index + 1] << 8)
 					   + ((uint)value[index + 2] << 16)
 					   + ((uint)value[index + 3] << 24);
 			}
 			else
 			{
-				return value[3]
+				return value[index + 3]
 					   + ((uint)value[index + 2] << 8)
 					   + ((uint)value[index + 1] << 16)
 					   + ((uint)value[index + 0] << 24);
