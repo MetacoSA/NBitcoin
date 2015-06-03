@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin.DataEncoders
 {
@@ -12,9 +8,10 @@ namespace NBitcoin.DataEncoders
 		{
 			return Convert.FromBase64String(encoded);
 		}
-		public override string EncodeData(byte[] data, int length)
+
+		public override string EncodeData(byte[] data, int offset, int count)
 		{
-			return Convert.ToBase64String(data, 0, length);
+			return Convert.ToBase64String(data, offset, count);
 		}
 	}
 }
