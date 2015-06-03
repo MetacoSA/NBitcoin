@@ -118,7 +118,7 @@ namespace NBitcoin
 			{
 				if(_ID == null)
 				{
-					_ID = new KeyId(Hashes.Hash160(vch, vch.Length));
+					_ID = new KeyId(Hashes.Hash160(vch, 0, vch.Length));
 				}
 				return _ID;
 			}

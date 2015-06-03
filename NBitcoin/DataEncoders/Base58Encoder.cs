@@ -1,10 +1,7 @@
 ﻿using NBitcoin.Crypto;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin.DataEncoders
 {
@@ -15,9 +12,9 @@ namespace NBitcoin.DataEncoders
 			if(Check)
 			{
 				var toEncode = new byte[count + 4];
-				Buffer.BlockCopy(data, 0, toEncode, 0, count);
+				Buffer.BlockCopy(data, offset, toEncode, 0, count);
 
-				var hash = Hashes.Hash256(data, count).ToBytes();
+				var hash = Hashes.Hash256(data, offset, count).ToBytes();
 				Buffer.BlockCopy(hash, 0, toEncode, count, 4);
 
 				return EncodeDataCore(toEncode, toEncode.Length);
@@ -79,7 +76,7 @@ namespace NBitcoin.DataEncoders
 					Array.Clear(vchRet, 0, vchRet.Length);
 					throw new FormatException("Invalid checked base 58 string");
 				}
-				var calculatedHash = Hashes.Hash256(vchRet, vchRet.Length - 4).ToBytes().Take(4).ToArray();
+				var calculatedHash = Hashes.Hash256(vchRet, 0, vchRet.Length - 4).ToBytes().Take(4).ToArray();
 				var expectedHash = vchRet.Skip(vchRet.Length - 4).Take(4).ToArray();
 
 				if(!Utils.ArrayEqual(calculatedHash, expectedHash))

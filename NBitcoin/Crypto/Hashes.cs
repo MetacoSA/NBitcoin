@@ -1,33 +1,31 @@
-﻿using NBitcoin.BouncyCastle.Crypto.Digests;
-using NBitcoin.BouncyCastle.Crypto.Parameters;
-using NBitcoin.BouncyCastle.Security;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using NBitcoin.BouncyCastle.Crypto.Digests;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Security;
 #if !USEBC
 using System.Security.Cryptography;
+
 #endif
+
 
 namespace NBitcoin.Crypto
 {
 	public class Hashes
 	{
-		public static uint256 Hash256(byte[] data, int count)
+		public static uint256 Hash256(byte[] data, int offset, int count)
 		{
 			data = count == 0 ? new byte[1] : data;
 #if !USEBC
 			using(var sha = System.Security.Cryptography.SHA256.Create())
 			{
-				var h = sha.ComputeHash(data, 0, count);
+				var h = sha.ComputeHash(data, offset, count);
 				return new uint256(sha.ComputeHash(h, 0, h.Length));
 			}
 #else
 			Sha256Digest sha256 = new Sha256Digest();
-			sha256.BlockUpdate(data, 0, count);
+			sha256.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[32];
 			sha256.DoFinal(rv, 0);
 			sha256.BlockUpdate(rv, 0, rv.Length);
@@ -39,23 +37,23 @@ namespace NBitcoin.Crypto
 
 		public static uint256 Hash256(byte[] data)
 		{
-			return Hash256(data, data.Length);
+			return Hash256(data, 0, data.Length);
 		}
 
-		public static uint160 Hash160(byte[] data, int count)
+		public static uint160 Hash160(byte[] data, int offset, int count)
 		{
-			data = count == 0 ? new byte[1] : data;
-			return new uint160(RIPEMD160(SHA256(data, count)));
+			//data = count == 0 ? new byte[1] : data;
+			return new uint160(RIPEMD160(SHA256(data, offset, count)));
 		}
 
 		private static byte[] RIPEMD160(byte[] data)
 		{
-			return RIPEMD160(data, data.Length);
+			return RIPEMD160(data, 0, data.Length);
 		}
-		public static byte[] SHA1(byte[] data, int count)
+		public static byte[] SHA1(byte[] data, int offset, int count)
 		{
 			var sha1 = new Sha1Digest();
-			sha1.BlockUpdate(data, 0, count);
+			sha1.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[20];
 			sha1.DoFinal(rv, 0);
 			return rv;
@@ -63,18 +61,18 @@ namespace NBitcoin.Crypto
 
 		public static byte[] SHA256(byte[] data)
 		{
-			return SHA256(data, data.Length);
+			return SHA256(data, 0, data.Length);
 		}
-		public static byte[] SHA256(byte[] data, int count)
+		public static byte[] SHA256(byte[] data, int offset, int count)
 		{
 #if !USEBC
 			using(var sha = System.Security.Cryptography.SHA256.Create())
 			{
-				return sha.ComputeHash(data, 0, count);
+				return sha.ComputeHash(data, offset, count);
 			}
 #else
 			Sha256Digest sha256 = new Sha256Digest();
-			sha256.BlockUpdate(data, 0, count);
+			sha256.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[32];
 			sha256.DoFinal(rv, 0);
 			return rv;
@@ -83,16 +81,16 @@ namespace NBitcoin.Crypto
 
 
 
-		public static byte[] RIPEMD160(byte[] data, int count)
+		public static byte[] RIPEMD160(byte[] data, int offset, int count)
 		{
 #if !USEBC
 			using(var ripm = System.Security.Cryptography.RIPEMD160.Create())
 			{
-				return ripm.ComputeHash(data, 0, count);
+				return ripm.ComputeHash(data, offset, count);
 			}
 #else
 			RipeMD160Digest ripemd = new RipeMD160Digest();
-			ripemd.BlockUpdate(data, 0, count);
+			ripemd.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[20];
 			ripemd.DoFinal(rv, 0);
 			return rv;
@@ -113,6 +111,7 @@ namespace NBitcoin.Crypto
 			h ^= h >> 16;
 			return h;
 		}
+
 		public static uint MurmurHash3(uint nHashSeed, byte[] vDataToHash)
 		{
 			// The following is MurmurHash3 (x86_32), see https://gist.github.com/automatonic/3725443
@@ -182,15 +181,12 @@ namespace NBitcoin.Crypto
 			h1 ^= streamLength;
 			h1 = fmix(h1);
 
-			unchecked //ignore overflow
-			{
-				return h1;
-			}
+			return h1;
 		}
 
 		internal static uint160 Hash160(byte[] bytes)
 		{
-			return Hash160(bytes, bytes.Length);
+			return Hash160(bytes, 0, bytes.Length);
 		}
 #if !USEBC
 		public static byte[] HMACSHA512(byte[] key, byte[] data)
@@ -210,16 +206,16 @@ namespace NBitcoin.Crypto
 #endif
 		public static byte[] BIP32Hash(byte[] chainCode, uint nChild, byte header, byte[] data)
 		{
-			byte[] num = new byte[4];
-			num[0] = (byte)((nChild >> 24) & 0xFF);
-			num[1] = (byte)((nChild >> 16) & 0xFF);
-			num[2] = (byte)((nChild >> 8) & 0xFF);
-			num[3] = (byte)((nChild >> 0) & 0xFF);
+			var num = BitConverter.GetBytes(nChild);
+			Array.Reverse(num);
 
-			return HMACSHA512(chainCode,
-				new byte[] { header }
-				.Concat(data)
-				.Concat(num).ToArray());
+			var newData = new byte[1 + num.Length + data.Length];
+			newData[0] = header;	
+
+			Buffer.BlockCopy(data, 0, newData, 1, data.Length);
+			Buffer.BlockCopy(num, 0, newData, data.Length + 1, num.Length);
+
+			return HMACSHA512(chainCode, newData);;
 		}
 	}
 }
