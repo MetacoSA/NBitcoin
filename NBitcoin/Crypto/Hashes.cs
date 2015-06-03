@@ -20,7 +20,7 @@ namespace NBitcoin.Crypto
 		{
 			data = count == 0 ? new byte[1] : data;
 #if !USEBC
-			using(var sha = System.Security.Cryptography.SHA256.Create())
+			using(var sha = new SHA256Managed())
 			{
 				var h = sha.ComputeHash(data, 0, count);
 				return new uint256(sha.ComputeHash(h, 0, h.Length));
@@ -68,7 +68,7 @@ namespace NBitcoin.Crypto
 		public static byte[] SHA256(byte[] data, int count)
 		{
 #if !USEBC
-			using(var sha = System.Security.Cryptography.SHA256.Create())
+			using(var sha = new SHA256Managed())
 			{
 				return sha.ComputeHash(data, 0, count);
 			}
@@ -86,7 +86,7 @@ namespace NBitcoin.Crypto
 		public static byte[] RIPEMD160(byte[] data, int count)
 		{
 #if !USEBC
-			using(var ripm = System.Security.Cryptography.RIPEMD160.Create())
+			using(var ripm = new RIPEMD160Managed())
 			{
 				return ripm.ComputeHash(data, 0, count);
 			}
