@@ -41,7 +41,7 @@ namespace NBitcoin
 		{
 			for (var i = 0; i < WIDTH && i < arr.Length / 4; i++)
 			{
-				pn[i] = BitConverter.ToUInt32(arr, 4 * i);
+				pn[i] = Utils.ToUInt32(arr, 4 * i, true);
 			}
 		}
 
@@ -287,7 +287,7 @@ namespace NBitcoin
 			var arr = new byte[WIDTH_BYTE];
 			for (int i = 0; i < WIDTH; i++)
 			{
-				Buffer.BlockCopy(BitConverter.GetBytes(pn[i]), 0, arr, 4 * i, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn[i], true), 0, arr, 4 * i, 4);
 			}
 			if (!lendian)
 				Array.Reverse(arr);
@@ -376,7 +376,7 @@ namespace NBitcoin
 		{
 			for (var i = 0; i < WIDTH && i < arr.Length / 4; i++)
 			{
-				pn[i] = BitConverter.ToUInt32(arr, 4 * i);
+				pn[i] = Utils.ToUInt32(arr, 4 * i, true);
 			}
 		}
 
@@ -622,7 +622,7 @@ namespace NBitcoin
 			var arr = new byte[WIDTH_BYTE];
 			for (int i = 0; i < WIDTH; i++)
 			{
-				Buffer.BlockCopy(BitConverter.GetBytes(pn[i]), 0, arr, 4 * i, 4);
+				Buffer.BlockCopy(Utils.ToBytes(pn[i], true), 0, arr, 4 * i, 4);
 			}
 			if (!lendian)
 				Array.Reverse(arr);

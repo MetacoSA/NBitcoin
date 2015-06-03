@@ -121,7 +121,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return BitConverter.ToInt32(_Bytes, 0);
+				return Utils.ToInt32(_Bytes, 0, true);
 			}
 		}
 

@@ -512,22 +512,33 @@ namespace NBitcoin
 			}
 		}
 
-		internal static uint ToUInt32(byte[] value, bool littleEndian)
+		public static uint ToUInt32(byte[] value, int index, bool littleEndian)
 		{
 			if(littleEndian)
 			{
 				return value[0]
-					   + ((uint)value[1] << 8)
-					   + ((uint)value[2] << 16)
-					   + ((uint)value[3] << 24);
+					   + ((uint)value[index + 1] << 8)
+					   + ((uint)value[index + 2] << 16)
+					   + ((uint)value[index + 3] << 24);
 			}
 			else
 			{
 				return value[3]
-					   + ((uint)value[2] << 8)
-					   + ((uint)value[1] << 16)
-					   + ((uint)value[0] << 24);
+					   + ((uint)value[index + 2] << 8)
+					   + ((uint)value[index + 1] << 16)
+					   + ((uint)value[index + 0] << 24);
 			}
+		}
+
+
+		public static int ToInt32(byte[] value, int index, bool littleEndian)
+		{
+			return unchecked((int)ToUInt32(value, index, littleEndian));
+		}
+
+		public static uint ToUInt32(byte[] value, bool littleEndian)
+		{
+			return ToUInt32(value, 0, littleEndian);
 		}
 		internal static ulong ToUInt64(byte[] value, bool littleEndian)
 		{
@@ -589,5 +600,6 @@ namespace NBitcoin
 				return hash;
 			}
 		}
+
 	}
 }
