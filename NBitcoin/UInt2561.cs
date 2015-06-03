@@ -309,20 +309,6 @@ namespace NBitcoin
 			}
 		}
 
-		public void Serialize(Stream stream, int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
-		{
-			stream.Write(ToBytes(), 0, WIDTH_BYTE);
-		}
-
-		public void Unserialize(Stream stream, int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
-		{
-			Array.Clear(pn, 0, pn.Length);
-			byte[] buf;
-			var readed = stream.ReadBytes(WIDTH_BYTE, out buf);
-			//FIXME: what if it read less than 256 bytes?
-			SetBytes(buf);
-		}
-
 		public int GetSerializeSize(int nType=0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			return WIDTH_BYTE;
@@ -411,7 +397,7 @@ namespace NBitcoin
 		{
 			if (vch.Length != WIDTH_BYTE)
 			{
-				throw new FormatException("the byte array should be 256 byte long");
+				throw new FormatException("the byte array should be 160 byte long");
 			}
 
 			if(!lendian)
@@ -656,20 +642,6 @@ namespace NBitcoin
 				stream.ReadWrite(ref b);
 				this.pn = new uint160(b).pn;
 			}
-		}
-
-		public void Serialize(Stream stream, int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
-		{
-			stream.Write(ToBytes(), 0, WIDTH_BYTE);
-		}
-
-		public void Unserialize(Stream stream, int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
-		{
-			Array.Clear(pn, 0, pn.Length);
-			byte[] buf;
-			var readed = stream.ReadBytes(WIDTH_BYTE, out buf);
-			//FIXME: what if it read less than 160 bytes?
-			SetBytes(buf);
 		}
 
 		public int GetSerializeSize(int nType=0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
