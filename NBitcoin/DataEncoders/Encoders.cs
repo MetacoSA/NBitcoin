@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin.DataEncoders
 {
-	public class DataEncoder
+	public abstract class DataEncoder
 	{
 		public static readonly char[] SpaceCharacters = new[] { ' ', '\t', '\n', '\v', '\f', '\r' };
 		public static bool IsSpace(char c)
@@ -14,22 +11,16 @@ namespace NBitcoin.DataEncoders
 			return SpaceCharacters.Contains(c);
 		}
 
-		
-
 		public string EncodeData(byte[] data)
 		{
-			return EncodeData(data, data.Length);
-		}
-		public virtual string EncodeData(byte[] data, int length)
-		{
-			throw new NotSupportedException();
+			return EncodeData(data, 0, data.Length);
 		}
 
-		public virtual byte[] DecodeData(string encoded)
-		{
-			throw new NotSupportedException();
-		}
+		public abstract string EncodeData(byte[] data, int offset, int count);
+
+		public abstract byte[] DecodeData(string encoded);
 	}
+
 	public class Encoders
 	{
 		static readonly ASCIIEncoder _ASCII = new ASCIIEncoder();

@@ -10,16 +10,20 @@ namespace NBitcoin.DataEncoders
 {
 	public class Base58Encoder : DataEncoder
 	{
-		public override string EncodeData(byte[] data, int length)
+		public override string EncodeData(byte[] data, int offset, int count)
 		{
 			if(Check)
 			{
-				var calculatedHash = Hashes.Hash256(data, length).ToBytes().Take(4).ToArray();
-				var toEncode = data.Take(length).Concat(calculatedHash).ToArray();
+				var toEncode = new byte[count + 4];
+				Buffer.BlockCopy(data, 0, toEncode, 0, count);
+
+				var hash = Hashes.Hash256(data, count).ToBytes();
+				Buffer.BlockCopy(hash, 0, toEncode, count, 4);
+
 				return EncodeDataCore(toEncode, toEncode.Length);
 			}
-			else
-				return EncodeDataCore(data, length);
+
+			return EncodeDataCore(data, count);
 		}
 
 		private static string EncodeDataCore(byte[] data, int length)
@@ -64,6 +68,9 @@ namespace NBitcoin.DataEncoders
 
 		public override byte[] DecodeData(string encoded)
 		{
+			if (encoded == null)
+				throw new ArgumentNullException("encoded");
+
 			if(Check)
 			{
 				var vchRet = DecodeDataCore(encoded);
@@ -83,8 +90,8 @@ namespace NBitcoin.DataEncoders
 				vchRet = vchRet.Take(vchRet.Length - 4).ToArray();
 				return vchRet;
 			}
-			else
-				return DecodeDataCore(encoded);
+
+			return DecodeDataCore(encoded);
 		}
 
 		private static byte[] DecodeDataCore(string encoded)
