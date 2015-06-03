@@ -2,9 +2,13 @@
 using NBitcoin.BouncyCastle.Crypto.Digests;
 using System.IO;
 using System.Linq;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Security;
 #if !USEBC
 using System.Security.Cryptography;
+
 #endif
+
 
 namespace NBitcoin.Crypto
 {
