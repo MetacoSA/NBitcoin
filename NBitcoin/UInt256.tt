@@ -44,6 +44,14 @@ namespace NBitcoin
 			SetBytes(Encoder.DecodeData(str).Reverse().ToArray());
 		}
 
+		public byte GetByte(int index)
+		{
+			var uintIndex = index / sizeof(uint);
+			var byteIndex = index % sizeof(uint);
+			var value = pn[uintIndex];
+			return (byte)(value >> (byteIndex * 8));
+		}
+
 		private void SetBytes(byte[] arr)
 		{
 			for (var i = 0; i < WIDTH && i < arr.Length / 4; i++)
