@@ -18,7 +18,7 @@ namespace NBitcoin.Protocol
 			_NameToType = new Dictionary<string, Type>();
 			_TypeToName = new Dictionary<Type, string>();
 			foreach(var pair in
-				GetLoadableTypes(typeof(PayloadAttribute).Assembly)
+				GetLoadableTypes(typeof(PayloadAttribute).GetTypeInfo().Assembly)
 				.Where(t => t.Namespace == typeof(PayloadAttribute).Namespace)
 				.Where(t => t.IsDefined(typeof(PayloadAttribute), true))
 				.Select(t =>

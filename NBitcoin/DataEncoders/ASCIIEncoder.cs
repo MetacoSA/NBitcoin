@@ -1,25 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace NBitcoin.DataEncoders
 {
 	public class ASCIIEncoder : DataEncoder
 	{
+		//Do not using Encoding.ASCII (not portable)
 		public override byte[] DecodeData(string encoded)
 		{
-			if (encoded == null)
-			{
-				throw new ArgumentNullException("encoded");
-			}
-
-			return String.IsNullOrEmpty(encoded) 
-				? new byte[0] 
-				: Encoding.ASCII.GetBytes(encoded);
+			if(String.IsNullOrEmpty(encoded))
+				return new byte[0];
+			return encoded.ToCharArray().Select(o => (byte)o).ToArray();
 		}
 
 		public override string EncodeData(byte[] data, int offset, int count)
 		{
-			return Encoding.ASCII.GetString(data, offset, count).Replace("\0", "");
+			return new String(data.Skip(offset).Take(count).Select(o => (char)o).ToArray()).Replace("\0", "");
 		}
 	}
 }

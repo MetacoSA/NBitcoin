@@ -31,6 +31,7 @@ namespace NBitcoin.DataEncoders
 				return _ASCII;
 			}
 		}
+
 		static readonly HexEncoder _Hex = new HexEncoder();
 		public static DataEncoder Hex
 		{
