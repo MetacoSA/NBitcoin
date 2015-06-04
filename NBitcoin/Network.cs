@@ -540,6 +540,16 @@ namespace NBitcoin
 			return block;
 		}
 
+		uint256 _GenesisHash;
+		public uint256 GenesisHash
+		{
+			get
+			{
+				_GenesisHash = _GenesisHash ?? GetGenesis().GetHash();
+				return _GenesisHash;
+			}
+		}
+
 		public static IEnumerable<Network> GetNetworks()
 		{
 			yield return Main;
