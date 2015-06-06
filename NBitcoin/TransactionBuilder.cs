@@ -490,14 +490,14 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder SendAsset(IDestination destination, Asset asset)
+		public TransactionBuilder SendAsset(IDestination destination, AssetMoney asset)
 		{
 			return SendAsset(destination.ScriptPubKey, asset);
 		}
 
 		public TransactionBuilder SendAsset(IDestination destination, AssetId assetId, ulong quantity)
 		{
-			return SendAsset(destination, new Asset(assetId, quantity));
+			return SendAsset(destination, new AssetMoney(assetId, quantity));
 		}
 
 		public TransactionBuilder Shuffle()
@@ -521,10 +521,10 @@ namespace NBitcoin
 
 		public TransactionBuilder SendAsset(Script scriptPubKey, AssetId assetId, ulong assetQuantity)
 		{
-			return SendAsset(scriptPubKey, new Asset(assetId, assetQuantity));
+			return SendAsset(scriptPubKey, new AssetMoney(assetId, assetQuantity));
 		}
 
-		public TransactionBuilder SendAsset(Script scriptPubKey, Asset asset)
+		public TransactionBuilder SendAsset(Script scriptPubKey, AssetMoney asset)
 		{
 			AssertOpReturn("Colored Coin");
 			var builders = CurrentGroup.BuildersByAsset.TryGet(asset.Id);
@@ -593,14 +593,14 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder IssueAsset(IDestination destination, Asset asset)
+		public TransactionBuilder IssueAsset(IDestination destination, AssetMoney asset)
 		{
 			return IssueAsset(destination.ScriptPubKey, asset);
 		}
 
 		AssetId _IssuedAsset;
 
-		public TransactionBuilder IssueAsset(Script scriptPubKey, Asset asset)
+		public TransactionBuilder IssueAsset(Script scriptPubKey, AssetMoney asset)
 		{
 			AssertOpReturn("Colored Coin");
 			if(_IssuedAsset == null)
@@ -626,7 +626,7 @@ namespace NBitcoin
 				}
 
 				ctx.Transaction.Outputs.Insert(0, new TxOut(ColoredDust, scriptPubKey));
-				marker.Quantities = new[] { asset.Quantity }.Concat(marker.Quantities).ToArray();
+				marker.Quantities = new[] { checked((ulong)asset.Quantity) }.Concat(marker.Quantities).ToArray();
 				ctx.AdditionalFees += ColoredDust;
 				return asset.Quantity;
 			});

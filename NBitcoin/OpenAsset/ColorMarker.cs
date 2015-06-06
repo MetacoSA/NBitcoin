@@ -32,36 +32,38 @@ namespace NBitcoin.OpenAsset
 
 		private bool ReadScript(Script script)
 		{
-			var data = TxNullDataTemplate.Instance.ExtractScriptPubKeyParameters(script);
-			if(data == null)
-				return false;
-			BitcoinStream stream = new BitcoinStream(data);
-			ushort marker = 0;
-			stream.ReadWrite(ref marker);
-			if(marker != Tag)
-				return false;
-			stream.ReadWrite(ref _Version);
-			if(_Version != 1)
-				return false;
-
-			ulong quantityCount = 0;
-			stream.ReadWriteAsVarInt(ref quantityCount);
-			Quantities = new ulong[quantityCount];
 			try
 			{
+				var data = TxNullDataTemplate.Instance.ExtractScriptPubKeyParameters(script);
+				if(data == null)
+					return false;
+				BitcoinStream stream = new BitcoinStream(data);
+				ushort marker = 0;
+				stream.ReadWrite(ref marker);
+				if(marker != Tag)
+					return false;
+				stream.ReadWrite(ref _Version);
+				if(_Version != 1)
+					return false;
+
+				ulong quantityCount = 0;
+				stream.ReadWriteAsVarInt(ref quantityCount);
+				Quantities = new ulong[quantityCount];
+
 				for(ulong i = 0 ; i < quantityCount ; i++)
 				{
 					Quantities[i] = ReadLEB128(stream);
 					if(Quantities[i] > MAX_QUANTITY)
-						throw new FormatException();
+						return false;
 				}
+
+				stream.ReadWriteAsVarString(ref _Metadata);
+				return true;
 			}
-			catch(FormatException)
+			catch(Exception)
 			{
 				return false;
 			}
-			stream.ReadWriteAsVarString(ref _Metadata);
-			return true;
 		}
 
 		private static ulong ReadLEB128(BitcoinStream stream)
@@ -187,16 +189,16 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		public void SetQuantity(uint index, ulong quantity)
+		public void SetQuantity(uint index, long quantity)
 		{
 			if(Quantities == null)
 				Quantities = new ulong[0];
 			if(Quantities.Length <= index)
 				Array.Resize(ref _Quantities, (int)index + 1);
-			Quantities[index] = quantity;
+			Quantities[index] = checked((ulong)quantity);
 		}
 
-		public void SetQuantity(int index, ulong quantity)
+		public void SetQuantity(int index, long quantity)
 		{
 			SetQuantity((uint)index, quantity);
 		}

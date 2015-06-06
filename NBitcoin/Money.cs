@@ -3,6 +3,7 @@ using System.Globalization;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using NBitcoin.OpenAsset;
 
 namespace NBitcoin
 {
@@ -10,12 +11,32 @@ namespace NBitcoin
 	{
 		public static Money Sum(this IEnumerable<Money> moneys)
 		{
-			BigInteger result = BigInteger.Zero;
+			if(moneys == null)
+				throw new ArgumentNullException("moneys");
+			long result = 0;
 			foreach(var money in moneys)
 			{
-				result += money.Satoshi;
+				result = checked(result + money.Satoshi);
 			}
 			return new Money(result);
+		}
+		public static AssetMoney Sum(this IEnumerable<AssetMoney> moneys)
+		{
+			if(moneys == null)
+				throw new ArgumentNullException("moneys");
+			long result = 0;
+			AssetId id = null;
+			foreach(var money in moneys)
+			{
+				result = checked(result + money.Quantity);
+				if(id == null)
+					id = money.Id;
+				else if(id != money.Id)
+					throw new ArgumentException("Impossible to add AssetMoney with different asset ids","moneys");
+			}
+			if(id == null)
+				throw new ArgumentException("AssetMoney.Sum needs at least one AssetMoney in the input collection", "moneys");
+			return new AssetMoney(id, result);
 		}
 	}
 
@@ -233,11 +254,15 @@ namespace NBitcoin
 
 		public bool Equals(Money other)
 		{
+			if(other == null)
+				return false;
 			return _Satoshis.Equals(other._Satoshis);
 		}
 
 		public int CompareTo(Money other)
 		{
+			if(other == null)
+				return 1;
 			return _Satoshis.CompareTo(other._Satoshis);
 		}
 
@@ -247,6 +272,8 @@ namespace NBitcoin
 
 		public int CompareTo(object obj)
 		{
+			if(obj == null)
+				return 1;
 			Money m = obj as Money;
 			if(m != null)
 				return _Satoshis.CompareTo(m._Satoshis);
@@ -261,48 +288,82 @@ namespace NBitcoin
 
 		public static Money operator -(Money left, Money right)
 		{
+			if(left == null)
+				throw new ArgumentNullException("left");
+			if(right == null)
+				throw new ArgumentNullException("right");
 			return new Money(checked(left._Satoshis - right._Satoshis));
 		}
 		public static Money operator -(Money left)
 		{
+			if(left == null)
+				throw new ArgumentNullException("left");
 			return new Money(checked(-left._Satoshis));
 		}
 		public static Money operator +(Money left, Money right)
 		{
+			if(left == null)
+				throw new ArgumentNullException("left");
+			if(right == null)
+				throw new ArgumentNullException("right");
 			return new Money(checked(left._Satoshis + right._Satoshis));
 		}
 		public static Money operator *(int left, Money right)
 		{
+			if(right == null)
+				throw new ArgumentNullException("right");
 			return Money.Satoshis(checked(left * right._Satoshis));
 		}
 
 		public static Money operator *(Money right, int left)
 		{
+			if(right == null)
+				throw new ArgumentNullException("right");
 			return Money.Satoshis(checked(right._Satoshis * left));
 		}
 		public static Money operator *(long left, Money right)
 		{
+			if(right == null)
+				throw new ArgumentNullException("right");
 			return Money.Satoshis(checked(left * right._Satoshis));
 		}
 		public static Money operator *(Money right, long left)
 		{
+			if(right == null)
+				throw new ArgumentNullException("right");
 			return Money.Satoshis(checked(left * right._Satoshis));
 		}
 
 		public static bool operator <(Money left, Money right)
 		{
+			if(left == null)
+				throw new ArgumentNullException("left");
+			if(right == null)
+				throw new ArgumentNullException("right");
 			return left._Satoshis < right._Satoshis;
 		}
 		public static bool operator >(Money left, Money right)
 		{
+			if(left == null)
+				throw new ArgumentNullException("left");
+			if(right == null)
+				throw new ArgumentNullException("right");
 			return left._Satoshis > right._Satoshis;
 		}
 		public static bool operator <=(Money left, Money right)
 		{
+			if(left == null)
+				throw new ArgumentNullException("left");
+			if(right == null)
+				throw new ArgumentNullException("right");
 			return left._Satoshis <= right._Satoshis;
 		}
 		public static bool operator >=(Money left, Money right)
 		{
+			if(left == null)
+				throw new ArgumentNullException("left");
+			if(right == null)
+				throw new ArgumentNullException("right");
 			return left._Satoshis >= right._Satoshis;
 		}
 

@@ -15,7 +15,7 @@ namespace NBitcoin.OpenAsset
 		{
 
 		}
-		public ColoredEntry(uint index, Asset asset)
+		public ColoredEntry(uint index, AssetMoney asset)
 		{
 			if(asset == null)
 				throw new ArgumentNullException("asset");
@@ -34,8 +34,8 @@ namespace NBitcoin.OpenAsset
 				_Index = value;
 			}
 		}
-		Asset _Asset = new Asset();
-		public Asset Asset
+		AssetMoney _Asset = new AssetMoney(new AssetId(new uint160(0)));
+		public AssetMoney Asset
 		{
 			get
 			{
@@ -51,7 +51,21 @@ namespace NBitcoin.OpenAsset
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWriteAsVarInt(ref _Index);
-			stream.ReadWrite(ref _Asset);
+			if(stream.Serializing)
+			{
+				byte[] assetId = Asset.Id.ToBytes();
+				stream.ReadWrite(ref assetId);
+				long quantity = Asset.Quantity;
+				stream.ReadWrite(ref quantity);
+			}
+			else
+			{
+				byte[] assetId = new byte[20];
+				stream.ReadWrite(ref assetId);
+				long quantity = 0;
+				stream.ReadWrite(ref quantity);
+				Asset = new AssetMoney(new AssetId(assetId), quantity);
+			}
 		}
 
 		#endregion
@@ -141,7 +155,7 @@ namespace NBitcoin.OpenAsset
 					continue;
 				}
 
-				var parentsToResolve = 
+				var parentsToResolve =
 					Enumerable
 					.Range(0, tx.Inputs.Count)
 					.Select(async i =>
@@ -229,7 +243,7 @@ namespace NBitcoin.OpenAsset
 			{
 				var entry = new ColoredEntry();
 				entry.Index = i;
-				entry.Asset.Quantity = i >= marker.Quantities.Length ? 0 : marker.Quantities[i];
+				entry.Asset = new AssetMoney(entry.Asset.Id, i >= marker.Quantities.Length ? 0 : marker.Quantities[i]);
 				if(entry.Asset.Quantity == 0)
 					continue;
 
@@ -243,17 +257,17 @@ namespace NBitcoin.OpenAsset
 						throw new TransactionNotFoundException("This open asset transaction is issuing assets, but it needs a parent transaction in the TransactionRepository to know the address of the issued asset (missing : " + txIn.PrevOut.Hash + ")", txIn.PrevOut.Hash);
 					issuedAsset = prev.Outputs[(int)txIn.PrevOut.N].ScriptPubKey.Hash.ToAssetId();
 				}
-				entry.Asset.Id = issuedAsset;
+				entry.Asset = new AssetMoney(issuedAsset, entry.Asset.Quantity);
 				colored.Issuances.Add(entry);
 			}
 
-			ulong used = 0;
+			long used = 0;
 			for(uint i = markerPos + 1 ; i < tx.Outputs.Count ; i++)
 			{
 				var entry = new ColoredEntry();
 				entry.Index = i;
 				//If there are less items in the  asset quantity list  than the number of colorable outputs (all the outputs except the marker output), the outputs in excess receive an asset quantity of zero.
-				entry.Asset.Quantity = (i - 1) >= marker.Quantities.Length ? 0 : marker.Quantities[i - 1];
+				entry.Asset = new AssetMoney(entry.Asset.Id, (i - 1) >= marker.Quantities.Length ? 0 : marker.Quantities[i - 1]);
 				if(entry.Asset.Quantity == 0)
 					continue;
 
@@ -264,7 +278,7 @@ namespace NBitcoin.OpenAsset
 					colored.Issuances.Clear();
 					return colored;
 				}
-				entry.Asset.Id = previousAssetQueue.Peek().Asset.Id;
+				entry.Asset = new AssetMoney(previousAssetQueue.Peek().Asset.Id, entry.Asset.Quantity);
 				var remaining = entry.Asset.Quantity;
 				while(remaining != 0)
 				{
@@ -340,32 +354,22 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		public Asset[] GetDestroyedAssets()
+		public AssetMoney[] GetDestroyedAssets()
 		{
 			var burned = Inputs
-				.GroupBy(i => i.Asset.Id)
-				.Select(g => new
-				{
-					Id = g.Key,
-					Quantity = g.Aggregate(BigInteger.Zero, (a, o) => a + o.Asset.Quantity)
-				});
+				.Select(i => i.Asset)
+				.GroupBy(i => i.Id)
+				.Select(g => g.Sum());
 
 			var transfered =
 				Transfers
-				.GroupBy(i => i.Asset.Id)
-				.Select(g => new
-				{
-					Id = g.Key,
-					Quantity = -g.Aggregate(BigInteger.Zero, (a, o) => a + o.Asset.Quantity)
-				});
+				.Select(i => i.Asset)
+				.GroupBy(i => i.Id)
+				.Select(g => -g.Sum());
 
 			return burned.Concat(transfered)
 				.GroupBy(o => o.Id)
-				.Select(g => new Asset()
-				{
-					Id = g.Key,
-					Quantity = (ulong)g.Aggregate(BigInteger.Zero, (a, o) => a + o.Quantity)
-				})
+				.Select(g => g.Sum())
 				.Where(a => a.Quantity != 0)
 				.ToArray();
 		}

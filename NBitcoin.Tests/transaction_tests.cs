@@ -113,7 +113,7 @@ namespace NBitcoin.Tests
 				new TransactionBuilder()
 				.AddCoins(issuanceCoin)
 				.AddKeys(bob)
-				.IssueAsset(nico.PubKey, new Asset(goldAssetId, 1000))
+				.IssueAsset(nico.PubKey, new AssetMoney(goldAssetId, 1000))
 				.BuildTransaction(true);
 
 			var aliceSigned =
@@ -134,7 +134,7 @@ namespace NBitcoin.Tests
 				builder
 				.AddCoins(issuanceCoin)
 				.AddKeys(alice, satoshi)
-				.IssueAsset(nico.PubKey, new Asset(goldAssetId, 1000))
+				.IssueAsset(nico.PubKey, new AssetMoney(goldAssetId, 1000))
 				.BuildTransaction(true);
 			var o = tx.Outputs[0].IsDust;
 			Assert.True(builder.Verify(tx));
@@ -302,8 +302,8 @@ namespace NBitcoin.Tests
 			var tx = txBuilder
 				.AddCoins(coins.ToArray())
 				.AddKeys(gold)
-				.IssueAsset(satoshi.PubKey, new Asset(goldId, 1000))
-				.IssueAsset(bob.PubKey, new Asset(goldId, 500))
+				.IssueAsset(satoshi.PubKey, new AssetMoney(goldId, 1000))
+				.IssueAsset(bob.PubKey, new AssetMoney(goldId, 500))
 				.SendFees("0.1")
 				.SetChange(gold.PubKey)
 				.BuildTransaction(true);
@@ -325,12 +325,12 @@ namespace NBitcoin.Tests
 					.AddCoins(satoshiBTC)
 					.AddCoins(cc)
 					.AddKeys(satoshi)
-					.SendAsset(gold, new Asset(goldId, 10))
+					.SendAsset(gold, new AssetMoney(goldId, 10))
 					.SetChange(satoshi)
 					.Then()
 					.AddKeys(gold)
 					.AddCoins(issuanceCoins)
-					.IssueAsset(bob, new Asset(goldId, 1))
+					.IssueAsset(bob, new AssetMoney(goldId, 1))
 					.SetChange(gold)
 					.Shuffle()
 					.BuildTransaction(true);
@@ -388,8 +388,8 @@ namespace NBitcoin.Tests
 			var tx = txBuilder
 				.AddCoins(coins.ToArray())
 				.AddKeys(gold)
-				.IssueAsset(satoshi.PubKey, new Asset(goldId, 1000))
-				.IssueAsset(bob.PubKey, new Asset(goldId, 500))
+				.IssueAsset(satoshi.PubKey, new AssetMoney(goldId, 1000))
+				.IssueAsset(bob.PubKey, new AssetMoney(goldId, 500))
 				.SendFees("0.1")
 				.SetChange(gold.PubKey)
 				.BuildTransaction(true);
@@ -417,15 +417,15 @@ namespace NBitcoin.Tests
 				.AddCoins(coins.ToArray())
 				.AddKeys(silver, bob)
 				.SetChange(bob.PubKey)
-				.IssueAsset(bob.PubKey, new Asset(silverId, 10))
-				.SendAsset(satoshi.PubKey, new Asset(goldId, 30))
+				.IssueAsset(bob.PubKey, new AssetMoney(silverId, 10))
+				.SendAsset(satoshi.PubKey, new AssetMoney(goldId, 30))
 				.BuildTransaction(true);
 
 			Assert.True(txBuilder.Verify(tx));
 			colored = tx.GetColoredTransaction(repo);
 			Assert.Equal(1, colored.Inputs.Count);
 			Assert.Equal(goldId, colored.Inputs[0].Asset.Id);
-			Assert.Equal(500UL, colored.Inputs[0].Asset.Quantity);
+			Assert.Equal(500, colored.Inputs[0].Asset.Quantity);
 			Assert.Equal(1, colored.Issuances.Count);
 			Assert.Equal(2, colored.Transfers.Count);
 			AssertHasAsset(tx, colored, colored.Transfers[0], goldId, 470, bob.PubKey);
@@ -443,7 +443,7 @@ namespace NBitcoin.Tests
 			tx = txBuilder
 					.AddKeys(gold)
 					.AddCoins(issuanceCoins)
-					.IssueAsset(satoshi.PubKey, new Asset(goldId, 1000UL))
+					.IssueAsset(satoshi.PubKey, new AssetMoney(goldId, 1000UL))
 					.SetChange(gold.PubKey)
 					.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx));
@@ -467,7 +467,7 @@ namespace NBitcoin.Tests
 					.AddKeys(silver, gold)
 					.AddCoins(issuanceCoins)
 					.AddCoins(new Coin(new OutPoint(tx.GetHash(), 0), new TxOut("2.5", gold.PubKey.ScriptPubKey)))
-					.IssueAsset(bob.PubKey, new Asset(silverId, 300UL))
+					.IssueAsset(bob.PubKey, new AssetMoney(silverId, 300UL))
 					.Send(bob.PubKey, "2.00")
 					.SetChange(gold.PubKey)
 					.BuildTransaction(true);
@@ -482,7 +482,7 @@ namespace NBitcoin.Tests
 			tx = txBuilder
 					.AddKeys(gold)
 					.AddCoins(issuanceCoins)
-					.IssueAsset(bob.PubKey, new Asset(goldId, 50UL))
+					.IssueAsset(bob.PubKey, new AssetMoney(goldId, 50UL))
 					.SetChange(gold.PubKey)
 					.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx));
@@ -494,13 +494,13 @@ namespace NBitcoin.Tests
 			tx = txBuilder
 				.AddCoins(satoshiCoin)
 				.AddCoins(satoshiBTC)
-				.SendAsset(bob.PubKey, new Asset(goldId, 100))
+				.SendAsset(bob.PubKey, new AssetMoney(goldId, 100))
 				.SetChange(satoshi.PubKey)
 				.Then()
 				.AddCoins(bobSilverCoin, bobGoldCoin, bobBitcoin)
-				.SendAsset(satoshi.PubKey, new Asset(silverId, 200))
+				.SendAsset(satoshi.PubKey, new AssetMoney(silverId, 200))
 				.Send(satoshi.PubKey, "0.9")
-				.SendAsset(satoshi.PubKey, new Asset(goldId, 5))
+				.SendAsset(satoshi.PubKey, new AssetMoney(goldId, 5))
 				.SetChange(bob.PubKey)
 				.BuildTransaction(false);
 
@@ -532,7 +532,7 @@ namespace NBitcoin.Tests
 				new TransactionBuilder()
 				.AddCoins(issuanceCoins)
 				.AddKeys(gold)
-				.IssueAsset(bob.PubKey.Hash, new Asset(goldId, 100UL))
+				.IssueAsset(bob.PubKey.Hash, new AssetMoney(goldId, 100UL))
 				.SetChange(gold.PubKey.Hash)
 				.BuildTransaction(true);
 
@@ -546,7 +546,7 @@ namespace NBitcoin.Tests
 				transfer =
 					new TransactionBuilder()
 					.AddCoins(bobGold)
-					.SendAsset(alice.PubKey.Hash, new Asset(goldId, 40UL))
+					.SendAsset(alice.PubKey.Hash, new AssetMoney(goldId, 40UL))
 					.SetChange(bob.PubKey.Hash)
 					.BuildTransaction(true);
 				Assert.False(true, "Should have thrown");
@@ -559,7 +559,7 @@ namespace NBitcoin.Tests
 					.AddCoins(bobGold)
 					.AddCoins(((IssuanceCoin)issuanceCoins[0]).Bearer)
 					.AddKeys(gold, bob)
-					.SendAsset(alice.PubKey, new Asset(goldId, 40UL))
+					.SendAsset(alice.PubKey, new AssetMoney(goldId, 40UL))
 					.SetChange(bob.PubKey, ChangeType.Colored)
 					.SetChange(gold.PubKey.Hash, ChangeType.Uncolored)
 					.SendFees(new Money(655))
@@ -583,7 +583,7 @@ namespace NBitcoin.Tests
 				tx = txBuilder
 					.AddKeys(gold)
 					.AddCoins(issuanceCoin)
-					.IssueAsset(bob, new Asset(gold.PubKey, 10))
+					.IssueAsset(bob, new AssetMoney(gold.PubKey, 10))
 					.SetChange(gold)
 					.BuildTransaction(true);
 
@@ -597,7 +597,7 @@ namespace NBitcoin.Tests
 					tx = txBuilder
 						.AddKeys(gold)
 						.AddCoins(issuanceCoin)
-						.IssueAsset(bob, new Asset(gold.PubKey, 10))
+						.IssueAsset(bob, new AssetMoney(gold.PubKey, 10))
 						.SetChange(gold)
 						.BuildTransaction(true);
 				});
@@ -608,7 +608,7 @@ namespace NBitcoin.Tests
 		{
 			var txout = tx.Outputs[entry.Index];
 			Assert.True(entry.Asset.Id == assetId);
-			Assert.True(entry.Asset.Quantity == (ulong)quantity);
+			Assert.True(entry.Asset.Quantity == quantity);
 			if(destination != null)
 				Assert.True(txout.ScriptPubKey == destination.ScriptPubKey);
 		}

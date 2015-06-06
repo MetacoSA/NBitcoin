@@ -102,7 +102,7 @@
     <Compile Include="MerkleNode.cs" />
     <Compile Include="NoSqlBlockRepository.cs" />
     <Compile Include="NoSqlTransactionRepository.cs" />
-    <Compile Include="OpenAsset\Asset.cs" />
+    <Compile Include="OpenAsset\AssetMoney.cs" />
     <Compile Include="BlockrTransactionRepository.cs" />
     <Compile Include="OpenAsset\AssetId.cs" />
     <Compile Include="OpenAsset\BitcoinAssetId.cs" />

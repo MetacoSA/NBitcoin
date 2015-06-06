@@ -75,7 +75,7 @@ namespace NBitcoin.OpenAsset
 								continue;
 							var entry = new ColoredEntry();
 							entry.Index = (uint)i;
-							entry.Asset = new Asset(
+							entry.Asset = new AssetMoney(
 								new BitcoinAssetId(inputs[i]["asset_id"].ToString(), null).AssetId,
 								inputs[i]["asset_quantity"].Value<ulong>());
 
@@ -100,7 +100,7 @@ namespace NBitcoin.OpenAsset
 								continue;
 							ColoredEntry entry = new ColoredEntry();
 							entry.Index = (uint)i;
-							entry.Asset = new Asset(
+							entry.Asset = new AssetMoney(
 								new BitcoinAssetId(outputs[i]["asset_id"].ToString(), null).AssetId,
 								outputs[i]["asset_quantity"].Value<ulong>()
 								);

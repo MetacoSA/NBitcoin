@@ -167,16 +167,16 @@ namespace NBitcoin.Tests
 			var receiver = new Key().PubKey.GetAddress(Network.Main);
 
 			colored.Marker = new ColorMarker(new ulong[] { 0, 10, 6, 0, 7, 3 });
-			colored.Inputs.Add(new ColoredEntry(0, new Asset(a1.Id, 3UL)));
-			colored.Inputs.Add(new ColoredEntry(1, new Asset(a1.Id, 2UL)));
-			colored.Inputs.Add(new ColoredEntry(3, new Asset(a1.Id, 5UL)));
-			colored.Inputs.Add(new ColoredEntry(4, new Asset(a1.Id, 3UL)));
-			colored.Inputs.Add(new ColoredEntry(5, new Asset(a2.Id, 9UL)));
+			colored.Inputs.Add(new ColoredEntry(0, new AssetMoney(a1.Id, 3UL)));
+			colored.Inputs.Add(new ColoredEntry(1, new AssetMoney(a1.Id, 2UL)));
+			colored.Inputs.Add(new ColoredEntry(3, new AssetMoney(a1.Id, 5UL)));
+			colored.Inputs.Add(new ColoredEntry(4, new AssetMoney(a1.Id, 3UL)));
+			colored.Inputs.Add(new ColoredEntry(5, new AssetMoney(a2.Id, 9UL)));
 
-			colored.Issuances.Add(new ColoredEntry(1, new Asset(h.Id, 10UL)));
-			colored.Transfers.Add(new ColoredEntry(3, new Asset(a1.Id, 6UL)));
-			colored.Transfers.Add(new ColoredEntry(5, new Asset(a1.Id, 7UL)));
-			colored.Transfers.Add(new ColoredEntry(6, new Asset(a2.Id, 3UL)));
+			colored.Issuances.Add(new ColoredEntry(1, new AssetMoney(h.Id, 10UL)));
+			colored.Transfers.Add(new ColoredEntry(3, new AssetMoney(a1.Id, 6UL)));
+			colored.Transfers.Add(new ColoredEntry(5, new AssetMoney(a1.Id, 7UL)));
+			colored.Transfers.Add(new ColoredEntry(6, new AssetMoney(a2.Id, 3UL)));
 			var destroyed = colored.GetDestroyedAssets();
 			Assert.True(destroyed.Length == 1);
 			Assert.True(destroyed[0].Quantity == 6);
@@ -316,7 +316,7 @@ namespace NBitcoin.Tests
 			tester = CreateTester("CanColorizeTransferTransaction");
 			var colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
 			Assert.True(colored2.Inputs.Count == 1);
-			Assert.True(colored2.Inputs[0].Asset.ToBytes().SequenceEqual(colored1.Issuances[0].Asset.ToBytes()));
+			Assert.True(colored2.Inputs[0].Asset == colored1.Issuances[0].Asset);
 			Assert.True(colored2.Issuances.Count == 0);
 			Assert.True(colored2.Transfers.Count == 2);
 			Assert.Equal("Af59wop4VJjXk2DAzoX9scAUCcAsghPHFX", colored2.Transfers[0].Asset.Id.GetWif(Network.Main).ToString());
@@ -331,7 +331,7 @@ namespace NBitcoin.Tests
 			tester.Repository.Transactions.Put(tester.TestedTxId, tx);
 			colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, tester.Repository);
 			Assert.True(colored2.Inputs.Count == 1);
-			Assert.True(colored2.Inputs[0].Asset.ToBytes().SequenceEqual(colored1.Issuances[0].Asset.ToBytes()));
+			Assert.True(colored2.Inputs[0].Asset == colored1.Issuances[0].Asset);
 			Assert.True(colored2.Issuances.Count == 0);
 			Assert.True(colored2.Transfers.Count == 2);
 			Assert.Equal("Af59wop4VJjXk2DAzoX9scAUCcAsghPHFX", colored2.Transfers[0].Asset.Id.GetWif(Network.Main).ToString());

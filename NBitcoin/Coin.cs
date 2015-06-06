@@ -126,7 +126,7 @@ namespace NBitcoin
 		{
 
 		}
-		public ColoredCoin(Asset asset, Coin bearer)
+		public ColoredCoin(AssetMoney asset, Coin bearer)
 		{
 			Asset = asset;
 			Bearer = bearer;
@@ -144,7 +144,7 @@ namespace NBitcoin
 				return Asset.Id;
 			}
 		}
-		public Asset Asset
+		public AssetMoney Asset
 		{
 			get;
 			set;
@@ -275,13 +275,13 @@ namespace NBitcoin
 
 		public ColoredCoin ToColoredCoin(AssetId asset, ulong quantity)
 		{
-			return ToColoredCoin(new Asset(asset, quantity));
+			return ToColoredCoin(new AssetMoney(asset, quantity));
 		}
 		public ColoredCoin ToColoredCoin(BitcoinAssetId asset, ulong quantity)
 		{
-			return ToColoredCoin(new Asset(asset, quantity));
+			return ToColoredCoin(new AssetMoney(asset, quantity));
 		}
-		public ColoredCoin ToColoredCoin(Asset asset)
+		public ColoredCoin ToColoredCoin(AssetMoney asset)
 		{
 			return new ColoredCoin(asset, this);
 		}
