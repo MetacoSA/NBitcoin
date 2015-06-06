@@ -118,6 +118,13 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void TestKnownFrench()
+		{
+			Assert.Equal(Language.French, Wordlist.AutoDetectLanguage(new string[] { "abusif", "antidote" }));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void TestKnownChineseSimplified()
 		{
 			Assert.Equal(Language.ChineseSimplified, Wordlist.AutoDetectLanguage(new string[] { "的", "一", "是", "在", "不", "了", "有", "和", "人", "这" }));
@@ -152,7 +159,7 @@ namespace NBitcoin.Tests
 		public void GenerateHardcodedBIP39Dictionary()
 		{
 			StringBuilder builder = new StringBuilder();
-			foreach(var lang in new[] { Language.ChineseSimplified, Language.ChineseTraditional, Language.English, Language.Japanese, Language.Spanish })
+			foreach(var lang in new[] { Language.ChineseSimplified, Language.ChineseTraditional, Language.English, Language.Japanese, Language.Spanish, Language.French })
 			{
 				string name = Wordlist.GetLanguageFileName(lang);
 				builder.AppendLine("dico.Add(\"" + name + "\",\"" + GetLanguage(lang) + "\");");

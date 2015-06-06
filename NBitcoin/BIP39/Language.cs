@@ -13,6 +13,7 @@ namespace NBitcoin
 		Spanish,
 		ChineseSimplified,
 		ChineseTraditional,
+		French,
 		Unknown
 	};
 }
