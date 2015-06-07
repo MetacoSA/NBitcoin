@@ -21,7 +21,7 @@ namespace NBitcoin
 	}
 	public interface ICoin
 	{
-		Money Amount
+		IMoney Amount
 		{
 			get;
 		}
@@ -114,6 +114,54 @@ namespace NBitcoin
 			get
 			{
 				return Bearer.Outpoint;
+			}
+		}
+
+		#endregion
+
+		#region IColoredCoin Members
+
+		AssetId IColoredCoin.AssetId
+		{
+			get
+			{
+				return AssetId;
+			}
+		}
+
+		Coin IColoredCoin.Bearer
+		{
+			get
+			{
+				return Bearer;
+			}
+		}
+
+		#endregion
+
+		#region ICoin Members
+
+		IMoney ICoin.Amount
+		{
+			get
+			{
+				return Amount;
+			}
+		}
+
+		OutPoint ICoin.Outpoint
+		{
+			get
+			{
+				return Outpoint;
+			}
+		}
+
+		TxOut ICoin.TxOut
+		{
+			get
+			{
+				return TxOut;
 			}
 		}
 
@@ -222,6 +270,54 @@ namespace NBitcoin
 			var colored = tx.GetColoredTransaction(repo);
 			return Find(txId, tx, colored);
 		}
+
+		#region IColoredCoin Members
+
+		AssetId IColoredCoin.AssetId
+		{
+			get
+			{
+				return AssetId;
+			}
+		}
+
+		Coin IColoredCoin.Bearer
+		{
+			get
+			{
+				return Bearer;
+			}
+		}
+
+		#endregion
+
+		#region ICoin Members
+
+		IMoney ICoin.Amount
+		{
+			get
+			{
+				return Amount;
+			}
+		}
+
+		OutPoint ICoin.Outpoint
+		{
+			get
+			{
+				return Outpoint;
+			}
+		}
+
+		TxOut ICoin.TxOut
+		{
+			get
+			{
+				return TxOut;
+			}
+		}
+
+		#endregion
 	}
 	public class Coin : ICoin
 	{
@@ -321,6 +417,34 @@ namespace NBitcoin
 				return TxOut.ScriptPubKey;
 			}
 		}
+
+		#region ICoin Members
+
+		IMoney ICoin.Amount
+		{
+			get
+			{
+				return Amount;
+			}
+		}
+
+		OutPoint ICoin.Outpoint
+		{
+			get
+			{
+				return Outpoint;
+			}
+		}
+
+		TxOut ICoin.TxOut
+		{
+			get
+			{
+				return TxOut;
+			}
+		}
+
+		#endregion
 	}
 
 	public interface IScriptCoin : ICoin

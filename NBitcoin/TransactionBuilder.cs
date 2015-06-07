@@ -19,7 +19,7 @@ namespace NBitcoin
 	}
 	public interface ICoinSelector
 	{
-		IEnumerable<ICoin> Select(IEnumerable<ICoin> coins, Money target);
+		IEnumerable<ICoin> Select(IEnumerable<ICoin> coins, IMoney target);
 	}
 
 	/// <summary>
@@ -39,7 +39,7 @@ namespace NBitcoin
 		}
 		#region ICoinSelector Members
 
-		public IEnumerable<ICoin> Select(IEnumerable<ICoin> coins, Money target)
+		public IEnumerable<ICoin> Select(IEnumerable<ICoin> coins, IMoney target)
 		{
 			var targetCoin = coins
 							.FirstOrDefault(c => c.Amount == target);
@@ -48,27 +48,27 @@ namespace NBitcoin
 				return new[] { targetCoin };
 
 			List<ICoin> result = new List<ICoin>();
-			Money total = Money.Zero;
+			long total = 0;
 
-			if(target == Money.Zero)
+			if(target.Unit == 0)
 				return result;
 
 			var orderedCoins = coins.OrderBy(s => s.Amount).ToArray();
 
 			foreach(var coin in orderedCoins)
 			{
-				if(coin.Amount < target && total < target)
+				if(coin.Amount.Unit < target.Unit && total < target.Unit)
 				{
-					total += coin.Amount;
+					total = checked(total + coin.Amount.Unit);
 					result.Add(coin);
 					//If the "sum of all your UTXO smaller than the Target" happens to match the Target, they will be used. (This is the case if you sweep a complete wallet.)
-					if(total == target)
+					if(total == target.Unit)
 						return result;
 
 				}
 				else
 				{
-					if(total < target && coin.Amount > target)
+					if(total < target.Unit && coin.Amount.Unit > target.Unit)
 					{
 						//If the "sum of all your UTXO smaller than the Target" doesn't surpass the target, the smallest UTXO greater than your Target will be used.
 						return new[] { coin };
@@ -90,13 +90,13 @@ namespace NBitcoin
 							for(int i = 0 ; i < allCoins.Length ; i++)
 							{
 								selection.Add(allCoins[i]);
-								total += allCoins[i].Amount;
-								if(total == target)
+								total += allCoins[i].Amount.Unit;
+								if(total == target.Unit)
 									return selection;
-								if(total > target)
+								if(total > target.Unit)
 									break;
 							}
-							if(total < target)
+							if(total < target.Unit)
 							{
 								return null;
 							}
@@ -109,7 +109,7 @@ namespace NBitcoin
 					}
 				}
 			}
-			if(total < target)
+			if(total < target.Unit)
 				return null;
 			return result;
 		}
@@ -776,8 +776,8 @@ namespace NBitcoin
 			var selection = CoinSelector.Select(unconsumed, target);
 			if(selection == null)
 				throw new NotEnoughFundsException("Not enough fund to cover the target");
-			var total = selection.Select(s => s.Amount).Sum();
-			var change = total - target;
+			var total = selection.Select(s => s.Amount.Unit).Sum();
+			var change = total - target.Satoshi;
 			if(change < Money.Zero)
 				throw new NotEnoughFundsException("Not enough fund to cover the target");
 			if(change > ctx.Dust)
@@ -886,7 +886,7 @@ namespace NBitcoin
 				var coin = FindCoin(input.PrevOut);
 				if(coin == null)
 					throw CoinNotFound(input.TxIn);
-				spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : coin.Amount;
+				spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : ((Coin)coin).Amount;
 				if(!input.VerifyScript(coin.TxOut.ScriptPubKey))
 					return false;
 			}
@@ -1174,9 +1174,9 @@ namespace NBitcoin
 				var c = FindCoin(txin.PrevOut);
 				if(c == null)
 					throw CoinNotFound(txin);
-				if(c is IColoredCoin)
+				if(!(c is Coin))
 					return null;
-				return c;
+				return (Coin)c;
 			})
 					.Where(c => c != null)
 					.Select(c => c.Amount)

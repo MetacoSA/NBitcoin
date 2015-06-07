@@ -47,7 +47,17 @@ namespace NBitcoin
 		Bit = 100,
 		Satoshi = 1
 	}
-	public class Money : IComparable, IComparable<Money>, IEquatable<Money>
+
+	public interface IMoney
+	{
+		long Unit
+		{
+			get;
+		}
+	}
+
+
+	public class Money : IComparable, IComparable<Money>, IEquatable<Money>, IMoney
 	{
 		public const long COIN = 100 * 1000 * 1000;
 		public const long CENT = COIN / 100;
@@ -529,6 +539,18 @@ namespace NBitcoin
 				throw new ArgumentException("Invalid value for MoneyUnit", paramName);
 			}
 		}
+
+		#region IMoney Members
+
+		long IMoney.Unit
+		{
+			get
+			{
+				return _Satoshis;
+			}
+		}
+
+		#endregion
 	}
 
 	static class CharExtensions

@@ -62,24 +62,24 @@ namespace NBitcoin.Tests
 		public void CanSelectCoin()
 		{
 			var selector = new DefaultCoinSelector(0);
-			Assert.Null(selector.Select(new Coin[] { CreateCoin("9") }, "10.0"));
-			Assert.NotNull(selector.Select(new Coin[] { CreateCoin("9"), CreateCoin("1") }, "10.0"));
-			Assert.NotNull(selector.Select(new Coin[] { CreateCoin("10.0") }, "10.0"));
-			Assert.NotNull(selector.Select(new Coin[] 
+			Assert.Null(selector.Select(new ICoin[] { CreateCoin("9") }, Money.Parse("10.0")));
+			Assert.NotNull(selector.Select(new ICoin[] { CreateCoin("9"), CreateCoin("1") }, Money.Parse("10.0")));
+			Assert.NotNull(selector.Select(new ICoin[] { CreateCoin("10.0") }, Money.Parse("10.0")));
+			Assert.NotNull(selector.Select(new ICoin[] 
 			{ 
 				CreateCoin("5.0"),
 				CreateCoin("4.0"),
 				CreateCoin("11.0"),
-			}, "10.0"));
+			}, Money.Parse("10.0")));
 
-			Assert.NotNull(selector.Select(new Coin[] 
+			Assert.NotNull(selector.Select(new ICoin[] 
 			{ 
 				CreateCoin("3.0"),
 				CreateCoin("3.0"),
 				CreateCoin("3.0"),
 				CreateCoin("3.0"),
 				CreateCoin("3.0")
-			}, "10.0"));
+			}, Money.Parse("10.0")));
 		}
 
 		private Coin CreateCoin(Money amount)
