@@ -163,9 +163,7 @@ namespace NBitcoin
 		public bool CheckProofOfWork()
 		{
 			// Check proof of work matches claimed amount
-			if(GetHash() > Bits.ToUInt256())
-				return false;
-			return true;
+			return GetHash() <= Bits.ToUInt256();
 		}
 
 		public override string ToString()
@@ -177,7 +175,9 @@ namespace NBitcoin
 
 	public class Block : IBitcoinSerializable
 	{
-		public const uint MAX_BLOCK_SIZE = 1000000;
+		//FIXME: it needs to be changed when Gavin Andresen increase the max block size. 
+		public const uint MAX_BLOCK_SIZE = 1000 * 000;
+
 		BlockHeader header = new BlockHeader();
 		// network and disk
 		List<Transaction> vtx = new List<Transaction>();

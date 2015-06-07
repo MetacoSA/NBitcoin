@@ -409,8 +409,8 @@ namespace NBitcoin
 
 		public override string ToString()
 		{
-			StringBuilder builder = new StringBuilder();
-			ScriptReader reader = new ScriptReader(_Script);		
+			var builder = new StringBuilder(2 * 1000);
+			var reader = new ScriptReader(_Script);
 
 			Op op;
 			while((op = reader.Read()) != null)
@@ -794,10 +794,14 @@ namespace NBitcoin
 		/// <returns></returns>
 		public static Script CreateFromDestination(TxDestination id)
 		{
-			if(id is ScriptId)
-				return PayToScriptHashTemplate.Instance.GenerateScriptPubKey((ScriptId)id);
-			if(id is KeyId)
-				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey((KeyId)id);
+			var scriptId = id as ScriptId;
+			if (scriptId != null)
+				return PayToScriptHashTemplate.Instance.GenerateScriptPubKey(scriptId);
+
+			var pubkeyHash = id as KeyId;
+			if (pubkeyHash != null)
+				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(pubkeyHash);
+
 			throw new NotSupportedException();
 		}
 

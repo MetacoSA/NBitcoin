@@ -364,8 +364,9 @@ namespace NBitcoin
 		{
 			if(redeemScript == null)
 				throw new ArgumentNullException("redeemScript");
-			if(this is ScriptCoin)
-				return (ScriptCoin)this;
+			var scriptCoin = this as ScriptCoin;
+			if (scriptCoin != null)
+				return scriptCoin;
 			return new ScriptCoin(this, redeemScript);
 		}
 

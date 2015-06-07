@@ -15,9 +15,9 @@ namespace NBitcoin
 		{
 
 		}
-		public BlockLocator(List<uint256> hashes)
+		public BlockLocator(IEnumerable<uint256> hashes)
 		{
-			vHave = hashes;
+			vHave = hashes.ToList();
 		}
 
 		List<uint256> vHave = new List<uint256>();

@@ -187,7 +187,7 @@ namespace NBitcoin
 			// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 			// a large 4-byte int at any alignment.
 			magic = 0xD9B4BEF9;
-			vAlertPubKey = DataEncoders.Encoders.Hex.DecodeData("04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284");
+			vAlertPubKey = Encoders.Hex.DecodeData("04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284");
 			nDefaultPort = 8333;
 			nRPCPort = 8332;
 			_ProofOfLimit = new Target(~new uint256(0) >> 32);
@@ -197,9 +197,9 @@ namespace NBitcoin
 			txNew.Version = 1;
 			txNew.Inputs.Add(new TxIn());
 			txNew.Outputs.Add(new TxOut());
-			txNew.Inputs[0].ScriptSig = new Script(DataEncoders.Encoders.Hex.DecodeData("04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73"));
+			txNew.Inputs[0].ScriptSig = new Script(Encoders.Hex.DecodeData("04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73"));
 			txNew.Outputs[0].Value = 50 * Money.COIN;
-			txNew.Outputs[0].ScriptPubKey = new Script() + DataEncoders.Encoders.Hex.DecodeData("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") + OpcodeType.OP_CHECKSIG;
+			txNew.Outputs[0].ScriptPubKey = new Script() + Encoders.Hex.DecodeData("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") + OpcodeType.OP_CHECKSIG;
 			genesis.Transactions.Add(txNew);
 			genesis.Header.HashPrevBlock = 0;
 			genesis.UpdateMerkleRoot();

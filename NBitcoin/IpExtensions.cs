@@ -56,7 +56,7 @@ namespace NBitcoin
 		{
 			var bytes = address.GetAddressBytes();
 			byte[] pchRFC6052 = new byte[] { 0, 0x64, 0xFF, 0x9B, 0, 0, 0, 0, 0, 0, 0, 0 };
-			return (memcmp(bytes, pchRFC6052, pchRFC6052.Length) == 0);
+			return ((Utils.ArrayEqual(bytes, 0, pchRFC6052, 0, pchRFC6052.Length) ? 0 : 1) == 0);
 		}
 
 		public static bool IsRFC4380(this IPAddress address)
@@ -69,7 +69,7 @@ namespace NBitcoin
 		{
 			var bytes = address.GetAddressBytes();
 			byte[] pchRFC4862 = new byte[] { 0xFE, 0x80, 0, 0, 0, 0, 0, 0 };
-			return (memcmp(bytes, pchRFC4862, pchRFC4862.Length) == 0);
+			return ((Utils.ArrayEqual(bytes, 0, pchRFC4862, 0, pchRFC4862.Length) ? 0 : 1) == 0);
 		}
 
 		public static bool IsRFC4193(this IPAddress address)
@@ -82,7 +82,7 @@ namespace NBitcoin
 		{
 			var bytes = address.GetAddressBytes();
 			byte[] pchRFC6145 = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF, 0, 0 };
-			return (memcmp(bytes, pchRFC6145, pchRFC6145.Length) == 0);
+			return ((Utils.ArrayEqual(bytes, 0, pchRFC6145, 0, pchRFC6145.Length) ? 0 : 1) == 0);
 		}
 
 		public static bool IsRFC4843(this IPAddress address)
@@ -166,7 +166,7 @@ namespace NBitcoin
 		public static bool IsTor(this IPAddress address)
 		{
 			var bytes = address.GetAddressBytes();
-			return (memcmp(bytes, pchOnionCat, pchOnionCat.Length) == 0);
+			return ((Utils.ArrayEqual(bytes, 0, pchOnionCat, 0, pchOnionCat.Length) ? 0 : 1) == 0);
 		}
 		public static IPAddress EnsureIPv6(this IPAddress address)
 		{
@@ -184,15 +184,10 @@ namespace NBitcoin
 
 			// IPv6 loopback (::1/128)
 			byte[] pchLocal = new byte[16] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
-			if(memcmp(bytes, pchLocal, 16) == 0)
+			if((Utils.ArrayEqual(bytes, 0, pchLocal, 0, 16) ? 0 : 1) == 0)
 				return true;
 
 			return false;
-		}
-
-		private static int memcmp(byte[] a, byte[] b, int n)
-		{
-			return Utils.ArrayEqual(a, 0, b, 0, n) ? 0 : 1;
 		}
 
 		public static bool IsMulticast(this IPAddress address)
@@ -221,7 +216,7 @@ namespace NBitcoin
 			var ip = address.GetAddressBytes();
 			// unspecified IPv6 address (::/128)
 			byte[] ipNone = new byte[16];
-			if(memcmp(ip, ipNone, 16) == 0)
+			if((Utils.ArrayEqual(ip, 0, ipNone, 0, 16) ? 0 : 1) == 0)
 				return false;
 
 			// documentation IPv6 address

@@ -55,11 +55,11 @@ namespace NBitcoin
 			var expectedVersion = _Network.GetVersionBytes(Type);
 
 
-			vchVersion = vchTemp.Take((int)expectedVersion.Length).ToArray();
+			vchVersion = vchTemp.SafeSubarray(0, expectedVersion.Length);
 			if(!Utils.ArrayEqual(vchVersion, expectedVersion))
 				throw new FormatException("The version prefix does not match the expected one " + String.Join(",", expectedVersion));
 
-			vchData = vchTemp.Skip((int)expectedVersion.Length).ToArray();
+			vchData = vchTemp.SafeSubarray(expectedVersion.Length);
 			wifData = psz;
 
 			if(!IsValid)

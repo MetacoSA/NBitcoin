@@ -1,4 +1,5 @@
-﻿using NBitcoin.Crypto;
+﻿using System;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using System.Linq;
 
@@ -70,7 +71,7 @@ namespace NBitcoin
 		}
 		public byte[] CalculateChildFingerprint()
 		{
-			return pubkey.Hash.ToBytes().Take(vchFingerprint.Length).ToArray();
+			return pubkey.Hash.ToBytes().SafeSubarray(0, vchFingerprint.Length);
 		}
 
 		public byte[] Fingerprint
