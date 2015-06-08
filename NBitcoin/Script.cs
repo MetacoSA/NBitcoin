@@ -409,7 +409,9 @@ namespace NBitcoin
 
 		public override string ToString()
 		{
-			var builder = new StringBuilder(2 * 1000);
+			// by default StringBuilder capacity is 16 (too small)
+			// 300 is enough for P2PKH
+			var builder = new StringBuilder(300); 
 			var reader = new ScriptReader(_Script);
 
 			Op op;

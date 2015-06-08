@@ -16,6 +16,17 @@ namespace NBitcoin.Crypto
 {
 	public class Hashes
 	{
+		#region Hash256
+		public static uint256 Hash256(byte[] data)
+		{
+			return Hash256(data, 0, data.Length);
+		}
+
+		public static uint256 Hash256(byte[] data, int count)
+		{
+			return Hash256(data, 0, count);
+		}
+
 		public static uint256 Hash256(byte[] data, int offset, int count)
 		{
 			//data = count == 0 ? new byte[1] : data;
@@ -35,23 +46,54 @@ namespace NBitcoin.Crypto
 			return new uint256(rv);
 #endif
 		}
+		#endregion
 
-
-		public static uint256 Hash256(byte[] data)
+		#region Hash160
+		public static uint160 Hash160(byte[] data)
 		{
-			return Hash256(data, 0, data.Length);
+			return Hash160(data, 0, data.Length);
+		}
+
+		public static uint160 Hash160(byte[] data, int count)
+		{
+			return Hash160(data, 0, count);
 		}
 
 		public static uint160 Hash160(byte[] data, int offset, int count)
 		{
-			//data = count == 0 ? new byte[1] : data;
 			return new uint160(RIPEMD160(SHA256(data, offset, count)));
 		}
+		#endregion
 
+		#region RIPEMD160
 		private static byte[] RIPEMD160(byte[] data)
 		{
 			return RIPEMD160(data, 0, data.Length);
 		}
+
+		public static byte[] RIPEMD160(byte[] data, int count)
+		{
+			return RIPEMD160(data, 0, count);
+		}
+
+		public static byte[] RIPEMD160(byte[] data, int offset, int count)
+		{
+#if !USEBC
+			using (var ripm = new RIPEMD160Managed())
+			{
+				return ripm.ComputeHash(data, offset, count);
+			}
+#else
+			RipeMD160Digest ripemd = new RipeMD160Digest();
+			ripemd.BlockUpdate(data, offset, count);
+			byte[] rv = new byte[20];
+			ripemd.DoFinal(rv, 0);
+			return rv;
+#endif
+		}
+
+		#endregion
+
 		public static byte[] SHA1(byte[] data, int offset, int count)
 		{
 			var sha1 = new Sha1Digest();
@@ -65,6 +107,7 @@ namespace NBitcoin.Crypto
 		{
 			return SHA256(data, 0, data.Length);
 		}
+
 		public static byte[] SHA256(byte[] data, int offset, int count)
 		{
 #if !USEBC
@@ -81,23 +124,6 @@ namespace NBitcoin.Crypto
 #endif
 		}
 
-
-
-		public static byte[] RIPEMD160(byte[] data, int offset, int count)
-		{
-#if !USEBC
-			using(var ripm = new RIPEMD160Managed())
-			{
-				return ripm.ComputeHash(data, offset, count);
-			}
-#else
-			RipeMD160Digest ripemd = new RipeMD160Digest();
-			ripemd.BlockUpdate(data, offset, count);
-			byte[] rv = new byte[20];
-			ripemd.DoFinal(rv, 0);
-			return rv;
-#endif
-		}
 
 		private static uint rotl32(uint x, byte r)
 		{
@@ -182,13 +208,12 @@ namespace NBitcoin.Crypto
 			h1 ^= streamLength;
 			h1 = fmix(h1);
 
-			return h1;
+			unchecked //ignore overflow
+			{
+				return h1;
+			}
 		}
 
-		internal static uint160 Hash160(byte[] bytes)
-		{
-			return Hash160(bytes, 0, bytes.Length);
-		}
 #if !USEBC
 		public static byte[] HMACSHA512(byte[] key, byte[] data)
 		{

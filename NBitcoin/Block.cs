@@ -176,7 +176,7 @@ namespace NBitcoin
 	public class Block : IBitcoinSerializable
 	{
 		//FIXME: it needs to be changed when Gavin Andresen increase the max block size. 
-		public const uint MAX_BLOCK_SIZE = 1000 * 000;
+		public const uint MAX_BLOCK_SIZE = 1000 * 1000;
 
 		BlockHeader header = new BlockHeader();
 		// network and disk
