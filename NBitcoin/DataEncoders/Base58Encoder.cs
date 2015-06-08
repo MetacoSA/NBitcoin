@@ -1,10 +1,7 @@
 ﻿using NBitcoin.Crypto;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin.DataEncoders
 {
@@ -15,9 +12,9 @@ namespace NBitcoin.DataEncoders
 			if(Check)
 			{
 				var toEncode = new byte[count + 4];
-				Buffer.BlockCopy(data, 0, toEncode, 0, count);
+				Buffer.BlockCopy(data, offset, toEncode, 0, count);
 
-				var hash = Hashes.Hash256(data, count).ToBytes();
+				var hash = Hashes.Hash256(data, offset, count).ToBytes();
 				Buffer.BlockCopy(hash, 0, toEncode, count, 4);
 
 				return EncodeDataCore(toEncode, toEncode.Length);
@@ -79,15 +76,15 @@ namespace NBitcoin.DataEncoders
 					Array.Clear(vchRet, 0, vchRet.Length);
 					throw new FormatException("Invalid checked base 58 string");
 				}
-				var calculatedHash = Hashes.Hash256(vchRet, vchRet.Length - 4).ToBytes().Take(4).ToArray();
-				var expectedHash = vchRet.Skip(vchRet.Length - 4).Take(4).ToArray();
+				var calculatedHash = Hashes.Hash256(vchRet, 0, vchRet.Length - 4).ToBytes().SafeSubarray(0, 4);
+				var expectedHash = vchRet.SafeSubarray(vchRet.Length - 4, 4);
 
 				if(!Utils.ArrayEqual(calculatedHash, expectedHash))
 				{
 					Array.Clear(vchRet, 0, vchRet.Length);
 					throw new FormatException("Invalid hash of the base 58 string");
 				}
-				vchRet = vchRet.Take(vchRet.Length - 4).ToArray();
+				vchRet = vchRet.SafeSubarray(0, vchRet.Length - 4);
 				return vchRet;
 			}
 
@@ -137,7 +134,7 @@ namespace NBitcoin.DataEncoders
 
 			// Trim off sign byte if present
 			if(vchTmp.Length >= 2 && vchTmp[vchTmp.Length - 1] == 0 && vchTmp[vchTmp.Length - 2] >= 0x80)
-				vchTmp = vchTmp.Take(vchTmp.Length - 1).ToArray();
+				vchTmp = vchTmp.SafeSubarray(0, vchTmp.Length - 1);
 
 			// Restore leading zeros
 			int nLeadingZeros = 0;

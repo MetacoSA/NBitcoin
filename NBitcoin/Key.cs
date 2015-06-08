@@ -69,8 +69,7 @@ namespace NBitcoin
 
 		private void SetBytes(byte[] data, int count, bool fCompressedIn)
 		{
-			vch = new byte[KEY_SIZE];
-			Array.Copy(data, 0, vch, 0, count);
+			vch = data.SafeSubarray(0, count);
 			IsCompressed = fCompressedIn;
 			_ECKey = new ECKey(vch, true);
 		}
@@ -181,24 +180,23 @@ namespace NBitcoin
 		public Key Derivate(byte[] cc, uint nChild, out byte[] ccChild)
 		{
 			byte[] l = null;
-			byte[] ll = new byte[32];
-			byte[] lr = new byte[32];
 			if((nChild >> 31) == 0)
 			{
 				var pubKey = PubKey.ToBytes();
-				l = Hashes.BIP32Hash(cc, nChild, pubKey[0], pubKey.Skip(1).ToArray());
+				l = Hashes.BIP32Hash(cc, nChild, pubKey[0], pubKey.SafeSubarray(1));
 			}
 			else
 			{
 				l = Hashes.BIP32Hash(cc, nChild, 0, this.ToBytes());
 			}
-			Array.Copy(l, ll, 32);
-			Array.Copy(l, 32, lr, 0, 32);
+			var ll = l.SafeSubarray(0, 32);
+			var lr = l.SafeSubarray(32, 32);
+
 			ccChild = lr;
 
-			BigInteger parse256LL = new BigInteger(1, ll);
-			BigInteger kPar = new BigInteger(1, vch);
-			BigInteger N = ECKey.CURVE.N;
+			var parse256LL = new BigInteger(1, ll);
+			var kPar = new BigInteger(1, vch);
+			var N = ECKey.CURVE.N;
 
 			if(parse256LL.CompareTo(N) >= 0)
 				throw new InvalidOperationException("You won a prize ! this should happen very rarely. Take a screenshot, and roll the dice again.");

@@ -118,7 +118,7 @@ namespace NBitcoin
 			{
 				if(_ID == null)
 				{
-					_ID = new KeyId(Hashes.Hash160(vch, vch.Length));
+					_ID = new KeyId(Hashes.Hash160(vch, 0, vch.Length));
 				}
 				return _ID;
 			}
@@ -220,8 +220,8 @@ namespace NBitcoin
 			if(header < 27 || header > 34)
 				throw new ArgumentException("Header byte out of range: " + header);
 
-			BigInteger r = new BigInteger(1, signatureEncoded.Skip(1).Take(32).ToArray());
-			BigInteger s = new BigInteger(1, signatureEncoded.Skip(33).Take(32).ToArray());
+			BigInteger r = new BigInteger(1, signatureEncoded.SafeSubarray(1, 32));
+			BigInteger s = new BigInteger(1, signatureEncoded.SafeSubarray(33, 32));
 			var sig = new ECDSASignature(r, s);
 			bool compressed = false;
 

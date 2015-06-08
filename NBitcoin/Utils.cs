@@ -92,7 +92,7 @@ namespace NBitcoin
 		}
 		public static IEnumerable<List<T>> Partition<T>(this IEnumerable<T> source, int max)
 		{
-			return Partition<T>(source, () => max);
+			return Partition(source, () => max);
 		}
 		public static IEnumerable<List<T>> Partition<T>(this IEnumerable<T> source, Func<int> max)
 		{
@@ -225,6 +225,37 @@ namespace NBitcoin
 			return (int)Math.Truncate((DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
 		}
 	}
+
+	internal static class ByteArrayExtensions
+	{
+		internal static byte[] SafeSubarray(this byte[] array, int offset, int count)
+		{
+			if(array == null)
+				throw new ArgumentNullException("array");
+			if(offset < 0 || offset > array.Length )
+				throw new ArgumentOutOfRangeException("offset");
+			if(count < 0 || offset + count > array.Length )
+				throw new ArgumentOutOfRangeException("count");
+
+			var data = new byte[count];
+			Buffer.BlockCopy(array, offset, data, 0, count);
+			return data;
+		}
+
+		internal static byte[] SafeSubarray(this byte[] array, int offset)
+		{
+			if (array == null)
+				throw new ArgumentNullException("array");
+			if (offset < 0 || offset > array.Length)
+				throw new ArgumentOutOfRangeException("offset");
+
+			var count = array.Length - offset;
+			var data = new byte[count];
+			Buffer.BlockCopy(array, offset, data, 0, count);
+			return data;
+		}
+	}
+
 	public class Utils
 	{
 		public static bool ArrayEqual(byte[] a, byte[] b)

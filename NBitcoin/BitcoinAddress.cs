@@ -112,8 +112,10 @@ namespace NBitcoin
 
 		public BitcoinScriptAddress GetScriptAddress()
 		{
-			if(this is BitcoinScriptAddress)
-				return (BitcoinScriptAddress)this;
+			var bitcoinScriptAddress = this as BitcoinScriptAddress;
+			if (bitcoinScriptAddress != null)
+				return bitcoinScriptAddress;
+
 			var redeem = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(this);
 			return new BitcoinScriptAddress(redeem.Hash, Network);
 		}
@@ -147,10 +149,10 @@ namespace NBitcoin
 				throw new ArgumentNullException("network");
 			if(id is KeyId)
 				return new BitcoinAddress(id, network);
-			else if(id is ScriptId)
+			if(id is ScriptId)
 				return new BitcoinScriptAddress((ScriptId)id, network);
-			else
-				throw new NotSupportedException();
+			
+			throw new NotSupportedException();
 		}
 
 		public BitcoinColoredAddress ToColoredAddress()

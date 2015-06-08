@@ -355,7 +355,7 @@ namespace NBitcoin
 								&& _Script[2] == 20 && _Script[23] == (byte)OpcodeType.OP_EQUALVERIFY
 								&& _Script[24] == (byte)OpcodeType.OP_CHECKSIG)
 			{
-				return new KeyId(_Script.Skip(3).Take(20).ToArray());
+				return new KeyId(_Script.SafeSubarray(3, 20));
 			}
 			return null;
 		}
@@ -365,7 +365,7 @@ namespace NBitcoin
 			if(_Script.Length == 23 && _Script[0] == (byte)OpcodeType.OP_HASH160 && _Script[1] == 20
 								&& _Script[22] == (byte)OpcodeType.OP_EQUAL)
 			{
-				return new ScriptId(_Script.Skip(2).Take(20).ToArray());
+				return new ScriptId(_Script.SafeSubarray(2, 20));
 			}
 			return null;
 		}
@@ -419,12 +419,12 @@ namespace NBitcoin
 			switch(nSize)
 			{
 				case 0x00:
-					return new Script(OpcodeType.OP_DUP, OpcodeType.OP_HASH160, Op.GetPushOp(data.Take(20).ToArray()), OpcodeType.OP_EQUALVERIFY, OpcodeType.OP_CHECKSIG);
+					return new Script(OpcodeType.OP_DUP, OpcodeType.OP_HASH160, Op.GetPushOp(data.SafeSubarray(0, 20)), OpcodeType.OP_EQUALVERIFY, OpcodeType.OP_CHECKSIG);
 				case 0x01:
-					return new Script(OpcodeType.OP_HASH160, Op.GetPushOp(data.Take(20).ToArray()), OpcodeType.OP_EQUAL);
+					return new Script(OpcodeType.OP_HASH160, Op.GetPushOp(data.SafeSubarray(0, 20)), OpcodeType.OP_EQUAL);
 				case 0x02:
 				case 0x03:
-					return new Script(Op.GetPushOp(new byte[] { (byte)nSize }.Concat(data.Take(32)).ToArray()), OpcodeType.OP_CHECKSIG);
+					return new Script(Op.GetPushOp(new byte[] { (byte)nSize }.Concat(data.SafeSubarray(0, 32)).ToArray()), OpcodeType.OP_CHECKSIG);
 				case 0x04:
 				case 0x05:
 					byte[] vch = new byte[33];

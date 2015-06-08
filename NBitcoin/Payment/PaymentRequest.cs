@@ -458,7 +458,7 @@ namespace NBitcoin.Payment
 			}
 			else if(PKIType == Payment.PKIType.X509SHA1)
 			{
-				hash = Hashes.SHA1(data, data.Length);
+				hash = Hashes.SHA1(data, 0, data.Length);
 				hashName = "sha1";
 			}
 			else
@@ -494,7 +494,7 @@ namespace NBitcoin.Payment
 			}
 			else if(type == Payment.PKIType.X509SHA1)
 			{
-				hash = Hashes.SHA1(data, data.Length);
+				hash = Hashes.SHA1(data, 0, data.Length);
 				hashName = "sha1";
 			}
 			else

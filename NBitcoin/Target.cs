@@ -47,7 +47,7 @@ namespace NBitcoin
 			if(compact.Length == 4)
 			{
 				var exp = compact[0];
-				var val = compact.Skip(1).Take(3).Reverse().ToArray();
+				var val = compact.SafeSubarray(1, 3).Reverse().ToArray();
 				_Target = new BigInteger(val) << 8 * (exp - 3);
 			}
 			else
@@ -76,7 +76,7 @@ namespace NBitcoin
 		public static implicit operator uint(Target a)
 		{
 			var bytes = a._Target.ToByteArray().Reverse().ToArray();
-			var val = bytes.Take(3).Reverse().ToArray();
+			var val = bytes.SafeSubarray(0, Math.Min(bytes.Length,3)).Reverse().ToArray();
 			var exp = (byte)(bytes.Length);
 			var missing = 4 - val.Length;
 			if(missing > 0)

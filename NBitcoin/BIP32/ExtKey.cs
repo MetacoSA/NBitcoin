@@ -78,8 +78,9 @@ namespace NBitcoin
 		private void SetMaster(byte[] seed)
 		{
 			var hashMAC = Hashes.HMACSHA512(hashkey, seed);
-			key = new Key(hashMAC.Take(32).ToArray());
-			Array.Copy(hashMAC.Skip(32).Take(32).ToArray(), 0, vchChainCode, 0, vchChainCode.Length);
+			key = new Key(hashMAC.SafeSubarray(0, 32));
+
+			Buffer.BlockCopy(hashMAC, 32, vchChainCode, 0, 32);
 		}
 
 		/// <summary>
@@ -111,7 +112,7 @@ namespace NBitcoin
 		}
 		private byte[] CalculateChildFingerprint()
 		{
-			return key.PubKey.Hash.ToBytes().Take(vchFingerprint.Length).ToArray();
+			return key.PubKey.Hash.ToBytes().SafeSubarray(0, vchFingerprint.Length);
 		}
 
 		public byte[] Fingerprint
@@ -213,7 +214,7 @@ namespace NBitcoin
 			byte[] lr = new byte[32];
 
 			var pubKey = parent.PubKey.ToBytes();
-			l = Hashes.BIP32Hash(parent.vchChainCode, nChild, pubKey[0], pubKey.Skip(1).ToArray());
+			l = Hashes.BIP32Hash(parent.vchChainCode, nChild, pubKey[0], pubKey.SafeSubarray(1));
 			Array.Copy(l, ll, 32);
 			Array.Copy(l, 32, lr, 0, 32);
 			var ccChild = lr;

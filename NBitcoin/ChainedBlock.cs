@@ -250,8 +250,8 @@ namespace NBitcoin
 			if(Height != 0 && Previous == null)
 				return false;
 			var heightCorrect = Height == 0 || Height == Previous.Height + 1;
-			var genesisCorrect = Height == 0 ? HashBlock == network.GetGenesis().GetHash() : true;
-			var hashPrevCorrect = Height == 0 ? true : Header.HashPrevBlock == Previous.HashBlock;
+			var genesisCorrect = Height != 0 || HashBlock == network.GetGenesis().GetHash();
+			var hashPrevCorrect = Height == 0 || Header.HashPrevBlock == Previous.HashBlock;
 			var hashCorrect = HashBlock == Header.GetHash();
 			var workCorrect = CheckProofOfWorkAndTarget(network);
 			return heightCorrect && genesisCorrect && hashPrevCorrect && hashCorrect && workCorrect;

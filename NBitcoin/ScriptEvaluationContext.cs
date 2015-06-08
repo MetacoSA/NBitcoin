@@ -938,15 +938,15 @@ namespace NBitcoin
 									var vch = top(_Stack, -1);
 									byte[] vchHash = null;//((opcode == OpcodeType.OP_RIPEMD160 || opcode == OpcodeType.OP_SHA1 || opcode == OpcodeType.OP_HASH160) ? 20 : 32);
 									if(opcode.Code == OpcodeType.OP_RIPEMD160)
-										vchHash = Hashes.RIPEMD160(vch, vch.Length);
+										vchHash = Hashes.RIPEMD160(vch, 0, vch.Length);
 									else if(opcode.Code == OpcodeType.OP_SHA1)
-										vchHash = Hashes.SHA1(vch, vch.Length);
+										vchHash = Hashes.SHA1(vch, 0, vch.Length);
 									else if(opcode.Code == OpcodeType.OP_SHA256)
-										vchHash = Hashes.SHA256(vch, vch.Length);
+										vchHash = Hashes.SHA256(vch, 0, vch.Length);
 									else if(opcode.Code == OpcodeType.OP_HASH160)
-										vchHash = Hashes.Hash160(vch, vch.Length).ToBytes();
+										vchHash = Hashes.Hash160(vch, 0, vch.Length).ToBytes();
 									else if(opcode.Code == OpcodeType.OP_HASH256)
-										vchHash = Hashes.Hash256(vch, vch.Length).ToBytes();
+										vchHash = Hashes.Hash256(vch, 0, vch.Length).ToBytes();
 									_Stack.Pop();
 									_Stack.Push(vchHash);
 								}

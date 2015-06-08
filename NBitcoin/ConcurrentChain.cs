@@ -61,7 +61,7 @@ namespace NBitcoin
 						uint256 id = null;
 						stream.ReadWrite<uint256>(ref id);
 						BlockHeader header = null;
-						stream.ReadWrite<BlockHeader>(ref header);
+						stream.ReadWrite(ref header);
 						if(height == 0)
 						{
 							_BlocksByHeight.Clear();

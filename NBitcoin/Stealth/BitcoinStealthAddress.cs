@@ -50,7 +50,7 @@ namespace NBitcoin.Stealth
 			if(rawform.Length < byteCount)
 				_Rawform = rawform.Concat(new byte[byteCount - rawform.Length]).ToArray();
 			if(rawform.Length > byteCount)
-				_Rawform = rawform.Take(byteCount).ToArray();
+				_Rawform = rawform.SafeSubarray(0, byteCount);
 
 			_Mask = new byte[byteCount];
 			int bitleft = bitcount;
