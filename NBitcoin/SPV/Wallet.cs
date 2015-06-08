@@ -137,10 +137,8 @@ namespace NBitcoin.SPV
 			if(creation == null)
 				throw new ArgumentNullException("creation");
 			_Parameters = creation;
-			_ScanLocation = new BlockLocator(new List<uint256>()
-			{
-				creation.Network.GetGenesis().GetHash()
-			});
+			_ScanLocation = new BlockLocator();
+			_ScanLocation.Blocks.Add(creation.Network.GetGenesis().GetHash());
 			_KeyPoolSize = keyPoolSize;
 			Created = DateTimeOffset.UtcNow;
 			LoadPool(0, keyPoolSize);

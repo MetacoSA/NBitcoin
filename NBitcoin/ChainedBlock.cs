@@ -109,7 +109,9 @@ namespace NBitcoin
 					nStep *= 2;
 			}
 
-			return new BlockLocator(vHave);
+			var locators = new BlockLocator();
+			locators.Blocks = vHave;
+			return locators;
 		}
 
 		public override bool Equals(object obj)
