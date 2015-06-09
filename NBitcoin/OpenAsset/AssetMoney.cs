@@ -124,8 +124,11 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		public AssetMoney(decimal amount, int divisibility)
+		public AssetMoney(AssetId assetId, decimal amount, int divisibility)
 		{
+			if(assetId == null)
+				throw new ArgumentNullException("assetId");
+			_Id = assetId;
 			// sanity check. Only valid units are allowed
 			checked
 			{
