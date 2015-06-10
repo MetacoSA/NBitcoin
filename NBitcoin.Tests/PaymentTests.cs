@@ -207,13 +207,25 @@ namespace NBitcoin.Tests
 	public class PaymentServerTester : IDisposable
 	{
 		HttpListener _Listener;
-		string _Prefix = "http://127.0.0.1:3292/";
+		Random rand = new Random();
+		string _Prefix;
 		public PaymentServerTester()
 		{
-			_Listener = new HttpListener();
-			_Listener.Prefixes.Add(_Prefix);
-			_Listener.Start();
-			_Listener.BeginGetContext(ListenerCallback, null);
+			while(true)
+			{
+				try
+				{
+					_Prefix = "http://127.0.0.1:" + rand.Next(2000, 50000) + "/";
+					_Listener = new HttpListener();
+					_Listener.Prefixes.Add(_Prefix);
+					_Listener.Start();
+					_Listener.BeginGetContext(ListenerCallback, null);
+					break;
+				}
+				catch(HttpListenerException)
+				{
+				}
+			}
 		}
 
 		void ListenerCallback(IAsyncResult ar)
