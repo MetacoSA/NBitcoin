@@ -28,11 +28,9 @@ namespace NBitcoin.Tests
 			_Server1 = new NodeServer(network, internalPort: a);
 			_Server1.AllowLocalPeers = true;
 			_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), a);
-			_Server1.NATRuleName = NATRuleName;
 			_Server1.Listen();
 			_Server2 = new NodeServer(network, internalPort: b);
 			_Server2.AllowLocalPeers = true;
-			_Server2.NATRuleName = NATRuleName;
 			_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), b);
 			_Server2.Listen();
 		}
