@@ -553,7 +553,7 @@ namespace NBitcoin.Tests
 			}
 			catch(NotEnoughFundsException ex) //Not enough dust to send the change
 			{
-				Assert.True(ex.Missing.Unit == 600);
+				Assert.True(((Money)ex.Missing).Satoshi == 600);
 				txBuilder = new TransactionBuilder();
 				transfer =
 					txBuilder

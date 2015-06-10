@@ -41,6 +41,7 @@ namespace NBitcoin
 
 		public IEnumerable<ICoin> Select(IEnumerable<ICoin> coins, IMoney target)
 		{
+			var zero = target.Sub(target);
 			var targetCoin = coins
 							.FirstOrDefault(c => c.Amount == target);
 			//If any of your UTXO² matches the Target¹ it will be used.
@@ -48,27 +49,27 @@ namespace NBitcoin
 				return new[] { targetCoin };
 
 			List<ICoin> result = new List<ICoin>();
-			long total = 0;
+			IMoney total = zero;
 
-			if(target.Unit == 0)
+			if(target.CompareTo(zero) == 0)
 				return result;
 
 			var orderedCoins = coins.OrderBy(s => s.Amount).ToArray();
 
 			foreach(var coin in orderedCoins)
 			{
-				if(coin.Amount.Unit < target.Unit && total < target.Unit)
+				if(coin.Amount.CompareTo(target) == -1 && total.CompareTo(target) == -1)
 				{
-					total = checked(total + coin.Amount.Unit);
+					total = total.Add(coin.Amount);
 					result.Add(coin);
 					//If the "sum of all your UTXO smaller than the Target" happens to match the Target, they will be used. (This is the case if you sweep a complete wallet.)
-					if(total == target.Unit)
+					if(total.CompareTo(target) == 0)
 						return result;
 
 				}
 				else
 				{
-					if(total < target.Unit && coin.Amount.Unit > target.Unit)
+					if(total.CompareTo(target) == -1 && coin.Amount.CompareTo(target) == 1)
 					{
 						//If the "sum of all your UTXO smaller than the Target" doesn't surpass the target, the smallest UTXO greater than your Target will be used.
 						return new[] { coin };
@@ -80,27 +81,27 @@ namespace NBitcoin
 						//the smallest UTXO greater than the Target
 						//the smallest combination of UTXO it discovered in Step 4.
 						var allCoins = orderedCoins.ToArray();
-						Money minTotal = null;
+						IMoney minTotal = null;
 						List<ICoin> minSelection = null;
 						for(int _ = 0 ; _ < 1000 ; _++)
 						{
 							var selection = new List<ICoin>();
 							Shuffle(allCoins, _Rand);
-							total = Money.Zero;
+							total = zero;
 							for(int i = 0 ; i < allCoins.Length ; i++)
 							{
 								selection.Add(allCoins[i]);
-								total += allCoins[i].Amount.Unit;
-								if(total == target.Unit)
+								total = total.Add(allCoins[i].Amount);
+								if(total.CompareTo(target) == 0)
 									return selection;
-								if(total > target.Unit)
+								if(total.CompareTo(target) == 1)
 									break;
 							}
-							if(total < target.Unit)
+							if(total.CompareTo(target) == -1)
 							{
 								return null;
 							}
-							if(minTotal == null || total < minTotal)
+							if(minTotal == null || total.CompareTo(minTotal) == -1)
 							{
 								minTotal = total;
 								minSelection = selection;
@@ -109,7 +110,7 @@ namespace NBitcoin
 					}
 				}
 			}
-			if(total < target.Unit)
+			if(total.CompareTo(target) == -1)
 				return null;
 			return result;
 		}
@@ -852,12 +853,12 @@ namespace NBitcoin
 					);
 			var total = selection.Select(s => s.Amount).Sum(zero);
 			var change = total.Sub(target);
-			if(change.Unit < zero.Unit)
+			if(change.CompareTo(zero) == -1)
 				throw new NotEnoughFundsException("Not enough fund to cover the target",
 					group.Name,
 					change.Negate()
 				);
-			if(change.Unit > ctx.Dust.Unit)
+			if(change.CompareTo(ctx.Dust) == 1)
 			{
 				if(group.ChangeScript[(int)ctx.ChangeType] == null)
 					throw new InvalidOperationException("A change address should be specified (" + ctx.ChangeType + ")");

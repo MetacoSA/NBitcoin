@@ -66,12 +66,8 @@ namespace NBitcoin
 		Satoshi = 1
 	}
 
-	public interface IMoney
+	public interface IMoney : IComparable, IComparable<IMoney>, IEquatable<IMoney>
 	{
-		long Unit
-		{
-			get;
-		}
 		IMoney Add(IMoney money);
 		IMoney Sub(IMoney money);
 		IMoney Negate();
@@ -563,14 +559,6 @@ namespace NBitcoin
 
 		#region IMoney Members
 
-		long IMoney.Unit
-		{
-			get
-			{
-				return _Satoshis;
-			}
-		}
-		
 		IMoney IMoney.Add(IMoney money)
 		{
 			return this + (Money)money;
@@ -584,6 +572,33 @@ namespace NBitcoin
 		IMoney IMoney.Negate()
 		{
 			return -this;
+		}
+
+		#endregion
+
+		#region IComparable Members
+
+		int IComparable.CompareTo(object obj)
+		{
+			return this.CompareTo(obj);
+		}
+
+		#endregion
+
+		#region IComparable<IMoney> Members
+
+		int IComparable<IMoney>.CompareTo(IMoney other)
+		{
+			return this.CompareTo(other);
+		}
+
+		#endregion
+
+		#region IEquatable<IMoney> Members
+
+		bool IEquatable<IMoney>.Equals(IMoney other)
+		{
+			return this.Equals(other);
 		}
 
 		#endregion

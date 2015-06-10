@@ -362,13 +362,6 @@ namespace NBitcoin.OpenAsset
 
 		#region IMoney Members
 
-		long IMoney.Unit
-		{
-			get
-			{
-				return Quantity;
-			}
-		}		
 
 		IMoney IMoney.Add(IMoney money)
 		{
@@ -385,6 +378,22 @@ namespace NBitcoin.OpenAsset
 		IMoney IMoney.Negate()
 		{
 			return this * -1;
+		}
+
+
+		int IComparable.CompareTo(object obj)
+		{
+			return this.CompareTo(obj);
+		}
+
+		int IComparable<IMoney>.CompareTo(IMoney other)
+		{
+			return this.CompareTo(other);
+		}
+
+		bool IEquatable<IMoney>.Equals(IMoney other)
+		{
+			return this.Equals(other);
 		}
 
 		#endregion
