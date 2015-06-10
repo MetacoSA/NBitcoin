@@ -108,5 +108,12 @@ namespace NBitcoin.OpenAsset
 				_Str = Encoders.Hex.EncodeData(_Bytes);
 			return _Str;
 		}
+
+		public string ToString(Network network)
+		{
+			if(network == null)
+				throw new ArgumentNullException("network");
+			return new BitcoinAssetId(this, network).ToString();
+		}
 	}
 }

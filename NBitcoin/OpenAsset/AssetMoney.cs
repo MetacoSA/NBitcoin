@@ -395,6 +395,16 @@ namespace NBitcoin.OpenAsset
 		{
 			return this.Equals(other);
 		}
+		
+		bool IMoney.IsCompatible(IMoney money)
+		{
+			if(money == null)
+				throw new ArgumentNullException("money");
+			AssetMoney assetMoney = money as AssetMoney;
+			if(assetMoney == null)
+				return false;
+			return assetMoney.Id == Id;
+		}
 
 		#endregion
 	}

@@ -71,6 +71,7 @@ namespace NBitcoin
 		IMoney Add(IMoney money);
 		IMoney Sub(IMoney money);
 		IMoney Negate();
+		bool IsCompatible(IMoney money);
 	}
 
 
@@ -233,12 +234,26 @@ namespace NBitcoin
 			return new Money(amount, unit);
 		}
 
+		/// <summary>
+		/// Convert Money to decimal (same as ToDecimal)
+		/// </summary>
+		/// <param name="unit"></param>
+		/// <returns></returns>
 		public decimal ToUnit(MoneyUnit unit)
 		{
 			CheckMoneyUnit(unit, "unit");
 			// overflow safe because (long / int) always fit in decimal 
 			// decimal operations are checked by default
 			return (decimal)Satoshi / (int)unit;
+		}
+		/// <summary>
+		/// Convert Money to decimal (same as ToUnit)
+		/// </summary>
+		/// <param name="unit"></param>
+		/// <returns></returns>
+		public decimal ToDecimal(MoneyUnit unit)
+		{
+			return ToUnit(unit);
 		}
 
 		public static Money Coins(decimal coins)
@@ -599,6 +614,13 @@ namespace NBitcoin
 		bool IEquatable<IMoney>.Equals(IMoney other)
 		{
 			return this.Equals(other);
+		}
+
+		bool IMoney.IsCompatible(IMoney money)
+		{
+			if(money == null)
+				throw new ArgumentNullException("money");
+			return money is Money;
 		}
 
 		#endregion
