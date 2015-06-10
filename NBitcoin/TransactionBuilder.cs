@@ -543,6 +543,35 @@ namespace NBitcoin
 			return this;
 		}
 
+		/// <summary>
+		/// Send a money amount to the destination
+		/// </summary>
+		/// <param name="destination">The destination</param>
+		/// <param name="amount">The amount (supported : Money, AssetMoney)</param>
+		/// <returns></returns>
+		/// <exception cref="System.NotSupportedException">The coin type is not supported</exception>
+		public TransactionBuilder Send(IDestination destination, IMoney amount)
+		{
+			return Send(destination.ScriptPubKey, amount);
+		}
+		/// <summary>
+		/// Send a money amount to the destination
+		/// </summary>
+		/// <param name="destination">The destination</param>
+		/// <param name="amount">The amount (supported : Money, AssetMoney)</param>
+		/// <returns></returns>
+		/// <exception cref="System.NotSupportedException">The coin type is not supported</exception>
+		public TransactionBuilder Send(Script scriptPubKey, IMoney amount)
+		{
+			Money coinAmount = amount as Money;
+			if(coinAmount != null)
+				return Send(scriptPubKey, coinAmount);
+			AssetMoney assetAmount = amount as AssetMoney;
+			if(assetAmount != null)
+				return SendAsset(scriptPubKey, assetAmount);
+			throw new NotSupportedException("Type of Money not supported");
+		}
+
 		public TransactionBuilder SendAsset(IDestination destination, AssetMoney asset)
 		{
 			return SendAsset(destination.ScriptPubKey, asset);
