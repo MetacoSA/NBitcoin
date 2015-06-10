@@ -217,7 +217,7 @@ namespace NBitcoin.OpenAsset
 #if !PORTABLE
 			return _Quantity.CompareTo(obj);
 #else
-			return _Satoshis.CompareTo((long)obj);
+			return _Quantity.CompareTo((long)obj);
 #endif
 		}
 
