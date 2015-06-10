@@ -833,7 +833,7 @@ namespace NBitcoin
 				var buildersByAsset = group.BuildersByAsset.ToList();
 				foreach(var builders in buildersByAsset)
 				{
-					var coins = group.Coins.Values.OfType<ColoredCoin>().Where(c => c.Asset.Id == builders.Key).OfType<ICoin>();
+					var coins = group.Coins.Values.OfType<ColoredCoin>().Where(c => c.Amount.Id == builders.Key).OfType<ICoin>();
 
 					ctx.Dust = new AssetMoney(builders.Key);
 					ctx.CoverOnly = null;

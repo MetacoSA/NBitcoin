@@ -176,7 +176,7 @@ namespace NBitcoin
 		}
 		public ColoredCoin(AssetMoney asset, Coin bearer)
 		{
-			Asset = asset;
+			Amount = asset;
 			Bearer = bearer;
 		}
 
@@ -189,13 +189,27 @@ namespace NBitcoin
 		{
 			get
 			{
-				return Asset.Id;
+				return Amount.Id;
 			}
 		}
-		public AssetMoney Asset
+
+		public AssetMoney Amount
 		{
 			get;
 			set;
+		}
+
+		[Obsolete("Use Amount instead")]
+		public AssetMoney Asset
+		{
+			get
+			{
+				return Amount;
+			}
+			set
+			{
+				Amount = value;
+			}
 		}
 
 		public Coin Bearer
@@ -227,14 +241,6 @@ namespace NBitcoin
 			get
 			{
 				return Bearer.ScriptPubKey;
-			}
-		}
-
-		public IMoney Amount
-		{
-			get
-			{
-				return Asset;
 			}
 		}
 
@@ -324,11 +330,6 @@ namespace NBitcoin
 		public Coin()
 		{
 
-		}
-		public Coin(Spendable spendable)
-		{
-			Outpoint = spendable.OutPoint;
-			TxOut = spendable.TxOut;
 		}
 		public Coin(OutPoint fromOutpoint, TxOut fromTxOut)
 		{
