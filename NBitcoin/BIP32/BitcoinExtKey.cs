@@ -94,6 +94,11 @@
 		}
 
 		#endregion
+
+		public static implicit operator ExtKey(BitcoinExtKey key)
+		{
+			return key.ExtKey;
+		}
 	}
 
 	/// <summary>
@@ -140,6 +145,11 @@
 			{
 				return ExtPubKey.ScriptPubKey;
 			}
+		}
+
+		public static implicit operator ExtPubKey(BitcoinExtPubKey key)
+		{
+			return key.ExtPubKey;
 		}
 	}
 }
