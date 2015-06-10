@@ -97,6 +97,8 @@
 
 		public static implicit operator ExtKey(BitcoinExtKey key)
 		{
+			if(key == null)
+				return null;
 			return key.ExtKey;
 		}
 	}
@@ -149,6 +151,8 @@
 
 		public static implicit operator ExtPubKey(BitcoinExtPubKey key)
 		{
+			if(key == null)
+				return null;
 			return key.ExtPubKey;
 		}
 	}

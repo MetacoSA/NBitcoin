@@ -54,6 +54,8 @@ namespace NBitcoin.OpenAsset
 
 		public static implicit operator AssetId(BitcoinAssetId id)
 		{
+			if(id == null)
+				return null;
 			return id.AssetId;
 		}
 	}
