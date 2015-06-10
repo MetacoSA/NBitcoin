@@ -83,50 +83,6 @@ namespace NBitcoin.Protocol
 				added(this, node.Node);
 		}
 
-
-		int[] bitcoinPorts;
-		int[] BitcoinPorts
-		{
-			get
-			{
-				if(bitcoinPorts == null)
-				{
-					bitcoinPorts = Enumerable.Range(Network.DefaultPort, 10).ToArray();
-				}
-				return bitcoinPorts;
-			}
-		}
-
-		TimeSpan _NATLeasePeriod = TimeSpan.FromMinutes(10.0);
-		/// <summary>
-		/// When using DetectExternalEndpoint, UPNP will open ports on the gateway for a fixed amount of time before renewing
-		/// </summary>
-		public TimeSpan NATLeasePeriod
-		{
-			get
-			{
-				return _NATLeasePeriod;
-			}
-			set
-			{
-				_NATLeasePeriod = value;
-			}
-		}
-
-
-		string _NATRuleName = "NBitcoin Node Server";
-		public string NATRuleName
-		{
-			get
-			{
-				return _NATRuleName;
-			}
-			set
-			{
-				_NATRuleName = value;
-			}
-		}
-
 		public bool DetectExternalEndpoint(CancellationToken cancellation = default(CancellationToken))
 		{
 			NodeServerTrace.Information("No UPNP device found, try to use external web services to deduce external address");
