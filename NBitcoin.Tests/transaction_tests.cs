@@ -551,8 +551,9 @@ namespace NBitcoin.Tests
 					.BuildTransaction(true);
 				Assert.False(true, "Should have thrown");
 			}
-			catch(NotEnoughFundsException) //Not enough dust to send the change
+			catch(NotEnoughFundsException ex) //Not enough dust to send the change
 			{
+				Assert.True(ex.Missing.Unit == 600);
 				txBuilder = new TransactionBuilder();
 				transfer =
 					txBuilder
@@ -834,6 +835,7 @@ namespace NBitcoin.Tests
 			tx = txBuilder
 			   .AddCoins(allCoins)
 			   .AddKeys(keys)
+			   .SetGroupName("test")
 			   .Send(destinations[0], Money.Parse("6"))
 			   .Send(destinations[2], Money.Parse("5"))
 			   .Send(destinations[2], Money.Parse("0.9998"))
@@ -844,8 +846,9 @@ namespace NBitcoin.Tests
 			Assert.Equal(4, tx.Outputs.Count); //+ Change
 
 			txBuilder.Send(destinations[4], Money.Parse("1"));
-			Assert.Throws<NotEnoughFundsException>(() => txBuilder.BuildTransaction(true));
-
+			var ex = Assert.Throws<NotEnoughFundsException>(() => txBuilder.BuildTransaction(true));
+			Assert.True(ex.Group == "test");
+			Assert.True((Money)ex.Missing == Money.Parse("0.9999"));
 			//Can sign partially
 			txBuilder = new TransactionBuilder(0);
 			tx = txBuilder
@@ -982,7 +985,8 @@ namespace NBitcoin.Tests
 			Assert.True(signed.Outputs.Count == 2);
 			Assert.True(builder.Verify(signed, Money.Coins(0.0001m)));
 			builder.DustPrevention = false;
-			Assert.Throws<NotEnoughFundsException>(() => builder.Verify(signed, Money.Coins(0.0001m)));
+			var ex = Assert.Throws<NotEnoughFundsException>(() => builder.Verify(signed, Money.Coins(0.0001m)));
+			Assert.True((Money)ex.Missing == Money.Parse("-0.00000599"));
 		}
 
 		[Fact]

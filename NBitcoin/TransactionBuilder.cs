@@ -143,20 +143,40 @@ namespace NBitcoin
 		#endregion
 	}
 
+
+	/// <summary>
+	/// Exception thrown when not enough funds are present for verifying or building a transaction
+	/// </summary>
 	public class NotEnoughFundsException : Exception
 	{
 		public NotEnoughFundsException()
 		{
 		}
-		public NotEnoughFundsException(string message)
-			: base(message)
+		public NotEnoughFundsException(string message, string group, IMoney missing)
+			: base(BuildMessage(message, group, missing))
 		{
+			Missing = missing;
+			Group = group;
+		}
+
+		private static string BuildMessage(string message, string group, IMoney missing)
+		{
+			StringBuilder builder = new StringBuilder();
+			builder.Append(message);
+			if(group != null)
+				builder.Append(" in group " + group);
+			if(missing != null)
+				builder.Append(" with missing amount " + missing);
+			return builder.ToString();
 		}
 		public NotEnoughFundsException(string message, Exception inner)
 			: base(message, inner)
 		{
 		}
 
+		/// <summary>
+		/// The group name who is missing the funds
+		/// </summary>
 		public string Group
 		{
 			get;
@@ -383,6 +403,12 @@ namespace NBitcoin
 				get;
 				set;
 			}
+
+			public string Name
+			{
+				get;
+				set;
+			}
 		}
 
 		List<BuilderGroup> _BuilderGroups = new List<BuilderGroup>();
@@ -480,6 +506,17 @@ namespace NBitcoin
 			{
 				CurrentGroup.Coins.AddOrReplace(coin.Outpoint, coin);
 			}
+			return this;
+		}
+
+		/// <summary>
+		/// Set the name of this group (group are separated by call to Then())
+		/// </summary>
+		/// <param name="groupName">Name of the group</param>
+		/// <returns></returns>
+		public TransactionBuilder SetGroupName(string groupName)
+		{
+			CurrentGroup.Name = groupName;
 			return this;
 		}
 
@@ -728,11 +765,24 @@ namespace NBitcoin
 			CoinSelector = selector;
 			return this;
 		}
-
+		/// <summary>
+		/// Build the transaction
+		/// </summary>
+		/// <param name="sign">True if signs all inputs with the available keys</param>
+		/// <returns>The transaction</returns>
+		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public Transaction BuildTransaction(bool sign)
 		{
 			return BuildTransaction(sign, SigHash.All);
 		}
+
+		/// <summary>
+		/// Build the transaction
+		/// </summary>
+		/// <param name="sign">True if signs all inputs with the available keys</param>
+		/// <param name="sigHash">The type of signature</param>
+		/// <returns>The transaction</returns>
+		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public Transaction BuildTransaction(bool sign, SigHash sigHash)
 		{
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
@@ -796,11 +846,17 @@ namespace NBitcoin
 			var unconsumed = coins.Where(c => !ctx.ConsumedCoins.Any(cc => cc.Outpoint == c.Outpoint));
 			var selection = CoinSelector.Select(unconsumed, target);
 			if(selection == null)
-				throw new NotEnoughFundsException("Not enough fund to cover the target");
+				throw new NotEnoughFundsException("Not enough fund to cover the target",
+					group.Name,
+					target.Sub(unconsumed.Select(u => u.Amount).Sum(zero))
+					);
 			var total = selection.Select(s => s.Amount).Sum(zero);
 			var change = total.Sub(target);
 			if(change.Unit < zero.Unit)
-				throw new NotEnoughFundsException("Not enough fund to cover the target");
+				throw new NotEnoughFundsException("Not enough fund to cover the target",
+					group.Name,
+					change.Negate()
+				);
 			if(change.Unit > ctx.Dust.Unit)
 			{
 				if(group.ChangeScript[(int)ctx.ChangeType] == null)
@@ -896,6 +952,13 @@ namespace NBitcoin
 			return coin;
 		}
 
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to verify</param>
+		/// <param name="expectedFees">The expected fees (if null, do not verify)</param>
+		/// <returns>True if the verification pass</returns>
+		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public bool Verify(Transaction tx, Money expectedFees = null)
 		{
 			Money spent = Money.Zero;
@@ -912,10 +975,7 @@ namespace NBitcoin
 					return false;
 			}
 			if(spent < tx.TotalOut)
-				throw new NotEnoughFundsException("Not enough funds in this transaction")
-				{
-					Missing = tx.TotalOut - spent
-				};
+				throw new NotEnoughFundsException("Not enough funds in this transaction", null, tx.TotalOut - spent);
 
 			var fees = (spent - tx.TotalOut);
 			if(expectedFees != null)
@@ -925,10 +985,7 @@ namespace NBitcoin
 				if(!DustPrevention)
 					margin = 0.0m;
 				if(!expectedFees.Almost(fees, margin))
-					throw new NotEnoughFundsException("Fees different than expected (" + fees.ToString() + ")")
-					{
-						Missing = expectedFees - fees
-					};
+					throw new NotEnoughFundsException("Fees different than expected", null, expectedFees - fees);
 			}
 			return true;
 		}
