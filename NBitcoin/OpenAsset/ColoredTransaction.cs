@@ -359,17 +359,17 @@ namespace NBitcoin.OpenAsset
 			var burned = Inputs
 				.Select(i => i.Asset)
 				.GroupBy(i => i.Id)
-				.Select(g => g.Sum());
+				.Select(g => g.Sum(g.Key));
 
 			var transfered =
 				Transfers
 				.Select(i => i.Asset)
 				.GroupBy(i => i.Id)
-				.Select(g => -g.Sum());
+				.Select(g => -g.Sum(g.Key));
 
 			return burned.Concat(transfered)
 				.GroupBy(o => o.Id)
-				.Select(g => g.Sum())
+				.Select(g => g.Sum(g.Key))
 				.Where(a => a.Quantity != 0)
 				.ToArray();
 		}

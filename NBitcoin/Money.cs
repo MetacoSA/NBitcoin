@@ -20,10 +20,28 @@ namespace NBitcoin
 			}
 			return new Money(result);
 		}
-		public static AssetMoney Sum(this IEnumerable<AssetMoney> moneys)
+
+		public static IMoney Sum(this IEnumerable<IMoney> moneys, IMoney zero)
 		{
 			if(moneys == null)
 				throw new ArgumentNullException("moneys");
+			if(zero == null)
+				throw new ArgumentNullException("zero");
+			IMoney result = zero;
+			foreach(var money in moneys)
+			{
+				result = result.Add(money);
+			}
+			return result;
+		}
+
+
+		public static AssetMoney Sum(this IEnumerable<AssetMoney> moneys, AssetId assetId)
+		{
+			if(moneys == null)
+				throw new ArgumentNullException("moneys");
+			if(assetId == null)
+				throw new ArgumentNullException("assetId");
 			long result = 0;
 			AssetId id = null;
 			foreach(var money in moneys)
@@ -35,7 +53,7 @@ namespace NBitcoin
 					throw new ArgumentException("Impossible to add AssetMoney with different asset ids","moneys");
 			}
 			if(id == null)
-				throw new ArgumentException("AssetMoney.Sum needs at least one AssetMoney in the input collection", "moneys");
+				return new AssetMoney(assetId);
 			return new AssetMoney(id, result);
 		}
 	}
@@ -54,6 +72,9 @@ namespace NBitcoin
 		{
 			get;
 		}
+		IMoney Add(IMoney money);
+		IMoney Sub(IMoney money);
+		IMoney Negate();
 	}
 
 
@@ -548,6 +569,21 @@ namespace NBitcoin
 			{
 				return _Satoshis;
 			}
+		}
+		
+		IMoney IMoney.Add(IMoney money)
+		{
+			return this + (Money)money;
+		}
+
+		IMoney IMoney.Sub(IMoney money)
+		{
+			return this - (Money)money;
+		}
+
+		IMoney IMoney.Negate()
+		{
+			return -this;
 		}
 
 		#endregion

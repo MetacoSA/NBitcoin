@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.OpenAsset
 {
-	public class AssetMoney : IComparable, IComparable<AssetMoney>, IEquatable<AssetMoney>
+	public class AssetMoney : IComparable, IComparable<AssetMoney>, IEquatable<AssetMoney>, IMoney
 	{
 		long _Quantity;
 		public long Quantity
@@ -62,17 +62,9 @@ namespace NBitcoin.OpenAsset
 				throw new ArgumentNullException("assetId");
 			_Id = assetId;
 		}
-		public AssetMoney(BitcoinAssetId assetId)
-			: this(assetId.AssetId)
-		{
-		}
 
 		public AssetMoney(IDestination issuer, long quantity)
 			: this(new AssetId(issuer), quantity)
-		{
-		}
-		public AssetMoney(BitcoinAssetId assetId, int quantity)
-			: this(assetId.AssetId, quantity)
 		{
 		}
 		public AssetMoney(AssetId assetId, int quantity)
@@ -83,20 +75,12 @@ namespace NBitcoin.OpenAsset
 			Quantity = quantity;
 		}
 
-		public AssetMoney(BitcoinAssetId assetId, uint quantity)
-			: this(assetId.AssetId, quantity)
-		{
-		}
 		public AssetMoney(AssetId assetId, uint quantity)
 		{
 			if(assetId == null)
 				throw new ArgumentNullException("assetId");
 			_Id = assetId;
 			Quantity = quantity;
-		}
-		public AssetMoney(BitcoinAssetId assetId, long quantity)
-			: this(assetId.AssetId, quantity)
-		{
 		}
 		public AssetMoney(AssetId assetId, long quantity)
 		{
@@ -106,10 +90,6 @@ namespace NBitcoin.OpenAsset
 			Quantity = quantity;
 		}
 
-		public AssetMoney(BitcoinAssetId assetId, ulong quantity)
-			: this(assetId.AssetId, quantity)
-		{
-		}
 		public AssetMoney(AssetId assetId, ulong quantity)
 		{
 			if(assetId == null)
@@ -136,16 +116,6 @@ namespace NBitcoin.OpenAsset
 				var satoshi = amount * dec;
 				Quantity = (long)satoshi;
 			}
-		}
-
-#if !NOBIGINT
-		public AssetMoney(BitcoinAssetId assetId, BigInteger quantity)
-			: this(assetId.AssetId, quantity)
-#else
-		internal AssetMoney(BitcoinAssetId assetId, BigInteger quantity)
-			: this(assetId.AssetId, quantity)
-#endif
-		{
 		}
 
 #if !NOBIGINT
@@ -389,5 +359,34 @@ namespace NBitcoin.OpenAsset
 				return a;
 			return b;
 		}
+
+		#region IMoney Members
+
+		long IMoney.Unit
+		{
+			get
+			{
+				return Quantity;
+			}
+		}		
+
+		IMoney IMoney.Add(IMoney money)
+		{
+			var assetMoney = (AssetMoney)money;
+			return this + assetMoney;
+		}
+
+		IMoney IMoney.Sub(IMoney money)
+		{
+			var assetMoney = (AssetMoney)money;
+			return this - assetMoney;
+		}
+
+		IMoney IMoney.Negate()
+		{
+			return this * -1;
+		}
+
+		#endregion
 	}
 }

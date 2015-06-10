@@ -51,5 +51,10 @@ namespace NBitcoin.OpenAsset
 				return Base58Type.ASSET_ID;
 			}
 		}
+
+		public static implicit operator AssetId(BitcoinAssetId id)
+		{
+			return id.AssetId;
+		}
 	}
 }

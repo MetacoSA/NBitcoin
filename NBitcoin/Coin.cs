@@ -230,11 +230,11 @@ namespace NBitcoin
 			}
 		}
 
-		public Money Amount
+		public IMoney Amount
 		{
 			get
 			{
-				return Asset.Quantity;
+				return Asset;
 			}
 		}
 

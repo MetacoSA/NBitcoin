@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Builder = System.Func<NBitcoin.TransactionBuilder.TransactionBuildingContext, NBitcoin.Money>;
+using Builder = System.Func<NBitcoin.TransactionBuilder.TransactionBuildingContext, NBitcoin.IMoney>;
 
 namespace NBitcoin
 {
@@ -156,6 +156,21 @@ namespace NBitcoin
 			: base(message, inner)
 		{
 		}
+
+		public string Group
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Amount of Money missing
+		/// </summary>
+		public IMoney Missing
+		{
+			get;
+			set;
+		}
 	}
 
 	/// <summary>
@@ -203,7 +218,6 @@ namespace NBitcoin
 			{
 				Builder = builder;
 				Transaction = new Transaction();
-				ChangeAmount = Money.Zero;
 				AdditionalFees = Money.Zero;
 			}
 			public TransactionBuilder.BuilderGroup Group
@@ -285,7 +299,7 @@ namespace NBitcoin
 				set;
 			}
 
-			public Money ChangeAmount
+			public IMoney ChangeAmount
 			{
 				get;
 				set;
@@ -311,13 +325,13 @@ namespace NBitcoin
 				set;
 			}
 
-			public Money CoverOnly
+			public IMoney CoverOnly
 			{
 				get;
 				set;
 			}
 
-			public Money Dust
+			public IMoney Dust
 			{
 				get;
 				set;
@@ -339,12 +353,13 @@ namespace NBitcoin
 				Builders.Add(SetChange);
 			}
 
-			Money SetChange(TransactionBuildingContext ctx)
+			IMoney SetChange(TransactionBuildingContext ctx)
 			{
-				if(ctx.ChangeAmount == Money.Zero)
+				var changeAmount = (Money)ctx.ChangeAmount;
+				if(changeAmount.Satoshi == 0)
 					return Money.Zero;
-				ctx.Transaction.AddOutput(new TxOut(ctx.ChangeAmount, ctx.Group.ChangeScript[(int)ChangeType.Uncolored]));
-				return ctx.ChangeAmount;
+				ctx.Transaction.AddOutput(new TxOut(changeAmount, ctx.Group.ChangeScript[(int)ChangeType.Uncolored]));
+				return changeAmount;
 			}
 			internal List<Builder> Builders = new List<Builder>();
 			internal Dictionary<OutPoint, ICoin> Coins = new Dictionary<OutPoint, ICoin>();
@@ -508,15 +523,16 @@ namespace NBitcoin
 			return this;
 		}
 
-		Money SetColoredChange(TransactionBuildingContext ctx)
+		IMoney SetColoredChange(TransactionBuildingContext ctx)
 		{
-			if(ctx.ChangeAmount == Money.Zero)
-				return Money.Zero;
+			var changeAmount = (AssetMoney)ctx.ChangeAmount;
+			if(changeAmount.Quantity == 0)
+				return changeAmount;
 			var marker = ctx.GetColorMarker(false);
 			var txout = ctx.Transaction.AddOutput(new TxOut(ColoredDust, ctx.Group.ChangeScript[(int)ChangeType.Colored]));
-			marker.SetQuantity(ctx.Transaction.Outputs.Count - 2, ctx.ChangeAmount);
+			marker.SetQuantity(ctx.Transaction.Outputs.Count - 2, changeAmount.Quantity);
 			ctx.AdditionalFees += ColoredDust;
-			return ctx.ChangeAmount;
+			return changeAmount;
 		}
 
 		public TransactionBuilder SendAsset(Script scriptPubKey, AssetId assetId, ulong assetQuantity)
@@ -540,7 +556,7 @@ namespace NBitcoin
 				ctx.Transaction.AddOutput(new TxOut(ColoredDust, scriptPubKey));
 				marker.SetQuantity(ctx.Transaction.Outputs.Count - 2, asset.Quantity);
 				ctx.AdditionalFees += ColoredDust;
-				return asset.Quantity;
+				return asset;
 			});
 			return this;
 		}
@@ -628,7 +644,7 @@ namespace NBitcoin
 				ctx.Transaction.Outputs.Insert(0, new TxOut(ColoredDust, scriptPubKey));
 				marker.Quantities = new[] { checked((ulong)asset.Quantity) }.Concat(marker.Quantities).ToArray();
 				ctx.AdditionalFees += ColoredDust;
-				return asset.Quantity;
+				return asset;
 			});
 			return this;
 		}
@@ -677,10 +693,12 @@ namespace NBitcoin
 		{
 			if(fees == null)
 				throw new ArgumentNullException("fees");
-			var perGroup = fees / _BuilderGroups.Count;
+			var perGroup = fees.Split(_BuilderGroups.Count).GetEnumerator();
 			foreach(var group in _BuilderGroups)
 			{
-				group.Builders.Add(ctx => perGroup);
+				perGroup.MoveNext();
+				var fee = perGroup.Current;
+				group.Builders.Add(ctx => fee);
 			}
 			return this;
 		}
@@ -737,18 +755,20 @@ namespace NBitcoin
 				{
 					var coins = group.Coins.Values.OfType<ColoredCoin>().Where(c => c.Asset.Id == builders.Key).OfType<ICoin>();
 
-					ctx.Dust = Money.Zero;
+					ctx.Dust = new AssetMoney(builders.Key);
 					ctx.CoverOnly = null;
-					var btcSpent = BuildTransaction(ctx, group, builders.Value, coins)
+					ctx.ChangeAmount = new AssetMoney(builders.Key);
+					var btcSpent = BuildTransaction(ctx, group, builders.Value, coins, new AssetMoney(builders.Key))
 						.OfType<IColoredCoin>().Select(c => c.Bearer.Amount).Sum();
 					ctx.AdditionalFees -= btcSpent;
 				}
 
 				ctx.AdditionalBuilders.Add(_ => _.AdditionalFees);
 				ctx.Dust = Money.Dust;
+				ctx.ChangeAmount = Money.Zero;
 				ctx.CoverOnly = group.CoverOnly;
 				ctx.ChangeType = ChangeType.Uncolored;
-				BuildTransaction(ctx, group, group.Builders, group.Coins.Values.OfType<Coin>());
+				BuildTransaction(ctx, group, group.Builders, group.Coins.Values.OfType<Coin>(), Money.Zero);
 			}
 			ctx.Finish();
 
@@ -763,24 +783,25 @@ namespace NBitcoin
 			TransactionBuildingContext ctx,
 			BuilderGroup group,
 			IEnumerable<Builder> builders,
-			IEnumerable<ICoin> coins)
+			IEnumerable<ICoin> coins,
+			IMoney zero)
 		{
 			var originalCtx = ctx.CreateMemento();
-			var target = builders.Concat(ctx.AdditionalBuilders).Select(b => b(ctx)).Sum();
+			var target = builders.Concat(ctx.AdditionalBuilders).Select(b => b(ctx)).Sum(zero);
 			if(ctx.CoverOnly != null)
 			{
-				target = ctx.CoverOnly + ctx.ChangeAmount;
+				target = ctx.CoverOnly.Add(ctx.ChangeAmount);
 			}
 
 			var unconsumed = coins.Where(c => !ctx.ConsumedCoins.Any(cc => cc.Outpoint == c.Outpoint));
 			var selection = CoinSelector.Select(unconsumed, target);
 			if(selection == null)
 				throw new NotEnoughFundsException("Not enough fund to cover the target");
-			var total = selection.Select(s => s.Amount.Unit).Sum();
-			var change = total - target.Satoshi;
-			if(change < Money.Zero)
+			var total = selection.Select(s => s.Amount).Sum(zero);
+			var change = total.Sub(target);
+			if(change.Unit < zero.Unit)
 				throw new NotEnoughFundsException("Not enough fund to cover the target");
-			if(change > ctx.Dust)
+			if(change.Unit > ctx.Dust.Unit)
 			{
 				if(group.ChangeScript[(int)ctx.ChangeType] == null)
 					throw new InvalidOperationException("A change address should be specified (" + ctx.ChangeType + ")");
@@ -789,11 +810,11 @@ namespace NBitcoin
 				ctx.ChangeAmount = change;
 				try
 				{
-					return BuildTransaction(ctx, group, builders, coins);
+					return BuildTransaction(ctx, group, builders, coins, zero);
 				}
 				finally
 				{
-					ctx.ChangeAmount = Money.Zero;
+					ctx.ChangeAmount = zero;
 				}
 			}
 			foreach(var coin in selection)
@@ -891,7 +912,10 @@ namespace NBitcoin
 					return false;
 			}
 			if(spent < tx.TotalOut)
-				throw new NotEnoughFundsException("Not enough funds in this transaction");
+				throw new NotEnoughFundsException("Not enough funds in this transaction")
+				{
+					Missing = tx.TotalOut - spent
+				};
 
 			var fees = (spent - tx.TotalOut);
 			if(expectedFees != null)
@@ -901,7 +925,10 @@ namespace NBitcoin
 				if(!DustPrevention)
 					margin = 0.0m;
 				if(!expectedFees.Almost(fees, margin))
-					throw new NotEnoughFundsException("Fees different than expected (" + fees.ToString() + ")");
+					throw new NotEnoughFundsException("Fees different than expected (" + fees.ToString() + ")")
+					{
+						Missing = expectedFees - fees
+					};
 			}
 			return true;
 		}
