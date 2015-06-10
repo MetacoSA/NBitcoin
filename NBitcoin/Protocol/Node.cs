@@ -1055,7 +1055,7 @@ namespace NBitcoin.Protocol
 					while(true)
 					{
 						bool isOurs = false;
-						var headersCancel = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken); //30 sec delay before reasking GetHeadesr
+						var headersCancel = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken); //30 sec delay before reasking GetHeaders
 						headersCancel.CancelAfter(TimeSpan.FromMinutes(1.0));
 						HeadersPayload headers = null;
 						try
@@ -1068,7 +1068,7 @@ namespace NBitcoin.Protocol
 								throw;
 							break; //Send a new GetHeaders
 						}
-						if(headers.Headers.Count == 0 && currentTip.HashBlock == Network.GenesisHash) //In the special case where the remote node is at height 0 as well as us, then the headers count will be 0
+						if(headers.Headers.Count == 0 && PeerVersion.StartHeight == 0 && currentTip.HashBlock == Network.GenesisHash) //In the special case where the remote node is at height 0 as well as us, then the headers count will be 0
 							yield break;
 						if(headers.Headers.Count == 1 && headers.Headers[0].GetHash() == currentTip.HashBlock)
 							yield break;
