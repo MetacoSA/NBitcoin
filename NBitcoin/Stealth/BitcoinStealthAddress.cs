@@ -112,7 +112,7 @@ namespace NBitcoin.Stealth
 
 		public StealthPayment[] GetPayments(Transaction transaction)
 		{
-			return StealthPayment.GetPayments(transaction, null, null);
+			return StealthPayment.GetPayments(transaction, null, null).Where(p => this.Match(p.Metadata)).ToArray();
 		}
 	}
 	public class BitcoinStealthAddress : Base58Data
