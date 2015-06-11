@@ -2,7 +2,9 @@
 using System.Globalization;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using System.Text;
 using NBitcoin.OpenAsset;
 
 namespace NBitcoin
@@ -71,9 +73,117 @@ namespace NBitcoin
 		IMoney Add(IMoney money);
 		IMoney Sub(IMoney money);
 		IMoney Negate();
+		bool IsZero();
 		bool IsCompatible(IMoney money);
 	}
 
+	public class MoneyBag : IMoney
+	{
+		private readonly List<IMoney> _bag = new List<IMoney>();
+
+		public MoneyBag(MoneyBag money)
+			:this(money._bag)
+		{
+		}
+
+		public MoneyBag(params IMoney[] bag)
+			:this((IEnumerable<IMoney>)bag)
+		{
+		}
+
+		private MoneyBag(IEnumerable<IMoney> bag)
+		{
+			foreach (var money in bag)
+			{
+				AppendMoney(money);
+			}
+		}
+
+		private void AppendMoney(MoneyBag money)
+		{
+			foreach (var m in money._bag)
+			{
+				AppendMoney(m);
+			}
+		}
+
+		private void AppendMoney(IMoney money)
+		{
+			var moneyBag = money as MoneyBag;
+			if(moneyBag != null)
+			{
+				AppendMoney(moneyBag);	
+				return;
+			}
+
+			var firstCompatible = _bag.FirstOrDefault(x => x.IsCompatible(money));
+			if(firstCompatible == null)
+			{
+				_bag.Add(money);
+			}
+			else
+			{
+				_bag.Remove(firstCompatible);
+				var total = firstCompatible.Add(money);
+ 				if(!total.IsZero())
+					_bag.Add(total);
+			}
+		}
+
+		public int CompareTo(object obj)
+		{
+			throw new NotSupportedException("Comparisons are not possible for MoneyBag");
+		}
+
+		public int CompareTo(IMoney other)
+		{
+			throw new NotSupportedException("Comparisons are not possible for MoneyBag");
+		}
+
+		public bool Equals(IMoney other)
+		{
+			if(other == null) return false;
+			var m = new MoneyBag(other);
+			return m._bag.SequenceEqual(_bag);
+		}
+
+		public IMoney Add(IMoney money)
+		{
+			var m = new MoneyBag(_bag);
+			m.AppendMoney(money);
+			return m;
+		}
+
+		public IMoney Sub(IMoney money)
+		{
+			return Add(money.Negate());
+		}
+
+		public IMoney Negate()
+		{
+			return new MoneyBag(_bag.Select(x=>x.Negate()));
+		}
+
+		public bool IsZero()
+		{
+			return !_bag.Any();
+		}
+
+		public bool IsCompatible(IMoney money)
+		{
+			return true;
+		}
+
+		public override string ToString()
+		{
+			var sb = new StringBuilder();
+			foreach (var money in _bag)
+			{
+				sb.AppendFormat("{0} ", money);
+			}
+			return sb.ToString();
+		}
+	}
 
 	public class Money : IComparable, IComparable<Money>, IEquatable<Money>, IMoney
 	{
@@ -587,6 +697,11 @@ namespace NBitcoin
 		IMoney IMoney.Negate()
 		{
 			return -this;
+		}
+
+		public bool IsZero()
+		{
+			return _Satoshis == 0;
 		}
 
 		#endregion

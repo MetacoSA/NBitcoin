@@ -1,5 +1,6 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+using NBitcoin.OpenAsset;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
@@ -554,6 +555,50 @@ namespace NBitcoin.Tests
 
 			Assert.Throws<ArgumentOutOfRangeException>(() => Utils.DateTimeToUnixTime(Utils.UnixTimeToDateTime(uint.MaxValue) + TimeSpan.FromSeconds(1)));
 			Assert.Throws<ArgumentOutOfRangeException>(() => Utils.DateTimeToUnixTime(Utils.UnixTimeToDateTime(0) - TimeSpan.FromSeconds(1)));
+		}
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void MoneyBagOperations()
+		{
+			var msft = new AssetId("8f316d9a09");
+			var goog = new AssetId("097f175bc8");
+			var usd =  new AssetId("6d2e8c766a");
+
+			// 10 MSFT + 3 GOOG
+			var mb = new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3));
+
+			// (10 MSFT + 3 GOOG) + 1000 satoshis
+			Assert.Equal(
+				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3), new Money(1000)),
+				mb.Add(Money.Satoshis(1000)));
+
+			// (10 MSFT + 3 GOOG) + 30 GOOG == (10 MSFT + 33 GOOG)
+			Assert.Equal(
+				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 33)),
+				mb.Add(new AssetMoney(goog, 30)));
+
+			// (10 MSFT + 3 GOOG) + (10 MSFT + 3 GOOG) == (20 MSFT + 6 GOOG)
+			Assert.Equal(
+				new MoneyBag(new AssetMoney(msft, 20), new AssetMoney(goog, 6)),
+				mb.Add(mb));
+
+			//-----
+			// (10 MSFT + 3 GOOG) - 1000 satoshis
+			Assert.Equal(
+				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3), new Money(-1000)),
+				mb.Sub(Money.Satoshis(1000)));
+
+			// (10 MSFT + 3 GOOG) - 30 GOOG == (10 MSFT - 27 GOOG)
+			Assert.Equal(
+				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, -27)),
+				mb.Sub(new AssetMoney(goog, 30)));
+
+			// (10 MSFT + 3 GOOG) - (10 MSFT + 3 GOOG) == ()
+			Assert.Equal(
+				new MoneyBag(),
+				mb.Sub(mb));
 		}
 	}
 }
