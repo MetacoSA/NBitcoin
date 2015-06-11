@@ -24,12 +24,13 @@ namespace NBitcoin
 			}
 		}
 
-		public Base58Data(string base64, Network expectedNetwork = null)
+		protected Base58Data(string base64, Network expectedNetwork = null)
 		{
 			_Network = expectedNetwork;
 			SetString(base64);
 		}
-		public Base58Data(byte[] rawBytes, Network network)
+
+		protected Base58Data(byte[] rawBytes, Network network)
 		{
 			if(network == null)
 				throw new ArgumentNullException("network");

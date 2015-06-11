@@ -54,7 +54,7 @@ namespace NBitcoin.OpenAsset
 			return _Repository.GetAsync<ColoredTransaction>(GetId(txId));
 		}
 
-		private string GetId(uint256 txId)
+		private static string GetId(uint256 txId)
 		{
 			return "ctx-" + txId;
 		}

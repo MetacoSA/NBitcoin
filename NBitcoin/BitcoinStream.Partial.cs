@@ -21,12 +21,12 @@ namespace NBitcoin
 		private void ReadWriteArray<T>(ref T[] data) where T : IBitcoinSerializable
 		{
 			if(data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
+				throw new ArgumentNullException("data", "Impossible to serialize a null array");
 			var length = new VarInt(data == null ? 0 : (ulong)data.Length);
 			ReadWrite(ref length);
 
 			if(length.ToLong() > (uint)MaxArraySize)
-				throw new ArgumentOutOfRangeException("Array size not big");
+				throw new ArgumentOutOfRangeException("data", "Array size not big");
 			if(!Serializing)
 				data = new T[length.ToLong()];
 			for(int i = 0 ; i < data.Length ; i++)
@@ -41,12 +41,12 @@ namespace NBitcoin
 		private void ReadWriteArray(ref ulong[] data)
 		{
 			if(data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
+				throw new ArgumentNullException("data", "Impossible to serialize a null array");
 			var length = new VarInt(data == null ? 0 : (ulong)data.Length);
 			ReadWrite(ref length);
 
 			if(length.ToLong() > (uint)MaxArraySize)
-				throw new ArgumentOutOfRangeException("Array size not big");
+				throw new ArgumentOutOfRangeException("data", "Array size not big");
 			if(!Serializing)
 				data = new ulong[length.ToLong()];
 			for(int i = 0 ; i < data.Length ; i++)
@@ -61,12 +61,12 @@ namespace NBitcoin
 		private void ReadWriteArray(ref ushort[] data)
 		{
 			if(data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
+				throw new ArgumentNullException("data","Impossible to serialize a null array");
 			var length = new VarInt(data == null ? 0 : (ulong)data.Length);
 			ReadWrite(ref length);
 
 			if(length.ToLong() > (uint)MaxArraySize)
-				throw new ArgumentOutOfRangeException("Array size not big");
+				throw new ArgumentOutOfRangeException("data","Array size not big");
 			if(!Serializing)
 				data = new ushort[length.ToLong()];
 			for(int i = 0 ; i < data.Length ; i++)
@@ -81,12 +81,12 @@ namespace NBitcoin
 		private void ReadWriteArray(ref uint[] data)
 		{
 			if(data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
+				throw new ArgumentNullException("data", "Impossible to serialize a null array");
 			var length = new VarInt(data == null ? 0 : (ulong)data.Length);
 			ReadWrite(ref length);
 
 			if(length.ToLong() > (uint)MaxArraySize)
-				throw new ArgumentOutOfRangeException("Array size not big");
+				throw new ArgumentOutOfRangeException("data", "Array size not big");
 			if(!Serializing)
 				data = new uint[length.ToLong()];
 			for(int i = 0 ; i < data.Length ; i++)
@@ -101,12 +101,12 @@ namespace NBitcoin
 		private void ReadWriteArray(ref byte[] data)
 		{
 			if(data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
+				throw new ArgumentNullException("data", "Impossible to serialize a null array");
 			var length = new VarInt(data == null ? 0 : (ulong)data.Length);
 			ReadWrite(ref length);
 
 			if(length.ToLong() > (uint)MaxArraySize)
-				throw new ArgumentOutOfRangeException("Array size not big");
+				throw new ArgumentOutOfRangeException("data", "Array size not big");
 			if(!Serializing)
 				data = new byte[length.ToLong()];
 			for(int i = 0 ; i < data.Length ; i++)
@@ -121,12 +121,12 @@ namespace NBitcoin
 		private void ReadWriteArray(ref long[] data)
 		{
 			if(data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
+				throw new ArgumentNullException("data", "Impossible to serialize a null array");
 			var length = new VarInt(data == null ? 0 : (ulong)data.Length);
 			ReadWrite(ref length);
 
 			if(length.ToLong() > (uint)MaxArraySize)
-				throw new ArgumentOutOfRangeException("Array size not big");
+				throw new ArgumentOutOfRangeException("data", "Array size not big");
 			if(!Serializing)
 				data = new long[length.ToLong()];
 			for(int i = 0 ; i < data.Length ; i++)
@@ -141,12 +141,12 @@ namespace NBitcoin
 		private void ReadWriteArray(ref short[] data)
 		{
 			if(data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
+				throw new ArgumentNullException("data", "Impossible to serialize a null array");
 			var length = new VarInt(data == null ? 0 : (ulong)data.Length);
 			ReadWrite(ref length);
 
 			if(length.ToLong() > (uint)MaxArraySize)
-				throw new ArgumentOutOfRangeException("Array size not big");
+				throw new ArgumentOutOfRangeException("data", "Array size not big");
 			if(!Serializing)
 				data = new short[length.ToLong()];
 			for(int i = 0 ; i < data.Length ; i++)
@@ -161,12 +161,12 @@ namespace NBitcoin
 		private void ReadWriteArray(ref int[] data)
 		{
 			if(data == null && Serializing)
-				throw new ArgumentNullException("Impossible to serialize a null array");
+				throw new ArgumentNullException("data", "Impossible to serialize a null array");
 			var length = new VarInt(data == null ? 0 : (ulong)data.Length);
 			ReadWrite(ref length);
 
 			if(length.ToLong() > (uint)MaxArraySize)
-				throw new ArgumentOutOfRangeException("Array size not big");
+				throw new ArgumentOutOfRangeException("data", "Array size not big");
 			if(!Serializing)
 				data = new int[length.ToLong()];
 			for(int i = 0 ; i < data.Length ; i++)

@@ -183,7 +183,6 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			lock(cs)
 			{
-				var old = _CurrentPing;
 				_CurrentPing = null;
 				_DateSent = default(DateTimeOffset);
 				var timeout = _PingTimeoutTimer;
