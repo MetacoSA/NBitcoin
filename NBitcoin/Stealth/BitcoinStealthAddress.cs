@@ -112,7 +112,7 @@ namespace NBitcoin.Stealth
 			return Match(metadata.BitField);
 		}
 
-		public static StealthPayment[] GetPayments(Transaction transaction)
+		public StealthPayment[] GetPayments(Transaction transaction)
 		{
 			return StealthPayment.GetPayments(transaction, null, null).Where(p => this.Match(p.Metadata)).ToArray();
 		}

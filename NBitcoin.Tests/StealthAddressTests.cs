@@ -122,7 +122,7 @@ namespace NBitcoin.Tests
 				Transaction transaction = new Transaction();
 				transaction.FromBytes(TestUtils.ParseHex(test.Transaction));
 
-				var stealthOutput = BitField.GetPayments(transaction).FirstOrDefault();
+				var stealthOutput = field.GetPayments(transaction).FirstOrDefault();
 				Assert.NotNull(stealthOutput);
 
 				Assert.True(field.Match(stealthOutput.Metadata.BitField));
