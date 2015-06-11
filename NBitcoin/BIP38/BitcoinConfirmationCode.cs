@@ -93,9 +93,6 @@ namespace NBitcoin
 			var pointb = BitcoinEncryptedSecret.DecryptKey(EncryptedPointB.Skip(1).ToArray(), derived);
 			pointb = new byte[] { pointbprefix }.Concat(pointb).ToArray();
 
-			var param1 = Encoders.Hex.EncodeData(EncryptedPointB.Skip(1).ToArray());
-			var param2 = Encoders.Hex.EncodeData(derived);
-
 			//4.ECMultiply pointb by passfactor. Use the resulting EC point as a public key
 			var curve = ECKey.CreateCurve();
 			ECPoint pointbec;
