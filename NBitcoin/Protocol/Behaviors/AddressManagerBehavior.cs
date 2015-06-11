@@ -31,11 +31,11 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 		public static void SetAddrman(Node node, AddressManager addrman)
 		{
-			GetAddrman(node.Behaviors);
+			SetAddrman(node.Behaviors, addrman);
 		}
 		public static void SetAddrman(NodeConnectionParameters parameters, AddressManager addrman)
 		{
-			GetAddrman(parameters.TemplateBehaviors);
+			SetAddrman(parameters.TemplateBehaviors, addrman);
 		}
 		public static void SetAddrman(NodeBehaviorsCollection behaviors, AddressManager addrman)
 		{
