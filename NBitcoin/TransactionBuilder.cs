@@ -521,11 +521,23 @@ namespace NBitcoin
 			return this;
 		}
 
+		/// <summary>
+		/// Send bitcoins to a destination
+		/// </summary>
+		/// <param name="destination">The destination</param>
+		/// <param name="amount">The amount</param>
+		/// <returns></returns>
 		public TransactionBuilder Send(IDestination destination, Money amount)
 		{
 			return Send(destination.ScriptPubKey, amount);
 		}
 
+		/// <summary>
+		/// Send bitcoins to a destination
+		/// </summary>
+		/// <param name="scriptPubKey">The destination</param>
+		/// <param name="amount">The amount</param>
+		/// <returns></returns>
 		public TransactionBuilder Send(Script scriptPubKey, Money amount)
 		{
 			if(amount < Money.Zero)
@@ -547,7 +559,7 @@ namespace NBitcoin
 		/// Send a money amount to the destination
 		/// </summary>
 		/// <param name="destination">The destination</param>
-		/// <param name="amount">The amount (supported : Money, AssetMoney)</param>
+		/// <param name="amount">The amount (supported : Money, AssetMoney, MoneyBag)</param>
 		/// <returns></returns>
 		/// <exception cref="System.NotSupportedException">The coin type is not supported</exception>
 		public TransactionBuilder Send(IDestination destination, IMoney amount)
@@ -558,11 +570,18 @@ namespace NBitcoin
 		/// Send a money amount to the destination
 		/// </summary>
 		/// <param name="destination">The destination</param>
-		/// <param name="amount">The amount (supported : Money, AssetMoney)</param>
+		/// <param name="amount">The amount (supported : Money, AssetMoney, MoneyBag)</param>
 		/// <returns></returns>
 		/// <exception cref="System.NotSupportedException">The coin type is not supported</exception>
 		public TransactionBuilder Send(Script scriptPubKey, IMoney amount)
 		{
+			MoneyBag bag = amount as MoneyBag;
+			if(bag != null)
+			{
+				foreach(var money in bag)
+					Send(scriptPubKey, amount);
+				return this;
+			}
 			Money coinAmount = amount as Money;
 			if(coinAmount != null)
 				return Send(scriptPubKey, coinAmount);
@@ -572,11 +591,23 @@ namespace NBitcoin
 			throw new NotSupportedException("Type of Money not supported");
 		}
 
+		/// <summary>
+		/// Send assets (Open Asset) to a destination
+		/// </summary>
+		/// <param name="destination">The destination</param>
+		/// <param name="asset">The asset and amount</param>
+		/// <returns></returns>
 		public TransactionBuilder SendAsset(IDestination destination, AssetMoney asset)
 		{
 			return SendAsset(destination.ScriptPubKey, asset);
 		}
 
+		/// <summary>
+		/// Send assets (Open Asset) to a destination
+		/// </summary>
+		/// <param name="destination">The destination</param>
+		/// <param name="asset">The asset and amount</param>
+		/// <returns></returns>
 		public TransactionBuilder SendAsset(IDestination destination, AssetId assetId, ulong quantity)
 		{
 			return SendAsset(destination, new AssetMoney(assetId, quantity));
