@@ -380,12 +380,6 @@ namespace NBitcoin.OpenAsset
 			return this * -1;
 		}
 
-		public bool IsZero()
-		{
-			return _Quantity == 0;
-		}
-
-
 		int IComparable.CompareTo(object obj)
 		{
 			return this.CompareTo(obj);

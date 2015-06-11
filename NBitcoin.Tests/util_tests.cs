@@ -599,6 +599,14 @@ namespace NBitcoin.Tests
 			Assert.Equal(
 				new MoneyBag(),
 				mb.Sub(mb));
+
+			// (10 MSFT + 3 GOOG) - (1 MSFT - 5 GOOG) +  10000 Satoshi == (9 MSFT + 8 GOOG + 10000 Satoshi)
+			var b1 = new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3));
+			var b2 = new MoneyBag(new AssetMoney(msft, 1), new AssetMoney(goog, -5));
+
+			var b1_2 = b1.Sub(b2).Add(new Money(10000)) as MoneyBag;
+			Assert.True(
+				b1_2.SequenceEqual(new IMoney[] {new AssetMoney(msft, 9), new AssetMoney(goog, 8), new Money(10000)}));
 		}
 	}
 }

@@ -73,11 +73,10 @@ namespace NBitcoin
 		IMoney Add(IMoney money);
 		IMoney Sub(IMoney money);
 		IMoney Negate();
-		bool IsZero();
 		bool IsCompatible(IMoney money);
 	}
 
-	public class MoneyBag : IMoney
+	public class MoneyBag : IMoney, IEnumerable<IMoney>
 	{
 		private readonly List<IMoney> _bag = new List<IMoney>();
 
@@ -124,8 +123,9 @@ namespace NBitcoin
 			else
 			{
 				_bag.Remove(firstCompatible);
+				var zero = firstCompatible.Sub(firstCompatible);
 				var total = firstCompatible.Add(money);
- 				if(!total.IsZero())
+ 				if(!zero.Equals(total))
 					_bag.Add(total);
 			}
 		}
@@ -164,11 +164,6 @@ namespace NBitcoin
 			return new MoneyBag(_bag.Select(x=>x.Negate()));
 		}
 
-		public bool IsZero()
-		{
-			return !_bag.Any();
-		}
-
 		public bool IsCompatible(IMoney money)
 		{
 			return true;
@@ -182,6 +177,16 @@ namespace NBitcoin
 				sb.AppendFormat("{0} ", money);
 			}
 			return sb.ToString();
+		}
+
+		public IEnumerator<IMoney> GetEnumerator()
+		{
+			return _bag.GetEnumerator();
+		}
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return _bag.GetEnumerator();
 		}
 	}
 
@@ -697,11 +702,6 @@ namespace NBitcoin
 		IMoney IMoney.Negate()
 		{
 			return -this;
-		}
-
-		public bool IsZero()
-		{
-			return _Satoshis == 0;
 		}
 
 		#endregion
