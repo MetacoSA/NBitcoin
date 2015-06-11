@@ -14,7 +14,7 @@ using System.Security.Cryptography;
 
 namespace NBitcoin.Crypto
 {
-	public class Hashes
+	public static class Hashes
 	{
 		#region Hash256
 		public static uint256 Hash256(byte[] data)

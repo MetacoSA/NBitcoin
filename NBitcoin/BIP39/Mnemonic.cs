@@ -60,8 +60,6 @@ namespace NBitcoin
 			if(i == -1)
 				throw new ArgumentException("The length for entropy should be : " + String.Join(",", entArray), "entropy");
 
-			int entcs = entcsArray[i];
-			int ent = entArray[i];
 			int cs = csArray[i];
 			byte[] checksum = Hashes.SHA256(entropy);
 			BitWriter entcsResult = new BitWriter();
@@ -118,17 +116,13 @@ namespace NBitcoin
 			}
 		}
 
-		//private IEnumerable<bool> ToBits(int value)
-		//{
-		//	return null;
-		//}
-
 		private static bool CorrectWordCount(int ms)
 		{
 			return msArray.Any(_ => _ == ms);
 		}
 
 
+		// FIXME: this method is not used. Shouldn't we delete it?
 		private int ToInt(BitArray bits)
 		{
 			if(bits.Length != 11)

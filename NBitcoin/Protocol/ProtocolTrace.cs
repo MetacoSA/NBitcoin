@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	public class NodeServerTrace
+	public static class NodeServerTrace
 	{
 		static TraceSource _Trace = new TraceSource("NBitcoin.NodeServer");
 		internal static TraceSource Trace
