@@ -367,6 +367,7 @@ namespace NBitcoin
 
 		public void CopyParameters(BitcoinStream stream)
 		{
+			if (stream == null) throw new ArgumentNullException("stream");
 			ProtocolVersion = stream.ProtocolVersion;
 			IsBigEndian = stream.IsBigEndian;
 			MaxArraySize = stream.MaxArraySize;
