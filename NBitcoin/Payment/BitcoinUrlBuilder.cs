@@ -26,10 +26,12 @@ namespace NBitcoin.Payment
 		public BitcoinUrlBuilder(Uri uri)
 			: this(uri.AbsoluteUri)
 		{
-
+			if (uri == null) throw new ArgumentNullException("uri");
 		}
+
 		public BitcoinUrlBuilder(string uri)
 		{
+			if (uri == null) throw new ArgumentNullException("uri");
 			if(!uri.StartsWith("bitcoin:", StringComparison.OrdinalIgnoreCase))
 				throw new FormatException("Invalid scheme");
 			uri = uri.Remove(0, "bitcoin:".Length);

@@ -183,6 +183,8 @@ namespace NBitcoin
 		public ColoredCoin(Transaction tx, ColoredEntry entry)
 			: this(entry.Asset, new Coin(tx, entry.Index))
 		{
+			if (tx == null) throw new ArgumentNullException("tx");
+			if (entry == null) throw new ArgumentNullException("entry");
 		}
 
 		public AssetId AssetId
@@ -339,12 +341,15 @@ namespace NBitcoin
 
 		public Coin(Transaction fromTx, uint fromOutputIndex)
 		{
+			if (fromTx == null) throw new ArgumentNullException("fromTx");
 			Outpoint = new OutPoint(fromTx, fromOutputIndex);
 			TxOut = fromTx.Outputs[fromOutputIndex];
 		}
 
 		public Coin(Transaction fromTx, TxOut fromOutput)
 		{
+			if (fromTx == null) throw new ArgumentNullException("fromTx");
+			if (fromOutput == null) throw new ArgumentNullException("fromOutput");
 			uint outputIndex = (uint)fromTx.Outputs.FindIndex(r => Object.ReferenceEquals(fromOutput, r));
 			Outpoint = new OutPoint(fromTx, outputIndex);
 			TxOut = fromOutput;
