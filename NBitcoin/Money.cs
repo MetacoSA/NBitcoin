@@ -338,7 +338,7 @@ namespace NBitcoin
 			}
 		}
 
-		private long DivRem(long a, long b, out long result)
+		private static long DivRem(long a, long b, out long result)
 		{
 			result = a % b;
 			return a / b;

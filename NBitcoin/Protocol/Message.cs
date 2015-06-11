@@ -118,15 +118,16 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		// FIXME: protocolVersion is not used. Is this a defect?
 		private byte[] GetPayloadBytes(ProtocolVersion protocolVersion, out int length)
 		{
 			MemoryStream ms = _Buffer == null ? new MemoryStream() : new MemoryStream(_Buffer);
 			Payload.ReadWrite(new BitcoinStream(ms, true));
 			length = (int)ms.Position;
-			return _Buffer == null ? GetBuffer(ms) : _Buffer;
+			return _Buffer ?? GetBuffer(ms);
 		}
 
-		private byte[] GetBuffer(MemoryStream ms)
+		private static byte[] GetBuffer(MemoryStream ms)
 		{
 #if !PORTABLE
 			return ms.GetBuffer();

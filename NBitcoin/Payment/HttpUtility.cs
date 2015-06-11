@@ -43,7 +43,7 @@ namespace System.Web.NBitcoin
 {
 
 
-	public sealed class HttpUtility
+	public static class HttpUtility
 	{
 		sealed class HttpQSCollection : Dictionary<string, string>
 		{
@@ -63,14 +63,6 @@ namespace System.Web.NBitcoin
 				return sb.ToString();
 			}
 		}
-
-		#region Constructors
-
-		public HttpUtility()
-		{
-		}
-
-		#endregion // Constructors
 
 		#region Methods
 

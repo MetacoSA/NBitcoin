@@ -442,7 +442,7 @@ namespace NBitcoin.Protocol
 		public static Node Connect(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, IPAddress[] connectedAddresses = null)
 		{
 			parameters = parameters ?? new NodeConnectionParameters();
-			AddressManagerBehavior.SetAddrman(parameters, addrman);
+			AddressManagerBehavior.SetAddrman(parameters);
 			return Connect(network, parameters, connectedAddresses);
 		}
 

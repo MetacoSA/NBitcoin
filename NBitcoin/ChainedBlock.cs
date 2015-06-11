@@ -60,6 +60,7 @@ namespace NBitcoin
 
 		public ChainedBlock(BlockHeader header, uint256 headerHash, ChainedBlock previous)
 		{
+			if (header == null) throw new ArgumentNullException("header");
 			if(previous != null)
 			{
 				nHeight = previous.Height + 1;
@@ -83,6 +84,7 @@ namespace NBitcoin
 
 		public ChainedBlock(BlockHeader header, int height)
 		{
+			if (header == null) throw new ArgumentNullException("header");
 			nHeight = height;
 			//this.nDataPos = pos;
 			this.header = header;
@@ -241,7 +243,7 @@ namespace NBitcoin
 			return newTarget;
 		}
 
-		private void assert(object obj)
+		private static void assert(object obj)
 		{
 			if(obj == null)
 				throw new NotSupportedException("Can only calculate work of a full chain");
@@ -249,6 +251,7 @@ namespace NBitcoin
 
 		public bool Validate(Network network)
 		{
+			if (network == null) throw new ArgumentNullException("network");
 			if(Height != 0 && Previous == null)
 				return false;
 			var heightCorrect = Height == 0 || Height == Previous.Height + 1;

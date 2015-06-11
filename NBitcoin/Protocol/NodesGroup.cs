@@ -90,11 +90,9 @@ namespace NBitcoin.Protocol
 							var parameters = _ConnectionParameters.Clone();
 							parameters.ConnectCancellation = _Disconnect.Token;
 							var addrman = AddressManagerBehavior.GetAddrman(parameters);
-							if(addrman == null)
-							{
-								addrman = _DefaultAddressManager;
-								AddressManagerBehavior.SetAddrman(parameters, addrman);
-							}
+
+							//FIXME: something is wrong here because SetAddrman doesn't use addrman
+							AddressManagerBehavior.SetAddrman(parameters);
 							Node node = null;
 							try
 							{

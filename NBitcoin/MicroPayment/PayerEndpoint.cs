@@ -98,7 +98,7 @@ namespace NBitcoin.MicroPayment
 			var toPay = Paid + amount;
 			var pay = Arguments.CreatePayment(toPay, FundCoin);
 			Arguments.Assert(pay, false, Paid + amount, FundCoin);
-			pay = Arguments.SignPayment(pay, payerKey, FundCoin);
+			pay = MicroChannelArguments.SignPayment(pay, payerKey, FundCoin);
 			Payment = pay;
 			Paid = toPay;
 			return new PayMessage()
