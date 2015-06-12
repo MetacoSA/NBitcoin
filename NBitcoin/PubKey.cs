@@ -257,7 +257,6 @@ namespace NBitcoin
 
 
 			BigInteger N = ECKey.CURVE.N;
-			BigInteger kPar = new BigInteger(1, this.vch); // FIXME: nobody use it
 			BigInteger parse256LL = new BigInteger(1, l);
 
 			if(parse256LL.CompareTo(N) >= 0)

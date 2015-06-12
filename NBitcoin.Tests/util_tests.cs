@@ -572,39 +572,39 @@ namespace NBitcoin.Tests
 			// (10 MSFT + 3 GOOG) + 1000 satoshis
 			Assert.Equal(
 				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3), new Money(1000)),
-				mb.Add(Money.Satoshis(1000)));
+				mb + Money.Satoshis(1000));
 
 			// (10 MSFT + 3 GOOG) + 30 GOOG == (10 MSFT + 33 GOOG)
 			Assert.Equal(
 				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 33)),
-				mb.Add(new AssetMoney(goog, 30)));
+				mb + new AssetMoney(goog, 30));
 
 			// (10 MSFT + 3 GOOG) + (10 MSFT + 3 GOOG) == (20 MSFT + 6 GOOG)
 			Assert.Equal(
 				new MoneyBag(new AssetMoney(msft, 20), new AssetMoney(goog, 6)),
-				mb.Add(mb));
+				mb + mb);
 
 			//-----
 			// (10 MSFT + 3 GOOG) - 1000 satoshis
 			Assert.Equal(
 				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3), new Money(-1000)),
-				mb.Sub(Money.Satoshis(1000)));
+				mb - (Money.Satoshis(1000)));
 
 			// (10 MSFT + 3 GOOG) - 30 GOOG == (10 MSFT - 27 GOOG)
 			Assert.Equal(
 				new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, -27)),
-				mb.Sub(new AssetMoney(goog, 30)));
+				mb - (new AssetMoney(goog, 30)));
 
 			// (10 MSFT + 3 GOOG) - (10 MSFT + 3 GOOG) == ()
 			Assert.Equal(
 				new MoneyBag(),
-				mb.Sub(mb));
+				mb - (mb));
 
 			// (10 MSFT + 3 GOOG) - (1 MSFT - 5 GOOG) +  10000 Satoshi == (9 MSFT + 8 GOOG + 10000 Satoshi)
 			var b1 = new MoneyBag(new AssetMoney(msft, 10), new AssetMoney(goog, 3));
 			var b2 = new MoneyBag(new AssetMoney(msft, 1), new AssetMoney(goog, -5));
 
-			var b1_2 = b1.Sub(b2).Add(new Money(10000)) as MoneyBag;
+			var b1_2 = b1 - (b2) + (new Money(10000));
 			Assert.True(
 				b1_2.SequenceEqual(new IMoney[] {new AssetMoney(msft, 9), new AssetMoney(goog, 8), new Money(10000)}));
 		}

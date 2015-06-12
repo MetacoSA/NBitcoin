@@ -52,7 +52,7 @@ namespace NBitcoin
 				if(id == null)
 					id = money.Id;
 				else if(id != money.Id)
-					throw new ArgumentException("Impossible to add AssetMoney with different asset ids","moneys");
+					throw new ArgumentException("Impossible to add AssetMoney with different asset ids", "moneys");
 			}
 			if(id == null)
 				return new AssetMoney(assetId);
@@ -76,23 +76,28 @@ namespace NBitcoin
 		bool IsCompatible(IMoney money);
 	}
 
-	public class MoneyBag : IMoney, IEnumerable<IMoney>
+	public class MoneyBag : IMoney, IEnumerable<IMoney>, IEquatable<MoneyBag>
 	{
 		private readonly List<IMoney> _bag = new List<IMoney>();
 
+		public MoneyBag()
+			: this(new List<MoneyBag>())
+		{
+
+		}
 		public MoneyBag(MoneyBag money)
-			:this(money._bag)
+			: this(money._bag)
 		{
 		}
 
 		public MoneyBag(params IMoney[] bag)
-			:this((IEnumerable<IMoney>)bag)
+			: this((IEnumerable<IMoney>)bag)
 		{
 		}
 
 		private MoneyBag(IEnumerable<IMoney> bag)
 		{
-			foreach (var money in bag)
+			foreach(var money in bag)
 			{
 				AppendMoney(money);
 			}
@@ -100,7 +105,7 @@ namespace NBitcoin
 
 		private void AppendMoney(MoneyBag money)
 		{
-			foreach (var m in money._bag)
+			foreach(var m in money._bag)
 			{
 				AppendMoney(m);
 			}
@@ -111,7 +116,7 @@ namespace NBitcoin
 			var moneyBag = money as MoneyBag;
 			if(moneyBag != null)
 			{
-				AppendMoney(moneyBag);	
+				AppendMoney(moneyBag);
 				return;
 			}
 
@@ -125,7 +130,7 @@ namespace NBitcoin
 				_bag.Remove(firstCompatible);
 				var zero = firstCompatible.Sub(firstCompatible);
 				var total = firstCompatible.Add(money);
- 				if(!zero.Equals(total))
+				if(!zero.Equals(total))
 					_bag.Add(total);
 			}
 		}
@@ -139,32 +144,54 @@ namespace NBitcoin
 		{
 			throw new NotSupportedException("Comparisons are not possible for MoneyBag");
 		}
-
+		public bool Equals(MoneyBag other)
+		{
+			return Equals(other as IMoney);
+		}
 		public bool Equals(IMoney other)
 		{
-			if(other == null) return false;
+			if(other == null)
+				return false;
 			var m = new MoneyBag(other);
 			return m._bag.SequenceEqual(_bag);
 		}
 
-		public IMoney Add(IMoney money)
+		public static MoneyBag operator -(MoneyBag left, IMoney right)
+		{
+			if(left == null)
+				throw new ArgumentNullException("left");
+			if(right == null)
+				throw new ArgumentNullException("right");
+			return (MoneyBag)((IMoney)left).Sub(right);
+		}
+
+		public static MoneyBag operator +(MoneyBag left, IMoney right)
+		{
+			if(left == null)
+				throw new ArgumentNullException("left");
+			if(right == null)
+				throw new ArgumentNullException("right");
+			return (MoneyBag)((IMoney)left).Add(right);
+		}
+
+		IMoney IMoney.Add(IMoney money)
 		{
 			var m = new MoneyBag(_bag);
 			m.AppendMoney(money);
 			return m;
 		}
 
-		public IMoney Sub(IMoney money)
+		IMoney IMoney.Sub(IMoney money)
 		{
-			return Add(money.Negate());
+			return ((IMoney)this).Add(money.Negate());
 		}
 
-		public IMoney Negate()
+		IMoney IMoney.Negate()
 		{
-			return new MoneyBag(_bag.Select(x=>x.Negate()));
+			return new MoneyBag(_bag.Select(x => x.Negate()));
 		}
 
-		public bool IsCompatible(IMoney money)
+		bool IMoney.IsCompatible(IMoney money)
 		{
 			return true;
 		}
@@ -172,7 +199,7 @@ namespace NBitcoin
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
-			foreach (var money in _bag)
+			foreach(var money in _bag)
 			{
 				sb.AppendFormat("{0} ", money);
 			}
