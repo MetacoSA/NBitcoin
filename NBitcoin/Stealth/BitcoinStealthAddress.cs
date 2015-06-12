@@ -42,6 +42,7 @@ namespace NBitcoin.Stealth
 
 		public BitField(byte[] rawform, int bitcount)
 		{
+			if (rawform == null) throw new ArgumentNullException("rawform");
 			_BitCount = bitcount;
 
 			var byteCount = GetPrefixByteLength(bitcount);
@@ -107,6 +108,7 @@ namespace NBitcoin.Stealth
 		}
 		public bool Match(StealthMetadata metadata)
 		{
+			if (metadata == null) throw new ArgumentNullException("metadata");
 			return Match(metadata.BitField);
 		}
 
@@ -250,6 +252,8 @@ namespace NBitcoin.Stealth
 		/// <returns></returns>
 		public StealthPayment[] GetPayments(Transaction transaction, ISecret scanKey)
 		{
+			if (transaction == null) throw new ArgumentNullException("transaction");
+			if (scanKey == null) throw new ArgumentNullException("scanKey");
 			return GetPayments(transaction, scanKey.PrivateKey);
 		}
 

@@ -20,10 +20,13 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 		public static AddressManager GetAddrman(NodeConnectionParameters parameters)
 		{
+			if (parameters == null) throw new ArgumentNullException("parameters");
 			return GetAddrman(parameters.TemplateBehaviors);
 		}
+
 		public static AddressManager GetAddrman(NodeBehaviorsCollection behaviors)
 		{
+			if (behaviors == null) throw new ArgumentNullException("behaviors");
 			var behavior = behaviors.Find<AddressManagerBehavior>();
 			if(behavior == null)
 				return null;
@@ -31,19 +34,25 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 		public static void SetAddrman(Node node, AddressManager addrman)
 		{
+			if (node == null) throw new ArgumentNullException("node");
 			SetAddrman(node.Behaviors, addrman);
 		}
+
 		public static void SetAddrman(NodeConnectionParameters parameters, AddressManager addrman)
 		{
+			if (parameters == null) throw new ArgumentNullException("parameters");
 			SetAddrman(parameters.TemplateBehaviors, addrman);
 		}
+
 		public static void SetAddrman(NodeBehaviorsCollection behaviors, AddressManager addrman)
 		{
+			if (behaviors == null) throw new ArgumentNullException("behaviors");
 			var behavior = behaviors.Find<AddressManagerBehavior>();
-			if(behavior == null)
+			if(behavior == null) 
 			{
+				// FIXME: Please take a look at this
 				behavior = new AddressManagerBehavior(addrman);
-				return;
+				behaviors.Add(behavior);
 			}
 			behavior.AddressManager = addrman;
 		}

@@ -935,7 +935,7 @@ namespace NBitcoin.Protocol
 			info.fInTried = true;
 		}
 
-		private void assert(bool value)
+		private static void assert(bool value)
 		{
 			if(!value)
 				throw new InvalidOperationException("Bug in AddressManager, should never happen, contact NBitcoin developpers if you see this exception");
@@ -1072,7 +1072,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private int GetRandInt(int max)
+		private static int GetRandInt(int max)
 		{
 			return (int)(RandomUtils.GetUInt32() % (uint)max);
 		}
@@ -1127,7 +1127,6 @@ namespace NBitcoin.Protocol
 		{
 			int peerToFind = 1000;
 			TraceCorrelation traceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Discovering nodes");
-			List<Task> tasks = new List<Task>();
 			int found = 0;
 
 			using(traceCorrelation.Open())
@@ -1204,7 +1203,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		private void PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers)
+		private static void PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers)
 		{
 			peers.AddRange(network.DNSSeeds
 				.SelectMany(d =>
@@ -1222,7 +1221,7 @@ namespace NBitcoin.Protocol
 				.ToArray());
 		}
 
-		private void PopulateTableWithHardNodes(Network network, List<NetworkAddress> peers)
+		private static void PopulateTableWithHardNodes(Network network, List<NetworkAddress> peers)
 		{
 			peers.AddRange(network.SeedNodes);
 		}

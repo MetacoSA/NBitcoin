@@ -447,7 +447,7 @@ namespace NBitcoin.RPC
 			return ParseBlockHeader(resp);
 		}
 
-		private BlockHeader ParseBlockHeader(RPCResponse resp)
+		private static BlockHeader ParseBlockHeader(RPCResponse resp)
 		{
 			BlockHeader header = new BlockHeader();
 			header.Version = (int)resp.Result["version"];

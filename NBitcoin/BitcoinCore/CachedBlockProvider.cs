@@ -49,7 +49,7 @@ namespace NBitcoin.BitcoinCore
 			return result;
 		}
 
-		private uint256 TakeRandom(List<uint256> id)
+		private static uint256 TakeRandom(List<uint256> id)
 		{
 			if(id.Count == 0)
 				return null;

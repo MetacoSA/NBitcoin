@@ -27,7 +27,7 @@ namespace NBitcoin.MicroPayment
 	}
 	public class MicroChannelArguments
 	{
-		public MicroChannelArguments Parse(string json)
+		public static MicroChannelArguments Parse(string json)
 		{
 			JsonSerializerSettings settings = new JsonSerializerSettings();
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -195,7 +195,7 @@ namespace NBitcoin.MicroPayment
 			}
 		}
 
-		public Transaction SignPayment(Transaction payment, Key key, ScriptCoin fundingCoin)
+		public static Transaction SignPayment(Transaction payment, Key key, ScriptCoin fundingCoin)
 		{
 			return new TransactionBuilder()
 			   .AddKeys(key)
@@ -272,7 +272,7 @@ namespace NBitcoin.MicroPayment
 		}
 
 	
-		public MicroChannelState Parse(string json)
+		public static MicroChannelState Parse(string json)
 		{
 			JsonSerializerSettings settings = new JsonSerializerSettings();
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();

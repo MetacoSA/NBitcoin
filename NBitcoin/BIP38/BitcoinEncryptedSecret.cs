@@ -64,7 +64,7 @@ namespace NBitcoin
 			get { return _FirstHalf ?? (_FirstHalf = vchData.SafeSubarray(ValidLength - 32, 16)); }
 		}
 
-		public byte[] _Encrypted;
+		private byte[] _Encrypted;
 		public byte[] Encrypted
 		{
 			get { return _Encrypted ?? (_Encrypted = EncryptedHalf1.Concat(EncryptedHalf2).ToArray()); }
@@ -218,7 +218,6 @@ namespace NBitcoin
 			else
 			{
 				var ownersalt = ownerEntropy.SafeSubarray(0, 4);
-				var lotsequence = ownerEntropy.SafeSubarray(4, 4);
 				var prefactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), ownersalt, 32);
 				passfactor = Hashes.Hash256(prefactor.Concat(ownerEntropy).ToArray()).ToBytes();
 			}
@@ -299,11 +298,11 @@ namespace NBitcoin
 			}
 		}
 
-		protected byte[] GetHalf1(byte[] b)
+		protected static byte[] GetHalf1(byte[] b)
 		{
 			return b.SafeSubarray(0, b.Length / 2);
 		}
-		protected byte[] GetHalf2(byte[] b)
+		protected static byte[] GetHalf2(byte[] b)
 		{
 			return b.SafeSubarray(b.Length / 2, b.Length / 2);
 		}
@@ -495,7 +494,6 @@ namespace NBitcoin
 			}
 
 			//half =  (encryptedpart1[8...15] + seedb[16...23])
-			var encryptedPart1End = half.SafeSubarray(0, 8);
 			for(int i = 0 ; i < 8 ; i++)
 			{
 				seedb[seedb.Length - i - 1] = half[half.Length - i - 1];

@@ -74,7 +74,7 @@ namespace NBitcoin
 			_ECKey = new ECKey(vch, true);
 		}
 
-		private bool Check(byte[] vch)
+		private static bool Check(byte[] vch)
 		{
 			// Do not convert to OpenSSL's data structures for range-checking keys,
 			// it's easy enough to do directly.
