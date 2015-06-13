@@ -5,60 +5,61 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Extensions;
 
 namespace NBitcoin.Tests
 {
+	[Trait("Core", "Core")]
 	public class base58_tests
 	{
-		[Fact]
-		[Trait("Core", "Core")]
-		public void base58_EncodeBase58()
+		public static IEnumerable<object[]> DataSet
 		{
-			var tests = TestCase.read_json("Data\\base58_encode_decode.json");
-			foreach(var test in tests)
+			get
 			{
-				var strTest = test.ToString();
-				if(test.Count < 2) // Allow for extra stuff (useful for comments)
-				{
-					Assert.False(true, "Bad test: " + strTest);
-					continue;
-				}
-				var sourcedata = Encoders.Hex.DecodeData(test.GetValue<string>(0));
-				var base58string = test.GetValue<string>(1);
-				Assert.True(
-							Encoders.Base58.EncodeData(sourcedata) == base58string,
-							strTest);
+				return new[] {
+					new object[]{string.Empty, ""},
+					new object[]{"61", "2g"},
+					new object[]{"626262", "a3gV"},
+					new object[]{"636363", "aPEr"},
+					new object[]{"73696d706c792061206c6f6e6720737472696e67", "2cFupjhnEsSn59qHXstmK2ffpLv2"},
+					new object[]{"00eb15231dfceb60925886b67d065299925915aeb172c06647", "1NS17iag9jJgTHD1VXjvLCEnZuQ3rJDE9L"},
+					new object[]{"516b6fcd0f", "ABnLTmg"},
+					new object[]{"bf4f89001e670274dd", "3SEo3LWLoPntC"},
+					new object[]{"572e4794", "3EFU7m"},
+					new object[]{"ecac89cad93923c02321", "EJDM8drfXA6uyA"},
+					new object[]{"10c8511e", "Rt5zm"},
+					new object[]{"00000000000000000000", "1111111111"}
+				};
 			}
 		}
 
-		[Fact]
-		[Trait("Core", "Core")]
-		public void base58_DecodeBase58()
+		[Theory, PropertyData("DataSet")]
+		public void ShouldEncodeProperly(string data, string encoded)
 		{
-			var tests = TestCase.read_json("Data\\base58_encode_decode.json");
-			byte[] result = null;
-			foreach(var test in tests)
-			{
-				var strTest = test.ToString();
-				if(test.Count < 2) // Allow for extra stuff (useful for comments)
-				{
-					Assert.False(true, "Bad test: " + strTest);
-					continue;
-				}
-				var expected = Encoders.Hex.DecodeData(test.GetValue<string>(0));
-				var base58string = test.GetValue<string>(1);
-				result = Encoders.Base58.DecodeData(base58string);
-				AssertEx.CollectionEquals(result, expected);
-			}
+			var testBytes = Encoders.Hex.DecodeData(data);
+			Assert.Equal(encoded, Encoders.Base58.EncodeData(testBytes));
+		}
 
+		[Theory, PropertyData("DataSet")]
+		public void ShouldDecodeProperly(string data, string encoded)
+		{
+			var testBytes = Encoders.Base58.DecodeData(encoded);
+			AssertEx.CollectionEquals(Encoders.Hex.DecodeData(data), testBytes);
+		}
+
+		[Fact]
+		public void ShouldThrowFormatExceptionOnInvalidBase58()
+		{
 			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData("invalid"));
+			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData(" "));
 
 			// check that DecodeBase58 skips whitespace, but still fails with unexpected non-whitespace at the end.
 			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData(" \t\n\v\f\r skip \r\f\v\n\t a"));
-			result = Encoders.Base58.DecodeData(" \t\n\v\f\r skip \r\f\v\n\t ");
+			var result = Encoders.Base58.DecodeData(" \t\n\v\f\r skip \r\f\v\n\t ");
 			var expected2 = Encoders.Hex.DecodeData("971a55");
 			AssertEx.CollectionEquals(result, expected2);
 		}
+
 
 		[Fact]
 		[Trait("Core", "Core")]
@@ -190,28 +191,73 @@ namespace NBitcoin.Tests
 			Assert.Throws<ArgumentException>(() => network.CreateBitcoinAddress(nodest));
 		}
 
-		// Goal: check that base58 parsing code is robust against a variety of corrupted data
-		[Fact]
-		[Trait("Core", "Core")]
-		public void base58_keys_invalid()
+		#region InvalidKeys Dataset
+		public static IEnumerable<object[]> InvalidKeys
 		{
-
-			var tests = TestCase.read_json("data/base58_keys_invalid.json"); // Negative testcases
-
-			foreach(var test in tests)
+			get
 			{
-				string strTest = tests.ToString();
-				if(test.Count < 1) // Allow for extra stuff (useful for comments)
-				{
-					Assert.False(true, "Bad test: " + strTest);
-					continue;
-				}
-				string exp_base58string = (string)test[0];
-
-				// must be invalid as public and as private key
-				Assert.Throws<FormatException>(() => Network.Main.CreateBitcoinAddress(exp_base58string));
-				Assert.Throws<FormatException>(() => Network.Main.CreateBitcoinSecret(exp_base58string));
+				return new[] {
+					"",
+					"x",
+					"37qgekLpCCHrQuSjvX3fs496FWTGsHFHizjJAs6NPcR47aefnnCWECAhHV6E3g4YN7u7Yuwod5Y",
+					"dzb7VV1Ui55BARxv7ATxAtCUeJsANKovDGWFVgpTbhq9gvPqP3yv",
+					"MuNu7ZAEDFiHthiunm7dPjwKqrVNCM3mAz6rP9zFveQu14YA8CxExSJTHcVP9DErn6u84E6Ej7S",
+					"rPpQpYknyNQ5AEHuY6H8ijJJrYc2nDKKk9jjmKEXsWzyAQcFGpDLU2Zvsmoi8JLR7hAwoy3RQWf",
+					"4Uc3FmN6NQ6zLBK5QQBXRBUREaaHwCZYsGCueHauuDmJpZKn6jkEskMB2Zi2CNgtb5r6epWEFfUJq",
+					"7aQgR5DFQ25vyXmqZAWmnVCjL3PkBcdVkBUpjrjMTcghHx3E8wb",
+					"17QpPprjeg69fW1DV8DcYYCKvWjYhXvWkov6MJ1iTTvMFj6weAqW7wybZeH57WTNxXVCRH4veVs",
+					"KxuACDviz8Xvpn1xAh9MfopySZNuyajYMZWz16Dv2mHHryznWUp3",
+					"7nK3GSmqdXJQtdohvGfJ7KsSmn3TmGqExug49583bDAL91pVSGq5xS9SHoAYL3Wv3ijKTit65th",
+					"cTivdBmq7bay3RFGEBBuNfMh2P1pDCgRYN2Wbxmgwr4ki3jNUL2va",
+					"gjMV4vjNjyMrna4fsAr8bWxAbwtmMUBXJS3zL4NJt5qjozpbQLmAfK1uA3CquSqsZQMpoD1g2nk",
+					"emXm1naBMoVzPjbk7xpeTVMFy4oDEe25UmoyGgKEB1gGWsK8kRGs",
+					"7VThQnNRj1o3Zyvc7XHPRrjDf8j2oivPTeDXnRPYWeYGE4pXeRJDZgf28ppti5hsHWXS2GSobdqyo",
+					"1G9u6oCVCPh2o8m3t55ACiYvG1y5BHewUkDSdiQarDcYXXhFHYdzMdYfUAhfxn5vNZBwpgUNpso",
+					"31QQ7ZMLkScDiB4VyZjuptr7AEc9j1SjstF7pRoLhHTGkW4Q2y9XELobQmhhWxeRvqcukGd1XCq",
+					"DHqKSnpxa8ZdQyH8keAhvLTrfkyBMQxqngcQA5N8LQ9KVt25kmGN",
+					"2LUHcJPbwLCy9GLH1qXmfmAwvadWw4bp4PCpDfduLqV17s6iDcy1imUwhQJhAoNoN1XNmweiJP4i",
+					"7USRzBXAnmck8fX9HmW7RAb4qt92VFX6soCnts9s74wxm4gguVhtG5of8fZGbNPJA83irHVY6bCos",
+					"1DGezo7BfVebZxAbNT3XGujdeHyNNBF3vnficYoTSp4PfK2QaML9bHzAMxke3wdKdHYWmsMTJVu",
+					"2D12DqDZKwCxxkzs1ZATJWvgJGhQ4cFi3WrizQ5zLAyhN5HxuAJ1yMYaJp8GuYsTLLxTAz6otCfb",
+					"8AFJzuTujXjw1Z6M3fWhQ1ujDW7zsV4ePeVjVo7D1egERqSW9nZ",
+					"163Q17qLbTCue8YY3AvjpUhotuaodLm2uqMhpYirsKjVqnxJRWTEoywMVY3NbBAHuhAJ2cF9GAZ",
+					"2MnmgiRH4eGLyLc9eAqStzk7dFgBjFtUCtu",
+					"461QQ2sYWxU7H2PV4oBwJGNch8XVTYYbZxU",
+					"2UCtv53VttmQYkVU4VMtXB31REvQg4ABzs41AEKZ8UcB7DAfVzdkV9JDErwGwyj5AUHLkmgZeobs",
+					"cSNjAsnhgtiFMi6MtfvgscMB2Cbhn2v1FUYfviJ1CdjfidvmeW6mn",
+					"gmsow2Y6EWAFDFE1CE4Hd3Tpu2BvfmBfG1SXsuRARbnt1WjkZnFh1qGTiptWWbjsq2Q6qvpgJVj",
+					"nksUKSkzS76v8EsSgozXGMoQFiCoCHzCVajFKAXqzK5on9ZJYVHMD5CKwgmX3S3c7M1U3xabUny",
+					"L3favK1UzFGgdzYBF2oBT5tbayCo4vtVBLJhg2iYuMeePxWG8SQc",
+					"7VxLxGGtYT6N99GdEfi6xz56xdQ8nP2dG1CavuXx7Rf2PrvNMTBNevjkfgs9JmkcGm6EXpj8ipyPZ",
+					"2mbZwFXF6cxShaCo2czTRB62WTx9LxhTtpP",
+					"dB7cwYdcPSgiyAwKWL3JwCVwSk6epU2txw",
+					"HPhFUhUAh8ZQQisH8QQWafAxtQYju3SFTX",
+					"4ctAH6AkHzq5ioiM1m9T3E2hiYEev5mTsB",
+					"Hn1uFi4dNexWrqARpjMqgT6cX1UsNPuV3cHdGg9ExyXw8HTKadbktRDtdeVmY3M1BxJStiL4vjJ",
+					"Sq3fDbvutABmnAHHExJDgPLQn44KnNC7UsXuT7KZecpaYDMU9Txs",
+					"6TqWyrqdgUEYDQU1aChMuFMMEimHX44qHFzCUgGfqxGgZNMUVWJ",
+					"giqJo7oWqFxNKWyrgcBxAVHXnjJ1t6cGoEffce5Y1y7u649Noj5wJ4mmiUAKEVVrYAGg2KPB3Y4",
+					"cNzHY5e8vcmM3QVJUcjCyiKMYfeYvyueq5qCMV3kqcySoLyGLYUK",
+					"37uTe568EYc9WLoHEd9jXEvUiWbq5LFLscNyqvAzLU5vBArUJA6eydkLmnMwJDjkL5kXc2VK7ig",
+					"EsYbG4tWWWY45G31nox838qNdzksbPySWc",
+					"nbuzhfwMoNzA3PaFnyLcRxE9bTJPDkjZ6Rf6Y6o2ckXZfzZzXBT",
+					"cQN9PoxZeCWK1x56xnz6QYAsvR11XAce3Ehp3gMUdfSQ53Y2mPzx",
+					"1Gm3N3rkef6iMbx4voBzaxtXcmmiMTqZPhcuAepRzYUJQW4qRpEnHvMojzof42hjFRf8PE2jPde",
+					"2TAq2tuN6x6m233bpT7yqdYQPELdTDJn1eU",
+					"ntEtnnGhqPii4joABvBtSEJG6BxjT2tUZqE8PcVYgk3RHpgxgHDCQxNbLJf7ardf1dDk2oCQ7Cf",
+					"Ky1YjoZNgQ196HJV3HpdkecfhRBmRZdMJk89Hi5KGfpfPwS2bUbfd",
+					"2A1q1YsMZowabbvta7kTy2Fd6qN4r5ZCeG3qLpvZBMzCixMUdkN2Y4dHB1wPsZAeVXUGD83MfRED"
+				}.Select(x=> new object[]{x});
 			}
+		}
+		#endregion
+		// Goal: check that base58 parsing code is robust against a variety of corrupted data
+		[Theory, PropertyData("InvalidKeys")]
+		public void base58_keys_invalid(string data)
+		{
+			// must be invalid as public and as private key
+			Assert.Throws<FormatException>(() => Network.Main.CreateBitcoinAddress(data));
+			Assert.Throws<FormatException>(() => Network.Main.CreateBitcoinSecret(data));
 		}
 	}
 }
