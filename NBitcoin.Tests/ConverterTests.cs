@@ -89,7 +89,6 @@ namespace NBitcoin.Tests
 
 			foreach(var test in tests)
 			{
-				var expected = Encoding.UTF8.GetBytes(test.Expected);
 				var input = Encoding.UTF8.GetBytes(test.Input);
 				var encoded = test.Encoder.EncodeData(input);
 				Assert.Equal(test.Expected, encoded);
@@ -103,6 +102,14 @@ namespace NBitcoin.Tests
 				{
 				}
 			}
+
+			var expectedText = "2189xoVGsHC6VbVPUrKeH3fhT429VDruzdgUJFk37PNskG";
+			var input1 = Encoding.UTF8.GetBytes("---é ^ç hello \"12345\"  wooorld---");
+			var encoded1 = Encoders.Base58Check.EncodeData(input1, 3, input1.Length-6);
+			Assert.Equal(expectedText, encoded1);
+
+			var decoded1 = Encoders.Base58Check.DecodeData(encoded1);
+			AssertEx.CollectionEquals(input1.SafeSubarray(3, input1.Length-6), decoded1);
 		}
 	}
 }
