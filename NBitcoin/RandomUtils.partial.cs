@@ -30,6 +30,7 @@ namespace NBitcoin
 		{
 			//Thread safe http://msdn.microsoft.com/en-us/library/system.security.cryptography.rngcryptoserviceprovider(v=vs.110).aspx
 			Random = new RNGCryptoServiceProviderRandom();
+			AddEntropy(Guid.NewGuid().ToByteArray());
 		}
 	}
 }
