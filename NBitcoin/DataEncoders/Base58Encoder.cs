@@ -17,20 +17,20 @@ namespace NBitcoin.DataEncoders
 				var hash = Hashes.Hash256(data, offset, count).ToBytes();
 				Buffer.BlockCopy(hash, 0, toEncode, count, 4);
 
-				return EncodeDataCore(toEncode, toEncode.Length);
+				return EncodeDataCore(toEncode, 0, toEncode.Length);
 			}
 
-			return EncodeDataCore(data, count);
+			return EncodeDataCore(data, offset, count);
 		}
 
-		private static string EncodeDataCore(byte[] data, int length)
+		private static string EncodeDataCore(byte[] data, int offset, int count)
 		{
 			BigInteger bn58 = 58;
 			BigInteger bn0 = 0;
 
 			// Convert big endian data to little endian
 			// Extra zero at the end make sure bignum will interpret as a positive number
-			byte[] vchTmp = data.Take(length).Reverse().Concat(new byte[] { 0x00 }).ToArray();
+			byte[] vchTmp = data.SafeSubarray(offset, count).Reverse().Concat(new byte[] { 0x00 }).ToArray();
 
 			// Convert little endian data to bignum
 			BigInteger bn = new BigInteger(vchTmp);
@@ -51,11 +51,11 @@ namespace NBitcoin.DataEncoders
 			}
 
 			// Leading zeroes encoded as base58 zeros
-			for(int i = 0 ; i < length && data[i] == 0 ; i++)
+			for (int i = offset; i < offset+count && data[i] == 0; i++)
 				str += pszBase58[0];
 
 			// Convert little endian std::string to big endian
-			str = new String(str.ToCharArray().Reverse().ToArray());
+			str = new String(str.Reverse().ToArray());
 			return str;
 		}
 
@@ -100,7 +100,7 @@ namespace NBitcoin.DataEncoders
 			BigInteger bn = 0;
 			BigInteger bnChar;
 			int i = 0;
-			while(DataEncoder.IsSpace(encoded[i]))
+			while(IsSpace(encoded[i]))
 			{
 				i++;
 				if(i >= encoded.Length)
@@ -112,7 +112,7 @@ namespace NBitcoin.DataEncoders
 				var p1 = pszBase58.IndexOf(encoded[y]);
 				if(p1 == -1)
 				{
-					while(DataEncoder.IsSpace(encoded[y]))
+					while(IsSpace(encoded[y]))
 					{
 						y++;
 						if(y >= encoded.Length)

@@ -1,14 +1,29 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 
 namespace NBitcoin.DataEncoders
 {
 	public abstract class DataEncoder
 	{
-		public static readonly char[] SpaceCharacters = new[] { ' ', '\t', '\n', '\v', '\f', '\r' };
+		// char.IsWhiteSpace fits well but it match other whitespaces 
+		// characters too and also works for unicode characters.
 		public static bool IsSpace(char c)
 		{
-			return SpaceCharacters.Contains(c);
+			switch(c) {
+				case ' ':
+				case '\t':
+				case '\n':
+				case '\v':
+				case '\f':
+				case '\r':
+					return true;
+			}
+			return false;
+		}
+
+		internal DataEncoder()
+		{
 		}
 
 		public string EncodeData(byte[] data)
@@ -21,7 +36,7 @@ namespace NBitcoin.DataEncoders
 		public abstract byte[] DecodeData(string encoded);
 	}
 
-	public class Encoders
+	public static class Encoders
 	{
 		static readonly ASCIIEncoder _ASCII = new ASCIIEncoder();
 		public static DataEncoder ASCII
