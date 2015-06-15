@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -178,10 +179,11 @@ namespace NBitcoin.Protocol
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
 					var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token);
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
+					var stream = new BufferedStream(new Message.CustomNetworkStream(client, false), 50 * 1024); 
 					while(true)
 					{
 						cancel.Token.ThrowIfCancellationRequested();
-						var message = Message.ReadNext(client, Network, Version, cancel.Token);
+						var message = Message.ReadNext(stream, Network, Version, cancel.Token);
 						_MessageProducer.PushMessage(new IncomingMessage()
 						{
 							Socket = client,

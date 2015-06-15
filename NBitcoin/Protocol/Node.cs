@@ -195,13 +195,14 @@ namespace NBitcoin.Protocol
 						NodeServerTrace.Information("Listening");
 						Exception unhandledException = null;
 						byte[] buffer = _Node._ReuseBuffer ? new byte[1024 * 1024] : null;
+						var stream = new BufferedStream(new Message.CustomNetworkStream(Socket, false), 50 * 1024);
 						try
 						{
 							while(!Cancel.Token.IsCancellationRequested)
 							{
 								PerformanceCounter counter;
 
-								var message = Message.ReadNext(Socket, Node.Network, Node.Version, Cancel.Token, buffer, out counter);
+								var message = Message.ReadNext(stream, Node.Network, Node.Version, Cancel.Token, buffer, out counter);
 								if(NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose))
 									NodeServerTrace.Verbose("Receiving message : " + message.Command + " (" + message.Payload + ")");
 								Node.LastSeen = DateTimeOffset.UtcNow;

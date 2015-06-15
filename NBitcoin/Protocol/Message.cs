@@ -156,10 +156,10 @@ namespace NBitcoin.Protocol
 		}
 
 #if !NOSOCKET
-		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken)
+		public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken)
 		{
 			PerformanceCounter counter;
-			return ReadNext(socket, network, version, cancellationToken, out counter);
+			return ReadNext(stream, network, version, cancellationToken, out counter);
 		}
 
 		internal class CustomNetworkStream : NetworkStream
@@ -178,13 +178,12 @@ namespace NBitcoin.Protocol
 				}
 			}
 		}
-		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken, out PerformanceCounter counter)
+		public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken, out PerformanceCounter counter)
 		{
-			return ReadNext(socket, network, version, cancellationToken, null, out counter);
+			return ReadNext(stream, network, version, cancellationToken, null, out counter);
 		}
-		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
+		public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
 		{
-			var stream = new CustomNetworkStream(socket, false);
 			BitcoinStream bitStream = new BitcoinStream(stream, false)
 			{
 				ProtocolVersion = version,
