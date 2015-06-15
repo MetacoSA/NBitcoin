@@ -104,7 +104,7 @@ namespace NBitcoin.DataEncoders
 			{
 				i++;
 				if(i >= encoded.Length)
-					return result;
+					throw new FormatException("Invalid base 58 string");
 			}
 
 			for(int y = i ; y < encoded.Length ; y++)

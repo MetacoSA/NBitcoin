@@ -179,7 +179,8 @@ namespace NBitcoin.Protocol
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
 					var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token);
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
-					var stream = new BufferedStream(new Message.CustomNetworkStream(client, false), 50 * 1024); 
+
+					var stream = new Message.CustomNetworkStream(client, false); 
 					while(true)
 					{
 						cancel.Token.ThrowIfCancellationRequested();

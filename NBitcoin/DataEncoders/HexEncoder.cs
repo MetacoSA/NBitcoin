@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -37,19 +38,26 @@ namespace NBitcoin.DataEncoders
 		{
 			if(encoded == null)
 				throw new ArgumentNullException("encoded");
-			if(encoded.Length % 2 == 1)
-				throw new FormatException("Invalid Hex String");
 
-			var result = new byte[encoded.Length / 2];
-			for(int i = 0, j = 0 ; i < encoded.Length ; i += 2, j++)
+			var result = new List<byte>(encoded.Length);
+			var i = 0;
+			while (i < encoded.Length)
 			{
-				var a = IsDigit(encoded[i]);
-				var b = IsDigit(encoded[i + 1]);
+				if(IsSpace(encoded[i]))
+				{
+					i++;
+					continue;
+				}
+				var a = IsDigit(encoded[i++]);
+				if(i >= encoded.Length)
+					throw new FormatException("Invalid Hex String");
+
+				var b = IsDigit(encoded[i++]);
 				if(a == -1 || b == -1)
 					throw new FormatException("Invalid Hex String");
-				result[j] = (byte)(((uint)a << 4) | (uint)b);
+				result.Add(((byte)(((uint)a << 4) | (uint)b)));
 			}
-			return result;
+			return result.ToArray();
 		}
 
 		static HexEncoder()
