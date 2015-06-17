@@ -127,7 +127,10 @@ namespace NBitcoin
 
 		public override int GetHashCode()
 		{
-			return Tuple.Create(hash, n).GetHashCode();
+			unchecked
+			{
+				return hash.GetHashCode() * 17 + n.GetHashCode() * 31;
+			}
 		}
 
 		public override string ToString()

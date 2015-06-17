@@ -343,9 +343,12 @@ namespace NBitcoin
 		public override int GetHashCode()
 		{
 			int hash = 17;
-			foreach(var element in pn)
+			unchecked
 			{
-				hash = hash * 31 + element.GetHashCode();
+				foreach(var element in pn)
+				{
+					hash = hash * 31 + element.GetHashCode();
+				}
 			}
 			return hash;
 		}
@@ -686,9 +689,12 @@ namespace NBitcoin
 		public override int GetHashCode()
 		{
 			int hash = 17;
-			foreach(var element in pn)
+			unchecked
 			{
-				hash = hash * 31 + element.GetHashCode();
+				foreach(var element in pn)
+				{
+					hash = hash * 31 + element.GetHashCode();
+				}
 			}
 			return hash;
 		}
