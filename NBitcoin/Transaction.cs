@@ -129,7 +129,7 @@ namespace NBitcoin
 		{
 			unchecked
 			{
-				return hash.GetHashCode() * 17 + n.GetHashCode() * 31;
+				return 17 + hash.GetHashCode() * 31 + n.GetHashCode() * 31 * 31;
 			}
 		}
 
