@@ -548,8 +548,6 @@ namespace NBitcoin
 			{
 				if(value == null)
 					throw new ArgumentNullException("value");
-				if(value.Satoshi > long.MaxValue || value.Satoshi < long.MinValue)
-					throw new ArgumentOutOfRangeException("value", "satoshi's value should be between Int64.Max and Int64.Min");
 				_MoneyValue = value;
 				this.value = (long)_MoneyValue.Satoshi;
 			}
