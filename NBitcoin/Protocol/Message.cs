@@ -162,6 +162,16 @@ namespace NBitcoin.Protocol
 			return ReadNext(socket, network, version, cancellationToken, out counter);
 		}
 
+		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken, out PerformanceCounter counter)
+		{
+			return ReadNext(socket, network, version, cancellationToken, null, out counter);
+		}
+		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
+		{
+			var stream = new CustomNetworkStream(socket, false);
+			return ReadNext(stream, network, version, cancellationToken, buffer, out counter);
+		}
+
 		internal class CustomNetworkStream : NetworkStream
 		{
 			public CustomNetworkStream(Socket socket, bool own)
@@ -178,13 +188,19 @@ namespace NBitcoin.Protocol
 				}
 			}
 		}
-		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken, out PerformanceCounter counter)
+#endif
+		public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken)
 		{
-			return ReadNext(socket, network, version, cancellationToken, null, out counter);
+			PerformanceCounter counter;
+			return ReadNext(stream, network, version, cancellationToken, out counter);
 		}
-		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
+
+		public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken, out PerformanceCounter counter)
 		{
-			var stream = new CustomNetworkStream(socket, false);
+			return ReadNext(stream, network, version, cancellationToken, null, out counter);
+		}
+		public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
+		{
 			BitcoinStream bitStream = new BitcoinStream(stream, false)
 			{
 				ProtocolVersion = version,
@@ -204,7 +220,7 @@ namespace NBitcoin.Protocol
 			counter = bitStream.Counter;
 			return message;
 		}
-#endif
+
 		private IDisposable SkipMagicScope(bool value)
 		{
 			var old = _SkipMagic;

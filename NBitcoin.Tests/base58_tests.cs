@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿using System.Diagnostics;
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,7 +52,7 @@ namespace NBitcoin.Tests
 		public void ShouldThrowFormatExceptionOnInvalidBase58()
 		{
 			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData("invalid"));
-			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData(" "));
+			Assert.DoesNotThrow(() => Encoders.Base58.DecodeData(" "));
 
 			// check that DecodeBase58 skips whitespace, but still fails with unexpected non-whitespace at the end.
 			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData(" \t\n\v\f\r skip \r\f\v\n\t a"));

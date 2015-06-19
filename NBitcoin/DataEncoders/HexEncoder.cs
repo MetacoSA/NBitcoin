@@ -16,15 +16,15 @@ namespace NBitcoin.DataEncoders
 
 		public override string EncodeData(byte[] data, int offset, int count)
 		{
-			if(data == null)
+			if (data == null)
 				throw new ArgumentNullException("data");
 
 			int pos = 0;
 			var spaces = (Space ? Math.Max((count - 1), 0) : 0);
 			var s = new char[2 * count + spaces];
-			for(var i = offset ; i < offset + count ; i++)
+			for (var i = offset; i < offset + count; i++)
 			{
-				if(Space && i != 0)
+				if (Space && i != 0)
 					s[pos++] = ' ';
 				var c = HexTbl[data[i]];
 				s[pos++] = c[0];
@@ -35,17 +35,17 @@ namespace NBitcoin.DataEncoders
 
 		public override byte[] DecodeData(string encoded)
 		{
-			if(encoded == null)
+			if (encoded == null)
 				throw new ArgumentNullException("encoded");
-			if(encoded.Length % 2 == 1)
+			if (encoded.Length % 2 == 1)
 				throw new FormatException("Invalid Hex String");
 
 			var result = new byte[encoded.Length / 2];
-			for(int i = 0, j = 0 ; i < encoded.Length ; i += 2, j++)
+			for (int i = 0, j = 0; i < encoded.Length; i += 2, j++)
 			{
 				var a = IsDigit(encoded[i]);
 				var b = IsDigit(encoded[i + 1]);
-				if(a == -1 || b == -1)
+				if (a == -1 || b == -1)
 					throw new FormatException("Invalid Hex String");
 				result[j] = (byte)(((uint)a << 4) | (uint)b);
 			}
@@ -61,11 +61,11 @@ namespace NBitcoin.DataEncoders
 
 			var max = hexDigits.Max();
 			hexValueArray = new int[max + 1];
-			for(int i = 0 ; i < hexValueArray.Length ; i++)
+			for (int i = 0; i < hexValueArray.Length; i++)
 			{
 				var idx = Array.IndexOf(hexDigits, (char)i);
 				var value = -1;
-				if(idx != -1)
+				if (idx != -1)
 					value = hexValues[idx];
 				hexValueArray[i] = value;
 			}
@@ -75,9 +75,9 @@ namespace NBitcoin.DataEncoders
 
 		public static int IsDigit(char c)
 		{
-			if((int)c + 1 > hexValueArray.Length)
-				return -1;
-			return hexValueArray[(int)c];
+			return c + 1 <= hexValueArray.Length
+				? hexValueArray[c]
+				: -1;
 		}
 
 		public static bool IsWellFormed(string str)
@@ -87,7 +87,7 @@ namespace NBitcoin.DataEncoders
 				Encoders.Hex.DecodeData(str);
 				return true;
 			}
-			catch(FormatException)
+			catch (FormatException)
 			{
 				return false;
 			}
