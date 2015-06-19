@@ -1,4 +1,5 @@
 ﻿using NBitcoin.DataEncoders;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,7 +55,7 @@ namespace NBitcoin.Tests
 			else
 			{
 				WebClient client = new WebClient();
-				client.DownloadFile("http://heanet.dl.sourceforge.net/project/bitcoin/Bitcoin/blockchain/" + blockName, file);
+				client.DownloadFile("http://webbtc.com/block/0000000000000024b58eeb1134432f00497a6a860412996e7a260f47126eed07.bin", file);
 				return read_block(blockName);
 			}
 		}
