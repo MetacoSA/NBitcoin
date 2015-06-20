@@ -43,7 +43,7 @@ namespace NBitcoin
 		{
 			var zero = target.Sub(target);
 			var targetCoin = coins
-							.FirstOrDefault(c => c.Amount == target);
+							.FirstOrDefault(c => c.Amount.CompareTo(target) == 0);
 			//If any of your UTXO² matches the Target¹ it will be used.
 			if(targetCoin != null)
 				return new[] { targetCoin };
