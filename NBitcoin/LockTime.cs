@@ -117,17 +117,13 @@ namespace NBitcoin
 
 		public override bool Equals(object obj)
 		{
-			LockTime item = obj is LockTime ? (LockTime)obj : default(LockTime);
-			if(item == null)
+			if(!(obj is LockTime))
 				return false;
+			var item = (LockTime)obj;
 			return _value.Equals(item._value);
 		}
 		public static bool operator ==(LockTime a, LockTime b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
-				return true;
-			if(((object)a == null) || ((object)b == null))
-				return false;
 			return a._value == b._value;
 		}
 
