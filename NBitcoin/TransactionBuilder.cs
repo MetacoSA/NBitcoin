@@ -849,7 +849,7 @@ namespace NBitcoin
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			if(_CompletedTransaction != null)
 				ctx.Transaction = _CompletedTransaction;
-			if(_LockTime != null && _LockTime.HasValue)
+			if(_LockTime != null)
 				ctx.Transaction.LockTime = _LockTime.Value;
 			foreach(var group in _BuilderGroups)
 			{
@@ -864,7 +864,7 @@ namespace NBitcoin
 				var buildersByAsset = group.BuildersByAsset.ToList();
 				foreach(var builders in buildersByAsset)
 				{
-					var coins = group.Coins.Values.OfType<ColoredCoin>().Where(c => c.Amount.Id == builders.Key).OfType<ICoin>();
+					var coins = group.Coins.Values.OfType<ColoredCoin>().Where(c => c.Amount.Id == builders.Key);
 
 					ctx.Dust = new AssetMoney(builders.Key);
 					ctx.CoverOnly = null;
@@ -940,7 +940,7 @@ namespace NBitcoin
 				var input = ctx.Transaction.Inputs.FirstOrDefault(i => i.PrevOut == coin.Outpoint);
 				if(input == null)
 					input = ctx.Transaction.AddInput(new TxIn(coin.Outpoint));
-				if(_LockTime != null && _LockTime.HasValue && !ctx.NonFinalSequenceSet)
+				if(_LockTime != null && !ctx.NonFinalSequenceSet)
 				{
 					input.Sequence = 0;
 					ctx.NonFinalSequenceSet = true;

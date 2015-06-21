@@ -180,15 +180,10 @@ namespace NBitcoin.Payment
 
 			var network = Network == Network.Main ? "main" :
 							  Network == Network.TestNet ? "test" : null;
-			if(details.network != network)
-				details.network = network;
 
-			var time = Utils.DateTimeToUnixTimeLong(Time);
-			if(time != details.time)
-				details.time = time;
-			var expires = Utils.DateTimeToUnixTimeLong(Expires);
-			if(expires != details.expires)
-				details.expires = expires;
+			details.network = network;
+			details.time = Utils.DateTimeToUnixTimeLong(Time);
+			details.expires = Utils.DateTimeToUnixTimeLong(Expires);
 
 			details.payment_url = PaymentUrl == null ? null : PaymentUrl.AbsoluteUri;
 			details.outputs.Clear();
@@ -408,7 +403,7 @@ namespace NBitcoin.Payment
 			if(this.PKIType != Payment.PKIType.None)
 				valid = this.VerifyChain() && VerifySignature();
 			if(!valid)
-				return valid;
+				return false;
 
 			return Details.Expires < DateTimeOffset.UtcNow;
 		}

@@ -257,7 +257,7 @@ namespace Proto
 		{
 			get
 			{
-				return _merchant_data ?? null;
+				return _merchant_data;
 			}
 			set
 			{
@@ -379,7 +379,7 @@ namespace Proto
 		{
 			get
 			{
-				return _pki_data ?? null;
+				return _pki_data;
 			}
 			set
 			{
@@ -428,7 +428,7 @@ namespace Proto
 		{
 			get
 			{
-				return _signature ?? null;
+				return _signature;
 			}
 			set
 			{
@@ -502,7 +502,7 @@ namespace Proto
 		{
 			get
 			{
-				return _merchant_data ?? null;
+				return _merchant_data;
 			}
 			set
 			{
