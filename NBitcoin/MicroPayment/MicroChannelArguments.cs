@@ -216,7 +216,7 @@ namespace NBitcoin.MicroPayment
 			var sig = args.Signatures[i];
 			if(sig == null)
 				throw new MicroPaymentException("Payment uncorrectly signed");
-			if(args.Signatures.Where(s => s != null).Count() != 1)
+			if(args.Signatures.Count(s => s != null) != 1)
 				throw new MicroPaymentException("Payment uncorrectly signed");
 			return sig;
 		}

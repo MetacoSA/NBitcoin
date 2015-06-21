@@ -32,7 +32,7 @@ namespace NBitcoin.SPV
 			public static string GetId(uint256 txId, uint256 blockId, int height)
 			{
 				return (blockId == null ? (int.MaxValue - 1) : height) + "-"
-					+ (blockId == null ? new uint256(0) : blockId) + "-"
+					+ (blockId ?? new uint256(0)) + "-"
 					+ txId;
 			}
 
@@ -101,7 +101,7 @@ namespace NBitcoin.SPV
 			{
 				foreach(var coin in b)
 				{
-					if(!a.Any(c => c.Item1.Outpoint == coin.Item1.Outpoint))
+					if(a.All(c => c.Item1.Outpoint != coin.Item1.Outpoint))
 						a.Add(coin);
 				}
 			}
@@ -424,7 +424,7 @@ namespace NBitcoin.SPV
 		public BloomFilter CreateBloomFilter(double fp, BloomFlags flags = BloomFlags.UPDATE_ALL)
 		{
 			var toTrack = GetDataToTrack().ToArray();
-			var scriptCount = _TrackedScripts.Where(s => !s.Value.IsInternal).Count();
+			var scriptCount = _TrackedScripts.Count(s => !s.Value.IsInternal);
 			var filter = new BloomFilter(scriptCount, fp, _Tweak, flags);
 			foreach(var data in toTrack)
 				filter.Insert(data);
@@ -611,7 +611,7 @@ namespace NBitcoin.SPV
 		internal List<object> Prune(ConcurrentChain chain, int blockExpiration = 2000, TimeSpan? timeExpiration = null)
 		{
 			List<object> removed = new List<object>();
-			timeExpiration = timeExpiration == null ? TimeSpan.FromDays(7.0) : timeExpiration;
+			timeExpiration = timeExpiration ?? TimeSpan.FromDays(7.0);
 			foreach(var op in _Operations)
 			{
 				if(op.Value.BlockId != null)
@@ -678,7 +678,7 @@ namespace NBitcoin.SPV
 
 		public Transaction GetKnownTransaction(uint256 txId)
 		{
-			return _Operations.Select(o => o.Value.Transaction).Where(o => o.GetHash() == txId).FirstOrDefault();
+			return _Operations.Select(o => o.Value.Transaction).FirstOrDefault(o => o.GetHash() == txId);
 		}
 
 		public void UpdateTweak()

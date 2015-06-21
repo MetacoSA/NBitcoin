@@ -60,7 +60,6 @@ namespace NBitcoin.BitcoinCore
 		}
 
 
-		[ThreadStatic]
 		bool headerOnly;
 		// FIXME: this methods doesn't have a path to stop the recursion.
 		public IEnumerable<StoredBlock> Enumerate(Stream stream, uint fileIndex = 0, DiskBlockPosRange range = null, bool headersOnly = false)

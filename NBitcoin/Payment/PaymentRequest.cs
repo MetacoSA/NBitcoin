@@ -181,9 +181,16 @@ namespace NBitcoin.Payment
 			var network = Network == Network.Main ? "main" :
 							  Network == Network.TestNet ? "test" : null;
 
-			details.network = network;
-			details.time = Utils.DateTimeToUnixTimeLong(Time);
-			details.expires = Utils.DateTimeToUnixTimeLong(Expires);
+			// this pattern requires an explanation
+			if (details.network != network)
+				details.network = network;
+
+			var time = Utils.DateTimeToUnixTimeLong(Time);
+			if (time != details.time)
+				details.time = time;
+			var expires = Utils.DateTimeToUnixTimeLong(Expires);
+			if (expires != details.expires)
+				details.expires = expires;
 
 			details.payment_url = PaymentUrl == null ? null : PaymentUrl.AbsoluteUri;
 			details.outputs.Clear();

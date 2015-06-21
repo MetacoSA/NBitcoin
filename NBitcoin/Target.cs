@@ -125,7 +125,11 @@ namespace NBitcoin
 			return _Target.Equals(item._Target);
 		}
 		public static bool operator ==(Target a, Target b)
-		{						
+		{	
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if (((object)a == null) || ((object)b == null))
+				return false;			
 			return a._Target == b._Target;
 		}
 

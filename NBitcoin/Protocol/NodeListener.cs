@@ -69,7 +69,6 @@ namespace NBitcoin.Protocol
 				while(pushedAside.Count != 0)
 					PushMessage(pushedAside.Dequeue());
 			}
-			throw new InvalidProgramException("Bug in Node.RecieveMessage");
 		}
 
 		List<Func<IncomingMessage, bool>> _Predicates = new List<Func<IncomingMessage, bool>>();

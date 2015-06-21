@@ -904,7 +904,7 @@ namespace NBitcoin
 				target = ctx.CoverOnly.Add(ctx.ChangeAmount);
 			}
 
-			var unconsumed = coins.Where(c => !ctx.ConsumedCoins.Any(cc => cc.Outpoint == c.Outpoint));
+			var unconsumed = coins.Where(c => ctx.ConsumedCoins.All(cc => cc.Outpoint != c.Outpoint));
 			var selection = CoinSelector.Select(unconsumed, target);
 			if(selection == null)
 				throw new NotEnoughFundsException("Not enough fund to cover the target",
@@ -1025,7 +1025,7 @@ namespace NBitcoin
 			Money spent = Money.Zero;
 			foreach(var input in tx.Inputs.AsIndexedInputs())
 			{
-				var duplicates = tx.Inputs.Where(_ => _.PrevOut == input.PrevOut).Count();
+				var duplicates = tx.Inputs.Count(_ => _.PrevOut == input.PrevOut);
 				if(duplicates != 1)
 					return false;
 				var coin = FindCoin(input.PrevOut);
@@ -1058,7 +1058,7 @@ namespace NBitcoin
 
 		public ICoin FindCoin(OutPoint outPoint)
 		{
-			var result = _BuilderGroups.Select(c => c.Coins.TryGet(outPoint)).Where(r => r != null).FirstOrDefault();
+			var result = _BuilderGroups.Select(c => c.Coins.TryGet(outPoint)).FirstOrDefault(r => r != null);
 			if(result == null && CoinFinder != null)
 				result = CoinFinder(outPoint);
 			return result;
@@ -1216,7 +1216,7 @@ namespace NBitcoin
 					.Select(p => FindKey(ctx, p.ScriptPubKey))
 					.ToArray();
 
-				int sigCount = signatures.Where(s => s != TransactionSignature.Empty && s != null).Count();
+				int sigCount = signatures.Count(s => s != TransactionSignature.Empty && s != null);
 				for(int i = 0 ; i < keys.Length ; i++)
 				{
 					if(sigCount == multiSigParams.SignatureCount)

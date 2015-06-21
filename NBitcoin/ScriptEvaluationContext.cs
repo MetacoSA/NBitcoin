@@ -1338,7 +1338,7 @@ namespace NBitcoin
 				//  Non-canonical signature: R value negative
 				return false;
 			}
-			if(nLenR > 1 && (vchSig[R] == 0x00) && !((vchSig[R + 1] & 0x80) != 0))
+			if(nLenR > 1 && (vchSig[R] == 0x00) && (vchSig[R + 1] & 0x80) == 0)
 			{
 				//  Non-canonical signature: R value excessively padded
 				return false;
