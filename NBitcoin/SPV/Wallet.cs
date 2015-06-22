@@ -321,9 +321,12 @@ namespace NBitcoin.SPV
 
 
 			//Pick the behaviors
-			parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));	//Listen addr, help for node discovery
-			parameters.TemplateBehaviors.Add(new ChainBehavior(chain));	//Keep chain in sync
-			parameters.TemplateBehaviors.Add(new TrackerBehavior(tracker, chain)); //Set bloom filters and scan the blockchain
+			if(addrman != null)
+				parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));	//Listen addr, help for node discovery
+			if(chain != null)
+				parameters.TemplateBehaviors.Add(new ChainBehavior(chain));	//Keep chain in sync
+			if(tracker != null)
+				parameters.TemplateBehaviors.Add(new TrackerBehavior(tracker, chain)); //Set bloom filters and scan the blockchain
 
 			Connect(parameters);
 		}

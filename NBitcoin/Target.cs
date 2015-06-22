@@ -76,7 +76,7 @@ namespace NBitcoin
 		public static implicit operator uint(Target a)
 		{
 			var bytes = a._Target.ToByteArray().Reverse().ToArray();
-			var val = bytes.SafeSubarray(0, Math.Min(bytes.Length,3)).Reverse().ToArray();
+			var val = bytes.SafeSubarray(0, Math.Min(bytes.Length, 3)).Reverse().ToArray();
 			var exp = (byte)(bytes.Length);
 			var missing = 4 - val.Length;
 			if(missing > 0)
@@ -125,11 +125,11 @@ namespace NBitcoin
 			return _Target.Equals(item._Target);
 		}
 		public static bool operator ==(Target a, Target b)
-		{	
+		{
 			if(System.Object.ReferenceEquals(a, b))
 				return true;
-			if (((object)a == null) || ((object)b == null))
-				return false;			
+			if(((object)a == null) || ((object)b == null))
+				return false;
 			return a._Target == b._Target;
 		}
 
