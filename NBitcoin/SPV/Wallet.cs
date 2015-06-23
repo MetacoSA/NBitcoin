@@ -156,8 +156,6 @@ namespace NBitcoin.SPV
 
 		private void LoadPool(int indexFrom, int count)
 		{
-
-			var walletName = GetWalletName();
 			for(int i = indexFrom ; i < indexFrom + count ; i++)
 			{
 				var child = GetScriptPubKey(false, i);
@@ -259,16 +257,12 @@ namespace NBitcoin.SPV
 			{
 				if(_Parameters.RootKeys.Length == 1)
 					return Derivate(0, isChange, index).PubKey.ScriptPubKey;
-				else
-					return CreateMultiSig(isChange, index);
+				return CreateMultiSig(isChange, index);
 			}
-			else
-			{
-				if(_Parameters.RootKeys.Length == 1)
-					return Derivate(0, isChange, index).PubKey.Hash.ScriptPubKey;
-				else
-					return CreateMultiSig(isChange, index);
-			}
+
+			if(_Parameters.RootKeys.Length == 1)
+				return Derivate(0, isChange, index).PubKey.Hash.ScriptPubKey;
+			return CreateMultiSig(isChange, index);
 		}
 
 		private Script CreateMultiSig(bool isChange, int index)
@@ -311,10 +305,6 @@ namespace NBitcoin.SPV
 		{
 			if(State != WalletState.Created)
 				throw new InvalidOperationException("The wallet is already connecting or connected");
-
-			addrman = addrman ?? new AddressManager();
-			chain = chain ?? new ConcurrentChain(_Parameters.Network);
-			tracker = tracker ?? new Tracker();
 
 			var parameters = new NodeConnectionParameters();
 			ConfigureDefaultNodeConnectionParameters(parameters);
