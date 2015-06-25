@@ -3,9 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
@@ -68,12 +66,13 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
-		public Store(string folder, Network network)
+		protected Store(string folder, Network network)
 			: this(new DirectoryInfo(folder), network)
 		{
 
 		}
-		public Store(DirectoryInfo folder, Network network)
+
+		protected Store(DirectoryInfo folder, Network network)
 		{
 			if(folder == null)
 				throw new ArgumentNullException("folder");
@@ -149,9 +148,9 @@ namespace NBitcoin.BitcoinCore
 		{
 			if(range == null)
 				range = DiskBlockPosRange.All;
-			using(var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, BufferSize))
-			{
 
+			using( var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, BufferSize))
+			{
 				fs.Position = range.Begin.Position;
 				foreach(var block in Enumerate(fs, fileIndex, range))
 				{
