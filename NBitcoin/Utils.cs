@@ -1,5 +1,4 @@
-﻿using System.IO.MemoryMappedFiles;
-using NBitcoin.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 using NBitcoin.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
