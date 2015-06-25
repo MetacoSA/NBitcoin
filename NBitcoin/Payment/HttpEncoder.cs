@@ -124,15 +124,13 @@ namespace System.Web.Util
 #endif
  void HeaderNameValueEncode(string headerName, string headerValue, out string encodedHeaderName, out string encodedHeaderValue)
 		{
-			if(String.IsNullOrEmpty(headerName))
-				encodedHeaderName = headerName;
-			else
-				encodedHeaderName = EncodeHeaderString(headerName);
+			encodedHeaderName = String.IsNullOrEmpty(headerName) 
+				? headerName 
+				: EncodeHeaderString(headerName);
 
-			if(String.IsNullOrEmpty(headerValue))
-				encodedHeaderValue = headerValue;
-			else
-				encodedHeaderValue = EncodeHeaderString(headerValue);
+			encodedHeaderValue = String.IsNullOrEmpty(headerValue) 
+				? headerValue 
+				: EncodeHeaderString(headerValue);
 		}
 
 		static void StringBuilderAppend(string s, ref StringBuilder sb)

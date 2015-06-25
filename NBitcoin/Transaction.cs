@@ -108,7 +108,7 @@ namespace NBitcoin
 			}
 			if(Object.ReferenceEquals(b, null))
 			{
-				return Object.ReferenceEquals(a, null);
+				return false;
 			}
 			return (a.hash == b.hash && a.n == b.n);
 		}

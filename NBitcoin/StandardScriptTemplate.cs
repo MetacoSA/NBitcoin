@@ -45,7 +45,6 @@ namespace NBitcoin
 			if(ops.Length == 2)
 			{
 				return ops[1].PushData != null && ops[1].PushData.Length <= MAX_OPRETURN_SIZE;
-				throw new NotSupportedException();
 			}
 			return true;
 		}

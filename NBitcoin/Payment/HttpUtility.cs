@@ -53,7 +53,7 @@ namespace System.Web.NBitcoin
 				if(count == 0)
 					return "";
 				StringBuilder sb = new StringBuilder();
-				string[] keys = Keys.OfType<string>().ToArray();
+				string[] keys = Keys.ToArray();
 				for(int i = 0 ; i < count ; i++)
 				{
 					sb.AppendFormat("{0}={1}&", keys[i], this[keys[i]]);

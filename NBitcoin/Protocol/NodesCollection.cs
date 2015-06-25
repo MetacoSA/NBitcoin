@@ -134,9 +134,7 @@ namespace NBitcoin.Protocol
 		{
 			var ip = endpoint.Address.EnsureIPv6();
 			int port = endpoint.Port;
-			return _Nodes.Select(n => n.Key).Where
-				(n => Match(ip, port, n))
-				.FirstOrDefault();
+			return _Nodes.Select(n => n.Key).FirstOrDefault(n => Match(ip, port, n));
 		}
 
 		private static bool Match(IPAddress ip, int? port, Node n)
