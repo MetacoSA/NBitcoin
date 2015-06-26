@@ -109,7 +109,7 @@ namespace NBitcoin.Tests
 			spendingTx.ReadWrite(vch);
 
 			BloomFilter filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
-			filter.Insert(uint256.ParseHex("0xb4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b"));
+			filter.Insert(uint256.Parse("0xb4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b"));
 			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match tx hash");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
@@ -135,11 +135,11 @@ namespace NBitcoin.Tests
 			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match output address");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
-			filter.Insert(new OutPoint(uint256.ParseHex("0x90c122d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 0));
+			filter.Insert(new OutPoint(uint256.Parse("0x90c122d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 0));
 			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match COutPoint");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
-			OutPoint prevOutPoint = new OutPoint(uint256.ParseHex("0x90c122d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 0);
+			OutPoint prevOutPoint = new OutPoint(uint256.Parse("0x90c122d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 0);
 			{
 				var data = prevOutPoint.ToBytes();
 				filter.Insert(data);
@@ -147,7 +147,7 @@ namespace NBitcoin.Tests
 			Assert.True(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match manually serialized COutPoint");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
-			filter.Insert(uint256.ParseHex("00000009e784f32f62ef849763d4f45b98e07ba658647343b915ff832b110436"));
+			filter.Insert(uint256.Parse("00000009e784f32f62ef849763d4f45b98e07ba658647343b915ff832b110436"));
 			Assert.True(!filter.IsRelevantAndUpdate(tx), "Simple Bloom filter matched random tx hash");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
@@ -155,11 +155,11 @@ namespace NBitcoin.Tests
 			Assert.True(!filter.IsRelevantAndUpdate(tx), "Simple Bloom filter matched random address");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
-			filter.Insert(new OutPoint(uint256.ParseHex("0x90c122d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 1));
+			filter.Insert(new OutPoint(uint256.Parse("0x90c122d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 1));
 			Assert.True(!filter.IsRelevantAndUpdate(tx), "Simple Bloom filter matched COutPoint for an output we didn't care about");
 
 			filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
-			filter.Insert(new OutPoint(uint256.ParseHex("0x000000d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 0));
+			filter.Insert(new OutPoint(uint256.Parse("0x000000d70786e899529d71dbeba91ba216982fb6ba58f3bdaab65e73b7e9260b"), 0));
 			Assert.True(!filter.IsRelevantAndUpdate(tx), "Simple Bloom filter matched COutPoint for an output we didn't care about");
 		}
 
@@ -175,7 +175,7 @@ namespace NBitcoin.Tests
 
 			BloomFilter filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			// Match the last transaction
-			filter.Insert(uint256.ParseHex("0x74d681e0e03bafa802c8aa084379aa98d9fcd632ddc2ed9782b586ec87451f20"));
+			filter.Insert(uint256.Parse("0x74d681e0e03bafa802c8aa084379aa98d9fcd632ddc2ed9782b586ec87451f20"));
 
 			MerkleBlock merkleBlock = block.Filter(filter);
 			Assert.True(merkleBlock.Header.GetHash() == block.GetHash());
@@ -187,7 +187,7 @@ namespace NBitcoin.Tests
 			AssertMatch(block, vMatchedTxn, "0x74d681e0e03bafa802c8aa084379aa98d9fcd632ddc2ed9782b586ec87451f20", 0, 8);
 
 			// Also match the 8th transaction
-			filter.Insert(uint256.ParseHex("0xdd1fd2a6fc16404faf339881a90adbde7f4f728691ac62e8f168809cdfae1053"));
+			filter.Insert(uint256.Parse("0xdd1fd2a6fc16404faf339881a90adbde7f4f728691ac62e8f168809cdfae1053"));
 			merkleBlock = block.Filter(filter);
 			vMatchedTxn = merkleBlock.PartialMerkleTree.GetMatchedTransactions().ToList();
 			Assert.True(merkleBlock.PartialMerkleTree.Check(block.Header.HashMerkleRoot));
@@ -203,7 +203,7 @@ namespace NBitcoin.Tests
 
 		private void AssertMatch(Block block, List<uint256> vMatchedTxn, string txId, int expectedMerkleIndex, int expectedTxIndex)
 		{
-			var id = uint256.ParseHex(txId);
+			var id = uint256.Parse(txId);
 			Assert.True(vMatchedTxn[expectedMerkleIndex] == id);
 			var actualIndexTx = Array.IndexOf(block.Transactions.Select(t => t.GetHash()).ToArray(), id);
 			Assert.True(actualIndexTx == expectedTxIndex);
@@ -220,7 +220,7 @@ namespace NBitcoin.Tests
 
 			BloomFilter filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			// Match the first transaction
-			filter.Insert(uint256.ParseHex("0xe980fe9f792d014e73b95203dc1335c5f9ce19ac537a419e6df5b47aecb93b70"));
+			filter.Insert(uint256.Parse("0xe980fe9f792d014e73b95203dc1335c5f9ce19ac537a419e6df5b47aecb93b70"));
 
 			MerkleBlock merkleBlock = new MerkleBlock(block, filter);
 			Assert.True(merkleBlock.Header.GetHash() == block.GetHash());
@@ -261,7 +261,7 @@ namespace NBitcoin.Tests
 
 			BloomFilter filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_NONE);
 			// Match the first transaction
-			filter.Insert(uint256.ParseHex("0xe980fe9f792d014e73b95203dc1335c5f9ce19ac537a419e6df5b47aecb93b70"));
+			filter.Insert(uint256.Parse("0xe980fe9f792d014e73b95203dc1335c5f9ce19ac537a419e6df5b47aecb93b70"));
 
 			MerkleBlock merkleBlock = new MerkleBlock(block, filter);
 			Assert.True(merkleBlock.Header.GetHash() == block.GetHash());
@@ -305,7 +305,7 @@ namespace NBitcoin.Tests
 
 			BloomFilter filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			// Match the only transaction
-			filter.Insert(uint256.ParseHex("0x63194f18be0af63f2c6bc9dc0f777cbefed3d9415c4af83f3ee3a3d669c00cb5"));
+			filter.Insert(uint256.Parse("0x63194f18be0af63f2c6bc9dc0f777cbefed3d9415c4af83f3ee3a3d669c00cb5"));
 
 			MerkleBlock merkleBlock = new MerkleBlock(block, filter);
 			Assert.True(merkleBlock.Header.GetHash() == block.GetHash());
@@ -333,7 +333,7 @@ namespace NBitcoin.Tests
 
 			BloomFilter filter = new BloomFilter(10, 0.000001, 0, BloomFlags.UPDATE_ALL);
 			// Match the last transaction
-			filter.Insert(uint256.ParseHex("0x0a2a92f0bda4727d0a13eaddf4dd9ac6b5c61a1429e6b2b818f19b15df0ac154"));
+			filter.Insert(uint256.Parse("0x0a2a92f0bda4727d0a13eaddf4dd9ac6b5c61a1429e6b2b818f19b15df0ac154"));
 
 			MerkleBlock merkleBlock = new MerkleBlock(block, filter);
 			Assert.True(merkleBlock.Header.GetHash() == block.GetHash());
@@ -344,7 +344,7 @@ namespace NBitcoin.Tests
 			AssertMatch(block, vMatchedTxn, "0x0a2a92f0bda4727d0a13eaddf4dd9ac6b5c61a1429e6b2b818f19b15df0ac154", 0, 6);
 
 			// Also match the 4th transaction
-			filter.Insert(uint256.ParseHex("0x02981fa052f0481dbc5868f4fc2166035a10f27a03cfd2de67326471df5bc041"));
+			filter.Insert(uint256.Parse("0x02981fa052f0481dbc5868f4fc2166035a10f27a03cfd2de67326471df5bc041"));
 			merkleBlock = new MerkleBlock(block, filter);
 			Assert.True(merkleBlock.PartialMerkleTree.Check(block.Header.HashMerkleRoot));
 			Assert.True(merkleBlock.Header.GetHash() == block.GetHash());
@@ -377,9 +377,9 @@ namespace NBitcoin.Tests
 			Assert.True(merkleBlock.Header.GetHash() == block.GetHash());
 
 			// We should match the generation outpoint
-			Assert.True(filter.Contains(new OutPoint(uint256.ParseHex("0x147caa76786596590baa4e98f5d9f48b86c7765e489f7a6ff3360fe5c674360b"), 0)));
+			Assert.True(filter.Contains(new OutPoint(uint256.Parse("0x147caa76786596590baa4e98f5d9f48b86c7765e489f7a6ff3360fe5c674360b"), 0)));
 			// ... but not the 4th transaction's output (its not pay-2-pubkey)
-			Assert.True(!filter.Contains(new OutPoint(uint256.ParseHex("0x02981fa052f0481dbc5868f4fc2166035a10f27a03cfd2de67326471df5bc041"), 0)));
+			Assert.True(!filter.Contains(new OutPoint(uint256.Parse("0x02981fa052f0481dbc5868f4fc2166035a10f27a03cfd2de67326471df5bc041"), 0)));
 		}
 
 
@@ -402,8 +402,8 @@ namespace NBitcoin.Tests
 			Assert.True(merkleBlock.Header.GetHash() == block.GetHash());
 
 			// We shouldn't match any outpoints (UPDATE_NONE)
-			Assert.True(!filter.Contains(new OutPoint(uint256.ParseHex("0x147caa76786596590baa4e98f5d9f48b86c7765e489f7a6ff3360fe5c674360b"), 0)));
-			Assert.True(!filter.Contains((new OutPoint(uint256.ParseHex("0x02981fa052f0481dbc5868f4fc2166035a10f27a03cfd2de67326471df5bc041"), 0))));
+			Assert.True(!filter.Contains(new OutPoint(uint256.Parse("0x147caa76786596590baa4e98f5d9f48b86c7765e489f7a6ff3360fe5c674360b"), 0)));
+			Assert.True(!filter.Contains((new OutPoint(uint256.Parse("0x02981fa052f0481dbc5868f4fc2166035a10f27a03cfd2de67326471df5bc041"), 0))));
 		}
 	}
 }

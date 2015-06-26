@@ -14,7 +14,7 @@ namespace NBitcoin.RPC
 	{
 		protected override void BuildTransaction(JObject json, Transaction tx)
 		{
-			var txid = uint256.ParseHex((string)json.GetValue("txid"));
+			var txid = uint256.Parse((string)json.GetValue("txid"));
 			tx.Version = (uint)json.GetValue("version");
 			tx.LockTime = (uint)json.GetValue("locktime");
 
@@ -29,7 +29,7 @@ namespace NBitcoin.RPC
 				if(script != null)
 				{
 					txin.ScriptSig = new Script(Encoders.Hex.DecodeData((string)script.GetValue("hex")));
-					txin.PrevOut.Hash = uint256.ParseHex((string)jsonIn.GetValue("txid"));
+					txin.PrevOut.Hash = uint256.Parse((string)jsonIn.GetValue("txid"));
 					txin.PrevOut.N = (uint)jsonIn.GetValue("vout");
 				}
 				else

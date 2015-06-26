@@ -205,7 +205,7 @@ namespace NBitcoin.SPV
 				if(blockId != null)
 				{
 					op.Height = (int)(long)obj["Height"];
-					op.BlockId = uint256.ParseHex(blockId);
+					op.BlockId = uint256.Parse(blockId);
 					op.Proof = new MerkleBlock();
 					op.Proof.FromBytes(Encoders.Hex.DecodeData((string)obj["Proof"]));
 				}

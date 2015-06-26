@@ -21,12 +21,12 @@ namespace NBitcoin
 				pn[i] = b.pn[i];
 		}
 
-		public static uint256 ParseHex(string hex)
+		public static uint256 Parse(string hex)
 		{
 			return new uint256(hex);
 		}
 
-		public static uint256 ParseHex(string hex, bool lendian)
+		public static uint256 Parse(string hex, bool lendian)
 		{
 			return new uint256(Encoder.DecodeData(hex), lendian);
 		}
@@ -378,12 +378,12 @@ namespace NBitcoin
 				pn[i] = b.pn[i];
 		}
 
-		public static uint160 ParseHex(string hex)
+		public static uint160 Parse(string hex)
 		{
 			return new uint160(hex);
 		}
 
-		public static uint160 ParseHex(string hex, bool lendian)
+		public static uint160 Parse(string hex, bool lendian)
 		{
 			return new uint160(Encoder.DecodeData(hex), lendian);
 		}

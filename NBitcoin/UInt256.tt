@@ -28,12 +28,12 @@ namespace NBitcoin
 				pn[i] = b.pn[i];
 		}
 
-		public static uint<#= t #> ParseHex(string hex)
+		public static uint<#= t #> Parse(string hex)
 		{
 			return new uint<#= t #>(hex);
 		}
 
-		public static uint<#= t #> ParseHex(string hex, bool lendian)
+		public static uint<#= t #> Parse(string hex, bool lendian)
 		{
 			return new uint<#= t #>(Encoder.DecodeData(hex), lendian);
 		}

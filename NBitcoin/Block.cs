@@ -395,8 +395,8 @@ namespace NBitcoin
 			blk.Header.BlockTime = Utils.UnixTimeToDateTime((uint)block["time"]);
 			blk.Header.Nonce = (uint)block["nonce"];
 			blk.Header.Version = (int)block["ver"];
-			blk.Header.HashPrevBlock = uint256.ParseHex((string)block["prev_block"]);
-			blk.Header.HashMerkleRoot = uint256.ParseHex((string)block["mrkl_root"]);
+			blk.Header.HashPrevBlock = uint256.Parse((string)block["prev_block"]);
+			blk.Header.HashMerkleRoot = uint256.Parse((string)block["mrkl_root"]);
 			foreach (var tx in txs)
 			{
 				blk.AddTransaction(formatter.Parse((JObject)tx));
@@ -404,10 +404,9 @@ namespace NBitcoin
 			return blk;
 		}
 
-		[Obsolete("Use Block.ParseJson static method instead")]
-		public static Block Parse(string json)
+		public static Block Parse(string hex)
 		{
-			return ParseJson(json);
+			return new Block(Encoders.Hex.DecodeData(hex));
 		}
 
 		public MerkleBlock Filter(params uint256[] txIds)
