@@ -13,7 +13,7 @@ namespace NBitcoin
 		{
 			var row = leafs.Select(l => new MerkleNode(l)).ToList();
 			if(row.Count == 0)
-				return new MerkleNode(new uint256(0));
+				return new MerkleNode(uint256.Zero);
 			while(row.Count != 1)
 			{
 				var parentRow = new List<MerkleNode>();

@@ -46,7 +46,7 @@ namespace NBitcoin.Protocol
 				blockLocators = value;
 			}
 		}
-		uint256 _HashStop = new uint256(0);
+		uint256 _HashStop = uint256.Zero;
 		public uint256 HashStop
 		{
 			get

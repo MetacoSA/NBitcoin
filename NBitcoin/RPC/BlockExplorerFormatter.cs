@@ -86,7 +86,7 @@ namespace NBitcoin.RPC
 				WritePropertyValue(writer, "n", txin.PrevOut.N);
 				writer.WriteEndObject();
 
-				if(txin.PrevOut.Hash == new uint256(0))
+				if(txin.PrevOut.Hash == uint256.Zero)
 				{
 					WritePropertyValue(writer, "coinbase", Encoders.Hex.EncodeData(txin.ScriptSig.ToBytes()));
 				}

@@ -11,11 +11,11 @@ namespace NBitcoin.OpenAsset
 		IColoredTransactionRepository _Inner;
 		CachedTransactionRepository _InnerTransactionRepository;
 		Dictionary<uint256, ColoredTransaction> _ColoredTransactions = new Dictionary<uint256, ColoredTransaction>();
-		ReaderWriterLock @lock = new ReaderWriterLock();
+		ReaderWriterLock _lock = new ReaderWriterLock();
 
 		public ColoredTransaction GetFromCache(uint256 txId)
 		{
-			using(@lock.LockRead())
+			using(_lock.LockRead())
 			{
 				return _ColoredTransactions.TryGet(txId);
 			}
@@ -50,14 +50,14 @@ namespace NBitcoin.OpenAsset
 		{
 			ColoredTransaction result = null;
 			bool found;
-			using(@lock.LockRead())
+			using(_lock.LockRead())
 			{
 				found = _ColoredTransactions.TryGetValue(txId, out result);
 			}
 			if(!found)
 			{
 				result = await _Inner.GetAsync(txId).ConfigureAwait(false);
-				using(@lock.LockWrite())
+				using(_lock.LockWrite())
 				{
 					_ColoredTransactions.AddOrReplace(txId, result);
 				}
@@ -67,7 +67,7 @@ namespace NBitcoin.OpenAsset
 
 		public Task PutAsync(uint256 txId, ColoredTransaction tx)
 		{
-			using(@lock.LockWrite())
+			using(_lock.LockWrite())
 			{
 				if(!_ColoredTransactions.ContainsKey(txId))
 					_ColoredTransactions.AddOrReplace(txId, tx);

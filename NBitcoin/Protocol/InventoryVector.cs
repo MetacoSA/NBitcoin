@@ -16,7 +16,7 @@ namespace NBitcoin.Protocol
 	public class InventoryVector : Payload, IBitcoinSerializable
 	{
 		uint type;
-		uint256 hash = new uint256(0);
+		uint256 hash = uint256.Zero;
 
 		public InventoryVector()
 		{

@@ -813,7 +813,7 @@ namespace NBitcoin.Protocol
 				return -13;
 			if(mapNew.Count != 0)
 				return -15;
-			if(nKey == null || nKey == new uint256(0))
+			if(nKey == null || nKey == uint256.Zero)
 				return -16;
 			return 0;
 		}

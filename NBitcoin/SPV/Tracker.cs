@@ -31,9 +31,10 @@ namespace NBitcoin.SPV
 
 			public static string GetId(uint256 txId, uint256 blockId, int height)
 			{
-				return (blockId == null ? (int.MaxValue - 1) : height) + "-"
-					+ (blockId ?? new uint256(0)) + "-"
-					+ txId;
+				return string.Format("{0}-{1}-{2}", 
+					(blockId == null ? (int.MaxValue - 1) : height),
+					(blockId ?? uint256.Zero),
+					txId);
 			}
 
 			public Operation()

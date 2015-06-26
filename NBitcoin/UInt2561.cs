@@ -9,6 +9,16 @@ namespace NBitcoin
 {
 	public class uint256 :  IBitcoinSerializable
 	{
+		public static uint256 Zero
+		{
+			get { return new uint256(0); }
+		}
+
+		public static uint256 One 
+		{
+			get { return new uint256(1); }
+		}
+
 		public uint256()
 		{
 			for(int i = 0 ; i < WIDTH ; i++)
@@ -355,6 +365,16 @@ namespace NBitcoin
 	}
 	public class uint160 :  IBitcoinSerializable
 	{
+		public static uint160 Zero
+		{
+			get { return new uint160(0); }
+		}
+
+		public static uint160 One 
+		{
+			get { return new uint160(1); }
+		}
+
 		public uint160()
 		{
 			for(int i = 0 ; i < WIDTH ; i++)

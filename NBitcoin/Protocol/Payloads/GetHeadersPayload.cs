@@ -47,7 +47,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		uint256 hashStop = new uint256(0);
+		uint256 hashStop = uint256.Zero;
 		public uint256 HashStop
 		{
 			get

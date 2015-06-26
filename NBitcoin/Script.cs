@@ -471,7 +471,7 @@ namespace NBitcoin
 			if(nIn >= txTo.Inputs.Count)
 			{
 				Utils.log("ERROR: SignatureHash() : nIn=" + nIn + " out of range\n");
-				return 1;
+				return uint256.One;
 			}
 
 			// Check for invalid use of SIGHASH_SINGLE
@@ -480,7 +480,7 @@ namespace NBitcoin
 				if(nIn >= txTo.Outputs.Count)
 				{
 					Utils.log("ERROR: SignatureHash() : nOut=" + nIn + " out of range\n");
-					return 1;
+					return uint256.One;
 				}
 			}
 
@@ -488,6 +488,7 @@ namespace NBitcoin
 			scriptCopy.FindAndDelete(OpcodeType.OP_CODESEPARATOR);
 
 			var txCopy = new Transaction(txTo.ToBytes());
+
 			//Set all TxIn script to empty string
 			foreach(var txin in txCopy.Inputs)
 			{
@@ -496,42 +497,34 @@ namespace NBitcoin
 			//Copy subscript into the txin script you are checking
 			txCopy.Inputs[nIn].ScriptSig = scriptCopy;
 
-			if(((int)nHashType & 31) == (int)SigHash.None)
+			var hashType = nHashType & (SigHash) 31;
+			if (hashType == SigHash.None)
 			{
 				//The output of txCopy is set to a vector of zero size.
 				txCopy.Outputs.Clear();
-				//All other inputs aside from the current input in txCopy have their nSequence index set to zero
-				for(int i = 0 ; i < txCopy.Inputs.Count ; i++)
-				{
-					if(i == nIn)
-						continue;
-					txCopy.Inputs[i].Sequence = 0;
-				}
-			}
 
-			if(((int)nHashType & 31) == (int)SigHash.Single)
+				//All other inputs aside from the current input in txCopy have their nSequence index set to zero
+				foreach (var input in txCopy.Inputs.Where((x, i) => i != nIn))
+					input.Sequence = 0;
+			}
+			else if (hashType == SigHash.Single)
 			{
 				//The output of txCopy is resized to the size of the current input index+1.
-				var remainingOut = txCopy.Outputs.Take(nIn + 1).ToArray();
-				txCopy.Outputs.Clear();
-				txCopy.Outputs.AddRange(remainingOut);
+				txCopy.Outputs.RemoveRange(nIn + 1, txCopy.Outputs.Count - (nIn + 1));
 				//All other txCopy outputs aside from the output that is the same as the current input index are set to a blank script and a value of (long) -1.
-				for(int i = 0 ; i < txCopy.Outputs.Count ; i++)
+				for (var i = 0; i < txCopy.Outputs.Count; i++)
 				{
-					if(i == nIn)
+					if (i == nIn)
 						continue;
 					txCopy.Outputs[i] = new TxOut();
 				}
-				for(int i = 0 ; i < txCopy.Inputs.Count ; i++)
-				{
-					//All other txCopy inputs aside from the current input are set to have an nSequence index of zero.
-					if(i == nIn)
-						continue;
-					txCopy.Inputs[i].Sequence = 0;
-				}
+				//All other txCopy inputs aside from the current input are set to have an nSequence index of zero.
+				foreach (var input in txCopy.Inputs.Where((x, i) => i != nIn))
+					input.Sequence = 0;
 			}
 
-			if(((int)nHashType & (int)SigHash.AnyoneCanPay) != 0)
+
+			if ((nHashType & SigHash.AnyoneCanPay) != 0)
 			{
 				//The txCopy input vector is resized to a length of one.
 				var script = txCopy.Inputs[nIn];
@@ -543,8 +536,8 @@ namespace NBitcoin
 
 
 			//Serialize TxCopy, append 4 byte hashtypecode
-			MemoryStream ms = new MemoryStream();
-			BitcoinStream bitcoinStream = new BitcoinStream(ms, true);
+			var ms = new MemoryStream();
+			var bitcoinStream = new BitcoinStream(ms, true);
 			txCopy.ReadWrite(bitcoinStream);
 			bitcoinStream.ReadWrite((uint)nHashType);
 
