@@ -74,7 +74,7 @@ namespace NBitcoin.BitcoinCore
 		public async Task<uint256> GetBestBlockAsync()
 		{
 			var block = await Index.GetAsync<uint256>("B").ConfigureAwait(false);
-			return block ?? new uint256(0);
+			return block ?? uint256.Zero;
 		}
 
 		public void SetBestBlock(uint256 blockId)
