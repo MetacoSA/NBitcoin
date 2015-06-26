@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
 
@@ -15,6 +16,13 @@ namespace NBitcoin.RPC
 			get;
 			set;
 		}
+		public Transaction ParseJson(string str)
+		{
+			JObject obj = JObject.Parse(str);
+			return Parse(obj);
+		}
+
+		[Obsolete("Use RawFormatter.ParseJson method instead")]
 		public Transaction Parse(string str)
 		{
 			JObject obj = JObject.Parse(str);

@@ -21,6 +21,16 @@ namespace NBitcoin
 				pn[i] = b.pn[i];
 		}
 
+		public static uint256 ParseHex(string hex)
+		{
+			return new uint256(hex);
+		}
+
+		public static uint256 ParseHex(string hex, bool lendian)
+		{
+			return new uint256(Encoder.DecodeData(hex), lendian);
+		}
+
 		private static readonly HexEncoder Encoder = new HexEncoder();
 		private const int WIDTH = 256 / 32;
 		private const int WIDTH_BYTE = 256 / 8;
@@ -79,6 +89,7 @@ namespace NBitcoin
 			SetBytes(vch);
 		}
 
+		[Obsolete("Use uint256.Parse method instead.")]
 		public uint256(string str)
 		{
 			SetHex(str);
@@ -367,6 +378,16 @@ namespace NBitcoin
 				pn[i] = b.pn[i];
 		}
 
+		public static uint160 ParseHex(string hex)
+		{
+			return new uint160(hex);
+		}
+
+		public static uint160 ParseHex(string hex, bool lendian)
+		{
+			return new uint160(Encoder.DecodeData(hex), lendian);
+		}
+
 		private static readonly HexEncoder Encoder = new HexEncoder();
 		private const int WIDTH = 160 / 32;
 		private const int WIDTH_BYTE = 160 / 8;
@@ -425,6 +446,7 @@ namespace NBitcoin
 			SetBytes(vch);
 		}
 
+		[Obsolete("Use uint160.Parse method instead.")]
 		public uint160(string str)
 		{
 			SetHex(str);

@@ -87,7 +87,7 @@ namespace NBitcoin.SPV
 		{
 			WalletCreation creation = new WalletCreation();
 			creation.SignatureRequired = (int)(long)obj["SignatureRequired"];
-			creation.DerivationPath = new KeyPath((string)obj["DerivationPath"]);
+			creation.DerivationPath = KeyPath.Parse((string)obj["DerivationPath"]);
 			creation.UseP2SH = (bool)obj["UseP2SH"];
 			var array = (JArray)obj["RootKeys"];
 			var keys = array.Select(i => new BitcoinExtPubKey((string)i)).ToArray();
@@ -513,7 +513,7 @@ namespace NBitcoin.SPV
 			foreach(var known in knownScripts.OfType<JObject>())
 			{
 				Script script = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)known["ScriptPubKey"]));
-				KeyPath keypath = new KeyPath((string)known["KeyPath"]);
+				KeyPath keypath = KeyPath.Parse((string)known["KeyPath"]);
 				_KnownScripts.Add(script, keypath);
 			}
 		}

@@ -12,7 +12,7 @@ namespace NBitcoin.RPC
 	{
 		public UnspentCoin(JObject unspent)
 		{
-			OutPoint = new OutPoint(new uint256((string)unspent["txid"]), (uint)unspent["vout"]);
+			OutPoint = new OutPoint(uint256.ParseHex((string)unspent["txid"]), (uint)unspent["vout"]);
 			Address = Network.CreateFromBase58Data<BitcoinAddress>((string)unspent["address"]);
 			Account = (string)unspent["account"];
 			ScriptPubKey = new Script(Encoders.Hex.DecodeData((string)unspent["scriptPubKey"]));

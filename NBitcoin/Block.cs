@@ -22,6 +22,12 @@ namespace NBitcoin
 	 */
 	public class BlockHeader : IBitcoinSerializable
 	{
+		public static BlockHeader Parse(string hex)
+		{
+			return new BlockHeader(Encoders.Hex.DecodeData(hex));
+		}
+
+		[Obsolete("Use BlockHeader.Parse method instead.")]
 		public BlockHeader(string hex)
 			: this(Encoders.Hex.DecodeData(hex))
 		{
@@ -379,7 +385,7 @@ namespace NBitcoin
 			return block;
 		}
 
-		public static Block Parse(string json)
+		public static Block ParseJson(string json)
 		{
 			var formatter = new BlockExplorerFormatter();
 			var block = JObject.Parse(json);
@@ -389,13 +395,19 @@ namespace NBitcoin
 			blk.Header.BlockTime = Utils.UnixTimeToDateTime((uint)block["time"]);
 			blk.Header.Nonce = (uint)block["nonce"];
 			blk.Header.Version = (int)block["ver"];
-			blk.Header.HashPrevBlock = new uint256((string)block["prev_block"]);
-			blk.Header.HashMerkleRoot = new uint256((string)block["mrkl_root"]);
-			foreach(var tx in txs)
+			blk.Header.HashPrevBlock = uint256.ParseHex((string)block["prev_block"]);
+			blk.Header.HashMerkleRoot = uint256.ParseHex((string)block["mrkl_root"]);
+			foreach (var tx in txs)
 			{
 				blk.AddTransaction(formatter.Parse((JObject)tx));
 			}
 			return blk;
+		}
+
+		[Obsolete("Use Block.ParseJson static method instead")]
+		public static Block Parse(string json)
+		{
+			return ParseJson(json);
 		}
 
 		public MerkleBlock Filter(params uint256[] txIds)

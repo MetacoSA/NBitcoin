@@ -1104,7 +1104,7 @@ namespace NBitcoin.Tests
 				{
 					var actualVIn = tx.Inputs[i];
 					var expectedVIn = test.JSON.@in[i];
-					Assert.Equal(new uint256((string)expectedVIn.prev_out.hash), actualVIn.PrevOut.Hash);
+					Assert.Equal(uint256.ParseHex((string)expectedVIn.prev_out.hash), actualVIn.PrevOut.Hash);
 					Assert.Equal((uint)expectedVIn.prev_out.n, actualVIn.PrevOut.N);
 					if(expectedVIn.sequence != null)
 						Assert.Equal((uint)expectedVIn.sequence, actualVIn.Sequence);
@@ -1153,7 +1153,7 @@ namespace NBitcoin.Tests
 				Dictionary<OutPoint, Script> mapprevOutScriptPubKeys = new Dictionary<OutPoint, Script>();
 				foreach(var vinput in inputs)
 				{
-					mapprevOutScriptPubKeys[new OutPoint(new uint256(vinput[0].ToString()), int.Parse(vinput[1].ToString()))] = script_tests.ParseScript(vinput[2].ToString());
+					mapprevOutScriptPubKeys[new OutPoint(uint256.ParseHex(vinput[0].ToString()), int.Parse(vinput[1].ToString()))] = script_tests.ParseScript(vinput[2].ToString());
 				}
 
 				Transaction tx = new Transaction((string)test[1]);
@@ -1237,7 +1237,7 @@ namespace NBitcoin.Tests
 				Dictionary<OutPoint, Script> mapprevOutScriptPubKeys = new Dictionary<OutPoint, Script>();
 				foreach(var vinput in inputs)
 				{
-					mapprevOutScriptPubKeys[new OutPoint(new uint256(vinput[0].ToString()), int.Parse(vinput[1].ToString()))] = script_tests.ParseScript(vinput[2].ToString());
+					mapprevOutScriptPubKeys[new OutPoint(uint256.ParseHex(vinput[0].ToString()), int.Parse(vinput[1].ToString()))] = script_tests.ParseScript(vinput[2].ToString());
 				}
 
 				Transaction tx = new Transaction((string)test[1]);

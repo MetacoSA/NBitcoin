@@ -205,12 +205,12 @@ namespace NBitcoin.SPV
 				if(blockId != null)
 				{
 					op.Height = (int)(long)obj["Height"];
-					op.BlockId = new uint256(blockId);
+					op.BlockId = uint256.ParseHex(blockId);
 					op.Proof = new MerkleBlock();
 					op.Proof.FromBytes(Encoders.Hex.DecodeData((string)obj["Proof"]));
 				}
-				op.AddedDate = ((JValue)obj["AddedDate"]).Value<DateTimeOffset>();
-				op.UnconfirmedSeen = ((JValue)obj["UnconfirmedSeen"]).Value<DateTimeOffset>();
+				op.AddedDate = obj["AddedDate"].Value<DateTimeOffset>();
+				op.UnconfirmedSeen = obj["UnconfirmedSeen"].Value<DateTimeOffset>();
 				op.Transaction = new Transaction();
 				op.Transaction.FromBytes(Encoders.Hex.DecodeData((string)obj["Transaction"]));
 				var coins = obj["ReceivedCoins"] as JArray;

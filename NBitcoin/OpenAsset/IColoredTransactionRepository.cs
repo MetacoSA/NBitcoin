@@ -21,12 +21,12 @@ namespace NBitcoin.OpenAsset
 	{
 		public static Task<ColoredTransaction> GetAsync(this IColoredTransactionRepository repo, string txId)
 		{
-			return repo.GetAsync(new uint256(txId));
+			return repo.GetAsync(uint256.ParseHex(txId));
 		}
 
 		public static ColoredTransaction Get(this IColoredTransactionRepository repo, string txId)
 		{
-			return repo.Get(new uint256(txId));
+			return repo.Get(uint256.ParseHex(txId));
 		}
 
 		public static ColoredTransaction Get(this IColoredTransactionRepository repo, uint256 txId)

@@ -121,7 +121,7 @@ namespace NBitcoin.Tests
 		public void CanReadConvertTargetToDifficulty()
 		{
 			var packed = new Target(TestUtils.ParseHex("1b0404cb"));
-			var unpacked = new Target(new uint256("00000000000404CB000000000000000000000000000000000000000000000000"));
+			var unpacked = new Target(uint256.ParseHex("00000000000404CB000000000000000000000000000000000000000000000000"));
 			Assert.Equal(packed, unpacked);
 			Assert.Equal(packed, new Target(0x1b0404cb));
 
@@ -146,10 +146,10 @@ namespace NBitcoin.Tests
 			packed = new Target(419470732);
 			Assert.Equal(6978842649.592383, packed.Difficulty, "592383".Length);
 			Assert.Equal((uint)packed, (uint)419470732);
-			Assert.True(new uint256("0x0000000000000000511e193e22d2dfc02aea8037988f0c58e9834f4550e97702") < packed.ToUInt256());
+			Assert.True(uint256.ParseHex("0x0000000000000000511e193e22d2dfc02aea8037988f0c58e9834f4550e97702") < packed.ToUInt256());
 
 			//Check http://blockchain.info/block-index/394713/0000000000000000729a4a7e084c90f932d038c407a6535a51dfecdfba1c8906
-			Assert.True(new uint256("0x0000000000000000729a4a7e084c90f932d038c407a6535a51dfecdfba1c8906 ") < new Target(419470732).ToUInt256());
+			Assert.True(uint256.ParseHex("0x0000000000000000729a4a7e084c90f932d038c407a6535a51dfecdfba1c8906 ") < new Target(419470732).ToUInt256());
 
 			var genesis = Network.Main.GetGenesis();
 			Assert.True(genesis.GetHash() < genesis.Header.Bits.ToUInt256());
@@ -536,8 +536,8 @@ namespace NBitcoin.Tests
 		{
 			var jobj = JObject.Parse(File.ReadAllText("Data/blocks/Block1.json"));
 			var array = (JArray)jobj["mrkl_tree"];
-			var expected = array.OfType<JValue>().Select(v => new uint256(v.ToString())).ToList();
-			var block = Block.Parse(File.ReadAllText("Data/blocks/Block1.json"));
+			var expected = array.OfType<JValue>().Select(v => uint256.ParseHex(v.ToString())).ToList();
+			var block = Block.ParseJson(File.ReadAllText("Data/blocks/Block1.json"));
 			Assert.Equal("000000000000000040cd080615718eb68f00a0138706e7afd4068f3e08d4ca20", block.GetHash().ToString());
 			Assert.True(block.CheckMerkleRoot());
 		}

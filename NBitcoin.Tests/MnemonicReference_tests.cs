@@ -53,10 +53,10 @@ namespace NBitcoin.Tests
 				node.VersionHandshake();
 				using(var listener = node.CreateListener())
 				{
-					node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_BLOCK, new uint256(" 000000000000000001d6ec8218c6fdb1a757855238543e05def13a363b8ff95e"))));
+					node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_BLOCK, uint256.ParseHex(" 000000000000000001d6ec8218c6fdb1a757855238543e05def13a363b8ff95e"))));
 					var payload = listener.ReceivePayload<BlockPayload>();
 					var block = payload.Object;
-					var tx = block.Transactions.First(t => t.GetHash() == new uint256("d1bc46420e21e0f7b059c04a851f3558669c67ea0dd1441836abc37413e1857d"));
+					var tx = block.Transactions.First(t => t.GetHash() == uint256.ParseHex("d1bc46420e21e0f7b059c04a851f3558669c67ea0dd1441836abc37413e1857d"));
 					//http://www.xbt.hk/cgi-bin/ma1.pl?txid=4a85f6cc29aca334c1a78c5db74b492b741e67958aee59ff827c4c0862f4fbc1&txo=2&mincs=20
 					//http://www.xbt.hk/cgi-bin/ma1.pl?txid=e05e5f4c81fd63eb92b3a4ee963c06176a0db3da092ee357be668e4f0ae68333&txo=5&mincs=20
 					//http://www.xbt.hk/cgi-bin/ma1.pl?txid=d1bc46420e21e0f7b059c04a851f3558669c67ea0dd1441836abc37413e1857d&txo=1&mincs=20

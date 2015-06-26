@@ -28,6 +28,16 @@ namespace NBitcoin
 				pn[i] = b.pn[i];
 		}
 
+		public static uint<#= t #> ParseHex(string hex)
+		{
+			return new uint<#= t #>(hex);
+		}
+
+		public static uint<#= t #> ParseHex(string hex, bool lendian)
+		{
+			return new uint<#= t #>(Encoder.DecodeData(hex), lendian);
+		}
+
 		private static readonly HexEncoder Encoder = new HexEncoder();
 		private const int WIDTH = <#= t #> / 32;
 		private const int WIDTH_BYTE = <#= t #> / 8;
@@ -86,6 +96,7 @@ namespace NBitcoin
 			SetBytes(vch);
 		}
 
+		[Obsolete("Use uint<#= t #>.Parse method instead.")]
 		public uint<#= t #>(string str)
 		{
 			SetHex(str);
