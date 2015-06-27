@@ -455,7 +455,7 @@ namespace NBitcoin.RPC
 			header.Bits = new Target(Encoders.Hex.DecodeData((string)resp.Result["bits"]));
 			if(resp.Result["previousblockhash"] != null)
 			{
-				header.HashPrevBlock = uint256.Parse((string)resp.Result["previousblockhash"], false);
+				header.HashPrevBlock = uint256.Parse((string)resp.Result["previousblockhash"]);
 			}
 			if(resp.Result["time"] != null)
 			{
@@ -463,7 +463,7 @@ namespace NBitcoin.RPC
 			}
 			if(resp.Result["merkleroot"] != null)
 			{
-				header.HashMerkleRoot = uint256.Parse((string)resp.Result["merkleroot"], false);
+				header.HashMerkleRoot = uint256.Parse((string)resp.Result["merkleroot"]);
 			}
 			return header;
 		}
