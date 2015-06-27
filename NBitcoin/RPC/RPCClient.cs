@@ -261,11 +261,11 @@ namespace NBitcoin.RPC
 
 		public uint256 GetBestBlockHash()
 		{
-			return new uint256((string)SendCommand("getbestblockhash").Result);
+			return uint256.Parse((string)SendCommand("getbestblockhash").Result);
 		}
 		public async Task<uint256> GetBestBlockHashAsync()
 		{
-			return new uint256((string)(await SendCommandAsync("getbestblockhash").ConfigureAwait(false)).Result);
+			return uint256.Parse((string)(await SendCommandAsync("getbestblockhash").ConfigureAwait(false)).Result);
 		}
 
 		public BitcoinSecret GetAccountSecret(string account)
@@ -455,7 +455,7 @@ namespace NBitcoin.RPC
 			header.Bits = new Target(Encoders.Hex.DecodeData((string)resp.Result["bits"]));
 			if(resp.Result["previousblockhash"] != null)
 			{
-				header.HashPrevBlock = new uint256(Encoders.Hex.DecodeData((string)resp.Result["previousblockhash"]), false);
+				header.HashPrevBlock = uint256.Parse((string)resp.Result["previousblockhash"], false);
 			}
 			if(resp.Result["time"] != null)
 			{
@@ -463,7 +463,7 @@ namespace NBitcoin.RPC
 			}
 			if(resp.Result["merkleroot"] != null)
 			{
-				header.HashMerkleRoot = new uint256(Encoders.Hex.DecodeData((string)resp.Result["merkleroot"]), false);
+				header.HashMerkleRoot = uint256.Parse((string)resp.Result["merkleroot"], false);
 			}
 			return header;
 		}
@@ -485,7 +485,7 @@ namespace NBitcoin.RPC
 			{
 				foreach(var item in tx)
 				{
-					var result = GetRawTransaction(new uint256(item.ToString()), false);
+					var result = GetRawTransaction(uint256.Parse(item.ToString()), false);
 					if(result != null)
 						yield return result;
 				}
@@ -501,13 +501,13 @@ namespace NBitcoin.RPC
 		public uint256 GetBlockHash(int height)
 		{
 			var resp = SendCommand("getblockhash", height);
-			return new uint256(resp.Result.ToString());
+			return uint256.Parse(resp.Result.ToString());
 		}
 
 		public async Task<uint256> GetBlockHashAsync(int height)
 		{
 			var resp = await SendCommandAsync("getblockhash", height).ConfigureAwait(false);
-			return new uint256(resp.Result.ToString());
+			return uint256.Parse(resp.Result.ToString());
 		}
 
 
@@ -524,13 +524,13 @@ namespace NBitcoin.RPC
 		{
 			var result = SendCommand("getrawmempool");
 			var array = (JArray)result.Result;
-			return array.Select(o => (string)o).Select(s => new uint256(s)).ToArray();
+			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
 		}
 		public async Task<uint256[]> GetRawMempoolAsync()
 		{
 			var result = await SendCommandAsync("getrawmempool").ConfigureAwait(false);
 			var array = (JArray)result.Result;
-			return array.Select(o => (string)o).Select(s => new uint256(s)).ToArray();
+			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
 		}
 
 		public IEnumerable<BitcoinSecret> ListSecrets()

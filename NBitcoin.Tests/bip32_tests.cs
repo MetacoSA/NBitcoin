@@ -144,7 +144,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanUseKeyPath()
 		{
-			var keyPath = new KeyPath("0/1/2/3");
+			var keyPath = KeyPath.Parse("0/1/2/3");
 			Assert.Equal(keyPath.ToString(), "0/1/2/3");
 			var key = new ExtKey();
 			Assert.Equal(key
@@ -167,16 +167,16 @@ namespace NBitcoin.Tests
 			keyPath = new KeyPath(new uint[] { 0x8000002Cu, 1u });
 			Assert.Equal(keyPath.ToString(), "44'/1");
 
-			keyPath = new KeyPath("44'/1");
+			keyPath = KeyPath.Parse("44'/1");
 			Assert.False(keyPath.IsHardened);
-			Assert.True(new KeyPath("44'/1'").IsHardened);
+			Assert.True(KeyPath.Parse("44'/1'").IsHardened);
 			Assert.Equal(keyPath[0], 0x8000002Cu);
 			Assert.Equal(keyPath[1], 1u);
 
 			key = new ExtKey();
 			Assert.Equal(key.Derive(keyPath).ToString(Network.Main), key.Derive(44, true).Derive(1, false).ToString(Network.Main));
 
-			keyPath = new KeyPath("");
+			keyPath = KeyPath.Parse("");
 			keyPath = keyPath.Derive(44, true).Derive(1, false);
 			Assert.Equal(keyPath.ToString(), "44'/1");
 			Assert.Equal(key.Derive(keyPath).ToString(Network.Main), key.Derive(44, true).Derive(1, false).ToString(Network.Main));

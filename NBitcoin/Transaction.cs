@@ -975,7 +975,7 @@ namespace NBitcoin
 
 		public static Transaction Parse(string tx, RawFormat format, Network network = null)
 		{
-			return GetFormatter(format, network).Parse(tx);
+			return GetFormatter(format, network).ParseJson(tx);
 		}
 
 		public string ToHex()

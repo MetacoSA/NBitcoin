@@ -29,7 +29,7 @@ namespace NBitcoin.Tests
 					var txObj = new Transaction(tx);
 					repository.Put(txObj.GetHash(), txObj);
 				}
-				TestedTxId = new uint256(testcase.testedtx);
+				TestedTxId = uint256.Parse(testcase.testedtx);
 				Repository = new NoSqlColoredTransactionRepository(repository, new InMemoryNoSqlRepository());
 			}
 
@@ -119,9 +119,9 @@ namespace NBitcoin.Tests
 		public void TestFun()
 		{
 			var repo = new NoSqlColoredTransactionRepository(new BlockrTransactionRepository());
-			var colored = ColoredTransaction.FetchColors(new uint256("b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a6"), repo);
+			var colored = ColoredTransaction.FetchColors(uint256.Parse("b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a6"), repo);
 
-			var prismColored = new CoinprismColoredTransactionRepository().Get(new uint256("b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a6"));
+			var prismColored = new CoinprismColoredTransactionRepository().Get(uint256.Parse("b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a6"));
 
 			Assert.True(colored.ToBytes().SequenceEqual(prismColored.ToBytes()));
 		}
@@ -287,7 +287,7 @@ namespace NBitcoin.Tests
 		{
 			CanFetchTransactionFromCoinprismCore("CanColorizeIssuanceTransaction");
 			CanFetchTransactionFromCoinprismCore("CanColorizeTransferTransaction");
-			Assert.Null(new CoinprismColoredTransactionRepository().Get(new uint256("b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a5")));
+			Assert.Null(new CoinprismColoredTransactionRepository().Get(uint256.Parse("b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a5")));
 		}
 
 		private void CanFetchTransactionFromCoinprismCore(string test)

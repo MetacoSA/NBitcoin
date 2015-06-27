@@ -29,10 +29,11 @@ namespace NBitcoin.MicroPayment
 	{
 		public static MicroChannelArguments Parse(string json)
 		{
-			JsonSerializerSettings settings = new JsonSerializerSettings();
+			var settings = new JsonSerializerSettings();
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 			return JsonConvert.DeserializeObject<MicroChannelArguments>(json, settings);
 		}
+
 		public MicroChannelArguments()
 		{
 			Fees = Money.Coins(0.0001m);

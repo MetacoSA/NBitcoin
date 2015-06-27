@@ -192,8 +192,8 @@ namespace NBitcoin.Tests
 		{
 			using(var node = Node.ConnectToLocal(Network.TestNet, isRelay: false))
 			{
-				var knownBlock = new uint256("00000000db9a24016f87f98ddaf08d32383319431d27c37dee2c91898ef57066");
-				var knownTx = new uint256("dabf4960a5c6d9affec746734cbd8ba68287126b8c4514de846a9702a813a449");
+				var knownBlock = uint256.Parse("00000000db9a24016f87f98ddaf08d32383319431d27c37dee2c91898ef57066");
+				var knownTx = uint256.Parse("dabf4960a5c6d9affec746734cbd8ba68287126b8c4514de846a9702a813a449");
 				node.VersionHandshake();
 				using(var list = node.CreateListener()
 										.Where(m => m.Message.Payload is MerkleBlockPayload || m.Message.Payload is TxPayload))
@@ -204,7 +204,7 @@ namespace NBitcoin.Tests
 					node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, knownBlock)));
 					var merkle = list.ReceivePayload<MerkleBlockPayload>();
 					var tree = merkle.Object.PartialMerkleTree;
-					Assert.True(tree.Check(new uint256("89b905cdf2ab70c1acd9b538cf6738937ae28fca86c1514ebbf130962312e478")));
+					Assert.True(tree.Check(uint256.Parse("89b905cdf2ab70c1acd9b538cf6738937ae28fca86c1514ebbf130962312e478")));
 					Assert.True(tree.GetMatchedTransactions().Count() > 1);
 					Assert.True(tree.GetMatchedTransactions().Contains(knownTx));
 
@@ -229,7 +229,7 @@ namespace NBitcoin.Tests
 					filter = filter.Clone();
 					act();
 
-					var unknownBlock = new uint256("00000000ad262227291eaf90cafdc56a8f8451e2d7653843122c5bb0bf2dfcdd");
+					var unknownBlock = uint256.Parse("00000000ad262227291eaf90cafdc56a8f8451e2d7653843122c5bb0bf2dfcdd");
 					node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, Network.TestNet.GetGenesis().GetHash())));
 
 					merkle = list.ReceivePayload<MerkleBlockPayload>();
@@ -257,7 +257,7 @@ namespace NBitcoin.Tests
 		{
 			using(var node = Node.ConnectToLocal(Network.TestNet))
 			{
-				var chain = node.GetChain(new uint256("00000000a2424460c992803ed44cfe0c0333e91af04fde9a6a97b468bf1b5f70"));
+				var chain = node.GetChain(uint256.Parse("00000000a2424460c992803ed44cfe0c0333e91af04fde9a6a97b468bf1b5f70"));
 				Assert.True(chain.Height == 500);
 				using(var tester = new NodeServerTester(Network.TestNet))
 				{
@@ -273,11 +273,11 @@ namespace NBitcoin.Tests
 					var behavior = new ChainBehavior(new ConcurrentChain(Network.TestNet));
 					n2.Behaviors.Add(behavior);
 					TestUtils.Eventually(() => behavior.Chain.Height == 500);
-					var chain2 = n2.GetChain(new uint256("00000000a2424460c992803ed44cfe0c0333e91af04fde9a6a97b468bf1b5f70"));
+					var chain2 = n2.GetChain(uint256.Parse("00000000a2424460c992803ed44cfe0c0333e91af04fde9a6a97b468bf1b5f70"));
 					Assert.True(chain2.Height == 500);
-					var chain1 = n1.GetChain(new uint256("00000000a2424460c992803ed44cfe0c0333e91af04fde9a6a97b468bf1b5f70"));
+					var chain1 = n1.GetChain(uint256.Parse("00000000a2424460c992803ed44cfe0c0333e91af04fde9a6a97b468bf1b5f70"));
 					Assert.True(chain1.Height == 500);
-					chain1 = n1.GetChain(new uint256("000000008cd4b1bdaa1278e3f1708258f862da16858324e939dc650627cd2e27"));
+					chain1 = n1.GetChain(uint256.Parse("000000008cd4b1bdaa1278e3f1708258f862da16858324e939dc650627cd2e27"));
 					Assert.True(chain1.Height == 499);
 					Thread.Sleep(5000);
 				}
@@ -302,7 +302,7 @@ namespace NBitcoin.Tests
 			using(var node = Node.ConnectToLocal(Network.TestNet))
 			{
 				node.VersionHandshake();
-				var stop = new uint256("0000000000005e5fd51f764d230441092f1b69d1a1eeab334c5bb32412e8dc51");
+				var stop = uint256.Parse("0000000000005e5fd51f764d230441092f1b69d1a1eeab334c5bb32412e8dc51");
 				Random rand = new Random();
 				var chains =
 					Enumerable.Range(0, 5)
@@ -505,7 +505,7 @@ namespace NBitcoin.Tests
 			Assert.True(reject.Code == RejectCode.DUPLICATE);
 			Assert.True(reject.CodeType == RejectCodeType.Transaction);
 			Assert.True(reject.Reason == "bad-txns-inputs-spent");
-			Assert.True(reject.Hash == new uint256("964182ffbcec5fafd8f33594b17d6aad4937ff1c59f699e91af44fda94967a57"));
+			Assert.True(reject.Hash == uint256.Parse("964182ffbcec5fafd8f33594b17d6aad4937ff1c59f699e91af44fda94967a57"));
 		}
 
 		[Fact]
@@ -517,7 +517,7 @@ namespace NBitcoin.Tests
 				node.VersionHandshake();
 				node.SendMessageAsync(new GetDataPayload(new InventoryVector()
 						{
-							Hash = new uint256("00000000278d16a190be56f541b3fda44c3168b43dcc05d9c664e6f27ffe2c78"),
+							Hash = uint256.Parse("00000000278d16a190be56f541b3fda44c3168b43dcc05d9c664e6f27ffe2c78"),
 							Type = InventoryType.MSG_BLOCK
 						}));
 

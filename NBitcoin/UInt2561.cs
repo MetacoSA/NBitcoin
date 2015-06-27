@@ -31,12 +31,24 @@ namespace NBitcoin
 				pn[i] = b.pn[i];
 		}
 
+		public static uint256 Parse(string hex)
+		{
+			return uint256.Parse(hex, true);
+		}
+
+		public static uint256 Parse(string hex, bool lendian)
+		{
+			var ret = new uint256();
+			ret.SetHex(hex, lendian);
+			return ret;
+		}
+
 		private static readonly HexEncoder Encoder = new HexEncoder();
 		private const int WIDTH = 256 / 32;
 		private const int WIDTH_BYTE = 256 / 8;
 		private UInt32[] pn = new UInt32[WIDTH];
 
-		internal void SetHex(string str)
+		internal void SetHex(string str, bool lendian = true)
 		{
 			Array.Clear(pn, 0, pn.Length);
 			str = str.Trim();
@@ -44,7 +56,10 @@ namespace NBitcoin
 			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				str = str.Substring(2);
 
-			SetBytes(Encoder.DecodeData(str).Reverse().ToArray());
+			var bytes = Encoder.DecodeData(str);
+			if(lendian)
+				bytes = bytes.Reverse().ToArray();
+			SetBytes(bytes);
 		}
 
 		public byte GetByte(int index)
@@ -89,6 +104,7 @@ namespace NBitcoin
 			SetBytes(vch);
 		}
 
+		[Obsolete("Use uint256.Parse method instead.")]
 		public uint256(string str)
 		{
 			SetHex(str);
@@ -387,12 +403,24 @@ namespace NBitcoin
 				pn[i] = b.pn[i];
 		}
 
+		public static uint160 Parse(string hex)
+		{
+			return uint160.Parse(hex, true);
+		}
+
+		public static uint160 Parse(string hex, bool lendian)
+		{
+			var ret = new uint160();
+			ret.SetHex(hex, lendian);
+			return ret;
+		}
+
 		private static readonly HexEncoder Encoder = new HexEncoder();
 		private const int WIDTH = 160 / 32;
 		private const int WIDTH_BYTE = 160 / 8;
 		private UInt32[] pn = new UInt32[WIDTH];
 
-		internal void SetHex(string str)
+		internal void SetHex(string str, bool lendian = true)
 		{
 			Array.Clear(pn, 0, pn.Length);
 			str = str.Trim();
@@ -400,7 +428,10 @@ namespace NBitcoin
 			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				str = str.Substring(2);
 
-			SetBytes(Encoder.DecodeData(str).Reverse().ToArray());
+			var bytes = Encoder.DecodeData(str);
+			if(lendian)
+				bytes = bytes.Reverse().ToArray();
+			SetBytes(bytes);
 		}
 
 		public byte GetByte(int index)
@@ -445,6 +476,7 @@ namespace NBitcoin
 			SetBytes(vch);
 		}
 
+		[Obsolete("Use uint160.Parse method instead.")]
 		public uint160(string str)
 		{
 			SetHex(str);

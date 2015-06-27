@@ -13,7 +13,7 @@ namespace NBitcoin.RPC
 	{
 		protected override void BuildTransaction(JObject json, Transaction tx)
 		{
-			var hash = new uint256((string)json.GetValue("hash"));
+			var hash = uint256.Parse((string)json.GetValue("hash"));
 			tx.Version = (uint)json.GetValue("ver");
 			tx.LockTime = (uint)json.GetValue("lock_time");
 			var size = (uint)json.GetValue("size");
@@ -24,11 +24,11 @@ namespace NBitcoin.RPC
 			for(int i = 0 ; i < vinCount ; i++)
 			{
 				var jsonIn = (JObject)vin[i];
-				var txin = new NBitcoin.TxIn();
+				var txin = new TxIn();
 				tx.Inputs.Add(txin);
 				var prevout = (JObject)jsonIn.GetValue("prev_out");
 
-				txin.PrevOut.Hash = new uint256((string)prevout.GetValue("hash"));
+				txin.PrevOut.Hash = uint256.Parse((string)prevout.GetValue("hash"));
 				txin.PrevOut.N = (uint)prevout.GetValue("n");
 
 

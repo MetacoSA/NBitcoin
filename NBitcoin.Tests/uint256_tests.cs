@@ -271,7 +271,7 @@ namespace NBitcoin.Tests
 		public void plusMinus()
 		{
 			uint256 TmpL = 0;
-			Assert.True(R1L + R2L == new uint256(R1LplusR2L));
+			Assert.True(R1L + R2L == uint256.Parse(R1LplusR2L));
 			TmpL += R1L;
 			Assert.True(TmpL == R1L);
 			TmpL += R2L;
@@ -319,7 +319,7 @@ namespace NBitcoin.Tests
 
 			// 160-bit; copy-pasted
 			uint160 TmpS = 0;
-			Assert.True(R1S + R2S == new uint160(R1LplusR2L));
+			Assert.True(R1S + R2S == uint160.Parse(R1LplusR2L));
 			TmpS += R1S;
 			Assert.True(TmpS == R1S);
 			TmpS += R2S;
@@ -605,30 +605,30 @@ namespace NBitcoin.Tests
 			}
 			Assert.True(ZeroS == (OneS << 256));
 
-			Assert.True(new uint256("0x" + R1L.ToString()) == R1L);
-			Assert.True(new uint256("0x" + R2L.ToString()) == R2L);
-			Assert.True(new uint256("0x" + ZeroL.ToString()) == ZeroL);
-			Assert.True(new uint256("0x" + OneL.ToString()) == OneL);
-			Assert.True(new uint256("0x" + MaxL.ToString()) == MaxL);
-			Assert.True(new uint256(R1L.ToString()) == R1L);
-			Assert.True(new uint256("   0x" + R1L.ToString() + "   ") == R1L);
-			Assert.True(new uint256("") == ZeroL);
-			Assert.True(R1L == new uint256(R1ArrayHex));
+			Assert.True(uint256.Parse("0x" + R1L.ToString()) == R1L);
+			Assert.True(uint256.Parse("0x" + R2L.ToString()) == R2L);
+			Assert.True(uint256.Parse("0x" + ZeroL.ToString()) == ZeroL);
+			Assert.True(uint256.Parse("0x" + OneL.ToString()) == OneL);
+			Assert.True(uint256.Parse("0x" + MaxL.ToString()) == MaxL);
+			Assert.True(uint256.Parse(R1L.ToString()) == R1L);
+			Assert.True(uint256.Parse("   0x" + R1L.ToString() + "   ") == R1L);
+			Assert.True(uint256.Parse("") == ZeroL);
+			Assert.True(R1L == uint256.Parse(R1ArrayHex));
 			Assert.True(new uint256(R1L) == R1L);
 			Assert.True((new uint256(R1L ^ R2L) ^ R2L) == R1L);
 			Assert.True(new uint256(ZeroL) == ZeroL);
 			Assert.True(new uint256(OneL) == OneL);
 
 
-			Assert.True(new uint160("0x" + R1S.ToString()) == R1S);
-			Assert.True(new uint160("0x" + R2S.ToString()) == R2S);
-			Assert.True(new uint160("0x" + ZeroS.ToString()) == ZeroS);
-			Assert.True(new uint160("0x" + OneS.ToString()) == OneS);
-			Assert.True(new uint160("0x" + MaxS.ToString()) == MaxS);
-			Assert.True(new uint160(R1S.ToString()) == R1S);
-			Assert.True(new uint160("   0x" + R1S.ToString() + "   ") == R1S);
-			Assert.True(new uint160("") == ZeroS);
-			Assert.True(R1S == new uint160(R1ArrayHex));
+			Assert.True(uint160.Parse("0x" + R1S.ToString()) == R1S);
+			Assert.True(uint160.Parse("0x" + R2S.ToString()) == R2S);
+			Assert.True(uint160.Parse("0x" + ZeroS.ToString()) == ZeroS);
+			Assert.True(uint160.Parse("0x" + OneS.ToString()) == OneS);
+			Assert.True(uint160.Parse("0x" + MaxS.ToString()) == MaxS);
+			Assert.True(uint160.Parse(R1S.ToString()) == R1S);
+			Assert.True(uint160.Parse("   0x" + R1S.ToString() + "   ") == R1S);
+			Assert.True(uint160.Parse("") == ZeroS);
+			Assert.True(R1S == uint160.Parse(R1ArrayHex));
 
 			Assert.True(new uint160(R1S) == R1S);
 			Assert.True((new uint160(R1S ^ R2S) ^ R2S) == R1S);
@@ -636,14 +636,14 @@ namespace NBitcoin.Tests
 			Assert.True(new uint160(OneS) == OneS);
 
 			// uint64_t constructor
-			Assert.True((R1L & new uint256("0xffffffffffffffff")) == new uint256(R1LLow64));
+			Assert.True((R1L & uint256.Parse("0xffffffffffffffff")) == new uint256(R1LLow64));
 			Assert.True(ZeroL == new uint256(0));
 			Assert.True(OneL == new uint256(1));
-			Assert.True(new uint256("0xffffffffffffffff") == new uint256(0xffffffffffffffffUL));
-			Assert.True((R1S & new uint160("0xffffffffffffffff")) == new uint160(R1LLow64));
+			Assert.True(uint256.Parse("0xffffffffffffffff") == new uint256(0xffffffffffffffffUL));
+			Assert.True((R1S & uint160.Parse("0xffffffffffffffff")) == new uint160(R1LLow64));
 			Assert.True(ZeroS == new uint160(0));
 			Assert.True(OneS == new uint160(1));
-			Assert.True(new uint160("0xffffffffffffffff") == new uint160(0xffffffffffffffffUL));
+			Assert.True(uint160.Parse("0xffffffffffffffff") == new uint160(0xffffffffffffffffUL));
 
 			// Assignment (from base_uint)
 			uint256 tmpL = ~ZeroL;

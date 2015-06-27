@@ -22,8 +22,14 @@ namespace NBitcoin
 		/// <returns></returns>
 		public static KeyPath Parse(string path)
 		{
-			return new KeyPath(path);
+			var parts = path
+				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+				.Select(ParseCore)
+				.ToArray();
+			return new KeyPath(parts);
 		}
+
+		[Obsolete("Use KeyPath.Parse method instead.")]
 		public KeyPath(string path)
 		{
 			_Indexes =
@@ -31,7 +37,6 @@ namespace NBitcoin
 				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
 				.Select(ParseCore)
 				.ToArray();
-
 		}
 
 		private static uint ParseCore(string i)
