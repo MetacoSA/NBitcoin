@@ -27,17 +27,11 @@ namespace NBitcoin.MicroPayment
 	}
 	public class MicroChannelArguments
 	{
-		public static MicroChannelArguments ParseJson(string json)
-		{
-			JsonSerializerSettings settings = new JsonSerializerSettings();
-			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-			return JsonConvert.DeserializeObject<MicroChannelArguments>(json, settings);
-		}
-
-		[Obsolete("Use MicroChannelArguments.ParseJson method instead")]
 		public static MicroChannelArguments Parse(string json)
 		{
-			return ParseJson(json);
+			var settings = new JsonSerializerSettings();
+			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+			return JsonConvert.DeserializeObject<MicroChannelArguments>(json, settings);
 		}
 
 		public MicroChannelArguments()
