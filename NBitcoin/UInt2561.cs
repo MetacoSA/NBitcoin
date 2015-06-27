@@ -23,13 +23,8 @@ namespace NBitcoin
 
 		public static uint256 Parse(string hex)
 		{
-			return uint256.Parse(hex, true);
-		}
-
-		public static uint256 Parse(string hex, bool lendian)
-		{
 			var ret = new uint256();
-			ret.SetHex(hex, lendian);
+			ret.SetHex(hex);
 			return ret;
 		}
 
@@ -38,7 +33,7 @@ namespace NBitcoin
 		private const int WIDTH_BYTE = 256 / 8;
 		private UInt32[] pn = new UInt32[WIDTH];
 
-		internal void SetHex(string str, bool lendian = true)
+		internal void SetHex(string str)
 		{
 			Array.Clear(pn, 0, pn.Length);
 			str = str.Trim();
@@ -46,9 +41,7 @@ namespace NBitcoin
 			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				str = str.Substring(2);
 
-			var bytes = Encoder.DecodeData(str);
-			if(lendian)
-				bytes = bytes.Reverse().ToArray();
+			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
 			SetBytes(bytes);
 		}
 
@@ -385,13 +378,8 @@ namespace NBitcoin
 
 		public static uint160 Parse(string hex)
 		{
-			return uint160.Parse(hex, true);
-		}
-
-		public static uint160 Parse(string hex, bool lendian)
-		{
 			var ret = new uint160();
-			ret.SetHex(hex, lendian);
+			ret.SetHex(hex);
 			return ret;
 		}
 
@@ -400,7 +388,7 @@ namespace NBitcoin
 		private const int WIDTH_BYTE = 160 / 8;
 		private UInt32[] pn = new UInt32[WIDTH];
 
-		internal void SetHex(string str, bool lendian = true)
+		internal void SetHex(string str)
 		{
 			Array.Clear(pn, 0, pn.Length);
 			str = str.Trim();
@@ -408,9 +396,7 @@ namespace NBitcoin
 			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				str = str.Substring(2);
 
-			var bytes = Encoder.DecodeData(str);
-			if(lendian)
-				bytes = bytes.Reverse().ToArray();
+			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
 			SetBytes(bytes);
 		}
 
