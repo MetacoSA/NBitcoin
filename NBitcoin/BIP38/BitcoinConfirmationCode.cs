@@ -91,7 +91,7 @@ namespace NBitcoin
 			if(pointbprefix != 0x02 && pointbprefix != 0x03)
 				return false;
 			var pointb = BitcoinEncryptedSecret.DecryptKey(EncryptedPointB.Skip(1).ToArray(), derived);
-			pointb = new byte[] { pointbprefix }.Concat(pointb).ToArray();
+			pointb = Packer.Pack("_bA", pointbprefix, pointb);
 
 			//4.ECMultiply pointb by passfactor. Use the resulting EC point as a public key
 			var curve = ECKey.CreateCurve();

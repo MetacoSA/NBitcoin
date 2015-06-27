@@ -144,17 +144,13 @@ namespace NBitcoin.Protocol
 			internal int GetNewBucket(uint256 nKey, IPAddress src)
 			{
 				byte[] vchSourceGroupKey = src.GetGroup();
-				UInt64 hash1 = Cheap(Hashes.Hash256(
-					nKey.ToBytes(true)
-					.Concat(Address.Endpoint.Address.GetGroup())
-					.Concat(vchSourceGroupKey)
-					.ToArray()));
 
-				UInt64 hash2 = Cheap(Hashes.Hash256(
-					nKey.ToBytes(true)
-					.Concat(vchSourceGroupKey)
-					.Concat(Utils.ToBytes(hash1 % AddressManager.ADDRMAN_NEW_BUCKETS_PER_SOURCE_GROUP, true))
-					.ToArray()));
+				var hash1 = Cheap(
+					Packer.Hash256("_XAA", nKey, Address.Endpoint.Address.GetGroup(), vchSourceGroupKey));
+
+				var hash2 = Cheap(
+					Packer.Hash256("_XAL", nKey, vchSourceGroupKey, hash1%ADDRMAN_NEW_BUCKETS_PER_SOURCE_GROUP));
+
 				return (int)(hash2 % ADDRMAN_NEW_BUCKET_COUNT);
 			}
 
@@ -165,20 +161,17 @@ namespace NBitcoin.Protocol
 
 			internal int GetBucketPosition(uint256 nKey, bool fNew, int nBucket)
 			{
-				UInt64 hash1 = Cheap(
-					Hashes.Hash256(
-						nKey.ToBytes()
-						.Concat(new byte[] { (fNew ? (byte)'N' : (byte)'K') })
-						.Concat(Utils.ToBytes((uint)nBucket, false))
-						.Concat(Address.GetKey())
-					.ToArray()));
+				var hash1 = Cheap(
+					Packer.Hash256("_Xb^I_A", nKey, (fNew ? 'N' : 'K'), nBucket, Address.GetKey()));
+
 				return (int)(hash1 % ADDRMAN_BUCKET_SIZE);
 			}
 
 			internal int GetTriedBucket(uint256 nKey)
 			{
-				UInt64 hash1 = Cheap(Hashes.Hash256(nKey.ToBytes().Concat(Address.GetKey()).ToArray()));
-				UInt64 hash2 = Cheap(Hashes.Hash256(nKey.ToBytes().Concat(Address.Endpoint.Address.GetGroup()).Concat(Utils.ToBytes(hash1 % AddressManager.ADDRMAN_TRIED_BUCKETS_PER_GROUP, true)).ToArray()));
+				var hash1 = Cheap(Packer.Hash256("_XA", nKey, Address.GetKey()));
+				var hash2 = Cheap(Packer.Hash256("_XAL", nKey, Address.Endpoint.Address.GetGroup(), hash1 % ADDRMAN_TRIED_BUCKETS_PER_GROUP));
+	
 				return (int)(hash2 % ADDRMAN_TRIED_BUCKET_COUNT);
 			}
 
