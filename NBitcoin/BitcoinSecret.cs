@@ -16,11 +16,7 @@ namespace NBitcoin
 
 		private static byte[] ToBytes(Key key)
 		{
-			var keyBytes = key.ToBytes();
-			if(!key.IsCompressed)
-				return keyBytes;
-			else
-				return keyBytes.Concat(new byte[] { 0x01 }).ToArray();
+			return Packer.Pack(key.IsCompressed ? "_Xb" : "_X", key, 0x01);
 		}
 		public BitcoinSecret(string base58, Network expectedAddress = null)
 			: base(base58, expectedAddress)

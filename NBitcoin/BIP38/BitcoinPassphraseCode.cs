@@ -176,17 +176,17 @@ namespace NBitcoin
 			var passfactor = prefactor;
 			if(hasLotSequence)
 			{
-				passfactor = Hashes.Hash256(prefactor.Concat(ownerEntropy).ToArray()).ToBytes();
+				passfactor = Packer.Hash256("_AA", prefactor, ownerEntropy).ToBytes();
 			}
 
 			var passpoint = new Key(passfactor, fCompressedIn: true).PubKey.ToBytes();
 
-			var bytes =
-				network.GetVersionBytes(Base58Type.PASSPHRASE_CODE)
-				.Concat(new[] { hasLotSequence ? (byte)0x51 : (byte)0x53 })
-				.Concat(ownerEntropy)
-				.Concat(passpoint)
-				.ToArray();
+			var bytes = Packer.Pack("_AbAA", 
+				network.GetVersionBytes(Base58Type.PASSPHRASE_CODE),
+				hasLotSequence ? 0x51 : 0x53,
+				ownerEntropy,
+				passpoint);
+
 			return Encoders.Base58Check.EncodeData(bytes);
 		}
 
@@ -267,13 +267,9 @@ namespace NBitcoin
 				var pointbx = BitcoinEncryptedSecret.EncryptKey(pointb.Skip(1).ToArray(), derived);
 				var encryptedpointb = new byte[] { pointbprefix }.Concat(pointbx).ToArray();
 
-				var confirmBytes =
-					Network.GetVersionBytes(Base58Type.CONFIRMATION_CODE)
-					.Concat(new[] { flagByte })
-					.Concat(addresshash)
-					.Concat(OwnerEntropy)
-					.Concat(encryptedpointb)
-					.ToArray();
+				var confirmBytes = Packer.Pack("_AbAAA",
+					Network.GetVersionBytes(Base58Type.CONFIRMATION_CODE), flagByte, 
+					addresshash, OwnerEntropy, encryptedpointb);
 
 				return new BitcoinConfirmationCode(Encoders.Base58Check.EncodeData(confirmBytes), Network);
 			});

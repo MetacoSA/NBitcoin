@@ -51,10 +51,7 @@ namespace NBitcoin
 			flagByte |= 0x0C0;
 			flagByte |= (key.IsCompressed ? (byte)0x20 : (byte)0x00);
 
-			var bytes = version
-							.Concat(new[] { flagByte })
-							.Concat(addresshash)
-							.Concat(encrypted).ToArray();
+			var bytes = Packer.Pack("_AbAA", version, flagByte, addresshash, encrypted);
 			return Encoders.Base58Check.EncodeData(bytes);
 		}
 
@@ -219,7 +216,7 @@ namespace NBitcoin
 			{
 				var ownersalt = ownerEntropy.SafeSubarray(0, 4);
 				var prefactor = SCrypt.BitcoinComputeDerivedKey(Encoding.UTF8.GetBytes(password), ownersalt, 32);
-				passfactor = Hashes.Hash256(prefactor.Concat(ownerEntropy).ToArray()).ToBytes();
+				passfactor = Packer.Hash256("_AA", prefactor, ownerEntropy).ToBytes();
 			}
 			return passfactor;
 		}
