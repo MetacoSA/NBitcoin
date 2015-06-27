@@ -74,6 +74,7 @@
     <Compile Include="bip32_tests.cs" />
     <Compile Include="BIP38Tests.cs" />
     <Compile Include="bip39_tests.cs" />
+    <Compile Include="BitcoinAddressTest.cs" />
     <Compile Include="BitcoinQProcess.cs" />
     <Compile Include="bloom_tests.cs" />
     <Compile Include="micropayment_tests.cs" />
