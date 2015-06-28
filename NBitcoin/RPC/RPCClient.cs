@@ -1,4 +1,5 @@
 ﻿using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -493,6 +494,43 @@ namespace NBitcoin.RPC
 
 		}
 
+		public IEnumerable<PeerInfo> GetPeersInfo()
+		{
+			var resp = SendCommand("getpeerinfo");
+			var peers = resp.Result as JArray;
+			foreach (var peer in peers)
+			{
+				var localAddr = (string)peer["addrlocal"];
+				var pingWait = peer["pingwait"] != null ? (double) peer["pingwait"] : 0;
+
+				localAddr = string.IsNullOrEmpty(localAddr) ? "127.0.0.1:8333" : localAddr;
+
+				yield return new PeerInfo{
+					Id = (int)peer["id"],
+					Address = Utils.ParseIpEndpoint((string)peer["addr"], 8333),
+					LocalAddress = Utils.ParseIpEndpoint(localAddr, 8333),
+					Services = ulong.Parse((string)peer["services"]),
+					LastSend = Utils.UnixTimeToDateTime((uint)peer["lastsend"]),
+					LastReceive = Utils.UnixTimeToDateTime((uint)peer["lastrecv"]),
+					BytesSent = (int)peer["bytessent"],
+					BytesReceived = (int)peer["bytesrecv"],
+					ConnectionTime = Utils.UnixTimeToDateTime((uint)peer["conntime"]),
+					TimeOffset = TimeSpan.FromSeconds((int)peer["timeoffset"]),
+					PingTime = TimeSpan.FromSeconds((double)peer["pingtime"]),
+					PingWait = TimeSpan.FromSeconds(pingWait),
+					Blocks = peer["blocks"] != null ?  (int)peer["blocks"]: -1,
+					Version = (int)peer["version"],
+					SubVersion = (string)peer["subver"],
+					Inbound = (bool)peer["inbound"],
+					StartingHeight = (int)peer["startingheight"],
+					SynchronizedBlocks = (int)peer["synced_blocks"],
+					SynchronizedHeaders = (int)peer["synced_headers"],
+					IsWhiteListed = (bool)peer["whitelisted"],
+					Inflight = peer["inflight"].Select(x=>uint256.Parse((string)x)).ToArray()
+				};
+			}
+		}
+
 		public IEnumerable<Transaction> GetTransactions(int height)
 		{
 			return GetTransactions(GetBlockHash(height));
@@ -509,7 +547,6 @@ namespace NBitcoin.RPC
 			var resp = await SendCommandAsync("getblockhash", height).ConfigureAwait(false);
 			return uint256.Parse(resp.Result.ToString());
 		}
-
 
 		public int GetBlockCount()
 		{
@@ -582,5 +619,31 @@ namespace NBitcoin.RPC
 		}
 
 
+	}
+
+	public class PeerInfo
+	{
+		public int Id { get; internal set; }
+		public IPEndPoint Address { get; internal set; }
+		public IPEndPoint LocalAddress { get; internal set; }
+		public ulong Services { get; internal set; }
+		public DateTimeOffset LastSend { get; internal set; }
+		public DateTimeOffset LastReceive { get; internal set; }
+		public int BytesSent { get; internal set; }
+		public int BytesReceived { get; internal set; }
+		public DateTimeOffset ConnectionTime { get; internal set; }
+		public TimeSpan PingTime { get; internal set; }
+		public int Version { get; internal set; }
+		public string SubVersion { get; internal set; }
+		public bool Inbound { get; internal set; }
+		public int StartingHeight { get; internal set; }
+		public int BanScore { get; internal set; }
+		public int SynchronizedHeaders { get; internal set; }
+		public int SynchronizedBlocks { get; internal set; }
+		public IEnumerable<object> Inflight { get; internal set; }
+		public bool IsWhiteListed { get; internal set; }
+		public TimeSpan PingWait { get; internal set; }
+		public int Blocks{ get; internal set; }
+		public TimeSpan TimeOffset{ get; internal set; }
 	}
 }

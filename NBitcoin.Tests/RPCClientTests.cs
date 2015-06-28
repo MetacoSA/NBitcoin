@@ -155,6 +155,14 @@ namespace NBitcoin.Tests
 			AssertJsonEquals(tx.ToString(RawFormat.Satoshi), tx2.ToString(RawFormat.Satoshi));
 		}
 
+		[Fact]
+		[Trait("RPCClient", "RPCClient")]
+		public void CanGetPeersInfo()
+		{
+			var rpc = CreateRPCClient();
+			var peers = rpc.GetPeersInfo();
+			Assert.NotEmpty(peers);
+		}
 
 		private void AssertJsonEquals(string json1, string json2)
 		{
