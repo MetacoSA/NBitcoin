@@ -22,6 +22,8 @@ namespace NBitcoin
 	 */
 	public class BlockHeader : IBitcoinSerializable
 	{
+		internal const int Size = 80;
+
 		public static BlockHeader Parse(string hex)
 		{
 			return new BlockHeader(Encoders.Hex.DecodeData(hex));

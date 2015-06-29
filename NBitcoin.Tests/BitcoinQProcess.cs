@@ -1,4 +1,5 @@
 ﻿#if !NOSOCKET
+using NBitcoin.REST;
 using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
@@ -84,11 +85,13 @@ namespace NBitcoin.Watcher
 		private void ParseCommandLine()
 		{
 			if(ContainsParameter("testnet"))
-			{
 				Parameters.AddOrReplace("testnet", "1");
-			}
+
 			if(ContainsParameter("server"))
 				Parameters.AddOrReplace("server", "1");
+
+			if (ContainsParameter("rest"))
+				Parameters.AddOrReplace("rest", "1");
 
 			var rpcuser = GetParameter("rpcuser");
 			if(rpcuser != null)
@@ -272,9 +275,10 @@ namespace NBitcoin.Watcher
 			return client;
 		}
 
-		
+		public RestClient CreateRestClient()
+		{
+			return new RestClient(new Uri(RPCService, UriKind.Absolute));
+		}
 	}
-
-
 }
 #endif
