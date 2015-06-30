@@ -1007,7 +1007,7 @@ namespace NBitcoin.Tests
 			// Next, create a transaction to send funds into that multisig. Transaction d6f72... is
 			// an unspent transaction in my wallet (which I got from the 'listunspent' RPC call):
 			// Taken from example
-			var fundingTransaction = new Transaction("010000000189632848f99722915727c5c75da8db2dbf194342a0429828f66ff88fab2af7d6000000008b483045022100abbc8a73fe2054480bda3f3281da2d0c51e2841391abd4c09f4f908a2034c18d02205bc9e4d68eafb918f3e9662338647a4419c0de1a650ab8983f1d216e2a31d8e30141046f55d7adeff6011c7eac294fe540c57830be80e9355c83869c9260a4b8bf4767a66bacbd70b804dc63d5beeb14180292ad7f3b083372b1d02d7a37dd97ff5c9effffffff0140420f000000000017a914f815b036d9bbbce5e9f2a00abd1bf3dc91e955108700000000");
+			var fundingTransaction = Transaction.Parse("010000000189632848f99722915727c5c75da8db2dbf194342a0429828f66ff88fab2af7d6000000008b483045022100abbc8a73fe2054480bda3f3281da2d0c51e2841391abd4c09f4f908a2034c18d02205bc9e4d68eafb918f3e9662338647a4419c0de1a650ab8983f1d216e2a31d8e30141046f55d7adeff6011c7eac294fe540c57830be80e9355c83869c9260a4b8bf4767a66bacbd70b804dc63d5beeb14180292ad7f3b083372b1d02d7a37dd97ff5c9effffffff0140420f000000000017a914f815b036d9bbbce5e9f2a00abd1bf3dc91e955108700000000");
 
 			// Create the spend-from-multisig transaction. Since the fund-the-multisig transaction
 			// hasn't been sent yet, I need to give txid, scriptPubKey and redeemScript:
@@ -1036,7 +1036,7 @@ namespace NBitcoin.Tests
 			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0].ScriptPubKey);
 
 			//Verify the transaction from the gist is also correctly signed
-			var gistTransaction = new Transaction("0100000001aca7f3b45654c230e0886a57fb988c3044ef5e8f7f39726d305c61d5e818903c00000000fd5d010048304502200187af928e9d155c4b1ac9c1c9118153239aba76774f775d7c1f9c3e106ff33c0221008822b0f658edec22274d0b6ae9de10ebf2da06b1bbdaaba4e50eb078f39e3d78014730440220795f0f4f5941a77ae032ecb9e33753788d7eb5cb0c78d805575d6b00a1d9bfed02203e1f4ad9332d1416ae01e27038e945bc9db59c732728a383a6f1ed2fb99da7a4014cc952410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353aeffffffff0140420f00000000001976a914ae56b4db13554d321c402db3961187aed1bbed5b88ac00000000");
+			var gistTransaction = Transaction.Parse("0100000001aca7f3b45654c230e0886a57fb988c3044ef5e8f7f39726d305c61d5e818903c00000000fd5d010048304502200187af928e9d155c4b1ac9c1c9118153239aba76774f775d7c1f9c3e106ff33c0221008822b0f658edec22274d0b6ae9de10ebf2da06b1bbdaaba4e50eb078f39e3d78014730440220795f0f4f5941a77ae032ecb9e33753788d7eb5cb0c78d805575d6b00a1d9bfed02203e1f4ad9332d1416ae01e27038e945bc9db59c732728a383a6f1ed2fb99da7a4014cc952410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353aeffffffff0140420f00000000001976a914ae56b4db13554d321c402db3961187aed1bbed5b88ac00000000");
 			AssertCorrectlySigned(gistTransaction, fundingTransaction.Outputs[0].ScriptPubKey);
 
 			//Can sign out of order
@@ -1095,7 +1095,7 @@ namespace NBitcoin.Tests
 			foreach(var test in tests.Select(t => t.GetDynamic(0)))
 			{
 				string raw = test.Raw;
-				Transaction tx = new Transaction(raw);
+				Transaction tx = Transaction.Parse(raw);
 				Assert.Equal((int)test.JSON.vin_sz, tx.Inputs.Count);
 				Assert.Equal((int)test.JSON.vout_sz, tx.Outputs.Count);
 				Assert.Equal((uint)test.JSON.lock_time, (uint)tx.LockTime);
@@ -1156,7 +1156,7 @@ namespace NBitcoin.Tests
 					mapprevOutScriptPubKeys[new OutPoint(uint256.Parse(vinput[0].ToString()), int.Parse(vinput[1].ToString()))] = script_tests.ParseScript(vinput[2].ToString());
 				}
 
-				Transaction tx = new Transaction((string)test[1]);
+				Transaction tx = Transaction.Parse((string)test[1]);
 				ValidationState state = Network.Main.CreateValidationState();
 				Assert.True(state.CheckTransaction(tx), strTest);
 				Assert.True(state.IsValid);
@@ -1240,7 +1240,7 @@ namespace NBitcoin.Tests
 					mapprevOutScriptPubKeys[new OutPoint(uint256.Parse(vinput[0].ToString()), int.Parse(vinput[1].ToString()))] = script_tests.ParseScript(vinput[2].ToString());
 				}
 
-				Transaction tx = new Transaction((string)test[1]);
+				Transaction tx = Transaction.Parse((string)test[1]);
 
 				ValidationState state = Network.Main.CreateValidationState();
 				var fValid = state.CheckTransaction(tx) && state.IsValid;

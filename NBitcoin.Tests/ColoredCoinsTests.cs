@@ -26,7 +26,7 @@ namespace NBitcoin.Tests
 				NoSqlTransactionRepository repository = new NoSqlTransactionRepository();
 				foreach(var tx in testcase.txs)
 				{
-					var txObj = new Transaction(tx);
+					var txObj = Transaction.Parse(tx);
 					repository.Put(txObj.GetHash(), txObj);
 				}
 				TestedTxId = uint256.Parse(testcase.testedtx);
@@ -61,7 +61,7 @@ namespace NBitcoin.Tests
 						WebClient client = new WebClient();
 						var result = client.DownloadString("http://btc.blockr.io/api/v1/tx/raw/" + ex.TxId);
 						var json = JObject.Parse(result);
-						var tx = new Transaction(json["data"]["tx"]["hex"].ToString());
+						var tx = Transaction.Parse(json["data"]["tx"]["hex"].ToString());
 
 						builder.AppendLine("\"" + json["data"]["tx"]["hex"].ToString() + "\",\r\n");
 						Repository.Transactions.Put(tx.GetHash(), tx);
@@ -269,7 +269,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseAndSetUrlInAssetMetadata()
 		{
-			var tx = new Transaction("0100000001ed6f645a2d0eccf693692bc6677cd3c5efaba021db1527c91b9b441fe16da2f7020000006c493046022100991a71c15ebbf77032fc65ccd16ed286435fcc5ba48435510f561079e46dbb2a022100f1e477385196f083a779fd3366e074d34db12754330f02693520951081d5ab19012103f82af267c2f60b7ce274e7e8bc065dad3c1b0ca7a694801c814f128e63242a12ffffffff0358020000000000001976a91477e3e6acdeca221685d0d23a12989b96335a463988ac0000000000000000276a254f4101000180ade2041b753d68747470733a2f2f6370722e736d2f3954627276364a435776e89c0c00000000001976a9142d14f700c8b0a9ff95cb6092faad0795bf790dc788ac00000000");
+			var tx = Transaction.Parse("0100000001ed6f645a2d0eccf693692bc6677cd3c5efaba021db1527c91b9b441fe16da2f7020000006c493046022100991a71c15ebbf77032fc65ccd16ed286435fcc5ba48435510f561079e46dbb2a022100f1e477385196f083a779fd3366e074d34db12754330f02693520951081d5ab19012103f82af267c2f60b7ce274e7e8bc065dad3c1b0ca7a694801c814f128e63242a12ffffffff0358020000000000001976a91477e3e6acdeca221685d0d23a12989b96335a463988ac0000000000000000276a254f4101000180ade2041b753d68747470733a2f2f6370722e736d2f3954627276364a435776e89c0c00000000001976a9142d14f700c8b0a9ff95cb6092faad0795bf790dc788ac00000000");
 
 			var marker = tx.GetColoredMarker();
 			var url = marker.GetMetadataUrl();

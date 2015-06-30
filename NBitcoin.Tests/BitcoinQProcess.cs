@@ -1,6 +1,5 @@
 ﻿#if !NOSOCKET
 using NBitcoin.RPC;
-using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

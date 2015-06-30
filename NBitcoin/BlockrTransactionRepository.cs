@@ -71,7 +71,7 @@ namespace NBitcoin
 					{
 						throw new BlockrException(json);
 					}
-					var tx = new Transaction(json["data"]["tx"]["hex"].ToString());
+					var tx = Transaction.Parse(json["data"]["tx"]["hex"].ToString());
 					return tx;
 				}
 			}
