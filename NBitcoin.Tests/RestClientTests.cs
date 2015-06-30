@@ -1,7 +1,4 @@
-﻿using NBitcoin.DataEncoders;
-using NBitcoin.REST;
-using NBitcoin.RPC;
-using Newtonsoft.Json.Linq;
+﻿using NBitcoin.RPC;
 using System;
 using System.Linq;
 using Xunit;
@@ -10,11 +7,11 @@ namespace NBitcoin.Tests
 {
 	//Require a rpc server on test network running on default port with -rest -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword
 	//For me : 
-	//"bitcoin-qt.exe" -testnet -rest 
+	//"bitcoin-qt.exe" -testnet -server -rest 
 	[Trait("RestClient", "RestClient")]
 	public class RestClientTests
 	{
-		private static Block TestNetGenesisBlock = Network.TestNet.GetGenesis();
+		private static readonly Block TestNetGenesisBlock = Network.TestNet.GetGenesis();
 
 		[Fact]
 		public void CanGetChainInfo()
@@ -58,28 +55,59 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanUnspentOutputs()
+		public void CanGetUTXOsMempool()
 		{
 			var client = CreateRestClient();
+			var txId = uint256.Parse("3a3422dfd155f1d2ffc3e46cf978a9c5698c17c187f04cfa1b93358699c4ed3f");
+			var outPoint = new OutPoint(txId, 0);
+			var utxos = client.GetUnspectOutputsAsync(new []{ outPoint }, true).Result;
+			Assert.Equal(1, utxos.Outputs.Length);
+			Assert.Equal(1, (int)utxos.Outputs[0].Version);
+			Assert.Equal(Money.Parse("0.1"), (int)utxos.Outputs[0].Output.Value);
+		}
+
+		[Fact]
+		public void CanGetUTXOs()
+		{
+			var client = CreateRestClient();
+			var txId = uint256.Parse("3a3422dfd155f1d2ffc3e46cf978a9c5698c17c187f04cfa1b93358699c4ed3f");
+			var outPoint = new OutPoint(txId, 0);
+			var utxos = client.GetUnspectOutputsAsync(new[] { outPoint }, false).Result;
+			Assert.Equal(true, utxos.Bitmap[0]);
+			Assert.Equal(false, utxos.Bitmap[1]);
+			Assert.Equal(0, utxos.Outputs.Length);
+		}
+
+		[Fact]
+		public async void ThrowsRestApiClientException()
+		{
+			var client = CreateRestClient();
+
+			var unexistingBlockId = uint256.Parse("100000006c02c8ea6e4ff69651f7fcde348fb9d557a06e6957b65552002a7820");
+			Assert.Throws<RestApiException>(async () => await client.GetBlockAsync(unexistingBlockId));
+
 			var txId = uint256.Parse("7669ce92f93f9afd51ffae243e04076be4e5088cf69501aab6de9ede5c331402");
-			var outPoint = new OutPoint(uint256.Parse("b2cdfd7b89def827ff8af7cd9bff7627ff72e5e8b0f71210f92ea7a4000c5d75"), 0);
-			var tx = client.GetUnspectOutputsAsync(new []{ outPoint }, false).Result;
+			Assert.Throws<RestApiException>(async () => await client.GetTransactionAsync(txId));
+
+			var result = await client.GetBlockHeadersAsync(unexistingBlockId, 3);
+			var headers = result.ToArray();
+			Assert.Empty(headers);
 		}
 
 		/// <summary>
-		/// "bitcoin-qt.exe" -testnet -rest  
+		/// "bitcoin-qt.exe" -testnet -server -rest  
 		/// </summary>
 		/// <returns></returns>
 		public static RestClient CreateRestClient()
 		{
 #if !NOSOCKET
 			var process = Watcher.BitcoinQProcess.List()
-				.FirstOrDefault(p => p.Testnet && p.Parameters.ContainsKey("rest"));
+				.FirstOrDefault(p => p.Testnet && p.Rest && p.Server);
 			if (process == null)
-				throw new InvalidOperationException("No bitcoin-qt or bitcoinq process running with rpc server on test net (\"bitcoin-qt.exe\" -testnet -rest)");
+				throw new InvalidOperationException("No bitcoin-qt or bitcoinq process running with rpc server on test net (\"bitcoin-qt.exe\" -testnet -server -rest)");
 			return process.CreateRestClient();
 #else
-			return new RestClient(new Uri("127.0.0.1:18332"));
+			return new RestClient(new Uri("http://127.0.0.1:18332"));
 #endif
 		}
 	}

@@ -60,12 +60,19 @@ namespace NBitcoin
 				return (T)(object)address.ToColoredAddress();
 			}
 		}
-		public static byte[] ReadBytes(this Stream stream, int count)
+
+		public static byte[] ReadBytes(this Stream stream, int bytesToRead)
 		{
-			byte[] result = new byte[count];
-			stream.Read(result, 0, count);
-			return result;
+			var buffer = new byte[bytesToRead];
+			int num = 0;
+			int num2;
+			do
+			{
+				num += (num2 = stream.Read(buffer, num, bytesToRead - num));
+			} while (num2 > 0 && num < bytesToRead);
+			return buffer;
 		}
+
 		public static int ReadBytes(this Stream stream, int count, out byte[] result)
 		{
 			result = new byte[count];

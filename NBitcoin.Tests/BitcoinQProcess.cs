@@ -1,5 +1,5 @@
 ﻿#if !NOSOCKET
-using NBitcoin.REST;
+using NBitcoin.RPC;
 using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
@@ -258,6 +258,14 @@ namespace NBitcoin.Watcher
 			}
 		}
 
+		public bool Rest
+		{
+			get
+			{
+				return Parameters["rest"] == "1";
+			}
+		}
+
 		public string RPCUser
 		{
 			get
@@ -277,6 +285,8 @@ namespace NBitcoin.Watcher
 
 		public RestClient CreateRestClient()
 		{
+			if (!(Server && Rest) )
+				throw new InvalidOperationException("This BitcoinQ process is not a server or rest (-server -rest parameter)");
 			return new RestClient(new Uri(RPCService, UriKind.Absolute));
 		}
 	}
