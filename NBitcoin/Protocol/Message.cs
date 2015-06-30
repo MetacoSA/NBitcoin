@@ -152,7 +152,7 @@ namespace NBitcoin.Protocol
 
 		public override string ToString()
 		{
-			return Command + " : " + Payload;
+			return String.Format("{0} : {1}", Command, Payload);
 		}
 
 #if !NOSOCKET

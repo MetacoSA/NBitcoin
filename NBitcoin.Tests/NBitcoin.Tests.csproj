@@ -69,6 +69,7 @@
     <Compile Include="addrman_tests.cs" />
     <Compile Include="alert_tests.cs" />
     <Compile Include="AssertEx.cs" />
+    <Compile Include="AssetMoneyTests.cs" />
     <Compile Include="base58_tests.cs" />
     <Compile Include="Benchmark.cs" />
     <Compile Include="bip32_tests.cs" />

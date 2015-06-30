@@ -344,9 +344,8 @@ namespace NBitcoin.OpenAsset
 
 		public override string ToString()
 		{
-			return Quantity + "-" + Id;
+			return String.Format("{0}-{1}", Quantity, Id);
 		}
-
 
 		public static AssetMoney Min(AssetMoney a, AssetMoney b)
 		{
