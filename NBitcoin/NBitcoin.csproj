@@ -133,7 +133,7 @@
     <Compile Include="Protocol\Behaviors\NodeBehavior.cs" />
     <Compile Include="Protocol\Behaviors\PingPongBehavior.cs" />
     <Compile Include="Protocol\Payloads\UTxOutpusPayload.cs" />
-    <Compile Include="REST\RestClient.cs" />
+    <Compile Include="RPC\RestClient.cs" />
     <Compile Include="Utils\ActionDisposable.cs" />
     <Compile Include="Utils\ThreadSafeCollection.cs" />
     <Compile Include="Protocol\NodeConnectionParameters.cs" />

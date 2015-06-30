@@ -84,7 +84,7 @@ namespace NBitcoin.RPC
 		{
 			if (txId == null) throw new ArgumentNullException("txId");
 
-			var result = await SendRequestAsync("tx", _format, txId.ToString());
+			var result = await SendRequestAsync("tx", _format, txId.ToString()).ConfigureAwait(false);
 			return new Transaction(result); 
 		}
 
@@ -114,7 +114,7 @@ namespace NBitcoin.RPC
 		/// <returns></returns>
 		public async Task<ChainInfo> GetChainInfoAsync()
 		{
-			var result = await SendRequestAsync("chaininfo", RestResponseFormat.Json);
+			var result = await SendRequestAsync("chaininfo", RestResponseFormat.Json).ConfigureAwait(false);
 			var o = JObject.Parse(Encoding.UTF8.GetString(result));
 			return new ChainInfo {
 				Chain = (string) o["chain"],
@@ -139,7 +139,7 @@ namespace NBitcoin.RPC
 		{
 			if (outPoints == null) throw new ArgumentNullException("outPoints");
 			var ids = from op in outPoints select op.ToString();
-			var result = await SendRequestAsync("getutxos" + (checkMempool ? "/checkmempool" : ""), _format, ids.ToArray());
+			var result = await SendRequestAsync("getutxos" + (checkMempool ? "/checkmempool" : ""), _format, ids.ToArray()).ConfigureAwait(false);
 			var mem = new MemoryStream(result);
 
 			var utxos = new UTxOutputs();
@@ -179,7 +179,7 @@ namespace NBitcoin.RPC
 			WebResponse response;
 			try
 			{
-				response = await request.GetResponseAsync();
+				response = await request.GetResponseAsync().ConfigureAwait(false);
 			}
 			catch (WebException ex)
 			{
