@@ -55,7 +55,7 @@ namespace NBitcoin.DataEncoders
 				str += pszBase58[0];
 
 			// Convert little endian std::string to big endian
-			str = new String(str.Reverse().ToArray());
+			str = new String(str.ToCharArray().Reverse().ToArray()); //keep that way to be portable
 			return str;
 		}
 

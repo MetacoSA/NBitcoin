@@ -493,7 +493,7 @@ namespace NBitcoin.RPC
 			}
 
 		}
-
+#if !NOSOCKET
 		public IEnumerable<PeerInfo> GetPeersInfo()
 		{
 			var resp = SendCommand("getpeerinfo");
@@ -530,7 +530,7 @@ namespace NBitcoin.RPC
 				};
 			}
 		}
-
+#endif
 		public IEnumerable<Transaction> GetTransactions(int height)
 		{
 			return GetTransactions(GetBlockHash(height));
@@ -620,7 +620,7 @@ namespace NBitcoin.RPC
 
 
 	}
-
+#if !NOSOCKET
 	public class PeerInfo
 	{
 		public int Id { get; internal set; }
@@ -646,4 +646,5 @@ namespace NBitcoin.RPC
 		public int Blocks{ get; internal set; }
 		public TimeSpan TimeOffset{ get; internal set; }
 	}
+#endif
 }

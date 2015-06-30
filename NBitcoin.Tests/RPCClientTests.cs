@@ -154,7 +154,7 @@ namespace NBitcoin.Tests
 			var tx2 = rpc.DecodeRawTransaction(tx.ToBytes());
 			AssertJsonEquals(tx.ToString(RawFormat.Satoshi), tx2.ToString(RawFormat.Satoshi));
 		}
-
+#if !PORTABLE
 		[Fact]
 		[Trait("RPCClient", "RPCClient")]
 		public void CanGetPeersInfo()
@@ -163,7 +163,7 @@ namespace NBitcoin.Tests
 			var peers = rpc.GetPeersInfo();
 			Assert.NotEmpty(peers);
 		}
-
+#endif
 		private void AssertJsonEquals(string json1, string json2)
 		{
 			foreach(var c in new[] { "\r\n", " ", "\t" })

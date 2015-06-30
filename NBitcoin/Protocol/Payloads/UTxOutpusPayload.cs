@@ -39,8 +39,7 @@ namespace NBitcoin.Protocol.Payloads
 			internal set
 			{
 				var bits = value;
-				var buffer = new byte[bits.Length / 8];
-				bits.CopyTo(buffer, 0);
+				var buffer = new BitReader(bits).ToWriter().ToBytes();
 				_bitmap = new VarString(buffer);
 			}
 		}

@@ -605,7 +605,7 @@ namespace NBitcoin
 		}
 
 
-#if !PORTABLE
+#if !NOSOCKET
 		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort)
 		{
 			var splitted = endpoint.Split(':');
