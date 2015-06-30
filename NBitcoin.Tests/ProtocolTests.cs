@@ -586,6 +586,16 @@ namespace NBitcoin.Tests
 				Assert.True(blocks.Count == 100);
 			}
 		}
+
+        [Fact]
+        public void NodeToStringTest()
+        {
+            NetworkAddress address = new NetworkAddress(IPAddress.Parse("192.168.0.1"), 8333);
+            Node node = new Node(address, Network.Main, null);
+
+            String actual = node.ToString();
+            Assert.Equal("", actual);
+        }
 	}
 }
 #endif

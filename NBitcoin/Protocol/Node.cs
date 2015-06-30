@@ -1009,10 +1009,8 @@ namespace NBitcoin.Protocol
 
 		public override string ToString()
 		{
-			return State + " (" + Peer.Endpoint + ")";
+			return String.Format("{0} ({1})",  State, Peer.Endpoint);
 		}
-
-
 
 		private Socket Socket
 		{

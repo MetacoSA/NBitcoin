@@ -232,12 +232,14 @@ namespace NBitcoin.OpenAsset
 			left.CheckAssetId(right, "right");
 			return new AssetMoney(left.Id, checked(left.Quantity - right.Quantity));
 		}
+
 		public static AssetMoney operator -(AssetMoney left)
 		{
 			if(left == null)
 				throw new ArgumentNullException("left");
 			return new AssetMoney(left.Id, checked(-left.Quantity));
 		}
+
 		public static AssetMoney operator +(AssetMoney left, AssetMoney right)
 		{
 			if(left == null)
@@ -247,6 +249,7 @@ namespace NBitcoin.OpenAsset
 			left.CheckAssetId(right, "right");
 			return new AssetMoney(left.Id, checked(left.Quantity + right.Quantity));
 		}
+
 		public static AssetMoney operator *(int left, AssetMoney right)
 		{
 			if(right == null)
@@ -260,12 +263,14 @@ namespace NBitcoin.OpenAsset
 				throw new ArgumentNullException("right");
 			return new AssetMoney(right.Id, checked(right.Quantity * left));
 		}
+
 		public static AssetMoney operator *(long left, AssetMoney right)
 		{
 			if(right == null)
 				throw new ArgumentNullException("right");
 			return new AssetMoney(right.Id, checked(left * right.Quantity));
 		}
+
 		public static AssetMoney operator *(AssetMoney right, long left)
 		{
 			if(right == null)
@@ -282,6 +287,7 @@ namespace NBitcoin.OpenAsset
 			left.CheckAssetId(right, "right");
 			return left.Quantity < right.Quantity;
 		}
+
 		public static bool operator >(AssetMoney left, AssetMoney right)
 		{
 			if(left == null)
@@ -291,6 +297,7 @@ namespace NBitcoin.OpenAsset
 			left.CheckAssetId(right, "right");
 			return left.Quantity > right.Quantity;
 		}
+
 		public static bool operator <=(AssetMoney left, AssetMoney right)
 		{
 			if(left == null)
@@ -300,6 +307,7 @@ namespace NBitcoin.OpenAsset
 			left.CheckAssetId(right, "right");
 			return left.Quantity <= right.Quantity;
 		}
+
 		public static bool operator >=(AssetMoney left, AssetMoney right)
 		{
 			if(left == null)
@@ -319,6 +327,7 @@ namespace NBitcoin.OpenAsset
 				return false;
 			return _Quantity.Equals(item.Quantity);
 		}
+
 		public static bool operator ==(AssetMoney a, AssetMoney b)
 		{
 			if(Object.ReferenceEquals(a, b))
@@ -341,12 +350,10 @@ namespace NBitcoin.OpenAsset
 			return Tuple.Create(_Quantity, Id).GetHashCode();
 		}
 
-
 		public override string ToString()
 		{
-			return Quantity + "-" + Id;
+			return String.Format("{0}-{1}", Quantity, Id);
 		}
-
 
 		public static AssetMoney Min(AssetMoney a, AssetMoney b)
 		{
