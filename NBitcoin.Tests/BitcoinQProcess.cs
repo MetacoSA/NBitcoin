@@ -1,5 +1,6 @@
 ﻿#if !NOSOCKET
 using NBitcoin.RPC;
+using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -84,11 +85,13 @@ namespace NBitcoin.Watcher
 		private void ParseCommandLine()
 		{
 			if(ContainsParameter("testnet"))
-			{
 				Parameters.AddOrReplace("testnet", "1");
-			}
+
 			if(ContainsParameter("server"))
 				Parameters.AddOrReplace("server", "1");
+
+			if (ContainsParameter("rest"))
+				Parameters.AddOrReplace("rest", "1");
 
 			var rpcuser = GetParameter("rpcuser");
 			if(rpcuser != null)
@@ -255,6 +258,14 @@ namespace NBitcoin.Watcher
 			}
 		}
 
+		public bool Rest
+		{
+			get
+			{
+				return Parameters["rest"] == "1";
+			}
+		}
+
 		public string RPCUser
 		{
 			get
@@ -272,9 +283,12 @@ namespace NBitcoin.Watcher
 			return client;
 		}
 
-		
+		public RestClient CreateRestClient()
+		{
+			if (!(Server && Rest) )
+				throw new InvalidOperationException("This BitcoinQ process is not a server or rest (-server -rest parameter)");
+			return new RestClient(new Uri(RPCService, UriKind.Absolute));
+		}
 	}
-
-
 }
 #endif

@@ -90,6 +90,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="ProtocolTests.cs" />
     <Compile Include="RepositoryTests.cs" />
+    <Compile Include="RestClientTests.cs" />
     <Compile Include="RPCClientTests.cs" />
     <Compile Include="script_tests.cs" />
     <Compile Include="sighash_tests.cs" />

@@ -135,7 +135,7 @@ namespace NBitcoin
 
 		public override string ToString()
 		{
-			return N + "-" + Hash;
+			return Hash + "-" + N;
 		}
 	}
 
@@ -590,6 +590,13 @@ namespace NBitcoin
 		{
 			value = -1;
 		}
+
+		public static TxOut Parse(string hex)
+		{
+			var ret = new TxOut();
+			ret.FromBytes(Encoders.Hex.DecodeData(hex));
+			return ret;
+		}
 	}
 
 	public class IndexedTxIn
@@ -777,22 +784,20 @@ namespace NBitcoin
 
 		public Transaction()
 		{
-			Init();
-		}
-
-		private void Init()
-		{
 			vin = new TxInList(this);
 			vout = new TxOutList(this);
 		}
+
+		[Obsolete("Use Transaction.Parse statics method instead.")]
 		public Transaction(string hex)
+			: this()
 		{
-			Init();
 			this.FromBytes(Encoders.Hex.DecodeData(hex));
 		}
+
 		public Transaction(byte[] bytes)
+			: this()
 		{
-			Init();
 			this.FromBytes(bytes);
 		}
 
@@ -976,6 +981,11 @@ namespace NBitcoin
 		public static Transaction Parse(string tx, RawFormat format, Network network = null)
 		{
 			return GetFormatter(format, network).ParseJson(tx);
+		}
+
+		public static Transaction Parse(string hex)
+		{
+			return new Transaction(Encoders.Hex.DecodeData(hex));
 		}
 
 		public string ToHex()
