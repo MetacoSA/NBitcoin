@@ -144,6 +144,10 @@ namespace NBitcoin.Watcher
 			var datadir = GetConfigField("datadir");
 			if(datadir != null)
 				Parameters.Add("datadir", datadir);
+
+			var rest = GetConfigField("rest");
+			if(datadir != null)
+				Parameters.Add("rest", rest);
 		}
 
 		public string RPCPassword
@@ -262,8 +266,13 @@ namespace NBitcoin.Watcher
 		{
 			get
 			{
-				return Parameters["rest"] == "1";
+				return ParametersOrDefault("rest","0") == "1";
 			}
+		}
+
+		private string ParametersOrDefault(string key, string defaultValue)
+		{
+			return Parameters.ContainsKey(key) ? Parameters[key] : defaultValue;
 		}
 
 		public string RPCUser

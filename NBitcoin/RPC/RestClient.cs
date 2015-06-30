@@ -203,7 +203,6 @@ namespace NBitcoin.RPC
 		#endregion
 	}
 
-	[Serializable]
 	public class RestApiException : Exception
 	{
 		public RestApiException(string message, WebException inner)
