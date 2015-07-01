@@ -16,11 +16,11 @@ namespace NBitcoin.Tests
 	//Require a rpc server on test network running on default port with -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword
 	//For me : 
 	//"bitcoin-qt.exe" -testnet -server -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword 
+	[Trait("RPCClient", "RPCClient")]
 	public class RPCClientTests
 	{
 		const string TestAccount = "NBitcoin.RPCClientTests";
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void InvalidCommandSendRPCException()
 		{
 			var rpc = CreateRPCClient();
@@ -32,7 +32,6 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanSendCommand()
 		{
 			var rpc = CreateRPCClient();
@@ -41,7 +40,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanGetGenesisFromRPC()
 		{
 			var rpc = CreateRPCClient();
@@ -51,7 +49,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanGetRawMemPool()
 		{
 			var rpc = CreateRPCClient();
@@ -59,7 +56,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanUseAsyncRPC()
 		{
 			var rpc = CreateRPCClient();
@@ -68,7 +64,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanGetBestBlockHash()
 		{
 			var rpc = CreateRPCClient();
@@ -77,7 +72,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanGetBlockFromRPC()
 		{
 			var rpc = CreateRPCClient();
@@ -90,7 +84,6 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanEstimateFees()
 		{
 			var rpc = CreateRPCClient();
@@ -99,7 +92,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanGetTransactionBlockFromRPC()
 		{
 			var rpc = CreateRPCClient();
@@ -109,7 +101,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanGetPrivateKeysFromAccount()
 		{
 			var rpc = CreateRPCClient();
@@ -122,7 +113,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanDecodeAndEncodeRawTransaction()
 		{
 			var tests = TestCase.read_json("data/tx_raw.json");
@@ -134,9 +124,7 @@ namespace NBitcoin.Tests
 				var network = ((string)test[1]) == "Main" ? Network.Main : Network.TestNet;
 				var testData = ((JObject)test[2]).ToString();
 
-
 				Transaction raw = Transaction.Parse(testData, format, network);
-
 
 				AssertJsonEquals(raw.ToString(format, network), testData);
 
@@ -144,8 +132,8 @@ namespace NBitcoin.Tests
 				Assert.Equal(raw.ToString(format, network), raw3.ToString(format, network));
 			}
 		}
+
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void RawTransactionIsConformsToRPC()
 		{
 			var rpc = CreateRPCClient();
@@ -154,9 +142,9 @@ namespace NBitcoin.Tests
 			var tx2 = rpc.DecodeRawTransaction(tx.ToBytes());
 			AssertJsonEquals(tx.ToString(RawFormat.Satoshi), tx2.ToString(RawFormat.Satoshi));
 		}
+
 #if !PORTABLE
 		[Fact]
-		[Trait("RPCClient", "RPCClient")]
 		public void CanGetPeersInfo()
 		{
 			var rpc = CreateRPCClient();
@@ -164,6 +152,55 @@ namespace NBitcoin.Tests
 			Assert.NotEmpty(peers);
 		}
 #endif
+
+		[Fact]
+		public void CanAddNodes()
+		{
+			var rpc = CreateRPCClient();
+			try
+			{
+				rpc.RemoveNode(new IPEndPoint(IPAddress.Parse("201.56.71.129"), 8333));
+			}
+			catch (Exception)
+			{
+			}
+
+			rpc.AddNode(new IPEndPoint(IPAddress.Parse("201.56.71.129"), 8333));
+
+			var info = rpc.GetAddedNodeInfo(true);
+			Assert.NotNull(info);
+			Assert.NotEmpty(info);
+			Assert.Equal("201.56.71.129:8333", info.First().Addresses.First().Address.ToString());
+
+			rpc.RemoveNode(new IPEndPoint(IPAddress.Parse("201.56.71.129"), 8333));
+		}
+
+		[Fact]
+		public void CanBackupWallet()
+		{
+			var filePath = Environment.ExpandEnvironmentVariables("%temp%\\wallet_backup.dat");
+			try
+			{
+				var rpc = CreateRPCClient();
+				rpc.BackupWallet(filePath);
+				Assert.True(File.Exists(filePath));
+			}
+			finally
+			{
+				if(File.Exists(filePath))
+					File.Delete(filePath);
+			}
+		}
+
+		[Fact]
+		public void CanEstimatePriority()
+		{
+			var rpc = CreateRPCClient();
+			var priority = rpc.EstimatePriority(10);
+			Assert.True(priority > 0 || priority == -1);
+		}
+
+
 		private void AssertJsonEquals(string json1, string json2)
 		{
 			foreach(var c in new[] { "\r\n", " ", "\t" })

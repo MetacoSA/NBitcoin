@@ -530,6 +530,57 @@ namespace NBitcoin.RPC
 				};
 			}
 		}
+
+		public void AddNode(EndPoint nodeEndPoint)
+		{
+			if (nodeEndPoint == null) throw new ArgumentNullException("nodeEndPoint");
+			SendCommand("addnode", nodeEndPoint.ToString(), "add");
+		}
+
+		public void RemoveNode(EndPoint nodeEndPoint)
+		{
+			if (nodeEndPoint == null) throw new ArgumentNullException("nodeEndPoint");
+			SendCommand("addnode", nodeEndPoint.ToString(), "remove");
+		}
+
+
+		public IEnumerable<AddedNodeInfo> GetAddedNodeInfo(bool detailed)
+		{
+			var result = SendCommand("getaddednodeinfo", detailed);
+			var obj = result.Result;
+			foreach (var entry in obj)
+			{
+				yield return new AddedNodeInfo()
+				{
+					AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], 8333),
+					Connected = (bool)entry["connected"],
+					Addresses = entry["addresses"].Select(x => new NodeAddressInfo
+					{
+						Address = Utils.ParseIpEndpoint((string)x["address"], 8333),
+						Connected = (bool)x["connected"]
+					})
+				};
+			}
+
+		}
+
+		public AddedNodeInfo GetAddedNodeInfo(bool detailed, EndPoint nodeEndPoint)
+		{
+			if (nodeEndPoint == null) throw new ArgumentNullException("nodeEndPoint");
+
+			var result = SendCommand("getaddednodeinfo", nodeEndPoint.ToString(), detailed);
+			var entry = result.Result;
+			return new AddedNodeInfo()
+			{
+				AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], 8333),
+				Connected = (bool)entry["connected"],
+				Addresses = entry["addresses"].Select(x => new NodeAddressInfo
+				{
+					Address = Utils.ParseIpEndpoint((string)x["address"], 8333),
+					Connected = (bool)x["connected"]
+				})
+			};
+		}
 #endif
 		public IEnumerable<Transaction> GetTransactions(int height)
 		{
@@ -618,8 +669,21 @@ namespace NBitcoin.RPC
 			}
 		}
 
+		public void BackupWallet(string path)
+		{
+			if (string.IsNullOrEmpty(path)) throw new ArgumentNullException("path");
+			SendCommand("backupwallet", path);
+		}
 
+		public decimal EstimatePriority(int nblock)
+		{
+			if (nblock < 0) throw new ArgumentOutOfRangeException("nblock", "nblock must be greater or equal to zero");
+			var response = SendCommand("estimatepriority", nblock);
+			var result = response.Result.Value<decimal>();
+			return result;	
+		}
 	}
+
 #if !NOSOCKET
 	public class PeerInfo
 	{
@@ -645,6 +709,19 @@ namespace NBitcoin.RPC
 		public TimeSpan PingWait { get; internal set; }
 		public int Blocks{ get; internal set; }
 		public TimeSpan TimeOffset{ get; internal set; }
+	}
+
+	public class AddedNodeInfo
+	{
+		public EndPoint AddedNode { get; internal set;}
+		public bool Connected { get; internal set; }
+		public IEnumerable<NodeAddressInfo> Addresses { get; internal set; }
+	}
+
+	public class NodeAddressInfo
+	{
+		public IPEndPoint Address { get; internal set; }
+		public bool Connected { get; internal set; }
 	}
 #endif
 }
