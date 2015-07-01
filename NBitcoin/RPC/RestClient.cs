@@ -204,12 +204,8 @@ namespace NBitcoin.RPC
 				var stream = response.GetResponseStream();
 				var bytesToRead = (int)response.ContentLength;
 				var buffer = stream.ReadBytes(bytesToRead);
+				response.Dispose();
 				throw new RestApiException(Encoding.UTF8.GetString(buffer, 0, buffer.Length - 2), ex);
-			}
-			finally
-			{
-				if(response != null)
-					response.Dispose();
 			}
 			return response;
 		}
