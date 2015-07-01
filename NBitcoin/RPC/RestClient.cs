@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Payloads;
 using Newtonsoft.Json.Linq;
+using System.Runtime.ExceptionServices;
 
 namespace NBitcoin.RPC
 {
@@ -73,8 +74,25 @@ namespace NBitcoin.RPC
 				throw new ArgumentNullException("blockId");
 
 			var result = await SendRequestAsync("block", _format, blockId.ToString()).ConfigureAwait(false);
-			;
 			return new Block(result);
+		}
+		/// <summary>
+		/// Gets the block.
+		/// </summary>
+		/// <param name="blockId">The block identifier.</param>
+		/// <returns>Given a block hash (id) returns the requested block object.</returns>
+		/// <exception cref="System.ArgumentNullException">blockId cannot be null.</exception>
+		public Block GetBlock(uint256 blockId)
+		{
+			try
+			{
+				return GetBlockAsync(blockId).Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				throw;
+			}
 		}
 
 		/// <summary>
@@ -90,6 +108,24 @@ namespace NBitcoin.RPC
 
 			var result = await SendRequestAsync("tx", _format, txId.ToString()).ConfigureAwait(false);
 			return new Transaction(result);
+		}
+		/// <summary>
+		/// Gets a transaction.
+		/// </summary>
+		/// <param name="txId">The transaction identifier.</param>
+		/// <returns>Given a transaction hash (id) returns the requested transaction object.</returns>
+		/// <exception cref="System.ArgumentNullException">txId cannot be null</exception>
+		public Transaction GetTransaction(uint256 txId)
+		{
+			try
+			{
+				return GetTransactionAsync(txId).Result;
+			}
+			catch(AggregateException ex)
+			{
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				throw;
+			}
 		}
 
 		/// <summary>
@@ -112,6 +148,27 @@ namespace NBitcoin.RPC
 			return Enumerable
 				.Range(0, result.Length / hexSize)
 				.Select(i => new BlockHeader(result.SafeSubarray(i * hexSize, hexSize)));
+		}
+
+		/// <summary>
+		/// Gets blocks headers.
+		/// </summary>
+		/// <param name="blockId">The initial block identifier.</param>
+		/// <param name="count">how many headers to get.</param>
+		/// <returns>Given a block hash (blockId) returns as much block headers as specified.</returns>
+		/// <exception cref="System.ArgumentNullException">blockId cannot be null</exception>
+		/// <exception cref="System.ArgumentOutOfRangeException">count must be greater or equal to one.</exception>
+		public IEnumerable<BlockHeader> GetBlockHeaders(uint256 blockId, int count)
+		{
+			try
+			{
+				return GetBlockHeadersAsync(blockId, count).Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				throw;
+			}
 		}
 
 		/// <summary>

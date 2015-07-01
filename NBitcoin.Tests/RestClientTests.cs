@@ -79,17 +79,17 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public async void ThrowsRestApiClientException()
+		public void ThrowsRestApiClientException()
 		{
 			var client = CreateRestClient();
 
 			var unexistingBlockId = uint256.Parse("100000006c02c8ea6e4ff69651f7fcde348fb9d557a06e6957b65552002a7820");
-			Assert.Throws<RestApiException>(async () => await client.GetBlockAsync(unexistingBlockId));
+			Assert.Throws<RestApiException>(() => client.GetBlockAsync(unexistingBlockId));
 
 			var txId = uint256.Parse("7669ce92f93f9afd51ffae243e04076be4e5088cf69501aab6de9ede5c331402");
-			Assert.Throws<RestApiException>(async () => await client.GetTransactionAsync(txId));
+			Assert.Throws<RestApiException>(() => client.GetTransaction(txId));
 
-			var result = await client.GetBlockHeadersAsync(unexistingBlockId, 3);
+			var result = client.GetBlockHeaders(unexistingBlockId, 3);
 			var headers = result.ToArray();
 			Assert.Empty(headers);
 		}
