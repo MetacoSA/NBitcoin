@@ -38,6 +38,7 @@ namespace NBitcoin.Tests
 					_Server2.AllowLocalPeers = true;
 					_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), b);
 					_Server2.Listen();
+					break;
 				}
 				catch(Exception)
 				{
