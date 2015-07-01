@@ -60,7 +60,7 @@ namespace NBitcoin.Tests
 			var client = CreateRestClient();
 			var txId = uint256.Parse("3a3422dfd155f1d2ffc3e46cf978a9c5698c17c187f04cfa1b93358699c4ed3f");
 			var outPoint = new OutPoint(txId, 0);
-			var utxos = client.GetUnspectOutputsAsync(new []{ outPoint }, true).Result;
+			var utxos = client.GetUnspentOutputsAsync(new []{ outPoint }, true).Result;
 			Assert.Equal(1, utxos.Outputs.Length);
 			Assert.Equal(1, (int)utxos.Outputs[0].Version);
 			Assert.Equal(Money.Parse("0.1"), (int)utxos.Outputs[0].Output.Value);
@@ -72,7 +72,7 @@ namespace NBitcoin.Tests
 			var client = CreateRestClient();
 			var txId = uint256.Parse("3a3422dfd155f1d2ffc3e46cf978a9c5698c17c187f04cfa1b93358699c4ed3f");
 			var outPoint = new OutPoint(txId, 0);
-			var utxos = client.GetUnspectOutputsAsync(new[] { outPoint }, false).Result;
+			var utxos = client.GetUnspentOutputsAsync(new[] { outPoint }, false).Result;
 			Assert.Equal(true, utxos.Bitmap[0]);
 			Assert.Equal(false, utxos.Bitmap[1]);
 			Assert.Equal(0, utxos.Outputs.Length);
@@ -102,9 +102,9 @@ namespace NBitcoin.Tests
 		{
 #if !NOSOCKET
 			var process = Watcher.BitcoinQProcess.List()
-				.FirstOrDefault(p => p.Testnet && p.Rest && p.Server);
+				.FirstOrDefault(p => p.Testnet && p.Rest && p.Server && p.TxIndex);
 			if (process == null)
-				throw new InvalidOperationException("No bitcoin-qt or bitcoinq process running with rpc server on test net (\"bitcoin-qt.exe\" -testnet -server -rest)");
+				throw new InvalidOperationException("No bitcoin-qt or bitcoinq process running with rpc server on test net (\"bitcoin-qt.exe\" -testnet -server -rest -txindex)");
 			return process.CreateRestClient();
 #else
 			return new RestClient(new Uri("http://127.0.0.1:18332"));

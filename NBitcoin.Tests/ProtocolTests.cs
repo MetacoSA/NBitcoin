@@ -22,17 +22,34 @@ namespace NBitcoin.Tests
 		static Random _Rand = new Random();
 		public NodeServerTester(Network network = null)
 		{
+			int retry = 0;
 			network = network ?? Network.TestNet;
-			var a = _Rand.Next(4000, 60000);
-			var b = _Rand.Next(4000, 60000);
-			_Server1 = new NodeServer(network, internalPort: a);
-			_Server1.AllowLocalPeers = true;
-			_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), a);
-			_Server1.Listen();
-			_Server2 = new NodeServer(network, internalPort: b);
-			_Server2.AllowLocalPeers = true;
-			_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), b);
-			_Server2.Listen();
+			while(true)
+			{
+				try
+				{
+					var a = _Rand.Next(4000, 60000);
+					var b = _Rand.Next(4000, 60000);
+					_Server1 = new NodeServer(network, internalPort: a);
+					_Server1.AllowLocalPeers = true;
+					_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), a);
+					_Server1.Listen();
+					_Server2 = new NodeServer(network, internalPort: b);
+					_Server2.AllowLocalPeers = true;
+					_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), b);
+					_Server2.Listen();
+				}
+				catch(Exception)
+				{
+					if(_Server1 != null)
+						_Server1.Dispose();
+					if(_Server2 != null)
+						_Server2.Dispose();
+					retry++;
+					if(retry == 5)
+						throw;
+				}
+			}
 		}
 
 		private readonly NodeServer _Server1;

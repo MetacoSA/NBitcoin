@@ -142,7 +142,7 @@ namespace NBitcoin.RPC
 		/// <param name="checkMempool">if set to <c>true</c> [check mempool].</param>
 		/// <returns>The unspent transaction outputs (UTXO) for the given outPoints.</returns>
 		/// <exception cref="System.ArgumentNullException">outPoints cannot be null.</exception>
-		public async Task<UTxOutputs> GetUnspectOutputsAsync(IEnumerable<OutPoint> outPoints, bool checkMempool)
+		public async Task<UTxOutputs> GetUnspentOutputsAsync(IEnumerable<OutPoint> outPoints, bool checkMempool)
 		{
 			if(outPoints == null)
 				throw new ArgumentNullException("outPoints");

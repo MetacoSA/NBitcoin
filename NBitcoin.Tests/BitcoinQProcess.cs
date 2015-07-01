@@ -92,6 +92,9 @@ namespace NBitcoin.Watcher
 			if (ContainsParameter("rest"))
 				Parameters.AddOrReplace("rest", "1");
 
+			if(ContainsParameter("txindex"))
+				Parameters.AddOrReplace("txindex", "1");
+
 			var rpcuser = GetParameter("rpcuser");
 			if(rpcuser != null)
 				Parameters.AddOrReplace("rpcuser", rpcuser);
@@ -147,6 +150,10 @@ namespace NBitcoin.Watcher
 			var rest = GetConfigField("rest");
 			if(datadir != null)
 				Parameters.Add("rest", rest);
+
+			var txindex = GetConfigField("txindex");
+			if(datadir != null)
+				Parameters.Add("txindex", txindex);
 		}
 
 		public string RPCPassword
@@ -281,6 +288,13 @@ namespace NBitcoin.Watcher
 				return Parameters["rpcuser"];
 			}
 		}
+		public bool TxIndex
+		{
+			get
+			{
+				return ParametersOrDefault("txindex", "0") == "1";
+			}
+		}
 
 		public RPCClient CreateClient()
 		{
@@ -291,10 +305,12 @@ namespace NBitcoin.Watcher
 			return client;
 		}
 
+		
+
 		public RestClient CreateRestClient()
 		{
-			if (!(Server && Rest) )
-				throw new InvalidOperationException("This BitcoinQ process is not a server or rest (-server -rest parameter)");
+			if (!(Server && Rest && TxIndex) )
+				throw new InvalidOperationException("This BitcoinQ process is not a server or rest (-server -rest -txindex parameter)");
 			return new RestClient(new Uri(RPCService, UriKind.Absolute));
 		}
 	}
