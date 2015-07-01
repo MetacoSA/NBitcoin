@@ -49,7 +49,7 @@ namespace NBitcoin.Protocol
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
 			var old = stream.MaxArraySize;
-			stream.MaxArraySize = 5000;
+			stream.MaxArraySize = 50000;
 			stream.ReadWrite(ref _Inventory);
 			stream.MaxArraySize = old;
 		}

@@ -1247,28 +1247,31 @@ namespace NBitcoin.Protocol
 			List<Transaction> result = new List<Transaction>();
 			using(var listener = CreateListener().Where(m => m.Message.Payload is TxPayload || m.Message.Payload is NotFoundPayload))
 			{
-				this.SendMessageAsync(new GetDataPayload(txIds.Select(txid => new InventoryVector()
+				foreach(var batch in txIds.Partition(500))
 				{
-					Type = InventoryType.MSG_TX,
-					Hash = txid
-				}).ToArray()));
-				try
-				{
-					while(result.Count < txIds.Length)
+					this.SendMessageAsync(new GetDataPayload(batch.Select(txid => new InventoryVector()
 					{
-						CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2.0));
-						var payload = listener.ReceivePayload<Payload>(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token).Token);
-						if(payload is NotFoundPayload)
-							result.Add(null);
-						else
-							result.Add(((TxPayload)payload).Object);
+						Type = InventoryType.MSG_TX,
+						Hash = txid
+					}).ToArray()));
+					try
+					{
+						while(result.Count < batch.Count)
+						{
+							CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10.0));
+							var payload = listener.ReceivePayload<Payload>(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token).Token);
+							if(payload is NotFoundPayload)
+								result.Add(null);
+							else
+								result.Add(((TxPayload)payload).Object);
+						}
 					}
-				}
-				catch(OperationCanceledException)
-				{
-					if(cancellationToken.IsCancellationRequested)
+					catch(OperationCanceledException)
 					{
-						throw;
+						if(cancellationToken.IsCancellationRequested)
+						{
+							throw;
+						}
 					}
 				}
 			}
