@@ -288,7 +288,7 @@ namespace NBitcoin.Tests
 		[Trait("MainNet", "MainNet")]
 		public void CanGetTransactionsFromMemPool()
 		{
-			using(var node = Node.Connect(Network.Main,"slashene.b0ne.com"))
+			using(var node = Node.ConnectToLocal(Network.Main))
 			{
 				node.VersionHandshake();
 				var transactions = node.GetMempoolTransactions();
