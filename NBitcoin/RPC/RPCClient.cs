@@ -319,10 +319,26 @@ namespace NBitcoin.RPC
 
 		#region P2P Networking
 #if !NOSOCKET
-		public IEnumerable<PeerInfo> GetPeersInfo()
+		public PeerInfo[] GetPeersInfo()
 		{
-			var resp = SendCommand("getpeerinfo");
+			PeerInfo[] peers = null;
+			try
+			{
+				peers = GetPeersInfoAsync().Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+			}
+			return peers;
+		}
+
+		public async Task<PeerInfo[]> GetPeersInfoAsync()
+		{
+			var resp = await SendCommandAsync("getpeerinfo").ConfigureAwait(false);
 			var peers = resp.Result as JArray;
+			var result = new PeerInfo[peers.Count];
+			var i = 0;
 			foreach (var peer in peers)
 			{
 				var localAddr = (string)peer["addrlocal"];
@@ -330,7 +346,7 @@ namespace NBitcoin.RPC
 
 				localAddr = string.IsNullOrEmpty(localAddr) ? "127.0.0.1:8333" : localAddr;
 
-				yield return new PeerInfo
+				result[i++] = new PeerInfo
 				{
 					Id = (int)peer["id"],
 					Address = Utils.ParseIpEndpoint((string)peer["addr"], 8333),
@@ -355,6 +371,7 @@ namespace NBitcoin.RPC
 					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
 				};
 			}
+			return result;
 		}
 
 		public void AddNode(EndPoint nodeEndPoint)
@@ -383,7 +400,7 @@ namespace NBitcoin.RPC
 
 		public async Task<AddedNodeInfo[]> GetAddedNodeInfoAsync(bool detailed)
 		{
-			var result = await SendCommandAsync("getaddednodeinfo", detailed);
+			var result = await SendCommandAsync("getaddednodeinfo", detailed).ConfigureAwait(false);
 			var obj = result.Result;
 			return obj.Select(entry => new AddedNodeInfo
 			{
@@ -397,14 +414,32 @@ namespace NBitcoin.RPC
 			}).ToArray();
 		}
 
-		public IEnumerable<AddedNodeInfo> GetAddedNodeInfo(bool detailed)
+		public AddedNodeInfo[] GetAddedNodeInfo(bool detailed)
 		{
-			return GetAddedNodeInfoAsync(detailed).Result;
+			AddedNodeInfo[] addedNodesInfo = null; 
+			try
+			{
+				addedNodesInfo = GetAddedNodeInfoAsync(detailed).Result;
+			}
+			catch (AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+			}
+			return addedNodesInfo;
 		}
 
 		public AddedNodeInfo GetAddedNodeInfo(bool detailed, EndPoint nodeEndPoint)
 		{
-			return GetAddedNodeInfoAync(detailed, nodeEndPoint).Result;
+			AddedNodeInfo addedNodeInfo = null;
+			try
+			{
+				addedNodeInfo = GetAddedNodeInfoAync(detailed, nodeEndPoint).Result;
+			}
+			catch (AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+			}
+			return addedNodeInfo;
 		}
 
 		public async Task<AddedNodeInfo> GetAddedNodeInfoAync(bool detailed, EndPoint nodeEndPoint)
