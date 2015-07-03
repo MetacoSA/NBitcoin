@@ -178,7 +178,8 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanBackupWallet()
 		{
-			var filePath = Environment.ExpandEnvironmentVariables(".\\wallet_backup.dat");
+			var buildOutputDir = Path.GetDirectoryName(GetType().Assembly.Location);
+			var filePath = Path.Combine(buildOutputDir, "wallet_backup.dat");
 			try
 			{
 				var rpc = CreateRPCClient();
