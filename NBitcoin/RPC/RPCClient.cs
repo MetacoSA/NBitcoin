@@ -885,7 +885,16 @@ namespace NBitcoin.RPC
 
 		public decimal EstimatePriority(int nblock)
 		{
-			return EstimatePriorityAsync(nblock).Result;
+			decimal priority = 0;
+			try
+			{
+				priority = EstimatePriorityAsync(nblock).Result;
+			}
+			catch (AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+			}
+			return priority;
 		}
 
 		public async Task<decimal> EstimatePriorityAsync(int nblock)

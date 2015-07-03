@@ -8,7 +8,7 @@ namespace NBitcoin.Tests
 	//Require a rpc server on test network running on default port with -rest -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword
 	//For me : 
 	//"bitcoin-qt.exe" -testnet -server -rest 
-	[Trait("Client", "REST")]
+	[Trait("RestClient", "RestClient")]
 	public class RestClientTests
 	{
 		private static readonly Block TestNetGenesisBlock = Network.TestNet.GetGenesis();

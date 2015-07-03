@@ -16,7 +16,7 @@ namespace NBitcoin.Tests
 	//Require a rpc server on test network running on default port with -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword
 	//For me : 
 	//"bitcoin-qt.exe" -testnet -server -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword 
-	[Trait("Client", "RPC")]
+	[Trait("RPCClient", "RPCClient")]
 	public class RPCClientTests
 	{
 		const string TestAccount = "NBitcoin.RPCClientTests";
