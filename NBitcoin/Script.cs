@@ -1,4 +1,5 @@
-﻿using NBitcoin.Crypto;
+﻿using System.Runtime.InteropServices;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
@@ -764,7 +765,8 @@ namespace NBitcoin
 
 		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
 		{
-			ScriptEvaluationContext eval = new ScriptEvaluationContext
+#if NOCONSENSUSLIB
+			var eval = new ScriptEvaluationContext
 			{
 				SigHash = sigHash,
 				ScriptVerify = scriptVerify
@@ -772,8 +774,39 @@ namespace NBitcoin
 			var result = eval.VerifyScript(scriptSig, scriptPubKey, tx, i);
 			error = eval.Error;
 			return result;
+#else
+			var valid = VerifyScript(scriptPubKey, tx, (uint)i, scriptVerify);
+			error = valid ? ScriptError.OK : ScriptError.UnknownError;
+			return valid;
+#endif
 		}
 
+#if !NOCONSENSUSLIB
+		public enum BitcoinConsensusError
+		{
+			ERR_OK = 0,
+			ERR_TX_INDEX,
+			ERR_TX_SIZE_MISMATCH,
+			ERR_TX_DESERIALIZE,
+		}
+
+		/// Returns 1 if the input nIn of the serialized transaction pointed to by
+		/// txTo correctly spends the scriptPubKey pointed to by scriptPubKey under
+		/// the additional constraints specified by flags.
+		/// If not NULL, err will contain an error/success code for the operation
+		[DllImport("libbitcoinconsensus-0.dll", EntryPoint = "bitcoinconsensus_verify_script")]
+		public static extern int VerifyScript(byte[] scriptPubKey, uint scriptPubKeyLen, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
+
+		public static bool VerifyScript(Script scriptPubKey, Transaction txTo, uint nIn, ScriptVerify flags)
+		{
+			var scriptPubKeyBytes = scriptPubKey.ToBytes();
+			var txToBytes = txTo.ToBytes();
+
+			var err = BitcoinConsensusError.ERR_OK;
+			var valid = VerifyScript(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, txToBytes, (uint)txToBytes.Length, nIn, flags, ref err);
+			return valid == 1;
+		}
+#endif
 		public bool IsUnspendable
 		{
 			get
