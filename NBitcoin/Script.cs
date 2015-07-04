@@ -749,21 +749,35 @@ namespace NBitcoin
 
 		public byte[] ToCompressedBytes()
 		{
-			ScriptCompressor compressor = new ScriptCompressor(this);
+			var compressor = new ScriptCompressor(this);
 			return compressor.ToBytes();
 		}
 
-		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
+		[Obsolete("Use VerifyScript methods that do not require scriptSig parameter.")]
+		public static bool VerifyScript(/*unused*/ Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
 		{
 			ScriptError unused;
-			return VerifyScript(scriptSig, scriptPubKey, tx, i, scriptVerify, sigHash, out unused);
-		}
-		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, out ScriptError error)
-		{
-			return VerifyScript(scriptSig, scriptPubKey, tx, i, ScriptVerify.Standard, SigHash.Undefined, out error);
+			return VerifyScript(scriptPubKey, tx, i, scriptVerify, sigHash, out unused);
 		}
 
-		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
+		[Obsolete("Use VerifyScript methods that do not require scriptSig parameter.")]
+		public static bool VerifyScript(/*unused*/ Script scriptSig, Script scriptPubKey, Transaction tx, int i, out ScriptError error)
+		{
+			return VerifyScript(scriptPubKey, tx, i, ScriptVerify.Standard, SigHash.Undefined, out error);
+		}
+
+		public static bool VerifyScript(Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
+		{
+			ScriptError unused;
+			return VerifyScript(scriptPubKey, tx, i, scriptVerify, sigHash, out unused);
+		}
+
+		public static bool VerifyScript(Script scriptPubKey, Transaction tx, int i, out ScriptError error)
+		{
+			return VerifyScript(scriptPubKey, tx, i, ScriptVerify.Standard, SigHash.Undefined, out error);
+		}
+
+		public static bool VerifyScript(Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
 		{
 #if NOCONSENSUSLIB
 			var eval = new ScriptEvaluationContext
@@ -771,6 +785,7 @@ namespace NBitcoin
 				SigHash = sigHash,
 				ScriptVerify = scriptVerify
 			};
+			var scriptSig = tx.Inputs[i].ScriptSig;
 			var result = eval.VerifyScript(scriptSig, scriptPubKey, tx, i);
 			error = eval.Error;
 			return result;
@@ -807,6 +822,7 @@ namespace NBitcoin
 			return valid == 1;
 		}
 #endif
+
 		public bool IsUnspendable
 		{
 			get

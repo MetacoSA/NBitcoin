@@ -263,7 +263,7 @@ namespace NBitcoin.Tests
 			var creditingTransaction = CreateCreditingTransaction(scriptPubKey);
 			var spendingTransaction = CreateSpendingTransaction(scriptSig, creditingTransaction);
 
-			var actual = Script.VerifyScript(scriptSig, scriptPubKey, spendingTransaction, 0, flags, SigHash.Undefined);
+			var actual = Script.VerifyScript(scriptPubKey, spendingTransaction, 0, flags, SigHash.Undefined);
 			Assert.True(expected == actual, "Test : " + testIndex + " " + comment);
 		}
 
@@ -416,20 +416,17 @@ namespace NBitcoin.Tests
 			txTo12.Inputs[0].PrevOut.N = 0;
 			txTo12.Inputs[0].PrevOut.Hash = txFrom12.GetHash();
 			txTo12.Outputs[0].Value = 1;
-			Script goodsig1 = sign_multisig(scriptPubKey12, key1, txTo12);
-			txTo12.Inputs[0].ScriptSig = goodsig1;
+			txTo12.Inputs[0].ScriptSig = sign_multisig(scriptPubKey12, key1, txTo12);
 
-			Assert.True(Script.VerifyScript(goodsig1, scriptPubKey12, txTo12, 0, flags, 0));
+			Assert.True(Script.VerifyScript(scriptPubKey12, txTo12, 0, flags, 0));
 			txTo12.Outputs[0].Value = 2;
-			Assert.True(!Script.VerifyScript(goodsig1, scriptPubKey12, txTo12, 0, flags, 0));
+			Assert.True(!Script.VerifyScript(scriptPubKey12, txTo12, 0, flags, 0));
 
-			Script goodsig2 = sign_multisig(scriptPubKey12, key2, txTo12);
-			txTo12.Inputs[0].ScriptSig = goodsig2;
-			Assert.True(Script.VerifyScript(goodsig2, scriptPubKey12, txTo12, 0, flags, 0));
+			txTo12.Inputs[0].ScriptSig = sign_multisig(scriptPubKey12, key2, txTo12);
+			Assert.True(Script.VerifyScript(scriptPubKey12, txTo12, 0, flags, 0));
 
-			Script badsig1 = sign_multisig(scriptPubKey12, key3, txTo12);
-			txTo12.Inputs[0].ScriptSig = badsig1;
-			Assert.True(!Script.VerifyScript(badsig1, scriptPubKey12, txTo12, 0, flags, 0));
+			txTo12.Inputs[0].ScriptSig = sign_multisig(scriptPubKey12, key3, txTo12);
+			Assert.True(!Script.VerifyScript(scriptPubKey12, txTo12, 0, flags, 0));
 		}
 
 		[Fact]
@@ -451,61 +448,52 @@ namespace NBitcoin.Tests
 				);
 
 
-			Transaction txFrom23 = new Transaction();
+			var txFrom23 = new Transaction();
 			txFrom23.Outputs.Add(new TxOut());
 			txFrom23.Outputs[0].ScriptPubKey = scriptPubKey23;
 
-			Transaction txTo23 = new Transaction();
+			var txTo23 = new Transaction();
 			txTo23.Inputs.Add(new TxIn());
 			txTo23.Outputs.Add(new TxOut());
 			txTo23.Inputs[0].PrevOut.N = 0;
 			txTo23.Inputs[0].PrevOut.Hash = txFrom23.GetHash();
 			txTo23.Outputs[0].Value = 1;
 
-			Key[] keys = new Key[] { key1, key2 };
-			Script goodsig1 = sign_multisig(scriptPubKey23, keys, txTo23);
-			txTo23.Inputs[0].ScriptSig = goodsig1;
-			Assert.True(Script.VerifyScript(goodsig1, scriptPubKey23, txTo23, 0, flags, 0));
+			var keys = new Key[] { key1, key2 };
+			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
 
 			keys = new Key[] { key1, key3 };
-			Script goodsig2 = sign_multisig(scriptPubKey23, keys, txTo23);
-			txTo23.Inputs[0].ScriptSig = goodsig2;
-			Assert.True(Script.VerifyScript(goodsig2, scriptPubKey23, txTo23, 0, flags, 0));
+			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
 
 			keys = new Key[] { key2, key3 };
-			Script goodsig3 = sign_multisig(scriptPubKey23, keys, txTo23);
-			txTo23.Inputs[0].ScriptSig = goodsig3;
-			Assert.True(Script.VerifyScript(goodsig3, scriptPubKey23, txTo23, 0, flags, 0));
+			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
 
 			keys = new Key[] { key2, key2 }; // Can't re-use sig
-			Script badsig1 = sign_multisig(scriptPubKey23, keys, txTo23);
-			txTo23.Inputs[0].ScriptSig = badsig1;
-			Assert.True(!Script.VerifyScript(badsig1, scriptPubKey23, txTo23, 0, flags, 0));
+			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
 
 			keys = new Key[] { key2, key1 }; // sigs must be in correct order
-			Script badsig2 = sign_multisig(scriptPubKey23, keys, txTo23);
-			txTo23.Inputs[0].ScriptSig = badsig2;
-			Assert.True(!Script.VerifyScript(badsig2, scriptPubKey23, txTo23, 0, flags, 0));
+			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
 
 			keys = new Key[] { key3, key2 }; // sigs must be in correct order
-			Script badsig3 = sign_multisig(scriptPubKey23, keys, txTo23);
-			txTo23.Inputs[0].ScriptSig = badsig3;
-			Assert.True(!Script.VerifyScript(badsig3, scriptPubKey23, txTo23, 0, flags, 0));
+			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
 
 			keys = new Key[] { key4, key2 };// sigs must match pubkeys
-			Script badsig4 = sign_multisig(scriptPubKey23, keys, txTo23);
-			txTo23.Inputs[0].ScriptSig = badsig4;
-			Assert.True(!Script.VerifyScript(badsig4, scriptPubKey23, txTo23, 0, flags, 0));
+			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
 
 			keys = new Key[] { key1, key4 };// sigs must match pubkeys
-			Script badsig5 = sign_multisig(scriptPubKey23, keys, txTo23);
-			txTo23.Inputs[0].ScriptSig = badsig5;
-			Assert.True(!Script.VerifyScript(badsig5, scriptPubKey23, txTo23, 0, flags, 0));
+			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
 
 			keys = new Key[0]; // Must have signatures
-			Script badsig6 = sign_multisig(scriptPubKey23, keys, txTo23);
-			txTo23.Inputs[0].ScriptSig = badsig6;
-			Assert.True(!Script.VerifyScript(badsig6, scriptPubKey23, txTo23, 0, flags, 0));
+			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
+			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
 		}
 
 

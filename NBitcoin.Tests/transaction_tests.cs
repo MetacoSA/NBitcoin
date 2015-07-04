@@ -1060,7 +1060,7 @@ namespace NBitcoin.Tests
 		{
 			for(int i = 0 ; i < tx.Inputs.Count ; i++)
 			{
-				Assert.True(Script.VerifyScript(tx.Inputs[i].ScriptSig, scriptPubKey, tx, i));
+				Assert.True(Script.VerifyScript(scriptPubKey, tx, i));
 			}
 		}
 
@@ -1171,7 +1171,6 @@ namespace NBitcoin.Tests
 					}
 
 					var valid = Script.VerifyScript(
-						tx.Inputs[i].ScriptSig,
 						mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
 						tx,
 						i,
@@ -1180,8 +1179,6 @@ namespace NBitcoin.Tests
 					Assert.True(valid, strTest + " failed");
 				}
 			}
-
-
 		}
 
 		ScriptVerify ParseFlags(string strFlags)
@@ -1254,7 +1251,6 @@ namespace NBitcoin.Tests
 					}
 
 					fValid = Script.VerifyScript(
-					   tx.Inputs[i].ScriptSig,
 					   mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
 					   tx,
 					   i,
