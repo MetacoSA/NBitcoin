@@ -71,30 +71,142 @@ namespace NBitcoin.RPC
 		}
 	}
 
+/*
+    Category            Name                        Implemented 
+    ------------------ --------------------------- -----------------------
+    ------------------ Overall control/query calls 
+    control            getinfo
+    control            help
+    control            stop
+
+    ------------------ P2P networking
+    network            getnetworkinfo
+    network            addnode                      Yes
+    network            disconnectnode
+    network            getaddednodeinfo             Yes
+    network            getconnectioncount
+    network            getnettotals
+    network            getpeerinfo                  Yes
+    network            ping
+    network            setban
+    network            listbanned
+    network            clearbanned
+
+    ------------------ Block chain and UTXO
+    blockchain         getblockchaininfo
+    blockchain         getbestblockhash             Yes
+    blockchain         getblockcount                Yes
+    blockchain         getblock                     Yes
+    blockchain         getblockhash                 Yes
+    blockchain         getchaintips
+    blockchain         getdifficulty
+    blockchain         getmempoolinfo
+    blockchain         getrawmempool                Yes
+    blockchain         gettxout
+    blockchain         gettxoutproof
+    blockchain         verifytxoutproof
+    blockchain         gettxoutsetinfo
+    blockchain         verifychain
+
+    ------------------ Mining
+    mining             getblocktemplate
+    mining             getmininginfo
+    mining             getnetworkhashps
+    mining             prioritisetransaction
+    mining             submitblock
+
+    ------------------ Coin generation
+    generating         getgenerate
+    generating         setgenerate
+    generating         generate
+
+    ------------------ Raw transactions
+    rawtransactions    createrawtransaction
+    rawtransactions    decoderawtransaction
+    rawtransactions    decodescript
+    rawtransactions    getrawtransaction
+    rawtransactions    sendrawtransaction
+    rawtransactions    signrawtransaction
+    rawtransactions    fundrawtransaction
+
+    ------------------ Utility functions
+    util               createmultisig
+    util               validateaddress
+    util               verifymessage
+    util               estimatefee                  Yes
+    util               estimatepriority             Yes
+
+    ------------------ Not shown in help
+    hidden             invalidateblock
+    hidden             reconsiderblock
+    hidden             setmocktime
+    hidden             resendwallettransactions
+
+    ------------------ Wallet
+    wallet             addmultisigaddress
+    wallet             backupwallet                 Yes
+    wallet             dumpprivkey                  Yes
+    wallet             dumpwallet
+    wallet             encryptwallet
+    wallet             getaccountaddress
+    wallet             getaccount                   Yes
+    wallet             getaddressesbyaccount
+    wallet             getbalance
+    wallet             getnewaddress
+    wallet             getrawchangeaddress
+    wallet             getreceivedbyaccount
+    wallet             getreceivedbyaddress
+    wallet             gettransaction               Yes
+    wallet             getunconfirmedbalance
+    wallet             getwalletinfo
+    wallet             importprivkey
+    wallet             importwallet
+    wallet             importaddress
+    wallet             keypoolrefill
+    wallet             listaccounts                 Yes
+    wallet             listaddressgroupings         Yes
+    wallet             listlockunspent
+    wallet             listreceivedbyaccount
+    wallet             listreceivedbyaddress
+    wallet             listsinceblock
+    wallet             listtransactions
+    wallet             listunspent                  Yes
+    wallet             lockunspent                  Yes
+    wallet             move
+    wallet             sendfrom
+    wallet             sendmany
+    wallet             sendtoaddress
+    wallet             setaccount
+    wallet             settxfee
+    wallet             signmessage
+    wallet             walletlock
+    wallet             walletpassphrasechange
+    wallet             walletpassphrase
+*/
 	public class RPCClient : IBlockRepository
 	{
-		private readonly NetworkCredential _Credentials;
+		private readonly NetworkCredential _credentials;
 		public NetworkCredential Credentials
 		{
 			get
 			{
-				return _Credentials;
+				return _credentials;
 			}
 		}
-		private readonly Uri _Address;
+		private readonly Uri _address;
 		public Uri Address
 		{
 			get
 			{
-				return _Address;
+				return _address;
 			}
 		}
-		private readonly Network _Network;
+		private readonly Network _network;
 		public Network Network
 		{
 			get
 			{
-				return _Network;
+				return _network;
 			}
 		}
 		public RPCClient(NetworkCredential credentials, string host, Network network)
@@ -123,15 +235,16 @@ namespace NBitcoin.RPC
 				if(network == null)
 					throw new ArgumentNullException("network");
 			}
-			_Credentials = credentials;
-			_Address = address;
-			_Network = network;
+			_credentials = credentials;
+			_address = address;
+			_network = network;
 		}
 
 		public RPCResponse SendCommand(RPCOperations commandName, params object[] parameters)
 		{
 			return SendCommand(commandName.ToString(), parameters);
 		}
+
 		public Task<RPCResponse> SendCommandAsync(RPCOperations commandName, params object[] parameters)
 		{
 			return SendCommandAsync(commandName.ToString(), parameters);
@@ -167,7 +280,7 @@ namespace NBitcoin.RPC
 
 		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
 		{
-			HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(Address);
+			var webRequest = (HttpWebRequest)WebRequest.Create(Address);
 			webRequest.Credentials = Credentials;
 			webRequest.ContentType = "application/json-rpc";
 			webRequest.Method = "POST";
@@ -180,13 +293,13 @@ namespace NBitcoin.RPC
 #if !PORTABLE
 			webRequest.ContentLength = bytes.Length;
 #endif
-			Stream dataStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false);
+			var dataStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false);
 			await dataStream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
 			dataStream.Dispose();
-			RPCResponse response = null;
+			RPCResponse response;
 			try
 			{
-				using(WebResponse webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false))
+				using(var webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false))
 				{
 					response = RPCResponse.Load(webResponse.GetResponseStream());
 				}
@@ -204,197 +317,162 @@ namespace NBitcoin.RPC
 			return response;
 		}
 
-		public UnspentCoin[] ListUnspent()
+		#region P2P Networking
+#if !NOSOCKET
+		public PeerInfo[] GetPeersInfo()
 		{
-			var response = SendCommand("listunspent");
-			return ((JArray)response.Result).Select(i => new UnspentCoin((JObject)i)).ToArray();
-		}
-		public async Task<UnspentCoin[]> ListUnspentAsync()
-		{
-			var response = await SendCommandAsync("listunspent").ConfigureAwait(false);
-			return ((JArray)response.Result).Select(i => new UnspentCoin((JObject)i)).ToArray();
-		}
-
-		/// <summary>
-		/// Get the estimated fee per kb for being confirmed in nblock
-		/// </summary>
-		/// <param name="nblock"></param>
-		/// <returns></returns>
-		public Money EstimateFee(int nblock)
-		{
-			var response = SendCommand(RPCOperations.estimatefee, nblock);
-			decimal result = response.Result.Value<decimal>();
-			return Money.Coins(result);
+			PeerInfo[] peers = null;
+			try
+			{
+				peers = GetPeersInfoAsync().Result;
+			}
+			catch(AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+			}
+			return peers;
 		}
 
-		/// <summary>
-		/// Get the estimated fee per kb for being confirmed in nblock
-		/// </summary>
-		/// <param name="nblock"></param>
-		/// <returns></returns>
-		public async Task<Money> EstimateFeeAsync(int nblock)
+		public async Task<PeerInfo[]> GetPeersInfoAsync()
 		{
-			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
-			return Money.Parse(response.Result.ToString());
+			var resp = await SendCommandAsync("getpeerinfo").ConfigureAwait(false);
+			var peers = resp.Result as JArray;
+			var result = new PeerInfo[peers.Count];
+			var i = 0;
+			foreach (var peer in peers)
+			{
+				var localAddr = (string)peer["addrlocal"];
+				var pingWait = peer["pingwait"] != null ? (double)peer["pingwait"] : 0;
+
+				localAddr = string.IsNullOrEmpty(localAddr) ? "127.0.0.1:8333" : localAddr;
+
+				result[i++] = new PeerInfo
+				{
+					Id = (int)peer["id"],
+					Address = Utils.ParseIpEndpoint((string)peer["addr"], 8333),
+					LocalAddress = Utils.ParseIpEndpoint(localAddr, 8333),
+					Services = ulong.Parse((string)peer["services"]),
+					LastSend = Utils.UnixTimeToDateTime((uint)peer["lastsend"]),
+					LastReceive = Utils.UnixTimeToDateTime((uint)peer["lastrecv"]),
+					BytesSent = (int)peer["bytessent"],
+					BytesReceived = (int)peer["bytesrecv"],
+					ConnectionTime = Utils.UnixTimeToDateTime((uint)peer["conntime"]),
+					TimeOffset = TimeSpan.FromSeconds((int)peer["timeoffset"]),
+					PingTime = TimeSpan.FromSeconds((double)peer["pingtime"]),
+					PingWait = TimeSpan.FromSeconds(pingWait),
+					Blocks = peer["blocks"] != null ? (int)peer["blocks"] : -1,
+					Version = (int)peer["version"],
+					SubVersion = (string)peer["subver"],
+					Inbound = (bool)peer["inbound"],
+					StartingHeight = (int)peer["startingheight"],
+					SynchronizedBlocks = (int)peer["synced_blocks"],
+					SynchronizedHeaders = (int)peer["synced_headers"],
+					IsWhiteListed = (bool)peer["whitelisted"],
+					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
+				};
+			}
+			return result;
 		}
 
-		public BitcoinAddress GetAccountAddress(string account)
+		public void AddNode(EndPoint nodeEndPoint)
 		{
-			var response = SendCommand("getaccountaddress", account);
-			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
-		}
-		public async Task<BitcoinAddress> GetAccountAddressAsync(string account)
-		{
-			var response = await SendCommandAsync("getaccountaddress", account).ConfigureAwait(false);
-			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
+			if (nodeEndPoint == null) throw new ArgumentNullException("nodeEndPoint");
+			SendCommand("addnode", nodeEndPoint.ToString(), "add");
 		}
 
-		public BitcoinSecret DumpPrivKey(BitcoinAddress address)
+		public async Task AddNodeAsync(EndPoint nodeEndPoint)
 		{
-			var response = SendCommand("dumpprivkey", address.ToString());
-			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
+			if (nodeEndPoint == null) throw new ArgumentNullException("nodeEndPoint");
+			await SendCommandAsync("addnode", nodeEndPoint.ToString(), "add").ConfigureAwait(false);
 		}
-		public async Task<BitcoinSecret> DumpPrivKeyAsync(BitcoinAddress address)
+
+		public void RemoveNode(EndPoint nodeEndPoint)
 		{
-			var response = await SendCommandAsync("dumpprivkey", address.ToString()).ConfigureAwait(false);
-			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
+			if (nodeEndPoint == null) throw new ArgumentNullException("nodeEndPoint");
+			SendCommandAsync("addnode", nodeEndPoint.ToString(), "remove");
 		}
+
+		public async Task RemoveNodeAsync(EndPoint nodeEndPoint)
+		{
+			if (nodeEndPoint == null) throw new ArgumentNullException("nodeEndPoint");
+			await SendCommandAsync("addnode", nodeEndPoint.ToString(), "remove").ConfigureAwait(false);
+		}
+
+		public async Task<AddedNodeInfo[]> GetAddedNodeInfoAsync(bool detailed)
+		{
+			var result = await SendCommandAsync("getaddednodeinfo", detailed).ConfigureAwait(false);
+			var obj = result.Result;
+			return obj.Select(entry => new AddedNodeInfo
+			{
+				AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], 8333),
+				Connected = (bool)entry["connected"],
+				Addresses = entry["addresses"].Select(x => new NodeAddressInfo
+				{
+					Address = Utils.ParseIpEndpoint((string)x["address"], 8333),
+					Connected = (bool)x["connected"]
+				})
+			}).ToArray();
+		}
+
+		public AddedNodeInfo[] GetAddedNodeInfo(bool detailed)
+		{
+			AddedNodeInfo[] addedNodesInfo = null; 
+			try
+			{
+				addedNodesInfo = GetAddedNodeInfoAsync(detailed).Result;
+			}
+			catch (AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+			}
+			return addedNodesInfo;
+		}
+
+		public AddedNodeInfo GetAddedNodeInfo(bool detailed, EndPoint nodeEndPoint)
+		{
+			AddedNodeInfo addedNodeInfo = null;
+			try
+			{
+				addedNodeInfo = GetAddedNodeInfoAync(detailed, nodeEndPoint).Result;
+			}
+			catch (AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+			}
+			return addedNodeInfo;
+		}
+
+		public async Task<AddedNodeInfo> GetAddedNodeInfoAync(bool detailed, EndPoint nodeEndPoint)
+		{
+			if (nodeEndPoint == null) throw new ArgumentNullException("nodeEndPoint");
+
+			var result = await SendCommandAsync("getaddednodeinfo", nodeEndPoint.ToString(), detailed).ConfigureAwait(false);
+			var entry = result.Result;
+			return new AddedNodeInfo()
+			{
+				AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], 8333),
+				Connected = (bool)entry["connected"],
+				Addresses = entry["addresses"].Select(x => new NodeAddressInfo
+				{
+					Address = Utils.ParseIpEndpoint((string)x["address"], 8333),
+					Connected = (bool)x["connected"]
+				})
+			};
+		}
+#endif
+
+		#endregion
+
+		#region Block chain and UTXO
 
 		public uint256 GetBestBlockHash()
 		{
 			return uint256.Parse((string)SendCommand("getbestblockhash").Result);
 		}
+
 		public async Task<uint256> GetBestBlockHashAsync()
 		{
 			return uint256.Parse((string)(await SendCommandAsync("getbestblockhash").ConfigureAwait(false)).Result);
-		}
-
-		public BitcoinSecret GetAccountSecret(string account)
-		{
-			var address = GetAccountAddress(account);
-			return DumpPrivKey(address);
-		}
-		public async Task<BitcoinSecret> GetAccountSecretAsync(string account)
-		{
-			var address = await GetAccountAddressAsync(account).ConfigureAwait(false);
-			return await DumpPrivKeyAsync(address).ConfigureAwait(false);
-		}
-
-		public Transaction DecodeRawTransaction(string rawHex)
-		{
-			var response = SendCommand("decoderawtransaction", rawHex);
-			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
-		}
-		public Transaction DecodeRawTransaction(byte[] raw)
-		{
-			return DecodeRawTransaction(Encoders.Hex.EncodeData(raw));
-		}
-		public async Task<Transaction> DecodeRawTransactionAsync(string rawHex)
-		{
-			var response = await SendCommandAsync("decoderawtransaction", rawHex).ConfigureAwait(false);
-			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
-		}
-		public Task<Transaction> DecodeRawTransactionAsync(byte[] raw)
-		{
-			return DecodeRawTransactionAsync(Encoders.Hex.EncodeData(raw));
-		}
-
-		/// <summary>
-		/// getrawtransaction only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
-		/// </summary>
-		/// <param name="txid"></param>
-		/// <returns></returns>
-		public Transaction GetRawTransaction(uint256 txid, bool throwIfNotFound = true)
-		{
-			try
-			{
-				return GetRawTransactionAsync(txid, throwIfNotFound).Result;
-			}
-			catch(AggregateException aex)
-			{
-				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
-				return null; //Can't happen
-			}
-		}
-
-		public async Task<Transaction> GetRawTransactionAsync(uint256 txid, bool throwIfNotFound = true)
-		{
-			var response = await SendCommandAsync(new RPCRequest("getrawtransaction", new[] { txid.ToString() }), throwIfNotFound).ConfigureAwait(false);
-			if(throwIfNotFound)
-				response.ThrowIfError();
-			if(response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
-				return null;
-			else
-				response.ThrowIfError();
-			var tx = new Transaction();
-			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()));
-			return tx;
-		}
-
-
-		public void SendRawTransaction(byte[] bytes)
-		{
-			SendCommand("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
-		}
-		public void SendRawTransaction(Transaction tx)
-		{
-			SendRawTransaction(tx.ToBytes());
-		}
-		public Task SendRawTransactionAsync(byte[] bytes)
-		{
-			return SendCommandAsync("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
-		}
-		public Task SendRawTransactionAsync(Transaction tx)
-		{
-			return SendRawTransactionAsync(tx.ToBytes());
-		}
-
-		public void LockUnspent(params OutPoint[] outpoints)
-		{
-			LockUnspentCore(false, outpoints);
-		}
-		public void UnlockUnspent(params OutPoint[] outpoints)
-		{
-			LockUnspentCore(true, outpoints);
-		}
-
-		public Task LockUnspentAsync(params OutPoint[] outpoints)
-		{
-			return LockUnspentCoreAsync(false, outpoints);
-		}
-		public Task UnlockUnspentAsync(params OutPoint[] outpoints)
-		{
-			return LockUnspentCoreAsync(true, outpoints);
-		}
-
-		private void LockUnspentCore(bool unlock, OutPoint[] outpoints)
-		{
-			try
-			{
-				LockUnspentCoreAsync(unlock, outpoints).Wait();
-			}
-			catch(AggregateException ex)
-			{
-				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-				return;
-			}
-		}
-		private async Task LockUnspentCoreAsync(bool unlock, OutPoint[] outpoints)
-		{
-			if(outpoints == null || outpoints.Length == 0)
-				return;
-			List<object> parameters = new List<object>();
-			parameters.Add(unlock);
-			JArray array = new JArray();
-			parameters.Add(array);
-			foreach(var outp in outpoints)
-			{
-				var obj = new JObject();
-				obj["txid"] = outp.Hash.ToString();
-				obj["vout"] = outp.N;
-				array.Add(obj);
-			}
-			await SendCommandAsync("lockunspent", parameters.ToArray()).ConfigureAwait(false);
 		}
 
 		public BlockHeader GetBlockHeader(int height)
@@ -402,6 +480,7 @@ namespace NBitcoin.RPC
 			var hash = GetBlockHash(height);
 			return GetBlockHeader(hash);
 		}
+
 		public async Task<BlockHeader> GetBlockHeaderAsync(int height)
 		{
 			var hash = await GetBlockHashAsync(height).ConfigureAwait(false);
@@ -424,13 +503,13 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="blockId"></param>
 		/// <returns></returns>
-		public  Block GetBlock(uint256 blockId)
+		public Block GetBlock(uint256 blockId)
 		{
 			try
 			{
 				return GetBlockAsync(blockId).Result;
 			}
-			catch(AggregateException aex)
+			catch (AggregateException aex)
 			{
 				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
 				throw;
@@ -442,6 +521,7 @@ namespace NBitcoin.RPC
 			var resp = SendCommand("getblock", blockHash.ToString());
 			return ParseBlockHeader(resp);
 		}
+
 		public async Task<BlockHeader> GetBlockHeaderAsync(uint256 blockHash)
 		{
 			var resp = await SendCommandAsync("getblock", blockHash.ToString()).ConfigureAwait(false);
@@ -450,90 +530,23 @@ namespace NBitcoin.RPC
 
 		private static BlockHeader ParseBlockHeader(RPCResponse resp)
 		{
-			BlockHeader header = new BlockHeader();
+			var header = new BlockHeader();
 			header.Version = (int)resp.Result["version"];
 			header.Nonce = (uint)resp.Result["nonce"];
 			header.Bits = new Target(Encoders.Hex.DecodeData((string)resp.Result["bits"]));
-			if(resp.Result["previousblockhash"] != null)
+			if (resp.Result["previousblockhash"] != null)
 			{
 				header.HashPrevBlock = uint256.Parse((string)resp.Result["previousblockhash"]);
 			}
-			if(resp.Result["time"] != null)
+			if (resp.Result["time"] != null)
 			{
 				header.BlockTime = Utils.UnixTimeToDateTime((uint)resp.Result["time"]);
 			}
-			if(resp.Result["merkleroot"] != null)
+			if (resp.Result["merkleroot"] != null)
 			{
 				header.HashMerkleRoot = uint256.Parse((string)resp.Result["merkleroot"]);
 			}
 			return header;
-		}
-
-		/// <summary>
-		/// GetTransactions only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
-		/// </summary>
-		/// <param name="blockHash"></param>
-		/// <returns></returns>
-		public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
-		{
-			if(blockHash == null)
-				throw new ArgumentNullException("blockHash");
-
-			var resp = SendCommand("getblock", blockHash.ToString());
-
-			var tx = resp.Result["tx"] as JArray;
-			if(tx != null)
-			{
-				foreach(var item in tx)
-				{
-					var result = GetRawTransaction(uint256.Parse(item.ToString()), false);
-					if(result != null)
-						yield return result;
-				}
-			}
-
-		}
-#if !NOSOCKET
-		public IEnumerable<PeerInfo> GetPeersInfo()
-		{
-			var resp = SendCommand("getpeerinfo");
-			var peers = resp.Result as JArray;
-			foreach (var peer in peers)
-			{
-				var localAddr = (string)peer["addrlocal"];
-				var pingWait = peer["pingwait"] != null ? (double) peer["pingwait"] : 0;
-
-				localAddr = string.IsNullOrEmpty(localAddr) ? "127.0.0.1:8333" : localAddr;
-
-				yield return new PeerInfo{
-					Id = (int)peer["id"],
-					Address = Utils.ParseIpEndpoint((string)peer["addr"], 8333),
-					LocalAddress = Utils.ParseIpEndpoint(localAddr, 8333),
-					Services = ulong.Parse((string)peer["services"]),
-					LastSend = Utils.UnixTimeToDateTime((uint)peer["lastsend"]),
-					LastReceive = Utils.UnixTimeToDateTime((uint)peer["lastrecv"]),
-					BytesSent = (int)peer["bytessent"],
-					BytesReceived = (int)peer["bytesrecv"],
-					ConnectionTime = Utils.UnixTimeToDateTime((uint)peer["conntime"]),
-					TimeOffset = TimeSpan.FromSeconds((int)peer["timeoffset"]),
-					PingTime = TimeSpan.FromSeconds((double)peer["pingtime"]),
-					PingWait = TimeSpan.FromSeconds(pingWait),
-					Blocks = peer["blocks"] != null ?  (int)peer["blocks"]: -1,
-					Version = (int)peer["version"],
-					SubVersion = (string)peer["subver"],
-					Inbound = (bool)peer["inbound"],
-					StartingHeight = (int)peer["startingheight"],
-					SynchronizedBlocks = (int)peer["synced_blocks"],
-					SynchronizedHeaders = (int)peer["synced_headers"],
-					IsWhiteListed = (bool)peer["whitelisted"],
-					Inflight = peer["inflight"].Select(x=>uint256.Parse((string)x)).ToArray()
-				};
-			}
-		}
-#endif
-		public IEnumerable<Transaction> GetTransactions(int height)
-		{
-			return GetTransactions(GetBlockHash(height));
 		}
 
 		public uint256 GetBlockHash(int height)
@@ -552,6 +565,7 @@ namespace NBitcoin.RPC
 		{
 			return (int)SendCommand("getblockcount").Result;
 		}
+
 		public async Task<int> GetBlockCountAsync()
 		{
 			return (int)(await SendCommandAsync("getblockcount").ConfigureAwait(false)).Result;
@@ -563,6 +577,7 @@ namespace NBitcoin.RPC
 			var array = (JArray)result.Result;
 			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
 		}
+
 		public async Task<uint256[]> GetRawMempoolAsync()
 		{
 			var result = await SendCommandAsync("getrawmempool").ConfigureAwait(false);
@@ -570,12 +585,251 @@ namespace NBitcoin.RPC
 			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
 		}
 
+		#endregion
+
+		#region Coin generation
+
+		#endregion
+
+		#region Raw Transaction
+
+		public Transaction DecodeRawTransaction(string rawHex)
+		{
+			var response = SendCommand("decoderawtransaction", rawHex);
+			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
+		}
+
+		public Transaction DecodeRawTransaction(byte[] raw)
+		{
+
+			return DecodeRawTransaction(Encoders.Hex.EncodeData(raw));
+		}
+		public async Task<Transaction> DecodeRawTransactionAsync(string rawHex)
+		{
+			var response = await SendCommandAsync("decoderawtransaction", rawHex).ConfigureAwait(false);
+			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
+		}
+
+		public Task<Transaction> DecodeRawTransactionAsync(byte[] raw)
+		{
+			return DecodeRawTransactionAsync(Encoders.Hex.EncodeData(raw));
+		}
+
+		/// <summary>
+		/// getrawtransaction only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
+		/// </summary>
+		/// <param name="txid"></param>
+		/// <returns></returns>
+		public Transaction GetRawTransaction(uint256 txid, bool throwIfNotFound = true)
+		{
+			try
+			{
+				return GetRawTransactionAsync(txid, throwIfNotFound).Result;
+			}
+			catch (AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+				return null; //Can't happen
+			}
+		}
+
+		public async Task<Transaction> GetRawTransactionAsync(uint256 txid, bool throwIfNotFound = true)
+		{
+			var response = await SendCommandAsync(new RPCRequest("getrawtransaction", new[] { txid.ToString() }), throwIfNotFound).ConfigureAwait(false);
+			if (throwIfNotFound)
+				response.ThrowIfError();
+			if (response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
+				return null;
+
+			response.ThrowIfError();
+			var tx = new Transaction();
+			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()));
+			return tx;
+		}
+
+		public void SendRawTransaction(byte[] bytes)
+		{
+			SendCommand("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
+		}
+
+		public void SendRawTransaction(Transaction tx)
+		{
+			SendRawTransaction(tx.ToBytes());
+		}
+
+		public Task SendRawTransactionAsync(byte[] bytes)
+		{
+			return SendCommandAsync("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
+		}
+
+		public Task SendRawTransactionAsync(Transaction tx)
+		{
+			return SendRawTransactionAsync(tx.ToBytes());
+		}
+
+		#endregion
+
+		#region Wallet
+
+		public BitcoinSecret DumpPrivKey(BitcoinAddress address)
+		{
+			var response = SendCommand("dumpprivkey", address.ToString());
+			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
+		}
+
+		public async Task<BitcoinSecret> DumpPrivKeyAsync(BitcoinAddress address)
+		{
+			var response = await SendCommandAsync("dumpprivkey", address.ToString()).ConfigureAwait(false);
+			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
+		}
+
+		public BitcoinAddress GetAccountAddress(string account)
+		{
+			var response = SendCommand("getaccountaddress", account);
+			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
+		}
+
+		public async Task<BitcoinAddress> GetAccountAddressAsync(string account)
+		{
+			var response = await SendCommandAsync("getaccountaddress", account).ConfigureAwait(false);
+			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
+		}
+
+		public BitcoinSecret GetAccountSecret(string account)
+		{
+			var address = GetAccountAddress(account);
+			return DumpPrivKey(address);
+		}
+
+		public async Task<BitcoinSecret> GetAccountSecretAsync(string account)
+		{
+			var address = await GetAccountAddressAsync(account).ConfigureAwait(false);
+			return await DumpPrivKeyAsync(address).ConfigureAwait(false);
+		}
+
+		public UnspentCoin[] ListUnspent()
+		{
+			var response = SendCommand("listunspent");
+			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
+		}
+
+		public async Task<UnspentCoin[]> ListUnspentAsync()
+		{
+			var response = await SendCommandAsync("listunspent").ConfigureAwait(false);
+			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
+		}
+
+		public void LockUnspent(params OutPoint[] outpoints)
+		{
+			LockUnspentCore(false, outpoints);
+		}
+
+		public void UnlockUnspent(params OutPoint[] outpoints)
+		{
+			LockUnspentCore(true, outpoints);
+		}
+
+		public Task LockUnspentAsync(params OutPoint[] outpoints)
+		{
+			return LockUnspentCoreAsync(false, outpoints);
+		}
+
+		public Task UnlockUnspentAsync(params OutPoint[] outpoints)
+		{
+			return LockUnspentCoreAsync(true, outpoints);
+		}
+
+		private void LockUnspentCore(bool unlock, OutPoint[] outpoints)
+		{
+			try
+			{
+				LockUnspentCoreAsync(unlock, outpoints).Wait();
+			}
+			catch (AggregateException ex)
+			{
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+			}
+		}
+
+		private async Task LockUnspentCoreAsync(bool unlock, OutPoint[] outpoints)
+		{
+			if (outpoints == null || outpoints.Length == 0)
+				return;
+			var parameters = new List<object>();
+			parameters.Add(unlock);
+			var array = new JArray();
+			parameters.Add(array);
+			foreach (var outp in outpoints)
+			{
+				var obj = new JObject();
+				obj["txid"] = outp.Hash.ToString();
+				obj["vout"] = outp.N;
+				array.Add(obj);
+			}
+			await SendCommandAsync("lockunspent", parameters.ToArray()).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// GetTransactions only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
+		/// </summary>
+		/// <param name="blockHash"></param>
+		/// <returns></returns>
+		public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
+		{
+			if (blockHash == null)
+				throw new ArgumentNullException("blockHash");
+
+			var resp = SendCommand("getblock", blockHash.ToString());
+
+			var tx = resp.Result["tx"] as JArray;
+			if (tx != null)
+			{
+				foreach (var item in tx)
+				{
+					var result = GetRawTransaction(uint256.Parse(item.ToString()), false);
+					if (result != null)
+						yield return result;
+				}
+			}
+		}
+
+		public IEnumerable<Transaction> GetTransactions(int height)
+		{
+			return GetTransactions(GetBlockHash(height));
+		}
+
+		public IEnumerable<RPCAccount> ListAccounts()
+		{
+			var result = SendCommand(RPCOperations.listaccounts);
+			var obj = (JObject)result.Result;
+			foreach (var prop in obj.Properties())
+			{
+				yield return new RPCAccount()
+				{
+					AccountName = prop.Name,
+					Amount = Money.Coins((decimal)prop.Value)
+				};
+			}
+		}
+
+		public void BackupWallet(string path)
+		{
+			if (string.IsNullOrEmpty(path)) throw new ArgumentNullException("path");
+			SendCommand("backupwallet", path);
+		}
+
+		public async Task BackupWalletAsync(string path)
+		{
+			if (string.IsNullOrEmpty(path)) throw new ArgumentNullException("path");
+			await SendCommandAsync("backupwallet", path);
+		}
+
 		public IEnumerable<BitcoinSecret> ListSecrets()
 		{
-			foreach(var grouping in ListAddressGroupings())
+			foreach (var grouping in ListAddressGroupings())
 			{
 				yield return DumpPrivKey(grouping.PublicAddress);
-				foreach(var change in grouping.ChangeAddresses)
+				foreach (var change in grouping.ChangeAddresses)
 					yield return DumpPrivKey(change.Address);
 			}
 		}
@@ -584,14 +838,14 @@ namespace NBitcoin.RPC
 		{
 			var result = SendCommand(RPCOperations.listaddressgroupings);
 			var array = (JArray)result.Result;
-			foreach(var group in array.Children<JArray>())
+			foreach (var group in array.Children<JArray>())
 			{
 				var grouping = new AddressGrouping();
 				grouping.PublicAddress = BitcoinAddress.Create(group[0][0].ToString());
 				grouping.Amount = Money.Coins(group[0][1].Value<decimal>());
 				grouping.Account = group[0][2].ToString();
 
-				foreach(var subgroup in group.Skip(1))
+				foreach (var subgroup in group.Skip(1))
 				{
 					var change = new ChangeAddress();
 					change.Address = BitcoinAddress.Create(subgroup[0].ToString());
@@ -602,24 +856,57 @@ namespace NBitcoin.RPC
 				yield return grouping;
 			}
 		}
-		
 
-		public IEnumerable<RPCAccount> ListAccounts()
+		#endregion
+
+		#region Utility functions
+		/// <summary>
+		/// Get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="nblock"></param>
+		/// <returns></returns>
+		public Money EstimateFee(int nblock)
 		{
-			var result = SendCommand(RPCOperations.listaccounts);
-			var obj = (JObject)result.Result;
-			foreach(var prop in obj.Properties())
-			{
-				yield return new RPCAccount()
-				{
-					AccountName = prop.Name,
-					Amount = Money.Coins((decimal)prop.Value)
-				};
-			}
+			var response = SendCommand(RPCOperations.estimatefee, nblock);
+			var result = response.Result.Value<decimal>();
+			return Money.Coins(result);
 		}
 
+		/// <summary>
+		/// Get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="nblock"></param>
+		/// <returns></returns>
+		public async Task<Money> EstimateFeeAsync(int nblock)
+		{
+			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
+			return Money.Parse(response.Result.ToString());
+		}
 
+		public decimal EstimatePriority(int nblock)
+		{
+			decimal priority = 0;
+			try
+			{
+				priority = EstimatePriorityAsync(nblock).Result;
+			}
+			catch (AggregateException aex)
+			{
+				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+			}
+			return priority;
+		}
+
+		public async Task<decimal> EstimatePriorityAsync(int nblock)
+		{
+			if (nblock < 0) throw new ArgumentOutOfRangeException("nblock", "nblock must be greater or equal to zero");
+			var response = await SendCommandAsync("estimatepriority", nblock).ConfigureAwait(false);
+			return response.Result.Value<decimal>();
+		}
+
+		#endregion
 	}
+
 #if !NOSOCKET
 	public class PeerInfo
 	{
@@ -640,11 +927,24 @@ namespace NBitcoin.RPC
 		public int BanScore { get; internal set; }
 		public int SynchronizedHeaders { get; internal set; }
 		public int SynchronizedBlocks { get; internal set; }
-		public IEnumerable<object> Inflight { get; internal set; }
+		public uint[] Inflight { get; internal set; }
 		public bool IsWhiteListed { get; internal set; }
 		public TimeSpan PingWait { get; internal set; }
 		public int Blocks{ get; internal set; }
 		public TimeSpan TimeOffset{ get; internal set; }
+	}
+
+	public class AddedNodeInfo
+	{
+		public EndPoint AddedNode { get; internal set;}
+		public bool Connected { get; internal set; }
+		public IEnumerable<NodeAddressInfo> Addresses { get; internal set; }
+	}
+
+	public class NodeAddressInfo
+	{
+		public IPEndPoint Address { get; internal set; }
+		public bool Connected { get; internal set; }
 	}
 #endif
 }
