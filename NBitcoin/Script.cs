@@ -753,48 +753,48 @@ namespace NBitcoin
 			return compressor.ToBytes();
 		}
 
-		[Obsolete("Use VerifyScript methods that do not require scriptSig parameter.")]
-		public static bool VerifyScript(/*unused*/ Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
+		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
 		{
 			ScriptError unused;
-			return VerifyScript(scriptPubKey, tx, i, scriptVerify, sigHash, out unused);
+			return VerifyScript(scriptSig, scriptPubKey, tx, i, scriptVerify, sigHash, out unused);
 		}
 
-		[Obsolete("Use VerifyScript methods that do not require scriptSig parameter.")]
-		public static bool VerifyScript(/*unused*/ Script scriptSig, Script scriptPubKey, Transaction tx, int i, out ScriptError error)
+		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, out ScriptError error)
 		{
-			return VerifyScript(scriptPubKey, tx, i, ScriptVerify.Standard, SigHash.Undefined, out error);
+			return VerifyScript(scriptSig, scriptPubKey, tx, i, ScriptVerify.Standard, SigHash.Undefined, out error);
 		}
 
 		public static bool VerifyScript(Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
 		{
 			ScriptError unused;
-			return VerifyScript(scriptPubKey, tx, i, scriptVerify, sigHash, out unused);
+			var scriptSig = tx.Inputs[i].ScriptSig;
+			return VerifyScript(scriptSig, scriptPubKey, tx, i, scriptVerify, sigHash, out unused);
 		}
 
 		public static bool VerifyScript(Script scriptPubKey, Transaction tx, int i, out ScriptError error)
 		{
-			return VerifyScript(scriptPubKey, tx, i, ScriptVerify.Standard, SigHash.Undefined, out error);
+			var scriptSig = tx.Inputs[i].ScriptSig;
+			return VerifyScript(scriptSig, scriptPubKey, tx, i, ScriptVerify.Standard, SigHash.Undefined, out error);
 		}
 
 		public static bool VerifyScript(Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
 		{
-#if NOCONSENSUSLIB
+			var scriptSig = tx.Inputs[i].ScriptSig;
+			return VerifyScript(scriptSig, scriptPubKey, tx, i, scriptVerify, sigHash, out error);
+		}
+
+		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
+		{
 			var eval = new ScriptEvaluationContext
 			{
 				SigHash = sigHash,
 				ScriptVerify = scriptVerify
 			};
-			var scriptSig = tx.Inputs[i].ScriptSig;
 			var result = eval.VerifyScript(scriptSig, scriptPubKey, tx, i);
 			error = eval.Error;
 			return result;
-#else
-			var valid = VerifyScript(scriptPubKey, tx, (uint)i, scriptVerify);
-			error = valid ? ScriptError.OK : ScriptError.UnknownError;
-			return valid;
-#endif
 		}
+
 
 #if !NOCONSENSUSLIB
 		public enum BitcoinConsensusError
@@ -809,16 +809,16 @@ namespace NBitcoin
 		/// txTo correctly spends the scriptPubKey pointed to by scriptPubKey under
 		/// the additional constraints specified by flags.
 		/// If not NULL, err will contain an error/success code for the operation
-		[DllImport("libbitcoinconsensus-0.dll", EntryPoint = "bitcoinconsensus_verify_script")]
-		public static extern int VerifyScript(byte[] scriptPubKey, uint scriptPubKeyLen, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
+		[DllImport("libbitcoinconsensus-0.dll", EntryPoint = "bitcoinconsensus_verify_script", CallingConvention = CallingConvention.Cdecl)]
+		private static extern int VerifyScriptConsensus(byte[] scriptPubKey, uint scriptPubKeyLen, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
 
-		public static bool VerifyScript(Script scriptPubKey, Transaction txTo, uint nIn, ScriptVerify flags)
+		public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags)
 		{
 			var scriptPubKeyBytes = scriptPubKey.ToBytes();
-			var txToBytes = txTo.ToBytes();
+			var txToBytes = tx.ToBytes();
 
 			var err = BitcoinConsensusError.ERR_OK;
-			var valid = VerifyScript(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, txToBytes, (uint)txToBytes.Length, nIn, flags, ref err);
+			var valid = VerifyScriptConsensus(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, txToBytes, (uint)txToBytes.Length, nIn, flags, ref err);
 			return valid == 1;
 		}
 #endif

@@ -253,7 +253,6 @@ namespace NBitcoin.Tests
 				Assert.Equal(scriptSig.ToString(), new Script(scriptSig.ToString()).ToString());
 				Assert.Equal(scriptPubKey.ToString(), new Script(scriptPubKey.ToString()).ToString());
 
-
 				AssertVerifyScript(scriptSig, scriptPubKey, flag, test.Index, comment, false);
 			}
 		}
@@ -263,8 +262,13 @@ namespace NBitcoin.Tests
 			var creditingTransaction = CreateCreditingTransaction(scriptPubKey);
 			var spendingTransaction = CreateSpendingTransaction(scriptSig, creditingTransaction);
 
-			var actual = Script.VerifyScript(scriptPubKey, spendingTransaction, 0, flags, SigHash.Undefined);
+			var actual = Script.VerifyScript(scriptSig, scriptPubKey, spendingTransaction, 0, flags, SigHash.Undefined);
 			Assert.True(expected == actual, "Test : " + testIndex + " " + comment);
+
+#if !NOCONSENSUSLIB
+			actual = Script.VerifyScriptConsensus(scriptPubKey, spendingTransaction, 0, flags);
+			Assert.True(expected == actual, "[ConsensusLib] Test : " + testIndex + " " + comment);
+#endif
 		}
 
 		private static Transaction CreateSpendingTransaction(Script scriptSig, Transaction creditingTransaction)
@@ -418,15 +422,15 @@ namespace NBitcoin.Tests
 			txTo12.Outputs[0].Value = 1;
 			txTo12.Inputs[0].ScriptSig = sign_multisig(scriptPubKey12, key1, txTo12);
 
-			Assert.True(Script.VerifyScript(scriptPubKey12, txTo12, 0, flags, 0));
+			AssertValidScript(scriptPubKey12, txTo12, 0, flags);
 			txTo12.Outputs[0].Value = 2;
-			Assert.True(!Script.VerifyScript(scriptPubKey12, txTo12, 0, flags, 0));
+			AssertInvalidScript(scriptPubKey12, txTo12, 0, flags);
 
 			txTo12.Inputs[0].ScriptSig = sign_multisig(scriptPubKey12, key2, txTo12);
-			Assert.True(Script.VerifyScript(scriptPubKey12, txTo12, 0, flags, 0));
+			AssertValidScript(scriptPubKey12, txTo12, 0, flags);
 
 			txTo12.Inputs[0].ScriptSig = sign_multisig(scriptPubKey12, key3, txTo12);
-			Assert.True(!Script.VerifyScript(scriptPubKey12, txTo12, 0, flags, 0));
+			AssertInvalidScript(scriptPubKey12, txTo12, 0, flags);
 		}
 
 		[Fact]
@@ -461,41 +465,56 @@ namespace NBitcoin.Tests
 
 			var keys = new Key[] { key1, key2 };
 			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
-			Assert.True(Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
+			AssertValidScript(scriptPubKey23, txTo23, 0, flags);
 
 			keys = new Key[] { key1, key3 };
 			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
-			Assert.True(Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
+			AssertValidScript(scriptPubKey23, txTo23, 0, flags);
 
 			keys = new Key[] { key2, key3 };
 			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
-			Assert.True(Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
+			AssertValidScript(scriptPubKey23, txTo23, 0, flags);
 
 			keys = new Key[] { key2, key2 }; // Can't re-use sig
 			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
-			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
+			AssertInvalidScript(scriptPubKey23, txTo23, 0, flags);
 
 			keys = new Key[] { key2, key1 }; // sigs must be in correct order
 			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
-			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
+			AssertInvalidScript(scriptPubKey23, txTo23, 0, flags);
 
 			keys = new Key[] { key3, key2 }; // sigs must be in correct order
 			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
-			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
+			AssertInvalidScript(scriptPubKey23, txTo23, 0, flags);
 
 			keys = new Key[] { key4, key2 };// sigs must match pubkeys
 			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
-			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
+			AssertInvalidScript(scriptPubKey23, txTo23, 0, flags);
 
 			keys = new Key[] { key1, key4 };// sigs must match pubkeys
 			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
-			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
+			AssertInvalidScript(scriptPubKey23, txTo23, 0, flags);
 
 			keys = new Key[0]; // Must have signatures
 			txTo23.Inputs[0].ScriptSig = sign_multisig(scriptPubKey23, keys, txTo23);
-			Assert.True(!Script.VerifyScript(scriptPubKey23, txTo23, 0, flags, 0));
+			AssertInvalidScript(scriptPubKey23, txTo23, 0, flags);
 		}
 
+		private void AssertInvalidScript(Script scriptPubKey, Transaction tx, int n, ScriptVerify verify)
+		{
+			Assert.False(Script.VerifyScript(scriptPubKey, tx, n, flags));
+#if !NOCONSENSUSLIB
+			Assert.False(Script.VerifyScriptConsensus(scriptPubKey, tx, (uint)n, flags));
+#endif
+		}
+
+		private void AssertValidScript(Script scriptPubKey, Transaction tx, int n, ScriptVerify verify)
+		{
+			Assert.True(Script.VerifyScript(scriptPubKey, tx, n, flags));
+#if !NOCONSENSUSLIB
+			Assert.True(Script.VerifyScriptConsensus(scriptPubKey, tx, (uint)n, flags));
+#endif
+		}
 
 		[Fact]
 		[Trait("Core", "Core")]

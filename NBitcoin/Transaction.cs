@@ -639,7 +639,6 @@ namespace NBitcoin
 		{
 			return Script.VerifyScript(scriptPubKey, Transaction, (int)N, scriptVerify, SigHash.Undefined, out error);
 		}
-
 		public uint256 GetSignatureHash(Script scriptPubKey, SigHash sigHash = SigHash.All)
 		{
 			return scriptPubKey.SignatureHash(Transaction, (int)N, sigHash);
