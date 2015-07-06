@@ -152,7 +152,7 @@ namespace NBitcoin.Tests
 			Assert.NotEmpty(peers);
 		}
 #endif
-
+#if !NOSOCKET
 		[Fact]
 		public void CanAddNodes()
 		{
@@ -174,7 +174,7 @@ namespace NBitcoin.Tests
 
 			rpc.RemoveNode(new IPEndPoint(IPAddress.Parse("201.56.71.129"), 8333));
 		}
-
+#endif
 		[Fact]
 		public void CanBackupWallet()
 		{

@@ -25,7 +25,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\MonoAndroid\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;USEBC;NOPROTOBUF;NOFILEIO;NOTRACESOURCE;NOSQLITE;NOIPDUALMODE;NOUPNP</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;USEBC;NOPROTOBUF;NOFILEIO;NOTRACESOURCE;NOSQLITE;NOIPDUALMODE;NOUPNP;NOCONSENSUSLIB</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>

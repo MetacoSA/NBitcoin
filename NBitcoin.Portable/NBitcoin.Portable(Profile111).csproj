@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Profile111\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;NOFILEIO;NOSOCKET;NOTRACESOURCE;NOPROTOBUF;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;NOFILEIO;NOSOCKET;NOTRACESOURCE;NOPROTOBUF;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOCONSENSUSLIB</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>

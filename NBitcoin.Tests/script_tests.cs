@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+#if !NOCONSENSUSLIB
 using System.Net.Http;
+#endif
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -275,10 +277,11 @@ namespace NBitcoin.Tests
 #endif
 		}
 
-#if !NOCONSENSUSLIB
 
 		private void EnsureHasLibConsensus()
 		{
+			#if !NOCONSENSUSLIB
+
 			if(File.Exists(Script.LibConsensusDll))
 			{
 				var bytes = File.ReadAllBytes(Script.LibConsensusDll);
@@ -292,8 +295,9 @@ namespace NBitcoin.Tests
 				throw new InvalidOperationException("Downloaded consensus li has wrong hash");
 			}
 			File.WriteAllBytes(Script.LibConsensusDll, libConsensus);
+			#endif
 		}
-
+#if !NOCONSENSUSLIB
 		private bool CheckHashConsensus(byte[] bytes)
 		{
 			var actualHash = Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
