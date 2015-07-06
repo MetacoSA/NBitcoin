@@ -218,6 +218,8 @@ namespace NBitcoin
 			vSeeds.Add(new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com"));
 			vSeeds.Add(new DNSSeedData("bitnodes.io", "seed.bitnodes.io"));
 			vSeeds.Add(new DNSSeedData("xf2.org", "bitseed.xf2.org"));
+			vSeeds.Add(new DNSSeedData("bitcoin.jonasschnelli.ch", "seed.bitcoin.jonasschnelli.ch"));
+
 #endif
 			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (0) };
 			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (5) };
