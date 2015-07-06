@@ -75,6 +75,11 @@ namespace NBitcoin.SPV
 		void StartScan(object unused)
 		{
 			var node = AttachedNode;
+			if(_RunningPing != null)
+			{
+				_PlannedScan = true;
+				return;
+			}
 			if(!IsScanning(node))
 			{
 				if(Monitor.TryEnter(cs))
@@ -155,6 +160,21 @@ namespace NBitcoin.SPV
 						var chained = _Chain.GetBlock(h);
 						_CurrentProgress = chained == null ? _CurrentProgress : chained.GetLocator();
 						StartScan(unused);
+					}
+				}
+			}
+
+			var pong = message.Message.Payload as PongPayload;
+			if(pong != null)
+			{
+				var ping = _RunningPing;
+				if(ping != null && pong.Nonce == ping.Nonce)
+				{
+					_RunningPing = null;
+					if(_PlannedScan)
+					{
+						_PlannedScan = false;
+						StartScan(null);
 					}
 				}
 			}
@@ -251,14 +271,23 @@ namespace NBitcoin.SPV
 			set;
 		}
 
+		volatile PingPayload _RunningPing;
+		volatile bool _PlannedScan;
 
 		void SetBloomFilter()
 		{
 			var node = AttachedNode;
 			if(node != null)
 			{
+				_RunningPing = null;
 				var filter = _Tracker.CreateBloomFilter(FalsePositiveRate);
 				node.SendMessageAsync(new FilterLoadPayload(filter));
+				var ping = new PingPayload()
+				{
+					Nonce = RandomUtils.GetUInt64()
+				};
+				_RunningPing = ping;
+				node.SendMessageAsync(ping);
 			}
 		}
 
