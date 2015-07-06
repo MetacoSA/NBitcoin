@@ -32,7 +32,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Profile111\Release</OutputPath>
-    <DefineConstants>TRACE;PORTABLE;USEBC;NOFILEIO;NOSOCKET;NOTRACESOURCE;NOPROTOBUF;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE</DefineConstants>
+    <DefineConstants>TRACE;PORTABLE;USEBC;NOFILEIO;NOSOCKET;NOTRACESOURCE;NOPROTOBUF;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOCONSENSUSLIB</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>

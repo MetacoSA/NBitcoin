@@ -34,7 +34,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\MonoAndroid\Release</OutputPath>
-    <DefineConstants>TRACE;USEBC;NOPROTOBUF;NOFILEIO;NOTRACESOURCE;NOSQLITE;NOIPDUALMODE;NOUPNP</DefineConstants>
+    <DefineConstants>TRACE;USEBC;NOPROTOBUF;NOFILEIO;NOTRACESOURCE;NOSQLITE;NOIPDUALMODE;NOUPNP;NOCONSENSUSLIB</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
