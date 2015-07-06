@@ -1,10 +1,12 @@
-﻿using NBitcoin.DataEncoders;
+﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -219,6 +221,7 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void script_valid()
 		{
+			EnsureHasLibConsensus();
 			var tests = TestCase.read_json("data/script_valid.json");
 			foreach(var test in tests)
 			{
@@ -240,6 +243,7 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void script_invalid()
 		{
+			EnsureHasLibConsensus();
 			var tests = TestCase.read_json("data/script_invalid.json");
 			foreach(var test in tests)
 			{
@@ -270,6 +274,32 @@ namespace NBitcoin.Tests
 			Assert.True(expected == actual, "[ConsensusLib] Test : " + testIndex + " " + comment);
 #endif
 		}
+
+#if !NOCONSENSUSLIB
+
+		private void EnsureHasLibConsensus()
+		{
+			if(File.Exists(Script.LibConsensusDll))
+			{
+				var bytes = File.ReadAllBytes(Script.LibConsensusDll);
+				if(CheckHashConsensus(bytes))
+					return;
+			}
+			HttpClient client = new HttpClient();
+			var libConsensus = client.GetByteArrayAsync("https://aois.blob.core.windows.net/public/libbitcoinconsensus-0.dll").Result;
+			if(!CheckHashConsensus(libConsensus))
+			{
+				throw new InvalidOperationException("Downloaded consensus li has wrong hash");
+			}
+			File.WriteAllBytes(Script.LibConsensusDll, libConsensus);
+		}
+
+		private bool CheckHashConsensus(byte[] bytes)
+		{
+			var actualHash = Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
+			return actualHash == "3a6f6fde7788b36e45272720582b3c0be1288454cb82026562bebd81c4ad4962"; //from bitcoin-0.10.2-win32.zip
+		}
+#endif
 
 		private static Transaction CreateSpendingTransaction(Script scriptSig, Transaction creditingTransaction)
 		{
@@ -397,6 +427,7 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void script_CHECKMULTISIG12()
 		{
+			EnsureHasLibConsensus();
 			Key key1 = new Key(true);
 			Key key2 = new Key(false);
 			Key key3 = new Key(true);
@@ -437,6 +468,7 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void script_CHECKMULTISIG23()
 		{
+			EnsureHasLibConsensus();
 			Key key1 = new Key(true);
 			Key key2 = new Key(false);
 			Key key3 = new Key(true);
