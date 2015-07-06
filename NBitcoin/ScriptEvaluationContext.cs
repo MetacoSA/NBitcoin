@@ -362,8 +362,8 @@ namespace NBitcoin
 		}
 
 
-		static readonly byte[] vchFalse = new byte[] { 0 };
-		static readonly byte[] vchZero = new byte[] { 0 };
+		static readonly byte[] vchFalse = new byte[0];
+		static readonly byte[] vchZero = new byte[0];
 		static readonly byte[] vchTrue = new byte[] { 1 };
 
 		public bool EvalScript(Script s, Transaction txTo, int nIn)
