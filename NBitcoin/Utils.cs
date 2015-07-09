@@ -480,7 +480,7 @@ namespace NBitcoin
 			}
 			try
 			{
-				socket.Dispose();
+				socket.Close();
 			}
 			catch
 			{
