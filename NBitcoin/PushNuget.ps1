@@ -6,7 +6,7 @@ C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\NBitcoin.Portable\
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\NBitcoin.Portable\NBitcoin(Mono).csproj" -p:Configuration=Release
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\Build\Deploy.csproj"
 
-#nuGet pack NBitcoin.nuspec
+nuGet pack NBitcoin.nuspec
 nuGet pack NBitcoin.Mono.nuspec
 
 forfiles /m *.nupkg /c "cmd /c NuGet.exe push @FILE"
