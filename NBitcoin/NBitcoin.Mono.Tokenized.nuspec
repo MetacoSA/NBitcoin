@@ -3,7 +3,7 @@
 	<metadata>
 		<id>NBitcoin.Mono</id>
 		<version>$version$</version>
-		<title>NBitcoin</title>
+		<title>NBitcoin for Mono</title>
 		<authors>Nicolas Dorier</authors>
 		<owners>$author$</owners>
 		<iconUrl>https://aois.blob.core.windows.net/public/Bitcoin.png</iconUrl>
@@ -36,7 +36,7 @@
 
 	<files>
 
-		<file src="..\NBitcoin.Portable\bin\MonoAndroid\Release\*.*" target="lib\net45" />
+		<file src="..\NBitcoin.Portable\bin\Mono\Release\*.*" target="lib\net45" />
 
 	</files>
 </package>

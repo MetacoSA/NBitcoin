@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "NBitcoin.Portable
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBitcoin(MonoAndroid)", "NBitcoin.Portable\NBitcoin(MonoAndroid).csproj", "{780745F6-C2C7-478C-AA12-76AE48F5BC7B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBitcoin(Mono)", "NBitcoin.Portable\NBitcoin(Mono).csproj", "{1EA3554C-67BF-4BDC-8F24-561D9A61B60E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,16 @@ Global
 		{780745F6-C2C7-478C-AA12-76AE48F5BC7B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{780745F6-C2C7-478C-AA12-76AE48F5BC7B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{780745F6-C2C7-478C-AA12-76AE48F5BC7B}.Release|x86.ActiveCfg = Release|Any CPU
+		{1EA3554C-67BF-4BDC-8F24-561D9A61B60E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EA3554C-67BF-4BDC-8F24-561D9A61B60E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EA3554C-67BF-4BDC-8F24-561D9A61B60E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1EA3554C-67BF-4BDC-8F24-561D9A61B60E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1EA3554C-67BF-4BDC-8F24-561D9A61B60E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1EA3554C-67BF-4BDC-8F24-561D9A61B60E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EA3554C-67BF-4BDC-8F24-561D9A61B60E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EA3554C-67BF-4BDC-8F24-561D9A61B60E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1EA3554C-67BF-4BDC-8F24-561D9A61B60E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{1EA3554C-67BF-4BDC-8F24-561D9A61B60E}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
