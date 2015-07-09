@@ -24,13 +24,7 @@ namespace NBitcoin
 
 		public static bool IsIPv4(this IPAddress address)
 		{
-			return address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork ||
-#if WIN
- address.IsIPv4MappedToIPv6;
-#else
-				address.IsIPv4MappedToIPv6();
-#endif
-
+			return address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork || address.IsIPv4MappedToIPv6Ex();
 		}
 
 		public static bool IsRFC3927(this IPAddress address)
@@ -172,8 +166,26 @@ namespace NBitcoin
 		{
 			if(address.AddressFamily == AddressFamily.InterNetworkV6)
 				return address;
-			return address.MapToIPv6();
+			return address.MapToIPv6Ex();
 		}
+		public static IPAddress MapToIPv6Ex(this IPAddress address)
+		{
+#if WIN
+			return address.MapToIPv6();
+#else
+			return Utils.MapToIPv6(address);
+#endif
+		}
+		public static bool IsIPv4MappedToIPv6Ex(this IPAddress address)
+		{
+#if WIN
+			return address.IsIPv4MappedToIPv6;
+#else
+			return Utils.IsIPv4MappedToIPv6(address);
+#endif
+
+		}
+
 		public static bool IsLocal(this IPAddress address)
 		{
 			address = address.EnsureIPv6();

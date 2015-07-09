@@ -32,11 +32,11 @@ namespace NBitcoin.Tests
 					var b = _Rand.Next(4000, 60000);
 					_Server1 = new NodeServer(network, internalPort: a);
 					_Server1.AllowLocalPeers = true;
-					_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), a);
+					_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6Ex(), a);
 					_Server1.Listen();
 					_Server2 = new NodeServer(network, internalPort: b);
 					_Server2.AllowLocalPeers = true;
-					_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), b);
+					_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6Ex(), b);
 					_Server2.Listen();
 					break;
 				}

@@ -37,6 +37,7 @@ namespace NBitcoin
 			}
 		}
 
+		
 
 		public static T ToNetwork<T>(this T base58, Network network) where T : Base58Data
 		{
@@ -315,8 +316,39 @@ namespace NBitcoin
 			Write(ms, message);
 			return ms.ToArray();
 		}
+#if !NOSOCKET
+		internal static IPAddress MapToIPv6(IPAddress address)
+		{
+			if(address.AddressFamily == AddressFamily.InterNetworkV6)
+				return address;
+			if(address.AddressFamily != AddressFamily.InterNetwork)
+				throw new Exception("Only AddressFamily.InterNetworkV4 can be converted to IPv6");
 
+			byte[] ipv4Bytes = address.GetAddressBytes();
+			byte[] ipv6Bytes = new byte[16] { 
+ 			0,0, 0,0, 0,0, 0,0, 0,0, 0xFF,0xFF, 
+ 			ipv4Bytes [0], ipv4Bytes [1], ipv4Bytes [2], ipv4Bytes [3] 
+ 			};
+			return new IPAddress(ipv6Bytes);
 
+		}
+
+		internal static bool IsIPv4MappedToIPv6(IPAddress address)
+		{
+			if(address.AddressFamily != AddressFamily.InterNetworkV6)
+				return false;
+
+			byte[] bytes = address.GetAddressBytes();
+
+			for(int i = 0 ; i < 10 ; i++)
+			{
+				if(bytes[0] != 0)
+					return false;
+			}
+			return bytes[10] == 0xFF && bytes[11] == 0xFF;
+		}
+
+#endif
 		private static void Write(MemoryStream ms, byte[] bytes)
 		{
 			ms.Write(bytes, 0, bytes.Length);
@@ -492,7 +524,7 @@ namespace NBitcoin
 		{
 			if(endpoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
 				return endpoint;
-			return new IPEndPoint(endpoint.Address.MapToIPv6(), endpoint.Port);
+			return new IPEndPoint(endpoint.Address.MapToIPv6Ex(), endpoint.Port);
 		}
 #endif
 		internal static byte[] ToBytes(uint value, bool littleEndian)

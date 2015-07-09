@@ -149,7 +149,7 @@ namespace NBitcoin.Protocol
 				Version = Version,
 				Timestamp = DateTimeOffset.UtcNow,
 				AddressReceiver = peer,
-				AddressFrom = AddressFrom ?? new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), network.DefaultPort),
+				AddressFrom = AddressFrom ?? new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6Ex(), network.DefaultPort),
 				Relay = IsRelay,
 				Services = Services
 			};
