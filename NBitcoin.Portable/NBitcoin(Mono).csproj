@@ -10,13 +10,13 @@
     <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NBitcoin.Android</RootNamespace>
+    <RootNamespace>NBitcoin.Mono</RootNamespace>
     <AssemblyName>NBitcoin</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <BaseIntermediateOutputPath>obj\MonoAndroid</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj\Mono</BaseIntermediateOutputPath>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>True</AndroidUseLatestPlatformSdk>
     <DevInstrumentationEnabled>True</DevInstrumentationEnabled>
@@ -33,7 +33,7 @@
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DocumentationFile>bin\MonoAndroid\Release\NBitcoin.XML</DocumentationFile>
+    <DocumentationFile>bin\Mono\Release\NBitcoin.XML</DocumentationFile>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Mono\Release</OutputPath>
