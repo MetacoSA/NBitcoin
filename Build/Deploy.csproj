@@ -6,5 +6,10 @@
 							AssemblyFile="..\NBitcoin\Properties\AssemblyInfo.cs"
 							OutputFile="..\NBitcoin\NBitcoin.nuspec"
 							></Build.TokenizeTask>
+
+		<Build.TokenizeTask InputFile="..\NBitcoin\NBitcoin.Mono.Tokenized.nuspec"
+							AssemblyFile="..\NBitcoin\Properties\AssemblyInfo.cs"
+							OutputFile="..\NBitcoin\NBitcoin.Mono.nuspec"
+							></Build.TokenizeTask>
 	</Target>
 </Project>
