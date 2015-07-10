@@ -8,7 +8,7 @@ With nuget :
 >**Install-Package NBitcoin** 
 
 Or if you are running on Mono (using mono develop) :
->**Install-Package NBitcoin.Mono
+>**Install-Package NBitcoin.Mono**
 
 Go on the [nuget website](https://www.nuget.org/packages/NBitcoin/) for more information.
 
