@@ -898,16 +898,16 @@ namespace NBitcoin
 		{
 			if(scriptPubKey == null)
 				scriptPubKey = new Script();
-			ScriptEvaluationContext context = new ScriptEvaluationContext();
+			var context = new ScriptEvaluationContext();
 			context.ScriptVerify = ScriptVerify.StrictEnc;
 			context.EvalScript(scriptSig1, transaction, n);
 
-			var stack1 = context.Stack.Reverse().ToArray();
+			var stack1 = context.Stack.AsInternalArray();
 			context = new ScriptEvaluationContext();
 			context.ScriptVerify = ScriptVerify.StrictEnc;
 			context.EvalScript(scriptSig2, transaction, n);
 
-			var stack2 = context.Stack.Reverse().ToArray();
+			var stack2 = context.Stack.AsInternalArray();
 
 			return CombineSignatures(scriptPubKey, transaction, n, stack1, stack2);
 		}
