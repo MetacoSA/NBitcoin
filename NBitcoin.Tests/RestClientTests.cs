@@ -58,12 +58,12 @@ namespace NBitcoin.Tests
 		public void CanGetUTXOsMempool()
 		{
 			var client = CreateRestClient();
-			var txId = uint256.Parse("3a3422dfd155f1d2ffc3e46cf978a9c5698c17c187f04cfa1b93358699c4ed3f");
+			var txId = uint256.Parse("bd3052b71c4fdd8f49c54880db4a59aadcfff3c11e8f23e9ed7f7ab4a9bb5700");
 			var outPoint = new OutPoint(txId, 0);
 			var utxos = client.GetUnspentOutputsAsync(new []{ outPoint }, true).Result;
 			Assert.Equal(1, utxos.Outputs.Length);
 			Assert.Equal(1, (int)utxos.Outputs[0].Version);
-			Assert.Equal(Money.Parse("0.1"), (int)utxos.Outputs[0].Output.Value);
+			Assert.Equal(Money.Parse("0.01"), (int)utxos.Outputs[0].Output.Value);
 		}
 
 		[Fact]
