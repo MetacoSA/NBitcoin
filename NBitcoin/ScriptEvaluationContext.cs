@@ -1494,11 +1494,10 @@ namespace NBitcoin
 
 	/// <summary>
 	/// ContextStack is used internally by the bitcoin script evaluator. This class contains
-	/// operations not tipically available in a "pure" Stack class, as example:
+	/// operations not typically available in a "pure" Stack class, as example:
 	/// Insert, Swap, Erase and Top (Peek w/index)
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	[DebuggerDisplay("Count = {Count}"), DebuggerTypeProxy(typeof(ContextStackDebugView<>))]
 	public class ContextStack<T> : IEnumerable<T>
 	{
 		private T[] _array;
@@ -1713,31 +1712,5 @@ namespace NBitcoin
 			}
 		}
 		#endregion
-	}
-
-	/// <summary>
-	/// DebuggerTypeProxy's View for debugging. It displays the information in 
-	/// ContextStack in the same way that the System.Collections.Generic.Stack class does. 
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	internal sealed class ContextStackDebugView<T>
-	{
-		private ContextStack<T> _stack;
-		[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-		public T[] Items
-		{
-			get
-			{
-				return _stack.ToArray();
-			}
-		}
-		public ContextStackDebugView(ContextStack<T> stack)
-		{
-			if (stack == null)
-			{
-				throw new ArgumentNullException("stack");
-			}
-			_stack = stack;
-		}
 	}
 }
