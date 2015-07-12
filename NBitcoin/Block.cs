@@ -43,7 +43,7 @@ namespace NBitcoin
 
 
 		// header
-		const int CURRENT_VERSION = 2;
+		const int CURRENT_VERSION = 3;
 
 		uint256 hashPrevBlock;
 
