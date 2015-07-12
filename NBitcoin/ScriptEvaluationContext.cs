@@ -1120,17 +1120,17 @@ namespace NBitcoin
 			{
 				return true;
 			}
-			if((ScriptVerify & (ScriptVerify.DerSig | ScriptVerify.LowS | ScriptVerify.StrictEnc)) != 0 && !IsDERSignature(vchSig))
+			if ((ScriptVerify & (ScriptVerify.DerSig | ScriptVerify.LowS | ScriptVerify.StrictEnc)) != 0 && !IsValidSignatureEncoding(vchSig))
 			{
 				Error = ScriptError.SigDer;
 				return false;
 			}
-			else if((ScriptVerify & ScriptVerify.LowS) != 0 && !IsLowDERSignature(vchSig))
+			if((ScriptVerify & ScriptVerify.LowS) != 0 && !IsLowDERSignature(vchSig))
 			{
 				// serror is set
 				return false;
 			}
-			else if((ScriptVerify & ScriptVerify.StrictEnc) != 0 && !IsDefinedHashtypeSignature(vchSig))
+			if((ScriptVerify & ScriptVerify.StrictEnc) != 0 && !IsDefinedHashtypeSignature(vchSig))
 			{
 				Error = ScriptError.SigHashType;
 				return false;
@@ -1165,7 +1165,7 @@ namespace NBitcoin
 
 		private bool IsLowDERSignature(byte[] vchSig)
 		{
-			if(!IsDERSignature(vchSig))
+			if (!IsValidSignatureEncoding(vchSig))
 			{
 				Error = ScriptError.SigDer;
 				return false;
@@ -1244,87 +1244,73 @@ namespace NBitcoin
 		}
 
 
-
-		private bool IsDERSignature(byte[] vchSig)
+		private static bool IsValidSignatureEncoding(byte[] sig)
 		{
-			if(vchSig.Length < 9)
-			{
-				//  Non-canonical signature: too short
-				return false;
-			}
-			if(vchSig.Length > 73)
-			{
-				// Non-canonical signature: too long
-				return false;
-			}
-			if(vchSig[0] != 0x30)
-			{
-				//  Non-canonical signature: wrong type
-				return false;
-			}
-			if(vchSig[1] != vchSig.Length - 3)
-			{
-				//  Non-canonical signature: wrong length marker
-				return false;
-			}
-			uint nLenR = vchSig[3];
-			if(5 + nLenR >= vchSig.Length)
-			{
-				//  Non-canonical signature: S length misplaced
-				return false;
-			}
-			uint nLenS = vchSig[5 + nLenR];
-			if((ulong)(nLenR + nLenS + 7) != (ulong)vchSig.Length)
-			{
-				//  Non-canonical signature: R+S length mismatch
-				return false;
-			}
+			// Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S] [sighash]
+			// * total-length: 1-byte length descriptor of everything that follows,
+			//   excluding the sighash byte.
+			// * R-length: 1-byte length descriptor of the R value that follows.
+			// * R: arbitrary-length big-endian encoded R value. It must use the shortest
+			//   possible encoding for a positive integers (which means no null bytes at
+			//   the start, except a single one when the next byte has its highest bit set).
+			// * S-length: 1-byte length descriptor of the S value that follows.
+			// * S: arbitrary-length big-endian encoded S value. The same rules apply.
+			// * sighash: 1-byte value indicating what data is hashed (not part of the DER
+			//   signature)
 
-			var R = 4;
-			if(vchSig[R + -2] != 0x02)
-			{
-				//  Non-canonical signature: R value type mismatch
-				return false;
-			}
-			if(nLenR == 0)
-			{
-				//  Non-canonical signature: R length is zero
-				return false;
-			}
-			if((vchSig[R] & 0x80) != 0)
-			{
-				//  Non-canonical signature: R value negative
-				return false;
-			}
-			if(nLenR > 1 && (vchSig[R] == 0x00) && (vchSig[R + 1] & 0x80) == 0)
-			{
-				//  Non-canonical signature: R value excessively padded
-				return false;
-			}
+			var signLen = sig.Length;
 
-			var S = 6 + nLenR;
-			if(vchSig[S + -2] != 0x02)
-			{
-				//  Non-canonical signature: S value type mismatch
-				return false;
-			}
-			if(nLenS == 0)
-			{
-				//  Non-canonical signature: S length is zero
-				return false;
-			}
-			if((vchSig[S] & 0x80) != 0)
-			{
-				//  Non-canonical signature: S value negative
-				return false;
-			}
-			if(nLenS > 1 && (vchSig[S] == 0x00) && !((vchSig[S + 1] & 0x80) != 0))
-			{
-				//  Non-canonical signature: S value excessively padded
-				return false;
-			}
+			// Minimum and maximum size constraints.
+			if (signLen < 9 || signLen > 73) return false;
+
+			// A signature is of type 0x30 (compound).
+			if (sig[0] != 0x30) return false;
+
+			// Make sure the length covers the entire signature.
+			if (sig[1] != signLen - 3) return false;
+
+			// Extract the length of the R element.
+			uint lenR = sig[3];
+
+			// Make sure the length of the S element is still inside the signature.
+			if (5 + lenR >= signLen) return false;
+
+			// Extract the length of the S element.
+			uint lenS = sig[5 + lenR];
+
+			// Verify that the length of the signature matches the sum of the length
+			// of the elements.
+			if ((lenR + lenS + 7) != signLen) return false;
+ 
+			// Check whether the R element is an integer.
+			if (sig[2] != 0x02) return false;
+
+			// Zero-length integers are not allowed for R.
+			if (lenR == 0) return false;
+
+			// Negative numbers are not allowed for R.
+			if ((sig[4] & 0x80) != 0) return false;
+
+			// Null bytes at the start of R are not allowed, unless R would
+			// otherwise be interpreted as a negative number.
+			if (lenR > 1 && (sig[4] == 0x00) && (sig[5] & 0x80) == 0) return false;
+
+			// Check whether the S element is an integer.
+			if (sig[lenR + 4] != 0x02) return false;
+
+			// Zero-length integers are not allowed for S.
+			if (lenS == 0) return false;
+
+			// Negative numbers are not allowed for S.
+			if ((sig[lenR + 6] & 0x80) != 0) return false;
+
+			// Null bytes at the start of S are not allowed, unless S would otherwise be
+			// interpreted as a negative number.
+			if (lenS > 1 && (sig[lenR + 6] == 0x00) && (sig[lenR + 7] & 0x80) == 0) return false;
+
 			return true;
 		}
+
 
 		bool CheckMinimalPush(byte[] data, OpcodeType opcode)
 		{
