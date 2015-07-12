@@ -281,16 +281,16 @@ namespace NBitcoin.Tests
 		private void EnsureHasLibConsensus()
 		{
 			#if !NOCONSENSUSLIB
-
+			string environment = Environment.Is64BitProcess ? "x64" : "x86";
 			if(File.Exists(Script.LibConsensusDll))
 			{
 				var bytes = File.ReadAllBytes(Script.LibConsensusDll);
-				if(CheckHashConsensus(bytes))
+				if(CheckHashConsensus(bytes, environment))
 					return;
 			}
 			HttpClient client = new HttpClient();
-			var libConsensus = client.GetByteArrayAsync("https://aois.blob.core.windows.net/public/libbitcoinconsensus-0.dll").Result;
-			if(!CheckHashConsensus(libConsensus))
+			var libConsensus = client.GetByteArrayAsync("https://aois.blob.core.windows.net/public/libbitcoinconsensus/"+ environment + "/libbitcoinconsensus-0.dll").Result;
+			if(!CheckHashConsensus(libConsensus, environment))
 			{
 				throw new InvalidOperationException("Downloaded consensus li has wrong hash");
 			}
@@ -298,10 +298,19 @@ namespace NBitcoin.Tests
 			#endif
 		}
 #if !NOCONSENSUSLIB
-		private bool CheckHashConsensus(byte[] bytes)
+		private bool CheckHashConsensus(byte[] bytes,string env)
 		{
-			var actualHash = Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
-			return actualHash == "3a6f6fde7788b36e45272720582b3c0be1288454cb82026562bebd81c4ad4962"; //from bitcoin-0.10.2-win32.zip
+			//from bitcoin-0.11.0rc3-win32
+			if(env == "x86")
+			{
+				var actualHash = Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
+				return actualHash == "d188dab1c7f14c60ef61ced0d2a25130840b3e1e33de2a303e70a0e58ac9bf01";
+			}
+			else
+			{
+				var actualHash = Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
+				return actualHash == "89b1088f476e580ab35c7a3992dad5d83cebcb7d711a2f32dc926da41df7bc4f";
+			}
 		}
 #endif
 
