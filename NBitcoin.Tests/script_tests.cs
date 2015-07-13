@@ -300,7 +300,7 @@ namespace NBitcoin.Tests
 #if !NOCONSENSUSLIB
 		private bool CheckHashConsensus(byte[] bytes,string env)
 		{
-			//from bitcoin-0.11.0rc3-win32
+			//from bitcoin-0.11
 			if(env == "x86")
 			{
 				var actualHash = Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
