@@ -49,7 +49,7 @@ namespace NBitcoin.Tests
 			if(File.Exists(file))
 			{
 				Block b = new Block();
-				b.ReadWrite(File.ReadAllBytes(file), 8); // skip msgheader/size
+				b.ReadWrite(File.ReadAllBytes(file)); // skip msgheader/size
 				return b;
 			}
 			else
