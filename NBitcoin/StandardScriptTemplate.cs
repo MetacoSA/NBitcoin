@@ -65,7 +65,7 @@ namespace NBitcoin
 			return false;
 		}
 
-		public const int MAX_OPRETURN_SIZE = 40;
+		public const int MAX_OPRETURN_SIZE = 80;
 		public Script GenerateScriptPubKey(byte[] data)
 		{
 			if(data == null)
