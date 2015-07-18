@@ -214,7 +214,7 @@ namespace NBitcoin
 
 		public static bool IsRoutable(this IPAddress address, bool allowLocal)
 		{
-			return address.IsValid() && !(
+			return address.IsValid() && !(  address.IsReserved() ||
 											(!allowLocal && address.IsRFC1918()) ||
 											address.IsRFC3927() ||
 											address.IsRFC4862() ||
@@ -222,6 +222,7 @@ namespace NBitcoin
 											address.IsRFC4843() || (!allowLocal && address.IsLocal())
 											);
 		}
+
 		public static bool IsValid(this IPAddress address)
 		{
 			address = address.EnsureIPv6();
@@ -248,6 +249,30 @@ namespace NBitcoin
 
 			return true;
 		}
+
+		// Against Hetzners Abusal/Netscan Bot
+		public static bool IsReserved(this IPAddress address)
+		{
+			address = address.EnsureIPv6();
+			var bytes = address.GetAddressBytes();
+			var byte_3 = bytes[15 - 3];
+			var byte_2 = bytes[15 - 2];
+			var byte_1 = bytes[15 - 1];
+
+			return address.IsIPv4() && (
+                         byte_3 == 1 
+                      || byte_3 == 25
+                      || byte_3 == 89
+                      || byte_3 == 51
+                      || byte_3 == 220
+                      || byte_3 == 9
+                      || byte_3 == 254
+                      || byte_3 == 255
+					  || (byte_3 == 192 && byte_2 >= 70) 
+                      || (byte_3 == 200 && byte_2 == 1 && byte_1 == 1) 
+                      || (byte_3 == 220 && byte_2 == 152 && byte_1 == 162)
+					);
+			}
 	}
 }
 #endif
