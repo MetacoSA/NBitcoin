@@ -74,7 +74,7 @@ namespace NBitcoin
 
 		public bool Check(PubKey pubKey, Script scriptPubKey, IndexedTxIn txIn, ScriptVerify verify = ScriptVerify.Standard)
 		{
-			return Check(pubKey, scriptPubKey, txIn.Transaction, txIn.N, verify);
+			return Check(pubKey, scriptPubKey, txIn.Transaction, txIn.Index, verify);
 		}
 
 		public bool Check(PubKey pubKey, Script scriptPubKey, Transaction tx, uint nIndex, ScriptVerify verify = ScriptVerify.Standard)

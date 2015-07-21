@@ -606,7 +606,11 @@ namespace NBitcoin
 			get;
 			set;
 		}
-		public uint N
+
+		/// <summary>
+		/// The index of this TxIn in its transaction
+		/// </summary>
+		public uint Index
 		{
 			get;
 			set;
@@ -633,15 +637,15 @@ namespace NBitcoin
 		}
 		public bool VerifyScript(Script scriptPubKey, out ScriptError error)
 		{
-			return Script.VerifyScript(scriptPubKey, Transaction, (int)N, out error);
+			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, out error);
 		}
 		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify, out ScriptError error)
 		{
-			return Script.VerifyScript(scriptPubKey, Transaction, (int)N, scriptVerify, SigHash.Undefined, out error);
+			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, scriptVerify, SigHash.Undefined, out error);
 		}
 		public uint256 GetSignatureHash(Script scriptPubKey, SigHash sigHash = SigHash.All)
 		{
-			return scriptPubKey.SignatureHash(Transaction, (int)N, sigHash);
+			return scriptPubKey.SignatureHash(Transaction, (int)Index, sigHash);
 		}
 		public TransactionSignature Sign(ISecret secret, Script scriptPubKey, SigHash sigHash = SigHash.All)
 		{
@@ -682,7 +686,7 @@ namespace NBitcoin
 			return this.Select((r, i) => new IndexedTxIn()
 			{
 				TxIn = r,
-				N = (uint)i,
+				Index = (uint)i,
 				Transaction = Transaction
 			});
 		}

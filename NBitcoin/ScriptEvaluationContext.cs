@@ -1370,7 +1370,7 @@ namespace NBitcoin
 
 		public bool CheckSig(TransactionSignature signature, PubKey pubKey, Script scriptPubKey, IndexedTxIn txIn)
 		{
-			return CheckSig(signature, pubKey, scriptPubKey, txIn.Transaction, txIn.N);
+			return CheckSig(signature, pubKey, scriptPubKey, txIn.Transaction, txIn.Index);
 		}
 		public bool CheckSig(TransactionSignature signature, PubKey pubKey, Script scriptPubKey, Transaction txTo, uint nIn)
 		{
