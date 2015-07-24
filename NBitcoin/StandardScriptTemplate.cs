@@ -22,13 +22,22 @@ namespace NBitcoin
 
 	public class TxNullDataTemplate : ScriptTemplate
 	{
-		private static readonly TxNullDataTemplate _Instance = new TxNullDataTemplate();
+		public TxNullDataTemplate(int maxDataSize)
+		{
+			MaxDataSizeLimit = maxDataSize;
+		}
+		private static readonly TxNullDataTemplate _Instance = new TxNullDataTemplate(MAX_OPRETURN_SIZE);
 		public static TxNullDataTemplate Instance
 		{
 			get
 			{
 				return _Instance;
 			}
+		}
+		public int MaxDataSizeLimit
+		{
+			get;
+			private set;
 		}
 		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
 		{
@@ -44,7 +53,7 @@ namespace NBitcoin
 				return false;
 			if(ops.Length == 2)
 			{
-				return ops[1].PushData != null && ops[1].PushData.Length <= MAX_OPRETURN_SIZE;
+				return ops[1].PushData != null && ops[1].PushData.Length <= MaxDataSizeLimit;
 			}
 			return true;
 		}
@@ -55,7 +64,7 @@ namespace NBitcoin
 			var ops = scriptPubKey.ToOps().ToArray();
 			if(ops.Length != 2)
 				return null;
-			if(ops[1].PushData == null || ops[1].PushData.Length > MAX_OPRETURN_SIZE)
+			if(ops[1].PushData == null || ops[1].PushData.Length > MaxDataSizeLimit)
 				return null;
 			return ops[1].PushData;
 		}
@@ -70,8 +79,8 @@ namespace NBitcoin
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");
-			if(data.Length > MAX_OPRETURN_SIZE)
-				throw new ArgumentOutOfRangeException("data", "Data in OP_RETURN should have a maximum size of " + MAX_OPRETURN_SIZE + " bytes");
+			if(data.Length > MaxDataSizeLimit)
+				throw new ArgumentOutOfRangeException("data", "Data in OP_RETURN should have a maximum size of " + MaxDataSizeLimit + " bytes");
 
 			return new Script(OpcodeType.OP_RETURN,
 							  Op.GetPushOp(data));

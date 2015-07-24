@@ -30,11 +30,13 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
+		static TxNullDataTemplate _Template = new TxNullDataTemplate(1024 * 4);
+
 		private bool ReadScript(Script script)
 		{
 			try
 			{
-				var data = TxNullDataTemplate.Instance.ExtractScriptPubKeyParameters(script);
+				var data = _Template.ExtractScriptPubKeyParameters(script);
 				if(data == null)
 					return false;
 				BitcoinStream stream = new BitcoinStream(data);
@@ -232,7 +234,7 @@ namespace NBitcoin.OpenAsset
 				WriteLEB128(Quantities[i], stream);
 			}
 			stream.ReadWriteAsVarString(ref _Metadata);
-			return TxNullDataTemplate.Instance.GenerateScriptPubKey(ms.ToArray());
+			return _Template.GenerateScriptPubKey(ms.ToArray());
 		}
 
 		public static ColorMarker Get(Transaction transaction)
