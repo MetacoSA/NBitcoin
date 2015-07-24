@@ -589,19 +589,6 @@ namespace NBitcoin.Tests
 					.BuildTransaction(true);
 
 				Assert.Equal("http://toto.com/", tx.GetColoredMarker().GetMetadataUrl().AbsoluteUri);
-
-				//But not too big !!!
-				issuanceCoin.DefinitionUrl = new Uri("http://opipoioppoioipidpoqipdipkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkksoidpqio.com/");
-				Assert.Throws<ArgumentOutOfRangeException>(() =>
-				{
-					txBuilder = new TransactionBuilder();
-					tx = txBuilder
-						.AddKeys(gold)
-						.AddCoins(issuanceCoin)
-						.IssueAsset(bob, new AssetMoney(gold.PubKey, 10))
-						.SetChange(gold)
-						.BuildTransaction(true);
-				});
 			}
 		}
 
