@@ -24,6 +24,7 @@ namespace NBitcoin
 		{
 			var parts = path
 				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+				.Where(p => p != "m")
 				.Select(ParseCore)
 				.ToArray();
 			return new KeyPath(parts);
@@ -35,6 +36,7 @@ namespace NBitcoin
 			_Indexes =
 				path
 				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+				.Where(p => p != "m")
 				.Select(ParseCore)
 				.ToArray();
 		}
@@ -52,7 +54,7 @@ namespace NBitcoin
 			_Indexes = indexes;
 		}
 
-	    readonly uint[] _Indexes;
+		readonly uint[] _Indexes;
 		public uint this[int index]
 		{
 			get
@@ -120,10 +122,10 @@ namespace NBitcoin
 		string _Path;
 		public override string ToString()
 		{
-		    return _Path ?? (_Path = string.Join("/", _Indexes.Select(ToString).ToArray()));
+			return _Path ?? (_Path = string.Join("/", _Indexes.Select(ToString).ToArray()));
 		}
 
-	    private static string ToString(uint i)
+		private static string ToString(uint i)
 		{
 			var hardened = (i & 0x80000000u) != 0;
 			var nonhardened = (i & ~0x80000000u);
