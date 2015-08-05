@@ -1,6 +1,6 @@
 #NBitcoin
 
-NBitcoin is the most complete Bitcoin library for the .NET platform. It is compatible with Open Assets smart contracts and implements most relevant Bitcoin Improvement Proposals (BIPs).
+NBitcoin is the most complete Bitcoin library for the .NET platform. It is compatible with Open Assets and implements most relevant Bitcoin Improvement Proposals (BIPs). It provides also low level access to Bitcoin primitives so you can easily create your own smart contracts.
 
 
 #How to use ?
@@ -63,9 +63,7 @@ NBitcoin license is MIT and we encourage you to use it to explore, learn, debug,
 
 * **How to Scan the blockchain** : [http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain](http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain "http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain") (You can dismissthe ScanState for that, now I concentrate on the indexer)
 
-Bitcoin address : 1LZcchWKG37Cr2wKu8ssqiP6dompnBm8p2
-
-You can contact us on [Metaco support](support@metaco.com "support@metaco.com").
+Please, use github issues for questions or feedback. For confidential requests or specific demands, contact us on [Metaco support](support@metaco.com "support@metaco.com").
 
 
 ##Useful link :
