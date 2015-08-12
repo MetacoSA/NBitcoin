@@ -426,7 +426,7 @@ namespace NBitcoin.SPV
 		{
 			var toTrack = GetDataToTrack().ToArray();
 			var scriptCount = _TrackedScripts.Count(s => !s.Value.IsInternal);
-			var filter = new BloomFilter(scriptCount, fp, _Tweak, flags);
+			var filter = new BloomFilter(scriptCount == 0 ? 1 : scriptCount, fp, _Tweak, flags);
 			foreach(var data in toTrack)
 				filter.Insert(data);
 			return filter;
