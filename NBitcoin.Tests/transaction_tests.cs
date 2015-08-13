@@ -966,10 +966,11 @@ namespace NBitcoin.Tests
 				.AddKeys(bob)
 				.Send(alice, Money.Coins(0.99m))
 				.Send(alice, Money.Satoshis(599))
+				.Send(TxNullDataTemplate.Instance.GenerateScriptPubKey(new byte[] { 1, 2 }), Money.Zero)
 				.SendFees(Money.Coins(0.0001m))
 				.SetChange(bob)
 				.BuildTransaction(true);
-			Assert.True(signed.Outputs.Count == 2);
+			Assert.True(signed.Outputs.Count == 3);
 			Assert.True(builder.Verify(signed, Money.Coins(0.0001m)));
 			builder.DustPrevention = false;
 			var ex = Assert.Throws<NotEnoughFundsException>(() => builder.Verify(signed, Money.Coins(0.0001m)));
@@ -1368,11 +1369,11 @@ namespace NBitcoin.Tests
 			Assert.True(!StandardScripts.IsStandardTransaction(t));
 
 			// 80-byte TX_NULL_DATA (standard)
-            t.Outputs[0].ScriptPubKey = new Script() + OpcodeType.OP_RETURN + ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef3804678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38");
+			t.Outputs[0].ScriptPubKey = new Script() + OpcodeType.OP_RETURN + ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef3804678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38");
 			Assert.True(StandardScripts.IsStandardTransaction(t));
 
 			// 81-byte TX_NULL_DATA (non-standard)
-            t.Outputs[0].ScriptPubKey = new Script() + OpcodeType.OP_RETURN + ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef3804678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef3800");
+			t.Outputs[0].ScriptPubKey = new Script() + OpcodeType.OP_RETURN + ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef3804678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef3800");
 			Assert.True(!StandardScripts.IsStandardTransaction(t));
 
 			// TX_NULL_DATA w/o PUSHDATA

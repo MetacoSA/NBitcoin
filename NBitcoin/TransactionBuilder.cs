@@ -532,6 +532,8 @@ namespace NBitcoin
 			return Send(destination.ScriptPubKey, amount);
 		}
 
+		readonly static TxNullDataTemplate _OpReturnTemplate = new TxNullDataTemplate(1024 * 1024);
+
 		/// <summary>
 		/// Send bitcoins to a destination
 		/// </summary>
@@ -542,7 +544,7 @@ namespace NBitcoin
 		{
 			if(amount < Money.Zero)
 				throw new ArgumentOutOfRangeException("amount", "amount can't be negative");
-			if(DustPrevention && amount < ColoredDust)
+			if(DustPrevention && amount < ColoredDust && !_OpReturnTemplate.CheckScriptPubKey(scriptPubKey))
 			{
 				SendFees(amount);
 				return this;
