@@ -67,7 +67,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return _Indexes;
+				return _Indexes.ToArray();
 			}
 		}
 
@@ -91,6 +91,25 @@ namespace NBitcoin
 				_Indexes
 				.Concat(derivation._Indexes)
 				.ToArray());
+		}
+
+		public KeyPath Parent
+		{
+			get
+			{
+				if(_Indexes.Length == 0)
+					return null;
+				return new KeyPath(_Indexes.Take(_Indexes.Length - 1).ToArray());
+			}
+		}
+
+		public KeyPath Increment()
+		{
+			if(_Indexes.Length == 0)
+				return null;
+			var indices = _Indexes.ToArray();
+			indices[indices.Length - 1]++;
+			return new KeyPath(indices);
 		}
 
 		public override bool Equals(object obj)
