@@ -179,6 +179,12 @@ namespace NBitcoin.Tests
 			keyPath = KeyPath.Parse("");
 			keyPath = keyPath.Derive(44, true).Derive(1, false);
 			Assert.Equal(keyPath.ToString(), "44'/1");
+			Assert.Equal(keyPath.Increment().ToString(), "44'/2");
+			Assert.Equal(keyPath.Derive(1,true).Increment().ToString(), "44'/1/2'");
+			Assert.Equal(keyPath.Parent.ToString(), "44'");
+			Assert.Equal(keyPath.Parent.Parent.ToString(), "");
+			Assert.Equal(keyPath.Parent.Parent.Parent, null);
+			Assert.Equal(keyPath.Parent.Parent.Increment(), null);
 			Assert.Equal(key.Derive(keyPath).ToString(Network.Main), key.Derive(44, true).Derive(1, false).ToString(Network.Main));
 
 			Assert.True(key.Derive(44, true).IsHardened);
