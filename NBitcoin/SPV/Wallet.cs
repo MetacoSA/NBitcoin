@@ -32,6 +32,7 @@ namespace NBitcoin.SPV
 			RootKeys = new ExtPubKey[0];
 			Network = Network.Main;
 			DerivationPath = new KeyPath();
+			Name = Guid.NewGuid().ToString();
 		}
 
 		/// <summary>
@@ -44,8 +45,14 @@ namespace NBitcoin.SPV
 			RootKeys = new[] { rootKey.ExtPubKey };
 			SignatureRequired = 1;
 			UseP2SH = false;
+			Name = Guid.NewGuid().ToString();
 		}
 
+		public string Name
+		{
+			get;
+			set;
+		}
 		public Network Network
 		{
 			get;
@@ -76,6 +83,8 @@ namespace NBitcoin.SPV
 		internal JObject ToJson()
 		{
 			JObject obj = new JObject();
+			if(Name != null)
+				obj["Name"] = Name;
 			obj["SignatureRequired"] = SignatureRequired;
 			obj["DerivationPath"] = DerivationPath.ToString();
 			obj["UseP2SH"] = UseP2SH;
@@ -86,6 +95,11 @@ namespace NBitcoin.SPV
 		static internal WalletCreation FromJson(JObject obj)
 		{
 			WalletCreation creation = new WalletCreation();
+			JToken unused;
+			if(obj.TryGetValue("Name", out unused))
+				creation.Name = (string)obj["Name"];
+			else
+				creation.Name = null;
 			creation.SignatureRequired = (int)(long)obj["SignatureRequired"];
 			creation.DerivationPath = KeyPath.Parse((string)obj["DerivationPath"]);
 			creation.UseP2SH = (bool)obj["UseP2SH"];
@@ -185,7 +199,7 @@ namespace NBitcoin.SPV
 
 		private string GetWalletName()
 		{
-			return Created.ToString();
+			return _Parameters.Name ?? Created.ToString();
 		}
 
 		public WalletTransactionsCollection GetTransactions()
