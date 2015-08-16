@@ -642,6 +642,8 @@ namespace NBitcoin
 
 		public TransactionBuilder SendAsset(Script scriptPubKey, AssetMoney asset)
 		{
+			if(asset.Quantity < 0)
+				throw new ArgumentOutOfRangeException("asset", "Asset amount can't be negative");
 			AssertOpReturn("Colored Coin");
 			var builders = CurrentGroup.BuildersByAsset.TryGet(asset.Id);
 			if(builders == null)

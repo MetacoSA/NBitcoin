@@ -41,7 +41,7 @@ namespace NBitcoin.SPV
 		{
 			if(tracker == null)
 				throw new ArgumentNullException("tracker");
-			FalsePositiveRate = 0.0005;
+			FalsePositiveRate = 0.000005;
 			_Chain = chain;
 			_ExplicitChain = chain;
 			_Tracker = tracker;
