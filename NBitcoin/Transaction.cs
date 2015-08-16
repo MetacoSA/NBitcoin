@@ -884,13 +884,9 @@ namespace NBitcoin
 		public static uint CURRENT_VERSION = 2;
 		public static uint MAX_STANDARD_TX_SIZE = 100000;
 
-		public TxOut AddOutput(Money money, BitcoinAddress address)
+		public TxOut AddOutput(Money money, IDestination destination)
 		{
-			return AddOutput(new TxOut(money, address));
-		}
-		public TxOut AddOutput(Money money, KeyId keyId)
-		{
-			return AddOutput(new TxOut(money, keyId));
+			return AddOutput(new TxOut(money, destination));
 		}
 		public TxOut AddOutput(Money money, Script scriptPubKey)
 		{
