@@ -1,4 +1,6 @@
 ﻿using NBitcoin.BitcoinCore;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Stealth;
@@ -1114,6 +1116,51 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		//http://bitcoin.stackexchange.com/questions/25814/ecdsa-signature-and-the-z-value
+		//http://www.nilsschneider.net/2013/01/28/recovering-bitcoin-private-keys.html
+		public void PlayingWithSignatures()
+		{
+			var script1 = new Script("30440220d47ce4c025c35ec440bc81d99834a624875161a26bf56ef7fdc0f5d52f843ad1022044e1ff2dfd8102cf7a47c21d5c9fd5701610d04953c6836596b4fe9dd2f53e3e01 04dbd0c61532279cf72981c3584fc32216e0127699635c2789f549e0730c059b81ae133016a69c21e23f1859a95f06d52b7bf149a8f2fe4e8535c8a829b449c5ff");
+
+			var script2 = new Script("30440220d47ce4c025c35ec440bc81d99834a624875161a26bf56ef7fdc0f5d52f843ad102209a5f1c75e461d7ceb1cf3cab9013eb2dc85b6d0da8c3c6e27e3a5a5b3faa5bab01 04dbd0c61532279cf72981c3584fc32216e0127699635c2789f549e0730c059b81ae133016a69c21e23f1859a95f06d52b7bf149a8f2fe4e8535c8a829b449c5ff");
+
+			var sig1 = (PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(script1).TransactionSignature.Signature);
+			var sig2 = (PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(script2).TransactionSignature.Signature);
+
+			var n = ECKey.CURVE.N;
+			var z1 = new BigInteger(1, Encoders.Hex.DecodeData("c0e2d0a89a348de88fda08211c70d1d7e52ccef2eb9459911bf977d587784c6e"));
+			var z2 = new BigInteger(1, Encoders.Hex.DecodeData("17b0f41c8c337ac1e18c98759e83a8cccbc368dd9d89e5f03cb633c265fd0ddc"));
+
+			var z = z1.Subtract(z2);
+			var s = sig1.S.Subtract(sig2.S);
+			var n2 = BigInteger.Two.Pow(256).Subtract(new BigInteger("432420386565659656852420866394968145599"));
+			
+			var expected = new Key(Encoders.Hex.DecodeData("c477f9f65c22cce20657faa5b2d1d8122336f851a508a1ed04e479c34985bf96"), fCompressedIn: false);
+
+			var expectedBigInt = new NBitcoin.BouncyCastle.Math.BigInteger(1, Encoders.Hex.DecodeData("c477f9f65c22cce20657faa5b2d1d8122336f851a508a1ed04e479c34985bf96"));
+			var priv = (z1.Multiply(sig2.S).Subtract(z2.Multiply(sig1.S)).Mod(n)).Divide(sig1.R.Multiply(sig1.S.Subtract(sig2.S)).Mod(n));
+			Assert.Equal(expectedBigInt.ToString(), priv.ToString());
+
+		}
+
+		protected virtual BigInteger CalculateE(BigInteger n, byte[] message)
+		{
+			int messageBitLength = message.Length * 8;
+			BigInteger trunc = new BigInteger(1, message);
+
+			if(n.BitLength < messageBitLength)
+			{
+				trunc = trunc.ShiftRight(messageBitLength - n.BitLength);
+			}
+
+			return trunc;
+		}
+
+		private ECDSASignature ToPositive(Crypto.ECDSASignature sig)
+		{
+			return new ECDSASignature(new BouncyCastle.Math.BigInteger(1, sig.R.ToByteArray()), new BouncyCastle.Math.BigInteger(1, sig.S.ToByteArray()));
+		}
 
 		[Fact]
 		[Trait("Core", "Core")]

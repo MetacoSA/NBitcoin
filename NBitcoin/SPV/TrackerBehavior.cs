@@ -244,11 +244,12 @@ namespace NBitcoin.SPV
 			}
 		}
 
-		private void Notify(Transaction tx, MerkleBlock blk)
+		private bool Notify(Transaction tx, MerkleBlock blk)
 		{
+			bool hit = false;
 			if(blk == null)
 			{
-				_Tracker.NotifyTransaction(tx);
+				hit = _Tracker.NotifyTransaction(tx);
 			}
 			else
 			{
@@ -256,16 +257,52 @@ namespace NBitcoin.SPV
 				if(prev != null)
 				{
 					var header = new ChainedBlock(blk.Header, null, prev);
-					_Tracker.NotifyTransaction(tx, header, blk);
+					hit = _Tracker.NotifyTransaction(tx, header, blk);
 				}
 				else
 				{
-					_Tracker.NotifyTransaction(tx);
+					hit = _Tracker.NotifyTransaction(tx);
 				}
+			}
+
+			Interlocked.Increment(ref _TotalReceived);
+			if(!hit)
+			{
+				Interlocked.Increment(ref _FalsePositiveCount);
+				if(MaximumFalsePositiveRate != null
+					&& _TotalReceived > 100
+					&& ActualFalsePostiveRate >= MaximumFalsePositiveRate.Value)
+				{
+					this.AttachedNode.DisconnectAsync("The actual false positive rate exceed MaximumFalsePositiveRate");
+				}
+			}
+			return hit;
+		}
+
+		long _FalsePositiveCount = 0;
+		long _TotalReceived = 0;
+
+		public double ActualFalsePostiveRate
+		{
+			get
+			{
+				return (double)_FalsePositiveCount / (double)_TotalReceived;
 			}
 		}
 
+		/// <summary>
+		/// The expected false positive rate (between 1.0 and 0)
+		/// </summary>
 		public double FalsePositiveRate
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// The maximum accepted false positive rate. The node will be disconnected if the actual false positive rate is higher.
+		/// </summary>
+		public double? MaximumFalsePositiveRate
 		{
 			get;
 			set;
