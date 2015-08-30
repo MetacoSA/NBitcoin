@@ -37,6 +37,20 @@ namespace NBitcoin
 			ret.SetHex(hex);
 			return ret;
 		}
+		public static bool TryParse(string hex, out uint256 result)
+		{
+			if(hex == null)
+				throw new ArgumentNullException("hex");
+			result = null;
+			if(hex.Length != WIDTH_BYTE * 2)
+				return false;
+			if(!((HexEncoder)Encoders.Hex).IsValid(hex))
+				return false;
+			var ret = new uint256();
+			ret.SetHex(hex);
+			result = ret;
+			return true;
+		}
 
 		private static readonly HexEncoder Encoder = new HexEncoder();
 		private const int WIDTH = 256 / 32;
@@ -401,6 +415,20 @@ namespace NBitcoin
 			var ret = new uint160();
 			ret.SetHex(hex);
 			return ret;
+		}
+		public static bool TryParse(string hex, out uint160 result)
+		{
+			if(hex == null)
+				throw new ArgumentNullException("hex");
+			result = null;
+			if(hex.Length != WIDTH_BYTE * 2)
+				return false;
+			if(!((HexEncoder)Encoders.Hex).IsValid(hex))
+				return false;
+			var ret = new uint160();
+			ret.SetHex(hex);
+			result = ret;
+			return true;
 		}
 
 		private static readonly HexEncoder Encoder = new HexEncoder();

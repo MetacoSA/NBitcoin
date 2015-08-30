@@ -71,6 +71,11 @@ namespace NBitcoin.DataEncoders
 			}
 		}
 
+		public bool IsValid(string str)
+		{
+			return str.ToCharArray().All(c => IsDigit(c) != -1) && str.Length % 2 == 0;
+		}
+
 		static readonly int[] hexValueArray;
 
 		public static int IsDigit(char c)

@@ -18,6 +18,34 @@ namespace NBitcoin.Tests
 	{
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanParseOutpoint()
+		{
+			var outpoint = RandOutpoint();
+			var actualOutpoint = CanParseOutpointCore(outpoint.ToString(), true);
+			Assert.Equal(outpoint.Hash, actualOutpoint.Hash);
+			Assert.Equal(outpoint.N, actualOutpoint.N);
+			CanParseOutpointCore("abc-6", false);
+			CanParseOutpointCore("bdaea31696b464c678c4bcc5d0565d58c86bb00c29f96bb86d1278c510d50aet-6", false);
+			CanParseOutpointCore("bdaea31696b464c678c4bcc5d0565d58c86bb00c29f96bb86d1278c510d50aea-6", true);
+			CanParseOutpointCore("bdaea31696b464c678c4bcc5d0565d58c86bb00c29f96bb86d1278c510d50aeaf-6", false);
+		}
+
+		private OutPoint CanParseOutpointCore(string str, bool valid)
+		{
+			try
+			{
+				var result = OutPoint.Parse(str);
+				Assert.True(valid);
+				return result;
+			}
+			catch
+			{
+				Assert.False(valid);
+				return null;
+			}
+		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanExtractTxOutDestinationEasily()
 		{
 			var secret = new BitcoinSecret("KyJTjvFpPF6DDX4fnT56d2eATPfxjdUPXFFUb85psnCdh34iyXRQ");
@@ -1135,7 +1163,7 @@ namespace NBitcoin.Tests
 			var z = z1.Subtract(z2);
 			var s = sig1.S.Subtract(sig2.S);
 			var n2 = BigInteger.Two.Pow(256).Subtract(new BigInteger("432420386565659656852420866394968145599"));
-			
+
 			var expected = new Key(Encoders.Hex.DecodeData("c477f9f65c22cce20657faa5b2d1d8122336f851a508a1ed04e479c34985bf96"), fCompressedIn: false);
 
 			var expectedBigInt = new NBitcoin.BouncyCastle.Math.BigInteger(1, Encoders.Hex.DecodeData("c477f9f65c22cce20657faa5b2d1d8122336f851a508a1ed04e479c34985bf96"));

@@ -44,6 +44,20 @@ namespace NBitcoin
 			ret.SetHex(hex);
 			return ret;
 		}
+		public static bool TryParse(string hex, out uint<#= t #> result)
+		{
+			if(hex == null)
+				throw new ArgumentNullException("hex");
+			result = null;
+			if(hex.Length != WIDTH_BYTE * 2)
+				return false;
+			if(!((HexEncoder)Encoders.Hex).IsValid(hex))
+				return false;
+			var ret = new uint<#= t #>();
+			ret.SetHex(hex);
+			result = ret;
+			return true;
+		}
 
 		private static readonly HexEncoder Encoder = new HexEncoder();
 		private const int WIDTH = <#= t #> / 32;

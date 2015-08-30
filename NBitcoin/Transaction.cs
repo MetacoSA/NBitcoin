@@ -47,6 +47,34 @@ namespace NBitcoin
 			}
 		}
 
+		public static bool TryParse(string str, out OutPoint result)
+		{
+			result = null;
+			if(str == null)
+				throw new ArgumentNullException("str");
+			var splitted = str.Split('-');
+			if(splitted.Length != 2)
+				return false;
+	
+			uint256 hash;
+			if(!uint256.TryParse(splitted[0], out hash))
+				return false;			
+			
+			uint index;
+			if(!uint.TryParse(splitted[1],out index))
+				return false;
+			result = new OutPoint(hash, index);
+			return true;
+		}
+
+		public static OutPoint Parse(string str)
+		{
+			OutPoint result;
+			if(TryParse(str, out result))
+				return result;
+			throw new FormatException("The format of the outpoint is incorrect");
+		}
+
 		public OutPoint()
 		{
 			SetNull();
