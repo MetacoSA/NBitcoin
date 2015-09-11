@@ -1055,6 +1055,62 @@ namespace NBitcoin
 			return true;
 		}
 
+        /// <summary>
+        /// Verify that a transaction is fully signed and have enough fees
+        /// </summary>
+        /// <param name="tx">The transaction to verify</param>
+        /// <param name="explanation">The explanation of the result when the result is false</param>
+        /// <param name="expectedFees">The expected fees (if null, do not verify)</param>
+        /// <returns>True if the verification pass</returns>
+        public bool Verify(Transaction tx, out string explanation, Money expectedFees = null)
+        {
+            Money spent = Money.Zero;
+            foreach (var input in tx.Inputs.AsIndexedInputs())
+            {
+                var duplicates = tx.Inputs.Count(_ => _.PrevOut == input.PrevOut);
+                if (duplicates != 1)
+                {
+                    explanation = "There are duplicate inputs. Duplicated input: " + input;
+                    return false;
+                }
+                var coin = FindCoin(input.PrevOut);
+                if (coin == null)
+                {
+                    explanation = "Coin not found! Impossible to find the scriptPubKey of outpoint: " + input.TxIn.PrevOut;
+                    return false;
+                }
+
+                spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : ((Coin)coin).Amount;
+                if (!input.VerifyScript(coin.TxOut.ScriptPubKey))
+                {
+                    explanation = "Could not verify script for input with transaction hash: " + input.PrevOut.Hash + " index: " + input.Index;
+                    return false;
+                }
+            }
+            if (spent < tx.TotalOut)
+            {
+                explanation = ("Not enough funds in this transaction: " + (tx.TotalOut - spent).ToString());
+                return false;
+            }
+
+            var fees = (spent - tx.TotalOut);
+            if (expectedFees != null)
+            {
+                //Fees might be slightly different than expected because of dust prevention, so allow an error margin of 10%
+                var margin = 0.1m;
+                if (!DustPrevention)
+                    margin = 0.0m;
+                if (!expectedFees.Almost(fees, margin))
+                {
+                    explanation = "Fees different than expected. Expected fees: " + (expectedFees).ToString() + ". Actual fees: " + fees.ToString();
+                    return false;
+                }
+            }
+
+            explanation = "All good. Transaction verified!";
+            return true;
+        }
+
 		private Exception CoinNotFound(TxIn txIn)
 		{
 			return new KeyNotFoundException("Impossible to find the scriptPubKey of outpoint " + txIn.PrevOut);
