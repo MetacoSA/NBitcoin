@@ -1,8 +1,4 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
-
-namespace NBitcoin.DataEncoders
+﻿namespace NBitcoin.DataEncoders
 {
 	public abstract class DataEncoder
 	{
@@ -65,10 +61,7 @@ namespace NBitcoin.DataEncoders
 			}
 		}
 
-		static readonly Base58Encoder _Base58Check = new Base58Encoder()
-				{
-					Check = true
-				};
+		private static readonly Base58CheckEncoder _Base58Check = new Base58CheckEncoder();
 		public static DataEncoder Base58Check
 		{
 			get
@@ -85,48 +78,5 @@ namespace NBitcoin.DataEncoders
 				return _Base64;
 			}
 		}
-
-		//public static DataEncoder Bin
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
-		//public static DataEncoder Dec
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
-		//public static DataEncoder RFC1751
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
-		//public static DataEncoder Poetry
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
-		//public static DataEncoder Rot13
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
-		//public static DataEncoder Easy16
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
 	}
 }
