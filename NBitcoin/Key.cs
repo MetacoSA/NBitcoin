@@ -1,20 +1,14 @@
 ﻿using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using NBitcoin.BouncyCastle.Asn1;
-using NBitcoin.BouncyCastle.Crypto.Signers;
 using NBitcoin.BouncyCastle.Math;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
 	public class Key : IBitcoinSerializable, IDestination
 	{
         private const int KEY_SIZE = 32;
+		private readonly static uint256 N = uint256.Parse(ECKey.CURVE.N.ToString(16));
 
 		public static Key Parse(string wif, Network network = null)
 		{
@@ -42,8 +36,7 @@ namespace NBitcoin
 
 		public Key(bool fCompressedIn)
 		{
-			byte[] data = new byte[KEY_SIZE];
-
+			var data = new byte[KEY_SIZE];
 			do
 			{
 				RandomUtils.GetBytes(data);
@@ -76,31 +69,12 @@ namespace NBitcoin
 
 		private static bool Check(byte[] vch)
 		{
-			// Do not convert to OpenSSL's data structures for range-checking keys,
-			// it's easy enough to do directly.
-			byte[] vchMax = new byte[32]{
-        0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-        0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFE,
-        0xBA,0xAE,0xDC,0xE6,0xAF,0x48,0xA0,0x3B,
-        0xBF,0xD2,0x5E,0x8C,0xD0,0x36,0x41,0x40
-    };
-			bool fIsZero = true;
-			for(int i = 0 ; i < KEY_SIZE && fIsZero ; i++)
-				if(vch[i] != 0)
-					fIsZero = false;
-			if(fIsZero)
-				return false;
-			for(int i = 0 ; i < KEY_SIZE ; i++)
-			{
-				if(vch[i] < vchMax[i])
-					return true;
-				if(vch[i] > vchMax[i])
-					return false;
-			}
-			return true;
+			var candidate = new uint256(vch.SafeSubarray(0, KEY_SIZE));
+			return candidate < N;
 		}
 
 		PubKey _PubKey;
+
 		public PubKey PubKey
 		{
 			get
