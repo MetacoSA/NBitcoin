@@ -144,6 +144,20 @@ namespace NBitcoin
 		#endregion
 	}
 
+    /// <summary>
+    /// Exception thrown when not enough funds are present for verifying or building a transaction
+    /// </summary>
+    public class DuplicateInputsException : Exception
+    {
+        public DuplicateInputsException(IndexedTxIn input)
+            : base(String.Format("There are duplicate inputs. Duplicated input: : {0}", input)) { }
+    }
+
+    public class ScriptVerificationFailedException : Exception
+    {
+        public ScriptVerificationFailedException(IndexedTxIn input)
+            : base(String.Format("Could not verify script for this input. Please check your keys. Input: {0}", input)) { }
+    }
 
 	/// <summary>
 	/// Exception thrown when not enough funds are present for verifying or building a transaction
@@ -1017,46 +1031,46 @@ namespace NBitcoin
 			return coin;
 		}
 
-		/// <summary>
-		/// Verify that a transaction is fully signed and have enough fees
-		/// </summary>
-		/// <param name="tx">The transaction to verify</param>
-		/// <param name="expectedFees">The expected fees (if null, do not verify)</param>
-		/// <returns>True if the verification pass</returns>
-		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
-		public bool Verify(Transaction tx, Money expectedFees = null)
-		{
-			var spent = Money.Zero;
-			foreach(var input in tx.Inputs.AsIndexedInputs())
-			{
-				var duplicates = tx.Inputs.Count(_ => _.PrevOut == input.PrevOut);
-				if(duplicates != 1)
-                    throw new Exception("There are duplicate inputs. Duplicated input: " + input);
+        /// <summary>
+        /// Verify that a transaction is fully signed and have enough fees
+        /// </summary>
+        /// <param name="tx">The transaction to verify</param>
+        /// <param name="expectedFees">The expected fees (if null, do not verify)</param>
+        /// <returns>True if the verification pass</returns>
+        /// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
+        public bool Verify(Transaction tx, Money expectedFees = null)
+        {
+            var spent = Money.Zero;
+            foreach (var input in tx.Inputs.AsIndexedInputs())
+            {
+                var duplicates = tx.Inputs.Count(_ => _.PrevOut == input.PrevOut);
+                if (duplicates != 1)
+                    throw new DuplicateInputsException(input);
 
-				var coin = FindCoin(input.PrevOut);
-				if(coin == null)
-					throw CoinNotFound(input.TxIn);
-				
+                var coin = FindCoin(input.PrevOut);
+                if (coin == null)
+                    throw CoinNotFound(input.TxIn);
+
                 spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : ((Coin)coin).Amount;
-				if(!input.VerifyScript(coin.TxOut.ScriptPubKey))
-					throw new Exception("Could not verify script for input with transaction hash: " + input.PrevOut.Hash + " index: " + input.Index + " please check your keys.");
-			}
+                if (!input.VerifyScript(coin.TxOut.ScriptPubKey))
+                    throw new ScriptVerificationFailedException(input);
+            }
 
-			if(spent < tx.TotalOut)
-				throw new NotEnoughFundsException("Not enough funds in this transaction", null, tx.TotalOut - spent);
+            if (spent < tx.TotalOut)
+                throw new NotEnoughFundsException("Not enough funds in this transaction", null, tx.TotalOut - spent);
 
-			var fees = (spent - tx.TotalOut);
-            if(expectedFees != null)
-			{
-				//Fees might be slightly different than expected because of dust prevention, so allow an error margin of 10%
-				var margin = 0.1m;
-				if(!DustPrevention)
-					margin = 0.0m;
-				if(!expectedFees.Almost(fees, margin))
-					throw new NotEnoughFundsException("Fees different than expected", null, expectedFees - fees);
-			}
-			return true;
-		}
+            var fees = (spent - tx.TotalOut);
+            if (expectedFees != null)
+            {
+                //Fees might be slightly different than expected because of dust prevention, so allow an error margin of 10%
+                var margin = 0.1m;
+                if (!DustPrevention)
+                    margin = 0.0m;
+                if (!expectedFees.Almost(fees, margin))
+                    throw new NotEnoughFundsException("Fees different than expected", null, expectedFees - fees);
+            }
+            return true;
+        }
 
 		private Exception CoinNotFound(TxIn txIn)
 		{
