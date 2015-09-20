@@ -66,12 +66,12 @@ namespace NBitcoin.DataEncoders
 				var dv = BigInteger.DivRem(bn, bn58, out rem);
 				bn = dv;
 				var c = (int)rem;
-				str += PszBase58[c];
+				str += pszBase58[c];
 			}
 
 			// Leading zeroes encoded as base58 zeros
 			for (int i = offset; i < offset+count && data[i] == 0; i++)
-				str += PszBase58[0];
+				str += pszBase58[0];
 
 			// Convert little endian std::string to big endian
 			str = new String(str.ToCharArray().Reverse().ToArray()); //keep that way to be portable
@@ -79,7 +79,7 @@ namespace NBitcoin.DataEncoders
 		}
 
 
-		const string PszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+		const string pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 
 		public override byte[] DecodeData(string encoded)
@@ -102,7 +102,7 @@ namespace NBitcoin.DataEncoders
 
 			for(int y = i ; y < encoded.Length ; y++)
 			{
-				var p1 = PszBase58.IndexOf(encoded[y]);
+				var p1 = pszBase58.IndexOf(encoded[y]);
 				if(p1 == -1)
 				{
 					while(IsSpace(encoded[y]))
@@ -131,7 +131,7 @@ namespace NBitcoin.DataEncoders
 
 			// Restore leading zeros
 			int nLeadingZeros = 0;
-			for(int y = i ; y < encoded.Length && encoded[y] == PszBase58[0] ; y++)
+			for(int y = i ; y < encoded.Length && encoded[y] == pszBase58[0] ; y++)
 				nLeadingZeros++;
 
 
