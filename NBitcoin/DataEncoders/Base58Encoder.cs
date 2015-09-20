@@ -5,46 +5,65 @@ using System.Numerics;
 
 namespace NBitcoin.DataEncoders
 {
+	public class Base58CheckEncoder : Base58Encoder
+	{
+		private static readonly Base58Encoder InternalEncoder = new Base58Encoder();
+
+		public override string EncodeData(byte[] data, int offset, int count)
+		{
+			var toEncode = new byte[count + 4];
+			Buffer.BlockCopy(data, offset, toEncode, 0, count);
+
+			var hash = Hashes.Hash256(data, offset, count).ToBytes();
+			Buffer.BlockCopy(hash, 0, toEncode, count, 4);
+
+			return InternalEncoder.EncodeData(toEncode, 0, toEncode.Length);
+		}
+
+		public override byte[] DecodeData(string encoded)
+		{
+			var vchRet = InternalEncoder.DecodeData(encoded);
+			if (vchRet.Length < 4)
+			{
+				Array.Clear(vchRet, 0, vchRet.Length);
+				throw new FormatException("Invalid checked base 58 string");
+			}
+			var calculatedHash = Hashes.Hash256(vchRet, 0, vchRet.Length - 4).ToBytes().SafeSubarray(0, 4);
+			var expectedHash = vchRet.SafeSubarray(vchRet.Length - 4, 4);
+
+			if (!Utils.ArrayEqual(calculatedHash, expectedHash))
+			{
+				Array.Clear(vchRet, 0, vchRet.Length);
+				throw new FormatException("Invalid hash of the base 58 string");
+			}
+			vchRet = vchRet.SafeSubarray(0, vchRet.Length - 4);
+			return vchRet;
+		}
+	}
+
 	public class Base58Encoder : DataEncoder
 	{
 		public override string EncodeData(byte[] data, int offset, int count)
-		{
-			if(Check)
-			{
-				var toEncode = new byte[count + 4];
-				Buffer.BlockCopy(data, offset, toEncode, 0, count);
-
-				var hash = Hashes.Hash256(data, offset, count).ToBytes();
-				Buffer.BlockCopy(hash, 0, toEncode, count, 4);
-
-				return EncodeDataCore(toEncode, 0, toEncode.Length);
-			}
-
-			return EncodeDataCore(data, offset, count);
-		}
-
-		private static string EncodeDataCore(byte[] data, int offset, int count)
 		{
 			BigInteger bn58 = 58;
 			BigInteger bn0 = 0;
 
 			// Convert big endian data to little endian
 			// Extra zero at the end make sure bignum will interpret as a positive number
-			byte[] vchTmp = data.SafeSubarray(offset, count).Reverse().Concat(new byte[] { 0x00 }).ToArray();
+			var vchTmp = data.SafeSubarray(offset, count).Reverse().Concat(new byte[] { 0x00 }).ToArray();
 
 			// Convert little endian data to bignum
-			BigInteger bn = new BigInteger(vchTmp);
+			var bn = new BigInteger(vchTmp);
 
 			// Convert bignum to std::string
-			String str = "";
+			var str = "";
 			// Expected size increase from base58 conversion is approximately 137%
 			// use 138% to be safe
 
-			BigInteger dv = BigInteger.Zero;
-			BigInteger rem = BigInteger.Zero;
 			while(bn > bn0)
 			{
-				dv = BigInteger.DivRem(bn, bn58, out rem);
+				BigInteger rem;
+				var dv = BigInteger.DivRem(bn, bn58, out rem);
 				bn = dv;
 				var c = (int)rem;
 				str += pszBase58[c];
@@ -68,37 +87,11 @@ namespace NBitcoin.DataEncoders
 			if (encoded == null)
 				throw new ArgumentNullException("encoded");
 
-			if(Check)
-			{
-				var vchRet = DecodeDataCore(encoded);
-				if(vchRet.Length < 4)
-				{
-					Array.Clear(vchRet, 0, vchRet.Length);
-					throw new FormatException("Invalid checked base 58 string");
-				}
-				var calculatedHash = Hashes.Hash256(vchRet, 0, vchRet.Length - 4).ToBytes().SafeSubarray(0, 4);
-				var expectedHash = vchRet.SafeSubarray(vchRet.Length - 4, 4);
-
-				if(!Utils.ArrayEqual(calculatedHash, expectedHash))
-				{
-					Array.Clear(vchRet, 0, vchRet.Length);
-					throw new FormatException("Invalid hash of the base 58 string");
-				}
-				vchRet = vchRet.SafeSubarray(0, vchRet.Length - 4);
-				return vchRet;
-			}
-
-			return DecodeDataCore(encoded);
-		}
-
-		private static byte[] DecodeDataCore(string encoded)
-		{
 			var result = new byte[0];
 			if(encoded.Length == 0)
 				return result;
 			BigInteger bn58 = 58;
 			BigInteger bn = 0;
-			BigInteger bnChar;
 			int i = 0;
 			while(IsSpace(encoded[i]))
 			{
@@ -122,7 +115,7 @@ namespace NBitcoin.DataEncoders
 						throw new FormatException("Invalid base 58 string");
 					break;
 				}
-				bnChar = new BigInteger(p1);
+				var bnChar = new BigInteger(p1);
 				bn = BigInteger.Multiply(bn, bn58);
 				bn += bnChar;
 			}
@@ -145,13 +138,6 @@ namespace NBitcoin.DataEncoders
 			result = new byte[nLeadingZeros + vchTmp.Length];
 			Array.Copy(vchTmp.Reverse().ToArray(), 0, result, nLeadingZeros, vchTmp.Length);
 			return result;
-		}
-
-
-		public bool Check
-		{
-			get;
-			set;
 		}
 	}
 }
