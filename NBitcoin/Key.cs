@@ -69,8 +69,8 @@ namespace NBitcoin
 
 		private static bool Check(byte[] vch)
 		{
-			var candidate = new uint256(vch.SafeSubarray(0, KEY_SIZE));
-			return candidate < N;
+			var candidateKey = new uint256(vch.SafeSubarray(0, KEY_SIZE));
+			return candidateKey > 0 && candidateKey < N;
 		}
 
 		PubKey _PubKey;
