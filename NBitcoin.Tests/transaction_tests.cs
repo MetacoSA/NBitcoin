@@ -1185,7 +1185,7 @@ namespace NBitcoin.Tests
 			return trunc;
 		}
 
-		private ECDSASignature ToPositive(Crypto.ECDSASignature sig)
+		private ECDSASignature ToPositive(ECDSASignature sig)
 		{
 			return new ECDSASignature(new BouncyCastle.Math.BigInteger(1, sig.R.ToByteArray()), new BouncyCastle.Math.BigInteger(1, sig.S.ToByteArray()));
 		}
