@@ -30,7 +30,6 @@ namespace NBitcoin
 			return new KeyPath(parts);
 		}
 
-		[Obsolete("Use KeyPath.Parse method instead.")]
 		public KeyPath(string path)
 		{
 			_Indexes =

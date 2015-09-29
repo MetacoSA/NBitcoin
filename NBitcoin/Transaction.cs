@@ -819,7 +819,6 @@ namespace NBitcoin
 			vout = new TxOutList(this);
 		}
 
-		[Obsolete("Use Transaction.Parse statics method instead.")]
 		public Transaction(string hex)
 			: this()
 		{

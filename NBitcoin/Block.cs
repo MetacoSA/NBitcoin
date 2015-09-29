@@ -29,7 +29,6 @@ namespace NBitcoin
 			return new BlockHeader(Encoders.Hex.DecodeData(hex));
 		}
 
-		[Obsolete("Use BlockHeader.Parse method instead.")]
 		public BlockHeader(string hex)
 			: this(Encoders.Hex.DecodeData(hex))
 		{

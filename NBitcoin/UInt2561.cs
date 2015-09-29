@@ -111,7 +111,6 @@ namespace NBitcoin
 			SetBytes(vch);
 		}
 
-		[Obsolete("Use uint256.Parse method instead.")]
 		public uint256(string str)
 		{
 			SetHex(str);
@@ -490,7 +489,6 @@ namespace NBitcoin
 			SetBytes(vch);
 		}
 
-		[Obsolete("Use uint160.Parse method instead.")]
 		public uint160(string str)
 		{
 			SetHex(str);

@@ -118,7 +118,6 @@ namespace NBitcoin
 			SetBytes(vch);
 		}
 
-		[Obsolete("Use uint<#= t #>.Parse method instead.")]
 		public uint<#= t #>(string str)
 		{
 			SetHex(str);
