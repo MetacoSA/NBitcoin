@@ -59,6 +59,13 @@ namespace NBitcoin
 		{
 		}
 
+		public ExtPubKey(byte[] bytes)
+		{
+			if(bytes == null)
+				throw new ArgumentNullException("bytes");
+			this.ReadWrite(bytes);
+		}
+
 		public bool IsChildOf(ExtPubKey parentKey)
 		{
 			if(Depth != parentKey.Depth + 1)

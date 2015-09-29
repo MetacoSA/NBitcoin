@@ -222,6 +222,10 @@ namespace NBitcoin.Tests
 			Assert.True(parent.Neuter().IsParentOf(child.Neuter()));
 			Assert.False(notchild.Neuter().IsChildOf(parent.Neuter()));
 			Assert.False(parent.Neuter().IsParentOf(notchild.Neuter()));
+
+			var keyA = parent.Neuter();
+			var keyB = new ExtPubKey(keyA.ToBytes());
+			AssertEx.CollectionEquals(keyA.ToBytes(), keyB.ToBytes());
 		}
 		private void RunTest(TestVector test)
 		{
