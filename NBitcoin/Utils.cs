@@ -416,12 +416,12 @@ namespace NBitcoin
 
 		static readonly TraceSource _TraceSource = new TraceSource("NBitcoin");
 
-		public static bool error(string msg, params object[] args)
+		internal static bool error(string msg, params object[] args)
 		{
 			_TraceSource.TraceEvent(TraceEventType.Error, 0, msg, args);
 			return false;
 		}
-		public static bool error(string msg)
+		internal static bool error(string msg)
 		{
 			_TraceSource.TraceEvent(TraceEventType.Error, 0, msg);
 			return false;
@@ -527,7 +527,7 @@ namespace NBitcoin
 			return new IPEndPoint(endpoint.Address.MapToIPv6Ex(), endpoint.Port);
 		}
 #endif
-		internal static byte[] ToBytes(uint value, bool littleEndian)
+		public static byte[] ToBytes(uint value, bool littleEndian)
 		{
 			if(littleEndian)
 			{
@@ -550,7 +550,7 @@ namespace NBitcoin
 				};
 			}
 		}
-		internal static byte[] ToBytes(ulong value, bool littleEndian)
+		public static byte[] ToBytes(ulong value, bool littleEndian)
 		{
 			if(littleEndian)
 			{
