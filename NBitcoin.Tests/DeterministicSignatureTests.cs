@@ -115,10 +115,9 @@ namespace NBitcoin.Tests
 			dsa.update(Encoding.UTF8.GetBytes(test.Message));
 			var result = dsa.sign();
 
-			//Assert.Equal(test.K, dsa.LastK);
-			//Assert.Equal(test.R, dsa.LastR);
-
-			Assert.Equal(test.S, ECDSASignature.FromDER(result).S);
+			var signature = ECDSASignature.FromDER(result);
+			Assert.Equal(test.S, signature.S);
+			Assert.Equal(test.R, signature.R);
 		}
 
 		private void TestSig(DeterministicSigTest test)

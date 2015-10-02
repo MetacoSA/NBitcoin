@@ -34,7 +34,7 @@ namespace NBitcoin.Crypto
 
 		public byte[] sign()
 		{
-			var hash = new byte[_digest.GetByteLength()];
+			var hash = new byte[_digest.GetDigestSize()];
 			_digest.BlockUpdate(_buffer, 0, _buffer.Length);
 			_digest.DoFinal(hash, 0);
 			_digest.Reset();
