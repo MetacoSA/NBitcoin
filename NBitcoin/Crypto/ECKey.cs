@@ -81,7 +81,7 @@ namespace NBitcoin.Crypto
 		public ECDSASignature Sign(uint256 hash)
 		{
 			AssertPrivateKey();
-			DeterministicECDSA signer = new DeterministicECDSA();
+			var signer = new DeterministicECDSA();
 			signer.setPrivateKey(PrivateKey);
 			var sig = ECDSASignature.FromDER(signer.signHash(hash.ToBytes()));
 			return sig.MakeCanonical();
