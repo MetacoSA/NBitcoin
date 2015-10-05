@@ -131,6 +131,8 @@ namespace NBitcoin
 			}
 		}
 
+		private Network(){}
+
 		private void InitReg()
 		{
 			InitTest();
