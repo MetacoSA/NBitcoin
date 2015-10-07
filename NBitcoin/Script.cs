@@ -89,13 +89,14 @@ namespace NBitcoin
  * blocks and we must accept those blocks.
  */
 		Standard =
-			Mandatory |
-			DerSig |
-			StrictEnc |
-			MinimalData |
-			NullDummy |
-			DiscourageUpgradableNops |
-			CleanStack,
+			  Mandatory
+			| DerSig
+			| StrictEnc
+			| MinimalData
+			| NullDummy
+			| DiscourageUpgradableNops
+			| CleanStack
+			| LowS
 	}
 
 	/** Signature hash types/flags */
