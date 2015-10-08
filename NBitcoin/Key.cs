@@ -90,9 +90,7 @@ namespace NBitcoin
 
 		public ECDSASignature Sign(uint256 hash)
 		{
-			var signature = _ECKey.Sign(hash);
-			signature = signature.MakeCanonical();
-			return signature;
+			return _ECKey.Sign(hash);
 		}
 
 

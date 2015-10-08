@@ -23,7 +23,7 @@ namespace NBitcoin
 			if(sigHash == SigHash.Undefined)
 				throw new ArgumentException("sigHash should not be Undefined");
 			_SigHash = sigHash;
-			_Signature = signature.MakeCanonical();
+			_Signature = signature;
 		}
 		public TransactionSignature(ECDSASignature signature)
 			: this(signature, SigHash.All)
@@ -32,12 +32,12 @@ namespace NBitcoin
 		}
 		public TransactionSignature(byte[] sigSigHash)
 		{
-			_Signature = ECDSASignature.FromDER(sigSigHash).MakeCanonical();
+			_Signature = ECDSASignature.FromDER(sigSigHash);
 			_SigHash = (SigHash)sigSigHash[sigSigHash.Length - 1];
 		}
 		public TransactionSignature(byte[] sig, SigHash sigHash)
 		{
-			_Signature = ECDSASignature.FromDER(sig).MakeCanonical();
+			_Signature = ECDSASignature.FromDER(sig);
 			_SigHash = sigHash;
 		}
 
@@ -121,6 +121,11 @@ namespace NBitcoin
 		public override int GetHashCode()
 		{
 			return Id.GetHashCode();
+		}
+
+		public override string ToString()
+		{
+			return Encoders.Hex.EncodeData(ToBytes());
 		}
 	}
 }
