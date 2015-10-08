@@ -287,16 +287,11 @@ namespace NBitcoin.Protocol
 				if(previous != _State)
 				{
 					OnStateChanged(previous);
-				}
-
-				if(value == NodeState.Failed || value == NodeState.Offline)
-				{
-					TraceCorrelation.LogInside(() => NodeServerTrace.Trace.TraceEvent(TraceEventType.Stop, 0, "Communication closed"));
-				}
-
-				if(value == NodeState.Offline || value == NodeState.Failed)
-				{
-					OnDisconnected();
+					if(value == NodeState.Failed || value == NodeState.Offline)
+					{
+						TraceCorrelation.LogInside(() => NodeServerTrace.Trace.TraceEvent(TraceEventType.Stop, 0, "Communication closed"));
+						OnDisconnected();
+					}
 				}
 			}
 		}
@@ -626,12 +621,12 @@ namespace NBitcoin.Protocol
 				{
 					Utils.SafeCloseSocket(socket);
 					NodeServerTrace.Error("Error connecting to the remote endpoint ", ex);
-					State = NodeState.Failed;
 					DisconnectReason = new NodeDisconnectReason()
 					{
 						Reason = "Unexpected exception while connecting to socket",
 						Exception = ex
 					};
+					State = NodeState.Failed;
 					if(addrman != null)
 						addrman.Attempt(Peer);
 					throw;
