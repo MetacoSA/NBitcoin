@@ -1185,6 +1185,12 @@ namespace NBitcoin.Tests
 
 			var fees = errors.OfType<NotEnoughFundsException>().Single();
 			Assert.Equal(fees.Missing, Money.Coins(0.7m));
+
+			spending.Inputs.Add(new TxIn(new OutPoint(funding, 3))); //Coins not found
+			builder.Evaluate(spending, Money.Coins(1.0m), out errors);
+			var coin = errors.OfType<CoinNotFoundException>().Single();
+			Assert.Equal(coin.InputIndex, 4UL);
+			Assert.Equal(coin.OutPoint.N, 3UL);
 		}
 
 		[Fact]

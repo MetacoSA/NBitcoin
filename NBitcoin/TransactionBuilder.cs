@@ -1621,7 +1621,7 @@ namespace NBitcoin
 	public class CoinNotFoundException : KeyNotFoundException
 	{
 		public CoinNotFoundException(IndexedTxIn txIn)
-			: base("Impossible to find the scriptPubKey of outpoint " + txIn.PrevOut)
+			: base("No coin matching " + txIn.PrevOut + " was found")
 		{
 			_OutPoint = txIn.PrevOut;
 			_InputIndex = txIn.Index;
