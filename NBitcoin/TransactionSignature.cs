@@ -127,5 +127,24 @@ namespace NBitcoin
 		{
 			return Encoders.Hex.EncodeData(ToBytes());
 		}
+
+		public bool IsLowS
+		{
+			get
+			{
+				return Signature.IsLowS;
+			}
+		}
+
+
+		/// <summary>
+		/// Enforce LowS on the signature
+		/// </summary>
+		public TransactionSignature MakeCanonical()
+		{
+			if(IsLowS)
+				return this;
+			return new TransactionSignature(Signature.MakeCanonical(), SigHash);
+		}
 	}
 }

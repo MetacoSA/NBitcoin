@@ -9,7 +9,9 @@ using System.Text;
 
 namespace NBitcoin
 {
-	/** Script verification flags */
+	/// <summary>
+	/// Script verification flags
+	/// </summary>
 	[Flags]
 	public enum ScriptVerify : uint
 	{

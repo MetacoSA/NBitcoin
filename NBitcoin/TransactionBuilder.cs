@@ -1026,6 +1026,19 @@ namespace NBitcoin
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public bool Verify(Transaction tx, Money expectedFees = null)
 		{
+			return Verify(tx, expectedFees, ScriptVerify.Standard);
+		}
+
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to verify</param>
+		/// <param name="expectedFees">The expected fees (if null, do not verify)</param>
+		/// <param name="scriptVerify">The script verification flags</param>
+		/// <returns>True if the verification pass</returns>
+		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
+		public bool Verify(Transaction tx, Money expectedFees, ScriptVerify scriptVerify)
+		{
 			Money spent = Money.Zero;
 			foreach(var input in tx.Inputs.AsIndexedInputs())
 			{
@@ -1036,7 +1049,7 @@ namespace NBitcoin
 				if(coin == null)
 					throw CoinNotFound(input.TxIn);
 				spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : ((Coin)coin).Amount;
-				if(!input.VerifyScript(coin.TxOut.ScriptPubKey))
+				if(!input.VerifyScript(coin.TxOut.ScriptPubKey, scriptVerify))
 					return false;
 			}
 			if(spent < tx.TotalOut)

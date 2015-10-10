@@ -78,11 +78,14 @@ namespace NBitcoin.Crypto
 			return new ECDSASignature(sig);
 		}
 
+		/// <summary>
+		/// Enforce LowS on the signature
+		/// </summary>
 		public ECDSASignature MakeCanonical()
 		{
 			if(!IsLowS)
 			{
-				return new ECDSASignature(this.R, ECKey.CreateCurve().N.Subtract(this.S));
+				return new ECDSASignature(this.R, ECKey.CURVE_ORDER.Subtract(this.S));
 			}
 			else
 				return this;
