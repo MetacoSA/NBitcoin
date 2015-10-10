@@ -4,6 +4,7 @@ using NBitcoin.Stealth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 using Builder = System.Func<NBitcoin.TransactionBuilder.TransactionBuildingContext, NBitcoin.IMoney>;
@@ -143,7 +144,6 @@ namespace NBitcoin
 
 		#endregion
 	}
-
 
 	/// <summary>
 	/// Exception thrown when not enough funds are present for verifying or building a transaction
@@ -1020,10 +1020,140 @@ namespace NBitcoin
 		/// <summary>
 		/// Verify that a transaction is fully signed and have enough fees
 		/// </summary>
+		/// <param name="tx">The transaction to check</param>
+		/// <returns>True if no error</returns>
+		public bool Evaluate(Transaction tx)
+		{
+			Exception[] errors;
+			return Evaluate(tx, null, ScriptVerify.Standard, out errors);
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to check</param>
+		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
+		/// <returns>True if no error</returns>
+		public bool Evaluate(Transaction tx, Money expectedFees)
+		{
+			Exception[] errors;
+			return Evaluate(tx, expectedFees, ScriptVerify.Standard, out errors);
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to check</param>
+		/// <param name="scriptVerify">Verification flags</param>
+		/// <returns>True if no error</returns>
+		public bool Evaluate(Transaction tx, ScriptVerify scriptVerify)
+		{
+			Exception[] errors;
+			return Evaluate(tx, null, scriptVerify, out errors);
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to check</param>
+		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
+		/// <param name="scriptVerify">Verification flags</param>
+		/// <returns>True if no error</returns>
+		public bool Evaluate(Transaction tx, Money expectedFees, ScriptVerify scriptVerify)
+		{
+			Exception[] errors;
+			return Evaluate(tx, expectedFees, scriptVerify, out errors);
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to check</param>
+		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
+		/// <param name="errors">Detected errors</param>
+		/// <returns>True if no error</returns>
+		public bool Evaluate(Transaction tx, Money expectedFees, out Exception[] errors)
+		{
+			return Evaluate(tx, expectedFees, ScriptVerify.Standard, out errors);
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to check</param>
+		/// <param name="scriptVerify">Verification flags</param>
+		/// <param name="errors">Detected errors</param>
+		/// <returns>True if no error</returns>
+		public bool Evaluate(Transaction tx, ScriptVerify scriptVerify, out Exception[] errors)
+		{
+			return Evaluate(tx, null, scriptVerify, out errors);
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to check</param>
+		/// <param name="errors">Detected errors</param>
+		/// <returns>True if no error</returns>
+		public bool Evaluate(Transaction tx, out Exception[] errors)
+		{
+			return Evaluate(tx, null, ScriptVerify.Standard, out errors);
+		}
+
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to check</param>
+		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
+		/// <param name="scriptVerify">Verification flags</param>
+		/// <param name="errors">Detected errors</param>
+		/// <returns>True if no error</returns>
+		public bool Evaluate(Transaction tx, Money expectedFees, ScriptVerify scriptVerify, out Exception[] errors)
+		{
+			List<Exception> exceptions = new List<Exception>();
+
+			Money spent = Money.Zero;
+			foreach(var input in tx.Inputs.AsIndexedInputs())
+			{
+				var duplicates = tx.Inputs.AsIndexedInputs().Where(_ => _.PrevOut == input.PrevOut).ToArray();
+				if(duplicates.Length != 1)
+				{
+					var dup = new DuplicateCoinException(duplicates);
+					if(!exceptions.OfType<DuplicateCoinException>().Any(d => d.OutPoint == dup.OutPoint))
+					{
+						exceptions.Add(dup);
+					}
+				}
+				var coin = FindCoin(input.PrevOut);
+				if(coin == null)
+				{
+					exceptions.Add(CoinNotFound(input));
+					continue;
+				}
+				spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : ((Coin)coin).Amount;
+				ScriptError error;
+				if(!input.VerifyScript(coin.TxOut.ScriptPubKey, scriptVerify, out error))
+					exceptions.Add(new ScriptErrorException(input, error, scriptVerify, coin.TxOut.ScriptPubKey));
+			}
+			if(spent < tx.TotalOut)
+				exceptions.Add(new NotEnoughFundsException("Not enough funds in this transaction", null, tx.TotalOut - spent));
+
+			var fees = (spent - tx.TotalOut);
+			if(expectedFees != null)
+			{
+				//Fees might be slightly different than expected because of dust prevention, so allow an error margin of 10%
+				var margin = 0.1m;
+				if(!DustPrevention)
+					margin = 0.0m;
+				if(!expectedFees.Almost(fees, margin))
+					exceptions.Add(new NotEnoughFundsException("Fees different than expected", null, expectedFees - fees));
+			}
+			errors = exceptions.ToArray();
+			return errors.Length == 0;
+		}
+
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
 		/// <param name="tx">The transaction to verify</param>
 		/// <param name="expectedFees">The expected fees (if null, do not verify)</param>
 		/// <returns>True if the verification pass</returns>
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
+		[Obsolete("Use Evaluate instead")]
 		public bool Verify(Transaction tx, Money expectedFees = null)
 		{
 			return Verify(tx, expectedFees, ScriptVerify.Standard);
@@ -1037,40 +1167,23 @@ namespace NBitcoin
 		/// <param name="scriptVerify">The script verification flags</param>
 		/// <returns>True if the verification pass</returns>
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
+		[Obsolete("Use Evaluate instead")]
 		public bool Verify(Transaction tx, Money expectedFees, ScriptVerify scriptVerify)
 		{
-			Money spent = Money.Zero;
-			foreach(var input in tx.Inputs.AsIndexedInputs())
-			{
-				var duplicates = tx.Inputs.Count(_ => _.PrevOut == input.PrevOut);
-				if(duplicates != 1)
-					return false;
-				var coin = FindCoin(input.PrevOut);
-				if(coin == null)
-					throw CoinNotFound(input.TxIn);
-				spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : ((Coin)coin).Amount;
-				if(!input.VerifyScript(coin.TxOut.ScriptPubKey, scriptVerify))
-					return false;
-			}
-			if(spent < tx.TotalOut)
-				throw new NotEnoughFundsException("Not enough funds in this transaction", null, tx.TotalOut - spent);
-
-			var fees = (spent - tx.TotalOut);
-			if(expectedFees != null)
-			{
-				//Fees might be slightly different than expected because of dust prevention, so allow an error margin of 10%
-				var margin = 0.1m;
-				if(!DustPrevention)
-					margin = 0.0m;
-				if(!expectedFees.Almost(fees, margin))
-					throw new NotEnoughFundsException("Fees different than expected", null, expectedFees - fees);
-			}
-			return true;
+			Exception[] errors;
+			Evaluate(tx, expectedFees, scriptVerify, out errors);
+			if(errors.Length == 0)
+				return true;
+			var scriptError = errors[0] as ScriptErrorException;
+			if(scriptError != null)
+				return false;
+			ExceptionDispatchInfo.Capture(errors[0]).Throw();
+			return false;
 		}
 
-		private Exception CoinNotFound(TxIn txIn)
+		private CoinNotFoundException CoinNotFound(IndexedTxIn txIn)
 		{
-			return new KeyNotFoundException("Impossible to find the scriptPubKey of outpoint " + txIn.PrevOut);
+			return new CoinNotFoundException(txIn);
 		}
 
 		public ICoin FindCoin(OutPoint outPoint)
@@ -1090,9 +1203,8 @@ namespace NBitcoin
 			var baseSize = clone.ToBytes().Length;
 
 			int inputSize = 0;
-			for(int i = 0 ; i < tx.Inputs.Count ; i++)
+			foreach(var txin in tx.Inputs.AsIndexedInputs())
 			{
-				var txin = tx.Inputs[i];
 				var coin = FindCoin(txin.PrevOut);
 				if(coin == null)
 					throw CoinNotFound(txin);
@@ -1331,7 +1443,7 @@ namespace NBitcoin
 			if(_CompletedTransaction == null)
 				throw new InvalidOperationException("A partially built transaction should be specified by calling ContinueToBuild");
 
-			var spent = _CompletedTransaction.Inputs.Select(txin =>
+			var spent = _CompletedTransaction.Inputs.AsIndexedInputs().Select(txin =>
 			{
 				var c = FindCoin(txin.PrevOut);
 				if(c == null)
@@ -1428,6 +1540,109 @@ namespace NBitcoin
 				return p2sh.RedeemScript.Hash.ScriptPubKey;
 			}
 			return null;
+		}
+	}
+
+	public class DuplicateCoinException : Exception
+	{
+		public DuplicateCoinException(IndexedTxIn[] duplicated)
+			: base("Duplicate coin spent " + duplicated[0].PrevOut)
+		{
+			_OutPoint = duplicated[0].PrevOut;
+			_InputIndices = duplicated.Select(d => d.Index).ToArray();
+		}
+
+		private readonly OutPoint _OutPoint;
+		public OutPoint OutPoint
+		{
+			get
+			{
+				return _OutPoint;
+			}
+		}
+		private readonly uint[] _InputIndices;
+		public uint[] InputIndices
+		{
+			get
+			{
+				return _InputIndices;
+			}
+		}
+	}
+
+
+	public class ScriptErrorException : Exception
+	{
+		public ScriptErrorException(IndexedTxIn input, ScriptError error, ScriptVerify scriptVerify, Script scriptPubKey)
+			: base("Script error on input " + input.Index + " (" + error + ")")
+		{
+			_InputIndex = input.Index;
+			_ScriptError = error;
+			_ScriptVerify = scriptVerify;
+			_ScriptPubKey = scriptPubKey;
+		}
+
+		private readonly uint _InputIndex;
+		public uint InputIndex
+		{
+			get
+			{
+				return _InputIndex;
+			}
+		}
+
+		private readonly ScriptError _ScriptError;
+		public ScriptError ScriptError
+		{
+			get
+			{
+				return _ScriptError;
+			}
+		}
+
+		private readonly ScriptVerify _ScriptVerify;
+		public ScriptVerify ScriptVerify
+		{
+			get
+			{
+				return _ScriptVerify;
+			}
+		}
+
+		private readonly Script _ScriptPubKey;
+		public Script ScriptPubKey
+		{
+			get
+			{
+				return _ScriptPubKey;
+			}
+		}
+	}
+	public class CoinNotFoundException : KeyNotFoundException
+	{
+		public CoinNotFoundException(IndexedTxIn txIn)
+			: base("Impossible to find the scriptPubKey of outpoint " + txIn.PrevOut)
+		{
+			_OutPoint = txIn.PrevOut;
+			_InputIndex = txIn.Index;
+		}
+
+		private readonly OutPoint _OutPoint;
+		public OutPoint OutPoint
+		{
+			get
+			{
+				return _OutPoint;
+			}
+		}
+
+		private readonly uint _InputIndex;
+		public uint InputIndex
+		{
+			get
+			{
+				return _InputIndex;
+			}
 		}
 	}
 }

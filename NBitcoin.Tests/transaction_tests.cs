@@ -1149,6 +1149,47 @@ namespace NBitcoin.Tests
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		//http://brainwallet.org/#tx
+		public void CanGetTransactionErrors()
+		{
+			Key bob = new Key();
+			Key alice = new Key();
+
+			var funding = new Transaction();
+			funding.Outputs.Add(new TxOut(Money.Coins(1.0m), bob));
+			funding.Outputs.Add(new TxOut(Money.Coins(1.1m), bob));
+			funding.Outputs.Add(new TxOut(Money.Coins(1.2m), alice));
+
+			var spending = new Transaction();
+			spending.Inputs.Add(new TxIn(new OutPoint(funding, 0)));
+			spending.Inputs.Add(new TxIn(new OutPoint(funding, 0))); //Duplicate
+			spending.Inputs.Add(new TxIn(new OutPoint(funding, 1)));
+			spending.Inputs.Add(new TxIn(new OutPoint(funding, 2))); //Alice will not sign
+
+			spending.Outputs.Add(new TxOut(Money.Coins(4.0m), bob));
+
+
+			Exception[] errors = null;
+			TransactionBuilder builder = new TransactionBuilder();
+			builder.AddKeys(bob);
+			builder.AddCoins(funding.Outputs.AsCoins());
+			builder.SignTransactionInPlace(spending);
+			Assert.False(builder.Evaluate(spending, Money.Coins(1.0m), out errors));
+
+			var dup = errors.OfType<DuplicateCoinException>().Single();
+			AssertEx.CollectionEquals(new uint[] { 0, 1 }, dup.InputIndices);
+			AssertEx.Equals(new OutPoint(funding, 0), dup.OutPoint);
+
+			var script = errors.OfType<ScriptErrorException>().Single();
+			AssertEx.Equals(alice.ScriptPubKey, script.ScriptPubKey);
+			AssertEx.Equals(3, script.InputIndex);
+
+			var fees = errors.OfType<NotEnoughFundsException>().Single();
+			Assert.Equal(fees.Missing, Money.Coins(0.7m));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		//http://brainwallet.org/#tx
 		public void CanParseTransaction()
 		{
 			var tests = TestCase.read_json("data/can_parse_transaction.json");
@@ -1187,7 +1228,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		//http://bitcoin.stackexchange.com/questions/25814/ecdsa-signature-and-the-z-value
 		//http://www.nilsschneider.net/2013/01/28/recovering-bitcoin-private-keys.html
 		public void PlayingWithSignatures()
