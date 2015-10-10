@@ -6,6 +6,34 @@ using System.Linq;
 
 namespace NBitcoin.Crypto
 {
+	static class DeterministicDSAExtensions
+	{
+		public static void Update(this IMac hmac, byte[] input)
+		{
+			hmac.BlockUpdate(input, 0, input.Length);
+		}
+		public static byte[] DoFinal(this IMac hmac)
+		{
+			byte[] result = new byte[hmac.GetMacSize()];
+			hmac.DoFinal(result, 0);
+			return result;
+		}
+
+		public static void Update(this IDigest digest, byte[] input)
+		{
+			digest.BlockUpdate(input, 0, input.Length);
+		}
+		public static void Update(this IDigest digest, byte[] input, int offset, int length)
+		{
+			digest.BlockUpdate(input, offset, length);
+		}
+		public static byte[] Digest(this IDigest digest)
+		{
+			byte[] result = new byte[digest.GetDigestSize()];
+			digest.DoFinal(result, 0);
+			return result;
+		}
+	}
 	public class DeterministicECDSA : ECDsaSigner
 	{
 		private byte[] _buffer = new byte[0];
