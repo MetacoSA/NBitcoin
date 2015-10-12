@@ -166,7 +166,7 @@ namespace NBitcoin.Tests
 				.AddKeys(alice, satoshi)
 				.IssueAsset(nico.PubKey, new AssetMoney(goldAssetId, 1000))
 				.BuildTransaction(true);
-			var o = tx.Outputs[0].IsDust(new FeeRate(builder.ColoredDust));
+			var o = tx.Outputs[0].IsDust(builder.MinRelayTxFee);
 			Assert.True(builder.Verify(tx));
 		}
 
@@ -327,7 +327,7 @@ namespace NBitcoin.Tests
 			var coins = new List<ICoin>();
 			coins.AddRange(issuanceCoins);
 			var txBuilder = new TransactionBuilder(1);
-
+			txBuilder.MinRelayTxFee = new FeeRate(Money.Satoshis(1000));
 			//Can issue gold to satoshi and bob
 			var tx = txBuilder
 				.AddCoins(coins.ToArray())
@@ -340,7 +340,7 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Verify(tx, "0.1"));
 
 			//Ensure BTC from the IssuanceCoin are returned
-			Assert.Equal(Money.Parse("0.89994540"), tx.Outputs[2].Value);
+			Assert.Equal(Money.Parse("0.89998848"), tx.Outputs[2].Value);
 			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
 
 			//Can issue and send in same transaction
@@ -413,7 +413,7 @@ namespace NBitcoin.Tests
 			var coins = new List<ICoin>();
 			coins.AddRange(issuanceCoins);
 			var txBuilder = new TransactionBuilder();
-
+			txBuilder.MinRelayTxFee = new FeeRate(Money.Satoshis(1000));
 			//Can issue gold to satoshi and bob
 			var tx = txBuilder
 				.AddCoins(coins.ToArray())
@@ -426,7 +426,7 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Verify(tx, "0.1"));
 
 			//Ensure BTC from the IssuanceCoin are returned
-			Assert.Equal(Money.Parse("0.89994540"), tx.Outputs[2].Value);
+			Assert.Equal(Money.Parse("0.89998848"), tx.Outputs[2].Value);
 			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
 
 			repo.Transactions.Put(tx);
@@ -548,7 +548,7 @@ namespace NBitcoin.Tests
 			AssertHasAsset(tx, colored, colored.Transfers[4], goldId, 45, bob.PubKey);
 			AssertHasAsset(tx, colored, colored.Transfers[5], goldId, 5, satoshi.PubKey);
 
-			Assert.True(tx.Outputs[8].Value == Money.Parse("1.0999454"));
+			Assert.True(tx.Outputs[8].Value == Money.Parse("1.0999424"));
 			Assert.True(tx.Outputs[8].ScriptPubKey == bob.PubKey.ScriptPubKey);
 			Assert.True(tx.Outputs[9].Value == Money.Parse("0.9"));
 			Assert.True(tx.Outputs[9].ScriptPubKey == satoshi.PubKey.ScriptPubKey);
@@ -604,7 +604,7 @@ namespace NBitcoin.Tests
 				AssertHasAsset(transfer, colored, colored.Transfers[1], goldId, 40, alice.PubKey);
 
 				var change = transfer.Outputs[3];
-				Assert.Equal(Money.Parse("1") - new Money(655) - txBuilder.ColoredDust, change.Value);
+				Assert.Equal(Money.Parse("1") - new Money(655) - transfer.Outputs[1].Value, change.Value);
 				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetDestination());
 
 				//Verify issuancecoin can have an url
@@ -1527,7 +1527,7 @@ namespace NBitcoin.Tests
 			t.Outputs[0].Value = 501; //dust
 			Assert.True(!StandardScripts.IsStandardTransaction(t));
 
-			t.Outputs[0].Value = 601; // not dust
+			t.Outputs[0].Value = 2730; // not dust
 			Assert.True(StandardScripts.IsStandardTransaction(t));
 
 			t.Outputs[0].ScriptPubKey = new Script() + OpcodeType.OP_1;
@@ -1548,6 +1548,7 @@ namespace NBitcoin.Tests
 			Assert.True(StandardScripts.IsStandardTransaction(t));
 
 			// Only one TX_NULL_DATA permitted in all cases
+			t.Outputs.Clear();
 			t.Outputs.Add(new TxOut());
 			t.Outputs.Add(new TxOut());
 			t.Outputs[0].ScriptPubKey = new Script() + OpcodeType.OP_RETURN + ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38");

@@ -55,13 +55,13 @@ namespace NBitcoin
 			var splitted = str.Split('-');
 			if(splitted.Length != 2)
 				return false;
-	
+
 			uint256 hash;
 			if(!uint256.TryParse(splitted[0], out hash))
-				return false;			
-			
+				return false;
+
 			uint index;
-			if(!uint.TryParse(splitted[1],out index))
+			if(!uint.TryParse(splitted[1], out index))
 				return false;
 			result = new OutPoint(hash, index);
 			return true;
@@ -1045,6 +1045,29 @@ namespace NBitcoin
 			if(formatter == null)
 				throw new ArgumentNullException("formatter");
 			return formatter.ToString(this);
+		}
+
+		/// <summary>
+		/// Calculate the fee of the transaction
+		/// </summary>
+		/// <param name="spentCoins">Coins being spent</param>
+		/// <returns>Fee or null if some spent coins are missing or if spentCoins is null</returns>
+		public Money GetFee(ICoin[] spentCoins)
+		{
+			if(spentCoins == null)
+			{
+				return null;
+			}
+
+			Money fees = TotalOut;
+			foreach(var input in this.Inputs)
+			{
+				var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
+				if(coin == null)
+					return null;
+				fees -= coin.TxOut.Value;
+			}
+			return fees;
 		}
 	}
 

@@ -615,7 +615,7 @@ namespace NBitcoin
 		/// <returns></returns>
 		public override string ToString()
 		{
-			return ToString(false, true);
+			return ToString(false, false);
 		}
 
 		/// <summary>

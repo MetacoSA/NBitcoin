@@ -19,19 +19,33 @@ namespace NBitcoin
 				return _FeePerK;
 			}
 		}
+
+		readonly static FeeRate _Zero = new FeeRate(Money.Zero);
+		public static FeeRate Zero
+		{
+			get
+			{
+				return _Zero;
+			}
+		}
+
 		public FeeRate(Money feePerK)
 		{
 			if(feePerK == null)
 				throw new ArgumentNullException("feePerK");
+			if(feePerK.Satoshi < 0)
+				throw new ArgumentOutOfRangeException("feePerK");
 			_FeePerK = feePerK;
 		}
 
-		public FeeRate(Money feeFaid, int size)
+		public FeeRate(Money feePaid, int size)
 		{
-			if(feeFaid == null)
-				throw new ArgumentNullException("feeFaid");
+			if(feePaid == null)
+				throw new ArgumentNullException("feePaid");
+			if(feePaid.Satoshi < 0)
+				throw new ArgumentOutOfRangeException("feePaid");
 			if(size > 0)
-				_FeePerK = feeFaid * 1000 / size;
+				_FeePerK = feePaid * 1000 / size;
 			else
 				_FeePerK = 0;
 		}
@@ -57,5 +71,6 @@ namespace NBitcoin
 		{
 			return String.Format("{0} BTC/kB", _FeePerK.ToString());
 		}
+
 	}
 }

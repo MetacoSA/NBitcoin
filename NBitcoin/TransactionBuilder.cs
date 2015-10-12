@@ -430,7 +430,7 @@ namespace NBitcoin
 		{
 			_Rand = new Random();
 			CoinSelector = new DefaultCoinSelector();
-			ColoredDust = Money.Dust;
+			TransactionPolicy = new StandardTransactionPolicy();
 			DustPrevention = true;
 		}
 		internal Random _Rand;
@@ -438,7 +438,7 @@ namespace NBitcoin
 		{
 			_Rand = new Random(seed);
 			CoinSelector = new DefaultCoinSelector(seed);
-			ColoredDust = Money.Dust;
+			TransactionPolicy = new StandardTransactionPolicy();
 			DustPrevention = true;
 		}
 
@@ -544,7 +544,7 @@ namespace NBitcoin
 		{
 			if(amount < Money.Zero)
 				throw new ArgumentOutOfRangeException("amount", "amount can't be negative");
-			if(DustPrevention && amount < ColoredDust && !_OpReturnTemplate.CheckScriptPubKey(scriptPubKey))
+			if(DustPrevention && amount < GetDust(scriptPubKey) && !_OpReturnTemplate.CheckScriptPubKey(scriptPubKey))
 			{
 				SendFees(amount);
 				return this;
@@ -629,9 +629,10 @@ namespace NBitcoin
 			if(changeAmount.Quantity == 0)
 				return changeAmount;
 			var marker = ctx.GetColorMarker(false);
-			var txout = ctx.Transaction.AddOutput(new TxOut(ColoredDust, ctx.Group.ChangeScript[(int)ChangeType.Colored]));
+			var script = ctx.Group.ChangeScript[(int)ChangeType.Colored];
+			var txout = ctx.Transaction.AddOutput(new TxOut(GetDust(script), script));
 			marker.SetQuantity(ctx.Transaction.Outputs.Count - 2, changeAmount.Quantity);
-			ctx.AdditionalFees += ColoredDust;
+			ctx.AdditionalFees += txout.Value;
 			return changeAmount;
 		}
 
@@ -655,18 +656,42 @@ namespace NBitcoin
 			builders.Add(ctx =>
 			{
 				var marker = ctx.GetColorMarker(false);
-				ctx.Transaction.AddOutput(new TxOut(ColoredDust, scriptPubKey));
+				var txout = ctx.Transaction.AddOutput(new TxOut(GetDust(scriptPubKey), scriptPubKey));
 				marker.SetQuantity(ctx.Transaction.Outputs.Count - 2, asset.Quantity);
-				ctx.AdditionalFees += ColoredDust;
+				ctx.AdditionalFees += txout.Value;
 				return asset;
 			});
 			return this;
 		}
 
+		Money GetDust(Script script)
+		{
+			return new TxOut(Money.Zero, script).GetDustThreshold(MinRelayTxFee);
+		}
+
+		FeeRate _MinRelayTxFee;
 		/// <summary>
-		/// The amount of satoshi to use for outputs bearing an Asset
+		/// The MinRelayTxFee for calculating dust of colored output, if not set, returns the one of TransactionPolicy.
 		/// </summary>
-		public Money ColoredDust
+		public FeeRate MinRelayTxFee
+		{
+			get
+			{
+				var fee = _MinRelayTxFee;
+				if(_MinRelayTxFee != null)
+					return _MinRelayTxFee;
+				var policy = TransactionPolicy as StandardTransactionPolicy;
+				if(policy == null)
+					return null;
+				return policy.MinRelayTxFee;
+			}
+			set
+			{
+				_MinRelayTxFee = value;
+			}
+		}
+
+		public ITransactionPolicy TransactionPolicy
 		{
 			get;
 			set;
@@ -697,11 +722,6 @@ namespace NBitcoin
 			else
 				throw new InvalidOperationException("Op return already used for " + _OpReturnUser);
 
-			if(DustPrevention && amount < ColoredDust)
-			{
-				SendFees(amount);
-				return this;
-			}
 			CurrentGroup.Builders.Add(ctx =>
 			{
 				var payment = address.CreatePayment(ephemKey);
@@ -743,9 +763,9 @@ namespace NBitcoin
 					}
 				}
 
-				ctx.Transaction.Outputs.Insert(0, new TxOut(ColoredDust, scriptPubKey));
+				ctx.Transaction.Outputs.Insert(0, new TxOut(GetDust(scriptPubKey), scriptPubKey));
 				marker.Quantities = new[] { checked((ulong)asset.Quantity) }.Concat(marker.Quantities).ToArray();
-				ctx.AdditionalFees += ColoredDust;
+				ctx.AdditionalFees += ctx.Transaction.Outputs[0].Value;
 				return asset;
 			});
 			return this;
