@@ -26,12 +26,14 @@ namespace NBitcoin.Payment
 		public BitcoinUrlBuilder(Uri uri)
 			: this(uri.AbsoluteUri)
 		{
-			if (uri == null) throw new ArgumentNullException("uri");
+			if(uri == null)
+				throw new ArgumentNullException("uri");
 		}
 
 		public BitcoinUrlBuilder(string uri)
 		{
-			if (uri == null) throw new ArgumentNullException("uri");
+			if(uri == null)
+				throw new ArgumentNullException("uri");
 			if(!uri.StartsWith("bitcoin:", StringComparison.OrdinalIgnoreCase))
 				throw new FormatException("Invalid scheme");
 			uri = uri.Remove(0, "bitcoin:".Length);
@@ -88,8 +90,8 @@ namespace NBitcoin.Payment
 				throw new FormatException("Non compatible required parameter " + reqParam);
 		}
 
-		private readonly Dictionary<string, string> _UnknowParameters = new Dictionary<string,string>();
-		public Dictionary<string,string> UnknowParameters
+		private readonly Dictionary<string, string> _UnknowParameters = new Dictionary<string, string>();
+		public Dictionary<string, string> UnknowParameters
 		{
 			get
 			{
@@ -189,7 +191,7 @@ namespace NBitcoin.Payment
 
 				if(Amount != null)
 				{
-					parameters.Add("amount", Amount.ToString());
+					parameters.Add("amount", Amount.ToString(false, true));
 				}
 				if(Label != null)
 				{
