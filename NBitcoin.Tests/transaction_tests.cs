@@ -154,19 +154,22 @@ namespace NBitcoin.Tests
 
 			Assert.True(
 				new TransactionBuilder()
+				{
+					StandardTransactionPolicy = EasyPolicy
+				}
 					.AddCoins(issuanceCoin)
 					.Verify(aliceSigned));
 
 			//In one two one line
 
 			var builder = new TransactionBuilder();
+			builder.StandardTransactionPolicy = RelayPolicy;
 			var tx =
 				builder
 				.AddCoins(issuanceCoin)
 				.AddKeys(alice, satoshi)
 				.IssueAsset(nico.PubKey, new AssetMoney(goldAssetId, 1000))
 				.BuildTransaction(true);
-			var o = tx.Outputs[0].IsDust(builder.MinRelayTxFee);
 			Assert.True(builder.Verify(tx));
 		}
 
@@ -327,7 +330,7 @@ namespace NBitcoin.Tests
 			var coins = new List<ICoin>();
 			coins.AddRange(issuanceCoins);
 			var txBuilder = new TransactionBuilder(1);
-			txBuilder.MinRelayTxFee = new FeeRate(Money.Satoshis(1000));
+			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			//Can issue gold to satoshi and bob
 			var tx = txBuilder
 				.AddCoins(coins.ToArray())
@@ -413,7 +416,7 @@ namespace NBitcoin.Tests
 			var coins = new List<ICoin>();
 			coins.AddRange(issuanceCoins);
 			var txBuilder = new TransactionBuilder();
-			txBuilder.MinRelayTxFee = new FeeRate(Money.Satoshis(1000));
+			txBuilder.StandardTransactionPolicy = RelayPolicy;
 			//Can issue gold to satoshi and bob
 			var tx = txBuilder
 				.AddCoins(coins.ToArray())
@@ -426,7 +429,7 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Verify(tx, "0.1"));
 
 			//Ensure BTC from the IssuanceCoin are returned
-			Assert.Equal(Money.Parse("0.89998848"), tx.Outputs[2].Value);
+			Assert.Equal(Money.Parse("0.89994240"), tx.Outputs[2].Value);
 			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
 
 			repo.Transactions.Put(tx);
@@ -443,6 +446,7 @@ namespace NBitcoin.Tests
 			//Can issue silver to bob, and send some gold to satoshi
 			coins.Add(coloredCoins.First(c => c.ScriptPubKey == bob.PubKey.ScriptPubKey));
 			txBuilder = new TransactionBuilder();
+			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			tx = txBuilder
 				.AddCoins(coins.ToArray())
 				.AddKeys(silver, bob)
@@ -470,11 +474,13 @@ namespace NBitcoin.Tests
 
 			//Satoshi receive gold
 			txBuilder = new TransactionBuilder();
+			txBuilder.StandardTransactionPolicy = RelayPolicy;
 			tx = txBuilder
 					.AddKeys(gold)
 					.AddCoins(issuanceCoins)
 					.IssueAsset(satoshi.PubKey, new AssetMoney(goldId, 1000UL))
 					.SetChange(gold.PubKey)
+					.SendFees(Money.Coins(0.0004m))
 					.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx));
 			repo.Transactions.Put(tx);
@@ -493,12 +499,14 @@ namespace NBitcoin.Tests
 
 			//Bob receive silver and 2 btc
 			txBuilder = new TransactionBuilder();
+			txBuilder.StandardTransactionPolicy = RelayPolicy;
 			tx = txBuilder
 					.AddKeys(silver, gold)
 					.AddCoins(issuanceCoins)
 					.AddCoins(new Coin(new OutPoint(tx.GetHash(), 0), new TxOut("2.5", gold.PubKey.ScriptPubKey)))
 					.IssueAsset(bob.PubKey, new AssetMoney(silverId, 300UL))
 					.Send(bob.PubKey, "2.00")
+					.SendFees(Money.Coins(0.0004m))
 					.SetChange(gold.PubKey)
 					.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx));
@@ -509,11 +517,13 @@ namespace NBitcoin.Tests
 
 			//Bob receive gold
 			txBuilder = new TransactionBuilder();
+			txBuilder.StandardTransactionPolicy = RelayPolicy;
 			tx = txBuilder
 					.AddKeys(gold)
 					.AddCoins(issuanceCoins)
 					.IssueAsset(bob.PubKey, new AssetMoney(goldId, 50UL))
 					.SetChange(gold.PubKey)
+					.SendFees(Money.Coins(0.0004m))
 					.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx));
 			repo.Transactions.Put(tx.GetHash(), tx);
@@ -521,10 +531,12 @@ namespace NBitcoin.Tests
 			var bobGoldCoin = ColoredCoin.Find(tx, repo).First();
 
 			txBuilder = new TransactionBuilder();
+			txBuilder.StandardTransactionPolicy = RelayPolicy;
 			tx = txBuilder
 				.AddCoins(satoshiCoin)
 				.AddCoins(satoshiBTC)
 				.SendAsset(bob.PubKey, new AssetMoney(goldId, 100))
+				.SendFees(Money.Coins(0.0004m))
 				.SetChange(satoshi.PubKey)
 				.Then()
 				.AddCoins(bobSilverCoin, bobGoldCoin, bobBitcoin)
@@ -560,10 +572,14 @@ namespace NBitcoin.Tests
 			//Bob send coins to Satoshi, but alice pay for the dust
 			var funding =
 				new TransactionBuilder()
+				{
+					StandardTransactionPolicy = RelayPolicy
+				}
 				.AddCoins(issuanceCoins)
 				.AddKeys(gold)
 				.IssueAsset(bob.PubKey.Hash, new AssetMoney(goldId, 100UL))
 				.SetChange(gold.PubKey.Hash)
+				.SendFees(Money.Coins(0.0004m))
 				.BuildTransaction(true);
 
 			repo.Transactions.Put(funding);
@@ -575,6 +591,9 @@ namespace NBitcoin.Tests
 			{
 				transfer =
 					new TransactionBuilder()
+					{
+						StandardTransactionPolicy = RelayPolicy
+					}
 					.AddCoins(bobGold)
 					.SendAsset(alice.PubKey.Hash, new AssetMoney(goldId, 40UL))
 					.SetChange(bob.PubKey.Hash)
@@ -584,7 +603,9 @@ namespace NBitcoin.Tests
 			catch(NotEnoughFundsException ex) //Not enough dust to send the change
 			{
 				Assert.True(((Money)ex.Missing).Satoshi == 2730);
+				var rate = new FeeRate(Money.Coins(0.0004m));
 				txBuilder = new TransactionBuilder();
+				txBuilder.StandardTransactionPolicy = RelayPolicy;
 				transfer =
 					txBuilder
 					.AddCoins(bobGold)
@@ -593,7 +614,7 @@ namespace NBitcoin.Tests
 					.SendAsset(alice.PubKey, new AssetMoney(goldId, 40UL))
 					.SetChange(bob.PubKey, ChangeType.Colored)
 					.SetChange(gold.PubKey.Hash, ChangeType.Uncolored)
-					.SendFees(new Money(655))
+					.SendEstimatedFees(rate)
 					.BuildTransaction(true);
 				var fee = new Money(655);
 				Assert.True(txBuilder.Verify(transfer, fee));
@@ -652,6 +673,7 @@ namespace NBitcoin.Tests
 
 			//Bob sends money to satoshi
 			TransactionBuilder builder = new TransactionBuilder();
+			builder.StandardTransactionPolicy = EasyPolicy;
 			var tx =
 				builder
 				.AddCoins(coins)
@@ -666,6 +688,7 @@ namespace NBitcoin.Tests
 
 			//Satoshi sends back the money to Bob
 			builder = new TransactionBuilder();
+			builder.StandardTransactionPolicy = EasyPolicy;
 			tx =
 				builder
 					.AddCoins(stealthCoin)
@@ -681,6 +704,7 @@ namespace NBitcoin.Tests
 			//However, his keys are spread on two machines
 			//He partially signs on the 1st machine
 			builder = new TransactionBuilder();
+			builder.StandardTransactionPolicy = EasyPolicy;
 			tx =
 				builder
 					.AddCoins(stealthCoin)
@@ -693,6 +717,7 @@ namespace NBitcoin.Tests
 
 			//Then he partially signs on the 2nd machine
 			builder = new TransactionBuilder();
+			builder.StandardTransactionPolicy = EasyPolicy;
 			tx =
 				builder
 					.AddCoins(stealthCoin)
@@ -720,6 +745,7 @@ namespace NBitcoin.Tests
 			var bobCoins = new ICoin[] { RandomCoin("0.2", bob), RandomCoin("0.3", bob) };
 
 			TransactionBuilder builder = new TransactionBuilder();
+			FeeRate rate = new FeeRate(Money.Coins(0.0004m));
 			var tx = builder
 				.AddCoins(aliceCoins)
 				.AddKeys(alice)
@@ -730,10 +756,10 @@ namespace NBitcoin.Tests
 				.AddKeys(bob)
 				.Send(satoshi, Money.Coins(0.01m))
 				.SetChange(bob)
-				.SendEstimatedFeesSplit()
+				.SendEstimatedFeesSplit(rate)
 				.BuildTransaction(true);
 
-			var estimated = builder.EstimateFees(tx);
+			var estimated = builder.EstimateFees(tx, rate);
 
 			Assert.True(builder.Verify(tx, estimated));
 		}
@@ -756,6 +782,7 @@ namespace NBitcoin.Tests
 			var bobAliceCoins = new ICoin[] { RandomCoin("1.5", bobAlice, false), RandomCoin("0.25", bobAlice, true) };
 
 			TransactionBuilder builder = new TransactionBuilder();
+			builder.StandardTransactionPolicy = EasyPolicy;
 			var unsigned = builder
 				.AddCoins(aliceCoins)
 				.Send(bobAlice, "1.0")
@@ -774,8 +801,9 @@ namespace NBitcoin.Tests
 
 			Assert.True(Math.Abs(signed.ToBytes().Length - builder.EstimateSize(unsigned)) < 20);
 
-			var estimatedFees = builder.EstimateFees(unsigned);
-			builder.SendEstimatedFees();
+			var rate = new FeeRate(Money.Coins(0.0004m));
+			var estimatedFees = builder.EstimateFees(unsigned, rate);
+			builder.SendEstimatedFees(rate);
 			signed = builder.BuildTransaction(true);
 			Assert.True(builder.Verify(signed, estimatedFees));
 		}
@@ -837,6 +865,7 @@ namespace NBitcoin.Tests
 			var destinations = keys.Select(k => k.PubKey.GetAddress(Network.Main)).ToArray();
 
 			var txBuilder = new TransactionBuilder(0);
+			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			var tx = txBuilder
 				.AddCoins(allCoins)
 				.AddKeys(keys)
@@ -851,6 +880,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(3, tx.Outputs.Count);
 
 			txBuilder = new TransactionBuilder(0);
+			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			tx = txBuilder
 			   .AddCoins(allCoins)
 			   .AddKeys(keys)
@@ -870,6 +900,7 @@ namespace NBitcoin.Tests
 			Assert.True((Money)ex.Missing == Money.Parse("0.9999"));
 			//Can sign partially
 			txBuilder = new TransactionBuilder(0);
+			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			tx = txBuilder
 					.AddCoins(allCoins)
 					.AddKeys(keys.Skip(2).ToArray())  //One of the multi key missing
@@ -892,6 +923,7 @@ namespace NBitcoin.Tests
 
 			//Test if signing separatly
 			txBuilder = new TransactionBuilder(0);
+			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			tx = txBuilder
 					.AddCoins(allCoins)
 					.AddKeys(keys.Skip(2).ToArray())  //One of the multi key missing
@@ -915,6 +947,7 @@ namespace NBitcoin.Tests
 			Assert.False(txBuilder.Verify(signed2));
 
 			txBuilder = new TransactionBuilder(0);
+			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			tx = txBuilder
 				.AddCoins(allCoins)
 				.CombineSignatures(signed1, signed2);
@@ -929,6 +962,7 @@ namespace NBitcoin.Tests
 				};
 
 			txBuilder = new TransactionBuilder(0);
+			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			tx =
 				txBuilder.AddCoins(allCoins)
 					 .Send(destinations[0], Money.Parse("3.0"))
@@ -956,6 +990,7 @@ namespace NBitcoin.Tests
 			for(int i = 0 ; i < 3 ; i++)
 			{
 				txBuilder = new TransactionBuilder();
+				txBuilder.StandardTransactionPolicy = EasyPolicy;
 				tx =
 					txBuilder
 					.AddCoins(allCoins)
@@ -1085,6 +1120,24 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		static StandardTransactionPolicy EasyPolicy = new StandardTransactionPolicy()
+		{
+			MaxTransactionSize = null,
+			MaxTxFee = null,
+			MinRelayTxFee = null,
+			ScriptVerify = ScriptVerify.Standard & ~ScriptVerify.LowS,
+			UseConsensusLib = false
+		};
+
+		static StandardTransactionPolicy RelayPolicy = new StandardTransactionPolicy()
+		{
+			MaxTransactionSize = null,
+			MaxTxFee = null,
+			MinRelayTxFee = new FeeRate(Money.Satoshis(5000)),
+			ScriptVerify = ScriptVerify.Standard & ~ScriptVerify.LowS,
+			UseConsensusLib = false
+		};
+
 		[Trait("UnitTest", "UnitTest")]
 		[Fact]
 		public void CanMutateSignature()
@@ -1095,9 +1148,9 @@ namespace NBitcoin.Tests
 
 
 			TransactionBuilder builder = new TransactionBuilder();
+			builder.StandardTransactionPolicy = EasyPolicy;
 			builder.AddCoins(funding.Outputs.AsCoins());
-			Assert.True(builder.Verify(spending, null, allowHighS));
-			Assert.False(builder.Verify(spending));
+			Assert.True(builder.Verify(spending));
 
 			foreach(var input in spending.Inputs.AsIndexedInputs())
 			{
@@ -1170,27 +1223,28 @@ namespace NBitcoin.Tests
 			spending.Outputs.Add(new TxOut(Money.Coins(4.0m), bob));
 
 
-			Exception[] errors = null;
+			TransactionPolicyError[] errors = null;
 			TransactionBuilder builder = new TransactionBuilder();
+			builder.StandardTransactionPolicy = EasyPolicy;
 			builder.AddKeys(bob);
 			builder.AddCoins(funding.Outputs.AsCoins());
 			builder.SignTransactionInPlace(spending);
 			Assert.False(builder.Evaluate(spending, Money.Coins(1.0m), out errors));
 
-			var dup = errors.OfType<DuplicateCoinException>().Single();
+			var dup = errors.OfType<DuplicateInputPolicyError>().Single();
 			AssertEx.CollectionEquals(new uint[] { 0, 1 }, dup.InputIndices);
 			AssertEx.Equals(new OutPoint(funding, 0), dup.OutPoint);
 
-			var script = errors.OfType<ScriptErrorException>().Single();
+			var script = errors.OfType<ScriptPolicyError>().Single();
 			AssertEx.Equals(alice.ScriptPubKey, script.ScriptPubKey);
 			AssertEx.Equals(3, script.InputIndex);
 
-			var fees = errors.OfType<NotEnoughFundsException>().Single();
+			var fees = errors.OfType<NotEnoughFundsPolicyError>().Single();
 			Assert.Equal(fees.Missing, Money.Coins(0.7m));
 
 			spending.Inputs.Add(new TxIn(new OutPoint(funding, 3))); //Coins not found
 			builder.Evaluate(spending, Money.Coins(1.0m), out errors);
-			var coin = errors.OfType<CoinNotFoundException>().Single();
+			var coin = errors.OfType<CoinNotFoundPolicyError>().Single();
 			Assert.Equal(coin.InputIndex, 4UL);
 			Assert.Equal(coin.OutPoint.N, 3UL);
 		}

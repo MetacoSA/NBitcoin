@@ -430,7 +430,7 @@ namespace NBitcoin
 		{
 			_Rand = new Random();
 			CoinSelector = new DefaultCoinSelector();
-			TransactionPolicy = new StandardTransactionPolicy();
+			StandardTransactionPolicy = new StandardTransactionPolicy();
 			DustPrevention = true;
 		}
 		internal Random _Rand;
@@ -438,7 +438,7 @@ namespace NBitcoin
 		{
 			_Rand = new Random(seed);
 			CoinSelector = new DefaultCoinSelector(seed);
-			TransactionPolicy = new StandardTransactionPolicy();
+			StandardTransactionPolicy = new StandardTransactionPolicy();
 			DustPrevention = true;
 		}
 
@@ -666,32 +666,12 @@ namespace NBitcoin
 
 		Money GetDust(Script script)
 		{
-			return new TxOut(Money.Zero, script).GetDustThreshold(MinRelayTxFee);
+			if(StandardTransactionPolicy == null || StandardTransactionPolicy.MinRelayTxFee == null)
+				return Money.Zero;
+			return new TxOut(Money.Zero, script).GetDustThreshold(StandardTransactionPolicy.MinRelayTxFee);
 		}
 
-		FeeRate _MinRelayTxFee;
-		/// <summary>
-		/// The MinRelayTxFee for calculating dust of colored output, if not set, returns the one of TransactionPolicy.
-		/// </summary>
-		public FeeRate MinRelayTxFee
-		{
-			get
-			{
-				var fee = _MinRelayTxFee;
-				if(_MinRelayTxFee != null)
-					return _MinRelayTxFee;
-				var policy = TransactionPolicy as StandardTransactionPolicy;
-				if(policy == null)
-					return null;
-				return policy.MinRelayTxFee;
-			}
-			set
-			{
-				_MinRelayTxFee = value;
-			}
-		}
-
-		public ITransactionPolicy TransactionPolicy
+		public StandardTransactionPolicy StandardTransactionPolicy
 		{
 			get;
 			set;
@@ -779,32 +759,29 @@ namespace NBitcoin
 			return this;
 		}
 
-		public TransactionBuilder SendEstimatedFees(Money feesPerKB)
-		{
-			var tx = BuildTransaction(false);
-			var fees = EstimateFees(tx, feesPerKB);
-			SendFees(fees);
-			return this;
-		}
-		public TransactionBuilder SendEstimatedFees()
-		{
-			return SendEstimatedFees(null);
-		}
-
 		/// <summary>
 		/// Split the estimated fees accross the several groups (separated by Then())
 		/// </summary>
-		/// <param name="fees"></param>
+		/// <param name="feeRate"></param>
 		/// <returns></returns>
-		public TransactionBuilder SendEstimatedFeesSplit(Money feesPerKB)
+		public TransactionBuilder SendEstimatedFees(FeeRate feeRate)
 		{
 			var tx = BuildTransaction(false);
-			var fees = EstimateFees(tx, feesPerKB);
-			return SendFeesSplit(fees);
+			var fees = EstimateFees(tx, feeRate);
+			SendFees(fees);
+			return this;
 		}
-		public TransactionBuilder SendEstimatedFeesSplit()
+
+		/// <summary>
+		/// Estimate the fee needed for the transaction, and split among groups
+		/// </summary>
+		/// <param name="feeRate"></param>
+		/// <returns></returns>
+		public TransactionBuilder SendEstimatedFeesSplit(FeeRate feeRate)
 		{
-			return SendEstimatedFeesSplit(null);
+			var tx = BuildTransaction(false);
+			var fees = EstimateFees(tx, feeRate);
+			return SendFeesSplit(fees);
 		}
 		/// <summary>
 		/// Split the fees accross the several groups (separated by Then())
@@ -1044,8 +1021,8 @@ namespace NBitcoin
 		/// <returns>True if no error</returns>
 		public bool Evaluate(Transaction tx)
 		{
-			Exception[] errors;
-			return Evaluate(tx, null, ScriptVerify.Standard, out errors);
+			TransactionPolicyError[] errors;
+			return Evaluate(tx, null as Money, out errors);
 		}
 		/// <summary>
 		/// Verify that a transaction is fully signed and have enough fees
@@ -1055,115 +1032,77 @@ namespace NBitcoin
 		/// <returns>True if no error</returns>
 		public bool Evaluate(Transaction tx, Money expectedFees)
 		{
-			Exception[] errors;
-			return Evaluate(tx, expectedFees, ScriptVerify.Standard, out errors);
-		}
-		/// <summary>
-		/// Verify that a transaction is fully signed and have enough fees
-		/// </summary>
-		/// <param name="tx">The transaction to check</param>
-		/// <param name="scriptVerify">Verification flags</param>
-		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx, ScriptVerify scriptVerify)
-		{
-			Exception[] errors;
-			return Evaluate(tx, null, scriptVerify, out errors);
-		}
-		/// <summary>
-		/// Verify that a transaction is fully signed and have enough fees
-		/// </summary>
-		/// <param name="tx">The transaction to check</param>
-		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
-		/// <param name="scriptVerify">Verification flags</param>
-		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx, Money expectedFees, ScriptVerify scriptVerify)
-		{
-			Exception[] errors;
-			return Evaluate(tx, expectedFees, scriptVerify, out errors);
-		}
-		/// <summary>
-		/// Verify that a transaction is fully signed and have enough fees
-		/// </summary>
-		/// <param name="tx">The transaction to check</param>
-		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
-		/// <param name="errors">Detected errors</param>
-		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx, Money expectedFees, out Exception[] errors)
-		{
-			return Evaluate(tx, expectedFees, ScriptVerify.Standard, out errors);
-		}
-		/// <summary>
-		/// Verify that a transaction is fully signed and have enough fees
-		/// </summary>
-		/// <param name="tx">The transaction to check</param>
-		/// <param name="scriptVerify">Verification flags</param>
-		/// <param name="errors">Detected errors</param>
-		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx, ScriptVerify scriptVerify, out Exception[] errors)
-		{
-			return Evaluate(tx, null, scriptVerify, out errors);
-		}
-		/// <summary>
-		/// Verify that a transaction is fully signed and have enough fees
-		/// </summary>
-		/// <param name="tx">The transaction to check</param>
-		/// <param name="errors">Detected errors</param>
-		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx, out Exception[] errors)
-		{
-			return Evaluate(tx, null, ScriptVerify.Standard, out errors);
+			TransactionPolicyError[] errors;
+			return Evaluate(tx, expectedFees, out errors);
 		}
 
 		/// <summary>
 		/// Verify that a transaction is fully signed and have enough fees
 		/// </summary>
 		/// <param name="tx">The transaction to check</param>
-		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
-		/// <param name="scriptVerify">Verification flags</param>
+		/// <param name="expectedFeeRate">The expected fee rate</param>
+		/// <returns>True if no error</returns>
+		public bool Evaluate(Transaction tx, FeeRate expectedFeeRate)
+		{
+			TransactionPolicyError[] errors;
+			return Evaluate(tx, expectedFeeRate, out errors);
+		}
+
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to check</param>
 		/// <param name="errors">Detected errors</param>
 		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx, Money expectedFees, ScriptVerify scriptVerify, out Exception[] errors)
+		public bool Evaluate(Transaction tx, out TransactionPolicyError[] errors)
 		{
-			List<Exception> exceptions = new List<Exception>();
-
-			Money spent = Money.Zero;
-			foreach(var input in tx.Inputs.AsIndexedInputs())
-			{
-				var duplicates = tx.Inputs.AsIndexedInputs().Where(_ => _.PrevOut == input.PrevOut).ToArray();
-				if(duplicates.Length != 1)
-				{
-					var dup = new DuplicateCoinException(duplicates);
-					if(!exceptions.OfType<DuplicateCoinException>().Any(d => d.OutPoint == dup.OutPoint))
-					{
-						exceptions.Add(dup);
-					}
-				}
-				var coin = FindCoin(input.PrevOut);
-				if(coin == null)
-				{
-					exceptions.Add(CoinNotFound(input));
-					continue;
-				}
-				spent += coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : ((Coin)coin).Amount;
-				ScriptError error;
-				if(!input.VerifyScript(coin.TxOut.ScriptPubKey, scriptVerify, out error))
-					exceptions.Add(new ScriptErrorException(input, error, scriptVerify, coin.TxOut.ScriptPubKey));
-			}
-			if(spent < tx.TotalOut)
-				exceptions.Add(new NotEnoughFundsException("Not enough funds in this transaction", null, tx.TotalOut - spent));
-
-			var fees = (spent - tx.TotalOut);
+			return Evaluate(tx, null as Money, out errors);
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to check</param>
+		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
+		/// <param name="errors">Detected errors</param>
+		/// <returns>True if no error</returns>
+		public bool Evaluate(Transaction tx, Money expectedFees, out TransactionPolicyError[] errors)
+		{
+			if(tx == null)
+				throw new ArgumentNullException("tx");
+			var coins = tx.Inputs.Select(i => FindCoin(i.PrevOut)).Where(c => c != null).ToArray();
+			List<TransactionPolicyError> exceptions = new List<TransactionPolicyError>();
+			var policyErrors = MinerTransactionPolicy.Instance.Check(tx, coins);
+			exceptions.AddRange(policyErrors);
+			policyErrors = StandardTransactionPolicy.Check(tx, coins);
+			exceptions.AddRange(policyErrors);
 			if(expectedFees != null)
 			{
-				//Fees might be slightly different than expected because of dust prevention, so allow an error margin of 10%
-				var margin = 0.1m;
-				if(!DustPrevention)
-					margin = 0.0m;
-				if(!expectedFees.Almost(fees, margin))
-					exceptions.Add(new NotEnoughFundsException("Fees different than expected", null, expectedFees - fees));
+				var fees = tx.GetFee(coins);
+				if(fees != null)
+				{
+					//Fees might be slightly different than expected because of dust prevention, so allow an error margin of 10%
+					var margin = 0.1m;
+					if(!DustPrevention)
+						margin = 0.0m;
+					if(!expectedFees.Almost(fees, margin))
+						exceptions.Add(new NotEnoughFundsPolicyError("Fees different than expected", expectedFees - fees));
+				}
 			}
 			errors = exceptions.ToArray();
 			return errors.Length == 0;
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">The transaction to check</param>
+		/// <param name="expectedFeeRate">The expected fee rate</param>
+		/// <param name="errors">Detected errors</param>
+		/// <returns>True if no error</returns>
+		public bool Evaluate(Transaction tx, FeeRate expectedFeeRate, out TransactionPolicyError[] errors)
+		{
+			if(tx == null)
+				throw new ArgumentNullException("tx");
+			return Evaluate(tx, expectedFeeRate == null ? null : expectedFeeRate.GetFee(tx), out errors);
 		}
 
 		/// <summary>
@@ -1174,9 +1113,9 @@ namespace NBitcoin
 		/// <returns>True if the verification pass</returns>
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		[Obsolete("Use Evaluate instead")]
-		public bool Verify(Transaction tx, Money expectedFees = null)
+		public bool Verify(Transaction tx)
 		{
-			return Verify(tx, expectedFees, ScriptVerify.Standard);
+			return Verify(tx, null);
 		}
 
 		/// <summary>
@@ -1188,16 +1127,22 @@ namespace NBitcoin
 		/// <returns>True if the verification pass</returns>
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		[Obsolete("Use Evaluate instead")]
-		public bool Verify(Transaction tx, Money expectedFees, ScriptVerify scriptVerify)
+		public bool Verify(Transaction tx, Money expectedFees)
 		{
-			Exception[] errors;
-			Evaluate(tx, expectedFees, scriptVerify, out errors);
+			TransactionPolicyError[] errors;
+			Evaluate(tx, expectedFees, out errors);
 			if(errors.Length == 0)
 				return true;
-			var scriptError = errors[0] as ScriptErrorException;
+			var scriptError = errors[0] as ScriptPolicyError;
 			if(scriptError != null)
 				return false;
-			ExceptionDispatchInfo.Capture(errors[0]).Throw();
+
+			var coinNotFound = errors.OfType<CoinNotFoundPolicyError>().FirstOrDefault();
+			if(coinNotFound != null)
+				throw coinNotFound.AsException();
+			var notEnoughFunds = errors.OfType<NotEnoughFundsPolicyError>().FirstOrDefault();
+			if(notEnoughFunds != null)
+				throw notEnoughFunds.AsException();
 			return false;
 		}
 
@@ -1278,24 +1223,17 @@ namespace NBitcoin
 		/// Estimate fees of an unsigned transaction
 		/// </summary>
 		/// <param name="tx"></param>
+		/// <param name="feeRate">Fee rate</param>
 		/// <returns></returns>
-		public Money EstimateFees(Transaction tx, Money feesPerKB)
+		public Money EstimateFees(Transaction tx, FeeRate feeRate)
 		{
-			if(feesPerKB == null)
-				feesPerKB = Money.Satoshis(10000);
-			var len = EstimateSize(tx);
-			long nBaseFee = feesPerKB.Satoshi;
-			long nMinFee = (1 + (long)len / 1000) * nBaseFee;
-			return new Money(nMinFee);
-		}
-		/// <summary>
-		/// Estimate fees of an unsigned transaction
-		/// </summary>
-		/// <param name="tx"></param>
-		/// <returns></returns>
-		public Money EstimateFees(Transaction tx)
-		{
-			return EstimateFees(tx, null);
+			if(tx == null)
+				throw new ArgumentNullException("tx");
+			if(feeRate == null)
+				throw new ArgumentNullException("feeRate");
+
+			var estimation = EstimateSize(tx);
+			return feeRate.GetFee(estimation);
 		}
 
 		private void Sign(TransactionSigningContext ctx, ICoin coin, IndexedTxIn txIn)
@@ -1577,81 +1515,6 @@ namespace NBitcoin
 		}
 	}
 
-	public class DuplicateCoinException : Exception
-	{
-		public DuplicateCoinException(IndexedTxIn[] duplicated)
-			: base("Duplicate coin spent " + duplicated[0].PrevOut)
-		{
-			_OutPoint = duplicated[0].PrevOut;
-			_InputIndices = duplicated.Select(d => d.Index).ToArray();
-		}
-
-		private readonly OutPoint _OutPoint;
-		public OutPoint OutPoint
-		{
-			get
-			{
-				return _OutPoint;
-			}
-		}
-		private readonly uint[] _InputIndices;
-		public uint[] InputIndices
-		{
-			get
-			{
-				return _InputIndices;
-			}
-		}
-	}
-
-
-	public class ScriptErrorException : Exception
-	{
-		public ScriptErrorException(IndexedTxIn input, ScriptError error, ScriptVerify scriptVerify, Script scriptPubKey)
-			: base("Script error on input " + input.Index + " (" + error + ")")
-		{
-			_InputIndex = input.Index;
-			_ScriptError = error;
-			_ScriptVerify = scriptVerify;
-			_ScriptPubKey = scriptPubKey;
-		}
-
-		private readonly uint _InputIndex;
-		public uint InputIndex
-		{
-			get
-			{
-				return _InputIndex;
-			}
-		}
-
-		private readonly ScriptError _ScriptError;
-		public ScriptError ScriptError
-		{
-			get
-			{
-				return _ScriptError;
-			}
-		}
-
-		private readonly ScriptVerify _ScriptVerify;
-		public ScriptVerify ScriptVerify
-		{
-			get
-			{
-				return _ScriptVerify;
-			}
-		}
-
-		private readonly Script _ScriptPubKey;
-		public Script ScriptPubKey
-		{
-			get
-			{
-				return _ScriptPubKey;
-			}
-		}
-	}
 	public class CoinNotFoundException : KeyNotFoundException
 	{
 		public CoinNotFoundException(IndexedTxIn txIn)

@@ -12,7 +12,6 @@ namespace NBitcoin
 		{
 			ScriptVerify = NBitcoin.ScriptVerify.Standard;
 			MaxTransactionSize = 100000;
-			MinTxFee = new FeeRate(Money.Satoshis(1000));
 			MaxTxFee = new FeeRate(Money.Coins(0.1m));
 			MinRelayTxFee = new FeeRate(Money.Satoshis(5000));
 		}
@@ -22,13 +21,10 @@ namespace NBitcoin
 			get;
 			set;
 		}
-
+		/// <summary>
+		/// Safety check, if the FeeRate exceed this value, a policy error is raised
+		/// </summary>
 		public FeeRate MaxTxFee
-		{
-			get;
-			set;
-		}
-		public FeeRate MinTxFee
 		{
 			get;
 			set;
@@ -50,7 +46,7 @@ namespace NBitcoin
 			get;
 			set;
 		}
-
+		public const int MaxScriptSigLength = 1650;
 		#region ITransactionPolicy Members
 
 		public TransactionPolicyError[] Check(Transaction transaction, ICoin[] spentCoins)
@@ -58,38 +54,31 @@ namespace NBitcoin
 			if(transaction == null)
 				throw new ArgumentNullException("transaction");
 
+			spentCoins = spentCoins ?? new ICoin[0];
+
 			List<TransactionPolicyError> errors = new List<TransactionPolicyError>();
 
-			if(transaction.Version > Transaction.CURRENT_VERSION || transaction.Version < 1)
-			{
-				errors.Add(new TransactionPolicyError("Invalid transaction version, expected " + Transaction.CURRENT_VERSION));
-			}
+
 
 			foreach(var input in transaction.Inputs.AsIndexedInputs())
 			{
-				if(spentCoins != null)
+				var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
+				if(coin != null)
 				{
-					var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
-					if(coin != null)
+					if(ScriptVerify != null)
 					{
-						if(ScriptVerify != null)
+						ScriptError error;
+						if(!VerifyScript(input, coin.TxOut.ScriptPubKey, ScriptVerify.Value, out error))
 						{
-							ScriptError error;
-							if(!VerifyScript(input, coin.TxOut.ScriptPubKey, ScriptVerify.Value, out error))
-							{
-								errors.Add(new ScriptPolicyError(input, error, ScriptVerify.Value, coin.TxOut.ScriptPubKey));
-							}
+							errors.Add(new ScriptPolicyError(input, error, ScriptVerify.Value, coin.TxOut.ScriptPubKey));
 						}
 					}
-					else
-					{
-						errors.Add(new CoinNotFoundPolicyError(input));
-					}
 				}
+
 				var txin = input.TxIn;
-				if(txin.ScriptSig.Length > 1650)
+				if(txin.ScriptSig.Length > MaxScriptSigLength)
 				{
-					errors.Add(new InputPolicyError("Max scriptSig length exceeded actual is " + txin.ScriptSig.Length + ", max is " + 1650, input));
+					errors.Add(new InputPolicyError("Max scriptSig length exceeded actual is " + txin.ScriptSig.Length + ", max is " + MaxScriptSigLength, input));
 				}
 				if(!txin.ScriptSig.IsPushOnly)
 				{
@@ -124,13 +113,14 @@ namespace NBitcoin
 						errors.Add(new FeeTooHighPolicyError(fees, max));
 				}
 
-				var high = new FeeRate(Money.Satoshis(long.MaxValue - 10));
-				var minFee = new FeeRate(Money.Satoshis(Math.Max((MinTxFee ?? high).FeePerK.Satoshi, (MinRelayTxFee ?? high).FeePerK.Satoshi)));
-				if(minFee != null)
+				if(MinRelayTxFee != null)
 				{
-					var min = minFee.GetFee(txSize);
-					if(fees < min)
-						errors.Add(new FeeTooLowPolicyError(fees, min));
+					if(MinRelayTxFee != null)
+					{
+						var min = MinRelayTxFee.GetFee(txSize);
+						if(fees < min)
+							errors.Add(new FeeTooLowPolicyError(fees, min));
+					}
 				}
 			}
 			if(MinRelayTxFee != null)
@@ -175,5 +165,17 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public StandardTransactionPolicy Clone()
+		{
+			return new StandardTransactionPolicy()
+			{
+				MaxTransactionSize = MaxTransactionSize,
+				MaxTxFee = MaxTxFee,
+				MinRelayTxFee = MinRelayTxFee,
+				ScriptVerify = ScriptVerify,
+				UseConsensusLib = UseConsensusLib
+			};
+		}
 	}
 }

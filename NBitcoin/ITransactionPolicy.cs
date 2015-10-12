@@ -159,6 +159,33 @@ namespace NBitcoin
 		}
 	}
 
+	public class DuplicateInputPolicyError : TransactionPolicyError
+	{
+		public DuplicateInputPolicyError(IndexedTxIn[] duplicated)
+			: base("Duplicate input " + duplicated[0].PrevOut)
+		{
+			_OutPoint = duplicated[0].PrevOut;
+			_InputIndices = duplicated.Select(d => d.Index).ToArray();
+		}
+
+		private readonly OutPoint _OutPoint;
+		public OutPoint OutPoint
+		{
+			get
+			{
+				return _OutPoint;
+			}
+		}
+		private readonly uint[] _InputIndices;
+		public uint[] InputIndices
+		{
+			get
+			{
+				return _InputIndices;
+			}
+		}
+	}
+
 	public class OutputPolicyError : TransactionPolicyError
 	{
 		public OutputPolicyError(string message, int outputIndex) :
@@ -177,10 +204,16 @@ namespace NBitcoin
 	}
 	public class CoinNotFoundPolicyError : InputPolicyError
 	{
+		IndexedTxIn _TxIn;
 		public CoinNotFoundPolicyError(IndexedTxIn txIn)
 			: base("No coin matching " + txIn.PrevOut + " was found", txIn)
 		{
+			_TxIn = txIn;
+		}
 
+		internal Exception AsException()
+		{
+			return new CoinNotFoundException(_TxIn);
 		}
 	}
 

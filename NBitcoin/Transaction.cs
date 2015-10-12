@@ -589,6 +589,8 @@ namespace NBitcoin
 
 		public Money GetDustThreshold(FeeRate minRelayTxFee)
 		{
+			if(minRelayTxFee == null)
+				throw new ArgumentNullException("minRelayTxFee");
 			int nSize = this.GetSerializedSize() + 148;
 			return 3 * minRelayTxFee.GetFee(nSize);
 		}
