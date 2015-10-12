@@ -219,10 +219,7 @@ namespace NBitcoin
 
 	public class Money : IComparable, IComparable<Money>, IEquatable<Money>, IMoney
 	{
-		public const long COIN = 100 * 1000 * 1000;
-		public const long CENT = COIN / 100;
-		public const long NANO = CENT / 100;
-
+		
 		// for decimal.TryParse. None of the NumberStyles' composed values is useful for bitcoin style
 		private const NumberStyles BitcoinStyle =
 						  NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
@@ -652,7 +649,7 @@ namespace NBitcoin
 			}
 		}
 
-		static Money _Dust = new Money(600);
+		static Money _Dust = new Money(2730);
 		public static Money Dust
 		{
 			get
@@ -766,6 +763,11 @@ namespace NBitcoin
 		}
 
 		#endregion
+
+		public const long COIN = 100 * 1000 * 1000;
+		public const long CENT = COIN / 100;
+		public const long NANO = CENT / 100;
+
 	}
 
 	static class CharExtensions

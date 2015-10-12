@@ -135,7 +135,7 @@ namespace NBitcoin.Tests
 			var goldAssetId = goldScriptPubKey.Hash.ToAssetId();
 
 			var issuanceCoin = new IssuanceCoin(
-				new ScriptCoin(RandOutpoint(), new TxOut(new Money(600), goldScriptPubKey), goldRedeem));
+				new ScriptCoin(RandOutpoint(), new TxOut(new Money(2730), goldScriptPubKey), goldRedeem));
 
 			var nico = new Key();
 
@@ -166,7 +166,7 @@ namespace NBitcoin.Tests
 				.AddKeys(alice, satoshi)
 				.IssueAsset(nico.PubKey, new AssetMoney(goldAssetId, 1000))
 				.BuildTransaction(true);
-			var o = tx.Outputs[0].IsDust;
+			var o = tx.Outputs[0].IsDust(new FeeRate(builder.ColoredDust));
 			Assert.True(builder.Verify(tx));
 		}
 
@@ -340,7 +340,7 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Verify(tx, "0.1"));
 
 			//Ensure BTC from the IssuanceCoin are returned
-			Assert.Equal(Money.Parse("0.89998800"), tx.Outputs[2].Value);
+			Assert.Equal(Money.Parse("0.89994540"), tx.Outputs[2].Value);
 			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
 
 			//Can issue and send in same transaction
@@ -426,7 +426,7 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Verify(tx, "0.1"));
 
 			//Ensure BTC from the IssuanceCoin are returned
-			Assert.Equal(Money.Parse("0.89998800"), tx.Outputs[2].Value);
+			Assert.Equal(Money.Parse("0.89994540"), tx.Outputs[2].Value);
 			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
 
 			repo.Transactions.Put(tx);
@@ -548,7 +548,7 @@ namespace NBitcoin.Tests
 			AssertHasAsset(tx, colored, colored.Transfers[4], goldId, 45, bob.PubKey);
 			AssertHasAsset(tx, colored, colored.Transfers[5], goldId, 5, satoshi.PubKey);
 
-			Assert.True(tx.Outputs[8].Value == Money.Parse("1.099988"));
+			Assert.True(tx.Outputs[8].Value == Money.Parse("1.0999454"));
 			Assert.True(tx.Outputs[8].ScriptPubKey == bob.PubKey.ScriptPubKey);
 			Assert.True(tx.Outputs[9].Value == Money.Parse("0.9"));
 			Assert.True(tx.Outputs[9].ScriptPubKey == satoshi.PubKey.ScriptPubKey);
@@ -583,7 +583,7 @@ namespace NBitcoin.Tests
 			}
 			catch(NotEnoughFundsException ex) //Not enough dust to send the change
 			{
-				Assert.True(((Money)ex.Missing).Satoshi == 600);
+				Assert.True(((Money)ex.Missing).Satoshi == 2730);
 				txBuilder = new TransactionBuilder();
 				transfer =
 					txBuilder

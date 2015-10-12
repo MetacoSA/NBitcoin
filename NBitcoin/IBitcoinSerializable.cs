@@ -23,10 +23,19 @@ namespace NBitcoin
 			};
 			serializable.ReadWrite(s);
 		}
+		public static int GetSerializedSize(this IBitcoinSerializable serializable, ProtocolVersion version, SerializationType serializationType)
+		{
+			var ms = new MemoryStream();
+			BitcoinStream s = new BitcoinStream(ms, true);
+			s.Type = serializationType;
+			s.ReadWrite(serializable);
+			return (int)ms.Length;
+		}
 		public static int GetSerializedSize(this IBitcoinSerializable serializable, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
-			return serializable.ToBytes(version).Length;
+			return GetSerializedSize(serializable, version, SerializationType.Disk);
 		}
+
 		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			ReadWrite(serializable, new MemoryStream(bytes), false, version);

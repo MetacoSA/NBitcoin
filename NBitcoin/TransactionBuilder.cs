@@ -449,7 +449,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Will transform transfers below 600 satoshi to fees, so the transaction get correctly relayed by the network.
+		/// Will transform transfers below Dust, so the transaction get correctly relayed by the network.
 		/// </summary>
 		public bool DustPrevention
 		{

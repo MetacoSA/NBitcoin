@@ -103,7 +103,7 @@ namespace NBitcoin
 
 				if(template.Type == TxOutType.TX_NULL_DATA)
 					nDataOut++;
-				else if(txout.IsDust)
+				else if(txout.IsDust(new FeeRate(Money.Satoshis(1000)))) //TODO: Not hard coding feerate
 					return false;
 			}
 			// only one OP_RETURN txout is permitted
