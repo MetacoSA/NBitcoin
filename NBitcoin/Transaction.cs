@@ -1059,13 +1059,13 @@ namespace NBitcoin
 				return null;
 			}
 
-			Money fees = TotalOut;
+			Money fees = -TotalOut;
 			foreach(var input in this.Inputs)
 			{
 				var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
 				if(coin == null)
 					return null;
-				fees -= coin.TxOut.Value;
+				fees += coin.TxOut.Value;
 			}
 			return fees;
 		}

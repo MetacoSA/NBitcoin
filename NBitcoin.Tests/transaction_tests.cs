@@ -135,7 +135,7 @@ namespace NBitcoin.Tests
 			var goldAssetId = goldScriptPubKey.Hash.ToAssetId();
 
 			var issuanceCoin = new IssuanceCoin(
-				new ScriptCoin(RandOutpoint(), new TxOut(new Money(2730), goldScriptPubKey), goldRedeem));
+				new ScriptCoin(RandOutpoint(), new TxOut(new Money(2880), goldScriptPubKey), goldRedeem));
 
 			var nico = new Key();
 
@@ -595,7 +595,8 @@ namespace NBitcoin.Tests
 					.SetChange(gold.PubKey.Hash, ChangeType.Uncolored)
 					.SendFees(new Money(655))
 					.BuildTransaction(true);
-				Assert.True(txBuilder.Verify(transfer, new Money(655)));
+				var fee = new Money(655);
+				Assert.True(txBuilder.Verify(transfer, fee));
 
 				repo.Transactions.Put(funding.GetHash(), funding);
 
@@ -603,8 +604,9 @@ namespace NBitcoin.Tests
 				AssertHasAsset(transfer, colored, colored.Transfers[0], goldId, 60, bob.PubKey);
 				AssertHasAsset(transfer, colored, colored.Transfers[1], goldId, 40, alice.PubKey);
 
-				var change = transfer.Outputs[3];
-				Assert.Equal(Money.Parse("1") - new Money(655) - transfer.Outputs[1].Value, change.Value);
+				var change = transfer.Outputs.Last(o => o.ScriptPubKey == gold.PubKey.Hash.ScriptPubKey);
+				Assert.Equal(Money.Coins(0.99996315m), change.Value);
+
 				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetDestination());
 
 				//Verify issuancecoin can have an url

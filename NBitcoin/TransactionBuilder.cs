@@ -1561,6 +1561,20 @@ namespace NBitcoin
 			}
 			return null;
 		}
+
+		/// <summary>
+		/// Get spent coins of a transaction
+		/// </summary>
+		/// <param name="tx">The transaction</param>
+		/// <returns>Array of size tx.Input.Count, if a coin is not fund, a null coin is returned.</returns>
+		public ICoin[] GetSpentCoins(Transaction tx)
+		{
+			return
+				tx
+				.Inputs
+				.Select(i => FindCoin(i.PrevOut))
+				.ToArray();
+		}
 	}
 
 	public class DuplicateCoinException : Exception
