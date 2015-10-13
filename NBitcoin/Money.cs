@@ -649,25 +649,18 @@ namespace NBitcoin
 			}
 		}
 
-		static Money _Dust = new Money(2730);
-		public static Money Dust
-		{
-			get
-			{
-				return _Dust;
-			}
-		}
-
 		/// <summary>
 		/// Tell if amount is almost equal to this instance
 		/// </summary>
 		/// <param name="amount"></param>
-		/// <param name="dust">more or less dust (default : 600 satoshi)</param>
+		/// <param name="dust">more or less amount</param>
 		/// <returns>true if equals, else false</returns>
-		public bool Almost(Money amount, Money dust = null)
+		public bool Almost(Money amount, Money dust)
 		{
+			if(amount == null)
+				throw new ArgumentNullException("amount");
 			if(dust == null)
-				dust = Dust;
+				throw new ArgumentNullException("dust");
 			return (amount - this).Abs() <= dust;
 		}
 
@@ -679,6 +672,8 @@ namespace NBitcoin
 		/// <returns>true if equals, else false</returns>
 		public bool Almost(Money amount, decimal margin)
 		{
+			if(amount == null)
+				throw new ArgumentNullException("amount");
 			if(margin < 0.0m || margin > 1.0m)
 				throw new ArgumentOutOfRangeException("margin", "margin should be between 0 and 1");
 			var dust = Money.Satoshis((decimal)amount.Satoshi * margin);

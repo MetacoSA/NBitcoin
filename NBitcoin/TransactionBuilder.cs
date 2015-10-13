@@ -665,6 +665,10 @@ namespace NBitcoin
 			return this;
 		}
 
+		Money GetDust()
+		{
+			return GetDust(new Script(new byte[25]));
+		}
 		Money GetDust(Script script)
 		{
 			if(StandardTransactionPolicy == null || StandardTransactionPolicy.MinRelayTxFee == null)
@@ -877,7 +881,7 @@ namespace NBitcoin
 				}
 
 				ctx.AdditionalBuilders.Add(_ => _.AdditionalFees);
-				ctx.Dust = Money.Dust;
+				ctx.Dust = GetDust();
 				ctx.ChangeAmount = Money.Zero;
 				ctx.CoverOnly = group.CoverOnly;
 				ctx.ChangeType = ChangeType.Uncolored;
@@ -1083,7 +1087,7 @@ namespace NBitcoin
 				{
 					Money margin = Money.Zero;
 					if(DustPrevention)
-						margin = GetDust(new Script(new byte[0x20 + 3])) * 2;
+						margin = GetDust() * 2;
 					if(!fees.Almost(expectedFees, margin))
 						exceptions.Add(new NotEnoughFundsPolicyError("Fees different than expected", expectedFees - fees));
 				}

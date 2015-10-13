@@ -157,10 +157,10 @@ namespace NBitcoin.MicroPayment
 
 			var actualFees = GetFundAmount() - payment.TotalOut;
 			var expectedFees = Money.Min(paid, Fees);
-			if(actualFees < Money.Zero || !actualFees.Almost(expectedFees,0.1m))
+			if(actualFees < Money.Zero || !actualFees.Almost(expectedFees, 0.1m))
 				throw new MicroPaymentException("Unexpected fees in the payment");
 
-			if(!GetPaid(payment).Almost(paid))
+			if(!GetPaid(payment).Almost(paid, 0.01m))
 				throw new MicroPaymentException("Unexpected amount in the payment");
 
 			if(paid > GetFundAmount())
@@ -272,7 +272,7 @@ namespace NBitcoin.MicroPayment
 			set;
 		}
 
-	
+
 		public static MicroChannelState Parse(string json)
 		{
 			JsonSerializerSettings settings = new JsonSerializerSettings();

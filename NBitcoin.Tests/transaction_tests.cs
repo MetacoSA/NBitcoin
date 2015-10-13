@@ -194,7 +194,7 @@ namespace NBitcoin.Tests
 				.AddKeys(aliceKey)
 				.Send(aliceBobRedeemScript.Hash, "0.5")
 				.SetChange(aliceKey.PubKey.Hash)
-				.SendFees(Money.Dust)
+				.SendFees(Money.Satoshis(5000))
 				.BuildTransaction(true);
 
 			Assert.True(txBuilder.Verify(funding));
