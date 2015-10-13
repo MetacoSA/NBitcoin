@@ -926,18 +926,21 @@ namespace NBitcoin
 				);
 			if(change.CompareTo(ctx.Dust) == 1)
 			{
-				if(group.ChangeScript[(int)ctx.ChangeType] == null)
+				var changeScript = group.ChangeScript[(int)ctx.ChangeType];
+				if(changeScript == null)
 					throw new InvalidOperationException("A change address should be specified (" + ctx.ChangeType + ")");
-
-				ctx.RestoreMemento(originalCtx);
-				ctx.ChangeAmount = change;
-				try
+				if(!(ctx.Dust is Money) || change.CompareTo(GetDust(changeScript)) == 1)
 				{
-					return BuildTransaction(ctx, group, builders, coins, zero);
-				}
-				finally
-				{
-					ctx.ChangeAmount = zero;
+					ctx.RestoreMemento(originalCtx);
+					ctx.ChangeAmount = change;
+					try
+					{
+						return BuildTransaction(ctx, group, builders, coins, zero);
+					}
+					finally
+					{
+						ctx.ChangeAmount = zero;
+					}
 				}
 			}
 			foreach(var coin in selection)
