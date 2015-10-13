@@ -3,6 +3,7 @@ using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
+using NBitcoin.Policy;
 using NBitcoin.Stealth;
 using Newtonsoft.Json.Linq;
 using System;

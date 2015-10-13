@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace NBitcoin.Policy
 {
 	/// <summary>
 	/// Error when not enough funds are present for verifying or building a transaction

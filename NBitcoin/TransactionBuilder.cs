@@ -1,5 +1,6 @@
 ﻿using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
+using NBitcoin.Policy;
 using NBitcoin.Stealth;
 using System;
 using System.Collections.Generic;
