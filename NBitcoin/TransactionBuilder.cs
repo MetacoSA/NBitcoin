@@ -1060,7 +1060,7 @@ namespace NBitcoin
 			return Evaluate(tx, null as Money, out errors);
 		}
 		/// <summary>
-		/// Verify that a transaction is fully signed and have enough fees
+		/// Verify that a transaction is fully signed, have enough fees, and follow the Standard and Miner Transaction Policy rules
 		/// </summary>
 		/// <param name="tx">The transaction to check</param>
 		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
@@ -1081,11 +1081,10 @@ namespace NBitcoin
 				var fees = tx.GetFee(coins);
 				if(fees != null)
 				{
-					//Fees might be slightly different than expected because of dust prevention, so allow an error margin of 10%
-					var margin = 0.1m;
-					if(!DustPrevention)
-						margin = 0.0m;
-					if(!expectedFees.Almost(fees, margin))
+					Money margin = Money.Zero;
+					if(DustPrevention)
+						margin = GetDust(new Script(new byte[0x20 + 3])) * 2;
+					if(!fees.Almost(expectedFees, margin))
 						exceptions.Add(new NotEnoughFundsPolicyError("Fees different than expected", expectedFees - fees));
 				}
 			}
@@ -1152,12 +1151,27 @@ namespace NBitcoin
 			return new CoinNotFoundException(txIn);
 		}
 
+
 		public ICoin FindCoin(OutPoint outPoint)
 		{
 			var result = _BuilderGroups.Select(c => c.Coins.TryGet(outPoint)).FirstOrDefault(r => r != null);
 			if(result == null && CoinFinder != null)
 				result = CoinFinder(outPoint);
 			return result;
+		}
+
+		/// <summary>
+		/// Find spent coins of a transaction
+		/// </summary>
+		/// <param name="tx">The transaction</param>
+		/// <returns>Array of size tx.Input.Count, if a coin is not fund, a null coin is returned.</returns>
+		public ICoin[] FindSpentCoins(Transaction tx)
+		{
+			return
+				tx
+				.Inputs
+				.Select(i => FindCoin(i.PrevOut))
+				.ToArray();
 		}
 
 		public int EstimateSize(Transaction tx)
@@ -1499,20 +1513,6 @@ namespace NBitcoin
 				return p2sh.RedeemScript.Hash.ScriptPubKey;
 			}
 			return null;
-		}
-
-		/// <summary>
-		/// Get spent coins of a transaction
-		/// </summary>
-		/// <param name="tx">The transaction</param>
-		/// <returns>Array of size tx.Input.Count, if a coin is not fund, a null coin is returned.</returns>
-		public ICoin[] GetSpentCoins(Transaction tx)
-		{
-			return
-				tx
-				.Inputs
-				.Select(i => FindCoin(i.PrevOut))
-				.ToArray();
 		}
 	}
 

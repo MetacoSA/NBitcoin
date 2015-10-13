@@ -14,6 +14,7 @@ namespace NBitcoin.Policy
 			MaxTransactionSize = 100000;
 			MaxTxFee = new FeeRate(Money.Coins(0.1m));
 			MinRelayTxFee = new FeeRate(Money.Satoshis(5000));
+			CheckFee = true;
 		}
 
 		public int? MaxTransactionSize
@@ -40,7 +41,11 @@ namespace NBitcoin.Policy
 			get;
 			set;
 		}
-
+		public bool CheckFee
+		{
+			get;
+			set;
+		}
 		public bool UseConsensusLib
 		{
 			get;
@@ -106,20 +111,23 @@ namespace NBitcoin.Policy
 			var fees = transaction.GetFee(spentCoins);
 			if(fees != null)
 			{
-				if(MaxTxFee != null)
+				if(CheckFee)
 				{
-					var max = MaxTxFee.GetFee(txSize);
-					if(fees > max)
-						errors.Add(new FeeTooHighPolicyError(fees, max));
-				}
+					if(MaxTxFee != null)
+					{
+						var max = MaxTxFee.GetFee(txSize);
+						if(fees > max)
+							errors.Add(new FeeTooHighPolicyError(fees, max));
+					}
 
-				if(MinRelayTxFee != null)
-				{
 					if(MinRelayTxFee != null)
 					{
-						var min = MinRelayTxFee.GetFee(txSize);
-						if(fees < min)
-							errors.Add(new FeeTooLowPolicyError(fees, min));
+						if(MinRelayTxFee != null)
+						{
+							var min = MinRelayTxFee.GetFee(txSize);
+							if(fees < min)
+								errors.Add(new FeeTooLowPolicyError(fees, min));
+						}
 					}
 				}
 			}
@@ -174,7 +182,8 @@ namespace NBitcoin.Policy
 				MaxTxFee = MaxTxFee,
 				MinRelayTxFee = MinRelayTxFee,
 				ScriptVerify = ScriptVerify,
-				UseConsensusLib = UseConsensusLib
+				UseConsensusLib = UseConsensusLib,
+				CheckFee = CheckFee
 			};
 		}
 	}

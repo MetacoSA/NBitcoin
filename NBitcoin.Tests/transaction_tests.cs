@@ -164,7 +164,8 @@ namespace NBitcoin.Tests
 			//In one two one line
 
 			var builder = new TransactionBuilder();
-			builder.StandardTransactionPolicy = RelayPolicy;
+			builder.StandardTransactionPolicy = RelayPolicy.Clone();
+			builder.StandardTransactionPolicy.CheckFee = false;
 			var tx =
 				builder
 				.AddCoins(issuanceCoin)
@@ -331,7 +332,7 @@ namespace NBitcoin.Tests
 			var coins = new List<ICoin>();
 			coins.AddRange(issuanceCoins);
 			var txBuilder = new TransactionBuilder(1);
-			txBuilder.StandardTransactionPolicy = EasyPolicy;
+			txBuilder.StandardTransactionPolicy = RelayPolicy;
 			//Can issue gold to satoshi and bob
 			var tx = txBuilder
 				.AddCoins(coins.ToArray())
@@ -344,7 +345,7 @@ namespace NBitcoin.Tests
 			Assert.True(txBuilder.Evaluate(tx, "0.1"));
 
 			//Ensure BTC from the IssuanceCoin are returned
-			Assert.Equal(Money.Parse("0.89998848"), tx.Outputs[2].Value);
+			Assert.Equal(Money.Parse("0.89994240"), tx.Outputs[2].Value);
 			Assert.Equal(gold.PubKey.ScriptPubKey, tx.Outputs[2].ScriptPubKey);
 
 			//Can issue and send in same transaction
@@ -355,6 +356,7 @@ namespace NBitcoin.Tests
 			for(int i = 0 ; i < 20 ; i++)
 			{
 				txBuilder = new TransactionBuilder(i);
+				txBuilder.StandardTransactionPolicy = RelayPolicy;
 				tx = txBuilder
 					.AddCoins(satoshiBTC)
 					.AddCoins(cc)
@@ -617,7 +619,7 @@ namespace NBitcoin.Tests
 					.SetChange(gold.PubKey.Hash, ChangeType.Uncolored)
 					.SendEstimatedFees(rate)
 					.BuildTransaction(true);
-				var fee = new Money(655);
+				var fee = transfer.GetFee(txBuilder.FindSpentCoins(transfer));
 				Assert.True(txBuilder.Evaluate(transfer, fee));
 
 				repo.Transactions.Put(funding.GetHash(), funding);
@@ -627,7 +629,7 @@ namespace NBitcoin.Tests
 				AssertHasAsset(transfer, colored, colored.Transfers[1], goldId, 40, alice.PubKey);
 
 				var change = transfer.Outputs.Last(o => o.ScriptPubKey == gold.PubKey.Hash.ScriptPubKey);
-				Assert.Equal(Money.Coins(0.99996315m), change.Value);
+				Assert.Equal(Money.Coins(0.99980450m), change.Value);
 
 				Assert.Equal(gold.PubKey.Hash, change.ScriptPubKey.GetDestination());
 
@@ -1028,23 +1030,39 @@ namespace NBitcoin.Tests
 			var coins = tx.Outputs.AsCoins().ToArray();
 
 			var builder = new TransactionBuilder();
-			var signed =
-				builder
+			builder.StandardTransactionPolicy = EasyPolicy.Clone();
+			builder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(new Money(1000));
+
+			Func<Transaction> create = () => builder
 				.AddCoins(coins)
 				.AddKeys(bob)
 				.Send(alice, Money.Coins(0.99m))
-				.Send(alice, Money.Satoshis(599))
+				.Send(alice, Money.Satoshis(500))
 				.Send(TxNullDataTemplate.Instance.GenerateScriptPubKey(new byte[] { 1, 2 }), Money.Zero)
 				.SendFees(Money.Coins(0.0001m))
 				.SetChange(bob)
 				.BuildTransaction(true);
+
+			var signed = create();
+
 			Assert.True(signed.Outputs.Count == 3);
 			Assert.True(builder.Evaluate(signed, Money.Coins(0.0001m)));
 			builder.DustPrevention = false;
 #pragma warning disable 0618
 			var ex = Assert.Throws<NotEnoughFundsException>(() => builder.Verify(signed, Money.Coins(0.0001m)));
 #pragma warning restore 0618
-			Assert.True((Money)ex.Missing == Money.Parse("-0.00000599"));
+			Assert.True((Money)ex.Missing == Money.Parse("-0.00000500"));
+
+			builder = new TransactionBuilder();
+			builder.DustPrevention = false;
+			builder.StandardTransactionPolicy = EasyPolicy.Clone();
+			builder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(new Money(1000));
+			signed = create();
+			Assert.True(signed.Outputs.Count == 4);
+			TransactionPolicyError[] errors;
+			Assert.False(builder.Evaluate(signed, out errors));
+			Assert.True(errors.Length == 1);
+			Assert.True(errors[0] is DustPolicyError);
 		}
 
 		[Fact]
