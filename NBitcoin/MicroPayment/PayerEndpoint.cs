@@ -58,7 +58,7 @@ namespace NBitcoin.MicroPayment
 				.Shuffle()
 				.BuildTransaction(true);
 
-			if(!builder.Verify(Fund, Arguments.Fees))
+			if(!builder.Evaluate(Fund, Arguments.Fees))
 				throw new MicroPaymentException("Funding transaction incorreclty signed");
 
 			var fundCoin = Fund.Outputs.AsCoins().First(c => c.ScriptPubKey == p2sh).ToScriptCoin(Arguments.Redeem);
@@ -83,7 +83,7 @@ namespace NBitcoin.MicroPayment
 				builder
 				.AddCoins(FundCoin)
 				.CombineSignatures(Refund, ackMsg.SignedRefund);
-			if(!builder.Verify(fullySigned, Arguments.Fees))
+			if(!builder.Evaluate(fullySigned, Arguments.Fees))
 			{
 				throw new MicroPaymentException("Transaction incorrectly signed");
 			}
