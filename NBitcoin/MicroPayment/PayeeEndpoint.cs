@@ -74,7 +74,7 @@ namespace NBitcoin.MicroPayment
 				.AddCoins(FundCoin)
 				.AddKeys(payeeKey)
 				.SignTransaction(Payment);
-			if(!builder.Evaluate(tx, Arguments.Fees))
+			if(!builder.Verify(tx, Arguments.Fees))
 				throw new MicroPaymentException("Payment incorrectly signed");
 			return tx;
 		}

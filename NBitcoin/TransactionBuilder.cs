@@ -1020,10 +1020,10 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="tx">The transaction to check</param>
 		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx)
+		public bool Verify(Transaction tx)
 		{
 			TransactionPolicyError[] errors;
-			return Evaluate(tx, null as Money, out errors);
+			return Verify(tx, null as Money, out errors);
 		}
 		/// <summary>
 		/// Verify that a transaction is fully signed and have enough fees
@@ -1031,10 +1031,10 @@ namespace NBitcoin
 		/// <param name="tx">The transaction to check</param>
 		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
 		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx, Money expectedFees)
+		public bool Verify(Transaction tx, Money expectedFees)
 		{
 			TransactionPolicyError[] errors;
-			return Evaluate(tx, expectedFees, out errors);
+			return Verify(tx, expectedFees, out errors);
 		}
 
 		/// <summary>
@@ -1043,10 +1043,10 @@ namespace NBitcoin
 		/// <param name="tx">The transaction to check</param>
 		/// <param name="expectedFeeRate">The expected fee rate</param>
 		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx, FeeRate expectedFeeRate)
+		public bool Verify(Transaction tx, FeeRate expectedFeeRate)
 		{
 			TransactionPolicyError[] errors;
-			return Evaluate(tx, expectedFeeRate, out errors);
+			return Verify(tx, expectedFeeRate, out errors);
 		}
 
 		/// <summary>
@@ -1055,9 +1055,9 @@ namespace NBitcoin
 		/// <param name="tx">The transaction to check</param>
 		/// <param name="errors">Detected errors</param>
 		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx, out TransactionPolicyError[] errors)
+		public bool Verify(Transaction tx, out TransactionPolicyError[] errors)
 		{
-			return Evaluate(tx, null as Money, out errors);
+			return Verify(tx, null as Money, out errors);
 		}
 		/// <summary>
 		/// Verify that a transaction is fully signed, have enough fees, and follow the Standard and Miner Transaction Policy rules
@@ -1066,7 +1066,7 @@ namespace NBitcoin
 		/// <param name="expectedFees">The expected fees (more or less 10%)</param>
 		/// <param name="errors">Detected errors</param>
 		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx, Money expectedFees, out TransactionPolicyError[] errors)
+		public bool Verify(Transaction tx, Money expectedFees, out TransactionPolicyError[] errors)
 		{
 			if(tx == null)
 				throw new ArgumentNullException("tx");
@@ -1098,52 +1098,11 @@ namespace NBitcoin
 		/// <param name="expectedFeeRate">The expected fee rate</param>
 		/// <param name="errors">Detected errors</param>
 		/// <returns>True if no error</returns>
-		public bool Evaluate(Transaction tx, FeeRate expectedFeeRate, out TransactionPolicyError[] errors)
+		public bool Verify(Transaction tx, FeeRate expectedFeeRate, out TransactionPolicyError[] errors)
 		{
 			if(tx == null)
 				throw new ArgumentNullException("tx");
-			return Evaluate(tx, expectedFeeRate == null ? null : expectedFeeRate.GetFee(tx), out errors);
-		}
-
-		/// <summary>
-		/// Verify that a transaction is fully signed and have enough fees
-		/// </summary>
-		/// <param name="tx">The transaction to verify</param>
-		/// <param name="expectedFees">The expected fees (if null, do not verify)</param>
-		/// <returns>True if the verification pass</returns>
-		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
-		[Obsolete("Use Evaluate instead")]
-		public bool Verify(Transaction tx)
-		{
-			return Verify(tx, null);
-		}
-
-		/// <summary>
-		/// Verify that a transaction is fully signed and have enough fees
-		/// </summary>
-		/// <param name="tx">The transaction to verify</param>
-		/// <param name="expectedFees">The expected fees (if null, do not verify)</param>
-		/// <param name="scriptVerify">The script verification flags</param>
-		/// <returns>True if the verification pass</returns>
-		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
-		[Obsolete("Use Evaluate instead")]
-		public bool Verify(Transaction tx, Money expectedFees)
-		{
-			TransactionPolicyError[] errors;
-			Evaluate(tx, expectedFees, out errors);
-			if(errors.Length == 0)
-				return true;
-			var scriptError = errors[0] as ScriptPolicyError;
-			if(scriptError != null)
-				return false;
-
-			var coinNotFound = errors.OfType<CoinNotFoundPolicyError>().FirstOrDefault();
-			if(coinNotFound != null)
-				throw coinNotFound.AsException();
-			var notEnoughFunds = errors.OfType<NotEnoughFundsPolicyError>().FirstOrDefault();
-			if(notEnoughFunds != null)
-				throw notEnoughFunds.AsException();
-			return false;
+			return Verify(tx, expectedFeeRate == null ? null : expectedFeeRate.GetFee(tx), out errors);
 		}
 
 		private CoinNotFoundException CoinNotFound(IndexedTxIn txIn)
