@@ -46,11 +46,13 @@ namespace NBitcoin.Policy
 			get;
 			set;
 		}
+#if !NOCONSENSUSLIB
 		public bool UseConsensusLib
 		{
 			get;
 			set;
 		}
+#endif
 		public const int MaxScriptSigLength = 1650;
 		#region ITransactionPolicy Members
 
@@ -153,8 +155,11 @@ namespace NBitcoin.Policy
 
 		private bool VerifyScript(IndexedTxIn input, Script scriptPubKey, ScriptVerify scriptVerify, out ScriptError error)
 		{
+#if !NOCONSENSUSLIB
 			if(!UseConsensusLib)
+#endif
 				return input.VerifyScript(scriptPubKey, scriptVerify, out error);
+#if !NOCONSENSUSLIB
 			else
 			{
 				var ok = Script.VerifyScriptConsensus(scriptPubKey, input.Transaction, input.Index, scriptVerify);
@@ -170,6 +175,7 @@ namespace NBitcoin.Policy
 				}
 				return true;
 			}
+#endif
 		}
 
 		#endregion
@@ -182,7 +188,9 @@ namespace NBitcoin.Policy
 				MaxTxFee = MaxTxFee,
 				MinRelayTxFee = MinRelayTxFee,
 				ScriptVerify = ScriptVerify,
+#if !NOCONSENSUSLIB
 				UseConsensusLib = UseConsensusLib,
+#endif
 				CheckFee = CheckFee
 			};
 		}

@@ -1146,8 +1146,7 @@ namespace NBitcoin.Tests
 			MaxTransactionSize = null,
 			MaxTxFee = null,
 			MinRelayTxFee = null,
-			ScriptVerify = ScriptVerify.Standard & ~ScriptVerify.LowS,
-			UseConsensusLib = false
+			ScriptVerify = ScriptVerify.Standard & ~ScriptVerify.LowS
 		};
 
 		static StandardTransactionPolicy RelayPolicy = new StandardTransactionPolicy()
@@ -1155,8 +1154,7 @@ namespace NBitcoin.Tests
 			MaxTransactionSize = null,
 			MaxTxFee = null,
 			MinRelayTxFee = new FeeRate(Money.Satoshis(5000)),
-			ScriptVerify = ScriptVerify.Standard & ~ScriptVerify.LowS,
-			UseConsensusLib = false
+			ScriptVerify = ScriptVerify.Standard & ~ScriptVerify.LowS
 		};
 
 		[Trait("UnitTest", "UnitTest")]
