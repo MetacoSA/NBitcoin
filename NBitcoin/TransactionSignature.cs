@@ -18,6 +18,11 @@ namespace NBitcoin
 				return _Empty;
 			}
 		}
+
+		public static bool IsValid(byte[] sig)
+		{
+			return ScriptEvaluationContext.IsValidSignatureEncoding(sig);
+		}
 		public TransactionSignature(ECDSASignature signature, SigHash sigHash)
 		{
 			if(sigHash == SigHash.Undefined)
