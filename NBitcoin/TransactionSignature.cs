@@ -19,9 +19,39 @@ namespace NBitcoin
 			}
 		}
 
-		public static bool IsValid(byte[] sig)
+		/// <summary>
+		/// Check if valid transaction signature
+		/// </summary>
+		/// <param name="sig">Signature in bytes</param>
+		/// <param name="scriptVerify">Verification rules</param>
+		/// <returns>True if valid</returns>
+		public static bool IsValid(byte[] sig, ScriptVerify scriptVerify = ScriptVerify.DerSig | ScriptVerify.StrictEnc)
 		{
-			return ScriptEvaluationContext.IsValidSignatureEncoding(sig) && ScriptEvaluationContext.IsDefinedHashtypeSignature(sig);
+			ScriptError error;
+			return IsValid(sig, ScriptVerify.DerSig | ScriptVerify.StrictEnc, out error);
+		}
+
+
+		/// <summary>
+		/// Check if valid transaction signature
+		/// </summary>
+		/// <param name="sig">The signature</param>
+		/// <param name="scriptVerify">Verification rules</param>
+		/// <param name="error">Error</param>
+		/// <returns>True if valid</returns>
+		public static bool IsValid(byte[] sig, ScriptVerify scriptVerify, out ScriptError error)
+		{
+			error = ScriptError.OK;
+			var ctx = new ScriptEvaluationContext()
+			{
+				ScriptVerify = scriptVerify
+			};
+			if(!ctx.CheckSignatureEncoding(sig))
+			{
+				error = ctx.Error;
+				return false;
+			}
+			return true;
 		}
 		public TransactionSignature(ECDSASignature signature, SigHash sigHash)
 		{
