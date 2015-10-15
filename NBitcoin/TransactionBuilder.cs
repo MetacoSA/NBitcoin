@@ -1121,6 +1121,37 @@ namespace NBitcoin
 				throw new ArgumentNullException("tx");
 			return Verify(tx, expectedFeeRate == null ? null : expectedFeeRate.GetFee(tx), out errors);
 		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">he transaction to check</param>
+		/// <param name="expectedFeeRate">The expected fee rate</param>
+		/// <returns>Detected errors</returns>
+		public TransactionPolicyError[] Check(Transaction tx, FeeRate expectedFeeRate)
+		{
+			return Check(tx, expectedFeeRate == null ? null : expectedFeeRate.GetFee(tx));
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">he transaction to check</param>
+		/// <param name="expectedFee">The expected fee</param>
+		/// <returns>Detected errors</returns>
+		public TransactionPolicyError[] Check(Transaction tx, Money expectedFee)
+		{
+			TransactionPolicyError[] errors;
+			Verify(tx, expectedFee, out errors);
+			return errors;
+		}
+		/// <summary>
+		/// Verify that a transaction is fully signed and have enough fees
+		/// </summary>
+		/// <param name="tx">he transaction to check</param>
+		/// <returns>Detected errors</returns>
+		public TransactionPolicyError[] Check(Transaction tx)
+		{
+			return Check(tx, null as Money);
+		}
 
 		private CoinNotFoundException CoinNotFound(IndexedTxIn txIn)
 		{
