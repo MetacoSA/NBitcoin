@@ -1148,7 +1148,7 @@ namespace NBitcoin
 			return true;
 		}
 
-		private bool IsDefinedHashtypeSignature(byte[] vchSig)
+		internal static bool IsDefinedHashtypeSignature(byte[] vchSig)
 		{
 			if(vchSig.Length == 0)
 			{

@@ -13,6 +13,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Newtonsoft.Json.Linq;
 
 namespace NBitcoin.Tests
 {
@@ -238,6 +239,26 @@ namespace NBitcoin.Tests
 				Assert.Equal(scriptPubKey.ToString(), new Script(scriptPubKey.ToString()).ToString());
 
 				AssertVerifyScript(scriptSig, scriptPubKey, flag, test.Index, comment, true);
+			}
+		}
+
+		[Fact]
+		[Trait("Core", "Core")]
+		public void sig_validinvalid()
+		{
+			var sigs = JArray.Parse(File.ReadAllText("../../data/sig_canonical.json"));
+			foreach(var sig in sigs)
+			{
+				Assert.True(TransactionSignature.IsValid(Encoders.Hex.DecodeData(sig.ToString())));
+			}
+
+			sigs = JArray.Parse(File.ReadAllText("../../data/sig_noncanonical.json"));
+			foreach(var sig in sigs)
+			{
+				if(((HexEncoder)Encoders.Hex).IsValid(sig.ToString()))
+				{
+					Assert.False(TransactionSignature.IsValid(Encoders.Hex.DecodeData(sig.ToString())));
+				}
 			}
 		}
 

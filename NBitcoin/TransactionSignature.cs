@@ -21,7 +21,7 @@ namespace NBitcoin
 
 		public static bool IsValid(byte[] sig)
 		{
-			return ScriptEvaluationContext.IsValidSignatureEncoding(sig);
+			return ScriptEvaluationContext.IsValidSignatureEncoding(sig) && ScriptEvaluationContext.IsDefinedHashtypeSignature(sig);
 		}
 		public TransactionSignature(ECDSASignature signature, SigHash sigHash)
 		{
