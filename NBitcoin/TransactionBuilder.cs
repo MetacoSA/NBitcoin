@@ -676,6 +676,16 @@ namespace NBitcoin
 			return new TxOut(Money.Zero, script).GetDustThreshold(StandardTransactionPolicy.MinRelayTxFee);
 		}
 
+		/// <summary>
+		/// Set transaction policy fluently
+		/// </summary>
+		/// <param name="policy">The policy</param>
+		/// <returns>this</returns>
+		public TransactionBuilder SetTransactionPolicy(StandardTransactionPolicy policy)
+		{
+			StandardTransactionPolicy = policy;
+			return this;
+		}
 		public StandardTransactionPolicy StandardTransactionPolicy
 		{
 			get;
