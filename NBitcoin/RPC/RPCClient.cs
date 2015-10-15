@@ -865,11 +865,11 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns></returns>
-		public Money EstimateFee(int nblock)
+		public FeeRate EstimateFee(int nblock)
 		{
 			var response = SendCommand(RPCOperations.estimatefee, nblock);
 			var result = response.Result.Value<decimal>();
-			return Money.Coins(result);
+			return new FeeRate(Money.Coins(result));
 		}
 
 		/// <summary>
