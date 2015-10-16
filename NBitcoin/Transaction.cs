@@ -1056,10 +1056,7 @@ namespace NBitcoin
 		/// <returns>Fee or null if some spent coins are missing or if spentCoins is null</returns>
 		public Money GetFee(ICoin[] spentCoins)
 		{
-			if(spentCoins == null)
-			{
-				return null;
-			}
+			spentCoins = spentCoins ?? new ICoin[0];
 
 			Money fees = -TotalOut;
 			foreach(var input in this.Inputs)
@@ -1070,6 +1067,19 @@ namespace NBitcoin
 				fees += coin.TxOut.Value;
 			}
 			return fees;
+		}
+
+		/// <summary>
+		/// Calculate the fee rate of the transaction
+		/// </summary>
+		/// <param name="spentCoins">Coins being spent</param>
+		/// <returns>Fee or null if some spent coins are missing or if spentCoins is null</returns>
+		public FeeRate GetFeeRate(ICoin[] spentCoins)
+		{
+			var fee = GetFee(spentCoins);
+			if(fee == null)
+				return null;
+			return new FeeRate(fee, this.GetSerializedSize());
 		}
 	}
 
