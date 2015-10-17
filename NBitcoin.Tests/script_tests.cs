@@ -246,6 +246,7 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void sig_validinvalid()
 		{
+			Assert.False(TransactionSignature.IsValid(new byte[0]));
 			var sigs = JArray.Parse(File.ReadAllText("../../data/sig_canonical.json"));
 			foreach(var sig in sigs)
 			{

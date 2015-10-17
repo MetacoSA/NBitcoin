@@ -28,7 +28,7 @@ namespace NBitcoin
 		public static bool IsValid(byte[] sig, ScriptVerify scriptVerify = ScriptVerify.DerSig | ScriptVerify.StrictEnc)
 		{
 			ScriptError error;
-			return IsValid(sig, ScriptVerify.DerSig | ScriptVerify.StrictEnc, out error);
+			return IsValid(sig, scriptVerify, out error);
 		}
 
 
@@ -41,6 +41,13 @@ namespace NBitcoin
 		/// <returns>True if valid</returns>
 		public static bool IsValid(byte[] sig, ScriptVerify scriptVerify, out ScriptError error)
 		{
+			if(sig == null)
+				throw new ArgumentNullException("sig");
+			if(sig.Length == 0)
+			{
+				error = ScriptError.SigDer;
+				return false;
+			}
 			error = ScriptError.OK;
 			var ctx = new ScriptEvaluationContext()
 			{
