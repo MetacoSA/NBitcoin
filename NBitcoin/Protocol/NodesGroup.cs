@@ -91,7 +91,7 @@ namespace NBitcoin.Protocol
 							parameters.ConnectCancellation = _Disconnect.Token;
 							var addrman = AddressManagerBehavior.GetAddrman(parameters);
 
-							if (addrman == null)
+							if(addrman == null)
 							{
 								addrman = _DefaultAddressManager;
 								AddressManagerBehavior.SetAddrman(parameters, addrman);
@@ -116,10 +116,14 @@ namespace NBitcoin.Protocol
 								if(_Disconnect.Token.IsCancellationRequested)
 									throw;
 								NodeServerTrace.Error("Timeout for picked node", ex);
+								if(node != null)
+									node.DisconnectAsync("Handshake timeout", ex);
 							}
 							catch(Exception ex)
 							{
 								NodeServerTrace.Error("Error while connecting to node", ex);
+								if(node != null)
+									node.DisconnectAsync("Error while connecting", ex);
 							}
 
 						}
