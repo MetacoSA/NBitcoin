@@ -1111,7 +1111,7 @@ namespace NBitcoin.Protocol
 				foreach(var header in headers)
 				{
 					if(!header.Validate(Network))
-						throw new ProtocolException("An header which does not pass proof of work verificaiton has been received");
+						throw new ProtocolException("An header which does not pass proof of work verification has been received");
 				}
 			}
 			chain.SetTip(newTip);
