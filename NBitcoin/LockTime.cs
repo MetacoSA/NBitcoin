@@ -14,7 +14,9 @@ namespace NBitcoin
 
 		public LockTime(DateTimeOffset dateTime)
 		{
-			_value = Utils.DateTimeToUnixTime(dateTime) + LOCKTIME_THRESHOLD;
+			_value = Utils.DateTimeToUnixTime(dateTime);
+			if(_value < LOCKTIME_THRESHOLD)
+				throw new ArgumentOutOfRangeException("dateTime", "The minimum possible date is be Tue Nov  5 00:53:20 1985 UTC");
 		}
 		public LockTime(int valueOrHeight)
 		{

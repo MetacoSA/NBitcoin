@@ -93,16 +93,16 @@ namespace NBitcoin.Tests
 		public void BIP65_tests()
 		{
 			BIP65_testsCore(
-				Utils.UnixTimeToDateTime(1000),
-				Utils.UnixTimeToDateTime(999),
+				Utils.UnixTimeToDateTime(510000000),
+				Utils.UnixTimeToDateTime(509999999),
 				false);
 			BIP65_testsCore(
-				Utils.UnixTimeToDateTime(1000),
-				Utils.UnixTimeToDateTime(1000),
+				Utils.UnixTimeToDateTime(510000000),
+				Utils.UnixTimeToDateTime(510000000),
 				true);
 			BIP65_testsCore(
-				Utils.UnixTimeToDateTime(1000),
-				Utils.UnixTimeToDateTime(1001),
+				Utils.UnixTimeToDateTime(510000000),
+				Utils.UnixTimeToDateTime(510000001),
 				true);
 
 			BIP65_testsCore(
@@ -121,10 +121,10 @@ namespace NBitcoin.Tests
 			//Bad comparison
 			BIP65_testsCore(
 				1000,
-				Utils.UnixTimeToDateTime(1001),
+				Utils.UnixTimeToDateTime(510000001),
 				false);
 			BIP65_testsCore(
-				Utils.UnixTimeToDateTime(1001),
+				Utils.UnixTimeToDateTime(510000001),
 				1000,
 				false);
 		}
