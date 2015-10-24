@@ -75,6 +75,11 @@ namespace NBitcoin
 		// Note: CLEANSTACK should never be used without P2SH.
 		CleanStack = (1U << 8),
 
+		// Verify CHECKLOCKTIMEVERIFY
+		//
+		// See BIP65 for details.
+		CheckLockTimeVerify = (1U << 9),
+
 		/**
  * Mandatory script verification flags that all new blocks must comply with for
  * them to be valid. (but old blocks may not comply with) Currently just P2SH,
@@ -98,6 +103,7 @@ namespace NBitcoin
 			| NullDummy
 			| DiscourageUpgradableNops
 			| CleanStack
+			| CheckLockTimeVerify
 			| LowS
 	}
 
@@ -248,7 +254,7 @@ namespace NBitcoin
 
 		// expansion
 		OP_NOP1 = 0xb0,
-		OP_NOP2 = 0xb1,
+		OP_CHECKLOCKTIMEVERIFY = 0xb1,
 		OP_NOP3 = 0xb2,
 		OP_NOP4 = 0xb3,
 		OP_NOP5 = 0xb4,

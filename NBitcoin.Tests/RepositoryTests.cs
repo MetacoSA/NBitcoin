@@ -285,10 +285,27 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
-			var node = Node.ConnectToLocal(Network.TestNet);
-			node.VersionHandshake();
-			var chain = node.GetChain();
-			var r = chain.Validate(Network.TestNet, true);
+			for(int i = 0 ; i < 400000 ; i++)
+			{
+				var node = Node.Connect(Network.Main, "23.102.26.138:1273");
+				node.StateChanged += (s, a) =>
+				{
+					if(node.State == NodeState.HandShaked)
+					{
+						ConcurrentChain chain = new ConcurrentChain(Network.Main);
+						node.SynchronizeChain(chain);
+					}
+				};
+				node.VersionHandshake();
+				node.DisconnectAsync();
+			}
+			
+
+			//Parallel.ForEach(Enumerable.Range(0, 10), _ =>
+			//{
+			//	ConcurrentChain chain = new ConcurrentChain(Network.Main);
+			//	node.SynchronizeChain(chain);
+			//});
 
 			//Wallet wallet = new Wallet(new ExtKey(), Network.Main);
 			//wallet.Connect(addrman: AddressManager.LoadPeerFile(@"E:\Program Files\Bitcoin\peers.dat", Network.Main));
@@ -331,6 +348,7 @@ namespace NBitcoin.Tests
 			//	}
 			//}
 		}
+
 
 
 		[Fact]

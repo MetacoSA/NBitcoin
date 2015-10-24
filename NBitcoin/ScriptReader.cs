@@ -235,12 +235,12 @@ namespace NBitcoin
 					return "OP_CHECKMULTISIG";
 				case OpcodeType.OP_CHECKMULTISIGVERIFY:
 					return "OP_CHECKMULTISIGVERIFY";
+				case OpcodeType.OP_CHECKLOCKTIMEVERIFY:
+					return "OP_CHECKLOCKTIMEVERIFY";
 
 				// expanson
 				case OpcodeType.OP_NOP1:
 					return "OP_NOP1";
-				case OpcodeType.OP_NOP2:
-					return "OP_NOP2";
 				case OpcodeType.OP_NOP3:
 					return "OP_NOP3";
 				case OpcodeType.OP_NOP4:
@@ -336,7 +336,7 @@ namespace NBitcoin
 		}
 
 		OpcodeType _Code;
-		static readonly bool[] _ValidOpCode;		
+		static readonly bool[] _ValidOpCode;
 
 		private static bool[] GetValidOpCode()
 		{

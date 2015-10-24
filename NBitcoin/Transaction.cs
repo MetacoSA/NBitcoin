@@ -244,6 +244,14 @@ namespace NBitcoin
 			var result = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(ScriptSig);
 			return result != null && result.PublicKey == pubKey;
 		}
+
+		public bool IsFinal
+		{
+			get
+			{
+				return (nSequence == uint.MaxValue);
+			}
+		}
 	}
 
 	public class TxOutCompressor : IBitcoinSerializable
@@ -1080,6 +1088,19 @@ namespace NBitcoin
 			if(fee == null)
 				return null;
 			return new FeeRate(fee, this.GetSerializedSize());
+		}
+
+		public bool IsFinal(DateTimeOffset blockTime, int blockHeight)
+		{
+			var nBlockTime = Utils.DateTimeToUnixTime(blockTime);
+			if(nLockTime == 0)
+				return true;
+			if((long)nLockTime < ((long)nLockTime < LockTime.LOCKTIME_THRESHOLD ? (long)blockHeight : nBlockTime))
+				return true;
+			foreach(var txin in Inputs)
+				if(!txin.IsFinal)
+					return false;
+			return true;
 		}
 	}
 

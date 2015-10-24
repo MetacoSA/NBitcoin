@@ -37,6 +37,10 @@ namespace NBitcoin
 		InvalidAltStackOperation,
 		UnbalancedConditional,
 
+		/* OP_CHECKLOCKTIMEVERIFY */
+		NegativeLockTime,
+		UnsatisfiedLockTime,
+
 		/* BIP62 */
 		SigHashType,
 		SigDer,
@@ -71,6 +75,11 @@ namespace NBitcoin
 			private long m_value;
 
 			public CScriptNum(byte[] vch, bool fRequireMinimal)
+				: this(vch, fRequireMinimal, 4)
+			{
+
+			}
+			public CScriptNum(byte[] vch, bool fRequireMinimal, long nMaxNumSize)
 			{
 				if(vch.Length > nMaxNumSize)
 				{
@@ -464,7 +473,49 @@ namespace NBitcoin
 							case OpcodeType.OP_NOP:
 								break;
 							case OpcodeType.OP_NOP1:
-							case OpcodeType.OP_NOP2:
+							case OpcodeType.OP_CHECKLOCKTIMEVERIFY:
+								{
+									if((ScriptVerify & ScriptVerify.CheckLockTimeVerify) == 0)
+									{
+										// not enabled; treat as a NOP2
+										if((ScriptVerify & ScriptVerify.DiscourageUpgradableNops) != 0)
+										{
+											return SetError(ScriptError.DiscourageUpgradableNops);
+										}
+										break;
+									}
+
+									if(Stack.Count < 1)
+										return SetError(ScriptError.InvalidStackOperation);
+
+									// Note that elsewhere numeric opcodes are limited to
+									// operands in the range -2**31+1 to 2**31-1, however it is
+									// legal for opcodes to produce results exceeding that
+									// range. This limitation is implemented by CScriptNum's
+									// default 4-byte limit.
+									//
+									// If we kept to that limit we'd have a year 2038 problem,
+									// even though the nLockTime field in transactions
+									// themselves is uint32 which only becomes meaningless
+									// after the year 2106.
+									//
+									// Thus as a special case we tell CScriptNum to accept up
+									// to 5-byte bignums, which are good until 2**39-1, well
+									// beyond the 2**32-1 limit of the nLockTime field itself.
+									CScriptNum nLockTime = new CScriptNum(_stack.Top(-1), fRequireMinimal, 5);
+
+									// In the rare event that the argument may be < 0 due to
+									// some arithmetic being done first, you can always use
+									// 0 MAX CHECKLOCKTIMEVERIFY.
+									if(nLockTime < 0)
+										return SetError(ScriptError.NegativeLockTime);
+
+									// Actually compare the specified lock time with the transaction.
+									if(!CheckLockTime(nLockTime, txTo, (uint)nIn))
+										return SetError(ScriptError.UnsatisfiedLockTime);
+
+									break;
+								}
 							case OpcodeType.OP_NOP3:
 							case OpcodeType.OP_NOP4:
 							case OpcodeType.OP_NOP5:
@@ -1100,6 +1151,42 @@ namespace NBitcoin
 				return SetError(ScriptError.UnbalancedConditional);
 
 			return SetSuccess(ScriptError.OK);
+		}
+
+		bool CheckLockTime(CScriptNum nLockTime, Transaction txTo, uint nIn)
+		{
+			// There are two kinds of nLockTime: lock-by-blockheight
+			// and lock-by-blocktime, distinguished by whether
+			// nLockTime < LOCKTIME_THRESHOLD.
+			//
+			// We want to compare apples to apples, so fail the script
+			// unless the type of nLockTime being tested is the same as
+			// the nLockTime in the transaction.
+			if(!(
+				(txTo.LockTime < LockTime.LOCKTIME_THRESHOLD && nLockTime < LockTime.LOCKTIME_THRESHOLD) ||
+				(txTo.LockTime >= LockTime.LOCKTIME_THRESHOLD && nLockTime >= LockTime.LOCKTIME_THRESHOLD)
+			))
+				return false;
+
+			// Now that we know we're comparing apples-to-apples, the
+			// comparison is a simple numeric one.
+			if(nLockTime > (long)txTo.LockTime)
+				return false;
+
+			// Finally the nLockTime feature can be disabled and thus
+			// CHECKLOCKTIMEVERIFY bypassed if every txin has been
+			// finalized by setting nSequence to maxint. The
+			// transaction would be allowed into the blockchain, making
+			// the opcode ineffective.
+			//
+			// Testing if this vin is not final is sufficient to
+			// prevent this condition. Alternatively we could test all
+			// inputs, but testing just this input minimizes the data
+			// required to prove correct CHECKLOCKTIMEVERIFY execution.
+			if(txTo.Inputs[nIn].IsFinal)
+				return false;
+
+			return true;
 		}
 
 		private bool SetSuccess(ScriptError scriptError)

@@ -8,7 +8,7 @@ namespace NBitcoin
 {
 	public struct LockTime : IBitcoinSerializable
 	{
-		const uint LOCKTIME_THRESHOLD = 500000000;
+		internal const uint LOCKTIME_THRESHOLD = 500000000;
 		uint _value;
 
 
@@ -113,6 +113,11 @@ namespace NBitcoin
 		public static implicit operator uint(LockTime lockTime)
 		{
 			return lockTime._value;
+		}
+
+		public static implicit operator long(LockTime lockTime)
+		{
+			return (long)lockTime._value;
 		}
 
 		public override bool Equals(object obj)
