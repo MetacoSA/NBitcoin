@@ -8,7 +8,7 @@ namespace NBitcoin
 {
 	public struct LockTime : IBitcoinSerializable
 	{
-		internal const uint LOCKTIME_THRESHOLD = 500000000;
+		internal const uint LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20 1985 UTC
 		uint _value;
 
 

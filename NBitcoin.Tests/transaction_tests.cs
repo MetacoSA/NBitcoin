@@ -31,6 +31,51 @@ namespace NBitcoin.Tests
 			CanParseOutpointCore("bdaea31696b464c678c4bcc5d0565d58c86bb00c29f96bb86d1278c510d50aeaf-6", false);
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanDetectFinalTransaction()
+		{
+			Transaction tx = new Transaction();
+			tx.Inputs.Add(new TxIn());
+			tx.Inputs[0].Sequence = 1;
+			Assert.True(tx.IsFinal(null));
+
+			//Test on date, normal case
+			tx.LockTime = new LockTime(new DateTimeOffset(2012, 8, 18, 0, 0, 0, TimeSpan.Zero));
+			var time = tx.LockTime.Date;
+			Assert.False(tx.IsFinal(null));
+			Assert.True(tx.IsFinal(time + TimeSpan.FromSeconds(1), 0));
+			Assert.False(tx.IsFinal(time, 0));
+			Assert.False(tx.IsFinal(time - TimeSpan.FromSeconds(1), 0));
+			tx.Inputs[0].Sequence = uint.MaxValue;
+			Assert.True(tx.IsFinal(time, 0));
+			Assert.True(tx.IsFinal(time - TimeSpan.FromSeconds(1), 0));
+			tx.Inputs[0].Sequence = 1;
+			//////////
+
+			//Test on heigh, normal case
+			tx.LockTime = new LockTime(400);
+			DateTimeOffset zero = Utils.UnixTimeToDateTime(0);
+			Assert.False(tx.IsFinal(zero, 0));
+			Assert.False(tx.IsFinal(zero, 400));
+			Assert.True(tx.IsFinal(zero, 401));
+			Assert.False(tx.IsFinal(zero, 399));
+			//////////
+
+			//Edge
+			tx.LockTime = new LockTime(LockTime.LOCKTIME_THRESHOLD);
+			time = tx.LockTime.Date;
+			Assert.False(tx.IsFinal(null));
+			Assert.True(tx.IsFinal(time + TimeSpan.FromSeconds(1), 0));
+			Assert.False(tx.IsFinal(time, 0));
+			Assert.False(tx.IsFinal(time - TimeSpan.FromSeconds(1), 0));
+			tx.Inputs[0].Sequence = uint.MaxValue;
+			Assert.True(tx.IsFinal(time, 0));
+			Assert.True(tx.IsFinal(time - TimeSpan.FromSeconds(1), 0));
+			tx.Inputs[0].Sequence = 1;
+			//////////
+		}
+
 		private OutPoint CanParseOutpointCore(string str, bool valid)
 		{
 			try

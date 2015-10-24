@@ -1090,6 +1090,12 @@ namespace NBitcoin
 			return new FeeRate(fee, this.GetSerializedSize());
 		}
 
+		public bool IsFinal(ChainedBlock block)
+		{
+			if(block == null)
+				return IsFinal(Utils.UnixTimeToDateTime(0), 0);
+			return IsFinal(block.Header.BlockTime, block.Height);
+		}
 		public bool IsFinal(DateTimeOffset blockTime, int blockHeight)
 		{
 			var nBlockTime = Utils.DateTimeToUnixTime(blockTime);
