@@ -41,6 +41,8 @@ namespace NBitcoin.Tests
 					strName = strName.Replace("OP_", "");
 					mapOpNames[strName] = (OpcodeType)op;
 				}
+				mapOpNames["NOP2"] = OpcodeType.OP_NOP2;
+				mapOpNames["OP_NOP2"] = OpcodeType.OP_NOP2;
 			}
 
 			var words = s.Split(' ', '\t', '\n');

@@ -34,7 +34,7 @@ namespace NBitcoin
 		/// Passing a non-strict-DER signature to a checksig operation causes script failure (softfork safe, BIP62 rule 1)
 		/// </summary>
 		DerSig = (1U << 2),
-		
+
 		/// <summary>
 		/// Passing a non-strict-DER signature or one with S > order/2 to a checksig operation causes script failure
 		/// (softfork safe, BIP62 rule 5).
@@ -252,9 +252,11 @@ namespace NBitcoin
 		OP_CHECKMULTISIG = 0xae,
 		OP_CHECKMULTISIGVERIFY = 0xaf,
 
+		OP_CHECKLOCKTIMEVERIFY = 0xb1,
+
 		// expansion
 		OP_NOP1 = 0xb0,
-		OP_CHECKLOCKTIMEVERIFY = 0xb1,
+		OP_NOP2 = 0xb1,
 		OP_NOP3 = 0xb2,
 		OP_NOP4 = 0xb3,
 		OP_NOP5 = 0xb4,
@@ -421,7 +423,7 @@ namespace NBitcoin
 		{
 			// by default StringBuilder capacity is 16 (too small)
 			// 300 is enough for P2PKH
-			var builder = new StringBuilder(300); 
+			var builder = new StringBuilder(300);
 			var reader = new ScriptReader(_Script);
 
 			Op op;
@@ -507,34 +509,34 @@ namespace NBitcoin
 			//Copy subscript into the txin script you are checking
 			txCopy.Inputs[nIn].ScriptSig = scriptCopy;
 
-			var hashType = nHashType & (SigHash) 31;
-			if (hashType == SigHash.None)
+			var hashType = nHashType & (SigHash)31;
+			if(hashType == SigHash.None)
 			{
 				//The output of txCopy is set to a vector of zero size.
 				txCopy.Outputs.Clear();
 
 				//All other inputs aside from the current input in txCopy have their nSequence index set to zero
-				foreach (var input in txCopy.Inputs.Where((x, i) => i != nIn))
+				foreach(var input in txCopy.Inputs.Where((x, i) => i != nIn))
 					input.Sequence = 0;
 			}
-			else if (hashType == SigHash.Single)
+			else if(hashType == SigHash.Single)
 			{
 				//The output of txCopy is resized to the size of the current input index+1.
 				txCopy.Outputs.RemoveRange(nIn + 1, txCopy.Outputs.Count - (nIn + 1));
 				//All other txCopy outputs aside from the output that is the same as the current input index are set to a blank script and a value of (long) -1.
-				for (var i = 0; i < txCopy.Outputs.Count; i++)
+				for(var i = 0 ; i < txCopy.Outputs.Count ; i++)
 				{
-					if (i == nIn)
+					if(i == nIn)
 						continue;
 					txCopy.Outputs[i] = new TxOut();
 				}
 				//All other txCopy inputs aside from the current input are set to have an nSequence index of zero.
-				foreach (var input in txCopy.Inputs.Where((x, i) => i != nIn))
+				foreach(var input in txCopy.Inputs.Where((x, i) => i != nIn))
 					input.Sequence = 0;
 			}
 
 
-			if ((nHashType & SigHash.AnyoneCanPay) != 0)
+			if((nHashType & SigHash.AnyoneCanPay) != 0)
 			{
 				//The txCopy input vector is resized to a length of one.
 				var script = txCopy.Inputs[nIn];
@@ -849,11 +851,11 @@ namespace NBitcoin
 		public static Script CreateFromDestination(TxDestination id)
 		{
 			var scriptId = id as ScriptId;
-			if (scriptId != null)
+			if(scriptId != null)
 				return PayToScriptHashTemplate.Instance.GenerateScriptPubKey(scriptId);
 
 			var pubkeyHash = id as KeyId;
-			if (pubkeyHash != null)
+			if(pubkeyHash != null)
 				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(pubkeyHash);
 
 			throw new NotSupportedException();
