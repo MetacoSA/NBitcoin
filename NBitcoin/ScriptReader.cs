@@ -292,6 +292,10 @@ namespace NBitcoin
 		{
 			return GetPushOp(Utils.BigIntegerToBytes(data));
 		}
+		public static Op GetPushOp(long value)
+		{
+			return GetPushOp(Utils.BigIntegerToBytes(new BigInteger(value)));
+		}
 		public static Op GetPushOp(byte[] data)
 		{
 			Op op = new Op();

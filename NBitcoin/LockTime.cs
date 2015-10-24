@@ -14,7 +14,7 @@ namespace NBitcoin
 
 		public LockTime(DateTimeOffset dateTime)
 		{
-			_value = Utils.DateTimeToUnixTime(dateTime);
+			_value = Utils.DateTimeToUnixTime(dateTime) + LOCKTIME_THRESHOLD;
 		}
 		public LockTime(int valueOrHeight)
 		{

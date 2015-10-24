@@ -88,6 +88,66 @@ namespace NBitcoin.Tests
 		}
 
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void BIP65_tests()
+		{
+			BIP65_testsCore(
+				Utils.UnixTimeToDateTime(1000),
+				Utils.UnixTimeToDateTime(999),
+				false);
+			BIP65_testsCore(
+				Utils.UnixTimeToDateTime(1000),
+				Utils.UnixTimeToDateTime(1000),
+				true);
+			BIP65_testsCore(
+				Utils.UnixTimeToDateTime(1000),
+				Utils.UnixTimeToDateTime(1001),
+				true);
+
+			BIP65_testsCore(
+				1000,
+				999,
+				false);
+			BIP65_testsCore(
+				1000,
+				1000,
+				true);
+			BIP65_testsCore(
+				1000,
+				1001,
+				true);
+
+			//Bad comparison
+			BIP65_testsCore(
+				1000,
+				Utils.UnixTimeToDateTime(1001),
+				false);
+			BIP65_testsCore(
+				Utils.UnixTimeToDateTime(1001),
+				1000,
+				false);
+		}
+
+		private void BIP65_testsCore(LockTime target, LockTime now, bool expectedResult)
+		{
+			Transaction tx = new Transaction();
+			tx.Outputs.Add(new TxOut()
+			{
+				ScriptPubKey = new Script(Op.GetPushOp(target.Value), OpcodeType.OP_CHECKLOCKTIMEVERIFY)
+			});
+
+			Transaction spending = new Transaction();
+			spending.LockTime = now;
+			spending.Inputs.Add(new TxIn(tx.Outputs.AsCoins().First().Outpoint, new Script()));
+			spending.Inputs[0].Sequence = 1;
+
+			Assert.Equal(expectedResult, spending.Inputs.AsIndexedInputs().First().VerifyScript(tx.Outputs[0].ScriptPubKey));
+
+			spending.Inputs[0].Sequence = uint.MaxValue;
+			Assert.Equal(false, spending.Inputs.AsIndexedInputs().First().VerifyScript(tx.Outputs[0].ScriptPubKey));
+		}
+
 
 
 		[Fact]
@@ -304,7 +364,7 @@ namespace NBitcoin.Tests
 
 		private void EnsureHasLibConsensus()
 		{
-			#if !NOCONSENSUSLIB
+#if !NOCONSENSUSLIB
 			string environment = Environment.Is64BitProcess ? "x64" : "x86";
 			if(File.Exists(Script.LibConsensusDll))
 			{
@@ -313,16 +373,16 @@ namespace NBitcoin.Tests
 					return;
 			}
 			HttpClient client = new HttpClient();
-			var libConsensus = client.GetByteArrayAsync("https://aois.blob.core.windows.net/public/libbitcoinconsensus/"+ environment + "/libbitcoinconsensus-0.dll").Result;
+			var libConsensus = client.GetByteArrayAsync("https://aois.blob.core.windows.net/public/libbitcoinconsensus/" + environment + "/libbitcoinconsensus-0.dll").Result;
 			if(!CheckHashConsensus(libConsensus, environment))
 			{
 				throw new InvalidOperationException("Downloaded consensus li has wrong hash");
 			}
 			File.WriteAllBytes(Script.LibConsensusDll, libConsensus);
-			#endif
+#endif
 		}
 #if !NOCONSENSUSLIB
-		private bool CheckHashConsensus(byte[] bytes,string env)
+		private bool CheckHashConsensus(byte[] bytes, string env)
 		{
 			//from bitcoin-0.11
 			if(env == "x86")
@@ -840,7 +900,7 @@ namespace NBitcoin.Tests
 			var p2pkhScriptSig = new Script("304402206e3f2f829644ffe78b56ec8d0ea3715aee66e533a8195220bdea1526dc6ed3b202205eabcae791abfea55d54f8ec4e6de1bad1f7aa90e91687e81150b411e457025701 029f4485fddb359aeed82d71dc8df2fb0e83e31601c749d468ea92c99c13c5558b");
 			p2pkhScriptSig.ToString();
 			var result = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(p2pkhScriptSig);
-			
+
 			Assert.Null(result);
 		}
 
