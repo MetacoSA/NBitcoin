@@ -89,6 +89,7 @@ namespace NBitcoin.Tests
 			var rpc = CreateRPCClient();
 			var result = rpc.EstimateFee(10);
 			Assert.NotNull(result);
+			Assert.NotEqual(Money.Zero, result.FeePerK);
 		}
 
 		[Fact]
@@ -161,7 +162,7 @@ namespace NBitcoin.Tests
 			{
 				rpc.RemoveNode(new IPEndPoint(IPAddress.Parse("201.56.71.129"), 8333));
 			}
-			catch (Exception)
+			catch(Exception)
 			{
 			}
 

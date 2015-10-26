@@ -869,7 +869,10 @@ namespace NBitcoin.RPC
 		{
 			var response = SendCommand(RPCOperations.estimatefee, nblock);
 			var result = response.Result.Value<decimal>();
-			return new FeeRate(Money.Coins(result));
+			var money = Money.Coins(result);
+			if(money.Satoshi < 0)
+				money = Money.Zero;
+			return new FeeRate(money);
 		}
 
 		/// <summary>
