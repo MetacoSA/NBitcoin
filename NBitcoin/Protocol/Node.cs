@@ -52,6 +52,19 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
+
+		public virtual bool Check(VersionPayload version)
+		{
+			if(MinVersion != null)
+			{
+				return false;
+			}
+			if((RequiredServices & version.Services) != RequiredServices)
+			{				
+				return false;
+			}
+			return true;
+		}
 	}
 
 
@@ -901,19 +914,12 @@ namespace NBitcoin.Protocol
 					Disconnect("Outdated version");
 					return;
 				}
-				if(requirements.MinVersion != null)
-				{
-					if(version.Version < requirements.MinVersion.Value)
-					{
-						Disconnect("The peer does not support the version requirement");
-						return;
-					}
-				}
-				if((requirements.RequiredServices & version.Services) != requirements.RequiredServices)
+
+				if(!requirements.Check(version))
 				{
 					Disconnect("The peer does not support the required services requirement");
 					return;
-				}
+				}				
 
 				SendMessageAsync(new VerAckPayload());
 				listener.ReceivePayload<VerAckPayload>(cancellationToken);
