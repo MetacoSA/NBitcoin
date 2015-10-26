@@ -33,6 +33,49 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanGetMedianBlock()
+		{
+			ConcurrentChain chain = new ConcurrentChain(Network.Main);
+			DateTimeOffset now = DateTimeOffset.UtcNow;
+			chain.SetTip(CreateBlock(now, 0, chain));
+			chain.SetTip(CreateBlock(now, -1, chain));
+			chain.SetTip(CreateBlock(now, 1, chain));
+			Assert.Equal(CreateBlock(now, 0).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1
+			chain.SetTip(CreateBlock(now, 2, chain));
+			Assert.Equal(CreateBlock(now, 0).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1 2
+			chain.SetTip(CreateBlock(now, 3, chain));
+			Assert.Equal(CreateBlock(now, 1).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1 2 3
+			chain.SetTip(CreateBlock(now, 4, chain));
+			chain.SetTip(CreateBlock(now, 5, chain));
+			chain.SetTip(CreateBlock(now, 6, chain));
+			chain.SetTip(CreateBlock(now, 7, chain));
+			chain.SetTip(CreateBlock(now, 8, chain));
+
+			Assert.Equal(CreateBlock(now, 3).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1 2 3 4 5 6 7 8
+
+			chain.SetTip(CreateBlock(now, 9, chain));
+			Assert.Equal(CreateBlock(now, 4).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1 2 3 4 5 6 7 8 9
+			chain.SetTip(CreateBlock(now, 10, chain));
+			Assert.Equal(CreateBlock(now, 5).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1 2 3 4 5 6 7 8 9 10
+		}
+
+		private ChainedBlock CreateBlock(DateTimeOffset now, int offset, ChainBase chain = null)
+		{
+			Block b = new Block(new BlockHeader()
+			{
+				BlockTime = now + TimeSpan.FromMinutes(offset)
+			});
+			if(chain != null)
+			{
+				b.Header.HashPrevBlock = chain.Tip.HashBlock;
+				return new ChainedBlock(b.Header, null, chain.Tip);
+			}
+			else
+				return new ChainedBlock(b.Header, 0);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanDetectFinalTransaction()
 		{
 			Transaction tx = new Transaction();
