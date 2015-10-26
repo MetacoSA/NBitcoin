@@ -90,14 +90,16 @@ namespace NBitcoin.Protocol
 			return false;
 		}
 
-		public void Remove(Node node)
+		public bool Remove(Node node)
 		{
 			Node old;
 			if(_Nodes.TryRemove(node, out old))
 			{
 				node.MessageProducer.RemoveMessageListener(bridge);
 				OnNodeRemoved(old);
+				return true;
 			}
+			return false;
 		}
 
 		public event EventHandler<NodeEventArgs> Added;

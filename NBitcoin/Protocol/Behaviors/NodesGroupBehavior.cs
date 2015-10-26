@@ -38,13 +38,18 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void AttachedNode_StateChanged(Node node, NodeState oldState)
 		{
-			if(!node.IsConnected)
+			if(node.State == NodeState.HandShaked)
 			{
-				_Parent._ConnectedNodes.Remove(AttachedNode);
-				_Parent.StartConnecting();
+				_Parent._ConnectedNodes.Add(node);
+			}
+			if(node.State == NodeState.Failed || node.State == NodeState.Disconnecting || node.State == NodeState.Offline)
+			{
+				if(_Parent._ConnectedNodes.Remove(node))
+				{
+					_Parent.StartConnecting();
+				}
 			}
 		}
-
 
 	
 

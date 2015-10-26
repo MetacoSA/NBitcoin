@@ -44,7 +44,6 @@ namespace NBitcoin.Protocol
 			_ConnectionParameters = _ConnectionParameters.Clone();
 			_Requirements = requirements ?? new NodeRequirement();
 			_Disconnect = new CancellationTokenSource();
-			_ConnectionParameters.TemplateBehaviors.Add(CreateBehavior());
 		}
 
 		/// <summary>
@@ -88,6 +87,7 @@ namespace NBitcoin.Protocol
 
 							NodeServerTrace.Information("Connected nodes : " + _ConnectedNodes.Count + "/" + MaximumNodeConnection);
 							var parameters = _ConnectionParameters.Clone();
+							parameters.TemplateBehaviors.Add(new NodesGroupBehavior(this));							
 							parameters.ConnectCancellation = _Disconnect.Token;
 							var addrman = AddressManagerBehavior.GetAddrman(parameters);
 
@@ -103,12 +103,7 @@ namespace NBitcoin.Protocol
 								node = Node.Connect(_Network, parameters, AllowSameGroup ? null : _ConnectedNodes.Select(n => n.RemoteSocketAddress).ToArray());
 								var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token);
 								timeout.CancelAfter(5000);
-								node.VersionHandshake(_Requirements, timeout.Token);
-								if(node.State == NodeState.HandShaked)
-								{
-									node.StateChanged += node_StateChanged;
-									_ConnectedNodes.Add(node);
-								}
+								node.VersionHandshake(_Requirements, timeout.Token);								
 								NodeServerTrace.Information("Node successfully connected to and handshaked");
 							}
 							catch(OperationCanceledException ex)
@@ -210,25 +205,6 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
-
-
-
-
-		void node_StateChanged(Node node, NodeState oldState)
-		{
-			if(node.State == NodeState.Failed || node.State == NodeState.Disconnecting || node.State == NodeState.Offline)
-			{
-				_ConnectedNodes.Remove(node);
-				StartConnecting();
-			}
-		}
-
-
-		NodesGroupBehavior CreateBehavior()
-		{
-			return new NodesGroupBehavior(this);
-		}
-
 
 		#region IDisposable Members
 
