@@ -1235,12 +1235,23 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		/// <summary>
+		/// Retrieve transactions from the mempool
+		/// </summary>
+		/// <param name="cancellationToken">Cancellation token</param>
+		/// <returns>Transactions in the mempool</returns>
 		public Transaction[] GetMempoolTransactions(CancellationToken cancellationToken = default(CancellationToken))
 		{
 			return GetMempoolTransactions(GetMempool(), cancellationToken);
 		}
 
-		Transaction[] GetMempoolTransactions(uint256[] txIds, CancellationToken cancellationToken = default(CancellationToken))
+		/// <summary>
+		/// Retrieve transactions from the mempool by ids
+		/// </summary>
+		/// <param name="txIds">Transaction ids to retrieve</param>
+		/// <param name="cancellationToken">Cancellation token</param>
+		/// <returns>The transactions, if a transaction is not found, then it is not returned in the array.</returns>
+		public Transaction[] GetMempoolTransactions(uint256[] txIds, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			AssertState(NodeState.HandShaked);
 			if(txIds.Length == 0)
