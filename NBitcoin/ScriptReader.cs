@@ -236,7 +236,7 @@ namespace NBitcoin
 				case OpcodeType.OP_CHECKMULTISIGVERIFY:
 					return "OP_CHECKMULTISIGVERIFY";
 				case OpcodeType.OP_CHECKLOCKTIMEVERIFY:
-					return "OP_CHECKLOCKTIMEVERIFY";
+					return "OP_CLTV";
 
 				// expanson
 				case OpcodeType.OP_NOP1:
@@ -278,6 +278,7 @@ namespace NBitcoin
 				if(name != "OP_UNKNOWN")
 					_OpcodeByName.Add(name, code);
 			}
+			_OpcodeByName.Add("OP_CHECKLOCKTIMEVERIFY", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
 		}
 		public static bool GetOpCode(string name, out OpcodeType result)
 		{

@@ -127,6 +127,11 @@ namespace NBitcoin.Tests
 				Utils.UnixTimeToDateTime(510000001),
 				1000,
 				false);
+
+			Script s = new Script(OpcodeType.OP_CHECKLOCKTIMEVERIFY);
+			Assert.Equal("OP_CLTV", s.ToString());
+			s = new Script("OP_CHECKLOCKTIMEVERIFY");
+			Assert.Equal("OP_CLTV", s.ToString());
 		}
 
 		private void BIP65_testsCore(LockTime target, LockTime now, bool expectedResult)
