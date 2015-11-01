@@ -139,12 +139,12 @@ namespace NBitcoin.Protocol
 		{
 			return GetNodeGroup(node.Behaviors);
 		}
-		public static NodesGroup GetNodeGroup(NodeConnectionParameters parameters)
+		static NodesGroup GetNodeGroup(NodeConnectionParameters parameters)
 		{
 			return GetNodeGroup(parameters.TemplateBehaviors);
 		}
 
-		public static NodesGroup GetNodeGroup(NodeBehaviorsCollection behaviors)
+		static NodesGroup GetNodeGroup(NodeBehaviorsCollection behaviors)
 		{
 			return behaviors.OfType<NodesGroupBehavior>().Select(c => c._Parent).FirstOrDefault();
 		}

@@ -57,10 +57,11 @@ namespace NBitcoin.Protocol
 		{
 			if(MinVersion != null)
 			{
-				return false;
+				if(version.Version < MinVersion.Value)
+					return false;
 			}
 			if((RequiredServices & version.Services) != RequiredServices)
-			{				
+			{
 				return false;
 			}
 			return true;
@@ -919,7 +920,7 @@ namespace NBitcoin.Protocol
 				{
 					Disconnect("The peer does not support the required services requirement");
 					return;
-				}				
+				}
 
 				SendMessageAsync(new VerAckPayload());
 				listener.ReceivePayload<VerAckPayload>(cancellationToken);
@@ -1010,7 +1011,7 @@ namespace NBitcoin.Protocol
 
 		public override string ToString()
 		{
-			return String.Format("{0} ({1})",  State, Peer.Endpoint);
+			return String.Format("{0} ({1})", State, Peer.Endpoint);
 		}
 
 		private Socket Socket

@@ -336,30 +336,29 @@ namespace NBitcoin.SPV
 		}
 
 		/// <summary>
-		/// Connect the wallet by using the group's parameters
+		/// Connect the wallet with the given connection parameters
 		/// </summary>
-		/// <param name="group"></param>
-		public void Connect(NodesGroup group)
+		/// <param name="parameters">The parameters to the connection</param>
+		public void Connect(NodeConnectionParameters parameters)
 		{
-			Connect(group.NodeConnectionParameters);
+			if(parameters == null)
+				throw new ArgumentNullException("parameters");
+			Connect(new NodesGroup(_Parameters.Network, parameters));			
 		}
 
 		/// <summary>
 		/// Connect the wallet with the given connection parameters
 		/// </summary>
-		/// <param name="parameters"></param>
-		public void Connect(NodeConnectionParameters parameters)
+		/// <param name="group">The group to use</param>
+		public void Connect(NodesGroup group)
 		{
+			if(group == null)
+				throw new ArgumentNullException("group");
 			if(State != WalletState.Created)
 				throw new InvalidOperationException("The wallet is already connecting or connected");
-			var group = NodesGroup.GetNodeGroup(parameters);
-			if(group == null)
-			{
-				group = new NodesGroup(_Parameters.Network, parameters);
-			}
-			parameters = group.NodeConnectionParameters;
+			var parameters = group.NodeConnectionParameters;
 			group.Requirements.MinVersion = ProtocolVersion.PROTOCOL_VERSION;
-			group.Requirements.RequiredServices = NodeServices.Network;
+			group.Requirements.RequiredServices |= NodeServices.Network;
 
 			var chain = parameters.TemplateBehaviors.Find<ChainBehavior>();
 			if(chain == null)
