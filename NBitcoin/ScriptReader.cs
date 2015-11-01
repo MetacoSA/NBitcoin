@@ -279,6 +279,7 @@ namespace NBitcoin
 					_OpcodeByName.Add(name, code);
 			}
 			_OpcodeByName.Add("OP_CHECKLOCKTIMEVERIFY", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
+			_OpcodeByName.Add("OP_NOP2", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
 		}
 		public static bool GetOpCode(string name, out OpcodeType result)
 		{

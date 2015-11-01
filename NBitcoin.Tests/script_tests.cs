@@ -132,6 +132,9 @@ namespace NBitcoin.Tests
 			Assert.Equal("OP_CLTV", s.ToString());
 			s = new Script("OP_CHECKLOCKTIMEVERIFY");
 			Assert.Equal("OP_CLTV", s.ToString());
+
+			s = new Script("OP_NOP2");
+			Assert.Equal("OP_CLTV", s.ToString());
 		}
 
 		private void BIP65_testsCore(LockTime target, LockTime now, bool expectedResult)
