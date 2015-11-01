@@ -87,7 +87,12 @@ namespace NBitcoin.Tests
 			return new Script(result.ToArray());
 		}
 
-
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParseNOPs()
+		{
+			new Script("OP_NOP1 OP_NOP2 OP_NOP3 OP_NOP4 OP_NOP5 OP_NOP6 OP_NOP7 OP_NOP8 OP_NOP9");
+		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void BIP65_tests()
