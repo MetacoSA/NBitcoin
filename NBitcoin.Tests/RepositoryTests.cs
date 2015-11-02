@@ -3,6 +3,7 @@ using NBitcoin.BitcoinCore;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
 using NBitcoin.RPC;
 using NBitcoin.SPV;
 using NBitcoin.Stealth;
@@ -285,21 +286,18 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
-			var tx = new QBitNinjaTransactionRepository(Network.Main).Get("300096066c065061577f1a4a65dfa5bd754462dfc223630efe4cf471d6315a3e");
-			for(int i = 0 ; i < 400000 ; i++)
-			{
-				var node = Node.Connect(Network.Main, "23.102.26.138:1273");
-				node.StateChanged += (s, a) =>
-				{
-					if(node.State == NodeState.HandShaked)
-					{
-						ConcurrentChain chain = new ConcurrentChain(Network.Main);
-						node.SynchronizeChain(chain);
-					}
-				};
-				node.VersionHandshake();
-				node.DisconnectAsync();
-			}
+			//ConcurrentChain chain = new ConcurrentChain(Network.Main);
+			//ChainBehavior chainBehavior = new ChainBehavior(chain);
+			//NodeConnectionParameters para = new NodeConnectionParameters();
+			//para.TemplateBehaviors.Add(chainBehavior);
+
+			//NodesGroup group = new NodesGroup(Network.Main, para);
+			//group.Connect();
+			//while(true)
+			//{
+			//	Thread.Sleep(1000);
+			//}
+
 			
 
 			//Parallel.ForEach(Enumerable.Range(0, 10), _ =>

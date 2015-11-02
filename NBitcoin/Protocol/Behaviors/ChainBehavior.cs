@@ -173,13 +173,17 @@ namespace NBitcoin.Protocol.Behaviors
 		/// </summary>
 		public void TrySync()
 		{
-			if(AttachedNode.State == NodeState.HandShaked && CanSync && !invalidHeaderReceived)
+			var node = AttachedNode;
+			if(node != null)
 			{
-				Interlocked.Increment(ref _SynchingCount);
-				AttachedNode.SendMessageAsync(new GetHeadersPayload()
+				if(node.State == NodeState.HandShaked && CanSync && !invalidHeaderReceived)
 				{
-					BlockLocators = GetPendingTip().GetLocator()
-				});
+					Interlocked.Increment(ref _SynchingCount);
+					node.SendMessageAsync(new GetHeadersPayload()
+					{
+						BlockLocators = GetPendingTip().GetLocator()
+					});
+				}
 			}
 		}
 
