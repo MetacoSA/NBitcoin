@@ -209,9 +209,9 @@ namespace NBitcoin.Protocol
 						NodeServerTrace.Information("Listening");
 						Exception unhandledException = null;
 						byte[] buffer = _Node._ReuseBuffer ? new byte[1024 * 1024] : null;
-						var stream = new Message.CustomNetworkStream(Socket, false);
 						try
 						{
+							var stream = new Message.CustomNetworkStream(Socket, false);
 							while(!Cancel.Token.IsCancellationRequested)
 							{
 								PerformanceCounter counter;

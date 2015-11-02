@@ -285,6 +285,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
+			var tx = new QBitNinjaTransactionRepository(Network.Main).Get("300096066c065061577f1a4a65dfa5bd754462dfc223630efe4cf471d6315a3e");
 			for(int i = 0 ; i < 400000 ; i++)
 			{
 				var node = Node.Connect(Network.Main, "23.102.26.138:1273");
