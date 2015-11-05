@@ -190,7 +190,29 @@ namespace NBitcoin
 		OutPoint prevout = new OutPoint();
 		Script scriptSig = Script.Empty;
 		uint nSequence = uint.MaxValue;
-		public const uint NO_SEQUENCE = uint.MaxValue;
+		/* Setting nSequence to this value for every input in a transaction
+ * disables nLockTime. */
+		internal const UInt32 SEQUENCE_FINAL = 0xffffffff;
+		/* If this flag set, CTxIn::nSequence is NOT interpreted as a
+		 * relative lock-time. Setting the most significant bit of a
+		 * sequence number disabled relative lock-time. */
+		internal const UInt32 SEQUENCE_LOCKTIME_DISABLED_FLAG = (1U << 31);
+		/* If CTxIn::nSequence encodes a relative lock-time and this flag
+		 * is set, the relative lock-time has units of 512 seconds,
+		 * otherwise it specifies blocks with a granularity of 1. */
+		internal const UInt32 SEQUENCE_LOCKTIME_SECONDS_FLAG = (1 << 22);
+		/* If CTxIn::nSequence encodes a relative lock-time, this mask is
+		 * applied to extract that lock-time from the sequence field. */
+		internal const UInt32 SEQUENCE_LOCKTIME_MASK = 0x0000ffff;
+		/* In order to use the same number of bits to encode roughly the
+		 * same wall-clock duration, and because blocks are naturally
+		 * limited to occur every 600s on average, the minimum granularity
+		 * for time-based relative lock-time is fixed at 512 seconds.
+		 * Converting from CTxIn::nSequence to seconds is performed by
+		 * multiplying by 512 = 2^9, or equivalently shifting up by
+		 * 9 bits. */
+		internal const int SEQUENCE_LOCKTIME_GRANULARITY = 9;
+
 
 		public uint Sequence
 		{
@@ -1107,6 +1129,146 @@ namespace NBitcoin
 				if(!txin.IsFinal)
 					return false;
 			return true;
+		}
+
+		[Flags]
+		public enum LockTimeFlags : int
+		{
+			None = 0,
+			/// <summary>
+			/// Interpret sequence numbers as relative lock-time constraints.
+			/// </summary>
+			VerifySequence = (1 << 0),
+
+			/// <summary>
+			///  Use GetMedianTimePast() instead of nTime for end point timestamp.
+			/// </summary>
+			MedianTimePast = (1 << 1),
+		}
+		
+
+		/// <summary>
+		/// Returns the minimal LockTime before having this transaction possibly included in a block
+		/// </summary>
+		/// <param name="confirmedBlocks">Ordered block headers of input of this transaction</param>
+		/// <param name="flags">LockTime flags</param>
+		/// <param name="nBlockHeight">The next block height</param>
+		/// <param name="nBlockTime">The next block time</param>
+		/// <param name="currentTip">The current tip</param>
+		/// <returns>LockTime 0 if this transaction is ready to be included in next block, else the minimal LockTime before it happens</returns>
+		public LockTime GetLockTime(ChainedBlock[] confirmedBlocks,
+									LockTimeFlags flags,
+									int nBlockHeight,
+									DateTimeOffset nBlockTime,
+									ChainedBlock currentTip)
+		{
+			if(confirmedBlocks.Length != Inputs.Count)
+				throw new ArgumentException("The number of element in confirmedBlocks should be equal to the number of inputs","confirmedBlocks");
+			bool fEnforceBIP68 = Version >= 2
+							  && flags.HasFlag(LockTimeFlags.VerifySequence);
+
+			// Will be set to the equivalent height- and time-based nLockTime
+			// values that would be necessary to satisfy all relative lock-
+			// time constraints given our view of block chain history.
+			int nMinHeight = 0;
+			DateTimeOffset nMinTime = Utils.UnixTimeToDateTime(0U);
+			// Will remain equal to true if all inputs are finalized
+			// (CTxIn::SEQUENCE_FINAL).
+			bool fFinalized = true;
+			int inputIndex = -1;
+			foreach(TxIn txin in Inputs)
+			{
+				inputIndex++;
+				// Set a flag if we witness an input that isn't finalized.
+				if(txin.Sequence == TxIn.SEQUENCE_FINAL)
+					continue;
+				else
+					fFinalized = false;
+
+				// Do not enforce sequence numbers as a relative lock time
+				// unless we have been instructed to, and a view has been
+				// provided.
+				if(!fEnforceBIP68)
+					continue;
+
+				// Sequence numbers with the most significant bit set are not
+				// treated as relative lock-times, nor are they given any
+				// consensus-enforced meaning at this point.
+				if((txin.Sequence & TxIn.SEQUENCE_LOCKTIME_DISABLED_FLAG) != 0)
+					continue;
+
+				// Fetch the UTXO corresponding to this input.
+				//
+				// If the UTXO is not found, proceed to the next because we
+				// will not be able to do the relative lock-time calculation.
+				// This should never happen in consensus code.
+
+				// coins.nHeight is MEMPOOL_HEIGHT (an absurdly high value)
+				// if the parent transaction was from the mempool. We can't
+				// know what height it will have once confirmed, but we
+				// assume it makes it in the same block.
+				int nCoinHeight = confirmedBlocks[inputIndex] == null ? nBlockHeight : confirmedBlocks[inputIndex].Height;
+
+				if((txin.Sequence & TxIn.SEQUENCE_LOCKTIME_SECONDS_FLAG) != 0)
+				{
+					// In two locations that follow we make reference to
+					// chainActive.Tip(). To prevent a race condition, we
+					// store a reference to the current tip.
+					//
+					// Note that it is not guaranteed that indexBestBlock will
+					// be consistent with the passed in view. The proper thing
+					// to do is to have the view return time information about
+					// UTXOs.
+					ChainedBlock indexBestBlock = currentTip;
+
+					// The only time the negative branch of this conditional
+					// is executed is when the prior output was taken from the
+					// mempool, in which case we assume it makes it into the
+					// same block (see above).
+					DateTimeOffset nCoinTime = (nCoinHeight <= (indexBestBlock.Height + 1))
+									  ? indexBestBlock.GetAncestor(nCoinHeight - 1).GetMedianTimePast()
+									  : nBlockTime;
+
+					// Time-based relative lock-times are measured from the
+					// smallest allowed timestamp of the block containing the
+					// txout being spent, which is the median time past of the
+					// block prior.
+
+
+					nMinTime = Max(nMinTime, nCoinTime + TimeSpan.FromSeconds((Int64)((txin.Sequence & TxIn.SEQUENCE_LOCKTIME_MASK) << TxIn.SEQUENCE_LOCKTIME_GRANULARITY) - 1));
+				}
+				else
+				{
+					// We subtract 1 from relative lock-times because a lock-
+					// time of 0 has the semantics of "same block," so a lock-
+					// time of 1 should mean "next block," but nLockTime has
+					// the semantics of "last invalid block height."
+					nMinHeight = Math.Max(nMinHeight, nCoinHeight + (int)(txin.Sequence & TxIn.SEQUENCE_LOCKTIME_MASK) - 1);
+				}
+			}
+
+			// If all sequence numbers are CTxIn::SEQUENCE_FINAL, the
+			// transaction is considered final and nLockTime constraints
+			// are not enforced.
+			if(fFinalized)
+				return 0;
+
+			if((Int64)nLockTime < LockTime.LOCKTIME_THRESHOLD)
+				nMinHeight = Math.Max(nMinHeight, (int)nLockTime);
+			else
+				nMinTime = Max(nMinTime, LockTime.Date);
+
+			if(nMinHeight >= nBlockHeight)
+				return nMinHeight;
+			if(nMinTime >= nBlockTime)
+				return nMinTime;
+
+			return 0;
+		}
+
+		private DateTimeOffset Max(DateTimeOffset a, DateTimeOffset b)
+		{
+			return a > b ? a : b;
 		}
 	}
 

@@ -285,5 +285,19 @@ namespace NBitcoin
 		{
 			return Header.CheckProofOfWork() && Header.Bits <= GetWorkRequired(network);
 		}
+
+		public ChainedBlock GetAncestor(int height)
+		{
+			if(height > Height || height < 0)
+				return null;
+			ChainedBlock current = this;
+
+			while(true)
+			{
+				if(current.Height == height)
+					return current;
+				current = current.Previous;
+			}
+		}
 	}
 }
