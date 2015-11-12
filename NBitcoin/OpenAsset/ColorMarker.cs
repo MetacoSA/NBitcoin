@@ -15,6 +15,17 @@ namespace NBitcoin.OpenAsset
 		{
 			return TryParse(new Script(script));
 		}
+
+		public static ColorMarker TryParse(Transaction transaction)
+		{
+			foreach(var script in transaction.Outputs.Select(o => o.ScriptPubKey))
+			{
+				ColorMarker marker = TryParse(script);
+				if(marker != null)
+					return marker;
+			}
+			return null;
+		}
 		public static ColorMarker TryParse(Script script)
 		{
 			try
@@ -30,15 +41,26 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		static TxNullDataTemplate _Template = new TxNullDataTemplate(1024 * 4);
-
 		private bool ReadScript(Script script)
+		{
+			var bytes = script.ToBytes(true);
+			if(bytes.Length == 0 || bytes[0] != (byte)OpcodeType.OP_RETURN)
+				return false;
+			foreach(var op in script.ToOps())
+			{
+				if(op.PushData != null && !op.IsInvalid)
+				{
+					if(ReadData(op.PushData))
+						return true;
+				}
+			}
+			return false;
+		}
+
+		private bool ReadData(byte[] data)
 		{
 			try
 			{
-				var data = _Template.ExtractScriptPubKeyParameters(script);
-				if(data == null)
-					return false;
 				BitcoinStream stream = new BitcoinStream(data);
 				ushort marker = 0;
 				stream.ReadWrite(ref marker);
@@ -60,6 +82,8 @@ namespace NBitcoin.OpenAsset
 				}
 
 				stream.ReadWriteAsVarString(ref _Metadata);
+				if(stream.Inner.Position != data.Length)
+					return false;
 				return true;
 			}
 			catch(Exception)
@@ -221,6 +245,12 @@ namespace NBitcoin.OpenAsset
 
 		public Script GetScript()
 		{
+			var bytes = ToBytes();
+			return _Template.GenerateScriptPubKey(bytes);
+		}
+
+		public byte[] ToBytes()
+		{
 			MemoryStream ms = new MemoryStream();
 			BitcoinStream stream = new BitcoinStream(ms, true);
 			stream.ReadWrite(Tag);
@@ -234,8 +264,9 @@ namespace NBitcoin.OpenAsset
 				WriteLEB128(Quantities[i], stream);
 			}
 			stream.ReadWriteAsVarString(ref _Metadata);
-			return _Template.GenerateScriptPubKey(ms.ToArray());
+			return ms.ToArray();
 		}
+		static readonly TxNullDataTemplate _Template = new TxNullDataTemplate(1024 * 5);
 
 		public static ColorMarker Get(Transaction transaction)
 		{

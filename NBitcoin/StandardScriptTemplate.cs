@@ -22,11 +22,11 @@ namespace NBitcoin
 
 	public class TxNullDataTemplate : ScriptTemplate
 	{
-		public TxNullDataTemplate(int maxDataSize)
+		public TxNullDataTemplate(int maxScriptSize)
 		{
-			MaxDataSizeLimit = maxDataSize;
+			MaxScriptSizeLimit = maxScriptSize;
 		}
-		private static readonly TxNullDataTemplate _Instance = new TxNullDataTemplate(MAX_OPRETURN_SIZE);
+		private static readonly TxNullDataTemplate _Instance = new TxNullDataTemplate(MAX_OP_RETURN_RELAY);
 		public static TxNullDataTemplate Instance
 		{
 			get
@@ -34,7 +34,7 @@ namespace NBitcoin
 				return _Instance;
 			}
 		}
-		public int MaxDataSizeLimit
+		public int MaxScriptSizeLimit
 		{
 			get;
 			private set;
@@ -42,7 +42,7 @@ namespace NBitcoin
 		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
 		{
 			var bytes = scriptPubKey.ToBytes(true);
-			return bytes.Length >= 1 && bytes[0] == (byte)OpcodeType.OP_RETURN;
+			return bytes.Length >= 1 && bytes[0] == (byte)OpcodeType.OP_RETURN && bytes.Length <= MaxScriptSizeLimit;
 		}
 		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
 		{
@@ -51,22 +51,18 @@ namespace NBitcoin
 				return false;
 			if(ops[0].Code != OpcodeType.OP_RETURN)
 				return false;
-			if(ops.Length == 2)
-			{
-				return ops[1].PushData != null && ops[1].PushData.Length <= MaxDataSizeLimit;
-			}
-			return true;
+			if(scriptPubKey.ToBytes(true).Length > MaxScriptSizeLimit)
+				return false;
+			return scriptPubKeyOps.Skip(1).All(o => o.PushData != null && !o.IsInvalid);
 		}
-		public byte[] ExtractScriptPubKeyParameters(Script scriptPubKey)
+		public byte[][] ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
 			if(!FastCheckScriptPubKey(scriptPubKey))
 				return null;
 			var ops = scriptPubKey.ToOps().ToArray();
-			if(ops.Length != 2)
+			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
-			if(ops[1].PushData == null || ops[1].PushData.Length > MaxDataSizeLimit)
-				return null;
-			return ops[1].PushData;
+			return ops.Skip(1).Select(o=>o.PushData).ToArray();
 		}
 
 		protected override bool CheckScriptSigCore(Script scriptSig, Op[] scriptSigOps, Script scriptPubKey, Op[] scriptPubKeyOps)
@@ -74,16 +70,21 @@ namespace NBitcoin
 			return false;
 		}
 
-		public const int MAX_OPRETURN_SIZE = 80;
-		public Script GenerateScriptPubKey(byte[] data)
+		public const int MAX_OP_RETURN_RELAY = 83; //! bytes (+1 for OP_RETURN, +2 for the pushdata opcodes)
+		public Script GenerateScriptPubKey(params byte[][] data)
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");
-			if(data.Length > MaxDataSizeLimit)
-				throw new ArgumentOutOfRangeException("data", "Data in OP_RETURN should have a maximum size of " + MaxDataSizeLimit + " bytes");
-
-			return new Script(OpcodeType.OP_RETURN,
-							  Op.GetPushOp(data));
+			Op[] ops = new Op[data.Length + 1];
+			ops[0] = OpcodeType.OP_RETURN;
+			for(int i = 0; i <data.Length;i++)
+			{
+				ops[1 + i] = Op.GetPushOp(data[i]);
+			}
+			var script = new Script(ops);
+			if(script.ToBytes(true).Length > MaxScriptSizeLimit)
+				throw new ArgumentOutOfRangeException("data", "Data in OP_RETURN should have a maximum size of " + MaxScriptSizeLimit + " bytes");
+			return script;
 		}
 
 		public override TxOutType Type
@@ -401,7 +402,7 @@ namespace NBitcoin
 
 			var redeemBytes = ops[ops.Length - 1].PushData;
 			if(redeemBytes.Length > 520)
-				return false;			
+				return false;
 			return Script.FromBytesUnsafe(ops[ops.Length - 1].PushData).IsValid;
 		}
 

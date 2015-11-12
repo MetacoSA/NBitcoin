@@ -437,6 +437,43 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanParseColorMarker2()
+		{
+			string[] invalidMarkers = 
+			{
+				"6a114f41010003ac0200e58e26041234567800", //Useless bytes at the end of the marker
+				"4de803116a104f41010003ac0200e58e260412345678", //Invalid push consume a marker
+				"056a104f41010003ac0200e58e260412345678", //valid push consume a marker
+			};
+
+			foreach(var script in invalidMarkers.Select(m=>new Script(Encoders.Hex.DecodeData(m))))
+			{
+				var marker = ColorMarker.TryParse(script);
+				Assert.Null(marker);
+			}
+			string[] validMarkers = 
+			{
+				"6a104f41010003ac0200e58e260412345678", //One push
+				"6a104f41010003ac0200e58e260412345678104f41010003ac0200e58e260412345678", //Two push
+				"6a576e104f41010003ac0200e58e26041234567868", //Garbage push
+				"6a576e104f41010003ac0200e58e2604123456786811", //Invalid push at the end
+			};
+
+			foreach(var script in validMarkers.Select(m => new Script(Encoders.Hex.DecodeData(m))))
+			{
+				var marker = ColorMarker.TryParse(script);
+				Assert.NotNull(marker);
+			}
+			
+			Transaction tx = new Transaction();
+			tx.Outputs.Add(new TxOut(Money.Zero, new Script(Encoders.Hex.DecodeData("6a114f41010003f00100e58e26041234567800104f41010003f00100e58e260412345678"))));
+			tx.Outputs.Add(new TxOut(Money.Zero, new Script(Encoders.Hex.DecodeData("6a104f41010003ac0200e58e260412345678"))));
+			var marker2 = ColorMarker.TryParse(tx);
+			Assert.Equal("6a104f41010003f00100e58e260412345678", marker2.GetScript().ToHex());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCreateAssetAddress()
 		{
 			//The issuer first generates a private key: 18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725.
