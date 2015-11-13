@@ -338,6 +338,14 @@ namespace NBitcoin.SPV
 			return clone;
 		}
 
+
+		/// <summary>
+		/// Refresh the bloom filter
+		/// </summary>
+		public void RefreshBloomFilter()
+		{
+			SetBloomFilter();
+		}
 	}
 }
 #endif

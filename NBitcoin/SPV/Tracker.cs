@@ -744,7 +744,6 @@ namespace NBitcoin.SPV
 				}
 			}
 		}
-
 	}
 }
 #endif

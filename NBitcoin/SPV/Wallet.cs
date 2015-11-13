@@ -33,6 +33,7 @@ namespace NBitcoin.SPV
 			Network = Network.Main;
 			DerivationPath = new KeyPath();
 			Name = Guid.NewGuid().ToString();
+			PurgeConnectionOnFilterChange = true;
 		}
 
 		/// <summary>
@@ -80,6 +81,12 @@ namespace NBitcoin.SPV
 			set;
 		}
 
+		public bool PurgeConnectionOnFilterChange
+		{
+			get;
+			set;
+		}
+
 		internal JObject ToJson()
 		{
 			JObject obj = new JObject();
@@ -88,6 +95,7 @@ namespace NBitcoin.SPV
 			obj["SignatureRequired"] = SignatureRequired;
 			obj["DerivationPath"] = DerivationPath.ToString();
 			obj["UseP2SH"] = UseP2SH;
+			obj["PurgeConnectionOnFilterChange"] = PurgeConnectionOnFilterChange;
 			obj["RootKeys"] = new JArray(RootKeys.Select(c => c.GetWif(Network).ToString()));
 			return obj;
 		}
@@ -100,6 +108,10 @@ namespace NBitcoin.SPV
 				creation.Name = (string)obj["Name"];
 			else
 				creation.Name = null;
+			if(obj.Property("PurgeConnectionOnFilterChange") != null)
+			{
+				creation.PurgeConnectionOnFilterChange = (bool)obj["PurgeConnectionOnFilterChange"];
+			}
 			creation.SignatureRequired = (int)(long)obj["SignatureRequired"];
 			creation.DerivationPath = KeyPath.Parse((string)obj["DerivationPath"]);
 			creation.UseP2SH = (bool)obj["UseP2SH"];
@@ -116,11 +128,14 @@ namespace NBitcoin.SPV
 	/// </summary>
 	public class Wallet
 	{
-
+		class PathState
+		{
+			public int Loaded;
+			public int Next;
+		}
 		internal BlockLocator _ScanLocation;
-		Tracker _Tracker;
-		int _CurrentIndex;
-		int _LoadedKeys;
+		Dictionary<KeyPath, PathState> _PathStates = new Dictionary<KeyPath, PathState>();
+
 		int _KeyPoolSize;
 
 		WalletCreation _Parameters;
@@ -155,7 +170,6 @@ namespace NBitcoin.SPV
 			_ScanLocation.Blocks.Add(creation.Network.GetGenesis().GetHash());
 			_KeyPoolSize = keyPoolSize;
 			Created = DateTimeOffset.UtcNow;
-			LoadPool(0, keyPoolSize);
 		}
 
 		/// <summary>
@@ -168,61 +182,107 @@ namespace NBitcoin.SPV
 		{
 		}
 
-		private void LoadPool(int indexFrom, int count)
+		private void LoadPool(KeyPath keyPath)
 		{
-			for(int i = indexFrom ; i < indexFrom + count ; i++)
+			var lastLoaded = GetLastLoaded(keyPath);
+			var isInternal = IsInternal(keyPath);
+			var tracker = Tracker;
+			for(int i = lastLoaded ; i < lastLoaded + _KeyPoolSize ; i++)
 			{
-				var child = GetScriptPubKey(false, i);
-				_KnownScripts.Add(child, new KeyPath((uint)0, (uint)i));
-
-				child = GetScriptPubKey(true, i);
-				_KnownScripts.Add(child, new KeyPath((uint)1, (uint)i));
+				var childPath = keyPath.Derive(i, false);
+				AddKnown(childPath, tracker, isInternal);
 			}
-			_LoadedKeys += count;
+			IncrementLastLoaded(keyPath, _KeyPoolSize);
+		}
+
+		private bool IsInternal(KeyPath keyPath)
+		{
+			return _Parameters.DerivationPath.Derive(1, false) == keyPath;
+		}
+
+		private void AddKnown(KeyPath keyPath)
+		{
+			AddKnown(keyPath, Tracker, IsInternal(keyPath));
+		}
+		private void AddKnown(KeyPath keyPath, Tracker tracker, bool isInternal)
+		{
+			if(_Parameters.UseP2SH)
+			{
+				var script = GetScriptPubKey(keyPath, true);
+				_KnownScripts.Add(script.Hash.ScriptPubKey, keyPath);
+				tracker.Add(script, true, isInternal, wallet: Name);
+			}
+			else
+			{
+				var script = GetScriptPubKey(keyPath, false);
+				_KnownScripts.Add(script, keyPath);
+				tracker.Add(script, false, isInternal, wallet: Name);
+			}
 		}
 
 		private bool AddKnownScriptToTracker()
 		{
-			string walletName = GetWalletName();
+			string walletName = Name;
 			bool added = false;
+			var tracker = Tracker;
+			var internalChain = _Parameters.DerivationPath.Derive(1);
 			foreach(var known in _KnownScripts)
 			{
 				var child = known.Key;
-				var isInternal = known.Value.Indexes[0] == 1;
-				if(_Tracker.Add(child, _Parameters.UseP2SH, isInternal, wallet: walletName))
+				var isInternal = known.Value.Parent == internalChain;
+				if(tracker.Add(child, _Parameters.UseP2SH, isInternal, wallet: walletName))
 					added = true;
 			}
 			if(added)
-				_Tracker.UpdateTweak();
+				tracker.UpdateTweak();
 			return added;
 		}
 
-		private string GetWalletName()
+		public string Name
 		{
-			return _Parameters.Name ?? Created.ToString();
+			get
+			{
+				return _Parameters.Name ?? Created.ToString();
+			}
 		}
 
 		public WalletTransactionsCollection GetTransactions()
 		{
-			if(State == WalletState.Created)
-				throw new InvalidOperationException("Wallet should be in Connected/Disconnected state to get the transactions");
-			return _Tracker.GetWalletTransactions(_Chain, GetWalletName());
+			AssertGroupAffected();
+			return Tracker.GetWalletTransactions(Chain, Name);
 		}
 
-		private ConcurrentChain _Chain;
+		public WalletCreation CreationSettings
+		{
+			get
+			{
+				return _Parameters;
+			}
+		}
+
 		public ConcurrentChain Chain
 		{
 			get
 			{
-				return _Chain;
+				if(_Group == null)
+					return null;
+				return _Group.NodeConnectionParameters.TemplateBehaviors
+							.OfType<ChainBehavior>()
+							.Select(t => t.Chain)
+							.FirstOrDefault();
 			}
 		}
-		AddressManager _AddressManager;
+
 		public AddressManager AddressManager
 		{
 			get
 			{
-				return _AddressManager;
+				if(_Group == null)
+					return null;
+				return _Group.NodeConnectionParameters.TemplateBehaviors
+							.OfType<AddressManagerBehavior>()
+							.Select(t => t.AddressManager)
+							.FirstOrDefault();
 			}
 		}
 
@@ -230,68 +290,170 @@ namespace NBitcoin.SPV
 		{
 			get
 			{
-				return _Tracker;
+				if(_Group == null)
+					return null;
+				return _Group.NodeConnectionParameters.TemplateBehaviors
+							.OfType<TrackerBehavior>()
+							.Select(t => t.Tracker)
+							.FirstOrDefault();
 			}
 		}
 
 		object cs = new object();
+
 		public Script GetNextScriptPubKey(bool changeAddress = false)
 		{
-			if(_Tracker == null)
-				throw new InvalidOperationException("Wallet.Connect should have been called");
+			return GetNextScriptPubKey(_Parameters.DerivationPath.Derive(changeAddress ? 1 : 0, false));
+		}
+
+		public Script GetNextScriptPubKey(KeyPath keyPath)
+		{
+			AssertGroupAffected();
 			Script result;
 			lock(cs)
 			{
-				result = GetScriptPubKey(changeAddress, _CurrentIndex);
-				if(_Parameters.UseP2SH)
-					result = result.Hash.ScriptPubKey;
-				_CurrentIndex++;
-				var created = (double)_CurrentIndex / (double)_LoadedKeys;
-				if(created > 0.9)
+				var currentIndex = GetNextIndex(keyPath);
+				KeyPath childPath = keyPath.Derive(currentIndex, false);
+
+				result = GetScriptPubKey(childPath, false);
+				IncrementCurrentIndex(keyPath);
+
+				if(_KeyPoolSize != 0)
 				{
-					LoadPool(_LoadedKeys, _KeyPoolSize);
-					if(AddKnownScriptToTracker())
-						_Group.Purge("New bloom filter");
+					var created = (double)(currentIndex + 1) / (double)GetLastLoaded(keyPath);
+					if(created > 0.9)
+					{
+						LoadPool(keyPath);
+						RefreshFilter();
+					}
+				}
+				else
+				{
+					AddKnown(childPath);
+					if(_Group != null)
+					{
+						foreach(var node in _Group.ConnectedNodes)
+						{
+							foreach(var data in result.ToOps().Select(o => o.PushData).Where(o => o != null))
+							{
+								node.SendMessageAsync(new FilterAddPayload(data));
+							}
+						}
+					}
 				}
 			}
 			return result;
 		}
 
-		public KeyPath GetKeyPath(Script script)
+		private void RefreshFilter()
+		{
+			if(CreationSettings.PurgeConnectionOnFilterChange)
+				_Group.Purge("New bloom filter");
+			else
+			{
+				if(_Group != null)
+				{
+					foreach(var node in _Group.ConnectedNodes)
+					{
+						node.Behaviors.Find<TrackerBehavior>().RefreshBloomFilter();
+					}
+				}
+			}
+		}
+
+		private void IncrementCurrentIndex(KeyPath keyPath)
+		{
+			if(!_PathStates.ContainsKey(keyPath))
+				_PathStates.Add(keyPath, new PathState());
+			_PathStates[keyPath].Next++;
+		}
+
+		private int GetNextIndex(KeyPath keyPath)
+		{
+			if(!_PathStates.ContainsKey(keyPath))
+				return 0;
+			return _PathStates[keyPath].Next;
+		}
+
+		private void IncrementLastLoaded(KeyPath keyPath, int value)
+		{
+			if(!_PathStates.ContainsKey(keyPath))
+				_PathStates.Add(keyPath, new PathState());
+			_PathStates[keyPath].Loaded += value;
+		}
+
+		private int GetLastLoaded(KeyPath keyPath)
+		{
+			if(!_PathStates.ContainsKey(keyPath))
+				return 0;
+			return _PathStates[keyPath].Loaded;
+		}
+
+		private void AssertGroupAffected()
+		{
+			if(_Group == null)
+				throw new InvalidOperationException("Wallet.Configure should have been called before for setting up Wallet's components");
+		}
+
+		/// <summary>
+		/// Get the KeyPath of the given scriptPubKey
+		/// </summary>
+		/// <param name="scriptPubKey">ScriptPubKey</param>
+		/// <returns>The key path to the scriptPubKey</returns>
+		public KeyPath GetKeyPath(Script scriptPubKey)
 		{
 			lock(cs)
 			{
-				return _KnownScripts.TryGet(script);
+				return _KnownScripts.TryGet(scriptPubKey);
 			}
 		}
 
-		protected Script GetScriptPubKey(bool isChange, int index)
-		{
-			if(_Parameters.UseP2SH)
-			{
-				if(_Parameters.RootKeys.Length == 1)
-					return Derivate(0, isChange, index).PubKey.ScriptPubKey;
-				return CreateMultiSig(isChange, index);
-			}
 
+		public Script GetRedeemScript(BitcoinScriptAddress address)
+		{
+			return GetRedeemScript(address.ScriptPubKey);
+		}
+		public Script GetRedeemScript(Script scriptPubKey)
+		{
+			if(!_Parameters.UseP2SH)
+				throw new InvalidOperationException("This is not a P2SH wallet");
+			var path = GetKeyPath(scriptPubKey);
+			if(path == null)
+				return null;
+			return GetScriptPubKey(path, true);
+		}
+
+		public Script GetScriptPubKey(KeyPath keyPath, bool redeem)
+		{
+			if(!_Parameters.UseP2SH && redeem)
+				throw new ArgumentException("The wallet is not P2SH so there is no redeem script", "redeem");
+
+			Script scriptPubKey = null;
 			if(_Parameters.RootKeys.Length == 1)
-				return Derivate(0, isChange, index).PubKey.Hash.ScriptPubKey;
-			return CreateMultiSig(isChange, index);
+			{
+				var pubkey = Derivate(0, keyPath).PubKey;
+				scriptPubKey = _Parameters.UseP2SH ? pubkey.ScriptPubKey : pubkey.Hash.ScriptPubKey;
+			}
+			else
+			{
+				scriptPubKey = CreateMultiSig(keyPath);
+			}
+			return redeem || !_Parameters.UseP2SH ? scriptPubKey : scriptPubKey.Hash.ScriptPubKey;
 		}
 
-		private Script CreateMultiSig(bool isChange, int index)
+		private Script CreateMultiSig(KeyPath keyPath)
 		{
-			return PayToMultiSigTemplate.Instance.GenerateScriptPubKey(_Parameters.SignatureRequired, _Parameters.RootKeys.Select((r, i) => Derivate(i, isChange, index).PubKey).ToArray());
+			return PayToMultiSigTemplate.Instance.GenerateScriptPubKey(_Parameters.SignatureRequired, _Parameters.RootKeys.Select((r, i) => Derivate(i, keyPath).PubKey).ToArray());
 		}
 
 		ExtPubKey[] _ParentKeys;
-		private ExtPubKey Derivate(int rootKeyIndex, bool isChange, int index)
+		private ExtPubKey Derivate(int rootKeyIndex, KeyPath keyPath)
 		{
 			if(_ParentKeys == null)
 			{
 				_ParentKeys = _Parameters.RootKeys.Select(r => r.Derive(_Parameters.DerivationPath)).ToArray();
 			}
-			return _ParentKeys[rootKeyIndex].Derive((uint)(isChange ? 1 : 0)).Derive((uint)index);
+			return _ParentKeys[rootKeyIndex].Derive(keyPath);
 		}
 
 		WalletState _State;
@@ -308,12 +470,12 @@ namespace NBitcoin.SPV
 
 
 		/// <summary>
-		/// Connect the wallet to the bitcoin network asynchronously
+		/// Configure the components of the wallet
 		/// </summary>
 		/// <param name="chain">The chain to keep in sync, if not provided the whole chain will be downloaded on the network (more than 30MB)</param>
 		/// <param name="addrman">The Address Manager for speeding up peer discovery</param>
 		/// <param name="tracker">The tracker responsible for providing bloom filters</param>
-		public void Connect(ConcurrentChain chain = null,
+		public void Configure(ConcurrentChain chain = null,
 							AddressManager addrman = null,
 							Tracker tracker = null)
 		{
@@ -332,30 +494,28 @@ namespace NBitcoin.SPV
 			if(tracker != null)
 				parameters.TemplateBehaviors.Add(new TrackerBehavior(tracker, chain)); //Set bloom filters and scan the blockchain
 
-			Connect(parameters);
+			Configure(parameters);
 		}
 
 		/// <summary>
-		/// Connect the wallet with the given connection parameters
+		/// Configure the components of the wallet
 		/// </summary>
 		/// <param name="parameters">The parameters to the connection</param>
-		public void Connect(NodeConnectionParameters parameters)
+		public void Configure(NodeConnectionParameters parameters)
 		{
 			if(parameters == null)
 				throw new ArgumentNullException("parameters");
-			Connect(new NodesGroup(_Parameters.Network, parameters));			
+			Configure(new NodesGroup(_Parameters.Network, parameters));
 		}
 
 		/// <summary>
-		/// Connect the wallet with the given connection parameters
+		/// Configure the components of the wallet
 		/// </summary>
 		/// <param name="group">The group to use</param>
-		public void Connect(NodesGroup group)
+		public void Configure(NodesGroup group)
 		{
 			if(group == null)
 				throw new ArgumentNullException("group");
-			if(State != WalletState.Created)
-				throw new InvalidOperationException("The wallet is already connecting or connected");
 			var parameters = group.NodeConnectionParameters;
 			group.Requirements.MinVersion = ProtocolVersion.PROTOCOL_VERSION;
 			group.Requirements.RequiredServices |= NodeServices.Network;
@@ -382,14 +542,17 @@ namespace NBitcoin.SPV
 				tracker = new TrackerBehavior(new Tracker(), chain.Chain);
 				parameters.TemplateBehaviors.Add(tracker);
 			}
-
-			_Chain = chain.Chain;
-			_AddressManager = addrman.AddressManager;
-			_Tracker = tracker.Tracker;
-			_TrackerBehavior = tracker;
 			_Group = group;
-			if(AddKnownScriptToTracker())
-				_Group.Purge("Bloom filter renew");
+		}
+
+		/// <summary>
+		/// Start the connection to the NodeGroup
+		/// </summary>
+		public void Connect()
+		{
+			AssertGroupAffected();
+			if(State != WalletState.Created)
+				throw new InvalidOperationException("The wallet is already connecting or connected");
 			_State = WalletState.Disconnected;
 			_Group.Connect();
 			_Group.ConnectedNodes.Added += ConnectedNodes_Added;
@@ -418,8 +581,6 @@ namespace NBitcoin.SPV
 		{
 			e.Node.Behaviors.Find<TrackerBehavior>().Scan(_ScanLocation, Created);
 		}
-
-		TrackerBehavior _TrackerBehavior;
 
 		NodesGroup _Group;
 
@@ -480,9 +641,17 @@ namespace NBitcoin.SPV
 			lock(cs)
 			{
 				JObject obj = new JObject();
-				obj.Add("CurrentIndex", this._CurrentIndex);
+				var indices = new JArray();
+				foreach(var indice in _PathStates)
+				{
+					JObject index = new JObject();
+					index.Add(new JProperty("KeyPath", indice.Key.ToString()));
+					index.Add(new JProperty("Next", indice.Value.Next));
+					index.Add(new JProperty("Loaded", indice.Value.Loaded));
+					indices.Add(index);
+				}
+				obj.Add("Indices", indices);
 				obj.Add("KeyPoolSize", this._KeyPoolSize);
-				obj.Add("LoadedKeys", this._LoadedKeys);
 				obj.Add("Created", this.Created);
 				obj.Add("Parameters", this._Parameters.ToJson());
 
@@ -494,7 +663,7 @@ namespace NBitcoin.SPV
 				{
 					JObject known = new JObject();
 					known.Add("ScriptPubKey", Encoders.Hex.EncodeData(knownScript.Key.ToBytes()));
-					known.Add("KeyPath", knownScript.Value.ToString());
+					known.Add("AbsoluteKeyPath", knownScript.Value.ToString());
 					knownScripts.Add(known);
 				}
 				obj.Add("KnownScripts", knownScripts);
@@ -514,9 +683,37 @@ namespace NBitcoin.SPV
 			{
 				DateParseHandling = DateParseHandling.DateTimeOffset
 			});
-			_CurrentIndex = (int)(long)obj["CurrentIndex"];
+
+			_PathStates = new Dictionary<KeyPath, PathState>();
+			if(obj.Property("CurrentIndex") != null) //legacy
+			{
+				var idx = (int)(long)obj["CurrentIndex"];
+				var loadedKeys = (int)(long)obj["LoadedKeys"];
+				_PathStates.Add(_Parameters.DerivationPath.Derive(0), new PathState()
+				{
+					Next = idx,
+					Loaded = loadedKeys
+				});
+				_PathStates.Add(_Parameters.DerivationPath.Derive(1), new PathState()
+				{
+					Next = idx,
+					Loaded = loadedKeys
+				});
+			}
+
+			var indices = obj["Indices"] as JArray;
+			if(indices != null)
+			{
+				foreach(var indice in indices.OfType<JObject>())
+				{
+					_PathStates.Add(KeyPath.Parse((string)indice["KeyPath"]), new PathState()
+					{
+						Next = (int)(long)indice["Next"],
+						Loaded = (int)(long)indice["Loaded"]
+					});
+				}
+			}
 			_KeyPoolSize = (int)(long)obj["KeyPoolSize"];
-			_LoadedKeys = (int)(long)obj["LoadedKeys"];
 			Created = (DateTimeOffset)obj["Created"];
 			_ScanLocation = new BlockLocator();
 			_ScanLocation.FromBytes(Encoders.Hex.DecodeData((string)obj["Location"]));
@@ -526,8 +723,16 @@ namespace NBitcoin.SPV
 			foreach(var known in knownScripts.OfType<JObject>())
 			{
 				Script script = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)known["ScriptPubKey"]));
-				KeyPath keypath = KeyPath.Parse((string)known["KeyPath"]);
-				_KnownScripts.Add(script, keypath);
+				if(known["KeyPath"] != null) //Legacy data
+				{
+					KeyPath keypath = KeyPath.Parse((string)known["KeyPath"]);
+					_KnownScripts.Add(script, _Parameters.DerivationPath.Derive(keypath));
+				}
+				if(known["AbsoluteKeyPath"] != null)
+				{
+					KeyPath keypath = KeyPath.Parse((string)known["AbsoluteKeyPath"]);
+					_KnownScripts.Add(script, keypath);
+				}
 			}
 		}
 
@@ -536,7 +741,8 @@ namespace NBitcoin.SPV
 			KeyValuePair<Script, KeyPath>[] result;
 			lock(cs)
 			{
-				result = _KnownScripts.Where(s => !onlyGenerated || s.Value[1] < _CurrentIndex).ToArray();
+				result = _KnownScripts.Where(s => !onlyGenerated ||
+												  s.Value.Indexes.Last() < GetNextIndex(s.Value.Parent)).ToArray();
 			}
 			return result;
 		}

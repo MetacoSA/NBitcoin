@@ -51,6 +51,7 @@ namespace NBitcoin.Protocol
 		/// </summary>
 		public void Connect()
 		{
+			_Disconnect = new CancellationTokenSource();
 			StartConnecting();
 		}
 		/// <summary>

@@ -2,6 +2,7 @@
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using NBitcoin.SPV;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -137,6 +138,11 @@ namespace NBitcoin.Tests
 			{
 				_Filter = filterload.Object;
 			}
+			var filteradd = message.Message.Payload as FilterAddPayload;
+			if(filteradd != null)
+			{
+				_Filter.Insert(filteradd.Data);
+			}
 			var getdata = message.Message.Payload as GetDataPayload;
 			if(getdata != null)
 			{
@@ -267,7 +273,8 @@ namespace NBitcoin.Tests
 
 				Wallet wallet = new Wallet(creation, keyPoolSize: 11);
 				Assert.True(wallet.State == WalletState.Created);
-				wallet.Connect(connected);
+				wallet.Configure(connected);
+				wallet.Connect();
 				Assert.True(wallet.State == WalletState.Disconnected);
 				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 1);
 				Assert.True(wallet.State == WalletState.Connected);
@@ -284,8 +291,17 @@ namespace NBitcoin.Tests
 				TestUtils.Eventually(() => servers.Server1.ConnectedNodes.Count == 1);
 				var spv = servers.Server1.ConnectedNodes.First().Behaviors.Find<SPVBehavior>();
 				TestUtils.Eventually(() => spv._Filter != null);
-
 				var k = wallet.GetNextScriptPubKey();
+				Assert.NotNull(wallet.GetKeyPath(k));
+				if(creation.UseP2SH)
+				{
+					var p2sh = k.GetDestinationAddress(Network.TestNet) as BitcoinScriptAddress;
+					Assert.NotNull(p2sh);
+					var redeem = wallet.GetRedeemScript(p2sh);
+					Assert.NotNull(redeem);
+					Assert.Equal(redeem.Hash, p2sh.Hash);
+				}
+
 				Assert.Equal(creation.UseP2SH, k.GetDestinationAddress(Network.TestNet) is BitcoinScriptAddress);
 				chainBuilder.GiveMoney(k, Money.Coins(1.0m));
 				TestUtils.Eventually(() => wallet.GetTransactions().Count == 1);
@@ -314,7 +330,8 @@ namespace NBitcoin.Tests
 				wallet.Save(ms);
 				ms.Position = 0;
 				var wallet2 = Wallet.Load(ms);
-				wallet2.Connect(connected);
+				wallet2.Configure(connected);
+				wallet2.Connect();
 				Assert.Equal(wallet.Created, wallet2.Created);
 				Assert.Equal(wallet.GetNextScriptPubKey(), wallet2.GetNextScriptPubKey());
 				Assert.True(wallet.GetKnownScripts().Length == wallet2.GetKnownScripts().Length);
@@ -322,6 +339,101 @@ namespace NBitcoin.Tests
 				var fork = wallet.Chain.FindFork(wallet2._ScanLocation);
 				Assert.True(fork.Height == chainBuilder.Chain.Height - 5);
 			}
+		}
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void UseFilterAddIfKeyPoolSizeIsZero()
+		{
+			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
+			{
+				var chainBuilder = new BlockchainBuilder();
+
+				//Simulate SPV compatible server
+				servers.Server1.InboundNodeConnectionParameters.Services = NodeServices.Network;
+				servers.Server1.InboundNodeConnectionParameters.TemplateBehaviors.Add(new ChainBehavior(chainBuilder.Chain)
+				{
+					AutoSync = false
+				});
+				servers.Server1.InboundNodeConnectionParameters.TemplateBehaviors.Add(new SPVBehavior(chainBuilder));
+				/////////////
+
+				//The SPV client does not verify the chain and keep one connection alive with Server1
+				NodeConnectionParameters parameters = new NodeConnectionParameters();
+				Wallet.ConfigureDefaultNodeConnectionParameters(parameters);
+				parameters.IsTrusted = true;
+				AddressManagerBehavior addrman = new AddressManagerBehavior(new AddressManager());
+				addrman.AddressManager.Add(new NetworkAddress(servers.Server1.ExternalEndpoint), IPAddress.Parse("127.0.0.1"));
+				parameters.TemplateBehaviors.Add(addrman);
+				NodesGroup connected = new NodesGroup(Network.TestNet, parameters);
+				connected.AllowSameGroup = true;
+				connected.MaximumNodeConnection = 1;
+				/////////////
+
+				Wallet wallet = new Wallet(new WalletCreation()
+				{
+					Network = Network.TestNet,
+					RootKeys = new[] { new ExtKey().Neuter() },
+					UseP2SH = true
+				}, keyPoolSize: 0);
+				Assert.True(wallet.State == WalletState.Created);
+				wallet.Configure(connected);
+				wallet.Connect();
+				Assert.True(wallet.State == WalletState.Disconnected);
+				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 1);
+				Assert.True(wallet.State == WalletState.Connected);
+
+				var script = wallet.GetNextScriptPubKey(new KeyPath("0/1/2"));
+				Thread.Sleep(1000);
+				chainBuilder.GiveMoney(script, Money.Coins(0.001m));
+				TestUtils.Eventually(() => wallet.GetTransactions().Count == 1);
+				wallet.Disconnect();
+				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 0);
+
+				MemoryStream ms = new MemoryStream();
+				wallet.Save(ms);
+				ms.Position = 0;
+				var wallet2 = Wallet.Load(ms);
+				wallet2.Configure(connected);
+				wallet2.Connect();
+
+				var script2 = wallet2.GetNextScriptPubKey(new KeyPath("0/1/2"));
+				Thread.Sleep(1000);
+				Assert.NotEqual(script, script2);
+				Assert.NotNull(wallet2.GetRedeemScript(script));
+				Assert.NotNull(wallet2.GetRedeemScript(script2));
+				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 1);
+				var spv = servers.Server1.ConnectedNodes.First().Behaviors.Find<SPVBehavior>();
+				TestUtils.Eventually(() => spv._Filter != null);
+				chainBuilder.GiveMoney(script2, Money.Coins(0.001m));
+				TestUtils.Eventually(() => wallet.GetTransactions().Count == 2);
+				chainBuilder.GiveMoney(script, Money.Coins(0.002m));
+				TestUtils.Eventually(() => wallet.GetTransactions().Count == 3);
+				chainBuilder.FindBlock();
+				TestUtils.Eventually(() => wallet.GetTransactions().Count == 3 && wallet.GetTransactions().All(t => t.BlockInformation != null));
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanAddScriptsToWallet()
+		{
+			Wallet wallet = new Wallet(new WalletCreation()
+			{
+				DerivationPath = new KeyPath("56"),
+				Name = "MyWallet",
+				RootKeys = new[] { new ExtKey().Neuter() },
+				SignatureRequired = 1,
+				UseP2SH = false
+			}, 11);
+
+			wallet.Configure();
+			Assert.True(wallet.GetKnownScripts(true).Length == 0);
+			Assert.True(wallet.GetKnownScripts(false).Length == 0);
+			wallet.GetNextScriptPubKey();
+			Assert.True(wallet.GetKnownScripts(false).Length == 11); //11 normal
+			Assert.True(wallet.GetKnownScripts(true).Length == 1);
 		}
 
 
