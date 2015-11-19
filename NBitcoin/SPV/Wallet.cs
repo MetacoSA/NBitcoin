@@ -708,7 +708,7 @@ namespace NBitcoin.SPV
 			{
 				DateParseHandling = DateParseHandling.DateTimeOffset
 			});
-
+            _Parameters = WalletCreation.FromJson((JObject)obj["Parameters"]);
 			_PathStates = new Dictionary<KeyPath, PathState>();
 			if(obj.Property("CurrentIndex") != null) //legacy
 			{
@@ -742,7 +742,6 @@ namespace NBitcoin.SPV
 			Created = (DateTimeOffset)obj["Created"];
 			_ScanLocation = new BlockLocator();
 			_ScanLocation.FromBytes(Encoders.Hex.DecodeData((string)obj["Location"]));
-			_Parameters = WalletCreation.FromJson((JObject)obj["Parameters"]);
 			_KnownScripts.Clear();
 			var knownScripts = (JArray)obj["KnownScripts"];
 			foreach(var known in knownScripts.OfType<JObject>())
