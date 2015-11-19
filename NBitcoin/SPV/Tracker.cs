@@ -1,6 +1,7 @@
 ﻿#if !NOSOCKET
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -8,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +20,14 @@ namespace NBitcoin.SPV
 	/// </summary>
 	public class Tracker
 	{
-		internal class Operation
+		public delegate void NewTrackerOperation(Tracker sender, IOperation trackerOperation);
+
+		public interface IOperation
+		{
+			bool ContainsWallet(string wallet);
+			WalletTransaction ToWalletTransaction(ChainBase chain, string wallet);
+		}
+		internal class Operation : IOperation
 		{
 			public string GetId()
 			{
@@ -31,20 +40,21 @@ namespace NBitcoin.SPV
 
 			public static string GetId(uint256 txId, uint256 blockId, int height)
 			{
-				return string.Format("{0}-{1}-{2}", 
+				return string.Format("{0}-{1}-{2}",
 					(blockId == null ? (int.MaxValue - 1) : height),
 					(blockId ?? uint256.Zero),
 					txId);
 			}
 
-			public Operation()
+			public Operation(ConcurrentDictionary<string, TrackedScript> trackedScripts)
 			{
 				ReceivedCoins = new List<Tuple<Coin, string>>();
 				SpentCoins = new List<Tuple<Coin, string>>();
+				_TrackedScripts = trackedScripts;
 			}
 
-			public Operation(Transaction transaction, ChainedBlock block, MerkleBlock proof)
-				: this()
+			public Operation(Transaction transaction, ChainedBlock block, MerkleBlock proof, ConcurrentDictionary<string, TrackedScript> trackedScripts)
+				: this(trackedScripts)
 			{
 				Transaction = transaction;
 				if(block != null)
@@ -89,21 +99,37 @@ namespace NBitcoin.SPV
 				get;
 				set;
 			}
-			internal Operation Merge(Operation other)
+			internal Operation Merge(Operation other, out bool merged)
 			{
+				bool merged1;
+				bool merged2;
+				bool merged3 = false;
 				if(UnconfirmedSeen > other.UnconfirmedSeen)
 					UnconfirmedSeen = other.UnconfirmedSeen;
-				Merge(ReceivedCoins, other.ReceivedCoins);
-				Merge(SpentCoins, other.SpentCoins);
+
+				if(this.BlockId != other.BlockId && this.Height < other.Height)
+				{
+					this.BlockId = other.BlockId;
+					this.Height = other.Height;
+					this.Proof = other.Proof;
+					merged3 = true;
+				}
+				Merge(ReceivedCoins, other.ReceivedCoins, out merged1);
+				Merge(SpentCoins, other.SpentCoins, out merged2);
+				merged = merged1 || merged2 || merged3;
 				return this;
 			}
 
-			private void Merge(List<Tuple<Coin, string>> a, List<Tuple<Coin, string>> b)
+			private void Merge(List<Tuple<Coin, string>> a, List<Tuple<Coin, string>> b, out bool merged)
 			{
+				merged = false;
 				foreach(var coin in b)
 				{
 					if(a.All(c => c.Item1.Outpoint != coin.Item1.Outpoint))
+					{
+						merged = true;
 						a.Add(coin);
+					}
 				}
 			}
 
@@ -118,7 +144,24 @@ namespace NBitcoin.SPV
 				set;
 			}
 
-			public WalletTransaction ToWalletTransaction(ChainBase chain, ConcurrentDictionary<string, TrackedScript> trackedScripts, string wallet)
+			internal readonly ConcurrentDictionary<string, TrackedScript> _TrackedScripts;
+			public bool ContainsWallet(string wallet)
+			{
+				return ContainsWallet(wallet, ReceivedCoins) || ContainsWallet(wallet, SpentCoins);
+			}
+
+			private bool ContainsWallet(string wallet, List<Tuple<Coin, string>> coins)
+			{
+				return coins.Select(c => new
+				{
+					Coin = c.Item1,
+					TrackedScript = _TrackedScripts.TryGet(c.Item2)
+				})
+				.Where(o => o.TrackedScript != null)
+				.Any(c => c.TrackedScript.Wallet.Equals(wallet, StringComparison.Ordinal));
+			}
+
+			public WalletTransaction ToWalletTransaction(ChainBase chain, string wallet)
 			{
 				var chainHeight = chain.Height;
 				var tx = new WalletTransaction()
@@ -129,8 +172,8 @@ namespace NBitcoin.SPV
 					AddedDate = AddedDate
 				};
 
-				tx.ReceivedCoins = GetCoins(ReceivedCoins, trackedScripts, wallet);
-				tx.SpentCoins = GetCoins(SpentCoins, trackedScripts, wallet);
+				tx.ReceivedCoins = GetCoins(ReceivedCoins, _TrackedScripts, wallet);
+				tx.SpentCoins = GetCoins(SpentCoins, _TrackedScripts, wallet);
 
 				if(BlockId != null)
 				{
@@ -153,8 +196,9 @@ namespace NBitcoin.SPV
 				return coins.Select(c => new
 									{
 										Coin = c.Item1,
-										TrackedScript = trackedScripts[c.Item2]
+										TrackedScript = trackedScripts.TryGet(c.Item2)
 									})
+									.Where(o => o.TrackedScript != null)
 									.Where(c => c.TrackedScript.Wallet.Equals(wallet, StringComparison.Ordinal))
 									.Select(c => c.TrackedScript.RedeemScript != null ? c.Coin.ToScriptCoin(c.TrackedScript.RedeemScript) : c.Coin)
 									.ToArray();
@@ -198,9 +242,9 @@ namespace NBitcoin.SPV
 				return obj;
 			}
 
-			internal static Operation FromJson(JObject obj)
+			internal static Operation FromJson(JObject obj, ConcurrentDictionary<string, TrackedScript> trackedScripts)
 			{
-				var op = new Operation();
+				var op = new Operation(trackedScripts);
 
 				var blockId = (string)obj["BlockId"];
 				if(blockId != null)
@@ -274,9 +318,6 @@ namespace NBitcoin.SPV
 			{
 				return JsonConvert.SerializeObject(ToJson(), Formatting.Indented);
 			}
-
-
-
 		}
 		internal class TrackedScript
 		{
@@ -512,6 +553,7 @@ namespace NBitcoin.SPV
 			}
 
 			var interesting = false;
+			List<Operation> operations = null;
 			lock(cs)
 			{
 				foreach(var txin in transaction.Inputs.AsIndexedInputs())
@@ -524,7 +566,12 @@ namespace NBitcoin.SPV
 						if(_TrackedScripts.TryGetValue(match.TrackedScriptId, out parentMetadata))
 						{
 							interesting = true;
-							Spent(parentMetadata, txin, match.Coin, chainedBlock, proof);
+							var op = Spent(parentMetadata, txin, match.Coin, chainedBlock, proof);
+							if(op != null)
+							{
+								operations = operations ?? new List<Operation>();
+								operations.Add(op);
+							}
 						}
 
 					}
@@ -536,13 +583,46 @@ namespace NBitcoin.SPV
 					if(_TrackedScripts.TryGetValue(key, out match))
 					{
 						interesting = true;
-						Received(match, txout, chainedBlock, proof);
+						var op = Received(match, txout, chainedBlock, proof);
+						if(op != null)
+						{
+							operations = operations ?? new List<Operation>();
+							operations.Add(op);
+						}
 					}
 				}
+			}
+			if(operations != null)
+			{
+				FireCallbacks(operations);
 			}
 			return interesting;
 		}
 
+		private void FireCallbacks(List<Operation> operations)
+		{
+			foreach(var operation in operations)
+			{
+				var newOperation = this.NewOperation;
+				if(newOperation != null)
+				{
+					foreach(var handler in newOperation.GetInvocationList().Cast<NewTrackerOperation>())
+					{
+						try
+						{
+							handler.DynamicInvoke(this, operation);
+						}
+						catch(TargetInvocationException ex)
+						{
+							NodeServerTrace.Error("Error while calling Tracker callback", ex.InnerException);
+						}
+					}
+				}
+			}
+		}
+
+
+		public event NewTrackerOperation NewOperation;
 
 		public WalletTransactionsCollection GetWalletTransactions(ChainBase chain, string wallet = "default")
 		{
@@ -551,8 +631,8 @@ namespace NBitcoin.SPV
 				return new WalletTransactionsCollection(_Operations
 					.Select(op => op.Value)
 					.Where(op => op.CheckProof())
-					.Select(o => o.ToWalletTransaction(chain, _TrackedScripts, wallet))
-					.Where(o => o.ReceivedCoins.Length != 0 || o.SpentCoins.Length != 0)
+					.Where(op => op.ContainsWallet(wallet))
+					.Select(o => o.ToWalletTransaction(chain, wallet))
 					.ToArray());
 			}
 		}
@@ -560,21 +640,26 @@ namespace NBitcoin.SPV
 
 
 
-		private void Spent(TrackedScript metadata, IndexedTxIn txin, Coin coin, ChainedBlock block, MerkleBlock proof)
+		private Operation Spent(TrackedScript metadata, IndexedTxIn txin, Coin coin, ChainedBlock block, MerkleBlock proof)
 		{
-			var operation = new Operation(txin.Transaction, block, proof);
+			var operation = new Operation(txin.Transaction, block, proof, _TrackedScripts);
 			operation.SpentCoins.Add(Tuple.Create(coin, metadata.GetId()));
 			SetUnconfirmedSeenIfPossible(txin.Transaction, block, operation);
-			_Operations.AddOrUpdate(operation.GetId(), operation, (k, old) => old.Merge(operation));
+
+			bool merged = false;
+			var returned = _Operations.AddOrUpdate(operation.GetId(), operation, (k, old) => old.Merge(operation, out merged));
+			return (operation == returned || merged) ? operation : null;
 		}
 
-		private void Received(TrackedScript match, IndexedTxOut txout, ChainedBlock block, MerkleBlock proof)
+		private Operation Received(TrackedScript match, IndexedTxOut txout, ChainedBlock block, MerkleBlock proof)
 		{
-			var operation = new Operation(txout.Transaction, block, proof);
+			var operation = new Operation(txout.Transaction, block, proof, _TrackedScripts);
 			SetUnconfirmedSeenIfPossible(txout.Transaction, block, operation);
 			var coin = new Coin(txout);
 			operation.ReceivedCoins.Add(Tuple.Create(coin, match.GetId()));
-			_Operations.AddOrUpdate(operation.GetId(), operation, (k, old) => old.Merge(operation));
+
+			bool merged = false;
+			var returned = _Operations.AddOrUpdate(operation.GetId(), operation, (k, old) => old.Merge(operation, out merged));
 			var trackedOutpoint = new TrackedOutpoint()
 			{
 				Coin = coin,
@@ -582,6 +667,7 @@ namespace NBitcoin.SPV
 				Filter = match.Filter
 			};
 			_TrackedOutpoints.TryAdd(trackedOutpoint.GetId(), trackedOutpoint);
+			return (operation == returned || merged) ? operation : null;
 		}
 
 
@@ -726,7 +812,7 @@ namespace NBitcoin.SPV
 				var operations = (JArray)obj["Operations"];
 				foreach(var operation in operations.OfType<JObject>())
 				{
-					var op = Operation.FromJson(operation);
+					var op = Operation.FromJson(operation, _TrackedScripts);
 					_Operations.TryAdd(op.GetId(), op);
 				}
 				var outpoints = (JArray)obj["Outpoints"];

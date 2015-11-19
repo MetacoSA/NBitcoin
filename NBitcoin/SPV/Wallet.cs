@@ -123,11 +123,17 @@ namespace NBitcoin.SPV
 		}
 	}
 
+	public delegate void NewWalletTransactionDelegate(Wallet sender, WalletTransaction walletTransaction);
+
 	/// <summary>
 	/// A SPV Wallet respecting recommendation for privacy http://eprint.iacr.org/2014/763.pdf
 	/// </summary>
 	public class Wallet
 	{
+		/// <summary>
+		/// Get incoming transactions of the wallet, subscribers should not make any blocking call
+		/// </summary>
+		public event NewWalletTransactionDelegate NewWalletTransaction;
 		class PathState
 		{
 			public int Loaded;
@@ -180,7 +186,7 @@ namespace NBitcoin.SPV
 		public Wallet(BitcoinExtPubKey rootKey, int keyPoolSize = 500)
 			: this(new WalletCreation(rootKey), keyPoolSize)
 		{
-		}
+		}		
 
 		private void LoadPool(KeyPath keyPath)
 		{
@@ -543,7 +549,26 @@ namespace NBitcoin.SPV
 				parameters.TemplateBehaviors.Add(tracker);
 			}
 			_Group = group;
+			if(_ListenedTracker != null)
+			{
+				_ListenedTracker.NewOperation -= _ListenerTracked_NewOperation;
+			}
+			_ListenedTracker = tracker.Tracker;
+			_ListenedTracker.NewOperation += _ListenerTracked_NewOperation;
 		}
+
+		void _ListenerTracked_NewOperation(Tracker sender, Tracker.IOperation trackerOperation)
+		{
+			var newWalletTransaction = NewWalletTransaction;
+			if(newWalletTransaction != null && _Group != null)
+			{
+				if(trackerOperation.ContainsWallet(Name))
+				{
+					newWalletTransaction(this, trackerOperation.ToWalletTransaction(Chain, Name));
+				}
+			}
+		}
+		Tracker _ListenedTracker;
 
 		/// <summary>
 		/// Start the connection to the NodeGroup

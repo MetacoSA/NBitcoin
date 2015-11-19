@@ -245,9 +245,10 @@ namespace NBitcoin.Tests
 		}
 
 		public void CanSyncWalletCore(WalletCreation creation)
-		{
+		{			
 			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
 			{
+				var notifiedTransactions = new List<WalletTransaction>();
 				var chainBuilder = new BlockchainBuilder();
 
 				//Simulate SPV compatible server
@@ -272,6 +273,7 @@ namespace NBitcoin.Tests
 				/////////////
 
 				Wallet wallet = new Wallet(creation, keyPoolSize: 11);
+				wallet.NewWalletTransaction += (s, a) => notifiedTransactions.Add(a);
 				Assert.True(wallet.State == WalletState.Created);
 				wallet.Configure(connected);
 				wallet.Connect();
@@ -305,14 +307,17 @@ namespace NBitcoin.Tests
 				Assert.Equal(creation.UseP2SH, k.GetDestinationAddress(Network.TestNet) is BitcoinScriptAddress);
 				chainBuilder.GiveMoney(k, Money.Coins(1.0m));
 				TestUtils.Eventually(() => wallet.GetTransactions().Count == 1);
+				Assert.Equal(1, notifiedTransactions.Count);
 				chainBuilder.FindBlock();
 				TestUtils.Eventually(() => wallet.GetTransactions().Where(t => t.BlockInformation != null).Count() == 1);
+				Assert.Equal(2, notifiedTransactions.Count);
 
 				chainBuilder.Broadcast = false;
 				chainBuilder.GiveMoney(k, Money.Coins(1.5m));
 				chainBuilder.Broadcast = true;
 				chainBuilder.FindBlock();
 				TestUtils.Eventually(() => wallet.GetTransactions().Summary.Confirmed.TransactionCount == 2);
+				Assert.Equal(3, notifiedTransactions.Count);
 
 				chainBuilder.Broadcast = false;
 				for(int i = 0 ; i < 30 ; i++)

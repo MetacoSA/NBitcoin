@@ -442,8 +442,8 @@ namespace NBitcoin.Tests
 			string[] invalidMarkers = 
 			{
 				"6a114f41010003ac0200e58e26041234567800", //Useless bytes at the end of the marker
-				"4de803116a104f41010003ac0200e58e260412345678", //Invalid push consume a marker
-				"056a104f41010003ac0200e58e260412345678", //valid push consume a marker
+				"6a4de803116a104f41010003ac0200e58e260412345678", //Invalid push consume a marker
+				"6a056a104f41010003ac0200e58e260412345678", //valid push consume a marker
 			};
 
 			foreach(var script in invalidMarkers.Select(m=>new Script(Encoders.Hex.DecodeData(m))))
