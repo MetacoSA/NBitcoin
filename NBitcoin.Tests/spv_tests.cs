@@ -502,6 +502,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanMaintainConnectionToNodes()
 		{
+
 			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
 			{
 				NodesGroup connected = CreateGroup(servers, 2);
@@ -521,7 +522,10 @@ namespace NBitcoin.Tests
 
 				//Reconnect ?
 				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
+				connected.Disconnect();
+				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 0);
 			}
+
 		}
 
 		private static NodesGroup CreateGroup(NodeServerTester servers, int connections)
