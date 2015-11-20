@@ -342,7 +342,7 @@ namespace NBitcoin.Tests
 				Assert.True(wallet.GetKnownScripts().Length == wallet2.GetKnownScripts().Length);
 
 				var fork = wallet.Chain.FindFork(wallet2._ScanLocation);
-				Assert.True(fork.Height == chainBuilder.Chain.Height - 5);
+				Assert.True(fork.Height == chainBuilder.Chain.Height);
 			}
 		}
 
