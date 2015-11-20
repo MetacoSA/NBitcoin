@@ -245,33 +245,13 @@ namespace NBitcoin.Tests
 		}
 
 		public void CanSyncWalletCore(WalletCreation creation)
-		{			
+		{
 			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
 			{
 				var notifiedTransactions = new List<WalletTransaction>();
 				var chainBuilder = new BlockchainBuilder();
-
-				//Simulate SPV compatible server
-				servers.Server1.InboundNodeConnectionParameters.Services = NodeServices.Network;
-				servers.Server1.InboundNodeConnectionParameters.TemplateBehaviors.Add(new ChainBehavior(chainBuilder.Chain)
-				{
-					AutoSync = false
-				});
-				servers.Server1.InboundNodeConnectionParameters.TemplateBehaviors.Add(new SPVBehavior(chainBuilder));
-				/////////////
-
-				//The SPV client does not verify the chain and keep one connection alive with Server1
-				NodeConnectionParameters parameters = new NodeConnectionParameters();
-				Wallet.ConfigureDefaultNodeConnectionParameters(parameters);
-				parameters.IsTrusted = true;
-				AddressManagerBehavior addrman = new AddressManagerBehavior(new AddressManager());
-				addrman.AddressManager.Add(new NetworkAddress(servers.Server1.ExternalEndpoint), IPAddress.Parse("127.0.0.1"));
-				parameters.TemplateBehaviors.Add(addrman);
-				NodesGroup connected = new NodesGroup(Network.TestNet, parameters);
-				connected.AllowSameGroup = true;
-				connected.MaximumNodeConnection = 1;
-				/////////////
-
+				SetupSPVBehavior(servers, chainBuilder);
+				NodesGroup connected = CreateGroup(servers, 1);
 				Wallet wallet = new Wallet(creation, keyPoolSize: 11);
 				wallet.NewWalletTransaction += (s, a) => notifiedTransactions.Add(a);
 				Assert.True(wallet.State == WalletState.Created);
@@ -346,6 +326,21 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		private static void SetupSPVBehavior(NodeServerTester servers, BlockchainBuilder chainBuilder)
+		{
+			foreach(var server in new[] { servers.Server1, servers.Server2 })
+			{
+				server.InboundNodeConnectionParameters.Services = NodeServices.Network;
+				//Simulate SPV compatible server
+				server.InboundNodeConnectionParameters.TemplateBehaviors.Add(new ChainBehavior(chainBuilder.Chain)
+				{
+					AutoSync = false
+				});
+				server.InboundNodeConnectionParameters.TemplateBehaviors.Add(new SPVBehavior(chainBuilder));
+				/////////////
+			}
+		}
+
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -354,27 +349,9 @@ namespace NBitcoin.Tests
 			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
 			{
 				var chainBuilder = new BlockchainBuilder();
+				SetupSPVBehavior(servers, chainBuilder);
 
-				//Simulate SPV compatible server
-				servers.Server1.InboundNodeConnectionParameters.Services = NodeServices.Network;
-				servers.Server1.InboundNodeConnectionParameters.TemplateBehaviors.Add(new ChainBehavior(chainBuilder.Chain)
-				{
-					AutoSync = false
-				});
-				servers.Server1.InboundNodeConnectionParameters.TemplateBehaviors.Add(new SPVBehavior(chainBuilder));
-				/////////////
-
-				//The SPV client does not verify the chain and keep one connection alive with Server1
-				NodeConnectionParameters parameters = new NodeConnectionParameters();
-				Wallet.ConfigureDefaultNodeConnectionParameters(parameters);
-				parameters.IsTrusted = true;
-				AddressManagerBehavior addrman = new AddressManagerBehavior(new AddressManager());
-				addrman.AddressManager.Add(new NetworkAddress(servers.Server1.ExternalEndpoint), IPAddress.Parse("127.0.0.1"));
-				parameters.TemplateBehaviors.Add(addrman);
-				NodesGroup connected = new NodesGroup(Network.TestNet, parameters);
-				connected.AllowSameGroup = true;
-				connected.MaximumNodeConnection = 1;
-				/////////////
+				var connected = CreateGroup(servers, 1);
 
 				Wallet wallet = new Wallet(new WalletCreation()
 				{
@@ -527,23 +504,12 @@ namespace NBitcoin.Tests
 		{
 			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
 			{
-				servers.Server1.InboundNodeConnectionParameters.Services = NodeServices.Network;
-				AddressManagerBehavior behavior = new AddressManagerBehavior(new AddressManager());
-				behavior.AddressManager.Add(new NetworkAddress(servers.Server1.ExternalEndpoint), IPAddress.Parse("127.0.0.1"));
-				NodeConnectionParameters parameters = new NodeConnectionParameters();
-				parameters.TemplateBehaviors.Add(behavior);
-				NodesGroup connected = new NodesGroup(Network.TestNet, parameters, new NodeRequirement()
-				{
-					RequiredServices = NodeServices.Network
-				});
-				connected.AllowSameGroup = true;
-				connected.MaximumNodeConnection = 2;
+				NodesGroup connected = CreateGroup(servers, 2);
 				connected.Connect();
-
 				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
 
 				//Server crash abruptly
-				servers.Server1.ConnectedNodes.First().Disconnect();
+				servers.ConnectedNodes.First().Disconnect();
 				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 1);
 
 				//Reconnect ?
@@ -556,6 +522,27 @@ namespace NBitcoin.Tests
 				//Reconnect ?
 				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
 			}
+		}
+
+		private static NodesGroup CreateGroup(NodeServerTester servers, int connections)
+		{
+			AddressManagerBehavior behavior = new AddressManagerBehavior(new AddressManager());
+			if(connections == 1)
+			{
+				behavior.AddressManager.Add(new NetworkAddress(servers.Server1.ExternalEndpoint), IPAddress.Parse("127.0.0.1"));
+			}
+			if(connections > 1)
+			{
+				behavior.AddressManager.Add(new NetworkAddress(servers.Server2.ExternalEndpoint), IPAddress.Parse("127.0.0.1"));
+			}
+			NodeConnectionParameters parameters = new NodeConnectionParameters();
+			parameters.TemplateBehaviors.Add(behavior);
+			Wallet.ConfigureDefaultNodeConnectionParameters(parameters);
+			parameters.IsTrusted = true;
+			NodesGroup connected = new NodesGroup(Network.TestNet, parameters);
+			connected.AllowSameGroup = true;
+			connected.MaximumNodeConnection = connections;
+			return connected;
 		}
 
 		[Fact]

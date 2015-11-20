@@ -53,6 +53,13 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		public IEnumerable<Node> ConnectedNodes
+		{
+			get
+			{
+				return Server1.ConnectedNodes.Concat(Server2.ConnectedNodes);
+			}
+		}
 		private readonly NodeServer _Server1;
 		public NodeServer Server1
 		{
