@@ -1131,7 +1131,7 @@ namespace NBitcoin.Protocol
 
 			using(traceCorrelation.Open())
 			{
-				while(found <= peerToFind)
+				while(found < peerToFind)
 				{
 					parameters.ConnectCancellation.ThrowIfCancellationRequested();
 					NodeServerTrace.PeerTableRemainingPeerToGet(-found + peerToFind);

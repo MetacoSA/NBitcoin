@@ -472,9 +472,10 @@ namespace NBitcoin.Protocol
 			while(true)
 			{
 				parameters.ConnectCancellation.ThrowIfCancellationRequested();
-				if(addrman.Count == 0 || DateTimeOffset.UtcNow - start > TimeSpan.FromSeconds(30))
+				if(addrman.Count == 0 || DateTimeOffset.UtcNow - start > TimeSpan.FromSeconds(60))
 				{
 					addrman.DiscoverPeers(network, parameters);
+                    start = DateTimeOffset.UtcNow;
 				}
 				NetworkAddress addr = null;
 				while(true)
