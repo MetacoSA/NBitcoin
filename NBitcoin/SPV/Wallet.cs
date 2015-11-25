@@ -124,6 +124,8 @@ namespace NBitcoin.SPV
 	}
 
 	public delegate void NewWalletTransactionDelegate(Wallet sender, WalletTransaction walletTransaction);
+	public delegate void TransactionBroadcastedDelegate(Wallet sender, Transaction transaction, Node node);
+	public delegate void TransactionRejectedDelegate(Wallet sender, Transaction transaction, Node node);
 
 	/// <summary>
 	/// A SPV Wallet respecting recommendation for privacy http://eprint.iacr.org/2014/763.pdf
@@ -150,8 +152,44 @@ namespace NBitcoin.SPV
 				_Tracker = AttachedNode.Behaviors.Find<TrackerBehavior>();
 				if(_Tracker != null)
 				{
+					AttachedNode.MessageReceived += AttachedNode_MessageReceived;
 					AttachedNode.Disconnected += AttachedNode_Disconnected;
 					AttachedNode.StateChanged += AttachedNode_StateChanged;
+				}
+			}
+
+			void AttachedNode_MessageReceived(Node node, IncomingMessage message)
+			{
+				TxPayload txPayload = message.Message.Payload as TxPayload;
+				if(txPayload != null)
+				{
+					Transaction tx;
+					var hash = txPayload.Object.GetHash();
+					if(_Wallet._BroadcastedTransaction.TryRemove(hash, out tx))
+					{
+						_Broadcasting.TryRemove(hash, out tx);
+						_Wallet.OnTransactionBroadcasted(tx, node);
+					}
+				}
+				RejectPayload reject = message.Message.Payload as RejectPayload;
+				if(reject != null)
+				{
+					Transaction tx;
+					if(_Broadcasting.TryRemove(reject.Hash, out tx))
+					{
+						_Wallet.OnTransactionRejected(tx, node);
+					}
+				}
+
+				GetDataPayload getData = message.Message.Payload as GetDataPayload;
+				if(getData != null)
+				{
+					foreach(var inventory in getData.Inventory.Where(i => i.Type == InventoryType.MSG_TX))
+					{
+						Transaction tx;
+						if(_Broadcasting.TryRemove(inventory.Hash, out tx))
+							node.SendMessageAsync(new TxPayload(tx));
+					}
 				}
 			}
 
@@ -160,6 +198,31 @@ namespace NBitcoin.SPV
 				if(node.State == NodeState.HandShaked)
 				{
 					_Tracker.Scan(_Wallet._ScanLocation, _Wallet.Created);
+					_Tracker.SendMessageAsync(new MempoolPayload());
+					foreach(var transaction in _Wallet._BroadcastedTransaction)
+					{
+						BroadcastTransaction(transaction.Value);
+					}
+				}
+			}
+
+			ConcurrentDictionary<uint256, Transaction> _Broadcasting = new ConcurrentDictionary<uint256, Transaction>();
+			public async void BroadcastTransaction(Transaction transaction)
+			{
+				if(transaction == null)
+					throw new ArgumentNullException("transaction");
+				var node = AttachedNode;
+				if(node != null)
+				{
+					var id = transaction.GetHash();
+					if(_Broadcasting.TryAdd(id, transaction))
+					{
+						await Task.Delay(TimeSpan.FromSeconds(RandomUtils.GetInt32() % 20)).ConfigureAwait(false);
+						if(_Broadcasting.ContainsKey(id))
+						{
+							var unused = node.SendMessageAsync(new InvPayload(InventoryType.MSG_TX, id));
+						}
+					}
 				}
 			}
 
@@ -174,6 +237,7 @@ namespace NBitcoin.SPV
 				{
 					AttachedNode.Disconnected -= AttachedNode_Disconnected;
 					AttachedNode.StateChanged -= AttachedNode_StateChanged;
+					AttachedNode.MessageReceived -= AttachedNode_MessageReceived;
 				}
 			}
 
@@ -199,6 +263,7 @@ namespace NBitcoin.SPV
 		WalletCreation _Parameters;
 
 		Dictionary<Script, KeyPath> _KnownScripts = new Dictionary<Script, KeyPath>();
+		ConcurrentDictionary<uint256, Transaction> _BroadcastedTransaction = new ConcurrentDictionary<uint256, Transaction>();
 
 		/// <summary>
 		/// Blocks below this date will not be processed
@@ -853,6 +918,42 @@ namespace NBitcoin.SPV
 												  s.Value.Indexes.Last() < GetNextIndex(s.Value.Parent)).ToArray();
 			}
 			return result;
+		}
+
+		/// <summary>
+		/// Broadcast a transaction to connected peers. Do not save transaction broadcasting in case of shutdown.
+		/// </summary>
+		/// <param name="transaction"></param>
+		public void BroadcastTransaction(Transaction transaction)
+		{
+			_BroadcastedTransaction.TryAdd(transaction.GetHash(), transaction);
+			var group = _Group;
+			if(group != null)
+			{
+				foreach(var node in group.ConnectedNodes)
+				{
+					var wallet = FindWalletBehavior(node.Behaviors);
+					if(wallet != null)
+						wallet.BroadcastTransaction(transaction);
+				}
+			}
+		}
+
+		public event TransactionBroadcastedDelegate TransactionBroadcasted;
+		public event TransactionRejectedDelegate TransactionRejected;
+
+		internal void OnTransactionBroadcasted(Transaction tx, Node node)
+		{
+			var transactionBroadcasted = TransactionBroadcasted;
+			if(transactionBroadcasted != null)
+				transactionBroadcasted(this, tx, node);
+		}
+
+		internal void OnTransactionRejected(Transaction tx, Node node)
+		{
+			var transactionRejected = TransactionRejected;
+			if(transactionRejected != null)
+				transactionRejected(this, tx, node);
 		}
 	}
 }

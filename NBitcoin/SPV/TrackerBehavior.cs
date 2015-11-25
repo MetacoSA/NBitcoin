@@ -396,6 +396,10 @@ namespace NBitcoin.SPV
 			SetBloomFilter();
 		}
 
+		/// <summary>
+		/// Send message once the bloom filter is set
+		/// </summary>
+		/// <param name="payload">Message to send</param>
 		public void SendMessageAsync(Payload payload)
 		{
 			var node = AttachedNode;
