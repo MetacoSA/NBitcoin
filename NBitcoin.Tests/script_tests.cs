@@ -43,6 +43,8 @@ namespace NBitcoin.Tests
 				}
 				mapOpNames["NOP2"] = OpcodeType.OP_NOP2;
 				mapOpNames["OP_NOP2"] = OpcodeType.OP_NOP2;
+				mapOpNames["NOP3"] = OpcodeType.OP_NOP3;
+				mapOpNames["OP_NOP3"] = OpcodeType.OP_NOP3;
 			}
 
 			var words = s.Split(' ', '\t', '\n');

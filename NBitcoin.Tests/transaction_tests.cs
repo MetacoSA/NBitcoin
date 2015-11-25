@@ -1716,6 +1716,9 @@ namespace NBitcoin.Tests
 				mapFlagNames["STRICTENC"] = ScriptVerify.StrictEnc;
 				mapFlagNames["LOW_S"] = ScriptVerify.LowS;
 				mapFlagNames["NULLDUMMY"] = ScriptVerify.NullDummy;
+				mapFlagNames["CHECKLOCKTIMEVERIFY"] = ScriptVerify.CheckLockTimeVerify;
+				mapFlagNames["CHECKSEQUENCEVERIFY"] = ScriptVerify.CheckSequenceVerify;
+				mapFlagNames["DERSIG"] = ScriptVerify.DerSig;
 			}
 
 			foreach(string word in words)
@@ -1738,12 +1741,16 @@ namespace NBitcoin.Tests
 			// or [[[prevout hash, prevout index, prevout scriptPubKey], [input 2], ...],"], serializedTransaction, enforceP2SH
 			// ... where all scripts are stringified scripts.
 			var tests = TestCase.read_json("data/tx_invalid.json");
+			string comment = null;
 			foreach(var test in tests)
 			{
 				string strTest = test.ToString();
 				//Skip comments
 				if(!(test[0] is JArray))
+				{
+					comment = test[0].ToString();
 					continue;
+				}
 				JArray inputs = (JArray)test[0];
 				if(test.Count != 3 || !(test[1] is string) || !(test[2] is string))
 				{
