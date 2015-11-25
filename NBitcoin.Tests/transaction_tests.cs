@@ -1512,6 +1512,9 @@ namespace NBitcoin.Tests
 				mapFlagNames["STRICTENC"] = ScriptVerify.StrictEnc;
 				mapFlagNames["LOW_S"] = ScriptVerify.LowS;
 				mapFlagNames["NULLDUMMY"] = ScriptVerify.NullDummy;
+				mapFlagNames["CHECKLOCKTIMEVERIFY"] = ScriptVerify.CheckLockTimeVerify;
+				mapFlagNames["CHECKSEQUENCEVERIFY"] = ScriptVerify.CheckSequenceVerify;
+				mapFlagNames["DERSIG"] = ScriptVerify.DerSig;
 			}
 
 			foreach(string word in words)

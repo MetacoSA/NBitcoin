@@ -143,6 +143,7 @@
     <Compile Include="Protocol\Payloads\UTxOutpusPayload.cs" />
     <Compile Include="RPC\RestClient.cs" />
     <Compile Include="Policy\StandardTransactionPolicy.cs" />
+    <Compile Include="Sequence.cs" />
     <Compile Include="Utils\ActionDisposable.cs" />
     <Compile Include="Utils\ThreadSafeCollection.cs" />
     <Compile Include="Protocol\NodeConnectionParameters.cs" />

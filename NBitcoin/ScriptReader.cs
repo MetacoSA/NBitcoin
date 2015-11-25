@@ -237,12 +237,12 @@ namespace NBitcoin
 					return "OP_CHECKMULTISIGVERIFY";
 				case OpcodeType.OP_CHECKLOCKTIMEVERIFY:
 					return "OP_CLTV";
+				case OpcodeType.OP_CHECKSEQUENCEVERIFY:
+					return "OP_CSV";
 
 				// expanson
 				case OpcodeType.OP_NOP1:
 					return "OP_NOP1";
-				case OpcodeType.OP_NOP3:
-					return "OP_NOP3";
 				case OpcodeType.OP_NOP4:
 					return "OP_NOP4";
 				case OpcodeType.OP_NOP5:
@@ -281,6 +281,9 @@ namespace NBitcoin
 			_OpcodeByName.Add("OP_CHECKLOCKTIMEVERIFY", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
 			_OpcodeByName.Add("OP_HODL", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
 			_OpcodeByName.Add("OP_NOP2", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
+
+			_OpcodeByName.Add("OP_CHECKSEQUENCEVERIFY", OpcodeType.OP_CHECKSEQUENCEVERIFY);
+			_OpcodeByName.Add("OP_NOP3", OpcodeType.OP_CHECKSEQUENCEVERIFY);			
 		}
 		public static bool GetOpCode(string name, out OpcodeType result)
 		{

@@ -187,6 +187,16 @@ namespace NBitcoin
 				return new CScriptNum(a.m_value - b.m_value);
 			}
 
+			public static CScriptNum operator &(CScriptNum a, long b)
+			{
+				return new CScriptNum(a.m_value & b);
+			}
+			public static CScriptNum operator &(CScriptNum a, CScriptNum b)
+			{
+				return new CScriptNum(a.m_value & b.m_value);
+			}
+
+
 
 			public static CScriptNum operator -(CScriptNum num)
 			{
@@ -205,6 +215,15 @@ namespace NBitcoin
 				return new CScriptNum(rhs);
 			}
 
+			public static explicit operator long(CScriptNum rhs)
+			{
+				return rhs.m_value;
+			}
+
+			public static explicit operator uint(CScriptNum rhs)
+			{
+				return (uint)rhs.m_value;
+			}
 
 
 
@@ -516,7 +535,45 @@ namespace NBitcoin
 
 									break;
 								}
-							case OpcodeType.OP_NOP3:
+							case OpcodeType.OP_CHECKSEQUENCEVERIFY:
+								{
+									if((ScriptVerify & ScriptVerify.CheckSequenceVerify) == 0)
+									{
+										// not enabled; treat as a NOP3
+										if((ScriptVerify & ScriptVerify.DiscourageUpgradableNops) != 0)
+										{
+											return SetError(ScriptError.DiscourageUpgradableNops);
+										}
+										break;
+									}
+
+									if(Stack.Count < 1)
+										return SetError(ScriptError.InvalidStackOperation);
+
+									// nSequence, like nLockTime, is a 32-bit unsigned integer
+									// field. See the comment in CHECKLOCKTIMEVERIFY regarding
+									// 5-byte numeric operands.
+									CScriptNum nSequence = new CScriptNum(Stack.Top(-1), fRequireMinimal, 5);
+
+									// In the rare event that the argument may be < 0 due to
+									// some arithmetic being done first, you can always use
+									// 0 MAX CHECKSEQUENCEVERIFY.
+									if((long)nSequence < 0)
+										return SetError(ScriptError.NegativeLockTime);
+
+									// To provide for future soft-fork extensibility, if the
+									// operand has the disabled lock-time flag set,
+									// CHECKSEQUENCEVERIFY behaves as a NOP.
+									if(((uint)nSequence & Sequence.SEQUENCE_LOCKTIME_DISABLE_FLAG) != 0)
+										break;
+									// Compare the specified sequence number with the input.
+									if(!CheckSequence(nSequence, txTo, (uint)nIn))
+										return SetError(ScriptError.UnsatisfiedLockTime);
+
+									break;
+								}
+
+
 							case OpcodeType.OP_NOP4:
 							case OpcodeType.OP_NOP5:
 							case OpcodeType.OP_NOP6:
@@ -1153,27 +1210,41 @@ namespace NBitcoin
 			return SetSuccess(ScriptError.OK);
 		}
 
+
+		bool CheckSequence(CScriptNum nSequence, Transaction txTo, uint nIn)
+		{
+
+			// Relative lock times are supported by comparing the passed
+			// in operand to the sequence number of the input.
+			long txToSequence = (long)txTo.Inputs[nIn].Sequence;
+
+			// Fail if the transaction's version number is not set high
+			// enough to trigger BIP 68 rules.
+			if((uint)txTo.Version < 2)
+				return false;
+
+			// Sequence numbers with their most significant bit set are not
+			// consensus constrained. Testing that the transaction's sequence
+			// number do not have this bit set prevents using this property
+			// to get around a CHECKSEQUENCEVERIFY check.
+			if((txToSequence & Sequence.SEQUENCE_LOCKTIME_DISABLE_FLAG) != 0)
+				return false;
+
+			// Mask off any bits that do not have consensus-enforced meaning
+			// before doing the integer comparisons of ::VerifyLockTime.
+			uint nLockTimeMask = Sequence.SEQUENCE_LOCKTIME_TYPE_FLAG
+										 | Sequence.SEQUENCE_LOCKTIME_MASK;
+
+			if(!VerifyLockTime(txToSequence & nLockTimeMask, Sequence.SEQUENCE_LOCKTIME_TYPE_FLAG, nSequence & nLockTimeMask))
+				return false;
+
+			return true;
+		}
+
+
 		bool CheckLockTime(CScriptNum nLockTime, Transaction txTo, uint nIn)
 		{
-			// There are two kinds of nLockTime: lock-by-blockheight
-			// and lock-by-blocktime, distinguished by whether
-			// nLockTime < LOCKTIME_THRESHOLD.
-			//
-			// We want to compare apples to apples, so fail the script
-			// unless the type of nLockTime being tested is the same as
-			// the nLockTime in the transaction.
-			if(!(
-				(txTo.LockTime < LockTime.LOCKTIME_THRESHOLD && nLockTime < LockTime.LOCKTIME_THRESHOLD) ||
-				(txTo.LockTime >= LockTime.LOCKTIME_THRESHOLD && nLockTime >= LockTime.LOCKTIME_THRESHOLD)
-			))
-				return false;
-
-			// Now that we know we're comparing apples-to-apples, the
-			// comparison is a simple numeric one.
-			if(nLockTime > (long)txTo.LockTime)
-				return false;
-
-			// Finally the nLockTime feature can be disabled and thus
+			// The nLockTime feature can be disabled and thus
 			// CHECKLOCKTIMEVERIFY bypassed if every txin has been
 			// finalized by setting nSequence to maxint. The
 			// transaction would be allowed into the blockchain, making
@@ -1184,6 +1255,33 @@ namespace NBitcoin
 			// inputs, but testing just this input minimizes the data
 			// required to prove correct CHECKLOCKTIMEVERIFY execution.
 			if(txTo.Inputs[nIn].IsFinal)
+				return false;
+
+			if(!VerifyLockTime((long)txTo.LockTime, LockTime.LOCKTIME_THRESHOLD, nLockTime))
+				return false;
+
+			return true;
+		}
+
+		private bool VerifyLockTime(long txToLockTime, long nThreshold, CScriptNum nLockTime)
+		{
+			// There are two kinds of nLockTime: lock-by-blockheight
+			// and lock-by-blocktime, distinguished by whether
+			// nLockTime < nThreshold (either LOCKTIME_THRESHOLD or
+			// CTxIn::SEQUENCE_LOCKTIME_TYPE_FLAG).
+			//
+			// We want to compare apples to apples, so fail the script
+			// unless the type of nLockTime being tested is the same as
+			// the nLockTime in the transaction.
+			if(!(
+				(txToLockTime < nThreshold && nLockTime < nThreshold) ||
+				(txToLockTime >= nThreshold && nLockTime >= nThreshold)
+			))
+				return false;
+
+			// Now that we know we're comparing apples-to-apples, the
+			// comparison is a simple numeric one.
+			if(nLockTime > txToLockTime)
 				return false;
 
 			return true;
