@@ -217,7 +217,7 @@ namespace NBitcoin.SPV
 					var id = transaction.GetHash();
 					if(_Broadcasting.TryAdd(id, transaction))
 					{
-						await Task.Delay(TimeSpan.FromSeconds(RandomUtils.GetInt32() % 20)).ConfigureAwait(false);
+						await Task.Delay(TimeSpan.FromSeconds(Math.Abs(RandomUtils.GetInt32()) % 20)).ConfigureAwait(false);
 						if(_Broadcasting.ContainsKey(id))
 						{
 							var unused = node.SendMessageAsync(new InvPayload(InventoryType.MSG_TX, id));
