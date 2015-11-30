@@ -311,15 +311,29 @@ namespace NBitcoin.Tests
 				//Sync automatically
 				TestUtils.Eventually(() => wallet.GetTransactions().Summary.Confirmed.TransactionCount == 3);
 
+				//Save and restore wallet
 				MemoryStream ms = new MemoryStream();
 				wallet.Save(ms);
 				ms.Position = 0;
 				var wallet2 = Wallet.Load(ms);
+				//////
+
+				//Save and restore tracker
+				ms = new MemoryStream();
+				var tracker = connected.NodeConnectionParameters.TemplateBehaviors.Find<TrackerBehavior>();
+				connected.NodeConnectionParameters.TemplateBehaviors.Remove(tracker);
+				tracker.Tracker.Save(ms);
+				ms.Position = 0;
+				tracker = new TrackerBehavior(Tracker.Load(ms), wallet.Chain);
+				connected.NodeConnectionParameters.TemplateBehaviors.Add(tracker);
+				//////
+
 				wallet2.Configure(connected);
 				wallet2.Connect();
 				Assert.Equal(wallet.Created, wallet2.Created);
 				Assert.Equal(wallet.GetNextScriptPubKey(), wallet2.GetNextScriptPubKey());
 				Assert.True(wallet.GetKnownScripts().Length == wallet2.GetKnownScripts().Length);
+				TestUtils.Eventually(() => wallet2.GetTransactions().Summary.Confirmed.TransactionCount == 3);
 
 				var fork = wallet.Chain.FindFork(wallet2._ScanLocation);
 				Assert.True(fork.Height == chainBuilder.Chain.Height);
