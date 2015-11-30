@@ -35,6 +35,11 @@ namespace NBitcoin.Tests
 		{
 			var tx = new Transaction();
 			tx.Outputs.Add(new TxOut(value, scriptPubKey));
+			return BroadcastTransaction(tx);
+		}
+
+		public Transaction BroadcastTransaction(Transaction tx)
+		{
 			var h = tx.GetHash();
 			Mempool.Add(h, tx);
 			OnNewTransaction(tx);
@@ -160,8 +165,17 @@ namespace NBitcoin.Tests
 							}
 						}
 					}
-					if(inv.Type == InventoryType.MSG_TX)
-						AttachedNode.SendMessageAsync(new TxPayload(_Transactions[inv.Hash]));
+					var found = FindTransaction(inv.Hash);
+					if(inv.Type == InventoryType.MSG_TX && found != null)
+						AttachedNode.SendMessageAsync(new TxPayload(found));
+				}
+			}
+			var mempool = message.Message.Payload as MempoolPayload;
+			if(mempool != null)
+			{
+				foreach(var tx in _Builder.Mempool)
+				{
+					BroadcastCore(tx.Value);
 				}
 			}
 		}
@@ -172,6 +186,11 @@ namespace NBitcoin.Tests
 		void _Builder_NewTransaction(Transaction obj)
 		{
 			_Transactions.AddOrReplace(obj.GetHash(), obj);
+			BroadcastCore(obj);
+		}
+
+		private void BroadcastCore(Transaction obj)
+		{
 			if(_Builder.Broadcast)
 				if(_Filter != null && _Filter.IsRelevantAndUpdate(obj) && _Known.TryAdd(obj.GetHash(), obj.GetHash()))
 				{
@@ -203,6 +222,11 @@ namespace NBitcoin.Tests
 			behavior._Blocks = _Blocks;
 			behavior._Transactions = _Transactions;
 			return behavior;
+		}
+
+		Transaction FindTransaction(uint256 id)
+		{
+			return _Builder.Mempool.TryGet(id) ?? _Transactions.TryGet(id);
 		}
 
 		#endregion
@@ -242,6 +266,144 @@ namespace NBitcoin.Tests
 				SignatureRequired = 2,
 				UseP2SH = true
 			});
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSyncWallet2()
+		{
+			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
+			{
+				var chainBuilder = new BlockchainBuilder();
+				SetupSPVBehavior(servers, chainBuilder);
+				NodesGroup aliceConnection = CreateGroup(servers, 1);
+				NodesGroup bobConnection = CreateGroup(servers, 1);
+
+				var aliceKey = new ExtKey();
+				Wallet alice = new Wallet(new WalletCreation()
+				{
+					Network = Network.TestNet,
+					RootKeys = new[] { aliceKey.Neuter() },
+					SignatureRequired = 1,
+					UseP2SH = false
+				}, 11);
+				Wallet bob = new Wallet(new WalletCreation()
+				{
+					Network = Network.TestNet,
+					RootKeys = new[] { new ExtKey().Neuter() },
+					SignatureRequired = 1,
+					UseP2SH = false
+				}, 11);
+
+				alice.Configure(aliceConnection);
+				alice.Connect();
+
+				bob.Configure(bobConnection);
+				bob.Connect();
+
+				TestUtils.Eventually(() => aliceConnection.ConnectedNodes.Count == 1);
+
+				//New address tracked
+				var addressAlice = alice.GetNextScriptPubKey();
+				chainBuilder.GiveMoney(addressAlice, Money.Coins(1.0m));
+				TestUtils.Eventually(() => aliceConnection.ConnectedNodes.Count == 0); //Purge
+				TestUtils.Eventually(() => aliceConnection.ConnectedNodes.Count == 1); //Reconnect
+				//////
+
+				TestUtils.Eventually(() => alice.GetTransactions().Count == 1);
+
+				//Alice send tx to bob
+				var coins = alice.GetTransactions().GetSpendableCoins();
+				var keys = coins.Select(c => alice.GetKeyPath(c.ScriptPubKey))
+								.Select(k => aliceKey.Derive(k))
+								.ToArray();				
+				var builder = new TransactionBuilder();
+				var tx =
+					builder
+					.SetTransactionPolicy(new Policy.StandardTransactionPolicy()
+					{
+						MinRelayTxFee = new FeeRate(0)
+					})
+					.AddCoins(coins)
+					.AddKeys(keys)
+					.Send(bob.GetNextScriptPubKey(), Money.Coins(0.4m))
+					.SetChange(alice.GetNextScriptPubKey(true))
+					.BuildTransaction(true);				
+
+				Assert.True(builder.Verify(tx));
+
+				chainBuilder.BroadcastTransaction(tx);
+
+				//Alice get change
+				TestUtils.Eventually(() => alice.GetTransactions().Count == 2);
+				coins = alice.GetTransactions().GetSpendableCoins();
+				Assert.True(coins.Single().Amount == Money.Coins(0.6m)); 
+				//////
+
+				//Bob get coins
+				TestUtils.Eventually(() => bob.GetTransactions().Count == 1); 
+				coins = bob.GetTransactions().GetSpendableCoins();
+				Assert.True(coins.Single().Amount == Money.Coins(0.4m)); 
+				//////
+
+
+				MemoryStream bobWalletBackup = new MemoryStream();
+				bob.Save(bobWalletBackup);
+				bobWalletBackup.Position = 0;
+
+				MemoryStream bobTrakerBackup = new MemoryStream();
+				bob.Tracker.Save(bobTrakerBackup);
+				bobTrakerBackup.Position = 0;
+
+				bob.Disconnect();
+				
+				//Restore bob
+				bob = Wallet.Load(bobWalletBackup);
+				bobConnection.NodeConnectionParameters.TemplateBehaviors.Remove<TrackerBehavior>();
+				bobConnection.NodeConnectionParameters.TemplateBehaviors.Add(new TrackerBehavior(Tracker.Load(bobTrakerBackup), chainBuilder.Chain));
+				/////
+
+				bob.Configure(bobConnection);
+
+				//Bob still has coins
+				TestUtils.Eventually(() => bob.GetTransactions().Count == 1);
+				coins = bob.GetTransactions().GetSpendableCoins();
+				Assert.True(coins.Single().Amount == Money.Coins(0.4m));
+				//////
+
+				bob.Connect();
+				TestUtils.Eventually(() => bobConnection.ConnectedNodes.Count == 1);
+
+				//New block found !
+				chainBuilder.FindBlock();
+
+				//Alice send tx to bob
+				coins = alice.GetTransactions().GetSpendableCoins();
+				keys = coins.Select(c => alice.GetKeyPath(c.ScriptPubKey))
+								.Select(k => aliceKey.Derive(k))
+								.ToArray();				
+				builder = new TransactionBuilder();
+				tx =
+					builder
+					.SetTransactionPolicy(new Policy.StandardTransactionPolicy()
+					{
+						MinRelayTxFee = new FeeRate(0)
+					})
+					.AddCoins(coins)
+					.AddKeys(keys)
+					.Send(bob.GetNextScriptPubKey(), Money.Coins(0.1m))
+					.SetChange(alice.GetNextScriptPubKey(true))
+					.BuildTransaction(true);
+
+				Assert.True(builder.Verify(tx));
+
+				chainBuilder.BroadcastTransaction(tx);
+
+				//Bob still has coins
+				TestUtils.Eventually(() => bob.GetTransactions().Count == 2); //Bob has both, old and new tx
+				coins = bob.GetTransactions().GetSpendableCoins();
+				//////
+			}
 		}
 
 		public void CanSyncWalletCore(WalletCreation creation)
