@@ -316,6 +316,20 @@ namespace NBitcoin
 			Write(ms, message);
 			return ms.ToArray();
 		}
+
+        public static byte[] FormatMessageForSigning(byte[] messageBytes)
+        {
+            MemoryStream ms = new MemoryStream();
+
+            ms.WriteByte((byte)BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.Length);
+            Write(ms, BITCOIN_SIGNED_MESSAGE_HEADER_BYTES);
+
+            VarInt size = new VarInt((ulong)messageBytes.Length);
+            Write(ms, size.ToBytes());
+            Write(ms, messageBytes);
+            return ms.ToArray();
+        }
+
 #if !NOSOCKET
 		internal static IPAddress MapToIPv6(IPAddress address)
 		{
