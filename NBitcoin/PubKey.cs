@@ -196,11 +196,11 @@ namespace NBitcoin
 			return key.Hash == Hash;
 		}
 
-        public bool VerifyMessage(byte[] messageBytes, string signature)
-        {
-            var key = PubKey.RecoverFromMessage(messageBytes, signature);
-            return key.Hash == Hash;
-        }
+		public bool VerifyMessage(byte[] messageBytes, string signature)
+		{
+			var key = PubKey.RecoverFromMessage(messageBytes, signature);
+			return key.Hash == Hash;
+		}
 
 		//Thanks bitcoinj source code
 		//http://bitcoinj.googlecode.com/git-history/keychain/core/src/main/java/com/google/bitcoin/core/Utils.java
