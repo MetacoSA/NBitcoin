@@ -196,6 +196,12 @@ namespace NBitcoin
 			return key.Hash == Hash;
 		}
 
+        public bool VerifyMessage(byte[] messageBytes, string signature)
+        {
+            var key = PubKey.RecoverFromMessage(messageBytes, signature);
+            return key.Hash == Hash;
+        }
+
 		//Thanks bitcoinj source code
 		//http://bitcoinj.googlecode.com/git-history/keychain/core/src/main/java/com/google/bitcoin/core/Utils.java
 		public static PubKey RecoverFromMessage(string messageText, string signatureText)
@@ -206,7 +212,16 @@ namespace NBitcoin
 			return RecoverCompact(hash, signatureEncoded);
 		}
 
-		public static PubKey RecoverCompact(uint256 hash, byte[] signatureEncoded)
+        public static PubKey RecoverFromMessage(byte[] messageBytes, string signatureText)
+        {
+            var signatureEncoded = Convert.FromBase64String(signatureText);
+            var message = Utils.FormatMessageForSigning(messageBytes);
+            var hash = Hashes.Hash256(message);
+            return RecoverCompact(hash, signatureEncoded);
+        }
+
+
+        public static PubKey RecoverCompact(uint256 hash, byte[] signatureEncoded)
 		{
 			if(signatureEncoded.Length < 65)
 				throw new ArgumentException("Signature truncated, expected 65 bytes and got " + signatureEncoded.Length);
