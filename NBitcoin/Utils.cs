@@ -299,25 +299,11 @@ namespace NBitcoin
 		}
 
 
-		public static String BITCOIN_SIGNED_MESSAGE_HEADER = "Bitcoin Signed Message:\n";
-		public static byte[] BITCOIN_SIGNED_MESSAGE_HEADER_BYTES = Encoding.UTF8.GetBytes(BITCOIN_SIGNED_MESSAGE_HEADER);
+		internal static String BITCOIN_SIGNED_MESSAGE_HEADER = "Bitcoin Signed Message:\n";
+		internal static byte[] BITCOIN_SIGNED_MESSAGE_HEADER_BYTES = Encoding.UTF8.GetBytes(BITCOIN_SIGNED_MESSAGE_HEADER);
 
 		//http://bitcoinj.googlecode.com/git-history/keychain/core/src/main/java/com/google/bitcoin/core/Utils.java
-		public static byte[] FormatMessageForSigning(string messageText)
-		{
-			MemoryStream ms = new MemoryStream();
-			var message = Encoding.UTF8.GetBytes(messageText);
-
-			ms.WriteByte((byte)BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.Length);
-			Write(ms, BITCOIN_SIGNED_MESSAGE_HEADER_BYTES);
-
-			VarInt size = new VarInt((ulong)message.Length);
-			Write(ms, size.ToBytes());
-			Write(ms, message);
-			return ms.ToArray();
-		}
-
-		public static byte[] FormatMessageForSigning(byte[] messageBytes)
+		internal static byte[] FormatMessageForSigning(byte[] messageBytes)
 		{
 			MemoryStream ms = new MemoryStream();
 
@@ -683,7 +669,6 @@ namespace NBitcoin
 				}
 				return hash;
 			}
-		}
-
+		}		
 	}
 }

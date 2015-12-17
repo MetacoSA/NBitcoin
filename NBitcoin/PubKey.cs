@@ -189,39 +189,66 @@ namespace NBitcoin
 			return ToHex();
 		}
 
-
+		/// <summary>
+		/// Verify message signed using signmessage from bitcoincore
+		/// </summary>
+		/// <param name="message">The message</param>
+		/// <param name="signature">The signature</param>
+		/// <returns>True if signatures is valid</returns>
 		public bool VerifyMessage(string message, string signature)
 		{
-			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.Hash == Hash;
+			return VerifyMessage(Encoding.UTF8.GetBytes(message), signature);
 		}
 
+		/// <summary>
+		/// Verify message signed using signmessage from bitcoincore
+		/// </summary>
+		/// <param name="message">The message</param>
+		/// <param name="signature">The signature</param>
+		/// <returns>True if signatures is valid</returns>
 		public bool VerifyMessage(byte[] messageBytes, string signature)
 		{
-			var key = PubKey.RecoverFromMessage(messageBytes, signature);
-			return key.Hash == Hash;
+			var sig = DecodeSigString(signature);
+			var messageSigned = Utils.FormatMessageForSigning(messageBytes);
+			var hash = Hashes.Hash256(messageSigned);
+			return ECKey.Verify(hash, sig);
+		}
+
+		/// <summary>
+		/// Decode signature from bitcoincore verify/signing rpc methods
+		/// </summary>
+		/// <param name="signature"></param>
+		/// <returns></returns>
+		private static ECDSASignature DecodeSigString(string signature)
+		{
+			var signatureEncoded = Encoders.Base64.DecodeData(signature);
+			return DecodeSig(signatureEncoded);
+		}
+		private static ECDSASignature DecodeSig(byte[] signatureEncoded)
+		{
+			BigInteger r = new BigInteger(1, signatureEncoded.SafeSubarray(1, 32));
+			BigInteger s = new BigInteger(1, signatureEncoded.SafeSubarray(33, 32));
+			var sig = new ECDSASignature(r, s);
+			return sig;
 		}
 
 		//Thanks bitcoinj source code
 		//http://bitcoinj.googlecode.com/git-history/keychain/core/src/main/java/com/google/bitcoin/core/Utils.java
 		public static PubKey RecoverFromMessage(string messageText, string signatureText)
 		{
-			var signatureEncoded = Convert.FromBase64String(signatureText);
-			var message = Utils.FormatMessageForSigning(messageText);
+			return RecoverFromMessage(Encoding.UTF8.GetBytes(messageText), signatureText);
+		}
+
+		public static PubKey RecoverFromMessage(byte[] messageBytes, string signatureText)
+		{
+			var signatureEncoded = Encoders.Base64.DecodeData(signatureText);
+			var message = Utils.FormatMessageForSigning(messageBytes);
 			var hash = Hashes.Hash256(message);
 			return RecoverCompact(hash, signatureEncoded);
 		}
 
-        public static PubKey RecoverFromMessage(byte[] messageBytes, string signatureText)
-        {
-            var signatureEncoded = Convert.FromBase64String(signatureText);
-            var message = Utils.FormatMessageForSigning(messageBytes);
-            var hash = Hashes.Hash256(message);
-            return RecoverCompact(hash, signatureEncoded);
-        }
 
-
-        public static PubKey RecoverCompact(uint256 hash, byte[] signatureEncoded)
+		public static PubKey RecoverCompact(uint256 hash, byte[] signatureEncoded)
 		{
 			if(signatureEncoded.Length < 65)
 				throw new ArgumentException("Signature truncated, expected 65 bytes and got " + signatureEncoded.Length);
@@ -235,9 +262,7 @@ namespace NBitcoin
 			if(header < 27 || header > 34)
 				throw new ArgumentException("Header byte out of range: " + header);
 
-			BigInteger r = new BigInteger(1, signatureEncoded.SafeSubarray(1, 32));
-			BigInteger s = new BigInteger(1, signatureEncoded.SafeSubarray(33, 32));
-			var sig = new ECDSASignature(r, s);
+			var sig = DecodeSig(signatureEncoded);
 			bool compressed = false;
 
 			if(header >= 31)

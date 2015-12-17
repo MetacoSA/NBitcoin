@@ -2,6 +2,7 @@
 using NBitcoin.BouncyCastle.Math;
 using System;
 using System.Linq;
+using System.Text;
 
 namespace NBitcoin
 {
@@ -96,7 +97,11 @@ namespace NBitcoin
 
 		public string SignMessage(String message)
 		{
-			byte[] data = Utils.FormatMessageForSigning(message);
+			return SignMessage(Encoding.UTF8.GetBytes(message));
+		}
+		public string SignMessage(byte[] messageBytes)
+		{
+			byte[] data = Utils.FormatMessageForSigning(messageBytes);
 			var hash = Hashes.Hash256(data);
 			return Convert.ToBase64String(SignCompact(hash));
 		}
