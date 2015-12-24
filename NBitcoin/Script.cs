@@ -966,24 +966,18 @@ namespace NBitcoin
 			List<TransactionSignature> allsigs = new List<TransactionSignature>();
 			foreach(var v in sigs1)
 			{
-				try
+				if(TransactionSignature.IsValid(v))
 				{
 					allsigs.Add(new TransactionSignature(v));
-				}
-				catch(FormatException)
-				{
 				}
 			}
 
 
 			foreach(var v in sigs2)
 			{
-				try
+				if(TransactionSignature.IsValid(v))
 				{
 					allsigs.Add(new TransactionSignature(v));
-				}
-				catch(FormatException)
-				{
 				}
 			}
 
