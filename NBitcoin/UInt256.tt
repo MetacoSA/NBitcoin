@@ -13,7 +13,9 @@ using NBitcoin.Protocol;
 
 namespace NBitcoin
 {
-<# foreach (string t in new []{ "256","160" }) { #>
+<# foreach (string t in new []{ "256","160" }) { 
+	int WIDTH = int.Parse(t) / 32;
+#>
 	public class uint<#= t #> :  IBitcoinSerializable
 	{
 		public static uint<#= t #> Zero
@@ -28,14 +30,13 @@ namespace NBitcoin
 
 		public uint<#= t #>()
 		{
-			for(int i = 0 ; i < WIDTH ; i++)
-				pn[i] = 0;
 		}
 
 		public uint<#= t #>(uint<#= t #> b)
 		{
-			for(int i = 0 ; i < WIDTH ; i++)
-				pn[i] = b.pn[i];
+<# for (int i = 0; i < WIDTH; i++) { #>
+			pn<#= i #> = b.pn<#= i #>;
+<# } #>
 		}
 
 		public static uint<#= t #> Parse(string hex)
@@ -60,14 +61,17 @@ namespace NBitcoin
 		}
 
 		private static readonly HexEncoder Encoder = new HexEncoder();
-		private const int WIDTH = <#= t #> / 32;
 		private const int WIDTH_BYTE = <#= t #> / 8;
-		private UInt32[] pn = new UInt32[WIDTH];
+		<# for (int i = 0; i < WIDTH; i++) { #>
+UInt32 pn<#= i #>;
+		<# } #>
 
 		internal void SetHex(string str)
 		{
-			Array.Clear(pn, 0, pn.Length);
-			str = str.Trim();
+			<# for (int i = 0; i < WIDTH; i++) { #>
+pn<#= i #> = 0;
+			<# } #>
+str = str.Trim();
 
 			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				str = str.Substring(2);
@@ -80,16 +84,25 @@ namespace NBitcoin
 		{
 			var uintIndex = index / sizeof(uint);
 			var byteIndex = index % sizeof(uint);
-			var value = pn[uintIndex];
+			UInt32 value;
+			switch(uintIndex)
+			{
+<# for (int i = 0; i < WIDTH; i++) { #>
+				case <#= i #>: 
+					value = pn<#= i #>;
+					break;
+<# } #>
+				default:
+					throw new ArgumentOutOfRangeException("index");
+			}
 			return (byte)(value >> (byteIndex * 8));
 		}
 
 		private void SetBytes(byte[] arr)
 		{
-			for (var i = 0; i < WIDTH && i < arr.Length / 4; i++)
-			{
-				pn[i] = Utils.ToUInt32(arr, 4 * i, true);
-			}
+<# for (int i = 0; i < WIDTH; i++) { #>
+			pn<#= i #> = Utils.ToUInt32(arr, 4 * <#= i #>, true);
+<# } #>	
 		}
 
 		public override string ToString()
@@ -99,10 +112,11 @@ namespace NBitcoin
 
 		public uint<#= t #>(ulong b)
 		{
-			pn[0] = (uint)b;
-			pn[1] = (uint)(b >> 32);
-			for (int i = 2; i < WIDTH; i++)
-				pn[i] = 0;
+			pn0 = (uint)b;
+			pn1 = (uint)(b >> 32);
+<# for (int i = 2; i < WIDTH; i++) { #>
+			pn<#= i #> = 0;
+<# } #>
 		}
 
 		public uint<#= t #>(byte[] vch, bool lendian = true)
@@ -133,7 +147,11 @@ namespace NBitcoin
 			var item = obj as uint<#= t #>;
 			if(item == null)
 				return false;
-			return AreEquals(pn, item.pn);
+			bool equals = true;		
+		<# for (int i = 0; i < WIDTH; i++) { #>
+	equals &= pn<#= i #> == item.pn<#= i #>;
+		<# } #>
+	return equals;
 		}
 
 		public static bool operator ==(uint<#= t #> a, uint<#= t #> b)
@@ -142,19 +160,12 @@ namespace NBitcoin
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;
-			return AreEquals(a.pn, b.pn);
-		}
 
-		private static bool AreEquals(uint[] ar1, uint[] ar2)
-		{
-			if(ar1.Length != ar2.Length)
-				return false;
-			for(int i = 0 ; i < ar1.Length ; i++)
-			{
-				if(ar1[i] != ar2[i])
-					return false;
-			}
-			return true;
+			bool equals = true;		
+		<# for (int i = 0; i < WIDTH; i++) { #>
+	equals &= a.pn<#= i #> == b.pn<#= i #>;
+		<# } #>
+	return equals;
 		}
 
 		public static bool operator <(uint<#= t #> a, uint<#= t #> b)
@@ -179,13 +190,12 @@ namespace NBitcoin
 
 		private static int Comparison(uint<#= t #> a, uint<#= t #> b)
 		{
-			 for (int i = WIDTH-1; i >= 0; i--)
-			{
-				if (a.pn[i] < b.pn[i])
-					return -1;
-				if (a.pn[i] > b.pn[i])
-					return 1;
-			}
+<# for (int i = WIDTH-1; i >= 0; i--) { #>
+			if (a.pn<#= i #> < b.pn<#= i #>)
+				return -1;
+			if (a.pn<#= i #> > b.pn<#= i #>)
+				return 1;
+<# } #>
 			return 0;
 		}
 
@@ -204,138 +214,18 @@ namespace NBitcoin
 			return !(a == new uint<#= t #>(b));
 		}
 
-		public static uint<#= t #> operator ^(uint<#= t #> a, uint<#= t #> b)
-		{
-			var c = new uint<#= t #>();
-			c.pn = new uint[a.pn.Length];
-			for(int i = 0 ; i < c.pn.Length ; i++)
-			{
-				c.pn[i] = a.pn[i] ^ b.pn[i];
-			}
-			return c;
-		}
-
-		public static bool operator!(uint<#= t #> a)
-		{
-			for (int i = 0; i < WIDTH; i++)
-				if (a.pn[i] != 0)
-					return false;
-			return true;
-		}
-
-		public static uint<#= t #> operator-(uint<#= t #> a, uint<#= t #> b)
-		{
-			return a + (-b);
-		}
-
-		public static uint<#= t #> operator+(uint<#= t #> a, uint<#= t #> b)
-		{
-			var result = new uint<#= t #>();
-			ulong carry = 0;
-			for (int i = 0; i < WIDTH; i++)
-			{
-				ulong n = carry + a.pn[i] + b.pn[i];
-				result.pn[i] = (uint)(n & 0xffffffff);
-				carry = n >> 32;
-			}
-			return result;
-		}
-
-		public static uint<#= t #> operator+(uint<#= t #> a, ulong b)
-		{
-			return a + new uint<#= t #>(b);
-		}
-
 		public static implicit operator uint<#= t #>(ulong value)
 		{
 			return new uint<#= t #>(value);
 		}
 
-		public static uint<#= t #> operator &(uint<#= t #> a, uint<#= t #> b)
-		{
-			var n = new uint<#= t #>(a);
-			for(int i = 0 ; i < WIDTH ; i++)
-				n.pn[i] &= b.pn[i];
-			return n;
-		}
-
-		public static uint<#= t #> operator |(uint<#= t #> a, uint<#= t #> b)
-		{
-			var n = new uint<#= t #>(a);
-			for(int i = 0 ; i < WIDTH ; i++)
-				n.pn[i] |= b.pn[i];
-			return n;
-		}
-
-		public static uint<#= t #> operator <<(uint<#= t #> a, int shift)
-		{
-			var result = new uint<#= t #>();
-			int k = shift / 32;
-			shift = shift % 32;
-			for(int i = 0 ; i < WIDTH ; i++)
-			{
-				if(i + k + 1 < WIDTH && shift != 0)
-					result.pn[i + k + 1] |= (a.pn[i] >> (32 - shift));
-				if(i + k < WIDTH)
-					result.pn[i + k] |= (a.pn[i] << shift);
-			}
-			return result;
-		}
-
-		public static uint<#= t #> operator >>(uint<#= t #> a, int shift)
-		{
-			var result = new uint<#= t #>();
-			int k = shift / 32;
-			shift = shift % 32;
-			for(int i = 0 ; i < WIDTH ; i++)
-			{
-				if(i - k - 1 >= 0 && shift != 0)
-					result.pn[i - k - 1] |= (a.pn[i] << (32 - shift));
-				if(i - k >= 0)
-					result.pn[i - k] |= (a.pn[i] >> shift);
-			}
-			return result;
-		}
-
-		
-		public static uint<#= t #> operator ~(uint<#= t #> a)
-		{
-			var b = new uint<#= t #>();
-			for(int i = 0 ; i < b.pn.Length ; i++)
-			{
-				b.pn[i] = ~a.pn[i];
-			}
-			return b;
-		}
-
-		public static uint<#= t #> operator -(uint<#= t #> a)
-		{
-			var b = new uint<#= t #>();
-			for(int i = 0 ; i < b.pn.Length ; i++)
-			{
-				b.pn[i] = ~a.pn[i];
-			}
-			b++;
-			return b;
-		}
-
-		public static uint<#= t #> operator ++(uint<#= t #> a)
-		{
-			return a + 1;
-		}
-
-		public static uint<#= t #> operator --(uint<#= t #> a)
-		{
-			return a - 1;
-		}
 		
 		public byte[] ToBytes(bool lendian = true)
 		{
 			var arr = new byte[WIDTH_BYTE];
-			for (int i = 0; i < WIDTH; i++)
-			{
-				Buffer.BlockCopy(Utils.ToBytes(pn[i], true), 0, arr, 4 * i, 4);
-			}
+<# for (int i = 0; i < WIDTH; i++) { #>
+			Buffer.BlockCopy(Utils.ToBytes(pn<#= i #>, true), 0, arr, 4 * <#= i #>, 4);
+<# } #>
 			if (!lendian)
 				Array.Reverse(arr);
 			return arr;
@@ -371,12 +261,12 @@ namespace NBitcoin
 
 		public ulong GetLow64()
 		{
-			return pn[0] | (ulong)pn[1] << 32;
+			return pn0 | (ulong)pn1 << 32;
 		}
 
 		public uint GetLow32()
 		{
-			return pn[0];
+			return pn0;
 		}
 
 		public override int GetHashCode()
@@ -384,10 +274,9 @@ namespace NBitcoin
 			int hash = 17;
 			unchecked
 			{
-				foreach(var element in pn)
-				{
-					hash = hash * 31 + element.GetHashCode();
-				}
+<# for (int i = 0; i < WIDTH; i++) { #>
+				hash = hash * 31 + pn<#= i #>.GetHashCode();
+<# } #>
 			}
 			return hash;
 		}

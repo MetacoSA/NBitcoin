@@ -139,7 +139,7 @@ namespace NBitcoin
 			magic = 0xDAB5BFFA;
 			name = "RegTest";
 			nSubsidyHalvingInterval = 150;
-			_ProofOfLimit = new Target(~uint256.Zero >> 1);
+			_ProofOfLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1296688602);
 			genesis.Header.Bits = 0x207fffff;
 			genesis.Header.Nonce = 2;
@@ -192,7 +192,7 @@ namespace NBitcoin
 			vAlertPubKey = Encoders.Hex.DecodeData("04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284");
 			nDefaultPort = 8333;
 			nRPCPort = 8332;
-			_ProofOfLimit = new Target(~uint256.Zero >> 32);
+			_ProofOfLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			nSubsidyHalvingInterval = 210000;
 
 			Transaction txNew = new Transaction();
