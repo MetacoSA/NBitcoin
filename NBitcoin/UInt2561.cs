@@ -73,7 +73,7 @@ namespace NBitcoin
 
 		public static uint256 Parse(string hex)
 		{
-			return new uint256();
+			return new uint256(hex);
 		}
 		public static bool TryParse(string hex, out uint256 result)
 		{
