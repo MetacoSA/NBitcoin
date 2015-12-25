@@ -345,7 +345,7 @@ namespace NBitcoin
 			{
 				byte[] b = new byte[WIDTH_BYTE];
 				stream.ReadWrite(ref b);
-				this.pn = new uint256(b).pn;
+				this.SetBytes(b);
 			}
 		}
 
@@ -723,7 +723,7 @@ namespace NBitcoin
 			{
 				byte[] b = new byte[WIDTH_BYTE];
 				stream.ReadWrite(ref b);
-				this.pn = new uint160(b).pn;
+				this.SetBytes(b);
 			}
 		}
 
