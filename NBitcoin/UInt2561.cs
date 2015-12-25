@@ -73,7 +73,7 @@ namespace NBitcoin
 
 		public static uint256 Parse(string hex)
 		{
-			return new uint256();
+			return new uint256(hex);
 		}
 		public static bool TryParse(string hex, out uint256 result)
 		{
@@ -192,6 +192,8 @@ namespace NBitcoin
 				str = str.Substring(2);
 
 			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
+			if(bytes.Length != WIDTH_BYTE)
+					throw new FormatException("Invalid hex length");
 						pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
 			pn1 = Utils.ToUInt32(bytes, 4 * 1, true);
 			pn2 = Utils.ToUInt32(bytes, 4 * 2, true);
@@ -446,7 +448,7 @@ namespace NBitcoin
 
 		public static uint160 Parse(string hex)
 		{
-			return new uint160();
+			return new uint160(hex);
 		}
 		public static bool TryParse(string hex, out uint160 result)
 		{
@@ -544,6 +546,8 @@ namespace NBitcoin
 				str = str.Substring(2);
 
 			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
+			if(bytes.Length != WIDTH_BYTE)
+					throw new FormatException("Invalid hex length");
 						pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
 			pn1 = Utils.ToUInt32(bytes, 4 * 1, true);
 			pn2 = Utils.ToUInt32(bytes, 4 * 2, true);

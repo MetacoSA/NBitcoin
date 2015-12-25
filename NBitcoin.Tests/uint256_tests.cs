@@ -23,8 +23,20 @@ namespace NBitcoin.Tests
 			Assert.Equal("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff", v.ToString());
 			Assert.Equal(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"), v);
 			Assert.Equal(new uint256("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"), v);
+			Assert.Equal(uint256.Parse("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"), v);
 			Assert.True(v < vplus);
 			Assert.True(v > vless);
+			uint256 unused;
+			Assert.True(uint256.TryParse("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff", out unused));
+			Assert.True(uint256.TryParse("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff", out unused));
+			Assert.True(uint256.TryParse("00000000ffffFFfFffffffffffffffffffffffffffffffffffffffffffffffff", out unused));
+			Assert.False(uint256.TryParse("00000000gfffffffffffffffffffffffffffffffffffffffffffffffffffffff", out unused));
+			Assert.False(uint256.TryParse("100000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff", out unused));
+			Assert.False(uint256.TryParse("1100000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff", out unused));
+			Assert.Throws<FormatException>(() => uint256.Parse("1100000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+			Assert.Throws<FormatException>(() => uint256.Parse("100000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+			uint256.Parse("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+			Assert.Throws<FormatException>(() => uint256.Parse("000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 
 			Assert.True(v >= v2);
 			Assert.True(v <= v2);
@@ -36,13 +48,18 @@ namespace NBitcoin.Tests
 
 			AssertEquals(v, new uint256(v.ToBytes()));
 			AssertEquals(v, new uint256(v.ToBytes(false), false));
+
+			Assert.Equal(0xFF, v.GetByte(0));
+			Assert.Equal(0x00, v.GetByte(31));
+			Assert.Equal(0x39, new uint256("39000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffff").GetByte(31));
+			Assert.Throws<ArgumentOutOfRangeException>(() => v.GetByte(32));
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void uitnSerializationTests()
 		{
-			MemoryStream ms =new MemoryStream();
+			MemoryStream ms = new MemoryStream();
 			BitcoinStream stream = new BitcoinStream(ms, true);
 
 			var v = new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
