@@ -275,7 +275,7 @@ str = str.Trim();
 			unchecked
 			{
 <# for (int i = 0; i < WIDTH; i++) { #>
-				hash = hash * 31 + pn<#= i #>.GetHashCode();
+				hash = hash * 31 + (int)pn<#= i #>;
 <# } #>
 			}
 			return hash;

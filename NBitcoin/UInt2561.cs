@@ -349,14 +349,14 @@ namespace NBitcoin
 			int hash = 17;
 			unchecked
 			{
-				hash = hash * 31 + pn0.GetHashCode();
-				hash = hash * 31 + pn1.GetHashCode();
-				hash = hash * 31 + pn2.GetHashCode();
-				hash = hash * 31 + pn3.GetHashCode();
-				hash = hash * 31 + pn4.GetHashCode();
-				hash = hash * 31 + pn5.GetHashCode();
-				hash = hash * 31 + pn6.GetHashCode();
-				hash = hash * 31 + pn7.GetHashCode();
+				hash = hash * 31 + (int)pn0;
+				hash = hash * 31 + (int)pn1;
+				hash = hash * 31 + (int)pn2;
+				hash = hash * 31 + (int)pn3;
+				hash = hash * 31 + (int)pn4;
+				hash = hash * 31 + (int)pn5;
+				hash = hash * 31 + (int)pn6;
+				hash = hash * 31 + (int)pn7;
 			}
 			return hash;
 		}
@@ -658,11 +658,11 @@ namespace NBitcoin
 			int hash = 17;
 			unchecked
 			{
-				hash = hash * 31 + pn0.GetHashCode();
-				hash = hash * 31 + pn1.GetHashCode();
-				hash = hash * 31 + pn2.GetHashCode();
-				hash = hash * 31 + pn3.GetHashCode();
-				hash = hash * 31 + pn4.GetHashCode();
+				hash = hash * 31 + (int)pn0;
+				hash = hash * 31 + (int)pn1;
+				hash = hash * 31 + (int)pn2;
+				hash = hash * 31 + (int)pn3;
+				hash = hash * 31 + (int)pn4;
 			}
 			return hash;
 		}
