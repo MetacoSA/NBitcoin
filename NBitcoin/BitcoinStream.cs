@@ -132,7 +132,7 @@ namespace NBitcoin
 				ReadWrite(script);
 			else
 				script = ReadWrite(script);
-		}
+		}		
 
 		public T ReadWrite<T>(T data) where T : IBitcoinSerializable
 		{

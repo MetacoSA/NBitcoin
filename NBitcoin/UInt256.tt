@@ -16,16 +16,52 @@ namespace NBitcoin
 <# foreach (string t in new []{ "256","160" }) { 
 	int WIDTH = int.Parse(t) / 32;
 #>
-	public class uint<#= t #> :  IBitcoinSerializable
+	public class uint<#= t #>
 	{
+		public class MutableUint<#= t #> : IBitcoinSerializable
+		{
+			uint<#= t #> _Value;
+			public uint<#= t #> Value
+			{
+				get
+				{
+					return _Value;
+				}
+			}
+			public MutableUint<#= t #>()
+			{
+				_Value = uint<#= t #>.Zero;
+			}
+			public MutableUint<#= t #>(uint<#= t #> value)
+			{
+				_Value = value;
+			}
+
+			public void ReadWrite(BitcoinStream stream)
+			{
+				if(stream.Serializing)
+				{
+					var b = Value.ToBytes();
+					stream.ReadWrite(ref b);
+				}
+				else
+				{
+					byte[] b = new byte[WIDTH_BYTE];
+					stream.ReadWrite(ref b);
+					_Value = new uint<#= t #>(b);
+				}
+			}
+		}
+		static readonly uint<#= t #> _Zero = new uint<#= t #>();
 		public static uint<#= t #> Zero
 		{
-			get { return new uint<#= t #>(0); }
+			get { return _Zero; }
 		}
 
+		static readonly uint<#= t #> _One = new uint<#= t #>(1);
 		public static uint<#= t #> One 
 		{
-			get { return new uint<#= t #>(1); }
+			get { return _One; }
 		}
 
 		public uint<#= t #>()
@@ -41,44 +77,28 @@ namespace NBitcoin
 
 		public static uint<#= t #> Parse(string hex)
 		{
-			var ret = new uint<#= t #>();
-			ret.SetHex(hex);
-			return ret;
+			return new uint<#= t #>();
 		}
 		public static bool TryParse(string hex, out uint<#= t #> result)
 		{
 			if(hex == null)
 				throw new ArgumentNullException("hex");
+			if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+				hex = hex.Substring(2);
 			result = null;
 			if(hex.Length != WIDTH_BYTE * 2)
 				return false;
 			if(!((HexEncoder)Encoders.Hex).IsValid(hex))
-				return false;
-			var ret = new uint<#= t #>();
-			ret.SetHex(hex);
-			result = ret;
+				return false;			
+			result = new uint<#= t #>(hex);
 			return true;
 		}
 
 		private static readonly HexEncoder Encoder = new HexEncoder();
 		private const int WIDTH_BYTE = <#= t #> / 8;
 		<# for (int i = 0; i < WIDTH; i++) { #>
-UInt32 pn<#= i #>;
+readonly UInt32 pn<#= i #>;
 		<# } #>
-
-		internal void SetHex(string str)
-		{
-			<# for (int i = 0; i < WIDTH; i++) { #>
-pn<#= i #> = 0;
-			<# } #>
-str = str.Trim();
-
-			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
-				str = str.Substring(2);
-
-			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
-			SetBytes(bytes);
-		}
 
 		public byte GetByte(int index)
 		{
@@ -96,13 +116,6 @@ str = str.Trim();
 					throw new ArgumentOutOfRangeException("index");
 			}
 			return (byte)(value >> (byteIndex * 8));
-		}
-
-		private void SetBytes(byte[] arr)
-		{
-<# for (int i = 0; i < WIDTH; i++) { #>
-			pn<#= i #> = Utils.ToUInt32(arr, 4 * <#= i #>, true);
-<# } #>	
 		}
 
 		public override string ToString()
@@ -129,12 +142,25 @@ str = str.Trim();
 			if(!lendian)
 				vch = vch.Reverse().ToArray();
 
-			SetBytes(vch);
+<# for (int i = 0; i < WIDTH; i++) { #>
+			pn<#= i #> = Utils.ToUInt32(vch, 4 * <#= i #>, true);
+<# } #>	
 		}
 
 		public uint<#= t #>(string str)
 		{
-			SetHex(str);
+						<# for (int i = 0; i < WIDTH; i++) { #>
+pn<#= i #> = 0;
+			<# } #>
+str = str.Trim();
+
+			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+				str = str.Substring(2);
+
+			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
+			<# for (int i = 0; i < WIDTH; i++) { #>
+			pn<#= i #> = Utils.ToUInt32(bytes, 4 * <#= i #>, true);
+<# } #>	
 		}
 
 		public uint<#= t #>(byte[] vch)
@@ -231,21 +257,11 @@ str = str.Trim();
 			return arr;
 		}
 
-		public void ReadWrite(BitcoinStream stream)
+		public MutableUint<#= t #> AsBitcoinSerializable()
 		{
-			if(stream.Serializing)
-			{
-				var b = ToBytes();
-				stream.ReadWrite(ref b);
-			}
-			else
-			{
-				byte[] b = new byte[WIDTH_BYTE];
-				stream.ReadWrite(ref b);
-				this.SetBytes(b);
-			}
+			return new MutableUint<#= t #>(this);
 		}
-
+		
 		public int GetSerializeSize(int nType=0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			return WIDTH_BYTE;

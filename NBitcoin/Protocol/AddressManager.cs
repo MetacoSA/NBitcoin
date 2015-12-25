@@ -321,7 +321,7 @@ namespace NBitcoin.Protocol
 			stream.ReadWrite(network.Magic);
 			stream.ReadWrite(this);
 			var hash = Hashes.Hash256(ms.ToArray());
-			stream.ReadWrite(hash);
+			stream.ReadWrite(hash.AsBitcoinSerializable());
 			File.WriteAllBytes(filePath, ms.ToArray());
 		}
 #endif

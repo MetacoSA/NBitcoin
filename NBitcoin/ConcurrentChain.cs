@@ -58,8 +58,8 @@ namespace NBitcoin
 					int height = 0;
 					while(true)
 					{
-						uint256 id = null;
-						stream.ReadWrite<uint256>(ref id);
+						uint256.MutableUint256 id = null;
+						stream.ReadWrite<uint256.MutableUint256>(ref id);
 						BlockHeader header = null;
 						stream.ReadWrite(ref header);
 						if(height == 0)
@@ -70,7 +70,7 @@ namespace NBitcoin
 							SetTipNoLock(new ChainedBlock(header, 0));
 						}
 						else
-							SetTipNoLock(new ChainedBlock(header, id, Tip));
+							SetTipNoLock(new ChainedBlock(header, id.Value, Tip));
 						height++;
 					}
 				}
@@ -99,7 +99,7 @@ namespace NBitcoin
 				for(int i = 0 ; i < Tip.Height + 1 ; i++)
 				{
 					var block = GetBlockNoLock(i);
-					stream.ReadWrite(block.HashBlock);
+					stream.ReadWrite(block.HashBlock.AsBitcoinSerializable());
 					stream.ReadWrite(block.Header);
 				}
 			}

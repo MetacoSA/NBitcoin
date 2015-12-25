@@ -7,16 +7,52 @@ using NBitcoin.Protocol;
 
 namespace NBitcoin
 {
-	public class uint256 :  IBitcoinSerializable
+	public class uint256
 	{
+		public class MutableUint256 : IBitcoinSerializable
+		{
+			uint256 _Value;
+			public uint256 Value
+			{
+				get
+				{
+					return _Value;
+				}
+			}
+			public MutableUint256()
+			{
+				_Value = uint256.Zero;
+			}
+			public MutableUint256(uint256 value)
+			{
+				_Value = value;
+			}
+
+			public void ReadWrite(BitcoinStream stream)
+			{
+				if(stream.Serializing)
+				{
+					var b = Value.ToBytes();
+					stream.ReadWrite(ref b);
+				}
+				else
+				{
+					byte[] b = new byte[WIDTH_BYTE];
+					stream.ReadWrite(ref b);
+					_Value = new uint256(b);
+				}
+			}
+		}
+		static readonly uint256 _Zero = new uint256();
 		public static uint256 Zero
 		{
-			get { return new uint256(0); }
+			get { return _Zero; }
 		}
 
+		static readonly uint256 _One = new uint256(1);
 		public static uint256 One 
 		{
-			get { return new uint256(1); }
+			get { return _One; }
 		}
 
 		public uint256()
@@ -37,55 +73,34 @@ namespace NBitcoin
 
 		public static uint256 Parse(string hex)
 		{
-			var ret = new uint256();
-			ret.SetHex(hex);
-			return ret;
+			return new uint256();
 		}
 		public static bool TryParse(string hex, out uint256 result)
 		{
 			if(hex == null)
 				throw new ArgumentNullException("hex");
+			if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+				hex = hex.Substring(2);
 			result = null;
 			if(hex.Length != WIDTH_BYTE * 2)
 				return false;
 			if(!((HexEncoder)Encoders.Hex).IsValid(hex))
-				return false;
-			var ret = new uint256();
-			ret.SetHex(hex);
-			result = ret;
+				return false;			
+			result = new uint256(hex);
 			return true;
 		}
 
 		private static readonly HexEncoder Encoder = new HexEncoder();
 		private const int WIDTH_BYTE = 256 / 8;
-		UInt32 pn0;
-		UInt32 pn1;
-		UInt32 pn2;
-		UInt32 pn3;
-		UInt32 pn4;
-		UInt32 pn5;
-		UInt32 pn6;
-		UInt32 pn7;
+		readonly UInt32 pn0;
+		readonly UInt32 pn1;
+		readonly UInt32 pn2;
+		readonly UInt32 pn3;
+		readonly UInt32 pn4;
+		readonly UInt32 pn5;
+		readonly UInt32 pn6;
+		readonly UInt32 pn7;
 		
-		internal void SetHex(string str)
-		{
-			pn0 = 0;
-			pn1 = 0;
-			pn2 = 0;
-			pn3 = 0;
-			pn4 = 0;
-			pn5 = 0;
-			pn6 = 0;
-			pn7 = 0;
-			str = str.Trim();
-
-			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
-				str = str.Substring(2);
-
-			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
-			SetBytes(bytes);
-		}
-
 		public byte GetByte(int index)
 		{
 			var uintIndex = index / sizeof(uint);
@@ -123,19 +138,6 @@ namespace NBitcoin
 			return (byte)(value >> (byteIndex * 8));
 		}
 
-		private void SetBytes(byte[] arr)
-		{
-			pn0 = Utils.ToUInt32(arr, 4 * 0, true);
-			pn1 = Utils.ToUInt32(arr, 4 * 1, true);
-			pn2 = Utils.ToUInt32(arr, 4 * 2, true);
-			pn3 = Utils.ToUInt32(arr, 4 * 3, true);
-			pn4 = Utils.ToUInt32(arr, 4 * 4, true);
-			pn5 = Utils.ToUInt32(arr, 4 * 5, true);
-			pn6 = Utils.ToUInt32(arr, 4 * 6, true);
-			pn7 = Utils.ToUInt32(arr, 4 * 7, true);
-	
-		}
-
 		public override string ToString()
 		{ 
 			return Encoder.EncodeData(ToBytes().Reverse().ToArray());
@@ -163,12 +165,42 @@ namespace NBitcoin
 			if(!lendian)
 				vch = vch.Reverse().ToArray();
 
-			SetBytes(vch);
+			pn0 = Utils.ToUInt32(vch, 4 * 0, true);
+			pn1 = Utils.ToUInt32(vch, 4 * 1, true);
+			pn2 = Utils.ToUInt32(vch, 4 * 2, true);
+			pn3 = Utils.ToUInt32(vch, 4 * 3, true);
+			pn4 = Utils.ToUInt32(vch, 4 * 4, true);
+			pn5 = Utils.ToUInt32(vch, 4 * 5, true);
+			pn6 = Utils.ToUInt32(vch, 4 * 6, true);
+			pn7 = Utils.ToUInt32(vch, 4 * 7, true);
+	
 		}
 
 		public uint256(string str)
 		{
-			SetHex(str);
+						pn0 = 0;
+			pn1 = 0;
+			pn2 = 0;
+			pn3 = 0;
+			pn4 = 0;
+			pn5 = 0;
+			pn6 = 0;
+			pn7 = 0;
+			str = str.Trim();
+
+			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+				str = str.Substring(2);
+
+			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
+						pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
+			pn1 = Utils.ToUInt32(bytes, 4 * 1, true);
+			pn2 = Utils.ToUInt32(bytes, 4 * 2, true);
+			pn3 = Utils.ToUInt32(bytes, 4 * 3, true);
+			pn4 = Utils.ToUInt32(bytes, 4 * 4, true);
+			pn5 = Utils.ToUInt32(bytes, 4 * 5, true);
+			pn6 = Utils.ToUInt32(bytes, 4 * 6, true);
+			pn7 = Utils.ToUInt32(bytes, 4 * 7, true);
+	
 		}
 
 		public uint256(byte[] vch)
@@ -306,21 +338,11 @@ namespace NBitcoin
 			return arr;
 		}
 
-		public void ReadWrite(BitcoinStream stream)
+		public MutableUint256 AsBitcoinSerializable()
 		{
-			if(stream.Serializing)
-			{
-				var b = ToBytes();
-				stream.ReadWrite(ref b);
-			}
-			else
-			{
-				byte[] b = new byte[WIDTH_BYTE];
-				stream.ReadWrite(ref b);
-				this.SetBytes(b);
-			}
+			return new MutableUint256(this);
 		}
-
+		
 		public int GetSerializeSize(int nType=0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			return WIDTH_BYTE;
@@ -361,16 +383,52 @@ namespace NBitcoin
 			return hash;
 		}
 	}
-	public class uint160 :  IBitcoinSerializable
+	public class uint160
 	{
+		public class MutableUint160 : IBitcoinSerializable
+		{
+			uint160 _Value;
+			public uint160 Value
+			{
+				get
+				{
+					return _Value;
+				}
+			}
+			public MutableUint160()
+			{
+				_Value = uint160.Zero;
+			}
+			public MutableUint160(uint160 value)
+			{
+				_Value = value;
+			}
+
+			public void ReadWrite(BitcoinStream stream)
+			{
+				if(stream.Serializing)
+				{
+					var b = Value.ToBytes();
+					stream.ReadWrite(ref b);
+				}
+				else
+				{
+					byte[] b = new byte[WIDTH_BYTE];
+					stream.ReadWrite(ref b);
+					_Value = new uint160(b);
+				}
+			}
+		}
+		static readonly uint160 _Zero = new uint160();
 		public static uint160 Zero
 		{
-			get { return new uint160(0); }
+			get { return _Zero; }
 		}
 
+		static readonly uint160 _One = new uint160(1);
 		public static uint160 One 
 		{
-			get { return new uint160(1); }
+			get { return _One; }
 		}
 
 		public uint160()
@@ -388,49 +446,31 @@ namespace NBitcoin
 
 		public static uint160 Parse(string hex)
 		{
-			var ret = new uint160();
-			ret.SetHex(hex);
-			return ret;
+			return new uint160();
 		}
 		public static bool TryParse(string hex, out uint160 result)
 		{
 			if(hex == null)
 				throw new ArgumentNullException("hex");
+			if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+				hex = hex.Substring(2);
 			result = null;
 			if(hex.Length != WIDTH_BYTE * 2)
 				return false;
 			if(!((HexEncoder)Encoders.Hex).IsValid(hex))
-				return false;
-			var ret = new uint160();
-			ret.SetHex(hex);
-			result = ret;
+				return false;			
+			result = new uint160(hex);
 			return true;
 		}
 
 		private static readonly HexEncoder Encoder = new HexEncoder();
 		private const int WIDTH_BYTE = 160 / 8;
-		UInt32 pn0;
-		UInt32 pn1;
-		UInt32 pn2;
-		UInt32 pn3;
-		UInt32 pn4;
+		readonly UInt32 pn0;
+		readonly UInt32 pn1;
+		readonly UInt32 pn2;
+		readonly UInt32 pn3;
+		readonly UInt32 pn4;
 		
-		internal void SetHex(string str)
-		{
-			pn0 = 0;
-			pn1 = 0;
-			pn2 = 0;
-			pn3 = 0;
-			pn4 = 0;
-			str = str.Trim();
-
-			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
-				str = str.Substring(2);
-
-			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
-			SetBytes(bytes);
-		}
-
 		public byte GetByte(int index)
 		{
 			var uintIndex = index / sizeof(uint);
@@ -459,16 +499,6 @@ namespace NBitcoin
 			return (byte)(value >> (byteIndex * 8));
 		}
 
-		private void SetBytes(byte[] arr)
-		{
-			pn0 = Utils.ToUInt32(arr, 4 * 0, true);
-			pn1 = Utils.ToUInt32(arr, 4 * 1, true);
-			pn2 = Utils.ToUInt32(arr, 4 * 2, true);
-			pn3 = Utils.ToUInt32(arr, 4 * 3, true);
-			pn4 = Utils.ToUInt32(arr, 4 * 4, true);
-	
-		}
-
 		public override string ToString()
 		{ 
 			return Encoder.EncodeData(ToBytes().Reverse().ToArray());
@@ -493,12 +523,33 @@ namespace NBitcoin
 			if(!lendian)
 				vch = vch.Reverse().ToArray();
 
-			SetBytes(vch);
+			pn0 = Utils.ToUInt32(vch, 4 * 0, true);
+			pn1 = Utils.ToUInt32(vch, 4 * 1, true);
+			pn2 = Utils.ToUInt32(vch, 4 * 2, true);
+			pn3 = Utils.ToUInt32(vch, 4 * 3, true);
+			pn4 = Utils.ToUInt32(vch, 4 * 4, true);
+	
 		}
 
 		public uint160(string str)
 		{
-			SetHex(str);
+						pn0 = 0;
+			pn1 = 0;
+			pn2 = 0;
+			pn3 = 0;
+			pn4 = 0;
+			str = str.Trim();
+
+			if (str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+				str = str.Substring(2);
+
+			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
+						pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
+			pn1 = Utils.ToUInt32(bytes, 4 * 1, true);
+			pn2 = Utils.ToUInt32(bytes, 4 * 2, true);
+			pn3 = Utils.ToUInt32(bytes, 4 * 3, true);
+			pn4 = Utils.ToUInt32(bytes, 4 * 4, true);
+	
 		}
 
 		public uint160(byte[] vch)
@@ -615,21 +666,11 @@ namespace NBitcoin
 			return arr;
 		}
 
-		public void ReadWrite(BitcoinStream stream)
+		public MutableUint160 AsBitcoinSerializable()
 		{
-			if(stream.Serializing)
-			{
-				var b = ToBytes();
-				stream.ReadWrite(ref b);
-			}
-			else
-			{
-				byte[] b = new byte[WIDTH_BYTE];
-				stream.ReadWrite(ref b);
-				this.SetBytes(b);
-			}
+			return new MutableUint160(this);
 		}
-
+		
 		public int GetSerializeSize(int nType=0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			return WIDTH_BYTE;

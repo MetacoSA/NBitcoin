@@ -73,13 +73,13 @@ namespace NBitcoin.BitcoinCore
 		}
 		public async Task<uint256> GetBestBlockAsync()
 		{
-			var block = await Index.GetAsync<uint256>("B").ConfigureAwait(false);
-			return block ?? uint256.Zero;
+			var block = await Index.GetAsync<uint256.MutableUint256>("B").ConfigureAwait(false);
+			return block == null ? uint256.Zero : block.Value;
 		}
 
 		public void SetBestBlock(uint256 blockId)
 		{
-			Index.PutAsync("B", blockId);
+			Index.PutAsync("B", blockId.AsBitcoinSerializable());
 		}
 
 		public bool HaveInputs(Transaction tx)

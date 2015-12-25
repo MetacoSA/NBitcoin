@@ -160,7 +160,7 @@ namespace NBitcoin.BitcoinCore
 		public void ComputeChecksum(uint256 hashBlock)
 		{
 			MemoryStream ms = new MemoryStream();
-			hashBlock.ReadWrite(ms, true);
+			hashBlock.AsBitcoinSerializable().ReadWrite(ms, true);
 			this.ReadWrite(ms, true);
 			CalculatedChecksum = Hashes.Hash256(ms.ToArray());
 		}
