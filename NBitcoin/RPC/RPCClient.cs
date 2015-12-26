@@ -753,9 +753,23 @@ namespace NBitcoin.RPC
 			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
 		}
 
+		public UnspentCoin[] ListUnspent(int minconf, int maxconf, params BitcoinAddress[] addresses)
+		{
+			var addr = from a in addresses select a.ToString();
+			var response = SendCommand("listunspent", minconf, maxconf, addr.ToArray());
+			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
+		}
+
 		public async Task<UnspentCoin[]> ListUnspentAsync()
 		{
 			var response = await SendCommandAsync("listunspent").ConfigureAwait(false);
+			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
+		}
+
+		public async Task<UnspentCoin[]> ListUnspentAsync(int minconf, int maxconf, params BitcoinAddress[] addresses)
+		{
+			var addr = from a in addresses select a.ToString();
+			var response = await SendCommandAsync("listunspent", minconf, maxconf, addr.ToArray()).ConfigureAwait(false);
 			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
 		}
 
