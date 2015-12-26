@@ -159,9 +159,9 @@ namespace NBitcoin.RPC
     wallet             gettransaction               Yes
     wallet             getunconfirmedbalance
     wallet             getwalletinfo
-    wallet             importprivkey
+    wallet             importprivkey                Yes
     wallet             importwallet
-    wallet             importaddress
+    wallet             importaddress                Yes
     wallet             keypoolrefill
     wallet             listaccounts                 Yes
     wallet             listaddressgroupings         Yes
@@ -671,6 +671,46 @@ namespace NBitcoin.RPC
 
 		#region Wallet
 
+		public void ImportPrivKey(BitcoinSecret secret)
+		{
+			SendCommand("importprivkey", secret.ToWif());
+		}
+
+		public void ImportPrivKey(BitcoinSecret secret, string label, bool rescan)
+		{
+			SendCommand("importprivkey", secret.ToWif(), label, rescan);
+		}
+
+		public async Task ImportPrivKeyAsync(BitcoinSecret secret)
+		{
+			await SendCommandAsync("importprivkey", secret.ToWif()).ConfigureAwait(false);
+		}
+
+		public async Task ImportPrivKeyAsync(BitcoinSecret secret, string label, bool rescan)
+		{
+			await SendCommandAsync("importprivkey", secret.ToWif(), label, rescan).ConfigureAwait(false);
+		}
+
+		public void ImportAddress(BitcoinAddress address)
+		{
+			SendCommand("importaddress", address.ToString());
+		}
+
+		public void ImportAddress(BitcoinAddress address, string label, bool rescan)
+		{
+			SendCommand("importaddress", address.ToString(), label, rescan);
+		}
+
+		public async Task ImportAddressAsync(BitcoinAddress address)
+		{
+			await SendCommandAsync("importaddress", address.ToString()).ConfigureAwait(false);
+		}
+
+		public async Task ImportAddressAsync(BitcoinAddress address, string label, bool rescan)
+		{
+			await SendCommandAsync("importaddress", address.ToString(), label, rescan).ConfigureAwait(false);
+		}
+
 		public BitcoinSecret DumpPrivKey(BitcoinAddress address)
 		{
 			var response = SendCommand("dumpprivkey", address.ToString());
@@ -713,9 +753,23 @@ namespace NBitcoin.RPC
 			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
 		}
 
+		public UnspentCoin[] ListUnspent(int minconf, int maxconf, params BitcoinAddress[] addresses)
+		{
+			var addr = from a in addresses select a.ToString();
+			var response = SendCommand("listunspent", minconf, maxconf, addr.ToArray());
+			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
+		}
+
 		public async Task<UnspentCoin[]> ListUnspentAsync()
 		{
 			var response = await SendCommandAsync("listunspent").ConfigureAwait(false);
+			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
+		}
+
+		public async Task<UnspentCoin[]> ListUnspentAsync(int minconf, int maxconf, params BitcoinAddress[] addresses)
+		{
+			var addr = from a in addresses select a.ToString();
+			var response = await SendCommandAsync("listunspent", minconf, maxconf, addr.ToArray()).ConfigureAwait(false);
 			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
 		}
 
