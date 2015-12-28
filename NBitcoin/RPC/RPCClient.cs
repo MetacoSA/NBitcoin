@@ -354,8 +354,8 @@ namespace NBitcoin.RPC
 					Services = ulong.Parse((string)peer["services"]),
 					LastSend = Utils.UnixTimeToDateTime((uint)peer["lastsend"]),
 					LastReceive = Utils.UnixTimeToDateTime((uint)peer["lastrecv"]),
-					BytesSent = (int)peer["bytessent"],
-					BytesReceived = (int)peer["bytesrecv"],
+					BytesSent = (long)peer["bytessent"],
+					BytesReceived = (long)peer["bytesrecv"],
 					ConnectionTime = Utils.UnixTimeToDateTime((uint)peer["conntime"]),
 					TimeOffset = TimeSpan.FromSeconds((int)peer["timeoffset"]),
 					PingTime = TimeSpan.FromSeconds((double)peer["pingtime"]),
@@ -973,8 +973,8 @@ namespace NBitcoin.RPC
 		public ulong Services { get; internal set; }
 		public DateTimeOffset LastSend { get; internal set; }
 		public DateTimeOffset LastReceive { get; internal set; }
-		public int BytesSent { get; internal set; }
-		public int BytesReceived { get; internal set; }
+		public long BytesSent { get; internal set; }
+		public long BytesReceived { get; internal set; }
 		public DateTimeOffset ConnectionTime { get; internal set; }
 		public TimeSpan PingTime { get; internal set; }
 		public int Version { get; internal set; }
