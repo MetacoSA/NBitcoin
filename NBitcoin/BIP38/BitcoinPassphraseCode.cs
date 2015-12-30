@@ -221,7 +221,7 @@ namespace NBitcoin
 			var factorb = Hashes.Hash256(seedb).ToBytes();
 
 			//ECMultiply passpoint by factorb.
-			var curve = ECKey.CreateCurve();
+			var curve = ECKey.Secp256k1;
 			var passpoint = curve.Curve.DecodePoint(Passpoint);
 			var pubPoint = passpoint.Multiply(new BigInteger(1, factorb));
 

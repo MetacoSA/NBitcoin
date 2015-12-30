@@ -27,18 +27,19 @@ namespace NBitcoin.Crypto
 				return _Key as ECPrivateKeyParameters;
 			}
 		}
-		ECKeyParameters _Key;
+		readonly ECKeyParameters _Key;
 
 
-		public static BigInteger HALF_CURVE_ORDER = null;
-		public static BigInteger CURVE_ORDER = null;
-		public static ECDomainParameters CURVE = null;
+		public static readonly BigInteger HALF_CURVE_ORDER = null;
+		public static readonly BigInteger CURVE_ORDER = null;
+		public static readonly ECDomainParameters CURVE = null;
+		public static readonly X9ECParameters _Secp256k1;
 		static ECKey()
 		{
-			X9ECParameters @params = CreateCurve();
-			CURVE = new ECDomainParameters(@params.Curve, @params.G, @params.N, @params.H);
-			HALF_CURVE_ORDER = @params.N.ShiftRight(1);
-			CURVE_ORDER = @params.N;
+			_Secp256k1 = NBitcoin.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
+			CURVE = new ECDomainParameters(_Secp256k1.Curve, _Secp256k1.G, _Secp256k1.N, _Secp256k1.H);
+			HALF_CURVE_ORDER = _Secp256k1.N.ShiftRight(1);
+			CURVE_ORDER = _Secp256k1.N;
 		}
 
 		public ECKey(byte[] vch, bool isPrivate)
@@ -53,21 +54,15 @@ namespace NBitcoin.Crypto
 		}
 
 
-		X9ECParameters _Secp256k1;
-		public X9ECParameters Secp256k1
+		
+		public static X9ECParameters Secp256k1
 		{
 			get
 			{
-				if(_Secp256k1 == null)
-					_Secp256k1 = CreateCurve();
 				return _Secp256k1;
 			}
 		}
 
-		public static X9ECParameters CreateCurve()
-		{
-			return NBitcoin.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
-		}
 		ECDomainParameters _DomainParameter;
 		public ECDomainParameters DomainParameter
 		{
@@ -139,7 +134,7 @@ namespace NBitcoin.Crypto
 				throw new ArgumentNullException("message");
 
 
-			var curve = ECKey.CreateCurve();
+			var curve = ECKey.Secp256k1;
 
 			// 1.0 For j from 0 to h   (h == recId here and the loop is outside this function)
 			//   1.1 Let x = r + jn
@@ -197,7 +192,7 @@ namespace NBitcoin.Crypto
 
 		private static ECPoint DecompressKey(NBitcoin.BouncyCastle.Math.BigInteger xBN, bool yBit)
 		{
-			var curve = ECKey.CreateCurve().Curve;
+			var curve = ECKey.Secp256k1.Curve;
 			byte[] compEnc = X9IntegerConverter.IntegerToBytes(xBN, 1 + X9IntegerConverter.GetByteLength(curve));
 			compEnc[0] = (byte)(yBit ? 0x03 : 0x02);
 			return curve.DecodePoint(compEnc);

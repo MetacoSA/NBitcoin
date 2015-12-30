@@ -346,7 +346,7 @@ namespace NBitcoin
 		}
 		public PubKey Uncover(Key priv, PubKey pub)
 		{
-			var curve = ECKey.CreateCurve();
+			var curve = ECKey.Secp256k1;
 			var hash = GetStealthSharedSecret(priv, pub);
 			//Q' = Q + cG
 			var qprim = curve.G.Multiply(new BigInteger(1, hash)).Add(curve.Curve.DecodePoint(this.ToBytes()));
@@ -355,7 +355,7 @@ namespace NBitcoin
 
 		internal static byte[] GetStealthSharedSecret(Key priv, PubKey pub)
 		{
-			var curve = ECKey.CreateCurve();
+			var curve = ECKey.Secp256k1;
 			var pubec = curve.Curve.DecodePoint(pub.ToBytes());
 			var p = pubec.Multiply(new BigInteger(1, priv.ToBytes()));
 			var pBytes = new PubKey(p.GetEncoded()).Compress().ToBytes();

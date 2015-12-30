@@ -9,7 +9,7 @@ namespace NBitcoin
 	public class Key : IBitcoinSerializable, IDestination
 	{
         private const int KEY_SIZE = 32;
-		private readonly static uint256 N = uint256.Parse(ECKey.CURVE.N.ToString(16));
+		private readonly static uint256 N = uint256.Parse("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
 
 		public static Key Parse(string wif, Network network = null)
 		{
@@ -189,7 +189,7 @@ namespace NBitcoin
 
 		public Key Uncover(Key scan, PubKey ephem)
 		{
-			var curve = ECKey.CreateCurve();
+			var curve = ECKey.Secp256k1;
 			var priv = new BigInteger(1, PubKey.GetStealthSharedSecret(scan, ephem))
 							.Add(new BigInteger(1, this.ToBytes()))
 							.Mod(curve.N)

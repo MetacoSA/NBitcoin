@@ -174,7 +174,7 @@ namespace NBitcoin
 			var seedb = DecryptSeed(encrypted, derived);
 			var factorb = Hashes.Hash256(seedb).ToBytes();
 
-			var curve = ECKey.CreateCurve();
+			var curve = ECKey.Secp256k1;
 
 			//Multiply passfactor by factorb mod N to yield the private key associated with generatedaddress.
 			var keyNum = new BigInteger(1, passfactor).Multiply(new BigInteger(1, factorb)).Mod(curve.N);

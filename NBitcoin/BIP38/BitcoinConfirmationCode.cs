@@ -94,7 +94,7 @@ namespace NBitcoin
 			pointb = new byte[] { pointbprefix }.Concat(pointb).ToArray();
 
 			//4.ECMultiply pointb by passfactor. Use the resulting EC point as a public key
-			var curve = ECKey.CreateCurve();
+			var curve = ECKey.Secp256k1;
 			ECPoint pointbec;
 			try
 			{
