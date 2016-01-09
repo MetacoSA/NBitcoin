@@ -106,6 +106,15 @@ namespace NBitcoin
 			ExtPubKey result = this;
 		    return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
 		}
+
+		public ExtPubKey Derive(int index, bool hardened)
+		{
+			if(index < 0)
+				throw new ArgumentOutOfRangeException("index", "the index can't be negative");
+			uint realIndex = (uint)index;
+			realIndex = hardened ? realIndex | 0x80000000u : realIndex;
+			return Derive(realIndex);
+		}
         
 		public BitcoinExtPubKey GetWif(Network network)
 		{
