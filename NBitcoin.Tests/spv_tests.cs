@@ -131,6 +131,10 @@ namespace NBitcoin.Tests
 		}
 		protected override void AttachCore()
 		{
+			lock(Nodes)
+			{
+				Nodes.Add(AttachedNode);
+			}
 			_Builder.NewBlock += _Builder_NewBlock;
 			_Builder.NewTransaction += _Builder_NewTransaction;
 			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
@@ -178,7 +182,38 @@ namespace NBitcoin.Tests
 					BroadcastCore(tx.Value);
 				}
 			}
+
+			var invs = message.Message.Payload as InvPayload;
+			if(invs != null)
+			{
+				node.SendMessageAsync(new GetDataPayload(invs.ToArray()));
+			}
+
+			var txPayload = message.Message.Payload as TxPayload;
+			if(txPayload != null)
+			{
+				if(!_ReceivedTransactions.TryAdd(txPayload.Object.GetHash(), txPayload.Object))
+				{
+					node.SendMessageAsync(new RejectPayload()
+					{
+						Hash = txPayload.Object.GetHash(),
+						Code = RejectCode.DUPLICATE,
+						Message = "tx"
+					});
+				}
+				else
+				{
+					foreach(var other in Nodes.Where(n => n != node))
+					{
+						other.SendMessageAsync(new InvPayload(txPayload.Object));
+					}
+				}
+			}
 		}
+
+		internal List<Node> Nodes = new List<Node>();
+		internal ConcurrentDictionary<uint256, Transaction> _ReceivedTransactions = new ConcurrentDictionary<uint256, Transaction>();
+
 		public BloomFilter _Filter;
 		ConcurrentDictionary<uint256, Block> _Blocks = new ConcurrentDictionary<uint256, Block>();
 		ConcurrentDictionary<uint256, Transaction> _Transactions = new ConcurrentDictionary<uint256, Transaction>();
@@ -221,12 +256,14 @@ namespace NBitcoin.Tests
 			var behavior = new SPVBehavior(_Builder);
 			behavior._Blocks = _Blocks;
 			behavior._Transactions = _Transactions;
+			behavior._ReceivedTransactions = _ReceivedTransactions;
+			behavior.Nodes = Nodes;
 			return behavior;
 		}
 
 		Transaction FindTransaction(uint256 id)
 		{
-			return _Builder.Mempool.TryGet(id) ?? _Transactions.TryGet(id);
+			return _Builder.Mempool.TryGet(id) ?? _Transactions.TryGet(id) ?? _ReceivedTransactions.TryGet(id);
 		}
 
 		#endregion
@@ -316,7 +353,7 @@ namespace NBitcoin.Tests
 				var coins = alice.GetTransactions().GetSpendableCoins();
 				var keys = coins.Select(c => alice.GetKeyPath(c.ScriptPubKey))
 								.Select(k => aliceKey.Derive(k))
-								.ToArray();				
+								.ToArray();
 				var builder = new TransactionBuilder();
 				var tx =
 					builder
@@ -328,7 +365,7 @@ namespace NBitcoin.Tests
 					.AddKeys(keys)
 					.Send(bob.GetNextScriptPubKey(), Money.Coins(0.4m))
 					.SetChange(alice.GetNextScriptPubKey(true))
-					.BuildTransaction(true);				
+					.BuildTransaction(true);
 
 				Assert.True(builder.Verify(tx));
 
@@ -337,13 +374,13 @@ namespace NBitcoin.Tests
 				//Alice get change
 				TestUtils.Eventually(() => alice.GetTransactions().Count == 2);
 				coins = alice.GetTransactions().GetSpendableCoins();
-				Assert.True(coins.Single().Amount == Money.Coins(0.6m)); 
+				Assert.True(coins.Single().Amount == Money.Coins(0.6m));
 				//////
 
 				//Bob get coins
-				TestUtils.Eventually(() => bob.GetTransactions().Count == 1); 
+				TestUtils.Eventually(() => bob.GetTransactions().Count == 1);
 				coins = bob.GetTransactions().GetSpendableCoins();
-				Assert.True(coins.Single().Amount == Money.Coins(0.4m)); 
+				Assert.True(coins.Single().Amount == Money.Coins(0.4m));
 				//////
 
 
@@ -356,7 +393,7 @@ namespace NBitcoin.Tests
 				bobTrakerBackup.Position = 0;
 
 				bob.Disconnect();
-				
+
 				//Restore bob
 				bob = Wallet.Load(bobWalletBackup);
 				bobConnection.NodeConnectionParameters.TemplateBehaviors.Remove<TrackerBehavior>();
@@ -381,7 +418,7 @@ namespace NBitcoin.Tests
 				coins = alice.GetTransactions().GetSpendableCoins();
 				keys = coins.Select(c => alice.GetKeyPath(c.ScriptPubKey))
 								.Select(k => aliceKey.Derive(k))
-								.ToArray();				
+								.ToArray();
 				builder = new TransactionBuilder();
 				tx =
 					builder
@@ -504,6 +541,9 @@ namespace NBitcoin.Tests
 
 		private static void SetupSPVBehavior(NodeServerTester servers, BlockchainBuilder chainBuilder)
 		{
+			List<Node> nodes = new List<Node>();
+			ConcurrentDictionary<uint256, Transaction> receivedTxs = new ConcurrentDictionary<uint256, Transaction>();
+
 			foreach(var server in new[] { servers.Server1, servers.Server2 })
 			{
 				server.InboundNodeConnectionParameters.Services = NodeServices.Network;
@@ -512,8 +552,58 @@ namespace NBitcoin.Tests
 				{
 					AutoSync = false
 				});
-				server.InboundNodeConnectionParameters.TemplateBehaviors.Add(new SPVBehavior(chainBuilder));
+				server.InboundNodeConnectionParameters.TemplateBehaviors.Add(new SPVBehavior(chainBuilder)
+				{
+					Nodes = nodes,
+					_ReceivedTransactions = receivedTxs
+				});
 				/////////////
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanBroadcastTransaction()
+		{
+			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
+			{
+				var notifiedTransactions = new List<WalletTransaction>();
+				var chainBuilder = new BlockchainBuilder();
+				SetupSPVBehavior(servers, chainBuilder);
+				var tx = new Transaction();
+				Wallet wallet = new Wallet(new WalletCreation()
+				{
+					Network = Network.TestNet,
+					RootKeys = new[] { new ExtKey().Neuter() },
+					UseP2SH = false
+				}, keyPoolSize: 11);
+				NodesGroup connected = CreateGroup(servers, 2);
+				wallet.Configure(connected);
+				wallet.Connect();
+
+				AutoResetEvent evt = new AutoResetEvent(false);
+				bool passed = false;
+				bool rejected = false;
+				wallet.BroadcastTransaction(tx);
+				wallet.TransactionBroadcasted += (t) =>
+				{
+					evt.Set();
+					passed = true;
+				};
+				wallet.TransactionRejected += (t, r) =>
+				{
+					evt.Set();
+					rejected = true;
+				};
+				Assert.Equal(1, wallet.BroadcastingCount);
+				Assert.True(evt.WaitOne(20000));
+				Assert.True(passed);
+				evt.Reset();
+				Assert.Equal(0, wallet.BroadcastingCount);
+				wallet.BroadcastTransaction(tx);
+				Assert.True(evt.WaitOne(20000));
+				Assert.True(rejected);
+				Assert.Equal(0, wallet.BroadcastingCount);
 			}
 		}
 

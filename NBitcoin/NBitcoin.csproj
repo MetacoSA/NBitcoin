@@ -131,6 +131,7 @@
     <Compile Include="Payment\HttpUtility.cs" />
     <Compile Include="Protocol\AddressManager.cs" />
     <Compile Include="Protocol\Behaviors\AddressManagerBehavior.cs" />
+    <Compile Include="Protocol\Behaviors\BroadcastTransactionBehavior.cs" />
     <Compile Include="Protocol\Behaviors\NodeBehaviorsCollection.cs" />
     <Compile Include="Protocol\Behaviors\ChainBehavior.cs" />
     <Compile Include="Protocol\Filters\ActionFilter.cs" />

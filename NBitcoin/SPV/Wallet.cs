@@ -123,9 +123,7 @@ namespace NBitcoin.SPV
 		}
 	}
 
-	public delegate void NewWalletTransactionDelegate(Wallet sender, WalletTransaction walletTransaction);
-	public delegate void TransactionBroadcastedDelegate(Wallet sender, Transaction transaction, Node node);
-	public delegate void TransactionRejectedDelegate(Wallet sender, Transaction transaction, Node node);
+	public delegate void NewWalletTransactionDelegate(Wallet sender, WalletTransaction walletTransaction);	
 
 	/// <summary>
 	/// A SPV Wallet respecting recommendation for privacy http://eprint.iacr.org/2014/763.pdf
@@ -143,6 +141,7 @@ namespace NBitcoin.SPV
 				}
 			}
 			TrackerBehavior _Tracker;
+			BroadcastTransactionBehavior _Broadcast;
 			public WalletBehavior(Wallet wallet)
 			{
 				_Wallet = wallet;
@@ -152,79 +151,35 @@ namespace NBitcoin.SPV
 				_Tracker = AttachedNode.Behaviors.Find<TrackerBehavior>();
 				if(_Tracker != null)
 				{
-					AttachedNode.MessageReceived += AttachedNode_MessageReceived;
 					AttachedNode.Disconnected += AttachedNode_Disconnected;
 					AttachedNode.StateChanged += AttachedNode_StateChanged;
 				}
+				_Broadcast = AttachedNode.Behaviors.Find<BroadcastTransactionBehavior>();
+				if(_Broadcast != null)
+				{
+					_Broadcast.TransactionBroadcasted += _Broadcast_TransactionBroadcasted;
+					_Broadcast.TransactionRejected += _Broadcast_TransactionRejected;
+				}
 			}
 
-			void AttachedNode_MessageReceived(Node node, IncomingMessage message)
+			void _Broadcast_TransactionRejected(Transaction transaction, RejectPayload reject)
 			{
-				TxPayload txPayload = message.Message.Payload as TxPayload;
-				if(txPayload != null)
-				{
-					Transaction tx;
-					var hash = txPayload.Object.GetHash();
-					if(_Wallet._BroadcastedTransaction.TryRemove(hash, out tx))
-					{
-						_Broadcasting.TryRemove(hash, out tx);
-						_Wallet.OnTransactionBroadcasted(tx, node);
-					}
-				}
-				RejectPayload reject = message.Message.Payload as RejectPayload;
-				if(reject != null)
-				{
-					Transaction tx;
-					if(_Broadcasting.TryRemove(reject.Hash, out tx))
-					{
-						_Wallet.OnTransactionRejected(tx, node);
-					}
-				}
-
-				GetDataPayload getData = message.Message.Payload as GetDataPayload;
-				if(getData != null)
-				{
-					foreach(var inventory in getData.Inventory.Where(i => i.Type == InventoryType.MSG_TX))
-					{
-						Transaction tx;
-						if(_Broadcasting.TryRemove(inventory.Hash, out tx))
-							node.SendMessageAsync(new TxPayload(tx));
-					}
-				}
+				_Wallet.OnTransactionRejected(transaction, reject);
 			}
 
+			void _Broadcast_TransactionBroadcasted(Transaction transaction)
+			{
+				_Wallet.OnTransactionBroadcasted(transaction);
+			}
+			
 			void AttachedNode_StateChanged(Node node, NodeState oldState)
 			{
 				if(node.State == NodeState.HandShaked)
 				{
 					_Tracker.Scan(_Wallet._ScanLocation, _Wallet.Created);
 					_Tracker.SendMessageAsync(new MempoolPayload());
-					foreach(var transaction in _Wallet._BroadcastedTransaction)
-					{
-						BroadcastTransaction(transaction.Value);
-					}
 				}
-			}
-
-			ConcurrentDictionary<uint256, Transaction> _Broadcasting = new ConcurrentDictionary<uint256, Transaction>();
-			public async void BroadcastTransaction(Transaction transaction)
-			{
-				if(transaction == null)
-					throw new ArgumentNullException("transaction");
-				var node = AttachedNode;
-				if(node != null)
-				{
-					var id = transaction.GetHash();
-					if(_Broadcasting.TryAdd(id, transaction))
-					{
-						await Task.Delay(TimeSpan.FromSeconds(Math.Abs(RandomUtils.GetInt32()) % 20)).ConfigureAwait(false);
-						if(_Broadcasting.ContainsKey(id))
-						{
-							var unused = node.SendMessageAsync(new InvPayload(InventoryType.MSG_TX, id));
-						}
-					}
-				}
-			}
+			}			
 
 			void AttachedNode_Disconnected(Node node)
 			{
@@ -237,7 +192,6 @@ namespace NBitcoin.SPV
 				{
 					AttachedNode.Disconnected -= AttachedNode_Disconnected;
 					AttachedNode.StateChanged -= AttachedNode_StateChanged;
-					AttachedNode.MessageReceived -= AttachedNode_MessageReceived;
 				}
 			}
 
@@ -263,7 +217,6 @@ namespace NBitcoin.SPV
 		WalletCreation _Parameters;
 
 		Dictionary<Script, KeyPath> _KnownScripts = new Dictionary<Script, KeyPath>();
-		ConcurrentDictionary<uint256, Transaction> _BroadcastedTransaction = new ConcurrentDictionary<uint256, Transaction>();
 
 		/// <summary>
 		/// Blocks below this date will not be processed
@@ -675,6 +628,12 @@ namespace NBitcoin.SPV
 				wallet = new WalletBehavior(this);
 				parameters.TemplateBehaviors.Add(wallet);
 			}
+			var broadcast = parameters.TemplateBehaviors.Find<BroadcastTransactionBehavior>();
+			if(broadcast == null)
+			{
+				broadcast = new BroadcastTransactionBehavior();
+				parameters.TemplateBehaviors.Add(broadcast);
+			}
 
 			_Group = group;
 			if(_ListenedTracker != null)
@@ -926,34 +885,47 @@ namespace NBitcoin.SPV
 		/// <param name="transaction"></param>
 		public void BroadcastTransaction(Transaction transaction)
 		{
-			_BroadcastedTransaction.TryAdd(transaction.GetHash(), transaction);
+			AssertGroupAffected();
 			var group = _Group;
 			if(group != null)
 			{
-				foreach(var node in group.ConnectedNodes)
+				var broadcast = _Group.NodeConnectionParameters.TemplateBehaviors.Find<BroadcastTransactionBehavior>();
+				if(broadcast != null)
+					broadcast.BroadcastTransaction(transaction);
+			}		
+		}
+
+		public int BroadcastingCount
+		{
+			get
+			{
+				AssertGroupAffected();
+				var group = _Group;
+				if(group != null)
 				{
-					var wallet = FindWalletBehavior(node.Behaviors);
-					if(wallet != null)
-						wallet.BroadcastTransaction(transaction);
+					var broadcast = _Group.NodeConnectionParameters.TemplateBehaviors.Find<BroadcastTransactionBehavior>();
+					if(broadcast != null)
+						return broadcast.BroadcastingCount;
 				}
+				return 0;
 			}
 		}
 
 		public event TransactionBroadcastedDelegate TransactionBroadcasted;
 		public event TransactionRejectedDelegate TransactionRejected;
 
-		internal void OnTransactionBroadcasted(Transaction tx, Node node)
+		internal void OnTransactionBroadcasted(Transaction tx)
 		{
 			var transactionBroadcasted = TransactionBroadcasted;
 			if(transactionBroadcasted != null)
-				transactionBroadcasted(this, tx, node);
+				transactionBroadcasted(tx);
 		}
 
-		internal void OnTransactionRejected(Transaction tx, Node node)
+		internal void OnTransactionRejected(Transaction tx, RejectPayload reject)
 		{
 			var transactionRejected = TransactionRejected;
 			if(transactionRejected != null)
-				transactionRejected(this, tx, node);
+				transactionRejected(tx, reject);
 		}
 	}
 }
