@@ -298,7 +298,7 @@ namespace NBitcoin.Tests
 			//	Thread.Sleep(1000);
 			//}
 
-			
+
 
 			//Parallel.ForEach(Enumerable.Range(0, 10), _ =>
 			//{
@@ -349,6 +349,38 @@ namespace NBitcoin.Tests
 		}
 
 
+		[Fact]
+		public void CanDecomposeScript()
+		{
+			var aa = new Key().PubKey.GetAddress(Network.Main);
+
+			string script =
+			"OP_HASH160 OP_DUP 98ad3d91 OP_EQUAL " +
+			"OP_IF " +
+				"0cbd OP_CLTV " +
+				"OP_2DROP " +
+				"668a77 " +
+			"OP_ELSE " +
+				"6bc9f7e822  OP_EQUAL " +
+				"OP_NOTIF " +
+					"0cbd OP_CLTV " +
+				"OP_ENDIF " +
+				"72e791bafb " +
+			"OP_ENDIF " +
+			"OP_CHECKSIG";
+			var s = new Script(script);
+			var scripts = s.Decompose();
+			AssertScript(scripts[0], "OP_HASH160 OP_DUP 98ad3d91 OP_EQUAL OP_VERIFY 0cbd OP_CLTV OP_2DROP 668a77 OP_CHECKSIG");
+			AssertScript(scripts[1], "OP_HASH160 OP_DUP 98ad3d91 OP_EQUAL OP_NOT OP_VERIFY 6bc9f7e822 OP_EQUAL OP_VERIFY 72e791bafb OP_CHECKSIG");
+			AssertScript(scripts[2], "OP_HASH160 OP_DUP 98ad3d91 OP_EQUAL OP_NOT OP_VERIFY 6bc9f7e822 OP_EQUAL OP_NOT OP_VERIFY 0cbd OP_CLTV 72e791bafb OP_CHECKSIG");
+			//MerkleNode.GetRoot().bra
+			//PartialMerkleTree
+		}
+
+		private void AssertScript(Script script, string expected)
+		{
+			Assert.True(script == new Script(expected));
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

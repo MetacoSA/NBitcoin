@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Collections;
 
 namespace NBitcoin
 {
@@ -1045,6 +1046,104 @@ namespace NBitcoin
 			{
 				return ToOps().All(o => !o.IsInvalid);
 			}
+		}
+
+
+		public class State
+		{
+			public Stack<bool> vfExec;
+			public Stack<Op> ops;
+			public long position;
+			public Op op;
+		}
+		public Script[] Decompose()
+		{
+			List<Script> scripts = new List<Script>();
+
+			var reader = CreateReader();
+			var vfExec = new Stack<bool>();
+			Stack<Op> ops = new Stack<Op>();
+
+			Stack<State> states = new Stack<State>();
+
+			Op op;
+			while((op = reader.Read()) != null || states.Count != 0)
+			{
+				bool statePopped = false;
+				if(op == null)
+				{
+					scripts.Add(new Script(ops.Reverse()));
+					var state = states.Pop();
+					vfExec = state.vfExec;
+					op = state.op;
+					ops = state.ops;
+					reader.Inner.Position = state.position;
+					statePopped = true;
+				}
+				bool fExec = vfExec.All(o => o);
+				if(fExec || (OpcodeType.OP_IF <= op.Code && op.Code <= OpcodeType.OP_ENDIF))
+				{
+					switch(op.Code)
+					{
+						case OpcodeType.OP_IF:
+						case OpcodeType.OP_NOTIF:
+							{
+								var bValue = !statePopped;
+								if(fExec)
+								{
+									if(!statePopped)
+									{
+										State state = new State();
+										state.op = op;
+										state.ops = Clone(ops);
+										state.position = reader.Inner.Position;
+										state.vfExec = Clone(vfExec);
+										states.Push(state);
+									}
+									if(bValue)
+										ops.Push(OpcodeType.OP_VERIFY);
+									else
+									{
+										ops.Push(OpcodeType.OP_NOT);
+										ops.Push(OpcodeType.OP_VERIFY);
+									}
+								}
+								if(op.Code == OpcodeType.OP_NOTIF)
+									bValue = !bValue;
+								vfExec.Push(bValue);
+								break;
+							}
+						case OpcodeType.OP_ELSE:
+							{
+								if(vfExec.Count != 0)
+								{
+									var v = vfExec.Pop();
+									vfExec.Push(!v);
+								}
+								break;
+							}
+						case OpcodeType.OP_ENDIF:
+							{
+								if(vfExec.Count != 0)
+								{
+									vfExec.Pop();
+								}
+								break;
+							}
+						default:
+							ops.Push(op);
+							break;
+					}
+				}
+			}
+			if(ops.Count > 0)
+				scripts.Add(new Script(ops.Reverse()));
+			return scripts.ToArray();
+		}
+
+		private Stack<T> Clone<T>(Stack<T> stack)
+		{
+			return new Stack<T>(stack.Reverse());
 		}
 	}
 }
