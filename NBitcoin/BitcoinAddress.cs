@@ -23,14 +23,21 @@ namespace NBitcoin
 		{
 		}
 
+		protected override bool IsValid
+		{
+			get
+			{
+				return vchData.Length == 20;
+			}
+		}
+
 		public override TxDestination Hash
 		{
 			get
 			{
 				return new ScriptId(vchData);
 			}
-		}
-
+		}		
 
 		public override Base58Type Type
 		{
@@ -47,9 +54,9 @@ namespace NBitcoin
 	}
 
 	/// <summary>
-	/// Base58 representation of a pubkey hash and base class for the representation of a script hash
+	/// Base58 representation of a bitcoin address
 	/// </summary>
-	public class BitcoinAddress : Base58Data, IDestination
+	public abstract class BitcoinAddress : Base58Data, IDestination
 	{
 		/// <summary>
 		/// Detect whether the input base58 is a pubkey hash or a script hash
@@ -63,37 +70,21 @@ namespace NBitcoin
 			if(base58 == null)
 				throw new ArgumentNullException("base58");
 			return Network.CreateFromBase58Data<BitcoinAddress>(base58, expectedNetwork);
-		}
+		}		
 
 		public BitcoinAddress(string base58, Network expectedNetwork = null)
 			: base(base58, expectedNetwork)
 		{
 		}
 
-		public BitcoinAddress(KeyId keyId, Network network)
-			: base(keyId.ToBytes(), network)
+		public BitcoinAddress(TxDestination id, Network network)
+			: base(id.ToBytes(), network)
 		{
 		}
 
-		protected BitcoinAddress(TxDestination dest, Network network)
-			: base(dest.ToBytes(), network)
+		public abstract TxDestination Hash
 		{
-		}
-
-		protected override bool IsValid
-		{
-			get
-			{
-				return vchData.Length <= 20;
-			}
-		}
-
-		public virtual TxDestination Hash
-		{
-			get
-			{
-				return new KeyId(vchData);
-			}
+			get;
 		}
 
 		Script _ScriptPubKey;
@@ -109,6 +100,7 @@ namespace NBitcoin
 			}
 		}
 
+		protected abstract Script GeneratePaymentScript();
 
 		public BitcoinScriptAddress GetScriptAddress()
 		{
@@ -120,27 +112,6 @@ namespace NBitcoin
 			return new BitcoinScriptAddress(redeem.Hash, Network);
 		}
 
-
-
-		protected virtual Script GeneratePaymentScript()
-		{
-			return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey((KeyId)this.Hash);
-		}
-
-		public bool VerifyMessage(string message, string signature)
-		{
-			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.Hash == Hash;
-		}
-
-		public override Base58Type Type
-		{
-			get
-			{
-				return Base58Type.PUBKEY_ADDRESS;
-			}
-		}
-
 		public static BitcoinAddress Create(TxDestination id, Network network)
 		{
 			if(id == null)
@@ -148,7 +119,7 @@ namespace NBitcoin
 			if(network == null)
 				throw new ArgumentNullException("network");
 			if(id is KeyId)
-				return new BitcoinAddress(id, network);
+				return new BitcoinPubKeyAddress((KeyId)id, network);
 			if(id is ScriptId)
 				return new BitcoinScriptAddress((ScriptId)id, network);
 			

@@ -78,10 +78,10 @@ namespace NBitcoin.Tests
 				{
 					var secret = Network.Main.CreateBitcoinSecret(test.PrivateKey);
 					var signature = secret.PrivateKey.SignMessage(test.Message);
-					Assert.True(Network.Main.CreateBitcoinAddress(test.Address).VerifyMessage(test.Message, signature));
+					Assert.True(((BitcoinPubKeyAddress)Network.Main.CreateBitcoinAddress(test.Address)).VerifyMessage(test.Message, signature));
 					Assert.True(secret.PubKey.VerifyMessage(test.Message, signature));
 				}
-				BitcoinAddress address = Network.Main.CreateBitcoinAddress(test.Address);
+				BitcoinPubKeyAddress address = (BitcoinPubKeyAddress)Network.Main.CreateBitcoinAddress(test.Address);
 				Assert.True(address.VerifyMessage(test.Message, test.Signature));
 				Assert.True(!address.VerifyMessage("bad message", test.Signature));
 			}

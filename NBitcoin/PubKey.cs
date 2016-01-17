@@ -380,7 +380,7 @@ namespace NBitcoin
 
 		public string ToString(Network network)
 		{
-			return new BitcoinAddress(this.Hash, network).ToString();
+			return new BitcoinPubKeyAddress(this.Hash, network).ToString();
 		}
 
 		#region IDestination Members

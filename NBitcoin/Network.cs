@@ -325,7 +325,7 @@ namespace NBitcoin
 			if(!type.HasValue)
 				throw new FormatException("Invalid Base58 version");
 			if(type == Base58Type.PUBKEY_ADDRESS)
-				return new BitcoinAddress(base58, this);
+				return new BitcoinPubKeyAddress(base58, this);
 			if(type == Base58Type.SCRIPT_ADDRESS)
 				return new BitcoinScriptAddress(base58, this);
 			throw new FormatException("Invalid Base58 version");
@@ -596,7 +596,7 @@ namespace NBitcoin
 			if(dest is ScriptId)
 				return CreateBitcoinScriptAddress((ScriptId)dest);
 			if(dest is KeyId)
-				return new BitcoinAddress((KeyId)dest, this);
+				return new BitcoinPubKeyAddress((KeyId)dest, this);
 			throw new ArgumentException("Invalid dest type", "dest");
 		}
 

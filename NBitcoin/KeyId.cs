@@ -40,12 +40,6 @@ namespace NBitcoin
 			return BitcoinAddress.Create(this, network);
 		}
 
-		[Obsolete("Use ScriptPubKey instead")]
-		public Script CreateScriptPubKey()
-		{
-			return ScriptPubKey;
-		}
-
 		#region IDestination Members
 
 		public virtual Script ScriptPubKey

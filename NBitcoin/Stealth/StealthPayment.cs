@@ -35,7 +35,7 @@ namespace NBitcoin.Stealth
 
 		public BitcoinAddress GetAddress(Network network)
 		{
-			return new BitcoinAddress(ID, network);
+			return new BitcoinPubKeyAddress(ID, network);
 		}
 	}
 

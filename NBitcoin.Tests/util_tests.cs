@@ -394,7 +394,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanGenerateScriptFromAddress()
 		{
-			var address = new BitcoinAddress(new KeyId("47376c6f537d62177a2c41c4ca9b45829ab99083"), Network.Main);
+			var address = new BitcoinPubKeyAddress(new KeyId("47376c6f537d62177a2c41c4ca9b45829ab99083"), Network.Main);
 			Assert.Equal("OP_DUP OP_HASH160 47376c6f537d62177a2c41c4ca9b45829ab99083 OP_EQUALVERIFY OP_CHECKSIG", address.ScriptPubKey.ToString());
 
 			var scriptAddress = new BitcoinScriptAddress(new ScriptId("8f55563b9a19f321c211e9b9f38cdf686ea07845"), Network.Main);
@@ -413,7 +413,7 @@ namespace NBitcoin.Tests
 		//https://en.bitcoin.it/wiki/List_of_address_prefixes
 		public void CanDeduceNetworkInBase58Constructor()
 		{
-			BitcoinAddress addr = new BitcoinAddress("17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem");
+			BitcoinAddress addr = new BitcoinPubKeyAddress("17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem");
 			Assert.Equal(addr.Network, Network.Main);
 		}
 
@@ -427,7 +427,7 @@ namespace NBitcoin.Tests
 					new
 					{
 						Base58 = "17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem",
-						ExpectedType = typeof(BitcoinAddress),
+						ExpectedType = typeof(BitcoinPubKeyAddress),
 						Network = Network.Main
 					},
 					new
@@ -439,7 +439,7 @@ namespace NBitcoin.Tests
 					new
 					{
 						Base58 = "mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn",
-						ExpectedType = typeof(BitcoinAddress),
+						ExpectedType = typeof(BitcoinPubKeyAddress),
 						Network = Network.TestNet
 					},
 					new

@@ -113,7 +113,7 @@ namespace NBitcoin.Tests
 					if(exp_addrType == "script")
 						Assert.True(addr.GetType() == typeof(BitcoinScriptAddress));
 					if(exp_addrType == "pubkey")
-						Assert.True(addr.GetType() == typeof(BitcoinAddress));
+						Assert.True(addr.GetType() == typeof(BitcoinPubKeyAddress));
 
 					Assert.Throws<FormatException>(() => network.CreateBitcoinSecret(exp_base58string));
 				}

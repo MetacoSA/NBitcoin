@@ -597,7 +597,7 @@ namespace NBitcoin.Tests
 				};
 				BroadcastHub hub = BroadcastHub.GetBroadcastHub(connected.NodeConnectionParameters);
 				BroadcastHubBehavior behavior = null;
-				while(behavior == null)
+				while(behavior == null || behavior.AttachedNode.State != NodeState.HandShaked)
 				{
 					behavior = connected.ConnectedNodes.Select(n => n.Behaviors.Find<BroadcastHubBehavior>()).FirstOrDefault();
 					Thread.Sleep(1);

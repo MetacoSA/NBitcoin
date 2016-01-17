@@ -176,7 +176,7 @@ namespace NBitcoin.Tests
 				//Can verify confirmation
 				var confirmation = new BitcoinConfirmationCode(test.ConfirmationCode, Network.Main);
 				AssertSequenceEquals(confirmation.LotSequence, test.LotSequence);
-				Assert.True(confirmation.Check(test.Passphrase, new BitcoinAddress(test.Address, Network.Main)));
+				Assert.True(confirmation.Check(test.Passphrase, new BitcoinPubKeyAddress(test.Address, Network.Main)));
 
 				//Can generate encrypted key from passcode
 				var generatedEncryptedKey = passCode.GenerateEncryptedSecret(test.Compressed).EncryptedKey;
