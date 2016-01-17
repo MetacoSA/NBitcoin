@@ -136,11 +136,6 @@ namespace NBitcoin
 			return sigData;
 		}
 
-		public byte[] ToDER()
-		{
-			return _ECKey.ToDER(IsCompressed);
-		}
-
 		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)

@@ -119,9 +119,7 @@ namespace NBitcoin.Tests
 					Address =           "16UjcYNBG9GTK4uq2f7yYEbuifqCzoLMGS",
 					CompressedAddress = "1FkKMsKNJqWSDvTvETqcCeHcUQQ64kSC6s",
 					Hash160 = "3c176e659bea0f29a3e9bf7880c112b1b31b4dc8",
-					CompressedHash160 = "a1c2f92a9dacbd2991c3897724a93f338e44bdc1",
-					DER = "3082011302010104201184cd2cdd640ca42cfc3a091c51d549b2f016d454b2774019c2b2d2e08529fda081a53081a2020101302c06072a8648ce3d0101022100fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f300604010004010704410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8022100fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141020101a14403420004d0988bfa799f7d7ef9ab3de97ef481cd0f75d2367ad456607647edde665d6f6fbdd594388756a7beaf73b4822bc22d36e9bda7db82df2b8b623673eefc0b7495",
-					CompressedDER = "3081d302010104201184cd2cdd640ca42cfc3a091c51d549b2f016d454b2774019c2b2d2e08529fda08185308182020101302c06072a8648ce3d0101022100fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f300604010004010704210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798022100fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141020101a12403220003d0988bfa799f7d7ef9ab3de97ef481cd0f75d2367ad456607647edde665d6f6f"
+					CompressedHash160 = "a1c2f92a9dacbd2991c3897724a93f338e44bdc1"
 				},
 				new
 				{
@@ -132,9 +130,7 @@ namespace NBitcoin.Tests
 					Address =           "1MZmwgyMyjM11uA6ZSpgn1uK3LBWCzvV6e",
 					CompressedAddress = "1AECNr2TDye8dpC1TeDH3eJpGoZ7dNPy4g",
 					Hash160 = "e19557c8f8fb53a964c5dc7bfde86d806709f7c5",
-					CompressedHash160 = "6538094af65453ea279f14d1a04b408e3adfebd7",
-					DER = "308201130201010420271ac4d7056937c156abd828850d05df0697dd662d3c1b0107f53a387b4c176ca081a53081a2020101302c06072a8648ce3d0101022100fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f300604010004010704410479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8022100fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141020101a1440342000493e5d305cad2588d5fb254065fe48ce446028ba380e6ee663baea9cd105500897eb030c033cdab160f31c36df0ea38330fdd69677df49cd14826902022d17f3f",
-					CompressedDER = "3081d30201010420271ac4d7056937c156abd828850d05df0697dd662d3c1b0107f53a387b4c176ca08185308182020101302c06072a8648ce3d0101022100fffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f300604010004010704210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798022100fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141020101a1240322000393e5d305cad2588d5fb254065fe48ce446028ba380e6ee663baea9cd10550089"
+					CompressedHash160 = "6538094af65453ea279f14d1a04b408e3adfebd7"
 				}
 			};
 
@@ -142,19 +138,14 @@ namespace NBitcoin.Tests
 			{
 				BitcoinSecret secret = Network.Main.CreateBitcoinSecret(test.PrivateKeyWIF);
 				Assert.Equal(test.PubKey, secret.PrivateKey.PubKey.ToHex());
-
-				TestDERCoherence(secret);
-				TestDEREqual(test.DER, secret);
-
+				
 				var address = Network.Main.CreateBitcoinAddress(test.Address);
 				Assert.Equal(new KeyId(test.Hash160), address.Hash);
 				Assert.Equal(new KeyId(test.Hash160), secret.PrivateKey.PubKey.Hash);
 				Assert.Equal(address.Hash, secret.PrivateKey.PubKey.GetAddress(Network.Main).Hash);
 
 				var compressedSec = secret.Copy(true);
-				TestDERCoherence(compressedSec);
-				TestDEREqual(test.CompressedDER, compressedSec);
-
+			
 				var a = secret.PrivateKey.PubKey;
 				var b = compressedSec.PrivateKey.PubKey;
 
@@ -169,23 +160,7 @@ namespace NBitcoin.Tests
 
 			}
 		}
-
-		private void TestDEREqual(string expected, BitcoinSecret secret)
-		{
-			var serializedSecret = secret.PrivateKey.ToDER();
-			var deserializedSecret = ECKey.FromDER(serializedSecret);
-			var deserializedTestSecret = ECKey.FromDER(Encoders.Hex.DecodeData(expected));
-			AssertEx.CollectionEquals(deserializedTestSecret.ToDER(secret.PrivateKey.IsCompressed), deserializedSecret.ToDER(secret.PrivateKey.IsCompressed));
-			Assert.Equal(expected, Encoders.Hex.EncodeData(serializedSecret));
-		}
-
-		private void TestDERCoherence(BitcoinSecret secret)
-		{
-			var serializedSecret = secret.PrivateKey.ToDER();
-			var deserializedSecret = ECKey.FromDER(serializedSecret);
-			AssertEx.CollectionEquals(secret.PrivateKey.ToDER(), deserializedSecret.ToDER(secret.PrivateKey.IsCompressed));
-		}
-
+		
 		[Fact]
 		[Trait("Core", "Core")]
 		public void key_test1()
