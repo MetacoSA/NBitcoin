@@ -11,7 +11,7 @@ namespace NBitcoin
 {
 	public class TxDestination : IDestination
 	{
-		byte[] _DestBytes;
+		internal byte[] _DestBytes;
 
 		public TxDestination()
 		{
@@ -71,7 +71,7 @@ namespace NBitcoin
 			TxDestination item = obj as TxDestination;
 			if(item == null)
 				return false;
-			return Utils.ArrayEqual(_DestBytes, item._DestBytes);
+			return Utils.ArrayEqual(_DestBytes, item._DestBytes) && item.GetType() == this.GetType();
 		}
 		public static bool operator ==(TxDestination a, TxDestination b)
 		{
@@ -79,7 +79,7 @@ namespace NBitcoin
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;
-			return Utils.ArrayEqual(a._DestBytes, b._DestBytes);
+			return Utils.ArrayEqual(a._DestBytes, b._DestBytes) && a.GetType() == b.GetType();
 		}
 
 		public static bool operator !=(TxDestination a, TxDestination b)
@@ -129,6 +129,42 @@ namespace NBitcoin
 			get
 			{
 				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(this);
+			}
+		}
+	}
+	public class SegwitKeyId : KeyId
+	{
+		public SegwitKeyId()
+			: base(0)
+		{
+
+		}
+		public SegwitKeyId(KeyId id)
+			: base(id._DestBytes)
+		{
+
+		}
+		public SegwitKeyId(byte[] value)
+			: base(value)
+		{
+
+		}
+		public SegwitKeyId(uint160 value)
+			: base(value)
+		{
+
+		}
+
+		public SegwitKeyId(string value)
+			: base(value)
+		{
+		}
+
+		public override Script ScriptPubKey
+		{
+			get
+			{
+				return PayToSegwitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, _DestBytes);
 			}
 		}
 	}

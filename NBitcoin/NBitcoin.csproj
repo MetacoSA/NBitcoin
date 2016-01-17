@@ -71,6 +71,7 @@
     <Compile Include="BIP38\BitcoinPassphraseCode.cs" />
     <Compile Include="BitcoinPubKeyAddress.cs" />
     <Compile Include="BitcoinSecret.cs" />
+    <Compile Include="BitcoinSegwitAddress.cs" />
     <Compile Include="BitcoinStream.Partial.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

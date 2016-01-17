@@ -37,7 +37,7 @@ namespace NBitcoin
 		}
 
 
-		public override TxDestination Hash
+		public KeyId Hash
 		{
 			get
 			{

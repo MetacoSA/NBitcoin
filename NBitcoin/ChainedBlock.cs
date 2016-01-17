@@ -182,16 +182,12 @@ namespace NBitcoin
 			return currentBlock;
 		}
 
-		static readonly TimeSpan nTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
-		static readonly TimeSpan nTargetSpacing = TimeSpan.FromSeconds(10 * 60);
-		static readonly long nInterval = nTargetTimespan.Ticks / nTargetSpacing.Ticks;
-
 		public Target GetWorkRequired(Network network)
 		{
 			// Genesis block
 			if(Height == 0)
-				return network.ProofOfWorkLimit;
-			var nProofOfWorkLimit = new Target(network.ProofOfWorkLimit);
+				return network.Consensus.PowLimit;
+			var nProofOfWorkLimit = new Target(network.Consensus.PowLimit);
 			var pindexLast = this.Previous;
 			var height = Height;
 			
@@ -199,20 +195,20 @@ namespace NBitcoin
 				return nProofOfWorkLimit;
 
 			// Only change once per interval
-			if((height) % nInterval != 0)
+			if((height) % network.Consensus.DifficultyAdjustmentInterval != 0)
 			{
-				if(network == Network.TestNet)
+				if(network.Consensus.PowAllowMinDifficultyBlocks)
 				{
 					// Special difficulty rule for testnet:
 					// If the new block's timestamp is more than 2* 10 minutes
 					// then allow mining of a min-difficulty block.
-					if(this.Header.BlockTime > pindexLast.Header.BlockTime + TimeSpan.FromTicks(nTargetSpacing.Ticks * 2))
+					if(this.Header.BlockTime > pindexLast.Header.BlockTime + TimeSpan.FromTicks(network.Consensus.PowTargetSpacing.Ticks * 2))
 						return nProofOfWorkLimit;
 					else
 					{
 						// Return the last non-special-min-difficulty-rules-block
 						ChainedBlock pindex = pindexLast;
-						while(pindex.Previous != null && (pindex.Height % nInterval) != 0 && pindex.Header.Bits == nProofOfWorkLimit)
+						while(pindex.Previous != null && (pindex.Height % network.Consensus.DifficultyAdjustmentInterval) != 0 && pindex.Header.Bits == nProofOfWorkLimit)
 							pindex = pindex.Previous;
 						return pindex.Header.Bits;
 					}
@@ -221,21 +217,21 @@ namespace NBitcoin
 			}
 
 			// Go back by what we want to be 14 days worth of blocks
-			var pastHeight = pindexLast.Height - nInterval + 1;
+			var pastHeight = pindexLast.Height - (network.Consensus.DifficultyAdjustmentInterval - 1);
 			ChainedBlock pindexFirst = this.EnumerateToGenesis().FirstOrDefault(o=>o.Height == pastHeight);
 			assert(pindexFirst);
 
 			// Limit adjustment step
 			var nActualTimespan = pindexLast.Header.BlockTime - pindexFirst.Header.BlockTime;
-			if(nActualTimespan < TimeSpan.FromTicks(nTargetTimespan.Ticks / 4))
-				nActualTimespan = TimeSpan.FromTicks(nTargetTimespan.Ticks / 4);
-			if(nActualTimespan > TimeSpan.FromTicks(nTargetTimespan.Ticks * 4))
-				nActualTimespan = TimeSpan.FromTicks(nTargetTimespan.Ticks * 4);
+			if(nActualTimespan < TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks / 4))
+				nActualTimespan = TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks / 4);
+			if(nActualTimespan > TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks * 4))
+				nActualTimespan = TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks * 4);
 
 			// Retarget
 			var bnNew = pindexLast.Header.Bits.ToBigInteger();
 			bnNew *= (ulong)nActualTimespan.TotalSeconds;
-			bnNew /= (ulong)nTargetTimespan.TotalSeconds;
+			bnNew /= (ulong)network.Consensus.PowTargetTimespan.TotalSeconds;
 			var newTarget = new Target(bnNew);
 			if(newTarget > nProofOfWorkLimit)
 				newTarget = nProofOfWorkLimit;

@@ -17,22 +17,8 @@ namespace NBitcoin
 			PayToPubkeyTemplate.Instance,
 			PayToScriptHashTemplate.Instance,
 			PayToMultiSigTemplate.Instance,
-			TxNullDataTemplate.Instance
-		};
-		public static Script PayToAddress(BitcoinAddress address)
-		{
-			return PayToPubkeyHash((KeyId)address.Hash);
-		}
-
-		private static Script PayToPubkeyHash(KeyId pubkeyHash)
-		{
-			return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(pubkeyHash);
-		}
-
-		public static Script PayToPubkey(PubKey pubkey)
-		{
-			return PayToPubkeyTemplate.Instance.GenerateScriptPubKey(pubkey);
-		}
+			TxNullDataTemplate.Instance,
+		};		
 
 		public static bool IsStandardTransaction(Transaction tx)
 		{

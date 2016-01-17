@@ -11,7 +11,7 @@ namespace NBitcoin.Tests
 {
 	class TestUtils
 	{
-		public static Transaction CreateFakeTx(Money coin, KeyId to)
+		public static Transaction CreateFakeTx(Money coin, IDestination to)
 		{
 			// Create a fake TX of sufficient realism to exercise the unit tests. Two outputs, one to us, one to somewhere
 			// else to simulate change.
@@ -43,11 +43,6 @@ namespace NBitcoin.Tests
 				cancel.Token.ThrowIfCancellationRequested();
 				Thread.Sleep(1);
 			}
-		}
-
-		public static Transaction CreateFakeTx(Money coin, BitcoinAddress to)
-		{
-			return CreateFakeTx(coin, (KeyId)to.Hash);
 		}
 
 		public static byte[] ToBytes(string str)

@@ -136,7 +136,7 @@ namespace NBitcoin
 			}
 		}
 
-		public BitcoinAddress GetAddress(Network network)
+		public BitcoinPubKeyAddress GetAddress(Network network)
 		{
 			return network.CreateBitcoinAddress(this.Hash);
 		}
@@ -145,6 +145,11 @@ namespace NBitcoin
 		{
 			var redeem = PayToPubkeyTemplate.Instance.GenerateScriptPubKey(this);
 			return new BitcoinScriptAddress(redeem.Hash, network);
+		}
+
+		public BitcoinSegwitPubKeyAddress GetSegwitAddress(Network network)
+		{
+			return new BitcoinSegwitPubKeyAddress(new SegwitKeyId(this.Hash), network);
 		}
 
 
@@ -399,6 +404,5 @@ namespace NBitcoin
 		}
 
 		#endregion
-
 	}
 }

@@ -31,7 +31,7 @@ namespace NBitcoin
 			}
 		}
 
-		public override TxDestination Hash
+		public ScriptId Hash
 		{
 			get
 			{
@@ -82,9 +82,9 @@ namespace NBitcoin
 		{
 		}
 
-		public abstract TxDestination Hash
+		public BitcoinAddress(byte[] rawBytes, Network network)
+			: base(rawBytes, network)
 		{
-			get;
 		}
 
 		Script _ScriptPubKey;
@@ -108,8 +108,7 @@ namespace NBitcoin
 			if (bitcoinScriptAddress != null)
 				return bitcoinScriptAddress;
 
-			var redeem = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(this);
-			return new BitcoinScriptAddress(redeem.Hash, Network);
+			return new BitcoinScriptAddress(this.ScriptPubKey.Hash, Network);
 		}
 
 		public static BitcoinAddress Create(TxDestination id, Network network)

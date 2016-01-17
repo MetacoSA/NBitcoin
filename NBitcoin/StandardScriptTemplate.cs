@@ -18,6 +18,7 @@ namespace NBitcoin
 		TX_SCRIPTHASH,
 		TX_MULTISIG,
 		TX_NULL_DATA,
+		TX_SEGWIT,
 	};
 
 	public class TxNullDataTemplate : ScriptTemplate
@@ -545,11 +546,11 @@ namespace NBitcoin
 				return _Instance;
 			}
 		}
-		public Script GenerateScriptPubKey(BitcoinAddress address)
+		public Script GenerateScriptPubKey(BitcoinPubKeyAddress address)
 		{
 			if(address == null)
 				throw new ArgumentNullException("address");
-			return GenerateScriptPubKey((KeyId)address.Hash);
+			return GenerateScriptPubKey(address.Hash);
 		}
 		public Script GenerateScriptPubKey(PubKey pubKey)
 		{
@@ -692,6 +693,65 @@ namespace NBitcoin
 		public abstract TxOutType Type
 		{
 			get;
+		}
+	}
+
+	public class PayToSegwitTemplate : ScriptTemplate
+	{
+		static PayToSegwitTemplate _Instance;
+		public static PayToSegwitTemplate Instance
+		{
+			get
+			{
+				return _Instance = _Instance ?? new PayToSegwitTemplate();
+			}
+		}
+
+		public Script GenerateScriptPubKey(OpcodeType segWitVersion, byte[] data)
+		{
+			if(data == null)
+				throw new ArgumentNullException("data");
+			if(!ValidSegwitVersion((byte)segWitVersion))
+				throw new ArgumentException("Segwit version must be from OP_0 to OP_16", "segWitVersion");
+			return new Script(segWitVersion, Op.GetPushOp(data));
+		}
+
+		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
+		{
+			var version = scriptPubKey.ToBytes(true)[0];
+			return ValidSegwitVersion(version);
+		}
+
+		public static bool ValidSegwitVersion(byte version)
+		{
+			return version == 0 || ((byte)OpcodeType.OP_1 <= version && (byte)OpcodeType.OP_16 <= version);
+		}
+		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
+		{
+			if(scriptPubKeyOps.Length != 2)
+				return false;
+			var allPush = scriptPubKeyOps.All(o => o.PushData != null);
+			if(!allPush)
+				return false;
+			return true;
+		}
+
+		protected override bool FastCheckScriptSig(Script scriptSig, Script scriptPubKey)
+		{
+			return scriptSig.Length == 0;
+		}
+
+		protected override bool CheckScriptSigCore(Script scriptSig, Op[] scriptSigOps, Script scriptPubKey, Op[] scriptPubKeyOps)
+		{
+			return scriptSig.Length == 0;
+		}
+
+		public override TxOutType Type
+		{
+			get
+			{
+				return TxOutType.TX_SEGWIT;
+			}
 		}
 	}
 }

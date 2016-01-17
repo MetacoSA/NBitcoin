@@ -63,14 +63,105 @@ namespace NBitcoin
 		STEALTH_ADDRESS,
 		ASSET_ID,
 		COLORED_ADDRESS,
+		WITNESS_P2WPKH,
 		MAX_BASE58_TYPES,
 	};
+
+	public class Consensus
+	{
+
+		public int SubsidyHalvingInterval
+		{
+			get;
+			internal set;
+		}
+
+		public int MajorityEnforceBlockUpgrade
+		{
+			get;
+			internal set;
+		}
+
+		public int MajorityRejectBlockOutdated
+		{
+			get;
+			internal set;
+		}
+
+		public int MajorityWindow
+		{
+			get;
+			internal set;
+		}
+
+		public int BIP34Height
+		{
+			get;
+			internal set;
+		}
+
+		public uint256 BIP34Hash
+		{
+			get;
+			internal set;
+		}
+
+		public Target PowLimit
+		{
+			get;
+			internal set;
+		}
+
+		public int SegWitHeight
+		{
+			get;
+			internal set;
+		}
+
+		public TimeSpan PowTargetTimespan
+		{
+			get;
+			internal set;
+		}
+
+		public TimeSpan PowTargetSpacing
+		{
+			get;
+			internal set;
+		}
+
+		public bool PowAllowMinDifficultyBlocks
+		{
+			get;
+			internal set;
+		}
+
+		public bool PowNoRetargeting
+		{
+			get;
+			internal set;
+		}
+
+		public uint256 HashGenesisBlock
+		{
+			get;
+			internal set;
+		}
+
+		public long DifficultyAdjustmentInterval
+		{
+			get
+			{
+				return ((long)PowTargetTimespan.TotalSeconds / (long)PowTargetSpacing.TotalSeconds);
+			}
+		}
+	}
 	public class Network
 	{
-		byte[][] base58Prefixes = new byte[12][];
+		byte[][] base58Prefixes = new byte[13][];
 
 
-		string[] pnSeed = new[] { "206.190.134.44", "91.234.48.232", "141.255.162.215", "141.0.103.214", "85.10.195.44", "83.150.2.99", "185.45.193.44", "193.95.2.149", "107.150.39.42", "74.140.213.145", "5.135.198.129", "68.203.162.177", "50.116.20.36", "93.65.55.164", "176.126.243.24", "5.9.74.107", "192.95.30.227", "83.160.76.197", "213.129.248.139", "99.113.64.43", "217.173.74.91", "63.142.242.169", "108.0.13.191", "192.222.131.59", "82.164.213.27", "77.172.123.53", "178.254.34.161", "209.126.70.159", "175.126.124.92", "168.144.27.112", "108.61.149.222", "192.146.137.1", "83.212.103.212", "76.171.175.153", "24.241.229.236", "62.203.14.61", "84.52.179.9", "178.79.179.49", "205.178.7.169", "61.220.55.224", "94.100.215.18", "23.30.243.153", "85.150.30.142", "78.102.244.7", "157.13.61.3", "97.93.102.87", "64.180.16.213", "60.51.76.100", "5.100.123.19", "46.105.210.3", "83.172.25.92", "70.176.9.49", "71.236.217.58", "91.121.23.52", "37.72.100.197", "89.248.169.6", "50.180.178.216", "173.57.64.40", "62.146.50.200", "64.232.216.213", "81.38.11.202", "82.238.124.41", "104.45.25.155", "173.201.253.231", "109.163.235.239", "46.105.210.151", "124.191.238.150", "98.255.144.176", "75.139.135.103", "104.236.112.213", "94.242.210.167", "72.91.164.51", "162.156.36.6", "104.58.133.176", "108.61.10.90", "46.28.204.51", "50.200.78.107", "98.121.127.116", "67.85.230.189", "37.188.68.169", "63.142.215.160", "96.28.206.67", "198.23.139.230", "71.170.30.34", "86.28.118.33", "5.135.186.15", "1.34.168.128", "70.168.53.148", "209.81.9.223", "83.233.64.214", "50.151.164.128", "68.12.133.49", "176.31.244.215", "60.225.67.170", "198.12.67.124", "54.202.252.197", "173.233.92.236", "46.105.210.33", "71.97.86.189", "119.246.71.52", "83.89.31.249", "188.174.202.14", "71.179.88.144", "151.100.179.44", "80.95.63.129", "146.120.88.92", "178.254.1.170", "93.152.166.29", "141.255.166.194", "85.170.204.241", "178.199.146.178", "84.104.97.25", "84.15.61.60", "85.1.100.87", "92.222.161.110", "195.137.203.27", "89.160.205.13", "107.170.220.159", "162.42.224.42", "192.52.166.141", "70.125.145.149", "94.102.53.241", "24.98.95.201", "75.72.10.173", "223.18.254.55", "83.161.64.45", "50.190.205.137", "75.129.141.35", "64.187.102.153", "162.247.54.200", "108.36.68.179", "104.131.217.133", "204.11.33.220", "83.77.102.36", "72.53.65.16", "85.25.142.92", "81.80.9.71", "91.214.197.113", "108.13.10.109", "135.23.178.163", "66.228.49.201", "70.178.113.51", "54.154.44.169", "89.212.15.202", "203.195.153.17", "81.167.144.219", "75.152.209.239", "192.99.195.17", "71.200.242.89", "64.140.125.98", "72.18.213.82", "187.37.174.171", "78.47.44.174", "85.169.55.254", "128.32.8.248", "123.255.47.170", "37.120.168.204", "42.62.41.194", "92.51.151.226", "176.198.91.237", "184.107.206.45", "74.57.199.180", "73.52.172.91", "67.252.142.125", "191.238.241.166", "59.167.219.142", "106.186.116.245", "96.44.166.190", "84.200.84.210", "188.120.252.184", "95.211.148.154", "91.121.160.59", "94.198.100.111", "178.63.104.217", "83.87.194.238", "75.143.236.5", "76.92.243.220", "199.33.124.186", "66.172.33.144", "85.17.238.8", "104.131.126.235", "108.166.183.31", "154.20.2.139", "24.159.186.144", "70.15.167.116", "176.9.18.10", "24.207.103.56", "75.83.197.114", "178.74.62.35", "77.240.112.3", "174.136.39.51", "192.75.95.104", "75.132.196.4", "107.170.246.25", "77.72.147.193", "79.20.54.61", "72.200.3.19", "137.116.160.176", "93.185.177.71", "71.58.95.78", "68.81.55.227", "70.67.189.16", "81.207.8.49", "67.183.38.189", "173.236.101.34", "178.74.102.24", "86.156.118.90", "98.168.215.241", "71.122.18.135", "174.7.97.199", "174.109.74.177", "89.212.33.237", "70.126.232.93", "95.25.242.177", "98.159.211.48", "62.122.207.218", "70.187.5.85", "167.160.36.73", "82.217.133.145", "82.247.103.117", "68.5.138.9", "50.169.192.116", "89.85.220.84", "24.68.121.113", "69.94.30.177", "50.43.42.71", "108.51.234.171", "178.79.189.150", "72.82.142.141", "116.87.211.135", "73.172.110.138", "82.231.21.209", "104.236.22.62", "213.222.208.93", "95.85.32.31", "162.244.27.106", "46.191.191.173", "87.106.2.186", "173.79.184.121", "5.135.187.85", "198.38.93.227", "37.44.44.11", "54.149.64.82", "192.95.20.208", "108.161.136.113", "37.187.156.122", "182.164.51.111", "198.206.133.68", "72.228.185.182", "46.236.116.209", "188.165.209.148", "188.165.179.154", "185.53.128.227", "199.91.66.218", "37.187.98.144", "98.230.117.192", "138.229.216.238", "81.7.6.110", "172.245.5.196", "50.68.46.172", "63.239.159.40", "123.1.157.189", "210.66.254.236", "108.44.251.88", "173.61.2.43", "103.243.94.140", "37.187.108.172", "71.59.152.182", "119.81.66.229", "71.15.80.197", "94.244.160.84", "128.199.235.80", "108.19.83.13", "71.202.122.234", "213.179.158.253", "77.78.22.68", "128.199.235.174", "210.209.74.8", "31.170.110.127", "91.121.6.19", "173.240.140.205", "77.37.240.142", "75.120.93.101", "24.30.154.41", "24.111.218.27", "24.248.64.242", "14.200.200.145", "144.76.59.187", "72.78.68.86", "104.236.106.208", "137.116.225.142", "84.212.210.135", "194.100.58.197", "213.187.244.23", "70.177.215.244", "174.51.23.224", "82.45.161.18", "82.242.0.245", "66.175.217.124", "97.118.8.236", "82.196.8.44", "67.159.13.34", "202.8.177.50", "108.18.111.25", "103.254.208.58", "107.191.37.252", "91.82.217.115", "80.0.88.41", "202.96.138.245", "93.186.202.8", "72.89.237.106", "195.182.142.71", "128.199.164.96", "95.85.46.114", "108.16.54.90", "128.199.235.175", "24.158.100.226", "206.248.184.127", "178.63.85.22", "50.188.192.133", "75.84.193.254", "24.216.194.173", "24.209.208.33", "93.191.133.245", "62.16.235.100", "178.21.112.84", "24.27.81.126", "64.15.76.238", "74.193.65.79", "161.67.132.40", "95.226.6.3", "94.27.9.30", "86.72.214.67", "31.7.57.235", "216.157.21.35", "88.198.241.196", "109.80.207.237", "168.158.129.29", "135.23.200.5", "82.26.245.81", "76.28.154.232", "107.150.8.27", "217.75.88.178", "47.55.14.65", "88.198.66.149", "5.228.1.230", "129.186.17.17", "178.62.179.246", "75.109.156.8", "23.91.142.147", "104.200.17.214", "87.121.52.207", "95.241.163.2", "54.86.148.8", "198.50.157.119", "176.223.201.198", "104.236.106.209", "108.40.10.201", "89.66.77.45", "192.227.139.229", "104.156.251.241", "66.172.27.218", "67.212.80.15", "58.165.177.149", "69.247.195.200", "46.59.39.101", "69.172.231.7", "176.28.45.22", "72.49.75.223", "172.245.5.156", "50.253.137.98", "66.222.19.194", "66.228.56.49", "84.114.82.82", "67.169.255.17", "174.108.112.235", "92.27.7.209", "71.177.61.126", "68.103.198.100", "109.228.152.2", "50.53.4.148", "61.35.225.19", "71.42.73.110", "202.159.161.72", "24.181.254.159", "206.188.231.210", "212.25.37.124", "76.126.137.197", "81.7.10.197", "46.151.84.88", "84.29.231.211", "198.245.51.112", "68.225.221.20", "73.181.204.170", "178.62.26.83", "37.157.250.36", "50.140.21.62", "108.170.140.21", "192.99.183.131", "153.127.251.67", "142.179.136.20", "5.196.116.21", "118.200.223.207", "78.73.56.35", "195.6.17.142", "70.173.255.54", "182.92.180.216", "71.72.133.97", "110.174.204.118", "188.120.194.140", "173.174.215.76", "77.58.2.117", "69.196.158.199", "80.163.38.28", "83.94.225.66", "175.126.82.244", "94.199.186.42", "80.84.55.2", "113.105.233.126", "188.166.62.197", "80.220.99.227", "1.34.180.245", "61.72.211.228", "107.214.165.35", "80.229.28.60", "73.168.101.225", "174.55.112.243", "69.164.193.73", "217.147.94.30", "24.147.80.212", "97.86.205.137", "83.252.63.212", "46.105.102.78", "89.22.96.204", "96.47.143.227", "173.220.42.2", "46.163.76.230", "89.84.5.8", "59.126.51.247", "188.138.125.48", "73.9.117.156", "176.28.51.121", "69.12.226.165", "174.96.164.211", "71.58.168.175", "198.50.214.62", "70.56.40.70", "81.226.140.100", "174.97.137.157", "120.27.35.77", "75.137.208.136", "94.23.10.183", "82.227.4.240", "176.9.45.123", "208.66.208.146", "178.79.178.147", "104.131.186.220", "195.113.34.16", "195.197.175.190", "72.74.150.204", "95.154.200.216", "82.4.55.245", "96.37.69.179", "209.105.243.229", "217.83.213.206", "73.43.71.152", "184.175.20.4", "203.219.14.204", "50.115.43.253", "71.165.11.202", "76.184.136.2", "83.212.103.14", "5.135.188.133", "194.213.123.22", "82.220.2.59", "173.255.228.94", "91.207.5.14", "99.238.235.119", "188.191.97.208", "185.21.216.156", "162.221.191.37", "5.35.251.225", "173.70.136.191", "95.111.107.136", "67.162.238.30", "87.117.231.104", "101.251.203.6", "69.125.179.241", "24.41.10.204", "222.112.145.179", "24.19.85.3", "173.230.144.211", "23.253.241.22", "195.154.255.182", "84.95.240.99", "71.12.5.70", "68.102.174.34", "205.250.190.49", "70.162.87.92", "98.166.131.15", "212.114.48.31", "84.24.19.223", "172.10.25.207", "23.99.105.9", "73.31.30.56", "68.45.234.253", "46.42.38.112", "72.225.47.72", "185.52.26.34", "50.78.49.181", "68.5.29.117", "80.39.113.100", "87.236.196.77", "69.136.175.241", "81.99.52.29", "136.243.0.218", "182.92.222.233", "92.7.149.75", "64.130.111.51", "198.52.200.56", "68.231.107.108", "98.172.71.156", "89.106.109.238", "98.192.87.223", "162.239.254.100", "71.11.7.246", "94.42.115.50", "178.78.236.136", "71.220.171.182", "206.123.112.180", "195.56.63.10", "173.64.215.173", "14.203.184.94", "76.174.20.247", "79.205.249.62", "65.30.47.116", "98.226.66.65", "108.199.77.32", "97.107.141.177", "50.252.52.49", "24.34.137.205", "23.239.27.92", "72.90.78.78", "198.52.212.235", "162.253.32.143", "50.168.230.216", "66.175.214.173", "151.228.196.42", "198.52.212.234", "84.200.67.181", "176.9.38.40", "72.44.79.44", "86.146.235.54", "100.38.11.146", "58.96.105.85", "1.234.82.66", "50.183.23.51", "70.168.116.190", "50.253.111.26", "80.212.49.199", "192.3.89.159", "188.126.8.14", "85.219.144.231", "24.136.22.179", "193.12.238.204", "54.193.80.253", "73.183.10.222", "188.226.146.44", "24.24.190.90", "5.198.93.103", "107.170.51.67", "98.237.42.22", "178.62.1.28", "46.244.10.86", "122.106.120.166", "147.32.204.59", "124.198.206.100", "162.244.28.113", "173.232.106.81", "23.255.227.231", "85.128.85.217", "23.236.144.69", "63.141.228.138", "5.77.42.130", "185.45.192.129", "174.0.25.200", "46.244.18.35", "85.139.76.185", "50.158.150.75", "94.19.12.244", "112.124.96.217", "87.81.141.250", "66.175.210.120", "81.174.247.50", "97.107.132.78", "188.138.94.6", "69.164.219.74", "69.112.51.199", "68.193.15.115", "80.81.242.110" };
+		static string[] pnSeed = new[] { "1.34.168.128:8333", "1.202.128.218:8333", "2.30.0.210:8333", "5.9.96.203:8333", "5.45.71.130:8333", "5.45.98.141:8333", "5.102.145.68:8333", "5.135.160.77:8333", "5.189.134.246:8333", "5.199.164.132:8333", "5.249.135.102:8333", "8.19.44.110:8333", "8.22.230.8:8333", "14.200.200.145:8333", "18.228.0.188:8333", "18.228.0.200:8333", "23.24.168.97:8333", "23.28.35.227:8333", "23.92.76.170:8333", "23.99.64.119:8333", "23.228.166.128:8333", "23.229.45.32:8333", "24.8.105.128:8333", "24.16.69.137:8333", "24.94.98.96:8333", "24.102.118.7:8333", "24.118.166.228:8333", "24.122.133.49:8333", "24.166.97.162:8333", "24.213.235.242:8333", "24.226.107.64:8333", "24.228.192.171:8333", "27.140.133.18:8333", "31.41.40.25:8333", "31.43.101.59:8333", "31.184.195.181:8333", "31.193.139.66:8333", "37.200.70.102:8333", "37.205.10.151:8333", "42.3.106.227:8333", "42.60.133.106:8333", "45.56.85.231:8333", "45.56.102.228:8333", "45.79.130.235:8333", "46.28.204.61:11101", "46.38.235.229:8333", "46.59.2.74:8333", "46.101.132.37:8333", "46.101.168.50:8333", "46.163.76.230:8333", "46.166.161.103:8333", "46.182.132.100:8333", "46.223.36.94:8333", "46.227.66.132:8333", "46.227.66.138:8333", "46.239.107.74:8333", "46.249.39.100:8333", "46.250.98.108:8333", "50.7.37.114:8333", "50.81.53.151:8333", "50.115.43.253:8333", "50.116.20.87:8333", "50.116.33.92:8333", "50.125.167.245:8333", "50.143.9.51:8333", "50.188.192.133:8333", "54.77.162.76:8333", "54.153.97.109:8333", "54.165.192.125:8333", "58.96.105.85:8333", "59.167.196.135:8333", "60.29.227.163:8333", "61.35.225.19:8333", "62.43.130.178:8333", "62.109.49.26:8333", "62.202.0.97:8333", "62.210.66.227:8333", "62.210.192.169:8333", "64.74.98.205:8333", "64.156.193.100:8333", "64.203.102.86:8333", "64.229.142.48:8333", "65.96.193.165:8333", "66.30.3.7:8333", "66.114.33.49:8333", "66.118.133.194:8333", "66.135.10.126:8333", "66.172.10.4:8333", "66.194.38.250:8333", "66.194.38.253:8333", "66.215.192.104:8333", "67.60.98.115:8333", "67.164.35.36:8333", "67.191.162.244:8333", "67.207.195.77:8333", "67.219.233.140:8333", "67.221.193.55:8333", "67.228.162.228:8333", "68.50.67.199:8333", "68.62.3.203:8333", "68.65.205.226:9000", "68.106.42.191:8333", "68.150.181.198:8333", "68.196.196.106:8333", "68.224.194.81:8333", "69.46.5.194:8333", "69.50.171.238:8333", "69.64.43.152:8333", "69.65.41.13:8333", "69.90.132.200:8333", "69.143.1.243:8333", "69.146.98.216:8333", "69.165.246.38:8333", "69.207.6.135:8333", "69.251.208.26:8333", "70.38.1.101:8333", "70.38.9.66:8333", "70.90.2.18:8333", "71.58.228.226:8333", "71.199.11.189:8333", "71.199.193.202:8333", "71.205.232.181:8333", "71.236.200.162:8333", "72.24.73.186:8333", "72.52.130.110:8333", "72.53.111.37:8333", "72.235.38.70:8333", "73.31.171.149:8333", "73.32.137.72:8333", "73.137.133.238:8333", "73.181.192.103:8333", "73.190.2.60:8333", "73.195.192.137:8333", "73.222.35.117:8333", "74.57.199.180:8333", "74.82.233.205:8333", "74.85.66.82:8333", "74.101.224.127:8333", "74.113.69.16:8333", "74.122.235.68:8333", "74.193.68.141:8333", "74.208.164.219:8333", "75.100.37.122:8333", "75.145.149.169:8333", "75.168.34.20:8333", "76.20.44.240:8333", "76.100.70.17:8333", "76.168.3.239:8333", "76.186.140.103:8333", "77.92.68.221:8333", "77.109.101.142:8333", "77.110.11.86:8333", "77.242.108.18:8333", "78.46.96.150:9020", "78.84.100.95:8333", "79.132.230.144:8333", "79.133.43.63:8333", "79.160.76.153:8333", "79.169.34.24:8333", "79.188.7.78:8333", "80.217.226.25:8333", "80.223.100.179:8333", "80.240.129.221:8333", "81.1.173.243:8333", "81.7.11.50:8333", "81.7.16.17:8333", "81.66.111.3:8333", "81.80.9.71:8333", "81.140.43.138:8333", "81.171.34.37:8333", "81.174.247.50:8333", "81.181.155.53:8333", "81.184.5.253:8333", "81.187.69.130:8333", "81.230.3.84:8333", "82.42.128.51:8333", "82.74.226.21:8333", "82.142.75.50:8333", "82.199.102.10:8333", "82.200.205.30:8333", "82.221.108.21:8333", "82.221.128.35:8333", "82.238.124.41:8333", "82.242.0.245:8333", "83.76.123.110:8333", "83.150.9.196:8333", "83.162.196.192:8333", "83.162.234.224:8333", "83.170.104.91:8333", "83.255.66.118:8334", "84.2.34.104:8333", "84.45.98.91:8333", "84.47.161.150:8333", "84.212.192.131:8333", "84.215.169.101:8333", "84.238.140.176:8333", "84.245.71.31:8333", "85.17.4.212:8333", "85.114.128.134:8333", "85.159.237.191:8333", "85.166.130.189:8333", "85.199.4.228:8333", "85.214.66.168:8333", "85.214.195.210:8333", "85.229.0.73:8333", "86.21.96.45:8333", "87.48.42.199:8333", "87.81.143.82:8333", "87.81.251.72:8333", "87.104.24.185:8333", "87.104.168.104:8333", "87.117.234.71:8333", "87.118.96.197:8333", "87.145.12.57:8333", "87.159.170.190:8333", "88.150.168.160:8333", "88.208.0.79:8333", "88.208.0.149:8333", "88.214.194.226:8343", "89.1.11.32:8333", "89.36.235.108:8333", "89.67.96.2:15321", "89.98.16.41:8333", "89.108.72.195:8333", "89.156.35.157:8333", "89.163.227.28:8333", "89.212.33.237:8333", "89.212.160.165:8333", "89.231.96.83:8333", "89.248.164.64:8333", "90.149.193.199:8333", "91.77.239.245:8333", "91.106.194.97:8333", "91.126.77.77:8333", "91.134.38.195:8333", "91.156.97.181:8333", "91.207.68.144:8333", "91.209.77.101:8333", "91.214.200.205:8333", "91.220.131.242:8333", "91.220.163.18:8333", "91.233.23.35:8333", "92.13.96.93:8333", "92.14.74.114:8333", "92.27.7.209:8333", "92.221.228.13:8333", "92.255.207.73:8333", "93.72.167.148:8333", "93.74.163.234:8333", "93.123.174.66:8333", "93.152.166.29:8333", "93.181.45.188:8333", "94.19.12.244:8333", "94.190.227.112:8333", "94.198.135.29:8333", "94.224.162.65:8333", "94.226.107.86:8333", "94.242.198.161:8333", "95.31.10.209:8333", "95.65.72.244:8333", "95.84.162.95:8333", "95.90.139.46:8333", "95.183.49.27:8005", "95.215.47.133:8333", "96.23.67.85:8333", "96.44.166.190:8333", "97.93.225.74:8333", "98.26.0.34:8333", "98.27.225.102:8333", "98.229.117.229:8333", "98.249.68.125:8333", "98.255.5.155:8333", "99.101.240.114:8333", "101.100.174.138:8333", "101.251.203.6:8333", "103.3.60.61:8333", "103.30.42.189:8333", "103.224.165.48:8333", "104.36.83.233:8333", "104.37.129.22:8333", "104.54.192.251:8333", "104.128.228.252:8333", "104.128.230.185:8334", "104.130.161.47:8333", "104.131.33.60:8333", "104.143.0.156:8333", "104.156.111.72:8333", "104.167.111.84:8333", "104.193.40.248:8333", "104.197.7.174:8333", "104.197.8.250:8333", "104.223.1.133:8333", "104.236.97.140:8333", "104.238.128.214:8333", "104.238.130.182:8333", "106.38.234.84:8333", "106.185.36.204:8333", "107.6.4.145:8333", "107.150.2.6:8333", "107.150.40.234:8333", "107.155.108.130:8333", "107.161.182.115:8333", "107.170.66.231:8333", "107.190.128.226:8333", "107.191.106.115:8333", "108.16.2.61:8333", "109.70.4.168:8333", "109.162.35.196:8333", "109.163.235.239:8333", "109.190.196.220:8333", "109.191.39.60:8333", "109.234.106.191:8333", "109.238.81.82:8333", "114.76.147.27:8333", "115.28.224.127:8333", "115.68.110.82:18333", "118.97.79.218:8333", "118.189.207.197:8333", "119.228.96.233:8333", "120.147.178.81:8333", "121.41.123.5:8333", "121.67.5.230:8333", "122.107.143.110:8333", "123.2.170.98:8333", "123.110.65.94:8333", "123.193.139.19:8333", "125.239.160.41:8333", "128.101.162.193:8333", "128.111.73.10:8333", "128.140.229.73:8333", "128.175.195.31:8333", "128.199.107.63:8333", "128.199.192.153:8333", "128.253.3.193:20020", "129.123.7.7:8333", "130.89.160.234:8333", "131.72.139.164:8333", "131.191.112.98:8333", "133.1.134.162:8333", "134.19.132.53:8333", "137.226.34.42:8333", "141.41.2.172:8333", "141.255.128.204:8333", "142.217.12.106:8333", "143.215.129.126:8333", "146.0.32.101:8337", "147.229.13.199:8333", "149.210.133.244:8333", "149.210.162.187:8333", "150.101.163.241:8333", "151.236.11.189:8333", "153.121.66.211:8333", "154.20.2.139:8333", "159.253.23.132:8333", "162.209.106.123:8333", "162.210.198.184:8333", "162.218.65.121:8333", "162.222.161.49:8333", "162.243.132.6:8333", "162.243.132.58:8333", "162.248.99.164:53011", "162.248.102.117:8333", "163.158.35.110:8333", "164.15.10.189:8333", "164.40.134.171:8333", "166.230.71.67:8333", "167.160.161.199:8333", "168.103.195.250:8333", "168.144.27.112:8333", "168.158.129.29:8333", "170.75.162.86:8333", "172.90.99.174:8333", "172.245.5.156:8333", "173.23.166.47:8333", "173.32.11.194:8333", "173.34.203.76:8333", "173.171.1.52:8333", "173.175.136.13:8333", "173.230.228.139:8333", "173.247.193.70:8333", "174.49.132.28:8333", "174.52.202.72:8333", "174.53.76.87:8333", "174.109.33.28:8333", "176.28.12.169:8333", "176.35.182.214:8333", "176.36.33.113:8333", "176.36.33.121:8333", "176.58.96.173:8333", "176.121.76.84:8333", "178.62.70.16:8333", "178.62.111.26:8333", "178.76.169.59:8333", "178.79.131.32:8333", "178.162.199.216:8333", "178.175.134.35:8333", "178.248.111.4:8333", "178.254.1.170:8333", "178.254.34.161:8333", "179.43.143.120:8333", "179.208.156.198:8333", "180.200.128.58:8333", "183.78.169.108:8333", "183.96.96.152:8333", "184.68.2.46:8333", "184.73.160.160:8333", "184.94.227.58:8333", "184.152.68.163:8333", "185.7.35.114:8333", "185.28.76.179:8333", "185.31.160.202:8333", "185.45.192.129:8333", "185.66.140.15:8333", "186.2.167.23:8333", "186.220.101.142:8333", "188.26.5.33:8333", "188.75.136.146:8333", "188.120.194.140:8333", "188.121.5.150:8333", "188.138.0.114:8333", "188.138.33.239:8333", "188.166.0.82:8333", "188.182.108.129:8333", "188.191.97.208:8333", "188.226.198.102:8001", "190.10.9.217:8333", "190.75.143.144:8333", "190.139.102.146:8333", "191.237.64.28:8333", "192.3.131.61:8333", "192.99.225.3:8333", "192.110.160.122:8333", "192.146.137.1:8333", "192.183.198.204:8333", "192.203.228.71:8333", "193.0.109.3:8333", "193.12.238.204:8333", "193.91.200.85:8333", "193.234.225.156:8333", "194.6.233.38:8333", "194.63.143.136:8333", "194.126.100.246:8333", "195.134.99.195:8333", "195.159.111.98:8333", "195.159.226.139:8333", "195.197.175.190:8333", "198.48.199.108:8333", "198.57.208.134:8333", "198.57.210.27:8333", "198.62.109.223:8333", "198.167.140.8:8333", "198.167.140.18:8333", "199.91.173.234:8333", "199.127.226.245:8333", "199.180.134.116:8333", "200.7.96.99:8333", "201.160.106.86:8333", "202.55.87.45:8333", "202.60.68.242:8333", "202.60.69.232:8333", "202.124.109.103:8333", "203.30.197.77:8333", "203.88.160.43:8333", "203.151.140.14:8333", "203.219.14.204:8333", "205.147.40.62:8333", "207.235.39.214:8333", "207.244.73.8:8333", "208.12.64.225:8333", "208.76.200.200:8333", "209.40.96.121:8333", "209.126.107.176:8333", "209.141.40.149:8333", "209.190.75.59:8333", "209.208.111.142:8333", "210.54.34.164:8333", "211.72.66.229:8333", "212.51.144.42:8333", "212.112.33.157:8333", "212.116.72.63:8333", "212.126.14.122:8333", "213.66.205.194:8333", "213.111.196.21:8333", "213.122.107.102:8333", "213.136.75.175:8333", "213.155.7.24:8333", "213.163.64.31:8333", "213.163.64.208:8333", "213.165.86.136:8333", "213.184.8.22:8333", "216.15.78.182:8333", "216.55.143.154:8333", "216.115.235.32:8333", "216.126.226.166:8333", "216.145.67.87:8333", "216.169.141.169:8333", "216.249.92.230:8333", "216.250.138.230:8333", "217.20.171.43:8333", "217.23.2.71:8333", "217.23.2.242:8333", "217.25.9.76:8333", "217.40.226.169:8333", "217.123.98.9:8333", "217.155.36.62:8333", "217.172.32.18:20993", "218.61.196.202:8333", "218.231.205.41:8333", "220.233.77.200:8333", "223.18.226.85:8333", "223.197.203.82:8333", "223.255.166.142:8333" };
 
 
 		uint magic;
@@ -101,9 +192,7 @@ namespace NBitcoin
 			{
 				return nRPCPort;
 			}
-		}
-
-		private uint256 hashGenesisBlock;
+		}		
 
 		private int nDefaultPort;
 		public int DefaultPort
@@ -115,6 +204,14 @@ namespace NBitcoin
 		}
 
 
+		private readonly Consensus consensus = new Consensus();
+		public Consensus Consensus
+		{
+			get
+			{
+				return consensus;
+			}
+		}
 
 		static Network _RegTest;
 		public static Network RegTest
@@ -131,31 +228,48 @@ namespace NBitcoin
 			}
 		}
 
-		private Network(){}
+		private Network()
+		{
+		}
 
 		private void InitReg()
 		{
-			InitTest();
-			magic = 0xDAB5BFFA;
 			name = "RegTest";
+			consensus.SubsidyHalvingInterval = 150;
+			consensus.MajorityEnforceBlockUpgrade = 750;
+			consensus.MajorityRejectBlockOutdated = 950;
+			consensus.MajorityWindow = 1000;
+			consensus.BIP34Height = -1; // BIP34 has not necessarily activated on regtest
+			consensus.BIP34Hash = new uint256();
+			consensus.PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+			consensus.SegWitHeight = 0;
+			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
+			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
+			consensus.PowAllowMinDifficultyBlocks = true;
+			consensus.PowNoRetargeting = true;
+			magic = 0xDAB5BFFA;
 			nSubsidyHalvingInterval = 150;
-			_ProofOfLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1296688602);
-			genesis.Header.Bits = 0x207fffff;
-			genesis.Header.Nonce = 2;
-			hashGenesisBlock = genesis.GetHash();
+
+			genesis = CreateGenesisBlock(1296688602, 2, 0x207fffff, 1, Money.Coins(50m));
+			consensus.HashGenesisBlock = genesis.GetHash();
 			nDefaultPort = 18444;
 			//strDataDir = "regtest";
-			assert(hashGenesisBlock == uint256.Parse("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
+			assert(consensus.HashGenesisBlock == uint256.Parse("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
 
 #if !PORTABLE
 			vSeeds.Clear();  // Regtest mode doesn't have any DNS seeds.
 #endif
+
+			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (111) };
+			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (196) };
+			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (239) };
+			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x35), (0x87), (0xCF) };
+			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
+			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
 		}
 
 
 		static Network _Main;
-		private Target _ProofOfLimit;
 		private int nSubsidyHalvingInterval;
 		private string name;
 
@@ -181,10 +295,111 @@ namespace NBitcoin
 			}
 		}
 
+		private static Network _SegNet;
+		public static Network SegNet
+		{
+			get
+			{
+				if(_SegNet == null)
+				{
+					var instance = new Network();
+					instance.InitSegnet();
+					_SegNet = instance;
+				}
+				return _SegNet;
+			}
+		}
+
+		private void InitSegnet()
+		{
+			name = "segnet";
+			consensus.SubsidyHalvingInterval = 210000;
+			consensus.MajorityEnforceBlockUpgrade = 7;
+			consensus.MajorityRejectBlockOutdated = 9;
+			consensus.MajorityWindow = 10;
+			consensus.BIP34Height = -1;
+			consensus.BIP34Hash = uint256.Zero;
+			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+			consensus.SegWitHeight = 0;
+			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
+			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
+			consensus.PowAllowMinDifficultyBlocks = true;
+			consensus.PowNoRetargeting = false;
+
+			magic = 0xcaea962e;
+			vAlertPubKey = Encoders.Hex.DecodeData("0300000000000000000000003b78ce563f89a0ed9414f5aa28ad0d96d6795f9c63");
+			nDefaultPort = 28333;
+
+			genesis = CreateGenesisBlock(1452831101, 0, 0x1d00ffff, 1, Money.Coins(50m));
+			consensus.HashGenesisBlock = genesis.GetHash();
+
+			vFixedSeeds.Clear();
+			vSeeds.Clear();
+
+			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { 30 };
+			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { 50 };
+			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { 158 };
+			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x05), (0x35), (0x87), (0xCF) };
+			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x05), (0x35), (0x83), (0x94) };
+			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
+			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x06) };
+
+			vFixedSeeds.Clear();
+		}
+
+		private Block CreateGenesisBlock(uint nTime, uint nNonce, uint nBits, int nVersion, Money genesisReward)
+		{
+			string pszTimestamp = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks";
+			Script genesisOutputScript = new Script(Op.GetPushOp(Encoders.Hex.DecodeData("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f")), OpcodeType.OP_CHECKSIG);
+			return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
+		}
+
+		private Block CreateGenesisBlock(string pszTimestamp, Script genesisOutputScript, uint nTime, uint nNonce, uint nBits, int nVersion, Money genesisReward)
+		{
+			Transaction txNew = new Transaction();
+			txNew.Version = 1;
+			txNew.AddInput(new TxIn()
+			{
+				ScriptSig = new Script(Op.GetPushOp(486604799), new Op()
+				{
+					Code = (OpcodeType)0x1,
+					PushData = new[]{(byte)4}
+				}, Op.GetPushOp(Encoders.ASCII.DecodeData(pszTimestamp)))
+			});
+			txNew.AddOutput(new TxOut()
+			{
+				Value = genesisReward,
+				ScriptPubKey = genesisOutputScript
+			});
+			Block genesis = new Block();
+			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(nTime);
+			genesis.Header.Bits = nBits;
+			genesis.Header.Nonce = nNonce;
+			genesis.Header.Version = nVersion;
+			genesis.Transactions.Add(txNew);
+			genesis.Header.HashPrevBlock = uint256.Zero;
+			genesis.UpdateMerkleRoot();
+			return genesis;
+		}
+
 		private void InitMain()
 		{
 			SpendableCoinbaseDepth = 100;
 			name = "Main";
+
+			consensus.SubsidyHalvingInterval = 210000;
+			consensus.MajorityEnforceBlockUpgrade = 750;
+			consensus.MajorityRejectBlockOutdated = 950;
+			consensus.MajorityWindow = 1000;
+			consensus.BIP34Height = 227931;
+			consensus.BIP34Hash = new uint256("0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8");
+			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+			consensus.SegWitHeight = 2000000000;
+			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
+			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
+			consensus.PowAllowMinDifficultyBlocks = false;
+			consensus.PowNoRetargeting = false;
+
 			// The message start string is designed to be unlikely to occur in normal data.
 			// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 			// a large 4-byte int at any alignment.
@@ -192,36 +407,19 @@ namespace NBitcoin
 			vAlertPubKey = Encoders.Hex.DecodeData("04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284");
 			nDefaultPort = 8333;
 			nRPCPort = 8332;
-			_ProofOfLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			nSubsidyHalvingInterval = 210000;
-
-			Transaction txNew = new Transaction();
-			txNew.Version = 1;
-			txNew.Inputs.Add(new TxIn());
-			txNew.Outputs.Add(new TxOut());
-			txNew.Inputs[0].ScriptSig = new Script(Encoders.Hex.DecodeData("04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73"));
-			txNew.Outputs[0].Value = 50 * Money.COIN;
-			txNew.Outputs[0].ScriptPubKey = new Script() + Encoders.Hex.DecodeData("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") + OpcodeType.OP_CHECKSIG;
-			genesis.Transactions.Add(txNew);
-			genesis.Header.HashPrevBlock = 0;
-			genesis.UpdateMerkleRoot();
-			genesis.Header.Version = 1;
-			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1231006505);
-			genesis.Header.Bits = 0x1d00ffff;
-			genesis.Header.Nonce = 2083236893;
-
-			hashGenesisBlock = genesis.GetHash();
-			assert(hashGenesisBlock == uint256.Parse("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
+			
+			var genesis  = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1, Money.Coins(50m));			
+			consensus.HashGenesisBlock = genesis.GetHash();
+			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
 			assert(genesis.Header.HashMerkleRoot == uint256.Parse("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
 #if !PORTABLE
-			vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be"));
-			vSeeds.Add(new DNSSeedData("bluematt.me", "dnsseed.bluematt.me"));
-			vSeeds.Add(new DNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org"));
-			vSeeds.Add(new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com"));
-			vSeeds.Add(new DNSSeedData("bitnodes.io", "seed.bitnodes.io"));
-			vSeeds.Add(new DNSSeedData("xf2.org", "bitseed.xf2.org"));
-			vSeeds.Add(new DNSSeedData("bitcoin.jonasschnelli.ch", "seed.bitcoin.jonasschnelli.ch"));
-
+			vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be")); // Pieter Wuille
+			vSeeds.Add(new DNSSeedData("bluematt.me", "dnsseed.bluematt.me")); // Matt Corallo
+			vSeeds.Add(new DNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org")); // Luke Dashjr
+			vSeeds.Add(new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com")); // Christian Decker
+			vSeeds.Add(new DNSSeedData("xf2.org", "bitseed.xf2.org")); // Jeff Garzik
+			vSeeds.Add(new DNSSeedData("bitcoin.jonasschnelli.ch", "seed.bitcoin.jonasschnelli.ch")); // Jonas Schnelli
 #endif
 			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (0) };
 			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (5) };
@@ -235,6 +433,7 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2a };
 			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 23 };
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
+			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { 0x4 };
 
 			// Convert the pnSeeds array into usable address objects.
 			Random rand = new Random();
@@ -243,13 +442,12 @@ namespace NBitcoin
 			for(int i = 0 ; i < pnSeed.Length ; i++)
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
-				// it'll get a pile of addresses with newer timestamps.
-				IPAddress ip = IPAddress.Parse(pnSeed[i]);
+				// it'll get a pile of addresses with newer timestamps.				
 				NetworkAddress addr = new NetworkAddress();
 				// Seed nodes are given a random 'last seen time' of between one and two
 				// weeks ago.
 				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
-				addr.Endpoint = new IPEndPoint(ip, DefaultPort);
+				addr.Endpoint = Utils.ParseIpEndpoint(pnSeed[i], DefaultPort);
 				vFixedSeeds.Add(addr);
 			}
 #endif
@@ -272,8 +470,22 @@ namespace NBitcoin
 		}
 		private void InitTest()
 		{
-			InitMain();
 			name = "TestNet";
+
+			consensus.SubsidyHalvingInterval = 210000;
+			consensus.MajorityEnforceBlockUpgrade = 51;
+			consensus.MajorityRejectBlockOutdated = 75;
+			consensus.MajorityWindow = 100;
+			consensus.BIP34Height = 21111;
+			consensus.BIP34Hash = new uint256("0x0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8");
+			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+			consensus.SegWitHeight = 2000000000;
+			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
+			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
+			consensus.PowAllowMinDifficultyBlocks = true;
+			consensus.PowNoRetargeting = false;
+
+
 			magic = 0x0709110B;
 
 			vAlertPubKey = DataEncoders.Encoders.Hex.DecodeData("04302390343f91cc401d56d68b123028bf52e5fca1939df127f63c6467cdf9c8e2c14b61104cf817d0b780da337893ecc4aaff1309e536162dabbdb45200ca2b0a");
@@ -282,16 +494,17 @@ namespace NBitcoin
 			//strDataDir = "testnet3";
 
 			// Modify the testnet genesis block so the timestamp is valid for a later start.
-			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(1296688602);
-			genesis.Header.Nonce = 414098458;
-			hashGenesisBlock = genesis.GetHash();
-			assert(hashGenesisBlock == uint256.Parse("0x000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
+			genesis = CreateGenesisBlock(1296688602, 414098458, 0x1d00ffff, 1, Money.Coins(50m));
+			consensus.HashGenesisBlock = genesis.GetHash();
+
+			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
 
 #if !PORTABLE
 			vFixedSeeds.Clear();
 			vSeeds.Clear();
 			vSeeds.Add(new DNSSeedData("bitcoin.petertodd.org", "testnet-seed.bitcoin.petertodd.org"));
 			vSeeds.Add(new DNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
+			vSeeds.Add(new DNSSeedData("bitcoin.schildbach.de", "testnet-seed.bitcoin.schildbach.de"));
 #endif
 			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (111) };
 			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (196) };
@@ -300,6 +513,7 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
 			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2b };
 			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 115 };
+			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
 		}
 
 		private static void assert(bool v)
@@ -342,6 +556,8 @@ namespace NBitcoin
 			for(int i = 0 ; i < base58Prefixes.Length ; i++)
 			{
 				var prefix = base58Prefixes[i];
+				if(prefix == null)
+					continue;
 				if(bytes.Length < prefix.Length)
 					continue;
 				if(Utils.ArrayEqual(bytes, 0, prefix, 0, prefix.Length))
@@ -455,7 +671,14 @@ namespace NBitcoin
 				return CreateAssetId(base58);
 			if(type == Base58Type.COLORED_ADDRESS)
 				return CreateColoredAddress(base58);
+			if(type == Base58Type.WITNESS_P2WPKH)
+				return CreateSegwitPubKeyAddress(base58);
 			throw new NotSupportedException("Invalid Base58Data type : " + type.ToString());
+		}
+
+		private BitcoinSegwitPubKeyAddress CreateSegwitPubKeyAddress(string base58)
+		{
+			return new BitcoinSegwitPubKeyAddress(base58, this);
 		}
 
 		private BitcoinColoredAddress CreateColoredAddress(string base58)
@@ -527,15 +750,7 @@ namespace NBitcoin
 		public override string ToString()
 		{
 			return name;
-		}
-
-		public Target ProofOfWorkLimit
-		{
-			get
-			{
-				return _ProofOfLimit;
-			}
-		}
+		}		
 
 		public Block GetGenesis()
 		{
@@ -558,6 +773,7 @@ namespace NBitcoin
 		{
 			yield return Main;
 			yield return TestNet;
+			yield return SegNet;
 			yield return RegTest;
 		}
 
@@ -588,13 +804,20 @@ namespace NBitcoin
 		{
 			return new BitcoinSecret(key, this);
 		}
-
+		public BitcoinPubKeyAddress CreateBitcoinAddress(KeyId dest)
+		{
+			if(dest == null)
+				throw new ArgumentNullException("dest");
+			return new BitcoinPubKeyAddress(dest, this);
+		}
 		public BitcoinAddress CreateBitcoinAddress(TxDestination dest)
 		{
 			if(dest == null)
 				throw new ArgumentNullException("dest");
 			if(dest is ScriptId)
 				return CreateBitcoinScriptAddress((ScriptId)dest);
+			if(dest is SegwitKeyId)
+				return new BitcoinSegwitPubKeyAddress((SegwitKeyId)dest, this);
 			if(dest is KeyId)
 				return new BitcoinPubKeyAddress((KeyId)dest, this);
 			throw new ArgumentException("Invalid dest type", "dest");

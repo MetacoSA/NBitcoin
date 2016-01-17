@@ -483,7 +483,7 @@ namespace NBitcoin.Tests
 			Assert.Equal("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM", address.ToString());
 
 			//Next, he builds the Pay-to-PubKey-Hash script associated to that address: OP_DUP OP_HASH160 010966776006953D5567439E5E39F86A0D273BEE OP_EQUALVERIFY OP_CHECKSIG
-			Script script = Script.CreateFromDestinationAddress(address);
+			Script script = address.ScriptPubKey;
 			Assert.Equal("OP_DUP OP_HASH160 010966776006953D5567439E5E39F86A0D273BEE OP_EQUALVERIFY OP_CHECKSIG", script.ToString().ToUpper());
 
 			var oo = script.GetScriptAddress(Network.Main);

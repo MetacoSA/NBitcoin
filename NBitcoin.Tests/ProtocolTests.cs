@@ -224,7 +224,7 @@ namespace NBitcoin.Tests
 										.Where(m => m.Message.Payload is MerkleBlockPayload || m.Message.Payload is TxPayload))
 				{
 					BloomFilter filter = new BloomFilter(1, 0.005, 50, BloomFlags.UPDATE_NONE);
-					filter.Insert(BitcoinAddress.Create("mwdJkHRNJi1fEwHBx6ikWFFuo2rLBdri2h", Network.TestNet).Hash.ToBytes());
+					filter.Insert(((BitcoinPubKeyAddress)BitcoinAddress.Create("mwdJkHRNJi1fEwHBx6ikWFFuo2rLBdri2h", Network.TestNet)).Hash.ToBytes());
 					node.SendMessageAsync(new FilterLoadPayload(filter));
 					node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, knownBlock)));
 					var merkle = list.ReceivePayload<MerkleBlockPayload>();

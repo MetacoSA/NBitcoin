@@ -843,34 +843,6 @@ namespace NBitcoin
 			}
 		}
 
-		/// <summary>
-		/// Create scriptPubKey from destination id
-		/// </summary>
-		/// <param name="id"></param>
-		/// <returns></returns>
-		public static Script CreateFromDestination(TxDestination id)
-		{
-			var scriptId = id as ScriptId;
-			if(scriptId != null)
-				return PayToScriptHashTemplate.Instance.GenerateScriptPubKey(scriptId);
-
-			var pubkeyHash = id as KeyId;
-			if(pubkeyHash != null)
-				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(pubkeyHash);
-
-			throw new NotSupportedException();
-		}
-
-		/// <summary>
-		/// Create scriptPubKey from destination address
-		/// </summary>
-		/// <param name="address"></param>
-		/// <returns></returns>
-		public static Script CreateFromDestinationAddress(BitcoinAddress address)
-		{
-			return CreateFromDestination(address.Hash);
-		}
-
 		public static bool IsNullOrEmpty(Script script)
 		{
 			return script == null || script._Script.Length == 0;

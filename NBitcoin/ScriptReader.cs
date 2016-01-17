@@ -281,6 +281,30 @@ namespace NBitcoin
 			_OpcodeByName.Add("OP_CHECKLOCKTIMEVERIFY", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
 			_OpcodeByName.Add("OP_HODL", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
 			_OpcodeByName.Add("OP_NOP2", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
+
+			foreach(var op in new[]
+			{
+				OpcodeType.OP_0, 
+				OpcodeType.OP_1,
+				OpcodeType.OP_2, 
+				OpcodeType.OP_3,
+				OpcodeType.OP_4, 
+				OpcodeType.OP_5,
+				OpcodeType.OP_6, 
+				OpcodeType.OP_7,
+				OpcodeType.OP_8, 
+				OpcodeType.OP_9,
+				OpcodeType.OP_10, 
+				OpcodeType.OP_11,
+				OpcodeType.OP_12, 
+				OpcodeType.OP_13,
+				OpcodeType.OP_14, 
+				OpcodeType.OP_15,
+				OpcodeType.OP_16,
+			})
+			{
+				_OpcodeByName.Add(Enum.GetName(typeof(OpcodeType), op), op);
+			}
 		}
 		public static bool GetOpCode(string name, out OpcodeType result)
 		{
