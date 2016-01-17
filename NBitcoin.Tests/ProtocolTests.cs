@@ -389,7 +389,7 @@ namespace NBitcoin.Tests
 			addrman.SavePeerFile("addrmancache.dat", Network.Main);
 		}
 
-		private AddressManager GetCachedAddrMan(string file)
+		public static AddressManager GetCachedAddrMan(string file)
 		{
 			if(File.Exists(file))
 			{

@@ -11,6 +11,41 @@ namespace NBitcoin.Protocol.Behaviors
 {
 	public delegate void TransactionBroadcastedDelegate(Transaction transaction);
 	public delegate void TransactionRejectedDelegate(Transaction transaction, RejectPayload reject);
+	public class TransactionBroadcast
+	{
+		public BroadcastState State
+		{
+			get;
+			internal set;
+		}
+		public Transaction Transaction
+		{
+			get;
+			internal set;
+		}
+		internal ulong PingValue
+		{
+			get;
+			set;
+		}
+		public DateTime AnnouncedTime
+		{
+			get;
+			internal set;
+		}
+	}
+	public enum BroadcastState
+	{
+		NotSent,
+		Announced,
+		Broadcasted,
+		Rejected,
+		Accepted
+	}
+
+	/// <summary>
+	/// Behavior to broadcast a transaction reliabily
+	/// </summary>
 	public class BroadcastTransactionBehavior : NodeBehavior
 	{
 
@@ -25,20 +60,11 @@ namespace NBitcoin.Protocol.Behaviors
 			{
 				var hash = transaction.GetHash();
 				var nodes = Nodes
-							.Where(n => n.Key.State == NodeState.HandShaked)
 							.Select(n => n.Key.Behaviors.Find<BroadcastTransactionBehavior>())
-							.Where(n => n != null)
-							.Where(n => !n._Broadcasting.ContainsKey(hash))
 							.ToArray();
-				if(nodes.Length >= 2)
+				foreach(var node in nodes)
 				{
-					Utils.Shuffle(nodes);
-					var sentNode = nodes.Length / 2;
-					for(int i = 0 ; i < sentNode ; i++)
-					{
-						int local = i;
-						nodes[local].BroadcastTransactionCore(transaction);
-					}
+					node.BroadcastTransactionCore(transaction);
 				}
 			}
 
@@ -55,7 +81,48 @@ namespace NBitcoin.Protocol.Behaviors
 				if(evt != null)
 					evt(tx);
 			}
+		}		
+
+		ConcurrentDictionary<uint256, TransactionBroadcast> _HashToTransaction = new ConcurrentDictionary<uint256, TransactionBroadcast>();
+		ConcurrentDictionary<ulong, TransactionBroadcast> _PingToTransaction = new ConcurrentDictionary<ulong, TransactionBroadcast>();
+
+		TransactionBroadcast GetTransaction(uint256 hash, bool remove)
+		{
+			TransactionBroadcast result;
+
+			if(remove)
+			{
+				if(_HashToTransaction.TryRemove(hash, out result))
+				{
+					TransactionBroadcast unused;
+					_PingToTransaction.TryRemove(result.PingValue, out unused);
+				}
+			}
+			else
+			{
+				_HashToTransaction.TryGetValue(hash, out result);
+			}
+			return result;
 		}
+		TransactionBroadcast GetTransaction(ulong pingValue, bool remove)
+		{
+			TransactionBroadcast result;
+
+			if(remove)
+			{
+				if(_PingToTransaction.TryRemove(pingValue, out result))
+				{
+					TransactionBroadcast unused;
+					_HashToTransaction.TryRemove(result.Transaction.GetHash(), out unused);
+				}
+			}
+			else
+			{
+				_PingToTransaction.TryGetValue(pingValue, out result);
+			}
+			return result;
+		}
+
 		Shared _Shared;
 
 		public event TransactionBroadcastedDelegate TransactionBroadcasted
@@ -90,6 +157,14 @@ namespace NBitcoin.Protocol.Behaviors
 		private BroadcastTransactionBehavior(BroadcastTransactionBehavior cloned)
 		{
 			_Shared = cloned._Shared;
+			foreach(var tx in _Shared.BroadcastedTransaction)
+			{
+				_HashToTransaction.TryAdd(tx.Key, new TransactionBroadcast()
+				{
+					State = BroadcastState.NotSent,
+					Transaction = tx.Value
+				});
+			}
 		}
 
 
@@ -98,46 +173,86 @@ namespace NBitcoin.Protocol.Behaviors
 			if(node.State == NodeState.HandShaked)
 			{
 				_Shared.Nodes.TryAdd(node, node);
-				Flush();
+				AnnounceAll();
 			}
 		}
 
-		private void Flush()
+		private void AnnounceAll()
 		{
-			foreach(var transaction in _Shared.BroadcastedTransaction)
+			foreach(var broadcasted in _HashToTransaction)
 			{
-				_Shared.OnBroadcastTransaction(transaction.Value);
+				if(broadcasted.Value.State == BroadcastState.NotSent ||
+				   (DateTime.UtcNow - broadcasted.Value.AnnouncedTime) < TimeSpan.FromMinutes(5.0))
+					Announce(broadcasted.Value, broadcasted.Key);
 			}
 		}
 
-		ConcurrentDictionary<uint256, Transaction> _Broadcasting = new ConcurrentDictionary<uint256, Transaction>();
 
-		async void BroadcastTransactionCore(Transaction transaction)
+		void BroadcastTransactionCore(Transaction transaction)
 		{
 			if(transaction == null)
 				throw new ArgumentNullException("transaction");
-			var node = AttachedNode;
-			if(node != null)
+			var tx = new TransactionBroadcast();
+			tx.Transaction = transaction;
+			tx.State = BroadcastState.NotSent;
+			var hash = transaction.GetHash();
+			if(_HashToTransaction.TryAdd(hash, tx))
 			{
-				var id = transaction.GetHash();
-				if(_Broadcasting.TryAdd(id, transaction))
-				{
-					await node.SendMessageAsync(new InvPayload(InventoryType.MSG_TX, id)).ConfigureAwait(false);
-				}
+				Announce(tx, hash);
 			}
 		}
+
+		private void Announce(TransactionBroadcast tx, uint256 hash)
+		{
+			var node = AttachedNode;
+			if(node != null && node.State == NodeState.HandShaked)
+			{
+				tx.State = BroadcastState.Announced;
+				tx.AnnouncedTime = DateTime.UtcNow;
+				var unused = node.SendMessageAsync(new InvPayload(InventoryType.MSG_TX, hash)).ConfigureAwait(false);
+			}
+		}
+
 
 		/// <summary>
-		/// Broadcast a transaction to connected peers. Do not save transaction broadcasting in case of shutdown.
-		/// Two nodes needs to share the behavior, else the Transaction is stored and sent until it is.
+		/// Broadcast a transaction, the same behavior as been shared with other nodes, they will also broadcast
 		/// </summary>
 		/// <param name="transaction">The transaction to broadcast</param>
-		public void BroadcastTransaction(Transaction transaction)
+		/// <returns>The cause of the rejection or null</returns>
+		public Task<RejectPayload> BroadcastTransactionAsync(Transaction transaction)
 		{
 			if(transaction == null)
 				throw new ArgumentNullException("transaction");
-			if(_Shared.BroadcastedTransaction.TryAdd(transaction.GetHash(), transaction))
+
+			TaskCompletionSource<RejectPayload> completion = new TaskCompletionSource<RejectPayload>();
+			var hash = transaction.GetHash();
+			if(_Shared.BroadcastedTransaction.TryAdd(hash, transaction))
+			{
+				TransactionBroadcastedDelegate broadcasted = null;
+				TransactionRejectedDelegate rejected = null;
+				broadcasted = (t) =>
+					{
+						if(t.GetHash() == hash)
+						{
+							completion.SetResult(null);
+							_Shared.TransactionRejected -= rejected;
+							_Shared.TransactionBroadcasted -= broadcasted;
+						}
+					};
+				_Shared.TransactionBroadcasted += broadcasted;
+				rejected = (t, r) =>
+				{
+					if(r.Hash == hash)
+					{
+						completion.SetResult(r);
+						_Shared.TransactionRejected -= rejected;
+						_Shared.TransactionBroadcasted -= broadcasted;
+					}
+				};
+				_Shared.TransactionRejected += rejected;
 				_Shared.OnBroadcastTransaction(transaction);
+			}
+			return completion.Task;
 		}
 
 		Timer _Flush;
@@ -145,45 +260,66 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
 			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
-
+			_Shared.TransactionBroadcasted += _Shared_TransactionBroadcasted;
+			_Shared.TransactionRejected += _Shared_TransactionRejected;
 			_Flush = new Timer(o =>
 			{
-				Flush();	
+				AnnounceAll();
 			}, null, 0, (int)TimeSpan.FromMinutes(10).TotalMilliseconds);
 		}
+
+		void _Shared_TransactionRejected(Transaction transaction, RejectPayload reject)
+		{
+			GetTransaction(reject.Hash, true);
+		}
+
+		void _Shared_TransactionBroadcasted(Transaction transaction)
+		{
+			GetTransaction(transaction.GetHash(), true);
+		}
+
 		protected override void DetachCore()
 		{
 			AttachedNode.StateChanged -= AttachedNode_StateChanged;
 			AttachedNode.MessageReceived -= AttachedNode_MessageReceived;
+			_Shared.TransactionBroadcasted -= _Shared_TransactionBroadcasted;
+			_Shared.TransactionRejected -= _Shared_TransactionRejected;
+			
 			Node unused;
 			_Shared.Nodes.TryRemove(AttachedNode, out unused);
 			_Flush.Dispose();
 		}
-
 
 		void AttachedNode_MessageReceived(Node node, IncomingMessage message)
 		{
 			InvPayload invPayload = message.Message.Payload as InvPayload;
 			if(invPayload != null)
 			{
-				Transaction tx;
+
 				foreach(var hash in invPayload.Where(i => i.Type == InventoryType.MSG_TX).Select(i => i.Hash))
 				{
-					_Broadcasting.TryRemove(hash, out tx);
-					if(_Shared.BroadcastedTransaction.TryRemove(hash, out tx))
+					var tx = GetTransaction(hash, true);
+					if(tx != null)
+						tx.State = BroadcastState.Accepted;
+					Transaction unused;
+					if(_Shared.BroadcastedTransaction.TryRemove(hash, out unused))
 					{
-						_Shared.OnTransactionBroadcasted(tx);
+						_Shared.OnTransactionBroadcasted(tx.Transaction);
 					}
 				}
 			}
 			RejectPayload reject = message.Message.Payload as RejectPayload;
 			if(reject != null && reject.Message == "tx")
 			{
-				Transaction tx;
-				if(_Shared.BroadcastedTransaction.TryRemove(reject.Hash, out tx))
+				var tx = GetTransaction(reject.Hash, true);
+				if(tx != null)
+					tx.State = BroadcastState.Rejected;
+				Transaction tx2;
+				if(_Shared.BroadcastedTransaction.TryRemove(reject.Hash, out tx2))
 				{
-					_Shared.OnTransactionRejected(tx, reject);
+					_Shared.OnTransactionRejected(tx2, reject);
 				}
+
 			}
 
 			GetDataPayload getData = message.Message.Payload as GetDataPayload;
@@ -191,9 +327,31 @@ namespace NBitcoin.Protocol.Behaviors
 			{
 				foreach(var inventory in getData.Inventory.Where(i => i.Type == InventoryType.MSG_TX))
 				{
-					Transaction tx;
-					if(_Broadcasting.TryRemove(inventory.Hash, out tx))
-						node.SendMessageAsync(new TxPayload(tx));
+					var tx = GetTransaction(inventory.Hash, false);
+					if(tx != null)
+					{
+						tx.State = BroadcastState.Broadcasted;
+						var ping = new PingPayload();
+						tx.PingValue = ping.Nonce;
+						_PingToTransaction.TryAdd(tx.PingValue, tx);
+						node.SendMessageAsync(new TxPayload(tx.Transaction));
+						node.SendMessageAsync(ping);
+					}
+				}
+			}
+
+			PongPayload pong = message.Message.Payload as PongPayload;
+			if(pong != null)
+			{
+				var tx = GetTransaction(pong.Nonce, true);
+				if(tx != null)
+				{
+					tx.State = BroadcastState.Accepted;
+					Transaction unused;
+					if(_Shared.BroadcastedTransaction.TryRemove(tx.Transaction.GetHash(), out unused))
+					{
+						_Shared.OnTransactionBroadcasted(tx.Transaction);
+					}
 				}
 			}
 		}
@@ -203,11 +361,11 @@ namespace NBitcoin.Protocol.Behaviors
 			return new BroadcastTransactionBehavior(this);
 		}
 
-		public int BroadcastingCount
+		public IEnumerable<TransactionBroadcast> Broadcasts
 		{
 			get
 			{
-				return _Shared.BroadcastedTransaction.Count;
+				return _HashToTransaction.Values;
 			}
 		}
 	}

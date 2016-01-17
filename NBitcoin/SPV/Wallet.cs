@@ -880,10 +880,11 @@ namespace NBitcoin.SPV
 		}
 
 		/// <summary>
-		/// Broadcast a transaction to connected peers. Do not save transaction broadcasting in case of shutdown.
+		/// Broadcast a transaction, the same behavior as been shared with other nodes, they will also broadcast
 		/// </summary>
-		/// <param name="transaction"></param>
-		public void BroadcastTransaction(Transaction transaction)
+		/// <param name="transaction">The transaction to broadcast</param>
+		/// <returns>The cause of the rejection or null</returns>
+		public async Task<RejectPayload> BroadcastTransactionAsync(Transaction transaction)
 		{
 			AssertGroupAffected();
 			var group = _Group;
@@ -891,24 +892,9 @@ namespace NBitcoin.SPV
 			{
 				var broadcast = _Group.NodeConnectionParameters.TemplateBehaviors.Find<BroadcastTransactionBehavior>();
 				if(broadcast != null)
-					broadcast.BroadcastTransaction(transaction);
-			}		
-		}
-
-		public int BroadcastingCount
-		{
-			get
-			{
-				AssertGroupAffected();
-				var group = _Group;
-				if(group != null)
-				{
-					var broadcast = _Group.NodeConnectionParameters.TemplateBehaviors.Find<BroadcastTransactionBehavior>();
-					if(broadcast != null)
-						return broadcast.BroadcastingCount;
-				}
-				return 0;
+					return await broadcast.BroadcastTransactionAsync(transaction).ConfigureAwait(false);
 			}
+			return null;
 		}
 
 		public event TransactionBroadcastedDelegate TransactionBroadcasted;

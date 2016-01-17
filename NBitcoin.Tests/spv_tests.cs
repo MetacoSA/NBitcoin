@@ -584,7 +584,7 @@ namespace NBitcoin.Tests
 				AutoResetEvent evt = new AutoResetEvent(false);
 				bool passed = false;
 				bool rejected = false;
-				wallet.BroadcastTransaction(tx);
+				var broadcasting = wallet.BroadcastTransactionAsync(tx);
 				wallet.TransactionBroadcasted += (t) =>
 				{
 					evt.Set();
@@ -595,17 +595,62 @@ namespace NBitcoin.Tests
 					evt.Set();
 					rejected = true;
 				};
-				Assert.Equal(1, wallet.BroadcastingCount);
+				BroadcastTransactionBehavior behavior = null;
+				while(behavior == null)
+				{
+					behavior = connected.ConnectedNodes.Select(n => n.Behaviors.Find<BroadcastTransactionBehavior>()).FirstOrDefault();
+					Thread.Sleep(1);
+				}
+				Assert.Equal(1, behavior.Broadcasts.Count());
 				Assert.True(evt.WaitOne(20000));
 				Assert.True(passed);
 				evt.Reset();
-				Assert.Equal(0, wallet.BroadcastingCount);
-				wallet.BroadcastTransaction(tx);
+				Assert.Equal(0, behavior.Broadcasts.Count());
+				Assert.Null(broadcasting.Result);
+
+				broadcasting = wallet.BroadcastTransactionAsync(tx);
+				Assert.Equal(1, behavior.Broadcasts.Count());
 				Assert.True(evt.WaitOne(20000));
 				Assert.True(rejected);
-				Assert.Equal(0, wallet.BroadcastingCount);
+				Assert.Equal(0, behavior.Broadcasts.Count());
+				Assert.NotNull(broadcasting.Result);
 			}
 		}
+
+		//[Fact]
+		//public void Play()
+		//{
+		//	var key = new BitcoinSecret("L43ZZbKi25Ad1FWRkA96Kzdt2AD8BjkNXeEURBy9T7UBsBZwMXF4");
+		//	//var dest = BitcoinAddress.Create("38CqDGzotfeaPUmRdmULV3XyJuetMNzuEZ");
+		//	var dest = new Key().GetBitcoinSecret(Network.Main).GetAddress().ScriptPubKey;
+
+		//	var amount = Money.Coins(0.01122491m);
+		//	var fee = Money.Coins(0.0001m);
+		//	TransactionBuilder builder = new TransactionBuilder();
+		//	var c = new Coin(OutPoint.Parse("c7781b132fbb46cad6e9f2d2b8f5470d6455450a539808d49b82568ccc89adc7-1"), new TxOut()
+		//	{
+		//		ScriptPubKey = key.GetAddress().ScriptPubKey,
+		//		Value = amount
+		//	});
+		//	builder.AddCoins(c);
+		//	builder.Send(dest, amount - fee);
+		//	builder.SendFees(fee);
+		//	builder.AddKeys(key);
+
+		//	var tx = builder.BuildTransaction(true);
+		//	Assert.True(builder.Verify(tx));
+		//	var node = Node.Connect(Network.Main, "72.223.114.239", new NodeConnectionParameters()
+		//	{
+		//		TemplateBehaviors =
+		//		{
+		//			new BroadcastTransactionBehavior()
+		//		}
+		//	});
+		//	var broadcast = node.Behaviors.Find<BroadcastTransactionBehavior>();
+		//	node.VersionHandshake();
+		//	var reject = broadcast.BroadcastTransactionAsync(tx).Result;
+		//	Thread.Sleep(10000);
+		//}
 
 
 		[Fact]
