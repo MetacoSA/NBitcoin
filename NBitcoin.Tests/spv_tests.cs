@@ -595,17 +595,20 @@ namespace NBitcoin.Tests
 					evt.Set();
 					rejected = true;
 				};
-				BroadcastTransactionBehavior behavior = null;
+				BroadcastHub hub = BroadcastHub.GetBroadcastHub(connected.NodeConnectionParameters);
+				BroadcastHubBehavior behavior = null;
 				while(behavior == null)
 				{
-					behavior = connected.ConnectedNodes.Select(n => n.Behaviors.Find<BroadcastTransactionBehavior>()).FirstOrDefault();
+					behavior = connected.ConnectedNodes.Select(n => n.Behaviors.Find<BroadcastHubBehavior>()).FirstOrDefault();
 					Thread.Sleep(1);
 				}
 				Assert.Equal(1, behavior.Broadcasts.Count());
+				Assert.Equal(1, hub.BroadcastingTransactions.Count());
 				Assert.True(evt.WaitOne(20000));
 				Assert.True(passed);
 				evt.Reset();
 				Assert.Equal(0, behavior.Broadcasts.Count());
+				Assert.Equal(0, hub.BroadcastingTransactions.Count());
 				Assert.Null(broadcasting.Result);
 
 				broadcasting = wallet.BroadcastTransactionAsync(tx);
@@ -613,6 +616,7 @@ namespace NBitcoin.Tests
 				Assert.True(evt.WaitOne(20000));
 				Assert.True(rejected);
 				Assert.Equal(0, behavior.Broadcasts.Count());
+				Assert.Equal(0, hub.BroadcastingTransactions.Count());
 				Assert.NotNull(broadcasting.Result);
 			}
 		}

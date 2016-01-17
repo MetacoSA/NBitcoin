@@ -141,7 +141,7 @@ namespace NBitcoin.SPV
 				}
 			}
 			TrackerBehavior _Tracker;
-			BroadcastTransactionBehavior _Broadcast;
+			BroadcastHub _Broadcast;
 			public WalletBehavior(Wallet wallet)
 			{
 				_Wallet = wallet;
@@ -154,7 +154,7 @@ namespace NBitcoin.SPV
 					AttachedNode.Disconnected += AttachedNode_Disconnected;
 					AttachedNode.StateChanged += AttachedNode_StateChanged;
 				}
-				_Broadcast = AttachedNode.Behaviors.Find<BroadcastTransactionBehavior>();
+				_Broadcast = BroadcastHub.GetBroadcastHub(AttachedNode);
 				if(_Broadcast != null)
 				{
 					_Broadcast.TransactionBroadcasted += _Broadcast_TransactionBroadcasted;
@@ -628,10 +628,10 @@ namespace NBitcoin.SPV
 				wallet = new WalletBehavior(this);
 				parameters.TemplateBehaviors.Add(wallet);
 			}
-			var broadcast = parameters.TemplateBehaviors.Find<BroadcastTransactionBehavior>();
+			var broadcast = parameters.TemplateBehaviors.Find<BroadcastHubBehavior>();
 			if(broadcast == null)
 			{
-				broadcast = new BroadcastTransactionBehavior();
+				broadcast = new BroadcastHubBehavior();
 				parameters.TemplateBehaviors.Add(broadcast);
 			}
 
@@ -880,21 +880,17 @@ namespace NBitcoin.SPV
 		}
 
 		/// <summary>
-		/// Broadcast a transaction, the same behavior as been shared with other nodes, they will also broadcast
+		/// Broadcast a transaction, if the same template behavior as been used for other nodes, they will also broadcast
 		/// </summary>
 		/// <param name="transaction">The transaction to broadcast</param>
 		/// <returns>The cause of the rejection or null</returns>
-		public async Task<RejectPayload> BroadcastTransactionAsync(Transaction transaction)
+		public Task<RejectPayload> BroadcastTransactionAsync(Transaction transaction)
 		{
 			AssertGroupAffected();
-			var group = _Group;
-			if(group != null)
-			{
-				var broadcast = _Group.NodeConnectionParameters.TemplateBehaviors.Find<BroadcastTransactionBehavior>();
-				if(broadcast != null)
-					return await broadcast.BroadcastTransactionAsync(transaction).ConfigureAwait(false);
-			}
-			return null;
+			var hub = BroadcastHub.GetBroadcastHub(_Group.NodeConnectionParameters);
+			if(hub == null)
+				throw new InvalidOperationException("No broadcast hub detected in the group");
+			return hub.BroadcastTransactionAsync(transaction);
 		}
 
 		public event TransactionBroadcastedDelegate TransactionBroadcasted;
