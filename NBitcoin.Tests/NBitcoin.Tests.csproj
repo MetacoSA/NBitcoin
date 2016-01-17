@@ -79,8 +79,6 @@
     <Compile Include="BitcoinQProcess.cs" />
     <Compile Include="bloom_tests.cs" />
     <Compile Include="Crypto\InternalTests.cs" />
-    <Compile Include="micropayment_tests.cs" />
-    <Compile Include="MnemonicReference_tests.cs" />
     <Compile Include="ChainTests.cs" />
     <Compile Include="checkblock_tests.cs" />
     <Compile Include="ColoredCoinsTests.cs" />
