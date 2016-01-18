@@ -746,6 +746,24 @@ namespace NBitcoin
 			return scriptSig.Length == 0;
 		}
 
+		public TxDestination ExtractScriptPubKeyParameters(Script scriptPubKey)
+		{
+			if(!FastCheckScriptPubKey(scriptPubKey))
+				return null;
+			var ops = scriptPubKey.ToOps().ToArray();
+			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
+				return null;
+
+			if(ops[0].Code == OpcodeType.OP_0)
+			{
+				if(ops[1].PushData.Length == 20)
+					return new WitKeyId(ops[1].PushData);
+				if(ops[1].PushData.Length == 32)
+					return new WitScriptId(ops[1].PushData);
+			}
+			return null;
+		}
+
 		public override TxOutType Type
 		{
 			get

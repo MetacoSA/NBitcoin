@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class TxDestination : IDestination
+	public abstract class TxDestination : IDestination
 	{
 		internal byte[] _DestBytes;
 
@@ -23,11 +23,7 @@ namespace NBitcoin
 			if(value == null)
 				throw new ArgumentNullException("value");
 			_DestBytes = value;
-		}
-		public TxDestination(uint160 value)
-			: this(value.ToBytes())
-		{
-		}
+		}		
 
 		public TxDestination(string value)
 		{
@@ -35,19 +31,13 @@ namespace NBitcoin
 			_Str = value;
 		}
 
-		public BitcoinAddress GetAddress(Network network)
-		{
-			return BitcoinAddress.Create(this, network);
-		}
+		public abstract BitcoinAddress GetAddress(Network network);
 
 		#region IDestination Members
 
-		public virtual Script ScriptPubKey
+		public abstract Script ScriptPubKey
 		{
-			get
-			{
-				return null;
-			}
+			get;
 		}
 
 		#endregion
@@ -103,7 +93,7 @@ namespace NBitcoin
 	public class KeyId : TxDestination
 	{
 		public KeyId()
-			: base(0)
+			: this(0)
 		{
 
 		}
@@ -111,10 +101,11 @@ namespace NBitcoin
 		public KeyId(byte[] value)
 			: base(value)
 		{
-
+			if(value.Length != 20)
+				throw new ArgumentException("value should be 20 bytes", "value");
 		}
 		public KeyId(uint160 value)
-			: base(value)
+			: base(value.ToBytes())
 		{
 
 		}
@@ -131,32 +122,85 @@ namespace NBitcoin
 				return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(this);
 			}
 		}
+
+		public override BitcoinAddress GetAddress(Network network)
+		{
+			return new BitcoinPubKeyAddress(this, network);
+		}
 	}
-	public class SegwitKeyId : KeyId
+	public class WitKeyId : TxDestination
 	{
-		public SegwitKeyId()
-			: base(0)
+		public WitKeyId()
+			: this(0)
 		{
 
 		}
-		public SegwitKeyId(KeyId id)
-			: base(id._DestBytes)
-		{
 
-		}
-		public SegwitKeyId(byte[] value)
+		public WitKeyId(byte[] value)
 			: base(value)
 		{
-
+			if(value.Length != 20)
+				throw new ArgumentException("value should be 20 bytes", "value");
 		}
-		public SegwitKeyId(uint160 value)
-			: base(value)
+		public WitKeyId(uint160 value)
+			: base(value.ToBytes())
 		{
 
 		}
 
-		public SegwitKeyId(string value)
+		public WitKeyId(string value)
 			: base(value)
+		{
+		}
+
+		public WitKeyId(KeyId keyId)
+			:base(keyId.ToBytes())
+		{
+
+		}
+
+
+		public override Script ScriptPubKey
+		{
+			get
+			{
+				return PayToSegwitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, _DestBytes);
+			}
+		}
+
+		public override BitcoinAddress GetAddress(Network network)
+		{
+			return new BitcoinSegwitPubKeyAddress(this, network);
+		}
+	}
+
+	public class WitScriptId : TxDestination
+	{
+		public WitScriptId()
+			: this(0)
+		{
+
+		}
+
+		public WitScriptId(byte[] value)
+			: base(value)
+		{
+			if(value.Length != 32)
+				throw new ArgumentException("value should be 32 bytes", "value");
+		}
+		public WitScriptId(uint256 value)
+			: base(value.ToBytes())
+		{
+
+		}
+
+		public WitScriptId(string value)
+			: base(value)
+		{
+		}
+
+		public WitScriptId(Script script)
+			: this(Hashes.Hash256(script._Script))
 		{
 		}
 
@@ -167,12 +211,17 @@ namespace NBitcoin
 				return PayToSegwitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, _DestBytes);
 			}
 		}
+
+		public override BitcoinAddress GetAddress(Network network)
+		{
+			return new BitcoinSegwitScriptAddress(this, network);
+		}
 	}
+
 	public class ScriptId : TxDestination
 	{
-
 		public ScriptId()
-			: base(0)
+			: this(0)
 		{
 
 		}
@@ -180,10 +229,11 @@ namespace NBitcoin
 		public ScriptId(byte[] value)
 			: base(value)
 		{
-
+			if(value.Length != 20)
+				throw new ArgumentException("value should be 20 bytes", "value");
 		}
 		public ScriptId(uint160 value)
-			: base(value)
+			: base(value.ToBytes())
 		{
 
 		}
@@ -204,6 +254,11 @@ namespace NBitcoin
 			{
 				return PayToScriptHashTemplate.Instance.GenerateScriptPubKey(this);
 			}
+		}
+
+		public override BitcoinAddress GetAddress(Network network)
+		{
+			return new BitcoinScriptAddress(this, network);
 		}
 	}
 }

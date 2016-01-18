@@ -121,7 +121,7 @@ namespace NBitcoin.RPC
 					WritePropertyValue(writer, "type", GetScriptType(txout.ScriptPubKey.FindTemplate()));
 					writer.WritePropertyName("addresses");
 					writer.WriteStartArray();
-					writer.WriteValue(BitcoinAddress.Create(destinations[0], Network).ToString());
+					writer.WriteValue(destinations[0].GetAddress(Network).ToString());
 					writer.WriteEndArray();
 				}
 				else
@@ -132,7 +132,7 @@ namespace NBitcoin.RPC
 					writer.WriteStartArray();
 					foreach(var key in multi.PubKeys)
 					{
-						writer.WriteValue(BitcoinAddress.Create(key.Hash, Network).ToString());
+						writer.WriteValue(key.Hash.GetAddress(Network).ToString());
 					}
 					writer.WriteEndArray();
 				}

@@ -149,7 +149,7 @@ namespace NBitcoin
 
 		public BitcoinSegwitPubKeyAddress GetSegwitAddress(Network network)
 		{
-			return new BitcoinSegwitPubKeyAddress(new SegwitKeyId(this.Hash), network);
+			return new BitcoinSegwitPubKeyAddress(new WitKeyId(this.Hash), network);
 		}
 
 

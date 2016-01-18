@@ -604,13 +604,20 @@ namespace NBitcoin
 			return n;
 		}
 
-		ScriptId _ID;
-
+		ScriptId _Hash;
 		public ScriptId Hash
 		{
 			get
 			{
-				return _ID ?? (_ID = new ScriptId(this));
+				return _Hash ?? (_Hash = new ScriptId(this));
+			}
+		}
+		WitScriptId _WitHash;
+		public WitScriptId WitHash
+		{
+			get
+			{
+				return _WitHash ?? (_WitHash = new WitScriptId(this));
 			}
 		}
 
@@ -651,7 +658,7 @@ namespace NBitcoin
 		public BitcoinAddress GetSignerAddress(Network network)
 		{
 			var sig = GetSigner();
-			return sig == null ? null : BitcoinAddress.Create(sig, network);
+			return sig == null ? null : sig.GetAddress(network);
 		}
 
 		/// <summary>
@@ -670,18 +677,18 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Extract P2SH or P2PH address from scriptPubKey
+		/// Extract P2SH/P2PH/P2WSH/P2WPKH address from scriptPubKey
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
 		public BitcoinAddress GetDestinationAddress(Network network)
 		{
 			var dest = GetDestination();
-			return dest == null ? null : BitcoinAddress.Create(dest, network);
+			return dest == null ? null : dest.GetAddress(network);
 		}
 
 		/// <summary>
-		/// Extract P2SH or P2PH id from scriptPubKey
+		/// Extract P2SH/P2PH/P2WSH/P2WPKH id from scriptPubKey
 		/// </summary>
 		/// <param name="network"></param>
 		/// <returns></returns>
@@ -691,7 +698,10 @@ namespace NBitcoin
 			if(pubKeyHashParams != null)
 				return pubKeyHashParams;
 			var scriptHashParams = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(this);
-			return scriptHashParams;
+			if(scriptHashParams != null)
+				return scriptHashParams;
+			var wit = PayToSegwitTemplate.Instance.ExtractScriptPubKeyParameters(this);
+			return wit;
 		}
 
 		/// <summary>

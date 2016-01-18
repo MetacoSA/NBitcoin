@@ -64,6 +64,7 @@ namespace NBitcoin
 		ASSET_ID,
 		COLORED_ADDRESS,
 		WITNESS_P2WPKH,
+		WITNESS_P2WSH,
 		MAX_BASE58_TYPES,
 	};
 
@@ -343,6 +344,7 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x05), (0x35), (0x83), (0x94) };
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
 			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x06) };
+			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (40) };
 
 			vFixedSeeds.Clear();
 		}
@@ -434,6 +436,7 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 23 };
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
 			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { 0x4 };
+			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (10) };
 
 			// Convert the pnSeeds array into usable address objects.
 			Random rand = new Random();
@@ -816,8 +819,8 @@ namespace NBitcoin
 				throw new ArgumentNullException("dest");
 			if(dest is ScriptId)
 				return CreateBitcoinScriptAddress((ScriptId)dest);
-			if(dest is SegwitKeyId)
-				return new BitcoinSegwitPubKeyAddress((SegwitKeyId)dest, this);
+			if(dest is WitKeyId)
+				return new BitcoinSegwitPubKeyAddress((WitKeyId)dest, this);
 			if(dest is KeyId)
 				return new BitcoinPubKeyAddress((KeyId)dest, this);
 			throw new ArgumentException("Invalid dest type", "dest");

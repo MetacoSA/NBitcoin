@@ -52,19 +52,19 @@ namespace NBitcoin
 				case OpcodeType.OP_9:
 					return "9";
 				case OpcodeType.OP_10:
-					return "10";
+					return "OP_10";
 				case OpcodeType.OP_11:
-					return "11";
+					return "OP_11";
 				case OpcodeType.OP_12:
-					return "12";
+					return "OP_12";
 				case OpcodeType.OP_13:
-					return "13";
+					return "OP_13";
 				case OpcodeType.OP_14:
-					return "14";
+					return "OP_14";
 				case OpcodeType.OP_15:
-					return "15";
+					return "OP_15";
 				case OpcodeType.OP_16:
-					return "16";
+					return "OP_16";
 
 				// control
 				case OpcodeType.OP_NOP:
@@ -293,14 +293,7 @@ namespace NBitcoin
 				OpcodeType.OP_6, 
 				OpcodeType.OP_7,
 				OpcodeType.OP_8, 
-				OpcodeType.OP_9,
-				OpcodeType.OP_10, 
-				OpcodeType.OP_11,
-				OpcodeType.OP_12, 
-				OpcodeType.OP_13,
-				OpcodeType.OP_14, 
-				OpcodeType.OP_15,
-				OpcodeType.OP_16,
+				OpcodeType.OP_9				
 			})
 			{
 				_OpcodeByName.Add(Enum.GetName(typeof(OpcodeType), op), op);

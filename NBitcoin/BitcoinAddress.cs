@@ -109,21 +109,7 @@ namespace NBitcoin
 				return bitcoinScriptAddress;
 
 			return new BitcoinScriptAddress(this.ScriptPubKey.Hash, Network);
-		}
-
-		public static BitcoinAddress Create(TxDestination id, Network network)
-		{
-			if(id == null)
-				throw new ArgumentNullException("id");
-			if(network == null)
-				throw new ArgumentNullException("network");
-			if(id is KeyId)
-				return new BitcoinPubKeyAddress((KeyId)id, network);
-			if(id is ScriptId)
-				return new BitcoinScriptAddress((ScriptId)id, network);
-			
-			throw new NotSupportedException();
-		}
+		}		
 
 		public BitcoinColoredAddress ToColoredAddress()
 		{

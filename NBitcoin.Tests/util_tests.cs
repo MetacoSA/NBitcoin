@@ -455,9 +455,15 @@ namespace NBitcoin.Tests
 					},
 					new
 					{
-						Base58 = "YMeG5MzsnmVKk86fzdjzhfJ5FXmexT8gvwi5",
-						ExpectedType = typeof(BitcoinSegwitPubKeyAddress),
+						Base58 = "17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem",
+						ExpectedType = typeof(BitcoinPubKeyAddress),
 						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "T7nYdHtL34xLZ2S5KwqgySNNzGxovhszhtDM3wQRUEfUbUVvRZzTW",
+						ExpectedType = typeof(BitcoinSegwitScriptAddress),
+						Network = Network.SegNet
 					},
 					new
 					{
