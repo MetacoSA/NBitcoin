@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class BitcoinSegwitPubKeyAddress : BitcoinAddress
+	public class BitcoinWitPubKeyAddress : BitcoinAddress
 	{
 
-		public BitcoinSegwitPubKeyAddress(string base58, Network expectedNetwork = null)
+		public BitcoinWitPubKeyAddress(string base58, Network expectedNetwork = null)
 			: base(base58, expectedNetwork)
 		{
 		}
 
-		public BitcoinSegwitPubKeyAddress(WitKeyId segwitKeyId, Network network)
+		public BitcoinWitPubKeyAddress(WitKeyId segwitKeyId, Network network)
 			: base(new[] { (byte)OpcodeType.OP_0, (byte)0x00 }.Concat(segwitKeyId.ToBytes(true)).ToArray(), network)
 		{
 		}
@@ -50,14 +50,14 @@ namespace NBitcoin
 		}
 	}
 
-	public class BitcoinSegwitScriptAddress : BitcoinAddress
+	public class BitcoinWitScriptAddress : BitcoinAddress
 	{
-				public BitcoinSegwitScriptAddress(string base58, Network expectedNetwork = null)
+				public BitcoinWitScriptAddress(string base58, Network expectedNetwork = null)
 			: base(base58, expectedNetwork)
 		{
 		}
 
-				public BitcoinSegwitScriptAddress(WitScriptId segwitKeyId, Network network)
+				public BitcoinWitScriptAddress(WitScriptId segwitKeyId, Network network)
 			: base(new[] { (byte)OpcodeType.OP_0, (byte)0x00 }.Concat(segwitKeyId.ToBytes(true)).ToArray(), network)
 		{
 		}

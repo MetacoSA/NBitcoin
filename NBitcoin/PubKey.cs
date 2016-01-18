@@ -147,9 +147,9 @@ namespace NBitcoin
 			return new BitcoinScriptAddress(redeem.Hash, network);
 		}
 
-		public BitcoinSegwitPubKeyAddress GetSegwitAddress(Network network)
+		public BitcoinWitPubKeyAddress GetSegwitAddress(Network network)
 		{
-			return new BitcoinSegwitPubKeyAddress(new WitKeyId(this.Hash), network);
+			return new BitcoinWitPubKeyAddress(new WitKeyId(this.Hash), network);
 		}
 
 

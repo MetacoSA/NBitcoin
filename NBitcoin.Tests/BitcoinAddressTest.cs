@@ -19,21 +19,5 @@ namespace NBitcoin.Tests
             key = null;
             Assert.Throws<ArgumentNullException>(() => BitcoinAddress.Create(key, Network.Main));
         }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void ShouldThrowIdArgumentException()
-        {
-            TxDestination tx = null;
-            Assert.Throws<ArgumentNullException>(() => BitcoinAddress.Create(tx, Network.Main));
-        }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void ShouldThrowNetworkArgumentException()
-        {
-            TxDestination tx = new TxDestination();
-            Assert.Throws<ArgumentNullException>(() => BitcoinAddress.Create(tx, null));
-        }
     }
 }

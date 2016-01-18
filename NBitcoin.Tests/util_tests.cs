@@ -422,7 +422,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanUseSegwitAddress()
 		{
-			var address = (BitcoinSegwitPubKeyAddress)BitcoinAddress.Create("p2xuirpcDHjyETjKozsw1S19Hs23q6wJxvvX");
+			var address = (BitcoinWitPubKeyAddress)BitcoinAddress.Create("p2xuirpcDHjyETjKozsw1S19Hs23q6wJxvvX");
 			Assert.Equal("00140db804a04a249f53c53e1b3619a1411b4c41e2e2", address.ScriptPubKey.ToHex());
 			Assert.Equal("00140db804a04a249f53c53e1b3619a1411b4c41e2e2", address.Hash.ScriptPubKey.ToHex());
 			Assert.Equal("MUGbdic7BDYtn2K7TVyk47aArXKGk9XC1j", address.GetScriptAddress().ToString());
@@ -462,13 +462,13 @@ namespace NBitcoin.Tests
 					new
 					{
 						Base58 = "T7nYdHtL34xLZ2S5KwqgySNNzGxovhszhtDM3wQRUEfUbUVvRZzTW",
-						ExpectedType = typeof(BitcoinSegwitScriptAddress),
+						ExpectedType = typeof(BitcoinWitScriptAddress),
 						Network = Network.SegNet
 					},
 					new
 					{
 						Base58 = "p2y9AsuyBkVj4fpF6capRJKhVCPno6QFRfrx",
-						ExpectedType = typeof(BitcoinSegwitPubKeyAddress),
+						ExpectedType = typeof(BitcoinWitPubKeyAddress),
 						Network = Network.SegNet
 					},
 					new

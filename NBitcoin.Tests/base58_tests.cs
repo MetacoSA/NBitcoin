@@ -127,6 +127,7 @@ namespace NBitcoin.Tests
 		public void base58_keys_valid_gen()
 		{
 			var tests = TestCase.read_json("data/base58_keys_valid.json");
+			tests = tests.Concat(TestCase.read_json("data/base58_keys_valid2.json")).ToArray();
 			Network network = null;
 
 			foreach(var test in tests)
@@ -166,9 +167,19 @@ namespace NBitcoin.Tests
 					{
 						dest = new ScriptId(new uint160(exp_payload));
 					}
+					else if(exp_addrType == "p2wpkh")
+					{
+						network = network == Network.TestNet ? Network.SegNet : network;
+						dest = new WitKeyId(new uint160(exp_payload));
+					}
+					else if(exp_addrType == "p2wsh")
+					{
+						network = network == Network.TestNet ? Network.SegNet : network;
+						dest = new WitScriptId(exp_payload);
+					}
 					else if(exp_addrType == "none")
 					{
-						dest = new TxDestination(0);
+						continue;
 					}
 					else
 					{
@@ -177,8 +188,10 @@ namespace NBitcoin.Tests
 					}
 					try
 					{
-						BitcoinAddress addrOut = network.CreateBitcoinAddress(dest);
+						BitcoinAddress addrOut = dest.GetAddress(network);
 						Assert.True(addrOut.ToString() == exp_base58string, "mismatch: " + strTest);
+						Assert.True(addrOut.ScriptPubKey == dest.ScriptPubKey);
+						Assert.True(dest.ScriptPubKey.GetDestination() == dest);
 					}
 					catch(ArgumentException)
 					{
@@ -186,10 +199,6 @@ namespace NBitcoin.Tests
 					}
 				}
 			}
-
-			// Visiting a CNoDestination must fail
-			TxDestination nodest = new TxDestination();
-			Assert.Throws<ArgumentException>(() => network.CreateBitcoinAddress(nodest));
 		}
 
 		public static IEnumerable<object[]> InvalidKeys

@@ -170,7 +170,7 @@ namespace NBitcoin
 
 		public override BitcoinAddress GetAddress(Network network)
 		{
-			return new BitcoinSegwitPubKeyAddress(this, network);
+			return new BitcoinWitPubKeyAddress(this, network);
 		}
 	}
 
@@ -214,7 +214,7 @@ namespace NBitcoin
 
 		public override BitcoinAddress GetAddress(Network network)
 		{
-			return new BitcoinSegwitScriptAddress(this, network);
+			return new BitcoinWitScriptAddress(this, network);
 		}
 	}
 
