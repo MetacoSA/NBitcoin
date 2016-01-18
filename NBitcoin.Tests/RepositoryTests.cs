@@ -283,9 +283,85 @@ namespace NBitcoin.Tests
 			Assert.NotNull(result);
 		}
 
+		class ConflictPart
+		{
+			public Network Network;
+			public Base58Type Type;
+			public byte[] Value;
+			public override string ToString()
+			{
+				StringBuilder builder = new StringBuilder();
+				builder.Append(Network + " ");
+				builder.Append(Enum.GetName(typeof(Base58Type), Type) + " ");
+				builder.Append(String.Join(",", Value));
+				return builder.ToString();
+			}
+		}
+		class Conflict
+		{
+			public Conflict()
+			{
+				A = new ConflictPart();
+				B = new ConflictPart();
+			}
+			public ConflictPart A;
+			public ConflictPart B;
+			public override string ToString()
+			{
+				return A + " <=> " + B;
+			}
+		}
 		[Fact]
 		public static void Play()
 		{
+			var networks = Network.GetNetworks().ToArray();		
+			List<Conflict> conflicts = new List<Conflict>();
+			for(int n = 0 ; n < networks.Length ; n++)
+			{
+				for(int n2 = n+1; n2 < networks.Length ; n2++)
+				{
+					var a = networks[n];
+					var b = networks[n2];
+					if(a == Network.RegTest || b == Network.RegTest)
+						continue;
+					if(a == b)
+						throw new Exception();
+					for(int i = 0 ; i < a.base58Prefixes.Length ; i++)
+					{
+						for(int y = i + 1 ; y < a.base58Prefixes.Length ; y++)
+						{
+							if(a.base58Prefixes[i] != null && b.base58Prefixes[y] != null)
+							{
+								var ae = Encoders.Hex.EncodeData(a.base58Prefixes[i]);
+								var be = Encoders.Hex.EncodeData(b.base58Prefixes[y]);
+								if(ae == be)
+									continue;
+								if(ae.StartsWith(be) || be.StartsWith(ae))
+								{
+									ConflictPart ca = new ConflictPart();
+									ca.Network = a;
+									ca.Type = (Base58Type)i;
+									ca.Value = a.base58Prefixes[i];
+
+									ConflictPart cb = new ConflictPart();
+									cb.Network = b;
+									cb.Type = (Base58Type)y;
+									cb.Value = b.base58Prefixes[y];
+
+									Conflict cc = new Conflict();
+									cc.A = ca;
+									cc.B = cb;
+									conflicts.Add(cc);
+								}
+							}
+						}
+					}
+				}
+			}
+
+			var rr = String.Join("\r\n", conflicts.OfType<object>().ToArray());
+			Console.WriteLine();
+
 			//ConcurrentChain chain = new ConcurrentChain(Network.Main);
 			//ChainBehavior chainBehavior = new ChainBehavior(chain);
 			//NodeConnectionParameters para = new NodeConnectionParameters();
@@ -298,7 +374,7 @@ namespace NBitcoin.Tests
 			//	Thread.Sleep(1000);
 			//}
 
-			
+
 
 			//Parallel.ForEach(Enumerable.Range(0, 10), _ =>
 			//{
