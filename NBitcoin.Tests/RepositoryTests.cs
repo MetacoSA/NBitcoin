@@ -314,6 +314,16 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
+			foreach(var n in new[]{Network.Main, Network.SegNet})
+			{
+				for(int i = 0; i < 2;i++)
+				{
+					BitcoinAddress addr = i == 0 ? (BitcoinAddress)new Key().PubKey.GetSegwitAddress(n) : new Key().ScriptPubKey.GetWitScriptAddress(n);
+					var c = addr.ScriptPubKey.ToString();
+				}
+			}
+
+
 			var networks = Network.GetNetworks().ToArray();		
 			List<Conflict> conflicts = new List<Conflict>();
 			for(int n = 0 ; n < networks.Length ; n++)

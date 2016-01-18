@@ -623,7 +623,11 @@ namespace NBitcoin
 
 		public BitcoinScriptAddress GetScriptAddress(Network network)
 		{
-			return new BitcoinScriptAddress(Hash, network);
+			return (BitcoinScriptAddress)Hash.GetAddress(network);
+		}
+		public BitcoinWitScriptAddress GetWitScriptAddress(Network network)
+		{
+			return (BitcoinWitScriptAddress)WitHash.GetAddress(network);
 		}
 
 		public bool IsPayToScriptHash

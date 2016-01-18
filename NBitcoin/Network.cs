@@ -326,7 +326,7 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2a };
 			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 23 };
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
-			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { 0x4 };
+			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { 0x6 };
 			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (10) };
 
 			// Convert the pnSeeds array into usable address objects.
@@ -428,7 +428,7 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x05), (0x35), (0x87), (0xCF) };
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x05), (0x35), (0x83), (0x94) };
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
-			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x06) };
+			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x03) };
 			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (40) };
 
 			vFixedSeeds.Clear();
