@@ -47,7 +47,7 @@ namespace NBitcoin
 		{
 			if(_Network == null)
 			{
-				_Network = Network.GetNetworkFromBase58Data(psz);
+				_Network = Network.GetNetworkFromBase58Data(psz, Type);
 				if(_Network == null)
 					throw new FormatException("Invalid " + this.GetType().Name);
 			}

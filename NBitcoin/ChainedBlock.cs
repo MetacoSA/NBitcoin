@@ -187,7 +187,7 @@ namespace NBitcoin
 			// Genesis block
 			if(Height == 0)
 				return network.Consensus.PowLimit;
-			var nProofOfWorkLimit = new Target(network.Consensus.PowLimit);
+			var nProofOfWorkLimit = network.Consensus.PowLimit;
 			var pindexLast = this.Previous;
 			var height = Height;
 			
