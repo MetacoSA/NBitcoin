@@ -1156,8 +1156,8 @@ namespace NBitcoin
 			}
 		}
 
-		//Since it is impossible to serialize a transaction with 0 input without problems during deserialization with wit activated (we fit a flag in the version to workaround it)
-		const uint NoInputTx = (1 << 27);
+		//Since it is impossible to serialize a transaction with 0 input without problems during deserialization with wit activated, we fit a flag in the version to workaround it
+		const uint NoDummyInput = (1 << 27);
 
 		#region IBitcoinSerializable Members
 
@@ -1172,11 +1172,11 @@ namespace NBitcoin
 				/* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
 				stream.ReadWrite<TxInList, TxIn>(ref vin);
 
-				var hasNoInput = (nVersion & NoInputTx) != 0 && vin.Count == 0;
-				if(hasNoInput)
-					nVersion = nVersion & ~NoInputTx;
+				var hasNoDummy = (nVersion & NoDummyInput) != 0 && vin.Count == 0;
+				if(hasNoDummy)
+					nVersion = nVersion & ~NoDummyInput;
 
-				if(vin.Count == 0 && witSupported && !hasNoInput)
+				if(vin.Count == 0 && witSupported && !hasNoDummy)
 				{					
 					/* We read a dummy or an empty vin. */
 					stream.ReadWrite(ref flags);
@@ -1213,7 +1213,7 @@ namespace NBitcoin
 			}
 			else
 			{
-				var version = vin.Count == 0 && vout.Count > 0 ? nVersion | NoInputTx : nVersion;
+				var version = vin.Count == 0 && vout.Count > 0 ? nVersion | NoDummyInput : nVersion;
 				stream.ReadWrite(ref version);
 
 				if(witSupported)
