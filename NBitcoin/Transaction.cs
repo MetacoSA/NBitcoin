@@ -1163,19 +1163,21 @@ namespace NBitcoin
 
 		public virtual void ReadWrite(BitcoinStream stream)
 		{
-			var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0);			
+			var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0);
 
 			byte flags = 0;
 			if(!stream.Serializing)
 			{
 				stream.ReadWrite(ref nVersion);
-				var wasInvalid = (nVersion & NoInputTx) != 0;
-				if(wasInvalid)
-					nVersion = nVersion & ~NoInputTx;
 				/* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
 				stream.ReadWrite<TxInList, TxIn>(ref vin);
-				if(vin.Count == 0 && witSupported && !wasInvalid)
-				{
+
+				var hasNoInput = (nVersion & NoInputTx) != 0 && vin.Count == 0;
+				if(hasNoInput)
+					nVersion = nVersion & ~NoInputTx;
+
+				if(vin.Count == 0 && witSupported && !hasNoInput)
+				{					
 					/* We read a dummy or an empty vin. */
 					stream.ReadWrite(ref flags);
 					if(flags != 0)
@@ -1186,6 +1188,7 @@ namespace NBitcoin
 						stream.ReadWrite<TxOutList, TxOut>(ref vout);
 						vout.Transaction = this;
 					}
+
 				}
 				else
 				{
