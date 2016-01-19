@@ -1257,7 +1257,12 @@ namespace NBitcoin
 		}
 		public uint256 GetWitHash()
 		{
-			return Hashes.Hash256(this.ToBytes());
+			MemoryStream ms = new MemoryStream();
+			this.ReadWrite(new BitcoinStream(ms, true)
+			{
+				TransactionOptions = TransactionOptions.Witness
+			});
+			return Hashes.Hash256(ms.ToArrayEfficient());
 		}
 		public uint256 GetSignatureHash(Script scriptPubKey, int nIn, SigHash sigHash = SigHash.All)
 		{
