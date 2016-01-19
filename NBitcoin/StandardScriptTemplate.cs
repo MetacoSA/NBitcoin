@@ -523,7 +523,17 @@ namespace NBitcoin
 
 	}
 
-	public class PayToPubkeyHashScriptSigParameters
+	public class PayToWitPubkeyHashScriptSigParameters : PayToPubkeyHashScriptSigParameters
+	{
+		public override TxDestination Hash
+		{
+			get
+			{
+				return PublicKey.WitHash;
+			}
+		}
+	}
+	public class PayToPubkeyHashScriptSigParameters : IDestination
 	{
 		public TransactionSignature TransactionSignature
 		{
@@ -535,6 +545,25 @@ namespace NBitcoin
 			get;
 			set;
 		}
+
+		public virtual TxDestination Hash
+		{
+			get
+			{
+				return PublicKey.Hash;
+			}
+		}
+		#region IDestination Members
+
+		public Script ScriptPubKey
+		{
+			get
+			{
+				return Hash.ScriptPubKey;
+			}
+		}
+
+		#endregion
 	}
 	public class PayToPubkeyHashTemplate : ScriptTemplate
 	{
@@ -613,6 +642,7 @@ namespace NBitcoin
 			if(ops.Length != 2)
 				return false;
 			return ops[0].PushData != null &&
+				   TransactionSignature.IsValid(ops[0].PushData, ScriptVerify.None) &&
 				   ops[1].PushData != null && PubKey.Check(ops[1].PushData, false);
 		}
 
@@ -643,6 +673,10 @@ namespace NBitcoin
 		}
 
 
+		public Script GenerateScriptSig(PayToPubkeyHashScriptSigParameters parameters)
+		{
+			return GenerateScriptSig(parameters.TransactionSignature, parameters.PublicKey);
+		}
 
 		public override TxOutType Type
 		{
@@ -652,10 +686,6 @@ namespace NBitcoin
 			}
 		}
 
-		public Script GenerateScriptSig(PayToPubkeyHashScriptSigParameters parameters)
-		{
-			return GenerateScriptSig(parameters.TransactionSignature, parameters.PublicKey);
-		}
 	}
 	public abstract class ScriptTemplate
 	{
@@ -696,14 +726,127 @@ namespace NBitcoin
 		}
 	}
 
-	public class PayToSegwitTemplate : ScriptTemplate
+	public class PayToWitPubKeyHashTemplate : PayToWitTemplate
 	{
-		static PayToSegwitTemplate _Instance;
-		public static PayToSegwitTemplate Instance
+		static PayToWitPubKeyHashTemplate _Instance;
+		public new static PayToWitPubKeyHashTemplate Instance
 		{
 			get
 			{
-				return _Instance = _Instance ?? new PayToSegwitTemplate();
+				return _Instance = _Instance ?? new PayToWitPubKeyHashTemplate();
+			}
+		}
+		public Script GenerateScriptPubKey(BitcoinWitPubKeyAddress address)
+		{
+			if(address == null)
+				throw new ArgumentNullException("address");
+			return GenerateScriptPubKey(address.Hash);
+		}
+		public Script GenerateScriptPubKey(PubKey pubKey)
+		{
+			if(pubKey == null)
+				throw new ArgumentNullException("pubKey");
+			return GenerateScriptPubKey(pubKey.WitHash);
+		}
+		public Script GenerateScriptPubKey(WitKeyId pubkeyHash)
+		{
+			return pubkeyHash.ScriptPubKey;
+		}
+
+		public WitScript GenerateWitScript(TransactionSignature signature, PubKey publicKey)
+		{
+			if(publicKey == null)
+				throw new ArgumentNullException("publicKey");
+			return new WitScript(
+				signature == null ? OpcodeType.OP_0 : Op.GetPushOp(signature.ToBytes()),
+				Op.GetPushOp(publicKey.ToBytes())
+				);
+		}
+
+		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
+		{
+			var bytes = scriptPubKey.ToBytes(true);
+			return bytes.Length == 22 && bytes[0] == 0 && bytes[1] == 20;
+		}
+
+		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
+		{
+			return true;
+		}
+		public new WitKeyId ExtractScriptPubKeyParameters(Script scriptPubKey)
+		{
+			if(!FastCheckScriptPubKey(scriptPubKey))
+				return null;
+			byte[] data = new byte[20];
+			Array.Copy(scriptPubKey.ToBytes(true), 2, data, 0, 20);
+			return new WitKeyId(data);
+		}
+
+		protected override bool CheckScriptSigCore(Script scriptSig, Op[] scriptSigOps, Script scriptPubKey, Op[] scriptPubKeyOps)
+		{
+			return scriptSig.Length == 0;
+		}
+
+		protected override bool FastCheckScriptSig(Script scriptSig, Script scriptPubKey)
+		{
+			return scriptSig.Length == 0;
+		}
+
+		public PayToWitPubkeyHashScriptSigParameters ExtractWitScriptParameters(WitScript witScript)
+		{
+			if(!CheckWitScriptCore(witScript))
+				return null;
+			try
+			{
+				return new PayToWitPubkeyHashScriptSigParameters()
+				{
+					TransactionSignature = (witScript[0].Length == 1 && witScript[0][0] == 0) ? null : new TransactionSignature(witScript[0]),
+					PublicKey = new PubKey(witScript[1], true),
+				};
+			}
+			catch(FormatException)
+			{
+				return null;
+			}
+		}
+
+		private bool CheckWitScriptCore(WitScript witScript)
+		{
+			return witScript.PushCount == 2 && 
+				   ((witScript[0].Length == 1 && witScript[0][0] == 0) || (TransactionSignature.IsValid(witScript[0], ScriptVerify.None))) && 
+				   PubKey.Check(witScript[1], false);
+		}
+
+
+		public WitScript GenerateWitScript(PayToWitPubkeyHashScriptSigParameters parameters)
+		{
+			return GenerateWitScript(parameters.TransactionSignature, parameters.PublicKey);
+		}
+	}
+
+	public class WitProgramParameters
+	{
+		public OpcodeType Version
+		{
+			get;
+			set;
+		}
+
+		public byte[] Program
+		{
+			get;
+			set;
+		}
+	}
+
+	public class PayToWitTemplate : ScriptTemplate
+	{
+		static PayToWitTemplate _Instance;
+		public static PayToWitTemplate Instance
+		{
+			get
+			{
+				return _Instance = _Instance ?? new PayToWitTemplate();
 			}
 		}
 
@@ -711,7 +854,7 @@ namespace NBitcoin
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");
-			if(!ValidSegwitVersion((byte)segWitVersion))
+			if(!ValidSegwitVersionCore((byte)segWitVersion))
 				throw new ArgumentException("Segwit version must be from OP_0 to OP_16", "segWitVersion");
 			return new Script(segWitVersion, Op.GetPushOp(data));
 		}
@@ -719,6 +862,11 @@ namespace NBitcoin
 		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
 		{
 			var version = scriptPubKey.ToBytes(true)[0];
+			return ValidSegwitVersionCore(version);
+		}
+
+		protected virtual bool ValidSegwitVersionCore(byte version)
+		{
 			return ValidSegwitVersion(version);
 		}
 
@@ -762,6 +910,19 @@ namespace NBitcoin
 					return new WitScriptId(ops[1].PushData);
 			}
 			return null;
+		}
+		public WitProgramParameters ExtractScriptPubKeyParameters2(Script scriptPubKey)
+		{
+			if(!FastCheckScriptPubKey(scriptPubKey))
+				return null;
+			var ops = scriptPubKey.ToOps().ToArray();
+			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
+				return null;
+			return new WitProgramParameters()
+			{
+				Version = ops[0].Code,
+				Program = ops[1].PushData
+			};
 		}
 
 		public override TxOutType Type

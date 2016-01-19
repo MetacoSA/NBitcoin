@@ -61,6 +61,11 @@ namespace NBitcoin
 			{
 				ProtocolVersion = version
 			});
+			return ToArrayEfficient(ms);
+		}
+
+		public static byte[] ToArrayEfficient(this MemoryStream ms)
+		{
 #if !PORTABLE
 			var bytes = ms.GetBuffer();
 			Array.Resize(ref bytes, (int)ms.Length);

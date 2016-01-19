@@ -164,7 +164,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return PayToSegwitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, _DestBytes);
+				return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, _DestBytes);
 			}
 		}
 
@@ -208,7 +208,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return PayToSegwitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, _DestBytes);
+				return PayToWitTemplate.Instance.GenerateScriptPubKey(OpcodeType.OP_0, _DestBytes);
 			}
 		}
 

@@ -53,9 +53,53 @@ namespace NBitcoin
 
 		/* softfork safeness */
 		DiscourageUpgradableNops,
+		WitnessMalleated,
+		WitnessProgramEmpty,
+		WitnessProgramMissmatch,
+		DiscourageUpgradableWitnessProgram,
+		WitnessProgramWrongLength,
+		WitnessUnexpected,
 	}
 	public class ScriptEvaluationContext
 	{
+		class TransactionChecker
+		{
+			public TransactionChecker(Transaction tx, int index, Money amount = null)
+			{
+				if(tx == null)
+					throw new ArgumentNullException("tx");
+				_Transaction = tx;
+				_Index = index;
+				_Amount = amount;
+			}
+
+			private readonly Transaction _Transaction;
+			public Transaction Transaction
+			{
+				get
+				{
+					return _Transaction;
+				}
+			}
+
+			private readonly int _Index;
+			public int Index
+			{
+				get
+				{
+					return _Index;
+				}
+			}
+
+			private readonly Money _Amount;
+			public Money Amount
+			{
+				get
+				{
+					return _Amount;
+				}
+			}
+		}
 		class CScriptNum
 		{
 			const long nMaxNumSize = 4;
@@ -302,26 +346,56 @@ namespace NBitcoin
 			get;
 			set;
 		}
-
-		public bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction txTo, int nIn)
+		public bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction txTo, int nIn, Money value)
 		{
+			return VerifyScript(scriptSig, scriptPubKey, new TransactionChecker(txTo, nIn, value));
+		}
+
+		bool VerifyScript(Script scriptSig, Script scriptPubKey, TransactionChecker checker)
+		{
+			WitScript witness = checker.Transaction.Witness[checker.Index];
 			SetError(ScriptError.UnknownError);
 			if((ScriptVerify & ScriptVerify.SigPushOnly) != 0 && !scriptSig.IsPushOnly)
 				return SetError(ScriptError.SigPushOnly);
 
 			ScriptEvaluationContext evaluationCopy = null;
 
-			if(!EvalScript(scriptSig, txTo, nIn))
+			if(!EvalScript(scriptSig, checker, 0))
 				return false;
 			if((ScriptVerify & ScriptVerify.P2SH) != 0)
 			{
 				evaluationCopy = Clone();
 			}
-			if(!EvalScript(scriptPubKey, txTo, nIn))
+			if(!EvalScript(scriptPubKey, checker, 0))
 				return false;
 
 			if(Result == null || Result.Value == false)
 				return SetError(ScriptError.EvalFalse);
+
+			bool hadWitness = false;
+			// Bare witness programs
+
+			if((ScriptVerify & ScriptVerify.Witness) != 0)
+			{
+				var wit = PayToWitTemplate.Instance.ExtractScriptPubKeyParameters2(scriptPubKey);
+				if(wit != null)
+				{
+					hadWitness = true;
+					if(scriptSig.Length != 0)
+					{
+						// The scriptSig must be _exactly_ CScript(), otherwise we reintroduce malleability.
+						return SetError(ScriptError.WitnessMalleated);
+					}
+					if(!VerifyWitnessProgram(witness, wit, checker))
+					{
+						return false;
+					}
+					// Bypass the cleanstack check at the end. The actual stack is obviously not clean
+					// for witness programs.
+					Stack.Clear();
+					Stack.Push(new byte[0]);
+				}
+			}
 
 			// Additional validation for spend-to-script-hash transactions:
 			if(((ScriptVerify & ScriptVerify.P2SH) != 0) && scriptPubKey.IsPayToScriptHash)
@@ -339,7 +413,7 @@ namespace NBitcoin
 
 				var redeem = new Script(evaluationCopy.Stack.Pop());
 
-				if(!evaluationCopy.EvalScript(redeem, txTo, nIn))
+				if(!evaluationCopy.EvalScript(redeem, checker, 0))
 					return false;
 
 				if(evaluationCopy.Result == null)
@@ -362,7 +436,85 @@ namespace NBitcoin
 					return SetError(ScriptError.CleanStack);
 			}
 
+			if((ScriptVerify & ScriptVerify.Witness) != 0)
+			{
+				// We can't check for correct unexpected witness data if P2SH was off, so require
+				// that WITNESS implies P2SH. Otherwise, going from WITNESS->P2SH+WITNESS would be
+				// possible, which is not a softfork.
+				if((ScriptVerify & ScriptVerify.P2SH) == 0)
+					throw new InvalidOperationException("ScriptVerify : Witness without P2SH is not allowed");
+				if(!hadWitness && witness.PushCount != 0)
+				{
+					return SetError(ScriptError.WitnessUnexpected);
+				}
+			}
 
+			return true;
+		}
+
+		private bool VerifyWitnessProgram(WitScript witness, WitProgramParameters wit, TransactionChecker checker)
+		{
+			List<byte[]> stack = new List<byte[]>();
+			Script scriptPubKey;
+
+			if(wit.Version == 0)
+			{
+				if(wit.Program.Length == 32)
+				{
+					// Version 0 segregated witness program: SHA256(CScript) inside the program, CScript + inputs in witness
+					if(witness.PushCount == 0)
+					{
+						return SetError(ScriptError.WitnessProgramEmpty);
+					}
+					scriptPubKey = Script.FromBytesUnsafe(witness.GetUnsafePush(witness.PushCount - 1));
+					for(int i = 0 ; i < witness.PushCount - 1 ; i++)
+					{
+						stack.Add(witness.GetUnsafePush(i));
+					}
+					uint256 hashScriptPubKey = Hashes.Hash256(scriptPubKey.ToBytes(true));
+					if(hashScriptPubKey != new uint256(wit.Program))
+					{
+						return SetError(ScriptError.WitnessProgramMissmatch);
+					}
+				}
+				else if(wit.Program.Length == 20)
+				{
+					// Special case for pay-to-pubkeyhash; signature + pubkey in witness
+					if(witness.PushCount != 2)
+					{
+						return SetError(ScriptError.WitnessProgramMissmatch); // 2 items in witness
+					}
+					scriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(new KeyId(wit.Program));
+					stack = witness.Pushes.ToList();
+				}
+				else
+				{
+					return SetError(ScriptError.WitnessProgramWrongLength);
+				}
+			}
+			else if((ScriptVerify & ScriptVerify.DiscourageUpgradableWitnessProgram) != 0)
+			{
+				return SetError(ScriptError.DiscourageUpgradableWitnessProgram);
+			}
+			else
+			{
+				// Higher version witness scripts return true for future softfork compatibility
+				return true;
+			}
+
+			var ctx = this.Clone();
+			ctx.Stack.Clear();
+			foreach(var item in stack)
+				ctx.Stack.Push(item);
+			if(!ctx.EvalScript(scriptPubKey, checker, 1))
+			{
+				return false;
+			}
+			// Scripts inside witness implicitly require cleanstack behaviour
+			if(ctx.Stack.Count != 1)
+				return SetError(ScriptError.EvalFalse);
+			if(!CastToBool(ctx.Stack.Top(-1)))
+				return SetError(ScriptError.EvalFalse);
 			return true;
 		}
 
@@ -374,6 +526,11 @@ namespace NBitcoin
 		private const int MAX_SCRIPT_ELEMENT_SIZE = 520;
 
 		public bool EvalScript(Script s, Transaction txTo, int nIn)
+		{
+			return EvalScript(s, new TransactionChecker(txTo, nIn), 0);
+		}
+
+		bool EvalScript(Script s, TransactionChecker checker, int sigversion)
 		{
 			if(s.Length > 10000)
 				return SetError(ScriptError.ScriptSize);
@@ -511,7 +668,7 @@ namespace NBitcoin
 										return SetError(ScriptError.NegativeLockTime);
 
 									// Actually compare the specified lock time with the transaction.
-									if(!CheckLockTime(nLockTime, txTo, (uint)nIn))
+									if(!CheckLockTime(nLockTime, checker))
 										return SetError(ScriptError.UnsatisfiedLockTime);
 
 									break;
@@ -1020,7 +1177,7 @@ namespace NBitcoin
 										return false;
 									}
 
-									bool fSuccess = CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn);
+									bool fSuccess = CheckSig(vchSig, vchPubKey, scriptCode, checker, sigversion);
 
 									_stack.Pop();
 									_stack.Pop();
@@ -1089,7 +1246,7 @@ namespace NBitcoin
 											return false;
 										}
 
-										bool fOk = CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn);
+										bool fOk = CheckSig(vchSig, vchPubKey, scriptCode, checker, sigversion);
 
 										if(fOk)
 										{
@@ -1153,8 +1310,10 @@ namespace NBitcoin
 			return SetSuccess(ScriptError.OK);
 		}
 
-		bool CheckLockTime(CScriptNum nLockTime, Transaction txTo, uint nIn)
+		bool CheckLockTime(CScriptNum nLockTime, TransactionChecker checker)
 		{
+			var txTo = checker.Transaction;
+			var nIn = checker.Index;
 			// There are two kinds of nLockTime: lock-by-blockheight
 			// and lock-by-blocktime, distinguished by whether
 			// nLockTime < LOCKTIME_THRESHOLD.
@@ -1509,8 +1668,11 @@ namespace NBitcoin
 		{
 			return CheckSig(signature.ToBytes(), pubKey.ToBytes(), scriptPubKey, txTo, (int)nIn);
 		}
-
 		public bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn)
+		{
+			return CheckSig(vchSig, vchPubKey, scriptCode, new TransactionChecker(txTo, nIn), 0);
+		}
+		bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, TransactionChecker checker, int sigversion)
 		{
 			PubKey pubkey = null;
 			try
@@ -1542,7 +1704,7 @@ namespace NBitcoin
 			if(!IsAllowedSignature(scriptSig.SigHash))
 				return false;
 
-			uint256 sighash = scriptCode.SignatureHash(txTo, nIn, scriptSig.SigHash);
+			uint256 sighash = scriptCode.SignatureHash(checker.Transaction, checker.Index, scriptSig.SigHash, checker.Amount, sigversion);
 
 			if(!pubkey.Verify(sighash, scriptSig.Signature))
 			{
@@ -1838,5 +2000,10 @@ namespace NBitcoin
 			}
 		}
 		#endregion
+
+		internal void Clear()
+		{
+			Clear(Count);
+		}
 	}
 }

@@ -19,7 +19,7 @@ namespace NBitcoin
 	{
 		Disk,
 		Network,
-		Hash
+		Hash		
 	}
 	public class Scope : IDisposable
 	{
@@ -190,6 +190,10 @@ namespace NBitcoin
 		{
 			data.ReadWrite(this);
 		}
+		public void ReadWriteStruct<T>(T data) where T : struct, IBitcoinSerializable
+		{
+			data.ReadWrite(this);
+		}
 
 		public void ReadWrite<T>(ref T data) where T : IBitcoinSerializable
 		{
@@ -348,6 +352,19 @@ namespace NBitcoin
 			set
 			{
 				_ProtocolVersion = value;
+			}
+		}
+
+		TransactionOptions _TransactionSupportedOptions = TransactionOptions.All;
+		public TransactionOptions TransactionSupportedOptions
+		{
+			get
+			{
+				return _TransactionSupportedOptions;
+			}
+			set
+			{
+				_TransactionSupportedOptions = value;
 			}
 		}
 

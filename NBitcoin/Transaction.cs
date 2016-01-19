@@ -655,8 +655,36 @@ namespace NBitcoin
 			{
 				return TxIn.PrevOut;
 			}
+			set
+			{
+				TxIn.PrevOut = value;
+			}
 		}
 
+		public Script ScriptSig
+		{
+			get
+			{
+				return TxIn.ScriptSig;
+			}
+			set
+			{
+				TxIn.ScriptSig = value;
+			}
+		}
+
+
+		public WitScript WitScript
+		{
+			get
+			{
+				return Transaction.Witness[(int)Index];
+			}
+			set
+			{
+				Transaction.Witness[(int)Index] = value;
+			}
+		}
 		public Transaction Transaction
 		{
 			get;
@@ -670,11 +698,11 @@ namespace NBitcoin
 		}
 		public bool VerifyScript(Script scriptPubKey, out ScriptError error)
 		{
-			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, out error);
+			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, null, out error);
 		}
 		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify, out ScriptError error)
 		{
-			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, scriptVerify, SigHash.Undefined, out error);
+			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, null, scriptVerify, SigHash.Undefined, out error);
 		}
 		public uint256 GetSignatureHash(Script scriptPubKey, SigHash sigHash = SigHash.All)
 		{
@@ -797,6 +825,253 @@ namespace NBitcoin
 		Satoshi,
 		BlockExplorer,
 	}
+
+	public class WitScript
+	{
+		byte[][] _Pushes;
+		public WitScript(string script)
+		{
+			var parts = script.Split(new[] { '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+			_Pushes = new byte[parts.Length][];
+			for(int i = 0 ; i < parts.Length ; i++)
+			{
+				_Pushes[i] = Encoders.Hex.DecodeData(parts[i]);
+			}
+		}
+
+		/// <summary>
+		/// Create a new WitnessScript
+		/// </summary>
+		/// <param name="script">Scripts</param>
+		/// <param name="unsafe">If false, make a copy of the input script array</param>
+		public WitScript(byte[][] script, bool @unsafe = false)
+		{
+			if(@unsafe)
+				_Pushes = script;
+			else
+			{
+				_Pushes = script.ToArray();
+				for(int i = 0 ; i < _Pushes.Length ; i++)
+					_Pushes[i] = script[i].ToArray();
+			}
+		}
+
+		/// <summary>
+		/// Create a new WitnessScript
+		/// </summary>
+		/// <param name="script">Scripts</param>
+		public WitScript(IEnumerable<byte[]> script, bool @unsafe = false)
+			: this(script.ToArray(), @unsafe)
+		{
+
+		}
+
+		public WitScript(params Op[] ops)
+		{
+			List<byte[]> pushes = new List<byte[]>();
+			foreach(var op in ops)
+			{
+				if(op.PushData == null)
+					throw new ArgumentException("Non push operation unsupported in WitScript", "ops");
+				pushes.Add(op.PushData);
+			}
+			_Pushes = pushes.ToArray();
+		}
+
+		public WitScript(byte[] script)
+		{
+			if(script == null)
+				throw new ArgumentNullException("script");
+			var ms = new MemoryStream(script);
+			BitcoinStream stream = new BitcoinStream(ms, false);
+			ReadCore(stream);
+		}
+		WitScript()
+		{
+
+		}
+
+		public static WitScript Load(BitcoinStream stream)
+		{
+			WitScript script = new WitScript();
+			script.ReadCore(stream);
+			return script;
+		}
+		void ReadCore(BitcoinStream stream)
+		{
+			List<byte[]> pushes = new List<byte[]>();
+			uint pushCount = 0;
+			stream.ReadWriteAsVarInt(ref pushCount);
+			for(int i = 0 ; i < (int)pushCount ; i++)
+			{
+				byte[] push = ReadPush(stream);
+				pushes.Add(push);
+			}
+			_Pushes = pushes.ToArray();
+		}
+		private static byte[] ReadPush(BitcoinStream stream)
+		{
+			byte[] push = null;
+			stream.ReadWriteAsVarString(ref push);
+			return push;
+		}
+
+		public byte[] this[int index]
+		{
+			get
+			{
+				return _Pushes[index];
+			}
+		}
+
+		public IEnumerable<byte[]> Pushes
+		{
+			get
+			{
+				return _Pushes;
+			}
+		}
+
+		static WitScript _Empty = new WitScript(new byte[0][], true);
+		public static WitScript Empty
+		{
+			get
+			{
+				return _Empty;
+			}
+		}
+
+		public byte[] ToBytes()
+		{
+			var ms = new MemoryStream();
+			BitcoinStream stream = new BitcoinStream(ms, true);
+			uint pushCount = (uint)_Pushes.Length;
+			stream.ReadWriteAsVarInt(ref pushCount);
+			foreach(var push in Pushes)
+			{
+				var localpush = push;
+				stream.ReadWriteAsVarString(ref localpush);
+			}
+			return ms.ToArrayEfficient();
+		}
+
+		public override string ToString()
+		{
+			return String.Join(" ", _Pushes.Select(p => Encoders.Hex.EncodeData(p)).ToArray());
+		}
+
+		public int PushCount
+		{
+			get
+			{
+				return _Pushes.Length;
+			}
+		}
+
+		public byte[] GetUnsafePush(int i)
+		{
+			return _Pushes[i];
+		}
+	}
+
+	public enum TransactionOptions : uint
+	{
+		None = 0x00000000,
+		Witness = 0x40000000,
+		All = Witness
+	}
+	public class Witness : IEnumerable<WitScript>
+	{
+		List<WitScript> _Scripts = new List<WitScript>();
+		internal void SetNull()
+		{
+			_Scripts.Clear();
+		}
+
+		internal void Size(int size)
+		{
+			_Scripts.Resize(size);
+			for(int i = 0 ; i < size ; i++)
+			{
+				_Scripts[i] = _Scripts[i] == null ? WitScript.Empty : _Scripts[i];
+			}
+		}
+
+		internal void ReadWrite(BitcoinStream stream)
+		{
+			for(int i = 0 ; i < _Scripts.Count ; i++)
+			{
+				if(stream.Serializing)
+				{
+					var bytes = _Scripts[i].ToBytes();
+					stream.ReadWrite(ref bytes);
+				}
+				else
+				{
+					_Scripts[i] = WitScript.Load(stream);
+				}
+			}
+		}
+
+		internal bool IsNull()
+		{
+			return _Scripts.All(s => s == WitScript.Empty);
+		}
+
+		public int Count
+		{
+			get
+			{
+				return _Scripts.Count;
+			}
+		}
+
+		public WitScript this[int txinIndex]
+		{
+			get
+			{
+				EnsureSize(txinIndex + 1);
+				return _Scripts[txinIndex];
+			}
+			set
+			{
+				EnsureSize(txinIndex + 1);
+				_Scripts[txinIndex] = value;
+			}
+		}
+
+		private void EnsureSize(int size)
+		{
+			if(size < _Scripts.Count)
+				Size(size);
+		}
+
+		public WitScript TryGet(int index)
+		{
+			if(index >= _Scripts.Count)
+				return null;
+			return _Scripts[index];
+		}
+
+		#region IEnumerable<WitnessScript> Members
+
+		public IEnumerator<WitScript> GetEnumerator()
+		{
+			return _Scripts.GetEnumerator();
+		}
+
+		#endregion
+
+		#region IEnumerable Members
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+
+		#endregion
+	}
+
 	//https://en.bitcoin.it/wiki/Transactions
 	//https://en.bitcoin.it/wiki/Protocol_specification
 	public class Transaction : IBitcoinSerializable
@@ -824,10 +1099,10 @@ namespace NBitcoin
 			vout = new TxOutList(this);
 		}
 
-		public Transaction(string hex)
+		public Transaction(string hex, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 			: this()
 		{
-			this.FromBytes(Encoders.Hex.DecodeData(hex));
+			this.FromBytes(Encoders.Hex.DecodeData(hex), version);
 		}
 
 		public Transaction(byte[] bytes)
@@ -871,21 +1146,101 @@ namespace NBitcoin
 			}
 		}
 
+		private Witness wit = new Witness();
+		public Witness Witness
+		{
+			get
+			{
+				return wit;
+			}
+		}
+
 		#region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public virtual void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref nVersion);
-			stream.ReadWrite<TxInList, TxIn>(ref vin);
-			vin.Transaction = this;
-			stream.ReadWrite<TxOutList, TxOut>(ref vout);
-			vout.Transaction = this;
+			byte flags = 0;
+			if(!stream.Serializing)
+			{
+				/* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
+				stream.ReadWrite<TxInList, TxIn>(ref vin);
+				if(vin.Count == 0)
+				{
+					/* We read a dummy or an empty vin. */
+					stream.ReadWrite(ref flags);
+					if(flags != 0)
+					{
+						/* Assume we read a dummy and a flag. */
+						stream.ReadWrite<TxInList, TxIn>(ref vin);
+						vin.Transaction = this;
+						stream.ReadWrite<TxOutList, TxOut>(ref vout);
+						vout.Transaction = this;
+					}
+				}
+				else
+				{
+					/* We read a non-empty vin. Assume a normal vout follows. */
+					stream.ReadWrite<TxOutList, TxOut>(ref vout);
+					vout.Transaction = this;
+				}
+				wit.SetNull();
+				if(((flags & 1) != 0) && (((uint)stream.TransactionSupportedOptions & (uint)TransactionOptions.Witness) != 0))
+				{
+					/* The witness flag is present, and we support witnesses. */
+					flags ^= 1;
+					//const_cast<CTxWitness*>(&tx.wit)->vtxinwit.resize(tx.vin.size());
+					wit.Size(vin.Count);
+					wit.ReadWrite(stream);
+				}
+				if(flags != 0)
+				{
+					/* Unknown flag in the serialization */
+					throw new FormatException("Unknown transaction optional data");
+				}
+			}
+			else
+			{
+				if(((uint)stream.TransactionSupportedOptions & (uint)TransactionOptions.Witness) != 0)
+				{
+					/* Check whether witnesses need to be serialized. */
+					if(!wit.IsNull())
+					{
+						flags |= 1;
+					}
+				}
+				if(flags != 0)
+				{
+					/* Use extended format in case witnesses are to be serialized. */
+					TxInList vinDummy = new TxInList();
+					stream.ReadWrite<TxInList, TxIn>(ref vinDummy);
+					stream.ReadWrite(ref flags);
+				}
+				stream.ReadWrite<TxInList, TxIn>(ref vin);
+				vin.Transaction = this;
+				stream.ReadWrite<TxOutList, TxOut>(ref vout);
+				vout.Transaction = this;
+				if((flags & 1) != 0)
+				{
+					wit.Size(vin.Count);
+					wit.ReadWrite(stream);
+				}
+			}
 			stream.ReadWriteStruct(ref nLockTime);
 		}
 
 		#endregion
 
 		public uint256 GetHash()
+		{
+			MemoryStream ms = new MemoryStream();
+			this.ReadWrite(new BitcoinStream(ms, true)
+			{
+				TransactionSupportedOptions = TransactionOptions.None
+			});
+			return Hashes.Hash256(ms.ToArrayEfficient());
+		}
+		public uint256 GetWitHash()
 		{
 			return Hashes.Hash256(this.ToBytes());
 		}
@@ -1107,6 +1462,16 @@ namespace NBitcoin
 				if(!txin.IsFinal)
 					return false;
 			return true;
+		}
+
+		public Transaction RemoveOption(TransactionOptions options)
+		{
+			var instance = new Transaction();
+			var ms = new MemoryStream();
+			var bms = new BitcoinStream(ms, true);
+			bms.TransactionSupportedOptions = TransactionOptions.All & ~options;
+			this.ReadWrite(bms);
+			return instance;
 		}
 	}
 

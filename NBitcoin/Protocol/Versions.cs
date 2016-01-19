@@ -31,6 +31,12 @@ namespace NBitcoin.Protocol
 		BIP0031_VERSION = 60000,
 
 		// "mempool" command, enhanced "getdata" behavior starts with this version:
-		MEMPOOL_GD_VERSION = 60002
+		MEMPOOL_GD_VERSION = 60002,
+
+		//! "filter*" commands are disabled without NODE_BLOOM after and including this version
+		NO_BLOOM_VERSION = 70011,
+
+		//! "sendheaders" command and announcing blocks with headers starts with this version
+		SENDHEADERS_VERSION = 70012,		
 	}
 }

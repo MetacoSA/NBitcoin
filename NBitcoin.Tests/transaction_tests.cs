@@ -4,6 +4,7 @@ using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Policy;
+using NBitcoin.Protocol;
 using NBitcoin.Stealth;
 using Newtonsoft.Json.Linq;
 using System;
@@ -1182,7 +1183,7 @@ namespace NBitcoin.Tests
 		{
 			for(int i = 0 ; i < tx.Inputs.Count ; i++)
 			{
-				Assert.True(Script.VerifyScript(scriptPubKey, tx, i, scriptVerify));
+				Assert.True(Script.VerifyScript(scriptPubKey, tx, i, null, scriptVerify));
 			}
 		}
 
@@ -1315,9 +1316,42 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanParseWitTransaction()
+		{
+			var hex = "010000000001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0300000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b0247304402200b6baba4287f3321ae4ec6ba66420d9a48c3f3bc331603e7dca6b12ca75cce6102207fa582041b025605c0474b99a2d3ab5080d6ea14ae3a50b7de92596abf40fb4b012102cdfc0f4701e0c8db3a0913de5f635d0ea76663a8f80925567358d558603fae3500000000";
+			Transaction tx = new Transaction(hex);
+			var bytes = tx.ToBytes();
+			Assert.Equal(Encoders.Hex.EncodeData(bytes), hex);
+
+			Assert.Equal("4b3580bbcceb12fee91abc7f9e8e7d092e981d4bb38339204c457a04316d949a", tx.GetHash().ToString());
+			Assert.Equal("38331098fb804ef2e6dee7826a74b4af07e631a0f1082ffc063667ccb825d701", tx.GetWitHash().ToString());
+
+			var noWit = tx.RemoveOption(TransactionOptions.Witness);
+			Assert.True(noWit.GetSerializedSize() < tx.GetSerializedSize());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCheckSegwitSig()
+		{
+			Transaction tx = new Transaction("010000000001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0300000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b0247304402200b6baba4287f3321ae4ec6ba66420d9a48c3f3bc331603e7dca6b12ca75cce6102207fa582041b025605c0474b99a2d3ab5080d6ea14ae3a50b7de92596abf40fb4b012102cdfc0f4701e0c8db3a0913de5f635d0ea76663a8f80925567358d558603fae3500000000");
+
+			var previous = Money.Coins(1.0m);
+			var param1 = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(tx.Witness[0]);
+			var param2 = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(param1.PublicKey.GetSegwitAddress(Network.Main).Hash.ScriptPubKey);
+			Assert.Equal(param1.PublicKey.WitHash, param2);
+
+			ScriptError err;
+			var r = Script.VerifyScript(param1.ScriptPubKey, tx, 0, previous, out err);
+			Assert.True(r);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//http://brainwallet.org/#tx
 		public void CanParseTransaction()
 		{
+
 			var tests = TestCase.read_json("data/can_parse_transaction.json");
 
 			foreach(var test in tests.Select(t => t.GetDynamic(0)))
@@ -1447,6 +1481,7 @@ namespace NBitcoin.Tests
 						mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
 						tx,
 						i,
+						null,
 						ParseFlags(test[2].ToString())
 						, 0);
 					Assert.True(valid, strTest + " failed");
@@ -1527,6 +1562,7 @@ namespace NBitcoin.Tests
 					   mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
 					   tx,
 					   i,
+					   null,
 					   ParseFlags(test[2].ToString())
 					   , 0);
 				}

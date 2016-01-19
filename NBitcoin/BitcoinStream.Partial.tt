@@ -112,6 +112,14 @@ namespace NBitcoin
 			value = v.Value;			
 		}
 
+		public void ReadWrite(uint<#= t #> value)
+		{
+			value = value ?? uint<#= t #>.Zero;
+			var v = new uint<#= t #>.MutableUint<#= t #>(value);
+			this.ReadWrite(ref v);
+			value = v.Value;			
+		}
+
 		public void ReadWrite(ref List<uint<#= t #>> value)
 		{
 			if(Serializing)

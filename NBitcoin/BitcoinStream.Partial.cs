@@ -354,6 +354,14 @@ namespace NBitcoin
 			value = v.Value;			
 		}
 
+		public void ReadWrite(uint256 value)
+		{
+			value = value ?? uint256.Zero;
+			var v = new uint256.MutableUint256(value);
+			this.ReadWrite(ref v);
+			value = v.Value;			
+		}
+
 		public void ReadWrite(ref List<uint256> value)
 		{
 			if(Serializing)
@@ -369,6 +377,14 @@ namespace NBitcoin
 			}
 		}
 		public void ReadWrite(ref uint160 value)
+		{
+			value = value ?? uint160.Zero;
+			var v = new uint160.MutableUint160(value);
+			this.ReadWrite(ref v);
+			value = v.Value;			
+		}
+
+		public void ReadWrite(uint160 value)
 		{
 			value = value ?? uint160.Zero;
 			var v = new uint160.MutableUint160(value);

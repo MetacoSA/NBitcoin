@@ -647,7 +647,7 @@ namespace NBitcoin.Tests
 
 		private void AssertInvalidScript(Script scriptPubKey, Transaction tx, int n, ScriptVerify verify)
 		{
-			Assert.False(Script.VerifyScript(scriptPubKey, tx, n, flags));
+			Assert.False(Script.VerifyScript(scriptPubKey, tx, n,null, flags));
 #if !NOCONSENSUSLIB
 			Assert.False(Script.VerifyScriptConsensus(scriptPubKey, tx, (uint)n, flags));
 #endif
@@ -655,7 +655,7 @@ namespace NBitcoin.Tests
 
 		private void AssertValidScript(Script scriptPubKey, Transaction tx, int n, ScriptVerify verify)
 		{
-			Assert.True(Script.VerifyScript(scriptPubKey, tx, n, flags));
+			Assert.True(Script.VerifyScript(scriptPubKey, tx, n,null, flags));
 #if !NOCONSENSUSLIB
 			Assert.True(Script.VerifyScriptConsensus(scriptPubKey, tx, (uint)n, flags));
 #endif

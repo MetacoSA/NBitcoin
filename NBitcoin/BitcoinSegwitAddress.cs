@@ -32,13 +32,13 @@ namespace NBitcoin
 		{
 			get
 			{
-				return vchData.Length == 1 + 1 + 20 && vchData[1] == 0 && PayToSegwitTemplate.ValidSegwitVersion(vchData[0]);
+				return vchData.Length == 1 + 1 + 20 && vchData[1] == 0 && PayToWitTemplate.ValidSegwitVersion(vchData[0]);
 			}
 		}
 
 		protected override Script GeneratePaymentScript()
 		{
-			return PayToSegwitTemplate.Instance.GenerateScriptPubKey((OpcodeType)vchData[0], vchData.SafeSubarray(2, 20));
+			return PayToWitTemplate.Instance.GenerateScriptPubKey((OpcodeType)vchData[0], vchData.SafeSubarray(2, 20));
 		}
 
 		public override Base58Type Type
@@ -75,13 +75,13 @@ namespace NBitcoin
 		{
 			get
 			{
-				return vchData.Length == 1 + 1 + 32 && vchData[1] == 0 && PayToSegwitTemplate.ValidSegwitVersion(vchData[0]);
+				return vchData.Length == 1 + 1 + 32 && vchData[1] == 0 && PayToWitTemplate.ValidSegwitVersion(vchData[0]);
 			}
 		}
 
 		protected override Script GeneratePaymentScript()
 		{
-			return PayToSegwitTemplate.Instance.GenerateScriptPubKey((OpcodeType)vchData[0], vchData.SafeSubarray(2, 32));
+			return PayToWitTemplate.Instance.GenerateScriptPubKey((OpcodeType)vchData[0], vchData.SafeSubarray(2, 32));
 		}
 
 		public override Base58Type Type

@@ -110,8 +110,6 @@ namespace NBitcoin
 
 		byte[] vch = new byte[0];
 		KeyId _ID;
-
-
 		public KeyId Hash
 		{
 			get
@@ -121,6 +119,18 @@ namespace NBitcoin
 					_ID = new KeyId(Hashes.Hash160(vch, 0, vch.Length));
 				}
 				return _ID;
+			}
+		}
+		WitKeyId _WitID;
+		public WitKeyId WitHash
+		{
+			get
+			{
+				if(_WitID == null)
+				{
+					_WitID = new WitKeyId(Hashes.Hash160(vch, 0, vch.Length));
+				}
+				return _WitID;
 			}
 		}
 

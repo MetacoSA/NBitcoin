@@ -314,6 +314,11 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
+			
+
+
+			var key = new Key().GetBitcoinSecret(Network.SegNet);
+			var aa = key.GetAddress();
 			foreach(var n in new[]{Network.Main, Network.SegNet})
 			{
 				for(int i = 0; i < 2;i++)
