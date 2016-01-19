@@ -9,6 +9,7 @@ using NBitcoin.Stealth;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -876,6 +877,45 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanSerializeInvalidTransactionsBackAndForth()
+		{
+			Transaction before = new Transaction();
+			var versionBefore = before.Version;
+			before.Outputs.Add(new TxOut());
+			Transaction after = AssertClone(before);
+			Assert.Equal(before.Version, after.Version);
+			Assert.Equal(versionBefore, after.Version);
+			Assert.True(after.Outputs.Count == 1);
+
+			before = new Transaction();
+			after = AssertClone(before);
+			Assert.Equal(before.Version, versionBefore);
+		}
+
+		private Transaction AssertClone(Transaction before)
+		{
+			Transaction after = before.Clone();
+			Transaction after2 = null;
+
+			MemoryStream ms = new MemoryStream();
+			BitcoinStream stream = new BitcoinStream(ms, true);
+			stream.TransactionOptions = TransactionOptions.None;
+			stream.ReadWrite(before);
+
+			ms.Position = 0;
+
+			stream = new BitcoinStream(ms, false);
+			stream.TransactionOptions = TransactionOptions.Witness;
+			stream.ReadWrite(ref after2);
+
+			Assert.Equal(after2.GetHash(), after.GetHash());
+			Assert.Equal(before.GetHash(), after.GetHash());
+
+			return after;
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildTransaction()
 		{
 			var keys = Enumerable.Range(0, 5).Select(i => new Key()).ToArray();
@@ -1316,6 +1356,41 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanCheckSegwitSig()
+		{
+			Transaction tx = new Transaction("010000000001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0300000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b0247304402200b6baba4287f3321ae4ec6ba66420d9a48c3f3bc331603e7dca6b12ca75cce6102207fa582041b025605c0474b99a2d3ab5080d6ea14ae3a50b7de92596abf40fb4b012102cdfc0f4701e0c8db3a0913de5f635d0ea76663a8f80925567358d558603fae3500000000");
+			CanCheckSegwitSigCore(tx, 0, Money.Coins(1.0m));
+
+			//tx = new Transaction("01000000029a946d31047a454c203983b34b1d982e097d8e9e7fbc1ae9fe12ebccbb80354b0000000000fefffffffaf8daa03ed44606e0aa92f60e20db78de9b0220158d31b5daeb901a27f95b5d0000000000ffffffff0200f2052a010000001976a9145fdf0595f0587599999d87a94bc0ab91a606dff888ace00ae205000000001976a914cb5b8fc355d6d8c85a6d31f87e1df4f8967d79ff88ac01000000");
+
+			//CanCheckSegwitSigCore(tx, 0, Money.Coins(0.99900000m), "1976a914a8cbb5eca9af499cecaa08457690ab367f23d95b88ac");
+		}
+
+		private static void CanCheckSegwitSigCore(Transaction tx, int input, Money amount, string scriptCodeHex = null)
+		{
+			Script scriptCode = null;
+			if(scriptCodeHex == null)
+			{
+				var param1 = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(tx.Witness[input]);
+				Assert.NotNull(param1);
+				var param2 = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(param1.PublicKey.GetSegwitAddress(Network.Main).Hash.ScriptPubKey);
+				Assert.Equal(param1.PublicKey.WitHash, param2);
+				scriptCode = param1.ScriptPubKey;
+			}
+			else
+			{
+				scriptCode = new Script(Encoders.Hex.DecodeData(scriptCodeHex));
+			}
+
+			var h = scriptCode.SignatureHash(tx, input, SigHash.All, amount, 1);
+
+			ScriptError err;
+			var r = Script.VerifyScript(scriptCode, tx, 0, amount, out err);
+			Assert.True(r);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanParseWitTransaction()
 		{
 			var hex = "010000000001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0300000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b0247304402200b6baba4287f3321ae4ec6ba66420d9a48c3f3bc331603e7dca6b12ca75cce6102207fa582041b025605c0474b99a2d3ab5080d6ea14ae3a50b7de92596abf40fb4b012102cdfc0f4701e0c8db3a0913de5f635d0ea76663a8f80925567358d558603fae3500000000";
@@ -1328,22 +1403,6 @@ namespace NBitcoin.Tests
 
 			var noWit = tx.RemoveOption(TransactionOptions.Witness);
 			Assert.True(noWit.GetSerializedSize() < tx.GetSerializedSize());
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanCheckSegwitSig()
-		{
-			Transaction tx = new Transaction("010000000001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0300000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b0247304402200b6baba4287f3321ae4ec6ba66420d9a48c3f3bc331603e7dca6b12ca75cce6102207fa582041b025605c0474b99a2d3ab5080d6ea14ae3a50b7de92596abf40fb4b012102cdfc0f4701e0c8db3a0913de5f635d0ea76663a8f80925567358d558603fae3500000000");
-
-			var previous = Money.Coins(1.0m);
-			var param1 = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(tx.Witness[0]);
-			var param2 = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(param1.PublicKey.GetSegwitAddress(Network.Main).Hash.ScriptPubKey);
-			Assert.Equal(param1.PublicKey.WitHash, param2);
-
-			ScriptError err;
-			var r = Script.VerifyScript(param1.ScriptPubKey, tx, 0, previous, out err);
-			Assert.True(r);
 		}
 
 		[Fact]

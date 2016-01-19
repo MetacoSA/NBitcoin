@@ -636,7 +636,8 @@ namespace NBitcoin
 
 		private uint256 GetHash(BitcoinStream stream)
 		{
-			return Hashes.Hash256(((MemoryStream)stream.Inner).ToArrayEfficient());
+			var preimage = ((MemoryStream)stream.Inner).ToArrayEfficient();
+			return Hashes.Hash256(preimage);
 		}
 
 		private BitcoinStream CreateHashWriter()

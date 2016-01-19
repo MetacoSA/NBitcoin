@@ -1030,7 +1030,8 @@ namespace NBitcoin
 		{
 			get
 			{
-				EnsureSize(txinIndex + 1);
+				if(txinIndex >= _Scripts.Count)
+					return WitScript.Empty;
 				return _Scripts[txinIndex];
 			}
 			set
@@ -1042,7 +1043,7 @@ namespace NBitcoin
 
 		private void EnsureSize(int size)
 		{
-			if(size < _Scripts.Count)
+			if(size > _Scripts.Count)
 				Size(size);
 		}
 
@@ -1155,17 +1156,25 @@ namespace NBitcoin
 			}
 		}
 
+		//Since it is impossible to serialize a transaction with 0 input without problems during deserialization with wit activated (we fit a flag in the version to workaround it)
+		const uint NoInputTx = (1 << 27);
+
 		#region IBitcoinSerializable Members
 
 		public virtual void ReadWrite(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref nVersion);
+			var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0);			
+
 			byte flags = 0;
 			if(!stream.Serializing)
 			{
+				stream.ReadWrite(ref nVersion);
+				var wasInvalid = (nVersion & NoInputTx) != 0;
+				if(wasInvalid)
+					nVersion = nVersion & ~NoInputTx;
 				/* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
 				stream.ReadWrite<TxInList, TxIn>(ref vin);
-				if(vin.Count == 0)
+				if(vin.Count == 0 && witSupported && !wasInvalid)
 				{
 					/* We read a dummy or an empty vin. */
 					stream.ReadWrite(ref flags);
@@ -1185,7 +1194,7 @@ namespace NBitcoin
 					vout.Transaction = this;
 				}
 				wit.SetNull();
-				if(((flags & 1) != 0) && (((uint)stream.TransactionSupportedOptions & (uint)TransactionOptions.Witness) != 0))
+				if(((flags & 1) != 0) && witSupported)
 				{
 					/* The witness flag is present, and we support witnesses. */
 					flags ^= 1;
@@ -1201,7 +1210,10 @@ namespace NBitcoin
 			}
 			else
 			{
-				if(((uint)stream.TransactionSupportedOptions & (uint)TransactionOptions.Witness) != 0)
+				var version = vin.Count == 0 && vout.Count > 0 ? nVersion | NoInputTx : nVersion;
+				stream.ReadWrite(ref version);
+
+				if(witSupported)
 				{
 					/* Check whether witnesses need to be serialized. */
 					if(!wit.IsNull())
@@ -1236,7 +1248,7 @@ namespace NBitcoin
 			MemoryStream ms = new MemoryStream();
 			this.ReadWrite(new BitcoinStream(ms, true)
 			{
-				TransactionSupportedOptions = TransactionOptions.None
+				TransactionOptions = TransactionOptions.None
 			});
 			return Hashes.Hash256(ms.ToArrayEfficient());
 		}
@@ -1469,7 +1481,7 @@ namespace NBitcoin
 			var instance = new Transaction();
 			var ms = new MemoryStream();
 			var bms = new BitcoinStream(ms, true);
-			bms.TransactionSupportedOptions = TransactionOptions.All & ~options;
+			bms.TransactionOptions = TransactionOptions.All & ~options;
 			this.ReadWrite(bms);
 			return instance;
 		}

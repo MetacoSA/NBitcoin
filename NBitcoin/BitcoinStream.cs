@@ -356,7 +356,7 @@ namespace NBitcoin
 		}
 
 		TransactionOptions _TransactionSupportedOptions = TransactionOptions.All;
-		public TransactionOptions TransactionSupportedOptions
+		public TransactionOptions TransactionOptions
 		{
 			get
 			{

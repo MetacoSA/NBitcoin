@@ -642,7 +642,7 @@ namespace NBitcoin
 			if(ops.Length != 2)
 				return false;
 			return ops[0].PushData != null &&
-				   TransactionSignature.IsValid(ops[0].PushData, ScriptVerify.None) &&
+				   ((ops[0].Code == OpcodeType.OP_0) || TransactionSignature.IsValid(ops[0].PushData, ScriptVerify.None)) &&
 				   ops[1].PushData != null && PubKey.Check(ops[1].PushData, false);
 		}
 
