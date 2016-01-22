@@ -916,6 +916,80 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildWitTransaction()
+		{
+			Key alice = new Key();
+			Key bob = new Key();
+			Transaction previousTx = null;
+			Coin previousCoin = null;
+			WitScriptCoin witnessCoin = null;
+			TransactionBuilder builder = null;
+			Transaction signedTx = null;
+			ScriptCoin scriptCoin = null;
+
+			//P2WPKH
+			previousTx = new Transaction();
+			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.WitHash));
+			previousCoin = previousTx.Outputs.AsCoins().First();
+
+			builder = new TransactionBuilder();
+			builder.AddKeys(alice);
+			builder.AddCoins(previousCoin);
+			builder.Send(bob, Money.Coins(0.4m));
+			builder.SendFees(Money.Satoshis(30000));
+			builder.SetChange(alice);
+			signedTx = builder.BuildTransaction(true);
+			Assert.True(builder.Verify(signedTx));
+
+			//P2WSH
+			previousTx = new Transaction();
+			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.ScriptPubKey.WitHash));
+			previousCoin = previousTx.Outputs.AsCoins().First();
+
+			witnessCoin = new WitScriptCoin(previousCoin, alice.PubKey.ScriptPubKey);
+			builder = new TransactionBuilder();
+			builder.AddKeys(alice);
+			builder.AddCoins(witnessCoin);
+			builder.Send(bob, Money.Coins(0.4m));
+			builder.SendFees(Money.Satoshis(30000));
+			builder.SetChange(alice);
+			signedTx = builder.BuildTransaction(true);
+			Assert.True(builder.Verify(signedTx));
+
+			
+			//P2SH(P2WPKH)
+			previousTx = new Transaction();
+			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.WitHash.ScriptPubKey.Hash));
+			previousCoin = previousTx.Outputs.AsCoins().First();
+
+			scriptCoin = new ScriptCoin(previousCoin, alice.PubKey.WitHash.ScriptPubKey);
+			builder = new TransactionBuilder();
+			builder.AddKeys(alice);
+			builder.AddCoins(scriptCoin);
+			builder.Send(bob, Money.Coins(0.4m));
+			builder.SendFees(Money.Satoshis(30000));
+			builder.SetChange(alice);
+			signedTx = builder.BuildTransaction(true);
+			Assert.True(builder.Verify(signedTx));
+
+			//P2SH(P2WSH)
+			previousTx = new Transaction();
+			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.ScriptPubKey.WitHash.ScriptPubKey.Hash));
+			previousCoin = previousTx.Outputs.AsCoins().First();
+
+			witnessCoin = new WitScriptCoin(previousCoin, alice.PubKey.ScriptPubKey);
+			builder = new TransactionBuilder();
+			builder.AddKeys(alice);
+			builder.AddCoins(witnessCoin);
+			builder.Send(bob, Money.Coins(0.4m));
+			builder.SendFees(Money.Satoshis(30000));
+			builder.SetChange(alice);
+			signedTx = builder.BuildTransaction(true);
+			Assert.True(builder.Verify(signedTx));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildTransaction()
 		{
 			var keys = Enumerable.Range(0, 5).Select(i => new Key()).ToArray();
