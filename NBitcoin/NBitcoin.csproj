@@ -136,6 +136,8 @@
     <Compile Include="Protocol\Behaviors\NodeBehavior.cs" />
     <Compile Include="Protocol\Behaviors\PingPongBehavior.cs" />
     <Compile Include="Protocol\Payloads\FilterAddPayload.cs" />
+    <Compile Include="Protocol\Payloads\HaveWitnessPayload.cs" />
+    <Compile Include="Protocol\Payloads\SendHeadersPayload.cs" />
     <Compile Include="Protocol\Payloads\UTxOutpusPayload.cs" />
     <Compile Include="RPC\RestClient.cs" />
     <Compile Include="Policy\StandardTransactionPolicy.cs" />

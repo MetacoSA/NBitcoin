@@ -375,6 +375,15 @@ namespace NBitcoin
 				return scriptCoin;
 			return new ScriptCoin(this, redeemScript);
 		}
+		public WitScriptCoin ToWitScriptCoin(Script witRedeemScript)
+		{
+			if(witRedeemScript == null)
+				throw new ArgumentNullException("witRedeemScript");
+			var scriptCoin = this as WitScriptCoin;
+			if(scriptCoin != null)
+				return scriptCoin;
+			return new WitScriptCoin(this, witRedeemScript);
+		}
 
 		public ColoredCoin ToColoredCoin(AssetId asset, ulong quantity)
 		{
@@ -423,6 +432,10 @@ namespace NBitcoin
 			{
 				return TxOut.ScriptPubKey;
 			}
+			set
+			{
+				TxOut.ScriptPubKey = value;
+			}
 		}
 
 		#region ICoin Members
@@ -451,7 +464,7 @@ namespace NBitcoin
 			}
 		}
 
-		#endregion
+		#endregion	
 	}
 
 	public interface IScriptCoin : ICoin
@@ -524,6 +537,102 @@ namespace NBitcoin
 		{
 			get;
 			set;
+		}
+	}
+
+	public class WitScriptCoin : Coin, IScriptCoin
+	{
+		public WitScriptCoin()
+		{
+
+		}
+
+		public WitScriptCoin(OutPoint fromOutpoint, TxOut fromTxOut, Script witRedeem)
+			: base(fromOutpoint, fromTxOut)
+		{
+			SetAll(fromTxOut.ScriptPubKey, witRedeem);
+		}
+
+		public WitScriptCoin(Transaction fromTx, uint fromOutputIndex, Script witRedeem)
+			: base(fromTx, fromOutputIndex)
+		{
+			SetAll(fromTx.Outputs[fromOutputIndex].ScriptPubKey, witRedeem);
+		}
+
+		public WitScriptCoin(Transaction fromTx, TxOut fromOutput, Script witRedeem)
+			: base(fromTx, fromOutput)
+		{
+			SetAll(fromOutput.ScriptPubKey, witRedeem);
+		}
+		public WitScriptCoin(Coin coin, Script witRedeem)
+			: base(coin.Outpoint, coin.TxOut)
+		{
+			SetAll(coin.ScriptPubKey, witRedeem);
+		}
+
+		private void SetAll(Script scriptPubKey, Script witRedeem)
+		{
+			var scriptId = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			if(scriptId != null)
+				P2SHRedeem = witRedeem.WitHash.ScriptPubKey;
+			WitRedeem = witRedeem;
+			AssertCoherent();
+		}
+
+		private void AssertCoherent()
+		{
+			if(P2SHRedeem != null)
+			{
+				if(P2SHRedeem.Hash.ScriptPubKey != TxOut.ScriptPubKey)
+				{
+					throw new ArgumentException("The P2SH scriptPubKey's hash does not match the witRedeem");
+				}
+				if(P2SHRedeem != WitRedeem.WitHash.ScriptPubKey)
+				{
+					throw new ArgumentException("The P2SH redeem does not match the witRedeem");
+				}
+			}
+			else
+			{
+				if(WitRedeem.WitHash.ScriptPubKey != TxOut.ScriptPubKey)
+					throw new ArgumentException("The P2WSH scriptPubKey's hash does not match the witRedeem");
+			}
+		}
+		public WitScriptCoin(IndexedTxOut txOut, Script witRedeem)
+			: base(txOut)
+		{
+			SetAll(txOut.TxOut.ScriptPubKey, witRedeem);
+		}
+
+		public Script P2SHRedeem
+		{
+			get;
+			private set;
+		}
+
+		public Script WitRedeem
+		{
+			get;
+			private set;
+		}
+
+		/// <summary>
+		/// Returns WitRedeem
+		/// </summary>
+		public Script Redeem
+		{
+			get
+			{
+				return WitRedeem;
+			}
+		}
+
+		public Script ExpectedScriptSig
+		{
+			get
+			{
+				return P2SHRedeem == null ? Script.Empty : new Script(Op.GetPushOp(P2SHRedeem.ToBytes(true)));
+			}
 		}
 	}
 

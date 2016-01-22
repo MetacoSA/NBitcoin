@@ -989,7 +989,7 @@ namespace NBitcoin
 			ctx.SigHash = sigHash;
 			foreach(var input in transaction.Inputs.AsIndexedInputs())
 			{
-				var coin = FindSignableCoin(input.TxIn);
+				var coin = FindSignableCoin(input);
 				if(coin != null)
 				{
 					Sign(ctx, coin, input);
@@ -998,7 +998,7 @@ namespace NBitcoin
 			return transaction;
 		}
 
-		public ICoin FindSignableCoin(TxIn txIn)
+		public ICoin FindSignableCoin(IndexedTxIn txIn)
 		{
 			var coin = FindCoin(txIn.PrevOut);
 			if(coin == null)
@@ -1006,29 +1006,34 @@ namespace NBitcoin
 			if(coin is IColoredCoin)
 				coin = ((IColoredCoin)coin).Bearer;
 
-			if(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey))
+			var expectedId =
+				PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey) as IScriptTxDestination ??
+				PayToWitTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey) as IScriptTxDestination;
+
+			if(expectedId != null)
 			{
 				var scriptCoin = coin as IScriptCoin;
 				if(scriptCoin == null)
 				{
-					var expectedId = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
-					//Try to extract redeem from this transaction
-					var p2shParams = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txIn.ScriptSig, coin.TxOut.ScriptPubKey);
-					if(p2shParams == null || p2shParams.RedeemScript.Hash != expectedId)
+					coin = GetScriptCoin(txIn, coin, expectedId);
+				}
+				scriptCoin = coin as IScriptCoin;
+				if(scriptCoin != null)
+				{
+					var witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptCoin.Redeem);
+					if(witScriptId != null)
 					{
-						var redeem = _ScriptIdToRedeem.TryGet(expectedId);
-						if(redeem == null)
-							return null;
-						//throw new InvalidOperationException("A coin with a P2SH scriptPubKey was detected, however this coin is not a ScriptCoin, and no information about the redeem script was found in the input, and from the KnownRedeems");
-						else
-							return ((Coin)coin).ToScriptCoin(redeem);
-					}
-					else
-					{
-						return ((Coin)coin).ToScriptCoin(p2shParams.RedeemScript);
+						coin = GetScriptCoin(txIn, coin, witScriptId);
 					}
 				}
 			}
+			return coin;
+		}
+
+		private ICoin GetScriptCoin(IndexedTxIn txIn, ICoin coin, IScriptTxDestination expectedId)
+		{
+			var redeem = expectedId.ExtractRedeemScript(txIn) ?? _ScriptIdToRedeem.TryGet((TxDestination)expectedId);
+			coin = redeem == null ? null : expectedId.ToScriptCoin((Coin)coin, redeem);
 			return coin;
 		}
 
@@ -1271,25 +1276,37 @@ namespace NBitcoin
 				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
 			}
 
-			if(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey))
+			Money amount = (coin is IColoredCoin) ? ((ColoredCoin)coin).Bearer.Amount : (Money)coin.Amount;
+
+			WitScript witScript = WitScript.Empty;
+			var scriptCoin = coin as IScriptCoin;
+			if(scriptCoin != null)
 			{
-				var scriptCoin = (IScriptCoin)coin;
+				WitScriptCoin witCoin = scriptCoin as WitScriptCoin;	
 				var original = input.ScriptSig;
-				input.ScriptSig = CreateScriptSig(ctx, scriptCoin.Redeem, txIn);
-				if(original != input.ScriptSig)
+				input.ScriptSig = CreateScriptSig(ctx, scriptCoin.Redeem, txIn, amount, witCoin == null ? HashVersion.Original : HashVersion.Witness , ref witScript);
+				if(original != input.ScriptSig || witScript != WitScript.Empty)
 				{
 					input.ScriptSig = input.ScriptSig + Op.GetPushOp(scriptCoin.Redeem.ToBytes(true));
+					
+					if(witCoin != null)
+					{
+						witScript = new WitScript(input.ScriptSig);
+						input.ScriptSig = witCoin.ExpectedScriptSig;
+					}
 				}
 			}
 			else
 			{
-				input.ScriptSig = CreateScriptSig(ctx, coin.TxOut.ScriptPubKey, txIn);
+				input.ScriptSig = CreateScriptSig(ctx, coin.TxOut.ScriptPubKey, txIn, amount, HashVersion.Original, ref witScript);
 			}
-
+			txIn.WitScript = witScript;
 		}
 
 
-		private Script CreateScriptSig(TransactionSigningContext ctx, Script scriptPubKey, IndexedTxIn txIn)
+		private Script CreateScriptSig(TransactionSigningContext ctx, Script scriptPubKey, IndexedTxIn txIn, Money amount,
+			HashVersion hashVersion,
+			ref WitScript witScriptSig)
 		{
 			var originalScriptSig = txIn.TxIn.ScriptSig;
 			txIn.TxIn.ScriptSig = scriptPubKey;
@@ -1300,7 +1317,7 @@ namespace NBitcoin
 				var key = FindKey(ctx, scriptPubKey);
 				if(key == null)
 					return originalScriptSig;
-				var sig = txIn.Sign(key, scriptPubKey, ctx.SigHash);
+				var sig = txIn.Sign(key, scriptPubKey, ctx.SigHash, amount, hashVersion);
 				return PayToPubkeyHashTemplate.Instance.GenerateScriptSig(sig, key.PubKey);
 			}
 
@@ -1337,7 +1354,7 @@ namespace NBitcoin
 					}
 					if(keys[i] != null)
 					{
-						var sig = txIn.Sign(keys[i], scriptPubKey, ctx.SigHash);
+						var sig = txIn.Sign(keys[i], scriptPubKey, ctx.SigHash, amount, hashVersion);
 						signatures[i] = sig;
 						sigCount++;
 					}
@@ -1358,10 +1375,38 @@ namespace NBitcoin
 				var key = FindKey(ctx, scriptPubKey);
 				if(key == null)
 					return originalScriptSig;
-				var sig = txIn.Sign(key, scriptPubKey, ctx.SigHash);
+				var sig = txIn.Sign(key, scriptPubKey, ctx.SigHash, amount, hashVersion);
 				return PayToPubkeyTemplate.Instance.GenerateScriptSig(sig);
 			}
 
+			var payToWit = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			if(payToWit != null)
+			{
+				var key = FindKey(ctx, payToWit.WitScriptPubKey);
+				if(key == null)
+					return originalScriptSig;
+				var sig = txIn.Sign(key, payToWit.WitScriptPubKey, ctx.SigHash, amount, HashVersion.Witness);
+				witScriptSig = new WitScript(PayToPubkeyHashTemplate.Instance.GenerateScriptSig(sig, key.PubKey));
+				return Script.Empty;
+			}
+
+			var witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			if(witScriptId != null)
+			{
+			
+				//var witCoin = coin as WitScriptCoin;
+				//if(witCoin == null)
+				//	return originalScriptSig;
+				//var key = FindKey(ctx, witCoin.Redeem);
+				//if(key == null || PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(witCoin.Redeem))
+				//	return originalScriptSig;
+				//return CreateScriptSig(ctx, new Coin()
+				//	{
+				//		ScriptPubKey = witCoin.Redeem,
+				//		Amount = witCoin.Amount,
+				//		Outpoint = witCoin.Outpoint
+				//	}, txIn, amount, HashVersion.Witness, ref witScriptSig);
+			}
 			throw new NotSupportedException("Unsupported scriptPubKey");
 		}
 
@@ -1453,12 +1498,13 @@ namespace NBitcoin
 			return this;
 		}
 
-		Dictionary<ScriptId, Script> _ScriptIdToRedeem = new Dictionary<ScriptId, Script>();
+		Dictionary<TxDestination, Script> _ScriptIdToRedeem = new Dictionary<TxDestination, Script>();
 		public TransactionBuilder AddKnownRedeems(params Script[] knownRedeems)
 		{
 			foreach(var redeem in knownRedeems)
 			{
 				_ScriptIdToRedeem.AddOrReplace(redeem.Hash, redeem);
+				_ScriptIdToRedeem.AddOrReplace(redeem.WitHash, redeem);
 			}
 			return this;
 		}
@@ -1497,14 +1543,28 @@ namespace NBitcoin
 				var scriptPubKey = coin == null
 					? (DeduceScriptPubKey(txIn.ScriptSig) ?? DeduceScriptPubKey(signed2.Inputs[i].ScriptSig))
 					: coin.TxOut.ScriptPubKey;
-				tx.Inputs[i].ScriptSig = Script.CombineSignatures(
-										scriptPubKey,
-										tx,
-										 i,
-										 signed1.Inputs[i].ScriptSig,
-										 signed2.Inputs[i].ScriptSig);
+
+				var amount = coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : ((Coin)coin).Amount;
+				//tx.Inputs[i].ScriptSig =
+				var result = Script.CombineSignatures(
+									scriptPubKey,
+									new TransactionChecker(tx, i, amount),
+									 GetScriptSigs(signed1.Inputs.AsIndexedInputs().Skip(i).First()),
+									 GetScriptSigs(signed2.Inputs.AsIndexedInputs().Skip(i).First()));
+				var input = tx.Inputs.AsIndexedInputs().Skip(i).First();
+				input.WitScript = result.WitSig;
+				input.ScriptSig = result.ScriptSig;
 			}
 			return tx;
+		}
+
+		private ScriptSigs GetScriptSigs(IndexedTxIn indexedTxIn)
+		{
+			return new ScriptSigs()
+			{
+				ScriptSig = indexedTxIn.ScriptSig,
+				WitSig = indexedTxIn.WitScript
+			};
 		}
 
 		private Script DeduceScriptPubKey(Script scriptSig)

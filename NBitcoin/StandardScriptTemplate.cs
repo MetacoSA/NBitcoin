@@ -449,7 +449,7 @@ namespace NBitcoin
 				return false;
 			return ops[0].PushData != null && PubKey.Check(ops[0].PushData, false) &&
 				   ops[1].Code == OpcodeType.OP_CHECKSIG;
-		}		
+		}
 
 		public Script GenerateScriptSig(ECDSASignature signature)
 		{
@@ -808,6 +808,68 @@ namespace NBitcoin
 		public WitScript GenerateWitScript(PayToWitPubkeyHashScriptSigParameters parameters)
 		{
 			return GenerateWitScript(parameters.TransactionSignature, parameters.PublicKey);
+		}
+	}
+
+	public class PayToWitScriptHashTemplate : PayToWitTemplate
+	{
+		static PayToWitScriptHashTemplate _Instance;
+		public new static PayToWitScriptHashTemplate Instance
+		{
+			get
+			{
+				return _Instance = _Instance ?? new PayToWitScriptHashTemplate();
+			}
+		}
+		public Script GenerateScriptPubKey(BitcoinWitScriptAddress address)
+		{
+			if(address == null)
+				throw new ArgumentNullException("address");
+			return GenerateScriptPubKey(address.Hash);
+		}
+		public Script GenerateScriptPubKey(WitScriptId scriptHash)
+		{
+			return scriptHash.ScriptPubKey;
+		}
+
+		public WitScript GenerateWitScript(Op[] scriptSig, Script redeemScript)
+		{
+			if(redeemScript == null)
+				throw new ArgumentNullException("redeemScript");
+			if(scriptSig == null)
+				throw new ArgumentNullException("scriptSig");
+
+			var ops = scriptSig.Concat(new[] { Op.GetPushOp(redeemScript.ToBytes(true)) }).ToArray();
+			return new WitScript(ops);
+		}
+
+		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
+		{
+			var bytes = scriptPubKey.ToBytes(true);
+			return bytes.Length == 34 && bytes[0] == 0 && bytes[1] == 32;
+		}
+
+		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
+		{
+			return true;
+		}
+		public new WitScriptId ExtractScriptPubKeyParameters(Script scriptPubKey)
+		{
+			if(!FastCheckScriptPubKey(scriptPubKey))
+				return null;
+			byte[] data = new byte[32];
+			Array.Copy(scriptPubKey.ToBytes(true), 2, data, 0, 32);
+			return new WitScriptId(data);
+		}
+
+		protected override bool CheckScriptSigCore(Script scriptSig, Op[] scriptSigOps, Script scriptPubKey, Op[] scriptPubKeyOps)
+		{
+			return scriptSig.Length == 0;
+		}
+
+		protected override bool FastCheckScriptSig(Script scriptSig, Script scriptPubKey)
+		{
+			return scriptSig.Length == 0;
 		}
 	}
 

@@ -15,6 +15,7 @@ namespace NBitcoin.Policy
 			MaxTxFee = new FeeRate(Money.Coins(0.1m));
 			MinRelayTxFee = new FeeRate(Money.Satoshis(5000));
 			CheckFee = true;
+			CheckScriptPubKey = true;
 		}
 
 		public int? MaxTransactionSize
@@ -75,7 +76,7 @@ namespace NBitcoin.Policy
 					if(ScriptVerify != null)
 					{
 						ScriptError error;
-						if(!VerifyScript(input, coin.TxOut.ScriptPubKey, ScriptVerify.Value, out error))
+						if(!VerifyScript(input, coin.TxOut.ScriptPubKey, coin.TxOut.Value, ScriptVerify.Value, out error))
 						{
 							errors.Add(new ScriptPolicyError(input, error, ScriptVerify.Value, coin.TxOut.ScriptPubKey));
 						}
@@ -97,12 +98,16 @@ namespace NBitcoin.Policy
 				}
 			}
 
-			foreach(var txout in transaction.Outputs.AsCoins())
+			if(CheckScriptPubKey)
 			{
-				var template = StandardScripts.GetTemplateFromScriptPubKey(txout.ScriptPubKey);
-				if(template == null)
-					errors.Add(new OutputPolicyError("Non-Standard scriptPubKey", (int)txout.Outpoint.N));
+				foreach(var txout in transaction.Outputs.AsCoins())
+				{
+					var template = StandardScripts.GetTemplateFromScriptPubKey(txout.ScriptPubKey);
+					if(template == null)
+						errors.Add(new OutputPolicyError("Non-Standard scriptPubKey", (int)txout.Outpoint.N));
+				}
 			}
+
 			int txSize = transaction.GetSerializedSize();
 			if(MaxTransactionSize != null)
 			{
@@ -153,12 +158,12 @@ namespace NBitcoin.Policy
 			return bytes.Length > 0 && bytes[0] == (byte)OpcodeType.OP_RETURN;
 		}
 
-		private bool VerifyScript(IndexedTxIn input, Script scriptPubKey, ScriptVerify scriptVerify, out ScriptError error)
+		private bool VerifyScript(IndexedTxIn input, Script scriptPubKey, Money value, ScriptVerify scriptVerify, out ScriptError error)
 		{
 #if !NOCONSENSUSLIB
 			if(!UseConsensusLib)
 #endif
-				return input.VerifyScript(scriptPubKey, scriptVerify, out error);
+				return input.VerifyScript(scriptPubKey, scriptVerify, value, out error);
 #if !NOCONSENSUSLIB
 			else
 			{
@@ -193,6 +198,15 @@ namespace NBitcoin.Policy
 #endif
 				CheckFee = CheckFee
 			};
+		}
+
+		/// <summary>
+		/// Check the standardness of scriptPubKey
+		/// </summary>
+		public bool CheckScriptPubKey
+		{
+			get;
+			set;
 		}
 	}
 }

@@ -1382,7 +1382,7 @@ namespace NBitcoin.Tests
 				scriptCode = new Script(Encoders.Hex.DecodeData(scriptCodeHex));
 			}
 
-			var h = scriptCode.SignatureHash(tx, input, SigHash.All, amount, 1);
+			var h = scriptCode.SignatureHash(tx, input, SigHash.All, amount, HashVersion.Witness);
 
 			ScriptError err;
 			var r = Script.VerifyScript(scriptCode, tx, 0, amount, out err);
@@ -1717,6 +1717,355 @@ namespace NBitcoin.Tests
 
 
 			return dummyTransactions;
+		}
+
+		class CKeyStore
+		{
+			internal List<Tuple<Key, PubKey>> _Keys = new List<Tuple<Key, PubKey>>();
+			internal List<Script> _Scripts = new List<Script>();
+			internal void AddKeyPubKey(Key key, PubKey pubkey)
+			{
+				_Keys.Add(Tuple.Create(key, pubkey));
+			}
+
+			internal void RemoveKeyPubKey(Key key)
+			{
+				_Keys.Remove(_Keys.First(o => o.Item1 == key));
+			}
+
+			internal void AddCScript(Script scriptPubkey)
+			{
+				_Scripts.Add(scriptPubkey);
+			}
+		}
+
+		void CreateCreditAndSpend(CKeyStore keystore, Script outscript, ref Transaction output, ref Transaction input, bool success = true)
+		{
+			Transaction outputm = new Transaction();
+			outputm.Version = 1;
+			outputm.Inputs.Add(new TxIn());
+			outputm.Inputs[0].PrevOut = new OutPoint();
+			outputm.Inputs[0].ScriptSig = Script.Empty;
+			outputm.Witness[0] = new WitScript();
+			outputm.Outputs.Add(new TxOut());
+			outputm.Outputs[0].Value = Money.Satoshis(1);
+			outputm.Outputs[0].ScriptPubKey = outscript;
+
+			output = outputm.Clone();
+
+			Assert.True(output.Inputs.Count == 1);
+			Assert.True(output.Inputs[0].ToBytes().SequenceEqual(outputm.Inputs[0].ToBytes()));
+			Assert.True(output.Outputs.Count == 1);
+			Assert.True(output.Inputs[0].ToBytes().SequenceEqual(outputm.Inputs[0].ToBytes()));
+			Assert.True(output.Witness.Count == 0);
+
+			Transaction inputm = new Transaction();
+			inputm.Version = 1;
+			inputm.Inputs.Add(new TxIn());
+			inputm.Inputs[0].PrevOut.Hash = output.GetHash();
+			inputm.Inputs[0].PrevOut.N = 0;
+			inputm.Witness[0] = new WitScript();
+			inputm.Outputs.Add(new TxOut());
+			inputm.Outputs[0].Value = Money.Satoshis(1);
+			inputm.Outputs[0].ScriptPubKey = Script.Empty;
+			bool ret = SignSignature(keystore, output, inputm, 0);
+			Assert.True(ret == success);
+			input = inputm.Clone();
+			Assert.True(input.Inputs.Count == 1);
+			Assert.True(input.Inputs[0].ToBytes().SequenceEqual(inputm.Inputs[0].ToBytes()));
+			Assert.True(input.Outputs.Count == 1);
+			Assert.True(input.Outputs[0].ToBytes().SequenceEqual(inputm.Outputs[0].ToBytes()));
+			if(inputm.Witness.IsNull())
+			{
+				Assert.True(input.Witness.IsNull());
+			}
+			else
+			{
+				Assert.True(!input.Witness.IsNull());
+				Assert.True(input.Witness.Count == 1);
+				Assert.True(input.Witness[0].ToBytes().SequenceEqual(inputm.Witness[0].ToBytes()));
+			}
+		}
+
+		private bool SignSignature(CKeyStore keystore, Transaction txFrom, Transaction txTo, int nIn)
+		{
+			var builder = CreateBuilder(keystore, txFrom);
+			builder.SignTransactionInPlace(txTo);
+			return builder.Verify(txTo);
+		}
+
+		private void CombineSignatures(CKeyStore keystore, Transaction txFrom, ref Transaction input1, Transaction input2)
+		{
+			var builder = CreateBuilder(keystore, txFrom);
+			input1 = builder.CombineSignatures(input1, input2);
+		}
+
+		private static TransactionBuilder CreateBuilder(CKeyStore keystore, Transaction txFrom)
+		{
+			var coins = txFrom.Outputs.AsCoins().ToArray();
+			var builder = new TransactionBuilder()
+			{
+				StandardTransactionPolicy = new StandardTransactionPolicy()
+				{
+					CheckFee = false,
+					MinRelayTxFee = null,
+					UseConsensusLib = false,
+					CheckScriptPubKey = false
+				}
+			}
+			.AddCoins(coins)
+			.AddKeys(keystore._Keys.Select(k => k.Item1).ToArray())
+			.AddKnownRedeems(keystore._Scripts.ToArray());
+			return builder;
+		}
+
+		void CheckWithFlag(Transaction output, Transaction input, ScriptVerify flags, bool success)
+		{
+			ScriptError error;
+			Transaction inputi = input.Clone();
+			ScriptEvaluationContext ctx = new ScriptEvaluationContext();
+			ctx.ScriptVerify = flags;
+			bool ret = ctx.VerifyScript(inputi.Inputs[0].ScriptSig, output.Outputs[0].ScriptPubKey, new TransactionChecker(inputi, 0, output.Outputs[0].Value));
+			Assert.True(ret == success);
+		}
+
+		static Script PushAll(ContextStack<byte[]> values)
+		{
+			List<Op> result = new List<Op>();
+			foreach(var v in values.Reverse())
+			{
+				if(v.Length == 0)
+				{
+					result.Add(OpcodeType.OP_0);
+				}
+				else
+				{
+					result.Add(Op.GetPushOp(v));
+				}
+			}
+			return new Script(result.ToArray());
+		}
+
+		void ReplaceRedeemScript(TxIn input, Script redeemScript)
+		{
+			ScriptEvaluationContext ctx = new ScriptEvaluationContext();
+			ctx.ScriptVerify = ScriptVerify.StrictEnc;
+			ctx.EvalScript(input.ScriptSig, new Transaction(), 0);
+			var stack = ctx.Stack;
+			Assert.True(stack.Count > 0);
+			stack.Pop();
+			stack.Push(redeemScript.ToBytes());
+			input.ScriptSig = PushAll(stack);
+		}
+
+		[Fact]
+		[Trait("Core", "Core")]
+		public void test_witness()
+		{
+			ScriptError serror;
+			CKeyStore keystore = new CKeyStore();
+			CKeyStore keystore2 = new CKeyStore();
+			var key1 = new Key(true);
+			var key2 = new Key(true);
+			var key3 = new Key(true);
+			var key1L = new Key(false);
+			var key2L = new Key(false);
+			var pubkey1 = key1.PubKey;
+			var pubkey2 = key2.PubKey;
+			var pubkey3 = key3.PubKey;
+			var pubkey1L = key1L.PubKey;
+			var pubkey2L = key2L.PubKey;
+			keystore.AddKeyPubKey(key1, pubkey1);
+			keystore.AddKeyPubKey(key2, pubkey2);
+			keystore.AddKeyPubKey(key1L, pubkey1L);
+			keystore.AddKeyPubKey(key2L, pubkey2L);
+			Script scriptPubkey1, scriptPubkey2, scriptPubkey1L, scriptPubkey2L, scriptMulti;
+			scriptPubkey1 = new Script(Op.GetPushOp(pubkey1.ToBytes()), OpcodeType.OP_CHECKSIG);
+			scriptPubkey2 = new Script(Op.GetPushOp(pubkey2.ToBytes()), OpcodeType.OP_CHECKSIG);
+			scriptPubkey1L = new Script(Op.GetPushOp(pubkey1L.ToBytes()), OpcodeType.OP_CHECKSIG);
+			scriptPubkey2L = new Script(Op.GetPushOp(pubkey2L.ToBytes()), OpcodeType.OP_CHECKSIG);
+			List<PubKey> oneandthree = new List<PubKey>();
+			oneandthree.Add(pubkey1);
+			oneandthree.Add(pubkey3);
+			scriptMulti = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, oneandthree.ToArray());
+			keystore.AddCScript(scriptPubkey1);
+			keystore.AddCScript(scriptPubkey2);
+			keystore.AddCScript(scriptPubkey1L);
+			keystore.AddCScript(scriptPubkey2L);
+			keystore.AddCScript(scriptMulti);
+			keystore.AddCScript(GetScriptForWitness(scriptPubkey1));
+			keystore.AddCScript(GetScriptForWitness(scriptPubkey2));
+			keystore.AddCScript(GetScriptForWitness(scriptPubkey1L));
+			keystore.AddCScript(GetScriptForWitness(scriptPubkey2L));
+			keystore.AddCScript(GetScriptForWitness(scriptMulti));
+			keystore2.AddCScript(scriptMulti);
+			keystore2.AddCScript(GetScriptForWitness(scriptMulti));
+			keystore2.AddKeyPubKey(key3, pubkey3);
+
+			Transaction output1, output2;
+			output1 = new Transaction();
+			output2 = new Transaction();
+			Transaction input1, input2;
+			input1 = new Transaction();
+			input2 = new Transaction();
+
+			// Normal pay-to-compressed-pubkey.
+			CreateCreditAndSpend(keystore, scriptPubkey1, ref output1, ref input1);
+			CreateCreditAndSpend(keystore, scriptPubkey2, ref output2, ref input2);
+			CheckWithFlag(output1, input1, 0, true);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Witness | ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+			CheckWithFlag(output1, input2, 0, false);
+			CheckWithFlag(output1, input2, ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Witness | ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Standard, false);
+
+			// P2SH pay-to-compressed-pubkey.
+			CreateCreditAndSpend(keystore, scriptPubkey1.Hash.ScriptPubKey, ref output1, ref input1);
+			CreateCreditAndSpend(keystore, scriptPubkey2.Hash.ScriptPubKey, ref output2, ref input2);
+			ReplaceRedeemScript(input2.Inputs[0], scriptPubkey1);
+			CheckWithFlag(output1, input1, 0, true);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Witness | ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+			CheckWithFlag(output1, input2, 0, true);
+			CheckWithFlag(output1, input2, ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Witness | ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Standard, false);
+
+			// Witness pay-to-compressed-pubkey (v0).
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptPubkey1), ref output1, ref input1);
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptPubkey2), ref output2, ref input2);
+			CheckWithFlag(output1, input1, 0, true);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Witness | ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+			CheckWithFlag(output1, input2, 0, true);
+			CheckWithFlag(output1, input2, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input2, ScriptVerify.Witness | ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Standard, false);
+
+			// P2SH witness pay-to-compressed-pubkey (v0).
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptPubkey1).Hash.ScriptPubKey, ref output1, ref input1);
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptPubkey2).Hash.ScriptPubKey, ref output2, ref input2);
+			ReplaceRedeemScript(input2.Inputs[0], GetScriptForWitness(scriptPubkey1));
+			CheckWithFlag(output1, input1, 0, true);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Witness | ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+			CheckWithFlag(output1, input2, 0, true);
+			CheckWithFlag(output1, input2, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input2, ScriptVerify.Witness | ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Standard, false);
+
+			// Normal pay-to-uncompressed-pubkey.
+			CreateCreditAndSpend(keystore, scriptPubkey1L, ref output1, ref input1);
+			CreateCreditAndSpend(keystore, scriptPubkey2L, ref output2, ref input2);
+			CheckWithFlag(output1, input1, 0, true);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Witness | ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+			CheckWithFlag(output1, input2, 0, false);
+			CheckWithFlag(output1, input2, ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Witness | ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Standard, false);
+
+			// P2SH pay-to-uncompressed-pubkey.
+			CreateCreditAndSpend(keystore, scriptPubkey1L.Hash.ScriptPubKey, ref output1, ref input1);
+			CreateCreditAndSpend(keystore, scriptPubkey2L.Hash.ScriptPubKey, ref output2, ref input2);
+			ReplaceRedeemScript(input2.Inputs[0], scriptPubkey1L);
+			CheckWithFlag(output1, input1, 0, true);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Witness | ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+			CheckWithFlag(output1, input2, 0, true);
+			CheckWithFlag(output1, input2, ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Witness | ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Standard, false);
+
+			// Witness pay-to-uncompressed-pubkey (v1).
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptPubkey1L), ref output1, ref input1);
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptPubkey2L), ref output2, ref input2);
+			CheckWithFlag(output1, input1, 0, true);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Witness | ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+			CheckWithFlag(output1, input2, 0, true);
+			CheckWithFlag(output1, input2, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input2, ScriptVerify.Witness | ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Standard, false);
+
+			// P2SH witness pay-to-uncompressed-pubkey (v1).
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptPubkey1L).Hash.ScriptPubKey, ref output1, ref input1);
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptPubkey2L).Hash.ScriptPubKey, ref output2, ref input2);
+			ReplaceRedeemScript(input2.Inputs[0], GetScriptForWitness(scriptPubkey1L));
+			CheckWithFlag(output1, input1, 0, true);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Witness | ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+			CheckWithFlag(output1, input2, 0, true);
+			CheckWithFlag(output1, input2, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input2, ScriptVerify.Witness | ScriptVerify.P2SH, false);
+			CheckWithFlag(output1, input2, ScriptVerify.Standard, false);
+
+			// Normal 2-of-2 multisig
+			CreateCreditAndSpend(keystore, scriptMulti, ref output1, ref input1, false);
+			CheckWithFlag(output1, input1, 0, false);
+			CreateCreditAndSpend(keystore2, scriptMulti, ref output2, ref input2, false);
+			CheckWithFlag(output2, input2, 0, false);
+			Assert.True(output1.ToBytes().SequenceEqual(output2.ToBytes()));
+			CombineSignatures(keystore, output1, ref input1, input2);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+
+			// P2SH 2-of-2 multisig
+			CreateCreditAndSpend(keystore, scriptMulti.Hash.ScriptPubKey, ref output1, ref input1, false);
+			CheckWithFlag(output1, input1, 0, true);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH, false);
+			CreateCreditAndSpend(keystore2, scriptMulti.Hash.ScriptPubKey, ref output2, ref input2, false);
+			CheckWithFlag(output2, input2, 0, true);
+			CheckWithFlag(output2, input2, ScriptVerify.P2SH, false);
+			Assert.True(output1.ToBytes().SequenceEqual(output2.ToBytes()));
+			CombineSignatures(keystore, output1, ref input1, input2);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+
+			// Witness 2-of-2 multisig
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptMulti), ref output1, ref input1, false);
+			CheckWithFlag(output1, input1, 0, true);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH | ScriptVerify.Witness, false);
+			CreateCreditAndSpend(keystore2, GetScriptForWitness(scriptMulti), ref output2, ref input2, false);
+			CheckWithFlag(output2, input2, 0, true);
+			CheckWithFlag(output2, input2, ScriptVerify.P2SH | ScriptVerify.Witness, false);
+			Assert.True(output1.ToBytes().SequenceEqual(output2.ToBytes()));
+			CombineSignatures(keystore, output1, ref input1, input2);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH | ScriptVerify.Witness, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+
+			// P2SH witness 2-of-2 multisig
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptMulti).Hash.ScriptPubKey, ref output1, ref input1, false);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH, true);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH | ScriptVerify.Witness, false);
+			CreateCreditAndSpend(keystore2, GetScriptForWitness(scriptMulti).Hash.ScriptPubKey, ref output2, ref input2, false);
+			CheckWithFlag(output2, input2, ScriptVerify.P2SH, true);
+			CheckWithFlag(output2, input2, ScriptVerify.P2SH | ScriptVerify.Witness, false);
+			Assert.True(output1.ToBytes().SequenceEqual(output2.ToBytes()));
+			CombineSignatures(keystore, output1, ref input1, input2);
+			CheckWithFlag(output1, input1, ScriptVerify.P2SH | ScriptVerify.Witness, true);
+			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
+		}
+
+
+		private Script GetScriptForWitness(Script scriptPubKey)
+		{
+			var pubkey = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			if(pubkey != null)
+				return new Script(OpcodeType.OP_0, Op.GetPushOp(pubkey.Hash.ToBytes()));
+			var pkh = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			if(pkh != null)
+				return new Script(OpcodeType.OP_0, Op.GetPushOp(pkh.ToBytes()));
+
+			return new Script(OpcodeType.OP_0, Op.GetPushOp(scriptPubKey.WitHash.ToBytes()));
 		}
 
 

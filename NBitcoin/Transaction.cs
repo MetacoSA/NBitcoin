@@ -704,9 +704,17 @@ namespace NBitcoin
 		{
 			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, null, scriptVerify, SigHash.Undefined, out error);
 		}
+		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify, Money value, out ScriptError error)
+		{
+			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, value, scriptVerify, SigHash.Undefined, out error);
+		}
 		public uint256 GetSignatureHash(Script scriptPubKey, SigHash sigHash = SigHash.All)
 		{
 			return scriptPubKey.SignatureHash(Transaction, (int)Index, sigHash);
+		}
+		public uint256 GetSignatureHash(Script scriptPubKey, SigHash sigHash, Money amount, HashVersion hashVersion)
+		{
+			return scriptPubKey.SignatureHash(Transaction, (int)Index, sigHash, amount, hashVersion);
 		}
 		public TransactionSignature Sign(ISecret secret, Script scriptPubKey, SigHash sigHash = SigHash.All)
 		{
@@ -714,7 +722,12 @@ namespace NBitcoin
 		}
 		public TransactionSignature Sign(Key key, Script scriptPubKey, SigHash sigHash = SigHash.All)
 		{
-			var hash = GetSignatureHash(scriptPubKey, sigHash);
+			return Sign(key, scriptPubKey, sigHash, null, 0);
+		}
+
+		public TransactionSignature Sign(Key key, Script scriptPubKey, SigHash sigHash, Money amount, HashVersion hashVersion)
+		{
+			var hash = GetSignatureHash(scriptPubKey, sigHash, amount, hashVersion);
 			return key.Sign(hash, sigHash);
 		}
 	}
@@ -891,6 +904,18 @@ namespace NBitcoin
 
 		}
 
+		public WitScript(Script scriptSig)
+		{
+			List<byte[]> pushes = new List<byte[]>();
+			foreach(var op in scriptSig.ToOps())
+			{
+				if(op.PushData == null)
+					throw new ArgumentException("A WitScript can only contains push operations", "script");
+				pushes.Add(op.PushData);
+			}
+			_Pushes = pushes.ToArray();
+		}
+
 		public static WitScript Load(BitcoinStream stream)
 		{
 			WitScript script = new WitScript();
@@ -933,12 +958,51 @@ namespace NBitcoin
 		}
 
 		static WitScript _Empty = new WitScript(new byte[0][], true);
+
 		public static WitScript Empty
 		{
 			get
 			{
 				return _Empty;
 			}
+		}
+
+		public override bool Equals(object obj)
+		{
+			WitScript item = obj as WitScript;
+			if(item == null)
+				return false;
+			return EqualsCore(item);
+		}
+
+		private bool EqualsCore(WitScript item)
+		{
+			if(_Pushes.Length != item._Pushes.Length)
+				return false;
+			for(int i = 0 ; i < _Pushes.Length ; i++)
+			{
+				if(!Utils.ArrayEqual(_Pushes[i], item._Pushes[i]))
+					return false;
+			}
+			return true;
+		}
+		public static bool operator ==(WitScript a, WitScript b)
+		{
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if(((object)a == null) || ((object)b == null))
+				return false;
+			return a.EqualsCore(b);
+		}
+
+		public static bool operator !=(WitScript a, WitScript b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return Utils.GetHashCode(ToBytes());
 		}
 
 		public byte[] ToBytes()
@@ -957,7 +1021,12 @@ namespace NBitcoin
 
 		public override string ToString()
 		{
-			return String.Join(" ", _Pushes.Select(p => Encoders.Hex.EncodeData(p)).ToArray());
+			return ToScript().ToString();
+		}
+
+		public Script ToScript()
+		{
+			return new Script(_Pushes.Select(p => Op.GetPushOp(p)).ToArray());
 		}
 
 		public int PushCount
@@ -1177,7 +1246,7 @@ namespace NBitcoin
 					nVersion = nVersion & ~NoDummyInput;
 
 				if(vin.Count == 0 && witSupported && !hasNoDummy)
-				{					
+				{
 					/* We read a dummy or an empty vin. */
 					stream.ReadWrite(ref flags);
 					if(flags != 0)

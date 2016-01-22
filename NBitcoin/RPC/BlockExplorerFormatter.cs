@@ -77,8 +77,9 @@ namespace NBitcoin.RPC
 
 			writer.WritePropertyName("in");
 			writer.WriteStartArray();
-			foreach(var txin in tx.Inputs)
+			foreach(var input in tx.Inputs.AsIndexedInputs())
 			{
+				var txin = input.TxIn;
 				writer.WriteStartObject();
 				writer.WritePropertyName("prev_out");
 				writer.WriteStartObject();
@@ -93,6 +94,10 @@ namespace NBitcoin.RPC
 				else
 				{
 					WritePropertyValue(writer, "scriptSig", txin.ScriptSig.ToString());
+				}
+				if(input.WitScript != WitScript.Empty)
+				{
+					WritePropertyValue(writer, "witness", input.WitScript.ToString());
 				}
 				if(txin.Sequence != uint.MaxValue)
 				{

@@ -279,6 +279,30 @@ namespace NBitcoin
 		OP_NOP10 = 0xb9,
 	};
 
+	public enum HashVersion
+	{
+		Original = 0,
+		Witness = 1
+	}
+
+	public class ScriptSigs
+	{
+		public ScriptSigs()
+		{
+			WitSig = WitScript.Empty;
+		}
+		public Script ScriptSig
+		{
+			get;
+			set;
+		}
+		public WitScript WitSig
+		{
+			get;
+			set;
+		}
+	}
+
 	public class Script
 	{
 		static readonly Script _Empty = new Script();
@@ -490,10 +514,12 @@ namespace NBitcoin
 
 
 		//https://en.bitcoin.it/wiki/OP_CHECKSIG
-		public uint256 SignatureHash(Transaction txTo, int nIn, SigHash nHashType, Money amount = null, int sigversion = 0)
+		public uint256 SignatureHash(Transaction txTo, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original)
 		{
-			if(sigversion == 1)
+			if(sigversion == HashVersion.Witness)
 			{
+				if(amount == null)
+					throw new ArgumentException("The amount of the output being signed must be provided", "amount");
 				uint256 hashPrevouts = uint256.Zero;
 				uint256 hashSequence = uint256.Zero;
 				uint256 hashOutputs = uint256.Zero;
@@ -873,7 +899,7 @@ namespace NBitcoin
 			ScriptError unused;
 			return VerifyScript(scriptSig, scriptPubKey, tx, i, null, scriptVerify, sigHash, out unused);
 		}
-		
+
 		public static bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction tx, int i, Money value, ScriptVerify scriptVerify = ScriptVerify.Standard, SigHash sigHash = SigHash.Undefined)
 		{
 			ScriptError unused;
@@ -979,7 +1005,7 @@ namespace NBitcoin
 
 		public override int GetHashCode()
 		{
-			return Encoders.Hex.EncodeData(_Script).GetHashCode();
+			return Utils.GetHashCode(_Script);
 		}
 
 		public Script Clone()
@@ -989,25 +1015,68 @@ namespace NBitcoin
 
 		public static Script CombineSignatures(Script scriptPubKey, Transaction transaction, int n, Script scriptSig1, Script scriptSig2)
 		{
+			return CombineSignatures(scriptPubKey, new TransactionChecker(transaction, n), new ScriptSigs()
+			{
+				ScriptSig = scriptSig1,
+			}, new ScriptSigs()
+			{
+				ScriptSig = scriptSig2,
+			}).ScriptSig;
+		}
+		public static ScriptSigs CombineSignatures(Script scriptPubKey, TransactionChecker checker, ScriptSigs input1, ScriptSigs input2)
+		{
 			if(scriptPubKey == null)
 				scriptPubKey = new Script();
+
+			var scriptSig1 = input1.ScriptSig;
+			var scriptSig2 = input2.ScriptSig;
+			HashVersion hashVersion = HashVersion.Original;
+			var isWitness = input1.WitSig != WitScript.Empty || input2.WitSig != WitScript.Empty;
+			if(isWitness)
+			{
+				scriptSig1 = input1.WitSig.ToScript();
+				scriptSig2 = input2.WitSig.ToScript();
+				hashVersion = HashVersion.Witness;
+			}
+			
 			var context = new ScriptEvaluationContext();
 			context.ScriptVerify = ScriptVerify.StrictEnc;
-			context.EvalScript(scriptSig1, transaction, n);
+			context.EvalScript(scriptSig1, checker, hashVersion);
 
 			var stack1 = context.Stack.AsInternalArray();
 			context = new ScriptEvaluationContext();
 			context.ScriptVerify = ScriptVerify.StrictEnc;
-			context.EvalScript(scriptSig2, transaction, n);
+			context.EvalScript(scriptSig2, checker, hashVersion);
 
 			var stack2 = context.Stack.AsInternalArray();
-
-			return CombineSignatures(scriptPubKey, transaction, n, stack1, stack2);
+			var result = CombineSignatures(scriptPubKey, checker, stack1, stack2, hashVersion);
+			if(result == null)
+				return scriptSig1.Length < scriptSig2.Length ? input2 : input1;
+			if(!isWitness)
+				return new ScriptSigs()
+				{
+					ScriptSig = result,
+					WitSig = WitScript.Empty
+				};
+			else
+			{
+				return new ScriptSigs()
+				{
+					ScriptSig = input1.ScriptSig.Length < input2.ScriptSig.Length ? input2.ScriptSig : input1.ScriptSig,
+					WitSig = new WitScript(result)
+				};
+			}
 		}
-
-		private static Script CombineSignatures(Script scriptPubKey, Transaction transaction, int n, byte[][] sigs1, byte[][] sigs2)
+		
+		private static Script CombineSignatures(Script scriptPubKey, TransactionChecker checker, byte[][] sigs1, byte[][] sigs2, HashVersion hashVersion)
 		{
 			var template = StandardScripts.GetTemplateFromScriptPubKey(scriptPubKey);
+
+			if(template is PayToWitPubKeyHashTemplate)
+			{
+				scriptPubKey = new KeyId(scriptPubKey.ToBytes(true).SafeSubarray(1, 20)).ScriptPubKey;
+				template = StandardScripts.GetTemplateFromScriptPubKey(scriptPubKey);
+			}
 			if(template == null || template is TxNullDataTemplate)
 				return PushAll(Max(sigs1, sigs2));
 
@@ -1016,8 +1085,7 @@ namespace NBitcoin
 					return PushAll(sigs2);
 				else
 					return PushAll(sigs1);
-
-			if(template is PayToScriptHashTemplate)
+			if(template is PayToScriptHashTemplate || template is PayToWitTemplate)
 			{
 				if(sigs1.Length == 0 || sigs1[sigs1.Length - 1].Length == 0)
 					return PushAll(sigs2);
@@ -1029,20 +1097,20 @@ namespace NBitcoin
 				var redeem = new Script(redeemBytes);
 				sigs1 = sigs1.Take(sigs1.Length - 1).ToArray();
 				sigs2 = sigs2.Take(sigs2.Length - 1).ToArray();
-				Script result = CombineSignatures(redeem, transaction, n, sigs1, sigs2);
+				Script result = CombineSignatures(redeem, checker, sigs1, sigs2, hashVersion);
 				result += Op.GetPushOp(redeemBytes);
 				return result;
 			}
 
 			if(template is PayToMultiSigTemplate)
 			{
-				return CombineMultisig(scriptPubKey, transaction, n, sigs1, sigs2);
+				return CombineMultisig(scriptPubKey, checker, sigs1, sigs2, hashVersion);
 			}
 
-			throw new NotSupportedException("An impossible thing happen !");
+			return null;
 		}
 
-		private static Script CombineMultisig(Script scriptPubKey, Transaction transaction, int n, byte[][] sigs1, byte[][] sigs2)
+		private static Script CombineMultisig(Script scriptPubKey, TransactionChecker checker, byte[][] sigs1, byte[][] sigs2, HashVersion hashVersion)
 		{
 			// Combine all the signatures we've got:
 			List<TransactionSignature> allsigs = new List<TransactionSignature>();
@@ -1077,7 +1145,7 @@ namespace NBitcoin
 						continue; // Already got a sig for this pubkey
 
 					ScriptEvaluationContext eval = new ScriptEvaluationContext();
-					if(eval.CheckSig(sig.ToBytes(), pubkey.ToBytes(), scriptPubKey, transaction, n))
+					if(eval.CheckSig(sig, pubkey, scriptPubKey, checker, hashVersion))
 					{
 						sigs.AddOrReplace(pubkey, sig);
 					}
@@ -1127,6 +1195,6 @@ namespace NBitcoin
 			{
 				return ToOps().All(o => !o.IsInvalid);
 			}
-		}		
+		}
 	}
 }

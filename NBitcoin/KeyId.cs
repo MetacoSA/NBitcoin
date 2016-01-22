@@ -9,6 +9,22 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	public interface IScriptTxDestination : IDestination
+	{
+		/// <summary>
+		/// Extract the redeem script from the input if it matches this TxDestination
+		/// </summary>
+		/// <param name="txIn">The input</param>
+		/// <returns>The redeem if match, else null</returns>
+		Script ExtractRedeemScript(IndexedTxIn txIn);
+		/// <summary>
+		/// Create a IScriptCoin from a normal coin and the redeem
+		/// </summary>
+		/// <param name="coin">The Coin</param>
+		/// <param name="redeem">The redeem</param>
+		/// <returns>The ScriptCoin if the redeem match this TxDestination, else null</returns>
+		IScriptCoin ToScriptCoin(Coin coin, Script redeem);
+	}
 	public abstract class TxDestination : IDestination
 	{
 		internal byte[] _DestBytes;
@@ -168,13 +184,21 @@ namespace NBitcoin
 			}
 		}
 
+		public Script WitScriptPubKey
+		{
+			get
+			{
+				return new KeyId(_DestBytes).ScriptPubKey;
+			}
+		}
+
 		public override BitcoinAddress GetAddress(Network network)
 		{
 			return new BitcoinWitPubKeyAddress(this, network);
 		}
 	}
 
-	public class WitScriptId : TxDestination
+	public class WitScriptId : TxDestination, IScriptTxDestination
 	{
 		public WitScriptId()
 			: this(0)
@@ -216,9 +240,26 @@ namespace NBitcoin
 		{
 			return new BitcoinWitScriptAddress(this, network);
 		}
+
+		public Script ExtractRedeemScript(IndexedTxIn txIn)
+		{
+			var lastOp = txIn.WitScript.Pushes.LastOrDefault();
+			return lastOp == null ? null : Script.FromBytesUnsafe(lastOp);
+		}
+
+		public IScriptCoin ToScriptCoin(Coin coin, Script redeem)
+		{
+			if(coin == null)
+				throw new ArgumentNullException("coin");
+			if(redeem == null)
+				throw new ArgumentNullException("redeem");
+			if(redeem.WitHash != this)
+				return null;
+			return coin.ToWitScriptCoin(redeem);
+		}
 	}
 
-	public class ScriptId : TxDestination
+	public class ScriptId : TxDestination, IScriptTxDestination
 	{
 		public ScriptId()
 			: this(0)
@@ -260,5 +301,26 @@ namespace NBitcoin
 		{
 			return new BitcoinScriptAddress(this, network);
 		}
+
+		#region IScriptTxDestination Members
+
+		public Script ExtractRedeemScript(IndexedTxIn txIn)
+		{
+			var lastOp = txIn.ScriptSig.ToOps().LastOrDefault();
+			return lastOp == null ? null : Script.FromBytesUnsafe(lastOp.PushData);
+		}
+
+		public IScriptCoin ToScriptCoin(Coin coin, Script redeem)
+		{
+			if(coin == null)
+				throw new ArgumentNullException("coin");
+			if(redeem == null)
+				throw new ArgumentNullException("redeem");
+			if(redeem.Hash != this)
+				return null;
+			return coin.ToScriptCoin(redeem);
+		}
+
+		#endregion
 	}
 }

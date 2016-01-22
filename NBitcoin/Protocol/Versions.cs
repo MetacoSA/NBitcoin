@@ -38,5 +38,8 @@ namespace NBitcoin.Protocol
 
 		//! "sendheaders" command and announcing blocks with headers starts with this version
 		SENDHEADERS_VERSION = 70012,		
+
+		//! Version after which witness support potentially exists
+		x
 	}
 }
