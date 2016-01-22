@@ -1544,8 +1544,9 @@ namespace NBitcoin
 					? (DeduceScriptPubKey(txIn.ScriptSig) ?? DeduceScriptPubKey(signed2.Inputs[i].ScriptSig))
 					: coin.TxOut.ScriptPubKey;
 
-				var amount = coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : ((Coin)coin).Amount;
-				//tx.Inputs[i].ScriptSig =
+				Money amount = null;
+				if(coin != null)
+					amount = coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : ((Coin)coin).Amount;
 				var result = Script.CombineSignatures(
 									scriptPubKey,
 									new TransactionChecker(tx, i, amount),

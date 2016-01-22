@@ -39,7 +39,7 @@ namespace NBitcoin
 			if(value == null)
 				throw new ArgumentNullException("value");
 			_DestBytes = value;
-		}		
+		}
 
 		public TxDestination(string value)
 		{
@@ -170,7 +170,7 @@ namespace NBitcoin
 		}
 
 		public WitKeyId(KeyId keyId)
-			:base(keyId.ToBytes())
+			: base(keyId.ToBytes())
 		{
 
 		}
@@ -244,7 +244,10 @@ namespace NBitcoin
 		public Script ExtractRedeemScript(IndexedTxIn txIn)
 		{
 			var lastOp = txIn.WitScript.Pushes.LastOrDefault();
-			return lastOp == null ? null : Script.FromBytesUnsafe(lastOp);
+			if(lastOp == null)
+				return null;
+			var script = Script.FromBytesUnsafe(lastOp);
+			return script.Hash == this ? script : null;
 		}
 
 		public IScriptCoin ToScriptCoin(Coin coin, Script redeem)
@@ -307,7 +310,10 @@ namespace NBitcoin
 		public Script ExtractRedeemScript(IndexedTxIn txIn)
 		{
 			var lastOp = txIn.ScriptSig.ToOps().LastOrDefault();
-			return lastOp == null ? null : Script.FromBytesUnsafe(lastOp.PushData);
+			if(lastOp == null)
+			 return null;
+			var script = Script.FromBytesUnsafe(lastOp.PushData);
+			return script.Hash == this ? script : null;
 		}
 
 		public IScriptCoin ToScriptCoin(Coin coin, Script redeem)
