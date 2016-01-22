@@ -19,7 +19,7 @@ namespace NBitcoin
 	{
 		Disk,
 		Network,
-		Hash		
+		Hash
 	}
 	public class Scope : IDisposable
 	{
@@ -70,16 +70,14 @@ namespace NBitcoin
 		static MethodInfo _ReadWriteTyped;
 		static BitcoinStream()
 		{
-			_ReadWriteTyped =
-				typeof(BitcoinStream)
-				.GetTypeInfo()
-				.DeclaredMethods
-				.Where(m => m.Name == "ReadWrite")
-				.Where(m => m.IsGenericMethodDefinition)
-				.Where(m => m.GetParameters().Length == 1)
-				.Where(m => m.GetParameters().Any(p => p.ParameterType.IsByRef))
-				.First();
-
+			_ReadWriteTyped = typeof(BitcoinStream)
+			.GetTypeInfo()
+			.DeclaredMethods
+			.Where(m => m.Name == "ReadWrite")
+			.Where(m => m.IsGenericMethodDefinition)
+			.Where(m => m.GetParameters().Length == 1)
+			.Where(m => m.GetParameters().Any(p => p.ParameterType.IsByRef && p.ParameterType.HasElementType && !p.ParameterType.GetElementType().IsArray))
+			.First();
 		}
 
 		private readonly Stream _Inner;
@@ -132,7 +130,7 @@ namespace NBitcoin
 				ReadWrite(script);
 			else
 				script = ReadWrite(script);
-		}		
+		}
 
 		public T ReadWrite<T>(T data) where T : IBitcoinSerializable
 		{
@@ -384,7 +382,8 @@ namespace NBitcoin
 
 		public void CopyParameters(BitcoinStream stream)
 		{
-			if (stream == null) throw new ArgumentNullException("stream");
+			if(stream == null)
+				throw new ArgumentNullException("stream");
 			ProtocolVersion = stream.ProtocolVersion;
 			IsBigEndian = stream.IsBigEndian;
 			MaxArraySize = stream.MaxArraySize;

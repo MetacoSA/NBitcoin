@@ -88,7 +88,7 @@ namespace NBitcoin.Protocol.Behaviors
 			var inv = message.Message.Payload as InvPayload;
 			if(inv != null)
 			{
-				if(inv.Inventory.Any(i => (i.Type == InventoryType.MSG_BLOCK) && !Chain.Contains(i.Hash)))
+				if(inv.Inventory.Any(i => ((i.Type & InventoryType.MSG_BLOCK) != 0) && !Chain.Contains(i.Hash)))
 				{
 					_Refresh.Dispose(); //No need of periodical refresh, the peer is notifying us
 					if(AutoSync)

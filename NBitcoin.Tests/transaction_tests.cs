@@ -1831,7 +1831,7 @@ namespace NBitcoin.Tests
 			Assert.True(output.Inputs[0].ToBytes().SequenceEqual(outputm.Inputs[0].ToBytes()));
 			Assert.True(output.Outputs.Count == 1);
 			Assert.True(output.Inputs[0].ToBytes().SequenceEqual(outputm.Inputs[0].ToBytes()));
-			Assert.True(output.Witness.Count == 0);
+			Assert.True(output.Witness.IsEmpty);
 
 			Transaction inputm = new Transaction();
 			inputm.Version = 1;
@@ -1856,7 +1856,7 @@ namespace NBitcoin.Tests
 			else
 			{
 				Assert.True(!input.Witness.IsNull());
-				Assert.True(input.Witness.Count == 1);
+				Assert.True(!input.Witness.IsEmpty);
 				Assert.True(input.Witness[0].ToBytes().SequenceEqual(inputm.Witness[0].ToBytes()));
 			}
 		}

@@ -11,7 +11,7 @@ namespace NBitcoin.Protocol
 	//
 	public enum ProtocolVersion : uint
 	{
-		PROTOCOL_VERSION = 70002,
+		PROTOCOL_VERSION = 70012,
 
 		// intial proto version, to be increased after version/verack negotiation
 		INIT_PROTO_VERSION = 209,
@@ -40,6 +40,6 @@ namespace NBitcoin.Protocol
 		SENDHEADERS_VERSION = 70012,		
 
 		//! Version after which witness support potentially exists
-		x
+		WITNESS_VERSION = 70012
 	}
 }

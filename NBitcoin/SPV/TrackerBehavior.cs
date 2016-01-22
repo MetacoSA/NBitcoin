@@ -205,9 +205,9 @@ namespace NBitcoin.SPV
 			{
 				foreach(var inv in invs)
 				{
-					if(inv.Type == InventoryType.MSG_BLOCK)
+					if((inv.Type & InventoryType.MSG_BLOCK) != 0)
 						node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, inv.Hash)));
-					if(inv.Type == InventoryType.MSG_TX)
+					if((inv.Type & InventoryType.MSG_TX) != 0)
 						node.SendMessageAsync(new GetDataPayload(inv));
 				}
 			}

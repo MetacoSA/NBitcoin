@@ -351,6 +351,9 @@ namespace NBitcoin.Protocol
 						Code = RejectCode.DUPLICATE
 					});
 			}
+			var havewitness = message.Message.Payload as HaveWitnessPayload;
+			if(havewitness != null)
+				HaveWitness = true;
 
 			var last = new ActionFilter((m, n) =>
 			{
@@ -1004,6 +1007,43 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		/// <summary>
+		/// Indicate if the remote peer have witness information
+		/// </summary>
+		public bool HaveWitness
+		{
+			get;
+			private set;
+		}
+
+		TransactionOptions _PreferredTransactionOptions = TransactionOptions.All;
+
+		/// <summary>
+		/// If the remote peer have transaction options information, ask for it
+		/// </summary>
+		public TransactionOptions PreferredTransactionOptions
+		{
+			get
+			{
+				return _PreferredTransactionOptions;
+			}
+			set
+			{
+				PreferredTransactionOptions = value;
+			}
+		}
+
+		/// <summary>
+		/// The supported transaction option between the peers
+		/// </summary>
+		public TransactionOptions ActualTransactionOptions
+		{
+			get
+			{
+				return HaveWitness ? PreferredTransactionOptions : PreferredTransactionOptions & ~TransactionOptions.Witness;
+			}
+		}
+
 		public NodeDisconnectReason DisconnectReason
 		{
 			get;
@@ -1177,7 +1217,7 @@ namespace NBitcoin.Protocol
 				foreach(var invs in neededBlocks
 									.Select(b => new InventoryVector()
 										{
-											Type = InventoryType.MSG_BLOCK,
+											Type = AddSupportedOptions(InventoryType.MSG_BLOCK),
 											Hash = b
 										})
 									.Partition(() => simultaneous))
@@ -1265,7 +1305,7 @@ namespace NBitcoin.Protocol
 				{
 					this.SendMessageAsync(new GetDataPayload(batch.Select(txid => new InventoryVector()
 					{
-						Type = InventoryType.MSG_TX,
+						Type = AddSupportedOptions(InventoryType.MSG_TX),
 						Hash = txid
 					}).ToArray()));
 					try
@@ -1290,6 +1330,18 @@ namespace NBitcoin.Protocol
 				}
 			}
 			return result.Where(r => r != null).ToArray();
+		}
+
+		/// <summary>
+		/// Add supported option to the input inventory type
+		/// </summary>
+		/// <param name="inventoryType">Inventory type (like MSG_TX)</param>
+		/// <returns>Inventory type with options (MSG_TX | MSG_WITNESS_FLAG)</returns>
+		public InventoryType AddSupportedOptions(InventoryType inventoryType)
+		{
+			if((ActualTransactionOptions & TransactionOptions.Witness) != 0)
+				inventoryType |= InventoryType.MSG_WITNESS_FLAG;
+			return inventoryType;
 		}
 
 		public Network Network

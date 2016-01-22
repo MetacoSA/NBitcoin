@@ -1087,11 +1087,11 @@ namespace NBitcoin
 			return _Scripts.All(s => s == WitScript.Empty);
 		}
 
-		public int Count
+		public bool IsEmpty
 		{
 			get
 			{
-				return _Scripts.Count;
+				return IsNull();
 			}
 		}
 
