@@ -183,6 +183,9 @@ namespace NBitcoin
 #if !PORTABLE
 		List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
+#else
+		List<string> vSeeds = new List<string>();
+		List<string> vFixedSeeds = new List<string>();
 #endif
 		Block genesis = new Block();
 
