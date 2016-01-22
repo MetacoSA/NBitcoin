@@ -162,7 +162,13 @@ namespace NBitcoin.Protocol
 								}
 								NodeServerTrace.Verbose("Sending message " + message);
 							}
-							var bytes = message.ToBytes(_Node.Version);
+							MemoryStream ms = new MemoryStream();
+							message.ReadWrite(new BitcoinStream(ms, true)
+							{
+								ProtocolVersion = Node.Version,
+								TransactionOptions = Node.SupportedTransactionOptions
+							});
+							var bytes = ms.ToArrayEfficient();
 							_Node.Counter.AddWritten(bytes.LongLength);
 							var ar = Socket.BeginSend(bytes, 0, bytes.Length, SocketFlags.None, null, null);
 							WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, Cancel.Token.WaitHandle }, -1);
@@ -345,7 +351,7 @@ namespace NBitcoin.Protocol
 			var version = message.Message.Payload as VersionPayload;
 			if(version != null && State == NodeState.HandShaked)
 			{
-				if((uint)message.Node.Version >= 70002)
+				if(message.Node.Version >= ProtocolVersion.REJECT_VERSION)
 					message.Node.SendMessageAsync(new RejectPayload()
 					{
 						Code = RejectCode.DUPLICATE
@@ -353,7 +359,7 @@ namespace NBitcoin.Protocol
 			}
 			var havewitness = message.Message.Payload as HaveWitnessPayload;
 			if(havewitness != null)
-				HaveWitness = true;
+				_SupportedTransactionOptions |= TransactionOptions.Witness;
 
 			var last = new ActionFilter((m, n) =>
 			{
@@ -593,12 +599,10 @@ namespace NBitcoin.Protocol
 		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters)
 		{
 			parameters = parameters ?? new NodeConnectionParameters();
-			VersionPayload version = parameters.CreateVersion(peer.Endpoint, network);
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
 			Inbound = false;
 			_Behaviors = new NodeBehaviorsCollection(this);
-			_MyVersion = version;
-			Version = _MyVersion.Version;
+			_MyVersion = parameters.CreateVersion(peer.Endpoint, network);
 			Network = network;
 			_Peer = peer;
 			LastSeen = peer.Time;
@@ -672,7 +676,6 @@ namespace NBitcoin.Protocol
 				State = NodeState.Connected;
 			});
 			InitDefaultBehaviors(parameters);
-			Version = peerVersion.Version;
 			_Connection.BeginListen();
 		}
 
@@ -705,7 +708,7 @@ namespace NBitcoin.Protocol
 		{
 			IsTrusted = parameters.IsTrusted != null ? parameters.IsTrusted.Value : Peer.Endpoint.Address.IsLocal();
 			Advertize = parameters.Advertize;
-			Version = parameters.Version;
+			PreferredTransactionOptions = parameters.PreferredTransactionOptions;
 			_ReuseBuffer = parameters.ReuseBuffer;
 
 			_Behaviors.DelayAttach = true;
@@ -820,10 +823,18 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		/// <summary>
+		/// The negociated protocol version (minimum of supported version between MyVersion and the PeerVersion)
+		/// </summary>
 		public ProtocolVersion Version
 		{
-			get;
-			private set;
+			get
+			{
+				var peerVersion = PeerVersion == null ? MyVersion.Version : PeerVersion.Version;
+				var myVersion = MyVersion.Version;
+				var min = Math.Min((uint)peerVersion, (uint)myVersion);
+				return (ProtocolVersion)min;
+			}
 		}
 
 		public bool IsConnected
@@ -908,7 +919,6 @@ namespace NBitcoin.Protocol
 				}
 				var version = (VersionPayload)payload;
 				_PeerVersion = version;
-				Version = version.Version;
 				if(!version.AddressReceiver.Address.Equals(MyVersion.AddressFrom.Address))
 				{
 					NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReceiver.Address + " instead of " + MyVersion.AddressFrom.Address);
@@ -1006,20 +1016,11 @@ namespace NBitcoin.Protocol
 					};
 			}
 		}
-
-		/// <summary>
-		/// Indicate if the remote peer have witness information
-		/// </summary>
-		public bool HaveWitness
-		{
-			get;
-			private set;
-		}
-
+		
 		TransactionOptions _PreferredTransactionOptions = TransactionOptions.All;
 
 		/// <summary>
-		/// If the remote peer have transaction options information, ask for it
+		/// Transaction options we would like
 		/// </summary>
 		public TransactionOptions PreferredTransactionOptions
 		{
@@ -1029,18 +1030,30 @@ namespace NBitcoin.Protocol
 			}
 			set
 			{
-				PreferredTransactionOptions = value;
+				_PreferredTransactionOptions = value;
+			}
+		}
+
+		TransactionOptions _SupportedTransactionOptions = TransactionOptions.None;
+		/// <summary>
+		/// Transaction options supported by the peer
+		/// </summary>
+		public TransactionOptions SupportedTransactionOptions
+		{
+			get
+			{
+				return _SupportedTransactionOptions;
 			}
 		}
 
 		/// <summary>
-		/// The supported transaction option between the peers
+		/// Transaction options we prefer and which is also supported by peer
 		/// </summary>
 		public TransactionOptions ActualTransactionOptions
 		{
 			get
 			{
-				return HaveWitness ? PreferredTransactionOptions : PreferredTransactionOptions & ~TransactionOptions.Witness;
+				return PreferredTransactionOptions & SupportedTransactionOptions;
 			}
 		}
 

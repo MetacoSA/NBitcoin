@@ -1043,6 +1043,7 @@ namespace NBitcoin
 		}
 	}
 
+	[Flags]
 	public enum TransactionOptions : uint
 	{
 		None = 0x00000000,
@@ -1232,7 +1233,8 @@ namespace NBitcoin
 
 		public virtual void ReadWrite(BitcoinStream stream)
 		{
-			var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0);
+			var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) && 
+								stream.ProtocolVersion >= ProtocolVersion.WITNESS_VERSION;
 
 			byte flags = 0;
 			if(!stream.Serializing)

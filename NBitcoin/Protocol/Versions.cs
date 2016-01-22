@@ -33,11 +33,14 @@ namespace NBitcoin.Protocol
 		// "mempool" command, enhanced "getdata" behavior starts with this version:
 		MEMPOOL_GD_VERSION = 60002,
 
+		// "reject" command
+		REJECT_VERSION = 70002,
+
 		//! "filter*" commands are disabled without NODE_BLOOM after and including this version
 		NO_BLOOM_VERSION = 70011,
 
 		//! "sendheaders" command and announcing blocks with headers starts with this version
-		SENDHEADERS_VERSION = 70012,		
+		SENDHEADERS_VERSION = 70012,
 
 		//! Version after which witness support potentially exists
 		WITNESS_VERSION = 70012

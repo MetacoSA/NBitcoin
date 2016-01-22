@@ -25,6 +25,7 @@ namespace NBitcoin.Protocol
 			ReceiveBufferSize = 1000 * 5000;
 			SendBufferSize = 1000 * 1000;
 			UserAgent = VersionPayload.GetNBitcoinUserAgent();
+			PreferredTransactionOptions = TransactionOptions.All;
 		}
 
 		public NodeConnectionParameters(NodeConnectionParameters other)
@@ -41,6 +42,7 @@ namespace NBitcoin.Protocol
 			Nonce = other.Nonce;
 			Advertize = other.Advertize;
 			ReuseBuffer = other.ReuseBuffer;
+			PreferredTransactionOptions = other.PreferredTransactionOptions;
 
 			foreach(var behavior in other.TemplateBehaviors)
 			{
@@ -84,6 +86,13 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
+
+		public TransactionOptions PreferredTransactionOptions
+		{
+			get;
+			set;
+		}
+
 		public string UserAgent
 		{
 			get;
