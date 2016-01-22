@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Sdk;
 
 namespace NBitcoin.Tests
 {
@@ -602,9 +603,13 @@ namespace NBitcoin.Tests
 					behavior = connected.ConnectedNodes.Select(n => n.Behaviors.Find<BroadcastHubBehavior>()).FirstOrDefault();
 					Thread.Sleep(1);
 				}
-				Assert.Equal(1, behavior.Broadcasts.Count());
-				Assert.Equal(1, hub.BroadcastingTransactions.Count());
+				if(broadcasting.Status != TaskStatus.RanToCompletion)
+				{
+					Assert.Equal(1, behavior.Broadcasts.Count());
+					Assert.Equal(1, hub.BroadcastingTransactions.Count());
+				}
 				Assert.True(evt.WaitOne(20000));
+				Assert.True(broadcasting.Status == TaskStatus.RanToCompletion);
 				Assert.True(passed);
 				evt.Reset();
 				Assert.Equal(0, behavior.Broadcasts.Count());
