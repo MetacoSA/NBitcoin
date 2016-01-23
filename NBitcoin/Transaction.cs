@@ -707,8 +707,8 @@ namespace NBitcoin
 		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify, Money value, out ScriptError error)
 		{
 			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, value, scriptVerify, SigHash.Undefined, out error);
-		}		
-		
+		}
+
 		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash)
 		{
 			var hash = GetSignatureHash(coin, sigHash);
@@ -1143,6 +1143,14 @@ namespace NBitcoin
 	//https://en.bitcoin.it/wiki/Protocol_specification
 	public class Transaction : IBitcoinSerializable
 	{
+		public bool RBF
+		{
+			get
+			{
+				return Inputs.Any(i => i.Sequence < 0xffffffff - 1);
+			}
+		}
+
 		uint nVersion = 1;
 
 		public uint Version
@@ -1229,7 +1237,7 @@ namespace NBitcoin
 
 		public virtual void ReadWrite(BitcoinStream stream)
 		{
-			var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) && 
+			var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
 								stream.ProtocolVersion >= ProtocolVersion.WITNESS_VERSION;
 
 			byte flags = 0;
@@ -1331,17 +1339,27 @@ namespace NBitcoin
 			});
 			return Hashes.Hash256(ms.ToArrayEfficient());
 		}
-		public uint256 GetSignatureHash(ICoin coin, int nIn, SigHash sigHash = SigHash.All)
+		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)
 		{
-			return Inputs.AsIndexedInputs().ToArray()[nIn].GetSignatureHash(coin, sigHash);
+			return Inputs.AsIndexedInputs().ToArray()[GetIndex(coin)].GetSignatureHash(coin, sigHash);
 		}
-		public TransactionSignature SignInput(ISecret secret, ICoin coin, int nIn, SigHash sigHash = SigHash.All)
+		public TransactionSignature SignInput(ISecret secret, ICoin coin, SigHash sigHash = SigHash.All)
 		{
-			return SignInput(secret.PrivateKey, coin, nIn, sigHash);
+			return SignInput(secret.PrivateKey, coin, sigHash);
 		}
-		public TransactionSignature SignInput(Key key, ICoin coin, int nIn, SigHash sigHash = SigHash.All)
+		public TransactionSignature SignInput(Key key, ICoin coin, SigHash sigHash = SigHash.All)
 		{
-			return Inputs.AsIndexedInputs().ToArray()[nIn].Sign(key, coin, sigHash);
+			return Inputs.AsIndexedInputs().ToArray()[GetIndex(coin)].Sign(key, coin, sigHash);
+		}
+
+		private int GetIndex(ICoin coin)
+		{
+			for(int i = 0 ; i < Inputs.Count ; i++)
+			{
+				if(Inputs[i].PrevOut == coin.Outpoint)
+					return i;
+			}
+			throw new ArgumentException("The coin is not being spent by this transaction", "coin");
 		}
 
 		public bool IsCoinBase
@@ -1387,6 +1405,48 @@ namespace NBitcoin
 
 
 		/// <summary>
+		/// Sign a specific coin with the given secret
+		/// </summary>
+		/// <param name="secrets">Secrets</param>
+		/// <param name="coins">Coins to sign</param>
+		public void Sign(ISecret[] secrets, params ICoin[] coins)
+		{
+			Sign(secrets.Select(s => s.PrivateKey).ToArray(), coins);
+		}
+
+		/// <summary>
+		/// Sign a specific coin with the given secret
+		/// </summary>
+		/// <param name="key">Private keys</param>
+		/// <param name="coins">Coins to sign</param>
+		public void Sign(Key[] keys, params ICoin[] coins)
+		{
+			TransactionBuilder builder = new TransactionBuilder();
+			builder.AddKeys(keys);
+			builder.AddCoins(coins);
+			builder.SignTransactionInPlace(this);
+		}
+		/// <summary>
+		/// Sign a specific coin with the given secret
+		/// </summary>
+		/// <param name="secret">Secret</param>
+		/// <param name="coins">Coins to sign</param>
+		public void Sign(ISecret secret, params ICoin[] coins)
+		{
+			Sign(new[] { secret }, coins);
+		}
+
+		/// <summary>
+		/// Sign a specific coin with the given secret
+		/// </summary>
+		/// <param name="key">Private key</param>
+		/// <param name="coins">Coins to sign</param>
+		public void Sign(Key key, params ICoin[] coins)
+		{
+			Sign(new[] { key }, coins);
+		}
+
+		/// <summary>
 		/// Sign the transaction with a private key
 		/// <para>ScriptSigs should be filled with previous ScriptPubKeys</para>
 		/// <para>For more complex scenario, use TransactionBuilder</para>
@@ -1405,8 +1465,7 @@ namespace NBitcoin
 		/// <param name="secret"></param>
 		public void Sign(Key key, bool assumeP2SH)
 		{
-			TransactionBuilder builder = new TransactionBuilder();
-			builder.AddKeys(key);
+			List<Coin> coins = new List<Coin>();
 			for(int i = 0 ; i < Inputs.Count ; i++)
 			{
 				var txin = Inputs[i];
@@ -1417,14 +1476,14 @@ namespace NBitcoin
 					var p2shSig = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txin.ScriptSig);
 					if(p2shSig == null)
 					{
-						builder.AddCoins(new ScriptCoin(txin.PrevOut, new TxOut()
+						coins.Add(new ScriptCoin(txin.PrevOut, new TxOut()
 						{
 							ScriptPubKey = txin.ScriptSig.PaymentScript,
 						}, txin.ScriptSig));
 					}
 					else
 					{
-						builder.AddCoins(new ScriptCoin(txin.PrevOut, new TxOut()
+						coins.Add(new ScriptCoin(txin.PrevOut, new TxOut()
 						{
 							ScriptPubKey = p2shSig.RedeemScript.PaymentScript
 						}, p2shSig.RedeemScript));
@@ -1432,14 +1491,14 @@ namespace NBitcoin
 				}
 				else
 				{
-					builder.AddCoins(new Coin(txin.PrevOut, new TxOut()
+					coins.Add(new Coin(txin.PrevOut, new TxOut()
 					{
 						ScriptPubKey = txin.ScriptSig
 					}));
 				}
 
 			}
-			builder.SignTransactionInPlace(this);
+			Sign(key, coins.ToArray());
 		}
 
 		public TxPayload CreatePayload()
@@ -1559,7 +1618,7 @@ namespace NBitcoin
 			bms.TransactionOptions = TransactionOptions.All & ~options;
 			this.ReadWrite(bms);
 			return instance;
-		}
+		}		
 	}
 
 }

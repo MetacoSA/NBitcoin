@@ -27,9 +27,9 @@ namespace NBitcoin
 		{
 		}
 
-		private BitcoinAddress _address;
+		private BitcoinPubKeyAddress _address;
 
-		public BitcoinAddress GetAddress()
+		public BitcoinPubKeyAddress GetAddress()
 		{
 			return _address ?? (_address = PrivateKey.PubKey.GetAddress(Network));
 		}
