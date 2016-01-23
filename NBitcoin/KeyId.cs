@@ -208,7 +208,7 @@ namespace NBitcoin
 		}
 
 		public WitScriptId(Script script)
-			: this(Hashes.Hash256(script._Script))
+			: this(Hashes.SHA256(script._Script))
 		{
 		}
 

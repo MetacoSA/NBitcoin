@@ -515,8 +515,8 @@ namespace NBitcoin
 					{
 						stack.Add(witness.GetUnsafePush(i));
 					}
-					uint256 hashScriptPubKey = Hashes.Hash256(scriptPubKey.ToBytes(true));
-					if(hashScriptPubKey != new uint256(wit.Program))
+					var hashScriptPubKey = Hashes.SHA256(scriptPubKey.ToBytes(true));
+					if(!Utils.ArrayEqual(hashScriptPubKey,wit.Program))
 					{
 						return SetError(ScriptError.WitnessProgramMissmatch);
 					}

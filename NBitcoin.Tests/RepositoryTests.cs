@@ -314,6 +314,20 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
+
+			var node = Node.Connect(Network.SegNet, "qbitninja-server.cloudapp.net");
+			node.VersionHandshake();
+			foreach(var block in node.GetBlocks())
+			{
+				foreach(var tx in block.Transactions)
+				{
+					if(!tx.IsCoinBase && !tx.Witness.IsEmpty)
+					{
+
+					}
+				}
+			}
+
 			var secret = new BitcoinSecret("QTrKVpsVwNUD9GayzdbUNz2NNDqiPgjd9RCprwSa4gmBFg3V2oik", Network.SegNet);
 
 			var oo = secret.PubKey.WitHash.GetAddress(Network.SegNet);
