@@ -1456,8 +1456,6 @@ namespace NBitcoin.Tests
 				scriptCode = new Script(Encoders.Hex.DecodeData(scriptCodeHex));
 			}
 
-			var h = scriptCode.SignatureHash(tx, input, SigHash.All, amount, HashVersion.Witness);
-
 			ScriptError err;
 			var r = Script.VerifyScript(scriptCode, tx, 0, amount, out err);
 			Assert.True(r);
@@ -1895,7 +1893,6 @@ namespace NBitcoin.Tests
 
 		void CheckWithFlag(Transaction output, Transaction input, ScriptVerify flags, bool success)
 		{
-			ScriptError error;
 			Transaction inputi = input.Clone();
 			ScriptEvaluationContext ctx = new ScriptEvaluationContext();
 			ctx.ScriptVerify = flags;
@@ -1936,7 +1933,6 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void test_witness()
 		{
-			ScriptError serror;
 			CKeyStore keystore = new CKeyStore();
 			CKeyStore keystore2 = new CKeyStore();
 			var key1 = new Key(true);

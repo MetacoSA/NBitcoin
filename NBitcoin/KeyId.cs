@@ -9,22 +9,6 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public interface IScriptTxDestination : IDestination
-	{
-		/// <summary>
-		/// Extract the redeem script from the input if it matches this TxDestination
-		/// </summary>
-		/// <param name="txIn">The input</param>
-		/// <returns>The redeem if match, else null</returns>
-		Script ExtractRedeemScript(IndexedTxIn txIn);
-		/// <summary>
-		/// Create a IScriptCoin from a normal coin and the redeem
-		/// </summary>
-		/// <param name="coin">The Coin</param>
-		/// <param name="redeem">The redeem</param>
-		/// <returns>The ScriptCoin if the redeem match this TxDestination, else null</returns>
-		IScriptCoin ToScriptCoin(Coin coin, Script redeem);
-	}
 	public abstract class TxDestination : IDestination
 	{
 		internal byte[] _DestBytes;
@@ -198,7 +182,7 @@ namespace NBitcoin
 		}
 	}
 
-	public class WitScriptId : TxDestination, IScriptTxDestination
+	public class WitScriptId : TxDestination
 	{
 		public WitScriptId()
 			: this(0)
@@ -240,29 +224,9 @@ namespace NBitcoin
 		{
 			return new BitcoinWitScriptAddress(this, network);
 		}
-
-		public Script ExtractRedeemScript(IndexedTxIn txIn)
-		{
-			var lastOp = txIn.WitScript.Pushes.LastOrDefault();
-			if(lastOp == null)
-				return null;
-			var script = Script.FromBytesUnsafe(lastOp);
-			return script.Hash == this ? script : null;
-		}
-
-		public IScriptCoin ToScriptCoin(Coin coin, Script redeem)
-		{
-			if(coin == null)
-				throw new ArgumentNullException("coin");
-			if(redeem == null)
-				throw new ArgumentNullException("redeem");
-			if(redeem.WitHash != this)
-				return null;
-			return coin.ToWitScriptCoin(redeem);
-		}
 	}
 
-	public class ScriptId : TxDestination, IScriptTxDestination
+	public class ScriptId : TxDestination
 	{
 		public ScriptId()
 			: this(0)
@@ -304,29 +268,5 @@ namespace NBitcoin
 		{
 			return new BitcoinScriptAddress(this, network);
 		}
-
-		#region IScriptTxDestination Members
-
-		public Script ExtractRedeemScript(IndexedTxIn txIn)
-		{
-			var lastOp = txIn.ScriptSig.ToOps().LastOrDefault();
-			if(lastOp == null)
-			 return null;
-			var script = Script.FromBytesUnsafe(lastOp.PushData);
-			return script.Hash == this ? script : null;
-		}
-
-		public IScriptCoin ToScriptCoin(Coin coin, Script redeem)
-		{
-			if(coin == null)
-				throw new ArgumentNullException("coin");
-			if(redeem == null)
-				throw new ArgumentNullException("redeem");
-			if(redeem.Hash != this)
-				return null;
-			return coin.ToScriptCoin(redeem);
-		}
-
-		#endregion
 	}
 }

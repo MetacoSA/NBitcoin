@@ -99,6 +99,27 @@ namespace NBitcoin
 			}
 		}
 	}
+
+	public class SignedHash
+	{
+		public Script ScriptCode
+		{
+			get;
+			internal set;
+		}
+
+		public SigHash SigHash
+		{
+			get;
+			internal set;
+		}
+
+		public HashVersion HashVersion
+		{
+			get;
+			internal set;
+		}
+	}
 	public class ScriptEvaluationContext
 	{
 
@@ -1685,6 +1706,15 @@ namespace NBitcoin
 			return false;
 		}
 
+		List<SignedHash> _SignedHashes = new List<SignedHash>();
+		public IEnumerable<SignedHash> SignedHashes
+		{
+			get
+			{
+				return _SignedHashes;
+			}
+		}
+
 
 		public bool CheckSig(TransactionSignature signature, PubKey pubKey, Script scriptPubKey, IndexedTxIn txIn)
 		{
@@ -1736,8 +1766,13 @@ namespace NBitcoin
 			if(!IsAllowedSignature(scriptSig.SigHash))
 				return false;
 
-			uint256 sighash = scriptCode.SignatureHash(checker.Transaction, checker.Index, scriptSig.SigHash, checker.Amount, (HashVersion)sigversion);
-
+			uint256 sighash = Script.SignatureHash(scriptCode, checker.Transaction, checker.Index, scriptSig.SigHash, checker.Amount, (HashVersion)sigversion);
+			_SignedHashes.Add(new SignedHash()
+			{
+				ScriptCode = scriptCode,
+				SigHash = scriptSig.SigHash,
+				HashVersion = (HashVersion)sigversion
+			});
 			if(!pubkey.Verify(sighash, scriptSig.Signature))
 			{
 				if((ScriptVerify & ScriptVerify.StrictEnc) != 0)

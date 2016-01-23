@@ -33,6 +33,8 @@ namespace NBitcoin
 		{
 			get;
 		}
+		Script GetScriptCode();
+		HashVersion GetHashVersion();
 	}
 
 	public class IssuanceCoin : IColoredCoin
@@ -163,6 +165,21 @@ namespace NBitcoin
 			{
 				return TxOut;
 			}
+		}
+
+		#endregion
+
+		#region ICoin Members
+
+
+		public Script GetScriptCode()
+		{
+			return this.Bearer.GetScriptCode();
+		}
+
+		public HashVersion GetHashVersion()
+		{
+			return this.Bearer.GetHashVersion();
 		}
 
 		#endregion
@@ -324,6 +341,16 @@ namespace NBitcoin
 				return TxOut;
 			}
 		}
+		
+		public Script GetScriptCode()
+		{
+			return this.Bearer.GetScriptCode();
+		}
+
+		public HashVersion GetHashVersion()
+		{
+			return this.Bearer.GetHashVersion();
+		}
 
 		#endregion
 	}
@@ -364,6 +391,21 @@ namespace NBitcoin
 		{
 			Outpoint = new OutPoint(fromTxHash, fromOutputIndex);
 			TxOut = new TxOut(amount, scriptPubKey);
+		}
+
+		public virtual Script GetScriptCode()
+		{
+			var key = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(ScriptPubKey);
+			if(key != null)
+				return key.WitScriptPubKey;
+			return ScriptPubKey;
+		}
+
+		public virtual HashVersion GetHashVersion()
+		{
+			if(PayToWitTemplate.Instance.CheckScriptPubKey(ScriptPubKey))
+				return HashVersion.Witness;
+			return HashVersion.Original;
 		}
 
 		public ScriptCoin ToScriptCoin(Script redeemScript)
@@ -467,15 +509,7 @@ namespace NBitcoin
 		#endregion	
 	}
 
-	public interface IScriptCoin : ICoin
-	{
-		Script Redeem
-		{
-			get;
-		}
-	}
-
-	public class ScriptCoin : Coin, IScriptCoin
+	public class ScriptCoin : Coin
 	{
 		public ScriptCoin()
 		{
@@ -502,7 +536,7 @@ namespace NBitcoin
 			Redeem = redeem;
 			AssertCoherent();
 		}
-		public ScriptCoin(Coin coin, Script redeem)
+		public ScriptCoin(ICoin coin, Script redeem)
 			: base(coin.Outpoint, coin.TxOut)
 		{
 			Redeem = redeem;
@@ -538,9 +572,23 @@ namespace NBitcoin
 			get;
 			set;
 		}
+
+		public override Script GetScriptCode()
+		{
+			var key = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(Redeem);
+			if(key != null)
+				return key.WitScriptPubKey;
+			return Redeem;
+		}
+		public override HashVersion GetHashVersion()
+		{
+			if(PayToWitTemplate.Instance.CheckScriptPubKey(Redeem))
+				return HashVersion.Witness;
+			return HashVersion.Original;
+		}
 	}
 
-	public class WitScriptCoin : Coin, IScriptCoin
+	public class WitScriptCoin : Coin
 	{
 		public WitScriptCoin()
 		{
@@ -564,10 +612,10 @@ namespace NBitcoin
 		{
 			SetAll(fromOutput.ScriptPubKey, witRedeem);
 		}
-		public WitScriptCoin(Coin coin, Script witRedeem)
+		public WitScriptCoin(ICoin coin, Script witRedeem)
 			: base(coin.Outpoint, coin.TxOut)
 		{
-			SetAll(coin.ScriptPubKey, witRedeem);
+			SetAll(coin.TxOut.ScriptPubKey, witRedeem);
 		}
 
 		private void SetAll(Script scriptPubKey, Script witRedeem)
@@ -616,27 +664,17 @@ namespace NBitcoin
 			private set;
 		}
 
-		/// <summary>
-		/// Returns WitRedeem
-		/// </summary>
-		public Script Redeem
+		public override Script GetScriptCode()
 		{
-			get
-			{
-				return WitRedeem;
-			}
+			return WitRedeem;
 		}
-
-		public Script ExpectedScriptSig
+		public override HashVersion GetHashVersion()
 		{
-			get
-			{
-				return P2SHRedeem == null ? Script.Empty : new Script(Op.GetPushOp(P2SHRedeem.ToBytes(true)));
-			}
+			return HashVersion.Witness;
 		}
 	}
 
-	public class StealthCoin : Coin, IScriptCoin
+	public class StealthCoin : Coin
 	{
 		public StealthCoin()
 		{
@@ -664,6 +702,22 @@ namespace NBitcoin
 		{
 			get;
 			set;
+		}
+
+		public override Script GetScriptCode()
+		{
+			if(Redeem == null)
+				return base.GetScriptCode();
+			else
+				return new ScriptCoin(this, Redeem).GetScriptCode();
+		}
+
+		public override HashVersion GetHashVersion()
+		{
+			if(Redeem == null)
+				return base.GetHashVersion();
+			else
+				return new ScriptCoin(this, Redeem).GetHashVersion();
 		}
 
 		/// <summary>

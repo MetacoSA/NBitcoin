@@ -707,28 +707,17 @@ namespace NBitcoin
 		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify, Money value, out ScriptError error)
 		{
 			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, value, scriptVerify, SigHash.Undefined, out error);
-		}
-		public uint256 GetSignatureHash(Script scriptPubKey, SigHash sigHash = SigHash.All)
+		}		
+		
+		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash)
 		{
-			return scriptPubKey.SignatureHash(Transaction, (int)Index, sigHash);
-		}
-		public uint256 GetSignatureHash(Script scriptPubKey, SigHash sigHash, Money amount, HashVersion hashVersion)
-		{
-			return scriptPubKey.SignatureHash(Transaction, (int)Index, sigHash, amount, hashVersion);
-		}
-		public TransactionSignature Sign(ISecret secret, Script scriptPubKey, SigHash sigHash = SigHash.All)
-		{
-			return Sign(secret.PrivateKey, scriptPubKey, sigHash);
-		}
-		public TransactionSignature Sign(Key key, Script scriptPubKey, SigHash sigHash = SigHash.All)
-		{
-			return Sign(key, scriptPubKey, sigHash, null, 0);
+			var hash = GetSignatureHash(coin, sigHash);
+			return key.Sign(hash, sigHash);
 		}
 
-		public TransactionSignature Sign(Key key, Script scriptPubKey, SigHash sigHash, Money amount, HashVersion hashVersion)
+		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)
 		{
-			var hash = GetSignatureHash(scriptPubKey, sigHash, amount, hashVersion);
-			return key.Sign(hash, sigHash);
+			return Script.SignatureHash(coin.GetScriptCode(), Transaction, (int)Index, sigHash, coin.TxOut.Value, coin.GetHashVersion());
 		}
 	}
 	public class TxInList : UnsignedList<TxIn>
@@ -999,7 +988,14 @@ namespace NBitcoin
 		{
 			return !(a == b);
 		}
-
+		public static WitScript operator +(WitScript a, WitScript b)
+		{
+			if(a == null)
+				return b;
+			if(b == null)
+				return a;
+			return new WitScript(a._Pushes.Concat(b._Pushes).ToArray());
+		}
 		public override int GetHashCode()
 		{
 			return Utils.GetHashCode(ToBytes());
@@ -1335,17 +1331,17 @@ namespace NBitcoin
 			});
 			return Hashes.Hash256(ms.ToArrayEfficient());
 		}
-		public uint256 GetSignatureHash(Script scriptPubKey, int nIn, SigHash sigHash = SigHash.All)
+		public uint256 GetSignatureHash(ICoin coin, int nIn, SigHash sigHash = SigHash.All)
 		{
-			return Inputs.AsIndexedInputs().ToArray()[nIn].GetSignatureHash(scriptPubKey, sigHash);
+			return Inputs.AsIndexedInputs().ToArray()[nIn].GetSignatureHash(coin, sigHash);
 		}
-		public TransactionSignature SignInput(ISecret secret, Script scriptPubKey, int nIn, SigHash sigHash = SigHash.All)
+		public TransactionSignature SignInput(ISecret secret, ICoin coin, int nIn, SigHash sigHash = SigHash.All)
 		{
-			return SignInput(secret.PrivateKey, scriptPubKey, nIn, sigHash);
+			return SignInput(secret.PrivateKey, coin, nIn, sigHash);
 		}
-		public TransactionSignature SignInput(Key key, Script scriptPubKey, int nIn, SigHash sigHash = SigHash.All)
+		public TransactionSignature SignInput(Key key, ICoin coin, int nIn, SigHash sigHash = SigHash.All)
 		{
-			return Inputs.AsIndexedInputs().ToArray()[nIn].Sign(key, scriptPubKey, sigHash);
+			return Inputs.AsIndexedInputs().ToArray()[nIn].Sign(key, coin, sigHash);
 		}
 
 		public bool IsCoinBase

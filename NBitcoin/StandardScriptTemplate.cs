@@ -285,10 +285,14 @@ namespace NBitcoin
 			get;
 			set;
 		}
-		public TransactionSignature[] Signatures
+		public byte[][] Pushes
 		{
 			get;
 			set;
+		}
+		public TransactionSignature[] GetMultisigSignatures()
+		{
+			return PayToMultiSigTemplate.Instance.ExtractScriptSigParameters(new Script(Pushes.Select(p => Op.GetPushOp(p)).ToArray()));
 		}
 	}
 	//https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki
@@ -329,14 +333,20 @@ namespace NBitcoin
 			return true;
 		}
 
-		public Script GenerateScriptSig(Op[] ops, Script script)
+		public Script GenerateScriptSig(Op[] ops, Script redeemScript)
 		{
-			var pushScript = Op.GetPushOp(script._Script);
+			var pushScript = Op.GetPushOp(redeemScript._Script);
 			return new Script(ops.Concat(new[] { pushScript }));
 		}
 		public PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig)
 		{
-			return ExtractScriptSigParameters(scriptSig, null);
+			return ExtractScriptSigParameters(scriptSig, null as Script);
+		}
+		public PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig, ScriptId expectedScriptId)
+		{
+			if(expectedScriptId == null)
+				return ExtractScriptSigParameters(scriptSig, null as Script);
+			return ExtractScriptSigParameters(scriptSig, expectedScriptId.ScriptPubKey);
 		}
 		public PayToScriptHashSigParameters ExtractScriptSigParameters(Script scriptSig, Script scriptPubKey)
 		{
@@ -344,23 +354,19 @@ namespace NBitcoin
 			var ops2 = scriptPubKey == null ? null : scriptPubKey.ToOps().ToArray();
 			if(!CheckScriptSigCore(scriptSig, ops, scriptPubKey, ops2))
 				return null;
-			try
-			{
-				var multiSig = ops.Length > 0 && ops[0].Code == OpcodeType.OP_0;
-				PayToScriptHashSigParameters result = new PayToScriptHashSigParameters();
-				result.Signatures =
-					ops
-					.Skip(multiSig ? 1 : 0)
-					.Take(ops.Length - 1 - (multiSig ? 1 : 0))
-					.Select(o => o.Code == OpcodeType.OP_0 ? null : new TransactionSignature(o.PushData))
-					.ToArray();
-				result.RedeemScript = Script.FromBytesUnsafe(ops[ops.Length - 1].PushData);
-				return result;
-			}
-			catch(Exception)
-			{
-				return null;
-			}
+
+			PayToScriptHashSigParameters result = new PayToScriptHashSigParameters();
+			result.RedeemScript = Script.FromBytesUnsafe(ops[ops.Length - 1].PushData);
+			result.Pushes = ops.Take(ops.Length - 1).Select(o => o.PushData).ToArray();
+			return result;
+		}
+		public Script GenerateScriptSig(byte[][] pushes, Script redeemScript)
+		{
+			List<Op> ops = new List<Op>();
+			foreach(var push in pushes)
+				ops.Add(Op.GetPushOp(push));
+			ops.Add(Op.GetPushOp(redeemScript.ToBytes(true)));
+			return new Script(ops);
 		}
 
 		public Script GenerateScriptSig(TransactionSignature[] signatures, Script redeemScript)
@@ -422,7 +428,7 @@ namespace NBitcoin
 
 		public Script GenerateScriptSig(PayToScriptHashSigParameters parameters)
 		{
-			return GenerateScriptSig(parameters.Signatures, parameters.RedeemScript);
+			return GenerateScriptSig(parameters.Pushes, parameters.RedeemScript);
 		}
 	}
 	public class PayToPubkeyTemplate : ScriptTemplate
@@ -676,7 +682,7 @@ namespace NBitcoin
 	}
 	public abstract class ScriptTemplate
 	{
-		public bool CheckScriptPubKey(Script scriptPubKey)
+		public virtual bool CheckScriptPubKey(Script scriptPubKey)
 		{
 			if(scriptPubKey == null)
 				throw new ArgumentNullException("scriptPubKey");
@@ -691,7 +697,7 @@ namespace NBitcoin
 		}
 
 		protected abstract bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps);
-		public bool CheckScriptSig(Script scriptSig, Script scriptPubKey)
+		public virtual bool CheckScriptSig(Script scriptSig, Script scriptPubKey)
 		{
 			if(scriptSig == null)
 				throw new ArgumentNullException("scriptSig");
@@ -750,33 +756,22 @@ namespace NBitcoin
 				);
 		}
 
-		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
+		
+		public override bool CheckScriptPubKey(Script scriptPubKey)
 		{
+			if(scriptPubKey == null)
+				throw new ArgumentNullException("scriptPubKey");
 			var bytes = scriptPubKey.ToBytes(true);
 			return bytes.Length == 22 && bytes[0] == 0 && bytes[1] == 20;
 		}
 
-		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
-		{
-			return true;
-		}
 		public new WitKeyId ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
-			if(!FastCheckScriptPubKey(scriptPubKey))
+			if(!CheckScriptPubKey(scriptPubKey))
 				return null;
 			byte[] data = new byte[20];
 			Array.Copy(scriptPubKey.ToBytes(true), 2, data, 0, 20);
 			return new WitKeyId(data);
-		}
-
-		protected override bool CheckScriptSigCore(Script scriptSig, Op[] scriptSigOps, Script scriptPubKey, Op[] scriptPubKeyOps)
-		{
-			return scriptSig.Length == 0;
-		}
-
-		protected override bool FastCheckScriptSig(Script scriptSig, Script scriptPubKey)
-		{
-			return scriptSig.Length == 0;
 		}
 
 		public PayToWitPubkeyHashScriptSigParameters ExtractWitScriptParameters(WitScript witScript)
@@ -843,33 +838,40 @@ namespace NBitcoin
 			return new WitScript(ops);
 		}
 
-		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
+		public override bool CheckScriptPubKey(Script scriptPubKey)
 		{
+			if(scriptPubKey == null)
+				throw new ArgumentNullException("scriptPubKey");
 			var bytes = scriptPubKey.ToBytes(true);
 			return bytes.Length == 34 && bytes[0] == 0 && bytes[1] == 32;
 		}
-
-		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
-		{
-			return true;
-		}
 		public new WitScriptId ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
-			if(!FastCheckScriptPubKey(scriptPubKey))
+			if(!CheckScriptPubKey(scriptPubKey))
 				return null;
 			byte[] data = new byte[32];
 			Array.Copy(scriptPubKey.ToBytes(true), 2, data, 0, 32);
 			return new WitScriptId(data);
 		}
 
-		protected override bool CheckScriptSigCore(Script scriptSig, Op[] scriptSigOps, Script scriptPubKey, Op[] scriptPubKeyOps)
+		/// <summary>
+		/// Extract witness redeem from WitScript
+		/// </summary>
+		/// <param name="witScript">Witscript to extract information from</param>
+		/// <param name="expectedScriptId">Expected redeem hash</param>
+		/// <returns>The witness redeem</returns>
+		public Script ExtractWitScriptParameters(WitScript witScript, WitScriptId expectedScriptId)
 		{
-			return scriptSig.Length == 0;
-		}
-
-		protected override bool FastCheckScriptSig(Script scriptSig, Script scriptPubKey)
-		{
-			return scriptSig.Length == 0;
+			if(witScript.PushCount == 0)
+				return null;
+			var last = witScript.GetUnsafePush(witScript.PushCount - 1);
+			Script redeem = new Script(last);
+			if(expectedScriptId != null)
+			{
+				if(expectedScriptId != redeem.WitHash)
+					return null;
+			}
+			return redeem;
 		}
 	}
 
@@ -903,54 +905,44 @@ namespace NBitcoin
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");
-			if(!ValidSegwitVersionCore((byte)segWitVersion))
+			if(!ValidSegwitVersion((byte)segWitVersion))
 				throw new ArgumentException("Segwit version must be from OP_0 to OP_16", "segWitVersion");
 			return new Script(segWitVersion, Op.GetPushOp(data));
 		}
 
-		protected override bool FastCheckScriptPubKey(Script scriptPubKey)
+		public override bool CheckScriptSig(Script scriptSig, Script scriptPubKey)
 		{
-			var version = scriptPubKey.ToBytes(true)[0];
-			return ValidSegwitVersionCore(version);
+			if(scriptSig == null)
+				throw new ArgumentNullException("scriptSig");
+			return scriptSig.Length == 0;
 		}
-
-		protected virtual bool ValidSegwitVersionCore(byte version)
+		
+		public override bool CheckScriptPubKey(Script scriptPubKey)
 		{
-			return ValidSegwitVersion(version);
+			if(scriptPubKey == null)
+				throw new ArgumentNullException("scriptPubKey");
+			var bytes = scriptPubKey.ToBytes(true);
+			if(bytes.Length < 2)
+				return false;
+			var version = bytes[0];
+			if(!ValidSegwitVersion(version))
+				return false;
+			var pushSize = bytes[1];
+			return 0x01 <= pushSize && pushSize <= 0x4b;
 		}
 
 		public static bool ValidSegwitVersion(byte version)
 		{
 			return version == 0 || ((byte)OpcodeType.OP_1 <= version && (byte)OpcodeType.OP_16 <= version);
 		}
-		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
-		{
-			if(scriptPubKeyOps.Length != 2)
-				return false;
-			var allPush = scriptPubKeyOps.All(o => o.PushData != null);
-			if(!allPush)
-				return false;
-			return true;
-		}
-
-		protected override bool FastCheckScriptSig(Script scriptSig, Script scriptPubKey)
-		{
-			return scriptSig.Length == 0;
-		}
-
-		protected override bool CheckScriptSigCore(Script scriptSig, Op[] scriptSigOps, Script scriptPubKey, Op[] scriptPubKeyOps)
-		{
-			return scriptSig.Length == 0;
-		}
 
 		public TxDestination ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
-			if(!FastCheckScriptPubKey(scriptPubKey))
+			if(!CheckScriptPubKey(scriptPubKey))
 				return null;
 			var ops = scriptPubKey.ToOps().ToArray();
-			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
+			if(ops.Length != 2 || ops[1].PushData == null)
 				return null;
-
 			if(ops[0].Code == OpcodeType.OP_0)
 			{
 				if(ops[1].PushData.Length == 20)
@@ -962,10 +954,10 @@ namespace NBitcoin
 		}
 		public WitProgramParameters ExtractScriptPubKeyParameters2(Script scriptPubKey)
 		{
-			if(!FastCheckScriptPubKey(scriptPubKey))
+			if(!CheckScriptPubKey(scriptPubKey))
 				return null;
 			var ops = scriptPubKey.ToOps().ToArray();
-			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
+			if(ops.Length != 2 || ops[1].PushData == null)
 				return null;
 			return new WitProgramParameters()
 			{
@@ -980,6 +972,16 @@ namespace NBitcoin
 			{
 				return TxOutType.TX_SEGWIT;
 			}
+		}
+
+		protected override bool CheckScriptPubKeyCore(Script scriptPubKey, Op[] scriptPubKeyOps)
+		{
+			throw new NotImplementedException();
+		}
+
+		protected override bool CheckScriptSigCore(Script scriptSig, Op[] scriptSigOps, Script scriptPubKey, Op[] scriptPubKeyOps)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

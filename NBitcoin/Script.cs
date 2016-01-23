@@ -512,9 +512,17 @@ namespace NBitcoin
 			}
 		}
 
+		//https://en.bitcoin.it/wiki/OP_CHECKSIG
+		public static uint256 SignatureHash(ICoin coin, Transaction txTo, SigHash nHashType = SigHash.All)
+		{
+			var input = txTo.Inputs.AsIndexedInputs().FirstOrDefault(i => i.PrevOut == coin.Outpoint);
+			if(input == null)
+				throw new ArgumentException("coin should be spent spent in txTo", "coin");
+			return input.GetSignatureHash(coin, nHashType);
+		}
 
 		//https://en.bitcoin.it/wiki/OP_CHECKSIG
-		public uint256 SignatureHash(Transaction txTo, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original)
+		public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original)
 		{
 			if(sigversion == HashVersion.Witness)
 			{
@@ -570,7 +578,7 @@ namespace NBitcoin
 				// The prevout may already be contained in hashPrevout, and the nSequence
 				// may already be contain in hashSequence.
 				sss.ReadWrite(txTo.Inputs[nIn].PrevOut);
-				sss.ReadWrite(this);
+				sss.ReadWrite(scriptCode);
 				sss.ReadWrite(amount.Satoshi);
 				sss.ReadWrite(txTo.Inputs[nIn].Sequence);
 				// Outputs (none/one/all, depending on flags)
@@ -602,7 +610,7 @@ namespace NBitcoin
 				}
 			}
 
-			var scriptCopy = new Script(_Script);
+			var scriptCopy = new Script(scriptCode._Script);
 			scriptCopy.FindAndDelete(OpcodeType.OP_CODESEPARATOR);
 
 			var txCopy = new Transaction(txTo.ToBytes());
@@ -660,13 +668,13 @@ namespace NBitcoin
 			return GetHash(stream);
 		}
 
-		private uint256 GetHash(BitcoinStream stream)
+		private static uint256 GetHash(BitcoinStream stream)
 		{
 			var preimage = ((MemoryStream)stream.Inner).ToArrayEfficient();
 			return Hashes.Hash256(preimage);
 		}
 
-		private BitcoinStream CreateHashWriter()
+		private static BitcoinStream CreateHashWriter()
 		{
 			BitcoinStream stream = new BitcoinStream(new MemoryStream(), true);
 			stream.Type = SerializationType.Hash;
@@ -1038,7 +1046,7 @@ namespace NBitcoin
 				scriptSig2 = input2.WitSig.ToScript();
 				hashVersion = HashVersion.Witness;
 			}
-			
+
 			var context = new ScriptEvaluationContext();
 			context.ScriptVerify = ScriptVerify.StrictEnc;
 			context.EvalScript(scriptSig1, checker, hashVersion);
@@ -1067,7 +1075,7 @@ namespace NBitcoin
 				};
 			}
 		}
-		
+
 		private static Script CombineSignatures(Script scriptPubKey, TransactionChecker checker, byte[][] sigs1, byte[][] sigs2, HashVersion hashVersion)
 		{
 			var template = StandardScripts.GetTemplateFromScriptPubKey(scriptPubKey);
