@@ -119,6 +119,12 @@ namespace NBitcoin
 			get;
 			internal set;
 		}
+
+		public uint256 Hash
+		{
+			get;
+			internal set;
+		}
 	}
 	public class ScriptEvaluationContext
 	{
@@ -1771,7 +1777,8 @@ namespace NBitcoin
 			{
 				ScriptCode = scriptCode,
 				SigHash = scriptSig.SigHash,
-				HashVersion = (HashVersion)sigversion
+				HashVersion = (HashVersion)sigversion,
+				Hash = sighash
 			});
 			if(!pubkey.Verify(sighash, scriptSig.Signature))
 			{
@@ -1818,7 +1825,8 @@ namespace NBitcoin
 			{
 				_stack = new ContextStack<byte[]>(_stack),
 				ScriptVerify = ScriptVerify,
-				SigHash = SigHash
+				SigHash = SigHash,
+				_SignedHashes = _SignedHashes
 			};
 		}
 
