@@ -66,7 +66,7 @@ namespace NBitcoin
 		public TransactionChecker(Transaction tx, int index, Money amount = null)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException("tx");			
 			_Transaction = tx;
 			_Index = index;
 			_Amount = amount;
@@ -78,6 +78,14 @@ namespace NBitcoin
 			get
 			{
 				return _Transaction;
+			}
+		}
+
+		public TxIn Input
+		{
+			get
+			{
+				return Transaction.Inputs[_Index];
 			}
 		}
 
@@ -382,7 +390,7 @@ namespace NBitcoin
 
 		public bool VerifyScript(Script scriptSig, Script scriptPubKey, TransactionChecker checker)
 		{
-			WitScript witness = checker.Transaction.Witness[checker.Index];
+			WitScript witness = checker.Input.WitScript;
 			SetError(ScriptError.UnknownError);
 			if((ScriptVerify & ScriptVerify.SigPushOnly) != 0 && !scriptSig.IsPushOnly)
 				return SetError(ScriptError.SigPushOnly);

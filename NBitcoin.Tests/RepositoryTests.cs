@@ -313,30 +313,7 @@ namespace NBitcoin.Tests
 		}
 		[Fact]
 		public static void Play()
-		{
-			var bob = new Key();
-			var alice = new Key();
-
-			var coins = new[] { RandomCoin(bob, Money.Coins(1.0m)) };//, RandomCoin(bob, Money.Coins(1.2m)), RandomCoin(bob, Money.Coins(2.0m)) };
-			var builder = new TransactionBuilder();
-			builder.AddCoins(coins);
-			builder.AddKeys(bob);
-			builder.Send(alice, Money.Coins(0.9m));
-			builder.SetChange(bob.PubKey.WitHash);
-			builder.SendFees(Money.Coins(0.001m));
-			var txxx = builder.BuildTransaction(true);
-			var total = CalculateTotalSize(txxx);
-
-			coins = new[] { RandomCoin(bob, Money.Coins(1.0m), true) }; //, RandomCoin(bob, Money.Coins(1.2m), true), RandomCoin(bob, Money.Coins(2.0m), true) };
-			builder = new TransactionBuilder();
-			builder.AddCoins(coins);
-			builder.AddKeys(bob);
-			builder.Send(alice, Money.Coins(0.9m));
-			builder.SetChange(bob.PubKey.Hash);
-			builder.SendFees(Money.Coins(0.001m));
-			txxx = builder.BuildTransaction(true);
-			var total2 = CalculateTotalSize(txxx);
-
+		{			
 			//Console.WriteLine(total);
 			new Key().PubKey.WitHash.GetAddress(Network.SegNet).ToString();
 
@@ -353,7 +330,7 @@ namespace NBitcoin.Tests
 				{
 					if(p2wsh != null && p2pwkh != null && p2wshp2sh != null && p2wpkhp2sh != null)
 						break;
-					if(!tx.IsCoinBase && !tx.Witness.IsEmpty)
+					if(!tx.IsCoinBase && tx.HasWitness)
 					{
 						foreach(var input in tx.Inputs.AsIndexedInputs())
 						{
@@ -503,14 +480,6 @@ namespace NBitcoin.Tests
 			//		node.SynchronizeChain(chain);
 			//	}
 			//}
-		}
-
-		private static int CalculateTotalSize(Transaction txxx)
-		{
-			var witSize = txxx.ToBytes().Length;
-			var coreSize = txxx.RemoveOption(TransactionOptions.Witness).ToBytes().Length;
-			var total = coreSize * 3 + witSize;
-			return total;
 		}
 
 		private static Coin RandomCoin(Key bob, Money amount, bool p2pkh = false)

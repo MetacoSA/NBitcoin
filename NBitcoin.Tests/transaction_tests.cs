@@ -988,7 +988,7 @@ namespace NBitcoin.Tests
 			Assert.True(builder.Verify(signedTx));
 
 			//Can remove witness data from tx
-			var signedTx2 = signedTx.RemoveOption(TransactionOptions.Witness);
+			var signedTx2 = signedTx.WithOptions(TransactionOptions.None);
 			Assert.Equal(signedTx.GetHash(), signedTx2.GetHash());
 			Assert.True(signedTx2.GetSerializedSize() < signedTx.GetSerializedSize());
 		}
@@ -1451,7 +1451,7 @@ namespace NBitcoin.Tests
 			Script scriptCode = null;
 			if(scriptCodeHex == null)
 			{
-				var param1 = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(tx.Witness[input]);
+				var param1 = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(tx.Inputs[input].WitScript);
 				Assert.NotNull(param1);
 				var param2 = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(param1.PublicKey.GetSegwitAddress(Network.Main).Hash.ScriptPubKey);
 				Assert.Equal(param1.PublicKey.WitHash, param2);
@@ -1479,7 +1479,7 @@ namespace NBitcoin.Tests
 			Assert.Equal("4b3580bbcceb12fee91abc7f9e8e7d092e981d4bb38339204c457a04316d949a", tx.GetHash().ToString());
 			Assert.Equal("38331098fb804ef2e6dee7826a74b4af07e631a0f1082ffc063667ccb825d701", tx.GetWitHash().ToString());
 
-			var noWit = tx.RemoveOption(TransactionOptions.Witness);
+			var noWit = tx.WithOptions(TransactionOptions.None);
 			Assert.True(noWit.GetSerializedSize() < tx.GetSerializedSize());
 		}
 
@@ -1824,7 +1824,7 @@ namespace NBitcoin.Tests
 			outputm.Inputs.Add(new TxIn());
 			outputm.Inputs[0].PrevOut = new OutPoint();
 			outputm.Inputs[0].ScriptSig = Script.Empty;
-			outputm.Witness[0] = new WitScript();
+			outputm.Inputs[0].WitScript = new WitScript();
 			outputm.Outputs.Add(new TxOut());
 			outputm.Outputs[0].Value = Money.Satoshis(1);
 			outputm.Outputs[0].ScriptPubKey = outscript;
@@ -1835,14 +1835,14 @@ namespace NBitcoin.Tests
 			Assert.True(output.Inputs[0].ToBytes().SequenceEqual(outputm.Inputs[0].ToBytes()));
 			Assert.True(output.Outputs.Count == 1);
 			Assert.True(output.Inputs[0].ToBytes().SequenceEqual(outputm.Inputs[0].ToBytes()));
-			Assert.True(output.Witness.IsEmpty);
+			Assert.True(!output.HasWitness);
 
 			Transaction inputm = new Transaction();
 			inputm.Version = 1;
 			inputm.Inputs.Add(new TxIn());
 			inputm.Inputs[0].PrevOut.Hash = output.GetHash();
 			inputm.Inputs[0].PrevOut.N = 0;
-			inputm.Witness[0] = new WitScript();
+			inputm.Inputs[0].WitScript = new WitScript();
 			inputm.Outputs.Add(new TxOut());
 			inputm.Outputs[0].Value = Money.Satoshis(1);
 			inputm.Outputs[0].ScriptPubKey = Script.Empty;
@@ -1853,15 +1853,14 @@ namespace NBitcoin.Tests
 			Assert.True(input.Inputs[0].ToBytes().SequenceEqual(inputm.Inputs[0].ToBytes()));
 			Assert.True(input.Outputs.Count == 1);
 			Assert.True(input.Outputs[0].ToBytes().SequenceEqual(inputm.Outputs[0].ToBytes()));
-			if(inputm.Witness.IsNull())
+			if(!inputm.HasWitness)
 			{
-				Assert.True(input.Witness.IsNull());
+				Assert.True(!input.HasWitness);
 			}
 			else
 			{
-				Assert.True(!input.Witness.IsNull());
-				Assert.True(!input.Witness.IsEmpty);
-				Assert.True(input.Witness[0].ToBytes().SequenceEqual(inputm.Witness[0].ToBytes()));
+				Assert.True(input.HasWitness);
+				Assert.True(input.Inputs[0].WitScript.ToBytes().SequenceEqual(inputm.Inputs[0].WitScript.ToBytes()));
 			}
 		}
 

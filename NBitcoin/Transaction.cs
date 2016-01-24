@@ -228,6 +228,23 @@ namespace NBitcoin
 			}
 		}
 
+		WitScript witScript = WitScript.Empty;
+
+		/// <summary>
+		/// The witness script (Witness script is not serialized and deserialized at the TxIn level, but at the Transaction level)
+		/// </summary>
+		public WitScript WitScript
+		{
+			get
+			{
+				return witScript;
+			}
+			set
+			{
+				witScript = value;
+			}
+		}
+
 		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
@@ -251,6 +268,13 @@ namespace NBitcoin
 			{
 				return (nSequence == uint.MaxValue);
 			}
+		}
+
+		public TxIn Clone()
+		{
+			var txin = BitcoinSerializableExtensions.Clone(this);
+			txin.WitScript = (witScript ?? WitScript.Empty).Clone();
+			return txin;
 		}
 	}
 
@@ -678,11 +702,11 @@ namespace NBitcoin
 		{
 			get
 			{
-				return Transaction.Witness[(int)Index];
+				return TxIn.WitScript;
 			}
 			set
 			{
-				Transaction.Witness[(int)Index] = value;
+				TxIn.WitScript = value;
 			}
 		}
 		public Transaction Transaction
@@ -1048,6 +1072,11 @@ namespace NBitcoin
 		{
 			return _Pushes[i];
 		}
+
+		public WitScript Clone()
+		{
+			return new WitScript(ToBytes());
+		}
 	}
 
 	[Flags]
@@ -1057,96 +1086,30 @@ namespace NBitcoin
 		Witness = 0x40000000,
 		All = Witness
 	}
-	public class Witness : IEnumerable<WitScript>
-	{
-		internal Witness(Transaction tx)
+	class Witness
+	{		
+		TxInList _Inputs;
+		public Witness(TxInList inputs)
 		{
-			_Tx = tx;
+			_Inputs = inputs;
 		}
-		Transaction _Tx;
-		List<WitScript> _Scripts = new List<WitScript>();
-		internal void SetNull()
-		{
-			_Scripts.Clear();
-			Resize();
-		}
+		
 		
 		internal void ReadWrite(BitcoinStream stream)
 		{
-			Resize();
-			for(int i = 0 ; i < _Scripts.Count ; i++)
+			for(int i = 0 ; i < _Inputs.Count ; i++)
 			{
 				if(stream.Serializing)
 				{
-					var bytes = _Scripts[i].ToBytes();
+					var bytes = (_Inputs[i].WitScript ?? WitScript.Empty).ToBytes();
 					stream.ReadWrite(ref bytes);
 				}
 				else
 				{
-					_Scripts[i] = WitScript.Load(stream);
+					_Inputs[i].WitScript = WitScript.Load(stream);
 				}
 			}
-		}
-
-		internal bool IsNull()
-		{
-			Resize();
-			return _Scripts.All(s => s == WitScript.Empty);
-		}
-
-		internal void Resize()
-		{
-			int sizeBefore = _Scripts.Count;
-			_Scripts.Resize(_Tx.Inputs.Count);
-			int sizeAfter = _Scripts.Count;
-			for(int i = sizeBefore ; i < sizeAfter; i++)
-			{
-				_Scripts[i] = _Scripts[i] == null ? WitScript.Empty : _Scripts[i];
-			}
-		}
-
-		public bool IsEmpty
-		{
-			get
-			{
-				return IsNull();
-			}
-		}
-
-		public WitScript this[int txinIndex]
-		{
-			get
-			{
-				Resize();
-				if(txinIndex >= _Scripts.Count)
-					return WitScript.Empty;
-				return _Scripts[txinIndex];
-			}
-			set
-			{
-				Resize();
-				_Scripts[txinIndex] = value;
-			}
-		}
-		
-		#region IEnumerable<WitnessScript> Members
-
-		public IEnumerator<WitScript> GetEnumerator()
-		{
-			Resize();
-			return _Scripts.GetEnumerator();
-		}
-
-		#endregion
-
-		#region IEnumerable Members
-
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-
-		#endregion
+		}		
 	}
 
 	//https://en.bitcoin.it/wiki/Transactions
@@ -1182,7 +1145,6 @@ namespace NBitcoin
 		{
 			vin = new TxInList(this);
 			vout = new TxOutList(this);
-			wit = new Witness(this);
 		}
 
 		public Transaction(string hex, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
@@ -1232,15 +1194,6 @@ namespace NBitcoin
 			}
 		}
 
-		private readonly Witness wit;
-		public Witness Witness
-		{
-			get
-			{
-				return wit;
-			}
-		}
-
 		//Since it is impossible to serialize a transaction with 0 input without problems during deserialization with wit activated, we fit a flag in the version to workaround it
 		const uint NoDummyInput = (1 << 27);
 
@@ -1282,11 +1235,11 @@ namespace NBitcoin
 					stream.ReadWrite<TxOutList, TxOut>(ref vout);
 					vout.Transaction = this;
 				}
-				wit.SetNull();
 				if(((flags & 1) != 0) && witSupported)
 				{
 					/* The witness flag is present, and we support witnesses. */
 					flags ^= 1;
+					Witness wit = new Witness(Inputs);
 					wit.ReadWrite(stream);
 				}
 				if(flags != 0)
@@ -1303,7 +1256,7 @@ namespace NBitcoin
 				if(witSupported)
 				{
 					/* Check whether witnesses need to be serialized. */
-					if(!wit.IsNull())
+					if(HasWitness)
 					{
 						flags |= 1;
 					}
@@ -1321,6 +1274,8 @@ namespace NBitcoin
 				vout.Transaction = this;
 				if((flags & 1) != 0)
 				{
+					Witness wit = new Witness(this.Inputs);
+					
 					wit.ReadWrite(stream);
 				}
 			}
@@ -1618,19 +1573,32 @@ namespace NBitcoin
 			return true;
 		}
 
-		public Transaction RemoveOption(TransactionOptions options)
+		/// <summary>
+		/// Create a transaction with the specified option only. (useful for stripping data from a transaction)
+		/// </summary>
+		/// <param name="options">Options to keep</param>
+		/// <returns>A new transaction with only the options wanted</returns>
+		public Transaction WithOptions(TransactionOptions options)
 		{
 			var instance = new Transaction();
 			var ms = new MemoryStream();
 			var bms = new BitcoinStream(ms, true);
-			bms.TransactionOptions = TransactionOptions.All & ~options;
+			bms.TransactionOptions = options;
 			this.ReadWrite(bms);
 			ms.Position = 0;
 			bms = new BitcoinStream(ms, false);
-			bms.TransactionOptions = TransactionOptions.All & ~options;
+			bms.TransactionOptions = options;
 			instance.ReadWrite(bms);
 			return instance;
-		}		
+		}
+
+		public bool HasWitness
+		{
+			get
+			{
+				return Inputs.Any(i => i.WitScript != WitScript.Empty && i.WitScript != null);
+			}
+		}
 	}
 
 }
