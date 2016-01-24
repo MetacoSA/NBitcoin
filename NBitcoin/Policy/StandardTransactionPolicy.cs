@@ -163,7 +163,7 @@ namespace NBitcoin.Policy
 #if !NOCONSENSUSLIB
 			if(!UseConsensusLib)
 #endif
-				return input.VerifyScript(scriptPubKey, scriptVerify, value, out error);
+				return input.VerifyScript(scriptPubKey, value, scriptVerify, out error);
 #if !NOCONSENSUSLIB
 			else
 			{

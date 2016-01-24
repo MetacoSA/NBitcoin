@@ -704,9 +704,20 @@ namespace NBitcoin
 		{
 			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, null, scriptVerify, SigHash.Undefined, out error);
 		}
-		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify, Money value, out ScriptError error)
+		public bool VerifyScript(Script scriptPubKey, Money value, ScriptVerify scriptVerify, out ScriptError error)
 		{
 			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, value, scriptVerify, SigHash.Undefined, out error);
+		}
+
+		public bool VerifyScript(ICoin coin, ScriptVerify scriptVerify = ScriptVerify.Standard)
+		{
+			ScriptError error;
+			return VerifyScript(coin, scriptVerify, out error);
+		}
+
+		public bool VerifyScript(ICoin coin, ScriptVerify scriptVerify, out ScriptError error)
+		{
+			return Script.VerifyScript(coin.TxOut.ScriptPubKey, Transaction, (int)Index, coin.TxOut.Value, scriptVerify, SigHash.Undefined, out error);
 		}
 
 		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash)
