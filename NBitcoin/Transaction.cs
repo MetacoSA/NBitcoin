@@ -1628,6 +1628,10 @@ namespace NBitcoin
 			var bms = new BitcoinStream(ms, true);
 			bms.TransactionOptions = TransactionOptions.All & ~options;
 			this.ReadWrite(bms);
+			ms.Position = 0;
+			bms = new BitcoinStream(ms, false);
+			bms.TransactionOptions = TransactionOptions.All & ~options;
+			instance.ReadWrite(bms);
 			return instance;
 		}		
 	}

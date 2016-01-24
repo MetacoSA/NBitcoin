@@ -986,6 +986,11 @@ namespace NBitcoin.Tests
 			builder.SetChange(alice);
 			signedTx = builder.BuildTransaction(true);
 			Assert.True(builder.Verify(signedTx));
+
+			//Can remove witness data from tx
+			var signedTx2 = signedTx.RemoveOption(TransactionOptions.Witness);
+			Assert.Equal(signedTx.GetHash(), signedTx2.GetHash());
+			Assert.True(signedTx2.GetSerializedSize() < signedTx.GetSerializedSize());
 		}
 
 		[Fact]

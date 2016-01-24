@@ -126,10 +126,5 @@ namespace NBitcoin
 			Random.GetBytes(output);
 			PushEntropy(output);
 		}
-
-		internal static Task<byte[]> GetRandomBytesAsync(int p)
-		{
-			throw new NotImplementedException();
-		}
 	}
 }
