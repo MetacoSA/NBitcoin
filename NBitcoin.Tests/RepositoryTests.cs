@@ -314,16 +314,43 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
+			new Key().PubKey.WitHash.GetAddress(Network.SegNet).ToString();
 
 			var node = Node.Connect(Network.SegNet, "qbitninja-server.cloudapp.net");
 			node.VersionHandshake();
+
+			uint256 p2wsh = null;
+			uint256 p2pwkh = null;
+			uint256 p2wshp2sh = null;
+			uint256 p2wpkhp2sh = null;
 			foreach(var block in node.GetBlocks())
 			{
 				foreach(var tx in block.Transactions)
 				{
+					if(p2wsh != null && p2pwkh != null && p2wshp2sh != null && p2wpkhp2sh != null)
+						break;
 					if(!tx.IsCoinBase && !tx.Witness.IsEmpty)
 					{
-
+						foreach(var input in tx.Inputs.AsIndexedInputs())
+						{
+							if(input.WitScript == WitScript.Empty)
+								continue;
+							if(input.ScriptSig == Script.Empty)
+							{
+								if(PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(input.WitScript) != null)
+									p2pwkh = tx.GetHash();
+								else
+									p2wsh = tx.GetHash();
+							}
+							else
+							{
+								if(PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(input.WitScript) != null)
+									p2wpkhp2sh = tx.GetHash();
+								else
+									p2wshp2sh = tx.GetHash();
+							}
+							break;
+						}
 					}
 				}
 			}

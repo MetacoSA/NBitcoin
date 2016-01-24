@@ -534,7 +534,7 @@ namespace NBitcoin
 
 				if((nHashType & SigHash.AnyoneCanPay) == 0)
 				{
-					BitcoinStream ss = CreateHashWriter();
+					BitcoinStream ss = CreateHashWriter(sigversion);
 					foreach(var input in txTo.Inputs)
 					{
 						ss.ReadWrite(input.PrevOut);
@@ -544,7 +544,7 @@ namespace NBitcoin
 
 				if((nHashType & SigHash.AnyoneCanPay) == 0 && ((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
 				{
-					BitcoinStream ss = CreateHashWriter();
+					BitcoinStream ss = CreateHashWriter(sigversion);
 					foreach(var input in txTo.Inputs)
 					{
 						ss.ReadWrite(input.Sequence);
@@ -554,7 +554,7 @@ namespace NBitcoin
 
 				if(((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
 				{
-					BitcoinStream ss = CreateHashWriter();
+					BitcoinStream ss = CreateHashWriter(sigversion);
 					foreach(var txout in txTo.Outputs)
 					{
 						ss.ReadWrite(txout);
@@ -563,12 +563,12 @@ namespace NBitcoin
 				}
 				else if(((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < txTo.Outputs.Count)
 				{
-					BitcoinStream ss = CreateHashWriter();
+					BitcoinStream ss = CreateHashWriter(sigversion);
 					ss.ReadWrite(txTo.Outputs[nIn]);
 					hashOutputs = GetHash(ss);
 				}
 
-				BitcoinStream sss = CreateHashWriter();
+				BitcoinStream sss = CreateHashWriter(sigversion);
 				// Version
 				sss.ReadWrite(txTo.Version);
 				// Input prevouts/nSequence (none/all, depending on flags)
@@ -662,7 +662,7 @@ namespace NBitcoin
 
 
 			//Serialize TxCopy, append 4 byte hashtypecode
-			var stream = CreateHashWriter();
+			var stream = CreateHashWriter(sigversion);
 			txCopy.ReadWrite(stream);
 			stream.ReadWrite((uint)nHashType);
 			return GetHash(stream);
@@ -674,10 +674,11 @@ namespace NBitcoin
 			return Hashes.Hash256(preimage);
 		}
 
-		private static BitcoinStream CreateHashWriter()
+		private static BitcoinStream CreateHashWriter(HashVersion version)
 		{
 			BitcoinStream stream = new BitcoinStream(new MemoryStream(), true);
 			stream.Type = SerializationType.Hash;
+			stream.TransactionOptions = version == HashVersion.Original ? TransactionOptions.None : TransactionOptions.Witness;
 			return stream;
 		}
 
