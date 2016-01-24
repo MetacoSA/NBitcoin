@@ -317,21 +317,21 @@ namespace NBitcoin.Tests
 			var bob = new Key();
 			var alice = new Key();
 
-			var coins = new[] { RandomCoin(bob, Money.Coins(1.0m)), RandomCoin(bob, Money.Coins(1.2m)), RandomCoin(bob, Money.Coins(2.0m)) };
+			var coins = new[] { RandomCoin(bob, Money.Coins(1.0m)) };//, RandomCoin(bob, Money.Coins(1.2m)), RandomCoin(bob, Money.Coins(2.0m)) };
 			var builder = new TransactionBuilder();
 			builder.AddCoins(coins);
 			builder.AddKeys(bob);
-			builder.Send(alice, Money.Coins(4.0m));
+			builder.Send(alice, Money.Coins(0.9m));
 			builder.SetChange(bob.PubKey.WitHash);
 			builder.SendFees(Money.Coins(0.001m));
 			var txxx = builder.BuildTransaction(true);
 			var total = CalculateTotalSize(txxx);
 
-			coins = new[] { RandomCoin(bob, Money.Coins(1.0m), true), RandomCoin(bob, Money.Coins(1.2m), true), RandomCoin(bob, Money.Coins(2.0m), true) };
+			coins = new[] { RandomCoin(bob, Money.Coins(1.0m), true) }; //, RandomCoin(bob, Money.Coins(1.2m), true), RandomCoin(bob, Money.Coins(2.0m), true) };
 			builder = new TransactionBuilder();
 			builder.AddCoins(coins);
 			builder.AddKeys(bob);
-			builder.Send(alice, Money.Coins(4.0m));
+			builder.Send(alice, Money.Coins(0.9m));
 			builder.SetChange(bob.PubKey.Hash);
 			builder.SendFees(Money.Coins(0.001m));
 			txxx = builder.BuildTransaction(true);
@@ -385,9 +385,9 @@ namespace NBitcoin.Tests
 
 			var key = new Key().GetBitcoinSecret(Network.SegNet);
 			var aa = key.GetAddress();
-			foreach(var n in new[]{Network.Main, Network.SegNet})
+			foreach(var n in new[] { Network.Main, Network.SegNet })
 			{
-				for(int i = 0; i < 2;i++)
+				for(int i = 0 ; i < 2 ; i++)
 				{
 					BitcoinAddress addr = i == 0 ? (BitcoinAddress)new Key().PubKey.GetSegwitAddress(n) : new Key().ScriptPubKey.GetWitScriptAddress(n);
 					var c = addr.ScriptPubKey.ToString();
@@ -395,11 +395,11 @@ namespace NBitcoin.Tests
 			}
 
 
-			var networks = Network.GetNetworks().ToArray();		
+			var networks = Network.GetNetworks().ToArray();
 			List<Conflict> conflicts = new List<Conflict>();
 			for(int n = 0 ; n < networks.Length ; n++)
 			{
-				for(int n2 = n+1; n2 < networks.Length ; n2++)
+				for(int n2 = n + 1 ; n2 < networks.Length ; n2++)
 				{
 					var a = networks[n];
 					var b = networks[n2];
@@ -513,9 +513,9 @@ namespace NBitcoin.Tests
 			return total;
 		}
 
-		private static Coin RandomCoin(Key bob, Money amount, bool p2pkh=false)
+		private static Coin RandomCoin(Key bob, Money amount, bool p2pkh = false)
 		{
-			return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, p2pkh ? bob.PubKey.Hash.ScriptPubKey : bob.PubKey.WitHash.ScriptPubKey);
+			return new Coin(new uint256(Enumerable.Range(0, 32).Select(i => (byte)0xaa).ToArray()), 0, amount, p2pkh ? bob.PubKey.Hash.ScriptPubKey : bob.PubKey.WitHash.ScriptPubKey);
 		}
 
 

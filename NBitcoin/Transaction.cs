@@ -1059,23 +1059,21 @@ namespace NBitcoin
 	}
 	public class Witness : IEnumerable<WitScript>
 	{
+		internal Witness(Transaction tx)
+		{
+			_Tx = tx;
+		}
+		Transaction _Tx;
 		List<WitScript> _Scripts = new List<WitScript>();
 		internal void SetNull()
 		{
 			_Scripts.Clear();
+			Resize();
 		}
-
-		internal void Size(int size)
-		{
-			_Scripts.Resize(size);
-			for(int i = 0 ; i < size ; i++)
-			{
-				_Scripts[i] = _Scripts[i] == null ? WitScript.Empty : _Scripts[i];
-			}
-		}
-
+		
 		internal void ReadWrite(BitcoinStream stream)
 		{
+			Resize();
 			for(int i = 0 ; i < _Scripts.Count ; i++)
 			{
 				if(stream.Serializing)
@@ -1092,7 +1090,19 @@ namespace NBitcoin
 
 		internal bool IsNull()
 		{
+			Resize();
 			return _Scripts.All(s => s == WitScript.Empty);
+		}
+
+		internal void Resize()
+		{
+			int sizeBefore = _Scripts.Count;
+			_Scripts.Resize(_Tx.Inputs.Count);
+			int sizeAfter = _Scripts.Count;
+			for(int i = sizeBefore ; i < sizeAfter; i++)
+			{
+				_Scripts[i] = _Scripts[i] == null ? WitScript.Empty : _Scripts[i];
+			}
 		}
 
 		public bool IsEmpty
@@ -1107,34 +1117,23 @@ namespace NBitcoin
 		{
 			get
 			{
+				Resize();
 				if(txinIndex >= _Scripts.Count)
 					return WitScript.Empty;
 				return _Scripts[txinIndex];
 			}
 			set
 			{
-				EnsureSize(txinIndex + 1);
+				Resize();
 				_Scripts[txinIndex] = value;
 			}
 		}
-
-		private void EnsureSize(int size)
-		{
-			if(size > _Scripts.Count)
-				Size(size);
-		}
-
-		public WitScript TryGet(int index)
-		{
-			if(index >= _Scripts.Count)
-				return null;
-			return _Scripts[index];
-		}
-
+		
 		#region IEnumerable<WitnessScript> Members
 
 		public IEnumerator<WitScript> GetEnumerator()
 		{
+			Resize();
 			return _Scripts.GetEnumerator();
 		}
 
@@ -1183,6 +1182,7 @@ namespace NBitcoin
 		{
 			vin = new TxInList(this);
 			vout = new TxOutList(this);
+			wit = new Witness(this);
 		}
 
 		public Transaction(string hex, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
@@ -1232,7 +1232,7 @@ namespace NBitcoin
 			}
 		}
 
-		private Witness wit = new Witness();
+		private readonly Witness wit;
 		public Witness Witness
 		{
 			get
@@ -1287,8 +1287,6 @@ namespace NBitcoin
 				{
 					/* The witness flag is present, and we support witnesses. */
 					flags ^= 1;
-					//const_cast<CTxWitness*>(&tx.wit)->vtxinwit.resize(tx.vin.size());
-					wit.Size(vin.Count);
 					wit.ReadWrite(stream);
 				}
 				if(flags != 0)
@@ -1323,7 +1321,6 @@ namespace NBitcoin
 				vout.Transaction = this;
 				if((flags & 1) != 0)
 				{
-					wit.Size(vin.Count);
 					wit.ReadWrite(stream);
 				}
 			}

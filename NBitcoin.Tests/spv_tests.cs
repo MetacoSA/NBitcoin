@@ -486,18 +486,17 @@ namespace NBitcoin.Tests
 
 				Assert.Equal(creation.UseP2SH, k.GetDestinationAddress(Network.TestNet) is BitcoinScriptAddress);
 				chainBuilder.GiveMoney(k, Money.Coins(1.0m));
-				TestUtils.Eventually(() => wallet.GetTransactions().Count == 1);
-				Assert.Equal(1, notifiedTransactions.Count);
+				TestUtils.Eventually(() => wallet.GetTransactions().Count == 1 
+										&& notifiedTransactions.Count == 1);
 				chainBuilder.FindBlock();
-				TestUtils.Eventually(() => wallet.GetTransactions().Where(t => t.BlockInformation != null).Count() == 1);
-				Assert.Equal(2, notifiedTransactions.Count);
-
+				TestUtils.Eventually(() => wallet.GetTransactions().Where(t => t.BlockInformation != null).Count() == 1 &&
+										   notifiedTransactions.Count == 2);
 				chainBuilder.Broadcast = false;
 				chainBuilder.GiveMoney(k, Money.Coins(1.5m));
 				chainBuilder.Broadcast = true;
 				chainBuilder.FindBlock();
-				TestUtils.Eventually(() => wallet.GetTransactions().Summary.Confirmed.TransactionCount == 2);
-				Assert.Equal(3, notifiedTransactions.Count);
+				TestUtils.Eventually(() => wallet.GetTransactions().Summary.Confirmed.TransactionCount == 2 &&
+										   notifiedTransactions.Count == 3);
 
 				chainBuilder.Broadcast = false;
 				for(int i = 0 ; i < 30 ; i++)
