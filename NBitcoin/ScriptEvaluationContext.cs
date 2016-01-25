@@ -566,6 +566,7 @@ namespace NBitcoin
 				ctx.Stack.Push(item);
 			if(!ctx.EvalScript(scriptPubKey, checker, 1))
 			{
+				this.Error = ctx.Error;
 				return false;
 			}
 			// Scripts inside witness implicitly require cleanstack behaviour
