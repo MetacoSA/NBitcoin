@@ -66,7 +66,7 @@ namespace NBitcoin
 		public TransactionChecker(Transaction tx, int index, Money amount = null)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");			
+				throw new ArgumentNullException("tx");
 			_Transaction = tx;
 			_Index = index;
 			_Amount = amount;
@@ -530,7 +530,7 @@ namespace NBitcoin
 						stack.Add(witness.GetUnsafePush(i));
 					}
 					var hashScriptPubKey = Hashes.SHA256(scriptPubKey.ToBytes(true));
-					if(!Utils.ArrayEqual(hashScriptPubKey,wit.Program))
+					if(!Utils.ArrayEqual(hashScriptPubKey, wit.Program))
 					{
 						return SetError(ScriptError.WitnessProgramMissmatch);
 					}
@@ -564,10 +564,16 @@ namespace NBitcoin
 			ctx.Stack.Clear();
 			foreach(var item in stack)
 				ctx.Stack.Push(item);
+
+			// Disallow stack item size > MAX_SCRIPT_ELEMENT_SIZE in witness stack
+			for(int i = 0 ; i < ctx.Stack.Count ; i++)
+			{
+				if(ctx.Stack.Top(-(i + 1)).Length > MAX_SCRIPT_ELEMENT_SIZE)
+					return SetError(ScriptError.PushSize);
+			}
 			if(!ctx.EvalScript(scriptPubKey, checker, 1))
 			{
-				this.Error = ctx.Error;
-				return false;
+				return SetError(ctx.Error);
 			}
 			// Scripts inside witness implicitly require cleanstack behaviour
 			if(ctx.Stack.Count != 1)

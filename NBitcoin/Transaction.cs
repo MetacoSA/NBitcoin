@@ -743,6 +743,10 @@ namespace NBitcoin
 		{
 			return Script.VerifyScript(coin.TxOut.ScriptPubKey, Transaction, (int)Index, coin.TxOut.Value, scriptVerify, SigHash.Undefined, out error);
 		}
+		public bool VerifyScript(WitScriptCoin coin, out ScriptError error)
+		{
+			return VerifyScript(coin, ScriptVerify.Standard, out error);
+		}
 
 		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash)
 		{
@@ -754,6 +758,7 @@ namespace NBitcoin
 		{
 			return Script.SignatureHash(coin.GetScriptCode(), Transaction, (int)Index, sigHash, coin.TxOut.Value, coin.GetHashVersion());
 		}
+
 	}
 	public class TxInList : UnsignedList<TxIn>
 	{
@@ -1227,7 +1232,12 @@ namespace NBitcoin
 						stream.ReadWrite<TxOutList, TxOut>(ref vout);
 						vout.Transaction = this;
 					}
-
+					else
+					{
+						/* Assume read a transaction without output. */
+						vout = new TxOutList();
+						vout.Transaction = this;
+					}
 				}
 				else
 				{

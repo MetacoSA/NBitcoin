@@ -1488,6 +1488,24 @@ namespace NBitcoin.Tests
 			Assert.False(tx.Inputs.AsIndexedInputs().First().VerifyScript(new Script("0 b7854eb547106248b136ca2bf48d8df2f1167588"), out error));
 			Assert.Equal(ScriptError.EqualVerify, error);
 		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void witnessHasPushSizeLimit()
+		{
+			Key bob = new Key();
+			Transaction tx = new Transaction();
+			tx.Outputs.Add(new TxOut(Money.Coins(1.0m), bob.PubKey.ScriptPubKey.WitHash));
+			WitScriptCoin coin = new WitScriptCoin(tx.Outputs.AsCoins().First(), bob.PubKey.ScriptPubKey);
+
+			Transaction spending = new Transaction();
+			spending.AddInput(tx, 0);
+			spending.Sign(bob, coin);
+			ScriptError error;
+			Assert.True(spending.Inputs.AsIndexedInputs().First().VerifyScript(coin, out error));
+			spending.Inputs[0].WitScript = new WitScript(new[] { new byte[521] }.Concat(spending.Inputs[0].WitScript.Pushes).ToArray());
+			Assert.False(spending.Inputs.AsIndexedInputs().First().VerifyScript(coin, out error));
+			Assert.Equal(ScriptError.PushSize, error);
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
