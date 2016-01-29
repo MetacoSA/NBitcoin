@@ -597,8 +597,7 @@ namespace NBitcoin.SPV
 				throw new ArgumentNullException("group");
 
 			var parameters = group.NodeConnectionParameters;
-			group.Requirements.MinVersion = ProtocolVersion.PROTOCOL_VERSION;
-			group.Requirements.RequiredServices |= NodeServices.Network;
+			group.Requirements.SupportSPV = true;
 
 			var chain = parameters.TemplateBehaviors.Find<ChainBehavior>();
 			if(chain == null)

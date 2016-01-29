@@ -43,6 +43,6 @@ namespace NBitcoin.Protocol
 		SENDHEADERS_VERSION = 70012,
 
 		//! Version after which witness support potentially exists
-		WITNESS_VERSION = 70012
+		WITNESS_VERSION = 70012,
 	}
 }

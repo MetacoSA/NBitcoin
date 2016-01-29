@@ -53,6 +53,12 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
+		public bool SupportSPV
+		{
+			get;
+			set;
+		}
+
 		public virtual bool Check(VersionPayload version)
 		{
 			if(MinVersion != null)
@@ -63,6 +69,13 @@ namespace NBitcoin.Protocol
 			if((RequiredServices & version.Services) != RequiredServices)
 			{
 				return false;
+			}
+			if(SupportSPV)
+			{
+				if(version.Version < ProtocolVersion.MEMPOOL_GD_VERSION)
+					return false;
+				if(ProtocolVersion.NO_BLOOM_VERSION <= version.Version && ((version.Services & NodeServices.NODE_BLOOM) == 0))
+					return false;
 			}
 			return true;
 		}

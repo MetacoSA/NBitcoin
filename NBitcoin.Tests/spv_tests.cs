@@ -546,7 +546,7 @@ namespace NBitcoin.Tests
 
 			foreach(var server in new[] { servers.Server1, servers.Server2 })
 			{
-				server.InboundNodeConnectionParameters.Services = NodeServices.Network;
+				server.InboundNodeConnectionParameters.Services = NodeServices.Network | NodeServices.NODE_BLOOM;
 				//Simulate SPV compatible server
 				server.InboundNodeConnectionParameters.TemplateBehaviors.Add(new ChainBehavior(chainBuilder.Chain)
 				{
