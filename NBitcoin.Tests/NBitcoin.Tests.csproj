@@ -86,6 +86,7 @@
     <Compile Include="DeterministicSignatureTests.cs" />
     <Compile Include="hash_tests.cs" />
     <Compile Include="key_tests.cs" />
+    <Compile Include="NetworkTests.cs" />
     <Compile Include="PaymentTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProtocolTests.cs" />

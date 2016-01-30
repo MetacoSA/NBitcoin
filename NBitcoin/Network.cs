@@ -812,7 +812,9 @@ namespace NBitcoin
 				case "reg":
 				case "regtest":
 					return Network.RegTest;
-				default:
+                case "segnet":
+                    return Network.SegNet;
+                default:
 					throw new ArgumentException(String.Format("Invalid network name '{0}'", name));
 			}
 		}
