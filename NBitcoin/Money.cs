@@ -196,6 +196,19 @@ namespace NBitcoin
 			return true;
 		}
 
+		/// <summary>
+		/// Get the Money corresponding to the input assetId
+		/// </summary>
+		/// <param name="assetId">The asset id, if null, will assume bitcoin amount</param>
+		/// <returns>Never returns null, eithers the AssetMoney or Money if assetId is null</returns>
+		public IMoney GetAmount(AssetId assetId = null)
+		{
+			if(assetId == null)
+				return this.OfType<Money>().FirstOrDefault() ?? Money.Zero;
+			else
+				return this.OfType<AssetMoney>().Where(a => a.Id == assetId).FirstOrDefault() ?? new AssetMoney(assetId, 0);
+		}
+
 		public override string ToString()
 		{
 			var sb = new StringBuilder();
