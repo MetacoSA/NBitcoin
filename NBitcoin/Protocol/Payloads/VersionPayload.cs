@@ -32,6 +32,11 @@ namespace NBitcoin.Protocol
 		/// but no longer do as of protocol version 70011 (= NO_BLOOM_VERSION)
 		/// </summary>
 		NODE_BLOOM = (1 << 2),
+
+		/// <summary> Indicates that a node can be asked for blocks and transactions including
+		/// witness data. 
+		/// </summary> 
+		NODE_WITNESS = (1 << 3),
 	}
 	[Payload("version")]
 	public class VersionPayload : Payload, IBitcoinSerializable
