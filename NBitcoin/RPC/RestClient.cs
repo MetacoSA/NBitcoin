@@ -22,8 +22,7 @@ namespace NBitcoin.RPC
 	}
 
 	/// <summary>
-	/// Client class for the <see cref="https://github.com/bitcoin/bitcoin/blob/master/doc/REST-interface.md">
-	/// Unauthenticated REST Interface</see> 
+	/// Client class for the unauthenticated REST Interface
 	/// </summary>
 	public class RestClient : IBlockRepository
 	{

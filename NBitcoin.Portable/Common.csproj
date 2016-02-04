@@ -4,6 +4,7 @@
     <ProjectGuid>{EBBB4E11-1136-49CA-BEBD-D3970E870990}</ProjectGuid>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <NoWarn>1591;1573;1572;1584;1570</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ExcludedStuff Include="..\NBitcoin\obj\**\*.cs">
