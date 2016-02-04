@@ -58,7 +58,13 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-
+		public bool IfPayloadIs<TPayload>(Action<TPayload> action) where TPayload : class
+		{
+			var payload = Payload as TPayload;
+			if(payload != null)
+				action(payload);
+			return payload != null;
+		}
 
 		#region IBitcoinSerializable Members
 
