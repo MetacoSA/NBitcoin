@@ -794,28 +794,41 @@ namespace NBitcoin
 			yield return RegTest;
 		}
 
+		/// <summary>
+		/// Get network from protocol magic number
+		/// </summary>
+		/// <param name="magic">Magic number</param>
+		/// <returns>The network, or null of the magic number does not match any network</returns>
 		public static Network GetNetwork(uint magic)
 		{
 			return GetNetworks().FirstOrDefault(r => r.Magic == magic);
 		}
 
+		/// <summary>
+		/// Get network from name
+		/// </summary>
+		/// <param name="name">main,mainnet,testnet,test,testnet3,reg,regtest,seg,segnet</param>
+		/// <returns>The network or null of the name does not match any network</returns>
 		public static Network GetNetwork(string name)
 		{
 			name = name.ToLowerInvariant();
 			switch(name)
 			{
 				case "main":
+				case "mainnet":
 					return Network.Main;
 				case "testnet":
+				case "test":
 				case "testnet3":
 					return Network.TestNet;
 				case "reg":
 				case "regtest":
 					return Network.RegTest;
+				case "seg":
                 case "segnet":
                     return Network.SegNet;
                 default:
-					throw new ArgumentException(String.Format("Invalid network name '{0}'", name));
+					return null;
 			}
 		}
 
