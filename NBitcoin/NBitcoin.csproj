@@ -78,6 +78,7 @@
     <Compile Include="BitcoinCore\CachedBlockProvider.cs" />
     <Compile Include="BitWriter.cs" />
     <Compile Include="FeeRate.cs" />
+    <Compile Include="OpenAsset\NullColoredTransactionRepository.cs" />
     <Compile Include="Policy\ITransactionPolicy.cs" />
     <Compile Include="JsonConverters\BitcoinSerializableJsonConverter.cs" />
     <Compile Include="JsonConverters\MoneyJsonConverter.cs" />

@@ -30,7 +30,7 @@ namespace NBitcoin.Tests
 					repository.Put(txObj.GetHash(), txObj);
 				}
 				TestedTxId = uint256.Parse(testcase.testedtx);
-				Repository = new NoSqlColoredTransactionRepository(repository, new InMemoryNoSqlRepository());
+				Repository = new NullColoredTransactionRepository(repository);
 			}
 
 
@@ -394,6 +394,21 @@ namespace NBitcoin.Tests
 			Assert.True(destroyed.Length == 1);
 			Assert.True(destroyed[0].Quantity == 1);
 			Assert.True(destroyed[0].Id == colored2.Inputs[0].Asset.Id);
+
+			//Verify that FetchColor update the repository
+			var persistent = new NoSqlColoredTransactionRepository(tester.Repository.Transactions, new InMemoryNoSqlRepository());
+			colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, persistent);
+			Assert.NotNull(persistent.Get(tester.TestedTxId));
+
+			//Verify cached loadbulk correctly
+			var cached = new CachedColoredTransactionRepository(persistent);
+			persistent.Put(tester.TestedTxId, null);
+			cached.WriteThrough = false;
+			colored2 = ColoredTransaction.FetchColors(tester.TestedTxId, cached);
+			cached.ReadThrough = false;
+			Assert.Null(cached.Get(tester.TestedTxId)); //Should not have written in the cache (cache outdated, thinking it is still null)
+			Assert.NotNull(persistent.Get(tester.TestedTxId)); //But should have written in the inner repository
+			Assert.NotNull(cached.Get(tx.Inputs[0].PrevOut.Hash)); //However, the previous transaction should have been loaded by loadbulk via ReadThrough
 		}
 
 
@@ -446,7 +461,7 @@ namespace NBitcoin.Tests
 				"6a056a104f41010003ac0200e58e260412345678", //valid push consume a marker
 			};
 
-			foreach(var script in invalidMarkers.Select(m=>new Script(Encoders.Hex.DecodeData(m))))
+			foreach(var script in invalidMarkers.Select(m => new Script(Encoders.Hex.DecodeData(m))))
 			{
 				var marker = ColorMarker.TryParse(script);
 				Assert.Null(marker);
@@ -464,7 +479,7 @@ namespace NBitcoin.Tests
 				var marker = ColorMarker.TryParse(script);
 				Assert.NotNull(marker);
 			}
-			
+
 			Transaction tx = new Transaction();
 			tx.Outputs.Add(new TxOut(Money.Zero, new Script(Encoders.Hex.DecodeData("6a114f41010003f00100e58e26041234567800104f41010003f00100e58e260412345678"))));
 			tx.Outputs.Add(new TxOut(Money.Zero, new Script(Encoders.Hex.DecodeData("6a104f41010003ac0200e58e260412345678"))));

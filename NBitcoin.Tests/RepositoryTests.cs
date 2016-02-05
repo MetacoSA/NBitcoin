@@ -283,34 +283,6 @@ namespace NBitcoin.Tests
 			Assert.NotNull(result);
 		}
 
-		class ConflictPart
-		{
-			public Network Network;
-			public Base58Type Type;
-			public byte[] Value;
-			public override string ToString()
-			{
-				StringBuilder builder = new StringBuilder();
-				builder.Append(Network + " ");
-				builder.Append(Enum.GetName(typeof(Base58Type), Type) + " ");
-				builder.Append(String.Join(",", Value));
-				return builder.ToString();
-			}
-		}
-		class Conflict
-		{
-			public Conflict()
-			{
-				A = new ConflictPart();
-				B = new ConflictPart();
-			}
-			public ConflictPart A;
-			public ConflictPart B;
-			public override string ToString()
-			{
-				return A + " <=> " + B;
-			}
-		}
 		[Fact]
 		public static void Play()
 		{

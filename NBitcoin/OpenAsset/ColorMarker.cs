@@ -276,6 +276,8 @@ namespace NBitcoin.OpenAsset
 
 		public static ColorMarker Get(Transaction transaction, out uint markerPosition)
 		{
+			if(transaction == null)
+				throw new ArgumentNullException("transaction");
 			uint resultIndex = 0;
 			var result = transaction.Outputs.Select(o => TryParse(o.ScriptPubKey)).Where((o, i) =>
 			{
