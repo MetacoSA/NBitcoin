@@ -263,18 +263,7 @@ namespace NBitcoin.Tests
 					Assert.True(!tree.GetMatchedTransactions().Contains(knownTx));
 				}
 			}
-		}
-
-		[Fact]
-		[Trait("TestNet", "TestNet")]
-		public void CanGetMemPool()
-		{
-			using(var node = Node.ConnectToLocal(Network.TestNet))
-			{
-				var txIds = node.GetMempool();
-				Assert.True(txIds.Length > 0);
-			}
-		}
+		}		
 
 		[Fact]
 		[Trait("TestNet", "TestNet")]
@@ -318,6 +307,17 @@ namespace NBitcoin.Tests
 				node.VersionHandshake();
 				var transactions = node.GetMempoolTransactions();
 				Assert.True(transactions.Length > 0);
+			}
+		}
+
+		[Fact]
+		[Trait("MainNet", "MainNet")]
+		public void CanGetMemPool()
+		{
+			using(var node = Node.ConnectToLocal(Network.Main))
+			{
+				var txIds = node.GetMempool();
+				Assert.True(txIds.Length > 0);
 			}
 		}
 
