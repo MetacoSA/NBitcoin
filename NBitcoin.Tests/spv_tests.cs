@@ -616,7 +616,10 @@ namespace NBitcoin.Tests
 				Assert.Null(broadcasting.Result);
 
 				broadcasting = wallet.BroadcastTransactionAsync(tx);
-				Assert.Equal(1, behavior.Broadcasts.Count());
+				if(broadcasting.Status != TaskStatus.RanToCompletion)
+				{
+					Assert.Equal(1, behavior.Broadcasts.Count());
+				}
 				Assert.True(evt.WaitOne(20000));
 				Assert.True(rejected);
 				Assert.Equal(0, behavior.Broadcasts.Count());
