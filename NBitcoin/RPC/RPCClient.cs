@@ -368,6 +368,7 @@ namespace NBitcoin.RPC
 					SynchronizedBlocks = (int)peer["synced_blocks"],
 					SynchronizedHeaders = (int)peer["synced_headers"],
 					IsWhiteListed = (bool)peer["whitelisted"],
+					BanScore = peer["banscore"] == null ? 0 : (int)peer["banscore"],
 					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
 				};
 			}

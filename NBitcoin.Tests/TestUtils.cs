@@ -41,7 +41,7 @@ namespace NBitcoin.Tests
 			while(!act())
 			{
 				cancel.Token.ThrowIfCancellationRequested();
-				Thread.Sleep(1);
+				Thread.Sleep(50);
 			}
 		}
 
