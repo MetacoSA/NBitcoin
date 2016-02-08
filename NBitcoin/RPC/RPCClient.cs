@@ -349,8 +349,8 @@ namespace NBitcoin.RPC
 				result[i++] = new PeerInfo
 				{
 					Id = (int)peer["id"],
-					Address = Utils.ParseIpEndpoint((string)peer["addr"], 8333),
-					LocalAddress = Utils.ParseIpEndpoint(localAddr, 8333),
+					Address = Utils.ParseIpEndpoint((string)peer["addr"], this.Network.DefaultPort),
+					LocalAddress = Utils.ParseIpEndpoint(localAddr, this.Network.DefaultPort),
 					Services = ulong.Parse((string)peer["services"]),
 					LastSend = Utils.UnixTimeToDateTime((uint)peer["lastsend"]),
 					LastReceive = Utils.UnixTimeToDateTime((uint)peer["lastrecv"]),

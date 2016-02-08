@@ -155,6 +155,28 @@ namespace NBitcoin.Tests
 #endif
 #if !NOSOCKET
 		[Fact]
+		[Trait("UnitTest","UnitTest")]
+		public void CanParseIpEndpoint()
+		{
+			var endpoint = Utils.ParseIpEndpoint("google.com:94", 90);
+			Assert.Equal(94, endpoint.Port);
+			endpoint = Utils.ParseIpEndpoint("google.com", 90);
+			Assert.Equal(90, endpoint.Port);
+			endpoint = Utils.ParseIpEndpoint("10.10.1.3", 90);
+			Assert.Equal("10.10.1.3", endpoint.Address.ToString());
+			Assert.Equal(90, endpoint.Port);
+			endpoint = Utils.ParseIpEndpoint("10.10.1.3:94", 90);
+			Assert.Equal("10.10.1.3", endpoint.Address.ToString());
+			Assert.Equal(94, endpoint.Port);
+			Assert.Throws<System.Net.Sockets.SocketException>(() => Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8:100", 90));
+			endpoint = Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8", 90);
+			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
+			Assert.Equal(90, endpoint.Port);
+			endpoint = Utils.ParseIpEndpoint("[2001:db8:1f70::999:de8:7648:6e8]:94", 90);
+			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
+			Assert.Equal(94, endpoint.Port);
+		}
+		[Fact]
 		public void CanAddNodes()
 		{
 			var rpc = CreateRPCClient();

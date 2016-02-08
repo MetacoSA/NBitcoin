@@ -640,16 +640,41 @@ namespace NBitcoin
 #if !NOSOCKET
 		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort)
 		{
-			var splitted = endpoint.Split(':');
-			var port = splitted.Length == 1 ? defaultPort : int.Parse(splitted[1]);
+			var splitted = endpoint.Trim().Split(new[]{':'});
+			string ip = null;
+			int port = 0;
+			if(splitted.Length == 1)
+			{
+				ip = splitted[0];
+				port = defaultPort;
+			}
+			else if(splitted.Length == 2)
+			{
+				ip = splitted[0];
+				port = int.Parse(splitted[1]);
+			}
+			else
+			{
+				if((endpoint.IndexOf(']') != -1) && 
+					int.TryParse(splitted.Last(), out port))
+				{
+					ip = String.Join(":", splitted.Take(splitted.Length - 1).ToArray());
+				}
+				else
+				{
+					ip = endpoint;
+					port = defaultPort;
+				}
+			}
+			
 			IPAddress address = null;
 			try
 			{
-				address = IPAddress.Parse(splitted[0]);
+				address = IPAddress.Parse(ip);
 			}
 			catch(FormatException)
 			{
-				address = Dns.GetHostEntry(splitted[0]).AddressList[0];
+				address = Dns.GetHostEntry(ip).AddressList[0];
 			}
 			return new IPEndPoint(address, port);
 		}
