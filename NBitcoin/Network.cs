@@ -332,10 +332,10 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { 0x6 };
 			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (10) };
 
+#if !PORTABLE
 			// Convert the pnSeeds array into usable address objects.
 			Random rand = new Random();
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);
-#if !PORTABLE
 			for(int i = 0 ; i < pnSeed.Length ; i++)
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
@@ -422,6 +422,24 @@ namespace NBitcoin
 			consensus.HashGenesisBlock = genesis.GetHash();
 
 			vFixedSeeds.Clear();
+
+#if !PORTABLE
+			// Convert the pnSeeds array into usable address objects.
+			Random rand = new Random();
+			TimeSpan nOneWeek = TimeSpan.FromDays(7);
+			var pnSeed = new[] { "104.243.38.34", "104.155.1.158", "119.246.245.241", "46.101.235.82" };
+			for(int i = 0 ; i < pnSeed.Length ; i++)
+			{
+				// It'll only connect to one or two seed nodes because once it connects,
+				// it'll get a pile of addresses with newer timestamps.				
+				NetworkAddress addr = new NetworkAddress();
+				// Seed nodes are given a random 'last seen time' of between one and two
+				// weeks ago.
+				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
+				addr.Endpoint = Utils.ParseIpEndpoint(pnSeed[i], DefaultPort);
+				vFixedSeeds.Add(addr);
+			}
+#endif
 			vSeeds.Clear();
 
 			base58Prefixes = Network.TestNet.base58Prefixes.ToArray();
@@ -825,9 +843,9 @@ namespace NBitcoin
 				case "regtest":
 					return Network.RegTest;
 				case "seg":
-                case "segnet":
-                    return Network.SegNet;
-                default:
+				case "segnet":
+					return Network.SegNet;
+				default:
 					return null;
 			}
 		}
