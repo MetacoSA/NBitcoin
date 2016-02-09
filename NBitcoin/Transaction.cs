@@ -1538,6 +1538,8 @@ namespace NBitcoin
 		/// <returns>Fee or null if some spent coins are missing or if spentCoins is null</returns>
 		public Money GetFee(ICoin[] spentCoins)
 		{
+			if(IsCoinBase)
+				return Money.Zero;
 			spentCoins = spentCoins ?? new ICoin[0];
 
 			Money fees = -TotalOut;
