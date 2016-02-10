@@ -551,7 +551,7 @@ namespace NBitcoin
 					BitcoinStream ss = CreateHashWriter(sigversion);
 					foreach(var input in txTo.Inputs)
 					{
-						ss.ReadWrite(input.Sequence);
+						ss.ReadWrite((uint)input.Sequence);
 					}
 					hashSequence = GetHash(ss); // TODO: cache this value for all signatures in a transaction
 				}
@@ -584,7 +584,7 @@ namespace NBitcoin
 				sss.ReadWrite(txTo.Inputs[nIn].PrevOut);
 				sss.ReadWrite(scriptCode);
 				sss.ReadWrite(amount.Satoshi);
-				sss.ReadWrite(txTo.Inputs[nIn].Sequence);
+				sss.ReadWrite((uint)txTo.Inputs[nIn].Sequence);
 				// Outputs (none/one/all, depending on flags)
 				sss.ReadWrite(hashOutputs);
 				// Locktime

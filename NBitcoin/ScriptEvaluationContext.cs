@@ -1458,7 +1458,7 @@ namespace NBitcoin
 			// Mask off any bits that do not have consensus-enforced meaning
 			// before doing the integer comparisons of ::VerifyLockTime.
 			const uint nLockTimeMask = Sequence.SEQUENCE_LOCKTIME_TYPE_FLAG
-										 | TxIn.SEQUENCE_LOCKTIME_MASK;
+										 | Sequence.SEQUENCE_LOCKTIME_MASK;
 
 			if(!VerifyLockTime(txToSequence & nLockTimeMask, Sequence.SEQUENCE_LOCKTIME_TYPE_FLAG, nSequence & nLockTimeMask))
 				return false;

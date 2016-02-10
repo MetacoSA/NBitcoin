@@ -190,31 +190,8 @@ namespace NBitcoin
 		OutPoint prevout = new OutPoint();
 		Script scriptSig = Script.Empty;
 		uint nSequence = uint.MaxValue;
-		/* Setting nSequence to this value for every input in a transaction
- * disables nLockTime. */
-		internal const UInt32 SEQUENCE_FINAL = 0xffffffff;
-		/* If this flag set, CTxIn::nSequence is NOT interpreted as a
-		 * relative lock-time. Setting the most significant bit of a
-		 * sequence number disabled relative lock-time. */
-		internal const UInt32 SEQUENCE_LOCKTIME_DISABLE_FLAG = (1U << 31);
-		/* If CTxIn::nSequence encodes a relative lock-time and this flag
-		 * is set, the relative lock-time has units of 512 seconds,
-		 * otherwise it specifies blocks with a granularity of 1. */
-		internal const UInt32 SEQUENCE_LOCKTIME_TYPE_FLAG = (1 << 22);
-		/* If CTxIn::nSequence encodes a relative lock-time, this mask is
-		 * applied to extract that lock-time from the sequence field. */
-		internal const UInt32 SEQUENCE_LOCKTIME_MASK = 0x0000ffff;
-		/* In order to use the same number of bits to encode roughly the
-		 * same wall-clock duration, and because blocks are naturally
-		 * limited to occur every 600s on average, the minimum granularity
-		 * for time-based relative lock-time is fixed at 512 seconds.
-		 * Converting from CTxIn::nSequence to seconds is performed by
-		 * multiplying by 512 = 2^9, or equivalently shifting up by
-		 * 9 bits. */
-		internal const int SEQUENCE_LOCKTIME_GRANULARITY = 9;
 
-
-		public uint Sequence
+		public Sequence Sequence
 		{
 			get
 			{
@@ -222,7 +199,7 @@ namespace NBitcoin
 			}
 			set
 			{
-				nSequence = value;
+				nSequence = value.Value;
 			}
 		}
 		public OutPoint PrevOut
@@ -1681,7 +1658,7 @@ namespace NBitcoin
 				// Sequence numbers with the most significant bit set are not
 				// treated as relative lock-times, nor are they given any
 				// consensus-enforced meaning at this point.
-				if((txin.Sequence & TxIn.SEQUENCE_LOCKTIME_DISABLE_FLAG) != 0)
+				if((txin.Sequence & Sequence.SEQUENCE_LOCKTIME_DISABLE_FLAG) != 0)
 				{
 					// The height of this input is not relevant for sequence locks
 					prevHeights[txinIndex] = 0;
@@ -1690,7 +1667,7 @@ namespace NBitcoin
 
 				int nCoinHeight = prevHeights[txinIndex];
 
-				if((txin.Sequence & TxIn.SEQUENCE_LOCKTIME_TYPE_FLAG) != 0)
+				if((txin.Sequence & Sequence.SEQUENCE_LOCKTIME_TYPE_FLAG) != 0)
 				{
 					long nCoinTime = (long)Utils.DateTimeToUnixTimeLong(block.GetAncestor(Math.Max(nCoinHeight - 1, 0)).GetMedianTimePast());
 
@@ -1698,7 +1675,7 @@ namespace NBitcoin
 					// smallest allowed timestamp of the block containing the
 					// txout being spent, which is the median time past of the
 					// block prior.
-					nMinTime = Math.Max(nMinTime, nCoinTime + (long)((txin.Sequence & TxIn.SEQUENCE_LOCKTIME_MASK) << TxIn.SEQUENCE_LOCKTIME_GRANULARITY) - 1);
+					nMinTime = Math.Max(nMinTime, nCoinTime + (long)((txin.Sequence & Sequence.SEQUENCE_LOCKTIME_MASK) << Sequence.SEQUENCE_LOCKTIME_GRANULARITY) - 1);
 				}
 				else
 				{
@@ -1706,7 +1683,7 @@ namespace NBitcoin
 					// time of 0 has the semantics of "same block," so a lock-
 					// time of 1 should mean "next block," but nLockTime has
 					// the semantics of "last invalid block height."
-					nMinHeight = Math.Max(nMinHeight, nCoinHeight + (int)(txin.Sequence & TxIn.SEQUENCE_LOCKTIME_MASK) - 1);
+					nMinHeight = Math.Max(nMinHeight, nCoinHeight + (int)(txin.Sequence & Sequence.SEQUENCE_LOCKTIME_MASK) - 1);
 				}
 			}
 
