@@ -1193,6 +1193,13 @@ namespace NBitcoin
 			return s;
 		}
 
+		public static implicit operator WitScript(Script script)
+		{
+			if(script == null)
+				return null;
+			return new WitScript(script);
+		}
+
 		private static byte[][] Max(byte[][] scriptSig1, byte[][] scriptSig2)
 		{
 			return scriptSig1.Length >= scriptSig2.Length ? scriptSig1 : scriptSig2;

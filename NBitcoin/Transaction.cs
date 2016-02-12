@@ -1036,6 +1036,12 @@ namespace NBitcoin
 				return a;
 			return new WitScript(a._Pushes.Concat(b._Pushes).ToArray());
 		}
+		public static implicit operator Script(WitScript witScript)
+		{
+			if(witScript == null)
+				return null;
+			return witScript.ToScript();
+		}
 		public override int GetHashCode()
 		{
 			return Utils.GetHashCode(ToBytes());
