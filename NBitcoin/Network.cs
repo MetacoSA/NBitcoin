@@ -829,6 +829,8 @@ namespace NBitcoin
 		/// <returns>The network or null of the name does not match any network</returns>
 		public static Network GetNetwork(string name)
 		{
+			if(name == null)
+				throw new ArgumentNullException("name");
 			name = name.ToLowerInvariant();
 			switch(name)
 			{

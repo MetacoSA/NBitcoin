@@ -165,8 +165,9 @@ namespace NBitcoin.OpenAsset
 					throw new TransactionNotFoundException("Transaction " + frame.TransactionId + " not found in transaction repository", frame.TransactionId);
 				if(frame.PreviousTransactions == null)
 				{
-					if(!frame.Transaction.HasValidColoredMarker() &&
-					frame.TransactionId != txId) //We care about destroyed asset, if this is the requested transaction
+					if(
+						(!frame.Transaction.HasValidColoredMarker() || frame.Transaction.IsCoinBase || frame.Transaction.Inputs.Count == 0)
+					&& frame.TransactionId != txId) //We care about destroyed asset, if this is the requested transaction
 					{
 						coloreds.Push(new ColoredTransaction());
 						continue;
@@ -294,6 +295,8 @@ namespace NBitcoin.OpenAsset
 				throw new ArgumentNullException("tx");
 			if(spentCoins == null)
 				throw new ArgumentNullException("spentCoins");
+			if(tx.IsCoinBase || tx.Inputs.Count == 0)
+				return;
 			txId = txId ?? tx.GetHash();
 
 			Queue<ColoredEntry> previousAssetQueue = new Queue<ColoredEntry>();
@@ -340,7 +343,7 @@ namespace NBitcoin.OpenAsset
 					if(txIn == null)
 						continue;
 					if(issuanceScriptPubkey == null)
-						throw new ArgumentException("The transaction has an issuance detected, but issuanceCoin is not provided or does not match the first input.", "issuanceCoin");
+						throw new ArgumentException("The transaction has an issuance detected, but issuanceScriptPubkey is null.", "issuanceScriptPubkey");
 					issuedAsset = issuanceScriptPubkey.Hash.ToAssetId();
 				}
 				entry.Asset = new AssetMoney(issuedAsset, entry.Asset.Quantity);
