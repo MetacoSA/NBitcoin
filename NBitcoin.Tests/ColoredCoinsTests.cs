@@ -484,6 +484,12 @@ namespace NBitcoin.Tests
 			tx.Outputs.Add(new TxOut(Money.Zero, new Script(Encoders.Hex.DecodeData("6a114f41010003f00100e58e26041234567800104f41010003f00100e58e260412345678"))));
 			tx.Outputs.Add(new TxOut(Money.Zero, new Script(Encoders.Hex.DecodeData("6a104f41010003ac0200e58e260412345678"))));
 			var marker2 = ColorMarker.TryParse(tx);
+			Assert.Null(marker2); //No input
+			tx.Inputs.Add(new TxIn());
+			marker2 = ColorMarker.TryParse(tx);
+			Assert.Null(marker2); //Coinbase
+			tx.Inputs[0].PrevOut = new OutPoint(new uint256(1), 0);
+			marker2 = ColorMarker.TryParse(tx);
 			Assert.Equal("6a104f41010003f00100e58e260412345678", marker2.GetScript().ToHex());
 		}
 

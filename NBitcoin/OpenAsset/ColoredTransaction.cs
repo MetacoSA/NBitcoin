@@ -165,8 +165,7 @@ namespace NBitcoin.OpenAsset
 					throw new TransactionNotFoundException("Transaction " + frame.TransactionId + " not found in transaction repository", frame.TransactionId);
 				if(frame.PreviousTransactions == null)
 				{
-					if(
-						(!frame.Transaction.HasValidColoredMarker() || frame.Transaction.IsCoinBase || frame.Transaction.Inputs.Count == 0)
+					if(!frame.Transaction.HasValidColoredMarker()
 					&& frame.TransactionId != txId) //We care about destroyed asset, if this is the requested transaction
 					{
 						coloreds.Push(new ColoredTransaction());

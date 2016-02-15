@@ -18,13 +18,7 @@ namespace NBitcoin.OpenAsset
 
 		public static ColorMarker TryParse(Transaction transaction)
 		{
-			foreach(var script in transaction.Outputs.Select(o => o.ScriptPubKey))
-			{
-				ColorMarker marker = TryParse(script);
-				if(marker != null)
-					return marker;
-			}
-			return null;
+			return Get(transaction);
 		}
 		public static ColorMarker TryParse(Script script)
 		{
@@ -279,13 +273,21 @@ namespace NBitcoin.OpenAsset
 			if(transaction == null)
 				throw new ArgumentNullException("transaction");
 			uint resultIndex = 0;
-			var result = transaction.Outputs.Select(o => TryParse(o.ScriptPubKey)).Where((o, i) =>
+			if(transaction.Inputs.Count == 0 || transaction.IsCoinBase)
 			{
-				resultIndex = (uint)i;
-				return o != null;
-			}).FirstOrDefault();
-			markerPosition = resultIndex;
-			return result;
+				markerPosition = 0;
+				return null;
+			}
+			else
+			{
+				var result = transaction.Outputs.Select(o => TryParse(o.ScriptPubKey)).Where((o, i) =>
+				{
+					resultIndex = (uint)i;
+					return o != null;
+				}).FirstOrDefault();
+				markerPosition = resultIndex;
+				return result;
+			}
 		}
 
 		#region IBitcoinSerializable Members
@@ -312,6 +314,8 @@ namespace NBitcoin.OpenAsset
 
 		public static bool HasValidColorMarker(Transaction tx)
 		{
+			if(tx.Inputs.Count == 0 || tx.IsCoinBase)
+				return false;
 			var marker = Get(tx);
 			if(marker == null)
 				return false;
