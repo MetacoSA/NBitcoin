@@ -345,7 +345,7 @@ namespace NBitcoin
 
 		private static byte[] Parse(string script)
 		{
-			var reader = new StringReader(script);
+			var reader = new StringReader(script.Trim());
 			MemoryStream result = new MemoryStream();
 			while(reader.Peek() != -1)
 			{

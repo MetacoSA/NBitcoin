@@ -26,25 +26,15 @@ namespace NBitcoin.Tests
 			MemoryStream result = new MemoryStream();
 			if(mapOpNames.Count == 0)
 			{
-				for(int op = 0 ; op <= (byte)OpcodeType.OP_NOP10 ; op++)
+				mapOpNames = new Dictionary<string, OpcodeType>(Op._OpcodeByName);
+				foreach(var kv in mapOpNames.ToArray())
 				{
-					// Allow OP_RESERVED to get into mapOpNames
-					if(op < (byte)OpcodeType.OP_NOP && op != (byte)OpcodeType.OP_RESERVED)
-						continue;
-
-					var name = Op.GetOpName((OpcodeType)op);
-					if(name == "OP_UNKNOWN")
-						continue;
-					string strName = name;
-					mapOpNames[strName] = (OpcodeType)op;
-					// Convenience: OP_ADD and just ADD are both recognized:
-					strName = strName.Replace("OP_", "");
-					mapOpNames[strName] = (OpcodeType)op;
+					if(kv.Key.StartsWith("OP_", StringComparison.Ordinal))
+					{
+						var name = kv.Key.Substring(3, kv.Key.Length - 3);
+						mapOpNames.AddOrReplace(name, kv.Value);
+					}
 				}
-				mapOpNames["NOP2"] = OpcodeType.OP_NOP2;
-				mapOpNames["OP_NOP2"] = OpcodeType.OP_NOP2;
-				mapOpNames["NOP3"] = OpcodeType.OP_NOP3;
-				mapOpNames["OP_NOP3"] = OpcodeType.OP_NOP3;
 			}
 
 			var words = s.Split(' ', '\t', '\n');

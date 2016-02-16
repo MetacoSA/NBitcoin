@@ -267,7 +267,7 @@ namespace NBitcoin
 			return 0 <= opcode && opcode <= OpcodeType.OP_16 && opcode != OpcodeType.OP_RESERVED;
 		}
 
-		static Dictionary<string, OpcodeType> _OpcodeByName;
+		internal static Dictionary<string, OpcodeType> _OpcodeByName;
 		static Op()
 		{
 			_ValidOpCode = GetValidOpCode();
