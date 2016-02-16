@@ -843,6 +843,7 @@ namespace NBitcoin
 					return Network.TestNet;
 				case "reg":
 				case "regtest":
+				case "regnet":
 					return Network.RegTest;
 				case "seg":
 				case "segnet":
