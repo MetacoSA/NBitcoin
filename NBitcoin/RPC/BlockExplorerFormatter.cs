@@ -101,7 +101,7 @@ namespace NBitcoin.RPC
 				}
 				if(txin.Sequence != uint.MaxValue)
 				{
-					WritePropertyValue(writer, "sequence", txin.Sequence);
+					WritePropertyValue(writer, "sequence", (uint)txin.Sequence);
 				}
 				writer.WriteEndObject();
 			}

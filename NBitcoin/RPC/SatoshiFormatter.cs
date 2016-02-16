@@ -86,7 +86,7 @@ namespace NBitcoin.RPC
 
 					writer.WriteEndObject();
 				}
-				WritePropertyValue(writer, "sequence", txin.Sequence);
+				WritePropertyValue(writer, "sequence", (uint)txin.Sequence);
 				writer.WriteEndObject();
 			}
 			writer.WriteEndArray();
