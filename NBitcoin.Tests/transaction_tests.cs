@@ -35,6 +35,49 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanGetMedianBlock()
+		{
+			ConcurrentChain chain = new ConcurrentChain(Network.Main);
+			DateTimeOffset now = DateTimeOffset.UtcNow;
+			chain.SetTip(CreateBlock(now, 0, chain));
+			chain.SetTip(CreateBlock(now, -1, chain));
+			chain.SetTip(CreateBlock(now, 1, chain));
+			Assert.Equal(CreateBlock(now, 0).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1
+			chain.SetTip(CreateBlock(now, 2, chain));
+			Assert.Equal(CreateBlock(now, 0).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1 2
+			chain.SetTip(CreateBlock(now, 3, chain));
+			Assert.Equal(CreateBlock(now, 1).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1 2 3
+			chain.SetTip(CreateBlock(now, 4, chain));
+			chain.SetTip(CreateBlock(now, 5, chain));
+			chain.SetTip(CreateBlock(now, 6, chain));
+			chain.SetTip(CreateBlock(now, 7, chain));
+			chain.SetTip(CreateBlock(now, 8, chain));
+
+			Assert.Equal(CreateBlock(now, 3).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1 2 3 4 5 6 7 8
+
+			chain.SetTip(CreateBlock(now, 9, chain));
+			Assert.Equal(CreateBlock(now, 4).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1 2 3 4 5 6 7 8 9
+			chain.SetTip(CreateBlock(now, 10, chain));
+			Assert.Equal(CreateBlock(now, 5).Header.BlockTime, chain.Tip.GetMedianTimePast()); // x -1 0 1 2 3 4 5 6 7 8 9 10
+		}
+
+		private ChainedBlock CreateBlock(DateTimeOffset now, int offset, ChainBase chain = null)
+		{
+			Block b = new Block(new BlockHeader()
+			{
+				BlockTime = now + TimeSpan.FromMinutes(offset)
+			});
+			if(chain != null)
+			{
+				b.Header.HashPrevBlock = chain.Tip.HashBlock;
+				return new ChainedBlock(b.Header, null, chain.Tip);
+			}
+			else
+				return new ChainedBlock(b.Header, 0);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanDetectFinalTransaction()
 		{
 			Transaction tx = new Transaction();
@@ -816,6 +859,71 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanVerifySequenceLock()
+		{
+			var now = new DateTimeOffset(1988, 7, 18, 0, 0, 0, TimeSpan.Zero);
+			var step = TimeSpan.FromMinutes(10.0);
+			var smallStep = new Sequence(step).LockPeriod;
+			CanVerifySequenceLockCore(new[] { new Sequence(1) }, new[] { 1 }, 2, now, true, new SequenceLock(1, -1));
+			CanVerifySequenceLockCore(new[] { new Sequence(1) }, new[] { 1 }, 1, now, false, new SequenceLock(1, -1));
+			CanVerifySequenceLockCore(
+				new[] 
+				{ 
+					new Sequence(1),
+					new Sequence(5),
+					new Sequence(11),
+					new Sequence(8)
+				},
+				new[] { 1, 5, 7, 9 }, 10, DateTimeOffset.UtcNow, false, new SequenceLock(17, -1));
+
+			CanVerifySequenceLockCore(
+				new[] 
+				{ 
+					new Sequence(smallStep), //MTP(block[11] is +60min) 
+				}, 
+				new[] 
+				{ 12 }, 13, now, true, new SequenceLock(-1, now + TimeSpan.FromMinutes(60.0) + smallStep - TimeSpan.FromSeconds(1)));
+
+			CanVerifySequenceLockCore(
+				new[] 
+				{ 
+					new Sequence(smallStep), //MTP(block[11] is +60min) 
+				},
+				new[] { 12 }, 12, now, false, new SequenceLock(-1, now + TimeSpan.FromMinutes(60.0) + smallStep - TimeSpan.FromSeconds(1)));
+		}
+
+		private void CanVerifySequenceLockCore(Sequence[] sequences, int[] prevHeights, int currentHeight, DateTimeOffset first, bool expected, SequenceLock expectedLock)
+		{
+			ConcurrentChain chain = new ConcurrentChain(new BlockHeader()
+			{
+				BlockTime = first
+			});
+			first = first + TimeSpan.FromMinutes(10);
+			while(currentHeight != chain.Height)
+			{
+				chain.SetTip(new BlockHeader()
+				{
+					BlockTime = first,
+					HashPrevBlock = chain.Tip.HashBlock
+				});
+				first = first + TimeSpan.FromMinutes(10);
+			}
+			Transaction tx = new Transaction();
+			tx.Version = 2;
+			for(int i = 0 ; i < sequences.Length ; i++)
+			{
+				TxIn input = new TxIn();
+				input.Sequence = sequences[i];
+				tx.Inputs.Add(input);
+			}
+			Assert.Equal(expected, tx.CheckSequenceLocks(prevHeights, chain.Tip));
+			var actualLock = tx.CalculateSequenceLocks(prevHeights, chain.Tip);
+			Assert.Equal(expectedLock.MinTime, actualLock.MinTime);
+			Assert.Equal(expectedLock.MinHeight, actualLock.MinHeight);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanEstimateFees()
 		{
 			var alice = new Key();
@@ -956,7 +1064,7 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			Assert.True(builder.Verify(signedTx));
 
-			
+
 			//P2SH(P2WPKH)
 			previousTx = new Transaction();
 			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.WitHash.ScriptPubKey.Hash));
@@ -1538,7 +1646,7 @@ namespace NBitcoin.Tests
 					Assert.Equal(uint256.Parse((string)expectedVIn.prev_out.hash), actualVIn.PrevOut.Hash);
 					Assert.Equal((uint)expectedVIn.prev_out.n, actualVIn.PrevOut.N);
 					if(expectedVIn.sequence != null)
-						Assert.Equal((uint)expectedVIn.sequence, actualVIn.Sequence);
+						Assert.Equal((uint)expectedVIn.sequence, (uint)actualVIn.Sequence);
 					Assert.Equal((string)expectedVIn.scriptSig, actualVIn.ScriptSig.ToString());
 					//Can parse the string
 					Assert.Equal((string)expectedVIn.scriptSig, (string)expectedVIn.scriptSig.ToString());
@@ -1673,6 +1781,9 @@ namespace NBitcoin.Tests
 				mapFlagNames["STRICTENC"] = ScriptVerify.StrictEnc;
 				mapFlagNames["LOW_S"] = ScriptVerify.LowS;
 				mapFlagNames["NULLDUMMY"] = ScriptVerify.NullDummy;
+				mapFlagNames["CHECKLOCKTIMEVERIFY"] = ScriptVerify.CheckLockTimeVerify;
+				mapFlagNames["CHECKSEQUENCEVERIFY"] = ScriptVerify.CheckSequenceVerify;
+				mapFlagNames["DERSIG"] = ScriptVerify.DerSig;
 			}
 
 			foreach(string word in words)
@@ -1686,6 +1797,42 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CheckSequenceLocksAreCorrect()
+		{
+			//CheckSequenceLocksAreCorrectCore(new Sequence(f));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void SequenceStructParsedCorrectly()
+		{
+			Assert.True(new Sequence() == 0xFFFFFFFFU);
+			Assert.False(new Sequence().IsRelativeLock);
+			Assert.False(new Sequence().IsRBF);
+
+			Assert.True(new Sequence(1) == 1U);
+			Assert.True(new Sequence(1).IsRelativeLock);
+			Assert.True(new Sequence(1).IsRBF);
+			Assert.True(new Sequence(1).LockType == SequenceLockType.Height);
+			Assert.True(new Sequence(1) == 1U);
+			Assert.True(new Sequence(1).LockHeight == 1);
+			Assert.Throws<InvalidOperationException>(() => new Sequence(1).LockPeriod);
+
+			Assert.True(new Sequence(0xFFFF).LockHeight == 0xFFFF);
+			Assert.Throws<ArgumentOutOfRangeException>(() => new Sequence(0xFFFF + 1));
+			Assert.Throws<ArgumentOutOfRangeException>(() => new Sequence(-1));
+
+			var time = TimeSpan.FromSeconds(512 * 0xFF);
+			Assert.True(new Sequence(time) == (uint)(0xFF | 1 << 22));
+			Assert.True(new Sequence(time).IsRelativeLock);
+			Assert.True(new Sequence(time).IsRBF);
+			Assert.Throws<ArgumentOutOfRangeException>(() => new Sequence(TimeSpan.FromSeconds(512 * (0xFFFF + 1))));
+			new Sequence(TimeSpan.FromSeconds(512 * (0xFFFF)));
+			Assert.Throws<InvalidOperationException>(() => new Sequence(time).LockHeight);
+		}
+
+		[Fact]
 		[Trait("Core", "Core")]
 		public void tx_invalid()
 		{
@@ -1695,12 +1842,16 @@ namespace NBitcoin.Tests
 			// or [[[prevout hash, prevout index, prevout scriptPubKey], [input 2], ...],"], serializedTransaction, enforceP2SH
 			// ... where all scripts are stringified scripts.
 			var tests = TestCase.read_json("data/tx_invalid.json");
+			string comment = null;
 			foreach(var test in tests)
 			{
 				string strTest = test.ToString();
 				//Skip comments
 				if(!(test[0] is JArray))
+				{
+					comment = test[0].ToString();
 					continue;
+				}
 				JArray inputs = (JArray)test[0];
 				if(test.Count != 3 || !(test[1] is string) || !(test[2] is string))
 				{

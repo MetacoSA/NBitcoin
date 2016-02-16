@@ -461,6 +461,11 @@ namespace NBitcoin
 			var span = TimeSpan.FromSeconds(timestamp);
 			return unixRef + span;
 		}
+		public static DateTimeOffset UnixTimeToDateTime(long timestamp)
+		{
+			var span = TimeSpan.FromSeconds(timestamp);
+			return unixRef + span;
+		}
 
 
 

@@ -190,9 +190,8 @@ namespace NBitcoin
 		OutPoint prevout = new OutPoint();
 		Script scriptSig = Script.Empty;
 		uint nSequence = uint.MaxValue;
-		public const uint NO_SEQUENCE = uint.MaxValue;
 
-		public uint Sequence
+		public Sequence Sequence
 		{
 			get
 			{
@@ -200,7 +199,7 @@ namespace NBitcoin
 			}
 			set
 			{
-				nSequence = value;
+				nSequence = value.Value;
 			}
 		}
 		public OutPoint PrevOut
@@ -1098,14 +1097,14 @@ namespace NBitcoin
 		All = Witness
 	}
 	class Witness
-	{		
+	{
 		TxInList _Inputs;
 		public Witness(TxInList inputs)
 		{
 			_Inputs = inputs;
 		}
-		
-		
+
+
 		internal void ReadWrite(BitcoinStream stream)
 		{
 			for(int i = 0 ; i < _Inputs.Count ; i++)
@@ -1120,7 +1119,7 @@ namespace NBitcoin
 					_Inputs[i].WitScript = WitScript.Load(stream);
 				}
 			}
-		}		
+		}
 	}
 
 	//https://en.bitcoin.it/wiki/Transactions
@@ -1291,7 +1290,7 @@ namespace NBitcoin
 				if((flags & 1) != 0)
 				{
 					Witness wit = new Witness(this.Inputs);
-					
+
 					wit.ReadWrite(stream);
 				}
 			}
@@ -1591,6 +1590,118 @@ namespace NBitcoin
 			return true;
 		}
 
+		[Flags]
+		public enum LockTimeFlags : int
+		{
+			None = 0,
+			/// <summary>
+			/// Interpret sequence numbers as relative lock-time constraints.
+			/// </summary>
+			VerifySequence = (1 << 0),
+
+			/// <summary>
+			///  Use GetMedianTimePast() instead of nTime for end point timestamp.
+			/// </summary>
+			MedianTimePast = (1 << 1),
+		}
+
+
+		/// <summary>
+		/// Calculates the block height and time which the transaction must be later than
+		/// in order to be considered final in the context of BIP 68.  It also removes
+		/// from the vector of input heights any entries which did not correspond to sequence
+		/// locked inputs as they do not affect the calculation.
+		/// </summary>		
+		/// <param name="prevHeights">Previous Height</param>
+		/// <param name="block">The block being evaluated</param>
+		/// <param name="flags">If VerifySequence is not set, returns always true SequenceLock</param>
+		/// <returns>Sequence lock of minimum SequenceLock to satisfy</returns>
+		public bool CheckSequenceLocks(int[] prevHeights, ChainedBlock block, LockTimeFlags flags = LockTimeFlags.VerifySequence)
+		{
+			return CalculateSequenceLocks(prevHeights, block, flags).Evaluate(block);
+		}
+
+		/// <summary>
+		/// Calculates the block height and time which the transaction must be later than
+		/// in order to be considered final in the context of BIP 68.  It also removes
+		/// from the vector of input heights any entries which did not correspond to sequence
+		/// locked inputs as they do not affect the calculation.
+		/// </summary>		
+		/// <param name="prevHeights">Previous Height</param>
+		/// <param name="block">The block being evaluated</param>
+		/// <param name="flags">If VerifySequence is not set, returns always true SequenceLock</param>
+		/// <returns>Sequence lock of minimum SequenceLock to satisfy</returns>
+		public SequenceLock CalculateSequenceLocks(int[] prevHeights, ChainedBlock block, LockTimeFlags flags = LockTimeFlags.VerifySequence)
+		{
+			if(prevHeights.Length != Inputs.Count)
+				throw new ArgumentException("The number of element in prevHeights should be equal to the number of inputs", "prevHeights");
+
+			// Will be set to the equivalent height- and time-based nLockTime
+			// values that would be necessary to satisfy all relative lock-
+			// time constraints given our view of block chain history.
+			// The semantics of nLockTime are the last invalid height/time, so
+			// use -1 to have the effect of any height or time being valid.
+			int nMinHeight = -1;
+			long nMinTime = -1;
+
+			// tx.nVersion is signed integer so requires cast to unsigned otherwise
+			// we would be doing a signed comparison and half the range of nVersion
+			// wouldn't support BIP 68.
+			bool fEnforceBIP68 = Version >= 2
+							  && (flags & LockTimeFlags.VerifySequence) != 0;
+
+			// Do not enforce sequence numbers as a relative lock time
+			// unless we have been instructed to
+			if(!fEnforceBIP68)
+			{
+				return new SequenceLock(nMinHeight, nMinTime);
+			}
+
+			for(var txinIndex = 0 ; txinIndex < Inputs.Count ; txinIndex++)
+			{
+				TxIn txin = Inputs[txinIndex];
+
+				// Sequence numbers with the most significant bit set are not
+				// treated as relative lock-times, nor are they given any
+				// consensus-enforced meaning at this point.
+				if((txin.Sequence & Sequence.SEQUENCE_LOCKTIME_DISABLE_FLAG) != 0)
+				{
+					// The height of this input is not relevant for sequence locks
+					prevHeights[txinIndex] = 0;
+					continue;
+				}
+
+				int nCoinHeight = prevHeights[txinIndex];
+
+				if((txin.Sequence & Sequence.SEQUENCE_LOCKTIME_TYPE_FLAG) != 0)
+				{
+					long nCoinTime = (long)Utils.DateTimeToUnixTimeLong(block.GetAncestor(Math.Max(nCoinHeight - 1, 0)).GetMedianTimePast());
+
+					// Time-based relative lock-times are measured from the
+					// smallest allowed timestamp of the block containing the
+					// txout being spent, which is the median time past of the
+					// block prior.
+					nMinTime = Math.Max(nMinTime, nCoinTime + (long)((txin.Sequence & Sequence.SEQUENCE_LOCKTIME_MASK) << Sequence.SEQUENCE_LOCKTIME_GRANULARITY) - 1);
+				}
+				else
+				{
+					// We subtract 1 from relative lock-times because a lock-
+					// time of 0 has the semantics of "same block," so a lock-
+					// time of 1 should mean "next block," but nLockTime has
+					// the semantics of "last invalid block height."
+					nMinHeight = Math.Max(nMinHeight, nCoinHeight + (int)(txin.Sequence & Sequence.SEQUENCE_LOCKTIME_MASK) - 1);
+				}
+			}
+
+			return new SequenceLock(nMinHeight, nMinTime);
+		}
+
+
+		private DateTimeOffset Max(DateTimeOffset a, DateTimeOffset b)
+		{
+			return a > b ? a : b;
+		}
+
 		/// <summary>
 		/// Create a transaction with the specified option only. (useful for stripping data from a transaction)
 		/// </summary>
@@ -1618,5 +1729,4 @@ namespace NBitcoin
 			}
 		}
 	}
-
 }

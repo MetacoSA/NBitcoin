@@ -79,6 +79,8 @@ namespace NBitcoin
 		//
 		// See BIP65 for details.
 		CheckLockTimeVerify = (1U << 9),
+		// See BIP68 for details.
+		CheckSequenceVerify = (1U << 10),
 
 		/**
  * Mandatory script verification flags that all new blocks must comply with for
@@ -114,6 +116,7 @@ namespace NBitcoin
 			| DiscourageUpgradableNops
 			| CleanStack
 			| CheckLockTimeVerify
+			| CheckSequenceVerify
 			| LowS
 			| Witness
 			| DiscourageUpgradableWitnessProgram
@@ -265,6 +268,7 @@ namespace NBitcoin
 		OP_CHECKMULTISIGVERIFY = 0xaf,
 
 		OP_CHECKLOCKTIMEVERIFY = 0xb1,
+		OP_CHECKSEQUENCEVERIFY = 0xb2,
 
 		// expansion
 		OP_NOP1 = 0xb0,
@@ -276,7 +280,7 @@ namespace NBitcoin
 		OP_NOP7 = 0xb6,
 		OP_NOP8 = 0xb7,
 		OP_NOP9 = 0xb8,
-		OP_NOP10 = 0xb9,
+		OP_NOP10 = 0xb9,		
 	};
 
 	public enum HashVersion
@@ -547,7 +551,7 @@ namespace NBitcoin
 					BitcoinStream ss = CreateHashWriter(sigversion);
 					foreach(var input in txTo.Inputs)
 					{
-						ss.ReadWrite(input.Sequence);
+						ss.ReadWrite((uint)input.Sequence);
 					}
 					hashSequence = GetHash(ss); // TODO: cache this value for all signatures in a transaction
 				}
@@ -580,7 +584,7 @@ namespace NBitcoin
 				sss.ReadWrite(txTo.Inputs[nIn].PrevOut);
 				sss.ReadWrite(scriptCode);
 				sss.ReadWrite(amount.Satoshi);
-				sss.ReadWrite(txTo.Inputs[nIn].Sequence);
+				sss.ReadWrite((uint)txTo.Inputs[nIn].Sequence);
 				// Outputs (none/one/all, depending on flags)
 				sss.ReadWrite(hashOutputs);
 				// Locktime
