@@ -296,8 +296,16 @@ namespace NBitcoin
 			private TxOut EnsureMarkerInserted()
 			{
 				uint position;
-				if(ColorMarker.Get(Transaction, out position) != null)
-					return Transaction.Outputs[position];
+				var dummy = Transaction.AddInput(new TxIn(new OutPoint(new uint256(1), 0))); //Since a transaction without input will be considered without marker, insert a dummy
+				try
+				{
+					if(ColorMarker.Get(Transaction, out position) != null)
+						return Transaction.Outputs[position];
+				}
+				finally
+				{
+					Transaction.Inputs.Remove(dummy);
+				}
 				var txout = Transaction.AddOutput(new TxOut()
 				{
 					ScriptPubKey = new ColorMarker().GetScript()

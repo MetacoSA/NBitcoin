@@ -485,7 +485,7 @@ namespace NBitcoin.Tests
 			var repo = new NoSqlColoredTransactionRepository();
 
 			var init = new Transaction()
-			{
+			{				
 				Outputs =
 				{
 					new TxOut("1.0", gold.PubKey),
@@ -880,9 +880,8 @@ namespace NBitcoin.Tests
 				new[] 
 				{ 
 					new Sequence(smallStep), //MTP(block[11] is +60min) 
-				}, 
-				new[] 
-				{ 12 }, 13, now, true, new SequenceLock(-1, now + TimeSpan.FromMinutes(60.0) + smallStep - TimeSpan.FromSeconds(1)));
+				},
+				new[] { 12 }, 13, now, true, new SequenceLock(-1, now + TimeSpan.FromMinutes(60.0) + smallStep - TimeSpan.FromSeconds(1)));
 
 			CanVerifySequenceLockCore(
 				new[] 
