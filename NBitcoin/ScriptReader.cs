@@ -562,6 +562,7 @@ namespace NBitcoin
 			{
 				if(isOpCode && opcode == OpcodeType.OP_0)
 					return GetPushOp(new byte[0]);
+				opname = opname.Replace("OP_", "");
 				return GetPushOp(Encoders.Hex.DecodeData(opname.Length == 1 ? "0" + opname : opname));
 			}
 			else if(opname.StartsWith(unknown))
