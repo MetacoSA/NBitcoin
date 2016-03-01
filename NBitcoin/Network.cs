@@ -417,6 +417,7 @@ namespace NBitcoin
 			magic = 0xcaea962e;
 			vAlertPubKey = Encoders.Hex.DecodeData("0300000000000000000000003b78ce563f89a0ed9414f5aa28ad0d96d6795f9c63");
 			nDefaultPort = 28333;
+			nRPCPort = 28332;
 
 			genesis = CreateGenesisBlock(1452831101, 0, 0x1d00ffff, 1, Money.Coins(50m));
 			consensus.HashGenesisBlock = genesis.GetHash();

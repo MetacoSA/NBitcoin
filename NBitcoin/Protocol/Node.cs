@@ -368,10 +368,10 @@ namespace NBitcoin.Protocol
 					message.Node.SendMessageAsync(new RejectPayload()
 					{
 						Code = RejectCode.DUPLICATE
-					});
-				if((version.Services & NodeServices.NODE_WITNESS) != 0)
-					_SupportedTransactionOptions |= TransactionOptions.Witness;
+					});				
 			}
+			if((version.Services & NodeServices.NODE_WITNESS) != 0)
+				_SupportedTransactionOptions |= TransactionOptions.Witness;
 			var havewitness = message.Message.Payload as HaveWitnessPayload;
 			if(havewitness != null)
 				_SupportedTransactionOptions |= TransactionOptions.Witness;

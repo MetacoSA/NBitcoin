@@ -279,7 +279,7 @@ namespace NBitcoin
 
 		public bool CheckProofOfWorkAndTarget(Network network)
 		{
-			return Header.CheckProofOfWork() && Header.Bits <= GetWorkRequired(network);
+			return Height == 0 || (Header.CheckProofOfWork() && Header.Bits <= GetWorkRequired(network));
 		}
 
 		public ChainedBlock GetAncestor(int height)

@@ -281,7 +281,7 @@ namespace NBitcoin.RPC
 		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
 		{
 			var webRequest = (HttpWebRequest)WebRequest.Create(Address);
-			webRequest.Credentials = Credentials;
+			webRequest.Headers[HttpRequestHeader.Authorization] = "Basic " + Encoders.Base64.EncodeData(Encoders.ASCII.DecodeData(Credentials.UserName + ":" + Credentials.Password));
 			webRequest.ContentType = "application/json-rpc";
 			webRequest.Method = "POST";
 
@@ -308,7 +308,7 @@ namespace NBitcoin.RPC
 			}
 			catch(WebException ex)
 			{
-				if(ex.Response == null)
+				if(ex.Response == null || ex.Response.ContentLength == 0)
 					throw;
 				response = RPCResponse.Load(ex.Response.GetResponseStream());
 				if(throwIfRPCError)
