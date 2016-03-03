@@ -217,26 +217,10 @@ namespace NBitcoin
 			}
 		}
 
-		static Network _RegTest;
-		public static Network RegTest
-		{
-			get
-			{
-				if(_RegTest == null)
-				{
-					var instance = new Network();
-					instance.InitReg();
-					_RegTest = instance;
-				}
-				return _RegTest;
-			}
-		}
-
 		private Network()
 		{
 		}
 
-		static Network _Main;
 		private int nSubsidyHalvingInterval;
 		private string name;
 
@@ -248,17 +232,36 @@ namespace NBitcoin
 			}
 		}
 
+		static Network()
+		{
+			_Main = new Network();
+			_Main.InitMain();
+
+			_TestNet = new Network();
+			_TestNet.InitTest();
+
+			_SegNet = new Network();
+			_SegNet.InitSegnet();
+
+			_RegTest = new Network();
+			_RegTest.InitReg();
+		}
+
+		static Network _Main;
 		public static Network Main
 		{
 			get
 			{
-				if(_Main == null)
-				{
-					var instance = new Network();
-					instance.InitMain();
-					_Main = instance;
-				}
 				return _Main;
+			}
+		}
+
+		static Network _TestNet;
+		public static Network TestNet
+		{
+			get
+			{
+				return _TestNet;
 			}
 		}
 
@@ -267,13 +270,16 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_SegNet == null)
-				{
-					var instance = new Network();
-					instance.InitSegnet();
-					_SegNet = instance;
-				}
 				return _SegNet;
+			}
+		}
+
+		static Network _RegTest;
+		public static Network RegTest
+		{
+			get
+			{
+				return _RegTest;
 			}
 		}
 
@@ -524,21 +530,6 @@ namespace NBitcoin
 			genesis.Header.HashPrevBlock = uint256.Zero;
 			genesis.UpdateMerkleRoot();
 			return genesis;
-		}
-
-		static Network _TestNet;
-		public static Network TestNet
-		{
-			get
-			{
-				if(_TestNet == null)
-				{
-					var instance = new Network();
-					instance.InitTest();
-					_TestNet = instance;
-				}
-				return _TestNet;
-			}
 		}
 
 		private static void assert(bool v)
