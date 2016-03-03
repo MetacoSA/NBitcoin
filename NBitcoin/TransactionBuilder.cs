@@ -1201,7 +1201,7 @@ namespace NBitcoin
 			int inputSize = 0;
 			foreach(var txin in tx.Inputs.AsIndexedInputs())
 			{
-				var coin = FindCoin(txin.PrevOut);
+				var coin = FindSignableCoin(txin) ?? FindCoin(txin.PrevOut);
 				if(coin == null)
 					throw CoinNotFound(txin);
 				inputSize += EstimateScriptSigSize(coin) + 41;
@@ -1301,7 +1301,7 @@ namespace NBitcoin
 			{
 				txIn.ScriptSig = input.ScriptSig + Op.GetPushOp(p2shRedeem.ToBytes(true));
 			}
-			
+
 		}
 
 		private Script GetP2SHRedeem(ICoin coin)
