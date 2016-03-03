@@ -7,7 +7,7 @@ namespace NBitcoin.Tests
     {
         [Fact]
         [Trait("UnitTest", "UnitTest")]
-        public void CanGetNetworkFormName()
+        public void CanGetNetworkFromName()
         {
             Assert.Equal(Network.GetNetwork("main"), Network.Main);
 			Assert.Equal(Network.GetNetwork("reg"), Network.RegTest);

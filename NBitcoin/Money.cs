@@ -74,6 +74,7 @@ namespace NBitcoin
 		IMoney Sub(IMoney money);
 		IMoney Negate();
 		bool IsCompatible(IMoney money);
+		IEnumerable<IMoney> Split(int parts);
 	}
 
 	public class MoneyBag : IMoney, IEnumerable<IMoney>, IEquatable<MoneyBag>
@@ -228,11 +229,47 @@ namespace NBitcoin
 		{
 			return _bag.GetEnumerator();
 		}
+
+		/// <summary>
+		/// Split the MoneyBag in several one, without loss
+		/// </summary>
+		/// <param name="parts">The number of parts (must be more than 0)</param>
+		/// <returns>The splitted money</returns>
+		public IEnumerable<MoneyBag> Split(int parts)
+		{
+			if(parts <= 0)
+				throw new ArgumentOutOfRangeException("Parts should be more than 0", "parts");
+			List<List<IMoney>> splits = new List<List<IMoney>>();
+			foreach(var money in this)
+			{
+				splits.Add(money.Split(parts).ToList());
+			}
+			
+			for(int i = 0 ; i < parts ; i++)
+			{
+				MoneyBag bag = new MoneyBag();
+				foreach(var split in splits)
+				{
+					bag += split[i];
+				}
+				yield return bag;
+			}
+		}
+
+		#region IMoney Members
+
+
+		IEnumerable<IMoney> IMoney.Split(int parts)
+		{
+			return Split(parts);
+		}
+
+		#endregion
 	}
 
 	public class Money : IComparable, IComparable<Money>, IEquatable<Money>, IMoney
 	{
-		
+
 		// for decimal.TryParse. None of the NumberStyles' composed values is useful for bitcoin style
 		private const NumberStyles BitcoinStyle =
 						  NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite
@@ -776,6 +813,16 @@ namespace NBitcoin
 		public const long CENT = COIN / 100;
 		public const long NANO = CENT / 100;
 
+
+		#region IMoney Members
+
+
+		IEnumerable<IMoney> IMoney.Split(int parts)
+		{
+			return Split(parts);
+		}
+
+		#endregion
 	}
 
 	static class CharExtensions

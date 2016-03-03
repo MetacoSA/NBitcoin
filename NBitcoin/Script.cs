@@ -451,6 +451,10 @@ namespace NBitcoin
 		}
 
 		Script _PaymentScript;
+
+		/// <summary>
+		/// Get the P2SH scriptPubKey of this script
+		/// </summary>
 		public Script PaymentScript
 		{
 			get
@@ -786,7 +790,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Extract P2SH or P2PH address from scriptSig
 		/// </summary>
-		/// <param name="network"></param>
+		/// <param name="network">The network</param>
 		/// <returns></returns>
 		public BitcoinAddress GetSignerAddress(Network network)
 		{
@@ -797,7 +801,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Extract P2SH or P2PH id from scriptSig
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>The network</returns>
 		public TxDestination GetSigner()
 		{
 			var pubKey = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(this);

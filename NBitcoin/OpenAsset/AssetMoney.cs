@@ -413,5 +413,15 @@ namespace NBitcoin.OpenAsset
 		}
 
 		#endregion
+
+		#region IMoney Members
+
+
+		IEnumerable<IMoney> IMoney.Split(int parts)
+		{
+			return Split(parts);
+		}
+
+		#endregion
 	}
 }

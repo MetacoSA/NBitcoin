@@ -301,6 +301,50 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanSplitMoneyBag()
+		{
+			var gold = new AssetId(new Key());
+			MoneyBag bag = new MoneyBag();
+			bag += Money.Coins(12);
+			bag += new AssetMoney(gold, 10);
+			var splitted = bag.Split(12).ToArray();
+			Assert.Equal(Money.Coins(1.0m), splitted[0].GetAmount(null));
+			Assert.Equal(new AssetMoney(gold, 1), splitted[0].GetAmount(gold));
+			Assert.Equal(new AssetMoney(gold, 0), splitted[11].GetAmount(gold));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSplitAssetMoney()
+		{
+			var gold = new AssetId(new Key());
+			CanSplitAssetMoneyCore(gold, 1234, 3);
+			CanSplitAssetMoneyCore(gold, 1234, 2);
+			CanSplitAssetMoneyCore(gold, 1234, 10);
+			CanSplitAssetMoneyCore(gold, 1, 3);
+			Assert.Throws<ArgumentOutOfRangeException>(() => CanSplitAssetMoneyCore(gold, 1000, 0));
+			CanSplitAssetMoneyCore(gold, 0, 10);
+
+			var result = new AssetMoney(gold, 20).Split(3).ToArray();
+			Assert.True(result[0].Quantity == 7);
+			Assert.True(result[1].Quantity == 7);
+			Assert.True(result[2].Quantity == 6);
+			Assert.True(result[0].Id == gold);
+		}
+
+		private void CanSplitAssetMoneyCore(AssetId asset, long amount, int parts)
+		{
+			AssetMoney money = new AssetMoney(asset, amount);
+			var splitted = money.Split(parts).ToArray();
+			Assert.True(splitted.Length == parts);
+			Assert.True(splitted.Sum(asset) == money);
+			var groups = splitted.Select(s => s.Quantity).GroupBy(o => o);
+			var differentValues = groups.Count();
+			Assert.True(differentValues == 1 || differentValues == 2);
+		}		
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void MoneyUnitSanityCheck()
 		{
 			Assert.DoesNotThrow(() => Money.FromUnit(10m, MoneyUnit.BTC));
