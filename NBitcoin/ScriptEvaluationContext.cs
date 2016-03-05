@@ -110,13 +110,13 @@ namespace NBitcoin
 
 	public class SignedHash
 	{
-		public Script ScriptCode
+		public TransactionSignature Signature
 		{
 			get;
 			internal set;
 		}
 
-		public SigHash SigHash
+		public Script ScriptCode
 		{
 			get;
 			internal set;
@@ -132,7 +132,7 @@ namespace NBitcoin
 		{
 			get;
 			internal set;
-		}
+		}		
 	}
 	public class ScriptEvaluationContext
 	{
@@ -1814,11 +1814,6 @@ namespace NBitcoin
 			return true;
 		}
 
-		private BigInteger CastToBigNum(bool v)
-		{
-			return new BigInteger(v ? 1 : 0);
-		}
-
 		private static bool CastToBool(byte[] vch)
 		{
 			for(uint i = 0 ; i < vch.Length ; i++)
@@ -1898,9 +1893,9 @@ namespace NBitcoin
 			_SignedHashes.Add(new SignedHash()
 			{
 				ScriptCode = scriptCode,
-				SigHash = scriptSig.SigHash,
 				HashVersion = (HashVersion)sigversion,
-				Hash = sighash
+				Hash = sighash,
+				Signature = scriptSig
 			});
 			if(!pubkey.Verify(sighash, scriptSig.Signature))
 			{
