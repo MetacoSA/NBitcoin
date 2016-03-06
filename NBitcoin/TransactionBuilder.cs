@@ -1323,8 +1323,15 @@ namespace NBitcoin
 
 			if(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey) && !Script.IsNullOrEmpty(txIn.ScriptSig))
 			{
-				var ops = txIn.ScriptSig.ToOps().ToArray();
-				txIn.ScriptSig = new Script(ops.Take(ops.Length - 1)); //Remove the redeem
+				RemoveRedeem(txIn);
+			}
+			if(coin.GetHashVersion() == HashVersion.Witness)
+			{
+				txIn.ScriptSig = txIn.WitScript;
+				if(coin is WitScriptCoin)
+				{
+					RemoveRedeem(txIn);
+				}
 			}
 
 			txIn.ScriptSig = CombineScriptSigs(coin, scriptSig, txIn.ScriptSig);
@@ -1347,6 +1354,12 @@ namespace NBitcoin
 				txIn.ScriptSig = input.ScriptSig + Op.GetPushOp(p2shRedeem.ToBytes(true));
 			}
 
+		}
+
+		private static void RemoveRedeem(IndexedTxIn txIn)
+		{
+			var ops = txIn.ScriptSig.ToOps().ToArray();
+			txIn.ScriptSig = new Script(ops.Take(ops.Length - 1)); //Remove the redeem
 		}
 
 		private Script CombineScriptSigs(ICoin coin, Script a, Script b)

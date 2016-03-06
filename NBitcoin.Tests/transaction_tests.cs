@@ -1136,7 +1136,23 @@ namespace NBitcoin.Tests
 					new TxOut(new Money((i + 1) * Money.COIN), _.script), _.redeem
 					)).ToList();
 
-			var allCoins = coins.Concat(scriptCoins).ToArray();
+			var witCoins =
+			new[] { scriptHashPubKey1, scriptHashPubKey2, scriptHashPubKey3 }
+			.Zip(new[] { multiSigPubKey, pubKeyPubKey, pubKeyHashPubKey },
+				(script, redeem) => new
+				{
+					script,
+					redeem
+				})
+			.Select((_, i) =>
+			new WitScriptCoin
+				(
+				new OutPoint(Rand(), i),
+				new TxOut(new Money((i + 1) * Money.COIN), _.redeem.WitHash.ScriptPubKey.Hash),
+				_.redeem
+				)).ToList();
+			var a = witCoins.Select(c => c.Amount).Sum();
+			var allCoins = coins.Concat(scriptCoins).Concat(witCoins).ToArray();
 			var destinations = keys.Select(k => k.PubKey.GetAddress(Network.Main)).ToArray();
 
 			var txBuilder = new TransactionBuilder(0);
@@ -1144,7 +1160,7 @@ namespace NBitcoin.Tests
 			var tx = txBuilder
 				.AddCoins(allCoins)
 				.AddKeys(keys)
-				.Send(destinations[0], Money.Parse("6"))
+				.Send(destinations[0], Money.Parse("6") * 2)
 				.Send(destinations[2], Money.Parse("5"))
 				.Send(destinations[2], Money.Parse("0.9999"))
 				.SendFees(Money.Parse("0.0001"))
@@ -1160,7 +1176,7 @@ namespace NBitcoin.Tests
 			   .AddCoins(allCoins)
 			   .AddKeys(keys)
 			   .SetGroupName("test")
-			   .Send(destinations[0], Money.Parse("6"))
+			   .Send(destinations[0], Money.Parse("6") * 2)
 			   .Send(destinations[2], Money.Parse("5"))
 			   .Send(destinations[2], Money.Parse("0.9998"))
 			   .SendFees(Money.Parse("0.0001"))
@@ -1179,7 +1195,7 @@ namespace NBitcoin.Tests
 			tx = txBuilder
 					.AddCoins(allCoins)
 					.AddKeys(keys.Skip(2).ToArray())  //One of the multi key missing
-					.Send(destinations[0], Money.Parse("6"))
+					.Send(destinations[0], Money.Parse("6") * 2)
 					.Send(destinations[2], Money.Parse("5"))
 					.Send(destinations[2], Money.Parse("0.9998"))
 					.SendFees(Money.Parse("0.0001"))
@@ -1202,7 +1218,7 @@ namespace NBitcoin.Tests
 			tx = txBuilder
 					.AddCoins(allCoins)
 					.AddKeys(keys.Skip(2).ToArray())  //One of the multi key missing
-					.Send(destinations[0], Money.Parse("6"))
+					.Send(destinations[0], Money.Parse("6") * 2)
 					.Send(destinations[2], Money.Parse("5"))
 					.Send(destinations[2], Money.Parse("0.9998"))
 					.SendFees(Money.Parse("0.0001"))
