@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿using NBitcoin.BuilderExtensions;
+using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Policy;
 using NBitcoin.Stealth;
@@ -200,6 +201,44 @@ namespace NBitcoin
 	/// </summary>
 	public class TransactionBuilder
 	{
+		internal class TransactionBuilderSigner : ISigner
+		{
+			ICoin coin;
+			SigHash sigHash;
+			IndexedTxIn txIn;
+			public TransactionBuilderSigner(ICoin coin, SigHash sigHash, IndexedTxIn txIn)
+			{
+				this.coin = coin;
+				this.sigHash = sigHash;
+				this.txIn = txIn;
+			}
+			#region ISigner Members
+
+			public TransactionSignature Sign(Key key)
+			{
+				return txIn.Sign(key, coin, sigHash);
+			}
+
+			#endregion
+		}
+		internal class TransactionBuilderKeyRepository : IKeyRepository
+		{
+			TransactionSigningContext _Ctx;
+			TransactionBuilder _TxBuilder;
+			public TransactionBuilderKeyRepository(TransactionBuilder txBuilder, TransactionSigningContext ctx)
+			{
+				_Ctx = ctx;
+				_TxBuilder = txBuilder;
+			}
+			#region IKeyRepository Members
+
+			public Key FindKey(Script scriptPubkey)
+			{
+				return _TxBuilder.FindKey(_Ctx, scriptPubkey);
+			}
+
+			#endregion
+		}
 		internal class TransactionSigningContext
 		{
 			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction)
@@ -441,7 +480,16 @@ namespace NBitcoin
 			CoinSelector = new DefaultCoinSelector();
 			StandardTransactionPolicy = new StandardTransactionPolicy();
 			DustPrevention = true;
+			InitExtensions();
 		}
+
+		private void InitExtensions()
+		{
+			Extensions.Add(new P2PKHBuilderExtension());
+			Extensions.Add(new P2MultiSigBuilderExtension());
+			Extensions.Add(new P2PKBuilderExtension());			
+		}
+		
 		internal Random _Rand;
 		public TransactionBuilder(int seed)
 		{
@@ -449,6 +497,7 @@ namespace NBitcoin
 			CoinSelector = new DefaultCoinSelector(seed);
 			StandardTransactionPolicy = new StandardTransactionPolicy();
 			DustPrevention = true;
+			InitExtensions();
 		}
 
 		public ICoinSelector CoinSelector
@@ -1225,25 +1274,14 @@ namespace NBitcoin
 				size += new Script(Op.GetPushOp(scriptCoin.Redeem.ToBytes(true))).Length;
 			}
 
-			var p2pk = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
-			if(p2pk != null)
+			var scriptPubkey = coin.GetScriptCode();
+			foreach(var extension in Extensions)
 			{
-				size += PayToPubkeyTemplate.Instance.GenerateScriptSig(DummySignature).Length;
-				return size;
-			}
-
-			var p2pkh = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
-			if(p2pkh != null)
-			{
-				size += PayToPubkeyHashTemplate.Instance.GenerateScriptSig(DummySignature, DummyPubKey).Length;
-				return size;
-			}
-
-			var p2mk = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(coin.TxOut.ScriptPubKey);
-			if(p2mk != null)
-			{
-				size += PayToMultiSigTemplate.Instance.GenerateScriptSig(Enumerable.Range(0, p2mk.SignatureCount).Select(o => DummySignature).ToArray()).Length;
-				return size;
+				if(extension.CanEstimateScriptSigSize(scriptPubkey))
+				{
+					size += extension.EstimateScriptSigSize(scriptPubkey);
+					return size;
+				}
 			}
 
 			size += coin.TxOut.ScriptPubKey.Length; //Using heurestic to approximate size of unknown scriptPubKey
@@ -1282,7 +1320,14 @@ namespace NBitcoin
 			var scriptSig = CreateScriptSig(ctx, coin, txIn);
 			if(scriptSig == null)
 				return;
-			txIn.ScriptSig = scriptSig;
+
+			if(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey) && !Script.IsNullOrEmpty(txIn.ScriptSig))
+			{
+				var ops = txIn.ScriptSig.ToOps().ToArray();
+				txIn.ScriptSig = new Script(ops.Take(ops.Length - 1)); //Remove the redeem
+			}
+
+			txIn.ScriptSig = CombineScriptSigs(coin, scriptSig, txIn.ScriptSig);
 
 			if(coin.GetHashVersion() == HashVersion.Witness)
 			{
@@ -1304,6 +1349,24 @@ namespace NBitcoin
 
 		}
 
+		private Script CombineScriptSigs(ICoin coin, Script a, Script b)
+		{
+			var scriptPubkey = coin.GetScriptCode();
+			if(Script.IsNullOrEmpty(a))
+				return b ?? Script.Empty;
+			if(Script.IsNullOrEmpty(b))
+				return a ?? Script.Empty;
+
+			foreach(var extension in Extensions)
+			{
+				if(extension.CanCombineScriptSig(scriptPubkey, a, b))
+				{
+					return extension.CombineScriptSig(scriptPubkey, a, b);
+				}
+			}
+			return a.Length > b.Length ? a : b; //Heurestic
+		}
+
 		private Script GetP2SHRedeem(ICoin coin)
 		{
 			if(coin is ScriptCoin)
@@ -1320,73 +1383,14 @@ namespace NBitcoin
 		private Script CreateScriptSig(TransactionSigningContext ctx, ICoin coin, IndexedTxIn txIn)
 		{
 			var scriptPubKey = coin.GetScriptCode();
-
-			var pubKeyHashParams = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
-			if(pubKeyHashParams != null)
+			var keyRepo = new TransactionBuilderKeyRepository(this,ctx);
+			var signer = new TransactionBuilderSigner(coin, ctx.SigHash, txIn);
+			foreach(var extension in Extensions)
 			{
-				var key = FindKey(ctx, scriptPubKey);
-				if(key == null)
-					return null;
-				var sig = txIn.Sign(key, coin, ctx.SigHash);
-				return PayToPubkeyHashTemplate.Instance.GenerateScriptSig(sig, key.PubKey);
-			}
-
-			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
-			if(multiSigParams != null)
-			{
-				var alreadySigned = PayToMultiSigTemplate.Instance.ExtractScriptSigParameters(txIn.ScriptSig);
-				if(alreadySigned == null && !Script.IsNullOrEmpty(txIn.ScriptSig)) //Maybe a P2SH
+				if(extension.CanGenerateScriptSig(scriptPubKey))
 				{
-					var ops = txIn.ScriptSig.ToOps().ToList();
-					ops.RemoveAt(ops.Count - 1);
-					alreadySigned = PayToMultiSigTemplate.Instance.ExtractScriptSigParameters(new Script(ops));
+					return extension.GenerateScriptSig(scriptPubKey, keyRepo, signer);
 				}
-				List<TransactionSignature> signatures = new List<TransactionSignature>();
-				if(alreadySigned != null)
-				{
-					signatures.AddRange(alreadySigned);
-				}
-				var keys =
-					multiSigParams
-					.PubKeys
-					.Select(p => FindKey(ctx, p.ScriptPubKey))
-					.ToArray();
-
-				int sigCount = signatures.Count(s => s != TransactionSignature.Empty && s != null);
-				for(int i = 0 ; i < keys.Length ; i++)
-				{
-					if(sigCount == multiSigParams.SignatureCount)
-						break;
-
-					if(i >= signatures.Count)
-					{
-						signatures.Add(null);
-					}
-					if(keys[i] != null)
-					{
-						var sig = txIn.Sign(keys[i], coin, ctx.SigHash);
-						signatures[i] = sig;
-						sigCount++;
-					}
-				}
-
-				IEnumerable<TransactionSignature> sigs = signatures;
-				if(sigCount == multiSigParams.SignatureCount)
-				{
-					sigs = sigs.Where(s => s != TransactionSignature.Empty && s != null);
-				}
-
-				return PayToMultiSigTemplate.Instance.GenerateScriptSig(sigs);
-			}
-
-			var pubKeyParams = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
-			if(pubKeyParams != null)
-			{
-				var key = FindKey(ctx, scriptPubKey);
-				if(key == null)
-					return null;
-				var sig = txIn.Sign(key, coin, ctx.SigHash);
-				return PayToPubkeyTemplate.Instance.GenerateScriptSig(sig);
 			}
 			throw new NotSupportedException("Unsupported scriptPubKey");
 		}
@@ -1506,6 +1510,16 @@ namespace NBitcoin
 			return tx;
 		}
 
+
+		private readonly List<BuilderExtension> _Extensions = new List<BuilderExtension>();
+		public List<BuilderExtension> Extensions
+		{
+			get
+			{
+				return _Extensions;
+			}
+		}
+
 		private Transaction CombineSignaturesCore(Transaction signed1, Transaction signed2)
 		{
 			if(signed1 == null)
@@ -1550,16 +1564,18 @@ namespace NBitcoin
 		}
 
 		private Script DeduceScriptPubKey(Script scriptSig)
-		{
-			var p2pkh = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(scriptSig);
-			if(p2pkh != null && p2pkh.PublicKey != null)
-			{
-				return p2pkh.PublicKey.Hash.ScriptPubKey;
-			}
+		{			
 			var p2sh = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(scriptSig);
 			if(p2sh != null && p2sh.RedeemScript != null)
 			{
 				return p2sh.RedeemScript.Hash.ScriptPubKey;
+			}
+			foreach(var extension in Extensions)
+			{
+				if(extension.CanDeduceScriptPubKey(scriptSig))
+				{
+					return extension.DeduceScriptPubKey(scriptSig);
+				}
 			}
 			return null;
 		}
