@@ -485,7 +485,7 @@ namespace NBitcoin.Tests
 			var repo = new NoSqlColoredTransactionRepository();
 
 			var init = new Transaction()
-			{				
+			{
 				Outputs =
 				{
 					new TxOut("1.0", gold.PubKey),
@@ -855,6 +855,30 @@ namespace NBitcoin.Tests
 			var estimated = builder.EstimateFees(tx, rate);
 
 			Assert.True(builder.Verify(tx, estimated));
+
+			// Alice should pay two times more fee than bob
+			builder = new TransactionBuilder();
+			tx = builder
+				.AddCoins(aliceCoins)
+				.AddKeys(alice)
+				.SetFeeWeight(2.0m)
+				.Send(satoshi, Money.Coins(0.1m))
+				.SetChange(alice)
+				.Then()
+				.AddCoins(bobCoins)
+				.AddKeys(bob)
+				.Send(satoshi, Money.Coins(0.01m))
+				.SetChange(bob)
+				.SendFeesSplit(Money.Coins(0.6m))
+				.BuildTransaction(true);
+
+			var spentAlice = builder.FindSpentCoins(tx).Where(c => aliceCoins.Contains(c)).OfType<Coin>().Select(c => c.Amount).Sum();
+			var receivedAlice = tx.Outputs.AsCoins().Where(c => c.ScriptPubKey == alice.PubKey.Hash.ScriptPubKey).Select(c => c.Amount).Sum();
+			Assert.Equal(Money.Coins(0.1m + 0.4m), spentAlice - receivedAlice);
+
+			var spentBob = builder.FindSpentCoins(tx).Where(c => bobCoins.Contains(c)).OfType<Coin>().Select(c => c.Amount).Sum();
+			var receivedBob = tx.Outputs.AsCoins().Where(c => c.ScriptPubKey == bob.PubKey.Hash.ScriptPubKey).Select(c => c.Amount).Sum();
+			Assert.Equal(Money.Coins(0.01m + 0.2m), spentBob - receivedBob);
 		}
 
 		[Fact]
@@ -1098,6 +1122,30 @@ namespace NBitcoin.Tests
 			var signedTx2 = signedTx.WithOptions(TransactionOptions.None);
 			Assert.Equal(signedTx.GetHash(), signedTx2.GetHash());
 			Assert.True(signedTx2.GetSerializedSize() < signedTx.GetSerializedSize());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanEstimatedFeesCorrectlyIfFeesChangeTransactionSize()
+		{
+			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new Key().PubKey, new Key().PubKey, new Key().PubKey);
+			var transactionBuilder = new TransactionBuilder();
+			transactionBuilder.AddCoins(new Coin(new OutPoint(uint256.Parse("75425c904289f21feef0cffab2081ba22030b633623115adf0780edad443e6c7"), 1), new TxOut("0.00010000", PayToScriptHashTemplate.Instance.GenerateScriptPubKey(redeem).GetDestinationAddress(Network.Main))).ToScriptCoin(redeem));
+			transactionBuilder.AddCoins(new Coin(new OutPoint(uint256.Parse("75425c904289f21feef0cffab2081ba22030b633623115adf0780edad443e6c7"), 2), new TxOut("0.00091824", PayToScriptHashTemplate.Instance.GenerateScriptPubKey(redeem).GetDestinationAddress(Network.Main))).ToScriptCoin(redeem));
+			transactionBuilder.AddCoins(new Coin(new OutPoint(uint256.Parse("75425c904289f21feef0cffab2081ba22030b633623115adf0780edad443e6c7"), 3), new TxOut("0.00100000", PayToScriptHashTemplate.Instance.GenerateScriptPubKey(redeem).GetDestinationAddress(Network.Main))).ToScriptCoin(redeem));
+			transactionBuilder.AddCoins(new Coin(new OutPoint(uint256.Parse("75425c904289f21feef0cffab2081ba22030b633623115adf0780edad443e6c7"), 4), new TxOut("0.00100000", PayToScriptHashTemplate.Instance.GenerateScriptPubKey(redeem).GetDestinationAddress(Network.Main))).ToScriptCoin(redeem));
+			transactionBuilder.AddCoins(new Coin(new OutPoint(uint256.Parse("75425c904289f21feef0cffab2081ba22030b633623115adf0780edad443e6c7"), 5), new TxOut("0.00246414", PayToScriptHashTemplate.Instance.GenerateScriptPubKey(redeem).GetDestinationAddress(Network.Main))).ToScriptCoin(redeem));
+			transactionBuilder.AddCoins(new Coin(new OutPoint(uint256.Parse("75425c904289f21feef0cffab2081ba22030b633623115adf0780edad443e6c7"), 6), new TxOut("0.00250980", PayToScriptHashTemplate.Instance.GenerateScriptPubKey(redeem).GetDestinationAddress(Network.Main))).ToScriptCoin(redeem));
+			transactionBuilder.AddCoins(new Coin(new OutPoint(uint256.Parse("75425c904289f21feef0cffab2081ba22030b633623115adf0780edad443e6c7"), 7), new TxOut("0.01000000", PayToScriptHashTemplate.Instance.GenerateScriptPubKey(redeem).GetDestinationAddress(Network.Main))).ToScriptCoin(redeem));
+			transactionBuilder.Send(new Key().PubKey.GetAddress(Network.Main), "0.01000000");
+			transactionBuilder.SetChange(new Key().PubKey.GetAddress(Network.Main));
+
+			var feeRate = new FeeRate((long)32563);
+			//Adding the estimated fees will cause 6 more coins to be included, so let's verify the actual sent fees take that into account
+			transactionBuilder.SendEstimatedFees(feeRate);
+			var tx = transactionBuilder.BuildTransaction(false);
+			var estimation = transactionBuilder.EstimateFees(tx, feeRate);
+			Assert.Equal(estimation, tx.GetFee(transactionBuilder.FindSpentCoins(tx)));
 		}
 
 		[Fact]

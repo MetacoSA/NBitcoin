@@ -419,6 +419,7 @@ namespace NBitcoin
 			public BuilderGroup(TransactionBuilder parent)
 			{
 				_Parent = parent;
+				FeeWeight = 1.0m;
 				Builders.Add(SetChange);
 			}
 
@@ -458,6 +459,12 @@ namespace NBitcoin
 				get;
 				set;
 			}
+
+			public decimal FeeWeight
+			{
+				get;
+				set;
+			}
 		}
 
 		List<BuilderGroup> _BuilderGroups = new List<BuilderGroup>();
@@ -487,9 +494,9 @@ namespace NBitcoin
 		{
 			Extensions.Add(new P2PKHBuilderExtension());
 			Extensions.Add(new P2MultiSigBuilderExtension());
-			Extensions.Add(new P2PKBuilderExtension());			
+			Extensions.Add(new P2PKBuilderExtension());
 		}
-		
+
 		internal Random _Rand;
 		public TransactionBuilder(int seed)
 		{
@@ -838,39 +845,75 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TransactionBuilder SendEstimatedFees(FeeRate feeRate)
 		{
-			var tx = BuildTransaction(false);
-			var fees = EstimateFees(tx, feeRate);
-			SendFees(fees);
+			Money feeSent = Money.Zero;
+			while(true)
+			{
+				var tx = BuildTransaction(false);
+				var shouldSend = EstimateFees(tx, feeRate);
+				var delta = shouldSend - feeSent;
+				if(delta <= Money.Zero)
+					break;
+				SendFees(delta);
+				feeSent += delta;
+			}
 			return this;
 		}
 
 		/// <summary>
-		/// Estimate the fee needed for the transaction, and split among groups
+		/// Estimate the fee needed for the transaction, and split among groups according to their fee weight
 		/// </summary>
 		/// <param name="feeRate"></param>
 		/// <returns></returns>
 		public TransactionBuilder SendEstimatedFeesSplit(FeeRate feeRate)
 		{
-			var tx = BuildTransaction(false);
-			var fees = EstimateFees(tx, feeRate);
-			return SendFeesSplit(fees);
+			Money feeSent = Money.Zero;
+			while(true)
+			{
+				var tx = BuildTransaction(false);
+				var shouldSend = EstimateFees(tx, feeRate);
+				var delta = shouldSend - feeSent;
+				if(delta <= Money.Zero)
+					break;
+				SendFeesSplit(delta);
+				feeSent += delta;
+			}
+			return this;
 		}
 		/// <summary>
-		/// Split the fees accross the several groups (separated by Then())
+		/// Send the fee splitted among groups according to their fee weight
 		/// </summary>
 		/// <param name="fees"></param>
 		/// <returns></returns>
 		public TransactionBuilder SendFeesSplit(Money fees)
 		{
 			if(fees == null)
-				throw new ArgumentNullException("fees");
-			var perGroup = fees.Split(_BuilderGroups.Count).GetEnumerator();
+				throw new ArgumentNullException("fees");			
+			var lastGroup = CurrentGroup; //Make sure at least one group exists
+			var totalWeight = _BuilderGroups.Select(b => b.FeeWeight).Sum();
+			Money totalSent = Money.Zero;
 			foreach(var group in _BuilderGroups)
 			{
-				perGroup.MoveNext();
-				var fee = perGroup.Current;
-				group.Builders.Add(ctx => fee);
+				var groupFee = Money.Satoshis((group.FeeWeight / totalWeight) * fees.Satoshi);
+				totalSent += groupFee;
+				if(_BuilderGroups.Last() == group)
+				{
+					var leftOver = fees - totalSent;
+					groupFee += leftOver;
+				}
+				group.Builders.Add(ctx => groupFee);
 			}
+			return this;
+		}
+
+
+		/// <summary>
+		/// If using SendFeesSplit or SendEstimatedFeesSplit, determine the weight this group participate in paying the fees
+		/// </summary>
+		/// <param name="feeWeight">The weight of fee participation</param>
+		/// <returns></returns>
+		public TransactionBuilder SetFeeWeight(decimal feeWeight)
+		{
+			CurrentGroup.FeeWeight = feeWeight;
 			return this;
 		}
 
@@ -1396,7 +1439,7 @@ namespace NBitcoin
 		private Script CreateScriptSig(TransactionSigningContext ctx, ICoin coin, IndexedTxIn txIn)
 		{
 			var scriptPubKey = coin.GetScriptCode();
-			var keyRepo = new TransactionBuilderKeyRepository(this,ctx);
+			var keyRepo = new TransactionBuilderKeyRepository(this, ctx);
 			var signer = new TransactionBuilderSigner(coin, ctx.SigHash, txIn);
 			foreach(var extension in Extensions)
 			{
@@ -1577,7 +1620,7 @@ namespace NBitcoin
 		}
 
 		private Script DeduceScriptPubKey(Script scriptSig)
-		{			
+		{
 			var p2sh = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(scriptSig);
 			if(p2sh != null && p2sh.RedeemScript != null)
 			{
