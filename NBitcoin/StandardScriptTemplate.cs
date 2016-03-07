@@ -928,7 +928,14 @@ namespace NBitcoin
 			if(!ValidSegwitVersion(version))
 				return false;
 			var pushSize = bytes[1];
-			return 0x01 <= pushSize && pushSize <= 0x4b && (1 + 1 + pushSize) == bytes.Length;
+			if(pushSize < 0x02)
+				return false;
+			if(pushSize <= 0x4b)
+				return (1 + 1 + pushSize) == bytes.Length;
+			var ops = scriptPubKey.ToOps().ToArray();
+			if(ops.Length != 2)
+				return false;
+			return ops.All(o => o.PushData != null);
 		}
 
 		public static bool ValidSegwitVersion(byte version)

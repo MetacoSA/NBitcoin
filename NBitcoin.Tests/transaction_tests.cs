@@ -1132,6 +1132,12 @@ namespace NBitcoin.Tests
 			Assert.False(PayToWitTemplate.Instance.CheckScriptPubKey(a));
 			a = new Script("1 033fbe0a2aa8dc28ee3b2e271e3fedc7568529ffa20df179b803bf9073c11b6a8b");
 			Assert.True(PayToWitTemplate.Instance.CheckScriptPubKey(a));
+
+			foreach(int pushSize in new[] { 2, 10, 20, 30, 50, 100, 200 })
+			{
+				a = new Script("1 " + String.Concat(Enumerable.Range(0, pushSize * 2).Select(_ => "0").ToArray()));
+				Assert.True(PayToWitTemplate.Instance.CheckScriptPubKey(a));
+			}
 		}
 
 		[Fact]
