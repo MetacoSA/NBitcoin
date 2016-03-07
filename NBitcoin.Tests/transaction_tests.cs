@@ -1126,6 +1126,16 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanCheckSegwitPubkey()
+		{
+			var a = new Script("OP_DUP 033fbe0a2aa8dc28ee3b2e271e3fedc7568529ffa20df179b803bf9073c11b6a8b OP_CHECKSIG OP_IF OP_DROP 0382fdfb0a3898bc6504f63204e7d15a63be82a3b910b5b865690dc96d1249f98c OP_ELSE OP_CODESEPARATOR 033fbe0a2aa8dc28ee3b2e271e3fedc7568529ffa20df179b803bf9073c11b6a8b OP_ENDIF OP_CHECKSIG");
+			Assert.False(PayToWitTemplate.Instance.CheckScriptPubKey(a));
+			a = new Script("1 033fbe0a2aa8dc28ee3b2e271e3fedc7568529ffa20df179b803bf9073c11b6a8b");
+			Assert.True(PayToWitTemplate.Instance.CheckScriptPubKey(a));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanEstimatedFeesCorrectlyIfFeesChangeTransactionSize()
 		{
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, new Key().PubKey, new Key().PubKey, new Key().PubKey);

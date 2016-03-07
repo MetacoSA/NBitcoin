@@ -928,12 +928,12 @@ namespace NBitcoin
 			if(!ValidSegwitVersion(version))
 				return false;
 			var pushSize = bytes[1];
-			return 0x01 <= pushSize && pushSize <= 0x4b;
+			return 0x01 <= pushSize && pushSize <= 0x4b && (1 + 1 + pushSize) == bytes.Length;
 		}
 
 		public static bool ValidSegwitVersion(byte version)
 		{
-			return version == 0 || ((byte)OpcodeType.OP_1 <= version && (byte)OpcodeType.OP_16 <= version);
+			return version == 0 || ((byte)OpcodeType.OP_1 <= version && version <= (byte)OpcodeType.OP_16);
 		}
 
 		public TxDestination ExtractScriptPubKeyParameters(Script scriptPubKey)
