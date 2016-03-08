@@ -12,7 +12,6 @@ namespace NBitcoin.OpenAsset
 	/// </summary>
 	public class AssetId
 	{
-		private readonly uint160 _value;
 		internal byte[] _Bytes;
 
 		public AssetId()
@@ -54,7 +53,6 @@ namespace NBitcoin.OpenAsset
 		public AssetId(uint160 value)
 			: this(value.ToBytes())
 		{
-			_value = value;
 		}
 
 		public AssetId(string value)

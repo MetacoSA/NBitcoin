@@ -25,7 +25,6 @@ namespace NBitcoin
 
 		mode_state mode;
 		int nDoS;
-		string strRejectReason;
 		RejectCode chRejectCode;
 		bool corruptionPossible;
 
@@ -63,7 +62,6 @@ namespace NBitcoin
 			 bool corruptionIn = false)
 		{
 			chRejectCode = chRejectCodeIn;
-			strRejectReason = strRejectReasonIn;
 			corruptionPossible = corruptionIn;
 			if(mode == mode_state.MODE_ERROR)
 				return ret;
@@ -79,8 +77,6 @@ namespace NBitcoin
 		}
 		public bool Error(string strRejectReasonIn = "")
 		{
-			if(mode == mode_state.MODE_VALID)
-				strRejectReason = strRejectReasonIn;
 			mode = mode_state.MODE_ERROR;
 			return false;
 		}

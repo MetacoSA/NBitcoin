@@ -42,7 +42,6 @@ namespace NBitcoin.BuilderExtensions
 
 		public override int EstimateScriptSigSize(Script scriptPubkey)
 		{
-			var p2pkh = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubkey);
 			return PayToPubkeyHashTemplate.Instance.GenerateScriptSig(DummySignature, DummyPubKey).Length;
 		}
 

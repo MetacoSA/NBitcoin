@@ -137,7 +137,6 @@ namespace NBitcoin.SPV
 		ConcurrentDictionary<uint256, uint256> _InFlight = new ConcurrentDictionary<uint256, uint256>();
 
 		BoundedDictionary<uint256, MerkleBlock> _TransactionsToBlock = new BoundedDictionary<uint256, MerkleBlock>(1000);
-		BoundedDictionary<uint256, Transaction> _KnownTxs = new BoundedDictionary<uint256, Transaction>(1000);
 		void AttachedNode_MessageReceived(Protocol.Node node, Protocol.IncomingMessage message)
 		{
 			var merkleBlock = message.Message.Payload as MerkleBlockPayload;

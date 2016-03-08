@@ -13,11 +13,8 @@ namespace NBitcoin.RPC
 	{
 		protected override void BuildTransaction(JObject json, Transaction tx)
 		{
-			var hash = uint256.Parse((string)json.GetValue("hash"));
 			tx.Version = (uint)json.GetValue("ver");
 			tx.LockTime = (uint)json.GetValue("lock_time");
-			var size = (uint)json.GetValue("size");
-
 
 			var vin = (JArray)json.GetValue("in");
 			int vinCount = (int)json.GetValue("vin_sz");
