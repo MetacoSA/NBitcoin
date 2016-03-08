@@ -74,7 +74,6 @@ namespace NBitcoin.Protocol.Behaviors
 
 		internal void OnBroadcastTransaction(Transaction transaction)
 		{
-			var hash = transaction.GetHash();
 			var nodes = Nodes
 						.Select(n => n.Key.Behaviors.Find<BroadcastHubBehavior>())
 						.Where(n => n != null)
@@ -254,7 +253,7 @@ namespace NBitcoin.Protocol.Behaviors
 			{
 				tx.State = BroadcastState.Announced;
 				tx.AnnouncedTime = DateTime.UtcNow;
-				var unused = node.SendMessageAsync(new InvPayload(InventoryType.MSG_TX, hash)).ConfigureAwait(false);
+				node.SendMessageAsync(new InvPayload(InventoryType.MSG_TX, hash)).ConfigureAwait(false);
 			}
 		}		
 

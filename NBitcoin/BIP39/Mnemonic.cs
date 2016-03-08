@@ -87,7 +87,6 @@ namespace NBitcoin
 		}
 
 		static readonly int[] msArray = new[] { 12, 15, 18, 21, 24 };
-		static readonly int[] entcsArray = new[] { 132, 165, 198, 231, 264 };
 		static readonly int[] csArray = new[] { 4, 5, 6, 7, 8 };
 		static readonly int[] entArray = new[] { 128, 160, 192, 224, 256 };
 

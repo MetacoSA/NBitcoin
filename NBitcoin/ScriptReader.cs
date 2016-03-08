@@ -550,7 +550,6 @@ namespace NBitcoin
 		const int MAX_SCRIPT_ELEMENT_SIZE = 520;
 		internal static Op Read(TextReader textReader)
 		{
-			MemoryStream ms = new MemoryStream();
 			var opname = ReadWord(textReader);
 			OpcodeType opcode;
 

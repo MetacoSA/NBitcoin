@@ -14,7 +14,6 @@ namespace NBitcoin
 #endif
  class TraceCorrelationScope : IDisposable
 	{
-		private Guid activity;
 		private Guid old;
 
 		public Guid OldActivity
@@ -35,7 +34,6 @@ namespace NBitcoin
 		public TraceCorrelationScope(Guid activity, TraceSource source, bool traceTransfer)
 		{
 			this.old = Trace.CorrelationManager.ActivityId;
-			this.activity = activity;
 
 			_Transfered = old != activity && traceTransfer;
 			if(_Transfered)

@@ -85,7 +85,6 @@ namespace NBitcoin
 						//the smallest combination of UTXO it discovered in Step 4.
 						var allCoins = orderedCoins.ToArray();
 						IMoney minTotal = null;
-						List<ICoin> minSelection = null;
 						for(int _ = 0 ; _ < 1000 ; _++)
 						{
 							var selection = new List<ICoin>();
@@ -107,7 +106,6 @@ namespace NBitcoin
 							if(minTotal == null || total.CompareTo(minTotal) == -1)
 							{
 								minTotal = total;
-								minSelection = selection;
 							}
 						}
 					}
@@ -1302,8 +1300,6 @@ namespace NBitcoin
 			return baseSize + inputSize;
 		}
 
-		static PubKey DummyPubKey = new PubKey(Encoders.Hex.DecodeData("022c2b9e61169fb1b1f2f3ff15ad52a21745e268d358ba821d36da7d7cd92dee0e"));
-		static TransactionSignature DummySignature = new TransactionSignature(Encoders.Hex.DecodeData("3045022100b9d685584f46554977343009c04b3091e768c23884fa8d2ce2fb59e5290aa45302203b2d49201c7f695f434a597342eb32dfd81137014fcfb3bb5edc7a19c77774d201"));
 		private int EstimateScriptSigSize(ICoin coin)
 		{
 			if(coin is IColoredCoin)

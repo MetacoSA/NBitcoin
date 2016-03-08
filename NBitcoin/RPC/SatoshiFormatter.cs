@@ -14,7 +14,6 @@ namespace NBitcoin.RPC
 	{
 		protected override void BuildTransaction(JObject json, Transaction tx)
 		{
-			var txid = uint256.Parse((string)json.GetValue("txid"));
 			tx.Version = (uint)json.GetValue("version");
 			tx.LockTime = (uint)json.GetValue("locktime");
 
