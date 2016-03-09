@@ -962,7 +962,7 @@ namespace NBitcoin
 		{
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			if(_CompletedTransaction != null)
-				ctx.Transaction = _CompletedTransaction;
+				ctx.Transaction = _CompletedTransaction.Clone();
 			if(_LockTime != null)
 				ctx.Transaction.LockTime = _LockTime.Value;
 			foreach(var group in _BuilderGroups)
