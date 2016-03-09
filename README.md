@@ -7,7 +7,7 @@ NBitcoin is the most complete Bitcoin library for the .NET platform. It is compa
 With nuget :
 >**Install-Package NBitcoin** 
 
-Or if you are running on Mono (using MonoDevelop):
+Or if you are running on Mono (using MonoDevelop/XamarinStudio):
 >**Install-Package NBitcoin.Mono**
 
 Go on the [nuget website](https://www.nuget.org/packages/NBitcoin/) for more information.
