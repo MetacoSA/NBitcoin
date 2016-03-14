@@ -141,7 +141,7 @@
     <Compile Include="Protocol\Payloads\FilterAddPayload.cs" />
     <Compile Include="Protocol\Payloads\HaveWitnessPayload.cs" />
     <Compile Include="Protocol\Payloads\SendHeadersPayload.cs" />
-    <Compile Include="Protocol\Payloads\UTxOutpusPayload.cs" />
+    <Compile Include="Protocol\Payloads\UTxOutputPayload.cs" />
     <Compile Include="RPC\RestClient.cs" />
     <Compile Include="Policy\StandardTransactionPolicy.cs" />
     <Compile Include="Sequence.cs" />
