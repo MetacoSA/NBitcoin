@@ -83,6 +83,11 @@
     <Compile Include="BuilderExtensions\P2PKHBuilderExtension.cs" />
     <Compile Include="FeeRate.cs" />
     <Compile Include="OpenAsset\NullColoredTransactionRepository.cs" />
+    <Compile Include="Payment\IChainChecker.cs" />
+    <Compile Include="Payment\ICertificateServiceProvider.cs" />
+    <Compile Include="Payment\ISignatureChecker.cs" />
+    <Compile Include="Payment\ISigner.cs" />
+    <Compile Include="Payment\WindowsCertificateServiceProvider.cs" />
     <Compile Include="Policy\ITransactionPolicy.cs" />
     <Compile Include="JsonConverters\BitcoinSerializableJsonConverter.cs" />
     <Compile Include="JsonConverters\MoneyJsonConverter.cs" />

@@ -1,4 +1,4 @@
-﻿#if !USEBC
+﻿#if !NOPROTOBUF
 using NBitcoin.Crypto;
 using ProtoBuf;
 using ProtoBuf.Meta;
@@ -8,8 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -225,6 +223,35 @@ namespace NBitcoin.Payment
 	}
 	public class PaymentRequest
 	{
+#if PORTABLE
+		private static ICertificateServiceProvider _DefaultCertificateServiceProvider;
+#else
+		private static ICertificateServiceProvider _DefaultCertificateServiceProvider = new WindowsCertificateServiceProvider();
+#endif
+		/// <summary>
+		/// Default application wide certificate service provider
+		/// </summary>
+		public static ICertificateServiceProvider DefaultCertificateServiceProvider
+		{
+			get
+			{
+				return _DefaultCertificateServiceProvider;
+			}
+			set
+			{ 
+				_DefaultCertificateServiceProvider = value;
+			}
+		}
+
+		/// <summary>
+		/// Instance specific certificate service provider
+		/// </summary>
+		public ICertificateServiceProvider CertificateServiceProvider
+		{
+			get;
+			set;
+		}
+
 		internal static RuntimeTypeModel Serializer;
 		static PaymentRequest()
 		{
@@ -256,11 +283,11 @@ namespace NBitcoin.Payment
 					if(first)
 					{
 						first = false;
-						result.MerchantCertificate = new X509Certificate2(cert);
+						result.MerchantCertificate = cert;
 					}
 					else
 					{
-						result.AdditionalCertificates.Add(new X509Certificate2(cert));
+						result.AdditionalCertificates.Add(cert);
 					}
 				}
 			}
@@ -285,11 +312,11 @@ namespace NBitcoin.Payment
 			var certs = new Proto.X509Certificates();
 			if(this.MerchantCertificate != null)
 			{
-				certs.certificate.Add(MerchantCertificate.Export(X509ContentType.Cert));
+				certs.certificate.Add(MerchantCertificate);
 			}
 			foreach(var cert in AdditionalCertificates)
 			{
-				certs.certificate.Add(cert.Export(X509ContentType.Cert));
+				certs.certificate.Add(cert);
 			}
 			MemoryStream ms = new MemoryStream();
 			Serializer.Serialize(ms, certs);
@@ -339,36 +366,36 @@ namespace NBitcoin.Payment
 			set;
 		}
 
-		/// <summary>
-		/// Get the merchant name from the certificate subject
-		/// </summary>
-		public string MerchantName
-		{
-			get
-			{
-				if(MerchantCertificate == null)
-					return null;
-				if(!string.IsNullOrEmpty(MerchantCertificate.FriendlyName))
-					return MerchantCertificate.FriendlyName;
-				else
-				{
-					var match = Regex.Match(MerchantCertificate.Subject, "^(CN=)?(?<Name>[^,]*)", RegexOptions.IgnoreCase);
-					if(!match.Success)
-						return MerchantCertificate.Subject;
-					return match.Groups["Name"].Value.Trim();
-				}
-			}
-		}
+		///// <summary>
+		///// Get the merchant name from the certificate subject
+		///// </summary>
+		//public string MerchantName
+		//{
+		//	get
+		//	{
+		//		if(MerchantCertificate == null)
+		//			return null;
+		//		if(!string.IsNullOrEmpty(MerchantCertificate.FriendlyName))
+		//			return MerchantCertificate.FriendlyName;
+		//		else
+		//		{
+		//			var match = Regex.Match(MerchantCertificate.Subject, "^(CN=)?(?<Name>[^,]*)", RegexOptions.IgnoreCase);
+		//			if(!match.Success)
+		//				return MerchantCertificate.Subject;
+		//			return match.Groups["Name"].Value.Trim();
+		//		}
+		//	}
+		//}
 
-		public X509Certificate2 MerchantCertificate
+		public byte[] MerchantCertificate
 		{
 			get;
 			set;
 		}
 
 
-		private readonly List<X509Certificate2> _AdditionalCertificates = new List<X509Certificate2>();
-		public List<X509Certificate2> AdditionalCertificates
+		private readonly List<byte[]> _AdditionalCertificates = new List<byte[]>();
+		public List<byte[]> AdditionalCertificates
 		{
 			get
 			{
@@ -415,30 +442,25 @@ namespace NBitcoin.Payment
 			return Details.Expires < DateTimeOffset.UtcNow;
 		}
 
-		public bool VerifyChain(X509VerificationFlags flags = X509VerificationFlags.NoFlag)
+		private ICertificateServiceProvider GetCertificateProvider()
 		{
-			X509Chain chain;
-			return VerifyChain(out chain, flags);
+ 			var provider = CertificateServiceProvider = DefaultCertificateServiceProvider;
+			if(provider == null)
+				throw new InvalidOperationException("DefaultCertificateServiceProvider or CertificateServiceProvider must be set before calling this method.");
+			return provider;
 		}
 
-		public bool VerifyChain(out X509Chain chain, X509VerificationFlags flags = X509VerificationFlags.NoFlag)
+		public bool VerifyChain()
 		{
-			chain = null;
 			if(MerchantCertificate == null || PKIType == Payment.PKIType.None)
 				return false;
-			chain = new X509Chain();
-			chain.ChainPolicy.VerificationFlags = flags;
-			foreach(var additional in AdditionalCertificates)
-				chain.ChainPolicy.ExtraStore.Add(additional);
-			return chain.Build(MerchantCertificate);
+			return GetCertificateProvider().GetChainChecker().VerifyChain(MerchantCertificate, AdditionalCertificates.ToArray());
 		}
-
 		public bool VerifySignature()
 		{
 			if(MerchantCertificate == null || PKIType == Payment.PKIType.None)
 				return false;
 
-			var key = (RSACryptoServiceProvider)MerchantCertificate.PublicKey.Key;
 			var sig = Signature;
 			Signature = new byte[0];
 			byte[] data = null;
@@ -466,7 +488,7 @@ namespace NBitcoin.Payment
 			else
 				throw new NotSupportedException(PKIType.ToString());
 
-			return key.VerifyHash(hash, hashName, Signature);
+			return GetCertificateProvider().GetSignatureChecker().VerifySignature(MerchantCertificate, hash, hashName, sig);
 		}
 
 		internal Proto.PaymentRequest OriginalData
@@ -476,14 +498,12 @@ namespace NBitcoin.Payment
 		}
 
 
-		public void Sign(X509Certificate2 certificate, Payment.PKIType type)
+		public void Sign(byte[] certificate, Payment.PKIType type)
 		{
 			if(type == Payment.PKIType.None)
 				throw new ArgumentException("PKIType can't be none if signing");
-			var privateKey = certificate.PrivateKey as RSACryptoServiceProvider;
-			if(privateKey == null)
-				throw new ArgumentException("Private key not present in the certificate, impossible to sign");
-			MerchantCertificate = new X509Certificate2(certificate.Export(X509ContentType.Cert));
+			var signer = GetCertificateProvider().GetSigner();
+			MerchantCertificate = signer.StripPrivateKey(certificate);
 			PKIType = type;
 			Signature = new byte[0];
 			var data = this.ToBytes();
@@ -502,7 +522,7 @@ namespace NBitcoin.Payment
 			else
 				throw new NotSupportedException(PKIType.ToString());
 
-			Signature = privateKey.SignHash(hash, hashName);
+			Signature = signer.Sign(certificate, hash, hashName);
 		}
 
 		public readonly static string MediaType = "application/bitcoin-paymentrequest";
