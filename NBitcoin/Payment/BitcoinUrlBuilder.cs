@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-#if !NOPROTOBUF
+#if !PORTABLE
 using System.Net.Http;
 using System.Net.Http.Headers;
 #endif
@@ -98,7 +98,7 @@ namespace NBitcoin.Payment
 				return _UnknowParameters;
 			}
 		}
-#if !NOPROTOBUF
+#if !NOHTTPCLIENT
 		public PaymentRequest GetPaymentRequest()
 		{
 			if(PaymentRequestUrl == null)
@@ -113,7 +113,6 @@ namespace NBitcoin.Payment
 				return null;
 			}
 		}
-
 		public async Task<PaymentRequest> GetPaymentRequestAsync(HttpClient httpClient = null)
 		{
 			if(PaymentRequestUrl == null)

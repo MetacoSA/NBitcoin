@@ -1,13 +1,13 @@
-﻿#if !NOPROTOBUF
-using NBitcoin.Crypto;
-using ProtoBuf;
-using ProtoBuf.Meta;
+﻿using NBitcoin.Crypto;
+using NBitcoin.Protobuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+#if !PORTABLE
 using System.Net.Http;
+#endif
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -38,34 +38,63 @@ namespace NBitcoin.Payment
 			if(destination != null)
 				Script = destination.ScriptPubKey;
 		}
-		internal PaymentOutput(Proto.Output output)
-		{
-			Amount = new Money(output.amount);
-			Script = output.script == null ? null : new Script(output.script);
-			OriginalData = output;
-		}
+		Money _Amount;
 		public Money Amount
 		{
-			get;
-			set;
+			get
+			{
+				return _Amount ?? Money.Zero;
+			}
+			set
+			{
+				_Amount = value;
+			}
 		}
 		public Script Script
 		{
 			get;
 			set;
 		}
-		internal Proto.Output OriginalData
+		
+		internal static PaymentOutput Load(byte[] bytes)
 		{
-			get;
-			set;
+			var reader = new ProtobufReaderWriter(new MemoryStream(bytes));
+			PaymentOutput output = new PaymentOutput();
+			int key;
+			var start = reader.Position;
+			while(reader.TryReadKey(out key))
+			{
+				switch(key)
+				{
+					case 1:
+						output.Amount = Money.Satoshis(reader.ReadULong());
+						break;
+					case 2:
+						output.Script = Script.FromBytesUnsafe(reader.ReadBytes());
+						break;
+					default:
+						break;
+				}
+			}
+			return output;
 		}
 
-		internal Proto.Output ToData()
+		public byte[] ToBytes()
 		{
-			var data = OriginalData == null ? new Proto.Output() : (Proto.Output)PaymentRequest.Serializer.DeepClone(OriginalData);
-			data.amount = (ulong)Amount.Satoshi;
-			data.script = Script.ToBytes();
-			return data;
+			MemoryStream ms = new MemoryStream();
+			Write(ms);
+			return ms.ToArrayEfficient();
+		}
+		internal void Write(Stream output)
+		{
+			var writer = new ProtobufReaderWriter(output);
+			if(_Amount != null)
+			{
+				writer.WriteKey(1, ProtobufReaderWriter.PROTOBUF_VARINT);
+				writer.WriteULong((ulong)_Amount.Satoshi);
+			}
+			writer.WriteKey(2, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+			writer.WriteBytes(Script == null ? new byte[0] : Script.ToBytes(true));
 		}
 	}
 	public class PaymentDetails
@@ -73,7 +102,6 @@ namespace NBitcoin.Payment
 		public PaymentDetails()
 		{
 			Time = Utils.UnixTimeToDateTime(0);
-			Expires = Utils.UnixTimeToDateTime(0);
 		}
 		public static PaymentDetails Load(byte[] details)
 		{
@@ -82,29 +110,103 @@ namespace NBitcoin.Payment
 
 		private static PaymentDetails Load(Stream source)
 		{
+			var reader = new Protobuf.ProtobufReaderWriter(source);
 			var result = new PaymentDetails();
-			var details = PaymentRequest.Serializer.Deserialize<Proto.PaymentDetails>(source);
-			result.Network = details.network == "main" ? Network.Main :
-							 details.network == "test" ? Network.TestNet : null;
-			if(result.Network == null)
-				throw new NotSupportedException("Invalid network");
-			result.Time = Utils.UnixTimeToDateTime(details.time);
-			result.Expires = Utils.UnixTimeToDateTime(details.expires);
-			result.Memo = details.memoSpecified ? details.memo : null;
-			result.MerchantData = details.merchant_dataSpecified ? details.merchant_data : null;
-			result.PaymentUrl = details.payment_urlSpecified ? new Uri(details.payment_url, UriKind.Absolute) : null;
-			foreach(var output in details.outputs)
+			int key;
+			while(reader.TryReadKey(out key))
 			{
-				result.Outputs.Add(new PaymentOutput(output));
+				switch(key)
+				{
+					case 1:
+						var network = reader.ReadString();
+						result.Network = network.Equals("main", StringComparison.OrdinalIgnoreCase) ? Network.Main :
+										 network.Equals("test", StringComparison.OrdinalIgnoreCase) ? Network.TestNet : null;
+						if(result.Network == null)
+							throw new NotSupportedException("Invalid network");
+						break;
+					case 2:
+						result.Outputs.Add(PaymentOutput.Load(reader.ReadBytes()));
+						break;
+					case 3:
+						result.Time = Utils.UnixTimeToDateTime(reader.ReadULong());
+						break;
+					case 4:
+						result.Expires = Utils.UnixTimeToDateTime(reader.ReadULong());
+						break;
+					case 5:
+						result.Memo = reader.ReadString();
+						break;
+					case 6:
+						result.PaymentUrl = new Uri(reader.ReadString());
+						break;
+					case 7:
+						result.MerchantData = reader.ReadBytes();
+						break;
+					default:
+						break;
+				}
 			}
-			result.OriginalData = details;
 			return result;
 		}
 
+		public void WriteTo(Stream stream)
+		{
+			var writer = new ProtobufReaderWriter(stream);
+			if(_Network != null)
+			{
+				var str = _Network == Network.Main ? "main" :
+					_Network == Network.TestNet ? "test" : null;
+				if(str == null)
+					throw new InvalidOperationException("Impossible to serialize a payment request on network " + _Network);
+				writer.WriteKey(1, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				writer.WriteString(str);
+			}
+
+			foreach(var txout in Outputs)
+			{
+				writer.WriteKey(2, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				writer.WriteBytes(txout.ToBytes());
+			}
+
+			writer.WriteKey(3, ProtobufReaderWriter.PROTOBUF_VARINT);
+			writer.WriteULong(Utils.DateTimeToUnixTime(Time));
+
+			if(Expires != null)
+			{
+				writer.WriteKey(4, ProtobufReaderWriter.PROTOBUF_VARINT);
+				writer.WriteULong(Utils.DateTimeToUnixTime(Expires.Value));
+			}
+
+			if(Memo != null)
+			{
+				writer.WriteKey(5, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				writer.WriteString(Memo);
+			}
+
+			if(PaymentUrl != null)
+			{
+				writer.WriteKey(6, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				writer.WriteString(PaymentUrl.AbsoluteUri);
+			}
+
+			if(MerchantData != null)
+			{
+				writer.WriteKey(7, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				writer.WriteBytes(MerchantData);
+			}
+		}
+
+		Network _Network;
 		public Network Network
 		{
-			get;
-			set;
+			get
+			{
+				return _Network ?? Network.Main;
+			}
+			set
+			{
+				_Network = value;
+			}
 		}
 
 		/// <summary>
@@ -118,7 +220,7 @@ namespace NBitcoin.Payment
 		/// <summary>
 		/// timestamp (UTC) after which the PaymentRequest should be considered invalid. 
 		/// </summary>
-		public DateTimeOffset Expires
+		public DateTimeOffset? Expires
 		{
 			get;
 			set;
@@ -154,79 +256,125 @@ namespace NBitcoin.Payment
 				return _Outputs;
 			}
 		}
-
-		public byte[] ToBytes()
-		{
-			MemoryStream ms = new MemoryStream();
-			WriteTo(ms);
-			return ms.ToArray();
-		}
-
-		static byte[] GetByte<T>(T obj)
-		{
-			MemoryStream ms = new MemoryStream();
-			PaymentRequest.Serializer.Serialize(ms, obj);
-			return ms.ToArray();
-		}
-		public void WriteTo(Stream output)
-		{
-			var details = OriginalData == null ? new Proto.PaymentDetails() : (Proto.PaymentDetails)PaymentRequest.Serializer.DeepClone(OriginalData);
-			details.memo = Memo;
-
-
-			details.merchant_data = MerchantData;
-
-			var network = Network == Network.Main ? "main" :
-							  Network == Network.TestNet ? "test" : null;
-
-			// this pattern requires an explanation
-			if (details.network != network)
-				details.network = network;
-
-			var time = Utils.DateTimeToUnixTimeLong(Time);
-			if (time != details.time)
-				details.time = time;
-			var expires = Utils.DateTimeToUnixTimeLong(Expires);
-			if (expires != details.expires)
-				details.expires = expires;
-
-			details.payment_url = PaymentUrl == null ? null : PaymentUrl.AbsoluteUri;
-			details.outputs.Clear();
-			foreach(var o in Outputs)
-			{
-				details.outputs.Add(o.ToData());
-			}
-			PaymentRequest.Serializer.Serialize(output, details);
-		}
-
-		public uint Version
-		{
-			get
-			{
-				return 1;
-			}
-		}
-
-		internal Proto.PaymentDetails OriginalData
-		{
-			get;
-			set;
-		}
 	}
 
-	internal static class RuntimeTypeModelExtensions
-	{
-		public static T Deserialize<T>(this RuntimeTypeModel seria, Stream source)
-		{
-			return (T)seria.Deserialize(source, null, typeof(T));
-		}
-	}
 	public class PaymentRequest
 	{
-#if PORTABLE
-		private static ICertificateServiceProvider _DefaultCertificateServiceProvider;
-#else
+		class RecorderStream : Stream
+		{
+			private Stream _Inner;
+			public RecorderStream(Stream inner)
+			{
+				_Inner = inner;
+				Activated = true;
+			}
+			public override bool CanRead
+			{
+				get
+				{
+					return _Inner.CanRead;
+				}
+			}
+
+			public override bool CanSeek
+			{
+				get
+				{
+					return _Inner.CanSeek;
+				}
+			}
+
+			public override bool CanWrite
+			{
+				get
+				{
+					return _Inner.CanWrite;
+				}
+			}
+
+			public override void Flush()
+			{
+				_Inner.Flush();
+			}
+
+			public override long Length
+			{
+				get
+				{
+					return _Inner.Length;
+				}
+			}
+
+			public override long Position
+			{
+				get
+				{
+					return _Inner.Position;
+				}
+				set
+				{
+					_Inner.Position = value;
+				}
+			}
+
+			public override int Read(byte[] buffer, int offset, int count)
+			{
+				var read = _Inner.Read(buffer, offset, count);
+				if(read == -1)
+					return -1;
+				if(Activated)
+				{
+					byte[] copy = new byte[count];
+					Array.Copy(buffer, offset, copy, 0, read);
+					buffers.Add(buffer);
+				}
+				return read;
+			}
+
+			List<byte[]> buffers = new List<byte[]>();
+			public byte[] ToBytes()
+			{
+				byte[] result = new byte[buffers.Select(b => b.Length).Sum()];
+				int offset = 0;
+				foreach(var b in buffers)
+				{
+					Array.Copy(b, 0, result, offset, b.Length);
+					offset += b.Length;
+				}
+				return result;
+			}
+
+			public override long Seek(long offset, SeekOrigin origin)
+			{
+				return _Inner.Seek(offset, origin);
+			}
+
+			public override void SetLength(long value)
+			{
+				_Inner.SetLength(value);
+			}
+
+			public void RecordBytes(byte[] bytes)
+			{
+				buffers.Add(bytes);
+			}
+
+			public override void Write(byte[] buffer, int offset, int count)
+			{
+				throw new NotImplementedException();
+			}
+
+			public bool Activated
+			{
+				get;
+				set;
+			}
+		}
+
+#if WIN
 		private static ICertificateServiceProvider _DefaultCertificateServiceProvider = new WindowsCertificateServiceProvider();
+#else
+		private static ICertificateServiceProvider _DefaultCertificateServiceProvider;		
 #endif
 		/// <summary>
 		/// Default application wide certificate service provider
@@ -238,7 +386,7 @@ namespace NBitcoin.Payment
 				return _DefaultCertificateServiceProvider;
 			}
 			set
-			{ 
+			{
 				_DefaultCertificateServiceProvider = value;
 			}
 		}
@@ -251,13 +399,7 @@ namespace NBitcoin.Payment
 			get;
 			set;
 		}
-
-		internal static RuntimeTypeModel Serializer;
-		static PaymentRequest()
-		{
-			Serializer = TypeModel.Create();
-			Serializer.UseImplicitZeroDefaults = false;
-		}
+#if !NOFILEIO
 		public static PaymentRequest Load(string file)
 		{
 			using(var fs = File.OpenRead(file))
@@ -265,36 +407,65 @@ namespace NBitcoin.Payment
 				return Load(fs);
 			}
 		}
+#endif
 		public static PaymentRequest Load(byte[] request)
 		{
 			return Load(new MemoryStream(request));
 		}
 		public static PaymentRequest Load(Stream source)
 		{
-			var result = new PaymentRequest();
-			var req = Serializer.Deserialize<Proto.PaymentRequest>(source);
-			result.PKIType = ToPKIType(req.pki_type);
-			if(req.pki_data != null && req.pki_data.Length != 0)
+			byte[] signed;
+			return Load(source, out signed);
+		}
+		public static PaymentRequest Load(Stream source, out byte[] signed)
+		{
+			RecorderStream record = new RecorderStream(source);
+			PaymentRequest req = new PaymentRequest();
+			var reader = new ProtobufReaderWriter(record);
+			bool signatureLoaded = false;
+			int key;
+			bool firstCert = true;
+			while(reader.TryReadKey(out key))
 			{
-				var certs = Serializer.Deserialize<Proto.X509Certificates>(new MemoryStream(req.pki_data));
-				bool first = true;
-				foreach(var cert in certs.certificate)
+				switch(key)
 				{
-					if(first)
-					{
-						first = false;
-						result.MerchantCertificate = cert;
-					}
-					else
-					{
-						result.AdditionalCertificates.Add(cert);
-					}
+					case 1:
+						req.DetailsVersion = (uint)reader.ReadULong();
+						break;
+					case 2:
+						req.PKIType = ToPKIType(reader.ReadString());
+						break;
+					case 3:
+						var bytes = reader.ReadBytes();
+						ProtobufReaderWriter certs = new ProtobufReaderWriter(new MemoryStream(bytes));
+						int k;
+						while(certs.TryReadKey(out k))
+						{
+							if(firstCert)
+							{
+								req.MerchantCertificate = certs.ReadBytes();
+								firstCert = false;
+							}
+							else
+								req.AdditionalCertificates.Add(certs.ReadBytes());
+						}
+						break;
+					case 4:
+						req._PaymentDetails = PaymentDetails.Load(reader.ReadBytes());
+						break;
+					case 5:
+						record.Activated = false;
+						req.Signature = reader.ReadBytes();
+						signatureLoaded = req.Signature.Length != 0;
+						record.Activated = true;
+						record.RecordBytes(new byte[0]);
+						break;
+					default:
+						break;
 				}
 			}
-			result._PaymentDetails = PaymentDetails.Load(req.serialized_payment_details);
-			result.Signature = req.signature;
-			result.OriginalData = req;
-			return result;
+			signed = record.ToBytes();
+			return req;
 		}
 
 		public PaymentMessage CreatePayment()
@@ -304,30 +475,58 @@ namespace NBitcoin.Payment
 				ImplicitPaymentUrl = Details.PaymentUrl
 			};
 		}
+
+		uint? _DetailsVersion;
+		public uint DetailsVersion
+		{
+			get
+			{
+				return _DetailsVersion ?? 1;
+			}
+			set
+			{
+				_DetailsVersion = value;
+			}
+		}
 		public void WriteTo(Stream output)
 		{
-			var req = OriginalData == null ? new Proto.PaymentRequest() : (Proto.PaymentRequest)Serializer.DeepClone(OriginalData);
-			req.pki_type = ToPKITypeString(PKIType);
+			WriteTo(new ProtobufReaderWriter(output));
+		}
 
-			var certs = new Proto.X509Certificates();
+		void WriteTo(ProtobufReaderWriter writer)
+		{
+			if(_DetailsVersion != null)
+			{
+				writer.WriteKey(1, ProtobufReaderWriter.PROTOBUF_VARINT);
+				writer.WriteULong((uint)_DetailsVersion);
+			}
+
+			writer.WriteKey(2, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+			writer.WriteString(ToPKITypeString(PKIType));
+
+			writer.WriteKey(3, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+			MemoryStream ms = new MemoryStream();
+			ProtobufReaderWriter certs = new ProtobufReaderWriter(ms);
+
 			if(this.MerchantCertificate != null)
 			{
-				certs.certificate.Add(MerchantCertificate);
+				certs.WriteKey(1, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				certs.WriteBytes(MerchantCertificate);
 			}
 			foreach(var cert in AdditionalCertificates)
 			{
-				certs.certificate.Add(cert);
+				certs.WriteKey(1, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				certs.WriteBytes(cert);
 			}
-			MemoryStream ms = new MemoryStream();
-			Serializer.Serialize(ms, certs);
-			req.pki_data = ms.ToArray();
-			req.serialized_payment_details = Details.ToBytes();
-			req.signature = Signature;
-			if(Details.Version != 1)
-			{
-				req.payment_details_version = Details.Version;
-			}
-			Serializer.Serialize(output, req);
+			writer.WriteBytes(ms.ToArrayEfficient());
+
+			writer.WriteKey(4, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+			ms = new MemoryStream();
+			Details.WriteTo(ms);
+			writer.WriteBytes(ms.ToArray());
+
+			writer.WriteKey(5, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+			writer.WriteBytes(Signature ?? new byte[0]);
 		}
 
 		private string ToPKITypeString(PKIType pkitype)
@@ -366,27 +565,6 @@ namespace NBitcoin.Payment
 			set;
 		}
 
-		///// <summary>
-		///// Get the merchant name from the certificate subject
-		///// </summary>
-		//public string MerchantName
-		//{
-		//	get
-		//	{
-		//		if(MerchantCertificate == null)
-		//			return null;
-		//		if(!string.IsNullOrEmpty(MerchantCertificate.FriendlyName))
-		//			return MerchantCertificate.FriendlyName;
-		//		else
-		//		{
-		//			var match = Regex.Match(MerchantCertificate.Subject, "^(CN=)?(?<Name>[^,]*)", RegexOptions.IgnoreCase);
-		//			if(!match.Success)
-		//				return MerchantCertificate.Subject;
-		//			return match.Groups["Name"].Value.Trim();
-		//		}
-		//	}
-		//}
-
 		public byte[] MerchantCertificate
 		{
 			get;
@@ -414,12 +592,10 @@ namespace NBitcoin.Payment
 
 		public byte[] ToBytes()
 		{
-			var ms = new MemoryStream();
-			WriteTo(ms);
-			return ms.ToArray();
+			MemoryStream ms = new MemoryStream();
+			WriteTo(new ProtobufReaderWriter(ms));
+			return ms.ToArrayEfficient();
 		}
-
-
 
 		public byte[] Signature
 		{
@@ -444,7 +620,7 @@ namespace NBitcoin.Payment
 
 		private ICertificateServiceProvider GetCertificateProvider()
 		{
- 			var provider = CertificateServiceProvider = DefaultCertificateServiceProvider;
+			var provider = CertificateServiceProvider = DefaultCertificateServiceProvider;
 			if(provider == null)
 				throw new InvalidOperationException("DefaultCertificateServiceProvider or CertificateServiceProvider must be set before calling this method.");
 			return provider;
@@ -460,18 +636,7 @@ namespace NBitcoin.Payment
 		{
 			if(MerchantCertificate == null || PKIType == Payment.PKIType.None)
 				return false;
-
-			var sig = Signature;
-			Signature = new byte[0];
-			byte[] data = null;
-			try
-			{
-				data = this.ToBytes();
-			}
-			finally
-			{
-				Signature = sig;
-			}
+			var data = GetSignedData();
 
 			byte[] hash = null;
 			string hashName = null;
@@ -488,15 +653,16 @@ namespace NBitcoin.Payment
 			else
 				throw new NotSupportedException(PKIType.ToString());
 
-			return GetCertificateProvider().GetSignatureChecker().VerifySignature(MerchantCertificate, hash, hashName, sig);
+			return GetCertificateProvider().GetSignatureChecker().VerifySignature(MerchantCertificate, hash, hashName, Signature);
 		}
 
-		internal Proto.PaymentRequest OriginalData
+		private byte[] GetSignedData()
 		{
-			get;
-			set;
+			MemoryStream ms = new MemoryStream(this.ToBytes());
+			byte[] signed = null;
+			Load(ms, out signed);
+			return signed;
 		}
-
 
 		public void Sign(byte[] certificate, Payment.PKIType type)
 		{
@@ -505,8 +671,7 @@ namespace NBitcoin.Payment
 			var signer = GetCertificateProvider().GetSigner();
 			MerchantCertificate = signer.StripPrivateKey(certificate);
 			PKIType = type;
-			Signature = new byte[0];
-			var data = this.ToBytes();
+			var data = GetSignedData();
 			byte[] hash = null;
 			string hashName = null;
 			if(type == Payment.PKIType.X509SHA256)
@@ -526,6 +691,6 @@ namespace NBitcoin.Payment
 		}
 
 		public readonly static string MediaType = "application/bitcoin-paymentrequest";
+
 	}
 }
-#endif

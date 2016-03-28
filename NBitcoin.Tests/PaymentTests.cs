@@ -1,5 +1,4 @@
-﻿#if !NOPROTOBUF
-using NBitcoin.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 using NBitcoin.Payment;
 using System;
 using System.Collections.Generic;
@@ -83,6 +82,21 @@ namespace NBitcoin.Tests
 			return builder;
 		}
 
+		public PaymentRequest LoadPaymentRequest(string path)
+		{
+			using(var fs = File.OpenRead(path))
+			{
+				return PaymentRequest.Load(fs);
+			}
+		}
+		public PaymentACK LoadPaymentACK(string path)
+		{
+			using(var fs = File.OpenRead(path))
+			{
+				return PaymentACK.Load(fs);
+			}
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadPaymentRequest()
@@ -99,7 +113,7 @@ namespace NBitcoin.Tests
 			})
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
-				var request = PaymentRequest.Load("data/payreq1_sha1.paymentrequest");
+				var request = LoadPaymentRequest("data/payreq1_sha1.paymentrequest");
 				AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq1_sha1.paymentrequest"));
 				Assert.True(request.VerifySignature());
 				request.Details.Memo = "lol";
@@ -107,7 +121,7 @@ namespace NBitcoin.Tests
 				request.Details.Memo = "this is a memo";
 				Assert.True(request.VerifySignature());
 				Assert.True(request.VerifyChain());
-				request = PaymentRequest.Load("data/payreq2_sha1.paymentrequest");
+				request = LoadPaymentRequest("data/payreq2_sha1.paymentrequest");
 				AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq2_sha1.paymentrequest"));
 				Assert.True(request.VerifySignature());
 			}
@@ -125,7 +139,7 @@ namespace NBitcoin.Tests
 			})
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
-				var req = PaymentRequest.Load("data/payreq3_validchain.paymentrequest");
+				var req = LoadPaymentRequest("data/payreq3_validchain.paymentrequest");
 				Assert.True(req.VerifyChain());
 				Assert.True(req.VerifySignature());
 			}
@@ -135,8 +149,6 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadTestVectorPayments()
 		{
-
-
 			var tests = new[]
 			{
 				"data/payreq1_sha256_omitteddefault.paymentrequest",
@@ -165,11 +177,12 @@ namespace NBitcoin.Tests
 				{
 					var bytes = File.ReadAllBytes(test);
 					var request = PaymentRequest.Load(bytes);
+					AssertEx.Equal(request.ToBytes(), bytes);
+
 					Assert.True(request.VerifySignature());
 					request = PaymentRequest.Load(PaymentRequest.Load(bytes).ToBytes());
 					Assert.True(request.VerifySignature());
 					Assert.True(request.VerifyChain());
-					AssertEx.Equal(request.ToBytes(), bytes);
 				}
 			}
 		}
@@ -185,6 +198,7 @@ namespace NBitcoin.Tests
 #endif
 			})
 			{
+				PaymentRequest.DefaultCertificateServiceProvider = provider;
 				var cert = File.ReadAllBytes("Data/NicolasDorierMerchant.pfx");
 				var request = new PaymentRequest();
 				request.Details.Memo = "hello";
@@ -193,14 +207,27 @@ namespace NBitcoin.Tests
 				Assert.NotNull(request.MerchantCertificate);
 				Assert.True(request.VerifySignature());
 				Assert.False(request.VerifyChain());
+				AssertEx.CollectionEquals(request.ToBytes(), PaymentRequest.Load(request.ToBytes()).ToBytes());
 				Assert.True(PaymentRequest.Load(request.ToBytes()).VerifySignature());
 			}
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanParsePaymentACK()
+		{
+			var ack = LoadPaymentACK("data/paymentack.data");
+			Assert.Equal("thanks customer !", ack.Memo);
+			Assert.Equal("thanks merchant !", ack.Payment.Memo);
+			Assert.Equal(2, ack.Payment.Transactions.Count);
+			Assert.Equal(2, ack.Payment.RefundTo.Count);
+			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
+			AssertEx.CollectionEquals(ack.ToBytes(), File.ReadAllBytes("data/paymentack.data"));
+		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCreatePaymentMessageAndACK()
 		{
-			var request = PaymentRequest.Load("data/payreq1_sha1.paymentrequest");
+			var request = LoadPaymentRequest("data/payreq1_sha1.paymentrequest");
 			var payment = request.CreatePayment();
 			AssertEx.CollectionEquals(request.Details.MerchantData, payment.MerchantData);
 			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
@@ -212,14 +239,7 @@ namespace NBitcoin.Tests
 			ack.Memo = "thanks customer !";
 			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
 		}
-		private T Reserialize<T>(T data)
-		{
-			MemoryStream ms = new MemoryStream();
-			PaymentRequest.Serializer.Serialize(ms, data);
-			ms.Position = 0;
-			return (T)PaymentRequest.Serializer.Deserialize(ms, null, typeof(T));
-		}
-
+#if !NOHTTPCLIENT
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanTalkToPaymentServer()
@@ -235,7 +255,7 @@ namespace NBitcoin.Tests
 				Assert.NotNull(ack);
 			}
 		}
-
+#endif
 
 	}
 
@@ -326,4 +346,3 @@ namespace NBitcoin.Tests
 		#endregion
 	}
 }
-#endif

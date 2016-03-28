@@ -39,9 +39,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="protobuf-net">
-      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
@@ -129,9 +126,9 @@
     <Compile Include="Payment\HttpEncoder.cs" />
     <Compile Include="Payment\PaymentACK.cs" />
     <Compile Include="Payment\PaymentRequest.cs" />
-    <Compile Include="Payment\Proto.cs" />
     <Compile Include="Payment\UriHelper.cs" />
     <Compile Include="Payment\HttpUtility.cs" />
+    <Compile Include="Protobuf\ProtobufReaderWriter.cs" />
     <Compile Include="Protocol\AddressManager.cs" />
     <Compile Include="Protocol\Behaviors\AddressManagerBehavior.cs" />
     <Compile Include="Protocol\Behaviors\BroadcastTransactionBehavior.cs" />

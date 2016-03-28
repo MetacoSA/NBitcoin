@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NBitcoin.Payment
@@ -17,7 +18,14 @@ namespace NBitcoin.Payment
 
 			public bool VerifySignature(byte[] certificate, byte[] hash, string hashOID, byte[] signature)
 			{
-				return ((RSACryptoServiceProvider)new X509Certificate2(certificate).PublicKey.Key).VerifyHash(hash, hashOID, signature);
+				try
+				{
+					return ((RSACryptoServiceProvider)new X509Certificate2(certificate).PublicKey.Key).VerifyHash(hash, hashOID, signature);
+				}
+				catch(CryptographicException)
+				{
+					return false;
+				}
 			}
 
 			#endregion
@@ -72,6 +80,25 @@ namespace NBitcoin.Payment
 			}
 
 			#endregion
+		}
+
+
+		/// <summary>
+		/// Get the certificate name from the certificate subject
+		/// </summary>
+		public static string GetCertificateName(X509Certificate2 cert)
+		{
+			if(cert == null)
+				return null;
+			if(!string.IsNullOrEmpty(cert.FriendlyName))
+				return cert.FriendlyName;
+			else
+			{
+				var match = Regex.Match(cert.Subject, "^(CN=)?(?<Name>[^,]*)", RegexOptions.IgnoreCase);
+				if(!match.Success)
+					return cert.Subject;
+				return match.Groups["Name"].Value.Trim();
+			}
 		}
 
 		readonly X509VerificationFlags _VerificationFlags;

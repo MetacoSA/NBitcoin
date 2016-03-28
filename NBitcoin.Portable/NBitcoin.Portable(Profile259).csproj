@@ -25,7 +25,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Profile259\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT;NOSOCKET;NOPROTOBUF;NOTRACESOURCE;NOFILEIO;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOHTTPCLIENT;NOCONSENSUSLIB</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT;NOSOCKET;NOTRACESOURCE;NOFILEIO;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOHTTPCLIENT;NOCONSENSUSLIB</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -35,7 +35,7 @@
     <Optimize>true</Optimize>
     <OutputPath>bin\Profile259\Release</OutputPath>
     <DocumentationFile>bin\Profile259\Debug\NBitcoin.XML</DocumentationFile>
-    <DefineConstants>TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT;NOSOCKET;NOPROTOBUF;NOTRACESOURCE;NOFILEIO;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOHTTPCLIENT;NOCONSENSUSLIB</DefineConstants>
+    <DefineConstants>TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT;NOSOCKET;NOTRACESOURCE;NOFILEIO;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOHTTPCLIENT;NOCONSENSUSLIB</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
