@@ -133,7 +133,7 @@ namespace NBitcoin.Payment
 				var result = await httpClient.SendAsync(req).ConfigureAwait(false);
 				if(!result.IsSuccessStatusCode)
 					throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
-				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentRequest.MediaType, StringComparison.InvariantCultureIgnoreCase))
+				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentRequest.MediaType, StringComparison.OrdinalIgnoreCase))
 				{
 					throw new WebException("Invalid contenttype received, expecting " + PaymentRequest.MediaType + ", but got " + result.Content.Headers.ContentType);
 				}

@@ -269,7 +269,7 @@ namespace NBitcoin.Payment
 				if(!result.IsSuccessStatusCode)
 					throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
 
-				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentACK.MediaType, StringComparison.InvariantCultureIgnoreCase))
+				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentACK.MediaType, StringComparison.OrdinalIgnoreCase))
 				{
 					throw new WebException("Invalid contenttype received, expecting " + PaymentACK.MediaType + ", but got " + result.Content.Headers.ContentType);
 				}
