@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-#if !PORTABLE
+#if !NOHTTPCLIENT
 using System.Net.Http;
 #endif
 using System.Text;
