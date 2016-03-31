@@ -413,19 +413,18 @@ namespace NBitcoin
 			consensus.MajorityWindow = 10;
 			consensus.BIP34Height = -1;
 			consensus.BIP34Hash = uint256.Zero;
-			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-			consensus.SegWitHeight = 0;
+			consensus.PowLimit = new Target(new uint256("000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = true;
 			consensus.PowNoRetargeting = false;
 
-			magic = 0xcaea962e;
+			magic = 0xc4a1abdc;
 			vAlertPubKey = Encoders.Hex.DecodeData("0300000000000000000000003b78ce563f89a0ed9414f5aa28ad0d96d6795f9c63");
-			nDefaultPort = 28333;
-			nRPCPort = 28332;
+			nDefaultPort = 28901;
+			nRPCPort = 28902;
 
-			genesis = CreateGenesisBlock(1452831101, 0, 0x1d00ffff, 1, Money.Coins(50m));
+			genesis = CreateGenesisBlock(1452831101, 0, consensus.PowLimit.ToCompact(), 1, Money.Coins(50m));
 			consensus.HashGenesisBlock = genesis.GetHash();
 
 			vFixedSeeds.Clear();
@@ -434,7 +433,7 @@ namespace NBitcoin
 			// Convert the pnSeeds array into usable address objects.
 			Random rand = new Random();
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);
-			var pnSeed = new[] { "104.243.38.34", "104.155.1.158", "119.246.245.241", "46.101.235.82" };
+			var pnSeed = new[] { "37.34.48.17" };
 			for(int i = 0 ; i < pnSeed.Length ; i++)
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
