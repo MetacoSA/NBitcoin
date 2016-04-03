@@ -1000,7 +1000,7 @@ namespace NBitcoin.Tests
 		{
 			return RandomCoin(amount, receiver.PubKey.GetAddress(Network.Main));
 		}
-		private Coin RandomCoin(Money amount, BitcoinAddress receiver)
+		private Coin RandomCoin(Money amount, IDestination receiver)
 		{
 			var outpoint = RandOutpoint();
 			return new Coin(outpoint, new TxOut(amount, receiver));
@@ -1790,6 +1790,345 @@ namespace NBitcoin.Tests
 			return new ECDSASignature(new BouncyCastle.Math.BigInteger(1, sig.R.ToByteArray()), new BouncyCastle.Math.BigInteger(1, sig.S.ToByteArray()));
 		}
 
+		public enum HashModification
+		{
+			NoModification,
+			Modification,
+			Invalid
+		}
+
+		[Fact]
+		public void CheckWitnessSize()
+		{			
+			//var scriptPubKey = new Script(OpcodeType.OP_TRUE);
+			//ICoin coin1 = new Coin(
+			//					new uint256("0000000000000000000000000000000000000000000000000000000000000100"), 0,
+			//					Money.Satoshis(1000), scriptPubKey.WitHash.ScriptPubKey);
+			//coin1 = new WitScriptCoin(coin1, scriptPubKey);
+			//Transaction tx = new Transaction();
+			//tx.Inputs.Add(new TxIn(coin1.Outpoint));
+			//while(tx.Inputs[0].ScriptSig.Length != 9500)
+			//{
+			//	tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(new byte[500 - 3]);
+			//}
+			//tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(new byte[500 - 1]);
+			//tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(scriptPubKey.ToBytes());
+
+			//tx.Inputs[0].WitScript = tx.Inputs[0].ScriptSig;
+			//tx.Inputs[0].ScriptSig = Script.Empty;
+
+			//ScriptError error;
+			//Assert.True(tx.Inputs.AsIndexedInputs().First().VerifyScript(coin1, ScriptVerify.Standard & ~ScriptVerify.CleanStack, out error));			
+
+			var scriptPubKey = new Script(OpcodeType.OP_DROP, OpcodeType.OP_TRUE);
+			ICoin coin1 = new Coin(
+								new uint256("0000000000000000000000000000000000000000000000000000000000000100"), 0,
+								Money.Satoshis(1000), scriptPubKey.WitHash.ScriptPubKey);
+			coin1 = new WitScriptCoin(coin1, scriptPubKey);
+			Transaction tx = new Transaction();
+			tx.Inputs.Add(new TxIn(coin1.Outpoint));
+			tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(new byte[520]);
+			tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(scriptPubKey.ToBytes());
+			tx.Inputs[0].WitScript = tx.Inputs[0].ScriptSig;
+			tx.Inputs[0].ScriptSig = Script.Empty;
+			tx.Outputs.Add(new TxOut(Money.Zero, new Script(OpcodeType.OP_TRUE)));
+			ScriptError error;
+			Assert.True(tx.Inputs.AsIndexedInputs().First().VerifyScript(coin1, ScriptVerify.Standard, out error));
+			
+			tx = new Transaction();
+			tx.Inputs.Add(new TxIn(coin1.Outpoint));
+			tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(new byte[521]);
+			tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(scriptPubKey.ToBytes());
+			tx.Inputs[0].WitScript = tx.Inputs[0].ScriptSig;
+			tx.Inputs[0].ScriptSig = Script.Empty;
+			tx.Outputs.Add(new TxOut(Money.Zero, new Script(OpcodeType.OP_TRUE)));
+			Assert.False(tx.Inputs.AsIndexedInputs().First().VerifyScript(coin1, ScriptVerify.Standard, out error));
+			Assert.True(error == ScriptError.PushSize);
+		}
+
+		[Fact]
+		public void TestSigHashes()
+		{
+			BitcoinSecret secret = new BitcoinSecret("L5AQtV2HDm4xGsseLokK2VAT2EtYKcTm3c7HwqnJBFt9LdaQULsM");
+			var key = secret.PrivateKey;
+			StringBuilder output = new StringBuilder();
+			foreach(var segwit in new[] { false, true })
+			{
+				foreach(var flag in new[] { SigHash.Single, SigHash.None, SigHash.All })
+				{
+					foreach(var anyoneCanPay in new[] { true, false })
+					{
+						List<string> invalidChanges = new List<string>();
+						var actualFlag = anyoneCanPay ? flag | SigHash.AnyoneCanPay : flag;
+						List<TransactionSignature> signatures = new List<TransactionSignature>();
+						List<Transaction> transactions = new List<Transaction>();
+						foreach(var modification in new[] { HashModification.NoModification, HashModification.Modification, HashModification.Invalid })
+						{
+							List<Coin> knownCoins = new List<Coin>();
+
+							Coin coin1 = new Coin(
+								new uint256("0000000000000000000000000000000000000000000000000000000000000100"), 0,
+								Money.Satoshis(1000), new Script(OpcodeType.OP_TRUE));
+							var signedCoin = new Coin(
+								new uint256("0000000000000000000000000000000000000000000000000000000000000100"), 1,
+								Money.Satoshis(2000), segwit ? key.PubKey.WitHash.ScriptPubKey : key.PubKey.Hash.ScriptPubKey);
+							Coin coin2 = new Coin(
+								new uint256("0000000000000000000000000000000000000000000000000000000000000100"), 2,
+								Money.Satoshis(3000), new Script(OpcodeType.OP_TRUE));
+							knownCoins.AddRange(new[] { coin1, signedCoin, coin2 });
+							Coin coin4 = new Coin(
+								new uint256("0000000000000000000000000000000000000000000000000000000000000100"), 3,
+								Money.Satoshis(4000), new Script(OpcodeType.OP_TRUE));
+
+							Transaction txx = new Transaction();
+							if(anyoneCanPay && modification == HashModification.Modification)
+							{
+								if(flag != SigHash.Single)
+								{
+									txx.Inputs.Add(new TxIn(coin2.Outpoint));
+									txx.Inputs.Add(new TxIn(coin1.Outpoint));
+									txx.Inputs.Add(new TxIn(signedCoin.Outpoint));
+								}
+								else
+								{
+									txx.Inputs.Add(new TxIn(coin2.Outpoint));
+									txx.Inputs.Add(new TxIn(signedCoin.Outpoint));
+									txx.Inputs.Add(new TxIn(coin1.Outpoint));
+								}
+								txx.Inputs.Add(new TxIn(coin4.Outpoint));
+								knownCoins.Add(coin4);
+							}
+							else if(!anyoneCanPay && modification == HashModification.Invalid)
+							{
+								txx.Inputs.Add(new TxIn(coin1.Outpoint));
+								txx.Inputs.Add(new TxIn(signedCoin.Outpoint));
+								txx.Inputs.Add(new TxIn(coin4.Outpoint));
+								knownCoins.Remove(coin2);
+								knownCoins.Add(coin4);
+								invalidChanges.Add("third input replaced");
+							}
+							else
+							{
+								txx.Inputs.Add(new TxIn(coin1.Outpoint));
+								txx.Inputs.Add(new TxIn(signedCoin.Outpoint));
+								txx.Inputs.Add(new TxIn(coin2.Outpoint));
+							}
+
+							if(flag == SigHash.All)
+							{
+								txx.Outputs.Add(new TxOut(coin1.Amount, new Script(OpcodeType.OP_TRUE)));
+								txx.Outputs.Add(new TxOut(signedCoin.Amount, new Script(OpcodeType.OP_TRUE)));
+								txx.Outputs.Add(new TxOut(coin2.Amount, new Script(OpcodeType.OP_TRUE)));
+								if(modification == HashModification.Invalid)
+								{
+									txx.Outputs[2].Value = coin2.Amount - Money.Satoshis(100);
+									invalidChanges.Add("third output value changed");
+								}
+							}
+							else if(flag == SigHash.None)
+							{
+								if(modification == HashModification.Modification)
+								{
+									Money bump = Money.Satoshis(50);
+									txx.Outputs.Add(new TxOut(coin1.Amount - bump, new Script(OpcodeType.OP_TRUE)));
+									txx.Outputs.Add(new TxOut(signedCoin.Amount - bump, new Script(OpcodeType.OP_TRUE)));
+									txx.Outputs.Add(new TxOut(coin2.Amount - bump, new Script(OpcodeType.OP_FALSE)));
+									txx.Outputs.Add(new TxOut(3 * bump, new Script(OpcodeType.OP_TRUE)));
+								}
+								else if(modification == HashModification.NoModification)
+								{
+									txx.Outputs.Add(new TxOut(coin1.Amount, new Script(OpcodeType.OP_TRUE)));
+									txx.Outputs.Add(new TxOut(signedCoin.Amount, new Script(OpcodeType.OP_TRUE)));
+									txx.Outputs.Add(new TxOut(coin2.Amount, new Script(OpcodeType.OP_TRUE)));
+								}
+								else if(modification == HashModification.Invalid)
+								{
+									var input = txx.Inputs.FirstOrDefault(i => i.PrevOut == signedCoin.Outpoint);
+									input.Sequence = 1;
+									invalidChanges.Add("input sequence changed");
+								}
+							}
+							else if(flag == SigHash.Single)
+							{
+								var index = txx.Inputs.Select((txin, i) => txin.PrevOut == signedCoin.Outpoint ? i : -1).Where(ii => ii != -1).FirstOrDefault();
+								foreach(var coin in knownCoins)
+								{
+									txx.Outputs.Add(new TxOut(coin.Amount, new Script(OpcodeType.OP_TRUE)));
+								}
+
+								if(modification == HashModification.Modification)
+								{
+									var signed = txx.Outputs[index];
+									var outputs = txx.Outputs.ToArray();
+									Utils.Shuffle(outputs, 50);
+									int newIndex = Array.IndexOf(outputs, signed);
+									if(newIndex == index)
+										throw new InvalidOperationException();
+									var temp = outputs[index];
+									outputs[index] = signed;
+									outputs[newIndex] = temp;
+									txx.Outputs.Clear();
+									txx.Outputs.AddRange(outputs);
+									Money bumps = Money.Zero;
+									for(int i = 0 ; i < txx.Outputs.Count ; i++)
+									{
+										if(i != index)
+										{
+											var bump = Money.Satoshis(100);
+											bumps += bump;
+											txx.Outputs[i].Value -= bump;
+										}
+									}
+									txx.Outputs.Add(new TxOut(bumps, new Script(OpcodeType.OP_TRUE)));
+								}
+								else if(modification == HashModification.Invalid)
+								{
+									txx.Outputs[index].Value -= Money.Satoshis(100);
+									invalidChanges.Add("same index output value changed");
+								}
+							}
+
+							if(anyoneCanPay & modification == HashModification.Modification)
+							{
+								foreach(var coin in knownCoins)
+								{
+									if(coin != signedCoin)
+										coin.Amount += Money.Satoshis(100);
+								}
+							}
+
+							TransactionBuilder builder = new TransactionBuilder();
+							builder.SetTransactionPolicy(new StandardTransactionPolicy()
+							{
+								CheckFee = false,
+								CheckScriptPubKey = false,
+								MinRelayTxFee = null
+							});
+							builder.AddKeys(secret);
+							builder.AddCoins(knownCoins);
+
+							var result = builder.SignTransaction(txx, actualFlag);
+							Assert.True(builder.Verify(result));
+
+							if(flag == SigHash.None)
+							{
+								var clone = result.Clone();
+								foreach(var input in clone.Inputs)
+								{
+									if(input.PrevOut != signedCoin.Outpoint)
+										input.Sequence = 2;
+								}
+								Assert.True(builder.Verify(clone));
+								var signedClone = clone.Inputs.FirstOrDefault(ii => ii.PrevOut == signedCoin.Outpoint);
+								signedClone.Sequence = 2;
+								Assert.False(builder.Verify(clone));
+							}
+
+							var signedInput = result.Inputs.FirstOrDefault(txin => txin.PrevOut == signedCoin.Outpoint);
+							var sig = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(signedInput.WitScript == WitScript.Empty ? signedInput.ScriptSig : signedInput.WitScript.ToScript()).TransactionSignature;
+							if(modification != HashModification.Invalid)
+							{
+								signatures.Add(sig);
+								if(actualFlag != SigHash.All)
+									Assert.True(transactions.All(s => s.GetHash() != result.GetHash()));
+								transactions.Add(result);
+								Assert.True(signatures.All(s => s.ToBytes().SequenceEqual(sig.ToBytes())));
+							}
+							else
+							{
+								Assert.True(signatures.Any(s => !s.ToBytes().SequenceEqual(sig.ToBytes())));
+								var noModifSignature = signatures[0];
+								var replacement = PayToPubkeyHashTemplate.Instance.GenerateScriptSig(noModifSignature, secret.PubKey);
+								if(signedInput.WitScript != WitScript.Empty)
+								{
+									signedInput.WitScript = replacement;
+								}
+								else
+								{
+									signedInput.ScriptSig = replacement;
+								}
+								TransactionPolicyError[] errors;
+								Assert.False(builder.Verify(result, out errors));
+								Assert.Equal(1, errors.Length);
+								var scriptError = (ScriptPolicyError)errors[0];
+								Assert.True(scriptError.ScriptError == ScriptError.EvalFalse);
+							}
+
+							if(segwit && actualFlag != SigHash.All && modification == HashModification.Invalid)
+							{
+								output.Append("[\"Witness with SigHash " + ToString(anyoneCanPay, flag));
+								if(transactions.Count == 2 && modification != HashModification.Invalid)
+								{
+									output.Append(" (same signature as previous)");
+								}
+								else if(transactions.Count == 2 && modification == HashModification.Invalid)
+								{
+									var changes = String.Join(", ", invalidChanges);
+									output.Append(" (" + changes + ")");
+								}
+
+								output.Append("\"],");
+								output.AppendLine();
+								output.Append("[[");
+
+								List<string> coinParts = new List<string>();
+								List<String> parts = new List<string>();
+								foreach(var coin in knownCoins)
+								{
+									StringBuilder coinOutput = new StringBuilder();
+									coinOutput.Append("[\"");
+									coinOutput.Append(coin.Outpoint.Hash);
+									coinOutput.Append("\", ");
+									coinOutput.Append(coin.Outpoint.N);
+									coinOutput.Append(", \"");
+									var script = coin.ScriptPubKey.ToString();
+									var words = script.Split(' ');
+									List<string> scriptParts = new List<string>();
+									foreach(var word in words)
+									{
+										StringBuilder scriptOutput = new StringBuilder();
+										if(word.StartsWith("OP_"))
+											scriptOutput.Append(word.Substring(3, word.Length - 3));
+										else if(word == "0")
+											scriptOutput.Append("0x00");
+										else if(word == "1")
+											scriptOutput.Append("0x51");
+										else
+										{
+											var size = word.Length / 2;
+											scriptOutput.Append("0x" + size.ToString("x2"));
+											scriptOutput.Append(" ");
+											scriptOutput.Append("0x" + word);
+										}
+										scriptParts.Add(scriptOutput.ToString());
+									}
+									coinOutput.Append(String.Join(" ", scriptParts));
+									coinOutput.Append("\", ");
+									coinOutput.Append(coin.Amount.Satoshi);
+									coinOutput.Append("]");
+									coinParts.Add(coinOutput.ToString());
+								}
+								output.Append(String.Join(",\n", coinParts));
+								output.Append("],\n\"");
+								output.Append(result.ToHex());
+								output.Append("\", \"P2SH,WITNESS\"],\n\n");
+							}
+						}
+					}
+				}
+			}
+		}
+
+		private string ToString(bool anyoneCanPay, SigHash flag)
+		{
+			if(anyoneCanPay)
+			{
+				return flag.ToString() + "|AnyoneCanPay";
+			}
+			else
+				return flag.ToString();
+		}
+
 		[Fact]
 		[Trait("Core", "Core")]
 		public void tx_valid()
@@ -1814,9 +2153,13 @@ namespace NBitcoin.Tests
 				}
 
 				Dictionary<OutPoint, Script> mapprevOutScriptPubKeys = new Dictionary<OutPoint, Script>();
+				Dictionary<OutPoint, Money> mapprevOutScriptPubKeysAmount = new Dictionary<OutPoint, Money>();
 				foreach(var vinput in inputs)
 				{
-					mapprevOutScriptPubKeys[new OutPoint(uint256.Parse(vinput[0].ToString()), int.Parse(vinput[1].ToString()))] = script_tests.ParseScript(vinput[2].ToString());
+					var outpoint = new OutPoint(uint256.Parse(vinput[0].ToString()), int.Parse(vinput[1].ToString()));
+					mapprevOutScriptPubKeys[outpoint] = script_tests.ParseScript(vinput[2].ToString());
+					if(vinput.Count() >= 4)
+						mapprevOutScriptPubKeysAmount[outpoint] = Money.Satoshis(vinput[3].Value<int>());
 				}
 
 				Transaction tx = Transaction.Parse((string)test[1]);
@@ -1837,7 +2180,7 @@ namespace NBitcoin.Tests
 						mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
 						tx,
 						i,
-						null,
+						mapprevOutScriptPubKeysAmount.TryGet(tx.Inputs[i].PrevOut),
 						ParseFlags(test[2].ToString())
 						, 0);
 					Assert.True(valid, strTest + " failed");
@@ -1863,6 +2206,8 @@ namespace NBitcoin.Tests
 				mapFlagNames["CHECKLOCKTIMEVERIFY"] = ScriptVerify.CheckLockTimeVerify;
 				mapFlagNames["CHECKSEQUENCEVERIFY"] = ScriptVerify.CheckSequenceVerify;
 				mapFlagNames["DERSIG"] = ScriptVerify.DerSig;
+				mapFlagNames["WITNESS"] = ScriptVerify.Witness;
+				mapFlagNames["DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM"] = ScriptVerify.DiscourageUpgradableWitnessProgram;
 			}
 
 			foreach(string word in words)
@@ -1873,13 +2218,6 @@ namespace NBitcoin.Tests
 			}
 
 			return flags;
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CheckSequenceLocksAreCorrect()
-		{
-			//CheckSequenceLocksAreCorrectCore(new Sequence(f));
 		}
 
 		[Fact]
@@ -1937,11 +2275,14 @@ namespace NBitcoin.Tests
 					Assert.False(true, "Bad test: " + strTest);
 					continue;
 				}
-
 				Dictionary<OutPoint, Script> mapprevOutScriptPubKeys = new Dictionary<OutPoint, Script>();
+				Dictionary<OutPoint, Money> mapprevOutScriptPubKeysAmount = new Dictionary<OutPoint, Money>();
 				foreach(var vinput in inputs)
 				{
+					var outpoint = new OutPoint(uint256.Parse(vinput[0].ToString()), int.Parse(vinput[1].ToString()));
 					mapprevOutScriptPubKeys[new OutPoint(uint256.Parse(vinput[0].ToString()), int.Parse(vinput[1].ToString()))] = script_tests.ParseScript(vinput[2].ToString());
+					if(vinput.Count() >= 4)
+						mapprevOutScriptPubKeysAmount[outpoint] = Money.Satoshis(vinput[3].Value<int>());
 				}
 
 				Transaction tx = Transaction.Parse((string)test[1]);
@@ -1961,7 +2302,7 @@ namespace NBitcoin.Tests
 					   mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
 					   tx,
 					   i,
-					   null,
+					   mapprevOutScriptPubKeysAmount.TryGet(tx.Inputs[i].PrevOut),
 					   ParseFlags(test[2].ToString())
 					   , 0);
 				}

@@ -493,6 +493,7 @@ namespace NBitcoin
 			Extensions.Add(new P2PKHBuilderExtension());
 			Extensions.Add(new P2MultiSigBuilderExtension());
 			Extensions.Add(new P2PKBuilderExtension());
+			Extensions.Add(new OPTrueExtension());
 		}
 
 		internal Random _Rand;

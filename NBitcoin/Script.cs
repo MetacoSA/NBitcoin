@@ -82,6 +82,12 @@ namespace NBitcoin
 		// See BIP68 for details.
 		CheckSequenceVerify = (1U << 10),
 
+		// Support segregated witness
+		Witness = (1U << 11),
+
+		// Making v2-v16 witness program non-standard
+		DiscourageUpgradableWitnessProgram = (1U << 12),
+
 		/**
  * Mandatory script verification flags that all new blocks must comply with for
  * them to be valid. (but old blocks may not comply with) Currently just P2SH,
@@ -96,16 +102,7 @@ namespace NBitcoin
  * Standard script verification flags that standard transactions will comply
  * with. However scripts violating these flags may still be present in valid
  * blocks and we must accept those blocks.
- */
-
-		// Support segregated witness
-		//
-		Witness = (1U << 10),
-
-		// Making v2-v16 witness program non-standard
-		//
-		DiscourageUpgradableWitnessProgram = (1U << 11),
-
+ */		
 
 		Standard =
 			  Mandatory

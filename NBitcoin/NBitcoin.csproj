@@ -75,6 +75,7 @@
     <Compile Include="BitcoinCore\CachedBlockProvider.cs" />
     <Compile Include="BitWriter.cs" />
     <Compile Include="BuilderExtensions\BuilderExtension.cs" />
+    <Compile Include="BuilderExtensions\OPTrueExtension.cs" />
     <Compile Include="BuilderExtensions\P2MultiSigBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKHBuilderExtension.cs" />

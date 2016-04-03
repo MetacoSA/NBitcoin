@@ -93,6 +93,12 @@ namespace NBitcoin.Policy
 				}
 			}
 
+			foreach(var output in transaction.Outputs.AsCoins())
+			{				
+				if(output.Amount < Money.Zero)
+					errors.Add(new OutputPolicyError("Output value should not be less than zero", (int)output.Outpoint.N));
+			}
+
 			var fees = transaction.GetFee(spentCoins);
 			if(fees != null)
 			{

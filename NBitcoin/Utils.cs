@@ -488,6 +488,21 @@ namespace NBitcoin
 			return stringBuilder.ToString();
 		}
 
+		public static void Shuffle<T>(T[] arr, int seed)
+		{
+			Random rand = new Random(seed);
+			for(int i = 0 ; i < arr.Length ; i++)
+			{
+				var fromIndex = rand.Next(arr.Length);
+				var from = arr[fromIndex];
+
+				var toIndex = rand.Next(arr.Length);
+				var to = arr[toIndex];
+
+				arr[toIndex] = from;
+				arr[fromIndex] = to;
+			}
+		}
 		public static void Shuffle<T>(T[] arr)
 		{
 			Random rand = new Random();
