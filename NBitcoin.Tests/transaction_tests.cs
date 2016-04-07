@@ -1797,29 +1797,100 @@ namespace NBitcoin.Tests
 			Invalid
 		}
 
+		class Combinaison
+		{
+			public SigHash SigHash
+			{
+				get;
+				set;
+			}
+			public bool Segwit
+			{
+				get;
+				set;
+			}
+		}
+
+		IEnumerable<Combinaison> GetCombinaisons()
+		{
+			foreach(var sighash in new[] { SigHash.All, SigHash.Single, SigHash.None })
+			{
+				foreach(var anyoneCanPay in new[] { false, true })
+				{
+					foreach(var segwit in new[] { false, true })
+					{
+						yield return new Combinaison()
+						{
+							SigHash = anyoneCanPay ? sighash | SigHash.AnyoneCanPay : sighash,
+							Segwit = segwit
+						};
+					}
+				}
+			}
+		}
+
 		[Fact]
-		public void CheckWitnessSize()
-		{			
-			//var scriptPubKey = new Script(OpcodeType.OP_TRUE);
+		public void Play2()
+		{
+			BitcoinSecret secret = new BitcoinSecret("L5AQtV2HDm4xGsseLokK2VAT2EtYKcTm3c7HwqnJBFt9LdaQULsM");
+			var all = GetCombinaisons().ToArray();
+			while(true)
+			{
+				Utils.Shuffle(all);
+				if(((uint)all[0].SigHash & 0x1f) != (uint)SigHash.All)
+					break;
+			}
+			int i = 0;
+			Transaction tx = new Transaction();
+			List<ICoin> coins = new List<ICoin>();
+			foreach(var combinaison in all)
+			{
+				var scriptPubKey = combinaison.Segwit ? secret.PubKey.WitHash.ScriptPubKey : secret.PubKey.Hash.ScriptPubKey;
+				ICoin coin = new Coin(
+								new uint256("0000000000000000000000000000000000000000000000000000000000000100"), (uint)i,
+								Money.Satoshis(1000 + i), scriptPubKey);
+				tx.Inputs.Add(new TxIn(coin.Outpoint));
+				tx.AddOutput(new TxOut(Money.Satoshis(1000 + i), new Script(OpcodeType.OP_TRUE)));				
+				coins.Add(coin);
+				i++;
+			}
+
+			TransactionBuilder builder2 = new TransactionBuilder();
+			builder2.SetTransactionPolicy(new StandardTransactionPolicy()
+			{
+				CheckFee = false,
+				MinRelayTxFee = null,
+				CheckScriptPubKey = false
+			});
+			builder2.AddCoins(coins.ToArray());
+			builder2.AddKeys(secret);
+			builder2.SignTransactionInPlace(tx);
+			var verified = builder2.Verify(tx);
+
+			StringBuilder output = new StringBuilder();
+			output.Append("[\"Transaction mixing all SigHash and segwit and non segwit inputs");
+			
+			output.Append("\"],");
+			output.AppendLine();
+			WriteTest(output, coins.OfType<Coin>().ToList(), tx);
+
+
+			//var scriptPubKey = new Script(OpcodeType.OP_16, Op.GetPushOp(new byte[] { 0, 1 }));
 			//ICoin coin1 = new Coin(
 			//					new uint256("0000000000000000000000000000000000000000000000000000000000000100"), 0,
-			//					Money.Satoshis(1000), scriptPubKey.WitHash.ScriptPubKey);
-			//coin1 = new WitScriptCoin(coin1, scriptPubKey);
+			//					Money.Satoshis(1000), scriptPubKey);
 			//Transaction tx = new Transaction();
-			//tx.Inputs.Add(new TxIn(coin1.Outpoint));
-			//while(tx.Inputs[0].ScriptSig.Length != 9500)
+			//tx.Inputs.Add(new TxIn(coin1.Outpoint)
 			//{
-			//	tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(new byte[500 - 3]);
-			//}
-			//tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(new byte[500 - 1]);
-			//tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(scriptPubKey.ToBytes());
+			//	ScriptSig = new Script(OpcodeType.OP_1)
+			//});
+			//tx.Outputs.Add(new TxOut(Money.Zero, new Script(OpcodeType.OP_TRUE)));
+			//var verified = tx.Inputs.AsIndexedInputs().First().VerifyScript(coin1, ScriptVerify.P2SH | ScriptVerify.Witness);
+		}
 
-			//tx.Inputs[0].WitScript = tx.Inputs[0].ScriptSig;
-			//tx.Inputs[0].ScriptSig = Script.Empty;
-
-			//ScriptError error;
-			//Assert.True(tx.Inputs.AsIndexedInputs().First().VerifyScript(coin1, ScriptVerify.Standard & ~ScriptVerify.CleanStack, out error));			
-
+		[Fact]
+		public void CheckWitnessSize()
+		{
 			var scriptPubKey = new Script(OpcodeType.OP_DROP, OpcodeType.OP_TRUE);
 			ICoin coin1 = new Coin(
 								new uint256("0000000000000000000000000000000000000000000000000000000000000100"), 0,
@@ -1834,7 +1905,7 @@ namespace NBitcoin.Tests
 			tx.Outputs.Add(new TxOut(Money.Zero, new Script(OpcodeType.OP_TRUE)));
 			ScriptError error;
 			Assert.True(tx.Inputs.AsIndexedInputs().First().VerifyScript(coin1, ScriptVerify.Standard, out error));
-			
+
 			tx = new Transaction();
 			tx.Inputs.Add(new TxIn(coin1.Outpoint));
 			tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(new byte[521]);
@@ -2069,54 +2140,59 @@ namespace NBitcoin.Tests
 
 								output.Append("\"],");
 								output.AppendLine();
-								output.Append("[[");
-
-								List<string> coinParts = new List<string>();
-								List<String> parts = new List<string>();
-								foreach(var coin in knownCoins)
-								{
-									StringBuilder coinOutput = new StringBuilder();
-									coinOutput.Append("[\"");
-									coinOutput.Append(coin.Outpoint.Hash);
-									coinOutput.Append("\", ");
-									coinOutput.Append(coin.Outpoint.N);
-									coinOutput.Append(", \"");
-									var script = coin.ScriptPubKey.ToString();
-									var words = script.Split(' ');
-									List<string> scriptParts = new List<string>();
-									foreach(var word in words)
-									{
-										StringBuilder scriptOutput = new StringBuilder();
-										if(word.StartsWith("OP_"))
-											scriptOutput.Append(word.Substring(3, word.Length - 3));
-										else if(word == "0")
-											scriptOutput.Append("0x00");
-										else if(word == "1")
-											scriptOutput.Append("0x51");
-										else
-										{
-											var size = word.Length / 2;
-											scriptOutput.Append("0x" + size.ToString("x2"));
-											scriptOutput.Append(" ");
-											scriptOutput.Append("0x" + word);
-										}
-										scriptParts.Add(scriptOutput.ToString());
-									}
-									coinOutput.Append(String.Join(" ", scriptParts));
-									coinOutput.Append("\", ");
-									coinOutput.Append(coin.Amount.Satoshi);
-									coinOutput.Append("]");
-									coinParts.Add(coinOutput.ToString());
-								}
-								output.Append(String.Join(",\n", coinParts));
-								output.Append("],\n\"");
-								output.Append(result.ToHex());
-								output.Append("\", \"P2SH,WITNESS\"],\n\n");
+								WriteTest(output, knownCoins, result);
 							}
 						}
 					}
 				}
 			}
+		}
+
+		private static void WriteTest(StringBuilder output, List<Coin> knownCoins, Transaction result)
+		{
+			output.Append("[[");
+
+			List<string> coinParts = new List<string>();
+			List<String> parts = new List<string>();
+			foreach(var coin in knownCoins)
+			{
+				StringBuilder coinOutput = new StringBuilder();
+				coinOutput.Append("[\"");
+				coinOutput.Append(coin.Outpoint.Hash);
+				coinOutput.Append("\", ");
+				coinOutput.Append(coin.Outpoint.N);
+				coinOutput.Append(", \"");
+				var script = coin.ScriptPubKey.ToString();
+				var words = script.Split(' ');
+				List<string> scriptParts = new List<string>();
+				foreach(var word in words)
+				{
+					StringBuilder scriptOutput = new StringBuilder();
+					if(word.StartsWith("OP_"))
+						scriptOutput.Append(word.Substring(3, word.Length - 3));
+					else if(word == "0")
+						scriptOutput.Append("0x00");
+					else if(word == "1")
+						scriptOutput.Append("0x51");
+					else
+					{
+						var size = word.Length / 2;
+						scriptOutput.Append("0x" + size.ToString("x2"));
+						scriptOutput.Append(" ");
+						scriptOutput.Append("0x" + word);
+					}
+					scriptParts.Add(scriptOutput.ToString());
+				}
+				coinOutput.Append(String.Join(" ", scriptParts));
+				coinOutput.Append("\", ");
+				coinOutput.Append(coin.Amount.Satoshi);
+				coinOutput.Append("]");
+				coinParts.Add(coinOutput.ToString());
+			}
+			output.Append(String.Join(",\n", coinParts));
+			output.Append("],\n\"");
+			output.Append(result.ToHex());
+			output.Append("\", \"P2SH,WITNESS\"],\n\n");
 		}
 
 		private string ToString(bool anyoneCanPay, SigHash flag)
