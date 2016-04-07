@@ -34,14 +34,14 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Theory, PropertyData("DataSet")]
+		[Theory, MemberData("DataSet")]
 		public void ShouldEncodeProperly(string data, string encoded)
 		{
 			var testBytes = Encoders.Hex.DecodeData(data);
 			Assert.Equal(encoded, Encoders.Base58.EncodeData(testBytes));
 		}
 
-		[Theory, PropertyData("DataSet")]
+		[Theory, MemberData("DataSet")]
 		public void ShouldDecodeProperly(string data, string encoded)
 		{
 			var testBytes = Encoders.Base58.DecodeData(encoded);
@@ -52,7 +52,7 @@ namespace NBitcoin.Tests
 		public void ShouldThrowFormatExceptionOnInvalidBase58()
 		{
 			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData("invalid"));
-			Assert.DoesNotThrow(() => Encoders.Base58.DecodeData(" "));
+			Encoders.Base58.DecodeData(" ");
 
 			// check that DecodeBase58 skips whitespace, but still fails with unexpected non-whitespace at the end.
 			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData(" \t\n\v\f\r skip \r\f\v\n\t a"));
@@ -211,7 +211,7 @@ namespace NBitcoin.Tests
 		}
 
 		// Goal: check that base58 parsing code is robust against a variety of corrupted data
-		[Theory, PropertyData("InvalidKeys")]
+		[Theory, MemberData("InvalidKeys")]
 		public void base58_keys_invalid(string data)
 		{
 			// must be invalid as public and as private key
