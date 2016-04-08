@@ -278,6 +278,8 @@ namespace NBitcoin
 				if(name != "OP_UNKNOWN")
 					_OpcodeByName.Add(name, code);
 			}
+			_OpcodeByName.Add("OP_TRUE", OpcodeType.OP_1);
+			_OpcodeByName.Add("OP_FALSE", OpcodeType.OP_0);
 			_OpcodeByName.Add("OP_CHECKLOCKTIMEVERIFY", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
 			_OpcodeByName.Add("OP_HODL", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
 			_OpcodeByName.Add("OP_NOP2", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
@@ -562,6 +564,10 @@ namespace NBitcoin
 				if(isOpCode && opcode == OpcodeType.OP_0)
 					return GetPushOp(new byte[0]);
 				opname = opname.Replace("OP_", "");
+				if(opname.Equals("TRUE", StringComparison.OrdinalIgnoreCase))
+					opname = "1";
+				if(opname.Equals("FALSE", StringComparison.OrdinalIgnoreCase))
+					opname = "0";
 				return GetPushOp(Encoders.Hex.DecodeData(opname.Length == 1 ? "0" + opname : opname));
 			}
 			else if(opname.StartsWith(unknown))

@@ -200,8 +200,10 @@ namespace NBitcoin
 		public ColoredCoin(Transaction tx, ColoredEntry entry)
 			: this(entry.Asset, new Coin(tx, entry.Index))
 		{
-			if (tx == null) throw new ArgumentNullException("tx");
-			if (entry == null) throw new ArgumentNullException("entry");
+			if(tx == null)
+				throw new ArgumentNullException("tx");
+			if(entry == null)
+				throw new ArgumentNullException("entry");
 		}
 
 		public AssetId AssetId
@@ -341,7 +343,7 @@ namespace NBitcoin
 				return TxOut;
 			}
 		}
-		
+
 		public Script GetScriptCode()
 		{
 			return this.Bearer.GetScriptCode();
@@ -368,15 +370,18 @@ namespace NBitcoin
 
 		public Coin(Transaction fromTx, uint fromOutputIndex)
 		{
-			if (fromTx == null) throw new ArgumentNullException("fromTx");
+			if(fromTx == null)
+				throw new ArgumentNullException("fromTx");
 			Outpoint = new OutPoint(fromTx, fromOutputIndex);
 			TxOut = fromTx.Outputs[fromOutputIndex];
 		}
 
 		public Coin(Transaction fromTx, TxOut fromOutput)
 		{
-			if (fromTx == null) throw new ArgumentNullException("fromTx");
-			if (fromOutput == null) throw new ArgumentNullException("fromOutput");
+			if(fromTx == null)
+				throw new ArgumentNullException("fromTx");
+			if(fromOutput == null)
+				throw new ArgumentNullException("fromOutput");
 			uint outputIndex = (uint)fromTx.Outputs.FindIndex(r => Object.ReferenceEquals(fromOutput, r));
 			Outpoint = new OutPoint(fromTx, outputIndex);
 			TxOut = fromOutput;
@@ -413,7 +418,7 @@ namespace NBitcoin
 			if(redeemScript == null)
 				throw new ArgumentNullException("redeemScript");
 			var scriptCoin = this as ScriptCoin;
-			if (scriptCoin != null)
+			if(scriptCoin != null)
 				return scriptCoin;
 			return new ScriptCoin(this, redeemScript);
 		}
@@ -506,7 +511,7 @@ namespace NBitcoin
 			}
 		}
 
-		#endregion	
+		#endregion
 	}
 
 	public class ScriptCoin : Coin
@@ -625,6 +630,11 @@ namespace NBitcoin
 				P2SHRedeem = witRedeem.WitHash.ScriptPubKey;
 			WitRedeem = witRedeem;
 			AssertCoherent();
+		}
+
+		public WitScriptCoin(uint256 txId, uint outputIndex, Money value, Script scriptPubKey, Script witRedeem)
+			: this(new Coin(txId, outputIndex, value, scriptPubKey), witRedeem)
+		{
 		}
 
 		private void AssertCoherent()
