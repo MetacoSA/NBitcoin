@@ -922,20 +922,14 @@ namespace NBitcoin
 			if(scriptPubKey == null)
 				throw new ArgumentNullException("scriptPubKey");
 			var bytes = scriptPubKey.ToBytes(true);
-			if(bytes.Length < 2)
+			if(bytes.Length < 4 || bytes.Length > 34)
+			{
 				return false;
+			}
 			var version = bytes[0];
 			if(!ValidSegwitVersion(version))
 				return false;
-			var pushSize = bytes[1];
-			if(pushSize < 0x02)
-				return false;
-			if(pushSize <= 0x4b)
-				return (1 + 1 + pushSize) == bytes.Length;
-			var ops = scriptPubKey.ToOps().ToArray();
-			if(ops.Length != 2)
-				return false;
-			return ops.All(o => o.PushData != null);
+			return bytes[1] + 2 == bytes.Length;
 		}
 
 		public static bool ValidSegwitVersion(byte version)

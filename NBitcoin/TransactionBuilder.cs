@@ -886,7 +886,7 @@ namespace NBitcoin
 		public TransactionBuilder SendFeesSplit(Money fees)
 		{
 			if(fees == null)
-				throw new ArgumentNullException("fees");			
+				throw new ArgumentNullException("fees");
 			var lastGroup = CurrentGroup; //Make sure at least one group exists
 			var totalWeight = _BuilderGroups.Select(b => b.FeeWeight).Sum();
 			Money totalSent = Money.Zero;
@@ -1100,34 +1100,30 @@ namespace NBitcoin
 		public ICoin FindSignableCoin(IndexedTxIn txIn)
 		{
 			var coin = FindCoin(txIn.PrevOut);
-			if(coin == null || coin is WitScriptCoin)
-				return coin;
 			if(coin is IColoredCoin)
 				coin = ((IColoredCoin)coin).Bearer;
-			var scriptId = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.GetScriptCode());
-			if(scriptId != null && !(coin is ScriptCoin))
-			{
-				var redeem = _ScriptIdToRedeem.TryGet(scriptId);
-				if(redeem == null)
-				{
-					var parameters = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txIn.ScriptSig, scriptId);
-					if(parameters != null)
-						redeem = parameters.RedeemScript;
-				}
-				if(redeem != null)
-					coin = new ScriptCoin(coin, redeem);
-			}
+			if(coin == null || coin is ScriptCoin || coin is StealthCoin)
+				return coin;
 
-			var witScriptId = PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(coin.GetScriptCode());
-			if(witScriptId != null && !(coin is WitScriptCoin))
+			var hash = ScriptCoin.GetRedeemHash(coin.TxOut.ScriptPubKey);
+			if(hash != null)
 			{
-				var redeem = _ScriptIdToRedeem.TryGet(witScriptId);
+				var redeem = _ScriptPubKeyToRedeem.TryGet(coin.TxOut.ScriptPubKey);
+				if(redeem != null && PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(redeem))
+					redeem = _ScriptPubKeyToRedeem.TryGet(redeem);
 				if(redeem == null)
 				{
-					redeem = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(txIn.WitScript, witScriptId);
+					if(hash is WitScriptId)
+						redeem = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(txIn.WitScript, (WitScriptId)hash);
+					if(hash is ScriptId)
+					{
+						var parameters = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(txIn.ScriptSig, (ScriptId)hash);
+						if(parameters != null)
+							redeem = parameters.RedeemScript;
+					}
 				}
 				if(redeem != null)
-					coin = new WitScriptCoin(coin, redeem);
+					return new ScriptCoin(coin, redeem);
 			}
 			return coin;
 		}
@@ -1356,50 +1352,66 @@ namespace NBitcoin
 					throw new KeyNotFoundException("Scan key for decrypting StealthCoin not found");
 				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => FindKey(ctx, p.ScriptPubKey)).Where(p => p != null).ToArray();
 				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
+				var normalCoin = new Coin(coin.Outpoint,coin.TxOut);
+				if(stealthCoin.Redeem != null)
+					normalCoin = normalCoin.ToScriptCoin(stealthCoin.Redeem);
+				coin = normalCoin;
 			}
 			var scriptSig = CreateScriptSig(ctx, coin, txIn);
 			if(scriptSig == null)
 				return;
+			ScriptCoin scriptCoin = coin as ScriptCoin;
 
-			if(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey) && !Script.IsNullOrEmpty(txIn.ScriptSig))
-			{
-				RemoveRedeem(txIn);
-			}
+			Script signatures = null;
 			if(coin.GetHashVersion() == HashVersion.Witness)
 			{
-				txIn.ScriptSig = txIn.WitScript;
-				if(coin is WitScriptCoin)
+				signatures = txIn.WitScript;
+				if(scriptCoin != null)
 				{
-					RemoveRedeem(txIn);
+					if(scriptCoin.IsP2SH)
+						txIn.ScriptSig = Script.Empty;
+					if(scriptCoin.RedeemType == RedeemType.WitnessV0)
+						signatures = RemoveRedeem(signatures);
 				}
 			}
+			else
+			{
+				signatures = txIn.ScriptSig;
+				if(scriptCoin != null && scriptCoin.RedeemType == RedeemType.P2SH)
+					signatures = RemoveRedeem(signatures);
+			}
 
-			txIn.ScriptSig = CombineScriptSigs(coin, scriptSig, txIn.ScriptSig);
+
+			signatures = CombineScriptSigs(coin, scriptSig, signatures);
 
 			if(coin.GetHashVersion() == HashVersion.Witness)
 			{
-				txIn.WitScript = new WitScript(txIn.ScriptSig);
-				txIn.ScriptSig = Script.Empty;
-
-				var witCoin = coin as WitScriptCoin;
-				if(witCoin != null)
+				txIn.WitScript = signatures;
+				if(scriptCoin != null)
 				{
-					txIn.WitScript = txIn.WitScript + new WitScript(Op.GetPushOp(witCoin.WitRedeem.ToBytes(true)));
+					if(scriptCoin.IsP2SH)
+						txIn.ScriptSig = new Script(Op.GetPushOp(scriptCoin.GetP2SHRedeem().ToBytes(true)));
+					if(scriptCoin.RedeemType == RedeemType.WitnessV0)
+						txIn.WitScript = txIn.WitScript + new WitScript(Op.GetPushOp(scriptCoin.Redeem.ToBytes(true)));
 				}
 			}
-
-			var p2shRedeem = GetP2SHRedeem(coin);
-			if(p2shRedeem != null)
+			else
 			{
-				txIn.ScriptSig = input.ScriptSig + Op.GetPushOp(p2shRedeem.ToBytes(true));
+				txIn.ScriptSig = signatures;
+				if(scriptCoin != null && scriptCoin.RedeemType == RedeemType.P2SH)
+				{
+					txIn.ScriptSig = input.ScriptSig + Op.GetPushOp(scriptCoin.GetP2SHRedeem().ToBytes(true));
+				}
 			}
-
 		}
 
-		private static void RemoveRedeem(IndexedTxIn txIn)
+
+		private static Script RemoveRedeem(Script script)
 		{
-			var ops = txIn.ScriptSig.ToOps().ToArray();
-			txIn.ScriptSig = new Script(ops.Take(ops.Length - 1)); //Remove the redeem
+			if(script == Script.Empty)
+				return script;
+			var ops = script.ToOps().ToArray();
+			return new Script(ops.Take(ops.Length - 1));
 		}
 
 		private Script CombineScriptSigs(ICoin coin, Script a, Script b)
@@ -1419,19 +1431,6 @@ namespace NBitcoin
 			}
 			return a.Length > b.Length ? a : b; //Heurestic
 		}
-
-		private Script GetP2SHRedeem(ICoin coin)
-		{
-			if(coin is ScriptCoin)
-				return ((ScriptCoin)coin).Redeem;
-			var witCoin = coin as WitScriptCoin;
-			if(witCoin != null)
-				return witCoin.P2SHRedeem;
-			if(coin is StealthCoin)
-				return ((StealthCoin)coin).Redeem;
-			return null;
-		}
-
 
 		private Script CreateScriptSig(TransactionSigningContext ctx, ICoin coin, IndexedTxIn txIn)
 		{
@@ -1536,13 +1535,14 @@ namespace NBitcoin
 			return this;
 		}
 
-		Dictionary<TxDestination, Script> _ScriptIdToRedeem = new Dictionary<TxDestination, Script>();
+		Dictionary<Script, Script> _ScriptPubKeyToRedeem = new Dictionary<Script, Script>();
 		public TransactionBuilder AddKnownRedeems(params Script[] knownRedeems)
 		{
 			foreach(var redeem in knownRedeems)
 			{
-				_ScriptIdToRedeem.AddOrReplace(redeem.Hash, redeem);
-				_ScriptIdToRedeem.AddOrReplace(redeem.WitHash, redeem);
+				_ScriptPubKeyToRedeem.AddOrReplace(redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey, redeem); //Might be P2SH(PWSH)
+				_ScriptPubKeyToRedeem.AddOrReplace(redeem.Hash.ScriptPubKey, redeem); //Might be P2SH
+				_ScriptPubKeyToRedeem.AddOrReplace(redeem.WitHash.ScriptPubKey, redeem); //Might be PWSH
 			}
 			return this;
 		}

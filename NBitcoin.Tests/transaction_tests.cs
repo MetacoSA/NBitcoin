@@ -1053,7 +1053,7 @@ namespace NBitcoin.Tests
 			Key bob = new Key();
 			Transaction previousTx = null;
 			Coin previousCoin = null;
-			WitScriptCoin witnessCoin = null;
+			ScriptCoin witnessCoin = null;
 			TransactionBuilder builder = null;
 			Transaction signedTx = null;
 			ScriptCoin scriptCoin = null;
@@ -1077,7 +1077,7 @@ namespace NBitcoin.Tests
 			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.ScriptPubKey.WitHash));
 			previousCoin = previousTx.Outputs.AsCoins().First();
 
-			witnessCoin = new WitScriptCoin(previousCoin, alice.PubKey.ScriptPubKey);
+			witnessCoin = new ScriptCoin(previousCoin, alice.PubKey.ScriptPubKey);
 			builder = new TransactionBuilder();
 			builder.AddKeys(alice);
 			builder.AddCoins(witnessCoin);
@@ -1108,7 +1108,7 @@ namespace NBitcoin.Tests
 			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.ScriptPubKey.WitHash.ScriptPubKey.Hash));
 			previousCoin = previousTx.Outputs.AsCoins().First();
 
-			witnessCoin = new WitScriptCoin(previousCoin, alice.PubKey.ScriptPubKey);
+			witnessCoin = new ScriptCoin(previousCoin, alice.PubKey.ScriptPubKey);
 			builder = new TransactionBuilder();
 			builder.AddKeys(alice);
 			builder.AddCoins(witnessCoin);
@@ -1130,14 +1130,16 @@ namespace NBitcoin.Tests
 		{
 			var a = new Script("OP_DUP 033fbe0a2aa8dc28ee3b2e271e3fedc7568529ffa20df179b803bf9073c11b6a8b OP_CHECKSIG OP_IF OP_DROP 0382fdfb0a3898bc6504f63204e7d15a63be82a3b910b5b865690dc96d1249f98c OP_ELSE OP_CODESEPARATOR 033fbe0a2aa8dc28ee3b2e271e3fedc7568529ffa20df179b803bf9073c11b6a8b OP_ENDIF OP_CHECKSIG");
 			Assert.False(PayToWitTemplate.Instance.CheckScriptPubKey(a));
-			a = new Script("1 033fbe0a2aa8dc28ee3b2e271e3fedc7568529ffa20df179b803bf9073c11b6a8b");
+			a = new Script("1 033fbe0a2aa8dc28ee3b2e271e3fedc7568529ffa20df179b803bf9073c1");
 			Assert.True(PayToWitTemplate.Instance.CheckScriptPubKey(a));
 
-			foreach(int pushSize in new[] { 2, 10, 20, 30, 50, 100, 200 })
+			foreach(int pushSize in new[] { 2, 10, 20, 32})
 			{
 				a = new Script("1 " + String.Concat(Enumerable.Range(0, pushSize * 2).Select(_ => "0").ToArray()));
 				Assert.True(PayToWitTemplate.Instance.CheckScriptPubKey(a));
 			}
+			a = new Script("1 " + String.Concat(Enumerable.Range(0, 33 * 2).Select(_ => "0").ToArray()));
+			Assert.False(PayToWitTemplate.Instance.CheckScriptPubKey(a));
 		}
 
 		[Fact]
@@ -1209,7 +1211,7 @@ namespace NBitcoin.Tests
 					redeem
 				})
 			.Select((_, i) =>
-			new WitScriptCoin
+			new ScriptCoin
 				(
 				new OutPoint(Rand(), i),
 				new TxOut(new Money((i + 1) * Money.COIN), _.redeem.WitHash.ScriptPubKey.Hash),
@@ -1690,7 +1692,7 @@ namespace NBitcoin.Tests
 			Key bob = new Key();
 			Transaction tx = new Transaction();
 			tx.Outputs.Add(new TxOut(Money.Coins(1.0m), bob.PubKey.ScriptPubKey.WitHash));
-			WitScriptCoin coin = new WitScriptCoin(tx.Outputs.AsCoins().First(), bob.PubKey.ScriptPubKey);
+			ScriptCoin coin = new ScriptCoin(tx.Outputs.AsCoins().First(), bob.PubKey.ScriptPubKey);
 
 			Transaction spending = new Transaction();
 			spending.AddInput(tx, 0);
@@ -1850,7 +1852,7 @@ namespace NBitcoin.Tests
 								new uint256("0000000000000000000000000000000000000000000000000000000000000100"), (uint)i,
 								Money.Satoshis(1000 + i), scriptPubKey);
 				tx.Inputs.Add(new TxIn(coin.Outpoint));
-				tx.AddOutput(new TxOut(Money.Satoshis(1000 + i), new Script(OpcodeType.OP_TRUE)));				
+				tx.AddOutput(new TxOut(Money.Satoshis(1000 + i), new Script(OpcodeType.OP_TRUE)));
 				coins.Add(coin);
 				i++;
 			}
@@ -1869,7 +1871,7 @@ namespace NBitcoin.Tests
 
 			StringBuilder output = new StringBuilder();
 			output.Append("[\"Transaction mixing all SigHash and segwit and non segwit inputs");
-			
+
 			output.Append("\"],");
 			output.AppendLine();
 			WriteTest(output, coins.OfType<Coin>().ToList(), tx);
@@ -1889,13 +1891,50 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CheckScriptCoinIsCoherent()
+		{
+			Key key = new Key();
+			var c = RandomCoin(Money.Zero, key.PubKey.ScriptPubKey.Hash);
+
+			//P2SH
+			var scriptCoin = new ScriptCoin(c, key.PubKey.ScriptPubKey);
+			Assert.True(scriptCoin.RedeemType == RedeemType.P2SH);
+			Assert.True(scriptCoin.IsP2SH);
+			Assert.True(scriptCoin.GetHashVersion() == HashVersion.Original);
+
+			//P2SH(P2WPKH)
+			c.ScriptPubKey = key.PubKey.WitHash.ScriptPubKey.Hash.ScriptPubKey;
+			scriptCoin = new ScriptCoin(c, key.PubKey.WitHash.ScriptPubKey);
+			Assert.True(scriptCoin.RedeemType == RedeemType.P2SH);
+			Assert.True(scriptCoin.IsP2SH);
+			Assert.True(scriptCoin.GetHashVersion() == HashVersion.Witness);
+
+			//P2WSH
+			c.ScriptPubKey = key.PubKey.ScriptPubKey.WitHash.ScriptPubKey;
+			scriptCoin = new ScriptCoin(c, key.PubKey.ScriptPubKey);
+			Assert.True(scriptCoin.RedeemType == RedeemType.WitnessV0);
+			Assert.True(!scriptCoin.IsP2SH);
+			Assert.True(scriptCoin.GetHashVersion() == HashVersion.Witness);
+
+			//P2SH(P2WSH)
+			c.ScriptPubKey = key.PubKey.ScriptPubKey.WitHash.ScriptPubKey.Hash.ScriptPubKey;
+			scriptCoin = new ScriptCoin(c, key.PubKey.ScriptPubKey);
+			Assert.True(scriptCoin.RedeemType == RedeemType.WitnessV0);
+			Assert.True(scriptCoin.IsP2SH);
+			Assert.True(scriptCoin.GetHashVersion() == HashVersion.Witness);
+
+
+			Assert.Throws(typeof(ArgumentException), () => new ScriptCoin(c, key.PubKey.ScriptPubKey.WitHash.ScriptPubKey));
+		}
+
+		[Fact]
 		public void CheckWitnessSize()
 		{
 			var scriptPubKey = new Script(OpcodeType.OP_DROP, OpcodeType.OP_TRUE);
 			ICoin coin1 = new Coin(
 								new uint256("0000000000000000000000000000000000000000000000000000000000000100"), 0,
 								Money.Satoshis(1000), scriptPubKey.WitHash.ScriptPubKey);
-			coin1 = new WitScriptCoin(coin1, scriptPubKey);
+			coin1 = new ScriptCoin(coin1, scriptPubKey);
 			Transaction tx = new Transaction();
 			tx.Inputs.Add(new TxIn(coin1.Outpoint));
 			tx.Inputs[0].ScriptSig = tx.Inputs[0].ScriptSig + Op.GetPushOp(new byte[520]);
@@ -2174,6 +2213,8 @@ namespace NBitcoin.Tests
 						scriptOutput.Append("0x00");
 					else if(word == "1")
 						scriptOutput.Append("0x51");
+					else if(word == "16")
+						scriptOutput.Append("0x60");
 					else
 					{
 						var size = word.Length / 2;

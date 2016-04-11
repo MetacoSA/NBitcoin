@@ -422,15 +422,6 @@ namespace NBitcoin
 				return scriptCoin;
 			return new ScriptCoin(this, redeemScript);
 		}
-		public WitScriptCoin ToWitScriptCoin(Script witRedeemScript)
-		{
-			if(witRedeemScript == null)
-				throw new ArgumentNullException("witRedeemScript");
-			var scriptCoin = this as WitScriptCoin;
-			if(scriptCoin != null)
-				return scriptCoin;
-			return new WitScriptCoin(this, witRedeemScript);
-		}
 
 		public ColoredCoin ToColoredCoin(AssetId asset, ulong quantity)
 		{
@@ -514,6 +505,17 @@ namespace NBitcoin
 		#endregion
 	}
 
+
+	public enum RedeemType
+	{
+		P2SH,
+		WitnessV0
+	}
+
+
+	/// <summary>
+	/// Represent a coin which need a redeem script to be spent (P2SH or P2WSH)
+	/// </summary>
 	public class ScriptCoin : Coin
 	{
 		public ScriptCoin()
@@ -548,16 +550,70 @@ namespace NBitcoin
 			AssertCoherent();
 		}
 
+		public bool IsP2SH
+		{
+			get
+			{
+				return ScriptPubKey.ToBytes(true)[0] == (byte)OpcodeType.OP_HASH160;
+			}
+		}
+
+
+		public Script GetP2SHRedeem()
+		{
+			if(!IsP2SH)
+				return null;
+			var p2shRedeem = RedeemType == RedeemType.P2SH ? Redeem :
+							RedeemType == RedeemType.WitnessV0 ? Redeem.WitHash.ScriptPubKey :
+							null;
+			if(p2shRedeem == null)
+				throw new NotSupportedException("RedeemType not supported for getting the P2SH script, contact the library author");
+			return p2shRedeem;
+		}
+
+		public RedeemType RedeemType
+		{
+			get
+			{
+				return
+					Redeem.Hash.ScriptPubKey == TxOut.ScriptPubKey ?
+					RedeemType.P2SH :
+					RedeemType.WitnessV0;
+			}
+		}
+
 		private void AssertCoherent()
 		{
 			if(Redeem == null)
 				throw new ArgumentException("redeem cannot be null", "redeem");
-			var destination = TxOut.ScriptPubKey.GetDestination() as ScriptId;
-			if(destination == null)
-				throw new ArgumentException("the provided scriptPubKey is not P2SH");
-			if(destination.ScriptPubKey != Redeem.Hash.ScriptPubKey)
-				throw new ArgumentException("The redeem provided does not match the scriptPubKey of the coin");
+
+			var expectedDestination = GetRedeemHash(TxOut.ScriptPubKey);
+			if(expectedDestination == null)
+			{
+				throw new ArgumentException("the provided scriptPubKey is not P2SH or P2WSH");
+			}
+			if(expectedDestination is ScriptId)
+			{
+				if(PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(Redeem))
+				{
+					throw new ArgumentException("The redeem script provided must be the witness one, not the P2SH one");					
+				}
+
+				if(expectedDestination.ScriptPubKey != Redeem.Hash.ScriptPubKey)
+				{
+					if(Redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey != expectedDestination.ScriptPubKey)
+						throw new ArgumentException("The redeem provided does not match the scriptPubKey of the coin");
+				}
+			}
+			else if(expectedDestination is WitScriptId)
+			{
+				if(expectedDestination.ScriptPubKey != Redeem.WitHash.ScriptPubKey)
+					throw new ArgumentException("The redeem provided does not match the scriptPubKey of the coin");
+			}
+			else
+				throw new NotSupportedException("Not supported redeemed scriptPubkey");
 		}
+
 		public ScriptCoin(IndexedTxOut txOut, Script redeem)
 			: base(txOut)
 		{
@@ -565,8 +621,8 @@ namespace NBitcoin
 			AssertCoherent();
 		}
 
-		public ScriptCoin(uint256 txHash, uint outputIndex, Money amount, Script redeem)
-			: base(txHash, outputIndex, amount, redeem.Hash.ScriptPubKey)
+		public ScriptCoin(uint256 txHash, uint outputIndex, Money amount, Script scriptPubKey, Script redeem)
+			: base(txHash, outputIndex, amount, scriptPubKey)
 		{
 			Redeem = redeem;
 			AssertCoherent();
@@ -587,100 +643,24 @@ namespace NBitcoin
 		}
 		public override HashVersion GetHashVersion()
 		{
-			if(PayToWitTemplate.Instance.CheckScriptPubKey(Redeem))
-				return HashVersion.Witness;
-			return HashVersion.Original;
-		}
-	}
-
-	public class WitScriptCoin : Coin
-	{
-		public WitScriptCoin()
-		{
-
+			var isWitness = PayToWitTemplate.Instance.CheckScriptPubKey(ScriptPubKey) || 
+							PayToWitTemplate.Instance.CheckScriptPubKey(Redeem) ||
+							RedeemType == NBitcoin.RedeemType.WitnessV0;
+			return isWitness ? HashVersion.Witness : HashVersion.Original;
 		}
 
-		public WitScriptCoin(OutPoint fromOutpoint, TxOut fromTxOut, Script witRedeem)
-			: base(fromOutpoint, fromTxOut)
+		/// <summary>
+		/// Returns the hash contained in the scriptPubKey (P2SH or P2WSH)
+		/// </summary>
+		/// <param name="scriptPubKey">The scriptPubKey</param>
+		/// <returns>The hash of the scriptPubkey</returns>
+		public static TxDestination GetRedeemHash(Script scriptPubKey)
 		{
-			SetAll(fromTxOut.ScriptPubKey, witRedeem);
-		}
-
-		public WitScriptCoin(Transaction fromTx, uint fromOutputIndex, Script witRedeem)
-			: base(fromTx, fromOutputIndex)
-		{
-			SetAll(fromTx.Outputs[fromOutputIndex].ScriptPubKey, witRedeem);
-		}
-
-		public WitScriptCoin(Transaction fromTx, TxOut fromOutput, Script witRedeem)
-			: base(fromTx, fromOutput)
-		{
-			SetAll(fromOutput.ScriptPubKey, witRedeem);
-		}
-		public WitScriptCoin(ICoin coin, Script witRedeem)
-			: base(coin.Outpoint, coin.TxOut)
-		{
-			SetAll(coin.TxOut.ScriptPubKey, witRedeem);
-		}
-
-		private void SetAll(Script scriptPubKey, Script witRedeem)
-		{
-			var scriptId = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
-			if(scriptId != null)
-				P2SHRedeem = witRedeem.WitHash.ScriptPubKey;
-			WitRedeem = witRedeem;
-			AssertCoherent();
-		}
-
-		public WitScriptCoin(uint256 txId, uint outputIndex, Money value, Script scriptPubKey, Script witRedeem)
-			: this(new Coin(txId, outputIndex, value, scriptPubKey), witRedeem)
-		{
-		}
-
-		private void AssertCoherent()
-		{
-			if(P2SHRedeem != null)
-			{
-				if(P2SHRedeem.Hash.ScriptPubKey != TxOut.ScriptPubKey)
-				{
-					throw new ArgumentException("The P2SH scriptPubKey's hash does not match the witRedeem");
-				}
-				if(P2SHRedeem != WitRedeem.WitHash.ScriptPubKey)
-				{
-					throw new ArgumentException("The P2SH redeem does not match the witRedeem");
-				}
-			}
-			else
-			{
-				if(WitRedeem.WitHash.ScriptPubKey != TxOut.ScriptPubKey)
-					throw new ArgumentException("The P2WSH scriptPubKey's hash does not match the witRedeem");
-			}
-		}
-		public WitScriptCoin(IndexedTxOut txOut, Script witRedeem)
-			: base(txOut)
-		{
-			SetAll(txOut.TxOut.ScriptPubKey, witRedeem);
-		}
-
-		public Script P2SHRedeem
-		{
-			get;
-			private set;
-		}
-
-		public Script WitRedeem
-		{
-			get;
-			private set;
-		}
-
-		public override Script GetScriptCode()
-		{
-			return WitRedeem;
-		}
-		public override HashVersion GetHashVersion()
-		{
-			return HashVersion.Witness;
+			if(scriptPubKey == null)
+				throw new ArgumentNullException("scriptPubKey");
+			return PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) as TxDestination
+					??
+					PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
 		}
 	}
 
