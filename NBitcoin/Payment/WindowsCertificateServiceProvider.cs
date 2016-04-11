@@ -55,8 +55,15 @@ namespace NBitcoin.Payment
 			public WindowsChainChecker()
 			{
 				VerificationFlags = X509VerificationFlags.NoFlag;
+				RevocationMode = X509RevocationMode.Online;
 			}
 			public X509VerificationFlags VerificationFlags
+			{
+				get;
+				set;
+			}
+
+			public X509RevocationMode RevocationMode
 			{
 				get;
 				set;
@@ -74,6 +81,7 @@ namespace NBitcoin.Payment
 			{
 				chain = new X509Chain();
 				chain.ChainPolicy.VerificationFlags = VerificationFlags;
+				chain.ChainPolicy.RevocationMode = RevocationMode;
 				foreach(var additional in additionalCertificates)
 					chain.ChainPolicy.ExtraStore.Add(additional);
 				return chain.Build(certificate);
@@ -109,9 +117,19 @@ namespace NBitcoin.Payment
 				return _VerificationFlags;
 			}
 		}
-		public WindowsCertificateServiceProvider(X509VerificationFlags verificationFlags = X509VerificationFlags.NoFlag)
+		private readonly X509RevocationMode _RevocationMode;
+		public X509RevocationMode RevocationMode
+		{
+			get
+			{
+				return _RevocationMode;
+			}
+		}
+		public WindowsCertificateServiceProvider(X509VerificationFlags verificationFlags = X509VerificationFlags.NoFlag,
+												 X509RevocationMode revocationMode = X509RevocationMode.Online)
 		{
 			_VerificationFlags = verificationFlags;
+			_RevocationMode = revocationMode;
 		}
 		#region ICertificateServiceProvider Members
 
@@ -119,7 +137,8 @@ namespace NBitcoin.Payment
 		{
 			return new WindowsChainChecker()
 			{
-				VerificationFlags = _VerificationFlags
+				VerificationFlags = _VerificationFlags,
+				RevocationMode = _RevocationMode
 			};
 		}
 

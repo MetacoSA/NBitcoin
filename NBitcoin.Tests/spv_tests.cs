@@ -587,13 +587,13 @@ namespace NBitcoin.Tests
 				var broadcasting = wallet.BroadcastTransactionAsync(tx);
 				wallet.TransactionBroadcasted += (t) =>
 				{
-					evt.Set();
 					passed = true;
+					evt.Set();
 				};
 				wallet.TransactionRejected += (t, r) =>
 				{
-					evt.Set();
 					rejected = true;
+					evt.Set();
 				};
 				BroadcastHub hub = BroadcastHub.GetBroadcastHub(connected.NodeConnectionParameters);
 				BroadcastHubBehavior behavior = null;

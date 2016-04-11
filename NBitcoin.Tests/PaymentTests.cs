@@ -134,7 +134,7 @@ namespace NBitcoin.Tests
 			foreach(var provider in new ICertificateServiceProvider[] 
 			{ 
 #if WIN
-				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid)
+				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid, X509RevocationMode.NoCheck)
 #endif
 			})
 			{
