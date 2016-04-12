@@ -66,5 +66,5 @@ NBitcoin license is MIT and we encourage you to use it to explore, learn, debug,
 Please, use github issues for questions or feedback. For confidential requests or specific demands, contact us on [Metaco support](mailto:support@metaco.com "support@metaco.com").
 
 
-##Useful link :
-Visual studio express : [http://www.visualstudio.com/en-us/products/visual-studio-express-vs.aspx](http://www.visualstudio.com/en-us/products/visual-studio-express-vs.aspx "http://www.visualstudio.com/en-us/products/visual-studio-express-vs.aspx")
+##Useful link for a free IDE :
+Visual Studio Community Edition : [https://www.visualstudio.com/products/visual-studio-community-vs](https://www.visualstudio.com/products/visual-studio-community-vs "https://www.visualstudio.com/products/visual-studio-community-vs")
