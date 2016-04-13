@@ -65,12 +65,12 @@ namespace NBitcoin
 			if(tx.IsCoinBase)
 				return true; // Coinbases don't use vin normally
 
-			for(int i = 0 ; i < tx.Inputs.Count ; i++)
+			foreach(var input in tx.Inputs)
 			{
-				TxOut prev = coinsView.GetOutputFor(tx.Inputs[i]);
-				if(prev == null)
+				TxOut prev = coinsView.GetOutputFor(input);
+				if (prev == null)
 					return false;
-				if(!IsStandardScriptSig(tx.Inputs[i].ScriptSig, prev.ScriptPubKey))
+				if (!IsStandardScriptSig(input.ScriptSig, prev.ScriptPubKey))
 					return false;
 			}
 
