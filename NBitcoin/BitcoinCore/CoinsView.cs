@@ -87,19 +87,19 @@ namespace NBitcoin.BitcoinCore
 			if(!tx.IsCoinBase)
 			{
 				// first check whether information about the prevout hash is available
-				for(int i = 0 ; i < tx.Inputs.Count ; i++)
+				foreach (var input in tx.Inputs)
 				{
-					OutPoint prevout = tx.Inputs[i].PrevOut;
-					if(!HaveCoins(prevout.Hash))
+					OutPoint prevout = input.PrevOut;
+					if (!HaveCoins(prevout.Hash))
 						return false;
 				}
 
 				// then check whether the actual outputs are available
-				for(int i = 0 ; i < tx.Inputs.Count ; i++)
+				foreach (var input in tx.Inputs)
 				{
-					OutPoint prevout = tx.Inputs[i].PrevOut;
+					OutPoint prevout = input.PrevOut;
 					Coins coins = GetCoins(prevout.Hash);
-					if(!coins.IsAvailable(prevout.N))
+					if (!coins.IsAvailable(prevout.N))
 						return false;
 				}
 			}
