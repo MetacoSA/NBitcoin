@@ -150,7 +150,7 @@ namespace NBitcoin.BouncyCastle.Asn1.CryptoPro
          */
         public static IEnumerable Names
         {
-            get { return new EnumerableProxy(objIds.Keys); }
+            get { return new EnumerableProxy(names.Values); }
         }
 
         public static ECDomainParameters GetByName(

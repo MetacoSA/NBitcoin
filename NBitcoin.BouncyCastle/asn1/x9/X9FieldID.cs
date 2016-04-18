@@ -90,11 +90,19 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
             this.parameters = new DerSequence(fieldIdParams);
         }
 
-        internal X9FieldID(
-            Asn1Sequence seq)
+        private X9FieldID(Asn1Sequence seq)
         {
-            this.id = (DerObjectIdentifier) seq[0];
-            this.parameters = (Asn1Object) seq[1];
+            this.id = DerObjectIdentifier.GetInstance(seq[0]);
+            this.parameters = seq[1].ToAsn1Object();
+        }
+
+        public static X9FieldID GetInstance(object obj)
+        {
+            if (obj is X9FieldID)
+                return (X9FieldID)obj;
+            if (obj == null)
+                return null;
+            return new X9FieldID(Asn1Sequence.GetInstance(obj));
         }
 
         public DerObjectIdentifier Identifier

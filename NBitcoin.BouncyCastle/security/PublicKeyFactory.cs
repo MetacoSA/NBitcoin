@@ -44,7 +44,7 @@ namespace NBitcoin.BouncyCastle.Security
             SubjectPublicKeyInfo keyInfo)
         {
             AlgorithmIdentifier algID = keyInfo.AlgorithmID;
-            DerObjectIdentifier algOid = algID.ObjectID;
+            DerObjectIdentifier algOid = algID.Algorithm;
 
             // TODO See RSAUtil.isRsaOid in Java build
             if (algOid.Equals(PkcsObjectIdentifiers.RsaEncryption)

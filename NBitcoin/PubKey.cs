@@ -321,7 +321,7 @@ namespace NBitcoin
 			if(q.IsInfinity)
 				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
 
-			var p = new NBitcoin.BouncyCastle.Math.EC.FpPoint(ECKey.CURVE.Curve, q.X, q.Y, true);
+			var p = new NBitcoin.BouncyCastle.Math.EC.FpPoint(ECKey.CURVE.Curve, q.Normalize().XCoord, q.Normalize().YCoord, true);
 			return new PubKey(p.GetEncoded());
 		}
 

@@ -384,11 +384,11 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 
         /**
         * Applies the operation <code>&#964;()</code> to an
-        * <code>F2mPoint</code>. 
-        * @param p The F2mPoint to which <code>&#964;()</code> is applied.
+        * <code>AbstractF2mPoint</code>. 
+        * @param p The AbstractF2mPoint to which <code>&#964;()</code> is applied.
         * @return <code>&#964;(p)</code>
         */
-        public static F2mPoint Tau(F2mPoint p)
+        public static AbstractF2mPoint Tau(AbstractF2mPoint p)
         {
             return p.Tau();
         }
@@ -403,7 +403,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
         * @throws ArgumentException if the given ECCurve is not a Koblitz
         * curve.
         */
-        public static sbyte GetMu(F2mCurve curve)
+        public static sbyte GetMu(AbstractF2mCurve curve)
         {
             BigInteger a = curve.A.ToBigInteger();
 
@@ -421,6 +421,16 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
                 throw new ArgumentException("No Koblitz curve (ABC), TNAF multiplication not possible");
             }
             return mu;
+        }
+
+        public static sbyte GetMu(ECFieldElement curveA)
+        {
+            return (sbyte)(curveA.IsZero ? -1 : 1);
+        }
+
+        public static sbyte GetMu(int curveA)
+        {
+            return (sbyte)(curveA == 0 ? -1 : 1);
         }
 
         /**
@@ -526,53 +536,60 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
         * @throws ArgumentException if <code>curve</code> is not a
         * Koblitz curve (Anomalous Binary Curve, ABC).
         */
-        public static BigInteger[] GetSi(F2mCurve curve)
+        public static BigInteger[] GetSi(AbstractF2mCurve curve)
         {
             if (!curve.IsKoblitz)
                 throw new ArgumentException("si is defined for Koblitz curves only");
 
-            int m = curve.M;
+            int m = curve.FieldSize;
             int a = curve.A.ToBigInteger().IntValue;
-            sbyte mu = curve.GetMu();
-            int h = curve.Cofactor.IntValue;
+            sbyte mu = GetMu(a);
+            int shifts = GetShiftsForCofactor(curve.Cofactor);
             int index = m + 3 - a;
             BigInteger[] ui = GetLucas(mu, index, false);
 
-            BigInteger dividend0;
-            BigInteger dividend1;
             if (mu == 1)
             {
-                dividend0 = BigInteger.One.Subtract(ui[1]);
-                dividend1 = BigInteger.One.Subtract(ui[0]);
-            }
-            else if (mu == -1)
-            {
-                dividend0 = BigInteger.One.Add(ui[1]);
-                dividend1 = BigInteger.One.Add(ui[0]);
-            }
-            else
-            {
-                throw new ArgumentException("mu must be 1 or -1");
+                ui[0] = ui[0].Negate();
+                ui[1] = ui[1].Negate();
             }
 
-            BigInteger[] si = new BigInteger[2];
+            BigInteger dividend0 = BigInteger.One.Add(ui[1]).ShiftRight(shifts);
+            BigInteger dividend1 = BigInteger.One.Add(ui[0]).ShiftRight(shifts).Negate();
 
-            if (h == 2)
+            return new BigInteger[] { dividend0, dividend1 };
+        }
+
+        public static BigInteger[] GetSi(int fieldSize, int curveA, BigInteger cofactor)
+        {
+            sbyte mu = GetMu(curveA);
+            int shifts = GetShiftsForCofactor(cofactor);
+            int index = fieldSize + 3 - curveA;
+            BigInteger[] ui = GetLucas(mu, index, false);
+            if (mu == 1)
             {
-                si[0] = dividend0.ShiftRight(1);
-                si[1] = dividend1.ShiftRight(1).Negate();
-            }
-            else if (h == 4)
-            {
-                si[0] = dividend0.ShiftRight(2);
-                si[1] = dividend1.ShiftRight(2).Negate();
-            }
-            else
-            {
-                throw new ArgumentException("h (Cofactor) must be 2 or 4");
+                ui[0] = ui[0].Negate();
+                ui[1] = ui[1].Negate();
             }
 
-            return si;
+            BigInteger dividend0 = BigInteger.One.Add(ui[1]).ShiftRight(shifts);
+            BigInteger dividend1 = BigInteger.One.Add(ui[0]).ShiftRight(shifts).Negate();
+
+            return new BigInteger[] { dividend0, dividend1 };
+        }
+
+        protected static int GetShiftsForCofactor(BigInteger h)
+        {
+            if (h != null && h.BitLength < 4)
+            {
+                int hi = h.IntValue;
+                if (hi == 2)
+                    return 1;
+                if (hi == 4)
+                    return 2;
+            }
+
+            throw new ArgumentException("h (Cofactor) must be 2 or 4");
         }
 
         /**
@@ -624,69 +641,76 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
         }
 
         /**
-        * Multiplies a {@link NBitcoin.BouncyCastle.math.ec.F2mPoint F2mPoint}
+        * Multiplies a {@link NBitcoin.BouncyCastle.math.ec.AbstractF2mPoint AbstractF2mPoint}
         * by a <code>BigInteger</code> using the reduced <code>&#964;</code>-adic
         * NAF (RTNAF) method.
-        * @param p The F2mPoint to Multiply.
+        * @param p The AbstractF2mPoint to Multiply.
         * @param k The <code>BigInteger</code> by which to Multiply <code>p</code>.
         * @return <code>k * p</code>
         */
-        public static F2mPoint MultiplyRTnaf(F2mPoint p, BigInteger k)
+        public static AbstractF2mPoint MultiplyRTnaf(AbstractF2mPoint p, BigInteger k)
         {
-            F2mCurve curve = (F2mCurve) p.Curve;
-            int m = curve.M;
-            sbyte a = (sbyte) curve.A.ToBigInteger().IntValue;
-            sbyte mu = curve.GetMu();
+            AbstractF2mCurve curve = (AbstractF2mCurve)p.Curve;
+            int m = curve.FieldSize;
+            int a = curve.A.ToBigInteger().IntValue;
+            sbyte mu = GetMu(a);
             BigInteger[] s = curve.GetSi();
-            ZTauElement rho = PartModReduction(k, m, a, s, mu, (sbyte)10);
+            ZTauElement rho = PartModReduction(k, m, (sbyte)a, s, mu, (sbyte)10);
 
             return MultiplyTnaf(p, rho);
         }
 
         /**
-        * Multiplies a {@link NBitcoin.BouncyCastle.math.ec.F2mPoint F2mPoint}
+        * Multiplies a {@link NBitcoin.BouncyCastle.math.ec.AbstractF2mPoint AbstractF2mPoint}
         * by an element <code>&#955;</code> of <code><b>Z</b>[&#964;]</code>
         * using the <code>&#964;</code>-adic NAF (TNAF) method.
-        * @param p The F2mPoint to Multiply.
+        * @param p The AbstractF2mPoint to Multiply.
         * @param lambda The element <code>&#955;</code> of
         * <code><b>Z</b>[&#964;]</code>.
         * @return <code>&#955; * p</code>
         */
-        public static F2mPoint MultiplyTnaf(F2mPoint p, ZTauElement lambda)
+        public static AbstractF2mPoint MultiplyTnaf(AbstractF2mPoint p, ZTauElement lambda)
         {
-            F2mCurve curve = (F2mCurve)p.Curve;
-            sbyte mu = curve.GetMu();
+            AbstractF2mCurve curve = (AbstractF2mCurve)p.Curve;
+            sbyte mu = GetMu(curve.A);
             sbyte[] u = TauAdicNaf(mu, lambda);
 
-            F2mPoint q = MultiplyFromTnaf(p, u);
+            AbstractF2mPoint q = MultiplyFromTnaf(p, u);
 
             return q;
         }
 
         /**
-        * Multiplies a {@link NBitcoin.BouncyCastle.math.ec.F2mPoint F2mPoint}
+        * Multiplies a {@link NBitcoin.BouncyCastle.math.ec.AbstractF2mPoint AbstractF2mPoint}
         * by an element <code>&#955;</code> of <code><b>Z</b>[&#964;]</code>
         * using the <code>&#964;</code>-adic NAF (TNAF) method, given the TNAF
         * of <code>&#955;</code>.
-        * @param p The F2mPoint to Multiply.
+        * @param p The AbstractF2mPoint to Multiply.
         * @param u The the TNAF of <code>&#955;</code>..
         * @return <code>&#955; * p</code>
         */
-        public static F2mPoint MultiplyFromTnaf(F2mPoint p, sbyte[] u)
+        public static AbstractF2mPoint MultiplyFromTnaf(AbstractF2mPoint p, sbyte[] u)
         {
-            F2mCurve curve = (F2mCurve)p.Curve;
-            F2mPoint q = (F2mPoint) curve.Infinity;
+            ECCurve curve = p.Curve;
+            AbstractF2mPoint q = (AbstractF2mPoint)curve.Infinity;
+            AbstractF2mPoint pNeg = (AbstractF2mPoint)p.Negate();
+            int tauCount = 0;
             for (int i = u.Length - 1; i >= 0; i--)
             {
-                q = Tau(q);
-                if (u[i] == 1)
+                ++tauCount;
+                sbyte ui = u[i];
+                if (ui != 0)
                 {
-                    q = (F2mPoint)q.AddSimple(p);
+                    q = q.TauPow(tauCount);
+                    tauCount = 0;
+
+                    ECPoint x = ui > 0 ? p : pNeg;
+                    q = (AbstractF2mPoint)q.Add(x);
                 }
-                else if (u[i] == -1)
-                {
-                    q = (F2mPoint)q.SubtractSimple(p);
-                }
+            }
+            if (tauCount > 0)
+            {
+                q = q.TauPow(tauCount);
             }
             return q;
         }
@@ -800,28 +824,21 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
         * @param a The parameter <code>a</code> of the elliptic curve.
         * @return The precomputation array for <code>p</code>. 
         */
-        public static F2mPoint[] GetPreComp(F2mPoint p, sbyte a)
+        public static AbstractF2mPoint[] GetPreComp(AbstractF2mPoint p, sbyte a)
         {
-            F2mPoint[] pu;
-            pu = new F2mPoint[16];
-            pu[1] = p;
-            sbyte[][] alphaTnaf;
-            if (a == 0)
+            sbyte[][] alphaTnaf = (a == 0) ? Tnaf.Alpha0Tnaf : Tnaf.Alpha1Tnaf;
+
+            AbstractF2mPoint[] pu = new AbstractF2mPoint[(uint)(alphaTnaf.Length + 1) >> 1];
+            pu[0] = p;
+
+            uint precompLen = (uint)alphaTnaf.Length;
+            for (uint i = 3; i < precompLen; i += 2)
             {
-                alphaTnaf = Tnaf.Alpha0Tnaf;
-            }
-            else
-            {
-                // a == 1
-                alphaTnaf = Tnaf.Alpha1Tnaf;
+                pu[i >> 1] = Tnaf.MultiplyFromTnaf(p, alphaTnaf[i]);
             }
 
-            int precompLen = alphaTnaf.Length;
-            for (int i = 3; i < precompLen; i = i + 2)
-            {
-                pu[i] = Tnaf.MultiplyFromTnaf(p, alphaTnaf[i]);
-            }
-            
+            p.Curve.NormalizeAll(pu);
+
             return pu;
         }
     }

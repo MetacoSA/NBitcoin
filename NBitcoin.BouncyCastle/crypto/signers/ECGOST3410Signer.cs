@@ -18,12 +18,12 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
         private ECKeyParameters key;
         private SecureRandom random;
 
-        public string AlgorithmName
+        public virtual string AlgorithmName
         {
             get { return "ECGOST3410"; }
         }
 
-        public void Init(
+        public virtual void Init(
             bool				forSigning,
             ICipherParameters	parameters)
         {
@@ -62,7 +62,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
          *
          * @param message the message that will be verified later.
          */
-        public BigInteger[] GenerateSignature(
+        public virtual BigInteger[] GenerateSignature(
             byte[] message)
         {
             byte[] mRev = new byte[message.Length]; // conversion is little-endian
@@ -110,7 +110,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
          * the passed in message (for standard GOST3410 the message should be
          * a GOST3411 hash of the real message to be verified).
          */
-        public bool VerifySignature(
+        public virtual bool VerifySignature(
             byte[]		message,
             BigInteger	r,
             BigInteger	s)

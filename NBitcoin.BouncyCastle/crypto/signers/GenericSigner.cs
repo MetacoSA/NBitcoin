@@ -21,7 +21,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
             this.digest = digest;
         }
 
-        public string AlgorithmName
+        public virtual string AlgorithmName
         {
             get { return "Generic(" + engine.AlgorithmName + "/" + digest.AlgorithmName + ")"; }
         }
@@ -34,7 +34,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
         * @param parameters
         *            necessary parameters.
         */
-        public void Init(bool forSigning, ICipherParameters parameters)
+        public virtual void Init(bool forSigning, ICipherParameters parameters)
         {
             this.forSigning = forSigning;
 
@@ -62,7 +62,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
         /**
         * update the internal digest with the byte b
         */
-        public void Update(byte input)
+        public virtual void Update(byte input)
         {
             digest.Update(input);
         }
@@ -70,7 +70,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
         /**
         * update the internal digest with the byte array in
         */
-        public void BlockUpdate(byte[] input, int inOff, int length)
+        public virtual void BlockUpdate(byte[] input, int inOff, int length)
         {
             digest.BlockUpdate(input, inOff, length);
         }
@@ -79,7 +79,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
         * Generate a signature for the message we've been loaded with using the key
         * we were initialised with.
         */
-        public byte[] GenerateSignature()
+        public virtual byte[] GenerateSignature()
         {
             if (!forSigning)
                 throw new InvalidOperationException("GenericSigner not initialised for signature generation.");
@@ -94,7 +94,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
         * return true if the internal state represents the signature described in
         * the passed in array.
         */
-        public bool VerifySignature(byte[] signature)
+        public virtual bool VerifySignature(byte[] signature)
         {
             if (forSigning)
                 throw new InvalidOperationException("GenericSigner not initialised for verification");
@@ -122,7 +122,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
             }
         }
 
-        public void Reset()
+        public virtual void Reset()
         {
             digest.Reset();
         }

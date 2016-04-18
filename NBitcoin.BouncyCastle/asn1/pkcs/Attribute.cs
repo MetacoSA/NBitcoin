@@ -1,6 +1,6 @@
 using System;
 
-using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Pkcs
 {
@@ -31,7 +31,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Pkcs
                 return new AttributePkcs(seq);
             }
 
-			throw new ArgumentException("Unknown object in factory: " + obj.GetType().FullName, "obj");
+			throw new ArgumentException("Unknown object in factory: " + Platform.GetTypeName(obj), "obj");
 		}
 
 		private AttributePkcs(

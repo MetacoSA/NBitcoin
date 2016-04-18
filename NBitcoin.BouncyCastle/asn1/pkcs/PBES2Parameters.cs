@@ -24,6 +24,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Pkcs
             this.scheme = encScheme;
         }
 
+        [Obsolete("Use GetInstance() instead")]
         public PbeS2Parameters(
             Asn1Sequence seq)
         {

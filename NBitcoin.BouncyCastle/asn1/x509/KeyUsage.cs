@@ -53,9 +53,8 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
          * allowed uses for the key.
          * e.g. (KeyUsage.keyEncipherment | KeyUsage.dataEncipherment)
          */
-        public KeyUsage(
-			int usage)
-			: base(GetBytes(usage), GetPadBits(usage))
+        public KeyUsage(int usage)
+			: base(usage)
         {
         }
 

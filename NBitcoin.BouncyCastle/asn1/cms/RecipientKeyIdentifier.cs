@@ -1,6 +1,6 @@
 using System;
 
-using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Cms
 {
@@ -97,7 +97,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Cms
 			if (obj is Asn1Sequence)
 				return new RecipientKeyIdentifier((Asn1Sequence) obj);
 
-			throw new ArgumentException("Invalid RecipientKeyIdentifier: " + obj.GetType().Name);
+            throw new ArgumentException("Invalid RecipientKeyIdentifier: " + Platform.GetTypeName(obj));
         }
 
 		public Asn1OctetString SubjectKeyIdentifier

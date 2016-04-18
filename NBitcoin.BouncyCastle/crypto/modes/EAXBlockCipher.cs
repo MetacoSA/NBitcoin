@@ -54,7 +54,6 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 			blockSize = cipher.GetBlockSize();
 			mac = new CMac(cipher);
 			macBlock = new byte[blockSize];
-			bufBlock = new byte[blockSize * 2];
 			associatedTextMac = new byte[mac.GetMacSize()];
 			nonceMac = new byte[mac.GetMacSize()];
 			this.cipher = new SicBlockCipher(cipher);
@@ -65,7 +64,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 			get { return cipher.GetUnderlyingCipher().AlgorithmName + "/EAX"; }
 		}
 
-		public IBlockCipher GetUnderlyingCipher()
+		public virtual IBlockCipher GetUnderlyingCipher()
 		{
 			return cipher;
 		}
@@ -107,6 +106,8 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 				throw new ArgumentException("invalid parameters passed to EAX");
 			}
 
+            bufBlock = new byte[forEncryption ? blockSize : (blockSize + macSize)];
+
             byte[] tag = new byte[blockSize];
 
             // Key reuse implemented in CBC mode of underlying CMac
@@ -117,16 +118,10 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
             mac.BlockUpdate(nonce, 0, nonce.Length);
             mac.DoFinal(nonceMac, 0);
 
-            tag[blockSize - 1] = (byte)Tag.H;
-            mac.BlockUpdate(tag, 0, blockSize);
-
-            if (initialAssociatedText != null)
-            {
-                ProcessAadBytes(initialAssociatedText, 0, initialAssociatedText.Length);
-            }
-
-            // Same BlockCipher underlies this and the mac, so reuse last key on cipher 
+            // Same BlockCipher underlies this and the mac, so reuse last key on cipher
             cipher.Init(true, new ParametersWithIV(null, nonceMac));
+
+            Reset();
 		}
 
         private void InitCipher()
@@ -191,16 +186,16 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
         {
             if (cipherInitialized)
             {
-                throw new InvalidOperationException("AAD data cannot be added after encryption/decription processing has begun.");
+                throw new InvalidOperationException("AAD data cannot be added after encryption/decryption processing has begun.");
             }
             mac.Update(input);
         }
 
-        public void ProcessAadBytes(byte[] inBytes, int inOff, int len)
+        public virtual void ProcessAadBytes(byte[] inBytes, int inOff, int len)
         {
             if (cipherInitialized)
             {
-                throw new InvalidOperationException("AAD data cannot be added after encryption/decription processing has begun.");
+                throw new InvalidOperationException("AAD data cannot be added after encryption/decryption processing has begun.");
             }
             mac.BlockUpdate(inBytes, inOff, len);
         }
@@ -247,10 +242,11 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 
 			if (forEncryption)
 			{
-				cipher.ProcessBlock(bufBlock, 0, tmp, 0);
-				cipher.ProcessBlock(bufBlock, blockSize, tmp, blockSize);
+                Check.OutputLength(outBytes, outOff, extra + macSize, "Output buffer too short");
 
-				Array.Copy(tmp, 0, outBytes, outOff, extra);
+                cipher.ProcessBlock(bufBlock, 0, tmp, 0);
+
+                Array.Copy(tmp, 0, outBytes, outOff, extra);
 
 				mac.BlockUpdate(tmp, 0, extra);
 
@@ -264,14 +260,18 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 			}
 			else
 			{
-				if (extra > macSize)
+                if (extra < macSize)
+                    throw new InvalidCipherTextException("data too short");
+
+                Check.OutputLength(outBytes, outOff, extra - macSize, "Output buffer too short");
+
+                if (extra > macSize)
 				{
 					mac.BlockUpdate(bufBlock, 0, extra - macSize);
 
 					cipher.ProcessBlock(bufBlock, 0, tmp, 0);
-					cipher.ProcessBlock(bufBlock, blockSize, tmp, blockSize);
 
-					Array.Copy(tmp, 0, outBytes, outOff, extra - macSize);
+                    Array.Copy(tmp, 0, outBytes, outOff, extra - macSize);
 				}
 
 				CalculateMac();
@@ -331,6 +331,11 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 
 			if (bufOff == bufBlock.Length)
 			{
+                Check.OutputLength(outBytes, outOff, blockSize, "Output buffer is too short");
+
+                // TODO Could move the ProcessByte(s) calls to here
+//                InitCipher();
+
 				int size;
 
 				if (forEncryption)
@@ -346,10 +351,14 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 					size = cipher.ProcessBlock(bufBlock, 0, outBytes, outOff);
 				}
 
-				bufOff = blockSize;
-				Array.Copy(bufBlock, blockSize, bufBlock, 0, blockSize);
+                bufOff = 0;
+                if (!forEncryption)
+                {
+                    Array.Copy(bufBlock, blockSize, bufBlock, 0, macSize);
+                    bufOff = macSize;
+                }
 
-				return size;
+                return size;
 			}
 
 			return 0;

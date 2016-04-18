@@ -10,14 +10,23 @@ namespace NBitcoin.BouncyCastle.Math.EC
     {
         public static bool IsF2mCurve(ECCurve c)
         {
-            IFiniteField field = c.Field;
+            return IsF2mField(c.Field);
+        }
+
+        public static bool IsF2mField(IFiniteField field)
+        {
             return field.Dimension > 1 && field.Characteristic.Equals(BigInteger.Two)
                 && field is IPolynomialExtensionField;
         }
 
         public static bool IsFpCurve(ECCurve c)
         {
-            return c.Field.Dimension == 1;
+            return IsFpField(c.Field);
+        }
+
+        public static bool IsFpField(IFiniteField field)
+        {
+            return field.Dimension == 1;
         }
 
         public static ECPoint SumOfMultiplies(ECPoint[] ps, BigInteger[] ks)
@@ -61,10 +70,9 @@ namespace NBitcoin.BouncyCastle.Math.EC
             Q = ImportPoint(cp, Q);
 
             // Point multiplication for Koblitz curves (using WTNAF) beats Shamir's trick
-            if (cp is F2mCurve)
             {
-                F2mCurve f2mCurve = (F2mCurve) cp;
-                if (f2mCurve.IsKoblitz)
+                AbstractF2mCurve f2mCurve = cp as AbstractF2mCurve;
+                if (f2mCurve != null && f2mCurve.IsKoblitz)
                 {
                     return ValidatePoint(P.Multiply(a).Add(Q.Multiply(b)));
                 }
@@ -117,6 +125,11 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
         public static void MontgomeryTrick(ECFieldElement[] zs, int off, int len)
         {
+            MontgomeryTrick(zs, off, len, null);
+        }
+
+        public static void MontgomeryTrick(ECFieldElement[] zs, int off, int len, ECFieldElement scale)
+        {
             /*
              * Uses the "Montgomery Trick" to invert many field elements, with only a single actual
              * field inversion. See e.g. the paper:
@@ -133,7 +146,14 @@ namespace NBitcoin.BouncyCastle.Math.EC
                 c[i] = c[i - 1].Multiply(zs[off + i]);
             }
 
-            ECFieldElement u = c[--i].Invert();
+            --i;
+
+            if (scale != null)
+            {
+                c[i] = c[i].Multiply(scale);
+            }
+
+            ECFieldElement u = c[i].Invert();
 
             while (i > 0)
             {

@@ -2,6 +2,7 @@
 
 using NBitcoin.BouncyCastle.Asn1.Cmp;
 using NBitcoin.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Crmf
 {
@@ -28,7 +29,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Crmf
             if (obj is Asn1Sequence)
                 return new PKMacValue((Asn1Sequence)obj);
 
-            throw new ArgumentException("Invalid object: " + obj.GetType().Name, "obj");
+            throw new ArgumentException("Invalid object: " + Platform.GetTypeName(obj), "obj");
         }
 
         public static PKMacValue GetInstance(Asn1TaggedObject obj, bool isExplicit)

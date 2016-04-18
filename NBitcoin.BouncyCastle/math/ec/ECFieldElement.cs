@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 
+using NBitcoin.BouncyCastle.Math.Raw;
 using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Math.EC
@@ -53,6 +54,16 @@ namespace NBitcoin.BouncyCastle.Math.EC
         public virtual ECFieldElement SquarePlusProduct(ECFieldElement x, ECFieldElement y)
         {
             return Square().Add(x.Multiply(y));
+        }
+
+        public virtual ECFieldElement SquarePow(int pow)
+        {
+            ECFieldElement r = this;
+            for (int i = 0; i < pow; ++i)
+            {
+                r = r.Square();
+            }
+            return r;
         }
 
         public virtual bool TestBitZero()
@@ -113,6 +124,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
             return null;
         }
 
+        [Obsolete("Use ECCurve.FromBigInteger to construct field elements")]
         public FpFieldElement(BigInteger q, BigInteger x)
             : this(q, CalculateResidue(q), x)
         {
@@ -294,13 +306,12 @@ namespace NBitcoin.BouncyCastle.Math.EC
             BigInteger k = legendreExponent.Add(BigInteger.One), qMinusOne = q.Subtract(BigInteger.One);
 
             BigInteger U, V;
-            Random rand = new Random();
             do
             {
                 BigInteger P;
                 do
                 {
-                    P = new BigInteger(q.BitLength, rand);
+                    P = BigInteger.Arbitrary(q.BitLength);
                 }
                 while (P.CompareTo(q) >= 0
                     || !ModReduce(P.Multiply(P).Subtract(fourX)).ModPow(legendreExponent, q).Equals(qMinusOne));
@@ -592,6 +603,9 @@ namespace NBitcoin.BouncyCastle.Math.EC
             int			k3,
             BigInteger	x)
         {
+            if (x == null || x.SignValue < 0 || x.BitLength > m)
+                throw new ArgumentException("value invalid in F2m field element", "x");
+
             if ((k2 == 0) && (k3 == 0))
             {
                 this.representation = Tpb;
@@ -811,6 +825,11 @@ namespace NBitcoin.BouncyCastle.Math.EC
             return new F2mFieldElement(m, ks, aa);
         }
 
+        public override ECFieldElement SquarePow(int pow)
+        {
+            return pow < 1 ? this : new F2mFieldElement(m, ks, x.ModSquareN(pow, m, ks));
+        }
+
         public override ECFieldElement Invert()
         {
             return new F2mFieldElement(this.m, this.ks, this.x.ModInverse(m, ks));
@@ -818,14 +837,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
         public override ECFieldElement Sqrt()
         {
-            LongArray x1 = this.x;
-            if (x1.IsOne() || x1.IsZero())
-            {
-                return this;
-            }
-
-            LongArray x2 = x1.ModSquareN(m - 1, m, ks);
-            return new F2mFieldElement(m, ks, x2);
+            return (x.IsZero() || x.IsOne()) ? this : SquarePow(m - 1);
         }
 
         /**

@@ -355,6 +355,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 
                 Xor(mainBlock, Pad);
 
+                Check.OutputLength(output, outOff, mainBlockPos, "Output buffer too short");
                 Array.Copy(mainBlock, 0, output, outOff, mainBlockPos);
 
                 if (!forEncryption)
@@ -382,6 +383,8 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 
             if (forEncryption)
             {
+                Check.OutputLength(output, outOff, resultLen + macSize, "Output buffer too short");
+
                 // Append tag to the message
                 Array.Copy(macBlock, 0, output, outOff + resultLen, macSize);
                 resultLen += macSize;
@@ -431,6 +434,8 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 
         protected virtual void ProcessMainBlock(byte[] output, int outOff)
         {
+            Check.DataLength(output, outOff, BLOCK_SIZE, "Output buffer too short");
+
             /*
              * OCB-ENCRYPT/OCB-DECRYPT: Process any whole blocks
              */

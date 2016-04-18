@@ -1,5 +1,7 @@
 using System;
 
+using NBitcoin.BouncyCastle.Utilities;
+
 namespace NBitcoin.BouncyCastle.Asn1.Ess
 {
 	public class ContentIdentifier
@@ -22,7 +24,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Ess
 
 			throw new ArgumentException(
 				"unknown object in 'ContentIdentifier' factory : "
-				+ o.GetType().Name + ".");
+                + Platform.GetTypeName(o) + ".");
 		}
 
 		/**

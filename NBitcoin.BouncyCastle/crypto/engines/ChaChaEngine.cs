@@ -1,4 +1,5 @@
 using System;
+
 using NBitcoin.BouncyCastle.Crypto.Utilities;
 
 namespace NBitcoin.BouncyCastle.Crypto.Engines
@@ -9,7 +10,6 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 	public class ChaChaEngine
 		: Salsa20Engine
 	{
-
 		/// <summary>
 		/// Creates a 20 rounds ChaCha engine.
 		/// </summary>
@@ -46,45 +46,20 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 
 		protected override void SetKey(byte[] keyBytes, byte[] ivBytes)
 		{
-			if ((keyBytes.Length != 16) && (keyBytes.Length != 32))
-			{
-				throw new ArgumentException(AlgorithmName + " requires 128 bit or 256 bit key");
-			}
+            if (keyBytes != null)
+            {
+                if ((keyBytes.Length != 16) && (keyBytes.Length != 32))
+                    throw new ArgumentException(AlgorithmName + " requires 128 bit or 256 bit key");
 
-			int offset = 0;
-			byte[] constants;
+                PackTauOrSigma(keyBytes.Length, engineState, 0);
 
-			// Key
-			engineState[4] = Pack.LE_To_UInt32(keyBytes, 0);
-			engineState[5] = Pack.LE_To_UInt32(keyBytes, 4);
-			engineState[6] = Pack.LE_To_UInt32(keyBytes, 8);
-			engineState[7] = Pack.LE_To_UInt32(keyBytes, 12);
+                // Key
+                Pack.LE_To_UInt32(keyBytes, 0, engineState, 4, 4);
+                Pack.LE_To_UInt32(keyBytes, keyBytes.Length - 16, engineState, 8, 4);
+            }
 
-			if (keyBytes.Length == 32)
-			{
-				constants = sigma;
-				offset = 16;
-			} else
-			{
-				constants = tau;
-			}
-
-			engineState[8] = Pack.LE_To_UInt32(keyBytes, offset);
-			engineState[9] = Pack.LE_To_UInt32(keyBytes, offset + 4);
-			engineState[10] = Pack.LE_To_UInt32(keyBytes, offset + 8);
-			engineState[11] = Pack.LE_To_UInt32(keyBytes, offset + 12);
-
-			engineState[0] = Pack.LE_To_UInt32(constants, 0);
-			engineState[1] = Pack.LE_To_UInt32(constants, 4);
-			engineState[2] = Pack.LE_To_UInt32(constants, 8);
-			engineState[3] = Pack.LE_To_UInt32(constants, 12);
-
-			// Counter
-			engineState[12] = engineState[13] = 0;
-
-			// IV
-			engineState[14] = Pack.LE_To_UInt32(ivBytes, 0);
-			engineState[15] = Pack.LE_To_UInt32(ivBytes, 4);
+            // IV
+            Pack.LE_To_UInt32(ivBytes, 0, engineState, 14, 2);
 		}
 
 		protected override void GenerateKeyStream(byte[] output)
@@ -94,24 +69,21 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 		}
 
 		/// <summary>
-		/// ChacCha function.
+		/// ChaCha function.
 		/// </summary>
 		/// <param name="rounds">The number of ChaCha rounds to execute</param>
 		/// <param name="input">The input words.</param>
 		/// <param name="x">The ChaCha state to modify.</param>
 		internal static void ChachaCore(int rounds, uint[] input, uint[] x)
 		{
-			if (input.Length != 16) {
+			if (input.Length != 16)
 				throw new ArgumentException();
-			}
-			if (x.Length != 16) {
+			if (x.Length != 16)
 				throw new ArgumentException();
-			}
-			if (rounds % 2 != 0) {
+			if (rounds % 2 != 0)
 				throw new ArgumentException("Number of rounds must be even");
-			}
 
-			uint x00 = input[ 0];
+            uint x00 = input[ 0];
 			uint x01 = input[ 1];
 			uint x02 = input[ 2];
 			uint x03 = input[ 3];
@@ -162,7 +134,6 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 				x09 += x14; x04 = R(x04 ^ x09, 12);
 				x03 += x04; x14 = R(x14 ^ x03, 8);
 				x09 += x14; x04 = R(x04 ^ x09, 7);
-
 			}
 
 			x[ 0] = x00 + input[ 0];
@@ -182,8 +153,5 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 			x[14] = x14 + input[14];
 			x[15] = x15 + input[15];
 		}
-
 	}
-
 }
-

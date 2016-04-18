@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Cms
 {
@@ -20,7 +20,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Cms
             if (obj is Asn1Sequence)
                 return new ContentInfo((Asn1Sequence) obj);
 
-            throw new ArgumentException("unknown object in factory: " + obj.GetType().Name);
+            throw new ArgumentException("unknown object in factory: " + Platform.GetTypeName(obj));
         }
 
         public static ContentInfo GetInstance(Asn1TaggedObject obj, bool isExplicit)

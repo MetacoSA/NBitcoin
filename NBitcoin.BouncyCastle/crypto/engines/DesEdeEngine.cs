@@ -1,6 +1,7 @@
 using System;
 
 using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Crypto.Engines
 {
@@ -24,7 +25,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
             ICipherParameters	parameters)
         {
             if (!(parameters is KeyParameter))
-                throw new ArgumentException("invalid parameter passed to DESede init - " + parameters.GetType().ToString());
+                throw new ArgumentException("invalid parameter passed to DESede init - " + Platform.GetTypeName(parameters));
 
             byte[] keyMaster = ((KeyParameter)parameters).GetKey();
             if (keyMaster.Length != 24 && keyMaster.Length != 16)
@@ -70,10 +71,9 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
         {
             if (workingKey1 == null)
                 throw new InvalidOperationException("DESede engine not initialised");
-            if ((inOff + BLOCK_SIZE) > input.Length)
-                throw new DataLengthException("input buffer too short");
-            if ((outOff + BLOCK_SIZE) > output.Length)
-                throw new DataLengthException("output buffer too short");
+
+            Check.DataLength(input, inOff, BLOCK_SIZE, "input buffer too short");
+            Check.OutputLength(output, outOff, BLOCK_SIZE, "output buffer too short");
 
             byte[] temp = new byte[BLOCK_SIZE];
 

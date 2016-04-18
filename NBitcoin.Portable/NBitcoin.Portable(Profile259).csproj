@@ -28,7 +28,7 @@
     <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;SILVERLIGHT;NOBIGINT;NOSOCKET;NOTRACESOURCE;NOFILEIO;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOHTTPCLIENT;NOCONSENSUSLIB</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>

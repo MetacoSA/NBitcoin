@@ -86,6 +86,30 @@ namespace NBitcoin.BouncyCastle.Crypto.Generators
 			key[28] &= R_MASK_LOW_2;
 		}
 
+        internal static void Clamp(byte[] key, int keyOff)
+        {
+            /*
+             * Key is k[0] ... k[15], r[0] ... r[15] as per poly1305_aes_clamp in ref impl.
+             */
+            if (key.Length - 32 < keyOff)
+                throw new ArgumentException("Poly1305 key must be 256 bits.");
+
+            /*
+             * r[3], r[7], r[11], r[15] have top four bits clear (i.e., are {0, 1, . . . , 15})
+             */
+            key[keyOff + 19] &= R_MASK_HIGH_4;
+            key[keyOff + 23] &= R_MASK_HIGH_4;
+            key[keyOff + 27] &= R_MASK_HIGH_4;
+            key[keyOff + 31] &= R_MASK_HIGH_4;
+
+            /*
+             * r[4], r[8], r[12] have bottom two bits clear (i.e., are in {0, 4, 8, . . . , 252}).
+             */
+            key[keyOff + 20] &= R_MASK_LOW_2;
+            key[keyOff + 24] &= R_MASK_LOW_2;
+            key[keyOff + 28] &= R_MASK_LOW_2;
+        }
+
 		/// <summary>
 		/// Checks a 32 byte key for compliance with the Poly1305 key requirements, e.g.
 		/// <code>k[0] ... k[15], r[0] ... r[15]</code> with the required bits in <code>r</code> cleared

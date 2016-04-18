@@ -1,11 +1,14 @@
 using System;
+using System.Globalization;
+
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.X509
 {
     public class Time
         : Asn1Encodable, IAsn1Choice
     {
-        internal Asn1Object time;
+        private readonly Asn1Object time;
 
         public static Time GetInstance(
             Asn1TaggedObject	obj,
@@ -19,11 +22,8 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
         {
             if (time == null)
                 throw new ArgumentNullException("time");
-
             if (!(time is DerUtcTime) && !(time is DerGeneralizedTime))
-            {
                 throw new ArgumentException("unknown object passed to Time");
-            }
 
             this.time = time;
         }
@@ -36,9 +36,13 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
         public Time(
             DateTime date)
         {
-            string d = date.ToString("yyyyMMddHHmmss") + "Z";
+#if PORTABLE
+            string d = date.ToUniversalTime().ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture) + "Z";
+#else
+            string d = date.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture) + "Z";
+#endif
 
-            int year = Int32.Parse(d.Substring(0, 4));
+            int year = int.Parse(d.Substring(0, 4));
 
             if (year < 1950 || year > 2049)
             {
@@ -54,15 +58,13 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
             object obj)
         {
             if (obj == null || obj is Time)
-                return (Time) obj;
-
+                return (Time)obj;
             if (obj is DerUtcTime)
-                return new Time((DerUtcTime) obj);
-
+                return new Time((DerUtcTime)obj);
             if (obj is DerGeneralizedTime)
-                return new Time((DerGeneralizedTime) obj);
+                return new Time((DerGeneralizedTime)obj);
 
-            throw new ArgumentException("unknown object in factory: " + obj.GetType().Name, "obj");
+            throw new ArgumentException("unknown object in factory: " + Platform.GetTypeName(obj), "obj");
         }
 
         public string GetTime()
