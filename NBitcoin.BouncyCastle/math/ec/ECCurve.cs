@@ -96,6 +96,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
         public abstract int FieldSize { get; }
         public abstract ECFieldElement FromBigInteger(BigInteger x);
+        public abstract bool IsValidFieldElement(BigInteger x);
 
         public virtual Config Configure()
         {
@@ -112,6 +113,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
             return p;
         }
 
+        [Obsolete("Per-point compression property will be removed")]
         public virtual ECPoint ValidatePoint(BigInteger x, BigInteger y, bool withCompression)
         {
             ECPoint p = CreatePoint(x, y, withCompression);
@@ -127,6 +129,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
             return CreatePoint(x, y, false);
         }
 
+        [Obsolete("Per-point compression property will be removed")]
         public virtual ECPoint CreatePoint(BigInteger x, BigInteger y, bool withCompression)
         {
             return CreateRawPoint(FromBigInteger(x), FromBigInteger(y), withCompression);
@@ -219,26 +222,56 @@ namespace NBitcoin.BouncyCastle.Math.EC
          */
         public virtual void NormalizeAll(ECPoint[] points)
         {
-            CheckPoints(points);
+            NormalizeAll(points, 0, points.Length, null);
+        }
 
-            if (this.CoordinateSystem == ECCurve.COORD_AFFINE)
+        /**
+         * Normalization ensures that any projective coordinate is 1, and therefore that the x, y
+         * coordinates reflect those of the equivalent point in an affine coordinate system. Where more
+         * than one point is to be normalized, this method will generally be more efficient than
+         * normalizing each point separately. An (optional) z-scaling factor can be applied; effectively
+         * each z coordinate is scaled by this value prior to normalization (but only one
+         * actual multiplication is needed).
+         * 
+         * @param points
+         *            An array of points that will be updated in place with their normalized versions,
+         *            where necessary
+         * @param off
+         *            The start of the range of points to normalize
+         * @param len
+         *            The length of the range of points to normalize
+         * @param iso
+         *            The (optional) z-scaling factor - can be null
+         */
+        public virtual void NormalizeAll(ECPoint[] points, int off, int len, ECFieldElement iso)
+        {
+            CheckPoints(points, off, len);
+
+            switch (this.CoordinateSystem)
             {
-                return;
+                case ECCurve.COORD_AFFINE:
+                case ECCurve.COORD_LAMBDA_AFFINE:
+                {
+                    if (iso != null)
+                        throw new ArgumentException("not valid for affine coordinates", "iso");
+
+                    return;
+                }
             }
 
             /*
              * Figure out which of the points actually need to be normalized
              */
-            ECFieldElement[] zs = new ECFieldElement[points.Length];
-            int[] indices = new int[points.Length];
+            ECFieldElement[] zs = new ECFieldElement[len];
+            int[] indices = new int[len];
             int count = 0;
-            for (int i = 0; i < points.Length; ++i)
+            for (int i = 0; i < len; ++i)
             {
-                ECPoint p = points[i];
-                if (null != p && !p.IsNormalized())
+                ECPoint p = points[off + i];
+                if (null != p && (iso != null || !p.IsNormalized()))
                 {
                     zs[count] = p.GetZCoord(0);
-                    indices[count++] = i;
+                    indices[count++] = off + i;
                 }
             }
 
@@ -247,7 +280,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
                 return;
             }
 
-            ECAlgorithms.MontgomeryTrick(zs, 0, count);
+            ECAlgorithms.MontgomeryTrick(zs, 0, count, iso);
 
             for (int j = 0; j < count; ++j)
             {
@@ -296,12 +329,19 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
         protected virtual void CheckPoints(ECPoint[] points)
         {
+            CheckPoints(points, 0, points.Length);
+        }
+
+        protected virtual void CheckPoints(ECPoint[] points, int off, int len)
+        {
             if (points == null)
                 throw new ArgumentNullException("points");
+            if (off < 0 || len < 0 || (off > (points.Length - len)))
+                throw new ArgumentException("invalid range specified", "points");
 
-            for (int i = 0; i < points.Length; ++i)
+            for (int i = 0; i < len; ++i)
             {
-                ECPoint point = points[i];
+                ECPoint point = points[off + i];
                 if (null != point && this != point.Curve)
                     throw new ArgumentException("entries must be null or on this curve", "points");
             }
@@ -436,6 +476,11 @@ namespace NBitcoin.BouncyCastle.Math.EC
         protected AbstractFpCurve(BigInteger q)
             : base(FiniteFields.GetPrimeField(q))
         {
+        }
+
+        public override bool IsValidFieldElement(BigInteger x)
+        {
+            return x != null && x.SignValue >= 0 && x.CompareTo(Field.Characteristic) < 0;
         }
 
         protected override ECPoint DecompressPoint(int yTilde, BigInteger X1)
@@ -584,6 +629,18 @@ namespace NBitcoin.BouncyCastle.Math.EC
     public abstract class AbstractF2mCurve
         : ECCurve
     {
+        public static BigInteger Inverse(int m, int[] ks, BigInteger x)
+        {
+            return new LongArray(x).ModInverse(m, ks).ToBigInteger();
+        }
+
+        /**
+         * The auxiliary values <code>s<sub>0</sub></code> and
+         * <code>s<sub>1</sub></code> used for partial modular reduction for
+         * Koblitz curves.
+         */
+        private BigInteger[] si = null;
+
         private static IFiniteField BuildField(int m, int k1, int k2, int k3)
         {
             if (k1 == 0)
@@ -617,6 +674,155 @@ namespace NBitcoin.BouncyCastle.Math.EC
         protected AbstractF2mCurve(int m, int k1, int k2, int k3)
             : base(BuildField(m, k1, k2, k3))
         {
+        }
+
+        public override bool IsValidFieldElement(BigInteger x)
+        {
+            return x != null && x.SignValue >= 0 && x.BitLength <= FieldSize;
+        }
+
+        [Obsolete("Per-point compression property will be removed")]
+        public override ECPoint CreatePoint(BigInteger x, BigInteger y, bool withCompression)
+        {
+            ECFieldElement X = FromBigInteger(x), Y = FromBigInteger(y);
+
+            switch (this.CoordinateSystem)
+            {
+                case COORD_LAMBDA_AFFINE:
+                case COORD_LAMBDA_PROJECTIVE:
+                {
+                    if (X.IsZero)
+                    {
+                        if (!Y.Square().Equals(B))
+                            throw new ArgumentException();
+                    }
+                    else
+                    {
+                        // Y becomes Lambda (X + Y/X) here
+                        Y = Y.Divide(X).Add(X);
+                    }
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
+
+            return CreateRawPoint(X, Y, withCompression);
+        }
+
+        protected override ECPoint DecompressPoint(int yTilde, BigInteger X1)
+        {
+            ECFieldElement xp = FromBigInteger(X1), yp = null;
+            if (xp.IsZero)
+            {
+                yp = B.Sqrt();
+            }
+            else
+            {
+                ECFieldElement beta = xp.Square().Invert().Multiply(B).Add(A).Add(xp);
+                ECFieldElement z = SolveQuadradicEquation(beta);
+
+                if (z != null)
+                {
+                    if (z.TestBitZero() != (yTilde == 1))
+                    {
+                        z = z.AddOne();
+                    }
+
+                    switch (this.CoordinateSystem)
+                    {
+                        case COORD_LAMBDA_AFFINE:
+                        case COORD_LAMBDA_PROJECTIVE:
+                        {
+                            yp = z.Add(xp);
+                            break;
+                        }
+                        default:
+                        {
+                            yp = z.Multiply(xp);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (yp == null)
+                throw new ArgumentException("Invalid point compression");
+
+            return CreateRawPoint(xp, yp, true);
+        }
+
+        /**
+         * Solves a quadratic equation <code>z<sup>2</sup> + z = beta</code>(X9.62
+         * D.1.6) The other solution is <code>z + 1</code>.
+         *
+         * @param beta
+         *            The value to solve the qradratic equation for.
+         * @return the solution for <code>z<sup>2</sup> + z = beta</code> or
+         *         <code>null</code> if no solution exists.
+         */
+        private ECFieldElement SolveQuadradicEquation(ECFieldElement beta)
+        {
+            if (beta.IsZero)
+                return beta;
+
+            ECFieldElement gamma, z, zeroElement = FromBigInteger(BigInteger.Zero);
+
+            int m = FieldSize;
+            do
+            {
+                ECFieldElement t = FromBigInteger(BigInteger.Arbitrary(m));
+                z = zeroElement;
+                ECFieldElement w = beta;
+                for (int i = 1; i < m; i++)
+                {
+                    ECFieldElement w2 = w.Square();
+                    z = z.Square().Add(w2.Multiply(t));
+                    w = w2.Add(beta);
+                }
+                if (!w.IsZero)
+                {
+                    return null;
+                }
+                gamma = z.Square().Add(z);
+            }
+            while (gamma.IsZero);
+
+            return z;
+        }
+
+        /**
+         * @return the auxiliary values <code>s<sub>0</sub></code> and
+         * <code>s<sub>1</sub></code> used for partial modular reduction for
+         * Koblitz curves.
+         */
+        internal virtual BigInteger[] GetSi()
+        {
+            if (si == null)
+            {
+                lock (this)
+                {
+                    if (si == null)
+                    {
+                        si = Tnaf.GetSi(this);
+                    }
+                }
+            }
+            return si;
+        }
+
+        /**
+         * Returns true if this is a Koblitz curve (ABC curve).
+         * @return true if this is a Koblitz curve (ABC curve), false otherwise
+         */
+        public virtual bool IsKoblitz
+        {
+            get
+            {
+                return m_order != null && m_cofactor != null && m_b.IsOne && (m_a.IsZero || m_a.IsOne);
+            }
         }
     }
 
@@ -664,19 +870,6 @@ namespace NBitcoin.BouncyCastle.Math.EC
          * The point at infinity on this curve.
          */
         protected readonly F2mPoint m_infinity;
-
-        /**
-         * The parameter <code>&#956;</code> of the elliptic curve if this is
-         * a Koblitz curve.
-         */
-        private sbyte mu = 0;
-
-        /**
-         * The auxiliary values <code>s<sub>0</sub></code> and
-         * <code>s<sub>1</sub></code> used for partial modular reduction for
-         * Koblitz curves.
-         */
-        private BigInteger[] si = null;
 
         /**
          * Constructor for Trinomial Polynomial Basis (TPB).
@@ -878,36 +1071,6 @@ namespace NBitcoin.BouncyCastle.Math.EC
             return new F2mFieldElement(this.m, this.k1, this.k2, this.k3, x);
         }
 
-        public override ECPoint CreatePoint(BigInteger x, BigInteger y, bool withCompression)
-        {
-            ECFieldElement X = FromBigInteger(x), Y = FromBigInteger(y);
-
-            switch (this.CoordinateSystem)
-            {
-                case COORD_LAMBDA_AFFINE:
-                case COORD_LAMBDA_PROJECTIVE:
-                    {
-                        if (X.IsZero)
-                        {
-                            if (!Y.Square().Equals(B))
-                                throw new ArgumentException();
-                        }
-                        else
-                        {
-                            // Y becomes Lambda (X + Y/X) here
-                            Y = Y.Divide(X).Add(X);
-                        }
-                        break;
-                    }
-                default:
-                    {
-                        break;
-                    }
-            }
-
-            return CreateRawPoint(X, Y, withCompression);
-        }
-
         protected internal override ECPoint CreateRawPoint(ECFieldElement x, ECFieldElement y, bool withCompression)
         {
             return new F2mPoint(this, x, y, withCompression);
@@ -921,146 +1084,6 @@ namespace NBitcoin.BouncyCastle.Math.EC
         public override ECPoint Infinity
         {
             get { return m_infinity; }
-        }
-
-        /**
-         * Returns true if this is a Koblitz curve (ABC curve).
-         * @return true if this is a Koblitz curve (ABC curve), false otherwise
-         */
-        public virtual bool IsKoblitz
-        {
-            get
-            {
-                return m_order != null && m_cofactor != null && m_b.IsOne && (m_a.IsZero || m_a.IsOne);
-            }
-        }
-
-        /**
-         * Returns the parameter <code>&#956;</code> of the elliptic curve.
-         * @return <code>&#956;</code> of the elliptic curve.
-         * @throws ArgumentException if the given ECCurve is not a
-         * Koblitz curve.
-         */
-        internal virtual sbyte GetMu()
-        {
-            if (mu == 0)
-            {
-                lock (this)
-                {
-                    if (mu == 0)
-                    {
-                        mu = Tnaf.GetMu(this);
-                    }
-                }
-            }
-
-            return mu;
-        }
-
-        /**
-         * @return the auxiliary values <code>s<sub>0</sub></code> and
-         * <code>s<sub>1</sub></code> used for partial modular reduction for
-         * Koblitz curves.
-         */
-        internal virtual BigInteger[] GetSi()
-        {
-            if (si == null)
-            {
-                lock (this)
-                {
-                    if (si == null)
-                    {
-                        si = Tnaf.GetSi(this);
-                    }
-                }
-            }
-            return si;
-        }
-
-        protected override ECPoint DecompressPoint(int yTilde, BigInteger X1)
-        {
-            ECFieldElement xp = FromBigInteger(X1), yp = null;
-            if (xp.IsZero)
-            {
-                yp = m_b.Sqrt();
-            }
-            else
-            {
-                ECFieldElement beta = xp.Square().Invert().Multiply(B).Add(A).Add(xp);
-                ECFieldElement z = SolveQuadradicEquation(beta);
-
-                if (z != null)
-                {
-                    if (z.TestBitZero() != (yTilde == 1))
-                    {
-                        z = z.AddOne();
-                    }
-
-                    switch (this.CoordinateSystem)
-                    {
-                        case COORD_LAMBDA_AFFINE:
-                        case COORD_LAMBDA_PROJECTIVE:
-                        {
-                            yp = z.Add(xp);
-                            break;
-                        }
-                        default:
-                        {
-                            yp = z.Multiply(xp);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (yp == null)
-                throw new ArgumentException("Invalid point compression");
-
-            return CreateRawPoint(xp, yp, true);
-        }
-
-        /**
-         * Solves a quadratic equation <code>z<sup>2</sup> + z = beta</code>(X9.62
-         * D.1.6) The other solution is <code>z + 1</code>.
-         *
-         * @param beta
-         *            The value to solve the qradratic equation for.
-         * @return the solution for <code>z<sup>2</sup> + z = beta</code> or
-         *         <code>null</code> if no solution exists.
-         */
-        private ECFieldElement SolveQuadradicEquation(ECFieldElement beta)
-        {
-            if (beta.IsZero)
-            {
-                return beta;
-            }
-
-            ECFieldElement zeroElement = FromBigInteger(BigInteger.Zero);
-
-            ECFieldElement z = null;
-            ECFieldElement gamma = null;
-
-            Random rand = new Random();
-            do
-            {
-                ECFieldElement t = FromBigInteger(new BigInteger(m, rand));
-                z = zeroElement;
-                ECFieldElement w = beta;
-                for (int i = 1; i <= m - 1; i++)
-                {
-                    ECFieldElement w2 = w.Square();
-                    z = z.Square().Add(w2.Multiply(t));
-                    w = w2.Add(beta);
-                }
-                if (!w.IsZero)
-                {
-                    return null;
-                }
-                gamma = z.Square().Add(z);
-            }
-            while (gamma.IsZero);
-
-            return z;
         }
 
         public int M

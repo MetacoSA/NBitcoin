@@ -1,6 +1,6 @@
 ﻿using System;
 
-using NBitcoin.BouncyCastle.Math.EC.Custom.Sec;
+using NBitcoin.BouncyCastle.Math.Raw;
 using NBitcoin.BouncyCastle.Utilities.Encoders;
 
 namespace NBitcoin.BouncyCastle.Math.EC.Custom.Djb

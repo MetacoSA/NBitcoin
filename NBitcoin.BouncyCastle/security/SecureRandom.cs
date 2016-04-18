@@ -13,12 +13,16 @@ namespace NBitcoin.BouncyCastle.Security
     {
         private static long counter = Times.NanoTime();
 
+#if NETCF_1_0 || PORTABLE
+        private static object counterLock = new object();
         private static long NextCounterValue()
         {
-            return Interlocked.Increment(ref counter);
+            lock (counterLock)
+            {
+                return ++counter;
+            }
         }
 
-#if NETCF_1_0
         private static readonly SecureRandom[] master = { null };
         private static SecureRandom Master
         {
@@ -43,7 +47,12 @@ namespace NBitcoin.BouncyCastle.Security
             }
         }
 #else
-		private static readonly SecureRandom master = null;//new SecureRandom(new CryptoApiRandomGenerator());
+        private static long NextCounterValue()
+        {
+            return Interlocked.Increment(ref counter);
+        }
+
+        private static readonly SecureRandom master = new SecureRandom(new CryptoApiRandomGenerator());
         private static SecureRandom Master
         {
             get { return master; }
@@ -59,9 +68,16 @@ namespace NBitcoin.BouncyCastle.Security
             if (autoSeed)
             {
                 prng.AddSeedMaterial(NextCounterValue());
-                prng.AddSeedMaterial(GetSeed(digest.GetDigestSize()));
+                prng.AddSeedMaterial(GetNextBytes(Master, digest.GetDigestSize()));
             }
             return prng;
+        }
+
+        public static byte[] GetNextBytes(SecureRandom secureRandom, int length)
+        {
+            byte[] result = new byte[length];
+            secureRandom.NextBytes(result);
+            return result;
         }
 
         /// <summary>
@@ -82,7 +98,7 @@ namespace NBitcoin.BouncyCastle.Security
         public static SecureRandom GetInstance(string algorithm, bool autoSeed)
         {
             string upper = Platform.ToUpperInvariant(algorithm);
-            if (upper.EndsWith("PRNG"))
+            if (Platform.EndsWith(upper, "PRNG"))
             {
                 string digestName = upper.Substring(0, upper.Length - "PRNG".Length);
                 DigestRandomGenerator prng = CreatePrng(digestName, autoSeed);
@@ -95,12 +111,10 @@ namespace NBitcoin.BouncyCastle.Security
             throw new ArgumentException("Unrecognised PRNG algorithm: " + algorithm, "algorithm");
         }
 
+        [Obsolete("Call GenerateSeed() on a SecureRandom instance instead")]
         public static byte[] GetSeed(int length)
         {
-#if NETCF_1_0
-            lock (master)
-#endif
-            return Master.GenerateSeed(length);
+            return GetNextBytes(Master, length);
         }
 
         protected readonly IRandomGenerator generator;
@@ -136,11 +150,7 @@ namespace NBitcoin.BouncyCastle.Security
 
         public virtual byte[] GenerateSeed(int length)
         {
-            SetSeed(DateTime.Now.Ticks);
-
-            byte[] rv = new byte[length];
-            NextBytes(rv);
-            return rv;
+            return GetNextBytes(Master, length);
         }
 
         public virtual void SetSeed(byte[] seed)
@@ -155,17 +165,12 @@ namespace NBitcoin.BouncyCastle.Security
 
         public override int Next()
         {
-            for (;;)
-            {
-                int i = NextInt() & int.MaxValue;
-
-                if (i != int.MaxValue)
-                    return i;
-            }
+            return NextInt() & int.MaxValue;
         }
 
         public override int Next(int maxValue)
         {
+
             if (maxValue < 2)
             {
                 if (maxValue < 0)
@@ -174,15 +179,16 @@ namespace NBitcoin.BouncyCastle.Security
                 return 0;
             }
 
+            int bits;
+
             // Test whether maxValue is a power of 2
-            if ((maxValue & -maxValue) == maxValue)
+            if ((maxValue & (maxValue - 1)) == 0)
             {
-                int val = NextInt() & int.MaxValue;
-                long lr = ((long) maxValue * (long) val) >> 31;
-                return (int) lr;
+                bits = NextInt() & int.MaxValue;
+                return (int)(((long)bits * maxValue) >> 31);
             }
 
-            int bits, result;
+            int result;
             do
             {
                 bits = NextInt() & int.MaxValue;
@@ -235,16 +241,17 @@ namespace NBitcoin.BouncyCastle.Security
 
         public virtual int NextInt()
         {
-            byte[] intBytes = new byte[4];
-            NextBytes(intBytes);
+            byte[] bytes = new byte[4];
+            NextBytes(bytes);
 
-            int result = 0;
-            for (int i = 0; i < 4; i++)
-            {
-                result = (result << 8) + (intBytes[i] & 0xff);
-            }
-
-            return result;
+            uint result = bytes[0];
+            result <<= 8;
+            result |= bytes[1];
+            result <<= 8;
+            result |= bytes[2];
+            result <<= 8;
+            result |= bytes[3];
+            return (int)result;
         }
 
         public virtual long NextLong()

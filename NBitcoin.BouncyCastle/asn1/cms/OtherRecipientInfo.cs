@@ -16,6 +16,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Cms
             this.oriValue = oriValue;
         }
 
+        [Obsolete("Use GetInstance() instead")]
         public OtherRecipientInfo(
             Asn1Sequence seq)
         {

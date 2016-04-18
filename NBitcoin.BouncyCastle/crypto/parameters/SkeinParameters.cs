@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Globalization;
 using System.IO;
 
 using NBitcoin.BouncyCastle.Utilities;
@@ -234,12 +235,12 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 				{
 					MemoryStream bout = new MemoryStream();
 					StreamWriter outBytes = new StreamWriter(bout, System.Text.Encoding.UTF8);
-					outBytes.Write(date.ToString("YYYYMMDD"));
+					outBytes.Write(date.ToString("YYYYMMDD", CultureInfo.InvariantCulture));
 					outBytes.Write(" ");
 					outBytes.Write(emailAddress);
 					outBytes.Write(" ");
 					outBytes.Write(distinguisher);
-					outBytes.Dispose();
+                    Platform.Dispose(outBytes);
 					return Set(PARAM_TYPE_PERSONALISATION, bout.ToArray());
 				}
 				catch (IOException e)

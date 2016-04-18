@@ -1,6 +1,6 @@
 using System;
 
-using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Esf
 {
@@ -84,7 +84,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Esf
 
 			throw new ArgumentException(
 				"Unknown object in 'CommitmentTypeQualifier' factory: "
-					+ obj.GetType().Name,
+                    + Platform.GetTypeName(obj),
 				"obj");
 		}
 

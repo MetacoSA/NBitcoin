@@ -19,12 +19,12 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
         private ECKeyParameters	key;
         private SecureRandom	random;
 
-        public string AlgorithmName
+        public virtual string AlgorithmName
         {
             get { return "ECNR"; }
         }
 
-        public void Init(
+        public virtual void Init(
             bool				forSigning,
             ICipherParameters	parameters)
         {
@@ -68,7 +68,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
          * @param digest  the digest to be signed.
          * @exception DataLengthException if the digest is longer than the key allows
          */
-        public BigInteger[] GenerateSignature(
+        public virtual BigInteger[] GenerateSignature(
             byte[] message)
         {
             if (!this.forSigning)
@@ -134,7 +134,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
          * @param s       the s value of the signature.
          * @exception DataLengthException if the digest is longer than the key allows
          */
-        public bool VerifySignature(
+        public virtual bool VerifySignature(
             byte[]		message,
             BigInteger	r,
             BigInteger	s)

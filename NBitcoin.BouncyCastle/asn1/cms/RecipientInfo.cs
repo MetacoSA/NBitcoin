@@ -1,6 +1,6 @@
 using System;
 
-using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Cms
 {
@@ -57,7 +57,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Cms
 			if (o is Asn1TaggedObject)
                 return new RecipientInfo((Asn1TaggedObject) o);
 
-			throw new ArgumentException("unknown object in factory: " + o.GetType().Name);
+            throw new ArgumentException("unknown object in factory: " + Platform.GetTypeName(o));
         }
 
 		public DerInteger Version

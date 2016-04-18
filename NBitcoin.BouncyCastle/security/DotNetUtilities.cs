@@ -1,4 +1,4 @@
-#if !(NETCF_1_0 || SILVERLIGHT)
+#if !(NETCF_1_0 || SILVERLIGHT || PORTABLE)
 
 using System;
 using System.Security.Cryptography;
@@ -10,6 +10,7 @@ using NBitcoin.BouncyCastle.Crypto;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Utilities;
+using NBitcoin.BouncyCastle.X509;
 
 namespace NBitcoin.BouncyCastle.Security
 {
@@ -31,6 +32,18 @@ namespace NBitcoin.BouncyCastle.Security
 			X509CertificateStructure x509Struct)
 		{
 			return new SystemX509.X509Certificate(x509Struct.GetDerEncoded());
+		}
+
+		public static SystemX509.X509Certificate ToX509Certificate(
+			X509Certificate x509Cert)
+		{
+			return new SystemX509.X509Certificate(x509Cert.GetEncoded());
+		}
+
+		public static X509Certificate FromX509Certificate(
+			SystemX509.X509Certificate x509Cert)
+		{
+			return new X509CertificateParser().ReadCertificate(x509Cert.GetRawCertData());
 		}
 
 		public static AsymmetricCipherKeyPair GetDsaKeyPair(
@@ -220,7 +233,9 @@ namespace NBitcoin.BouncyCastle.Security
 
         private static RSA CreateRSAProvider(RSAParameters rp)
         {
-            RSACryptoServiceProvider rsaCsp = new RSACryptoServiceProvider();
+            CspParameters csp = new CspParameters();
+            csp.KeyContainerName = string.Format("BouncyCastle-{0}", Guid.NewGuid());
+            RSACryptoServiceProvider rsaCsp = new RSACryptoServiceProvider(csp);
             rsaCsp.ImportParameters(rp);
             return rsaCsp;
         }

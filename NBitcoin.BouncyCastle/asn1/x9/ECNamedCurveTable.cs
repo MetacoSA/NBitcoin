@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 
+using NBitcoin.BouncyCastle.Asn1.Anssi;
 using NBitcoin.BouncyCastle.Asn1.Nist;
 using NBitcoin.BouncyCastle.Asn1.Sec;
 using NBitcoin.BouncyCastle.Asn1.TeleTrust;
@@ -32,15 +33,42 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
             if (ecP == null)
             {
+                ecP = NistNamedCurves.GetByName(name);
+            }
+
+            if (ecP == null)
+            {
                 ecP = TeleTrusTNamedCurves.GetByName(name);
             }
 
             if (ecP == null)
             {
-                ecP = NistNamedCurves.GetByName(name);
+                ecP = AnssiNamedCurves.GetByName(name);
             }
 
             return ecP;
+        }
+
+        public static string GetName(DerObjectIdentifier oid)
+        {
+            string name = X962NamedCurves.GetName(oid);
+            if (name == null)
+            {
+                name = SecNamedCurves.GetName(oid);
+            }
+            if (name == null)
+            {
+                name = NistNamedCurves.GetName(oid);
+            }
+            if (name == null)
+            {
+                name = TeleTrusTNamedCurves.GetName(oid);
+            }
+            if (name == null)
+            {
+                name = AnssiNamedCurves.GetName(oid);
+            }
+            return name;
         }
 
         /**
@@ -60,12 +88,17 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
             if (oid == null)
             {
+                oid = NistNamedCurves.GetOid(name);
+            }
+
+            if (oid == null)
+            {
                 oid = TeleTrusTNamedCurves.GetOid(name);
             }
 
             if (oid == null)
             {
-                oid = NistNamedCurves.GetOid(name);
+                oid = AnssiNamedCurves.GetOid(name);
             }
 
             return oid;
@@ -87,12 +120,17 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
                 ecP = SecNamedCurves.GetByOid(oid);
             }
 
+            // NOTE: All the NIST curves are currently from SEC, so no point in redundant OID lookup
+
             if (ecP == null)
             {
                 ecP = TeleTrusTNamedCurves.GetByOid(oid);
             }
 
-            // NOTE: All the NIST curves are currently from SEC, so no point in redundant OID lookup
+            if (ecP == null)
+            {
+                ecP = AnssiNamedCurves.GetByOid(oid);
+            }
 
             return ecP;
         }
@@ -111,6 +149,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
                 CollectionUtilities.AddRange(v, SecNamedCurves.Names);
                 CollectionUtilities.AddRange(v, NistNamedCurves.Names);
                 CollectionUtilities.AddRange(v, TeleTrusTNamedCurves.Names);
+                CollectionUtilities.AddRange(v, AnssiNamedCurves.Names);
                 return v;
             }
         }

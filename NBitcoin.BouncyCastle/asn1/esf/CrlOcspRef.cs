@@ -1,5 +1,7 @@
 using System;
 
+using NBitcoin.BouncyCastle.Utilities;
+
 namespace NBitcoin.BouncyCastle.Asn1.Esf
 {
 	/// <remarks>
@@ -30,7 +32,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Esf
 
 			throw new ArgumentException(
 				"Unknown object in 'CrlOcspRef' factory: "
-					+ obj.GetType().Name,
+                    + Platform.GetTypeName(obj),
 				"obj");
 		}
 

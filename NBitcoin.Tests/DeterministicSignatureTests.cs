@@ -224,8 +224,8 @@ namespace NBitcoin.Tests
 
 			ECPoint pub = curve.G.Multiply(key.D);
 
-			Assert.Equal(pub.X.ToBigInteger(), new BigInteger(values["Ux"], 16));
-			Assert.Equal(pub.Y.ToBigInteger(), new BigInteger(values["Uy"], 16));
+			Assert.Equal(pub.Normalize().XCoord.ToBigInteger(), new BigInteger(values["Ux"], 16));
+			Assert.Equal(pub.Normalize().YCoord.ToBigInteger(), new BigInteger(values["Uy"], 16));
 
 			return key;
 		}

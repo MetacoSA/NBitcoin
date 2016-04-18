@@ -1,7 +1,7 @@
-using NBitcoin.BouncyCastle.Asn1;
-using NBitcoin.BouncyCastle.Asn1.X509;
-
 using System;
+
+using NBitcoin.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Ocsp
 {
@@ -77,7 +77,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Ocsp
                 return new SingleResponse((Asn1Sequence)obj);
             }
 
-			throw new ArgumentException("unknown object in factory: " + obj.GetType().Name, "obj");
+            throw new ArgumentException("unknown object in factory: " + Platform.GetTypeName(obj), "obj");
         }
 
 		public CertID CertId

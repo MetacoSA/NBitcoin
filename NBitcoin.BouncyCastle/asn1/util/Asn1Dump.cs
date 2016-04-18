@@ -198,6 +198,14 @@ namespace NBitcoin.BouncyCastle.Asn1.Utilities
             {
                 buf.Append(indent + "T61String(" + ((DerT61String)obj).GetString() + ") " + NewLine);
             }
+            else if (obj is DerGraphicString)
+            {
+                buf.Append(indent + "GraphicString(" + ((DerGraphicString)obj).GetString() + ") " + NewLine);
+            }
+            else if (obj is DerVideotexString)
+            {
+                buf.Append(indent + "VideotexString(" + ((DerVideotexString)obj).GetString() + ") " + NewLine);
+            }
             else if (obj is DerUtcTime)
             {
                 buf.Append(indent + "UTCTime(" + ((DerUtcTime)obj).TimeString + ") " + NewLine);

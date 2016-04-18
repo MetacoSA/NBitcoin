@@ -52,6 +52,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Pkcs
             this.coefficient = coefficient;
         }
 
+        [Obsolete("Use 'GetInstance' method(s) instead")]
         public RsaPrivateKeyStructure(
             Asn1Sequence seq)
         {

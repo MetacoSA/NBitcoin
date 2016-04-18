@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.IO;
+
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1
 {
@@ -75,9 +78,9 @@ namespace NBitcoin.BouncyCastle.Asn1
 				dOut.WriteObject(obj);
 			}
 
-			dOut.Dispose();
+            Platform.Dispose(dOut);
 
-			byte[] bytes = bOut.ToArray();
+            byte[] bytes = bOut.ToArray();
 
 			derOut.WriteEncoded(Asn1Tags.Sequence | Asn1Tags.Constructed, bytes);
 		}

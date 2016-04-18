@@ -42,7 +42,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
                 return GetInstance(X509Extension.ConvertValueToObject((X509Extension) obj));
             }
 
-            throw new ArgumentException("Invalid ExtendedKeyUsage: " + obj.GetType().Name);
+            throw new ArgumentException("Invalid ExtendedKeyUsage: " + Platform.GetTypeName(obj));
         }
 
         private ExtendedKeyUsage(
@@ -70,7 +70,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
             }
         }
 
-#if !SILVERLIGHT
+#if !(SILVERLIGHT || PORTABLE)
         [Obsolete]
         public ExtendedKeyUsage(
             ArrayList usages)
@@ -101,7 +101,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
             return usageTable.Contains(keyPurposeId);
         }
 
-#if !SILVERLIGHT
+#if !(SILVERLIGHT || PORTABLE)
         [Obsolete("Use 'GetAllUsages'")]
         public ArrayList GetUsages()
         {

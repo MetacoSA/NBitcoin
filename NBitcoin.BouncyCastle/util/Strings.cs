@@ -52,7 +52,7 @@ namespace NBitcoin.BouncyCastle.Utilities
         public static string FromAsciiByteArray(
             byte[] bytes)
         {
-#if SILVERLIGHT
+#if SILVERLIGHT || PORTABLE
             // TODO Check for non-ASCII bytes in input?
             return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
 #else
@@ -63,7 +63,7 @@ namespace NBitcoin.BouncyCastle.Utilities
         public static byte[] ToAsciiByteArray(
             char[] cs)
         {
-#if SILVERLIGHT
+#if SILVERLIGHT || PORTABLE
             // TODO Check for non-ASCII characters in input?
             return Encoding.UTF8.GetBytes(cs);
 #else
@@ -74,7 +74,7 @@ namespace NBitcoin.BouncyCastle.Utilities
         public static byte[] ToAsciiByteArray(
             string s)
         {
-#if SILVERLIGHT
+#if SILVERLIGHT || PORTABLE
             // TODO Check for non-ASCII characters in input?
             return Encoding.UTF8.GetBytes(s);
 #else

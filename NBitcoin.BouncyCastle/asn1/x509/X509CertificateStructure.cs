@@ -119,6 +119,11 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
             get { return sig; }
         }
 
+        public byte[] GetSignatureOctets()
+        {
+            return sig.GetOctets();
+        }
+
         public override Asn1Object ToAsn1Object()
         {
             return new DerSequence(tbsCert, sigAlgID, sig);

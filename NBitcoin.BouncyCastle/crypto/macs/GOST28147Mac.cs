@@ -2,6 +2,7 @@ using System;
 
 using NBitcoin.BouncyCastle.Crypto;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Crypto.Macs
 {
@@ -83,7 +84,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Macs
 			else
 			{
 				throw new ArgumentException("invalid parameter passed to Gost28147 init - "
-					+ parameters.GetType().Name);
+                    + Platform.GetTypeName(parameters));
 			}
 		}
 

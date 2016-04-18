@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>CS0618</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,11 +33,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="asn1\anssi\ANSSINamedCurves.cs" />
+    <Compile Include="asn1\anssi\ANSSIObjectIdentifiers.cs" />
     <Compile Include="asn1\Asn1Encodable.cs" />
     <Compile Include="asn1\Asn1EncodableVector.cs" />
     <Compile Include="asn1\Asn1Exception.cs" />
@@ -59,6 +59,7 @@
     <Compile Include="asn1\bc\BCObjectIdentifiers.cs" />
     <Compile Include="asn1\BerApplicationSpecific.cs" />
     <Compile Include="asn1\BerApplicationSpecificParser.cs" />
+    <Compile Include="asn1\BERBitString.cs" />
     <Compile Include="asn1\BERGenerator.cs" />
     <Compile Include="asn1\BerNull.cs" />
     <Compile Include="asn1\BerOctetString.cs" />
@@ -173,6 +174,7 @@
     <Compile Include="asn1\DerGeneralizedTime.cs" />
     <Compile Include="asn1\DerGeneralString.cs" />
     <Compile Include="asn1\DERGenerator.cs" />
+    <Compile Include="asn1\DerGraphicString.cs" />
     <Compile Include="asn1\DerIA5String.cs" />
     <Compile Include="asn1\DerInteger.cs" />
     <Compile Include="asn1\DerNull.cs" />
@@ -194,6 +196,7 @@
     <Compile Include="asn1\DerUniversalString.cs" />
     <Compile Include="asn1\DerUTCTime.cs" />
     <Compile Include="asn1\DerUTF8String.cs" />
+    <Compile Include="asn1\DerVideotexString.cs" />
     <Compile Include="asn1\DerVisibleString.cs" />
     <Compile Include="asn1\esf\CertificateValues.cs" />
     <Compile Include="asn1\esf\CommitmentTypeIdentifier.cs" />
@@ -389,15 +392,18 @@
     <Compile Include="crypto\BufferedCipherBase.cs" />
     <Compile Include="crypto\BufferedIesCipher.cs" />
     <Compile Include="crypto\BufferedStreamCipher.cs" />
+    <Compile Include="crypto\Check.cs" />
     <Compile Include="crypto\CipherKeyGenerator.cs" />
     <Compile Include="crypto\CryptoException.cs" />
     <Compile Include="crypto\DataLengthException.cs" />
     <Compile Include="crypto\digests\GeneralDigest.cs" />
     <Compile Include="crypto\digests\GOST3411Digest.cs" />
+    <Compile Include="crypto\digests\KeccakDigest.cs" />
     <Compile Include="crypto\digests\LongDigest.cs" />
     <Compile Include="crypto\digests\MD2Digest.cs" />
     <Compile Include="crypto\digests\MD4Digest.cs" />
     <Compile Include="crypto\digests\MD5Digest.cs" />
+    <Compile Include="crypto\digests\NonMemoableDigest.cs" />
     <Compile Include="crypto\digests\NullDigest.cs" />
     <Compile Include="crypto\digests\RipeMD128Digest.cs" />
     <Compile Include="crypto\digests\RipeMD160Digest.cs" />
@@ -410,6 +416,7 @@
     <Compile Include="crypto\digests\SHA3Digest.cs" />
     <Compile Include="crypto\digests\Sha512Digest.cs" />
     <Compile Include="crypto\digests\Sha512tDigest.cs" />
+    <Compile Include="crypto\digests\ShakeDigest.cs" />
     <Compile Include="crypto\digests\ShortenedDigest.cs" />
     <Compile Include="crypto\digests\SkeinDigest.cs" />
     <Compile Include="crypto\digests\SkeinEngine.cs" />
@@ -430,6 +437,7 @@
     <Compile Include="crypto\engines\CamelliaWrapEngine.cs" />
     <Compile Include="crypto\engines\Cast5Engine.cs" />
     <Compile Include="crypto\engines\Cast6Engine.cs" />
+    <Compile Include="crypto\engines\ChaCha7539Engine.cs" />
     <Compile Include="crypto\engines\ChaChaEngine.cs" />
     <Compile Include="crypto\engines\DesEdeEngine.cs" />
     <Compile Include="crypto\engines\DesEdeWrapEngine.cs" />
@@ -441,6 +449,7 @@
     <Compile Include="crypto\engines\IdeaEngine.cs" />
     <Compile Include="crypto\engines\IesEngine.cs" />
     <Compile Include="crypto\engines\ISAACEngine.cs" />
+    <Compile Include="crypto\engines\NaccacheSternEngine.cs" />
     <Compile Include="crypto\engines\NoekeonEngine.cs" />
     <Compile Include="crypto\engines\NullEngine.cs" />
     <Compile Include="crypto\engines\RC2Engine.cs" />
@@ -460,9 +469,11 @@
     <Compile Include="crypto\engines\SEEDEngine.cs" />
     <Compile Include="crypto\engines\SEEDWrapEngine.cs" />
     <Compile Include="crypto\engines\SerpentEngine.cs" />
+    <Compile Include="crypto\engines\SerpentEngineBase.cs" />
     <Compile Include="crypto\engines\SkipjackEngine.cs" />
     <Compile Include="crypto\engines\TEAEngine.cs" />
     <Compile Include="crypto\engines\ThreefishEngine.cs" />
+    <Compile Include="crypto\engines\TnepresEngine.cs" />
     <Compile Include="crypto\engines\TwofishEngine.cs" />
     <Compile Include="crypto\engines\VMPCEngine.cs" />
     <Compile Include="crypto\engines\VMPCKSA3Engine.cs" />
@@ -510,6 +521,7 @@
     <Compile Include="crypto\ISignerWithRecovery.cs" />
     <Compile Include="crypto\IStreamCipher.cs" />
     <Compile Include="crypto\IWrapper.cs" />
+    <Compile Include="crypto\IXof.cs" />
     <Compile Include="crypto\KeyGenerationParameters.cs" />
     <Compile Include="crypto\macs\CbcBlockCipherMac.cs" />
     <Compile Include="crypto\macs\CfbBlockCipherMac.cs" />
@@ -524,6 +536,7 @@
     <Compile Include="crypto\macs\VMPCMac.cs" />
     <Compile Include="crypto\MaxBytesExceededException.cs" />
     <Compile Include="crypto\modes\CbcBlockCipher.cs" />
+    <Compile Include="crypto\modes\CcmBlockCipher.cs" />
     <Compile Include="crypto\modes\CfbBlockCipher.cs" />
     <Compile Include="crypto\modes\CtsBlockCipher.cs" />
     <Compile Include="crypto\modes\EAXBlockCipher.cs" />
@@ -542,6 +555,7 @@
     <Compile Include="crypto\modes\OfbBlockCipher.cs" />
     <Compile Include="crypto\modes\OpenPgpCfbBlockCipher.cs" />
     <Compile Include="crypto\modes\SicBlockCipher.cs" />
+    <Compile Include="crypto\OutputLengthException.cs" />
     <Compile Include="crypto\paddings\BlockCipherPadding.cs" />
     <Compile Include="crypto\paddings\ISO10126d2Padding.cs" />
     <Compile Include="crypto\paddings\ISO7816d4Padding.cs" />
@@ -624,9 +638,11 @@
     <Compile Include="crypto\signers\IDsaKCalculator.cs" />
     <Compile Include="crypto\signers\Iso9796d2PssSigner.cs" />
     <Compile Include="crypto\signers\Iso9796d2Signer.cs" />
+    <Compile Include="crypto\signers\IsoTrailers.cs" />
     <Compile Include="crypto\signers\PssSigner.cs" />
     <Compile Include="crypto\signers\RandomDsaKCalculator.cs" />
     <Compile Include="crypto\signers\RsaDigestSigner.cs" />
+    <Compile Include="crypto\signers\X931Signer.cs" />
     <Compile Include="crypto\StreamBlockCipher.cs" />
     <Compile Include="crypto\util\Pack.cs" />
     <Compile Include="math\BigInteger.cs" />
@@ -637,11 +653,20 @@
     <Compile Include="math\ec\custom\djb\Curve25519Field.cs" />
     <Compile Include="math\ec\custom\djb\Curve25519FieldElement.cs" />
     <Compile Include="math\ec\custom\djb\Curve25519Point.cs" />
-    <Compile Include="math\ec\custom\sec\Nat192.cs" />
-    <Compile Include="math\ec\custom\sec\Nat224.cs" />
-    <Compile Include="math\ec\custom\sec\Nat256.cs" />
-    <Compile Include="math\ec\custom\sec\Nat384.cs" />
-    <Compile Include="math\ec\custom\sec\Nat512.cs" />
+    <Compile Include="math\ec\custom\sec\SecP128R1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecP128R1Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecP128R1FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecP128R1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecP160K1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecP160K1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecP160R1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecP160R1Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecP160R1FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecP160R1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecP160R2Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecP160R2Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecP160R2FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecP160R2Point.cs" />
     <Compile Include="math\ec\custom\sec\SecP192K1Curve.cs" />
     <Compile Include="math\ec\custom\sec\SecP192K1Field.cs" />
     <Compile Include="math\ec\custom\sec\SecP192K1FieldElement.cs" />
@@ -674,6 +699,60 @@
     <Compile Include="math\ec\custom\sec\SecP521R1Field.cs" />
     <Compile Include="math\ec\custom\sec\SecP521R1FieldElement.cs" />
     <Compile Include="math\ec\custom\sec\SecP521R1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT113Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecT113FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecT113R1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT113R1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT113R2Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT113R2Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT131Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecT131FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecT131R1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT131R1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT131R2Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT131R2Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT163Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecT163FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecT163K1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT163K1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT163R1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT163R1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT163R2Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT163R2Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT193Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecT193FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecT193R1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT193R1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT193R2Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT193R2Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT233Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecT233FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecT233K1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT233K1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT233R1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT233R1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT239Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecT239FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecT239K1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT239K1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT283Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecT283FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecT283K1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT283K1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT283R1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT283R1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT409Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecT409FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecT409K1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT409K1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT409R1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT409R1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT571Field.cs" />
+    <Compile Include="math\ec\custom\sec\SecT571FieldElement.cs" />
+    <Compile Include="math\ec\custom\sec\SecT571K1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT571K1Point.cs" />
+    <Compile Include="math\ec\custom\sec\SecT571R1Curve.cs" />
+    <Compile Include="math\ec\custom\sec\SecT571R1Point.cs" />
     <Compile Include="math\ec\ECAlgorithms.cs" />
     <Compile Include="math\ec\ECCurve.cs" />
     <Compile Include="math\ec\ECFieldElement.cs" />
@@ -684,7 +763,6 @@
     <Compile Include="math\ec\endo\GlvTypeBEndomorphism.cs" />
     <Compile Include="math\ec\endo\GlvTypeBParameters.cs" />
     <Compile Include="math\ec\LongArray.cs" />
-    <Compile Include="math\ec\Mod.cs" />
     <Compile Include="math\ec\multiplier\AbstractECMultiplier.cs" />
     <Compile Include="math\ec\multiplier\DoubleAddMultiplier.cs" />
     <Compile Include="math\ec\multiplier\ECMultiplier.cs" />
@@ -705,7 +783,6 @@
     <Compile Include="math\ec\multiplier\WTauNafPreCompInfo.cs" />
     <Compile Include="math\ec\multiplier\ZSignedDigitL2RMultiplier.cs" />
     <Compile Include="math\ec\multiplier\ZSignedDigitR2LMultiplier.cs" />
-    <Compile Include="math\ec\Nat.cs" />
     <Compile Include="math\ec\ScaleXPointMap.cs" />
     <Compile Include="math\ec\ScaleYPointMap.cs" />
     <Compile Include="math\field\FiniteFields.cs" />
@@ -716,6 +793,19 @@
     <Compile Include="math\field\IPolynomial.cs" />
     <Compile Include="math\field\IPolynomialExtensionField.cs" />
     <Compile Include="math\field\PrimeField.cs" />
+    <Compile Include="math\raw\Interleave.cs" />
+    <Compile Include="math\raw\Mod.cs" />
+    <Compile Include="math\raw\Nat.cs" />
+    <Compile Include="math\raw\Nat128.cs" />
+    <Compile Include="math\raw\Nat160.cs" />
+    <Compile Include="math\raw\Nat192.cs" />
+    <Compile Include="math\raw\Nat224.cs" />
+    <Compile Include="math\raw\Nat256.cs" />
+    <Compile Include="math\raw\Nat320.cs" />
+    <Compile Include="math\raw\Nat384.cs" />
+    <Compile Include="math\raw\Nat448.cs" />
+    <Compile Include="math\raw\Nat512.cs" />
+    <Compile Include="math\raw\Nat576.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="security\AgreementUtilities.cs" />
     <Compile Include="security\CipherUtilities.cs" />
@@ -769,6 +859,7 @@
     <Compile Include="util\Integers.cs" />
     <Compile Include="util\io\BaseInputStream.cs" />
     <Compile Include="util\io\BaseOutputStream.cs" />
+    <Compile Include="util\io\FilterStream.cs" />
     <Compile Include="util\io\NullOutputStream.cs" />
     <Compile Include="util\io\pem\PemGenerationException.cs" />
     <Compile Include="util\io\pem\PemHeader.cs" />
@@ -785,7 +876,7 @@
     <Compile Include="util\Strings.cs" />
     <Compile Include="util\Times.cs" />
   </ItemGroup>
-	<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

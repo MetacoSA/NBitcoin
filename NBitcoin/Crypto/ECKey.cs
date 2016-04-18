@@ -104,7 +104,7 @@ namespace NBitcoin.Crypto
 		{
 			var q = GetPublicKeyParameters().Q;
 			//Pub key (q) is composed into X and Y, the compressed form only include X, which can derive Y along with 02 or 03 prepent depending on whether Y in even or odd.
-			var result = Secp256k1.Curve.CreatePoint(q.X.ToBigInteger(), q.Y.ToBigInteger(), isCompressed).GetEncoded();
+			var result = Secp256k1.Curve.CreatePoint(q.Normalize().XCoord.ToBigInteger(), q.Normalize().YCoord.ToBigInteger(), isCompressed).GetEncoded();
 			return new PubKey(result);
 		}
 
@@ -185,7 +185,7 @@ namespace NBitcoin.Crypto
 			var q = (FpPoint)ECAlgorithms.SumOfTwoMultiplies(curve.G, eInvrInv, R, srInv);
 			if(compressed)
 			{
-				q = new FpPoint(curve.Curve, q.X, q.Y, true);
+				q = new FpPoint(curve.Curve, q.Normalize().XCoord, q.Normalize().YCoord, true);
 			}
 			return new ECKey(q.GetEncoded(), false);
 		}

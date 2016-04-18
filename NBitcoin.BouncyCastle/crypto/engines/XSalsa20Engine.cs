@@ -13,7 +13,6 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 	public class XSalsa20Engine 
 		: Salsa20Engine
 	{
-
 		public override string AlgorithmName
 		{
 			get { return "XSalsa20"; }
@@ -31,17 +30,17 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 		/// </summary>
 		protected override void SetKey(byte[] keyBytes, byte[] ivBytes)
 		{
-			if (keyBytes.Length != 32)
-			{
-				throw new ArgumentException(AlgorithmName + " requires a 256 bit key");
-			}
+            if (keyBytes == null)
+                throw new ArgumentException(AlgorithmName + " doesn't support re-init with null key");
 
-			// Set key for HSalsa20
+            if (keyBytes.Length != 32)
+				throw new ArgumentException(AlgorithmName + " requires a 256 bit key");
+
+            // Set key for HSalsa20
 			base.SetKey(keyBytes, ivBytes);
 
 			// Pack next 64 bits of IV into engine state instead of counter
-			engineState[8] = Pack.LE_To_UInt32(ivBytes, 8);
-			engineState[9] = Pack.LE_To_UInt32(ivBytes, 12);
+            Pack.LE_To_UInt32(ivBytes, 8, engineState, 8, 2);
 
 			// Process engine state to generate Salsa20 key
 			uint[] hsalsa20Out = new uint[engineState.Length];
@@ -59,13 +58,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 			engineState[14] = hsalsa20Out[9] - engineState[9];
 
 			// Last 64 bits of input IV
-			engineState[6] = Pack.LE_To_UInt32(ivBytes, 16);
-			engineState[7] = Pack.LE_To_UInt32(ivBytes, 20);
-
-			// Counter reset
-			ResetCounter();
+            Pack.LE_To_UInt32(ivBytes, 16, engineState, 6, 2);
 		}
-
 	}
 }
-

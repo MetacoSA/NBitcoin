@@ -1,8 +1,8 @@
 using System;
 
-using NBitcoin.BouncyCastle.Asn1;
 using NBitcoin.BouncyCastle.Asn1.X509;
 using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Pkcs
 {
@@ -26,7 +26,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Pkcs
                 return new MacData((Asn1Sequence) obj);
             }
 
-			throw new ArgumentException("Unknown object in factory: " + obj.GetType().FullName, "obj");
+			throw new ArgumentException("Unknown object in factory: " + Platform.GetTypeName(obj), "obj");
 		}
 
 		private MacData(
