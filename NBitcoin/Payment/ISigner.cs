@@ -8,7 +8,7 @@ namespace NBitcoin.Payment
 {
 	public interface ISigner
 	{
-		byte[] Sign(byte[] certificate, byte[] hash, string hashOID);
-		byte[] StripPrivateKey(byte[] certificate);
+		byte[] Sign(object certificate, byte[] hash, string hashOID);
+		byte[] StripPrivateKey(object certificate);
 	}
 }

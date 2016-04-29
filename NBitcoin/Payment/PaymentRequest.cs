@@ -10,6 +10,9 @@ using System.Net.Http;
 #endif
 using System.Text;
 using System.Text.RegularExpressions;
+#if WIN
+using System.Security.Cryptography.X509Certificates;
+#endif
 using System.Threading.Tasks;
 
 namespace NBitcoin.Payment
@@ -55,7 +58,7 @@ namespace NBitcoin.Payment
 			get;
 			set;
 		}
-		
+
 		internal static PaymentOutput Load(byte[] bytes)
 		{
 			var reader = new ProtobufReaderWriter(new MemoryStream(bytes));
@@ -664,8 +667,20 @@ namespace NBitcoin.Payment
 			return signed;
 		}
 
+#if WIN
+		public void Sign(X509Certificate2 certificate, Payment.PKIType type)
+		{
+			Sign((object)certificate, type);
+		}
+#endif
 		public void Sign(byte[] certificate, Payment.PKIType type)
 		{
+			Sign((object)certificate, type);
+		}
+		public void Sign(object certificate, Payment.PKIType type)
+		{
+			if(certificate == null)
+				throw new ArgumentNullException("certificate");
 			if(type == Payment.PKIType.None)
 				throw new ArgumentException("PKIType can't be none if signing");
 			var signer = GetCertificateProvider().GetSigner();

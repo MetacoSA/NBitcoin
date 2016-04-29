@@ -36,8 +36,12 @@ namespace NBitcoin.Payment
 
 			public byte[] Sign(byte[] certificate, byte[] hash, string hashOID)
 			{
-				var cert = new X509Certificate2(certificate);
-				var privateKey = cert.PrivateKey as RSACryptoServiceProvider;
+				return Sign(new X509Certificate2(certificate), hash, hashOID);
+			}
+
+			public static byte[] Sign(X509Certificate2 certificate, byte[] hash, string hashOID)
+			{
+				var privateKey = certificate.PrivateKey as RSACryptoServiceProvider;
 				if(privateKey == null)
 					throw new ArgumentException("Private key not present in the certificate, impossible to sign");
 				return privateKey.SignHash(hash, hashOID);
@@ -45,7 +49,33 @@ namespace NBitcoin.Payment
 
 			public byte[] StripPrivateKey(byte[] certificate)
 			{
-				return new X509Certificate2(new X509Certificate2(certificate).Export(X509ContentType.Cert)).GetRawCertData();
+				return StripPrivateKey(new X509Certificate2(certificate));
+			}
+			public byte[] StripPrivateKey(X509Certificate2 certificate)
+			{
+				return new X509Certificate2(certificate.Export(X509ContentType.Cert)).GetRawCertData();
+			}
+
+			#endregion
+
+			#region ISigner Members
+
+			public byte[] Sign(object certificate, byte[] hash, string hashOID)
+			{
+				if(certificate is byte[])
+					return Sign((byte[])certificate, hash, hashOID);
+				if(certificate is X509Certificate2)
+					return Sign((X509Certificate2)certificate, hash, hashOID);
+				throw new NotSupportedException("Certificate object's type is not supported");
+			}
+
+			public byte[] StripPrivateKey(object certificate)
+			{
+				if(certificate is byte[])
+					return StripPrivateKey((byte[])certificate);
+				if(certificate is X509Certificate2)
+					return StripPrivateKey((X509Certificate2)certificate);
+				throw new NotSupportedException("Certificate object's type is not supported");
 			}
 
 			#endregion
