@@ -35,8 +35,6 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="asn1\anssi\ANSSINamedCurves.cs" />
-    <Compile Include="asn1\anssi\ANSSIObjectIdentifiers.cs" />
     <Compile Include="asn1\Asn1Encodable.cs" />
     <Compile Include="asn1\Asn1EncodableVector.cs" />
     <Compile Include="asn1\Asn1Exception.cs" />

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 
-using NBitcoin.BouncyCastle.Asn1.Anssi;
 using NBitcoin.BouncyCastle.Asn1.Nist;
 using NBitcoin.BouncyCastle.Asn1.Sec;
 using NBitcoin.BouncyCastle.Asn1.TeleTrust;
@@ -41,11 +40,6 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
                 ecP = TeleTrusTNamedCurves.GetByName(name);
             }
 
-            if (ecP == null)
-            {
-                ecP = AnssiNamedCurves.GetByName(name);
-            }
-
             return ecP;
         }
 
@@ -63,10 +57,6 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
             if (name == null)
             {
                 name = TeleTrusTNamedCurves.GetName(oid);
-            }
-            if (name == null)
-            {
-                name = AnssiNamedCurves.GetName(oid);
             }
             return name;
         }
@@ -96,11 +86,6 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
                 oid = TeleTrusTNamedCurves.GetOid(name);
             }
 
-            if (oid == null)
-            {
-                oid = AnssiNamedCurves.GetOid(name);
-            }
-
             return oid;
         }
 
@@ -127,11 +112,6 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
                 ecP = TeleTrusTNamedCurves.GetByOid(oid);
             }
 
-            if (ecP == null)
-            {
-                ecP = AnssiNamedCurves.GetByOid(oid);
-            }
-
             return ecP;
         }
 
@@ -149,7 +129,6 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
                 CollectionUtilities.AddRange(v, SecNamedCurves.Names);
                 CollectionUtilities.AddRange(v, NistNamedCurves.Names);
                 CollectionUtilities.AddRange(v, TeleTrusTNamedCurves.Names);
-                CollectionUtilities.AddRange(v, AnssiNamedCurves.Names);
                 return v;
             }
         }
