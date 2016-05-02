@@ -200,16 +200,30 @@ namespace NBitcoin.Tests
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
 				var cert = File.ReadAllBytes("Data/NicolasDorierMerchant.pfx");
-				var request = new PaymentRequest();
-				request.Details.Memo = "hello";
-				request.Sign(cert, PKIType.X509SHA256);
-
-				Assert.NotNull(request.MerchantCertificate);
-				Assert.True(request.VerifySignature());
-				Assert.False(request.VerifyChain());
-				AssertEx.CollectionEquals(request.ToBytes(), PaymentRequest.Load(request.ToBytes()).ToBytes());
-				Assert.True(PaymentRequest.Load(request.ToBytes()).VerifySignature());
+				CanCreatePaymentRequestCore(cert);
+#if WIN
+				if(provider is WindowsCertificateServiceProvider)
+				{
+					CanCreatePaymentRequestCore(new X509Certificate2(cert, "", X509KeyStorageFlags.Exportable | X509KeyStorageFlags.PersistKeySet));
+				}
+#endif
 			}
+		}
+
+		private static void CanCreatePaymentRequestCore(object cert)
+		{
+			var request = new PaymentRequest();
+			request.Details.Memo = "hello";
+			request.Sign(cert, PKIType.X509SHA256);
+
+			Assert.NotNull(request.MerchantCertificate);
+#if WIN			
+			Assert.False(new X509Certificate2(request.MerchantCertificate, "", X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable).HasPrivateKey);
+#endif
+			Assert.True(request.VerifySignature());
+			Assert.False(request.VerifyChain());
+			AssertEx.CollectionEquals(request.ToBytes(), PaymentRequest.Load(request.ToBytes()).ToBytes());
+			Assert.True(PaymentRequest.Load(request.ToBytes()).VerifySignature());
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

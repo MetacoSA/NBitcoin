@@ -851,13 +851,11 @@ namespace NBitcoin
 
 		public IEnumerable<Coin> AsCoins()
 		{
-			return AsIndexedOutputs().Select(i => i.ToCoin());
-		}
-
-		public IEnumerable<IndexedTxOut> AsSpendableIndexedOutputs()
-		{
-			return AsIndexedOutputs()
-					.Where(r => !r.TxOut.ScriptPubKey.IsUnspendable);
+			var txId = Transaction.GetHash();
+			for(int i = 0 ; i < Count; i++)
+			{
+				yield return new Coin(new OutPoint(txId, i), this[i]);
+			}
 		}
 	}
 
