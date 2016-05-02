@@ -181,7 +181,7 @@ namespace NBitcoin
 #if !USEBC
 			return Pbkdf2.ComputeDerivedKey(new HMACSHA512(bytes), salt, 2048, 64);
 #else
-			var mac = MacUtilities.GetMac("HMAC-SHA_512");
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
 			mac.Init(new KeyParameter(bytes));
 			return Pbkdf2.ComputeDerivedKey(mac, salt, 2048, 64);
 #endif

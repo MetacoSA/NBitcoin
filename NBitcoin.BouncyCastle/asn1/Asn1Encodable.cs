@@ -6,50 +6,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 		: IAsn1Convertible
     {
 		public const string Der = "DER";
-		public const string Ber = "BER";
-
-		public byte[] GetEncoded()
-        {
-            MemoryStream bOut = new MemoryStream();
-            Asn1OutputStream aOut = new Asn1OutputStream(bOut);
-
-			aOut.WriteObject(this);
-
-			return bOut.ToArray();
-        }
-
-		public byte[] GetEncoded(
-			string encoding)
-		{
-			if (encoding.Equals(Der))
-			{
-				MemoryStream bOut = new MemoryStream();
-				DerOutputStream dOut = new DerOutputStream(bOut);
-
-				dOut.WriteObject(this);
-
-				return bOut.ToArray();
-			}
-
-			return GetEncoded();
-		}
-
-		/**
-		* Return the DER encoding of the object, null if the DER encoding can not be made.
-		*
-		* @return a DER byte array, null otherwise.
-		*/
-		public byte[] GetDerEncoded()
-		{
-			try
-			{
-				return GetEncoded(Der);
-			}
-			catch (IOException)
-			{
-				return null;
-			}
-		}
+		public const string Ber = "BER";		
 
 		public sealed override int GetHashCode()
 		{

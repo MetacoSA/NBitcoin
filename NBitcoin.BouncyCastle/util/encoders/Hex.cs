@@ -13,22 +13,7 @@ namespace NBitcoin.BouncyCastle.Utilities.Encoders
 
         private Hex()
         {
-        }
-
-        public static string ToHexString(
-            byte[] data)
-        {
-            return ToHexString(data, 0, data.Length);
-        }
-
-        public static string ToHexString(
-            byte[]	data,
-            int		off,
-            int		length)
-        {
-            byte[] hex = Encode(data, off, length);
-            return Strings.FromAsciiByteArray(hex);
-        }
+        }  
 
         /**
          * encode the input data producing a Hex encoded byte array.

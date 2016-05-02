@@ -97,11 +97,6 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
                     curve = new F2mCurve(m, k1, k2, k3, x9A.Value.ToBigInteger(), x9B.Value.ToBigInteger());
                 }
             }
-
-            if (seq.Count == 3)
-            {
-                seed = ((DerBitString) seq[2]).GetBytes();
-            }
         }
 
         public ECCurve Curve
@@ -134,11 +129,6 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
                 v.Add(new X9FieldElement(curve.A).ToAsn1Object());
                 v.Add(new X9FieldElement(curve.B).ToAsn1Object());
             } 
-
-            if (seed != null)
-            {
-                v.Add(new DerBitString(seed));
-            }
 
             return new DerSequence(v);
         }

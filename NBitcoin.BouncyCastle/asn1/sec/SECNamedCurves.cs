@@ -7,7 +7,6 @@ using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
 using NBitcoin.BouncyCastle.Math.EC.Endo;
 using NBitcoin.BouncyCastle.Utilities;
-using NBitcoin.BouncyCastle.Utilities.Collections;
 using NBitcoin.BouncyCastle.Utilities.Encoders;
 
 namespace NBitcoin.BouncyCastle.Asn1.Sec
@@ -1170,15 +1169,6 @@ namespace NBitcoin.BouncyCastle.Asn1.Sec
             DerObjectIdentifier oid)
         {
             return (string)names[oid];
-        }
-
-        /**
-         * returns an enumeration containing the name strings for curves
-         * contained in this structure.
-         */
-        public static IEnumerable Names
-        {
-            get { return new EnumerableProxy(names.Values); }
         }
     }
 }

@@ -26,32 +26,6 @@ namespace NBitcoin.BouncyCastle.Asn1
             throw new ArgumentException("illegal object in GetInstance: " + Platform.GetTypeName(obj));
         }
 
-        /**
-         * return an Integer from a tagged object.
-         *
-         * @param obj the tagged object holding the object we want
-         * @param isExplicit true if the object is meant to be explicitly
-         *              tagged false otherwise.
-         * @exception ArgumentException if the tagged object cannot
-         *               be converted.
-         */
-        public static DerInteger GetInstance(
-            Asn1TaggedObject	obj,
-            bool				isExplicit)
-        {
-            if (obj == null)
-                throw new ArgumentNullException("obj");
-
-			Asn1Object o = obj.GetObject();
-
-			if (isExplicit || o is DerInteger)
-			{
-				return GetInstance(o);
-			}
-
-			return new DerInteger(Asn1OctetString.GetInstance(o).GetOctets());
-        }
-
 		public DerInteger(
             int value)
         {

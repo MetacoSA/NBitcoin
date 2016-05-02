@@ -2,9 +2,7 @@
 using NBitcoin.BouncyCastle.Asn1;
 using NBitcoin.BouncyCastle.Asn1.X9;
 using NBitcoin.BouncyCastle.Crypto;
-using NBitcoin.BouncyCastle.Crypto.Generators;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
-using NBitcoin.BouncyCastle.Crypto.Prng;
 using NBitcoin.BouncyCastle.Crypto.Signers;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
@@ -15,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NBitcoin.BouncyCastle.Math.EC.Custom.Sec;
 
 namespace NBitcoin.Crypto
 {
@@ -36,7 +35,7 @@ namespace NBitcoin.Crypto
 		public static readonly X9ECParameters _Secp256k1;
 		static ECKey()
 		{
-			_Secp256k1 = NBitcoin.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
+			_Secp256k1 = NBitcoin.BouncyCastle.Crypto.EC.CustomNamedCurves.Secp256k1;
 			CURVE = new ECDomainParameters(_Secp256k1.Curve, _Secp256k1.G, _Secp256k1.N, _Secp256k1.H);
 			HALF_CURVE_ORDER = _Secp256k1.N.ShiftRight(1);
 			CURVE_ORDER = _Secp256k1.N;
@@ -150,7 +149,7 @@ namespace NBitcoin.Crypto
 			//        do another iteration of Step 1.
 			//
 			// More concisely, what these points mean is to use X as a compressed public key.
-			var prime = ((FpCurve)curve.Curve).Q;
+			var prime = ((SecP256K1Curve)curve.Curve).QQ;
 			if(x.CompareTo(prime) >= 0)
 			{
 				return null;
@@ -182,10 +181,10 @@ namespace NBitcoin.Crypto
 			var rInv = sig.R.ModInverse(n);
 			var srInv = rInv.Multiply(sig.S).Mod(n);
 			var eInvrInv = rInv.Multiply(eInv).Mod(n);
-			var q = (FpPoint)ECAlgorithms.SumOfTwoMultiplies(curve.G, eInvrInv, R, srInv);
+			var q = (SecP256K1Point)ECAlgorithms.SumOfTwoMultiplies(curve.G, eInvrInv, R, srInv);
 			if(compressed)
 			{
-				q = new FpPoint(curve.Curve, q.Normalize().XCoord, q.Normalize().YCoord, true);
+				q = new SecP256K1Point(curve.Curve, q.X, q.Y, true);
 			}
 			return new ECKey(q.GetEncoded(), false);
 		}

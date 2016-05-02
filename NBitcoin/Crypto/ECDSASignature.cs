@@ -50,7 +50,7 @@ namespace NBitcoin.Crypto
 				_R = ((DerInteger)seq[0]).Value;
 				_S = ((DerInteger)seq[1]).Value;
 			}
-			catch(IOException ex)
+			catch(Exception ex)
 			{
 				throw new FormatException(InvalidDERSignature, ex);
 			}

@@ -18,35 +18,11 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
         {
         }
 
-        [Obsolete("Use version with explicit 'algorithm' parameter")]
-        public ECPublicKeyParameters(
-            ECPoint				q,
-            DerObjectIdentifier publicKeyParamSet)
-            : base("ECGOST3410", false, publicKeyParamSet)
-        {
-            if (q == null)
-                throw new ArgumentNullException("q");
-
-            this.q = q.Normalize();
-        }
-
         public ECPublicKeyParameters(
             string				algorithm,
             ECPoint				q,
             ECDomainParameters	parameters)
             : base(algorithm, false, parameters)
-        {
-            if (q == null)
-                throw new ArgumentNullException("q");
-
-            this.q = q.Normalize();
-        }
-
-        public ECPublicKeyParameters(
-            string				algorithm,
-            ECPoint				q,
-            DerObjectIdentifier publicKeyParamSet)
-            : base(algorithm, false, publicKeyParamSet)
         {
             if (q == null)
                 throw new ArgumentNullException("q");

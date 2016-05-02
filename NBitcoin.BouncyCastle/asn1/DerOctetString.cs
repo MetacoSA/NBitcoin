@@ -10,12 +10,6 @@ namespace NBitcoin.BouncyCastle.Asn1
         {
         }
 
-		public DerOctetString(
-			Asn1Encodable obj)
-			: base(obj)
-        {
-        }
-
         internal override void Encode(
             DerOutputStream derOut)
         {

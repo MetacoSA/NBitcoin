@@ -18,56 +18,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
         private X9ECPoint	g;
         private BigInteger	n;
         private BigInteger	h;
-        private byte[]		seed;
-
-		public static X9ECParameters GetInstance(Object obj)
-		{
-			if (obj is X9ECParameters)
-			{
-				return (X9ECParameters)obj;
-			}
-
-			if (obj != null)
-			{
-				return new X9ECParameters(Asn1Sequence.GetInstance(obj));
-			}
-
-			return null;
-		}
-
-        public X9ECParameters(
-            Asn1Sequence seq)
-        {
-            if (!(seq[0] is DerInteger)
-               || !((DerInteger) seq[0]).Value.Equals(BigInteger.One))
-            {
-                throw new ArgumentException("bad version in X9ECParameters");
-            }
-
-            X9Curve x9c = new X9Curve(
-                X9FieldID.GetInstance(seq[1]),
-                Asn1Sequence.GetInstance(seq[2]));
-
-            this.curve = x9c.Curve;
-            object p = seq[3];
-
-            if (p is X9ECPoint)
-            {
-                this.g = ((X9ECPoint)p);
-            }
-            else
-            {
-                this.g = new X9ECPoint(curve, (Asn1OctetString)p);
-            }
-
-            this.n = ((DerInteger)seq[4]).Value;
-            this.seed = x9c.GetSeed();
-
-            if (seq.Count == 6)
-            {
-                this.h = ((DerInteger)seq[5]).Value;
-            }
-        }
+        private byte[]		seed;	
 
         public X9ECParameters(
             ECCurve		curve,

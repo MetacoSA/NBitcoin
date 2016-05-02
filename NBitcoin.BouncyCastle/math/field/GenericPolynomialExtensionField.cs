@@ -57,7 +57,7 @@ namespace NBitcoin.BouncyCastle.Math.Field
 
         public override int GetHashCode()
         {
-            return subfield.GetHashCode() ^ Integers.RotateLeft(minimalPolynomial.GetHashCode(), 16);
+			throw new NotImplementedException();
         }
     }
 }

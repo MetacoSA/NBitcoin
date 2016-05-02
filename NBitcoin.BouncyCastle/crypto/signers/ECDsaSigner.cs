@@ -51,14 +51,6 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
 
             if (forSigning)
             {
-                if (parameters is ParametersWithRandom)
-                {
-                    ParametersWithRandom rParam = (ParametersWithRandom)parameters;
-
-                    providedRandom = rParam.Random;
-                    parameters = rParam.Parameters;
-                }
-
                 if (!(parameters is ECPrivateKeyParameters))
                     throw new InvalidKeyException("EC private key required for signing");
 

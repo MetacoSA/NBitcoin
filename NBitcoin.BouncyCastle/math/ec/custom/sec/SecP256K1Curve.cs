@@ -4,7 +4,7 @@ using NBitcoin.BouncyCastle.Utilities.Encoders;
 
 namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 {
-    internal class SecP256K1Curve
+    public class SecP256K1Curve
         : AbstractFpCurve
     {
         public static readonly BigInteger q = new BigInteger(1,
@@ -42,7 +42,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
             }
         }
 
-        public virtual BigInteger Q
+        public virtual BigInteger QQ
         {
             get { return q; }
         }

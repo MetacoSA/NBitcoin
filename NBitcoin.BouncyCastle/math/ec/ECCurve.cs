@@ -365,9 +365,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
         public override int GetHashCode()
         {
-            return Field.GetHashCode()
-                ^ Integers.RotateLeft(A.ToBigInteger().GetHashCode(), 8)
-                ^ Integers.RotateLeft(B.ToBigInteger().GetHashCode(), 16);
+			throw new NotImplementedException();
         }
 
         protected abstract ECPoint DecompressPoint(int yTilde, BigInteger X1);

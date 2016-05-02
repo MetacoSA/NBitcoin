@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("https://github.com/bcgit/bc-csharp Commit efb5751 on 10/03/2016")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("The Legion of the Bouncy Castle Inc.")]
+// 1.8.1 4a87b83 (https://github.com/bcgit/bc-csharp/releases)
 [assembly: AssemblyProduct("Bouncy Castle for .NET")]
 [assembly: AssemblyCopyright("Copyright (C) 2000-2015")]
 [assembly: AssemblyTrademark("")]

@@ -26,10 +26,6 @@ namespace NBitcoin.BouncyCastle.Asn1
 
 		protected virtual void SetParentEofDetect(bool on)
         {
-            if (_in is IndefiniteLengthInputStream)
-            {
-                ((IndefiniteLengthInputStream)_in).SetEofOn00(on);
-            }
         }
     }
 }

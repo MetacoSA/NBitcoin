@@ -1,7 +1,9 @@
 ﻿using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.BouncyCastle.Crypto.Digests;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Crypto.Signers;
 using NBitcoin.BouncyCastle.Security;
+using System;
 using System.Linq;
 
 namespace NBitcoin.Crypto
@@ -40,15 +42,17 @@ namespace NBitcoin.Crypto
 		private readonly IDigest _digest;
 
 		public DeterministicECDSA()
-			: this("SHA-256")
+			: base(new HMacDsaKCalculator(new Sha256Digest()))
+
 		{
+			_digest = new Sha256Digest();
+		}
+		public DeterministicECDSA(Func<IDigest> digest)
+			: base(new HMacDsaKCalculator(digest()))
+		{
+			_digest = digest();
 		}
 
-		public DeterministicECDSA(string hashName)
-			: base(new HMacDsaKCalculator(DigestUtilities.GetDigest(hashName)))
-		{
-			_digest = DigestUtilities.GetDigest(hashName);
-		}
 
 		public void setPrivateKey(ECPrivateKeyParameters ecKey)
 		{

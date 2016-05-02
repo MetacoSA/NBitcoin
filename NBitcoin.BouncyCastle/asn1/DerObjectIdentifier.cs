@@ -15,36 +15,6 @@ namespace NBitcoin.BouncyCastle.Asn1
 
         private byte[] body = null;
 
-        /**
-         * return an Oid from the passed in object
-         *
-         * @exception ArgumentException if the object cannot be converted.
-         */
-        public static DerObjectIdentifier GetInstance(object obj)
-        {
-            if (obj == null || obj is DerObjectIdentifier)
-                return (DerObjectIdentifier) obj;
-            if (obj is byte[])
-                return FromOctetString((byte[])obj);
-            throw new ArgumentException("illegal object in GetInstance: " + Platform.GetTypeName(obj), "obj");
-        }
-
-        /**
-         * return an object Identifier from a tagged object.
-         *
-         * @param obj the tagged object holding the object we want
-         * @param explicitly true if the object is meant to be explicitly
-         *              tagged false otherwise.
-         * @exception ArgumentException if the tagged object cannot
-         *               be converted.
-         */
-        public static DerObjectIdentifier GetInstance(
-            Asn1TaggedObject	obj,
-            bool				explicitly)
-        {
-            return GetInstance(obj.GetObject());
-        }
-
         public DerObjectIdentifier(
             string identifier)
         {
@@ -128,58 +98,6 @@ namespace NBitcoin.BouncyCastle.Asn1
                 tmp[byteCount-1] &= 0x7f;
                 outputStream.Write(tmp, 0, tmp.Length);
             }
-        }
-
-        private void DoOutput(MemoryStream bOut)
-        {
-            OidTokenizer tok = new OidTokenizer(identifier);
-
-            string token = tok.NextToken();
-            int first = int.Parse(token) * 40;
-
-            token = tok.NextToken();
-            if (token.Length <= 18)
-            {
-                WriteField(bOut, first + Int64.Parse(token));
-            }
-            else
-            {
-                WriteField(bOut, new BigInteger(token).Add(BigInteger.ValueOf(first)));
-            }
-
-            while (tok.HasMoreTokens)
-            {
-                token = tok.NextToken();
-                if (token.Length <= 18)
-                {
-                    WriteField(bOut, Int64.Parse(token));
-                }
-                else
-                {
-                    WriteField(bOut, new BigInteger(token));
-                }
-            }
-        }
-
-        internal byte[] GetBody()
-        {
-            lock (this)
-            {
-                if (body == null)
-                {
-                    MemoryStream bOut = new MemoryStream();
-                    DoOutput(bOut);
-                    body = bOut.ToArray();
-                }
-            }
-
-            return body;
-        }
-
-        internal override void Encode(
-            DerOutputStream derOut)
-        {
-            derOut.WriteEncoded(Asn1Tags.ObjectIdentifier, GetBody());
         }
 
         protected override int Asn1GetHashCode()
@@ -327,21 +245,9 @@ namespace NBitcoin.BouncyCastle.Asn1
 
         private static readonly DerObjectIdentifier[] cache = new DerObjectIdentifier[1024];
 
-        internal static DerObjectIdentifier FromOctetString(byte[] enc)
-        {
-            int hashCode = Arrays.GetHashCode(enc);
-            int first = hashCode & 1023;
-
-            lock (cache)
-            {
-                DerObjectIdentifier entry = cache[first];
-                if (entry != null && Arrays.AreEqual(enc, entry.GetBody()))
-                {
-                    return entry;
-                }
-
-                return cache[first] = new DerObjectIdentifier(enc);
-            }
-        }
-    }
+		internal override void Encode(DerOutputStream derOut)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }

@@ -26,12 +26,7 @@ namespace NBitcoin.BouncyCastle.Crypto
 		public override void Init(
 			bool				forEncryption,
 			ICipherParameters	parameters)
-		{
-			if (parameters is ParametersWithRandom)
-			{
-				parameters = ((ParametersWithRandom) parameters).Parameters;
-			}
-
+		{			
 			cipher.Init(forEncryption, parameters);
 		}
 

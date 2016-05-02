@@ -66,11 +66,7 @@ namespace NBitcoin.BouncyCastle.Crypto
 			ICipherParameters	parameters)
 		{
 			this.forEncryption = forEncryption;
-
-            ParametersWithRandom pwr = parameters as ParametersWithRandom;
-            if (pwr != null)
-                parameters = pwr.Parameters;
-
+            
             Reset();
 
 			cipher.Init(forEncryption, parameters);

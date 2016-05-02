@@ -2,12 +2,9 @@ using System;
 using System.Collections;
 
 using NBitcoin.BouncyCastle.Asn1;
-using NBitcoin.BouncyCastle.Asn1.CryptoPro;
 using NBitcoin.BouncyCastle.Asn1.X9;
-using NBitcoin.BouncyCastle.Crypto.Generators;
 using NBitcoin.BouncyCastle.Security;
 using NBitcoin.BouncyCastle.Utilities;
-using NBitcoin.BouncyCastle.Utilities.Collections;
 
 namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
@@ -18,7 +15,6 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 
         private readonly string algorithm;
         private readonly ECDomainParameters parameters;
-        private readonly DerObjectIdentifier publicKeyParamSet;
 
         protected ECKeyParameters(
             string				algorithm,
@@ -35,22 +31,6 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
             this.parameters = parameters;
         }
 
-        protected ECKeyParameters(
-            string				algorithm,
-            bool				isPrivate,
-            DerObjectIdentifier	publicKeyParamSet)
-            : base(isPrivate)
-        {
-            if (algorithm == null)
-                throw new ArgumentNullException("algorithm");
-            if (publicKeyParamSet == null)
-                throw new ArgumentNullException("publicKeyParamSet");
-
-            this.algorithm = VerifyAlgorithmName(algorithm);
-            this.parameters = LookupParameters(publicKeyParamSet);
-            this.publicKeyParamSet = publicKeyParamSet;
-        }
-
         public string AlgorithmName
         {
             get { return algorithm; }
@@ -60,12 +40,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
         {
             get { return parameters; }
         }
-
-        public DerObjectIdentifier PublicKeyParamSet
-        {
-            get { return publicKeyParamSet; }
-        }
-
+        
         public override bool Equals(
             object obj)
         {
@@ -91,46 +66,12 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
             return parameters.GetHashCode() ^ base.GetHashCode();
         }
 
-        internal ECKeyGenerationParameters CreateKeyGenerationParameters(
-            SecureRandom random)
-        {
-            if (publicKeyParamSet != null)
-            {
-                return new ECKeyGenerationParameters(publicKeyParamSet, random);
-            }
-
-            return new ECKeyGenerationParameters(parameters, random);
-        }
-
         internal static string VerifyAlgorithmName(string algorithm)
         {
             string upper = Platform.ToUpperInvariant(algorithm);
             if (Array.IndexOf(algorithms, algorithm, 0, algorithms.Length) < 0)
                 throw new ArgumentException("unrecognised algorithm: " + algorithm, "algorithm");
             return upper;
-        }
-
-        internal static ECDomainParameters LookupParameters(
-            DerObjectIdentifier publicKeyParamSet)
-        {
-            if (publicKeyParamSet == null)
-                throw new ArgumentNullException("publicKeyParamSet");
-
-            ECDomainParameters p = ECGost3410NamedCurves.GetByOid(publicKeyParamSet);
-
-            if (p == null)
-            {
-                X9ECParameters x9 = ECKeyPairGenerator.FindECCurveByOid(publicKeyParamSet);
-
-                if (x9 == null)
-                {
-                    throw new ArgumentException("OID is not a valid public key parameter set", "publicKeyParamSet");
-                }
-
-                p = new ECDomainParameters(x9.Curve, x9.G, x9.N, x9.H, x9.GetSeed());
-            }
-
-            return p;
         }
     }
 }

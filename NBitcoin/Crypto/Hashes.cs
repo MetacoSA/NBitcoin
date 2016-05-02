@@ -222,7 +222,7 @@ namespace NBitcoin.Crypto
 #else
 		public static byte[] HMACSHA512(byte[] key, byte[] data)
 		{
-			var mac = MacUtilities.GetMac("HMAC-SHA_512");
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new Sha512Digest());
 			mac.Init(new KeyParameter(key));
 			mac.Update(data);
 			byte[] result = new byte[mac.GetMacSize()];

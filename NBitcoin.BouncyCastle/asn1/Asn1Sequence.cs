@@ -3,7 +3,6 @@ using System.Collections;
 using System.IO;
 
 using NBitcoin.BouncyCastle.Utilities;
-using NBitcoin.BouncyCastle.Utilities.Collections;
 
 namespace NBitcoin.BouncyCastle.Asn1
 {
@@ -53,59 +52,6 @@ namespace NBitcoin.BouncyCastle.Asn1
             throw new ArgumentException("Unknown object in GetInstance: " + Platform.GetTypeName(obj), "obj");
         }
 
-        /**
-         * Return an ASN1 sequence from a tagged object. There is a special
-         * case here, if an object appears to have been explicitly tagged on
-         * reading but we were expecting it to be implicitly tagged in the
-         * normal course of events it indicates that we lost the surrounding
-         * sequence - so we need to add it back (this will happen if the tagged
-         * object is a sequence that contains other sequences). If you are
-         * dealing with implicitly tagged sequences you really <b>should</b>
-         * be using this method.
-         *
-         * @param obj the tagged object.
-         * @param explicitly true if the object is meant to be explicitly tagged,
-         *          false otherwise.
-         * @exception ArgumentException if the tagged object cannot
-         *          be converted.
-         */
-        public static Asn1Sequence GetInstance(
-            Asn1TaggedObject	obj,
-            bool				explicitly)
-        {
-            Asn1Object inner = obj.GetObject();
-
-            if (explicitly)
-            {
-                if (!obj.IsExplicit())
-                    throw new ArgumentException("object implicit - explicit expected.");
-
-                return (Asn1Sequence) inner;
-            }
-
-            //
-            // constructed object which appears to be explicitly tagged
-            // when it should be implicit means we have to add the
-            // surrounding sequence.
-            //
-            if (obj.IsExplicit())
-            {
-                if (obj is BerTaggedObject)
-                {
-                    return new BerSequence(inner);
-                }
-
-                return new DerSequence(inner);
-            }
-
-            if (inner is Asn1Sequence)
-            {
-                return (Asn1Sequence) inner;
-            }
-
-            throw new ArgumentException("Unknown object in GetInstance: " + Platform.GetTypeName(obj), "obj");
-        }
-
         protected internal Asn1Sequence(
             int capacity)
         {
@@ -146,9 +92,6 @@ namespace NBitcoin.BouncyCastle.Asn1
 
                 if (obj is Asn1Sequence)
                     return ((Asn1Sequence)obj).Parser;
-
-                if (obj is Asn1Set)
-                    return ((Asn1Set)obj).Parser;
 
                 // NB: Asn1OctetString implements Asn1OctetStringParser directly
 //				if (obj is Asn1OctetString)
@@ -258,11 +201,6 @@ namespace NBitcoin.BouncyCastle.Asn1
             Asn1Encodable obj)
         {
             seq.Add(obj);
-        }
-
-        public override string ToString()
-        {
-            return CollectionUtilities.ToString(seq);
         }
     }
 }

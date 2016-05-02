@@ -59,13 +59,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Paddings
 		{
 			this.forEncryption = forEncryption;
 
-			SecureRandom initRandom = null;
-			if (parameters is ParametersWithRandom)
-			{
-				ParametersWithRandom p = (ParametersWithRandom)parameters;
-				initRandom = p.Random;
-				parameters = p.Parameters;
-			}
+			SecureRandom initRandom = null;		
 
 			Reset();
 			padding.Init(initRandom);

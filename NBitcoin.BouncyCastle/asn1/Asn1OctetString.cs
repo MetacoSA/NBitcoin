@@ -12,49 +12,6 @@ namespace NBitcoin.BouncyCastle.Asn1
     {
         internal byte[] str;
 
-		/**
-         * return an Octet string from a tagged object.
-         *
-         * @param obj the tagged object holding the object we want.
-         * @param explicitly true if the object is meant to be explicitly
-         *              tagged false otherwise.
-         * @exception ArgumentException if the tagged object cannot
-         *              be converted.
-         */
-		public static Asn1OctetString GetInstance(
-			Asn1TaggedObject	obj,
-			bool				isExplicit)
-		{
-			Asn1Object o = obj.GetObject();
-
-			if (isExplicit || o is Asn1OctetString)
-			{
-				return GetInstance(o);
-			}
-
-			return BerOctetString.FromSequence(Asn1Sequence.GetInstance(o));
-		}
-
-        /**
-         * return an Octet string from the given object.
-         *
-         * @param obj the object we want converted.
-         * @exception ArgumentException if the object cannot be converted.
-         */
-		public static Asn1OctetString GetInstance(object obj)
-		{
-			if (obj == null || obj is Asn1OctetString)
-			{
-				return (Asn1OctetString)obj;
-			}
-
-			// TODO: this needs to be deleted in V2
-			if (obj is Asn1TaggedObject)
-				return GetInstance(((Asn1TaggedObject)obj).GetObject());
-
-			throw new ArgumentException("illegal object in GetInstance: " + Platform.GetTypeName(obj));
-		}
-
         /**
          * @param string the octets making up the octet string.
          */
@@ -65,19 +22,6 @@ namespace NBitcoin.BouncyCastle.Asn1
 				throw new ArgumentNullException("str");
 
 			this.str = str;
-        }
-
-        internal Asn1OctetString(
-            Asn1Encodable obj)
-        {
-            try
-            {
-				this.str = obj.GetEncoded(Asn1Encodable.Der);
-            }
-            catch (IOException e)
-            {
-                throw new ArgumentException("Error processing object : " + e.ToString());
-            }
         }
 
 		public Stream GetOctetStream()
@@ -109,11 +53,6 @@ namespace NBitcoin.BouncyCastle.Asn1
 				return false;
 
 			return Arrays.AreEqual(GetOctets(), other.GetOctets());
-		}
-
-		public override string ToString()
-		{
-			return "#" + Hex.ToHexString(str);
-		}
+		}		
 	}
 }
