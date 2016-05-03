@@ -317,13 +317,13 @@ namespace NBitcoin.Tests
 		public void sig_validinvalid()
 		{
 			Assert.False(TransactionSignature.IsValid(new byte[0]));
-			var sigs = JArray.Parse(File.ReadAllText("../../data/sig_canonical.json"));
+			var sigs = JArray.Parse(File.ReadAllText("data/sig_canonical.json"));
 			foreach(var sig in sigs)
 			{
 				Assert.True(TransactionSignature.IsValid(Encoders.Hex.DecodeData(sig.ToString())));
 			}
 
-			sigs = JArray.Parse(File.ReadAllText("../../data/sig_noncanonical.json"));
+			sigs = JArray.Parse(File.ReadAllText("data/sig_noncanonical.json"));
 			foreach(var sig in sigs)
 			{
 				if(((HexEncoder)Encoders.Hex).IsValid(sig.ToString()))
