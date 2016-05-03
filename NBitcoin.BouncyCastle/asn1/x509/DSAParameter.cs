@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 
 using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.X509
 {
@@ -30,7 +31,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
                 return new DsaParameter((Asn1Sequence) obj);
             }
 
-			throw new ArgumentException("Invalid DsaParameter: " + obj.GetType().Name);
+            throw new ArgumentException("Invalid DsaParameter: " + Platform.GetTypeName(obj));
         }
 
 		public DsaParameter(

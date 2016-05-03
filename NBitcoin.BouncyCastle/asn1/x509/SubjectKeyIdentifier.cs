@@ -2,6 +2,7 @@ using System;
 
 using NBitcoin.BouncyCastle.Crypto;
 using NBitcoin.BouncyCastle.Crypto.Digests;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.X509
 {
@@ -46,7 +47,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
 				return GetInstance(X509Extension.ConvertValueToObject((X509Extension) obj));
 			}
 
-			throw new ArgumentException("Invalid SubjectKeyIdentifier: " + obj.GetType().Name);
+            throw new ArgumentException("Invalid SubjectKeyIdentifier: " + Platform.GetTypeName(obj));
         }
 
 		public SubjectKeyIdentifier(

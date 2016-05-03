@@ -1,6 +1,8 @@
 using System;
 using System.Text;
 
+using NBitcoin.BouncyCastle.Utilities;
+
 namespace NBitcoin.BouncyCastle.Asn1
 {
     /**
@@ -24,7 +26,7 @@ namespace NBitcoin.BouncyCastle.Asn1
                 return (DerUtf8String)obj;
             }
 
-			throw new ArgumentException("illegal object in GetInstance: " + obj.GetType().Name);
+            throw new ArgumentException("illegal object in GetInstance: " + Platform.GetTypeName(obj));
         }
 
         /**

@@ -28,6 +28,7 @@
     <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;NOFILEIO;NOSOCKET;NOTRACESOURCE;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOCONSENSUSLIB</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>1591;1573;1572;1584;1570</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DocumentationFile>bin\Profile111\Release\NBitcoin.XML</DocumentationFile>

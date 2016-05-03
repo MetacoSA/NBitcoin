@@ -1,6 +1,6 @@
 using System;
 
-using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Cms
 {
@@ -25,7 +25,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Cms
 			if (obj is Asn1Sequence)
                 return new Attribute((Asn1Sequence) obj);
 
-			throw new ArgumentException("unknown object in factory: " + obj.GetType().Name, "obj");
+            throw new ArgumentException("unknown object in factory: " + Platform.GetTypeName(obj), "obj");
         }
 
 		public Attribute(

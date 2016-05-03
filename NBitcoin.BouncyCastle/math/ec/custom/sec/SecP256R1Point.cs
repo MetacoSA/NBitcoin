@@ -1,5 +1,7 @@
 ﻿using System;
 
+using NBitcoin.BouncyCastle.Math.Raw;
+
 namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 {
     internal class SecP256R1Point

@@ -1,7 +1,7 @@
 using System;
 
-using NBitcoin.BouncyCastle.Asn1;
 using NBitcoin.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Cms
 {
@@ -82,7 +82,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Cms
 			if (obj is Asn1Sequence)
                 return new PasswordRecipientInfo((Asn1Sequence) obj);
 
-			throw new ArgumentException("Invalid PasswordRecipientInfo: " + obj.GetType().Name);
+            throw new ArgumentException("Invalid PasswordRecipientInfo: " + Platform.GetTypeName(obj));
         }
 
 		public DerInteger Version

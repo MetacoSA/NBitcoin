@@ -55,12 +55,6 @@ namespace NBitcoin.BouncyCastle.Crypto.Generators
                 if (x.SignValue < 1 || x.CompareTo(q) >= 0)
                     continue;
 
-                /*
-                 * Require a minimum weight of the NAF representation, since low-weight primes may be
-                 * weak against a version of the number-field-sieve for the discrete-logarithm-problem.
-                 * 
-                 * See "The number field sieve for integers of low weight", Oliver Schirokauer.
-                 */
                 if (WNafUtilities.GetNafWeight(x) < minWeight)
                     continue;
 

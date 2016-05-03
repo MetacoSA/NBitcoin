@@ -38,7 +38,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     cFp192v1,
-                    cFp192v1.DecodePoint(
+                    new X9ECPoint(cFp192v1,
                         Hex.Decode("03188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012")),
                     n, h,
                     Hex.Decode("3045AE6FC8422f64ED579528D38120EAE12196D5"));
@@ -65,7 +65,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     cFp192v2,
-                    cFp192v2.DecodePoint(
+                    new X9ECPoint(cFp192v2,
                         Hex.Decode("03eea2bae7e1497842f2de7769cfe9c989c072ad696f48034a")),
                     n, h,
                     Hex.Decode("31a92ee2029fd10d901b113e990710f0d21ac6b6"));
@@ -92,7 +92,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     cFp192v3,
-                    cFp192v3.DecodePoint(
+                    new X9ECPoint(cFp192v3,
                         Hex.Decode("027d29778100c65a1da1783716588dce2b8b4aee8e228f1896")),
                     n, h,
                     Hex.Decode("c469684435deb378c4b65ca9591e2a5763059a2e"));
@@ -119,7 +119,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     cFp239v1,
-                    cFp239v1.DecodePoint(
+                    new X9ECPoint(cFp239v1,
                         Hex.Decode("020ffa963cdca8816ccc33b8642bedf905c3d358573d3f27fbbd3b3cb9aaaf")),
                     n, h,
                     Hex.Decode("e43bb460f0b80cc0c0b075798e948060f8321b7d"));
@@ -146,7 +146,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     cFp239v2,
-                    cFp239v2.DecodePoint(
+                    new X9ECPoint(cFp239v2,
                         Hex.Decode("0238af09d98727705120c921bb5e9e26296a3cdcf2f35757a0eafd87b830e7")),
                     n, h,
                     Hex.Decode("e8b4011604095303ca3b8099982be09fcb9ae616"));
@@ -173,7 +173,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     cFp239v3,
-                    cFp239v3.DecodePoint(
+                    new X9ECPoint(cFp239v3,
                         Hex.Decode("036768ae8e18bb92cfcf005c949aa2c6d94853d0e660bbf854b1c9505fe95a")),
                     n, h,
                     Hex.Decode("7d7374168ffe3471b60a857686a19475d3bfa2ff"));
@@ -200,7 +200,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     cFp256v1,
-                    cFp256v1.DecodePoint(
+                    new X9ECPoint(cFp256v1,
                         Hex.Decode("036b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296")),
                     n, h,
                     Hex.Decode("c49d360886e704936a6678e1139d26b7819f7e90"));
@@ -231,7 +231,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m163v1,
-                    c2m163v1.DecodePoint(
+                    new X9ECPoint(c2m163v1,
                         Hex.Decode("0307AF69989546103D79329FCC3D74880F33BBE803CB")),
                     n, h,
                     Hex.Decode("D2C0FB15760860DEF1EEF4D696E6768756151754"));
@@ -259,7 +259,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m163v2,
-                    c2m163v2.DecodePoint(
+                    new X9ECPoint(c2m163v2,
                         Hex.Decode("030024266E4EB5106D0A964D92C4860E2671DB9B6CC5")),
                     n, h,
                     null);
@@ -287,7 +287,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m163v3,
-                    c2m163v3.DecodePoint(Hex.Decode("0202F9F87B7C574D0BDECF8A22E6524775F98CDEBDCB")),
+                    new X9ECPoint(c2m163v3, Hex.Decode("0202F9F87B7C574D0BDECF8A22E6524775F98CDEBDCB")),
                     n, h,
                     null);
             }
@@ -314,7 +314,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m176w1,
-                    c2m176w1.DecodePoint(
+                    new X9ECPoint(c2m176w1,
                         Hex.Decode("038D16C2866798B600F9F08BB4A8E860F3298CE04A5798")),
                     n, h,
                     null);
@@ -342,7 +342,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m191v1,
-                    c2m191v1.DecodePoint(
+                    new X9ECPoint(c2m191v1,
                         Hex.Decode("0236B3DAF8A23206F9C4F299D7B21A9C369137F2C84AE1AA0D")),
                     n, h,
                     Hex.Decode("4E13CA542744D696E67687561517552F279A8C84"));
@@ -370,7 +370,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m191v2,
-                    c2m191v2.DecodePoint(
+                    new X9ECPoint(c2m191v2,
                         Hex.Decode("023809B2B7CC1B28CC5A87926AAD83FD28789E81E2C9E3BF10")),
                     n, h,
                     null);
@@ -398,7 +398,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m191v3,
-                    c2m191v3.DecodePoint(
+                    new X9ECPoint(c2m191v3,
                         Hex.Decode("03375D4CE24FDE434489DE8746E71786015009E66E38A926DD")),
                     n, h,
                     null);
@@ -426,7 +426,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m208w1,
-                    c2m208w1.DecodePoint(
+                    new X9ECPoint(c2m208w1,
                         Hex.Decode("0289FDFBE4ABE193DF9559ECF07AC0CE78554E2784EB8C1ED1A57A")),
                     n, h,
                     null);
@@ -454,7 +454,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m239v1,
-                    c2m239v1.DecodePoint(
+                    new X9ECPoint(c2m239v1,
                         Hex.Decode("0257927098FA932E7C0A96D3FD5B706EF7E5F5C156E16B7E7C86038552E91D")),
                     n, h,
                     null);
@@ -482,7 +482,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m239v2,
-                    c2m239v2.DecodePoint(
+                    new X9ECPoint(c2m239v2,
                         Hex.Decode("0228F9D04E900069C8DC47A08534FE76D2B900B7D7EF31F5709F200C4CA205")),
                     n, h,
                     null);
@@ -510,7 +510,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m239v3,
-                    c2m239v3.DecodePoint(
+                    new X9ECPoint(c2m239v3,
                         Hex.Decode("0370F6E9D04D289C4E89913CE3530BFDE903977D42B146D539BF1BDE4E9C92")),
                     n, h,
                     null);
@@ -538,7 +538,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m272w1,
-                    c2m272w1.DecodePoint(
+                    new X9ECPoint(c2m272w1,
                         Hex.Decode("026108BABB2CEEBCF787058A056CBE0CFE622D7723A289E08A07AE13EF0D10D171DD8D")),
                     n, h,
                     null);
@@ -566,7 +566,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m304w1,
-                    c2m304w1.DecodePoint(
+                    new X9ECPoint(c2m304w1,
                         Hex.Decode("02197B07845E9BE2D96ADB0F5F3C7F2CFFBD7A3EB8B6FEC35C7FD67F26DDF6285A644F740A2614")),
                     n, h,
                     null);
@@ -594,7 +594,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m359v1,
-                    c2m359v1.DecodePoint(
+                    new X9ECPoint(c2m359v1,
                         Hex.Decode("033C258EF3047767E7EDE0F1FDAA79DAEE3841366A132E163ACED4ED2401DF9C6BDCDE98E8E707C07A2239B1B097")),
                     n, h,
                     null);
@@ -622,7 +622,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m368w1,
-                    c2m368w1.DecodePoint(
+                    new X9ECPoint(c2m368w1,
                         Hex.Decode("021085E2755381DCCCE3C1557AFA10C2F0C0C2825646C5B34A394CBCFA8BC16B22E7E789E927BE216F02E1FB136A5F")),
                     n, h,
                     null);
@@ -650,7 +650,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
                 return new X9ECParameters(
                     c2m431r1,
-                    c2m431r1.DecodePoint(
+                    new X9ECPoint(c2m431r1,
                         Hex.Decode("02120FC05D3C67A99DE161D2F4092622FECA701BE4F50F4758714E8A87BBF2A658EF8C21E7C5EFE965361F6C2999C0C247B0DBD70CE6B7")),
                     n, h,
                     null);
@@ -666,7 +666,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
             DerObjectIdentifier		oid,
             X9ECParametersHolder	holder)
         {
-            objIds.Add(name, oid);
+            objIds.Add(Platform.ToUpperInvariant(name), oid);
             names.Add(oid, name);
             curves.Add(oid, holder);
         }
@@ -701,8 +701,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
         public static X9ECParameters GetByName(
             string name)
         {
-            DerObjectIdentifier oid = (DerObjectIdentifier)objIds[Platform.ToLowerInvariant(name)];
-
+            DerObjectIdentifier oid = GetOid(name);
             return oid == null ? null : GetByOid(oid);
         }
 
@@ -715,8 +714,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
         public static X9ECParameters GetByOid(
             DerObjectIdentifier oid)
         {
-            X9ECParametersHolder holder = (X9ECParametersHolder) curves[oid];
-
+            X9ECParametersHolder holder = (X9ECParametersHolder)curves[oid];
             return holder == null ? null : holder.Parameters;
         }
 
@@ -729,7 +727,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
         public static DerObjectIdentifier GetOid(
             string name)
         {
-            return (DerObjectIdentifier)objIds[Platform.ToLowerInvariant(name)];
+            return (DerObjectIdentifier)objIds[Platform.ToUpperInvariant(name)];
         }
 
         /**
@@ -738,7 +736,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
         public static string GetName(
             DerObjectIdentifier oid)
         {
-            return (string) names[oid];
+            return (string)names[oid];
         }
 
         /**
@@ -747,7 +745,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
          */
         public static IEnumerable Names
         {
-            get { return new EnumerableProxy(objIds.Keys); }
+            get { return new EnumerableProxy(names.Values); }
         }
     }
 }

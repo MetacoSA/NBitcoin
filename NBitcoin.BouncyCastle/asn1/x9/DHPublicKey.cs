@@ -1,5 +1,7 @@
 using System;
 
+using NBitcoin.BouncyCastle.Utilities;
+
 namespace NBitcoin.BouncyCastle.Asn1.X9
 {
 	public class DHPublicKey
@@ -20,7 +22,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 			if (obj is DerInteger)
 				return new DHPublicKey((DerInteger)obj);
 
-			throw new ArgumentException("Invalid DHPublicKey: " + obj.GetType().FullName, "obj");
+			throw new ArgumentException("Invalid DHPublicKey: " + Platform.GetTypeName(obj), "obj");
 		}
 
 		public DHPublicKey(DerInteger y)

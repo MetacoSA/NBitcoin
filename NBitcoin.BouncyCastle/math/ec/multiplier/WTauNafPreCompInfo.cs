@@ -8,14 +8,14 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
         : PreCompInfo
     {
         /**
-         * Array holding the precomputed <code>F2mPoint</code>s used for the
+         * Array holding the precomputed <code>AbstractF2mPoint</code>s used for the
          * WTNAF multiplication in <code>
          * {@link NBitcoin.BouncyCastle.math.ec.multiplier.WTauNafMultiplier.multiply()
          * WTauNafMultiplier.multiply()}</code>.
          */
-        protected F2mPoint[] m_preComp;
+        protected AbstractF2mPoint[] m_preComp;
 
-        public virtual F2mPoint[] PreComp
+        public virtual AbstractF2mPoint[] PreComp
         {
             get { return m_preComp; }
             set { this.m_preComp = value; }

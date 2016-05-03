@@ -104,6 +104,10 @@ namespace NBitcoin.BouncyCastle.Security
             AddAlgorithm("SERPENT");
             AddAlgorithm("SKIPJACK");
             AddAlgorithm("TEA");
+            AddAlgorithm("THREEFISH-256");
+            AddAlgorithm("THREEFISH-512");
+            AddAlgorithm("THREEFISH-1024");
+            AddAlgorithm("TNEPRES");
             AddAlgorithm("TWOFISH");
             AddAlgorithm("VMPC");
             AddAlgorithm("VMPC-KSA3");

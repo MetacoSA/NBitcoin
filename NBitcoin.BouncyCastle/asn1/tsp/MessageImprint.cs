@@ -1,6 +1,7 @@
 using System;
 
 using NBitcoin.BouncyCastle.Asn1.X509;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Tsp
 {
@@ -28,7 +29,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Tsp
 			}
 
 			throw new ArgumentException(
-				"Unknown object in 'MessageImprint' factory: " + o.GetType().FullName);
+				"Unknown object in 'MessageImprint' factory: " + Platform.GetTypeName(o));
 		}
 
 		private MessageImprint(

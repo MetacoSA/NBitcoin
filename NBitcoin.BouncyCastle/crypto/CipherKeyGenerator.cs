@@ -75,9 +75,9 @@ namespace NBitcoin.BouncyCastle.Crypto
 			return engineGenerateKey();
 		}
 
-		protected virtual byte[] engineGenerateKey()
+        protected virtual byte[] engineGenerateKey()
 		{
-			return random.GenerateSeed(strength);
+            return SecureRandom.GetNextBytes(random, strength);
 		}
 	}
 }

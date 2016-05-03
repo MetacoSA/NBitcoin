@@ -32,7 +32,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 			this.engine = engine;
 		}
 
-		public void Init(
+        public virtual void Init(
 			bool				forWrapping,
 			ICipherParameters	parameters)
 		{
@@ -64,12 +64,12 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 			}
 		}
 
-		public string AlgorithmName
+        public virtual string AlgorithmName
 		{
 			get { return engine.AlgorithmName; }
 		}
 
-		public byte[] Wrap(
+        public virtual byte[] Wrap(
 			byte[]	input,
 			int		inOff,
 			int		inLen)
@@ -119,7 +119,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 			return block;
 		}
 
-		public byte[] Unwrap(
+        public virtual byte[] Unwrap(
 			byte[]  input,
 			int     inOff,
 			int     inLen)

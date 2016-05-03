@@ -12,12 +12,24 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
         public sealed override bool CanSeek { get { return false; } }
         public sealed override bool CanWrite { get { return false; } }
 
-		protected override void Dispose(bool disposing)
-		{
-			closed = true;
-			base.Dispose(disposing);
-		}
-		public sealed override void Flush() {}
+#if PORTABLE
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                closed = true;
+            }
+            base.Dispose(disposing);
+        }
+#else
+		public override void Close()
+        {
+            closed = true;
+            base.Close();
+        }
+#endif
+
+        public sealed override void Flush() {}
         public sealed override long Length { get { throw new NotSupportedException(); } }
         public sealed override long Position
         {

@@ -1,5 +1,7 @@
 using System;
 
+using NBitcoin.BouncyCastle.Utilities;
+
 namespace NBitcoin.BouncyCastle.Asn1.Esf
 {
 	/// <remarks>
@@ -31,7 +33,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Esf
 
 			throw new ArgumentException(
 				"Unknown object in 'OtherRevRefs' factory: "
-					+ obj.GetType().Name,
+                    + Platform.GetTypeName(obj),
 				"obj");
 		}
 

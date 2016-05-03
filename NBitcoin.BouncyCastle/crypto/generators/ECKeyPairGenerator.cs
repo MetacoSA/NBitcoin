@@ -78,6 +78,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Generators
 
                 X9ECParameters ecps = FindECCurveByOid(oid);
 
+                this.publicKeyParamSet = oid;
                 this.parameters = new ECDomainParameters(
                     ecps.Curve, ecps.G, ecps.N, ecps.H, ecps.GetSeed());
             }
@@ -107,12 +108,6 @@ namespace NBitcoin.BouncyCastle.Crypto.Generators
                 if (d.CompareTo(BigInteger.Two) < 0 || d.CompareTo(n) >= 0)
                     continue;
 
-                /*
-                 * Require a minimum weight of the NAF representation, since low-weight primes may be
-                 * weak against a version of the number-field-sieve for the discrete-logarithm-problem.
-                 * 
-                 * See "The number field sieve for integers of low weight", Oliver Schirokauer.
-                 */
                 if (WNafUtilities.GetNafWeight(d) < minWeight)
                     continue;
 

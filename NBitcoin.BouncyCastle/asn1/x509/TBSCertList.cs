@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 
+using NBitcoin.BouncyCastle.Utilities;
 using NBitcoin.BouncyCastle.Utilities.Collections;
 
 namespace NBitcoin.BouncyCastle.Asn1.X509
@@ -155,7 +156,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
                 return new TbsCertificateList((Asn1Sequence) obj);
             }
 
-			throw new ArgumentException("unknown object in factory: " + obj.GetType().Name, "obj");
+            throw new ArgumentException("unknown object in factory: " + Platform.GetTypeName(obj), "obj");
         }
 
 		internal TbsCertificateList(

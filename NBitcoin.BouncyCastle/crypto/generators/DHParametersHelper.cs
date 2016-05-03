@@ -44,10 +44,10 @@ namespace NBitcoin.BouncyCastle.Crypto.Generators
 
                     p = q.ShiftLeft(1).Add(BigInteger.One);
 
-                    if (!p.IsProbablePrime(certainty))
+                    if (!p.IsProbablePrime(certainty, true))
                         continue;
 
-                    if (certainty > 2 && !q.IsProbablePrime(certainty - 2))
+                    if (certainty > 2 && !q.IsProbablePrime(certainty, true))
                         continue;
 
                     break;
@@ -92,15 +92,15 @@ namespace NBitcoin.BouncyCastle.Crypto.Generators
                     if (q.BitLength != qLength)
                         continue;
 
-                    if (!q.RabinMillerTest(2, random))
+                    if (!q.RabinMillerTest(2, random, true))
                         continue;
 
                     p = q.ShiftLeft(1).Add(BigInteger.One);
 
-                    if (!p.RabinMillerTest(certainty, random))
+                    if (!p.RabinMillerTest(certainty, random, true))
                         continue;
 
-                    if (certainty > 2 && !q.RabinMillerTest(certainty - 2, random))
+                    if (certainty > 2 && !q.RabinMillerTest(certainty - 2, random, true))
                         continue;
 
                     /*

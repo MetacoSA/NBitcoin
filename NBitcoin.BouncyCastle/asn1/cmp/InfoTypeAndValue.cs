@@ -1,5 +1,7 @@
 ﻿using System;
 
+using NBitcoin.BouncyCastle.Utilities;
+
 namespace NBitcoin.BouncyCastle.Asn1.Cmp
 {
     /**
@@ -69,7 +71,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Cmp
             if (obj is Asn1Sequence)
                 return new InfoTypeAndValue((Asn1Sequence)obj);
 
-            throw new ArgumentException("Invalid object: " + obj.GetType().Name, "obj");
+            throw new ArgumentException("Invalid object: " + Platform.GetTypeName(obj), "obj");
         }
 
         public InfoTypeAndValue(

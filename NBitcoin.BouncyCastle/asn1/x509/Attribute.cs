@@ -1,6 +1,6 @@
 using System;
 
-using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.X509
 {
@@ -29,7 +29,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
                 return new AttributeX509((Asn1Sequence) obj);
             }
 
-			throw new ArgumentException("unknown object in factory: " + obj.GetType().Name, "obj");
+            throw new ArgumentException("unknown object in factory: " + Platform.GetTypeName(obj), "obj");
 		}
 
 		private AttributeX509(

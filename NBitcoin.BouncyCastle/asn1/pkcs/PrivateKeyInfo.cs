@@ -29,14 +29,14 @@ namespace NBitcoin.BouncyCastle.Asn1.Pkcs
             return new PrivateKeyInfo(Asn1Sequence.GetInstance(obj));
         }
 
-        public PrivateKeyInfo(AlgorithmIdentifier algID, Asn1Object privateKey)
+        public PrivateKeyInfo(AlgorithmIdentifier algID, Asn1Encodable privateKey)
             : this(algID, privateKey, null)
         {
         }
 
         public PrivateKeyInfo(
             AlgorithmIdentifier	algID,
-            Asn1Object			privateKey,
+            Asn1Encodable       privateKey,
             Asn1Set				attributes)
         {
             this.algID = algID;

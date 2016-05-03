@@ -15,10 +15,25 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
     {
         private X9FieldID	fieldID;
         private ECCurve		curve;
-        private ECPoint		g;
+        private X9ECPoint	g;
         private BigInteger	n;
         private BigInteger	h;
         private byte[]		seed;
+
+		public static X9ECParameters GetInstance(Object obj)
+		{
+			if (obj is X9ECParameters)
+			{
+				return (X9ECParameters)obj;
+			}
+
+			if (obj != null)
+			{
+				return new X9ECParameters(Asn1Sequence.GetInstance(obj));
+			}
+
+			return null;
+		}
 
         public X9ECParameters(
             Asn1Sequence seq)
@@ -29,36 +44,28 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
                 throw new ArgumentException("bad version in X9ECParameters");
             }
 
-            X9Curve x9c = null;
-            if (seq[2] is X9Curve)
-            {
-                x9c = (X9Curve) seq[2];
-            }
-            else
-            {
-                x9c = new X9Curve(
-                    new X9FieldID(
-                        (Asn1Sequence) seq[1]),
-                        (Asn1Sequence) seq[2]);
-            }
+            X9Curve x9c = new X9Curve(
+                X9FieldID.GetInstance(seq[1]),
+                Asn1Sequence.GetInstance(seq[2]));
 
             this.curve = x9c.Curve;
+            object p = seq[3];
 
-            if (seq[3] is X9ECPoint)
+            if (p is X9ECPoint)
             {
-                this.g = ((X9ECPoint) seq[3]).Point;
+                this.g = ((X9ECPoint)p);
             }
             else
             {
-                this.g = new X9ECPoint(curve, (Asn1OctetString) seq[3]).Point;
+                this.g = new X9ECPoint(curve, (Asn1OctetString)p);
             }
 
-            this.n = ((DerInteger) seq[4]).Value;
+            this.n = ((DerInteger)seq[4]).Value;
             this.seed = x9c.GetSeed();
 
             if (seq.Count == 6)
             {
-                this.h = ((DerInteger) seq[5]).Value;
+                this.h = ((DerInteger)seq[5]).Value;
             }
         }
 
@@ -66,7 +73,16 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
             ECCurve		curve,
             ECPoint		g,
             BigInteger	n)
-            : this(curve, g, n, BigInteger.One, null)
+            : this(curve, g, n, null, null)
+        {
+        }
+
+        public X9ECParameters(
+            ECCurve     curve,
+            X9ECPoint   g,
+            BigInteger  n,
+            BigInteger  h)
+            : this(curve, g, n, h, null)
         {
         }
 
@@ -85,9 +101,19 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
             BigInteger	n,
             BigInteger	h,
             byte[]		seed)
+            : this(curve, new X9ECPoint(g), n, h, seed)
+        {
+        }
+
+        public X9ECParameters(
+            ECCurve     curve,
+            X9ECPoint   g,
+            BigInteger  n,
+            BigInteger  h,
+            byte[]      seed)
         {
             this.curve = curve;
-            this.g = g.Normalize();
+            this.g = g;
             this.n = n;
             this.h = h;
             this.seed = seed;
@@ -126,7 +152,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
         public ECPoint G
         {
-            get { return g; }
+            get { return g.Point; }
         }
 
         public BigInteger N
@@ -136,21 +162,42 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 
         public BigInteger H
         {
-            get
-            {
-                if (h == null)
-                {
-                    // TODO - this should be calculated, it will cause issues with custom curves.
-                    return BigInteger.One;
-                }
-
-                return h;
-            }
+            get { return h; }
         }
 
         public byte[] GetSeed()
         {
             return seed;
+        }
+
+        /**
+         * Return the ASN.1 entry representing the Curve.
+         *
+         * @return the X9Curve for the curve in these parameters.
+         */
+        public X9Curve CurveEntry
+        {
+            get { return new X9Curve(curve, seed); }
+        }
+
+        /**
+         * Return the ASN.1 entry representing the FieldID.
+         *
+         * @return the X9FieldID for the FieldID in these parameters.
+         */
+        public X9FieldID FieldIDEntry
+        {
+            get { return fieldID; }
+        }
+
+        /**
+         * Return the ASN.1 entry representing the base point G.
+         *
+         * @return the X9ECPoint for the base point in these parameters.
+         */
+        public X9ECPoint BaseEntry
+        {
+            get { return g; }
         }
 
         /**
@@ -169,10 +216,10 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
         public override Asn1Object ToAsn1Object()
         {
             Asn1EncodableVector v = new Asn1EncodableVector(
-                new DerInteger(1),
+                new DerInteger(BigInteger.One),
                 fieldID,
                 new X9Curve(curve, seed),
-                new X9ECPoint(g),
+                g,
                 new DerInteger(n));
 
             if (h != null)

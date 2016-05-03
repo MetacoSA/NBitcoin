@@ -40,7 +40,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("04BED5AF16EA3F6A4F62938C4631EB5AF7BDBCDBC31667CB477A1A8EC338F94741669C976316DA6321")), // G
+                    new X9ECPoint(curve, Hex.Decode("04BED5AF16EA3F6A4F62938C4631EB5AF7BDBCDBC31667CB477A1A8EC338F94741669C976316DA6321")), // G
                     n, h);
             }
         }
@@ -66,7 +66,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("04B199B13B9B34EFC1397E64BAEB05ACC265FF2378ADD6718B7C7C1961F0991B842443772152C9E0AD")), // G
+                    new X9ECPoint(curve, Hex.Decode("04B199B13B9B34EFC1397E64BAEB05ACC265FF2378ADD6718B7C7C1961F0991B842443772152C9E0AD")), // G
                     n, h);
             }
         }
@@ -91,7 +91,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("04C0A0647EAAB6A48753B033C56CB0F0900A2F5C4853375FD614B690866ABD5BB88B5F4828C1490002E6773FA2FA299B8F")), // G
+                    new X9ECPoint(curve, Hex.Decode("04C0A0647EAAB6A48753B033C56CB0F0900A2F5C4853375FD614B690866ABD5BB88B5F4828C1490002E6773FA2FA299B8F")), // G
                     n, h);
             }
         }
@@ -117,7 +117,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("043AE9E58C82F63C30282E1FE7BBF43FA72C446AF6F4618129097E2C5667C2223A902AB5CA449D0084B7E5B3DE7CCC01C9")), // G'
+                    new X9ECPoint(curve, Hex.Decode("043AE9E58C82F63C30282E1FE7BBF43FA72C446AF6F4618129097E2C5667C2223A902AB5CA449D0084B7E5B3DE7CCC01C9")), // G'
                     n, h);
             }
         }
@@ -142,7 +142,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("040D9029AD2C7E5CF4340823B2A87DC68C9E4CE3174C1E6EFDEE12C07D58AA56F772C0726F24C6B89E4ECDAC24354B9E99CAA3F6D3761402CD")), // G
+                    new X9ECPoint(curve, Hex.Decode("040D9029AD2C7E5CF4340823B2A87DC68C9E4CE3174C1E6EFDEE12C07D58AA56F772C0726F24C6B89E4ECDAC24354B9E99CAA3F6D3761402CD")), // G
                     n, h);
             }
         }
@@ -168,7 +168,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("046AB1E344CE25FF3896424E7FFE14762ECB49F8928AC0C76029B4D5800374E9F5143E568CD23F3F4D7C0D4B1E41C8CC0D1C6ABD5F1A46DB4C")), // G'
+                    new X9ECPoint(curve, Hex.Decode("046AB1E344CE25FF3896424E7FFE14762ECB49F8928AC0C76029B4D5800374E9F5143E568CD23F3F4D7C0D4B1E41C8CC0D1C6ABD5F1A46DB4C")), // G'
                     n, h);
             }
         }
@@ -193,7 +193,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("048BD2AEB9CB7E57CB2C4B482FFC81B7AFB9DE27E1E3BD23C23A4453BD9ACE3262547EF835C3DAC4FD97F8461A14611DC9C27745132DED8E545C1D54C72F046997")), // G
+                    new X9ECPoint(curve, Hex.Decode("048BD2AEB9CB7E57CB2C4B482FFC81B7AFB9DE27E1E3BD23C23A4453BD9ACE3262547EF835C3DAC4FD97F8461A14611DC9C27745132DED8E545C1D54C72F046997")), // G
                     n, h);
             }
         }
@@ -219,7 +219,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("04A3E8EB3CC1CFE7B7732213B23A656149AFA142C47AAFBC2B79A191562E1305F42D996C823439C56D7F7B22E14644417E69BCB6DE39D027001DABE8F35B25C9BE")), // G'
+                    new X9ECPoint(curve, Hex.Decode("04A3E8EB3CC1CFE7B7732213B23A656149AFA142C47AAFBC2B79A191562E1305F42D996C823439C56D7F7B22E14644417E69BCB6DE39D027001DABE8F35B25C9BE")), // G'
                     n, h);
             }
         }
@@ -244,7 +244,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("0443BD7E9AFB53D8B85289BCC48EE5BFE6F20137D10A087EB6E7871E2A10A599C710AF8D0D39E2061114FDD05545EC1CC8AB4093247F77275E0743FFED117182EAA9C77877AAAC6AC7D35245D1692E8EE1")), // G
+                    new X9ECPoint(curve, Hex.Decode("0443BD7E9AFB53D8B85289BCC48EE5BFE6F20137D10A087EB6E7871E2A10A599C710AF8D0D39E2061114FDD05545EC1CC8AB4093247F77275E0743FFED117182EAA9C77877AAAC6AC7D35245D1692E8EE1")), // G
                     n, h);
             }
         }
@@ -270,7 +270,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("04925BE9FB01AFC6FB4D3E7D4990010F813408AB106C4F09CB7EE07868CC136FFF3357F624A21BED5263BA3A7A27483EBF6671DBEF7ABB30EBEE084E58A0B077AD42A5A0989D1EE71B1B9BC0455FB0D2C3")), // G'
+                    new X9ECPoint(curve, Hex.Decode("04925BE9FB01AFC6FB4D3E7D4990010F813408AB106C4F09CB7EE07868CC136FFF3357F624A21BED5263BA3A7A27483EBF6671DBEF7ABB30EBEE084E58A0B077AD42A5A0989D1EE71B1B9BC0455FB0D2C3")), // G'
                     n, h);
             }
         }
@@ -295,7 +295,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("041D1C64F068CF45FFA2A63A81B7C13F6B8847A3E77EF14FE3DB7FCAFE0CBD10E8E826E03436D646AAEF87B2E247D4AF1E8ABE1D7520F9C2A45CB1EB8E95CFD55262B70B29FEEC5864E19C054FF99129280E4646217791811142820341263C5315")), // G
+                    new X9ECPoint(curve, Hex.Decode("041D1C64F068CF45FFA2A63A81B7C13F6B8847A3E77EF14FE3DB7FCAFE0CBD10E8E826E03436D646AAEF87B2E247D4AF1E8ABE1D7520F9C2A45CB1EB8E95CFD55262B70B29FEEC5864E19C054FF99129280E4646217791811142820341263C5315")), // G
                     n, h);
             }
         }
@@ -321,7 +321,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("0418DE98B02DB9A306F2AFCD7235F72A819B80AB12EBD653172476FECD462AABFFC4FF191B946A5F54D8D0AA2F418808CC25AB056962D30651A114AFD2755AD336747F93475B7A1FCA3B88F2B6A208CCFE469408584DC2B2912675BF5B9E582928")), // G'
+                    new X9ECPoint(curve, Hex.Decode("0418DE98B02DB9A306F2AFCD7235F72A819B80AB12EBD653172476FECD462AABFFC4FF191B946A5F54D8D0AA2F418808CC25AB056962D30651A114AFD2755AD336747F93475B7A1FCA3B88F2B6A208CCFE469408584DC2B2912675BF5B9E582928")), // G'
                     n, h);
             }
         }
@@ -346,7 +346,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("0481AEE4BDD82ED9645A21322E9C4C6A9385ED9F70B5D916C1B43B62EEF4D0098EFF3B1F78E2D0D48D50D1687B93B97D5F7C6D5047406A5E688B352209BCB9F8227DDE385D566332ECC0EABFA9CF7822FDF209F70024A57B1AA000C55B881F8111B2DCDE494A5F485E5BCA4BD88A2763AED1CA2B2FA8F0540678CD1E0F3AD80892")), // G
+                    new X9ECPoint(curve, Hex.Decode("0481AEE4BDD82ED9645A21322E9C4C6A9385ED9F70B5D916C1B43B62EEF4D0098EFF3B1F78E2D0D48D50D1687B93B97D5F7C6D5047406A5E688B352209BCB9F8227DDE385D566332ECC0EABFA9CF7822FDF209F70024A57B1AA000C55B881F8111B2DCDE494A5F485E5BCA4BD88A2763AED1CA2B2FA8F0540678CD1E0F3AD80892")), // G
                     n, h);
             }
         }
@@ -372,7 +372,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
 
                 return new X9ECParameters(
                     curve,
-                    curve.DecodePoint(Hex.Decode("04640ECE5C12788717B9C1BA06CBC2A6FEBA85842458C56DDE9DB1758D39C0313D82BA51735CDB3EA499AA77A7D6943A64F7A3F25FE26F06B51BAA2696FA9035DA5B534BD595F5AF0FA2C892376C84ACE1BB4E3019B71634C01131159CAE03CEE9D9932184BEEF216BD71DF2DADF86A627306ECFF96DBB8BACE198B61E00F8B332")), // G'
+                    new X9ECPoint(curve, Hex.Decode("04640ECE5C12788717B9C1BA06CBC2A6FEBA85842458C56DDE9DB1758D39C0313D82BA51735CDB3EA499AA77A7D6943A64F7A3F25FE26F06B51BAA2696FA9035DA5B534BD595F5AF0FA2C892376C84ACE1BB4E3019B71634C01131159CAE03CEE9D9932184BEEF216BD71DF2DADF86A627306ECFF96DBB8BACE198B61E00F8B332")), // G'
                     n, h);
             }
         }
@@ -387,35 +387,33 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
             DerObjectIdentifier		oid,
             X9ECParametersHolder	holder)
         {
-            objIds.Add(name, oid);
+            objIds.Add(Platform.ToUpperInvariant(name), oid);
             names.Add(oid, name);
             curves.Add(oid, holder);
         }
 
         static TeleTrusTNamedCurves()
         {
-            DefineCurve("brainpoolp160r1", TeleTrusTObjectIdentifiers.BrainpoolP160R1, BrainpoolP160r1Holder.Instance);
-            DefineCurve("brainpoolp160t1", TeleTrusTObjectIdentifiers.BrainpoolP160T1, BrainpoolP160t1Holder.Instance);
-            DefineCurve("brainpoolp192r1", TeleTrusTObjectIdentifiers.BrainpoolP192R1, BrainpoolP192r1Holder.Instance);
-            DefineCurve("brainpoolp192t1", TeleTrusTObjectIdentifiers.BrainpoolP192T1, BrainpoolP192t1Holder.Instance);
-            DefineCurve("brainpoolp224r1", TeleTrusTObjectIdentifiers.BrainpoolP224R1, BrainpoolP224r1Holder.Instance);
-            DefineCurve("brainpoolp224t1", TeleTrusTObjectIdentifiers.BrainpoolP224T1, BrainpoolP224t1Holder.Instance);
-            DefineCurve("brainpoolp256r1", TeleTrusTObjectIdentifiers.BrainpoolP256R1, BrainpoolP256r1Holder.Instance);
-            DefineCurve("brainpoolp256t1", TeleTrusTObjectIdentifiers.BrainpoolP256T1, BrainpoolP256t1Holder.Instance);
-            DefineCurve("brainpoolp320r1", TeleTrusTObjectIdentifiers.BrainpoolP320R1, BrainpoolP320r1Holder.Instance);
-            DefineCurve("brainpoolp320t1", TeleTrusTObjectIdentifiers.BrainpoolP320T1, BrainpoolP320t1Holder.Instance);
-            DefineCurve("brainpoolp384r1", TeleTrusTObjectIdentifiers.BrainpoolP384R1, BrainpoolP384r1Holder.Instance);
-            DefineCurve("brainpoolp384t1", TeleTrusTObjectIdentifiers.BrainpoolP384T1, BrainpoolP384t1Holder.Instance);
-            DefineCurve("brainpoolp512r1", TeleTrusTObjectIdentifiers.BrainpoolP512R1, BrainpoolP512r1Holder.Instance);
-            DefineCurve("brainpoolp512t1", TeleTrusTObjectIdentifiers.BrainpoolP512T1, BrainpoolP512t1Holder.Instance);
+            DefineCurve("brainpoolP160r1", TeleTrusTObjectIdentifiers.BrainpoolP160R1, BrainpoolP160r1Holder.Instance);
+            DefineCurve("brainpoolP160t1", TeleTrusTObjectIdentifiers.BrainpoolP160T1, BrainpoolP160t1Holder.Instance);
+            DefineCurve("brainpoolP192r1", TeleTrusTObjectIdentifiers.BrainpoolP192R1, BrainpoolP192r1Holder.Instance);
+            DefineCurve("brainpoolP192t1", TeleTrusTObjectIdentifiers.BrainpoolP192T1, BrainpoolP192t1Holder.Instance);
+            DefineCurve("brainpoolP224r1", TeleTrusTObjectIdentifiers.BrainpoolP224R1, BrainpoolP224r1Holder.Instance);
+            DefineCurve("brainpoolP224t1", TeleTrusTObjectIdentifiers.BrainpoolP224T1, BrainpoolP224t1Holder.Instance);
+            DefineCurve("brainpoolP256r1", TeleTrusTObjectIdentifiers.BrainpoolP256R1, BrainpoolP256r1Holder.Instance);
+            DefineCurve("brainpoolP256t1", TeleTrusTObjectIdentifiers.BrainpoolP256T1, BrainpoolP256t1Holder.Instance);
+            DefineCurve("brainpoolP320r1", TeleTrusTObjectIdentifiers.BrainpoolP320R1, BrainpoolP320r1Holder.Instance);
+            DefineCurve("brainpoolP320t1", TeleTrusTObjectIdentifiers.BrainpoolP320T1, BrainpoolP320t1Holder.Instance);
+            DefineCurve("brainpoolP384r1", TeleTrusTObjectIdentifiers.BrainpoolP384R1, BrainpoolP384r1Holder.Instance);
+            DefineCurve("brainpoolP384t1", TeleTrusTObjectIdentifiers.BrainpoolP384T1, BrainpoolP384t1Holder.Instance);
+            DefineCurve("brainpoolP512r1", TeleTrusTObjectIdentifiers.BrainpoolP512R1, BrainpoolP512r1Holder.Instance);
+            DefineCurve("brainpoolP512t1", TeleTrusTObjectIdentifiers.BrainpoolP512T1, BrainpoolP512t1Holder.Instance);
         }
 
         public static X9ECParameters GetByName(
             string name)
         {
-            DerObjectIdentifier oid = (DerObjectIdentifier)
-                objIds[Platform.ToLowerInvariant(name)];
-
+            DerObjectIdentifier oid = GetOid(name);
             return oid == null ? null : GetByOid(oid);
         }
 
@@ -428,8 +426,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
         public static X9ECParameters GetByOid(
             DerObjectIdentifier oid)
         {
-            X9ECParametersHolder holder = (X9ECParametersHolder) curves[oid];
-
+            X9ECParametersHolder holder = (X9ECParametersHolder)curves[oid];
             return holder == null ? null : holder.Parameters;
         }
 
@@ -442,7 +439,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
         public static DerObjectIdentifier GetOid(
             string name)
         {
-            return (DerObjectIdentifier)objIds[Platform.ToLowerInvariant(name)];
+            return (DerObjectIdentifier)objIds[Platform.ToUpperInvariant(name)];
         }
 
         /**
@@ -451,9 +448,8 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
         public static string GetName(
             DerObjectIdentifier oid)
         {
-            return (string) names[oid];
+            return (string)names[oid];
         }
-
 
         /**
          * returns an enumeration containing the name strings for curves
@@ -461,7 +457,7 @@ namespace NBitcoin.BouncyCastle.Asn1.TeleTrust
          */
         public static IEnumerable Names
         {
-            get { return new EnumerableProxy(objIds.Keys); }
+            get { return new EnumerableProxy(names.Values); }
         }
 
         public static DerObjectIdentifier GetOid(

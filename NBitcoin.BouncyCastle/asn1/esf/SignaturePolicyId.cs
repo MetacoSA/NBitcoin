@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 
+using NBitcoin.BouncyCastle.Utilities;
 using NBitcoin.BouncyCastle.Utilities.Collections;
 
 namespace NBitcoin.BouncyCastle.Asn1.Esf
@@ -36,7 +37,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Esf
 
 			throw new ArgumentException(
 				"Unknown object in 'SignaturePolicyId' factory: "
-					+ obj.GetType().Name,
+                    + Platform.GetTypeName(obj),
 				"obj");
 		}
 

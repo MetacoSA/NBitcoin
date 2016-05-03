@@ -102,6 +102,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
          * Note: normalization can be expensive, this method is deprecated in favour
          * of caller-controlled normalization.
          */
+        [Obsolete("Use AffineXCoord, or Normalize() and XCoord, instead")]
         public virtual ECFieldElement X
         {
             get { return Normalize().XCoord; }
@@ -113,6 +114,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
          * Note: normalization can be expensive, this method is deprecated in favour
          * of caller-controlled normalization.
          */
+        [Obsolete("Use AffineYCoord, or Normalize() and YCoord, instead")]
         public virtual ECFieldElement Y
         {
             get { return Normalize().YCoord; }
@@ -1381,6 +1383,139 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
             return lhs.Equals(rhs);
         }
+
+        public override ECPoint ScaleX(ECFieldElement scale)
+        {
+            if (this.IsInfinity)
+                return this;
+
+            switch (CurveCoordinateSystem)
+            {
+            case ECCurve.COORD_LAMBDA_AFFINE:
+            {
+                // Y is actually Lambda (X + Y/X) here
+                ECFieldElement X = RawXCoord, L = RawYCoord;
+
+                ECFieldElement X2 = X.Multiply(scale);
+                ECFieldElement L2 = L.Add(X).Divide(scale).Add(X2);
+
+                return Curve.CreateRawPoint(X, L2, RawZCoords, IsCompressed);
+            }
+            case ECCurve.COORD_LAMBDA_PROJECTIVE:
+            {
+                // Y is actually Lambda (X + Y/X) here
+                ECFieldElement X = RawXCoord, L = RawYCoord, Z = RawZCoords[0];
+
+                // We scale the Z coordinate also, to avoid an inversion
+                ECFieldElement X2 = X.Multiply(scale.Square());
+                ECFieldElement L2 = L.Add(X).Add(X2);
+                ECFieldElement Z2 = Z.Multiply(scale);
+
+                return Curve.CreateRawPoint(X, L2, new ECFieldElement[] { Z2 }, IsCompressed);
+            }
+            default:
+            {
+                return base.ScaleX(scale);
+            }
+            }
+        }
+
+        public override ECPoint ScaleY(ECFieldElement scale)
+        {
+            if (this.IsInfinity)
+                return this;
+
+            switch (CurveCoordinateSystem)
+            {
+            case ECCurve.COORD_LAMBDA_AFFINE:
+            case ECCurve.COORD_LAMBDA_PROJECTIVE:
+            {
+                ECFieldElement X = RawXCoord, L = RawYCoord;
+
+                // Y is actually Lambda (X + Y/X) here
+                ECFieldElement L2 = L.Add(X).Multiply(scale).Add(X);
+
+                return Curve.CreateRawPoint(X, L2, RawZCoords, IsCompressed);
+            }
+            default:
+            {
+                return base.ScaleY(scale);
+            }
+            }
+        }
+
+        public override ECPoint Subtract(ECPoint b)
+        {
+            if (b.IsInfinity)
+                return this;
+
+            // Add -b
+            return Add(b.Negate());
+        }
+
+        public virtual AbstractF2mPoint Tau()
+        {
+            if (this.IsInfinity)
+                return this;
+
+            ECCurve curve = this.Curve;
+            int coord = curve.CoordinateSystem;
+
+            ECFieldElement X1 = this.RawXCoord;
+
+            switch (coord)
+            {
+            case ECCurve.COORD_AFFINE:
+            case ECCurve.COORD_LAMBDA_AFFINE:
+            {
+                ECFieldElement Y1 = this.RawYCoord;
+                return (AbstractF2mPoint)curve.CreateRawPoint(X1.Square(), Y1.Square(), IsCompressed);
+            }
+            case ECCurve.COORD_HOMOGENEOUS:
+            case ECCurve.COORD_LAMBDA_PROJECTIVE:
+            {
+                ECFieldElement Y1 = this.RawYCoord, Z1 = this.RawZCoords[0];
+                return (AbstractF2mPoint)curve.CreateRawPoint(X1.Square(), Y1.Square(),
+                    new ECFieldElement[] { Z1.Square() }, IsCompressed);
+            }
+            default:
+            {
+                throw new InvalidOperationException("unsupported coordinate system");
+            }
+            }
+        }
+
+        public virtual AbstractF2mPoint TauPow(int pow)
+        {
+            if (this.IsInfinity)
+                return this;
+
+            ECCurve curve = this.Curve;
+            int coord = curve.CoordinateSystem;
+
+            ECFieldElement X1 = this.RawXCoord;
+
+            switch (coord)
+            {
+            case ECCurve.COORD_AFFINE:
+            case ECCurve.COORD_LAMBDA_AFFINE:
+            {
+                ECFieldElement Y1 = this.RawYCoord;
+                return (AbstractF2mPoint)curve.CreateRawPoint(X1.SquarePow(pow), Y1.SquarePow(pow), IsCompressed);
+            }
+            case ECCurve.COORD_HOMOGENEOUS:
+            case ECCurve.COORD_LAMBDA_PROJECTIVE:
+            {
+                ECFieldElement Y1 = this.RawYCoord, Z1 = this.RawZCoords[0];
+                return (AbstractF2mPoint)curve.CreateRawPoint(X1.SquarePow(pow), Y1.SquarePow(pow),
+                    new ECFieldElement[] { Z1.SquarePow(pow) }, IsCompressed);
+            }
+            default:
+            {
+                throw new InvalidOperationException("unsupported coordinate system");
+            }
+            }
+        }
     }
 
     /**
@@ -1489,66 +1624,6 @@ namespace NBitcoin.BouncyCastle.Math.EC
             }
         }
 
-        public override ECPoint ScaleX(ECFieldElement scale)
-        {
-            if (this.IsInfinity)
-                return this;
-
-            switch (CurveCoordinateSystem)
-            {
-            case ECCurve.COORD_LAMBDA_AFFINE:
-            {
-                // Y is actually Lambda (X + Y/X) here
-                ECFieldElement X = RawXCoord, L = RawYCoord;
-
-                ECFieldElement X2 = X.Multiply(scale);
-                ECFieldElement L2 = L.Add(X).Divide(scale).Add(X2);
-
-                return Curve.CreateRawPoint(X, L2, RawZCoords, IsCompressed);
-            }
-            case ECCurve.COORD_LAMBDA_PROJECTIVE:
-            {
-                // Y is actually Lambda (X + Y/X) here
-                ECFieldElement X = RawXCoord, L = RawYCoord, Z = RawZCoords[0];
-
-                // We scale the Z coordinate also, to avoid an inversion
-                ECFieldElement X2 = X.Multiply(scale.Square());
-                ECFieldElement L2 = L.Add(X).Add(X2);
-                ECFieldElement Z2 = Z.Multiply(scale);
-
-                return Curve.CreateRawPoint(X, L2, new ECFieldElement[] { Z2 }, IsCompressed);
-            }
-            default:
-            {
-                return base.ScaleX(scale);
-            }
-            }
-        }
-
-        public override ECPoint ScaleY(ECFieldElement scale)
-        {
-            if (this.IsInfinity)
-                return this;
-
-            switch (CurveCoordinateSystem)
-            {
-            case ECCurve.COORD_LAMBDA_AFFINE:
-            case ECCurve.COORD_LAMBDA_PROJECTIVE:
-            {
-                ECFieldElement X = RawXCoord, L = RawYCoord;
-
-                // Y is actually Lambda (X + Y/X) here
-                ECFieldElement L2 = L.Add(X).Multiply(scale).Add(X);
-
-                return Curve.CreateRawPoint(X, L2, RawZCoords, IsCompressed);
-            }
-            default:
-            {
-                return base.ScaleY(scale);
-            }
-            }
-        }
-
         protected internal override bool CompressionYTilde
         {
             get
@@ -1577,43 +1652,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
             }
         }
 
-        /**
-         * Check, if two <code>ECPoint</code>s can be added or subtracted.
-         * @param a The first <code>ECPoint</code> to check.
-         * @param b The second <code>ECPoint</code> to check.
-         * @throws IllegalArgumentException if <code>a</code> and <code>b</code>
-         * cannot be added.
-         */
-        private static void CheckPoints(
-            ECPoint	a,
-            ECPoint	b)
-        {
-            // Check, if points are on the same curve
-            if (!a.Curve.Equals(b.Curve))
-                throw new ArgumentException("Only points on the same curve can be added or subtracted");
-
-//			F2mFieldElement.CheckFieldElements(a.x, b.x);
-        }
-
-        /* (non-Javadoc)
-         * @see NBitcoin.BouncyCastle.math.ec.ECPoint#add(NBitcoin.BouncyCastle.math.ec.ECPoint)
-         */
         public override ECPoint Add(ECPoint b)
-        {
-            CheckPoints(this, b);
-            return AddSimple((F2mPoint) b);
-        }
-
-        /**
-         * Adds another <code>ECPoints.F2m</code> to <code>this</code> without
-         * checking if both points are on the same curve. Used by multiplication
-         * algorithms, because there all points are a multiple of the same point
-         * and hence the checks can be omitted.
-         * @param b The other <code>ECPoints.F2m</code> to add to
-         * <code>this</code>.
-         * @return <code>this + b</code>
-         */
-        internal F2mPoint AddSimple(F2mPoint b)
         {
             if (this.IsInfinity)
                 return b;
@@ -1638,10 +1677,10 @@ namespace NBitcoin.BouncyCastle.Math.EC
                     {
                         if (dy.IsZero)
                         {
-                            return (F2mPoint)Twice();
+                            return Twice();
                         }
 
-                        return (F2mPoint)curve.Infinity;
+                        return curve.Infinity;
                     }
 
                     ECFieldElement L = dy.Divide(dx);
@@ -1679,10 +1718,10 @@ namespace NBitcoin.BouncyCastle.Math.EC
                     {
                         if (U.IsZero)
                         {
-                            return (F2mPoint)Twice();
+                            return Twice();
                         }
 
-                        return (F2mPoint)curve.Infinity;
+                        return curve.Infinity;
                     }
 
                     ECFieldElement VSq = V.Square();
@@ -1703,9 +1742,9 @@ namespace NBitcoin.BouncyCastle.Math.EC
                     if (X1.IsZero)
                     {
                         if (X2.IsZero)
-                            return (F2mPoint)curve.Infinity;
+                            return curve.Infinity;
 
-                        return b.AddSimple(this);
+                        return b.Add(this);
                     }
 
                     ECFieldElement L1 = this.RawYCoord, Z1 = this.RawZCoords[0];
@@ -1734,10 +1773,10 @@ namespace NBitcoin.BouncyCastle.Math.EC
                     {
                         if (A.IsZero)
                         {
-                            return (F2mPoint)Twice();
+                            return Twice();
                         }
 
-                        return (F2mPoint)curve.Infinity;
+                        return curve.Infinity;
                     }
 
                     ECFieldElement X3, L3, Z3;
@@ -1790,68 +1829,6 @@ namespace NBitcoin.BouncyCastle.Math.EC
                     }
 
                     return new F2mPoint(curve, X3, L3, new ECFieldElement[] { Z3 }, IsCompressed);
-                }
-                default:
-                {
-                    throw new InvalidOperationException("unsupported coordinate system");
-                }
-            }
-        }
-
-        /* (non-Javadoc)
-         * @see NBitcoin.BouncyCastle.math.ec.ECPoint#subtract(NBitcoin.BouncyCastle.math.ec.ECPoint)
-         */
-        public override ECPoint Subtract(
-            ECPoint b)
-        {
-            CheckPoints(this, b);
-            return SubtractSimple((F2mPoint) b);
-        }
-
-        /**
-         * Subtracts another <code>ECPoints.F2m</code> from <code>this</code>
-         * without checking if both points are on the same curve. Used by
-         * multiplication algorithms, because there all points are a multiple
-         * of the same point and hence the checks can be omitted.
-         * @param b The other <code>ECPoints.F2m</code> to subtract from
-         * <code>this</code>.
-         * @return <code>this - b</code>
-         */
-        internal F2mPoint SubtractSimple(
-            F2mPoint b)
-        {
-            if (b.IsInfinity)
-                return this;
-
-            // Add -b
-            return AddSimple((F2mPoint) b.Negate());
-        }
-
-        public virtual F2mPoint Tau()
-        {
-            if (this.IsInfinity)
-            {
-                return this;
-            }
-
-            ECCurve curve = this.Curve;
-            int coord = curve.CoordinateSystem;
-
-            ECFieldElement X1 = this.RawXCoord;
-
-            switch (coord)
-            {
-                case ECCurve.COORD_AFFINE:
-                case ECCurve.COORD_LAMBDA_AFFINE:
-                {
-                    ECFieldElement Y1 = this.RawYCoord;
-                    return new F2mPoint(curve, X1.Square(), Y1.Square(), IsCompressed);
-                }
-                case ECCurve.COORD_HOMOGENEOUS:
-                case ECCurve.COORD_LAMBDA_PROJECTIVE:
-                {
-                    ECFieldElement Y1 = this.RawYCoord, Z1 = this.RawZCoords[0];
-                    return new F2mPoint(curve, X1.Square(), Y1.Square(), new ECFieldElement[] { Z1.Square() }, IsCompressed);
                 }
                 default:
                 {

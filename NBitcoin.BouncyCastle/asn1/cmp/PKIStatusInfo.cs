@@ -1,6 +1,7 @@
 using System;
 
 using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Cmp
 {
@@ -30,7 +31,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Cmp
 				return new PkiStatusInfo((Asn1Sequence)obj);
 			}
 
-			throw new ArgumentException("Unknown object in factory: " + obj.GetType().Name, "obj");
+            throw new ArgumentException("Unknown object in factory: " + Platform.GetTypeName(obj), "obj");
 		}
 
 		public PkiStatusInfo(

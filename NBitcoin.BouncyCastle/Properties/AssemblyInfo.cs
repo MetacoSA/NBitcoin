@@ -1,25 +1,25 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("NBitcoin.BouncyCastle")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("https://github.com/bcgit/bc-csharp Commit efb5751 on 10/03/2016")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("NBitcoin.BouncyCastle")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2014")]
+[assembly: AssemblyCompany("The Legion of the Bouncy Castle Inc.")]
+[assembly: AssemblyProduct("Bouncy Castle for .NET")]
+[assembly: AssemblyCopyright("Copyright (C) 2000-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
-
-
+[assembly: CLSCompliant(true)]
 
 // Version information for an assembly consists of the following four values:
 //

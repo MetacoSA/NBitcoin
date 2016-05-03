@@ -261,10 +261,10 @@ namespace NBitcoin.BouncyCastle.Security
         }
 
         /// <summary>
-        /// Returns a ObjectIdentifier for a give encoding.
+        /// Returns an ObjectIdentifier for a given encoding.
         /// </summary>
         /// <param name="mechanism">A string representation of the encoding.</param>
-        /// <returns>A DerObjectIdentifier, null if the Oid is not available.</returns>
+        /// <returns>A DerObjectIdentifier, null if the OID is not available.</returns>
         // TODO Don't really want to support this
         public static DerObjectIdentifier GetObjectIdentifier(
             string mechanism)
@@ -312,7 +312,7 @@ namespace NBitcoin.BouncyCastle.Security
                 return GetPssX509Parameters("SHA-1");
             }
 
-            if (mechanism.EndsWith("withRSAandMGF1"))
+            if (Platform.EndsWith(mechanism, "withRSAandMGF1"))
             {
                 string digestName = mechanism.Substring(0, mechanism.Length - "withRSAandMGF1".Length);
                 return GetPssX509Parameters(digestName);
@@ -532,6 +532,26 @@ namespace NBitcoin.BouncyCastle.Security
             if (mechanism.Equals("RIPEMD160WITHRSA/ISO9796-2"))
             {
                 return new Iso9796d2Signer(new RsaBlindedEngine(), new RipeMD160Digest(), true);
+            }
+
+            if (Platform.EndsWith(mechanism, "/X9.31"))
+            {
+                string x931 = mechanism.Substring(0, mechanism.Length - "/X9.31".Length);
+                int withPos = Platform.IndexOf(x931, "WITH");
+                if (withPos > 0)
+                {
+                    int endPos = withPos + "WITH".Length;
+
+                    string digestName = x931.Substring(0, withPos);
+                    IDigest digest = DigestUtilities.GetDigest(digestName);
+
+                    string cipherName = x931.Substring(endPos, x931.Length - endPos);
+                    if (cipherName.Equals("RSA"))
+                    {
+                        IAsymmetricBlockCipher cipher = new RsaBlindedEngine();
+                        return new X931Signer(cipher, digest);
+                    }
+                }
             }
 
             throw new SecurityUtilityException("Signer " + algorithm + " not recognised.");

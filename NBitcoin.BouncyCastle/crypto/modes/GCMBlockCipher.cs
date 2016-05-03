@@ -34,6 +34,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
         private byte[]		macBlock;
         private byte[]      S, S_at, S_atPre;
         private byte[]      counter;
+        private uint        blocksRemaining;
         private int         bufOff;
         private ulong		totalLength;
         private byte[]      atBlock;
@@ -173,6 +174,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
             this.atLength = 0;
             this.atLengthPre = 0;
             this.counter = Arrays.Clone(J0);
+            this.blocksRemaining = uint.MaxValue - 1; // page 8, len(P) <= 2^39 - 256, 1 block used by tag
             this.bufOff = 0;
             this.totalLength = 0;
 
@@ -284,6 +286,9 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
             byte[]	output,
             int		outOff)
         {
+            if (input.Length < (inOff + len))
+                throw new DataLengthException("Input buffer too short");
+
             int resultLen = 0;
 
             for (int i = 0; i < len; ++i)
@@ -301,6 +306,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 
         private void OutputBlock(byte[] output, int offset)
         {
+            Check.OutputLength(output, offset, BlockSize, "Output buffer too short");
             if (totalLength == 0)
             {
                 InitCipher();
@@ -325,12 +331,19 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
             }
 
             int extra = bufOff;
-            if (!forEncryption)
+
+            if (forEncryption)
+            {
+                Check.OutputLength(output, outOff, extra + macSize, "Output buffer too short");
+            }
+            else
             {
                 if (extra < macSize)
                     throw new InvalidCipherTextException("data too short");
 
                 extra -= macSize;
+
+                Check.OutputLength(output, outOff, extra, "Output buffer too short");
             }
 
             if (extra > 0)
@@ -436,6 +449,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
             atLength = 0;
             atLengthPre = 0;
             counter = Arrays.Clone(J0);
+            blocksRemaining = uint.MaxValue - 1;
             bufOff = 0;
             totalLength = 0;
 
@@ -502,10 +516,16 @@ namespace NBitcoin.BouncyCastle.Crypto.Modes
 
         private byte[] GetNextCounterBlock()
         {
-            for (int i = 15; i >= 12; --i)
-            {
-                if (++counter[i] != 0) break;
-            }
+            if (blocksRemaining == 0)
+                throw new InvalidOperationException("Attempt to process too many blocks");
+
+            blocksRemaining--;
+
+            uint c = 1;
+            c += counter[15]; counter[15] = (byte)c; c >>= 8;
+            c += counter[14]; counter[14] = (byte)c; c >>= 8;
+            c += counter[13]; counter[13] = (byte)c; c >>= 8;
+            c += counter[12]; counter[12] = (byte)c;
 
             byte[] tmp = new byte[BlockSize];
             // TODO Sure would be nice if ciphers could operate on int[]

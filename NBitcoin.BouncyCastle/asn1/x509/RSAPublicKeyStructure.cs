@@ -1,8 +1,9 @@
-using NBitcoin.BouncyCastle.Asn1;
-using NBitcoin.BouncyCastle.Math;
-
 using System;
 using System.Collections;
+
+using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.X509
 {
@@ -32,7 +33,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X509
                 return new RsaPublicKeyStructure((Asn1Sequence) obj);
             }
 
-			throw new ArgumentException("Invalid RsaPublicKeyStructure: " + obj.GetType().Name);
+            throw new ArgumentException("Invalid RsaPublicKeyStructure: " + Platform.GetTypeName(obj));
         }
 
 		public RsaPublicKeyStructure(

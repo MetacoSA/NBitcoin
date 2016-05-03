@@ -4,11 +4,12 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
+using NBitcoin.BouncyCastle.Security;
 using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Math
 {
-#if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT)
+#if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT || PORTABLE)
     [Serializable]
 #endif
     public class BigInteger
@@ -179,7 +180,7 @@ namespace NBitcoin.BouncyCastle.Math
         private const int chunk2 = 1, chunk8 = 1, chunk10 = 19, chunk16 = 16;
         private static readonly BigInteger radix2, radix2E, radix8, radix8E, radix10, radix10E, radix16, radix16E;
 
-        private static readonly Random RandomSource = new Random();
+        private static readonly SecureRandom RandomSource = new SecureRandom();
 
         /*
          * These are the threshold bit-lengths (of an exponent) where we increase the window size.
@@ -244,6 +245,11 @@ namespace NBitcoin.BouncyCastle.Math
             int nBits)
         {
             return (nBits + BitsPerByte - 1) / BitsPerByte;
+        }
+
+        internal static BigInteger Arbitrary(int sizeInBits)
+        {
+            return new BigInteger(sizeInBits, RandomSource);
         }
 
         private BigInteger(
@@ -675,6 +681,7 @@ namespace NBitcoin.BouncyCastle.Math
 
             int xBits = BitsPerByte * nBytes - bitLength;
             byte mask = (byte)(255U >> xBits);
+            byte lead = (byte)(1 << (7 - xBits));
 
             for (;;)
             {
@@ -684,7 +691,7 @@ namespace NBitcoin.BouncyCastle.Math
                 b[0] &= mask;
 
                 // ensure the leading bit is 1 (to meet the strength requirement)
-                b[0] |= (byte)(1 << (7 - xBits));
+                b[0] |= lead;
 
                 // ensure the trailing bit is 1 (i.e. must be odd)
                 b[nBytes - 1] |= 1;
@@ -696,21 +703,15 @@ namespace NBitcoin.BouncyCastle.Math
                 if (certainty < 1)
                     break;
 
-                if (CheckProbablePrime(certainty, random))
+                if (CheckProbablePrime(certainty, random, true))
                     break;
 
-                if (bitLength > 32)
+                for (int j = 1; j < (magnitude.Length - 1); ++j)
                 {
-                    for (int rep = 0; rep < 10000; ++rep)
-                    {
-                        int n = 33 + random.Next(bitLength - 2);
-                        this.magnitude[this.magnitude.Length - (n >> 5)] ^= (1 << (n & 31));
-                        this.magnitude[this.magnitude.Length - 1] ^= ((random.Next() + 1) << 1);
-                        this.mQuote = 0;
+                    this.magnitude[j] ^= random.Next();
 
-                        if (CheckProbablePrime(certainty, random))
-                            return;
-                    }
+                    if (CheckProbablePrime(certainty, random, true))
+                        return;
                 }
             }
         }
@@ -962,7 +963,7 @@ namespace NBitcoin.BouncyCastle.Math
         //
         // BitLen(value) is the number of bits in value.
         //
-        private static int BitLen(int w)
+        internal static int BitLen(int w)
         {
             uint v = (uint)w;
             uint t = v >> 24;
@@ -1334,8 +1335,12 @@ namespace NBitcoin.BouncyCastle.Math
          * probability of 1 - (1/2)**certainty.
          * <p>From Knuth Vol 2, pg 395.</p>
          */
-        public bool IsProbablePrime(
-            int certainty)
+        public bool IsProbablePrime(int certainty)
+        {
+            return IsProbablePrime(certainty, false);
+        }
+
+        internal bool IsProbablePrime(int certainty, bool randomlySelected)
         {
             if (certainty <= 0)
                 return true;
@@ -1348,12 +1353,10 @@ namespace NBitcoin.BouncyCastle.Math
             if (n.Equals(One))
                 return false;
 
-            return n.CheckProbablePrime(certainty, RandomSource);
+            return n.CheckProbablePrime(certainty, RandomSource, randomlySelected);
         }
 
-        private bool CheckProbablePrime(
-            int		certainty,
-            Random	random)
+        private bool CheckProbablePrime(int certainty, Random random, bool randomlySelected)
         {
             Debug.Assert(certainty > 0);
             Debug.Assert(CompareTo(Two) > 0);
@@ -1389,7 +1392,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 
             // TODO Is it worth trying to create a hybrid of these two?
-            return RabinMillerTest(certainty, random);
+            return RabinMillerTest(certainty, random, randomlySelected);
 //			return SolovayStrassenTest(certainty, random);
 
 //			bool rbTest = RabinMillerTest(certainty, random);
@@ -1402,9 +1405,35 @@ namespace NBitcoin.BouncyCastle.Math
 
         public bool RabinMillerTest(int certainty, Random random)
         {
+            return RabinMillerTest(certainty, random, false);
+        }
+
+        internal bool RabinMillerTest(int certainty, Random random, bool randomlySelected)
+        {
+            int bits = BitLength;
+
             Debug.Assert(certainty > 0);
-            Debug.Assert(BitLength > 2);
+            Debug.Assert(bits > 2);
             Debug.Assert(TestBit(0));
+
+            int iterations = ((certainty - 1) / 2) + 1;
+            if (randomlySelected)
+            {
+                int itersFor100Cert = bits >= 1024 ?  4
+                                    : bits >= 512  ?  8
+                                    : bits >= 256  ? 16
+                                    : 50;
+
+                if (certainty < 100)
+                {
+                    iterations = System.Math.Min(itersFor100Cert, iterations);
+                }
+                else
+                {
+                    iterations -= 50;
+                    iterations += itersFor100Cert;
+                }
+            }
 
             // let n = 1 + d . 2^s
             BigInteger n = this;
@@ -1443,10 +1472,8 @@ namespace NBitcoin.BouncyCastle.Math
                             return false;
                     }
                 }
-
-                certainty -= 2; // composites pass for only 1/4 possible 'a'
             }
-            while (certainty > 0);
+            while (--iterations > 0);
 
             return true;
         }
@@ -2488,7 +2515,7 @@ namespace NBitcoin.BouncyCastle.Math
 
             BigInteger n = Inc().SetBit(0);
 
-            while (!n.CheckProbablePrime(100, RandomSource))
+            while (!n.CheckProbablePrime(100, RandomSource, false))
             {
                 n = n.Add(Two);
             }

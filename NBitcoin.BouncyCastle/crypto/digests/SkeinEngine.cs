@@ -741,7 +741,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
             CheckInitialised();
             if (outBytes.Length < (outOff + outputSizeBytes))
             {
-                throw new DataLengthException("Output buffer is too short to hold output of " + outputSizeBytes + " bytes");
+                throw new DataLengthException("Output buffer is too short to hold output");
             }
 
             // Finalise message block

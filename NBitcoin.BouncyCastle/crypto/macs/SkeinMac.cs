@@ -3,6 +3,7 @@ using System;
 using NBitcoin.BouncyCastle.Crypto.Digests;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Crypto.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Crypto.Macs
 {
@@ -79,7 +80,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Macs
 			else
 			{
 				throw new ArgumentException("Invalid parameter passed to Skein MAC init - "
-				                            + parameters.GetType().Name);
+                    + Platform.GetTypeName(parameters));
 			}
 			if (skeinParameters.GetKey() == null)
 			{

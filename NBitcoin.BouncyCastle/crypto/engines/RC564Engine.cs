@@ -1,8 +1,7 @@
 using System;
-using System.Reflection;
-
 
 using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Crypto.Engines
 {
@@ -53,17 +52,17 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
 //            _S            = null;
         }
 
-        public string AlgorithmName
+        public virtual string AlgorithmName
         {
             get { return "RC5-64"; }
         }
 
-		public bool IsPartialBlockOkay
+        public virtual bool IsPartialBlockOkay
 		{
 			get { return false; }
 		}
 
-		public int GetBlockSize()
+        public virtual int GetBlockSize()
         {
             return 2 * bytesPerWord;
         }
@@ -76,13 +75,13 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
         * @exception ArgumentException if the parameters argument is
         * inappropriate.
         */
-        public void Init(
+        public virtual void Init(
             bool             forEncryption,
             ICipherParameters    parameters)
         {
             if (!(typeof(RC5Parameters).IsInstanceOfType(parameters)))
             {
-                throw new ArgumentException("invalid parameter passed to RC564 init - " + parameters.GetType().ToString());
+                throw new ArgumentException("invalid parameter passed to RC564 init - " + Platform.GetTypeName(parameters));
             }
 
             RC5Parameters       p = (RC5Parameters)parameters;
@@ -94,7 +93,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
             SetKey(p.GetKey());
         }
 
-        public int ProcessBlock(
+        public virtual int ProcessBlock(
             byte[]  input,
             int     inOff,
             byte[]  output,
@@ -104,7 +103,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
                                         : DecryptBlock(input, inOff, output, outOff);
         }
 
-        public void Reset()
+        public virtual void Reset()
         {
         }
 
@@ -293,5 +292,4 @@ namespace NBitcoin.BouncyCastle.Crypto.Engines
             }
         }
     }
-
 }

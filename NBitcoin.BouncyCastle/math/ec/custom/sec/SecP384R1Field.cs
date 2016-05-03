@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 
+using NBitcoin.BouncyCastle.Math.Raw;
+
 namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 {
     internal class SecP384R1Field
@@ -103,9 +105,10 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
             long t4 = xx17 + xx21;
             long t5 = xx21 - xx23;
             long t6 = xx22 - xx23;
+            long t7 = t0 + t5;
 
             long cc = 0;
-            cc += (long)xx[0] + t0 + t5;
+            cc += (long)xx[0] + t7;
             z[0] = (uint)cc;
             cc >>= 32;
             cc += (long)xx[1] + xx23 - t0 + t1;
@@ -114,10 +117,10 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
             cc += (long)xx[2] - xx21 - t1 + t2;
             z[2] = (uint)cc;
             cc >>= 32;
-            cc += (long)xx[3] + t0 - t2 + t3 + t5;
+            cc += (long)xx[3] - t2 + t3 + t7;
             z[3] = (uint)cc;
             cc >>= 32;
-            cc += (long)xx[4] + xx16 + xx21 + t0 + t1 - t3 + t5;
+            cc += (long)xx[4] + xx16 + xx21 + t1 - t3 + t7;
             z[4] = (uint)cc;
             cc >>= 32;
             cc += (long)xx[5] - xx16 + t1 + t2 + t4;

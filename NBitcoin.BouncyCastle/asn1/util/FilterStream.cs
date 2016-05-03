@@ -1,10 +1,14 @@
 using System;
 using System.IO;
 
+using NBitcoin.BouncyCastle.Utilities;
+
 namespace NBitcoin.BouncyCastle.Asn1.Utilities
 {
+    [Obsolete("Use NBitcoin.BouncyCastle.Utilities.IO.FilterStream")]
     public class FilterStream : Stream
     {
+        [Obsolete("Use NBitcoin.BouncyCastle.Utilities.IO.FilterStream")]
         public FilterStream(Stream s)
         {
             this.s = s;
@@ -30,11 +34,22 @@ namespace NBitcoin.BouncyCastle.Asn1.Utilities
             get { return s.Position; }
             set { s.Position = value; }
         }
-		protected override void Dispose(bool disposing)
-		{
-			if(disposing)
-				s.Dispose();
-		}
+#if PORTABLE
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Platform.Dispose(s);
+            }
+            base.Dispose(disposing);
+        }
+#else
+        public override void Close()
+        {
+            Platform.Dispose(s);
+            base.Close();
+        }
+#endif
         public override void Flush()
         {
             s.Flush();

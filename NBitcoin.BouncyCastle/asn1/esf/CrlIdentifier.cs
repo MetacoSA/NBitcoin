@@ -2,6 +2,7 @@ using System;
 
 using NBitcoin.BouncyCastle.Asn1.X509;
 using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1.Esf
 {
@@ -34,7 +35,7 @@ namespace NBitcoin.BouncyCastle.Asn1.Esf
 
 			throw new ArgumentException(
 				"Unknown object in 'CrlIdentifier' factory: "
-					+ obj.GetType().Name,
+                    + Platform.GetTypeName(obj),
 				"obj");
 		}
 
