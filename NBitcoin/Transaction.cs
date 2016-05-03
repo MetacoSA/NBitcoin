@@ -1102,6 +1102,10 @@ namespace NBitcoin
 			_Inputs = inputs;
 		}
 
+		internal bool IsNull()
+		{
+			return _Inputs.All(i => i.WitScript.PushCount == 0);
+		}
 
 		internal void ReadWrite(BitcoinStream stream)
 		{
@@ -1117,6 +1121,9 @@ namespace NBitcoin
 					_Inputs[i].WitScript = WitScript.Load(stream);
 				}
 			}
+
+			if(IsNull())
+				throw new FormatException("Superfluous witness record");
 		}
 	}
 
@@ -1288,7 +1295,6 @@ namespace NBitcoin
 				if((flags & 1) != 0)
 				{
 					Witness wit = new Witness(this.Inputs);
-
 					wit.ReadWrite(stream);
 				}
 			}
