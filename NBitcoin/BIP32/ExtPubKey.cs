@@ -54,6 +54,16 @@ namespace NBitcoin
 				return pubkey;
 			}
 		}
+		public byte[] ChainCode
+		{
+			get
+			{
+				byte[] chainCodeCopy = new byte[vchChainCode.Length];
+				Buffer.BlockCopy(vchChainCode, 0, chainCodeCopy, 0, vchChainCode.Length);
+
+				return chainCodeCopy;
+			}
+		}
 
 		internal ExtPubKey()
 		{
