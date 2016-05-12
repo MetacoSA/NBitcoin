@@ -276,31 +276,31 @@ namespace NBitcoin
 			{
 				var name = GetOpName(code);
 				if(name != "OP_UNKNOWN")
-					_OpcodeByName.Add(name, code);
+					_OpcodeByName.AddOrReplace(name, code);
 			}
-			_OpcodeByName.Add("OP_TRUE", OpcodeType.OP_1);
-			_OpcodeByName.Add("OP_FALSE", OpcodeType.OP_0);
-			_OpcodeByName.Add("OP_CHECKLOCKTIMEVERIFY", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
-			_OpcodeByName.Add("OP_HODL", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
-			_OpcodeByName.Add("OP_NOP2", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
-			_OpcodeByName.Add("OP_CHECKSEQUENCEVERIFY", OpcodeType.OP_CHECKSEQUENCEVERIFY);
-			_OpcodeByName.Add("OP_NOP3", OpcodeType.OP_CHECKSEQUENCEVERIFY);	
+			_OpcodeByName.AddOrReplace("OP_TRUE", OpcodeType.OP_1);
+			_OpcodeByName.AddOrReplace("OP_FALSE", OpcodeType.OP_0);
+			_OpcodeByName.AddOrReplace("OP_CHECKLOCKTIMEVERIFY", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
+			_OpcodeByName.AddOrReplace("OP_HODL", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
+			_OpcodeByName.AddOrReplace("OP_NOP2", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
+			_OpcodeByName.AddOrReplace("OP_CHECKSEQUENCEVERIFY", OpcodeType.OP_CHECKSEQUENCEVERIFY);
+			_OpcodeByName.AddOrReplace("OP_NOP3", OpcodeType.OP_CHECKSEQUENCEVERIFY);
 
 			foreach(var op in new[]
 			{
-				OpcodeType.OP_0, 
-				OpcodeType.OP_1,
-				OpcodeType.OP_2, 
-				OpcodeType.OP_3,
-				OpcodeType.OP_4, 
-				OpcodeType.OP_5,
-				OpcodeType.OP_6, 
-				OpcodeType.OP_7,
-				OpcodeType.OP_8, 
-				OpcodeType.OP_9				
+				new object[]{"OP_0", OpcodeType.OP_0}, 
+				new object[]{"OP_1", OpcodeType.OP_1}, 
+				new object[]{"OP_2", OpcodeType.OP_2}, 
+				new object[]{"OP_3", OpcodeType.OP_3}, 
+				new object[]{"OP_4", OpcodeType.OP_4}, 
+				new object[]{"OP_5", OpcodeType.OP_5}, 
+				new object[]{"OP_6", OpcodeType.OP_6}, 
+				new object[]{"OP_7", OpcodeType.OP_7}, 
+				new object[]{"OP_8", OpcodeType.OP_8}, 
+				new object[]{"OP_9", OpcodeType.OP_9}
 			})
 			{
-				_OpcodeByName.Add(Enum.GetName(typeof(OpcodeType), op), op);
+				_OpcodeByName.AddOrReplace((string)op[0], (OpcodeType)op[1]);
 			}
 		}
 		public static bool GetOpCode(string name, out OpcodeType result)
