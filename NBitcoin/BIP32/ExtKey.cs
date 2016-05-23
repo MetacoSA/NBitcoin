@@ -65,6 +65,18 @@ namespace NBitcoin
 			this.vchFingerprint = extPubKey.vchFingerprint;
 			this.key = privateKey;
 		}
+		public ExtKey(Key masterKey, byte[] chainCode)
+		{
+			if (masterKey == null)
+				throw new ArgumentNullException("masterKey");
+			if (chainCode == null)
+				throw new ArgumentNullException("chainCode");
+			if (chainCode.Length != vchChainCode.Length)
+				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", vchChainCode.Length), "chainCode");
+
+			this.key = masterKey;
+			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, vchChainCode.Length);
+		}
 		public ExtKey()
 		{
 			byte[] seed = RandomUtils.GetBytes(64);
