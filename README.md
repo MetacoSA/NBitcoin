@@ -48,7 +48,7 @@ NBitcoin license is MIT and we encourage you to use it to explore, learn, debug,
 
 ## Useful doc :
 
-* **Ebook** [Blockchain Programming in C#](https://aois.blob.core.windows.net/public/Blockchain%20Programming%20in%20CSharp.pdf)
+* **Ebook** [Programming The Blockchain in C#](https://www.gitbook.com/book/programmingblockchain/programmingblockchain/details)
 
 * **NBitcoin Github** : [https://github.com/NicolasDorier/NBitcoin](https://github.com/NicolasDorier/NBitcoin "https://github.com/NicolasDorier/NBitcoin")
 
