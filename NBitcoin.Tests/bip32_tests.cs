@@ -79,10 +79,9 @@ namespace NBitcoin.Tests
 			 2)
 			.Add("xpub6FnCn6nSzZAw5Tw7cgR9bi15UV96gLZhjDstkXXxvCLsUXBGXPdSnLFbdpq8p9HmGsApME5hQTZ3emM2rnY5agb9rXpVGyy3bdW6EEgAtqt",
 			 "xprvA2nrNbFZABcdryreWet9Ea4LvTJcGsqrMzxHx98MMrotbir7yrKCEXw7nadnHM8Dq38EGfSh6dqA9QWTyefMLEcBYJUuekgW4BYPJcr9E7j",
-			 0);
+			 0);        
 
-
-		[Fact]
+        [Fact]
 		[Trait("Core", "Core")]
 		public void bip32_test1()
 		{
@@ -96,7 +95,20 @@ namespace NBitcoin.Tests
 			RunTest(test2);
 		}
 
-		[Fact]
+        [Fact]
+        [Trait("UnitTest", "UnitTest")]
+        public void CheckBIP32Constructors()
+        {
+            var key = new ExtKey();
+            Assert.Equal(key.GetWif(Network.Main), new ExtKey(key.PrivateKey, key.ChainCode).GetWif(Network.Main));
+            Assert.Equal(key.Neuter().GetWif(Network.Main), new ExtPubKey(key.PrivateKey.PubKey, key.ChainCode).GetWif(Network.Main));
+
+            key = key.Derive(1);
+            Assert.Equal(key.GetWif(Network.Main), new ExtKey(key.PrivateKey, key.ChainCode, key.Depth, key.Fingerprint, key.Child).GetWif(Network.Main));
+            Assert.Equal(key.Neuter().GetWif(Network.Main), new ExtPubKey(key.PrivateKey.PubKey, key.ChainCode, key.Depth, key.Fingerprint, key.Child).GetWif(Network.Main));
+        }
+
+        [Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRecoverExtKeyFromExtPubKeyAndOneChildExtKey()
 		{
