@@ -11,6 +11,7 @@ namespace NBitcoin
 {
     public static class IpExtensions
     {
+#if WIN
         interface ICompatibility
         {
             IPAddress MapToIPv6(IPAddress address);
@@ -52,6 +53,7 @@ namespace NBitcoin
                 return _Compatibility;
             }
         }
+#endif
         public static bool IsRFC1918(this IPAddress address)
         {
             address = address.EnsureIPv6();
