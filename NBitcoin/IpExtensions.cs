@@ -168,9 +168,20 @@ namespace NBitcoin
 				return address;
 			return address.MapToIPv6Ex();
 		}
-		public static IPAddress MapToIPv6Ex(this IPAddress address)
+
+        static bool? _IsRunningOnMono;
+        public static bool IsRunningOnMono()
+        {
+            if(_IsRunningOnMono == null)
+                _IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
+            return _IsRunningOnMono.Value;
+        }
+
+        public static IPAddress MapToIPv6Ex(this IPAddress address)
 		{
 #if WIN
+            if(IsRunningOnMono())
+                return Utils.MapToIPv6(address);
 			return address.MapToIPv6();
 #else
 			return Utils.MapToIPv6(address);
@@ -179,7 +190,9 @@ namespace NBitcoin
 		public static bool IsIPv4MappedToIPv6Ex(this IPAddress address)
 		{
 #if WIN
-			return address.IsIPv4MappedToIPv6;
+            if(IsRunningOnMono())
+                return Utils.IsIPv4MappedToIPv6(address);
+            return address.IsIPv4MappedToIPv6;
 #else
 			return Utils.IsIPv4MappedToIPv6(address);
 #endif
