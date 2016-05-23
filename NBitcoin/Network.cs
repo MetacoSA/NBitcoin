@@ -403,7 +403,9 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2b };
 			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 115 };
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
-		}
+            base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x03) };
+            base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (40) };
+        }
 		private void InitSegnet()
 		{
 			name = "segnet";
