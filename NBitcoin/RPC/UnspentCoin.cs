@@ -53,5 +53,10 @@ namespace NBitcoin.RPC
 			get;
 			private set;
 		}
-	}
+
+        public Coin AsCoin()
+        {
+            return new Coin(OutPoint, new TxOut(Amount, ScriptPubKey));
+        }
+    }
 }

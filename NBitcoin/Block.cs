@@ -177,7 +177,33 @@ namespace NBitcoin
 		{
 			return GetHash().ToString();
 		}
-	}
+
+
+        /// <summary>
+        /// Set time to consensus acceptable value
+        /// </summary>
+        /// <param name="network">Network</param>
+        /// <param name="prev">previous block</param>
+        public void UpdateTime(Network network, ChainedBlock prev)
+        {
+            var nOldTime = this.BlockTime;
+            var mtp = prev.GetMedianTimePast() + TimeSpan.FromSeconds(1);
+            var now = DateTimeOffset.UtcNow;
+            var nNewTime = mtp > now ? mtp : now;
+
+            if(nOldTime < nNewTime)
+                this.BlockTime = nNewTime;
+
+            // Updating time can change work required on testnet:
+            if(network.Consensus.PowAllowMinDifficultyBlocks)
+                Bits = GetWorkRequired(network, prev);
+        }
+
+        public Target GetWorkRequired(Network network, ChainedBlock prev)
+        {
+            return new ChainedBlock(this, null, prev).GetWorkRequired(network);
+        }
+    }
 
 
 	public class Block : IBitcoinSerializable

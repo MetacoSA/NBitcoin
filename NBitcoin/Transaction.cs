@@ -275,7 +275,14 @@ namespace NBitcoin
 			txin.WitScript = (witScript ?? WitScript.Empty).Clone();
 			return txin;
 		}
-	}
+
+        public static TxIn CreateCoinbase(int height)
+        {
+            var txin = new TxIn();
+            txin.ScriptSig = new Script(Op.GetPushOp(height)) + OpcodeType.OP_0;
+            return txin;
+        }
+    }
 
 	public class TxOutCompressor : IBitcoinSerializable
 	{
