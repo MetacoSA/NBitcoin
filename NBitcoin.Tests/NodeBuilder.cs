@@ -339,7 +339,7 @@ namespace NBitcoin.Tests
         }
 
         object l = new object();
-        public void Kill()
+        public void Kill(bool cleanFolder = true)
         {
             lock(l)
             {
@@ -349,7 +349,8 @@ namespace NBitcoin.Tests
                     _Process.WaitForExit();
                 }
                 _State = CoreNodeState.Killed;
-                CleanFolder();
+                if(cleanFolder)
+                    CleanFolder();
             }
         }
 
@@ -418,7 +419,7 @@ namespace NBitcoin.Tests
                 return transactions;
             var result = new List<Transaction>();
             var dictionary = transactions.ToDictionary(t => t.GetHash(), t => new TransactionNode(t));
-            foreach(var transaction in dictionary.Select(d=>d.Value))
+            foreach(var transaction in dictionary.Select(d => d.Value))
             {
                 foreach(var input in transaction.Transaction.Inputs)
                 {
@@ -431,7 +432,7 @@ namespace NBitcoin.Tests
             }
             while(dictionary.Count != 0)
             {
-                foreach(var node in dictionary.Select(d=>d.Value).ToList())
+                foreach(var node in dictionary.Select(d => d.Value).ToList())
                 {
                     foreach(var parent in node.DependsOn.ToList())
                     {

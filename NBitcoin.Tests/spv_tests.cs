@@ -825,32 +825,52 @@ namespace NBitcoin.Tests
 		public void CanMaintainConnectionToNodes()
 		{
 
-			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
-			{
-				NodesGroup connected = CreateGroup(servers, 2);
-				connected.Connect();
-				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
+            using(var builder = NodeBuilder.Create())
+            {
+                NodesGroup connected = CreateGroup(builder, 2);
+                connected.Connect();
+                TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
 
-				//Server crash abruptly
-				servers.ConnectedNodes.First().Disconnect();
-				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 1);
+                //Server crash abruptly
+                builder.Nodes[0].Kill(false);
+                TestUtils.Eventually(() => connected.ConnectedNodes.Count < 2);
+                builder.Nodes[0].Start();
+                //Reconnect ?
+                TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
 
-				//Reconnect ?
-				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
+                //Client crash abruptly
+                connected.ConnectedNodes.First().Disconnect();
+                TestUtils.Eventually(() => connected.ConnectedNodes.Count == 1);
 
-				//Client crash abruptly
-				connected.ConnectedNodes.First().Disconnect();
-				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 1);
-
-				//Reconnect ?
-				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
-				connected.Disconnect();
-				TestUtils.Eventually(() => connected.ConnectedNodes.Count == 0);
-			}
+                //Reconnect ?
+                TestUtils.Eventually(() => connected.ConnectedNodes.Count == 2);
+                connected.Disconnect();
+                TestUtils.Eventually(() => connected.ConnectedNodes.Count == 0);
+            }
 
 		}
 
-		private static NodesGroup CreateGroup(NodeServerTester servers, int connections)
+        private NodesGroup CreateGroup(NodeBuilder builder, int connections)
+        {
+            for(int i = 0; i < connections; i++)
+                builder.CreateNode();
+            builder.StartAll();
+            AddressManagerBehavior behavior = new AddressManagerBehavior(new AddressManager());
+            foreach(var node in builder.Nodes)
+            {
+                behavior.AddressManager.Add(new NetworkAddress(node.Endpoint), IPAddress.Parse("127.0.0.1"));
+            }
+            NodeConnectionParameters parameters = new NodeConnectionParameters();
+            parameters.TemplateBehaviors.Add(behavior);
+            Wallet.ConfigureDefaultNodeConnectionParameters(parameters);
+            parameters.IsTrusted = true;
+            NodesGroup connected = new NodesGroup(Network.RegTest, parameters);
+            connected.AllowSameGroup = true;
+            connected.MaximumNodeConnection = connections;
+            return connected;
+        }
+
+        private static NodesGroup CreateGroup(NodeServerTester servers, int connections)
 		{
 			AddressManagerBehavior behavior = new AddressManagerBehavior(new AddressManager());
 			if(connections == 1)
