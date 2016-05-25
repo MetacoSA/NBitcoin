@@ -114,8 +114,9 @@ namespace NBitcoin.Tests
             using(var builder = NodeBuilder.Create())
             {
                 var node = builder.CreateNode();
-                node.Start();                
-                var rpc = node.CreateRPCClient();
+                node.Start();
+                node.Generate(101);
+                var rpc = node.CreateRPCClient();                
                 var result = rpc.EstimateFee(1);
                 Assert.Equal(Money.Zero, result.FeePerK);
             }

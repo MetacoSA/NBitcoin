@@ -533,6 +533,25 @@ namespace NBitcoin.RPC
             }
         }
 
+        public Block GetBlock(int height)
+        {
+            try
+            {
+                return GetBlockAsync(height).Result;
+            }
+            catch(AggregateException aex)
+            {
+                ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
+                throw;
+            }
+        }
+
+        public async Task<Block> GetBlockAsync(int height)
+        {
+            var hash = await GetBlockHashAsync(height).ConfigureAwait(false);
+            return await GetBlockAsync(hash).ConfigureAwait(false);
+        }
+
         public BlockHeader GetBlockHeader(uint256 blockHash)
         {
             var resp = SendCommand("getblock", blockHash.ToString());

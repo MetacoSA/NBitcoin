@@ -109,7 +109,7 @@ namespace NBitcoin.Tests
             }
         }
 
-        public CoreNode CreateNode()
+        public CoreNode CreateNode(bool start = false)
         {
             var child = Path.Combine(_Root, last.ToString());
             last++;
@@ -122,12 +122,14 @@ namespace NBitcoin.Tests
             }
             var node = new CoreNode(child, this);
             Nodes.Add(node);
+            if(start)
+                node.Start();
             return node;
         }
 
         public void StartAll()
         {
-            Task.WaitAll(Nodes.Where(n=>n.State == CoreNodeState.Stopped).Select(n => n.StartAsync()).ToArray());
+            Task.WaitAll(Nodes.Where(n => n.State == CoreNodeState.Stopped).Select(n => n.StartAsync()).ToArray());
         }
 
         public void Dispose()
@@ -307,6 +309,35 @@ namespace NBitcoin.Tests
                 catch(SocketException) { }
             }
         }
+
+        List<Transaction> transactions = new List<Transaction>();
+        public void SelectMempoolTransactions()
+        {
+            var rpc = CreateRPCClient();
+            var txs = rpc.GetRawMempool();
+            var tasks = txs.Select(t => rpc.GetRawTransactionAsync(t)).ToArray();
+            Task.WaitAll(tasks);
+            transactions.AddRange(tasks.Select(t => t.Result).ToArray());
+        }
+
+        public void Split(Money amount, int parts)
+        {
+            var rpc = CreateRPCClient();
+            TransactionBuilder builder = new TransactionBuilder();
+            builder.AddKeys(rpc.ListSecrets().OfType<ISecret>().ToArray());
+            builder.AddCoins(rpc.ListUnspent().Select(c => c.AsCoin()));
+            var secret = GetFirstSecret(rpc);
+            var fee = Money.Coins(0.0001m);
+            foreach(var part in (amount - fee).Split(parts))
+            {
+                builder.Send(secret, part);
+            }
+            builder.SendFees(fee);
+            builder.SetChange(secret);
+            var tx = builder.BuildTransaction(true);
+            rpc.SendRawTransaction(tx);
+        }
+
         object l = new object();
         public void Kill()
         {
@@ -325,16 +356,13 @@ namespace NBitcoin.Tests
         public void Generate(int blockCount)
         {
             var rpc = CreateRPCClient();
-            var dest = rpc.ListSecrets().FirstOrDefault();
-            if(dest == null)
-            {
-                var address = rpc.GetNewAddress();
-                dest = rpc.DumpPrivKey(address);
-            }
+            BitcoinSecret dest = GetFirstSecret(rpc);
             var bestBlock = rpc.GetBestBlockHash();
             ConcurrentChain chain = null;
             Random nonce = new Random();
             List<Block> blocks = new List<Block>();
+
+
             using(var node = CreateNodeClient())
             {
                 node.VersionHandshake();
@@ -349,21 +377,84 @@ namespace NBitcoin.Tests
                     coinbase.AddInput(TxIn.CreateCoinbase(chain.Height + 1));
                     coinbase.AddOutput(new TxOut(rpc.Network.GetReward(chain.Height + 1), dest.GetAddress()));
                     block.AddTransaction(coinbase);
+                    transactions = Reorder(transactions);
+                    block.Transactions.AddRange(transactions);
+                    transactions.Clear();
                     block.UpdateMerkleRoot();
-
                     while(!block.CheckProofOfWork())
                         block.Header.Nonce = (uint)nonce.Next();
-
                     blocks.Add(block);
                     chain.SetTip(block.Header);
                 }
+                Block lastSent = null;
                 foreach(var block in blocks)
                 {
                     node.SendMessageAsync(new InvPayload(block));
-                    node.SendMessageAsync(new BlockPayload(block));                    
+                    node.SendMessageAsync(new BlockPayload(block));
+                    lastSent = block;
                 }
                 node.PingPong();
             }
+        }
+
+        class TransactionNode
+        {
+            public TransactionNode(Transaction tx)
+            {
+                Transaction = tx;
+                Hash = tx.GetHash();
+            }
+            public uint256 Hash = null;
+            public Transaction Transaction = null;
+            public List<TransactionNode> DependsOn = new List<TransactionNode>();
+        }
+
+        private List<Transaction> Reorder(List<Transaction> transactions)
+        {
+            if(transactions.Count == 0)
+                return transactions;
+            var result = new List<Transaction>();
+            var dictionary = transactions.ToDictionary(t => t.GetHash(), t => new TransactionNode(t));
+            foreach(var transaction in dictionary.Select(d=>d.Value))
+            {
+                foreach(var input in transaction.Transaction.Inputs)
+                {
+                    var node = dictionary.TryGet(input.PrevOut.Hash);
+                    if(node != null)
+                    {
+                        transaction.DependsOn.Add(node);
+                    }
+                }
+            }
+            while(dictionary.Count != 0)
+            {
+                foreach(var node in dictionary.Select(d=>d.Value).ToList())
+                {
+                    foreach(var parent in node.DependsOn.ToList())
+                    {
+                        if(!dictionary.ContainsKey(parent.Hash))
+                            node.DependsOn.Remove(parent);
+                    }
+                    if(node.DependsOn.Count == 0)
+                    {
+                        result.Add(node.Transaction);
+                        dictionary.Remove(node.Hash);
+                    }
+                }
+            }
+            return result;
+        }
+
+        private static BitcoinSecret GetFirstSecret(RPCClient rpc)
+        {
+            var dest = rpc.ListSecrets().FirstOrDefault();
+            if(dest == null)
+            {
+                var address = rpc.GetNewAddress();
+                dest = rpc.DumpPrivKey(address);
+            }
+
+            return dest;
         }
     }
 }
