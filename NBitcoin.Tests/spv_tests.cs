@@ -321,10 +321,9 @@ namespace NBitcoin.Tests
             using(var builder = NodeBuilder.Create())
             {
                 NodesGroup aliceConnection = CreateGroup(builder, 1);
-                NodesGroup bobConnection = CreateGroup(builder, 1);
+                NodesGroup bobConnection = CreateGroup(new[] { builder.Nodes[0] }, 1);
                 builder.Nodes[0].Generate(101);
                 var rpc = builder.Nodes[0].CreateRPCClient();
-                rpc.AddNode(builder.Nodes[1].Endpoint, true);
                 var aliceKey = new ExtKey();
                 Wallet alice = new Wallet(new WalletCreation()
                 {
@@ -866,7 +865,7 @@ namespace NBitcoin.Tests
             return CreateGroup(nodes, connections);
         }
 
-        private static NodesGroup CreateGroup(List<CoreNode> nodes, int connections)
+        private static NodesGroup CreateGroup(IEnumerable<CoreNode> nodes, int connections)
         {
             AddressManagerBehavior behavior = new AddressManagerBehavior(new AddressManager());
             foreach(var node in nodes)
