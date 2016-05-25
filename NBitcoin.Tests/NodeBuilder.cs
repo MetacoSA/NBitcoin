@@ -206,7 +206,7 @@ namespace NBitcoin.Tests
             catch(DirectoryNotFoundException) { }
         }
 
-        public void Sync(CoreNode node)
+        public void Sync(CoreNode node, bool keepConnection = false)
         {
             var rpc = CreateRPCClient();
             var rpc1 = node.CreateRPCClient();
@@ -215,7 +215,8 @@ namespace NBitcoin.Tests
             {
                 Thread.Sleep(200);
             }
-            rpc.RemoveNode(node.Endpoint);
+            if(!keepConnection)
+                rpc.RemoveNode(node.Endpoint);
         }
 
         private CoreNodeState _State;
@@ -311,6 +312,22 @@ namespace NBitcoin.Tests
         }
 
         List<Transaction> transactions = new List<Transaction>();
+        Money fee = Money.Coins(0.0001m);
+        public void GiveMoney(Script destination, Money amount, bool broadcast = true)
+        {
+            var rpc = CreateRPCClient();
+            TransactionBuilder builder = new TransactionBuilder();
+            builder.AddKeys(rpc.ListSecrets().OfType<ISecret>().ToArray());
+            builder.AddCoins(rpc.ListUnspent().Select(c => c.AsCoin()));
+            builder.Send(destination, amount);
+            builder.SendFees(fee);
+            builder.SetChange(GetFirstSecret(rpc));
+            if(broadcast)
+                rpc.SendRawTransaction(builder.BuildTransaction(true));
+            else
+                transactions.Add(builder.BuildTransaction(true));
+        }
+
         public void SelectMempoolTransactions()
         {
             var rpc = CreateRPCClient();
@@ -327,7 +344,6 @@ namespace NBitcoin.Tests
             builder.AddKeys(rpc.ListSecrets().OfType<ISecret>().ToArray());
             builder.AddCoins(rpc.ListUnspent().Select(c => c.AsCoin()));
             var secret = GetFirstSecret(rpc);
-            var fee = Money.Coins(0.0001m);
             foreach(var part in (amount - fee).Split(parts))
             {
                 builder.Send(secret, part);
@@ -354,7 +370,7 @@ namespace NBitcoin.Tests
             }
         }
 
-        public void Generate(int blockCount)
+        public void Generate(int blockCount, bool includeMempool = true)
         {
             var rpc = CreateRPCClient();
             BitcoinSecret dest = GetFirstSecret(rpc);
@@ -378,9 +394,12 @@ namespace NBitcoin.Tests
                     coinbase.AddInput(TxIn.CreateCoinbase(chain.Height + 1));
                     coinbase.AddOutput(new TxOut(rpc.Network.GetReward(chain.Height + 1), dest.GetAddress()));
                     block.AddTransaction(coinbase);
-                    transactions = Reorder(transactions);
-                    block.Transactions.AddRange(transactions);
-                    transactions.Clear();
+                    if(includeMempool)
+                    {
+                        transactions = Reorder(transactions);
+                        block.Transactions.AddRange(transactions);
+                        transactions.Clear();
+                    }
                     block.UpdateMerkleRoot();
                     while(!block.CheckProofOfWork())
                         block.Header.Nonce = (uint)nonce.Next();
@@ -459,6 +478,12 @@ namespace NBitcoin.Tests
             }
 
             return dest;
+        }
+
+        public void FindBlock(int blockCount = 1, bool includeMempool = true)
+        {
+            SelectMempoolTransactions();
+            Generate(blockCount, includeMempool);
         }
     }
 }

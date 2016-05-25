@@ -92,7 +92,8 @@ namespace NBitcoin.SPV
 			JObject obj = new JObject();
 			if(Name != null)
 				obj["Name"] = Name;
-			obj["SignatureRequired"] = SignatureRequired;
+            obj["Network"] = Network.ToString();
+            obj["SignatureRequired"] = SignatureRequired;
 			obj["DerivationPath"] = DerivationPath.ToString();
 			obj["UseP2SH"] = UseP2SH;
 			obj["PurgeConnectionOnFilterChange"] = PurgeConnectionOnFilterChange;
@@ -103,6 +104,7 @@ namespace NBitcoin.SPV
 		static internal WalletCreation FromJson(JObject obj)
 		{
 			WalletCreation creation = new WalletCreation();
+            creation.Network = null;
 			JToken unused;
 			if(obj.TryGetValue("Name", out unused))
 				creation.Name = (string)obj["Name"];
@@ -112,12 +114,15 @@ namespace NBitcoin.SPV
 			{
 				creation.PurgeConnectionOnFilterChange = (bool)obj["PurgeConnectionOnFilterChange"];
 			}
+            JToken network;
+            if(obj.TryGetValue("Network", out network))
+                creation.Network = Network.GetNetwork((string)network);
 			creation.SignatureRequired = (int)(long)obj["SignatureRequired"];
 			creation.DerivationPath = KeyPath.Parse((string)obj["DerivationPath"]);
 			creation.UseP2SH = (bool)obj["UseP2SH"];
 			var array = (JArray)obj["RootKeys"];
 			var keys = array.Select(i => new BitcoinExtPubKey((string)i)).ToArray();
-			creation.Network = keys[0].Network;
+			creation.Network = creation.Network ?? keys[0].Network;
 			creation.RootKeys = keys.Select(k => k.ExtPubKey).ToArray();
 			return creation;
 		}
