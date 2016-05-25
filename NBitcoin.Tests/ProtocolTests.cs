@@ -34,10 +34,12 @@ namespace NBitcoin.Tests
                     _Server1.AllowLocalPeers = true;
                     _Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6Ex(), a);
                     _Server1.Listen();
+                    Assert.True(_Server1.IsListening);
                     _Server2 = new NodeServer(network, internalPort: b);
                     _Server2.AllowLocalPeers = true;
                     _Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6Ex(), b);
                     _Server2.Listen();
+                    Assert.True(_Server2.IsListening);
                     break;
                 }
                 catch(Exception)
@@ -188,13 +190,6 @@ namespace NBitcoin.Tests
                 test.Test(message.Payload);
                 Assert.Equal(test.Message, Encoders.Hex.EncodeData(message.ToBytes(test.Version)));
             }
-        }
-
-        [Fact]
-        public void CanGetMyIp()
-        {
-            var client = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
-            Assert.True(client.GetMyExternalIP() != null);
         }
 
         [Fact]

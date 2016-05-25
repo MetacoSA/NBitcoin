@@ -51,12 +51,6 @@ namespace NBitcoin.Crypto.Internal
             return e;
         }
 
-        public static InvalidOperationException InvalidOperation()
-        {
-            InvalidOperationException e = new InvalidOperationException();
-            return e;
-        }
-
         public static NotSupportedException NotSupported()
         {
             return new NotSupportedException();

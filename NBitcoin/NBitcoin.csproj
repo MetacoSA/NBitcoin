@@ -190,7 +190,6 @@
     <Compile Include="BitcoinCore\Coins.cs" />
     <Compile Include="Crypto\Cryptsharp\BitMath.cs" />
     <Compile Include="Crypto\Cryptsharp\BitPacking.cs" />
-    <Compile Include="Crypto\Cryptsharp\ByteArray.cs" />
     <Compile Include="Crypto\Cryptsharp\Check.cs" />
     <Compile Include="Crypto\Cryptsharp\Exceptions.cs" />
     <Compile Include="Crypto\Cryptsharp\Pbkdf2.cs" />

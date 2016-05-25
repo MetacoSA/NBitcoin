@@ -416,11 +416,6 @@ namespace NBitcoin
 
 		static readonly TraceSource _TraceSource = new TraceSource("NBitcoin");
 
-		internal static bool error(string msg, params object[] args)
-		{
-			_TraceSource.TraceEvent(TraceEventType.Error, 0, msg, args);
-			return false;
-		}
 		internal static bool error(string msg)
 		{
 			_TraceSource.TraceEvent(TraceEventType.Error, 0, msg);

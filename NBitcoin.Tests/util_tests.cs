@@ -186,8 +186,32 @@ namespace NBitcoin.Tests
 		}
 
 
+        [Fact]
+        [Trait("UnitTest", "UnitTest")]
+        public void MoneyCoverage()
+        {
+            Money a = Money.Coins(2.0m);
+            Money b = Money.Coins(4.0m);
+            Assert.Equal(a, Money.Min(a, b));
+            Assert.Equal(a, Money.Min(b, a));
+            Assert.Equal(b, Money.Max(a, b));
+            Assert.Equal(b, Money.Max(b, a));
+            Assert.Equal(a, new Money(a.Satoshi));
+            Assert.Equal(a.GetHashCode(), new Money(a.Satoshi).GetHashCode());
+            Assert.True(Money.Coins(1.0m).Almost(Money.Coins(0.95m), 0.05m));
+            Assert.False(Money.Coins(1.0m).Almost(Money.Coins(0.949m), 0.05m));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Money.Coins(1.0m).Almost(Money.Coins(0.949m), -0.05m));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Money.Coins(1.0m).Almost(Money.Coins(0.949m), -1.05m));
+            long data = 5;
+            Assert.Equal(Money.Coins(5), data * Money.Coins(1.0m));
+            Assert.Equal(Money.Coins(5), Money.Coins(1.0m) * data);
+            Assert.Equal(500000000L, (long)Money.Coins(5).Satoshi);
+            Assert.Equal(500000000U, (uint)Money.Coins(5).Satoshi);
+            Assert.Equal("5.00000000", Money.Coins(5).ToString());
+        }
 
-		[Fact]
+
+        [Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertMoney()
 		{

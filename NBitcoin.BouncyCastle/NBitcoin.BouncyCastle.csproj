@@ -146,7 +146,6 @@
     <Compile Include="math\ec\multiplier\WTauNafMultiplier.cs" />
     <Compile Include="math\ec\multiplier\WTauNafPreCompInfo.cs" />
     <Compile Include="math\ec\ScaleXPointMap.cs" />
-    <Compile Include="math\ec\ScaleYPointMap.cs" />
     <Compile Include="math\field\FiniteFields.cs" />
     <Compile Include="math\field\GenericPolynomialExtensionField.cs" />
     <Compile Include="math\field\GF2Polynomial.cs" />

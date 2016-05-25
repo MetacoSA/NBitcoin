@@ -83,27 +83,7 @@ namespace NBitcoin.Protocol
 			if(added != null)
 				added(this, node.Node);
 		}
-
-		public bool DetectExternalEndpoint(CancellationToken cancellation = default(CancellationToken))
-		{
-			NodeServerTrace.Information("No UPNP device found, try to use external web services to deduce external address");
-			try
-			{
-				var ip = GetMyExternalIP(cancellation);
-				if(ip != null)
-					ExternalEndpoint = new IPEndPoint(ip, ExternalEndpoint.Port);
-				else
-					return false;
-			}
-			catch(Exception ex)
-			{
-				NodeServerTrace.Error("Could not use web service to deduce external address", ex);
-				return false;
-			}
-
-			return true;
-		}
-
+		
 		public bool AllowLocalPeers
 		{
 			get;
@@ -221,47 +201,6 @@ namespace NBitcoin.Protocol
 					}
 				}
 				BeginAccept();
-			}
-		}
-
-		public IPAddress GetMyExternalIP(CancellationToken cancellation = default(CancellationToken))
-		{
-
-			var tasks = new[]{
-						new {IP = "91.198.22.70", DNS ="checkip.dyndns.org"}, 
-						new {IP = "209.68.27.16", DNS = "www.ipchicken.com"}
-			 }.Select(site =>
-			 {
-				 return Task.Run(() =>
-					 {
-						 var ip = IPAddress.Parse(site.IP);
-						 try
-						 {
-							 ip = Dns.GetHostAddresses(site.DNS).First();
-						 }
-						 catch(Exception ex)
-						 {
-							 NodeServerTrace.Warning("can't resolve ip of " + site.DNS + " using hardcoded one " + site.IP, ex);
-						 }
-						 WebClient client = new WebClient();
-						 var page = client.DownloadString("http://" + ip);
-						 var match = Regex.Match(page, "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
-						 return match.Value;
-					 });
-			 }).ToArray();
-
-
-			Task.WaitAny(tasks, cancellation);
-			try
-			{
-				var result = tasks.First(t => t.IsCompleted && !t.IsFaulted).Result;
-				NodeServerTrace.ExternalIpReceived(result);
-				return IPAddress.Parse(result);
-			}
-			catch(InvalidOperationException)
-			{
-				NodeServerTrace.ExternalIpFailed(tasks.Select(t => t.Exception).FirstOrDefault());
-				throw new WebException("Impossible to detect extenal ip");
 			}
 		}
 
@@ -461,30 +400,6 @@ namespace NBitcoin.Protocol
 			param2.Version = Version;
 			param2.AddressFrom = myExternal;
 			return param2;
-		}
-
-		public bool IsRelay
-		{
-			get
-			{
-				return InboundNodeConnectionParameters.IsRelay;
-			}
-			set
-			{
-				InboundNodeConnectionParameters.IsRelay = value;
-			}
-		}
-
-		public string UserAgent
-		{
-			get
-			{
-				return InboundNodeConnectionParameters.UserAgent;
-			}
-			set
-			{
-				InboundNodeConnectionParameters.UserAgent = value;
-			}
 		}
 
 		ulong _Nonce;

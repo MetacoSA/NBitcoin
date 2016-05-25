@@ -681,14 +681,7 @@ namespace NBitcoin
 									(trimExcessZero ? "2" : "8"));
 			return string.Format(BitcoinFormatter.Formatter, fmt, _Satoshis);
 		}
-
-		// FIXME: It is not a Money class responsability.
-		// We keep for backward compatibility
-		[Obsolete]
-		public static bool isdigit(char c)
-		{
-			return c.IsDigit();
-		}
+        
 
 		static Money _Zero = new Money(0);
 		public static Money Zero
@@ -726,7 +719,7 @@ namespace NBitcoin
 				throw new ArgumentNullException("amount");
 			if(margin < 0.0m || margin > 1.0m)
 				throw new ArgumentOutOfRangeException("margin", "margin should be between 0 and 1");
-			var dust = Money.Satoshis((decimal)amount.Satoshi * margin);
+			var dust = Money.Satoshis((decimal)this.Satoshi * margin);
 			return Almost(amount, dust);
 		}
 
@@ -741,7 +734,18 @@ namespace NBitcoin
 			return b;
 		}
 
-		private static void CheckLongMinValue(long value)
+        public static Money Max(Money a, Money b)
+        {
+            if(a == null)
+                throw new ArgumentNullException("a");
+            if(b == null)
+                throw new ArgumentNullException("b");
+            if(a >= b)
+                return a;
+            return b;
+        }
+
+        private static void CheckLongMinValue(long value)
 		{
 			if(value == long.MinValue)
 				throw new OverflowException("satoshis amount should be greater than long.MinValue");
