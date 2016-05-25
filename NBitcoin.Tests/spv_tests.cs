@@ -379,7 +379,7 @@ namespace NBitcoin.Tests
 
                 Assert.True(txBuilder.Verify(tx));
 
-                rpc.SendRawTransaction(tx);
+                builder.Nodes[0].Broadcast(tx);
 
                 //Alice get change
                 TestUtils.Eventually(() => alice.GetTransactions().Count == 2);
@@ -446,7 +446,7 @@ namespace NBitcoin.Tests
 
                 Assert.True(txBuilder.Verify(tx));
 
-                rpc.SendRawTransaction(tx);
+                builder.Nodes[0].Broadcast(tx);
 
                 //Bob still has coins
                 TestUtils.Eventually(() => bob.GetTransactions().Count == 2); //Bob has both, old and new tx

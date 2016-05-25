@@ -323,9 +323,20 @@ namespace NBitcoin.Tests
             builder.SendFees(fee);
             builder.SetChange(GetFirstSecret(rpc));
             if(broadcast)
-                rpc.SendRawTransaction(builder.BuildTransaction(true));
+                Broadcast(builder.BuildTransaction(true));
             else
                 transactions.Add(builder.BuildTransaction(true));
+        }
+
+        public void Broadcast(Transaction transaction)
+        {
+            using(var node = CreateNodeClient())
+            {
+                node.VersionHandshake();
+                node.SendMessageAsync(new InvPayload(transaction));
+                node.SendMessageAsync(new TxPayload(transaction));
+                node.PingPong();
+            }
         }
 
         public void SelectMempoolTransactions()
@@ -351,7 +362,7 @@ namespace NBitcoin.Tests
             builder.SendFees(fee);
             builder.SetChange(secret);
             var tx = builder.BuildTransaction(true);
-            rpc.SendRawTransaction(tx);
+            Broadcast(tx);
         }
 
         object l = new object();

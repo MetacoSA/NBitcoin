@@ -491,7 +491,7 @@ namespace NBitcoin.Tests
 					{
 						Base58 = "T7nYdHtL34xLZ2S5KwqgySNNzGxovhszhtDM3wQRUEfUbUVvRZzTW",
 						ExpectedType = typeof(BitcoinWitScriptAddress),
-						Network = Network.SegNet
+						Network = Network.TestNet
 					},
 					new
 					{
@@ -503,7 +503,7 @@ namespace NBitcoin.Tests
 					{
 						Base58 = "QWzJyQDz7iRTPkLFBg6XEeJFwbYESFC5KXxk",
 						ExpectedType = typeof(BitcoinWitPubKeyAddress),
-						Network = Network.SegNet
+						Network = Network.TestNet
 					}, 
 					new
 					{

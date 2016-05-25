@@ -221,7 +221,7 @@ namespace NBitcoin.Tests
                 var node = builder.CreateNode(true).CreateNodeClient();
                 builder.Nodes[0].Generate(101);
                 var rpc = builder.Nodes[0].CreateRPCClient();
-                builder.Nodes[0].Split(Money.Coins(50m), 500);
+                builder.Nodes[0].Split(Money.Coins(50m), 50);
                 builder.Nodes[0].SelectMempoolTransactions();
                 builder.Nodes[0].Generate(1);
                 for(int i = 0; i < 20; i++)
