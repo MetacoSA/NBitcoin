@@ -1094,13 +1094,15 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		/// <summary>
-		/// Get the chain of headers from the peer (thread safe)
-		/// </summary>
-		/// <param name="hashStop">The highest block wanted</param>
-		/// <param name="cancellationToken"></param>
-		/// <returns>The chain of headers</returns>
-		public ConcurrentChain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+        internal TimeSpan PollHeaderDelay = TimeSpan.FromMinutes(1.0);
+
+        /// <summary>
+        /// Get the chain of headers from the peer (thread safe)
+        /// </summary>
+        /// <param name="hashStop">The highest block wanted</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>The chain of headers</returns>
+        public ConcurrentChain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			ConcurrentChain chain = new ConcurrentChain(Network);
 			SynchronizeChain(chain, hashStop, cancellationToken);
@@ -1129,7 +1131,7 @@ namespace NBitcoin.Protocol
 					{
 						bool isOurs = false;
 						var headersCancel = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken); //30 sec delay before reasking GetHeaders
-						headersCancel.CancelAfter(TimeSpan.FromMinutes(1.0));
+						headersCancel.CancelAfter(PollHeaderDelay);
 						HeadersPayload headers = null;
 						try
 						{

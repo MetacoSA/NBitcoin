@@ -384,6 +384,9 @@ namespace NBitcoin.Tests
                     while(!block.CheckProofOfWork())
                         block.Header.Nonce = (uint)nonce.Next();
                     blocks.Add(block);
+                    if(chain.Height + 1 == 4032)
+                    {
+                    }
                     chain.SetTip(block.Header);
                 }
                 Block lastSent = null;

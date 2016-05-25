@@ -389,25 +389,47 @@ namespace NBitcoin.Tests
         {
             using(var builder = NodeBuilder.Create())
             {
-                var node = builder.CreateNode(true).CreateNodeClient();
-                builder.Nodes[0].Generate(10000);
+                bool generating = true;
+                builder.CreateNode(true);
+                Task.Run(() =>
+                {
+                    builder.Nodes[0].Generate(600);
+                    generating = false;
+                });
+                var node = builder.Nodes[0].CreateNodeClient();
+                node.PollHeaderDelay = TimeSpan.FromSeconds(2);
                 node.VersionHandshake();
-                var stop = uint256.Parse("0000000000005e5fd51f764d230441092f1b69d1a1eeab334c5bb32412e8dc51");
                 Random rand = new Random();
+                Thread.Sleep(1000);
                 var chains =
                     Enumerable.Range(0, 5)
                     .Select(_ => Task.Factory.StartNew(() =>
                     {
                         Thread.Sleep(rand.Next(0, 1000));
-                        return node.GetChain(hashStop: stop);
+                        return node.GetChain();
                     }))
+                    .Select(t=>t.Result)
                     .ToArray();
-                var highest = chains.Select(c => c.Result.Height).Max();
+                while(generating)
+                {
+                    SyncAll(node, rand, chains);
+                }
+                SyncAll(node, rand, chains);
                 foreach(var c in chains)
                 {
-                    Assert.True(c.Result.Height == 10000);
+                    Assert.Equal(600, c.Height);
                 }
             }
+        }
+
+        private static void SyncAll(Node node, Random rand, ConcurrentChain[] chains)
+        {
+            Task.WaitAll(Enumerable.Range(0, 5)
+                                .Select(_ => Task.Factory.StartNew(() =>
+                                {
+                                    Thread.Sleep(rand.Next(0, 1000));
+                                    node.SynchronizeChain(chains[_]);
+                                })).ToArray());
         }
 
         [Fact]

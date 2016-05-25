@@ -223,8 +223,11 @@ namespace NBitcoin
 			ChainedBlock pindexFirst = this.EnumerateToGenesis().FirstOrDefault(o => o.Height == pastHeight);
 			assert(pindexFirst);
 
-			// Limit adjustment step
-			var nActualTimespan = pindexLast.Header.BlockTime - pindexFirst.Header.BlockTime;
+            if(network.Consensus.PowNoRetargeting)
+                return pindexLast.header.Bits;
+
+            // Limit adjustment step
+            var nActualTimespan = pindexLast.Header.BlockTime - pindexFirst.Header.BlockTime;
 			if(nActualTimespan < TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks / 4))
 				nActualTimespan = TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks / 4);
 			if(nActualTimespan > TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks * 4))
