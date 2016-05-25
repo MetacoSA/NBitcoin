@@ -54,12 +54,13 @@ namespace NBitcoin
 		/* softfork safeness */
 		DiscourageUpgradableNops,
 		WitnessMalleated,
-		WitnessProgramEmpty,
+        WitnessMalleatedP2SH,
+        WitnessProgramEmpty,
 		WitnessProgramMissmatch,
 		DiscourageUpgradableWitnessProgram,
 		WitnessProgramWrongLength,
-		WitnessUnexpected,
-	}
+		WitnessUnexpected,        
+    }
 
 	public class TransactionChecker
 	{
@@ -486,7 +487,7 @@ namespace NBitcoin
 						{
 							// The scriptSig must be _exactly_ a single push of the redeemScript. Otherwise we
 							// reintroduce malleability.
-							return SetError(ScriptError.WitnessMalleated);
+							return SetError(ScriptError.WitnessMalleatedP2SH);
 						}
 						if(!VerifyWitnessProgram(witness, wit, checker))
 						{
@@ -669,7 +670,7 @@ namespace NBitcoin
 
 					bool fExec = vfExec.All(o => o); //!count(vfExec.begin(), vfExec.end(), false);
 					if(fExec && opcode.IsInvalid)
-						return SetError(ScriptError.UnknownError);
+						return SetError(ScriptError.BadOpCode);
 
 					if(fExec && 0 <= (int)opcode.Code && (int)opcode.Code <= (int)OpcodeType.OP_PUSHDATA4)
 					{
@@ -871,7 +872,7 @@ namespace NBitcoin
 							case OpcodeType.OP_TOALTSTACK:
 								{
 									if(_stack.Count < 1)
-										return SetError(ScriptError.InvalidAltStackOperation);
+										return SetError(ScriptError.InvalidStackOperation);
 
 									altstack.Push(_stack.Top(-1));
 									_stack.Pop();

@@ -974,12 +974,16 @@ namespace NBitcoin
 		[DllImport(LibConsensusDll, EntryPoint = "bitcoinconsensus_verify_script", CallingConvention = CallingConvention.Cdecl)]
 		private static extern int VerifyScriptConsensus(byte[] scriptPubKey, uint scriptPubKeyLen, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
 
-		public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags)
+        public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags)
+        {
+            var err = BitcoinConsensusError.ERR_OK;
+            return VerifyScriptConsensus(scriptPubKey, tx, nIn, flags, out err);
+        }
+        public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags, out BitcoinConsensusError err)
 		{
 			var scriptPubKeyBytes = scriptPubKey.ToBytes();
 			var txToBytes = tx.ToBytes();
-
-			var err = BitcoinConsensusError.ERR_OK;
+            err = BitcoinConsensusError.ERR_OK;
 			var valid = VerifyScriptConsensus(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, txToBytes, (uint)txToBytes.Length, nIn, flags, ref err);
 			return valid == 1;
 		}
