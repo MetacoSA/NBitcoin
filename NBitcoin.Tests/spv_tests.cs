@@ -351,7 +351,6 @@ namespace NBitcoin.Tests
                 //New address tracked
                 var addressAlice = alice.GetNextScriptPubKey();
                 builder.Nodes[0].GiveMoney(addressAlice, Money.Coins(1.0m));
-                TestUtils.Eventually(() => aliceConnection.ConnectedNodes.Count == 0); //Purge
                 TestUtils.Eventually(() => aliceConnection.ConnectedNodes.Count == 1); //Reconnect
                                                                                        //////
 
