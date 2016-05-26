@@ -1009,6 +1009,103 @@ namespace NBitcoin.Tests
 
         [Fact]
         [Trait("UnitTest", "UnitTest")]
+        public void BigUIntCoverage()
+        {
+            Assert.True(new uint160("0102030405060708090102030405060708090102") == new uint160("0102030405060708090102030405060708090102"));
+            Assert.True(new uint160("0102030405060708090102030405060708090102") == new uint160(new uint160("0102030405060708090102030405060708090102")));
+            Assert.True(new uint160("0102030405060708090102030405060708090102") != new uint160(new uint160("0102030405060708090102030405060708090101")));
+            Assert.False(new uint160("0102030405060708090102030405060708090102") != new uint160(new uint160("0102030405060708090102030405060708090102")));
+            Assert.True(new uint160("0102030405060708090102030405060708090102").Equals(new uint160("0102030405060708090102030405060708090102")));
+            Assert.True(new uint160("0102030405060708090102030405060708090102").GetHashCode() == new uint160("0102030405060708090102030405060708090102").GetHashCode());
+            Assert.True(new uint160("0102030405060708090102030405060708090102") == uint160.Parse("0102030405060708090102030405060708090102"));
+            uint160 a = null;
+            Assert.True(uint160.TryParse("0102030405060708090102030405060708090102", out a));
+            Assert.True(a == uint160.Parse("0102030405060708090102030405060708090102"));
+            Assert.False(uint160.TryParse("01020304050607080901020304050607080901020", out a));
+            Assert.True(new uint160("0102030405060708090102030405060708090102") > uint160.Parse("0102030405060708090102030405060708090101"));
+            Assert.True(new uint160("0102030405060708090102030405060708090101") < uint160.Parse("0102030405060708090102030405060708090102"));
+            Assert.True(new uint160("0102030405060708090102030405060708090101") <= uint160.Parse("0102030405060708090102030405060708090101"));
+            Assert.True(new uint160("0102030405060708090102030405060708090101") >= uint160.Parse("0102030405060708090102030405060708090101"));
+            Assert.True(new uint160("0102030405060708090102030405060708090101") <= uint160.Parse("0102030405060708090102030405060708090102"));
+            Assert.True(new uint160("0102030405060708090102030405060708090102") >= uint160.Parse("0102030405060708090102030405060708090101"));
+
+            List<byte> bytes = new List<byte>();
+            a = new uint160("0102030405060708090102030405060708090102");
+            for(int i = 0; i < 20; i++)
+            {
+                bytes.Add(a.GetByte(i));
+            }
+            bytes.Reverse();            
+            AssertEx.CollectionEquals(Encoders.Hex.DecodeData("0102030405060708090102030405060708090102"), bytes.ToArray());
+
+            bytes = new List<byte>();
+            var b = new uint256("0102030405060708090102030405060708090102030405060708090102030405");
+            for(int i = 0; i < 32; i++)
+            {
+                bytes.Add(b.GetByte(i));
+            }
+            bytes.Reverse();
+            AssertEx.CollectionEquals(Encoders.Hex.DecodeData("0102030405060708090102030405060708090102030405060708090102030405"), bytes.ToArray());
+            Assert.True(new uint256("0102030405060708090102030405060708090102030405060708090102030405") == new uint256(new uint256("0102030405060708090102030405060708090102030405060708090102030405")));
+        }
+#if !NOSOCKET
+        [Fact]
+        [Trait("UnitTest", "UnitTest")]
+        public void OtherCoverage()
+        {
+            Assert.Equal(System.Net.IPAddress.Parse("127.0.0.1").MapToIPv6(), Utils.MapToIPv6(System.Net.IPAddress.Parse("127.0.0.1")));
+            Assert.False(Utils.IsIPv4MappedToIPv6(System.Net.IPAddress.Parse("127.0.0.1")));
+            Assert.True(Utils.IsIPv4MappedToIPv6(Utils.MapToIPv6(System.Net.IPAddress.Parse("127.0.0.1"))));
+        }
+#endif
+        [Fact]
+        [Trait("UnitTest", "UnitTest")]
+        public void BitcoinStreamCoverage()
+        {
+            BitcoinStreamCoverageCore(new ulong[] { 1, 2, 3, 4 }, (BitcoinStream bs, ref ulong[] items) => 
+            {
+                bs.ReadWrite(ref items);
+            });
+            BitcoinStreamCoverageCore(new ushort[] { 1, 2, 3, 4 }, (BitcoinStream bs, ref ushort[] items) =>
+            {
+                bs.ReadWrite(ref items);
+            });
+            BitcoinStreamCoverageCore(new uint[] { 1, 2, 3, 4 }, (BitcoinStream bs, ref uint[] items) =>
+            {
+                bs.ReadWrite(ref items);
+            });
+            BitcoinStreamCoverageCore(new short[] { -1, 1, 2, 3, 4 }, (BitcoinStream bs, ref short[] items) =>
+            {
+                bs.ReadWrite(ref items);
+            });
+            BitcoinStreamCoverageCore(new long[] {-1, 1, 2, 3, 4 }, (BitcoinStream bs, ref long[] items) =>
+            {
+                bs.ReadWrite(ref items);
+            });
+            BitcoinStreamCoverageCore(new byte[] { 1, 2, 3, 4 }, (BitcoinStream bs, ref byte[] items) =>
+            {
+                bs.ReadWrite(ref items);
+            });
+        }
+        delegate void BitcoinStreamCoverageCoreDelegate<TItem>(BitcoinStream bs, ref TItem[] items);
+        void BitcoinStreamCoverageCore<TItem>(TItem[] input, BitcoinStreamCoverageCoreDelegate<TItem> roundTrip)
+        {
+            var before = input.ToArray();
+            var ms = new MemoryStream();
+            BitcoinStream bs = new BitcoinStream(ms, true);
+            var before2 = input;
+            roundTrip(bs, ref input);
+            Array.Clear(input, 0, input.Length);
+            ms.Position = 0;
+            bs = new BitcoinStream(ms, false);
+            roundTrip(bs, ref input);
+            if(!(input is byte[])) //Byte serialization reuse the input array
+                Assert.True(before2 != input);
+            AssertEx.CollectionEquals(before, input);
+        }
+        
+        [Fact]
+        [Trait("UnitTest", "UnitTest")]
         public void CanSerializeInvalidTransactionsBackAndForth()
         {
             Transaction before = new Transaction();

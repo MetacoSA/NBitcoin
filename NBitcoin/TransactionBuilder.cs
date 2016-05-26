@@ -88,7 +88,7 @@ namespace NBitcoin
 						for(int _ = 0 ; _ < 1000 ; _++)
 						{
 							var selection = new List<ICoin>();
-							Shuffle(allCoins, _Rand);
+							Utils.Shuffle(allCoins, _Rand);
 							total = zero;
 							for(int i = 0 ; i < allCoins.Length ; i++)
 							{
@@ -116,32 +116,6 @@ namespace NBitcoin
 			return result;
 		}
 
-		internal static void Shuffle<T>(T[] list, Random random)
-		{
-			int n = list.Length;
-			while(n > 1)
-			{
-				n--;
-				int k = random.Next(n + 1);
-				T value = list[k];
-				list[k] = list[n];
-				list[n] = value;
-			}
-		}
-		internal static void Shuffle<T>(List<T> list, Random random)
-		{
-			int n = list.Count;
-			while(n > 1)
-			{
-				n--;
-				int k = random.Next(n + 1);
-				T value = list[k];
-				list[k] = list[n];
-				list[n] = value;
-			}
-		}
-
-
 		#endregion
 	}
 
@@ -150,9 +124,6 @@ namespace NBitcoin
 	/// </summary>
 	public class NotEnoughFundsException : Exception
 	{
-		public NotEnoughFundsException()
-		{
-		}
 		public NotEnoughFundsException(string message, string group, IMoney missing)
 			: base(BuildMessage(message, group, missing))
 		{
@@ -443,7 +414,7 @@ namespace NBitcoin
 			}
 			private void Shuffle(List<Builder> builders)
 			{
-				DefaultCoinSelector.Shuffle(builders, _Parent._Rand);
+				Utils.Shuffle(builders, _Parent._Rand);
 			}
 
 			public Money CoverOnly
@@ -681,7 +652,7 @@ namespace NBitcoin
 
 		public TransactionBuilder Shuffle()
 		{
-			DefaultCoinSelector.Shuffle(_BuilderGroups, _Rand);
+			Utils.Shuffle(_BuilderGroups, _Rand);
 			foreach(var group in _BuilderGroups)
 				group.Shuffle();
 			return this;

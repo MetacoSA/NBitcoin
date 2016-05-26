@@ -483,9 +483,9 @@ namespace NBitcoin
 			return stringBuilder.ToString();
 		}
 
-		public static void Shuffle<T>(T[] arr, int seed)
+		public static void Shuffle<T>(T[] arr, Random rand)
 		{
-			Random rand = new Random(seed);
+            rand = rand ?? new Random();
 			for(int i = 0 ; i < arr.Length ; i++)
 			{
 				var fromIndex = rand.Next(arr.Length);
@@ -498,25 +498,35 @@ namespace NBitcoin
 				arr[fromIndex] = to;
 			}
 		}
-		public static void Shuffle<T>(T[] arr)
-		{
-			Random rand = new Random();
-			for(int i = 0 ; i < arr.Length ; i++)
-			{
-				var fromIndex = rand.Next(arr.Length);
-				var from = arr[fromIndex];
+        public static void Shuffle<T>(List<T> arr, Random rand)
+        {
+            rand = rand ?? new Random();
+            for(int i = 0; i < arr.Count; i++)
+            {
+                var fromIndex = rand.Next(arr.Count);
+                var from = arr[fromIndex];
 
-				var toIndex = rand.Next(arr.Length);
-				var to = arr[toIndex];
+                var toIndex = rand.Next(arr.Count);
+                var to = arr[toIndex];
 
-				arr[toIndex] = from;
-				arr[fromIndex] = to;
-			}
-		}
+                arr[toIndex] = from;
+                arr[fromIndex] = to;
+            }
+        }
+        public static void Shuffle<T>(T[] arr, int seed)
+        {
+            Random rand = new Random(seed);
+            Shuffle(arr, rand);
+        }
+
+        public static void Shuffle<T>(T[] arr)
+        {
+            Shuffle(arr, null);
+        }
 
 
 #if !PORTABLE
-		internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
+        internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
 		{
 			try
 			{

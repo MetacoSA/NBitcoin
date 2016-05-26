@@ -1230,7 +1230,6 @@ namespace NBitcoin.Protocol
 					yield return block;
 				}
 			}
-			//GetBlocks(neededBlocks.ToEnumerable(false).Select(e => e.HashBlock), cancellationToken);
 		}
 
 		public IEnumerable<Block> GetBlocks(IEnumerable<ChainedBlock> blocks, CancellationToken cancellationToken = default(CancellationToken))

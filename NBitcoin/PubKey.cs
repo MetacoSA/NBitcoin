@@ -90,23 +90,28 @@ namespace NBitcoin
 		/// <returns>true if byte array is valid</returns>
 		public static bool Check(byte[] data, bool deep)
 		{
-			var quick = data != null &&
-					(
-						(data.Length == 33 && (data[0] == 0x02 || data[0] == 0x03)) ||
-						(data.Length == 65 && (data[0] == 0x04 || data[0] == 0x06 || data[0] == 0x07))
-					);
-			if(!deep || !quick)
-				return quick;
-			try
-			{
-				new ECKey(data, false);
-				return true;
-			}
-			catch
-			{
-				return false;
-			}
+            return Check(data, 0, data.Length, deep);
 		}
+
+        public static bool Check(byte[] data, int offset, int count, bool deep)
+        {
+            var quick = data != null &&
+                    (
+                        (count == 33 && (data[offset + 0] == 0x02 || data[offset + 0] == 0x03)) ||
+                        (count == 65 && (data[offset + 0] == 0x04 || data[offset + 0] == 0x06 || data[offset + 0] == 0x07))
+                    );
+            if(!deep || !quick)
+                return quick;
+            try
+            {
+                new ECKey(data.SafeSubarray(offset, count), false);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
 		byte[] vch = new byte[0];
 		KeyId _ID;

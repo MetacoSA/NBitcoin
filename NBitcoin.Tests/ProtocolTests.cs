@@ -363,6 +363,27 @@ namespace NBitcoin.Tests
 
         [Fact]
         [Trait("Protocol", "Protocol")]
+        public void CanGetBlocksWithProtocol()
+        {
+            using(var builder = NodeBuilder.Create())
+            {
+                var node = builder.CreateNode(true);
+                node.Generate(50);
+                var client = node.CreateNodeClient();
+                var chain = client.GetChain();
+                var blocks = client.GetBlocks(chain.GetBlock(20).HashBlock).ToArray();
+                Assert.Equal(20, blocks.Length);
+                Assert.Equal(chain.GetBlock(20).HashBlock, blocks.Last().Header.GetHash());
+
+                blocks = client.GetBlocksFromFork(chain.GetBlock(45)).ToArray();
+                Assert.Equal(5, blocks.Length);
+                Assert.Equal(chain.GetBlock(50).HashBlock, blocks.Last().Header.GetHash());
+                Assert.Equal(chain.GetBlock(46).HashBlock, blocks.First().Header.GetHash());
+            }
+        }
+
+        [Fact]
+        [Trait("Protocol", "Protocol")]
         public void CanGetMemPool()
         {
             using(var builder = NodeBuilder.Create())

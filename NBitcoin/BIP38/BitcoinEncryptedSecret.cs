@@ -298,15 +298,6 @@ namespace NBitcoin
 			}
 		}
 
-		protected static byte[] GetHalf1(byte[] b)
-		{
-			return b.SafeSubarray(0, b.Length / 2);
-		}
-		protected static byte[] GetHalf2(byte[] b)
-		{
-			return b.SafeSubarray(b.Length / 2, b.Length / 2);
-		}
-
 		public abstract Key GetKey(string password);
 		public BitcoinSecret GetSecret(string password)
 		{

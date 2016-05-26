@@ -52,38 +52,6 @@ namespace NBitcoin
 
 		<# } #>
 
-
-		<# foreach(String type in new string[]
-		{
-			"ulong",
-			"ushort",
-			"uint",
-			"byte",
-			"long",
-			"short",
-			"int"
-		}){ #>
-
-		private void ReadWriteList(ref List<<#= type #>> data)
-		{
-			var dataArray = data == null ? null : data.ToArray();
-			if(Serializing && dataArray == null)
-			{
-				dataArray = new <#= type #>[0];
-			}
-			ReadWriteArray(ref dataArray);
-			if(!Serializing)
-			{
-				if(data == null)
-					data = new List<<#= type #>>();
-				else
-					data.Clear();
-				data.AddRange(dataArray);
-			}
-		}
-
-		<# } #>
-
 		<# foreach(String signature in new string[]
 		{
 			"(ref ulong[] data)",

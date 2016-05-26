@@ -907,6 +907,38 @@ namespace NBitcoin.Tests
 
         [Fact]
         [Trait("UnitTest", "UnitTest")]
+        public void CanParseAndGeneratePayToPubkey()
+        {
+            string scriptPubKey = "0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c OP_CHECKSIG";
+            var pub = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(new Script(scriptPubKey));
+            Assert.Equal("0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c", pub.ToHex());
+
+            scriptPubKey = "0464bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27cff45c67d5f7be479215e9a27cea37afe1a00fa968ae3cbad128c9cee403844b7 OP_CHECKSIG";
+            pub = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(new Script(scriptPubKey));
+            Assert.Equal("0464bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27cff45c67d5f7be479215e9a27cea37afe1a00fa968ae3cbad128c9cee403844b7", pub.ToHex());
+
+            scriptPubKey = "9964bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c OP_CHECKSIG";
+            pub = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(new Script(scriptPubKey));
+            Assert.Null(pub);
+
+            string scriptSig = "3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301";
+            var sig = PayToPubkeyTemplate.Instance.ExtractScriptSigParameters(new Script(scriptSig));
+            Assert.NotNull(sig);
+            Assert.True(PayToPubkeyTemplate.Instance.CheckScriptSig(new Script(scriptSig), null));
+
+            scriptSig = "0044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301";
+            sig = PayToPubkeyTemplate.Instance.ExtractScriptSigParameters(new Script(scriptSig));
+            Assert.Null(sig);
+            Assert.False(PayToPubkeyTemplate.Instance.CheckScriptSig(new Script(scriptSig), null));
+
+            scriptSig = Encoders.Hex.EncodeData(TransactionSignature.Empty.ToBytes());
+            sig = PayToPubkeyTemplate.Instance.ExtractScriptSigParameters(new Script(scriptSig));
+            Assert.NotNull(sig);
+            Assert.True(PayToPubkeyTemplate.Instance.CheckScriptSig(new Script(scriptSig), null));
+        }
+
+        [Fact]
+        [Trait("UnitTest", "UnitTest")]
         public void CanParseAndGeneratePayToMultiSig()
         {
             string scriptPubKey = "1 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d 2 OP_CHECKMULTISIG";
