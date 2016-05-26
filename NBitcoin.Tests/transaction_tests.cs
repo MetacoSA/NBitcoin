@@ -2554,8 +2554,7 @@ namespace NBitcoin.Tests
         [Trait("Core", "Core")]
         public void test_Get()
         {
-            byte[] dummyPubKey = new byte[65];
-            dummyPubKey[0] = 0x04;
+            byte[] dummyPubKey = TransactionSignature.Empty.ToBytes();
 
             byte[] dummyPubKey2 = new byte[33];
             dummyPubKey2[0] = 0x02;
