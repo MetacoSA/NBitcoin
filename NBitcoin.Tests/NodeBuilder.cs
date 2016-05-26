@@ -205,7 +205,7 @@ namespace NBitcoin.Tests
             }
             catch(DirectoryNotFoundException) { }
         }
-
+#if !NOSOCKET
         public void Sync(CoreNode node, bool keepConnection = false)
         {
             var rpc = CreateRPCClient();
@@ -218,7 +218,7 @@ namespace NBitcoin.Tests
             if(!keepConnection)
                 rpc.RemoveNode(node.Endpoint);
         }
-
+#endif
         private CoreNodeState _State;
         public CoreNodeState State
         {
@@ -244,12 +244,12 @@ namespace NBitcoin.Tests
         {
             return new RestClient(new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"));
         }
-
+#if !NOSOCKET
         public Node CreateNodeClient()
         {
             return Node.Connect(Network.RegTest, "127.0.0.1:" + ports[0].ToString());
         }
-
+#endif
 
         public async Task StartAsync()
         {
@@ -327,7 +327,7 @@ namespace NBitcoin.Tests
             else
                 transactions.Add(builder.BuildTransaction(true));
         }
-
+#if !NOSOCKET
         public void Broadcast(Transaction transaction)
         {
             using(var node = CreateNodeClient())
@@ -338,7 +338,13 @@ namespace NBitcoin.Tests
                 node.PingPong();
             }
         }
-
+#else
+        public void Broadcast(Transaction transaction)
+        {
+            var rpc = CreateRPCClient();
+            rpc.SendRawTransaction(transaction);
+        }
+#endif
         public void SelectMempoolTransactions()
         {
             var rpc = CreateRPCClient();
@@ -390,7 +396,7 @@ namespace NBitcoin.Tests
             Random nonce = new Random();
             List<Block> blocks = new List<Block>();
 
-
+#if !NOSOCKET
             using(var node = CreateNodeClient())
             {
                 node.VersionHandshake();
@@ -429,6 +435,13 @@ namespace NBitcoin.Tests
                 }
                 node.PingPong();
             }
+#endif
+        }       
+
+        public void FindBlock(int blockCount = 1, bool includeMempool = true)
+        {
+            SelectMempoolTransactions();
+            Generate(blockCount, includeMempool);
         }
 
         class TransactionNode
@@ -489,12 +502,6 @@ namespace NBitcoin.Tests
             }
 
             return dest;
-        }
-
-        public void FindBlock(int blockCount = 1, bool includeMempool = true)
-        {
-            SelectMempoolTransactions();
-            Generate(blockCount, includeMempool);
-        }
+        }        
     }
 }
