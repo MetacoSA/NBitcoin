@@ -15,7 +15,8 @@ namespace NBitcoin.Tests
 {
 	public class addrman_tests
 	{
-		[Fact]
+#if !NOFILEIO
+        [Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSerializeDeserializePeerTable()
 		{
@@ -37,7 +38,7 @@ namespace NBitcoin.Tests
 			var after = File.ReadAllBytes("serializerPeer.dat");
 			Assert.True(original.SequenceEqual(after));
 		}
-
+#endif
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanUseAddrManager()

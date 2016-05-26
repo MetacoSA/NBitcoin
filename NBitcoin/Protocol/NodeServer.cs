@@ -119,9 +119,7 @@ namespace NBitcoin.Protocol
 				try
 				{
 					socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-#if !NOIPDUALMODE
-					socket.DualMode = true;
-#endif
+                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
 
 					socket.Bind(LocalEndpoint);
 					socket.Listen(8);
