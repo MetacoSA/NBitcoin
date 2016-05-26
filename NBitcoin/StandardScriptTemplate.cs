@@ -857,15 +857,25 @@ namespace NBitcoin
             return scriptHash.ScriptPubKey;
         }
 
+        public WitScript GenerateWitScript(Script scriptSig, Script redeemScript)
+        {
+            if(redeemScript == null)
+                throw new ArgumentNullException("redeemScript");
+            if(scriptSig == null)
+                throw new ArgumentNullException("scriptSig");
+            if(!scriptSig.IsPushOnly)
+                throw new ArgumentException("The script sig should be push only", "scriptSig");
+            scriptSig = scriptSig + Op.GetPushOp(redeemScript.ToBytes(true));
+            return new WitScript(scriptSig);
+        }
+
         public WitScript GenerateWitScript(Op[] scriptSig, Script redeemScript)
         {
             if(redeemScript == null)
                 throw new ArgumentNullException("redeemScript");
             if(scriptSig == null)
                 throw new ArgumentNullException("scriptSig");
-
-            var ops = scriptSig.Concat(new[] { Op.GetPushOp(redeemScript.ToBytes(true)) }).ToArray();
-            return new WitScript(ops);
+            return GenerateWitScript(new Script(scriptSig), redeemScript);
         }
 
         public override bool CheckScriptPubKey(Script scriptPubKey)
@@ -890,7 +900,7 @@ namespace NBitcoin
         /// <param name="witScript">Witscript to extract information from</param>
         /// <param name="expectedScriptId">Expected redeem hash</param>
         /// <returns>The witness redeem</returns>
-        public Script ExtractWitScriptParameters(WitScript witScript, WitScriptId expectedScriptId)
+        public Script ExtractWitScriptParameters(WitScript witScript, WitScriptId expectedScriptId = null)
         {
             if(witScript.PushCount == 0)
                 return null;

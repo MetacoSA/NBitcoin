@@ -939,6 +939,36 @@ namespace NBitcoin.Tests
 
         [Fact]
         [Trait("UnitTest", "UnitTest")]
+        public void CanParseAndGenerateSegwitScripts()
+        {
+            var pubkey = new PubKey("03a65786c1a48d4167aca08cf6eb8eed081e13f45c02dc6000fd8f3bb16242579a");
+            var scriptPubKey = new Script("0 05481b7f1d90c5a167a15b00e8af76eb6984ea59");
+            Assert.Equal(scriptPubKey, PayToWitPubKeyHashTemplate.Instance.GenerateScriptPubKey(pubkey));
+            Assert.Equal(scriptPubKey, PayToWitPubKeyHashTemplate.Instance.GenerateScriptPubKey(pubkey.WitHash));
+            Assert.Equal(scriptPubKey, PayToWitPubKeyHashTemplate.Instance.GenerateScriptPubKey((BitcoinWitPubKeyAddress)pubkey.WitHash.GetAddress(Network.Main)));
+            var expected = new WitScript("304402206104c335e4adbb920184957f9f710b09de17d015329fde6807b9d321fd2142db02200b24ad996b4aa4ff103000348b5ad690abfd9fddae546af9e568394ed4a8311301 03a65786c1a48d4167aca08cf6eb8eed081e13f45c02dc6000fd8f3bb16242579a");
+            var actual = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(new PayToWitPubkeyHashScriptSigParameters()
+            {
+                PublicKey = pubkey,
+                TransactionSignature = new TransactionSignature(Encoders.Hex.DecodeData("304402206104c335e4adbb920184957f9f710b09de17d015329fde6807b9d321fd2142db02200b24ad996b4aa4ff103000348b5ad690abfd9fddae546af9e568394ed4a8311301"))
+            });
+            Assert.Equal(expected, actual);
+
+            var scriptSig = new Script("304402206b782f095f52f12133a96c078b558458b84c925afdb620d96c5f5bbf483e28d502206206796ff45d80216b83c77bafc4e7951fdb10a5bf3e4041c0e6c0938079b22b01 2103");
+            var redeem = new Script(Encoders.Hex.DecodeData("2103a65786c1a48d4167aca08cf6eb8eed081e13f45c02dc6000fd8f3bb16242579aac"));
+            expected = new WitScript(new Script("304402206b782f095f52f12133a96c078b558458b84c925afdb620d96c5f5bbf483e28d502206206796ff45d80216b83c77bafc4e7951fdb10a5bf3e4041c0e6c0938079b22b01 2103 2103a65786c1a48d4167aca08cf6eb8eed081e13f45c02dc6000fd8f3bb16242579aac"));
+            actual = PayToWitScriptHashTemplate.Instance.GenerateWitScript(scriptSig, redeem);
+            Assert.Equal(expected, actual);
+            actual = PayToWitScriptHashTemplate.Instance.GenerateWitScript(scriptSig.ToOps().ToArray(), redeem);
+            Assert.Equal(expected, actual);
+            var extract = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(actual, null);
+            Assert.Equal(extract, redeem);
+            extract = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(actual, new Key().ScriptPubKey.WitHash);
+            Assert.Null(extract);
+        }
+
+        [Fact]
+        [Trait("UnitTest", "UnitTest")]
         public void CanParseAndGeneratePayToMultiSig()
         {
             string scriptPubKey = "1 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27c 0364bd4b02a752798342ed91c681a48793bb1c0853cbcd0b978c55e53485b8e27d 2 OP_CHECKMULTISIG";
@@ -963,6 +993,12 @@ namespace NBitcoin.Tests
 
             var scriptSig2 = PayToMultiSigTemplate.Instance.GenerateScriptSig(result);
             Assert.Equal(scriptSig, scriptSig2.ToString());
+
+
+            var sig = new TransactionSignature(Encoders.Hex.DecodeData("3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301"));
+            var actual = PayToScriptHashTemplate.Instance.GenerateScriptSig(new[] { sig, sig }, new Script(scriptPubKey));
+            var expected = new Script("0 3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301 3044022064f45a382a15d3eb5e7fe72076eec4ef0f56fde1adfd710866e729b9e5f3383d02202720a895914c69ab49359087364f06d337a2138305fbc19e20d18da78415ea9301 " + new Script(scriptPubKey).ToHex());
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
