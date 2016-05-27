@@ -247,6 +247,11 @@ namespace NBitcoin.Tests
                 Assert.NotNull(info);
                 Assert.NotEmpty(info);
                 Assert.Equal(nodeB.Endpoint, info.First().Addresses.First().Address);
+                var oneInfo = rpc.GetAddedNodeInfo(true, nodeB.Endpoint);
+                Assert.NotNull(oneInfo);
+                Assert.True(oneInfo.AddedNode.ToString() == nodeB.Endpoint.ToString());
+                oneInfo = rpc.GetAddedNodeInfo(true, nodeA.Endpoint);
+                Assert.Null(oneInfo);
                 rpc.RemoveNode(nodeB.Endpoint);
                 Thread.Sleep(500);
                 info = rpc.GetAddedNodeInfo(true);            

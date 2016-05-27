@@ -463,18 +463,28 @@ namespace NBitcoin.RPC
             if(nodeEndPoint == null)
                 throw new ArgumentNullException("nodeEndPoint");
 
-            var result = await SendCommandAsync("getaddednodeinfo", nodeEndPoint.ToString(), detailed).ConfigureAwait(false);
-            var entry = result.Result;
-            return new AddedNodeInfo()
+            try
             {
-                AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], 8333),
-                Connected = (bool)entry["connected"],
-                Addresses = entry["addresses"].Select(x => new NodeAddressInfo
+
+                var result = await SendCommandAsync("getaddednodeinfo", detailed, nodeEndPoint.ToString()).ConfigureAwait(false);
+                var e = result.Result;
+                return e.Select(entry => new AddedNodeInfo
                 {
-                    Address = Utils.ParseIpEndpoint((string)x["address"], 8333),
-                    Connected = (bool)x["connected"]
-                })
-            };
+                    AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], 8333),
+                    Connected = (bool)entry["connected"],
+                    Addresses = entry["addresses"].Select(x => new NodeAddressInfo
+                    {
+                        Address = Utils.ParseIpEndpoint((string)x["address"], 8333),
+                        Connected = (bool)x["connected"]
+                    })
+                }).FirstOrDefault();
+            }
+            catch(RPCException ex)
+            {
+                if(ex.RPCCode == RPCErrorCode.RPC_CLIENT_NODE_NOT_ADDED)
+                    return null;
+                throw;
+            }
         }
 #endif
 
