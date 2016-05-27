@@ -1086,6 +1086,12 @@ namespace NBitcoin.Tests
             {
                 bs.ReadWrite(ref items);
             });
+            BitcoinStreamCoverageCore(new uint160[] { new uint160(1), new uint160(2), new uint160(3), new uint160(4) }, (BitcoinStream bs, ref uint160[] items) =>
+            {
+                var l = items.ToList();
+                bs.ReadWrite(ref l);
+                items = l.ToArray();
+            });
         }
         delegate void BitcoinStreamCoverageCoreDelegate<TItem>(BitcoinStream bs, ref TItem[] items);
         void BitcoinStreamCoverageCore<TItem>(TItem[] input, BitcoinStreamCoverageCoreDelegate<TItem> roundTrip)
