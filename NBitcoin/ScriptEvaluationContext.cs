@@ -54,13 +54,13 @@ namespace NBitcoin
 		/* softfork safeness */
 		DiscourageUpgradableNops,
 		WitnessMalleated,
-        WitnessMalleatedP2SH,
-        WitnessProgramEmpty,
+		WitnessMalleatedP2SH,
+		WitnessProgramEmpty,
 		WitnessProgramMissmatch,
 		DiscourageUpgradableWitnessProgram,
 		WitnessProgramWrongLength,
-		WitnessUnexpected,        
-    }
+		WitnessUnexpected,
+	}
 
 	public class TransactionChecker
 	{
@@ -133,7 +133,7 @@ namespace NBitcoin
 		{
 			get;
 			internal set;
-		}		
+		}
 	}
 	public class ScriptEvaluationContext
 	{
@@ -362,7 +362,7 @@ namespace NBitcoin
 					return 0;
 
 				long result = 0;
-				for(int i = 0 ; i != vch.Length ; ++i)
+				for(int i = 0; i != vch.Length; ++i)
 					result |= ((long)(vch[i])) << 8 * i;
 
 				// If the input vector's most significant byte is 0x80, remove it from
@@ -545,7 +545,7 @@ namespace NBitcoin
 						return SetError(ScriptError.WitnessProgramEmpty);
 					}
 					scriptPubKey = Script.FromBytesUnsafe(witness.GetUnsafePush(witness.PushCount - 1));
-					for(int i = 0 ; i < witness.PushCount - 1 ; i++)
+					for(int i = 0; i < witness.PushCount - 1; i++)
 					{
 						stack.Add(witness.GetUnsafePush(i));
 					}
@@ -586,7 +586,7 @@ namespace NBitcoin
 				ctx.Stack.Push(item);
 
 			// Disallow stack item size > MAX_SCRIPT_ELEMENT_SIZE in witness stack
-			for(int i = 0 ; i < ctx.Stack.Count ; i++)
+			for(int i = 0; i < ctx.Stack.Count; i++)
 			{
 				if(ctx.Stack.Top(-(i + 1)).Length > MAX_SCRIPT_ELEMENT_SIZE)
 					return SetError(ScriptError.PushSize);
@@ -1351,7 +1351,7 @@ namespace NBitcoin
 									// Subset of script starting at the most recent codeseparator
 									Script scriptCode = new Script(s._Script.Skip(pbegincodehash).ToArray());
 									// Drop the signatures, since there's no way for a signature to sign itself
-									for(int k = 0 ; k < nSigsCount ; k++)
+									for(int k = 0; k < nSigsCount; k++)
 									{
 										var vchSig = _stack.Top(-isig - k);
 										scriptCode.FindAndDelete(vchSig);
@@ -1817,7 +1817,7 @@ namespace NBitcoin
 
 		private static bool CastToBool(byte[] vch)
 		{
-			for(uint i = 0 ; i < vch.Length ; i++)
+			for(uint i = 0; i < vch.Length; i++)
 			{
 				if(vch[i] != 0)
 				{

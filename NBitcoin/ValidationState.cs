@@ -209,7 +209,7 @@ namespace NBitcoin
 			if(block.Transactions.Count == 0 || !block.Transactions[0].IsCoinBase)
 				return DoS(100, Error("CheckBlock() : first tx is not coinbase"),
 								 RejectCode.INVALID, "bad-cb-missing");
-			for(int i = 1 ; i < block.Transactions.Count ; i++)
+			for(int i = 1; i < block.Transactions.Count; i++)
 				if(block.Transactions[i].IsCoinBase)
 					return DoS(100, Error("CheckBlock() : more than one coinbase"),
 									 RejectCode.INVALID, "bad-cb-multiple");
@@ -219,11 +219,11 @@ namespace NBitcoin
 				if(!CheckTransaction(tx))
 					return Error("CheckBlock() : CheckTransaction failed");
 
-		
+
 			// Check for duplicate txids. This is caught by ConnectInputs(),
 			// but catching it earlier avoids a potential DoS attack:
 			var uniqueTx = new HashSet<uint256>();
-			for(int i = 0 ; i < block.Transactions.Count ; i++)
+			for(int i = 0; i < block.Transactions.Count; i++)
 			{
 				uniqueTx.Add(root.GetLeaf(i).Hash);
 			}
@@ -269,8 +269,8 @@ namespace NBitcoin
 		private int GetLegacySigOpCount(Transaction tx)
 		{
 			return
-				(int) tx.Inputs.Sum(txin => txin.ScriptSig.GetSigOpCount(false)) +
-				(int) tx.Outputs.Sum(txin => txin.ScriptPubKey.GetSigOpCount(false));
+				(int)tx.Inputs.Sum(txin => txin.ScriptSig.GetSigOpCount(false)) +
+				(int)tx.Outputs.Sum(txin => txin.ScriptPubKey.GetSigOpCount(false));
 		}
 
 		DateTimeOffset _Now;

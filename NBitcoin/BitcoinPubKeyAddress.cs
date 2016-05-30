@@ -9,7 +9,7 @@ namespace NBitcoin
 	/// <summary>
 	/// Base58 representation of a pubkey hash and base class for the representation of a script hash
 	/// </summary>
-	public class BitcoinPubKeyAddress :  BitcoinAddress
+	public class BitcoinPubKeyAddress : BitcoinAddress
 	{
 		public BitcoinPubKeyAddress(string base58, Network expectedNetwork = null)
 			: base(base58, expectedNetwork)
@@ -27,7 +27,7 @@ namespace NBitcoin
 			{
 				return vchData.Length == 20;
 			}
-		}		
+		}
 
 
 		public bool VerifyMessage(string message, string signature)

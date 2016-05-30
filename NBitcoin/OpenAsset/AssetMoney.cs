@@ -138,7 +138,7 @@ namespace NBitcoin.OpenAsset
 			if(divisibility < 0)
 				throw new ArgumentOutOfRangeException("divisibility", "divisibility should be higher than 0");
 			int dec = 1;
-			for(int i = 0 ; i < divisibility ; i++)
+			for(int i = 0; i < divisibility; i++)
 			{
 				dec = dec * 10;
 			}
@@ -158,7 +158,7 @@ namespace NBitcoin.OpenAsset
 			long remain;
 			long result = DivRem(_Quantity, parts, out remain);
 
-			for(int i = 0 ; i < parts ; i++)
+			for(int i = 0; i < parts; i++)
 			{
 				yield return new AssetMoney(_Id, result + (remain > 0 ? 1 : 0));
 				remain--;
@@ -401,7 +401,7 @@ namespace NBitcoin.OpenAsset
 		{
 			return this.Equals(other);
 		}
-		
+
 		bool IMoney.IsCompatible(IMoney money)
 		{
 			if(money == null)

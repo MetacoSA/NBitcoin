@@ -149,7 +149,7 @@ namespace NBitcoin.BitcoinCore
 			if(range == null)
 				range = DiskBlockPosRange.All;
 
-			using( var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, BufferSize))
+			using(var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, BufferSize))
 			{
 				fs.Position = range.Begin.Position;
 				foreach(var block in Enumerate(fs, fileIndex, range))

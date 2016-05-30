@@ -20,7 +20,7 @@ namespace NBitcoin.BuilderExtensions
 
 		public override Script DeduceScriptPubKey(Script scriptSig)
 		{
-			throw new NotSupportedException();	
+			throw new NotSupportedException();
 		}
 
 		public override bool CanDeduceScriptPubKey(Script scriptSig)

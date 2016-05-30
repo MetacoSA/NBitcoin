@@ -10,7 +10,7 @@ namespace NBitcoin.BouncyCastle.Security
 	{
 		public SecureRandom()
 		{
-			
+
 		}
 
 		internal static byte[] GetNextBytes(SecureRandom random, int p)

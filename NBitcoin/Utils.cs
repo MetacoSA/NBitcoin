@@ -37,7 +37,7 @@ namespace NBitcoin
 			}
 		}
 
-		
+
 
 		public static T ToNetwork<T>(this T base58, Network network) where T : Base58Data
 		{
@@ -70,7 +70,7 @@ namespace NBitcoin
 			do
 			{
 				num += (num2 = stream.Read(buffer, num, bytesToRead - num));
-			} while (num2 > 0 && num < bytesToRead);
+			} while(num2 > 0 && num < bytesToRead);
 			return buffer;
 		}
 
@@ -86,7 +86,7 @@ namespace NBitcoin
 
 			List<T> removed = new List<T>();
 
-			for(int i = list.Count - 1 ; i + 1 > count ; i--)
+			for(int i = list.Count - 1; i + 1 > count; i--)
 			{
 				removed.Add(list[i]);
 				list.RemoveAt(i);
@@ -240,9 +240,9 @@ namespace NBitcoin
 		{
 			if(array == null)
 				throw new ArgumentNullException("array");
-			if(offset < 0 || offset > array.Length )
+			if(offset < 0 || offset > array.Length)
 				throw new ArgumentOutOfRangeException("offset");
-			if(count < 0 || offset + count > array.Length )
+			if(count < 0 || offset + count > array.Length)
 				throw new ArgumentOutOfRangeException("count");
 
 			var data = new byte[count];
@@ -252,9 +252,9 @@ namespace NBitcoin
 
 		internal static byte[] SafeSubarray(this byte[] array, int offset)
 		{
-			if (array == null)
+			if(array == null)
 				throw new ArgumentNullException("array");
-			if (offset < 0 || offset > array.Length)
+			if(offset < 0 || offset > array.Length)
 				throw new ArgumentOutOfRangeException("offset");
 
 			var count = array.Length - offset;
@@ -290,7 +290,7 @@ namespace NBitcoin
 			if(alen < length || blen < length)
 				return false;
 
-			for(int ai = startA, bi = startB ; ai < startA + length ; ai++, bi++)
+			for(int ai = startA, bi = startB; ai < startA + length; ai++, bi++)
 			{
 				if(a[ai] != b[bi])
 					return false;
@@ -325,10 +325,10 @@ namespace NBitcoin
 				throw new Exception("Only AddressFamily.InterNetworkV4 can be converted to IPv6");
 
 			byte[] ipv4Bytes = address.GetAddressBytes();
-			byte[] ipv6Bytes = new byte[16] { 
- 			0,0, 0,0, 0,0, 0,0, 0,0, 0xFF,0xFF, 
- 			ipv4Bytes [0], ipv4Bytes [1], ipv4Bytes [2], ipv4Bytes [3] 
- 			};
+			byte[] ipv6Bytes = new byte[16] {
+			 0,0, 0,0, 0,0, 0,0, 0,0, 0xFF,0xFF,
+			 ipv4Bytes [0], ipv4Bytes [1], ipv4Bytes [2], ipv4Bytes [3]
+			 };
 			return new IPAddress(ipv6Bytes);
 
 		}
@@ -340,7 +340,7 @@ namespace NBitcoin
 
 			byte[] bytes = address.GetAddressBytes();
 
-			for(int i = 0 ; i < 10 ; i++)
+			for(int i = 0; i < 10; i++)
 			{
 				if(bytes[0] != 0)
 					return false;
@@ -485,8 +485,8 @@ namespace NBitcoin
 
 		public static void Shuffle<T>(T[] arr, Random rand)
 		{
-            rand = rand ?? new Random();
-			for(int i = 0 ; i < arr.Length ; i++)
+			rand = rand ?? new Random();
+			for(int i = 0; i < arr.Length; i++)
 			{
 				var fromIndex = rand.Next(arr.Length);
 				var from = arr[fromIndex];
@@ -498,35 +498,35 @@ namespace NBitcoin
 				arr[fromIndex] = to;
 			}
 		}
-        public static void Shuffle<T>(List<T> arr, Random rand)
-        {
-            rand = rand ?? new Random();
-            for(int i = 0; i < arr.Count; i++)
-            {
-                var fromIndex = rand.Next(arr.Count);
-                var from = arr[fromIndex];
+		public static void Shuffle<T>(List<T> arr, Random rand)
+		{
+			rand = rand ?? new Random();
+			for(int i = 0; i < arr.Count; i++)
+			{
+				var fromIndex = rand.Next(arr.Count);
+				var from = arr[fromIndex];
 
-                var toIndex = rand.Next(arr.Count);
-                var to = arr[toIndex];
+				var toIndex = rand.Next(arr.Count);
+				var to = arr[toIndex];
 
-                arr[toIndex] = from;
-                arr[fromIndex] = to;
-            }
-        }
-        public static void Shuffle<T>(T[] arr, int seed)
-        {
-            Random rand = new Random(seed);
-            Shuffle(arr, rand);
-        }
+				arr[toIndex] = from;
+				arr[fromIndex] = to;
+			}
+		}
+		public static void Shuffle<T>(T[] arr, int seed)
+		{
+			Random rand = new Random(seed);
+			Shuffle(arr, rand);
+		}
 
-        public static void Shuffle<T>(T[] arr)
-        {
-            Shuffle(arr, null);
-        }
+		public static void Shuffle<T>(T[] arr)
+		{
+			Shuffle(arr, null);
+		}
 
 
 #if !PORTABLE
-        internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
+		internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
 		{
 			try
 			{
@@ -665,7 +665,7 @@ namespace NBitcoin
 #if !NOSOCKET
 		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort)
 		{
-			var splitted = endpoint.Trim().Split(new[]{':'});
+			var splitted = endpoint.Trim().Split(new[] { ':' });
 			string ip = null;
 			int port = 0;
 			if(splitted.Length == 1)
@@ -680,7 +680,7 @@ namespace NBitcoin
 			}
 			else
 			{
-				if((endpoint.IndexOf(']') != -1) && 
+				if((endpoint.IndexOf(']') != -1) &&
 					int.TryParse(splitted.Last(), out port))
 				{
 					ip = String.Join(":", splitted.Take(splitted.Length - 1).ToArray());
@@ -691,7 +691,7 @@ namespace NBitcoin
 					port = defaultPort;
 				}
 			}
-			
+
 			IPAddress address = null;
 			try
 			{
@@ -713,12 +713,12 @@ namespace NBitcoin
 					return 0;
 				}
 				int hash = 17;
-				for(int i = 0 ; i < array.Length ; i++)
+				for(int i = 0; i < array.Length; i++)
 				{
 					hash = hash * 31 + array[i];
 				}
 				return hash;
 			}
-		}		
+		}
 	}
 }

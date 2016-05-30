@@ -46,7 +46,7 @@ namespace NBitcoin
 
 
 		#region ITransactionRepository Members
-		
+
 		public async Task<Transaction> GetAsync(uint256 txId)
 		{
 			using(HttpClient client = new HttpClient())

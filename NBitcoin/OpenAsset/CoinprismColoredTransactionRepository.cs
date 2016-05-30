@@ -29,7 +29,7 @@ namespace NBitcoin.OpenAsset
 
 	public class CoinprismColoredTransactionRepository : IColoredTransactionRepository
 	{
-        private Network _network = Network.Main;
+		private Network _network = Network.Main;
 
 		class CoinprismTransactionRepository : ITransactionRepository
 		{
@@ -48,14 +48,14 @@ namespace NBitcoin.OpenAsset
 			#endregion
 		}
 
-        public CoinprismColoredTransactionRepository()
-        {
-        }
+		public CoinprismColoredTransactionRepository()
+		{
+		}
 
-        public CoinprismColoredTransactionRepository(Network network)
-        {
-            _network = network;
-        }
+		public CoinprismColoredTransactionRepository(Network network)
+		{
+			_network = network;
+		}
 
 		#region IColoredTransactionRepository Members
 
@@ -74,7 +74,7 @@ namespace NBitcoin.OpenAsset
 				ColoredTransaction result = new ColoredTransaction();
 				using(HttpClient client = new HttpClient())
 				{
-                    String url = _network == Network.Main ? String.Format("https://api.coinprism.com/v1/transactions/{0}", txId) : String.Format("https://testnet.api.coinprism.com/v1/transactions/{0}", txId);
+					String url = _network == Network.Main ? String.Format("https://api.coinprism.com/v1/transactions/{0}", txId) : String.Format("https://testnet.api.coinprism.com/v1/transactions/{0}", txId);
 
 					var response = await client.GetAsync(url).ConfigureAwait(false);
 					if(response.StatusCode != HttpStatusCode.OK)
@@ -84,7 +84,7 @@ namespace NBitcoin.OpenAsset
 					var inputs = json["inputs"] as JArray;
 					if(inputs != null)
 					{
-						for(int i = 0 ; i < inputs.Count ; i++)
+						for(int i = 0; i < inputs.Count; i++)
 						{
 							if(inputs[i]["asset_id"].Value<string>() == null)
 								continue;
@@ -102,7 +102,7 @@ namespace NBitcoin.OpenAsset
 					if(outputs != null)
 					{
 						bool issuance = true;
-						for(int i = 0 ; i < outputs.Count ; i++)
+						for(int i = 0; i < outputs.Count; i++)
 						{
 							var marker = ColorMarker.TryParse(new Script(Encoders.Hex.DecodeData(outputs[i]["script"].ToString())));
 							if(marker != null)

@@ -2,14 +2,17 @@
 
 namespace NBitcoin.BouncyCastle.Math.Field
 {
-    public interface IPolynomial
-    {
-        int Degree { get; }
+	public interface IPolynomial
+	{
+		int Degree
+		{
+			get;
+		}
 
-        //BigInteger[] GetCoefficients();
+		//BigInteger[] GetCoefficients();
 
-        int[] GetExponentsPresent();
+		int[] GetExponentsPresent();
 
-        //Term[] GetNonZeroTerms();
-    }
+		//Term[] GetNonZeroTerms();
+	}
 }

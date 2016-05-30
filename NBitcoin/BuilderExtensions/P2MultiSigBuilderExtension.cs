@@ -24,7 +24,7 @@ namespace NBitcoin.BuilderExtensions
 				.ToArray();
 
 			int sigCount = 0;
-			for(int i = 0 ; i < keys.Length ; i++)
+			for(int i = 0; i < keys.Length; i++)
 			{
 				if(sigCount == multiSigParams.SignatureCount)
 					break;
@@ -82,14 +82,14 @@ namespace NBitcoin.BuilderExtensions
 				return a;
 			int pubkeyCount = 0;
 			TransactionSignature[] sigs = new TransactionSignature[para.PubKeys.Length];
-			for(int i = 0 ; i < para.PubKeys.Length ; i++)
+			for(int i = 0; i < para.PubKeys.Length; i++)
 			{
 				var aSig = i < aSigs.Length ? aSigs[i] : null;
 				var bSig = i < bSigs.Length ? bSigs[i] : null;
 				var sig = aSig ?? bSig;
 				if(sig != null)
 				{
-					sigs[pubkeyCount] = sig; 
+					sigs[pubkeyCount] = sig;
 					pubkeyCount++;
 				}
 				if(pubkeyCount == para.SignatureCount)
@@ -98,6 +98,6 @@ namespace NBitcoin.BuilderExtensions
 			if(pubkeyCount == para.SignatureCount)
 				sigs = sigs.Where(s => s != null && s != TransactionSignature.Empty).ToArray();
 			return PayToMultiSigTemplate.Instance.GenerateScriptSig(sigs);
-		}		
+		}
 	}
 }

@@ -6,7 +6,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 #if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT || PORTABLE)
     [Serializable]
 #endif
-    public class Asn1Exception
+	public class Asn1Exception
 		: IOException
 	{
 		public Asn1Exception()
@@ -21,8 +21,8 @@ namespace NBitcoin.BouncyCastle.Asn1
 		}
 
 		public Asn1Exception(
-			string		message,
-			Exception	exception)
+			string message,
+			Exception exception)
 			: base(message, exception)
 		{
 		}

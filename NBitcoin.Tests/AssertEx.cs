@@ -27,7 +27,7 @@ namespace NBitcoin.Tests
 			if(actual.Length != expected.Length)
 				Assert.False(true, "Actual.Length(" + actual.Length + ") != Expected.Length(" + expected.Length + ")");
 
-			for(int i = 0 ; i < actual.Length ; i++)
+			for(int i = 0; i < actual.Length; i++)
 			{
 				if(!Object.Equals(actual[i], expected[i]))
 					Assert.False(true, "Actual[" + i + "](" + actual[i] + ") != Expected[" + i + "](" + expected[i] + ")");

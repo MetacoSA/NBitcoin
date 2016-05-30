@@ -24,7 +24,7 @@ namespace NBitcoin
 		internal PubKey pubkey = new PubKey(validPubKey);
 		internal byte[] vchChainCode = new byte[32];
 
-        public byte Depth
+		public byte Depth
 		{
 			get
 			{
@@ -76,39 +76,39 @@ namespace NBitcoin
 			this.ReadWrite(bytes);
 		}
 
-        public ExtPubKey(PubKey pubkey, byte[] chainCode, byte depth, byte[] fingerprint, uint child)
-        {
-            if(pubkey == null)
-                throw new ArgumentNullException("pubkey");
-            if(chainCode == null)
-                throw new ArgumentNullException("chainCode");
-            if(fingerprint == null)
-                throw new ArgumentNullException("fingerprint");
-            if(fingerprint.Length != fingerprint.Length)
-                throw new ArgumentException(string.Format("The fingerprint must be {0} bytes.", fingerprint.Length), "fingerprint");
-            if(chainCode.Length != vchChainCode.Length)
-                throw new ArgumentException(string.Format("The chain code must be {0} bytes.", vchChainCode.Length), "chainCode");
-            this.pubkey = pubkey;
-            this.nDepth = depth;
-            this.nChild = child;
-            Buffer.BlockCopy(fingerprint, 0, vchFingerprint, 0, vchFingerprint.Length);
-            Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, vchChainCode.Length);
-        }
+		public ExtPubKey(PubKey pubkey, byte[] chainCode, byte depth, byte[] fingerprint, uint child)
+		{
+			if(pubkey == null)
+				throw new ArgumentNullException("pubkey");
+			if(chainCode == null)
+				throw new ArgumentNullException("chainCode");
+			if(fingerprint == null)
+				throw new ArgumentNullException("fingerprint");
+			if(fingerprint.Length != fingerprint.Length)
+				throw new ArgumentException(string.Format("The fingerprint must be {0} bytes.", fingerprint.Length), "fingerprint");
+			if(chainCode.Length != vchChainCode.Length)
+				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", vchChainCode.Length), "chainCode");
+			this.pubkey = pubkey;
+			this.nDepth = depth;
+			this.nChild = child;
+			Buffer.BlockCopy(fingerprint, 0, vchFingerprint, 0, vchFingerprint.Length);
+			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, vchChainCode.Length);
+		}
 
-        public ExtPubKey(PubKey masterKey, byte[] chainCode)
-        {
-            if(masterKey == null)
-                throw new ArgumentNullException("masterKey");
-            if(chainCode == null)
-                throw new ArgumentNullException("chainCode");
-            if(chainCode.Length != vchChainCode.Length)
-                throw new ArgumentException(string.Format("The chain code must be {0} bytes.", vchChainCode.Length), "chainCode");
-            this.pubkey = masterKey;
-            Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, vchChainCode.Length);
-        }
+		public ExtPubKey(PubKey masterKey, byte[] chainCode)
+		{
+			if(masterKey == null)
+				throw new ArgumentNullException("masterKey");
+			if(chainCode == null)
+				throw new ArgumentNullException("chainCode");
+			if(chainCode.Length != vchChainCode.Length)
+				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", vchChainCode.Length), "chainCode");
+			this.pubkey = masterKey;
+			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, vchChainCode.Length);
+		}
 
 
-        public bool IsChildOf(ExtPubKey parentKey)
+		public bool IsChildOf(ExtPubKey parentKey)
 		{
 			if(Depth != parentKey.Depth + 1)
 				return false;
@@ -135,18 +135,18 @@ namespace NBitcoin
 		{
 			var result = new ExtPubKey
 			{
-			    nDepth = (byte) (nDepth + 1), 
-                vchFingerprint = CalculateChildFingerprint(), 
-                nChild = index
+				nDepth = (byte)(nDepth + 1),
+				vchFingerprint = CalculateChildFingerprint(),
+				nChild = index
 			};
-		    result.pubkey = pubkey.Derivate(this.vchChainCode, index, out result.vchChainCode);
+			result.pubkey = pubkey.Derivate(this.vchChainCode, index, out result.vchChainCode);
 			return result;
 		}
 
 		public ExtPubKey Derive(KeyPath derivation)
 		{
 			ExtPubKey result = this;
-		    return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
+			return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
 		}
 
 		public ExtPubKey Derive(int index, bool hardened)
@@ -157,7 +157,7 @@ namespace NBitcoin
 			realIndex = hardened ? realIndex | 0x80000000u : realIndex;
 			return Derive(realIndex);
 		}
-        
+
 		public BitcoinExtPubKey GetWif(Network network)
 		{
 			return new BitcoinExtPubKey(this, network);

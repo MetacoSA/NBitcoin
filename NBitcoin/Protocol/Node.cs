@@ -368,7 +368,7 @@ namespace NBitcoin.Protocol
 					message.Node.SendMessageAsync(new RejectPayload()
 					{
 						Code = RejectCode.DUPLICATE
-					});				
+					});
 			}
 			if(version != null)
 			{
@@ -502,7 +502,7 @@ namespace NBitcoin.Protocol
 				if(addrman.Count == 0 || DateTimeOffset.UtcNow - start > TimeSpan.FromSeconds(60))
 				{
 					addrman.DiscoverPeers(network, parameters);
-                    start = DateTimeOffset.UtcNow;
+					start = DateTimeOffset.UtcNow;
 				}
 				NetworkAddress addr = null;
 				while(true)
@@ -626,9 +626,9 @@ namespace NBitcoin.Protocol
 			LastSeen = peer.Time;
 
 			var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
+			socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
 
-            _Connection = new NodeConnection(this, socket);
+			_Connection = new NodeConnection(this, socket);
 			socket.ReceiveBufferSize = parameters.ReceiveBufferSize;
 			socket.SendBufferSize = parameters.SendBufferSize;
 			using(TraceCorrelation.Open())
@@ -1033,7 +1033,7 @@ namespace NBitcoin.Protocol
 					};
 			}
 		}
-		
+
 		TransactionOptions _PreferredTransactionOptions = TransactionOptions.All;
 
 		/// <summary>
@@ -1093,15 +1093,15 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-        internal TimeSpan PollHeaderDelay = TimeSpan.FromMinutes(1.0);
+		internal TimeSpan PollHeaderDelay = TimeSpan.FromMinutes(1.0);
 
-        /// <summary>
-        /// Get the chain of headers from the peer (thread safe)
-        /// </summary>
-        /// <param name="hashStop">The highest block wanted</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns>The chain of headers</returns>
-        public ConcurrentChain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		/// <summary>
+		/// Get the chain of headers from the peer (thread safe)
+		/// </summary>
+		/// <param name="hashStop">The highest block wanted</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>The chain of headers</returns>
+		public ConcurrentChain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			ConcurrentChain chain = new ConcurrentChain(Network);
 			SynchronizeChain(chain, hashStop, cancellationToken);
@@ -1247,10 +1247,10 @@ namespace NBitcoin.Protocol
 			{
 				foreach(var invs in neededBlocks
 									.Select(b => new InventoryVector()
-										{
-											Type = AddSupportedOptions(InventoryType.MSG_BLOCK),
-											Hash = b
-										})
+									{
+										Type = AddSupportedOptions(InventoryType.MSG_BLOCK),
+										Hash = b
+									})
 									.Partition(() => simultaneous))
 				{
 

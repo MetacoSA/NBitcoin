@@ -88,7 +88,7 @@ namespace NBitcoin.Protocol
 
 							NodeServerTrace.Information("Connected nodes : " + _ConnectedNodes.Count + "/" + MaximumNodeConnection);
 							var parameters = _ConnectionParameters.Clone();
-							parameters.TemplateBehaviors.Add(new NodesGroupBehavior(this));							
+							parameters.TemplateBehaviors.Add(new NodesGroupBehavior(this));
 							parameters.ConnectCancellation = _Disconnect.Token;
 							var addrman = AddressManagerBehavior.GetAddrman(parameters);
 
@@ -104,7 +104,7 @@ namespace NBitcoin.Protocol
 								node = Node.Connect(_Network, parameters, AllowSameGroup ? null : _ConnectedNodes.Select(n => n.RemoteSocketAddress).ToArray());
 								var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token);
 								timeout.CancelAfter(5000);
-								node.VersionHandshake(_Requirements, timeout.Token);								
+								node.VersionHandshake(_Requirements, timeout.Token);
 								NodeServerTrace.Information("Node successfully connected to and handshaked");
 							}
 							catch(OperationCanceledException ex)

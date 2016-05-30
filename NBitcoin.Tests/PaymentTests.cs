@@ -101,7 +101,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadPaymentRequest()
 		{
-			foreach(var provider in new ICertificateServiceProvider[] 
+			foreach(var provider in new ICertificateServiceProvider[]
 			{ 
 #if WIN
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid |
@@ -131,7 +131,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanVerifyValidChain()
 		{
-			foreach(var provider in new ICertificateServiceProvider[] 
+			foreach(var provider in new ICertificateServiceProvider[]
 			{ 
 #if WIN
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid, X509RevocationMode.NoCheck)
@@ -161,7 +161,7 @@ namespace NBitcoin.Tests
 				"data/payreq2_sha1.paymentrequest",
 			};
 
-			foreach(var provider in new ICertificateServiceProvider[] 
+			foreach(var provider in new ICertificateServiceProvider[]
 			{ 
 #if WIN
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid |
@@ -191,7 +191,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCreatePaymentRequest()
 		{
-			foreach(var provider in new ICertificateServiceProvider[] 
+			foreach(var provider in new ICertificateServiceProvider[]
 			{ 
 #if WIN
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid)
@@ -217,7 +217,7 @@ namespace NBitcoin.Tests
 			request.Sign(cert, PKIType.X509SHA256);
 
 			Assert.NotNull(request.MerchantCertificate);
-#if WIN			
+#if WIN
 			Assert.False(new X509Certificate2(request.MerchantCertificate, "", X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable).HasPrivateKey);
 #endif
 			Assert.True(request.VerifySignature());

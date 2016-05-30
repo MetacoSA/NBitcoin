@@ -8,7 +8,7 @@ namespace NBitcoin
 {
 	public class Key : IBitcoinSerializable, IDestination
 	{
-        private const int KEY_SIZE = 32;
+		private const int KEY_SIZE = 32;
 		private readonly static uint256 N = uint256.Parse("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141");
 
 		public static Key Parse(string wif, Network network = null)
@@ -112,7 +112,7 @@ namespace NBitcoin
 			var sig = _ECKey.Sign(hash);
 			// Now we have to work backwards to figure out the recId needed to recover the signature.
 			int recId = -1;
-			for(int i = 0 ; i < 4 ; i++)
+			for(int i = 0; i < 4; i++)
 			{
 				ECKey k = ECKey.RecoverFromSignature(i, sig, hash, IsCompressed);
 				if(k != null && k.GetPubKey(IsCompressed).ToHex() == PubKey.ToHex())

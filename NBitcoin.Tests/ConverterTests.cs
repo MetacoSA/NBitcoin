@@ -18,26 +18,26 @@ namespace NBitcoin.Tests
 			string testPhrase = "é ^ç hello \"12345\"  wooorld";
 			var tests = new[]
 			{
-				new 
+				new
 				{
-					Encoder = Encoders.Hex,	
+					Encoder = Encoders.Hex,
 					Input = testPhrase,
 					Expected = "c3a9205ec3a72068656c6c6f20223132333435222020776f6f6f726c64",
 				},
-				new 
+				new
 				{
 					Encoder = Encoders.Base58,
 					Input = testPhrase,
 					Expected = "9tBRc991GhmZNsV5qSyynUsnRCNvxdvvWDmj3nAP"
 				},
-				new 
+				new
 				{
 					Encoder = Encoders.Base58Check,
 					Input = testPhrase,
 					//Different from brainwallet, because brainwallet code convert the data to bitcoin address instead of directely formating in base58check (ie : the data followed be the 4 hash bytes)
 					Expected = "2189xoVGsHC6VbVPUrKeH3fhT429VDruzdgUJFk37PNskG"
 				},
-				new 
+				new
 				{
 					Encoder = Encoders.Base64,
 					Input = testPhrase,
@@ -105,11 +105,11 @@ namespace NBitcoin.Tests
 
 			var expectedText = "2189xoVGsHC6VbVPUrKeH3fhT429VDruzdgUJFk37PNskG";
 			var input1 = Encoding.UTF8.GetBytes("---é ^ç hello \"12345\"  wooorld---");
-			var encoded1 = Encoders.Base58Check.EncodeData(input1, 3, input1.Length-6);
+			var encoded1 = Encoders.Base58Check.EncodeData(input1, 3, input1.Length - 6);
 			Assert.Equal(expectedText, encoded1);
 
 			var decoded1 = Encoders.Base58Check.DecodeData(encoded1);
-			AssertEx.CollectionEquals(input1.SafeSubarray(3, input1.Length-6), decoded1);
+			AssertEx.CollectionEquals(input1.SafeSubarray(3, input1.Length - 6), decoded1);
 		}
 	}
 }

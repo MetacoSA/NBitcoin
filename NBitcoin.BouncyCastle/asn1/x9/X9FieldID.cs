@@ -4,29 +4,29 @@ using NBitcoin.BouncyCastle.Math;
 
 namespace NBitcoin.BouncyCastle.Asn1.X9
 {
-    /**
+	/**
      * ASN.1 def for Elliptic-Curve Field ID structure. See
      * X9.62, for further details.
      */
-    public class X9FieldID
-        : Asn1Encodable
-    {
-        private readonly DerObjectIdentifier	id;
-        private readonly Asn1Object parameters;
+	public class X9FieldID
+		: Asn1Encodable
+	{
+		private readonly DerObjectIdentifier id;
+		private readonly Asn1Object parameters;
 
-        /**
+		/**
          * Constructor for elliptic curves over prime fields
          * <code>F<sub>2</sub></code>.
          * @param primeP The prime <code>p</code> defining the prime field.
          */
-        public X9FieldID(
-            BigInteger primeP)
-        {
-            this.id = X9ObjectIdentifiers.PrimeField;
-            this.parameters = new DerInteger(primeP);
-        }
+		public X9FieldID(
+			BigInteger primeP)
+		{
+			this.id = X9ObjectIdentifiers.PrimeField;
+			this.parameters = new DerInteger(primeP);
+		}
 
-        /**
+		/**
          * Constructor for elliptic curves over binary fields
          * <code>F<sub>2<sup>m</sup></sub></code>.
          * @param m  The exponent <code>m</code> of
@@ -35,12 +35,12 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
          * x<sup>k1</sup> + 1</code>
          * represents the reduction polynomial <code>f(z)</code>.
          */
-        public X9FieldID(int m, int k1)
-            : this(m, k1, 0, 0)
-        {
-        }
+		public X9FieldID(int m, int k1)
+			: this(m, k1, 0, 0)
+		{
+		}
 
-        /**
+		/**
          * Constructor for elliptic curves over binary fields
          * <code>F<sub>2<sup>m</sup></sub></code>.
          * @param m  The exponent <code>m</code> of
@@ -55,52 +55,58 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
          * x<sup>k3</sup> + x<sup>k2</sup> + x<sup>k1</sup> + 1</code>
          * represents the reduction polynomial <code>f(z)</code>..
          */
-        public X9FieldID(
-            int m,
-            int k1,
-            int k2,
-            int k3)
-        {
-            this.id = X9ObjectIdentifiers.CharacteristicTwoField;
+		public X9FieldID(
+			int m,
+			int k1,
+			int k2,
+			int k3)
+		{
+			this.id = X9ObjectIdentifiers.CharacteristicTwoField;
 
-            Asn1EncodableVector fieldIdParams = new Asn1EncodableVector(new DerInteger(m));
+			Asn1EncodableVector fieldIdParams = new Asn1EncodableVector(new DerInteger(m));
 
-            if (k2 == 0)
-            {
-                if (k3 != 0)
-                    throw new ArgumentException("inconsistent k values");
+			if(k2 == 0)
+			{
+				if(k3 != 0)
+					throw new ArgumentException("inconsistent k values");
 
-                fieldIdParams.Add(
-                    X9ObjectIdentifiers.TPBasis,
-                    new DerInteger(k1));
-            }
-            else
-            {
-                if (k2 <= k1 || k3 <= k2)
-                    throw new ArgumentException("inconsistent k values");
+				fieldIdParams.Add(
+					X9ObjectIdentifiers.TPBasis,
+					new DerInteger(k1));
+			}
+			else
+			{
+				if(k2 <= k1 || k3 <= k2)
+					throw new ArgumentException("inconsistent k values");
 
-                fieldIdParams.Add(
-                    X9ObjectIdentifiers.PPBasis,
-                    new DerSequence(
-                        new DerInteger(k1),
-                        new DerInteger(k2),
-                        new DerInteger(k3)));
-            }
+				fieldIdParams.Add(
+					X9ObjectIdentifiers.PPBasis,
+					new DerSequence(
+						new DerInteger(k1),
+						new DerInteger(k2),
+						new DerInteger(k3)));
+			}
 
-            this.parameters = new DerSequence(fieldIdParams);
-        }
+			this.parameters = new DerSequence(fieldIdParams);
+		}
 
-        public DerObjectIdentifier Identifier
-        {
-            get { return id; }
-        }
+		public DerObjectIdentifier Identifier
+		{
+			get
+			{
+				return id;
+			}
+		}
 
-        public Asn1Object Parameters
-        {
-            get { return parameters; }
-        }
+		public Asn1Object Parameters
+		{
+			get
+			{
+				return parameters;
+			}
+		}
 
-        /**
+		/**
          * Produce a Der encoding of the following structure.
          * <pre>
          *  FieldID ::= Sequence {
@@ -109,9 +115,9 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
          *  }
          * </pre>
          */
-        public override Asn1Object ToAsn1Object()
-        {
-            return new DerSequence(id, parameters);
-        }
-    }
+		public override Asn1Object ToAsn1Object()
+		{
+			return new DerSequence(id, parameters);
+		}
+	}
 }

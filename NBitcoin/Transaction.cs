@@ -276,13 +276,13 @@ namespace NBitcoin
 			return txin;
 		}
 
-        public static TxIn CreateCoinbase(int height)
-        {
-            var txin = new TxIn();
-            txin.ScriptSig = new Script(Op.GetPushOp(height)) + OpcodeType.OP_0;
-            return txin;
-        }
-    }
+		public static TxIn CreateCoinbase(int height)
+		{
+			var txin = new TxIn();
+			txin.ScriptSig = new Script(Op.GetPushOp(height)) + OpcodeType.OP_0;
+			return txin;
+		}
+	}
 
 	public class TxOutCompressor : IBitcoinSerializable
 	{
@@ -859,7 +859,7 @@ namespace NBitcoin
 		public IEnumerable<Coin> AsCoins()
 		{
 			var txId = Transaction.GetHash();
-			for(int i = 0 ; i < Count; i++)
+			for(int i = 0; i < Count; i++)
 			{
 				yield return new Coin(new OutPoint(txId, i), this[i]);
 			}
@@ -879,7 +879,7 @@ namespace NBitcoin
 		{
 			var parts = script.Split(new[] { '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries);
 			_Pushes = new byte[parts.Length][];
-			for(int i = 0 ; i < parts.Length ; i++)
+			for(int i = 0; i < parts.Length; i++)
 			{
 				_Pushes[i] = Encoders.Hex.DecodeData(parts[i]);
 			}
@@ -897,7 +897,7 @@ namespace NBitcoin
 			else
 			{
 				_Pushes = script.ToArray();
-				for(int i = 0 ; i < _Pushes.Length ; i++)
+				for(int i = 0; i < _Pushes.Length; i++)
 					_Pushes[i] = script[i].ToArray();
 			}
 		}
@@ -960,7 +960,7 @@ namespace NBitcoin
 			List<byte[]> pushes = new List<byte[]>();
 			uint pushCount = 0;
 			stream.ReadWriteAsVarInt(ref pushCount);
-			for(int i = 0 ; i < (int)pushCount ; i++)
+			for(int i = 0; i < (int)pushCount; i++)
 			{
 				byte[] push = ReadPush(stream);
 				pushes.Add(push);
@@ -1012,7 +1012,7 @@ namespace NBitcoin
 		{
 			if(_Pushes.Length != item._Pushes.Length)
 				return false;
-			for(int i = 0 ; i < _Pushes.Length ; i++)
+			for(int i = 0; i < _Pushes.Length; i++)
 			{
 				if(!Utils.ArrayEqual(_Pushes[i], item._Pushes[i]))
 					return false;
@@ -1116,7 +1116,7 @@ namespace NBitcoin
 
 		internal void ReadWrite(BitcoinStream stream)
 		{
-			for(int i = 0 ; i < _Inputs.Count ; i++)
+			for(int i = 0; i < _Inputs.Count; i++)
 			{
 				if(stream.Serializing)
 				{
@@ -1343,7 +1343,7 @@ namespace NBitcoin
 
 		private int GetIndex(ICoin coin)
 		{
-			for(int i = 0 ; i < Inputs.Count ; i++)
+			for(int i = 0; i < Inputs.Count; i++)
 			{
 				if(Inputs[i].PrevOut == coin.Outpoint)
 					return i;
@@ -1455,7 +1455,7 @@ namespace NBitcoin
 		public void Sign(Key key, bool assumeP2SH)
 		{
 			List<Coin> coins = new List<Coin>();
-			for(int i = 0 ; i < Inputs.Count ; i++)
+			for(int i = 0; i < Inputs.Count; i++)
 			{
 				var txin = Inputs[i];
 				if(Script.IsNullOrEmpty(txin.ScriptSig))
@@ -1668,7 +1668,7 @@ namespace NBitcoin
 				return new SequenceLock(nMinHeight, nMinTime);
 			}
 
-			for(var txinIndex = 0 ; txinIndex < Inputs.Count ; txinIndex++)
+			for(var txinIndex = 0; txinIndex < Inputs.Count; txinIndex++)
 			{
 				TxIn txin = Inputs[txinIndex];
 

@@ -59,7 +59,7 @@ namespace NBitcoin.Protobuf
 			int ioIndex = 0;
 			int count = 0;
 			do
-			{				
+			{
 				ioBuffer[ioIndex++] = (byte)((value & 0x7F) | 0x80);
 				count++;
 			} while((value >>= 7) != 0);
@@ -145,7 +145,7 @@ namespace NBitcoin.Protobuf
 				if(Position > MaxLength)
 					throw new ArgumentOutOfRangeException("The deserialized message is too big");
 			}
-		}		
+		}
 
 		const int MaxLength = 60000;
 	}

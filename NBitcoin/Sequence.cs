@@ -32,7 +32,7 @@ namespace NBitcoin
 		/* If this flag set, CTxIn::nSequence is NOT interpreted as a
 		 * relative lock-time. Setting the most significant bit of a
 		 * sequence number disabled relative lock-time. */
-				
+
 		/* In order to use the same number of bits to encode roughly the
 		 * same wall-clock duration, and because blocks are naturally
 		 * limited to occur every 600s on average, the minimum granularity
@@ -55,7 +55,7 @@ namespace NBitcoin
 		{
 			_ValueInv = 0xFFFFFFFF - value;
 		}
-		
+
 		public Sequence(int lockHeight)
 		{
 			if(lockHeight > 0xFFFF || lockHeight < 0)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
-	
+
 	/// <summary>
 	/// Block headers received after a getheaders messages
 	/// </summary>

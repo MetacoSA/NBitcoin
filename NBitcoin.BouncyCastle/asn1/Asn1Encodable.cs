@@ -4,9 +4,9 @@ namespace NBitcoin.BouncyCastle.Asn1
 {
 	public abstract class Asn1Encodable
 		: IAsn1Convertible
-    {
+	{
 		public const string Der = "DER";
-		public const string Ber = "BER";		
+		public const string Ber = "BER";
 
 		public sealed override int GetHashCode()
 		{
@@ -16,12 +16,12 @@ namespace NBitcoin.BouncyCastle.Asn1
 		public sealed override bool Equals(
 			object obj)
 		{
-			if (obj == this)
+			if(obj == this)
 				return true;
 
 			IAsn1Convertible other = obj as IAsn1Convertible;
 
-			if (other == null)
+			if(other == null)
 				return false;
 
 			Asn1Object o1 = ToAsn1Object();
@@ -31,5 +31,5 @@ namespace NBitcoin.BouncyCastle.Asn1
 		}
 
 		public abstract Asn1Object ToAsn1Object();
-    }
+	}
 }

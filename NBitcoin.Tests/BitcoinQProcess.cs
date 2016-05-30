@@ -89,7 +89,7 @@ namespace NBitcoin.Watcher
 			if(ContainsParameter("server"))
 				Parameters.AddOrReplace("server", "1");
 
-			if (ContainsParameter("rest"))
+			if(ContainsParameter("rest"))
 				Parameters.AddOrReplace("rest", "1");
 
 			if(ContainsParameter("txindex"))
@@ -272,7 +272,7 @@ namespace NBitcoin.Watcher
 		{
 			get
 			{
-				return ParametersOrDefault("rest","0") == "1";
+				return ParametersOrDefault("rest", "0") == "1";
 			}
 		}
 
@@ -305,11 +305,11 @@ namespace NBitcoin.Watcher
 			return client;
 		}
 
-		
+
 
 		public RestClient CreateRestClient()
 		{
-			if (!(Server && Rest && TxIndex) )
+			if(!(Server && Rest && TxIndex))
 				throw new InvalidOperationException("This BitcoinQ process is not a server or rest (-server -rest -txindex parameter)");
 			return new RestClient(new Uri(RPCService, UriKind.Absolute));
 		}

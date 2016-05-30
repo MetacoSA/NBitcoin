@@ -68,7 +68,7 @@ namespace NBitcoin.OpenAsset
 				stream.ReadWriteAsVarInt(ref quantityCount);
 				Quantities = new ulong[quantityCount];
 
-				for(ulong i = 0 ; i < quantityCount ; i++)
+				for(ulong i = 0; i < quantityCount; i++)
 				{
 					Quantities[i] = ReadLEB128(stream);
 					if(Quantities[i] > MAX_QUANTITY)
@@ -251,7 +251,7 @@ namespace NBitcoin.OpenAsset
 			stream.ReadWrite(ref _Version);
 			var quantityCount = (uint)this.Quantities.Length;
 			stream.ReadWriteAsVarInt(ref quantityCount);
-			for(int i = 0 ; i < quantityCount ; i++)
+			for(int i = 0; i < quantityCount; i++)
 			{
 				if(Quantities[i] > MAX_QUANTITY)
 					throw new ArgumentOutOfRangeException("Quantity should not exceed " + Quantities[i]);

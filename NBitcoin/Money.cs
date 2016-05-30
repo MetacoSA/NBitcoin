@@ -244,8 +244,8 @@ namespace NBitcoin
 			{
 				splits.Add(money.Split(parts).ToList());
 			}
-			
-			for(int i = 0 ; i < parts ; i++)
+
+			for(int i = 0; i < parts; i++)
 			{
 				MoneyBag bag = new MoneyBag();
 				foreach(var split in splits)
@@ -405,7 +405,7 @@ namespace NBitcoin
 			long remain;
 			long result = DivRem(_Satoshis, parts, out remain);
 
-			for(int i = 0 ; i < parts ; i++)
+			for(int i = 0; i < parts; i++)
 			{
 				yield return Money.Satoshis(result + (remain > 0 ? 1 : 0));
 				remain--;
@@ -681,7 +681,7 @@ namespace NBitcoin
 									(trimExcessZero ? "2" : "8"));
 			return string.Format(BitcoinFormatter.Formatter, fmt, _Satoshis);
 		}
-        
+
 
 		static Money _Zero = new Money(0);
 		public static Money Zero
@@ -734,18 +734,18 @@ namespace NBitcoin
 			return b;
 		}
 
-        public static Money Max(Money a, Money b)
-        {
-            if(a == null)
-                throw new ArgumentNullException("a");
-            if(b == null)
-                throw new ArgumentNullException("b");
-            if(a >= b)
-                return a;
-            return b;
-        }
+		public static Money Max(Money a, Money b)
+		{
+			if(a == null)
+				throw new ArgumentNullException("a");
+			if(b == null)
+				throw new ArgumentNullException("b");
+			if(a >= b)
+				return a;
+			return b;
+		}
 
-        private static void CheckLongMinValue(long value)
+		private static void CheckLongMinValue(long value)
 		{
 			if(value == long.MinValue)
 				throw new OverflowException("satoshis amount should be greater than long.MinValue");

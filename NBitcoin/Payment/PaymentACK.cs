@@ -102,7 +102,7 @@ namespace NBitcoin.Payment
 		public static PaymentMessage Load(byte[] data)
 		{
 			return Load(new MemoryStream(data));
-		}		
+		}
 
 		public PaymentACK CreateACK(string memo = null)
 		{
@@ -222,7 +222,7 @@ namespace NBitcoin.Payment
 				proto.WriteString(Memo);
 			}
 		}
-#if !NOHTTPCLIENT		
+#if !NOHTTPCLIENT
 		/// <summary>
 		/// Send the payment to given address
 		/// </summary>

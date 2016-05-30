@@ -15,7 +15,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 #if !PORTABLE
-[assembly:InternalsVisibleTo("NBitcoin.Tests")]
+[assembly: InternalsVisibleTo("NBitcoin.Tests")]
 #else
 [assembly: InternalsVisibleTo("NBitcoin.Portable.Tests")]
 #endif

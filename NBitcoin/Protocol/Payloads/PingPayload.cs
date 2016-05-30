@@ -9,7 +9,7 @@ namespace NBitcoin.Protocol
 	[Payload("ping")]
 	public class PingPayload : Payload
 	{
-		
+
 		public PingPayload()
 		{
 			_Nonce = RandomUtils.GetUInt64();

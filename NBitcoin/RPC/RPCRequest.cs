@@ -62,7 +62,7 @@ namespace NBitcoin.RPC
 
 			if(Params != null)
 			{
-				for(int i = 0 ; i < Params.Length ; i++)
+				for(int i = 0; i < Params.Length; i++)
 				{
 					if(Params[i] is JToken)
 					{

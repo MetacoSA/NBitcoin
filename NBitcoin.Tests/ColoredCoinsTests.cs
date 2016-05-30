@@ -454,7 +454,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseColorMarker2()
 		{
-			string[] invalidMarkers = 
+			string[] invalidMarkers =
 			{
 				"6a114f41010003ac0200e58e26041234567800", //Useless bytes at the end of the marker
 				"6a4de803116a104f41010003ac0200e58e260412345678", //Invalid push consume a marker
@@ -466,7 +466,7 @@ namespace NBitcoin.Tests
 				var marker = ColorMarker.TryParse(script);
 				Assert.Null(marker);
 			}
-			string[] validMarkers = 
+			string[] validMarkers =
 			{
 				"6a104f41010003ac0200e58e260412345678", //One push
 				"6a104f41010003ac0200e58e260412345678104f41010003ac0200e58e260412345678", //Two push

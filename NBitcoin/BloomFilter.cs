@@ -75,7 +75,7 @@ namespace NBitcoin
 		{
 			if(isFull)
 				return;
-			for(uint i = 0 ; i < nHashFuncs ; i++)
+			for(uint i = 0; i < nHashFuncs; i++)
 			{
 				uint nIndex = Hash(i, vKey);
 				// Sets bit nIndex of vData
@@ -90,7 +90,7 @@ namespace NBitcoin
 				return true;
 			if(isEmpty)
 				return false;
-			for(uint i = 0 ; i < nHashFuncs ; i++)
+			for(uint i = 0; i < nHashFuncs; i++)
 			{
 				uint nIndex = Hash(i, vKey);
 				// Checks bit nIndex of vData
@@ -101,25 +101,29 @@ namespace NBitcoin
 		}
 		public bool Contains(OutPoint outPoint)
 		{
-			if (outPoint == null) throw new ArgumentNullException("outPoint");
+			if(outPoint == null)
+				throw new ArgumentNullException("outPoint");
 			return Contains(outPoint.ToBytes());
 		}
 
 		public bool Contains(uint256 hash)
 		{
-			if (hash == null) throw new ArgumentNullException("hash");
+			if(hash == null)
+				throw new ArgumentNullException("hash");
 			return Contains(hash.ToBytes());
 		}
 
 		public void Insert(OutPoint outPoint)
 		{
-			if (outPoint == null) throw new ArgumentNullException("outPoint");
+			if(outPoint == null)
+				throw new ArgumentNullException("outPoint");
 			Insert(outPoint.ToBytes());
 		}
 
 		public void Insert(uint256 value)
 		{
-			if (value == null) throw new ArgumentNullException("value");
+			if(value == null)
+				throw new ArgumentNullException("value");
 			Insert(value.ToBytes());
 		}
 
@@ -144,7 +148,8 @@ namespace NBitcoin
 
 		public bool IsRelevantAndUpdate(Transaction tx)
 		{
-			if (tx == null) throw new ArgumentNullException("tx");
+			if(tx == null)
+				throw new ArgumentNullException("tx");
 			var hash = tx.GetHash();
 			bool fFound = false;
 			// Match if the filter contains the hash of tx
@@ -156,7 +161,7 @@ namespace NBitcoin
 			if(Contains(hash))
 				fFound = true;
 
-			for(uint i = 0 ; i < tx.Outputs.Count ; i++)
+			for(uint i = 0; i < tx.Outputs.Count; i++)
 			{
 				TxOut txout = tx.Outputs[(int)i];
 				// Match if the filter contains any arbitrary script data element in any scriptPubKey in tx

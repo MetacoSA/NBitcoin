@@ -165,7 +165,7 @@ namespace NBitcoin.OpenAsset
 					throw new TransactionNotFoundException("Transaction " + frame.TransactionId + " not found in transaction repository", frame.TransactionId);
 				if(frame.PreviousTransactions == null)
 				{
-					if(frame.Transaction.IsCoinBase || 
+					if(frame.Transaction.IsCoinBase ||
 						(!frame.Transaction.HasValidColoredMarker()
 					&& frame.TransactionId != txId)) //We care about destroyed asset, if this is the requested transaction
 					{
@@ -175,7 +175,7 @@ namespace NBitcoin.OpenAsset
 					frame.PreviousTransactions = new ColoredTransaction[frame.Transaction.Inputs.Count];
 					await BulkLoadIfCached(frame.Transaction, repo).ConfigureAwait(false);
 					frames.Push(frame);
-					for(int i = 0 ; i < frame.Transaction.Inputs.Count ; i++)
+					for(int i = 0; i < frame.Transaction.Inputs.Count; i++)
 					{
 						frames.Push(new ColoredFrame()
 						{
@@ -187,7 +187,7 @@ namespace NBitcoin.OpenAsset
 				}
 				else
 				{
-					for(int i = 0 ; i < frame.Transaction.Inputs.Count ; i++)
+					for(int i = 0; i < frame.Transaction.Inputs.Count; i++)
 					{
 						frame.PreviousTransactions[i] = coloreds.Pop();
 					}
@@ -207,7 +207,7 @@ namespace NBitcoin.OpenAsset
 				}
 
 				List<ColoredCoin> spentCoins = new List<ColoredCoin>();
-				for(int i = 0 ; i < frame.Transaction.Inputs.Count ; i++)
+				for(int i = 0; i < frame.Transaction.Inputs.Count; i++)
 				{
 					var txIn = frame.Transaction.Inputs[i];
 					var entry = frame.PreviousTransactions[i].GetColoredEntry(txIn.PrevOut.N);
@@ -272,7 +272,7 @@ namespace NBitcoin.OpenAsset
 				return false;
 			}
 
-			for(uint i = 0 ; i < markerPos ; i++)
+			for(uint i = 0; i < markerPos; i++)
 			{
 				ulong quantity = i >= marker.Quantities.Length ? 0 : marker.Quantities[i];
 				if(quantity != 0)
@@ -300,7 +300,7 @@ namespace NBitcoin.OpenAsset
 			txId = txId ?? tx.GetHash();
 
 			Queue<ColoredEntry> previousAssetQueue = new Queue<ColoredEntry>();
-			for(uint i = 0 ; i < tx.Inputs.Count ; i++)
+			for(uint i = 0; i < tx.Inputs.Count; i++)
 			{
 				var txin = tx.Inputs[i];
 				var prevAsset = spentCoins.FirstOrDefault(s => s.Outpoint == txin.PrevOut);
@@ -329,7 +329,7 @@ namespace NBitcoin.OpenAsset
 			}
 
 			AssetId issuedAsset = null;
-			for(uint i = 0 ; i < markerPos ; i++)
+			for(uint i = 0; i < markerPos; i++)
 			{
 				var entry = new ColoredEntry();
 				entry.Index = i;
@@ -351,7 +351,7 @@ namespace NBitcoin.OpenAsset
 			}
 
 			long used = 0;
-			for(uint i = markerPos + 1 ; i < tx.Outputs.Count ; i++)
+			for(uint i = markerPos + 1; i < tx.Outputs.Count; i++)
 			{
 				var entry = new ColoredEntry();
 				entry.Index = i;

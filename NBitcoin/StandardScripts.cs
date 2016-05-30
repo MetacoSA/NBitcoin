@@ -11,15 +11,15 @@ namespace NBitcoin
 
 	public static class StandardScripts
 	{
-		static readonly ScriptTemplate[] _StandardTemplates = new ScriptTemplate[] 
+		static readonly ScriptTemplate[] _StandardTemplates = new ScriptTemplate[]
 		{
-			PayToPubkeyHashTemplate.Instance, 
+			PayToPubkeyHashTemplate.Instance,
 			PayToPubkeyTemplate.Instance,
 			PayToScriptHashTemplate.Instance,
 			PayToMultiSigTemplate.Instance,
 			TxNullDataTemplate.Instance,
 			PayToWitTemplate.Instance
-		};		
+		};
 
 		public static bool IsStandardTransaction(Transaction tx)
 		{
@@ -68,9 +68,9 @@ namespace NBitcoin
 			foreach(var input in tx.Inputs)
 			{
 				TxOut prev = coinsView.GetOutputFor(input);
-				if (prev == null)
+				if(prev == null)
 					return false;
-				if (!IsStandardScriptSig(input.ScriptSig, prev.ScriptPubKey))
+				if(!IsStandardScriptSig(input.ScriptSig, prev.ScriptPubKey))
 					return false;
 			}
 

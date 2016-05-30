@@ -6,7 +6,8 @@
 		// characters too and also works for unicode characters.
 		public static bool IsSpace(char c)
 		{
-			switch(c) {
+			switch(c)
+			{
 				case ' ':
 				case '\t':
 				case '\n':

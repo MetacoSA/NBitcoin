@@ -596,7 +596,7 @@ namespace NBitcoin
 			{
 				if(PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(Redeem))
 				{
-					throw new ArgumentException("The redeem script provided must be the witness one, not the P2SH one");					
+					throw new ArgumentException("The redeem script provided must be the witness one, not the P2SH one");
 				}
 
 				if(expectedDestination.ScriptPubKey != Redeem.Hash.ScriptPubKey)
@@ -643,7 +643,7 @@ namespace NBitcoin
 		}
 		public override HashVersion GetHashVersion()
 		{
-			var isWitness = PayToWitTemplate.Instance.CheckScriptPubKey(ScriptPubKey) || 
+			var isWitness = PayToWitTemplate.Instance.CheckScriptPubKey(ScriptPubKey) ||
 							PayToWitTemplate.Instance.CheckScriptPubKey(Redeem) ||
 							RedeemType == NBitcoin.RedeemType.WitnessV0;
 			return isWitness ? HashVersion.Witness : HashVersion.Original;
@@ -735,7 +735,7 @@ namespace NBitcoin
 		public PubKey[] Uncover(PubKey[] spendPubKeys, Key scanKey)
 		{
 			var pubKeys = new PubKey[spendPubKeys.Length];
-			for(int i = 0 ; i < pubKeys.Length ; i++)
+			for(int i = 0; i < pubKeys.Length; i++)
 			{
 				pubKeys[i] = spendPubKeys[i].UncoverReceiver(scanKey, StealthMetadata.EphemKey);
 			}
@@ -745,7 +745,7 @@ namespace NBitcoin
 		public Key[] Uncover(Key[] spendKeys, Key scanKey)
 		{
 			var keys = new Key[spendKeys.Length];
-			for(int i = 0 ; i < keys.Length ; i++)
+			for(int i = 0; i < keys.Length; i++)
 			{
 				keys[i] = spendKeys[i].Uncover(scanKey, StealthMetadata.EphemKey);
 			}

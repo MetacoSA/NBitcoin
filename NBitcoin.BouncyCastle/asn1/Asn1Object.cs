@@ -3,9 +3,9 @@ using System.IO;
 
 namespace NBitcoin.BouncyCastle.Asn1
 {
-    public abstract class Asn1Object
+	public abstract class Asn1Object
 		: Asn1Encodable
-    {
+	{
 		/// <summary>Create a base ASN.1 object from a byte array.</summary>
 		/// <param name="data">The byte array to parse.</param>
 		/// <returns>The base ASN.1 object represented by the byte array.</returns>
@@ -13,16 +13,16 @@ namespace NBitcoin.BouncyCastle.Asn1
 		public static Asn1Object FromByteArray(
 			byte[] data)
 		{
-            try
+			try
 			{
-                MemoryStream input = new MemoryStream(data, false);
-                Asn1InputStream asn1 = new Asn1InputStream(input, data.Length);
-                Asn1Object result = asn1.ReadObject();
-                if (input.Position != input.Length)
-                    throw new IOException("extra data found after object");
-                return result;
+				MemoryStream input = new MemoryStream(data, false);
+				Asn1InputStream asn1 = new Asn1InputStream(input, data.Length);
+				Asn1Object result = asn1.ReadObject();
+				if(input.Position != input.Length)
+					throw new IOException("extra data found after object");
+				return result;
 			}
-			catch (InvalidCastException)
+			catch(InvalidCastException)
 			{
 				throw new IOException("cannot recognise object in byte array");
 			}
@@ -39,16 +39,16 @@ namespace NBitcoin.BouncyCastle.Asn1
 			{
 				return new Asn1InputStream(inStr).ReadObject();
 			}
-			catch (InvalidCastException)
+			catch(InvalidCastException)
 			{
 				throw new IOException("cannot recognise object in stream");
 			}
 		}
 
 		public sealed override Asn1Object ToAsn1Object()
-        {
-            return this;
-        }
+		{
+			return this;
+		}
 
 		internal abstract void Encode(DerOutputStream derOut);
 

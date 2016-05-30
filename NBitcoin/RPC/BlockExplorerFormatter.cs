@@ -18,7 +18,7 @@ namespace NBitcoin.RPC
 
 			var vin = (JArray)json.GetValue("in");
 			int vinCount = (int)json.GetValue("vin_sz");
-			for(int i = 0 ; i < vinCount ; i++)
+			for(int i = 0; i < vinCount; i++)
 			{
 				var jsonIn = (JObject)vin[i];
 				var txin = new TxIn();
@@ -49,7 +49,7 @@ namespace NBitcoin.RPC
 
 			var vout = (JArray)json.GetValue("out");
 			int voutCount = (int)json.GetValue("vout_sz");
-			for(int i = 0 ; i < voutCount ; i++)
+			for(int i = 0; i < voutCount; i++)
 			{
 				var jsonOut = (JObject)vout[i];
 				var txout = new NBitcoin.TxOut();
@@ -105,7 +105,7 @@ namespace NBitcoin.RPC
 			writer.WriteEndArray();
 			writer.WritePropertyName("out");
 			writer.WriteStartArray();
-			
+
 			foreach(var txout in tx.Outputs)
 			{
 				writer.WriteStartObject();

@@ -4,28 +4,31 @@ using NBitcoin.BouncyCastle.Crypto;
 
 namespace NBitcoin.BouncyCastle.Crypto
 {
-    public abstract class AsymmetricKeyParameter
+	public abstract class AsymmetricKeyParameter
 		: ICipherParameters
-    {
-        private readonly bool privateKey;
+	{
+		private readonly bool privateKey;
 
-        protected AsymmetricKeyParameter(
-            bool privateKey)
-        {
-            this.privateKey = privateKey;
-        }
+		protected AsymmetricKeyParameter(
+			bool privateKey)
+		{
+			this.privateKey = privateKey;
+		}
 
 		public bool IsPrivate
-        {
-            get { return privateKey; }
-        }
+		{
+			get
+			{
+				return privateKey;
+			}
+		}
 
 		public override bool Equals(
 			object obj)
 		{
 			AsymmetricKeyParameter other = obj as AsymmetricKeyParameter;
 
-			if (other == null)
+			if(other == null)
 			{
 				return false;
 			}
@@ -43,5 +46,5 @@ namespace NBitcoin.BouncyCastle.Crypto
 		{
 			return privateKey.GetHashCode();
 		}
-    }
+	}
 }

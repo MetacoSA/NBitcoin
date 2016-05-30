@@ -96,7 +96,7 @@ namespace NBitcoin
 					BigInteger remainder;
 					var quotient = BigInteger.DivRem(Difficulty1._Target, _Target, out remainder);
 					var decimalPart = BigInteger.Zero;
-					for(int i = 0 ; i < 12 ; i++)
+					for(int i = 0; i < 12; i++)
 					{
 						var div = (remainder * 10) / _Target;
 

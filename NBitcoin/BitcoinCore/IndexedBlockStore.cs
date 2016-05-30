@@ -67,7 +67,7 @@ namespace NBitcoin.BitcoinCore
 			return GetAsync(id.ToString());
 		}
 
-#region IBlockProvider Members
+		#region IBlockProvider Members
 
 		public Block GetBlock(uint256 id, List<byte[]> searchedData)
 		{

@@ -79,9 +79,9 @@ namespace NBitcoin.Tests
 			 2)
 			.Add("xpub6FnCn6nSzZAw5Tw7cgR9bi15UV96gLZhjDstkXXxvCLsUXBGXPdSnLFbdpq8p9HmGsApME5hQTZ3emM2rnY5agb9rXpVGyy3bdW6EEgAtqt",
 			 "xprvA2nrNbFZABcdryreWet9Ea4LvTJcGsqrMzxHx98MMrotbir7yrKCEXw7nadnHM8Dq38EGfSh6dqA9QWTyefMLEcBYJUuekgW4BYPJcr9E7j",
-			 0);        
+			 0);
 
-        [Fact]
+		[Fact]
 		[Trait("Core", "Core")]
 		public void bip32_test1()
 		{
@@ -95,20 +95,20 @@ namespace NBitcoin.Tests
 			RunTest(test2);
 		}
 
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void CheckBIP32Constructors()
-        {
-            var key = new ExtKey();
-            Assert.Equal(key.GetWif(Network.Main), new ExtKey(key.PrivateKey, key.ChainCode).GetWif(Network.Main));
-            Assert.Equal(key.Neuter().GetWif(Network.Main), new ExtPubKey(key.PrivateKey.PubKey, key.ChainCode).GetWif(Network.Main));
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CheckBIP32Constructors()
+		{
+			var key = new ExtKey();
+			Assert.Equal(key.GetWif(Network.Main), new ExtKey(key.PrivateKey, key.ChainCode).GetWif(Network.Main));
+			Assert.Equal(key.Neuter().GetWif(Network.Main), new ExtPubKey(key.PrivateKey.PubKey, key.ChainCode).GetWif(Network.Main));
 
-            key = key.Derive(1);
-            Assert.Equal(key.GetWif(Network.Main), new ExtKey(key.PrivateKey, key.ChainCode, key.Depth, key.Fingerprint, key.Child).GetWif(Network.Main));
-            Assert.Equal(key.Neuter().GetWif(Network.Main), new ExtPubKey(key.PrivateKey.PubKey, key.ChainCode, key.Depth, key.Fingerprint, key.Child).GetWif(Network.Main));
-        }
+			key = key.Derive(1);
+			Assert.Equal(key.GetWif(Network.Main), new ExtKey(key.PrivateKey, key.ChainCode, key.Depth, key.Fingerprint, key.Child).GetWif(Network.Main));
+			Assert.Equal(key.Neuter().GetWif(Network.Main), new ExtPubKey(key.PrivateKey.PubKey, key.ChainCode, key.Depth, key.Fingerprint, key.Child).GetWif(Network.Main));
+		}
 
-        [Fact]
+		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRecoverExtKeyFromExtPubKeyAndOneChildExtKey()
 		{
@@ -131,7 +131,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRecoverExtKeyFromExtPubKeyAndOneChildExtKey2()
 		{
-			for(int i = 0 ; i < 255 ; i++)
+			for(int i = 0; i < 255; i++)
 			{
 				ExtKey key = new ExtKey().Derive((uint)i);
 				var childKey = key.Derive((uint)i);
@@ -192,7 +192,7 @@ namespace NBitcoin.Tests
 			keyPath = keyPath.Derive(44, true).Derive(1, false);
 			Assert.Equal(keyPath.ToString(), "44'/1");
 			Assert.Equal(keyPath.Increment().ToString(), "44'/2");
-			Assert.Equal(keyPath.Derive(1,true).Increment().ToString(), "44'/1/2'");
+			Assert.Equal(keyPath.Derive(1, true).Increment().ToString(), "44'/1/2'");
 			Assert.Equal(keyPath.Parent.ToString(), "44'");
 			Assert.Equal(keyPath.Parent.Parent.ToString(), "");
 			Assert.Equal(keyPath.Parent.Parent.Parent, null);

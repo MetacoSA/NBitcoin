@@ -259,7 +259,7 @@ namespace NBitcoin
 		{
 			var bytes = new byte[size];
 
-			for(int i = 0 ; i < size ; i++)
+			for(int i = 0; i < size; i++)
 			{
 				bytes[i] = (byte)(value >> i * 8);
 			}
@@ -269,7 +269,7 @@ namespace NBitcoin
 			if(IsBigEndian)
 				Array.Reverse(bytes);
 			ulong valueTemp = 0;
-			for(int i = 0 ; i < bytes.Length ; i++)
+			for(int i = 0; i < bytes.Length; i++)
 			{
 				var v = (ulong)bytes[i];
 				valueTemp += v << (i * 8);

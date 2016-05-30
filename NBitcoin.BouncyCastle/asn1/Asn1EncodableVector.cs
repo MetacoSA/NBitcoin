@@ -5,25 +5,25 @@ using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1
 {
-    public class Asn1EncodableVector
+	public class Asn1EncodableVector
 		: IEnumerable
-    {
-        private IList v = Platform.CreateArrayList();
+	{
+		private IList v = Platform.CreateArrayList();
 
 		public static Asn1EncodableVector FromEnumerable(
 			IEnumerable e)
 		{
 			Asn1EncodableVector v = new Asn1EncodableVector();
-			foreach (Asn1Encodable obj in e)
+			foreach(Asn1Encodable obj in e)
 			{
 				v.Add(obj);
 			}
 			return v;
 		}
 
-//		public Asn1EncodableVector()
-//		{
-//		}
+		//		public Asn1EncodableVector()
+		//		{
+		//		}
 
 		public Asn1EncodableVector(
 			params Asn1Encodable[] v)
@@ -31,16 +31,16 @@ namespace NBitcoin.BouncyCastle.Asn1
 			Add(v);
 		}
 
-//		public void Add(
-//			Asn1Encodable obj)
-//		{
-//			v.Add(obj);
-//		}
+		//		public void Add(
+		//			Asn1Encodable obj)
+		//		{
+		//			v.Add(obj);
+		//		}
 
 		public void Add(
 			params Asn1Encodable[] objs)
 		{
-			foreach (Asn1Encodable obj in objs)
+			foreach(Asn1Encodable obj in objs)
 			{
 				v.Add(obj);
 			}
@@ -49,11 +49,11 @@ namespace NBitcoin.BouncyCastle.Asn1
 		public void AddOptional(
 			params Asn1Encodable[] objs)
 		{
-			if (objs != null)
+			if(objs != null)
 			{
-				foreach (Asn1Encodable obj in objs)
+				foreach(Asn1Encodable obj in objs)
 				{
-					if (obj != null)
+					if(obj != null)
 					{
 						v.Add(obj);
 					}
@@ -64,25 +64,34 @@ namespace NBitcoin.BouncyCastle.Asn1
 		public Asn1Encodable this[
 			int index]
 		{
-			get { return (Asn1Encodable) v[index]; }
+			get
+			{
+				return (Asn1Encodable)v[index];
+			}
 		}
 
 		[Obsolete("Use 'object[index]' syntax instead")]
 		public Asn1Encodable Get(
-            int index)
-        {
-            return this[index];
-        }
+			int index)
+		{
+			return this[index];
+		}
 
 		[Obsolete("Use 'Count' property instead")]
 		public int Size
 		{
-			get { return v.Count; }
+			get
+			{
+				return v.Count;
+			}
 		}
 
 		public int Count
 		{
-			get { return v.Count; }
+			get
+			{
+				return v.Count;
+			}
 		}
 
 		public IEnumerator GetEnumerator()

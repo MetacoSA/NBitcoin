@@ -14,7 +14,7 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
 		public static void Drain(Stream inStr)
 		{
 			byte[] bs = new byte[BufferSize];
-			while (inStr.Read(bs, 0, bs.Length) > 0)
+			while(inStr.Read(bs, 0, bs.Length) > 0)
 			{
 			}
 		}
@@ -41,10 +41,10 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
 		public static int ReadFully(Stream inStr, byte[] buf, int off, int len)
 		{
 			int totalRead = 0;
-			while (totalRead < len)
+			while(totalRead < len)
 			{
 				int numRead = inStr.Read(buf, off + totalRead, len - totalRead);
-				if (numRead < 1)
+				if(numRead < 1)
 					break;
 				totalRead += numRead;
 			}
@@ -55,7 +55,7 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
 		{
 			byte[] bs = new byte[BufferSize];
 			int numRead;
-			while ((numRead = inStr.Read(bs, 0, bs.Length)) > 0)
+			while((numRead = inStr.Read(bs, 0, bs.Length)) > 0)
 			{
 				outStr.Write(bs, 0, numRead);
 			}
@@ -81,12 +81,12 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
 			byte[] bs = new byte[BufferSize];
 			long total = 0;
 			int numRead;
-			while ((numRead = inStr.Read(bs, 0, bs.Length)) > 0)
+			while((numRead = inStr.Read(bs, 0, bs.Length)) > 0)
 			{
-                if ((limit - total) < numRead)
+				if((limit - total) < numRead)
 					throw new StreamOverflowException("Data Overflow");
-                total += numRead;
-                outStr.Write(bs, 0, numRead);
+				total += numRead;
+				outStr.Write(bs, 0, numRead);
 			}
 			return total;
 		}

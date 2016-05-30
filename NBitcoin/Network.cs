@@ -342,7 +342,7 @@ namespace NBitcoin
 			// Convert the pnSeeds array into usable address objects.
 			Random rand = new Random();
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);
-			for(int i = 0 ; i < pnSeed.Length ; i++)
+			for(int i = 0; i < pnSeed.Length; i++)
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
 				// it'll get a pile of addresses with newer timestamps.				
@@ -403,9 +403,9 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2b };
 			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 115 };
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
-            base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x03) };
-            base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (40) };
-        }
+			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x03) };
+			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (40) };
+		}
 		private void InitSegnet()
 		{
 			name = "segnet";
@@ -436,7 +436,7 @@ namespace NBitcoin
 			Random rand = new Random();
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);
 			var pnSeed = new[] { "37.34.48.17" };
-			for(int i = 0 ; i < pnSeed.Length ; i++)
+			for(int i = 0; i < pnSeed.Length; i++)
 			{
 				// It'll only connect to one or two seed nodes because once it connects,
 				// it'll get a pile of addresses with newer timestamps.				
@@ -570,7 +570,7 @@ namespace NBitcoin
 		private Base58Type? GetBase58Type(string base58)
 		{
 			var bytes = Encoders.Base58Check.DecodeData(base58);
-			for(int i = 0 ; i < base58Prefixes.Length ; i++)
+			for(int i = 0; i < base58Prefixes.Length; i++)
 			{
 				var prefix = base58Prefixes[i];
 				if(prefix == null)
@@ -907,8 +907,8 @@ namespace NBitcoin
 			{
 				if(_MagicBytes == null)
 				{
-					var bytes = new byte[] 
-					{ 
+					var bytes = new byte[]
+					{
 						(byte)Magic,
 						(byte)(Magic >> 8),
 						(byte)(Magic >> 16),
@@ -945,7 +945,7 @@ namespace NBitcoin
 		public bool ReadMagic(Stream stream, CancellationToken cancellation, bool throwIfEOF = false)
 		{
 			byte[] bytes = new byte[1];
-			for(int i = 0 ; i < MagicBytes.Length ; i++)
+			for(int i = 0; i < MagicBytes.Length; i++)
 			{
 				i = Math.Max(0, i);
 				cancellation.ThrowIfCancellationRequested();

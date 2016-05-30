@@ -13,8 +13,8 @@ namespace NBitcoin.Tests
 	public class uint256_tests
 	{
 		[Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void uintTests()
+		[Trait("UnitTest", "UnitTest")]
+		public void uintTests()
 		{
 			var v = new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
 			var v2 = new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff");

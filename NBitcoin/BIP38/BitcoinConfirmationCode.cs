@@ -22,7 +22,10 @@ namespace NBitcoin
 		byte[] _AddressHash;
 		public byte[] AddressHash
 		{
-			get { return _AddressHash ?? (_AddressHash = vchData.SafeSubarray(1, 4)); }
+			get
+			{
+				return _AddressHash ?? (_AddressHash = vchData.SafeSubarray(1, 4));
+			}
 		}
 		public bool IsCompressed
 		{
@@ -34,7 +37,10 @@ namespace NBitcoin
 		byte[] _OwnerEntropy;
 		public byte[] OwnerEntropy
 		{
-			get { return _OwnerEntropy ?? (_OwnerEntropy = vchData.SafeSubarray(5, 8)); }
+			get
+			{
+				return _OwnerEntropy ?? (_OwnerEntropy = vchData.SafeSubarray(5, 8));
+			}
 		}
 		LotSequence _LotSequence;
 		public LotSequence LotSequence
@@ -55,7 +61,10 @@ namespace NBitcoin
 		byte[] _EncryptedPointB;
 		byte[] EncryptedPointB
 		{
-			get { return _EncryptedPointB ?? (_EncryptedPointB = vchData.SafeSubarray(13)); }
+			get
+			{
+				return _EncryptedPointB ?? (_EncryptedPointB = vchData.SafeSubarray(13));
+			}
 		}
 
 		public override Base58Type Type

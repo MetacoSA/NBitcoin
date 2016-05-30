@@ -106,7 +106,7 @@ namespace NBitcoin.Tests
 				else
 				{
 					string exp_addrType = (string)test.GetDynamic(2).addrType; // "script" or "pubkey"
-					// Must be valid public key
+																			   // Must be valid public key
 					var addr = network.CreateBitcoinAddress(exp_base58string);
 					Assert.True((addr is BitcoinScriptAddress) == (exp_addrType == "script"), "isScript mismatch" + strTest);
 

@@ -96,7 +96,7 @@ namespace NBitcoin
 		{
 			using(@lock.LockRead())
 			{
-				for(int i = 0 ; i < Tip.Height + 1 ; i++)
+				for(int i = 0; i < Tip.Height + 1; i++)
 				{
 					var block = GetBlockNoLock(i);
 					stream.ReadWrite(block.HashBlock.AsBitcoinSerializable());

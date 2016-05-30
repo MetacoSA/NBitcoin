@@ -61,14 +61,14 @@ namespace NBitcoin
 			{
 				stream.ReadWriteAsVarString(ref vBytes);
 				BitWriter writer = new BitWriter();
-				for(int p = 0 ; p < vBytes.Length * 8 ; p++)
+				for(int p = 0; p < vBytes.Length * 8; p++)
 					writer.Write((vBytes[p / 8] & (1 << (p % 8))) != 0);
 				_Flags = writer.ToBitArray();
 			}
 			else
 			{
 				vBytes = new byte[(_Flags.Length + 7) / 8];
-				for(int p = 0 ; p < _Flags.Length ; p++)
+				for(int p = 0; p < _Flags.Length; p++)
 					vBytes[p / 8] |= (byte)(ToByte(_Flags.Get(p)) << (p % 8));
 				stream.ReadWriteAsVarString(ref vBytes);
 			}

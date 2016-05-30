@@ -16,7 +16,7 @@ namespace NBitcoin.Tests
 	public class addrman_tests
 	{
 #if !NOFILEIO
-        [Fact]
+		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSerializeDeserializePeerTable()
 		{
@@ -70,7 +70,7 @@ namespace NBitcoin.Tests
 			Exception exception = null;
 			var addrmanager = new AddressManager();
 			Random randl = new Random();
-			for(int i = 0 ; i < 30 ; i++)
+			for(int i = 0; i < 30; i++)
 			{
 				NetworkAddress address = RandomNetworkAddress(randl);
 				IPAddress addressSource = RandomAddress(randl);
@@ -87,7 +87,7 @@ namespace NBitcoin.Tests
 					try
 					{
 						Random rand = new Random(t);
-						for(int i = 0 ; i < 50 ; i++)
+						for(int i = 0; i < 50; i++)
 						{
 							NetworkAddress address = RandomNetworkAddress(rand);
 							IPAddress addressSource = RandomAddress(rand);

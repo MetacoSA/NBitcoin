@@ -19,42 +19,42 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 namespace NBitcoin.Crypto.Internal
 {
-    static class BitPacking
-    {        
-        public static uint UInt24FromLEBytes(byte[] bytes, int offset)
-        {
-            return
-                (uint)bytes[offset + 2] << 16 |
-                (uint)bytes[offset + 1] << 8 |
-                (uint)bytes[offset + 0];
-        }
+	static class BitPacking
+	{
+		public static uint UInt24FromLEBytes(byte[] bytes, int offset)
+		{
+			return
+				(uint)bytes[offset + 2] << 16 |
+				(uint)bytes[offset + 1] << 8 |
+				(uint)bytes[offset + 0];
+		}
 
-        public static uint UInt32FromLEBytes(byte[] bytes, int offset)
-        {
-            return
-                (uint)bytes[offset + 3] << 24 |
-                UInt24FromLEBytes(bytes, offset);
-        }
+		public static uint UInt32FromLEBytes(byte[] bytes, int offset)
+		{
+			return
+				(uint)bytes[offset + 3] << 24 |
+				UInt24FromLEBytes(bytes, offset);
+		}
 
-        public static void BEBytesFromUInt32(uint value, byte[] bytes, int offset)
-        {
-            bytes[offset + 0] = (byte)(value >> 24);
-            bytes[offset + 1] = (byte)(value >> 16);
-            bytes[offset + 2] = (byte)(value >> 8);
-            bytes[offset + 3] = (byte)(value);
-        }
-        
-        public static void LEBytesFromUInt24(uint value, byte[] bytes, int offset)
-        {
-            bytes[offset + 2] = (byte)(value >> 16);
-            bytes[offset + 1] = (byte)(value >> 8);
-            bytes[offset + 0] = (byte)(value);
-        }
+		public static void BEBytesFromUInt32(uint value, byte[] bytes, int offset)
+		{
+			bytes[offset + 0] = (byte)(value >> 24);
+			bytes[offset + 1] = (byte)(value >> 16);
+			bytes[offset + 2] = (byte)(value >> 8);
+			bytes[offset + 3] = (byte)(value);
+		}
 
-        public static void LEBytesFromUInt32(uint value, byte[] bytes, int offset)
-        {
-            bytes[offset + 3] = (byte)(value >> 24);
-            LEBytesFromUInt24(value, bytes, offset);
-        }
-    }
+		public static void LEBytesFromUInt24(uint value, byte[] bytes, int offset)
+		{
+			bytes[offset + 2] = (byte)(value >> 16);
+			bytes[offset + 1] = (byte)(value >> 8);
+			bytes[offset + 0] = (byte)(value);
+		}
+
+		public static void LEBytesFromUInt32(uint value, byte[] bytes, int offset)
+		{
+			bytes[offset + 3] = (byte)(value >> 24);
+			LEBytesFromUInt24(value, bytes, offset);
+		}
+	}
 }

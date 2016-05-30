@@ -16,12 +16,12 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 	* <code>SimpleBigDecimal</code> with double scale.
 	*/
 	internal class SimpleBigDecimal
-		//	: Number
+	//	: Number
 	{
 		//	private static final long serialVersionUID = 1L;
 
-		private readonly BigInteger	bigInt;
-		private readonly int		scale;
+		private readonly BigInteger bigInt;
+		private readonly int scale;
 
 		/**
 		* Returns a <code>SimpleBigDecimal</code> representing the same numerical
@@ -46,7 +46,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 		*/
 		public SimpleBigDecimal(BigInteger bigInt, int scale)
 		{
-			if (scale < 0)
+			if(scale < 0)
 				throw new ArgumentException("scale may not be negative");
 
 			this.bigInt = bigInt;
@@ -61,16 +61,16 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 
 		private void CheckScale(SimpleBigDecimal b)
 		{
-			if (scale != b.scale)
+			if(scale != b.scale)
 				throw new ArgumentException("Only SimpleBigDecimal of same scale allowed in arithmetic operations");
 		}
 
 		public SimpleBigDecimal AdjustScale(int newScale)
 		{
-			if (newScale < 0)
+			if(newScale < 0)
 				throw new ArgumentException("scale may not be negative");
 
-			if (newScale == scale)
+			if(newScale == scale)
 				return this;
 
 			return new SimpleBigDecimal(bigInt.ShiftLeft(newScale - scale), newScale);
@@ -154,57 +154,66 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 
 		public int IntValue
 		{
-			get { return Floor().IntValue; }
+			get
+			{
+				return Floor().IntValue;
+			}
 		}
 
 		public long LongValue
 		{
-			get { return Floor().LongValue; }
+			get
+			{
+				return Floor().LongValue;
+			}
 		}
 
-//		public double doubleValue()
-//		{
-//			return new Double(ToString()).doubleValue();
-//		}
-//
-//		public float floatValue()
-//		{
-//			return new Float(ToString()).floatValue();
-//		}
+		//		public double doubleValue()
+		//		{
+		//			return new Double(ToString()).doubleValue();
+		//		}
+		//
+		//		public float floatValue()
+		//		{
+		//			return new Float(ToString()).floatValue();
+		//		}
 
 		public int Scale
 		{
-			get { return scale; }
+			get
+			{
+				return scale;
+			}
 		}
 
 		public override string ToString()
 		{
-			if (scale == 0)
+			if(scale == 0)
 				return bigInt.ToString();
 
 			BigInteger floorBigInt = Floor();
-	        
+
 			BigInteger fract = bigInt.Subtract(floorBigInt.ShiftLeft(scale));
-			if (bigInt.SignValue < 0)
+			if(bigInt.SignValue < 0)
 			{
 				fract = BigInteger.One.ShiftLeft(scale).Subtract(fract);
 			}
 
-			if ((floorBigInt.SignValue == -1) && (!(fract.Equals(BigInteger.Zero))))
+			if((floorBigInt.SignValue == -1) && (!(fract.Equals(BigInteger.Zero))))
 			{
 				floorBigInt = floorBigInt.Add(BigInteger.One);
 			}
 			string leftOfPoint = floorBigInt.ToString();
 
 			char[] fractCharArr = new char[scale];
-				string fractStr = fract.ToString(2);
+			string fractStr = fract.ToString(2);
 			int fractLen = fractStr.Length;
 			int zeroes = scale - fractLen;
-			for (int i = 0; i < zeroes; i++)
+			for(int i = 0; i < zeroes; i++)
 			{
 				fractCharArr[i] = '0';
 			}
-			for (int j = 0; j < fractLen; j++)
+			for(int j = 0; j < fractLen; j++)
 			{
 				fractCharArr[zeroes + j] = fractStr[j];
 			}
@@ -220,12 +229,12 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 		public override bool Equals(
 			object obj)
 		{
-			if (this == obj)
+			if(this == obj)
 				return true;
 
 			SimpleBigDecimal other = obj as SimpleBigDecimal;
 
-			if (other == null)
+			if(other == null)
 				return false;
 
 			return bigInt.Equals(other.bigInt)

@@ -340,7 +340,7 @@ namespace NBitcoin
 		public int[] ToIndices(string[] words)
 		{
 			var indices = new int[words.Length];
-			for(int i = 0 ; i < words.Length ; i++)
+			for(int i = 0; i < words.Length; i++)
 			{
 				int idx = -1;
 
@@ -366,7 +366,7 @@ namespace NBitcoin
 			int i = 0;
 			foreach(var val in values)
 			{
-				for(int p = 0 ; p < 11 ; p++)
+				for(int p = 0; p < 11; p++)
 				{
 					var v = (val & (1 << (10 - p))) != 0;
 					result.Set(i, v);

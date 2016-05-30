@@ -23,19 +23,34 @@ namespace NBitcoin.Protocol.Payloads
 
 		public int ChainHeight
 		{
-			get { return _chainHeight; }
-			internal set { _chainHeight = value; }
+			get
+			{
+				return _chainHeight;
+			}
+			internal set
+			{
+				_chainHeight = value;
+			}
 		}
 
 		public uint256 ChainTipHash
 		{
-			get { return _chainTipHash; }
-			internal set { _chainTipHash = value; }
+			get
+			{
+				return _chainTipHash;
+			}
+			internal set
+			{
+				_chainTipHash = value;
+			}
 		}
 
 		public BitArray Bitmap
 		{
-			get { return new BitArray(_bitmap.ToBytes()); }
+			get
+			{
+				return new BitArray(_bitmap.ToBytes());
+			}
 			internal set
 			{
 				var bits = value;
@@ -46,8 +61,14 @@ namespace NBitcoin.Protocol.Payloads
 
 		public UTxOut[] Outputs
 		{
-			get { return _outputs; }
-			internal set { _outputs = value; }
+			get
+			{
+				return _outputs;
+			}
+			internal set
+			{
+				_outputs = value;
+			}
 		}
 
 		public void ReadWrite(BitcoinStream stream)
@@ -67,20 +88,38 @@ namespace NBitcoin.Protocol.Payloads
 
 		public uint Version
 		{
-			get { return _version; }
-			internal set { _version = value; }
+			get
+			{
+				return _version;
+			}
+			internal set
+			{
+				_version = value;
+			}
 		}
 
 		public uint Height
 		{
-			get { return _height; }
-			internal set { _height = value; }
+			get
+			{
+				return _height;
+			}
+			internal set
+			{
+				_height = value;
+			}
 		}
 
 		public TxOut Output
 		{
-			get { return _txOut; }
-			internal set { _txOut = value; }
+			get
+			{
+				return _txOut;
+			}
+			internal set
+			{
+				_txOut = value;
+			}
 		}
 
 		public void ReadWrite(BitcoinStream stream)

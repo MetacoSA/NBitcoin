@@ -92,8 +92,8 @@ namespace NBitcoin.SPV
 			JObject obj = new JObject();
 			if(Name != null)
 				obj["Name"] = Name;
-            obj["Network"] = Network.ToString();
-            obj["SignatureRequired"] = SignatureRequired;
+			obj["Network"] = Network.ToString();
+			obj["SignatureRequired"] = SignatureRequired;
 			obj["DerivationPath"] = DerivationPath.ToString();
 			obj["UseP2SH"] = UseP2SH;
 			obj["PurgeConnectionOnFilterChange"] = PurgeConnectionOnFilterChange;
@@ -104,7 +104,7 @@ namespace NBitcoin.SPV
 		static internal WalletCreation FromJson(JObject obj)
 		{
 			WalletCreation creation = new WalletCreation();
-            creation.Network = null;
+			creation.Network = null;
 			JToken unused;
 			if(obj.TryGetValue("Name", out unused))
 				creation.Name = (string)obj["Name"];
@@ -114,9 +114,9 @@ namespace NBitcoin.SPV
 			{
 				creation.PurgeConnectionOnFilterChange = (bool)obj["PurgeConnectionOnFilterChange"];
 			}
-            JToken network;
-            if(obj.TryGetValue("Network", out network))
-                creation.Network = Network.GetNetwork((string)network);
+			JToken network;
+			if(obj.TryGetValue("Network", out network))
+				creation.Network = Network.GetNetwork((string)network);
 			creation.SignatureRequired = (int)(long)obj["SignatureRequired"];
 			creation.DerivationPath = KeyPath.Parse((string)obj["DerivationPath"]);
 			creation.UseP2SH = (bool)obj["UseP2SH"];
@@ -128,7 +128,7 @@ namespace NBitcoin.SPV
 		}
 	}
 
-	public delegate void NewWalletTransactionDelegate(Wallet sender, WalletTransaction walletTransaction);	
+	public delegate void NewWalletTransactionDelegate(Wallet sender, WalletTransaction walletTransaction);
 
 	/// <summary>
 	/// A SPV Wallet respecting recommendation for privacy http://eprint.iacr.org/2014/763.pdf
@@ -176,7 +176,7 @@ namespace NBitcoin.SPV
 			{
 				_Wallet.OnTransactionBroadcasted(transaction);
 			}
-			
+
 			void AttachedNode_StateChanged(Node node, NodeState oldState)
 			{
 				if(node.State == NodeState.HandShaked)
@@ -184,7 +184,7 @@ namespace NBitcoin.SPV
 					_Tracker.Scan(_Wallet._ScanLocation, _Wallet.Created);
 					_Tracker.SendMessageAsync(new MempoolPayload());
 				}
-			}			
+			}
 
 			void AttachedNode_Disconnected(Node node)
 			{
@@ -268,7 +268,7 @@ namespace NBitcoin.SPV
 			var lastLoaded = GetLastLoaded(keyPath);
 			var isInternal = IsInternal(keyPath);
 			var tracker = Tracker;
-			for(int i = lastLoaded ; i < lastLoaded + _KeyPoolSize ; i++)
+			for(int i = lastLoaded; i < lastLoaded + _KeyPoolSize; i++)
 			{
 				var childPath = keyPath.Derive(i, false);
 				AddKnown(childPath, tracker, isInternal);
@@ -572,9 +572,9 @@ namespace NBitcoin.SPV
 
 			//Pick the behaviors
 			if(addrman != null)
-				parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));	//Listen addr, help for node discovery
+				parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));  //Listen addr, help for node discovery
 			if(chain != null)
-				parameters.TemplateBehaviors.Add(new ChainBehavior(chain));	//Keep chain in sync
+				parameters.TemplateBehaviors.Add(new ChainBehavior(chain)); //Keep chain in sync
 			if(tracker != null)
 				parameters.TemplateBehaviors.Add(new TrackerBehavior(tracker, chain)); //Set bloom filters and scan the blockchain
 
@@ -701,7 +701,7 @@ namespace NBitcoin.SPV
 			parameters.ReceiveBufferSize = 1024 * 100;
 			parameters.IsRelay = false;
 
-			parameters.TemplateBehaviors.FindOrCreate<PingPongBehavior>();	//Ping Pong
+			parameters.TemplateBehaviors.FindOrCreate<PingPongBehavior>();  //Ping Pong
 		}
 
 

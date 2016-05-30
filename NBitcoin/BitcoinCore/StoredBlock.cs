@@ -193,8 +193,8 @@ namespace NBitcoin.BitcoinCore
 
 		static readonly Regex _Reg = new Regex("f:([0-9]*)p:([0-9]*)"
 #if !PORTABLE
-			,RegexOptions.Compiled
-#endif			
+			, RegexOptions.Compiled
+#endif
 			);
 		public static DiskBlockPos Parse(string data)
 		{

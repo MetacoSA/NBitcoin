@@ -2,12 +2,12 @@
 {
 	public abstract class BitcoinExtKeyBase : Base58Data, IDestination
 	{
-	    protected BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
+		protected BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
 			: base(key.ToBytes(), network)
 		{
 		}
 
-	    protected BitcoinExtKeyBase(string base58, Network network)
+		protected BitcoinExtKeyBase(string base58, Network network)
 			: base(base58, network)
 		{
 		}

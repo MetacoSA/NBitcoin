@@ -17,10 +17,10 @@ namespace NBitcoin.BouncyCastle.Crypto
 	public class BufferedBlockCipher
 		: BufferedCipherBase
 	{
-		internal byte[]			buf;
-		internal int			bufOff;
-		internal bool			forEncryption;
-		internal IBlockCipher	cipher;
+		internal byte[] buf;
+		internal int bufOff;
+		internal bool forEncryption;
+		internal IBlockCipher cipher;
 
 		/**
 		* constructor for subclasses
@@ -38,7 +38,7 @@ namespace NBitcoin.BouncyCastle.Crypto
 		public BufferedBlockCipher(
 			IBlockCipher cipher)
 		{
-			if (cipher == null)
+			if(cipher == null)
 				throw new ArgumentNullException("cipher");
 
 			this.cipher = cipher;
@@ -48,7 +48,10 @@ namespace NBitcoin.BouncyCastle.Crypto
 
 		public override string AlgorithmName
 		{
-			get { return cipher.AlgorithmName; }
+			get
+			{
+				return cipher.AlgorithmName;
+			}
 		}
 
 		/**
@@ -62,12 +65,12 @@ namespace NBitcoin.BouncyCastle.Crypto
 		*/
 		// Note: This doubles as the Init in the event that this cipher is being used as an IWrapper
 		public override void Init(
-			bool				forEncryption,
-			ICipherParameters	parameters)
+			bool forEncryption,
+			ICipherParameters parameters)
 		{
 			this.forEncryption = forEncryption;
-            
-            Reset();
+
+			Reset();
 
 			cipher.Init(forEncryption, parameters);
 		}
@@ -124,15 +127,15 @@ namespace NBitcoin.BouncyCastle.Crypto
 		* @exception InvalidOperationException if the cipher isn't initialised.
 		*/
 		public override int ProcessByte(
-			byte	input,
-			byte[]	output,
-			int		outOff)
+			byte input,
+			byte[] output,
+			int outOff)
 		{
 			buf[bufOff++] = input;
 
-			if (bufOff == buf.Length)
+			if(bufOff == buf.Length)
 			{
-				if ((outOff + buf.Length) > output.Length)
+				if((outOff + buf.Length) > output.Length)
 					throw new DataLengthException("output buffer too short");
 
 				bufOff = 0;
@@ -151,7 +154,7 @@ namespace NBitcoin.BouncyCastle.Crypto
 
 			int pos = ProcessByte(input, outBytes, 0);
 
-			if (outLength > 0 && pos < outLength)
+			if(outLength > 0 && pos < outLength)
 			{
 				byte[] tmp = new byte[pos];
 				Array.Copy(outBytes, 0, tmp, 0, pos);
@@ -162,13 +165,13 @@ namespace NBitcoin.BouncyCastle.Crypto
 		}
 
 		public override byte[] ProcessBytes(
-			byte[]	input,
-			int		inOff,
-			int		length)
+			byte[] input,
+			int inOff,
+			int length)
 		{
-			if (input == null)
+			if(input == null)
 				throw new ArgumentNullException("input");
-			if (length < 1)
+			if(length < 1)
 				return null;
 
 			int outLength = GetUpdateOutputSize(length);
@@ -177,7 +180,7 @@ namespace NBitcoin.BouncyCastle.Crypto
 
 			int pos = ProcessBytes(input, inOff, length, outBytes, 0);
 
-			if (outLength > 0 && pos < outLength)
+			if(outLength > 0 && pos < outLength)
 			{
 				byte[] tmp = new byte[pos];
 				Array.Copy(outBytes, 0, tmp, 0, pos);
@@ -200,15 +203,15 @@ namespace NBitcoin.BouncyCastle.Crypto
 		* @exception InvalidOperationException if the cipher isn't initialised.
 		*/
 		public override int ProcessBytes(
-			byte[]	input,
-			int		inOff,
-			int		length,
-			byte[]	output,
-			int		outOff)
+			byte[] input,
+			int inOff,
+			int length,
+			byte[] output,
+			int outOff)
 		{
-			if (length < 1)
+			if(length < 1)
 			{
-				if (length < 0)
+				if(length < 0)
 					throw new ArgumentException("Can't have a negative input length!");
 
 				return 0;
@@ -217,21 +220,21 @@ namespace NBitcoin.BouncyCastle.Crypto
 			int blockSize = GetBlockSize();
 			int outLength = GetUpdateOutputSize(length);
 
-			if (outLength > 0)
+			if(outLength > 0)
 			{
-                Check.OutputLength(output, outOff, outLength, "output buffer too short");
+				Check.OutputLength(output, outOff, outLength, "output buffer too short");
 			}
 
-            int resultLen = 0;
+			int resultLen = 0;
 			int gapLen = buf.Length - bufOff;
-			if (length > gapLen)
+			if(length > gapLen)
 			{
 				Array.Copy(input, inOff, buf, bufOff, gapLen);
 				resultLen += cipher.ProcessBlock(buf, 0, output, outOff);
 				bufOff = 0;
 				length -= gapLen;
 				inOff += gapLen;
-				while (length > buf.Length)
+				while(length > buf.Length)
 				{
 					resultLen += cipher.ProcessBlock(input, inOff, output, outOff + resultLen);
 					length -= blockSize;
@@ -240,7 +243,7 @@ namespace NBitcoin.BouncyCastle.Crypto
 			}
 			Array.Copy(input, inOff, buf, bufOff, length);
 			bufOff += length;
-			if (bufOff == buf.Length)
+			if(bufOff == buf.Length)
 			{
 				resultLen += cipher.ProcessBlock(buf, 0, output, outOff + resultLen);
 				bufOff = 0;
@@ -253,12 +256,12 @@ namespace NBitcoin.BouncyCastle.Crypto
 			byte[] outBytes = EmptyBuffer;
 
 			int length = GetOutputSize(0);
-			if (length > 0)
+			if(length > 0)
 			{
 				outBytes = new byte[length];
 
 				int pos = DoFinal(outBytes, 0);
-				if (pos < outBytes.Length)
+				if(pos < outBytes.Length)
 				{
 					byte[] tmp = new byte[pos];
 					Array.Copy(outBytes, 0, tmp, 0, pos);
@@ -274,28 +277,28 @@ namespace NBitcoin.BouncyCastle.Crypto
 		}
 
 		public override byte[] DoFinal(
-			byte[]	input,
-			int		inOff,
-			int		inLen)
+			byte[] input,
+			int inOff,
+			int inLen)
 		{
-			if (input == null)
+			if(input == null)
 				throw new ArgumentNullException("input");
 
 			int length = GetOutputSize(inLen);
 
 			byte[] outBytes = EmptyBuffer;
 
-			if (length > 0)
+			if(length > 0)
 			{
 				outBytes = new byte[length];
 
 				int pos = (inLen > 0)
-					?	ProcessBytes(input, inOff, inLen, outBytes, 0)
-					:	0;
+					? ProcessBytes(input, inOff, inLen, outBytes, 0)
+					: 0;
 
 				pos += DoFinal(outBytes, pos);
 
-				if (pos < outBytes.Length)
+				if(pos < outBytes.Length)
 				{
 					byte[] tmp = new byte[pos];
 					Array.Copy(outBytes, 0, tmp, 0, pos);
@@ -325,17 +328,17 @@ namespace NBitcoin.BouncyCastle.Crypto
 		* aligned.
 		*/
 		public override int DoFinal(
-			byte[]	output,
-			int		outOff)
+			byte[] output,
+			int outOff)
 		{
 			try
 			{
-				if (bufOff != 0)
+				if(bufOff != 0)
 				{
-                    Check.DataLength(!cipher.IsPartialBlockOkay, "data not block size aligned");
-                    Check.OutputLength(output, outOff, bufOff, "output buffer too short for DoFinal()");
+					Check.DataLength(!cipher.IsPartialBlockOkay, "data not block size aligned");
+					Check.OutputLength(output, outOff, bufOff, "output buffer too short for DoFinal()");
 
-                    // NB: Can't copy directly, or we may write too much output
+					// NB: Can't copy directly, or we may write too much output
 					cipher.ProcessBlock(buf, 0, buf, 0);
 					Array.Copy(buf, 0, output, outOff, bufOff);
 				}

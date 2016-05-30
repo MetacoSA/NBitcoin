@@ -12,7 +12,7 @@ namespace NBitcoin.Stealth
 	{
 		public static StealthMetadata CreateMetadata(Key ephemKey, BitField bitField = null)
 		{
-			for(uint nonce = 0 ; nonce < uint.MaxValue ; nonce++)
+			for(uint nonce = 0; nonce < uint.MaxValue; nonce++)
 			{
 				var metadata = new StealthMetadata(ephemKey, nonce);
 				if(bitField == null || bitField.Match(metadata.BitField))

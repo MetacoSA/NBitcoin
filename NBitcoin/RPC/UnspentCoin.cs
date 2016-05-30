@@ -54,9 +54,9 @@ namespace NBitcoin.RPC
 			private set;
 		}
 
-        public Coin AsCoin()
-        {
-            return new Coin(OutPoint, new TxOut(Amount, ScriptPubKey));
-        }
-    }
+		public Coin AsCoin()
+		{
+			return new Coin(OutPoint, new TxOut(Amount, ScriptPubKey));
+		}
+	}
 }

@@ -102,7 +102,7 @@ namespace NBitcoin
  * Standard script verification flags that standard transactions will comply
  * with. However scripts violating these flags may still be present in valid
  * blocks and we must accept those blocks.
- */		
+ */
 
 		Standard =
 			  Mandatory
@@ -277,7 +277,7 @@ namespace NBitcoin
 		OP_NOP7 = 0xb6,
 		OP_NOP8 = 0xb7,
 		OP_NOP9 = 0xb8,
-		OP_NOP10 = 0xb9,		
+		OP_NOP10 = 0xb9,
 	};
 
 	public enum HashVersion
@@ -643,7 +643,7 @@ namespace NBitcoin
 				//The output of txCopy is resized to the size of the current input index+1.
 				txCopy.Outputs.RemoveRange(nIn + 1, txCopy.Outputs.Count - (nIn + 1));
 				//All other txCopy outputs aside from the output that is the same as the current input index are set to a blank script and a value of (long) -1.
-				for(var i = 0 ; i < txCopy.Outputs.Count ; i++)
+				for(var i = 0; i < txCopy.Outputs.Count; i++)
 				{
 					if(i == nIn)
 						continue;
@@ -974,16 +974,16 @@ namespace NBitcoin
 		[DllImport(LibConsensusDll, EntryPoint = "bitcoinconsensus_verify_script", CallingConvention = CallingConvention.Cdecl)]
 		private static extern int VerifyScriptConsensus(byte[] scriptPubKey, uint scriptPubKeyLen, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
 
-        public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags)
-        {
-            var err = BitcoinConsensusError.ERR_OK;
-            return VerifyScriptConsensus(scriptPubKey, tx, nIn, flags, out err);
-        }
-        public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags, out BitcoinConsensusError err)
+		public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags)
+		{
+			var err = BitcoinConsensusError.ERR_OK;
+			return VerifyScriptConsensus(scriptPubKey, tx, nIn, flags, out err);
+		}
+		public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags, out BitcoinConsensusError err)
 		{
 			var scriptPubKeyBytes = scriptPubKey.ToBytes();
 			var txToBytes = tx.ToBytes();
-            err = BitcoinConsensusError.ERR_OK;
+			err = BitcoinConsensusError.ERR_OK;
 			var valid = VerifyScriptConsensus(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, txToBytes, (uint)txToBytes.Length, nIn, flags, ref err);
 			return valid == 1;
 		}
@@ -1186,7 +1186,7 @@ namespace NBitcoin
 			}
 
 			// Fill any missing with OP_0:
-			for(int i = nSigsHave ; i < multiSigParams.SignatureCount ; i++)
+			for(int i = nSigsHave; i < multiSigParams.SignatureCount; i++)
 				result += OpcodeType.OP_0;
 
 			return result;

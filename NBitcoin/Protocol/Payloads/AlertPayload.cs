@@ -144,7 +144,8 @@ namespace NBitcoin.Protocol
 		// it shouldn't be called "version" because the it a field with the same name 
 		public void UpdateSignature(Key key)
 		{
-			if (key == null) throw new ArgumentNullException("key");
+			if(key == null)
+				throw new ArgumentNullException("key");
 			UpdatePayload();
 			signature = new VarString(key.Sign(Hashes.Hash256(payload.GetString())).ToDER());
 		}
@@ -153,19 +154,21 @@ namespace NBitcoin.Protocol
 		{
 			UpdatePayload(new BitcoinStream(new byte[0])
 			{
-				ProtocolVersion = protocolVersion 
+				ProtocolVersion = protocolVersion
 			});
 		}
 
 		public bool CheckSignature(Network network)
 		{
-			if (network == null) throw new ArgumentNullException("network");
+			if(network == null)
+				throw new ArgumentNullException("network");
 			return CheckSignature(network.AlertPubKey);
 		}
 
 		public bool CheckSignature(PubKey key)
 		{
-			if (key == null) throw new ArgumentNullException("key");
+			if(key == null)
+				throw new ArgumentNullException("key");
 			return key.Verify(Hashes.Hash256(payload.GetString()), signature.GetString());
 		}
 

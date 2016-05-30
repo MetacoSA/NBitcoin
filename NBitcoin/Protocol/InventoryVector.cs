@@ -14,7 +14,7 @@ namespace NBitcoin.Protocol
 		MSG_FILTERED_BLOCK = 3,
 
 		// The following can only occur in getdata. Invs always use TX or BLOCK.
-		MSG_TYPE_MASK    = 0xffffffff >> 2,
+		MSG_TYPE_MASK = 0xffffffff >> 2,
 		MSG_WITNESS_FLAG = 1 << 30,
 		MSG_WITNESS_BLOCK = MSG_BLOCK | MSG_WITNESS_FLAG,
 		MSG_WITNESS_TX = MSG_TX | MSG_WITNESS_FLAG,

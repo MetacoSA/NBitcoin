@@ -226,7 +226,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 					throw new IOException("DER length more than 4 bytes: " + size);
 
 				length = 0;
-				for(int i = 0 ; i < size ; i++)
+				for(int i = 0; i < size; i++)
 				{
 					int next = s.ReadByte();
 

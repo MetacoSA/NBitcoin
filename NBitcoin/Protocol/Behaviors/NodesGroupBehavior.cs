@@ -19,11 +19,11 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			_Parent = parent;
 		}
-		
+
 		NodesGroupBehavior()
 		{
 		}
-		
+
 
 		protected override void AttachCore()
 		{
@@ -51,7 +51,7 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
-	
+
 
 		#region ICloneable Members
 

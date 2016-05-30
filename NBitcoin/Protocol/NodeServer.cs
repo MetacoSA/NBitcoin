@@ -83,7 +83,7 @@ namespace NBitcoin.Protocol
 			if(added != null)
 				added(this, node.Node);
 		}
-		
+
 		public bool AllowLocalPeers
 		{
 			get;
@@ -119,7 +119,7 @@ namespace NBitcoin.Protocol
 				try
 				{
 					socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-                    socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
+					socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
 
 					socket.Bind(LocalEndpoint);
 					socket.Listen(8);
@@ -158,7 +158,7 @@ namespace NBitcoin.Protocol
 					var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token);
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
 
-					var stream = new Message.CustomNetworkStream(client, false); 
+					var stream = new Message.CustomNetworkStream(client, false);
 					while(true)
 					{
 						cancel.Token.ThrowIfCancellationRequested();

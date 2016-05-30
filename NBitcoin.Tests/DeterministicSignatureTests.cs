@@ -197,13 +197,13 @@ namespace NBitcoin.Tests
 			Dictionary<string, string> values = ToDictionnary(data);
 
 			return new DeterministicSigTest()
-				{
-					Message = match.Groups[2].Value,
-					Hash = match.Groups[1].Value,
-					K = new BigInteger(values["k"], 16),
-					R = new BigInteger(values["r"], 16),
-					S = new BigInteger(values["s"], 16),
-				};
+			{
+				Message = match.Groups[2].Value,
+				Hash = match.Groups[1].Value,
+				K = new BigInteger(values["k"], 16),
+				R = new BigInteger(values["r"], 16),
+				S = new BigInteger(values["s"], 16),
+			};
 		}
 
 		private static Dictionary<string, string> ToDictionnary(string data)

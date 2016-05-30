@@ -194,10 +194,10 @@ namespace NBitcoin.SPV
 			private Coin[] GetCoins(List<Tuple<Coin, string>> coins, ConcurrentDictionary<string, TrackedScript> trackedScripts, string wallet)
 			{
 				return coins.Select(c => new
-									{
-										Coin = c.Item1,
-										TrackedScript = trackedScripts.TryGet(c.Item2)
-									})
+				{
+					Coin = c.Item1,
+					TrackedScript = trackedScripts.TryGet(c.Item2)
+				})
 									.Where(o => o.TrackedScript != null)
 									.Where(c => c.TrackedScript.Wallet.Equals(wallet, StringComparison.Ordinal))
 									.Select(c => c.TrackedScript.RedeemScript != null ? c.Coin.ToScriptCoin(c.TrackedScript.RedeemScript) : c.Coin)

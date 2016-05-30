@@ -85,12 +85,12 @@ namespace NBitcoin
 						//the smallest combination of UTXO it discovered in Step 4.
 						var allCoins = orderedCoins.ToArray();
 						IMoney minTotal = null;
-						for(int _ = 0 ; _ < 1000 ; _++)
+						for(int _ = 0; _ < 1000; _++)
 						{
 							var selection = new List<ICoin>();
 							Utils.Shuffle(allCoins, _Rand);
 							total = zero;
-							for(int i = 0 ; i < allCoins.Length ; i++)
+							for(int i = 0; i < allCoins.Length; i++)
 							{
 								selection.Add(allCoins[i]);
 								total = total.Add(allCoins[i].Amount);
@@ -1323,7 +1323,7 @@ namespace NBitcoin
 					throw new KeyNotFoundException("Scan key for decrypting StealthCoin not found");
 				var spendKeys = stealthCoin.Address.SpendPubKeys.Select(p => FindKey(ctx, p.ScriptPubKey)).Where(p => p != null).ToArray();
 				ctx.AdditionalKeys.AddRange(stealthCoin.Uncover(spendKeys, scanKey));
-				var normalCoin = new Coin(coin.Outpoint,coin.TxOut);
+				var normalCoin = new Coin(coin.Outpoint, coin.TxOut);
 				if(stealthCoin.Redeem != null)
 					normalCoin = normalCoin.ToScriptCoin(stealthCoin.Redeem);
 				coin = normalCoin;
@@ -1526,7 +1526,7 @@ namespace NBitcoin
 				return null;
 
 			Transaction tx = transactions[0].Clone();
-			for(int i = 1 ; i < transactions.Length ; i++)
+			for(int i = 1; i < transactions.Length; i++)
 			{
 				var signed = transactions[i];
 				tx = CombineSignaturesCore(tx, signed);
@@ -1551,7 +1551,7 @@ namespace NBitcoin
 			if(signed2 == null)
 				return signed1;
 			var tx = signed1.Clone();
-			for(int i = 0 ; i < tx.Inputs.Count ; i++)
+			for(int i = 0; i < tx.Inputs.Count; i++)
 			{
 				if(i >= signed2.Inputs.Count)
 					break;

@@ -79,7 +79,7 @@ namespace NBitcoin.Crypto
 		public static byte[] RIPEMD160(byte[] data, int offset, int count)
 		{
 #if !USEBC
-			using (var ripm = new RIPEMD160Managed())
+			using(var ripm = new RIPEMD160Managed())
 			{
 				return ripm.ComputeHash(data, offset, count);
 			}

@@ -37,7 +37,7 @@ namespace NBitcoin
 			{
 				return new ScriptId(vchData);
 			}
-		}		
+		}
 
 		public override Base58Type Type
 		{
@@ -70,7 +70,7 @@ namespace NBitcoin
 			if(base58 == null)
 				throw new ArgumentNullException("base58");
 			return Network.CreateFromBase58Data<BitcoinAddress>(base58, expectedNetwork);
-		}		
+		}
 
 		public BitcoinAddress(string base58, Network expectedNetwork = null)
 			: base(base58, expectedNetwork)
@@ -105,11 +105,11 @@ namespace NBitcoin
 		public BitcoinScriptAddress GetScriptAddress()
 		{
 			var bitcoinScriptAddress = this as BitcoinScriptAddress;
-			if (bitcoinScriptAddress != null)
+			if(bitcoinScriptAddress != null)
 				return bitcoinScriptAddress;
 
 			return new BitcoinScriptAddress(this.ScriptPubKey.Hash, Network);
-		}		
+		}
 
 		public BitcoinColoredAddress ToColoredAddress()
 		{

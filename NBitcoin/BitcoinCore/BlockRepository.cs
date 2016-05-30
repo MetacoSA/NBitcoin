@@ -12,7 +12,7 @@ namespace NBitcoin.BitcoinCore
 	{
 		IndexedBlockStore _BlockStore;
 		IndexedBlockStore _HeaderStore;
-		public BlockRepository(IndexedBlockStore blockStore, 
+		public BlockRepository(IndexedBlockStore blockStore,
 							   IndexedBlockStore headerStore)
 		{
 			if(blockStore == null)
@@ -44,7 +44,7 @@ namespace NBitcoin.BitcoinCore
 
 		public async Task<Block> GetBlockAsync(uint256 hash)
 		{
-			return await _BlockStore.GetAsync(hash).ConfigureAwait(false) 
+			return await _BlockStore.GetAsync(hash).ConfigureAwait(false)
 				?? await _HeaderStore.GetAsync(hash).ConfigureAwait(false);
 		}
 	}

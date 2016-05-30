@@ -22,7 +22,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 		}
 
 		internal override void Encode(
-			DerOutputStream  derOut)
+			DerOutputStream derOut)
 		{
 			derOut.WriteEncoded(Asn1Tags.Null, zeroBytes);
 		}

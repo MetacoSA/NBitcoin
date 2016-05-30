@@ -6,7 +6,7 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
 #if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT || PORTABLE)
     [Serializable]
 #endif
-    public class StreamOverflowException
+	public class StreamOverflowException
 		: IOException
 	{
 		public StreamOverflowException()
@@ -21,8 +21,8 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
 		}
 
 		public StreamOverflowException(
-			string		message,
-			Exception	exception)
+			string message,
+			Exception exception)
 			: base(message, exception)
 		{
 		}

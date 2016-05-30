@@ -54,7 +54,10 @@ namespace NBitcoin
 		Key _Key;
 		public Key PrivateKey
 		{
-			get { return _Key ?? (_Key = new Key(vchData, 32, IsCompressed)); }
+			get
+			{
+				return _Key ?? (_Key = new Key(vchData, 32, IsCompressed));
+			}
 		}
 		#endregion
 

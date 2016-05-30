@@ -52,13 +52,13 @@ namespace NBitcoin
 
 	public class BitcoinWitScriptAddress : BitcoinAddress
 	{
-				public BitcoinWitScriptAddress(string base58, Network expectedNetwork = null)
-			: base(base58, expectedNetwork)
+		public BitcoinWitScriptAddress(string base58, Network expectedNetwork = null)
+	: base(base58, expectedNetwork)
 		{
 		}
 
-				public BitcoinWitScriptAddress(WitScriptId segwitKeyId, Network network)
-			: base(new[] { (byte)OpcodeType.OP_0, (byte)0x00 }.Concat(segwitKeyId.ToBytes(true)).ToArray(), network)
+		public BitcoinWitScriptAddress(WitScriptId segwitKeyId, Network network)
+	: base(new[] { (byte)OpcodeType.OP_0, (byte)0x00 }.Concat(segwitKeyId.ToBytes(true)).ToArray(), network)
 		{
 		}
 

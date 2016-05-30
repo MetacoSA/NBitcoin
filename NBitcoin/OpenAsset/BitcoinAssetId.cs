@@ -23,8 +23,10 @@ namespace NBitcoin.OpenAsset
 		public BitcoinAssetId(AssetId assetId, Network network)
 			: this(assetId._Bytes, network)
 		{
-			if (assetId == null) throw new ArgumentNullException("assetId");
-			if (network == null) throw new ArgumentNullException("network");
+			if(assetId == null)
+				throw new ArgumentNullException("assetId");
+			if(network == null)
+				throw new ArgumentNullException("network");
 		}
 
 		AssetId _AssetId;

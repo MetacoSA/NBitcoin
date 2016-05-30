@@ -17,7 +17,7 @@ namespace NBitcoin
 			while(row.Count != 1)
 			{
 				var parentRow = new List<MerkleNode>();
-				for(int i = 0 ; i < row.Count ; i += 2)
+				for(int i = 0; i < row.Count; i += 2)
 				{
 					var left = row[i];
 					var right = i + 1 < row.Count ? row[i + 1] : null;

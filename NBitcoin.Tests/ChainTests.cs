@@ -54,7 +54,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseRandomScripts()
 		{
-			for(int i = 0 ; i < 600 ; i++)
+			for(int i = 0; i < 600; i++)
 			{
 				var bytes = RandomUtils.GetBytes(120);
 				new Script(bytes).ToString();
@@ -367,7 +367,7 @@ namespace NBitcoin.Tests
 		private ConcurrentChain CreateChain(BlockHeader genesis, int height)
 		{
 			var chain = new ConcurrentChain(genesis);
-			for(int i = 0 ; i < height ; i++)
+			for(int i = 0; i < height; i++)
 			{
 				var b = TestUtils.CreateFakeBlock();
 				b.Header.HashPrevBlock = chain.Tip.HashBlock;

@@ -55,7 +55,7 @@ namespace System.Web.Util
 #else
 		static HttpEncoder defaultEncoder;
 #endif
-		static HttpEncoder currentEncoder;		
+		static HttpEncoder currentEncoder;
 
 		static HttpEncoder()
 		{
@@ -72,7 +72,7 @@ namespace System.Web.Util
 		{
 		}
 
-#if NET_4_0		
+#if NET_4_0
 		protected internal virtual void HtmlAttributeEncode (string value, TextWriter output)
 		{
 
@@ -148,11 +148,11 @@ namespace System.Web.Util
 
 			MemoryStream result = new MemoryStream(count);
 			int end = offset + count;
-			for(int i = offset ; i < end ; i++)
+			for(int i = offset; i < end; i++)
 				UrlEncodeChar((char)bytes[i], result, false);
 
 			return result.ToArray();
-		}		
+		}
 
 		internal static bool NotEncoded(char c)
 		{

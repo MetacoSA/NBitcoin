@@ -14,9 +14,9 @@ namespace NBitcoin.BouncyCastle.Asn1
 		}
 
 		public DerSequenceGenerator(
-			Stream	outStream,
-			int		tagNo,
-			bool	isExplicit)
+			Stream outStream,
+			int tagNo,
+			bool isExplicit)
 			: base(outStream, tagNo, isExplicit)
 		{
 		}

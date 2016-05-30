@@ -6,41 +6,41 @@ using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Crypto.Digests
 {
-    /**
+	/**
     * Base class for SHA-384 and SHA-512.
     */
-    public abstract class LongDigest
+	public abstract class LongDigest
 		: IDigest, IMemoable
-    {
-        private int     MyByteLength = 128;
+	{
+		private int MyByteLength = 128;
 
-        private byte[]  xBuf;
-        private int     xBufOff;
+		private byte[] xBuf;
+		private int xBufOff;
 
-        private long	byteCount1;
-        private long	byteCount2;
+		private long byteCount1;
+		private long byteCount2;
 
-        internal ulong H1, H2, H3, H4, H5, H6, H7, H8;
+		internal ulong H1, H2, H3, H4, H5, H6, H7, H8;
 
-        private ulong[] W = new ulong[80];
-        private int wOff;
+		private ulong[] W = new ulong[80];
+		private int wOff;
 
 		/**
         * Constructor for variable length word
         */
-        internal LongDigest()
-        {
-            xBuf = new byte[8];
+		internal LongDigest()
+		{
+			xBuf = new byte[8];
 
 			Reset();
-        }
+		}
 
 		/**
         * Copy constructor.  We are using copy constructors in place
         * of the object.Clone() interface as this interface is not
         * supported by J2ME.
         */
-        internal LongDigest(
+		internal LongDigest(
 			LongDigest t)
 		{
 			xBuf = new byte[t.xBuf.Length];
@@ -50,180 +50,180 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 
 		protected void CopyIn(LongDigest t)
 		{
-            Array.Copy(t.xBuf, 0, xBuf, 0, t.xBuf.Length);
+			Array.Copy(t.xBuf, 0, xBuf, 0, t.xBuf.Length);
 
-            xBufOff = t.xBufOff;
-            byteCount1 = t.byteCount1;
-            byteCount2 = t.byteCount2;
+			xBufOff = t.xBufOff;
+			byteCount1 = t.byteCount1;
+			byteCount2 = t.byteCount2;
 
-            H1 = t.H1;
-            H2 = t.H2;
-            H3 = t.H3;
-            H4 = t.H4;
-            H5 = t.H5;
-            H6 = t.H6;
-            H7 = t.H7;
-            H8 = t.H8;
+			H1 = t.H1;
+			H2 = t.H2;
+			H3 = t.H3;
+			H4 = t.H4;
+			H5 = t.H5;
+			H6 = t.H6;
+			H7 = t.H7;
+			H8 = t.H8;
 
-            Array.Copy(t.W, 0, W, 0, t.W.Length);
-            wOff = t.wOff;
-        }
+			Array.Copy(t.W, 0, W, 0, t.W.Length);
+			wOff = t.wOff;
+		}
 
-        public void Update(
-            byte input)
-        {
-            xBuf[xBufOff++] = input;
+		public void Update(
+			byte input)
+		{
+			xBuf[xBufOff++] = input;
 
-            if (xBufOff == xBuf.Length)
-            {
-                ProcessWord(xBuf, 0);
-                xBufOff = 0;
-            }
+			if(xBufOff == xBuf.Length)
+			{
+				ProcessWord(xBuf, 0);
+				xBufOff = 0;
+			}
 
-            byteCount1++;
-        }
+			byteCount1++;
+		}
 
-        public void BlockUpdate(
-            byte[]  input,
-            int     inOff,
-            int     length)
-        {
-            //
-            // fill the current word
-            //
-            while ((xBufOff != 0) && (length > 0))
-            {
-                Update(input[inOff]);
+		public void BlockUpdate(
+			byte[] input,
+			int inOff,
+			int length)
+		{
+			//
+			// fill the current word
+			//
+			while((xBufOff != 0) && (length > 0))
+			{
+				Update(input[inOff]);
 
-                inOff++;
-                length--;
-            }
+				inOff++;
+				length--;
+			}
 
-            //
-            // process whole words.
-            //
-            while (length > xBuf.Length)
-            {
-                ProcessWord(input, inOff);
+			//
+			// process whole words.
+			//
+			while(length > xBuf.Length)
+			{
+				ProcessWord(input, inOff);
 
-                inOff += xBuf.Length;
-                length -= xBuf.Length;
-                byteCount1 += xBuf.Length;
-            }
+				inOff += xBuf.Length;
+				length -= xBuf.Length;
+				byteCount1 += xBuf.Length;
+			}
 
-            //
-            // load in the remainder.
-            //
-            while (length > 0)
-            {
-                Update(input[inOff]);
+			//
+			// load in the remainder.
+			//
+			while(length > 0)
+			{
+				Update(input[inOff]);
 
-                inOff++;
-                length--;
-            }
-        }
+				inOff++;
+				length--;
+			}
+		}
 
-        public void Finish()
-        {
-            AdjustByteCounts();
+		public void Finish()
+		{
+			AdjustByteCounts();
 
-            long    lowBitLength = byteCount1 << 3;
-            long    hiBitLength = byteCount2;
+			long lowBitLength = byteCount1 << 3;
+			long hiBitLength = byteCount2;
 
-            //
-            // add the pad bytes.
-            //
-            Update((byte)128);
+			//
+			// add the pad bytes.
+			//
+			Update((byte)128);
 
-            while (xBufOff != 0)
-            {
-                Update((byte)0);
-            }
+			while(xBufOff != 0)
+			{
+				Update((byte)0);
+			}
 
-            ProcessLength(lowBitLength, hiBitLength);
+			ProcessLength(lowBitLength, hiBitLength);
 
-            ProcessBlock();
-        }
+			ProcessBlock();
+		}
 
-        public virtual void Reset()
-        {
-            byteCount1 = 0;
-            byteCount2 = 0;
+		public virtual void Reset()
+		{
+			byteCount1 = 0;
+			byteCount2 = 0;
 
-            xBufOff = 0;
-            for ( int i = 0; i < xBuf.Length; i++ )
-            {
-                xBuf[i] = 0;
-            }
+			xBufOff = 0;
+			for(int i = 0; i < xBuf.Length; i++)
+			{
+				xBuf[i] = 0;
+			}
 
-            wOff = 0;
+			wOff = 0;
 			Array.Clear(W, 0, W.Length);
-        }
+		}
 
-        internal void ProcessWord(
-            byte[]  input,
-            int     inOff)
-        {
+		internal void ProcessWord(
+			byte[] input,
+			int inOff)
+		{
 			W[wOff] = Pack.BE_To_UInt64(input, inOff);
 
-            if (++wOff == 16)
-            {
-                ProcessBlock();
-            }
-        }
+			if(++wOff == 16)
+			{
+				ProcessBlock();
+			}
+		}
 
 		/**
         * adjust the byte counts so that byteCount2 represents the
         * upper long (less 3 bits) word of the byte count.
         */
-        private void AdjustByteCounts()
-        {
-            if (byteCount1 > 0x1fffffffffffffffL)
-            {
-                byteCount2 += (long) ((ulong) byteCount1 >> 61);
-                byteCount1 &= 0x1fffffffffffffffL;
-            }
-        }
+		private void AdjustByteCounts()
+		{
+			if(byteCount1 > 0x1fffffffffffffffL)
+			{
+				byteCount2 += (long)((ulong)byteCount1 >> 61);
+				byteCount1 &= 0x1fffffffffffffffL;
+			}
+		}
 
-        internal void ProcessLength(
-            long	lowW,
-            long	hiW)
-        {
-            if (wOff > 14)
-            {
-                ProcessBlock();
-            }
+		internal void ProcessLength(
+			long lowW,
+			long hiW)
+		{
+			if(wOff > 14)
+			{
+				ProcessBlock();
+			}
 
-            W[14] = (ulong)hiW;
-            W[15] = (ulong)lowW;
-        }
+			W[14] = (ulong)hiW;
+			W[15] = (ulong)lowW;
+		}
 
-        internal void ProcessBlock()
-        {
-            AdjustByteCounts();
+		internal void ProcessBlock()
+		{
+			AdjustByteCounts();
 
-            //
-            // expand 16 word block into 80 word blocks.
-            //
-            for (int ti = 16; ti <= 79; ++ti)
-            {
-                W[ti] = Sigma1(W[ti - 2]) + W[ti - 7] + Sigma0(W[ti - 15]) + W[ti - 16];
-            }
+			//
+			// expand 16 word block into 80 word blocks.
+			//
+			for(int ti = 16; ti <= 79; ++ti)
+			{
+				W[ti] = Sigma1(W[ti - 2]) + W[ti - 7] + Sigma0(W[ti - 15]) + W[ti - 16];
+			}
 
-            //
-            // set up working variables.
-            //
-            ulong a = H1;
-            ulong b = H2;
-            ulong c = H3;
-            ulong d = H4;
-            ulong e = H5;
-            ulong f = H6;
-            ulong g = H7;
-            ulong h = H8;
+			//
+			// set up working variables.
+			//
+			ulong a = H1;
+			ulong b = H2;
+			ulong c = H3;
+			ulong d = H4;
+			ulong e = H5;
+			ulong f = H6;
+			ulong g = H7;
+			ulong h = H8;
 
 			int t = 0;
-			for(int i = 0; i < 10; i ++)
+			for(int i = 0; i < 10; i++)
 			{
 				// t = 8 * i
 				h += Sum1(e) + Ch(e, f, g) + K[t] + W[t++];
@@ -267,53 +267,53 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			}
 
 			H1 += a;
-            H2 += b;
-            H3 += c;
-            H4 += d;
-            H5 += e;
-            H6 += f;
-            H7 += g;
-            H8 += h;
+			H2 += b;
+			H3 += c;
+			H4 += d;
+			H5 += e;
+			H6 += f;
+			H7 += g;
+			H8 += h;
 
 			//
-            // reset the offset and clean out the word buffer.
-            //
-            wOff = 0;
+			// reset the offset and clean out the word buffer.
+			//
+			wOff = 0;
 			Array.Clear(W, 0, 16);
 		}
 
 		/* SHA-384 and SHA-512 functions (as for SHA-256 but for longs) */
-        private static ulong Ch(ulong x, ulong y, ulong z)
-        {
-            return (x & y) ^ (~x & z);
-        }
+		private static ulong Ch(ulong x, ulong y, ulong z)
+		{
+			return (x & y) ^ (~x & z);
+		}
 
-        private static ulong Maj(ulong x, ulong y, ulong z)
-        {
-            return (x & y) ^ (x & z) ^ (y & z);
-        }
+		private static ulong Maj(ulong x, ulong y, ulong z)
+		{
+			return (x & y) ^ (x & z) ^ (y & z);
+		}
 
-        private static ulong Sum0(ulong x)
-        {
-	        return ((x << 36) | (x >> 28)) ^ ((x << 30) | (x >> 34)) ^ ((x << 25) | (x >> 39));
-        }
+		private static ulong Sum0(ulong x)
+		{
+			return ((x << 36) | (x >> 28)) ^ ((x << 30) | (x >> 34)) ^ ((x << 25) | (x >> 39));
+		}
 
 		private static ulong Sum1(ulong x)
-        {
-	        return ((x << 50) | (x >> 14)) ^ ((x << 46) | (x >> 18)) ^ ((x << 23) | (x >> 41));
-        }
+		{
+			return ((x << 50) | (x >> 14)) ^ ((x << 46) | (x >> 18)) ^ ((x << 23) | (x >> 41));
+		}
 
-        private static ulong Sigma0(ulong x)
-        {
-	        return ((x << 63) | (x >> 1)) ^ ((x << 56) | (x >> 8)) ^ (x >> 7);
-        }
+		private static ulong Sigma0(ulong x)
+		{
+			return ((x << 63) | (x >> 1)) ^ ((x << 56) | (x >> 8)) ^ (x >> 7);
+		}
 
-        private static ulong Sigma1(ulong x)
-        {
-	        return ((x << 45) | (x >> 19)) ^ ((x << 3) | (x >> 61)) ^ (x >> 6);
-        }
+		private static ulong Sigma1(ulong x)
+		{
+			return ((x << 45) | (x >> 19)) ^ ((x << 3) | (x >> 61)) ^ (x >> 6);
+		}
 
-        /* SHA-384 and SHA-512 Constants
+		/* SHA-384 and SHA-512 Constants
          * (represent the first 64 bits of the fractional parts of the
          * cube roots of the first sixty-four prime numbers)
          */
@@ -346,10 +346,13 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			return MyByteLength;
 		}
 
-		public abstract string AlgorithmName { get; }
+		public abstract string AlgorithmName
+		{
+			get;
+		}
 		public abstract int GetDigestSize();
-        public abstract int DoFinal(byte[] output, int outOff);
+		public abstract int DoFinal(byte[] output, int outOff);
 		public abstract IMemoable Copy();
 		public abstract void Reset(IMemoable t);
-    }
+	}
 }

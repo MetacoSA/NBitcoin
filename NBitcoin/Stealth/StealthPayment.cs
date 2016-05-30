@@ -146,7 +146,7 @@ namespace NBitcoin.Stealth
 		public static StealthPayment[] GetPayments(Transaction transaction, BitcoinStealthAddress address, Key scan)
 		{
 			List<StealthPayment> result = new List<StealthPayment>();
-			for(int i = 0 ; i < transaction.Outputs.Count - 1 ; i++)
+			for(int i = 0; i < transaction.Outputs.Count - 1; i++)
 			{
 				var metadata = StealthMetadata.TryParse(transaction.Outputs[i].ScriptPubKey);
 				if(metadata != null && (address == null || address.Prefix.Match(metadata.BitField)))

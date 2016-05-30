@@ -143,8 +143,8 @@ namespace NBitcoin.Protocol.Behaviors
 		{
 			return new BroadcastHubBehavior(this);
 		}
-	}		
-	
+	}
+
 	public class BroadcastHubBehavior : NodeBehavior
 	{
 		ConcurrentDictionary<uint256, TransactionBroadcast> _HashToTransaction = new ConcurrentDictionary<uint256, TransactionBroadcast>();
@@ -255,7 +255,7 @@ namespace NBitcoin.Protocol.Behaviors
 				tx.AnnouncedTime = DateTime.UtcNow;
 				node.SendMessageAsync(new InvPayload(InventoryType.MSG_TX, hash)).ConfigureAwait(false);
 			}
-		}		
+		}
 
 		Timer _Flush;
 		protected override void AttachCore()
@@ -267,12 +267,12 @@ namespace NBitcoin.Protocol.Behaviors
 				AnnounceAll();
 			}, null, 0, (int)TimeSpan.FromMinutes(10).TotalMilliseconds);
 		}
-		
+
 		protected override void DetachCore()
 		{
 			AttachedNode.StateChanged -= AttachedNode_StateChanged;
 			AttachedNode.MessageReceived -= AttachedNode_MessageReceived;
-			
+
 			Node unused;
 			_BroadcastHub.Nodes.TryRemove(AttachedNode, out unused);
 			_Flush.Dispose();

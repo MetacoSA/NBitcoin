@@ -3,10 +3,13 @@ using System;
 namespace NBitcoin.BouncyCastle.Crypto
 {
 	/// <summary>The interface stream ciphers conform to.</summary>
-    public interface IStreamCipher
-    {
+	public interface IStreamCipher
+	{
 		/// <summary>The name of the algorithm this cipher implements.</summary>
-		string AlgorithmName { get; }
+		string AlgorithmName
+		{
+			get;
+		}
 
 		/// <summary>Initialise the cipher.</summary>
 		/// <param name="forEncryption">If true the cipher is initialised for encryption,
@@ -15,12 +18,12 @@ namespace NBitcoin.BouncyCastle.Crypto
 		/// <exception cref="ArgumentException">
 		/// If the parameters argument is inappropriate.
 		/// </exception>
-        void Init(bool forEncryption, ICipherParameters parameters);
+		void Init(bool forEncryption, ICipherParameters parameters);
 
 		/// <summary>encrypt/decrypt a single byte returning the result.</summary>
 		/// <param name="input">the byte to be processed.</param>
 		/// <returns>the result of processing the input byte.</returns>
-        byte ReturnByte(byte input);
+		byte ReturnByte(byte input);
 
 		/// <summary>
 		/// Process a block of bytes from <c>input</c> putting the result into <c>output</c>.
@@ -35,11 +38,11 @@ namespace NBitcoin.BouncyCastle.Crypto
 		/// The offset into <c>output</c> the processed data starts at.
 		/// </param>
 		/// <exception cref="DataLengthException">If the output buffer is too small.</exception>
-        void ProcessBytes(byte[] input, int inOff, int length, byte[] output, int outOff);
+		void ProcessBytes(byte[] input, int inOff, int length, byte[] output, int outOff);
 
 		/// <summary>
 		/// Reset the cipher to the same state as it was after the last init (if there was one).
 		/// </summary>
 		void Reset();
-    }
+	}
 }

@@ -348,13 +348,13 @@ namespace NBitcoin.Protocol
 			vRandom = new List<int>();
 			nKey = new uint256(RandomUtils.GetBytes(32));
 			vvNew = new int[ADDRMAN_NEW_BUCKET_COUNT, ADDRMAN_BUCKET_SIZE];
-			for(int i = 0 ; i < ADDRMAN_NEW_BUCKET_COUNT ; i++)
-				for(int j = 0 ; j < ADDRMAN_BUCKET_SIZE ; j++)
+			for(int i = 0; i < ADDRMAN_NEW_BUCKET_COUNT; i++)
+				for(int j = 0; j < ADDRMAN_BUCKET_SIZE; j++)
 					vvNew[i, j] = -1;
 
 			vvTried = new int[ADDRMAN_TRIED_BUCKET_COUNT, ADDRMAN_BUCKET_SIZE];
-			for(int i = 0 ; i < ADDRMAN_TRIED_BUCKET_COUNT ; i++)
-				for(int j = 0 ; j < ADDRMAN_BUCKET_SIZE ; j++)
+			for(int i = 0; i < ADDRMAN_TRIED_BUCKET_COUNT; i++)
+				for(int j = 0; j < ADDRMAN_BUCKET_SIZE; j++)
 					vvTried[i, j] = -1;
 
 			nIdCount = 0;
@@ -402,7 +402,7 @@ namespace NBitcoin.Protocol
 				if(!stream.Serializing)
 				{
 					// Deserialize entries from the new table.
-					for(int n = 0 ; n < nNew ; n++)
+					for(int n = 0; n < nNew; n++)
 					{
 						AddressInfo info = new AddressInfo();
 						info.ReadWrite(stream);
@@ -428,7 +428,7 @@ namespace NBitcoin.Protocol
 
 					// Deserialize entries from the tried table.
 					int nLost = 0;
-					for(int n = 0 ; n < nTried ; n++)
+					for(int n = 0; n < nTried; n++)
 					{
 						AddressInfo info = new AddressInfo();
 						info.ReadWrite(stream);
@@ -453,11 +453,11 @@ namespace NBitcoin.Protocol
 					nTried -= nLost;
 
 					// Deserialize positions in the new table (if possible).
-					for(int bucket = 0 ; bucket < nUBuckets ; bucket++)
+					for(int bucket = 0; bucket < nUBuckets; bucket++)
 					{
 						int nSize = 0;
 						stream.ReadWrite(ref nSize);
-						for(int n = 0 ; n < nSize ; n++)
+						for(int n = 0; n < nSize; n++)
 						{
 							int nIndex = 0;
 							stream.ReadWrite(ref nIndex);
@@ -512,16 +512,16 @@ namespace NBitcoin.Protocol
 						}
 					}
 
-					for(int bucket = 0 ; bucket < ADDRMAN_NEW_BUCKET_COUNT ; bucket++)
+					for(int bucket = 0; bucket < ADDRMAN_NEW_BUCKET_COUNT; bucket++)
 					{
 						int nSize = 0;
-						for(int i = 0 ; i < ADDRMAN_BUCKET_SIZE ; i++)
+						for(int i = 0; i < ADDRMAN_BUCKET_SIZE; i++)
 						{
 							if(vvNew[bucket, i] != -1)
 								nSize++;
 						}
 						stream.ReadWrite(ref nSize);
-						for(int i = 0 ; i < ADDRMAN_BUCKET_SIZE ; i++)
+						for(int i = 0; i < ADDRMAN_BUCKET_SIZE; i++)
 						{
 							if(vvNew[bucket, i] != -1)
 							{
@@ -605,7 +605,7 @@ namespace NBitcoin.Protocol
 
 				// stochastic test: previous nRefCount == N: 2^N times harder to increase it
 				int nFactor = 1;
-				for(int n = 0 ; n < pinfo.nRefCount ; n++)
+				for(int n = 0; n < pinfo.nRefCount; n++)
 					nFactor *= 2;
 				if(nFactor > 1 && (GetRandInt(nFactor) != 0))
 					return false;
@@ -776,9 +776,9 @@ namespace NBitcoin.Protocol
 			if(mapNew.Count != nNew)
 				return -10;
 
-			for(int n = 0 ; n < ADDRMAN_TRIED_BUCKET_COUNT ; n++)
+			for(int n = 0; n < ADDRMAN_TRIED_BUCKET_COUNT; n++)
 			{
-				for(int i = 0 ; i < ADDRMAN_BUCKET_SIZE ; i++)
+				for(int i = 0; i < ADDRMAN_BUCKET_SIZE; i++)
 				{
 					if(vvTried[n, i] != -1)
 					{
@@ -793,9 +793,9 @@ namespace NBitcoin.Protocol
 				}
 			}
 
-			for(int n = 0 ; n < ADDRMAN_NEW_BUCKET_COUNT ; n++)
+			for(int n = 0; n < ADDRMAN_NEW_BUCKET_COUNT; n++)
 			{
-				for(int i = 0 ; i < ADDRMAN_BUCKET_SIZE ; i++)
+				for(int i = 0; i < ADDRMAN_BUCKET_SIZE; i++)
 				{
 					if(vvNew[n, i] != -1)
 					{
@@ -864,7 +864,7 @@ namespace NBitcoin.Protocol
 			// find a bucket it is in now
 			int nRnd = GetRandInt(ADDRMAN_NEW_BUCKET_COUNT);
 			int nUBucket = -1;
-			for(int n = 0 ; n < ADDRMAN_NEW_BUCKET_COUNT ; n++)
+			for(int n = 0; n < ADDRMAN_NEW_BUCKET_COUNT; n++)
 			{
 				int nB = (n + nRnd) % ADDRMAN_NEW_BUCKET_COUNT;
 				int nBpos = info.GetBucketPosition(nKey, true, nB);
@@ -887,7 +887,7 @@ namespace NBitcoin.Protocol
 		private void MakeTried(AddressInfo info, int nId)
 		{
 			// remove the entry from all new buckets
-			for(int bucket = 0 ; bucket < ADDRMAN_NEW_BUCKET_COUNT ; bucket++)
+			for(int bucket = 0; bucket < ADDRMAN_NEW_BUCKET_COUNT; bucket++)
 			{
 				int pos = info.GetBucketPosition(nKey, true, bucket);
 				if(vvNew[bucket, pos] == nId)
@@ -1099,7 +1099,7 @@ namespace NBitcoin.Protocol
 			if(nNodes > ADDRMAN_GETADDR_MAX)
 				nNodes = ADDRMAN_GETADDR_MAX;
 			// gather a list of random nodes, skipping those of low quality
-			for(int n = 0 ; n < vRandom.Count ; n++)
+			for(int n = 0; n < vRandom.Count; n++)
 			{
 				if(vAddr.Count >= nNodes)
 					break;

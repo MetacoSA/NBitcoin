@@ -3,10 +3,13 @@ using System;
 namespace NBitcoin.BouncyCastle.Crypto
 {
 	/// <remarks>Base interface for a symmetric key block cipher.</remarks>
-    public interface IBlockCipher
-    {
+	public interface IBlockCipher
+	{
 		/// <summary>The name of the algorithm this cipher implements.</summary>
-		string AlgorithmName { get; }
+		string AlgorithmName
+		{
+			get;
+		}
 
 		/// <summary>Initialise the cipher.</summary>
 		/// <param name="forEncryption">Initialise for encryption if true, for decryption if false.</param>
@@ -17,7 +20,10 @@ namespace NBitcoin.BouncyCastle.Crypto
 		int GetBlockSize();
 
 		/// <summary>Indicates whether this cipher can handle partial blocks.</summary>
-		bool IsPartialBlockOkay { get; }
+		bool IsPartialBlockOkay
+		{
+			get;
+		}
 
 		/// <summary>Process a block.</summary>
 		/// <param name="inBuf">The input buffer.</param>
@@ -31,6 +37,6 @@ namespace NBitcoin.BouncyCastle.Crypto
 		/// <summary>
 		/// Reset the cipher to the same state as it was after the last init (if there was one).
 		/// </summary>
-        void Reset();
-    }
+		void Reset();
+	}
 }

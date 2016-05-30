@@ -288,15 +288,15 @@ namespace NBitcoin
 
 			foreach(var op in new[]
 			{
-				new object[]{"OP_0", OpcodeType.OP_0}, 
-				new object[]{"OP_1", OpcodeType.OP_1}, 
-				new object[]{"OP_2", OpcodeType.OP_2}, 
-				new object[]{"OP_3", OpcodeType.OP_3}, 
-				new object[]{"OP_4", OpcodeType.OP_4}, 
-				new object[]{"OP_5", OpcodeType.OP_5}, 
-				new object[]{"OP_6", OpcodeType.OP_6}, 
-				new object[]{"OP_7", OpcodeType.OP_7}, 
-				new object[]{"OP_8", OpcodeType.OP_8}, 
+				new object[]{"OP_0", OpcodeType.OP_0},
+				new object[]{"OP_1", OpcodeType.OP_1},
+				new object[]{"OP_2", OpcodeType.OP_2},
+				new object[]{"OP_3", OpcodeType.OP_3},
+				new object[]{"OP_4", OpcodeType.OP_4},
+				new object[]{"OP_5", OpcodeType.OP_5},
+				new object[]{"OP_6", OpcodeType.OP_6},
+				new object[]{"OP_7", OpcodeType.OP_7},
+				new object[]{"OP_8", OpcodeType.OP_8},
 				new object[]{"OP_9", OpcodeType.OP_9}
 			})
 			{
@@ -373,7 +373,7 @@ namespace NBitcoin
 			{
 				valid[(byte)val] = true;
 			}
-			for(byte i = 0 ; ; i++)
+			for(byte i = 0; ; i++)
 			{
 				if(IsPushCode((OpcodeType)i))
 					valid[i] = true;
@@ -491,7 +491,7 @@ namespace NBitcoin
 				else //Mitigate against a big array allocation
 				{
 					List<byte> bytes = new List<byte>();
-					for(int i = 0 ; i < len ; i++)
+					for(int i = 0; i < len; i++)
 					{
 						var b = stream.ReadByte();
 						if(b < 0)

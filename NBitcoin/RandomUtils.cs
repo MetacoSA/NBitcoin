@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 #if !USEBC
-		using System.Security.Cryptography;
+using System.Security.Cryptography;
 #endif
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
@@ -59,13 +59,13 @@ namespace NBitcoin
 				return;
 			int pos = entropyIndex;
 			var entropy = additionalEntropy;
-			for(int i = 0 ; i < data.Length ; i++)
+			for(int i = 0; i < data.Length; i++)
 			{
 				data[i] ^= entropy[pos % 32];
 				pos++;
 			}
 			entropy = Hashes.SHA256(data);
-			for(int i = 0 ; i < data.Length ; i++)
+			for(int i = 0; i < data.Length; i++)
 			{
 				data[i] ^= entropy[pos % 32];
 				pos++;
@@ -92,7 +92,7 @@ namespace NBitcoin
 				additionalEntropy = entropy;
 			else
 			{
-				for(int i = 0 ; i < 32 ; i++)
+				for(int i = 0; i < 32; i++)
 				{
 					additionalEntropy[i] ^= entropy[i];
 				}

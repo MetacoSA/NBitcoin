@@ -110,7 +110,7 @@ namespace NBitcoin.Tests
 			//Took from http://brainwallet.org/ and http://procbits.com/2013/08/27/generating-a-bitcoin-address-with-javascript
 			var tests = new[]
 			{
-				new 
+				new
 				{
 					PrivateKeyWIF = "5Hx15HFGyep2CfPxsJKe2fXJsCVn5DEiyoeGGF6JZjGbTRnqfiD",
 					CompressedPrivateKeyWIF = "KwomKti1X3tYJUUMb1TGSM2mrZk1wb1aHisUNHCQXTZq5auC2qc3",
@@ -138,14 +138,14 @@ namespace NBitcoin.Tests
 			{
 				BitcoinSecret secret = Network.Main.CreateBitcoinSecret(test.PrivateKeyWIF);
 				Assert.Equal(test.PubKey, secret.PrivateKey.PubKey.ToHex());
-				
+
 				var address = (BitcoinPubKeyAddress)Network.Main.CreateBitcoinAddress(test.Address);
 				Assert.Equal(new KeyId(test.Hash160), address.Hash);
 				Assert.Equal(new KeyId(test.Hash160), secret.PrivateKey.PubKey.Hash);
 				Assert.Equal(address.Hash, secret.PrivateKey.PubKey.GetAddress(Network.Main).Hash);
 
 				var compressedSec = secret.Copy(true);
-			
+
 				var a = secret.PrivateKey.PubKey;
 				var b = compressedSec.PrivateKey.PubKey;
 
@@ -160,7 +160,7 @@ namespace NBitcoin.Tests
 
 			}
 		}
-		
+
 		[Fact]
 		[Trait("Core", "Core")]
 		public void key_test1()
@@ -195,7 +195,7 @@ namespace NBitcoin.Tests
 
 
 
-			for(int n = 0 ; n < 16 ; n++)
+			for(int n = 0; n < 16; n++)
 			{
 				string strMsg = String.Format("Very secret message {0}: 11", n);
 				if(n == 10)
@@ -273,19 +273,19 @@ namespace NBitcoin.Tests
 		}
 
 
-        [Fact]
-        [Trait("Core", "Core")]
-        public void key_test_from_bytes()
-        {
-            //Example private key taken from https://en.bitcoin.it/wiki/Private_key
-            Byte[] privateKey = new Byte[32] { 0xE9, 0x87, 0x3D, 0x79, 0xC6, 0xD8, 0x7D, 0xC0, 0xFB, 0x6A, 0x57, 0x78, 0x63, 0x33, 0x89, 0xF4, 0x45, 0x32, 0x13, 0x30, 0x3D, 0xA6, 0x1F, 0x20, 0xBD, 0x67, 0xFC, 0x23, 0x3A, 0xA3, 0x32, 0x62 };
-            Key key1 = new Key(privateKey, -1, false);
+		[Fact]
+		[Trait("Core", "Core")]
+		public void key_test_from_bytes()
+		{
+			//Example private key taken from https://en.bitcoin.it/wiki/Private_key
+			Byte[] privateKey = new Byte[32] { 0xE9, 0x87, 0x3D, 0x79, 0xC6, 0xD8, 0x7D, 0xC0, 0xFB, 0x6A, 0x57, 0x78, 0x63, 0x33, 0x89, 0xF4, 0x45, 0x32, 0x13, 0x30, 0x3D, 0xA6, 0x1F, 0x20, 0xBD, 0x67, 0xFC, 0x23, 0x3A, 0xA3, 0x32, 0x62 };
+			Key key1 = new Key(privateKey, -1, false);
 
-            ISecret wifKey = key1.GetWif(NBitcoin.Network.Main);
+			ISecret wifKey = key1.GetWif(NBitcoin.Network.Main);
 
-            //Example wif private key taken from https://en.bitcoin.it/wiki/Private_key
-            const String expected = "5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF";
-            Assert.True(wifKey.ToString() == expected);
-        }
+			//Example wif private key taken from https://en.bitcoin.it/wiki/Private_key
+			const String expected = "5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF";
+			Assert.True(wifKey.ToString() == expected);
+		}
 	}
 }

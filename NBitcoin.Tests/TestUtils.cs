@@ -24,13 +24,13 @@ namespace NBitcoin.Tests
 		public static byte[] ToBytes(string str)
 		{
 			byte[] result = new byte[str.Length];
-			for(int i = 0 ; i < str.Length ; i++)
+			for(int i = 0; i < str.Length; i++)
 			{
 				result[i] = (byte)str[i];
 			}
 			return result;
 		}
-        
+
 		internal static byte[] ParseHex(string data)
 		{
 			return Encoders.Hex.DecodeData(data);
@@ -43,7 +43,7 @@ namespace NBitcoin.Tests
 			block.UpdateMerkleRoot();
 			return block;
 		}
-        
+
 		public static Block CreateFakeBlock()
 		{
 			var block = TestUtils.CreateFakeBlock(new Transaction());

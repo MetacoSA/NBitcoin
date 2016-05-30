@@ -23,7 +23,7 @@ namespace NBitcoin.JsonConverters
 			}
 			catch(InvalidCastException)
 			{
-				throw new FormatException("Money amount should be in satoshi : " +  reader.Path);
+				throw new FormatException("Money amount should be in satoshi : " + reader.Path);
 			}
 		}
 

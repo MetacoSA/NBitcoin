@@ -223,11 +223,11 @@ namespace NBitcoin
 			ChainedBlock pindexFirst = this.EnumerateToGenesis().FirstOrDefault(o => o.Height == pastHeight);
 			assert(pindexFirst);
 
-            if(network.Consensus.PowNoRetargeting)
-                return pindexLast.header.Bits;
+			if(network.Consensus.PowNoRetargeting)
+				return pindexLast.header.Bits;
 
-            // Limit adjustment step
-            var nActualTimespan = pindexLast.Header.BlockTime - pindexFirst.Header.BlockTime;
+			// Limit adjustment step
+			var nActualTimespan = pindexLast.Header.BlockTime - pindexFirst.Header.BlockTime;
 			if(nActualTimespan < TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks / 4))
 				nActualTimespan = TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks / 4);
 			if(nActualTimespan > TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks * 4))
@@ -253,7 +253,7 @@ namespace NBitcoin
 			int pend = nMedianTimeSpan;
 
 			ChainedBlock pindex = this;
-			for(int i = 0 ; i < nMedianTimeSpan && pindex != null ; i++, pindex = pindex.Previous)
+			for(int i = 0; i < nMedianTimeSpan && pindex != null; i++, pindex = pindex.Previous)
 				pmedian[--pbegin] = pindex.Header.BlockTime;
 
 			Array.Sort(pmedian);

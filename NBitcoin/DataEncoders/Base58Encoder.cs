@@ -23,7 +23,7 @@ namespace NBitcoin.DataEncoders
 		public override byte[] DecodeData(string encoded)
 		{
 			var vchRet = InternalEncoder.DecodeData(encoded);
-			if (vchRet.Length < 4)
+			if(vchRet.Length < 4)
 			{
 				Array.Clear(vchRet, 0, vchRet.Length);
 				throw new FormatException("Invalid checked base 58 string");
@@ -31,7 +31,7 @@ namespace NBitcoin.DataEncoders
 			var calculatedHash = Hashes.Hash256(vchRet, 0, vchRet.Length - 4).ToBytes().SafeSubarray(0, 4);
 			var expectedHash = vchRet.SafeSubarray(vchRet.Length - 4, 4);
 
-			if (!Utils.ArrayEqual(calculatedHash, expectedHash))
+			if(!Utils.ArrayEqual(calculatedHash, expectedHash))
 			{
 				Array.Clear(vchRet, 0, vchRet.Length);
 				throw new FormatException("Invalid hash of the base 58 string");
@@ -70,7 +70,7 @@ namespace NBitcoin.DataEncoders
 			}
 
 			// Leading zeroes encoded as base58 zeros
-			for (int i = offset; i < offset+count && data[i] == 0; i++)
+			for(int i = offset; i < offset + count && data[i] == 0; i++)
 				str += pszBase58[0];
 
 			// Convert little endian std::string to big endian
@@ -84,7 +84,7 @@ namespace NBitcoin.DataEncoders
 
 		public override byte[] DecodeData(string encoded)
 		{
-			if (encoded == null)
+			if(encoded == null)
 				throw new ArgumentNullException("encoded");
 
 			var result = new byte[0];
@@ -100,7 +100,7 @@ namespace NBitcoin.DataEncoders
 					return result;
 			}
 
-			for(int y = i ; y < encoded.Length ; y++)
+			for(int y = i; y < encoded.Length; y++)
 			{
 				var p1 = pszBase58.IndexOf(encoded[y]);
 				if(p1 == -1)
@@ -131,7 +131,7 @@ namespace NBitcoin.DataEncoders
 
 			// Restore leading zeros
 			int nLeadingZeros = 0;
-			for(int y = i ; y < encoded.Length && encoded[y] == pszBase58[0] ; y++)
+			for(int y = i; y < encoded.Length && encoded[y] == pszBase58[0]; y++)
 				nLeadingZeros++;
 
 

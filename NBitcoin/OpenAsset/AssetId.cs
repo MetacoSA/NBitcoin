@@ -22,7 +22,8 @@ namespace NBitcoin.OpenAsset
 		public AssetId(IDestination assetScriptPubKey)
 			: this(assetScriptPubKey.ScriptPubKey)
 		{
-			if (assetScriptPubKey == null) throw new ArgumentNullException("assetScriptPubKey");
+			if(assetScriptPubKey == null)
+				throw new ArgumentNullException("assetScriptPubKey");
 		}
 
 		public AssetId(BitcoinAssetId assetId)
@@ -35,12 +36,14 @@ namespace NBitcoin.OpenAsset
 		public AssetId(Script assetScriptPubKey)
 			: this(assetScriptPubKey.Hash)
 		{
-			if (assetScriptPubKey == null) throw new ArgumentNullException("assetScriptPubKey");
+			if(assetScriptPubKey == null)
+				throw new ArgumentNullException("assetScriptPubKey");
 		}
 
 		public AssetId(ScriptId scriptId)
 		{
-			if (scriptId == null) throw new ArgumentNullException("scriptId");
+			if(scriptId == null)
+				throw new ArgumentNullException("scriptId");
 			_Bytes = scriptId.ToBytes(true);
 		}
 
@@ -63,7 +66,8 @@ namespace NBitcoin.OpenAsset
 
 		public BitcoinAssetId GetWif(Network network)
 		{
-			if (network == null) throw new ArgumentNullException("network");
+			if(network == null)
+				throw new ArgumentNullException("network");
 			return new BitcoinAssetId(this, network);
 		}
 

@@ -3,16 +3,19 @@ using System;
 namespace NBitcoin.BouncyCastle.Crypto
 {
 	/// <remarks>Block cipher engines are expected to conform to this interface.</remarks>
-    public interface IBufferedCipher
-    {
+	public interface IBufferedCipher
+	{
 		/// <summary>The name of the algorithm this cipher implements.</summary>
-		string AlgorithmName { get; }
+		string AlgorithmName
+		{
+			get;
+		}
 
 		/// <summary>Initialise the cipher.</summary>
 		/// <param name="forEncryption">If true the cipher is initialised for encryption,
 		/// if false for decryption.</param>
 		/// <param name="parameters">The key and other data required by the cipher.</param>
-        void Init(bool forEncryption, ICipherParameters parameters);
+		void Init(bool forEncryption, ICipherParameters parameters);
 
 		int GetBlockSize();
 
@@ -39,6 +42,6 @@ namespace NBitcoin.BouncyCastle.Crypto
 		/// Reset the cipher. After resetting the cipher is in the same state
 		/// as it was after the last init (if there was one).
 		/// </summary>
-        void Reset();
-    }
+		void Reset();
+	}
 }

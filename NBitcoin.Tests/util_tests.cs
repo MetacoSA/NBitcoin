@@ -43,11 +43,11 @@ namespace NBitcoin.Tests
 
 
 		static byte[] ParseHex_expected = new byte[]{
-    0x04, 0x67, 0x8a, 0xfd, 0xb0, 0xfe, 0x55, 0x48, 0x27, 0x19, 0x67, 0xf1, 0xa6, 0x71, 0x30, 0xb7,
-    0x10, 0x5c, 0xd6, 0xa8, 0x28, 0xe0, 0x39, 0x09, 0xa6, 0x79, 0x62, 0xe0, 0xea, 0x1f, 0x61, 0xde,
-    0xb6, 0x49, 0xf6, 0xbc, 0x3f, 0x4c, 0xef, 0x38, 0xc4, 0xf3, 0x55, 0x04, 0xe5, 0x1e, 0xc1, 0x12,
-    0xde, 0x5c, 0x38, 0x4d, 0xf7, 0xba, 0x0b, 0x8d, 0x57, 0x8a, 0x4c, 0x70, 0x2b, 0x6b, 0xf1, 0x1d,
-    0x5f};
+	0x04, 0x67, 0x8a, 0xfd, 0xb0, 0xfe, 0x55, 0x48, 0x27, 0x19, 0x67, 0xf1, 0xa6, 0x71, 0x30, 0xb7,
+	0x10, 0x5c, 0xd6, 0xa8, 0x28, 0xe0, 0x39, 0x09, 0xa6, 0x79, 0x62, 0xe0, 0xea, 0x1f, 0x61, 0xde,
+	0xb6, 0x49, 0xf6, 0xbc, 0x3f, 0x4c, 0xef, 0x38, 0xc4, 0xf3, 0x55, 0x04, 0xe5, 0x1e, 0xc1, 0x12,
+	0xde, 0x5c, 0x38, 0x4d, 0xf7, 0xba, 0x0b, 0x8d, 0x57, 0x8a, 0x4c, 0x70, 0x2b, 0x6b, 0xf1, 0x1d,
+	0x5f};
 
 		[Fact]
 		[Trait("Core", "Core")]
@@ -68,7 +68,7 @@ namespace NBitcoin.Tests
 		public void CanAddEntropyToRandom()
 		{
 			RandomUtils.AddEntropy(new byte[] { 1, 2, 3 });
-			for(int i = 0 ; i < 100 ; i++)
+			for(int i = 0; i < 100; i++)
 			{
 				Assert.Equal(50, RandomUtils.GetBytes(50).Length);
 			}
@@ -186,32 +186,32 @@ namespace NBitcoin.Tests
 		}
 
 
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void MoneyCoverage()
-        {
-            Money a = Money.Coins(2.0m);
-            Money b = Money.Coins(4.0m);
-            Assert.Equal(a, Money.Min(a, b));
-            Assert.Equal(a, Money.Min(b, a));
-            Assert.Equal(b, Money.Max(a, b));
-            Assert.Equal(b, Money.Max(b, a));
-            Assert.Equal(a, new Money(a.Satoshi));
-            Assert.Equal(a.GetHashCode(), new Money(a.Satoshi).GetHashCode());
-            Assert.True(Money.Coins(1.0m).Almost(Money.Coins(0.95m), 0.05m));
-            Assert.False(Money.Coins(1.0m).Almost(Money.Coins(0.949m), 0.05m));
-            Assert.Throws<ArgumentOutOfRangeException>(() => Money.Coins(1.0m).Almost(Money.Coins(0.949m), -0.05m));
-            Assert.Throws<ArgumentOutOfRangeException>(() => Money.Coins(1.0m).Almost(Money.Coins(0.949m), -1.05m));
-            long data = 5;
-            Assert.Equal(Money.Coins(5), data * Money.Coins(1.0m));
-            Assert.Equal(Money.Coins(5), Money.Coins(1.0m) * data);
-            Assert.Equal(500000000L, (long)Money.Coins(5).Satoshi);
-            Assert.Equal(500000000U, (uint)Money.Coins(5).Satoshi);
-            Assert.Equal("5.00000000", Money.Coins(5).ToString());
-        }
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void MoneyCoverage()
+		{
+			Money a = Money.Coins(2.0m);
+			Money b = Money.Coins(4.0m);
+			Assert.Equal(a, Money.Min(a, b));
+			Assert.Equal(a, Money.Min(b, a));
+			Assert.Equal(b, Money.Max(a, b));
+			Assert.Equal(b, Money.Max(b, a));
+			Assert.Equal(a, new Money(a.Satoshi));
+			Assert.Equal(a.GetHashCode(), new Money(a.Satoshi).GetHashCode());
+			Assert.True(Money.Coins(1.0m).Almost(Money.Coins(0.95m), 0.05m));
+			Assert.False(Money.Coins(1.0m).Almost(Money.Coins(0.949m), 0.05m));
+			Assert.Throws<ArgumentOutOfRangeException>(() => Money.Coins(1.0m).Almost(Money.Coins(0.949m), -0.05m));
+			Assert.Throws<ArgumentOutOfRangeException>(() => Money.Coins(1.0m).Almost(Money.Coins(0.949m), -1.05m));
+			long data = 5;
+			Assert.Equal(Money.Coins(5), data * Money.Coins(1.0m));
+			Assert.Equal(Money.Coins(5), Money.Coins(1.0m) * data);
+			Assert.Equal(500000000L, (long)Money.Coins(5).Satoshi);
+			Assert.Equal(500000000U, (uint)Money.Coins(5).Satoshi);
+			Assert.Equal("5.00000000", Money.Coins(5).ToString());
+		}
 
 
-        [Fact]
+		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertMoney()
 		{
@@ -253,46 +253,46 @@ namespace NBitcoin.Tests
 				Assert.True(Money.TryParse(prefix + "0.0", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(0));
 
-				Assert.True(Money.TryParse(prefix + "12345.6789", out  ret));
+				Assert.True(Money.TryParse(prefix + "12345.6789", out ret));
 				AssertEx.Equal(ret, multiplier * new Money((Money.COIN / 10000) * 123456789));
 
-				Assert.True(Money.TryParse(prefix + "100000000.00", out  ret));
+				Assert.True(Money.TryParse(prefix + "100000000.00", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 100000000));
-				Assert.True(Money.TryParse(prefix + "10000000.00", out  ret));
+				Assert.True(Money.TryParse(prefix + "10000000.00", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 10000000));
-				Assert.True(Money.TryParse(prefix + "1000000.00", out  ret));
+				Assert.True(Money.TryParse(prefix + "1000000.00", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 1000000));
 				Assert.True(Money.TryParse(prefix + "100000.00", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 100000));
-				Assert.True(Money.TryParse(prefix + "10000.00", out  ret));
+				Assert.True(Money.TryParse(prefix + "10000.00", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 10000));
-				Assert.True(Money.TryParse(prefix + "1000.00", out  ret));
+				Assert.True(Money.TryParse(prefix + "1000.00", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 1000));
-				Assert.True(Money.TryParse(prefix + "100.00", out  ret));
+				Assert.True(Money.TryParse(prefix + "100.00", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 100));
 				Assert.True(Money.TryParse(prefix + "10.00", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN * 10));
-				Assert.True(Money.TryParse(prefix + "1.00", out  ret));
+				Assert.True(Money.TryParse(prefix + "1.00", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN));
-				Assert.True(Money.TryParse(prefix + "0.1", out  ret));
+				Assert.True(Money.TryParse(prefix + "0.1", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 10));
-				Assert.True(Money.TryParse(prefix + "0.01", out  ret));
+				Assert.True(Money.TryParse(prefix + "0.01", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 100));
-				Assert.True(Money.TryParse(prefix + "0.001", out  ret));
+				Assert.True(Money.TryParse(prefix + "0.001", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 1000));
-				Assert.True(Money.TryParse(prefix + "0.0001", out  ret));
+				Assert.True(Money.TryParse(prefix + "0.0001", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 10000));
-				Assert.True(Money.TryParse(prefix + "0.00001", out  ret));
+				Assert.True(Money.TryParse(prefix + "0.00001", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 100000));
-				Assert.True(Money.TryParse(prefix + "0.000001", out  ret));
+				Assert.True(Money.TryParse(prefix + "0.000001", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 1000000));
 				Assert.True(Money.TryParse(prefix + "0.0000001", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 10000000));
-				Assert.True(Money.TryParse(prefix + "0.00000001", out  ret));
+				Assert.True(Money.TryParse(prefix + "0.00000001", out ret));
 				AssertEx.Equal(ret, multiplier * new Money(Money.COIN / 100000000));
 
 				// Attempted 63 bit overflow should fail
-				Assert.False(Money.TryParse(prefix + "92233720368.54775808", out  ret));
+				Assert.False(Money.TryParse(prefix + "92233720368.54775808", out ret));
 			}
 		}
 
@@ -365,7 +365,7 @@ namespace NBitcoin.Tests
 			var groups = splitted.Select(s => s.Quantity).GroupBy(o => o);
 			var differentValues = groups.Count();
 			Assert.True(differentValues == 1 || differentValues == 2);
-		}		
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -499,9 +499,9 @@ namespace NBitcoin.Tests
 			var pubkey = new PubKey("0450863AD64A87AE8A2FE83C1AF1A8403CB53F53E486D8511DAD8A04887E5B23522CD470243453A299FA9E77237716103ABC11A1DF38855ED6F2EE187E9C582BA6");
 			Assert.Equal(new Script("OP_0 010966776006953D5567439E5E39F86A0D273BEE"), pubkey.GetSegwitAddress(Network.Main).ScriptPubKey);
 			Assert.Equal("p2xtZoXeX5X8BP8JfFhQK2nD3emtjch7UeFm", pubkey.GetSegwitAddress(Network.Main).ToString());
-            Assert.Equal(pubkey.GetSegwitAddress(Network.TestNet).ToString(), pubkey.GetSegwitAddress(Network.SegNet).ToString());
-            Assert.NotEqual(pubkey.GetSegwitAddress(Network.Main).ToString(), pubkey.GetSegwitAddress(Network.SegNet).ToString());
-        }
+			Assert.Equal(pubkey.GetSegwitAddress(Network.TestNet).ToString(), pubkey.GetSegwitAddress(Network.SegNet).ToString());
+			Assert.NotEqual(pubkey.GetSegwitAddress(Network.Main).ToString(), pubkey.GetSegwitAddress(Network.SegNet).ToString());
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -528,7 +528,7 @@ namespace NBitcoin.Tests
 						Base58 = "QWzJyQDz7iRTPkLFBg6XEeJFwbYESFC5KXxk",
 						ExpectedType = typeof(BitcoinWitPubKeyAddress),
 						Network = Network.TestNet
-					}, 
+					},
 					new
 					{
 						Base58 = "bWqaKUZETiECYgmJNbNZUoanBxnAzoVjCNx",
@@ -546,7 +546,7 @@ namespace NBitcoin.Tests
 						Base58 = "17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem",
 						ExpectedType = typeof(BitcoinPubKeyAddress),
 						Network = Network.Main
-					},					
+					},
 					new
 					{
 						Base58 = "3EktnHQD7RiAE6uzMj2ZifT9YgRrkSgzQX",
@@ -618,7 +618,7 @@ namespace NBitcoin.Tests
 						Base58 = "akB4NBW9UuCmHuepksob6yfZs6naHtRCPNy",
 						ExpectedType = typeof(BitcoinColoredAddress),
 						Network = Network.Main
-					}					
+					}
 				};
 
 			foreach(var test in tests)

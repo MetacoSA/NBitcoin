@@ -18,7 +18,7 @@ namespace NBitcoin.RPC
 			tx.LockTime = (uint)json.GetValue("locktime");
 
 			var vin = (JArray)json.GetValue("vin");
-			for(int i = 0 ; i < vin.Count ; i++)
+			for(int i = 0; i < vin.Count; i++)
 			{
 				var jsonIn = (JObject)vin[i];
 				var txin = new TxIn();
@@ -42,7 +42,7 @@ namespace NBitcoin.RPC
 			}
 
 			var vout = (JArray)json.GetValue("vout");
-			for(int i = 0 ; i < vout.Count ; i++)
+			for(int i = 0; i < vout.Count; i++)
 			{
 				var jsonOut = (JObject)vout[i];
 				var txout = new TxOut();

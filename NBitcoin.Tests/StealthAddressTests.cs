@@ -87,7 +87,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("UnitTest","UnitTest")]
+		[Trait("UnitTest", "UnitTest")]
 		//https://github.com/libbitcoin/libbitcoin/blob/master/test/stealth.cpp
 		public void BitFieldCanFetchTransaction()
 		{
@@ -111,7 +111,7 @@ namespace NBitcoin.Tests
 					BitCount = 5,
 					Transaction = "010000000288b6952f8357b5a8271f6c0608ea779549bf0a9ae72213ce433f7a9c90190be6000000006b4830450221008b1b7369d7bf8a1dd99e6a260ef969840d633ba81fc379bf4f5469afd3b288e2022077e21dd12c1d8b2a4ab2e58fb0113b9e3bb77db4439483f7a8311cac3ad6ce9a012102b0c2eb0cc505a4c9fb62df8a7fcdcc00ddab43ff5752ebc51a0dae11fbfb0648ffffffff4ca2f8960e17b56e690739158994ed23427ffc08445ba3223edacb322db12d4b000000006b483045022100f94d50d846d85a545693574f9e1a680a858f085257c827cd8b211df8d27c558202201bca0407ad67960937999a88c95e52417442703a16036bbe55f071cdff804f69012102884d0c845bff3158e88033bce236cdbfeadba0a7e7381258379612f355681d6dffffffff052f750000000000001976a914a34a179dc97cbb84992d2960ee240b56f1b2ae3088acbca15400000000001976a914139e314f94a8e4fc2864ef2544e7640ba033725b88ac0000000000000000286a26061d6b629c024c7daf682da4afd61aadf401fae316a265c3244d912b375a75b55551d52a583f2f750000000000001976a9142888cb9f0b0f489106bc13f56fdd2ceec1b6883788ac51c30000000000001976a91404316e7db781481d1419feda2c8d7fa9f7b68a6e88ac00000000",
 				},
-				
+
 			};
 
 
@@ -133,7 +133,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseStealthAddress()
 		{
-			var tests = new[] 
+			var tests = new[]
 			{ 
 				//Test vector created with sx
 				//sx stealth-newkey -> ScanSecret,SpendSecret,StealthAddress
@@ -147,7 +147,7 @@ namespace NBitcoin.Tests
 					StealthAddress = "vJmsmwE8cVt9ytJxBuY2jayh8RAfvpG42CyNVYpeVZAkHaiwASobUEzskpXMwbH1TZNBLoxWWYem5WuZewTL8xz3upJ75zKcdVmTfg",
 					ScanPubKey = "021ce89be99a229d123e8bc13ffbcb66722d6200bbeb1d90ddddbf97df82ed2672",
 					SpendPubKeys = new[]
-										{ 
+										{
 											"03c197525241d3d70bbf33bb2b54d41e6b9595a92a2c6b7bf7157727c017f0154a"
 										},
 					RequiredSignature = 1,
@@ -169,7 +169,7 @@ namespace NBitcoin.Tests
 
 				AssertEx.CollectionEquals(stealth.ScanPubKey.ToBytes(),
 											  TestUtils.ParseHex(test.ScanPubKey));
-				for(int i = 0 ; i < test.SpendPubKeys.Length ; i++)
+				for(int i = 0; i < test.SpendPubKeys.Length; i++)
 				{
 					AssertEx.CollectionEquals(stealth.SpendPubKeys[i].ToBytes(),
 											  TestUtils.ParseHex(test.SpendPubKeys[i]));
@@ -327,7 +327,7 @@ namespace NBitcoin.Tests
 
 		internal static IEnumerable<CanCreatePaymentData> GenerateRandoms(int count)
 		{
-			for(int i = 0 ; i < count ; i++)
+			for(int i = 0; i < count; i++)
 			{
 				CanCreatePaymentData data = new CanCreatePaymentData();
 				var spend = new Key();
