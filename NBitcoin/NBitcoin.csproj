@@ -134,6 +134,7 @@
     <Compile Include="Protocol\Behaviors\NodesGroupBehavior.cs" />
     <Compile Include="Protocol\Behaviors\NodeBehavior.cs" />
     <Compile Include="Protocol\Behaviors\PingPongBehavior.cs" />
+    <Compile Include="Protocol\NodeServerTrace.cs" />
     <Compile Include="Protocol\Payloads\FilterAddPayload.cs" />
     <Compile Include="Protocol\Payloads\HaveWitnessPayload.cs" />
     <Compile Include="Protocol\Payloads\SendHeadersPayload.cs" />
@@ -224,7 +225,6 @@
     <Compile Include="Protocol\NodeServer.cs" />
     <Compile Include="Protocol\Payloads\PingPayload.cs" />
     <Compile Include="Protocol\Payloads\PongPayload.cs" />
-    <Compile Include="Protocol\ProtocolTrace.cs" />
     <Compile Include="Protocol\Payloads\TxPayload.cs" />
     <Compile Include="Protocol\UnknowPayload.cs" />
     <Compile Include="Protocol\Payloads\VerAckPayload.cs" />
