@@ -23,7 +23,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-#if !USEBC
+#if !WINDOWS_UWP && !USEBC
 using System.Security.Cryptography;
 #endif
 
@@ -54,11 +54,13 @@ namespace NBitcoin.Crypto
 	{
 		#region PBKDF2
 		byte[] _saltBuffer, _digest, _digestT1;
-#if !USEBC
-		KeyedHashAlgorithm _hmacAlgorithm;
-#else
+
+#if USEBC || WINDOWS_UWP
 		IMac _hmacAlgorithm;
+#else
+		KeyedHashAlgorithm _hmacAlgorithm;
 #endif
+
 		int _iterations;
 
 		/// <summary>
@@ -73,19 +75,14 @@ namespace NBitcoin.Crypto
 		///     A unique salt means a unique PBKDF2 stream, even if the original key is identical.
 		/// </param>
 		/// <param name="iterations">The number of iterations to apply.</param>
-#if !USEBC
-		public Pbkdf2(KeyedHashAlgorithm hmacAlgorithm, byte[] salt, int iterations)
+#if USEBC || WINDOWS_UWP
+		public Pbkdf2(IMac hmacAlgorithm, byte[] salt, int iterations)
 		{
 			NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
 			NBitcoin.Crypto.Internal.Check.Null("salt", salt);
 			NBitcoin.Crypto.Internal.Check.Length("salt", salt, 0, int.MaxValue - 4);
 			NBitcoin.Crypto.Internal.Check.Range("iterations", iterations, 1, int.MaxValue);
-			if(hmacAlgorithm.HashSize == 0 || hmacAlgorithm.HashSize % 8 != 0)
-			{
-				throw Exceptions.Argument("hmacAlgorithm", "Unsupported hash size.");
-			}
-
-			int hmacLength = hmacAlgorithm.HashSize / 8;
+			int hmacLength = hmacAlgorithm.GetMacSize();
 			_saltBuffer = new byte[salt.Length + 4];
 			Array.Copy(salt, _saltBuffer, salt.Length);
 			_iterations = iterations;
@@ -94,19 +91,21 @@ namespace NBitcoin.Crypto
 			_digestT1 = new byte[hmacLength];
 		}
 #else
-		public Pbkdf2(IMac hmacAlgorithm, byte[] salt, int iterations)
+		public Pbkdf2(KeyedHashAlgorithm hmacAlgorithm, byte[] salt, int iterations)
 		{
-            NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
-            NBitcoin.Crypto.Internal.Check.Null("salt", salt);
-            NBitcoin.Crypto.Internal.Check.Length("salt", salt, 0, int.MaxValue - 4);
-            NBitcoin.Crypto.Internal.Check.Range("iterations", iterations, 1, int.MaxValue);
-			int hmacLength = hmacAlgorithm.GetMacSize();
-			_saltBuffer = new byte[salt.Length + 4];
-			Array.Copy(salt, _saltBuffer, salt.Length);
-			_iterations = iterations;
-			_hmacAlgorithm = hmacAlgorithm;
-			_digest = new byte[hmacLength];
-			_digestT1 = new byte[hmacLength];
+			NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
+			NBitcoin.Crypto.Internal.Check.Null("salt", salt);
+			NBitcoin.Crypto.Internal.Check.Length("salt", salt, 0, int.MaxValue - 4);
+			NBitcoin.Crypto.Internal.Check.Range("iterations", iterations, 1, int.MaxValue);
+			if(hmacAlgorithm.HashSize == 0 || hmacAlgorithm.HashSize%8 != 0)
+			{
+				throw Exceptions.Argument("hmacAlgorithm", "Unsupported hash size.");
+			}
+
+			int hmacLength = hmacAlgorithm.HashSize / 8;
+			_saltBuffer = new byte[salt.Length + 4]; Array.Copy(salt, _saltBuffer, salt.Length);
+			_iterations = iterations; _hmacAlgorithm = hmacAlgorithm;
+			_digest = new byte[hmacLength]; _digestT1 = new byte[hmacLength];
 		}
 #endif
 		/// <summary>
@@ -142,8 +141,8 @@ namespace NBitcoin.Crypto
 		/// <param name="iterations">The number of iterations to apply.</param>
 		/// <param name="derivedKeyLength">The desired length of the derived key.</param>
 		/// <returns>The derived key.</returns>
-#if !USEBC
-		public static byte[] ComputeDerivedKey(KeyedHashAlgorithm hmacAlgorithm, byte[] salt, int iterations,
+#if USEBC || WINDOWS_UWP
+		public static byte[] ComputeDerivedKey(IMac hmacAlgorithm, byte[] salt, int iterations,
 											   int derivedKeyLength)
 		{
 			NBitcoin.Crypto.Internal.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
@@ -154,10 +153,10 @@ namespace NBitcoin.Crypto
 			}
 		}
 #else
-		public static byte[] ComputeDerivedKey(IMac hmacAlgorithm, byte[] salt, int iterations,
+		public static byte[] ComputeDerivedKey(KeyedHashAlgorithm hmacAlgorithm, byte[] salt, int iterations,
 											   int derivedKeyLength)
 		{
-            NBitcoin.Crypto.Internal.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
+			NBitcoin.Crypto.Internal.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
 
 			using(Pbkdf2 kdf = new Pbkdf2(hmacAlgorithm, salt, iterations))
 			{
@@ -170,18 +169,7 @@ namespace NBitcoin.Crypto
 		/// <summary>
 		/// Closes the stream, clearing memory and disposing of the HMAC algorithm.
 		/// </summary>
-#if !USEBC
-		public override void Close()
-		{
-			Security.Clear(_saltBuffer);
-			Security.Clear(_digest);
-			Security.Clear(_digestT1);
-
-			_hmacAlgorithm.Clear();
-
-		}
-
-#else
+#if USEBC || WINDOWS_UWP
 		protected override void Dispose(bool disposing)
 		{
 			Security.Clear(_saltBuffer);
@@ -189,8 +177,17 @@ namespace NBitcoin.Crypto
 			Security.Clear(_digestT1);
 			_hmacAlgorithm.Reset();
 		}
+#else
+		public override void Close()
+		{
+			NBitcoin.Crypto.Internal.Security.Clear(_saltBuffer);
+			NBitcoin.Crypto.Internal.Security.Clear(_digest);
+			NBitcoin.Crypto.Internal.Security.Clear(_digestT1);
 
+			_hmacAlgorithm.Clear();
+		}
 #endif
+
 		void ComputeBlock(uint pos)
 		{
 			BitPacking.BEBytesFromUInt32(pos, _saltBuffer, _saltBuffer.Length - 4);
@@ -206,24 +203,24 @@ namespace NBitcoin.Crypto
 				}
 			}
 
-			Security.Clear(_digestT1);
+			NBitcoin.Crypto.Internal.Security.Clear(_digestT1);
 		}
 
-#if !USEBC
-		void ComputeHmac(byte[] input, byte[] output)
-		{
-			_hmacAlgorithm.Initialize();
-			_hmacAlgorithm.TransformBlock(input, 0, input.Length, input, 0);
-			_hmacAlgorithm.TransformFinalBlock(new byte[0], 0, 0);
-			Array.Copy(_hmacAlgorithm.Hash, output, output.Length);
-		}
-#else
+#if USEBC || WINDOWS_UWP
 		void ComputeHmac(byte[] input, byte[] output)
 		{
 			var hash = new byte[_hmacAlgorithm.GetMacSize()];
 			_hmacAlgorithm.BlockUpdate(input, 0, input.Length);
 			_hmacAlgorithm.DoFinal(hash, 0);
 			Array.Copy(hash, output, output.Length);
+		}
+#else
+		void ComputeHmac(byte[] input, byte[] output)
+		{
+			_hmacAlgorithm.Initialize();
+			_hmacAlgorithm.TransformBlock(input, 0, input.Length, input, 0);
+			_hmacAlgorithm.TransformFinalBlock(new byte[0], 0, 0);
+			Array.Copy(_hmacAlgorithm.Hash, output, output.Length);
 		}
 #endif
 		#endregion
