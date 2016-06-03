@@ -7,6 +7,10 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
+#if WINDOWS_UWP
+using Windows.ApplicationModel;
+#endif
+
 namespace NBitcoin.Protocol
 {
 	[Flags]
@@ -46,8 +50,16 @@ namespace NBitcoin.Protocol
 		{
 			if(_NUserAgent == null)
 			{
+#if WINDOWS_UWP
+				// get the app version
+				Package package = Package.Current;
+				var version = package.Id.Version;
+				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.Minor + "." + version.Build + "/";
+#else
 				var version = typeof(VersionPayload).Assembly.GetName().Version;
 				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Build + "/";
+#endif
+
 			}
 			return _NUserAgent;
 		}

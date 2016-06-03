@@ -1,5 +1,4 @@
 ﻿using NBitcoin.DataEncoders;
-using NBitcoin.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,17 +6,17 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Security;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using NBitcoin.Protocol;
 using System.Runtime.ExceptionServices;
 #if !PORTABLE
-using System.Security.Cryptography;
 using System.Net.Sockets;
+#endif
+#if WINDOWS_UWP
+using System.Net.Sockets;
+using Windows.Networking;
+using Windows.Networking.Connectivity;
 #endif
 
 namespace NBitcoin
@@ -699,10 +698,39 @@ namespace NBitcoin
 			}
 			catch(FormatException)
 			{
+#if !WINDOWS_UWP
 				address = Dns.GetHostEntry(ip).AddressList[0];
+#else
+				string adr = DnsLookup(ip).Result;
+				// if not resolved behave like GetHostEntry
+				if (adr == string.Empty)
+					throw new SocketException(11001);
+				else
+					address = IPAddress.Parse(adr);
+#endif
 			}
 			return new IPEndPoint(address, port);
 		}
+
+#if WINDOWS_UWP
+		private static async Task<string> DnsLookup(string remoteHostName)
+		{
+			IReadOnlyList<EndpointPair> data = await DatagramSocket.GetEndpointPairsAsync(new HostName(remoteHostName), "0").AsTask().ConfigureAwait(false);
+
+			if(data != null && data.Count > 0)
+			{
+				foreach(EndpointPair item in data)
+				{
+					if(item != null && item.RemoteHostName != null && item.RemoteHostName.Type == HostNameType.Ipv4)
+					{
+						return item.RemoteHostName.CanonicalName;
+					}
+				}
+			}
+			return string.Empty;
+		}
+#endif
+
 #endif
 		public static int GetHashCode(byte[] array)
 		{
