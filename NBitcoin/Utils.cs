@@ -715,7 +715,7 @@ namespace NBitcoin
 #if WINDOWS_UWP
 		private static async Task<string> DnsLookup(string remoteHostName)
 		{
-			IReadOnlyList<EndpointPair> data = await DatagramSocket.GetEndpointPairsAsync(new HostName(remoteHostName), "0");
+			IReadOnlyList<EndpointPair> data = await DatagramSocket.GetEndpointPairsAsync(new HostName(remoteHostName), "0").AsTask().ConfigureAwait(false);
 
 			if(data != null && data.Count > 0)
 			{
