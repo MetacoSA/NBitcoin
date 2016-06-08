@@ -97,7 +97,7 @@ namespace NBitcoin
 		private static readonly HexEncoder Encoder = new HexEncoder();
 		private const int WIDTH_BYTE = <#= t #> / 8;
 		<# for (int i = 0; i < WIDTH; i++) { #>
-readonly UInt32 pn<#= i #>;
+internal readonly UInt32 pn<#= i #>;
 		<# } #>
 
 		public byte GetByte(int index)
