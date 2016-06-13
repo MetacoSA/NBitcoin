@@ -218,7 +218,7 @@ namespace NBitcoin.Crypto
 				return v0 ^ v1 ^ v2 ^ v3;
 			}
 
-			private static ulong GetULong(uint256 val, int position)
+			internal static ulong GetULong(uint256 val, int position)
 			{
 				switch(position)
 				{

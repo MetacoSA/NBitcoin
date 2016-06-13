@@ -135,8 +135,12 @@
     <Compile Include="Protocol\Behaviors\NodeBehavior.cs" />
     <Compile Include="Protocol\Behaviors\PingPongBehavior.cs" />
     <Compile Include="Protocol\NodeServerTrace.cs" />
+    <Compile Include="Protocol\Payloads\BlockTxnPayload.cs" />
+    <Compile Include="Protocol\Payloads\CmpctBlockPayload.cs" />
     <Compile Include="Protocol\Payloads\FilterAddPayload.cs" />
+    <Compile Include="Protocol\Payloads\GetBlockTxnPayload.cs" />
     <Compile Include="Protocol\Payloads\HaveWitnessPayload.cs" />
+    <Compile Include="Protocol\Payloads\SendCmpctPayload.cs" />
     <Compile Include="Protocol\Payloads\SendHeadersPayload.cs" />
     <Compile Include="Protocol\Payloads\UTxOutputPayload.cs" />
     <Compile Include="RPC\RestClient.cs" />
