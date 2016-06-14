@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin.Protocol.Payloads
+namespace NBitcoin.Protocol
 {
 	[Payload("cmpctblock")]
 	public class CmpctBlockPayload : Payload

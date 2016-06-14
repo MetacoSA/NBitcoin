@@ -4,13 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin.Protocol.Payloads
+namespace NBitcoin.Protocol
 {
 	[Payload("sendcmpct")]
 	public class SendCmpctPayload : Payload
 	{
+		public SendCmpctPayload()
+		{
 
-		uint _PreferHeaderAndIDs;
+		}
+		public SendCmpctPayload(bool preferHeaderAndIDs)
+		{
+			PreferHeaderAndIDs = preferHeaderAndIDs;
+		}
+		byte _PreferHeaderAndIDs;
 		public bool PreferHeaderAndIDs
 		{
 			get
@@ -19,13 +26,13 @@ namespace NBitcoin.Protocol.Payloads
 			}
 			set
 			{
-				_PreferHeaderAndIDs = value ? 1U : 0U;
+				_PreferHeaderAndIDs = value ? (byte)1 : (byte)0;
 			}
 		}
 
 
-		uint _Version = 1;
-		public uint Version
+		ulong _Version = 1;
+		public ulong Version
 		{
 			get
 			{

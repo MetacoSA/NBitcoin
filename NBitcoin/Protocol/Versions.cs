@@ -62,5 +62,10 @@
 		/// ! Version after which witness support potentially exists
 		/// </summary>
 		WITNESS_VERSION = 70012,
-	}
+
+		/// <summary>
+		/// shord-id-based block download starts with this version
+		/// </summary>
+		SHORT_IDS_BLOCKS_VERSION = 70014
+}
 }

@@ -44,9 +44,9 @@ namespace NBitcoin.Tests
 	}
 	public class NodeBuilder : IDisposable
 	{
-		public static NodeBuilder Create([CallerMemberNameAttribute]string caller = null)
+		public static NodeBuilder Create([CallerMemberNameAttribute]string caller = null, string version = "0.12.1")
 		{
-			var version = "0.12.1";
+			version = version ?? "0.12.1";
 			var path = EnsureDownloaded(version);
 			try
 			{
@@ -61,6 +61,12 @@ namespace NBitcoin.Tests
 
 		private static string EnsureDownloaded(string version)
 		{
+			//is a file
+			if(version.Length >= 2 && version[1] == ':')
+			{
+				return version;
+			}
+
 			var bitcoind = String.Format("bitcoin-{0}/bin/bitcoind.exe", version);
 			if(File.Exists(bitcoind))
 				return bitcoind;
@@ -249,6 +255,10 @@ namespace NBitcoin.Tests
 		{
 			return Node.Connect(Network.RegTest, "127.0.0.1:" + ports[0].ToString());
 		}
+		public Node CreateNodeClient(NodeConnectionParameters parameters)
+		{
+			return Node.Connect(Network.RegTest, "127.0.0.1:" + ports[0].ToString(), parameters);
+		}
 #endif
 
 		public async Task StartAsync()
@@ -268,7 +278,7 @@ namespace NBitcoin.Tests
 			File.WriteAllText(_Config, config.ToString());
 			lock(l)
 			{
-				_Process = Process.Start(new FileInfo(this._Builder.BitcoinD).FullName, "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=http");
+				_Process = Process.Start(new FileInfo(this._Builder.BitcoinD).FullName, "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=net");
 				_State = CoreNodeState.Starting;
 			}
 			while(true)
@@ -313,7 +323,7 @@ namespace NBitcoin.Tests
 
 		List<Transaction> transactions = new List<Transaction>();
 		Money fee = Money.Coins(0.0001m);
-		public void GiveMoney(Script destination, Money amount, bool broadcast = true)
+		public Transaction GiveMoney(Script destination, Money amount, bool broadcast = true)
 		{
 			var rpc = CreateRPCClient();
 			TransactionBuilder builder = new TransactionBuilder();
@@ -322,10 +332,12 @@ namespace NBitcoin.Tests
 			builder.Send(destination, amount);
 			builder.SendFees(fee);
 			builder.SetChange(GetFirstSecret(rpc));
+			var tx = builder.BuildTransaction(true);
 			if(broadcast)
-				Broadcast(builder.BuildTransaction(true));
+				Broadcast(tx);
 			else
-				transactions.Add(builder.BuildTransaction(true));
+				transactions.Add(tx);
+			return tx;
 		}
 #if !NOSOCKET
 		public void Broadcast(Transaction transaction)
@@ -387,7 +399,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		public void Generate(int blockCount, bool includeMempool = true)
+		public Block[] Generate(int blockCount, bool includeUnbroadcasted = true, bool broadcast = true)
 		{
 			var rpc = CreateRPCClient();
 			BitcoinSecret dest = GetFirstSecret(rpc);
@@ -411,7 +423,7 @@ namespace NBitcoin.Tests
 					coinbase.AddInput(TxIn.CreateCoinbase(chain.Height + 1));
 					coinbase.AddOutput(new TxOut(rpc.Network.GetReward(chain.Height + 1), dest.GetAddress()));
 					block.AddTransaction(coinbase);
-					if(includeMempool)
+					if(includeUnbroadcasted)
 					{
 						transactions = Reorder(transactions);
 						block.Transactions.AddRange(transactions);
@@ -421,21 +433,34 @@ namespace NBitcoin.Tests
 					while(!block.CheckProofOfWork())
 						block.Header.Nonce = (uint)nonce.Next();
 					blocks.Add(block);
-					if(chain.Height + 1 == 4032)
-					{
-					}
 					chain.SetTip(block.Header);
 				}
-				Block lastSent = null;
-				foreach(var block in blocks)
-				{
-					node.SendMessageAsync(new InvPayload(block));
-					node.SendMessageAsync(new BlockPayload(block));
-					lastSent = block;
-				}
-				node.PingPong();
+				if(broadcast)
+					BroadcastBlocks(blocks.ToArray(), node);
 			}
+			return blocks.ToArray();
 #endif
+		}
+
+		public void BroadcastBlocks(Block[] blocks)
+		{
+			using(var node = CreateNodeClient())
+			{
+				node.VersionHandshake();
+				BroadcastBlocks(blocks, node);
+			}
+		}
+
+		public void BroadcastBlocks(Block[] blocks, Node node)
+		{
+			Block lastSent = null;
+			foreach(var block in blocks)
+			{
+				node.SendMessageAsync(new InvPayload(block));
+				node.SendMessageAsync(new BlockPayload(block));
+				lastSent = block;
+			}
+			node.PingPong();
 		}
 
 		public void FindBlock(int blockCount = 1, bool includeMempool = true)
