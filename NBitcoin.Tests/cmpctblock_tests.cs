@@ -24,12 +24,13 @@ namespace NBitcoin.Tests
 				var client1 = bitcoind.CreateNodeClient(new NodeConnectionParameters()
 				{
 					Version = ProtocolVersion.SHORT_IDS_BLOCKS_VERSION
-				});								
+				});
 				using(var listener = client1.CreateListener())
 				{
 					client1.VersionHandshake();
 					var sendCmpct = listener.ReceivePayload<SendCmpctPayload>();
 					Assert.Equal(1U, sendCmpct.Version);
+					Assert.Equal(false, sendCmpct.PreferHeaderAndIDs);
 
 					//Announcement
 					client1.SendMessage(new SendCmpctPayload(false));
@@ -69,6 +70,32 @@ namespace NBitcoin.Tests
 					blk = listener.ReceivePayload<CmpctBlockPayload>();
 					Assert.Equal(1, blk.ShortIds.Count);
 					Assert.Equal(blk.ShortIds[0], blk.GetShortID(tx.GetHash()));
+
+					//Let the node know which is the last block that we know
+					client1.SendMessage(new InvPayload(new InventoryVector(InventoryType.MSG_BLOCK, blk.Header.GetHash())));
+					bitcoind.Generate(1);
+					inv = listener.ReceivePayload<InvPayload>();
+					inv.First().Type = InventoryType.MSG_CMPCT_BLOCK;
+					client1.SendMessage(new GetDataPayload(inv.First()));
+					blk = listener.ReceivePayload<CmpctBlockPayload>();
+
+					//Prefer being notified with cmpctblock
+					client1.SendMessage(new SendCmpctPayload(true));
+					//Let the node know which is the last block that we know
+					client1.SendMessage(new InvPayload(new InventoryVector(InventoryType.MSG_BLOCK, blk.Header.GetHash())));
+					bitcoind.Generate(1);
+					blk = listener.ReceivePayload<CmpctBlockPayload>();
+
+					//The node ask to connect to use in high bandwidth mode
+					var blocks = bitcoind.Generate(1, broadcast: false);
+					client1.SendMessage(new InvPayload(blocks));
+					var getdata = listener.ReceivePayload<GetDataPayload>();
+
+					//Crash here
+					Assert.True(getdata.Inventory[0].Type == InventoryType.MSG_CMPCT_BLOCK);
+					client1.SendMessage(new CmpctBlockPayload(blocks[0]));
+					var cmpct = client1.ReceiveMessage<SendCmpctPayload>();
+					Assert.True(cmpct.PreferHeaderAndIDs);
 				}
 			}
 		}

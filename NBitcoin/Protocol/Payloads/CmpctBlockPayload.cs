@@ -11,6 +11,24 @@ namespace NBitcoin.Protocol
 	[Payload("cmpctblock")]
 	public class CmpctBlockPayload : Payload
 	{
+		public CmpctBlockPayload()
+		{
+
+		}
+		public CmpctBlockPayload(Block block)
+		{
+			Header = block.Header;
+			Nonce = RandomUtils.GetUInt64();
+			PrefilledTransactions.Add(new PrefilledTransaction()
+			{
+				DiffIndex = 0,
+				Transaction = block.Transactions[0]
+			});
+			foreach(var tx in block.Transactions.Skip(1))
+			{
+				ShortIds.Add(GetShortID(tx.GetHash()));
+			}
+		}
 		BlockHeader _Header;
 		public BlockHeader Header
 		{
@@ -114,7 +132,7 @@ namespace NBitcoin.Protocol
 			_ShortTxidk1 = Hashes.SipHasher.GetULong(shorttxidhash, 1);
 		}
 
-		internal ulong GetShortID(uint256 txhash)
+		public ulong GetShortID(uint256 txhash)
 		{
 			return Hashes.SipHash(_ShortTxidk0, _ShortTxidk1, txhash) & 0xffffffffffffL;
 		}
