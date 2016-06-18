@@ -37,6 +37,16 @@ namespace NBitcoin.Protocol
 		}
 		List<BlockHeader> headers = new List<BlockHeader>();
 
+		public HeadersPayload()
+		{
+
+		}
+
+		public HeadersPayload(params BlockHeader[] headers)
+		{
+			Headers.AddRange(headers);
+		}
+
 		public List<BlockHeader> Headers
 		{
 			get

@@ -19,9 +19,10 @@ namespace NBitcoin.Protocol
 		{
 			Header = block.Header;
 			Nonce = RandomUtils.GetUInt64();
+			UpdateShortTxIDSelector();
 			PrefilledTransactions.Add(new PrefilledTransaction()
 			{
-				DiffIndex = 0,
+				Index = 0,
 				Transaction = block.Transactions[0]
 			});
 			foreach(var tx in block.Transactions.Skip(1))
@@ -115,13 +116,58 @@ namespace NBitcoin.Protocol
 					stream.ReadWrite(ref msb);
 				}
 			}
-			stream.ReadWrite(ref _PrefilledTransactions);
+
+			ulong txn_size = (ulong)PrefilledTransactions.Count;
+			stream.ReadWriteAsVarInt(ref txn_size);
 
 			if(!stream.Serializing)
-				FillShortTxIDSelector();
+			{
+				ulong i = 0;
+				ulong indicesCount = 0;
+				while((ulong)PrefilledTransactions.Count < txn_size)
+				{
+					indicesCount = Math.Min(1000UL + (ulong)indicesCount, (ulong)txn_size);
+					for(; i < indicesCount; i++)
+					{
+						ulong index = 0;
+						stream.ReadWriteAsVarInt(ref index);
+						if(index > Int32.MaxValue)
+							throw new FormatException("indexes overflowed 32-bits");
+						Transaction tx = null;
+						stream.ReadWrite(ref tx);
+						PrefilledTransactions.Add(new PrefilledTransaction()
+						{
+							Index = (int)index,
+							Transaction = tx
+						});
+					}
+				}
+
+				int offset = 0;
+				for(var ii = 0; ii < PrefilledTransactions.Count; ii++)
+				{
+					if((ulong)(PrefilledTransactions[ii].Index) + (ulong)(offset) > Int32.MaxValue)
+						throw new FormatException("indexes overflowed 31-bits");
+					PrefilledTransactions[ii].Index = PrefilledTransactions[ii].Index + offset;
+					offset = PrefilledTransactions[ii].Index + 1;
+				}
+			}
+			else
+			{
+				for(var i = 0; i < PrefilledTransactions.Count; i++)
+				{
+					uint index = checked((uint)(PrefilledTransactions[i].Index - (i == 0 ? 0 : (PrefilledTransactions[i - 1].Index + 1))));
+					stream.ReadWriteAsVarInt(ref index);
+					Transaction tx = PrefilledTransactions[i].Transaction;
+					stream.ReadWrite(ref tx);
+				}
+			}
+
+			if(!stream.Serializing)
+				UpdateShortTxIDSelector();
 		}
 
-		private void FillShortTxIDSelector()
+		public void UpdateShortTxIDSelector()
 		{
 			MemoryStream ms = new MemoryStream();
 			BitcoinStream stream = new BitcoinStream(ms, true);
@@ -138,44 +184,19 @@ namespace NBitcoin.Protocol
 		}
 	}
 
-	public class PrefilledTransaction : IBitcoinSerializable
+	public class PrefilledTransaction
 	{
-
-		Transaction _Transaction;
+		
 		public Transaction Transaction
 		{
-			get
-			{
-				return _Transaction;
-			}
-			set
-			{
-				_Transaction = value;
-			}
+			get;
+			set;
 		}
 
-
-		ushort _DiffIndex;
-		public ushort DiffIndex
+		public int Index
 		{
-			get
-			{
-				return _DiffIndex;
-			}
-			set
-			{
-				_DiffIndex = value;
-			}
-		}
-
-		public void ReadWrite(BitcoinStream stream)
-		{
-			ulong idx = _DiffIndex;
-			stream.ReadWriteAsVarInt(ref idx);
-			if(idx > ushort.MaxValue)
-				throw new FormatException("index overflowed 16-bits");
-			_DiffIndex = (ushort)idx;
-			stream.ReadWrite(ref _Transaction);
+			get;
+			set;
 		}
 	}
 }

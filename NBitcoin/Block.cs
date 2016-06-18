@@ -178,7 +178,6 @@ namespace NBitcoin
 			return GetHash().ToString();
 		}
 
-
 		/// <summary>
 		/// Set time to consensus acceptable value
 		/// </summary>
@@ -186,9 +185,19 @@ namespace NBitcoin
 		/// <param name="prev">previous block</param>
 		public void UpdateTime(Network network, ChainedBlock prev)
 		{
+			UpdateTime(DateTimeOffset.UtcNow, network, prev);
+		}
+
+		/// <summary>
+		/// Set time to consensus acceptable value
+		/// </summary>
+		/// <param name="now">The expected date</param>
+		/// <param name="network">Network</param>
+		/// <param name="prev">previous block</param>		
+		public void UpdateTime(DateTimeOffset now, Network network, ChainedBlock prev)
+		{
 			var nOldTime = this.BlockTime;
 			var mtp = prev.GetMedianTimePast() + TimeSpan.FromSeconds(1);
-			var now = DateTimeOffset.UtcNow;
 			var nNewTime = mtp > now ? mtp : now;
 
 			if(nOldTime < nNewTime)

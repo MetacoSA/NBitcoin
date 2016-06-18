@@ -232,7 +232,7 @@ namespace NBitcoin.Tests
 			{
 				return _State;
 			}
-		}
+		}		
 
 		int[] ports;
 		public void Start()
@@ -399,26 +399,45 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		public DateTimeOffset? MockTime
+		{
+			get;
+			set;
+		}
+
+		public void SetMinerSecret(BitcoinSecret secret)
+		{
+			CreateRPCClient().ImportPrivKey(secret);
+			MinerSecret = secret;
+		}
+
+		public BitcoinSecret MinerSecret
+		{
+			get;
+			private set;
+		}
+
 		public Block[] Generate(int blockCount, bool includeUnbroadcasted = true, bool broadcast = true)
 		{
 			var rpc = CreateRPCClient();
 			BitcoinSecret dest = GetFirstSecret(rpc);
 			var bestBlock = rpc.GetBestBlockHash();
-			ConcurrentChain chain = null;
-			Random nonce = new Random();
+			ConcurrentChain chain = null;			
 			List<Block> blocks = new List<Block>();
-
+			DateTimeOffset now = MockTime == null ? DateTimeOffset.UtcNow : MockTime.Value;
 #if !NOSOCKET
 			using(var node = CreateNodeClient())
 			{
+				
 				node.VersionHandshake();
 				chain = bestBlock == node.Network.GenesisHash ? new ConcurrentChain(node.Network) : node.GetChain();
 				for(int i = 0; i < blockCount; i++)
 				{
+					uint nonce = 0;
 					Block block = new Block();
 					block.Header.HashPrevBlock = chain.Tip.HashBlock;
 					block.Header.Bits = block.Header.GetWorkRequired(rpc.Network, chain.Tip);
-					block.Header.UpdateTime(rpc.Network, chain.Tip);
+					block.Header.UpdateTime(now, rpc.Network, chain.Tip);
 					var coinbase = new Transaction();
 					coinbase.AddInput(TxIn.CreateCoinbase(chain.Height + 1));
 					coinbase.AddOutput(new TxOut(rpc.Network.GetReward(chain.Height + 1), dest.GetAddress()));
@@ -431,7 +450,7 @@ namespace NBitcoin.Tests
 					}
 					block.UpdateMerkleRoot();
 					while(!block.CheckProofOfWork())
-						block.Header.Nonce = (uint)nonce.Next();
+						block.Header.Nonce = ++nonce;
 					blocks.Add(block);
 					chain.SetTip(block.Header);
 				}
@@ -517,15 +536,16 @@ namespace NBitcoin.Tests
 			return result;
 		}
 
-		private static BitcoinSecret GetFirstSecret(RPCClient rpc)
+		private BitcoinSecret GetFirstSecret(RPCClient rpc)
 		{
+			if(MinerSecret != null)
+				return MinerSecret;
 			var dest = rpc.ListSecrets().FirstOrDefault();
 			if(dest == null)
 			{
 				var address = rpc.GetNewAddress();
 				dest = rpc.DumpPrivKey(address);
 			}
-
 			return dest;
 		}
 	}

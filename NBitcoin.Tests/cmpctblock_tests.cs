@@ -13,12 +13,27 @@ namespace NBitcoin.Tests
 	{
 		[Fact]
 		[Trait("CoreBeta", "CoreBeta")]
+		public void CanRoundtripCmpctBlock()
+		{
+			Block block = new Block();
+			block.Transactions.Add(new Transaction());
+			var cmpct = new CmpctBlockPayload(block);
+			cmpct.Clone();
+		}
+
+		[Fact]
+		[Trait("CoreBeta", "CoreBeta")]
 		public void CanAskCmpctBlock()
 		{
-			var alice = new Key();
+			var alice = new BitcoinSecret("KypycJyxP5yA4gSedEBRse5q5f8RwYKG8xi8z4SRe2rdaioL3YNc").PrivateKey;
+			var satoshi = new BitcoinSecret("KypycJyxP5yA4gSedEBRse5q5f8RwYKG8xi8z4SRe2rdaioL3YNc").ToNetwork(Network.RegTest);
 			using(var builder = NodeBuilder.Create(version: "C:\\Bitcoin\\bitcoind.exe"))
 			{
+				var now = new DateTimeOffset(2015, 07, 18, 0, 0, 0, TimeSpan.Zero);
+				builder.ConfigParameters.Add("mocktime", Utils.DateTimeToUnixTime(now).ToString());
 				var bitcoind = builder.CreateNode(true);
+				bitcoind.SetMinerSecret(satoshi);
+				bitcoind.MockTime = now;
 				var rpc = bitcoind.CreateRPCClient();
 
 				var client1 = bitcoind.CreateNodeClient(new NodeConnectionParameters()
@@ -88,13 +103,12 @@ namespace NBitcoin.Tests
 
 					//The node ask to connect to use in high bandwidth mode
 					var blocks = bitcoind.Generate(1, broadcast: false);
-					client1.SendMessage(new InvPayload(blocks));
+					client1.SendMessage(new HeadersPayload(blocks[0].Header));
 					var getdata = listener.ReceivePayload<GetDataPayload>();
-
-					//Crash here
+					
 					Assert.True(getdata.Inventory[0].Type == InventoryType.MSG_CMPCT_BLOCK);
 					client1.SendMessage(new CmpctBlockPayload(blocks[0]));
-					var cmpct = client1.ReceiveMessage<SendCmpctPayload>();
+					var cmpct = listener.ReceivePayload<SendCmpctPayload>();
 					Assert.True(cmpct.PreferHeaderAndIDs);
 				}
 			}
