@@ -25,8 +25,8 @@ namespace NBitcoin.Protocol
 
 
 
-		private List<uint> _Indices = new List<uint>();
-		public List<uint> Indices
+		private List<int> _Indices = new List<int>();
+		public List<int> Indices
 		{
 			get
 			{
@@ -50,15 +50,17 @@ namespace NBitcoin.Protocol
 					{
 						ulong index = 0;
 						stream.ReadWriteAsVarInt(ref index);
-						_Indices.Add((uint)index);
+						if(index > Int32.MaxValue)
+							throw new FormatException("indexes overflowed 31-bits");
+						_Indices.Add((int)index);
 					}
 				}
 
-				uint offset = 0;
+				int offset = 0;
 				for(var ii = 0; ii < _Indices.Count; ii++)
 				{
-					if((ulong)(_Indices[ii]) + (ulong)(offset) > UInt32.MaxValue)
-						throw new FormatException("indexes overflowed 32-bits");
+					if((ulong)(_Indices[ii]) + (ulong)(offset) > Int32.MaxValue)
+						throw new FormatException("indexes overflowed 31-bits");
 					_Indices[ii] = _Indices[ii] + offset;
 					offset = _Indices[ii] + 1;
 				}
@@ -67,7 +69,7 @@ namespace NBitcoin.Protocol
 			{
 				for(var i = 0; i < _Indices.Count; i++)
 				{
-					ulong index = _Indices[i] - (i == 0 ? 0 : (_Indices[i - 1] + 1));					
+					int index = _Indices[i] - (i == 0 ? 0 : (_Indices[i - 1] + 1));					
 					stream.ReadWrite(ref index);
 				}
 			}

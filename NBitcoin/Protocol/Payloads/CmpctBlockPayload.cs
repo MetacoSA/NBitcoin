@@ -17,8 +17,8 @@ namespace NBitcoin.Protocol
 		}
 		public CmpctBlockPayload(Block block)
 		{
-			Header = block.Header;
-			Nonce = RandomUtils.GetUInt64();
+			_Header = block.Header;
+			_Nonce = RandomUtils.GetUInt64();
 			UpdateShortTxIDSelector();
 			PrefilledTransactions.Add(new PrefilledTransaction()
 			{
@@ -40,6 +40,8 @@ namespace NBitcoin.Protocol
 			set
 			{
 				_Header = value;
+				if(value != null)
+					UpdateShortTxIDSelector();
 			}
 		}
 
@@ -54,6 +56,7 @@ namespace NBitcoin.Protocol
 			set
 			{
 				_Nonce = value;
+				UpdateShortTxIDSelector();
 			}
 		}
 
@@ -167,7 +170,7 @@ namespace NBitcoin.Protocol
 				UpdateShortTxIDSelector();
 		}
 
-		public void UpdateShortTxIDSelector()
+		void UpdateShortTxIDSelector()
 		{
 			MemoryStream ms = new MemoryStream();
 			BitcoinStream stream = new BitcoinStream(ms, true);
@@ -178,15 +181,27 @@ namespace NBitcoin.Protocol
 			_ShortTxidk1 = Hashes.SipHasher.GetULong(shorttxidhash, 1);
 		}
 
-		public ulong GetShortID(uint256 txhash)
+		public ulong AddTransactionShortId(Transaction tx)
 		{
-			return Hashes.SipHash(_ShortTxidk0, _ShortTxidk1, txhash) & 0xffffffffffffL;
+			return AddTransactionShortId(tx.GetHash());
+		}
+
+		public ulong AddTransactionShortId(uint256 txId)
+		{
+			var id = GetShortID(txId);
+			ShortIds.Add(id);
+			return id;
+		}
+
+		public ulong GetShortID(uint256 txId)
+		{
+			return Hashes.SipHash(_ShortTxidk0, _ShortTxidk1, txId) & 0xffffffffffffL;
 		}
 	}
 
 	public class PrefilledTransaction
 	{
-		
+
 		public Transaction Transaction
 		{
 			get;

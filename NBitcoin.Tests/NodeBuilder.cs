@@ -232,7 +232,7 @@ namespace NBitcoin.Tests
 			{
 				return _State;
 			}
-		}		
+		}
 
 		int[] ports;
 		public void Start()
@@ -322,23 +322,39 @@ namespace NBitcoin.Tests
 		}
 
 		List<Transaction> transactions = new List<Transaction>();
+		HashSet<OutPoint> locked = new HashSet<OutPoint>();
 		Money fee = Money.Coins(0.0001m);
 		public Transaction GiveMoney(Script destination, Money amount, bool broadcast = true)
 		{
 			var rpc = CreateRPCClient();
 			TransactionBuilder builder = new TransactionBuilder();
 			builder.AddKeys(rpc.ListSecrets().OfType<ISecret>().ToArray());
-			builder.AddCoins(rpc.ListUnspent().Select(c => c.AsCoin()));
+			builder.AddCoins(rpc.ListUnspent().Where(c => !locked.Contains(c.OutPoint)).Select(c => c.AsCoin()));
 			builder.Send(destination, amount);
 			builder.SendFees(fee);
 			builder.SetChange(GetFirstSecret(rpc));
 			var tx = builder.BuildTransaction(true);
+			foreach(var outpoint in tx.Inputs.Select(i => i.PrevOut))
+			{
+				locked.Add(outpoint);
+			}
 			if(broadcast)
 				Broadcast(tx);
 			else
 				transactions.Add(tx);
 			return tx;
 		}
+
+		public void Rollback(Transaction tx)
+		{
+			transactions.Remove(tx);
+			foreach(var outpoint in tx.Inputs.Select(i => i.PrevOut))
+			{
+				locked.Remove(outpoint);
+			}
+
+		}
+
 #if !NOSOCKET
 		public void Broadcast(Transaction transaction)
 		{
@@ -422,13 +438,13 @@ namespace NBitcoin.Tests
 			var rpc = CreateRPCClient();
 			BitcoinSecret dest = GetFirstSecret(rpc);
 			var bestBlock = rpc.GetBestBlockHash();
-			ConcurrentChain chain = null;			
+			ConcurrentChain chain = null;
 			List<Block> blocks = new List<Block>();
 			DateTimeOffset now = MockTime == null ? DateTimeOffset.UtcNow : MockTime.Value;
 #if !NOSOCKET
 			using(var node = CreateNodeClient())
 			{
-				
+
 				node.VersionHandshake();
 				chain = bestBlock == node.Network.GenesisHash ? new ConcurrentChain(node.Network) : node.GetChain();
 				for(int i = 0; i < blockCount; i++)
