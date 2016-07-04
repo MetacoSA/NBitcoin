@@ -80,9 +80,6 @@
     <Compile Include="Payment\ISigner.cs" />
     <Compile Include="Payment\WindowsCertificateServiceProvider.cs" />
     <Compile Include="Policy\ITransactionPolicy.cs" />
-    <Compile Include="JsonConverters\BitcoinSerializableJsonConverter.cs" />
-    <Compile Include="JsonConverters\MoneyJsonConverter.cs" />
-    <Compile Include="JsonConverters\ScriptJsonConverter.cs" />
     <Compile Include="Policy\MinerTransactionPolicy.cs" />
     <Compile Include="CachedNoSqlRepository.cs" />
     <Compile Include="CachedTransactionRepository.cs" />

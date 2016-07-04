@@ -12,7 +12,7 @@ namespace NBitcoin.RPC
 	//{"code":-32601,"message":"Method not found"}
 	public class RPCError
 	{
-		public RPCError(JObject error)
+		internal RPCError(JObject error)
 		{
 			Code = (RPCErrorCode)((int)error.GetValue("code"));
 			Message = (string)error.GetValue("message");
