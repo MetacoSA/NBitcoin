@@ -43,12 +43,6 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle%28Profile259%29.csproj">
-      <Project>{9a4e20fa-d79b-4ab2-93d3-2cf7101f75f8}</Project>
-      <Name>NBitcoin.Portable.BouncyCastle%28Profile259%29</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>

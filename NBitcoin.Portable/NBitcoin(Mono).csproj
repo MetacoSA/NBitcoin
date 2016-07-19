@@ -55,12 +55,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin.BouncyCastle\NBitcoin.BouncyCastle.csproj">
-      <Project>{19a848a9-333a-4918-ab7f-769a1f368051}</Project>
-      <Name>NBitcoin.BouncyCastle</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Android.partial.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

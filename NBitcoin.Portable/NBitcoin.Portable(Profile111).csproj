@@ -40,10 +40,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin.Portable.BouncyCastle\NBitcoin.Portable.BouncyCastle%28Profile111%29.csproj">
-      <Project>{e405ea2f-fd7a-4369-b376-ebfe3dd19c14}</Project>
-      <Name>NBitcoin.Portable.BouncyCastle%28Profile111%29</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Newtonsoft.Json%28portable%29\Newtonsoft.Json.Portable.csproj">
       <Project>{959f7f85-c98b-4876-971a-9036224578e4}</Project>
       <Name>Newtonsoft.Json.Portable</Name>
