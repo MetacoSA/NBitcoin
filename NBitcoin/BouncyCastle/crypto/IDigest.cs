@@ -1,11 +1,9 @@
-using System;
-
 namespace NBitcoin.BouncyCastle.Crypto
 {
 	/**
      * interface that a message digest conforms to.
      */
-	public interface IDigest
+	internal interface IDigest
 	{
 		/**
          * return the algorithm name

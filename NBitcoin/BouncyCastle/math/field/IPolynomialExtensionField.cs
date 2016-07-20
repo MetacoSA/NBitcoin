@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace NBitcoin.BouncyCastle.Math.Field
+﻿namespace NBitcoin.BouncyCastle.Math.Field
 {
-	public interface IPolynomialExtensionField
+	internal interface IPolynomialExtensionField
 		: IExtensionField
 	{
 		IPolynomial MinimalPolynomial

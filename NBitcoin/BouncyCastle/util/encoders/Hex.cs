@@ -1,13 +1,11 @@
-using System;
 using System.IO;
-using System.Text;
 
 namespace NBitcoin.BouncyCastle.Utilities.Encoders
 {
 	/// <summary>
 	/// Class to decode and encode Hex.
 	/// </summary>
-	public sealed class Hex
+	internal sealed class Hex
 	{
 		private static readonly IEncoder encoder = new HexEncoder();
 

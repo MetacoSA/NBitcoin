@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace NBitcoin.BouncyCastle.Math.EC
+﻿namespace NBitcoin.BouncyCastle.Math.EC
 {
-	public interface ECPointMap
+	internal interface ECPointMap
 	{
 		ECPoint Map(ECPoint p);
 	}

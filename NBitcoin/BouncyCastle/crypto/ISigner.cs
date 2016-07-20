@@ -1,10 +1,6 @@
-
-using System;
-using System.Text;
-
 namespace NBitcoin.BouncyCastle.Crypto
 {
-	public interface ISigner
+	internal interface ISigner
 	{
 		/**
          * Return the name of the algorithm the signer implements.

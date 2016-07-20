@@ -1,6 +1,3 @@
-using System;
-
-using NBitcoin.BouncyCastle.Crypto;
 using NBitcoin.BouncyCastle.Security;
 
 namespace NBitcoin.BouncyCastle.Crypto.Paddings
@@ -8,7 +5,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Paddings
 	/**
     * A padder that adds Pkcs7/Pkcs5 padding to a block.
     */
-	public class Pkcs7Padding
+	internal class Pkcs7Padding
 		: IBlockCipherPadding
 	{
 		/**

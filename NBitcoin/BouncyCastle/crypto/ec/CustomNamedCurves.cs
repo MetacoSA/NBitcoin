@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections;
-
-using NBitcoin.BouncyCastle.Asn1;
-using NBitcoin.BouncyCastle.Math;
+﻿using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
 using NBitcoin.BouncyCastle.Math.EC.Custom.Sec;
 using NBitcoin.BouncyCastle.Math.EC.Endo;
-using NBitcoin.BouncyCastle.Utilities;
 using NBitcoin.BouncyCastle.Utilities.Encoders;
 using NBitcoin.BouncyCastle.Asn1.X9;
 
 namespace NBitcoin.BouncyCastle.Crypto.EC
 {
-	public sealed class CustomNamedCurves
+	internal sealed class CustomNamedCurves
 	{
 		private CustomNamedCurves()
 		{

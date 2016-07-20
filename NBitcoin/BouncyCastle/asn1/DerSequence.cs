@@ -1,12 +1,10 @@
-using System;
-using System.Collections;
 using System.IO;
 
 using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1
 {
-	public class DerSequence
+	internal class DerSequence
 		: Asn1Sequence
 	{
 		public static readonly DerSequence Empty = new DerSequence();

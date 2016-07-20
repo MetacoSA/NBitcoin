@@ -1,12 +1,10 @@
-using System;
-
 namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 {
 	/**
     * Class implementing the WNAF (Window Non-Adjacent Form) multiplication
     * algorithm.
     */
-	public class WNafL2RMultiplier
+	internal class WNafL2RMultiplier
 		: AbstractECMultiplier
 	{
 		/**

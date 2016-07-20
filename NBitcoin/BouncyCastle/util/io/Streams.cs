@@ -1,9 +1,8 @@
-using System;
 using System.IO;
 
 namespace NBitcoin.BouncyCastle.Utilities.IO
 {
-	public sealed class Streams
+	internal sealed class Streams
 	{
 		private const int BufferSize = 512;
 

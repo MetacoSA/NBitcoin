@@ -2,10 +2,7 @@ using System;
 
 namespace NBitcoin.BouncyCastle.Security
 {
-#if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT || PORTABLE)
-    [Serializable]
-#endif
-	public class GeneralSecurityException
+	internal class GeneralSecurityException
 		: Exception
 	{
 		public GeneralSecurityException()

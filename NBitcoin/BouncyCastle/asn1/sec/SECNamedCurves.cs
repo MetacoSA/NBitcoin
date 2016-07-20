@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 
-using NBitcoin.BouncyCastle.Asn1;
 using NBitcoin.BouncyCastle.Asn1.X9;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
@@ -11,7 +9,7 @@ using NBitcoin.BouncyCastle.Utilities.Encoders;
 
 namespace NBitcoin.BouncyCastle.Asn1.Sec
 {
-	public sealed class SecNamedCurves
+	internal sealed class SecNamedCurves
 	{
 		private SecNamedCurves()
 		{

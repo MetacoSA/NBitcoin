@@ -1,7 +1,5 @@
 ﻿using System;
 
-using NBitcoin.BouncyCastle.Utilities;
-
 namespace NBitcoin.BouncyCastle.Math.Field
 {
 	internal class GenericPolynomialExtensionField

@@ -1,11 +1,8 @@
-using System;
-
-using NBitcoin.BouncyCastle.Asn1;
 using NBitcoin.BouncyCastle.Asn1.X9;
 
 namespace NBitcoin.BouncyCastle.Asn1.Sec
 {
-	public abstract class SecObjectIdentifiers
+	internal abstract class SecObjectIdentifiers
 	{
 		/**
 		 *  EllipticCurve OBJECT IDENTIFIER ::= {

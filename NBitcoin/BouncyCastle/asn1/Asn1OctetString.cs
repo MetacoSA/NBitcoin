@@ -1,13 +1,11 @@
 using System;
-using System.Collections;
 using System.IO;
 
 using NBitcoin.BouncyCastle.Utilities;
-using NBitcoin.BouncyCastle.Utilities.Encoders;
 
 namespace NBitcoin.BouncyCastle.Asn1
 {
-	public abstract class Asn1OctetString
+	internal abstract class Asn1OctetString
 		: Asn1Object, Asn1OctetStringParser
 	{
 		internal byte[] str;

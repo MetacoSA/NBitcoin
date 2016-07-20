@@ -8,10 +8,7 @@ namespace NBitcoin.BouncyCastle.Crypto
      * insufficient input. In general this exception will Get thrown rather
      * than an ArrayOutOfBounds exception.
      */
-#if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT || PORTABLE)
-    [Serializable]
-#endif
-	public class DataLengthException
+	internal class DataLengthException
 		: CryptoException
 	{
 		/**

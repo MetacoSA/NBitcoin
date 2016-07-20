@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace NBitcoin.BouncyCastle.Math.EC
+﻿namespace NBitcoin.BouncyCastle.Math.EC
 {
-	public class ScaleXPointMap
+	internal class ScaleXPointMap
 		: ECPointMap
 	{
 		protected readonly ECFieldElement scale;

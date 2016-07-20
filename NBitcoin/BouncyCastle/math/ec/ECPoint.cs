@@ -1,16 +1,13 @@
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.Text;
-
-using NBitcoin.BouncyCastle.Math.EC.Multiplier;
 
 namespace NBitcoin.BouncyCastle.Math.EC
 {
 	/**
      * base class for points on elliptic curves.
      */
-	public abstract class ECPoint
+	internal abstract class ECPoint
 	{
 		protected static ECFieldElement[] EMPTY_ZS = new ECFieldElement[0];
 
@@ -497,7 +494,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		}
 	}
 
-	public abstract class ECPointBase
+	internal abstract class ECPointBase
 		: ECPoint
 	{
 		protected internal ECPointBase(
@@ -558,7 +555,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		}
 	}
 
-	public abstract class AbstractFpPoint
+	internal abstract class AbstractFpPoint
 		: ECPointBase
 	{
 		protected AbstractFpPoint(ECCurve curve, ECFieldElement x, ECFieldElement y, bool withCompression)
@@ -634,7 +631,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 	/**
      * Elliptic curve points over Fp
      */
-	public class FpPoint
+	internal class FpPoint
 		: AbstractFpPoint
 	{
 		/**
@@ -1340,7 +1337,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		}
 	}
 
-	public abstract class AbstractF2mPoint
+	internal abstract class AbstractF2mPoint
 		: ECPointBase
 	{
 		protected AbstractF2mPoint(ECCurve curve, ECFieldElement x, ECFieldElement y, bool withCompression)
@@ -1561,7 +1558,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 	/**
      * Elliptic curve points over F2m
      */
-	public class F2mPoint
+	internal class F2mPoint
 		: AbstractF2mPoint
 	{
 		/**

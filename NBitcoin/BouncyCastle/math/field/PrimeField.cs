@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NBitcoin.BouncyCastle.Math.Field
+﻿namespace NBitcoin.BouncyCastle.Math.Field
 {
 	internal class PrimeField
 		: IFiniteField

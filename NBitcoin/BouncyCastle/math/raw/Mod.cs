@@ -3,7 +3,6 @@ using System.Diagnostics;
 
 using NBitcoin.BouncyCastle.Crypto.Utilities;
 using NBitcoin.BouncyCastle.Security;
-using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Math.Raw
 {

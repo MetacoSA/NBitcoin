@@ -3,10 +3,7 @@ using System.IO;
 
 namespace NBitcoin.BouncyCastle.Asn1
 {
-#if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT || PORTABLE)
-    [Serializable]
-#endif
-	public class Asn1Exception
+	internal class Asn1Exception
 		: IOException
 	{
 		public Asn1Exception()

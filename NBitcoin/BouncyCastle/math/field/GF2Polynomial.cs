@@ -1,6 +1,4 @@
-﻿using System;
-
-using NBitcoin.BouncyCastle.Utilities;
+﻿using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Math.Field
 {

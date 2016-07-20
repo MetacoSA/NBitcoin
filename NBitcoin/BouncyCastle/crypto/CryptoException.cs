@@ -2,10 +2,7 @@ using System;
 
 namespace NBitcoin.BouncyCastle.Crypto
 {
-#if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT || PORTABLE)
-    [Serializable]
-#endif
-	public class CryptoException
+	internal class CryptoException
 		: Exception
 	{
 		public CryptoException()

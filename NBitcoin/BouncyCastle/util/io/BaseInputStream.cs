@@ -1,10 +1,9 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 
 namespace NBitcoin.BouncyCastle.Utilities.IO
 {
-	public abstract class BaseInputStream : Stream
+	internal abstract class BaseInputStream : Stream
 	{
 		private bool closed;
 

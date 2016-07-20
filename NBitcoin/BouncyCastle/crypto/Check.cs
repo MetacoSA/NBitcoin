@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NBitcoin.BouncyCastle.Crypto
+﻿namespace NBitcoin.BouncyCastle.Crypto
 {
 	internal class Check
 	{

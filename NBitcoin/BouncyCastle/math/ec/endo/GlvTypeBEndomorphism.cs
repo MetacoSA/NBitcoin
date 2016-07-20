@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace NBitcoin.BouncyCastle.Math.EC.Endo
+﻿namespace NBitcoin.BouncyCastle.Math.EC.Endo
 {
-	public class GlvTypeBEndomorphism
+	internal class GlvTypeBEndomorphism
 		: GlvEndomorphism
 	{
 		protected readonly ECCurve m_curve;

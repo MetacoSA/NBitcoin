@@ -3,10 +3,7 @@ using System.IO;
 
 namespace NBitcoin.BouncyCastle.Utilities.IO
 {
-#if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT || PORTABLE)
-    [Serializable]
-#endif
-	public class StreamOverflowException
+	internal class StreamOverflowException
 		: IOException
 	{
 		public StreamOverflowException()

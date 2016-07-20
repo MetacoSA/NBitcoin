@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 
-using NBitcoin.BouncyCastle.Crypto;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Utilities;
 
@@ -12,7 +10,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Macs
     *
     * H(K XOR opad, H(K XOR ipad, text))
     */
-	public class HMac
+	internal class HMac
 		: IMac
 	{
 		private const byte IPAD = (byte)0x36;

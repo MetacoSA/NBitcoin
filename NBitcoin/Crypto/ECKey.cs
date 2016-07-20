@@ -1,23 +1,14 @@
-﻿using NBitcoin.DataEncoders;
-using NBitcoin.BouncyCastle.Asn1;
-using NBitcoin.BouncyCastle.Asn1.X9;
-using NBitcoin.BouncyCastle.Crypto;
+﻿using NBitcoin.BouncyCastle.Asn1.X9;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Crypto.Signers;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
-using NBitcoin.BouncyCastle.Security;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NBitcoin.BouncyCastle.Math.EC.Custom.Sec;
 
 namespace NBitcoin.Crypto
 {
-	public class ECKey
+	internal class ECKey
 	{
 		public ECPrivateKeyParameters PrivateKey
 		{

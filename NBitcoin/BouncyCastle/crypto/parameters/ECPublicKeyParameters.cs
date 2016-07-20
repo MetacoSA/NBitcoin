@@ -1,12 +1,10 @@
 using System;
-using System.Globalization;
 
-using NBitcoin.BouncyCastle.Asn1;
 using NBitcoin.BouncyCastle.Math.EC;
 
 namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
-	public class ECPublicKeyParameters
+	internal class ECPublicKeyParameters
 		: ECKeyParameters
 	{
 		private readonly ECPoint q;

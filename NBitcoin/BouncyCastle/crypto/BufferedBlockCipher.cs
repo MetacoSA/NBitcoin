@@ -1,7 +1,4 @@
 using System;
-using System.Diagnostics;
-
-using NBitcoin.BouncyCastle.Crypto.Parameters;
 
 namespace NBitcoin.BouncyCastle.Crypto
 {
@@ -14,7 +11,7 @@ namespace NBitcoin.BouncyCastle.Crypto
 	* OFB one the last block may not be a multiple of the block size.
 	* </p>
 	*/
-	public class BufferedBlockCipher
+	internal class BufferedBlockCipher
 		: BufferedCipherBase
 	{
 		internal byte[] buf;

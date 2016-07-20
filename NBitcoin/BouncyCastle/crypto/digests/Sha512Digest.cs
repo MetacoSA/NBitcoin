@@ -1,5 +1,3 @@
-using System;
-
 using NBitcoin.BouncyCastle.Crypto.Utilities;
 using NBitcoin.BouncyCastle.Utilities;
 
@@ -17,7 +15,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
      * SHA-512 1024   64    512
      * </pre>
      */
-	public class Sha512Digest
+	internal class Sha512Digest
 		: LongDigest
 	{
 		private const int DigestLength = 64;

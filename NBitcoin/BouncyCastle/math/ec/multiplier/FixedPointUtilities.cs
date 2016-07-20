@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
+﻿namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 {
-	public class FixedPointUtilities
+	internal class FixedPointUtilities
 	{
 		public static readonly string PRECOMP_NAME = "bc_fixed_point";
 

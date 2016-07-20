@@ -356,14 +356,11 @@
     <Compile Include="BouncyCastle\crypto\IBlockCipher.cs" />
     <Compile Include="BouncyCastle\crypto\IBufferedCipher.cs" />
     <Compile Include="BouncyCastle\crypto\ICipherParameters.cs" />
-    <Compile Include="BouncyCastle\crypto\IDerivationParameters.cs" />
     <Compile Include="BouncyCastle\crypto\IDigest.cs" />
     <Compile Include="BouncyCastle\crypto\IDSA.cs" />
     <Compile Include="BouncyCastle\crypto\IMac.cs" />
     <Compile Include="BouncyCastle\crypto\InvalidCipherTextException.cs" />
     <Compile Include="BouncyCastle\crypto\ISigner.cs" />
-    <Compile Include="BouncyCastle\crypto\IStreamCipher.cs" />
-    <Compile Include="BouncyCastle\crypto\KeyGenerationParameters.cs" />
     <Compile Include="BouncyCastle\crypto\macs\HMac.cs" />
     <Compile Include="BouncyCastle\crypto\OutputLengthException.cs" />
     <Compile Include="BouncyCastle\crypto\paddings\BlockCipherPadding.cs" />

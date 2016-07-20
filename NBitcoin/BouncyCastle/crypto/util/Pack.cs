@@ -1,5 +1,3 @@
-using System;
-
 namespace NBitcoin.BouncyCastle.Crypto.Utilities
 {
 	internal sealed class Pack

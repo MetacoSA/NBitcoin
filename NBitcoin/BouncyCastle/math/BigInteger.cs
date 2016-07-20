@@ -9,9 +9,6 @@ using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Math
 {
-#if !(NETCF_1_0 || NETCF_2_0 || SILVERLIGHT || PORTABLE)
-    [Serializable]
-#endif
 	public class BigInteger
 	{
 		// The first few odd primes
