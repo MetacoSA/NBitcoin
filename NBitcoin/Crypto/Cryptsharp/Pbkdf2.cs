@@ -50,7 +50,7 @@ namespace NBitcoin.Crypto
 	/// Stream derivedKeyStream = new Pbkdf2(new HMACSHA512(key), salt, 1000);
 	/// </code>
 	/// </example>
-	public class Pbkdf2 : Stream
+	internal class Pbkdf2 : Stream
 	{
 		#region PBKDF2
 		byte[] _saltBuffer, _digest, _digestT1;

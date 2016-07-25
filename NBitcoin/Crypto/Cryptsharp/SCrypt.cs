@@ -142,7 +142,7 @@ namespace NBitcoin.Crypto
 		/// </param>
 		/// <returns>The derived key stream.</returns>
 #if !USEBC
-		public static Pbkdf2 GetStream(byte[] key, byte[] salt,
+		internal static Pbkdf2 GetStream(byte[] key, byte[] salt,
 									   int cost, int blockSize, int parallel, int? maxThreads)
 		{
 			byte[] B = GetEffectivePbkdf2Salt(key, salt, cost, blockSize, parallel, maxThreads);
@@ -152,7 +152,7 @@ namespace NBitcoin.Crypto
 		}
 
 #else
-		public static Pbkdf2 GetStream(byte[] key, byte[] salt,
+		internal static Pbkdf2 GetStream(byte[] key, byte[] salt,
 									   int cost, int blockSize, int parallel, int? maxThreads)
 		{
 			byte[] B = GetEffectivePbkdf2Salt(key, salt, cost, blockSize, parallel, maxThreads);
