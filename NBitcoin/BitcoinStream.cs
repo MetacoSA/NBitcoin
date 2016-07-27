@@ -1,7 +1,4 @@
-﻿#if !PORTABLE
-using System.Net.Sockets;
-#endif
-using NBitcoin.Protocol;
+﻿using NBitcoin.Protocol;
 using System;
 using System.Collections;
 using System.Collections.Generic;
