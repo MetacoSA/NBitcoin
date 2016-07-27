@@ -41,7 +41,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Represents a reader that provides fast, non-cached, forward-only access to serialized Json data.
     /// </summary>
-    public abstract class JsonReader : IDisposable
+    internal abstract class JsonReader : IDisposable
     {
         /// <summary>
         /// Specifies the state of the reader.

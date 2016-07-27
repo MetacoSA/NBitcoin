@@ -44,7 +44,7 @@ namespace Newtonsoft.Json.Converters
     /// <summary>
     /// Converts a F# discriminated union type to and from JSON.
     /// </summary>
-    public class DiscriminatedUnionConverter : JsonConverter
+    internal class DiscriminatedUnionConverter : JsonConverter
     {
         private const string CasePropertyName = "Case";
         private const string FieldsPropertyName = "Fields";

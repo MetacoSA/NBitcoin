@@ -36,7 +36,7 @@ namespace Newtonsoft.Json
 #if !(NETFX_CORE || PORTABLE40 || PORTABLE)
     [Serializable]
 #endif
-    public class JsonSerializationException : JsonException
+    internal class JsonSerializationException : JsonException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="JsonSerializationException"/> class.

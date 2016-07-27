@@ -34,7 +34,7 @@ namespace Newtonsoft.Json.Converters
     /// <summary>
     /// Converts a <see cref="Regex"/> to and from JSON and BSON.
     /// </summary>
-    public class RegexConverter : JsonConverter
+    internal class RegexConverter : JsonConverter
     {
         private const string PatternName = "Pattern";
         private const string OptionsName = "Options";

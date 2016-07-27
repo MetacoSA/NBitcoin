@@ -39,7 +39,7 @@ namespace Newtonsoft.Json.Serialization
     /// <summary>
     /// Contract details for a <see cref="Type"/> used by the <see cref="JsonSerializer"/>.
     /// </summary>
-    public class JsonDictionaryContract : JsonContainerContract
+    internal class JsonDictionaryContract : JsonContainerContract
     {
         /// <summary>
         /// Gets or sets the property name resolver.

@@ -40,7 +40,7 @@ namespace Newtonsoft.Json.Bson
     /// <summary>
     /// Represents a writer that provides a fast, non-cached, forward-only way of generating JSON data.
     /// </summary>
-    public class BsonWriter : JsonWriter
+    internal class BsonWriter : JsonWriter
     {
         private readonly BsonBinaryWriter _writer;
 

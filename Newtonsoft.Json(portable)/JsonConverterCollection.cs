@@ -33,7 +33,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Represents a collection of <see cref="JsonConverter"/>.
     /// </summary>
-    public class JsonConverterCollection : Collection<JsonConverter>
+    internal class JsonConverterCollection : Collection<JsonConverter>
     {
     }
 }

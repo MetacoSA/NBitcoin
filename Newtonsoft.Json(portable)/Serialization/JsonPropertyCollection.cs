@@ -35,7 +35,7 @@ namespace Newtonsoft.Json.Serialization
     /// <summary>
     /// A collection of <see cref="JsonProperty"/> objects.
     /// </summary>
-    public class JsonPropertyCollection : KeyedCollection<string, JsonProperty>
+    internal class JsonPropertyCollection : KeyedCollection<string, JsonProperty>
     {
         private readonly Type _type;
 

@@ -141,14 +141,13 @@ namespace NBitcoin
 			}
 			return Genesis;
 		}
-#if !PORTABLE
+
 		public ChainedBlock FindFork(BlockLocator locator)
 		{
 			if(locator == null)
 				throw new ArgumentNullException("locator");
 			return FindFork(locator.Blocks);
 		}
-#endif
 
 		public IEnumerable<ChainedBlock> EnumerateAfter(uint256 blockHash)
 		{

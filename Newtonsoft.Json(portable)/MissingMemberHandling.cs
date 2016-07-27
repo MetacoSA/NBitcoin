@@ -32,7 +32,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Specifies missing member handling options for the <see cref="JsonSerializer"/>.
     /// </summary>
-    public enum MissingMemberHandling
+    internal enum MissingMemberHandling
     {
         /// <summary>
         /// Ignore a missing member and do not attempt to deserialize it.

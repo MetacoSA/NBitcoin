@@ -28,7 +28,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Specifies formatting options for the <see cref="JsonTextWriter"/>.
     /// </summary>
-    public enum Formatting
+    internal enum Formatting
     {
         /// <summary>
         /// No special formatting is applied. This is the default.

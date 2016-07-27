@@ -33,7 +33,7 @@ namespace Newtonsoft.Json.Converters
     /// <summary>
     /// Converts a <see cref="DataSet"/> to and from JSON.
     /// </summary>
-    public class DataSetConverter : JsonConverter
+    internal class DataSetConverter : JsonConverter
     {
         /// <summary>
         /// Writes the JSON representation of the object.

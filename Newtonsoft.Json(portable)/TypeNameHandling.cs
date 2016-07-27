@@ -31,7 +31,7 @@ namespace Newtonsoft.Json
     /// Specifies type name handling options for the <see cref="JsonSerializer"/>.
     /// </summary>
     [Flags]
-    public enum TypeNameHandling
+    internal enum TypeNameHandling
     {
         /// <summary>
         /// Do not include the .NET type name when serializing types.

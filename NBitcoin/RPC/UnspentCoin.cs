@@ -10,7 +10,7 @@ namespace NBitcoin.RPC
 {
 	public class UnspentCoin
 	{
-		public UnspentCoin(JObject unspent)
+		internal UnspentCoin(JObject unspent)
 		{
 			OutPoint = new OutPoint(uint256.Parse((string)unspent["txid"]), (uint)unspent["vout"]);
 			Address = Network.CreateFromBase58Data<BitcoinAddress>((string)unspent["address"]);

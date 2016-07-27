@@ -43,7 +43,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Represents a writer that provides a fast, non-cached, forward-only way of generating Json data.
     /// </summary>
-    public abstract class JsonWriter : IDisposable
+    internal abstract class JsonWriter : IDisposable
     {
         internal enum State
         {

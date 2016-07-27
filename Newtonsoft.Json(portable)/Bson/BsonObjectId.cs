@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Bson
     /// <summary>
     /// Represents a BSON Oid (object id).
     /// </summary>
-    public class BsonObjectId
+    internal class BsonObjectId
     {
         /// <summary>
         /// Gets or sets the value of the Oid.

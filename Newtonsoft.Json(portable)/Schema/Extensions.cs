@@ -32,7 +32,7 @@ namespace Newtonsoft.Json.Schema
     /// <summary>
     /// Contains the JSON schema extension methods.
     /// </summary>
-    public static class Extensions
+    internal static class Extensions
     {
         /// <summary>
         /// Determines whether the <see cref="JToken"/> is valid.

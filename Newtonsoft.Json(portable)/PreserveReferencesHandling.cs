@@ -37,7 +37,7 @@ namespace Newtonsoft.Json
     ///   <code lang="cs" source="..\Src\Newtonsoft.Json.Tests\Documentation\SerializationTests.cs" region="PreservingObjectReferencesOn" title="Preserve Object References" />       
     /// </example>
     [Flags]
-    public enum PreserveReferencesHandling
+    internal enum PreserveReferencesHandling
     {
         /// <summary>
         /// Do not preserve references when serializing types.

@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Schema
     /// The value types allowed by the <see cref="JsonSchema"/>.
     /// </summary>
     [Flags]
-    public enum JsonSchemaType
+    internal enum JsonSchemaType
     {
         /// <summary>
         /// No type specified.
