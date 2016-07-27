@@ -32,7 +32,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Specifies the member serialization options for the <see cref="JsonSerializer"/>.
     /// </summary>
-    public enum MemberSerialization
+    internal enum MemberSerialization
     {
 #pragma warning disable 1584,1711,1572,1581,1580,1574
         /// <summary>

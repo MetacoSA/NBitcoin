@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Serialization
     /// <summary>
     /// Resolves member mappings for a type, camel casing property names.
     /// </summary>
-    public class CamelCasePropertyNamesContractResolver : DefaultContractResolver
+    internal class CamelCasePropertyNamesContractResolver : DefaultContractResolver
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CamelCasePropertyNamesContractResolver"/> class.

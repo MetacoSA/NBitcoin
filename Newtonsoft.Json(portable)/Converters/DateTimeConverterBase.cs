@@ -30,7 +30,7 @@ namespace Newtonsoft.Json.Converters
     /// <summary>
     /// Provides a base class for converting a <see cref="DateTime"/> to and from JSON.
     /// </summary>
-    public abstract class DateTimeConverterBase : JsonConverter
+    internal abstract class DateTimeConverterBase : JsonConverter
     {
         /// <summary>
         /// Determines whether this instance can convert the specified object type.

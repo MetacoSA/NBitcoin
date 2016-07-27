@@ -50,7 +50,7 @@ namespace NBitcoin.RPC
 			jsonWriter.Flush();
 		}
 
-		public void WriteJSON(JsonTextWriter writer)
+		internal void WriteJSON(JsonTextWriter writer)
 		{
 			writer.WriteStartObject();
 			WriteProperty(writer, "jsonrpc", JsonRpc);

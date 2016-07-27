@@ -37,7 +37,7 @@ namespace Newtonsoft.Json.Schema
     /// <summary>
     /// Resolves <see cref="JsonSchema"/> from an id.
     /// </summary>
-    public class JsonSchemaResolver
+    internal class JsonSchemaResolver
     {
         /// <summary>
         /// Gets or sets the loaded schemas.

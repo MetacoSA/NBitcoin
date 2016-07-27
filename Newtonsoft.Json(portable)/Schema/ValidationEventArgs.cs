@@ -31,7 +31,7 @@ namespace Newtonsoft.Json.Schema
     /// <summary>
     /// Returns detailed information related to the <see cref="ValidationEventHandler"/>.
     /// </summary>
-    public class ValidationEventArgs : EventArgs
+    internal class ValidationEventArgs : EventArgs
     {
         private readonly JsonSchemaException _ex;
 

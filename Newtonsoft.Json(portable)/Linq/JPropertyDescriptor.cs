@@ -32,7 +32,7 @@ namespace Newtonsoft.Json.Linq
     /// <summary>
     /// Represents a view of a <see cref="JProperty"/>.
     /// </summary>
-    public class JPropertyDescriptor : PropertyDescriptor
+    internal class JPropertyDescriptor : PropertyDescriptor
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="JPropertyDescriptor"/> class.

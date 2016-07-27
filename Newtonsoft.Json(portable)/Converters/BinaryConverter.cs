@@ -35,7 +35,7 @@ namespace Newtonsoft.Json.Converters
     /// <summary>
     /// Converts a binary value to and from a base 64 string value.
     /// </summary>
-    public class BinaryConverter : JsonConverter
+    internal class BinaryConverter : JsonConverter
     {
 #if !NET20
         private const string BinaryTypeName = "System.Data.Linq.Binary";

@@ -32,7 +32,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Specifies the type of Json token.
     /// </summary>
-    public enum JsonToken
+    internal enum JsonToken
     {
         /// <summary>
         /// This is returned by the <see cref="JsonReader"/> if a <see cref="JsonReader.Read"/> method has not been called. 

@@ -39,7 +39,7 @@ namespace Newtonsoft.Json.Serialization
     /// <summary>
     /// Get and set values for a <see cref="MemberInfo"/> using dynamic methods.
     /// </summary>
-    public class DynamicValueProvider : IValueProvider
+    internal class DynamicValueProvider : IValueProvider
     {
         private readonly MemberInfo _memberInfo;
         private Func<object, object> _getter;

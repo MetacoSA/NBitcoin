@@ -30,7 +30,7 @@ namespace Newtonsoft.Json.Serialization
     /// <summary>
     /// Contract details for a <see cref="Type"/> used by the <see cref="JsonSerializer"/>.
     /// </summary>
-    public class JsonLinqContract : JsonContract
+    internal class JsonLinqContract : JsonContract
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="JsonLinqContract"/> class.

@@ -13,7 +13,7 @@ namespace NBitcoin
 {
 	public class BlockrException : Exception
 	{
-		public BlockrException(JObject response)
+		internal BlockrException(JObject response)
 			: base(response["message"] == null ? "Error from Blockr" : response["message"].ToString())
 		{
 			Code = response["code"] == null ? 0 : response["code"].Value<int>();

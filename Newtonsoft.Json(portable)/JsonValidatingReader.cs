@@ -46,7 +46,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Represents a reader that provides <see cref="JsonSchema"/> validation.
     /// </summary>
-    public class JsonValidatingReader : JsonReader, IJsonLineInfo
+    internal class JsonValidatingReader : JsonReader, IJsonLineInfo
     {
         private class SchemaScope
         {

@@ -19,6 +19,12 @@
     <ExcludedStuff Include="..\NBitcoin\MedianFilter.cs">
       <Visible>false</Visible>
     </ExcludedStuff>
+	<ExcludedStuffJson Include="..\Newtonsoft.Json(portable)\Properties\AssemblyInfo.cs">
+		<Visible>false</Visible>
+	</ExcludedStuffJson>
+	<Compile Include="..\Newtonsoft.Json(portable)\**\*.cs" Exclude="@(ExcludedStuffJson)" Condition="'$(NoNewtonsoft)' == 'true'">
+		<Link>LinkedJson\%(RecursiveDir)%(Filename)%(Extension)</Link>
+	</Compile>
     <Compile Include="..\NBitcoin\**\*.cs" Exclude="@(ExcludedStuff)">
       <Link>Linked\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>

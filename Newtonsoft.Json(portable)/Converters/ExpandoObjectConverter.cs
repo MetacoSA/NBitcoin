@@ -38,7 +38,7 @@ namespace Newtonsoft.Json.Converters
     /// <summary>
     /// Converts an ExpandoObject to and from JSON.
     /// </summary>
-    public class ExpandoObjectConverter : JsonConverter
+    internal class ExpandoObjectConverter : JsonConverter
     {
         /// <summary>
         /// Writes the JSON representation of the object.

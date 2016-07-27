@@ -31,7 +31,7 @@ namespace Newtonsoft.Json
     /// Instructs the <see cref="JsonSerializer"/> to use the specified constructor when deserializing that object.
     /// </summary>
     [AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false)]
-    public sealed class JsonConstructorAttribute : Attribute
+    internal sealed class JsonConstructorAttribute : Attribute
     {
     }
 }

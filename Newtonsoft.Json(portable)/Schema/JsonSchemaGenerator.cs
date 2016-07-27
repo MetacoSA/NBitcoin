@@ -42,7 +42,7 @@ namespace Newtonsoft.Json.Schema
     /// <summary>
     /// Generates a <see cref="JsonSchema"/> from a specified <see cref="Type"/>.
     /// </summary>
-    public class JsonSchemaGenerator
+    internal class JsonSchemaGenerator
     {
         /// <summary>
         /// Gets or sets how undefined schemas are handled by the serializer.

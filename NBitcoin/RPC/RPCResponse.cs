@@ -32,7 +32,7 @@ namespace NBitcoin.RPC
 	//{"result":null,"error":{"code":-32601,"message":"Method not found"},"id":1}
 	public class RPCResponse
 	{
-		public RPCResponse(JObject json)
+		internal RPCResponse(JObject json)
 		{
 			var error = json.GetValue("error") as JObject;
 			if(error != null)
@@ -47,7 +47,7 @@ namespace NBitcoin.RPC
 			set;
 		}
 
-		public JToken Result
+		internal JToken Result
 		{
 			get;
 			set;

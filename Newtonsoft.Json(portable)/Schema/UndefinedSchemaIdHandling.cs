@@ -28,7 +28,7 @@ namespace Newtonsoft.Json.Schema
     /// <summary>
     /// Specifies undefined schema Id handling options for the <see cref="JsonSchemaGenerator"/>.
     /// </summary>
-    public enum UndefinedSchemaIdHandling
+    internal enum UndefinedSchemaIdHandling
     {
         /// <summary>
         /// Do not infer a schema Id.
