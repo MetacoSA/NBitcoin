@@ -6,7 +6,7 @@ C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\NBitcoin.Portable\
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\NBitcoin.Portable\NBitcoin(Mono).csproj" -p:Configuration=Release
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\Build\Deploy.csproj"
 
-.\GitLink.exe ".." -ignore "nbitcoin.portable.tests,common,nbitcoin.tests"
+.\GitLink.exe ".." -ignore "nbitcoin.portable.tests,common,nbitcoin.tests,newtonsoft.json.portable"
 
 nuGet pack NBitcoin.nuspec
 nuGet pack NBitcoin.Mono.nuspec
