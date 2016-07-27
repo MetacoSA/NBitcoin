@@ -16,9 +16,6 @@
     <ExcludedStuff Include="..\NBitcoin\**\*.partial.cs">
       <Visible>false</Visible>
     </ExcludedStuff>
-    <ExcludedStuff Include="..\NBitcoin\**\*.partial.cs">
-      <Visible>false</Visible>
-    </ExcludedStuff>
     <ExcludedStuff Include="..\NBitcoin\MedianFilter.cs">
       <Visible>false</Visible>
     </ExcludedStuff>
