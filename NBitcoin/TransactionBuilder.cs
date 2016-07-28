@@ -680,6 +680,8 @@ namespace NBitcoin
 		{
 			if(asset.Quantity < 0)
 				throw new ArgumentOutOfRangeException("asset", "Asset amount can't be negative");
+			if(asset.Quantity == 0)
+				return this;
 			AssertOpReturn("Colored Coin");
 			var builders = CurrentGroup.BuildersByAsset.TryGet(asset.Id);
 			if(builders == null)
