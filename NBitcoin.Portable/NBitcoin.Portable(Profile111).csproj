@@ -28,7 +28,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Profile111\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;NOFILEIO;NOSOCKET;NOTRACESOURCE;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOCONSENSUSLIB</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;PORTABLE;USEBC;NOFILEIO;NOSOCKET;NOTRACESOURCE;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOCONSENSUSLIB;NOJSONNET</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>1591;1573;1572;1584;1570</NoWarn>
@@ -38,7 +38,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Profile111\Release</OutputPath>
-    <DefineConstants>TRACE;PORTABLE;USEBC;NOFILEIO;NOSOCKET;NOTRACESOURCE;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOCONSENSUSLIB</DefineConstants>
+    <DefineConstants>TRACE;PORTABLE;USEBC;NOFILEIO;NOSOCKET;NOTRACESOURCE;NODEFAULTRNG;NOSQLITE;NOSTRNORMALIZE;NOCONSENSUSLIB;NOJSONNET</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>

@@ -736,6 +736,24 @@ namespace NBitcoin.Tests
 					.BuildTransaction(true);
 
 				Assert.Equal("http://toto.com/", tx.GetColoredMarker().GetMetadataUrl().AbsoluteUri);
+
+				//Sending 0 asset should be a no op
+				txBuilder = new TransactionBuilder();
+				transfer =
+					txBuilder
+					.AddCoins(bobGold)
+					.AddCoins(((IssuanceCoin)issuanceCoins[0]).Bearer)
+					.AddKeys(gold, bob)
+					.SendAsset(alice.PubKey, new AssetMoney(goldId, 0UL))
+					.Send(alice.PubKey, Money.Coins(0.01m))
+					.SetChange(bob.PubKey)
+					.BuildTransaction(true);
+
+				foreach(var output in transfer.Outputs)
+				{
+					Assert.False(TxNullDataTemplate.Instance.CheckScriptPubKey(output.ScriptPubKey));
+					Assert.False(output.Value == output.GetDustThreshold(txBuilder.StandardTransactionPolicy.MinRelayTxFee));
+				}
 			}
 		}
 

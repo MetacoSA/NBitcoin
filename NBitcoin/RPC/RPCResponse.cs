@@ -47,10 +47,25 @@ namespace NBitcoin.RPC
 			set;
 		}
 
-		internal JToken Result
+#if !NOJSONNET
+		public
+#else
+		internal
+#endif
+		JToken Result
 		{
 			get;
 			set;
+		}
+
+		public string ResultString
+		{
+			get
+			{
+				if(Result == null)
+					return null;
+				return Result.ToString();
+			}
 		}
 
 		public static RPCResponse Load(Stream stream)
