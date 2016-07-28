@@ -62,6 +62,8 @@ namespace NBitcoin.RPC
 		{
 			get
 			{
+				if(Result == null)
+					return null;
 				return Result.ToString();
 			}
 		}
