@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using NBitcoin.Protocol;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 #if !PORTABLE
 using System.Net.Sockets;
 #endif
@@ -121,7 +122,7 @@ namespace NBitcoin
 			}
 		}
 
-#if !PORTABLE
+#if !(PORTABLE || NETCORE)
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
 			int readen = 0;
@@ -524,7 +525,11 @@ namespace NBitcoin
 		}
 
 
+<<<<<<< 8563a1db4437e9eba6f9b9a5e25b4911aa833ec6
 #if !NOSOCKET
+=======
+#if !(PORTABLE || NETCORE)
+>>>>>>> Add NETCore symbols and project files
 		internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
 		{
 			try
@@ -697,7 +702,7 @@ namespace NBitcoin
 			}
 			catch(FormatException)
 			{
-#if !WINDOWS_UWP
+#if !(WINDOWS_UWP || NETCORE)
 				address = Dns.GetHostEntry(ip).AddressList[0];
 #else
 				string adr = DnsLookup(ip).Result;
@@ -711,6 +716,24 @@ namespace NBitcoin
 			return new IPEndPoint(address, port);
 		}
 
+#if NETCORE
+        private static async Task<string> DnsLookup(string remoteHostName)
+        {
+            IPHostEntry data = await Dns.GetHostEntryAsync(remoteHostName).ConfigureAwait(false);
+
+            if (data != null && data.AddressList.Count() > 0)
+            {
+                foreach (IPAddress adr in data.AddressList)
+                {
+                    if (adr != null && adr.IsIPv4() == true)
+                    {
+                        return adr.ToString();
+                    }
+                }
+            }
+            return string.Empty;
+        }
+#endif
 #if WINDOWS_UWP
 		private static async Task<string> DnsLookup(string remoteHostName)
 		{
@@ -731,7 +754,7 @@ namespace NBitcoin
 #endif
 
 #endif
-		public static int GetHashCode(byte[] array)
+        public static int GetHashCode(byte[] array)
 		{
 			unchecked
 			{

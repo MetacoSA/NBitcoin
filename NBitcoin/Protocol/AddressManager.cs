@@ -1139,7 +1139,9 @@ namespace NBitcoin.Protocol
 					peers.AddRange(this.GetAddr());
 					if(peers.Count == 0)
 					{
-						PopulateTableWithDNSNodes(network, peers);
+#if !NETCORE
+                        PopulateTableWithDNSNodes(network, peers);
+#endif
 						PopulateTableWithHardNodes(network, peers);
 						peers = new List<NetworkAddress>(peers.OrderBy(a => RandomUtils.GetInt32()));
 					}
@@ -1202,8 +1204,8 @@ namespace NBitcoin.Protocol
 				}
 			}
 		}
-
-		private static void PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers)
+#if !NETCORE
+        private static void PopulateTableWithDNSNodes(Network network, List<NetworkAddress> peers)
 		{
 			peers.AddRange(network.DNSSeeds
 				.SelectMany(d =>
@@ -1220,7 +1222,7 @@ namespace NBitcoin.Protocol
 				.Select(d => new NetworkAddress(d, network.DefaultPort))
 				.ToArray());
 		}
-
+#endif
 		private static void PopulateTableWithHardNodes(Network network, List<NetworkAddress> peers)
 		{
 			peers.AddRange(network.SeedNodes);

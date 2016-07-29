@@ -35,7 +35,7 @@ namespace NBitcoin
 			this.name = name;
 			this.host = host;
 		}
-#if !NOSOCKET
+#if !(NOSOCKET || NETCORE)
         IPAddress[] _Addresses = null;
 		public IPAddress[] GetAddressNodes()
 		{

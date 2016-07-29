@@ -180,3 +180,4 @@ FakesAssemblies/
 /.vs/config/applicationhost.config
 /NBitcoin.Portable/NBitcoin(MonoAndroid).csproj.bak
 /NBitcoin.Portable/NBitcoin(Mono).csproj.bak
+.vs/restore.dg

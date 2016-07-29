@@ -178,7 +178,7 @@ namespace NBitcoin
 			var salt = Concat(Encoding.UTF8.GetBytes("mnemonic"), Normalize(passphrase));
 			var bytes = Normalize(_Mnemonic);
 
-#if USEBC || WINDOWS_UWP
+#if USEBC || WINDOWS_UWP || NETCORE
 			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
 			mac.Init(new KeyParameter(bytes));
 			return Pbkdf2.ComputeDerivedKey(mac, salt, 2048, 64);

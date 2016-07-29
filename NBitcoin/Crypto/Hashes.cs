@@ -29,7 +29,7 @@ namespace NBitcoin.Crypto
 
 		public static uint256 Hash256(byte[] data, int offset, int count)
 		{
-#if USEBC || WINDOWS_UWP
+#if USEBC || WINDOWS_UWP || NETCORE
 			Sha256Digest sha256 = new Sha256Digest();
 			sha256.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[32];
@@ -77,7 +77,7 @@ namespace NBitcoin.Crypto
 
 		public static byte[] RIPEMD160(byte[] data, int offset, int count)
 		{
-#if USEBC || WINDOWS_UWP
+#if USEBC || WINDOWS_UWP || NETCORE
 			RipeMD160Digest ripemd = new RipeMD160Digest();
 			ripemd.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[20];
@@ -275,7 +275,7 @@ namespace NBitcoin.Crypto
 
 		public static byte[] SHA256(byte[] data, int offset, int count)
 		{
-#if USEBC || WINDOWS_UWP
+#if USEBC || WINDOWS_UWP || NETCORE
 			Sha256Digest sha256 = new Sha256Digest();
 			sha256.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[32];
