@@ -1,0 +1,59 @@
+﻿{
+  "version": "3.0.0.42-alpha-01",
+  "dependencies": {
+    "Newtonsoft.Json": "9.0.1",
+    "NETStandard.Library": "1.6.1-beta-24329-03",
+    "System.Collections.NonGeneric": "4.0.2-beta-24329-03",
+    "System.Globalization.Extensions": "4.0.2-beta-24329-03",
+    "System.Net.NameResolution": "4.0.1-beta-24329-03",
+    "System.Net.Requests": "4.0.12-beta-24329-03",
+    "System.Threading.Tasks": "4.0.12-beta-24329-03",
+    "System.Threading.Tasks.Parallel": "4.0.2-beta-24329-03",
+    "System.Threading.Thread": "4.0.1-beta-24329-03"
+  },
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50"
+    }
+  },
+  "buildOptions": {
+    "define": [
+      "DEBUG",
+      "TRACE",
+      "NETCORE",
+      "NOTRACESOURCE",
+      "NOSOCKET"
+    ],
+    "compile": {
+      "include": [
+        "../NBitcoin/BIP32/*.cs",
+        "../NBitcoin/BIP38/*.cs",
+        "../NBitcoin/BIP39/*.cs",
+        "../NBitcoin/BitcoinCore/*.cs",
+        "../NBitcoin/BouncyCastle/**/*.cs",
+        "../NBitcoin/BuilderExtensions/*.cs",
+        "../NBitcoin/Crypto/*.cs",
+        "../NBitcoin/Crypto/**/*.cs",
+        "../NBitcoin/DataEncoders/*.cs",
+        "../NBitcoin/OpenAsset/*.cs",
+        "../NBitcoin/Payment/*.cs",
+        "../NBitcoin/Policy/*.cs",
+        "../NBitcoin/Protobuf/*.cs",
+        "../NBitcoin/Protocol/*.cs",
+        "../NBitcoin/Protocol/**/*.cs",
+        "../NBitcoin/RPC/*.cs",
+        "../NBitcoin/SPV/*.cs",
+        "../NBitcoin/Stealth/*.cs",
+        "../NBitcoin/Utils/*.cs",
+        "../NBitcoin/*.cs",
+        "../NBitcoin.Portable/**/*.cs",
+        "../NBitcoin.Portable/*.cs"
+      ],
+      "exclude": [
+        "../NBitcoin/MedianFilter1.cs",
+        "../NBitcoin.Portable/Android.partial.cs",
+        "../NBitcoin.Portable/Payment/BitcoinUrlBuilder.cs"
+      ]
+    }
+  }
+}

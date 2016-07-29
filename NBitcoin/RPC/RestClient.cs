@@ -234,7 +234,7 @@ namespace NBitcoin.RPC
 
 			var request = WebRequest.CreateHttp(uriBuilder.Uri);
 			request.Method = "GET";
-#if !PORTABLE
+#if !(PORTABLE || NETCORE)
 			request.KeepAlive = false;
 #endif
 			return request;

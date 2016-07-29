@@ -301,7 +301,7 @@ namespace NBitcoin.RPC
 			writer.Flush();
 			var json = writer.ToString();
 			var bytes = Encoding.UTF8.GetBytes(json);
-#if !PORTABLE
+#if !(PORTABLE || NETCORE)
 			webRequest.ContentLength = bytes.Length;
 #endif
 			var dataStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false);
