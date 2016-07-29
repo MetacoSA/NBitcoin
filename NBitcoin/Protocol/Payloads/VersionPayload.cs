@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 #if WINDOWS_UWP
 using Windows.ApplicationModel;
@@ -56,7 +57,11 @@ namespace NBitcoin.Protocol
 				var version = package.Id.Version;
 				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.Minor + "." + version.Build + "/";
 #else
+#if !NETCORE
 				var version = typeof(VersionPayload).Assembly.GetName().Version;
+#else
+                var version = typeof(VersionPayload).GetTypeInfo().Assembly.GetName().Version;
+#endif
 				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Build + "/";
 #endif
 

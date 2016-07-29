@@ -182,7 +182,8 @@ namespace NBitcoin.Protocol
 								TransactionOptions = Node.SupportedTransactionOptions
 							});
 							var bytes = ms.ToArrayEfficient();
-							_Node.Counter.AddWritten(bytes.LongLength);
+#if !NETCORE
+                            _Node.Counter.AddWritten(bytes.LongLength);
 							var ar = Socket.BeginSend(bytes, 0, bytes.Length, SocketFlags.None, null, null);
 							WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, Cancel.Token.WaitHandle }, -1);
 							if(!Cancel.Token.IsCancellationRequested)
@@ -191,7 +192,18 @@ namespace NBitcoin.Protocol
 								processing.Completion.SetResult(true);
 								processing = null;
 							}
-						}
+#else
+                            _Node.Counter.AddWritten(Int64.Parse(bytes.ToString()));
+                            var ar = Socket.Send(bytes, 0, bytes.Length, SocketFlags.None);
+                            WaitHandle.WaitAny(new WaitHandle[] { Cancel.Token.WaitHandle }, -1);
+                            if (!Cancel.Token.IsCancellationRequested)
+                            {
+                                Socket.Shutdown(SocketShutdown.Send);
+                                processing.Completion.SetResult(true);
+                                processing = null;
+                            }
+#endif
+                        }
 					}
 					catch(OperationCanceledException)
 					{
@@ -1387,14 +1399,14 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
-		#region IDisposable Members
+#region IDisposable Members
 
 		public void Dispose()
 		{
 			Disconnect("Node disposed");
 		}
 
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Emit a ping and wait the pong
