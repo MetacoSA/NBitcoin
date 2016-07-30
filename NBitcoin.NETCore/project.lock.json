@@ -30,7 +30,7 @@
           "lib/netstandard1.3/Microsoft.CSharp.dll": {}
         }
       },
-      "Microsoft.NETCore.Platforms/1.0.2-beta-24327-01": {
+      "Microsoft.NETCore.Platforms/1.0.2-beta-24329-03": {
         "type": "package",
         "compile": {
           "lib/netstandard1.0/_._": {}
@@ -39,7 +39,7 @@
           "lib/netstandard1.0/_._": {}
         }
       },
-      "Microsoft.NETCore.Targets/1.0.2": {
+      "Microsoft.NETCore.Targets/1.0.3-beta-24329-03": {
         "type": "package",
         "compile": {
           "lib/netstandard1.0/_._": {}
@@ -48,64 +48,64 @@
           "lib/netstandard1.0/_._": {}
         }
       },
-      "Microsoft.Win32.Primitives/4.0.2-beta-24327-01": {
+      "Microsoft.Win32.Primitives/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
           "ref/netstandard1.3/Microsoft.Win32.Primitives.dll": {}
         }
       },
-      "NETStandard.Library/1.6.1-beta-24327-01": {
+      "NETStandard.Library/1.6.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.Win32.Primitives": "4.0.2-beta-24327-01",
-          "System.AppContext": "4.1.1-beta-24327-01",
-          "System.Collections": "4.0.12-beta-24327-01",
-          "System.Collections.Concurrent": "4.0.13-beta-24327-01",
-          "System.Console": "4.0.1-beta-24327-01",
-          "System.Diagnostics.Debug": "4.0.12-beta-24327-01",
-          "System.Diagnostics.Tools": "4.0.2-beta-24327-01",
-          "System.Diagnostics.Tracing": "4.1.1-beta-24327-01",
-          "System.Globalization": "4.0.12-beta-24327-01",
-          "System.Globalization.Calendars": "4.0.2-beta-24327-01",
-          "System.IO": "4.1.1-beta-24327-01",
-          "System.IO.Compression": "4.1.2-beta-24327-01",
-          "System.IO.Compression.ZipFile": "4.0.2-beta-24327-01",
-          "System.IO.FileSystem": "4.0.2-beta-24327-01",
-          "System.IO.FileSystem.Primitives": "4.0.2-beta-24327-01",
-          "System.Linq": "4.1.1-beta-24327-01",
-          "System.Linq.Expressions": "4.1.1-beta-24327-01",
-          "System.Net.Http": "4.1.1-beta-24327-01",
-          "System.Net.Primitives": "4.0.12-beta-24327-01",
-          "System.Net.Sockets": "4.1.1-beta-24327-01",
-          "System.ObjectModel": "4.0.13-beta-24327-01",
-          "System.Reflection": "4.1.1-beta-24327-01",
-          "System.Reflection.Extensions": "4.0.2-beta-24327-01",
-          "System.Reflection.Primitives": "4.0.2-beta-24327-01",
-          "System.Resources.ResourceManager": "4.0.2-beta-24327-01",
-          "System.Runtime": "4.1.1-beta-24327-01",
-          "System.Runtime.Extensions": "4.1.1-beta-24327-01",
-          "System.Runtime.Handles": "4.0.2-beta-24327-01",
-          "System.Runtime.InteropServices": "4.2.0-beta-24327-01",
-          "System.Runtime.InteropServices.RuntimeInformation": "4.0.1-beta-24327-01",
-          "System.Runtime.Numerics": "4.0.2-beta-24327-01",
-          "System.Security.Cryptography.Algorithms": "4.2.1-beta-24327-01",
-          "System.Security.Cryptography.Encoding": "4.0.1-beta-24327-01",
-          "System.Security.Cryptography.Primitives": "4.0.1-beta-24327-01",
-          "System.Security.Cryptography.X509Certificates": "4.1.1-beta-24327-01",
-          "System.Text.Encoding": "4.0.12-beta-24327-01",
-          "System.Text.Encoding.Extensions": "4.0.12-beta-24327-01",
-          "System.Text.RegularExpressions": "4.2.0-beta-24327-01",
-          "System.Threading": "4.0.12-beta-24327-01",
-          "System.Threading.Tasks": "4.0.12-beta-24327-01",
-          "System.Threading.Timer": "4.0.2-beta-24327-01",
-          "System.Xml.ReaderWriter": "4.1.0-beta-24327-01",
-          "System.Xml.XDocument": "4.0.12-beta-24327-01"
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.Win32.Primitives": "4.0.2-beta-24329-03",
+          "System.AppContext": "4.1.1-beta-24329-03",
+          "System.Collections": "4.0.12-beta-24329-03",
+          "System.Collections.Concurrent": "4.0.13-beta-24329-03",
+          "System.Console": "4.0.1-beta-24329-03",
+          "System.Diagnostics.Debug": "4.0.12-beta-24329-03",
+          "System.Diagnostics.Tools": "4.0.2-beta-24329-03",
+          "System.Diagnostics.Tracing": "4.1.1-beta-24329-03",
+          "System.Globalization": "4.0.12-beta-24329-03",
+          "System.Globalization.Calendars": "4.0.2-beta-24329-03",
+          "System.IO": "4.1.1-beta-24329-03",
+          "System.IO.Compression": "4.1.2-beta-24329-03",
+          "System.IO.Compression.ZipFile": "4.0.2-beta-24329-03",
+          "System.IO.FileSystem": "4.0.2-beta-24329-03",
+          "System.IO.FileSystem.Primitives": "4.0.2-beta-24329-03",
+          "System.Linq": "4.1.1-beta-24329-03",
+          "System.Linq.Expressions": "4.1.1-beta-24329-03",
+          "System.Net.Http": "4.1.1-beta-24329-03",
+          "System.Net.Primitives": "4.0.12-beta-24329-03",
+          "System.Net.Sockets": "4.1.1-beta-24329-03",
+          "System.ObjectModel": "4.0.13-beta-24329-03",
+          "System.Reflection": "4.1.1-beta-24329-03",
+          "System.Reflection.Extensions": "4.0.2-beta-24329-03",
+          "System.Reflection.Primitives": "4.0.2-beta-24329-03",
+          "System.Resources.ResourceManager": "4.0.2-beta-24329-03",
+          "System.Runtime": "4.1.1-beta-24329-03",
+          "System.Runtime.Extensions": "4.1.1-beta-24329-03",
+          "System.Runtime.Handles": "4.0.2-beta-24329-03",
+          "System.Runtime.InteropServices": "4.2.0-beta-24329-03",
+          "System.Runtime.InteropServices.RuntimeInformation": "4.0.1-beta-24329-03",
+          "System.Runtime.Numerics": "4.0.2-beta-24329-03",
+          "System.Security.Cryptography.Algorithms": "4.2.1-beta-24329-03",
+          "System.Security.Cryptography.Encoding": "4.0.1-beta-24329-03",
+          "System.Security.Cryptography.Primitives": "4.0.1-beta-24329-03",
+          "System.Security.Cryptography.X509Certificates": "4.1.1-beta-24329-03",
+          "System.Text.Encoding": "4.0.12-beta-24329-03",
+          "System.Text.Encoding.Extensions": "4.0.12-beta-24329-03",
+          "System.Text.RegularExpressions": "4.2.0-beta-24329-03",
+          "System.Threading": "4.0.12-beta-24329-03",
+          "System.Threading.Tasks": "4.0.12-beta-24329-03",
+          "System.Threading.Timer": "4.0.2-beta-24329-03",
+          "System.Xml.ReaderWriter": "4.1.0-beta-24329-03",
+          "System.Xml.XDocument": "4.0.12-beta-24329-03"
         }
       },
       "Newtonsoft.Json/9.0.1": {
@@ -193,7 +193,7 @@
           "lib/netstandard1.0/_._": {}
         }
       },
-      "System.AppContext/4.1.1-beta-24327-01": {
+      "System.AppContext/4.1.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Runtime": "4.1.0"
@@ -221,18 +221,18 @@
           "lib/netstandard1.1/System.Buffers.dll": {}
         }
       },
-      "System.Collections/4.0.12-beta-24327-01": {
+      "System.Collections/4.0.12-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
           "ref/netstandard1.3/System.Collections.dll": {}
         }
       },
-      "System.Collections.Concurrent/4.0.13-beta-24327-01": {
+      "System.Collections.Concurrent/4.0.13-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Collections": "4.0.11",
@@ -253,7 +253,7 @@
           "lib/netstandard1.3/System.Collections.Concurrent.dll": {}
         }
       },
-      "System.Collections.NonGeneric/4.0.2-beta-24327-01": {
+      "System.Collections.NonGeneric/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Diagnostics.Debug": "4.0.11",
@@ -270,11 +270,11 @@
           "lib/netstandard1.3/System.Collections.NonGeneric.dll": {}
         }
       },
-      "System.Console/4.0.1-beta-24327-01": {
+      "System.Console/4.0.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.IO": "4.1.0",
           "System.Runtime": "4.1.0",
           "System.Text.Encoding": "4.0.11"
@@ -283,11 +283,11 @@
           "ref/netstandard1.3/System.Console.dll": {}
         }
       },
-      "System.Diagnostics.Debug/4.0.12-beta-24327-01": {
+      "System.Diagnostics.Debug/4.0.12-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
@@ -310,22 +310,22 @@
           "lib/netstandard1.3/System.Diagnostics.DiagnosticSource.dll": {}
         }
       },
-      "System.Diagnostics.Tools/4.0.2-beta-24327-01": {
+      "System.Diagnostics.Tools/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
           "ref/netstandard1.0/System.Diagnostics.Tools.dll": {}
         }
       },
-      "System.Diagnostics.Tracing/4.1.1-beta-24327-01": {
+      "System.Diagnostics.Tracing/4.1.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
@@ -358,22 +358,22 @@
           "lib/netstandard1.3/System.Dynamic.Runtime.dll": {}
         }
       },
-      "System.Globalization/4.0.12-beta-24327-01": {
+      "System.Globalization/4.0.12-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
           "ref/netstandard1.3/System.Globalization.dll": {}
         }
       },
-      "System.Globalization.Calendars/4.0.2-beta-24327-01": {
+      "System.Globalization.Calendars/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Globalization": "4.0.11",
           "System.Runtime": "4.1.0"
         },
@@ -381,10 +381,10 @@
           "ref/netstandard1.3/System.Globalization.Calendars.dll": {}
         }
       },
-      "System.Globalization.Extensions/4.0.2-beta-24327-01": {
+      "System.Globalization.Extensions/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
           "System.Globalization": "4.0.11",
           "System.Resources.ResourceManager": "4.0.1",
           "System.Runtime": "4.1.0",
@@ -405,11 +405,11 @@
           }
         }
       },
-      "System.IO/4.1.1-beta-24327-01": {
+      "System.IO/4.1.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0",
           "System.Text.Encoding": "4.0.11",
           "System.Threading.Tasks": "4.0.11"
@@ -418,10 +418,10 @@
           "ref/netstandard1.5/System.IO.dll": {}
         }
       },
-      "System.IO.Compression/4.1.2-beta-24327-01": {
+      "System.IO.Compression/4.1.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
           "System.Collections": "4.0.11",
           "System.Diagnostics.Debug": "4.0.11",
           "System.IO": "4.1.0",
@@ -450,7 +450,7 @@
           }
         }
       },
-      "System.IO.Compression.ZipFile/4.0.2-beta-24327-01": {
+      "System.IO.Compression.ZipFile/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Buffers": "4.0.0",
@@ -470,11 +470,11 @@
           "lib/netstandard1.3/System.IO.Compression.ZipFile.dll": {}
         }
       },
-      "System.IO.FileSystem/4.0.2-beta-24327-01": {
+      "System.IO.FileSystem/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.IO": "4.1.0",
           "System.IO.FileSystem.Primitives": "4.0.1",
           "System.Runtime": "4.1.0",
@@ -486,7 +486,7 @@
           "ref/netstandard1.3/System.IO.FileSystem.dll": {}
         }
       },
-      "System.IO.FileSystem.Primitives/4.0.2-beta-24327-01": {
+      "System.IO.FileSystem.Primitives/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Runtime": "4.1.0"
@@ -498,7 +498,7 @@
           "lib/netstandard1.3/System.IO.FileSystem.Primitives.dll": {}
         }
       },
-      "System.Linq/4.1.1-beta-24327-01": {
+      "System.Linq/4.1.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Collections": "4.0.11",
@@ -514,7 +514,7 @@
           "lib/netstandard1.6/System.Linq.dll": {}
         }
       },
-      "System.Linq.Expressions/4.1.1-beta-24327-01": {
+      "System.Linq.Expressions/4.1.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Collections": "4.0.11",
@@ -542,10 +542,10 @@
           "lib/netstandard1.6/System.Linq.Expressions.dll": {}
         }
       },
-      "System.Net.Http/4.1.1-beta-24327-01": {
+      "System.Net.Http/4.1.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
           "System.Collections": "4.0.11",
           "System.Diagnostics.Debug": "4.0.11",
           "System.Diagnostics.DiagnosticSource": "4.0.0",
@@ -586,10 +586,10 @@
           }
         }
       },
-      "System.Net.NameResolution/4.0.1-beta-24327-01": {
+      "System.Net.NameResolution/4.0.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
           "System.Collections": "4.0.11",
           "System.Diagnostics.Tracing": "4.1.0",
           "System.Globalization": "4.0.11",
@@ -618,11 +618,11 @@
           }
         }
       },
-      "System.Net.Primitives/4.0.12-beta-24327-01": {
+      "System.Net.Primitives/4.0.12-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0",
           "System.Runtime.Handles": "4.0.1"
         },
@@ -630,10 +630,10 @@
           "ref/netstandard1.3/System.Net.Primitives.dll": {}
         }
       },
-      "System.Net.Requests/4.0.12-beta-24327-01": {
+      "System.Net.Requests/4.0.12-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
           "System.Collections": "4.0.11",
           "System.Diagnostics.Debug": "4.0.11",
           "System.Diagnostics.Tracing": "4.1.0",
@@ -661,11 +661,11 @@
           }
         }
       },
-      "System.Net.Sockets/4.1.1-beta-24327-01": {
+      "System.Net.Sockets/4.1.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.IO": "4.1.0",
           "System.Net.Primitives": "4.0.11",
           "System.Runtime": "4.1.0",
@@ -690,7 +690,7 @@
           "lib/netstandard1.3/System.Net.WebHeaderCollection.dll": {}
         }
       },
-      "System.ObjectModel/4.0.13-beta-24327-01": {
+      "System.ObjectModel/4.0.13-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Collections": "4.0.11",
@@ -706,11 +706,11 @@
           "lib/netstandard1.3/System.ObjectModel.dll": {}
         }
       },
-      "System.Reflection/4.1.1-beta-24327-01": {
+      "System.Reflection/4.1.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.IO": "4.1.0",
           "System.Reflection.Primitives": "4.0.1",
           "System.Runtime": "4.1.0"
@@ -764,11 +764,11 @@
           "lib/netstandard1.3/System.Reflection.Emit.Lightweight.dll": {}
         }
       },
-      "System.Reflection.Extensions/4.0.2-beta-24327-01": {
+      "System.Reflection.Extensions/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Reflection": "4.1.0",
           "System.Runtime": "4.1.0"
         },
@@ -776,11 +776,11 @@
           "ref/netstandard1.0/System.Reflection.Extensions.dll": {}
         }
       },
-      "System.Reflection.Primitives/4.0.2-beta-24327-01": {
+      "System.Reflection.Primitives/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
@@ -800,11 +800,11 @@
           "lib/netstandard1.5/System.Reflection.TypeExtensions.dll": {}
         }
       },
-      "System.Resources.ResourceManager/4.0.2-beta-24327-01": {
+      "System.Resources.ResourceManager/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Globalization": "4.0.11",
           "System.Reflection": "4.1.0",
           "System.Runtime": "4.1.0"
@@ -813,43 +813,43 @@
           "ref/netstandard1.0/System.Resources.ResourceManager.dll": {}
         }
       },
-      "System.Runtime/4.1.1-beta-24327-01": {
+      "System.Runtime/4.1.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01"
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03"
         },
         "compile": {
           "ref/netstandard1.5/System.Runtime.dll": {}
         }
       },
-      "System.Runtime.Extensions/4.1.1-beta-24327-01": {
+      "System.Runtime.Extensions/4.1.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
           "ref/netstandard1.5/System.Runtime.Extensions.dll": {}
         }
       },
-      "System.Runtime.Handles/4.0.2-beta-24327-01": {
+      "System.Runtime.Handles/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
           "ref/netstandard1.3/System.Runtime.Handles.dll": {}
         }
       },
-      "System.Runtime.InteropServices/4.2.0-beta-24327-01": {
+      "System.Runtime.InteropServices/4.2.0-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Reflection": "4.1.0",
           "System.Reflection.Primitives": "4.0.1",
           "System.Runtime": "4.1.0",
@@ -859,10 +859,10 @@
           "ref/netstandard1.6/System.Runtime.InteropServices.dll": {}
         }
       },
-      "System.Runtime.InteropServices.RuntimeInformation/4.0.1-beta-24327-01": {
+      "System.Runtime.InteropServices.RuntimeInformation/4.0.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
           "System.Reflection": "4.1.0",
           "System.Reflection.Extensions": "4.0.1",
           "System.Resources.ResourceManager": "4.0.1",
@@ -885,7 +885,7 @@
           }
         }
       },
-      "System.Runtime.Numerics/4.0.2-beta-24327-01": {
+      "System.Runtime.Numerics/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Globalization": "4.0.11",
@@ -931,10 +931,10 @@
           "lib/netstandard1.3/System.Security.Claims.dll": {}
         }
       },
-      "System.Security.Cryptography.Algorithms/4.2.1-beta-24327-01": {
+      "System.Security.Cryptography.Algorithms/4.2.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
           "System.Collections": "4.0.11",
           "System.IO": "4.1.0",
           "System.Resources.ResourceManager": "4.0.1",
@@ -1022,10 +1022,10 @@
           }
         }
       },
-      "System.Security.Cryptography.Encoding/4.0.1-beta-24327-01": {
+      "System.Security.Cryptography.Encoding/4.0.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
           "System.Collections": "4.0.11",
           "System.Collections.Concurrent": "4.0.12",
           "System.Linq": "4.1.0",
@@ -1082,7 +1082,7 @@
           }
         }
       },
-      "System.Security.Cryptography.Primitives/4.0.1-beta-24327-01": {
+      "System.Security.Cryptography.Primitives/4.0.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Diagnostics.Debug": "4.0.11",
@@ -1100,10 +1100,10 @@
           "lib/netstandard1.3/System.Security.Cryptography.Primitives.dll": {}
         }
       },
-      "System.Security.Cryptography.X509Certificates/4.1.1-beta-24327-01": {
+      "System.Security.Cryptography.X509Certificates/4.1.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
           "System.Collections": "4.0.11",
           "System.Diagnostics.Debug": "4.0.11",
           "System.Globalization": "4.0.11",
@@ -1187,22 +1187,22 @@
           }
         }
       },
-      "System.Text.Encoding/4.0.12-beta-24327-01": {
+      "System.Text.Encoding/4.0.12-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
           "ref/netstandard1.3/System.Text.Encoding.dll": {}
         }
       },
-      "System.Text.Encoding.Extensions/4.0.12-beta-24327-01": {
+      "System.Text.Encoding.Extensions/4.0.12-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0",
           "System.Text.Encoding": "4.0.11"
         },
@@ -1210,7 +1210,7 @@
           "ref/netstandard1.3/System.Text.Encoding.Extensions.dll": {}
         }
       },
-      "System.Text.RegularExpressions/4.2.0-beta-24327-01": {
+      "System.Text.RegularExpressions/4.2.0-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Collections": "4.0.11",
@@ -1227,7 +1227,7 @@
           "lib/netstandard1.6/System.Text.RegularExpressions.dll": {}
         }
       },
-      "System.Threading/4.0.12-beta-24327-01": {
+      "System.Threading/4.0.12-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Runtime": "4.1.0",
@@ -1240,11 +1240,11 @@
           "lib/netstandard1.3/System.Threading.dll": {}
         }
       },
-      "System.Threading.Tasks/4.0.12-beta-24327-01": {
+      "System.Threading.Tasks/4.0.12-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
@@ -1265,7 +1265,7 @@
           "lib/netstandard1.0/System.Threading.Tasks.Extensions.dll": {}
         }
       },
-      "System.Threading.Tasks.Parallel/4.0.2-beta-24327-01": {
+      "System.Threading.Tasks.Parallel/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Collections.Concurrent": "4.0.12",
@@ -1284,7 +1284,7 @@
           "lib/netstandard1.3/System.Threading.Tasks.Parallel.dll": {}
         }
       },
-      "System.Threading.Thread/4.0.1-beta-24327-01": {
+      "System.Threading.Thread/4.0.1-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Runtime": "4.1.0"
@@ -1296,18 +1296,18 @@
           "lib/netstandard1.3/System.Threading.Thread.dll": {}
         }
       },
-      "System.Threading.Timer/4.0.2-beta-24327-01": {
+      "System.Threading.Timer/4.0.2-beta-24329-03": {
         "type": "package",
         "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.0.2-beta-24327-01",
-          "Microsoft.NETCore.Targets": "1.0.2-beta-24327-01",
+          "Microsoft.NETCore.Platforms": "1.0.2-beta-24329-03",
+          "Microsoft.NETCore.Targets": "1.0.3-beta-24329-03",
           "System.Runtime": "4.1.0"
         },
         "compile": {
           "ref/netstandard1.2/System.Threading.Timer.dll": {}
         }
       },
-      "System.Xml.ReaderWriter/4.1.0-beta-24327-01": {
+      "System.Xml.ReaderWriter/4.1.0-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Collections": "4.0.11",
@@ -1333,7 +1333,7 @@
           "lib/netstandard1.3/System.Xml.ReaderWriter.dll": {}
         }
       },
-      "System.Xml.XDocument/4.0.12-beta-24327-01": {
+      "System.Xml.XDocument/4.0.12-beta-24329-03": {
         "type": "package",
         "dependencies": {
           "System.Collections": "4.0.11",
@@ -1416,12 +1416,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "Microsoft.NETCore.Platforms/1.0.2-beta-24327-01": {
-      "sha512": "ofk/5rUoK4s0BJxKug8z1OjpW85Y8MQx9yC1Azb2fEKH7QBxXEarUjeVFbJYQHImsyNC3zSnGSqOxAfgP01SMg==",
+    "Microsoft.NETCore.Platforms/1.0.2-beta-24329-03": {
+      "sha512": "qRGM62LvZfTyLIX4uW42JHtEXyyDJvG60ODKFZs7rxsPptFglsqzIpDWvUnIwN7wenLRnhU2izWK+O07CQdTGg==",
       "type": "package",
-      "path": "Microsoft.NETCore.Platforms/1.0.2-beta-24327-01",
+      "path": "Microsoft.NETCore.Platforms/1.0.2-beta-24329-03",
       "files": [
-        "Microsoft.NETCore.Platforms.1.0.2-beta-24327-01.nupkg.sha512",
+        "Microsoft.NETCore.Platforms.1.0.2-beta-24329-03.nupkg.sha512",
         "Microsoft.NETCore.Platforms.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -1429,12 +1429,12 @@
         "runtime.json"
       ]
     },
-    "Microsoft.NETCore.Targets/1.0.2": {
-      "sha512": "yk4GtuNbFz2sxA5NNIp2bnOwGZVlB4U+F4gWy5YnMEKmGzzJfQ4wg7zQUx334+WMQ5PiQEuS4UuOpsW+V0PzVg==",
+    "Microsoft.NETCore.Targets/1.0.3-beta-24329-03": {
+      "sha512": "4A1ZT+u0+NwJb25WIicuU+mZeLazPfoDGXIteSkwS6DxiV5IhoyS+2lyXUCdWrmQOE2MwximpCjvJSn8HxB8tQ==",
       "type": "package",
-      "path": "Microsoft.NETCore.Targets/1.0.2",
+      "path": "Microsoft.NETCore.Targets/1.0.3-beta-24329-03",
       "files": [
-        "Microsoft.NETCore.Targets.1.0.2.nupkg.sha512",
+        "Microsoft.NETCore.Targets.1.0.3-beta-24329-03.nupkg.sha512",
         "Microsoft.NETCore.Targets.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -1442,12 +1442,12 @@
         "runtime.json"
       ]
     },
-    "Microsoft.Win32.Primitives/4.0.2-beta-24327-01": {
-      "sha512": "nQfNHV/7Ct7FdC1ocTWKfAU1k8IGxjl+FiCycfrnQ40A903g3ud9DPqEvIVl+6XTjrPfT2YIxe9T2MymjxUUGg==",
+    "Microsoft.Win32.Primitives/4.0.2-beta-24329-03": {
+      "sha512": "+OtheFtDdx1nOSBpXFdYKj3ubK7VE4THSRv05tcifthI9NUdq8mt+SzeNbwQkBdBP7ntyjT8L8/lw5fxGVj96g==",
       "type": "package",
-      "path": "Microsoft.Win32.Primitives/4.0.2-beta-24327-01",
+      "path": "Microsoft.Win32.Primitives/4.0.2-beta-24329-03",
       "files": [
-        "Microsoft.Win32.Primitives.4.0.2-beta-24327-01.nupkg.sha512",
+        "Microsoft.Win32.Primitives.4.0.2-beta-24329-03.nupkg.sha512",
         "Microsoft.Win32.Primitives.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -1478,12 +1478,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "NETStandard.Library/1.6.1-beta-24327-01": {
-      "sha512": "MCZ1NwCoXbzf3UFRz7+vC0c9bPK50SkOpgTHyBbC3MAhBm+bsp3GgVr9hh17/LiQMLMwGZISMzlFEVhOufUzLA==",
+    "NETStandard.Library/1.6.1-beta-24329-03": {
+      "sha512": "ypaDrmWWFnf6jIqJGT/WIeguemREraH65zscFvbpuIiEADpjuxj4GxiuLvUW1bsxdpZgyi6kUPCWvxSEb9JAXg==",
       "type": "package",
-      "path": "NETStandard.Library/1.6.1-beta-24327-01",
+      "path": "NETStandard.Library/1.6.1-beta-24329-03",
       "files": [
-        "NETStandard.Library.1.6.1-beta-24327-01.nupkg.sha512",
+        "NETStandard.Library.1.6.1-beta-24329-03.nupkg.sha512",
         "NETStandard.Library.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt"
@@ -1561,12 +1561,12 @@
         "runtime.native.System.Security.Cryptography.nuspec"
       ]
     },
-    "System.AppContext/4.1.1-beta-24327-01": {
-      "sha512": "UEPW94GjWiTp4nFIAHirG4CZimBFxw2g0/7KjJdiFX28FNqKwqjiAXDvRoOAwd6YtrGhGc2nFFSPuH/ItMrS0Q==",
+    "System.AppContext/4.1.1-beta-24329-03": {
+      "sha512": "xI/G4GlcXPUpQdzSl71q54ewCrq0Qjq1bnV33MjlPoHfI9+ukFbv0VnyOnNR5U4vx+qUUITsB3awTgEA3BzorA==",
       "type": "package",
-      "path": "System.AppContext/4.1.1-beta-24327-01",
+      "path": "System.AppContext/4.1.1-beta-24329-03",
       "files": [
-        "System.AppContext.4.1.1-beta-24327-01.nupkg.sha512",
+        "System.AppContext.4.1.1-beta-24329-03.nupkg.sha512",
         "System.AppContext.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -1627,12 +1627,12 @@
         "lib/netstandard1.1/System.Buffers.dll"
       ]
     },
-    "System.Collections/4.0.12-beta-24327-01": {
-      "sha512": "3dB+5IV9KB3bEPqS9yrBh9i4mu9ZNO7MUqEPQHnxLPjvpj8lidYJ0yeF7vkWCL+L5jzazlNIek8xqjaDEEHZxA==",
+    "System.Collections/4.0.12-beta-24329-03": {
+      "sha512": "DijAxdMs6PmPDsN52hXXsseED2YLCtZ6eRo/2XpxiOJwHzffpoErnLBu+fwzkfssTxeesKG3vIMLWR3vF3SP+A==",
       "type": "package",
-      "path": "System.Collections/4.0.12-beta-24327-01",
+      "path": "System.Collections/4.0.12-beta-24329-03",
       "files": [
-        "System.Collections.4.0.12-beta-24327-01.nupkg.sha512",
+        "System.Collections.4.0.12-beta-24329-03.nupkg.sha512",
         "System.Collections.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -1693,12 +1693,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Collections.Concurrent/4.0.13-beta-24327-01": {
-      "sha512": "RhPKfY7recCY5vS0ZxkltIlaQNpTE7igDlPP5X5zrtGI3p0pol9nNbOw5OyT11UCreK0QefTSvyGHOE+NAuCGQ==",
+    "System.Collections.Concurrent/4.0.13-beta-24329-03": {
+      "sha512": "XYfX9BcCgBA//x/Io+DiiebCtK/0wC59H/E6Ewrr3iQLBG41d9AcV+pcamQWhAEiPuwvyGWDiamAcboOtlp+Kw==",
       "type": "package",
-      "path": "System.Collections.Concurrent/4.0.13-beta-24327-01",
+      "path": "System.Collections.Concurrent/4.0.13-beta-24329-03",
       "files": [
-        "System.Collections.Concurrent.4.0.13-beta-24327-01.nupkg.sha512",
+        "System.Collections.Concurrent.4.0.13-beta-24329-03.nupkg.sha512",
         "System.Collections.Concurrent.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -1759,12 +1759,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Collections.NonGeneric/4.0.2-beta-24327-01": {
-      "sha512": "172F/hpROKf1UutULvQARv+M+BFMnV7n8UrJ4uHXFibhjcQyas40aHEr14epDI7ngZYDNsL5Qkxp0YwCjmhlWg==",
+    "System.Collections.NonGeneric/4.0.2-beta-24329-03": {
+      "sha512": "hIPpJGbsoxszshMk/9v3m2k0p6AMGnWFQwpKDHdWSOhldZ6K1SvZ+yaYzHa6tNGZ9Xtk88ei7bGGCm2OYubp7Q==",
       "type": "package",
-      "path": "System.Collections.NonGeneric/4.0.2-beta-24327-01",
+      "path": "System.Collections.NonGeneric/4.0.2-beta-24329-03",
       "files": [
-        "System.Collections.NonGeneric.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.Collections.NonGeneric.4.0.2-beta-24329-03.nupkg.sha512",
         "System.Collections.NonGeneric.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -1796,12 +1796,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Console/4.0.1-beta-24327-01": {
-      "sha512": "FpUnp9wyDD/xRxXi3g+ywyxWLk5IG+8u8h9CWDmedMZtbtNMiiMzH6Px+u51reSsrmN2xVBkQKJ+fqlunnMF2Q==",
+    "System.Console/4.0.1-beta-24329-03": {
+      "sha512": "HWytswQ4A66jQXjAf2zujGvejoIDGM1Z+4cbD1RAAGV8FtYhpYCNx3Qu8D/fHLlYH74cwgcQY+KbxG/hTjpg5A==",
       "type": "package",
-      "path": "System.Console/4.0.1-beta-24327-01",
+      "path": "System.Console/4.0.1-beta-24329-03",
       "files": [
-        "System.Console.4.0.1-beta-24327-01.nupkg.sha512",
+        "System.Console.4.0.1-beta-24329-03.nupkg.sha512",
         "System.Console.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -1832,12 +1832,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Diagnostics.Debug/4.0.12-beta-24327-01": {
-      "sha512": "9xgeCZOSfIcIWl/p5UvKqjFJA13tdsRjZIi/tHRtwS+3D9Es27sw//X9OvCzIUrVpr++quy+nJ5CDhFM30eExA==",
+    "System.Diagnostics.Debug/4.0.12-beta-24329-03": {
+      "sha512": "ZLQ4nzjhCDpTpXyrn+7NNIHqS3KFGs2AeNSxda4YNb4dgAwRwth47UB9PQ6LjvlUBGFSSbtQLSiGTjaQnpQBhA==",
       "type": "package",
-      "path": "System.Diagnostics.Debug/4.0.12-beta-24327-01",
+      "path": "System.Diagnostics.Debug/4.0.12-beta-24329-03",
       "files": [
-        "System.Diagnostics.Debug.4.0.12-beta-24327-01.nupkg.sha512",
+        "System.Diagnostics.Debug.4.0.12-beta-24329-03.nupkg.sha512",
         "System.Diagnostics.Debug.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -1917,12 +1917,12 @@
         "lib/portable-net45+win8+wpa81/System.Diagnostics.DiagnosticSource.xml"
       ]
     },
-    "System.Diagnostics.Tools/4.0.2-beta-24327-01": {
-      "sha512": "eSr+KJX5tmy/GTREi54rY38wJzdQ5EbqeNfzeBylfekUsBUotKZYltDhivABhMg34hOQKpJaOr8HoFrLpCZDDQ==",
+    "System.Diagnostics.Tools/4.0.2-beta-24329-03": {
+      "sha512": "QN59zWOF+/1aSSKf8WMwSjyycLTWQ4SgBw05eGrqJwMFX9PRcuK5Q04vH7F9rJwEIiPEVH1B43Cz1fs3vuOEbg==",
       "type": "package",
-      "path": "System.Diagnostics.Tools/4.0.2-beta-24327-01",
+      "path": "System.Diagnostics.Tools/4.0.2-beta-24329-03",
       "files": [
-        "System.Diagnostics.Tools.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.Diagnostics.Tools.4.0.2-beta-24329-03.nupkg.sha512",
         "System.Diagnostics.Tools.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -1972,12 +1972,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Diagnostics.Tracing/4.1.1-beta-24327-01": {
-      "sha512": "UUN+L+1rT8Ih/KSPI2PHAlOFO+aiqQGi1peVV9TOjEF0Y6aUWIttBWChCLzC+Axxw8YF+YI6nrfiNykpg4hKpg==",
+    "System.Diagnostics.Tracing/4.1.1-beta-24329-03": {
+      "sha512": "vnpMWQKFI51/NGjVrDU/RMJH0lq0uhSuzEcC6iNMQLLcppCxrY4nZSbnWKUbob7Hvuv6qNUw4DAPS5NF59Dh5w==",
       "type": "package",
-      "path": "System.Diagnostics.Tracing/4.1.1-beta-24327-01",
+      "path": "System.Diagnostics.Tracing/4.1.1-beta-24329-03",
       "files": [
-        "System.Diagnostics.Tracing.4.1.1-beta-24327-01.nupkg.sha512",
+        "System.Diagnostics.Tracing.4.1.1-beta-24329-03.nupkg.sha512",
         "System.Diagnostics.Tracing.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2129,12 +2129,12 @@
         "runtimes/aot/lib/netcore50/System.Dynamic.Runtime.dll"
       ]
     },
-    "System.Globalization/4.0.12-beta-24327-01": {
-      "sha512": "ndfl4dZu6YihQipTffrgWj1be7tDEs+qWcmmXH8o7lgiJ0zwj4aL+NpXaiimjihBnICOVt+SaOf0fBRoV7FYrA==",
+    "System.Globalization/4.0.12-beta-24329-03": {
+      "sha512": "xkdEwaHrxRV1xY+xvEMhdhZtHn64tvwG2c/Gnqs2Zk4Wj9ivZtB424FyRoTFB01sA/haTU8x8nXV0fkk7DWfNw==",
       "type": "package",
-      "path": "System.Globalization/4.0.12-beta-24327-01",
+      "path": "System.Globalization/4.0.12-beta-24329-03",
       "files": [
-        "System.Globalization.4.0.12-beta-24327-01.nupkg.sha512",
+        "System.Globalization.4.0.12-beta-24329-03.nupkg.sha512",
         "System.Globalization.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2195,12 +2195,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Globalization.Calendars/4.0.2-beta-24327-01": {
-      "sha512": "MHFF2JyN+6Ag0meWpabcQe46JbvUfNjGodxKmwLVshTrYlrTFeWsj2ySRex7dUpkiosWViGP0wCC6lF3X2zfdQ==",
+    "System.Globalization.Calendars/4.0.2-beta-24329-03": {
+      "sha512": "2+BC/mk/TldEEsFDjxAsQmr5u35So4swQAcdy1wxyZtCpdG4E0tAQoctw1ScsZx7m3TP/cAdi+jMppw2rORQWw==",
       "type": "package",
-      "path": "System.Globalization.Calendars/4.0.2-beta-24327-01",
+      "path": "System.Globalization.Calendars/4.0.2-beta-24329-03",
       "files": [
-        "System.Globalization.Calendars.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.Globalization.Calendars.4.0.2-beta-24329-03.nupkg.sha512",
         "System.Globalization.Calendars.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2231,12 +2231,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Globalization.Extensions/4.0.2-beta-24327-01": {
-      "sha512": "uGmpUxDf65ZvTudlTQucwqQRA9/n2O0bqjX70ldq1RmKz41XpW898Tpy/kdoQrPjWQbELlladVbb/+RYC1KVLw==",
+    "System.Globalization.Extensions/4.0.2-beta-24329-03": {
+      "sha512": "S1UKY7GQd+haeBuqzn+2KNxaaeAGvzpHEtCxMw9JFVCopKStkigAoUlUquYN0rhVojYVmNOnpjbfyvsZKM4iCg==",
       "type": "package",
-      "path": "System.Globalization.Extensions/4.0.2-beta-24327-01",
+      "path": "System.Globalization.Extensions/4.0.2-beta-24329-03",
       "files": [
-        "System.Globalization.Extensions.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.Globalization.Extensions.4.0.2-beta-24329-03.nupkg.sha512",
         "System.Globalization.Extensions.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2270,12 +2270,12 @@
         "runtimes/win/lib/netstandard1.3/System.Globalization.Extensions.dll"
       ]
     },
-    "System.IO/4.1.1-beta-24327-01": {
-      "sha512": "LjKL7BV2j8MpYsv4HwTrhFsfTMW0ku9pr5bweYahyVH56wpjjNu81BrOHmmmfcmowl1BJAYdKLQ1QGj5Gsm26w==",
+    "System.IO/4.1.1-beta-24329-03": {
+      "sha512": "AIiWLWpi4FOiWthis8RQcgZ0eERMHzi5QQ2qdu4dcKnrRmu9rINmqiY1RBRkddlLgPz6BsxQSfjue+YvGfZ+Jg==",
       "type": "package",
-      "path": "System.IO/4.1.1-beta-24327-01",
+      "path": "System.IO/4.1.1-beta-24329-03",
       "files": [
-        "System.IO.4.1.1-beta-24327-01.nupkg.sha512",
+        "System.IO.4.1.1-beta-24329-03.nupkg.sha512",
         "System.IO.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2349,12 +2349,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.IO.Compression/4.1.2-beta-24327-01": {
-      "sha512": "wnYXmmL8rNKjLkwet4+5mr6iFoMHGK7iXwc7MG2H+8QJ+o2bRKGG+T6ZRbJhTVjGXvOSuVZ3iftFGFHlxKN2Ug==",
+    "System.IO.Compression/4.1.2-beta-24329-03": {
+      "sha512": "LGmK3oDOGPNYQIO9OIHsdBLceA0iD+oczzlqcAP6HPsYIfpDvOwav5CEoc8lIYOgRQWFGAX++DfhNhUj0zrLvQ==",
       "type": "package",
-      "path": "System.IO.Compression/4.1.2-beta-24327-01",
+      "path": "System.IO.Compression/4.1.2-beta-24329-03",
       "files": [
-        "System.IO.Compression.4.1.2-beta-24327-01.nupkg.sha512",
+        "System.IO.Compression.4.1.2-beta-24329-03.nupkg.sha512",
         "System.IO.Compression.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2418,12 +2418,12 @@
         "runtimes/win/lib/netstandard1.3/System.IO.Compression.dll"
       ]
     },
-    "System.IO.Compression.ZipFile/4.0.2-beta-24327-01": {
-      "sha512": "0fG2bftV+a8dzRUqFbcBAVn9xo0mCAkrAn0HMzGHbtJwYQeTM3ODh1NGCjcdLAL+QzDdRWAzoAg6ySJGBcvUUw==",
+    "System.IO.Compression.ZipFile/4.0.2-beta-24329-03": {
+      "sha512": "npc090zMWovu0MKr3DrQevIrOroLpYbuZxea4/ow4gXqpT82cF8FK21ZCkabrNVFkvSlR5SPqadtryKh2VNXug==",
       "type": "package",
-      "path": "System.IO.Compression.ZipFile/4.0.2-beta-24327-01",
+      "path": "System.IO.Compression.ZipFile/4.0.2-beta-24329-03",
       "files": [
-        "System.IO.Compression.ZipFile.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.IO.Compression.ZipFile.4.0.2-beta-24329-03.nupkg.sha512",
         "System.IO.Compression.ZipFile.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2455,12 +2455,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.IO.FileSystem/4.0.2-beta-24327-01": {
-      "sha512": "YbeWsi0Q2LRSL2S69Ap7VkeOvI5ZipO0QA8ceQqOtcxEXqly7Ne2gn+i+Y490gdeZhWRn+OT+qyCI06V5lcxMg==",
+    "System.IO.FileSystem/4.0.2-beta-24329-03": {
+      "sha512": "u8C3j9ZZmnAW+dSk+I0GQFKoDW9IbeFR3nJrY/u5tUg56QAPJDdguT/rYT8SsryiqaIiCSjrqCU/zXM0kdgnVg==",
       "type": "package",
-      "path": "System.IO.FileSystem/4.0.2-beta-24327-01",
+      "path": "System.IO.FileSystem/4.0.2-beta-24329-03",
       "files": [
-        "System.IO.FileSystem.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.IO.FileSystem.4.0.2-beta-24329-03.nupkg.sha512",
         "System.IO.FileSystem.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2491,12 +2491,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.IO.FileSystem.Primitives/4.0.2-beta-24327-01": {
-      "sha512": "UYILECrWRQmOwmDj2eJzWuotrFD5idHIe2R8d/pGDli6onpzcuRF5k1tNM/7W3i+NFJC7L1lhmfm35VyHlGd0Q==",
+    "System.IO.FileSystem.Primitives/4.0.2-beta-24329-03": {
+      "sha512": "C5DJQCN9wzJ74o2DHPGbOCGeWFabP5FXEMBgERoiD/suiorGMpSeIQY2j8muhfhElWi1AjL1COKihAZGZFR8EA==",
       "type": "package",
-      "path": "System.IO.FileSystem.Primitives/4.0.2-beta-24327-01",
+      "path": "System.IO.FileSystem.Primitives/4.0.2-beta-24329-03",
       "files": [
-        "System.IO.FileSystem.Primitives.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.IO.FileSystem.Primitives.4.0.2-beta-24329-03.nupkg.sha512",
         "System.IO.FileSystem.Primitives.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2528,12 +2528,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Linq/4.1.1-beta-24327-01": {
-      "sha512": "c7Seo7OIxch7CuDre5OJLo+BEyiEiTtV35H07pSIOp9JUT+AXnw2sD3n5iMTYLTvJ8wVS1l/OLS0p7S/81ONkg==",
+    "System.Linq/4.1.1-beta-24329-03": {
+      "sha512": "1If5prpvz+j5cL7pco1kT2KEaXAZdkNKvMestODwZKSpwVFM9fgDjlQHBIJn+ueIyD/Pokf7vSEDBbE2DP1Ojw==",
       "type": "package",
-      "path": "System.Linq/4.1.1-beta-24327-01",
+      "path": "System.Linq/4.1.1-beta-24329-03",
       "files": [
-        "System.Linq.4.1.1-beta-24327-01.nupkg.sha512",
+        "System.Linq.4.1.1-beta-24329-03.nupkg.sha512",
         "System.Linq.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2598,12 +2598,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Linq.Expressions/4.1.1-beta-24327-01": {
-      "sha512": "D+RfV/yW3l4VeL/kwstiLcxsygApmfwsyqmyLbbbY1eh2sTPxwhWpp/frjvPvpef4ocuSbpvT40FrxW2M1ZxOA==",
+    "System.Linq.Expressions/4.1.1-beta-24329-03": {
+      "sha512": "5/NyHhlJ8+Vls1vVae3Dwt4u0CthRaMsISNcFS1RIRTQNdxFsOPP5I0UvVEnxpeA2LXMGAXQxtO20p/Yg4QOxg==",
       "type": "package",
-      "path": "System.Linq.Expressions/4.1.1-beta-24327-01",
+      "path": "System.Linq.Expressions/4.1.1-beta-24329-03",
       "files": [
-        "System.Linq.Expressions.4.1.1-beta-24327-01.nupkg.sha512",
+        "System.Linq.Expressions.4.1.1-beta-24329-03.nupkg.sha512",
         "System.Linq.Expressions.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2680,12 +2680,12 @@
         "runtimes/aot/lib/netcore50/System.Linq.Expressions.dll"
       ]
     },
-    "System.Net.Http/4.1.1-beta-24327-01": {
-      "sha512": "AU4FQM+VVzkSmQbjYt4aYvss3OB4NPAhD31rZNrEjP6302vXso9EekhSJK1fE2ntMn+0u+h/HH/XjuE2AUG2iw==",
+    "System.Net.Http/4.1.1-beta-24329-03": {
+      "sha512": "cjsHOOq/o/X/6ep+/u0spwXEDw5cq87tktwQ9n8uJ1gSb7B+3gIjrof6iEJ6iDDM8fM8n4/jzd4/IPIzCjhgqg==",
       "type": "package",
-      "path": "System.Net.Http/4.1.1-beta-24327-01",
+      "path": "System.Net.Http/4.1.1-beta-24329-03",
       "files": [
-        "System.Net.Http.4.1.1-beta-24327-01.nupkg.sha512",
+        "System.Net.Http.4.1.1-beta-24329-03.nupkg.sha512",
         "System.Net.Http.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2760,12 +2760,12 @@
         "runtimes/win/lib/netstandard1.3/System.Net.Http.dll"
       ]
     },
-    "System.Net.NameResolution/4.0.1-beta-24327-01": {
-      "sha512": "kRt6v0elXjp/2GcK5bxb72XfAUd3KEeoPS6d2n4h6qoljrXveBq9tf6xIaDQceSyE28VOwlR5cdFmIm2xtfAmg==",
+    "System.Net.NameResolution/4.0.1-beta-24329-03": {
+      "sha512": "dQlxb17kZopjHNejovJpJ7XhfFTixUShJkIlyDGj5ATDkw9RjbSBq7DfalNuEuSxk5F9xzR35UNhsYdII54//Q==",
       "type": "package",
-      "path": "System.Net.NameResolution/4.0.1-beta-24327-01",
+      "path": "System.Net.NameResolution/4.0.1-beta-24329-03",
       "files": [
-        "System.Net.NameResolution.4.0.1-beta-24327-01.nupkg.sha512",
+        "System.Net.NameResolution.4.0.1-beta-24329-03.nupkg.sha512",
         "System.Net.NameResolution.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2800,12 +2800,12 @@
         "runtimes/win/lib/netstandard1.3/System.Net.NameResolution.dll"
       ]
     },
-    "System.Net.Primitives/4.0.12-beta-24327-01": {
-      "sha512": "MBIvBgK8UMVTXnKEQtp4EOQM6TICOVfHpmt577Ci82moQNdqDVB/AHnwoWznARkXe1G0LpJtz+UUTUdLHcW8Kw==",
+    "System.Net.Primitives/4.0.12-beta-24329-03": {
+      "sha512": "VBR3ppN9IgYk2W2NulKL4zLzRqPLiSrjzmmPfAyPAmQtRMsm6bu6/OncnQnerOLyumfoiMlGhPJ6VuaPmd6e8A==",
       "type": "package",
-      "path": "System.Net.Primitives/4.0.12-beta-24327-01",
+      "path": "System.Net.Primitives/4.0.12-beta-24329-03",
       "files": [
-        "System.Net.Primitives.4.0.12-beta-24327-01.nupkg.sha512",
+        "System.Net.Primitives.4.0.12-beta-24329-03.nupkg.sha512",
         "System.Net.Primitives.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2877,12 +2877,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Net.Requests/4.0.12-beta-24327-01": {
-      "sha512": "OOv0ZaZStLZILHnsd4wJaMX3vTIRFqNW+/DBmUwc/wuyXkSAolUPyoUNcTqNenL/SCQYBv+7X255Xn1IIraRXQ==",
+    "System.Net.Requests/4.0.12-beta-24329-03": {
+      "sha512": "K90FkLqU4UTTAF3VlkIwHeAGG456TScDLGPfbzkPDEUMMAvcKKwwfelkGV37Y1nngeB2o5Q8ri28+bncJzrIZA==",
       "type": "package",
-      "path": "System.Net.Requests/4.0.12-beta-24327-01",
+      "path": "System.Net.Requests/4.0.12-beta-24329-03",
       "files": [
-        "System.Net.Requests.4.0.12-beta-24327-01.nupkg.sha512",
+        "System.Net.Requests.4.0.12-beta-24329-03.nupkg.sha512",
         "System.Net.Requests.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -2958,12 +2958,12 @@
         "runtimes/win/lib/netstandard1.3/System.Net.Requests.dll"
       ]
     },
-    "System.Net.Sockets/4.1.1-beta-24327-01": {
-      "sha512": "fn+ZbO0c2fs+pAT67ywLnKJ/A91bwKm/L5RcCdr5F4Z4lMOR7GKZCFfOIxM/+JMsyqqT4cLqEix5ww3qhRX65Q==",
+    "System.Net.Sockets/4.1.1-beta-24329-03": {
+      "sha512": "ShQqwRbHPp3qdOCgoVZbaWgXedC921IdkL2wooqgOPERGX4zIzW5qeptylEExhQa9bXweRhCkSh7SwC1s5Vjag==",
       "type": "package",
-      "path": "System.Net.Sockets/4.1.1-beta-24327-01",
+      "path": "System.Net.Sockets/4.1.1-beta-24329-03",
       "files": [
-        "System.Net.Sockets.4.1.1-beta-24327-01.nupkg.sha512",
+        "System.Net.Sockets.4.1.1-beta-24329-03.nupkg.sha512",
         "System.Net.Sockets.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3031,12 +3031,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.ObjectModel/4.0.13-beta-24327-01": {
-      "sha512": "1woiTC+8h7Iifx4okCFQHgxM+0c9hadlEaFtHFXDsS0ExCz6TWyOWYczNmBJ1MCXTEdjTwvwoi1UczYFdmJcGA==",
+    "System.ObjectModel/4.0.13-beta-24329-03": {
+      "sha512": "ufjuODk3wBTxsw2y6k40VWztENj8M3EpUia+9mwEoB3Q+LOJs+zo05WWzGbEfiG0c2NDjV4v/NDNLROSSsQATw==",
       "type": "package",
-      "path": "System.ObjectModel/4.0.13-beta-24327-01",
+      "path": "System.ObjectModel/4.0.13-beta-24329-03",
       "files": [
-        "System.ObjectModel.4.0.13-beta-24327-01.nupkg.sha512",
+        "System.ObjectModel.4.0.13-beta-24329-03.nupkg.sha512",
         "System.ObjectModel.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3099,12 +3099,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Reflection/4.1.1-beta-24327-01": {
-      "sha512": "Xp0wPUOXXE1gYGh26A5V6hRJL/iqPNFqeNPwWIrV4qjvleD5XIMEnpQIECOMPWlrEXa03LIccfJUTEZOeEq6EA==",
+    "System.Reflection/4.1.1-beta-24329-03": {
+      "sha512": "vpyOCAOMZFumxg59nGLvI6Qh0X/DRxlaQJdxR1O7utowzV+hIRrX2D2V5gzkH1TsciClifA0bSlzBU7FkhBIKg==",
       "type": "package",
-      "path": "System.Reflection/4.1.1-beta-24327-01",
+      "path": "System.Reflection/4.1.1-beta-24329-03",
       "files": [
-        "System.Reflection.4.1.1-beta-24327-01.nupkg.sha512",
+        "System.Reflection.4.1.1-beta-24329-03.nupkg.sha512",
         "System.Reflection.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3270,12 +3270,12 @@
         "runtimes/aot/lib/netcore50/_._"
       ]
     },
-    "System.Reflection.Extensions/4.0.2-beta-24327-01": {
-      "sha512": "rY6FPt/lCUGGYFcIdM3j9pRiPz2eTgKp7DLDgQKzJWG8za2bTmCThvaKTw656prrivZOwv7mkMuZXkkoQVLPZw==",
+    "System.Reflection.Extensions/4.0.2-beta-24329-03": {
+      "sha512": "EPmDllQlVwGYjv/Efrp3GY3RE8QrZKgUG7qMmqWnZQ8hKZlY72Jp5GYQ2cYokDJe0Wr3g5DGw2SWdhDqRwlLOQ==",
       "type": "package",
-      "path": "System.Reflection.Extensions/4.0.2-beta-24327-01",
+      "path": "System.Reflection.Extensions/4.0.2-beta-24329-03",
       "files": [
-        "System.Reflection.Extensions.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.Reflection.Extensions.4.0.2-beta-24329-03.nupkg.sha512",
         "System.Reflection.Extensions.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3325,12 +3325,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Reflection.Primitives/4.0.2-beta-24327-01": {
-      "sha512": "qRP59gg+qsWDdK+GNye28hk2Xdol/eeoa7pSDeCloLrx4rZ/dSAO9ZoXg8MzwFyjIGSAo/valhvtkBAB1LJAcQ==",
+    "System.Reflection.Primitives/4.0.2-beta-24329-03": {
+      "sha512": "bQn5oVDyr5FeRt2pdddblE9n2KDXtHvaGjVPnOk8NgNteYiEr9SpIRokUIIf2ZeFk9nLEltNUednoUz0+IBq5g==",
       "type": "package",
-      "path": "System.Reflection.Primitives/4.0.2-beta-24327-01",
+      "path": "System.Reflection.Primitives/4.0.2-beta-24329-03",
       "files": [
-        "System.Reflection.Primitives.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.Reflection.Primitives.4.0.2-beta-24329-03.nupkg.sha512",
         "System.Reflection.Primitives.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3432,12 +3432,12 @@
         "runtimes/aot/lib/netcore50/System.Reflection.TypeExtensions.dll"
       ]
     },
-    "System.Resources.ResourceManager/4.0.2-beta-24327-01": {
-      "sha512": "zXVcMX9aYPueIz5+Y13Dsixbq5vuHnl/pi3GOBrOpUFi/LBpB013dHHeC6FtxZXDCDbqUzCFSF2XtlsumR3vGA==",
+    "System.Resources.ResourceManager/4.0.2-beta-24329-03": {
+      "sha512": "Zv3x8dSP3oHsgTXNgcBfecIpJVYyXpdV7FB95gNUd9uQ2SJ2Ufss+3UYCVoQIT6NuR0mt64H5Oosn2OvfgYzYQ==",
       "type": "package",
-      "path": "System.Resources.ResourceManager/4.0.2-beta-24327-01",
+      "path": "System.Resources.ResourceManager/4.0.2-beta-24329-03",
       "files": [
-        "System.Resources.ResourceManager.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.Resources.ResourceManager.4.0.2-beta-24329-03.nupkg.sha512",
         "System.Resources.ResourceManager.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3487,12 +3487,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Runtime/4.1.1-beta-24327-01": {
-      "sha512": "ONS5xZmV/OpQXgfcPsyG4mcO8iJ00U3ZQh/eiFlYdFk6GWg+xTihYuA/uMalH7/1otCkvPS26qvfMxmvlwZUqg==",
+    "System.Runtime/4.1.1-beta-24329-03": {
+      "sha512": "Tj8CLWOpIgpYU6yuIqwmstlrAlMZ09tQAZKi3JAw7q6anrBjR5PkP4+8v6gazqHx15q2+0Zt3S+5iOpQigi7ZQ==",
       "type": "package",
-      "path": "System.Runtime/4.1.1-beta-24327-01",
+      "path": "System.Runtime/4.1.1-beta-24329-03",
       "files": [
-        "System.Runtime.4.1.1-beta-24327-01.nupkg.sha512",
+        "System.Runtime.4.1.1-beta-24329-03.nupkg.sha512",
         "System.Runtime.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3577,12 +3577,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Runtime.Extensions/4.1.1-beta-24327-01": {
-      "sha512": "w4UFIjGm98Qv/Mh/URV+yfINviaQkHzR7fJZA/mVJ9QdFN/glvnlJg3EEJK1gTWzBcSQDdOWPcmm/ELeg8Lrkg==",
+    "System.Runtime.Extensions/4.1.1-beta-24329-03": {
+      "sha512": "XaAg8QCTbJ/sw7vW+hHjg3e3gdh/LfAlu127PoUdzYD25dac/2u54CUeDJsuMaynwyFBoOxfl1+Zrhu1sJAjYg==",
       "type": "package",
-      "path": "System.Runtime.Extensions/4.1.1-beta-24327-01",
+      "path": "System.Runtime.Extensions/4.1.1-beta-24329-03",
       "files": [
-        "System.Runtime.Extensions.4.1.1-beta-24327-01.nupkg.sha512",
+        "System.Runtime.Extensions.4.1.1-beta-24329-03.nupkg.sha512",
         "System.Runtime.Extensions.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3656,12 +3656,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Runtime.Handles/4.0.2-beta-24327-01": {
-      "sha512": "lFQam4nj8BjsClJkCKDlX7+t0j2hFCH3twCcLPogcP4/6qOc3T38JNEsjCow9JpJkOAj4HbS+QQjfxyO39wwxQ==",
+    "System.Runtime.Handles/4.0.2-beta-24329-03": {
+      "sha512": "oXjiRRsx8Yt4Ql8IxkZHTKY6pW6+oWB61PgVtW4u9kksnu8ddI5BZ9/qakvKeqRrOGzGgZBdaWcCgFdy+LyokA==",
       "type": "package",
-      "path": "System.Runtime.Handles/4.0.2-beta-24327-01",
+      "path": "System.Runtime.Handles/4.0.2-beta-24329-03",
       "files": [
-        "System.Runtime.Handles.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.Runtime.Handles.4.0.2-beta-24329-03.nupkg.sha512",
         "System.Runtime.Handles.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3692,12 +3692,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Runtime.InteropServices/4.2.0-beta-24327-01": {
-      "sha512": "McMzaA8d+sUOGm+zbPALrPtD96iMZHlWGSk/J+6BS2MPprpLyX4ADgwxYgPzs/5W54FSan1vM9ojKQAJerLP2w==",
+    "System.Runtime.InteropServices/4.2.0-beta-24329-03": {
+      "sha512": "bxqw4+O8MHKoP58Qhpx10l3PVo1rB81E0GpgPBd2Z9W6DcU4NnEfosRrkGtG/PyXiDxvdlYx5KrhRwVxQZaY5A==",
       "type": "package",
-      "path": "System.Runtime.InteropServices/4.2.0-beta-24327-01",
+      "path": "System.Runtime.InteropServices/4.2.0-beta-24329-03",
       "files": [
-        "System.Runtime.InteropServices.4.2.0-beta-24327-01.nupkg.sha512",
+        "System.Runtime.InteropServices.4.2.0-beta-24329-03.nupkg.sha512",
         "System.Runtime.InteropServices.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3793,12 +3793,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Runtime.InteropServices.RuntimeInformation/4.0.1-beta-24327-01": {
-      "sha512": "iUUHqzyIec5g0/JHGnRp0yn+Ao+PGEOB5jyKTI2cVl6D585gVc1rotUjVGA3gjw68SRuLzlMyf62Xt2CUiOsuA==",
+    "System.Runtime.InteropServices.RuntimeInformation/4.0.1-beta-24329-03": {
+      "sha512": "BkDUa48w6mYYM8ZoRVJdgjtFQVQW1KVwNtbJjgpqkJwTqgY13nw1JCjlYscaTU0OYIcbqzCx+TisIfzAsNXzlw==",
       "type": "package",
-      "path": "System.Runtime.InteropServices.RuntimeInformation/4.0.1-beta-24327-01",
+      "path": "System.Runtime.InteropServices.RuntimeInformation/4.0.1-beta-24329-03",
       "files": [
-        "System.Runtime.InteropServices.RuntimeInformation.4.0.1-beta-24327-01.nupkg.sha512",
+        "System.Runtime.InteropServices.RuntimeInformation.4.0.1-beta-24329-03.nupkg.sha512",
         "System.Runtime.InteropServices.RuntimeInformation.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3825,12 +3825,12 @@
         "runtimes/win/lib/netstandard1.1/System.Runtime.InteropServices.RuntimeInformation.dll"
       ]
     },
-    "System.Runtime.Numerics/4.0.2-beta-24327-01": {
-      "sha512": "rUZhaGGs1oKHCBJjqHktzSnnFeRBIfn4TNIrMnTTgkMHeYDPMifJFAuEcQGJyNGhWPSwYqVQnJC462fXeTuj+g==",
+    "System.Runtime.Numerics/4.0.2-beta-24329-03": {
+      "sha512": "O+JP+2jZ2t+dJ5ekq3hCM2QbG3+2YI+pMeaIhjmVT5E/kkM3h0wv+/ws04WlZrOy1nuMsjqF+CaixW+fw9QYJw==",
       "type": "package",
-      "path": "System.Runtime.Numerics/4.0.2-beta-24327-01",
+      "path": "System.Runtime.Numerics/4.0.2-beta-24329-03",
       "files": [
-        "System.Runtime.Numerics.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.Runtime.Numerics.4.0.2-beta-24329-03.nupkg.sha512",
         "System.Runtime.Numerics.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -3988,12 +3988,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Security.Cryptography.Algorithms/4.2.1-beta-24327-01": {
-      "sha512": "YyzxGdr38GX/GMCTXVJvbb9+UqbE9BionO0C4NiZwGk94NmOL9zr/bIknNb+th8jR6tYG65eYM4LVQYQ8jmQIg==",
+    "System.Security.Cryptography.Algorithms/4.2.1-beta-24329-03": {
+      "sha512": "AHerkR34tZtT1LT7cePS19VXkXGIZi2/MDSfVBMZ9NbCUW0/7q11JL1ve5eAhRtxEGX/ZeTxxS65vJQKELhzxA==",
       "type": "package",
-      "path": "System.Security.Cryptography.Algorithms/4.2.1-beta-24327-01",
+      "path": "System.Security.Cryptography.Algorithms/4.2.1-beta-24329-03",
       "files": [
-        "System.Security.Cryptography.Algorithms.4.2.1-beta-24327-01.nupkg.sha512",
+        "System.Security.Cryptography.Algorithms.4.2.1-beta-24329-03.nupkg.sha512",
         "System.Security.Cryptography.Algorithms.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4082,12 +4082,12 @@
         "runtimes/win/lib/netstandard1.3/System.Security.Cryptography.Csp.dll"
       ]
     },
-    "System.Security.Cryptography.Encoding/4.0.1-beta-24327-01": {
-      "sha512": "0ueHjTjBwHkVrJOx2Z+V4yrRo2Ovpy5kF+Uaar8BgjL0BrYEWWEPjxwXud4vW2IQGZVeOACOO/wwxML9q35Njw==",
+    "System.Security.Cryptography.Encoding/4.0.1-beta-24329-03": {
+      "sha512": "HcJUYvNJ50yuokVEEJA86E+8cUru0bZLDUXylvnfoBA1v7euisJJMyZA24xsSatWHoWMKadpVfWAdyAolenMZw==",
       "type": "package",
-      "path": "System.Security.Cryptography.Encoding/4.0.1-beta-24327-01",
+      "path": "System.Security.Cryptography.Encoding/4.0.1-beta-24329-03",
       "files": [
-        "System.Security.Cryptography.Encoding.4.0.1-beta-24327-01.nupkg.sha512",
+        "System.Security.Cryptography.Encoding.4.0.1-beta-24329-03.nupkg.sha512",
         "System.Security.Cryptography.Encoding.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4135,12 +4135,12 @@
         "runtimes/unix/lib/netstandard1.6/System.Security.Cryptography.OpenSsl.dll"
       ]
     },
-    "System.Security.Cryptography.Primitives/4.0.1-beta-24327-01": {
-      "sha512": "pipb1cDUlWk8M1VAjYJPD+G6wyswowy9cyS9sbuf7Fm3zj5GscMsKXE8DR5vYZRANbeJpugTXvMfuj7DplRyXw==",
+    "System.Security.Cryptography.Primitives/4.0.1-beta-24329-03": {
+      "sha512": "CH3SF9g9EcPrzKXKayuRLkLkDo09UA5hp+Bi7qdnk/D9SuYDaTOblqdwUUuweFWoqexA2eSEDc5E+oecHMYwcw==",
       "type": "package",
-      "path": "System.Security.Cryptography.Primitives/4.0.1-beta-24327-01",
+      "path": "System.Security.Cryptography.Primitives/4.0.1-beta-24329-03",
       "files": [
-        "System.Security.Cryptography.Primitives.4.0.1-beta-24327-01.nupkg.sha512",
+        "System.Security.Cryptography.Primitives.4.0.1-beta-24329-03.nupkg.sha512",
         "System.Security.Cryptography.Primitives.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4162,12 +4162,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Security.Cryptography.X509Certificates/4.1.1-beta-24327-01": {
-      "sha512": "rHe77l/RiO4JLHfT+ovfv8Vg/oSXj07+DQRtE+DOHXBolOcvMyxIkkTdWt2fU/b4jw6h0Qh1lWCJuOUMieYyag==",
+    "System.Security.Cryptography.X509Certificates/4.1.1-beta-24329-03": {
+      "sha512": "S14UUQI2KhK5lC+xW/jCLGMVoPPBTK78qApD+Y/rMxt9QrVQe5qt9s5wWx0SYZ6upGbwsEOQZ2fBGgwQLcSX7Q==",
       "type": "package",
-      "path": "System.Security.Cryptography.X509Certificates/4.1.1-beta-24327-01",
+      "path": "System.Security.Cryptography.X509Certificates/4.1.1-beta-24329-03",
       "files": [
-        "System.Security.Cryptography.X509Certificates.4.1.1-beta-24327-01.nupkg.sha512",
+        "System.Security.Cryptography.X509Certificates.4.1.1-beta-24329-03.nupkg.sha512",
         "System.Security.Cryptography.X509Certificates.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4300,12 +4300,12 @@
         "runtimes/win/lib/netstandard1.3/System.Security.Principal.Windows.dll"
       ]
     },
-    "System.Text.Encoding/4.0.12-beta-24327-01": {
-      "sha512": "tcpFXw7E+jbflBeC7IfgHaNwyoP+Y2YarM2lXkNSxnCnzVwimEWmL+l1wGVHp2hKTMrU1z9cKJm52Ux6qaNg9Q==",
+    "System.Text.Encoding/4.0.12-beta-24329-03": {
+      "sha512": "q80e6PgDRXXLcNbyTjpl7QBKd+58GJJAvelVGbFbnqlsNDLoidp5Y9Q2o96dfUnokKzOE+BLpZxIemBxRAi0aA==",
       "type": "package",
-      "path": "System.Text.Encoding/4.0.12-beta-24327-01",
+      "path": "System.Text.Encoding/4.0.12-beta-24329-03",
       "files": [
-        "System.Text.Encoding.4.0.12-beta-24327-01.nupkg.sha512",
+        "System.Text.Encoding.4.0.12-beta-24329-03.nupkg.sha512",
         "System.Text.Encoding.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4366,12 +4366,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Text.Encoding.Extensions/4.0.12-beta-24327-01": {
-      "sha512": "yRvsQKu/cRS3mqjeSdVQ0Mgb1WHerPPzZwSmua8bk7MpJq5zfRzjUr0gbglB2LoEVUNpmfbtibHqHihXGgCaEg==",
+    "System.Text.Encoding.Extensions/4.0.12-beta-24329-03": {
+      "sha512": "FHDuOOvRjXbO9RNULJnMQee1KMowKdJohw646P7dFj1H2NsUTMMeZ4jED2eUiYU2KQqVFtTumPhVYueDW0lkzw==",
       "type": "package",
-      "path": "System.Text.Encoding.Extensions/4.0.12-beta-24327-01",
+      "path": "System.Text.Encoding.Extensions/4.0.12-beta-24329-03",
       "files": [
-        "System.Text.Encoding.Extensions.4.0.12-beta-24327-01.nupkg.sha512",
+        "System.Text.Encoding.Extensions.4.0.12-beta-24329-03.nupkg.sha512",
         "System.Text.Encoding.Extensions.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4432,12 +4432,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Text.RegularExpressions/4.2.0-beta-24327-01": {
-      "sha512": "wyHwoXpq5EQpl8/wbL67+mQhx9YPa9gnlN/mo9X2c28ZROohBmjYCsOIkFchOpP2OxZM+5fajR60kV5ApaI/pg==",
+    "System.Text.RegularExpressions/4.2.0-beta-24329-03": {
+      "sha512": "NRQaHDaEPwu18zB5xLNm87FbdgTaV+gzrbPgfSRtRECCa5yTtr7kxj1EvB3hMdkK4kP2+h5Mj9eXozMZmYDYWQ==",
       "type": "package",
-      "path": "System.Text.RegularExpressions/4.2.0-beta-24327-01",
+      "path": "System.Text.RegularExpressions/4.2.0-beta-24329-03",
       "files": [
-        "System.Text.RegularExpressions.4.2.0-beta-24327-01.nupkg.sha512",
+        "System.Text.RegularExpressions.4.2.0-beta-24329-03.nupkg.sha512",
         "System.Text.RegularExpressions.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4513,12 +4513,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Threading/4.0.12-beta-24327-01": {
-      "sha512": "4sPmnLqCXLVJurpp4TtTgNQ0bUedFPJ1cnTpqPOR5a/dRs0rtUJRuBpkmZ0lPedtoWz3IWO+kaObgxCn17vwRw==",
+    "System.Threading/4.0.12-beta-24329-03": {
+      "sha512": "UKQLNV9Unp14yF+gazab1j+hxqq/0s+vxWdmL/hS7Qb44GDS6mgc1Oze6/azdaHXlFSCVC9buUzTIxamNganuw==",
       "type": "package",
-      "path": "System.Threading/4.0.12-beta-24327-01",
+      "path": "System.Threading/4.0.12-beta-24329-03",
       "files": [
-        "System.Threading.4.0.12-beta-24327-01.nupkg.sha512",
+        "System.Threading.4.0.12-beta-24329-03.nupkg.sha512",
         "System.Threading.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4582,12 +4582,12 @@
         "runtimes/aot/lib/netcore50/System.Threading.dll"
       ]
     },
-    "System.Threading.Tasks/4.0.12-beta-24327-01": {
-      "sha512": "qLjk5sYoQuvQZ8TpHyUo+NS/DSK8IhQEfwjP5UKuNT9xbexadpumD7uHzn62ySzViMorPibxtzG13pfuJQlb+Q==",
+    "System.Threading.Tasks/4.0.12-beta-24329-03": {
+      "sha512": "C7YB3T0p5tURGFkhZSX+MhZOjPF97N4TJVDPZsXBc3xBJoZnvMe9Wj0Qv9Xxj1tmyqOtNyzPRVLAHnLuaU9QcA==",
       "type": "package",
-      "path": "System.Threading.Tasks/4.0.12-beta-24327-01",
+      "path": "System.Threading.Tasks/4.0.12-beta-24329-03",
       "files": [
-        "System.Threading.Tasks.4.0.12-beta-24327-01.nupkg.sha512",
+        "System.Threading.Tasks.4.0.12-beta-24329-03.nupkg.sha512",
         "System.Threading.Tasks.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4663,12 +4663,12 @@
         "lib/portable-net45+win8+wp8+wpa81/System.Threading.Tasks.Extensions.xml"
       ]
     },
-    "System.Threading.Tasks.Parallel/4.0.2-beta-24327-01": {
-      "sha512": "usSmHH0Vcfq99Z1MRII53V4oXddCY372e/o5hZZo0zJUpSBdsHXoZdXz8U335MMSxaQXkEQbGhAjplIEYcbm+Q==",
+    "System.Threading.Tasks.Parallel/4.0.2-beta-24329-03": {
+      "sha512": "1GwwlVK1s11U4t5EPBbeELAZy68UPDsNnMX+7qA1OJYvtLPMCvIv3BsJuEieb8pjDIeTch+IlEVWhEBgEVLJkw==",
       "type": "package",
-      "path": "System.Threading.Tasks.Parallel/4.0.2-beta-24327-01",
+      "path": "System.Threading.Tasks.Parallel/4.0.2-beta-24329-03",
       "files": [
-        "System.Threading.Tasks.Parallel.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.Threading.Tasks.Parallel.4.0.2-beta-24329-03.nupkg.sha512",
         "System.Threading.Tasks.Parallel.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4718,12 +4718,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Threading.Thread/4.0.1-beta-24327-01": {
-      "sha512": "a8amEpoX/zZM1a1D7BpD0sJDpdRjxg6L1qlpdSnmKk2AQLE2wCowkIYuzgwjBk64QqM8CXI1AAmN3RLk50Udjw==",
+    "System.Threading.Thread/4.0.1-beta-24329-03": {
+      "sha512": "h3a9ZQY+2ehnEOpRewLCl3ZY6+elUujdfOto9CEmM3LBLXV1ovMKUNSWvoIk6/tlUr3t2F8AreJBhE1EeesNhg==",
       "type": "package",
-      "path": "System.Threading.Thread/4.0.1-beta-24327-01",
+      "path": "System.Threading.Thread/4.0.1-beta-24329-03",
       "files": [
-        "System.Threading.Thread.4.0.1-beta-24327-01.nupkg.sha512",
+        "System.Threading.Thread.4.0.1-beta-24329-03.nupkg.sha512",
         "System.Threading.Thread.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4756,12 +4756,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Threading.Timer/4.0.2-beta-24327-01": {
-      "sha512": "taZiPtdO5nAz+w44L0Hr9s1jlIedEoThrv0RUs5NI3fEW4/BK4Jcq0ofDDNqJ3R3oqOetlErFTXZYFrIa0VdZQ==",
+    "System.Threading.Timer/4.0.2-beta-24329-03": {
+      "sha512": "0P4OKBQey1DslxSLxjcrdsPKV1mU4VmmZtFAAzkxUH4BmS1cdE75z97xayX/8Id/g1QxSX+uLaU3HMISg9w35Q==",
       "type": "package",
-      "path": "System.Threading.Timer/4.0.2-beta-24327-01",
+      "path": "System.Threading.Timer/4.0.2-beta-24329-03",
       "files": [
-        "System.Threading.Timer.4.0.2-beta-24327-01.nupkg.sha512",
+        "System.Threading.Timer.4.0.2-beta-24329-03.nupkg.sha512",
         "System.Threading.Timer.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4809,12 +4809,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Xml.ReaderWriter/4.1.0-beta-24327-01": {
-      "sha512": "QjuZyDhdmYynMiJ+FD6CPWs9qOqgm9k+aje/2BlyBVeoc1FxQmptoo27RcGQcZzKvf0QO+LeMJksWs8EtL5OGA==",
+    "System.Xml.ReaderWriter/4.1.0-beta-24329-03": {
+      "sha512": "1SG0fFVj3hvmjLoXfnvEI9D5JKVVRa+rWFMd4csFWbD6LZ5m3Mxe1BZV+J0cPqX2Qkbc+CF5QCIg/jdITsQWzw==",
       "type": "package",
-      "path": "System.Xml.ReaderWriter/4.1.0-beta-24327-01",
+      "path": "System.Xml.ReaderWriter/4.1.0-beta-24329-03",
       "files": [
-        "System.Xml.ReaderWriter.4.1.0-beta-24327-01.nupkg.sha512",
+        "System.Xml.ReaderWriter.4.1.0-beta-24329-03.nupkg.sha512",
         "System.Xml.ReaderWriter.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4879,12 +4879,12 @@
         "ref/xamarinwatchos10/_._"
       ]
     },
-    "System.Xml.XDocument/4.0.12-beta-24327-01": {
-      "sha512": "Pe7gcNKkWk2ML1NVfjIipw1M6WWDN/y5GmCB/hVJCFHFdFJBIQFjxbbtXGtPkxcJ/+k+LP4AIWS6IZsKywaB7A==",
+    "System.Xml.XDocument/4.0.12-beta-24329-03": {
+      "sha512": "/eZ2K4cLLswaYYl9WkaeJLKpYBTLr79ClJreAS+k/vP4lkJS4UWA2GYNwTUj/uKTTbaIUKAJxsep+hec6+HeRg==",
       "type": "package",
-      "path": "System.Xml.XDocument/4.0.12-beta-24327-01",
+      "path": "System.Xml.XDocument/4.0.12-beta-24329-03",
       "files": [
-        "System.Xml.XDocument.4.0.12-beta-24327-01.nupkg.sha512",
+        "System.Xml.XDocument.4.0.12-beta-24329-03.nupkg.sha512",
         "System.Xml.XDocument.nuspec",
         "ThirdPartyNotices.txt",
         "dotnet_library_license.txt",
@@ -4950,15 +4950,15 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "NETStandard.Library >= 1.6.1-beta-24327-01",
+      "NETStandard.Library >= 1.6.1-beta-24329-03",
       "Newtonsoft.Json >= 9.0.1",
-      "System.Collections.NonGeneric >= 4.0.2-beta-24327-01",
-      "System.Globalization.Extensions >= 4.0.2-beta-24327-01",
-      "System.Net.NameResolution >= 4.0.1-beta-24327-01",
-      "System.Net.Requests >= 4.0.12-beta-24327-01",
-      "System.Threading.Tasks >= 4.0.12-beta-24327-01",
-      "System.Threading.Tasks.Parallel >= 4.0.2-beta-24327-01",
-      "System.Threading.Thread >= 4.0.1-beta-24327-01"
+      "System.Collections.NonGeneric >= 4.0.2-beta-24329-03",
+      "System.Globalization.Extensions >= 4.0.2-beta-24329-03",
+      "System.Net.NameResolution >= 4.0.1-beta-24329-03",
+      "System.Net.Requests >= 4.0.12-beta-24329-03",
+      "System.Threading.Tasks >= 4.0.12-beta-24329-03",
+      "System.Threading.Tasks.Parallel >= 4.0.2-beta-24329-03",
+      "System.Threading.Thread >= 4.0.1-beta-24329-03"
     ],
     ".NETStandard,Version=v1.6": []
   },

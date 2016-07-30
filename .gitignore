@@ -181,3 +181,7 @@ FakesAssemblies/
 /NBitcoin.Portable/NBitcoin(MonoAndroid).csproj.bak
 /NBitcoin.Portable/NBitcoin(Mono).csproj.bak
 .vs/restore.dg
+NBitcoin.NETCore/project.lock.json
+NBitcoin.NETCore/project.lock.json
+NBitcoin.NETCore.Tests/project.lock.json
+NBitcoin.NETCore.Tests/Properties/AssemblyInfo.cs
