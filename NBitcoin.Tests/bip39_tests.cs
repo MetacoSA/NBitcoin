@@ -178,10 +178,10 @@ namespace NBitcoin.Tests
 			ranges.Add(CharRange(0x3040, 0x309F)); //Hiragana
 			ranges.Add(CharRange(0x30A0, 0x30FF)); //Katakana
 
-			//CJK Unified Ideographs                  4E00-9FFF   Common
-			//CJK Unified Ideographs Extension A      3400-4DFF   Rare
-			//CJK Unified Ideographs Extension B      20000-2A6DF Rare, historic
-			//CJK Compatibility Ideographs            F900-FAFF   Duplicates, unifiable variants, corporate characters
+			//CJK Unified Ideographs				  4E00-9FFF   Common
+			//CJK Unified Ideographs Extension A	  3400-4DFF   Rare
+			//CJK Unified Ideographs Extension B	  20000-2A6DF Rare, historic
+			//CJK Compatibility Ideographs			F900-FAFF   Duplicates, unifiable variants, corporate characters
 			//CJK Compatibility Ideographs Supplement 2F800-2FA1F Unifiable variants
 
 			ranges.Add(CharRange(0x4e00, 0x9FFF));
