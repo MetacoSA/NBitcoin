@@ -235,6 +235,14 @@ namespace NBitcoin.Tests
 		}
 
 		int[] ports;
+
+		public int ProtocolPort
+		{
+			get
+			{
+				return ports[0];
+			}
+		}
 		public void Start()
 		{
 			StartAsync().Wait();

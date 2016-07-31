@@ -524,23 +524,22 @@ namespace NBitcoin
 		}
 
 
-#if !PORTABLE
+#if !NOSOCKET
 		internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
 		{
 			try
 			{
-				socket.Disconnect(false);
+				socket.Shutdown(SocketShutdown.Both);
 			}
 			catch
 			{
 			}
 			try
 			{
-				socket.Close();
+				socket.Dispose();
 			}
 			catch
 			{
-
 			}
 		}
 
