@@ -142,16 +142,27 @@ namespace NBitcoin.Protocol
 				return;
 			}
 			NodeServerTrace.Information("Accepting connection...");
-			socket.BeginAccept(EndAccept, null);
+			var args = new SocketAsyncEventArgs();
+			args.Completed += Accept_Completed;
+			if(!socket.AcceptAsync(args))
+				EndAccept(args);
 		}
-		private void EndAccept(IAsyncResult ar)
+
+		private void Accept_Completed(object sender, SocketAsyncEventArgs e)
+		{
+			EndAccept(e);
+		}
+
+		private void EndAccept(SocketAsyncEventArgs args)
 		{
 			using(_Trace.Open())
 			{
 				Socket client = null;
 				try
 				{
-					client = socket.EndAccept(ar);
+					if(args.SocketError != SocketError.Success)
+						throw new SocketException((int)args.SocketError);
+					client = args.AcceptSocket;
 					if(_Cancel.IsCancellationRequested)
 						return;
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
