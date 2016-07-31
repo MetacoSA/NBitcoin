@@ -312,6 +312,30 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
+		public void CanCancelConnection()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode(true);
+				CancellationTokenSource cts = new CancellationTokenSource();
+				cts.Cancel();
+				try
+				{
+
+					var client = Node.Connect(Network.RegTest, "127.0.0.1:" + node.ProtocolPort.ToString(), new NodeConnectionParameters()
+					{
+						ConnectCancellation = cts.Token
+					});
+					Assert.False(true, "Should have thrown");
+				}
+				catch(OperationCanceledException)
+				{
+				}
+			}
+		}
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
 		public void CanGetTransactionsFromMemPool()
 		{
 			using(var builder = NodeBuilder.Create())

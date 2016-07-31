@@ -635,10 +635,13 @@ namespace NBitcoin.Protocol
 			{
 				try
 				{
-					var ar = socket.BeginConnect(Peer.Endpoint, null, null);
-					WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, parameters.ConnectCancellation.WaitHandle });
+					var completed = new ManualResetEvent(false);
+					var args = new SocketAsyncEventArgs();
+					args.RemoteEndPoint = peer.Endpoint;
+					args.Completed += (s, a) => completed.Set();
+					socket.ConnectAsync(args);
+					WaitHandle.WaitAny(new WaitHandle[] { completed, parameters.ConnectCancellation.WaitHandle });
 					parameters.ConnectCancellation.ThrowIfCancellationRequested();
-					socket.EndConnect(ar);
 					_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
 					_RemoteSocketPort = ((IPEndPoint)socket.RemoteEndPoint).Port;
 					State = NodeState.Connected;
