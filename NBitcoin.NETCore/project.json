@@ -22,7 +22,6 @@
 			"TRACE",
 			"NETCORE",
 			"NOTRACESOURCE",
-			// Added NOSOCKET as temporary fix for lack of Socket classes in .NET Core
 			"NOSOCKET"
 		],
 		"compile": {

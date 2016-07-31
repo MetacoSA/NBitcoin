@@ -524,12 +524,8 @@ namespace NBitcoin
 			Shuffle(arr, null);
 		}
 
-
-<<<<<<< 8563a1db4437e9eba6f9b9a5e25b4911aa833ec6
+        
 #if !NOSOCKET
-=======
-#if !(PORTABLE || NETCORE)
->>>>>>> Add NETCore symbols and project files
 		internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
 		{
 			try
