@@ -524,7 +524,7 @@ namespace NBitcoin
 		}
 
 
-#if !PORTABLE
+#if !NOSOCKET
 		internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
 		{
 			try
