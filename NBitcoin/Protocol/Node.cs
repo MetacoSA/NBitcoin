@@ -639,9 +639,12 @@ namespace NBitcoin.Protocol
 					var args = new SocketAsyncEventArgs();
 					args.RemoteEndPoint = peer.Endpoint;
 					args.Completed += (s, a) => completed.Set();
-					socket.ConnectAsync(args);
+					if(!socket.ConnectAsync(args))
+						completed.Set();
 					WaitHandle.WaitAny(new WaitHandle[] { completed, parameters.ConnectCancellation.WaitHandle });
 					parameters.ConnectCancellation.ThrowIfCancellationRequested();
+					if(args.SocketError != SocketError.Success)
+						throw new SocketException((int)args.SocketError);
 					_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
 					_RemoteSocketPort = ((IPEndPoint)socket.RemoteEndPoint).Port;
 					State = NodeState.Connected;

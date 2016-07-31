@@ -321,7 +321,6 @@ namespace NBitcoin.Tests
 				cts.Cancel();
 				try
 				{
-
 					var client = Node.Connect(Network.RegTest, "127.0.0.1:" + node.ProtocolPort.ToString(), new NodeConnectionParameters()
 					{
 						ConnectCancellation = cts.Token
