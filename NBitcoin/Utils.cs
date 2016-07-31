@@ -529,18 +529,17 @@ namespace NBitcoin
 		{
 			try
 			{
-				socket.Disconnect(false);
+				socket.Shutdown(SocketShutdown.Both);
 			}
 			catch
 			{
 			}
 			try
 			{
-				socket.Close();
+				socket.Dispose();
 			}
 			catch
 			{
-
 			}
 		}
 
