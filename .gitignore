@@ -180,8 +180,7 @@ FakesAssemblies/
 /.vs/config/applicationhost.config
 /NBitcoin.Portable/NBitcoin(MonoAndroid).csproj.bak
 /NBitcoin.Portable/NBitcoin(Mono).csproj.bak
+
+# .NET Core projects
 .vs/restore.dg
-NBitcoin.NETCore/project.lock.json
-NBitcoin.NETCore/project.lock.json
-NBitcoin.NETCore.Tests/project.lock.json
-NBitcoin.NETCore.Tests/Properties/AssemblyInfo.cs
+project.lock.json

@@ -116,7 +116,7 @@ namespace NBitcoin.Tests
 					CompressedPrivateKeyWIF = "KwomKti1X3tYJUUMb1TGSM2mrZk1wb1aHisUNHCQXTZq5auC2qc3",
 					PubKey = "04d0988bfa799f7d7ef9ab3de97ef481cd0f75d2367ad456607647edde665d6f6fbdd594388756a7beaf73b4822bc22d36e9bda7db82df2b8b623673eefc0b7495",
 					CompressedPubKey = "03d0988bfa799f7d7ef9ab3de97ef481cd0f75d2367ad456607647edde665d6f6f",
-					Address =		   "16UjcYNBG9GTK4uq2f7yYEbuifqCzoLMGS",
+					Address = "16UjcYNBG9GTK4uq2f7yYEbuifqCzoLMGS",
 					CompressedAddress = "1FkKMsKNJqWSDvTvETqcCeHcUQQ64kSC6s",
 					Hash160 = "3c176e659bea0f29a3e9bf7880c112b1b31b4dc8",
 					CompressedHash160 = "a1c2f92a9dacbd2991c3897724a93f338e44bdc1"
