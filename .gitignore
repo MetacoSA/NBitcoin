@@ -182,5 +182,6 @@ FakesAssemblies/
 /NBitcoin.Portable/NBitcoin(Mono).csproj.bak
 
 # .NET Core projects
-.vs/restore.dg
+.vs/
 project.lock.json
+.vscode/
