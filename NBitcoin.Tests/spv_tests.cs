@@ -298,10 +298,10 @@ namespace NBitcoin.Tests
 
 				//CanSyncWalletCore(builder, walletNode, new WalletCreation()
 				//{
-				//    Network = Network.RegTest,
-				//    RootKeys = new[] { new ExtKey().Neuter(), new ExtKey().Neuter() },
-				//    SignatureRequired = 2,
-				//    UseP2SH = false
+				//	Network = Network.RegTest,
+				//	RootKeys = new[] { new ExtKey().Neuter(), new ExtKey().Neuter() },
+				//	SignatureRequired = 2,
+				//	UseP2SH = false
 				//});
 
 				CanSyncWalletCore(builder, walletNode, new WalletCreation()
@@ -535,8 +535,8 @@ namespace NBitcoin.Tests
 
 			//TestUtils.Eventually(() =>
 			//{
-			//    var fork = wallet.Chain.FindFork(wallet2._ScanLocation);
-			//    return fork.Height == rpc.GetBlockCount();
+			//	var fork = wallet.Chain.FindFork(wallet2._ScanLocation);
+			//	return fork.Height == rpc.GetBlockCount();
 			//});
 
 			wallet2.Disconnect();

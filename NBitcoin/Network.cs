@@ -35,8 +35,8 @@ namespace NBitcoin
 			this.name = name;
 			this.host = host;
 		}
-#if !NOSOCKET
-        IPAddress[] _Addresses = null;
+#if !(NOSOCKET || NETCORE)
+		IPAddress[] _Addresses = null;
 		public IPAddress[] GetAddressNodes()
 		{
 			if(_Addresses != null)
@@ -181,7 +181,7 @@ namespace NBitcoin
 		}
 
 #if !NOSOCKET
-        List<DNSSeedData> vSeeds = new List<DNSSeedData>();
+		List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
 #else
 		List<string> vSeeds = new List<string>();
@@ -316,7 +316,7 @@ namespace NBitcoin
 			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
 			assert(genesis.Header.HashMerkleRoot == uint256.Parse("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
 #if !NOSOCKET
-            vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be")); // Pieter Wuille
+			vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be")); // Pieter Wuille
 			vSeeds.Add(new DNSSeedData("bluematt.me", "dnsseed.bluematt.me")); // Matt Corallo
 			vSeeds.Add(new DNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org")); // Luke Dashjr
 			vSeeds.Add(new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com")); // Christian Decker
@@ -339,8 +339,8 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (10) };
 
 #if !NOSOCKET
-            // Convert the pnSeeds array into usable address objects.
-            Random rand = new Random();
+			// Convert the pnSeeds array into usable address objects.
+			Random rand = new Random();
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);
 			for(int i = 0; i < pnSeed.Length; i++)
 			{
@@ -387,7 +387,7 @@ namespace NBitcoin
 			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
 
 #if !NOSOCKET
-            vFixedSeeds.Clear();
+			vFixedSeeds.Clear();
 			vSeeds.Clear();
 			vSeeds.Add(new DNSSeedData("bitcoin.petertodd.org", "testnet-seed.bitcoin.petertodd.org"));
 			vSeeds.Add(new DNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
@@ -432,8 +432,8 @@ namespace NBitcoin
 			vFixedSeeds.Clear();
 
 #if !NOSOCKET
-            // Convert the pnSeeds array into usable address objects.
-            Random rand = new Random();
+			// Convert the pnSeeds array into usable address objects.
+			Random rand = new Random();
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);
 			var pnSeed = new[] { "37.34.48.17" };
 			for(int i = 0; i < pnSeed.Length; i++)
@@ -487,7 +487,7 @@ namespace NBitcoin
 			assert(consensus.HashGenesisBlock == uint256.Parse("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
 
 #if !NOSOCKET
-            vSeeds.Clear();  // Regtest mode doesn't have any DNS seeds.
+			vSeeds.Clear();  // Regtest mode doesn't have any DNS seeds.
 #endif
 			base58Prefixes = Network.TestNet.base58Prefixes.ToArray();
 			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (111) };
@@ -872,7 +872,7 @@ namespace NBitcoin
 			return new BitcoinScriptAddress(scriptId, this);
 		}
 
-        public Message ParseMessage(byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public Message ParseMessage(byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			BitcoinStream bstream = new BitcoinStream(bytes);
 			Message message = new Message();
@@ -886,7 +886,7 @@ namespace NBitcoin
 		}
 
 #if !NOSOCKET
-        public IEnumerable<NetworkAddress> SeedNodes
+		public IEnumerable<NetworkAddress> SeedNodes
 		{
 			get
 			{

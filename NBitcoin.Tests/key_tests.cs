@@ -116,7 +116,7 @@ namespace NBitcoin.Tests
 					CompressedPrivateKeyWIF = "KwomKti1X3tYJUUMb1TGSM2mrZk1wb1aHisUNHCQXTZq5auC2qc3",
 					PubKey = "04d0988bfa799f7d7ef9ab3de97ef481cd0f75d2367ad456607647edde665d6f6fbdd594388756a7beaf73b4822bc22d36e9bda7db82df2b8b623673eefc0b7495",
 					CompressedPubKey = "03d0988bfa799f7d7ef9ab3de97ef481cd0f75d2367ad456607647edde665d6f6f",
-					Address =           "16UjcYNBG9GTK4uq2f7yYEbuifqCzoLMGS",
+					Address = "16UjcYNBG9GTK4uq2f7yYEbuifqCzoLMGS",
 					CompressedAddress = "1FkKMsKNJqWSDvTvETqcCeHcUQQ64kSC6s",
 					Hash160 = "3c176e659bea0f29a3e9bf7880c112b1b31b4dc8",
 					CompressedHash160 = "a1c2f92a9dacbd2991c3897724a93f338e44bdc1"
@@ -127,7 +127,7 @@ namespace NBitcoin.Tests
 					CompressedPrivateKeyWIF = "KxXj1KAMh6ApvKJ2PNZ4XLZRGLqjDehppFdEnueGSBDrC2Hfe7vt",
 					PubKey = "0493e5d305cad2588d5fb254065fe48ce446028ba380e6ee663baea9cd105500897eb030c033cdab160f31c36df0ea38330fdd69677df49cd14826902022d17f3f",
 					CompressedPubKey = "0393e5d305cad2588d5fb254065fe48ce446028ba380e6ee663baea9cd10550089",
-					Address =           "1MZmwgyMyjM11uA6ZSpgn1uK3LBWCzvV6e",
+					Address =		   "1MZmwgyMyjM11uA6ZSpgn1uK3LBWCzvV6e",
 					CompressedAddress = "1AECNr2TDye8dpC1TeDH3eJpGoZ7dNPy4g",
 					Hash160 = "e19557c8f8fb53a964c5dc7bfde86d806709f7c5",
 					CompressedHash160 = "6538094af65453ea279f14d1a04b408e3adfebd7"

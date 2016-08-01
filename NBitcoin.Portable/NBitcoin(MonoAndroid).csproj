@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<PropertyGroup>
-		<NoNewtonsoft>true</NoNewtonsoft>
-	</PropertyGroup>
+  <PropertyGroup>
+    <NoNewtonsoft>true</NoNewtonsoft>
+  </PropertyGroup>
   <Import Project="Common.csproj" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -52,8 +52,8 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
-	<Reference Include="System.Runtime.Serialization" />
-	<Reference Include="System.Data" />
+  <Reference Include="System.Runtime.Serialization" />
+  <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Android.partial.cs" />

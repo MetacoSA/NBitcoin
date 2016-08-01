@@ -138,7 +138,7 @@ namespace NBitcoin.Protocol
 
 		private static byte[] GetBuffer(MemoryStream ms)
 		{
-#if !PORTABLE
+#if !(PORTABLE || NETCORE)
 			return ms.GetBuffer();
 #else
 			return ms.ToArray();
@@ -189,16 +189,19 @@ namespace NBitcoin.Protocol
 
 			}
 
+
+#if !NETCORE
 			public bool Connected
 			{
 				get
 				{
-					return Socket.Connected;
-				}
-			}
-		}
+                    return Socket.Connected;
+                }
+            }
 #endif
-		public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken)
+        }
+#endif
+        public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken)
 		{
 			PerformanceCounter counter;
 			return ReadNext(stream, network, version, cancellationToken, out counter);

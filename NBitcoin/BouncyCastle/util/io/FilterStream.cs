@@ -47,7 +47,7 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
 				s.Position = value;
 			}
 		}
-#if PORTABLE
+#if PORTABLE || NETCORE
         protected override void Dispose(bool disposing)
         {
             if (disposing)

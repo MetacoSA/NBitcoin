@@ -25,19 +25,19 @@
 
 namespace Newtonsoft.Json
 {
-    /// <summary>
-    /// Specifies formatting options for the <see cref="JsonTextWriter"/>.
-    /// </summary>
-    internal enum Formatting
-    {
-        /// <summary>
-        /// No special formatting is applied. This is the default.
-        /// </summary>
-        None,
+	/// <summary>
+	/// Specifies formatting options for the <see cref="JsonTextWriter"/>.
+	/// </summary>
+	internal enum Formatting
+	{
+		/// <summary>
+		/// No special formatting is applied. This is the default.
+		/// </summary>
+		None,
 
-        /// <summary>
-        /// Causes child objects to be indented according to the <see cref="JsonTextWriter.Indentation"/> and <see cref="JsonTextWriter.IndentChar"/> settings.
-        /// </summary>
-        Indented
-    }
+		/// <summary>
+		/// Causes child objects to be indented according to the <see cref="JsonTextWriter.Indentation"/> and <see cref="JsonTextWriter.IndentChar"/> settings.
+		/// </summary>
+		Indented
+	}
 }
