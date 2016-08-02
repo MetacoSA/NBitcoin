@@ -40,7 +40,6 @@ namespace Build
 			var assemblyFile = File.ReadAllText(AssemblyFile);
 
 
-
 			string output = input;
 			output = Replace(assemblyFile, output, "AssemblyVersion", "$version$");
 			output = Replace(assemblyFile, output, "AssemblyProduct", "$author$");

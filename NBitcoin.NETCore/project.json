@@ -1,15 +1,16 @@
-﻿{
-  "version": "3.0.0.42-alpha-01",
+{
+  "version" : "1.0.0.0",
+  "name": "NBitcoin",
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
-    "NETStandard.Library": "1.6.1-beta-24329-03",
-    "System.Collections.NonGeneric": "4.0.2-beta-24329-03",
-    "System.Globalization.Extensions": "4.0.2-beta-24329-03",
-    "System.Net.NameResolution": "4.0.1-beta-24329-03",
-    "System.Net.Requests": "4.0.12-beta-24329-03",
-    "System.Threading.Tasks": "4.0.12-beta-24329-03",
-    "System.Threading.Tasks.Parallel": "4.0.2-beta-24329-03",
-    "System.Threading.Thread": "4.0.1-beta-24329-03"
+    "NETStandard.Library": "1.6.0",
+    "System.Collections.NonGeneric": "4.0.1",
+    "System.Globalization.Extensions": "4.0.1",
+    "System.Net.NameResolution": "4.0.0",
+    "System.Net.Requests": "4.0.11",
+    "System.Threading.Tasks": "4.0.11",
+    "System.Threading.Tasks.Parallel": "4.0.0",
+    "System.Threading.Thread": "4.0.0"
   },
   "frameworks": {
     "netstandard1.6": {
@@ -17,6 +18,7 @@
     }
   },
   "buildOptions": {
+	"outputName": "NBitcoin",
     "define": [
       "DEBUG",
       "TRACE",

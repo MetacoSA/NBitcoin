@@ -4,6 +4,10 @@ C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\NBitcoin.Portable\
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\NBitcoin.Portable\NBitcoin.Portable(Profile259).csproj" -p:Configuration=Release
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\NBitcoin.Portable\NBitcoin(MonoAndroid).csproj" -p:Configuration=Release
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\NBitcoin.Portable\NBitcoin(Mono).csproj" -p:Configuration=Release
+dotnet restore
+C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\Build\Deploy.csproj" /t:SetCoreVersion
+dotnet build -c Release
+C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\Build\Deploy.csproj" /t:SetCoreVersionReverse
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\Build\Deploy.csproj"
 
 .\GitLink.exe ".." -ignore "nbitcoin.portable.tests,common,nbitcoin.tests,newtonsoft.json.portable"
