@@ -21,8 +21,7 @@
       "DEBUG",
       "TRACE",
       "NETCORE",
-      "NOTRACESOURCE",
-      "NOSOCKET"
+      "NOTRACESOURCE"
     ],
     "compile": {
       "include": [
