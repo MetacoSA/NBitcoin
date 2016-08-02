@@ -30,7 +30,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\MonoAndroid\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE;USEBC;NOFILEIO;NOTRACESOURCE;NOSQLITE;NOIPDUALMODE;NOUPNP;NOCONSENSUSLIB;NOJSONNET</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;USEBC;NOFILEIO;NOSQLITE;NOIPDUALMODE;NOUPNP;NOCONSENSUSLIB;NOJSONNET</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
@@ -39,7 +39,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\MonoAndroid\Release</OutputPath>
-    <DefineConstants>TRACE;USEBC;NOFILEIO;NOTRACESOURCE;NOSQLITE;NOIPDUALMODE;NOUPNP;NOCONSENSUSLIB;NOJSONNET</DefineConstants>
+    <DefineConstants>TRACE;USEBC;NOFILEIO;NOSQLITE;NOIPDUALMODE;NOUPNP;NOCONSENSUSLIB;NOJSONNET</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
