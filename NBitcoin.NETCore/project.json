@@ -52,6 +52,7 @@
       ],
       "exclude": [
         "../NBitcoin/MedianFilter1.cs",
+		"../NBitcoin/RandomUtils.partial.cs",
         "../NBitcoin.Portable/Android.partial.cs",
         "../NBitcoin.Portable/Payment/BitcoinUrlBuilder.cs"
       ]
