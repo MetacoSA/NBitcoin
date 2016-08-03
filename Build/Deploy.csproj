@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<UsingTask TaskName="Build.TokenizeTask" AssemblyFile="bin/Build.dll"></UsingTask>
 	<UsingTask TaskName="Build.SetCoreVersion" AssemblyFile="bin/Build.dll"></UsingTask>
+	<UsingTask TaskName="Build.AddCoreDependencies" AssemblyFile="bin/Build.dll"></UsingTask>
 	<Target Name="Build">
 		<Build.TokenizeTask InputFile="..\NBitcoin\NBitcoin.Tokenized.nuspec"
 							AssemblyFile="..\NBitcoin\Properties\AssemblyInfo.cs"
@@ -12,6 +13,12 @@
 							AssemblyFile="..\NBitcoin\Properties\AssemblyInfo.cs"
 							OutputFile="..\NBitcoin\NBitcoin.Mono.nuspec"
 							></Build.TokenizeTask>
+	
+		<Build.AddCoreDependencies 
+							InputFile="..\NBitcoin\NBitcoin.nuspec"
+							ProjectJsonFile="..\NBitcoin.NETCore\project.json"
+							OutputFile="..\NBitcoin\NBitcoin.nuspec"
+							></Build.AddCoreDependencies>
 	</Target>
 	<Target Name="SetCoreVersion">
 		<Build.SetCoreVersion InputFile="..\NBitcoin.NETCore\project.json"

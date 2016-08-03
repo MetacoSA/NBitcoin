@@ -37,6 +37,9 @@
 				<dependency id="Newtonsoft.Json" version="9.0.1" />
 			</group>
 
+			<group targetFramework=".NETStandard1.6">
+			</group>
+
 			<group>
 			</group>
 		</dependencies>
