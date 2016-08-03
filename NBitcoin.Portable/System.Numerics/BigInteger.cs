@@ -172,7 +172,7 @@ namespace System.Numerics
             return NumericsHelpers.MakeUlong(_bits[1], _bits[0]) == uu;
         }
 
-        [CLSCompliant(false)]
+        
         public bool Equals(UInt64 other)
         {
             AssertValid();
@@ -224,7 +224,7 @@ namespace System.Numerics
             return _sign * uuTmp.CompareTo(uu);
         }
 
-        [CLSCompliant(false)]
+        
         public int CompareTo(UInt64 other)
         {
             AssertValid();
@@ -401,7 +401,7 @@ namespace System.Numerics
             AssertValid();
         }
 
-        [CLSCompliant(false)]
+        
         public BigInteger(uint value)
         {
             if (value <= Int32.MaxValue)
@@ -452,7 +452,7 @@ namespace System.Numerics
             AssertValid();
         }
 
-        [CLSCompliant(false)]
+        
         public BigInteger(UInt64 value)
         {
             if (value <= Int32.MaxValue)
@@ -530,7 +530,7 @@ namespace System.Numerics
             AssertValid();
         }
 
-        [CLSCompliant(false)]
+        
         //
         // Create a BigInteger from a little-endian twos-complement byte array
         //
@@ -1134,7 +1134,7 @@ namespace System.Numerics
             return new BigInteger(value);
         }
 
-        [CLSCompliant(false)]
+        
         public static implicit operator BigInteger(SByte value)
         {
             return new BigInteger(value);
@@ -1145,7 +1145,7 @@ namespace System.Numerics
             return new BigInteger(value);
         }
 
-        [CLSCompliant(false)]
+        
         public static implicit operator BigInteger(UInt16 value)
         {
             return new BigInteger(value);
@@ -1157,7 +1157,7 @@ namespace System.Numerics
             return new BigInteger(value);
         }
 
-        [CLSCompliant(false)]
+        
         public static implicit operator BigInteger(uint value)
         {
             return new BigInteger(value);
@@ -1168,7 +1168,7 @@ namespace System.Numerics
             return new BigInteger(value);
         }
 
-        [CLSCompliant(false)]
+        
         public static implicit operator BigInteger(ulong value)
         {
             return new BigInteger(value);
@@ -1194,7 +1194,7 @@ namespace System.Numerics
             return checked((byte)((int)value));
         }
 
-        [CLSCompliant(false)]
+        
         public static explicit operator SByte(BigInteger value)
         {
             return checked((sbyte)((int)value));
@@ -1205,7 +1205,7 @@ namespace System.Numerics
             return checked((short)((int)value));
         }
 
-        [CLSCompliant(false)]
+        
         public static explicit operator UInt16(BigInteger value)
         {
             return checked((ushort)((int)value));
@@ -1231,7 +1231,7 @@ namespace System.Numerics
             }
         }
 
-        [CLSCompliant(false)]
+        
         public static explicit operator UInt32(BigInteger value)
         {
             value.AssertValid();
@@ -1274,7 +1274,7 @@ namespace System.Numerics
             throw new OverflowException(SR.GetString("Overflow_Int64"));
         }
 
-        [CLSCompliant(false)]
+        
         public static explicit operator UInt64(BigInteger value)
         {
             value.AssertValid();
@@ -1656,63 +1656,63 @@ namespace System.Numerics
             return !right.Equals(left);
         }
 
-        [CLSCompliant(false)]
+        
         public static bool operator <(BigInteger left, UInt64 right)
         {
             return left.CompareTo(right) < 0;
         }
-        [CLSCompliant(false)]
+        
         public static bool operator <=(BigInteger left, UInt64 right)
         {
             return left.CompareTo(right) <= 0;
         }
-        [CLSCompliant(false)]
+        
         public static bool operator >(BigInteger left, UInt64 right)
         {
             return left.CompareTo(right) > 0;
         }
-        [CLSCompliant(false)]
+        
         public static bool operator >=(BigInteger left, UInt64 right)
         {
             return left.CompareTo(right) >= 0;
         }
-        [CLSCompliant(false)]
+        
         public static bool operator ==(BigInteger left, UInt64 right)
         {
             return left.Equals(right);
         }
-        [CLSCompliant(false)]
+        
         public static bool operator !=(BigInteger left, UInt64 right)
         {
             return !left.Equals(right);
         }     
 
-        [CLSCompliant(false)]
+        
         public static bool operator <(UInt64 left, BigInteger right)
         {
             return right.CompareTo(left) > 0;
         }
-        [CLSCompliant(false)]
+        
         public static bool operator <=(UInt64 left, BigInteger right)
         {
             return right.CompareTo(left) >= 0;
         }
-        [CLSCompliant(false)]
+        
         public static bool operator >(UInt64 left, BigInteger right)
         {
             return right.CompareTo(left) < 0;
         }
-        [CLSCompliant(false)]
+        
         public static bool operator >=(UInt64 left, BigInteger right)
         {
             return right.CompareTo(left) <= 0;
         }
-        [CLSCompliant(false)]
+        
         public static bool operator ==(UInt64 left, BigInteger right)
         {
             return right.Equals(left);
         }
-        [CLSCompliant(false)]
+        
         public static bool operator !=(UInt64 left, BigInteger right)
         {
             return !right.Equals(left);

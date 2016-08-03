@@ -20,7 +20,9 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 		public X9FieldElement(
 			BigInteger p,
 			Asn1OctetString s)
+#pragma warning disable
 			: this(new FpFieldElement(p, new BigInteger(1, s.GetOctets())))
+#pragma warning restore
 		{
 		}
 
