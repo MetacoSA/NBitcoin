@@ -18,12 +18,54 @@ namespace NBitcoin
 				return _Empty;
 			}
 		}
+
+		/// <summary>
+		/// Check if valid transaction signature
+		/// </summary>
+		/// <param name="sig">Signature in bytes</param>
+		/// <param name="scriptVerify">Verification rules</param>
+		/// <returns>True if valid</returns>
+		public static bool IsValid(byte[] sig, ScriptVerify scriptVerify = ScriptVerify.DerSig | ScriptVerify.StrictEnc)
+		{
+			ScriptError error;
+			return IsValid(sig, scriptVerify, out error);
+		}
+
+
+		/// <summary>
+		/// Check if valid transaction signature
+		/// </summary>
+		/// <param name="sig">The signature</param>
+		/// <param name="scriptVerify">Verification rules</param>
+		/// <param name="error">Error</param>
+		/// <returns>True if valid</returns>
+		public static bool IsValid(byte[] sig, ScriptVerify scriptVerify, out ScriptError error)
+		{
+			if(sig == null)
+				throw new ArgumentNullException("sig");
+			if(sig.Length == 0)
+			{
+				error = ScriptError.SigDer;
+				return false;
+			}
+			error = ScriptError.OK;
+			var ctx = new ScriptEvaluationContext()
+			{
+				ScriptVerify = scriptVerify
+			};
+			if(!ctx.CheckSignatureEncoding(sig))
+			{
+				error = ctx.Error;
+				return false;
+			}
+			return true;
+		}
 		public TransactionSignature(ECDSASignature signature, SigHash sigHash)
 		{
 			if(sigHash == SigHash.Undefined)
 				throw new ArgumentException("sigHash should not be Undefined");
 			_SigHash = sigHash;
-			_Signature = signature.MakeCanonical();
+			_Signature = signature;
 		}
 		public TransactionSignature(ECDSASignature signature)
 			: this(signature, SigHash.All)
@@ -32,12 +74,12 @@ namespace NBitcoin
 		}
 		public TransactionSignature(byte[] sigSigHash)
 		{
-			_Signature = ECDSASignature.FromDER(sigSigHash).MakeCanonical();
+			_Signature = ECDSASignature.FromDER(sigSigHash);
 			_SigHash = (SigHash)sigSigHash[sigSigHash.Length - 1];
 		}
 		public TransactionSignature(byte[] sig, SigHash sigHash)
 		{
-			_Signature = ECDSASignature.FromDER(sig).MakeCanonical();
+			_Signature = ECDSASignature.FromDER(sig);
 			_SigHash = sigHash;
 		}
 
@@ -74,7 +116,7 @@ namespace NBitcoin
 
 		public bool Check(PubKey pubKey, Script scriptPubKey, IndexedTxIn txIn, ScriptVerify verify = ScriptVerify.Standard)
 		{
-			return Check(pubKey, scriptPubKey, txIn.Transaction, txIn.N, verify);
+			return Check(pubKey, scriptPubKey, txIn.Transaction, txIn.Index, verify);
 		}
 
 		public bool Check(PubKey pubKey, Script scriptPubKey, Transaction tx, uint nIndex, ScriptVerify verify = ScriptVerify.Standard)
@@ -121,6 +163,30 @@ namespace NBitcoin
 		public override int GetHashCode()
 		{
 			return Id.GetHashCode();
+		}
+
+		public override string ToString()
+		{
+			return Encoders.Hex.EncodeData(ToBytes());
+		}
+
+		public bool IsLowS
+		{
+			get
+			{
+				return Signature.IsLowS;
+			}
+		}
+
+
+		/// <summary>
+		/// Enforce LowS on the signature
+		/// </summary>
+		public TransactionSignature MakeCanonical()
+		{
+			if(IsLowS)
+				return this;
+			return new TransactionSignature(Signature.MakeCanonical(), SigHash);
 		}
 	}
 }

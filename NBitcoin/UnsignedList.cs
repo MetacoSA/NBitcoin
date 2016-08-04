@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class UnsignedList<T>: List<T>
-		where T: IBitcoinSerializable, new()
+	public class UnsignedList<T> : List<T>
+		where T : IBitcoinSerializable, new()
 	{
 		public UnsignedList()
 		{
@@ -27,19 +27,25 @@ namespace NBitcoin
 		}
 
 		public UnsignedList(IEnumerable<T> collection)
-			:base(collection)
+			: base(collection)
 		{
 		}
 
 		public UnsignedList(int capacity)
-			:base(capacity)
+			: base(capacity)
 		{
 		}
 
 		public T this[uint index]
 		{
-			get { return base[(int)index]; }
-			set { base[(int)index] = value; }
+			get
+			{
+				return base[(int)index];
+			}
+			set
+			{
+				base[(int)index] = value;
+			}
 		}
 	}
 }

@@ -42,6 +42,8 @@ namespace NBitcoin.Stealth
 
 		public BitField(byte[] rawform, int bitcount)
 		{
+			if(rawform == null)
+				throw new ArgumentNullException("rawform");
 			_BitCount = bitcount;
 
 			var byteCount = GetPrefixByteLength(bitcount);
@@ -50,12 +52,12 @@ namespace NBitcoin.Stealth
 			if(rawform.Length < byteCount)
 				_Rawform = rawform.Concat(new byte[byteCount - rawform.Length]).ToArray();
 			if(rawform.Length > byteCount)
-				_Rawform = rawform.Take(byteCount).ToArray();
+				_Rawform = rawform.SafeSubarray(0, byteCount);
 
 			_Mask = new byte[byteCount];
 			int bitleft = bitcount;
 
-			for(int i = 0 ; i < byteCount ; i++)
+			for(int i = 0; i < byteCount; i++)
 			{
 				var numberBits = Math.Min(8, bitleft);
 				_Mask[i] = (byte)((1 << numberBits) - 1);
@@ -98,7 +100,7 @@ namespace NBitcoin.Stealth
 			if(data.Length * 8 < _BitCount)
 				return false;
 
-			for(int i = 0 ; i < _Mask.Length ; i++)
+			for(int i = 0; i < _Mask.Length; i++)
 			{
 				if((data[i] & _Mask[i]) != (_Rawform[i] & _Mask[i]))
 					return false;
@@ -107,12 +109,14 @@ namespace NBitcoin.Stealth
 		}
 		public bool Match(StealthMetadata metadata)
 		{
+			if(metadata == null)
+				throw new ArgumentNullException("metadata");
 			return Match(metadata.BitField);
 		}
 
 		public StealthPayment[] GetPayments(Transaction transaction)
 		{
-			return StealthPayment.GetPayments(transaction, null, null);
+			return StealthPayment.GetPayments(transaction, null, null).Where(p => this.Match(p.Metadata)).ToArray();
 		}
 	}
 	public class BitcoinStealthAddress : Base58Data
@@ -178,7 +182,7 @@ namespace NBitcoin.Stealth
 					this.ScanPubKey = new PubKey(ms.ReadBytes(33));
 					var pubkeycount = (byte)ms.ReadByte();
 					List<PubKey> pubKeys = new List<PubKey>();
-					for(int i = 0 ; i < pubkeycount ; i++)
+					for(int i = 0; i < pubkeycount; i++)
 					{
 						pubKeys.Add(new PubKey(ms.ReadBytes(33)));
 					}
@@ -250,6 +254,10 @@ namespace NBitcoin.Stealth
 		/// <returns></returns>
 		public StealthPayment[] GetPayments(Transaction transaction, ISecret scanKey)
 		{
+			if(transaction == null)
+				throw new ArgumentNullException("transaction");
+			if(scanKey == null)
+				throw new ArgumentNullException("scanKey");
 			return GetPayments(transaction, scanKey.PrivateKey);
 		}
 

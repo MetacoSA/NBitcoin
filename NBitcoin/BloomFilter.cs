@@ -16,8 +16,16 @@ namespace NBitcoin
 		UPDATE_P2PUBKEY_ONLY = 2,
 		UPDATE_MASK = 3,
 	};
+
+	/// <summary>
+	/// Used by SPV client, represent the set of interesting addresses tracked by SPV client with plausible deniability
+	/// </summary>
 	public class BloomFilter : IBitcoinSerializable
 	{
+		public BloomFilter()
+		{
+
+		}
 		// 20,000 items with fp rate < 0.1% or 10,000 items and <0.0001%
 		const uint MAX_BLOOM_FILTER_SIZE = 36000; // bytes
 		const uint MAX_HASH_FUNCS = 50;
@@ -33,13 +41,13 @@ namespace NBitcoin
 		private bool isEmpty;
 
 
-		public BloomFilter(uint nElements, double nFPRate, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
+		public BloomFilter(int nElements, double nFPRate, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
 			: this(nElements, nFPRate, RandomUtils.GetUInt32(), nFlagsIn)
 		{
 		}
 
 
-		public BloomFilter(uint nElements, double nFPRate, uint nTweakIn, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
+		public BloomFilter(int nElements, double nFPRate, uint nTweakIn, BloomFlags nFlagsIn = BloomFlags.UPDATE_ALL)
 		{
 			// The ideal size for a bloom filter with a given number of elements and false positive rate is:
 			// - nElements * log(fp rate) / ln(2)^2
@@ -67,7 +75,7 @@ namespace NBitcoin
 		{
 			if(isFull)
 				return;
-			for(uint i = 0 ; i < nHashFuncs ; i++)
+			for(uint i = 0; i < nHashFuncs; i++)
 			{
 				uint nIndex = Hash(i, vKey);
 				// Sets bit nIndex of vData
@@ -82,7 +90,7 @@ namespace NBitcoin
 				return true;
 			if(isEmpty)
 				return false;
-			for(uint i = 0 ; i < nHashFuncs ; i++)
+			for(uint i = 0; i < nHashFuncs; i++)
 			{
 				uint nIndex = Hash(i, vKey);
 				// Checks bit nIndex of vData
@@ -93,21 +101,35 @@ namespace NBitcoin
 		}
 		public bool Contains(OutPoint outPoint)
 		{
+			if(outPoint == null)
+				throw new ArgumentNullException("outPoint");
 			return Contains(outPoint.ToBytes());
 		}
 
 		public bool Contains(uint256 hash)
 		{
+			if(hash == null)
+				throw new ArgumentNullException("hash");
 			return Contains(hash.ToBytes());
 		}
 
 		public void Insert(OutPoint outPoint)
 		{
+			if(outPoint == null)
+				throw new ArgumentNullException("outPoint");
 			Insert(outPoint.ToBytes());
 		}
+
 		public void Insert(uint256 value)
 		{
+			if(value == null)
+				throw new ArgumentNullException("value");
 			Insert(value.ToBytes());
+		}
+
+		public bool IsWithinSizeConstraints()
+		{
+			return vData.Length <= MAX_BLOOM_FILTER_SIZE && nHashFuncs <= MAX_HASH_FUNCS;
 		}
 
 		#region IBitcoinSerializable Members
@@ -126,6 +148,8 @@ namespace NBitcoin
 
 		public bool IsRelevantAndUpdate(Transaction tx)
 		{
+			if(tx == null)
+				throw new ArgumentNullException("tx");
 			var hash = tx.GetHash();
 			bool fFound = false;
 			// Match if the filter contains the hash of tx
@@ -137,7 +161,7 @@ namespace NBitcoin
 			if(Contains(hash))
 				fFound = true;
 
-			for(uint i = 0 ; i < tx.Outputs.Count ; i++)
+			for(uint i = 0; i < tx.Outputs.Count; i++)
 			{
 				TxOut txout = tx.Outputs[(int)i];
 				// Match if the filter contains any arbitrary script data element in any scriptPubKey in tx

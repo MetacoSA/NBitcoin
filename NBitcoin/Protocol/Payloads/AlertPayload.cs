@@ -140,26 +140,35 @@ namespace NBitcoin.Protocol
 
 		#endregion
 
-		public void UpdateSignature(Key key, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		// FIXME: why do we need version parameter? 
+		// it shouldn't be called "version" because the it a field with the same name 
+		public void UpdateSignature(Key key)
 		{
+			if(key == null)
+				throw new ArgumentNullException("key");
 			UpdatePayload();
 			signature = new VarString(key.Sign(Hashes.Hash256(payload.GetString())).ToDER());
 		}
 
-		public void UpdatePayload(ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public void UpdatePayload(ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			UpdatePayload(new BitcoinStream(new byte[0])
 			{
-				ProtocolVersion = version
+				ProtocolVersion = protocolVersion
 			});
 		}
 
 		public bool CheckSignature(Network network)
 		{
+			if(network == null)
+				throw new ArgumentNullException("network");
 			return CheckSignature(network.AlertPubKey);
 		}
+
 		public bool CheckSignature(PubKey key)
 		{
+			if(key == null)
+				throw new ArgumentNullException("key");
 			return key.Verify(Hashes.Hash256(payload.GetString()), signature.GetString());
 		}
 

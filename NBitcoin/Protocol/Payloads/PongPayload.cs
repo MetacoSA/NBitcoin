@@ -26,5 +26,10 @@ namespace NBitcoin.Protocol
 		{
 			stream.ReadWrite(ref _Nonce);
 		}
+
+		public override string ToString()
+		{
+			return base.ToString() + " : " + Nonce;
+		}
 	}
 }

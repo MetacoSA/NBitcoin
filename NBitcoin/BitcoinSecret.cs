@@ -27,38 +27,18 @@ namespace NBitcoin
 		{
 		}
 
-		private BitcoinAddress _address;
+		private BitcoinPubKeyAddress _address;
 
-		public BitcoinAddress GetAddress()
+		public BitcoinPubKeyAddress GetAddress()
 		{
-			if(_address == null)
-				_address = PrivateKey.PubKey.GetAddress(Network);
-
-			return _address;
+			return _address ?? (_address = PrivateKey.PubKey.GetAddress(Network));
 		}
 
-		[Obsolete("Use PubKeyHash instead")]
-		public virtual KeyId ID
-		{
-			get
-			{
-				return PrivateKey.PubKey.Hash;
-			}
-		}
 		public virtual KeyId PubKeyHash
 		{
 			get
 			{
 				return PrivateKey.PubKey.Hash;
-			}
-		}
-
-		[Obsolete("Use PrivateKey instead")]
-		public Key Key
-		{
-			get
-			{
-				return PrivateKey;
 			}
 		}
 
@@ -76,9 +56,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_Key == null)
-					_Key = new Key(vchData, 32, IsCompressed);
-				return _Key;
+				return _Key ?? (_Key = new Key(vchData, 32, IsCompressed));
 			}
 		}
 		#endregion

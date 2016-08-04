@@ -1,11 +1,9 @@
 ﻿#if !NOSOCKET
-#if !NOUPNP
-using Mono.Nat;
-#endif
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -37,7 +35,11 @@ namespace NBitcoin.Protocol
 				return _Version;
 			}
 		}
-		public bool AdvertizeMyself
+
+		/// <summary>
+		/// The parameters that will be cloned and applied for each node connecting to the NodeServer
+		/// </summary>
+		public NodeConnectionParameters InboundNodeConnectionParameters
 		{
 			get;
 			set;
@@ -46,20 +48,20 @@ namespace NBitcoin.Protocol
 		public NodeServer(Network network, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION,
 			int internalPort = -1)
 		{
-			AdvertizeMyself = false;
+			AllowLocalPeers = true;
+			InboundNodeConnectionParameters = new NodeConnectionParameters();
 			internalPort = internalPort == -1 ? network.DefaultPort : internalPort;
-			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6(), internalPort);
+			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6Ex(), internalPort);
 			_Network = network;
 			_ExternalEndpoint = new IPEndPoint(_LocalEndpoint.Address, Network.DefaultPort);
 			_Version = version;
 			var listener = new EventLoopMessageListener<IncomingMessage>(ProcessMessage);
 			_MessageProducer.AddMessageListener(listener);
 			OwnResource(listener);
-			RegisterPeerTableRepository(_PeerTable);
-			_Nodes = new NodeSet();
-			_Nodes.NodeAdded += _Nodes_NodeAdded;
-			_Nodes.NodeRemoved += _Nodes_NodeRemoved;
-			_Nodes.MessageProducer.AddMessageListener(listener);
+			_ConnectedNodes = new NodesCollection();
+			_ConnectedNodes.Added += _Nodes_NodeAdded;
+			_ConnectedNodes.Removed += _Nodes_NodeRemoved;
+			_ConnectedNodes.MessageProducer.AddMessageListener(listener);
 			_Trace = new TraceCorrelation(NodeServerTrace.Trace, "Node server listening on " + LocalEndpoint);
 		}
 
@@ -68,142 +70,24 @@ namespace NBitcoin.Protocol
 		public event NodeServerNodeEventHandler NodeAdded;
 		public event NodeServerMessageEventHandler MessageReceived;
 
-		void _Nodes_NodeRemoved(NodeSet sender, Node node)
+		void _Nodes_NodeRemoved(object sender, NodeEventArgs node)
 		{
 			var removed = NodeRemoved;
 			if(removed != null)
-				removed(this, node);
+				removed(this, node.Node);
 		}
 
-		void _Nodes_NodeAdded(NodeSet sender, Node node)
+		void _Nodes_NodeAdded(object sender, NodeEventArgs node)
 		{
 			var added = NodeAdded;
 			if(added != null)
-				added(this, node);
+				added(this, node.Node);
 		}
 
-
-		int[] bitcoinPorts;
-		int[] BitcoinPorts
-		{
-			get
-			{
-				if(bitcoinPorts == null)
-				{
-					bitcoinPorts = Enumerable.Range(Network.DefaultPort, 10).ToArray();
-				}
-				return bitcoinPorts;
-			}
-		}
-
-		TimeSpan _NATLeasePeriod = TimeSpan.FromMinutes(10.0);
-		/// <summary>
-		/// When using DetectExternalEndpoint, UPNP will open ports on the gateway for a fixed amount of time before renewing
-		/// </summary>
-		public TimeSpan NATLeasePeriod
-		{
-			get
-			{
-				return _NATLeasePeriod;
-			}
-			set
-			{
-				_NATLeasePeriod = value;
-			}
-		}
-
-
-		string _NATRuleName = "NBitcoin Node Server";
-		public string NATRuleName
-		{
-			get
-			{
-				return _NATRuleName;
-			}
-			set
-			{
-				_NATRuleName = value;
-			}
-		}
-#if !NOUPNP
-		UPnPLease _UPnPLease;
-		public UPnPLease DetectExternalEndpoint(CancellationToken cancellation = default(CancellationToken))
-		{
-			if(_UPnPLease != null)
-			{
-				_UPnPLease.Dispose();
-				_UPnPLease = null;
-			}
-			var lease = new UPnPLease(BitcoinPorts, LocalEndpoint.Port, NATRuleName);
-			lease.LeasePeriod = NATLeasePeriod;
-			if(lease.DetectExternalEndpoint(cancellation))
-			{
-				_UPnPLease = lease;
-				ExternalEndpoint = _UPnPLease.ExternalEndpoint;
-				return lease;
-			}
-			else
-			{
-				using(lease.Trace.Open())
-				{
-					NodeServerTrace.Information("No UPNP device found, try to use external web services to deduce external address");
-					try
-					{
-						var ip = GetMyExternalIP(cancellation);
-						if(ip != null)
-							ExternalEndpoint = new IPEndPoint(ip, ExternalEndpoint.Port);
-					}
-					catch(Exception ex)
-					{
-						NodeServerTrace.Error("Could not use web service to deduce external address", ex);
-					}
-				}
-				return null;
-			}
-		}
-#endif
 		public bool AllowLocalPeers
 		{
 			get;
 			set;
-		}
-
-
-		private void PopulateTableWithHardNodes()
-		{
-			_InternalMessageProducer.PushMessages(Network.SeedNodes.Select(n => new Peer(PeerOrigin.HardSeed, n)).ToArray());
-		}
-		private void PopulateTableWithDNSNodes()
-		{
-			var peers = Network.DNSSeeds
-							.SelectMany(s =>
-							{
-								try
-								{
-									return s.GetAddressNodes();
-								}
-								catch(Exception ex)
-								{
-									NodeServerTrace.ErrorWhileRetrievingDNSSeedIp(s.Name, ex);
-									return new IPAddress[0];
-								}
-							})
-							.Select(s => new Peer(PeerOrigin.DNSSeed, new NetworkAddress()
-							{
-								Endpoint = new IPEndPoint(s, Network.DefaultPort),
-								Time = Utils.UnixTimeToDateTime(0)
-							})).ToArray();
-
-			_InternalMessageProducer.PushMessages(peers);
-		}
-
-		readonly PeerTable _PeerTable = new PeerTable();
-		public PeerTable PeerTable
-		{
-			get
-			{
-				return _PeerTable;
-			}
 		}
 
 		private IPEndPoint _LocalEndpoint;
@@ -235,9 +119,7 @@ namespace NBitcoin.Protocol
 				try
 				{
 					socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-#if !NOIPDUALMODE
-					socket.DualMode = true;
-#endif
+					socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
 
 					socket.Bind(LocalEndpoint);
 					socket.Listen(8);
@@ -254,39 +136,67 @@ namespace NBitcoin.Protocol
 
 		private void BeginAccept()
 		{
-			if(isDisposed)
+			if(_Cancel.IsCancellationRequested)
+			{
+				NodeServerTrace.Information("Stop accepting connection...");
 				return;
+			}
 			NodeServerTrace.Information("Accepting connection...");
-			socket.BeginAccept(EndAccept, null);
+			var args = new SocketAsyncEventArgs();
+			args.Completed += Accept_Completed;
+			if(!socket.AcceptAsync(args))
+				EndAccept(args);
 		}
-		private void EndAccept(IAsyncResult ar)
+
+		private void Accept_Completed(object sender, SocketAsyncEventArgs e)
+		{
+			EndAccept(e);
+		}
+
+		private void EndAccept(SocketAsyncEventArgs args)
 		{
 			using(_Trace.Open())
 			{
 				Socket client = null;
 				try
 				{
-					client = socket.EndAccept(ar);
-					if(isDisposed)
+					if(args.SocketError != SocketError.Success)
+						throw new SocketException((int)args.SocketError);
+					client = args.AcceptSocket;
+					if(_Cancel.IsCancellationRequested)
 						return;
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
-					var cancel = new CancellationTokenSource();
+					var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token);
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
-					var message = Message.ReadNext(client, Network, Version, cancel.Token);
-					_MessageProducer.PushMessage(new IncomingMessage()
+
+					var stream = new Message.CustomNetworkStream(client, false);
+					while(true)
 					{
-						Socket = client,
-						Message = message,
-						Node = null,
-					});
+						cancel.Token.ThrowIfCancellationRequested();
+						var message = Message.ReadNext(stream, Network, Version, cancel.Token);
+						_MessageProducer.PushMessage(new IncomingMessage()
+						{
+							Socket = client,
+							Message = message,
+							Node = null,
+						});
+						if(message.Payload is VersionPayload)
+							break;
+						else
+							NodeServerTrace.Error("The first message of the remote peer did not contained a Version payload", null);
+					}
 				}
-				catch(OperationCanceledException ex)
+				catch(OperationCanceledException)
 				{
-					NodeServerTrace.Error("The remote connecting failed to send a message within 10 seconds, dropping connection", ex);
+					Utils.SafeCloseSocket(client);
+					if(!_Cancel.Token.IsCancellationRequested)
+					{
+						NodeServerTrace.Error("The remote connecting failed to send a message within 10 seconds, dropping connection", null);
+					}
 				}
 				catch(Exception ex)
 				{
-					if(isDisposed)
+					if(_Cancel.IsCancellationRequested)
 						return;
 					if(client == null)
 					{
@@ -295,51 +205,11 @@ namespace NBitcoin.Protocol
 					}
 					else
 					{
+						Utils.SafeCloseSocket(client);
 						NodeServerTrace.Error("Invalid message received from the remote connecting node", ex);
 					}
 				}
 				BeginAccept();
-			}
-		}
-
-		public IPAddress GetMyExternalIP(CancellationToken cancellation = default(CancellationToken))
-		{
-
-			var tasks = new[]{
-						new {IP = "91.198.22.70", DNS ="checkip.dyndns.org"}, 
-						new {IP = "209.68.27.16", DNS = "www.ipchicken.com"}
-			 }.Select(site =>
-			 {
-				 return Task.Run(() =>
-					 {
-						 var ip = IPAddress.Parse(site.IP);
-						 try
-						 {
-							 ip = Dns.GetHostAddresses(site.DNS).First();
-						 }
-						 catch(Exception ex)
-						 {
-							 NodeServerTrace.Warning("can't resolve ip of " + site.DNS + " using hardcoded one " + site.IP, ex);
-						 }
-						 WebClient client = new WebClient();
-						 var page = client.DownloadString("http://" + ip);
-						 var match = Regex.Match(page, "[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}");
-						 return match.Value;
-					 });
-			 }).ToArray();
-
-
-			Task.WaitAny(tasks, cancellation);
-			try
-			{
-				var result = tasks.First(t => t.IsCompleted && !t.IsFaulted).Result;
-				NodeServerTrace.ExternalIpReceived(result);
-				return IPAddress.Parse(result);
-			}
-			catch(InvalidOperationException)
-			{
-				NodeServerTrace.ExternalIpFailed(tasks.Select(t => t.Exception).FirstOrDefault());
-				throw new WebException("Impossible to detect extenal ip");
 			}
 		}
 
@@ -378,79 +248,6 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public Node GetNodeByHostName(string hostname, int port = -1, CancellationToken cancellation = default(CancellationToken))
-		{
-			if(port == -1)
-				port = Network.DefaultPort;
-			var ip = Dns.GetHostAddresses(hostname).First();
-			var endpoint = new IPEndPoint(ip, port);
-			return GetNodeByEndpoint(endpoint, cancellation);
-		}
-
-		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		readonly NodeSet _Nodes;
-
-		public Node GetNodeByEndpoint(IPEndPoint endpoint, CancellationToken cancellation = default(CancellationToken))
-		{
-			lock(_Nodes)
-			{
-				endpoint = Utils.EnsureIPv6(endpoint);
-
-				var node = _Nodes.GetNodeByEndpoint(endpoint);
-				if(node != null)
-					return node;
-				var peer = PeerTable.GetPeer(endpoint);
-				if(peer == null)
-					peer = new Peer(PeerOrigin.Manual, new NetworkAddress()
-					{
-
-						Endpoint = endpoint,
-						Time = Utils.UnixTimeToDateTime(0)
-					});
-
-				return AddNode(peer, cancellation);
-			}
-		}
-
-		public Node GetNodeByEndpoint(string endpoint)
-		{
-			IPEndPoint ip = Utils.ParseIpEndpoint(endpoint, Network.DefaultPort);
-			return GetNodeByEndpoint(ip);
-		}
-
-		public Node GetNodeByPeer(Peer peer, CancellationToken cancellation = default(CancellationToken))
-		{
-			var node = _Nodes.GetNodeByPeer(peer);
-			if(node != null)
-				return node;
-			return AddNode(peer, cancellation);
-
-		}
-
-		private Node AddNode(Peer peer, CancellationToken cancellationToken)
-		{
-			try
-			{
-				var node = new Node(peer, Network, CreateVersionPayload(peer, ExternalEndpoint, Version), cancellationToken);
-				return AddNode(node);
-			}
-			catch(Exception)
-			{
-				return null;
-			}
-		}
-
-		private Node AddNode(Node node)
-		{
-			if(node.State < NodeState.Connected)
-				return null;
-			return _Nodes.AddNode(node);
-		}
-
-		internal void RemoveNode(Node node)
-		{
-			_Nodes.RemoveNode(node);
-		}
 		void ProcessMessage(IncomingMessage message)
 		{
 			AllMessages.PushMessage(message);
@@ -478,7 +275,7 @@ namespace NBitcoin.Protocol
 				if(message.Node != null && connectedToSelf)
 				{
 					NodeServerTrace.ConnectionToSelfDetected();
-					message.Node.Disconnect();
+					message.Node.DisconnectAsync();
 					return;
 				}
 
@@ -491,16 +288,16 @@ namespace NBitcoin.Protocol
 						remoteEndpoint = new IPEndPoint(((IPEndPoint)message.Socket.RemoteEndPoint).Address, Network.DefaultPort);
 					}
 
-					var peer = new Peer(PeerOrigin.Advertised, new NetworkAddress()
+					var peer = new NetworkAddress()
 					{
 						Endpoint = remoteEndpoint,
 						Time = DateTimeOffset.UtcNow
-					});
-					var node = new Node(peer, Network, CreateVersionPayload(peer, ExternalEndpoint, Version), message.Socket, version);
+					};
+					var node = new Node(peer, Network, CreateNodeConnectionParameters(), message.Socket, version);
 
 					if(connectedToSelf)
 					{
-						node.SendMessage(CreateVersionPayload(node.Peer, ExternalEndpoint, Version));
+						node.SendMessage(CreateNodeConnectionParameters().CreateVersion(node.Peer.Endpoint, Network));
 						NodeServerTrace.ConnectionToSelfDetected();
 						node.Disconnect();
 						return;
@@ -510,18 +307,19 @@ namespace NBitcoin.Protocol
 					cancel.CancelAfter(TimeSpan.FromSeconds(10.0));
 					try
 					{
-						AddNode(node);
+						ConnectedNodes.Add(node);
+						node.StateChanged += node_StateChanged;
 						node.RespondToHandShake(cancel.Token);
 					}
 					catch(OperationCanceledException ex)
 					{
 						NodeServerTrace.Error("The remote node did not respond fast enough (10 seconds) to the handshake completion, dropping connection", ex);
-						node.Disconnect();
+						node.DisconnectAsync();
 						throw;
 					}
 					catch(Exception)
 					{
-						node.Disconnect();
+						node.DisconnectAsync();
 						throw;
 					}
 				}
@@ -532,38 +330,28 @@ namespace NBitcoin.Protocol
 				messageReceived(this, message);
 		}
 
-
-		public bool IsConnectedTo(IPEndPoint endpoint)
+		void node_StateChanged(Node node, NodeState oldState)
 		{
-			return _Nodes.Contains(endpoint);
+			if(node.State == NodeState.Disconnecting ||
+				node.State == NodeState.Failed ||
+				node.State == NodeState.Offline)
+				ConnectedNodes.Remove(node);
 		}
 
-		ConcurrentDictionary<Node, Node> _ConnectedNodes = new ConcurrentDictionary<Node, Node>();
-
-		public bool AdvertiseMyself()
+		private readonly NodesCollection _ConnectedNodes = new NodesCollection();
+		public NodesCollection ConnectedNodes
 		{
-			if(IsListening && ExternalEndpoint.Address.IsRoutable(AllowLocalPeers))
+			get
 			{
-				NodeServerTrace.Information("Advertizing myself");
-				foreach(var node in _ConnectedNodes)
-				{
-					node.Value.SendMessage(new AddrPayload(new NetworkAddress()
-					{
-						Ago = TimeSpan.FromSeconds(0),
-						Endpoint = ExternalEndpoint
-					}));
-				}
-				return true;
+				return _ConnectedNodes;
 			}
-			else
-				return false;
-
 		}
+
 
 		List<IDisposable> _Resources = new List<IDisposable>();
 		IDisposable OwnResource(IDisposable resource)
 		{
-			if(isDisposed)
+			if(_Cancel.IsCancellationRequested)
 			{
 				resource.Dispose();
 				return Scope.Nothing;
@@ -584,13 +372,13 @@ namespace NBitcoin.Protocol
 		}
 		#region IDisposable Members
 
-		bool isDisposed;
+		CancellationTokenSource _Cancel = new CancellationTokenSource();
 		public void Dispose()
 		{
-			if(!isDisposed)
+			if(!_Cancel.IsCancellationRequested)
 			{
-				isDisposed = true;
-
+				_Cancel.Cancel();
+				_Trace.LogInside(() => NodeServerTrace.Information("Stopping node server..."));
 				lock(_Resources)
 				{
 					foreach(var resource in _Resources)
@@ -598,16 +386,10 @@ namespace NBitcoin.Protocol
 				}
 				try
 				{
-					_Nodes.DisconnectAll();
+					_ConnectedNodes.DisconnectAll();
 				}
 				finally
 				{
-#if !NOUPNP
-					if(_UPnPLease != null)
-					{
-						_UPnPLease.Dispose();
-					}
-#endif
 					if(socket != null)
 					{
 						Utils.SafeCloseSocket(socket);
@@ -619,39 +401,14 @@ namespace NBitcoin.Protocol
 
 		#endregion
 
-		public VersionPayload CreateVersionPayload(Peer peer, IPEndPoint myExternal, ProtocolVersion? version)
+		internal NodeConnectionParameters CreateNodeConnectionParameters()
 		{
-			myExternal = Utils.EnsureIPv6(myExternal);
-			return new VersionPayload()
-					{
-						Nonce = Nonce,
-						UserAgent = UserAgent,
-						Version = version == null ? Version : version.Value,
-						StartHeight = 0,
-						Timestamp = DateTimeOffset.UtcNow,
-						AddressReceiver = peer.NetworkAddress.Endpoint,
-						AddressFrom = myExternal,
-						Relay = IsRelay
-					};
-		}
-
-		public bool IsRelay
-		{
-			get;
-			set;
-		}
-
-		string _UserAgent;
-		public string UserAgent
-		{
-			get
-			{
-				if(_UserAgent == null)
-				{
-					_UserAgent = VersionPayload.GetNBitcoinUserAgent();
-				}
-				return _UserAgent;
-			}
+			var myExternal = Utils.EnsureIPv6(ExternalEndpoint);
+			var param2 = InboundNodeConnectionParameters.Clone();
+			param2.Nonce = Nonce;
+			param2.Version = Version;
+			param2.AddressFrom = myExternal;
+			return param2;
 		}
 
 		ulong _Nonce;
@@ -673,208 +430,27 @@ namespace NBitcoin.Protocol
 
 
 
-
-
-		/// <summary>
-		/// Fill the PeerTable with fresh addresses
-		/// </summary>
-		public void DiscoverPeers(int peerToFind = 990)
+		public bool IsConnectedTo(IPEndPoint endpoint)
 		{
-			TraceCorrelation traceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Discovering nodes");
-			List<Task> tasks = new List<Task>();
-			using(traceCorrelation.Open())
+			return _ConnectedNodes.FindByEndpoint(endpoint) != null;
+		}
+
+		public Node FindOrConnect(IPEndPoint endpoint)
+		{
+			while(true)
 			{
-				while(CountPeerRequired(peerToFind) != 0)
+				var node = _ConnectedNodes.FindByEndpoint(endpoint);
+				if(node != null)
+					return node;
+				node = Node.Connect(Network, endpoint, CreateNodeConnectionParameters());
+				node.StateChanged += node_StateChanged;
+				if(!_ConnectedNodes.Add(node))
 				{
-					NodeServerTrace.PeerTableRemainingPeerToGet(CountPeerRequired(peerToFind));
-					var peers = PeerTable.GetActivePeers(1000);
-					if(peers.Length == 0)
-					{
-						PopulateTableWithDNSNodes();
-						PopulateTableWithHardNodes();
-						peers = PeerTable.GetActivePeers(1000);
-					}
-
-
-					CancellationTokenSource peerTableFull = new CancellationTokenSource();
-					NodeSet connected = new NodeSet();
-					try
-					{
-						Parallel.ForEach(peers, new ParallelOptions()
-						{
-							MaxDegreeOfParallelism = 5,
-							CancellationToken = peerTableFull.Token,
-						}, p =>
-						{
-							CancellationTokenSource cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(40));
-							Node n = null;
-							try
-							{
-								n = GetNodeByPeer(p, cancellation.Token);
-								if(n.State < NodeState.HandShaked)
-								{
-									connected.AddNode(n);
-									n.VersionHandshake(cancellation.Token);
-								}
-								n.SendMessage(new GetAddrPayload());
-								Thread.Sleep(2000);
-							}
-							catch(Exception)
-							{
-								if(n != null)
-									n.Disconnect();
-							}
-							if(CountPeerRequired(peerToFind) == 0)
-								peerTableFull.Cancel();
-							else
-								NodeServerTrace.Information("Need " + CountPeerRequired(peerToFind) + " more peers");
-						});
-					}
-					catch(OperationCanceledException)
-					{
-					}
-					finally
-					{
-						connected.DisconnectAll();
-					}
+					node.DisconnectAsync();
 				}
-				NodeServerTrace.Trace.TraceInformation("Peer table is now full");
+				else
+					return node;
 			}
-		}
-
-		int CountPeerRequired(int peerToFind)
-		{
-			return Math.Max(0, peerToFind - PeerTable.CountUsed(true));
-		}
-
-		public NodeSet CreateNodeSet(int size)
-		{
-			if(size > 1000)
-				throw new ArgumentOutOfRangeException("size", "size should be less than 1000");
-			TraceCorrelation trace = new TraceCorrelation(NodeServerTrace.Trace, "Creating node set of size " + size);
-			NodeSet set = new NodeSet();
-			using(trace.Open())
-			{
-				while(set.Count() < size)
-				{
-					var peerToGet = size - set.Count();
-					var activePeers = PeerTable.GetActivePeers(1000);
-					activePeers = activePeers.Where(p => !set.Contains(p.NetworkAddress.Endpoint)).ToArray();
-					if(activePeers.Length < peerToGet)
-					{
-						DiscoverPeers(size);
-						continue;
-					}
-					NodeServerTrace.Information("Need " + peerToGet + " more nodes");
-
-					BlockingCollection<Node> handshakedNodes = new BlockingCollection<Node>(peerToGet);
-					CancellationTokenSource handshakedFull = new CancellationTokenSource();
-
-					try
-					{
-						Parallel.ForEach(activePeers,
-							new ParallelOptions()
-							{
-								MaxDegreeOfParallelism = 10,
-								CancellationToken = handshakedFull.Token
-							}, p =>
-						{
-							if(set.Contains(p.NetworkAddress.Endpoint))
-								return;
-							Node node = null;
-							try
-							{
-								node = GetNodeByPeer(p, handshakedFull.Token);
-								node.VersionHandshake(handshakedFull.Token);
-								if(node != null && node.State != NodeState.HandShaked)
-									node.Disconnect();
-								if(!handshakedNodes.TryAdd(node))
-								{
-									handshakedFull.Cancel();
-									node.Disconnect();
-								}
-								else
-								{
-									var remaining = (size - set.Count() - handshakedNodes.Count);
-									if(remaining == 0)
-									{
-										handshakedFull.Cancel();
-									}
-									else
-										NodeServerTrace.Information("Need " + remaining + " more nodes");
-								}
-							}
-							catch(Exception)
-							{
-								if(node != null)
-									node.Disconnect();
-							}
-						});
-					}
-					catch(OperationCanceledException)
-					{
-					}
-					set.AddNodes(handshakedNodes.ToArray());
-				}
-			}
-			return set;
-		}
-
-		public IDisposable RegisterPeerTableRepository(PeerTableRepository peerTableRepository)
-		{
-			var poll = new EventLoopMessageListener<object>(o =>
-			{
-				var message = o as IncomingMessage;
-				if(message != null)
-				{
-					if(message.Message.Payload is AddrPayload)
-					{
-						peerTableRepository.WritePeers(((AddrPayload)message.Message.Payload).Addresses
-														.Where(a => a.Endpoint.Address.IsRoutable(AllowLocalPeers))
-														.Select(a => new Peer(PeerOrigin.Addr, a)));
-					}
-				}
-				var peer = o as Peer;
-				if(peer != null)
-				{
-					if(peer.NetworkAddress.Endpoint.Address.IsRoutable(AllowLocalPeers))
-						peerTableRepository.WritePeer(peer);
-				}
-			});
-
-			if(peerTableRepository != _PeerTable)
-			{
-				_InternalMessageProducer.PushMessages(peerTableRepository.GetPeers());
-			}
-			return new CompositeDisposable(AllMessages.AddMessageListener(poll), _InternalMessageProducer.AddMessageListener(poll), OwnResource(poll));
-		}
-
-#if !NOFILEIO
-		public IDisposable RegisterBlockRepository(BlockRepository repository)
-		{
-			var listener = new EventLoopMessageListener<IncomingMessage>((m) =>
-			{
-				if(m.Node != null)
-				{
-					if(m.Message.Payload is HeadersPayload)
-					{
-						foreach(var header in ((HeadersPayload)m.Message.Payload).Headers)
-						{
-							repository.WriteBlockHeader(header);
-						}
-					}
-					if(m.Message.Payload is BlockPayload)
-					{
-						repository.WriteBlock(((BlockPayload)m.Message.Payload).Object);
-					}
-				}
-			});
-			return new CompositeDisposable(AllMessages.AddMessageListener(listener), OwnResource(listener));
-		}
-#endif
-		public Node GetLocalNode()
-		{
-			return GetNodeByEndpoint(new IPEndPoint(IPAddress.Loopback, ExternalEndpoint.Port));
 		}
 	}
 }

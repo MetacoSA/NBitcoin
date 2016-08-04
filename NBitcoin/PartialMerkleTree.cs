@@ -10,6 +10,10 @@ namespace NBitcoin
 {
 	public class PartialMerkleTree : IBitcoinSerializable
 	{
+		public PartialMerkleTree()
+		{
+
+		}
 		uint _TransactionCount;
 		public uint TransactionCount
 		{
@@ -57,15 +61,14 @@ namespace NBitcoin
 			{
 				stream.ReadWriteAsVarString(ref vBytes);
 				BitWriter writer = new BitWriter();
-				for(int p = 0 ; p < vBytes.Length * 8 ; p++)
+				for(int p = 0; p < vBytes.Length * 8; p++)
 					writer.Write((vBytes[p / 8] & (1 << (p % 8))) != 0);
-
-
+				_Flags = writer.ToBitArray();
 			}
 			else
 			{
 				vBytes = new byte[(_Flags.Length + 7) / 8];
-				for(int p = 0 ; p < _Flags.Length ; p++)
+				for(int p = 0; p < _Flags.Length; p++)
 					vBytes[p / 8] |= (byte)(ToByte(_Flags.Get(p)) << (p % 8));
 				stream.ReadWriteAsVarString(ref vBytes);
 			}
@@ -100,12 +103,17 @@ namespace NBitcoin
 			{
 				if(matches.Read())
 				{
-					leaf.IsMarked = true;
-					foreach(var ancestor in leaf.Ancestors())
-					{
-						ancestor.IsMarked = true;
-					}
+					MarkToTop(leaf, true);
 				}
+			}
+		}
+
+		private static void MarkToTop(MerkleNode leaf, bool value)
+		{
+			leaf.IsMarked = value;
+			foreach(var ancestor in leaf.Ancestors())
+			{
+				ancestor.IsMarked = value;
 			}
 		}
 
@@ -129,7 +137,7 @@ namespace NBitcoin
 				return false;
 			}
 		}
-		
+
 
 
 		private void BuildCore(MerkleNode node, BitWriter flags)
@@ -187,6 +195,30 @@ namespace NBitcoin
 			{
 				return null;
 			}
+		}
+
+		/// <summary>
+		/// Remove superflous branches
+		/// </summary>
+		/// <param name="transaction"></param>
+		/// <returns></returns>
+		public PartialMerkleTree Trim(params uint256[] matchedTransactions)
+		{
+			PartialMerkleTree trimmed = new PartialMerkleTree();
+			trimmed.TransactionCount = TransactionCount;
+			var root = GetMerkleRoot();
+			foreach(var leaf in root.GetLeafs())
+			{
+				MarkToTop(leaf, false);
+			}
+			BitWriter flags = new BitWriter();
+			foreach(var leaf in root.GetLeafs().Where(l => matchedTransactions.Contains(l.Hash)))
+			{
+				MarkToTop(leaf, true);
+			}
+			trimmed.BuildCore(root, flags);
+			trimmed.Flags = flags.ToBitArray();
+			return trimmed;
 		}
 	}
 }

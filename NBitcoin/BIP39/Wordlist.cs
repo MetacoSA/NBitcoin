@@ -68,6 +68,16 @@ namespace NBitcoin
 			}
 		}
 
+		private static Wordlist _French;
+		public static Wordlist French
+		{
+			get
+			{
+				if(_French == null)
+					_French = LoadWordList(Language.French).Result;
+				return _French;
+			}
+		}
 
 		public static Task<Wordlist> LoadWordList(Language language)
 		{
@@ -94,6 +104,9 @@ namespace NBitcoin
 					break;
 				case Language.Spanish:
 					name = "spanish";
+					break;
+				case Language.French:
+					name = "french";
 					break;
 				default:
 					throw new NotSupportedException(language.ToString());
@@ -215,7 +228,7 @@ namespace NBitcoin
 		}
 		public static Language AutoDetectLanguage(string[] words)
 		{
-			List<int> languageCount = new List<int>(new int[] { 0, 0, 0, 0, 0 });
+			List<int> languageCount = new List<int>(new int[] { 0, 0, 0, 0, 0, 0 });
 			int index;
 
 			foreach(string s in words)
@@ -248,6 +261,10 @@ namespace NBitcoin
 				{
 					//chinese traditional is at 4
 					languageCount[4]++;
+				}
+				if(Wordlist.French.WordExists(s, out index))
+				{
+					languageCount[5]++;
 				}
 			}
 
@@ -283,7 +300,10 @@ namespace NBitcoin
 			{
 				return Language.ChineseTraditional;
 			}
-
+			else if(languageCount.IndexOf(languageCount.Max()) == 5)
+			{
+				return Language.French;
+			}
 			return Language.Unknown;
 		}
 		public static Language AutoDetectLanguage(string sentence)
@@ -320,7 +340,7 @@ namespace NBitcoin
 		public int[] ToIndices(string[] words)
 		{
 			var indices = new int[words.Length];
-			for(int i = 0 ; i < words.Length ; i++)
+			for(int i = 0; i < words.Length; i++)
 			{
 				int idx = -1;
 
@@ -346,7 +366,7 @@ namespace NBitcoin
 			int i = 0;
 			foreach(var val in values)
 			{
-				for(int p = 0 ; p < 11 ; p++)
+				for(int p = 0; p < 11; p++)
 				{
 					var v = (val & (1 << (10 - p))) != 0;
 					result.Set(i, v);

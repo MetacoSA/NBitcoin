@@ -106,7 +106,7 @@ namespace NBitcoin.BitcoinCore
 
 		private void ClearUnused(Func<TxOut, bool> belongsToCoins)
 		{
-			for(int i = 0 ; i < vout.Count ; i++)
+			for(int i = 0; i < vout.Count; i++)
 			{
 				var o = vout[i];
 				if(o.ScriptPubKey.IsUnspendable || !belongsToCoins(o))
@@ -121,7 +121,7 @@ namespace NBitcoin.BitcoinCore
 		{
 			var count = vout.Count;
 			// remove spent outputs at the end of vout
-			for(int i = count - 1 ; i >= 0 ; i--)
+			for(int i = count - 1; i >= 0; i--)
 			{
 				if(vout[i].IsNull)
 					vout.RemoveAt(i);
@@ -130,7 +130,6 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
-#if !PORTABLE
 		public bool Spend(int position, out TxInUndo undo)
 		{
 			undo = null;
@@ -155,7 +154,7 @@ namespace NBitcoin.BitcoinCore
 			TxInUndo undo;
 			return Spend(position, out undo);
 		}
-#endif
+
 		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
@@ -172,17 +171,17 @@ namespace NBitcoin.BitcoinCore
 				// size of header code
 				stream.ReadWriteAsVarInt(ref nCode);
 				// spentness bitmask
-				for(uint b = 0 ; b < nMaskSize ; b++)
+				for(uint b = 0; b < nMaskSize; b++)
 				{
 					byte chAvail = 0;
-					for(uint i = 0 ; i < 8 && 2 + b * 8 + i < vout.Count ; i++)
+					for(uint i = 0; i < 8 && 2 + b * 8 + i < vout.Count; i++)
 						if(!vout[2 + (int)b * 8 + (int)i].IsNull)
 							chAvail |= (byte)(1 << (int)i);
 					stream.ReadWrite(ref chAvail);
 				}
 
 				// txouts themself
-				for(uint i = 0 ; i < vout.Count ; i++)
+				for(uint i = 0; i < vout.Count; i++)
 				{
 					if(!vout[(int)i].IsNull)
 					{
@@ -210,7 +209,7 @@ namespace NBitcoin.BitcoinCore
 				{
 					byte chAvail = 0;
 					stream.ReadWrite(ref chAvail);
-					for(uint p = 0 ; p < 8 ; p++)
+					for(uint p = 0; p < 8; p++)
 					{
 						bool f = (chAvail & (1 << (int)p)) != 0;
 						vAvail.Add(f);
@@ -220,7 +219,7 @@ namespace NBitcoin.BitcoinCore
 				}
 				// txouts themself
 				vout = Enumerable.Range(0, vAvail.Count).Select(_ => new TxOut()).ToList();
-				for(uint i = 0 ; i < vAvail.Count ; i++)
+				for(uint i = 0; i < vAvail.Count; i++)
 				{
 					if(vAvail[(int)i])
 					{
@@ -242,10 +241,10 @@ namespace NBitcoin.BitcoinCore
 		private void CalcMaskSize(ref uint nBytes, ref uint nNonzeroBytes)
 		{
 			uint nLastUsedByte = 0;
-			for(uint b = 0 ; 2 + b * 8 < vout.Count ; b++)
+			for(uint b = 0; 2 + b * 8 < vout.Count; b++)
 			{
 				bool fZero = true;
-				for(uint i = 0 ; i < 8 && 2 + b * 8 + i < vout.Count ; i++)
+				for(uint i = 0; i < 8 && 2 + b * 8 + i < vout.Count; i++)
 				{
 					if(!vout[2 + (int)b * 8 + (int)i].IsNull)
 					{
@@ -291,13 +290,13 @@ namespace NBitcoin.BitcoinCore
 			if(diff > 0)
 			{
 				Outputs.Resize(otherCoin.Outputs.Count);
-				for(int i = 0 ; i < Outputs.Count ; i++)
+				for(int i = 0; i < Outputs.Count; i++)
 				{
 					if(Outputs[i] == null)
 						Outputs[i] = new TxOut();
 				}
 			}
-			for(int i = 0 ; i < otherCoin.Outputs.Count ; i++)
+			for(int i = 0; i < otherCoin.Outputs.Count; i++)
 			{
 				if(!otherCoin.Outputs[i].IsNull)
 					Outputs[i] = otherCoin.Outputs[i];

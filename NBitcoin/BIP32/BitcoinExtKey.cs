@@ -2,12 +2,12 @@
 {
 	public abstract class BitcoinExtKeyBase : Base58Data, IDestination
 	{
-	    protected BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
+		protected BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
 			: base(key.ToBytes(), network)
 		{
 		}
 
-	    protected BitcoinExtKeyBase(string base58, Network network)
+		protected BitcoinExtKeyBase(string base58, Network network)
 			: base(base58, network)
 		{
 		}
@@ -23,6 +23,9 @@
 		#endregion
 	}
 
+	/// <summary>
+	/// Base58 representation of an ExtKey
+	/// </summary>
 	public class BitcoinExtKey : BitcoinExtKeyBase, ISecret
 	{
 		public BitcoinExtKey(string base58, Network expectedNetwork = null)
@@ -75,6 +78,11 @@
 			}
 		}
 
+		public BitcoinExtPubKey Neuter()
+		{
+			return ExtKey.Neuter().GetWif(Network);
+		}
+
 		#region ISecret Members
 
 		public Key PrivateKey
@@ -86,7 +94,18 @@
 		}
 
 		#endregion
+
+		public static implicit operator ExtKey(BitcoinExtKey key)
+		{
+			if(key == null)
+				return null;
+			return key.ExtKey;
+		}
 	}
+
+	/// <summary>
+	/// Base58 representation of an ExtPubKey
+	/// </summary>
 	public class BitcoinExtPubKey : BitcoinExtKeyBase
 	{
 		public BitcoinExtPubKey(ExtPubKey key, Network network)
@@ -128,6 +147,13 @@
 			{
 				return ExtPubKey.ScriptPubKey;
 			}
+		}
+
+		public static implicit operator ExtPubKey(BitcoinExtPubKey key)
+		{
+			if(key == null)
+				return null;
+			return key.ExtPubKey;
 		}
 	}
 }

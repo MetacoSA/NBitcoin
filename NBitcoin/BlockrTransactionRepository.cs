@@ -13,7 +13,7 @@ namespace NBitcoin
 {
 	public class BlockrException : Exception
 	{
-		public BlockrException(JObject response)
+		internal BlockrException(JObject response)
 			: base(response["message"] == null ? "Error from Blockr" : response["message"].ToString())
 		{
 			Code = response["code"] == null ? 0 : response["code"].Value<int>();
@@ -71,7 +71,7 @@ namespace NBitcoin
 					{
 						throw new BlockrException(json);
 					}
-					var tx = new Transaction(json["data"]["tx"]["hex"].ToString());
+					var tx = Transaction.Parse(json["data"]["tx"]["hex"].ToString());
 					return tx;
 				}
 			}
@@ -97,7 +97,7 @@ namespace NBitcoin
 					List<Coin> list = new List<Coin>();
 					foreach(var element in json["data"]["unspent"])
 					{
-						list.Add(new Coin(new uint256(element["tx"].ToString()), (uint)element["n"], new Money((decimal)element["amount"], MoneyUnit.BTC), new Script(DataEncoders.Encoders.Hex.DecodeData(element["script"].ToString()))));
+						list.Add(new Coin(uint256.Parse(element["tx"].ToString()), (uint)element["n"], new Money((decimal)element["amount"], MoneyUnit.BTC), new Script(DataEncoders.Encoders.Hex.DecodeData(element["script"].ToString()))));
 					}
 					return list;
 				}

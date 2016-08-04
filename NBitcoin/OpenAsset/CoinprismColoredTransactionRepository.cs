@@ -26,8 +26,11 @@ namespace NBitcoin.OpenAsset
 		{
 		}
 	}
+
 	public class CoinprismColoredTransactionRepository : IColoredTransactionRepository
 	{
+		private Network _network = Network.Main;
+
 		class CoinprismTransactionRepository : ITransactionRepository
 		{
 			#region ITransactionRepository Members
@@ -44,6 +47,16 @@ namespace NBitcoin.OpenAsset
 
 			#endregion
 		}
+
+		public CoinprismColoredTransactionRepository()
+		{
+		}
+
+		public CoinprismColoredTransactionRepository(Network network)
+		{
+			_network = network;
+		}
+
 		#region IColoredTransactionRepository Members
 
 		public ITransactionRepository Transactions
@@ -61,7 +74,9 @@ namespace NBitcoin.OpenAsset
 				ColoredTransaction result = new ColoredTransaction();
 				using(HttpClient client = new HttpClient())
 				{
-					var response = await client.GetAsync("https://api.coinprism.com/v1/transactions/" + txId).ConfigureAwait(false);
+					String url = _network == Network.Main ? String.Format("https://api.coinprism.com/v1/transactions/{0}", txId) : String.Format("https://testnet.api.coinprism.com/v1/transactions/{0}", txId);
+
+					var response = await client.GetAsync(url).ConfigureAwait(false);
 					if(response.StatusCode != HttpStatusCode.OK)
 						return null;
 					var str = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -69,13 +84,13 @@ namespace NBitcoin.OpenAsset
 					var inputs = json["inputs"] as JArray;
 					if(inputs != null)
 					{
-						for(int i = 0 ; i < inputs.Count ; i++)
+						for(int i = 0; i < inputs.Count; i++)
 						{
 							if(inputs[i]["asset_id"].Value<string>() == null)
 								continue;
 							var entry = new ColoredEntry();
 							entry.Index = (uint)i;
-							entry.Asset = new Asset(
+							entry.Asset = new AssetMoney(
 								new BitcoinAssetId(inputs[i]["asset_id"].ToString(), null).AssetId,
 								inputs[i]["asset_quantity"].Value<ulong>());
 
@@ -87,7 +102,7 @@ namespace NBitcoin.OpenAsset
 					if(outputs != null)
 					{
 						bool issuance = true;
-						for(int i = 0 ; i < outputs.Count ; i++)
+						for(int i = 0; i < outputs.Count; i++)
 						{
 							var marker = ColorMarker.TryParse(new Script(Encoders.Hex.DecodeData(outputs[i]["script"].ToString())));
 							if(marker != null)
@@ -100,7 +115,7 @@ namespace NBitcoin.OpenAsset
 								continue;
 							ColoredEntry entry = new ColoredEntry();
 							entry.Index = (uint)i;
-							entry.Asset = new Asset(
+							entry.Asset = new AssetMoney(
 								new BitcoinAssetId(outputs[i]["asset_id"].ToString(), null).AssetId,
 								outputs[i]["asset_quantity"].Value<ulong>()
 								);

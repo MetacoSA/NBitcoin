@@ -102,7 +102,7 @@ namespace NBitcoin.Protocol
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			if(stream.Type	== SerializationType.Disk)
+			if(stream.Type == SerializationType.Disk)
 			{
 				stream.ReadWrite(ref version);
 			}

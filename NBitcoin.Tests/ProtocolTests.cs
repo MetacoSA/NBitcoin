@@ -13,28 +13,55 @@ using System.IO;
 using NBitcoin.DataEncoders;
 using System.Net.Sockets;
 using NBitcoin.Protocol.Behaviors;
+using System.Diagnostics;
 
 namespace NBitcoin.Tests
 {
 	public class NodeServerTester : IDisposable
 	{
 		static Random _Rand = new Random();
-		public NodeServerTester()
+		public NodeServerTester(Network network = null)
 		{
-			var a = _Rand.Next(4000, 60000);
-			var b = _Rand.Next(4000, 60000);
-			_Server1 = new NodeServer(Network.Main, internalPort: a);
-			_Server1.AllowLocalPeers = true;
-			_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), a);
-			_Server1.NATRuleName = NATRuleName;
-			_Server1.Listen();
-			_Server2 = new NodeServer(Network.Main, internalPort: b);
-			_Server2.AllowLocalPeers = true;
-			_Server2.NATRuleName = NATRuleName;
-			_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), b);
-			_Server2.Listen();
+			int retry = 0;
+			network = network ?? Network.TestNet;
+			while(true)
+			{
+				try
+				{
+					var a = _Rand.Next(4000, 60000);
+					var b = _Rand.Next(4000, 60000);
+					_Server1 = new NodeServer(network, internalPort: a);
+					_Server1.AllowLocalPeers = true;
+					_Server1.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6Ex(), a);
+					_Server1.Listen();
+					Assert.True(_Server1.IsListening);
+					_Server2 = new NodeServer(network, internalPort: b);
+					_Server2.AllowLocalPeers = true;
+					_Server2.ExternalEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6Ex(), b);
+					_Server2.Listen();
+					Assert.True(_Server2.IsListening);
+					break;
+				}
+				catch(Exception)
+				{
+					if(_Server1 != null)
+						_Server1.Dispose();
+					if(_Server2 != null)
+						_Server2.Dispose();
+					retry++;
+					if(retry == 5)
+						throw;
+				}
+			}
 		}
 
+		public IEnumerable<Node> ConnectedNodes
+		{
+			get
+			{
+				return Server1.ConnectedNodes.Concat(Server2.ConnectedNodes);
+			}
+		}
 		private readonly NodeServer _Server1;
 		public NodeServer Server1
 		{
@@ -51,6 +78,31 @@ namespace NBitcoin.Tests
 				return _Server2;
 			}
 		}
+
+		Node _Node1;
+		public Node Node1
+		{
+			get
+			{
+				_Node1 = _Node1 ?? Server2.FindOrConnect(Server1.ExternalEndpoint);
+				Thread.Sleep(0); //Don't underestimate thread preemption... without that the tests crash in mono proc... :(
+				Thread.Sleep(0);
+				return _Node1;
+			}
+		}
+
+		Node _Node2;
+		public Node Node2
+		{
+			get
+			{
+				_Node2 = _Node2 ?? Server1.FindOrConnect(Server2.ExternalEndpoint);
+				Thread.Sleep(0);  //Don't underestimate thread preemption... without that the tests crash in mono proc... :(
+				Thread.Sleep(0);
+				return _Node2;
+			}
+		}
+
 		#region IDisposable Members
 
 		public void Dispose()
@@ -88,7 +140,7 @@ namespace NBitcoin.Tests
 							Assert.Equal((ProtocolVersion)31900, version.Version);
 						})
 					},
-					new 
+					new
 					{
 						Version = ProtocolVersion.MEMPOOL_GD_VERSION,
 						Message = "f9beb4d976657273696f6e000000000064000000358d493262ea0000010000000000000011b2d05000000000010000000000000000000000000000000000ffff000000000000000000000000000000000000000000000000ffff0000000000003b2eb35d8ce617650f2f5361746f7368693a302e372e322fc03e0300",
@@ -99,7 +151,7 @@ namespace NBitcoin.Tests
 							Assert.Equal(0x00033EC0, version.StartHeight);
 						})
 					},
-					new 
+					new
 					{
 						Version = ProtocolVersion.PROTOCOL_VERSION,
 						Message = "f9beb4d976657261636b000000000000000000005df6e0e2",
@@ -141,20 +193,12 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("Network", "Network")]
-		public void CanGetMyIp()
-		{
-			var client = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION);
-			Assert.True(client.GetMyExternalIP() != null);
-		}
-
-		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("Protocol", "Protocol")]
 		public void CanHandshake()
 		{
-			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
+			using(var builder = NodeBuilder.Create())
 			{
-				var seed = server.GetLocalNode();
+				var seed = builder.CreateNode(true).CreateNodeClient();
 				Assert.True(seed.State == NodeState.Connected);
 				seed.VersionHandshake();
 				Assert.True(seed.State == NodeState.HandShaked);
@@ -162,96 +206,334 @@ namespace NBitcoin.Tests
 				Assert.True(seed.State == NodeState.Offline);
 			}
 		}
+
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
-		public void CanGetMemPool()
+		[Trait("Protocol", "Protocol")]
+		public void CanGetMerkleRoot()
 		{
-			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
+			using(var builder = NodeBuilder.Create())
 			{
-				var node = server.GetLocalNode();
-				var txIds = node.GetMempool();
-				Assert.True(txIds.Length > 0);
+				var node = builder.CreateNode(true).CreateNodeClient();
+				builder.Nodes[0].Generate(101);
+				var rpc = builder.Nodes[0].CreateRPCClient();
+				builder.Nodes[0].Split(Money.Coins(50m), 50);
+				builder.Nodes[0].SelectMempoolTransactions();
+				builder.Nodes[0].Generate(1);
+				for(int i = 0; i < 20; i++)
+				{
+					rpc.SendToAddress(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(0.5m));
+				}
+				builder.Nodes[0].SelectMempoolTransactions();
+				builder.Nodes[0].Generate(1);
+				var block = builder.Nodes[0].CreateRPCClient().GetBlock(103);
+				var knownTx = block.Transactions[0].GetHash();
+				var knownAddress = block.Transactions[0].Outputs[0].ScriptPubKey.GetDestination();
+				node.VersionHandshake();
+				using(var list = node.CreateListener()
+										.Where(m => m.Message.Payload is MerkleBlockPayload || m.Message.Payload is TxPayload))
+				{
+					BloomFilter filter = new BloomFilter(1, 0.005, 50, BloomFlags.UPDATE_NONE);
+					filter.Insert(knownAddress.ToBytes());
+					node.SendMessageAsync(new FilterLoadPayload(filter));
+					node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, block.GetHash())));
+					var merkle = list.ReceivePayload<MerkleBlockPayload>();
+					var tree = merkle.Object.PartialMerkleTree;
+					Assert.True(tree.Check(block.Header.HashMerkleRoot));
+					Assert.True(tree.GetMatchedTransactions().Count() > 1);
+					Assert.True(tree.GetMatchedTransactions().Contains(knownTx));
+
+					List<Transaction> matched = new List<Transaction>();
+					for(int i = 0; i < tree.GetMatchedTransactions().Count(); i++)
+					{
+						matched.Add(list.ReceivePayload<TxPayload>().Object);
+					}
+					Assert.True(matched.Count > 1);
+					tree = tree.Trim(knownTx);
+					Assert.True(tree.GetMatchedTransactions().Count() == 1);
+					Assert.True(tree.GetMatchedTransactions().Contains(knownTx));
+
+					Action act = () =>
+					{
+						foreach(var match in matched)
+						{
+							Assert.True(filter.IsRelevantAndUpdate(match));
+						}
+					};
+					act();
+					filter = filter.Clone();
+					act();
+
+					var unknownBlock = uint256.Parse("00000000ad262227291eaf90cafdc56a8f8451e2d7653843122c5bb0bf2dfcdd");
+					node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, Network.RegTest.GetGenesis().GetHash())));
+
+					merkle = list.ReceivePayload<MerkleBlockPayload>();
+					tree = merkle.Object.PartialMerkleTree;
+					Assert.True(tree.Check(merkle.Object.Header.HashMerkleRoot));
+					Assert.True(!tree.GetMatchedTransactions().Contains(knownTx));
+				}
 			}
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("Protocol", "Protocol")]
+		public void CanMaintainChainWithChainBehavior()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode(true).CreateNodeClient();
+				builder.Nodes[0].Generate(600);
+				var rpc = builder.Nodes[0].CreateRPCClient();
+				var chain = node.GetChain(rpc.GetBlockHash(500));
+				Assert.True(chain.Height == 500);
+				using(var tester = new NodeServerTester(Network.RegTest))
+				{
+					var n1 = tester.Node1;
+					n1.Behaviors.Add(new ChainBehavior(chain));
+					n1.VersionHandshake();
+					Assert.True(n1.MyVersion.StartHeight == 500);
+					var n2 = tester.Node2;
+					Assert.True(n2.MyVersion.StartHeight == 0);
+					Assert.True(n2.PeerVersion.StartHeight == 500);
+					Assert.True(n1.State == NodeState.HandShaked);
+					Assert.True(n2.State == NodeState.HandShaked);
+					var behavior = new ChainBehavior(new ConcurrentChain(Network.RegTest));
+					n2.Behaviors.Add(behavior);
+					TestUtils.Eventually(() => behavior.Chain.Height == 500);
+					var chain2 = n2.GetChain(rpc.GetBlockHash(500));
+					Assert.True(chain2.Height == 500);
+					var chain1 = n1.GetChain(rpc.GetBlockHash(500));
+					Assert.True(chain1.Height == 500);
+					chain1 = n1.GetChain(rpc.GetBlockHash(499));
+					Assert.True(chain1.Height == 499);
+					Thread.Sleep(5000);
+				}
+			}
+		}
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
+		public void CanCancelConnection()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode(true);
+				CancellationTokenSource cts = new CancellationTokenSource();
+				cts.Cancel();
+				try
+				{
+					var client = Node.Connect(Network.RegTest, "127.0.0.1:" + node.ProtocolPort.ToString(), new NodeConnectionParameters()
+					{
+						ConnectCancellation = cts.Token
+					});
+					Assert.False(true, "Should have thrown");
+				}
+				catch(OperationCanceledException)
+				{
+				}
+			}
+		}
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
 		public void CanGetTransactionsFromMemPool()
 		{
-			using(var server = new NodeServer(Network.TestNet, ProtocolVersion.PROTOCOL_VERSION))
+			using(var builder = NodeBuilder.Create())
 			{
-				var node = server.GetLocalNode();
-				var transactions = node.GetMempoolTransactions();
-				Assert.True(transactions.Length > 0);
+				var node = builder.CreateNode();
+				node.ConfigParameters.Add("whitelist", "127.0.0.1");
+				node.Start();
+				node.Generate(101);
+				node.CreateRPCClient().SendToAddress(new Key().PubKey.GetAddress(Network.RegTest), Money.Coins(1.0m));
+				var client = node.CreateNodeClient();
+				client.VersionHandshake();
+				var transactions = client.GetMempoolTransactions();
+				Assert.True(transactions.Length == 1);
+			}
+		}
+
+#if !NOFILEIO
+		[Fact]
+		public void CanConnectToRandomNode()
+		{
+			Stopwatch watch = new Stopwatch();
+			NodeConnectionParameters parameters = new NodeConnectionParameters();
+			var addrman = GetCachedAddrMan("addrmancache.dat");
+			parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));
+			watch.Start();
+			using(var node = Node.Connect(Network.Main, parameters))
+			{
+				var timeToFind = watch.Elapsed;
+				node.VersionHandshake();
+				node.Dispose();
+				watch.Restart();
+				using(var node2 = Node.Connect(Network.Main, parameters))
+				{
+					var timeToFind2 = watch.Elapsed;
+				}
+			}
+			addrman.SavePeerFile("addrmancache.dat", Network.Main);
+		}
+
+		public static AddressManager GetCachedAddrMan(string file)
+		{
+			if(File.Exists(file))
+			{
+				return AddressManager.LoadPeerFile(file);
+			}
+			return new AddressManager();
+		}
+#endif
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
+		public void CanGetBlocksWithProtocol()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode(true);
+				node.Generate(50);
+				var client = node.CreateNodeClient();
+				var chain = client.GetChain();
+				var blocks = client.GetBlocks(chain.GetBlock(20).HashBlock).ToArray();
+				Assert.Equal(20, blocks.Length);
+				Assert.Equal(chain.GetBlock(20).HashBlock, blocks.Last().Header.GetHash());
+
+				blocks = client.GetBlocksFromFork(chain.GetBlock(45)).ToArray();
+				Assert.Equal(5, blocks.Length);
+				Assert.Equal(chain.GetBlock(50).HashBlock, blocks.Last().Header.GetHash());
+				Assert.Equal(chain.GetBlock(46).HashBlock, blocks.First().Header.GetHash());
 			}
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("Protocol", "Protocol")]
+		public void CanGetMemPool()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				node.ConfigParameters.Add("whitelist", "127.0.0.1");
+				node.Start();
+				node.Generate(102);
+				for(int i = 0; i < 2; i++)
+					node.CreateRPCClient().SendToAddress(new Key().PubKey.GetAddress(Network.RegTest), Money.Coins(1.0m));
+				var client = node.CreateNodeClient();
+				var txIds = client.GetMempool();
+				Assert.True(txIds.Length == 2);
+			}
+		}
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
+		public void CanGetChainsConcurrenty()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				bool generating = true;
+				builder.CreateNode(true);
+				Task.Run(() =>
+				{
+					builder.Nodes[0].Generate(600);
+					generating = false;
+				});
+				var node = builder.Nodes[0].CreateNodeClient();
+				node.PollHeaderDelay = TimeSpan.FromSeconds(2);
+				node.VersionHandshake();
+				Random rand = new Random();
+				Thread.Sleep(1000);
+				var chains =
+					Enumerable.Range(0, 5)
+					.Select(_ => Task.Factory.StartNew(() =>
+					{
+						Thread.Sleep(rand.Next(0, 1000));
+						return node.GetChain();
+					}))
+					.Select(t => t.Result)
+					.ToArray();
+				while(generating)
+				{
+					SyncAll(node, rand, chains);
+				}
+				SyncAll(node, rand, chains);
+				foreach(var c in chains)
+				{
+					Assert.Equal(600, c.Height);
+				}
+			}
+		}
+
+		private static void SyncAll(Node node, Random rand, ConcurrentChain[] chains)
+		{
+			Task.WaitAll(Enumerable.Range(0, 5)
+								.Select(_ => Task.Factory.StartNew(() =>
+								{
+									Thread.Sleep(rand.Next(0, 1000));
+									node.SynchronizeChain(chains[_]);
+								})).ToArray());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void ServerDisconnectCorrectlyFromDroppingClient()
 		{
 			using(var tester = new NodeServerTester())
 			{
-				var to2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
+				var to2 = tester.Node1;
 				to2.VersionHandshake();
 				Assert.True(tester.Server1.IsConnectedTo(tester.Server2.ExternalEndpoint));
-				Thread.Sleep(500);
+				Thread.Sleep(100);
 				Assert.True(tester.Server2.IsConnectedTo(tester.Server1.ExternalEndpoint));
 				to2.Disconnect();
+				Thread.Sleep(100);
 				Assert.False(tester.Server1.IsConnectedTo(tester.Server2.ExternalEndpoint));
-				Thread.Sleep(500);
+				Thread.Sleep(100);
 				Assert.False(tester.Server2.IsConnectedTo(tester.Server1.ExternalEndpoint));
 			}
 		}
 
 		[Fact]
-		[Trait("Network", "Network")]
-		public void CanDiscoverPeers()
-		{
-			using(var server = new NodeServer(Network.Main, ProtocolVersion.PROTOCOL_VERSION))
-			{
-				Assert.True(server.PeerTable.CountUsed(true) < 50);
-				server.DiscoverPeers(100);
-				Assert.True(server.PeerTable.CountUsed(true) > 50);
-			}
-		}
-
-		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanReceiveHandshake()
 		{
 			using(var tester = new NodeServerTester())
 			{
-				var toS2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
+				var toS2 = tester.Node1;
 				toS2.VersionHandshake();
 				Assert.Equal(NodeState.HandShaked, toS2.State);
 				Thread.Sleep(100); //Let the time to Server2 to add the new node, else the test was failing sometimes.
-				Assert.Equal(NodeState.HandShaked, tester.Server2.GetNodeByEndpoint(toS2.MyVersion.AddressFrom).State);
+				Assert.Equal(NodeState.HandShaked, tester.Node2.State);
 			}
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanRespondToPong()
 		{
+
 			using(var tester = new NodeServerTester())
 			{
-				var toS2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
+				var toS2 = tester.Node1;
 				toS2.VersionHandshake();
 				var ping = new PingPayload();
-				toS2.SendMessage(ping);
-				while(true)
+				CancellationTokenSource cancel = new CancellationTokenSource();
+				cancel.CancelAfter(10000);
+				using(var list = toS2.CreateListener())
 				{
-					var pong = toS2.ReceiveMessage<PongPayload>(TimeSpan.FromSeconds(10.0));
-					if(ping.Nonce == pong.Nonce)
-						break;
+					toS2.SendMessageAsync(ping);
+					while(true)
+					{
+						var pong = list.ReceivePayload<PongPayload>(cancel.Token);
+						if(ping.Nonce == pong.Nonce)
+							break;
+					}
 				}
 
 			}
+
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CantConnectToYourself()
 		{
 			using(var tester = new NodeServerTester())
@@ -259,46 +541,47 @@ namespace NBitcoin.Tests
 				tester.Server2.Nonce = tester.Server1.Nonce;
 				Assert.Throws(typeof(InvalidOperationException), () =>
 				{
-					tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint).VersionHandshake();
+					tester.Node1.VersionHandshake();
 				});
 			}
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanExchangeFastPingPong()
 		{
 			using(var tester = new NodeServerTester())
 			{
-				var n1 = tester.Server2.GetNodeByEndpoint(tester.Server1.ExternalEndpoint);
-				n1.Behaviors.Clear();
+				var n1 = tester.Node1;
 				n1.Behaviors.Add(new PingPongBehavior()
 				{
 					PingInterval = TimeSpan.FromSeconds(0.1),
-					TimeoutInterval = TimeSpan.FromSeconds(0.1)
+					TimeoutInterval = TimeSpan.FromSeconds(0.8)
 				});
+
 				n1.VersionHandshake();
+				Assert.Equal(NodeState.HandShaked, n1.State);
 				Assert.True(!n1.Inbound);
 
-				var n2 = tester.Server1.GetNodeByEndpoint(tester.Server2.ExternalEndpoint);
-				n2.Behaviors.Clear();
+				var n2 = tester.Node2;
 				n2.Behaviors.Add(new PingPongBehavior()
 				{
 					PingInterval = TimeSpan.FromSeconds(0.1),
-					TimeoutInterval = TimeSpan.FromSeconds(0.1)
+					TimeoutInterval = TimeSpan.FromSeconds(0.5)
 				});
+				Assert.Equal(NodeState.HandShaked, n2.State);
 				Assert.True(n2.Inbound);
-				Thread.Sleep(500);
-				Assert.True(n2.State == NodeState.HandShaked);
+				Thread.Sleep(2000);
+				Assert.Equal(NodeState.HandShaked, n2.State);
 				n1.Behaviors.Clear();
-				Thread.Sleep(500);
+				Thread.Sleep(1200);
 				Assert.True(n2.State == NodeState.Disconnecting || n2.State == NodeState.Offline);
-				Assert.True(n2.DisconnectReason.Reason == "Pong timeout");
+				Assert.True(n2.DisconnectReason.Reason.StartsWith("Pong timeout", StringComparison.Ordinal));
 			}
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanConnectMultipleTimeToServer()
 		{
 			using(var tester = new NodeServerTester())
@@ -318,7 +601,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(2, nodeCount);
 				n2.PingPong();
 				n1.PingPong();
-				Assert.Throws<InvalidOperationException>(() => n2.VersionHandshake());
+				Assert.Throws<ProtocolException>(() => n2.VersionHandshake());
 				Thread.Sleep(100);
 				n2.PingPong();
 				Assert.Equal(2, nodeCount);
@@ -341,21 +624,22 @@ namespace NBitcoin.Tests
 			Assert.True(reject.Code == RejectCode.DUPLICATE);
 			Assert.True(reject.CodeType == RejectCodeType.Transaction);
 			Assert.True(reject.Reason == "bad-txns-inputs-spent");
-			Assert.True(reject.Hash == new uint256("964182ffbcec5fafd8f33594b17d6aad4937ff1c59f699e91af44fda94967a57"));
+			Assert.True(reject.Hash == uint256.Parse("964182ffbcec5fafd8f33594b17d6aad4937ff1c59f699e91af44fda94967a57"));
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlock()
 		{
-			using(var node = Node.ConnectToLocal(Network.TestNet))
+			using(var builder = NodeBuilder.Create())
 			{
+				var node = builder.CreateNode(true).CreateNodeClient();
 				node.VersionHandshake();
-				node.SendMessage(new GetDataPayload(new InventoryVector()
-						{
-							Hash = new uint256("00000000278d16a190be56f541b3fda44c3168b43dcc05d9c664e6f27ffe2c78"),
-							Type = InventoryType.MSG_BLOCK
-						}));
+				node.SendMessageAsync(new GetDataPayload(new InventoryVector()
+				{
+					Hash = Network.RegTest.GenesisHash,
+					Type = InventoryType.MSG_BLOCK
+				}));
 
 				var block = node.ReceiveMessage<BlockPayload>();
 				Assert.True(block.Object.CheckMerkleRoot());
@@ -363,18 +647,19 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("Protocol", "Protocol")]
 		public void CanDownloadHeaders()
 		{
-			using(var node = Node.ConnectToLocal(Network.TestNet))
+			using(var builder = NodeBuilder.Create())
 			{
+				var node = builder.CreateNode(true).CreateNodeClient();
+				builder.Nodes[0].Generate(50);
 				node.VersionHandshake();
 				var begin = node.Counter.Snapshot();
 				var result = node.GetChain();
 				var end = node.Counter.Snapshot();
 				var diff = end - begin;
 				Assert.True(node.PeerVersion.StartHeight <= result.Height);
-
 				var subChain = node.GetChain(result.GetBlock(10).HashBlock);
 				Assert.Equal(10, subChain.Height);
 			}
@@ -382,11 +667,13 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlocks()
 		{
-			using(var node = Node.ConnectToLocal(Network.TestNet))
+			using(var builder = NodeBuilder.Create())
 			{
+				var node = builder.CreateNode(true).CreateNodeClient();
+				builder.Nodes[0].Generate(50);
 				var chain = node.GetChain();
 				chain.SetTip(chain.GetBlock(9));
 				var blocks = node.GetBlocks(chain.ToEnumerable(true).Select(c => c.HashBlock)).ToList();
@@ -399,11 +686,13 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("NodeServer", "NodeServer")]
+		[Trait("Protocol", "Protocol")]
 		public void CanDownloadLastBlocks()
 		{
-			using(var node = Node.ConnectToLocal(Network.TestNet))
+			using(var builder = NodeBuilder.Create())
 			{
+				var node = builder.CreateNode(true).CreateNodeClient();
+				builder.Nodes[0].Generate(150);
 				var chain = node.GetChain();
 
 				Assert.True(node.PeerVersion.StartHeight <= chain.Height);
@@ -422,57 +711,6 @@ namespace NBitcoin.Tests
 				Assert.True(blocks.Count == 100);
 			}
 		}
-
-		[Fact]
-		public void CanUseUPNP()
-		{
-			UPnPLease lease = null;
-			UPnPLease.ReleaseAll(NodeServerTester.NATRuleName); //Clean the gateway of previous tests attempt
-			using(var server = new NodeServer(Network.Main))
-			{
-				server.NATRuleName = NodeServerTester.NATRuleName;
-				Assert.False(server.ExternalEndpoint.Address.IsRoutable(false));
-				lease = server.DetectExternalEndpoint();
-				Assert.True(server.ExternalEndpoint.Address.IsRoutable(false));
-				Assert.NotNull(lease);
-				Assert.True(lease.IsOpen());
-				lease.Dispose();
-				Assert.False(lease.IsOpen());
-				lease = server.DetectExternalEndpoint();
-				Assert.NotNull(lease);
-				Assert.True(lease.IsOpen());
-			}
-			Assert.False(lease.IsOpen());
-		}
-
-		[Fact]
-		[Trait("Network", "Network")]
-		public void CanConnectToNodeSet()
-		{
-			using(var server = new NodeServer(Network.Main))
-			{
-				server.RegisterPeerTableRepository(PeerCache);
-				var set = server.CreateNodeSet(5);
-				Assert.Equal(5, set.GetNodes().Length);
-				foreach(var node in set.GetNodes())
-				{
-					Assert.Equal(NodeState.HandShaked, node.State);
-				}
-			}
-		}
-
-
-		PeerTableRepository _PeerCache;
-		public PeerTableRepository PeerCache
-		{
-			get
-			{
-				if(_PeerCache == null)
-					_PeerCache = new SqLitePeerTableRepository("PeerCache");
-				return _PeerCache;
-			}
-		}
-
 	}
 }
 #endif

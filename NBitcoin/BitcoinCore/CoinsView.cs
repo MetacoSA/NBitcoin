@@ -73,13 +73,13 @@ namespace NBitcoin.BitcoinCore
 		}
 		public async Task<uint256> GetBestBlockAsync()
 		{
-			var block = await Index.GetAsync<uint256>("B").ConfigureAwait(false);
-			return block ?? new uint256(0);
+			var block = await Index.GetAsync<uint256.MutableUint256>("B").ConfigureAwait(false);
+			return block == null ? uint256.Zero : block.Value;
 		}
 
 		public void SetBestBlock(uint256 blockId)
 		{
-			Index.PutAsync("B", blockId);
+			Index.PutAsync("B", blockId.AsBitcoinSerializable());
 		}
 
 		public bool HaveInputs(Transaction tx)
@@ -87,17 +87,17 @@ namespace NBitcoin.BitcoinCore
 			if(!tx.IsCoinBase)
 			{
 				// first check whether information about the prevout hash is available
-				for(int i = 0 ; i < tx.Inputs.Count ; i++)
+				foreach(var input in tx.Inputs)
 				{
-					OutPoint prevout = tx.Inputs[i].PrevOut;
+					OutPoint prevout = input.PrevOut;
 					if(!HaveCoins(prevout.Hash))
 						return false;
 				}
 
 				// then check whether the actual outputs are available
-				for(int i = 0 ; i < tx.Inputs.Count ; i++)
+				foreach(var input in tx.Inputs)
 				{
-					OutPoint prevout = tx.Inputs[i].PrevOut;
+					OutPoint prevout = input.PrevOut;
 					Coins coins = GetCoins(prevout.Hash);
 					if(!coins.IsAvailable(prevout.N))
 						return false;

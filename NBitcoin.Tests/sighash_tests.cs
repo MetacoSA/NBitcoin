@@ -18,7 +18,7 @@ namespace NBitcoin.Tests
 			OpcodeType[] oplist = { OpcodeType.OP_FALSE, OpcodeType.OP_1, OpcodeType.OP_2, OpcodeType.OP_3, OpcodeType.OP_CHECKSIG, OpcodeType.OP_IF, OpcodeType.OP_VERIF, OpcodeType.OP_RETURN, OpcodeType.OP_CODESEPARATOR };
 			var script = new Script();
 			int ops = (rand.Next() % 10);
-			for(int i = 0 ; i < ops ; i++)
+			for(int i = 0; i < ops; i++)
 				script += oplist[rand.Next() % oplist.Length];
 
 			return script;
@@ -91,8 +91,8 @@ namespace NBitcoin.Tests
 
 
 
-				var sh = scriptCode.SignatureHash(tx, nIn, (SigHash)nHashType);
-				Assert.True(sh.GetHex() == sigHashHex, strTest);
+				var sh = Script.SignatureHash(scriptCode, tx, nIn, (SigHash)nHashType);
+				Assert.True(sh.ToString() == sigHashHex, strTest);
 			}
 		}
 		private byte[] ParseHex(string data)

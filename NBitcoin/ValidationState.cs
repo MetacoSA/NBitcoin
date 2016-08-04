@@ -10,9 +10,12 @@ namespace NBitcoin
 {
 	public class ValidationState
 	{
-		static readonly uint MAX_BLOCK_SIZE = 1000000;
-		static readonly ulong MAX_MONEY = (ulong)21000000 * (ulong)Money.COIN;
-		internal static readonly uint MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE / 50;
+		private static readonly uint MAX_BLOCK_SIZE = 1000000;
+		private static readonly ulong MAX_MONEY = 21000000ul * Money.COIN;
+		/** The maximum number of sigops we're willing to relay/mine in a single tx */
+		private static readonly uint MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE / 50;
+		private static readonly uint MAX_TX_SIGOPS = MAX_BLOCK_SIGOPS / 5;
+
 		enum mode_state
 		{
 			MODE_VALID,   // everything ok
@@ -20,10 +23,8 @@ namespace NBitcoin
 			MODE_ERROR,   // run-time error
 		};
 
-
 		mode_state mode;
 		int nDoS;
-		string strRejectReason;
 		RejectCode chRejectCode;
 		bool corruptionPossible;
 
@@ -61,7 +62,6 @@ namespace NBitcoin
 			 bool corruptionIn = false)
 		{
 			chRejectCode = chRejectCodeIn;
-			strRejectReason = strRejectReasonIn;
 			corruptionPossible = corruptionIn;
 			if(mode == mode_state.MODE_ERROR)
 				return ret;
@@ -77,8 +77,6 @@ namespace NBitcoin
 		}
 		public bool Error(string strRejectReasonIn = "")
 		{
-			if(mode == mode_state.MODE_VALID)
-				strRejectReason = strRejectReasonIn;
 			mode = mode_state.MODE_ERROR;
 			return false;
 		}
@@ -136,7 +134,7 @@ namespace NBitcoin
 				return DoS(10, Utils.error("CheckTransaction() : vout empty"),
 								 RejectCode.INVALID, "bad-txns-vout-empty");
 			// Size limits
-			if(tx.ToBytes().Length > MAX_BLOCK_SIZE)
+			if(tx.GetSerializedSize() > MAX_BLOCK_SIZE)
 				return DoS(100, Utils.error("CheckTransaction() : size limits failed"),
 								 RejectCode.INVALID, "bad-txns-oversize");
 
@@ -150,14 +148,14 @@ namespace NBitcoin
 				if(txout.Value > MAX_MONEY)
 					return DoS(100, Utils.error("CheckTransaction() : txout.nValue too high"),
 									 RejectCode.INVALID, "bad-txns-vout-toolarge");
-				nValueOut += (long)txout.Value;
+				nValueOut += txout.Value;
 				if(!((nValueOut >= 0 && nValueOut <= (long)MAX_MONEY)))
 					return DoS(100, Utils.error("CheckTransaction() : txout total out of range"),
 									 RejectCode.INVALID, "bad-txns-txouttotal-toolarge");
 			}
 
 			// Check for duplicate inputs
-			HashSet<OutPoint> vInOutPoints = new HashSet<OutPoint>();
+			var vInOutPoints = new HashSet<OutPoint>();
 			foreach(var txin in tx.Inputs)
 			{
 				if(vInOutPoints.Contains(txin.PrevOut))
@@ -211,7 +209,7 @@ namespace NBitcoin
 			if(block.Transactions.Count == 0 || !block.Transactions[0].IsCoinBase)
 				return DoS(100, Error("CheckBlock() : first tx is not coinbase"),
 								 RejectCode.INVALID, "bad-cb-missing");
-			for(int i = 1 ; i < block.Transactions.Count ; i++)
+			for(int i = 1; i < block.Transactions.Count; i++)
 				if(block.Transactions[i].IsCoinBase)
 					return DoS(100, Error("CheckBlock() : more than one coinbase"),
 									 RejectCode.INVALID, "bad-cb-multiple");
@@ -221,11 +219,11 @@ namespace NBitcoin
 				if(!CheckTransaction(tx))
 					return Error("CheckBlock() : CheckTransaction failed");
 
-		
+
 			// Check for duplicate txids. This is caught by ConnectInputs(),
 			// but catching it earlier avoids a potential DoS attack:
-			HashSet<uint256> uniqueTx = new HashSet<uint256>();
-			for(int i = 0 ; i < block.Transactions.Count ; i++)
+			var uniqueTx = new HashSet<uint256>();
+			for(int i = 0; i < block.Transactions.Count; i++)
 			{
 				uniqueTx.Add(root.GetLeaf(i).Hash);
 			}
@@ -236,7 +234,12 @@ namespace NBitcoin
 			int nSigOps = 0;
 			foreach(var tx in block.Transactions)
 			{
-				nSigOps += GetLegacySigOpCount(tx);
+				var txSigOps = GetLegacySigOpCount(tx);
+				if(txSigOps > MAX_TX_SIGOPS)
+					return DoS(100, Error("CheckBlock() : out-of-bounds SigOpCount"),
+									 RejectCode.INVALID, "bad-txns-too-many-sigops", true);
+
+				nSigOps += txSigOps;
 			}
 			if(nSigOps > MAX_BLOCK_SIGOPS)
 				return DoS(100, Error("CheckBlock() : out-of-bounds SigOpCount"),
@@ -254,7 +257,7 @@ namespace NBitcoin
 		{
 			var target = block.Header.Bits;
 			// Check range
-			if(target <= new Target(0) || target > Network.ProofOfWorkLimit)
+			if(target <= new Target(0) || target > Network.Consensus.PowLimit)
 				return Error("CheckProofOfWork() : nBits below minimum work");
 
 			// Check proof of work matches claimed amount
@@ -265,20 +268,10 @@ namespace NBitcoin
 		}
 		private int GetLegacySigOpCount(Transaction tx)
 		{
-			uint nSigOps = 0;
-			foreach(var txin in tx.Inputs)
-			{
-				nSigOps += txin.ScriptSig.GetSigOpCount(false);
-			}
-			foreach(var txout in tx.Outputs)
-			{
-				nSigOps += txout.ScriptPubKey.GetSigOpCount(false);
-			}
-			return (int)nSigOps;
+			return
+				(int)tx.Inputs.Sum(txin => txin.ScriptSig.GetSigOpCount(false)) +
+				(int)tx.Outputs.Sum(txin => txin.ScriptPubKey.GetSigOpCount(false));
 		}
-
-
-
 
 		DateTimeOffset _Now;
 		public DateTimeOffset Now

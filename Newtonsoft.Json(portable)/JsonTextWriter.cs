@@ -39,7 +39,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Represents a writer that provides a fast, non-cached, forward-only way of generating Json data.
     /// </summary>
-    public class JsonTextWriter : JsonWriter
+    internal class JsonTextWriter : JsonWriter
     {
         private readonly TextWriter _writer;
         private Base64Encoder _base64Encoder;
@@ -395,7 +395,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="UInt32"/> value.
         /// </summary>
         /// <param name="value">The <see cref="UInt32"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public override void WriteValue(uint value)
         {
             InternalWriteValue(JsonToken.Integer);
@@ -416,7 +416,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="UInt64"/> value.
         /// </summary>
         /// <param name="value">The <see cref="UInt64"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public override void WriteValue(ulong value)
         {
             InternalWriteValue(JsonToken.Integer);
@@ -501,7 +501,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="UInt16"/> value.
         /// </summary>
         /// <param name="value">The <see cref="UInt16"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public override void WriteValue(ushort value)
         {
             InternalWriteValue(JsonToken.Integer);
@@ -532,7 +532,7 @@ namespace Newtonsoft.Json
         /// Writes a <see cref="SByte"/> value.
         /// </summary>
         /// <param name="value">The <see cref="SByte"/> value to write.</param>
-        [CLSCompliant(false)]
+        
         public override void WriteValue(sbyte value)
         {
             InternalWriteValue(JsonToken.Integer);

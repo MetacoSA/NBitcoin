@@ -6,7 +6,9 @@ using System.Linq;
 
 namespace NBitcoin
 {
-	//https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
+	/// <summary>
+	/// A private HD key
+	/// </summary>
 	public class ExtKey : IBitcoinSerializable, IDestination, ISecret
 	{
 		public static ExtKey Parse(string wif, Network expectedNetwork = null)
@@ -36,6 +38,16 @@ namespace NBitcoin
 				return nChild;
 			}
 		}
+		public byte[] ChainCode
+		{
+			get
+			{
+				byte[] chainCodeCopy = new byte[vchChainCode.Length];
+				Buffer.BlockCopy(vchChainCode, 0, chainCodeCopy, 0, vchChainCode.Length);
+
+				return chainCodeCopy;
+			}
+		}
 
 		public ExtKey(BitcoinExtPubKey extPubKey, BitcoinSecret key)
 			: this(extPubKey.ExtPubKey, key.PrivateKey)
@@ -53,20 +65,44 @@ namespace NBitcoin
 			this.vchFingerprint = extPubKey.vchFingerprint;
 			this.key = privateKey;
 		}
+
+		public ExtKey(Key key, byte[] chainCode, byte depth, byte[] fingerprint, uint child)
+		{
+			if(key == null)
+				throw new ArgumentNullException("key");
+			if(chainCode == null)
+				throw new ArgumentNullException("chainCode");
+			if(fingerprint == null)
+				throw new ArgumentNullException("fingerprint");
+			if(fingerprint.Length != fingerprint.Length)
+				throw new ArgumentException(string.Format("The fingerprint must be {0} bytes.", fingerprint.Length), "fingerprint");
+			if(chainCode.Length != vchChainCode.Length)
+				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", vchChainCode.Length), "chainCode");
+			this.key = key;
+			this.nDepth = depth;
+			this.nChild = child;
+			Buffer.BlockCopy(fingerprint, 0, vchFingerprint, 0, vchFingerprint.Length);
+			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, vchChainCode.Length);
+		}
+
+		public ExtKey(Key masterKey, byte[] chainCode)
+		{
+			if(masterKey == null)
+				throw new ArgumentNullException("masterKey");
+			if(chainCode == null)
+				throw new ArgumentNullException("chainCode");
+			if(chainCode.Length != vchChainCode.Length)
+				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", vchChainCode.Length), "chainCode");
+			this.key = masterKey;
+			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, vchChainCode.Length);
+		}
+
 		public ExtKey()
 		{
 			byte[] seed = RandomUtils.GetBytes(64);
 			SetMaster(seed);
 		}
 		public Key PrivateKey
-		{
-			get
-			{
-				return key;
-			}
-		}
-		[Obsolete("Use PrivateKey instead")]
-		public Key Key
 		{
 			get
 			{
@@ -84,10 +120,15 @@ namespace NBitcoin
 		private void SetMaster(byte[] seed)
 		{
 			var hashMAC = Hashes.HMACSHA512(hashkey, seed);
-			key = new Key(hashMAC.Take(32).ToArray());
-			Array.Copy(hashMAC.Skip(32).Take(32).ToArray(), 0, vchChainCode, 0, vchChainCode.Length);
+			key = new Key(hashMAC.SafeSubarray(0, 32));
+
+			Buffer.BlockCopy(hashMAC, 32, vchChainCode, 0, 32);
 		}
 
+		/// <summary>
+		/// Create the public key from this key
+		/// </summary>
+		/// <returns></returns>
 		public ExtPubKey Neuter()
 		{
 			ExtPubKey ret = new ExtPubKey
@@ -113,7 +154,7 @@ namespace NBitcoin
 		}
 		private byte[] CalculateChildFingerprint()
 		{
-			return key.PubKey.Hash.ToBytes().Take(vchFingerprint.Length).ToArray();
+			return key.PubKey.Hash.ToBytes().SafeSubarray(0, vchFingerprint.Length);
 		}
 
 		public byte[] Fingerprint
@@ -215,7 +256,7 @@ namespace NBitcoin
 			byte[] lr = new byte[32];
 
 			var pubKey = parent.PubKey.ToBytes();
-			l = Hashes.BIP32Hash(parent.vchChainCode, nChild, pubKey[0], pubKey.Skip(1).ToArray());
+			l = Hashes.BIP32Hash(parent.vchChainCode, nChild, pubKey[0], pubKey.SafeSubarray(1));
 			Array.Copy(l, ll, 32);
 			Array.Copy(l, 32, lr, 0, 32);
 			var ccChild = lr;

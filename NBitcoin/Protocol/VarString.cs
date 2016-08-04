@@ -40,10 +40,14 @@ namespace NBitcoin.Protocol
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			 var len = new VarInt((ulong)_Bytes.Length);
-			 stream.ReadWrite(ref len);
+			var len = new VarInt((ulong)_Bytes.Length);
+			stream.ReadWrite(ref len);
 			if(!stream.Serializing)
+			{
+				if(len.ToLong() > (uint)stream.MaxArraySize)
+					throw new ArgumentOutOfRangeException("Array size not big");
 				_Bytes = new byte[len.ToLong()];
+			}
 			stream.ReadWrite(ref _Bytes);
 		}
 

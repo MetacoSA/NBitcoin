@@ -15,10 +15,16 @@ namespace NBitcoin.Tests
 {
 	public class addrman_tests
 	{
+#if !NOFILEIO
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSerializeDeserializePeerTable()
 		{
-			AddressManager addrman = AddressManager.LoadPeerFile("../../data/peers.dat", Network.Main);
+			AddressManager addrman = new AddressManager();
+			addrman.SavePeerFile("CanSerializeDeserializePeerTable.dat", Network.Main);
+			AddressManager.LoadPeerFile("CanSerializeDeserializePeerTable.dat", Network.Main);
+
+			addrman = AddressManager.LoadPeerFile("../../data/peers.dat", Network.Main);
 			addrman.DebugMode = true;
 			addrman.Check();
 			addrman.SavePeerFile("serializerPeer.dat", Network.Main);
@@ -32,8 +38,9 @@ namespace NBitcoin.Tests
 			var after = File.ReadAllBytes("serializerPeer.dat");
 			Assert.True(original.SequenceEqual(after));
 		}
-
+#endif
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanUseAddrManager()
 		{
 			AddressManager addrman = new AddressManager();
@@ -57,12 +64,13 @@ namespace NBitcoin.Tests
 			Assert.True(addr.Ago < TimeSpan.FromSeconds(10.0));
 		}
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanStressAddrManager()
 		{
 			Exception exception = null;
 			var addrmanager = new AddressManager();
 			Random randl = new Random();
-			for(int i = 0 ; i < 30 ; i++)
+			for(int i = 0; i < 30; i++)
 			{
 				NetworkAddress address = RandomNetworkAddress(randl);
 				IPAddress addressSource = RandomAddress(randl);
@@ -79,7 +87,7 @@ namespace NBitcoin.Tests
 					try
 					{
 						Random rand = new Random(t);
-						for(int i = 0 ; i < 50 ; i++)
+						for(int i = 0; i < 50; i++)
 						{
 							NetworkAddress address = RandomNetworkAddress(rand);
 							IPAddress addressSource = RandomAddress(rand);

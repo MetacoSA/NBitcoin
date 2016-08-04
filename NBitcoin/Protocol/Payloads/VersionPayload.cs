@@ -6,9 +6,43 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
+
+#if WINDOWS_UWP
+using Windows.ApplicationModel;
+#endif
 
 namespace NBitcoin.Protocol
 {
+	[Flags]
+	public enum NodeServices : ulong
+	{
+		Nothing = 0,
+		/// <summary>
+		/// NODE_NETWORK means that the node is capable of serving the block chain. It is currently
+		/// set by all Bitcoin Core nodes, and is unset by SPV clients or other peers that just want
+		/// network services but don't provide them.
+		/// </summary>
+		Network = (1 << 0),
+
+		/// <summary>
+		///  NODE_GETUTXO means the node is capable of responding to the getutxo protocol request.
+		/// Bitcoin Core does not support this but a patch set called Bitcoin XT does.
+		/// See BIP 64 for details on how this is implemented.
+		/// </summary>
+		GetUTXO = (1 << 1),
+
+		/// <summary> NODE_BLOOM means the node is capable and willing to handle bloom-filtered connections.
+		/// Bitcoin Core nodes used to support this by default, without advertising this bit,
+		/// but no longer do as of protocol version 70011 (= NO_BLOOM_VERSION)
+		/// </summary>
+		NODE_BLOOM = (1 << 2),
+
+		/// <summary> Indicates that a node can be asked for blocks and transactions including
+		/// witness data. 
+		/// </summary> 
+		NODE_WITNESS = (1 << 3),
+	}
 	[Payload("version")]
 	public class VersionPayload : Payload, IBitcoinSerializable
 	{
@@ -17,8 +51,20 @@ namespace NBitcoin.Protocol
 		{
 			if(_NUserAgent == null)
 			{
+#if WINDOWS_UWP
+				// get the app version
+				Package package = Package.Current;
+				var version = package.Id.Version;
+				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.Minor + "." + version.Build + "/";
+#else
+#if !NETCORE
 				var version = typeof(VersionPayload).Assembly.GetName().Version;
-				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Minor + "/";
+#else
+				var version = typeof(VersionPayload).GetTypeInfo().Assembly.GetName().Version;
+#endif
+				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Build + "/";
+#endif
+
 			}
 			return _NUserAgent;
 		}
@@ -40,6 +86,19 @@ namespace NBitcoin.Protocol
 			}
 		}
 		ulong services;
+
+		public NodeServices Services
+		{
+			get
+			{
+				return (NodeServices)services;
+			}
+			set
+			{
+				services = (ulong)value;
+			}
+		}
+
 		long timestamp;
 
 		public DateTimeOffset Timestamp

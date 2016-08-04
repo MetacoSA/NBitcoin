@@ -34,7 +34,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Converts an object to and from JSON.
     /// </summary>
-    public abstract class JsonConverter
+    internal abstract class JsonConverter
     {
         /// <summary>
         /// Writes the JSON representation of the object.

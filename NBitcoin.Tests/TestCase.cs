@@ -27,7 +27,7 @@ namespace NBitcoin.Tests
 			{
 				Newtonsoft.Json.JsonSerializer seria = new Newtonsoft.Json.JsonSerializer();
 				var result = (TestCase[])seria.Deserialize(new StreamReader(fs), typeof(TestCase[]));
-				for(int i = 0 ; i < result.Length ; i++)
+				for(int i = 0; i < result.Length; i++)
 				{
 					result[i].Index = i;
 				}

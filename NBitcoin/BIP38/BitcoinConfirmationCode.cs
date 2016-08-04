@@ -22,7 +22,10 @@ namespace NBitcoin
 		byte[] _AddressHash;
 		public byte[] AddressHash
 		{
-			get { return _AddressHash ?? (_AddressHash = vchData.Skip(1).Take(4).ToArray()); }
+			get
+			{
+				return _AddressHash ?? (_AddressHash = vchData.SafeSubarray(1, 4));
+			}
 		}
 		public bool IsCompressed
 		{
@@ -34,7 +37,10 @@ namespace NBitcoin
 		byte[] _OwnerEntropy;
 		public byte[] OwnerEntropy
 		{
-			get { return _OwnerEntropy ?? (_OwnerEntropy = vchData.Skip(1).Skip(4).Take(8).ToArray()); }
+			get
+			{
+				return _OwnerEntropy ?? (_OwnerEntropy = vchData.SafeSubarray(5, 8));
+			}
 		}
 		LotSequence _LotSequence;
 		public LotSequence LotSequence
@@ -46,7 +52,7 @@ namespace NBitcoin
 					return null;
 				if(_LotSequence == null)
 				{
-					_LotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray());
+					_LotSequence = new LotSequence(OwnerEntropy.SafeSubarray(4, 4));
 				}
 				return _LotSequence;
 			}
@@ -55,7 +61,10 @@ namespace NBitcoin
 		byte[] _EncryptedPointB;
 		byte[] EncryptedPointB
 		{
-			get { return _EncryptedPointB ?? (_EncryptedPointB = vchData.Skip(1).Skip(4).Skip(8).ToArray()); }
+			get
+			{
+				return _EncryptedPointB ?? (_EncryptedPointB = vchData.SafeSubarray(13));
+			}
 		}
 
 		public override Base58Type Type
@@ -93,11 +102,8 @@ namespace NBitcoin
 			var pointb = BitcoinEncryptedSecret.DecryptKey(EncryptedPointB.Skip(1).ToArray(), derived);
 			pointb = new byte[] { pointbprefix }.Concat(pointb).ToArray();
 
-			var param1 = Encoders.Hex.EncodeData(EncryptedPointB.Skip(1).ToArray());
-			var param2 = Encoders.Hex.EncodeData(derived);
-
 			//4.ECMultiply pointb by passfactor. Use the resulting EC point as a public key
-			var curve = ECKey.CreateCurve();
+			var curve = ECKey.Secp256k1;
 			ECPoint pointbec;
 			try
 			{

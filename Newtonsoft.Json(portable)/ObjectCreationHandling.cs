@@ -28,7 +28,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Specifies how object creation is handled by the <see cref="JsonSerializer"/>.
     /// </summary>
-    public enum ObjectCreationHandling
+    internal enum ObjectCreationHandling
     {
         /// <summary>
         /// Reuse existing objects, create new objects when needed.

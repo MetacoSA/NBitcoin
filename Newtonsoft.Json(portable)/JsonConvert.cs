@@ -50,7 +50,7 @@ namespace Newtonsoft.Json
     /// <example>
     ///   <code lang="cs" source="..\Src\Newtonsoft.Json.Tests\Documentation\SerializationTests.cs" region="SerializeObject" title="Serializing and Deserializing JSON with JsonConvert" />
     /// </example>
-    public static class JsonConvert
+    internal static class JsonConvert
     {
         /// <summary>
         /// Gets or sets a function that creates default <see cref="JsonSerializerSettings"/>.
@@ -210,7 +210,7 @@ namespace Newtonsoft.Json
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A JSON string representation of the <see cref="UInt16"/>.</returns>
-        [CLSCompliant(false)]
+        
         public static string ToString(ushort value)
         {
             return value.ToString(null, CultureInfo.InvariantCulture);
@@ -221,7 +221,7 @@ namespace Newtonsoft.Json
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A JSON string representation of the <see cref="UInt32"/>.</returns>
-        [CLSCompliant(false)]
+        
         public static string ToString(uint value)
         {
             return value.ToString(null, CultureInfo.InvariantCulture);
@@ -249,7 +249,7 @@ namespace Newtonsoft.Json
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A JSON string representation of the <see cref="UInt64"/>.</returns>
-        [CLSCompliant(false)]
+        
         public static string ToString(ulong value)
         {
             return value.ToString(null, CultureInfo.InvariantCulture);
@@ -327,7 +327,7 @@ namespace Newtonsoft.Json
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A JSON string representation of the <see cref="SByte"/>.</returns>
-        [CLSCompliant(false)]
+        
         public static string ToString(sbyte value)
         {
             return value.ToString(null, CultureInfo.InvariantCulture);

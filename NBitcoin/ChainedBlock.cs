@@ -6,31 +6,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	//public enum BlockStatus : byte
-	//{
-	//	VALID_UNKNOWN = 0,
-	//	VALID_HEADER = 1, // parsed, version ok, hash satisfies claimed PoW, 1 <= vtx count <= max, timestamp not in future
-	//	VALID_TREE = 2, // parent found, difficulty matches, timestamp >= median previous, checkpoint
-	//	VALID_TRANSACTIONS = 3, // only first tx is coinbase, 2 <= coinbase input script length <= 100, transactions valid, no duplicate txids, sigops, size, merkle root
-	//	VALID_CHAIN = 4, // outputs do not overspend inputs, no double spends, coinbase output ok, immature coinbase spends, BIP30
-	//	VALID_SCRIPTS = 5, // scripts/signatures ok
-	//	VALID_MASK = 7,
-
-	//	HAVE_DATA = 8, // full block available in blk*.dat
-	//	HAVE_UNDO = 16, // undo data available in rev*.dat
-	//	HAVE_MASK = 24,
-
-	//	FAILED_VALID = 32, // stage after last reached validness failed
-	//	FAILED_CHILD = 64, // descends from failed block
-	//	FAILED_MASK = 96
-	//}
-
-
-	/** The block chain is a tree shaped structure starting with the
- * genesis block at the root, with each block potentially having multiple
- * candidates to be the next block. A blockindex may have multiple pprev pointing
- * to it, but at most one of them can be part of the currently active branch.
- */
+	/// <summary>
+	/// A BlockHeader chained with all its ancestors
+	/// </summary>
 	public class ChainedBlock
 	{
 		// pointer to the hash of the block, if any. memory is owned by this CBlockIndex
@@ -67,39 +45,6 @@ namespace NBitcoin
 			}
 		}
 
-		//DiskBlockPos nDataPos;
-
-		//public DiskBlockPos BlockPosition
-		//{
-		//	get
-		//	{
-		//		return nDataPos;
-		//	}
-		//}
-
-		// Byte offset within rev?????.dat where this block's undo data is stored
-		//uint nUndoPos;
-
-		// (memory only) Total amount of work (expected number of hashes) in the chain up to and including this block
-		//uint256 nChainWork;
-
-		// Number of transactions in this block.
-		// Note: in a potential headers-first mode, this number cannot be relied upon
-		//uint nTx;
-
-		// (memory only) Number of transactions in the chain up to and including this block
-		//ulong nChainTx; // change to 64-bit type when necessary; won't happen before 2030
-
-		//// Verification status of this block. See enum BlockStatus
-		//BlockStatus nStatus;
-
-		//public BlockStatus Status
-		//{
-		//	get
-		//	{
-		//		return nStatus;
-		//	}
-		//}
 
 		BlockHeader header;
 
@@ -113,12 +58,10 @@ namespace NBitcoin
 
 
 
-
-		// (memory only) Sequencial id assigned to distinguish order in which blocks are received.
-		//uint nSequenceId;
-
-		public ChainedBlock(BlockHeader header,uint256 headerHash, ChainedBlock previous)
+		public ChainedBlock(BlockHeader header, uint256 headerHash, ChainedBlock previous)
 		{
+			if(header == null)
+				throw new ArgumentNullException("header");
 			if(previous != null)
 			{
 				nHeight = previous.Height + 1;
@@ -142,6 +85,8 @@ namespace NBitcoin
 
 		public ChainedBlock(BlockHeader header, int height)
 		{
+			if(header == null)
+				throw new ArgumentNullException("header");
 			nHeight = height;
 			//this.nDataPos = pos;
 			this.header = header;
@@ -168,7 +113,9 @@ namespace NBitcoin
 					nStep *= 2;
 			}
 
-			return new BlockLocator(vHave);
+			var locators = new BlockLocator();
+			locators.Blocks = vHave;
+			return locators;
 		}
 
 		public override bool Equals(object obj)
@@ -235,6 +182,121 @@ namespace NBitcoin
 				currentBlock = currentBlock.Previous;
 			}
 			return currentBlock;
+		}
+
+		public Target GetWorkRequired(Network network)
+		{
+			// Genesis block
+			if(Height == 0)
+				return network.Consensus.PowLimit;
+			var nProofOfWorkLimit = network.Consensus.PowLimit;
+			var pindexLast = this.Previous;
+			var height = Height;
+
+			if(pindexLast == null)
+				return nProofOfWorkLimit;
+
+			// Only change once per interval
+			if((height) % network.Consensus.DifficultyAdjustmentInterval != 0)
+			{
+				if(network.Consensus.PowAllowMinDifficultyBlocks)
+				{
+					// Special difficulty rule for testnet:
+					// If the new block's timestamp is more than 2* 10 minutes
+					// then allow mining of a min-difficulty block.
+					if(this.Header.BlockTime > pindexLast.Header.BlockTime + TimeSpan.FromTicks(network.Consensus.PowTargetSpacing.Ticks * 2))
+						return nProofOfWorkLimit;
+					else
+					{
+						// Return the last non-special-min-difficulty-rules-block
+						ChainedBlock pindex = pindexLast;
+						while(pindex.Previous != null && (pindex.Height % network.Consensus.DifficultyAdjustmentInterval) != 0 && pindex.Header.Bits == nProofOfWorkLimit)
+							pindex = pindex.Previous;
+						return pindex.Header.Bits;
+					}
+				}
+				return pindexLast.Header.Bits;
+			}
+
+			// Go back by what we want to be 14 days worth of blocks
+			var pastHeight = pindexLast.Height - (network.Consensus.DifficultyAdjustmentInterval - 1);
+			ChainedBlock pindexFirst = this.EnumerateToGenesis().FirstOrDefault(o => o.Height == pastHeight);
+			assert(pindexFirst);
+
+			if(network.Consensus.PowNoRetargeting)
+				return pindexLast.header.Bits;
+
+			// Limit adjustment step
+			var nActualTimespan = pindexLast.Header.BlockTime - pindexFirst.Header.BlockTime;
+			if(nActualTimespan < TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks / 4))
+				nActualTimespan = TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks / 4);
+			if(nActualTimespan > TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks * 4))
+				nActualTimespan = TimeSpan.FromTicks(network.Consensus.PowTargetTimespan.Ticks * 4);
+
+			// Retarget
+			var bnNew = pindexLast.Header.Bits.ToBigInteger();
+			bnNew *= (ulong)nActualTimespan.TotalSeconds;
+			bnNew /= (ulong)network.Consensus.PowTargetTimespan.TotalSeconds;
+			var newTarget = new Target(bnNew);
+			if(newTarget > nProofOfWorkLimit)
+				newTarget = nProofOfWorkLimit;
+
+			return newTarget;
+		}
+
+
+		const int nMedianTimeSpan = 11;
+		public DateTimeOffset GetMedianTimePast()
+		{
+			DateTimeOffset[] pmedian = new DateTimeOffset[nMedianTimeSpan];
+			int pbegin = nMedianTimeSpan;
+			int pend = nMedianTimeSpan;
+
+			ChainedBlock pindex = this;
+			for(int i = 0; i < nMedianTimeSpan && pindex != null; i++, pindex = pindex.Previous)
+				pmedian[--pbegin] = pindex.Header.BlockTime;
+
+			Array.Sort(pmedian);
+			return pmedian[pbegin + ((pend - pbegin) / 2)];
+		}
+
+		private static void assert(object obj)
+		{
+			if(obj == null)
+				throw new NotSupportedException("Can only calculate work of a full chain");
+		}
+
+		public bool Validate(Network network)
+		{
+			if(network == null)
+				throw new ArgumentNullException("network");
+			if(Height != 0 && Previous == null)
+				return false;
+			var heightCorrect = Height == 0 || Height == Previous.Height + 1;
+			var genesisCorrect = Height != 0 || HashBlock == network.GetGenesis().GetHash();
+			var hashPrevCorrect = Height == 0 || Header.HashPrevBlock == Previous.HashBlock;
+			var hashCorrect = HashBlock == Header.GetHash();
+			var workCorrect = CheckProofOfWorkAndTarget(network);
+			return heightCorrect && genesisCorrect && hashPrevCorrect && hashCorrect && workCorrect;
+		}
+
+		public bool CheckProofOfWorkAndTarget(Network network)
+		{
+			return Height == 0 || (Header.CheckProofOfWork() && Header.Bits <= GetWorkRequired(network));
+		}
+
+		public ChainedBlock GetAncestor(int height)
+		{
+			if(height > Height || height < 0)
+				return null;
+			ChainedBlock current = this;
+
+			while(true)
+			{
+				if(current.Height == height)
+					return current;
+				current = current.Previous;
+			}
 		}
 	}
 }

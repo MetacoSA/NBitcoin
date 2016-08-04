@@ -34,7 +34,7 @@ namespace Newtonsoft.Json.Schema
 #if !(NETFX_CORE || PORTABLE40 || PORTABLE)
     [Serializable]
 #endif
-    public class JsonSchemaException : JsonException
+    internal class JsonSchemaException : JsonException
     {
         /// <summary>
         /// Gets the line number indicating where the error occurred.

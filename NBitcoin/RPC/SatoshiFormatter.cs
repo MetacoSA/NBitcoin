@@ -14,22 +14,21 @@ namespace NBitcoin.RPC
 	{
 		protected override void BuildTransaction(JObject json, Transaction tx)
 		{
-			var txid = new uint256((string)json.GetValue("txid"));
 			tx.Version = (uint)json.GetValue("version");
 			tx.LockTime = (uint)json.GetValue("locktime");
 
 			var vin = (JArray)json.GetValue("vin");
-			for(int i = 0 ; i < vin.Count ; i++)
+			for(int i = 0; i < vin.Count; i++)
 			{
 				var jsonIn = (JObject)vin[i];
-				var txin = new NBitcoin.TxIn();
+				var txin = new TxIn();
 				tx.Inputs.Add(txin);
 
 				var script = (JObject)jsonIn.GetValue("scriptSig");
 				if(script != null)
 				{
 					txin.ScriptSig = new Script(Encoders.Hex.DecodeData((string)script.GetValue("hex")));
-					txin.PrevOut.Hash = new uint256((string)jsonIn.GetValue("txid"));
+					txin.PrevOut.Hash = uint256.Parse((string)jsonIn.GetValue("txid"));
 					txin.PrevOut.N = (uint)jsonIn.GetValue("vout");
 				}
 				else
@@ -43,10 +42,10 @@ namespace NBitcoin.RPC
 			}
 
 			var vout = (JArray)json.GetValue("vout");
-			for(int i = 0 ; i < vout.Count ; i++)
+			for(int i = 0; i < vout.Count; i++)
 			{
 				var jsonOut = (JObject)vout[i];
-				var txout = new NBitcoin.TxOut();
+				var txout = new TxOut();
 				tx.Outputs.Add(txout);
 
 				var btc = (decimal)jsonOut.GetValue("value");
@@ -70,7 +69,7 @@ namespace NBitcoin.RPC
 			{
 				writer.WriteStartObject();
 
-				if(txin.PrevOut.Hash == new uint256(0))
+				if(txin.PrevOut.Hash == uint256.Zero)
 				{
 					WritePropertyValue(writer, "coinbase", Encoders.Hex.EncodeData(txin.ScriptSig.ToBytes()));
 				}
@@ -86,7 +85,7 @@ namespace NBitcoin.RPC
 
 					writer.WriteEndObject();
 				}
-				WritePropertyValue(writer, "sequence", txin.Sequence);
+				WritePropertyValue(writer, "sequence", (uint)txin.Sequence);
 				writer.WriteEndObject();
 			}
 			writer.WriteEndArray();
@@ -121,7 +120,7 @@ namespace NBitcoin.RPC
 					WritePropertyValue(writer, "type", GetScriptType(txout.ScriptPubKey.FindTemplate()));
 					writer.WritePropertyName("addresses");
 					writer.WriteStartArray();
-					writer.WriteValue(BitcoinAddress.Create(destinations[0], Network).ToString());
+					writer.WriteValue(destinations[0].GetAddress(Network).ToString());
 					writer.WriteEndArray();
 				}
 				else
@@ -132,7 +131,7 @@ namespace NBitcoin.RPC
 					writer.WriteStartArray();
 					foreach(var key in multi.PubKeys)
 					{
-						writer.WriteValue(BitcoinAddress.Create(key.Hash, Network).ToString());
+						writer.WriteValue(key.Hash.GetAddress(Network).ToString());
 					}
 					writer.WriteEndArray();
 				}

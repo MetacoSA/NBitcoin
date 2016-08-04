@@ -1,64 +1,66 @@
-﻿using NBitcoin.DataEncoders;
+﻿using System.Diagnostics;
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Extensions;
 
 namespace NBitcoin.Tests
 {
+	[Trait("Core", "Core")]
 	public class base58_tests
 	{
-		[Fact]
-		[Trait("Core", "Core")]
-		public void base58_EncodeBase58()
+		public static IEnumerable<object[]> DataSet
 		{
-			var tests = TestCase.read_json("Data\\base58_encode_decode.json");
-			foreach(var test in tests)
+			get
 			{
-				var strTest = test.ToString();
-				if(test.Count < 2) // Allow for extra stuff (useful for comments)
-				{
-					Assert.False(true, "Bad test: " + strTest);
-					continue;
-				}
-				var sourcedata = Encoders.Hex.DecodeData(test.GetValue<string>(0));
-				var base58string = test.GetValue<string>(1);
-				Assert.True(
-							Encoders.Base58.EncodeData(sourcedata) == base58string,
-							strTest);
+				return new[] {
+					new object[]{string.Empty, ""},
+					new object[]{"61", "2g"},
+					new object[]{"626262", "a3gV"},
+					new object[]{"636363", "aPEr"},
+					new object[]{"73696d706c792061206c6f6e6720737472696e67", "2cFupjhnEsSn59qHXstmK2ffpLv2"},
+					new object[]{"00eb15231dfceb60925886b67d065299925915aeb172c06647", "1NS17iag9jJgTHD1VXjvLCEnZuQ3rJDE9L"},
+					new object[]{"516b6fcd0f", "ABnLTmg"},
+					new object[]{"bf4f89001e670274dd", "3SEo3LWLoPntC"},
+					new object[]{"572e4794", "3EFU7m"},
+					new object[]{"ecac89cad93923c02321", "EJDM8drfXA6uyA"},
+					new object[]{"10c8511e", "Rt5zm"},
+					new object[]{"00000000000000000000", "1111111111"}
+				};
 			}
 		}
 
-		[Fact]
-		[Trait("Core", "Core")]
-		public void base58_DecodeBase58()
+		[Theory, PropertyData("DataSet")]
+		public void ShouldEncodeProperly(string data, string encoded)
 		{
-			var tests = TestCase.read_json("Data\\base58_encode_decode.json");
-			byte[] result = null;
-			foreach(var test in tests)
-			{
-				var strTest = test.ToString();
-				if(test.Count < 2) // Allow for extra stuff (useful for comments)
-				{
-					Assert.False(true, "Bad test: " + strTest);
-					continue;
-				}
-				var expected = Encoders.Hex.DecodeData(test.GetValue<string>(0));
-				var base58string = test.GetValue<string>(1);
-				result = Encoders.Base58.DecodeData(base58string);
-				AssertEx.CollectionEquals(result, expected);
-			}
+			var testBytes = Encoders.Hex.DecodeData(data);
+			Assert.Equal(encoded, Encoders.Base58.EncodeData(testBytes));
+		}
 
+		[Theory, PropertyData("DataSet")]
+		public void ShouldDecodeProperly(string data, string encoded)
+		{
+			var testBytes = Encoders.Base58.DecodeData(encoded);
+			AssertEx.CollectionEquals(Encoders.Hex.DecodeData(data), testBytes);
+		}
+
+		[Fact]
+		public void ShouldThrowFormatExceptionOnInvalidBase58()
+		{
 			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData("invalid"));
+			Assert.DoesNotThrow(() => Encoders.Base58.DecodeData(" "));
 
 			// check that DecodeBase58 skips whitespace, but still fails with unexpected non-whitespace at the end.
 			Assert.Throws<FormatException>(() => Encoders.Base58.DecodeData(" \t\n\v\f\r skip \r\f\v\n\t a"));
-			result = Encoders.Base58.DecodeData(" \t\n\v\f\r skip \r\f\v\n\t ");
+			var result = Encoders.Base58.DecodeData(" \t\n\v\f\r skip \r\f\v\n\t ");
 			var expected2 = Encoders.Hex.DecodeData("971a55");
 			AssertEx.CollectionEquals(result, expected2);
 		}
+
 
 		[Fact]
 		[Trait("Core", "Core")]
@@ -104,14 +106,14 @@ namespace NBitcoin.Tests
 				else
 				{
 					string exp_addrType = (string)test.GetDynamic(2).addrType; // "script" or "pubkey"
-					// Must be valid public key
+																			   // Must be valid public key
 					var addr = network.CreateBitcoinAddress(exp_base58string);
 					Assert.True((addr is BitcoinScriptAddress) == (exp_addrType == "script"), "isScript mismatch" + strTest);
 
 					if(exp_addrType == "script")
 						Assert.True(addr.GetType() == typeof(BitcoinScriptAddress));
 					if(exp_addrType == "pubkey")
-						Assert.True(addr.GetType() == typeof(BitcoinAddress));
+						Assert.True(addr.GetType() == typeof(BitcoinPubKeyAddress));
 
 					Assert.Throws<FormatException>(() => network.CreateBitcoinSecret(exp_base58string));
 				}
@@ -125,6 +127,7 @@ namespace NBitcoin.Tests
 		public void base58_keys_valid_gen()
 		{
 			var tests = TestCase.read_json("data/base58_keys_valid.json");
+			tests = tests.Concat(TestCase.read_json("data/base58_keys_valid2.json")).ToArray();
 			Network network = null;
 
 			foreach(var test in tests)
@@ -164,9 +167,19 @@ namespace NBitcoin.Tests
 					{
 						dest = new ScriptId(new uint160(exp_payload));
 					}
+					else if(exp_addrType == "p2wpkh")
+					{
+						network = network == Network.TestNet ? Network.SegNet : network;
+						dest = new WitKeyId(new uint160(exp_payload));
+					}
+					else if(exp_addrType == "p2wsh")
+					{
+						network = network == Network.TestNet ? Network.SegNet : network;
+						dest = new WitScriptId(exp_payload);
+					}
 					else if(exp_addrType == "none")
 					{
-						dest = new TxDestination(0);
+						continue;
 					}
 					else
 					{
@@ -175,8 +188,10 @@ namespace NBitcoin.Tests
 					}
 					try
 					{
-						BitcoinAddress addrOut = network.CreateBitcoinAddress(dest);
+						BitcoinAddress addrOut = dest.GetAddress(network);
 						Assert.True(addrOut.ToString() == exp_base58string, "mismatch: " + strTest);
+						Assert.True(addrOut.ScriptPubKey == dest.ScriptPubKey);
+						Assert.True(dest.ScriptPubKey.GetDestination() == dest);
 					}
 					catch(ArgumentException)
 					{
@@ -184,34 +199,24 @@ namespace NBitcoin.Tests
 					}
 				}
 			}
+		}
 
-			// Visiting a CNoDestination must fail
-			TxDestination nodest = new TxDestination();
-			Assert.Throws<ArgumentException>(() => network.CreateBitcoinAddress(nodest));
+		public static IEnumerable<object[]> InvalidKeys
+		{
+			get
+			{
+				var dataset = TestCase.read_json("data/base58_keys_invalid.json");
+				return dataset.Select(x => x.ToArray());
+			}
 		}
 
 		// Goal: check that base58 parsing code is robust against a variety of corrupted data
-		[Fact]
-		[Trait("Core", "Core")]
-		public void base58_keys_invalid()
+		[Theory, PropertyData("InvalidKeys")]
+		public void base58_keys_invalid(string data)
 		{
-
-			var tests = TestCase.read_json("data/base58_keys_invalid.json"); // Negative testcases
-
-			foreach(var test in tests)
-			{
-				string strTest = tests.ToString();
-				if(test.Count < 1) // Allow for extra stuff (useful for comments)
-				{
-					Assert.False(true, "Bad test: " + strTest);
-					continue;
-				}
-				string exp_base58string = (string)test[0];
-
-				// must be invalid as public and as private key
-				Assert.Throws<FormatException>(() => Network.Main.CreateBitcoinAddress(exp_base58string));
-				Assert.Throws<FormatException>(() => Network.Main.CreateBitcoinSecret(exp_base58string));
-			}
+			// must be invalid as public and as private key
+			Assert.Throws<FormatException>(() => Network.Main.CreateBitcoinAddress(data));
+			Assert.Throws<FormatException>(() => Network.Main.CreateBitcoinSecret(data));
 		}
 	}
 }

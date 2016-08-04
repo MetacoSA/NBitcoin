@@ -4,19 +4,43 @@ using System.Linq;
 
 namespace NBitcoin
 {
+
+	/// <summary>
+	/// Represent a path in the hierarchy of HD keys (BIP32)
+	/// </summary>
 	public class KeyPath
 	{
+		public KeyPath()
+		{
+			_Indexes = new uint[0];
+		}
+
+		/// <summary>
+		/// Parse a KeyPath
+		/// </summary>
+		/// <param name="path">The KeyPath formated like 10/0/2'/3</param>
+		/// <returns></returns>
+		public static KeyPath Parse(string path)
+		{
+			var parts = path
+				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
+				.Where(p => p != "m")
+				.Select(ParseCore)
+				.ToArray();
+			return new KeyPath(parts);
+		}
+
 		public KeyPath(string path)
 		{
 			_Indexes =
 				path
 				.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-				.Select(Parse)
+				.Where(p => p != "m")
+				.Select(ParseCore)
 				.ToArray();
-
 		}
 
-		private static uint Parse(string i)
+		private static uint ParseCore(string i)
 		{
 			bool hardened = i.EndsWith("'");
 			var nonhardened = hardened ? i.Substring(0, i.Length - 1) : i;
@@ -29,7 +53,7 @@ namespace NBitcoin
 			_Indexes = indexes;
 		}
 
-	    readonly uint[] _Indexes;
+		readonly uint[] _Indexes;
 		public uint this[int index]
 		{
 			get
@@ -42,7 +66,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return _Indexes;
+				return _Indexes.ToArray();
 			}
 		}
 
@@ -66,6 +90,25 @@ namespace NBitcoin
 				_Indexes
 				.Concat(derivation._Indexes)
 				.ToArray());
+		}
+
+		public KeyPath Parent
+		{
+			get
+			{
+				if(_Indexes.Length == 0)
+					return null;
+				return new KeyPath(_Indexes.Take(_Indexes.Length - 1).ToArray());
+			}
+		}
+
+		public KeyPath Increment()
+		{
+			if(_Indexes.Length == 0)
+				return null;
+			var indices = _Indexes.ToArray();
+			indices[indices.Length - 1]++;
+			return new KeyPath(indices);
 		}
 
 		public override bool Equals(object obj)
@@ -97,10 +140,10 @@ namespace NBitcoin
 		string _Path;
 		public override string ToString()
 		{
-		    return _Path ?? (_Path = string.Join("/", _Indexes.Select(ToString).ToArray()));
+			return _Path ?? (_Path = string.Join("/", _Indexes.Select(ToString).ToArray()));
 		}
 
-	    private static string ToString(uint i)
+		private static string ToString(uint i)
 		{
 			var hardened = (i & 0x80000000u) != 0;
 			var nonhardened = (i & ~0x80000000u);

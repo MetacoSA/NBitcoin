@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -26,7 +27,7 @@ namespace NBitcoin.Tests
 				//BlockStore other = new BlockStore(@"BlockDirectoryScanSpeed", Network.Main);
 				foreach(var block in store.Enumerate(false))
 				{
-					
+
 				}
 			});
 
@@ -41,31 +42,47 @@ namespace NBitcoin.Tests
 		[Trait("Benchmark", "Benchmark")]
 		public void BlockDownloadFromNetwork()
 		{
-			using(var node = Node.Connect(Network.Main,"192.168.0.7"))
+			Task.WaitAll(Enumerable.Range(0, 1)
+				.Select(_ => Task.Factory.StartNew(Core))
+				.ToArray());
+		}
+
+		private static void Core()
+		{
+
+			var complete = Bench(() =>
 			{
-				var originalNode = node;
-				var chain = originalNode.GetChain();
-				List<ulong> speeds = new List<ulong>();
-
-				Stopwatch watch = new Stopwatch();
-				watch.Start();
-				PerformanceSnapshot snap = null;
-				foreach(var block in originalNode.GetBlocks(chain.Tip.EnumerateToGenesis()))
+				using(var node = Node.Connect(Network.Main, "192.168.0.7", new NodeConnectionParameters()
 				{
-					if(watch.Elapsed > TimeSpan.FromSeconds(10.0))
-					{
-						var newSnap = originalNode.Counter.Snapshot();
-						if(snap != null)
-						{
-							var perf = newSnap - snap;
-							speeds.Add(perf.ReadenBytesPerSecond / 1024);
-						}
-						snap = newSnap;
-						watch.Restart();
-					}
+					IsTrusted = true,
+					IsRelay = false
+				}))
+				{
+					var originalNode = node;
+					node.VersionHandshake();
+					var chain = node.GetChain();
+					List<ulong> speeds = new List<ulong>();
 
+					Stopwatch watch = new Stopwatch();
+					watch.Start();
+					PerformanceSnapshot snap = null;
+					foreach(var block in originalNode.GetBlocks(chain.Tip.EnumerateToGenesis()))
+					{
+						if(watch.Elapsed > TimeSpan.FromSeconds(10.0))
+						{
+							var newSnap = originalNode.Counter.Snapshot();
+							if(snap != null)
+							{
+								var perf = newSnap - snap;
+								speeds.Add(perf.ReadenBytesPerSecond / 1024);
+							}
+							snap = newSnap;
+							watch.Restart();
+						}
+
+					}
 				}
-			}
+			});
 		}
 
 		[Fact]
@@ -103,7 +120,7 @@ namespace NBitcoin.Tests
 			Stopwatch watch = new Stopwatch();
 			watch.Start();
 			BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
-			IndexedBlockStore indexed = new IndexedBlockStore(new SQLiteNoSqlRepository("indexbench", true), store);
+			IndexedBlockStore indexed = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
 			indexed.ReIndex();
 			watch.Stop();
 			var time = watch.Elapsed;

@@ -81,36 +81,68 @@ namespace NBitcoin.Tests
 			Assert.Equal(builder.ToString(), uri);
 			return builder;
 		}
-#if !PORTABLE
+
+		public PaymentRequest LoadPaymentRequest(string path)
+		{
+			using(var fs = File.OpenRead(path))
+			{
+				return PaymentRequest.Load(fs);
+			}
+		}
+		public PaymentACK LoadPaymentACK(string path)
+		{
+			using(var fs = File.OpenRead(path))
+			{
+				return PaymentACK.Load(fs);
+			}
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadPaymentRequest()
 		{
-			var request = PaymentRequest.Load("data/payreq1_sha1.paymentrequest");
-			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq1_sha1.paymentrequest"));
-			Assert.True(request.VerifySignature());
-			request.Details.Memo = "lol";
-			Assert.False(request.VerifySignature());
-			request.Details.Memo = "this is a memo";
-			Assert.True(request.VerifySignature());
-			Assert.True(request.VerifyChain(
-					X509VerificationFlags.IgnoreNotTimeValid |
-					X509VerificationFlags.AllowUnknownCertificateAuthority |
-					X509VerificationFlags.IgnoreRootRevocationUnknown |
-					X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown |
-					X509VerificationFlags.IgnoreEndRevocationUnknown));
-			request = PaymentRequest.Load("data/payreq2_sha1.paymentrequest");
-			AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq2_sha1.paymentrequest"));
-			Assert.True(request.VerifySignature());
+			foreach(var provider in new ICertificateServiceProvider[]
+			{ 
+#if WIN
+				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid |
+						X509VerificationFlags.AllowUnknownCertificateAuthority |
+						X509VerificationFlags.IgnoreRootRevocationUnknown |
+						X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown |
+						X509VerificationFlags.IgnoreEndRevocationUnknown)
+#endif
+			})
+			{
+				PaymentRequest.DefaultCertificateServiceProvider = provider;
+				var request = LoadPaymentRequest("data/payreq1_sha1.paymentrequest");
+				AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq1_sha1.paymentrequest"));
+				Assert.True(request.VerifySignature());
+				request.Details.Memo = "lol";
+				Assert.False(request.VerifySignature());
+				request.Details.Memo = "this is a memo";
+				Assert.True(request.VerifySignature());
+				Assert.True(request.VerifyChain());
+				request = LoadPaymentRequest("data/payreq2_sha1.paymentrequest");
+				AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq2_sha1.paymentrequest"));
+				Assert.True(request.VerifySignature());
+			}
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanVerifyValidChain()
 		{
-			var req = PaymentRequest.Load("data/payreq3_validchain.paymentrequest");
-			Assert.True(req.VerifyChain(X509VerificationFlags.IgnoreNotTimeValid));
-			Assert.True(req.VerifySignature());
+			foreach(var provider in new ICertificateServiceProvider[]
+			{ 
+#if WIN
+				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid, X509RevocationMode.NoCheck)
+#endif
+			})
+			{
+				PaymentRequest.DefaultCertificateServiceProvider = provider;
+				var req = LoadPaymentRequest("data/payreq3_validchain.paymentrequest");
+				Assert.True(req.VerifyChain());
+				Assert.True(req.VerifySignature());
+			}
 		}
 
 		[Fact]
@@ -129,21 +161,29 @@ namespace NBitcoin.Tests
 				"data/payreq2_sha1.paymentrequest",
 			};
 
-			foreach(var test in tests)
+			foreach(var provider in new ICertificateServiceProvider[]
+			{ 
+#if WIN
+				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid |
+						X509VerificationFlags.AllowUnknownCertificateAuthority |
+						X509VerificationFlags.IgnoreRootRevocationUnknown |
+						X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown |
+						X509VerificationFlags.IgnoreEndRevocationUnknown)
+#endif
+			})
 			{
-				var bytes = File.ReadAllBytes(test);
-				var request = PaymentRequest.Load(bytes);
-				Assert.True(request.VerifySignature());
-				request = PaymentRequest.Load(PaymentRequest.Load(bytes).ToBytes());
-				Assert.True(request.VerifySignature());
-				Assert.True(request.VerifyChain(
-					X509VerificationFlags.IgnoreNotTimeValid |
-					X509VerificationFlags.AllowUnknownCertificateAuthority |
-					X509VerificationFlags.IgnoreRootRevocationUnknown |
-					X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown |
-					X509VerificationFlags.IgnoreEndRevocationUnknown));
-				Assert.False(request.VerifyChain());
-				AssertEx.Equal(request.ToBytes(), bytes);
+				PaymentRequest.DefaultCertificateServiceProvider = provider;
+				foreach(var test in tests)
+				{
+					var bytes = File.ReadAllBytes(test);
+					var request = PaymentRequest.Load(bytes);
+					AssertEx.Equal(request.ToBytes(), bytes);
+
+					Assert.True(request.VerifySignature());
+					request = PaymentRequest.Load(PaymentRequest.Load(bytes).ToBytes());
+					Assert.True(request.VerifySignature());
+					Assert.True(request.VerifyChain());
+				}
 			}
 		}
 
@@ -151,21 +191,57 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCreatePaymentRequest()
 		{
-			var cert = new X509Certificate2("Data/NicolasDorierMerchant.pfx", (string)null, X509KeyStorageFlags.Exportable);
+			foreach(var provider in new ICertificateServiceProvider[]
+			{ 
+#if WIN
+				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid)
+#endif
+			})
+			{
+				PaymentRequest.DefaultCertificateServiceProvider = provider;
+				var cert = File.ReadAllBytes("Data/NicolasDorierMerchant.pfx");
+				CanCreatePaymentRequestCore(cert);
+#if WIN
+				if(provider is WindowsCertificateServiceProvider)
+				{
+					CanCreatePaymentRequestCore(new X509Certificate2(cert, "", X509KeyStorageFlags.Exportable | X509KeyStorageFlags.PersistKeySet));
+				}
+#endif
+			}
+		}
+
+		private static void CanCreatePaymentRequestCore(object cert)
+		{
 			var request = new PaymentRequest();
 			request.Details.Memo = "hello";
 			request.Sign(cert, PKIType.X509SHA256);
 
 			Assert.NotNull(request.MerchantCertificate);
+#if WIN
+			Assert.False(new X509Certificate2(request.MerchantCertificate, "", X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable).HasPrivateKey);
+#endif
 			Assert.True(request.VerifySignature());
-			Assert.False(request.VerifyChain(X509VerificationFlags.IgnoreNotTimeValid));
+			Assert.False(request.VerifyChain());
+			AssertEx.CollectionEquals(request.ToBytes(), PaymentRequest.Load(request.ToBytes()).ToBytes());
 			Assert.True(PaymentRequest.Load(request.ToBytes()).VerifySignature());
+		}
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParsePaymentACK()
+		{
+			var ack = LoadPaymentACK("data/paymentack.data");
+			Assert.Equal("thanks customer !", ack.Memo);
+			Assert.Equal("thanks merchant !", ack.Payment.Memo);
+			Assert.Equal(2, ack.Payment.Transactions.Count);
+			Assert.Equal(2, ack.Payment.RefundTo.Count);
+			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
+			AssertEx.CollectionEquals(ack.ToBytes(), File.ReadAllBytes("data/paymentack.data"));
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCreatePaymentMessageAndACK()
 		{
-			var request = PaymentRequest.Load("data/payreq1_sha1.paymentrequest");
+			var request = LoadPaymentRequest("data/payreq1_sha1.paymentrequest");
 			var payment = request.CreatePayment();
 			AssertEx.CollectionEquals(request.Details.MerchantData, payment.MerchantData);
 			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
@@ -177,14 +253,7 @@ namespace NBitcoin.Tests
 			ack.Memo = "thanks customer !";
 			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
 		}
-		private T Reserialize<T>(T data)
-		{
-			MemoryStream ms = new MemoryStream();
-			PaymentRequest.Serializer.Serialize(ms, data);
-			ms.Position = 0;
-			return (T)PaymentRequest.Serializer.Deserialize(ms, null, typeof(T));
-		}
-
+#if !NOHTTPCLIENT
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanTalkToPaymentServer()
@@ -200,20 +269,32 @@ namespace NBitcoin.Tests
 				Assert.NotNull(ack);
 			}
 		}
-
+#endif
 
 	}
 
 	public class PaymentServerTester : IDisposable
 	{
 		HttpListener _Listener;
-		string _Prefix = "http://127.0.0.1:3292/";
+		Random rand = new Random();
+		string _Prefix;
 		public PaymentServerTester()
 		{
-			_Listener = new HttpListener();
-			_Listener.Prefixes.Add(_Prefix);
-			_Listener.Start();
-			_Listener.BeginGetContext(ListenerCallback, null);
+			while(true)
+			{
+				try
+				{
+					_Prefix = "http://127.0.0.1:" + rand.Next(2000, 50000) + "/";
+					_Listener = new HttpListener();
+					_Listener.Prefixes.Add(_Prefix);
+					_Listener.Start();
+					_Listener.BeginGetContext(ListenerCallback, null);
+					break;
+				}
+				catch(HttpListenerException)
+				{
+				}
+			}
 		}
 
 		void ListenerCallback(IAsyncResult ar)
@@ -230,7 +311,7 @@ namespace NBitcoin.Tests
 					PaymentRequest request = new PaymentRequest();
 					request.Details.MerchantData = BitConverter.GetBytes(businessId);
 					request.Details.PaymentUrl = new Uri(_Prefix + "?id=" + businessId + "&type=Payment");
-					request.Sign(new X509Certificate2("data/NicolasDorierMerchant.pfx"), PKIType.X509SHA256);
+					request.Sign(File.ReadAllBytes("data/NicolasDorierMerchant.pfx"), PKIType.X509SHA256);
 					request.WriteTo(context.Response.OutputStream);
 				}
 				else if(type == "Payment")
@@ -277,6 +358,5 @@ namespace NBitcoin.Tests
 		}
 
 		#endregion
-#endif
 	}
 }

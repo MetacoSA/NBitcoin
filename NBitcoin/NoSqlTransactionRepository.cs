@@ -17,7 +17,7 @@ namespace NBitcoin
 			}
 		}
 
-		public NoSqlTransactionRepository():this(new InMemoryNoSqlRepository())
+		public NoSqlTransactionRepository() : this(new InMemoryNoSqlRepository())
 		{
 
 		}

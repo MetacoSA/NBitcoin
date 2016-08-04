@@ -50,7 +50,7 @@ namespace NBitcoin.RPC
 			jsonWriter.Flush();
 		}
 
-		public void WriteJSON(JsonTextWriter writer)
+		internal void WriteJSON(JsonTextWriter writer)
 		{
 			writer.WriteStartObject();
 			WriteProperty(writer, "jsonrpc", JsonRpc);
@@ -62,7 +62,7 @@ namespace NBitcoin.RPC
 
 			if(Params != null)
 			{
-				for(int i = 0 ; i < Params.Length ; i++)
+				for(int i = 0; i < Params.Length; i++)
 				{
 					if(Params[i] is JToken)
 					{

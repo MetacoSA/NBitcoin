@@ -15,9 +15,9 @@ namespace NBitcoin
 		}
 
 		public BitcoinColoredAddress(BitcoinAddress address)
-			:base(Build(address),address.Network)
+			: base(Build(address), address.Network)
 		{
-			
+
 		}
 
 		private static byte[] Build(BitcoinAddress address)

@@ -28,7 +28,7 @@ namespace Newtonsoft.Json.Serialization
     /// <summary>
     /// Used to resolve references when serializing and deserializing JSON by the <see cref="JsonSerializer"/>.
     /// </summary>
-    public interface IReferenceResolver
+    internal interface IReferenceResolver
     {
         /// <summary>
         /// Resolves a reference to its object.

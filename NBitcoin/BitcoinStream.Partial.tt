@@ -5,12 +5,12 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ output extension=".cs" #>
 
+using NBitcoin.Protocol;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,38 +52,6 @@ namespace NBitcoin
 
 		<# } #>
 
-
-		<# foreach(String type in new string[]
-		{
-			"ulong",
-			"ushort",
-			"uint",
-			"byte",
-			"long",
-			"short",
-			"int"
-		}){ #>
-
-		private void ReadWriteList(ref List<<#= type #>> data)
-		{
-			var dataArray = data == null ? null : data.ToArray();
-			if(Serializing && dataArray == null)
-			{
-				dataArray = new <#= type #>[0];
-			}
-			ReadWriteArray(ref dataArray);
-			if(!Serializing)
-			{
-				if(data == null)
-					data = new List<<#= type #>>();
-				else
-					data.Clear();
-				data.AddRange(dataArray);
-			}
-		}
-
-		<# } #>
-
 		<# foreach(String signature in new string[]
 		{
 			"(ref ulong[] data)",
@@ -101,6 +69,40 @@ namespace NBitcoin
 
 		<# } #>
 
+<# foreach (string t in new []{ "256","160" }) { 
+	int WIDTH_BYTE = int.Parse(t) / 8;
+#>
+		public void ReadWrite(ref uint<#= t #> value)
+		{
+			value = value ?? uint<#= t #>.Zero;
+			var v = new uint<#= t #>.MutableUint<#= t #>(value);
+			this.ReadWrite(ref v);
+			value = v.Value;			
+		}
+
+		public void ReadWrite(uint<#= t #> value)
+		{
+			value = value ?? uint<#= t #>.Zero;
+			var v = new uint<#= t #>.MutableUint<#= t #>(value);
+			this.ReadWrite(ref v);
+			value = v.Value;			
+		}
+
+		public void ReadWrite(ref List<uint<#= t #>> value)
+		{
+			if(Serializing)
+			{
+				var list = value == null ? null : value.Select(v=>v.AsBitcoinSerializable()).ToList();
+				this.ReadWrite(ref list);
+			}
+			else
+			{
+				List<uint<#= t #>.MutableUint<#= t #>> list = null;
+				this.ReadWrite(ref list);
+				value = list.Select(l=>l.Value).ToList();
+			}
+		}
+<# } #>
 
 			<# foreach(String type in new string[]
 		{

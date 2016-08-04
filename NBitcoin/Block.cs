@@ -22,6 +22,13 @@ namespace NBitcoin
 	 */
 	public class BlockHeader : IBitcoinSerializable
 	{
+		internal const int Size = 80;
+
+		public static BlockHeader Parse(string hex)
+		{
+			return new BlockHeader(Encoders.Hex.DecodeData(hex));
+		}
+
 		public BlockHeader(string hex)
 			: this(Encoders.Hex.DecodeData(hex))
 		{
@@ -35,7 +42,7 @@ namespace NBitcoin
 
 
 		// header
-		const int CURRENT_VERSION = 2;
+		const int CURRENT_VERSION = 3;
 
 		uint256 hashPrevBlock;
 
@@ -139,11 +146,6 @@ namespace NBitcoin
 			stream.ReadWrite(ref nTime);
 			stream.ReadWrite(ref nBits);
 			stream.ReadWrite(ref nNonce);
-			if(stream.Type == SerializationType.Network)
-			{
-				VarInt txCount = new VarInt(0);
-				stream.ReadWrite(ref txCount);
-			}
 		}
 
 		#endregion
@@ -168,21 +170,56 @@ namespace NBitcoin
 		public bool CheckProofOfWork()
 		{
 			// Check proof of work matches claimed amount
-			if(GetHash() > Bits.ToUInt256())
-				return false;
-			return true;
+			return GetHash() <= Bits.ToUInt256();
 		}
 
 		public override string ToString()
 		{
 			return GetHash().ToString();
 		}
+
+		/// <summary>
+		/// Set time to consensus acceptable value
+		/// </summary>
+		/// <param name="network">Network</param>
+		/// <param name="prev">previous block</param>
+		public void UpdateTime(Network network, ChainedBlock prev)
+		{
+			UpdateTime(DateTimeOffset.UtcNow, network, prev);
+		}
+
+		/// <summary>
+		/// Set time to consensus acceptable value
+		/// </summary>
+		/// <param name="now">The expected date</param>
+		/// <param name="network">Network</param>
+		/// <param name="prev">previous block</param>		
+		public void UpdateTime(DateTimeOffset now, Network network, ChainedBlock prev)
+		{
+			var nOldTime = this.BlockTime;
+			var mtp = prev.GetMedianTimePast() + TimeSpan.FromSeconds(1);
+			var nNewTime = mtp > now ? mtp : now;
+
+			if(nOldTime < nNewTime)
+				this.BlockTime = nNewTime;
+
+			// Updating time can change work required on testnet:
+			if(network.Consensus.PowAllowMinDifficultyBlocks)
+				Bits = GetWorkRequired(network, prev);
+		}
+
+		public Target GetWorkRequired(Network network, ChainedBlock prev)
+		{
+			return new ChainedBlock(this, null, prev).GetWorkRequired(network);
+		}
 	}
 
 
 	public class Block : IBitcoinSerializable
 	{
-		public const uint MAX_BLOCK_SIZE = 1000000;
+		//FIXME: it needs to be changed when Gavin Andresen increase the max block size. 
+		public const uint MAX_BLOCK_SIZE = 1000 * 1000;
+
 		BlockHeader header = new BlockHeader();
 		// network and disk
 		List<Transaction> vtx = new List<Transaction>();
@@ -223,10 +260,7 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			using(stream.SerializationTypeScope(SerializationType.Disk))
-			{
-				stream.ReadWrite(ref header);
-			}
+			stream.ReadWrite(ref header);
 			stream.ReadWrite(ref vtx);
 		}
 
@@ -347,6 +381,8 @@ namespace NBitcoin
 		}
 		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height, DateTimeOffset now)
 		{
+			if(address == null)
+				throw new ArgumentNullException("address");
 			Block block = new Block();
 			block.Header.Nonce = RandomUtils.GetUInt32();
 			block.Header.HashPrevBlock = this.GetHash();
@@ -386,7 +422,7 @@ namespace NBitcoin
 			return block;
 		}
 
-		public static Block Parse(string json)
+		public static Block ParseJson(string json)
 		{
 			var formatter = new BlockExplorerFormatter();
 			var block = JObject.Parse(json);
@@ -396,13 +432,18 @@ namespace NBitcoin
 			blk.Header.BlockTime = Utils.UnixTimeToDateTime((uint)block["time"]);
 			blk.Header.Nonce = (uint)block["nonce"];
 			blk.Header.Version = (int)block["ver"];
-			blk.Header.HashPrevBlock = new uint256((string)block["prev_block"]);
-			blk.Header.HashMerkleRoot = new uint256((string)block["mrkl_root"]);
+			blk.Header.HashPrevBlock = uint256.Parse((string)block["prev_block"]);
+			blk.Header.HashMerkleRoot = uint256.Parse((string)block["mrkl_root"]);
 			foreach(var tx in txs)
 			{
 				blk.AddTransaction(formatter.Parse((JObject)tx));
 			}
 			return blk;
+		}
+
+		public static Block Parse(string hex)
+		{
+			return new Block(Encoders.Hex.DecodeData(hex));
 		}
 
 		public MerkleBlock Filter(params uint256[] txIds)

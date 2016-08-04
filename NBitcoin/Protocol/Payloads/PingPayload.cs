@@ -9,7 +9,7 @@ namespace NBitcoin.Protocol
 	[Payload("ping")]
 	public class PingPayload : Payload
 	{
-		
+
 		public PingPayload()
 		{
 			_Nonce = RandomUtils.GetUInt64();
@@ -38,6 +38,11 @@ namespace NBitcoin.Protocol
 			{
 				Nonce = Nonce
 			};
+		}
+
+		public override string ToString()
+		{
+			return base.ToString() + " : " + Nonce;
 		}
 	}
 }

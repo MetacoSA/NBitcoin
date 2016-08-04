@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-#if !NOPROTOBUF
+#if !NOHTTPCLIENT
 using System.Net.Http;
 using System.Net.Http.Headers;
 #endif
@@ -26,10 +26,14 @@ namespace NBitcoin.Payment
 		public BitcoinUrlBuilder(Uri uri)
 			: this(uri.AbsoluteUri)
 		{
-
+			if(uri == null)
+				throw new ArgumentNullException("uri");
 		}
+
 		public BitcoinUrlBuilder(string uri)
 		{
+			if(uri == null)
+				throw new ArgumentNullException("uri");
 			if(!uri.StartsWith("bitcoin:", StringComparison.OrdinalIgnoreCase))
 				throw new FormatException("Invalid scheme");
 			uri = uri.Remove(0, "bitcoin:".Length);
@@ -86,15 +90,15 @@ namespace NBitcoin.Payment
 				throw new FormatException("Non compatible required parameter " + reqParam);
 		}
 
-		private readonly Dictionary<string, string> _UnknowParameters = new Dictionary<string,string>();
-		public Dictionary<string,string> UnknowParameters
+		private readonly Dictionary<string, string> _UnknowParameters = new Dictionary<string, string>();
+		public Dictionary<string, string> UnknowParameters
 		{
 			get
 			{
 				return _UnknowParameters;
 			}
 		}
-#if !NOPROTOBUF
+#if !NOHTTPCLIENT
 		public PaymentRequest GetPaymentRequest()
 		{
 			if(PaymentRequestUrl == null)
@@ -109,7 +113,6 @@ namespace NBitcoin.Payment
 				return null;
 			}
 		}
-
 		public async Task<PaymentRequest> GetPaymentRequestAsync(HttpClient httpClient = null)
 		{
 			if(PaymentRequestUrl == null)
@@ -130,7 +133,7 @@ namespace NBitcoin.Payment
 				var result = await httpClient.SendAsync(req).ConfigureAwait(false);
 				if(!result.IsSuccessStatusCode)
 					throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
-				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentRequest.MediaType, StringComparison.InvariantCultureIgnoreCase))
+				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentRequest.MediaType, StringComparison.OrdinalIgnoreCase))
 				{
 					throw new WebException("Invalid contenttype received, expecting " + PaymentRequest.MediaType + ", but got " + result.Content.Headers.ContentType);
 				}
@@ -187,7 +190,7 @@ namespace NBitcoin.Payment
 
 				if(Amount != null)
 				{
-					parameters.Add("amount", Amount.ToString());
+					parameters.Add("amount", Amount.ToString(false, true));
 				}
 				if(Label != null)
 				{

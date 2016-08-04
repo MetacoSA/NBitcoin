@@ -1,7 +1,4 @@
-﻿#if !PORTABLE
-using System.Net.Sockets;
-#endif
-using NBitcoin.Protocol;
+﻿using NBitcoin.Protocol;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -53,7 +50,7 @@ namespace NBitcoin
 	}
 	public partial class BitcoinStream
 	{
-		int _MaxArraySize = Int32.MaxValue;
+		int _MaxArraySize = 1024 * 1024;
 		public int MaxArraySize
 		{
 			get
@@ -70,16 +67,14 @@ namespace NBitcoin
 		static MethodInfo _ReadWriteTyped;
 		static BitcoinStream()
 		{
-			_ReadWriteTyped =
-				typeof(BitcoinStream)
-				.GetTypeInfo()
-				.DeclaredMethods
-				.Where(m => m.Name == "ReadWrite")
-				.Where(m => m.IsGenericMethodDefinition)
-				.Where(m => m.GetParameters().Length == 1)
-				.Where(m => m.GetParameters().Any(p => p.ParameterType.IsByRef))
-				.First();
-
+			_ReadWriteTyped = typeof(BitcoinStream)
+			.GetTypeInfo()
+			.DeclaredMethods
+			.Where(m => m.Name == "ReadWrite")
+			.Where(m => m.IsGenericMethodDefinition)
+			.Where(m => m.GetParameters().Length == 1)
+			.Where(m => m.GetParameters().Any(p => p.ParameterType.IsByRef && p.ParameterType.HasElementType && !p.ParameterType.GetElementType().IsArray))
+			.First();
 		}
 
 		private readonly Stream _Inner;
@@ -142,9 +137,17 @@ namespace NBitcoin
 
 		public void ReadWriteAsVarString(ref byte[] bytes)
 		{
-			VarString str = new VarString(bytes);
-			ReadWrite(ref str);
-			bytes = str.GetString(true);
+			if(Serializing)
+			{
+				VarString str = new VarString(bytes);
+				str.ReadWrite(this);
+			}
+			else
+			{
+				VarString str = new VarString();
+				str.ReadWrite(this);
+				bytes = str.GetString(true);
+			}
 		}
 
 		public void ReadWrite(Type type, ref object obj)
@@ -182,6 +185,10 @@ namespace NBitcoin
 		{
 			data.ReadWrite(this);
 		}
+		public void ReadWriteStruct<T>(T data) where T : struct, IBitcoinSerializable
+		{
+			data.ReadWrite(this);
+		}
 
 		public void ReadWrite<T>(ref T data) where T : IBitcoinSerializable
 		{
@@ -206,8 +213,8 @@ namespace NBitcoin
 		}
 
 		private void ReadWriteList<TList, TItem>(ref TList data)
-				where TList : List<TItem>, new()
-				where TItem : IBitcoinSerializable, new()
+			where TList : List<TItem>, new()
+			where TItem : IBitcoinSerializable, new()
 		{
 			var dataArray = data == null ? null : data.ToArray();
 			if(Serializing && dataArray == null)
@@ -229,6 +236,10 @@ namespace NBitcoin
 		{
 			ReadWriteBytes(ref arr);
 		}
+		public void ReadWrite(ref byte[] arr, int offset, int count)
+		{
+			ReadWriteBytes(ref arr, offset, count);
+		}
 		public void ReadWrite<T>(ref T[] arr) where T : IBitcoinSerializable, new()
 		{
 			ReadWriteArray<T>(ref arr);
@@ -245,7 +256,7 @@ namespace NBitcoin
 		{
 			var bytes = new byte[size];
 
-			for(int i = 0 ; i < size ; i++)
+			for(int i = 0; i < size; i++)
 			{
 				bytes[i] = (byte)(value >> i * 8);
 			}
@@ -255,7 +266,7 @@ namespace NBitcoin
 			if(IsBigEndian)
 				Array.Reverse(bytes);
 			ulong valueTemp = 0;
-			for(int i = 0 ; i < bytes.Length ; i++)
+			for(int i = 0; i < bytes.Length; i++)
 			{
 				var v = (ulong)bytes[i];
 				valueTemp += v << (i * 8);
@@ -263,16 +274,17 @@ namespace NBitcoin
 			value = valueTemp;
 		}
 
-		private void ReadWriteBytes(ref byte[] data)
+		private void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
 		{
+			count = count == -1 ? data.Length : count;
 			if(Serializing)
 			{
-				Inner.Write(data, 0, data.Length);
-				Counter.AddWritten(data.Length);
+				Inner.Write(data, offset, count);
+				Counter.AddWritten(count);
 			}
 			else
 			{
-				var readen = Inner.ReadEx(data, 0, data.Length, ReadCancellationToken);
+				var readen = Inner.ReadEx(data, offset, count, ReadCancellationToken);
 				if(readen == -1)
 					throw new EndOfStreamException("No more byte to read");
 				Counter.AddReaden(readen);
@@ -338,6 +350,19 @@ namespace NBitcoin
 			}
 		}
 
+		TransactionOptions _TransactionSupportedOptions = TransactionOptions.All;
+		public TransactionOptions TransactionOptions
+		{
+			get
+			{
+				return _TransactionSupportedOptions;
+			}
+			set
+			{
+				_TransactionSupportedOptions = value;
+			}
+		}
+
 
 		public IDisposable ProtocolVersionScope(ProtocolVersion version)
 		{
@@ -354,6 +379,8 @@ namespace NBitcoin
 
 		public void CopyParameters(BitcoinStream stream)
 		{
+			if(stream == null)
+				throw new ArgumentNullException("stream");
 			ProtocolVersion = stream.ProtocolVersion;
 			IsBigEndian = stream.IsBigEndian;
 			MaxArraySize = stream.MaxArraySize;

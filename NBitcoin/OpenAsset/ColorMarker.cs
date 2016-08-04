@@ -15,6 +15,11 @@ namespace NBitcoin.OpenAsset
 		{
 			return TryParse(new Script(script));
 		}
+
+		public static ColorMarker TryParse(Transaction transaction)
+		{
+			return Get(transaction);
+		}
 		public static ColorMarker TryParse(Script script)
 		{
 			try
@@ -32,36 +37,53 @@ namespace NBitcoin.OpenAsset
 
 		private bool ReadScript(Script script)
 		{
-			var data = TxNullDataTemplate.Instance.ExtractScriptPubKeyParameters(script);
-			if(data == null)
+			var bytes = script.ToBytes(true);
+			if(bytes.Length == 0 || bytes[0] != (byte)OpcodeType.OP_RETURN)
 				return false;
-			BitcoinStream stream = new BitcoinStream(data);
-			ushort marker = 0;
-			stream.ReadWrite(ref marker);
-			if(marker != Tag)
-				return false;
-			stream.ReadWrite(ref _Version);
-			if(_Version != 1)
-				return false;
+			foreach(var op in script.ToOps())
+			{
+				if(op.PushData != null && !op.IsInvalid)
+				{
+					if(ReadData(op.PushData))
+						return true;
+				}
+			}
+			return false;
+		}
 
-			ulong quantityCount = 0;
-			stream.ReadWriteAsVarInt(ref quantityCount);
-			Quantities = new ulong[quantityCount];
+		private bool ReadData(byte[] data)
+		{
 			try
 			{
-				for(ulong i = 0 ; i < quantityCount ; i++)
+				BitcoinStream stream = new BitcoinStream(data);
+				ushort marker = 0;
+				stream.ReadWrite(ref marker);
+				if(marker != Tag)
+					return false;
+				stream.ReadWrite(ref _Version);
+				if(_Version != 1)
+					return false;
+
+				ulong quantityCount = 0;
+				stream.ReadWriteAsVarInt(ref quantityCount);
+				Quantities = new ulong[quantityCount];
+
+				for(ulong i = 0; i < quantityCount; i++)
 				{
 					Quantities[i] = ReadLEB128(stream);
 					if(Quantities[i] > MAX_QUANTITY)
-						throw new FormatException();
+						return false;
 				}
+
+				stream.ReadWriteAsVarString(ref _Metadata);
+				if(stream.Inner.Position != data.Length)
+					return false;
+				return true;
 			}
-			catch(FormatException)
+			catch(Exception)
 			{
 				return false;
 			}
-			stream.ReadWriteAsVarString(ref _Metadata);
-			return true;
 		}
 
 		private static ulong ReadLEB128(BitcoinStream stream)
@@ -187,16 +209,16 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		public void SetQuantity(uint index, ulong quantity)
+		public void SetQuantity(uint index, long quantity)
 		{
 			if(Quantities == null)
 				Quantities = new ulong[0];
 			if(Quantities.Length <= index)
 				Array.Resize(ref _Quantities, (int)index + 1);
-			Quantities[index] = quantity;
+			Quantities[index] = checked((ulong)quantity);
 		}
 
-		public void SetQuantity(int index, ulong quantity)
+		public void SetQuantity(int index, long quantity)
 		{
 			SetQuantity((uint)index, quantity);
 		}
@@ -217,21 +239,28 @@ namespace NBitcoin.OpenAsset
 
 		public Script GetScript()
 		{
+			var bytes = ToBytes();
+			return _Template.GenerateScriptPubKey(bytes);
+		}
+
+		public byte[] ToBytes()
+		{
 			MemoryStream ms = new MemoryStream();
 			BitcoinStream stream = new BitcoinStream(ms, true);
 			stream.ReadWrite(Tag);
 			stream.ReadWrite(ref _Version);
 			var quantityCount = (uint)this.Quantities.Length;
 			stream.ReadWriteAsVarInt(ref quantityCount);
-			for(int i = 0 ; i < quantityCount ; i++)
+			for(int i = 0; i < quantityCount; i++)
 			{
 				if(Quantities[i] > MAX_QUANTITY)
 					throw new ArgumentOutOfRangeException("Quantity should not exceed " + Quantities[i]);
 				WriteLEB128(Quantities[i], stream);
 			}
 			stream.ReadWriteAsVarString(ref _Metadata);
-			return TxNullDataTemplate.Instance.GenerateScriptPubKey(ms.ToArray());
+			return ms.ToArray();
 		}
+		static readonly TxNullDataTemplate _Template = new TxNullDataTemplate(1024 * 5);
 
 		public static ColorMarker Get(Transaction transaction)
 		{
@@ -241,14 +270,24 @@ namespace NBitcoin.OpenAsset
 
 		public static ColorMarker Get(Transaction transaction, out uint markerPosition)
 		{
+			if(transaction == null)
+				throw new ArgumentNullException("transaction");
 			uint resultIndex = 0;
-			var result = transaction.Outputs.Select(o => TryParse(o.ScriptPubKey)).Where((o, i) =>
+			if(transaction.Inputs.Count == 0 || transaction.IsCoinBase)
 			{
-				resultIndex = (uint)i;
-				return o != null;
-			}).FirstOrDefault();
-			markerPosition = resultIndex;
-			return result;
+				markerPosition = 0;
+				return null;
+			}
+			else
+			{
+				var result = transaction.Outputs.Select(o => TryParse(o.ScriptPubKey)).Where((o, i) =>
+				{
+					resultIndex = (uint)i;
+					return o != null;
+				}).FirstOrDefault();
+				markerPosition = resultIndex;
+				return result;
+			}
 		}
 
 		#region IBitcoinSerializable Members
@@ -275,6 +314,8 @@ namespace NBitcoin.OpenAsset
 
 		public static bool HasValidColorMarker(Transaction tx)
 		{
+			if(tx.Inputs.Count == 0 || tx.IsCoinBase)
+				return false;
 			var marker = Get(tx);
 			if(marker == null)
 				return false;

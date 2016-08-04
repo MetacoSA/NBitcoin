@@ -1,12 +1,23 @@
-﻿using System;
+﻿#if !NOSOCKET
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol.Behaviors
 {
-	public abstract class NodeBehavior
+	public interface INodeBehavior : ICloneable
+	{
+		Node AttachedNode
+		{
+			get;
+		}
+		void Attach(Node node);
+		void Detach();
+	}
+	public abstract class NodeBehavior : INodeBehavior
 	{
 		List<IDisposable> _Disposables = new List<IDisposable>();
 		protected void RegisterDisposable(IDisposable disposable)
@@ -19,8 +30,10 @@ namespace NBitcoin.Protocol.Behaviors
 			get;
 			private set;
 		}
+
 		object cs = new object();
-		internal void Attach(Node node)
+
+		public void Attach(Node node)
 		{
 			if(node == null)
 				throw new ArgumentNullException("node");
@@ -29,7 +42,6 @@ namespace NBitcoin.Protocol.Behaviors
 			lock(cs)
 			{
 				AttachedNode = node;
-				node.StateChanged += node_StateChanged;
 				if(Disconnected(node))
 					return;
 				AttachCore();
@@ -47,35 +59,27 @@ namespace NBitcoin.Protocol.Behaviors
 			return node.State == NodeState.Disconnecting || node.State == NodeState.Failed || node.State == NodeState.Offline;
 		}
 
-		void node_StateChanged(Node node, NodeState oldState)
-		{
-			if(Disconnected(node))
-				Detach();
-		}
-
 		protected abstract void AttachCore();
 
-		internal void Detach()
+		public void Detach()
 		{
 			lock(cs)
 			{
 				if(AttachedNode == null)
 					return;
-				try
-				{
-					DetachCore();
-					foreach(var dispo in _Disposables)
-						dispo.Dispose();
-				}
-				catch(Exception ex)
-				{
-					NodeServerTrace.Error("Error while detaching behavior", ex);
-				}
+
+				DetachCore();
+				foreach(var dispo in _Disposables)
+					dispo.Dispose();
+
 				_Disposables.Clear();
 				AttachedNode = null;
 			}
 		}
 
 		protected abstract void DetachCore();
+
+		public abstract object Clone();
 	}
 }
+#endif

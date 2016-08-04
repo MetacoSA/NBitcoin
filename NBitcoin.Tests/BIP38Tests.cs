@@ -176,7 +176,7 @@ namespace NBitcoin.Tests
 				//Can verify confirmation
 				var confirmation = new BitcoinConfirmationCode(test.ConfirmationCode, Network.Main);
 				AssertSequenceEquals(confirmation.LotSequence, test.LotSequence);
-				Assert.True(confirmation.Check(test.Passphrase, new BitcoinAddress(test.Address, Network.Main)));
+				Assert.True(confirmation.Check(test.Passphrase, new BitcoinPubKeyAddress(test.Address, Network.Main)));
 
 				//Can generate encrypted key from passcode
 				var generatedEncryptedKey = passCode.GenerateEncryptedSecret(test.Compressed).EncryptedKey;
@@ -240,14 +240,14 @@ namespace NBitcoin.Tests
 			Assert.Equal(seed, actualSeed);
 
 			//The real deal
-			for(int i = 0 ; i < 5 ; i++)
+			for(int i = 0; i < 5; i++)
 			{
 				seed = RandomUtils.GetBytes(24);
 				derived = RandomUtils.GetBytes(64);
 				encrypted = BitcoinEncryptedSecret.EncryptSeed(seed, derived);
 
 				var encryptedBefore = encrypted.ToArray();
-				for(int u = 8 ; u < 16 ; u++)
+				for(int u = 8; u < 16; u++)
 				{
 					encrypted[u] = 0;
 				}
@@ -269,7 +269,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(key, actualSeed);
 
 			//The real deal
-			for(int i = 0 ; i < 5 ; i++)
+			for(int i = 0; i < 5; i++)
 			{
 				key = RandomUtils.GetBytes(32);
 				derived = RandomUtils.GetBytes(64);

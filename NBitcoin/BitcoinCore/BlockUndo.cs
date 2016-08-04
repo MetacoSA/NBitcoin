@@ -24,7 +24,7 @@ namespace NBitcoin.BitcoinCore
 		{
 			this.TxOut = txOut;
 		}
-		
+
 		TxOut txout;         // the txout data before being spent
 
 		public TxOut TxOut
@@ -86,7 +86,7 @@ namespace NBitcoin.BitcoinCore
 			if(stream.Serializing)
 			{
 				uint o = (uint)(nHeight * 2 + (fCoinBase ? 1 : 0));
-				stream.ReadWriteAsCompactVarInt(ref  o);
+				stream.ReadWriteAsCompactVarInt(ref o);
 				if(nHeight > 0)
 					stream.ReadWriteAsCompactVarInt(ref nVersion);
 				TxOutCompressor compressor = new TxOutCompressor(txout);
@@ -160,7 +160,7 @@ namespace NBitcoin.BitcoinCore
 		public void ComputeChecksum(uint256 hashBlock)
 		{
 			MemoryStream ms = new MemoryStream();
-			hashBlock.ReadWrite(ms, true);
+			hashBlock.AsBitcoinSerializable().ReadWrite(ms, true);
 			this.ReadWrite(ms, true);
 			CalculatedChecksum = Hashes.Hash256(ms.ToArray());
 		}

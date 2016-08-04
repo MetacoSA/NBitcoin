@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NBitcoin.Crypto;
-#if !USEBC
+#if !WINDOWS_UWP && !USEBC
 using System.Security.Cryptography;
 #endif
 using NBitcoin.BouncyCastle.Security;
@@ -60,8 +60,6 @@ namespace NBitcoin
 			if(i == -1)
 				throw new ArgumentException("The length for entropy should be : " + String.Join(",", entArray), "entropy");
 
-			int entcs = entcsArray[i];
-			int ent = entArray[i];
 			int cs = csArray[i];
 			byte[] checksum = Hashes.SHA256(entropy);
 			BitWriter entcsResult = new BitWriter();
@@ -89,7 +87,6 @@ namespace NBitcoin
 		}
 
 		static readonly int[] msArray = new[] { 12, 15, 18, 21, 24 };
-		static readonly int[] entcsArray = new[] { 132, 165, 198, 231, 264 };
 		static readonly int[] csArray = new[] { 4, 5, 6, 7, 8 };
 		static readonly int[] entArray = new[] { 128, 160, 192, 224, 256 };
 
@@ -118,17 +115,13 @@ namespace NBitcoin
 			}
 		}
 
-		//private IEnumerable<bool> ToBits(int value)
-		//{
-		//	return null;
-		//}
-
 		private static bool CorrectWordCount(int ms)
 		{
 			return msArray.Any(_ => _ == ms);
 		}
 
 
+		// FIXME: this method is not used. Shouldn't we delete it?
 		private int ToInt(BitArray bits)
 		{
 			if(bits.Length != 11)
@@ -182,15 +175,15 @@ namespace NBitcoin
 		public byte[] DeriveSeed(string passphrase = null)
 		{
 			passphrase = passphrase ?? "";
-			var salt = Concat(UTF8Encoding.UTF8.GetBytes("mnemonic"), Normalize(passphrase));
+			var salt = Concat(Encoding.UTF8.GetBytes("mnemonic"), Normalize(passphrase));
 			var bytes = Normalize(_Mnemonic);
 
-#if !USEBC
-			return Pbkdf2.ComputeDerivedKey(new HMACSHA512(bytes), salt, 2048, 64);
-#else
-			var mac = MacUtilities.GetMac("HMAC-SHA_512");
+#if USEBC || WINDOWS_UWP || NETCORE
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
 			mac.Init(new KeyParameter(bytes));
 			return Pbkdf2.ComputeDerivedKey(mac, salt, 2048, 64);
+#else
+			return Pbkdf2.ComputeDerivedKey(new HMACSHA512(bytes), salt, 2048, 64);
 #endif
 
 		}

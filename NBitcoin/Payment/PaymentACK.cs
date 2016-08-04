@@ -1,11 +1,13 @@
-﻿#if !NOPROTOBUF
+﻿using NBitcoin.Protobuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+#if !NOHTTPCLIENT
 using System.Net.Http;
 using System.Net.Http.Headers;
+#endif
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,9 +24,27 @@ namespace NBitcoin.Payment
 		public static PaymentACK Load(Stream source)
 		{
 			if(source.CanSeek && source.Length > MaxLength)
-				throw new ArgumentException("PaymentACK messages larger than " + MaxLength + " bytes should be rejected", "source");
-			var data = PaymentRequest.Serializer.Deserialize<Proto.PaymentACK>(source);
-			return new PaymentACK(data);
+				throw new ArgumentOutOfRangeException("PaymentACK messages larger than " + MaxLength + " bytes should be rejected", "source");
+
+			PaymentACK ack = new PaymentACK();
+			Protobuf.ProtobufReaderWriter reader = new Protobuf.ProtobufReaderWriter(source);
+			int key;
+			while(reader.TryReadKey(out key))
+			{
+				switch(key)
+				{
+					case 1:
+						var bytes = reader.ReadBytes();
+						ack.Payment = PaymentMessage.Load(bytes);
+						break;
+					case 2:
+						ack.Memo = reader.ReadString();
+						break;
+					default:
+						break;
+				}
+			}
+			return ack;
 		}
 		public PaymentACK()
 		{
@@ -32,32 +52,17 @@ namespace NBitcoin.Payment
 		}
 		public PaymentACK(PaymentMessage payment)
 		{
-			_Payment = payment;
-		}
-		internal PaymentACK(Proto.PaymentACK data)
-		{
-			_Payment = new PaymentMessage(data.payment);
-			Memo = data.memoSpecified ? data.memo : null;
-			OriginalData = data;
+			Payment = payment;
 		}
 
-		private readonly PaymentMessage _Payment = new PaymentMessage();
 		public readonly static string MediaType = "application/bitcoin-paymentack";
 		public PaymentMessage Payment
-		{
-			get
-			{
-				return _Payment;
-			}
-		}
-
-		public string Memo
 		{
 			get;
 			set;
 		}
 
-		internal Proto.PaymentACK OriginalData
+		public string Memo
 		{
 			get;
 			set;
@@ -72,11 +77,24 @@ namespace NBitcoin.Payment
 
 		public void WriteTo(Stream output)
 		{
-			var data = OriginalData == null ? new Proto.PaymentACK() : (Proto.PaymentACK)PaymentRequest.Serializer.DeepClone(OriginalData);
-			data.memo = Memo;
-			data.payment = Payment.ToData();
-			PaymentRequest.Serializer.Serialize(output, data);
+			Protobuf.ProtobufReaderWriter proto = new ProtobufReaderWriter(output);
+			proto.WriteKey(1, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+			proto.WriteBytes(Payment.ToBytes());
+			if(Memo != null)
+			{
+				proto.WriteKey(2, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				proto.WriteString(Memo);
+			}
 		}
+#if !NOFILEIO
+		public static PaymentACK Load(string file)
+		{
+			using(var fs = File.OpenRead(file))
+			{
+				return Load(fs);
+			}
+		}
+#endif
 	}
 	public class PaymentMessage
 	{
@@ -98,8 +116,31 @@ namespace NBitcoin.Payment
 		{
 			if(source.CanSeek && source.Length > MaxLength)
 				throw new ArgumentException("Payment messages larger than " + MaxLength + " bytes should be rejected by the merchant's server", "source");
-			var data = PaymentRequest.Serializer.Deserialize<Proto.Payment>(source);
-			return new PaymentMessage(data);
+			PaymentMessage message = new PaymentMessage();
+
+			ProtobufReaderWriter proto = new ProtobufReaderWriter(source);
+			int key;
+			while(proto.TryReadKey(out key))
+			{
+				switch(key)
+				{
+					case 1:
+						message.MerchantData = proto.ReadBytes();
+						break;
+					case 2:
+						message.Transactions.Add(new Transaction(proto.ReadBytes()));
+						break;
+					case 3:
+						message.RefundTo.Add(PaymentOutput.Load(proto.ReadBytes()));
+						break;
+					case 4:
+						message.Memo = proto.ReadString();
+						break;
+					default:
+						break;
+				}
+			}
+			return message;
 		}
 
 		public string Memo
@@ -128,20 +169,6 @@ namespace NBitcoin.Payment
 		{
 
 		}
-		internal PaymentMessage(Proto.Payment data)
-		{
-			Memo = data.memoSpecified ? data.memo : null;
-			MerchantData = data.merchant_data;
-			foreach(var tx in data.transactions)
-			{
-				Transactions.Add(new Transaction(tx));
-			}
-			foreach(var refund in data.refund_to)
-			{
-				RefundTo.Add(new PaymentOutput(refund));
-			}
-			OriginalData = data;
-		}
 
 		public PaymentMessage(PaymentRequest request)
 		{
@@ -161,12 +188,6 @@ namespace NBitcoin.Payment
 			set;
 		}
 
-		internal Proto.Payment OriginalData
-		{
-			get;
-			set;
-		}
-
 		public byte[] ToBytes()
 		{
 			MemoryStream ms = new MemoryStream();
@@ -176,27 +197,32 @@ namespace NBitcoin.Payment
 
 		public void WriteTo(Stream output)
 		{
-			PaymentRequest.Serializer.Serialize(output, this.ToData());
-		}
-
-		internal Proto.Payment ToData()
-		{
-			var data = OriginalData == null ? new Proto.Payment() : (Proto.Payment)PaymentRequest.Serializer.DeepClone(OriginalData);
-			data.memo = Memo;
-			data.merchant_data = MerchantData;
-
-			foreach(var refund in RefundTo)
+			var proto = new ProtobufReaderWriter(output);
+			if(MerchantData != null)
 			{
-				data.refund_to.Add(refund.ToData());
-			}
-			foreach(var transaction in Transactions)
-			{
-				data.transactions.Add(transaction.ToBytes());
+				proto.WriteKey(1, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				proto.WriteBytes(MerchantData);
 			}
 
-			return data;
-		}
+			foreach(var tx in Transactions)
+			{
+				proto.WriteKey(2, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				proto.WriteBytes(tx.ToBytes());
+			}
 
+			foreach(var txout in RefundTo)
+			{
+				proto.WriteKey(3, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				proto.WriteBytes(txout.ToBytes());
+			}
+
+			if(Memo != null)
+			{
+				proto.WriteKey(4, ProtobufReaderWriter.PROTOBUF_LENDELIM);
+				proto.WriteString(Memo);
+			}
+		}
+#if !NOHTTPCLIENT
 		/// <summary>
 		/// Send the payment to given address
 		/// </summary>
@@ -243,7 +269,7 @@ namespace NBitcoin.Payment
 				if(!result.IsSuccessStatusCode)
 					throw new WebException(result.StatusCode + "(" + (int)result.StatusCode + ")");
 
-				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentACK.MediaType, StringComparison.InvariantCultureIgnoreCase))
+				if(result.Content.Headers.ContentType == null || !result.Content.Headers.ContentType.MediaType.Equals(PaymentACK.MediaType, StringComparison.OrdinalIgnoreCase))
 				{
 					throw new WebException("Invalid contenttype received, expecting " + PaymentACK.MediaType + ", but got " + result.Content.Headers.ContentType);
 				}
@@ -256,6 +282,15 @@ namespace NBitcoin.Payment
 					httpClient.Dispose();
 			}
 		}
+#endif
+#if !NOFILEIO
+		public static PaymentMessage Load(string file)
+		{
+			using(var fs = File.OpenRead(file))
+			{
+				return Load(fs);
+			}
+		}
+#endif
 	}
 }
-#endif

@@ -141,8 +141,8 @@ namespace NBitcoin.Crypto
 		///     <c>null</c> will use as many threads as possible.
 		/// </param>
 		/// <returns>The derived key stream.</returns>
-#if !USEBC
-		public static Pbkdf2 GetStream(byte[] key, byte[] salt,
+#if !(USEBC || NETCORE)
+		internal static Pbkdf2 GetStream(byte[] key, byte[] salt,
 									   int cost, int blockSize, int parallel, int? maxThreads)
 		{
 			byte[] B = GetEffectivePbkdf2Salt(key, salt, cost, blockSize, parallel, maxThreads);
@@ -152,11 +152,11 @@ namespace NBitcoin.Crypto
 		}
 
 #else
-		public static Pbkdf2 GetStream(byte[] key, byte[] salt,
+		internal static Pbkdf2 GetStream(byte[] key, byte[] salt,
 									   int cost, int blockSize, int parallel, int? maxThreads)
 		{
 			byte[] B = GetEffectivePbkdf2Salt(key, salt, cost, blockSize, parallel, maxThreads);
-			var mac = MacUtilities.GetMac("HMAC-SHA_256");
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest());
 			mac.Init(new KeyParameter(key));
 			Pbkdf2 kdf = new Pbkdf2(mac, B, 1);
 			Security.Clear(B);
@@ -181,20 +181,20 @@ namespace NBitcoin.Crypto
 			Check.Range("parallel", parallel, 1, int.MaxValue / MFLen);
 			Check.Range("maxThreads", (int)maxThreads, 1, int.MaxValue);
 
-#if !USEBC
+#if !(USEBC || NETCORE)
 			byte[] B = Pbkdf2.ComputeDerivedKey(new HMACSHA256(P), S, 1, parallel * MFLen);
 #else
-			var mac = MacUtilities.GetMac("HMAC-SHA_256");
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest());
 			mac.Init(new KeyParameter(P));
 			byte[] B = Pbkdf2.ComputeDerivedKey(mac, S, 1, parallel * MFLen);
 #endif
 			uint[] B0 = new uint[B.Length / 4];
-			for(int i = 0 ; i < B0.Length ; i++)
+			for(int i = 0; i < B0.Length; i++)
 			{
 				B0[i] = BitPacking.UInt32FromLEBytes(B, i * 4);
 			} // code is easier with uint[]
 			ThreadSMixCalls(B0, MFLen, cost, blockSize, parallel, (int)maxThreads);
-			for(int i = 0 ; i < B0.Length ; i++)
+			for(int i = 0; i < B0.Length; i++)
 			{
 				BitPacking.LEBytesFromUInt32(B0[i], B, i * 4);
 			}
@@ -202,12 +202,12 @@ namespace NBitcoin.Crypto
 
 			return B;
 		}
-#if !USEBC
+#if !(USEBC || NETCORE)
 		static void ThreadSMixCalls(uint[] B0, int MFLen,
 									int cost, int blockSize, int parallel, int maxThreads)
 		{
 			int current = 0;
-			ThreadStart workerThread = delegate()
+			ThreadStart workerThread = delegate ()
 			{
 				while(true)
 				{
@@ -223,12 +223,12 @@ namespace NBitcoin.Crypto
 
 			int threadCount = Math.Max(1, Math.Min(Environment.ProcessorCount, Math.Min(maxThreads, parallel)));
 			Thread[] threads = new Thread[threadCount - 1];
-			for(int i = 0 ; i < threads.Length ; i++)
+			for(int i = 0; i < threads.Length; i++)
 			{
 				(threads[i] = new Thread(workerThread, 8192)).Start();
 			}
 			workerThread();
-			for(int i = 0 ; i < threads.Length ; i++)
+			for(int i = 0; i < threads.Length; i++)
 			{
 				threads[i].Join();
 			}
@@ -276,22 +276,22 @@ namespace NBitcoin.Crypto
 
 			uint[] x = new uint[Bs];
 			uint[][] v = new uint[N][];
-			for(int i = 0 ; i < v.Length ; i++)
+			for(int i = 0; i < v.Length; i++)
 			{
 				v[i] = new uint[Bs];
 			}
 
 			Array.Copy(B, Boffset, x, 0, Bs);
-			for(uint i = 0 ; i < N ; i++)
+			for(uint i = 0; i < N; i++)
 			{
 				Array.Copy(x, v[i], Bs);
 				BlockMix(x, 0, x, 0, scratchX, scratchY, scratch1, r);
 			}
-			for(uint i = 0 ; i < N ; i++)
+			for(uint i = 0; i < N; i++)
 			{
 				uint j = x[Bs - 16] & Nmask;
 				uint[] vj = v[j];
-				for(int k = 0 ; k < scratchZ.Length ; k++)
+				for(int k = 0; k < scratchZ.Length; k++)
 				{
 					scratchZ[k] = x[k] ^ vj[k];
 				}
@@ -299,7 +299,7 @@ namespace NBitcoin.Crypto
 			}
 			Array.Copy(x, 0, Bp, Bpoffset, Bs);
 
-			for(int i = 0 ; i < v.Length ; i++)
+			for(int i = 0; i < v.Length; i++)
 			{
 				Security.Clear(v[i]);
 			}
@@ -324,9 +324,9 @@ namespace NBitcoin.Crypto
 			int k = Boffset, m = 0, n = 16 * r;
 			Array.Copy(B, (2 * r - 1) * 16, x, 0, 16);
 
-			for(int i = 0 ; i < r ; i++)
+			for(int i = 0; i < r; i++)
 			{
-				for(int j = 0 ; j < scratch.Length ; j++)
+				for(int j = 0; j < scratch.Length; j++)
 				{
 					scratch[j] = x[j] ^ B[j + k];
 				}
@@ -334,7 +334,7 @@ namespace NBitcoin.Crypto
 				Array.Copy(x, 0, y, m, 16);
 				k += 16;
 
-				for(int j = 0 ; j < scratch.Length ; j++)
+				for(int j = 0; j < scratch.Length; j++)
 				{
 					scratch[j] = x[j] ^ B[j + k];
 				}

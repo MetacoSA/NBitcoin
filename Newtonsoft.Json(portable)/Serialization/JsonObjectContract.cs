@@ -35,7 +35,7 @@ namespace Newtonsoft.Json.Serialization
     /// <summary>
     /// Contract details for a <see cref="Type"/> used by the <see cref="JsonSerializer"/>.
     /// </summary>
-    public class JsonObjectContract : JsonContainerContract
+    internal class JsonObjectContract : JsonContainerContract
     {
         /// <summary>
         /// Gets or sets the object member serialization.

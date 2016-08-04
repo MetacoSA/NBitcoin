@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.OpenAsset
 {
+	/// <summary>
+	/// A unique Id for an asset
+	/// </summary>
 	public class AssetId
 	{
 		internal byte[] _Bytes;
@@ -19,6 +22,8 @@ namespace NBitcoin.OpenAsset
 		public AssetId(IDestination assetScriptPubKey)
 			: this(assetScriptPubKey.ScriptPubKey)
 		{
+			if(assetScriptPubKey == null)
+				throw new ArgumentNullException("assetScriptPubKey");
 		}
 
 		public AssetId(BitcoinAssetId assetId)
@@ -31,12 +36,17 @@ namespace NBitcoin.OpenAsset
 		public AssetId(Script assetScriptPubKey)
 			: this(assetScriptPubKey.Hash)
 		{
+			if(assetScriptPubKey == null)
+				throw new ArgumentNullException("assetScriptPubKey");
 		}
 
 		public AssetId(ScriptId scriptId)
 		{
+			if(scriptId == null)
+				throw new ArgumentNullException("scriptId");
 			_Bytes = scriptId.ToBytes(true);
 		}
+
 		public AssetId(byte[] value)
 		{
 			if(value == null)
@@ -56,6 +66,8 @@ namespace NBitcoin.OpenAsset
 
 		public BitcoinAssetId GetWif(Network network)
 		{
+			if(network == null)
+				throw new ArgumentNullException("network");
 			return new BitcoinAssetId(this, network);
 		}
 
@@ -104,6 +116,13 @@ namespace NBitcoin.OpenAsset
 			if(_Str == null)
 				_Str = Encoders.Hex.EncodeData(_Bytes);
 			return _Str;
+		}
+
+		public string ToString(Network network)
+		{
+			if(network == null)
+				throw new ArgumentNullException("network");
+			return new BitcoinAssetId(this, network).ToString();
 		}
 	}
 }

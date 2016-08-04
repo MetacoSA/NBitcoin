@@ -17,9 +17,8 @@ namespace NBitcoin.Protocol
 		{
 			_NameToType = new Dictionary<string, Type>();
 			_TypeToName = new Dictionary<Type, string>();
-			foreach(var pair in typeof(PayloadAttribute)
-				.GetTypeInfo()
-				.Assembly.DefinedTypes
+			foreach(var pair in
+				GetLoadableTypes(typeof(PayloadAttribute).GetTypeInfo().Assembly)
 				.Where(t => t.Namespace == typeof(PayloadAttribute).Namespace)
 				.Where(t => t.IsDefined(typeof(PayloadAttribute), true))
 				.Select(t =>
@@ -31,6 +30,18 @@ namespace NBitcoin.Protocol
 			{
 				_NameToType.Add(pair.Attr.Name, pair.Type.AsType());
 				_TypeToName.Add(pair.Type.AsType(), pair.Attr.Name);
+			}
+		}
+
+		static IEnumerable<TypeInfo> GetLoadableTypes(Assembly assembly)
+		{
+			try
+			{
+				return assembly.DefinedTypes;
+			}
+			catch(ReflectionTypeLoadException e)
+			{
+				return e.Types.Where(t => t != null).Select(t => t.GetTypeInfo());
 			}
 		}
 

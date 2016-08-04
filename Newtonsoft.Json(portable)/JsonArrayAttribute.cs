@@ -31,7 +31,7 @@ namespace Newtonsoft.Json
     /// Instructs the <see cref="JsonSerializer"/> how to serialize the collection.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false)]
-    public sealed class JsonArrayAttribute : JsonContainerAttribute
+    internal sealed class JsonArrayAttribute : JsonContainerAttribute
     {
         private bool _allowNullItems;
 

@@ -5,7 +5,7 @@ namespace Newtonsoft.Json.Linq
     /// <summary>
     /// Specifies the settings used when merging JSON.
     /// </summary>
-    public class JsonMergeSettings
+    internal class JsonMergeSettings
     {
         private MergeArrayHandling _mergeArrayHandling;
 

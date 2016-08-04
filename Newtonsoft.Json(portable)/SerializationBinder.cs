@@ -8,7 +8,7 @@ namespace Newtonsoft.Json
     /// <summary>
     /// Allows users to control class loading and mandate what class to load.
     /// </summary>
-    public abstract class SerializationBinder
+    internal abstract class SerializationBinder
     {
         /// <summary>
         /// When overridden in a derived class, controls the binding of a serialized object to a type.

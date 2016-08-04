@@ -45,7 +45,7 @@ namespace Newtonsoft.Json.Linq
     /// <summary>
     /// Represents a token that can contain other tokens.
     /// </summary>
-    public abstract class JContainer : JToken, IList<JToken>
+    internal abstract class JContainer : JToken, IList<JToken>
 #if !(NETFX_CORE || PORTABLE || PORTABLE40)
         , ITypedList, IBindingList
 #elif PORTABLE

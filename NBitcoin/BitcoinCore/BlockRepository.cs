@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
-	public class BlockRepository
+	public class BlockRepository : IBlockRepository
 	{
 		IndexedBlockStore _BlockStore;
 		IndexedBlockStore _HeaderStore;
-		public BlockRepository(IndexedBlockStore blockStore, 
+		public BlockRepository(IndexedBlockStore blockStore,
 							   IndexedBlockStore headerStore)
 		{
 			if(blockStore == null)
@@ -42,8 +42,11 @@ namespace NBitcoin.BitcoinCore
 			return _BlockStore.Get(hash) ?? _HeaderStore.Get(hash);
 		}
 
-		
-
+		public async Task<Block> GetBlockAsync(uint256 hash)
+		{
+			return await _BlockStore.GetAsync(hash).ConfigureAwait(false)
+				?? await _HeaderStore.GetAsync(hash).ConfigureAwait(false);
+		}
 	}
 }
 #endif

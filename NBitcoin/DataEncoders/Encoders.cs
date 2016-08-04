@@ -1,36 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NBitcoin.DataEncoders
+﻿namespace NBitcoin.DataEncoders
 {
-	public class DataEncoder
+	public abstract class DataEncoder
 	{
-		public static readonly char[] SpaceCharacters = new[] { ' ', '\t', '\n', '\v', '\f', '\r' };
+		// char.IsWhiteSpace fits well but it match other whitespaces 
+		// characters too and also works for unicode characters.
 		public static bool IsSpace(char c)
 		{
-			return SpaceCharacters.Contains(c);
+			switch(c)
+			{
+				case ' ':
+				case '\t':
+				case '\n':
+				case '\v':
+				case '\f':
+				case '\r':
+					return true;
+			}
+			return false;
 		}
 
-		
+		internal DataEncoder()
+		{
+		}
 
 		public string EncodeData(byte[] data)
 		{
-			return EncodeData(data, data.Length);
-		}
-		public virtual string EncodeData(byte[] data, int length)
-		{
-			throw new NotSupportedException();
+			return EncodeData(data, 0, data.Length);
 		}
 
-		public virtual byte[] DecodeData(string encoded)
-		{
-			throw new NotSupportedException();
-		}
+		public abstract string EncodeData(byte[] data, int offset, int count);
+
+		public abstract byte[] DecodeData(string encoded);
 	}
-	public class Encoders
+
+	public static class Encoders
 	{
 		static readonly ASCIIEncoder _ASCII = new ASCIIEncoder();
 		public static DataEncoder ASCII
@@ -40,6 +43,7 @@ namespace NBitcoin.DataEncoders
 				return _ASCII;
 			}
 		}
+
 		static readonly HexEncoder _Hex = new HexEncoder();
 		public static DataEncoder Hex
 		{
@@ -58,10 +62,7 @@ namespace NBitcoin.DataEncoders
 			}
 		}
 
-		static readonly Base58Encoder _Base58Check = new Base58Encoder()
-				{
-					Check = true
-				};
+		private static readonly Base58CheckEncoder _Base58Check = new Base58CheckEncoder();
 		public static DataEncoder Base58Check
 		{
 			get
@@ -78,48 +79,5 @@ namespace NBitcoin.DataEncoders
 				return _Base64;
 			}
 		}
-
-		//public static DataEncoder Bin
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
-		//public static DataEncoder Dec
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
-		//public static DataEncoder RFC1751
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
-		//public static DataEncoder Poetry
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
-		//public static DataEncoder Rot13
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
-		//public static DataEncoder Easy16
-		//{
-		//	get
-		//	{
-		//		return null;
-		//	}
-		//}
 	}
 }

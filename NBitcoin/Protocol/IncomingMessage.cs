@@ -17,16 +17,15 @@ namespace NBitcoin.Protocol
 		public IncomingMessage(Payload payload, Network network)
 		{
 			Message = new Message();
-			Message.Command = payload.Command;
 			Message.Magic = network.Magic;
-			Message.UpdatePayload(payload, ProtocolVersion.PROTOCOL_VERSION);
+			Message.Payload = payload;
 		}
 		public Message Message
 		{
 			get;
 			set;
 		}
-		public Socket Socket
+		internal Socket Socket
 		{
 			get;
 			set;
@@ -37,13 +36,13 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
-		public T AssertPayload<T>()
+		internal T AssertPayload<T>() where T : Payload
 		{
 			if(Message.Payload is T)
 				return (T)(Message.Payload);
 			else
 			{
-				var ex = new FormatException("Expected message " + typeof(T).Name + " but got " + Message.Payload.GetType().Name);
+				var ex = new ProtocolException("Expected message " + typeof(T).Name + " but got " + Message.Payload.GetType().Name);
 				throw ex;
 			}
 		}

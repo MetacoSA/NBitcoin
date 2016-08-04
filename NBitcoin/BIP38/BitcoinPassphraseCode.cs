@@ -111,7 +111,7 @@ namespace NBitcoin
 			}
 		}
 
-	    readonly byte[] _Bytes;
+		readonly byte[] _Bytes;
 		public byte[] ToBytes()
 		{
 			return _Bytes.ToArray();
@@ -121,7 +121,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return BitConverter.ToInt32(_Bytes, 0);
+				return Utils.ToInt32(_Bytes, 0, true);
 			}
 		}
 
@@ -203,7 +203,7 @@ namespace NBitcoin
 				var hasLotSequence = (vchData[0]) == 0x51;
 				if(!hasLotSequence)
 					return null;
-			    return _LotSequence ?? (_LotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray()));
+				return _LotSequence ?? (_LotSequence = new LotSequence(OwnerEntropy.Skip(4).Take(4).ToArray()));
 			}
 		}
 
@@ -221,7 +221,7 @@ namespace NBitcoin
 			var factorb = Hashes.Hash256(seedb).ToBytes();
 
 			//ECMultiply passpoint by factorb.
-			var curve = ECKey.CreateCurve();
+			var curve = ECKey.Secp256k1;
 			var passpoint = curve.Curve.DecodePoint(Passpoint);
 			var pubPoint = passpoint.Multiply(new BigInteger(1, factorb));
 
@@ -283,12 +283,18 @@ namespace NBitcoin
 		byte[] _OwnerEntropy;
 		public byte[] OwnerEntropy
 		{
-			get { return _OwnerEntropy ?? (_OwnerEntropy = vchData.Skip(1).Take(8).ToArray()); }
+			get
+			{
+				return _OwnerEntropy ?? (_OwnerEntropy = vchData.Skip(1).Take(8).ToArray());
+			}
 		}
 		byte[] _Passpoint;
 		public byte[] Passpoint
 		{
-			get { return _Passpoint ?? (_Passpoint = vchData.Skip(1).Skip(8).ToArray()); }
+			get
+			{
+				return _Passpoint ?? (_Passpoint = vchData.Skip(1).Skip(8).ToArray());
+			}
 		}
 
 		protected override bool IsValid

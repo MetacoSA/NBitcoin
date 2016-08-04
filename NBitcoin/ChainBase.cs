@@ -53,8 +53,11 @@ namespace NBitcoin
 
 		public ChainedBlock SetTip(ChainBase otherChain)
 		{
+			if(otherChain == null)
+				throw new ArgumentNullException("otherChain");
 			return SetTip(otherChain.Tip);
 		}
+
 		public bool SetTip(BlockHeader header)
 		{
 			ChainedBlock chainedHeader;
@@ -63,6 +66,8 @@ namespace NBitcoin
 
 		public bool TrySetTip(BlockHeader header, out ChainedBlock chainedHeader)
 		{
+			if(header == null)
+				throw new ArgumentNullException("header");
 			chainedHeader = null;
 			var prev = GetBlock(header.HashPrevBlock);
 			if(prev == null)
@@ -76,86 +81,55 @@ namespace NBitcoin
 
 		public bool Contains(ChainedBlock blockIndex)
 		{
+			if(blockIndex == null)
+				throw new ArgumentNullException("blockIndex");
 			return GetBlock(blockIndex.Height) != null;
 		}
 
 		public bool SameTip(ChainBase chain)
 		{
+			if(chain == null)
+				throw new ArgumentNullException("chain");
 			return Tip.HashBlock == chain.Tip.HashBlock;
 		}
 
-		static readonly TimeSpan nTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
-		static readonly TimeSpan nTargetSpacing = TimeSpan.FromSeconds(10 * 60);
-		static readonly long nInterval = nTargetTimespan.Ticks / nTargetSpacing.Ticks;
 
-		private void assert(object obj)
-		{
-			if(obj == null)
-				throw new NotSupportedException("Can only calculate work of a full chain");
-		}
 		public Target GetWorkRequired(Network network, int height)
 		{
-			var nProofOfWorkLimit = new Target(network.ProofOfWorkLimit);
-			var pindexLast = height == 0 ? null : GetBlock(height - 1);
+			return GetBlock(height).GetWorkRequired(network);
+		}
 
-			// Genesis block
-			if(pindexLast == null)
-				return nProofOfWorkLimit;
-
-			// Only change once per interval
-			if((height) % nInterval != 0)
+		public bool Validate(Network network, bool fullChain = true)
+		{
+			var tip = Tip;
+			if(tip == null)
+				return false;
+			if(!fullChain)
+				return tip.Validate(network);
+			else
 			{
-				if(network == Network.TestNet)
+				foreach(var block in tip.EnumerateToGenesis())
 				{
-					// Special difficulty rule for testnet:
-					// If the new block's timestamp is more than 2* 10 minutes
-					// then allow mining of a min-difficulty block.
-					if(DateTimeOffset.UtcNow > pindexLast.Header.BlockTime + TimeSpan.FromTicks(nTargetSpacing.Ticks * 2))
-						return nProofOfWorkLimit;
-					else
-					{
-						// Return the last non-special-min-difficulty-rules-block
-						ChainedBlock pindex = pindexLast;
-						while(pindex.Previous != null && (pindex.Height % nInterval) != 0 && pindex.Header.Bits == nProofOfWorkLimit)
-							pindex = pindex.Previous;
-						return pindex.Header.Bits;
-					}
+					if(!block.Validate(network))
+						return false;
 				}
-				return pindexLast.Header.Bits;
+				return true;
 			}
-
-			// Go back by what we want to be 14 days worth of blocks
-			var pastHeight = pindexLast.Height - nInterval + 1;
-			ChainedBlock pindexFirst = GetBlock((int)pastHeight);
-			assert(pindexFirst);
-
-			// Limit adjustment step
-			var nActualTimespan = pindexLast.Header.BlockTime - pindexFirst.Header.BlockTime;
-			if(nActualTimespan < TimeSpan.FromTicks(nTargetTimespan.Ticks / 4))
-				nActualTimespan = TimeSpan.FromTicks(nTargetTimespan.Ticks / 4);
-			if(nActualTimespan > TimeSpan.FromTicks(nTargetTimespan.Ticks * 4))
-				nActualTimespan = TimeSpan.FromTicks(nTargetTimespan.Ticks * 4);
-
-			// Retarget
-			var bnNew = pindexLast.Header.Bits.ToBigInteger();
-			bnNew *= (ulong)nActualTimespan.TotalSeconds;
-			bnNew /= (ulong)nTargetTimespan.TotalSeconds;
-			var newTarget = new Target(bnNew);
-			if(newTarget > nProofOfWorkLimit)
-				newTarget = nProofOfWorkLimit;
-
-			return newTarget;
 		}
 
 
 
 		public ChainedBlock FindFork(ChainBase chain)
 		{
+			if(chain == null)
+				throw new ArgumentNullException("chain");
 			return FindFork(chain.ToEnumerable(true).Select(o => o.HashBlock));
 		}
 
 		public ChainedBlock FindFork(IEnumerable<uint256> hashes)
 		{
+			if(hashes == null)
+				throw new ArgumentNullException("hashes");
 			// Find the first block the caller has in the main chain
 			foreach(uint256 hash in hashes)
 			{
@@ -167,12 +141,13 @@ namespace NBitcoin
 			}
 			return Genesis;
 		}
-#if !PORTABLE
+
 		public ChainedBlock FindFork(BlockLocator locator)
 		{
+			if(locator == null)
+				throw new ArgumentNullException("locator");
 			return FindFork(locator.Blocks);
 		}
-#endif
 
 		public IEnumerable<ChainedBlock> EnumerateAfter(uint256 blockHash)
 		{
@@ -184,8 +159,11 @@ namespace NBitcoin
 
 		public IEnumerable<ChainedBlock> EnumerateToTip(ChainedBlock block)
 		{
+			if(block == null)
+				throw new ArgumentNullException("block");
 			return EnumerateToTip(block.HashBlock);
 		}
+
 		public IEnumerable<ChainedBlock> EnumerateToTip(uint256 blockHash)
 		{
 			var block = GetBlock(blockHash);

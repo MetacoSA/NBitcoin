@@ -10,12 +10,22 @@ namespace NBitcoin
 	{
 		ITransactionRepository _Inner;
 		Dictionary<uint256, Transaction> _Transactions = new Dictionary<uint256, Transaction>();
+		Queue<uint256> _EvictionQueue = new Queue<uint256>();
 		ReaderWriterLock @lock = new ReaderWriterLock();
 		public CachedTransactionRepository(ITransactionRepository inner)
 		{
 			if(inner == null)
 				throw new ArgumentNullException("inner");
+			ReadThrough = true;
+			WriteThrough = true;
 			_Inner = inner;
+			MaxCachedTransactions = 100;
+		}
+
+		public int MaxCachedTransactions
+		{
+			get;
+			set;
 		}
 
 		public Transaction GetFromCache(uint256 txId)
@@ -39,27 +49,59 @@ namespace NBitcoin
 			if(!found)
 			{
 				result = await _Inner.GetAsync(txId).ConfigureAwait(false);
-				using(@lock.LockWrite())
+				if(ReadThrough)
 				{
-					_Transactions.AddOrReplace(txId, result);
+					using(@lock.LockWrite())
+					{
+
+						_Transactions.AddOrReplace(txId, result);
+						EvictIfNecessary(txId);
+					}
 				}
 			}
 			return result;
 
 		}
 
+		private void EvictIfNecessary(uint256 txId)
+		{
+			_EvictionQueue.Enqueue(txId);
+			while(_Transactions.Count > MaxCachedTransactions && _EvictionQueue.Count > 0)
+				_Transactions.Remove(_EvictionQueue.Dequeue());
+		}
+
 		public Task PutAsync(uint256 txId, Transaction tx)
 		{
-			using(@lock.LockWrite())
+			if(WriteThrough)
 			{
-				if(!_Transactions.ContainsKey(txId))
-					_Transactions.AddOrReplace(txId, tx);
-				else
-					_Transactions[txId] = tx;
+				using(@lock.LockWrite())
+				{
+
+					if(!_Transactions.ContainsKey(txId))
+					{
+
+						_Transactions.AddOrReplace(txId, tx);
+						EvictIfNecessary(txId);
+					}
+					else
+						_Transactions[txId] = tx;
+				}
 			}
 			return _Inner.PutAsync(txId, tx);
 		}
 
 		#endregion
+
+		public bool WriteThrough
+		{
+			get;
+			set;
+		}
+
+		public bool ReadThrough
+		{
+			get;
+			set;
+		}
 	}
 }

@@ -5,13 +5,13 @@
 *.suo
 *.user
 *.sln.docstates
+*.userprefs
 
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
 x64/
-build/
 bld/
 [Bb]in/
 [Oo]bj/
@@ -124,6 +124,10 @@ publish/
 
 # NuGet Packages Directory
 packages/
+*.nupkg
+NBitcoin.Mono.nuspec
+NBitcoin.nuspec
+
 ## TODO: If the tool you use requires repositories.config uncomment the next line
 #!packages/repositories.config
 
@@ -172,3 +176,11 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+/.vs/config/applicationhost.config
+/NBitcoin.Portable/NBitcoin(MonoAndroid).csproj.bak
+/NBitcoin.Portable/NBitcoin(Mono).csproj.bak
+
+# .NET Core projects
+.vs/
+project.lock.json
+.vscode/

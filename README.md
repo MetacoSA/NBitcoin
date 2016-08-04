@@ -1,9 +1,14 @@
-NBitcoin
-=======
+#NBitcoin
+
+NBitcoin is the most complete Bitcoin library for the .NET platform. It is compatible with Open Assets and implements most relevant Bitcoin Improvement Proposals (BIPs). It provides also low level access to Bitcoin primitives so you can easily create your own smart contracts.
+
 
 #How to use ?
 With nuget :
->Install-Package NBitcoin 
+>**Install-Package NBitcoin** 
+
+Or if you are running on Mono (e.g. using MonoDevelop/XamarinStudio):
+>**Install-Package NBitcoin.Mono**
 
 Go on the [nuget website](https://www.nuget.org/packages/NBitcoin/) for more information.
 
@@ -14,65 +19,53 @@ The packages supports the following Portable profile :
 * portable-net45+win+wpa81+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10
 * portable-net45+MonoAndroid1
 
-To complile it by yourself, you just have to git clone, open the project and hit the compile button on visual studio.
-How to get started ? Check out this article [on CodeProject](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) to do some basic crypto operations.
+To compile it by yourself, you can git clone, open the project and hit the compile button on visual studio.
+How to get started ? Check out this article [on CodeProject](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) for some basic Bitcoin operations.
 
-##What is it about ?
-This is the most complete and faithful porting I know of bitcoin.
 
 ##Description
-Why is it a big deal ? Because you can run it and debug into it without any linux-voodoo-setup to make bitcoin running.
-Visual studio express for free, XUnit and you are up to go.
+NBitcoin notably includes:
 
 * A [TransactionBuilder](http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All) supporting Stealth, Open Asset, and all standard transactions
-* Full port of the test suite of bitcoin core with their own data
 * Full script evaluation and parsing
-* RPC Client
+* A RPC Client
+* A SPV Wallet implementation [with sample](https://github.com/NicolasDorier/NBitcoin.SPVSample)
+* The parsing of standard scripts and creation of custom ones
+* The serialization of blocks, transactions and script
+* The signing and verification with private keys (with support for compact signatures) for proving ownership
+* Bloom filters and partial merkle trees
+* Segregated Witness ([BIP 141](https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki), [BIP 143](https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki), [BIP 144](https://github.com/bitcoin/bips/blob/master/bip-0144.mediawiki))
 * Mnemonic code for generating deterministic keys ([BIP 39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)), credits to [Thasshiznets](https://github.com/Thashiznets/BIP39.NET)
-* Payment Protocol ([BIP 70](https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki))
-* Payment URL ([BIP 21](https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki),[BIP 72](https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki))
-* Two Factor keys ([BIP 38](http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part))
-* Stealth Address ([Also on codeproject](http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part))
-* Recognize standard script and permit to create them
-* Object model faithful to the C++ API but with C# goodness
-* Simpler API (here is how to generate a key and get the address : new Key().PubKey.Address.ToString())
-* Bloom filter, partial merkle tree
-* Serialization of Blocks, Transactions, Script
-* Signing/verification with private keys, support compact signature for prooving ownership
 * Hierarchical Deterministic Wallets ([BIP 32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki))
+* Payment Protocol ([BIP 70](https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki))
+* Payment URLs ([BIP 21](https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki),[BIP 72](https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki))
+* Two-Factor keys ([BIP 38](http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part))
+* Stealth Addresses ([Also on codeproject](http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part))
 
+NBitcoin is inspired by Bitcoin Core code but provides a simpler object oriented API (e.g., new Key().PubKey.Address.ToString() to generate a key and get the associated address). It relies on BountyCastle cryptography library instead of OpenSSL, yet replicates OpenSSL bugs to guarantee compatibility. NBitcoin also ports the integrality of Bitcoin Core unit tests with their original data in order to validate the compatibility of the two implementations.
 
-I ported directly from the C++, except the OpenSSL part where I'm using BouncyCaslte instead. (BitcoinJ helped me a lot on the implementation)
-I also ported OpenSSL bugs (you can't believe how much time it took me) ;)
-
-Mono.NAT is used to open port if you intent to use host a node,
-SqLite is a database used.
-
-Please, use the code to explore/learn/debug/play/sharing/create the licence is MIT, so you should be good to go.
-This is the simple way and most complete way to see the internal of bitcoin without going to C++ madness.
+NBitcoin license is MIT and we encourage you to use it to explore, learn, debug, play, share and create software for Bitcoin and with other Metaco services.
 
 ## Useful doc :
 
- Ebook [Blockchain Programming in C#](https://aois.blob.core.windows.net/public/Blockchain Programming in CSharp.pdf)
+* **Ebook** [Programming The Blockchain in C#](https://www.gitbook.com/book/programmingblockchain/programmingblockchain/details)
 
-NBitcoin Github : https://github.com/NicolasDorier/NBitcoin
+* **NBitcoin Github** : [https://github.com/NicolasDorier/NBitcoin](https://github.com/NicolasDorier/NBitcoin "https://github.com/NicolasDorier/NBitcoin")
 
-NBitcoin Nuget : https://www.nuget.org/packages/NBitcoin/
+* **NBitcoin Nuget** : [https://www.nuget.org/packages/NBitcoin/](https://www.nuget.org/packages/NBitcoin/ "https://www.nuget.org/packages/NBitcoin/")
 
-Intro : http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt
+* **Intro**: [http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt)
 
-Stealth Payment, and BIP38 : http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part
+* **Stealth Payment**, and **BIP38** : [http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part](http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part)
 
-How to build transaction : http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All
+* **How to build transaction** : [http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All](http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All "http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All")
 
-Using the NBitcoin Indexer : http://www.codeproject.com/Articles/819567/NBitcoin-Indexer-A-scalable-and-fault-tolerant-blo
+* **Using the NBitcoin Indexer** : [http://www.codeproject.com/Articles/819567/NBitcoin-Indexer-A-scalable-and-fault-tolerant-blo](http://www.codeproject.com/Articles/819567/NBitcoin-Indexer-A-scalable-and-fault-tolerant-blo "http://www.codeproject.com/Articles/819567/NBitcoin-Indexer-A-scalable-and-fault-tolerant-blo")
 
-How to Scan the blockchain : http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain (You can dismissthe ScanState for that, now I concentrate on the indexer)
+* **How to Scan the blockchain** : [http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain](http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain "http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain") (You can dismissthe ScanState for that, now I concentrate on the indexer)
 
-Bitcoin address : 15sYbVpRh6dyWycZMwPdxJWD4xbfxReeHe
-
-if you want to contact me : http://nicolas-dorier.com/Contact will do the rest by email :)
+Please, use github issues for questions or feedback. For confidential requests or specific demands, contact us on [Metaco support](mailto:support@metaco.com "support@metaco.com").
 
 
-##Useful link :
-Visual studio express : http://www.visualstudio.com/en-us/products/visual-studio-express-vs.aspx
+##Useful link for a free IDE :
+Visual Studio Community Edition : [https://www.visualstudio.com/products/visual-studio-community-vs](https://www.visualstudio.com/products/visual-studio-community-vs "https://www.visualstudio.com/products/visual-studio-community-vs")

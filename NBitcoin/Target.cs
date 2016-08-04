@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	/// <summary>
+	/// Represent the challenge that miners must solve for finding a new block
+	/// </summary>
 	public class Target
 	{
 		static Target _Difficulty1 = new Target(new byte[] { 0x1d, 0x00, 0xff, 0xff });
@@ -44,7 +47,7 @@ namespace NBitcoin
 			if(compact.Length == 4)
 			{
 				var exp = compact[0];
-				var val = compact.Skip(1).Take(3).Reverse().ToArray();
+				var val = compact.SafeSubarray(1, 3).Reverse().ToArray();
 				_Target = new BigInteger(val) << 8 * (exp - 3);
 			}
 			else
@@ -73,7 +76,7 @@ namespace NBitcoin
 		public static implicit operator uint(Target a)
 		{
 			var bytes = a._Target.ToByteArray().Reverse().ToArray();
-			var val = bytes.Take(3).Reverse().ToArray();
+			var val = bytes.SafeSubarray(0, Math.Min(bytes.Length, 3)).Reverse().ToArray();
 			var exp = (byte)(bytes.Length);
 			var missing = 4 - val.Length;
 			if(missing > 0)
@@ -93,7 +96,7 @@ namespace NBitcoin
 					BigInteger remainder;
 					var quotient = BigInteger.DivRem(Difficulty1._Target, _Target, out remainder);
 					var decimalPart = BigInteger.Zero;
-					for(int i = 0 ; i < 12 ; i++)
+					for(int i = 0; i < 12; i++)
 					{
 						var div = (remainder * 10) / _Target;
 

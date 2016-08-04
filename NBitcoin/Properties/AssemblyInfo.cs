@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -14,7 +15,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 #if !PORTABLE
-[assembly:InternalsVisibleTo("NBitcoin.Tests")]
+[assembly: InternalsVisibleTo("NBitcoin.Tests")]
 #else
 [assembly: InternalsVisibleTo("NBitcoin.Portable.Tests")]
 #endif
@@ -23,7 +24,6 @@ using System.Runtime.InteropServices;
 // to COM components.  If you need to access a type in this assembly from 
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
-
 
 // Version information for an assembly consists of the following four values:
 //
@@ -35,6 +35,6 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("1.0.8.19")]
-[assembly: AssemblyFileVersion("1.0.8.19")]
-[assembly: AssemblyInformationalVersion("1.0.8.19")]
+[assembly: AssemblyVersion("3.0.0.42")]
+[assembly: AssemblyFileVersion("3.0.0.42")]
+[assembly: AssemblyInformationalVersion("3.0.0.42")]

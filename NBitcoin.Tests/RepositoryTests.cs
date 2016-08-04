@@ -3,7 +3,9 @@ using NBitcoin.BitcoinCore;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
 using NBitcoin.RPC;
+using NBitcoin.SPV;
 using NBitcoin.Stealth;
 using Newtonsoft.Json.Linq;
 using System;
@@ -133,10 +135,17 @@ namespace NBitcoin.Tests
 			{
 				index.Put(block.Item);
 			}
-			var genesis = index.Get(new uint256("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
+			var genesis = index.Get(uint256.Parse("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
 			Assert.NotNull(genesis);
-			var invalidBlock = index.Get(new uint256("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26e"));
+			var invalidBlock = index.Get(uint256.Parse("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26e"));
 			Assert.Null(invalidBlock);
+		}
+
+
+		public static IndexedBlockStore CreateIndexedStore([CallerMemberName]string folderName = null)
+		{
+			TestUtils.EnsureNew(folderName);
+			return new IndexedBlockStore(new InMemoryNoSqlRepository(), new BlockStore(folderName, Network.Main));
 		}
 
 		[Fact]
@@ -185,7 +194,7 @@ namespace NBitcoin.Tests
 			store.AppendAll(source.Enumerate(false).Take(100).Select(b => b.Item));
 
 
-			var test = new IndexedBlockStore(new SQLiteNoSqlRepository("CanReIndex", true), store);
+			var test = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
 			var reIndexed = test.ReIndex();
 			Assert.Equal(100, reIndexed);
 			int i = 0;
@@ -247,7 +256,7 @@ namespace NBitcoin.Tests
 			result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927df");
 			Assert.Null(result);
 
-			var unspent = repo.GetUnspentAsync("15sYbVpRh6dyWycZMwPdxJWD4xbfxReeHe").Result;
+			var unspent = repo.GetUnspentAsync("1KF8kUVHK42XzgcmJF4Lxz4wcL5WDL97PB").Result;
 			Assert.True(unspent.Count != 0);
 
 			repo = new BlockrTransactionRepository(Network.TestNet);
@@ -274,41 +283,16 @@ namespace NBitcoin.Tests
 			Assert.NotNull(result);
 		}
 
-		//[Fact]
+		[Fact]
 		public static void Play()
 		{
-			//var node = Node.ConnectToLocal(Network.Main);
-			//node.VersionHandshake();
-			//var chain = node.GetChain();
-			//var v3 = chain.Tip
-			//	.EnumerateToGenesis()
-			//	.Take(1000)
-			//	.Aggregate(0, (a, b) => b.Header.Version == 3 ? a+1 : a);
-
-			//var r = (double)v3 / (double)1000;
-
-			Stopwatch watch = new Stopwatch();
-			watch.Start();
-			System.Net.ServicePointManager.DefaultConnectionLimit = 100;
-			System.Net.ServicePointManager.Expect100Continue = false;
-			var repo = new QBitNinjaTransactionRepository("http://rapidbase-test.azurewebsites.net/");
-			var colored = new OpenAsset.NoSqlColoredTransactionRepository(repo);
-
-
-			var result = repo
-				.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de")
-				.GetColoredTransaction(colored);
-			watch.Stop();
-			//for(int i = 0 ; i < 100 ; i++)
-			//{
-			//	using(var node = Node.ConnectToLocal(Network.Main))
-			//	{
-			//		node.VersionHandshake();
-			//		var chain = new ConcurrentChain(Network.Main);
-			//		node.SynchronizeChain(chain);
-			//	}
-			//}
 		}
+
+		private static Coin RandomCoin(Key bob, Money amount, bool p2pkh = false)
+		{
+			return new Coin(new uint256(Enumerable.Range(0, 32).Select(i => (byte)0xaa).ToArray()), 0, amount, p2pkh ? bob.PubKey.Hash.ScriptPubKey : bob.PubKey.WitHash.ScriptPubKey);
+		}
+
 
 
 		[Fact]
@@ -381,7 +365,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCacheNoSqlRepository()
 		{
-			var cached = new CachedNoSqlRepository(CreateNoSqlRepository());
+			var cached = new CachedNoSqlRepository(new InMemoryNoSqlRepository());
 			byte[] data1 = new byte[] { 1, 2, 3, 4, 5, 6 };
 			byte[] data2 = new byte[] { 11, 22, 33, 4, 5, 66 };
 			cached.InnerRepository.Put("data1", new RawData(data1));
@@ -421,9 +405,8 @@ namespace NBitcoin.Tests
 		{
 			var repositories = new NoSqlRepository[]
 			{
-				CreateNoSqlRepository(),
 				new InMemoryNoSqlRepository(),
-				new CachedNoSqlRepository(CreateNoSqlRepository("CanStoreInNoSqlCached"))
+				new CachedNoSqlRepository(new InMemoryNoSqlRepository())
 			};
 
 			foreach(var repository in repositories)
@@ -464,73 +447,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		private SQLiteNoSqlRepository CreateNoSqlRepository([CallerMemberName]string filename = null)
-		{
-			if(File.Exists(filename))
-				File.Delete(filename);
-			return new SQLiteNoSqlRepository(filename);
-		}
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanStorePeers()
-		{
-			SqLitePeerTableRepository repository = CreateTableRepository();
-			CanStorePeer(repository);
-			CanStorePeer(new InMemoryPeerTableRepository());
-		}
-
-
-		private static void CanStorePeer(PeerTableRepository repository)
-		{
-			var peer = new Peer(PeerOrigin.Addr, new NetworkAddress()
-			{
-				Endpoint = new IPEndPoint(IPAddress.Parse("0.0.1.0").MapToIPv6(), 110),
-				Time = DateTimeOffset.UtcNow - TimeSpan.FromMinutes(5)
-			});
-			repository.WritePeer(peer);
-			var result = repository.GetPeers().ToArray();
-			Assert.Equal(1, result.Length);
-			Assert.Equal(PeerOrigin.Addr, result[0].Origin);
-			Assert.Equal(IPAddress.Parse("0.0.1.0").MapToIPv6(), result[0].NetworkAddress.Endpoint.Address);
-			Assert.Equal(110, result[0].NetworkAddress.Endpoint.Port);
-			Assert.Equal(peer.NetworkAddress.Time, result[0].NetworkAddress.Time);
-
-			peer.NetworkAddress.Time = DateTimeOffset.UtcNow + TimeSpan.FromMinutes(5);
-			repository.WritePeer(peer);
-			result = repository.GetPeers().ToArray();
-			Assert.Equal(1, result.Length);
-			Assert.Equal(peer.NetworkAddress.Time, result[0].NetworkAddress.Time);
-
-			var peer2 = new Peer(PeerOrigin.Addr, new NetworkAddress()
-			{
-				Endpoint = new IPEndPoint(IPAddress.Parse("0.0.2.0").MapToIPv6(), 110),
-				Time = DateTimeOffset.UtcNow - TimeSpan.FromMinutes(5)
-			});
-
-			repository.WritePeers(new Peer[] { peer, peer2 });
-			Assert.Equal(2, repository.GetPeers().ToArray().Length);
-
-			peer.NetworkAddress.Time = Utils.UnixTimeToDateTime(0);
-			repository.WritePeer(peer);
-			result = repository.GetPeers().ToArray();
-			Assert.Equal(1, result.Length);
-			Assert.Equal(IPAddress.Parse("0.0.2.0").MapToIPv6(), result[0].NetworkAddress.Endpoint.Address);
-		}
-
-		private SqLitePeerTableRepository CreateTableRepository([CallerMemberName]string filename = null)
-		{
-			if(File.Exists(filename))
-				File.Delete(filename);
-			return new SqLitePeerTableRepository(filename);
-		}
-
-
-		public static IndexedBlockStore CreateIndexedStore([CallerMemberName]string folderName = null)
-		{
-			TestUtils.EnsureNew(folderName);
-			return new IndexedBlockStore(new SQLiteNoSqlRepository(Path.Combine(folderName, "Index")), new BlockStore(folderName, Network.Main));
-		}
 		private static BlockStore CreateBlockStore([CallerMemberName]string folderName = null)
 		{
 			if(Directory.Exists(folderName))

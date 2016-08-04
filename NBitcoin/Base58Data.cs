@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	/// <summary>
+	/// Base class for all Base58 check representation of data
+	/// </summary>
 	public abstract class Base58Data
 	{
 		protected byte[] vchData = new byte[0];
@@ -21,12 +24,13 @@ namespace NBitcoin
 			}
 		}
 
-		public Base58Data(string base64, Network expectedNetwork = null)
+		protected Base58Data(string base64, Network expectedNetwork = null)
 		{
 			_Network = expectedNetwork;
 			SetString(base64);
 		}
-		public Base58Data(byte[] rawBytes, Network network)
+
+		protected Base58Data(byte[] rawBytes, Network network)
 		{
 			if(network == null)
 				throw new ArgumentNullException("network");
@@ -43,7 +47,7 @@ namespace NBitcoin
 		{
 			if(_Network == null)
 			{
-				_Network = Network.GetNetworkFromBase58Data(psz);
+				_Network = Network.GetNetworkFromBase58Data(psz, Type);
 				if(_Network == null)
 					throw new FormatException("Invalid " + this.GetType().Name);
 			}
@@ -52,11 +56,11 @@ namespace NBitcoin
 			var expectedVersion = _Network.GetVersionBytes(Type);
 
 
-			vchVersion = vchTemp.Take((int)expectedVersion.Length).ToArray();
+			vchVersion = vchTemp.SafeSubarray(0, expectedVersion.Length);
 			if(!Utils.ArrayEqual(vchVersion, expectedVersion))
 				throw new FormatException("The version prefix does not match the expected one " + String.Join(",", expectedVersion));
 
-			vchData = vchTemp.Skip((int)expectedVersion.Length).ToArray();
+			vchData = vchTemp.SafeSubarray(expectedVersion.Length);
 			wifData = psz;
 
 			if(!IsValid)

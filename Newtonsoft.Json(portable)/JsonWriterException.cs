@@ -36,7 +36,7 @@ namespace Newtonsoft.Json
 #if !(NETFX_CORE || PORTABLE40 || PORTABLE)
     [Serializable]
 #endif
-    public class JsonWriterException : JsonException
+    internal class JsonWriterException : JsonException
     {
         /// <summary>
         /// Gets the path to the JSON where the error occurred.

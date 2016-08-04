@@ -20,7 +20,7 @@ namespace NBitcoin
 		public BitReader(BitArray array)
 		{
 			this.array = new BitArray(array.Length);
-			for(int i = 0 ; i < array.Length ; i++)
+			for(int i = 0; i < array.Length; i++)
 				this.array.Set(i, array.Get(i));
 		}
 
@@ -40,7 +40,7 @@ namespace NBitcoin
 		public uint ReadUInt(int bitCount)
 		{
 			uint value = 0;
-			for(int i = 0 ; i < bitCount ; i++)
+			for(int i = 0; i < bitCount; i++)
 			{
 				var v = Read() ? 1U : 0U;
 				value += (v << i);
@@ -59,7 +59,7 @@ namespace NBitcoin
 		public BitArray ToBitArray()
 		{
 			BitArray result = new BitArray(array.Length);
-			for(int i = 0 ; i < array.Length ; i++)
+			for(int i = 0; i < array.Length; i++)
 				result.Set(i, array.Get(i));
 			return result;
 		}
@@ -91,7 +91,7 @@ namespace NBitcoin
 		public override string ToString()
 		{
 			StringBuilder builder = new StringBuilder(array.Length);
-			for(int i = 0 ; i < Count ; i++)
+			for(int i = 0; i < Count; i++)
 			{
 				if(i != 0 && i % 8 == 0)
 					builder.Append(' ');
@@ -145,7 +145,7 @@ namespace NBitcoin
 				arrayLength++;
 			byte[] array = new byte[arrayLength];
 
-			for(int i = 0 ; i < bits.Length ; i++)
+			for(int i = 0; i < bits.Length; i++)
 			{
 				int b = i / 8;
 				int offset = i % 8;
@@ -170,10 +170,10 @@ namespace NBitcoin
 		static byte[] SwapEndianBytes(byte[] bytes)
 		{
 			byte[] output = new byte[bytes.Length];
-			for(int i = 0 ; i < output.Length ; i++)
+			for(int i = 0; i < output.Length; i++)
 			{
 				byte newByte = 0;
-				for(int ib = 0 ; ib < 8 ; ib++)
+				for(int ib = 0; ib < 8; ib++)
 				{
 					newByte += (byte)(((bytes[i] >> ib) & 1) << (7 - ib));
 				}
@@ -186,7 +186,7 @@ namespace NBitcoin
 
 		public void Write(uint value, int bitCount)
 		{
-			for(int i = 0 ; i < bitCount ; i++)
+			for(int i = 0; i < bitCount; i++)
 			{
 				Write((value & 1) == 1);
 				value = value >> 1;
@@ -208,7 +208,7 @@ namespace NBitcoin
 
 		internal void Write(BitReader reader, int bitCount)
 		{
-			for(int i = 0 ; i < bitCount ; i++)
+			for(int i = 0; i < bitCount; i++)
 			{
 				Write(reader.Read());
 			}
@@ -220,7 +220,7 @@ namespace NBitcoin
 		}
 		public void Write(BitArray bitArray, int bitCount)
 		{
-			for(int i = 0 ; i < bitCount ; i++)
+			for(int i = 0; i < bitCount; i++)
 			{
 				Write(bitArray.Get(i));
 			}
@@ -239,7 +239,7 @@ namespace NBitcoin
 		public override string ToString()
 		{
 			StringBuilder builder = new StringBuilder(values.Count);
-			for(int i = 0 ; i < Count ; i++)
+			for(int i = 0; i < Count; i++)
 			{
 				if(i != 0 && i % 8 == 0)
 					builder.Append(' ');

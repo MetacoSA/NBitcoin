@@ -52,19 +52,19 @@ namespace NBitcoin
 				case OpcodeType.OP_9:
 					return "9";
 				case OpcodeType.OP_10:
-					return "10";
+					return "OP_10";
 				case OpcodeType.OP_11:
-					return "11";
+					return "OP_11";
 				case OpcodeType.OP_12:
-					return "12";
+					return "OP_12";
 				case OpcodeType.OP_13:
-					return "13";
+					return "OP_13";
 				case OpcodeType.OP_14:
-					return "14";
+					return "OP_14";
 				case OpcodeType.OP_15:
-					return "15";
+					return "OP_15";
 				case OpcodeType.OP_16:
-					return "16";
+					return "OP_16";
 
 				// control
 				case OpcodeType.OP_NOP:
@@ -235,14 +235,14 @@ namespace NBitcoin
 					return "OP_CHECKMULTISIG";
 				case OpcodeType.OP_CHECKMULTISIGVERIFY:
 					return "OP_CHECKMULTISIGVERIFY";
+				case OpcodeType.OP_CHECKLOCKTIMEVERIFY:
+					return "OP_CLTV";
+				case OpcodeType.OP_CHECKSEQUENCEVERIFY:
+					return "OP_CSV";
 
 				// expanson
 				case OpcodeType.OP_NOP1:
 					return "OP_NOP1";
-				case OpcodeType.OP_NOP2:
-					return "OP_NOP2";
-				case OpcodeType.OP_NOP3:
-					return "OP_NOP3";
 				case OpcodeType.OP_NOP4:
 					return "OP_NOP4";
 				case OpcodeType.OP_NOP5:
@@ -267,7 +267,7 @@ namespace NBitcoin
 			return 0 <= opcode && opcode <= OpcodeType.OP_16 && opcode != OpcodeType.OP_RESERVED;
 		}
 
-		static Dictionary<string, OpcodeType> _OpcodeByName;
+		internal static Dictionary<string, OpcodeType> _OpcodeByName;
 		static Op()
 		{
 			_ValidOpCode = GetValidOpCode();
@@ -276,7 +276,31 @@ namespace NBitcoin
 			{
 				var name = GetOpName(code);
 				if(name != "OP_UNKNOWN")
-					_OpcodeByName.Add(name, code);
+					_OpcodeByName.AddOrReplace(name, code);
+			}
+			_OpcodeByName.AddOrReplace("OP_TRUE", OpcodeType.OP_1);
+			_OpcodeByName.AddOrReplace("OP_FALSE", OpcodeType.OP_0);
+			_OpcodeByName.AddOrReplace("OP_CHECKLOCKTIMEVERIFY", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
+			_OpcodeByName.AddOrReplace("OP_HODL", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
+			_OpcodeByName.AddOrReplace("OP_NOP2", OpcodeType.OP_CHECKLOCKTIMEVERIFY);
+			_OpcodeByName.AddOrReplace("OP_CHECKSEQUENCEVERIFY", OpcodeType.OP_CHECKSEQUENCEVERIFY);
+			_OpcodeByName.AddOrReplace("OP_NOP3", OpcodeType.OP_CHECKSEQUENCEVERIFY);
+
+			foreach(var op in new[]
+			{
+				new object[]{"OP_0", OpcodeType.OP_0},
+				new object[]{"OP_1", OpcodeType.OP_1},
+				new object[]{"OP_2", OpcodeType.OP_2},
+				new object[]{"OP_3", OpcodeType.OP_3},
+				new object[]{"OP_4", OpcodeType.OP_4},
+				new object[]{"OP_5", OpcodeType.OP_5},
+				new object[]{"OP_6", OpcodeType.OP_6},
+				new object[]{"OP_7", OpcodeType.OP_7},
+				new object[]{"OP_8", OpcodeType.OP_8},
+				new object[]{"OP_9", OpcodeType.OP_9}
+			})
+			{
+				_OpcodeByName.AddOrReplace((string)op[0], (OpcodeType)op[1]);
 			}
 		}
 		public static bool GetOpCode(string name, out OpcodeType result)
@@ -292,6 +316,10 @@ namespace NBitcoin
 		{
 			return GetPushOp(Utils.BigIntegerToBytes(data));
 		}
+		public static Op GetPushOp(long value)
+		{
+			return GetPushOp(Utils.BigIntegerToBytes(new BigInteger(value)));
+		}
 		public static Op GetPushOp(byte[] data)
 		{
 			Op op = new Op();
@@ -306,7 +334,7 @@ namespace NBitcoin
 				op.Code = (OpcodeType)(byte)data.Length;
 			else if(data.Length <= 0xFF)
 				op.Code = OpcodeType.OP_PUSHDATA1;
-#if !PORTABLE
+#if !(PORTABLE || NETCORE)
 			else if(data.LongLength <= 0xFFFF)
 				op.Code = OpcodeType.OP_PUSHDATA2;
 			else if(data.LongLength <= 0xFFFFFFFF)
@@ -336,7 +364,7 @@ namespace NBitcoin
 		}
 
 		OpcodeType _Code;
-		static readonly bool[] _ValidOpCode;		
+		static readonly bool[] _ValidOpCode;
 
 		private static bool[] GetValidOpCode()
 		{
@@ -345,7 +373,7 @@ namespace NBitcoin
 			{
 				valid[(byte)val] = true;
 			}
-			for(byte i = 0 ; ; i++)
+			for(byte i = 0; ; i++)
 			{
 				if(IsPushCode((OpcodeType)i))
 					valid[i] = true;
@@ -463,7 +491,7 @@ namespace NBitcoin
 				else //Mitigate against a big array allocation
 				{
 					List<byte> bytes = new List<byte>();
-					for(int i = 0 ; i < len ; i++)
+					for(int i = 0; i < len; i++)
 					{
 						var b = stream.ReadByte();
 						if(b < 0)
@@ -524,7 +552,6 @@ namespace NBitcoin
 		const int MAX_SCRIPT_ELEMENT_SIZE = 520;
 		internal static Op Read(TextReader textReader)
 		{
-			MemoryStream ms = new MemoryStream();
 			var opname = ReadWord(textReader);
 			OpcodeType opcode;
 
@@ -536,6 +563,11 @@ namespace NBitcoin
 			{
 				if(isOpCode && opcode == OpcodeType.OP_0)
 					return GetPushOp(new byte[0]);
+				opname = opname.Replace("OP_", "");
+				if(opname.Equals("TRUE", StringComparison.OrdinalIgnoreCase))
+					opname = "1";
+				if(opname.Equals("FALSE", StringComparison.OrdinalIgnoreCase))
+					opname = "0";
 				return GetPushOp(Encoders.Hex.DecodeData(opname.Length == 1 ? "0" + opname : opname));
 			}
 			else if(opname.StartsWith(unknown))

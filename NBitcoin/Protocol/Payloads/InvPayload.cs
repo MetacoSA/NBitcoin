@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
+	/// <summary>
+	/// Announce the hash of a transaction or block
+	/// </summary>
 	[Payload("inv")]
-	public class InvPayload : Payload, IBitcoinSerializable
+	public class InvPayload : Payload, IBitcoinSerializable, IEnumerable<InventoryVector>
 	{
 		public InvPayload()
 		{
@@ -46,7 +49,7 @@ namespace NBitcoin.Protocol
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
 			var old = stream.MaxArraySize;
-			stream.MaxArraySize = 5000;
+			stream.MaxArraySize = 50000;
 			stream.ReadWrite(ref _Inventory);
 			stream.MaxArraySize = old;
 		}
@@ -57,5 +60,23 @@ namespace NBitcoin.Protocol
 		{
 			return "Count: " + Inventory.Count.ToString();
 		}
+
+		#region IEnumerable<uint256> Members
+
+		public IEnumerator<InventoryVector> GetEnumerator()
+		{
+			return Inventory.GetEnumerator();
+		}
+
+		#endregion
+
+		#region IEnumerable Members
+
+		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+
+		#endregion
 	}
 }

@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +23,7 @@
     <DefineConstants>TRACE;DEBUG;WIN</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,30 +32,17 @@
     <DefineConstants>TRACE;WIN</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\NBitcoin.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="protobuf-net">
-      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.94.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Data.SQLite.Core.1.0.94.0\lib\net45\System.Data.SQLite.dll</HintPath>
-    </Reference>
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base58Data.cs" />
@@ -68,7 +57,9 @@
     <Compile Include="BIP38\BitcoinEncryptedSecret.cs" />
     <Compile Include="BIP32\BitcoinExtKey.cs" />
     <Compile Include="BIP38\BitcoinPassphraseCode.cs" />
+    <Compile Include="BitcoinPubKeyAddress.cs" />
     <Compile Include="BitcoinSecret.cs" />
+    <Compile Include="BitcoinSegwitAddress.cs" />
     <Compile Include="BitcoinStream.Partial.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -76,16 +67,20 @@
     </Compile>
     <Compile Include="BitcoinCore\CachedBlockProvider.cs" />
     <Compile Include="BitWriter.cs" />
-    <Compile Include="JsonConverters\BitcoinSerializableJsonConverter.cs" />
-    <Compile Include="JsonConverters\MoneyJsonConverter.cs" />
-    <Compile Include="JsonConverters\ScriptJsonConverter.cs" />
-    <Compile Include="MicroPayment\Messages.cs" />
-    <Compile Include="MicroPayment\MicroEndpoint.cs" />
-    <Compile Include="MicroPayment\MicroPaymentException.cs" />
-    <Compile Include="MicroPayment\MicroChannelArguments.cs" />
-    <Compile Include="MicroPayment\PayeeEndpoint.cs" />
-    <Compile Include="MicroPayment\PayerEndpoint.cs" />
-    <Compile Include="MnemonicReference.cs" />
+    <Compile Include="BuilderExtensions\BuilderExtension.cs" />
+    <Compile Include="BuilderExtensions\OPTrueExtension.cs" />
+    <Compile Include="BuilderExtensions\P2MultiSigBuilderExtension.cs" />
+    <Compile Include="BuilderExtensions\P2PKBuilderExtension.cs" />
+    <Compile Include="BuilderExtensions\P2PKHBuilderExtension.cs" />
+    <Compile Include="FeeRate.cs" />
+    <Compile Include="OpenAsset\NullColoredTransactionRepository.cs" />
+    <Compile Include="Payment\IChainChecker.cs" />
+    <Compile Include="Payment\ICertificateServiceProvider.cs" />
+    <Compile Include="Payment\ISignatureChecker.cs" />
+    <Compile Include="Payment\ISigner.cs" />
+    <Compile Include="Payment\WindowsCertificateServiceProvider.cs" />
+    <Compile Include="Policy\ITransactionPolicy.cs" />
+    <Compile Include="Policy\MinerTransactionPolicy.cs" />
     <Compile Include="CachedNoSqlRepository.cs" />
     <Compile Include="CachedTransactionRepository.cs" />
     <Compile Include="Coin.cs" />
@@ -105,7 +100,7 @@
     <Compile Include="MerkleNode.cs" />
     <Compile Include="NoSqlBlockRepository.cs" />
     <Compile Include="NoSqlTransactionRepository.cs" />
-    <Compile Include="OpenAsset\Asset.cs" />
+    <Compile Include="OpenAsset\AssetMoney.cs" />
     <Compile Include="BlockrTransactionRepository.cs" />
     <Compile Include="OpenAsset\AssetId.cs" />
     <Compile Include="OpenAsset\BitcoinAssetId.cs" />
@@ -122,19 +117,48 @@
     <Compile Include="Payment\HttpEncoder.cs" />
     <Compile Include="Payment\PaymentACK.cs" />
     <Compile Include="Payment\PaymentRequest.cs" />
-    <Compile Include="Payment\Proto.cs" />
     <Compile Include="Payment\UriHelper.cs" />
     <Compile Include="Payment\HttpUtility.cs" />
+    <Compile Include="Protobuf\ProtobufReaderWriter.cs" />
     <Compile Include="Protocol\AddressManager.cs" />
-    <Compile Include="Protocol\Behaviors\BehaviorsCollection.cs" />
+    <Compile Include="Protocol\Behaviors\AddressManagerBehavior.cs" />
+    <Compile Include="Protocol\Behaviors\BroadcastTransactionBehavior.cs" />
+    <Compile Include="Protocol\Behaviors\NodeBehaviorsCollection.cs" />
+    <Compile Include="Protocol\Behaviors\ChainBehavior.cs" />
+    <Compile Include="Protocol\Filters\ActionFilter.cs" />
+    <Compile Include="Protocol\Filters\NodeFilter.cs" />
+    <Compile Include="Protocol\Filters\NodeFiltersCollection.cs" />
+    <Compile Include="Protocol\Behaviors\NodesGroupBehavior.cs" />
     <Compile Include="Protocol\Behaviors\NodeBehavior.cs" />
     <Compile Include="Protocol\Behaviors\PingPongBehavior.cs" />
+    <Compile Include="Protocol\NodeServerTrace.cs" />
+    <Compile Include="Protocol\Payloads\BlockTxnPayload.cs" />
+    <Compile Include="Protocol\Payloads\CmpctBlockPayload.cs" />
+    <Compile Include="Protocol\Payloads\FilterAddPayload.cs" />
+    <Compile Include="Protocol\Payloads\GetBlockTxnPayload.cs" />
+    <Compile Include="Protocol\Payloads\HaveWitnessPayload.cs" />
+    <Compile Include="Protocol\Payloads\SendCmpctPayload.cs" />
+    <Compile Include="Protocol\Payloads\SendHeadersPayload.cs" />
+    <Compile Include="Protocol\Payloads\UTxOutputPayload.cs" />
+    <Compile Include="RPC\RestClient.cs" />
+    <Compile Include="Policy\StandardTransactionPolicy.cs" />
+    <Compile Include="Sequence.cs" />
+    <Compile Include="SequenceLock.cs" />
+    <Compile Include="Utils\ActionDisposable.cs" />
+    <Compile Include="Utils\ThreadSafeCollection.cs" />
+    <Compile Include="Protocol\NodeConnectionParameters.cs" />
     <Compile Include="Protocol\NodeListener.cs" />
+    <Compile Include="Protocol\NodesCollection.cs" />
+    <Compile Include="Protocol\NodesGroup.cs" />
+    <Compile Include="Protocol\Payloads\FilterLoadPayload.cs" />
     <Compile Include="Protocol\Payloads\GetBlocksPayload.cs" />
     <Compile Include="Protocol\Payloads\GetDataPayload.cs" />
     <Compile Include="Protocol\Payloads\MempoolPayload.cs" />
+    <Compile Include="Protocol\Payloads\MerkleBlockPayload.cs" />
+    <Compile Include="Protocol\Payloads\NotFoundPayload.cs" />
     <Compile Include="Protocol\Payloads\RejectPayload.cs" />
     <Compile Include="Protocol\PerformanceCounter.cs" />
+    <Compile Include="Protocol\ProtocolException.cs" />
     <Compile Include="RandomUtils.partial.cs" />
     <Compile Include="QBitNinjaTransactionRepository.cs" />
     <Compile Include="RPCTransactionRepository.cs" />
@@ -149,6 +173,12 @@
     <Compile Include="RPC\UnspentCoin.cs" />
     <Compile Include="BitcoinCore\IBlockProvider.cs" />
     <Compile Include="Spendable.cs" />
+    <Compile Include="SPV\Tracker.cs" />
+    <Compile Include="SPV\TrackerBehavior.cs" />
+    <Compile Include="SPV\Wallet.cs" />
+    <Compile Include="SPV\WalletSummary.cs" />
+    <Compile Include="SPV\WalletTransaction.cs" />
+    <Compile Include="SPV\WalletTransactionsCollection.cs" />
     <Compile Include="Stealth\BitcoinStealthAddress.cs" />
     <Compile Include="BitcoinStream.cs" />
     <Compile Include="Block.cs" />
@@ -160,10 +190,8 @@
     <Compile Include="BitcoinCore\BlockUndoStore.cs" />
     <Compile Include="BloomFilter.cs" />
     <Compile Include="BitcoinCore\Coins.cs" />
-    <Compile Include="CompositeDisposable.cs" />
     <Compile Include="Crypto\Cryptsharp\BitMath.cs" />
     <Compile Include="Crypto\Cryptsharp\BitPacking.cs" />
-    <Compile Include="Crypto\Cryptsharp\ByteArray.cs" />
     <Compile Include="Crypto\Cryptsharp\Check.cs" />
     <Compile Include="Crypto\Cryptsharp\Exceptions.cs" />
     <Compile Include="Crypto\Cryptsharp\Pbkdf2.cs" />
@@ -193,18 +221,13 @@
     <Compile Include="Protocol\Message.cs" />
     <Compile Include="Protocol\NetworkAddress.cs" />
     <Compile Include="Protocol\Node.cs" />
-    <Compile Include="Protocol\NodeSet.cs" />
     <Compile Include="Protocol\Payload.cs" />
     <Compile Include="Protocol\PayloadAttribute.cs" />
     <Compile Include="Protocol\NodeServer.cs" />
-    <Compile Include="Protocol\PeerTable.cs" />
-    <Compile Include="Protocol\PeerTableRepository.cs" />
     <Compile Include="Protocol\Payloads\PingPayload.cs" />
     <Compile Include="Protocol\Payloads\PongPayload.cs" />
-    <Compile Include="Protocol\ProtocolTrace.cs" />
-    <Compile Include="Protocol\TxPayload.cs" />
+    <Compile Include="Protocol\Payloads\TxPayload.cs" />
     <Compile Include="Protocol\UnknowPayload.cs" />
-    <Compile Include="Protocol\UPnPLease.cs" />
     <Compile Include="Protocol\Payloads\VerAckPayload.cs" />
     <Compile Include="Protocol\Payloads\VersionPayload.cs" />
     <Compile Include="RandomUtils.cs" />
@@ -251,6 +274,7 @@
     </Compile>
     <Compile Include="UnsignedList.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="Utils\BoundedDictionary.cs" />
     <Compile Include="ValidationState.cs" />
     <Compile Include="Protocol\VarInt.cs" />
     <Compile Include="Protocol\VarString.cs" />
@@ -261,8 +285,9 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BitcoinStream.Partial.cs</LastGenOutput>
     </None>
-    <None Include="packages.config" />
+    <None Include="NBitcoin.Mono.Tokenized.nuspec" />
     <None Include="NBitcoin.Tokenized.nuspec" />
+    <None Include="packages.config" />
     <None Include="PushNuget.ps1" />
     <None Include="UInt256.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -277,23 +302,145 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mono.Nat\Mono.Nat.csproj">
-      <Project>{f5d74163-145f-47bf-83dc-d0e07249c6ca}</Project>
-      <Name>Mono.Nat</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NBitcoin.BouncyCastle\NBitcoin.BouncyCastle.csproj">
-      <Project>{19a848a9-333a-4918-ab7f-769a1f368051}</Project>
-      <Name>NBitcoin.BouncyCastle</Name>
-    </ProjectReference>
+    <Compile Include="BouncyCastle\asn1\Asn1Encodable.cs" />
+    <Compile Include="BouncyCastle\asn1\Asn1EncodableVector.cs" />
+    <Compile Include="BouncyCastle\asn1\Asn1Exception.cs" />
+    <Compile Include="BouncyCastle\asn1\ASN1Generator.cs" />
+    <Compile Include="BouncyCastle\asn1\Asn1InputStream.cs" />
+    <Compile Include="BouncyCastle\asn1\Asn1Null.cs" />
+    <Compile Include="BouncyCastle\asn1\Asn1Object.cs" />
+    <Compile Include="BouncyCastle\asn1\Asn1OctetString.cs" />
+    <Compile Include="BouncyCastle\asn1\ASN1OctetStringParser.cs" />
+    <Compile Include="BouncyCastle\asn1\Asn1Sequence.cs" />
+    <Compile Include="BouncyCastle\asn1\ASN1SequenceParser.cs" />
+    <Compile Include="BouncyCastle\asn1\Asn1Tags.cs" />
+    <Compile Include="BouncyCastle\asn1\DefiniteLengthInputStream.cs" />
+    <Compile Include="BouncyCastle\asn1\DERGenerator.cs" />
+    <Compile Include="BouncyCastle\asn1\DerInteger.cs" />
+    <Compile Include="BouncyCastle\asn1\DerNull.cs" />
+    <Compile Include="BouncyCastle\asn1\DerObjectIdentifier.cs" />
+    <Compile Include="BouncyCastle\asn1\DerOctetString.cs" />
+    <Compile Include="BouncyCastle\asn1\DerOutputStream.cs" />
+    <Compile Include="BouncyCastle\asn1\DerSequence.cs" />
+    <Compile Include="BouncyCastle\asn1\DERSequenceGenerator.cs" />
+    <Compile Include="BouncyCastle\asn1\IAsn1Convertible.cs" />
+    <Compile Include="BouncyCastle\asn1\LimitedInputStream.cs" />
+    <Compile Include="BouncyCastle\asn1\sec\SECNamedCurves.cs" />
+    <Compile Include="BouncyCastle\asn1\sec\SECObjectIdentifiers.cs" />
+    <Compile Include="BouncyCastle\asn1\x9\X9Curve.cs" />
+    <Compile Include="BouncyCastle\asn1\x9\X9ECParameters.cs" />
+    <Compile Include="BouncyCastle\asn1\x9\X9ECParametersHolder.cs" />
+    <Compile Include="BouncyCastle\asn1\x9\X9ECPoint.cs" />
+    <Compile Include="BouncyCastle\asn1\x9\X9FieldElement.cs" />
+    <Compile Include="BouncyCastle\asn1\x9\X9FieldID.cs" />
+    <Compile Include="BouncyCastle\asn1\x9\X9IntegerConverter.cs" />
+    <Compile Include="BouncyCastle\asn1\x9\X9ObjectIdentifiers.cs" />
+    <Compile Include="BouncyCastle\crypto\AsymmetricKeyParameter.cs" />
+    <Compile Include="BouncyCastle\crypto\BufferedBlockCipher.cs" />
+    <Compile Include="BouncyCastle\crypto\BufferedCipherBase.cs" />
+    <Compile Include="BouncyCastle\crypto\Check.cs" />
+    <Compile Include="BouncyCastle\crypto\CryptoException.cs" />
+    <Compile Include="BouncyCastle\crypto\DataLengthException.cs" />
+    <Compile Include="BouncyCastle\crypto\digests\GeneralDigest.cs" />
+    <Compile Include="BouncyCastle\crypto\digests\LongDigest.cs" />
+    <Compile Include="BouncyCastle\crypto\digests\RipeMD160Digest.cs" />
+    <Compile Include="BouncyCastle\crypto\digests\Sha1Digest.cs" />
+    <Compile Include="BouncyCastle\crypto\digests\Sha224Digest.cs" />
+    <Compile Include="BouncyCastle\crypto\digests\Sha256Digest.cs" />
+    <Compile Include="BouncyCastle\crypto\digests\Sha384Digest.cs" />
+    <Compile Include="BouncyCastle\crypto\digests\Sha512Digest.cs" />
+    <Compile Include="BouncyCastle\crypto\ec\CustomNamedCurves.cs" />
+    <Compile Include="BouncyCastle\crypto\engines\AesEngine.cs" />
+    <Compile Include="BouncyCastle\crypto\engines\AesFastEngine.cs" />
+    <Compile Include="BouncyCastle\crypto\IAsymmetricBlockCipher.cs" />
+    <Compile Include="BouncyCastle\crypto\IBlockCipher.cs" />
+    <Compile Include="BouncyCastle\crypto\IBufferedCipher.cs" />
+    <Compile Include="BouncyCastle\crypto\ICipherParameters.cs" />
+    <Compile Include="BouncyCastle\crypto\IDigest.cs" />
+    <Compile Include="BouncyCastle\crypto\IDSA.cs" />
+    <Compile Include="BouncyCastle\crypto\IMac.cs" />
+    <Compile Include="BouncyCastle\crypto\InvalidCipherTextException.cs" />
+    <Compile Include="BouncyCastle\crypto\ISigner.cs" />
+    <Compile Include="BouncyCastle\crypto\macs\HMac.cs" />
+    <Compile Include="BouncyCastle\crypto\OutputLengthException.cs" />
+    <Compile Include="BouncyCastle\crypto\paddings\BlockCipherPadding.cs" />
+    <Compile Include="BouncyCastle\crypto\paddings\PaddedBufferedBlockCipher.cs" />
+    <Compile Include="BouncyCastle\crypto\paddings\Pkcs7Padding.cs" />
+    <Compile Include="BouncyCastle\crypto\parameters\ECDomainParameters.cs" />
+    <Compile Include="BouncyCastle\crypto\parameters\ECKeyParameters.cs" />
+    <Compile Include="BouncyCastle\crypto\parameters\ECPrivateKeyParameters.cs" />
+    <Compile Include="BouncyCastle\crypto\parameters\ECPublicKeyParameters.cs" />
+    <Compile Include="BouncyCastle\crypto\parameters\KeyParameter.cs" />
+    <Compile Include="BouncyCastle\crypto\signers\ECDsaSigner.cs" />
+    <Compile Include="BouncyCastle\crypto\signers\HMacDsaKCalculator.cs" />
+    <Compile Include="BouncyCastle\crypto\signers\IDsaKCalculator.cs" />
+    <Compile Include="BouncyCastle\crypto\signers\RandomDsaKCalculator.cs" />
+    <Compile Include="BouncyCastle\crypto\util\Pack.cs" />
+    <Compile Include="BouncyCastle\math\BigInteger.cs" />
+    <Compile Include="BouncyCastle\math\ec\abc\SimpleBigDecimal.cs" />
+    <Compile Include="BouncyCastle\math\ec\abc\Tnaf.cs" />
+    <Compile Include="BouncyCastle\math\ec\abc\ZTauElement.cs" />
+    <Compile Include="BouncyCastle\math\ec\custom\sec\SecP256K1Curve.cs" />
+    <Compile Include="BouncyCastle\math\ec\custom\sec\SecP256K1Field.cs" />
+    <Compile Include="BouncyCastle\math\ec\custom\sec\SecP256K1FieldElement.cs" />
+    <Compile Include="BouncyCastle\math\ec\custom\sec\SecP256K1Point.cs" />
+    <Compile Include="BouncyCastle\math\ec\ECAlgorithms.cs" />
+    <Compile Include="BouncyCastle\math\ec\ECCurve.cs" />
+    <Compile Include="BouncyCastle\math\ec\ECFieldElement.cs" />
+    <Compile Include="BouncyCastle\math\ec\ECPoint.cs" />
+    <Compile Include="BouncyCastle\math\ec\ECPointMap.cs" />
+    <Compile Include="BouncyCastle\math\ec\endo\ECEndomorphism.cs" />
+    <Compile Include="BouncyCastle\math\ec\endo\GlvEndomorphism.cs" />
+    <Compile Include="BouncyCastle\math\ec\endo\GlvTypeBEndomorphism.cs" />
+    <Compile Include="BouncyCastle\math\ec\endo\GlvTypeBParameters.cs" />
+    <Compile Include="BouncyCastle\math\ec\LongArray.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\AbstractECMultiplier.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\DoubleAddMultiplier.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\ECMultiplier.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\FixedPointCombMultiplier.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\FixedPointPreCompInfo.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\FixedPointUtilities.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\GlvMultiplier.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\PreCompInfo.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\WNafL2RMultiplier.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\WNafPreCompInfo.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\WNafUtilities.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\WTauNafMultiplier.cs" />
+    <Compile Include="BouncyCastle\math\ec\multiplier\WTauNafPreCompInfo.cs" />
+    <Compile Include="BouncyCastle\math\ec\ScaleXPointMap.cs" />
+    <Compile Include="BouncyCastle\math\field\FiniteFields.cs" />
+    <Compile Include="BouncyCastle\math\field\GenericPolynomialExtensionField.cs" />
+    <Compile Include="BouncyCastle\math\field\GF2Polynomial.cs" />
+    <Compile Include="BouncyCastle\math\field\IExtensionField.cs" />
+    <Compile Include="BouncyCastle\math\field\IFiniteField.cs" />
+    <Compile Include="BouncyCastle\math\field\IPolynomial.cs" />
+    <Compile Include="BouncyCastle\math\field\IPolynomialExtensionField.cs" />
+    <Compile Include="BouncyCastle\math\field\PrimeField.cs" />
+    <Compile Include="BouncyCastle\math\raw\Mod.cs" />
+    <Compile Include="BouncyCastle\math\raw\Nat.cs" />
+    <Compile Include="BouncyCastle\math\raw\Nat256.cs" />
+    <Compile Include="BouncyCastle\security\GeneralSecurityException.cs" />
+    <Compile Include="BouncyCastle\security\InvalidKeyException.cs" />
+    <Compile Include="BouncyCastle\security\KeyException.cs" />
+    <Compile Include="BouncyCastle\security\SecureRandom.cs" />
+    <Compile Include="BouncyCastle\util\Arrays.cs" />
+    <Compile Include="BouncyCastle\util\BigIntegers.cs" />
+    <Compile Include="BouncyCastle\util\encoders\Hex.cs" />
+    <Compile Include="BouncyCastle\util\encoders\HexEncoder.cs" />
+    <Compile Include="BouncyCastle\util\encoders\IEncoder.cs" />
+    <Compile Include="BouncyCastle\util\IMemoable.cs" />
+    <Compile Include="BouncyCastle\util\io\BaseInputStream.cs" />
+    <Compile Include="BouncyCastle\util\io\FilterStream.cs" />
+    <Compile Include="BouncyCastle\util\io\StreamOverflowException.cs" />
+    <Compile Include="BouncyCastle\util\io\Streams.cs" />
+    <Compile Include="BouncyCastle\util\Platform.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\System.Data.SQLite.Core.1.0.94.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.94.0\build\net45\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.94.0\build\net45\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.94.0\build\net45\System.Data.SQLite.Core.targets'))" />
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

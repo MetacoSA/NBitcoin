@@ -1,4 +1,4 @@
-﻿
+﻿#if !NETCORE
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class MedianFilterInt32 
+	public class MedianFilterInt32
 	{
 		Queue<Int32> vValues;
 		Queue<Int32> vSorted;
@@ -51,7 +51,7 @@ namespace NBitcoin
 			vSorted = new Queue<Int32>(vValues.OrderBy(o => o));
 		}
 	}
-	public class MedianFilterInt64 
+	public class MedianFilterInt64
 	{
 		Queue<Int64> vValues;
 		Queue<Int64> vSorted;
@@ -96,3 +96,4 @@ namespace NBitcoin
 		}
 	}
 }
+#endif

@@ -130,7 +130,7 @@ namespace NBitcoin.BitcoinCore
 			set;
 		}
 
-		private uint256 _Checksum = new uint256(0);
+		private uint256 _Checksum = uint256.Zero;
 		public uint256 Checksum
 		{
 			get

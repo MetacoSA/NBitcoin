@@ -47,7 +47,7 @@ namespace NBitcoin.RPC
 	}
 
 
-	
+
 	public class RPCException : Exception
 	{
 		public RPCException(RPCErrorCode code, string message, RPCResponse result)

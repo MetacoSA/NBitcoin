@@ -1,5 +1,4 @@
 ﻿using NBitcoin.DataEncoders;
-using NBitcoin.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,17 +6,18 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Security;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using NBitcoin.Protocol;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 #if !PORTABLE
-using System.Security.Cryptography;
 using System.Net.Sockets;
+#endif
+#if WINDOWS_UWP
+using System.Net.Sockets;
+using Windows.Networking;
+using Windows.Networking.Connectivity;
 #endif
 
 namespace NBitcoin
@@ -36,6 +36,7 @@ namespace NBitcoin
 				return null; //Can't happen
 			}
 		}
+
 
 
 		public static T ToNetwork<T>(this T base58, Network network) where T : Base58Data
@@ -60,11 +61,23 @@ namespace NBitcoin
 				return (T)(object)address.ToColoredAddress();
 			}
 		}
-		public static byte[] ReadBytes(this Stream stream, int count)
+
+		public static byte[] ReadBytes(this Stream stream, int bytesToRead)
 		{
-			byte[] result = new byte[count];
-			stream.Read(result, 0, count);
-			return result;
+			var buffer = new byte[bytesToRead];
+			int num = 0;
+			int num2;
+			do
+			{
+				num += (num2 = stream.Read(buffer, num, bytesToRead - num));
+			} while(num2 > 0 && num < bytesToRead);
+			return buffer;
+		}
+
+		public static int ReadBytes(this Stream stream, int count, out byte[] result)
+		{
+			result = new byte[count];
+			return stream.Read(result, 0, count);
 		}
 		public static IEnumerable<T> Resize<T>(this List<T> list, int count)
 		{
@@ -73,7 +86,7 @@ namespace NBitcoin
 
 			List<T> removed = new List<T>();
 
-			for(int i = list.Count - 1 ; i + 1 > count ; i--)
+			for(int i = list.Count - 1; i + 1 > count; i--)
 			{
 				removed.Add(list[i]);
 				list.RemoveAt(i);
@@ -87,7 +100,7 @@ namespace NBitcoin
 		}
 		public static IEnumerable<List<T>> Partition<T>(this IEnumerable<T> source, int max)
 		{
-			return Partition<T>(source, () => max);
+			return Partition(source, () => max);
 		}
 		public static IEnumerable<List<T>> Partition<T>(this IEnumerable<T> source, Func<int> max)
 		{
@@ -109,7 +122,7 @@ namespace NBitcoin
 			}
 		}
 
-#if !PORTABLE
+#if !(PORTABLE || NETCORE)
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
 			int readen = 0;
@@ -220,6 +233,37 @@ namespace NBitcoin
 			return (int)Math.Truncate((DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds);
 		}
 	}
+
+	internal static class ByteArrayExtensions
+	{
+		internal static byte[] SafeSubarray(this byte[] array, int offset, int count)
+		{
+			if(array == null)
+				throw new ArgumentNullException("array");
+			if(offset < 0 || offset > array.Length)
+				throw new ArgumentOutOfRangeException("offset");
+			if(count < 0 || offset + count > array.Length)
+				throw new ArgumentOutOfRangeException("count");
+
+			var data = new byte[count];
+			Buffer.BlockCopy(array, offset, data, 0, count);
+			return data;
+		}
+
+		internal static byte[] SafeSubarray(this byte[] array, int offset)
+		{
+			if(array == null)
+				throw new ArgumentNullException("array");
+			if(offset < 0 || offset > array.Length)
+				throw new ArgumentOutOfRangeException("offset");
+
+			var count = array.Length - offset;
+			var data = new byte[count];
+			Buffer.BlockCopy(array, offset, data, 0, count);
+			return data;
+		}
+	}
+
 	public class Utils
 	{
 		public static bool ArrayEqual(byte[] a, byte[] b)
@@ -246,7 +290,7 @@ namespace NBitcoin
 			if(alen < length || blen < length)
 				return false;
 
-			for(int ai = startA, bi = startB ; ai < startA + length ; ai++, bi++)
+			for(int ai = startA, bi = startB; ai < startA + length; ai++, bi++)
 			{
 				if(a[ai] != b[bi])
 					return false;
@@ -255,25 +299,56 @@ namespace NBitcoin
 		}
 
 
-		public static String BITCOIN_SIGNED_MESSAGE_HEADER = "Bitcoin Signed Message:\n";
-		public static byte[] BITCOIN_SIGNED_MESSAGE_HEADER_BYTES = Encoding.UTF8.GetBytes(BITCOIN_SIGNED_MESSAGE_HEADER);
+		internal static String BITCOIN_SIGNED_MESSAGE_HEADER = "Bitcoin Signed Message:\n";
+		internal static byte[] BITCOIN_SIGNED_MESSAGE_HEADER_BYTES = Encoding.UTF8.GetBytes(BITCOIN_SIGNED_MESSAGE_HEADER);
 
 		//http://bitcoinj.googlecode.com/git-history/keychain/core/src/main/java/com/google/bitcoin/core/Utils.java
-		public static byte[] FormatMessageForSigning(string messageText)
+		internal static byte[] FormatMessageForSigning(byte[] messageBytes)
 		{
 			MemoryStream ms = new MemoryStream();
-			var message = Encoding.UTF8.GetBytes(messageText);
 
 			ms.WriteByte((byte)BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.Length);
 			Write(ms, BITCOIN_SIGNED_MESSAGE_HEADER_BYTES);
 
-			VarInt size = new VarInt((ulong)message.Length);
+			VarInt size = new VarInt((ulong)messageBytes.Length);
 			Write(ms, size.ToBytes());
-			Write(ms, message);
+			Write(ms, messageBytes);
 			return ms.ToArray();
 		}
 
+#if !NOSOCKET
+		internal static IPAddress MapToIPv6(IPAddress address)
+		{
+			if(address.AddressFamily == AddressFamily.InterNetworkV6)
+				return address;
+			if(address.AddressFamily != AddressFamily.InterNetwork)
+				throw new Exception("Only AddressFamily.InterNetworkV4 can be converted to IPv6");
 
+			byte[] ipv4Bytes = address.GetAddressBytes();
+			byte[] ipv6Bytes = new byte[16] {
+			 0,0, 0,0, 0,0, 0,0, 0,0, 0xFF,0xFF,
+			 ipv4Bytes [0], ipv4Bytes [1], ipv4Bytes [2], ipv4Bytes [3]
+			 };
+			return new IPAddress(ipv6Bytes);
+
+		}
+
+		internal static bool IsIPv4MappedToIPv6(IPAddress address)
+		{
+			if(address.AddressFamily != AddressFamily.InterNetworkV6)
+				return false;
+
+			byte[] bytes = address.GetAddressBytes();
+
+			for(int i = 0; i < 10; i++)
+			{
+				if(bytes[0] != 0)
+					return false;
+			}
+			return bytes[10] == 0xFF && bytes[11] == 0xFF;
+		}
+
+#endif
 		private static void Write(MemoryStream ms, byte[] bytes)
 		{
 			ms.Write(bytes, 0, bytes.Length);
@@ -341,12 +416,7 @@ namespace NBitcoin
 
 		static readonly TraceSource _TraceSource = new TraceSource("NBitcoin");
 
-		public static bool error(string msg, params object[] args)
-		{
-			_TraceSource.TraceEvent(TraceEventType.Error, 0, msg, args);
-			return false;
-		}
-		public static bool error(string msg)
+		internal static bool error(string msg)
 		{
 			_TraceSource.TraceEvent(TraceEventType.Error, 0, msg);
 			return false;
@@ -386,6 +456,11 @@ namespace NBitcoin
 			var span = TimeSpan.FromSeconds(timestamp);
 			return unixRef + span;
 		}
+		public static DateTimeOffset UnixTimeToDateTime(long timestamp)
+		{
+			var span = TimeSpan.FromSeconds(timestamp);
+			return unixRef + span;
+		}
 
 
 
@@ -408,10 +483,10 @@ namespace NBitcoin
 			return stringBuilder.ToString();
 		}
 
-		public static void Shuffle<T>(T[] arr)
+		public static void Shuffle<T>(T[] arr, Random rand)
 		{
-			Random rand = new Random();
-			for(int i = 0 ; i < arr.Length ; i++)
+			rand = rand ?? new Random();
+			for(int i = 0; i < arr.Length; i++)
 			{
 				var fromIndex = rand.Next(arr.Length);
 				var from = arr[fromIndex];
@@ -423,14 +498,39 @@ namespace NBitcoin
 				arr[fromIndex] = to;
 			}
 		}
+		public static void Shuffle<T>(List<T> arr, Random rand)
+		{
+			rand = rand ?? new Random();
+			for(int i = 0; i < arr.Count; i++)
+			{
+				var fromIndex = rand.Next(arr.Count);
+				var from = arr[fromIndex];
+
+				var toIndex = rand.Next(arr.Count);
+				var to = arr[toIndex];
+
+				arr[toIndex] = from;
+				arr[fromIndex] = to;
+			}
+		}
+		public static void Shuffle<T>(T[] arr, int seed)
+		{
+			Random rand = new Random(seed);
+			Shuffle(arr, rand);
+		}
+
+		public static void Shuffle<T>(T[] arr)
+		{
+			Shuffle(arr, null);
+		}
 
 
-#if !PORTABLE
+#if !NOSOCKET
 		internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
 		{
 			try
 			{
-				socket.Disconnect(false);
+				socket.Shutdown(SocketShutdown.Both);
 			}
 			catch
 			{
@@ -441,7 +541,6 @@ namespace NBitcoin
 			}
 			catch
 			{
-
 			}
 		}
 
@@ -449,10 +548,10 @@ namespace NBitcoin
 		{
 			if(endpoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
 				return endpoint;
-			return new IPEndPoint(endpoint.Address.MapToIPv6(), endpoint.Port);
+			return new IPEndPoint(endpoint.Address.MapToIPv6Ex(), endpoint.Port);
 		}
 #endif
-		internal static byte[] ToBytes(uint value, bool littleEndian)
+		public static byte[] ToBytes(uint value, bool littleEndian)
 		{
 			if(littleEndian)
 			{
@@ -475,7 +574,7 @@ namespace NBitcoin
 				};
 			}
 		}
-		internal static byte[] ToBytes(ulong value, bool littleEndian)
+		public static byte[] ToBytes(ulong value, bool littleEndian)
 		{
 			if(littleEndian)
 			{
@@ -507,22 +606,33 @@ namespace NBitcoin
 			}
 		}
 
-		internal static uint ToUInt32(byte[] value, bool littleEndian)
+		public static uint ToUInt32(byte[] value, int index, bool littleEndian)
 		{
 			if(littleEndian)
 			{
-				return value[0]
-					   + ((uint)value[1] << 8)
-					   + ((uint)value[2] << 16)
-					   + ((uint)value[3] << 24);
+				return value[index]
+					   + ((uint)value[index + 1] << 8)
+					   + ((uint)value[index + 2] << 16)
+					   + ((uint)value[index + 3] << 24);
 			}
 			else
 			{
-				return value[3]
-					   + ((uint)value[2] << 8)
-					   + ((uint)value[1] << 16)
-					   + ((uint)value[0] << 24);
+				return value[index + 3]
+					   + ((uint)value[index + 2] << 8)
+					   + ((uint)value[index + 1] << 16)
+					   + ((uint)value[index + 0] << 24);
 			}
+		}
+
+
+		public static int ToInt32(byte[] value, int index, bool littleEndian)
+		{
+			return unchecked((int)ToUInt32(value, index, littleEndian));
+		}
+
+		public static uint ToUInt32(byte[] value, bool littleEndian)
+		{
+			return ToUInt32(value, 0, littleEndian);
 		}
 		internal static ulong ToUInt64(byte[] value, bool littleEndian)
 		{
@@ -551,22 +661,94 @@ namespace NBitcoin
 		}
 
 
-#if !PORTABLE
+#if !NOSOCKET
 		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort)
 		{
-			var splitted = endpoint.Split(':');
-			var port = splitted.Length == 1 ? defaultPort : int.Parse(splitted[1]);
+			var splitted = endpoint.Trim().Split(new[] { ':' });
+			string ip = null;
+			int port = 0;
+			if(splitted.Length == 1)
+			{
+				ip = splitted[0];
+				port = defaultPort;
+			}
+			else if(splitted.Length == 2)
+			{
+				ip = splitted[0];
+				port = int.Parse(splitted[1]);
+			}
+			else
+			{
+				if((endpoint.IndexOf(']') != -1) &&
+					int.TryParse(splitted.Last(), out port))
+				{
+					ip = String.Join(":", splitted.Take(splitted.Length - 1).ToArray());
+				}
+				else
+				{
+					ip = endpoint;
+					port = defaultPort;
+				}
+			}
+
 			IPAddress address = null;
 			try
 			{
-				address = IPAddress.Parse(splitted[0]);
+				address = IPAddress.Parse(ip);
 			}
 			catch(FormatException)
 			{
-				address = Dns.GetHostEntry(splitted[0]).AddressList[0];
+#if !(WINDOWS_UWP || NETCORE)
+				address = Dns.GetHostEntry(ip).AddressList[0];
+#else
+				string adr = DnsLookup(ip).Result;
+				// if not resolved behave like GetHostEntry
+				if (adr == string.Empty)
+					throw new SocketException(11001);
+				else
+					address = IPAddress.Parse(adr);
+#endif
 			}
 			return new IPEndPoint(address, port);
 		}
+
+#if NETCORE
+		private static async Task<string> DnsLookup(string remoteHostName)
+		{
+			IPHostEntry data = await Dns.GetHostEntryAsync(remoteHostName).ConfigureAwait(false);
+
+			if (data != null && data.AddressList.Count() > 0)
+			{
+				foreach (IPAddress adr in data.AddressList)
+				{
+					if (adr != null && adr.IsIPv4() == true)
+					{
+						return adr.ToString();
+					}
+				}
+			}
+			return string.Empty;
+		}
+#endif
+#if WINDOWS_UWP
+		private static async Task<string> DnsLookup(string remoteHostName)
+		{
+			IReadOnlyList<EndpointPair> data = await DatagramSocket.GetEndpointPairsAsync(new HostName(remoteHostName), "0").AsTask().ConfigureAwait(false);
+
+			if(data != null && data.Count > 0)
+			{
+				foreach(EndpointPair item in data)
+				{
+					if(item != null && item.RemoteHostName != null && item.RemoteHostName.Type == HostNameType.Ipv4)
+					{
+						return item.RemoteHostName.CanonicalName;
+					}
+				}
+			}
+			return string.Empty;
+		}
+#endif
+
 #endif
 		public static int GetHashCode(byte[] array)
 		{
@@ -577,7 +759,7 @@ namespace NBitcoin
 					return 0;
 				}
 				int hash = 17;
-				for(int i = 0 ; i < array.Length ; i++)
+				for(int i = 0; i < array.Length; i++)
 				{
 					hash = hash * 31 + array[i];
 				}

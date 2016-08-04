@@ -18,17 +18,22 @@ namespace NBitcoin.RPC
 
 		dumpprivkey,
 		importprivkey,
+		importaddress,
 		dumpwallet,
 		importwallet,
 
 		getgenerate,
 		setgenerate,
+		generate,
 		getnetworkhashps,
 		gethashespersec,
 		getmininginfo,
+		prioritisetransaction,
 		getwork,
 		getblocktemplate,
 		submitblock,
+		estimatefee,
+		estimatepriority,
 
 		getnewaddress,
 		getaccountaddress,
@@ -64,6 +69,8 @@ namespace NBitcoin.RPC
 		validateaddress,
 		getinfo,
 		getwalletinfo,
+		getblockchaininfo,
+		getnetworkinfo,
 
 		getrawtransaction,
 		listunspent,
@@ -74,17 +81,20 @@ namespace NBitcoin.RPC
 		decodescript,
 		signrawtransaction,
 		sendrawtransaction,
+		gettxoutproof,
+		verifytxoutproof,
 
 		getblockcount,
 		getbestblockhash,
 		getdifficulty,
 		settxfee,
+		getmempoolinfo,
 		getrawmempool,
 		getblockhash,
 		getblock,
 		gettxoutsetinfo,
 		gettxout,
 		verifychain,
-		estimatefee,
+		getchaintips
 	}
 }

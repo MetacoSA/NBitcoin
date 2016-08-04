@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NOSOCKET
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,15 +15,24 @@ namespace NBitcoin.Protocol.Behaviors
 		RespondPong = 2,
 		Both = 3
 	}
+
+	/// <summary>
+	/// The PingPongBehavior is responsible for firing ping message every PingInterval and responding with pong message, and close the connection if the Ping has not been completed after TimeoutInterval.
+	/// </summary>
 	public class PingPongBehavior : NodeBehavior
 	{
 		public PingPongBehavior()
 		{
 			Mode = PingPongMode.Both;
-			TimeoutInterval = TimeSpan.FromMinutes(2.0);
+			TimeoutInterval = TimeSpan.FromMinutes(20.0); //Long time, if in middle of download of a large bunch of blocks, it can takes time
 			PingInterval = TimeSpan.FromMinutes(2.0);
 		}
 		PingPongMode _Mode;
+
+
+		/// <summary>
+		/// Whether the behavior send Ping and respond with Pong (Default : Both)
+		/// </summary>
 		public PingPongMode Mode
 		{
 			get
@@ -37,6 +47,10 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 
 		TimeSpan _TimeoutInterval;
+
+		/// <summary>
+		/// Interval after which an unresponded Ping will result in a disconnection. (Default : 20 minutes)
+		/// </summary>
 		public TimeSpan TimeoutInterval
 		{
 			get
@@ -51,6 +65,10 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 
 		TimeSpan _PingInterval;
+
+		/// <summary>
+		/// Interval after which a Ping message is fired after the last received Pong (Default : 2 minutes)
+		/// </summary>
 		public TimeSpan PingInterval
 		{
 			get
@@ -66,9 +84,17 @@ namespace NBitcoin.Protocol.Behaviors
 
 		protected override void AttachCore()
 		{
+			if(AttachedNode.PeerVersion != null && !PingVersion()) //If not handshaked, still attach (the callback will also check version)
+				return;
 			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
 			RegisterDisposable(new Timer(Ping, null, 0, (int)PingInterval.TotalMilliseconds));
+		}
+
+		private bool PingVersion()
+		{
+			var node = AttachedNode;
+			return node != null && node.Version > ProtocolVersion.BIP0031_VERSION;
 		}
 
 		void AttachedNode_StateChanged(Node node, NodeState oldState)
@@ -77,26 +103,47 @@ namespace NBitcoin.Protocol.Behaviors
 				Ping(null);
 		}
 
+		object cs = new object();
 		void Ping(object unused)
 		{
-			if(AttachedNode.State != NodeState.HandShaked)
-				return;
-			if(_CurrentPing != null)
-				return;
-			var node = AttachedNode;
-			if(node == null)
-				return;
-			_CurrentPing = new PingPayload();
-			_DateSent = DateTimeOffset.UtcNow;
-			node.SendMessage(_CurrentPing);
-			_PingTimeoutTimer = new Timer(PingTimeout, null, (int)TimeoutInterval.TotalMilliseconds, Timeout.Infinite);
+			if(Monitor.TryEnter(cs))
+			{
+				try
+				{
+					var node = AttachedNode;
+					if(node == null)
+						return;
+					if(!PingVersion())
+						return;
+					if(node.State != NodeState.HandShaked)
+						return;
+					if(_CurrentPing != null)
+						return;
+					_CurrentPing = new PingPayload();
+					_DateSent = DateTimeOffset.UtcNow;
+					node.SendMessageAsync(_CurrentPing);
+					_PingTimeoutTimer = new Timer(PingTimeout, _CurrentPing, (int)TimeoutInterval.TotalMilliseconds, Timeout.Infinite);
+				}
+				finally
+				{
+					Monitor.Exit(cs);
+				}
+			}
 		}
 
-		void PingTimeout(object unused)
+		/// <summary>
+		/// Send a ping asynchronously
+		/// </summary>
+		public void Probe()
+		{
+			Ping(null);
+		}
+
+		void PingTimeout(object ping)
 		{
 			var node = AttachedNode;
-			if(node != null)
-				node.Disconnect("Pong timeout");
+			if(node != null && ((PingPayload)ping) == _CurrentPing)
+				node.DisconnectAsync("Pong timeout for " + ((PingPayload)ping).Nonce);
 		}
 
 		Timer _PingTimeoutTimer;
@@ -111,10 +158,12 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void AttachedNode_MessageReceived(Node node, IncomingMessage message)
 		{
+			if(!PingVersion())
+				return;
 			var ping = message.Message.Payload as PingPayload;
 			if(ping != null && Mode.HasFlag(PingPongMode.RespondPong))
 			{
-				node.SendMessage(new PongPayload()
+				node.SendMessageAsync(new PongPayload()
 				{
 					Nonce = ping.Nonce
 				});
@@ -132,13 +181,16 @@ namespace NBitcoin.Protocol.Behaviors
 
 		private void ClearCurrentPing()
 		{
-			_CurrentPing = null;
-			_DateSent = default(DateTimeOffset);
-			var timeout = _PingTimeoutTimer;
-			if(timeout != null)
+			lock(cs)
 			{
-				timeout.Dispose();
-				timeout = null;
+				_CurrentPing = null;
+				_DateSent = default(DateTimeOffset);
+				var timeout = _PingTimeoutTimer;
+				if(timeout != null)
+				{
+					timeout.Dispose();
+					_PingTimeoutTimer = null;
+				}
 			}
 		}
 
@@ -148,5 +200,20 @@ namespace NBitcoin.Protocol.Behaviors
 			AttachedNode.StateChanged -= AttachedNode_StateChanged;
 			ClearCurrentPing();
 		}
+
+		#region ICloneable Members
+
+		public override object Clone()
+		{
+			return new PingPongBehavior()
+			{
+				Mode = Mode,
+				PingInterval = PingInterval,
+				TimeoutInterval = TimeoutInterval
+			};
+		}
+
+		#endregion
 	}
 }
+#endif

@@ -8,7 +8,7 @@ namespace NBitcoin.Protocol
 {
 	public class Payload : IBitcoinSerializable
 	{
-		public string Command
+		public virtual string Command
 		{
 			get
 			{

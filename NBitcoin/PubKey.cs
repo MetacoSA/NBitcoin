@@ -90,16 +90,21 @@ namespace NBitcoin
 		/// <returns>true if byte array is valid</returns>
 		public static bool Check(byte[] data, bool deep)
 		{
+			return Check(data, 0, data.Length, deep);
+		}
+
+		public static bool Check(byte[] data, int offset, int count, bool deep)
+		{
 			var quick = data != null &&
 					(
-						(data.Length == 33 && (data[0] == 0x02 || data[0] == 0x03)) ||
-						(data.Length == 65 && (data[0] == 0x04 || data[0] == 0x06 || data[0] == 0x07))
+						(count == 33 && (data[offset + 0] == 0x02 || data[offset + 0] == 0x03)) ||
+						(count == 65 && (data[offset + 0] == 0x04 || data[offset + 0] == 0x06 || data[offset + 0] == 0x07))
 					);
 			if(!deep || !quick)
 				return quick;
 			try
 			{
-				new ECKey(data, false);
+				new ECKey(data.SafeSubarray(offset, count), false);
 				return true;
 			}
 			catch
@@ -110,29 +115,27 @@ namespace NBitcoin
 
 		byte[] vch = new byte[0];
 		KeyId _ID;
-
-		[Obsolete("Use Hash instead")]
-		public KeyId ID
-		{
-			get
-			{
-				if(_ID == null)
-				{
-					_ID = new KeyId(Hashes.Hash160(vch, vch.Length));
-				}
-				return _ID;
-			}
-		}
-
 		public KeyId Hash
 		{
 			get
 			{
 				if(_ID == null)
 				{
-					_ID = new KeyId(Hashes.Hash160(vch, vch.Length));
+					_ID = new KeyId(Hashes.Hash160(vch, 0, vch.Length));
 				}
 				return _ID;
+			}
+		}
+		WitKeyId _WitID;
+		public WitKeyId WitHash
+		{
+			get
+			{
+				if(_WitID == null)
+				{
+					_WitID = new WitKeyId(Hashes.Hash160(vch, 0, vch.Length));
+				}
+				return _WitID;
 			}
 		}
 
@@ -148,7 +151,7 @@ namespace NBitcoin
 			}
 		}
 
-		public BitcoinAddress GetAddress(Network network)
+		public BitcoinPubKeyAddress GetAddress(Network network)
 		{
 			return network.CreateBitcoinAddress(this.Hash);
 		}
@@ -159,6 +162,11 @@ namespace NBitcoin
 			return new BitcoinScriptAddress(redeem.Hash, network);
 		}
 
+		public BitcoinWitPubKeyAddress GetSegwitAddress(Network network)
+		{
+			return new BitcoinWitPubKeyAddress(new WitKeyId(this.Hash), network);
+		}
+
 
 		public bool Verify(uint256 hash, ECDSASignature sig)
 		{
@@ -167,15 +175,6 @@ namespace NBitcoin
 		public bool Verify(uint256 hash, byte[] sig)
 		{
 			return Verify(hash, ECDSASignature.FromDER(sig));
-		}
-
-		[Obsolete("Use ScriptPubKey instead")]
-		public Script PaymentScript
-		{
-			get
-			{
-				return ScriptPubKey;
-			}
 		}
 
 		public string ToHex()
@@ -210,22 +209,64 @@ namespace NBitcoin
 			return ToHex();
 		}
 
-
+		/// <summary>
+		/// Verify message signed using signmessage from bitcoincore
+		/// </summary>
+		/// <param name="message">The message</param>
+		/// <param name="signature">The signature</param>
+		/// <returns>True if signatures is valid</returns>
 		public bool VerifyMessage(string message, string signature)
 		{
-			var key = PubKey.RecoverFromMessage(message, signature);
-			return key.Hash == Hash;
+			return VerifyMessage(Encoding.UTF8.GetBytes(message), signature);
+		}
+
+		/// <summary>
+		/// Verify message signed using signmessage from bitcoincore
+		/// </summary>
+		/// <param name="message">The message</param>
+		/// <param name="signature">The signature</param>
+		/// <returns>True if signatures is valid</returns>
+		public bool VerifyMessage(byte[] messageBytes, string signature)
+		{
+			var sig = DecodeSigString(signature);
+			var messageSigned = Utils.FormatMessageForSigning(messageBytes);
+			var hash = Hashes.Hash256(messageSigned);
+			return ECKey.Verify(hash, sig);
+		}
+
+		/// <summary>
+		/// Decode signature from bitcoincore verify/signing rpc methods
+		/// </summary>
+		/// <param name="signature"></param>
+		/// <returns></returns>
+		private static ECDSASignature DecodeSigString(string signature)
+		{
+			var signatureEncoded = Encoders.Base64.DecodeData(signature);
+			return DecodeSig(signatureEncoded);
+		}
+		private static ECDSASignature DecodeSig(byte[] signatureEncoded)
+		{
+			BigInteger r = new BigInteger(1, signatureEncoded.SafeSubarray(1, 32));
+			BigInteger s = new BigInteger(1, signatureEncoded.SafeSubarray(33, 32));
+			var sig = new ECDSASignature(r, s);
+			return sig;
 		}
 
 		//Thanks bitcoinj source code
 		//http://bitcoinj.googlecode.com/git-history/keychain/core/src/main/java/com/google/bitcoin/core/Utils.java
 		public static PubKey RecoverFromMessage(string messageText, string signatureText)
 		{
-			var signatureEncoded = Convert.FromBase64String(signatureText);
-			var message = Utils.FormatMessageForSigning(messageText);
+			return RecoverFromMessage(Encoding.UTF8.GetBytes(messageText), signatureText);
+		}
+
+		public static PubKey RecoverFromMessage(byte[] messageBytes, string signatureText)
+		{
+			var signatureEncoded = Encoders.Base64.DecodeData(signatureText);
+			var message = Utils.FormatMessageForSigning(messageBytes);
 			var hash = Hashes.Hash256(message);
 			return RecoverCompact(hash, signatureEncoded);
 		}
+
 
 		public static PubKey RecoverCompact(uint256 hash, byte[] signatureEncoded)
 		{
@@ -241,9 +282,7 @@ namespace NBitcoin
 			if(header < 27 || header > 34)
 				throw new ArgumentException("Header byte out of range: " + header);
 
-			BigInteger r = new BigInteger(1, signatureEncoded.Skip(1).Take(32).ToArray());
-			BigInteger s = new BigInteger(1, signatureEncoded.Skip(33).Take(32).ToArray());
-			var sig = new ECDSASignature(r, s);
+			var sig = DecodeSig(signatureEncoded);
 			bool compressed = false;
 
 			if(header >= 31)
@@ -278,7 +317,6 @@ namespace NBitcoin
 
 
 			BigInteger N = ECKey.CURVE.N;
-			BigInteger kPar = new BigInteger(1, this.vch);
 			BigInteger parse256LL = new BigInteger(1, l);
 
 			if(parse256LL.CompareTo(N) >= 0)
@@ -288,7 +326,8 @@ namespace NBitcoin
 			if(q.IsInfinity)
 				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
 
-			var p = new NBitcoin.BouncyCastle.Math.EC.FpPoint(ECKey.CURVE.Curve, q.X, q.Y, true);
+			q = q.Normalize();
+			var p = new NBitcoin.BouncyCastle.Math.EC.FpPoint(ECKey.CURVE.Curve, q.XCoord, q.YCoord, true);
 			return new PubKey(p.GetEncoded());
 		}
 
@@ -328,7 +367,7 @@ namespace NBitcoin
 		}
 		public PubKey Uncover(Key priv, PubKey pub)
 		{
-			var curve = ECKey.CreateCurve();
+			var curve = ECKey.Secp256k1;
 			var hash = GetStealthSharedSecret(priv, pub);
 			//Q' = Q + cG
 			var qprim = curve.G.Multiply(new BigInteger(1, hash)).Add(curve.Curve.DecodePoint(this.ToBytes()));
@@ -337,7 +376,7 @@ namespace NBitcoin
 
 		internal static byte[] GetStealthSharedSecret(Key priv, PubKey pub)
 		{
-			var curve = ECKey.CreateCurve();
+			var curve = ECKey.Secp256k1;
 			var pubec = curve.Curve.DecodePoint(pub.ToBytes());
 			var p = pubec.Multiply(new BigInteger(1, priv.ToBytes()));
 			var pBytes = new PubKey(p.GetEncoded()).Compress().ToBytes();
@@ -362,7 +401,7 @@ namespace NBitcoin
 
 		public string ToString(Network network)
 		{
-			return new BitcoinAddress(this.Hash, network).ToString();
+			return new BitcoinPubKeyAddress(this.Hash, network).ToString();
 		}
 
 		#region IDestination Members
@@ -381,6 +420,5 @@ namespace NBitcoin
 		}
 
 		#endregion
-
 	}
 }

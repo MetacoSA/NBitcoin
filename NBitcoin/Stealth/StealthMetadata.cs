@@ -12,7 +12,7 @@ namespace NBitcoin.Stealth
 	{
 		public static StealthMetadata CreateMetadata(Key ephemKey, BitField bitField = null)
 		{
-			for(uint nonce = 0 ; nonce < uint.MaxValue ; nonce++)
+			for(uint nonce = 0; nonce < uint.MaxValue; nonce++)
 			{
 				var metadata = new StealthMetadata(ephemKey, nonce);
 				if(bitField == null || bitField.Match(metadata.BitField))
@@ -53,12 +53,22 @@ namespace NBitcoin.Stealth
 			Fill(this, new Script(OpcodeType.OP_RETURN, Op.GetPushOp(data.ToArray())));
 		}
 
+		static TxNullDataTemplate _Template = new TxNullDataTemplate(1024 * 4);
 		private static bool Fill(StealthMetadata output, Script metadata)
 		{
-			var ops = metadata.ToOps().ToArray();
-			if(ops.Length != 2 || ops[0].Code != OpcodeType.OP_RETURN)
+			var datas = _Template.ExtractScriptPubKeyParameters(metadata);
+			if(datas == null)
 				return false;
-			var data = ops[1].PushData;
+			foreach(var data in datas)
+			{
+				if(Fill(output, metadata, data))
+					return true;
+			}
+			return false;
+		}
+
+		private static bool Fill(StealthMetadata output, Script metadata, byte[] data)
+		{
 			if(data == null || data.Length != 1 + 4 + 33)
 				return false;
 			MemoryStream ms = new MemoryStream(data);

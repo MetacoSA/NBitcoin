@@ -35,7 +35,7 @@ namespace Newtonsoft.Json.Schema
     /// <summary>
     /// An in-memory representation of a JSON Schema.
     /// </summary>
-    public class JsonSchema
+    internal class JsonSchema
     {
         /// <summary>
         /// Gets or sets the id.

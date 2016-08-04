@@ -1,4 +1,4 @@
-﻿#if !(PORTABLE40 || PORTABLE || NETFX_CORE)
+﻿#if !(PORTABLE40 || PORTABLE || NETFX_CORE || NOTRACESOURCE)
 using System;
 using System.Diagnostics;
 using DiagnosticsTrace = System.Diagnostics.Trace;
@@ -8,7 +8,7 @@ namespace Newtonsoft.Json.Serialization
     /// <summary>
     /// Represents a trace writer that writes to the application's <see cref="TraceListener"/> instances.
     /// </summary>
-    public class DiagnosticsTraceWriter : ITraceWriter
+    internal class DiagnosticsTraceWriter : ITraceWriter
     {
         /// <summary>
         /// Gets the <see cref="TraceLevel"/> that will be used to filter the trace messages passed to the writer.

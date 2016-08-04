@@ -110,15 +110,34 @@ namespace NBitcoin.Tests
 
 		private void TestSig(ECPrivateKeyParameters key, DeterministicSigTest test)
 		{
-			DeterministicECDSA dsa = new DeterministicECDSA(test.Hash);
+			var dsa = new DeterministicECDSA(GetHash(test.Hash));
 			dsa.setPrivateKey(key);
 			dsa.update(Encoding.UTF8.GetBytes(test.Message));
 			var result = dsa.sign();
 
-			Assert.Equal(test.K, dsa.LastK);
-			Assert.Equal(test.R, dsa.LastR);
+			var signature = ECDSASignature.FromDER(result);
+			Assert.Equal(test.S, signature.S);
+			Assert.Equal(test.R, signature.R);
+		}
 
-			Assert.Equal(test.S, ECDSASignature.FromDER(result).S);
+		private Func<BouncyCastle.Crypto.IDigest> GetHash(string hash)
+		{
+			if(hash.Equals("SHA-256", StringComparison.OrdinalIgnoreCase))
+				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest();
+
+			if(hash.Equals("SHA-1", StringComparison.OrdinalIgnoreCase))
+				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha1Digest();
+
+			if(hash.Equals("SHA-224", StringComparison.OrdinalIgnoreCase))
+				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha224Digest();
+
+			if(hash.Equals("SHA-384", StringComparison.OrdinalIgnoreCase))
+				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha384Digest();
+
+			if(hash.Equals("SHA-512", StringComparison.OrdinalIgnoreCase))
+				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest();
+
+			throw new NotImplementedException();
 		}
 
 		private void TestSig(DeterministicSigTest test)
@@ -178,13 +197,13 @@ namespace NBitcoin.Tests
 			Dictionary<string, string> values = ToDictionnary(data);
 
 			return new DeterministicSigTest()
-				{
-					Message = match.Groups[2].Value,
-					Hash = match.Groups[1].Value,
-					K = new BigInteger(values["k"], 16),
-					R = new BigInteger(values["r"], 16),
-					S = new BigInteger(values["s"], 16),
-				};
+			{
+				Message = match.Groups[2].Value,
+				Hash = match.Groups[1].Value,
+				K = new BigInteger(values["k"], 16),
+				R = new BigInteger(values["r"], 16),
+				S = new BigInteger(values["s"], 16),
+			};
 		}
 
 		private static Dictionary<string, string> ToDictionnary(string data)
@@ -225,8 +244,8 @@ namespace NBitcoin.Tests
 
 			ECPoint pub = curve.G.Multiply(key.D);
 
-			Assert.Equal(pub.X.ToBigInteger(), new BigInteger(values["Ux"], 16));
-			Assert.Equal(pub.Y.ToBigInteger(), new BigInteger(values["Uy"], 16));
+			Assert.Equal(pub.Normalize().XCoord.ToBigInteger(), new BigInteger(values["Ux"], 16));
+			Assert.Equal(pub.Normalize().YCoord.ToBigInteger(), new BigInteger(values["Uy"], 16));
 
 			return key;
 		}

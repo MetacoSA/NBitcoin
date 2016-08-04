@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.ExceptionServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NBitcoin
@@ -17,7 +14,7 @@ namespace NBitcoin
 	{
 		public static Task<Transaction> GetAsync(this ITransactionRepository repo, string txId)
 		{
-			return repo.GetAsync(new uint256(txId));
+			return repo.GetAsync(uint256.Parse(txId));
 		}
 
 		public static Task PutAsync(this ITransactionRepository repo, Transaction tx)
@@ -27,7 +24,7 @@ namespace NBitcoin
 
 		public static Transaction Get(this ITransactionRepository repo, string txId)
 		{
-			return repo.Get(new uint256(txId));
+			return repo.Get(uint256.Parse(txId));
 		}
 
 		public static void Put(this ITransactionRepository repo, Transaction tx)

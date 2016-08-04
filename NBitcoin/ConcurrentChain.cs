@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	/// <summary>
+	/// Thread safe class representing a chain of headers from genesis
+	/// </summary>
 	public class ConcurrentChain : ChainBase
 	{
 		Dictionary<uint256, ChainedBlock> _BlocksById = new Dictionary<uint256, ChainedBlock>();
@@ -55,10 +58,10 @@ namespace NBitcoin
 					int height = 0;
 					while(true)
 					{
-						uint256 id = null;
-						stream.ReadWrite<uint256>(ref id);
+						uint256.MutableUint256 id = null;
+						stream.ReadWrite<uint256.MutableUint256>(ref id);
 						BlockHeader header = null;
-						stream.ReadWrite<BlockHeader>(ref header);
+						stream.ReadWrite(ref header);
 						if(height == 0)
 						{
 							_BlocksByHeight.Clear();
@@ -67,7 +70,7 @@ namespace NBitcoin
 							SetTipNoLock(new ChainedBlock(header, 0));
 						}
 						else
-							SetTipNoLock(new ChainedBlock(header, id, Tip));
+							SetTipNoLock(new ChainedBlock(header, id.Value, Tip));
 						height++;
 					}
 				}
@@ -93,10 +96,10 @@ namespace NBitcoin
 		{
 			using(@lock.LockRead())
 			{
-				for(int i = 0 ; i < Tip.Height + 1 ; i++)
+				for(int i = 0; i < Tip.Height + 1; i++)
 				{
 					var block = GetBlockNoLock(i);
-					stream.ReadWrite(block.HashBlock);
+					stream.ReadWrite(block.HashBlock.AsBitcoinSerializable());
 					stream.ReadWrite(block.Header);
 				}
 			}
@@ -253,39 +256,33 @@ namespace NBitcoin
 		}
 
 
-		
+
 	}
 
 	internal class ReaderWriterLock
 	{
-		class FuncDisposable : IDisposable
-		{
-			Action onEnter, onLeave;
-			public FuncDisposable(Action onEnter, Action onLeave)
-			{
-				this.onEnter = onEnter;
-				this.onLeave = onLeave;
-				onEnter();
-			}
-
-			#region IDisposable Members
-
-			public void Dispose()
-			{
-				onLeave();
-			}
-
-			#endregion
-		}
 		ReaderWriterLockSlim @lock = new ReaderWriterLockSlim();
 
 		public IDisposable LockRead()
 		{
-			return new FuncDisposable(() => @lock.EnterReadLock(), () => @lock.ExitReadLock());
+			return new ActionDisposable(() => @lock.EnterReadLock(), () => @lock.ExitReadLock());
 		}
 		public IDisposable LockWrite()
 		{
-			return new FuncDisposable(() => @lock.EnterWriteLock(), () => @lock.ExitWriteLock());
-		}		
+			return new ActionDisposable(() => @lock.EnterWriteLock(), () => @lock.ExitWriteLock());
+		}
+
+		internal bool TryLockWrite(out IDisposable locked)
+		{
+			locked = null;
+			if(this.@lock.TryEnterWriteLock(0))
+			{
+				locked = new ActionDisposable(() =>
+				{
+				}, () => this.@lock.ExitWriteLock());
+				return true;
+			}
+			return false;
+		}
 	}
 }
