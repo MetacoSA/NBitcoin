@@ -156,6 +156,13 @@ namespace NBitcoin.Protocol
 					SentMessage processing = null;
 					Exception unhandledException = null;
 					bool isVerbose = NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose);
+					ManualResetEvent ar = new ManualResetEvent(false);
+					SocketAsyncEventArgs evt = new SocketAsyncEventArgs();
+					evt.SocketFlags = SocketFlags.None;
+					evt.Completed += (a, b) =>
+					{
+						ar.Set();
+					};
 					try
 					{
 						foreach(var kv in Messages.GetConsumingEnumerable(Cancel.Token))
@@ -182,27 +189,18 @@ namespace NBitcoin.Protocol
 								TransactionOptions = Node.SupportedTransactionOptions
 							});
 							var bytes = ms.ToArrayEfficient();
-#if !NETCORE
-							_Node.Counter.AddWritten(bytes.LongLength);
-							var ar = Socket.BeginSend(bytes, 0, bytes.Length, SocketFlags.None, null, null);
-							WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, Cancel.Token.WaitHandle }, -1);
+							evt.SetBuffer(bytes, 0, bytes.Length);
+							_Node.Counter.AddWritten(bytes.Length);
+							ar.Reset();
+							Socket.SendAsync(evt);
+							WaitHandle.WaitAny(new WaitHandle[] { ar, Cancel.Token.WaitHandle }, -1);
 							if(!Cancel.Token.IsCancellationRequested)
 							{
-								Socket.EndSend(ar);
+								if(evt.SocketError != SocketError.Success)
+									throw new SocketException((int)evt.SocketError);
 								processing.Completion.SetResult(true);
 								processing = null;
 							}
-#else
-							_Node.Counter.AddWritten(Int64.Parse(bytes.ToString()));
-							var ar = Socket.Send(bytes, 0, bytes.Length, SocketFlags.None);
-							WaitHandle.WaitAny(new WaitHandle[] { Cancel.Token.WaitHandle }, -1);
-							if (!Cancel.Token.IsCancellationRequested)
-							{
-								Socket.Shutdown(SocketShutdown.Send);
-								processing.Completion.SetResult(true);
-								processing = null;
-							}
-#endif
 						}
 					}
 					catch(OperationCanceledException)
@@ -211,6 +209,10 @@ namespace NBitcoin.Protocol
 					catch(Exception ex)
 					{
 						unhandledException = ex;
+					}
+					finally
+					{
+						ar.Dispose();
 					}
 
 					if(processing != null)
