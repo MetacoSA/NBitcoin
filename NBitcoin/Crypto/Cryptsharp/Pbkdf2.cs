@@ -67,8 +67,6 @@ namespace NBitcoin.Crypto
 		/// Creates a new PBKDF2 stream.
 		/// </summary>
 		/// <param name="hmacAlgorithm">
-		///     The HMAC algorithm to use, for example <see cref="HMACSHA256"/>.
-		///     Make sure to set <see cref="KeyedHashAlgorithm.Key"/>.
 		/// </param>
 		/// <param name="salt">
 		///     The salt.
@@ -131,8 +129,6 @@ namespace NBitcoin.Crypto
 		/// Computes a derived key.
 		/// </summary>
 		/// <param name="hmacAlgorithm">
-		///     The HMAC algorithm to use, for example <see cref="HMACSHA256"/>.
-		///     Make sure to set <see cref="KeyedHashAlgorithm.Key"/>.
 		/// </param>
 		/// <param name="salt">
 		///     The salt.
