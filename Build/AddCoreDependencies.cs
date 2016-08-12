@@ -37,7 +37,7 @@ namespace Build
 				builder.AppendLine("<dependency id=\"" + dep.Name + "\" version=\"[" + (string)dep.Value + ", )\" />");
 			}
 			var nuspec = File.ReadAllText(InputFile);
-			var group = "<group targetFramework=\".NETStandard1.6\">\r\n";
+			var group = "<group targetFramework=\".NETStandard1.3\">\r\n";
 			nuspec = nuspec.Replace(group, group + builder.ToString());
 			File.WriteAllText(OutputFile, nuspec);
 			return true;
