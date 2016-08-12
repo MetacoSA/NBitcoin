@@ -3,7 +3,7 @@
   "name": "NBitcoin",
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
-    "NETStandard.Library": "1.3.0",
+    "NETStandard.Library": "1.6.0",
     "System.Collections.NonGeneric": "4.0.1",
     "System.Globalization.Extensions": "4.0.1",
     "System.Net.NameResolution": "4.0.0",
