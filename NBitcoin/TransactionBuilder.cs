@@ -817,17 +817,8 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TransactionBuilder SendEstimatedFees(FeeRate feeRate)
 		{
-			Money feeSent = Money.Zero;
-			while(true)
-			{
-				var tx = BuildTransaction(false);
-				var shouldSend = EstimateFees(tx, feeRate);
-				var delta = shouldSend - feeSent;
-				if(delta <= Money.Zero)
-					break;
-				SendFees(delta);
-				feeSent += delta;
-			}
+			var fee = EstimateFees(feeRate);
+			SendFees(fee);
 			return this;
 		}
 
@@ -838,19 +829,11 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TransactionBuilder SendEstimatedFeesSplit(FeeRate feeRate)
 		{
-			Money feeSent = Money.Zero;
-			while(true)
-			{
-				var tx = BuildTransaction(false);
-				var shouldSend = EstimateFees(tx, feeRate);
-				var delta = shouldSend - feeSent;
-				if(delta <= Money.Zero)
-					break;
-				SendFeesSplit(delta);
-				feeSent += delta;
-			}
+			var fee = EstimateFees(feeRate);
+			SendFeesSplit(fee);
 			return this;
 		}
+
 		/// <summary>
 		/// Send the fee splitted among groups according to their fee weight
 		/// </summary>
@@ -1298,6 +1281,41 @@ namespace NBitcoin
 		}
 
 		/// <summary>
+		/// Estimate fees of the built transaction
+		/// </summary>
+		/// <param name="feeRate">Fee rate</param>
+		/// <returns></returns>
+		public Money EstimateFees(FeeRate feeRate)
+		{
+			if(feeRate == null)
+				throw new ArgumentNullException("feeRate");
+
+			int builderCount = CurrentGroup.Builders.Count;
+			Money feeSent = Money.Zero;		
+			try
+			{
+				while(true)
+				{
+					var tx = BuildTransaction(false);
+					var shouldSend = EstimateFees(tx, feeRate);
+					var delta = shouldSend - feeSent;
+					if(delta <= Money.Zero)
+						break;
+					SendFees(delta);
+					feeSent += delta;
+				}
+			}
+			finally
+			{
+				while(CurrentGroup.Builders.Count != builderCount)
+				{
+					CurrentGroup.Builders.RemoveAt(CurrentGroup.Builders.Count - 1);
+				}
+			}
+			return feeSent;
+		}
+
+		/// <summary>
 		/// Estimate fees of an unsigned transaction
 		/// </summary>
 		/// <param name="tx"></param>
@@ -1312,7 +1330,7 @@ namespace NBitcoin
 
 			var estimation = EstimateSize(tx);
 			return feeRate.GetFee(estimation);
-		}
+		}		
 
 		private void Sign(TransactionSigningContext ctx, ICoin coin, IndexedTxIn txIn)
 		{
@@ -1436,9 +1454,30 @@ namespace NBitcoin
 			return key;
 		}
 
+		/// <summary>
+		/// Create a new participant in the transaction with its own set of coins and keys
+		/// </summary>
+		/// <returns></returns>
 		public TransactionBuilder Then()
 		{
 			_CurrentGroup = null;
+			return this;
+		}
+
+		/// <summary>
+		/// Switch to another participant in the transaction, or create a new one if it is not found.
+		/// </summary>
+		/// <returns></returns>
+		public TransactionBuilder Then(string groupName)
+		{
+			var group = _BuilderGroups.FirstOrDefault(g => g.Name == groupName);
+			if(group == null)
+			{
+				group = new BuilderGroup(this);
+				_BuilderGroups.Add(group);
+				group.Name = groupName;
+			}
+			_CurrentGroup = group;
 			return this;
 		}
 

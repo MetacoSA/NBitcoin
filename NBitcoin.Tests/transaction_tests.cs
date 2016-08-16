@@ -847,6 +847,51 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanSwitchGroup()
+		{
+			var satoshi = new Key();
+			var alice = new Key();
+			var bob = new Key();
+
+			var aliceCoins = new ICoin[] { RandomCoin("0.4", alice), RandomCoin("0.6", alice) };
+			var bobCoins = new ICoin[] { RandomCoin("0.2", bob), RandomCoin("0.3", bob) };
+
+			TransactionBuilder builder = new TransactionBuilder();
+			FeeRate rate = new FeeRate(Money.Coins(0.0004m));
+			var tx1 = builder
+				.AddCoins(aliceCoins)
+				.AddKeys(alice)
+				.Send(satoshi, Money.Coins(0.1m))
+				.SetChange(alice)
+				.Then()
+				.AddCoins(bobCoins)
+				.AddKeys(bob)
+				.Send(satoshi, Money.Coins(0.01m))
+				.SetChange(bob)
+				.SendEstimatedFeesSplit(rate)
+				.BuildTransaction(true);
+
+			builder = new TransactionBuilder();
+			var tx2 = builder
+				.Then("Alice")
+				.AddCoins(aliceCoins)
+				.AddKeys(alice)
+				.Send(satoshi, Money.Coins(0.1m))				
+				.Then("Bob")
+				.AddCoins(bobCoins)
+				.AddKeys(bob)
+				.Send(satoshi, Money.Coins(0.01m))
+				.SetChange(bob)
+				.Then("Alice")
+				.SetChange(alice)
+				.SendEstimatedFeesSplit(rate)
+				.BuildTransaction(true);
+
+			Assert.Equal(tx1.ToString(), tx2.ToString());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSplitFees()
 		{
 			var satoshi = new Key();
@@ -1281,11 +1326,13 @@ namespace NBitcoin.Tests
 			transactionBuilder.SetChange(new Key().PubKey.GetAddress(Network.Main));
 
 			var feeRate = new FeeRate((long)32563);
+			var estimatedFeeBefore = transactionBuilder.EstimateFees(feeRate);
 			//Adding the estimated fees will cause 6 more coins to be included, so let's verify the actual sent fees take that into account
 			transactionBuilder.SendEstimatedFees(feeRate);
 			var tx = transactionBuilder.BuildTransaction(false);
 			var estimation = transactionBuilder.EstimateFees(tx, feeRate);
 			Assert.Equal(estimation, tx.GetFee(transactionBuilder.FindSpentCoins(tx)));
+			Assert.Equal(estimatedFeeBefore, estimation);
 		}
 
 		[Fact]
