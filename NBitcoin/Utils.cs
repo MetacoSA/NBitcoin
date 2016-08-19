@@ -125,62 +125,72 @@ namespace NBitcoin
 #if !(PORTABLE || NETCORE)
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
-			int readen = 0;
-			while(readen < count)
+			if(stream == null) throw new ArgumentNullException("stream");
+			if(buffer == null) throw new ArgumentNullException("buffer");
+			if(offset < 0 || offset > buffer.Length) throw new ArgumentOutOfRangeException("offset");
+			if(count <= 0 || count > buffer.Length) throw new ArgumentOutOfRangeException("count"); //Disallow 0 as a debugging aid.
+			if(offset > buffer.Length - count) throw new ArgumentOutOfRangeException("count");
+
+			int totalReadCount = 0;
+
+			while(totalReadCount < count)
 			{
-				int thisRead = 0;
-				if(stream is NetworkStream) //Big performance problem with begin read for other stream than NetworkStream
+				cancellation.ThrowIfCancellationRequested();
+
+				int currentReadCount;
+
+				//Big performance problem with BeginRead for other stream types than NetworkStream.
+				//Only take the slow path if cancellation is possible.
+				if(stream is NetworkStream && cancellation.CanBeCanceled)
 				{
-					var ar = stream.BeginRead(buffer, offset + readen, count - readen, null, null);
+					var ar = stream.BeginRead(buffer, offset + totalReadCount, count - totalReadCount, null, null);
 					if(!ar.CompletedSynchronously)
 					{
 						WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, cancellation.WaitHandle }, -1);
 					}
-					cancellation.ThrowIfCancellationRequested();
-					thisRead = stream.EndRead(ar);
-					if(thisRead == 0 && (stream is Message.CustomNetworkStream) && ((Message.CustomNetworkStream)stream).Connected)
-					{
-						return -1;
-					}
+					currentReadCount = stream.EndRead(ar);
 				}
 				else
 				{
-					cancellation.ThrowIfCancellationRequested();
-					thisRead = stream.Read(buffer, offset + readen, count - readen);
+					//IO interruption not supported in this path.
+					currentReadCount = stream.Read(buffer, offset + totalReadCount, count - totalReadCount);
 				}
-				if(thisRead == -1)
-					return -1;
-				if(thisRead == 0 && (stream is FileStream || stream is MemoryStream))
-				{
-					if(stream.Length == stream.Position)
-						return -1;
-				}
-				readen += thisRead;
+
+				if(currentReadCount == 0)
+					return 0;
+
+				totalReadCount += currentReadCount;
 			}
-			return readen;
+
+			return totalReadCount;
 		}
 #else
 
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
-			int readen = 0;
-			while(readen < count)
+			if(stream == null) throw new ArgumentNullException("stream");
+			if(buffer == null) throw new ArgumentNullException("buffer");
+			if(offset < 0 || offset > buffer.Length) throw new ArgumentOutOfRangeException("offset");
+			if(count <= 0 || count > buffer.Length) throw new ArgumentOutOfRangeException("count"); //Disallow 0 as a debugging aid.
+			if(offset > buffer.Length - count) throw new ArgumentOutOfRangeException("count");
+
+			//IO interruption not supported on these platforms.
+
+			int totalReadCount = 0;
+
+			while(totalReadCount < count)
 			{
-				int thisRead = 0;
-
 				cancellation.ThrowIfCancellationRequested();
-				thisRead = stream.Read(buffer, offset + readen, count - readen);
 
-				if(thisRead == -1)
-					return -1;
-				if(thisRead == 0 && (stream is MemoryStream))
-				{
-					if(stream.Length == stream.Position)
-						return -1;
-				}
-				readen += thisRead;
+				var currentReadCount = stream.Read(buffer, offset + totalReadCount, count - totalReadCount);
+
+				if(currentReadCount == 0)
+					return 0;
+
+				totalReadCount += currentReadCount;
 			}
-			return readen;
+
+			return totalReadCount;
 		}
 #endif
 		public static void AddOrReplace<TKey, TValue>(this IDictionary<TKey, TValue> dico, TKey key, TValue value)
