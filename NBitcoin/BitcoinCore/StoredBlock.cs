@@ -63,7 +63,7 @@ namespace NBitcoin.BitcoinCore
 			return Begin + " <= x < " + End;
 		}
 	}
-	public class DiskBlockPos : IBitcoinSerializable
+	public class DiskBlockPos : IBitcoinSerializable, IEquatable<DiskBlockPos>
 	{
 		private static DiskBlockPos _Begin = new DiskBlockPos(0, 0);
 
@@ -130,12 +130,14 @@ namespace NBitcoin.BitcoinCore
 
 		#endregion
 
-		public override bool Equals(object obj)
+        public bool Equals(DiskBlockPos other)
+        {
+            return this == other; //Uses operator ==
+        }
+
+        public override bool Equals(object obj)
 		{
-			DiskBlockPos item = obj as DiskBlockPos;
-			if(item == null)
-				return false;
-			return _Hash.Equals(item._Hash);
+            return this == (obj as DiskBlockPos); //Uses operator ==
 		}
 		public static bool operator ==(DiskBlockPos a, DiskBlockPos b)
 		{
@@ -143,7 +145,7 @@ namespace NBitcoin.BitcoinCore
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;
-			return a._Hash == b._Hash;
+			return a.File == b.File && a.Position == b.Position;
 		}
 
 		public static bool operator !=(DiskBlockPos a, DiskBlockPos b)
