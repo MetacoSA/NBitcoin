@@ -8,6 +8,27 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol.Behaviors
 {
+	[Flags]
+	public enum AddressManagerBehaviorMode
+	{		
+		/// <summary>
+		/// Do not advertize nor discover new peers
+		/// </summary>
+		None = 0,	
+		/// <summary>
+		/// Only advertize known peers
+		/// </summary>
+		Advertize = 1,
+		/// <summary>
+		/// Only discover peers
+		/// </summary>
+		Discover = 2,
+		/// <summary>
+		/// Advertize known peer and discover peer
+		/// </summary>
+		AdvertizeDiscover = 3,
+	}
+
 	/// <summary>
 	/// The AddressManagerBehavior class will respond to getaddr and register advertised nodes from addr messages to the AddressManager.
 	/// The AddressManagerBehavior will also receive feedback about connection attempt and success of discovered peers to the AddressManager, so it can be used later to find valid peer faster.
@@ -67,6 +88,13 @@ namespace NBitcoin.Protocol.Behaviors
 			if(manager == null)
 				throw new ArgumentNullException("manager");
 			_AddressManager = manager;
+			Mode = AddressManagerBehaviorMode.AdvertizeDiscover;
+		}
+
+		public AddressManagerBehaviorMode Mode
+		{
+			get;
+			set;
 		}
 		AddressManager _AddressManager;
 		public AddressManager AddressManager
@@ -91,24 +119,34 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void AttachedNode_MessageReceived(Node node, IncomingMessage message)
 		{
-			var getaddr = message.Message.Payload as GetAddrPayload;
-			if(getaddr != null)
+			if((Mode & AddressManagerBehaviorMode.Advertize) != 0)
 			{
-				node.SendMessageAsync(new AddrPayload(AddressManager.GetAddr().Take(1000).ToArray()));
+				var getaddr = message.Message.Payload as GetAddrPayload;
+				if(getaddr != null)
+				{
+					node.SendMessageAsync(new AddrPayload(AddressManager.GetAddr().Take(1000).ToArray()));
+				}
 			}
-			var addr = message.Message.Payload as AddrPayload;
-			if(addr != null)
+
+			if((Mode & AddressManagerBehaviorMode.Discover) != 0)
 			{
-				AddressManager.Add(addr.Addresses, node.RemoteSocketAddress);
+				var addr = message.Message.Payload as AddrPayload;
+				if(addr != null)
+				{
+					AddressManager.Add(addr.Addresses, node.RemoteSocketAddress);
+				}
 			}
 		}
 
 		void AttachedNode_StateChanged(Node node, NodeState oldState)
 		{
-			if(node.State <= NodeState.Disconnecting && oldState == NodeState.HandShaked)
-				AddressManager.Connected(node.Peer);
-			if(node.State == NodeState.HandShaked)
-				AddressManager.Good(node.Peer);
+			if((Mode & AddressManagerBehaviorMode.Discover) != 0)
+			{
+				if(node.State <= NodeState.Disconnecting && oldState == NodeState.HandShaked)
+					AddressManager.Connected(node.Peer);
+				if(node.State == NodeState.HandShaked)
+					AddressManager.Good(node.Peer);
+			}
 		}
 
 		protected override void DetachCore()
