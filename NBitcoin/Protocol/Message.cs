@@ -58,7 +58,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public bool IfPayloadIs<TPayload>(Action<TPayload> action) where TPayload : class
+		public bool IfPayloadIs<TPayload>(Action<TPayload> action) where TPayload : Payload
 		{
 			var payload = Payload as TPayload;
 			if(payload != null)
