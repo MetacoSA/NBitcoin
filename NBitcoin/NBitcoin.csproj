@@ -285,7 +285,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BitcoinStream.Partial.cs</LastGenOutput>
     </None>
-    <None Include="NBitcoin.Mono.Tokenized.nuspec" />
     <None Include="NBitcoin.Tokenized.nuspec" />
     <None Include="packages.config" />
     <None Include="PushNuget.ps1" />
