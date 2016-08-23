@@ -14,7 +14,16 @@
 							OutputFile="..\NBitcoin\NBitcoin.Mono.nuspec"
 							></Build.TokenizeTask>
 	
-		<Build.AddCoreDependencies 
+		<Build.AddCoreDependencies
+							TargetFramework=".NETStandard1.3"
+							FrameworkName="netstandard1.3"
+							InputFile="..\NBitcoin\NBitcoin.nuspec"
+							ProjectJsonFile="..\NBitcoin.NETCore\project.json"							
+							OutputFile="..\NBitcoin\NBitcoin.nuspec"
+							></Build.AddCoreDependencies>
+		<Build.AddCoreDependencies
+							TargetFramework=".NETStandard1.1"
+							FrameworkName="netstandard1.1"
 							InputFile="..\NBitcoin\NBitcoin.nuspec"
 							ProjectJsonFile="..\NBitcoin.NETCore\project.json"
 							OutputFile="..\NBitcoin\NBitcoin.nuspec"

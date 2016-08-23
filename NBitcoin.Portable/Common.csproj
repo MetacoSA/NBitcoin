@@ -31,7 +31,7 @@
     <Compile Include="..\NBitcoin\BitcoinStream.partial.cs">
       <Link>Linked\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
-    <Compile Include="DefaultRNG.partial.cs" />
+    <Compile Include="../NBitcoin.Portable/RandomUtils.partial.cs" />
     <Compile Include="System.Net\HttpWebRequest.cs" />
     <Compile Include="System.Numerics\*.cs">
     </Compile>
