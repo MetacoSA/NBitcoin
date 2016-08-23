@@ -11,7 +11,7 @@ using System.Threading;
 using NBitcoin.Protocol;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
-#if !PORTABLE
+#if !NOSOCKET
 using System.Net.Sockets;
 #endif
 #if WINDOWS_UWP
