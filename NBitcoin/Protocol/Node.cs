@@ -752,7 +752,7 @@ namespace NBitcoin.Protocol
 			_Behaviors.DelayAttach = true;
 			foreach(var behavior in parameters.TemplateBehaviors)
 			{
-				_Behaviors.Add((NodeBehavior)((ICloneable)behavior).Clone());
+				_Behaviors.Add(behavior.Clone());
 			}
 			_Behaviors.DelayAttach = false;
 		}

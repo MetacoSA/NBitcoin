@@ -58,10 +58,7 @@
         "../NBitcoin/Stealth/*.cs",
         "../NBitcoin/Utils/*.cs",
         "../NBitcoin/*.cs",
-        "../Stubs/**/*.cs"
-      ],
-      "exclude": [
-		"../NBitcoin/RandomUtils.partial.cs"
+        "../Stubs/TraceStub/TraceSource.cs"
       ]
     }
   }

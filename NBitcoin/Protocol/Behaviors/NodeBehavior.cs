@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol.Behaviors
 {
-	public interface INodeBehavior : ICloneable
+	public interface INodeBehavior
 	{
 		Node AttachedNode
 		{
@@ -16,6 +16,7 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 		void Attach(Node node);
 		void Detach();
+		INodeBehavior Clone();
 	}
 	public abstract class NodeBehavior : INodeBehavior
 	{
@@ -80,6 +81,11 @@ namespace NBitcoin.Protocol.Behaviors
 		protected abstract void DetachCore();
 
 		public abstract object Clone();
+
+		INodeBehavior INodeBehavior.Clone()
+		{
+			return (INodeBehavior)Clone();
+		}
 	}
 }
 #endif
