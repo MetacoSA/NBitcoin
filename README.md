@@ -7,21 +7,15 @@ NBitcoin is the most complete Bitcoin library for the .NET platform. It is compa
 With nuget :
 >**Install-Package NBitcoin** 
 
-Or if you are running on Mono (e.g. using MonoDevelop/XamarinStudio):
->**Install-Package NBitcoin.Mono**
-
 Go on the [nuget website](https://www.nuget.org/packages/NBitcoin/) for more information.
 
-The packages supports the following Portable profile :
+The packages supports:
 
-* net45
-* portable-net45+win+wpa81+Xamarin.iOS10+MonoAndroid10+MonoTouch10
-* portable-net45+win+wpa81+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10
-* portable-net45+MonoAndroid1
+* With full features, Windows Desktop applications, Mono Desktop applications, and plateform supported at [.NET Standard 1.3](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) (.NET Core, Xamarin IOS, Xamarin Android, UWP).
+* With limited features, plateform supported at [.NET Standard 1.1](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) (Windows Phone, Windows 8.0 apps).
 
 To compile it by yourself, you can git clone, open the project and hit the compile button on visual studio.
-How to get started ? Check out this article [on CodeProject](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) for some basic Bitcoin operations.
-
+How to get started ? Check out this article [on CodeProject](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) for some basic Bitcoin operations, or [this Introduction to NBitcoin video](https://www.youtube.com/watch?v=X4ZwRWIF49w).
 
 ##Description
 NBitcoin notably includes:
@@ -29,6 +23,7 @@ NBitcoin notably includes:
 * A [TransactionBuilder](http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All) supporting Stealth, Open Asset, and all standard transactions
 * Full script evaluation and parsing
 * A RPC Client
+* A Rest Client
 * A SPV Wallet implementation [with sample](https://github.com/NicolasDorier/NBitcoin.SPVSample)
 * The parsing of standard scripts and creation of custom ones
 * The serialization of blocks, transactions and script
