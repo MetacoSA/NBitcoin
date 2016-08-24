@@ -58,14 +58,10 @@
         "../NBitcoin/Stealth/*.cs",
         "../NBitcoin/Utils/*.cs",
         "../NBitcoin/*.cs",
-        "../NBitcoin.Portable/**/*.cs",
-        "../NBitcoin.Portable/*.cs"
+        "../Stubs/**/*.cs"
       ],
       "exclude": [
-        "../NBitcoin/MedianFilter1.cs",
-		"../NBitcoin/RandomUtils.partial.cs",
-        "../NBitcoin.Portable/Android.partial.cs",
-        "../NBitcoin.Portable/Payment/BitcoinUrlBuilder.cs"
+		"../NBitcoin/RandomUtils.partial.cs"
       ]
     }
   }

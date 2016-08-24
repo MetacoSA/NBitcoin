@@ -251,11 +251,6 @@
     <Compile Include="IBitcoinSerializable.cs" />
     <Compile Include="Key.cs" />
     <Compile Include="KeyId.cs" />
-    <Compile Include="MedianFilter1.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MedianFilter.tt</DependentUpon>
-    </Compile>
     <Compile Include="MerkleBlock.cs" />
     <Compile Include="Money.cs" />
     <Compile Include="PartialMerkleTree.cs" />
@@ -291,10 +286,6 @@
     <None Include="UInt256.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>UInt2561.cs</LastGenOutput>
-    </None>
-    <None Include="MedianFilter.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>MedianFilter1.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
