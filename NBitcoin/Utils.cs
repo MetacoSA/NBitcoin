@@ -701,7 +701,7 @@ namespace NBitcoin
 #if !(WINDOWS_UWP || NETCORE)
 				address = Dns.GetHostEntry(ip).AddressList[0];
 #else
-				string adr = DnsLookup(ip).Result;
+				string adr = DnsLookup(ip).GetAwaiter().GetResult();
 				// if not resolved behave like GetHostEntry
 				if (adr == string.Empty)
 					throw new SocketException(11001);
