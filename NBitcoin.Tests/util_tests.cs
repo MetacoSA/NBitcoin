@@ -343,15 +343,15 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void MoneyUnitSanityCheck()
 		{
-			Assert.DoesNotThrow(() => Money.FromUnit(10m, MoneyUnit.BTC));
-			Assert.DoesNotThrow(() => Money.FromUnit(10m, MoneyUnit.MilliBTC));
-			Assert.DoesNotThrow(() => Money.FromUnit(10m, MoneyUnit.Bit));
-			Assert.DoesNotThrow(() => Money.FromUnit(10m, MoneyUnit.Satoshi));
+			Money.FromUnit(10m, MoneyUnit.BTC);
+			Money.FromUnit(10m, MoneyUnit.MilliBTC);
+			Money.FromUnit(10m, MoneyUnit.Bit);
+			Money.FromUnit(10m, MoneyUnit.Satoshi);
 
-			Assert.DoesNotThrow(() => Money.FromUnit(10m, (MoneyUnit)100000000));
-			Assert.DoesNotThrow(() => Money.FromUnit(10m, (MoneyUnit)100000));
-			Assert.DoesNotThrow(() => Money.FromUnit(10m, (MoneyUnit)100));
-			Assert.DoesNotThrow(() => Money.FromUnit(10m, (MoneyUnit)1));
+			Money.FromUnit(10m, (MoneyUnit)100000000);
+			Money.FromUnit(10m, (MoneyUnit)100000);
+			Money.FromUnit(10m, (MoneyUnit)100);
+			Money.FromUnit(10m, (MoneyUnit)1);
 
 			Assert.Throws<ArgumentException>(() => Money.FromUnit(10, (MoneyUnit)14));
 			Assert.Throws<ArgumentException>(() => Money.FromUnit(10, (MoneyUnit)(-41)));

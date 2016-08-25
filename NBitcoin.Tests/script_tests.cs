@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using Newtonsoft.Json.Linq;
+using System.Runtime.InteropServices;
 
 namespace NBitcoin.Tests
 {
@@ -362,8 +363,8 @@ namespace NBitcoin.Tests
 
 		private void EnsureHasLibConsensus()
 		{
-#if !NOCONSENSUSLIB
-			string environment = Environment.Is64BitProcess ? "x64" : "x86";
+#if !NOCONSENSUSLIB			
+			string environment = RuntimeInformation.OSArchitecture == Architecture.X64 ? "x64" : "x86";
 			if(File.Exists(Script.LibConsensusDll))
 			{
 				var bytes = File.ReadAllBytes(Script.LibConsensusDll);

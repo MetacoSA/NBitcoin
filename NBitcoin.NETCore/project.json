@@ -13,7 +13,8 @@
 			"System.Globalization.Extensions": "4.0.1",
 			"System.Net.NameResolution": "4.0.0",
 			"System.Threading.Tasks.Parallel": "4.0.1",
-			"System.Threading.Thread": "4.0.0"
+			"System.Threading.Thread": "4.0.0",
+			"System.Runtime.InteropServices.RuntimeInformation": "4.0.0"
 		}
     },
 	"netstandard1.1": {		
@@ -31,6 +32,7 @@
   },
   "buildOptions": {
 	"outputName": "NBitcoin",
+	"debugType": "portable",
     "define": [
       "TRACE",
       "NETCORE",
@@ -38,26 +40,7 @@
     ],
     "compile": {
       "include": [
-        "../NBitcoin/BIP32/*.cs",
-        "../NBitcoin/BIP38/*.cs",
-        "../NBitcoin/BIP39/*.cs",
-        "../NBitcoin/BitcoinCore/*.cs",
-        "../NBitcoin/BouncyCastle/**/*.cs",
-        "../NBitcoin/BuilderExtensions/*.cs",
-        "../NBitcoin/Crypto/*.cs",
-        "../NBitcoin/Crypto/**/*.cs",
-        "../NBitcoin/DataEncoders/*.cs",
-        "../NBitcoin/OpenAsset/*.cs",
-        "../NBitcoin/Payment/*.cs",
-        "../NBitcoin/Policy/*.cs",
-        "../NBitcoin/Protobuf/*.cs",
-        "../NBitcoin/Protocol/*.cs",
-        "../NBitcoin/Protocol/**/*.cs",
-        "../NBitcoin/RPC/*.cs",
-        "../NBitcoin/SPV/*.cs",
-        "../NBitcoin/Stealth/*.cs",
-        "../NBitcoin/Utils/*.cs",
-        "../NBitcoin/*.cs",
+        "../NBitcoin/**/*.cs",
         "../Stubs/TraceStub/TraceSource.cs"
       ]
     }

@@ -253,7 +253,7 @@ namespace NBitcoin.Tests
 			ack.Memo = "thanks customer !";
 			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
 		}
-#if !NOHTTPCLIENT
+#if !NOHTTPCLIENT && !NOHTTPSERVER
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanTalkToPaymentServer()
@@ -272,7 +272,7 @@ namespace NBitcoin.Tests
 #endif
 
 	}
-
+#if !NOHTTPSERVER
 	public class PaymentServerTester : IDisposable
 	{
 		HttpListener _Listener;
@@ -359,4 +359,5 @@ namespace NBitcoin.Tests
 
 		#endregion
 	}
+#endif
 }

@@ -266,7 +266,7 @@ namespace NBitcoin.Tests
 			{
 				var node = builder.CreateNode();
 				node.Start();
-				var buildOutputDir = Path.GetDirectoryName(GetType().Assembly.Location);
+				var buildOutputDir = Path.GetDirectoryName(".");
 				var filePath = Path.Combine(buildOutputDir, "wallet_backup.dat");
 				try
 				{
