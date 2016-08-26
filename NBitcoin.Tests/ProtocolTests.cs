@@ -109,11 +109,19 @@ namespace NBitcoin.Tests
 		{
 			_Server1.Dispose();
 			_Server2.Dispose();
+			foreach(var dispo in _Disposables)
+				dispo.Dispose();
 		}
 
 		#endregion
 
 		public static string NATRuleName = "NBitcoin Tests";
+
+		List<IDisposable> _Disposables = new List<IDisposable>();
+		internal void AddDisposable(IDisposable disposable)
+		{
+			_Disposables.Add(disposable);
+		}
 	}
 	public class ProtocolTests
 	{

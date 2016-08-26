@@ -141,9 +141,14 @@ namespace NBitcoin.Tests
 		public void Dispose()
 		{
 			foreach(var node in Nodes)
-			{
 				node.Kill();
-			}
+			foreach(var disposable in _Disposables)
+				disposable.Dispose();
+		}
+		List<IDisposable> _Disposables = new List<IDisposable>();
+		internal void AddDisposable(IDisposable group)
+		{
+			_Disposables.Add(group);
 		}
 	}
 

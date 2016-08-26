@@ -24,11 +24,7 @@ namespace NBitcoin
 			if(!File.Exists(filePath))
 				try
 				{
-#if !NETCORE
-					File.Create(filePath).Close();
-#else
-					File.Create(filePath).Flush(false);
-#endif
+					File.Create(filePath).Dispose();
 				}
 				catch
 				{
