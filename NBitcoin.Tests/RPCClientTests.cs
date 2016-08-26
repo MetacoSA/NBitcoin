@@ -243,6 +243,7 @@ namespace NBitcoin.Tests
 				var rpc = nodeA.CreateRPCClient();
 				rpc.RemoveNode(nodeA.Endpoint);
 				rpc.AddNode(nodeB.Endpoint);
+				Thread.Sleep(500);
 				var info = rpc.GetAddedNodeInfo(true);
 				Assert.NotNull(info);
 				Assert.NotEmpty(info);
