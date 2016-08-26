@@ -244,7 +244,7 @@ namespace NBitcoin.Protocol
 						byte[] buffer = _Node._ReuseBuffer ? new byte[1024 * 1024] : null;
 						try
 						{
-							var stream = new Message.CustomNetworkStream(Socket, false);
+							var stream = new NetworkStream(Socket, false);
 							while(!Cancel.Token.IsCancellationRequested)
 							{
 								PerformanceCounter counter;
