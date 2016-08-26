@@ -364,7 +364,7 @@ namespace NBitcoin.Tests
 		private void EnsureHasLibConsensus()
 		{
 #if !NOCONSENSUSLIB			
-			string environment = RuntimeInformation.OSArchitecture == Architecture.X64 ? "x64" : "x86";
+			string environment = RuntimeInformation.ProcessArchitecture == Architecture.X64 ? "x64" : "x86";
 			if(File.Exists(Script.LibConsensusDll))
 			{
 				var bytes = File.ReadAllBytes(Script.LibConsensusDll);
