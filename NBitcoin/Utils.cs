@@ -182,11 +182,13 @@ namespace NBitcoin
 			{
 				cancellation.ThrowIfCancellationRequested();
 				int currentReadCount = 0;
+#if !NOSOCKET
 				if(stream is NetworkStream && cancellation.CanBeCanceled)
 				{
 					currentReadCount = stream.ReadAsync(buffer, offset + totalReadCount, count - totalReadCount, cancellation).GetAwaiter().GetResult();
 				}
 				else
+#endif
 				{
 					currentReadCount = stream.Read(buffer, offset + totalReadCount, count - totalReadCount);
 				}
