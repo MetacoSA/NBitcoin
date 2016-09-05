@@ -76,93 +76,254 @@ namespace NBitcoin
 		MAX_BASE58_TYPES,
 	};
 
+	public enum BuriedDeployments : int
+	{
+		/// <summary>
+		/// Height in coinbase
+		/// </summary>
+		BIP34,
+		/// <summary>
+		/// Height in OP_CLTV
+		/// </summary>
+		BIP65,
+		/// <summary>
+		/// Strict DER signature
+		/// </summary>
+		BIP66
+	}
+
 	public class Consensus
 	{
+		public class BuriedDeploymentsArray
+		{
+			Consensus _Parent;
+			int[] _Heights;
+			public BuriedDeploymentsArray(Consensus parent)
+			{
+				_Parent = parent;
+				_Heights = new int[Enum.GetValues(typeof(BuriedDeployments)).Length];
+			}
+			public int this[BuriedDeployments index]
+			{
+				get
+				{
+					return _Heights[(int)index];
+				}
+				set
+				{
+					_Parent.EnsureNotFrozen();
+					_Heights[(int)index] = value;
+				}
+			}
+		}
 
+		public Consensus()
+		{
+			_BuriedDeployments = new BuriedDeploymentsArray(this);
+		}
+		private readonly BuriedDeploymentsArray _BuriedDeployments;
+		public BuriedDeploymentsArray BuriedDeployments
+		{
+			get
+			{
+				return _BuriedDeployments;
+			}
+		}
+
+		int _SubsidyHalvingInterval;
 		public int SubsidyHalvingInterval
 		{
-			get;
-			internal set;
+			get
+			{
+				return _SubsidyHalvingInterval;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_SubsidyHalvingInterval = value;
+			}
 		}
 
+
+		int _MajorityEnforceBlockUpgrade;
 		public int MajorityEnforceBlockUpgrade
 		{
-			get;
-			internal set;
+			get
+			{
+				return _MajorityEnforceBlockUpgrade;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_MajorityEnforceBlockUpgrade = value;
+			}
 		}
 
+		int _MajorityRejectBlockOutdated;
 		public int MajorityRejectBlockOutdated
 		{
-			get;
-			internal set;
+			get
+			{
+				return _MajorityRejectBlockOutdated;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_MajorityRejectBlockOutdated = value;
+			}
 		}
 
+		int _MajorityWindow;
 		public int MajorityWindow
 		{
-			get;
-			internal set;
+			get
+			{
+				return _MajorityWindow;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_MajorityWindow = value;
+			}
 		}
 
-		public int BIP34Height
-		{
-			get;
-			internal set;
-		}
 
+		uint256 _BIP34Hash;
 		public uint256 BIP34Hash
 		{
-			get;
-			internal set;
+			get
+			{
+				return _BIP34Hash;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_BIP34Hash = value;
+			}
 		}
 
+
+		Target _PowLimit;
 		public Target PowLimit
 		{
-			get;
-			internal set;
+			get
+			{
+				return _PowLimit;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_PowLimit = value;
+			}
 		}
 
+
+		int _SegWitHeight;
 		public int SegWitHeight
 		{
-			get;
-			internal set;
+			get
+			{
+				return _SegWitHeight;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_SegWitHeight = value;
+			}
 		}
 
+
+		TimeSpan _PowTargetTimespan;
 		public TimeSpan PowTargetTimespan
 		{
-			get;
-			internal set;
+			get
+			{
+				return _PowTargetTimespan;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_PowTargetTimespan = value;
+			}
 		}
 
+
+		TimeSpan _PowTargetSpacing;
 		public TimeSpan PowTargetSpacing
 		{
-			get;
-			internal set;
+			get
+			{
+				return _PowTargetSpacing;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_PowTargetSpacing = value;
+			}
 		}
 
+
+		bool _PowAllowMinDifficultyBlocks;
 		public bool PowAllowMinDifficultyBlocks
 		{
-			get;
-			internal set;
+			get
+			{
+				return _PowAllowMinDifficultyBlocks;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_PowAllowMinDifficultyBlocks = value;
+			}
 		}
 
+
+		bool _PowNoRetargeting;
 		public bool PowNoRetargeting
 		{
-			get;
-			internal set;
+			get
+			{
+				return _PowNoRetargeting;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_PowNoRetargeting = value;
+			}
 		}
 
+
+		uint256 _HashGenesisBlock;
 		public uint256 HashGenesisBlock
 		{
-			get;
-			internal set;
+			get
+			{
+				return _HashGenesisBlock;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_HashGenesisBlock = value;
+			}
 		}
-
+		
 		public long DifficultyAdjustmentInterval
 		{
 			get
 			{
 				return ((long)PowTargetTimespan.TotalSeconds / (long)PowTargetSpacing.TotalSeconds);
 			}
+		}
+
+		bool frozen = false;
+		public void Freeze()
+		{
+			frozen = true;
+		}
+		private void EnsureNotFrozen()
+		{
+			if(frozen)
+				throw new InvalidOperationException("This instance can't be modified");
 		}
 	}
 	public class Network
@@ -244,15 +405,19 @@ namespace NBitcoin
 		{
 			_Main = new Network();
 			_Main.InitMain();
+			_Main.Consensus.Freeze();
 
 			_TestNet = new Network();
 			_TestNet.InitTest();
+			_TestNet.Consensus.Freeze();
 
 			_SegNet = new Network();
 			_SegNet.InitSegnet();
+			_SegNet.Consensus.Freeze();
 
 			_RegTest = new Network();
 			_RegTest.InitReg();
+			_RegTest.Consensus.Freeze();
 		}
 
 		static Network _Main;
@@ -301,7 +466,7 @@ namespace NBitcoin
 			consensus.MajorityEnforceBlockUpgrade = 750;
 			consensus.MajorityRejectBlockOutdated = 950;
 			consensus.MajorityWindow = 1000;
-			consensus.BIP34Height = 227931;
+			consensus.BuriedDeployments[BuriedDeployments.BIP34] = 227931;
 			consensus.BIP34Hash = new uint256("0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8");
 			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			consensus.SegWitHeight = 2000000000;
@@ -371,7 +536,7 @@ namespace NBitcoin
 			consensus.MajorityEnforceBlockUpgrade = 51;
 			consensus.MajorityRejectBlockOutdated = 75;
 			consensus.MajorityWindow = 100;
-			consensus.BIP34Height = 21111;
+			consensus.BuriedDeployments[BuriedDeployments.BIP34] = 21111;
 			consensus.BIP34Hash = new uint256("0x0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8");
 			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			consensus.SegWitHeight = 2000000000;
@@ -421,7 +586,7 @@ namespace NBitcoin
 			consensus.MajorityEnforceBlockUpgrade = 7;
 			consensus.MajorityRejectBlockOutdated = 9;
 			consensus.MajorityWindow = 10;
-			consensus.BIP34Height = -1;
+			consensus.BuriedDeployments[BuriedDeployments.BIP34] = -1;
 			consensus.BIP34Hash = uint256.Zero;
 			consensus.PowLimit = new Target(new uint256("000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
@@ -477,7 +642,7 @@ namespace NBitcoin
 			consensus.MajorityEnforceBlockUpgrade = 750;
 			consensus.MajorityRejectBlockOutdated = 950;
 			consensus.MajorityWindow = 1000;
-			consensus.BIP34Height = -1; // BIP34 has not necessarily activated on regtest
+			consensus.BuriedDeployments[BuriedDeployments.BIP34] = -1; // BIP34 has not necessarily activated on regtest
 			consensus.BIP34Hash = new uint256();
 			consensus.PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			consensus.SegWitHeight = 0;
@@ -503,7 +668,7 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (239) };
 			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x35), (0x87), (0xCF) };
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
-			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
+			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };			
 		}
 
 		private Block CreateGenesisBlock(uint nTime, uint nNonce, uint nBits, int nVersion, Money genesisReward)
