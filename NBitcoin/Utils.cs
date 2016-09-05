@@ -148,6 +148,12 @@ namespace NBitcoin
 					{
 						WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, cancellation.WaitHandle }, -1);
 					}
+
+					//EndRead might block, so we need to test cancellation before calling it.
+					//This also is a bug because calling EndRead after BeginRead is contractually required.
+					//A potential fix is to use the ReadAsync API. Another fix is to register a callback with BeginRead that calls EndRead in all cases.
+					cancellation.ThrowIfCancellationRequested(); 
+
 					currentReadCount = stream.EndRead(ar);
 				}
 				else
