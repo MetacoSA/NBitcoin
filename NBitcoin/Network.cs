@@ -413,11 +413,9 @@ namespace NBitcoin
 
 			_SegNet = new Network();
 			_SegNet.InitSegnet();
-			_SegNet.Consensus.Freeze();
 
 			_RegTest = new Network();
 			_RegTest.InitReg();
-			_RegTest.Consensus.Freeze();
 		}
 
 		static Network _Main;
@@ -467,6 +465,8 @@ namespace NBitcoin
 			consensus.MajorityRejectBlockOutdated = 950;
 			consensus.MajorityWindow = 1000;
 			consensus.BuriedDeployments[BuriedDeployments.BIP34] = 227931;
+			consensus.BuriedDeployments[BuriedDeployments.BIP65] = 388381;
+			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 363725;
 			consensus.BIP34Hash = new uint256("0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8");
 			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			consensus.SegWitHeight = 2000000000;
@@ -537,6 +537,8 @@ namespace NBitcoin
 			consensus.MajorityRejectBlockOutdated = 75;
 			consensus.MajorityWindow = 100;
 			consensus.BuriedDeployments[BuriedDeployments.BIP34] = 21111;
+			consensus.BuriedDeployments[BuriedDeployments.BIP65] = 581885;
+			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 330776;
 			consensus.BIP34Hash = new uint256("0x0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8");
 			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			consensus.SegWitHeight = 2000000000;
@@ -642,7 +644,9 @@ namespace NBitcoin
 			consensus.MajorityEnforceBlockUpgrade = 750;
 			consensus.MajorityRejectBlockOutdated = 950;
 			consensus.MajorityWindow = 1000;
-			consensus.BuriedDeployments[BuriedDeployments.BIP34] = -1; // BIP34 has not necessarily activated on regtest
+			consensus.BuriedDeployments[BuriedDeployments.BIP34] = 100000000;
+			consensus.BuriedDeployments[BuriedDeployments.BIP65] = 100000000;
+			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 100000000;
 			consensus.BIP34Hash = new uint256();
 			consensus.PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			consensus.SegWitHeight = 0;
