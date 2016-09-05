@@ -116,10 +116,34 @@ namespace NBitcoin
 				}
 			}
 		}
+		public class BIP9DeploymentsArray
+		{
+			Consensus _Parent;
+			BIP9DeploymentsParameters[] _Parameters;
+			public BIP9DeploymentsArray(Consensus parent)
+			{
+				_Parent = parent;
+				_Parameters = new BIP9DeploymentsParameters[Enum.GetValues(typeof(BIP9Deployments)).Length];
+			}
+
+			public BIP9DeploymentsParameters this[BIP9Deployments index]
+			{
+				get
+				{
+					return _Parameters[(int)index];
+				}
+				set
+				{
+					_Parent.EnsureNotFrozen();
+					_Parameters[(int)index] = value;
+				}
+			}
+		}
 
 		public Consensus()
 		{
 			_BuriedDeployments = new BuriedDeploymentsArray(this);
+			_BIP9Deployments = new BIP9DeploymentsArray(this);
 		}
 		private readonly BuriedDeploymentsArray _BuriedDeployments;
 		public BuriedDeploymentsArray BuriedDeployments
@@ -127,6 +151,16 @@ namespace NBitcoin
 			get
 			{
 				return _BuriedDeployments;
+			}
+		}
+
+
+		private readonly BIP9DeploymentsArray _BIP9Deployments;
+		public BIP9DeploymentsArray BIP9Deployments
+		{
+			get
+			{
+				return _BIP9Deployments;
 			}
 		}
 
@@ -315,6 +349,34 @@ namespace NBitcoin
 			}
 		}
 
+		int _MinerConfirmationWindow;
+		public int MinerConfirmationWindow
+		{
+			get
+			{
+				return _MinerConfirmationWindow;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_MinerConfirmationWindow = value;
+			}
+		}
+
+		int _RuleChangeActivationThreshold;
+		public int RuleChangeActivationThreshold
+		{
+			get
+			{
+				return _RuleChangeActivationThreshold;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_RuleChangeActivationThreshold = value;
+			}
+		}
+
 		bool frozen = false;
 		public void Freeze()
 		{
@@ -474,6 +536,12 @@ namespace NBitcoin
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = false;
 			consensus.PowNoRetargeting = false;
+			consensus.RuleChangeActivationThreshold = 1916; // 95% of 2016
+			consensus.MinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
+
+			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 1199145601, 1230767999);
+			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1462060800, 1493596800);
+			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 0, 0);
 
 			// The message start string is designed to be unlikely to occur in normal data.
 			// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -546,7 +614,12 @@ namespace NBitcoin
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = true;
 			consensus.PowNoRetargeting = false;
+			consensus.RuleChangeActivationThreshold = 1512; // 75% for testchains
+			consensus.MinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
 
+			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 1199145601, 1230767999);
+			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1456790400, 1493596800);
+			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 1462060800, 1493596800);
 
 			magic = 0x0709110B;
 
@@ -654,8 +727,15 @@ namespace NBitcoin
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = true;
 			consensus.PowNoRetargeting = true;
+			consensus.RuleChangeActivationThreshold = 108;
+			consensus.MinerConfirmationWindow = 144;
+
 			magic = 0xDAB5BFFA;
 			nSubsidyHalvingInterval = 150;
+
+			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 0, 999999999999);
+			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 0, 999999999999);
+			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 0, 999999999999);
 
 			genesis = CreateGenesisBlock(1296688602, 2, 0x207fffff, 1, Money.Coins(50m));
 			consensus.HashGenesisBlock = genesis.GetHash();

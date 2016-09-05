@@ -52,6 +52,7 @@
     <Compile Include="BIP39\IWordlistSource.cs" />
     <Compile Include="BIP39\Language.cs" />
     <Compile Include="BIP39\Wordlist.cs" />
+    <Compile Include="BIP9Deployments.cs" />
     <Compile Include="BitcoinAddress.cs" />
     <Compile Include="BIP38\BitcoinConfirmationCode.cs" />
     <Compile Include="BIP38\BitcoinEncryptedSecret.cs" />
