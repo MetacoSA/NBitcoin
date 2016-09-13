@@ -454,12 +454,21 @@ namespace NBitcoin
 		{
 			get
 			{
+				if(TxOut == null)
+					return Money.Zero;
 				return TxOut.Value;
 			}
 			set
 			{
+				EnsureTxOut();
 				TxOut.Value = value;
 			}
+		}
+
+		private void EnsureTxOut()
+		{
+			if(TxOut == null)
+				TxOut = new TxOut();
 		}
 
 		#endregion
@@ -468,10 +477,13 @@ namespace NBitcoin
 		{
 			get
 			{
+				if(TxOut == null)
+					return Script.Empty;
 				return TxOut.ScriptPubKey;
 			}
 			set
 			{
+				EnsureTxOut();
 				TxOut.ScriptPubKey = value;
 			}
 		}
