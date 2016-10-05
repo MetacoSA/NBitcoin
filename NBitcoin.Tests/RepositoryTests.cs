@@ -98,18 +98,6 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanValidateBlocks()
-		{
-			foreach(var block in StoredBlock.EnumerateFolder(@"data\blocks"))
-			{
-				ValidationState validation = Network.Main.CreateValidationState();
-				validation.Now = block.Item.Header.BlockTime;
-				Assert.True(validation.CheckBlock(block.Item));
-			}
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
 		//The last block is off by 1 byte + lots of padding zero at the end
 		public void CanEnumerateIncompleteBlk()
 		{

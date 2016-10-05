@@ -272,7 +272,6 @@
     <Compile Include="UnsignedList.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Utils\BoundedDictionary.cs" />
-    <Compile Include="ValidationState.cs" />
     <Compile Include="Protocol\VarInt.cs" />
     <Compile Include="Protocol\VarString.cs" />
     <Compile Include="Protocol\Versions.cs" />

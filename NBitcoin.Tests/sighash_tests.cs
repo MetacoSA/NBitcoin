@@ -79,17 +79,10 @@ namespace NBitcoin.Tests
 				sigHashHex = (string)test[4];
 
 
-				tx.ReadWrite(ParseHex(raw_tx));
-
-
-				ValidationState state = Network.Main.CreateValidationState();
-				Assert.True(state.CheckTransaction(tx), strTest);
-				Assert.True(state.IsValid);
+				tx.ReadWrite(ParseHex(raw_tx));				
 
 				var raw = ParseHex(raw_script);
 				scriptCode = new Script(raw);
-
-
 
 				var sh = Script.SignatureHash(scriptCode, tx, nIn, (SigHash)nHashType);
 				Assert.True(sh.ToString() == sigHashHex, strTest);

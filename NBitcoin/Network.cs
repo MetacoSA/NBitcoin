@@ -1038,11 +1038,6 @@ namespace NBitcoin
 			return prefix.ToArray();
 		}
 
-		public ValidationState CreateValidationState()
-		{
-			return new ValidationState(this);
-		}
-
 		public override string ToString()
 		{
 			return name;
