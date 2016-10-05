@@ -528,7 +528,7 @@ namespace NBitcoin
 
         public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original)
         {
-            return SignatureHash(scriptCode, txTo, nIn, nHashType, amount, sigversion,);
+            return SignatureHash(scriptCode, txTo, nIn, nHashType, amount, sigversion, null);
         }
 
         //https://en.bitcoin.it/wiki/OP_CHECKSIG
