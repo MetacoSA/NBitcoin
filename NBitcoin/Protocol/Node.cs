@@ -212,6 +212,7 @@ namespace NBitcoin.Protocol
 					}
 					finally
 					{
+                        evt.Dispose();
 						ar.Dispose();
 					}
 

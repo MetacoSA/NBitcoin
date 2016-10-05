@@ -286,6 +286,19 @@ namespace NBitcoin.Tests
 		[Fact]
 		public static void Play()
 		{
+			var keyy = new Key();
+			Console.WriteLine(keyy.PubKey.WitHash.ScriptPubKey.Hash.ScriptPubKey);
+			//P2SH(P2WSH(P2PK))
+
+
+			var key = new Key();
+			var h = key.ScriptPubKey.Hash.ToString();
+			var hh = key.ScriptPubKey.Hash.ScriptPubKey;
+
+			Script p2pk = null;//...
+
+			new BitcoinScriptAddress(p2pk.Hash, Network.Main); //==
+			p2pk.Hash.GetAddress(Network.Main);
 		}
 
 		private static Coin RandomCoin(Key bob, Money amount, bool p2pkh = false)

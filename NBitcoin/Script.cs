@@ -526,8 +526,13 @@ namespace NBitcoin
 			return input.GetSignatureHash(coin, nHashType);
 		}
 
-		//https://en.bitcoin.it/wiki/OP_CHECKSIG
-		public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original)
+        public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original)
+        {
+            return SignatureHash(scriptCode, txTo, nIn, nHashType, amount, sigversion,);
+        }
+
+        //https://en.bitcoin.it/wiki/OP_CHECKSIG
+        public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
 			if(sigversion == HashVersion.Witness)
 			{
@@ -538,35 +543,20 @@ namespace NBitcoin
 				uint256 hashOutputs = uint256.Zero;
 
 				if((nHashType & SigHash.AnyoneCanPay) == 0)
-				{
-					BitcoinStream ss = CreateHashWriter(sigversion);
-					foreach(var input in txTo.Inputs)
-					{
-						ss.ReadWrite(input.PrevOut);
-					}
-					hashPrevouts = GetHash(ss); // TODO: cache this value for all signatures in a transaction
-				}
+                {
+                    hashPrevouts = precomputedTransactionData?.HashPrevouts ?? GetHashPrevouts(txTo);
+                }
 
-				if((nHashType & SigHash.AnyoneCanPay) == 0 && ((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
-				{
-					BitcoinStream ss = CreateHashWriter(sigversion);
-					foreach(var input in txTo.Inputs)
-					{
-						ss.ReadWrite((uint)input.Sequence);
-					}
-					hashSequence = GetHash(ss); // TODO: cache this value for all signatures in a transaction
-				}
+                if((nHashType & SigHash.AnyoneCanPay) == 0 && ((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
+                {
+                    hashSequence = precomputedTransactionData?.HashSequence ?? GetHashSequence(txTo);
+                }
 
-				if(((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
-				{
-					BitcoinStream ss = CreateHashWriter(sigversion);
-					foreach(var txout in txTo.Outputs)
-					{
-						ss.ReadWrite(txout);
-					}
-					hashOutputs = GetHash(ss); // TODO: cache this value for all signatures in a transaction
-				}
-				else if(((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < txTo.Outputs.Count)
+                if(((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
+                {
+                    hashOutputs = precomputedTransactionData?.HashOutputs ?? GetHashOutputs(txTo);
+                }
+                else if(((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < txTo.Outputs.Count)
 				{
 					BitcoinStream ss = CreateHashWriter(sigversion);
 					ss.ReadWrite(txTo.Outputs[nIn]);
@@ -671,15 +661,51 @@ namespace NBitcoin
 			txCopy.ReadWrite(stream);
 			stream.ReadWrite((uint)nHashType);
 			return GetHash(stream);
-		}
+		}        
 
-		private static uint256 GetHash(BitcoinStream stream)
+        private static uint256 GetHash(BitcoinStream stream)
 		{
 			var preimage = ((MemoryStream)stream.Inner).ToArrayEfficient();
 			return Hashes.Hash256(preimage);
 		}
 
-		private static BitcoinStream CreateHashWriter(HashVersion version)
+        internal static uint256 GetHashOutputs(Transaction txTo)
+        {
+            uint256 hashOutputs;
+            BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+            foreach(var txout in txTo.Outputs)
+            {
+                ss.ReadWrite(txout);
+            }
+            hashOutputs = GetHash(ss);
+            return hashOutputs;
+        }
+
+        internal static uint256 GetHashSequence(Transaction txTo)
+        {
+            uint256 hashSequence;
+            BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+            foreach(var input in txTo.Inputs)
+            {
+                ss.ReadWrite((uint)input.Sequence);
+            }
+            hashSequence = GetHash(ss);
+            return hashSequence;
+        }
+
+        internal static uint256 GetHashPrevouts(Transaction txTo)
+        {
+            uint256 hashPrevouts;
+            BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+            foreach(var input in txTo.Inputs)
+            {
+                ss.ReadWrite(input.PrevOut);
+            }
+            hashPrevouts = GetHash(ss);
+            return hashPrevouts;
+        }
+
+        private static BitcoinStream CreateHashWriter(HashVersion version)
 		{
 			BitcoinStream stream = new BitcoinStream(new MemoryStream(), true);
 			stream.Type = SerializationType.Hash;
