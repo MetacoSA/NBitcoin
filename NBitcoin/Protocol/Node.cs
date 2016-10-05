@@ -163,11 +163,12 @@ namespace NBitcoin.Protocol
 					{
 						try
 						{
-							ar.Set();
-						}
-						catch { }
+							if(!ar.SafeWaitHandle.IsClosed && !ar.SafeWaitHandle.IsInvalid)
+								ar.Set();
+						} catch { }
 					};
 					try
+
 					{
 						foreach(var kv in Messages.GetConsumingEnumerable(Cancel.Token))
 						{
@@ -661,9 +662,9 @@ namespace NBitcoin.Protocol
 					{
 						try
 						{
-							completed.Set();
-						}
-						catch { }
+							if(!completed.SafeWaitHandle.IsClosed && !completed.SafeWaitHandle.IsInvalid)
+								completed.Set();
+						} catch { }
 					};
 					if(!socket.ConnectAsync(args))
 						completed.Set();
