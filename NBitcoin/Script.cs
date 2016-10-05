@@ -544,17 +544,20 @@ namespace NBitcoin
 
 				if((nHashType & SigHash.AnyoneCanPay) == 0)
                 {
-                    hashPrevouts = precomputedTransactionData?.HashPrevouts ?? GetHashPrevouts(txTo);
+                    hashPrevouts = precomputedTransactionData == null ? 
+                                   GetHashPrevouts(txTo) : precomputedTransactionData.HashPrevouts;
                 }
 
                 if((nHashType & SigHash.AnyoneCanPay) == 0 && ((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
                 {
-                    hashSequence = precomputedTransactionData?.HashSequence ?? GetHashSequence(txTo);
+                    hashSequence = precomputedTransactionData == null ?
+                                   GetHashSequence(txTo) : precomputedTransactionData.HashSequence;
                 }
 
                 if(((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
                 {
-                    hashOutputs = precomputedTransactionData?.HashOutputs ?? GetHashOutputs(txTo);
+                    hashOutputs = precomputedTransactionData == null ? 
+                                    GetHashOutputs(txTo) : precomputedTransactionData.HashOutputs;
                 }
                 else if(((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < txTo.Outputs.Count)
 				{
