@@ -64,6 +64,15 @@ namespace NBitcoin
 
 	public class TransactionChecker
 	{
+		public TransactionChecker(Transaction tx, int index, Money amount, PrecomputedTransactionData precomputedTransactionData)
+		{
+			if(tx == null)
+				throw new ArgumentNullException("tx");
+			_Transaction = tx;
+			_Index = index;
+			_Amount = amount;
+			_PrecomputedTransactionData = precomputedTransactionData;
+		}
 		public TransactionChecker(Transaction tx, int index, Money amount = null)
 		{
 			if(tx == null)
@@ -71,6 +80,16 @@ namespace NBitcoin
 			_Transaction = tx;
 			_Index = index;
 			_Amount = amount;
+		}
+
+
+		private readonly PrecomputedTransactionData _PrecomputedTransactionData;
+		public PrecomputedTransactionData PrecomputedTransactionData
+		{
+			get
+			{
+				return _PrecomputedTransactionData;
+			}
 		}
 
 		private readonly Transaction _Transaction;
@@ -1890,7 +1909,7 @@ namespace NBitcoin
 			if(!IsAllowedSignature(scriptSig.SigHash))
 				return false;
 
-			uint256 sighash = Script.SignatureHash(scriptCode, checker.Transaction, checker.Index, scriptSig.SigHash, checker.Amount, (HashVersion)sigversion);
+			uint256 sighash = Script.SignatureHash(scriptCode, checker.Transaction, checker.Index, scriptSig.SigHash, checker.Amount, (HashVersion)sigversion, checker.PrecomputedTransactionData);
 			_SignedHashes.Add(new SignedHash()
 			{
 				ScriptCode = scriptCode,
