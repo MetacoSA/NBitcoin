@@ -161,7 +161,11 @@ namespace NBitcoin.Protocol
 					evt.SocketFlags = SocketFlags.None;
 					evt.Completed += (a, b) =>
 					{
-						ar.Set();
+						try
+						{
+							ar.Set();
+						}
+						catch { }
 					};
 					try
 					{
@@ -653,7 +657,14 @@ namespace NBitcoin.Protocol
 					var completed = new ManualResetEvent(false);
 					var args = new SocketAsyncEventArgs();
 					args.RemoteEndPoint = peer.Endpoint;
-					args.Completed += (s, a) => completed.Set();
+					args.Completed += (s, a) =>
+					{
+						try
+						{
+							completed.Set();
+						}
+						catch { }
+					};
 					if(!socket.ConnectAsync(args))
 						completed.Set();
 					WaitHandle.WaitAny(new WaitHandle[] { completed, parameters.ConnectCancellation.WaitHandle });
