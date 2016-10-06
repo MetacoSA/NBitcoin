@@ -35,6 +35,10 @@
     <DocumentationFile>bin\Release\NBitcoin.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HashLib, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HashLib.2.0.1\lib\net40\HashLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -72,6 +76,7 @@
     <Compile Include="BuilderExtensions\P2MultiSigBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKHBuilderExtension.cs" />
+    <Compile Include="Crypto\HashX13.cs" />
     <Compile Include="FeeRate.cs" />
     <Compile Include="OpenAsset\NullColoredTransactionRepository.cs" />
     <Compile Include="Payment\IChainChecker.cs" />
@@ -287,7 +292,9 @@
     </None>
     <None Include="NBitcoin.Mono.Tokenized.nuspec" />
     <None Include="NBitcoin.Tokenized.nuspec" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="PushNuget.ps1" />
     <None Include="UInt256.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
