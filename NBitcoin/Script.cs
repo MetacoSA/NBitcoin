@@ -88,7 +88,15 @@ namespace NBitcoin
 		// Making v2-v16 witness program non-standard
 		DiscourageUpgradableWitnessProgram = (1U << 12),
 
-		/**
+		// Segwit script only: Require the argument of OP_IF/NOTIF to be exactly 0x01 or empty vector
+		//
+		MinimalIf = (1U << 13),
+
+		// Signature(s) must be empty vector if an CHECK(MULTI)SIG operation failed
+		//
+		NullFail = (1U << 14),
+
+        /**
  * Mandatory script verification flags that all new blocks must comply with for
  * them to be valid. (but old blocks may not comply with) Currently just P2SH,
  * but in the future other flags may be added, such as a soft-fork to enforce
@@ -97,7 +105,7 @@ namespace NBitcoin
  * Failing one of these tests may trigger a DoS ban - see CheckInputs() for
  * details.
  */
-		Mandatory = P2SH,
+        Mandatory = P2SH,
 		/**
  * Standard script verification flags that standard transactions will comply
  * with. However scripts violating these flags may still be present in valid
@@ -117,6 +125,8 @@ namespace NBitcoin
 			| LowS
 			| Witness
 			| DiscourageUpgradableWitnessProgram
+			| NullFail
+			| MinimalIf
 	}
 
 	/** Signature hash types/flags */

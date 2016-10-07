@@ -60,6 +60,8 @@ namespace NBitcoin
 		DiscourageUpgradableWitnessProgram,
 		WitnessProgramWrongLength,
 		WitnessUnexpected,
+		NullFail,
+		MinimalIf,
 	}
 
 	public class TransactionChecker
@@ -843,6 +845,15 @@ namespace NBitcoin
 											return SetError(ScriptError.UnbalancedConditional);
 
 										var vch = _stack.Top(-1);
+
+										if(hashversion == (int)HashVersion.Witness && (ScriptVerify & ScriptVerify.MinimalIf) != 0)
+										{
+											if(vch.Length > 1)
+												return SetError(ScriptError.MinimalIf);
+											if(vch.Length == 1 && vch[0] != 1)
+												return SetError(ScriptError.MinimalIf);
+										}
+
 										bValue = CastToBool(vch);
 										if(opcode.Code == OpcodeType.OP_NOTIF)
 											bValue = !bValue;
@@ -1323,6 +1334,8 @@ namespace NBitcoin
 									}
 
 									bool fSuccess = CheckSig(vchSig, vchPubKey, scriptCode, checker, hashversion);
+									if(!fSuccess && (ScriptVerify & ScriptVerify.NullFail) != 0 && vchSig.Length != 0)
+										return SetError(ScriptError.NullFail);
 
 									_stack.Pop();
 									_stack.Pop();
@@ -1355,6 +1368,9 @@ namespace NBitcoin
 
 									int ikey = ++i;
 									i += nKeysCount;
+									// ikey2 is the position of last non-signature item in the stack. Top stack item = 1.
+									// With SCRIPT_VERIFY_NULLFAIL, this is used for cleanup if operation fails.
+									int ikey2 = nKeysCount + 2;
 									if(_stack.Count < i)
 										return SetError(ScriptError.InvalidStackOperation);
 
@@ -1407,7 +1423,16 @@ namespace NBitcoin
 											fSuccess = false;
 									}
 
-									_stack.Clear(i - 1);
+									// Clean up stack of actual arguments
+									while(i-- > 1)
+									{
+										// If the operation failed, we require that all signatures must be empty vector
+										if(!fSuccess && (ScriptVerify & ScriptVerify.NullFail) != 0 && ikey2 == 0 && _stack.Top(-1).Length != 0)
+											return SetError(ScriptError.NullFail);
+										if(ikey2 > 0)
+											ikey2--;
+										_stack.Pop();
+									}
 
 									// A bug causes CHECKMULTISIG to consume one extra argument
 									// whose contents were not checked in any way.
