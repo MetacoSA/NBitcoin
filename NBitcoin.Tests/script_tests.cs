@@ -508,6 +508,8 @@ namespace NBitcoin.Tests
 				return ScriptError.UnsatisfiedLockTime;
 			if(str == "MINIMALIF")
 				return ScriptError.MinimalIf;
+			if(str == "WITNESS_PUBKEYTYPE")
+				return ScriptError.WitnessPubkeyType;
 			throw new NotSupportedException(str);
 		}
 
@@ -570,6 +572,10 @@ namespace NBitcoin.Tests
 				else if(p == "MINIMALIF")
 				{
 					result |= ScriptVerify.MinimalIf;
+				}
+				else if(p == "WITNESS_PUBKEYTYPE")
+				{
+					result |= ScriptVerify.WitnessPubkeyType;
 				}
 				else
 					throw new NotSupportedException(p);

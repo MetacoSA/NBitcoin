@@ -62,6 +62,7 @@ namespace NBitcoin
 		WitnessUnexpected,
 		NullFail,
 		MinimalIf,
+		WitnessPubkeyType,
 	}
 
 	public class TransactionChecker
@@ -1327,7 +1328,7 @@ namespace NBitcoin
 									// Drop the signature, since there's no way for a signature to sign itself
 									scriptCode.FindAndDelete(vchSig);
 
-									if(!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey))
+									if(!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey, hashversion))
 									{
 										//serror is set
 										return false;
@@ -1401,7 +1402,7 @@ namespace NBitcoin
 										// Note how this makes the exact order of pubkey/signature evaluation
 										// distinguishable by CHECKMULTISIG NOT if the STRICTENC flag is set.
 										// See the script_(in)valid tests for details.
-										if(!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey))
+										if(!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey, hashversion))
 										{
 											// serror is set
 											return false;
@@ -1637,15 +1638,35 @@ namespace NBitcoin
 			return true;
 		}
 
-		private bool CheckPubKeyEncoding(byte[] vchPubKey)
+		private bool CheckPubKeyEncoding(byte[] vchPubKey, int sigversion)
 		{
 			if((ScriptVerify & ScriptVerify.StrictEnc) != 0 && !IsCompressedOrUncompressedPubKey(vchPubKey))
 			{
 				Error = ScriptError.PubKeyType;
 				return false;
 			}
+			if((ScriptVerify & ScriptVerify.WitnessPubkeyType) != 0 && sigversion == (int)HashVersion.Witness && !IsCompressedPubKey(vchPubKey))
+			{
+				return SetError(ScriptError.WitnessPubkeyType);
+			}
 			return true;
 		}
+
+		static bool IsCompressedPubKey(byte[] vchPubKey)
+		{
+			if(vchPubKey.Length != 33)
+			{
+				//  Non-canonical public key: invalid length for compressed key
+				return false;
+			}
+			if(vchPubKey[0] != 0x02 && vchPubKey[0] != 0x03)
+			{
+				//  Non-canonical public key: invalid prefix for compressed key
+				return false;
+			}
+			return true;
+		}
+
 
 		static bool IsDefinedHashtypeSignature(byte[] vchSig)
 		{
