@@ -2287,6 +2287,7 @@ namespace NBitcoin.Tests
 								CheckScriptPubKey = false,
 								MinRelayTxFee = null
 							});
+                            builder.StandardTransactionPolicy.ScriptVerify &= ~ScriptVerify.NullFail;
 							builder.AddKeys(secret);
 							builder.AddCoins(knownCoins);
 
