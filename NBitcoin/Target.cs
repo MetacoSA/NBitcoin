@@ -52,7 +52,7 @@ namespace NBitcoin
 			}
 			else
 				throw new FormatException("Invalid number of bytes");
-		}
+		}		
 
 #if !NOBIGINT
 		public Target(BigInteger target)
@@ -159,7 +159,12 @@ namespace NBitcoin
 
 		public uint256 ToUInt256()
 		{
-			var array = _Target.ToByteArray();
+			return ToUInt256(_Target);
+		}
+
+		internal static uint256 ToUInt256(BigInteger input)
+		{
+			var array = input.ToByteArray();
 			var missingZero = 32 - array.Length;
 			if(missingZero < 0)
 				throw new InvalidOperationException("Awful bug, this should never happen");

@@ -56,7 +56,14 @@ namespace NBitcoin
 			}
 		}
 
-
+		System.Numerics.BigInteger _ChainWork;
+		public uint256 ChainWork
+		{
+			get
+			{
+				return Target.ToUInt256(_ChainWork);
+			}
+		}
 
 		public ChainedBlock(BlockHeader header, uint256 headerHash, ChainedBlock previous)
 		{
@@ -73,7 +80,7 @@ namespace NBitcoin
 
 			if(previous == null)
 			{
-				if(header.HashPrevBlock != 0)
+				if(header.HashPrevBlock != uint256.Zero)
 					throw new ArgumentException("Only the genesis block can have no previous block");
 			}
 			else
@@ -81,6 +88,22 @@ namespace NBitcoin
 				if(previous.HashBlock != header.HashPrevBlock)
 					throw new ArgumentException("The previous block has not the expected hash");
 			}
+			CalculateChainWork();
+		}
+
+		private void CalculateChainWork()
+		{
+			_ChainWork = (Previous == null ? System.Numerics.BigInteger.Zero : Previous._ChainWork) + GetBlockProof();
+		}
+
+		private System.Numerics.BigInteger GetBlockProof()
+		{
+			var bnTarget = Header.Bits.ToBigInteger();
+			// We need to compute 2**256 / (bnTarget+1), but we can't represent 2**256
+			// as it's too large for a arith_uint256. However, as 2**256 is at least as large
+			// as bnTarget+1, it is equal to ((2**256 - bnTarget - 1) / (bnTarget+1)) + 1,
+			// or ~bnTarget / (nTarget+1) + 1.
+			return ((System.Numerics.BigInteger.Pow(2, 256) - bnTarget - 1) / (bnTarget + 1)) + 1;
 		}
 
 		public ChainedBlock(BlockHeader header, int height)
@@ -91,6 +114,7 @@ namespace NBitcoin
 			//this.nDataPos = pos;
 			this.header = header;
 			this.phashBlock = header.GetHash();
+			CalculateChainWork();
 		}
 
 		public BlockLocator GetLocator()
