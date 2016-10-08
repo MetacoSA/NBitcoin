@@ -167,8 +167,12 @@ namespace NBitcoin
 			}
 		}
 
+		static System.Numerics.BigInteger Pow256 = System.Numerics.BigInteger.Pow(2, 256);
 		public bool CheckProofOfWork()
 		{
+			var bits = Bits.ToBigInteger();
+			if(bits <= System.Numerics.BigInteger.Zero || bits >= Pow256)
+				return false;
 			// Check proof of work matches claimed amount
 			return GetHash() <= Bits.ToUInt256();
 		}
