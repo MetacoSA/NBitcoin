@@ -191,7 +191,7 @@ namespace NBitcoin
 
 			var root = block.GetMerkleRoot();
 
-			if(block.Transactions.Count == 0 || block.Transactions.Count > MAX_BLOCK_SIZE || block.Length > MAX_BLOCK_SIZE)
+			if(block.Transactions.Count == 0 || block.Transactions.Count > MAX_BLOCK_SIZE || block.GetSerializedSize() > MAX_BLOCK_SIZE)
 				return DoS(100, Error("CheckBlock() : size limits failed"),
 								 RejectCode.INVALID, "bad-blk-length");
 

@@ -51,7 +51,7 @@ namespace NBitcoin.Crypto
                 buffer = hasher.ComputeBytes(buffer).GetBytes();
             }
 
-            return new uint256(buffer);
+            return new uint256(buffer.Take(32).ToArray());
         }
     }
 }

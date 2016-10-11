@@ -109,7 +109,13 @@ namespace NBitcoin
 			internal set;
 		}
 
-		public uint256 BIP34Hash
+        public int LastPOWBlock
+        {
+            get;
+            internal set;
+        }
+
+        public uint256 BIP34Hash
 		{
 			get;
 			internal set;
@@ -245,15 +251,15 @@ namespace NBitcoin
 			_Main = new Network();
 			_Main.InitMain();
 
-			_TestNet = new Network();
-			_TestNet.InitTest();
+            _TestNet = new Network();
+            _TestNet.InitTest();
 
-			_SegNet = new Network();
-			_SegNet.InitSegnet();
+            _SegNet = new Network();
+            _SegNet.InitSegnet();
 
-			_RegTest = new Network();
-			_RegTest.InitReg();
-		}
+            _RegTest = new Network();
+            _RegTest.InitReg();
+        }
 
 		static Network _Main;
 		public static Network Main
@@ -309,31 +315,36 @@ namespace NBitcoin
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = false;
 			consensus.PowNoRetargeting = false;
+		    consensus.LastPOWBlock = 12500;
 
-			// The message start string is designed to be unlikely to occur in normal data.
-			// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
-			// a large 4-byte int at any alignment.
-			magic = 0xD9B4BEF9;
-			vAlertPubKey = Encoders.Hex.DecodeData("04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284");
-			nDefaultPort = 8333;
-			nRPCPort = 8332;
+            // The message start string is designed to be unlikely to occur in normal data.
+            // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
+            // a large 4-byte int at any alignment.
+            var pchMessageStart = new byte[4];
+            pchMessageStart[0] = 0x70;
+            pchMessageStart[1] = 0x35;
+            pchMessageStart[2] = 0x22;
+            pchMessageStart[3] = 0x05;
+            var mhash = BitConverter.ToUInt32(pchMessageStart, 0);
+		    magic = mhash; //0x5223570; 
+
+            vAlertPubKey = Encoders.Hex.DecodeData("0486bce1bac0d543f104cbff2bd23680056a3b9ea05e1137d2ff90eeb5e08472eb500322593a2cb06fbf8297d7beb6cd30cb90f98153b5b7cce1493749e41e0284");
+			nDefaultPort = 16178;
+			nRPCPort = 16174;
 			nSubsidyHalvingInterval = 210000;
 
-			genesis = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1, Money.Coins(50m));
+			genesis = CreateGenesisBlock(1470467000, 1831645, 0x1e0fffff, 1, Money.Zero);
 			consensus.HashGenesisBlock = genesis.GetHash();
-			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
-			assert(genesis.Header.HashMerkleRoot == uint256.Parse("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
+
+            assert(consensus.HashGenesisBlock == uint256.Parse("0x0000066e91e46e5a264d42c89e1204963b2ee6be230b443e9159020539d972af"));
+			assert(genesis.Header.HashMerkleRoot == uint256.Parse("0x65a26bc20b0351aebf05829daefa8f7db2f800623439f3c114257c91447f1518"));
 #if !NOSOCKET
-            vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be")); // Pieter Wuille
-			vSeeds.Add(new DNSSeedData("bluematt.me", "dnsseed.bluematt.me")); // Matt Corallo
-			vSeeds.Add(new DNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org")); // Luke Dashjr
-			vSeeds.Add(new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com")); // Christian Decker
-			vSeeds.Add(new DNSSeedData("xf2.org", "bitseed.xf2.org")); // Jeff Garzik
-			vSeeds.Add(new DNSSeedData("bitcoin.jonasschnelli.ch", "seed.bitcoin.jonasschnelli.ch")); // Jonas Schnelli
+            vSeeds.Add(new DNSSeedData("seed.stratisplatform.com", "seed.stratisplatform.com")); 
+			vSeeds.Add(new DNSSeedData("seed.cloudstratis.com", "seed.cloudstratis.com")); 
 #endif
-			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (0) };
-			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (5) };
-			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (128) };
+			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (63) };
+			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (125) };
+			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (63 + 128) };
 			base58Prefixes[(int)Base58Type.ENCRYPTED_SECRET_KEY_NO_EC] = new byte[] { 0x01, 0x42 };
 			base58Prefixes[(int)Base58Type.ENCRYPTED_SECRET_KEY_EC] = new byte[] { 0x01, 0x43 };
 			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x88), (0xB2), (0x1E) };
@@ -352,12 +363,12 @@ namespace NBitcoin
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);
 			for(int i = 0; i < pnSeed.Length; i++)
 			{
-				// It'll only connect to one or two seed nodes because once it connects,
-				// it'll get a pile of addresses with newer timestamps.				
-				NetworkAddress addr = new NetworkAddress();
-				// Seed nodes are given a random 'last seen time' of between one and two
-				// weeks ago.
-				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
+                // It'll only connect to one or two seed nodes because once it connects,
+                // it'll get a pile of addresses with newer timestamps.
+                // Seed nodes are given a random 'last seen time' of between one and two
+                // weeks ago.				
+                NetworkAddress addr = new NetworkAddress();
+                addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
 				addr.Endpoint = Utils.ParseIpEndpoint(pnSeed[i], DefaultPort);
 				vFixedSeeds.Add(addr);
 			}
@@ -508,7 +519,7 @@ namespace NBitcoin
 
 		private Block CreateGenesisBlock(uint nTime, uint nNonce, uint nBits, int nVersion, Money genesisReward)
 		{
-			string pszTimestamp = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks";
+			string pszTimestamp = "http://www.theonion.com/article/olympics-head-priestess-slits-throat-official-rio--53466";
 			Script genesisOutputScript = new Script(Op.GetPushOp(Encoders.Hex.DecodeData("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f")), OpcodeType.OP_CHECKSIG);
 			return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
 		}
@@ -517,20 +528,20 @@ namespace NBitcoin
 		{
 			Transaction txNew = new Transaction();
 			txNew.Version = 1;
+		    txNew.Time = nTime;
 			txNew.AddInput(new TxIn()
 			{
-				ScriptSig = new Script(Op.GetPushOp(486604799), new Op()
-				{
-					Code = (OpcodeType)0x1,
-					PushData = new[] { (byte)4 }
-				}, Op.GetPushOp(Encoders.ASCII.DecodeData(pszTimestamp)))
-			});
+                ScriptSig = new Script(Op.GetPushOp(0), new Op()
+                {
+                    Code = (OpcodeType)0x1,
+                    PushData = new[] { (byte)42 }
+                }, Op.GetPushOp(Encoders.ASCII.DecodeData(pszTimestamp)))
+            });
 			txNew.AddOutput(new TxOut()
 			{
 				Value = genesisReward,
-				ScriptPubKey = genesisOutputScript
 			});
-			Block genesis = new Block();
+            Block genesis = new Block();
 			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(nTime);
 			genesis.Header.Bits = nBits;
 			genesis.Header.Nonce = nNonce;
@@ -968,7 +979,7 @@ namespace NBitcoin
 				if(read != 1)
 					i--;
 				else if(_MagicBytes[i] != bytes[0])
-					i = -1;
+                    i = -1;
 			}
 			return true;
 		}
