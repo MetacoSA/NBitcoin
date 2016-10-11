@@ -2450,7 +2450,7 @@ namespace NBitcoin.Tests
 					var outpoint = new OutPoint(uint256.Parse(vinput[0].ToString()), int.Parse(vinput[1].ToString()));
 					mapprevOutScriptPubKeys[outpoint] = script_tests.ParseScript(vinput[2].ToString());
 					if(vinput.Count() >= 4)
-						mapprevOutScriptPubKeysAmount[outpoint] = Money.Satoshis(vinput[3].Value<int>());
+						mapprevOutScriptPubKeysAmount[outpoint] = Money.Satoshis(vinput[3].Value<long>());
 				}
 
 				Transaction tx = Transaction.Parse((string)test[1]);
