@@ -473,9 +473,6 @@ namespace NBitcoin
 			_TestNet.InitTest();
 			_TestNet.Consensus.Freeze();
 
-			_SegNet = new Network();
-			_SegNet.InitSegnet();
-
 			_RegTest = new Network();
 			_RegTest.InitReg();
 		}
@@ -495,15 +492,6 @@ namespace NBitcoin
 			get
 			{
 				return _TestNet;
-			}
-		}
-
-		private static Network _SegNet;
-		public static Network SegNet
-		{
-			get
-			{
-				return _SegNet;
 			}
 		}
 
@@ -653,62 +641,6 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
 			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x03) };
 			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (40) };
-		}
-		private void InitSegnet()
-		{
-			name = "segnet";
-			consensus.SubsidyHalvingInterval = 210000;
-			consensus.MajorityEnforceBlockUpgrade = 7;
-			consensus.MajorityRejectBlockOutdated = 9;
-			consensus.MajorityWindow = 10;
-			consensus.BuriedDeployments[BuriedDeployments.BIP34] = -1;
-			consensus.BIP34Hash = uint256.Zero;
-			consensus.PowLimit = new Target(new uint256("000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
-			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
-			consensus.PowAllowMinDifficultyBlocks = true;
-			consensus.PowNoRetargeting = false;
-
-			magic = 0xc4a1abdc;
-			vAlertPubKey = Encoders.Hex.DecodeData("0300000000000000000000003b78ce563f89a0ed9414f5aa28ad0d96d6795f9c63");
-			nDefaultPort = 28901;
-			nRPCPort = 28902;
-
-			genesis = CreateGenesisBlock(1452831101, 0, consensus.PowLimit.ToCompact(), 1, Money.Coins(50m));
-			consensus.HashGenesisBlock = genesis.GetHash();
-
-			vFixedSeeds.Clear();
-
-#if !NOSOCKET
-			// Convert the pnSeeds array into usable address objects.
-			Random rand = new Random();
-			TimeSpan nOneWeek = TimeSpan.FromDays(7);
-			var pnSeed = new[] { "37.34.48.17" };
-			for(int i = 0; i < pnSeed.Length; i++)
-			{
-				// It'll only connect to one or two seed nodes because once it connects,
-				// it'll get a pile of addresses with newer timestamps.				
-				NetworkAddress addr = new NetworkAddress();
-				// Seed nodes are given a random 'last seen time' of between one and two
-				// weeks ago.
-				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
-				addr.Endpoint = Utils.ParseIpEndpoint(pnSeed[i], DefaultPort);
-				vFixedSeeds.Add(addr);
-			}
-#endif
-			vSeeds.Clear();
-
-			base58Prefixes = Network.TestNet.base58Prefixes.ToArray();
-			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { 30 };
-			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { 50 };
-			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { 158 };
-			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x05), (0x35), (0x87), (0xCF) };
-			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x05), (0x35), (0x83), (0x94) };
-			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
-			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x03) };
-			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (40) };
-
-			vFixedSeeds.Clear();
 		}
 		private void InitReg()
 		{
@@ -1063,7 +995,6 @@ namespace NBitcoin
 		{
 			yield return Main;
 			yield return TestNet;
-			yield return SegNet;
 			yield return RegTest;
 		}
 
@@ -1100,9 +1031,6 @@ namespace NBitcoin
 				case "regtest":
 				case "regnet":
 					return Network.RegTest;
-				case "seg":
-				case "segnet":
-					return Network.SegNet;
 				default:
 					return null;
 			}

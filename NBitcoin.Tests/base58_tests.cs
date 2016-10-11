@@ -179,12 +179,10 @@ namespace NBitcoin.Tests
 					}
 					else if(exp_addrType == "p2wpkh")
 					{
-						network = network == Network.TestNet ? Network.SegNet : network;
 						dest = new WitKeyId(new uint160(exp_payload));
 					}
 					else if(exp_addrType == "p2wsh")
 					{
-						network = network == Network.TestNet ? Network.SegNet : network;
 						dest = new WitScriptId(exp_payload);
 					}
 					else if(exp_addrType == "none")
