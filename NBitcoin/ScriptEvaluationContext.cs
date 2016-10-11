@@ -1326,7 +1326,8 @@ namespace NBitcoin
 									// Subset of script starting at the most recent codeseparator
 									var scriptCode = new Script(s._Script.Skip(pbegincodehash).ToArray());
 									// Drop the signature, since there's no way for a signature to sign itself
-									scriptCode.FindAndDelete(vchSig);
+									if(hashversion == (int)HashVersion.Original)
+										scriptCode.FindAndDelete(vchSig);
 
 									if(!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey, hashversion))
 									{
@@ -1390,7 +1391,8 @@ namespace NBitcoin
 									for(int k = 0; k < nSigsCount; k++)
 									{
 										var vchSig = _stack.Top(-isig - k);
-										scriptCode.FindAndDelete(vchSig);
+										if(hashversion == (int)HashVersion.Original)
+											scriptCode.FindAndDelete(vchSig);
 									}
 
 									bool fSuccess = true;
