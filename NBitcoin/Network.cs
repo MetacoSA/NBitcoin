@@ -94,6 +94,27 @@ namespace NBitcoin
 
 	public class Consensus
 	{
+		public static Consensus Main
+		{
+			get
+			{
+				return Network.Main.Consensus;
+			}
+		}
+		public static Consensus TestNet
+		{
+			get
+			{
+				return Network.TestNet.Consensus;
+			}
+		}
+		public static Consensus RegTest
+		{
+			get
+			{
+				return Network.RegTest.Consensus;
+			}
+		}
 		public class BuriedDeploymentsArray
 		{
 			Consensus _Parent;
@@ -340,7 +361,7 @@ namespace NBitcoin
 				_HashGenesisBlock = value;
 			}
 		}
-		
+
 		public long DifficultyAdjustmentInterval
 		{
 			get
@@ -684,7 +705,7 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (239) };
 			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x35), (0x87), (0xCF) };
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
-			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };			
+			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
 		}
 
 		private Block CreateGenesisBlock(uint nTime, uint nNonce, uint nBits, int nVersion, Money genesisReward)

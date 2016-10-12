@@ -15,6 +15,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -271,30 +272,15 @@ namespace NBitcoin.Tests
 			Assert.NotNull(result);
 		}
 
-		[Fact]
-		public static void Play()
-		{
-			var keyy = new Key();
-			Console.WriteLine(keyy.PubKey.WitHash.ScriptPubKey.Hash.ScriptPubKey);
-			//P2SH(P2WSH(P2PK))
-
-
-			var key = new Key();
-			var h = key.ScriptPubKey.Hash.ToString();
-			var hh = key.ScriptPubKey.Hash.ScriptPubKey;
-
-			Script p2pk = null;//...
-
-			new BitcoinScriptAddress(p2pk.Hash, Network.Main); //==
-			p2pk.Hash.GetAddress(Network.Main);
-		}
-
 		private static Coin RandomCoin(Key bob, Money amount, bool p2pkh = false)
 		{
 			return new Coin(new uint256(Enumerable.Range(0, 32).Select(i => (byte)0xaa).ToArray()), 0, amount, p2pkh ? bob.PubKey.Hash.ScriptPubKey : bob.PubKey.WitHash.ScriptPubKey);
 		}
 
-
+		[Fact]
+		public void Play()
+		{
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

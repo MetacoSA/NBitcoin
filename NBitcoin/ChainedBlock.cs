@@ -216,6 +216,28 @@ namespace NBitcoin
 			return GetWorkRequired(network.Consensus);
 		}
 
+		public Target GetNextWorkRequired(Network network)
+		{
+			return GetNextWorkRequired(network.Consensus);
+		}
+		public Target GetNextWorkRequired(Consensus consensus)
+		{
+			BlockHeader dummy = new BlockHeader();
+			dummy.HashPrevBlock = this.HashBlock;
+			dummy.BlockTime = DateTimeOffset.UtcNow;
+			return GetNextWorkRequired(dummy, consensus);
+		}
+
+		public Target GetNextWorkRequired(BlockHeader block, Network network)
+		{
+			return GetNextWorkRequired(block, network.Consensus);
+		}
+
+		public Target GetNextWorkRequired(BlockHeader block, Consensus consensus)
+		{
+			return new ChainedBlock(block, block.GetHash(), this).GetWorkRequired(consensus);
+		}
+
 		public Target GetWorkRequired(Consensus consensus)
 		{
 			// Genesis block
@@ -314,7 +336,12 @@ namespace NBitcoin
 
 		public bool CheckProofOfWorkAndTarget(Network network)
 		{
-			return Height == 0 || (Header.CheckProofOfWork() && Header.Bits <= GetWorkRequired(network));
+			return CheckProofOfWorkAndTarget(network.Consensus);
+		}
+
+		public bool CheckProofOfWorkAndTarget(Consensus consensus)
+		{
+			return Height == 0 || (Header.CheckProofOfWork() && Header.Bits <= GetWorkRequired(consensus));
 		}
 
 		public ChainedBlock GetAncestor(int height)
