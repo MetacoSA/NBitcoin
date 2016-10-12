@@ -161,11 +161,7 @@ namespace NBitcoin.Protocol
 					evt.SocketFlags = SocketFlags.None;
 					evt.Completed += (a, b) =>
 					{
-						try
-						{
-							if(!ar.SafeWaitHandle.IsClosed && !ar.SafeWaitHandle.IsInvalid)
-								ar.Set();
-						} catch { }
+						Utils.SafeSet(ar);
 					};
 					try
 
@@ -279,7 +275,7 @@ namespace NBitcoin.Protocol
 						Cleanup(unhandledException);
 					}
 				}).Start();
-			}
+			}			
 
 			int _CleaningUp;
 			public int _ListenerThreadId;
@@ -660,11 +656,7 @@ namespace NBitcoin.Protocol
 					args.RemoteEndPoint = peer.Endpoint;
 					args.Completed += (s, a) =>
 					{
-						try
-						{
-							if(!completed.SafeWaitHandle.IsClosed && !completed.SafeWaitHandle.IsInvalid)
-								completed.Set();
-						} catch { }
+						Utils.SafeSet(completed);
 					};
 					if(!socket.ConnectAsync(args))
 						completed.Set();

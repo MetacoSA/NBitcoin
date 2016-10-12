@@ -61,7 +61,7 @@ namespace NBitcoin
 		MinimalData = (1U << 6),
 
 		/// <summary>
-		// Discourage use of NOPs reserved for upgrades (NOP1-10)
+		/// Discourage use of NOPs reserved for upgrades (NOP1-10)
 		///
 		/// Provided so that nodes can avoid accepting or mining transactions
 		/// containing executed NOP's whose meaning may change after a soft-fork,

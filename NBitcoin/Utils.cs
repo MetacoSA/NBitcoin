@@ -289,6 +289,19 @@ namespace NBitcoin
 
 	public class Utils
 	{
+		internal static void SafeSet(ManualResetEvent ar)
+		{
+			try
+			{
+#if !NETCORE
+				if(!ar.SafeWaitHandle.IsClosed && !ar.SafeWaitHandle.IsInvalid)
+					ar.Set();
+#else
+				ar.Set();
+#endif
+			}
+			catch { }
+		}
 		public static bool ArrayEqual(byte[] a, byte[] b)
 		{
 			if(a == null && b == null)
