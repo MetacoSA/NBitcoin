@@ -28,19 +28,49 @@ namespace Build
 			set;
 		}
 
+		public string TargetFramework
+		{
+			get;
+			set;
+		}
+
+		public string FrameworkName
+		{
+			get;
+			set;
+		}
+
 		public override bool Execute()
 		{
 			var projectJson = JObject.Parse(File.ReadAllText(ProjectJsonFile));
 			StringBuilder builder = new StringBuilder();
 			foreach(var dep in projectJson["dependencies"].Children().OfType<JProperty>())
 			{
-				builder.AppendLine("<dependency id=\"" + dep.Name + "\" version=\"[" + (string)dep.Value + ", )\" />");
+				AddDependency(builder, dep);
 			}
+
+			if(!String.IsNullOrEmpty(FrameworkName))
+			{
+				var deps = projectJson["frameworks"][FrameworkName]["dependencies"];
+				if(deps != null)
+				{
+					foreach(var dep in deps.Children().OfType<JProperty>())
+					{
+						AddDependency(builder, dep);
+					}
+				}
+			}
+
 			var nuspec = File.ReadAllText(InputFile);
-			var group = "<group targetFramework=\".NETStandard1.3\">\r\n";
+			var group = "<group targetFramework=\"" + TargetFramework + "\">\r\n";
 			nuspec = nuspec.Replace(group, group + builder.ToString());
 			File.WriteAllText(OutputFile, nuspec);
 			return true;
+		}
+
+		private static void AddDependency(StringBuilder builder, JProperty dep)
+		{
+			builder.AppendLine("<dependency id=\"" + dep.Name + "\" version=\"[" + (string)dep.Value + ", )\" />");
 		}
 	}
 }

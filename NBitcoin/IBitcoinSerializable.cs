@@ -25,11 +25,10 @@ namespace NBitcoin
 		}
 		public static int GetSerializedSize(this IBitcoinSerializable serializable, ProtocolVersion version, SerializationType serializationType)
 		{
-			var ms = new MemoryStream();
-			BitcoinStream s = new BitcoinStream(ms, true);
+			BitcoinStream s = new BitcoinStream(Stream.Null, true);
 			s.Type = serializationType;
 			s.ReadWrite(serializable);
-			return (int)ms.Length;
+			return (int)s.Counter.WrittenBytes;
 		}
 		public static int GetSerializedSize(this IBitcoinSerializable serializable, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{

@@ -243,6 +243,7 @@ namespace NBitcoin.Tests
 				var rpc = nodeA.CreateRPCClient();
 				rpc.RemoveNode(nodeA.Endpoint);
 				rpc.AddNode(nodeB.Endpoint);
+				Thread.Sleep(500);
 				var info = rpc.GetAddedNodeInfo(true);
 				Assert.NotNull(info);
 				Assert.NotEmpty(info);
@@ -266,7 +267,7 @@ namespace NBitcoin.Tests
 			{
 				var node = builder.CreateNode();
 				node.Start();
-				var buildOutputDir = Path.GetDirectoryName(GetType().Assembly.Location);
+				var buildOutputDir = Path.GetDirectoryName(".");
 				var filePath = Path.Combine(buildOutputDir, "wallet_backup.dat");
 				try
 				{

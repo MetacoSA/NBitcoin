@@ -184,3 +184,7 @@ FakesAssemblies/
 .vs/
 project.lock.json
 .vscode/
+/NBitcoin.Tests/CanStoreInBlockRepository-Headers/StoreLock
+/NBitcoin.Tests/addrmancache.dat
+/NBitcoin.Tests/CanStoreBlocks/StoreLock
+/NBitcoin.Tests/libbitcoinconsensus-0.dll

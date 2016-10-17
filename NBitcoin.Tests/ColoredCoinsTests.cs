@@ -45,30 +45,6 @@ namespace NBitcoin.Tests
 				get;
 				set;
 			}
-
-			public string AutoDownloadMissingTransaction(Action act)
-			{
-				StringBuilder builder = new StringBuilder();
-				while(true)
-				{
-					try
-					{
-						act();
-						break;
-					}
-					catch(TransactionNotFoundException ex)
-					{
-						WebClient client = new WebClient();
-						var result = client.DownloadString("http://btc.blockr.io/api/v1/tx/raw/" + ex.TxId);
-						var json = JObject.Parse(result);
-						var tx = Transaction.Parse(json["data"]["tx"]["hex"].ToString());
-
-						builder.AppendLine("\"" + json["data"]["tx"]["hex"].ToString() + "\",\r\n");
-						Repository.Transactions.Put(tx.GetHash(), tx);
-					}
-				}
-				return builder.ToString();
-			}
 		}
 		class TestCase
 		{

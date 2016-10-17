@@ -13,6 +13,13 @@ namespace NBitcoin
 	}
 	public struct Sequence
 	{
+		public static Sequence Final
+		{
+			get
+			{
+				return new Sequence(SEQUENCE_FINAL);
+			}
+		}
 		/* If this flag set, CTxIn::nSequence is NOT interpreted as a
  * relative lock-time. */
 		public const uint SEQUENCE_LOCKTIME_DISABLE_FLAG = (1U << 31);

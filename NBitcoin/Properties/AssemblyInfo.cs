@@ -14,11 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © AO-IS 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-#if !PORTABLE
 [assembly: InternalsVisibleTo("NBitcoin.Tests")]
-#else
-[assembly: InternalsVisibleTo("NBitcoin.Portable.Tests")]
-#endif
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -35,6 +31,6 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion("3.0.0.49")]
-[assembly: AssemblyFileVersion("3.0.0.49")]
-[assembly: AssemblyInformationalVersion("3.0.0.49")]
+[assembly: AssemblyVersion("3.0.0.62")]
+[assembly: AssemblyFileVersion("3.0.0.62")]
+[assembly: AssemblyInformationalVersion("3.0.0.62")]

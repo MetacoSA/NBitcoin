@@ -276,7 +276,14 @@ namespace NBitcoin
 
 		private void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
 		{
+			if(data == null) throw new ArgumentNullException("data");
+
+			if(data.Length == 0) return;
+
 			count = count == -1 ? data.Length : count;
+
+			if(count == 0) return;
+
 			if(Serializing)
 			{
 				Inner.Write(data, offset, count);
@@ -285,7 +292,7 @@ namespace NBitcoin
 			else
 			{
 				var readen = Inner.ReadEx(data, offset, count, ReadCancellationToken);
-				if(readen == -1)
+				if(readen == 0)
 					throw new EndOfStreamException("No more byte to read");
 				Counter.AddReaden(readen);
 

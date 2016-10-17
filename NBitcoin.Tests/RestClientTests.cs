@@ -26,6 +26,23 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanCalculateChainWork()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var client = builder.CreateNode().CreateRESTClient();
+				builder.StartAll();
+				var info = client.GetChainInfoAsync().Result;
+				Assert.Equal("regtest", info.Chain);
+				Assert.Equal(new ChainedBlock(Network.RegTest.GetGenesis().Header, 0).ChainWork, info.ChainWork);
+				builder.Nodes[0].Generate(10);
+				var chain = builder.Nodes[0].CreateNodeClient().GetChain();
+				info = client.GetChainInfoAsync().Result;
+				Assert.Equal(info.ChainWork, chain.Tip.ChainWork);
+			}
+		}
+
+		[Fact]
 		public void CanGetBlock()
 		{
 			using(var builder = NodeBuilder.Create())

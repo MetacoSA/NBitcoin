@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NOSOCKET
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +56,6 @@ namespace NBitcoin.Protocol
 		#endregion
 	}
 
-#if !PORTABLE
 	public class EventLoopMessageListener<T> : MessageListener<T>, IDisposable
 	{
 		public EventLoopMessageListener(Action<T> processMessage)
@@ -144,5 +144,5 @@ namespace NBitcoin.Protocol
 
 		#endregion
 	}
-#endif
 }
+#endif

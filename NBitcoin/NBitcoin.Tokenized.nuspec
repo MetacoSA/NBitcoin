@@ -37,8 +37,7 @@
 				<dependency id="Newtonsoft.Json" version="9.0.1" />
 			</group>
 
-			<group targetFramework=".NETPortable4.5-Profile259">
-				<dependency id="Newtonsoft.Json" version="9.0.1" />
+			<group targetFramework=".NETStandard1.1">
 			</group>
 
 			<group targetFramework=".NETStandard1.3">
@@ -50,12 +49,8 @@
 	</metadata>
 
 	<files>
-
 		<file src="bin\Release\NBitcoin.*" target="lib\net45" />
-		<file src="..\NBitcoin.NETCore\bin\Release\netstandard1.3\*.*" target="lib\netstandard1.3" />		
-		<file src="..\NBitcoin.Portable\bin\Profile111\Release\*.*" target="lib\portable-net45+win+wpa81+Xamarin.iOS10+MonoAndroid10+MonoTouch10" />
-		<file src="..\NBitcoin.Portable\bin\Profile259\Release\NBitcoin.*" target="lib\portable-net45+win+wpa81+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10" />
-		<file src="..\NBitcoin.Portable\bin\MonoAndroid\Release\*.*" target="lib\MonoAndroid" />
-
+		<file src="..\NBitcoin.NETCore\bin\Release\netstandard1.3\*.*" target="lib\netstandard1.3" />
+		<file src="..\NBitcoin.NETCore\bin\Release\netstandard1.1\*.*" target="lib\netstandard1.1" />	
 	</files>
 </package>

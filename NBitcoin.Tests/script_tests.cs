@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using Newtonsoft.Json.Linq;
+using System.Runtime.InteropServices;
 
 namespace NBitcoin.Tests
 {
@@ -323,12 +324,16 @@ namespace NBitcoin.Tests
 				int i = 0;
 
 				Script wit = null;
+				Money amount = Money.Zero;
 				if(test[i] is JArray)
 				{
-					foreach(var str in (test[i++] as JArray).Select(t => t.ToString()))
+					var array = (JArray)test[i];
+					for(int ii = 0; ii < array.Count - 1; ii++)
 					{
-						wit += Encoders.Hex.DecodeData(str);
+						wit += Encoders.Hex.DecodeData(array[ii].ToString());
 					}
+					amount = Money.Coins(((JValue)(array[array.Count - 1])).Value<decimal>());
+					i++;
 				}
 				var scriptSig = ParseScript((string)test[i++]);
 				var scriptPubKey = ParseScript((string)test[i++]);
@@ -339,31 +344,31 @@ namespace NBitcoin.Tests
 				Assert.Equal(scriptSig.ToString(), new Script(scriptSig.ToString()).ToString());
 				Assert.Equal(scriptPubKey.ToString(), new Script(scriptPubKey.ToString()).ToString());
 
-				AssertVerifyScript(wit, scriptSig, scriptPubKey, flag, test.Index, comment, expectedError);
+				AssertVerifyScript(wit, amount, scriptSig, scriptPubKey, flag, test.Index, comment, expectedError);
 			}
 		}
 
-		private void AssertVerifyScript(WitScript wit, Script scriptSig, Script scriptPubKey, ScriptVerify flags, int testIndex, string comment, ScriptError expectedError)
+		private void AssertVerifyScript(WitScript wit, Money amount, Script scriptSig, Script scriptPubKey, ScriptVerify flags, int testIndex, string comment, ScriptError expectedError)
 		{
-			var creditingTransaction = CreateCreditingTransaction(scriptPubKey);
+			var creditingTransaction = CreateCreditingTransaction(scriptPubKey, amount);
 			var spendingTransaction = CreateSpendingTransaction(wit, scriptSig, creditingTransaction);
 			ScriptError actual;
-			Script.VerifyScript(scriptSig, scriptPubKey, spendingTransaction, 0, Money.Zero, flags, SigHash.Undefined, out actual);
+			Script.VerifyScript(scriptSig, scriptPubKey, spendingTransaction, 0, amount, flags, SigHash.Undefined, out actual);
 			Assert.True(expectedError == actual, "Test : " + testIndex + " " + comment);
-#if !NOCONSENSUSLIB
-			if((flags & ScriptVerify.Witness) == 0)
-			{
-				var ok = Script.VerifyScriptConsensus(scriptPubKey, spendingTransaction.WithOptions(TransactionOptions.None), 0, flags);
-				Assert.True(ok == (expectedError == ScriptError.OK), "[ConsensusLib] Test : " + testIndex + " " + comment);
-			}
-#endif
+//#if !NOCONSENSUSLIB
+//			if((flags & ScriptVerify.Witness) == 0)
+//			{
+//				var ok = Script.VerifyScriptConsensus(scriptPubKey, spendingTransaction.WithOptions(TransactionOptions.None), 0, flags);
+//				Assert.True(ok == (expectedError == ScriptError.OK), "[ConsensusLib] Test : " + testIndex + " " + comment);
+//			}
+//#endif
 		}
 
 
 		private void EnsureHasLibConsensus()
 		{
 #if !NOCONSENSUSLIB
-			string environment = Environment.Is64BitProcess ? "x64" : "x86";
+			string environment = RuntimeInformation.ProcessArchitecture == Architecture.X64 ? "x64" : "x86";
 			if(File.Exists(Script.LibConsensusDll))
 			{
 				var bytes = File.ReadAllBytes(Script.LibConsensusDll);
@@ -407,19 +412,23 @@ namespace NBitcoin.Tests
 			spendingTransaction.AddOutput(new TxOut()
 			{
 				ScriptPubKey = new Script(),
-				Value = Money.Zero
+				Value = creditingTransaction.Outputs[0].Value
 			});
 			return spendingTransaction;
 		}
 
-		private static Transaction CreateCreditingTransaction(Script scriptPubKey)
+		private static Transaction CreateCreditingTransaction(Script scriptPubKey, Money amount = null)
 		{
+			amount = amount ?? Money.Zero;
 			var creditingTransaction = new Transaction();
+			creditingTransaction.Version = 1;
+			creditingTransaction.LockTime = LockTime.Zero;
 			creditingTransaction.AddInput(new TxIn()
 			{
-				ScriptSig = new Script(OpcodeType.OP_0, OpcodeType.OP_0)
+				ScriptSig = new Script(OpcodeType.OP_0, OpcodeType.OP_0),
+				Sequence = Sequence.Final
 			});
-			creditingTransaction.AddOutput(Money.Zero, scriptPubKey);
+			creditingTransaction.AddOutput(amount, scriptPubKey);
 			return creditingTransaction;
 		}
 
@@ -491,6 +500,16 @@ namespace NBitcoin.Tests
 				return ScriptError.CleanStack;
 			if(str == "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM")
 				return ScriptError.DiscourageUpgradableWitnessProgram;
+			if(str == "NULLFAIL")
+				return ScriptError.NullFail;
+			if(str == "NEGATIVE_LOCKTIME")
+				return ScriptError.NegativeLockTime;
+			if(str == "UNSATISFIED_LOCKTIME")
+				return ScriptError.UnsatisfiedLockTime;
+			if(str == "MINIMALIF")
+				return ScriptError.MinimalIf;
+			if(str == "WITNESS_PUBKEYTYPE")
+				return ScriptError.WitnessPubkeyType;
 			throw new NotSupportedException(str);
 		}
 
@@ -541,6 +560,22 @@ namespace NBitcoin.Tests
 				else if(p == "DISCOURAGE_UPGRADABLE_WITNESS_PROGRAM")
 				{
 					result |= ScriptVerify.DiscourageUpgradableWitnessProgram;
+				}
+				else if(p == "CHECKSEQUENCEVERIFY")
+				{
+					result |= ScriptVerify.CheckSequenceVerify;
+				}
+				else if(p == "NULLFAIL")
+				{
+					result |= ScriptVerify.NullFail;
+				}
+				else if(p == "MINIMALIF")
+				{
+					result |= ScriptVerify.MinimalIf;
+				}
+				else if(p == "WITNESS_PUBKEYTYPE")
+				{
+					result |= ScriptVerify.WitnessPubkeyType;
 				}
 				else
 					throw new NotSupportedException(p);

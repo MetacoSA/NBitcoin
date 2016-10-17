@@ -52,6 +52,7 @@
     <Compile Include="BIP39\IWordlistSource.cs" />
     <Compile Include="BIP39\Language.cs" />
     <Compile Include="BIP39\Wordlist.cs" />
+    <Compile Include="BIP9Deployments.cs" />
     <Compile Include="BitcoinAddress.cs" />
     <Compile Include="BIP38\BitcoinConfirmationCode.cs" />
     <Compile Include="BIP38\BitcoinEncryptedSecret.cs" />
@@ -119,6 +120,7 @@
     <Compile Include="Payment\PaymentRequest.cs" />
     <Compile Include="Payment\UriHelper.cs" />
     <Compile Include="Payment\HttpUtility.cs" />
+    <Compile Include="PrecomputedTransactionData.cs" />
     <Compile Include="Protobuf\ProtobufReaderWriter.cs" />
     <Compile Include="Protocol\AddressManager.cs" />
     <Compile Include="Protocol\Behaviors\AddressManagerBehavior.cs" />
@@ -251,11 +253,6 @@
     <Compile Include="IBitcoinSerializable.cs" />
     <Compile Include="Key.cs" />
     <Compile Include="KeyId.cs" />
-    <Compile Include="MedianFilter1.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MedianFilter.tt</DependentUpon>
-    </Compile>
     <Compile Include="MerkleBlock.cs" />
     <Compile Include="Money.cs" />
     <Compile Include="PartialMerkleTree.cs" />
@@ -275,7 +272,6 @@
     <Compile Include="UnsignedList.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Utils\BoundedDictionary.cs" />
-    <Compile Include="ValidationState.cs" />
     <Compile Include="Protocol\VarInt.cs" />
     <Compile Include="Protocol\VarString.cs" />
     <Compile Include="Protocol\Versions.cs" />
@@ -285,17 +281,12 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BitcoinStream.Partial.cs</LastGenOutput>
     </None>
-    <None Include="NBitcoin.Mono.Tokenized.nuspec" />
     <None Include="NBitcoin.Tokenized.nuspec" />
     <None Include="packages.config" />
     <None Include="PushNuget.ps1" />
     <None Include="UInt256.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>UInt2561.cs</LastGenOutput>
-    </None>
-    <None Include="MedianFilter.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>MedianFilter1.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>

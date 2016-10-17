@@ -15,6 +15,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
@@ -94,18 +95,6 @@ namespace NBitcoin.Tests
 			var store = new BlockStore(@"data\blocks", Network.Main);
 			var result = store.Enumerate(new DiskBlockPosRange(new DiskBlockPos(0, 0), new DiskBlockPos(1, 0))).ToList();
 			Assert.Equal(300, result.Count);
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanValidateBlocks()
-		{
-			foreach(var block in StoredBlock.EnumerateFolder(@"data\blocks"))
-			{
-				ValidationState validation = Network.Main.CreateValidationState();
-				validation.Now = block.Item.Header.BlockTime;
-				Assert.True(validation.CheckBlock(block.Item));
-			}
 		}
 
 		[Fact]
@@ -283,17 +272,15 @@ namespace NBitcoin.Tests
 			Assert.NotNull(result);
 		}
 
-		[Fact]
-		public static void Play()
-		{
-		}
-
 		private static Coin RandomCoin(Key bob, Money amount, bool p2pkh = false)
 		{
 			return new Coin(new uint256(Enumerable.Range(0, 32).Select(i => (byte)0xaa).ToArray()), 0, amount, p2pkh ? bob.PubKey.Hash.ScriptPubKey : bob.PubKey.WitHash.ScriptPubKey);
 		}
 
-
+		[Fact]
+		public void Play()
+		{
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

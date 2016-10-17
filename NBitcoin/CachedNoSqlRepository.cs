@@ -114,7 +114,8 @@ namespace NBitcoin
 			{
 				InnerRepository
 					.PutBatch(_Removed.Select(k => Tuple.Create<string, IBitcoinSerializable>(k, null))
-							  .Concat(_Added.Select(k => Tuple.Create<string, IBitcoinSerializable>(k, new Raw(_Table[k])))));
+							.Concat(_Added.Select(k => Tuple.Create<string, IBitcoinSerializable>(k, new Raw(_Table[k])))))
+					.GetAwaiter().GetResult();
 				_Removed.Clear();
 				_Added.Clear();
 				_Table.Clear();

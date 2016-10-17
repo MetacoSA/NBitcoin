@@ -46,7 +46,7 @@ namespace NBitcoin.Protocol
 
 			foreach(var behavior in other.TemplateBehaviors)
 			{
-				TemplateBehaviors.Add((NodeBehavior)((ICloneable)behavior).Clone());
+				TemplateBehaviors.Add(behavior.Clone());
 			}
 		}
 

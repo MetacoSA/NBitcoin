@@ -196,10 +196,32 @@ namespace NBitcoin
 		internal static string NormalizeString(string word)
 		{
 #if !NOSTRNORMALIZE
-			return word.Normalize(NormalizationForm.FormKD);
+			if(IsRunningOnMono())
+			{
+				return KDTable.NormalizeKD(word);
+			}
+			else
+			{
+				try
+				{
+					return word.Normalize(NormalizationForm.FormKD);
+				}
+				catch(NotImplementedException)
+				{
+					return KDTable.NormalizeKD(word);
+				}
+			}
 #else
 			return KDTable.NormalizeKD(word);
 #endif
+		}
+
+		static bool? _IsRunningOnMono;
+		internal static bool IsRunningOnMono()
+		{
+			if(_IsRunningOnMono == null)
+				_IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
+			return _IsRunningOnMono.Value;
 		}
 
 		public ExtKey DeriveExtKey(string passphrase = null)
