@@ -58,7 +58,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public bool IfPayloadIs<TPayload>(Action<TPayload> action) where TPayload : class
+		public bool IfPayloadIs<TPayload>(Action<TPayload> action) where TPayload : Payload
 		{
 			var payload = Payload as TPayload;
 			if(payload != null)
@@ -177,27 +177,8 @@ namespace NBitcoin.Protocol
 		}
 		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
 		{
-			var stream = new CustomNetworkStream(socket, false);
+			var stream = new NetworkStream(socket, false);
 			return ReadNext(stream, network, version, cancellationToken, buffer, out counter);
-		}
-
-		internal class CustomNetworkStream : NetworkStream
-		{
-			public CustomNetworkStream(Socket socket, bool own)
-				: base(socket, own)
-			{
-
-			}
-
-#if !NETCORE
-			public bool Connected
-			{
-				get
-				{
-					return Socket.Connected;
-				}
-			}
-#endif
 		}
 #endif
 		public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken)

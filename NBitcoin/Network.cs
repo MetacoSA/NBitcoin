@@ -36,7 +36,7 @@ namespace NBitcoin
 			this.host = host;
 		}
 #if !NOSOCKET
-        IPAddress[] _Addresses = null;
+		IPAddress[] _Addresses = null;
 		public IPAddress[] GetAddressNodes()
 		{
 			if(_Addresses != null)
@@ -76,91 +76,290 @@ namespace NBitcoin
 		MAX_BASE58_TYPES,
 	};
 
+	public enum BuriedDeployments : int
+	{
+		/// <summary>
+		/// Height in coinbase
+		/// </summary>
+		BIP34,
+		/// <summary>
+		/// Height in OP_CLTV
+		/// </summary>
+		BIP65,
+		/// <summary>
+		/// Strict DER signature
+		/// </summary>
+		BIP66
+	}
+
 	public class Consensus
 	{
+		public static Consensus Main
+		{
+			get
+			{
+				return Network.Main.Consensus;
+			}
+		}
+		public static Consensus TestNet
+		{
+			get
+			{
+				return Network.TestNet.Consensus;
+			}
+		}
+		public static Consensus RegTest
+		{
+			get
+			{
+				return Network.RegTest.Consensus;
+			}
+		}
+		public class BuriedDeploymentsArray
+		{
+			Consensus _Parent;
+			int[] _Heights;
+			public BuriedDeploymentsArray(Consensus parent)
+			{
+				_Parent = parent;
+				_Heights = new int[Enum.GetValues(typeof(BuriedDeployments)).Length];
+			}
+			public int this[BuriedDeployments index]
+			{
+				get
+				{
+					return _Heights[(int)index];
+				}
+				set
+				{
+					_Parent.EnsureNotFrozen();
+					_Heights[(int)index] = value;
+				}
+			}
+		}
+		public class BIP9DeploymentsArray
+		{
+			Consensus _Parent;
+			BIP9DeploymentsParameters[] _Parameters;
+			public BIP9DeploymentsArray(Consensus parent)
+			{
+				_Parent = parent;
+				_Parameters = new BIP9DeploymentsParameters[Enum.GetValues(typeof(BIP9Deployments)).Length];
+			}
 
+			public BIP9DeploymentsParameters this[BIP9Deployments index]
+			{
+				get
+				{
+					return _Parameters[(int)index];
+				}
+				set
+				{
+					_Parent.EnsureNotFrozen();
+					_Parameters[(int)index] = value;
+				}
+			}
+		}
+
+		public Consensus()
+		{
+			_BuriedDeployments = new BuriedDeploymentsArray(this);
+			_BIP9Deployments = new BIP9DeploymentsArray(this);
+		}
+		private readonly BuriedDeploymentsArray _BuriedDeployments;
+		public BuriedDeploymentsArray BuriedDeployments
+		{
+			get
+			{
+				return _BuriedDeployments;
+			}
+		}
+
+
+		private readonly BIP9DeploymentsArray _BIP9Deployments;
+		public BIP9DeploymentsArray BIP9Deployments
+		{
+			get
+			{
+				return _BIP9Deployments;
+			}
+		}
+
+		int _SubsidyHalvingInterval;
 		public int SubsidyHalvingInterval
 		{
-			get;
-			internal set;
+			get
+			{
+				return _SubsidyHalvingInterval;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_SubsidyHalvingInterval = value;
+			}
 		}
 
+
+		int _MajorityEnforceBlockUpgrade;
 		public int MajorityEnforceBlockUpgrade
 		{
-			get;
-			internal set;
+			get
+			{
+				return _MajorityEnforceBlockUpgrade;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_MajorityEnforceBlockUpgrade = value;
+			}
 		}
 
+		int _MajorityRejectBlockOutdated;
 		public int MajorityRejectBlockOutdated
 		{
-			get;
-			internal set;
+			get
+			{
+				return _MajorityRejectBlockOutdated;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_MajorityRejectBlockOutdated = value;
+			}
 		}
 
+		int _MajorityWindow;
 		public int MajorityWindow
 		{
-			get;
-			internal set;
+			get
+			{
+				return _MajorityWindow;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_MajorityWindow = value;
+			}
 		}
 
-		public int BIP34Height
+
+		uint256 _BIP34Hash;
+		public uint256 BIP34Hash
 		{
-			get;
-			internal set;
+			get
+			{
+				return _BIP34Hash;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_BIP34Hash = value;
+			}
 		}
 
-        public int LastPOWBlock
-        {
-            get;
-            internal set;
-        }
 
-        public uint256 BIP34Hash
-		{
-			get;
-			internal set;
-		}
-
+		Target _PowLimit;
 		public Target PowLimit
 		{
-			get;
-			internal set;
+			get
+			{
+				return _PowLimit;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_PowLimit = value;
+			}
 		}
 
+
+		int _SegWitHeight;
 		public int SegWitHeight
 		{
-			get;
-			internal set;
+			get
+			{
+				return _SegWitHeight;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_SegWitHeight = value;
+			}
 		}
 
+
+		TimeSpan _PowTargetTimespan;
 		public TimeSpan PowTargetTimespan
 		{
-			get;
-			internal set;
+			get
+			{
+				return _PowTargetTimespan;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_PowTargetTimespan = value;
+			}
 		}
 
+
+		TimeSpan _PowTargetSpacing;
 		public TimeSpan PowTargetSpacing
 		{
-			get;
-			internal set;
+			get
+			{
+				return _PowTargetSpacing;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_PowTargetSpacing = value;
+			}
 		}
 
+
+		bool _PowAllowMinDifficultyBlocks;
 		public bool PowAllowMinDifficultyBlocks
 		{
-			get;
-			internal set;
+			get
+			{
+				return _PowAllowMinDifficultyBlocks;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_PowAllowMinDifficultyBlocks = value;
+			}
 		}
 
+
+		bool _PowNoRetargeting;
 		public bool PowNoRetargeting
 		{
-			get;
-			internal set;
+			get
+			{
+				return _PowNoRetargeting;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_PowNoRetargeting = value;
+			}
 		}
 
+
+		uint256 _HashGenesisBlock;
 		public uint256 HashGenesisBlock
 		{
-			get;
-			internal set;
+			get
+			{
+				return _HashGenesisBlock;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_HashGenesisBlock = value;
+			}
 		}
 
 		public long DifficultyAdjustmentInterval
@@ -169,6 +368,45 @@ namespace NBitcoin
 			{
 				return ((long)PowTargetTimespan.TotalSeconds / (long)PowTargetSpacing.TotalSeconds);
 			}
+		}
+
+		int _MinerConfirmationWindow;
+		public int MinerConfirmationWindow
+		{
+			get
+			{
+				return _MinerConfirmationWindow;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_MinerConfirmationWindow = value;
+			}
+		}
+
+		int _RuleChangeActivationThreshold;
+		public int RuleChangeActivationThreshold
+		{
+			get
+			{
+				return _RuleChangeActivationThreshold;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_RuleChangeActivationThreshold = value;
+			}
+		}
+
+		bool frozen = false;
+		public void Freeze()
+		{
+			frozen = true;
+		}
+		private void EnsureNotFrozen()
+		{
+			if(frozen)
+				throw new InvalidOperationException("This instance can't be modified");
 		}
 	}
 	public class Network
@@ -195,7 +433,7 @@ namespace NBitcoin
 		}
 
 #if !NOSOCKET
-        List<DNSSeedData> vSeeds = new List<DNSSeedData>();
+		List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
 #else
 		List<string> vSeeds = new List<string>();
@@ -250,16 +488,15 @@ namespace NBitcoin
 		{
 			_Main = new Network();
 			_Main.InitMain();
+			_Main.Consensus.Freeze();
 
-            _TestNet = new Network();
-            _TestNet.InitTest();
+			_TestNet = new Network();
+			_TestNet.InitTest();
+			_TestNet.Consensus.Freeze();
 
-            _SegNet = new Network();
-            _SegNet.InitSegnet();
-
-            _RegTest = new Network();
-            _RegTest.InitReg();
-        }
+			_RegTest = new Network();
+			_RegTest.InitReg();
+		}
 
 		static Network _Main;
 		public static Network Main
@@ -276,15 +513,6 @@ namespace NBitcoin
 			get
 			{
 				return _TestNet;
-			}
-		}
-
-		private static Network _SegNet;
-		public static Network SegNet
-		{
-			get
-			{
-				return _SegNet;
 			}
 		}
 
@@ -307,7 +535,9 @@ namespace NBitcoin
 			consensus.MajorityEnforceBlockUpgrade = 750;
 			consensus.MajorityRejectBlockOutdated = 950;
 			consensus.MajorityWindow = 1000;
-			consensus.BIP34Height = 227931;
+			consensus.BuriedDeployments[BuriedDeployments.BIP34] = 227931;
+			consensus.BuriedDeployments[BuriedDeployments.BIP65] = 388381;
+			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 363725;
 			consensus.BIP34Hash = new uint256("0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8");
 			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			consensus.SegWitHeight = 2000000000;
@@ -315,36 +545,37 @@ namespace NBitcoin
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = false;
 			consensus.PowNoRetargeting = false;
-		    consensus.LastPOWBlock = 12500;
+			consensus.RuleChangeActivationThreshold = 1916; // 95% of 2016
+			consensus.MinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
 
-            // The message start string is designed to be unlikely to occur in normal data.
-            // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
-            // a large 4-byte int at any alignment.
-            var pchMessageStart = new byte[4];
-            pchMessageStart[0] = 0x70;
-            pchMessageStart[1] = 0x35;
-            pchMessageStart[2] = 0x22;
-            pchMessageStart[3] = 0x05;
-            var mhash = BitConverter.ToUInt32(pchMessageStart, 0);
-		    magic = mhash; //0x5223570; 
+			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 1199145601, 1230767999);
+			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1462060800, 1493596800);
+			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 0, 0);
 
-            vAlertPubKey = Encoders.Hex.DecodeData("0486bce1bac0d543f104cbff2bd23680056a3b9ea05e1137d2ff90eeb5e08472eb500322593a2cb06fbf8297d7beb6cd30cb90f98153b5b7cce1493749e41e0284");
-			nDefaultPort = 16178;
-			nRPCPort = 16174;
+			// The message start string is designed to be unlikely to occur in normal data.
+			// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
+			// a large 4-byte int at any alignment.
+			magic = 0xD9B4BEF9;
+			vAlertPubKey = Encoders.Hex.DecodeData("04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284");
+			nDefaultPort = 8333;
+			nRPCPort = 8332;
 			nSubsidyHalvingInterval = 210000;
 
-			genesis = CreateGenesisBlock(1470467000, 1831645, 0x1e0fffff, 1, Money.Zero);
+			genesis = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1, Money.Coins(50m));
 			consensus.HashGenesisBlock = genesis.GetHash();
-
-            assert(consensus.HashGenesisBlock == uint256.Parse("0x0000066e91e46e5a264d42c89e1204963b2ee6be230b443e9159020539d972af"));
-			assert(genesis.Header.HashMerkleRoot == uint256.Parse("0x65a26bc20b0351aebf05829daefa8f7db2f800623439f3c114257c91447f1518"));
+			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
+			assert(genesis.Header.HashMerkleRoot == uint256.Parse("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
 #if !NOSOCKET
-            vSeeds.Add(new DNSSeedData("seed.stratisplatform.com", "seed.stratisplatform.com")); 
-			vSeeds.Add(new DNSSeedData("seed.cloudstratis.com", "seed.cloudstratis.com")); 
+			vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be")); // Pieter Wuille
+			vSeeds.Add(new DNSSeedData("bluematt.me", "dnsseed.bluematt.me")); // Matt Corallo
+			vSeeds.Add(new DNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org")); // Luke Dashjr
+			vSeeds.Add(new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com")); // Christian Decker
+			vSeeds.Add(new DNSSeedData("xf2.org", "bitseed.xf2.org")); // Jeff Garzik
+			vSeeds.Add(new DNSSeedData("bitcoin.jonasschnelli.ch", "seed.bitcoin.jonasschnelli.ch")); // Jonas Schnelli
 #endif
-			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (63) };
-			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (125) };
-			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (63 + 128) };
+			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (0) };
+			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (5) };
+			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (128) };
 			base58Prefixes[(int)Base58Type.ENCRYPTED_SECRET_KEY_NO_EC] = new byte[] { 0x01, 0x42 };
 			base58Prefixes[(int)Base58Type.ENCRYPTED_SECRET_KEY_EC] = new byte[] { 0x01, 0x43 };
 			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x88), (0xB2), (0x1E) };
@@ -358,17 +589,17 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (10) };
 
 #if !NOSOCKET
-            // Convert the pnSeeds array into usable address objects.
-            Random rand = new Random();
+			// Convert the pnSeeds array into usable address objects.
+			Random rand = new Random();
 			TimeSpan nOneWeek = TimeSpan.FromDays(7);
 			for(int i = 0; i < pnSeed.Length; i++)
 			{
-                // It'll only connect to one or two seed nodes because once it connects,
-                // it'll get a pile of addresses with newer timestamps.
-                // Seed nodes are given a random 'last seen time' of between one and two
-                // weeks ago.				
-                NetworkAddress addr = new NetworkAddress();
-                addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
+				// It'll only connect to one or two seed nodes because once it connects,
+				// it'll get a pile of addresses with newer timestamps.				
+				NetworkAddress addr = new NetworkAddress();
+				// Seed nodes are given a random 'last seen time' of between one and two
+				// weeks ago.
+				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
 				addr.Endpoint = Utils.ParseIpEndpoint(pnSeed[i], DefaultPort);
 				vFixedSeeds.Add(addr);
 			}
@@ -382,7 +613,9 @@ namespace NBitcoin
 			consensus.MajorityEnforceBlockUpgrade = 51;
 			consensus.MajorityRejectBlockOutdated = 75;
 			consensus.MajorityWindow = 100;
-			consensus.BIP34Height = 21111;
+			consensus.BuriedDeployments[BuriedDeployments.BIP34] = 21111;
+			consensus.BuriedDeployments[BuriedDeployments.BIP65] = 581885;
+			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 330776;
 			consensus.BIP34Hash = new uint256("0x0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8");
 			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			consensus.SegWitHeight = 2000000000;
@@ -390,7 +623,12 @@ namespace NBitcoin
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = true;
 			consensus.PowNoRetargeting = false;
+			consensus.RuleChangeActivationThreshold = 1512; // 75% for testchains
+			consensus.MinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
 
+			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 1199145601, 1230767999);
+			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1456790400, 1493596800);
+			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 1462060800, 1493596800);
 
 			magic = 0x0709110B;
 
@@ -406,7 +644,7 @@ namespace NBitcoin
 			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
 
 #if !NOSOCKET
-            vFixedSeeds.Clear();
+			vFixedSeeds.Clear();
 			vSeeds.Clear();
 			vSeeds.Add(new DNSSeedData("bitcoin.petertodd.org", "testnet-seed.bitcoin.petertodd.org"));
 			vSeeds.Add(new DNSSeedData("bluematt.me", "testnet-seed.bluematt.me"));
@@ -425,62 +663,6 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x03) };
 			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (40) };
 		}
-		private void InitSegnet()
-		{
-			name = "segnet";
-			consensus.SubsidyHalvingInterval = 210000;
-			consensus.MajorityEnforceBlockUpgrade = 7;
-			consensus.MajorityRejectBlockOutdated = 9;
-			consensus.MajorityWindow = 10;
-			consensus.BIP34Height = -1;
-			consensus.BIP34Hash = uint256.Zero;
-			consensus.PowLimit = new Target(new uint256("000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
-			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
-			consensus.PowAllowMinDifficultyBlocks = true;
-			consensus.PowNoRetargeting = false;
-
-			magic = 0xc4a1abdc;
-			vAlertPubKey = Encoders.Hex.DecodeData("0300000000000000000000003b78ce563f89a0ed9414f5aa28ad0d96d6795f9c63");
-			nDefaultPort = 28901;
-			nRPCPort = 28902;
-
-			genesis = CreateGenesisBlock(1452831101, 0, consensus.PowLimit.ToCompact(), 1, Money.Coins(50m));
-			consensus.HashGenesisBlock = genesis.GetHash();
-
-			vFixedSeeds.Clear();
-
-#if !NOSOCKET
-            // Convert the pnSeeds array into usable address objects.
-            Random rand = new Random();
-			TimeSpan nOneWeek = TimeSpan.FromDays(7);
-			var pnSeed = new[] { "37.34.48.17" };
-			for(int i = 0; i < pnSeed.Length; i++)
-			{
-				// It'll only connect to one or two seed nodes because once it connects,
-				// it'll get a pile of addresses with newer timestamps.				
-				NetworkAddress addr = new NetworkAddress();
-				// Seed nodes are given a random 'last seen time' of between one and two
-				// weeks ago.
-				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
-				addr.Endpoint = Utils.ParseIpEndpoint(pnSeed[i], DefaultPort);
-				vFixedSeeds.Add(addr);
-			}
-#endif
-			vSeeds.Clear();
-
-			base58Prefixes = Network.TestNet.base58Prefixes.ToArray();
-			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { 30 };
-			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { 50 };
-			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { 158 };
-			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x05), (0x35), (0x87), (0xCF) };
-			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x05), (0x35), (0x83), (0x94) };
-			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
-			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x03) };
-			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (40) };
-
-			vFixedSeeds.Clear();
-		}
 		private void InitReg()
 		{
 			name = "RegTest";
@@ -488,7 +670,9 @@ namespace NBitcoin
 			consensus.MajorityEnforceBlockUpgrade = 750;
 			consensus.MajorityRejectBlockOutdated = 950;
 			consensus.MajorityWindow = 1000;
-			consensus.BIP34Height = -1; // BIP34 has not necessarily activated on regtest
+			consensus.BuriedDeployments[BuriedDeployments.BIP34] = 100000000;
+			consensus.BuriedDeployments[BuriedDeployments.BIP65] = 100000000;
+			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 100000000;
 			consensus.BIP34Hash = new uint256();
 			consensus.PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 			consensus.SegWitHeight = 0;
@@ -496,8 +680,15 @@ namespace NBitcoin
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = true;
 			consensus.PowNoRetargeting = true;
+			consensus.RuleChangeActivationThreshold = 108;
+			consensus.MinerConfirmationWindow = 144;
+
 			magic = 0xDAB5BFFA;
 			nSubsidyHalvingInterval = 150;
+
+			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 0, 999999999);
+			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 0, 999999999);
+			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 0, 999999999);
 
 			genesis = CreateGenesisBlock(1296688602, 2, 0x207fffff, 1, Money.Coins(50m));
 			consensus.HashGenesisBlock = genesis.GetHash();
@@ -506,7 +697,7 @@ namespace NBitcoin
 			assert(consensus.HashGenesisBlock == uint256.Parse("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
 
 #if !NOSOCKET
-            vSeeds.Clear();  // Regtest mode doesn't have any DNS seeds.
+			vSeeds.Clear();  // Regtest mode doesn't have any DNS seeds.
 #endif
 			base58Prefixes = Network.TestNet.base58Prefixes.ToArray();
 			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (111) };
@@ -519,7 +710,7 @@ namespace NBitcoin
 
 		private Block CreateGenesisBlock(uint nTime, uint nNonce, uint nBits, int nVersion, Money genesisReward)
 		{
-			string pszTimestamp = "http://www.theonion.com/article/olympics-head-priestess-slits-throat-official-rio--53466";
+			string pszTimestamp = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks";
 			Script genesisOutputScript = new Script(Op.GetPushOp(Encoders.Hex.DecodeData("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f")), OpcodeType.OP_CHECKSIG);
 			return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
 		}
@@ -528,20 +719,20 @@ namespace NBitcoin
 		{
 			Transaction txNew = new Transaction();
 			txNew.Version = 1;
-		    txNew.Time = nTime;
 			txNew.AddInput(new TxIn()
 			{
-                ScriptSig = new Script(Op.GetPushOp(0), new Op()
-                {
-                    Code = (OpcodeType)0x1,
-                    PushData = new[] { (byte)42 }
-                }, Op.GetPushOp(Encoders.ASCII.DecodeData(pszTimestamp)))
-            });
+				ScriptSig = new Script(Op.GetPushOp(486604799), new Op()
+				{
+					Code = (OpcodeType)0x1,
+					PushData = new[] { (byte)4 }
+				}, Op.GetPushOp(Encoders.ASCII.DecodeData(pszTimestamp)))
+			});
 			txNew.AddOutput(new TxOut()
 			{
 				Value = genesisReward,
+				ScriptPubKey = genesisOutputScript
 			});
-            Block genesis = new Block();
+			Block genesis = new Block();
 			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(nTime);
 			genesis.Header.Bits = nBits;
 			genesis.Header.Nonce = nNonce;
@@ -800,11 +991,6 @@ namespace NBitcoin
 			return prefix.ToArray();
 		}
 
-		public ValidationState CreateValidationState()
-		{
-			return new ValidationState(this);
-		}
-
 		public override string ToString()
 		{
 			return name;
@@ -830,7 +1016,6 @@ namespace NBitcoin
 		{
 			yield return Main;
 			yield return TestNet;
-			yield return SegNet;
 			yield return RegTest;
 		}
 
@@ -867,9 +1052,6 @@ namespace NBitcoin
 				case "regtest":
 				case "regnet":
 					return Network.RegTest;
-				case "seg":
-				case "segnet":
-					return Network.SegNet;
 				default:
 					return null;
 			}
@@ -891,7 +1073,7 @@ namespace NBitcoin
 			return new BitcoinScriptAddress(scriptId, this);
 		}
 
-        public Message ParseMessage(byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public Message ParseMessage(byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			BitcoinStream bstream = new BitcoinStream(bytes);
 			Message message = new Message();
@@ -905,7 +1087,7 @@ namespace NBitcoin
 		}
 
 #if !NOSOCKET
-        public IEnumerable<NetworkAddress> SeedNodes
+		public IEnumerable<NetworkAddress> SeedNodes
 		{
 			get
 			{
@@ -971,7 +1153,7 @@ namespace NBitcoin
 				cancellation.ThrowIfCancellationRequested();
 
 				var read = stream.ReadEx(bytes, 0, bytes.Length, cancellation);
-				if(read == -1)
+				if(read == 0)
 					if(throwIfEOF)
 						throw new EndOfStreamException("No more bytes to read");
 					else
@@ -979,7 +1161,7 @@ namespace NBitcoin
 				if(read != 1)
 					i--;
 				else if(_MagicBytes[i] != bytes[0])
-                    i = -1;
+					i = -1;
 			}
 			return true;
 		}

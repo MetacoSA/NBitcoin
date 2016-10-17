@@ -27,37 +27,18 @@ namespace NBitcoin.RPC
 	public class RestClient : IBlockRepository
 	{
 		private readonly Uri _address;
-		private readonly RestResponseFormat _format;
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="RestClient"/> class.
-		/// </summary>
-		/// <param name="serviceEndpoint">The rest API endpoint.</param>
-		public RestClient(Uri serviceEndpoint)
-			: this(serviceEndpoint, RestResponseFormat.Bin)
-		{
-		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="RestClient"/> class.
 		/// </summary>
 		/// <param name="address">The rest API endpoint</param>
-		/// <param name="format">The format (bin | hex | json).</param>
 		/// <exception cref="System.ArgumentNullException">Null rest API endpoint</exception>
 		/// <exception cref="System.ArgumentException">Invalid value for RestResponseFormat</exception>
-		private RestClient(Uri address, RestResponseFormat format)
+		public RestClient(Uri address)
 		{
 			if(address == null)
 				throw new ArgumentNullException("address");
-
-			var typeOfRestResponseFormat = typeof(RestResponseFormat);
-			if(!Enum.IsDefined(typeOfRestResponseFormat, format))
-			{
-				throw new ArgumentException("Invalid value for RestResponseFormat");
-			}
-
 			_address = address;
-			_format = format;
 		}
 
 
@@ -72,7 +53,7 @@ namespace NBitcoin.RPC
 			if(blockId == null)
 				throw new ArgumentNullException("blockId");
 
-			var result = await SendRequestAsync("block", _format, blockId.ToString()).ConfigureAwait(false);
+			var result = await SendRequestAsync("block", RestResponseFormat.Bin, blockId.ToString()).ConfigureAwait(false);
 			return new Block(result);
 		}
 		/// <summary>
@@ -105,7 +86,7 @@ namespace NBitcoin.RPC
 			if(txId == null)
 				throw new ArgumentNullException("txId");
 
-			var result = await SendRequestAsync("tx", _format, txId.ToString()).ConfigureAwait(false);
+			var result = await SendRequestAsync("tx", RestResponseFormat.Bin, txId.ToString()).ConfigureAwait(false);
 			return new Transaction(result);
 		}
 		/// <summary>
@@ -142,7 +123,7 @@ namespace NBitcoin.RPC
 			if(count < 1)
 				throw new ArgumentOutOfRangeException("count", "count must be greater or equal to one.");
 
-			var result = await SendRequestAsync("headers", _format, count.ToString(CultureInfo.InvariantCulture), blockId.ToString()).ConfigureAwait(false);
+			var result = await SendRequestAsync("headers", RestResponseFormat.Bin, count.ToString(CultureInfo.InvariantCulture), blockId.ToString()).ConfigureAwait(false);
 			const int hexSize = (BlockHeader.Size);
 			return Enumerable
 				.Range(0, result.Length / hexSize)
@@ -204,7 +185,7 @@ namespace NBitcoin.RPC
 				throw new ArgumentNullException("outPoints");
 			var ids = from op in outPoints
 					  select op.ToString();
-			var result = await SendRequestAsync("getutxos" + (checkMempool ? "/checkmempool" : ""), _format, ids.ToArray()).ConfigureAwait(false);
+			var result = await SendRequestAsync("getutxos" + (checkMempool ? "/checkmempool" : ""), RestResponseFormat.Bin, ids.ToArray()).ConfigureAwait(false);
 			var mem = new MemoryStream(result);
 
 			var utxos = new UTxOutputs();
@@ -213,8 +194,7 @@ namespace NBitcoin.RPC
 			return utxos;
 		}
 
-		#region Private methods
-		private async Task<byte[]> SendRequestAsync(string resource, RestResponseFormat format, params string[] parms)
+		public async Task<byte[]> SendRequestAsync(string resource, RestResponseFormat format, params string[] parms)
 		{
 			var request = BuildHttpRequest(resource, format, parms);
 			using(var response = await GetWebResponse(request).ConfigureAwait(false))
@@ -226,6 +206,7 @@ namespace NBitcoin.RPC
 			}
 		}
 
+		#region Private methods
 		private WebRequest BuildHttpRequest(string resource, RestResponseFormat format, params string[] parms)
 		{
 			var hasParams = parms != null && parms.Length > 0;

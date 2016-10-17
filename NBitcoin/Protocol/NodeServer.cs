@@ -169,7 +169,7 @@ namespace NBitcoin.Protocol
 					var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token);
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
 
-					var stream = new Message.CustomNetworkStream(client, false);
+					var stream = new NetworkStream(client, false);
 					while(true)
 					{
 						cancel.Token.ThrowIfCancellationRequested();

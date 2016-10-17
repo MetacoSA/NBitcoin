@@ -321,7 +321,7 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilder.Create())
 			{
 				NodesGroup aliceConnection = CreateGroup(builder, 1);
-				NodesGroup bobConnection = CreateGroup(new[] { builder.Nodes[0] }, 1);
+				NodesGroup bobConnection = CreateGroup(builder, new[] { builder.Nodes[0] }, 1);
 				builder.Nodes[0].Generate(101);
 				var rpc = builder.Nodes[0].CreateRPCClient();
 				var aliceKey = new ExtKey();
@@ -457,7 +457,7 @@ namespace NBitcoin.Tests
 		{
 			var rpc = builder.Nodes[0].CreateRPCClient();
 			var notifiedTransactions = new List<WalletTransaction>();
-			NodesGroup connected = CreateGroup(new List<CoreNode>(new[] { walletNode }), 1);
+			NodesGroup connected = CreateGroup(builder, new List<CoreNode>(new[] { walletNode }), 1);
 			Wallet wallet = new Wallet(creation, keyPoolSize: 11);
 			wallet.NewWalletTransaction += (s, a) => notifiedTransactions.Add(a);
 			Assert.True(wallet.State == WalletState.Created);
@@ -474,6 +474,7 @@ namespace NBitcoin.Tests
 			}
 			wallet.GetNextScriptPubKey(); //Should provoke purge
 			TestUtils.Eventually(() => wallet.State == WalletState.Disconnected && wallet.ConnectedNodes == 0);
+			Thread.Sleep(100);
 			TestUtils.Eventually(() => wallet.ConnectedNodes == 1);
 
 			var k = wallet.GetNextScriptPubKey();
@@ -521,7 +522,7 @@ namespace NBitcoin.Tests
 			var tracker = connected.NodeConnectionParameters.TemplateBehaviors.Find<TrackerBehavior>();
 			tracker.Tracker.Save(ms);
 			ms.Position = 0;
-			connected = CreateGroup(new List<CoreNode>(new[] { walletNode }), 1);
+			connected = CreateGroup(builder, new List<CoreNode>(new[] { walletNode }), 1);
 			tracker = new TrackerBehavior(Tracker.Load(ms), wallet.Chain);
 			connected.NodeConnectionParameters.TemplateBehaviors.Add(tracker);
 			//////
@@ -861,10 +862,10 @@ namespace NBitcoin.Tests
 			for(int i = 0; i < connections; i++)
 				nodes.Add(builder.CreateNode());
 			builder.StartAll();
-			return CreateGroup(nodes, connections);
+			return CreateGroup(builder, nodes, connections);
 		}
 
-		private static NodesGroup CreateGroup(IEnumerable<CoreNode> nodes, int connections)
+		private static NodesGroup CreateGroup(NodeBuilder builder, IEnumerable<CoreNode> nodes, int connections)
 		{
 			AddressManagerBehavior behavior = new AddressManagerBehavior(new AddressManager());
 			foreach(var node in nodes)
@@ -878,6 +879,7 @@ namespace NBitcoin.Tests
 			NodesGroup connected = new NodesGroup(Network.RegTest, parameters);
 			connected.AllowSameGroup = true;
 			connected.MaximumNodeConnection = connections;
+			builder.AddDisposable(connected);
 			return connected;
 		}
 
@@ -899,6 +901,7 @@ namespace NBitcoin.Tests
 			NodesGroup connected = new NodesGroup(Network.TestNet, parameters);
 			connected.AllowSameGroup = true;
 			connected.MaximumNodeConnection = connections;
+			servers.AddDisposable(connected);
 			return connected;
 		}
 

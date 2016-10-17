@@ -173,8 +173,12 @@ namespace NBitcoin
 			}
 		}
 
+		static System.Numerics.BigInteger Pow256 = System.Numerics.BigInteger.Pow(2, 256);
 		public bool CheckProofOfWork()
 		{
+			var bits = Bits.ToBigInteger();
+			if(bits <= System.Numerics.BigInteger.Zero || bits >= Pow256)
+				return false;
 			// Check proof of work matches claimed amount
 			return GetHash() <= Bits.ToUInt256();
 		}
@@ -197,10 +201,20 @@ namespace NBitcoin
 		/// <summary>
 		/// Set time to consensus acceptable value
 		/// </summary>
+		/// <param name="consensus">Consensus</param>
+		/// <param name="prev">previous block</param>
+		public void UpdateTime(Consensus consensus, ChainedBlock prev)
+		{
+			UpdateTime(DateTimeOffset.UtcNow, consensus, prev);
+		}
+
+		/// <summary>
+		/// Set time to consensus acceptable value
+		/// </summary>
 		/// <param name="now">The expected date</param>
-		/// <param name="network">Network</param>
+		/// <param name="consensus">Consensus</param>
 		/// <param name="prev">previous block</param>		
-		public void UpdateTime(DateTimeOffset now, Network network, ChainedBlock prev)
+		public void UpdateTime(DateTimeOffset now, Consensus consensus, ChainedBlock prev)
 		{
 			var nOldTime = this.BlockTime;
 			var mtp = prev.GetMedianTimePast() + TimeSpan.FromSeconds(1);
@@ -210,13 +224,29 @@ namespace NBitcoin
 				this.BlockTime = nNewTime;
 
 			// Updating time can change work required on testnet:
-			if(network.Consensus.PowAllowMinDifficultyBlocks)
-				Bits = GetWorkRequired(network, prev);
+			if(consensus.PowAllowMinDifficultyBlocks)
+				Bits = GetWorkRequired(consensus, prev);
+		}
+
+		/// <summary>
+		/// Set time to consensus acceptable value
+		/// </summary>
+		/// <param name="now">The expected date</param>
+		/// <param name="network">Network</param>
+		/// <param name="prev">previous block</param>		
+		public void UpdateTime(DateTimeOffset now, Network network, ChainedBlock prev)
+		{
+			UpdateTime(now, network.Consensus, prev);
 		}
 
 		public Target GetWorkRequired(Network network, ChainedBlock prev)
 		{
-			return new ChainedBlock(this, null, prev).GetWorkRequired(network);
+			return GetWorkRequired(network.Consensus, prev);
+		}
+
+		public Target GetWorkRequired(Consensus consensus, ChainedBlock prev)
+		{
+			return new ChainedBlock(this, null, prev).GetWorkRequired(consensus);
 		}
 	}
 

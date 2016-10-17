@@ -544,6 +544,10 @@ namespace NBitcoin.Protocol
 		}
 
 		object cs = new object();
+		public bool Add(NetworkAddress addr)
+		{
+			return Add(addr, IPAddress.Loopback);
+		}
 		public bool Add(NetworkAddress addr, IPAddress source, TimeSpan nTimePenalty)
 		{
 			bool fRet = false;

@@ -59,7 +59,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-#if NOSTRNORMALIZE
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void KDTableCanNormalize()
@@ -69,7 +69,7 @@ namespace NBitcoin.Tests
 			Assert.False(input == expected);
 			Assert.Equal(expected, KDTable.NormalizeKD(input));
 		}
-#endif
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void JapTest()

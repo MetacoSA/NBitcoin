@@ -1,21 +1,33 @@
-﻿{
-  "version": "3.0.0.42-alpha-01",
-  "testRunner": "xunit",
-  "dependencies": {
-    "dotnet-test-xunit": "1.0.0-rc2-build10025",
-    "Microsoft.DiaSymReader": "1.0.8",
-    "Microsoft.NETCore.App": "1.0.1-beta-000547-00",
-    "Newtonsoft.Json": "9.0.1",
-    "xunit": "2.2.0-beta2-build3300"
-  },
-  "frameworks": {
-    "netcoreapp1.0": {
-      "dependencies": {
-        "Microsoft.NETCore.App": {
-          "type": "platform",
-          "version": "1.0.0"
+{
+    "version": "1.0.0-*",
+    "name" : "NBitcoin.Tests",
+    "testRunner": "xunit",    
+    "dependencies": {
+        "NBitcoin.NETCore" : "*",
+        "NETStandard.Library": "1.6.0",
+        "xunit": "2.2.0-beta2-build3300",
+        "dotnet-test-xunit": "2.2.0-preview2-build1029"
+    },
+    "buildOptions": {
+        "outputName" : "NBitcoin.Tests",
+        "define": [ "NOWEBCLIENT", "NOHTTPSERVER" ],
+        "compile": {
+            "include": [ "../NBitcoin.Tests/**/*.cs" ]
+        },
+        "copyToOutput" : {  
+            "mappings" : {
+                "data/" : "../NBitcoin.Tests/data/**/*.*"
+            }
         }
-      }
+    },
+    "frameworks": {
+        "netcoreapp1.0": {
+            "dependencies": {
+                "Microsoft.NETCore.App": {
+                    "type": "platform",
+                    "version": "1.0.0"
+                }
+            }
+        }
     }
-  }
 }

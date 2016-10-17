@@ -51,59 +51,89 @@ namespace NBitcoin
 		/// </summary>
 		SigPushOnly = (1U << 5),
 
-		// Require minimal encodings for all push operations (OP_0... OP_16, OP_1NEGATE where possible, direct
-		// pushes up to 75 bytes, OP_PUSHDATA up to 255 bytes, OP_PUSHDATA2 for anything larger). Evaluating
-		// any other push causes the script to fail (BIP62 rule 3).
-		// In addition, whenever a stack element is interpreted as a number, it must be of minimal length (BIP62 rule 4).
-		// (softfork safe)
+		/// <summary>
+		/// Require minimal encodings for all push operations (OP_0... OP_16, OP_1NEGATE where possible, direct
+		/// pushes up to 75 bytes, OP_PUSHDATA up to 255 bytes, OP_PUSHDATA2 for anything larger). Evaluating
+		/// any other push causes the script to fail (BIP62 rule 3).
+		/// In addition, whenever a stack element is interpreted as a number, it must be of minimal length (BIP62 rule 4).
+		/// (softfork safe)
+		/// </summary>
 		MinimalData = (1U << 6),
 
-		// Discourage use of NOPs reserved for upgrades (NOP1-10)
-		//
-		// Provided so that nodes can avoid accepting or mining transactions
-		// containing executed NOP's whose meaning may change after a soft-fork,
-		// thus rendering the script invalid; with this flag set executing
-		// discouraged NOPs fails the script. This verification flag will never be
-		// a mandatory flag applied to scripts in a block. NOPs that are not
-		// executed, e.g.  within an unexecuted IF ENDIF block, are *not* rejected.
+		/// <summary>
+		/// Discourage use of NOPs reserved for upgrades (NOP1-10)
+		///
+		/// Provided so that nodes can avoid accepting or mining transactions
+		/// containing executed NOP's whose meaning may change after a soft-fork,
+		/// thus rendering the script invalid; with this flag set executing
+		/// discouraged NOPs fails the script. This verification flag will never be
+		/// a mandatory flag applied to scripts in a block. NOPs that are not
+		/// executed, e.g.  within an unexecuted IF ENDIF block, are *not* rejected.
+		/// </summary>
 		DiscourageUpgradableNops = (1U << 7),
 
-		// Require that only a single stack element remains after evaluation. This changes the success criterion from
-		// "At least one stack element must remain, and when interpreted as a boolean, it must be true" to
-		// "Exactly one stack element must remain, and when interpreted as a boolean, it must be true".
-		// (softfork safe, BIP62 rule 6)
-		// Note: CLEANSTACK should never be used without P2SH.
+		/// <summary>
+		/// Require that only a single stack element remains after evaluation. This changes the success criterion from
+		/// "At least one stack element must remain, and when interpreted as a boolean, it must be true" to
+		/// "Exactly one stack element must remain, and when interpreted as a boolean, it must be true".
+		/// (softfork safe, BIP62 rule 6)
+		/// Note: CLEANSTACK should never be used without P2SH.
+		/// </summary>
 		CleanStack = (1U << 8),
 
-		// Verify CHECKLOCKTIMEVERIFY
-		//
-		// See BIP65 for details.
+		/// <summary>
+		/// Verify CHECKLOCKTIMEVERIFY
+		///
+		/// See BIP65 for details.
+		/// </summary>
 		CheckLockTimeVerify = (1U << 9),
-		// See BIP68 for details.
+
+		/// <summary>
+		/// See BIP68 for details.
+		/// </summary>
 		CheckSequenceVerify = (1U << 10),
 
-		// Support segregated witness
+		/// <summary>
+		/// Support segregated witness
+		/// </summary>
 		Witness = (1U << 11),
 
-		// Making v2-v16 witness program non-standard
+		/// <summary>
+		/// Making v2-v16 witness program non-standard
+		/// </summary>
 		DiscourageUpgradableWitnessProgram = (1U << 12),
 
-		/**
- * Mandatory script verification flags that all new blocks must comply with for
- * them to be valid. (but old blocks may not comply with) Currently just P2SH,
- * but in the future other flags may be added, such as a soft-fork to enforce
- * strict DER encoding.
- * 
- * Failing one of these tests may trigger a DoS ban - see CheckInputs() for
- * details.
- */
-		Mandatory = P2SH,
-		/**
- * Standard script verification flags that standard transactions will comply
- * with. However scripts violating these flags may still be present in valid
- * blocks and we must accept those blocks.
- */
+		/// <summary>
+		/// Segwit script only: Require the argument of OP_IF/NOTIF to be exactly 0x01 or empty vector
+		/// </summary>
+		MinimalIf = (1U << 13),
 
+		/// <summary>
+		/// Signature(s) must be empty vector if an CHECK(MULTI)SIG operation failed
+		/// </summary>
+		NullFail = (1U << 14),
+
+		/// <summary>
+		/// Public keys in segregated witness scripts must be compressed
+		/// </summary>
+		WitnessPubkeyType = (1U << 15),
+
+		/// <summary>
+		/// Mandatory script verification flags that all new blocks must comply with for
+		/// them to be valid. (but old blocks may not comply with) Currently just P2SH,
+		/// but in the future other flags may be added, such as a soft-fork to enforce
+		/// strict DER encoding.
+		/// 
+		/// Failing one of these tests may trigger a DoS ban - see CheckInputs() for
+		/// details.
+		/// </summary>
+		Mandatory = P2SH,
+
+		/// <summary>
+		/// Standard script verification flags that standard transactions will comply
+		/// with. However scripts violating these flags may still be present in valid
+		/// blocks and we must accept those blocks.
+		/// </summary>
 		Standard =
 			  Mandatory
 			| DerSig
@@ -117,9 +147,13 @@ namespace NBitcoin
 			| LowS
 			| Witness
 			| DiscourageUpgradableWitnessProgram
+			| NullFail
+			| MinimalIf
 	}
 
-	/** Signature hash types/flags */
+	/// <summary>
+	/// Signature hash types/flags
+	/// </summary>
 	public enum SigHash : uint
 	{
 		Undefined = 0,
@@ -141,7 +175,9 @@ namespace NBitcoin
 		AnyoneCanPay = 0x80,
 	};
 
-	/** Script opcodes */
+	/// <summary>
+	/// Script opcodes
+	/// </summary>
 	public enum OpcodeType : byte
 	{
 		// push value
@@ -526,8 +562,13 @@ namespace NBitcoin
 			return input.GetSignatureHash(coin, nHashType);
 		}
 
-		//https://en.bitcoin.it/wiki/OP_CHECKSIG
 		public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original)
+		{
+			return SignatureHash(scriptCode, txTo, nIn, nHashType, amount, sigversion, null);
+		}
+
+		//https://en.bitcoin.it/wiki/OP_CHECKSIG
+		public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
 			if(sigversion == HashVersion.Witness)
 			{
@@ -539,32 +580,20 @@ namespace NBitcoin
 
 				if((nHashType & SigHash.AnyoneCanPay) == 0)
 				{
-					BitcoinStream ss = CreateHashWriter(sigversion);
-					foreach(var input in txTo.Inputs)
-					{
-						ss.ReadWrite(input.PrevOut);
-					}
-					hashPrevouts = GetHash(ss); // TODO: cache this value for all signatures in a transaction
+					hashPrevouts = precomputedTransactionData == null ?
+								   GetHashPrevouts(txTo) : precomputedTransactionData.HashPrevouts;
 				}
 
 				if((nHashType & SigHash.AnyoneCanPay) == 0 && ((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
 				{
-					BitcoinStream ss = CreateHashWriter(sigversion);
-					foreach(var input in txTo.Inputs)
-					{
-						ss.ReadWrite((uint)input.Sequence);
-					}
-					hashSequence = GetHash(ss); // TODO: cache this value for all signatures in a transaction
+					hashSequence = precomputedTransactionData == null ?
+								   GetHashSequence(txTo) : precomputedTransactionData.HashSequence;
 				}
 
 				if(((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
 				{
-					BitcoinStream ss = CreateHashWriter(sigversion);
-					foreach(var txout in txTo.Outputs)
-					{
-						ss.ReadWrite(txout);
-					}
-					hashOutputs = GetHash(ss); // TODO: cache this value for all signatures in a transaction
+					hashOutputs = precomputedTransactionData == null ?
+									GetHashOutputs(txTo) : precomputedTransactionData.HashOutputs;
 				}
 				else if(((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < txTo.Outputs.Count)
 				{
@@ -677,6 +706,42 @@ namespace NBitcoin
 		{
 			var preimage = ((MemoryStream)stream.Inner).ToArrayEfficient();
 			return Hashes.Hash256(preimage);
+		}
+
+		internal static uint256 GetHashOutputs(Transaction txTo)
+		{
+			uint256 hashOutputs;
+			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+			foreach(var txout in txTo.Outputs)
+			{
+				ss.ReadWrite(txout);
+			}
+			hashOutputs = GetHash(ss);
+			return hashOutputs;
+		}
+
+		internal static uint256 GetHashSequence(Transaction txTo)
+		{
+			uint256 hashSequence;
+			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+			foreach(var input in txTo.Inputs)
+			{
+				ss.ReadWrite((uint)input.Sequence);
+			}
+			hashSequence = GetHash(ss);
+			return hashSequence;
+		}
+
+		internal static uint256 GetHashPrevouts(Transaction txTo)
+		{
+			uint256 hashPrevouts;
+			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
+			foreach(var input in txTo.Inputs)
+			{
+				ss.ReadWrite(input.PrevOut);
+			}
+			hashPrevouts = GetHash(ss);
+			return hashPrevouts;
 		}
 
 		private static BitcoinStream CreateHashWriter(HashVersion version)

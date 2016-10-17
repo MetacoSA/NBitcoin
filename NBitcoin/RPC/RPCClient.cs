@@ -923,7 +923,7 @@ namespace NBitcoin.RPC
 		{
 			if(string.IsNullOrEmpty(path))
 				throw new ArgumentNullException("path");
-			await SendCommandAsync("backupwallet", path);
+			await SendCommandAsync("backupwallet", path).ConfigureAwait(false);
 		}
 
 		public IEnumerable<BitcoinSecret> ListSecrets()
