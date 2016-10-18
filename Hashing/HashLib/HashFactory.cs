@@ -647,7 +647,7 @@ namespace HashLib
                     return new HashLib.Crypto.SHA3.SHAvite3_512();
                 }
 
-                public static IHash CreateSHAvite3_512Custom()
+                public static IHash CreateSHAvite3_512_Custom()
                 {
                     return new HashLib.Crypto.SHA3.Custom.SHAvite3_512();
                 }
@@ -725,7 +725,7 @@ namespace HashLib
                 {
                     return new HashLib.Crypto.SHA3.Skein512();
                 }
-                public static IHash CreateSkein512Custom()
+                public static IHash CreateSkein512_Custom()
                 {
                     return new HashLib.Crypto.SHA3.Custom.Skein512();
                 }

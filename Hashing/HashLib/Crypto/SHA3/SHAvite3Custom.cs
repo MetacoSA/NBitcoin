@@ -2,23 +2,25 @@ using System;
 
 namespace HashLib.Crypto.SHA3.Custom
 {
-    // a customized Skein implementation to fit the StratisX implementation
+    // a customized SHAvite implementation to fit the StratisX implementation
+    // only the 512 and 384 hash zizes are supported as only that is used by stratis.
+    // TODO: this codes needs to be tested against the StratisX blockchin data
 
-    internal class SHAvite3_224 : SHAvite3_256Base
-    {
-        public SHAvite3_224()
-            : base(HashLib.HashSize.HashSize224)
-        {
-        }
-    }
+    //internal class SHAvite3_224 : SHAvite3_256Base
+    //{
+    //    public SHAvite3_224()
+    //        : base(HashLib.HashSize.HashSize224)
+    //    {
+    //    }
+    //}
 
-    internal class SHAvite3_256 : SHAvite3_256Base
-    {
-        public SHAvite3_256()
-            : base(HashLib.HashSize.HashSize256)
-        {
-        }
-    }
+    //internal class SHAvite3_256 : SHAvite3_256Base
+    //{
+    //    public SHAvite3_256()
+    //        : base(HashLib.HashSize.HashSize256)
+    //    {
+    //    }
+    //}
 
     internal class SHAvite3_384 : SHAvite3_512Base
     {
@@ -512,576 +514,576 @@ namespace HashLib.Crypto.SHA3.Custom
         }
     };
 
-    internal abstract class SHAvite3_256Base : SHAvite3Base
-    {
-        #region Consts
+    //internal abstract class SHAvite3_256Base : SHAvite3Base
+    //{
+    //    #region Consts
 
-        private static readonly uint[] IV_224 =  
-        {
-            0xC4C67795, 0xC0B1817F, 0xEAD88924, 0x1ABB1BB0,
-            0xE0C29152, 0xBDE046BA, 0xAEEECF99, 0x58D509D8
-        };
+    //    private static readonly uint[] IV_224 =  
+    //    {
+    //        0xC4C67795, 0xC0B1817F, 0xEAD88924, 0x1ABB1BB0,
+    //        0xE0C29152, 0xBDE046BA, 0xAEEECF99, 0x58D509D8
+    //    };
 
-        private static readonly uint[] IV_256 =  
-        {
-            0x3EECF551, 0xBF10819B, 0xE6DC8559, 0xF3E23FD5,
-            0x431AEC73, 0x79E3F731, 0x98325F05, 0xA92A31F1
-        };
+    //    private static readonly uint[] IV_256 =  
+    //    {
+    //        0x3EECF551, 0xBF10819B, 0xE6DC8559, 0xF3E23FD5,
+    //        0x431AEC73, 0x79E3F731, 0x98325F05, 0xA92A31F1
+    //    };
 
-        #endregion
+    //    #endregion
 
-        protected override void TransformBlock(byte[] a_data, int a_index)
-        {
-            uint x0, x1, x2, x3, y0, y1, y2, y3;
+    //    protected override void TransformBlock(byte[] a_data, int a_index)
+    //    {
+    //        uint x0, x1, x2, x3, y0, y1, y2, y3;
 
-            uint[] rk = new uint[144];
-            Converters.ConvertBytesToUInts(a_data, a_index, 64, rk);
+    //        uint[] rk = new uint[144];
+    //        Converters.ConvertBytesToUInts(a_data, a_index, 64, rk);
 
-            uint cnt0 = (uint)(m_processed_bytes << 3);
-            uint cnt1 = (uint)(m_processed_bytes >> 29);
+    //        uint cnt0 = (uint)(m_processed_bytes << 3);
+    //        uint cnt1 = (uint)(m_processed_bytes >> 29);
 
-            uint state0 = m_state[0];
-            uint state1 = m_state[1];
-            uint state2 = m_state[2];
-            uint state3 = m_state[3];
-            uint state4 = m_state[4];
-            uint state5 = m_state[5];
-            uint state6 = m_state[6];
-            uint state7 = m_state[7];
+    //        uint state0 = m_state[0];
+    //        uint state1 = m_state[1];
+    //        uint state2 = m_state[2];
+    //        uint state3 = m_state[3];
+    //        uint state4 = m_state[4];
+    //        uint state5 = m_state[5];
+    //        uint state6 = m_state[6];
+    //        uint state7 = m_state[7];
 
-            x0 = rk[1];
-            x1 = rk[2];
-            x2 = rk[3];
-            x3 = rk[0];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[16] = y0 ^ rk[12] ^ cnt0;
-            rk[17] = y1 ^ rk[13] ^ ~cnt1;
-            rk[18] = y2 ^ rk[14];
-            rk[19] = y3 ^ rk[15];
-            x0 = rk[5];
-            x1 = rk[6];
-            x2 = rk[7];
-            x3 = rk[4];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[20] = y0 ^ rk[16];
-            rk[21] = y1 ^ rk[17];
-            rk[22] = y2 ^ rk[18];
-            rk[23] = y3 ^ rk[19];
-            x0 = rk[9];
-            x1 = rk[10];
-            x2 = rk[11];
-            x3 = rk[8];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[24] = y0 ^ rk[20];
-            rk[25] = y1 ^ rk[21];
-            rk[26] = y2 ^ rk[22];
-            rk[27] = y3 ^ rk[23];
-            x0 = rk[13];
-            x1 = rk[14];
-            x2 = rk[15];
-            x3 = rk[12];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[28] = y0 ^ rk[24];
-            rk[29] = y1 ^ rk[25];
-            rk[30] = y2 ^ rk[26];
-            rk[31] = y3 ^ rk[27];
+    //        x0 = rk[1];
+    //        x1 = rk[2];
+    //        x2 = rk[3];
+    //        x3 = rk[0];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[16] = y0 ^ rk[12] ^ cnt0;
+    //        rk[17] = y1 ^ rk[13] ^ ~cnt1;
+    //        rk[18] = y2 ^ rk[14];
+    //        rk[19] = y3 ^ rk[15];
+    //        x0 = rk[5];
+    //        x1 = rk[6];
+    //        x2 = rk[7];
+    //        x3 = rk[4];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[20] = y0 ^ rk[16];
+    //        rk[21] = y1 ^ rk[17];
+    //        rk[22] = y2 ^ rk[18];
+    //        rk[23] = y3 ^ rk[19];
+    //        x0 = rk[9];
+    //        x1 = rk[10];
+    //        x2 = rk[11];
+    //        x3 = rk[8];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[24] = y0 ^ rk[20];
+    //        rk[25] = y1 ^ rk[21];
+    //        rk[26] = y2 ^ rk[22];
+    //        rk[27] = y3 ^ rk[23];
+    //        x0 = rk[13];
+    //        x1 = rk[14];
+    //        x2 = rk[15];
+    //        x3 = rk[12];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[28] = y0 ^ rk[24];
+    //        rk[29] = y1 ^ rk[25];
+    //        rk[30] = y2 ^ rk[26];
+    //        rk[31] = y3 ^ rk[27];
 
-            y0 = state4 ^ rk[0];
-            y1 = state5 ^ rk[0 + 1];
-            y2 = state6 ^ rk[0 + 2];
-            y3 = state7 ^ rk[0 + 3];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[0 + 4];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[0 + 5];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[0 + 6];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[0 + 7];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[0 + 8];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[0 + 9];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[0 + 10];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[0 + 11];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state0 ^= x0;
-            state1 ^= x1;
-            state2 ^= x2;
-            state3 ^= x3;
-            y0 = state0 ^ rk[0 + 12];
-            y1 = state1 ^ rk[0 + 13];
-            y2 = state2 ^ rk[0 + 14];
-            y3 = state3 ^ rk[0 + 15];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[0 + 16];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[0 + 17];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[0 + 18];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[0 + 19];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[0 + 20];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[0 + 21];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[0 + 22];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[0 + 23];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state4 ^= x0;
-            state5 ^= x1;
-            state6 ^= x2;
-            state7 ^= x3;
+    //        y0 = state4 ^ rk[0];
+    //        y1 = state5 ^ rk[0 + 1];
+    //        y2 = state6 ^ rk[0 + 2];
+    //        y3 = state7 ^ rk[0 + 3];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[0 + 4];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[0 + 5];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[0 + 6];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[0 + 7];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[0 + 8];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[0 + 9];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[0 + 10];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[0 + 11];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state0 ^= x0;
+    //        state1 ^= x1;
+    //        state2 ^= x2;
+    //        state3 ^= x3;
+    //        y0 = state0 ^ rk[0 + 12];
+    //        y1 = state1 ^ rk[0 + 13];
+    //        y2 = state2 ^ rk[0 + 14];
+    //        y3 = state3 ^ rk[0 + 15];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[0 + 16];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[0 + 17];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[0 + 18];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[0 + 19];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[0 + 20];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[0 + 21];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[0 + 22];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[0 + 23];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state4 ^= x0;
+    //        state5 ^= x1;
+    //        state6 ^= x2;
+    //        state7 ^= x3;
 
-            for (int i = 0; i < 16; i++)
-                rk[32 + i] = rk[i + 32 - 16] ^ rk[i + 32 - 3];
+    //        for (int i = 0; i < 16; i++)
+    //            rk[32 + i] = rk[i + 32 - 16] ^ rk[i + 32 - 3];
 
-            y0 = state4 ^ rk[24];
-            y1 = state5 ^ rk[24 + 1];
-            y2 = state6 ^ rk[24 + 2];
-            y3 = state7 ^ rk[24 + 3];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[24 + 4];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[24 + 5];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[24 + 6];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[24 + 7];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[24 + 8];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[24 + 9];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[24 + 10];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[24 + 11];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state0 ^= x0;
-            state1 ^= x1;
-            state2 ^= x2;
-            state3 ^= x3;
-            y0 = state0 ^ rk[24 + 12];
-            y1 = state1 ^ rk[24 + 13];
-            y2 = state2 ^ rk[24 + 14];
-            y3 = state3 ^ rk[24 + 15];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[24 + 16];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[24 + 17];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[24 + 18];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[24 + 19];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[24 + 20];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[24 + 21];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[24 + 22];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[24 + 23];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state4 ^= x0;
-            state5 ^= x1;
-            state6 ^= x2;
-            state7 ^= x3;
+    //        y0 = state4 ^ rk[24];
+    //        y1 = state5 ^ rk[24 + 1];
+    //        y2 = state6 ^ rk[24 + 2];
+    //        y3 = state7 ^ rk[24 + 3];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[24 + 4];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[24 + 5];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[24 + 6];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[24 + 7];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[24 + 8];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[24 + 9];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[24 + 10];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[24 + 11];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state0 ^= x0;
+    //        state1 ^= x1;
+    //        state2 ^= x2;
+    //        state3 ^= x3;
+    //        y0 = state0 ^ rk[24 + 12];
+    //        y1 = state1 ^ rk[24 + 13];
+    //        y2 = state2 ^ rk[24 + 14];
+    //        y3 = state3 ^ rk[24 + 15];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[24 + 16];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[24 + 17];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[24 + 18];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[24 + 19];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[24 + 20];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[24 + 21];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[24 + 22];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[24 + 23];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state4 ^= x0;
+    //        state5 ^= x1;
+    //        state6 ^= x2;
+    //        state7 ^= x3;
 
-            x0 = rk[33];
-            x1 = rk[34];
-            x2 = rk[35];
-            x3 = rk[32];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[48] = y0 ^ rk[44];
-            rk[49] = y1 ^ rk[45];
-            rk[50] = y2 ^ rk[46];
-            rk[51] = y3 ^ rk[47];
-            x0 = rk[37];
-            x1 = rk[38];
-            x2 = rk[39];
-            x3 = rk[36];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[52] = y0 ^ rk[48];
-            rk[53] = y1 ^ rk[49];
-            rk[54] = y2 ^ rk[50];
-            rk[55] = y3 ^ rk[51];
-            x0 = rk[41];
-            x1 = rk[42];
-            x2 = rk[43];
-            x3 = rk[40];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[56] = y0 ^ rk[52];
-            rk[57] = y1 ^ rk[53] ^ cnt1;
-            rk[58] = y2 ^ rk[54] ^ ~cnt0;
-            rk[59] = y3 ^ rk[55];
-            x0 = rk[45];
-            x1 = rk[46];
-            x2 = rk[47];
-            x3 = rk[44];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[60] = y0 ^ rk[56];
-            rk[61] = y1 ^ rk[57];
-            rk[62] = y2 ^ rk[58];
-            rk[63] = y3 ^ rk[59];
+    //        x0 = rk[33];
+    //        x1 = rk[34];
+    //        x2 = rk[35];
+    //        x3 = rk[32];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[48] = y0 ^ rk[44];
+    //        rk[49] = y1 ^ rk[45];
+    //        rk[50] = y2 ^ rk[46];
+    //        rk[51] = y3 ^ rk[47];
+    //        x0 = rk[37];
+    //        x1 = rk[38];
+    //        x2 = rk[39];
+    //        x3 = rk[36];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[52] = y0 ^ rk[48];
+    //        rk[53] = y1 ^ rk[49];
+    //        rk[54] = y2 ^ rk[50];
+    //        rk[55] = y3 ^ rk[51];
+    //        x0 = rk[41];
+    //        x1 = rk[42];
+    //        x2 = rk[43];
+    //        x3 = rk[40];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[56] = y0 ^ rk[52];
+    //        rk[57] = y1 ^ rk[53] ^ cnt1;
+    //        rk[58] = y2 ^ rk[54] ^ ~cnt0;
+    //        rk[59] = y3 ^ rk[55];
+    //        x0 = rk[45];
+    //        x1 = rk[46];
+    //        x2 = rk[47];
+    //        x3 = rk[44];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[60] = y0 ^ rk[56];
+    //        rk[61] = y1 ^ rk[57];
+    //        rk[62] = y2 ^ rk[58];
+    //        rk[63] = y3 ^ rk[59];
 
-            for (int i = 0; i < 16; i++)
-                rk[64 + i] = rk[i + 64 - 16] ^ rk[i + 64 - 3];
+    //        for (int i = 0; i < 16; i++)
+    //            rk[64 + i] = rk[i + 64 - 16] ^ rk[i + 64 - 3];
 
-            y0 = state4 ^ rk[48];
-            y1 = state5 ^ rk[48 + 1];
-            y2 = state6 ^ rk[48 + 2];
-            y3 = state7 ^ rk[48 + 3];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[48 + 4];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[48 + 5];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[48 + 6];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[48 + 7];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[48 + 8];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[48 + 9];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[48 + 10];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[48 + 11];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state0 ^= x0;
-            state1 ^= x1;
-            state2 ^= x2;
-            state3 ^= x3;
-            y0 = state0 ^ rk[48 + 12];
-            y1 = state1 ^ rk[48 + 13];
-            y2 = state2 ^ rk[48 + 14];
-            y3 = state3 ^ rk[48 + 15];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[48 + 16];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[48 + 17];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[48 + 18];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[48 + 19];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[48 + 20];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[48 + 21];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[48 + 22];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[48 + 23];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state4 ^= x0;
-            state5 ^= x1;
-            state6 ^= x2;
-            state7 ^= x3;
+    //        y0 = state4 ^ rk[48];
+    //        y1 = state5 ^ rk[48 + 1];
+    //        y2 = state6 ^ rk[48 + 2];
+    //        y3 = state7 ^ rk[48 + 3];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[48 + 4];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[48 + 5];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[48 + 6];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[48 + 7];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[48 + 8];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[48 + 9];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[48 + 10];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[48 + 11];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state0 ^= x0;
+    //        state1 ^= x1;
+    //        state2 ^= x2;
+    //        state3 ^= x3;
+    //        y0 = state0 ^ rk[48 + 12];
+    //        y1 = state1 ^ rk[48 + 13];
+    //        y2 = state2 ^ rk[48 + 14];
+    //        y3 = state3 ^ rk[48 + 15];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[48 + 16];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[48 + 17];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[48 + 18];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[48 + 19];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[48 + 20];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[48 + 21];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[48 + 22];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[48 + 23];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state4 ^= x0;
+    //        state5 ^= x1;
+    //        state6 ^= x2;
+    //        state7 ^= x3;
 
-            x0 = rk[65];
-            x1 = rk[66];
-            x2 = rk[67];
-            x3 = rk[64];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[80] = y0 ^ rk[76];
-            rk[81] = y1 ^ rk[77];
-            rk[82] = y2 ^ rk[78];
-            rk[83] = y3 ^ rk[79];
-            x0 = rk[69];
-            x1 = rk[70];
-            x2 = rk[71];
-            x3 = rk[68];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[84] = y0 ^ rk[80];
-            rk[85] = y1 ^ rk[81];
-            rk[86] = y2 ^ rk[82] ^ cnt1;
-            rk[87] = y3 ^ rk[83] ^ ~cnt0;
-            x0 = rk[73];
-            x1 = rk[74];
-            x2 = rk[75];
-            x3 = rk[72];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[88] = y0 ^ rk[84];
-            rk[89] = y1 ^ rk[85];
-            rk[90] = y2 ^ rk[86];
-            rk[91] = y3 ^ rk[87];
-            x0 = rk[77];
-            x1 = rk[78];
-            x2 = rk[79];
-            x3 = rk[76];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[92] = y0 ^ rk[88];
-            rk[93] = y1 ^ rk[89];
-            rk[94] = y2 ^ rk[90];
-            rk[95] = y3 ^ rk[91];
+    //        x0 = rk[65];
+    //        x1 = rk[66];
+    //        x2 = rk[67];
+    //        x3 = rk[64];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[80] = y0 ^ rk[76];
+    //        rk[81] = y1 ^ rk[77];
+    //        rk[82] = y2 ^ rk[78];
+    //        rk[83] = y3 ^ rk[79];
+    //        x0 = rk[69];
+    //        x1 = rk[70];
+    //        x2 = rk[71];
+    //        x3 = rk[68];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[84] = y0 ^ rk[80];
+    //        rk[85] = y1 ^ rk[81];
+    //        rk[86] = y2 ^ rk[82] ^ cnt1;
+    //        rk[87] = y3 ^ rk[83] ^ ~cnt0;
+    //        x0 = rk[73];
+    //        x1 = rk[74];
+    //        x2 = rk[75];
+    //        x3 = rk[72];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[88] = y0 ^ rk[84];
+    //        rk[89] = y1 ^ rk[85];
+    //        rk[90] = y2 ^ rk[86];
+    //        rk[91] = y3 ^ rk[87];
+    //        x0 = rk[77];
+    //        x1 = rk[78];
+    //        x2 = rk[79];
+    //        x3 = rk[76];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[92] = y0 ^ rk[88];
+    //        rk[93] = y1 ^ rk[89];
+    //        rk[94] = y2 ^ rk[90];
+    //        rk[95] = y3 ^ rk[91];
 
-            y0 = state4 ^ rk[72];
-            y1 = state5 ^ rk[72 + 1];
-            y2 = state6 ^ rk[72 + 2];
-            y3 = state7 ^ rk[72 + 3];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[72 + 4];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[72 + 5];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[72 + 6];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[72 + 7];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[72 + 8];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[72 + 9];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[72 + 10];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[72 + 11];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state0 ^= x0;
-            state1 ^= x1;
-            state2 ^= x2;
-            state3 ^= x3;
-            y0 = state0 ^ rk[72 + 12];
-            y1 = state1 ^ rk[72 + 13];
-            y2 = state2 ^ rk[72 + 14];
-            y3 = state3 ^ rk[72 + 15];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[72 + 16];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[72 + 17];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[72 + 18];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[72 + 19];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[72 + 20];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[72 + 21];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[72 + 22];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[72 + 23];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state4 ^= x0;
-            state5 ^= x1;
-            state6 ^= x2;
-            state7 ^= x3;
+    //        y0 = state4 ^ rk[72];
+    //        y1 = state5 ^ rk[72 + 1];
+    //        y2 = state6 ^ rk[72 + 2];
+    //        y3 = state7 ^ rk[72 + 3];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[72 + 4];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[72 + 5];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[72 + 6];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[72 + 7];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[72 + 8];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[72 + 9];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[72 + 10];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[72 + 11];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state0 ^= x0;
+    //        state1 ^= x1;
+    //        state2 ^= x2;
+    //        state3 ^= x3;
+    //        y0 = state0 ^ rk[72 + 12];
+    //        y1 = state1 ^ rk[72 + 13];
+    //        y2 = state2 ^ rk[72 + 14];
+    //        y3 = state3 ^ rk[72 + 15];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[72 + 16];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[72 + 17];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[72 + 18];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[72 + 19];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[72 + 20];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[72 + 21];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[72 + 22];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[72 + 23];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state4 ^= x0;
+    //        state5 ^= x1;
+    //        state6 ^= x2;
+    //        state7 ^= x3;
 
-            for (int i = 0; i < 16; i++)
-                rk[96 + i] = rk[i + 96 - 16] ^ rk[i + 96 - 3];
+    //        for (int i = 0; i < 16; i++)
+    //            rk[96 + i] = rk[i + 96 - 16] ^ rk[i + 96 - 3];
 
-            x0 = rk[97];
-            x1 = rk[98];
-            x2 = rk[99];
-            x3 = rk[96];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[112] = y0 ^ rk[108];
-            rk[113] = y1 ^ rk[109];
-            rk[114] = y2 ^ rk[110];
-            rk[115] = y3 ^ rk[111];
-            x0 = rk[101];
-            x1 = rk[102];
-            x2 = rk[103];
-            x3 = rk[100];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[116] = y0 ^ rk[112];
-            rk[117] = y1 ^ rk[113];
-            rk[118] = y2 ^ rk[114];
-            rk[119] = y3 ^ rk[115];
-            x0 = rk[105];
-            x1 = rk[106];
-            x2 = rk[107];
-            x3 = rk[104];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[120] = y0 ^ rk[116];
-            rk[121] = y1 ^ rk[117];
-            rk[122] = y2 ^ rk[118];
-            rk[123] = y3 ^ rk[119];
-            x0 = rk[109];
-            x1 = rk[110];
-            x2 = rk[111];
-            x3 = rk[108];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-            rk[124] = y0 ^ rk[120] ^ cnt0;
-            rk[125] = y1 ^ rk[121];
-            rk[126] = y2 ^ rk[122];
-            rk[127] = y3 ^ rk[123] ^ ~cnt1;
+    //        x0 = rk[97];
+    //        x1 = rk[98];
+    //        x2 = rk[99];
+    //        x3 = rk[96];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[112] = y0 ^ rk[108];
+    //        rk[113] = y1 ^ rk[109];
+    //        rk[114] = y2 ^ rk[110];
+    //        rk[115] = y3 ^ rk[111];
+    //        x0 = rk[101];
+    //        x1 = rk[102];
+    //        x2 = rk[103];
+    //        x3 = rk[100];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[116] = y0 ^ rk[112];
+    //        rk[117] = y1 ^ rk[113];
+    //        rk[118] = y2 ^ rk[114];
+    //        rk[119] = y3 ^ rk[115];
+    //        x0 = rk[105];
+    //        x1 = rk[106];
+    //        x2 = rk[107];
+    //        x3 = rk[104];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[120] = y0 ^ rk[116];
+    //        rk[121] = y1 ^ rk[117];
+    //        rk[122] = y2 ^ rk[118];
+    //        rk[123] = y3 ^ rk[119];
+    //        x0 = rk[109];
+    //        x1 = rk[110];
+    //        x2 = rk[111];
+    //        x3 = rk[108];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
+    //        rk[124] = y0 ^ rk[120] ^ cnt0;
+    //        rk[125] = y1 ^ rk[121];
+    //        rk[126] = y2 ^ rk[122];
+    //        rk[127] = y3 ^ rk[123] ^ ~cnt1;
 
-            y0 = state4 ^ rk[96];
-            y1 = state5 ^ rk[96 + 1];
-            y2 = state6 ^ rk[96 + 2];
-            y3 = state7 ^ rk[96 + 3];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[96 + 4];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[96 + 5];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[96 + 6];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[96 + 7];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[96 + 8];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[96 + 9];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[96 + 10];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[96 + 11];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state0 ^= x0;
-            state1 ^= x1;
-            state2 ^= x2;
-            state3 ^= x3;
-            y0 = state0 ^ rk[96 + 12];
-            y1 = state1 ^ rk[96 + 13];
-            y2 = state2 ^ rk[96 + 14];
-            y3 = state3 ^ rk[96 + 15];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[96 + 16];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[96 + 17];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[96 + 18];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[96 + 19];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[96 + 20];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[96 + 21];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[96 + 22];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[96 + 23];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state4 ^= x0;
-            state5 ^= x1;
-            state6 ^= x2;
-            state7 ^= x3;
+    //        y0 = state4 ^ rk[96];
+    //        y1 = state5 ^ rk[96 + 1];
+    //        y2 = state6 ^ rk[96 + 2];
+    //        y3 = state7 ^ rk[96 + 3];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[96 + 4];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[96 + 5];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[96 + 6];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[96 + 7];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[96 + 8];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[96 + 9];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[96 + 10];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[96 + 11];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state0 ^= x0;
+    //        state1 ^= x1;
+    //        state2 ^= x2;
+    //        state3 ^= x3;
+    //        y0 = state0 ^ rk[96 + 12];
+    //        y1 = state1 ^ rk[96 + 13];
+    //        y2 = state2 ^ rk[96 + 14];
+    //        y3 = state3 ^ rk[96 + 15];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[96 + 16];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[96 + 17];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[96 + 18];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[96 + 19];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[96 + 20];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[96 + 21];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[96 + 22];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[96 + 23];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state4 ^= x0;
+    //        state5 ^= x1;
+    //        state6 ^= x2;
+    //        state7 ^= x3;
 
-            for (int i = 0; i < 16; i++)
-                rk[128 + i] = rk[i + 128 - 16] ^ rk[i + 128 - 3];
+    //        for (int i = 0; i < 16; i++)
+    //            rk[128 + i] = rk[i + 128 - 16] ^ rk[i + 128 - 3];
 
-            y0 = state4 ^ rk[120];
-            y1 = state5 ^ rk[120 + 1];
-            y2 = state6 ^ rk[120 + 2];
-            y3 = state7 ^ rk[120 + 3];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[120 + 4];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[120 + 5];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[120 + 6];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[120 + 7];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[120 + 8];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[120 + 9];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[120 + 10];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[120 + 11];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state0 ^= x0;
-            state1 ^= x1;
-            state2 ^= x2;
-            state3 ^= x3;
-            y0 = state0 ^ rk[120 + 12];
-            y1 = state1 ^ rk[120 + 13];
-            y2 = state2 ^ rk[120 + 14];
-            y3 = state3 ^ rk[120 + 15];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[120 + 16];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[120 + 17];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[120 + 18];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[120 + 19];
-            y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[120 + 20];
-            y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[120 + 21];
-            y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[120 + 22];
-            y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[120 + 23];
-            x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
-            x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
-            x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
-            x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
-            state4 ^= x0;
-            state5 ^= x1;
-            state6 ^= x2;
-            state7 ^= x3;
+    //        y0 = state4 ^ rk[120];
+    //        y1 = state5 ^ rk[120 + 1];
+    //        y2 = state6 ^ rk[120 + 2];
+    //        y3 = state7 ^ rk[120 + 3];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[120 + 4];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[120 + 5];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[120 + 6];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[120 + 7];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[120 + 8];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[120 + 9];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[120 + 10];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[120 + 11];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state0 ^= x0;
+    //        state1 ^= x1;
+    //        state2 ^= x2;
+    //        state3 ^= x3;
+    //        y0 = state0 ^ rk[120 + 12];
+    //        y1 = state1 ^ rk[120 + 13];
+    //        y2 = state2 ^ rk[120 + 14];
+    //        y3 = state3 ^ rk[120 + 15];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff] ^ rk[120 + 16];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff] ^ rk[120 + 17];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff] ^ rk[120 + 18];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff] ^ rk[120 + 19];
+    //        y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff] ^ rk[120 + 20];
+    //        y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff] ^ rk[120 + 21];
+    //        y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff] ^ rk[120 + 22];
+    //        y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff] ^ rk[120 + 23];
+    //        x0 = Table0[y0 >> 24] ^ Table1[(y1 >> 16) & 0xff] ^ Table2[(y2 >> 8) & 0xff] ^ Table3[y3 & 0xff];
+    //        x1 = Table0[y1 >> 24] ^ Table1[(y2 >> 16) & 0xff] ^ Table2[(y3 >> 8) & 0xff] ^ Table3[y0 & 0xff];
+    //        x2 = Table0[y2 >> 24] ^ Table1[(y3 >> 16) & 0xff] ^ Table2[(y0 >> 8) & 0xff] ^ Table3[y1 & 0xff];
+    //        x3 = Table0[y3 >> 24] ^ Table1[(y0 >> 16) & 0xff] ^ Table2[(y1 >> 8) & 0xff] ^ Table3[y2 & 0xff];
+    //        state4 ^= x0;
+    //        state5 ^= x1;
+    //        state6 ^= x2;
+    //        state7 ^= x3;
 
-            m_state[0] ^= state0;
-            m_state[1] ^= state1;
-            m_state[2] ^= state2;
-            m_state[3] ^= state3;
-            m_state[4] ^= state4;
-            m_state[5] ^= state5;
-            m_state[6] ^= state6;
-            m_state[7] ^= state7;
-        }
+    //        m_state[0] ^= state0;
+    //        m_state[1] ^= state1;
+    //        m_state[2] ^= state2;
+    //        m_state[3] ^= state3;
+    //        m_state[4] ^= state4;
+    //        m_state[5] ^= state5;
+    //        m_state[6] ^= state6;
+    //        m_state[7] ^= state7;
+    //    }
 
-        protected override void Finish()
-        {
-            byte[] pad = new byte[64];
+    //    protected override void Finish()
+    //    {
+    //        byte[] pad = new byte[64];
 
-            int buf_pos = m_buffer.Pos;
+    //        int buf_pos = m_buffer.Pos;
 
-            Array.Copy(m_buffer.GetBytesZeroPadded(), 0, pad, 0, buf_pos);
+    //        Array.Copy(m_buffer.GetBytesZeroPadded(), 0, pad, 0, buf_pos);
 
-            pad[buf_pos] = 0x80;
+    //        pad[buf_pos] = 0x80;
 
-            if (buf_pos >= BlockSize - 10)
-            {
-                TransformBlock(pad, 0);
+    //        if (buf_pos >= BlockSize - 10)
+    //        {
+    //            TransformBlock(pad, 0);
 
-                pad.Clear();
+    //            pad.Clear();
 
-                Converters.ConvertULongToBytes(m_processed_bytes * 8, pad, BlockSize - 10);
+    //            Converters.ConvertULongToBytes(m_processed_bytes * 8, pad, BlockSize - 10);
 
-                int hashsizebits = HashSize * 8;
-                pad[BlockSize - 2] = (byte)hashsizebits;
-                pad[BlockSize - 1] = (byte)(hashsizebits >> 8);
+    //            int hashsizebits = HashSize * 8;
+    //            pad[BlockSize - 2] = (byte)hashsizebits;
+    //            pad[BlockSize - 1] = (byte)(hashsizebits >> 8);
 
-                m_processed_bytes = 0;
-                TransformBlock(pad, 0);
-            }
-            else
-            {
-                ulong bits = m_processed_bytes * 8;
-                int padindex = BlockSize - 10;
+    //            m_processed_bytes = 0;
+    //            TransformBlock(pad, 0);
+    //        }
+    //        else
+    //        {
+    //            ulong bits = m_processed_bytes * 8;
+    //            int padindex = BlockSize - 10;
 
-                pad[padindex++] = (byte)bits;
-                pad[padindex++] = (byte)(bits >> 8);
-                pad[padindex++] = (byte)(bits >> 16);
-                pad[padindex++] = (byte)(bits >> 24);
-                pad[padindex++] = (byte)(bits >> 32);
-                pad[padindex++] = (byte)(bits >> 40);
-                pad[padindex++] = (byte)(bits >> 48);
-                pad[padindex++] = (byte)(bits >> 56);
+    //            pad[padindex++] = (byte)bits;
+    //            pad[padindex++] = (byte)(bits >> 8);
+    //            pad[padindex++] = (byte)(bits >> 16);
+    //            pad[padindex++] = (byte)(bits >> 24);
+    //            pad[padindex++] = (byte)(bits >> 32);
+    //            pad[padindex++] = (byte)(bits >> 40);
+    //            pad[padindex++] = (byte)(bits >> 48);
+    //            pad[padindex++] = (byte)(bits >> 56);
 
-                int hashsizebits = HashSize * 8;
-                pad[padindex++] = (byte)hashsizebits;
-                pad[padindex] = (byte)(hashsizebits >> 8);
+    //            int hashsizebits = HashSize * 8;
+    //            pad[padindex++] = (byte)hashsizebits;
+    //            pad[padindex] = (byte)(hashsizebits >> 8);
 
-                if (buf_pos == 0)
-                {
-                    m_processed_bytes = 0;
-                    TransformBlock(pad, 0);
-                }
-                else
-                    TransformBlock(pad, 0);
-            }
-        }
+    //            if (buf_pos == 0)
+    //            {
+    //                m_processed_bytes = 0;
+    //                TransformBlock(pad, 0);
+    //            }
+    //            else
+    //                TransformBlock(pad, 0);
+    //        }
+    //    }
 
-        public SHAvite3_256Base(HashLib.HashSize a_hash_size)
-            : base(a_hash_size, 64)
-        {
-            Initialize();
-        }
+    //    public SHAvite3_256Base(HashLib.HashSize a_hash_size)
+    //        : base(a_hash_size, 64)
+    //    {
+    //        Initialize();
+    //    }
 
-        public override void Initialize()
-        {
-            if (HashSize == 28)
-                Array.Copy(IV_224, 0, m_state, 0, 8);
-            else
-                Array.Copy(IV_256, 0, m_state, 0, 8);
+    //    public override void Initialize()
+    //    {
+    //        if (HashSize == 28)
+    //            Array.Copy(IV_224, 0, m_state, 0, 8);
+    //        else
+    //            Array.Copy(IV_256, 0, m_state, 0, 8);
 
-            base.Initialize();
-        }
-    };
+    //        base.Initialize();
+    //    }
+    //};
 
     internal abstract class SHAvite3_512Base : SHAvite3Base
     {
@@ -1089,10 +1091,15 @@ namespace HashLib.Crypto.SHA3.Custom
 
         private static readonly uint[] IV_384 =
         {
-            0x71F48510, 0xA903A8AC, 0xFE3216DD, 0x0B2D2AD4,
-            0x6672900A, 0x41032819, 0x15A7D780, 0xB3CAB8D9,
-            0x34EF4711, 0xDE019FE8, 0x4D674DC4, 0xE056D96B,
-            0xA35C016B, 0xDD903BA7, 0x8C1B09B4, 0x2C3E9F25
+            //0x71F48510, 0xA903A8AC, 0xFE3216DD, 0x0B2D2AD4,
+            //0x6672900A, 0x41032819, 0x15A7D780, 0xB3CAB8D9,
+            //0x34EF4711, 0xDE019FE8, 0x4D674DC4, 0xE056D96B,
+            //0xA35C016B, 0xDD903BA7, 0x8C1B09B4, 0x2C3E9F25
+
+            0x83DF1545, 0xF9AAEC13, 0xF4803CB0, 0x11FE1F47,
+            0xDA6CD269, 0x4F53FCD7, 0x950529A2, 0x97908147,
+            0xB0A4D7AF, 0x2B9132BF, 0x226E607D, 0x3C0F8D7C,
+            0x487B3F0F, 0x04363E22, 0x0155C99C, 0xEC2E20D3
         };
 
         private static readonly uint[] IV_512 = 
@@ -1110,7 +1117,638 @@ namespace HashLib.Crypto.SHA3.Custom
 
         #endregion
 
+        private static void AES_ROUND_NOKEY(ref uint x0, ref uint x1, ref uint x2, ref uint x3)
+        {
+            uint t0 = x0;
+            uint t1 = x1;
+            uint t2 = x2;
+            uint t3 = x3;
+
+            AES_ROUND_NOKEY_LE(ref t0, ref t1, ref t2, ref t3, ref x0, ref x1, ref x2, ref x3); 
+        }
+
+        private static void AES_ROUND_NOKEY_LE(ref uint X0, ref uint X1, ref uint X2, ref uint X3, ref uint Y0,
+            ref uint Y1, ref uint Y2, ref uint Y3)
+        {
+            uint ta0 = 0;
+            uint ta1 = 0;
+            uint ta2 = 0;
+            uint ta3 = 0;
+
+            AES_ROUND_LE(ref X0, ref X1, ref X2, ref X3, ref ta0, ref ta1, ref ta2, ref ta3, ref Y0, ref Y1, ref Y2, ref Y3);
+        }
+
+        private static void AES_ROUND_LE(ref uint X0, ref uint X1, ref uint X2, ref uint X3, ref uint K0, ref uint K1, 
+            ref uint K2, ref uint K3, ref uint Y0, ref uint Y1, ref uint Y2, ref uint Y3)
+        {
+            Y0 = Table0[X0 & 0xFF] ^ Table1[(X1 >> 8) & 0xFF] ^ Table2[(X2 >> 16) & 0xFF] ^ Table3[(X3 >> 24) & 0xFF] ^ K0;
+		    Y1 = Table0[X1 & 0xFF] ^ Table1[(X2 >> 8) & 0xFF] ^ Table2[(X3 >> 16) & 0xFF] ^ Table3[(X0 >> 24) & 0xFF] ^ K1; 
+		    Y2 = Table0[X2 & 0xFF] ^ Table1[(X3 >> 8) & 0xFF] ^ Table2[(X0 >> 16) & 0xFF] ^ Table3[(X1 >> 24) & 0xFF] ^ K2; 
+		    Y3 = Table0[X3 & 0xFF] ^ Table1[(X0 >> 8) & 0xFF] ^ Table2[(X1 >> 16) & 0xFF] ^ Table3[(X2 >> 24) & 0xFF] ^ K3; 
+        }
+
+        private static void KEY_EXPAND_ELT(ref uint k0, ref uint k1, ref uint k2, ref uint k3)
+        {
+            AES_ROUND_NOKEY(ref k1, ref k2, ref k3, ref k0);
+            var kt = k0;
+            k0 = k1;
+            k1 = k2;
+            k2 = k3;
+            k3 = kt;
+        }
+
         protected override void TransformBlock(byte[] a_data, int a_index)
+        {
+            uint p0, p1, p2, p3, p4, p5, p6, p7;
+            uint p8, p9, pA, pB, pC, pD, pE, pF;
+            uint x0, x1, x2, x3;
+            uint rk00, rk01, rk02, rk03, rk04, rk05, rk06, rk07;
+            uint rk08, rk09, rk0A, rk0B, rk0C, rk0D, rk0E, rk0F;
+            uint rk10, rk11, rk12, rk13, rk14, rk15, rk16, rk17;
+            uint rk18, rk19, rk1A, rk1B, rk1C, rk1D, rk1E, rk1F;
+            int r;
+
+            uint[] rk = new uint[448];
+            Converters.ConvertBytesToUInts(a_data, a_index, 128, rk);
+
+            uint count0 = (uint)(m_processed_bytes << 3);
+            uint count1 = (uint)(m_processed_bytes >> 29);
+            uint count2 = 0;
+            uint count3 = 0;
+            
+            p0 = m_state[0];
+            p1 = m_state[1];
+            p2 = m_state[2];
+            p3 = m_state[3];
+            p4 = m_state[4];
+            p5 = m_state[5];
+            p6 = m_state[6];
+            p7 = m_state[7];
+            p8 = m_state[8];
+            p9 = m_state[9];
+            pA = m_state[10];
+            pB = m_state[11];
+            pC = m_state[12];
+            pD = m_state[13];
+            pE = m_state[14];
+            pF = m_state[15];
+
+            /* round 0 */
+            rk00 = rk[0];
+            x0 = p4 ^ rk00;
+            rk01 = rk[1];
+            x1 = p5 ^ rk01;
+            rk02 = rk[2];
+            x2 = p6 ^ rk02;
+            rk03 = rk[3];
+            x3 = p7 ^ rk03;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            rk04 = rk[4];
+            x0 ^= rk04;
+            rk05 = rk[5];
+            x1 ^= rk05;
+            rk06 = rk[6];
+            x2 ^= rk06;
+            rk07 = rk[7];
+            x3 ^= rk07;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            rk08 = rk[8];
+            x0 ^= rk08;
+            rk09 = rk[9];
+            x1 ^= rk09;
+            rk0A = rk[0x0A];
+            x2 ^= rk0A; 
+            rk0B = rk[0xB];
+            x3 ^= rk0B;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            rk0C = rk[0xC];
+            x0 ^= rk0C;
+            rk0D = rk[0xD];
+            x1 ^= rk0D;
+            rk0E = rk[0xE];
+            x2 ^= rk0E;
+            rk0F = rk[0xF];
+            x3 ^= rk0F;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            p0 ^= x0;
+            p1 ^= x1;
+            p2 ^= x2;
+            p3 ^= x3;
+            rk10 = rk[0x10];
+            x0 = pC ^ rk10;
+            rk11 = rk[0x11];
+            x1 = pD ^ rk11;
+            rk12 = rk[0x12];
+            x2 = pE ^ rk12;
+            rk13 = rk[0x13];
+            x3 = pF ^ rk13;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            rk14 = rk[0x14];
+            x0 ^= rk14;
+            rk15 = rk[0x15];
+            x1 ^= rk15;
+            rk16 = rk[0x16];
+            x2 ^= rk16;
+            rk17 = rk[0x17];
+            x3 ^= rk17;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            rk18 = rk[0x18];
+            x0 ^= rk18;
+            rk19 = rk[0x19];
+            x1 ^= rk19;
+            rk1A = rk[0x1A];
+            x2 ^= rk1A;
+            rk1B = rk[0x1B];
+            x3 ^= rk1B;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            rk1C = rk[0x1C];
+            x0 ^= rk1C;
+            rk1D = rk[0x1D];
+            x1 ^= rk1D;
+            rk1E = rk[0x1E];
+            x2 ^= rk1E;
+            rk1F = rk[0x1F];
+            x3 ^= rk1F;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            p8 ^= x0;
+            p9 ^= x1;
+            pA ^= x2;
+            pB ^= x3;
+
+            for (r = 0; r < 3; r++)
+            {
+                /* round 1, 5, 9 */
+                KEY_EXPAND_ELT(ref rk00, ref rk01, ref rk02, ref rk03);
+                rk00 ^= rk1C;
+                rk01 ^= rk1D;
+                rk02 ^= rk1E;
+                rk03 ^= rk1F;
+                if (r == 0)
+                {
+                    rk00 ^= count0;
+                    rk01 ^= count1;
+                    rk02 ^= count2;
+                    rk03 ^= ~count3;
+                }
+                x0 = p0 ^ rk00;
+                x1 = p1 ^ rk01;
+                x2 = p2 ^ rk02;
+                x3 = p3 ^ rk03;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk04, ref rk05, ref rk06, ref rk07);
+                rk04 ^= rk00;
+                rk05 ^= rk01;
+                rk06 ^= rk02;
+                rk07 ^= rk03;
+                if (r == 1)
+                {
+                    rk04 ^= count3;
+                    rk05 ^= count2;
+                    rk06 ^= count1;
+                    rk07 ^= ~count0;
+                }
+                x0 ^= rk04;
+                x1 ^= rk05;
+                x2 ^= rk06;
+                x3 ^= rk07;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk08, ref rk09, ref rk0A, ref rk0B);
+                rk08 ^= rk04;
+                rk09 ^= rk05;
+                rk0A ^= rk06;
+                rk0B ^= rk07;
+                x0 ^= rk08;
+                x1 ^= rk09;
+                x2 ^= rk0A;
+                x3 ^= rk0B;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk0C, ref rk0D, ref rk0E, ref rk0F);
+                rk0C ^= rk08;
+                rk0D ^= rk09;
+                rk0E ^= rk0A;
+                rk0F ^= rk0B;
+                x0 ^= rk0C;
+                x1 ^= rk0D;
+                x2 ^= rk0E;
+                x3 ^= rk0F;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                pC ^= x0;
+                pD ^= x1;
+                pE ^= x2;
+                pF ^= x3;
+                KEY_EXPAND_ELT(ref rk10, ref rk11, ref rk12, ref rk13);
+                rk10 ^= rk0C;
+                rk11 ^= rk0D;
+                rk12 ^= rk0E;
+                rk13 ^= rk0F;
+                x0 = p8 ^ rk10;
+                x1 = p9 ^ rk11;
+                x2 = pA ^ rk12;
+                x3 = pB ^ rk13;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk14, ref rk15, ref rk16, ref rk17);
+                rk14 ^= rk10;
+                rk15 ^= rk11;
+                rk16 ^= rk12;
+                rk17 ^= rk13;
+                x0 ^= rk14;
+                x1 ^= rk15;
+                x2 ^= rk16;
+                x3 ^= rk17;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk18, ref rk19, ref rk1A, ref rk1B);
+                rk18 ^= rk14;
+                rk19 ^= rk15;
+                rk1A ^= rk16;
+                rk1B ^= rk17;
+                x0 ^= rk18;
+                x1 ^= rk19;
+                x2 ^= rk1A;
+                x3 ^= rk1B;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk1C, ref rk1D, ref rk1E, ref rk1F);
+                rk1C ^= rk18;
+                rk1D ^= rk19;
+                rk1E ^= rk1A;
+                rk1F ^= rk1B;
+                if (r == 2)
+                {
+                    rk1C ^= count2;
+                    rk1D ^= count3;
+                    rk1E ^= count0;
+                    rk1F ^= ~count1;
+                }
+                x0 ^= rk1C;
+                x1 ^= rk1D;
+                x2 ^= rk1E;
+                x3 ^= rk1F;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                p4 ^= x0;
+                p5 ^= x1;
+                p6 ^= x2;
+                p7 ^= x3;
+                /* round 2, 6, 10 */
+                rk00 ^= rk19;
+                x0 = pC ^ rk00;
+                rk01 ^= rk1A;
+                x1 = pD ^ rk01;
+                rk02 ^= rk1B;
+                x2 = pE ^ rk02;
+                rk03 ^= rk1C;
+                x3 = pF ^ rk03;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk04 ^= rk1D;
+                x0 ^= rk04;
+                rk05 ^= rk1E;
+                x1 ^= rk05;
+                rk06 ^= rk1F;
+                x2 ^= rk06;
+                rk07 ^= rk00;
+                x3 ^= rk07;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk08 ^= rk01;
+                x0 ^= rk08;
+                rk09 ^= rk02;
+                x1 ^= rk09;
+                rk0A ^= rk03;
+                x2 ^= rk0A;
+                rk0B ^= rk04;
+                x3 ^= rk0B;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk0C ^= rk05;
+                x0 ^= rk0C;
+                rk0D ^= rk06;
+                x1 ^= rk0D;
+                rk0E ^= rk07;
+                x2 ^= rk0E;
+                rk0F ^= rk08;
+                x3 ^= rk0F;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                p8 ^= x0;
+                p9 ^= x1;
+                pA ^= x2;
+                pB ^= x3;
+                rk10 ^= rk09;
+                x0 = p4 ^ rk10;
+                rk11 ^= rk0A;
+                x1 = p5 ^ rk11;
+                rk12 ^= rk0B;
+                x2 = p6 ^ rk12;
+                rk13 ^= rk0C;
+                x3 = p7 ^ rk13;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk14 ^= rk0D;
+                x0 ^= rk14;
+                rk15 ^= rk0E;
+                x1 ^= rk15;
+                rk16 ^= rk0F;
+                x2 ^= rk16;
+                rk17 ^= rk10;
+                x3 ^= rk17;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk18 ^= rk11;
+                x0 ^= rk18;
+                rk19 ^= rk12;
+                x1 ^= rk19;
+                rk1A ^= rk13;
+                x2 ^= rk1A;
+                rk1B ^= rk14;
+                x3 ^= rk1B;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk1C ^= rk15;
+                x0 ^= rk1C;
+                rk1D ^= rk16;
+                x1 ^= rk1D;
+                rk1E ^= rk17;
+                x2 ^= rk1E;
+                rk1F ^= rk18;
+                x3 ^= rk1F;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                p0 ^= x0;
+                p1 ^= x1;
+                p2 ^= x2;
+                p3 ^= x3;
+                /* round 3, 7, 11 */
+                KEY_EXPAND_ELT(ref rk00, ref rk01, ref rk02, ref rk03);
+                rk00 ^= rk1C;
+                rk01 ^= rk1D;
+                rk02 ^= rk1E;
+                rk03 ^= rk1F;
+                x0 = p8 ^ rk00;
+                x1 = p9 ^ rk01;
+                x2 = pA ^ rk02;
+                x3 = pB ^ rk03;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk04, ref rk05, ref rk06, ref rk07);
+                rk04 ^= rk00;
+                rk05 ^= rk01;
+                rk06 ^= rk02;
+                rk07 ^= rk03;
+                x0 ^= rk04;
+                x1 ^= rk05;
+                x2 ^= rk06;
+                x3 ^= rk07;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk08, ref rk09, ref rk0A, ref rk0B);
+                rk08 ^= rk04;
+                rk09 ^= rk05;
+                rk0A ^= rk06;
+                rk0B ^= rk07;
+                x0 ^= rk08;
+                x1 ^= rk09;
+                x2 ^= rk0A;
+                x3 ^= rk0B;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk0C, ref rk0D, ref rk0E, ref rk0F);
+                rk0C ^= rk08;
+                rk0D ^= rk09;
+                rk0E ^= rk0A;
+                rk0F ^= rk0B;
+                x0 ^= rk0C;
+                x1 ^= rk0D;
+                x2 ^= rk0E;
+                x3 ^= rk0F;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                p4 ^= x0;
+                p5 ^= x1;
+                p6 ^= x2;
+                p7 ^= x3;
+                KEY_EXPAND_ELT(ref rk10, ref rk11, ref rk12, ref rk13);
+                rk10 ^= rk0C;
+                rk11 ^= rk0D;
+                rk12 ^= rk0E;
+                rk13 ^= rk0F;
+                x0 = p0 ^ rk10;
+                x1 = p1 ^ rk11;
+                x2 = p2 ^ rk12;
+                x3 = p3 ^ rk13;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk14, ref rk15, ref rk16, ref rk17);
+                rk14 ^= rk10;
+                rk15 ^= rk11;
+                rk16 ^= rk12;
+                rk17 ^= rk13;
+                x0 ^= rk14;
+                x1 ^= rk15;
+                x2 ^= rk16;
+                x3 ^= rk17;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk18, ref rk19, ref rk1A, ref rk1B);
+                rk18 ^= rk14;
+                rk19 ^= rk15;
+                rk1A ^= rk16;
+                rk1B ^= rk17;
+                x0 ^= rk18;
+                x1 ^= rk19;
+                x2 ^= rk1A;
+                x3 ^= rk1B;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                KEY_EXPAND_ELT(ref rk1C, ref rk1D, ref rk1E, ref rk1F);
+                rk1C ^= rk18;
+                rk1D ^= rk19;
+                rk1E ^= rk1A;
+                rk1F ^= rk1B;
+                x0 ^= rk1C;
+                x1 ^= rk1D;
+                x2 ^= rk1E;
+                x3 ^= rk1F;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                pC ^= x0;
+                pD ^= x1;
+                pE ^= x2;
+                pF ^= x3;
+                /* round 4, 8, 12 */
+                rk00 ^= rk19;
+                x0 = p4 ^ rk00;
+                rk01 ^= rk1A;
+                x1 = p5 ^ rk01;
+                rk02 ^= rk1B;
+                x2 = p6 ^ rk02;
+                rk03 ^= rk1C;
+                x3 = p7 ^ rk03;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk04 ^= rk1D;
+                x0 ^= rk04;
+                rk05 ^= rk1E;
+                x1 ^= rk05;
+                rk06 ^= rk1F;
+                x2 ^= rk06;
+                rk07 ^= rk00;
+                x3 ^= rk07;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk08 ^= rk01;
+                x0 ^= rk08;
+                rk09 ^= rk02;
+                x1 ^= rk09;
+                rk0A ^= rk03;
+                x2 ^= rk0A;
+                rk0B ^= rk04;
+                x3 ^= rk0B;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk0C ^= rk05;
+                x0 ^= rk0C;
+                rk0D ^= rk06;
+                x1 ^= rk0D;
+                rk0E ^= rk07;
+                x2 ^= rk0E;
+                rk0F ^= rk08;
+                x3 ^= rk0F;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                p0 ^= x0;
+                p1 ^= x1;
+                p2 ^= x2;
+                p3 ^= x3;
+                rk10 ^= rk09;
+                x0 = pC ^ rk10;
+                rk11 ^= rk0A;
+                x1 = pD ^ rk11;
+                rk12 ^= rk0B;
+                x2 = pE ^ rk12;
+                rk13 ^= rk0C;
+                x3 = pF ^ rk13;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk14 ^= rk0D;
+                x0 ^= rk14;
+                rk15 ^= rk0E;
+                x1 ^= rk15;
+                rk16 ^= rk0F;
+                x2 ^= rk16;
+                rk17 ^= rk10;
+                x3 ^= rk17;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk18 ^= rk11;
+                x0 ^= rk18;
+                rk19 ^= rk12;
+                x1 ^= rk19;
+                rk1A ^= rk13;
+                x2 ^= rk1A;
+                rk1B ^= rk14;
+                x3 ^= rk1B;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                rk1C ^= rk15;
+                x0 ^= rk1C;
+                rk1D ^= rk16;
+                x1 ^= rk1D;
+                rk1E ^= rk17;
+                x2 ^= rk1E;
+                rk1F ^= rk18;
+                x3 ^= rk1F;
+                AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+                p8 ^= x0;
+                p9 ^= x1;
+                pA ^= x2;
+                pB ^= x3;
+            }
+
+            /* round 13 */
+            KEY_EXPAND_ELT(ref rk00, ref rk01, ref rk02, ref rk03);
+            rk00 ^= rk1C;
+            rk01 ^= rk1D;
+            rk02 ^= rk1E;
+            rk03 ^= rk1F;
+            x0 = p0 ^ rk00;
+            x1 = p1 ^ rk01;
+            x2 = p2 ^ rk02;
+            x3 = p3 ^ rk03;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            KEY_EXPAND_ELT(ref rk04, ref rk05, ref rk06, ref rk07);
+            rk04 ^= rk00;
+            rk05 ^= rk01;
+            rk06 ^= rk02;
+            rk07 ^= rk03;
+            x0 ^= rk04;
+            x1 ^= rk05;
+            x2 ^= rk06;
+            x3 ^= rk07;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            KEY_EXPAND_ELT(ref rk08, ref rk09, ref rk0A, ref rk0B);
+            rk08 ^= rk04;
+            rk09 ^= rk05;
+            rk0A ^= rk06;
+            rk0B ^= rk07;
+            x0 ^= rk08;
+            x1 ^= rk09;
+            x2 ^= rk0A;
+            x3 ^= rk0B;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            KEY_EXPAND_ELT(ref rk0C, ref rk0D, ref rk0E, ref rk0F);
+            rk0C ^= rk08;
+            rk0D ^= rk09;
+            rk0E ^= rk0A;
+            rk0F ^= rk0B;
+            x0 ^= rk0C;
+            x1 ^= rk0D;
+            x2 ^= rk0E;
+            x3 ^= rk0F;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            pC ^= x0;
+            pD ^= x1;
+            pE ^= x2;
+            pF ^= x3;
+            KEY_EXPAND_ELT(ref rk10, ref rk11, ref rk12, ref rk13);
+            rk10 ^= rk0C;
+            rk11 ^= rk0D;
+            rk12 ^= rk0E;
+            rk13 ^= rk0F;
+            x0 = p8 ^ rk10;
+            x1 = p9 ^ rk11;
+            x2 = pA ^ rk12;
+            x3 = pB ^ rk13;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            KEY_EXPAND_ELT(ref rk14, ref rk15, ref rk16, ref rk17);
+            rk14 ^= rk10;
+            rk15 ^= rk11;
+            rk16 ^= rk12;
+            rk17 ^= rk13;
+            x0 ^= rk14;
+            x1 ^= rk15;
+            x2 ^= rk16;
+            x3 ^= rk17;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            KEY_EXPAND_ELT(ref rk18, ref rk19, ref rk1A, ref rk1B);
+            rk18 ^= rk14 ^ count1;
+            rk19 ^= rk15 ^ count0;
+            rk1A ^= rk16 ^ count3;
+            rk1B ^= rk17 ^ ~count2;
+            x0 ^= rk18;
+            x1 ^= rk19;
+            x2 ^= rk1A;
+            x3 ^= rk1B;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            KEY_EXPAND_ELT(ref rk1C, ref rk1D, ref rk1E, ref rk1F);
+            rk1C ^= rk18;
+            rk1D ^= rk19;
+            rk1E ^= rk1A;
+            rk1F ^= rk1B;
+            x0 ^= rk1C;
+            x1 ^= rk1D;
+            x2 ^= rk1E;
+            x3 ^= rk1F;
+            AES_ROUND_NOKEY(ref x0, ref x1, ref x2, ref x3);
+            p4 ^= x0;
+            p5 ^= x1;
+            p6 ^= x2;
+            p7 ^= x3;
+            m_state[0] ^= p8;
+            m_state[1] ^= p9;
+            m_state[2] ^= pA;
+            m_state[3] ^= pB;
+            m_state[4] ^= pC;
+            m_state[5] ^= pD;
+            m_state[6] ^= pE;
+            m_state[7] ^= pF;
+            m_state[8] ^= p0;
+            m_state[9] ^= p1;
+            m_state[10] ^= p2;
+            m_state[11] ^= p3;
+            m_state[12] ^= p4;
+            m_state[13] ^= p5;
+            m_state[14] ^= p6;
+            m_state[15] ^= p7;
+
+        }
+
+        protected  void TransformBlock1(byte[] a_data, int a_index)
         {
             uint x0, x1, x2, x3, y0, y1, y2, y3;
 
@@ -1141,16 +1779,10 @@ namespace HashLib.Crypto.SHA3.Custom
             x1 = rk[2];
             x2 = rk[3];
             x3 = rk[0];
-            //y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
-            //y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
-            //y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
-            //y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-
             y0 = Table0[x0 >> 24] ^ Table1[(x1 >> 16) & 0xff] ^ Table2[(x2 >> 8) & 0xff] ^ Table3[x3 & 0xff];
             y1 = Table0[x1 >> 24] ^ Table1[(x2 >> 16) & 0xff] ^ Table2[(x3 >> 8) & 0xff] ^ Table3[x0 & 0xff];
             y2 = Table0[x2 >> 24] ^ Table1[(x3 >> 16) & 0xff] ^ Table2[(x0 >> 8) & 0xff] ^ Table3[x1 & 0xff];
             y3 = Table0[x3 >> 24] ^ Table1[(x0 >> 16) & 0xff] ^ Table2[(x1 >> 8) & 0xff] ^ Table3[x2 & 0xff];
-
             rk[32] = y0 ^ rk[28] ^ cnt0;
             rk[33] = y1 ^ rk[29] ^ cnt1;
             rk[34] = y2 ^ rk[30];
