@@ -143,6 +143,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crypto\SHA3\SHAvite3Custom.cs" />
     <Compile Include="Crypto\SHA3\SkeinCustom.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\Bits.cs" />

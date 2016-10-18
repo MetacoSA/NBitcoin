@@ -647,6 +647,11 @@ namespace HashLib
                     return new HashLib.Crypto.SHA3.SHAvite3_512();
                 }
 
+                public static IHash CreateSHAvite3_512Custom()
+                {
+                    return new HashLib.Crypto.SHA3.Custom.SHAvite3_512();
+                }
+
                 /// <summary>
                 /// 
                 /// </summary>

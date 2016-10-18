@@ -224,7 +224,7 @@ namespace NBitcoin.Tests
 
         [Fact]
         [Trait("UnitTest", "UnitTest")]
-        public void hashSkeinOld()
+        public void hashSkeinCustom()
         {
             var paramIn = "317024467e25cb6f1014f1b7a98c63b2ccc925b05a72180b0cdf23f42fabe653ddf51d11ce471dca48282b22261bbc7f5a729189c52554443a635889c7d47db6";
             var paramOut = "a4d126f16372bd2df3e22bc95f61e696a72a1bee32e62ca90fedc24e94dbdf314446dc00a5e6bc2907d73c7210e6cb780be00b49b26b7a6f2db29249f2bd884b";
@@ -272,13 +272,23 @@ namespace NBitcoin.Tests
             Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
         }
 
+        //[Fact]
+        //[Trait("UnitTest", "UnitTest")]
+        //public void hashSHAvite3()
+        //{
+        //    var paramIn = "50ddc199803de46305083d0852bc4005fc473ed05ec56347ae65e9875c0571da7375bb227678805e7ef868015bd4bf714bae038937538dd7819cc58b6d03ca7b";
+        //    var paramOut = "0bb309f45b7ec5b115a3318f0b2f0e431c8e415a3d6848087e7905e4e47c52874b79947e4bdee71668d1b1487716da57ac1f8d87e149ce1eee9080d6cc2827df";
+        //    var result = HashFactory.Crypto.SHA3.CreateSHAvite3_512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
+        //    Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
+        //}
+
         [Fact]
         [Trait("UnitTest", "UnitTest")]
-        public void hashSHAvite3()
+        public void hashSHAvite3Custom()
         {
             var paramIn = "50ddc199803de46305083d0852bc4005fc473ed05ec56347ae65e9875c0571da7375bb227678805e7ef868015bd4bf714bae038937538dd7819cc58b6d03ca7b";
             var paramOut = "0bb309f45b7ec5b115a3318f0b2f0e431c8e415a3d6848087e7905e4e47c52874b79947e4bdee71668d1b1487716da57ac1f8d87e149ce1eee9080d6cc2827df";
-            var result = HashFactory.Crypto.SHA3.CreateSHAvite3_512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
+            var result = HashFactory.Crypto.SHA3.CreateSHAvite3_512Custom().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
             Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
         }
 
