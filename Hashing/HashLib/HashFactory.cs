@@ -720,6 +720,10 @@ namespace HashLib
                 {
                     return new HashLib.Crypto.SHA3.Skein512();
                 }
+                public static IHash CreateSkein512Custom()
+                {
+                    return new HashLib.Crypto.SHA3.Custom.Skein512();
+                }
 
                 /// <summary>
                 /// 

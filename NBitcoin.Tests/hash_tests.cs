@@ -212,13 +212,23 @@ namespace NBitcoin.Tests
             Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
         }
 
+        //[Fact]
+        //[Trait("UnitTest", "UnitTest")]
+        //public void hashSkein()
+        //{
+        //    var paramIn = "317024467e25cb6f1014f1b7a98c63b2ccc925b05a72180b0cdf23f42fabe653ddf51d11ce471dca48282b22261bbc7f5a729189c52554443a635889c7d47db6";
+        //    var paramOut = "a4d126f16372bd2df3e22bc95f61e696a72a1bee32e62ca90fedc24e94dbdf314446dc00a5e6bc2907d73c7210e6cb780be00b49b26b7a6f2db29249f2bd884b";
+        //    var result = HashFactory.Crypto.SHA3.CreateSkein512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
+        //    Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
+        //}
+
         [Fact]
         [Trait("UnitTest", "UnitTest")]
-        public void hashSkein()
+        public void hashSkeinOld()
         {
             var paramIn = "317024467e25cb6f1014f1b7a98c63b2ccc925b05a72180b0cdf23f42fabe653ddf51d11ce471dca48282b22261bbc7f5a729189c52554443a635889c7d47db6";
             var paramOut = "a4d126f16372bd2df3e22bc95f61e696a72a1bee32e62ca90fedc24e94dbdf314446dc00a5e6bc2907d73c7210e6cb780be00b49b26b7a6f2db29249f2bd884b";
-            var result = HashFactory.Crypto.SHA3.CreateSkein512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
+            var result = HashFactory.Crypto.SHA3.CreateSkein512Custom().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
             Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
         }
 
