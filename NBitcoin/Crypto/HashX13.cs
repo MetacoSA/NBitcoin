@@ -10,6 +10,10 @@ namespace NBitcoin.Crypto
 
     using HashLib;
 
+    // this hashing class is not thread safe to use with static instances.
+    // the hashing objects maintain state during hash calculation.
+    // to use in a multi threaded environment create a new instance for every hash.
+
     public sealed class HashX13
     {
         private readonly List<IHash> hashers;
@@ -40,7 +44,16 @@ namespace NBitcoin.Crypto
 
         public uint Multiplier { get; private set; }
 
+        /// <summary>
+        /// using the instance method is not thread safe. 
+        /// to calling the hashing method in a multi threaded environment use the create() method
+        /// </summary>
         public static HashX13 Instance => SingletonInstance.Value;
+
+        public static HashX13 Create()
+        {
+            return new HashX13();
+        }
 
         public uint256 Hash(byte[] input)
         {
