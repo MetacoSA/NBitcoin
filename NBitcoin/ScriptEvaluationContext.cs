@@ -532,6 +532,8 @@ namespace NBitcoin
 				// would be possible, which is not a softfork (and P2SH should be one).
 				if((ScriptVerify & ScriptVerify.P2SH) == 0)
 					throw new InvalidOperationException("ScriptVerify : CleanStack without P2SH is not allowed");
+				if((ScriptVerify & ScriptVerify.Witness) == 0)
+					throw new InvalidOperationException("ScriptVerify : CleanStack without Witness is not allowed");
 				if(Stack.Count != 1)
 					return SetError(ScriptError.CleanStack);
 			}

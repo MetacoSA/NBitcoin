@@ -1030,6 +1030,7 @@ namespace NBitcoin
 			ERR_TX_INDEX,
 			ERR_TX_SIZE_MISMATCH,
 			ERR_TX_DESERIALIZE,
+			ERR_AMOUNT_REQUIRED
 		}
 
 		/// Returns 1 if the input nIn of the serialized transaction pointed to by
@@ -1039,17 +1040,35 @@ namespace NBitcoin
 		[DllImport(LibConsensusDll, EntryPoint = "bitcoinconsensus_verify_script", CallingConvention = CallingConvention.Cdecl)]
 		private static extern int VerifyScriptConsensus(byte[] scriptPubKey, uint scriptPubKeyLen, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
 
+		[DllImport(LibConsensusDll, EntryPoint = "bitcoinconsensus_verify_script_with_amount", CallingConvention = CallingConvention.Cdecl)]
+		private static extern int VerifyScriptConsensusWithAmount(byte[] scriptPubKey, uint scriptPubKeyLen, long amount, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
+
 		public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags)
 		{
 			var err = BitcoinConsensusError.ERR_OK;
 			return VerifyScriptConsensus(scriptPubKey, tx, nIn, flags, out err);
 		}
+		public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, Money amount, ScriptVerify flags)
+		{
+			var err = BitcoinConsensusError.ERR_OK;
+			return VerifyScriptConsensus(scriptPubKey, tx, nIn, amount, flags, out err);
+		}
+
 		public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags, out BitcoinConsensusError err)
 		{
 			var scriptPubKeyBytes = scriptPubKey.ToBytes();
 			var txToBytes = tx.ToBytes();
 			err = BitcoinConsensusError.ERR_OK;
 			var valid = VerifyScriptConsensus(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, txToBytes, (uint)txToBytes.Length, nIn, flags, ref err);
+			return valid == 1;
+		}
+
+		public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, Money amount, ScriptVerify flags, out BitcoinConsensusError err)
+		{
+			var scriptPubKeyBytes = scriptPubKey.ToBytes();
+			var txToBytes = tx.ToBytes();
+			err = BitcoinConsensusError.ERR_OK;
+			var valid = VerifyScriptConsensusWithAmount(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, amount.Satoshi, txToBytes, (uint)txToBytes.Length, nIn, flags, ref err);
 			return valid == 1;
 		}
 #endif
