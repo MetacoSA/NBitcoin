@@ -1,15 +1,11 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
 using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -42,7 +38,7 @@ namespace NBitcoin
 
 
 		// header
-		const int CURRENT_VERSION = 3;
+		const int CURRENT_VERSION = 7;
 
 		uint256 hashPrevBlock;
 
@@ -152,10 +148,20 @@ namespace NBitcoin
 
 		public uint256 GetHash()
 		{
-			return Hashes.Hash256(this.ToBytes());
+            if (this.nVersion > 6)
+                return Hashes.Hash256(this.ToBytes());
+            else
+                return this.GetPoWHash();
 		}
 
-		public DateTimeOffset BlockTime
+        public uint256 GetPoWHash()
+        {
+            return HashX13.Instance.Hash(this.ToBytes());
+        }
+
+       
+
+        public DateTimeOffset BlockTime
 		{
 			get
 			{
@@ -268,7 +274,7 @@ namespace NBitcoin
 
 		public MerkleNode GetMerkleRoot()
 		{
-			return MerkleNode.GetRoot(Transactions.Select(t => t.GetHash()));
+			return MerkleNode.GetRoot(this.Transactions.Select(t => t.GetHash()));
 		}
 
 
@@ -309,61 +315,82 @@ namespace NBitcoin
 			vtx.Clear();
 		}
 
-		public BlockHeader Header
-		{
-			get
-			{
-				return header;
-			}
-		}
+		public BlockHeader Header => this.header;
 
+        //public MerkleBranch GetMerkleBranch(int txIndex)
+        //{
+        //	if(vMerkleTree.Count == 0)
+        //		ComputeMerkleRoot();
+        //	List<uint256> vMerkleBranch = new List<uint256>();
+        //	int j = 0;
+        //	for(int nSize = vtx.Count ; nSize > 1 ; nSize = (nSize + 1) / 2)
+        //	{
+        //		int i = Math.Min(txIndex, nSize - 1);
+        //		vMerkleBranch.Add(vMerkleTree[j + i]);
+        //		txIndex >>= 1;
+        //		j += nSize;
+        //	}
+        //	return new MerkleBranch(vMerkleBranch);
+        //}
 
-		//public MerkleBranch GetMerkleBranch(int txIndex)
-		//{
-		//	if(vMerkleTree.Count == 0)
-		//		ComputeMerkleRoot();
-		//	List<uint256> vMerkleBranch = new List<uint256>();
-		//	int j = 0;
-		//	for(int nSize = vtx.Count ; nSize > 1 ; nSize = (nSize + 1) / 2)
-		//	{
-		//		int i = Math.Min(txIndex, nSize - 1);
-		//		vMerkleBranch.Add(vMerkleTree[j + i]);
-		//		txIndex >>= 1;
-		//		j += nSize;
-		//	}
-		//	return new MerkleBranch(vMerkleBranch);
-		//}
+        //public static uint256 CheckMerkleBranch(uint256 hash, List<uint256> vMerkleBranch, int nIndex)
+        //{
+        //	if(nIndex == -1)
+        //		return 0;
+        //	foreach(var otherside in vMerkleBranch)
+        //	{
+        //		if((nIndex & 1) != 0)
+        //			hash = Hash(otherside, hash);
+        //		else
+        //			hash = Hash(hash, otherside);
+        //		nIndex >>= 1;
+        //	}
+        //	return hash;
+        //}
 
-		//public static uint256 CheckMerkleBranch(uint256 hash, List<uint256> vMerkleBranch, int nIndex)
-		//{
-		//	if(nIndex == -1)
-		//		return 0;
-		//	foreach(var otherside in vMerkleBranch)
-		//	{
-		//		if((nIndex & 1) != 0)
-		//			hash = Hash(otherside, hash);
-		//		else
-		//			hash = Hash(hash, otherside);
-		//		nIndex >>= 1;
-		//	}
-		//	return hash;
-		//}
+        //std::vector<uint256> GetMerkleBranch(int nIndex) const;
+        //static uint256 CheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex);
+        //void print() const;
 
-		//std::vector<uint256> GetMerkleBranch(int nIndex) const;
-		//static uint256 CheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex);
-		//void print() const;
+	    public ulong GetStakeEntropyBit()
+	    {
+            // Take last bit of block hash as entropy bit
+            ulong nEntropyBit = (this.GetHash().GetLow64() & (ulong)1);
 
-		public uint256 GetHash()
+	        //LogPrint("stakemodifier", "GetStakeEntropyBit: hashBlock=%s nEntropyBit=%u\n", GetHash().ToString(), nEntropyBit);
+	        return nEntropyBit;
+	    }
+
+	    public uint256 GetHash()
 		{
 			//Block's hash is his header's hash
-			return Hashes.Hash256(header.ToBytes());
+			//return Hashes.Hash256(header.ToBytes());
+		    return this.header.GetHash();
 		}
 
-		public int Length
+        // ppcoin: two types of block: proof-of-work or proof-of-stake
+        public bool IsProofOfStake()
+        {
+            return this.vtx.Count() > 1 && this.vtx.First().IsCoinStake;
+        }
+
+        public bool IsProofOfWork()
+        {
+            return !this.IsProofOfStake();
+        }
+
+        public Tuple<OutPoint, ulong> GetProofOfStake()
+        {
+            return this.IsProofOfStake() ? 
+            new Tuple<OutPoint, ulong>(vtx[1].Inputs.First().PrevOut, vtx[1].LockTime) : 
+            new Tuple<OutPoint, ulong>(new OutPoint(), (ulong)0);
+        }
+
+        public int Length
 		{
 			get
 			{
-				return header.ToBytes().Length;
+				return this.header.ToBytes().Length;
 			}
 		}
 
@@ -402,7 +429,7 @@ namespace NBitcoin
 
 		public bool CheckMerkleRoot()
 		{
-			return Header.HashMerkleRoot == GetMerkleRoot().Hash;
+			return this.Header.HashMerkleRoot == this.GetMerkleRoot().Hash;
 		}
 
 		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height)

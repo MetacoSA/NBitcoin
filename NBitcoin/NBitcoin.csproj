@@ -73,6 +73,7 @@
     <Compile Include="BuilderExtensions\P2MultiSigBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKHBuilderExtension.cs" />
+    <Compile Include="Crypto\HashX13.cs" />
     <Compile Include="FeeRate.cs" />
     <Compile Include="OpenAsset\NullColoredTransactionRepository.cs" />
     <Compile Include="Payment\IChainChecker.cs" />
@@ -282,7 +283,9 @@
       <LastGenOutput>BitcoinStream.Partial.cs</LastGenOutput>
     </None>
     <None Include="NBitcoin.Tokenized.nuspec" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="PushNuget.ps1" />
     <None Include="UInt256.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -426,7 +429,12 @@
     <Compile Include="BouncyCastle\util\io\Streams.cs" />
     <Compile Include="BouncyCastle\util\Platform.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Hashing\HashLib\HashLib.csproj">
+      <Project>{31880fb6-5b86-42b8-ab92-864045b5d7a2}</Project>
+      <Name>HashLib</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

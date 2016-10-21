@@ -38,7 +38,7 @@ namespace NBitcoin.BitcoinCore
 			{
 				if(_FileRegex == null)
 				{
-					_FileRegex = new Regex(FilePrefix + "([0-9]{5,5}).dat");
+					_FileRegex = new Regex(FilePrefix + "([0-9]{4,5}).dat");
 				}
 				return _FileRegex;
 			}
