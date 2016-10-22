@@ -350,18 +350,20 @@ namespace NBitcoin.Tests
 
 		private void AssertVerifyScript(WitScript wit, Money amount, Script scriptSig, Script scriptPubKey, ScriptVerify flags, int testIndex, string comment, ScriptError expectedError)
 		{
+			if(flags.HasFlag(ScriptVerify.CleanStack))
+			{
+				flags |= ScriptVerify.Witness;
+				flags |= ScriptVerify.P2SH;
+			}
 			var creditingTransaction = CreateCreditingTransaction(scriptPubKey, amount);
 			var spendingTransaction = CreateSpendingTransaction(wit, scriptSig, creditingTransaction);
 			ScriptError actual;
 			Script.VerifyScript(scriptSig, scriptPubKey, spendingTransaction, 0, amount, flags, SigHash.Undefined, out actual);
-			Assert.True(expectedError == actual, "Test : " + testIndex + " " + comment);
-//#if !NOCONSENSUSLIB
-//			if((flags & ScriptVerify.Witness) == 0)
-//			{
-//				var ok = Script.VerifyScriptConsensus(scriptPubKey, spendingTransaction.WithOptions(TransactionOptions.None), 0, flags);
-//				Assert.True(ok == (expectedError == ScriptError.OK), "[ConsensusLib] Test : " + testIndex + " " + comment);
-//			}
-//#endif
+			Assert.True(expectedError == actual, "Test : " + testIndex + " " + comment);			
+#if !NOCONSENSUSLIB
+			var ok = Script.VerifyScriptConsensus(scriptPubKey, spendingTransaction, 0, amount, flags);
+			Assert.True(ok == (expectedError == ScriptError.OK), "[ConsensusLib] Test : " + testIndex + " " + comment);
+#endif
 		}
 
 
@@ -387,16 +389,16 @@ namespace NBitcoin.Tests
 #if !NOCONSENSUSLIB
 		private bool CheckHashConsensus(byte[] bytes, string env)
 		{
-			//from bitcoin-0.11
+			//from bitcoin-0.13.1 rc2
 			if(env == "x86")
 			{
 				var actualHash = Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
-				return actualHash == "d188dab1c7f14c60ef61ced0d2a25130840b3e1e33de2a303e70a0e58ac9bf01";
+				return actualHash == "1b812e2dad7bf041d16b51654aab029cf547b858d6415456c89f0fd5566a4706";
 			}
 			else
 			{
 				var actualHash = Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
-				return actualHash == "89b1088f476e580ab35c7a3992dad5d83cebcb7d711a2f32dc926da41df7bc4f";
+				return actualHash == "eb099bf52e57add12bb8ec28f10fdfd15f1e066604948c68ea52b69a0d5d32b8";
 			}
 		}
 #endif
