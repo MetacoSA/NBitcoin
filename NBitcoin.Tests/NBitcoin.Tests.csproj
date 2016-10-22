@@ -214,6 +214,10 @@
     <Compile Include="uint256_tests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Hashing\HashLib\HashLib.csproj">
+      <Project>{31880fb6-5b86-42b8-ab92-864045b5d7a2}</Project>
+      <Name>HashLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NBitcoin\NBitcoin.csproj">
       <Project>{7b692a4c-412a-41ba-a1f8-5df8f7450abc}</Project>
       <Name>NBitcoin</Name>

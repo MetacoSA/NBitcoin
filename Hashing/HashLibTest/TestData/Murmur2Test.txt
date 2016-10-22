@@ -1,0 +1,140 @@
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: 
+Hash: 00000000
+
+Key: E60E3263
+Repeat: 1
+Messsage: 
+Hash: 00000000
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: 40
+Hash: A8E8A4CE
+
+Key: E60E3263
+Repeat: 1
+Messsage: 31
+Hash: 71F0AC63
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: 974D
+Hash: CAD35951
+
+Key: E60E3263
+Repeat: 1
+Messsage: 22DF
+Hash: 2BB8BEA4
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: 6CCD13
+Hash: B9C68D6F
+
+Key: E60E3263
+Repeat: 1
+Messsage: D7D8D9
+Hash: 4168073E
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: C639AEFB
+Hash: D0FBB8CA
+
+Key: E60E3263
+Repeat: 1
+Messsage: C4AB9E4B
+Hash: C21B8F10
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: 2FD19BEB74
+Hash: EE56909A
+
+Key: E60E3263
+Repeat: 1
+Messsage: 93463948DE
+Hash: FEF0CB7C
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: 5F4845276C8F
+Hash: D11911B9
+
+Key: E60E3263
+Repeat: 1
+Messsage: 8E854990BC47
+Hash: ED2B76E7
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: A07EAA4EB0FE43
+Hash: 4316121E
+
+Key: E60E3263
+Repeat: 1
+Messsage: 3C6B87F34B29BE
+Hash: A29CA2BD
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: 497843C583498751
+Hash: D3D32CF5
+
+Key: E60E3263
+Repeat: 1
+Messsage: 94418331CA295643
+Hash: A6BA7C10
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: 3A094249FDBEBF62FA
+Hash: EAA129C7
+
+Key: E60E3263
+Repeat: 1
+Messsage: 2EECBE87D080E92C37
+Hash: 8BBC4951
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: EB4A8BAE394046AFBC47
+Hash: 216C35BF
+
+Key: E60E3263
+Repeat: 1
+Messsage: D690224CB978D9CE79AF
+Hash: 9D9F500C
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: C1E0C41E2A48278E4B4B81
+Hash: A8FC189B
+
+Key: E60E3263
+Repeat: 1
+Messsage: 6B650FB50D8E848DB94034
+Hash: FB81FBD2
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: 628FC520629768E3633858B4
+Hash: 76332B9C
+
+Key: E60E3263
+Repeat: 1
+Messsage: D23D04773DA28CBCFB55462F
+Hash: 900BB25E
+
+Key: 7B1A8FC5
+Repeat: 1
+Messsage: F88CDF40292838C888B71D16EA
+Hash: 29367F99
+
+Key: E60E3263
+Repeat: 1
+Messsage: 5D88C69924B3A64312DB5808B1
+Hash: AAACD84E
+

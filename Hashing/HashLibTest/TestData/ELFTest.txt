@@ -1,0 +1,20 @@
+Repeat: 1
+Messsage: 
+Hash: 00000000
+
+Repeat: 1
+Messsage: 40
+Hash: 40000000
+
+Repeat: 1
+Messsage: 3197
+Hash: A7030000
+
+Repeat: 1
+Messsage: 4D22DF
+Hash: FF4F0000
+
+Repeat: 1
+Messsage: 6CCD13D7
+Hash: 078F0700
+
