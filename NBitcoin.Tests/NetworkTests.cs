@@ -20,18 +20,18 @@ namespace NBitcoin.Tests
 			Assert.Null(Network.GetNetwork("invalid"));
 		}
 
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void ReadMagicByteWithFirstByteDuplicated()
-        {
-	        var bytes = Network.Main.MagicBytes.ToList();
-            bytes.Insert(0, bytes.First());
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ReadMagicByteWithFirstByteDuplicated()
+		{
+			var bytes = Network.Main.MagicBytes.ToList();
+			bytes.Insert(0, bytes.First());
 
-	        using (var memstrema = new MemoryStream(bytes.ToArray()))
-	        {
-                var found = Network.Main.ReadMagic(memstrema, new CancellationToken());
-                Assert.True(found);
-	        }
-        }
+			using (var memstrema = new MemoryStream(bytes.ToArray()))
+			{
+				var found = Network.Main.ReadMagic(memstrema, new CancellationToken());
+				Assert.True(found);
+			}
+		}
 	}
 }
