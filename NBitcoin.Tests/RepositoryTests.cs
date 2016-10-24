@@ -455,6 +455,150 @@ namespace NBitcoin.Tests
 			return new BlockRepository(CreateIndexedStore(folderName + "-Blocks"), CreateIndexedStore(folderName + "-Headers"));
 		}
 
-	}
+        //[Fact]
+        //[Trait("UnitTest", "UnitTest")]
+        public void EnumerateRawStratisBlockcahinAndWriteResultsToFile()
+        {
+            var inserts = this.ManuallyEnumerateTheBlockchainFile();
+
+            List<string> fileInserts = new List<string>();
+            foreach (var blockHex in inserts.Where(s => !string.IsNullOrEmpty(s)))
+            {
+                fileInserts.Add(blockHex);
+                var rem = blockHex.Substring(8);// the magic bytes
+                var bt = Encoders.Hex.DecodeData(rem); // pars to bytes
+                var size = BitConverter.ToUInt32(bt, 0); // first 4 bytes are a uint size 
+                var b = new Block(bt.Skip(4).ToArray()); // create the block
+                var str = $"hash={b.GetHash()} ver={b.Header.Version} size={size} nonc={b.Header.Nonce} bits={b.Header.Bits} prv={b.Header.HashPrevBlock} mrk={b.Header.HashMerkleRoot}";
+                fileInserts.Add(str);
+            }
+            var pathFile = @"C:\StratisData\compare-blocks.txt";
+            File.WriteAllLines(pathFile, fileInserts);
+        }
+
+        private List<string> ManuallyEnumerateTheBlockchainFile()
+        {
+            // read all bytes form the first block file
+            // to get a copy of the blockchain fiel without downloading follow this link
+            // https://1drv.ms/f/s!AE-fao7cBVQ-aQ
+            var byts = File.ReadAllBytes(@"C:\StratisData\blk0001.dat");
+            // the magic byte separator of blocks
+            var m = new byte[4] { 0x70, 0x35, 0x22, 0x05 };
+            // enumerate over all the bytes and separate the blocks to hex representations
+            List<string> inserts = new List<string>();
+            var current = new List<byte>();
+            for (int i = 0; i < byts.Length; i++)
+            {
+                // check for the magic byte
+                if ((m[0] == byts[i] &&
+                    m[1] == byts[i + 1] &&
+                    m[2] == byts[i + 2] &&
+                    m[3] == byts[i + 3]))
+                {
+                    // if we reached the magic byte we got to the end of the block
+                    inserts.Add(Encoders.Hex.EncodeData(current.ToArray()));
+                    current.Clear();
+                }
+                current.Add(byts[i]);
+            }
+            // read the last block
+            inserts.Add(Encoders.Hex.EncodeData(current.ToArray()));
+
+            // the first row is normally empty
+            return inserts.Skip(1).ToList();
+        }
+
+        //[Fact]
+        //[Trait("UnitTest", "UnitTest")]
+        public void EnumerateRawStratisBlockcahinAndCompareWithRpcServer()
+        {
+            // this is a long running tests and take a few hours to complete.
+            // the tests requires a stratis full node rpc server to be running
+            // validate all blocks with the full node rpc server
+            // at the time of writing the test the stratis blockchain was just beyond the 90k mark
+            // I will cap this test to 90k for that reason
+
+            var inserts = this.ManuallyEnumerateTheBlockchainFile();
+
+            // now we try 
+            List<Block> blocks = new List<Block>();
+            foreach (var blockHex in inserts.Where(s => !string.IsNullOrEmpty(s)))
+            {
+                var rem = blockHex.Substring(8);// the magic bytes
+                var bt = Encoders.Hex.DecodeData(rem); // pars to bytes
+                var size = BitConverter.ToUInt32(bt, 0); // first 4 bytes are a uint size 
+                var b = new Block(bt.Skip(4).ToArray()); // create the block
+                blocks.Add(b);
+            }
+
+            var client = new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"), new Uri("http://127.0.0.1:5000"), Network.StratisMain);
+            Dictionary<int, string> blocksNotFound = new Dictionary<int, string>();
+            var index = 0;
+            while (index <= 9000)
+            {
+                var blk = client.GetBlockHash(index);
+                var res = blocks.FirstOrDefault(f => f.GetHash() == blk);
+
+                if (res == null)
+                {
+                    blocksNotFound.Add(index, blk.ToString());
+                }
+                index++;
+            }
+
+            // check that all the blocks where found
+            Assert.Empty(blocksNotFound);
+        }
+
+        [Fact]
+        [Trait("UnitTest", "UnitTest")]
+        public void EnumerateStratisBlockcahinAndValidateAllBlocks()
+        {
+            var listAll = new Dictionary<string, StoredBlock>();
+            var store = new BlockStore(@"C:\StratisData", Network.StratisMain);
+            foreach (var block in store.EnumerateFolder())
+            {
+                var hash = block.Item.GetHash();
+                listAll.Add(hash.ToString(), block);
+                Assert.True(block.Item.CheckMerkleRoot());
+                //Assert.True(block.Item.CheckProofOfWork());
+            }
+
+            // walk the chain and check that all block are loaded correctly 
+            var block100K = uint256.Parse("af380a53467b70bc5d1ee61441586398a0a5907bb4fad7855442575483effa54");
+            var genesis = Network.StratisMain.GetGenesis().GetHash();
+            uint256 current = block100K;
+            while (true)
+            {
+                StoredBlock foundBlock;
+                var found = listAll.TryGetValue(current.ToString(), out foundBlock);
+                Assert.True(found);
+                if (current == genesis) break;
+                current = foundBlock.Item.Header.HashPrevBlock;
+            }
+
+            // todo: this operation is currently failing need to investigate
+            // use the synchronize chain method to load all blocks and look for the tip (currently block 100k)
+            var chain = store.GetChain();
+            var lastblk = chain.GetBlock(block100K);
+            Assert.Equal(block100K, lastblk.Header.GetHash());
+            Assert.Equal(100000, lastblk.Height);
+        }
+
+        [Fact]
+        [Trait("UnitTest", "UnitTest")]
+        public void EnumerateStratisBlockcahinCheckTipBlock()
+        {
+            var store = new BlockStore(@"C:\StratisData", Network.StratisMain);
+
+            // todo: this operation is currently failing need to investigate
+            // use the synchronize chain method to load all blocks and look for the tip (currently block 100k)
+            var block100K = uint256.Parse("af380a53467b70bc5d1ee61441586398a0a5907bb4fad7855442575483effa54");
+            var chain = store.GetChain();
+            var lastblk = chain.GetBlock(block100K);
+            Assert.Equal(block100K, lastblk.Header.GetHash());
+            Assert.Equal(100000, lastblk.Height);
+        }
+    }
 }
 #endif
