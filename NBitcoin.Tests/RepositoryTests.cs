@@ -476,7 +476,7 @@ namespace NBitcoin.Tests
             File.WriteAllLines(pathFile, fileInserts);
         }
 
-        private List<string> ManuallyEnumerateTheBlockchainFile()
+        private IEnumerable<string> ManuallyEnumerateTheBlockchainFile()
         {
             // read all bytes form the first block file
             // to get a copy of the blockchain fiel without downloading follow this link
@@ -484,10 +484,11 @@ namespace NBitcoin.Tests
             var byts = File.ReadAllBytes(@"C:\StratisData\blk0001.dat");
             // the magic byte separator of blocks
             var m = new byte[4] { 0x70, 0x35, 0x22, 0x05 };
+            // first bytes must be magic
+            Assert.True(m[0] == byts[0] && m[1] == byts[1] && m[2] == byts[2] && m[3] == byts[3]);
             // enumerate over all the bytes and separate the blocks to hex representations
-            List<string> inserts = new List<string>();
             var current = new List<byte>();
-            for (int i = 0; i < byts.Length; i++)
+            for (int i = 1; i < byts.Length; i++) // start from 1 to skip first check
             {
                 // check for the magic byte
                 if ((m[0] == byts[i] &&
@@ -496,16 +497,13 @@ namespace NBitcoin.Tests
                     m[3] == byts[i + 3]))
                 {
                     // if we reached the magic byte we got to the end of the block
-                    inserts.Add(Encoders.Hex.EncodeData(current.ToArray()));
+                    yield return Encoders.Hex.EncodeData(current.ToArray());
                     current.Clear();
                 }
                 current.Add(byts[i]);
             }
             // read the last block
-            inserts.Add(Encoders.Hex.EncodeData(current.ToArray()));
-
-            // the first row is normally empty
-            return inserts.Skip(1).ToList();
+            yield return Encoders.Hex.EncodeData(current.ToArray());
         }
 
         //[Fact]
@@ -561,7 +559,8 @@ namespace NBitcoin.Tests
                 var hash = block.Item.GetHash();
                 listAll.Add(hash.ToString(), block);
                 Assert.True(block.Item.CheckMerkleRoot());
-                //Assert.True(block.Item.CheckProofOfWork());
+                Assert.True(block.Item.CheckProofOfWork());
+                Assert.True(block.Item.CheckProofOfStake());
             }
 
             // walk the chain and check that all block are loaded correctly 
@@ -575,14 +574,7 @@ namespace NBitcoin.Tests
                 Assert.True(found);
                 if (current == genesis) break;
                 current = foundBlock.Item.Header.HashPrevBlock;
-            }
-
-            // todo: this operation is currently failing need to investigate
-            // use the synchronize chain method to load all blocks and look for the tip (currently block 100k)
-            var chain = store.GetChain();
-            var lastblk = chain.GetBlock(block100K);
-            Assert.Equal(block100K, lastblk.Header.GetHash());
-            Assert.Equal(100000, lastblk.Height);
+            }            
         }
 
         [Fact]

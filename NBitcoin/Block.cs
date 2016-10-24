@@ -177,10 +177,11 @@ namespace NBitcoin
 		public bool CheckProofOfWork()
 		{
 			var bits = Bits.ToBigInteger();
+            // todo: change this to use the Network.PowLimit
 			if(bits <= System.Numerics.BigInteger.Zero || bits >= Pow256)
 				return false;
 			// Check proof of work matches claimed amount
-			return GetHash() <= Bits.ToUInt256();
+			return GetPoWHash() <= Bits.ToUInt256();
 		}
 
 		public override string ToString()
@@ -371,7 +372,7 @@ namespace NBitcoin
         // ppcoin: two types of block: proof-of-work or proof-of-stake
         public bool IsProofOfStake()
         {
-            return this.vtx.Count() > 1 && this.vtx.First().IsCoinStake;
+            return this.vtx.Count() > 1 && this.vtx[1].IsCoinStake;
         }
 
         public bool IsProofOfWork()
@@ -419,15 +420,37 @@ namespace NBitcoin
 		/// <returns></returns>
 		public bool Check()
 		{
-			return CheckMerkleRoot() && Header.CheckProofOfWork();
+			return CheckMerkleRoot() && CheckProofOfWork() && CheckProofOfStake();
 		}
 
 		public bool CheckProofOfWork()
 		{
-			return Header.CheckProofOfWork();
+            // if POS return true else check POW algo
+			return this.IsProofOfStake() || Header.CheckProofOfWork();
 		}
 
-		public bool CheckMerkleRoot()
+        public bool CheckProofOfStake()
+        {
+            // todo: move this to the full node code.
+            // this code is temporary and will move to the full nide implementation when its ready
+            if (IsProofOfWork())
+                return true;
+
+            // Coinbase output should be empty if proof-of-stake block
+            if (this.vtx[0].Outputs.Count != 1 || !this.vtx[0].Outputs[0].IsEmpty)
+                return false;
+
+            // Second transaction must be coinstake, the rest must not be
+            if (!vtx.Any() || !this.vtx[1].IsCoinStake)
+                return false;
+            for (int i = 2; i < vtx.Count; i++)
+                if (vtx[i].IsCoinStake)
+                    return false;
+
+            return true;
+        }
+
+        public bool CheckMerkleRoot()
 		{
 			return this.Header.HashMerkleRoot == this.GetMerkleRoot().Hash;
 		}
