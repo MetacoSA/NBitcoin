@@ -1313,7 +1313,7 @@ namespace NBitcoin
 				if(read != 1)
 					i--;
 				else if(_MagicBytes[i] != bytes[0])
-					i = -1;
+					i = _MagicBytes[0] == bytes[0] ? 0 : - 1;
 			}
 			return true;
 		}
