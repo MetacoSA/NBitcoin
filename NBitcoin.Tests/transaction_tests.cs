@@ -2472,6 +2472,7 @@ namespace NBitcoin.Tests
 						ParseFlags(test[2].ToString())
 						, 0);
 					Assert.True(valid, strTest + " failed");
+					Assert.True(tx.Check() == TransactionCheckResult.Success);
 				}
 			}
 		}
@@ -2535,6 +2536,68 @@ namespace NBitcoin.Tests
 			Assert.Throws<ArgumentOutOfRangeException>(() => new Sequence(TimeSpan.FromSeconds(512 * (0xFFFF + 1))));
 			new Sequence(TimeSpan.FromSeconds(512 * (0xFFFF)));
 			Assert.Throws<InvalidOperationException>(() => new Sequence(time).LockHeight);
+		}
+
+		[Fact]
+		[Trait("Core", "Core")]
+		public void tx_invalid()
+		{
+			// Read tests from test/data/tx_valid.json
+			// Format is an array of arrays
+			// Inner arrays are either [ "comment" ]
+			// or [[[prevout hash, prevout index, prevout scriptPubKey], [input 2], ...],"], serializedTransaction, enforceP2SH
+			// ... where all scripts are stringified scripts.
+			var tests = TestCase.read_json("data/tx_invalid.json");
+			string comment = null;
+			foreach(var test in tests)
+			{
+				string strTest = test.ToString();
+				//Skip comments
+				if(!(test[0] is JArray))
+				{
+					comment = test[0].ToString();
+					continue;
+				}
+				JArray inputs = (JArray)test[0];
+				if(test.Count != 3 || !(test[1] is string) || !(test[2] is string))
+				{
+					Assert.False(true, "Bad test: " + strTest);
+					continue;
+				}
+				Dictionary<OutPoint, Script> mapprevOutScriptPubKeys = new Dictionary<OutPoint, Script>();
+				Dictionary<OutPoint, Money> mapprevOutScriptPubKeysAmount = new Dictionary<OutPoint, Money>();
+				foreach(var vinput in inputs)
+				{
+					var outpoint = new OutPoint(uint256.Parse(vinput[0].ToString()), int.Parse(vinput[1].ToString()));
+					mapprevOutScriptPubKeys[new OutPoint(uint256.Parse(vinput[0].ToString()), int.Parse(vinput[1].ToString()))] = script_tests.ParseScript(vinput[2].ToString());
+					if(vinput.Count() >= 4)
+						mapprevOutScriptPubKeysAmount[outpoint] = Money.Satoshis(vinput[3].Value<int>());
+				}
+
+				Transaction tx = Transaction.Parse((string)test[1]);
+
+				var fValid = true;
+				fValid = tx.Check() == TransactionCheckResult.Success;
+				for(int i = 0; i < tx.Inputs.Count && fValid; i++)
+				{
+					if(!mapprevOutScriptPubKeys.ContainsKey(tx.Inputs[i].PrevOut))
+					{
+						Assert.False(true, "Bad test: " + strTest);
+						continue;
+					}
+
+					fValid = Script.VerifyScript(
+					   mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
+					   tx,
+					   i,
+					   mapprevOutScriptPubKeysAmount.TryGet(tx.Inputs[i].PrevOut),
+					   ParseFlags(test[2].ToString())
+					   , 0);
+				}
+				if(fValid)
+					Debugger.Break();
+				Assert.True(!fValid, strTest + " failed");
+			}
 		}
 
 		[Fact]

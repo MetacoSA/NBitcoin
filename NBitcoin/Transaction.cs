@@ -1739,5 +1739,74 @@ namespace NBitcoin
 				return Inputs.Any(i => i.WitScript != WitScript.Empty && i.WitScript != null);
 			}
 		}
+
+		private static readonly uint MAX_BLOCK_SIZE = 1000000;
+		private static readonly ulong MAX_MONEY = 21000000ul * Money.COIN;
+
+		/// <summary>
+		/// Context free transaction check
+		/// </summary>
+		/// <returns>The error or success of the check</returns>
+		public TransactionCheckResult Check()
+		{
+			// Basic checks that don't depend on any context
+			if(Inputs.Count == 0)
+				return TransactionCheckResult.NoInput;
+			if(Outputs.Count == 0)
+				return TransactionCheckResult.NoOutput;
+			// Size limits
+			if(this.GetSerializedSize() > MAX_BLOCK_SIZE)
+				return TransactionCheckResult.TransactionTooLarge;
+
+			// Check for negative or overflow output values
+			long nValueOut = 0;
+			foreach(var txout in Outputs)
+			{
+				if(txout.Value < 0)
+					return TransactionCheckResult.NegativeOutput;
+				if(txout.Value > MAX_MONEY)
+					return TransactionCheckResult.OutputTooLarge;
+				nValueOut += txout.Value;
+				if(!((nValueOut >= 0 && nValueOut <= (long)MAX_MONEY)))
+					return TransactionCheckResult.OutputTotalTooLarge;
+			}
+
+			// Check for duplicate inputs
+			var vInOutPoints = new HashSet<OutPoint>();
+			foreach(var txin in Inputs)
+			{
+				if(vInOutPoints.Contains(txin.PrevOut))
+					return TransactionCheckResult.DuplicateInputs;
+				vInOutPoints.Add(txin.PrevOut);
+			}
+
+			if(IsCoinBase)
+			{
+				if(Inputs[0].ScriptSig.Length < 2 || Inputs[0].ScriptSig.Length > 100)
+					return TransactionCheckResult.CoinbaseScriptTooLarge;
+			}
+			else
+			{
+				foreach(var txin in Inputs)
+					if(txin.PrevOut.IsNull)
+						return TransactionCheckResult.NullInputPrevOut;
+			}
+
+			return TransactionCheckResult.Success;
+		}
+	}
+
+	public enum TransactionCheckResult
+	{
+		Success,
+		NoInput,
+		NoOutput,
+		NegativeOutput,
+		OutputTooLarge,
+		OutputTotalTooLarge,
+		TransactionTooLarge,
+		DuplicateInputs,
+		NullInputPrevOut,
+		CoinbaseScriptTooLarge,
 	}
 }
