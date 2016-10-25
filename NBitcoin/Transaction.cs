@@ -1381,6 +1381,23 @@ namespace NBitcoin
 			return @in;
 		}
 
+		internal static readonly int WITNESS_SCALE_FACTOR = 4;
+		/// <summary>
+		/// Size of the transaction discounting the witness (Used for fee calculation)
+		/// </summary>
+		/// <returns>Transaction size</returns>
+		public int GetVirtualSize()
+		{
+			var totalSize = this.GetSerializedSize(TransactionOptions.Witness);
+			var strippedSize = this.GetSerializedSize(TransactionOptions.None);
+			// This implements the weight = (stripped_size * 4) + witness_size formula,
+			// using only serialization with and without witness data. As witness_size
+			// is equal to total_size - stripped_size, this formula is identical to:
+			// weight = (stripped_size * 3) + total_size.
+			var weight = strippedSize * (WITNESS_SCALE_FACTOR - 1) + totalSize;
+			return (weight + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR;
+		}
+
 		public TxIn AddInput(Transaction prevTx, int outIndex)
 		{
 			if(outIndex >= prevTx.Outputs.Count)

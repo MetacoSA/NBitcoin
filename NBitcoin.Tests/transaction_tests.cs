@@ -1216,6 +1216,20 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildWitTransaction()
 		{
+			Action<Transaction, TransactionBuilder> AssertEstimatedSize = (tx,b)=>
+			{
+				var expectedVSize = tx.GetVirtualSize();
+				var actualVSize = b.EstimateSize(tx, true);
+				var expectedSize = tx.GetSerializedSize();
+				var actualSize = b.EstimateSize(tx, false);
+				Assert.True(Math.Abs(expectedVSize - actualVSize) < Math.Abs(expectedVSize - actualSize));
+				Assert.True(Math.Abs(expectedSize - actualSize) < Math.Abs(expectedSize - actualVSize));
+				Assert.True(Math.Abs(expectedVSize - actualVSize) < Math.Abs(expectedSize - actualVSize));
+				Assert.True(Math.Abs(expectedSize - actualSize) < Math.Abs(expectedVSize - actualSize));
+
+				var error = (decimal)Math.Abs(expectedVSize - actualVSize) / Math.Min(expectedVSize, actualSize);
+				Assert.True(error < 0.01m);
+			};
 			Key alice = new Key();
 			Key bob = new Key();
 			Transaction previousTx = null;
@@ -1237,6 +1251,7 @@ namespace NBitcoin.Tests
 			builder.SendFees(Money.Satoshis(30000));
 			builder.SetChange(alice);
 			signedTx = builder.BuildTransaction(true);
+			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
 
 			//P2WSH
@@ -1252,6 +1267,7 @@ namespace NBitcoin.Tests
 			builder.SendFees(Money.Satoshis(30000));
 			builder.SetChange(alice);
 			signedTx = builder.BuildTransaction(true);
+			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
 
 
@@ -1268,6 +1284,7 @@ namespace NBitcoin.Tests
 			builder.SendFees(Money.Satoshis(30000));
 			builder.SetChange(alice);
 			signedTx = builder.BuildTransaction(true);
+			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
 
 			//P2SH(P2WSH)
@@ -1283,6 +1300,7 @@ namespace NBitcoin.Tests
 			builder.SendFees(Money.Satoshis(30000));
 			builder.SetChange(alice);
 			signedTx = builder.BuildTransaction(true);
+			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
 
 			//Can remove witness data from tx
