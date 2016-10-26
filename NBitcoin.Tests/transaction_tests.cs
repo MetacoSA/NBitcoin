@@ -2079,6 +2079,21 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanCacheHashes()
+		{
+			Transaction tx = new Transaction();
+			var original = tx.GetHash();
+			tx.Version = 4;
+			Assert.True(tx.GetHash() != original);
+
+			tx.CacheHashes();
+			original = tx.GetHash();
+			tx.Version = 5;
+			Assert.True(tx.GetHash() == original);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CheckScriptCoinIsCoherent()
 		{
 			Key key = new Key();

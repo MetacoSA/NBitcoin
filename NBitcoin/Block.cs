@@ -152,8 +152,28 @@ namespace NBitcoin
 
 		public uint256 GetHash()
 		{
-			return Hashes.Hash256(this.ToBytes());
+			if(_Hashes != null && _Hashes[0] != null)
+			{
+				return _Hashes[0];
+			}
+			var h = Hashes.Hash256(this.ToBytes());
+			if(_Hashes != null)
+			{
+				_Hashes[0] = h;
+			}
+			return h;
 		}
+
+		/// <summary>
+		/// If called, GetHash becomes cached, only use if you believe the instance will not be modified after calculation. Calling it a second type invalidate the cache.
+		/// </summary>
+		public void CacheHashes()
+		{
+			_Hashes = new uint256[1];
+		}
+
+		
+		uint256[] _Hashes;
 
 		public DateTimeOffset BlockTime
 		{

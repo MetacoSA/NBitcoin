@@ -1312,21 +1312,60 @@ namespace NBitcoin
 
 		public uint256 GetHash()
 		{
+			if(_Hashes != null && _Hashes[0] != null)
+			{
+				return _Hashes[0];
+			}
 			MemoryStream ms = new MemoryStream();
 			this.ReadWrite(new BitcoinStream(ms, true)
 			{
 				TransactionOptions = TransactionOptions.None
 			});
-			return Hashes.Hash256(ms.ToArrayEfficient());
+			var h = Hashes.Hash256(ms.ToArrayEfficient());
+			if(_Hashes != null)
+			{
+				_Hashes[0] = h;
+			}
+			return h;
 		}
+
+		/// <summary>
+		/// If called, GetHash and GetWitHash become cached, only use if you believe the instance will not be modified after calculation. Calling it a second type invalidate the cache.
+		/// </summary>
+		public void CacheHashes()
+		{
+			_Hashes = new uint256[2];
+		}
+
+		public Transaction Clone(bool cloneCache)
+		{
+			var clone = BitcoinSerializableExtensions.Clone(this);
+			if(cloneCache)
+				clone._Hashes = _Hashes.ToArray();
+			return clone;
+		}
+
+		uint256[] _Hashes = null;
+
 		public uint256 GetWitHash()
 		{
+			if(!HasWitness)
+				return GetHash();
+			if(_Hashes != null && _Hashes[1] != null)
+			{
+				return _Hashes[1];
+			}
 			MemoryStream ms = new MemoryStream();
 			this.ReadWrite(new BitcoinStream(ms, true)
 			{
 				TransactionOptions = TransactionOptions.Witness
 			});
-			return Hashes.Hash256(ms.ToArrayEfficient());
+			var h = Hashes.Hash256(ms.ToArrayEfficient());
+			if(_Hashes != null)
+			{
+				_Hashes[1] = h;
+			}
+			return h;
 		}
 		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)
 		{
