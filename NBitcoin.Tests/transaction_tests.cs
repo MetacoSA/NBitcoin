@@ -2308,7 +2308,8 @@ namespace NBitcoin.Tests
                             builder.StandardTransactionPolicy.ScriptVerify &= ~ScriptVerify.NullFail;
 							builder.AddKeys(secret);
 							builder.AddCoins(knownCoins);
-
+							if(txx.Outputs.Count == 0)
+								txx.Outputs.Add(new TxOut(coin1.Amount, new Script(OpcodeType.OP_TRUE)));
 							var result = builder.SignTransaction(txx, actualFlag);
 							Assert.True(builder.Verify(result));
 
