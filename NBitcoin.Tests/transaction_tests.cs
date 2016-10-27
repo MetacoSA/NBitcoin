@@ -1216,6 +1216,20 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildWitTransaction()
 		{
+			Action<Transaction, TransactionBuilder> AssertEstimatedSize = (tx,b)=>
+			{
+				var expectedVSize = tx.GetVirtualSize();
+				var actualVSize = b.EstimateSize(tx, true);
+				var expectedSize = tx.GetSerializedSize();
+				var actualSize = b.EstimateSize(tx, false);
+				Assert.True(Math.Abs(expectedVSize - actualVSize) < Math.Abs(expectedVSize - actualSize));
+				Assert.True(Math.Abs(expectedSize - actualSize) < Math.Abs(expectedSize - actualVSize));
+				Assert.True(Math.Abs(expectedVSize - actualVSize) < Math.Abs(expectedSize - actualVSize));
+				Assert.True(Math.Abs(expectedSize - actualSize) < Math.Abs(expectedVSize - actualSize));
+
+				var error = (decimal)Math.Abs(expectedVSize - actualVSize) / Math.Min(expectedVSize, actualSize);
+				Assert.True(error < 0.01m);
+			};
 			Key alice = new Key();
 			Key bob = new Key();
 			Transaction previousTx = null;
@@ -1237,6 +1251,7 @@ namespace NBitcoin.Tests
 			builder.SendFees(Money.Satoshis(30000));
 			builder.SetChange(alice);
 			signedTx = builder.BuildTransaction(true);
+			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
 
 			//P2WSH
@@ -1252,6 +1267,7 @@ namespace NBitcoin.Tests
 			builder.SendFees(Money.Satoshis(30000));
 			builder.SetChange(alice);
 			signedTx = builder.BuildTransaction(true);
+			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
 
 
@@ -1268,6 +1284,7 @@ namespace NBitcoin.Tests
 			builder.SendFees(Money.Satoshis(30000));
 			builder.SetChange(alice);
 			signedTx = builder.BuildTransaction(true);
+			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
 
 			//P2SH(P2WSH)
@@ -1283,6 +1300,7 @@ namespace NBitcoin.Tests
 			builder.SendFees(Money.Satoshis(30000));
 			builder.SetChange(alice);
 			signedTx = builder.BuildTransaction(true);
+			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
 
 			//Can remove witness data from tx
@@ -2061,6 +2079,21 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanCacheHashes()
+		{
+			Transaction tx = new Transaction();
+			var original = tx.GetHash();
+			tx.Version = 4;
+			Assert.True(tx.GetHash() != original);
+
+			tx.CacheHashes();
+			original = tx.GetHash();
+			tx.Version = 5;
+			Assert.True(tx.GetHash() == original);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CheckScriptCoinIsCoherent()
 		{
 			Key key = new Key();
@@ -2290,7 +2323,8 @@ namespace NBitcoin.Tests
                             builder.StandardTransactionPolicy.ScriptVerify &= ~ScriptVerify.NullFail;
 							builder.AddKeys(secret);
 							builder.AddCoins(knownCoins);
-
+							if(txx.Outputs.Count == 0)
+								txx.Outputs.Add(new TxOut(coin1.Amount, new Script(OpcodeType.OP_TRUE)));
 							var result = builder.SignTransaction(txx, actualFlag);
 							Assert.True(builder.Verify(result));
 
@@ -2472,6 +2506,7 @@ namespace NBitcoin.Tests
 						ParseFlags(test[2].ToString())
 						, 0);
 					Assert.True(valid, strTest + " failed");
+					Assert.True(tx.Check() == TransactionCheckResult.Success);
 				}
 			}
 		}
@@ -2535,6 +2570,68 @@ namespace NBitcoin.Tests
 			Assert.Throws<ArgumentOutOfRangeException>(() => new Sequence(TimeSpan.FromSeconds(512 * (0xFFFF + 1))));
 			new Sequence(TimeSpan.FromSeconds(512 * (0xFFFF)));
 			Assert.Throws<InvalidOperationException>(() => new Sequence(time).LockHeight);
+		}
+
+		[Fact]
+		[Trait("Core", "Core")]
+		public void tx_invalid()
+		{
+			// Read tests from test/data/tx_valid.json
+			// Format is an array of arrays
+			// Inner arrays are either [ "comment" ]
+			// or [[[prevout hash, prevout index, prevout scriptPubKey], [input 2], ...],"], serializedTransaction, enforceP2SH
+			// ... where all scripts are stringified scripts.
+			var tests = TestCase.read_json("data/tx_invalid.json");
+			string comment = null;
+			foreach(var test in tests)
+			{
+				string strTest = test.ToString();
+				//Skip comments
+				if(!(test[0] is JArray))
+				{
+					comment = test[0].ToString();
+					continue;
+				}
+				JArray inputs = (JArray)test[0];
+				if(test.Count != 3 || !(test[1] is string) || !(test[2] is string))
+				{
+					Assert.False(true, "Bad test: " + strTest);
+					continue;
+				}
+				Dictionary<OutPoint, Script> mapprevOutScriptPubKeys = new Dictionary<OutPoint, Script>();
+				Dictionary<OutPoint, Money> mapprevOutScriptPubKeysAmount = new Dictionary<OutPoint, Money>();
+				foreach(var vinput in inputs)
+				{
+					var outpoint = new OutPoint(uint256.Parse(vinput[0].ToString()), int.Parse(vinput[1].ToString()));
+					mapprevOutScriptPubKeys[new OutPoint(uint256.Parse(vinput[0].ToString()), int.Parse(vinput[1].ToString()))] = script_tests.ParseScript(vinput[2].ToString());
+					if(vinput.Count() >= 4)
+						mapprevOutScriptPubKeysAmount[outpoint] = Money.Satoshis(vinput[3].Value<int>());
+				}
+
+				Transaction tx = Transaction.Parse((string)test[1]);
+
+				var fValid = true;
+				fValid = tx.Check() == TransactionCheckResult.Success;
+				for(int i = 0; i < tx.Inputs.Count && fValid; i++)
+				{
+					if(!mapprevOutScriptPubKeys.ContainsKey(tx.Inputs[i].PrevOut))
+					{
+						Assert.False(true, "Bad test: " + strTest);
+						continue;
+					}
+
+					fValid = Script.VerifyScript(
+					   mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
+					   tx,
+					   i,
+					   mapprevOutScriptPubKeysAmount.TryGet(tx.Inputs[i].PrevOut),
+					   ParseFlags(test[2].ToString())
+					   , 0);
+				}
+				if(fValid)
+					Debugger.Break();
+				Assert.True(!fValid, strTest + " failed");
+			}
 		}
 
 		[Fact]

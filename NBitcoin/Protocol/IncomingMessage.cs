@@ -35,6 +35,11 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
+		public long Length
+		{
+			get;
+			set;
+		}
 
 		internal T AssertPayload<T>() where T : Payload
 		{

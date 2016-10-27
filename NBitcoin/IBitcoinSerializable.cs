@@ -30,22 +30,29 @@ namespace NBitcoin
 			s.ReadWrite(serializable);
 			return (int)s.Counter.WrittenBytes;
 		}
-        public static string ToHex(this IBitcoinSerializable serializable, SerializationType serializationType = SerializationType.Disk)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                BitcoinStream bitcoinStream = new BitcoinStream(memoryStream, true);
-                bitcoinStream.Type = serializationType;
-                bitcoinStream.ReadWrite(serializable);
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                var bytes = memoryStream.ReadBytes((int)memoryStream.Length);
-                return DataEncoders.Encoders.Hex.EncodeData(bytes);
-            }
-        }
-
-        public static int GetSerializedSize(this IBitcoinSerializable serializable, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public static int GetSerializedSize(this IBitcoinSerializable serializable, TransactionOptions options)
+		{
+			var bms = new BitcoinStream(Stream.Null, true);
+			bms.TransactionOptions = options;
+			serializable.ReadWrite(bms);
+			return (int)bms.Counter.WrittenBytes;
+		}
+		public static int GetSerializedSize(this IBitcoinSerializable serializable, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			return GetSerializedSize(serializable, version, SerializationType.Disk);
+		}
+
+		public static string ToHex(this IBitcoinSerializable serializable, SerializationType serializationType = SerializationType.Disk)
+		{
+			using (var memoryStream = new MemoryStream())
+			{
+				BitcoinStream bitcoinStream = new BitcoinStream(memoryStream, true);
+				bitcoinStream.Type = serializationType;
+				bitcoinStream.ReadWrite(serializable);
+				memoryStream.Seek(0, SeekOrigin.Begin);
+				var bytes = memoryStream.ReadBytes((int)memoryStream.Length);
+				return DataEncoders.Encoders.Hex.EncodeData(bytes);
+			}
 		}
 
 		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)

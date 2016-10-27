@@ -106,6 +106,11 @@ namespace NBitcoin.Policy
 					errors.Add(new NotEnoughFundsPolicyError("Not enough funds in this transaction", -fees));
 			}
 
+			var check = transaction.Check();
+			if(check != TransactionCheckResult.Success)
+			{
+				errors.Add(new TransactionPolicyError("Context free check of the transaction failed " + check));
+			}
 			return errors.ToArray();
 		}
 

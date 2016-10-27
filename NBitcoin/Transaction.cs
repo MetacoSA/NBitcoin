@@ -1333,21 +1333,60 @@ namespace NBitcoin
 
 		public uint256 GetHash()
 		{
+			if(_Hashes != null && _Hashes[0] != null)
+			{
+				return _Hashes[0];
+			}
 			MemoryStream ms = new MemoryStream();
 			this.ReadWrite(new BitcoinStream(ms, true)
 			{
 				TransactionOptions = TransactionOptions.None
 			});
-			return Hashes.Hash256(ms.ToArrayEfficient());
+			var h = Hashes.Hash256(ms.ToArrayEfficient());
+			if(_Hashes != null)
+			{
+				_Hashes[0] = h;
+			}
+			return h;
 		}
+
+		/// <summary>
+		/// If called, GetHash and GetWitHash become cached, only use if you believe the instance will not be modified after calculation. Calling it a second type invalidate the cache.
+		/// </summary>
+		public void CacheHashes()
+		{
+			_Hashes = new uint256[2];
+		}
+
+		public Transaction Clone(bool cloneCache)
+		{
+			var clone = BitcoinSerializableExtensions.Clone(this);
+			if(cloneCache)
+				clone._Hashes = _Hashes.ToArray();
+			return clone;
+		}
+
+		uint256[] _Hashes = null;
+
 		public uint256 GetWitHash()
 		{
+			if(!HasWitness)
+				return GetHash();
+			if(_Hashes != null && _Hashes[1] != null)
+			{
+				return _Hashes[1];
+			}
 			MemoryStream ms = new MemoryStream();
 			this.ReadWrite(new BitcoinStream(ms, true)
 			{
 				TransactionOptions = TransactionOptions.Witness
 			});
-			return Hashes.Hash256(ms.ToArrayEfficient());
+			var h = Hashes.Hash256(ms.ToArrayEfficient());
+			if(_Hashes != null)
+			{
+				_Hashes[1] = h;
+			}
+			return h;
 		}
 		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)
 		{
@@ -1414,6 +1453,23 @@ namespace NBitcoin
 		{
 			this.vin.Add(@in);
 			return @in;
+		}
+
+		internal static readonly int WITNESS_SCALE_FACTOR = 4;
+		/// <summary>
+		/// Size of the transaction discounting the witness (Used for fee calculation)
+		/// </summary>
+		/// <returns>Transaction size</returns>
+		public int GetVirtualSize()
+		{
+			var totalSize = this.GetSerializedSize(TransactionOptions.Witness);
+			var strippedSize = this.GetSerializedSize(TransactionOptions.None);
+			// This implements the weight = (stripped_size * 4) + witness_size formula,
+			// using only serialization with and without witness data. As witness_size
+			// is equal to total_size - stripped_size, this formula is identical to:
+			// weight = (stripped_size * 3) + total_size.
+			var weight = strippedSize * (WITNESS_SCALE_FACTOR - 1) + totalSize;
+			return (weight + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR;
 		}
 
 		public TxIn AddInput(Transaction prevTx, int outIndex)
@@ -1774,5 +1830,74 @@ namespace NBitcoin
 				return Inputs.Any(i => i.WitScript != WitScript.Empty && i.WitScript != null);
 			}
 		}
+
+		private static readonly uint MAX_BLOCK_SIZE = 1000000;
+		private static readonly ulong MAX_MONEY = 21000000ul * Money.COIN;
+
+		/// <summary>
+		/// Context free transaction check
+		/// </summary>
+		/// <returns>The error or success of the check</returns>
+		public TransactionCheckResult Check()
+		{
+			// Basic checks that don't depend on any context
+			if(Inputs.Count == 0)
+				return TransactionCheckResult.NoInput;
+			if(Outputs.Count == 0)
+				return TransactionCheckResult.NoOutput;
+			// Size limits
+			if(this.GetSerializedSize() > MAX_BLOCK_SIZE)
+				return TransactionCheckResult.TransactionTooLarge;
+
+			// Check for negative or overflow output values
+			long nValueOut = 0;
+			foreach(var txout in Outputs)
+			{
+				if(txout.Value < 0)
+					return TransactionCheckResult.NegativeOutput;
+				if(txout.Value > MAX_MONEY)
+					return TransactionCheckResult.OutputTooLarge;
+				nValueOut += txout.Value;
+				if(!((nValueOut >= 0 && nValueOut <= (long)MAX_MONEY)))
+					return TransactionCheckResult.OutputTotalTooLarge;
+			}
+
+			// Check for duplicate inputs
+			var vInOutPoints = new HashSet<OutPoint>();
+			foreach(var txin in Inputs)
+			{
+				if(vInOutPoints.Contains(txin.PrevOut))
+					return TransactionCheckResult.DuplicateInputs;
+				vInOutPoints.Add(txin.PrevOut);
+			}
+
+			if(IsCoinBase)
+			{
+				if(Inputs[0].ScriptSig.Length < 2 || Inputs[0].ScriptSig.Length > 100)
+					return TransactionCheckResult.CoinbaseScriptTooLarge;
+			}
+			else
+			{
+				foreach(var txin in Inputs)
+					if(txin.PrevOut.IsNull)
+						return TransactionCheckResult.NullInputPrevOut;
+			}
+
+			return TransactionCheckResult.Success;
+		}
+	}
+
+	public enum TransactionCheckResult
+	{
+		Success,
+		NoInput,
+		NoOutput,
+		NegativeOutput,
+		OutputTooLarge,
+		OutputTotalTooLarge,
+		TransactionTooLarge,
+		DuplicateInputs,
+		NullInputPrevOut,
+		CoinbaseScriptTooLarge,
 	}
 }

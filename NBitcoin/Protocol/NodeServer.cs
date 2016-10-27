@@ -173,11 +173,13 @@ namespace NBitcoin.Protocol
 					while(true)
 					{
 						cancel.Token.ThrowIfCancellationRequested();
-						var message = Message.ReadNext(stream, Network, Version, cancel.Token);
+						PerformanceCounter counter;
+						var message = Message.ReadNext(stream, Network, Version, cancel.Token, out counter);
 						_MessageProducer.PushMessage(new IncomingMessage()
 						{
 							Socket = client,
 							Message = message,
+							Length = counter.ReadenBytes,
 							Node = null,
 						});
 						if(message.Payload is VersionPayload)

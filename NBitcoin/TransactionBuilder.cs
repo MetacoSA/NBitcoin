@@ -1233,51 +1233,88 @@ namespace NBitcoin
 				.ToArray();
 		}
 
+		/// <summary>
+		/// Estimate the physical size of the transaction
+		/// </summary>
+		/// <param name="tx">The transaction to be estimated</param>
+		/// <returns></returns>
 		public int EstimateSize(Transaction tx)
+		{
+			return EstimateSize(tx, false);
+		}
+
+		/// <summary>
+		/// Estimate the size of the transaction
+		/// </summary>
+		/// <param name="tx">The transaction to be estimated</param>
+		/// <param name="virtualSize">If true, returns the size on which fee calculation are based, else returns the physical byte size</param>
+		/// <returns></returns>
+		public int EstimateSize(Transaction tx, bool virtualSize)
 		{
 			if(tx == null)
 				throw new ArgumentNullException("tx");
 			var clone = tx.Clone();
 			clone.Inputs.Clear();
-			var baseSize = clone.ToBytes().Length;
+			var baseSize = clone.GetSerializedSize();
 
-			int inputSize = 0;
+			int vSize = 0;
+			int size = baseSize;
+			if(tx.HasWitness)
+				vSize += 2;
 			foreach(var txin in tx.Inputs.AsIndexedInputs())
 			{
 				var coin = FindSignableCoin(txin) ?? FindCoin(txin.PrevOut);
 				if(coin == null)
 					throw CoinNotFound(txin);
-				inputSize += EstimateScriptSigSize(coin) + 41;
+				EstimateScriptSigSize(coin, ref vSize, ref size);
+				size += 41;
 			}
 
-			return baseSize + inputSize;
+			return (virtualSize ? vSize / Transaction.WITNESS_SCALE_FACTOR + size : vSize + size);
 		}
 
-		private int EstimateScriptSigSize(ICoin coin)
+		private void EstimateScriptSigSize(ICoin coin, ref int vSize, ref int size)
 		{
 			if(coin is IColoredCoin)
 				coin = ((IColoredCoin)coin).Bearer;
-
-			int size = 0;
+			
 			if(coin is ScriptCoin)
 			{
 				var scriptCoin = (ScriptCoin)coin;
-				coin = new Coin(scriptCoin.Outpoint, new TxOut(scriptCoin.Amount, scriptCoin.Redeem));
-				size += new Script(Op.GetPushOp(scriptCoin.Redeem.ToBytes(true))).Length;
+				var p2sh = scriptCoin.GetP2SHRedeem();
+				if(p2sh != null)
+				{
+					coin = new Coin(scriptCoin.Outpoint, new TxOut(scriptCoin.Amount, p2sh));
+					size += new Script(Op.GetPushOp(p2sh.ToBytes(true))).Length;
+					if(scriptCoin.RedeemType == RedeemType.WitnessV0)
+					{
+						coin = new ScriptCoin(coin, scriptCoin.Redeem);
+					}
+				}
+
+				if(scriptCoin.RedeemType == RedeemType.WitnessV0)
+				{
+					vSize += new Script(Op.GetPushOp(scriptCoin.Redeem.ToBytes(true))).Length;
+				}
 			}
 
 			var scriptPubkey = coin.GetScriptCode();
+			var scriptSigSize = -1;
 			foreach(var extension in Extensions)
 			{
 				if(extension.CanEstimateScriptSigSize(scriptPubkey))
 				{
-					size += extension.EstimateScriptSigSize(scriptPubkey);
-					return size;
+					scriptSigSize = extension.EstimateScriptSigSize(scriptPubkey);					
+					break;
 				}
 			}
 
-			size += coin.TxOut.ScriptPubKey.Length; //Using heurestic to approximate size of unknown scriptPubKey
-			return size;
+			if(scriptSigSize == -1)
+				scriptSigSize += coin.TxOut.ScriptPubKey.Length; //Using heurestic to approximate size of unknown scriptPubKey
+			if(coin.GetHashVersion() == HashVersion.Witness)
+				vSize += scriptSigSize + 1; //Account for the push
+			if(coin.GetHashVersion() == HashVersion.Original)
+				size += scriptSigSize;
 		}
 
 		/// <summary>
@@ -1291,7 +1328,7 @@ namespace NBitcoin
 				throw new ArgumentNullException("feeRate");
 
 			int builderCount = CurrentGroup.Builders.Count;
-			Money feeSent = Money.Zero;		
+			Money feeSent = Money.Zero;
 			try
 			{
 				while(true)
@@ -1328,9 +1365,9 @@ namespace NBitcoin
 			if(feeRate == null)
 				throw new ArgumentNullException("feeRate");
 
-			var estimation = EstimateSize(tx);
+			var estimation = EstimateSize(tx, true);
 			return feeRate.GetFee(estimation);
-		}		
+		}
 
 		private void Sign(TransactionSigningContext ctx, ICoin coin, IndexedTxIn txIn)
 		{
