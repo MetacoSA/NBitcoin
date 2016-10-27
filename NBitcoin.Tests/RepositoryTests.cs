@@ -583,7 +583,6 @@ namespace NBitcoin.Tests
         {
             var store = new BlockStore(@"C:\StratisData", Network.StratisMain);
 
-            // todo: this operation is currently failing need to investigate
             // use the synchronize chain method to load all blocks and look for the tip (currently block 100k)
             var block100K = uint256.Parse("af380a53467b70bc5d1ee61441586398a0a5907bb4fad7855442575483effa54");
             var chain = store.GetChain();

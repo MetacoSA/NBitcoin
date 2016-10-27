@@ -32,28 +32,36 @@ namespace NBitcoin.BitcoinCore
 		public void SynchronizeChain(ChainBase chain)
 		{
 			Dictionary<uint256, BlockHeader> headers = new Dictionary<uint256, BlockHeader>();
+			Dictionary<uint256, ChainedBlock> chainedBlocks = new Dictionary<uint256, ChainedBlock>();
 			HashSet<uint256> inChain = new HashSet<uint256>();
 			inChain.Add(chain.GetBlock(0).HashBlock);
-			foreach(var header in Enumerate(true).Select(b => b.Item.Header))
+			chainedBlocks.Add(chain.GetBlock(0).HashBlock, chain.GetBlock(0));
+
+			foreach (var header in Enumerate(true).Select(b => b.Item.Header))
 			{
 				var hash = header.GetHash();
 				headers.Add(hash, header);
 			}
 			List<uint256> toRemove = new List<uint256>();
-			while(headers.Count != 0)
+			while (headers.Count != 0)
 			{
-				foreach(var header in headers)
+				foreach (var header in headers)
 				{
-					if(inChain.Contains(header.Value.HashPrevBlock))
+					if (inChain.Contains(header.Value.HashPrevBlock))
 					{
 						toRemove.Add(header.Key);
-						chain.SetTip(header.Value);
+						ChainedBlock chainedBlock;
+						if (!chainedBlocks.TryGetValue(header.Value.HashPrevBlock, out chainedBlock))
+							break;
+						var chainedHeader = new ChainedBlock(header.Value, header.Value.GetHash(), chainedBlock);
+						chain.SetTip(chainedHeader);
+						chainedBlocks.TryAdd(chainedHeader.HashBlock, chainedHeader);
 						inChain.Add(header.Key);
 					}
 				}
-				foreach(var item in toRemove)
+				foreach (var item in toRemove)
 					headers.Remove(item);
-				if(toRemove.Count == 0)
+				if (toRemove.Count == 0)
 					break;
 				toRemove.Clear();
 			}
