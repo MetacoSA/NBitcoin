@@ -558,7 +558,7 @@ namespace NBitcoin
 	}
 
 	public class TxOut : IBitcoinSerializable, IDestination
-	{
+	{		
 		Script publicKey = Script.Empty;
 		public Script ScriptPubKey
 		{
@@ -571,18 +571,6 @@ namespace NBitcoin
 				this.publicKey = value;
 			}
 		}
-
-		private long value = -1;
-		Money _MoneyValue;
-		public bool IsNull
-		{
-			get
-			{
-				return value == -1;
-			}
-		}
-
-
 
 		public TxOut()
 		{
@@ -602,20 +590,19 @@ namespace NBitcoin
 			ScriptPubKey = scriptPubKey;
 		}
 
+		readonly static Money NullMoney = new Money(-1);
+		Money _Value = NullMoney;
 		public Money Value
 		{
 			get
 			{
-				if(_MoneyValue == null)
-					_MoneyValue = new Money(value);
-				return _MoneyValue;
+				return _Value;
 			}
 			set
 			{
 				if(value == null)
 					throw new ArgumentNullException("value");
-				_MoneyValue = value;
-				this.value = (long)_MoneyValue.Satoshi;
+				_Value = value;
 			}
 		}
 
@@ -637,9 +624,11 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
+			long value = Value.Satoshi;
 			stream.ReadWrite(ref value);
+			if(!stream.Serializing)
+				_Value = new Money(value);
 			stream.ReadWrite(ref publicKey);
-			_MoneyValue = null; //Might been updated
 		}
 
 		#endregion
@@ -647,11 +636,6 @@ namespace NBitcoin
 		public bool IsTo(IDestination destination)
 		{
 			return ScriptPubKey == destination.ScriptPubKey;
-		}
-
-		internal void SetNull()
-		{
-			value = -1;
 		}
 
 		public static TxOut Parse(string hex)

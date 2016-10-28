@@ -109,11 +109,7 @@ namespace NBitcoin.BitcoinCore
 		public TxOut GetOutputFor(TxIn input)
 		{
 			Coins coins = GetCoins(input.PrevOut.Hash);
-			if(!coins.IsAvailable(input.PrevOut.N))
-			{
-				return null;
-			}
-			return coins.Outputs[(int)input.PrevOut.N];
+			return coins.TryGetOutput(input.PrevOut.N);
 		}
 
 		public Money GetValueIn(Transaction tx)
