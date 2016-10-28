@@ -80,8 +80,13 @@ namespace NBitcoin.BitcoinCore
 
 		private void UpdateValue()
 		{
-			_Value = vout.Where(o => o != NullTxOut)
+			_Value = vout.Where(o => !IsNull(o))
 							.Select(o => o.Value).Sum();
+		}
+
+		private bool IsNull(TxOut o)
+		{
+			return o.Value.Satoshi == -1;
 		}
 
 		public bool IsEmpty
@@ -98,7 +103,7 @@ namespace NBitcoin.BitcoinCore
 			// remove spent outputs at the end of vout
 			for(int i = count - 1; i >= 0; i--)
 			{
-				if(vout[i] == NullTxOut)
+				if(IsNull(vout[i]))
 					vout.RemoveAt(i);
 				else
 					break;
@@ -110,7 +115,7 @@ namespace NBitcoin.BitcoinCore
 			undo = null;
 			if(position >= vout.Count)
 				return false;
-			if(vout[position] == NullTxOut)
+			if(IsNull(vout[position]))
 				return false;
 			undo = new TxInUndo(vout[position].Clone());
 			vout[position] = NullTxOut;
@@ -138,8 +143,8 @@ namespace NBitcoin.BitcoinCore
 			{
 				uint nMaskSize = 0, nMaskCode = 0;
 				CalcMaskSize(ref nMaskSize, ref nMaskCode);
-				bool fFirst = vout.Count > 0 && vout[0] != NullTxOut;
-				bool fSecond = vout.Count > 1 && vout[1] != NullTxOut;
+				bool fFirst = vout.Count > 0 && !IsNull(vout[0]);
+				bool fSecond = vout.Count > 1 && !IsNull(vout[1]);
 				uint nCode = unchecked((uint)(8 * (nMaskCode - (fFirst || fSecond ? 0 : 1)) + (fCoinBase ? 1 : 0) + (fFirst ? 2 : 0) + (fSecond ? 4 : 0)));
 				// version
 				stream.ReadWriteAsVarInt(ref nVersion);
@@ -150,7 +155,7 @@ namespace NBitcoin.BitcoinCore
 				{
 					byte chAvail = 0;
 					for(uint i = 0; i < 8 && 2 + b * 8 + i < vout.Count; i++)
-						if(vout[2 + (int)b * 8 + (int)i] != NullTxOut)
+						if(!IsNull(vout[2 + (int)b * 8 + (int)i]))
 							chAvail |= (byte)(1 << (int)i);
 					stream.ReadWrite(ref chAvail);
 				}
@@ -158,7 +163,7 @@ namespace NBitcoin.BitcoinCore
 				// txouts themself
 				for(uint i = 0; i < vout.Count; i++)
 				{
-					if(vout[(int)i] != NullTxOut)
+					if(!IsNull(vout[(int)i]))
 					{
 						var compressedTx = new TxOutCompressor(vout[(int)i]);
 						stream.ReadWrite(ref compressedTx);
@@ -233,7 +238,7 @@ namespace NBitcoin.BitcoinCore
 				bool fZero = true;
 				for(uint i = 0; i < 8 && 2 + b * 8 + i < vout.Count; i++)
 				{
-					if(vout[2 + (int)b * 8 + (int)i] != NullTxOut)
+					if(!IsNull(vout[2 + (int)b * 8 + (int)i]))
 					{
 						fZero = false;
 						continue;
@@ -251,7 +256,7 @@ namespace NBitcoin.BitcoinCore
 		// check whether a particular output is still available
 		public bool IsAvailable(uint position)
 		{
-			return (position <= int.MaxValue && position < vout.Count && vout[(int)position] != NullTxOut);
+			return (position <= int.MaxValue && position < vout.Count && !IsNull(vout[(int)position]));
 		}
 
 		public TxOut TryGetOutput(uint position)
@@ -267,7 +272,7 @@ namespace NBitcoin.BitcoinCore
 		{
 			get
 			{
-				return vout.Count == 0 || vout.All(v => v == NullTxOut);
+				return vout.Count == 0 || vout.All(v => IsNull(v));
 			}
 		}
 
