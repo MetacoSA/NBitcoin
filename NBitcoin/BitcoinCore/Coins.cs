@@ -210,6 +210,18 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
+		public Coins Clone()
+		{
+			return new Coins()
+			{
+				fCoinBase = fCoinBase,
+				nHeight = nHeight,
+				nVersion = nVersion,
+				vout = vout.Select(txout => txout.Clone()).ToList(),
+				_Value = _Value
+			};
+		}
+
 		// calculate number of bytes for the bitmask, and its number of non-zero bytes
 		// each bit in the bitmask represents the availability of one output, but the
 		// availabilities of the first two outputs are encoded separately
