@@ -876,7 +876,7 @@ namespace NBitcoin.Tests
 				.Then("Alice")
 				.AddCoins(aliceCoins)
 				.AddKeys(alice)
-				.Send(satoshi, Money.Coins(0.1m))				
+				.Send(satoshi, Money.Coins(0.1m))
 				.Then("Bob")
 				.AddCoins(bobCoins)
 				.AddKeys(bob)
@@ -1214,9 +1214,37 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CantAskScriptCodeOnIncompleteCoin()
+		{
+			Key k = new Key();
+			var coin = RandomCoin(Money.Zero, k);			
+			Assert.True(coin.CanGetScriptCode);
+			coin.ScriptPubKey = k.PubKey.ScriptPubKey.Hash.ScriptPubKey;
+			Assert.False(coin.CanGetScriptCode);
+			Assert.Throws<InvalidOperationException>(() => coin.GetScriptCode());
+			Assert.True(coin.ToScriptCoin(k.PubKey.ScriptPubKey).CanGetScriptCode);
+
+			coin.ScriptPubKey = k.PubKey.ScriptPubKey.WitHash.ScriptPubKey;
+			Assert.False(coin.CanGetScriptCode);
+			Assert.Throws<InvalidOperationException>(() => coin.GetScriptCode());
+			Assert.True(coin.ToScriptCoin(k.PubKey.ScriptPubKey).CanGetScriptCode);
+
+			coin.ScriptPubKey = k.PubKey.ScriptPubKey.WitHash.ScriptPubKey.Hash.ScriptPubKey;
+			Assert.False(coin.CanGetScriptCode);
+			Assert.Throws<InvalidOperationException>(() => coin.GetScriptCode());
+
+			var badCoin = coin.ToScriptCoin(k.PubKey.ScriptPubKey);
+			badCoin.Redeem = k.PubKey.ScriptPubKey.WitHash.ScriptPubKey;
+			Assert.False(badCoin.CanGetScriptCode);
+			Assert.Throws<InvalidOperationException>(() => badCoin.GetScriptCode());
+			Assert.True(coin.ToScriptCoin(k.PubKey.ScriptPubKey).CanGetScriptCode);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildWitTransaction()
 		{
-			Action<Transaction, TransactionBuilder> AssertEstimatedSize = (tx,b)=>
+			Action<Transaction, TransactionBuilder> AssertEstimatedSize = (tx, b) =>
 			{
 				var expectedVSize = tx.GetVirtualSize();
 				var actualVSize = b.EstimateSize(tx, true);
@@ -2320,7 +2348,7 @@ namespace NBitcoin.Tests
 								CheckScriptPubKey = false,
 								MinRelayTxFee = null
 							});
-                            builder.StandardTransactionPolicy.ScriptVerify &= ~ScriptVerify.NullFail;
+							builder.StandardTransactionPolicy.ScriptVerify &= ~ScriptVerify.NullFail;
 							builder.AddKeys(secret);
 							builder.AddCoins(knownCoins);
 							if(txx.Outputs.Count == 0)

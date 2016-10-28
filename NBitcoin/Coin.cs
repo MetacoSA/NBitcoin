@@ -33,7 +33,17 @@ namespace NBitcoin
 		{
 			get;
 		}
+
+		/// <summary>
+		/// Returns the script actually signed and executed
+		/// </summary>
+		/// <exception cref="System.InvalidOperationException">Additional information needed to get the ScriptCode</exception>
+		/// <returns>The executed script</returns>
 		Script GetScriptCode();
+		bool CanGetScriptCode
+		{
+			get;
+		}
 		HashVersion GetHashVersion();
 	}
 
@@ -175,6 +185,14 @@ namespace NBitcoin
 		public Script GetScriptCode()
 		{
 			return this.Bearer.GetScriptCode();
+		}
+
+		public bool CanGetScriptCode
+		{
+			get
+			{
+				return this.Bearer.CanGetScriptCode;
+			}
 		}
 
 		public HashVersion GetHashVersion()
@@ -349,6 +367,14 @@ namespace NBitcoin
 			return this.Bearer.GetScriptCode();
 		}
 
+		public bool CanGetScriptCode
+		{
+			get
+			{
+				return this.Bearer.CanGetScriptCode;
+			}
+		}
+
 		public HashVersion GetHashVersion()
 		{
 			return this.Bearer.GetHashVersion();
@@ -400,10 +426,20 @@ namespace NBitcoin
 
 		public virtual Script GetScriptCode()
 		{
+			if(!CanGetScriptCode)
+				throw new InvalidOperationException("You need to provide P2WSH or P2SH redeem script with Coin.ToScriptCoin()");
 			var key = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(ScriptPubKey);
 			if(key != null)
 				return key.WitScriptPubKey;
 			return ScriptPubKey;
+		}
+
+		public virtual bool CanGetScriptCode
+		{
+			get
+			{
+				return !ScriptPubKey.IsPayToScriptHash && !PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(ScriptPubKey);
+			}
 		}
 
 		public virtual HashVersion GetHashVersion()
@@ -648,11 +684,22 @@ namespace NBitcoin
 
 		public override Script GetScriptCode()
 		{
+			if(!CanGetScriptCode)
+				throw new InvalidOperationException("You need to provide the P2WSH redeem script with ScriptCoin.ToScriptCoin()");
 			var key = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(Redeem);
 			if(key != null)
 				return key.WitScriptPubKey;
 			return Redeem;
 		}
+
+		public override bool CanGetScriptCode
+		{
+			get
+			{
+				return !IsP2SH || !PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(Redeem);
+			}
+		}
+
 		public override HashVersion GetHashVersion()
 		{
 			var isWitness = PayToWitTemplate.Instance.CheckScriptPubKey(ScriptPubKey) ||
