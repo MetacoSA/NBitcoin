@@ -110,6 +110,14 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
+		public int UnspentCount
+		{
+			get
+			{
+				return vout.Where(c => !IsNull(c)).Count();
+			}
+		}
+
 		public bool Spend(int position, out TxInUndo undo)
 		{
 			undo = null;
