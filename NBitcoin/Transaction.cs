@@ -17,10 +17,10 @@ namespace NBitcoin
 		{
 			get
 			{
-				return (hash == 0 && n == uint.MaxValue);
+				return (hash == uint256.Zero && n == uint.MaxValue);
 			}
 		}
-		private uint256 hash;
+		private uint256 hash = uint256.Zero;
 		private uint n;
 
 
@@ -115,7 +115,7 @@ namespace NBitcoin
 
 		void SetNull()
 		{
-			hash = 0;
+			hash = uint256.Zero;
 			n = uint.MaxValue;
 		}
 
