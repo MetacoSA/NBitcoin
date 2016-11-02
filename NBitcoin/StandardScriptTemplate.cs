@@ -454,8 +454,12 @@ namespace NBitcoin
 		}
 		public Script GenerateScriptPubKey(PubKey pubkey)
 		{
+			return GenerateScriptPubKey(pubkey.ToBytes(true));
+		}
+		public Script GenerateScriptPubKey(byte[] pubkey)
+		{
 			return new Script(
-					Op.GetPushOp(pubkey.ToBytes()),
+					Op.GetPushOp(pubkey),
 					OpcodeType.OP_CHECKSIG
 				);
 		}
@@ -526,14 +530,19 @@ namespace NBitcoin
 			}
 		}
 
-		public PubKey ExtractScriptPubKeyParameters(Script script)
+		/// <summary>
+		/// Extract the public key or null from the script, perform quick check on pubkey
+		/// </summary>
+		/// <param name="scriptPubKey"></param>
+		/// <returns>The public key</returns>
+		public PubKey ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
 			bool needMoreCheck;
-			if(!FastCheckScriptPubKey(script, out needMoreCheck))
+			if(!FastCheckScriptPubKey(scriptPubKey, out needMoreCheck))
 				return null;
 			try
 			{
-				return new PubKey(script.ToBytes(true).SafeSubarray(1, script.Length - 2), true);
+				return new PubKey(scriptPubKey.ToBytes(true).SafeSubarray(1, scriptPubKey.Length - 2), true);
 			}
 			catch(FormatException)
 			{
@@ -541,6 +550,19 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Extract the public key or null from the script
+		/// </summary>
+		/// <param name="scriptPubKey"></param>
+		/// <param name="deepCheck">Whether deep checks are done on public key</param>
+		/// <returns>The public key</returns>
+		public PubKey ExtractScriptPubKeyParameters(Script scriptPubKey, bool deepCheck)
+		{
+			var result = ExtractScriptPubKeyParameters(scriptPubKey);
+			if(result == null || !deepCheck)
+				return result;
+			return PubKey.Check(result.ToBytes(true), true) ? result : null;
+		}
 
 	}
 

@@ -54,14 +54,6 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
-		public List<TxOut> Outputs
-		{
-			get
-			{
-				return vout;
-			}
-		}
-
 		Money _Value;
 		public Money Value
 		{
@@ -71,29 +63,30 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
+		private readonly TxOut NullTxOut = new TxOut(new Money(-1), Script.Empty);
 		public Coins()
 		{
 
 		}
 		public Coins(Transaction tx, int height)
-			: this(tx, null, height)
 		{
-		}
-		public Coins(Transaction tx, Func<TxOut, bool> belongsToCoins, int height)
-		{
-			if(belongsToCoins == null)
-				belongsToCoins = o => !o.ScriptPubKey.IsUnspendable;
 			fCoinBase = tx.IsCoinBase;
 			vout = tx.Outputs.ToList();
 			nVersion = tx.Version;
 			nHeight = (uint)height;
-			ClearUnused(belongsToCoins);
+			ClearUnspendable();
 			UpdateValue();
 		}
 
 		private void UpdateValue()
 		{
-			_Value = Outputs.Where(o => !o.IsNull).Select(o => o.Value).Sum();
+			_Value = vout.Where(o => !IsNull(o))
+							.Select(o => o.Value).Sum();
+		}
+
+		private bool IsNull(TxOut o)
+		{
+			return o.Value.Satoshi == -1;
 		}
 
 		public bool IsEmpty
@@ -104,29 +97,24 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
-		private void ClearUnused(Func<TxOut, bool> belongsToCoins)
-		{
-			for(int i = 0; i < vout.Count; i++)
-			{
-				var o = vout[i];
-				if(o.ScriptPubKey.IsUnspendable || !belongsToCoins(o))
-				{
-					vout[i] = new TxOut();
-				}
-			}
-			Cleanup();
-		}
-
 		private void Cleanup()
 		{
 			var count = vout.Count;
 			// remove spent outputs at the end of vout
 			for(int i = count - 1; i >= 0; i--)
 			{
-				if(vout[i].IsNull)
+				if(IsNull(vout[i]))
 					vout.RemoveAt(i);
 				else
 					break;
+			}
+		}
+
+		public int UnspentCount
+		{
+			get
+			{
+				return vout.Where(c => !IsNull(c)).Count();
 			}
 		}
 
@@ -135,10 +123,10 @@ namespace NBitcoin.BitcoinCore
 			undo = null;
 			if(position >= vout.Count)
 				return false;
-			if(vout[position].IsNull)
+			if(IsNull(vout[position]))
 				return false;
 			undo = new TxInUndo(vout[position].Clone());
-			vout[position].SetNull();
+			vout[position] = NullTxOut;
 			Cleanup();
 			if(vout.Count == 0)
 			{
@@ -163,8 +151,8 @@ namespace NBitcoin.BitcoinCore
 			{
 				uint nMaskSize = 0, nMaskCode = 0;
 				CalcMaskSize(ref nMaskSize, ref nMaskCode);
-				bool fFirst = vout.Count > 0 && !vout[0].IsNull;
-				bool fSecond = vout.Count > 1 && !vout[1].IsNull;
+				bool fFirst = vout.Count > 0 && !IsNull(vout[0]);
+				bool fSecond = vout.Count > 1 && !IsNull(vout[1]);
 				uint nCode = unchecked((uint)(8 * (nMaskCode - (fFirst || fSecond ? 0 : 1)) + (fCoinBase ? 1 : 0) + (fFirst ? 2 : 0) + (fSecond ? 4 : 0)));
 				// version
 				stream.ReadWriteAsVarInt(ref nVersion);
@@ -175,7 +163,7 @@ namespace NBitcoin.BitcoinCore
 				{
 					byte chAvail = 0;
 					for(uint i = 0; i < 8 && 2 + b * 8 + i < vout.Count; i++)
-						if(!vout[2 + (int)b * 8 + (int)i].IsNull)
+						if(!IsNull(vout[2 + (int)b * 8 + (int)i]))
 							chAvail |= (byte)(1 << (int)i);
 					stream.ReadWrite(ref chAvail);
 				}
@@ -183,7 +171,7 @@ namespace NBitcoin.BitcoinCore
 				// txouts themself
 				for(uint i = 0; i < vout.Count; i++)
 				{
-					if(!vout[(int)i].IsNull)
+					if(!IsNull(vout[(int)i]))
 					{
 						var compressedTx = new TxOutCompressor(vout[(int)i]);
 						stream.ReadWrite(ref compressedTx);
@@ -218,7 +206,7 @@ namespace NBitcoin.BitcoinCore
 						nMaskCode--;
 				}
 				// txouts themself
-				vout = Enumerable.Range(0, vAvail.Count).Select(_ => new TxOut()).ToList();
+				vout = Enumerable.Range(0, vAvail.Count).Select(_ => NullTxOut).ToList();
 				for(uint i = 0; i < vAvail.Count; i++)
 				{
 					if(vAvail[(int)i])
@@ -235,6 +223,18 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
+		public Coins Clone()
+		{
+			return new Coins()
+			{
+				fCoinBase = fCoinBase,
+				nHeight = nHeight,
+				nVersion = nVersion,
+				vout = vout.Select(txout => txout.Clone()).ToList(),
+				_Value = _Value
+			};
+		}
+
 		// calculate number of bytes for the bitmask, and its number of non-zero bytes
 		// each bit in the bitmask represents the availability of one output, but the
 		// availabilities of the first two outputs are encoded separately
@@ -246,7 +246,7 @@ namespace NBitcoin.BitcoinCore
 				bool fZero = true;
 				for(uint i = 0; i < 8 && 2 + b * 8 + i < vout.Count; i++)
 				{
-					if(!vout[2 + (int)b * 8 + (int)i].IsNull)
+					if(!IsNull(vout[2 + (int)b * 8 + (int)i]))
 					{
 						fZero = false;
 						continue;
@@ -264,7 +264,14 @@ namespace NBitcoin.BitcoinCore
 		// check whether a particular output is still available
 		public bool IsAvailable(uint position)
 		{
-			return (position < vout.Count && !vout[(int)position].IsNull);
+			return (position <= int.MaxValue && position < vout.Count && !IsNull(vout[(int)position]));
+		}
+
+		public TxOut TryGetOutput(uint position)
+		{
+			if(!IsAvailable(position))
+				return null;
+			return vout[(int)position];
 		}
 
 		// check whether the entire CCoins is spent
@@ -273,7 +280,7 @@ namespace NBitcoin.BitcoinCore
 		{
 			get
 			{
-				return vout.All(v => v.IsNull);
+				return vout.Count == 0 || vout.All(v => IsNull(v));
 			}
 		}
 
@@ -281,25 +288,28 @@ namespace NBitcoin.BitcoinCore
 
 		public void ClearUnspendable()
 		{
-			ClearUnused(o => !o.ScriptPubKey.IsUnspendable);
+			for(int i = 0; i < vout.Count; i++)
+			{
+				var o = vout[i];
+				if(o.ScriptPubKey.IsUnspendable)
+				{
+					vout[i] = NullTxOut;
+				}
+			}
+			Cleanup();
 		}
 
 		public void MergeFrom(Coins otherCoin)
 		{
-			var diff = otherCoin.Outputs.Count - this.Outputs.Count;
+			var diff = otherCoin.vout.Count - this.vout.Count;
 			if(diff > 0)
-			{
-				Outputs.Resize(otherCoin.Outputs.Count);
-				for(int i = 0; i < Outputs.Count; i++)
+				for(int i = 0; i < diff; i++)
 				{
-					if(Outputs[i] == null)
-						Outputs[i] = new TxOut();
+					vout.Add(NullTxOut);
 				}
-			}
-			for(int i = 0; i < otherCoin.Outputs.Count; i++)
+			for(int i = 0; i < otherCoin.vout.Count; i++)
 			{
-				if(!otherCoin.Outputs[i].IsNull)
-					Outputs[i] = otherCoin.Outputs[i];
+				vout[i] = otherCoin.vout[i];
 			}
 			UpdateValue();
 		}
