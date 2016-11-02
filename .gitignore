@@ -188,3 +188,6 @@ project.lock.json
 /NBitcoin.Tests/addrmancache.dat
 /NBitcoin.Tests/CanStoreBlocks/StoreLock
 /NBitcoin.Tests/libbitcoinconsensus-0.dll
+/NBitcoin.NETCore.sln
+NBitcoin.NETCore.Tests
+NBitcoin.NETCore
