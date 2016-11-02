@@ -454,8 +454,12 @@ namespace NBitcoin
 		}
 		public Script GenerateScriptPubKey(PubKey pubkey)
 		{
+			return GenerateScriptPubKey(pubkey.ToBytes(true));
+		}
+		public Script GenerateScriptPubKey(byte[] pubkey)
+		{
 			return new Script(
-					Op.GetPushOp(pubkey.ToBytes()),
+					Op.GetPushOp(pubkey),
 					OpcodeType.OP_CHECKSIG
 				);
 		}

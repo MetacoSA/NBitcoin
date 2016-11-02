@@ -418,56 +418,31 @@ namespace NBitcoin
 			return new Script(_Script);
 		}
 
-		private KeyId GetKeyId()
-		{
-			if(_Script.Length == 25 && _Script[0] == (byte)OpcodeType.OP_DUP && _Script[1] == (byte)OpcodeType.OP_HASH160
-								&& _Script[2] == 20 && _Script[23] == (byte)OpcodeType.OP_EQUALVERIFY
-								&& _Script[24] == (byte)OpcodeType.OP_CHECKSIG)
-			{
-				return new KeyId(_Script.SafeSubarray(3, 20));
-			}
-			return null;
-		}
-
-		private ScriptId GetScriptId()
-		{
-			if(_Script.Length == 23 && _Script[0] == (byte)OpcodeType.OP_HASH160 && _Script[1] == 20
-								&& _Script[22] == (byte)OpcodeType.OP_EQUAL)
-			{
-				return new ScriptId(_Script.SafeSubarray(2, 20));
-			}
-			return null;
-		}
-
-		private PubKey GetPubKey()
-		{
-			return PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(new Script(_Script));
-		}
-
 		byte[] Compress()
 		{
 			byte[] result = null;
-			KeyId keyID = GetKeyId();
+			var script = Script.FromBytesUnsafe(_Script);
+			KeyId keyID = PayToPubkeyHashTemplate.Instance.ExtractScriptPubKeyParameters(script);
 			if(keyID != null)
 			{
 				result = new byte[21];
 				result[0] = 0x00;
-				Array.Copy(keyID.ToBytes(), 0, result, 1, 20);
+				Array.Copy(keyID.ToBytes(true), 0, result, 1, 20);
 				return result;
 			}
-			ScriptId scriptID = GetScriptId();
+			ScriptId scriptID = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(script); ;
 			if(scriptID != null)
 			{
 				result = new byte[21];
 				result[0] = 0x01;
-				Array.Copy(scriptID.ToBytes(), 0, result, 1, 20);
+				Array.Copy(scriptID.ToBytes(true), 0, result, 1, 20);
 				return result;
 			}
-			PubKey pubkey = GetPubKey();
+			PubKey pubkey = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(script);
 			if(pubkey != null)
 			{
 				result = new byte[33];
-				var pubBytes = pubkey.ToBytes();
+				var pubBytes = pubkey.ToBytes(true);
 				Array.Copy(pubBytes, 1, result, 1, 32);
 				if(pubBytes[0] == 0x02 || pubBytes[0] == 0x03)
 				{
@@ -488,12 +463,12 @@ namespace NBitcoin
 			switch(nSize)
 			{
 				case 0x00:
-					return new Script(OpcodeType.OP_DUP, OpcodeType.OP_HASH160, Op.GetPushOp(data.SafeSubarray(0, 20)), OpcodeType.OP_EQUALVERIFY, OpcodeType.OP_CHECKSIG);
+					return PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(new KeyId(data.SafeSubarray(0, 20)));
 				case 0x01:
-					return new Script(OpcodeType.OP_HASH160, Op.GetPushOp(data.SafeSubarray(0, 20)), OpcodeType.OP_EQUAL);
+					return PayToScriptHashTemplate.Instance.GenerateScriptPubKey(new ScriptId(data.SafeSubarray(0, 20)));
 				case 0x02:
 				case 0x03:
-					return new Script(Op.GetPushOp(new byte[] { (byte)nSize }.Concat(data.SafeSubarray(0, 32)).ToArray()), OpcodeType.OP_CHECKSIG);
+					return PayToPubkeyTemplate.Instance.GenerateScriptPubKey(data.SafeSubarray(0, 32));
 				case 0x04:
 				case 0x05:
 					byte[] vch = new byte[33];
@@ -501,7 +476,7 @@ namespace NBitcoin
 					Array.Copy(data, 0, vch, 1, 32);
 					PubKey pubkey = new PubKey(vch);
 					pubkey = pubkey.Decompress();
-					return new Script(Op.GetPushOp(pubkey.ToBytes()), OpcodeType.OP_CHECKSIG);
+					return PayToPubkeyTemplate.Instance.GenerateScriptPubKey(pubkey);
 			}
 			return null;
 		}

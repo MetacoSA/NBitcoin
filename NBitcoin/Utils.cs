@@ -267,7 +267,8 @@ namespace NBitcoin
 				throw new ArgumentOutOfRangeException("offset");
 			if(count < 0 || offset + count > array.Length)
 				throw new ArgumentOutOfRangeException("count");
-
+			if(offset == 0 && array.Length == count)
+				return array;
 			var data = new byte[count];
 			Buffer.BlockCopy(array, offset, data, 0, count);
 			return data;
