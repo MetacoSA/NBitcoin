@@ -68,6 +68,15 @@ namespace NBitcoin.RPC
 					{
 						((JToken)Params[i]).WriteTo(writer);
 					}
+					else if(Params[i] is Array)
+					{
+						writer.WriteStartArray();
+						foreach(var x in (Array)Params[i])
+						{
+							writer.WriteValue(x);
+						}
+						writer.WriteEndArray();
+					}
 					else
 					{
 						writer.WriteValue(Params[i]);

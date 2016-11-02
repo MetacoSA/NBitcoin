@@ -369,7 +369,7 @@ namespace NBitcoin.RPC
 					BytesReceived = (long)peer["bytesrecv"],
 					ConnectionTime = Utils.UnixTimeToDateTime((uint)peer["conntime"]),
 					TimeOffset = TimeSpan.FromSeconds(Math.Min((long)int.MaxValue, (long)peer["timeoffset"])),
-					PingTime = TimeSpan.FromSeconds((double)peer["pingtime"]),
+					PingTime = peer["pingtime"] == null ? (TimeSpan?)null : TimeSpan.FromSeconds((double)peer["pingtime"]),
 					PingWait = TimeSpan.FromSeconds(pingWait),
 					Blocks = peer["blocks"] != null ? (int)peer["blocks"] : -1,
 					Version = (int)peer["version"],
@@ -1100,7 +1100,7 @@ namespace NBitcoin.RPC
 		{
 			get; internal set;
 		}
-		public TimeSpan PingTime
+		public TimeSpan? PingTime
 		{
 			get; internal set;
 		}

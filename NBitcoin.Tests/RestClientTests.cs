@@ -95,10 +95,13 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilder.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
-				var rpc = builder.Nodes[0].CreateRPCClient();
+				var rpc = builder.Nodes[0].CreateRPCClient();				
 				builder.StartAll();
+				var k = new Key().GetBitcoinSecret(Network.RegTest);
+				builder.Nodes[0].SetMinerSecret(k);
 				builder.Nodes[0].Generate(110);
 				var c = rpc.ListUnspent().First();
+				c = rpc.ListUnspent(0, 999999, k.GetAddress()).First();
 				var outPoint = c.OutPoint;
 				var utxos = client.GetUnspentOutputsAsync(new[] { outPoint }, true).Result;
 				Assert.Equal(1, utxos.Outputs.Length);
