@@ -71,7 +71,7 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
-		public readonly TxOut NullTxOut = new TxOut(new Money(-1), Script.Empty);
+		public static readonly TxOut NullTxOut = new TxOut(new Money(-1), Script.Empty);
 		public Coins()
 		{
 
