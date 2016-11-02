@@ -25,6 +25,14 @@ namespace NBitcoin.BitcoinCore
 		// unspent transaction outputs; spent outputs are .IsNull(); spent outputs at the end of the array are dropped
 		List<TxOut> vout = new List<TxOut>();
 
+		public List<TxOut> Outputs
+		{
+			get
+			{
+				return vout;
+			}
+		}
+
 		// at which height this transaction was included in the active block chain
 		uint nHeight;
 		public uint Height
@@ -63,7 +71,7 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
-		private readonly TxOut NullTxOut = new TxOut(new Money(-1), Script.Empty);
+		public readonly TxOut NullTxOut = new TxOut(new Money(-1), Script.Empty);
 		public Coins()
 		{
 
