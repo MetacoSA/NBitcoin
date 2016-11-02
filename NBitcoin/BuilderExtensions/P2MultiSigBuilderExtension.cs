@@ -8,45 +8,9 @@ namespace NBitcoin.BuilderExtensions
 {
 	public class P2MultiSigBuilderExtension : BuilderExtension
 	{
-		public override bool CanGenerateScriptSig(Script scriptPubkey)
+		public override bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b)
 		{
-			return PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubkey) != null;
-		}
-
-		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
-		{
-			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
-			TransactionSignature[] signatures = new TransactionSignature[multiSigParams.PubKeys.Length];
-			var keys =
-				multiSigParams
-				.PubKeys
-				.Select(p => keyRepo.FindKey(p.ScriptPubKey))
-				.ToArray();
-
-			int sigCount = 0;
-			for(int i = 0; i < keys.Length; i++)
-			{
-				if(sigCount == multiSigParams.SignatureCount)
-					break;
-				if(keys[i] != null)
-				{
-					var sig = signer.Sign(keys[i]);
-					signatures[i] = sig;
-					sigCount++;
-				}
-			}
-
-			IEnumerable<TransactionSignature> sigs = signatures;
-			if(sigCount == multiSigParams.SignatureCount)
-			{
-				sigs = sigs.Where(s => s != TransactionSignature.Empty && s != null);
-			}
-			return PayToMultiSigTemplate.Instance.GenerateScriptSig(sigs);
-		}
-
-		public override Script DeduceScriptPubKey(Script scriptSig)
-		{
-			throw new NotImplementedException();
+			return PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) != null;
 		}
 
 		public override bool CanDeduceScriptPubKey(Script scriptSig)
@@ -54,18 +18,12 @@ namespace NBitcoin.BuilderExtensions
 			return false;
 		}
 
-		public override bool CanEstimateScriptSigSize(Script scriptPubkey)
+		public override bool CanEstimateScriptSigSize(Script scriptPubKey)
 		{
-			return PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubkey) != null;
+			return PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) != null;
 		}
 
-		public override int EstimateScriptSigSize(Script scriptPubKey)
-		{
-			var p2mk = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
-			return PayToMultiSigTemplate.Instance.GenerateScriptSig(Enumerable.Range(0, p2mk.SignatureCount).Select(o => DummySignature).ToArray()).Length;
-		}
-
-		public override bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b)
+		public override bool CanGenerateScriptSig(Script scriptPubKey)
 		{
 			return PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) != null;
 		}
@@ -97,6 +55,48 @@ namespace NBitcoin.BuilderExtensions
 			}
 			if(pubkeyCount == para.SignatureCount)
 				sigs = sigs.Where(s => s != null && s != TransactionSignature.Empty).ToArray();
+			return PayToMultiSigTemplate.Instance.GenerateScriptSig(sigs);
+		}
+
+		public override Script DeduceScriptPubKey(Script scriptSig)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override int EstimateScriptSigSize(Script scriptPubKey)
+		{
+			var p2mk = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			return PayToMultiSigTemplate.Instance.GenerateScriptSig(Enumerable.Range(0, p2mk.SignatureCount).Select(o => DummySignature).ToArray()).Length;
+		}
+
+		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
+		{
+			var multiSigParams = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);
+			TransactionSignature[] signatures = new TransactionSignature[multiSigParams.PubKeys.Length];
+			var keys =
+				multiSigParams
+				.PubKeys
+				.Select(p => keyRepo.FindKey(p.ScriptPubKey))
+				.ToArray();
+
+			int sigCount = 0;
+			for(int i = 0; i < keys.Length; i++)
+			{
+				if(sigCount == multiSigParams.SignatureCount)
+					break;
+				if(keys[i] != null)
+				{
+					var sig = signer.Sign(keys[i]);
+					signatures[i] = sig;
+					sigCount++;
+				}
+			}
+
+			IEnumerable<TransactionSignature> sigs = signatures;
+			if(sigCount == multiSigParams.SignatureCount)
+			{
+				sigs = sigs.Where(s => s != TransactionSignature.Empty && s != null);
+			}
 			return PayToMultiSigTemplate.Instance.GenerateScriptSig(sigs);
 		}
 	}

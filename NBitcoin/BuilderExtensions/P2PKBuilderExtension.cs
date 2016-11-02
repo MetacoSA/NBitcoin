@@ -8,9 +8,39 @@ namespace NBitcoin.BuilderExtensions
 {
 	public class P2PKBuilderExtension : BuilderExtension
 	{
-		public override bool CanGenerateScriptSig(Script scriptPubkey)
+		public override bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b)
 		{
-			return PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubkey) != null;
+			return false;
+		}
+
+		public override bool CanDeduceScriptPubKey(Script scriptSig)
+		{
+			return false;
+		}
+
+		public override bool CanEstimateScriptSigSize(Script scriptPubKey)
+		{
+			return PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) != null;
+		}
+
+		public override bool CanGenerateScriptSig(Script scriptPubKey)
+		{
+			return PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) != null;
+		}
+
+		public override Script CombineScriptSig(Script scriptPubKey, Script a, Script b)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override Script DeduceScriptPubKey(Script scriptSig)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override int EstimateScriptSigSize(Script scriptPubKey)
+		{
+			return PayToPubkeyTemplate.Instance.GenerateScriptSig(DummySignature).Length;
 		}
 
 		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
@@ -20,36 +50,6 @@ namespace NBitcoin.BuilderExtensions
 				return null;
 			var sig = signer.Sign(key);
 			return PayToPubkeyTemplate.Instance.GenerateScriptSig(sig);
-		}
-
-		public override Script DeduceScriptPubKey(Script scriptSig)
-		{
-			throw new NotImplementedException();
-		}
-
-		public override bool CanDeduceScriptPubKey(Script scriptSig)
-		{
-			return false;
-		}
-
-		public override bool CanEstimateScriptSigSize(Script scriptPubkey)
-		{
-			return PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubkey) != null;
-		}
-
-		public override int EstimateScriptSigSize(Script scriptPubKey)
-		{
-			return PayToPubkeyTemplate.Instance.GenerateScriptSig(DummySignature).Length;
-		}
-
-		public override bool CanCombineScriptSig(Script scriptPubKey, Script a, Script b)
-		{
-			return false;
-		}
-
-		public override Script CombineScriptSig(Script scriptPubKey, Script a, Script b)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }
