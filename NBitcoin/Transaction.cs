@@ -430,7 +430,7 @@ namespace NBitcoin
 				Array.Copy(keyID.ToBytes(true), 0, result, 1, 20);
 				return result;
 			}
-			ScriptId scriptID = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(script); ;
+			ScriptId scriptID = PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(script);
 			if(scriptID != null)
 			{
 				result = new byte[21];
@@ -438,7 +438,7 @@ namespace NBitcoin
 				Array.Copy(scriptID.ToBytes(true), 0, result, 1, 20);
 				return result;
 			}
-			PubKey pubkey = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(script);
+			PubKey pubkey = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(script, true);
 			if(pubkey != null)
 			{
 				result = new byte[33];
@@ -468,13 +468,17 @@ namespace NBitcoin
 					return PayToScriptHashTemplate.Instance.GenerateScriptPubKey(new ScriptId(data.SafeSubarray(0, 20)));
 				case 0x02:
 				case 0x03:
-					return PayToPubkeyTemplate.Instance.GenerateScriptPubKey(data.SafeSubarray(0, 32));
+					var keyPart = data.SafeSubarray(0, 32);
+					var keyBytes = new byte[33];
+					keyBytes[0] = (byte)nSize;
+					Array.Copy(keyPart, 0, keyBytes, 1, 32);
+					return PayToPubkeyTemplate.Instance.GenerateScriptPubKey(keyBytes);
 				case 0x04:
 				case 0x05:
 					byte[] vch = new byte[33];
 					vch[0] = (byte)(nSize - 2);
 					Array.Copy(data, 0, vch, 1, 32);
-					PubKey pubkey = new PubKey(vch);
+					PubKey pubkey = new PubKey(vch, true);
 					pubkey = pubkey.Decompress();
 					return PayToPubkeyTemplate.Instance.GenerateScriptPubKey(pubkey);
 			}
@@ -533,7 +537,7 @@ namespace NBitcoin
 	}
 
 	public class TxOut : IBitcoinSerializable, IDestination
-	{		
+	{
 		Script publicKey = Script.Empty;
 		public Script ScriptPubKey
 		{

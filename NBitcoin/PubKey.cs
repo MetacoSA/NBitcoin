@@ -33,7 +33,7 @@ namespace NBitcoin
 		/// Create a new Public key from byte array
 		/// </summary>
 		/// <param name="bytes">byte array</param>
-		/// <param name="unsafe">If false, make internal copy of bytes and does perform only a costly check for PubKey format. If true, the bytes array is used as is and only PubKey.QuickCheck is used for validating the format. </param>	 
+		/// <param name="unsafe">If false, make internal copy of bytes and does perform only a costly check for PubKey format. If true, the bytes array is used as is and only PubKey.Check is used for validating the format. </param>	 
 		public PubKey(byte[] bytes, bool @unsafe)
 		{
 			if(bytes == null)
