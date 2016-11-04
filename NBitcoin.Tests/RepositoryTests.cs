@@ -257,6 +257,28 @@ namespace NBitcoin.Tests
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public static void CanPushTxBlockr()
+		{
+			var repo = new BlockrTransactionRepository(Network.Main);
+			var result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de");
+			Assert.NotNull(result);
+			Assert.Equal("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de", result.GetHash().ToString());
+
+			var pushPath = BlockrTransactionRepository.PushPath;
+
+			try
+			{
+				BlockrTransactionRepository.PushPath = "tx/decode";
+				repo.Put(result);
+			}
+			finally
+			{
+				BlockrTransactionRepository.PushPath = pushPath;
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public static void CanRequestTransactionOnQBit()
 		{
 			var repo = new QBitNinjaTransactionRepository(Network.Main);
