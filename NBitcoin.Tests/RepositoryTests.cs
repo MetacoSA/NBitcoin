@@ -434,7 +434,7 @@ namespace NBitcoin.Tests
             Assert.True(m[0] == byts[0] && m[1] == byts[1] && m[2] == byts[2] && m[3] == byts[3]);
             // enumerate over all the bytes and separate the blocks to hex representations
             var current = new List<byte>();
-            for (int i = 1; i < byts.Length; i++) // start from 1 to skip first check
+            for (int i = 0; i < byts.Length; i++) // start from 1 to skip first check
             {
                 // check for the magic byte
                 if ((m[0] == byts[i] &&
@@ -496,9 +496,9 @@ namespace NBitcoin.Tests
 
         [Fact]
         [Trait("UnitTest", "UnitTest")]
-        public void EnumerateStratisBlockcahinAndValidateAllBlocks()
+        public void EnumerateAndValidateAllBlocks()
         {
-            var listAll = new Dictionary<string, StoredBlock>();
+			var listAll = new Dictionary<string, StoredBlock>();
 			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
 			foreach (var block in store.EnumerateFolder())
             {
@@ -525,7 +525,7 @@ namespace NBitcoin.Tests
 
         [Fact]
         [Trait("UnitTest", "UnitTest")]
-        public void EnumerateStratisBlockcahinCheckTipBlock()
+        public void EnumerateAndCheckTipBlock()
         {
             var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
 

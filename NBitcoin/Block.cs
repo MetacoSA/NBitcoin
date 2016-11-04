@@ -281,14 +281,17 @@ namespace NBitcoin
 
 		public List<Transaction> Transactions
 		{
-			get
-			{
-				return vtx;
-			}
-			set
-			{
-				vtx = value;
-			}
+			get { return vtx; }
+			set { vtx = value; }
+		}
+
+		// block signature - signed by one of the coin base txout[N]'s owner
+		private BlockSignature blockSignature = new BlockSignature();
+
+		public BlockSignature BlockSignatur
+		{
+			get { return this.blockSignature; }
+			set { this.blockSignature = value; }
 		}
 
 		public MerkleNode GetMerkleRoot()
@@ -331,7 +334,8 @@ namespace NBitcoin
 		{
 			stream.ReadWrite(ref header);
 			stream.ReadWrite(ref vtx);
-
+			stream.ReadWrite(ref blockSignature);
+			
 			this.SetPosParams();
 		}
 
@@ -348,6 +352,7 @@ namespace NBitcoin
 		{
 			header.SetNull();
 			vtx.Clear();
+			blockSignature.SetNull();
 		}
 
 
@@ -415,7 +420,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Check proof of work and merkle root
+		/// Check POW/POS and merkle root
 		/// </summary>
 		/// <returns></returns>
 		public bool Check()
@@ -431,8 +436,10 @@ namespace NBitcoin
 
         public bool CheckProofOfStake()
         {
-            // todo: move this to the full node code.
-            // this code is temporary and will move to the full node implementation when its ready
+			// todo: move this to the full node code.
+			// this code is not the full check of POS 
+			// full POS check will be introduced with the full node
+			
             if (IsProofOfWork())
                 return true;
 

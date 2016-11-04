@@ -84,7 +84,7 @@
     <Compile Include="key_tests.cs" />
     <Compile Include="NetworkTests.cs" />
     <Compile Include="PaymentTests.cs" />
-    <Compile Include="pow_tests.cs" />
+    <Compile Include="pow_pos_tests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProtocolTests.cs" />
     <Compile Include="RepositoryTests.cs" />
