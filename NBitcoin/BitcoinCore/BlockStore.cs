@@ -31,36 +31,46 @@ namespace NBitcoin.BitcoinCore
 
 		public void SynchronizeChain(ChainBase chain)
 		{
-			Dictionary<uint256, BlockHeader> headers = new Dictionary<uint256, BlockHeader>();
+			Dictionary<uint256, Block> blocks = new Dictionary<uint256, Block>();
 			Dictionary<uint256, ChainedBlock> chainedBlocks = new Dictionary<uint256, ChainedBlock>();
 			HashSet<uint256> inChain = new HashSet<uint256>();
 			inChain.Add(chain.GetBlock(0).HashBlock);
 			chainedBlocks.Add(chain.GetBlock(0).HashBlock, chain.GetBlock(0));
 
-			foreach (var header in Enumerate(true).Select(b => b.Item.Header))
+			foreach (var block in this.Enumerate(false).Select(b => b.Item))
 			{
-				var hash = header.GetHash();
-				headers.Add(hash, header);
+				var hash = block.GetHash();
+				blocks.Add(hash, block);
 			}
 			List<uint256> toRemove = new List<uint256>();
-			while (headers.Count != 0)
+			while (blocks.Count != 0)
 			{
-				foreach (var header in headers)
+				// to optimize keep a track of the last block
+				ChainedBlock last = chain.GetBlock(0);
+				foreach (var block in blocks)
 				{
-					if (inChain.Contains(header.Value.HashPrevBlock))
+					if (inChain.Contains(block.Value.Header.HashPrevBlock))
 					{
-						toRemove.Add(header.Key);
+						toRemove.Add(block.Key);
 						ChainedBlock chainedBlock;
-						if (!chainedBlocks.TryGetValue(header.Value.HashPrevBlock, out chainedBlock))
-							break;
-						var chainedHeader = new ChainedBlock(header.Value, header.Value.GetHash(), chainedBlock);
+						if(last.HashBlock == block.Value.Header.HashPrevBlock)
+						{
+							chainedBlock = last;
+						}
+						else
+						{
+							if (!chainedBlocks.TryGetValue(block.Value.Header.HashPrevBlock, out chainedBlock))
+								break;
+						}
+						var chainedHeader = new ChainedBlock(block.Value.Header, block.Value.GetHash(), chainedBlock);
 						chain.SetTip(chainedHeader);
 						chainedBlocks.TryAdd(chainedHeader.HashBlock, chainedHeader);
-						inChain.Add(header.Key);
+						inChain.Add(block.Key);
+						last = chainedHeader;
 					}
 				}
 				foreach (var item in toRemove)
-					headers.Remove(item);
+					blocks.Remove(item);
 				if (toRemove.Count == 0)
 					break;
 				toRemove.Clear();

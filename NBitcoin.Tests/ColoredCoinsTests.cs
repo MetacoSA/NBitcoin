@@ -14,6 +14,10 @@ using Xunit;
 
 namespace NBitcoin.Tests
 {
+	// ----------------------------------------------------
+	// this tests are not required for the stratis network
+	// ----------------------------------------------------
+
 	//https://github.com/OpenAssets/open-assets-protocol/blob/master/specification.mediawiki
 	public class ColoredCoinsTests
 	{
@@ -103,8 +107,8 @@ namespace NBitcoin.Tests
 		}
 #endif
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanParseColoredAddress()
 		{
 			var address = new BitcoinPubKeyAddress("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM");
@@ -128,8 +132,8 @@ namespace NBitcoin.Tests
 			Assert.Equal(colored.ToNetwork(Network.TestNet), testColored);
 		}
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		//https://github.com/OpenAssets/open-assets-protocol/blob/master/specification.mediawiki
 		public void CanColorizeSpecScenario()
 		{
@@ -241,8 +245,8 @@ namespace NBitcoin.Tests
 			return testedTx;
 		}
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanParseAndSetUrlInAssetMetadata()
 		{
 			var tx = Transaction.Parse("0100000001ed6f645a2d0eccf693692bc6677cd3c5efaba021db1527c91b9b441fe16da2f7020000006c493046022100991a71c15ebbf77032fc65ccd16ed286435fcc5ba48435510f561079e46dbb2a022100f1e477385196f083a779fd3366e074d34db12754330f02693520951081d5ab19012103f82af267c2f60b7ce274e7e8bc065dad3c1b0ca7a694801c814f128e63242a12ffffffff0358020000000000001976a91477e3e6acdeca221685d0d23a12989b96335a463988ac0000000000000000276a254f4101000180ade2041b753d68747470733a2f2f6370722e736d2f3954627276364a435776e89c0c00000000001976a9142d14f700c8b0a9ff95cb6092faad0795bf790dc788ac00000000");
@@ -257,8 +261,8 @@ namespace NBitcoin.Tests
 		}
 
 #if !PORTABLE
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanFetchTransactionFromCoinprism()
 		{
 			CanFetchTransactionFromCoinprismCore("CanColorizeIssuanceTransaction");
@@ -277,8 +281,8 @@ namespace NBitcoin.Tests
 		//https://www.coinprism.info/tx/b4399a545c4ddd640920d63af75e7367fe4d94b2d7f7a3423105e25ac5f165a6
 		//Asset Id : 3QzJDrSsi4Pm2DhcZFXR9MGJsXXtsYhUsq
 		//1BvvRfz4XnxSWJ524TusetYKrtZnAbgV3r to 18Jcv42cRknPmxrQPb2zSBuEVWq3egjCKq
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanColorizeOutputs()
 		{
 			var tester = CreateTester("CanColorizeIssuanceTransaction");
@@ -412,8 +416,8 @@ namespace NBitcoin.Tests
 		//0x04                           The metadata is 4 bytes long.
 		//0x12 0x34 0x56 0x78            Some arbitrary metadata.
 		//00000000000000001c7a19e8ef62d815d84a473f543de77f23b8342fc26812a9 at 299220 Monday, May 5, 2014 3:47:37 PM first block
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanParseColorMarker()
 		{
 			var script = new Script(Encoders.Hex.DecodeData("6a104f41010003ac0200e58e260412345678"));
@@ -426,8 +430,8 @@ namespace NBitcoin.Tests
 			Assert.Equal(script.ToString(), marker.GetScript().ToString());
 		}
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanParseColorMarker2()
 		{
 			string[] invalidMarkers =
@@ -469,8 +473,8 @@ namespace NBitcoin.Tests
 			Assert.Equal("6a104f41010003f00100e58e260412345678", marker2.GetScript().ToHex());
 		}
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanCreateAssetAddress()
 		{
 			//The issuer first generates a private key: 18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725.

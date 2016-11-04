@@ -100,6 +100,7 @@
     <Compile Include="transaction_tests.cs" />
     <Compile Include="util_tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestDataLocations.cs" />
     <Compile Include="WebClient.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -113,10 +114,10 @@
     <None Include="data\base58_keys_valid.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="data\blocks\blk00000.dat">
+    <None Include="data\blocks\blk0001.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="data\blocks\blk00001.dat">
+    <None Include="data\blocks\blk0002.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\blocks\Block1.json">
@@ -224,7 +225,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="data\block169482.txt">
+    <Content Include="data\block1125.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="README.txt" />

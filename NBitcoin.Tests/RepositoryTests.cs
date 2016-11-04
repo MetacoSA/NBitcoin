@@ -59,17 +59,15 @@ namespace NBitcoin.Tests
 		public void CanReadStoredBlockFile()
 		{
 			int count = 0;
-
-			foreach(var stored in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat"))
+			foreach (var stored in StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat"))
 			{
-				Assert.True(stored.Item.Header.CheckProofOfWork());
-				Assert.True(stored.Item.CheckMerkleRoot());
+				Assert.True(stored.Item.Check());
 				count++;
 			}
-			Assert.Equal(300, count);
+			Assert.Equal(2000, count);
 			count = 0;
-			var twoLast = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").Skip(298).ToList();
-			foreach(var stored in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat", range: new DiskBlockPosRange(twoLast[0].BlockPosition)))
+			var twoLast = StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat").Skip(1998).ToList();
+			foreach(var stored in StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat", range: new DiskBlockPosRange(twoLast[0].BlockPosition)))
 			{
 				count++;
 			}
@@ -93,8 +91,8 @@ namespace NBitcoin.Tests
 		public void CanEnumerateBlockInAFileRange()
 		{
 			var store = new BlockStore(@"data\blocks", Network.Main);
-			var result = store.Enumerate(new DiskBlockPosRange(new DiskBlockPos(0, 0), new DiskBlockPos(1, 0))).ToList();
-			Assert.Equal(300, result.Count);
+			var result = store.Enumerate(new DiskBlockPosRange(new DiskBlockPos(1, 0), new DiskBlockPos(2, 0))).ToList();
+			Assert.Equal(2000, result.Count);
 		}
 
 		[Fact]
@@ -102,7 +100,7 @@ namespace NBitcoin.Tests
 		//The last block is off by 1 byte + lots of padding zero at the end
 		public void CanEnumerateIncompleteBlk()
 		{
-			Assert.Equal(301, StoredBlock.EnumerateFile(@"data\blocks\incompleteblk.dat").Count());
+			Assert.Equal(300, StoredBlock.EnumerateFile(@"data\blocks\incompleteblk.dat").Count());
 		}
 
 		[Fact]
@@ -111,7 +109,7 @@ namespace NBitcoin.Tests
 		{
 			var store = new BlockStore(@"data\blocks", Network.Main);
 			var chain = store.GetChain();
-			Assert.True(chain.Height == 599);
+			Assert.True(chain.Height == 3999);
 
 		}
 
@@ -120,13 +118,13 @@ namespace NBitcoin.Tests
 		public void CanIndexBlock()
 		{
 			var index = CreateIndexedStore();
-			foreach(var block in StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").Take(50))
+			foreach(var block in StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat").Take(50))
 			{
 				index.Put(block.Item);
 			}
-			var genesis = index.Get(uint256.Parse("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
+			var genesis = index.Get(uint256.Parse("0x0000066e91e46e5a264d42c89e1204963b2ee6be230b443e9159020539d972af"));
 			Assert.NotNull(genesis);
-			var invalidBlock = index.Get(uint256.Parse("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26e"));
+			var invalidBlock = index.Get(uint256.Parse("0x0000066e91e46e5a264d42c89e1204963b2ee6be230b443e9159020539d972ae"));
 			Assert.Null(invalidBlock);
 		}
 
@@ -142,7 +140,7 @@ namespace NBitcoin.Tests
 		public void CanStoreBlocks()
 		{
 			var store = CreateBlockStore();
-			var allBlocks = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").Take(50).ToList();
+			var allBlocks = StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat").Take(50).ToList();
 
 			foreach(var s in allBlocks)
 			{
@@ -153,7 +151,7 @@ namespace NBitcoin.Tests
 
 			foreach(var s in allBlocks)
 			{
-				var retrieved = store.Enumerate(true).First(b => b.BlockPosition == s.BlockPosition);
+				var retrieved = store.Enumerate(true).First(b => b.Item.GetHash() == s.Item.GetHash());
 				Assert.True(retrieved.Item.HeaderOnly);
 			}
 		}
@@ -163,7 +161,7 @@ namespace NBitcoin.Tests
 		{
 			var store = CreateBlockStore();
 			store.MaxFileSize = 10; //Verify break all block in one respective file with extreme settings
-			var allBlocks = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").Take(10).ToList();
+			var allBlocks = StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat").Take(10).ToList();
 			foreach(var s in allBlocks)
 			{
 				store.Append(s.Item);
@@ -205,7 +203,6 @@ namespace NBitcoin.Tests
 			Assert.Equal(0, reIndexed);
 		}
 
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public static void CanParseRev()
@@ -221,7 +218,7 @@ namespace NBitcoin.Tests
 				dest.Append(un.Item);
 				count++;
 			}
-			Assert.Equal(40, count);
+			Assert.Equal(8, count);
 
 			count = 0;
 			foreach(var un in dest.EnumerateFolder())
@@ -231,63 +228,15 @@ namespace NBitcoin.Tests
 				Assert.Equal(expectedSize, actualSize);
 				count++;
 			}
-			Assert.Equal(40, count);
+			Assert.Equal(8, count);
 		}
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public static void CanRequestBlockr()
-		{
-			var repo = new BlockrTransactionRepository(Network.Main);
-			var result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de");
-			Assert.NotNull(result);
-			Assert.Equal("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de", result.GetHash().ToString());
-
-			result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927df");
-			Assert.Null(result);
-
-			var unspent = repo.GetUnspentAsync("1KF8kUVHK42XzgcmJF4Lxz4wcL5WDL97PB").Result;
-			Assert.True(unspent.Count != 0);
-
-			repo = new BlockrTransactionRepository(Network.TestNet);
-			result = repo.Get("7d4c5d69a85c70ff70daff789114b9b76fb6d2613ac18764bd96f0a2b9358782");
-			Assert.NotNull(result);
-
-			unspent = repo.GetUnspentAsync("2N66DDrmjDCMM3yMSYtAQyAqRtasSkFhbmX").Result;
-			Assert.True(unspent.Count != 0);
-		}
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public static void CanRequestTransactionOnQBit()
-		{
-			var repo = new QBitNinjaTransactionRepository(Network.Main);
-			var result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de");
-			Assert.NotNull(result);
-			Assert.Equal("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de", result.GetHash().ToString());
-
-			result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927df");
-			Assert.Null(result);
-
-			repo = new QBitNinjaTransactionRepository(Network.TestNet);
-			result = repo.Get("7d4c5d69a85c70ff70daff789114b9b76fb6d2613ac18764bd96f0a2b9358782");
-			Assert.NotNull(result);
-		}
-
-		private static Coin RandomCoin(Key bob, Money amount, bool p2pkh = false)
-		{
-			return new Coin(new uint256(Enumerable.Range(0, 32).Select(i => (byte)0xaa).ToArray()), 0, amount, p2pkh ? bob.PubKey.Hash.ScriptPubKey : bob.PubKey.WitHash.ScriptPubKey);
-		}
-
-		[Fact]
-		public void Play()
-		{
-		}
-
+		
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanStoreInBlockRepository()
 		{
 			var blockRepository = CreateBlockRepository();
-			var firstblk1 = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat").First();
+			var firstblk1 = StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat").First();
 			blockRepository.WriteBlockHeader(firstblk1.Item.Header);
 			var result = blockRepository.GetBlock(firstblk1.Item.GetHash());
 			Assert.True(result.HeaderOnly);
@@ -302,39 +251,38 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadStoredBlockFolder()
 		{
-			var blk0 = StoredBlock.EnumerateFile(@"data\blocks\blk00000.dat", (uint)0).ToList();
-			var blk1 = StoredBlock.EnumerateFile(@"data\blocks\blk00001.dat", (uint)1).ToList();
+			var blk0 = StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat", (uint)1).ToList();
+			var blk1 = StoredBlock.EnumerateFile(@"data\blocks\blk0002.dat", (uint)2).ToList();
 
 			int count = 0;
 			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks"))
 			{
 				if(count == 0)
 					Assert.Equal(blk0[0].Item.GetHash(), stored.Item.GetHash());
-				if(count == 300)
+				if(count == 2000)
 					Assert.Equal(blk1[0].Item.GetHash(), stored.Item.GetHash());
-				Assert.True(stored.Item.Header.CheckProofOfWork());
-				Assert.True(stored.Item.CheckMerkleRoot());
+				Assert.True(stored.Item.Check());
 				count++;
 			}
-			Assert.Equal(600, count);
+			Assert.Equal(4000, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(blk1[298].BlockPosition)))
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(blk1[1998].BlockPosition)))
 			{
 				count++;
 			}
 			Assert.Equal(2, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(blk0[298].BlockPosition)))
+			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(blk0[1998].BlockPosition)))
 			{
 				count++;
 			}
-			Assert.Equal(302, count);
+			Assert.Equal(2002, count);
 
 			count = 0;
 			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks",
-														new DiskBlockPosRange(blk0[298].BlockPosition, blk1[2].BlockPosition)))
+														new DiskBlockPosRange(blk0[1998].BlockPosition, blk1[2].BlockPosition)))
 			{
 				count++;
 			}
@@ -472,16 +420,14 @@ namespace NBitcoin.Tests
                 var str = $"hash={b.GetHash()} ver={b.Header.Version} size={size} nonc={b.Header.Nonce} bits={b.Header.Bits} prv={b.Header.HashPrevBlock} mrk={b.Header.HashMerkleRoot}";
                 fileInserts.Add(str);
             }
-            var pathFile = @"C:\StratisData\compare-blocks.txt";
+            var pathFile = $@"{TestDataLocations.BlockFolderLocation}\compare-blocks.txt";
             File.WriteAllLines(pathFile, fileInserts);
         }
 
         private IEnumerable<string> ManuallyEnumerateTheBlockchainFile()
         {
             // read all bytes form the first block file
-            // to get a copy of the blockchain fiel without downloading follow this link
-            // https://1drv.ms/f/s!AE-fao7cBVQ-aQ
-            var byts = File.ReadAllBytes(@"C:\StratisData\blk0001.dat");
+            var byts = File.ReadAllBytes(TestDataLocations.Block0001Location);
             // the magic byte separator of blocks
             var m = new byte[4] { 0x70, 0x35, 0x22, 0x05 };
             // first bytes must be magic
@@ -529,7 +475,7 @@ namespace NBitcoin.Tests
                 blocks.Add(b);
             }
 
-            var client = new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"), new Uri("http://127.0.0.1:5000"), Network.StratisMain);
+            var client = new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"), new Uri("http://127.0.0.1:5000"), Network.Main);
             Dictionary<int, string> blocksNotFound = new Dictionary<int, string>();
             var index = 0;
             while (index <= 9000)
@@ -553,8 +499,8 @@ namespace NBitcoin.Tests
         public void EnumerateStratisBlockcahinAndValidateAllBlocks()
         {
             var listAll = new Dictionary<string, StoredBlock>();
-            var store = new BlockStore(@"C:\StratisData", Network.StratisMain);
-            foreach (var block in store.EnumerateFolder())
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+			foreach (var block in store.EnumerateFolder())
             {
                 var hash = block.Item.GetHash();
                 listAll.Add(hash.ToString(), block);
@@ -565,7 +511,7 @@ namespace NBitcoin.Tests
 
             // walk the chain and check that all block are loaded correctly 
             var block100K = uint256.Parse("af380a53467b70bc5d1ee61441586398a0a5907bb4fad7855442575483effa54");
-            var genesis = Network.StratisMain.GetGenesis().GetHash();
+            var genesis = Network.Main.GetGenesis().GetHash();
             uint256 current = block100K;
             while (true)
             {
@@ -581,10 +527,10 @@ namespace NBitcoin.Tests
         [Trait("UnitTest", "UnitTest")]
         public void EnumerateStratisBlockcahinCheckTipBlock()
         {
-            var store = new BlockStore(@"C:\StratisData", Network.StratisMain);
+            var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
 
-            // use the synchronize chain method to load all blocks and look for the tip (currently block 100k)
-            var block100K = uint256.Parse("af380a53467b70bc5d1ee61441586398a0a5907bb4fad7855442575483effa54");
+			// use the synchronize chain method to load all blocks and look for the tip (currently block 100k)
+			var block100K = uint256.Parse("af380a53467b70bc5d1ee61441586398a0a5907bb4fad7855442575483effa54");
             var chain = store.GetChain();
             var lastblk = chain.GetBlock(block100K);
             Assert.Equal(block100K, lastblk.Header.GetHash());

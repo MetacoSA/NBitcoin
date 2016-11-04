@@ -19,8 +19,8 @@ namespace NBitcoin.Tests
 	//Their examples are broken
 	public class PaymentTests
 	{
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanParsePaymentUrl()
 		{
 			Assert.Equal("bitcoin:", new BitcoinUrlBuilder().Uri.ToString());
@@ -225,8 +225,8 @@ namespace NBitcoin.Tests
 			AssertEx.CollectionEquals(request.ToBytes(), PaymentRequest.Load(request.ToBytes()).ToBytes());
 			Assert.True(PaymentRequest.Load(request.ToBytes()).VerifySignature());
 		}
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanParsePaymentACK()
 		{
 			var ack = LoadPaymentACK("data/paymentack.data");

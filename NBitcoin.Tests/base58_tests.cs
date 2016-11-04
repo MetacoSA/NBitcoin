@@ -92,10 +92,12 @@ namespace NBitcoin.Tests
 				//const Object &metadata = test[2].get_obj();
 				bool isPrivkey = (bool)test.GetDynamic(2).isPrivkey;
 				bool isTestnet = (bool)test.GetDynamic(2).isTestnet;
-				if(isTestnet)
-					network = Network.TestNet;
+
+				if (isTestnet)
+					continue;
+					//network = Network.TestNet;
 				else
-					network = Network.Main;
+					network = BitcoinNetwork.Main;
 
 				if(isPrivkey)
 				{
@@ -155,9 +157,11 @@ namespace NBitcoin.Tests
 				bool isTestnet = (bool)metadata.isTestnet;
 
 				if(isTestnet)
-					network = Network.TestNet;
+					continue; // todo: consider to sadd the bitcoin testnet network 
+					//network = Network.TestNet;
 				else
-					network = Network.Main;
+					network = BitcoinNetwork.Main;
+
 				if(isPrivkey)
 				{
 					bool isCompressed = metadata.isCompressed;

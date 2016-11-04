@@ -86,8 +86,8 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		//https://github.com/libbitcoin/libbitcoin/blob/master/test/stealth.cpp
 		public void BitFieldCanFetchTransaction()
 		{

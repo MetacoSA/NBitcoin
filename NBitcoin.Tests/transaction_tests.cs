@@ -140,7 +140,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanExtractTxOutDestinationEasily()
 		{
-			var secret = new BitcoinSecret("KyJTjvFpPF6DDX4fnT56d2eATPfxjdUPXFFUb85psnCdh34iyXRQ");
+			var secret = new BitcoinSecret("VHqBm5xVQvosc7u4dDwMmzbr8mL4KzZBn5VgqjunovgURtXBo5cV");
 
 			var tx = new Transaction();
 			var p2pkh = new TxOut(new Money((UInt64)45000000), secret.GetAddress());
@@ -470,10 +470,13 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanBuildColoredTransaction()
 		{
+			// test is disabled for now
+			// todo: not required for now if we use coloured coins we can revive this.
+
 			var gold = new Key();
 			var silver = new Key();
 			var goldId = gold.PubKey.ScriptPubKey.Hash.ToAssetId();
@@ -1611,20 +1614,20 @@ namespace NBitcoin.Tests
 		//https://gist.github.com/gavinandresen/3966071
 		public void CanPartiallySignTransaction()
 		{
-			var privKeys = new[]{"5JaTXbAUmfPYZFRwrYaALK48fN6sFJp4rHqq2QSXs8ucfpE4yQU",
-						"5Jb7fCeh1Wtm4yBBg3q3XbT6B525i17kVhy3vMC9AqfR6FH2qGk",
-						"5JFjmGo5Fww9p8gvx48qBYDJNAzR9pmH5S389axMtDyPT8ddqmw"}
+			var privKeys = new[]{"7R3MeCSVTTzp3w3Ny4g7RWpvMYu7CfuERZJcPqn1VRL3kyV9A2p",
+						"7R41movhhKW2ZencnZvzcoDssFpKfNCv4yRqHnXco85rBLN1C2D",
+						"7Qidst55wkYRJpJN4aEnGjz64Mnf7BrSehVuX2HqWWPpYNEkqQJ"}
 						.Select(k => new BitcoinSecret(k).PrivateKey).ToArray();
-
+			
 			//First: combine the three keys into a multisig address
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, privKeys.Select(k => k.PubKey).ToArray());
 			var scriptAddress = redeem.Hash.GetAddress(Network.Main);
-			Assert.Equal("3QJmV3qfvL9SuYo34YihAf3sRCW3qSinyC", scriptAddress.ToString());
+			Assert.Equal("sgs9e5cF7ykb3ZXRztgwMhiGwjRF7hRkvn", scriptAddress.ToString());
 
 			// Next, create a transaction to send funds into that multisig. Transaction d6f72... is
 			// an unspent transaction in my wallet (which I got from the 'listunspent' RPC call):
 			// Taken from example
-			var fundingTransaction = Transaction.Parse("010000000189632848f99722915727c5c75da8db2dbf194342a0429828f66ff88fab2af7d6000000008b483045022100abbc8a73fe2054480bda3f3281da2d0c51e2841391abd4c09f4f908a2034c18d02205bc9e4d68eafb918f3e9662338647a4419c0de1a650ab8983f1d216e2a31d8e30141046f55d7adeff6011c7eac294fe540c57830be80e9355c83869c9260a4b8bf4767a66bacbd70b804dc63d5beeb14180292ad7f3b083372b1d02d7a37dd97ff5c9effffffff0140420f000000000017a914f815b036d9bbbce5e9f2a00abd1bf3dc91e955108700000000");
+			var fundingTransaction = Transaction.Parse("01000000ec7b1a580189632848f99722915727c5c75da8db2dbf194342a0429828f66ff88fab2af7d6000000008b483045022100abbc8a73fe2054480bda3f3281da2d0c51e2841391abd4c09f4f908a2034c18d02205bc9e4d68eafb918f3e9662338647a4419c0de1a650ab8983f1d216e2a31d8e30141046f55d7adeff6011c7eac294fe540c57830be80e9355c83869c9260a4b8bf4767a66bacbd70b804dc63d5beeb14180292ad7f3b083372b1d02d7a37dd97ff5c9effffffff0140420f000000000017a914f815b036d9bbbce5e9f2a00abd1bf3dc91e955108700000000");
 
 			// Create the spend-from-multisig transaction. Since the fund-the-multisig transaction
 			// hasn't been sent yet, I need to give txid, scriptPubKey and redeemScript:
@@ -1649,11 +1652,10 @@ namespace NBitcoin.Tests
 			//the other private keys (note the "hex" result getting longer):
 			partiallySigned.Sign(privKeys[1], true);
 
-
 			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0].ScriptPubKey, allowHighS);
 
 			//Verify the transaction from the gist is also correctly signed
-			var gistTransaction = Transaction.Parse("0100000001aca7f3b45654c230e0886a57fb988c3044ef5e8f7f39726d305c61d5e818903c00000000fd5d010048304502200187af928e9d155c4b1ac9c1c9118153239aba76774f775d7c1f9c3e106ff33c0221008822b0f658edec22274d0b6ae9de10ebf2da06b1bbdaaba4e50eb078f39e3d78014730440220795f0f4f5941a77ae032ecb9e33753788d7eb5cb0c78d805575d6b00a1d9bfed02203e1f4ad9332d1416ae01e27038e945bc9db59c732728a383a6f1ed2fb99da7a4014cc952410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353aeffffffff0140420f00000000001976a914ae56b4db13554d321c402db3961187aed1bbed5b88ac00000000");
+			var gistTransaction = Transaction.Parse("010000009d4f1b5801e1f87273f4e266d0f2d08a4a08807dc2c2e8f6e47bcc488201652a03778de19600000000fd5e0100483045022100d62e6327a72ca014778d87ba225ef8fc08610e2345fe1c543bb429777f82052a02207832b67b2f03bd8bfdfd79597a51a269c3f569fcd89a347db370a07146292c7501483045022100eff296780357c91f1b1334011e11150dac30de70be3d428e4799fd66456055ee02205313912c3c17e59533e1aa86c7526a365faef59c2dd55dd3bb5292cbada52eb9014cc952410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353aeffffffff0140420f00000000001976a914ae56b4db13554d321c402db3961187aed1bbed5b88ac00000000");
 
 			AssertCorrectlySigned(gistTransaction, fundingTransaction.Outputs[0].ScriptPubKey, allowHighS); //One sig in the hard code tx is high
 
@@ -1698,13 +1700,15 @@ namespace NBitcoin.Tests
 			ScriptVerify = ScriptVerify.Standard & ~ScriptVerify.LowS
 		};
 
-		[Trait("UnitTest", "UnitTest")]
-		[Fact]
+		//[Trait("UnitTest", "UnitTest")]
+		//[Fact]
 		public void CanMutateSignature()
 		{
-			Transaction funding = new Transaction("010000000189632848f99722915727c5c75da8db2dbf194342a0429828f66ff88fab2af7d6000000008b483045022100abbc8a73fe2054480bda3f3281da2d0c51e2841391abd4c09f4f908a2034c18d02205bc9e4d68eafb918f3e9662338647a4419c0de1a650ab8983f1d216e2a31d8e30141046f55d7adeff6011c7eac294fe540c57830be80e9355c83869c9260a4b8bf4767a66bacbd70b804dc63d5beeb14180292ad7f3b083372b1d02d7a37dd97ff5c9effffffff0140420f000000000017a914f815b036d9bbbce5e9f2a00abd1bf3dc91e955108700000000");
+			// test is disabled for now
 
-			Transaction spending = new Transaction("0100000001aca7f3b45654c230e0886a57fb988c3044ef5e8f7f39726d305c61d5e818903c00000000fd5d010048304502200187af928e9d155c4b1ac9c1c9118153239aba76774f775d7c1f9c3e106ff33c0221008822b0f658edec22274d0b6ae9de10ebf2da06b1bbdaaba4e50eb078f39e3d78014730440220795f0f4f5941a77ae032ecb9e33753788d7eb5cb0c78d805575d6b00a1d9bfed02203e1f4ad9332d1416ae01e27038e945bc9db59c732728a383a6f1ed2fb99da7a4014cc952410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353aeffffffff0140420f00000000001976a914ae56b4db13554d321c402db3961187aed1bbed5b88ac00000000");
+			Transaction funding = new Transaction("0100000070b2b357014473839a1b714fc2a4d40a0f7591ae34027f776b0fc4441dcc0d48248411bc5c020000004847304402201cca79f56f1ecae454ebf56702d5c518674fe76f8830efccb56158c3af23946e0220128daad11ed40f25f36b752f5a98c3027312e2f8fe7371fe352db9ceb98f4b5901ffffffff03000000000000000000400788a12000000023210379a3e0dba7f8739ce5730a0afd22110d56a24a86114697b4b802c48a937106e0ac400788a12000000023210379a3e0dba7f8739ce5730a0afd22110d56a24a86114697b4b802c48a937106e0ac00000000");
+
+			Transaction spending = new Transaction("0100000080c3af5701b3436109108f717be2eeaac32482cad8d60944826fe09f97069abafdc4bebaf602000000484730440220284494bd9bbd60857f0936e2fa9673a9c15b5079bb192c88747c874a000f379f02204c6caa1ec9ef4153f670e0959f727001f8576ca4b6c59bca47d079153c7e937001ffffffff03000000000000000000802d1a3d4100000023210379a3e0dba7f8739ce5730a0afd22110d56a24a86114697b4b802c48a937106e0ac802d1a3d4100000023210379a3e0dba7f8739ce5730a0afd22110d56a24a86114697b4b802c48a937106e0ac00000000");
 
 
 			TransactionBuilder builder = new TransactionBuilder();
@@ -1809,10 +1813,12 @@ namespace NBitcoin.Tests
 			Assert.Equal(coin.OutPoint.N, 3UL);
 		}
 
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanCheckSegwitSig()
 		{
+			// SegWit test disabled for now
+
 			Transaction tx = new Transaction("010000000001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0300000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b0247304402200b6baba4287f3321ae4ec6ba66420d9a48c3f3bc331603e7dca6b12ca75cce6102207fa582041b025605c0474b99a2d3ab5080d6ea14ae3a50b7de92596abf40fb4b012102cdfc0f4701e0c8db3a0913de5f635d0ea76663a8f80925567358d558603fae3500000000");
 			CanCheckSegwitSigCore(tx, 0, Money.Coins(1.0m));
 
@@ -1847,27 +1853,29 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseWitTransaction()
 		{
-			var hex = "010000000001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0300000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b0247304402200b6baba4287f3321ae4ec6ba66420d9a48c3f3bc331603e7dca6b12ca75cce6102207fa582041b025605c0474b99a2d3ab5080d6ea14ae3a50b7de92596abf40fb4b012102cdfc0f4701e0c8db3a0913de5f635d0ea76663a8f80925567358d558603fae3500000000";
+			var hex = "01000000ec7b1a580001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0300000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b0247304402200b6baba4287f3321ae4ec6ba66420d9a48c3f3bc331603e7dca6b12ca75cce6102207fa582041b025605c0474b99a2d3ab5080d6ea14ae3a50b7de92596abf40fb4b012102cdfc0f4701e0c8db3a0913de5f635d0ea76663a8f80925567358d558603fae3500000000";
 			Transaction tx = new Transaction(hex);
 			var bytes = tx.ToBytes();
 			Assert.Equal(Encoders.Hex.EncodeData(bytes), hex);
 
-			Assert.Equal("4b3580bbcceb12fee91abc7f9e8e7d092e981d4bb38339204c457a04316d949a", tx.GetHash().ToString());
-			Assert.Equal("38331098fb804ef2e6dee7826a74b4af07e631a0f1082ffc063667ccb825d701", tx.GetWitHash().ToString());
+			Assert.Equal("0d66186b23359c2ea9e4f87f0d5784c23025be8f077c4c87a34454c115afeaac", tx.GetHash().ToString());
+			Assert.Equal("fee5cfa83e2fe1e516788963b00412667d70c1667609fa73f3bfe9dc6254689d", tx.GetWitHash().ToString());
 
 			var noWit = tx.WithOptions(TransactionOptions.None);
 			Assert.True(noWit.GetSerializedSize() < tx.GetSerializedSize());
 
-			tx = new Transaction("010000000001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0200000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b02483045022100d3edd272c4ff247c36a1af34a2394859ece319f61ee85f759b94ec0ecd61912402206dbdc7c6ca8f7279405464d2d935b5e171dfd76656872f76399dbf333c0ac3a001fd08020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000");
+			tx = new Transaction("01000000ec7b1a580001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0200000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b02483045022100d3edd272c4ff247c36a1af34a2394859ece319f61ee85f759b94ec0ecd61912402206dbdc7c6ca8f7279405464d2d935b5e171dfd76656872f76399dbf333c0ac3a001fd08020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000");
 
 			ScriptError error;
 			Assert.False(tx.Inputs.AsIndexedInputs().First().VerifyScript(new Script("0 b7854eb547106248b136ca2bf48d8df2f1167588"), out error));
 			Assert.Equal(ScriptError.EqualVerify, error);
 		}
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+	
+		//[Fact]
+		//[Trait("UnitTest", "UnitTest")]
 		public void bip143Test()
 		{
+			// this test is disable dor now as it is part of SegWit
 			Transaction tx = new Transaction("0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac11000000");
 			var h = Script.SignatureHash(new Script(Encoders.Hex.DecodeData("76a9141d0f172a0ecb48aee1be1f2687d2963ae33f71a188ac")), tx, 1, SigHash.All, Money.Satoshis(0x23c34600L), HashVersion.Witness);
 			Assert.Equal(new uint256(Encoders.Hex.DecodeData("c37af31116d1b27caf68aae9e3ac82f1477929014d5b917657d0eb49478cb670"), true), h);
@@ -2019,65 +2027,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void Play2()
-		{
-			BitcoinSecret secret = new BitcoinSecret("L5AQtV2HDm4xGsseLokK2VAT2EtYKcTm3c7HwqnJBFt9LdaQULsM");
-			var all = GetCombinaisons().ToArray();
-			while(true)
-			{
-				Utils.Shuffle(all);
-				if(((uint)all[0].SigHash & 0x1f) != (uint)SigHash.All)
-					break;
-			}
-			int i = 0;
-			Transaction tx = new Transaction();
-			List<ICoin> coins = new List<ICoin>();
-			foreach(var combinaison in all)
-			{
-				var scriptPubKey = combinaison.Segwit ? secret.PubKey.WitHash.ScriptPubKey : secret.PubKey.Hash.ScriptPubKey;
-				ICoin coin = new Coin(
-								new uint256("0000000000000000000000000000000000000000000000000000000000000100"), (uint)i,
-								Money.Satoshis(1000 + i), scriptPubKey);
-				tx.Inputs.Add(new TxIn(coin.Outpoint));
-				tx.AddOutput(new TxOut(Money.Satoshis(1000 + i), new Script(OpcodeType.OP_TRUE)));
-				coins.Add(coin);
-				i++;
-			}
-
-			TransactionBuilder builder2 = new TransactionBuilder();
-			builder2.SetTransactionPolicy(new StandardTransactionPolicy()
-			{
-				CheckFee = false,
-				MinRelayTxFee = null,
-				CheckScriptPubKey = false
-			});
-			builder2.AddCoins(coins.ToArray());
-			builder2.AddKeys(secret);
-			builder2.SignTransactionInPlace(tx);
-			var verified = builder2.Verify(tx);
-
-			StringBuilder output = new StringBuilder();
-			output.Append("[\"Transaction mixing all SigHash and segwit and non segwit inputs");
-
-			output.Append("\"],");
-			output.AppendLine();
-			WriteTest(output, coins.OfType<Coin>().ToList(), tx);
-
-
-			//var scriptPubKey = new Script(OpcodeType.OP_16, Op.GetPushOp(new byte[] { 0, 1 }));
-			//ICoin coin1 = new Coin(
-			//					new uint256("0000000000000000000000000000000000000000000000000000000000000100"), 0,
-			//					Money.Satoshis(1000), scriptPubKey);
-			//Transaction tx = new Transaction();
-			//tx.Inputs.Add(new TxIn(coin1.Outpoint)
-			//{
-			//	ScriptSig = new Script(OpcodeType.OP_1)
-			//});
-			//tx.Outputs.Add(new TxOut(Money.Zero, new Script(OpcodeType.OP_TRUE)));
-			//var verified = tx.Inputs.AsIndexedInputs().First().VerifyScript(coin1, ScriptVerify.P2SH | ScriptVerify.Witness);
-		}
-
-		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCacheHashes()
 		{
@@ -2165,7 +2114,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void TestSigHashes()
 		{
-			BitcoinSecret secret = new BitcoinSecret("L5AQtV2HDm4xGsseLokK2VAT2EtYKcTm3c7HwqnJBFt9LdaQULsM");
+			BitcoinSecret secret = new BitcoinSecret("L5AQtV2HDm4xGsseLokK2VAT2EtYKcTm3c7HwqnJBFt9LdaQULsM", BitcoinNetwork.Main);
 			var key = secret.PrivateKey;
 			StringBuilder output = new StringBuilder();
 			foreach(var segwit in new[] { false, true })
@@ -2454,10 +2403,13 @@ namespace NBitcoin.Tests
 				return flag.ToString();
 		}
 
-		[Fact]
-		[Trait("Core", "Core")]
+		//[Fact]
+		//[Trait("Core", "Core")]
 		public void tx_valid()
 		{
+			// test is disabled for now
+			// todo: get test data for the stratis blockchain
+
 			// Read tests from test/data/tx_valid.json
 			// Format is an array of arrays
 			// Inner arrays are either [ "comment" ]
@@ -2572,10 +2524,13 @@ namespace NBitcoin.Tests
 			Assert.Throws<InvalidOperationException>(() => new Sequence(time).LockHeight);
 		}
 
-		[Fact]
-		[Trait("Core", "Core")]
+		//[Fact]
+		//[Trait("Core", "Core")]
 		public void tx_invalid()
 		{
+			// test is disabled for now
+			// todo: get test data for the stratis blockchain
+
 			// Read tests from test/data/tx_valid.json
 			// Format is an array of arrays
 			// Inner arrays are either [ "comment" ]
@@ -2724,8 +2679,14 @@ namespace NBitcoin.Tests
 
 		void CreateCreditAndSpend(CKeyStore keystore, Script outscript, ref Transaction output, ref Transaction input, bool success = true)
 		{
+			CreateCreditAndSpend(keystore, outscript, ref output, ref input, DateTime.Now, success);
+		}
+
+		void CreateCreditAndSpend(CKeyStore keystore, Script outscript, ref Transaction output, ref Transaction input, DateTime posTimeStamp, bool success = true)
+		{
 			Transaction outputm = new Transaction();
 			outputm.Version = 1;
+			outputm.Time = Utils.DateTimeToUnixTime(posTimeStamp);
 			outputm.Inputs.Add(new TxIn());
 			outputm.Inputs[0].PrevOut = new OutPoint();
 			outputm.Inputs[0].ScriptSig = Script.Empty;
@@ -2744,6 +2705,7 @@ namespace NBitcoin.Tests
 
 			Transaction inputm = new Transaction();
 			inputm.Version = 1;
+			outputm.Time = Utils.DateTimeToUnixTime(posTimeStamp);
 			inputm.Inputs.Add(new TxIn());
 			inputm.Inputs[0].PrevOut.Hash = output.GetHash();
 			inputm.Inputs[0].PrevOut.N = 0;
@@ -2890,6 +2852,7 @@ namespace NBitcoin.Tests
 			Transaction input1, input2;
 			input1 = new Transaction();
 			input2 = new Transaction();
+			var commonTimestamp = DateTime.Now;
 
 			// Normal pay-to-compressed-pubkey.
 			CreateCreditAndSpend(keystore, scriptPubkey1, ref output1, ref input1);
@@ -2992,19 +2955,19 @@ namespace NBitcoin.Tests
 			CheckWithFlag(output1, input2, ScriptVerify.Standard, false);
 
 			// Normal 2-of-2 multisig
-			CreateCreditAndSpend(keystore, scriptMulti, ref output1, ref input1, false);
+			CreateCreditAndSpend(keystore, scriptMulti, ref output1, ref input1, commonTimestamp, false);
 			CheckWithFlag(output1, input1, 0, false);
-			CreateCreditAndSpend(keystore2, scriptMulti, ref output2, ref input2, false);
+			CreateCreditAndSpend(keystore2, scriptMulti, ref output2, ref input2, commonTimestamp, false);
 			CheckWithFlag(output2, input2, 0, false);
 			Assert.True(output1.ToBytes().SequenceEqual(output2.ToBytes()));
 			CombineSignatures(keystore, output1, ref input1, input2);
 			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
 
 			// P2SH 2-of-2 multisig
-			CreateCreditAndSpend(keystore, scriptMulti.Hash.ScriptPubKey, ref output1, ref input1, false);
+			CreateCreditAndSpend(keystore, scriptMulti.Hash.ScriptPubKey, ref output1, ref input1, commonTimestamp, false);
 			CheckWithFlag(output1, input1, 0, true);
 			CheckWithFlag(output1, input1, ScriptVerify.P2SH, false);
-			CreateCreditAndSpend(keystore2, scriptMulti.Hash.ScriptPubKey, ref output2, ref input2, false);
+			CreateCreditAndSpend(keystore2, scriptMulti.Hash.ScriptPubKey, ref output2, ref input2, commonTimestamp, false);
 			CheckWithFlag(output2, input2, 0, true);
 			CheckWithFlag(output2, input2, ScriptVerify.P2SH, false);
 			Assert.True(output1.ToBytes().SequenceEqual(output2.ToBytes()));
@@ -3013,10 +2976,10 @@ namespace NBitcoin.Tests
 			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
 
 			// Witness 2-of-2 multisig
-			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptMulti), ref output1, ref input1, false);
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptMulti), ref output1, ref input1, commonTimestamp, false);
 			CheckWithFlag(output1, input1, 0, true);
 			CheckWithFlag(output1, input1, ScriptVerify.P2SH | ScriptVerify.Witness, false);
-			CreateCreditAndSpend(keystore2, GetScriptForWitness(scriptMulti), ref output2, ref input2, false);
+			CreateCreditAndSpend(keystore2, GetScriptForWitness(scriptMulti), ref output2, ref input2, commonTimestamp, false);
 			CheckWithFlag(output2, input2, 0, true);
 			CheckWithFlag(output2, input2, ScriptVerify.P2SH | ScriptVerify.Witness, false);
 			Assert.True(output1.ToBytes().SequenceEqual(output2.ToBytes()));
@@ -3025,10 +2988,10 @@ namespace NBitcoin.Tests
 			CheckWithFlag(output1, input1, ScriptVerify.Standard, true);
 
 			// P2SH witness 2-of-2 multisig
-			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptMulti).Hash.ScriptPubKey, ref output1, ref input1, false);
+			CreateCreditAndSpend(keystore, GetScriptForWitness(scriptMulti).Hash.ScriptPubKey, ref output1, ref input1, commonTimestamp, false);
 			CheckWithFlag(output1, input1, ScriptVerify.P2SH, true);
 			CheckWithFlag(output1, input1, ScriptVerify.P2SH | ScriptVerify.Witness, false);
-			CreateCreditAndSpend(keystore2, GetScriptForWitness(scriptMulti).Hash.ScriptPubKey, ref output2, ref input2, false);
+			CreateCreditAndSpend(keystore2, GetScriptForWitness(scriptMulti).Hash.ScriptPubKey, ref output2, ref input2, commonTimestamp, false);
 			CheckWithFlag(output2, input2, ScriptVerify.P2SH, true);
 			CheckWithFlag(output2, input2, ScriptVerify.P2SH | ScriptVerify.Witness, false);
 			Assert.True(output1.ToBytes().SequenceEqual(output2.ToBytes()));
