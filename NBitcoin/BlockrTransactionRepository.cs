@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -104,12 +105,28 @@ namespace NBitcoin
 			}
 		}
 
-		public Task PutAsync(uint256 txId, Transaction tx)
+		internal static string PushPath = "tx/push";
+
+		public async Task PutAsync(uint256 txId, Transaction tx)
 		{
-			return Task.FromResult(false);
+			using (var client = new HttpClient())
+			{
+				var jsonTx = new JObject();
+				jsonTx["hex"] = tx.ToHex();
+				var content = new StringContent(jsonTx.ToString(), Encoding.UTF8, "application/json");
+				var response = await client.PostAsync(BlockrAddress + PushPath, content).ConfigureAwait(false);
+				var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+				var json = JObject.Parse(result);
+				var status = json["status"];
+				var code = json["code"];
+				if (status != null && status.ToString() == "error")
+				{
+					throw new BlockrException(json);
+				}
+			}
 		}
 
-		#endregion
+#endregion
 
 		string BlockrAddress
 		{
