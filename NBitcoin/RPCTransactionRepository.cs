@@ -25,7 +25,7 @@ namespace NBitcoin
 
 		public Task PutAsync(uint256 txId, Transaction tx)
 		{
-			return Task.FromResult(false);
+			return _Client.SendRawTransactionAsync(tx);
 		}
 
 		#endregion
