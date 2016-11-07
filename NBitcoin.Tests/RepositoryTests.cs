@@ -440,7 +440,7 @@ namespace NBitcoin.Tests
                 if ((m[0] == byts[i] &&
                     m[1] == byts[i + 1] &&
                     m[2] == byts[i + 2] &&
-                    m[3] == byts[i + 3]))
+                    m[3] == byts[i + 3]) && i > 0)
                 {
                     // if we reached the magic byte we got to the end of the block
                     yield return Encoders.Hex.EncodeData(current.ToArray());
@@ -466,7 +466,7 @@ namespace NBitcoin.Tests
 
             // now we try 
             List<Block> blocks = new List<Block>();
-            foreach (var blockHex in inserts.Where(s => !string.IsNullOrEmpty(s)))
+            foreach (var blockHex in inserts)
             {
                 var rem = blockHex.Substring(8);// the magic bytes
                 var bt = Encoders.Hex.DecodeData(rem); // pars to bytes
