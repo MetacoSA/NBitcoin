@@ -102,9 +102,9 @@ namespace NBitcoin
 		public static bool CheckBlockSignature(Block block)
 		{
 			if (block.IsProofOfWork())
-				return !block.Transactions.Any();
+				return block.BlockSignatur.IsEmpty();
 
-			if (!block.Transactions.Any())
+			if (block.BlockSignatur.IsEmpty())
 				return false;
 
 			var txout = block.Transactions[1].Outputs[1];

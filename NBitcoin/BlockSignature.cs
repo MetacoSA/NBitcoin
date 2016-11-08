@@ -32,7 +32,7 @@ namespace NBitcoin
 
 		public BlockSignature()
 		{
-
+			this.signature = new byte[0];
 		}
 
 		private byte[] signature;
@@ -52,6 +52,11 @@ namespace NBitcoin
 		internal void SetNull()
 		{
 			signature = new byte[0];
+		}
+
+		public bool IsEmpty()
+		{
+			return !this.signature.Any();
 		}
 
 		public static bool operator ==(BlockSignature a, BlockSignature b)
