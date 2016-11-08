@@ -48,5 +48,22 @@ namespace NBitcoin.Tests
 				
 			}
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public static void CheckBlockSignature()
+		{
+			// validate a selection of block signatures
+
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+
+			foreach (var block in store.EnumerateFolder().Take(30000))
+			{
+				if (block.Item.IsProofOfStake())
+				{
+					Assert.True(BlockValidator.CheckBlockSignature(block.Item));
+				}
+			}
+		}
 	}
 }

@@ -12,6 +12,24 @@ namespace NBitcoin
 	/// </summary>
 	public class BlockSignature : IBitcoinSerializable
 	{
+		protected bool Equals(BlockSignature other)
+		{
+			return Equals(signature, other.signature);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((BlockSignature) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return (signature?.GetHashCode() ?? 0);
+		}
+
 		public BlockSignature()
 		{
 
@@ -59,11 +77,13 @@ namespace NBitcoin
 			stream.ReadWriteAsVarString(ref signature);
 		}
 
+		#endregion
+
 		public override string ToString()
 		{
 			return Encoders.Hex.EncodeData(this.signature);
 		}
 
-		#endregion
+
 	}
 }

@@ -1585,7 +1585,7 @@ namespace NBitcoin
 			return false;
 		}
 
-		private bool IsCompressedOrUncompressedPubKey(byte[] vchPubKey)
+		public static bool IsCompressedOrUncompressedPubKey(byte[] vchPubKey)
 		{
 			if(vchPubKey.Length < 33)
 			{

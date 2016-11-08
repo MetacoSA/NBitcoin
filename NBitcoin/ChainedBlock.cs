@@ -287,7 +287,7 @@ namespace NBitcoin
 		public Target GetWorkRequired(Consensus consensus)
 		{
 			this.EnsurePosHeader();
-			return GetNextTargetRequired(this.Previous, consensus, this.Header.PosParameters.IsProofOfStake());
+			return BlockValidator.GetNextTargetRequired(this.Previous, consensus, this.Header.PosParameters.IsProofOfStake());
 		}
 
 		public ChainedBlock GetAncestor(int height)
@@ -302,93 +302,6 @@ namespace NBitcoin
 					return current;
 				current = current.Previous;
 			}
-		}
-
-		// POS methods
-		// -------------------------------------
-
-		private static bool IsProtocolV1RetargetingFixed(int height)
-		{
-			return height > 0;
-		}
-
-		private static bool IsProtocolV2(int height)
-		{
-			return height > 0;
-		}
-
-		private static bool IsProtocolV3(int nTime)
-		{
-			return nTime > 1470467000;
-		}
-
-		private static System.Numerics.BigInteger GetProofOfStakeLimit(Consensus consensus, int height)
-		{
-			return IsProtocolV2(height) ? consensus.ProofOfStakeLimitV2 : consensus.ProofOfStakeLimit;
-		}
-
-		private static int GetTargetSpacing(int height)
-		{
-			return IsProtocolV2(height) ? 64 : 60;
-		}
-
-		// find last block index up to index
-		private static ChainedBlock GetLastBlockIndex(ChainedBlock index, bool proofOfStake)
-		{
-			if (index == null)
-				throw new ArgumentNullException(nameof(index));
-
-			while (index.pprev != null && (index.header.PosParameters.IsProofOfStake() != proofOfStake))
-				index = index.pprev;
-
-			return index;
-		}
-
-		public static Target GetNextTargetRequired(ChainedBlock indexLast, Consensus consensus, bool proofOfStake)
-		{
-			// Genesis block
-			if (indexLast == null)
-				return consensus.PowLimit;
-
-			// find the last two blocks that correspond to the mining algo 
-			// (i.e if this is a POS block we need to find the last two POS blocks)
-			var targetLimit = proofOfStake ? GetProofOfStakeLimit(consensus, indexLast.Height) : consensus.PowLimit.ToBigInteger();
-
-			// first block
-			var pindexPrev = GetLastBlockIndex(indexLast, proofOfStake);
-			if (pindexPrev.pprev == null)
-				return new Target(targetLimit);
-
-			// second block
-			var pindexPrevPrev = GetLastBlockIndex(pindexPrev.pprev, proofOfStake);
-			if (pindexPrevPrev == null)
-				return new Target(targetLimit);
-
-
-			int targetSpacing = GetTargetSpacing(indexLast.Height);
-			int actualSpacing = (int)(pindexPrev.header.Time - pindexPrevPrev.header.Time);
-			if (IsProtocolV1RetargetingFixed(indexLast.Height))
-			{
-				if (actualSpacing < 0) actualSpacing = targetSpacing;
-			}
-			if (IsProtocolV3((int)indexLast.header.Time))
-			{
-				if (actualSpacing > targetSpacing * 10) actualSpacing = targetSpacing * 10;
-			}
-
-			// target change every block
-			// retarget with exponential moving toward target spacing
-			var targetTimespan = 16 * 60; // 16 mins
-			var target = pindexPrev.Header.Bits.ToBigInteger();
-
-			int interval = targetTimespan / targetSpacing;
-			target *= ((interval - 1) * targetSpacing + actualSpacing + actualSpacing);
-			target /= ((interval + 1) * targetSpacing);
-
-			if (target <= 0 || target > targetLimit)
-				target = targetLimit;
-
-			return new Target(target);
 		}
 
 		private void EnsurePosHeader()
