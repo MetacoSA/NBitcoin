@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class FeeRate
+	public class FeeRate : IEquatable<FeeRate>, IComparable<FeeRate>
 	{
 		private readonly Money _FeePerK;
 		/// <summary>
@@ -72,5 +72,112 @@ namespace NBitcoin
 			return String.Format("{0} BTC/kB", _FeePerK.ToString());
 		}
 
+		#region IEquatable<FeeRate> Members
+
+		public bool Equals(FeeRate other)
+		{
+			return other != null && _FeePerK.Equals(other._FeePerK);
+		}
+
+		public int CompareTo(FeeRate other)
+		{
+			return other == null 
+				? 1 
+				: _FeePerK.CompareTo(other._FeePerK);
+		}
+
+		#endregion
+
+		#region IComparable Members
+
+		public int CompareTo(object obj)
+		{
+			if (obj == null)
+				return 1;
+			var m = obj as FeeRate;
+			if (m != null)
+				return _FeePerK.CompareTo(m._FeePerK);
+#if !(PORTABLE || NETCORE)
+			return _FeePerK.CompareTo(obj);
+#else
+			return _FeePerK.CompareTo((long)obj);
+#endif
+		}
+
+		#endregion
+
+		public static bool operator <(FeeRate left, FeeRate right)
+		{
+			if (left == null)
+				throw new ArgumentNullException("left");
+			if (right == null)
+				throw new ArgumentNullException("right");
+			return left._FeePerK < right._FeePerK;
+		}
+		public static bool operator >(FeeRate left, FeeRate right)
+		{
+			if (left == null)
+				throw new ArgumentNullException("left");
+			if (right == null)
+				throw new ArgumentNullException("right");
+			return left._FeePerK > right._FeePerK;
+		}
+		public static bool operator <=(FeeRate left, FeeRate right)
+		{
+			if (left == null)
+				throw new ArgumentNullException("left");
+			if (right == null)
+				throw new ArgumentNullException("right");
+			return left._FeePerK <= right._FeePerK;
+		}
+		public static bool operator >=(FeeRate left, FeeRate right)
+		{
+			if (left == null)
+				throw new ArgumentNullException("left");
+			if (right == null)
+				throw new ArgumentNullException("right");
+			return left._FeePerK >= right._FeePerK;
+		}
+
+		public static bool operator ==(FeeRate left, FeeRate right)
+		{
+			if (Object.ReferenceEquals(left, right))
+				return true;
+			if (((object)left == null) || ((object)right == null))
+				return false;
+			return left._FeePerK == right._FeePerK;
+		}
+
+		public static bool operator !=(FeeRate left, FeeRate right)
+		{
+			return !(left == right);
+		}
+
+		public override int GetHashCode()
+		{
+			return _FeePerK.GetHashCode();
+		}
+
+		public static FeeRate Min(FeeRate left, FeeRate right)
+		{
+			if (left == null)
+				throw new ArgumentNullException("left");
+			if (right == null)
+				throw new ArgumentNullException("right");
+			return left <= right 
+				? left 
+				: right;
+		}
+
+		public static FeeRate Max(FeeRate left, FeeRate right)
+		{
+			if (left == null)
+				throw new ArgumentNullException("left");
+			if (right == null)
+				throw new ArgumentNullException("right");
+			return left >= right
+				? left
+				: right;
+		}
 	}
 }
