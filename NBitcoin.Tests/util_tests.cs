@@ -382,6 +382,38 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void FeeRateComparison()
+		{
+			var a = new FeeRate(Money.Coins(2.0m));
+			var b = new FeeRate(Money.Coins(4.0m));
+			Assert.True(a < b);
+			Assert.True(b > a);
+			Assert.False(b < a);
+			Assert.False(a > b);
+			Assert.True(a != b);
+			Assert.True(b != a);
+
+			Assert.True(FeeRate.Min(a, b) == a);
+			Assert.True(FeeRate.Min(b, a) == a);
+			Assert.True(FeeRate.Max(a, b) == b);
+			Assert.True(FeeRate.Max(b, a) == b);
+
+			Assert.True(a.CompareTo(b) < 0);
+			Assert.True(b.CompareTo(a) > 0);
+			Assert.True(a.CompareTo(a) == 0);
+			Assert.True(b.CompareTo(b) == 0);
+
+			var aa = new FeeRate(Money.Coins(2.0m));
+			var bb = new FeeRate(Money.Coins(4.0m));
+
+			Assert.True(a == aa);
+			Assert.True(b == bb);
+			Assert.True(aa == a);
+			Assert.True(bb == b);
+		}
+
+		[Fact]
 		[Trait("Core", "Core")]
 		public void util_IsHex()
 		{
