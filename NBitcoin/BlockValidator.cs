@@ -38,6 +38,10 @@ namespace NBitcoin
 			return IsProtocolV2(height) ? 64 : 60;
 		}
 
+		private static long FutureDriftV1(long nTime) { return nTime + 10 * 60; }
+		private static long FutureDriftV2(long nTime) { return nTime + 128 * 60 * 60; }
+		private static long FutureDrift(long nTime, int nHeight) { return IsProtocolV2(nHeight) ? FutureDriftV2(nTime) : FutureDriftV1(nTime); }
+
 		// find last block index up to index
 		private static ChainedBlock GetLastBlockIndex(ChainedBlock index, bool proofOfStake)
 		{
@@ -134,6 +138,84 @@ namespace NBitcoin
 			}
 
 			return false;
+		}
+
+		private const int MAX_BLOCK_SIZE = 1000000;
+
+		// a method to check a block, this may be moved to the full node.
+		public static bool CheckBlock(Block block, bool checkPow = true, bool checkMerkleRoot = true, bool checkSig = true)
+		{
+			// These are checks that are independent of context
+			// that can be verified before saving an orphan block.
+
+			// Size limits
+			if (block.Transactions.Empty() || block.GetSerializedSize() > MAX_BLOCK_SIZE)
+				return false; // DoS(100, error("CheckBlock() : size limits failed"));
+
+			// Check proof of work matches claimed amount
+			if (checkPow && block.IsProofOfWork() && !block.CheckProofOfWork())
+				return false; //DoS(50, error("CheckBlock() : proof of work failed"));
+
+			// Check timestamp
+			if (block.Header.Time > FutureDriftV2(DateTime.UtcNow.Ticks)) //GetAdjustedTime()))
+				return false; //error("CheckBlock() : block timestamp too far in he future");
+
+			// First transaction must be coinbase, the rest must not be
+			if (!block.Transactions[0].IsCoinBase)
+				return false; //  DoS(100, error("CheckBlock() : first tx is not coinbase"));
+
+			if (block.Transactions.Skip(1).Any(t => t.IsCoinBase))
+				return false; //DoS(100, error("CheckBlock() : more than one coinbase"));
+
+			if (block.IsProofOfStake())
+			{
+				// Coinbase output should be empty if proof-of-stake block
+				if (block.Transactions[0].Outputs.Count != 1 || !block.Transactions[0].Outputs[0].IsEmpty)
+					return false; // DoS(100, error("CheckBlock() : coinbase output not empty for proof-of-stake block"));
+
+				// Second transaction must be coinstake, the rest must not be
+				if (!block.Transactions[1].IsCoinStake)
+					return false; // DoS(100, error("CheckBlock() : second tx is not coinstake"));
+
+				if (block.Transactions.Skip(2).Any(t => t.IsCoinStake))
+					return false; //DoS(100, error("CheckBlock() : more than one coinstake"));
+			}
+
+			// Check proof-of-stake block signature
+			if (checkSig && !CheckBlockSignature(block))
+				return false; //DoS(100, error("CheckBlock() : bad proof-of-stake block signature"));
+
+			// Check transactions
+			foreach (var transaction in block.Transactions)
+			{
+				if (transaction.Check() != TransactionCheckResult.Success)
+					return false; // DoS(tx.nDoS, error("CheckBlock() : CheckTransaction failed"));
+
+				// ppcoin: check transaction timestamp
+				if (block.Header.Time < transaction.Time)
+					return false; // DoS(50, error("CheckBlock() : block timestamp earlier than transaction timestamp"));
+			}
+
+			// Check for duplicate txids. This is caught by ConnectInputs(),
+			// but catching it earlier avoids a potential DoS attack:
+			var set = new HashSet<uint256>();
+			if(block.Transactions.Select(t => t.GetHash()).Any(h => !set.Add(h)))
+				return false; //DoS(100, error("CheckBlock() : duplicate transaction"));
+
+			// todo: check if this is legacy from older implementtions and actually needed
+			//uint nSigOps = 0;
+			//foreach (var transaction in block.Transactions)
+			//{
+			//	nSigOps += GetLegacySigOpCount(transaction);
+			//}
+			//if (nSigOps > MAX_BLOCK_SIGOPS)
+			//	return DoS(100, error("CheckBlock() : out-of-bounds SigOpCount"));
+
+			// Check merkle root
+			if (checkMerkleRoot && !block.CheckMerkleRoot())
+				return false; //DoS(100, error("CheckBlock() : hashMerkleRoot mismatch"));
+
+			return true;
 		}
 	}
 }

@@ -536,6 +536,24 @@ namespace NBitcoin.Tests
             Assert.Equal(block100K, lastblk.Header.GetHash());
             Assert.Equal(100000, lastblk.Height);
         }
-    }
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void IndexTheFullChain()
+		{
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
+			var reindexed = indexStore.ReIndex();
+			Assert.Equal(reindexed, 103952);
+
+			var chain = store.GetChain();
+			
+			foreach(var item in chain.ToEnumerable(false))
+			{
+				var block = indexStore.Get(item.HashBlock);
+				Assert.True(BlockValidator.CheckBlock(block));
+			}			
+		}
+	}
 }
 #endif

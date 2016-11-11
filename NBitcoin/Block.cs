@@ -377,7 +377,7 @@ namespace NBitcoin
         // ppcoin: two types of block: proof-of-work or proof-of-stake
         public bool IsProofOfStake()
         {
-            return this.vtx.Count() > 1 && this.vtx[1].IsCoinStake;
+            return this.vtx.Count > 1 && this.vtx[1].IsCoinStake;
         }
 
         public bool IsProofOfWork()
@@ -447,12 +447,12 @@ namespace NBitcoin
             if (this.vtx[0].Outputs.Count != 1 || !this.vtx[0].Outputs[0].IsEmpty)
                 return false;
 
-            // Second transaction must be coinstake, the rest must not be
-            if (!vtx.Any() || !this.vtx[1].IsCoinStake)
-                return false;
-            for (int i = 2; i < vtx.Count; i++)
-                if (vtx[i].IsCoinStake)
-                    return false;
+			// Second transaction must be coinstake, the rest must not be
+			if (!vtx[1].IsCoinStake)
+				return false; 
+
+			if (vtx.Skip(2).Any(t => t.IsCoinStake))
+				return false; 
 
             return true;
         }
