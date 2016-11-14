@@ -406,9 +406,16 @@ namespace NBitcoin.Tests
 
 			var aa = new FeeRate(Money.Coins(2.0m));
 			var bb = new FeeRate(Money.Coins(4.0m));
-
+			var o = new object();
 			Assert.True(a == aa);
+			Assert.True(a.Equals(aa));
+			Assert.False(a.Equals(o));
 			Assert.True(b == bb);
+			Assert.True(b != aa);
+			Assert.True(b != (null as FeeRate));
+			Assert.True((null as FeeRate) == (null as FeeRate));
+			Assert.False((null as FeeRate) != (null as FeeRate));
+			Assert.False(a.Equals(b));
 			Assert.True(aa == a);
 			Assert.True(bb == b);
 		}

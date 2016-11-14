@@ -67,6 +67,19 @@ namespace NBitcoin
 			return GetFee(tx.GetSerializedSize());
 		}
 
+		public override bool Equals(object obj)
+		{
+			if(Object.ReferenceEquals(this, obj))
+				return true;
+			if(((object)this == null) || (obj == null))
+				return false;
+			var left = this;
+			var right = obj as FeeRate;
+			if(right == null)
+				return false;
+			return left._FeePerK == right._FeePerK;
+		}
+
 		public override string ToString()
 		{
 			return String.Format("{0} BTC/kB", _FeePerK.ToString());
