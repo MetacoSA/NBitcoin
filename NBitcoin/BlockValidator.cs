@@ -142,6 +142,26 @@ namespace NBitcoin
 
 		private const int MAX_BLOCK_SIZE = 1000000;
 
+		public static bool IsCanonicalBlockSignature(Block block, bool checkLowS)
+		{
+			if (block.IsProofOfWork())
+			{
+				return block.BlockSignatur.IsEmpty();
+			}
+
+			return checkLowS ? 
+				ScriptEvaluationContext.IsLowDerSignature(block.BlockSignatur.Signature) : 
+				ScriptEvaluationContext.IsValidSignatureEncoding(block.BlockSignatur.Signature);
+		}
+
+		public static bool EnsureLowS(BlockSignature blockSignature)
+		{
+			var signature = new ECDSASignature(blockSignature.Signature);
+			if (!signature.IsLowS)
+				blockSignature.Signature = signature.MakeCanonical().ToDER();
+			return true;
+		}
+
 		// a method to check a block, this may be moved to the full node.
 		public static bool CheckBlock(Block block, bool checkPow = true, bool checkMerkleRoot = true, bool checkSig = true)
 		{
