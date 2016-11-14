@@ -1,509 +1,506 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
 using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	/** Nodes collect new transactions into a block, hash them into a hash tree,
-	 * and scan through nonce values to make the block's hash satisfy proof-of-work
-	 * requirements.  When they solve the proof-of-work, they broadcast the block
-	 * to everyone and the block is added to the block chain.  The first transaction
-	 * in the block is a special one that creates a new coin owned by the creator
-	 * of the block.
-	 */
+	/// <summary>
+	/// Nodes collect new transactions into a block, hash them into a hash tree,
+	/// and scan through nonce values to make the block's hash satisfy proof-of-work
+	/// requirements.  When they solve the proof-of-work, they broadcast the block
+	/// to everyone and the block is added to the block chain.  The first transaction
+	/// in the block is a special one that creates a new coin owned by the creator
+	/// of the block.
+	/// </summary>
 	public class BlockHeader : IBitcoinSerializable
+{
+	internal const int Size = 80;
+
+	public static BlockHeader Parse(string hex)
 	{
-		internal const int Size = 80;
+		return new BlockHeader(Encoders.Hex.DecodeData(hex));
+	}
 
-		public static BlockHeader Parse(string hex)
+	public BlockHeader(string hex)
+		: this(Encoders.Hex.DecodeData(hex))
+	{
+
+	}
+
+	public BlockHeader(byte[] bytes)
+	{
+		this.ReadWrite(bytes);
+	}
+
+
+	// header
+	const int CURRENT_VERSION = 3;
+
+	uint256 hashPrevBlock;
+
+	public uint256 HashPrevBlock
+	{
+		get
 		{
-			return new BlockHeader(Encoders.Hex.DecodeData(hex));
+			return hashPrevBlock;
 		}
-
-		public BlockHeader(string hex)
-			: this(Encoders.Hex.DecodeData(hex))
+		set
 		{
-
+			hashPrevBlock = value;
 		}
+	}
+	uint256 hashMerkleRoot;
 
-		public BlockHeader(byte[] bytes)
+	uint nTime;
+	uint nBits;
+
+	public Target Bits
+	{
+		get
 		{
-			this.ReadWrite(bytes);
+			return nBits;
 		}
-
-
-		// header
-		const int CURRENT_VERSION = 3;
-
-		uint256 hashPrevBlock;
-
-		public uint256 HashPrevBlock
+		set
 		{
-			get
-			{
-				return hashPrevBlock;
-			}
-			set
-			{
-				hashPrevBlock = value;
-			}
+			nBits = value;
 		}
-		uint256 hashMerkleRoot;
+	}
 
-		uint nTime;
-		uint nBits;
+	int nVersion;
 
-		public Target Bits
+	public int Version
+	{
+		get
 		{
-			get
-			{
-				return nBits;
-			}
-			set
-			{
-				nBits = value;
-			}
+			return nVersion;
 		}
-
-		int nVersion;
-
-		public int Version
+		set
 		{
-			get
-			{
-				return nVersion;
-			}
-			set
-			{
-				nVersion = value;
-			}
+			nVersion = value;
 		}
+	}
 
-		uint nNonce;
+	uint nNonce;
 
-		public uint Nonce
+	public uint Nonce
+	{
+		get
 		{
-			get
-			{
-				return nNonce;
-			}
-			set
-			{
-				nNonce = value;
-			}
+			return nNonce;
 		}
-		public uint256 HashMerkleRoot
+		set
 		{
-			get
-			{
-				return hashMerkleRoot;
-			}
-			set
-			{
-				hashMerkleRoot = value;
-			}
+			nNonce = value;
 		}
-
-		public BlockHeader()
+	}
+	public uint256 HashMerkleRoot
+	{
+		get
 		{
-			SetNull();
+			return hashMerkleRoot;
 		}
-
-
-		internal void SetNull()
+		set
 		{
-			nVersion = CURRENT_VERSION;
-			hashPrevBlock = 0;
-			hashMerkleRoot = 0;
-			nTime = 0;
-			nBits = 0;
-			nNonce = 0;
+			hashMerkleRoot = value;
 		}
+	}
 
-		public bool IsNull
+	public BlockHeader()
+	{
+		SetNull();
+	}
+
+
+	internal void SetNull()
+	{
+		nVersion = CURRENT_VERSION;
+		hashPrevBlock = 0;
+		hashMerkleRoot = 0;
+		nTime = 0;
+		nBits = 0;
+		nNonce = 0;
+	}
+
+	public bool IsNull
+	{
+		get
 		{
-			get
-			{
-				return (nBits == 0);
-			}
+			return (nBits == 0);
 		}
-		#region IBitcoinSerializable Members
+	}
+	#region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+	public void ReadWrite(BitcoinStream stream)
+	{
+		stream.ReadWrite(ref nVersion);
+		stream.ReadWrite(ref hashPrevBlock);
+		stream.ReadWrite(ref hashMerkleRoot);
+		stream.ReadWrite(ref nTime);
+		stream.ReadWrite(ref nBits);
+		stream.ReadWrite(ref nNonce);
+	}
+
+	#endregion
+
+	public uint256 GetHash()
+	{
+		if(_Hashes != null && _Hashes[0] != null)
 		{
-			stream.ReadWrite(ref nVersion);
-			stream.ReadWrite(ref hashPrevBlock);
-			stream.ReadWrite(ref hashMerkleRoot);
-			stream.ReadWrite(ref nTime);
-			stream.ReadWrite(ref nBits);
-			stream.ReadWrite(ref nNonce);
+			return _Hashes[0];
 		}
-
-		#endregion
-
-		public uint256 GetHash()
+		var h = Hashes.Hash256(this.ToBytes());
+		if(_Hashes != null)
 		{
-			if(_Hashes != null && _Hashes[0] != null)
-			{
-				return _Hashes[0];
-			}
-			var h = Hashes.Hash256(this.ToBytes());
-			if(_Hashes != null)
-			{
-				_Hashes[0] = h;
-			}
-			return h;
+			_Hashes[0] = h;
 		}
+		return h;
+	}
 
-		/// <summary>
-		/// If called, GetHash becomes cached, only use if you believe the instance will not be modified after calculation. Calling it a second type invalidate the cache.
-		/// </summary>
-		public void CacheHashes()
+	/// <summary>
+	/// If called, GetHash becomes cached, only use if you believe the instance will not be modified after calculation. Calling it a second type invalidate the cache.
+	/// </summary>
+	public void CacheHashes()
+	{
+		_Hashes = new uint256[1];
+	}
+
+	
+	uint256[] _Hashes;
+
+	public DateTimeOffset BlockTime
+	{
+		get
 		{
-			_Hashes = new uint256[1];
+			return Utils.UnixTimeToDateTime(nTime);
 		}
-
-		
-		uint256[] _Hashes;
-
-		public DateTimeOffset BlockTime
+		set
 		{
-			get
-			{
-				return Utils.UnixTimeToDateTime(nTime);
-			}
-			set
-			{
-				this.nTime = Utils.DateTimeToUnixTime(value);
-			}
+			this.nTime = Utils.DateTimeToUnixTime(value);
 		}
+	}
 
-		static System.Numerics.BigInteger Pow256 = System.Numerics.BigInteger.Pow(2, 256);
-		public bool CheckProofOfWork()
+	static System.Numerics.BigInteger Pow256 = System.Numerics.BigInteger.Pow(2, 256);
+	public bool CheckProofOfWork()
+	{
+		var bits = Bits.ToBigInteger();
+		if(bits <= System.Numerics.BigInteger.Zero || bits >= Pow256)
+			return false;
+		// Check proof of work matches claimed amount
+		return GetHash() <= Bits.ToUInt256();
+	}
+
+	public override string ToString()
+	{
+		return GetHash().ToString();
+	}
+
+	/// <summary>
+	/// Set time to consensus acceptable value
+	/// </summary>
+	/// <param name="network">Network</param>
+	/// <param name="prev">previous block</param>
+	public void UpdateTime(Network network, ChainedBlock prev)
+	{
+		UpdateTime(DateTimeOffset.UtcNow, network, prev);
+	}
+
+	/// <summary>
+	/// Set time to consensus acceptable value
+	/// </summary>
+	/// <param name="consensus">Consensus</param>
+	/// <param name="prev">previous block</param>
+	public void UpdateTime(Consensus consensus, ChainedBlock prev)
+	{
+		UpdateTime(DateTimeOffset.UtcNow, consensus, prev);
+	}
+
+	/// <summary>
+	/// Set time to consensus acceptable value
+	/// </summary>
+	/// <param name="now">The expected date</param>
+	/// <param name="consensus">Consensus</param>
+	/// <param name="prev">previous block</param>		
+	public void UpdateTime(DateTimeOffset now, Consensus consensus, ChainedBlock prev)
+	{
+		var nOldTime = this.BlockTime;
+		var mtp = prev.GetMedianTimePast() + TimeSpan.FromSeconds(1);
+		var nNewTime = mtp > now ? mtp : now;
+
+		if(nOldTime < nNewTime)
+			this.BlockTime = nNewTime;
+
+		// Updating time can change work required on testnet:
+		if(consensus.PowAllowMinDifficultyBlocks)
+			Bits = GetWorkRequired(consensus, prev);
+	}
+
+	/// <summary>
+	/// Set time to consensus acceptable value
+	/// </summary>
+	/// <param name="now">The expected date</param>
+	/// <param name="network">Network</param>
+	/// <param name="prev">previous block</param>		
+	public void UpdateTime(DateTimeOffset now, Network network, ChainedBlock prev)
+	{
+		UpdateTime(now, network.Consensus, prev);
+	}
+
+	public Target GetWorkRequired(Network network, ChainedBlock prev)
+	{
+		return GetWorkRequired(network.Consensus, prev);
+	}
+
+	public Target GetWorkRequired(Consensus consensus, ChainedBlock prev)
+	{
+		return new ChainedBlock(this, null, prev).GetWorkRequired(consensus);
+	}
+}
+
+
+public class Block : IBitcoinSerializable
+{
+	//FIXME: it needs to be changed when Gavin Andresen increase the max block size. 
+	public const uint MAX_BLOCK_SIZE = 1000 * 1000;
+
+	BlockHeader header = new BlockHeader();
+	// network and disk
+	List<Transaction> vtx = new List<Transaction>();
+
+	public List<Transaction> Transactions
+	{
+		get
 		{
-			var bits = Bits.ToBigInteger();
-			if(bits <= System.Numerics.BigInteger.Zero || bits >= Pow256)
-				return false;
-			// Check proof of work matches claimed amount
-			return GetHash() <= Bits.ToUInt256();
+			return vtx;
 		}
-
-		public override string ToString()
+		set
 		{
-			return GetHash().ToString();
+			vtx = value;
 		}
+	}
 
-		/// <summary>
-		/// Set time to consensus acceptable value
-		/// </summary>
-		/// <param name="network">Network</param>
-		/// <param name="prev">previous block</param>
-		public void UpdateTime(Network network, ChainedBlock prev)
+	public MerkleNode GetMerkleRoot()
+	{
+		return MerkleNode.GetRoot(Transactions.Select(t => t.GetHash()));
+	}
+
+
+	public Block()
+	{
+		SetNull();
+	}
+
+	public Block(BlockHeader blockHeader)
+	{
+		SetNull();
+		header = blockHeader;
+	}
+	public Block(byte[] bytes)
+	{
+		this.ReadWrite(bytes);
+	}
+
+
+	public void ReadWrite(BitcoinStream stream)
+	{
+		stream.ReadWrite(ref header);
+		stream.ReadWrite(ref vtx);
+	}
+
+	public bool HeaderOnly
+	{
+		get
 		{
-			UpdateTime(DateTimeOffset.UtcNow, network, prev);
-		}
-
-		/// <summary>
-		/// Set time to consensus acceptable value
-		/// </summary>
-		/// <param name="consensus">Consensus</param>
-		/// <param name="prev">previous block</param>
-		public void UpdateTime(Consensus consensus, ChainedBlock prev)
-		{
-			UpdateTime(DateTimeOffset.UtcNow, consensus, prev);
-		}
-
-		/// <summary>
-		/// Set time to consensus acceptable value
-		/// </summary>
-		/// <param name="now">The expected date</param>
-		/// <param name="consensus">Consensus</param>
-		/// <param name="prev">previous block</param>		
-		public void UpdateTime(DateTimeOffset now, Consensus consensus, ChainedBlock prev)
-		{
-			var nOldTime = this.BlockTime;
-			var mtp = prev.GetMedianTimePast() + TimeSpan.FromSeconds(1);
-			var nNewTime = mtp > now ? mtp : now;
-
-			if(nOldTime < nNewTime)
-				this.BlockTime = nNewTime;
-
-			// Updating time can change work required on testnet:
-			if(consensus.PowAllowMinDifficultyBlocks)
-				Bits = GetWorkRequired(consensus, prev);
-		}
-
-		/// <summary>
-		/// Set time to consensus acceptable value
-		/// </summary>
-		/// <param name="now">The expected date</param>
-		/// <param name="network">Network</param>
-		/// <param name="prev">previous block</param>		
-		public void UpdateTime(DateTimeOffset now, Network network, ChainedBlock prev)
-		{
-			UpdateTime(now, network.Consensus, prev);
-		}
-
-		public Target GetWorkRequired(Network network, ChainedBlock prev)
-		{
-			return GetWorkRequired(network.Consensus, prev);
-		}
-
-		public Target GetWorkRequired(Consensus consensus, ChainedBlock prev)
-		{
-			return new ChainedBlock(this, null, prev).GetWorkRequired(consensus);
+			return vtx == null || vtx.Count == 0;
 		}
 	}
 
 
-	public class Block : IBitcoinSerializable
+	void SetNull()
 	{
-		//FIXME: it needs to be changed when Gavin Andresen increase the max block size. 
-		public const uint MAX_BLOCK_SIZE = 1000 * 1000;
+		header.SetNull();
+		vtx.Clear();
+	}
 
-		BlockHeader header = new BlockHeader();
-		// network and disk
-		List<Transaction> vtx = new List<Transaction>();
-
-		public List<Transaction> Transactions
+	public BlockHeader Header
+	{
+		get
 		{
-			get
-			{
-				return vtx;
-			}
-			set
-			{
-				vtx = value;
-			}
-		}
-
-		public MerkleNode GetMerkleRoot()
-		{
-			return MerkleNode.GetRoot(Transactions.Select(t => t.GetHash()));
-		}
-
-
-		public Block()
-		{
-			SetNull();
-		}
-
-		public Block(BlockHeader blockHeader)
-		{
-			SetNull();
-			header = blockHeader;
-		}
-		public Block(byte[] bytes)
-		{
-			this.ReadWrite(bytes);
-		}
-
-
-		public void ReadWrite(BitcoinStream stream)
-		{
-			stream.ReadWrite(ref header);
-			stream.ReadWrite(ref vtx);
-		}
-
-		public bool HeaderOnly
-		{
-			get
-			{
-				return vtx == null || vtx.Count == 0;
-			}
-		}
-
-
-		void SetNull()
-		{
-			header.SetNull();
-			vtx.Clear();
-		}
-
-		public BlockHeader Header
-		{
-			get
-			{
-				return header;
-			}
-		}
-
-
-		//public MerkleBranch GetMerkleBranch(int txIndex)
-		//{
-		//	if(vMerkleTree.Count == 0)
-		//		ComputeMerkleRoot();
-		//	List<uint256> vMerkleBranch = new List<uint256>();
-		//	int j = 0;
-		//	for(int nSize = vtx.Count ; nSize > 1 ; nSize = (nSize + 1) / 2)
-		//	{
-		//		int i = Math.Min(txIndex, nSize - 1);
-		//		vMerkleBranch.Add(vMerkleTree[j + i]);
-		//		txIndex >>= 1;
-		//		j += nSize;
-		//	}
-		//	return new MerkleBranch(vMerkleBranch);
-		//}
-
-		//public static uint256 CheckMerkleBranch(uint256 hash, List<uint256> vMerkleBranch, int nIndex)
-		//{
-		//	if(nIndex == -1)
-		//		return 0;
-		//	foreach(var otherside in vMerkleBranch)
-		//	{
-		//		if((nIndex & 1) != 0)
-		//			hash = Hash(otherside, hash);
-		//		else
-		//			hash = Hash(hash, otherside);
-		//		nIndex >>= 1;
-		//	}
-		//	return hash;
-		//}
-
-		//std::vector<uint256> GetMerkleBranch(int nIndex) const;
-		//static uint256 CheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex);
-		//void print() const;
-
-		public uint256 GetHash()
-		{
-			//Block's hash is his header's hash
-			return Hashes.Hash256(header.ToBytes());
-		}
-
-		public int Length
-		{
-			get
-			{
-				return header.ToBytes().Length;
-			}
-		}
-
-		public void ReadWrite(byte[] array, int startIndex)
-		{
-			var ms = new MemoryStream(array);
-			ms.Position += startIndex;
-			BitcoinStream bitStream = new BitcoinStream(ms, false);
-			ReadWrite(bitStream);
-		}
-
-		public Transaction AddTransaction(Transaction tx)
-		{
-			Transactions.Add(tx);
-			return tx;
-		}
-
-		public void UpdateMerkleRoot()
-		{
-			this.Header.HashMerkleRoot = GetMerkleRoot().Hash;
-		}
-
-		/// <summary>
-		/// Check proof of work and merkle root
-		/// </summary>
-		/// <returns></returns>
-		public bool Check()
-		{
-			return CheckMerkleRoot() && Header.CheckProofOfWork();
-		}
-
-		public bool CheckProofOfWork()
-		{
-			return Header.CheckProofOfWork();
-		}
-
-		public bool CheckMerkleRoot()
-		{
-			return Header.HashMerkleRoot == GetMerkleRoot().Hash;
-		}
-
-		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height)
-		{
-			return CreateNextBlockWithCoinbase(address, height, DateTimeOffset.UtcNow);
-		}
-		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height, DateTimeOffset now)
-		{
-			if(address == null)
-				throw new ArgumentNullException("address");
-			Block block = new Block();
-			block.Header.Nonce = RandomUtils.GetUInt32();
-			block.Header.HashPrevBlock = this.GetHash();
-			block.Header.BlockTime = now;
-			var tx = block.AddTransaction(new Transaction());
-			tx.AddInput(new TxIn()
-			{
-				ScriptSig = new Script(Op.GetPushOp(RandomUtils.GetBytes(30)))
-			});
-			tx.Outputs.Add(new TxOut(address.Network.GetReward(height), address)
-			{
-				Value = address.Network.GetReward(height)
-			});
-			return block;
-		}
-
-		public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value)
-		{
-			return CreateNextBlockWithCoinbase(pubkey, value, DateTimeOffset.UtcNow);
-		}
-		public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value, DateTimeOffset now)
-		{
-			Block block = new Block();
-			block.Header.Nonce = RandomUtils.GetUInt32();
-			block.Header.HashPrevBlock = this.GetHash();
-			block.Header.BlockTime = now;
-			var tx = block.AddTransaction(new Transaction());
-			tx.AddInput(new TxIn()
-			{
-				ScriptSig = new Script(Op.GetPushOp(RandomUtils.GetBytes(30)))
-			});
-			tx.Outputs.Add(new TxOut()
-			{
-				Value = value,
-				ScriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(pubkey)
-			});
-			return block;
-		}
-
-		public static Block ParseJson(string json)
-		{
-			var formatter = new BlockExplorerFormatter();
-			var block = JObject.Parse(json);
-			var txs = (JArray)block["tx"];
-			Block blk = new Block();
-			blk.Header.Bits = new Target((uint)block["bits"]);
-			blk.Header.BlockTime = Utils.UnixTimeToDateTime((uint)block["time"]);
-			blk.Header.Nonce = (uint)block["nonce"];
-			blk.Header.Version = (int)block["ver"];
-			blk.Header.HashPrevBlock = uint256.Parse((string)block["prev_block"]);
-			blk.Header.HashMerkleRoot = uint256.Parse((string)block["mrkl_root"]);
-			foreach(var tx in txs)
-			{
-				blk.AddTransaction(formatter.Parse((JObject)tx));
-			}
-			return blk;
-		}
-
-		public static Block Parse(string hex)
-		{
-			return new Block(Encoders.Hex.DecodeData(hex));
-		}
-
-		public MerkleBlock Filter(params uint256[] txIds)
-		{
-			return new MerkleBlock(this, txIds);
-		}
-
-		public MerkleBlock Filter(BloomFilter filter)
-		{
-			return new MerkleBlock(this, filter);
+			return header;
 		}
 	}
+
+
+	//public MerkleBranch GetMerkleBranch(int txIndex)
+	//{
+	//	if(vMerkleTree.Count == 0)
+	//		ComputeMerkleRoot();
+	//	List<uint256> vMerkleBranch = new List<uint256>();
+	//	int j = 0;
+	//	for(int nSize = vtx.Count ; nSize > 1 ; nSize = (nSize + 1) / 2)
+	//	{
+	//		int i = Math.Min(txIndex, nSize - 1);
+	//		vMerkleBranch.Add(vMerkleTree[j + i]);
+	//		txIndex >>= 1;
+	//		j += nSize;
+	//	}
+	//	return new MerkleBranch(vMerkleBranch);
+	//}
+
+	//public static uint256 CheckMerkleBranch(uint256 hash, List<uint256> vMerkleBranch, int nIndex)
+	//{
+	//	if(nIndex == -1)
+	//		return 0;
+	//	foreach(var otherside in vMerkleBranch)
+	//	{
+	//		if((nIndex & 1) != 0)
+	//			hash = Hash(otherside, hash);
+	//		else
+	//			hash = Hash(hash, otherside);
+	//		nIndex >>= 1;
+	//	}
+	//	return hash;
+	//}
+
+	//std::vector<uint256> GetMerkleBranch(int nIndex) const;
+	//static uint256 CheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex);
+	//void print() const;
+
+	public uint256 GetHash()
+	{
+		//Block's hash is his header's hash
+		return Hashes.Hash256(header.ToBytes());
+	}
+
+	public int Length
+	{
+		get
+		{
+			return header.ToBytes().Length;
+		}
+	}
+
+	public void ReadWrite(byte[] array, int startIndex)
+	{
+		var ms = new MemoryStream(array);
+		ms.Position += startIndex;
+		BitcoinStream bitStream = new BitcoinStream(ms, false);
+		ReadWrite(bitStream);
+	}
+
+	public Transaction AddTransaction(Transaction tx)
+	{
+		Transactions.Add(tx);
+		return tx;
+	}
+
+	public void UpdateMerkleRoot()
+	{
+		this.Header.HashMerkleRoot = GetMerkleRoot().Hash;
+	}
+
+	/// <summary>
+	/// Check proof of work and merkle root
+	/// </summary>
+	/// <returns></returns>
+	public bool Check()
+	{
+		return CheckMerkleRoot() && Header.CheckProofOfWork();
+	}
+
+	public bool CheckProofOfWork()
+	{
+		return Header.CheckProofOfWork();
+	}
+
+	public bool CheckMerkleRoot()
+	{
+		return Header.HashMerkleRoot == GetMerkleRoot().Hash;
+	}
+
+	public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height)
+	{
+		return CreateNextBlockWithCoinbase(address, height, DateTimeOffset.UtcNow);
+	}
+	public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height, DateTimeOffset now)
+	{
+		if(address == null)
+			throw new ArgumentNullException("address");
+		Block block = new Block();
+		block.Header.Nonce = RandomUtils.GetUInt32();
+		block.Header.HashPrevBlock = this.GetHash();
+		block.Header.BlockTime = now;
+		var tx = block.AddTransaction(new Transaction());
+		tx.AddInput(new TxIn()
+		{
+			ScriptSig = new Script(Op.GetPushOp(RandomUtils.GetBytes(30)))
+		});
+		tx.Outputs.Add(new TxOut(address.Network.GetReward(height), address)
+		{
+			Value = address.Network.GetReward(height)
+		});
+		return block;
+	}
+
+	public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value)
+	{
+		return CreateNextBlockWithCoinbase(pubkey, value, DateTimeOffset.UtcNow);
+	}
+	public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value, DateTimeOffset now)
+	{
+		Block block = new Block();
+		block.Header.Nonce = RandomUtils.GetUInt32();
+		block.Header.HashPrevBlock = this.GetHash();
+		block.Header.BlockTime = now;
+		var tx = block.AddTransaction(new Transaction());
+		tx.AddInput(new TxIn()
+		{
+			ScriptSig = new Script(Op.GetPushOp(RandomUtils.GetBytes(30)))
+		});
+		tx.Outputs.Add(new TxOut()
+		{
+			Value = value,
+			ScriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(pubkey)
+		});
+		return block;
+	}
+
+	public static Block ParseJson(string json)
+	{
+		var formatter = new BlockExplorerFormatter();
+		var block = JObject.Parse(json);
+		var txs = (JArray)block["tx"];
+		Block blk = new Block();
+		blk.Header.Bits = new Target((uint)block["bits"]);
+		blk.Header.BlockTime = Utils.UnixTimeToDateTime((uint)block["time"]);
+		blk.Header.Nonce = (uint)block["nonce"];
+		blk.Header.Version = (int)block["ver"];
+		blk.Header.HashPrevBlock = uint256.Parse((string)block["prev_block"]);
+		blk.Header.HashMerkleRoot = uint256.Parse((string)block["mrkl_root"]);
+		foreach(var tx in txs)
+		{
+			blk.AddTransaction(formatter.Parse((JObject)tx));
+		}
+		return blk;
+	}
+
+	public static Block Parse(string hex)
+	{
+		return new Block(Encoders.Hex.DecodeData(hex));
+	}
+
+	public MerkleBlock Filter(params uint256[] txIds)
+	{
+		return new MerkleBlock(this, txIds);
+	}
+
+	public MerkleBlock Filter(BloomFilter filter)
+	{
+		return new MerkleBlock(this, filter);
+	}
+}
 }
