@@ -174,7 +174,6 @@
     <Compile Include="RPC\SatoshiFormatter.cs" />
     <Compile Include="RPC\UnspentCoin.cs" />
     <Compile Include="BitcoinCore\IBlockProvider.cs" />
-    <Compile Include="Spendable.cs" />
     <Compile Include="SPV\Tracker.cs" />
     <Compile Include="SPV\TrackerBehavior.cs" />
     <Compile Include="SPV\Wallet.cs" />
