@@ -68,6 +68,8 @@
     </Compile>
     <Compile Include="BitcoinCore\CachedBlockProvider.cs" />
     <Compile Include="BitWriter.cs" />
+    <Compile Include="BlockValidator.cs" />
+    <Compile Include="BlockSignature.cs" />
     <Compile Include="BuilderExtensions\BuilderExtension.cs" />
     <Compile Include="BuilderExtensions\OPTrueExtension.cs" />
     <Compile Include="BuilderExtensions\P2MultiSigBuilderExtension.cs" />

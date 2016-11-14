@@ -1832,7 +1832,7 @@ namespace NBitcoin
 		}
 
 		private static readonly uint MAX_BLOCK_SIZE = 1000000;
-		private static readonly ulong MAX_MONEY = 21000000ul * Money.COIN;
+		private static readonly ulong MAX_MONEY = long.MaxValue; // 21000000ul * Money.COIN;
 
 		/// <summary>
 		/// Context free transaction check

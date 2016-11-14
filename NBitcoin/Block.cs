@@ -281,14 +281,17 @@ namespace NBitcoin
 
 		public List<Transaction> Transactions
 		{
-			get
-			{
-				return vtx;
-			}
-			set
-			{
-				vtx = value;
-			}
+			get { return vtx; }
+			set { vtx = value; }
+		}
+
+		// block signature - signed by one of the coin base txout[N]'s owner
+		private BlockSignature blockSignature = new BlockSignature();
+
+		public BlockSignature BlockSignatur
+		{
+			get { return this.blockSignature; }
+			set { this.blockSignature = value; }
 		}
 
 		public MerkleNode GetMerkleRoot()
@@ -331,7 +334,8 @@ namespace NBitcoin
 		{
 			stream.ReadWrite(ref header);
 			stream.ReadWrite(ref vtx);
-
+			stream.ReadWrite(ref blockSignature);
+			
 			this.SetPosParams();
 		}
 
@@ -348,6 +352,7 @@ namespace NBitcoin
 		{
 			header.SetNull();
 			vtx.Clear();
+			blockSignature.SetNull();
 		}
 
 
@@ -372,7 +377,7 @@ namespace NBitcoin
         // ppcoin: two types of block: proof-of-work or proof-of-stake
         public bool IsProofOfStake()
         {
-            return this.vtx.Count() > 1 && this.vtx[1].IsCoinStake;
+            return this.vtx.Count > 1 && this.vtx[1].IsCoinStake;
         }
 
         public bool IsProofOfWork()
@@ -415,7 +420,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Check proof of work and merkle root
+		/// Check POW/POS and merkle root
 		/// </summary>
 		/// <returns></returns>
 		public bool Check()
@@ -431,8 +436,10 @@ namespace NBitcoin
 
         public bool CheckProofOfStake()
         {
-            // todo: move this to the full node code.
-            // this code is temporary and will move to the full node implementation when its ready
+			// todo: move this to the full node code.
+			// this code is not the full check of POS 
+			// full POS check will be introduced with the full node
+			
             if (IsProofOfWork())
                 return true;
 
@@ -440,12 +447,12 @@ namespace NBitcoin
             if (this.vtx[0].Outputs.Count != 1 || !this.vtx[0].Outputs[0].IsEmpty)
                 return false;
 
-            // Second transaction must be coinstake, the rest must not be
-            if (!vtx.Any() || !this.vtx[1].IsCoinStake)
-                return false;
-            for (int i = 2; i < vtx.Count; i++)
-                if (vtx[i].IsCoinStake)
-                    return false;
+			// Second transaction must be coinstake, the rest must not be
+			if (!vtx[1].IsCoinStake)
+				return false; 
+
+			if (vtx.Skip(2).Any(t => t.IsCoinStake))
+				return false; 
 
             return true;
         }

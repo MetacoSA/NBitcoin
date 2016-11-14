@@ -434,13 +434,13 @@ namespace NBitcoin.Tests
             Assert.True(m[0] == byts[0] && m[1] == byts[1] && m[2] == byts[2] && m[3] == byts[3]);
             // enumerate over all the bytes and separate the blocks to hex representations
             var current = new List<byte>();
-            for (int i = 1; i < byts.Length; i++) // start from 1 to skip first check
+            for (int i = 0; i < byts.Length; i++) // start from 1 to skip first check
             {
                 // check for the magic byte
                 if ((m[0] == byts[i] &&
                     m[1] == byts[i + 1] &&
                     m[2] == byts[i + 2] &&
-                    m[3] == byts[i + 3]))
+                    m[3] == byts[i + 3]) && i > 0)
                 {
                     // if we reached the magic byte we got to the end of the block
                     yield return Encoders.Hex.EncodeData(current.ToArray());
@@ -466,7 +466,7 @@ namespace NBitcoin.Tests
 
             // now we try 
             List<Block> blocks = new List<Block>();
-            foreach (var blockHex in inserts.Where(s => !string.IsNullOrEmpty(s)))
+            foreach (var blockHex in inserts)
             {
                 var rem = blockHex.Substring(8);// the magic bytes
                 var bt = Encoders.Hex.DecodeData(rem); // pars to bytes
@@ -496,9 +496,9 @@ namespace NBitcoin.Tests
 
         [Fact]
         [Trait("UnitTest", "UnitTest")]
-        public void EnumerateStratisBlockcahinAndValidateAllBlocks()
+        public void EnumerateAndValidateAllBlocks()
         {
-            var listAll = new Dictionary<string, StoredBlock>();
+			var listAll = new Dictionary<string, StoredBlock>();
 			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
 			foreach (var block in store.EnumerateFolder())
             {
@@ -525,7 +525,7 @@ namespace NBitcoin.Tests
 
         [Fact]
         [Trait("UnitTest", "UnitTest")]
-        public void EnumerateStratisBlockcahinCheckTipBlock()
+        public void EnumerateAndCheckTipBlock()
         {
             var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
 
@@ -536,6 +536,24 @@ namespace NBitcoin.Tests
             Assert.Equal(block100K, lastblk.Header.GetHash());
             Assert.Equal(100000, lastblk.Height);
         }
-    }
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void IndexTheFullChain()
+		{
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
+			var reindexed = indexStore.ReIndex();
+			Assert.Equal(reindexed, 103952);
+
+			var chain = store.GetChain();
+			
+			foreach(var item in chain.ToEnumerable(false))
+			{
+				var block = indexStore.Get(item.HashBlock);
+				Assert.True(BlockValidator.CheckBlock(block));
+			}			
+		}
+	}
 }
 #endif

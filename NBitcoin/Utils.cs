@@ -121,6 +121,10 @@ namespace NBitcoin
 				yield return toReturn;
 			}
 		}
+		public static bool Empty<T>(this IEnumerable<T> source)
+		{
+			return !source.Any();
+		}
 
 #if !(PORTABLE || NETCORE)
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
