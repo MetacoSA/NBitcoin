@@ -15,6 +15,11 @@
 			"System.Threading.Tasks.Parallel": "4.0.1",
 			"System.Threading.Thread": "4.0.0",
 			"System.Runtime.InteropServices.RuntimeInformation": "4.0.0"
+		},
+		"buildOptions": {
+			"define": [
+			  "NOCUSTOMSSLVALIDATION"
+			]
 		}
     },
 	"netstandard1.1": {		
@@ -25,7 +30,8 @@
 			  "NOSOCKET",
 			  "NOFILEIO",
 			  "USEBC",
-			  "NODEFAULTRNG"
+			  "NODEFAULTRNG",
+			  "NOCUSTOMSSLVALIDATION"
 			]
 		}
 	}
