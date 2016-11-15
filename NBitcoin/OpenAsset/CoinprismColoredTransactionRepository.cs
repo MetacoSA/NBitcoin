@@ -66,8 +66,7 @@ namespace NBitcoin.OpenAsset
 				return new CoinprismTransactionRepository();
 			}
 		}
-
-		static HttpClient Client = new HttpClient();
+		
 		public async Task<ColoredTransaction> GetAsync(uint256 txId)
 		{
 			try
@@ -76,58 +75,64 @@ namespace NBitcoin.OpenAsset
 
 				String url = _network == Network.Main ? String.Format("https://api.coinprism.com/v1/transactions/{0}", txId) : String.Format("https://testnet.api.coinprism.com/v1/transactions/{0}", txId);
 
-				var response = await Client.GetAsync(url).ConfigureAwait(false);
-				if(response.StatusCode != HttpStatusCode.OK)
-					return null;
-				var str = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				var json = JObject.Parse(str);
-				var inputs = json["inputs"] as JArray;
-				if(inputs != null)
-				{
-					for(int i = 0; i < inputs.Count; i++)
-					{
-						if(inputs[i]["asset_id"].Value<string>() == null)
-							continue;
-						var entry = new ColoredEntry();
-						entry.Index = (uint)i;
-						entry.Asset = new AssetMoney(
-							new BitcoinAssetId(inputs[i]["asset_id"].ToString(), null).AssetId,
-							inputs[i]["asset_quantity"].Value<ulong>());
+				HttpWebRequest req = HttpWebRequest.CreateHttp(url);
+				req.Method = "GET";
 
-						result.Inputs.Add(entry);
-					}
-				}
+				if(_network == Network.TestNet)
+					req.ServerCertificateValidationCallback += (a, b, c, d) => true;
 
-				var outputs = json["outputs"] as JArray;
-				if(outputs != null)
+				using(var response = await req.GetResponseAsync().ConfigureAwait(false))
 				{
-					bool issuance = true;
-					for(int i = 0; i < outputs.Count; i++)
+					var writer = new StreamReader(response.GetResponseStream());
+					var str = await writer.ReadToEndAsync().ConfigureAwait(false);
+					var json = JObject.Parse(str);
+					var inputs = json["inputs"] as JArray;
+					if(inputs != null)
 					{
-						var marker = ColorMarker.TryParse(new Script(Encoders.Hex.DecodeData(outputs[i]["script"].ToString())));
-						if(marker != null)
+						for(int i = 0; i < inputs.Count; i++)
 						{
-							issuance = false;
-							result.Marker = marker;
-							continue;
+							if(inputs[i]["asset_id"].Value<string>() == null)
+								continue;
+							var entry = new ColoredEntry();
+							entry.Index = (uint)i;
+							entry.Asset = new AssetMoney(
+								new BitcoinAssetId(inputs[i]["asset_id"].ToString(), null).AssetId,
+								inputs[i]["asset_quantity"].Value<ulong>());
+
+							result.Inputs.Add(entry);
 						}
-						if(outputs[i]["asset_id"].Value<string>() == null)
-							continue;
-						ColoredEntry entry = new ColoredEntry();
-						entry.Index = (uint)i;
-						entry.Asset = new AssetMoney(
-							new BitcoinAssetId(outputs[i]["asset_id"].ToString(), null).AssetId,
-							outputs[i]["asset_quantity"].Value<ulong>()
-							);
-
-						if(issuance)
-							result.Issuances.Add(entry);
-						else
-							result.Transfers.Add(entry);
 					}
-				}
 
-				return result;
+					var outputs = json["outputs"] as JArray;
+					if(outputs != null)
+					{
+						bool issuance = true;
+						for(int i = 0; i < outputs.Count; i++)
+						{
+							var marker = ColorMarker.TryParse(new Script(Encoders.Hex.DecodeData(outputs[i]["script"].ToString())));
+							if(marker != null)
+							{
+								issuance = false;
+								result.Marker = marker;
+								continue;
+							}
+							if(outputs[i]["asset_id"].Value<string>() == null)
+								continue;
+							ColoredEntry entry = new ColoredEntry();
+							entry.Index = (uint)i;
+							entry.Asset = new AssetMoney(
+								new BitcoinAssetId(outputs[i]["asset_id"].ToString(), null).AssetId,
+								outputs[i]["asset_quantity"].Value<ulong>()
+								);
+
+							if(issuance)
+								result.Issuances.Add(entry);
+							else
+								result.Transfers.Add(entry);
+						}
+					}
+					return result;
+				}
 			}
 			catch(WebException ex)
 			{
@@ -147,6 +152,24 @@ namespace NBitcoin.OpenAsset
 				}
 				throw;
 			}
+		}
+
+		public async Task BroadcastAsync(Transaction transaction)
+		{
+			if(transaction == null)
+				throw new ArgumentNullException("transaction");
+
+			String url = _network == Network.Main ? "https://api.coinprism.com/v1/transactions/v1/sendrawtransaction" : "https://testnet.api.coinprism.com/v1/sendrawtransaction";
+			HttpWebRequest req = HttpWebRequest.CreateHttp(url);
+			req.Method = "POST";
+			req.ContentType = "application/json";
+			if(_network == Network.TestNet)
+				req.ServerCertificateValidationCallback += (a, b, c, d) => true;
+			var stream = await req.GetRequestStreamAsync().ConfigureAwait(false);
+			var writer = new StreamWriter(stream);
+			await writer.WriteAsync("\"" + transaction.ToHex() + "\"").ConfigureAwait(false);
+			await writer.FlushAsync().ConfigureAwait(false);
+			(await req.GetResponseAsync().ConfigureAwait(false)).Dispose();
 		}
 
 		public Task PutAsync(uint256 txId, ColoredTransaction tx)

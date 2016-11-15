@@ -23,6 +23,11 @@ namespace NBitcoin
 			return _Client.GetRawTransactionAsync(txId, false);
 		}
 
+		public Task BroadcastAsync(Transaction tx)
+		{
+			return _Client.SendRawTransactionAsync(tx);
+		}
+
 		public Task PutAsync(uint256 txId, Transaction tx)
 		{
 			return Task.FromResult(false);

@@ -59,19 +59,21 @@ namespace NBitcoin
 		{
 			while(true)
 			{
-				var response = await Client.GetAsync(BlockrAddress + "tx/raw/" + txId).ConfigureAwait(false);
-				if(response.StatusCode == HttpStatusCode.NotFound)
-					return null;
-				var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				var json = JObject.Parse(result);
-				var status = json["status"];
-				var code = json["code"];
-				if(status != null && status.ToString() == "error")
+				using(var response = await Client.GetAsync(BlockrAddress + "tx/raw/" + txId).ConfigureAwait(false))
 				{
-					throw new BlockrException(json);
+					if(response.StatusCode == HttpStatusCode.NotFound)
+						return null;
+					var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+					var json = JObject.Parse(result);
+					var status = json["status"];
+					var code = json["code"];
+					if(status != null && status.ToString() == "error")
+					{
+						throw new BlockrException(json);
+					}
+					var tx = Transaction.Parse(json["data"]["tx"]["hex"].ToString());
+					return tx;
 				}
-				var tx = Transaction.Parse(json["data"]["tx"]["hex"].ToString());
-				return tx;
 			}
 		}
 
@@ -80,23 +82,25 @@ namespace NBitcoin
 		{
 			while(true)
 			{
-				var response = await Client.GetAsync(BlockrAddress + "address/unspent/" + Address).ConfigureAwait(false);
-				if(response.StatusCode == HttpStatusCode.NotFound)
-					return null;
-				var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-				var json = JObject.Parse(result);
-				var status = json["status"];
-				var code = json["code"];
-				if((status != null && status.ToString() == "error") || (json["data"]["address"].ToString() != Address))
+				using(var response = await Client.GetAsync(BlockrAddress + "address/unspent/" + Address).ConfigureAwait(false))
 				{
-					throw new BlockrException(json);
+					if(response.StatusCode == HttpStatusCode.NotFound)
+						return null;
+					var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+					var json = JObject.Parse(result);
+					var status = json["status"];
+					var code = json["code"];
+					if((status != null && status.ToString() == "error") || (json["data"]["address"].ToString() != Address))
+					{
+						throw new BlockrException(json);
+					}
+					List<Coin> list = new List<Coin>();
+					foreach(var element in json["data"]["unspent"])
+					{
+						list.Add(new Coin(uint256.Parse(element["tx"].ToString()), (uint)element["n"], new Money((decimal)element["amount"], MoneyUnit.BTC), new Script(DataEncoders.Encoders.Hex.DecodeData(element["script"].ToString()))));
+					}
+					return list;
 				}
-				List<Coin> list = new List<Coin>();
-				foreach(var element in json["data"]["unspent"])
-				{
-					list.Add(new Coin(uint256.Parse(element["tx"].ToString()), (uint)element["n"], new Money((decimal)element["amount"], MoneyUnit.BTC), new Script(DataEncoders.Encoders.Hex.DecodeData(element["script"].ToString()))));
-				}
-				return list;
 			}
 		}
 
@@ -109,17 +113,21 @@ namespace NBitcoin
 
 		public async Task BroadcastAsync(Transaction tx)
 		{
+			if(tx == null)
+				throw new ArgumentNullException("tx");
 			var jsonTx = new JObject();
 			jsonTx["hex"] = tx.ToHex();
 			var content = new StringContent(jsonTx.ToString(), Encoding.UTF8, "application/json");
-			var response = await Client.PostAsync(BlockrAddress + BroadcastPath, content).ConfigureAwait(false);
-			var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-			var json = JObject.Parse(result);
-			var status = json["status"];
-			var code = json["code"];
-			if(status != null && status.ToString() == "error")
+			using(var response = await Client.PostAsync(BlockrAddress + BroadcastPath, content).ConfigureAwait(false))
 			{
-				throw new BlockrException(json);
+				var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+				var json = JObject.Parse(result);
+				var status = json["status"];
+				var code = json["code"];
+				if(status != null && status.ToString() == "error")
+				{
+					throw new BlockrException(json);
+				}
 			}
 		}
 
@@ -129,6 +137,7 @@ namespace NBitcoin
 		{
 			get
 			{
+				// https cert get rejected by .net
 				return "http://" + (Network == Network.Main ? "" : "t") + "btc.blockr.io/api/v1/";
 			}
 		}
