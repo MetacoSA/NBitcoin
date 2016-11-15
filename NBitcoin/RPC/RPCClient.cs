@@ -306,6 +306,7 @@ namespace NBitcoin.RPC
 #endif
 			var dataStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false);
 			await dataStream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
+			await dataStream.FlushAsync().ConfigureAwait(false);
 			dataStream.Dispose();
 			RPCResponse response;
 			try
