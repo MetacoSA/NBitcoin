@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace NBitcoin
 {
-	using System.Runtime.CompilerServices;
-
-	using NBitcoin.BouncyCastle.Math;
-
-	
+	using System;
+	using System.Collections.Generic;
 
 	/// <summary>
 	/// A BlockHeader chained with all its ancestors

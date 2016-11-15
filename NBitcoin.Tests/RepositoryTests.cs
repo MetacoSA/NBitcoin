@@ -554,6 +554,62 @@ namespace NBitcoin.Tests
 				Assert.True(BlockValidator.CheckBlock(block));
 			}			
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CheckBlocProofOfStake()
+		{
+			var totalblocks = 20000;
+			var mainStore = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+
+			// create the stores
+			var store = CreateBlockStore("CheckBlocProofOfStake");
+			var storeHeader = CreateBlockStore("CheckBlocProofOfStakeHeader");
+
+			// fill only a small portion so test wont be too long
+			var index = 0;
+			foreach (var storedBlock in mainStore.Enumerate(false).Take(totalblocks))
+			{
+				store.Append(storedBlock.Item);
+				//storeHeader.Append(new Block(storedBlock.Item.Header));
+				index++;
+			}
+
+			// build the index
+			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
+			var indexHeaderStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), storeHeader);
+			var reindexed = indexStore.ReIndex();
+			Assert.Equal(reindexed, totalblocks);
+
+			// build the chain
+			var chain = store.GetChain();
+
+			// fill the transaction store
+			var trxRepo = new NoSqlTransactionRepository();
+			var blockRepo = new BlockRepository(indexStore, indexHeaderStore);
+			foreach (var chainedBlock in chain.ToEnumerable(false).Take(totalblocks))
+			{
+				var block = indexStore.Get(chainedBlock.HashBlock);
+				foreach (var blockTransaction in block.Transactions)
+				{
+					trxRepo.Put(blockTransaction);
+				}
+			}
+
+			// validate the stake trasnaction
+			foreach (var item in chain.ToEnumerable(false).Take(totalblocks))
+			{
+				if (item.Header.PosParameters.IsProofOfStake())
+				{
+					var block = indexStore.Get(item.HashBlock);
+					var trxStake = block.Transactions[1];
+					uint256 hashProofOfStake = null, targetProofOfStake = null;
+
+					Assert.True(BlockValidator.CheckProofOfStake(blockRepo, trxRepo, item, trxStake, block.Header.Bits.ToCompact(),
+						ref hashProofOfStake, ref targetProofOfStake));
+				}
+			}
+		}
 	}
 }
 #endif

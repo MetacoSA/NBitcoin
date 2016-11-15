@@ -13,6 +13,8 @@ namespace NBitcoin
 	/// </summary>
 	public class BlockValidator
 	{
+		private const int MAX_BLOCK_SIZE = 1000000;
+
 		private static bool IsProtocolV1RetargetingFixed(int height)
 		{
 			return height > 0;
@@ -140,7 +142,6 @@ namespace NBitcoin
 			return false;
 		}
 
-		private const int MAX_BLOCK_SIZE = 1000000;
 
 		public static bool IsCanonicalBlockSignature(Block block, bool checkLowS)
 		{
@@ -236,6 +237,52 @@ namespace NBitcoin
 				return false; //DoS(100, error("CheckBlock() : hashMerkleRoot mismatch"));
 
 			return true;
+		}
+
+		// Check kernel hash target and coinstake signature
+		public static bool CheckProofOfStake(IBlockRepository blockStore, ITransactionRepository trasnactionStore,
+			ChainedBlock pindexPrev, Transaction tx, uint nBits, ref uint256 hashProofOfStake, ref uint256 targetProofOfStake)
+		{
+			// todo: Commnets on this mehtod:
+			// the store objects (IBlockRepository and  ITransactionRepository) should be a singleton instance of 
+			// the BlockValidator and would be initiated as part of a Dependency Injection freamwork
+
+			if (!tx.IsCoinStake)
+				return false; // error("CheckProofOfStake() : called on non-coinstake %s", tx.GetHash().ToString());
+
+			// Kernel (input 0) must match the stake hash target per coin age (nBits)
+			var txIn = tx.Inputs[0];
+			
+			// First try finding the previous transaction in database
+			var txPrev = trasnactionStore.Get(txIn.PrevOut.Hash);
+			if (txPrev == null)
+				return false; // tx.DoS(1, error("CheckProofOfStake() : INFO: read txPrev failed"));  // previous transaction not in main chain, may occur during initial download
+
+			// Verify signature
+
+			if (!VerifySignature(txPrev, tx, 0, ScriptVerify.None))
+				return false; // tx.DoS(100, error("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString()));
+
+			return true;
+		}
+
+		private static bool VerifySignature(Transaction txFrom, Transaction txTo, int txToInN, ScriptVerify flagScriptVerify)
+		{
+			var input = txTo.Inputs[txToInN];
+
+			if (input.PrevOut.N >= txFrom.Outputs.Count)
+				return false;
+
+			if (input.PrevOut.Hash != txFrom.GetHash())
+				return false;
+
+			var output = txFrom.Outputs[input.PrevOut.N];
+
+			var txData = new PrecomputedTransactionData(txFrom);
+			var checker = new TransactionChecker(txTo, txToInN, output.Value, txData);
+			var ctx = new ScriptEvaluationContext {ScriptVerify = flagScriptVerify};
+			
+			return ctx.VerifyScript(input.ScriptSig, output.ScriptPubKey, checker);
 		}
 	}
 }
