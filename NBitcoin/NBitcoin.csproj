@@ -74,7 +74,11 @@
     <Compile Include="BuilderExtensions\P2PKBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKHBuilderExtension.cs" />
     <Compile Include="FeeRate.cs" />
+    <Compile Include="IndexedTxIn.cs" />
+    <Compile Include="IndexedTxOut.cs" />
+    <Compile Include="MedianFilter.cs" />
     <Compile Include="OpenAsset\NullColoredTransactionRepository.cs" />
+    <Compile Include="OutPoint.cs" />
     <Compile Include="Payment\IChainChecker.cs" />
     <Compile Include="Payment\ICertificateServiceProvider.cs" />
     <Compile Include="Payment\ISignatureChecker.cs" />
@@ -144,8 +148,14 @@
     <Compile Include="Protocol\Payloads\UTxOutputPayload.cs" />
     <Compile Include="RPC\RestClient.cs" />
     <Compile Include="Policy\StandardTransactionPolicy.cs" />
+    <Compile Include="ScriptCompressor.cs" />
     <Compile Include="Sequence.cs" />
     <Compile Include="SequenceLock.cs" />
+    <Compile Include="TxIn.cs" />
+    <Compile Include="TxInList.cs" />
+    <Compile Include="TxOut.cs" />
+    <Compile Include="TxOutCompressor.cs" />
+    <Compile Include="TxOutList.cs" />
     <Compile Include="Utils\ActionDisposable.cs" />
     <Compile Include="Utils\ThreadSafeCollection.cs" />
     <Compile Include="Protocol\NodeConnectionParameters.cs" />
@@ -274,6 +284,8 @@
     <Compile Include="Protocol\VarInt.cs" />
     <Compile Include="Protocol\VarString.cs" />
     <Compile Include="Protocol\Versions.cs" />
+    <Compile Include="Witness.cs" />
+    <Compile Include="WitScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BitcoinStream.Partial.tt">
