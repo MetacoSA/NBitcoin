@@ -59,74 +59,71 @@ namespace NBitcoin
 		{
 			while(true)
 			{
-				using(HttpClient client = new HttpClient())
-				{
-					var response = await client.GetAsync(BlockrAddress + "tx/raw/" + txId).ConfigureAwait(false);
-					if(response.StatusCode == HttpStatusCode.NotFound)
-						return null;
-					var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-					var json = JObject.Parse(result);
-					var status = json["status"];
-					var code = json["code"];
-					if(status != null && status.ToString() == "error")
-					{
-						throw new BlockrException(json);
-					}
-					var tx = Transaction.Parse(json["data"]["tx"]["hex"].ToString());
-					return tx;
-				}
-			}
-		}
-
-		public async Task<List<Coin>> GetUnspentAsync(string Address)
-		{
-			while(true)
-			{
-				using(HttpClient client = new HttpClient())
-				{
-					var response = await client.GetAsync(BlockrAddress + "address/unspent/" + Address).ConfigureAwait(false);
-					if(response.StatusCode == HttpStatusCode.NotFound)
-						return null;
-					var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-					var json = JObject.Parse(result);
-					var status = json["status"];
-					var code = json["code"];
-					if((status != null && status.ToString() == "error") || (json["data"]["address"].ToString() != Address))
-					{
-						throw new BlockrException(json);
-					}
-					List<Coin> list = new List<Coin>();
-					foreach(var element in json["data"]["unspent"])
-					{
-						list.Add(new Coin(uint256.Parse(element["tx"].ToString()), (uint)element["n"], new Money((decimal)element["amount"], MoneyUnit.BTC), new Script(DataEncoders.Encoders.Hex.DecodeData(element["script"].ToString()))));
-					}
-					return list;
-				}
-			}
-		}
-
-		internal static string PushPath = "tx/push";
-
-		public async Task PutAsync(uint256 txId, Transaction tx)
-		{
-			using (var client = new HttpClient())
-			{
-				var jsonTx = new JObject();
-				jsonTx["hex"] = tx.ToHex();
-				var content = new StringContent(jsonTx.ToString(), Encoding.UTF8, "application/json");
-				var response = await client.PostAsync(BlockrAddress + PushPath, content).ConfigureAwait(false);
+				var response = await Client.GetAsync(BlockrAddress + "tx/raw/" + txId).ConfigureAwait(false);
+				if(response.StatusCode == HttpStatusCode.NotFound)
+					return null;
 				var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 				var json = JObject.Parse(result);
 				var status = json["status"];
 				var code = json["code"];
-				if (status != null && status.ToString() == "error")
+				if(status != null && status.ToString() == "error")
 				{
 					throw new BlockrException(json);
 				}
+				var tx = Transaction.Parse(json["data"]["tx"]["hex"].ToString());
+				return tx;
 			}
 		}
 
-#endregion
+		readonly static HttpClient Client = new HttpClient();
+		public async Task<List<Coin>> GetUnspentAsync(string Address)
+		{
+			while(true)
+			{
+				var response = await Client.GetAsync(BlockrAddress + "address/unspent/" + Address).ConfigureAwait(false);
+				if(response.StatusCode == HttpStatusCode.NotFound)
+					return null;
+				var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+				var json = JObject.Parse(result);
+				var status = json["status"];
+				var code = json["code"];
+				if((status != null && status.ToString() == "error") || (json["data"]["address"].ToString() != Address))
+				{
+					throw new BlockrException(json);
+				}
+				List<Coin> list = new List<Coin>();
+				foreach(var element in json["data"]["unspent"])
+				{
+					list.Add(new Coin(uint256.Parse(element["tx"].ToString()), (uint)element["n"], new Money((decimal)element["amount"], MoneyUnit.BTC), new Script(DataEncoders.Encoders.Hex.DecodeData(element["script"].ToString()))));
+				}
+				return list;
+			}
+		}
+
+		public Task PutAsync(uint256 txId, Transaction tx)
+		{
+			return Task.FromResult(true);
+		}
+
+		internal static string BroadcastPath = "tx/push";
+
+		public async Task BroadcastAsync(Transaction tx)
+		{
+			var jsonTx = new JObject();
+			jsonTx["hex"] = tx.ToHex();
+			var content = new StringContent(jsonTx.ToString(), Encoding.UTF8, "application/json");
+			var response = await Client.PostAsync(BlockrAddress + BroadcastPath, content).ConfigureAwait(false);
+			var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+			var json = JObject.Parse(result);
+			var status = json["status"];
+			var code = json["code"];
+			if(status != null && status.ToString() == "error")
+			{
+				throw new BlockrException(json);
+			}
+		}
+
+		#endregion
 
 		string BlockrAddress
 		{

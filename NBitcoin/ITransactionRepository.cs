@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
+	/// <summary>
+	/// Represent a transaction map
+	/// </summary>
 	public interface ITransactionRepository
 	{
 		Task<Transaction> GetAsync(uint256 txId);

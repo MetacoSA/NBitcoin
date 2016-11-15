@@ -264,16 +264,16 @@ namespace NBitcoin.Tests
 			Assert.NotNull(result);
 			Assert.Equal("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927de", result.GetHash().ToString());
 
-			var pushPath = BlockrTransactionRepository.PushPath;
+			var pushPath = BlockrTransactionRepository.BroadcastPath;
 
 			try
 			{
-				BlockrTransactionRepository.PushPath = "tx/decode";
-				repo.Put(result);
+				BlockrTransactionRepository.BroadcastPath = "tx/decode";
+				repo.BroadcastAsync(result).GetAwaiter().GetResult();
 			}
 			finally
 			{
-				BlockrTransactionRepository.PushPath = pushPath;
+				BlockrTransactionRepository.BroadcastPath = pushPath;
 			}
 		}
 
