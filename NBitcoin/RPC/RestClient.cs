@@ -201,7 +201,7 @@ namespace NBitcoin.RPC
 			{
 				var stream = response.GetResponseStream();
 				var bytesToRead = (int)response.ContentLength;
-				var buffer = stream.ReadBytes(bytesToRead);
+				var buffer = await stream.ReadBytesAsync(bytesToRead).ConfigureAwait(false);
 				return buffer;
 			}
 		}
@@ -240,7 +240,7 @@ namespace NBitcoin.RPC
 
 				var stream = response.GetResponseStream();
 				var bytesToRead = (int)response.ContentLength;
-				var buffer = stream.ReadBytes(bytesToRead);
+				var buffer = await stream.ReadBytesAsync(bytesToRead).ConfigureAwait(false);
 				response.Dispose();
 				throw new RestApiException(Encoding.UTF8.GetString(buffer, 0, buffer.Length - 2), ex);
 			}

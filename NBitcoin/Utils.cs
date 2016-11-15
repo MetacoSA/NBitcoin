@@ -74,6 +74,18 @@ namespace NBitcoin
 			return buffer;
 		}
 
+		public static async Task<byte[]> ReadBytesAsync(this Stream stream, int bytesToRead)
+		{
+			var buffer = new byte[bytesToRead];
+			int num = 0;
+			int num2;
+			do
+			{
+				num += (num2 = await stream.ReadAsync(buffer, num, bytesToRead - num).ConfigureAwait(false));
+			} while(num2 > 0 && num < bytesToRead);
+			return buffer;
+		}
+
 		public static int ReadBytes(this Stream stream, int count, out byte[] result)
 		{
 			result = new byte[count];
