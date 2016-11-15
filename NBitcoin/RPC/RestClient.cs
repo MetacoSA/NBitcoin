@@ -224,6 +224,7 @@ namespace NBitcoin.RPC
 		private static async Task<WebResponse> GetWebResponse(WebRequest request)
 		{
 			WebResponse response = null;
+			WebException exception = null;
 			try
 			{
 				response = await request.GetResponseAsync().ConfigureAwait(false);
@@ -237,12 +238,15 @@ namespace NBitcoin.RPC
 
 				if(response == null)
 					throw;
-
+				exception = ex;
+			}
+			if(exception != null)
+			{
 				var stream = response.GetResponseStream();
 				var bytesToRead = (int)response.ContentLength;
 				var buffer = await stream.ReadBytesAsync(bytesToRead).ConfigureAwait(false);
 				response.Dispose();
-				throw new RestApiException(Encoding.UTF8.GetString(buffer, 0, buffer.Length - 2), ex);
+				throw new RestApiException(Encoding.UTF8.GetString(buffer, 0, buffer.Length - 2), exception);
 			}
 			return response;
 		}
