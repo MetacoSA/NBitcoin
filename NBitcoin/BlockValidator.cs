@@ -142,7 +142,6 @@ namespace NBitcoin
 			return false;
 		}
 
-
 		public static bool IsCanonicalBlockSignature(Block block, bool checkLowS)
 		{
 			if (block.IsProofOfWork())
