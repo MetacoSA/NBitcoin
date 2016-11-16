@@ -1,20 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NBitcoin
 {
 	public class NoSqlBlockRepository : IBlockRepository
 	{
-		NoSqlRepository _Repository;
+		readonly NoSqlRepository repository;
+
 		public NoSqlBlockRepository(NoSqlRepository repository)
 		{
 			if(repository == null)
-				throw new ArgumentNullException("repository");
-			_Repository = repository;
+				throw new ArgumentNullException(nameof(repository));
+			this.repository = repository;
 		}
+
 		public NoSqlBlockRepository()
 			: this(new InMemoryNoSqlRepository())
 		{
@@ -25,7 +24,7 @@ namespace NBitcoin
 
 		public Task<Block> GetBlockAsync(uint256 blockId)
 		{
-			return _Repository.GetAsync<Block>(blockId.ToString());
+			return repository.GetAsync<Block>(blockId.ToString());
 		}
 
 		#endregion
@@ -36,7 +35,43 @@ namespace NBitcoin
 		}
 		public Task PutAsync(uint256 blockId, Block block)
 		{
-			return _Repository.PutAsync(blockId.ToString(), block);
+			return repository.PutAsync(blockId.ToString(), block);
 		}
 	}
+
+	/// <summary>
+	/// An in memory container of block hashes mapped to trasnaction hashes
+	/// </summary>
+	public class BlockTransactionMapStore : IBlockTransactionMapStore
+	{
+		readonly NoSqlRepository repository;
+
+		public BlockTransactionMapStore(NoSqlRepository repository)
+		{
+			if (repository == null)
+				throw new ArgumentNullException(nameof(repository));
+			this.repository = repository;
+		}
+
+		public BlockTransactionMapStore()
+			: this(new InMemoryNoSqlRepository())
+		{
+
+		}
+
+		#region IBlockTransactionMapStore Members
+
+		public uint256 GetBlockHash(uint256 trxHash)
+		{
+			return repository.GetAsync<uint256.MutableUint256>(trxHash.ToString()).Result?.Value;
+		}
+
+		#endregion
+	
+		public void PutAsync(uint256 trxId, uint256 blockId)
+		{
+			repository.PutAsync(trxId.ToString(), blockId.AsBitcoinSerializable());
+		}
+	}
+
 }

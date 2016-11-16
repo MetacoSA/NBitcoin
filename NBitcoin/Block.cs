@@ -141,7 +141,7 @@ namespace NBitcoin
 			nTime = 0;
 			nBits = 0;
 			nNonce = 0;
-			PosParameters = null;
+			PosParameters = new PosParameters();
 		}
 
 		public bool IsNull
@@ -566,6 +566,11 @@ namespace NBitcoin
 		public uint256 StakeModifierV2;
 
 		private int flags;
+
+		public PosParameters()
+		{
+			this.StakeModifierV2 = uint256.Zero;
+		}
 
 		public BlockFlag Flags
 		{

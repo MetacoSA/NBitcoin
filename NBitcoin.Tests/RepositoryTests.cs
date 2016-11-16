@@ -557,42 +557,37 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CheckBlocProofOfStake()
+		public void CheckBlockProofOfStake()
 		{
-			var totalblocks = 20000;
+			var totalblocks = 5000;
 			var mainStore = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
 
 			// create the stores
-			var store = CreateBlockStore("CheckBlocProofOfStake");
-			var storeHeader = CreateBlockStore("CheckBlocProofOfStakeHeader");
+			var store = CreateBlockStore();
 
 			// fill only a small portion so test wont be too long
 			var index = 0;
+			var blockStore = new NoSqlBlockRepository();
 			foreach (var storedBlock in mainStore.Enumerate(false).Take(totalblocks))
 			{
 				store.Append(storedBlock.Item);
-				//storeHeader.Append(new Block(storedBlock.Item.Header));
+				blockStore.PutAsync(storedBlock.Item);
 				index++;
 			}
-
-			// build the index
-			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
-			var indexHeaderStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), storeHeader);
-			var reindexed = indexStore.ReIndex();
-			Assert.Equal(reindexed, totalblocks);
-
+			
 			// build the chain
 			var chain = store.GetChain();
 
 			// fill the transaction store
-			var trxRepo = new NoSqlTransactionRepository();
-			var blockRepo = new BlockRepository(indexStore, indexHeaderStore);
+			var trxStore = new NoSqlTransactionRepository();
+			var mapStore = new BlockTransactionMapStore();
 			foreach (var chainedBlock in chain.ToEnumerable(false).Take(totalblocks))
 			{
-				var block = indexStore.Get(chainedBlock.HashBlock);
+				var block = blockStore.GetBlock(chainedBlock.HashBlock);
 				foreach (var blockTransaction in block.Transactions)
 				{
-					trxRepo.Put(blockTransaction);
+					trxStore.Put(blockTransaction);
+					mapStore.PutAsync(blockTransaction.GetHash(), block.GetHash());
 				}
 			}
 
@@ -601,12 +596,12 @@ namespace NBitcoin.Tests
 			{
 				if (item.Header.PosParameters.IsProofOfStake())
 				{
-					var block = indexStore.Get(item.HashBlock);
+					var block = blockStore.GetBlock(item.HashBlock);
 					var trxStake = block.Transactions[1];
 					uint256 hashProofOfStake = null, targetProofOfStake = null;
 
-					Assert.True(BlockValidator.CheckProofOfStake(blockRepo, trxRepo, item, trxStake, block.Header.Bits.ToCompact(),
-						ref hashProofOfStake, ref targetProofOfStake));
+					Assert.True(BlockValidator.CheckProofOfStake(blockStore, trxStore, mapStore, item, trxStake,
+						block.Header.Bits.ToCompact(), ref hashProofOfStake, ref targetProofOfStake));
 				}
 			}
 		}
