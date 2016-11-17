@@ -283,6 +283,7 @@
     <None Include="NBitcoin.Tokenized.nuspec" />
     <None Include="packages.config" />
     <None Include="PushNuget.ps1" />
+    <Compile Include="RPC\RPCClient.Wallet.cs" />
     <None Include="UInt256.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>UInt2561.cs</LastGenOutput>
