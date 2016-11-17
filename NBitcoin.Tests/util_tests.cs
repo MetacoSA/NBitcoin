@@ -470,6 +470,41 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		// Pubkey: 04a5cf05bfe42daffaff4f1732f5868ed7c7919cba279fa7d940e6b02a8b059bde56be218077bcab1ad6b5f5dcb04c42534477fb8d21b6312b0063e08a8ae52b3e, Private: 7bd0db101160c888e9643f10594185a36a8db91b5308aaa7aad4c03245c6bdc1, Secret: a461392f592ff4292bfce732d808a07f1bc3f49c9a66a40d50761ffb8b2325f6
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanECDH()
+		{
+			var tests = new[]
+			{
+				new
+				{
+					Pubkey = "04a5cf05bfe42daffaff4f1732f5868ed7c7919cba279fa7d940e6b02a8b059bde56be218077bcab1ad6b5f5dcb04c42534477fb8d21b6312b0063e08a8ae52b3e",
+					Private = "7bd0db101160c888e9643f10594185a36a8db91b5308aaa7aad4c03245c6bdc1",
+					ExpectedSecret = "a461392f592ff4292bfce732d808a07f1bc3f49c9a66a40d50761ffb8b2325f6"
+				},
+				new
+				{
+					Pubkey = "043f12235bcf2776c8489ed138d4c9b85a1e29f3f4ad2787b9c8588e960867afc9de1e5702caa787665f5d0a4b04015c8bd5f1541e3d170efc3668f6ac587d43bc",
+					Private = "1249b289c5959c71ae60e0a2a7d57dffbd5cb862aaf10442db205f6787791732",
+					ExpectedSecret = "1d664ba11d3925cfcd938b2ef131213ba4ca986822944d0a7616b34027738e7c"
+				},
+				new
+				{
+					Pubkey = "04769c29328998917d9f2f7c6ce46f2f12a6064e937dff722b4811e9c88b4e1d45387fea132321541e8dbdc92384aef1944d650aa889bfa836db078897e5299262",
+					Private = "41d0cbeeb3365b8c9e190f9898689997002f94006ad3bf1dcfbac28b6e4fb84d",
+					ExpectedSecret = "7fcfa754a40ceaabee5cd3df1a99ee2e5d2c027fdcbd8e437d9be757ea58708f"
+				}
+			};
+			foreach(var test in tests)
+			{
+				var pubKey = new PubKey(test.Pubkey);
+				var key = new Key(Encoders.Hex.DecodeData(test.Private));
+				var secret = pubKey.GetSharedSecret(key);
+				Assert.Equal(test.ExpectedSecret, Encoders.Hex.EncodeData(secret));
+			}
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanGenerateScriptFromAddress()

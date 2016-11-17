@@ -22,7 +22,7 @@ namespace NBitcoin
 		}
 
 		byte[] vch = new byte[0];
-		ECKey _ECKey;
+		internal ECKey _ECKey;
 		public bool IsCompressed
 		{
 			get;

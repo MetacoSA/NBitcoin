@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NBitcoin.BouncyCastle.Math.EC;
 
 namespace NBitcoin
 {
@@ -59,7 +60,7 @@ namespace NBitcoin
 		}
 
 		ECKey _ECKey;
-		private ECKey ECKey
+		ECKey ECKey
 		{
 			get
 			{
@@ -417,6 +418,24 @@ namespace NBitcoin
 				}
 				return _ScriptPubKey;
 			}
+		}
+
+		/// <summary>
+		/// Exchange shared secret through ECDH
+		/// </summary>
+		/// <param name="key">Private key</param>
+		/// <returns>Shared secret</returns>
+		public byte[] GetSharedSecret(Key key)
+		{
+			var pub = _ECKey.GetPublicKeyParameters();
+			var privKey = key._ECKey.PrivateKey;
+			if(!pub.Parameters.Equals(privKey.Parameters))
+				throw new InvalidOperationException("ECDH public key has wrong domain parameters");
+			ECPoint q = pub.Q.Multiply(privKey.D).Normalize();
+			if(q.IsInfinity)
+				throw new InvalidOperationException("Infinity is not a valid agreement value for ECDH");
+			var pubkey = ECKey.Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger()).GetEncoded(true);
+			return Hashes.SHA256(pubkey);
 		}
 
 		#endregion
