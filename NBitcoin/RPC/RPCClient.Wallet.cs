@@ -14,6 +14,63 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
+    public class RPCAccount
+    {
+        public Money Amount
+        {
+            get;
+            set;
+        }
+        public String AccountName
+        {
+            get;
+            set;
+        }
+    }
+
+    public class ChangeAddress
+    {
+        public Money Amount
+        {
+            get;
+            set;
+        }
+        public BitcoinAddress Address
+        {
+            get;
+            set;
+        }
+    }
+
+    public class AddressGrouping
+    {
+        public AddressGrouping()
+        {
+            ChangeAddresses = new List<ChangeAddress>();
+        }
+        public BitcoinAddress PublicAddress
+        {
+            get;
+            set;
+        }
+        public Money Amount
+        {
+            get;
+            set;
+        }
+        public string Account
+        {
+            get;
+            set;
+        }
+
+        public List<ChangeAddress> ChangeAddresses
+        {
+            get;
+            set;
+        }
+    }
+
     /*
         Category            Name                        Implemented 
         ------------------ --------------------------- -----------------------
