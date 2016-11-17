@@ -226,15 +226,18 @@ namespace NBitcoin.RPC
         // listaccounts
 
         /// <summary>
-        /// Lists accounts and their balances
+        /// Lists accounts and their balances, with the default number of confirmations for balances (1), 
+        /// and not including watch only addresses (default false).
         /// </summary>
         public IEnumerable<RPCAccount> ListAccounts()
         {
-            return ListAccounts(1, false);
+            var response = SendCommand(RPCOperations.listaccounts);
+            return AsRPCAccount(response);
         }
 
         /// <summary>
-        /// Lists accounts and their balances
+        /// Lists accounts and their balances, based on the specified number of confirmations, 
+        /// and including watch only accounts if specified.
         /// </summary>
         /// <param name="confirmations">
         /// The minimum number of confirmations an externally-generated transaction must have before 
@@ -251,10 +254,15 @@ namespace NBitcoin.RPC
         /// <returns>
         /// A list of accounts and their balances
         /// </returns>
-        public IEnumerable<RPCAccount> ListAccounts(int confirmations = 1, bool includeWatchOnly = false)
+        public IEnumerable<RPCAccount> ListAccounts(int confirmations, bool includeWatchOnly)
         {
-            var result = SendCommand(RPCOperations.listaccounts, confirmations, includeWatchOnly);
-            var obj = (JObject)result.Result;
+            var response = SendCommand(RPCOperations.listaccounts, confirmations, includeWatchOnly);
+            return AsRPCAccount(response);
+        }
+
+		private IEnumerable<RPCAccount> AsRPCAccount(RPCResponse response)
+        {
+            var obj = (JObject)response.Result;
             foreach (var prop in obj.Properties())
             {
                 yield return new RPCAccount()
