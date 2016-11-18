@@ -7,10 +7,14 @@ using System.Linq;
 namespace NBitcoin
 {
 	/// <summary>
-	/// A private HD key
+	/// A private Hierarchical Deterministic key
 	/// </summary>
 	public class ExtKey : IBitcoinSerializable, IDestination, ISecret
 	{
+		/// <summary>
+		/// Parses the Base58 data (checking the network if specified), checks it represents the
+		/// correct type of item, and then returns the corresponding ExtKey.
+		/// </summary>
 		public static ExtKey Parse(string wif, Network expectedNetwork = null)
 		{
 			return Network.CreateFromBase58Data<BitcoinExtKey>(wif, expectedNetwork).ExtKey;
@@ -24,6 +28,9 @@ namespace NBitcoin
 
 		static readonly byte[] hashkey = new[] { 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ', 's', 'e', 'e', 'd' }.Select(o => (byte)o).ToArray();
 
+		/// <summary>
+		/// Gets the depth of this extended key from the root key.
+		/// </summary>
 		public byte Depth
 		{
 			get
@@ -31,6 +38,10 @@ namespace NBitcoin
 				return nDepth;
 			}
 		}
+
+		/// <summary>
+		/// Gets the child number of this key (in reference to the parent).
+		/// </summary>
 		public uint Child
 		{
 			get
@@ -38,6 +49,7 @@ namespace NBitcoin
 				return nChild;
 			}
 		}
+
 		public byte[] ChainCode
 		{
 			get
@@ -49,10 +61,23 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Constructor. Reconstructs an extended key from the Base58 representations of 
+		/// the public key and corresponding private key.  
+		/// </summary>
 		public ExtKey(BitcoinExtPubKey extPubKey, BitcoinSecret key)
 			: this(extPubKey.ExtPubKey, key.PrivateKey)
 		{
 		}
+
+		/// <summary>
+		/// Constructor. Creates an extended key from the public key and corresponding private key.  
+		/// </summary>
+		/// <remarks>
+		/// <para>
+		/// The ExtPubKey has the relevant values for child number, depth, chain code, and fingerprint.
+		/// </para>
+		/// </remarks>
 		public ExtKey(ExtPubKey extPubKey, Key privateKey)
 		{
 			if(extPubKey == null)
@@ -66,6 +91,10 @@ namespace NBitcoin
 			this.key = privateKey;
 		}
 
+		/// <summary>
+		/// Constructor. Creates an extended key from the private key, and specified values for
+		/// chain code, depth, fingerprint, and child number.
+		/// </summary>
 		public ExtKey(Key key, byte[] chainCode, byte depth, byte[] fingerprint, uint child)
 		{
 			if(key == null)
@@ -85,6 +114,10 @@ namespace NBitcoin
 			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, vchChainCode.Length);
 		}
 
+		/// <summary>
+		/// Constructor. Creates an extended key from the private key, with the specified value
+		/// for chain code. Depth, fingerprint, and child number, will have their default values.
+		/// </summary>
 		public ExtKey(Key masterKey, byte[] chainCode)
 		{
 			if(masterKey == null)
@@ -97,26 +130,31 @@ namespace NBitcoin
 			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, vchChainCode.Length);
 		}
 
+		/// <summary>
+		/// Constructor. Creates a new extended key with a random 64 byte seed.
+		/// </summary>
 		public ExtKey()
 		{
 			byte[] seed = RandomUtils.GetBytes(64);
 			SetMaster(seed);
 		}
-		public Key PrivateKey
-		{
-			get
-			{
-				return key;
-			}
-		}
+
+		/// <summary>
+		/// Constructor. Creates a new extended key from the specified seed bytes, from the given hex string.
+		/// </summary>
 		public ExtKey(string seedHex)
 		{
 			SetMaster(Encoders.Hex.DecodeData(seedHex));
 		}
+
+		/// <summary>
+		/// Constructor. Creates a new extended key from the specified seed bytes.
+		/// </summary>
 		public ExtKey(byte[] seed)
 		{
 			SetMaster(seed.ToArray());
 		}
+
 		private void SetMaster(byte[] seed)
 		{
 			var hashMAC = Hashes.HMACSHA512(hashkey, seed);
@@ -126,9 +164,19 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Create the public key from this key
+		/// Get the private key of this extended key.
 		/// </summary>
-		/// <returns></returns>
+		public Key PrivateKey
+		{
+			get
+			{
+				return key;
+			}
+		}
+
+		/// <summary>
+		/// Create the public key from this key.
+		/// </summary>
 		public ExtPubKey Neuter()
 		{
 			ExtPubKey ret = new ExtPubKey
@@ -164,6 +212,10 @@ namespace NBitcoin
 				return vchFingerprint;
 			}
 		}
+
+		/// <summary>
+		/// Derives a new extended key in the hierarchy as the given child number.
+		/// </summary>
 		public ExtKey Derive(uint index)
 		{
 			var result = new ExtKey
@@ -176,6 +228,10 @@ namespace NBitcoin
 			return result;
 		}
 
+		/// <summary>
+		/// Derives a new extended key in the hierarchy as the given child number, 
+		/// setting the high bit if hardened is specified.
+		/// </summary>
 		public ExtKey Derive(int index, bool hardened)
 		{
 			if(index < 0)
@@ -185,6 +241,19 @@ namespace NBitcoin
 			return Derive(realIndex);
 		}
 
+		/// <summary>
+		/// Derives a new extended key in the hierarchy at the given path below the current key,
+		/// by deriving the specified child at each step.
+		/// </summary>
+		public ExtKey Derive(KeyPath derivation)
+		{
+			ExtKey result = this;
+			return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
+		}
+
+		/// <summary>
+		/// Converts the extended key to the base58 representation, within the specified network.
+		/// </summary>
 		public BitcoinExtKey GetWif(Network network)
 		{
 			return new BitcoinExtKey(this, network);
@@ -208,12 +277,9 @@ namespace NBitcoin
 
 		#endregion
 
-		public ExtKey Derive(KeyPath derivation)
-		{
-			ExtKey result = this;
-			return derivation.Indexes.Aggregate(result, (current, index) => current.Derive(index));
-		}
-
+		/// <summary>
+		/// Converts the extended key to the base58 representation, as a string, within the specified network.
+		/// </summary>
 		public string ToString(Network network)
 		{
 			return new BitcoinExtKey(this, network).ToString();
@@ -221,6 +287,9 @@ namespace NBitcoin
 
 		#region IDestination Members
 
+		/// <summary>
+		/// Gets the script of the hash of the public key corresponding to the private key.
+		/// </summary>
 		public Script ScriptPubKey
 		{
 			get
@@ -231,6 +300,9 @@ namespace NBitcoin
 
 		#endregion
 
+		/// <summary>
+		/// Gets whether or not this extended key is a hardened child.
+		/// </summary>
 		public bool IsHardened
 		{
 			get
@@ -239,6 +311,11 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Recreates the private key of the parent from the private key of the child 
+		/// combinated with the public key of the parent (hardened children cannot be
+		/// used to recreate the parent).
+		/// </summary>
 		public ExtKey GetParentExtKey(ExtPubKey parent)
 		{
 			if(parent == null)
