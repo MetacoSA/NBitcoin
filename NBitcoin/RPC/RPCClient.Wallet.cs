@@ -208,7 +208,7 @@ namespace NBitcoin.RPC
         public Money GetReceivedByAddress(BitcoinAddress address)
         {
             var response = SendCommand(RPCOperations.getreceivedbyaddress, address.ToWif());
-			return Money.Coins(response.Result.Value<decimal>());
+            return Money.Coins(response.Result.Value<decimal>());
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace NBitcoin.RPC
         }
 
 
-		// importaddress
+        // importaddress
 
         public void ImportAddress(BitcoinAddress address)
         {
@@ -334,7 +334,7 @@ namespace NBitcoin.RPC
             return AsRPCAccount(response);
         }
 
-		private IEnumerable<RPCAccount> AsRPCAccount(RPCResponse response)
+        private IEnumerable<RPCAccount> AsRPCAccount(RPCResponse response)
         {
             var obj = (JObject)response.Result;
             foreach (var prop in obj.Properties())
@@ -386,12 +386,26 @@ namespace NBitcoin.RPC
 
         // listunspent
 
+        /// <summary>
+        /// Returns an array of unspent transaction outputs belonging to this wallet. 
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Note: as of Bitcoin Core 0.10.0, outputs affecting watch-only addresses will be returned; 
+        /// see the spendable field in the results.
+        /// </para>
+        /// </remarks>
         public UnspentCoin[] ListUnspent()
         {
             var response = SendCommand("listunspent");
             return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
         }
 
+        /// <summary>
+        /// Returns an array of unspent transaction outputs belonging to this wallet,
+        /// specifying the minimum and maximum number of confirmations to include,
+        /// and the list of addresses to include. 
+        /// </summary>
         public UnspentCoin[] ListUnspent(int minconf, int maxconf, params BitcoinAddress[] addresses)
         {
             var addr = from a in addresses select a.ToString();
@@ -399,12 +413,20 @@ namespace NBitcoin.RPC
             return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
         }
 
+        /// <summary>
+        /// Returns an array of unspent transaction outputs belonging to this wallet. 
+        /// </summary>
         public async Task<UnspentCoin[]> ListUnspentAsync()
         {
             var response = await SendCommandAsync("listunspent").ConfigureAwait(false);
             return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
         }
 
+        /// <summary>
+        /// Returns an array of unspent transaction outputs belonging to this wallet,
+        /// specifying the minimum and maximum number of confirmations to include,
+        /// and the list of addresses to include. 
+        /// </summary>
         public async Task<UnspentCoin[]> ListUnspentAsync(int minconf, int maxconf, params BitcoinAddress[] addresses)
         {
             var addr = from a in addresses select a.ToString();
@@ -413,7 +435,7 @@ namespace NBitcoin.RPC
         }
 
 
-		// lockunspent
+        // lockunspent
 
         public void LockUnspent(params OutPoint[] outpoints)
         {
