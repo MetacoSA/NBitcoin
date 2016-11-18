@@ -157,23 +157,18 @@ namespace NBitcoin.Tests
 		public void CanDecodeAndEncodeRawTransaction()
 		{
 			var tests = TestCase.read_json("data/tx_raw.json");
-			using(var builder = NodeBuilder.Create())
+			foreach(var test in tests)
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
-				builder.StartAll();
-				foreach(var test in tests)
-				{
-					var format = (RawFormat)Enum.Parse(typeof(RawFormat), (string)test[0], true);
-					var network = ((string)test[1]) == "Main" ? Network.Main : Network.TestNet;
-					var testData = ((JObject)test[2]).ToString();
+				var format = (RawFormat)Enum.Parse(typeof(RawFormat), (string)test[0], true);
+				var network = ((string)test[1]) == "Main" ? Network.Main : Network.TestNet;
+				var testData = ((JObject)test[2]).ToString();
 
-					Transaction raw = Transaction.Parse(testData, format, network);
+				Transaction raw = Transaction.Parse(testData, format, network);
 
-					AssertJsonEquals(raw.ToString(format, network), testData);
+				AssertJsonEquals(raw.ToString(format, network), testData);
 
-					var raw3 = Transaction.Parse(raw.ToString(format, network), format);
-					Assert.Equal(raw.ToString(format, network), raw3.ToString(format, network));
-				}
+				var raw3 = Transaction.Parse(raw.ToString(format, network), format);
+				Assert.Equal(raw.ToString(format, network), raw3.ToString(format, network));
 			}
 		}
 
