@@ -47,15 +47,15 @@ namespace NBitcoin.Tests
 		public static NodeBuilder Create([CallerMemberNameAttribute]string caller = null, string version = "0.12.1")
 		{
 			version = version ?? "0.12.1";
-			var path = EnsureDownloaded(version);
-			try
-			{
-				Directory.Delete(caller, true);
-			}
-			catch(DirectoryNotFoundException)
-			{
-			}
-			Directory.CreateDirectory(caller);
+			var path = string.Empty;//EnsureDownloaded(version);
+			//try
+			//{
+			//	Directory.Delete(caller, true);
+			//}
+			//catch(DirectoryNotFoundException)
+			//{
+			//}
+			//Directory.CreateDirectory(caller);
 			return new NodeBuilder(caller, path);
 		}
 
@@ -119,13 +119,13 @@ namespace NBitcoin.Tests
 		{
 			var child = Path.Combine(_Root, last.ToString());
 			last++;
-			try
-			{
-				Directory.Delete(child, true);
-			}
-			catch(DirectoryNotFoundException)
-			{
-			}
+			//try
+			//{
+			//	Directory.Delete(child, true);
+			//}
+			//catch(DirectoryNotFoundException)
+			//{
+			//}
 			var node = new CoreNode(child, this);
 			Nodes.Add(node);
 			if(start)
@@ -135,7 +135,10 @@ namespace NBitcoin.Tests
 
 		public void StartAll()
 		{
-			Task.WaitAll(Nodes.Where(n => n.State == CoreNodeState.Stopped).Select(n => n.StartAsync()).ToArray());
+			if (!Process.GetProcesses().Any(p => p.ProcessName.Contains("stratis")))
+				throw new ApplicationException("stratis node is not running");
+
+			//Task.WaitAll(Nodes.Where(n => n.State == CoreNodeState.Stopped).Select(n => n.StartAsync()).ToArray());
 		}
 
 		public void Dispose()
@@ -195,24 +198,26 @@ namespace NBitcoin.Tests
 		{
 			this._Builder = builder;
 			this._Folder = folder;
-			_State = CoreNodeState.Stopped;
-			CleanFolder();
-			Directory.CreateDirectory(folder);
-			dataDir = Path.Combine(folder, "data");
-			Directory.CreateDirectory(dataDir);
-			var pass = Encoders.Hex.EncodeData(RandomUtils.GetBytes(20));
-			creds = new NetworkCredential(pass, pass);
-			_Config = Path.Combine(dataDir, "bitcoin.conf");
-			ConfigParameters.Import(builder.ConfigParameters);
+			//_State = CoreNodeState.Stopped;
+			//CleanFolder();
+			//Directory.CreateDirectory(folder);
+			//dataDir = Path.Combine(folder, "data");
+			//Directory.CreateDirectory(dataDir);
+			//var pass = Encoders.Hex.EncodeData(RandomUtils.GetBytes(20));
+			//creds = new NetworkCredential(pass, pass);
+			//_Config = Path.Combine(dataDir, "bitcoin.conf");
+			//ConfigParameters.Import(builder.ConfigParameters);
 			ports = new int[2];
-			FindPorts(ports);
+			//FindPorts(ports);
+			ports[1] = Network.Main.RPCPort;
+			ports[0] = Network.Main.DefaultPort;
 		}
 
 		private void CleanFolder()
 		{
 			try
 			{
-				Directory.Delete(_Folder, true);
+				//Directory.Delete(_Folder, true);
 			}
 			catch(DirectoryNotFoundException) { }
 		}
@@ -256,7 +261,10 @@ namespace NBitcoin.Tests
 		readonly NetworkCredential creds;
 		public RPCClient CreateRPCClient()
 		{
-			return new RPCClient(creds, new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network.RegTest);
+			//return new RPCClient(creds, new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network.RegTest);
+			// currently only use mainnet
+			// credentials should be set in advance
+			return new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"), new Uri("http://127.0.0.1:" + Network.Main.RPCPort + "/"), Network.Main);
 		}
 
 		public RestClient CreateRESTClient()
@@ -266,7 +274,7 @@ namespace NBitcoin.Tests
 #if !NOSOCKET
 		public Node CreateNodeClient()
 		{
-			return Node.Connect(Network.RegTest, "127.0.0.1:" + ports[0].ToString());
+			return Node.Connect(Network.Main, "127.0.0.1:" + Network.Main.DefaultPort); //ports[0].ToString());
 		}
 		public Node CreateNodeClient(NodeConnectionParameters parameters)
 		{

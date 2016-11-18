@@ -359,7 +359,7 @@ namespace NBitcoin.RPC
 
 				result[i++] = new PeerInfo
 				{
-					Id = (int)peer["id"],
+					//Id = (int)peer["id"],
 					Address = Utils.ParseIpEndpoint((string)peer["addr"], this.Network.DefaultPort),
 					LocalAddress = Utils.ParseIpEndpoint(localAddr, this.Network.DefaultPort),
 					Services = ulong.Parse((string)peer["services"]),
@@ -371,16 +371,16 @@ namespace NBitcoin.RPC
 					TimeOffset = TimeSpan.FromSeconds(Math.Min((long)int.MaxValue, (long)peer["timeoffset"])),
 					PingTime = TimeSpan.FromSeconds((double)peer["pingtime"]),
 					PingWait = TimeSpan.FromSeconds(pingWait),
-					Blocks = peer["blocks"] != null ? (int)peer["blocks"] : -1,
+					//Blocks = peer["blocks"] != null ? (int)peer["blocks"] : -1,
 					Version = (int)peer["version"],
 					SubVersion = (string)peer["subver"],
 					Inbound = (bool)peer["inbound"],
 					StartingHeight = (int)peer["startingheight"],
-					SynchronizedBlocks = (int)peer["synced_blocks"],
-					SynchronizedHeaders = (int)peer["synced_headers"],
-					IsWhiteListed = (bool)peer["whitelisted"],
+					//SynchronizedBlocks = (int)peer["synced_blocks"],
+					//SynchronizedHeaders = (int)peer["synced_headers"],
+					//IsWhiteListed = (bool)peer["whitelisted"],
 					BanScore = peer["banscore"] == null ? 0 : (int)peer["banscore"],
-					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
+					//Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
 				};
 			}
 			return result;
@@ -420,11 +420,11 @@ namespace NBitcoin.RPC
 			var obj = result.Result;
 			return obj.Select(entry => new AddedNodeInfo
 			{
-				AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], 8333),
+				AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], Network.Main.DefaultPort),
 				Connected = (bool)entry["connected"],
 				Addresses = entry["addresses"].Select(x => new NodeAddressInfo
 				{
-					Address = Utils.ParseIpEndpoint((string)x["address"], 8333),
+					Address = Utils.ParseIpEndpoint((string)x["address"], Network.Main.DefaultPort),
 					Connected = (bool)x["connected"]
 				})
 			}).ToArray();
@@ -522,7 +522,9 @@ namespace NBitcoin.RPC
 		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
 			var resp = await SendCommandAsync("getblock", blockId.ToString(), false).ConfigureAwait(false);
-			return new Block(Encoders.Hex.DecodeData(resp.Result.ToString()));
+			var rpcBlock = SatoshiBlockFormatter.Parse(resp.Result as JObject);
+			return SatoshiBlockFormatter.ToBlock(rpcBlock);
+			//return new Block(Encoders.Hex.DecodeData(resp.Result.ToString()));
 		}
 
 		/// <summary>

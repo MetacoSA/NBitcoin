@@ -14,6 +14,7 @@ namespace NBitcoin.RPC
 		protected override void BuildTransaction(JObject json, Transaction tx)
 		{
 			tx.Version = (uint)json.GetValue("ver");
+			tx.Time = (uint)json.GetValue("time");
 			tx.LockTime = (uint)json.GetValue("lock_time");
 
 			var vin = (JArray)json.GetValue("in");
@@ -68,6 +69,7 @@ namespace NBitcoin.RPC
 			WritePropertyValue(writer, "vin_sz", tx.Inputs.Count);
 			WritePropertyValue(writer, "vout_sz", tx.Outputs.Count);
 
+			WritePropertyValue(writer, "time", tx.Time);
 			WritePropertyValue(writer, "lock_time", tx.LockTime.Value);
 
 			WritePropertyValue(writer, "size", tx.GetSerializedSize());

@@ -15,6 +15,7 @@ namespace NBitcoin.RPC
 		protected override void BuildTransaction(JObject json, Transaction tx)
 		{
 			tx.Version = (uint)json.GetValue("version");
+			tx.Time = (uint)json.GetValue("time");
 			tx.LockTime = (uint)json.GetValue("locktime");
 
 			var vin = (JArray)json.GetValue("vin");
@@ -61,6 +62,7 @@ namespace NBitcoin.RPC
 		{
 			WritePropertyValue(writer, "txid", tx.GetHash().ToString());
 			WritePropertyValue(writer, "version", tx.Version);
+			WritePropertyValue(writer, "time", tx.Time);
 			WritePropertyValue(writer, "locktime", tx.LockTime.Value);
 
 			writer.WritePropertyName("vin");
@@ -126,14 +128,23 @@ namespace NBitcoin.RPC
 				else
 				{
 					var multi = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(txout.ScriptPubKey);
-					WritePropertyValue(writer, "reqSigs", multi.SignatureCount);
-					WritePropertyValue(writer, "type", GetScriptType(txout.ScriptPubKey.FindTemplate()));
-					writer.WriteStartArray();
-					foreach(var key in multi.PubKeys)
+					if (multi != null)
 					{
-						writer.WriteValue(key.Hash.GetAddress(Network).ToString());
+						WritePropertyValue(writer, "reqSigs", multi.SignatureCount);
+						WritePropertyValue(writer, "type", GetScriptType(txout.ScriptPubKey.FindTemplate()));
+						writer.WriteStartArray();
+						foreach (var key in multi.PubKeys)
+						{
+							writer.WriteValue(key.Hash.GetAddress(Network).ToString());
+						}
+						writer.WriteEndArray();
 					}
-					writer.WriteEndArray();
+					else
+					{
+						// nonstandard
+						WritePropertyValue(writer, "type", "nonstandard");
+					}
+					
 				}
 
 				writer.WriteEndObject(); //endscript
