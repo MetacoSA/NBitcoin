@@ -14,119 +14,119 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
-    /*
-        Category            Name                        Implemented 
-        ------------------ --------------------------- -----------------------
-        ------------------ Overall control/query calls 
-        control            getinfo
-        control            help
-        control            stop
+	/*
+		Category			Name						Implemented 
+		------------------ --------------------------- -----------------------
+		------------------ Overall control/query calls 
+		control			getinfo
+		control			help
+		control			stop
 
-        ------------------ P2P networking
-        network            getnetworkinfo
-        network            addnode                      Yes
-        network            disconnectnode
-        network            getaddednodeinfo             Yes
-        network            getconnectioncount
-        network            getnettotals
-        network            getpeerinfo                  Yes
-        network            ping
-        network            setban
-        network            listbanned
-        network            clearbanned
+		------------------ P2P networking
+		network			getnetworkinfo
+		network			addnode					  Yes
+		network			disconnectnode
+		network			getaddednodeinfo			 Yes
+		network			getconnectioncount
+		network			getnettotals
+		network			getpeerinfo				  Yes
+		network			ping
+		network			setban
+		network			listbanned
+		network			clearbanned
 
-        ------------------ Block chain and UTXO
-        blockchain         getblockchaininfo
-        blockchain         getbestblockhash             Yes
-        blockchain         getblockcount                Yes
-        blockchain         getblock                     Yes
-        blockchain         getblockhash                 Yes
-        blockchain         getchaintips
-        blockchain         getdifficulty
-        blockchain         getmempoolinfo
-        blockchain         getrawmempool                Yes
-        blockchain         gettxout
-        blockchain         gettxoutproof
-        blockchain         verifytxoutproof
-        blockchain         gettxoutsetinfo
-        blockchain         verifychain
+		------------------ Block chain and UTXO
+		blockchain		 getblockchaininfo
+		blockchain		 getbestblockhash			 Yes
+		blockchain		 getblockcount				Yes
+		blockchain		 getblock					 Yes
+		blockchain		 getblockhash				 Yes
+		blockchain		 getchaintips
+		blockchain		 getdifficulty
+		blockchain		 getmempoolinfo
+		blockchain		 getrawmempool				Yes
+		blockchain		 gettxout
+		blockchain		 gettxoutproof
+		blockchain		 verifytxoutproof
+		blockchain		 gettxoutsetinfo
+		blockchain		 verifychain
 
-        ------------------ Mining
-        mining             getblocktemplate
-        mining             getmininginfo
-        mining             getnetworkhashps
-        mining             prioritisetransaction
-        mining             submitblock
+		------------------ Mining
+		mining			 getblocktemplate
+		mining			 getmininginfo
+		mining			 getnetworkhashps
+		mining			 prioritisetransaction
+		mining			 submitblock
 
-        ------------------ Coin generation
-        generating         getgenerate
-        generating         setgenerate
-        generating         generate
+		------------------ Coin generation
+		generating		 getgenerate
+		generating		 setgenerate
+		generating		 generate
 
-        ------------------ Raw transactions
-        rawtransactions    createrawtransaction
-        rawtransactions    decoderawtransaction
-        rawtransactions    decodescript
-        rawtransactions    getrawtransaction
-        rawtransactions    sendrawtransaction
-        rawtransactions    signrawtransaction
-        rawtransactions    fundrawtransaction
+		------------------ Raw transactions
+		rawtransactions	createrawtransaction
+		rawtransactions	decoderawtransaction
+		rawtransactions	decodescript
+		rawtransactions	getrawtransaction
+		rawtransactions	sendrawtransaction
+		rawtransactions	signrawtransaction
+		rawtransactions	fundrawtransaction
 
-        ------------------ Utility functions
-        util               createmultisig
-        util               validateaddress
-        util               verifymessage
-        util               estimatefee                  Yes
-        util               estimatepriority             Yes
+		------------------ Utility functions
+		util			   createmultisig
+		util			   validateaddress
+		util			   verifymessage
+		util			   estimatefee				  Yes
+		util			   estimatepriority			 Yes
 
-        ------------------ Not shown in help
-        hidden             invalidateblock
-        hidden             reconsiderblock
-        hidden             setmocktime
-        hidden             resendwallettransactions
+		------------------ Not shown in help
+		hidden			 invalidateblock
+		hidden			 reconsiderblock
+		hidden			 setmocktime
+		hidden			 resendwallettransactions
 
-        ------------------ Wallet
-        wallet             addmultisigaddress
-        wallet             backupwallet                 Yes
-        wallet             dumpprivkey                  Yes
-        wallet             dumpwallet
-        wallet             encryptwallet
-        wallet             getaccountaddress            Yes
-        wallet             getaccount
-        wallet             getaddressesbyaccount
-        wallet             getbalance
-        wallet             getnewaddress
-        wallet             getrawchangeaddress
-        wallet             getreceivedbyaccount
-        wallet             getreceivedbyaddress
-        wallet             gettransaction
-        wallet             getunconfirmedbalance
-        wallet             getwalletinfo
-        wallet             importprivkey                Yes
-        wallet             importwallet
-        wallet             importaddress                Yes
-        wallet             keypoolrefill
-        wallet             listaccounts                 Yes
-        wallet             listaddressgroupings         Yes
-        wallet             listlockunspent
-        wallet             listreceivedbyaccount
-        wallet             listreceivedbyaddress
-        wallet             listsinceblock
-        wallet             listtransactions
-        wallet             listunspent                  Yes
-        wallet             lockunspent                  Yes
-        wallet             move
-        wallet             sendfrom
-        wallet             sendmany
-        wallet             sendtoaddress
-        wallet             setaccount
-        wallet             settxfee
-        wallet             signmessage
-        wallet             walletlock
-        wallet             walletpassphrasechange
-        wallet             walletpassphrase
-    */
-    public partial class RPCClient : IBlockRepository
+		------------------ Wallet
+		wallet			 addmultisigaddress
+		wallet			 backupwallet				 Yes
+		wallet			 dumpprivkey				  Yes
+		wallet			 dumpwallet
+		wallet			 encryptwallet
+		wallet			 getaccountaddress			Yes
+		wallet			 getaccount
+		wallet			 getaddressesbyaccount
+		wallet			 getbalance
+		wallet			 getnewaddress
+		wallet			 getrawchangeaddress
+		wallet			 getreceivedbyaccount
+		wallet			 getreceivedbyaddress
+		wallet			 gettransaction
+		wallet			 getunconfirmedbalance
+		wallet			 getwalletinfo
+		wallet			 importprivkey				Yes
+		wallet			 importwallet
+		wallet			 importaddress				Yes
+		wallet			 keypoolrefill
+		wallet			 listaccounts				 Yes
+		wallet			 listaddressgroupings		 Yes
+		wallet			 listlockunspent
+		wallet			 listreceivedbyaccount
+		wallet			 listreceivedbyaddress
+		wallet			 listsinceblock
+		wallet			 listtransactions
+		wallet			 listunspent				  Yes
+		wallet			 lockunspent				  Yes
+		wallet			 move
+		wallet			 sendfrom
+		wallet			 sendmany
+		wallet			 sendtoaddress
+		wallet			 setaccount
+		wallet			 settxfee
+		wallet			 signmessage
+		wallet			 walletlock
+		wallet			 walletpassphrasechange
+		wallet			 walletpassphrase
+	*/
+	public partial class RPCClient : IBlockRepository
 	{
 		private readonly NetworkCredential _credentials;
 		public NetworkCredential Credentials
@@ -576,44 +576,44 @@ namespace NBitcoin.RPC
 			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
 		}
 
-        /// <summary>
-        /// GetTransactions only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
-        /// </summary>
-        /// <param name="blockHash"></param>
-        /// <returns></returns>
-        public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
-        {
-            if (blockHash == null)
-                throw new ArgumentNullException("blockHash");
+		/// <summary>
+		/// GetTransactions only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
+		/// </summary>
+		/// <param name="blockHash"></param>
+		/// <returns></returns>
+		public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
+		{
+			if (blockHash == null)
+				throw new ArgumentNullException("blockHash");
 
-            var resp = SendCommand("getblock", blockHash.ToString());
+			var resp = SendCommand("getblock", blockHash.ToString());
 
-            var tx = resp.Result["tx"] as JArray;
-            if (tx != null)
-            {
-                foreach (var item in tx)
-                {
-                    var result = GetRawTransaction(uint256.Parse(item.ToString()), false);
-                    if (result != null)
-                        yield return result;
-                }
-            }
-        }
+			var tx = resp.Result["tx"] as JArray;
+			if (tx != null)
+			{
+				foreach (var item in tx)
+				{
+					var result = GetRawTransaction(uint256.Parse(item.ToString()), false);
+					if (result != null)
+						yield return result;
+				}
+			}
+		}
 
-        public IEnumerable<Transaction> GetTransactions(int height)
-        {
-            return GetTransactions(GetBlockHash(height));
-        }
+		public IEnumerable<Transaction> GetTransactions(int height)
+		{
+			return GetTransactions(GetBlockHash(height));
+		}
 
-        #endregion
+		#endregion
 
-        #region Coin generation
+		#region Coin generation
 
-        #endregion
+		#endregion
 
-        #region Raw Transaction
+		#region Raw Transaction
 
-        public Transaction DecodeRawTransaction(string rawHex)
+		public Transaction DecodeRawTransaction(string rawHex)
 		{
 			var response = SendCommand("decoderawtransaction", rawHex);
 			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
