@@ -103,8 +103,8 @@ namespace NBitcoin
 				throw new ArgumentNullException("chainCode");
 			if(fingerprint == null)
 				throw new ArgumentNullException("fingerprint");
-			if(fingerprint.Length != fingerprint.Length)
-				throw new ArgumentException(string.Format("The fingerprint must be {0} bytes.", fingerprint.Length), "fingerprint");
+			if(fingerprint.Length != vchFingerprint.Length)
+				throw new ArgumentException(string.Format("The fingerprint must be {0} bytes.", vchFingerprint.Length), "fingerprint");
 			if(chainCode.Length != vchChainCode.Length)
 				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", vchChainCode.Length), "chainCode");
 			this.key = key;
