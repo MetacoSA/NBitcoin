@@ -592,17 +592,10 @@ namespace NBitcoin.Tests
 			}
 
 			// validate the stake trasnaction
-			foreach (var item in chain.ToEnumerable(false).Take(totalblocks))
+			foreach (var item in chain.ToEnumerable(false).Take(totalblocks).ToList())
 			{
-				if (item.Header.PosParameters.IsProofOfStake())
-				{
-					var block = blockStore.GetBlock(item.HashBlock);
-					var trxStake = block.Transactions[1];
-					uint256 hashProofOfStake = null, targetProofOfStake = null;
-
-					Assert.True(BlockValidator.CheckProofOfStake(blockStore, trxStore, mapStore, item, trxStake,
-						block.Header.Bits.ToCompact(), ref hashProofOfStake, ref targetProofOfStake));
-				}
+				var block = blockStore.GetBlock(item.HashBlock);
+				Assert.True(BlockValidator.CheckAndComputeStake(blockStore, trxStore, mapStore, chain, item, block));
 			}
 		}
 	}

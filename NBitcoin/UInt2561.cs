@@ -59,6 +59,28 @@ namespace NBitcoin
 		{
 		}
 
+		private const int WIDTH = 256/32;
+
+		private uint256(uint[] array)
+		{
+			if (array.Length != WIDTH)
+				throw new ArgumentOutOfRangeException();
+
+			this.pn0 = array[0];
+			this.pn1 = array[1];
+			this.pn2 = array[2];
+			this.pn3 = array[3];
+			this.pn4 = array[4];
+			this.pn5 = array[5];
+			this.pn6 = array[6];
+			this.pn7 = array[7];
+		}
+
+		private uint[] ToArray()
+		{
+			return new uint[] {this.pn0, this.pn1, this.pn2, this.pn3, this.pn4, this.pn5, this.pn6, this.pn7};
+		}
+
 		public uint256(uint256 b)
 		{
 			pn0 = b.pn0;
@@ -323,7 +345,38 @@ namespace NBitcoin
 			return new uint256(value);
 		}
 
-		
+		public static uint256 operator <<(uint256 a, int shift)
+		{
+			var source = a.ToArray();
+			var target = new uint[source.Length];
+			int k = shift / 32;
+			shift = shift % 32;
+			for (int i = 0; i < WIDTH; i++)
+			{
+				if (i + k + 1 < WIDTH && shift != 0)
+					target[i + k + 1] |= (source[i] >> (32 - shift));
+				if (i + k < WIDTH)
+					target[i + k] |= (target[i] << shift);
+			}
+			return new uint256(target);
+		}
+
+		public static uint256 operator >>(uint256 a, int shift)
+		{
+			var source = a.ToArray();
+			var target = new uint[source.Length];
+			int k = shift / 32;
+			shift = shift % 32;
+			for (int i = 0; i < WIDTH; i++)
+			{
+				if (i - k - 1 >= 0 && shift != 0)
+					target[i - k - 1] |= (source[i] << (32 - shift));
+				if (i - k >= 0)
+					target[i - k] |= (source[i] >> shift);
+			}
+			return new uint256(target);
+		}
+
 		public byte[] ToBytes(bool lendian = true)
 		{
 			var arr = new byte[WIDTH_BYTE];

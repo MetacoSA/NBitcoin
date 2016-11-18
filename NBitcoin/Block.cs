@@ -561,15 +561,18 @@ namespace NBitcoin
 
 		public uint StakeTime;
 
-		public uint StakeModifier; // hash modifier for proof-of-stake
+		public ulong StakeModifier; // hash modifier for proof-of-stake
 
 		public uint256 StakeModifierV2;
 
 		private int flags;
 
+		public uint256 HashProof;
+
 		public PosParameters()
 		{
 			this.StakeModifierV2 = uint256.Zero;
+			this.HashProof = uint256.Zero;
 		}
 
 		public BlockFlag Flags
@@ -624,10 +627,11 @@ namespace NBitcoin
 			return (this.Flags & BlockFlag.BLOCK_STAKE_MODIFIER) > 0;
 		}
 
-		public void SetStakeModifier(uint modifier, bool fGeneratedStakeModifier)
+		public void SetStakeModifier(ulong modifier, bool fGeneratedStakeModifier)
 		{
 			this.StakeModifier = modifier;
-			if (fGeneratedStakeModifier) this.Flags |= BlockFlag.BLOCK_STAKE_MODIFIER;
+			if (fGeneratedStakeModifier)
+				this.Flags |= BlockFlag.BLOCK_STAKE_MODIFIER;
 		}
 	}
 }

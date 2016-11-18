@@ -102,7 +102,8 @@ namespace NBitcoin
 		private System.Numerics.BigInteger GetBlockProof()
 		{
 			var bnTarget = Header.Bits.ToBigInteger();
-			if (bnTarget <= System.Numerics.BigInteger.Zero || bnTarget >= Pow256) return System.Numerics.BigInteger.Zero;
+			if (bnTarget <= System.Numerics.BigInteger.Zero || bnTarget >= Pow256)
+				return System.Numerics.BigInteger.Zero;
 			// We need to compute 2**256 / (bnTarget+1), but we can't represent 2**256
 			// as it's too large for a arith_uint256. However, as 2**256 is at least as large
 			// as bnTarget+1, it is equal to ((2**256 - bnTarget - 1) / (bnTarget+1)) + 1,
