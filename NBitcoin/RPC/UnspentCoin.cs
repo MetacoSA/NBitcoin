@@ -16,12 +16,28 @@ namespace NBitcoin.RPC
 			Address = Network.CreateFromBase58Data<BitcoinAddress>((string)unspent["address"]);
 			Account = (string)unspent["account"];
 			ScriptPubKey = new Script(Encoders.Hex.DecodeData((string)unspent["scriptPubKey"]));
-			var amount = (decimal)unspent["amount"];
+            var redeemScriptHex = (string)unspent["redeemScript"];
+            if (redeemScriptHex != null)
+            {
+                RedeemScript = new Script(Encoders.Hex.DecodeData(redeemScriptHex));
+            }
+            var amount = (decimal)unspent["amount"];
 			Amount = new Money((long)(amount * Money.COIN));
 			Confirmations = (uint)unspent["confirmations"];
-		}
 
-		public OutPoint OutPoint
+            // Added in Bitcoin Core 0.10.0
+            if (unspent["spendable"] != null)
+            {
+                IsSpendable = (bool)unspent["spendable"];
+            }
+            else
+            {
+                // Default to True for earlier versions, i.e. if not present
+                IsSpendable = true;
+            }
+        }
+
+        public OutPoint OutPoint
 		{
 			get;
 			private set;
@@ -42,6 +58,13 @@ namespace NBitcoin.RPC
 			get;
 			private set;
 		}
+
+        public Script RedeemScript
+        {
+            get;
+            private set;
+        }
+
 		public uint Confirmations
 		{
 			get;
@@ -58,5 +81,11 @@ namespace NBitcoin.RPC
 		{
 			return new Coin(OutPoint, new TxOut(Amount, ScriptPubKey));
 		}
+
+        public bool IsSpendable
+        {
+            get;
+            private set;
+        }
 	}
 }
