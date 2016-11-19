@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
-
-
 	public class RPCScriptSig
 	{
 		public string asm { get; set; }
@@ -75,7 +73,7 @@ namespace NBitcoin.RPC
 		public int entropybit { get; set; }
 		public string modifier { get; set; }
 		public string modifierv2 { get; set; }
-		public List<RPCTx> tx { get; set; }
+		public List<string> tx { get; set; }
 		public string signature { get; set; }
 	}
 
@@ -109,6 +107,7 @@ namespace NBitcoin.RPC
 				BlockSignatur = new BlockSignature() { Signature = Encoders.Hex.DecodeData(rpcBlock.signature) },
 			};
 
+			// todo: parse transactions
 			block.Transactions = rpcBlock.tx.Select(t => new Transaction()).ToList();
 
 			return block;

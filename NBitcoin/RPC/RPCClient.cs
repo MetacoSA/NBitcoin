@@ -532,6 +532,17 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="blockId"></param>
 		/// <returns></returns>
+		public async Task<RPCBlock> GetRPCBlock(uint256 blockId)
+		{
+			var resp = await SendCommandAsync("getblock", blockId.ToString(), false).ConfigureAwait(false);
+			return  SatoshiBlockFormatter.Parse(resp.Result as JObject);
+		}
+
+		/// <summary>
+		/// Get the a whole block
+		/// </summary>
+		/// <param name="blockId"></param>
+		/// <returns></returns>
 		public Block GetBlock(uint256 blockId)
 		{
 			try

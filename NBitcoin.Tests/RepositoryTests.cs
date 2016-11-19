@@ -559,13 +559,12 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CheckBlockProofOfStake()
 		{
-			var totalblocks = 5000;
+			var totalblocks = 5000;  // fill only a small portion so test wont be too long
 			var mainStore = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
 
 			// create the stores
 			var store = CreateBlockStore();
 
-			// fill only a small portion so test wont be too long
 			var index = 0;
 			var blockStore = new NoSqlBlockRepository();
 			foreach (var storedBlock in mainStore.Enumerate(false).Take(totalblocks))
@@ -591,11 +590,20 @@ namespace NBitcoin.Tests
 				}
 			}
 
+			RPCClient client = null;// new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"), new Uri("http://127.0.0.1:" + Network.Main.RPCPort), Network.Main);
+
 			// validate the stake trasnaction
 			foreach (var item in chain.ToEnumerable(false).Take(totalblocks).ToList())
 			{
 				var block = blockStore.GetBlock(item.HashBlock);
 				Assert.True(BlockValidator.CheckAndComputeStake(blockStore, trxStore, mapStore, chain, item, block));
+
+				if (client != null)
+				{
+					var fetched = client.GetRPCBlock(item.HashBlock).Result;
+					Assert.Equal(uint256.Parse(fetched.modifierv2), item.Header.PosParameters.StakeModifierV2);
+					Assert.Equal(uint256.Parse(fetched.proofhash), item.Header.PosParameters.HashProof);
+				}
 			}
 		}
 	}

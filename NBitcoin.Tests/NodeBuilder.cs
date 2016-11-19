@@ -46,7 +46,7 @@ namespace NBitcoin.Tests
 	{
 		public static NodeBuilder Create([CallerMemberNameAttribute]string caller = null, string version = "0.12.1")
 		{
-			version = version ?? "0.12.1";
+			//version = version ?? "0.12.1";
 			var path = string.Empty;//EnsureDownloaded(version);
 			//try
 			//{
