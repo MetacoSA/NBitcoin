@@ -138,6 +138,25 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanIterateConcurrentChain()
+		{
+			ConcurrentChain chain = new ConcurrentChain(Network.Main);
+			AppendBlock(chain);
+			AppendBlock(chain);
+			AppendBlock(chain);
+			foreach(var b in chain.EnumerateAfter(chain.Genesis))
+			{
+				chain.GetBlock(0);
+			}
+
+			foreach(var b in chain.ToEnumerable(false))
+			{
+				chain.GetBlock(0);
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildChain()
 		{
 			ConcurrentChain chain = new ConcurrentChain(Network.Main);

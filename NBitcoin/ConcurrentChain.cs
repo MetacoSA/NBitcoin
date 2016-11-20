@@ -236,17 +236,18 @@ namespace NBitcoin
 
 		protected override IEnumerable<ChainedBlock> EnumerateFromStart()
 		{
-			using(@lock.LockRead())
+			int i = 0;
+			ChainedBlock block = null;
+			while(true)
 			{
-				int i = 0;
-				while(true)
+				using(@lock.LockRead())
 				{
-					var block = GetBlockNoLock(i);
+					block = GetBlockNoLock(i);
 					if(block == null)
 						yield break;
-					yield return block;
-					i++;
 				}
+				yield return block;
+				i++;
 			}
 		}
 
