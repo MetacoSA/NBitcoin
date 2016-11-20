@@ -14,176 +14,119 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
-	public class RPCAccount
-	{
-		public Money Amount
-		{
-			get;
-			set;
-		}
-		public String AccountName
-		{
-			get;
-			set;
-		}
-	}
-
-	public class ChangeAddress
-	{
-		public Money Amount
-		{
-			get;
-			set;
-		}
-		public BitcoinAddress Address
-		{
-			get;
-			set;
-		}
-	}
-
-	public class AddressGrouping
-	{
-		public AddressGrouping()
-		{
-			ChangeAddresses = new List<ChangeAddress>();
-		}
-		public BitcoinAddress PublicAddress
-		{
-			get;
-			set;
-		}
-		public Money Amount
-		{
-			get;
-			set;
-		}
-		public string Account
-		{
-			get;
-			set;
-		}
-
-		public List<ChangeAddress> ChangeAddresses
-		{
-			get;
-			set;
-		}
-	}
-
 	/*
-        Category            Name                        Implemented 
-        ------------------ --------------------------- -----------------------
-        ------------------ Overall control/query calls 
-        control            getinfo
-        control            help
-        control            stop
+		Category			Name						Implemented 
+		------------------ --------------------------- -----------------------
+		------------------ Overall control/query calls 
+		control			getinfo
+		control			help
+		control			stop
 
-        ------------------ P2P networking
-        network            getnetworkinfo
-        network            addnode                      Yes
-        network            disconnectnode
-        network            getaddednodeinfo             Yes
-        network            getconnectioncount
-        network            getnettotals
-        network            getpeerinfo                  Yes
-        network            ping
-        network            setban
-        network            listbanned
-        network            clearbanned
+		------------------ P2P networking
+		network			getnetworkinfo
+		network			addnode					  Yes
+		network			disconnectnode
+		network			getaddednodeinfo			 Yes
+		network			getconnectioncount
+		network			getnettotals
+		network			getpeerinfo				  Yes
+		network			ping
+		network			setban
+		network			listbanned
+		network			clearbanned
 
-        ------------------ Block chain and UTXO
-        blockchain         getblockchaininfo
-        blockchain         getbestblockhash             Yes
-        blockchain         getblockcount                Yes
-        blockchain         getblock                     Yes
-        blockchain         getblockhash                 Yes
-        blockchain         getchaintips
-        blockchain         getdifficulty
-        blockchain         getmempoolinfo
-        blockchain         getrawmempool                Yes
-        blockchain         gettxout
-        blockchain         gettxoutproof
-        blockchain         verifytxoutproof
-        blockchain         gettxoutsetinfo
-        blockchain         verifychain
+		------------------ Block chain and UTXO
+		blockchain		 getblockchaininfo
+		blockchain		 getbestblockhash			 Yes
+		blockchain		 getblockcount				Yes
+		blockchain		 getblock					 Yes
+		blockchain		 getblockhash				 Yes
+		blockchain		 getchaintips
+		blockchain		 getdifficulty
+		blockchain		 getmempoolinfo
+		blockchain		 getrawmempool				Yes
+		blockchain		 gettxout
+		blockchain		 gettxoutproof
+		blockchain		 verifytxoutproof
+		blockchain		 gettxoutsetinfo
+		blockchain		 verifychain
 
-        ------------------ Mining
-        mining             getblocktemplate
-        mining             getmininginfo
-        mining             getnetworkhashps
-        mining             prioritisetransaction
-        mining             submitblock
+		------------------ Mining
+		mining			 getblocktemplate
+		mining			 getmininginfo
+		mining			 getnetworkhashps
+		mining			 prioritisetransaction
+		mining			 submitblock
 
-        ------------------ Coin generation
-        generating         getgenerate
-        generating         setgenerate
-        generating         generate
+		------------------ Coin generation
+		generating		 getgenerate
+		generating		 setgenerate
+		generating		 generate
 
-        ------------------ Raw transactions
-        rawtransactions    createrawtransaction
-        rawtransactions    decoderawtransaction
-        rawtransactions    decodescript
-        rawtransactions    getrawtransaction
-        rawtransactions    sendrawtransaction
-        rawtransactions    signrawtransaction
-        rawtransactions    fundrawtransaction
+		------------------ Raw transactions
+		rawtransactions	createrawtransaction
+		rawtransactions	decoderawtransaction
+		rawtransactions	decodescript
+		rawtransactions	getrawtransaction
+		rawtransactions	sendrawtransaction
+		rawtransactions	signrawtransaction
+		rawtransactions	fundrawtransaction
 
-        ------------------ Utility functions
-        util               createmultisig
-        util               validateaddress
-        util               verifymessage
-        util               estimatefee                  Yes
-        util               estimatepriority             Yes
+		------------------ Utility functions
+		util			   createmultisig
+		util			   validateaddress
+		util			   verifymessage
+		util			   estimatefee				  Yes
+		util			   estimatepriority			 Yes
 
-        ------------------ Not shown in help
-        hidden             invalidateblock
-        hidden             reconsiderblock
-        hidden             setmocktime
-        hidden             resendwallettransactions
+		------------------ Not shown in help
+		hidden			 invalidateblock
+		hidden			 reconsiderblock
+		hidden			 setmocktime
+		hidden			 resendwallettransactions
 
-        ------------------ Wallet
-        wallet             addmultisigaddress
-        wallet             backupwallet                 Yes
-        wallet             dumpprivkey                  Yes
-        wallet             dumpwallet
-        wallet             encryptwallet
-        wallet             getaccountaddress
-        wallet             getaccount                   Yes
-        wallet             getaddressesbyaccount
-        wallet             getbalance
-        wallet             getnewaddress
-        wallet             getrawchangeaddress
-        wallet             getreceivedbyaccount
-        wallet             getreceivedbyaddress
-        wallet             gettransaction               Yes
-        wallet             getunconfirmedbalance
-        wallet             getwalletinfo
-        wallet             importprivkey                Yes
-        wallet             importwallet
-        wallet             importaddress                Yes
-        wallet             keypoolrefill
-        wallet             listaccounts                 Yes
-        wallet             listaddressgroupings         Yes
-        wallet             listlockunspent
-        wallet             listreceivedbyaccount
-        wallet             listreceivedbyaddress
-        wallet             listsinceblock
-        wallet             listtransactions
-        wallet             listunspent                  Yes
-        wallet             lockunspent                  Yes
-        wallet             move
-        wallet             sendfrom
-        wallet             sendmany
-        wallet             sendtoaddress
-        wallet             setaccount
-        wallet             settxfee
-        wallet             signmessage
-        wallet             walletlock
-        wallet             walletpassphrasechange
-        wallet             walletpassphrase
-    */
-	public class RPCClient : IBlockRepository
+		------------------ Wallet
+		wallet			 addmultisigaddress
+		wallet			 backupwallet				 Yes
+		wallet			 dumpprivkey				  Yes
+		wallet			 dumpwallet
+		wallet			 encryptwallet
+		wallet			 getaccountaddress			Yes
+		wallet			 getaccount
+		wallet			 getaddressesbyaccount
+		wallet			 getbalance
+		wallet			 getnewaddress
+		wallet			 getrawchangeaddress
+		wallet			 getreceivedbyaccount
+		wallet			 getreceivedbyaddress
+		wallet			 gettransaction
+		wallet			 getunconfirmedbalance
+		wallet			 getwalletinfo
+		wallet			 importprivkey				Yes
+		wallet			 importwallet
+		wallet			 importaddress				Yes
+		wallet			 keypoolrefill
+		wallet			 listaccounts				 Yes
+		wallet			 listaddressgroupings		 Yes
+		wallet			 listlockunspent
+		wallet			 listreceivedbyaccount
+		wallet			 listreceivedbyaddress
+		wallet			 listsinceblock
+		wallet			 listtransactions
+		wallet			 listunspent				  Yes
+		wallet			 lockunspent				  Yes
+		wallet			 move
+		wallet			 sendfrom
+		wallet			 sendmany
+		wallet			 sendtoaddress
+		wallet			 setaccount
+		wallet			 settxfee
+		wallet			 signmessage
+		wallet			 walletlock
+		wallet			 walletpassphrasechange
+		wallet			 walletpassphrase
+	*/
+	public partial class RPCClient : IBlockRepository
 	{
 		private readonly NetworkCredential _credentials;
 		public NetworkCredential Credentials
@@ -271,6 +214,7 @@ namespace NBitcoin.RPC
 		{
 			return SendCommand(new RPCRequest(commandName, parameters));
 		}
+
 		public Task<RPCResponse> SendCommandAsync(string commandName, params object[] parameters)
 		{
 			return SendCommandAsync(new RPCRequest(commandName, parameters));
@@ -632,6 +576,35 @@ namespace NBitcoin.RPC
 			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
 		}
 
+		/// <summary>
+		/// GetTransactions only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
+		/// </summary>
+		/// <param name="blockHash"></param>
+		/// <returns></returns>
+		public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
+		{
+			if (blockHash == null)
+				throw new ArgumentNullException("blockHash");
+
+			var resp = SendCommand("getblock", blockHash.ToString());
+
+			var tx = resp.Result["tx"] as JArray;
+			if (tx != null)
+			{
+				foreach (var item in tx)
+				{
+					var result = GetRawTransaction(uint256.Parse(item.ToString()), false);
+					if (result != null)
+						yield return result;
+				}
+			}
+		}
+
+		public IEnumerable<Transaction> GetTransactions(int height)
+		{
+			return GetTransactions(GetBlockHash(height));
+		}
+
 		#endregion
 
 		#region Coin generation
@@ -712,252 +685,6 @@ namespace NBitcoin.RPC
 		public Task SendRawTransactionAsync(byte[] bytes)
 		{
 			return SendCommandAsync("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
-		}
-
-		#endregion
-
-		#region Wallet
-
-		public void ImportPrivKey(BitcoinSecret secret)
-		{
-			SendCommand("importprivkey", secret.ToWif());
-		}
-
-		public void ImportPrivKey(BitcoinSecret secret, string label, bool rescan)
-		{
-			SendCommand("importprivkey", secret.ToWif(), label, rescan);
-		}
-
-		public async Task ImportPrivKeyAsync(BitcoinSecret secret)
-		{
-			await SendCommandAsync("importprivkey", secret.ToWif()).ConfigureAwait(false);
-		}
-
-		public async Task ImportPrivKeyAsync(BitcoinSecret secret, string label, bool rescan)
-		{
-			await SendCommandAsync("importprivkey", secret.ToWif(), label, rescan).ConfigureAwait(false);
-		}
-
-		public void ImportAddress(BitcoinAddress address)
-		{
-			SendCommand("importaddress", address.ToString());
-		}
-
-		public void ImportAddress(BitcoinAddress address, string label, bool rescan)
-		{
-			SendCommand("importaddress", address.ToString(), label, rescan);
-		}
-
-		public async Task ImportAddressAsync(BitcoinAddress address)
-		{
-			await SendCommandAsync("importaddress", address.ToString()).ConfigureAwait(false);
-		}
-
-		public async Task ImportAddressAsync(BitcoinAddress address, string label, bool rescan)
-		{
-			await SendCommandAsync("importaddress", address.ToString(), label, rescan).ConfigureAwait(false);
-		}
-
-		public BitcoinSecret DumpPrivKey(BitcoinAddress address)
-		{
-			var response = SendCommand("dumpprivkey", address.ToString());
-			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
-		}
-
-		public async Task<BitcoinSecret> DumpPrivKeyAsync(BitcoinAddress address)
-		{
-			var response = await SendCommandAsync("dumpprivkey", address.ToString()).ConfigureAwait(false);
-			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
-		}
-
-		public BitcoinAddress GetAccountAddress(string account)
-		{
-			var response = SendCommand("getaccountaddress", account);
-			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
-		}
-
-		public async Task<BitcoinAddress> GetAccountAddressAsync(string account)
-		{
-			var response = await SendCommandAsync("getaccountaddress", account).ConfigureAwait(false);
-			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
-		}
-
-		public BitcoinSecret GetAccountSecret(string account)
-		{
-			var address = GetAccountAddress(account);
-			return DumpPrivKey(address);
-		}
-
-		public async Task<BitcoinSecret> GetAccountSecretAsync(string account)
-		{
-			var address = await GetAccountAddressAsync(account).ConfigureAwait(false);
-			return await DumpPrivKeyAsync(address).ConfigureAwait(false);
-		}
-
-		public UnspentCoin[] ListUnspent()
-		{
-			var response = SendCommand("listunspent");
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
-		}
-
-		public UnspentCoin[] ListUnspent(int minconf, int maxconf, params BitcoinAddress[] addresses)
-		{
-			var addr = from a in addresses select a.ToString();
-			var response = SendCommand("listunspent", minconf, maxconf, addr.ToArray());
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
-		}
-
-		public async Task<UnspentCoin[]> ListUnspentAsync()
-		{
-			var response = await SendCommandAsync("listunspent").ConfigureAwait(false);
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
-		}
-
-		public async Task<UnspentCoin[]> ListUnspentAsync(int minconf, int maxconf, params BitcoinAddress[] addresses)
-		{
-			var addr = from a in addresses select a.ToString();
-			var response = await SendCommandAsync("listunspent", minconf, maxconf, addr.ToArray()).ConfigureAwait(false);
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
-		}
-
-		public void LockUnspent(params OutPoint[] outpoints)
-		{
-			LockUnspentCore(false, outpoints);
-		}
-
-		public void UnlockUnspent(params OutPoint[] outpoints)
-		{
-			LockUnspentCore(true, outpoints);
-		}
-
-		public Task LockUnspentAsync(params OutPoint[] outpoints)
-		{
-			return LockUnspentCoreAsync(false, outpoints);
-		}
-
-		public Task UnlockUnspentAsync(params OutPoint[] outpoints)
-		{
-			return LockUnspentCoreAsync(true, outpoints);
-		}
-
-		private void LockUnspentCore(bool unlock, OutPoint[] outpoints)
-		{
-			try
-			{
-				LockUnspentCoreAsync(unlock, outpoints).Wait();
-			}
-			catch(AggregateException ex)
-			{
-				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-			}
-		}
-
-		private async Task LockUnspentCoreAsync(bool unlock, OutPoint[] outpoints)
-		{
-			if(outpoints == null || outpoints.Length == 0)
-				return;
-			var parameters = new List<object>();
-			parameters.Add(unlock);
-			var array = new JArray();
-			parameters.Add(array);
-			foreach(var outp in outpoints)
-			{
-				var obj = new JObject();
-				obj["txid"] = outp.Hash.ToString();
-				obj["vout"] = outp.N;
-				array.Add(obj);
-			}
-			await SendCommandAsync("lockunspent", parameters.ToArray()).ConfigureAwait(false);
-		}
-
-		/// <summary>
-		/// GetTransactions only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
-		/// </summary>
-		/// <param name="blockHash"></param>
-		/// <returns></returns>
-		public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
-		{
-			if(blockHash == null)
-				throw new ArgumentNullException("blockHash");
-
-			var resp = SendCommand("getblock", blockHash.ToString());
-
-			var tx = resp.Result["tx"] as JArray;
-			if(tx != null)
-			{
-				foreach(var item in tx)
-				{
-					var result = GetRawTransaction(uint256.Parse(item.ToString()), false);
-					if(result != null)
-						yield return result;
-				}
-			}
-		}
-
-		public IEnumerable<Transaction> GetTransactions(int height)
-		{
-			return GetTransactions(GetBlockHash(height));
-		}
-
-		public IEnumerable<RPCAccount> ListAccounts()
-		{
-			var result = SendCommand(RPCOperations.listaccounts);
-			var obj = (JObject)result.Result;
-			foreach(var prop in obj.Properties())
-			{
-				yield return new RPCAccount()
-				{
-					AccountName = prop.Name,
-					Amount = Money.Coins((decimal)prop.Value)
-				};
-			}
-		}
-
-		public void BackupWallet(string path)
-		{
-			if(string.IsNullOrEmpty(path))
-				throw new ArgumentNullException("path");
-			SendCommand("backupwallet", path);
-		}
-
-		public async Task BackupWalletAsync(string path)
-		{
-			if(string.IsNullOrEmpty(path))
-				throw new ArgumentNullException("path");
-			await SendCommandAsync("backupwallet", path).ConfigureAwait(false);
-		}
-
-		public IEnumerable<BitcoinSecret> ListSecrets()
-		{
-			foreach(var grouping in ListAddressGroupings())
-			{
-				yield return DumpPrivKey(grouping.PublicAddress);
-				foreach(var change in grouping.ChangeAddresses)
-					yield return DumpPrivKey(change.Address);
-			}
-		}
-
-		public IEnumerable<AddressGrouping> ListAddressGroupings()
-		{
-			var result = SendCommand(RPCOperations.listaddressgroupings);
-			var array = (JArray)result.Result;
-			foreach(var group in array.Children<JArray>())
-			{
-				var grouping = new AddressGrouping();
-				grouping.PublicAddress = BitcoinAddress.Create(group[0][0].ToString());
-				grouping.Amount = Money.Coins(group[0][1].Value<decimal>());
-				grouping.Account = group[0].Count() > 2 ? group[0][2].ToString() : null;
-
-				foreach(var subgroup in group.Skip(1))
-				{
-					var change = new ChangeAddress();
-					change.Address = BitcoinAddress.Create(subgroup[0].ToString());
-					change.Amount = Money.Coins(subgroup[1].Value<decimal>());
-					grouping.ChangeAddresses.Add(change);
-				}
-
-				yield return grouping;
-			}
 		}
 
 		#endregion
