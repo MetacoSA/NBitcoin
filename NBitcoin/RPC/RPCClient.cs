@@ -695,6 +695,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns></returns>
+		[Obsolete("Use GetEstimatedFee or TryGetEstimatedFee instead")]
 		public FeeRate EstimateFee(int nblock)
 		{
 			var response = SendCommand(RPCOperations.estimatefee, nblock);
@@ -710,6 +711,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns></returns>
+		[Obsolete("Use GetEstimatedFeeAsync or TryGetEstimatedFeeAsync instead")]
 		public async Task<Money> EstimateFeeAsync(int nblock)
 		{
 			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
