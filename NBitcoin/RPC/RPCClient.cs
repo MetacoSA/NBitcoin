@@ -718,6 +718,57 @@ namespace NBitcoin.RPC
 			return Money.Parse(response.Result.ToString());
 		}
 
+		/// <summary>
+		/// Get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="nblock"></param>
+		/// <returns>The estimated fee rate</returns>
+		/// <exception cref="InvalidOperationException">when fee couldn't be estimated</exception>
+		public FeeRate GetEstimatedFee(int nblock)
+		{
+			var response = SendCommand(RPCOperations.estimatefee, nblock);
+			var result = response.Result.Value<decimal>();
+			var money = Money.Coins(result);
+			if (money.Satoshi < 0)
+				throw new InvalidOperationException("Couldn't estimate fee for " + nblock + " blocks");
+			return new FeeRate(money);
+		}
+
+		/// <summary>
+		/// Get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="nblock"></param>
+		/// <returns>true if fee rate could be estimated; otherwise false</returns>
+		public bool TryGetEstimatedFee(int nblock, out FeeRate feeRate)
+		{
+			try
+			{
+				feeRate = GetEstimatedFee(nblock);
+				return true;
+			}
+			catch(InvalidOperationException e)
+			{
+				feeRate = null;
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="nblock"></param>
+		/// <returns>The estimated fee rate</returns>
+		/// <exception cref="InvalidOperationException">when fee couldn't be estimated</exception>
+		public async Task<FeeRate> GetEstimatedFeeAsync(int nblock)
+		{
+			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
+			var result = response.Result.Value<decimal>();
+			var money = Money.Coins(result);
+			if (money.Satoshi < 0)
+				throw new InvalidOperationException("Couldn't estimate fee for " + nblock + " blocks");
+			return new FeeRate(money);
+		}
+
 		public decimal EstimatePriority(int nblock)
 		{
 			decimal priority = 0;
