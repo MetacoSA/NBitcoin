@@ -123,7 +123,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void GetEstimatedFee()
+		public void EstimateFeeRate()
 		{
 			using (var builder = NodeBuilder.Create())
 			{
@@ -131,12 +131,12 @@ namespace NBitcoin.Tests
 				node.Start();
 				node.Generate(101);
 				var rpc = node.CreateRPCClient();
-				Assert.Throws<InvalidOperationException>(()=> rpc.GetEstimatedFee(1));
+				Assert.Throws<NoEstimationException>(()=> rpc.EstimateFeeRate(1));
 			}
 		}
 
 		[Fact]
-		public void TryGetEstimatedFee()
+		public void TryEstimateFeeRate()
 		{
 			using (var builder = NodeBuilder.Create())
 			{
@@ -145,7 +145,7 @@ namespace NBitcoin.Tests
 				node.Generate(101);
 				var rpc = node.CreateRPCClient();
 				FeeRate feeRate;
-				Assert.False(rpc.TryGetEstimatedFee(1, out feeRate));
+				Assert.False(rpc.TryEstimateFeeRate(1, out feeRate));
 			}
 		}
 
