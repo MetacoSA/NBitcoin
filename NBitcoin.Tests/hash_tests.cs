@@ -1,18 +1,13 @@
-﻿using NBitcoin.Crypto;
+﻿using System.Diagnostics;
+using HashLib;
+using NBitcoin;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
-    using HashLib;
-
-    using Hashes = NBitcoin.Crypto.Hashes;
+	using Hashes = NBitcoin.Crypto.Hashes;
 
     public class hash_tests
 	{

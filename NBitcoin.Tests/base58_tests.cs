@@ -1,14 +1,11 @@
-﻿using System.Diagnostics;
-using NBitcoin.DataEncoders;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.DataEncoders;
 using Xunit;
-using Xunit.Extensions;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	[Trait("Core", "Core")]
 	public class base58_tests

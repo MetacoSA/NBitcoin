@@ -5,10 +5,9 @@ using System.Linq;
 using System.Threading;
 using NBitcoin;
 using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public class NetworkTests
 	{

@@ -1,19 +1,15 @@
-﻿using NBitcoin.DataEncoders;
-using NBitcoin.RPC;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.RPC;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	// This test requires a main net node running locally in server mode 
 	// on default port with -rpcuser=rpcuser -rpcpassword=rpcpassword

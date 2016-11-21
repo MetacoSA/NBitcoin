@@ -1,13 +1,10 @@
-﻿using NBitcoin.DataEncoders;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.DataEncoders;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	class TestUtils
 	{

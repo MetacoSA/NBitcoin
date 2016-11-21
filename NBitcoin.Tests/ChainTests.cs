@@ -1,16 +1,12 @@
-﻿using NBitcoin.Protocol;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+using NBitcoin;
 using NBitcoin.BitcoinCore;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public class ChainTests
 	{

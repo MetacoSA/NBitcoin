@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using NBitcoin.RPC;
+using NBitcoin;
+using NBitcoin.BitcoinCore;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
-	using NBitcoin.BitcoinCore;
-
 	public class pow_pos_tests
 	{
 

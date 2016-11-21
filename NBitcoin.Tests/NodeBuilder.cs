@@ -1,7 +1,4 @@
-﻿using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using NBitcoin.RPC;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -13,8 +10,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.Protocol;
+using NBitcoin.RPC;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public enum CoreNodeState
 	{
@@ -44,7 +44,7 @@ namespace NBitcoin.Tests
 	}
 	public class NodeBuilder : IDisposable
 	{
-		public static NodeBuilder Create([CallerMemberNameAttribute]string caller = null, string version = "0.12.1")
+		public static NodeBuilder Create([CallerMemberName]string caller = null, string version = "0.12.1")
 		{
 			//version = version ?? "0.12.1";
 			var path = string.Empty;//EnsureDownloaded(version);

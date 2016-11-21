@@ -1,15 +1,10 @@
-﻿using NBitcoin.DataEncoders;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.DataEncoders;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public class checkblock_tests
 	{

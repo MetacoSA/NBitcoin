@@ -1,22 +1,21 @@
-﻿using NBitcoin.BitcoinCore;
-using NBitcoin.BouncyCastle.Math;
-using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using NBitcoin.OpenAsset;
-using NBitcoin.Policy;
-using NBitcoin.Protocol;
-using NBitcoin.Stealth;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.BitcoinCore;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
+using NBitcoin.OpenAsset;
+using NBitcoin.Policy;
+using NBitcoin.Stealth;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public class transaction_tests
 	{
@@ -1984,7 +1983,7 @@ namespace NBitcoin.Tests
 
 		private ECDSASignature ToPositive(ECDSASignature sig)
 		{
-			return new ECDSASignature(new BouncyCastle.Math.BigInteger(1, sig.R.ToByteArray()), new BouncyCastle.Math.BigInteger(1, sig.S.ToByteArray()));
+			return new ECDSASignature(new NBitcoin.BouncyCastle.Math.BigInteger(1, sig.R.ToByteArray()), new NBitcoin.BouncyCastle.Math.BigInteger(1, sig.S.ToByteArray()));
 		}
 
 		public enum HashModification

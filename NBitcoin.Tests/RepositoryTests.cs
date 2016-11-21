@@ -1,28 +1,18 @@
 ﻿#if !NOFILEIO
-using NBitcoin.BitcoinCore;
-using NBitcoin.DataEncoders;
-using NBitcoin.OpenAsset;
-using NBitcoin.Protocol;
-using NBitcoin.Protocol.Behaviors;
-using NBitcoin.RPC;
-using NBitcoin.SPV;
-using NBitcoin.Stealth;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.BitcoinCore;
+using NBitcoin.DataEncoders;
+using NBitcoin.RPC;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public class RepositoryTests
 	{
@@ -597,6 +587,11 @@ namespace NBitcoin.Tests
 			{
 				var block = blockStore.GetBlock(item.HashBlock);
 				Assert.True(BlockValidator.CheckAndComputeStake(blockStore, trxStore, mapStore, chain, item, block));
+
+				if (item.Height == 1125)
+				{
+					var g = block.ToHex();
+				}
 
 				if (client != null)
 				{

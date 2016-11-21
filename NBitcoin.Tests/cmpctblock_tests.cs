@@ -1,14 +1,10 @@
-﻿using NBitcoin.Protocol;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.Protocol;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public class cmpctblock_tests
 	{

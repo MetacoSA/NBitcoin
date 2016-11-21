@@ -1,21 +1,19 @@
 ﻿#if !NOSOCKET
-using NBitcoin.Protocol;
-using NBitcoin.Protocol.Behaviors;
-using NBitcoin.SPV;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
+using NBitcoin.SPV;
 using Xunit;
-using Xunit.Sdk;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public class BlockchainBuilder
 	{
@@ -364,7 +362,7 @@ namespace NBitcoin.Tests
 				var txBuilder = new TransactionBuilder();
 				var tx =
 					txBuilder
-					.SetTransactionPolicy(new Policy.StandardTransactionPolicy()
+					.SetTransactionPolicy(new NBitcoin.Policy.StandardTransactionPolicy()
 					{
 						MinRelayTxFee = new FeeRate(0)
 					})
@@ -431,7 +429,7 @@ namespace NBitcoin.Tests
 				txBuilder = new TransactionBuilder();
 				tx =
 					txBuilder
-					.SetTransactionPolicy(new Policy.StandardTransactionPolicy()
+					.SetTransactionPolicy(new NBitcoin.Policy.StandardTransactionPolicy()
 					{
 						MinRelayTxFee = new FeeRate(0)
 					})

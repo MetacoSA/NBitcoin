@@ -1,21 +1,18 @@
-﻿using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+using NBitcoin.BouncyCastle.Asn1;
 using NBitcoin.BouncyCastle.Asn1.Sec;
-using NBitcoin.BouncyCastle.Asn1.X9;
+using NBitcoin.BouncyCastle.Crypto;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using NBitcoin.Crypto;
 using Xunit;
-using NBitcoin.BouncyCastle.Asn1;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public class DeterministicSignatureTests
 	{
@@ -120,7 +117,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(test.R, signature.R);
 		}
 
-		private Func<BouncyCastle.Crypto.IDigest> GetHash(string hash)
+		private Func<IDigest> GetHash(string hash)
 		{
 			if(hash.Equals("SHA-256", StringComparison.OrdinalIgnoreCase))
 				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest();

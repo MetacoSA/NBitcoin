@@ -1,13 +1,10 @@
-﻿using NBitcoin.Protocol;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.Protocol;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public class alert_tests
 	{

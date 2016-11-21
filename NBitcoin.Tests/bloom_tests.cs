@@ -1,13 +1,4 @@
-﻿using NBitcoin.DataEncoders;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
-
-namespace NBitcoin.Tests
+﻿namespace NStratis.Tests
 {
 	// bloomo tests are disabled for now
 	// todo: get the bloom tests to work, need to crete test data specific for the stratis network

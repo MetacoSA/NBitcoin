@@ -1,18 +1,15 @@
 ﻿#if !NOFILEIO
-using NBitcoin.BitcoinCore;
-using NBitcoin.Crypto;
-using NBitcoin.OpenAsset;
-using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using NBitcoin;
+using NBitcoin.BitcoinCore;
+using NBitcoin.Protocol;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public class Benchmark
 	{

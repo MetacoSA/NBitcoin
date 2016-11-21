@@ -1,13 +1,10 @@
-﻿using NBitcoin.DataEncoders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Security;
-using System.Text;
 using System.Threading.Tasks;
+using NBitcoin;
 using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	//https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki
 	public class BIP38Tests

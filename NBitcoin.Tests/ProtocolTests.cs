@@ -1,21 +1,19 @@
 ﻿#if !NOSOCKET
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
-using NBitcoin;
-using NBitcoin.Protocol;
 using System.Net;
 using System.Threading;
-using System.IO;
+using System.Threading.Tasks;
+using NBitcoin;
 using NBitcoin.DataEncoders;
-using System.Net.Sockets;
+using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
-using System.Diagnostics;
+using Xunit;
 
-namespace NBitcoin.Tests
+namespace NStratis.Tests
 {
 	public class NodeServerTester : IDisposable
 	{
