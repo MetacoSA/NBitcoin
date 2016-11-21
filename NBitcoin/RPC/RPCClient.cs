@@ -695,7 +695,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns></returns>
-		[Obsolete("Use GetEstimatedFee or TryGetEstimatedFee instead")]
+		[Obsolete("Use EstimateFeeRate or TryEstimateFeeRate instead")]
 		public FeeRate EstimateFee(int nblock)
 		{
 			var response = SendCommand(RPCOperations.estimatefee, nblock);
@@ -711,7 +711,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns></returns>
-		[Obsolete("Use GetEstimatedFeeAsync or TryGetEstimatedFeeAsync instead")]
+		[Obsolete("Use EstimateFeeRateAsync instead")]
 		public async Task<Money> EstimateFeeAsync(int nblock)
 		{
 			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
@@ -723,30 +723,30 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns>The estimated fee rate</returns>
-		/// <exception cref="InvalidOperationException">when fee couldn't be estimated</exception>
-		public FeeRate GetEstimatedFee(int nblock)
+		/// <exception cref="NoEstimationException">when fee couldn't be estimated</exception>
+		public FeeRate EstimateFeeRate(int nblock)
 		{
 			var response = SendCommand(RPCOperations.estimatefee, nblock);
 			var result = response.Result.Value<decimal>();
 			var money = Money.Coins(result);
 			if (money.Satoshi < 0)
-				throw new InvalidOperationException("Couldn't estimate fee for " + nblock + " blocks");
+				throw new NoEstimationException(nblock);
 			return new FeeRate(money);
 		}
 
 		/// <summary>
-		/// Get the estimated fee per kb for being confirmed in nblock
+		/// Tries to get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns>true if fee rate could be estimated; otherwise false</returns>
-		public bool TryGetEstimatedFee(int nblock, out FeeRate feeRate)
+		public bool TryEstimateFeeRate(int nblock, out FeeRate feeRate)
 		{
 			try
 			{
-				feeRate = GetEstimatedFee(nblock);
+				feeRate = EstimateFeeRate(nblock);
 				return true;
 			}
-			catch(InvalidOperationException e)
+			catch(Exception e)
 			{
 				feeRate = null;
 				return false;
@@ -758,14 +758,14 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns>The estimated fee rate</returns>
-		/// <exception cref="InvalidOperationException">when fee couldn't be estimated</exception>
-		public async Task<FeeRate> GetEstimatedFeeAsync(int nblock)
+		/// <exception cref="NoEstimationException">when fee couldn't be estimated</exception>
+		public async Task<FeeRate> EstimateFeeRateAsync(int nblock)
 		{
 			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
 			var result = response.Result.Value<decimal>();
 			var money = Money.Coins(result);
 			if (money.Satoshi < 0)
-				throw new InvalidOperationException("Couldn't estimate fee for " + nblock + " blocks");
+				throw new NoEstimationException(nblock);
 			return new FeeRate(money);
 		}
 
@@ -963,4 +963,14 @@ namespace NBitcoin.RPC
 		}
 	}
 #endif
+
+	[Serializable]
+	public class NoEstimationException : Exception
+	{
+		public NoEstimationException(int nblock)
+			: base("Couldn't estimate fee for " + nblock + " blocks")
+		{
+		}
+	}
+
 }
