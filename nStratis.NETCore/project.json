@@ -40,7 +40,7 @@
     ],
     "compile": {
       "include": [
-        "../NBitcoin/**/*.cs",
+        "../nStratis/**/*.cs",
         "../Stubs/TraceStub/TraceSource.cs"
       ]
     }
