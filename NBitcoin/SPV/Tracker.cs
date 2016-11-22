@@ -1,19 +1,16 @@
 ﻿#if !NOSOCKET
-using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using nStratis.DataEncoders;
+using nStratis.Protocol;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-namespace NBitcoin.SPV
+namespace nStratis.SPV
 {
 	/// <summary>
 	/// Idempotent and thread safe for tracking operations belonging to a set of ScriptPubKeys

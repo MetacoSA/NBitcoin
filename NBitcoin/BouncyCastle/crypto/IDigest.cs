@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.Crypto
+namespace nStratis.BouncyCastle.crypto
 {
 	/**
      * interface that a message digest conforms to.

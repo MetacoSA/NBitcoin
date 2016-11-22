@@ -6,15 +6,15 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NBitcoin")]
-[assembly: AssemblyDescription("Implementation of bitcoin protocol")]
+[assembly: AssemblyTitle("nStratis")]
+[assembly: AssemblyDescription("Implementation of stratis protocol")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("AO-IS")]
-[assembly: AssemblyProduct("NBitcoin")]
+[assembly: AssemblyProduct("nStratis")]
 [assembly: AssemblyCopyright("Copyright © AO-IS 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: InternalsVisibleTo("NStratis.Tests")]
+[assembly: InternalsVisibleTo("nStratis.Tests")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

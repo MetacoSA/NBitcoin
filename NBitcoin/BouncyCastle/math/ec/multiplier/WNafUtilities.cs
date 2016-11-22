@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
+namespace nStratis.BouncyCastle.math.ec.multiplier
 {
 	internal abstract class WNafUtilities
 	{

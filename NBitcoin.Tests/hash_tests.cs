@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics;
 using HashLib;
-using NBitcoin;
-using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
+using nStratis.Crypto;
+using nStratis.DataEncoders;
 using Xunit;
+using Hashes = nStratis.Crypto.Hashes;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
-	using Hashes = NBitcoin.Crypto.Hashes;
+	using Hashes = Hashes;
 
     public class hash_tests
 	{

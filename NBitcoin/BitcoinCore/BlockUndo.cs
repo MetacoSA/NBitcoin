@@ -1,12 +1,8 @@
-﻿using NBitcoin.Crypto;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using nStratis.Crypto;
 
-namespace NBitcoin.BitcoinCore
+namespace nStratis.BitcoinCore
 {
 	/** Undo information for a CTxIn
  *
@@ -20,7 +16,7 @@ namespace NBitcoin.BitcoinCore
 		{
 
 		}
-		public TxInUndo(NBitcoin.TxOut txOut)
+		public TxInUndo(TxOut txOut)
 		{
 			this.TxOut = txOut;
 		}

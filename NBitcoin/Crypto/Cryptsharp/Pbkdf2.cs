@@ -17,17 +17,14 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 #endregion
 
-using NBitcoin.BouncyCastle.Crypto;
-using NBitcoin.Crypto.Internal;
 using System;
-using System.Diagnostics;
 using System.IO;
-
-#if !WINDOWS_UWP && !USEBC
 using System.Security.Cryptography;
+#if !WINDOWS_UWP && !USEBC
+
 #endif
 
-namespace NBitcoin.Crypto
+namespace nStratis.Crypto.Cryptsharp
 {
 	/// <summary>
 	/// Implements the PBKDF2 key derivation function.
@@ -91,10 +88,10 @@ namespace NBitcoin.Crypto
 #else
 		public Pbkdf2(KeyedHashAlgorithm hmacAlgorithm, byte[] salt, int iterations)
 		{
-			NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
-			NBitcoin.Crypto.Internal.Check.Null("salt", salt);
-			NBitcoin.Crypto.Internal.Check.Length("salt", salt, 0, int.MaxValue - 4);
-			NBitcoin.Crypto.Internal.Check.Range("iterations", iterations, 1, int.MaxValue);
+			Check.Null("hmacAlgorithm", hmacAlgorithm);
+			Check.Null("salt", salt);
+			Check.Length("salt", salt, 0, int.MaxValue - 4);
+			Check.Range("iterations", iterations, 1, int.MaxValue);
 			if(hmacAlgorithm.HashSize == 0 || hmacAlgorithm.HashSize%8 != 0)
 			{
 				throw Exceptions.Argument("hmacAlgorithm", "Unsupported hash size.");
@@ -113,7 +110,7 @@ namespace NBitcoin.Crypto
 		/// <returns>Bytes from the derived key stream.</returns>
 		public byte[] Read(int count)
 		{
-			NBitcoin.Crypto.Internal.Check.Range("count", count, 0, int.MaxValue);
+			Check.Range("count", count, 0, int.MaxValue);
 
 			byte[] buffer = new byte[count];
 			int bytes = Read(buffer, 0, count);
@@ -152,7 +149,7 @@ namespace NBitcoin.Crypto
 		public static byte[] ComputeDerivedKey(KeyedHashAlgorithm hmacAlgorithm, byte[] salt, int iterations,
 											   int derivedKeyLength)
 		{
-			NBitcoin.Crypto.Internal.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
+			Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
 
 			using(Pbkdf2 kdf = new Pbkdf2(hmacAlgorithm, salt, iterations))
 			{
@@ -176,9 +173,9 @@ namespace NBitcoin.Crypto
 #else
 		public override void Close()
 		{
-			NBitcoin.Crypto.Internal.Security.Clear(_saltBuffer);
-			NBitcoin.Crypto.Internal.Security.Clear(_digest);
-			NBitcoin.Crypto.Internal.Security.Clear(_digestT1);
+			Security.Clear(_saltBuffer);
+			Security.Clear(_digest);
+			Security.Clear(_digestT1);
 
 			_hmacAlgorithm.Clear();
 		}
@@ -199,7 +196,7 @@ namespace NBitcoin.Crypto
 				}
 			}
 
-			NBitcoin.Crypto.Internal.Security.Clear(_digestT1);
+			Security.Clear(_digestT1);
 		}
 
 #if USEBC || WINDOWS_UWP || NETCORE
@@ -233,7 +230,7 @@ namespace NBitcoin.Crypto
 		/// <inheritdoc />
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			NBitcoin.Crypto.Internal.Check.Bounds("buffer", buffer, offset, count);
+			Check.Bounds("buffer", buffer, offset, count);
 			int bytes = 0;
 
 			while(count > 0)

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NBitcoin;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class uint256_tests
 	{

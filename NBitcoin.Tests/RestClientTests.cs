@@ -1,9 +1,8 @@
 ﻿using System.Linq;
-using NBitcoin;
-using NBitcoin.RPC;
+using nStratis.RPC;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	//Require a rpc server on test network running on default port with -rest -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword
 	//For me : 

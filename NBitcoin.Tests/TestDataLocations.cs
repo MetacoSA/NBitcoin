@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Net;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class TestDataLocations
 	{

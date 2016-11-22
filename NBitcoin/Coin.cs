@@ -1,12 +1,10 @@
-﻿using NBitcoin.OpenAsset;
-using NBitcoin.Stealth;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using nStratis.OpenAsset;
+using nStratis.Stealth;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public interface IColoredCoin : ICoin
 	{
@@ -657,7 +655,7 @@ namespace NBitcoin
 		{
 			var isWitness = PayToWitTemplate.Instance.CheckScriptPubKey(ScriptPubKey) ||
 							PayToWitTemplate.Instance.CheckScriptPubKey(Redeem) ||
-							RedeemType == NBitcoin.RedeemType.WitnessV0;
+							RedeemType == RedeemType.WitnessV0;
 			return isWitness ? HashVersion.Witness : HashVersion.Original;
 		}
 

@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using NBitcoin;
-using NBitcoin.BitcoinCore;
-using NBitcoin.Protocol;
+using nStratis.BitcoinCore;
+using nStratis.Protocol;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class Benchmark
 	{

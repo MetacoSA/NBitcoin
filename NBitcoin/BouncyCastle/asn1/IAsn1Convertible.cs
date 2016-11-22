@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.Asn1
+namespace nStratis.BouncyCastle.asn1
 {
 	internal interface IAsn1Convertible
 	{

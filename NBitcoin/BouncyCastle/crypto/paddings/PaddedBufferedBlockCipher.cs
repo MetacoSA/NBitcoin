@@ -1,8 +1,7 @@
 using System;
+using nStratis.BouncyCastle.security;
 
-using NBitcoin.BouncyCastle.Security;
-
-namespace NBitcoin.BouncyCastle.Crypto.Paddings
+namespace nStratis.BouncyCastle.crypto.paddings
 {
 	/**
 	* A wrapper class that allows block ciphers to be used to process data in

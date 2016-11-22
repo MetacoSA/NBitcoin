@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.Crypto
+namespace nStratis.BouncyCastle.crypto
 {
 	/// <remarks>Block cipher engines are expected to conform to this interface.</remarks>
 	internal interface IBufferedCipher

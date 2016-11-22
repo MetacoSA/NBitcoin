@@ -1,16 +1,13 @@
 ﻿#if !NOHTTPCLIENT
-using NBitcoin.DataEncoders;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
+using nStratis.DataEncoders;
+using Newtonsoft.Json.Linq;
 
-namespace NBitcoin.OpenAsset
+namespace nStratis.OpenAsset
 {
 	public class CoinprismException : Exception
 	{

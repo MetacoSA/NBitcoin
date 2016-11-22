@@ -1,16 +1,13 @@
-﻿using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using nStratis.BouncyCastle.math;
+using nStratis.Crypto;
+using nStratis.DataEncoders;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public class TransactionSignature
 	{
-		static readonly TransactionSignature _Empty = new TransactionSignature(new ECDSASignature(NBitcoin.BouncyCastle.Math.BigInteger.ValueOf(0), NBitcoin.BouncyCastle.Math.BigInteger.ValueOf(0)), SigHash.All);
+		static readonly TransactionSignature _Empty = new TransactionSignature(new ECDSASignature(BigInteger.ValueOf(0), BigInteger.ValueOf(0)), SigHash.All);
 		public static TransactionSignature Empty
 		{
 			get

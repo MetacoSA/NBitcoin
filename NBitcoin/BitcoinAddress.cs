@@ -1,12 +1,7 @@
-﻿using NBitcoin.BouncyCastle.Math;
-using NBitcoin.BouncyCastle.Math.EC;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using nStratis.OpenAsset;
 
-namespace NBitcoin
+namespace nStratis
 {
 	/// <summary>
 	/// Base58 representaiton of a script hash

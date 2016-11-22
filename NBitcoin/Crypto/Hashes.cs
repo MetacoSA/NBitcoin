@@ -1,18 +1,15 @@
-﻿using NBitcoin.BouncyCastle.Crypto.Digests;
-using NBitcoin.BouncyCastle.Crypto.Parameters;
-using NBitcoin.BouncyCastle.Security;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using nStratis.BouncyCastle.crypto.digests;
 #if !WINDOWS_UWP && !USEBC
 using System.Security.Cryptography;
 #endif
 
-namespace NBitcoin.Crypto
+namespace nStratis.Crypto
 {
 	public static class Hashes
 	{

@@ -4,12 +4,11 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
-using NBitcoin;
-using NBitcoin.RPC;
+using nStratis.RPC;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	// This test requires a main net node running locally in server mode 
 	// on default port with -rpcuser=rpcuser -rpcpassword=rpcpassword

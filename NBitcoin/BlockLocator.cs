@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace NBitcoin
+namespace nStratis
 {
 	/// <summary>
 	/// Compact representation of one's chain position which can be used to find forks with another chain

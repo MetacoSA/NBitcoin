@@ -1,13 +1,10 @@
 ﻿#if !NOSOCKET
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public static class IpExtensions
 	{

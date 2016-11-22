@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using nStratis.BouncyCastle.crypto.util;
+using nStratis.BouncyCastle.security;
 
-using NBitcoin.BouncyCastle.Crypto.Utilities;
-using NBitcoin.BouncyCastle.Security;
-
-namespace NBitcoin.BouncyCastle.Math.Raw
+namespace nStratis.BouncyCastle.math.raw
 {
 	internal abstract class Mod
 	{

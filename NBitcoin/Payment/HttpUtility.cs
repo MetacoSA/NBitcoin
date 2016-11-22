@@ -29,17 +29,13 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Globalization;
-using System.IO;
 using System.Text;
-using System.Linq;
-using System.Web.Util;
-using NBitcoin.DataEncoders;
+using nStratis.DataEncoders;
 
-namespace System.Web.NBitcoin
+namespace nStratis.Payment
 {
 
 

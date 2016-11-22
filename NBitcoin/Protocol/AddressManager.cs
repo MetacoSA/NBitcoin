@@ -1,16 +1,16 @@
 ﻿#if !NOSOCKET
-using NBitcoin.Crypto;
-using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using nStratis.Crypto;
+using nStratis.Protocol.Behaviors;
+using nStratis.Protocol.Payloads;
 
-namespace NBitcoin.Protocol
+namespace nStratis.Protocol
 {
 
 	/// <summary>

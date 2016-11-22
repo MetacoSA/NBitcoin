@@ -1,13 +1,11 @@
 ﻿#if !NOSOCKET
-using NBitcoin.Protocol.Behaviors;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using nStratis.Protocol.Behaviors;
 
-namespace NBitcoin.Protocol
+namespace nStratis.Protocol
 {
 	public class NodesGroup : IDisposable
 	{
@@ -146,7 +144,7 @@ namespace NBitcoin.Protocol
 		}
 		public static NodesGroup GetNodeGroup(NodeBehaviorsCollection behaviors)
 		{
-			return behaviors.OfType<NodesGroupBehavior>().Select(c => c._Parent).FirstOrDefault();
+			return Enumerable.OfType<NodesGroupBehavior>(behaviors).Select(c => c._Parent).FirstOrDefault();
 		}
 
 		/// <summary>

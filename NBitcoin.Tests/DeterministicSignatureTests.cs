@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using NBitcoin.BouncyCastle.Asn1;
-using NBitcoin.BouncyCastle.Asn1.Sec;
-using NBitcoin.BouncyCastle.Crypto;
-using NBitcoin.BouncyCastle.Crypto.Parameters;
-using NBitcoin.BouncyCastle.Math;
-using NBitcoin.BouncyCastle.Math.EC;
-using NBitcoin.Crypto;
+using nStratis.BouncyCastle.asn1;
+using nStratis.BouncyCastle.asn1.sec;
+using nStratis.BouncyCastle.crypto;
+using nStratis.BouncyCastle.crypto.digests;
+using nStratis.BouncyCastle.crypto.parameters;
+using nStratis.BouncyCastle.math;
+using nStratis.BouncyCastle.math.ec;
+using nStratis.Crypto;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class DeterministicSignatureTests
 	{
@@ -120,19 +121,19 @@ namespace NStratis.Tests
 		private Func<IDigest> GetHash(string hash)
 		{
 			if(hash.Equals("SHA-256", StringComparison.OrdinalIgnoreCase))
-				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest();
+				return () => new Sha256Digest();
 
 			if(hash.Equals("SHA-1", StringComparison.OrdinalIgnoreCase))
-				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha1Digest();
+				return () => new Sha1Digest();
 
 			if(hash.Equals("SHA-224", StringComparison.OrdinalIgnoreCase))
-				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha224Digest();
+				return () => new Sha224Digest();
 
 			if(hash.Equals("SHA-384", StringComparison.OrdinalIgnoreCase))
-				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha384Digest();
+				return () => new Sha384Digest();
 
 			if(hash.Equals("SHA-512", StringComparison.OrdinalIgnoreCase))
-				return () => new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest();
+				return () => new Sha512Digest();
 
 			throw new NotImplementedException();
 		}

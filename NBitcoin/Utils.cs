@@ -1,18 +1,19 @@
-﻿using NBitcoin.DataEncoders;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Numerics;
+using System.Net.Sockets;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
-using NBitcoin.Protocol;
-using System.Runtime.ExceptionServices;
-using System.Threading.Tasks;
+using nStratis.DataEncoders;
+using nStratis.OpenAsset;
+using nStratis.Protocol;
+using BigInteger = nStratis.BouncyCastle.math.BigInteger;
 #if !NOSOCKET
-using System.Net.Sockets;
+
 #endif
 #if WINDOWS_UWP
 using System.Net.Sockets;
@@ -20,7 +21,7 @@ using Windows.Networking;
 using Windows.Networking.Connectivity;
 #endif
 
-namespace NBitcoin
+namespace nStratis
 {
 	public static class Extensions
 	{
@@ -394,7 +395,7 @@ namespace NBitcoin
 			ms.Write(bytes, 0, bytes.Length);
 		}
 
-		internal static Array BigIntegerToBytes(NBitcoin.BouncyCastle.Math.BigInteger b, int numBytes)
+		internal static Array BigIntegerToBytes(BigInteger b, int numBytes)
 		{
 			if(b == null)
 			{
@@ -413,7 +414,7 @@ namespace NBitcoin
 
 #if !NOBIGINT
 		//https://en.bitcoin.it/wiki/Script
-		public static byte[] BigIntegerToBytes(BigInteger num)
+		public static byte[] BigIntegerToBytes(System.Numerics.BigInteger num)
 #else
 		internal static byte[] BigIntegerToBytes(BigInteger num)
 #endif
@@ -435,7 +436,7 @@ namespace NBitcoin
 		}
 
 #if !NOBIGINT
-		public static BigInteger BytesToBigInteger(byte[] data)
+		public static System.Numerics.BigInteger BytesToBigInteger(byte[] data)
 #else
 		internal static BigInteger BytesToBigInteger(byte[] data)
 #endif
@@ -443,15 +444,15 @@ namespace NBitcoin
 			if(data == null)
 				throw new ArgumentNullException("data");
 			if(data.Length == 0)
-				return BigInteger.Zero;
+				return System.Numerics.BigInteger.Zero;
 			data = data.ToArray();
 			var positive = (data[data.Length - 1] & 0x80) == 0;
 			if(!positive)
 			{
 				data[data.Length - 1] &= unchecked((byte)~0x80);
-				return -new BigInteger(data);
+				return -new System.Numerics.BigInteger(data);
 			}
-			return new BigInteger(data);
+			return new System.Numerics.BigInteger(data);
 		}
 
 		static readonly TraceSource _TraceSource = new TraceSource("NBitcoin");

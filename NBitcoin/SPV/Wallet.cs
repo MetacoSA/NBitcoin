@@ -1,20 +1,18 @@
 ﻿#if !NOSOCKET
-using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using NBitcoin.Protocol.Behaviors;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using nStratis.BIP32;
+using nStratis.DataEncoders;
+using nStratis.Protocol;
+using nStratis.Protocol.Behaviors;
+using nStratis.Protocol.Payloads;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-namespace NBitcoin.SPV
+namespace nStratis.SPV
 {
 	public enum WalletState
 	{
@@ -347,8 +345,7 @@ namespace NBitcoin.SPV
 			{
 				if(_Group == null)
 					return null;
-				return _Group.NodeConnectionParameters.TemplateBehaviors
-							.OfType<ChainBehavior>()
+				return Enumerable.OfType<ChainBehavior>(_Group.NodeConnectionParameters.TemplateBehaviors)
 							.Select(t => t.Chain)
 							.FirstOrDefault();
 			}
@@ -360,8 +357,7 @@ namespace NBitcoin.SPV
 			{
 				if(_Group == null)
 					return null;
-				return _Group.NodeConnectionParameters.TemplateBehaviors
-							.OfType<AddressManagerBehavior>()
+				return Enumerable.OfType<AddressManagerBehavior>(_Group.NodeConnectionParameters.TemplateBehaviors)
 							.Select(t => t.AddressManager)
 							.FirstOrDefault();
 			}
@@ -373,8 +369,7 @@ namespace NBitcoin.SPV
 			{
 				if(_Group == null)
 					return null;
-				return _Group.NodeConnectionParameters.TemplateBehaviors
-							.OfType<TrackerBehavior>()
+				return Enumerable.OfType<TrackerBehavior>(_Group.NodeConnectionParameters.TemplateBehaviors)
 							.Select(t => t.Tracker)
 							.FirstOrDefault();
 			}
@@ -650,7 +645,7 @@ namespace NBitcoin.SPV
 
 		private WalletBehavior FindWalletBehavior(NodeBehaviorsCollection behaviors)
 		{
-			return behaviors.OfType<WalletBehavior>().FirstOrDefault(o => o.Wallet == this);
+			return Enumerable.OfType<WalletBehavior>(behaviors).FirstOrDefault(o => o.Wallet == this);
 		}
 
 		void _ListenerTracked_NewOperation(Tracker sender, Tracker.IOperation trackerOperation)
@@ -724,7 +719,7 @@ namespace NBitcoin.SPV
 					return;
 				var progress =
 						nodes
-					   .Select(f => f.Behaviors.Find<TrackerBehavior>())
+					   .Select<Node, TrackerBehavior>(f => f.Behaviors.Find<TrackerBehavior>())
 					   .Where(f => f != null)
 					   .Select(f => f.CurrentProgress)
 					   .Where(p => p != null)

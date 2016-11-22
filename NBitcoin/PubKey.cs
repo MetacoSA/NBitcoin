@@ -1,14 +1,13 @@
-﻿using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using NBitcoin.Stealth;
-using NBitcoin.BouncyCastle.Math;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using nStratis.BouncyCastle.math;
+using nStratis.BouncyCastle.math.ec;
+using nStratis.Crypto;
+using nStratis.DataEncoders;
+using nStratis.Stealth;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public class PubKey : IBitcoinSerializable, IDestination
 	{
@@ -16,7 +15,7 @@ namespace NBitcoin
 		/// Create a new Public key from string
 		/// </summary>
 		public PubKey(string hex)
-			: this(Encoders.Hex.DecodeData(hex))
+			: this((byte[]) Encoders.Hex.DecodeData(hex))
 		{
 
 		}
@@ -327,7 +326,7 @@ namespace NBitcoin
 				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
 
 			q = q.Normalize();
-			var p = new NBitcoin.BouncyCastle.Math.EC.FpPoint(ECKey.CURVE.Curve, q.XCoord, q.YCoord, true);
+			var p = new FpPoint(ECKey.CURVE.Curve, q.XCoord, q.YCoord, true);
 			return new PubKey(p.GetEncoded());
 		}
 

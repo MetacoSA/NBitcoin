@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
+using nStratis.Crypto;
 #if !USEBC
-using System.Security.Cryptography;
 #endif
-using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public class UnsecureRandom : IRandom
 	{

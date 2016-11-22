@@ -1,15 +1,12 @@
-﻿using NBitcoin.DataEncoders;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
-using ooo = NBitcoin.BouncyCastle.Math;
-using System.Reflection;
+using nStratis.DataEncoders;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public class Op
 	{
@@ -314,11 +311,11 @@ namespace NBitcoin
 		internal static Op GetPushOp(BigInteger data)
 #endif
 		{
-			return GetPushOp(Utils.BigIntegerToBytes(data));
+			return GetPushOp((byte[]) Utils.BigIntegerToBytes(data));
 		}
 		public static Op GetPushOp(long value)
 		{
-			return GetPushOp(Utils.BigIntegerToBytes(new BigInteger(value)));
+			return GetPushOp((byte[]) Utils.BigIntegerToBytes(new BigInteger(value)));
 		}
 		public static Op GetPushOp(byte[] data)
 		{

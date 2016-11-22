@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NBitcoin;
-using NBitcoin.DataEncoders;
-using NBitcoin.Stealth;
+using nStratis.DataEncoders;
+using nStratis.Stealth;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	//https://en.bitcoin.it/wiki/Sx/Stealth
 	public class StealthAddressTests

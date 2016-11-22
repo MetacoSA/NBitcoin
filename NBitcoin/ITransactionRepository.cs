@@ -2,7 +2,7 @@
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public interface ITransactionRepository
 	{

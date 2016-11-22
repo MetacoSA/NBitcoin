@@ -1,10 +1,10 @@
-﻿using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using NBitcoin.BouncyCastle.Math;
-using System;
+﻿using System;
 using System.Linq;
+using nStratis.BouncyCastle.math;
+using nStratis.Crypto;
+using nStratis.DataEncoders;
 
-namespace NBitcoin
+namespace nStratis.BIP32
 {
 	/// <summary>
 	/// A private HD key

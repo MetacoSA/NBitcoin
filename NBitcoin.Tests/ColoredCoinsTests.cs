@@ -2,13 +2,12 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using NBitcoin;
-using NBitcoin.DataEncoders;
-using NBitcoin.OpenAsset;
+using nStratis.DataEncoders;
+using nStratis.OpenAsset;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	// ----------------------------------------------------
 	// this tests are not required for the stratis network

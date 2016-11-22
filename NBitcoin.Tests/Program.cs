@@ -1,4 +1,4 @@
-﻿namespace NStratis.Tests
+﻿namespace nStratis.Tests
 {
 	public class Program
 	{

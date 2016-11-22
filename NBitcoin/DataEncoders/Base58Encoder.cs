@@ -1,9 +1,9 @@
-﻿using NBitcoin.Crypto;
-using System;
+﻿using System;
 using System.Linq;
 using System.Numerics;
+using nStratis.Crypto;
 
-namespace NBitcoin.DataEncoders
+namespace nStratis.DataEncoders
 {
 	public class Base58CheckEncoder : Base58Encoder
 	{

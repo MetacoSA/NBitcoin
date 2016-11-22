@@ -1,13 +1,8 @@
-﻿using NBitcoin.DataEncoders;
+﻿using nStratis.DataEncoders;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NBitcoin.RPC
+namespace nStratis.RPC
 {
 	class BlockExplorerFormatter : RawFormatter
 	{
@@ -53,7 +48,7 @@ namespace NBitcoin.RPC
 			for(int i = 0; i < voutCount; i++)
 			{
 				var jsonOut = (JObject)vout[i];
-				var txout = new NBitcoin.TxOut();
+				var txout = new TxOut();
 				tx.Outputs.Add(txout);
 
 				txout.Value = Money.Parse((string)jsonOut.GetValue("value"));

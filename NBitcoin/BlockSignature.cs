@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NBitcoin.DataEncoders;
+﻿using System.Linq;
+using nStratis.DataEncoders;
 
-namespace NBitcoin
+namespace nStratis
 {
 	/// <summary>
 	/// A representation of a block signature.

@@ -4,18 +4,17 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using NBitcoin;
-using NBitcoin.BitcoinCore;
-using NBitcoin.BouncyCastle.Math;
-using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using NBitcoin.OpenAsset;
-using NBitcoin.Policy;
-using NBitcoin.Stealth;
+using nStratis.BitcoinCore;
+using nStratis.BouncyCastle.math;
+using nStratis.Crypto;
+using nStratis.DataEncoders;
+using nStratis.OpenAsset;
+using nStratis.Policy;
+using nStratis.Stealth;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class transaction_tests
 	{
@@ -1962,7 +1961,7 @@ namespace NStratis.Tests
 
 			var expected = new Key(Encoders.Hex.DecodeData("c477f9f65c22cce20657faa5b2d1d8122336f851a508a1ed04e479c34985bf96"), fCompressedIn: false);
 
-			var expectedBigInt = new NBitcoin.BouncyCastle.Math.BigInteger(1, Encoders.Hex.DecodeData("c477f9f65c22cce20657faa5b2d1d8122336f851a508a1ed04e479c34985bf96"));
+			var expectedBigInt = new BigInteger(1, Encoders.Hex.DecodeData("c477f9f65c22cce20657faa5b2d1d8122336f851a508a1ed04e479c34985bf96"));
 			var priv = (z1.Multiply(sig2.S).Subtract(z2.Multiply(sig1.S)).Mod(n)).Divide(sig1.R.Multiply(sig1.S.Subtract(sig2.S)).Mod(n));
 			Assert.Equal(expectedBigInt.ToString(), priv.ToString());
 
@@ -1983,7 +1982,7 @@ namespace NStratis.Tests
 
 		private ECDSASignature ToPositive(ECDSASignature sig)
 		{
-			return new ECDSASignature(new NBitcoin.BouncyCastle.Math.BigInteger(1, sig.R.ToByteArray()), new NBitcoin.BouncyCastle.Math.BigInteger(1, sig.S.ToByteArray()));
+			return new ECDSASignature(new BigInteger(1, sig.R.ToByteArray()), new BigInteger(1, sig.S.ToByteArray()));
 		}
 
 		public enum HashModification

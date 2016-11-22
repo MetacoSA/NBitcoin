@@ -1,15 +1,14 @@
 ﻿#if !NOSOCKET
-using NBitcoin.Protocol;
-using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using nStratis.Protocol;
+using nStratis.Protocol.Behaviors;
+using nStratis.Protocol.Payloads;
 
-namespace NBitcoin.SPV
+namespace nStratis.SPV
 {
 	public enum FilterState
 	{

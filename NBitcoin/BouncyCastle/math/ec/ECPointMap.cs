@@ -1,4 +1,4 @@
-﻿namespace NBitcoin.BouncyCastle.Math.EC
+﻿namespace nStratis.BouncyCastle.math.ec
 {
 	internal interface ECPointMap
 	{

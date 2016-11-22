@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NBitcoin.BitcoinCore
+namespace nStratis.BitcoinCore
 {
 	public class BlockStore : Store<StoredBlock, Block>
 	{

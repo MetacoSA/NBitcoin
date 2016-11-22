@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace NBitcoin.BitcoinCore
+namespace nStratis.BitcoinCore
 {
 	public abstract class Store<TStoredItem, TItem>
 		where TStoredItem : StoredItem<TItem>

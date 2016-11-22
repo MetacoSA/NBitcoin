@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NBitcoin.Policy
+namespace nStratis.Policy
 {
 	public class StandardTransactionPolicy : ITransactionPolicy
 	{
 		public StandardTransactionPolicy()
 		{
-			ScriptVerify = NBitcoin.ScriptVerify.Standard;
+			ScriptVerify = nStratis.ScriptVerify.Standard;
 			MaxTransactionSize = 100000;
 			MaxTxFee = new FeeRate(Money.Coins(0.1m));
 			MinRelayTxFee = new FeeRate(Money.Satoshis(5000));

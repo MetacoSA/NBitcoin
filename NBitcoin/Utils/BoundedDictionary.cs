@@ -1,12 +1,8 @@
 ﻿#if !NOSOCKET
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public class BoundedDictionary<TKey, TValue>
 	{

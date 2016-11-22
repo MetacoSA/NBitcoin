@@ -1,17 +1,14 @@
-﻿using NBitcoin.BuilderExtensions;
-using NBitcoin.DataEncoders;
-using NBitcoin.OpenAsset;
-using NBitcoin.Policy;
-using NBitcoin.Stealth;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.ExceptionServices;
 using System.Text;
-using System.Threading.Tasks;
-using Builder = System.Func<NBitcoin.TransactionBuilder.TransactionBuildingContext, NBitcoin.IMoney>;
+using nStratis.BuilderExtensions;
+using nStratis.OpenAsset;
+using nStratis.Policy;
+using nStratis.Stealth;
+using Builder = System.Func<nStratis.TransactionBuilder.TransactionBuildingContext, nStratis.IMoney>;
 
-namespace NBitcoin
+namespace nStratis
 {
 	[Flags]
 	public enum ChangeType : int
@@ -902,7 +899,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="sign">True if signs all inputs with the available keys</param>
 		/// <returns>The transaction</returns>
-		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
+		/// <exception cref="NotEnoughFundsException">Not enough funds are available</exception>
 		public Transaction BuildTransaction(bool sign)
 		{
 			return BuildTransaction(sign, SigHash.All);
@@ -914,7 +911,7 @@ namespace NBitcoin
 		/// <param name="sign">True if signs all inputs with the available keys</param>
 		/// <param name="sigHash">The type of signature</param>
 		/// <returns>The transaction</returns>
-		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
+		/// <exception cref="NotEnoughFundsException">Not enough funds are available</exception>
 		public Transaction BuildTransaction(bool sign, SigHash sigHash)
 		{
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);

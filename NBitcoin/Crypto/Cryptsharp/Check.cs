@@ -19,7 +19,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 using System;
 
-namespace NBitcoin.Crypto.Internal
+namespace nStratis.Crypto.Cryptsharp
 {
 	static class Check
 	{

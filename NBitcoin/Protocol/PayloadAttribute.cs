@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
-namespace NBitcoin.Protocol
+namespace nStratis.Protocol
 {
 	[AttributeUsage(AttributeTargets.Class)]
 	public class PayloadAttribute : Attribute

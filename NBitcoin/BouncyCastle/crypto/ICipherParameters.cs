@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.Crypto
+namespace nStratis.BouncyCastle.crypto
 {
 	/**
      * all parameter classes implement this.

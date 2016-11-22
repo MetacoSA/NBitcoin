@@ -1,11 +1,10 @@
 using System;
 using System.IO;
 using System.Text;
+using nStratis.BouncyCastle.math;
+using nStratis.BouncyCastle.util;
 
-using NBitcoin.BouncyCastle.Math;
-using NBitcoin.BouncyCastle.Utilities;
-
-namespace NBitcoin.BouncyCastle.Asn1
+namespace nStratis.BouncyCastle.asn1
 {
 	internal class DerObjectIdentifier
 		: Asn1Object

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NBitcoin.Protocol
+﻿namespace nStratis.Protocol.Payloads
 {
 	[Payload("pong")]
 	public class PongPayload : Payload

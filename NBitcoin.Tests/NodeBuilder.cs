@@ -10,11 +10,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NBitcoin;
-using NBitcoin.Protocol;
-using NBitcoin.RPC;
+using nStratis.Protocol;
+using nStratis.Protocol.Payloads;
+using nStratis.RPC;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public enum CoreNodeState
 	{

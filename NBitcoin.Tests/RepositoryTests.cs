@@ -6,13 +6,12 @@ using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using NBitcoin;
-using NBitcoin.BitcoinCore;
-using NBitcoin.DataEncoders;
-using NBitcoin.RPC;
+using nStratis.BitcoinCore;
+using nStratis.DataEncoders;
+using nStratis.RPC;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class RepositoryTests
 	{

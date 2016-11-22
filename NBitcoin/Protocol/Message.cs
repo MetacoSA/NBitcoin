@@ -1,18 +1,14 @@
-﻿using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-#if !NOSOCKET
 using System.Net.Sockets;
-#endif
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using nStratis.Crypto;
+using nStratis.DataEncoders;
+#if !NOSOCKET
+#endif
 
-namespace NBitcoin.Protocol
+namespace nStratis.Protocol
 {
 	public class Message : IBitcoinSerializable
 	{

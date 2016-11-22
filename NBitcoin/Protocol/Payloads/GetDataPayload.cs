@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace NBitcoin.Protocol
+namespace nStratis.Protocol.Payloads
 {
 	/// <summary>
 	/// Ask for transaction, block or merkle block

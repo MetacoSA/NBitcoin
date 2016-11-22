@@ -1,13 +1,12 @@
-﻿using System.ComponentModel;
-using System.Globalization;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using NBitcoin.OpenAsset;
+using nStratis.OpenAsset;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public static class MoneyExtensions
 	{

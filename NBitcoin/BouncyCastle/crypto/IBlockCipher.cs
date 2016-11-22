@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.Crypto
+namespace nStratis.BouncyCastle.crypto
 {
 	/// <remarks>Base interface for a symmetric key block cipher.</remarks>
 	internal interface IBlockCipher

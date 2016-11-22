@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.Crypto.Utilities
+namespace nStratis.BouncyCastle.crypto.util
 {
 	internal sealed class Pack
 	{

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using NBitcoin;
-using NBitcoin.DataEncoders;
+using nStratis.DataEncoders;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	class TestUtils
 	{

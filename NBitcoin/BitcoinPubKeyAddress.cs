@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NBitcoin
+﻿namespace nStratis
 {
 	/// <summary>
 	/// Base58 representation of a pubkey hash and base class for the representation of a script hash

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBitcoin", "NBitcoin\NBitcoin.csproj", "{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nStratis", "NBitcoin\nStratis.csproj", "{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NStratis.Tests", "NBitcoin.Tests\NStratis.Tests.csproj", "{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nStratis.Tests", "NBitcoin.Tests\nStratis.Tests.csproj", "{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Build", "Build\Build.csproj", "{FCD2502B-440B-4C39-8DD5-1052DEBBB0E3}"
 EndProject

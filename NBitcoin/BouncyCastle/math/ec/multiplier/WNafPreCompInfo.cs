@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
+namespace nStratis.BouncyCastle.math.ec.multiplier
 {
 	/**
     * Class holding precomputation data for the WNAF (Window Non-Adjacent Form)

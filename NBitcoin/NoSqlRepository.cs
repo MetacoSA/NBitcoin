@@ -1,13 +1,10 @@
-﻿using NBitcoin.DataEncoders;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public abstract class NoSqlRepository
 	{

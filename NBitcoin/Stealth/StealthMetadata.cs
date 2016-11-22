@@ -1,12 +1,8 @@
-﻿using NBitcoin.Crypto;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using nStratis.Crypto;
 
-namespace NBitcoin.Stealth
+namespace nStratis.Stealth
 {
 	public class StealthMetadata
 	{

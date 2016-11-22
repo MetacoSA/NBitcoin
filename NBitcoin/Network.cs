@@ -1,17 +1,18 @@
-﻿using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using NBitcoin.Stealth;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using nStratis.BIP32;
+using nStratis.BIP38;
+using nStratis.DataEncoders;
+using nStratis.OpenAsset;
+using nStratis.Protocol;
+using nStratis.Stealth;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public class DNSSeedData
 	{
@@ -971,9 +972,9 @@ namespace NBitcoin
 			return new BitcoinColoredAddress(base58, this);
 		}
 
-		public NBitcoin.OpenAsset.BitcoinAssetId CreateAssetId(string base58)
+		public BitcoinAssetId CreateAssetId(string base58)
 		{
-			return new NBitcoin.OpenAsset.BitcoinAssetId(base58, this);
+			return new BitcoinAssetId(base58, this);
 		}
 
 		public BitcoinStealthAddress CreateStealthAddress(string base58)

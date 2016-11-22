@@ -5,16 +5,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using NBitcoin;
-using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
+using nStratis.DataEncoders;
+using nStratis.Protocol;
 using Newtonsoft.Json.Linq;
 using Xunit;
+
 #if !NOCONSENSUSLIB
 using System.Net.Http;
 #endif
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class script_tests
 	{

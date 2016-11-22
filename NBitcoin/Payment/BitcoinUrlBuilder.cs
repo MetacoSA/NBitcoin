@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-#if !NOHTTPCLIENT
 using System.Net.Http;
 using System.Net.Http.Headers;
-#endif
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.NBitcoin;
-using System.Runtime.ExceptionServices;
+#if !NOHTTPCLIENT
+#endif
 
-namespace NBitcoin.Payment
+namespace nStratis.Payment
 {
 	/// <summary>
 	/// https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki

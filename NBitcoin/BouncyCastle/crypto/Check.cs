@@ -1,4 +1,4 @@
-﻿namespace NBitcoin.BouncyCastle.Crypto
+﻿namespace nStratis.BouncyCastle.crypto
 {
 	internal class Check
 	{

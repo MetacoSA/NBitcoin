@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using NBitcoin;
-using NBitcoin.DataEncoders;
+using nStratis.BIP39;
+using nStratis.DataEncoders;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class bip39_tests
 	{

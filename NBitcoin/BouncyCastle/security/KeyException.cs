@@ -1,6 +1,6 @@
 using System;
 
-namespace NBitcoin.BouncyCastle.Security
+namespace nStratis.BouncyCastle.security
 {
 	internal class KeyException : GeneralSecurityException
 	{

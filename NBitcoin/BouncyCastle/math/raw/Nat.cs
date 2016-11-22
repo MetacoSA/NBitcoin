@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using nStratis.BouncyCastle.crypto.util;
 
-using NBitcoin.BouncyCastle.Crypto.Utilities;
-
-namespace NBitcoin.BouncyCastle.Math.Raw
+namespace nStratis.BouncyCastle.math.raw
 {
 	internal abstract class Nat
 	{

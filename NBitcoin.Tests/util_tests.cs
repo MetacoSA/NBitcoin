@@ -3,14 +3,15 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using NBitcoin;
-using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using NBitcoin.OpenAsset;
+using nStratis.BIP32;
+using nStratis.BIP38;
+using nStratis.Crypto.Cryptsharp;
+using nStratis.DataEncoders;
+using nStratis.OpenAsset;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class util_tests
 	{

@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
+namespace nStratis.BouncyCastle.math.ec.multiplier
 {
 	/**
     * Interface for classes encapsulating a point multiplication algorithm

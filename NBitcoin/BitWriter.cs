@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
+using nStratis.BIP39;
 
-namespace NBitcoin
+namespace nStratis
 {
 	class BitReader
 	{

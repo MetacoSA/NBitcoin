@@ -1,15 +1,11 @@
 ﻿#if !NOSOCKET
-using NBitcoin.Protocol.Behaviors;
 using System;
-using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using nStratis.Protocol.Behaviors;
+using nStratis.Protocol.Payloads;
 
-namespace NBitcoin.Protocol
+namespace nStratis.Protocol
 {
 	public class NodeConnectionParameters
 	{

@@ -1,11 +1,8 @@
 ﻿#if !NOFILEIO
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NBitcoin.BitcoinCore
+namespace nStratis.BitcoinCore
 {
 	public class IndexedBlockUndoStore : IndexedStore<StoredItem<BlockUndo>, BlockUndo>
 	{

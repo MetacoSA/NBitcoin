@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
-using NBitcoin.Protocol;
-using NBitcoin.Protocol.Payloads;
+using nStratis.Protocol.Payloads;
 using Newtonsoft.Json.Linq;
-using System.Runtime.ExceptionServices;
 
-namespace NBitcoin.RPC
+namespace nStratis.RPC
 {
 	public enum RestResponseFormat
 	{

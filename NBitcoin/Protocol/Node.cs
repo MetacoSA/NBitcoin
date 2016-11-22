@@ -1,6 +1,4 @@
 ﻿#if !NOSOCKET
-using NBitcoin.Protocol.Behaviors;
-using NBitcoin.Protocol.Filters;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,11 +9,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using nStratis.Protocol.Behaviors;
+using nStratis.Protocol.Filters;
+using nStratis.Protocol.Payloads;
 
-namespace NBitcoin.Protocol
+namespace nStratis.Protocol
 {
 	public enum NodeState : int
 	{
@@ -416,14 +416,14 @@ namespace NBitcoin.Protocol
 				}
 			});
 
-			var enumerator = Filters.Concat(new[] { last }).GetEnumerator();
+			var enumerator = Enumerable.Concat<INodeFilter>(Filters, new[] { last }).GetEnumerator();
 			FireFilters(enumerator, message);
 		}
 
 
 		private void OnSendingMessage(Payload payload, Action final)
 		{
-			var enumerator = Filters.Concat(new[] { new ActionFilter(null, (n, p, a) => final()) }).GetEnumerator();
+			var enumerator = Enumerable.Concat<INodeFilter>(Filters, new[] { new ActionFilter(null, (n, p, a) => final()) }).GetEnumerator();
 			FireFilters(enumerator, payload);
 		}
 
@@ -565,7 +565,7 @@ namespace NBitcoin.Protocol
 		public static Node ConnectToLocal(Network network,
 								NodeConnectionParameters parameters)
 		{
-			return Connect(network, Utils.ParseIpEndpoint("localhost", network.DefaultPort), parameters);
+			return Connect(network, (IPEndPoint) Utils.ParseIpEndpoint("localhost", network.DefaultPort), parameters);
 		}
 
 		public static Node ConnectToLocal(Network network,
@@ -584,7 +584,7 @@ namespace NBitcoin.Protocol
 		public static Node Connect(Network network,
 								 string endpoint, NodeConnectionParameters parameters)
 		{
-			return Connect(network, Utils.ParseIpEndpoint(endpoint, network.DefaultPort), parameters);
+			return Connect(network, (IPEndPoint) Utils.ParseIpEndpoint(endpoint, network.DefaultPort), parameters);
 		}
 
 		public static Node Connect(Network network,
@@ -593,7 +593,7 @@ namespace NBitcoin.Protocol
 								bool isRelay = true,
 								CancellationToken cancellation = default(CancellationToken))
 		{
-			return Connect(network, Utils.ParseIpEndpoint(endpoint, network.DefaultPort), myVersion, isRelay, cancellation);
+			return Connect(network, (IPEndPoint) Utils.ParseIpEndpoint(endpoint, network.DefaultPort), myVersion, isRelay, cancellation);
 		}
 
 		public static Node Connect(Network network,

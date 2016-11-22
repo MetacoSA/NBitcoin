@@ -3,12 +3,11 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NBitcoin;
 using System.Threading;
+using System.Threading.Tasks;
+using nStratis.Protocol.Payloads;
 
-namespace NBitcoin.Protocol.Behaviors
+namespace nStratis.Protocol.Behaviors
 {
 	public delegate void TransactionBroadcastedDelegate(Transaction transaction);
 	public delegate void TransactionRejectedDelegate(Transaction transaction, RejectPayload reject);
@@ -56,7 +55,7 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 		public static BroadcastHub GetBroadcastHub(NodeBehaviorsCollection behaviors)
 		{
-			return behaviors.OfType<BroadcastHubBehavior>().Select(c => c.BroadcastHub).FirstOrDefault();
+			return Enumerable.OfType<BroadcastHubBehavior>(behaviors).Select(c => c.BroadcastHub).FirstOrDefault();
 		}
 
 		internal ConcurrentDictionary<uint256, Transaction> BroadcastedTransaction = new ConcurrentDictionary<uint256, Transaction>();
@@ -75,7 +74,7 @@ namespace NBitcoin.Protocol.Behaviors
 		internal void OnBroadcastTransaction(Transaction transaction)
 		{
 			var nodes = Nodes
-						.Select(n => n.Key.Behaviors.Find<BroadcastHubBehavior>())
+						.Select<KeyValuePair<Node, Node>, BroadcastHubBehavior>(n => n.Key.Behaviors.Find<BroadcastHubBehavior>())
 						.Where(n => n != null)
 						.ToArray();
 			foreach(var node in nodes)

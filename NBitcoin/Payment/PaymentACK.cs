@@ -1,17 +1,15 @@
-﻿using NBitcoin.Protobuf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-#if !NOHTTPCLIENT
 using System.Net.Http;
 using System.Net.Http.Headers;
-#endif
-using System.Text;
 using System.Threading.Tasks;
+using nStratis.Protobuf;
+#if !NOHTTPCLIENT
+#endif
 
-namespace NBitcoin.Payment
+namespace nStratis.Payment
 {
 	public class PaymentACK
 	{

@@ -1,9 +1,9 @@
 ﻿using System;
-using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
 using System.Linq;
+using nStratis.Crypto;
+using nStratis.DataEncoders;
 
-namespace NBitcoin
+namespace nStratis.BIP32
 {
 	/// <summary>
 	/// A public HD key

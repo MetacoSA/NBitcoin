@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.Asn1
+namespace nStratis.BouncyCastle.asn1
 {
 	internal abstract class Asn1Encodable
 		: IAsn1Convertible

@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace NBitcoin.BouncyCastle.Utilities.Encoders
+namespace nStratis.BouncyCastle.util.encoders
 {
 	internal class HexEncoder
 		: IEncoder

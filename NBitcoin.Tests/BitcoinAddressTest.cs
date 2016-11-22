@@ -1,8 +1,7 @@
 ﻿using System;
-using NBitcoin;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class BitcoinAddressTest
 	{

@@ -1,11 +1,10 @@
-﻿using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using NBitcoin.BouncyCastle.Math;
-using NBitcoin.BouncyCastle.Math.EC;
-using System;
+﻿using System;
 using System.Linq;
+using nStratis.BouncyCastle.math;
+using nStratis.BouncyCastle.math.ec;
+using nStratis.Crypto;
 
-namespace NBitcoin
+namespace nStratis.BIP38
 {
 	public class BitcoinConfirmationCode : Base58Data
 	{

@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace nStratis
 {
 	/// <summary>
 	/// Thread safe class representing a chain of headers from genesis

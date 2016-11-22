@@ -1,13 +1,9 @@
-﻿using NBitcoin.BouncyCastle.Asn1;
-using NBitcoin.BouncyCastle.Math;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using nStratis.BouncyCastle.asn1;
+using nStratis.BouncyCastle.math;
 
-namespace NBitcoin.Crypto
+namespace nStratis.Crypto
 {
 	public class ECDSASignature
 	{

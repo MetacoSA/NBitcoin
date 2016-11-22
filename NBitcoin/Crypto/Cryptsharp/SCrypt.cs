@@ -17,18 +17,14 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 #endregion
 
-using NBitcoin.BouncyCastle.Crypto.Parameters;
-using NBitcoin.BouncyCastle.Security;
-using NBitcoin.Crypto.Internal;
 using System;
-#if !USEBC
 using System.Security.Cryptography;
-#endif
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+#if !USEBC
+#endif
 
-namespace NBitcoin.Crypto
+namespace nStratis.Crypto.Cryptsharp
 {
 	// See http://www.tarsnap.com/scrypt/scrypt.pdf for algorithm details.
 	// TODO: Test on a big-endian machine and make sure it works.
@@ -354,12 +350,12 @@ namespace NBitcoin.Crypto
 		//•Use of the parallelization parameter provides a modest opportunity for speedups in environments where concurrent threading is available - such environments would be selected for processes that must handle bulk quantities of encryption/decryption operations. Estimated time for an operation is in the tens or hundreds of milliseconds.
 		public static byte[] BitcoinComputeDerivedKey(byte[] password, byte[] salt, int outputCount = 64)
 		{
-			return NBitcoin.Crypto.SCrypt.ComputeDerivedKey(password, salt, 16384, 8, 8, 8, outputCount);
+			return SCrypt.ComputeDerivedKey(password, salt, 16384, 8, 8, 8, outputCount);
 		}
 
 		public static byte[] BitcoinComputeDerivedKey2(byte[] password, byte[] salt, int outputCount = 64)
 		{
-			return NBitcoin.Crypto.SCrypt.ComputeDerivedKey(password, salt, 1024, 1, 1, 1, outputCount);
+			return SCrypt.ComputeDerivedKey(password, salt, 1024, 1, 1, 1, outputCount);
 		}
 
 		public static byte[] BitcoinComputeDerivedKey(string password, byte[] salt)

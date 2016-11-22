@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public class SequenceLock
 	{
@@ -14,7 +10,7 @@ namespace NBitcoin
 			MinTime = minTime;
 		}
 		public SequenceLock(int minHeight, long minTime)
-			: this(minHeight, Utils.UnixTimeToDateTime(minTime))
+			: this(minHeight, (DateTimeOffset) Utils.UnixTimeToDateTime(minTime))
 		{
 		}
 		public int MinHeight

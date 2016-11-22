@@ -7,13 +7,15 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using NBitcoin;
-using NBitcoin.Protocol;
-using NBitcoin.Protocol.Behaviors;
-using NBitcoin.SPV;
+using nStratis.BIP32;
+using nStratis.Policy;
+using nStratis.Protocol;
+using nStratis.Protocol.Behaviors;
+using nStratis.Protocol.Payloads;
+using nStratis.SPV;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class BlockchainBuilder
 	{
@@ -362,7 +364,7 @@ namespace NStratis.Tests
 				var txBuilder = new TransactionBuilder();
 				var tx =
 					txBuilder
-					.SetTransactionPolicy(new NBitcoin.Policy.StandardTransactionPolicy()
+					.SetTransactionPolicy(new StandardTransactionPolicy()
 					{
 						MinRelayTxFee = new FeeRate(0)
 					})
@@ -429,7 +431,7 @@ namespace NStratis.Tests
 				txBuilder = new TransactionBuilder();
 				tx =
 					txBuilder
-					.SetTransactionPolicy(new NBitcoin.Policy.StandardTransactionPolicy()
+					.SetTransactionPolicy(new StandardTransactionPolicy()
 					{
 						MinRelayTxFee = new FeeRate(0)
 					})

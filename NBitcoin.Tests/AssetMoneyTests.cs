@@ -1,7 +1,8 @@
 ﻿using System;
+using nStratis.OpenAsset;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	public class AssetMoneyTests
 	{
@@ -9,8 +10,8 @@ namespace NStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void AssetMoneyToStringTest()
 		{
-			NBitcoin.OpenAsset.AssetId assetId = new NBitcoin.OpenAsset.AssetId("8f316d9a09");
-			NBitcoin.OpenAsset.AssetMoney assetMoney = new NBitcoin.OpenAsset.AssetMoney(assetId, 1);
+			AssetId assetId = new AssetId("8f316d9a09");
+			AssetMoney assetMoney = new AssetMoney(assetId, 1);
 
 			String actual = assetMoney.ToString();
 			Assert.Equal("1-8f316d9a09", actual);
@@ -20,10 +21,10 @@ namespace NStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void AssetMoneyMultiply()
 		{
-			NBitcoin.OpenAsset.AssetId assetId = new NBitcoin.OpenAsset.AssetId("8f316d9a09");
-			NBitcoin.OpenAsset.AssetMoney assetMoney = new NBitcoin.OpenAsset.AssetMoney(assetId, 2);
+			AssetId assetId = new AssetId("8f316d9a09");
+			AssetMoney assetMoney = new AssetMoney(assetId, 2);
 
-			NBitcoin.OpenAsset.AssetMoney actual = assetMoney * 2;
+			AssetMoney actual = assetMoney * 2;
 
 			Assert.Equal(4, actual.Quantity);
 
@@ -35,9 +36,9 @@ namespace NStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void AssetMoneyGreaterThan()
 		{
-			NBitcoin.OpenAsset.AssetId assetId = new NBitcoin.OpenAsset.AssetId("8f316d9a09");
-			NBitcoin.OpenAsset.AssetMoney smallAssetMoney = new NBitcoin.OpenAsset.AssetMoney(assetId, 2);
-			NBitcoin.OpenAsset.AssetMoney largeAssetMoney = new NBitcoin.OpenAsset.AssetMoney(assetId, 5);
+			AssetId assetId = new AssetId("8f316d9a09");
+			AssetMoney smallAssetMoney = new AssetMoney(assetId, 2);
+			AssetMoney largeAssetMoney = new AssetMoney(assetId, 5);
 
 			Assert.True(largeAssetMoney > smallAssetMoney);
 			Assert.False(smallAssetMoney > largeAssetMoney);
@@ -47,9 +48,9 @@ namespace NStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void AssetMoneyLessThan()
 		{
-			NBitcoin.OpenAsset.AssetId assetId = new NBitcoin.OpenAsset.AssetId("8f316d9a09");
-			NBitcoin.OpenAsset.AssetMoney smallAssetMoney = new NBitcoin.OpenAsset.AssetMoney(assetId, 2);
-			NBitcoin.OpenAsset.AssetMoney largeAssetMoney = new NBitcoin.OpenAsset.AssetMoney(assetId, 5);
+			AssetId assetId = new AssetId("8f316d9a09");
+			AssetMoney smallAssetMoney = new AssetMoney(assetId, 2);
+			AssetMoney largeAssetMoney = new AssetMoney(assetId, 5);
 
 			Assert.True(smallAssetMoney < largeAssetMoney);
 			Assert.False(largeAssetMoney < smallAssetMoney);

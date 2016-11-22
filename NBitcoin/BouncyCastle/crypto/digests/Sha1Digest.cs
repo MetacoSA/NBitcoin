@@ -1,9 +1,8 @@
 using System;
+using nStratis.BouncyCastle.crypto.util;
+using nStratis.BouncyCastle.util;
 
-using NBitcoin.BouncyCastle.Crypto.Utilities;
-using NBitcoin.BouncyCastle.Utilities;
-
-namespace NBitcoin.BouncyCastle.Crypto.Digests
+namespace nStratis.BouncyCastle.crypto.digests
 {
 
 	/**

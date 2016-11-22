@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using NBitcoin;
-using NBitcoin.Crypto;
+using nStratis.Crypto;
 using Xunit;
 
-namespace NStratis.Tests
+namespace nStratis.Tests
 {
 	class AssertEx
 	{

@@ -1,13 +1,7 @@
-﻿using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using nStratis.DataEncoders;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public abstract class TxDestination : IDestination
 	{
@@ -208,7 +202,7 @@ namespace NBitcoin
 		}
 
 		public WitScriptId(Script script)
-			: this(Hashes.SHA256(script._Script))
+			: this((byte[]) Crypto.Hashes.SHA256(script._Script))
 		{
 		}
 
@@ -252,7 +246,7 @@ namespace NBitcoin
 		}
 
 		public ScriptId(Script script)
-			: this(Hashes.Hash160(script._Script))
+			: this((uint160)Crypto.Hashes.Hash160(script._Script))
 		{
 		}
 

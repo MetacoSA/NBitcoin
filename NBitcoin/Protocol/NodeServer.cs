@@ -1,19 +1,12 @@
 ﻿#if !NOSOCKET
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
-using NBitcoin.BitcoinCore;
+using nStratis.Protocol.Payloads;
 
-namespace NBitcoin.Protocol
+namespace nStratis.Protocol
 {
 	public delegate void NodeServerNodeEventHandler(NodeServer sender, Node node);
 	public delegate void NodeServerMessageEventHandler(NodeServer sender, IncomingMessage message);
