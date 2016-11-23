@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NETCORE
+using System;
 
 namespace HashLib.Crypto.BuildIn
 {
@@ -10,3 +11,4 @@ namespace HashLib.Crypto.BuildIn
         }
     }
 }
+#endif

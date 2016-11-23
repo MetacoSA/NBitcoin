@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Security;
-using System.Security.Cryptography;
 using System.Text;
 using nStratis.BouncyCastle.math;
 using nStratis.Crypto;

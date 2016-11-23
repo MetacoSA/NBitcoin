@@ -24,7 +24,8 @@ namespace HashLib
 
         static Hashes()
         {
-            All = (from hf in Assembly.GetAssembly(typeof(IHash)).GetTypes()
+#if !NETCORE
+			All = (from hf in Assembly.GetAssembly(typeof(IHash)).GetTypes()
                    where hf.IsClass
                    where !hf.IsAbstract
                    where hf != typeof(HMACNotBuildInAdapter)
@@ -39,7 +40,8 @@ namespace HashLib
                    select hf).ToList().AsReadOnly();
 
             var x2 = new Type[] 
-            { 
+            {
+
                 typeof(HashLib.Crypto.BuildIn.SHA1Cng), 
                 typeof(HashLib.Crypto.BuildIn.SHA1Managed), 
                 typeof(HashLib.Crypto.BuildIn.SHA256Cng), 
@@ -48,7 +50,7 @@ namespace HashLib
                 typeof(HashLib.Crypto.BuildIn.SHA384Managed), 
                 typeof(HashLib.Crypto.BuildIn.SHA512Cng), 
                 typeof(HashLib.Crypto.BuildIn.SHA512Managed), 
-                typeof(HashLib.Crypto.MD5),
+			typeof(HashLib.Crypto.MD5),
                 typeof(HashLib.Crypto.RIPEMD160),
                 typeof(HashLib.Crypto.SHA1),
                 typeof(HashLib.Crypto.SHA256),
@@ -108,6 +110,8 @@ namespace HashLib
             HasHMACBuildIn = (from hf in CryptoBuildIn
                               where hf.IsImplementInterface(typeof(IHasHMACBuildIn))
                               select hf).ToList().AsReadOnly();
-        }
-    }
+#endif
+
+		}
+	}
 }

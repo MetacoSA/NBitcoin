@@ -51,22 +51,28 @@ namespace HashLib
 
         public override HashResult TransformFinal()
         {
+#if !NETCORE
             m_hmac.TransformFinalBlock(EMPTY, 0, 0);
             byte[] result = m_hmac.Hash;
+
 
             Debug.Assert(result.Length == HashSize);
 
             Initialize();
             return new HashResult(result);
-        }
+#else
+			return null;
+#endif
+		}
 
-        public override void TransformBytes(byte[] a_data, int a_index, int a_length)
+		public override void TransformBytes(byte[] a_data, int a_index, int a_length)
         {
             Debug.Assert(a_index >= 0);
             Debug.Assert(a_length >= 0);
             Debug.Assert(a_index + a_length <= a_data.Length);
-
+#if !NETCORE
             m_hmac.TransformBlock(a_data, a_index, a_length, null, 0);
+#endif
         }
 
         public override string Name

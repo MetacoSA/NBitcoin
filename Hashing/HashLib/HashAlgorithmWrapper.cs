@@ -10,7 +10,9 @@ namespace HashLib
         public HashAlgorithmWrapper(IHash a_hash)
         {
             m_hash = a_hash;
+#if !NETCORE
             HashSizeValue = a_hash.HashSize * 8;
+#endif
         }
 
         protected override void HashCore(byte[] array, int ibStart, int cbSize)
@@ -22,10 +24,15 @@ namespace HashLib
             m_hash.TransformBytes(array, ibStart, cbSize);
         }
 
+		
         protected override byte[] HashFinal()
         {
-            HashValue = m_hash.TransformFinal().GetBytes();
-            return HashValue;
+	        byte[] ret = null;
+#if !NETCORE
+	        ret = m_hash.TransformFinal().GetBytes();
+            HashValue = ret;
+#endif
+			return ret;
         }
 
         public override void Initialize()

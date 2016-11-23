@@ -194,7 +194,7 @@ namespace nStratis.Tests
 			})
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
-				var cert = File.ReadAllBytes("Data/NicolasDorierMerchant.pfx");
+				var cert = File.ReadAllBytes("Data/PaymentMerchant.pfx");
 				CanCreatePaymentRequestCore(cert);
 #if WIN
 				if(provider is WindowsCertificateServiceProvider)
@@ -306,7 +306,7 @@ namespace nStratis.Tests
 					PaymentRequest request = new PaymentRequest();
 					request.Details.MerchantData = BitConverter.GetBytes(businessId);
 					request.Details.PaymentUrl = new Uri(_Prefix + "?id=" + businessId + "&type=Payment");
-					request.Sign(File.ReadAllBytes("data/NicolasDorierMerchant.pfx"), PKIType.X509SHA256);
+					request.Sign(File.ReadAllBytes("data/PaymentMerchant.pfx"), PKIType.X509SHA256);
 					request.WriteTo(context.Response.OutputStream);
 				}
 				else if(type == "Payment")

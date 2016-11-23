@@ -13,22 +13,30 @@ namespace HashLib
     {
         public static bool IsDerivedFrom(this Type a_type, Type a_baseType)
         {
+#if !NETCORE
             Debug.Assert(a_type != null);
             Debug.Assert(a_baseType != null);
             Debug.Assert(a_type.IsClass);
             Debug.Assert(a_baseType.IsClass);
 
             return a_baseType.IsAssignableFrom(a_type);
-        }
+#else
+			return false;
+#endif
+		}
 
-        public static bool IsImplementInterface(this Type a_type, Type a_interfaceType)
+		public static bool IsImplementInterface(this Type a_type, Type a_interfaceType)
         {
-            Debug.Assert(a_type != null);
+#if !NETCORE
+			Debug.Assert(a_type != null);
             Debug.Assert(a_interfaceType != null);
             Debug.Assert(a_type.IsClass || a_type.IsInterface || a_type.IsValueType);
             Debug.Assert(a_interfaceType.IsInterface);
 
             return a_interfaceType.IsAssignableFrom(a_type);
-        }
+#else
+	        return false;
+#endif
+		}
     }
 }

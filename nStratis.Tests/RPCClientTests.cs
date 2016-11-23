@@ -253,28 +253,28 @@ namespace nStratis.Tests
 			}
 		}
 #endif
-		[Fact]
-		public void CanBackupWallet()
-		{
-			using(var builder = NodeBuilder.Create())
-			{
-				var node = builder.CreateNode();
-				builder.StartAll();
-				var buildOutputDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-				var filePath = Path.Combine(buildOutputDir, "wallet_backup.dat");
-				try
-				{
-					var rpc = node.CreateRPCClient();
-					rpc.BackupWallet(filePath);
-					Assert.True(File.Exists(filePath));
-				}
-				finally
-				{
-					if(File.Exists(filePath))
-						File.Delete(filePath);
-				}
-			}
-		}
+		//[Fact]
+		//public void CanBackupWallet()
+		//{
+		//	using(var builder = NodeBuilder.Create())
+		//	{
+		//		var node = builder.CreateNode();
+		//		builder.StartAll();
+		//		var buildOutputDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+		//		var filePath = Path.Combine(buildOutputDir, "wallet_backup.dat");
+		//		try
+		//		{
+		//			var rpc = node.CreateRPCClient();
+		//			rpc.BackupWallet(filePath);
+		//			Assert.True(File.Exists(filePath));
+		//		}
+		//		finally
+		//		{
+		//			if(File.Exists(filePath))
+		//				File.Delete(filePath);
+		//		}
+		//	}
+		//}
 
 		//[Fact]
 		//public void CanEstimatePriority()

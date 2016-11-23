@@ -18,10 +18,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #endregion
 
 using System;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 #if !USEBC
+using System.Security.Cryptography;
 #endif
 
 namespace nStratis.Crypto.Cryptsharp
@@ -152,8 +152,8 @@ namespace nStratis.Crypto.Cryptsharp
 									   int cost, int blockSize, int parallel, int? maxThreads)
 		{
 			byte[] B = GetEffectivePbkdf2Salt(key, salt, cost, blockSize, parallel, maxThreads);
-			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest());
-			mac.Init(new KeyParameter(key));
+			var mac = new nStratis.BouncyCastle.crypto.macs.HMac(new nStratis.BouncyCastle.crypto.digests.Sha256Digest());
+			mac.Init(new nStratis.BouncyCastle.crypto.parameters.KeyParameter(key));
 			Pbkdf2 kdf = new Pbkdf2(mac, B, 1);
 			Security.Clear(B);
 			return kdf;
@@ -180,8 +180,8 @@ namespace nStratis.Crypto.Cryptsharp
 #if !(USEBC || NETCORE)
 			byte[] B = Pbkdf2.ComputeDerivedKey(new HMACSHA256(P), S, 1, parallel * MFLen);
 #else
-			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest());
-			mac.Init(new KeyParameter(P));
+			var mac = new nStratis.BouncyCastle.crypto.macs.HMac(new nStratis.BouncyCastle.crypto.digests.Sha256Digest());
+			mac.Init(new nStratis.BouncyCastle.crypto.parameters.KeyParameter(P));
 			byte[] B = Pbkdf2.ComputeDerivedKey(mac, S, 1, parallel * MFLen);
 #endif
 			uint[] B0 = new uint[B.Length / 4];
@@ -250,10 +250,10 @@ namespace nStratis.Crypto.Cryptsharp
 			};
 
 			int threadCount = Math.Max(1, Math.Min(Environment.ProcessorCount, Math.Min(maxThreads, parallel)));
-			Task[] threads = new Task[threadCount - 1];
+			System.Threading.Tasks.Task[] threads = new System.Threading.Tasks.Task[threadCount - 1];
 			for(int i = 0 ; i < threads.Length ; i++)
 			{
-				threads[i] = Task.Run(workerThread);
+				threads[i] = System.Threading.Tasks.Task.Run(workerThread);
 			}
 			workerThread();
 			for(int i = 0 ; i < threads.Length ; i++)

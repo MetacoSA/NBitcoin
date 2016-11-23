@@ -1,6 +1,7 @@
 ﻿#if !NOSOCKET
 using System;
 using System.Net;
+using System.Reflection;
 using nStratis.DataEncoders;
 
 #if WINDOWS_UWP
@@ -57,7 +58,7 @@ namespace nStratis.Protocol.Payloads
 #else
 				var version = typeof(VersionPayload).GetTypeInfo().Assembly.GetName().Version;
 #endif
-				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Build + "/";
+				_NUserAgent = "/nStratis:" + version.Major + "." + version.MajorRevision + "." + version.Build + "/";
 #endif
 
 			}

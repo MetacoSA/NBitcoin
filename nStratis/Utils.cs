@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
@@ -13,7 +12,7 @@ using nStratis.OpenAsset;
 using nStratis.Protocol;
 using BigInteger = nStratis.BouncyCastle.math.BigInteger;
 #if !NOSOCKET
-
+using System.Net.Sockets;
 #endif
 #if WINDOWS_UWP
 using System.Net.Sockets;
@@ -754,7 +753,7 @@ namespace nStratis
 		}
 
 #if NETCORE
-		private static async Task<string> DnsLookup(string remoteHostName)
+		private static async System.Threading.Tasks.Task<string> DnsLookup(string remoteHostName)
 		{
 			IPHostEntry data = await Dns.GetHostEntryAsync(remoteHostName).ConfigureAwait(false);
 

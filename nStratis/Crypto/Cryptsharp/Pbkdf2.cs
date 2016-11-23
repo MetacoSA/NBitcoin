@@ -19,9 +19,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 using System;
 using System.IO;
-using System.Security.Cryptography;
 #if !WINDOWS_UWP && !USEBC
-
+using System.Security.Cryptography;
 #endif
 
 namespace nStratis.Crypto.Cryptsharp
@@ -53,7 +52,7 @@ namespace nStratis.Crypto.Cryptsharp
 		byte[] _saltBuffer, _digest, _digestT1;
 
 #if USEBC || WINDOWS_UWP || NETCORE
-		IMac _hmacAlgorithm;
+		nStratis.BouncyCastle.crypto.IMac _hmacAlgorithm;
 #else
 		KeyedHashAlgorithm _hmacAlgorithm;
 #endif
@@ -71,12 +70,12 @@ namespace nStratis.Crypto.Cryptsharp
 		/// </param>
 		/// <param name="iterations">The number of iterations to apply.</param>
 #if USEBC || WINDOWS_UWP || NETCORE
-		public Pbkdf2(IMac hmacAlgorithm, byte[] salt, int iterations)
+		public Pbkdf2(nStratis.BouncyCastle.crypto.IMac hmacAlgorithm, byte[] salt, int iterations)
 		{
-			NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
-			NBitcoin.Crypto.Internal.Check.Null("salt", salt);
-			NBitcoin.Crypto.Internal.Check.Length("salt", salt, 0, int.MaxValue - 4);
-			NBitcoin.Crypto.Internal.Check.Range("iterations", iterations, 1, int.MaxValue);
+			nStratis.Crypto.Cryptsharp.Check.Null("hmacAlgorithm", hmacAlgorithm);
+			nStratis.Crypto.Cryptsharp.Check.Null("salt", salt);
+			nStratis.Crypto.Cryptsharp.Check.Length("salt", salt, 0, int.MaxValue - 4);
+			nStratis.Crypto.Cryptsharp.Check.Range("iterations", iterations, 1, int.MaxValue);
 			int hmacLength = hmacAlgorithm.GetMacSize();
 			_saltBuffer = new byte[salt.Length + 4];
 			Array.Copy(salt, _saltBuffer, salt.Length);
@@ -135,10 +134,10 @@ namespace nStratis.Crypto.Cryptsharp
 		/// <param name="derivedKeyLength">The desired length of the derived key.</param>
 		/// <returns>The derived key.</returns>
 #if USEBC || WINDOWS_UWP || NETCORE
-		public static byte[] ComputeDerivedKey(IMac hmacAlgorithm, byte[] salt, int iterations,
+		public static byte[] ComputeDerivedKey(nStratis.BouncyCastle.crypto.IMac hmacAlgorithm, byte[] salt, int iterations,
 											   int derivedKeyLength)
 		{
-			NBitcoin.Crypto.Internal.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
+			nStratis.Crypto.Cryptsharp.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
 
 			using(Pbkdf2 kdf = new Pbkdf2(hmacAlgorithm, salt, iterations))
 			{

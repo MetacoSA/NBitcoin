@@ -1,6 +1,9 @@
 ﻿using System.IO;
 using System.Net;
 
+#if NOWEBCLIENT
+using nStratis.Tests;
+#endif
 namespace nStratis.Tests
 {
 	public class TestDataLocations

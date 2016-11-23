@@ -12,12 +12,13 @@ namespace HashLib
         public HashCryptoBuildIn(System.Security.Cryptography.HashAlgorithm a_hash_algorithm, int a_block_size)
                 : base(a_hash_algorithm.HashSize / 8, a_block_size)
         {
-            if (a_hash_algorithm.CanReuseTransform == false)
+#if !NETCORE
+			if (a_hash_algorithm.CanReuseTransform == false)
                 throw new NotImplementedException();
             if (a_hash_algorithm.CanTransformMultipleBlocks == false)
                 throw new NotImplementedException();
-
-            m_hash_algorithm = a_hash_algorithm;
+#endif
+			m_hash_algorithm = a_hash_algorithm;
         }
 
         public override void Initialize()
@@ -30,16 +31,19 @@ namespace HashLib
             Debug.Assert(a_index >= 0);
             Debug.Assert(a_length >= 0);
             Debug.Assert(a_index + a_length <= a_data.Length);
-
+#if !NETCORE
             m_hash_algorithm.TransformBlock(a_data, a_index, a_length, null, 0);
+#endif
         }
 
         public override HashResult TransformFinal()
         {
+	        byte[] result = null;
+#if !NETCORE
             m_hash_algorithm.TransformFinalBlock(EMPTY, 0, 0);
-            byte[] result = m_hash_algorithm.Hash;
-
-            Debug.Assert(result.Length == HashSize);
+            result = m_hash_algorithm.Hash;
+#endif
+			Debug.Assert(result.Length == HashSize);
 
             Initialize();
             return new HashResult(result);

@@ -40,7 +40,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public class RandomNumberGeneratorRandom : IRandom
 	{
@@ -78,7 +78,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public partial class RandomUtils
 	{

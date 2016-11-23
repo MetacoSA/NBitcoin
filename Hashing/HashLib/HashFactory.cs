@@ -750,6 +750,7 @@ namespace HashLib
 
             public static class BuildIn
             {
+#if !NETCORE
                 public static IHash CreateMD5CryptoServiceProvider()
                 {
                     return new HashLib.Crypto.BuildIn.MD5CryptoServiceProvider();
@@ -783,7 +784,7 @@ namespace HashLib
                 public static IHash CreateSHA256CryptoServiceProvider()
                 {
                     return new HashLib.Crypto.BuildIn.SHA256CryptoServiceProvider();
-                }
+                }	
 
                 public static IHash CreateSHA256Managed()
                 {
@@ -819,6 +820,7 @@ namespace HashLib
                 {
                     return new HashLib.Crypto.BuildIn.SHA512Managed();
                 }
+#endif
             }
 
             public static IHash CreateGost()

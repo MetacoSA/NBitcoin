@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Sockets;
 using System.Threading;
 using nStratis.Crypto;
 using nStratis.DataEncoders;
 #if !NOSOCKET
+using System.Net.Sockets;
 #endif
 
 namespace nStratis.Protocol
