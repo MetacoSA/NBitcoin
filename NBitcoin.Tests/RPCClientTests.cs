@@ -144,8 +144,7 @@ namespace NBitcoin.Tests
 				node.Start();
 				node.Generate(101);
 				var rpc = node.CreateRPCClient();
-				FeeRate feeRate;
-				Assert.False(rpc.TryEstimateFeeRate(1, out feeRate));
+				Assert.Null(rpc.TryEstimateFeeRate(1));
 			}
 		}
 
