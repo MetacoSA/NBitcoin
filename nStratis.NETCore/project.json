@@ -16,19 +16,19 @@
         "System.Threading.Thread": "4.0.0",
         "System.Runtime.InteropServices.RuntimeInformation": "4.0.0"
       }
+    },
+    "netstandard1.1": {
+      "buildOptions": {
+        "define": [
+          "PORTABLE",
+          "NOSTRNORMALIZE",
+          "NOSOCKET",
+          "NOFILEIO",
+          "USEBC",
+          "NODEFAULTRNG"
+        ]
+      }
     }
-    //"netstandard1.1": {
-    //  "buildOptions": {
-    //    "define": [
-    //      "PORTABLE",
-    //      "NOSTRNORMALIZE",
-    //      "NOSOCKET",
-    //      "NOFILEIO",
-    //      "USEBC",
-    //      "NODEFAULTRNG"
-    //    ]
-    //  }
-    //}
   },
   "buildOptions": {
     "outputName": "nStratis",

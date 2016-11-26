@@ -324,10 +324,10 @@ namespace nStratis.BIP38
 		}
 
 #if USEBC || WINDOWS_UWP
-		internal static PaddedBufferedBlockCipher CreateAES256(bool encryption, byte[] key)
+		internal static nStratis.BouncyCastle.crypto.paddings.PaddedBufferedBlockCipher CreateAES256(bool encryption, byte[] key)
 		{
-			var aes = new PaddedBufferedBlockCipher(new AesFastEngine(), new Pkcs7Padding());
-			aes.Init(encryption, new KeyParameter(key));
+			var aes = new nStratis.BouncyCastle.crypto.paddings.PaddedBufferedBlockCipher(new nStratis.BouncyCastle.crypto.engines.AesFastEngine(), new nStratis.BouncyCastle.crypto.paddings.Pkcs7Padding());
+			aes.Init(encryption, new nStratis.BouncyCastle.crypto.parameters.KeyParameter(key));
 			aes.ProcessBytes(new byte[16], 0, 16, new byte[16], 0);
 			return aes;
 		}

@@ -383,8 +383,8 @@ namespace nStratis.Crypto
 #if USEBC || WINDOWS_UWP
 		public static byte[] HMACSHA512(byte[] key, byte[] data)
 		{
-			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new Sha512Digest());
-			mac.Init(new KeyParameter(key));
+			var mac = new nStratis.BouncyCastle.crypto.macs.HMac(new Sha512Digest());
+			mac.Init(new nStratis.BouncyCastle.crypto.parameters.KeyParameter(key));
 			mac.Update(data);
 			byte[] result = new byte[mac.GetMacSize()];
 			mac.DoFinal(result, 0);

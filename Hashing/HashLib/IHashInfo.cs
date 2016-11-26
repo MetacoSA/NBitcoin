@@ -28,7 +28,9 @@ namespace HashLib
 
     public interface IHasHMACBuildIn : ICrypto
     {
+#if !USEBC
         System.Security.Cryptography.HMAC GetBuildHMAC();
+#endif
     }
 
     public interface IHash32 : IHash

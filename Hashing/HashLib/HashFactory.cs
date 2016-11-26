@@ -1149,17 +1149,21 @@ namespace HashLib
                 {
                     return (IHMAC)a_hash;
                 }
-                else if (a_hash is IHasHMACBuildIn)
+#if !USEBC
+				else if (a_hash is IHasHMACBuildIn)
                 {
-                    IHasHMACBuildIn h = (IHasHMACBuildIn)a_hash;
+					IHasHMACBuildIn h = (IHasHMACBuildIn)a_hash;
                     return new HMACBuildInAdapter(h.GetBuildHMAC(), h.BlockSize);
-                }
-                else
-                {
+				}
+#endif
+				else
+				{
                     return new HMACNotBuildInAdapter(a_hash);
                 }
             }
         }
+
+#if !USEBC
 
         public static class Wrappers
         {
@@ -1174,5 +1178,6 @@ namespace HashLib
                 return new HashCryptoBuildIn(a_hash, a_block_size);
             }
         }
-    }
+#endif
+	}
 }

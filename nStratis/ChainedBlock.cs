@@ -300,7 +300,7 @@ namespace nStratis
 		private void EnsurePosHeader()
 		{
 			if (this.Header.PosParameters == null)
-				throw new MissingFieldException("PosParameters");
+				throw new ArgumentNullException("PosParameters");
 		}
 	}
 }

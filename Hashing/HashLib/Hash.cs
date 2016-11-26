@@ -469,7 +469,8 @@ namespace HashLib
 
         public void TransformFile(string a_file_name, long a_from = 0, long a_length = -1)
         {
-            Debug.Assert(new FileInfo(a_file_name).Exists);
+#if !NOFILEIO
+			Debug.Assert(new FileInfo(a_file_name).Exists);
             Debug.Assert(a_from >= 0);
             Debug.Assert((a_length == -1) || (a_length > 0));
 
@@ -478,9 +479,13 @@ namespace HashLib
                 stream.Seek(a_from, SeekOrigin.Begin);
                 TransformStream(stream, a_length);
             }
-        }
 
-        public void TransformBytes(byte[] a_data)
+#else
+			throw new NotSupportedException();
+#endif
+		}
+
+		public void TransformBytes(byte[] a_data)
         {
             TransformBytes(a_data, 0, a_data.Length);
         }

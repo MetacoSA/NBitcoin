@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !USEBC
+
+using System;
 using System.Diagnostics;
 
 namespace HashLib
@@ -84,3 +86,4 @@ namespace HashLib
         }
     }
 }
+#endif
