@@ -1485,12 +1485,25 @@ namespace NBitcoin.Tests
 					.BuildTransaction(true);
 			Assert.False(txBuilder.Verify(tx, "0.0001"));
 
+			var partiallySigned = tx.Clone();
+
 			txBuilder = new TransactionBuilder(0);
 			tx = txBuilder
 					.AddKeys(keys[0])
 					.AddCoins(allCoins)
 					.SignTransaction(tx);
+			Assert.True(txBuilder.Verify(tx));
 
+			txBuilder = new TransactionBuilder(0)
+						.AddCoins(allCoins);
+			//Trying with known signature
+			foreach(var coin in allCoins)
+			{
+				var sig = partiallySigned.SignInput(keys[0], coin);
+				txBuilder.AddKnownSignature(keys[0].PubKey, sig);
+			}
+			tx = txBuilder
+				.SignTransaction(partiallySigned);
 			Assert.True(txBuilder.Verify(tx));
 
 			//Test if signing separatly
