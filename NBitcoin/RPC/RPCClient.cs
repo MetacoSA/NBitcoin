@@ -968,7 +968,6 @@ namespace NBitcoin.RPC
 	}
 #endif
 
-	[Serializable]
 	public class NoEstimationException : Exception
 	{
 		public NoEstimationException(int nblock)
