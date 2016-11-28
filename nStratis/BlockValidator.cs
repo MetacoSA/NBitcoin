@@ -447,7 +447,8 @@ namespace nStratis
 			var bnWeight = new BigInteger(nValueIn);
 			bnTarget *= bnWeight;
 
-			targetProofOfStake = Target.ToUInt256(bnTarget);
+			// todo: investigate this issue, is the convertion to uint256 similar to the c++ implementation
+			//targetProofOfStake = Target.ToUInt256(bnTarget);
 
 			var nStakeModifier = pindexPrev.Header.PosParameters.StakeModifier;
 			uint256 bnStakeModifierV2 = pindexPrev.Header.PosParameters.StakeModifierV2;
