@@ -736,14 +736,7 @@ namespace NBitcoin.RPC
 		/// <returns>The estimated fee rate or null</returns>
 		public async Task<FeeRate> TryEstimateFeeRateAsync(int nblock)
 		{
-			try
-			{
-				return await EstimateFeeRateAsync(nblock).ConfigureAwait(false);
-			}
-			catch(NoEstimationException)
-			{
-				return null;
-			}
+			return await EstimateFeeRateImplAsync(nblock).ConfigureAwait(false);
 		}
 
 		/// <summary>
@@ -756,7 +749,6 @@ namespace NBitcoin.RPC
 			return TryEstimateFeeRateAsync(nblock).GetAwaiter().GetResult();
 		}
 
-
 		/// <summary>
 		/// Get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
@@ -765,11 +757,19 @@ namespace NBitcoin.RPC
 		/// <exception cref="NoEstimationException">when fee couldn't be estimated</exception>
 		public async Task<FeeRate> EstimateFeeRateAsync(int nblock)
 		{
+			var feeRate = await EstimateFeeRateImplAsync(nblock);
+			if(feeRate == null)
+				throw new NoEstimationException(nblock);
+			return feeRate;
+		}
+
+		private async Task<FeeRate> EstimateFeeRateImplAsync(int nblock)
+		{
 			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
 			var result = response.Result.Value<decimal>();
 			var money = Money.Coins(result);
 			if(money.Satoshi < 0)
-				throw new NoEstimationException(nblock);
+				return null;
 			return new FeeRate(money);
 		}
 
