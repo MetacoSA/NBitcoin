@@ -1903,7 +1903,7 @@ namespace nStratis.Tests
 		public void CanParseTransaction()
 		{
 
-			var tests = TestCase.read_json("data/can_parse_transaction.json");
+			var tests = TestCase.read_json(TestDataLocations.DataFolder(@"can_parse_transaction.json"));
 
 			foreach(var test in tests.Select(t => t.GetDynamic(0)))
 			{
@@ -2413,7 +2413,7 @@ namespace nStratis.Tests
 			// Inner arrays are either [ "comment" ]
 			// or [[[prevout hash, prevout index, prevout scriptPubKey], [input 2], ...],"], serializedTransaction, enforceP2SH
 			// ... where all scripts are stringified scripts.
-			var tests = TestCase.read_json("data/tx_valid.json");
+			var tests = TestCase.read_json(TestDataLocations.DataFolder(@"tx_valid.json"));
 			foreach(var test in tests)
 			{
 				string strTest = test.ToString();
@@ -2534,7 +2534,7 @@ namespace nStratis.Tests
 			// Inner arrays are either [ "comment" ]
 			// or [[[prevout hash, prevout index, prevout scriptPubKey], [input 2], ...],"], serializedTransaction, enforceP2SH
 			// ... where all scripts are stringified scripts.
-			var tests = TestCase.read_json("data/tx_invalid.json");
+			var tests = TestCase.read_json(TestDataLocations.DataFolder(@"tx_invalid.json"));
 			string comment = null;
 			foreach(var test in tests)
 			{

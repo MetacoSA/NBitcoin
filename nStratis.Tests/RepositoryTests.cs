@@ -48,15 +48,15 @@ namespace nStratis.Tests
 		public void CanReadStoredBlockFile()
 		{
 			int count = 0;
-			foreach (var stored in StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat"))
+			foreach (var stored in StoredBlock.EnumerateFile(TestDataLocations.DataFolder(@"blocks\blk0001.dat")))
 			{
 				Assert.True(stored.Item.Check());
 				count++;
 			}
 			Assert.Equal(2000, count);
 			count = 0;
-			var twoLast = StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat").Skip(1998).ToList();
-			foreach(var stored in StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat", range: new DiskBlockPosRange(twoLast[0].BlockPosition)))
+			var twoLast = StoredBlock.EnumerateFile(TestDataLocations.DataFolder(@"blocks\blk0001.dat")).Skip(1998).ToList();
+			foreach(var stored in StoredBlock.EnumerateFile(TestDataLocations.DataFolder(@"blocks\blk0001.dat"), range: new DiskBlockPosRange(twoLast[0].BlockPosition)))
 			{
 				count++;
 			}
@@ -67,7 +67,7 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanEnumerateBlockCountRange()
 		{
-			var store = new BlockStore(@"data\blocks", Network.Main);
+			var store = new BlockStore(TestDataLocations.DataFolder(@"blocks"), Network.Main);
 			var expectedBlock = store.Enumerate(false).Skip(4).First();
 			var actualBlocks = store.Enumerate(false, 4, 2).ToArray();
 			Assert.Equal(2, actualBlocks.Length);
@@ -79,7 +79,7 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanEnumerateBlockInAFileRange()
 		{
-			var store = new BlockStore(@"data\blocks", Network.Main);
+			var store = new BlockStore(TestDataLocations.DataFolder(@"blocks"), Network.Main);
 			var result = store.Enumerate(new DiskBlockPosRange(new DiskBlockPos(1, 0), new DiskBlockPos(2, 0))).ToList();
 			Assert.Equal(2000, result.Count);
 		}
@@ -89,14 +89,14 @@ namespace nStratis.Tests
 		//The last block is off by 1 byte + lots of padding zero at the end
 		public void CanEnumerateIncompleteBlk()
 		{
-			Assert.Equal(300, StoredBlock.EnumerateFile(@"data\blocks\incompleteblk.dat").Count());
+			Assert.Equal(300, StoredBlock.EnumerateFile(TestDataLocations.DataFolder(@"blocks\incompleteblk.dat")).Count());
 		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildChainFromBlocks()
 		{
-			var store = new BlockStore(@"data\blocks", Network.Main);
+			var store = new BlockStore(TestDataLocations.DataFolder(@"blocks"), Network.Main);
 			var chain = store.GetChain();
 			Assert.True(chain.Height == 3999);
 
@@ -107,7 +107,7 @@ namespace nStratis.Tests
 		public void CanIndexBlock()
 		{
 			var index = CreateIndexedStore();
-			foreach(var block in StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat").Take(50))
+			foreach(var block in StoredBlock.EnumerateFile(TestDataLocations.DataFolder(@"blocks\blk0001.dat")).Take(50))
 			{
 				index.Put(block.Item);
 			}
@@ -129,7 +129,7 @@ namespace nStratis.Tests
 		public void CanStoreBlocks()
 		{
 			var store = CreateBlockStore();
-			var allBlocks = StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat").Take(50).ToList();
+			var allBlocks = StoredBlock.EnumerateFile(TestDataLocations.DataFolder(@"blocks\blk0001.dat")).Take(50).ToList();
 
 			foreach(var s in allBlocks)
 			{
@@ -150,7 +150,7 @@ namespace nStratis.Tests
 		{
 			var store = CreateBlockStore();
 			store.MaxFileSize = 10; //Verify break all block in one respective file with extreme settings
-			var allBlocks = StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat").Take(10).ToList();
+			var allBlocks = StoredBlock.EnumerateFile(TestDataLocations.DataFolder(@"blocks\blk0001.dat")).Take(10).ToList();
 			foreach(var s in allBlocks)
 			{
 				store.Append(s.Item);
@@ -165,7 +165,7 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReIndex()
 		{
-			var source = new BlockStore(@"data\blocks", Network.Main);
+			var source = new BlockStore(TestDataLocations.DataFolder(@"blocks"), Network.Main);
 			var store = CreateBlockStore("CanReIndexFolder");
 			store.AppendAll(source.Enumerate(false).Take(100).Select(b => b.Item));
 
@@ -196,7 +196,7 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public static void CanParseRev()
 		{
-			BlockUndoStore src = new BlockUndoStore(@"data\blocks", Network.Main);
+			BlockUndoStore src = new BlockUndoStore(TestDataLocations.DataFolder(@"blocks"), Network.Main);
 			BlockUndoStore dest = CreateBlockUndoStore();
 			int count = 0;
 			foreach(var un in src.EnumerateFolder())
@@ -225,7 +225,7 @@ namespace nStratis.Tests
 		public void CanStoreInBlockRepository()
 		{
 			var blockRepository = CreateBlockRepository();
-			var firstblk1 = StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat").First();
+			var firstblk1 = StoredBlock.EnumerateFile(TestDataLocations.DataFolder(@"blocks\blk0001.dat")).First();
 			blockRepository.WriteBlockHeader(firstblk1.Item.Header);
 			var result = blockRepository.GetBlock(firstblk1.Item.GetHash());
 			Assert.True(result.HeaderOnly);
@@ -240,11 +240,11 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadStoredBlockFolder()
 		{
-			var blk0 = StoredBlock.EnumerateFile(@"data\blocks\blk0001.dat", (uint)1).ToList();
-			var blk1 = StoredBlock.EnumerateFile(@"data\blocks\blk0002.dat", (uint)2).ToList();
+			var blk0 = StoredBlock.EnumerateFile(TestDataLocations.DataFolder(@"blocks\blk0001.dat"), (uint)1).ToList();
+			var blk1 = StoredBlock.EnumerateFile(TestDataLocations.DataFolder(@"blocks\blk0002.dat"), (uint)2).ToList();
 
 			int count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks"))
+			foreach(var stored in StoredBlock.EnumerateFolder(TestDataLocations.DataFolder(@"blocks")))
 			{
 				if(count == 0)
 					Assert.Equal(blk0[0].Item.GetHash(), stored.Item.GetHash());
@@ -256,29 +256,28 @@ namespace nStratis.Tests
 			Assert.Equal(4000, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(blk1[1998].BlockPosition)))
+			foreach(var stored in StoredBlock.EnumerateFolder(TestDataLocations.DataFolder(@"blocks"), new DiskBlockPosRange(blk1[1998].BlockPosition)))
 			{
 				count++;
 			}
 			Assert.Equal(2, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(blk0[1998].BlockPosition)))
+			foreach(var stored in StoredBlock.EnumerateFolder(TestDataLocations.DataFolder(@"blocks"), new DiskBlockPosRange(blk0[1998].BlockPosition)))
 			{
 				count++;
 			}
 			Assert.Equal(2002, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks",
-														new DiskBlockPosRange(blk0[1998].BlockPosition, blk1[2].BlockPosition)))
+			foreach(var stored in StoredBlock.EnumerateFolder(TestDataLocations.DataFolder(@"blocks"), new DiskBlockPosRange(blk0[1998].BlockPosition, blk1[2].BlockPosition)))
 			{
 				count++;
 			}
 			Assert.Equal(4, count);
 
 			count = 0;
-			foreach(var stored in StoredBlock.EnumerateFolder(@"data\blocks", new DiskBlockPosRange(blk0[30].BlockPosition, blk0[34].BlockPosition)))
+			foreach(var stored in StoredBlock.EnumerateFolder(TestDataLocations.DataFolder(@"blocks"), new DiskBlockPosRange(blk0[30].BlockPosition, blk0[34].BlockPosition)))
 			{
 				count++;
 			}

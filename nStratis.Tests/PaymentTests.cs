@@ -108,16 +108,16 @@ namespace nStratis.Tests
 			})
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
-				var request = LoadPaymentRequest("data/payreq1_sha1.paymentrequest");
-				AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq1_sha1.paymentrequest"));
+				var request = LoadPaymentRequest(TestDataLocations.DataFolder(@"payreq1_sha1.paymentrequest"));
+				AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes(TestDataLocations.DataFolder(@"payreq1_sha1.paymentrequest")));
 				Assert.True(request.VerifySignature());
 				request.Details.Memo = "lol";
 				Assert.False(request.VerifySignature());
 				request.Details.Memo = "this is a memo";
 				Assert.True(request.VerifySignature());
 				Assert.True(request.VerifyChain());
-				request = LoadPaymentRequest("data/payreq2_sha1.paymentrequest");
-				AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes("data/payreq2_sha1.paymentrequest"));
+				request = LoadPaymentRequest(TestDataLocations.DataFolder(@"payreq2_sha1.paymentrequest"));
+				AssertEx.CollectionEquals(request.ToBytes(), File.ReadAllBytes(TestDataLocations.DataFolder(@"payreq2_sha1.paymentrequest")));
 				Assert.True(request.VerifySignature());
 			}
 		}
@@ -134,7 +134,7 @@ namespace nStratis.Tests
 			})
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
-				var req = LoadPaymentRequest("data/payreq3_validchain.paymentrequest");
+				var req = LoadPaymentRequest(TestDataLocations.DataFolder(@"payreq3_validchain.paymentrequest"));
 				Assert.True(req.VerifyChain());
 				Assert.True(req.VerifySignature());
 			}
@@ -146,14 +146,14 @@ namespace nStratis.Tests
 		{
 			var tests = new[]
 			{
-				"data/payreq1_sha256_omitteddefault.paymentrequest",
-				"data/payreq1_sha256.paymentrequest",
-				"data/payreq2_sha256_omitteddefault.paymentrequest",
-				"data/payreq2_sha256.paymentrequest",
-				"data/payreq1_sha1_omitteddefault.paymentrequest",
-				"data/payreq1_sha1.paymentrequest",
-				"data/payreq2_sha1_omitteddefault.paymentrequest",
-				"data/payreq2_sha1.paymentrequest",
+				TestDataLocations.DataFolder(@"payreq1_sha256_omitteddefault.paymentrequest"),
+				TestDataLocations.DataFolder(@"payreq1_sha256.paymentrequest"),
+				TestDataLocations.DataFolder(@"payreq2_sha256_omitteddefault.paymentrequest"),
+				TestDataLocations.DataFolder(@"payreq2_sha256.paymentrequest"),
+				TestDataLocations.DataFolder(@"payreq1_sha1_omitteddefault.paymentrequest"),
+				TestDataLocations.DataFolder(@"payreq1_sha1.paymentrequest"),
+				TestDataLocations.DataFolder(@"payreq2_sha1_omitteddefault.paymentrequest"),
+				TestDataLocations.DataFolder(@"payreq2_sha1.paymentrequest"),
 			};
 
 			foreach(var provider in new ICertificateServiceProvider[]
@@ -194,7 +194,7 @@ namespace nStratis.Tests
 			})
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
-				var cert = File.ReadAllBytes("Data/PaymentMerchant.pfx");
+				var cert = File.ReadAllBytes(TestDataLocations.DataFolder(@"PaymentMerchant.pfx"));
 				CanCreatePaymentRequestCore(cert);
 #if WIN
 				if(provider is WindowsCertificateServiceProvider)
@@ -224,19 +224,19 @@ namespace nStratis.Tests
 		//[Trait("UnitTest", "UnitTest")]
 		public void CanParsePaymentACK()
 		{
-			var ack = LoadPaymentACK("data/paymentack.data");
+			var ack = LoadPaymentACK(TestDataLocations.DataFolder(@"paymentack.data"));
 			Assert.Equal("thanks customer !", ack.Memo);
 			Assert.Equal("thanks merchant !", ack.Payment.Memo);
 			Assert.Equal(2, ack.Payment.Transactions.Count);
 			Assert.Equal(2, ack.Payment.RefundTo.Count);
 			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
-			AssertEx.CollectionEquals(ack.ToBytes(), File.ReadAllBytes("data/paymentack.data"));
+			AssertEx.CollectionEquals(ack.ToBytes(), File.ReadAllBytes(TestDataLocations.DataFolder(@"paymentack.data")));
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCreatePaymentMessageAndACK()
 		{
-			var request = LoadPaymentRequest("data/payreq1_sha1.paymentrequest");
+			var request = LoadPaymentRequest(TestDataLocations.DataFolder(@"payreq1_sha1.paymentrequest"));
 			var payment = request.CreatePayment();
 			AssertEx.CollectionEquals(request.Details.MerchantData, payment.MerchantData);
 			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
@@ -306,7 +306,7 @@ namespace nStratis.Tests
 					PaymentRequest request = new PaymentRequest();
 					request.Details.MerchantData = BitConverter.GetBytes(businessId);
 					request.Details.PaymentUrl = new Uri(_Prefix + "?id=" + businessId + "&type=Payment");
-					request.Sign(File.ReadAllBytes("data/PaymentMerchant.pfx"), PKIType.X509SHA256);
+					request.Sign(File.ReadAllBytes(TestDataLocations.DataFolder(@"PaymentMerchant.pfx")), PKIType.X509SHA256);
 					request.WriteTo(context.Response.OutputStream);
 				}
 				else if(type == "Payment")

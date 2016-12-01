@@ -20,7 +20,7 @@ namespace nStratis.Tests
 			addrman.SavePeerFile("CanSerializeDeserializePeerTable.dat", Network.Main);
 			AddressManager.LoadPeerFile("CanSerializeDeserializePeerTable.dat", Network.Main);
 
-			addrman = AddressManager.LoadPeerFile("../../data/peers.dat", Network.Main);
+			addrman = AddressManager.LoadPeerFile(TestDataLocations.DataFolder("peers.dat"), Network.Main);
 			addrman.DebugMode = true;
 			addrman.Check();
 			addrman.SavePeerFile("serializerPeer.dat", Network.Main);

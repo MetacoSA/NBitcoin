@@ -20,7 +20,7 @@ namespace nStratis.Tests
 		{
 			public ColoredCoinTester([CallerMemberName]string test = null)
 			{
-				var testcase = JsonConvert.DeserializeObject<TestCase[]>(File.ReadAllText("Data/openasset-known-tx.json"))
+				var testcase = JsonConvert.DeserializeObject<TestCase[]>(File.ReadAllText(TestDataLocations.DataFolder(@"openasset-known-tx.json")))
 					.First(t => t.test == test);
 				NoSqlTransactionRepository repository = new NoSqlTransactionRepository();
 				foreach(var tx in testcase.txs)

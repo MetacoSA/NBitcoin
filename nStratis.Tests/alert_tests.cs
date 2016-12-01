@@ -73,7 +73,7 @@ namespace nStratis.Tests
 		private AlertPayload[] ReadAlerts()
 		{
 			List<AlertPayload> alerts = new List<AlertPayload>();
-			using(var fs = File.OpenRead("data/alertTests.raw"))
+			using(var fs = File.OpenRead(TestDataLocations.DataFolder(@"alertTests.raw")))
 			{
 				BitcoinStream stream = new BitcoinStream(fs, false);
 				while(stream.Inner.Position != stream.Inner.Length)

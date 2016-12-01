@@ -50,7 +50,7 @@ namespace nStratis.Tests
 		{
 			// test diabled for now as it requires specific test data
 
-			var tests = TestCase.read_json("Data/sighash.json");
+			var tests = TestCase.read_json(TestDataLocations.DataFolder(@"sighash.json"));
 
 			foreach(var test in tests)
 			{

@@ -148,7 +148,7 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void DeterministicSignatureTestVectors()
 		{
-			foreach(var test in ParseTestsDump(File.ReadAllText("Data/determiniticECDSA.txt")))
+			foreach(var test in ParseTestsDump(File.ReadAllText(TestDataLocations.DataFolder("determiniticECDSA.txt"))))
 			{
 				TestSig(test);
 			}

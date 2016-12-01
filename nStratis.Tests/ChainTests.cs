@@ -149,10 +149,10 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCalculateDifficulty()
 		{
-			var histories = File.ReadAllLines("data/targethistory.csv");
+			var histories = File.ReadAllLines(TestDataLocations.DataFolder(@"targethistory.csv"));
 
-			var store = new BlockStore(@"download\blocks", Network.Main);
-			// todo: load the chain with a heder only file
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+			// todo: load the chain with a header only file
 			ConcurrentChain chain = store.GetChain();
 
 			foreach(var history in histories)

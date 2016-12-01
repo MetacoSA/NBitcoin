@@ -10,18 +10,26 @@ using Xunit;
 
 namespace nStratis.Tests
 {
+	using System.Diagnostics;
+
+	using Xunit.Sdk;
+
 	// This test requires a main net node running locally in server mode 
 	// on default port with -rpcuser=rpcuser -rpcpassword=rpcpassword
-
-	// todo: remove the nodebuilder as this tests are now relaing on a client running before running the tests
+	// if a node is not running locally all this tests will pass
+	// todo: implement the xuint skip framework https://github.com/xunit/samples.xunit/tree/master/DynamicSkipExample
 
 	[Trait("RPCClient", "RPCClient")]
-	public class RPCClientTests
+	public class RPCClientTests 
 	{
-		const string TestAccount = "NBitcoin.RPCClientTests";
+		public static bool noClient = !Process.GetProcesses().Any(p => p.ProcessName.Contains("stratis"));
+
+		const string TestAccount = "nStratis.RPCClientTests";
 		[Fact]
 		public void InvalidCommandSendRPCException()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using(var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
@@ -33,11 +41,12 @@ namespace nStratis.Tests
 			}
 		}
 
-
 		[Fact]
 		public void CanSendCommand()
 		{
-			using(var builder = NodeBuilder.Create())
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -49,7 +58,9 @@ namespace nStratis.Tests
 		[Fact]
 		public void CanGetGenesisFromRPC()
 		{
-			using(var builder = NodeBuilder.Create())
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -63,7 +74,9 @@ namespace nStratis.Tests
 		[Fact]
 		public void CanGetRawMemPool()
 		{
-			using(var builder = NodeBuilder.Create())
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode();
 				var rpc = node.CreateRPCClient();
@@ -78,7 +91,9 @@ namespace nStratis.Tests
 		[Fact]
 		public void CanUseAsyncRPC()
 		{
-			using(var builder = NodeBuilder.Create())
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode();
 				var rpc = node.CreateRPCClient();
@@ -92,7 +107,9 @@ namespace nStratis.Tests
 		[Fact]
 		public void CanGetBlockFromRPC()
 		{
-			using(var builder = NodeBuilder.Create())
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -122,7 +139,9 @@ namespace nStratis.Tests
 		[Fact]
 		public void CanGetTransactionBlockFromRPC()
 		{
-			using(var builder = NodeBuilder.Create())
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -135,7 +154,9 @@ namespace nStratis.Tests
 		[Fact]
 		public void CanGetPrivateKeysFromAccount()
 		{
-			using(var builder = NodeBuilder.Create())
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -150,7 +171,9 @@ namespace nStratis.Tests
 		[Fact]
 		public void CanDecodeAndEncodeRawTransaction()
 		{
-			var tests = TestCase.read_json("data/tx_raw.json");
+			if (RPCClientTests.noClient) return;
+
+			var tests = TestCase.read_json(TestDataLocations.DataFolder(@"tx_raw.json"));
 			using(var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
@@ -176,7 +199,9 @@ namespace nStratis.Tests
 		[Fact]
 		public void RawTransactionIsConformsToRPC()
 		{
-			using(var builder = NodeBuilder.Create())
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -191,7 +216,9 @@ namespace nStratis.Tests
 		[Fact]
 		public void CanGetPeersInfo()
 		{
-			using(var builder = NodeBuilder.Create())
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
 			{
 				var nodeA = builder.CreateNode();
 				builder.StartAll();
@@ -231,7 +258,9 @@ namespace nStratis.Tests
 		[Fact]
 		public void CanAddNodes()
 		{
-			using(var builder = NodeBuilder.Create())
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
 			{
 				var nodeA = builder.CreateNode();
 				//var nodeB = builder.CreateNode();
