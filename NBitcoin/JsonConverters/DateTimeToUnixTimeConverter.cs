@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Reflection;
 
 namespace NBitcoin.JsonConverters
 {
@@ -16,7 +17,9 @@ namespace NBitcoin.JsonConverters
     {
         public override bool CanConvert(Type objectType)
         {
-            return typeof(DateTime).IsAssignableFrom(objectType) || typeof(DateTimeOffset).IsAssignableFrom(objectType) || typeof(DateTimeOffset?).IsAssignableFrom(objectType);
+            return typeof(DateTime).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()) || 
+				typeof(DateTimeOffset).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()) || 
+				typeof(DateTimeOffset?).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
