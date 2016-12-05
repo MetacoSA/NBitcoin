@@ -1,0 +1,46 @@
+﻿using NBitcoin.JsonConverters;
+using NBitcoin.OpenAsset;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Xunit;
+
+namespace NBitcoin.Tests
+{
+	public class JsonConverterTests
+	{
+		[Fact]
+		public void CanSerializeInJson()
+		{
+			Key k = new Key();
+			CanSerializeInJsonCore(DateTimeOffset.UtcNow);
+			CanSerializeInJsonCore(new byte[] { 1, 2, 3 });
+			CanSerializeInJsonCore(k);
+			CanSerializeInJsonCore(Money.Coins(5.0m));
+			CanSerializeInJsonCore(k.PubKey.GetAddress(Network.Main));
+			CanSerializeInJsonCore(new KeyPath("1/2"));
+			CanSerializeInJsonCore(Network.Main);
+			CanSerializeInJsonCore(new uint256(RandomUtils.GetBytes(32)));
+			CanSerializeInJsonCore(new uint160(RandomUtils.GetBytes(20)));
+			CanSerializeInJsonCore(new AssetId(k.PubKey));
+			CanSerializeInJsonCore(k.PubKey.ScriptPubKey);
+			var sig = k.Sign(new uint256(RandomUtils.GetBytes(32)));
+			CanSerializeInJsonCore(sig);
+			CanSerializeInJsonCore(new TransactionSignature(sig, SigHash.All));
+			CanSerializeInJsonCore(k.PubKey.Hash);
+			CanSerializeInJsonCore(k.PubKey.ScriptPubKey.Hash);
+			CanSerializeInJsonCore(k.PubKey.WitHash);
+			CanSerializeInJsonCore(new WitScript(new Script(Op.GetPushOp(sig.ToDER()), Op.GetPushOp(sig.ToDER()))));
+		}
+
+		private T CanSerializeInJsonCore<T>(T value)
+		{
+			var str = Serializer.ToString(value);
+			var obj2 = Serializer.ToObject<T>(str);
+			Assert.Equal(str, Serializer.ToString(obj2));
+			return obj2;
+		}
+	}
+}

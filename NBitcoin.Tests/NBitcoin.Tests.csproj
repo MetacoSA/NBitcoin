@@ -73,6 +73,7 @@
     <Compile Include="bip39_tests.cs" />
     <Compile Include="BitcoinAddressTest.cs" />
     <Compile Include="cmpctblock_tests.cs" />
+    <Compile Include="JsonConverterTests.cs" />
     <Compile Include="NodeBuilder.cs" />
     <Compile Include="bloom_tests.cs" />
     <Compile Include="ChainTests.cs" />
