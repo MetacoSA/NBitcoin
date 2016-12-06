@@ -79,7 +79,10 @@ namespace NBitcoin.RPC
 
 		public Coin AsCoin()
 		{
-			return new Coin(OutPoint, new TxOut(Amount, ScriptPubKey));
+			var coin = new Coin(OutPoint, new TxOut(Amount, ScriptPubKey));
+			if(RedeemScript != null)
+				coin = coin.ToScriptCoin(RedeemScript);
+			return coin;
 		}
 
 		public bool IsSpendable
