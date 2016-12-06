@@ -12,6 +12,7 @@ namespace NBitcoin.Tests
 	public class JsonConverterTests
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanSerializeInJson()
 		{
 			Key k = new Key();
@@ -33,6 +34,8 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(k.PubKey.ScriptPubKey.Hash);
 			CanSerializeInJsonCore(k.PubKey.WitHash);
 			CanSerializeInJsonCore(new WitScript(new Script(Op.GetPushOp(sig.ToDER()), Op.GetPushOp(sig.ToDER()))));
+			CanSerializeInJsonCore(new LockTime(1));
+			CanSerializeInJsonCore(new LockTime(DateTime.UtcNow));
 		}
 
 		private T CanSerializeInJsonCore<T>(T value)

@@ -80,6 +80,7 @@
     <Compile Include="JsonConverters\CoinJsonConverter.cs" />
     <Compile Include="JsonConverters\DateTimeToUnixTimeConverter.cs" />
     <Compile Include="JsonConverters\HexJsonConverter.cs" />
+    <Compile Include="JsonConverters\LockTimeJsonConverter.cs" />
     <Compile Include="JsonConverters\Serializer.cs" />
     <Compile Include="JsonConverters\TxDestinationJsonConverter.cs" />
     <Compile Include="JsonConverters\SignatureJsonConverter.cs" />

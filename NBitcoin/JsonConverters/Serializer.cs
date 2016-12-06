@@ -29,6 +29,7 @@ namespace NBitcoin.JsonConverters
 			settings.Converters.Add(new HexJsonConverter());
 			settings.Converters.Add(new DateTimeToUnixTimeConverter());
 			settings.Converters.Add(new TxDestinationJsonConverter());
+			settings.Converters.Add(new LockTimeJsonConverter());
 			settings.Converters.Add(new Base58DataJsonConverter()
 			{
 				Network = network
