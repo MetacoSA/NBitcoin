@@ -137,7 +137,7 @@ namespace nStratis.Tests
 		//}
 
 		[Fact]
-		public void CanGetTransactionBlockFromRPC()
+		public void CanGetBlockWithSignature()
 		{
 			if (RPCClientTests.noClient) return;
 
@@ -145,7 +145,22 @@ namespace nStratis.Tests
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
-				var blockId = rpc.GetBestBlockHash();
+				var blockId = uint256.Parse("ae36de379a543378e13b0ce70275f21487f613c216d76c7ffb36c685c8992a74");
+				var block = rpc.GetBlock(blockId);
+				Assert.NotNull(block);
+			}
+		}
+
+		[Fact]
+		public void CanGetBlockWithoutSignature()
+		{
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				var blockId = uint256.Parse("c9920baf967a314bd123efa184d54d4b9e7460301e3f2e059bafc77c45d03017");
 				var block = rpc.GetBlock(blockId);
 				Assert.NotNull(block);
 			}

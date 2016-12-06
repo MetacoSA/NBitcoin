@@ -97,10 +97,12 @@ namespace nStratis.RPC
 				Version = rpcBlock.version,
 			};
 
-			var block = new Block(header)
+			var block = new Block(header);
+
+			if (!string.IsNullOrEmpty(rpcBlock.signature))
 			{
-				BlockSignatur = new BlockSignature() { Signature = Encoders.Hex.DecodeData(rpcBlock.signature) },
-			};
+				block.BlockSignatur.Signature = Encoders.Hex.DecodeData(rpcBlock.signature);
+			}
 
 			// todo: parse transactions
 			block.Transactions = rpcBlock.tx.Select(t => new Transaction()).ToList();
