@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace nStratis.Protocol.Payloads
@@ -27,6 +28,9 @@ namespace nStratis.Protocol.Payloads
 			{
 				stream.ReadWrite(ref _Header);
 				VarInt txCount = new VarInt(0);
+				stream.ReadWrite(ref txCount);
+
+				// stratis adds an additional byte to the end of a header need to investigate why
 				stream.ReadWrite(ref txCount);
 			}
 
