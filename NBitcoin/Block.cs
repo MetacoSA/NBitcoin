@@ -2,7 +2,9 @@
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.RPC;
+#if !NOJSONNET
 using Newtonsoft.Json.Linq;
+#endif
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -134,7 +136,7 @@ namespace NBitcoin
 				return (nBits == 0);
 			}
 		}
-		#region IBitcoinSerializable Members
+#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
 		{
@@ -146,7 +148,7 @@ namespace NBitcoin
 			stream.ReadWrite(ref nNonce);
 		}
 
-		#endregion
+#endregion
 
 		public uint256 GetHash()
 		{
@@ -469,7 +471,7 @@ namespace NBitcoin
 			});
 			return block;
 		}
-
+#if !NOJSONNET
 		public static Block ParseJson(string json)
 		{
 			var formatter = new BlockExplorerFormatter();
@@ -488,7 +490,7 @@ namespace NBitcoin
 			}
 			return blk;
 		}
-
+#endif
 		public static Block Parse(string hex)
 		{
 			return new Block(Encoders.Hex.DecodeData(hex));

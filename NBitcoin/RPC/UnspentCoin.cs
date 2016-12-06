@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿#if !NOJSONNET
+using NBitcoin.DataEncoders;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -92,3 +93,4 @@ namespace NBitcoin.RPC
 		}
 	}
 }
+#endif

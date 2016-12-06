@@ -1,4 +1,5 @@
-﻿#if !NOHTTPCLIENT
+﻿#if !NOJSONNET
+#if !NOHTTPCLIENT
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -53,7 +54,7 @@ namespace NBitcoin
 		}
 
 
-		#region ITransactionRepository Members
+#region ITransactionRepository Members
 
 		public async Task<Transaction> GetAsync(uint256 txId)
 		{
@@ -131,7 +132,7 @@ namespace NBitcoin
 			}
 		}
 
-		#endregion
+#endregion
 
 		string BlockrAddress
 		{
@@ -143,4 +144,5 @@ namespace NBitcoin
 		}
 	}
 }
+#endif
 #endif

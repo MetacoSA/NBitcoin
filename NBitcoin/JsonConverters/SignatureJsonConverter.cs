@@ -1,4 +1,5 @@
-﻿using NBitcoin;
+﻿#if !NOJSONNET
+using NBitcoin;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
@@ -51,3 +52,4 @@ namespace NBitcoin.JsonConverters
 		}
 	}
 }
+#endif

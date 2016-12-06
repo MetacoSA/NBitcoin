@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NOJSONNET
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
@@ -58,3 +59,4 @@ namespace NBitcoin.RPC
 		protected abstract void WriteTransaction(JsonTextWriter writer, Transaction tx);
 	}
 }
+#endif

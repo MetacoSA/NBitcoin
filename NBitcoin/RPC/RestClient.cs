@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NOJSONNET
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -206,7 +207,7 @@ namespace NBitcoin.RPC
 			}
 		}
 
-		#region Private methods
+#region Private methods
 		private WebRequest BuildHttpRequest(string resource, RestResponseFormat format, params string[] parms)
 		{
 			var hasParams = parms != null && parms.Length > 0;
@@ -250,7 +251,7 @@ namespace NBitcoin.RPC
 			}
 			return response;
 		}
-		#endregion
+#endregion
 	}
 
 	public class RestApiException : Exception
@@ -305,3 +306,4 @@ namespace NBitcoin.RPC
 		}
 	}
 }
+#endif

@@ -1,4 +1,5 @@
-﻿using NBitcoin.RPC;
+﻿#if !NOJSONNET
+using NBitcoin.RPC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace NBitcoin
 				throw new ArgumentNullException("client");
 			_Client = client;
 		}
-		#region ITransactionRepository Members
+#region ITransactionRepository Members
 
 		public Task<Transaction> GetAsync(uint256 txId)
 		{
@@ -33,6 +34,7 @@ namespace NBitcoin
 			return Task.FromResult(false);
 		}
 
-		#endregion
+#endregion
 	}
 }
+#endif

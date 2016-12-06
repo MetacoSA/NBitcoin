@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿#if !NOJSONNET
+using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -273,7 +274,7 @@ namespace NBitcoin.RPC
 			return response;
 		}
 
-		#region P2P Networking
+#region P2P Networking
 #if !NOSOCKET
 		public PeerInfo[] GetPeersInfo()
 		{
@@ -433,9 +434,9 @@ namespace NBitcoin.RPC
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Block chain and UTXO
+#region Block chain and UTXO
 
 		public uint256 GetBestBlockHash()
 		{
@@ -605,13 +606,13 @@ namespace NBitcoin.RPC
 			return GetTransactions(GetBlockHash(height));
 		}
 
-		#endregion
+#endregion
 
-		#region Coin generation
+#region Coin generation
 
-		#endregion
+#endregion
 
-		#region Raw Transaction
+#region Raw Transaction
 
 		public Transaction DecodeRawTransaction(string rawHex)
 		{
@@ -687,9 +688,9 @@ namespace NBitcoin.RPC
 			return SendCommandAsync("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
 		}
 
-		#endregion
+#endregion
 
-		#region Utility functions
+#region Utility functions
 		/// <summary>
 		/// Get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
@@ -843,7 +844,7 @@ namespace NBitcoin.RPC
 			return SendCommand(RPCOperations.settxfee, new[] { feeRate.FeePerK.ToString() }).Result.ToString() == "true";
 		}
 
-		#endregion
+#endregion
 	}
 
 #if !NOSOCKET
@@ -977,3 +978,4 @@ namespace NBitcoin.RPC
 	}
 
 }
+#endif

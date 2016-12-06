@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿#if !NOJSONNET
+using Newtonsoft.Json.Linq;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +47,7 @@ namespace NBitcoin.OpenAsset
 				_Asset = value;
 			}
 		}
-		#region IBitcoinSerializable Members
+#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
 		{
@@ -67,7 +69,7 @@ namespace NBitcoin.OpenAsset
 			}
 		}
 
-		#endregion
+#endregion
 
 		public override string ToString()
 		{
@@ -448,7 +450,7 @@ namespace NBitcoin.OpenAsset
 				.ToArray();
 		}
 
-		#region IBitcoinSerializable Members
+#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
 		{
@@ -476,7 +478,7 @@ namespace NBitcoin.OpenAsset
 			stream.ReadWrite(ref _Transfers);
 		}
 
-		#endregion
+#endregion
 
 		List<ColoredEntry> _Inputs;
 		public List<ColoredEntry> Inputs
@@ -490,7 +492,7 @@ namespace NBitcoin.OpenAsset
 				_Inputs = value;
 			}
 		}
-
+#if !NOJSONNET
 		public override string ToString()
 		{
 			return ToString(Network.Main);
@@ -539,7 +541,7 @@ namespace NBitcoin.OpenAsset
 			JProperty quantity = new JProperty("quantity", entry.Asset.Quantity);
 			inputs.Add(new JObject(index, asset, quantity));
 		}
-
+#endif
 		//00000000000000001c7a19e8ef62d815d84a473f543de77f23b8342fc26812a9 at 299220 Monday, May 5, 2014 3:47:37 PM first block
 		public static readonly DateTimeOffset FirstColoredDate = new DateTimeOffset(2014, 05, 4, 0, 0, 0, TimeSpan.Zero);
 	}

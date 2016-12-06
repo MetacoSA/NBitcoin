@@ -1,4 +1,5 @@
-﻿#if !NOSOCKET
+﻿#if !NOJSONNET
+#if !NOSOCKET
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
@@ -832,4 +833,5 @@ namespace NBitcoin.SPV
 		}
 	}
 }
+#endif
 #endif

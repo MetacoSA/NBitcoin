@@ -1,4 +1,5 @@
-﻿using NBitcoin.OpenAsset;
+﻿#if !NOJSONNET
+using NBitcoin.OpenAsset;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -60,3 +61,4 @@ namespace NBitcoin.JsonConverters
         }
     }
 }
+#endif

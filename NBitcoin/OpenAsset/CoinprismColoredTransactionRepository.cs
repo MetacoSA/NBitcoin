@@ -1,4 +1,5 @@
-﻿#if !NOHTTPCLIENT
+﻿#if !NOJSONNET
+#if !NOHTTPCLIENT
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json.Linq;
 using System;
@@ -33,7 +34,7 @@ namespace NBitcoin.OpenAsset
 
 		class CoinprismTransactionRepository : ITransactionRepository
 		{
-			#region ITransactionRepository Members
+#region ITransactionRepository Members
 
 			public Task<Transaction> GetAsync(uint256 txId)
 			{
@@ -45,7 +46,7 @@ namespace NBitcoin.OpenAsset
 				return Task.FromResult(true);
 			}
 
-			#endregion
+#endregion
 		}
 
 		public CoinprismColoredTransactionRepository()
@@ -57,7 +58,7 @@ namespace NBitcoin.OpenAsset
 			_network = network;
 		}
 
-		#region IColoredTransactionRepository Members
+#region IColoredTransactionRepository Members
 
 		public ITransactionRepository Transactions
 		{
@@ -183,4 +184,5 @@ namespace NBitcoin.OpenAsset
 #endregion
 	}
 }
+#endif
 #endif

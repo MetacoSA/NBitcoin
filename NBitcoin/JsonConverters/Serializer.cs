@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿#if !NOJSONNET
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace NBitcoin.JsonConverters
 		public
 #else
 	internal
-#endif 
+#endif
 		static void RegisterFrontConverters(JsonSerializerSettings settings, Network network = null)
 		{
 			settings.Converters.Add(new BitcoinSerializableJsonConverter());
@@ -66,3 +67,4 @@ namespace NBitcoin.JsonConverters
 		}
 	}
 }
+#endif

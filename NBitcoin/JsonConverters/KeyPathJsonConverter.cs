@@ -1,4 +1,5 @@
-﻿using NBitcoin;
+﻿#if !NOJSONNET
+using NBitcoin;
 using System;
 using System.Reflection;
 using Newtonsoft.Json;
@@ -9,7 +10,7 @@ namespace NBitcoin.JsonConverters
 	public
 #else
 	internal
-#endif 
+#endif
 	class KeyPathJsonConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
@@ -37,3 +38,4 @@ namespace NBitcoin.JsonConverters
         }
     }
 }
+#endif

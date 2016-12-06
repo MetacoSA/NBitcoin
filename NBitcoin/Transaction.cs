@@ -1514,11 +1514,12 @@ namespace NBitcoin
 			return new TxPayload(this.Clone());
 		}
 
-
+#if !NOJSONNET
 		public static Transaction Parse(string tx, RawFormat format, Network network = null)
 		{
 			return GetFormatter(format, network).ParseJson(tx);
 		}
+#endif
 
 		public static Transaction Parse(string hex)
 		{
@@ -1529,7 +1530,7 @@ namespace NBitcoin
 		{
 			return Encoders.Hex.EncodeData(this.ToBytes());
 		}
-
+#if !NOJSONNET
 		public override string ToString()
 		{
 			return ToString(RawFormat.BlockExplorer);
@@ -1565,7 +1566,7 @@ namespace NBitcoin
 				throw new ArgumentNullException("formatter");
 			return formatter.ToString(this);
 		}
-
+#endif
 		/// <summary>
 		/// Calculate the fee of the transaction
 		/// </summary>

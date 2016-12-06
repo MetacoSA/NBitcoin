@@ -1,4 +1,5 @@
-﻿#if !NOSOCKET
+﻿#if !NOJSONNET
+#if !NOSOCKET
 using NBitcoin.Protocol;
 using NBitcoin.Protocol.Behaviors;
 using System;
@@ -413,4 +414,5 @@ namespace NBitcoin.SPV
 		}
 	}
 }
+#endif
 #endif
