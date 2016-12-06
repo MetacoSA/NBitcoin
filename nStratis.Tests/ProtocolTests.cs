@@ -123,11 +123,15 @@ namespace nStratis.Tests
 	}
 	public class ProtocolTests
 	{
+		public static bool noClient = !Process.GetProcesses().Any(p => p.ProcessName.Contains("stratis"));
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		//Copied from https://en.bitcoin.it/wiki/Protocol_specification (19/04/2014)
 		public void CanParseMessages()
 		{
+			if (RPCClientTests.noClient) return;
+
 			var EST = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
 			var tests = new[]
 				{
@@ -202,6 +206,8 @@ namespace nStratis.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanHandshake()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var builder = NodeBuilder.Create())
 			{
 				var seed = builder.CreateNode(false).CreateNodeClient();
@@ -284,6 +290,8 @@ namespace nStratis.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanMaintainChainWithChainBehavior()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode(false).CreateNodeClient();
@@ -320,6 +328,8 @@ namespace nStratis.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanCancelConnection()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode(false);
@@ -343,6 +353,8 @@ namespace nStratis.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanGetTransactionsFromMemPool()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode();
@@ -358,7 +370,7 @@ namespace nStratis.Tests
 		}
 
 #if !NOFILEIO
-		//[Fact]
+		[Fact]
 		public void CanConnectToRandomNode()
 		{
 			Stopwatch watch = new Stopwatch();
@@ -394,6 +406,8 @@ namespace nStratis.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanGetBlocksWithProtocol()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode(false);
@@ -415,6 +429,8 @@ namespace nStratis.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanGetMemPool()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode();
@@ -433,6 +449,8 @@ namespace nStratis.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanGetChainsConcurrently()
 		{
+			if (RPCClientTests.noClient) return;
+
 			var stop = uint256.Parse("c9920baf967a314bd123efa184d54d4b9e7460301e3f2e059bafc77c45d03017");
 
 			using (var builder = NodeBuilder.Create())
@@ -486,6 +504,8 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void ServerDisconnectCorrectlyFromDroppingClient()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var tester = new NodeServerTester())
 			{
 				var to2 = tester.Node1;
@@ -505,6 +525,8 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReceiveHandshake()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var tester = new NodeServerTester())
 			{
 				var toS2 = tester.Node1;
@@ -519,6 +541,7 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRespondToPong()
 		{
+			if (RPCClientTests.noClient) return;
 
 			using (var tester = new NodeServerTester())
 			{
@@ -546,6 +569,8 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CantConnectToYourself()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var tester = new NodeServerTester())
 			{
 				tester.Server2.Nonce = tester.Server1.Nonce;
@@ -560,6 +585,8 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanExchangeFastPingPong()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var tester = new NodeServerTester())
 			{
 				var n1 = tester.Node1;
@@ -594,6 +621,8 @@ namespace nStratis.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConnectMultipleTimeToServer()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var tester = new NodeServerTester())
 			{
 				int nodeCount = 0;
@@ -641,6 +670,8 @@ namespace nStratis.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlock()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode(false).CreateNodeClient();
@@ -660,6 +691,8 @@ namespace nStratis.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadHeaders()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode(false).CreateNodeClient();
@@ -680,6 +713,8 @@ namespace nStratis.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlocks()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode(false).CreateNodeClient();
@@ -699,6 +734,8 @@ namespace nStratis.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadLastBlocks()
 		{
+			if (RPCClientTests.noClient) return;
+
 			using (var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode(false).CreateNodeClient();
