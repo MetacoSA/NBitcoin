@@ -1,4 +1,5 @@
-﻿using NBitcoin.Protocol;
+﻿using NBitcoin.BouncyCastle.Math;
+using NBitcoin.Protocol;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -180,7 +181,7 @@ namespace NBitcoin.Tests
 			foreach(var history in histories)
 			{
 				var height = int.Parse(history.Split(',')[0]);
-				var expectedTarget = new Target(BigInteger.Parse(history.Split(',')[1]));
+				var expectedTarget = new Target(new BigInteger(history.Split(',')[1], 10));
 
 				var block = main.GetBlock(height).Header;
 

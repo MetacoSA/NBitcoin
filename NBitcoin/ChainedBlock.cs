@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.BouncyCastle.Math;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -56,7 +57,7 @@ namespace NBitcoin
 			}
 		}
 
-		System.Numerics.BigInteger _ChainWork;
+		BigInteger _ChainWork;
 		public uint256 ChainWork
 		{
 			get
@@ -93,20 +94,20 @@ namespace NBitcoin
 
 		private void CalculateChainWork()
 		{
-			_ChainWork = (Previous == null ? System.Numerics.BigInteger.Zero : Previous._ChainWork) + GetBlockProof();
+			_ChainWork = (Previous == null ? BigInteger.Zero : Previous._ChainWork).Add(GetBlockProof());
 		}
 
-		static System.Numerics.BigInteger Pow256 = System.Numerics.BigInteger.Pow(2, 256);
-		private System.Numerics.BigInteger GetBlockProof()
+		static BigInteger Pow256 = BigInteger.ValueOf(2).Pow(256);
+		private BigInteger GetBlockProof()
 		{
 			var bnTarget = Header.Bits.ToBigInteger();
-			if(bnTarget <= System.Numerics.BigInteger.Zero || bnTarget >= Pow256)
-				return System.Numerics.BigInteger.Zero;
+			if(bnTarget.CompareTo(BigInteger.Zero) <= 0 || bnTarget.CompareTo(Pow256) >= 0)
+				return BigInteger.Zero;
 			// We need to compute 2**256 / (bnTarget+1), but we can't represent 2**256
 			// as it's too large for a arith_uint256. However, as 2**256 is at least as large
 			// as bnTarget+1, it is equal to ((2**256 - bnTarget - 1) / (bnTarget+1)) + 1,
 			// or ~bnTarget / (nTarget+1) + 1.
-			return ((Pow256 - bnTarget - 1) / (bnTarget + 1)) + 1;
+			return ((Pow256.Subtract(bnTarget).Subtract(BigInteger.One)).Divide(bnTarget.Add(BigInteger.One))).Add(BigInteger.One);
 		}
 
 		public ChainedBlock(BlockHeader header, int height)
@@ -289,8 +290,8 @@ namespace NBitcoin
 
 			// Retarget
 			var bnNew = pindexLast.Header.Bits.ToBigInteger();
-			bnNew *= (ulong)nActualTimespan.TotalSeconds;
-			bnNew /= (ulong)consensus.PowTargetTimespan.TotalSeconds;
+			bnNew = bnNew.Multiply(BigInteger.ValueOf((long)nActualTimespan.TotalSeconds));
+			bnNew = bnNew.Divide(BigInteger.ValueOf((long)consensus.PowTargetTimespan.TotalSeconds));
 			var newTarget = new Target(bnNew);
 			if(newTarget > nProofOfWorkLimit)
 				newTarget = nProofOfWorkLimit;

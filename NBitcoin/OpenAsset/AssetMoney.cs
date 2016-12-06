@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -117,20 +116,7 @@ namespace NBitcoin.OpenAsset
 				Quantity = (long)satoshi;
 			}
 		}
-
-#if !NOBIGINT
-		public AssetMoney(AssetId assetId, BigInteger quantity)
-#else
-		internal AssetMoney(AssetId assetId, BigInteger quantity)
-#endif
-		{
-			if(assetId == null)
-				throw new ArgumentNullException("assetId");
-			_Id = assetId;
-			// Overflow Safe. 
-			// BigInteger's explicit operator long checks for overflows
-			Quantity = (long)quantity;
-		}
+		
 		#endregion
 
 		private static int Pow10(int divisibility)

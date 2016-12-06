@@ -5,12 +5,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Numerics;
 using System.Text;
 using System.Threading;
 using NBitcoin.Protocol;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
+using NBitcoin.BouncyCastle.Math;
 #if !NOSOCKET
 using System.Net.Sockets;
 #endif
@@ -418,36 +418,26 @@ namespace NBitcoin
 
 		}
 
-
-
-#if !NOBIGINT
-		//https://en.bitcoin.it/wiki/Script
 		public static byte[] BigIntegerToBytes(BigInteger num)
-#else
-		internal static byte[] BigIntegerToBytes(BigInteger num)
-#endif
 		{
-			if(num == 0)
+			if(num.Equals(BigInteger.Zero))
 				//Positive 0 is represented by a null-length vector
 				return new byte[0];
 
 			bool isPositive = true;
-			if(num < 0)
+			if(num.CompareTo(BigInteger.Zero) < 0)
 			{
 				isPositive = false;
-				num *= -1;
+				num = num.Multiply(BigInteger.ValueOf(-1));
 			}
 			var array = num.ToByteArray();
+			Array.Reverse(array);
 			if(!isPositive)
 				array[array.Length - 1] |= 0x80;
 			return array;
 		}
-
-#if !NOBIGINT
+		
 		public static BigInteger BytesToBigInteger(byte[] data)
-#else
-		internal static BigInteger BytesToBigInteger(byte[] data)
-#endif
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");
@@ -458,9 +448,10 @@ namespace NBitcoin
 			if(!positive)
 			{
 				data[data.Length - 1] &= unchecked((byte)~0x80);
-				return -new BigInteger(data);
+				Array.Reverse(data);
+				return new BigInteger(1, data).Negate();
 			}
-			return new BigInteger(data);
+			return new BigInteger(1, data);
 		}
 
 		static readonly TraceSource _TraceSource = new TraceSource("NBitcoin");

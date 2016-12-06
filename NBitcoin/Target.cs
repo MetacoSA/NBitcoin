@@ -1,7 +1,7 @@
-﻿using System;
+﻿using NBitcoin.BouncyCastle.Math;
+using System;
 using System.Globalization;
 using System.Linq;
-using System.Numerics;
 
 namespace NBitcoin
 {
@@ -39,30 +39,27 @@ namespace NBitcoin
 
 
 		BigInteger _Target;
+
 		public Target(byte[] compact)
 		{
 			if(compact.Length == 4)
 			{
 				var exp = compact[0];
-				var val = compact.SafeSubarray(1, 3).Reverse().ToArray();
-				_Target = new BigInteger(val) << 8 * (exp - 3);
+				var val = new BigInteger(compact.SafeSubarray(1, 3));
+				_Target = val.ShiftLeft(8  * (exp - 3));
 			}
 			else
 				throw new FormatException("Invalid number of bytes");
 		}		
-
-#if !NOBIGINT
+		
 		public Target(BigInteger target)
-#else
-		internal Target(BigInteger target)
-#endif
 		{
 			_Target = target;
 			_Target = new Target(this.ToCompact())._Target;
 		}
 		public Target(uint256 target)
 		{
-			_Target = new BigInteger(target.ToBytes());
+			_Target = new BigInteger(target.ToBytes(false));
 			_Target = new Target(this.ToCompact())._Target;
 		}
 
@@ -72,8 +69,9 @@ namespace NBitcoin
 		}
 		public static implicit operator uint(Target a)
 		{
-			var bytes = a._Target.ToByteArray().Reverse().ToArray();
-			var val = bytes.SafeSubarray(0, Math.Min(bytes.Length, 3)).Reverse().ToArray();
+			var bytes = a._Target.ToByteArray();
+			var val = bytes.SafeSubarray(0, Math.Min(bytes.Length, 3));
+			Array.Reverse(val);
 			var exp = (byte)(bytes.Length);
 			var missing = 4 - val.Length;
 			if(missing > 0)
@@ -84,23 +82,25 @@ namespace NBitcoin
 		}
 
 		double? _Difficulty;
+		
 		public double Difficulty
 		{
 			get
 			{
 				if(_Difficulty == null)
 				{
-					BigInteger remainder;
-					var quotient = BigInteger.DivRem(Difficulty1._Target, _Target, out remainder);
+					var qr = Difficulty1._Target.DivideAndRemainder(_Target);
+					var quotient = qr[0];
+					var remainder = qr[1];
 					var decimalPart = BigInteger.Zero;
 					for(int i = 0; i < 12; i++)
 					{
-						var div = (remainder * 10) / _Target;
+						var div = (remainder.Multiply(BigInteger.Ten)).Divide(_Target);
 
-						decimalPart *= 10;
-						decimalPart += div;
+						decimalPart = decimalPart.Multiply(BigInteger.Ten);
+						decimalPart = decimalPart.Add(div);
 
-						remainder = remainder * 10 - div * _Target;
+						remainder = remainder.Multiply(BigInteger.Ten).Subtract(div.Multiply(_Target));
 					}
 					_Difficulty = double.Parse(quotient.ToString() + "." + decimalPart.ToString(), new NumberFormatInfo()
 					{
@@ -139,12 +139,8 @@ namespace NBitcoin
 		{
 			return _Target.GetHashCode();
 		}
-
-#if !NOBIGINT
+		
 		public BigInteger ToBigInteger()
-#else
-		internal BigInteger ToBigInteger()
-#endif
 		{
 			return _Target;
 		}
@@ -162,14 +158,15 @@ namespace NBitcoin
 		internal static uint256 ToUInt256(BigInteger input)
 		{
 			var array = input.ToByteArray();
+
 			var missingZero = 32 - array.Length;
 			if(missingZero < 0)
 				throw new InvalidOperationException("Awful bug, this should never happen");
 			if(missingZero != 0)
 			{
-				array = array.Concat(new byte[missingZero]).ToArray();
+				array = new byte[missingZero].Concat(array).ToArray();
 			}
-			return new uint256(array);
+			return new uint256(array, false);
 		}
 
 		public override string ToString()

@@ -50,7 +50,7 @@ namespace NBitcoin.Tests
 
 					// Number
 					long n = long.Parse(w);
-					Op.GetPushOp(new BigInteger(n)).WriteTo(result);
+					Op.GetPushOp(n).WriteTo(result);
 				}
 				else if(w.StartsWith("0x") && HexEncoder.IsWellFormed(w.Substring(2)))
 				{

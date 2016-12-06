@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using ooo = NBitcoin.BouncyCastle.Math;
@@ -261,7 +260,7 @@ namespace NBitcoin
 				default:
 					return Enum.GetName(typeof(OpcodeType), opcode);
 			}
-		}
+		}		
 		internal static bool IsPushCode(OpcodeType opcode)
 		{
 			return 0 <= opcode && opcode <= OpcodeType.OP_16 && opcode != OpcodeType.OP_RESERVED;
@@ -307,18 +306,10 @@ namespace NBitcoin
 		{
 			return _OpcodeByName.TryGetValue(name, out result);
 		}
-
-#if !NOBIGINT
-		public static Op GetPushOp(BigInteger data)
-#else
-		internal static Op GetPushOp(BigInteger data)
-#endif
-		{
-			return GetPushOp(Utils.BigIntegerToBytes(data));
-		}
+	
 		public static Op GetPushOp(long value)
 		{
-			return GetPushOp(Utils.BigIntegerToBytes(new BigInteger(value)));
+			return GetPushOp(Utils.BigIntegerToBytes(ooo.BigInteger.ValueOf(value)));
 		}
 		public static Op GetPushOp(byte[] data)
 		{
@@ -670,15 +661,39 @@ namespace NBitcoin
 				return IsSmallUInt || Code == OpcodeType.OP_1NEGATE;
 			}
 		}
-#if !NOBIGINT
-		public BigInteger? GetValue()
-#else
-		internal BigInteger? GetValue()
-#endif
+
+		public int? GetInt()
+		{
+			var l = GetLong();
+			if(l == null)
+				return null;
+			if(l.Value > int.MaxValue)
+				return int.MaxValue;
+			else if(l.Value < int.MinValue)
+				return int.MinValue;
+			return (int)l.Value;
+		}
+
+		public long? GetLong()
 		{
 			if(PushData == null)
 				return null;
-			return Utils.BytesToBigInteger(PushData);
+			var vch = PushData;
+			if(vch.Length == 0)
+				return 0;
+
+			long result = 0;
+			for(int i = 0; i != vch.Length; ++i)
+				result |= ((long)(vch[i])) << 8 * i;
+
+			// If the input vector's most significant byte is 0x80, remove it from
+			// the result's msb and return a negative.
+			if((vch[vch.Length - 1] & 0x80) != 0)
+			{
+				var temp = ~(0x80UL << (8 * (vch.Length - 1)));
+				return -((long)((ulong)result & temp));
+			}
+			return result;
 		}
 	}
 	public class ScriptReader

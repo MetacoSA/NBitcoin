@@ -1,4 +1,5 @@
-﻿using NBitcoin.Crypto;
+﻿using NBitcoin.BouncyCastle.Math;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using Newtonsoft.Json.Linq;
@@ -6,7 +7,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using Xunit;
 
@@ -95,11 +95,12 @@ namespace NBitcoin.Tests
 		{
 			var packed = new Target(TestUtils.ParseHex("1b0404cb"));
 			var unpacked = new Target(uint256.Parse("00000000000404CB000000000000000000000000000000000000000000000000"));
+			
 			Assert.Equal(packed, unpacked);
 			Assert.Equal(packed, new Target(0x1b0404cb));
 
 			packed = new Target(TestUtils.ParseHex("1b8404cb"));
-			Assert.True(packed.ToBigInteger() < 0);
+			Assert.True(packed.ToBigInteger().CompareTo(BigInteger.Zero) < 0);
 			Assert.Equal(packed, new Target(0x1b8404cb));
 
 			packed = new Target(TestUtils.ParseHex("1d00ffff"));
@@ -443,21 +444,30 @@ namespace NBitcoin.Tests
 		{
 			foreach(var expected in Enumerable.Range(-100, 100))
 			{
-				var bytes = Utils.BigIntegerToBytes(expected);
+				var bytes = Utils.BigIntegerToBytes(BigInteger.ValueOf(expected));
 				var actual = Utils.BytesToBigInteger(bytes);
-				Assert.Equal(expected, actual);
+				Assert.Equal<BigInteger>(BigInteger.ValueOf(expected), actual);
 			}
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertBigIntegerToBytes()
 		{
-			Assert.Equal<BigInteger>(0, Utils.BytesToBigInteger(new byte[0]));
-			Assert.Equal<BigInteger>(0, Utils.BytesToBigInteger(new byte[] { 0 }));
-			Assert.Equal<BigInteger>(0, Utils.BytesToBigInteger(new byte[] { 0x80 }));
-			Assert.Equal<BigInteger>(1, Utils.BytesToBigInteger(new byte[] { 1 }));
-			Assert.Equal<BigInteger>(-1, Utils.BytesToBigInteger(new byte[] { 0x81 }));
-			Assert.Equal<BigInteger>(-128, Utils.BytesToBigInteger(new byte[] { 0x80, 0x80 }));
+			CanConvertBigIntegerToBytesCore(BigInteger.Zero, new byte[0]);
+			CanConvertBigIntegerToBytesCore(BigInteger.Zero, new byte[] { 0 }, false);
+			CanConvertBigIntegerToBytesCore(BigInteger.Zero, new byte[] { 0x80 }, false);
+			CanConvertBigIntegerToBytesCore(BigInteger.One, new byte[] { 1 });
+			CanConvertBigIntegerToBytesCore(BigInteger.One.Negate(), new byte[] { 0x81 });
+			CanConvertBigIntegerToBytesCore(BigInteger.ValueOf(-128), new byte[] { 0x80, 0x80 });
+			CanConvertBigIntegerToBytesCore(BigInteger.ValueOf(-129), new byte[] { 0x81, 0x80 });
+			CanConvertBigIntegerToBytesCore(BigInteger.ValueOf(-256), new byte[] { 0x00, 0x81 });
+		}
+
+		private void CanConvertBigIntegerToBytesCore(BigInteger b, byte[] bbytes, bool testByteSerialization = true)
+		{
+			Assert.Equal(b, Utils.BytesToBigInteger(bbytes));
+			if(testByteSerialization)
+				Assert.True(Utils.BigIntegerToBytes(b).SequenceEqual(bbytes));
 		}
 
 		[Fact]

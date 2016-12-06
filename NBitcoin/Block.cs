@@ -1,4 +1,5 @@
-﻿using NBitcoin.Crypto;
+﻿using NBitcoin.BouncyCastle.Math;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
@@ -184,11 +185,11 @@ namespace NBitcoin
 			}
 		}
 
-		static System.Numerics.BigInteger Pow256 = System.Numerics.BigInteger.Pow(2, 256);
+		static BigInteger Pow256 = BigInteger.ValueOf(2).Pow(256);
 		public bool CheckProofOfWork()
 		{
 			var bits = Bits.ToBigInteger();
-			if(bits <= System.Numerics.BigInteger.Zero || bits >= Pow256)
+			if(bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
 				return false;
 			// Check proof of work matches claimed amount
 			return GetHash() <= Bits.ToUInt256();

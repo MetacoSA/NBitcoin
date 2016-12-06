@@ -752,11 +752,6 @@ namespace NBitcoin
 			return stream;
 		}
 
-		public static Script operator +(Script a, int value)
-		{
-			return a + Utils.BigIntegerToBytes(value);
-		}
-
 		public static Script operator +(Script a, IEnumerable<byte> bytes)
 		{
 			if(a == null)
