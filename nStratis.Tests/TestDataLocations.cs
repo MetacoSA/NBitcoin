@@ -47,22 +47,30 @@ namespace nStratis.Tests
 			client.DownloadFile(url, file);
 		}
 
+		public static string DataBlockFolder(string file)
+		{
+			var p = Path.DirectorySeparatorChar;
+			var folder = DataFolder("blocks");
+			return $@"{folder}\{file}".Replace('\\', p);
+		}
+
 		public static string DataFolder(string file)
 		{
+			var p = Path.DirectorySeparatorChar;
 			var current = Directory.GetCurrentDirectory();
-			if(Directory.Exists($@"{current}\data"))
+			if(Directory.Exists($@"{current}\data".Replace('\\', p)))
 			{
-				return $@"{current}\data\{file}";
+				return $@"{current}\data\{file}".Replace('\\', p);
 			}
 
-			if (Directory.Exists($@"{current}\bin\Debug\netcoreapp1.0\data"))
+			if (Directory.Exists($@"{current}\bin\Debug\netcoreapp1.0\data".Replace('\\', p)))
 			{
-				return $@"{current}\bin\Debug\netcoreapp1.0\data\{file}";
+				return $@"{current}\bin\Debug\netcoreapp1.0\data\{file}".Replace('\\', p);
 			}
 
-			if (Directory.Exists($@"{current}\bin\Debug\netcoreapp1.1\data"))
+			if (Directory.Exists($@"{current}\bin\Debug\netcoreapp1.1\data".Replace('\\', p)))
 			{
-				return $@"{current}\bin\Debug\netcoreapp1.1\data\{file}";
+				return $@"{current}\bin\Debug\netcoreapp1.1\data\{file}".Replace('\\', p);
 			}
 
 			throw new DirectoryNotFoundException();

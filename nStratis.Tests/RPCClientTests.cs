@@ -137,6 +137,20 @@ namespace nStratis.Tests
 		//}
 
 		[Fact]
+		public void CanGetBestBlock()
+		{
+			if (RPCClientTests.noClient) return;
+
+			using (var builder = NodeBuilder.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				var block = rpc.GetBestBlockHash();
+				Assert.NotNull(block);
+			}
+		}
+
+		[Fact]
 		public void CanGetBlockWithSignature()
 		{
 			if (RPCClientTests.noClient) return;
