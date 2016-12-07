@@ -33,6 +33,8 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(k.PubKey.Hash);
 			CanSerializeInJsonCore(k.PubKey.ScriptPubKey.Hash);
 			CanSerializeInJsonCore(k.PubKey.WitHash);
+			CanSerializeInJsonCore(k);
+			CanSerializeInJsonCore(k.PubKey);
 			CanSerializeInJsonCore(new WitScript(new Script(Op.GetPushOp(sig.ToDER()), Op.GetPushOp(sig.ToDER()))));
 			CanSerializeInJsonCore(new LockTime(1));
 			CanSerializeInJsonCore(new LockTime(DateTime.UtcNow));
