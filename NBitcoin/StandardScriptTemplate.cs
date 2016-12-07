@@ -150,14 +150,14 @@ namespace NBitcoin
 			if(ops.Length < 3)
 				return false;
 
-			var sigCount = ops[0];
-			if(!sigCount.IsSmallUInt)
+			var sigCount = ops[0].GetInt();
+			var keyCount = ops[ops.Length - 2].GetInt();
+
+			if(sigCount == null || keyCount == null)
+				return false;			
+			if(keyCount.Value < 0 || keyCount.Value > 20)
 				return false;
-			var pubKeyCount = ops[ops.Length - 2];
-			if(!pubKeyCount.IsSmallUInt)
-				return false;
-			var keyCount = pubKeyCount.GetInt();
-			if(keyCount == null)
+			if(sigCount.Value < 0 || sigCount.Value > keyCount.Value)
 				return false;
 			if(1 + keyCount + 1 + 1 != ops.Length)
 				return false;
@@ -178,10 +178,9 @@ namespace NBitcoin
 			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
 
-			var sigCount = ops[0].GetInt();
-			var keyCount = ops[ops.Length - 2].GetInt();
-			if(sigCount == null || keyCount == null)
-				return null;
+			//already checked in CheckScriptPubKeyCore
+			var sigCount = ops[0].GetInt().Value;
+			var keyCount = ops[ops.Length - 2].GetInt().Value;
 			List<PubKey> keys = new List<PubKey>();
 			List<byte[]> invalidKeys = new List<byte[]>();
 			for(int i = 1; i < keyCount + 1; i++)
@@ -203,7 +202,7 @@ namespace NBitcoin
 
 			return new PayToMultiSigTemplateParameters()
 			{
-				SignatureCount = sigCount.Value,
+				SignatureCount = sigCount,
 				PubKeys = keys.ToArray(),
 				InvalidPubKeys = invalidKeys.ToArray()
 			};
