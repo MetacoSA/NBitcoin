@@ -96,7 +96,7 @@ namespace nStratis.RPC
         blockchain         getblock                     Yes
         blockchain         getblockhash                 Yes
         blockchain         getchaintips
-        blockchain         getdifficulty
+        blockchain         getdifficulty				Yes
         blockchain         getmempoolinfo
         blockchain         getrawmempool                Yes
         blockchain         gettxout
@@ -148,7 +148,7 @@ namespace nStratis.RPC
         wallet             getaccountaddress
         wallet             getaccount                   Yes
         wallet             getaddressesbyaccount
-        wallet             getbalance
+        wallet             getbalance					Yes
         wallet             getnewaddress
         wallet             getrawchangeaddress
         wallet             getreceivedbyaccount
@@ -641,6 +641,28 @@ namespace nStratis.RPC
 			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
 		}
 
+		/// <summary>
+        /// Get the current Proof Of Work difficulty of the network - not valid past first few blocks
+        /// </summary>
+        /// <returns></returns>
+        public double GetPowDifficulty()
+        {
+            var result = SendCommand("getdifficulty");
+            var powDifficulty = (double)result.Result["proof-of-work"];
+            return powDifficulty;
+        }
+
+        /// <summary>
+        /// Get the current Proof Of Stake difficulty of the network
+        /// </summary>
+        /// <returns></returns>
+        public double GetPosDifficulty()
+        {
+            var result = SendCommand("getdifficulty");
+            var posDifficulty = (double)result.Result["proof-of-stake"];
+            return posDifficulty;
+        }
+		
 		#endregion
 
 		#region Coin generation
@@ -969,6 +991,16 @@ namespace nStratis.RPC
 			}
 		}
 
+		public Money GetBalance()
+        {
+            var response = SendCommand("getbalance");
+            var result = response.Result.Value<decimal>();
+            var money = Money.Coins(result);
+            if (money.Satoshi < 0)
+                money = Money.Zero;
+            return money;
+        }
+		
 		#endregion
 
 		#region Utility functions
