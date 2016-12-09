@@ -49,6 +49,7 @@
         "../NBitcoin/**/*.cs",
         "../Stubs/TraceStub/TraceSource.cs"
       ]
-    }
+    },
+	"xmlDoc": true
   }
 }
