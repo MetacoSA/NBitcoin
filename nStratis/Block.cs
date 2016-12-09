@@ -575,6 +575,11 @@ namespace nStratis
 			this.HashProof = uint256.Zero;
 		}
 
+		public bool IsSet()
+		{
+			return this.HashProof != uint256.Zero;
+		}
+
 		public BlockFlag Flags
 		{
 			get
