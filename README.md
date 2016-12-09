@@ -1,6 +1,6 @@
 #nStratis
 
-nStratis is a stratis blockchain library for the .NET platform. It is compatible with Open Assets and implements most relevant Bitcoin Improvement Proposals (BIPs). It provides also low level access to Stratis primitives so you can easily create your own smart contracts.
+nStratis is a stratis blockchain library for the .NET platform. It is compatible with Open Assets and implements most relevant Bitcoin Improvement Proposals (BIPs). It also provides low level access to Stratis primitives so you can easily create your own smart contracts.
 
 
 #How to use ?
@@ -11,8 +11,8 @@ Go on the [nuget website](https://www.nuget.org/packages/nStratis/) for more inf
 
 The packages supports:
 
-* With full features, Windows Desktop applications, Mono Desktop applications, and plateform supported at [.NET Standard 1.3](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) (.NET Core, Xamarin IOS, Xamarin Android, UWP).
-* With limited features, plateform supported at [.NET Standard 1.1](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) (Windows Phone, Windows 8.0 apps).
+* With full features, Windows Desktop applications, Mono Desktop applications, and platform supported at [.NET Standard 1.3](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) (.NET Core, Xamarin IOS, Xamarin Android, UWP).
+* With limited features, platform supported at [.NET Standard 1.1](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) (Windows Phone, Windows 8.0 apps).
 
 ##Description
 nStratis notably includes:
