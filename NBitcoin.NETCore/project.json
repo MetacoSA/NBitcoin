@@ -50,6 +50,7 @@
         "../Stubs/TraceStub/TraceSource.cs"
       ]
     },
-	"xmlDoc": true
+	"xmlDoc": true,
+	"nowarn": ["1591","1573","1572","1584","1570","3021"]
   }
 }
