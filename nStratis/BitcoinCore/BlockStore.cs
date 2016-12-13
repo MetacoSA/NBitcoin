@@ -38,7 +38,7 @@ namespace nStratis.BitcoinCore
 			foreach (var block in this.Enumerate(false).Select(b => b.Item))
 			{
 				var hash = block.GetHash();
-				blocks.Add(hash, block);
+				blocks.TryAdd(hash, block);
 			}
 			List<uint256> toRemove = new List<uint256>();
 			while (blocks.Count != 0)

@@ -1,6 +1,9 @@
 ﻿#if !NOSOCKET
 using System;
+using System.CodeDom;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using nStratis.Protocol.Behaviors;
@@ -27,6 +30,7 @@ namespace nStratis.Protocol
 		CancellationTokenSource _Disconnect;
 		Network _Network;
 		object cs;
+		object tcs;
 
 		public NodesGroup(
 			Network network,
@@ -37,6 +41,7 @@ namespace nStratis.Protocol
 			MaximumNodeConnection = 8;
 			_Network = network;
 			cs = new object();
+			tcs = new object();
 			_ConnectedNodes = new NodesCollection();
 			_ConnectionParameters = connectionParameters ?? new NodeConnectionParameters();
 			_ConnectionParameters = _ConnectionParameters.Clone();
@@ -61,8 +66,71 @@ namespace nStratis.Protocol
 			_ConnectedNodes.DisconnectAll();
 		}
 
-		AddressManager _DefaultAddressManager = new AddressManager();
+		readonly AddressManager _DefaultAddressManager = new AddressManager();
 		volatile bool _Connecting;
+
+		/// <summary>
+		/// Try to connect to a single endpoint
+		/// The connected endpoint will be added to the nodes collection
+		/// </summary>
+		/// <param name="force">Connect even if MaximumNodeConnection limit was reached</param>
+		/// <returns>A connected node or null</returns>
+		public Node TryConnectNode(IPEndPoint endPoint, bool force = false)
+		{
+			// this is not expected to be performance critical so
+			// only use a single lock. placing a lock before the 
+			// check should avoid connecting to a node already connected 
+			lock (tcs)
+			{
+				// first look for the node maybe its already connected
+				var node = this.ConnectedNodes.FindByEndpoint(endPoint);
+				if (node != null)
+					return node;
+
+				if (!force && _ConnectedNodes.Count >= MaximumNodeConnection)
+					return null;
+
+				var scope = _Trace.Open();
+
+				NodeServerTrace.Information("Connected nodes : " + _ConnectedNodes.Count + "/" + MaximumNodeConnection);
+				var parameters = _ConnectionParameters.Clone();
+				parameters.TemplateBehaviors.Add(new NodesGroupBehavior(this));
+				parameters.ConnectCancellation = _Disconnect.Token;
+
+				try
+				{
+					node = Node.Connect(_Network, endPoint, parameters);
+					var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token);
+					timeout.CancelAfter(5000);
+					node.VersionHandshake(_Requirements, timeout.Token);
+					NodeServerTrace.Information("Node successfully connected to and handshaked");
+				}
+				catch (OperationCanceledException ex)
+				{
+					if (_Disconnect.Token.IsCancellationRequested)
+						throw;
+					NodeServerTrace.Error("Timeout for picked node", ex);
+					if (node != null)
+						node.DisconnectAsync("Handshake timeout", ex);
+				}
+				catch (SocketException)
+				{
+					_ConnectionParameters.ConnectCancellation.WaitHandle.WaitOne(500);
+				}
+				catch (Exception ex)
+				{
+					NodeServerTrace.Error("Error while connecting to node", ex);
+					if (node != null)
+						node.DisconnectAsync("Error while connecting", ex);
+				}
+				finally
+				{
+					scope?.Dispose();
+				}
+
+				return node;
+			}
+		}
 
 		internal void StartConnecting()
 		{
