@@ -129,14 +129,7 @@ namespace NBitcoin.RPC
 	*/
 	public partial class RPCClient : IBlockRepository
 	{
-		private readonly NetworkCredential _credentials;
-		public NetworkCredential Credentials
-		{
-			get
-			{
-				return _credentials;
-			}
-		}
+		private readonly string _Authentication;
 		private readonly Uri _address;
 		public Uri Address
 		{
@@ -158,6 +151,17 @@ namespace NBitcoin.RPC
 		{
 		}
 
+		/// <summary>
+		/// Create a new RPCClient instance
+		/// </summary>
+		/// <param name="authenticationString">username:password or the content of the .cookie file</param>
+		/// <param name="host"></param>
+		/// <param name="network"></param>
+		public RPCClient(string authenticationString, string host, Network network)
+			: this(authenticationString, BuildUri(host, network.RPCPort), network)
+		{
+		}
+
 		private static Uri BuildUri(string host, int port)
 		{
 			UriBuilder builder = new UriBuilder();
@@ -167,10 +171,20 @@ namespace NBitcoin.RPC
 			return builder.Uri;
 		}
 		public RPCClient(NetworkCredential credentials, Uri address, Network network = null)
+			:this(credentials == null ? null : (credentials.UserName + ":" + credentials.Password), address, network)
 		{
+		}
 
-			if(credentials == null)
-				throw new ArgumentNullException("credentials");
+		/// <summary>
+		/// Create a new RPCClient instance
+		/// </summary>
+		/// <param name="authenticationString">username:password or the content of the .cookie file</param>
+		/// <param name="address"></param>
+		/// <param name="network"></param>
+		public RPCClient(string authenticationString, Uri address, Network network = null)
+		{
+			if(authenticationString == null)
+				throw new ArgumentNullException("authenticationString");
 			if(address == null)
 				throw new ArgumentNullException("address");
 			if(network == null)
@@ -179,10 +193,12 @@ namespace NBitcoin.RPC
 				if(network == null)
 					throw new ArgumentNullException("network");
 			}
-			_credentials = credentials;
+			_Authentication = authenticationString;
 			_address = address;
 			_network = network;
 		}
+
+
 
 		public RPCResponse SendCommand(RPCOperations commandName, params object[] parameters)
 		{
@@ -237,7 +253,7 @@ namespace NBitcoin.RPC
 		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
 		{
 			var webRequest = (HttpWebRequest)WebRequest.Create(Address);
-			webRequest.Headers[HttpRequestHeader.Authorization] = "Basic " + Encoders.Base64.EncodeData(Encoders.ASCII.DecodeData(Credentials.UserName + ":" + Credentials.Password));
+			webRequest.Headers[HttpRequestHeader.Authorization] = "Basic " + Encoders.Base64.EncodeData(Encoders.ASCII.DecodeData(_Authentication));
 			webRequest.ContentType = "application/json-rpc";
 			webRequest.Method = "POST";
 
