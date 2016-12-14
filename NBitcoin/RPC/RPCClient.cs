@@ -146,6 +146,15 @@ namespace NBitcoin.RPC
 				return _network;
 			}
 		}
+
+		/// <summary>
+		/// Use default bitcoin parameters to configure a RPCClient.
+		/// </summary>
+		/// <param name="network">The network used by the node. Must not be null.</param>
+		public RPCClient(Network network) : this(null as string, BuildUri(null, network.RPCPort), network)
+		{
+		}
+
 		public RPCClient(NetworkCredential credentials, string host, Network network)
 			: this(credentials, BuildUri(host, network.RPCPort), network)
 		{
@@ -164,6 +173,7 @@ namespace NBitcoin.RPC
 
 		private static Uri BuildUri(string host, int port)
 		{
+			host = host ?? "127.0.0.1";
 			UriBuilder builder = new UriBuilder();
 			builder.Host = host;
 			builder.Scheme = "http";
@@ -171,7 +181,7 @@ namespace NBitcoin.RPC
 			return builder.Uri;
 		}
 		public RPCClient(NetworkCredential credentials, Uri address, Network network = null)
-			:this(credentials == null ? null : (credentials.UserName + ":" + credentials.Password), address, network)
+			: this(credentials == null ? null : (credentials.UserName + ":" + credentials.Password), address, network)
 		{
 		}
 
@@ -183,8 +193,10 @@ namespace NBitcoin.RPC
 		/// <param name="network"></param>
 		public RPCClient(string authenticationString, Uri address, Network network = null)
 		{
+			authenticationString = string.IsNullOrWhiteSpace(authenticationString) ? null : authenticationString;
+			authenticationString = authenticationString ?? GetAuthenticationString(network);
 			if(authenticationString == null)
-				throw new ArgumentNullException("authenticationString");
+				throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
 			if(address == null)
 				throw new ArgumentNullException("address");
 			if(network == null)
@@ -198,7 +210,30 @@ namespace NBitcoin.RPC
 			_network = network;
 		}
 
-
+		private string GetAuthenticationString(Network network)
+		{
+			if(network == null)
+				return null;
+			var home = Environment.GetEnvironmentVariable("HOME");
+			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
+			if(string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
+				return null;
+			string bitcoinFolder = null;
+			if(string.IsNullOrEmpty(localAppData))
+				bitcoinFolder = Path.Combine(home, ".bitcoin");
+			else
+				bitcoinFolder = Path.Combine(localAppData, "Bitcoin");
+			if(network == Network.TestNet)
+				bitcoinFolder = Path.Combine(bitcoinFolder, "testnet3");
+			if(network == Network.RegTest)
+				bitcoinFolder = Path.Combine(bitcoinFolder, "regtest");
+			var cookiePath = Path.Combine(bitcoinFolder, ".cookie");
+			try
+			{
+				return File.ReadAllText(cookiePath);
+			}
+			catch { return null; }
+		}
 
 		public RPCResponse SendCommand(RPCOperations commandName, params object[] parameters)
 		{
@@ -290,7 +325,7 @@ namespace NBitcoin.RPC
 			return response;
 		}
 
-#region P2P Networking
+		#region P2P Networking
 #if !NOSOCKET
 		public PeerInfo[] GetPeersInfo()
 		{
@@ -450,9 +485,9 @@ namespace NBitcoin.RPC
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Block chain and UTXO
+		#region Block chain and UTXO
 
 		public uint256 GetBestBlockHash()
 		{
@@ -622,13 +657,13 @@ namespace NBitcoin.RPC
 			return GetTransactions(GetBlockHash(height));
 		}
 
-#endregion
+		#endregion
 
-#region Coin generation
+		#region Coin generation
 
-#endregion
+		#endregion
 
-#region Raw Transaction
+		#region Raw Transaction
 
 		public Transaction DecodeRawTransaction(string rawHex)
 		{
@@ -704,9 +739,9 @@ namespace NBitcoin.RPC
 			return SendCommandAsync("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
 		}
 
-#endregion
+		#endregion
 
-#region Utility functions
+		#region Utility functions
 		/// <summary>
 		/// Get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
@@ -860,7 +895,7 @@ namespace NBitcoin.RPC
 			return SendCommand(RPCOperations.settxfee, new[] { feeRate.FeePerK.ToString() }).Result.ToString() == "true";
 		}
 
-#endregion
+		#endregion
 	}
 
 #if !NOSOCKET
