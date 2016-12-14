@@ -30,7 +30,9 @@ namespace NBitcoin.JsonConverters
                 return Network.Main;
             if (network.Equals("TestNet", StringComparison.OrdinalIgnoreCase) || network.Equals("test", StringComparison.OrdinalIgnoreCase))
                 return Network.TestNet;
-            throw new JsonObjectException("Unknown network (valid values : main, test)", reader);
+			if(network.Equals("RegTest", StringComparison.OrdinalIgnoreCase) || network.Equals("reg", StringComparison.OrdinalIgnoreCase))
+				return Network.RegTest;
+			throw new JsonObjectException("Unknown network (valid values : main, test, reg)", reader);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -41,7 +43,9 @@ namespace NBitcoin.JsonConverters
                 str = "MainNet";
             if (net == Network.TestNet)
                 str = "TestNet";
-            if (str != null)
+			if(net == Network.RegTest)
+				str = "RegTest";
+			if (str != null)
                 writer.WriteValue(str);
         }
     }
