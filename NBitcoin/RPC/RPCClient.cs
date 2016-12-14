@@ -146,7 +146,7 @@ namespace NBitcoin.RPC
 				return _network;
 			}
 		}
-
+#if !NOFILEIO
 		/// <summary>
 		/// Use default bitcoin parameters to configure a RPCClient.
 		/// </summary>
@@ -154,7 +154,7 @@ namespace NBitcoin.RPC
 		public RPCClient(Network network) : this(null as string, BuildUri(null, network.RPCPort), network)
 		{
 		}
-
+#endif
 		public RPCClient(NetworkCredential credentials, string host, Network network)
 			: this(credentials, BuildUri(host, network.RPCPort), network)
 		{
@@ -212,6 +212,7 @@ namespace NBitcoin.RPC
 
 		private string GetAuthenticationString(Network network)
 		{
+#if !NOFILEIO
 			if(network == null)
 				return null;
 			var home = Environment.GetEnvironmentVariable("HOME");
@@ -233,6 +234,9 @@ namespace NBitcoin.RPC
 				return File.ReadAllText(cookiePath);
 			}
 			catch { return null; }
+#else
+			return null;
+#endif
 		}
 
 		public RPCResponse SendCommand(RPCOperations commandName, params object[] parameters)
