@@ -30,7 +30,7 @@ namespace nStratis.Tests
 		{
 			get
 			{
-				EnsureDownloaded(@"download\blocks\Headers.dat", "https://onedrive.live.com/download.aspx?cid=3E5405DC8E6A9F4F&resid=3E5405DC8E6A9F4F%21123&canary=WEXg5NdVyhofKGNJlW0V0e8AbKxmTjJ1yP47KsA8hyU%3D8&ithint=%2Edat");
+				EnsureDownloaded(@"download\blocks\Headers.dat", "https://onedrive.live.com/download.aspx?cid=3E5405DC8E6A9F4F&resid=3E5405DC8E6A9F4F%21123&canary=HTsPi6qeFsOy7di8KBD7GIYBmHaRRumiJ%2FQnNMvz%2Fh0%3D4&ithint=%2Edat");
 				return @"download\blocks\Headers.dat";
 			}
 		}
