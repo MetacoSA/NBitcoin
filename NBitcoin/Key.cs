@@ -174,7 +174,7 @@ namespace NBitcoin
 				throw new InvalidOperationException("You won a prize ! this should happen very rarely. Take a screenshot, and roll the dice again.");
 			var key = parse256LL.Add(kPar).Mod(N);
 			if(key == BigInteger.Zero)
-				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
+				throw new InvalidOperationException("You won the big prize ! this has probability lower than 1 in 2^127. Take a screenshot, and roll the dice again.");
 
 			var keyBytes = key.ToByteArrayUnsigned();
 			if(keyBytes.Length < 32)
