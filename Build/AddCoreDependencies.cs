@@ -70,6 +70,9 @@ namespace Build
 
 		private static void AddDependency(StringBuilder builder, JProperty dep)
 		{
+			if(dep.Name.ToLower().Contains("hashlib"))
+				return;
+
 			builder.AppendLine("<dependency id=\"" + dep.Name + "\" version=\"[" + (string)dep.Value + ", )\" />");
 		}
 	}
