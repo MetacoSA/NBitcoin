@@ -22,8 +22,11 @@ using System;
 // COM, set the ComVisible attribute to true on that type.
 //[assembly: ComVisible(false)]
 
+#if !NETCORE
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("9419e00e-d63b-4d92-954a-937ac7ec005d")]
+
+#endif
 
 // Version information for an assembly consists of the following four values:
 //

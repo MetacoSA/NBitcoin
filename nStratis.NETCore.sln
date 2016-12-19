@@ -7,6 +7,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "nStratis.NETCore", "nStrati
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "nStratis.NETCore.Tests", "nStratis.NETCore.Tests\nStratis.NETCore.Tests.xproj", "{8F560879-9706-4A25-9CFC-EE76234424DA}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "HashLib.NETCore", "Hashing\HashLib.NETCore\HashLib.NETCore.xproj", "{DC0D9DCD-166C-4EC4-B7CD-DD3BFE28B38C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{8F560879-9706-4A25-9CFC-EE76234424DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F560879-9706-4A25-9CFC-EE76234424DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F560879-9706-4A25-9CFC-EE76234424DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC0D9DCD-166C-4EC4-B7CD-DD3BFE28B38C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC0D9DCD-166C-4EC4-B7CD-DD3BFE28B38C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC0D9DCD-166C-4EC4-B7CD-DD3BFE28B38C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC0D9DCD-166C-4EC4-B7CD-DD3BFE28B38C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
