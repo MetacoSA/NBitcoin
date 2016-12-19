@@ -11,7 +11,7 @@
   },
   "buildOptions": {
     "outputName": "nStratis.Tests",
-    "define": [ "NOWEBCLIENT", "NOHTTPSERVER" ],
+    "define": [ "NOWEBCLIENT", "NOHTTPSERVER", "NETCORE" ],
     "compile": {
       "include": [ "../nStratis.Tests/**/*.cs" ]
     },

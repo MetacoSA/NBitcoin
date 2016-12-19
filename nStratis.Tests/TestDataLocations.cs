@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
+using System.Reflection;
 
 #if NOWEBCLIENT
 using nStratis.Tests;
@@ -57,8 +59,9 @@ namespace nStratis.Tests
 		public static string DataFolder(string file)
 		{
 			var p = Path.DirectorySeparatorChar;
-			var current = Directory.GetCurrentDirectory();
-			if(Directory.Exists($@"{current}\data".Replace('\\', p)))
+			var current = AssemblyDirectory;
+
+			if (Directory.Exists($@"{current}\data".Replace('\\', p)))
 			{
 				return $@"{current}\data\{file}".Replace('\\', p);
 			}
@@ -74,6 +77,22 @@ namespace nStratis.Tests
 			}
 
 			throw new DirectoryNotFoundException();
+		}
+
+		public static string AssemblyDirectory
+		{
+			get
+			{
+#if NETCORE
+				return System.AppContext.BaseDirectory;
+#else
+				string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+				UriBuilder uri = new UriBuilder(codeBase);
+				string path = Uri.UnescapeDataString(uri.Path);
+				return Path.GetDirectoryName(path);
+				
+#endif
+			}
 		}
 	}
 }
