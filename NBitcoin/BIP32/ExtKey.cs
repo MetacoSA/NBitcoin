@@ -20,13 +20,16 @@ namespace NBitcoin
 			return Network.CreateFromBase58Data<BitcoinExtKey>(wif, expectedNetwork).ExtKey;
 		}
 
+		private const int FingerprintLength = 4;
+		private const int ChainCodeLength = 32;
+
 		Key key;
-		byte[] vchChainCode = new byte[32];
+		byte[] vchChainCode = new byte[ChainCodeLength];
 		uint nChild;
 		byte nDepth;
-		byte[] vchFingerprint = new byte[4];
+		byte[] vchFingerprint = new byte[FingerprintLength];
 
-		static readonly byte[] hashkey = new[] { 'B', 'i', 't', 'c', 'o', 'i', 'n', ' ', 's', 'e', 'e', 'd' }.Select(o => (byte)o).ToArray();
+		static readonly byte[] hashkey = Encoders.ASCII.DecodeData("Bitcoin seed");
 
 		/// <summary>
 		/// Gets the depth of this extended key from the root key.
@@ -54,8 +57,8 @@ namespace NBitcoin
 		{
 			get
 			{
-				byte[] chainCodeCopy = new byte[vchChainCode.Length];
-				Buffer.BlockCopy(vchChainCode, 0, chainCodeCopy, 0, vchChainCode.Length);
+				byte[] chainCodeCopy = new byte[ChainCodeLength];
+				Buffer.BlockCopy(vchChainCode, 0, chainCodeCopy, 0, ChainCodeLength);
 
 				return chainCodeCopy;
 			}
@@ -103,15 +106,15 @@ namespace NBitcoin
 				throw new ArgumentNullException("chainCode");
 			if(fingerprint == null)
 				throw new ArgumentNullException("fingerprint");
-			if(fingerprint.Length != vchFingerprint.Length)
-				throw new ArgumentException(string.Format("The fingerprint must be {0} bytes.", vchFingerprint.Length), "fingerprint");
-			if(chainCode.Length != vchChainCode.Length)
-				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", vchChainCode.Length), "chainCode");
+			if(fingerprint.Length != FingerprintLength)
+				throw new ArgumentException(string.Format("The fingerprint must be {0} bytes.", FingerprintLength), "fingerprint");
+			if(chainCode.Length != ChainCodeLength)
+				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", ChainCodeLength), "chainCode");
 			this.key = key;
 			this.nDepth = depth;
 			this.nChild = child;
-			Buffer.BlockCopy(fingerprint, 0, vchFingerprint, 0, vchFingerprint.Length);
-			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, vchChainCode.Length);
+			Buffer.BlockCopy(fingerprint, 0, vchFingerprint, 0, FingerprintLength);
+			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
 		}
 
 		/// <summary>
@@ -124,10 +127,10 @@ namespace NBitcoin
 				throw new ArgumentNullException("masterKey");
 			if(chainCode == null)
 				throw new ArgumentNullException("chainCode");
-			if(chainCode.Length != vchChainCode.Length)
-				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", vchChainCode.Length), "chainCode");
+			if(chainCode.Length != ChainCodeLength)
+				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", ChainCodeLength), "chainCode");
 			this.key = masterKey;
-			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, vchChainCode.Length);
+			Buffer.BlockCopy(chainCode, 0, vchChainCode, 0, ChainCodeLength);
 		}
 
 		/// <summary>
@@ -160,7 +163,7 @@ namespace NBitcoin
 			var hashMAC = Hashes.HMACSHA512(hashkey, seed);
 			key = new Key(hashMAC.SafeSubarray(0, 32));
 
-			Buffer.BlockCopy(hashMAC, 32, vchChainCode, 0, 32);
+			Buffer.BlockCopy(hashMAC, 32, vchChainCode, 0, ChainCodeLength);
 		}
 
 		/// <summary>
@@ -202,7 +205,7 @@ namespace NBitcoin
 		}
 		private byte[] CalculateChildFingerprint()
 		{
-			return key.PubKey.Hash.ToBytes().SafeSubarray(0, vchFingerprint.Length);
+			return key.PubKey.Hash.ToBytes().SafeSubarray(0, FingerprintLength);
 		}
 
 		public byte[] Fingerprint
