@@ -127,6 +127,7 @@ namespace NBitcoin.Tests
 
 			var genesis = Network.Main.GetGenesis();
 			Assert.True(genesis.GetHash() < genesis.Header.Bits.ToUInt256());
+			Assert.True(Target.Difficulty1 == Target.Difficulty1);
 		}
 
 		[Fact]
