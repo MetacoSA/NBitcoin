@@ -4,7 +4,8 @@
 
 <img src="http://segwit.co/static/public/images/logo.png" width="100">
 
-NBitcoin is the most complete Bitcoin library for the .NET platform. It is compatible with Open Assets and implements most relevant Bitcoin Improvement Proposals (BIPs). It provides also low level access to Bitcoin primitives so you can easily create your own smart contracts. Join us on our [gitter chat room](https://gitter.im/MetacoSA/NBitcoin).
+NBitcoin is the most complete Bitcoin library for the .NET platform. It implements all most relevant Bitcoin Improvement Proposals (BIPs). It provides also low level access to Bitcoin primitives so you can easily build your application on top of it. Join us on our [gitter chat room](https://gitter.im/MetacoSA/NBitcoin).
+It works on Windows, Mac and Linux with Xamarin, .NET Core or CLR. (Porting to Unity should not be that hard if you need it)
 
 The best documentation available is our [eBook](https://programmingblockchain.gitbooks.io/programmingblockchain/content/), and the excellent unit tests. There is also some more resources below.
 
