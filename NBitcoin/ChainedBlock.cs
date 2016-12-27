@@ -321,6 +321,11 @@ namespace NBitcoin
 				throw new NotSupportedException("Can only calculate work of a full chain");
 		}
 
+		/// <summary>
+		/// Check PoW and that the blocks connect correctly
+		/// </summary>
+		/// <param name="network">The network being used</param>
+		/// <returns>True if PoW is correct</returns>
 		public bool Validate(Network network)
 		{
 			if(network == null)

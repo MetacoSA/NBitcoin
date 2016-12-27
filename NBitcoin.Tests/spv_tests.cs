@@ -19,9 +19,14 @@ namespace NBitcoin.Tests
 {
 	public class BlockchainBuilder
 	{
+		public Network Network
+		{
+			get; set;
+		}
 		public BlockchainBuilder()
 		{
-			Chain = new ConcurrentChain(Network.TestNet);
+			Network = Network.RegTest;
+			Chain = new ConcurrentChain(Network);
 			Mempool = new Dictionary<uint256, Transaction>();
 			Blocks = new Dictionary<uint256, Block>();
 			Broadcast = true;
@@ -103,6 +108,18 @@ namespace NBitcoin.Tests
 			b.Header.BlockTime = DateTimeOffset.UtcNow;
 			b.UpdateMerkleRoot();
 			b.Header.HashPrevBlock = Chain.Tip.HashBlock;
+			b.Header.Bits = Chain.Tip.GetNextWorkRequired(Network);
+			if(RealPoW)
+			{
+				while(true)
+				{
+					b.Header.Nonce = RandomUtils.GetUInt32();					
+					var header = new ChainedBlock(b.Header, b.Header.GetHash(), Chain.GetBlock(b.Header.HashPrevBlock));
+					if(header.Validate(Network))
+						break;
+				}
+			}
+
 			Chain.SetTip(b.Header);
 			Mempool.Clear();
 			if(NewBlock != null)
@@ -117,6 +134,11 @@ namespace NBitcoin.Tests
 		/// The true the remote server will not broadcast new tx and blocks
 		/// </summary>
 		public bool Broadcast
+		{
+			get;
+			set;
+		}
+		public bool RealPoW
 		{
 			get;
 			set;
@@ -571,7 +593,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBroadcastTransaction()
 		{
-			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
+			using(NodeServerTester servers = new NodeServerTester())
 			{
 				var notifiedTransactions = new List<WalletTransaction>();
 				var chainBuilder = new BlockchainBuilder();
@@ -579,7 +601,7 @@ namespace NBitcoin.Tests
 				var tx = new Transaction();
 				Wallet wallet = new Wallet(new WalletCreation()
 				{
-					Network = Network.TestNet,
+					Network = servers.Network,
 					RootKeys = new[] { new ExtKey().Neuter() },
 					UseP2SH = false
 				}, keyPoolSize: 11);
@@ -674,16 +696,17 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void UseFilterAddIfKeyPoolSizeIsZero()
 		{
-			using(NodeServerTester servers = new NodeServerTester(Network.TestNet))
+			using(NodeServerTester servers = new NodeServerTester())
 			{
 				var chainBuilder = new BlockchainBuilder();
+				chainBuilder.RealPoW = true;
 				SetupSPVBehavior(servers, chainBuilder);
 
 				var connected = CreateGroup(servers, 1);
 
 				Wallet wallet = new Wallet(new WalletCreation()
 				{
-					Network = Network.TestNet,
+					Network = servers.Network,
 					RootKeys = new[] { new ExtKey().Neuter() },
 					UseP2SH = true
 				}, keyPoolSize: 0);
@@ -875,7 +898,7 @@ namespace NBitcoin.Tests
 			NodeConnectionParameters parameters = new NodeConnectionParameters();
 			parameters.TemplateBehaviors.Add(behavior);
 			Wallet.ConfigureDefaultNodeConnectionParameters(parameters);
-			parameters.IsTrusted = true;
+			parameters.IsTrusted = false;
 			NodesGroup connected = new NodesGroup(Network.RegTest, parameters);
 			connected.AllowSameGroup = true;
 			connected.MaximumNodeConnection = connections;
@@ -897,8 +920,8 @@ namespace NBitcoin.Tests
 			NodeConnectionParameters parameters = new NodeConnectionParameters();
 			parameters.TemplateBehaviors.Add(behavior);
 			Wallet.ConfigureDefaultNodeConnectionParameters(parameters);
-			parameters.IsTrusted = true;
-			NodesGroup connected = new NodesGroup(Network.TestNet, parameters);
+			parameters.IsTrusted = false;
+			NodesGroup connected = new NodesGroup(servers.Network, parameters);
 			connected.AllowSameGroup = true;
 			connected.MaximumNodeConnection = connections;
 			servers.AddDisposable(connected);

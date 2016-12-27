@@ -1226,7 +1226,7 @@ namespace NBitcoin.Protocol
 		}
 
 		/// <summary>
-		/// Will verify proof of work during chain operations
+		/// If true, will verify proof of work during chain operations
 		/// </summary>
 		public bool IsTrusted
 		{

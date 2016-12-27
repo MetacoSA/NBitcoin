@@ -20,10 +20,11 @@ namespace NBitcoin.Tests
 	public class NodeServerTester : IDisposable
 	{
 		static Random _Rand = new Random();
-		public NodeServerTester(Network network = null)
+		public NodeServerTester()
 		{
 			int retry = 0;
-			network = network ?? Network.TestNet;
+			var network = Network.RegTest;
+			Network = network;
 			while(true)
 			{
 				try
@@ -53,6 +54,11 @@ namespace NBitcoin.Tests
 						throw;
 				}
 			}
+		}
+
+		public Network Network
+		{
+			get; set;
 		}
 
 		public IEnumerable<Node> ConnectedNodes
@@ -293,7 +299,7 @@ namespace NBitcoin.Tests
 				var rpc = builder.Nodes[0].CreateRPCClient();
 				var chain = node.GetChain(rpc.GetBlockHash(500));
 				Assert.True(chain.Height == 500);
-				using(var tester = new NodeServerTester(Network.RegTest))
+				using(var tester = new NodeServerTester())
 				{
 					var n1 = tester.Node1;
 					n1.Behaviors.Add(new ChainBehavior(chain));
