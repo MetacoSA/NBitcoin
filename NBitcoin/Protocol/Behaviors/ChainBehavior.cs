@@ -125,6 +125,7 @@ namespace NBitcoin.Protocol.Behaviors
 					if(!AttachedNode.IsTrusted)
 					{
 						var validated = Chain.GetBlock(tip.HashBlock) != null || tip.Validate(AttachedNode.Network);
+						validated &= !IsMarkedInvalid(tip.HashBlock);
 						if(!validated)
 						{
 							invalidHeaderReceived = true;
@@ -133,7 +134,7 @@ namespace NBitcoin.Protocol.Behaviors
 					}
 					_PendingTip = tip;
 				}
-				if(_PendingTip.Height > Chain.Tip.Height)
+				if(_PendingTip.ChainWork > Chain.Tip.ChainWork)
 				{
 					Chain.SetTip(_PendingTip);
 				}
@@ -151,6 +152,62 @@ namespace NBitcoin.Protocol.Behaviors
 			act();
 		}
 
+		private bool IsMarkedInvalid(uint256 hashBlock)
+		{
+			try
+			{
+				_InvalidBlocksLock.EnterReadLock();
+				return _InvalidBlocks.Contains(hashBlock);
+			}
+			finally
+			{
+				_InvalidBlocksLock.ExitReadLock();
+			}
+		}
+
+		public void MarkBlockInvalid(uint256 blockHash)
+		{
+			try
+			{
+				_InvalidBlocksLock.EnterWriteLock();
+				_InvalidBlocks.Add(blockHash);
+			}
+			finally
+			{
+				_InvalidBlocksLock.ExitWriteLock();
+			}
+		}
+
+		/// <summary>
+		/// Check if any past blocks announced by this peer is in the invalid blocks list, and set InvalidHeaderReceived flag accordingly
+		/// </summary>
+		/// <returns>True if no invalid block is received</returns>
+		public bool CheckAnnouncedBlocks()
+		{
+			var tip = _PendingTip;
+			if(tip != null && !invalidHeaderReceived)
+			{
+				try
+				{
+					_InvalidBlocksLock.EnterReadLock();
+					if(_InvalidBlocks.Count != 0)
+					{
+						foreach(var header in tip.EnumerateToGenesis())
+						{
+							if(invalidHeaderReceived)
+								break;
+							invalidHeaderReceived |= _InvalidBlocks.Contains(header.HashBlock);
+						}
+					}
+				}
+				finally
+				{
+					_InvalidBlocksLock.ExitReadLock();
+				}
+			}
+			return !invalidHeaderReceived;
+		}
+
 		/// <summary>
 		/// Sync the chain as headers come from the network (Default : true)
 		/// </summary>
@@ -163,6 +220,14 @@ namespace NBitcoin.Protocol.Behaviors
 		ChainedBlock _PendingTip; //Might be different than Chain.Tip, in the rare event of large fork > 2000 blocks
 
 		private bool invalidHeaderReceived;
+		public bool InvalidHeaderReceived
+		{
+			get
+			{
+				return invalidHeaderReceived;
+			}
+		}
+
 		void AttachedNode_StateChanged(Node node, NodeState oldState)
 		{
 			TrySync();
@@ -198,6 +263,9 @@ namespace NBitcoin.Protocol.Behaviors
 			AttachedNode.StateChanged -= AttachedNode_StateChanged;
 		}
 
+
+		ReaderWriterLockSlim _InvalidBlocksLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+		HashSet<uint256> _InvalidBlocks = new HashSet<uint256>();
 		#region ICloneable Members
 
 		public override object Clone()
@@ -206,7 +274,9 @@ namespace NBitcoin.Protocol.Behaviors
 			{
 				CanSync = CanSync,
 				CanRespondToGetHeaders = CanRespondToGetHeaders,
-				AutoSync = AutoSync
+				AutoSync = AutoSync,
+				_InvalidBlocks = _InvalidBlocks,
+				_InvalidBlocksLock = _InvalidBlocksLock
 			};
 			return clone;
 		}
