@@ -276,7 +276,7 @@ namespace NBitcoin.Protocol
 						Cleanup(unhandledException);
 					}
 				}).Start();
-			}			
+			}
 
 			int _CleaningUp;
 			public int _ListenerThreadId;
@@ -750,7 +750,6 @@ namespace NBitcoin.Protocol
 		bool _ReuseBuffer;
 		private void InitDefaultBehaviors(NodeConnectionParameters parameters)
 		{
-			IsTrusted = parameters.IsTrusted != null ? parameters.IsTrusted.Value : Peer.Endpoint.Address.IsLocal();
 			Advertize = parameters.Advertize;
 			PreferredTransactionOptions = parameters.PreferredTransactionOptions;
 			_ReuseBuffer = parameters.ReuseBuffer;
@@ -1211,27 +1210,17 @@ namespace NBitcoin.Protocol
 			if(headers.Count == 0)
 				return new ChainedBlock[0];
 			var newTip = headers[headers.Count - 1];
-			if(!IsTrusted)
+
+			if(newTip.Height <= oldTip.Height)
+				throw new ProtocolException("No tip should have been recieved older than the local one");
+			foreach(var header in headers)
 			{
-				if(newTip.Height <= oldTip.Height)
-					throw new ProtocolException("No tip should have been recieved older than the local one");
-				foreach(var header in headers)
-				{
-					if(!header.Validate(Network))
-						throw new ProtocolException("An header which does not pass proof of work verification has been received");
-				}
+				if(!header.Validate(Network))
+					throw new ProtocolException("An header which does not pass proof of work verification has been received");
 			}
+
 			chain.SetTip(newTip);
 			return headers;
-		}
-
-		/// <summary>
-		/// If true, will verify proof of work during chain operations
-		/// </summary>
-		public bool IsTrusted
-		{
-			get;
-			set;
 		}
 
 		public IEnumerable<Block> GetBlocks(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))

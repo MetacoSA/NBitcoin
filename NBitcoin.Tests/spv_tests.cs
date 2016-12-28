@@ -898,7 +898,6 @@ namespace NBitcoin.Tests
 			NodeConnectionParameters parameters = new NodeConnectionParameters();
 			parameters.TemplateBehaviors.Add(behavior);
 			Wallet.ConfigureDefaultNodeConnectionParameters(parameters);
-			parameters.IsTrusted = false;
 			NodesGroup connected = new NodesGroup(Network.RegTest, parameters);
 			connected.AllowSameGroup = true;
 			connected.MaximumNodeConnection = connections;
@@ -920,7 +919,6 @@ namespace NBitcoin.Tests
 			NodeConnectionParameters parameters = new NodeConnectionParameters();
 			parameters.TemplateBehaviors.Add(behavior);
 			Wallet.ConfigureDefaultNodeConnectionParameters(parameters);
-			parameters.IsTrusted = false;
 			NodesGroup connected = new NodesGroup(servers.Network, parameters);
 			connected.AllowSameGroup = true;
 			connected.MaximumNodeConnection = connections;

@@ -122,15 +122,12 @@ namespace NBitcoin.Protocol.Behaviors
 					if(prev == null)
 						break;
 					tip = new ChainedBlock(header, header.GetHash(), prev);
-					if(!AttachedNode.IsTrusted)
+					var validated = Chain.GetBlock(tip.HashBlock) != null || tip.Validate(AttachedNode.Network);
+					validated &= !IsMarkedInvalid(tip.HashBlock);
+					if(!validated)
 					{
-						var validated = Chain.GetBlock(tip.HashBlock) != null || tip.Validate(AttachedNode.Network);
-						validated &= !IsMarkedInvalid(tip.HashBlock);
-						if(!validated)
-						{
-							invalidHeaderReceived = true;
-							break;
-						}
+						invalidHeaderReceived = true;
+						break;
 					}
 					_PendingTip = tip;
 				}

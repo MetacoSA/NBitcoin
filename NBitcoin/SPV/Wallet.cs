@@ -694,7 +694,6 @@ namespace NBitcoin.SPV
 		public static void ConfigureDefaultNodeConnectionParameters(NodeConnectionParameters parameters)
 		{
 			parameters = parameters ?? new NodeConnectionParameters();
-			parameters.IsTrusted = false; //Connecting to the wild
 
 			//Optimize for small device
 			parameters.ReuseBuffer = false;

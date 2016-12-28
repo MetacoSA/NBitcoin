@@ -54,7 +54,6 @@ namespace NBitcoin.Tests
 			{
 				using(var node = Node.Connect(Network.Main, "192.168.0.7", new NodeConnectionParameters()
 				{
-					IsTrusted = true,
 					IsRelay = false
 				}))
 				{
