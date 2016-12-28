@@ -90,6 +90,7 @@
     <Compile Include="JsonConverters\NetworkJsonConverter.cs" />
     <Compile Include="JsonConverters\ScriptJsonConverter.cs" />
     <Compile Include="JsonConverters\UIntJsonConverter.cs" />
+    <Compile Include="NetworkBuilder.cs" />
     <Compile Include="OpenAsset\NullColoredTransactionRepository.cs" />
     <Compile Include="Payment\IChainChecker.cs" />
     <Compile Include="Payment\ICertificateServiceProvider.cs" />

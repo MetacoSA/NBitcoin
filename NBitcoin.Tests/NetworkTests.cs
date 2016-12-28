@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using NBitcoin;
 using Xunit;
+using System;
 
 namespace NBitcoin.Tests
 {
@@ -22,12 +23,33 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanCreateNetwork()
+		{
+			NetworkBuilder builder = new NetworkBuilder();
+			builder.CopyFrom(Network.Main);
+			builder.SetName(null);
+			Assert.Throws<InvalidOperationException>(() => builder.BuildAndRegister());
+			builder.SetName("new");
+			builder.AddAlias("newalias");
+			var network = builder.BuildAndRegister();
+			Assert.Throws<InvalidOperationException>(() => builder.BuildAndRegister());
+
+			Assert.Equal(network, Network.GetNetwork("new"));
+			Assert.Equal(network, Network.GetNetwork("newalias"));
+
+			CanGetNetworkFromName();
+
+			Assert.True(Network.GetNetworks().Contains(network));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void ReadMagicByteWithFirstByteDuplicated()
 		{
 			var bytes = Network.Main.MagicBytes.ToList();
 			bytes.Insert(0, bytes.First());
 
-			using (var memstrema = new MemoryStream(bytes.ToArray()))
+			using(var memstrema = new MemoryStream(bytes.ToArray()))
 			{
 				var found = Network.Main.ReadMagic(memstrema, new CancellationToken());
 				Assert.True(found);

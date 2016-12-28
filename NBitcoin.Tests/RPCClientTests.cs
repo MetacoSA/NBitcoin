@@ -107,21 +107,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-
-		[Fact]
-		public void CanEstimateFees_Obsolete()
-		{
-			using(var builder = NodeBuilder.Create())
-			{
-				var node = builder.CreateNode();
-				node.Start();
-				node.Generate(101);
-				var rpc = node.CreateRPCClient();
-				var result = rpc.EstimateFee(1);
-				Assert.Equal(Money.Zero, result.FeePerK);
-			}
-		}
-
 		[Fact]
 		public void EstimateFeeRate()
 		{

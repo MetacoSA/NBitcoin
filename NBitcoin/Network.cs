@@ -242,6 +242,21 @@ namespace NBitcoin
 		}
 
 
+		private int _SpendableCoinbaseDepth;
+		public int SpendableCoinbaseDepth
+		{
+			get
+			{
+				return _SpendableCoinbaseDepth;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_SpendableCoinbaseDepth = value;
+			}
+		}
+
+
 		uint256 _BIP34Hash;
 		public uint256 BIP34Hash
 		{
@@ -407,6 +422,28 @@ namespace NBitcoin
 			if(frozen)
 				throw new InvalidOperationException("This instance can't be modified");
 		}
+
+		public Consensus Clone()
+		{
+			return new Consensus()
+			{
+				_BIP34Hash = _BIP34Hash,
+				_HashGenesisBlock = _HashGenesisBlock,
+				_MajorityEnforceBlockUpgrade = _MajorityEnforceBlockUpgrade,
+				_MajorityRejectBlockOutdated = _MajorityRejectBlockOutdated,
+				_MajorityWindow = _MajorityWindow,
+				_MinerConfirmationWindow = _MinerConfirmationWindow,
+				_PowAllowMinDifficultyBlocks = _PowAllowMinDifficultyBlocks,
+				_PowLimit = _PowLimit,
+				_PowNoRetargeting = _PowNoRetargeting,
+				_PowTargetSpacing = _PowTargetSpacing,
+				_PowTargetTimespan =_PowTargetTimespan,
+				_RuleChangeActivationThreshold = _RuleChangeActivationThreshold,
+				_SegWitHeight = _SegWitHeight,
+				_SubsidyHalvingInterval = _SubsidyHalvingInterval,
+				_SpendableCoinbaseDepth = _SpendableCoinbaseDepth
+			};
+		}
 	}
 	public class Network
 	{
@@ -459,7 +496,7 @@ namespace NBitcoin
 		}
 
 
-		private readonly Consensus consensus = new Consensus();
+		private Consensus consensus = new Consensus();
 		public Consensus Consensus
 		{
 			get
@@ -472,7 +509,6 @@ namespace NBitcoin
 		{
 		}
 
-		private int nSubsidyHalvingInterval;
 		private string name;
 
 		public string Name
@@ -524,12 +560,59 @@ namespace NBitcoin
 			}
 		}
 
+		static Dictionary<string, Network> _OtherAliases = new Dictionary<string, Network>();
+		static List<Network> _OtherNetworks = new List<Network>();
+		internal static Network Register(NetworkBuilder builder)
+		{
+			if(builder._Name == null)
+				throw new InvalidOperationException("A network name need to be provided");
+			if(GetNetwork(builder._Name) != null)
+				throw new InvalidOperationException("The network " + builder._Name + " is already registered");
+			Network network = new Network();
+			network.name = builder._Name;
+			network.consensus = builder._Consensus;
+			network.magic = builder._Magic;
+			network.nDefaultPort = builder._Port;
+			network.nRPCPort = builder._RPCPort;
+			network.genesis = builder._Genesis;
+			network.consensus.HashGenesisBlock = network.genesis.GetHash();
+			network.consensus.Freeze();
+
+#if !NOSOCKET
+			foreach(var seed in builder.vSeeds)
+			{
+				network.vSeeds.Add(seed);
+			}
+			foreach(var seed in builder.vFixedSeeds)
+			{
+				network.vFixedSeeds.Add(seed);
+			}
+#endif
+			network.base58Prefixes = Network.Main.base58Prefixes.ToArray();
+			foreach(var kv in builder._Base58Prefixes)
+			{
+				network.base58Prefixes[(int)kv.Key] = kv.Value;
+			}
+			lock(_OtherAliases)
+			{
+				foreach(var alias in builder._Aliases)
+				{
+					_OtherAliases.Add(alias.ToLowerInvariant(), network);
+				}
+				_OtherAliases.Add(network.name.ToLowerInvariant(), network);				
+			}
+			lock(_OtherNetworks)
+			{
+				_OtherNetworks.Add(network);
+			}
+			return network;
+		}
 
 		private void InitMain()
-		{
-			SpendableCoinbaseDepth = 100;
+		{			
 			name = "Main";
 
+			consensus.SpendableCoinbaseDepth = 100;
 			consensus.SubsidyHalvingInterval = 210000;
 			consensus.MajorityEnforceBlockUpgrade = 750;
 			consensus.MajorityRejectBlockOutdated = 950;
@@ -558,7 +641,6 @@ namespace NBitcoin
 			vAlertPubKey = Encoders.Hex.DecodeData("04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284");
 			nDefaultPort = 8333;
 			nRPCPort = 8332;
-			nSubsidyHalvingInterval = 210000;
 
 			genesis = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1, Money.Coins(50m));
 			consensus.HashGenesisBlock = genesis.GetHash();
@@ -683,7 +765,6 @@ namespace NBitcoin
 			consensus.MinerConfirmationWindow = 144;
 
 			magic = 0xDAB5BFFA;
-			nSubsidyHalvingInterval = 150;
 
 			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 0, 999999999);
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 0, 999999999);
@@ -1017,6 +1098,19 @@ namespace NBitcoin
 			yield return Main;
 			yield return TestNet;
 			yield return RegTest;
+			
+			if(_OtherNetworks.Count != 0)
+			{
+				List<Network> others = new List<Network>();
+				lock(_OtherNetworks)
+				{
+					others = _OtherNetworks.ToList();
+				}
+				foreach(var network in others)
+				{
+					yield return network;
+				}
+			}
 		}
 
 		/// <summary>
@@ -1052,9 +1146,13 @@ namespace NBitcoin
 				case "regtest":
 				case "regnet":
 					return Network.RegTest;
-				default:
-					return null;
 			}
+
+			if(_OtherAliases.Count != 0)
+			{
+				return _OtherAliases.TryGet(name);
+			}
+			return null;
 		}
 
 		public BitcoinSecret CreateBitcoinSecret(Key key)
@@ -1132,7 +1230,7 @@ namespace NBitcoin
 		public Money GetReward(int nHeight)
 		{
 			long nSubsidy = new Money(50 * Money.COIN);
-			int halvings = nHeight / nSubsidyHalvingInterval;
+			int halvings = nHeight / consensus.SubsidyHalvingInterval;
 
 			// Force block reward to zero when right shift is undefined.
 			if(halvings >= 64)
@@ -1166,10 +1264,14 @@ namespace NBitcoin
 			return true;
 		}
 
+
+		[Obsolete("Use Network.Consensus.SpendableCoinbaseDepth instead")]
 		public int SpendableCoinbaseDepth
 		{
-			get;
-			private set;
+			get
+			{
+				return Consensus.SpendableCoinbaseDepth;
+			}
 		}
 	}
 }
