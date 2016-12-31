@@ -350,6 +350,33 @@ namespace NBitcoin
 			return Height == 0 || (Header.CheckProofOfWork() && Header.Bits <= GetWorkRequired(consensus));
 		}
 
+
+		/// <summary>
+		/// Find first common block between two chains
+		/// </summary>
+		/// <param name="block">The tip of the other chain</param>
+		/// <returns>First common block or null</returns>
+		public ChainedBlock FindFork(ChainedBlock block)
+		{
+			if(block == null)
+				throw new ArgumentNullException("block");
+
+			var highChain = this.Height > block.Height ? this : block;
+			var lowChain = highChain == this ? block : this;
+			while(highChain.Height != lowChain.Height)
+			{
+				highChain = highChain.Previous;
+			}
+			while(highChain.HashBlock != lowChain.HashBlock)
+			{
+				lowChain = lowChain.Previous;
+				highChain = highChain.Previous;
+				if(lowChain == null || highChain == null)
+					return null;
+			}
+			return highChain;
+		}
+
 		public ChainedBlock GetAncestor(int height)
 		{
 			if(height > Height || height < 0)

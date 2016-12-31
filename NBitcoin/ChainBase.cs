@@ -37,11 +37,9 @@ namespace NBitcoin
 		{
 			if(fromTip)
 			{
-				ChainedBlock b = Tip;
-				while(b != null)
+				foreach(var b in Tip.EnumerateToGenesis())
 				{
 					yield return b;
-					b = b.Previous;
 				}
 			}
 			else
@@ -118,14 +116,23 @@ namespace NBitcoin
 		}
 
 
-
+		/// <summary>
+		/// Returns the first common block between two chains
+		/// </summary>
+		/// <param name="chain">The other chain</param>
+		/// <returns>First common block or null</returns>
 		public ChainedBlock FindFork(ChainBase chain)
 		{
 			if(chain == null)
 				throw new ArgumentNullException("chain");
-			return FindFork(chain.ToEnumerable(true).Select(o => o.HashBlock));
+			return FindFork(chain.Tip.EnumerateToGenesis().Select(o => o.HashBlock));
 		}
 
+		/// <summary>
+		/// Returns the first found block
+		/// </summary>
+		/// <param name="hashes">Hash to search for</param>
+		/// <returns>First found block or null</returns>
 		public ChainedBlock FindFork(IEnumerable<uint256> hashes)
 		{
 			if(hashes == null)
@@ -139,7 +146,7 @@ namespace NBitcoin
 					return mi;
 				}
 			}
-			return Genesis;
+			return null;
 		}
 
 		public ChainedBlock FindFork(BlockLocator locator)
