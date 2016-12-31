@@ -110,7 +110,7 @@ namespace NBitcoin.Protocol
 							catch(OperationCanceledException ex)
 							{
 								if(_Disconnect.Token.IsCancellationRequested)
-									throw;
+									break;
 								NodeServerTrace.Error("Timeout for picked node", ex);
 								if(node != null)
 									node.DisconnectAsync("Handshake timeout", ex);
