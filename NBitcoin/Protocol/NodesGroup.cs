@@ -10,6 +10,46 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
+	public class WellKnownGroupSelectors
+	{
+		static Random _Rand = new Random();
+		static Func<IPAddress, byte[]> _GroupByRandom;
+		public static Func<IPAddress, byte[]> GroupByRandom
+		{
+			get
+			{
+				return _GroupByRandom = _GroupByRandom ?? new Func<IPAddress, byte[]>((ip) =>{
+
+					var group = new byte[20];
+					_Rand.NextBytes(group);
+					return group;
+				});
+			}
+		}
+
+
+		static Func<IPAddress, byte[]> _GroupByIp;
+		public static Func<IPAddress, byte[]> GroupByIp
+		{
+			get
+			{
+				return _GroupByIp = _GroupByIp ?? new Func<IPAddress, byte[]>((ip) => {
+					return ip.GetAddressBytes();	
+				});
+			}
+		}
+
+		static Func<IPAddress, byte[]> _GroupByNetwork;
+		public static Func<IPAddress, byte[]> GroupByNetwork
+		{
+			get
+			{
+				return _GroupByNetwork = _GroupByNetwork ?? new Func<IPAddress, byte[]>((ip) => {
+					return IpExtensions.GetGroup(ip);
+				});
+			}
+		}
+	}
 	public class NodesGroup : IDisposable
 	{
 		TraceCorrelation _Trace = new TraceCorrelation(NodeServerTrace.Trace, "Group connection");
@@ -103,7 +143,7 @@ namespace NBitcoin.Protocol
 							try
 							{
 								var groupSelector = CustomGroupSelector != null ? CustomGroupSelector :
-													AllowSameGroup ? new Func<IPAddress,byte[]>(GroupByIp) : null;
+													AllowSameGroup ? WellKnownGroupSelectors.GroupByRandom : null;
 								node = Node.Connect(_Network, parameters, _ConnectedNodes.Select(n => n.RemoteSocketAddress).ToArray(), groupSelector);
 								var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token);
 								timeout.CancelAfter(5000);
@@ -214,14 +254,9 @@ namespace NBitcoin.Protocol
 		/// How to calculate a group of an ip, by default using NBitcoin.IpExtensions.GetGroup.
 		/// Overrides AllowSameGroup.
 		/// </summary>
-		public Func<IPAddress,byte[]> CustomGroupSelector
+		public Func<IPAddress, byte[]> CustomGroupSelector
 		{
 			get; set;
-		}
-
-		static byte[] GroupByIp(IPAddress addr)
-		{
-			return addr.GetAddressBytes();
 		}
 
 		#region IDisposable Members
