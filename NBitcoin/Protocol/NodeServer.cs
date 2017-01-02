@@ -97,6 +97,10 @@ namespace NBitcoin.Protocol
 			{
 				return _LocalEndpoint;
 			}
+			set
+			{
+				_LocalEndpoint = Utils.EnsureIPv6(value);
+			}
 		}
 
 		Socket socket;
