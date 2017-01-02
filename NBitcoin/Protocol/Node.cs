@@ -491,27 +491,27 @@ namespace NBitcoin.Protocol
 		/// <param name="network">The network to connect to</param>
 		/// <param name="addrman">The addrman used for finding peers</param>
 		/// <param name="parameters">The parameters used by the found node</param>
-		/// <param name="connectedAddresses">The already connected addresses, the new address will be select outside of existing groups</param>
+		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
 		/// <returns></returns>
-		public static Node Connect(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, IPAddress[] connectedAddresses = null)
+		public static Node Connect(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null)
 		{
 			parameters = parameters ?? new NodeConnectionParameters();
 			AddressManagerBehavior.SetAddrman(parameters, addrman);
-			return Connect(network, parameters, connectedAddresses);
-		}		
+			return Connect(network, parameters, connectedEndpoints);
+		}
 
 		/// <summary>
 		/// Connect to a random node on the network
 		/// </summary>
 		/// <param name="network">The network to connect to</param>
 		/// <param name="parameters">The parameters used by the found node, use AddressManagerBehavior.GetAddrman for finding peers</param>
-		/// <param name="connectedAddresses">The already connected addresses, the new address will be select outside of existing groups</param>
+		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
 		/// <param name="getGroup">Group selector, by default NBicoin.IpExtensions.GetGroup</param>
 		/// <returns></returns>
-		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPAddress[] connectedAddresses = null, Func<IPAddress, byte[]> getGroup = null)
+		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null, Func<IPEndPoint, byte[]> getGroup = null)
 		{
-			getGroup = getGroup ?? new Func<IPAddress, byte[]>((a) => IpExtensions.GetGroup(a));
-			connectedAddresses = connectedAddresses ?? new IPAddress[0];
+			getGroup = getGroup ?? new Func<IPEndPoint, byte[]>((a) => IpExtensions.GetGroup(a.Address));
+			connectedEndpoints = connectedEndpoints ?? new IPEndPoint[0];
 			parameters = parameters ?? new NodeConnectionParameters();
 			var addrmanBehavior = parameters.TemplateBehaviors.FindOrCreate(() => new AddressManagerBehavior(new AddressManager()));
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
@@ -538,7 +538,7 @@ namespace NBitcoin.Protocol
 						break;
 					if(!addr.Endpoint.Address.IsValid())
 						continue;
-					var groupExist = connectedAddresses.Any(a => getGroup(a).SequenceEqual(getGroup(addr.Endpoint.Address)));
+					var groupExist = connectedEndpoints.Any(a => getGroup(a).SequenceEqual(getGroup(addr.Endpoint)));
 					if(groupExist)
 					{
 						groupFail++;
@@ -679,6 +679,7 @@ namespace NBitcoin.Protocol
 						throw new SocketException((int)args.SocketError);
 					var remoteEndpoint = (IPEndPoint)(socket.RemoteEndPoint ?? args.RemoteEndPoint);
 					_RemoteSocketAddress = remoteEndpoint.Address;
+					_RemoteSocketEndpoint = remoteEndpoint;
 					_RemoteSocketPort = remoteEndpoint.Port;
 					State = NodeState.Connected;
 					ConnectedAt = DateTimeOffset.UtcNow;
@@ -716,6 +717,7 @@ namespace NBitcoin.Protocol
 		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
 		{
 			_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
+			_RemoteSocketEndpoint = ((IPEndPoint)socket.RemoteEndPoint);
 			_RemoteSocketPort = ((IPEndPoint)socket.RemoteEndPoint).Port;
 			Inbound = true;
 			_Behaviors = new NodeBehaviorsCollection(this);
@@ -741,6 +743,15 @@ namespace NBitcoin.Protocol
 			get
 			{
 				return _RemoteSocketAddress;
+			}
+		}
+
+		IPEndPoint _RemoteSocketEndpoint;
+		public IPEndPoint RemoteSocketEndpoint
+		{
+			get
+			{
+				return _RemoteSocketEndpoint;
 			}
 		}
 
