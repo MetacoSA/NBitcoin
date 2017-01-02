@@ -3,6 +3,7 @@ using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -101,7 +102,9 @@ namespace NBitcoin.Protocol
 							Node node = null;
 							try
 							{
-								node = Node.Connect(_Network, parameters, AllowSameGroup ? null : _ConnectedNodes.Select(n => n.RemoteSocketAddress).ToArray());
+								var groupSelector = CustomGroupSelector != null ? CustomGroupSelector :
+													AllowSameGroup ? new Func<IPAddress,byte[]>(GroupByIp) : null;
+								node = Node.Connect(_Network, parameters, _ConnectedNodes.Select(n => n.RemoteSocketAddress).ToArray(), groupSelector);
 								var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token);
 								timeout.CancelAfter(5000);
 								node.VersionHandshake(_Requirements, timeout.Token);
@@ -198,12 +201,27 @@ namespace NBitcoin.Protocol
 		}
 
 		/// <summary>
-		/// If false, the search process will do its best to connect to Node in different network group to prevent sybil attacks (Default : false)
+		/// If false, the search process will do its best to connect to Node in different network group to prevent sybil attacks. (Default : false)
+		/// If CustomGroupSelector is set, AllowSameGroup is ignored.
 		/// </summary>
 		public bool AllowSameGroup
 		{
 			get;
 			set;
+		}
+
+		/// <summary>
+		/// How to calculate a group of an ip, by default using NBitcoin.IpExtensions.GetGroup.
+		/// Overrides AllowSameGroup.
+		/// </summary>
+		public Func<IPAddress,byte[]> CustomGroupSelector
+		{
+			get; set;
+		}
+
+		static byte[] GroupByIp(IPAddress addr)
+		{
+			return addr.GetAddressBytes();
 		}
 
 		#region IDisposable Members

@@ -1127,9 +1127,8 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		internal void DiscoverPeers(Network network, NodeConnectionParameters parameters)
+		internal void DiscoverPeers(Network network, NodeConnectionParameters parameters, int peerToFind)
 		{
-			int peerToFind = 1000;
 			TraceCorrelation traceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Discovering nodes");
 			int found = 0;
 

@@ -509,29 +509,53 @@ namespace NBitcoin.Protocol
 		/// <returns></returns>
 		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPAddress[] connectedAddresses = null)
 		{
+			return Connect(network, parameters, connectedAddresses, null);
+		}
+
+		/// <summary>
+		/// Connect to a random node on the network
+		/// </summary>
+		/// <param name="network">The network to connect to</param>
+		/// <param name="parameters">The parameters used by the found node, use AddressManagerBehavior.GetAddrman for finding peers</param>
+		/// <param name="connectedAddresses">The already connected addresses, the new address will be select outside of existing groups</param>
+		/// <param name="getGroup">Group selector, by default NBicoin.IpExtensions.GetGroup</param>
+		/// <returns></returns>
+		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPAddress[] connectedAddresses = null, Func<IPAddress, byte[]> getGroup = null)
+		{
+			getGroup = getGroup ?? new Func<IPAddress, byte[]>((a) => IpExtensions.GetGroup(a));
 			connectedAddresses = connectedAddresses ?? new IPAddress[0];
 			parameters = parameters ?? new NodeConnectionParameters();
-			var addrman = AddressManagerBehavior.GetAddrman(parameters) ?? new AddressManager();
+			var addrmanBehavior = parameters.TemplateBehaviors.FindOrCreate(() => new AddressManagerBehavior(new AddressManager()));
+			var addrman = AddressManagerBehavior.GetAddrman(parameters);
 			DateTimeOffset start = DateTimeOffset.UtcNow;
 			while(true)
 			{
 				parameters.ConnectCancellation.ThrowIfCancellationRequested();
 				if(addrman.Count == 0 || DateTimeOffset.UtcNow - start > TimeSpan.FromSeconds(60))
 				{
-					addrman.DiscoverPeers(network, parameters);
+					addrmanBehavior.DiscoverPeers(network, parameters);
 					start = DateTimeOffset.UtcNow;
 				}
 				NetworkAddress addr = null;
+				int groupFail = 0;
 				while(true)
 				{
 					addr = addrman.Select();
+					if(groupFail > 50)
+					{
+						parameters.ConnectCancellation.WaitHandle.WaitOne((int)TimeSpan.FromSeconds(60).TotalMilliseconds);
+						break;
+					}
 					if(addr == null)
 						break;
 					if(!addr.Endpoint.Address.IsValid())
 						continue;
-					var groupExist = connectedAddresses.Any(a => a.GetGroup().SequenceEqual(addr.Endpoint.Address.GetGroup()));
+					var groupExist = connectedAddresses.Any(a => getGroup(a).SequenceEqual(getGroup(addr.Endpoint.Address)));
 					if(groupExist)
+					{
+						groupFail++;
 						continue;
+					}
 					break;
 				}
 				if(addr == null)
