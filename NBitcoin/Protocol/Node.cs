@@ -498,19 +498,7 @@ namespace NBitcoin.Protocol
 			parameters = parameters ?? new NodeConnectionParameters();
 			AddressManagerBehavior.SetAddrman(parameters, addrman);
 			return Connect(network, parameters, connectedAddresses);
-		}
-
-		/// <summary>
-		/// Connect to a random node on the network
-		/// </summary>
-		/// <param name="network">The network to connect to</param>
-		/// <param name="parameters">The parameters used by the found node, use AddressManagerBehavior.GetAddrman for finding peers</param>
-		/// <param name="connectedAddresses">The already connected addresses, the new address will be select outside of existing groups</param>
-		/// <returns></returns>
-		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPAddress[] connectedAddresses = null)
-		{
-			return Connect(network, parameters, connectedAddresses, null);
-		}
+		}		
 
 		/// <summary>
 		/// Connect to a random node on the network

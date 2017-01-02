@@ -372,7 +372,10 @@ namespace NBitcoin.Tests
 			Stopwatch watch = new Stopwatch();
 			NodeConnectionParameters parameters = new NodeConnectionParameters();
 			var addrman = GetCachedAddrMan("addrmancache.dat");
-			parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));
+			parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman)
+			{
+				PeersToDiscover = 50
+			});
 			watch.Start();
 			using(var node = Node.Connect(Network.Main, parameters))
 			{
