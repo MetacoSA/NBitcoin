@@ -112,10 +112,10 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 
 			var newheaders = message.Message.Payload as HeadersPayload;
-			var pendingTipBefore = GetPendingTip();
+			var pendingTipBefore = GetPendingTipOrChainTip();
 			if(newheaders != null && CanSync)
 			{
-				var tip = GetPendingTip();
+				var tip = GetPendingTipOrChainTip();
 				foreach(var header in newheaders.Headers)
 				{
 					var prev = tip.FindAncestorOrSelf(header.HashPrevBlock);
@@ -141,7 +141,7 @@ namespace NBitcoin.Protocol.Behaviors
 				{
 					_PendingTip = chainedPendingTip; //This allows garbage collection to collect the duplicated pendingtip and ancestors
 				}
-				if(newheaders.Headers.Count != 0 && pendingTipBefore.HashBlock != GetPendingTip().HashBlock)
+				if(newheaders.Headers.Count != 0 && pendingTipBefore.HashBlock != GetPendingTipOrChainTip().HashBlock)
 					TrySync();
 				Interlocked.Decrement(ref _SynchingCount);
 			}
@@ -243,16 +243,28 @@ namespace NBitcoin.Protocol.Behaviors
 					Interlocked.Increment(ref _SynchingCount);
 					node.SendMessageAsync(new GetHeadersPayload()
 					{
-						BlockLocators = GetPendingTip().GetLocator()
+						BlockLocators = GetPendingTipOrChainTip().GetLocator()
 					});
 				}
 			}
 		}
 
-		private ChainedBlock GetPendingTip()
+		private ChainedBlock GetPendingTipOrChainTip()
 		{
 			_PendingTip = _PendingTip ?? Chain.Tip;
 			return _PendingTip;
+		}
+
+		public ChainedBlock PendingTip
+		{
+			get
+			{
+				var tip = _PendingTip;
+				if(tip == null)
+					return null;
+				//Prevent memory leak by returning a block from the chain instead of real pending tip of possible
+				return Chain.GetBlock(tip.HashBlock) ?? tip;
+			}
 		}
 
 		protected override void DetachCore()
