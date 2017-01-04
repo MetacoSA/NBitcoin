@@ -271,6 +271,12 @@ namespace nStratis
 			if (this.Height == 0)
 				return true;
 
+			// if POS parameters is not set there is no way to know
+			// if this is a POS or a POW block and so we can't calculate 
+			// the work for POW or the target for POS
+			if (!this.Header.PosParameters.IsSet())
+				return true;
+
 			if (this.Header.PosParameters.IsProofOfWork() && !this.Header.CheckProofOfWork())
 				return false;
 
@@ -299,7 +305,7 @@ namespace nStratis
 
 		private void EnsurePosHeader()
 		{
-			if (this.Header.PosParameters == null)
+			if (!this.Header.PosParameters.IsSet())
 				throw new ArgumentNullException("PosParameters");
 		}
 	}

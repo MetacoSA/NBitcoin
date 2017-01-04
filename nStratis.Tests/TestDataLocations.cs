@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
+using System.Reflection;
 
 #if NOWEBCLIENT
 using nStratis.Tests;
@@ -30,7 +32,7 @@ namespace nStratis.Tests
 		{
 			get
 			{
-				EnsureDownloaded(@"download\blocks\Headers.dat", "https://onedrive.live.com/download.aspx?cid=3E5405DC8E6A9F4F&resid=3E5405DC8E6A9F4F%21123&canary=WEXg5NdVyhofKGNJlW0V0e8AbKxmTjJ1yP47KsA8hyU%3D8&ithint=%2Edat");
+				EnsureDownloaded(@"download\blocks\Headers.dat", "https://onedrive.live.com/download.aspx?cid=3E5405DC8E6A9F4F&resid=3E5405DC8E6A9F4F%21123&canary=HTsPi6qeFsOy7di8KBD7GIYBmHaRRumiJ%2FQnNMvz%2Fh0%3D4&ithint=%2Edat");
 				return @"download\blocks\Headers.dat";
 			}
 		}
@@ -57,8 +59,9 @@ namespace nStratis.Tests
 		public static string DataFolder(string file)
 		{
 			var p = Path.DirectorySeparatorChar;
-			var current = Directory.GetCurrentDirectory();
-			if(Directory.Exists($@"{current}\data".Replace('\\', p)))
+			var current = AssemblyDirectory;
+
+			if (Directory.Exists($@"{current}\data".Replace('\\', p)))
 			{
 				return $@"{current}\data\{file}".Replace('\\', p);
 			}
@@ -74,6 +77,22 @@ namespace nStratis.Tests
 			}
 
 			throw new DirectoryNotFoundException();
+		}
+
+		public static string AssemblyDirectory
+		{
+			get
+			{
+#if NETCORE
+				return System.AppContext.BaseDirectory;
+#else
+				string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+				UriBuilder uri = new UriBuilder(codeBase);
+				string path = Uri.UnescapeDataString(uri.Path);
+				return Path.GetDirectoryName(path);
+				
+#endif
+			}
 		}
 	}
 }

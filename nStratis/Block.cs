@@ -315,7 +315,7 @@ namespace nStratis
 			this.ReadWrite(bytes);
 		}
 
-		public void SetPosParams()
+		public PosParameters SetPosParams()
 		{
 			if (!this.HeaderOnly)
 			{
@@ -328,6 +328,8 @@ namespace nStratis
 					this.Header.PosParameters.PrevoutStake = this.Transactions[1].Inputs[0].PrevOut;
 				}
 			}
+
+			return this.Header.PosParameters;
 		}
 
 		public void ReadWrite(BitcoinStream stream)
@@ -575,6 +577,11 @@ namespace nStratis
 			this.HashProof = uint256.Zero;
 		}
 
+		public bool IsSet()
+		{
+			return this.HashProof != uint256.Zero;
+		}
+
 		public BlockFlag Flags
 		{
 			get
@@ -590,8 +597,15 @@ namespace nStratis
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref this.flags);
-			stream.ReadWrite(ref this.StakeTime);
-			stream.ReadWrite(ref this.PrevoutStake);
+			stream.ReadWrite(ref this.Mint);
+			stream.ReadWrite(ref this.StakeModifier);
+			stream.ReadWrite(ref this.StakeModifierV2);
+			if (this.IsProofOfStake())
+			{
+				stream.ReadWrite(ref this.PrevoutStake);
+				stream.ReadWrite(ref this.StakeTime);
+			}
+			stream.ReadWrite(ref this.HashProof);
 		}
 
 		public bool IsProofOfWork()

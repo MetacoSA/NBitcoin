@@ -16,7 +16,7 @@ C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\Build\Deploy.cspro
 .\GitLink.exe ".." -ignore "nStratis.portable.tests,common,nStratis.tests,build"
 
 ## package the code
-..\.nuget\nuGet pack nStratis.nuspec
+..\.nuget\nuGet pack nStratis.nuspec -Symbols
 
 ## push to nuget
 forfiles /m *.nupkg /c "cmd /c ..\.nuget\NuGet.exe push @FILE -source https://api.nuget.org/v3/index.json"

@@ -1,11 +1,10 @@
-{
+﻿{
   "version": "1.0.0.0",
-  "name": "nStratis.NETCore",
+  "name": "HashLib.NETCore",
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
     "NETStandard.Library": "1.6.0",
-    "System.Net.Requests": "4.0.11",
-    "HashLib.NETCore": "1.0.0.0"
+    "System.Net.Requests": "4.0.11"
   },
   "frameworks": {
     "netstandard1.3": {
@@ -32,7 +31,7 @@
     }
   },
   "buildOptions": {
-    "outputName": "nStratis",
+    "outputName": "HashLib",
     "debugType": "portable",
     "define": [
       "TRACE",
@@ -41,8 +40,7 @@
     ],
     "compile": {
       "include": [
-        "../nStratis/**/*.cs",
-        "../Stubs/TraceStub/TraceSource.cs"
+        "../HashLib/**/*.cs"
       ]
     }
   }

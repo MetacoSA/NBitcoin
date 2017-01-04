@@ -127,7 +127,7 @@ namespace nStratis
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;
-			return a._Target == b._Target;
+			return a._Target.Equals(b._Target);
 		}
 
 		public static bool operator !=(Target a, Target b)

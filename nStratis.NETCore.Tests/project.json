@@ -6,11 +6,12 @@
     "nStratis.NETCore": "1.0.0.0",
     "NETStandard.Library": "1.6.0",
     "xunit": "2.2.0-beta4-build3444",
-    "dotnet-test-xunit": "2.2.0-preview2-build1029"
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "HashLib.NETCore": "1.0.0.0"
   },
   "buildOptions": {
     "outputName": "nStratis.Tests",
-    "define": [ "NOWEBCLIENT", "NOHTTPSERVER" ],
+    "define": [ "NOWEBCLIENT", "NOHTTPSERVER", "NETCORE" ],
     "compile": {
       "include": [ "../nStratis.Tests/**/*.cs" ]
     },

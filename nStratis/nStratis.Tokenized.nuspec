@@ -35,5 +35,10 @@
 		<file src="bin\Release\nStratis.*" target="lib\net45" />
 		<file src="..\nStratis.NETCore\bin\Release\netstandard1.3\*.*" target="lib\netstandard1.3" />
 		<file src="..\nStratis.NETCore\bin\Release\netstandard1.1\*.*" target="lib\netstandard1.1" />	
-	</files>
+    
+    <!--hashlib-->
+    <file src="bin\Release\HashLib.*" target="lib\net45" />
+    <file src="..\nStratis.NETCore\bin\Release\netstandard1.3\HashLib.*" target="lib\netstandard1.3" />
+    <file src="..\nStratis.NETCore\bin\Release\netstandard1.1\HashLib.*" target="lib\netstandard1.1" />
+  </files>
 </package>
