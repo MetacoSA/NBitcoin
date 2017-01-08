@@ -175,7 +175,11 @@ namespace NBitcoin.Protocol.Behaviors
 
 		public override object Clone()
 		{
-			return new AddressManagerBehavior(AddressManager);
+			return new AddressManagerBehavior(AddressManager)
+			{
+				PeersToDiscover = PeersToDiscover,
+				Mode = Mode
+			};
 		}
 
 		internal void DiscoverPeers(Network network, NodeConnectionParameters parameters)

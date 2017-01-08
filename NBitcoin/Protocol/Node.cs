@@ -528,14 +528,17 @@ namespace NBitcoin.Protocol
 				int groupFail = 0;
 				while(true)
 				{
-					addr = addrman.Select();
 					if(groupFail > 50)
 					{
 						parameters.ConnectCancellation.WaitHandle.WaitOne((int)TimeSpan.FromSeconds(60).TotalMilliseconds);
 						break;
 					}
+					addr = addrman.Select();
 					if(addr == null)
+					{
+						parameters.ConnectCancellation.WaitHandle.WaitOne(1000);
 						break;
+					}
 					if(!addr.Endpoint.Address.IsValid())
 						continue;
 					var groupExist = connectedEndpoints.Any(a => getGroup(a).SequenceEqual(getGroup(addr.Endpoint)));

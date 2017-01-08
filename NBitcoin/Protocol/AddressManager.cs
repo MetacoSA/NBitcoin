@@ -1145,6 +1145,8 @@ namespace NBitcoin.Protocol
 						PopulateTableWithDNSNodes(network, peers);
 						PopulateTableWithHardNodes(network, peers);
 						peers = new List<NetworkAddress>(peers.OrderBy(a => RandomUtils.GetInt32()));
+						if(peers.Count == 0)
+							return;
 					}
 
 
