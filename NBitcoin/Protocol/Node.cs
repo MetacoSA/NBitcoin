@@ -286,13 +286,13 @@ namespace NBitcoin.Protocol
 					return;
 				if(!Cancel.IsCancellationRequested)
 				{
-					Node.State = NodeState.Failed;
 					NodeServerTrace.Error("Connection to server stopped unexpectedly", unhandledException);
 					Node.DisconnectReason = new NodeDisconnectReason()
 					{
 						Reason = "Unexpected exception while connecting to socket",
 						Exception = unhandledException
 					};
+					Node.State = NodeState.Failed;
 				}
 
 				if(Node.State != NodeState.Failed)
