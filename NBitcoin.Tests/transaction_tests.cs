@@ -1850,6 +1850,71 @@ namespace NBitcoin.Tests
 			Assert.Equal(coin.OutPoint.N, 3UL);
 		}
 
+		//OP_DEPTH 5 OP_SUB OP_PICK OP_SIZE OP_NIP e 10 OP_WITHIN OP_DEPTH 6 OP_SUB OP_PICK OP_SIZE OP_NIP e 10 OP_WITHIN OP_BOOLAND OP_DEPTH 5 OP_SUB OP_PICK OP_SHA256 1d3a9b978502dbe93364a4ea7b75ae9758fd7683958f0f42c1600e9975d10350 OP_EQUAL OP_DEPTH 6 OP_SUB OP_PICK OP_SHA256 1c5f92551d47cb478129b6ba715f58e9cea74ced4eee866c61fc2ea214197dec OP_EQUAL OP_BOOLAND OP_BOOLAND OP_DEPTH 5 OP_SUB OP_PICK OP_SIZE OP_NIP OP_DEPTH 6 OP_SUB OP_PICK OP_SIZE OP_NIP OP_EQUAL OP_IF 1d3a9b978502dbe93364a4ea7b75ae9758fd7683958f0f42c1600e9975d10350 OP_ELSE 1c5f92551d47cb478129b6ba715f58e9cea74ced4eee866c61fc2ea214197dec OP_ENDIF 1d3a9b978502dbe93364a4ea7b75ae9758fd7683958f0f42c1600e9975d10350 OP_EQUAL OP_DEPTH 1 OP_SUB OP_PICK OP_DEPTH 2 OP_SUB OP_PICK OP_CHECKSIG OP_BOOLAND OP_DEPTH 5 OP_SUB OP_PICK OP_SIZE OP_NIP OP_DEPTH 6 OP_SUB OP_PICK OP_SIZE OP_NIP OP_EQUAL OP_IF 1d3a9b978502dbe93364a4ea7b75ae9758fd7683958f0f42c1600e9975d10350 OP_ELSE 1c5f92551d47cb478129b6ba715f58e9cea74ced4eee866c61fc2ea214197dec OP_ENDIF 1c5f92551d47cb478129b6ba715f58e9cea74ced4eee866c61fc2ea214197dec OP_EQUAL OP_DEPTH 3 OP_SUB OP_PICK OP_DEPTH 4 OP_SUB OP_PICK OP_CHECKSIG OP_BOOLAND OP_BOOLOR OP_BOOLAND OP_DEPTH 1 OP_SUB OP_PICK OP_DEPTH 2 OP_SUB OP_PICK OP_CHECKSIG OP_DEPTH 3 OP_SUB OP_PICK OP_DEPTH 4 OP_SUB OP_PICK OP_CHECKSIG OP_BOOLAND OP_BOOLOR OP_VERIFY
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TestWtfScript()
+		{
+			Script scriptSig = new Script("3045022100deabfa565ebdcce6ff6e8c628e636fa5967f26a137f9f80ad918cf5ee066496a02206c3031e677000a013a9c47a8e0a8afab3b997f6167f4d7486017855d39efecf401 022f87677571e02b4ff63434b45a090736813df6fcc784b35d5f41369c3b9fe9dd 0 0 5b902f8dd6dc486447f1b2143755de 4f4fafc7181ef10390b4187f713a7f");
+			Script scriptPubKey = new Script("OP_DEPTH 5 OP_SUB OP_PICK OP_SIZE OP_NIP e 10 OP_WITHIN OP_DEPTH 6 OP_SUB OP_PICK OP_SIZE OP_NIP e 10 OP_WITHIN OP_BOOLAND OP_DEPTH 5 OP_SUB OP_PICK OP_SHA256 1d3a9b978502dbe93364a4ea7b75ae9758fd7683958f0f42c1600e9975d10350 OP_EQUAL OP_DEPTH 6 OP_SUB OP_PICK OP_SHA256 1c5f92551d47cb478129b6ba715f58e9cea74ced4eee866c61fc2ea214197dec OP_EQUAL OP_BOOLAND OP_BOOLAND OP_DEPTH 5 OP_SUB OP_PICK OP_SIZE OP_NIP OP_DEPTH 6 OP_SUB OP_PICK OP_SIZE OP_NIP OP_EQUAL OP_IF 1d3a9b978502dbe93364a4ea7b75ae9758fd7683958f0f42c1600e9975d10350 OP_ELSE 1c5f92551d47cb478129b6ba715f58e9cea74ced4eee866c61fc2ea214197dec OP_ENDIF 1d3a9b978502dbe93364a4ea7b75ae9758fd7683958f0f42c1600e9975d10350 OP_EQUAL OP_DEPTH 1 OP_SUB OP_PICK OP_DEPTH 2 OP_SUB OP_PICK OP_CHECKSIG OP_BOOLAND OP_DEPTH 5 OP_SUB OP_PICK OP_SIZE OP_NIP OP_DEPTH 6 OP_SUB OP_PICK OP_SIZE OP_NIP OP_EQUAL OP_IF 1d3a9b978502dbe93364a4ea7b75ae9758fd7683958f0f42c1600e9975d10350 OP_ELSE 1c5f92551d47cb478129b6ba715f58e9cea74ced4eee866c61fc2ea214197dec OP_ENDIF 1c5f92551d47cb478129b6ba715f58e9cea74ced4eee866c61fc2ea214197dec OP_EQUAL OP_DEPTH 3 OP_SUB OP_PICK OP_DEPTH 4 OP_SUB OP_PICK OP_CHECKSIG OP_BOOLAND OP_BOOLOR OP_BOOLAND OP_DEPTH 1 OP_SUB OP_PICK OP_DEPTH 2 OP_SUB OP_PICK OP_CHECKSIG OP_DEPTH 3 OP_SUB OP_PICK OP_DEPTH 4 OP_SUB OP_PICK OP_CHECKSIG OP_BOOLAND OP_BOOLOR OP_VERIFY");
+			var ctx = new ScriptEvaluationContext();
+			ctx.ScriptVerify = ScriptVerify.Mandatory | ScriptVerify.DerSig;
+			var passed = ctx.VerifyScript(scriptSig, scriptPubKey, CreateDummy(), 0, Money.Zero);
+			Assert.True(passed);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TestOPNIP()
+		{
+			// (x1 x2 -- x2)
+			Script scriptSig = new Script(Op.GetPushOp(1), Op.GetPushOp(2), Op.GetPushOp(3));
+			Script scriptPubKey = new Script(OpcodeType.OP_NIP);
+			var ctx = new ScriptEvaluationContext();
+			ctx.VerifyScript(scriptSig, scriptPubKey, CreateDummy(), 0, Money.Zero);
+			Assert.Equal(2, ctx.Stack.Count);
+			var actual = new[] { ctx.Stack.Top(-2), ctx.Stack.Top(-1) };
+			var expected = new[] { Op.GetPushOp(1).PushData, Op.GetPushOp(3).PushData };
+			for(int i = 0; i < actual.Length; i++)
+			{
+				Assert.True(actual[i].SequenceEqual(expected[i]));
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void OP_2ROT()
+		{
+			// (x1 x2 x3 x4 x5 x6 -- x3 x4 x5 x6 x1 x2)
+			Script scriptSig = new Script(Op.GetPushOp(1), Op.GetPushOp(2), Op.GetPushOp(3), Op.GetPushOp(4), Op.GetPushOp(5), Op.GetPushOp(6));
+			Script scriptPubKey = new Script(OpcodeType.OP_2ROT);
+			var ctx = new ScriptEvaluationContext();
+			ctx.VerifyScript(scriptSig, scriptPubKey, CreateDummy(), 0, Money.Zero);
+			Assert.Equal(6, ctx.Stack.Count);
+			var actual = new[] {
+				ctx.Stack.Top(-6),
+				ctx.Stack.Top(-5),
+				ctx.Stack.Top(-4),
+				ctx.Stack.Top(-3) ,
+				ctx.Stack.Top(-2),
+				ctx.Stack.Top(-1) };
+			var expected = new[] 
+			{
+				Op.GetPushOp(3).PushData,
+				Op.GetPushOp(4).PushData,
+				Op.GetPushOp(5).PushData,
+				Op.GetPushOp(6).PushData,
+				Op.GetPushOp(1).PushData,
+				Op.GetPushOp(2).PushData,
+			};
+			for(int i = 0; i < actual.Length; i++)
+			{
+				Assert.True(actual[i].SequenceEqual(expected[i]));
+			}
+		}
+
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void TestOPTuck()
@@ -1858,13 +1923,7 @@ namespace NBitcoin.Tests
 			Script scriptSig = new Script(Op.GetPushOp(1), Op.GetPushOp(2), Op.GetPushOp(3));
 			Script scriptPubKey = new Script(OpcodeType.OP_TUCK);
 			var ctx = new ScriptEvaluationContext();
-			ctx.VerifyScript(scriptSig, scriptPubKey, new Transaction()
-			{
-				Inputs =
-				{
-					TxIn.CreateCoinbase(200)
-				}
-			}, 0, Money.Zero);
+			ctx.VerifyScript(scriptSig, scriptPubKey, CreateDummy(), 0, Money.Zero);
 			Assert.Equal(4, ctx.Stack.Count);
 			var actual = new[] { ctx.Stack.Top(-3), ctx.Stack.Top(-2), ctx.Stack.Top(-1) };
 			var expected = new[] { Op.GetPushOp(3).PushData, Op.GetPushOp(2).PushData, Op.GetPushOp(3).PushData };
@@ -1872,6 +1931,17 @@ namespace NBitcoin.Tests
 			{
 				Assert.True(actual[i].SequenceEqual(expected[i]));
 			}
+		}
+
+		private static Transaction CreateDummy()
+		{
+			return new Transaction()
+			{
+				Inputs =
+				{
+					TxIn.CreateCoinbase(200)
+				}
+			};
 		}
 
 		[Fact]
