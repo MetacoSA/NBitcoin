@@ -2151,7 +2151,7 @@ namespace NBitcoin
 			EnsureSize();
 
 			position = Count + position;
-			for(int i = _position; i >= position; i--)
+			for(int i = _position; i >= position + 1; i--)
 			{
 				_array[i + 1] = _array[i];
 			}
