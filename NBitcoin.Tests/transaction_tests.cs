@@ -1217,7 +1217,7 @@ namespace NBitcoin.Tests
 		public void CantAskScriptCodeOnIncompleteCoin()
 		{
 			Key k = new Key();
-			var coin = RandomCoin(Money.Zero, k);			
+			var coin = RandomCoin(Money.Zero, k);
 			Assert.True(coin.CanGetScriptCode);
 			coin.ScriptPubKey = k.PubKey.ScriptPubKey.Hash.ScriptPubKey;
 			Assert.False(coin.CanGetScriptCode);
@@ -1848,6 +1848,30 @@ namespace NBitcoin.Tests
 			var coin = errors.OfType<CoinNotFoundPolicyError>().Single();
 			Assert.Equal(coin.InputIndex, 4UL);
 			Assert.Equal(coin.OutPoint.N, 3UL);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TestOPTuck()
+		{
+			// (x1 x2 -- x2 x1 x2)
+			Script scriptSig = new Script(Op.GetPushOp(1), Op.GetPushOp(2), Op.GetPushOp(3));
+			Script scriptPubKey = new Script(OpcodeType.OP_TUCK);
+			var ctx = new ScriptEvaluationContext();
+			ctx.VerifyScript(scriptSig, scriptPubKey, new Transaction()
+			{
+				Inputs =
+				{
+					TxIn.CreateCoinbase(200)
+				}
+			}, 0, Money.Zero);
+			Assert.Equal(4, ctx.Stack.Count);
+			var actual = new[] { ctx.Stack.Top(-3), ctx.Stack.Top(-2), ctx.Stack.Top(-1) };
+			var expected = new[] { Op.GetPushOp(3).PushData, Op.GetPushOp(2).PushData, Op.GetPushOp(3).PushData };
+			for(int i = 0; i < actual.Length; i++)
+			{
+				Assert.True(actual[i].SequenceEqual(expected[i]));
+			}
 		}
 
 		[Fact]

@@ -2149,9 +2149,10 @@ namespace NBitcoin
 		public void Insert(int position, T value)
 		{
 			EnsureSize();
-			var newArray = new T[_array.Length];
-			Array.Copy(_array, position, newArray, position + 1, _position - position + 1);
-			_array = newArray;
+			for(int i = _position; i >= position; i--)
+			{
+				_array[i + 1] = _array[i];
+			}
 			_array[position] = value;
 			_position++;
 		}
