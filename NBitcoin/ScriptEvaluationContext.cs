@@ -1093,7 +1093,7 @@ namespace NBitcoin
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch = _stack.Top(-1);
-									_stack.Insert(0, vch);
+									_stack.Insert(_stack.Count - 2, vch);
 									break;
 								}
 							case OpcodeType.OP_SIZE:
