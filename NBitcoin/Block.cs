@@ -336,55 +336,10 @@ namespace NBitcoin
 				return header;
 			}
 		}
-
-
-		//public MerkleBranch GetMerkleBranch(int txIndex)
-		//{
-		//	if(vMerkleTree.Count == 0)
-		//		ComputeMerkleRoot();
-		//	List<uint256> vMerkleBranch = new List<uint256>();
-		//	int j = 0;
-		//	for(int nSize = vtx.Count ; nSize > 1 ; nSize = (nSize + 1) / 2)
-		//	{
-		//		int i = Math.Min(txIndex, nSize - 1);
-		//		vMerkleBranch.Add(vMerkleTree[j + i]);
-		//		txIndex >>= 1;
-		//		j += nSize;
-		//	}
-		//	return new MerkleBranch(vMerkleBranch);
-		//}
-
-		//public static uint256 CheckMerkleBranch(uint256 hash, List<uint256> vMerkleBranch, int nIndex)
-		//{
-		//	if(nIndex == -1)
-		//		return 0;
-		//	foreach(var otherside in vMerkleBranch)
-		//	{
-		//		if((nIndex & 1) != 0)
-		//			hash = Hash(otherside, hash);
-		//		else
-		//			hash = Hash(hash, otherside);
-		//		nIndex >>= 1;
-		//	}
-		//	return hash;
-		//}
-
-		//std::vector<uint256> GetMerkleBranch(int nIndex) const;
-		//static uint256 CheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex);
-		//void print() const;
-
 		public uint256 GetHash()
 		{
 			//Block's hash is his header's hash
 			return header.GetHash();
-		}
-
-		public int Length
-		{
-			get
-			{
-				return header.ToBytes().Length;
-			}
 		}
 
 		public void ReadWrite(byte[] array, int startIndex)
