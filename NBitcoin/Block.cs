@@ -401,6 +401,31 @@ namespace NBitcoin
 			return tx;
 		}
 
+		/// <summary>
+		/// Create a block with the specified option only. (useful for stripping data from a block)
+		/// </summary>
+		/// <param name="options">Options to keep</param>
+		/// <returns>A new block with only the options wanted</returns>
+		public Block WithOptions(TransactionOptions options)
+		{
+			if(Transactions.Count == 0)
+				return this;
+			if(options == TransactionOptions.Witness && Transactions[0].HasWitness)
+				return this;
+			if(options == TransactionOptions.None && !Transactions[0].HasWitness)
+				return this;
+			var instance = new Block();
+			var ms = new MemoryStream();
+			var bms = new BitcoinStream(ms, true);
+			bms.TransactionOptions = options;
+			this.ReadWrite(bms);
+			ms.Position = 0;
+			bms = new BitcoinStream(ms, false);
+			bms.TransactionOptions = options;
+			instance.ReadWrite(bms);
+			return instance;
+		}
+
 		public void UpdateMerkleRoot()
 		{
 			this.Header.HashMerkleRoot = GetMerkleRoot().Hash;

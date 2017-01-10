@@ -1740,6 +1740,10 @@ namespace NBitcoin
 		/// <returns>A new transaction with only the options wanted</returns>
 		public Transaction WithOptions(TransactionOptions options)
 		{
+			if(options == TransactionOptions.Witness && HasWitness)
+				return this;
+			if(options == TransactionOptions.None && !HasWitness)
+				return this;
 			var instance = new Transaction();
 			var ms = new MemoryStream();
 			var bms = new BitcoinStream(ms, true);
