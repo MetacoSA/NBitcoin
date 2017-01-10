@@ -412,6 +412,21 @@ namespace NBitcoin
 			}
 		}
 
+
+		int _CoinbaseMaturity = 100;
+		public int CoinbaseMaturity
+		{
+			get
+			{
+				return _CoinbaseMaturity;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_CoinbaseMaturity = value;
+			}
+		}
+
 		bool frozen = false;
 		public void Freeze()
 		{
@@ -441,7 +456,8 @@ namespace NBitcoin
 				_RuleChangeActivationThreshold = _RuleChangeActivationThreshold,
 				_SegWitHeight = _SegWitHeight,
 				_SubsidyHalvingInterval = _SubsidyHalvingInterval,
-				_SpendableCoinbaseDepth = _SpendableCoinbaseDepth
+				_SpendableCoinbaseDepth = _SpendableCoinbaseDepth,
+				_CoinbaseMaturity = _CoinbaseMaturity
 			};
 		}
 	}
