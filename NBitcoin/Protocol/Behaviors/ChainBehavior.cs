@@ -14,14 +14,24 @@ namespace NBitcoin.Protocol.Behaviors
 	/// </summary>
 	public class ChainBehavior : NodeBehavior
 	{
+		State _State;
 		public ChainBehavior(ConcurrentChain chain)
 		{
 			if(chain == null)
 				throw new ArgumentNullException("chain");
+			_State = new ChainBehavior.State();
 			_Chain = chain;
 			AutoSync = true;
 			CanSync = true;
 			CanRespondToGetHeaders = true;
+		}
+
+		public State SharedState
+		{
+			get
+			{
+				return _State;
+			}
 		}
 		/// <summary>
 		/// Keep the chain in Sync (Default : true)
@@ -100,15 +110,30 @@ namespace NBitcoin.Protocol.Behaviors
 			if(getheaders != null && CanRespondToGetHeaders)
 			{
 				HeadersPayload headers = new HeadersPayload();
+				var highestPow = SharedState.HighestValidatedPoW;
+				highestPow = Chain.GetBlock(highestPow.HashBlock);
 				var fork = Chain.FindFork(getheaders.BlockLocators);
 				if(fork != null)
-					foreach(var header in Chain.EnumerateToTip(fork).Skip(1))
+				{
+					if(highestPow != null && fork.Height > highestPow.Height)
 					{
-						headers.Headers.Add(header.Header);
-						if(header.HashBlock == getheaders.HashStop || headers.Headers.Count == 2000)
-							break;
+						fork = null; //fork not yet validated
 					}
-				AttachedNode.SendMessageAsync(headers);
+					if(fork != null)
+					{
+						foreach(var header in Chain.EnumerateToTip(fork).Skip(1))
+						{
+							if(highestPow != null && header.Height > highestPow.Height)
+								break;
+							headers.Headers.Add(header.Header);
+							if(header.HashBlock == getheaders.HashStop || headers.Headers.Count == 2000)
+								break;
+						}
+					}
+				}
+
+				if(headers.Headers.Count > 0)
+					AttachedNode.SendMessageAsync(headers);
 			}
 
 			var newheaders = message.Message.Payload as HeadersPayload;
@@ -123,7 +148,7 @@ namespace NBitcoin.Protocol.Behaviors
 						break;
 					tip = new ChainedBlock(header, header.GetHash(), prev);
 					var validated = Chain.GetBlock(tip.HashBlock) != null || tip.Validate(AttachedNode.Network);
-					validated &= !IsMarkedInvalid(tip.HashBlock);
+					validated &= !SharedState.IsMarkedInvalid(tip.HashBlock);
 					if(!validated)
 					{
 						invalidHeaderReceived = true;
@@ -149,32 +174,6 @@ namespace NBitcoin.Protocol.Behaviors
 			act();
 		}
 
-		private bool IsMarkedInvalid(uint256 hashBlock)
-		{
-			try
-			{
-				_InvalidBlocksLock.EnterReadLock();
-				return _InvalidBlocks.Contains(hashBlock);
-			}
-			finally
-			{
-				_InvalidBlocksLock.ExitReadLock();
-			}
-		}
-
-		public void MarkBlockInvalid(uint256 blockHash)
-		{
-			try
-			{
-				_InvalidBlocksLock.EnterWriteLock();
-				_InvalidBlocks.Add(blockHash);
-			}
-			finally
-			{
-				_InvalidBlocksLock.ExitWriteLock();
-			}
-		}
-
 		/// <summary>
 		/// Check if any past blocks announced by this peer is in the invalid blocks list, and set InvalidHeaderReceived flag accordingly
 		/// </summary>
@@ -186,20 +185,20 @@ namespace NBitcoin.Protocol.Behaviors
 			{
 				try
 				{
-					_InvalidBlocksLock.EnterReadLock();
-					if(_InvalidBlocks.Count != 0)
+					_State._InvalidBlocksLock.EnterReadLock();
+					if(_State._InvalidBlocks.Count != 0)
 					{
 						foreach(var header in tip.EnumerateToGenesis())
 						{
 							if(invalidHeaderReceived)
 								break;
-							invalidHeaderReceived |= _InvalidBlocks.Contains(header.HashBlock);
+							invalidHeaderReceived |= _State._InvalidBlocks.Contains(header.HashBlock);
 						}
 					}
 				}
 				finally
 				{
-					_InvalidBlocksLock.ExitReadLock();
+					_State._InvalidBlocksLock.ExitReadLock();
 				}
 			}
 			return !invalidHeaderReceived;
@@ -273,8 +272,46 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 
 
-		ReaderWriterLockSlim _InvalidBlocksLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
-		HashSet<uint256> _InvalidBlocks = new HashSet<uint256>();
+		public class State
+		{
+			internal ReaderWriterLockSlim _InvalidBlocksLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+			internal HashSet<uint256> _InvalidBlocks = new HashSet<uint256>();
+
+			public bool IsMarkedInvalid(uint256 hashBlock)
+			{
+				try
+				{
+					_InvalidBlocksLock.EnterReadLock();
+					return _InvalidBlocks.Contains(hashBlock);
+				}
+				finally
+				{
+					_InvalidBlocksLock.ExitReadLock();
+				}
+			}
+
+			public void MarkBlockInvalid(uint256 blockHash)
+			{
+				try
+				{
+					_InvalidBlocksLock.EnterWriteLock();
+					_InvalidBlocks.Add(blockHash);
+				}
+				finally
+				{
+					_InvalidBlocksLock.ExitWriteLock();
+				}
+			}
+
+			/// <summary>
+			/// ChainBehaviors sharing this state will not broadcast headers which are above HighestValidatedPoW
+			/// </summary>
+			public ChainedBlock HighestValidatedPoW
+			{
+				get; set;
+			}
+		}
+
 		#region ICloneable Members
 
 		public override object Clone()
@@ -284,8 +321,7 @@ namespace NBitcoin.Protocol.Behaviors
 				CanSync = CanSync,
 				CanRespondToGetHeaders = CanRespondToGetHeaders,
 				AutoSync = AutoSync,
-				_InvalidBlocks = _InvalidBlocks,
-				_InvalidBlocksLock = _InvalidBlocksLock
+				_State = _State
 			};
 			return clone;
 		}
