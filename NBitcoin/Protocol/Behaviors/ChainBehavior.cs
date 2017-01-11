@@ -87,7 +87,8 @@ namespace NBitcoin.Protocol.Behaviors
 			RegisterDisposable(_Refresh);
 			if(AttachedNode.State == NodeState.Connected)
 			{
-				AttachedNode.MyVersion.StartHeight = Chain.Height;
+				var highPoW = SharedState.HighestValidatedPoW;
+				AttachedNode.MyVersion.StartHeight = highPoW == null ? Chain.Height : highPoW.Height;
 			}
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
 			RegisterDisposable(AttachedNode.Filters.Add(Intercept));
