@@ -319,7 +319,11 @@ namespace NBitcoin.Tests
 					Assert.True(chain1.Height == 500);
 					chain1 = n1.GetChain(rpc.GetBlockHash(499));
 					Assert.True(chain1.Height == 499);
-					Thread.Sleep(5000);
+
+					//Should not broadcast above HighestValidatorPoW
+					n1.Behaviors.Find<ChainBehavior>().SharedState.HighestValidatedPoW = chain1.GetBlock(300);
+					chain1 = n2.GetChain(rpc.GetBlockHash(499));
+					Assert.True(chain1.Height == 300);
 				}
 			}
 		}

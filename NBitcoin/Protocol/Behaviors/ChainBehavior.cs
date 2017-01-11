@@ -111,7 +111,7 @@ namespace NBitcoin.Protocol.Behaviors
 			{
 				HeadersPayload headers = new HeadersPayload();
 				var highestPow = SharedState.HighestValidatedPoW;
-				highestPow = Chain.GetBlock(highestPow.HashBlock);
+				highestPow = highestPow == null ? null : Chain.GetBlock(highestPow.HashBlock);
 				var fork = Chain.FindFork(getheaders.BlockLocators);
 				if(fork != null)
 				{
@@ -131,9 +131,7 @@ namespace NBitcoin.Protocol.Behaviors
 						}
 					}
 				}
-
-				if(headers.Headers.Count > 0)
-					AttachedNode.SendMessageAsync(headers);
+				AttachedNode.SendMessageAsync(headers);
 			}
 
 			var newheaders = message.Message.Payload as HeadersPayload;
