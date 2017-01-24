@@ -241,22 +241,6 @@ namespace NBitcoin
 			}
 		}
 
-
-		private int _SpendableCoinbaseDepth;
-		public int SpendableCoinbaseDepth
-		{
-			get
-			{
-				return _SpendableCoinbaseDepth;
-			}
-			set
-			{
-				EnsureNotFrozen();
-				_SpendableCoinbaseDepth = value;
-			}
-		}
-
-
 		uint256 _BIP34Hash;
 		public uint256 BIP34Hash
 		{
@@ -283,21 +267,6 @@ namespace NBitcoin
 			{
 				EnsureNotFrozen();
 				_PowLimit = value;
-			}
-		}
-
-
-		int _SegWitHeight;
-		public int SegWitHeight
-		{
-			get
-			{
-				return _SegWitHeight;
-			}
-			set
-			{
-				EnsureNotFrozen();
-				_SegWitHeight = value;
 			}
 		}
 
@@ -454,9 +423,7 @@ namespace NBitcoin
 				_PowTargetSpacing = _PowTargetSpacing,
 				_PowTargetTimespan =_PowTargetTimespan,
 				_RuleChangeActivationThreshold = _RuleChangeActivationThreshold,
-				_SegWitHeight = _SegWitHeight,
 				_SubsidyHalvingInterval = _SubsidyHalvingInterval,
-				_SpendableCoinbaseDepth = _SpendableCoinbaseDepth,
 				_CoinbaseMaturity = _CoinbaseMaturity
 			};
 		}
@@ -628,7 +595,7 @@ namespace NBitcoin
 		{			
 			name = "Main";
 
-			consensus.SpendableCoinbaseDepth = 100;
+			consensus.CoinbaseMaturity = 100;
 			consensus.SubsidyHalvingInterval = 210000;
 			consensus.MajorityEnforceBlockUpgrade = 750;
 			consensus.MajorityRejectBlockOutdated = 950;
@@ -638,7 +605,6 @@ namespace NBitcoin
 			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 363725;
 			consensus.BIP34Hash = new uint256("0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8");
 			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-			consensus.SegWitHeight = 2000000000;
 			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = false;
@@ -715,7 +681,6 @@ namespace NBitcoin
 			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 330776;
 			consensus.BIP34Hash = new uint256("0x0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8");
 			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-			consensus.SegWitHeight = 2000000000;
 			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = true;
@@ -772,7 +737,6 @@ namespace NBitcoin
 			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 100000000;
 			consensus.BIP34Hash = new uint256();
 			consensus.PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-			consensus.SegWitHeight = 0;
 			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = true;
