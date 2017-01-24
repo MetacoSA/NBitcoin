@@ -1245,12 +1245,12 @@ namespace NBitcoin
 		}
 
 
-		[Obsolete("Use Network.Consensus.SpendableCoinbaseDepth instead")]
+		[Obsolete("Use Network.Consensus.CoinbaseMaturity instead")]
 		public int SpendableCoinbaseDepth
 		{
 			get
 			{
-				return Consensus.SpendableCoinbaseDepth;
+				return Consensus.CoinbaseMaturity;
 			}
 		}
 	}
