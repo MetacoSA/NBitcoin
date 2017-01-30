@@ -32,6 +32,9 @@ namespace NBitcoin.JsonConverters
                 return Network.TestNet;
 			if(network.Equals("RegTest", StringComparison.OrdinalIgnoreCase) || network.Equals("reg", StringComparison.OrdinalIgnoreCase))
 				return Network.RegTest;
+			var net = Network.GetNetwork(network);
+			if(net != null)
+				return net;
 			throw new JsonObjectException("Unknown network (valid values : main, test, reg)", reader);
         }
 
