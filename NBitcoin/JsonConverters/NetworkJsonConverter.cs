@@ -42,12 +42,14 @@ namespace NBitcoin.JsonConverters
         {
             var net = (Network)value;
             String str = null;
-            if (net == Network.Main)
-                str = "MainNet";
-            if (net == Network.TestNet)
-                str = "TestNet";
-			if(net == Network.RegTest)
+			if(net == Network.Main)
+				str = "MainNet";
+			else if(net == Network.TestNet)
+				str = "TestNet";
+			else if(net == Network.RegTest)
 				str = "RegTest";
+			else if(net != null)
+				str = net.ToString();
 			if (str != null)
                 writer.WriteValue(str);
         }
