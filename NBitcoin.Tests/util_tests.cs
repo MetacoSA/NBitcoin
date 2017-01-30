@@ -560,6 +560,22 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanDetectBase58WithoutAmbiguity()
+		{
+			var address = new
+			{
+				Base58 = "bWyXRVD4J3Y8bG8VQ8aQmnnztdMNzExRdaw",
+				ExpectedType = typeof(BitcoinColoredAddress),
+				Network = Network.RegTest
+			};
+
+			var result = Network.CreateFromBase58Data(address.Base58, address.Network);
+			Assert.IsType<BitcoinColoredAddress>(result);
+			Assert.True(result.Network == Network.RegTest);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//https://en.bitcoin.it/wiki/List_of_address_prefixes
 		public void CanDetectBase58NetworkAndType()
 		{

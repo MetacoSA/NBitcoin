@@ -895,7 +895,11 @@ namespace NBitcoin
 				{
 					if(type.Value == Base58Type.COLORED_ADDRESS)
 					{
-						var inner = BitcoinAddress.Create(BitcoinColoredAddress.GetWrappedBase58(base58, network));
+						var wrapped = BitcoinColoredAddress.GetWrappedBase58(base58, network);
+						var wrappedType = network.GetBase58Type(wrapped);
+						if(wrappedType == null)
+							continue;
+						var inner = network.CreateBase58Data(wrappedType.Value, wrapped);
 						if(inner.Network != network)
 							continue;
 					}
