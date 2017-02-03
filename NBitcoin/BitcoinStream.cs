@@ -67,9 +67,9 @@ namespace NBitcoin
 		static MethodInfo _ReadWriteTyped;
 		static BitcoinStream()
 		{
+
 			_ReadWriteTyped = typeof(BitcoinStream)
-			.GetTypeInfo()
-			.DeclaredMethods
+			.GetMethods()
 			.Where(m => m.Name == "ReadWrite")
 			.Where(m => m.IsGenericMethodDefinition)
 			.Where(m => m.GetParameters().Length == 1)

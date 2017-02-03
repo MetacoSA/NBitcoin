@@ -80,7 +80,7 @@ namespace NBitcoin
 		private readonly List<IMoney> _bag = new List<IMoney>();
 
 		public MoneyBag()
-			: this(new List<MoneyBag>())
+			: this(new List<MoneyBag>().OfType<IMoney>())
 		{
 
 		}
@@ -259,7 +259,7 @@ namespace NBitcoin
 
 		IEnumerable<IMoney> IMoney.Split(int parts)
 		{
-			return Split(parts);
+			return Split(parts).OfType<IMoney>();
 		}
 
 		#endregion
@@ -810,7 +810,7 @@ namespace NBitcoin
 
 		IEnumerable<IMoney> IMoney.Split(int parts)
 		{
-			return Split(parts);
+			return Split(parts).OfType<IMoney>();
 		}
 
 		#endregion

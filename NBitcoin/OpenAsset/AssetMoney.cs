@@ -405,7 +405,7 @@ namespace NBitcoin.OpenAsset
 
 		IEnumerable<IMoney> IMoney.Split(int parts)
 		{
-			return Split(parts);
+			return Split(parts).OfType<IMoney>();
 		}
 
 		#endregion

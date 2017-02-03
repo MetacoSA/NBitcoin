@@ -58,7 +58,7 @@ namespace NBitcoin
 
 			vchVersion = vchTemp.SafeSubarray(0, expectedVersion.Length);
 			if(!Utils.ArrayEqual(vchVersion, expectedVersion))
-				throw new FormatException("The version prefix does not match the expected one " + String.Join(",", expectedVersion));
+				throw new FormatException("The version prefix does not match the expected one ");
 
 			vchData = vchTemp.SafeSubarray(expectedVersion.Length);
 			wifData = psz;

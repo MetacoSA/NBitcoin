@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace NBitcoin.Protocol
 	{
 		static Dictionary<string, Type> _NameToType;
 		static Dictionary<Type, string> _TypeToName;
-
+        #if !NOSOCKET
 		static PayloadAttribute()
 		{
 			_NameToType = new Dictionary<string, Type>();
@@ -44,7 +45,7 @@ namespace NBitcoin.Protocol
 				return e.Types.Where(t => t != null).Select(t => t.GetTypeInfo());
 			}
 		}
-
+#endif
 		public static string GetCommandName<T>()
 		{
 			return GetCommandName(typeof(T));

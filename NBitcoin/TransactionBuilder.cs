@@ -999,7 +999,7 @@ namespace NBitcoin
 					ctx.Dust = new AssetMoney(builders.Key);
 					ctx.CoverOnly = null;
 					ctx.ChangeAmount = new AssetMoney(builders.Key);
-					var btcSpent = BuildTransaction(ctx, group, builders.Value, coins, new AssetMoney(builders.Key))
+					var btcSpent = BuildTransaction(ctx, group, builders.Value, coins.OfType<ICoin>(), new AssetMoney(builders.Key))
 						.OfType<IColoredCoin>().Select(c => c.Bearer.Amount).Sum();
 					ctx.AdditionalFees -= btcSpent;
 				}
@@ -1009,7 +1009,7 @@ namespace NBitcoin
 				ctx.ChangeAmount = Money.Zero;
 				ctx.CoverOnly = group.CoverOnly;
 				ctx.ChangeType = ChangeType.Uncolored;
-				BuildTransaction(ctx, group, group.Builders, group.Coins.Values.OfType<Coin>(), Money.Zero);
+				BuildTransaction(ctx, group, group.Builders, group.Coins.Values.OfType<ICoin>(), Money.Zero);
 			}
 			ctx.Finish();
 
