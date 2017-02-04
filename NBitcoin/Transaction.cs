@@ -1240,7 +1240,7 @@ namespace NBitcoin
 			}
 			else
 			{
-				var version = (!witSupported || (vin.Count == 0 && vout.Count > 0)) ? nVersion | NoDummyInput : nVersion;
+				var version = (witSupported && (vin.Count == 0 && vout.Count > 0)) ? nVersion | NoDummyInput : nVersion;
 				stream.ReadWrite(ref version);
 
 				if(witSupported)
