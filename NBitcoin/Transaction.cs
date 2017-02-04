@@ -1197,7 +1197,7 @@ namespace NBitcoin
 				stream.ReadWrite<TxInList, TxIn>(ref vin);
 
 				var hasNoDummy = (nVersion & NoDummyInput) != 0 && vin.Count == 0;
-				if(hasNoDummy)
+				if(witSupported && hasNoDummy)
 					nVersion = nVersion & ~NoDummyInput;
 
 				if(vin.Count == 0 && witSupported && !hasNoDummy)
@@ -1240,7 +1240,7 @@ namespace NBitcoin
 			}
 			else
 			{
-				var version = vin.Count == 0 && vout.Count > 0 ? nVersion | NoDummyInput : nVersion;
+				var version = (!witSupported || (vin.Count == 0 && vout.Count > 0)) ? nVersion | NoDummyInput : nVersion;
 				stream.ReadWrite(ref version);
 
 				if(witSupported)
