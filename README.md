@@ -5,7 +5,7 @@
 <img src="http://segwit.co/static/public/images/logo.png" width="100">
 
 NBitcoin is the most complete Bitcoin library for the .NET platform. It implements all most relevant Bitcoin Improvement Proposals (BIPs). It provides also low level access to Bitcoin primitives so you can easily build your application on top of it. Join us on our [gitter chat room](https://gitter.im/MetacoSA/NBitcoin).
-It works on Windows, Mac and Linux with Xamarin, .NET Core or CLR. (Porting to Unity should not be that hard if you need it)
+It works on Windows, Mac and Linux with Xamarin, Unity, .NET Core or CLR. (Porting to Unity should not be that hard if you need it)
 
 The best documentation available is our [eBook](https://programmingblockchain.gitbooks.io/programmingblockchain/content/), and the excellent unit tests. There is also some more resources below.
 
@@ -22,6 +22,19 @@ The packages supports:
 
 To compile it by yourself, you can git clone, open the project and hit the compile button on visual studio.
 How to get started ? Check out this article [on CodeProject](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) for some basic Bitcoin operations, or [this Introduction to NBitcoin video](https://www.youtube.com/watch?v=X4ZwRWIF49w).
+
+#For using NBitcoin in Unity 3.5
+
+In command prompt:
+
+```
+git clone https://github.com/MetacoSA/NBitcoin/
+cd NBitcoin
+git checkout unity35
+build-unity.bat
+```
+
+Then put the two libraries, NBitcoin.dll and System.Threading.Tasks.Net35.dll found in "NBitcoin\NBitcoin\bin\Release" into your asset folder.
 
 ##Description
 NBitcoin notably includes:
