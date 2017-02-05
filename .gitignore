@@ -189,3 +189,4 @@ project.lock.json
 /NBitcoin.Tests/CanStoreBlocks/StoreLock
 /NBitcoin.Tests/libbitcoinconsensus-0.dll
 *.zip
+/dotnet-tpl35/

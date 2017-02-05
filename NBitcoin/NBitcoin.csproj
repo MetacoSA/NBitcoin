@@ -31,7 +31,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;WIN</DefineConstants>
+    <DefineConstants>TRACE;PORTABLE;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NOCUSTOMSSLVALIDATION;NOJSONNET;NOHTTPCLIENT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\NBitcoin.XML</DocumentationFile>
@@ -443,7 +443,7 @@
     <Compile Include="BouncyCastle\util\Platform.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\dotnet-tpl35\System.Threading.Tasks.Unity.csproj">
+    <ProjectReference Include="..\dotnet-tpl35\System.Threading.Tasks.Unity.csproj">
       <Project>{dcb5d745-525c-46a1-bfc0-e12f87ab6165}</Project>
       <Name>System.Threading.Tasks.Unity</Name>
     </ProjectReference>

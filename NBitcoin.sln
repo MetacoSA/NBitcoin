@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FB4BE9
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Threading.Tasks.Unity", "..\dotnet-tpl35\System.Threading.Tasks.Unity.csproj", "{DCB5D745-525C-46A1-BFC0-E12F87AB6165}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Threading.Tasks.Unity", "dotnet-tpl35\System.Threading.Tasks.Unity.csproj", "{DCB5D745-525C-46A1-BFC0-E12F87AB6165}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
