@@ -110,20 +110,20 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void EstimateFeeRate()
 		{
-			using (var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode();
 				node.Start();
 				node.Generate(101);
 				var rpc = node.CreateRPCClient();
-				Assert.Throws<NoEstimationException>(()=> rpc.EstimateFeeRate(1));
+				Assert.Throws<NoEstimationException>(() => rpc.EstimateFeeRate(1));
 			}
 		}
 
 		[Fact]
 		public void TryEstimateFeeRate()
 		{
-			using (var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode();
 				node.Start();
@@ -187,7 +187,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanDecodeUnspentCoinWatchOnlyAddress()
 		{
-			var testJson = 
+			var testJson =
 @"{
 	""txid"" : ""d54994ece1d11b19785c7248868696250ab195605b469632b7bd68130e880c9a"",
 	""vout"" : 1,
@@ -303,6 +303,15 @@ namespace NBitcoin.Tests
 			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
 			Assert.Equal(94, endpoint.Port);
 		}
+
+		[Fact]
+		public void CanAuthWithCookieFile()
+		{
+			var rpc = new RPCClient("cookiefile=Data\\.cookie", new Uri("http://localhost/"), Network.RegTest);
+			Assert.Throws<ArgumentException>(() => new RPCClient("cookiefile=Data\\tx_valid.json", new Uri("http://localhost/"), Network.RegTest));
+			Assert.Throws<FileNotFoundException>(() => new RPCClient("cookiefile=Data\\efpwwie.json", new Uri("http://localhost/"), Network.RegTest));
+		}
+
 		[Fact]
 		public void CanAddNodes()
 		{
