@@ -188,32 +188,42 @@ namespace NBitcoin.RPC
 		/// <summary>
 		/// Create a new RPCClient instance
 		/// </summary>
-		/// <param name="authenticationString">username:password or the content of the .cookie file</param>
+		/// <param name="authenticationString">username:password or the content of the .cookie file or null to auto configure</param>
 		/// <param name="address"></param>
 		/// <param name="network"></param>
 		public RPCClient(string authenticationString, Uri address, Network network = null)
 		{
 			authenticationString = string.IsNullOrWhiteSpace(authenticationString) ? null : authenticationString;
 #if !NOFILEIO
-			if(authenticationString.StartsWith("cookiefile=", StringComparison.OrdinalIgnoreCase))
+			if(authenticationString != null)
 			{
-				authenticationString = File.ReadAllText(authenticationString.Substring("cookiefile=".Length).Trim());
-				if(!authenticationString.StartsWith("__cookie__:", StringComparison.OrdinalIgnoreCase))
-					throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
+				if(authenticationString.StartsWith("cookiefile=", StringComparison.OrdinalIgnoreCase))
+				{
+					authenticationString = File.ReadAllText(authenticationString.Substring("cookiefile=".Length).Trim());
+					if(!authenticationString.StartsWith("__cookie__:", StringComparison.OrdinalIgnoreCase))
+						throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
+				}
 			}
 #endif
 
 			authenticationString = authenticationString ?? GetAuthenticationString(network);
 			if(authenticationString == null)
 				throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
-			if(address == null)
+			if(address == null && network == null)
 				throw new ArgumentNullException("address");
-			if(network == null)
+
+			if(address != null && network == null)
 			{
-				network = new[] { Network.Main, Network.TestNet, Network.RegTest }.FirstOrDefault(n => n.RPCPort == address.Port);
+				network = Network.GetNetworks().FirstOrDefault(n => n.RPCPort == address.Port);
 				if(network == null)
 					throw new ArgumentNullException("network");
 			}
+
+			if(address == null && network != null)
+			{
+				address = new Uri("http://127.0.0.1:" + network.RPCPort + "/");
+			}
+
 			_Authentication = authenticationString;
 			_address = address;
 			_network = network;
@@ -338,7 +348,7 @@ namespace NBitcoin.RPC
 			return response;
 		}
 
-#region P2P Networking
+		#region P2P Networking
 #if !NOSOCKET
 		public PeerInfo[] GetPeersInfo()
 		{
@@ -498,9 +508,9 @@ namespace NBitcoin.RPC
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Block chain and UTXO
+		#region Block chain and UTXO
 
 		public uint256 GetBestBlockHash()
 		{
@@ -670,13 +680,13 @@ namespace NBitcoin.RPC
 			return GetTransactions(GetBlockHash(height));
 		}
 
-#endregion
+		#endregion
 
-#region Coin generation
+		#region Coin generation
 
-#endregion
+		#endregion
 
-#region Raw Transaction
+		#region Raw Transaction
 
 		public Transaction DecodeRawTransaction(string rawHex)
 		{
@@ -752,9 +762,9 @@ namespace NBitcoin.RPC
 			return SendCommandAsync("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
 		}
 
-#endregion
+		#endregion
 
-#region Utility functions
+		#region Utility functions
 		/// <summary>
 		/// Get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
@@ -908,7 +918,7 @@ namespace NBitcoin.RPC
 			return SendCommand(RPCOperations.settxfee, new[] { feeRate.FeePerK.ToString() }).Result.ToString() == "true";
 		}
 
-#endregion
+		#endregion
 	}
 
 #if !NOSOCKET
