@@ -312,6 +312,8 @@ namespace NBitcoin.Tests
 			Assert.Throws<FileNotFoundException>(() => new RPCClient("cookiefile=Data\\efpwwie.json", new Uri("http://localhost/"), Network.RegTest));
 			rpc = new RPCClient("bla:bla", null as Uri, Network.RegTest);
 			Assert.Equal("http://127.0.0.1:" + Network.RegTest.RPCPort + "/", rpc.Address.AbsoluteUri);
+
+			rpc = new RPCClient("bla:bla", "http://toto/", Network.RegTest);
 		}
 
 		[Fact]

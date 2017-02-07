@@ -164,18 +164,29 @@ namespace NBitcoin.RPC
 		/// Create a new RPCClient instance
 		/// </summary>
 		/// <param name="authenticationString">username:password, the content of the .cookie file, or cookiefile=pathToCookieFile</param>
-		/// <param name="host"></param>
+		/// <param name="hostOrUri"></param>
 		/// <param name="network"></param>
-		public RPCClient(string authenticationString, string host, Network network)
-			: this(authenticationString, BuildUri(host, network.RPCPort), network)
+		public RPCClient(string authenticationString, string hostOrUri, Network network)
+			: this(authenticationString, BuildUri(hostOrUri, network.RPCPort), network)
 		{
 		}
 
-		private static Uri BuildUri(string host, int port)
+		private static Uri BuildUri(string hostOrUri, int port)
 		{
-			host = host ?? "127.0.0.1";
+			if(hostOrUri != null)
+			{
+				hostOrUri = hostOrUri.Trim();
+				try
+				{
+					if(hostOrUri.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+					   hostOrUri.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+						return new Uri(hostOrUri, UriKind.Absolute);
+				}
+				catch { }
+			}
+			hostOrUri = hostOrUri ?? "127.0.0.1";
 			UriBuilder builder = new UriBuilder();
-			builder.Host = host;
+			builder.Host = hostOrUri;
 			builder.Scheme = "http";
 			builder.Port = port;
 			return builder.Uri;
