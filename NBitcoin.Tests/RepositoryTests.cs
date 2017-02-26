@@ -302,6 +302,9 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
 		{
+			var k = new BitcoinExtPubKey("tpubD6NzVbkrYhZ4XxbgH14Vv4TJVBebaDuaPnk4ZCsLDt1gKcSv6g8ESdoWrzyuR83DVckLbJxy1JA6SLna3QDM82cVnFzH56dxmWPDKDFypXi", Network.RegTest);
+			var k2 = new BitcoinExtKey("tprv8ZgxMBicQKsPetaLcEpdoJFv6tai1kEQZFizVYzPqe3NkngpHGBnZRP8hUVrrxgaXgckrr2V38HKMTzPMGG5cJq6RymQ1Bn8v9ACJgh9RvG").Neuter();
+			var test = k.ExtPubKey.Derive(new KeyPath("0/0/2")).PubKey.GetAddress(Network.RegTest);
 		}
 
 		[Fact]

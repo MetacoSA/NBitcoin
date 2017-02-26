@@ -413,7 +413,7 @@ namespace NBitcoin.RPC
 			var response = SendCommand("listunspent", minconf, maxconf, addr.ToArray());
 			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
 		}
-
+		
 		/// <summary>
 		/// Returns an array of unspent transaction outputs belonging to this wallet. 
 		/// </summary>
@@ -433,6 +433,20 @@ namespace NBitcoin.RPC
 			var addr = from a in addresses select a.ToString();
 			var response = await SendCommandAsync("listunspent", minconf, maxconf, addr.ToArray()).ConfigureAwait(false);
 			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
+		}
+
+		//listlockunspent
+		public async Task<OutPoint[]> ListLockUnspentAsync()
+		{
+			var unspent = await SendCommandAsync("listlockunspent").ConfigureAwait(false);
+			return ((JArray)unspent.Result)
+				.Select(i => new OutPoint(new uint256(i["txid"].Value<string>()), i["vout"].Value<int>()))
+				.ToArray();
+		}
+
+		public OutPoint[] ListLockUnspent()
+		{
+			return ListLockUnspentAsync().GetAwaiter().GetResult();
 		}
 
 
