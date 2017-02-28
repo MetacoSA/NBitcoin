@@ -114,7 +114,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public void Listen()
+		public void Listen(int maxIncoming = 8)
 		{
 			if(socket != null)
 				throw new InvalidOperationException("Already listening");
@@ -126,7 +126,7 @@ namespace NBitcoin.Protocol
 					socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
 
 					socket.Bind(LocalEndpoint);
-					socket.Listen(8);
+					socket.Listen(maxIncoming);
 					NodeServerTrace.Information("Listening...");
 					BeginAccept();
 				}
