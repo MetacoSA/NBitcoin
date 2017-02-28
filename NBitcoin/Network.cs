@@ -345,6 +345,20 @@ namespace NBitcoin
 			}
 		}
 
+		uint256 _MinimumChainWork;
+		public uint256 MinimumChainWork
+		{
+			get
+			{
+				return _MinimumChainWork;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_MinimumChainWork = value;
+			}
+		}
+
 		public long DifficultyAdjustmentInterval
 		{
 			get
@@ -424,7 +438,8 @@ namespace NBitcoin
 				_PowTargetTimespan =_PowTargetTimespan,
 				_RuleChangeActivationThreshold = _RuleChangeActivationThreshold,
 				_SubsidyHalvingInterval = _SubsidyHalvingInterval,
-				_CoinbaseMaturity = _CoinbaseMaturity
+				_CoinbaseMaturity = _CoinbaseMaturity,
+				_MinimumChainWork = _MinimumChainWork
 			};
 		}
 	}
@@ -605,6 +620,7 @@ namespace NBitcoin
 			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 363725;
 			consensus.BIP34Hash = new uint256("0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8");
 			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+			consensus.MinimumChainWork = new uint256("0x0000000000000000000000000000000000000000002cb971dd56d1c583c20f90");
 			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = false;
@@ -681,6 +697,7 @@ namespace NBitcoin
 			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 330776;
 			consensus.BIP34Hash = new uint256("0x0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8");
 			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+			consensus.MinimumChainWork = new uint256("0x0000000000000000000000000000000000000000000000198b4def2baa9338d6");
 			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = true;
@@ -737,6 +754,7 @@ namespace NBitcoin
 			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 100000000;
 			consensus.BIP34Hash = new uint256();
 			consensus.PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+			consensus.MinimumChainWork = uint256.Zero;
 			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
 			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
 			consensus.PowAllowMinDifficultyBlocks = true;
