@@ -52,6 +52,7 @@ namespace NBitcoin.Protocol
 			InboundNodeConnectionParameters = new NodeConnectionParameters();
 			internalPort = internalPort == -1 ? network.DefaultPort : internalPort;
 			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6Ex(), internalPort);
+			MaxConnections = 125;
 			_Network = network;
 			_ExternalEndpoint = new IPEndPoint(_LocalEndpoint.Address, Network.DefaultPort);
 			_Version = version;
@@ -89,6 +90,13 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
+
+		public int MaxConnections
+		{
+			get;
+			set;
+		}
+
 
 		private IPEndPoint _LocalEndpoint;
 		public IPEndPoint LocalEndpoint
@@ -309,6 +317,13 @@ namespace NBitcoin.Protocol
 						return;
 					}
 
+					if (ConnectedNodes.Count >= MaxConnections)
+					{
+						NodeServerTrace.Information("MaxConnections limit reached");
+						node.Disconnect("MaxConnections");
+						return;
+					}
+
 					CancellationTokenSource cancel = new CancellationTokenSource();
 					cancel.CancelAfter(TimeSpan.FromSeconds(10.0));
 					try
@@ -450,6 +465,11 @@ namespace NBitcoin.Protocol
 					return node;
 				node = Node.Connect(Network, endpoint, CreateNodeConnectionParameters());
 				node.StateChanged += node_StateChanged;
+				if (ConnectedNodes.Count >= MaxConnections)
+				{
+					node.DisconnectAsync("MaxConnections");
+					return node;
+				}
 				if(!_ConnectedNodes.Add(node))
 				{
 					node.DisconnectAsync();
