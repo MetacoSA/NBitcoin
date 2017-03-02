@@ -180,10 +180,16 @@ namespace NBitcoin.Protocol
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
 					var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token);
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
-
+					
 					var stream = new NetworkStream(client, false);
 					while(true)
 					{
+						if (ConnectedNodes.Count >= MaxConnections)
+						{
+							NodeServerTrace.Information("MaxConnections limit reached");
+							Utils.SafeCloseSocket(client);
+							break;
+						}
 						cancel.Token.ThrowIfCancellationRequested();
 						PerformanceCounter counter;
 						var message = Message.ReadNext(stream, Network, Version, cancel.Token, out counter);
@@ -314,13 +320,6 @@ namespace NBitcoin.Protocol
 						node.SendMessage(CreateNodeConnectionParameters().CreateVersion(node.Peer.Endpoint, Network));
 						NodeServerTrace.ConnectionToSelfDetected();
 						node.Disconnect();
-						return;
-					}
-
-					if (ConnectedNodes.Count >= MaxConnections)
-					{
-						NodeServerTrace.Information("MaxConnections limit reached");
-						node.Disconnect("MaxConnections");
 						return;
 					}
 
@@ -465,11 +464,6 @@ namespace NBitcoin.Protocol
 					return node;
 				node = Node.Connect(Network, endpoint, CreateNodeConnectionParameters());
 				node.StateChanged += node_StateChanged;
-				if (ConnectedNodes.Count >= MaxConnections)
-				{
-					node.DisconnectAsync("MaxConnections");
-					return node;
-				}
 				if(!_ConnectedNodes.Add(node))
 				{
 					node.DisconnectAsync();
