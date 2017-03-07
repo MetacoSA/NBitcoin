@@ -52,6 +52,7 @@ namespace NBitcoin.Protocol
 			InboundNodeConnectionParameters = new NodeConnectionParameters();
 			internalPort = internalPort == -1 ? network.DefaultPort : internalPort;
 			_LocalEndpoint = new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6Ex(), internalPort);
+			MaxConnections = 125;
 			_Network = network;
 			_ExternalEndpoint = new IPEndPoint(_LocalEndpoint.Address, Network.DefaultPort);
 			_Version = version;
@@ -90,6 +91,13 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
+		public int MaxConnections
+		{
+			get;
+			set;
+		}
+
+
 		private IPEndPoint _LocalEndpoint;
 		public IPEndPoint LocalEndpoint
 		{
@@ -114,7 +122,7 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		public void Listen()
+		public void Listen(int maxIncoming = 8)
 		{
 			if(socket != null)
 				throw new InvalidOperationException("Already listening");
@@ -126,7 +134,7 @@ namespace NBitcoin.Protocol
 					socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, false);
 
 					socket.Bind(LocalEndpoint);
-					socket.Listen(8);
+					socket.Listen(maxIncoming);
 					NodeServerTrace.Information("Listening...");
 					BeginAccept();
 				}
@@ -172,10 +180,16 @@ namespace NBitcoin.Protocol
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
 					var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token);
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
-
+					
 					var stream = new NetworkStream(client, false);
 					while(true)
 					{
+						if (ConnectedNodes.Count >= MaxConnections)
+						{
+							NodeServerTrace.Information("MaxConnections limit reached");
+							Utils.SafeCloseSocket(client);
+							break;
+						}
 						cancel.Token.ThrowIfCancellationRequested();
 						PerformanceCounter counter;
 						var message = Message.ReadNext(stream, Network, Version, cancel.Token, out counter);

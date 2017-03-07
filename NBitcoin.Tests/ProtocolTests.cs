@@ -290,6 +290,35 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
+		public void MaxConnectionLimit()
+		{
+			using (var tester = new NodeServerTester())
+			{
+				tester.Server1.MaxConnections = 4;
+				Node.Connect(tester.Network, tester.Server1.ExternalEndpoint).VersionHandshake();
+				Node.Connect(tester.Network, tester.Server1.ExternalEndpoint).VersionHandshake();
+				Node.Connect(tester.Network, tester.Server1.ExternalEndpoint).VersionHandshake();
+				Node.Connect(tester.Network, tester.Server1.ExternalEndpoint).VersionHandshake();
+
+				TestUtils.Eventually(() => tester.Server1.ConnectedNodes.Count == 4);
+
+				var connect = Node.Connect(tester.Network, tester.Server1.ExternalEndpoint);
+				try
+				{
+					connect.VersionHandshake();
+				}
+				catch
+				{
+				}
+
+				TestUtils.Eventually(() => tester.Server1.ConnectedNodes.Count == 4);
+				TestUtils.Eventually(() => connect.IsConnected == false);
+			}
+		}
+
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
 		public void CanMaintainChainWithChainBehavior()
 		{
 			using(var builder = NodeBuilder.Create())
