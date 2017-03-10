@@ -339,12 +339,13 @@ namespace NBitcoin.RPC
 			await dataStream.FlushAsync().ConfigureAwait(false);
 			dataStream.Dispose();
 			RPCResponse response;
+			WebResponse webResponse = null;
+			WebResponse errorResponse = null;
 			try
 			{
-				using(var webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false))
-				{
-					response = RPCResponse.Load(webResponse.GetResponseStream());
-				}
+				webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false);
+				response = RPCResponse.Load(webResponse.GetResponseStream());
+
 				if(throwIfRPCError)
 					response.ThrowIfError();
 			}
@@ -352,9 +353,25 @@ namespace NBitcoin.RPC
 			{
 				if(ex.Response == null || ex.Response.ContentLength == 0)
 					throw;
+				errorResponse = ex.Response;
 				response = RPCResponse.Load(ex.Response.GetResponseStream());
 				if(throwIfRPCError)
 					response.ThrowIfError();
+			}
+			finally
+			{
+				if(errorResponse == webResponse)
+					errorResponse = null;
+				if(errorResponse != null)
+				{
+					errorResponse.Dispose();
+					errorResponse = null;
+				}
+				if(webResponse != null)
+				{
+					webResponse.Dispose();
+					webResponse = null;
+				}
 			}
 			return response;
 		}
