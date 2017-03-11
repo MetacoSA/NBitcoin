@@ -1,10 +1,10 @@
 del *.nupkg
-C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\NBitcoin\NBitcoin.csproj" -p:Configuration=Release
+&("C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe") "..\NBitcoin\NBitcoin.csproj" -p:Configuration=Release
 cd ..\NBitcoin.NETCore
 dotnet restore
 dotnet build -c Release
 cd ..\NBitcoin
-C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\Build\Deploy.csproj"
+&("C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe") "..\Build\Deploy.csproj"
 
 .\GitLink.exe ".." -ignore "nbitcoin.portable.tests,common,nbitcoin.tests,build"
 
