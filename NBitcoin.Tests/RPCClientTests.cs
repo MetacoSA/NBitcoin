@@ -316,6 +316,31 @@ namespace NBitcoin.Tests
 			rpc = new RPCClient("bla:bla", "http://toto/", Network.RegTest);
 		}
 
+
+
+		[Fact]
+		public void RPCSendRPCException()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				builder.StartAll();
+				var rpcClient = node.CreateRPCClient();
+				try
+				{
+					rpcClient.SendCommand("whatever");
+					Assert.False(true, "Should have thrown");
+				}
+				catch(RPCException ex)
+				{
+					if(ex.RPCCode != RPCErrorCode.RPC_METHOD_NOT_FOUND)
+					{
+						Assert.False(true, "Should have thrown RPC_METHOD_NOT_FOUND");
+					}
+				}
+			}
+		}
+
 		[Fact]
 		public void CanAddNodes()
 		{

@@ -354,14 +354,12 @@ namespace NBitcoin.RPC
 				if(ex.Response == null || ex.Response.ContentLength == 0)
 					throw;
 				errorResponse = ex.Response;
-				response = RPCResponse.Load(await ToMemoryStreamAsync(webResponse.GetResponseStream()).ConfigureAwait(false));
+				response = RPCResponse.Load(await ToMemoryStreamAsync(errorResponse.GetResponseStream()).ConfigureAwait(false));
 				if(throwIfRPCError)
 					response.ThrowIfError();
 			}
 			finally
 			{
-				if(errorResponse == webResponse)
-					errorResponse = null;
 				if(errorResponse != null)
 				{
 					errorResponse.Dispose();
