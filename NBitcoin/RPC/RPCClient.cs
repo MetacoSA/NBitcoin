@@ -344,7 +344,7 @@ namespace NBitcoin.RPC
 			try
 			{
 				webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false);
-				response = RPCResponse.Load(webResponse.GetResponseStream());
+				response = RPCResponse.Load(await ToMemoryStreamAsync(webResponse.GetResponseStream()).ConfigureAwait(false));
 
 				if(throwIfRPCError)
 					response.ThrowIfError();
@@ -354,7 +354,7 @@ namespace NBitcoin.RPC
 				if(ex.Response == null || ex.Response.ContentLength == 0)
 					throw;
 				errorResponse = ex.Response;
-				response = RPCResponse.Load(ex.Response.GetResponseStream());
+				response = RPCResponse.Load(await ToMemoryStreamAsync(webResponse.GetResponseStream()).ConfigureAwait(false));
 				if(throwIfRPCError)
 					response.ThrowIfError();
 			}
@@ -374,6 +374,14 @@ namespace NBitcoin.RPC
 				}
 			}
 			return response;
+		}
+
+		private async Task<Stream> ToMemoryStreamAsync(Stream stream)
+		{
+			MemoryStream ms = new MemoryStream();
+			await stream.CopyToAsync(ms).ConfigureAwait(false);
+			ms.Position = 0;
+			return ms;
 		}
 
 		#region P2P Networking
