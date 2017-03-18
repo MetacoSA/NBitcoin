@@ -1275,19 +1275,26 @@ namespace NBitcoin
 
 		public uint256 GetHash()
 		{
-			if(_Hashes != null && _Hashes[0] != null)
+			uint256 h = null;
+			var hashes = _Hashes;
+			if(hashes != null)
 			{
-				return _Hashes[0];
+				h = hashes[0];
 			}
+			if(h != null)
+				return h;
+
 			MemoryStream ms = new MemoryStream();
 			this.ReadWrite(new BitcoinStream(ms, true)
 			{
 				TransactionOptions = TransactionOptions.None
 			});
-			var h = Hashes.Hash256(ms.ToArrayEfficient());
-			if(_Hashes != null)
+			h = Hashes.Hash256(ms.ToArrayEfficient());
+
+			hashes = _Hashes;
+			if(hashes != null)
 			{
-				_Hashes[0] = h;
+				hashes[0] = h;
 			}
 			return h;
 		}
@@ -1314,19 +1321,27 @@ namespace NBitcoin
 		{
 			if(!HasWitness)
 				return GetHash();
-			if(_Hashes != null && _Hashes[1] != null)
+
+			uint256 h = null;
+			var hashes = _Hashes;
+			if(hashes != null)
 			{
-				return _Hashes[1];
+				h = hashes[1];
 			}
+			if(h != null)
+				return h;
+
 			MemoryStream ms = new MemoryStream();
 			this.ReadWrite(new BitcoinStream(ms, true)
 			{
 				TransactionOptions = TransactionOptions.Witness
 			});
-			var h = Hashes.Hash256(ms.ToArrayEfficient());
-			if(_Hashes != null)
+			h = Hashes.Hash256(ms.ToArrayEfficient());
+
+			hashes = _Hashes;
+			if(hashes != null)
 			{
-				_Hashes[1] = h;
+				hashes[1] = h;
 			}
 			return h;
 		}

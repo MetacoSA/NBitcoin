@@ -152,14 +152,19 @@ namespace NBitcoin
 
 		public uint256 GetHash()
 		{
-			if(_Hashes != null && _Hashes[0] != null)
+			uint256 h = null;
+			var hashes = _Hashes;
+			if(hashes != null)
 			{
-				return _Hashes[0];
+				h = hashes[0];
 			}
-			var h = Hashes.Hash256(this.ToBytes());
-			if(_Hashes != null)
+			if(h != null)
+				return h;
+			h = Hashes.Hash256(this.ToBytes());
+			hashes = _Hashes;
+			if(hashes != null)
 			{
-				_Hashes[0] = h;
+				hashes[0] = h;
 			}
 			return h;
 		}
