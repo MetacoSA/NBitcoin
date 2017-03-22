@@ -1,5 +1,5 @@
 ﻿
-using NBitcoin.Protocol;
+using nStratis.Protocol;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NBitcoin
+namespace nStratis
 {
 	public partial class BitcoinStream
 	{
