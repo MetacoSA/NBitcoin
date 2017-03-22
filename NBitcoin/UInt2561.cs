@@ -31,7 +31,7 @@ namespace nStratis
 
 			public void ReadWrite(BitcoinStream stream)
 			{
-				if(stream.Serializing)
+				if (stream.Serializing)
 				{
 					var b = Value.ToBytes();
 					stream.ReadWrite(ref b);
@@ -51,7 +51,7 @@ namespace nStratis
 		}
 
 		static readonly uint256 _One = new uint256(1);
-		public static uint256 One 
+		public static uint256 One
 		{
 			get { return _One; }
 		}
@@ -60,7 +60,7 @@ namespace nStratis
 		{
 		}
 
-		private const int WIDTH = 256/32;
+		private const int WIDTH = 256 / 32;
 
 		private uint256(uint[] array)
 		{
@@ -79,7 +79,7 @@ namespace nStratis
 
 		private uint[] ToArray()
 		{
-			return new uint[] {this.pn0, this.pn1, this.pn2, this.pn3, this.pn4, this.pn5, this.pn6, this.pn7};
+			return new uint[] { this.pn0, this.pn1, this.pn2, this.pn3, this.pn4, this.pn5, this.pn6, this.pn7 };
 		}
 
 		public uint256(uint256 b)
@@ -100,15 +100,15 @@ namespace nStratis
 		}
 		public static bool TryParse(string hex, out uint256 result)
 		{
-			if(hex == null)
+			if (hex == null)
 				throw new ArgumentNullException("hex");
 			if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				hex = hex.Substring(2);
 			result = null;
-			if(hex.Length != WIDTH_BYTE * 2)
+			if (hex.Length != WIDTH_BYTE * 2)
 				return false;
-			if(!((HexEncoder)Encoders.Hex).IsValid(hex))
-				return false;			
+			if (!((HexEncoder)Encoders.Hex).IsValid(hex))
+				return false;
 			result = new uint256(hex);
 			return true;
 		}
@@ -123,36 +123,36 @@ namespace nStratis
 		internal readonly UInt32 pn5;
 		internal readonly UInt32 pn6;
 		internal readonly UInt32 pn7;
-		
+
 		public byte GetByte(int index)
 		{
 			var uintIndex = index / sizeof(uint);
 			var byteIndex = index % sizeof(uint);
 			UInt32 value;
-			switch(uintIndex)
+			switch (uintIndex)
 			{
-				case 0: 
+				case 0:
 					value = pn0;
 					break;
-				case 1: 
+				case 1:
 					value = pn1;
 					break;
-				case 2: 
+				case 2:
 					value = pn2;
 					break;
-				case 3: 
+				case 3:
 					value = pn3;
 					break;
-				case 4: 
+				case 4:
 					value = pn4;
 					break;
-				case 5: 
+				case 5:
 					value = pn5;
 					break;
-				case 6: 
+				case 6:
 					value = pn6;
 					break;
-				case 7: 
+				case 7:
 					value = pn7;
 					break;
 				default:
@@ -162,7 +162,7 @@ namespace nStratis
 		}
 
 		public override string ToString()
-		{ 
+		{
 			return Encoder.EncodeData(ToBytes().Reverse().ToArray());
 		}
 
@@ -185,7 +185,7 @@ namespace nStratis
 				throw new FormatException("the byte array should be 256 byte long");
 			}
 
-			if(!lendian)
+			if (!lendian)
 				vch = vch.Reverse().ToArray();
 
 			pn0 = Utils.ToUInt32(vch, 4 * 0, true);
@@ -196,12 +196,12 @@ namespace nStratis
 			pn5 = Utils.ToUInt32(vch, 4 * 5, true);
 			pn6 = Utils.ToUInt32(vch, 4 * 6, true);
 			pn7 = Utils.ToUInt32(vch, 4 * 7, true);
-	
+
 		}
 
 		public uint256(string str)
 		{
-						pn0 = 0;
+			pn0 = 0;
 			pn1 = 0;
 			pn2 = 0;
 			pn3 = 0;
@@ -215,9 +215,9 @@ namespace nStratis
 				str = str.Substring(2);
 
 			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
-			if(bytes.Length != WIDTH_BYTE)
-					throw new FormatException("Invalid hex length");
-						pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
+			if (bytes.Length != WIDTH_BYTE)
+				throw new FormatException("Invalid hex length");
+			pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
 			pn1 = Utils.ToUInt32(bytes, 4 * 1, true);
 			pn2 = Utils.ToUInt32(bytes, 4 * 2, true);
 			pn3 = Utils.ToUInt32(bytes, 4 * 3, true);
@@ -225,20 +225,20 @@ namespace nStratis
 			pn5 = Utils.ToUInt32(bytes, 4 * 5, true);
 			pn6 = Utils.ToUInt32(bytes, 4 * 6, true);
 			pn7 = Utils.ToUInt32(bytes, 4 * 7, true);
-	
+
 		}
 
 		public uint256(byte[] vch)
-			:this(vch, true)
+			: this(vch, true)
 		{
 		}
 
 		public override bool Equals(object obj)
 		{
 			var item = obj as uint256;
-			if(item == null)
+			if (item == null)
 				return false;
-			bool equals = true;		
+			bool equals = true;
 			equals &= pn0 == item.pn0;
 			equals &= pn1 == item.pn1;
 			equals &= pn2 == item.pn2;
@@ -252,12 +252,12 @@ namespace nStratis
 
 		public static bool operator ==(uint256 a, uint256 b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 
-			bool equals = true;		
+			bool equals = true;
 			equals &= a.pn0 == b.pn0;
 			equals &= a.pn1 == b.pn1;
 			equals &= a.pn2 == b.pn2;
@@ -398,8 +398,8 @@ namespace nStratis
 		{
 			return new MutableUint256(this);
 		}
-		
-		public int GetSerializeSize(int nType=0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
+
+		public int GetSerializeSize(int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			return WIDTH_BYTE;
 		}
@@ -462,7 +462,7 @@ namespace nStratis
 
 			public void ReadWrite(BitcoinStream stream)
 			{
-				if(stream.Serializing)
+				if (stream.Serializing)
 				{
 					var b = Value.ToBytes();
 					stream.ReadWrite(ref b);
@@ -482,7 +482,7 @@ namespace nStratis
 		}
 
 		static readonly uint160 _One = new uint160(1);
-		public static uint160 One 
+		public static uint160 One
 		{
 			get { return _One; }
 		}
@@ -506,15 +506,15 @@ namespace nStratis
 		}
 		public static bool TryParse(string hex, out uint160 result)
 		{
-			if(hex == null)
+			if (hex == null)
 				throw new ArgumentNullException("hex");
 			if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				hex = hex.Substring(2);
 			result = null;
-			if(hex.Length != WIDTH_BYTE * 2)
+			if (hex.Length != WIDTH_BYTE * 2)
 				return false;
-			if(!((HexEncoder)Encoders.Hex).IsValid(hex))
-				return false;			
+			if (!((HexEncoder)Encoders.Hex).IsValid(hex))
+				return false;
 			result = new uint160(hex);
 			return true;
 		}
@@ -526,27 +526,27 @@ namespace nStratis
 		internal readonly UInt32 pn2;
 		internal readonly UInt32 pn3;
 		internal readonly UInt32 pn4;
-		
+
 		public byte GetByte(int index)
 		{
 			var uintIndex = index / sizeof(uint);
 			var byteIndex = index % sizeof(uint);
 			UInt32 value;
-			switch(uintIndex)
+			switch (uintIndex)
 			{
-				case 0: 
+				case 0:
 					value = pn0;
 					break;
-				case 1: 
+				case 1:
 					value = pn1;
 					break;
-				case 2: 
+				case 2:
 					value = pn2;
 					break;
-				case 3: 
+				case 3:
 					value = pn3;
 					break;
-				case 4: 
+				case 4:
 					value = pn4;
 					break;
 				default:
@@ -556,7 +556,7 @@ namespace nStratis
 		}
 
 		public override string ToString()
-		{ 
+		{
 			return Encoder.EncodeData(ToBytes().Reverse().ToArray());
 		}
 
@@ -576,7 +576,7 @@ namespace nStratis
 				throw new FormatException("the byte array should be 160 byte long");
 			}
 
-			if(!lendian)
+			if (!lendian)
 				vch = vch.Reverse().ToArray();
 
 			pn0 = Utils.ToUInt32(vch, 4 * 0, true);
@@ -584,12 +584,12 @@ namespace nStratis
 			pn2 = Utils.ToUInt32(vch, 4 * 2, true);
 			pn3 = Utils.ToUInt32(vch, 4 * 3, true);
 			pn4 = Utils.ToUInt32(vch, 4 * 4, true);
-	
+
 		}
 
 		public uint160(string str)
 		{
-						pn0 = 0;
+			pn0 = 0;
 			pn1 = 0;
 			pn2 = 0;
 			pn3 = 0;
@@ -600,27 +600,27 @@ namespace nStratis
 				str = str.Substring(2);
 
 			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
-			if(bytes.Length != WIDTH_BYTE)
-					throw new FormatException("Invalid hex length");
-						pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
+			if (bytes.Length != WIDTH_BYTE)
+				throw new FormatException("Invalid hex length");
+			pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
 			pn1 = Utils.ToUInt32(bytes, 4 * 1, true);
 			pn2 = Utils.ToUInt32(bytes, 4 * 2, true);
 			pn3 = Utils.ToUInt32(bytes, 4 * 3, true);
 			pn4 = Utils.ToUInt32(bytes, 4 * 4, true);
-	
+
 		}
 
 		public uint160(byte[] vch)
-			:this(vch, true)
+			: this(vch, true)
 		{
 		}
 
 		public override bool Equals(object obj)
 		{
 			var item = obj as uint160;
-			if(item == null)
+			if (item == null)
 				return false;
-			bool equals = true;		
+			bool equals = true;
 			equals &= pn0 == item.pn0;
 			equals &= pn1 == item.pn1;
 			equals &= pn2 == item.pn2;
@@ -631,12 +631,12 @@ namespace nStratis
 
 		public static bool operator ==(uint160 a, uint160 b)
 		{
-			if(System.Object.ReferenceEquals(a, b))
+			if (System.Object.ReferenceEquals(a, b))
 				return true;
-			if(((object)a == null) || ((object)b == null))
+			if (((object)a == null) || ((object)b == null))
 				return false;
 
-			bool equals = true;		
+			bool equals = true;
 			equals &= a.pn0 == b.pn0;
 			equals &= a.pn1 == b.pn1;
 			equals &= a.pn2 == b.pn2;
@@ -710,7 +710,7 @@ namespace nStratis
 			return new uint160(value);
 		}
 
-		
+
 		public byte[] ToBytes(bool lendian = true)
 		{
 			var arr = new byte[WIDTH_BYTE];
@@ -728,8 +728,8 @@ namespace nStratis
 		{
 			return new MutableUint160(this);
 		}
-		
-		public int GetSerializeSize(int nType=0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
+
+		public int GetSerializeSize(int nType = 0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			return WIDTH_BYTE;
 		}

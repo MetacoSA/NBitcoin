@@ -7,8 +7,8 @@
     <ProjectGuid>{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>nStratis</RootNamespace>
-    <AssemblyName>nStratis</AssemblyName>
+    <RootNamespace>NBitcoin</RootNamespace>
+    <AssemblyName>NBitcoin</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -32,7 +32,7 @@
     <DefineConstants>TRACE;WIN</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\nStratis.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\NBitcoin.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">

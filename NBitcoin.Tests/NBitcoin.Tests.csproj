@@ -8,8 +8,8 @@
     <ProjectGuid>{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>nStratis.Tests</RootNamespace>
-    <AssemblyName>nStratis.Tests</AssemblyName>
+    <RootNamespace>NBitcoin.Tests</RootNamespace>
+    <AssemblyName>NBitcoin.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>193cb9e7</NuGetPackageImportStamp>
@@ -236,9 +236,9 @@
       <Project>{31880fb6-5b86-42b8-ab92-864045b5d7a2}</Project>
       <Name>HashLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\nStratis\nStratis.csproj">
+    <ProjectReference Include="..\NBitcoin\NBitcoin.csproj">
       <Project>{7b692a4c-412a-41ba-a1f8-5df8f7450abc}</Project>
-      <Name>nStratis</Name>
+      <Name>NBitcoin</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

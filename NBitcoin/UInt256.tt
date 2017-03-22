@@ -8,10 +8,10 @@
 using System;
 using System.Linq;
 using System.IO;
-using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
+using nStratis.DataEncoders;
+using nStratis.Protocol;
 
-namespace NBitcoin
+namespace nStratis
 {
 <# foreach (string t in new []{ "256","160" }) { 
 	int WIDTH = int.Parse(t) / 32;
