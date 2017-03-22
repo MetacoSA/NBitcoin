@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 
 	public interface MessageListener<in T>

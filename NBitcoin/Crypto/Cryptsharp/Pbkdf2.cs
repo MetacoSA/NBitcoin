@@ -19,11 +19,12 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 using System;
 using System.IO;
-#if !WINDOWS_UWP && !USEBC
 using System.Security.Cryptography;
+#if !WINDOWS_UWP && !USEBC
+
 #endif
 
-namespace nStratis.Crypto.Cryptsharp
+namespace NBitcoin.Crypto.Cryptsharp
 {
 	/// <summary>
 	/// Implements the PBKDF2 key derivation function.

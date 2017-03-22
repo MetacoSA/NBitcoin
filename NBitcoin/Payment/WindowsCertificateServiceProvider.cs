@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 
-namespace nStratis.Payment
+namespace NBitcoin.Payment
 {
 	public class WindowsCertificateServiceProvider : ICertificateServiceProvider
 	{

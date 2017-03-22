@@ -1,13 +1,13 @@
 ﻿using System;
-using nStratis.BouncyCastle.asn1.x9;
-using nStratis.BouncyCastle.crypto.ec;
-using nStratis.BouncyCastle.crypto.parameters;
-using nStratis.BouncyCastle.crypto.signers;
-using nStratis.BouncyCastle.math;
-using nStratis.BouncyCastle.math.ec;
-using nStratis.BouncyCastle.math.ec.custom.sec;
+using NBitcoin.BouncyCastle.asn1.x9;
+using NBitcoin.BouncyCastle.crypto.ec;
+using NBitcoin.BouncyCastle.crypto.parameters;
+using NBitcoin.BouncyCastle.crypto.signers;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.math.ec;
+using NBitcoin.BouncyCastle.math.ec.custom.sec;
 
-namespace nStratis.Crypto
+namespace NBitcoin.Crypto
 {
 	internal class ECKey
 	{

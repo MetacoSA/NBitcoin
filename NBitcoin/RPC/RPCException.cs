@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace nStratis.RPC
+namespace NBitcoin.RPC
 {
 	public enum RPCErrorCode
 	{

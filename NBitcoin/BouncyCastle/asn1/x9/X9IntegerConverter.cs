@@ -1,8 +1,8 @@
 using System;
-using nStratis.BouncyCastle.math;
-using nStratis.BouncyCastle.math.ec;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.math.ec;
 
-namespace nStratis.BouncyCastle.asn1.x9
+namespace NBitcoin.BouncyCastle.asn1.x9
 {
 	internal abstract class X9IntegerConverter
 	{

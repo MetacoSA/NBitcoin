@@ -1,4 +1,4 @@
-﻿namespace nStratis.BouncyCastle.math.field
+﻿namespace NBitcoin.BouncyCastle.math.field
 {
 	internal interface IFiniteField
 	{

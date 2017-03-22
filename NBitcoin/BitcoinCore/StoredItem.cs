@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading;
 
-namespace nStratis.BitcoinCore
+namespace NBitcoin.BitcoinCore
 {
 	public class StoredHeader : IBitcoinSerializable
 	{

@@ -1,14 +1,13 @@
 ﻿#if !NOSOCKET
 using System;
 using System.Net;
-using System.Reflection;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 
 #if WINDOWS_UWP
 using Windows.ApplicationModel;
 #endif
 
-namespace nStratis.Protocol.Payloads
+namespace NBitcoin.Protocol.Payloads
 {
 	[Flags]
 	public enum NodeServices : ulong

@@ -2,10 +2,10 @@
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using nStratis.BitcoinCore;
+using NBitcoin.BitcoinCore;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class ChainTests
 	{

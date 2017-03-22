@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 	public static class NodeServerTrace
 	{

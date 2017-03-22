@@ -1,4 +1,4 @@
-﻿namespace nStratis
+﻿namespace NBitcoin
 {
 	public interface ISecret
 	{

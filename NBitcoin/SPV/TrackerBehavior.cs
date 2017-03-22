@@ -4,11 +4,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using nStratis.Protocol;
-using nStratis.Protocol.Behaviors;
-using nStratis.Protocol.Payloads;
+using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
+using NBitcoin.Protocol.Payloads;
 
-namespace nStratis.SPV
+namespace NBitcoin.SPV
 {
 	public enum FilterState
 	{

@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Linq;
 
-namespace nStratis.BIP32
+namespace NBitcoin.BIP32
 {
 
 	/// <summary>

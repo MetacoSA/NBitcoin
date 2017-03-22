@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace nStratis.Payment
+namespace NBitcoin.Payment
 {
 	static class UriHelper
 	{

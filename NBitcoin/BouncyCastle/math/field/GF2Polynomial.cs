@@ -1,6 +1,6 @@
-﻿using nStratis.BouncyCastle.util;
+﻿using NBitcoin.BouncyCastle.util;
 
-namespace nStratis.BouncyCastle.math.field
+namespace NBitcoin.BouncyCastle.math.field
 {
 	internal class GF2Polynomial
 		: IPolynomial

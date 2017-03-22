@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace nStratis
+namespace NBitcoin
 {
 #if NOTRACESOURCE
 		internal

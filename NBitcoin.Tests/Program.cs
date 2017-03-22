@@ -1,4 +1,4 @@
-﻿namespace nStratis.Tests
+﻿namespace NBitcoin.Tests
 {
 	public class Program
 	{

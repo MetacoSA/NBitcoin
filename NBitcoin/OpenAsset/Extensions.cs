@@ -2,7 +2,7 @@
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
-namespace nStratis.OpenAsset
+namespace NBitcoin.OpenAsset
 {
 	public static class Extensions
 	{

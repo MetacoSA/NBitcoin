@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace nStratis.Protocol.Behaviors
+namespace NBitcoin.Protocol.Behaviors
 {
 	public interface INodeBehavior
 	{

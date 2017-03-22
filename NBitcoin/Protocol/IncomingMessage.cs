@@ -1,7 +1,7 @@
 ﻿#if !NOSOCKET
 using System.Net.Sockets;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 	public class IncomingMessage
 	{

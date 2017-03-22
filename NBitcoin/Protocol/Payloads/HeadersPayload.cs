@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
-namespace nStratis.Protocol.Payloads
+namespace NBitcoin.Protocol.Payloads
 {
 
 	/// <summary>

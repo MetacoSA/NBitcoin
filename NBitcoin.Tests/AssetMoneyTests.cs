@@ -1,8 +1,8 @@
 ﻿using System;
-using nStratis.OpenAsset;
+using NBitcoin.OpenAsset;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class AssetMoneyTests
 	{

@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Linq;
-using nStratis.BitcoinCore;
+using NBitcoin.BitcoinCore;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class pow_pos_tests
 	{

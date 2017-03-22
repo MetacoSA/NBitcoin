@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public enum BIP9Deployments : int
 	{

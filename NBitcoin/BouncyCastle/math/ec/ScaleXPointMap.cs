@@ -1,4 +1,4 @@
-﻿namespace nStratis.BouncyCastle.math.ec
+﻿namespace NBitcoin.BouncyCastle.math.ec
 {
 	internal class ScaleXPointMap
 		: ECPointMap

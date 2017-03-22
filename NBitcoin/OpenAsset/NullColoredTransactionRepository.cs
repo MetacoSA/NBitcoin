@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace nStratis.OpenAsset
+namespace NBitcoin.OpenAsset
 {
 	/// <summary>
 	/// A colored transaction repository which does not save ColoredTransaction

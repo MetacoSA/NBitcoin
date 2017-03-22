@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
-using nStratis.BIP38;
+using NBitcoin.BIP38;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	//https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki
 	public class BIP38Tests

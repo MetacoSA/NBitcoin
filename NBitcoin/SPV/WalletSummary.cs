@@ -1,7 +1,7 @@
 ﻿#if !NOSOCKET
 using System.Linq;
 
-namespace nStratis.SPV
+namespace NBitcoin.SPV
 {
 	public class WalletSummary
 	{

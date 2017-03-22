@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	[JsonArray]
 	public class TestCase : List<object>

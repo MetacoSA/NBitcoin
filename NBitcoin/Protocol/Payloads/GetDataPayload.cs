@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace nStratis.Protocol.Payloads
+namespace NBitcoin.Protocol.Payloads
 {
 	/// <summary>
 	/// Ask for transaction, block or merkle block

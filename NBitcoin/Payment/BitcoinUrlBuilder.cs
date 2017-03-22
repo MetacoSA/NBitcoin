@@ -7,10 +7,11 @@ using System.Net.Http.Headers;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
+
 #if !NOHTTPCLIENT
 #endif
 
-namespace nStratis.Payment
+namespace NBitcoin.Payment
 {
 	/// <summary>
 	/// https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki

@@ -1,4 +1,4 @@
-﻿namespace nStratis.Payment
+﻿namespace NBitcoin.Payment
 {
 	public interface IChainChecker
 	{

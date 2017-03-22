@@ -18,13 +18,14 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #endregion
 
 using System;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 #if !USEBC
-using System.Security.Cryptography;
+
 #endif
 
-namespace nStratis.Crypto.Cryptsharp
+namespace NBitcoin.Crypto.Cryptsharp
 {
 	// See http://www.tarsnap.com/scrypt/scrypt.pdf for algorithm details.
 	// TODO: Test on a big-endian machine and make sure it works.

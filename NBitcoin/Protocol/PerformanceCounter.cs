@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 	public class PerformanceSnapshot
 	{

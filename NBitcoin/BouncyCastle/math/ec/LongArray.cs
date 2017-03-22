@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
-using nStratis.BouncyCastle.util;
+using NBitcoin.BouncyCastle.util;
 
-namespace nStratis.BouncyCastle.math.ec
+namespace NBitcoin.BouncyCastle.math.ec
 {
 	internal class LongArray
 	{

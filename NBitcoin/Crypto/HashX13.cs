@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using HashLib;
 
-namespace nStratis.Crypto
+namespace NBitcoin.Crypto
 {
 	// this hashing class is not thread safe to use with static instances.
     // the hashing objects maintain state during hash calculation.

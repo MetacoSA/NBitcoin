@@ -1,7 +1,7 @@
 ﻿#if !NOSOCKET
 using System.Linq;
 
-namespace nStratis.Protocol.Payloads
+namespace NBitcoin.Protocol.Payloads
 {
 	/// <summary>
 	/// An available peer address in the bitcoin network is announce (unsollicited or after a getaddr)

@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 
-namespace nStratis
+namespace NBitcoin
 {
 	/// <summary>
 	/// Thread safe class representing a chain of headers from genesis

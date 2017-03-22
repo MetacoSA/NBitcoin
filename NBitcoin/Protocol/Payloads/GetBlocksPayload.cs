@@ -1,4 +1,4 @@
-﻿namespace nStratis.Protocol.Payloads
+﻿namespace NBitcoin.Protocol.Payloads
 {
 	/// <summary>
 	/// Ask for the block hashes (inv) that happened since BlockLocators

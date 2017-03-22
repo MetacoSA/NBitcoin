@@ -1,15 +1,16 @@
 ﻿using System.Linq;
 using System.Security;
-using System.Text;
-using nStratis.BouncyCastle.math;
-using nStratis.Crypto;
-using nStratis.Crypto.Cryptsharp;
-using nStratis.DataEncoders;
-#if !WINDOWS_UWP && !USEBC
 using System.Security.Cryptography;
+using System.Text;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.Crypto;
+using NBitcoin.Crypto.Cryptsharp;
+using NBitcoin.DataEncoders;
+#if !WINDOWS_UWP && !USEBC
+
 #endif
 
-namespace nStratis.BIP38
+namespace NBitcoin.BIP38
 {
 	public class BitcoinEncryptedSecretNoEC : BitcoinEncryptedSecret
 	{

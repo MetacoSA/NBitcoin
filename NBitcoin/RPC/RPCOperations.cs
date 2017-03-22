@@ -1,4 +1,4 @@
-﻿namespace nStratis.RPC
+﻿namespace NBitcoin.RPC
 {
 	//from rpcserver.h
 	public enum RPCOperations

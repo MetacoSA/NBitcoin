@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
-namespace nStratis.BitcoinCore
+namespace NBitcoin.BitcoinCore
 {
 	public class IndexedBlockStore : IndexedStore<StoredBlock, Block>, IBlockProvider
 	{

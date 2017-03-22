@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using nStratis.Crypto;
+using NBitcoin.Crypto;
 
-namespace nStratis
+namespace NBitcoin
 {
 	/// <summary>
 	/// Block validation functionality

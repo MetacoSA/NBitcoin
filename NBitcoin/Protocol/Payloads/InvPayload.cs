@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace nStratis.Protocol.Payloads
+namespace NBitcoin.Protocol.Payloads
 {
 	/// <summary>
 	/// Announce the hash of a transaction or block

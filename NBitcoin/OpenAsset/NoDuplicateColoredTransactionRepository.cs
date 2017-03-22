@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace nStratis.OpenAsset
+namespace NBitcoin.OpenAsset
 {
 	internal class NoDuplicateColoredTransactionRepository : IColoredTransactionRepository, ITransactionRepository
 	{

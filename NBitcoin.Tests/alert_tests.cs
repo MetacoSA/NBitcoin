@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using nStratis.Protocol.Payloads;
+using NBitcoin.Protocol.Payloads;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class alert_tests
 	{

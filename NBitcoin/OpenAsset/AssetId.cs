@@ -1,7 +1,7 @@
 ﻿using System;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 
-namespace nStratis.OpenAsset
+namespace NBitcoin.OpenAsset
 {
 	/// <summary>
 	/// A unique Id for an asset

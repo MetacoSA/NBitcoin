@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace nStratis.SPV
+namespace NBitcoin.SPV
 {
 	public class BlockInformation
 	{

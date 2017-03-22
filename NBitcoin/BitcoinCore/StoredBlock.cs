@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace nStratis.BitcoinCore
+namespace NBitcoin.BitcoinCore
 {
 	public class DiskBlockPosRange
 	{

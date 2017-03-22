@@ -1,9 +1,9 @@
 using System;
-using nStratis.BouncyCastle.math;
-using nStratis.BouncyCastle.math.ec;
-using nStratis.BouncyCastle.util;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.math.ec;
+using NBitcoin.BouncyCastle.util;
 
-namespace nStratis.BouncyCastle.crypto.parameters
+namespace NBitcoin.BouncyCastle.crypto.parameters
 {
 	internal class ECDomainParameters
 	{

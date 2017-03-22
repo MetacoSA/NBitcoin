@@ -1,7 +1,7 @@
 ﻿#if !NOFILEIO
 using System.IO;
 
-namespace nStratis.BitcoinCore
+namespace NBitcoin.BitcoinCore
 {
 	public class DataDirectory
 	{

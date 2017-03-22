@@ -1,10 +1,10 @@
-using nStratis.BouncyCastle.crypto.parameters;
-using nStratis.BouncyCastle.math;
-using nStratis.BouncyCastle.math.ec;
-using nStratis.BouncyCastle.math.ec.multiplier;
-using nStratis.BouncyCastle.security;
+using NBitcoin.BouncyCastle.crypto.parameters;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.math.ec;
+using NBitcoin.BouncyCastle.math.ec.multiplier;
+using NBitcoin.BouncyCastle.security;
 
-namespace nStratis.BouncyCastle.crypto.signers
+namespace NBitcoin.BouncyCastle.crypto.signers
 {
 	/**
      * EC-DSA as described in X9.62

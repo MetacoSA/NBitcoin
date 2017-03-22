@@ -1,4 +1,4 @@
-﻿namespace nStratis.BIP39
+﻿namespace NBitcoin.BIP39
 {
 	public enum Language
 	{

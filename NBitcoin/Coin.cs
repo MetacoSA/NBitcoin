@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using nStratis.OpenAsset;
-using nStratis.Stealth;
+using NBitcoin.OpenAsset;
+using NBitcoin.Stealth;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public interface IColoredCoin : ICoin
 	{

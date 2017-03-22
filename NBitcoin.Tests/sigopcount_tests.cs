@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class sigopcount_tests
 	{

@@ -1,7 +1,7 @@
 ﻿#if !NOSOCKET
 using System;
 
-namespace nStratis.Protocol.Filters
+namespace NBitcoin.Protocol.Filters
 {
 	public class NodeFiltersCollection : ThreadSafeCollection<INodeFilter>
 	{

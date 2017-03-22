@@ -1,4 +1,4 @@
-﻿namespace nStratis.Protocol
+﻿namespace NBitcoin.Protocol
 {
 	public class BitcoinSerializablePayload<T> : Payload where T : IBitcoinSerializable, new()
 	{

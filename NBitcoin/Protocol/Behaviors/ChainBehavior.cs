@@ -2,9 +2,9 @@
 using System;
 using System.Linq;
 using System.Threading;
-using nStratis.Protocol.Payloads;
+using NBitcoin.Protocol.Payloads;
 
-namespace nStratis.Protocol.Behaviors
+namespace NBitcoin.Protocol.Behaviors
 {
 
 	/// <summary>

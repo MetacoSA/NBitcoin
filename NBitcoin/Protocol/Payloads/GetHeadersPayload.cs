@@ -1,4 +1,4 @@
-﻿namespace nStratis.Protocol.Payloads
+﻿namespace NBitcoin.Protocol.Payloads
 {
 	/// <summary>
 	/// Ask block headers that happened since BlockLocators

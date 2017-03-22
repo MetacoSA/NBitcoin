@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace nStratis.BouncyCastle.crypto
+namespace NBitcoin.BouncyCastle.crypto
 {
 	internal class OutputLengthException
 		: DataLengthException

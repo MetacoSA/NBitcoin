@@ -1,4 +1,4 @@
-﻿namespace nStratis.Protocol.Payloads
+﻿namespace NBitcoin.Protocol.Payloads
 {
 	[Payload("ping")]
 	public class PingPayload : Payload

@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace nStratis.BitcoinCore
+namespace NBitcoin.BitcoinCore
 {
 	public class BlockUndoStore : Store<StoredItem<BlockUndo>, BlockUndo>
 	{

@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using nStratis.BouncyCastle.asn1;
-using nStratis.BouncyCastle.asn1.sec;
-using nStratis.BouncyCastle.crypto;
-using nStratis.BouncyCastle.crypto.digests;
-using nStratis.BouncyCastle.crypto.parameters;
-using nStratis.BouncyCastle.math;
-using nStratis.BouncyCastle.math.ec;
-using nStratis.Crypto;
+using NBitcoin.BouncyCastle.asn1;
+using NBitcoin.BouncyCastle.asn1.sec;
+using NBitcoin.BouncyCastle.crypto;
+using NBitcoin.BouncyCastle.crypto.digests;
+using NBitcoin.BouncyCastle.crypto.parameters;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.math.ec;
+using NBitcoin.Crypto;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class DeterministicSignatureTests
 	{

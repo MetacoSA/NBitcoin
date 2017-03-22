@@ -3,7 +3,7 @@ using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace nStratis.RPC
+namespace NBitcoin.RPC
 {
 	abstract class RawFormatter
 	{

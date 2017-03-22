@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Text;
 
-namespace nStratis.BouncyCastle.math.ec
+namespace NBitcoin.BouncyCastle.math.ec
 {
 	/**
      * base class for points on elliptic curves.

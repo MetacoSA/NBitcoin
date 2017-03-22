@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using nStratis.BouncyCastle.math;
-using nStratis.BouncyCastle.math.ec;
-using nStratis.Crypto;
-using nStratis.DataEncoders;
-using nStratis.Stealth;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.math.ec;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
+using NBitcoin.Stealth;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class PubKey : IBitcoinSerializable, IDestination
 	{

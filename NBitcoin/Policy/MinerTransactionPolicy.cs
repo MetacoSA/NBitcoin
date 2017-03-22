@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace nStratis.Policy
+namespace NBitcoin.Policy
 {
 	/// <summary>
 	/// Error when not enough funds are present for verifying or building a transaction

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace nStratis.BouncyCastle.math.field
+namespace NBitcoin.BouncyCastle.math.field
 {
 	internal abstract class FiniteFields
 	{

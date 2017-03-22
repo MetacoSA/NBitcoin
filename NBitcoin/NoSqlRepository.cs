@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public abstract class NoSqlRepository
 	{

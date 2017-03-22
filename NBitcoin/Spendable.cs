@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace nStratis
+namespace NBitcoin
 {
 	[Obsolete("Use Coin instead")]
 	public class Spendable : IBitcoinSerializable

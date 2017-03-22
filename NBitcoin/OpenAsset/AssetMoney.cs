@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace nStratis.OpenAsset
+namespace NBitcoin.OpenAsset
 {
 	public class AssetMoney : IComparable, IComparable<AssetMoney>, IEquatable<AssetMoney>, IMoney
 	{

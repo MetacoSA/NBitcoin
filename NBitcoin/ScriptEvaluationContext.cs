@@ -2,10 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using nStratis.Crypto;
-using BigInteger = nStratis.BouncyCastle.math.BigInteger;
+using NBitcoin.Crypto;
+using BigInteger = NBitcoin.BouncyCastle.math.BigInteger;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public enum ScriptError
 	{

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using nStratis.Crypto;
+using NBitcoin.Crypto;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class MerkleNode
 	{

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 using Newtonsoft.Json.Linq;
 
-namespace nStratis.RPC
+namespace NBitcoin.RPC
 {
 	public class RPCScriptSig
 	{

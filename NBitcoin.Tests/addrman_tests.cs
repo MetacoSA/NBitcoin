@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using nStratis.Protocol;
+using NBitcoin.Protocol;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class addrman_tests
 	{

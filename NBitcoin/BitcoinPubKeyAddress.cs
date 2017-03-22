@@ -1,4 +1,4 @@
-﻿namespace nStratis
+﻿namespace NBitcoin
 {
 	/// <summary>
 	/// Base58 representation of a pubkey hash and base class for the representation of a script hash

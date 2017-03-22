@@ -1,6 +1,6 @@
 using System;
 
-namespace nStratis.BouncyCastle.crypto
+namespace NBitcoin.BouncyCastle.crypto
 {
 	/**
      * this exception is thrown if a buffer that is meant to have output

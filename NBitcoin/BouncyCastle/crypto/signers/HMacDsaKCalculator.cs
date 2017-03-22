@@ -1,11 +1,11 @@
 ﻿using System;
-using nStratis.BouncyCastle.crypto.macs;
-using nStratis.BouncyCastle.crypto.parameters;
-using nStratis.BouncyCastle.math;
-using nStratis.BouncyCastle.security;
-using nStratis.BouncyCastle.util;
+using NBitcoin.BouncyCastle.crypto.macs;
+using NBitcoin.BouncyCastle.crypto.parameters;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.security;
+using NBitcoin.BouncyCastle.util;
 
-namespace nStratis.BouncyCastle.crypto.signers
+namespace NBitcoin.BouncyCastle.crypto.signers
 {
 	/**
      * A deterministic K calculator based on the algorithm in section 3.2 of RFC 6979.

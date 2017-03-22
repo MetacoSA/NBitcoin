@@ -5,7 +5,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace nStratis.OpenAsset
+namespace NBitcoin.OpenAsset
 {
 	public class ColoredEntry : IBitcoinSerializable
 	{

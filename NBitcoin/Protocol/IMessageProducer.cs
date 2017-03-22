@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 	public class MessageProducer<T>
 	{

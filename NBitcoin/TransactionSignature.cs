@@ -1,9 +1,9 @@
 ﻿using System;
-using nStratis.BouncyCastle.math;
-using nStratis.Crypto;
-using nStratis.DataEncoders;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class TransactionSignature
 	{

@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class Op
 	{

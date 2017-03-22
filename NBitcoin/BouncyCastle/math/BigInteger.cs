@@ -3,10 +3,10 @@ using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-using nStratis.BouncyCastle.security;
-using nStratis.BouncyCastle.util;
+using NBitcoin.BouncyCastle.security;
+using NBitcoin.BouncyCastle.util;
 
-namespace nStratis.BouncyCastle.math
+namespace NBitcoin.BouncyCastle.math
 {
 	public class BigInteger
 	{

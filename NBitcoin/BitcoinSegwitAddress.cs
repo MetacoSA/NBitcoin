@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class BitcoinWitPubKeyAddress : BitcoinAddress
 	{

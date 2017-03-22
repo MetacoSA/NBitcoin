@@ -1,14 +1,5 @@
 ﻿#if !NOSOCKET
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using nStratis.Protocol;
-using nStratis.Protocol.Behaviors;
-
-namespace nStratis.Protocol.Behaviors
+namespace NBitcoin.Protocol.Behaviors
 {
 	public class NodeBehaviorsCollection : ThreadSafeCollection<INodeBehavior>
 	{

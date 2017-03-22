@@ -4,9 +4,9 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using nStratis.OpenAsset;
+using NBitcoin.OpenAsset;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public static class MoneyExtensions
 	{

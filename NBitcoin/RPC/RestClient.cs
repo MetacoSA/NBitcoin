@@ -7,10 +7,10 @@ using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
-using nStratis.Protocol.Payloads;
+using NBitcoin.Protocol.Payloads;
 using Newtonsoft.Json.Linq;
 
-namespace nStratis.RPC
+namespace NBitcoin.RPC
 {
 	public enum RestResponseFormat
 	{

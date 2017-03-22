@@ -1,7 +1,7 @@
-using nStratis.BouncyCastle.math.ec;
-using nStratis.BouncyCastle.util;
+using NBitcoin.BouncyCastle.math.ec;
+using NBitcoin.BouncyCastle.util;
 
-namespace nStratis.BouncyCastle.asn1.x9
+namespace NBitcoin.BouncyCastle.asn1.x9
 {
 	/**
      * class for describing an ECPoint as a Der object.

@@ -1,5 +1,5 @@
 ﻿#if !NOSOCKET
-namespace nStratis.Protocol.Behaviors
+namespace NBitcoin.Protocol.Behaviors
 {
 	/// <summary>
 	/// Maintain connection to a given set of nodes

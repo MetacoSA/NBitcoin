@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
-using System.Text;
-using nStratis.BIP32;
-using nStratis.Crypto;
-using nStratis.Crypto.Cryptsharp;
-#if !WINDOWS_UWP && !USEBC
 using System.Security.Cryptography;
+using System.Text;
+using NBitcoin.BIP32;
+using NBitcoin.Crypto;
+using NBitcoin.Crypto.Cryptsharp;
+#if !WINDOWS_UWP && !USEBC
+
 #endif
 
-namespace nStratis.BIP39
+namespace NBitcoin.BIP39
 {
 	/// <summary>
 	/// A .NET implementation of the Bitcoin Improvement Proposal - 39 (BIP39)

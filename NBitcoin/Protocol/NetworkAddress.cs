@@ -2,7 +2,7 @@
 using System;
 using System.Net;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 	public class NetworkAddress : IBitcoinSerializable
 	{

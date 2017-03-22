@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class uint256_tests
 	{

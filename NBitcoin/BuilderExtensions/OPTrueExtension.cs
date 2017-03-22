@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace nStratis.BuilderExtensions
+namespace NBitcoin.BuilderExtensions
 {
 	public class OPTrueExtension : BuilderExtension
 	{

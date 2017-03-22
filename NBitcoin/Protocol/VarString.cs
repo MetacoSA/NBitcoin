@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 	public class VarString : IBitcoinSerializable
 	{

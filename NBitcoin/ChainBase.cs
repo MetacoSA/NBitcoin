@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public abstract class ChainBase
 	{

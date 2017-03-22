@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using nStratis.BIP38;
-using nStratis.DataEncoders;
+using NBitcoin.BIP38;
+using NBitcoin.DataEncoders;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class BitcoinSecret : Base58Data, IDestination, ISecret
 	{

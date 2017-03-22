@@ -17,7 +17,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 #endregion
 
-namespace nStratis.Crypto.Cryptsharp
+namespace NBitcoin.Crypto.Cryptsharp
 {
 	static class BitPacking
 	{

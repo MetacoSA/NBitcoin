@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace nStratis.OpenAsset
+namespace NBitcoin.OpenAsset
 {
 	public class NoSqlColoredTransactionRepository : IColoredTransactionRepository
 	{

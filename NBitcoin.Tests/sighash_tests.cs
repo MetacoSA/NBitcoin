@@ -1,8 +1,8 @@
 ﻿using System;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class sighash_tests
 	{

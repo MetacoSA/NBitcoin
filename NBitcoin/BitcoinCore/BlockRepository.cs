@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace nStratis.BitcoinCore
+namespace NBitcoin.BitcoinCore
 {
 	public class BlockRepository : IBlockRepository
 	{

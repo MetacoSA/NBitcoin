@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using nStratis.Crypto;
+using NBitcoin.Crypto;
 
-namespace nStratis.BitcoinCore
+namespace NBitcoin.BitcoinCore
 {
 	/** Undo information for a CTxIn
  *

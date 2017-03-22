@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace nStratis.BIP39
+namespace NBitcoin.BIP39
 {
 	public interface IWordlistSource
 	{

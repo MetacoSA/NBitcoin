@@ -1,8 +1,8 @@
 using System;
 using System.IO;
-using nStratis.BouncyCastle.util.io;
+using NBitcoin.BouncyCastle.util.io;
 
-namespace nStratis.BouncyCastle.asn1
+namespace NBitcoin.BouncyCastle.asn1
 {
 	/**
 	 * a general purpose ASN.1 decoder - note: this class differs from the

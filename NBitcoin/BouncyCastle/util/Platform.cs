@@ -2,13 +2,14 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.IO;
+
 #if SILVERLIGHT || PORTABLE
 using System.Collections.Generic;
 #else
 
 #endif
 
-namespace nStratis.BouncyCastle.util
+namespace NBitcoin.BouncyCastle.util
 {
 	internal abstract class Platform
 	{

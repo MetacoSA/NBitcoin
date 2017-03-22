@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace nStratis.BouncyCastle.util.io
+namespace NBitcoin.BouncyCastle.util.io
 {
 	internal class StreamOverflowException
 		: IOException

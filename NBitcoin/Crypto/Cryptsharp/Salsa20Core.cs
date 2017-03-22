@@ -19,7 +19,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 using System;
 
-namespace nStratis.Crypto.Cryptsharp
+namespace NBitcoin.Crypto.Cryptsharp
 {
 	// Source: http://cr.yp.to/salsa20.html
 	/// <summary>

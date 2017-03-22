@@ -6,7 +6,7 @@ using System.Reflection;
 #if NOWEBCLIENT
 using nStratis.Tests;
 #endif
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class TestDataLocations
 	{

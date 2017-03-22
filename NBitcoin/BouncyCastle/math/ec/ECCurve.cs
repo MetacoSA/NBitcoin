@@ -1,12 +1,12 @@
 using System;
 using System.Collections;
-using nStratis.BouncyCastle.math.ec.abc;
-using nStratis.BouncyCastle.math.ec.endo;
-using nStratis.BouncyCastle.math.ec.multiplier;
-using nStratis.BouncyCastle.math.field;
-using nStratis.BouncyCastle.util;
+using NBitcoin.BouncyCastle.math.ec.abc;
+using NBitcoin.BouncyCastle.math.ec.endo;
+using NBitcoin.BouncyCastle.math.ec.multiplier;
+using NBitcoin.BouncyCastle.math.field;
+using NBitcoin.BouncyCastle.util;
 
-namespace nStratis.BouncyCastle.math.ec
+namespace NBitcoin.BouncyCastle.math.ec
 {
 	/// <remarks>Base class for an elliptic curve.</remarks>
 	internal abstract class ECCurve

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public struct LockTime : IBitcoinSerializable
 	{

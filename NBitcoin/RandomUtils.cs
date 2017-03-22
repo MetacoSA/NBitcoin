@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
-using nStratis.Crypto;
+using NBitcoin.Crypto;
+
 #if !USEBC
 #endif
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class UnsecureRandom : IRandom
 	{

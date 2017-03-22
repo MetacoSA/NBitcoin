@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace nStratis.Protobuf
+namespace NBitcoin.Protobuf
 {
 	internal class ProtobufReaderWriter
 	{

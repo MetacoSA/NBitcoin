@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace nStratis.RPC
+namespace NBitcoin.RPC
 {
 	class SatoshiFormatter : RawFormatter
 	{

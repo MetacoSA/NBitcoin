@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 
-namespace nStratis
+namespace NBitcoin
 {
 	/// <summary>
 	/// Represent the challenge that miners must solve for finding a new block

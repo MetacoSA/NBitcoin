@@ -1,7 +1,7 @@
 ﻿#if !NOSOCKET
 using System;
 
-namespace nStratis.Protocol.Filters
+namespace NBitcoin.Protocol.Filters
 {
 	/// <summary>
 	/// A NodeFilter can intercept messages received and sent.

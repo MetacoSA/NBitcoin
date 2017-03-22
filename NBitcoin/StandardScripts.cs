@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using nStratis.BitcoinCore;
-using nStratis.Policy;
+using NBitcoin.BitcoinCore;
+using NBitcoin.Policy;
 
-namespace nStratis
+namespace NBitcoin
 {
 
 	public static class StandardScripts

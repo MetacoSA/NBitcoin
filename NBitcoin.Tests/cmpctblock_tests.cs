@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using nStratis.Protocol;
-using nStratis.Protocol.Payloads;
+using NBitcoin.Protocol;
+using NBitcoin.Protocol.Payloads;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class cmpctblock_tests
 	{

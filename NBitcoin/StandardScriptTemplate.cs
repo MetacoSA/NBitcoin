@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using nStratis.Crypto;
+using NBitcoin.Crypto;
 
-namespace nStratis
+namespace NBitcoin
 {
 	//TODO : Is*Conform can be used to parses the script
 

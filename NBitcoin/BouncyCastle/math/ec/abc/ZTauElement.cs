@@ -1,4 +1,4 @@
-namespace nStratis.BouncyCastle.math.ec.abc
+namespace NBitcoin.BouncyCastle.math.ec.abc
 {
 	/**
 	* Class representing an element of <code><b>Z</b>[&#964;]</code>. Let

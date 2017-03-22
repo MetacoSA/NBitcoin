@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class BoundedDictionary<TKey, TValue>
 	{

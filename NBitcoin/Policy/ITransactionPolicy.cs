@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace nStratis.Policy
+namespace NBitcoin.Policy
 {
 	public class TransactionPolicyError
 	{

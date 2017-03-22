@@ -7,13 +7,13 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using nStratis.DataEncoders;
-using nStratis.Protocol;
-using nStratis.Protocol.Behaviors;
-using nStratis.Protocol.Payloads;
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
+using NBitcoin.Protocol.Payloads;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class NodeServerTester : IDisposable
 	{

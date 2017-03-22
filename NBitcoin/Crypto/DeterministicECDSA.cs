@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
-using nStratis.BouncyCastle.crypto;
-using nStratis.BouncyCastle.crypto.digests;
-using nStratis.BouncyCastle.crypto.parameters;
-using nStratis.BouncyCastle.crypto.signers;
+using NBitcoin.BouncyCastle.crypto;
+using NBitcoin.BouncyCastle.crypto.digests;
+using NBitcoin.BouncyCastle.crypto.parameters;
+using NBitcoin.BouncyCastle.crypto.signers;
 
-namespace nStratis.Crypto
+namespace NBitcoin.Crypto
 {
 	static class DeterministicDSAExtensions
 	{

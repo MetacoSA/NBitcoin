@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using nStratis.Crypto;
-using nStratis.DataEncoders;
-using nStratis.Protocol;
-using nStratis.Protocol.Payloads;
-using nStratis.RPC;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
+using NBitcoin.Protocol.Payloads;
+using NBitcoin.RPC;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class OutPoint : IBitcoinSerializable
 	{

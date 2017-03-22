@@ -1,9 +1,9 @@
 ﻿#if !NOSOCKET
 using System;
 using System.Linq;
-using nStratis.Protocol.Payloads;
+using NBitcoin.Protocol.Payloads;
 
-namespace nStratis.Protocol.Behaviors
+namespace NBitcoin.Protocol.Behaviors
 {
 	[Flags]
 	public enum AddressManagerBehaviorMode

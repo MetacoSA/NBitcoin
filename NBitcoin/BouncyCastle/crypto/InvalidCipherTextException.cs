@@ -1,6 +1,6 @@
 using System;
 
-namespace nStratis.BouncyCastle.crypto
+namespace NBitcoin.BouncyCastle.crypto
 {
 	/**
      * this exception is thrown whenever we find something we don't expect in a

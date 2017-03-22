@@ -1,12 +1,9 @@
-﻿
-using System;
+﻿using System;
 using System.Linq;
-using System.IO;
-using nStratis;
-using nStratis.DataEncoders;
-using nStratis.Protocol;
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class uint256
 	{

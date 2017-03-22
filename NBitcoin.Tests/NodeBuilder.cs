@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -10,11 +9,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using nStratis.Protocol;
-using nStratis.Protocol.Payloads;
-using nStratis.RPC;
+using NBitcoin.Protocol;
+using NBitcoin.Protocol.Payloads;
+using NBitcoin.RPC;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public enum CoreNodeState
 	{

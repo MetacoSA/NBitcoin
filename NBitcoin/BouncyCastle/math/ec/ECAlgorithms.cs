@@ -1,9 +1,9 @@
 using System;
-using nStratis.BouncyCastle.math.ec.endo;
-using nStratis.BouncyCastle.math.ec.multiplier;
-using nStratis.BouncyCastle.math.field;
+using NBitcoin.BouncyCastle.math.ec.endo;
+using NBitcoin.BouncyCastle.math.ec.multiplier;
+using NBitcoin.BouncyCastle.math.field;
 
-namespace nStratis.BouncyCastle.math.ec
+namespace NBitcoin.BouncyCastle.math.ec
 {
 	internal class ECAlgorithms
 	{

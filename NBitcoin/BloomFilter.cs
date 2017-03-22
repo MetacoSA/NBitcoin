@@ -1,7 +1,7 @@
 ﻿using System;
-using nStratis.Crypto;
+using NBitcoin.Crypto;
 
-namespace nStratis
+namespace NBitcoin
 {
 	[Flags]
 	public enum BloomFlags : byte

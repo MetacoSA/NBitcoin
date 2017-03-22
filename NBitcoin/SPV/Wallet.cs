@@ -4,15 +4,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using nStratis.BIP32;
-using nStratis.DataEncoders;
-using nStratis.Protocol;
-using nStratis.Protocol.Behaviors;
-using nStratis.Protocol.Payloads;
+using NBitcoin.BIP32;
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
+using NBitcoin.Protocol.Payloads;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace nStratis.SPV
+namespace NBitcoin.SPV
 {
 	public enum WalletState
 	{

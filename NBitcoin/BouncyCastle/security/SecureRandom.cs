@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace nStratis.BouncyCastle.security
+namespace NBitcoin.BouncyCastle.security
 {
 	internal class SecureRandom : Random
 	{

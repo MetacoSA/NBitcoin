@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using nStratis.DataEncoders;
-using nStratis.Protocol;
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -14,7 +14,7 @@ using Xunit;
 using System.Net.Http;
 #endif
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class script_tests
 	{

@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class ThreadSafeCollection<T> : IEnumerable<T>
 	{

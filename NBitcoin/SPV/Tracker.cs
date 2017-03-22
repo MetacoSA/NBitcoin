@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using nStratis.DataEncoders;
-using nStratis.Protocol;
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace nStratis.SPV
+namespace NBitcoin.SPV
 {
 	/// <summary>
 	/// Idempotent and thread safe for tracking operations belonging to a set of ScriptPubKeys

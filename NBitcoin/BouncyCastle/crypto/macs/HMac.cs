@@ -1,8 +1,8 @@
 using System;
-using nStratis.BouncyCastle.crypto.parameters;
-using nStratis.BouncyCastle.util;
+using NBitcoin.BouncyCastle.crypto.parameters;
+using NBitcoin.BouncyCastle.util;
 
-namespace nStratis.BouncyCastle.crypto.macs
+namespace NBitcoin.BouncyCastle.crypto.macs
 {
 	/**
     * HMAC implementation based on RFC2104

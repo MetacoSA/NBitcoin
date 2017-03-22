@@ -1,4 +1,4 @@
-﻿namespace nStratis.Protocol.Payloads
+﻿namespace NBitcoin.Protocol.Payloads
 {
 	/// <summary>
 	/// Ask for the mempool, followed by inv messages

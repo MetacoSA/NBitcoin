@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace nStratis.BuilderExtensions
+namespace NBitcoin.BuilderExtensions
 {
 	public class P2MultiSigBuilderExtension : BuilderExtension
 	{

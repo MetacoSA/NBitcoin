@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public static class IpExtensions
 	{

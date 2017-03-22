@@ -5,11 +5,12 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using nStratis.Protobuf;
+using NBitcoin.Protobuf;
+
 #if !NOHTTPCLIENT
 #endif
 
-namespace nStratis.Payment
+namespace NBitcoin.Payment
 {
 	public class PaymentACK
 	{

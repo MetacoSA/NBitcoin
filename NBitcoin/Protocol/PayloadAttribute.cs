@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 	[AttributeUsage(AttributeTargets.Class)]
 	public class PayloadAttribute : Attribute

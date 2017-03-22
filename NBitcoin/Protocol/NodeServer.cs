@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using nStratis.Protocol.Payloads;
+using NBitcoin.Protocol.Payloads;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 	public delegate void NodeServerNodeEventHandler(NodeServer sender, Node node);
 	public delegate void NodeServerMessageEventHandler(NodeServer sender, IncomingMessage message);

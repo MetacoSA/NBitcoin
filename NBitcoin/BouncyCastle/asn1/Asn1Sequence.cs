@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 using System.IO;
-using nStratis.BouncyCastle.util;
+using NBitcoin.BouncyCastle.util;
 
-namespace nStratis.BouncyCastle.asn1
+namespace NBitcoin.BouncyCastle.asn1
 {
 	internal abstract class Asn1Sequence
 		: Asn1Object, IEnumerable

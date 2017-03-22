@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class PartialMerkleTree : IBitcoinSerializable
 	{

@@ -1,4 +1,4 @@
-﻿namespace nStratis.Tests
+﻿namespace NBitcoin.Tests
 {
 	// bloomo tests are disabled for now
 	// todo: get the bloom tests to work, need to crete test data specific for the stratis network

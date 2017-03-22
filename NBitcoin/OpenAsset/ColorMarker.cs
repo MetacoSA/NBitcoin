@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 
-namespace nStratis.OpenAsset
+namespace NBitcoin.OpenAsset
 {
 	public class ColorMarker : IBitcoinSerializable
 	{

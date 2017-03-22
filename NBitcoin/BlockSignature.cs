@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 
-namespace nStratis
+namespace NBitcoin
 {
 	/// <summary>
 	/// A representation of a block signature.

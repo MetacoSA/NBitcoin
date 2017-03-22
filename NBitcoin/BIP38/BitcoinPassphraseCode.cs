@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using nStratis.BouncyCastle.math;
-using nStratis.Crypto;
-using nStratis.Crypto.Cryptsharp;
-using nStratis.DataEncoders;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.Crypto;
+using NBitcoin.Crypto.Cryptsharp;
+using NBitcoin.DataEncoders;
 
-namespace nStratis.BIP38
+namespace NBitcoin.BIP38
 {
 	public class EncryptedKeyResult
 	{

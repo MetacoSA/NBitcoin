@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace nStratis.BitcoinCore
+namespace NBitcoin.BitcoinCore
 {
 	public interface IBlockProvider
 	{

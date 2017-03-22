@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using nStratis.Protocol;
+using NBitcoin.Protocol;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class CachedNoSqlRepository : NoSqlRepository
 	{

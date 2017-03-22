@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace nStratis
+namespace NBitcoin
 {
 	internal class ActionDisposable : IDisposable
 	{

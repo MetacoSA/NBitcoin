@@ -1,6 +1,6 @@
-﻿using nStratis.BouncyCastle.util.encoders;
+﻿using NBitcoin.BouncyCastle.util.encoders;
 
-namespace nStratis.BouncyCastle.math.ec.custom.sec
+namespace NBitcoin.BouncyCastle.math.ec.custom.sec
 {
 	internal class SecP256K1Curve
 		: AbstractFpCurve

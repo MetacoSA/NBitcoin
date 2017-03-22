@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using nStratis.DataEncoders;
-using nStratis.Stealth;
+using NBitcoin.DataEncoders;
+using NBitcoin.Stealth;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	//https://en.bitcoin.it/wiki/Sx/Stealth
 	public class StealthAddressTests
@@ -77,7 +77,7 @@ namespace nStratis.Tests
 			foreach(var test in tests)
 			{
 				BitField field = new BitField(test.Encoded, test.BitCount);
-				Assert.Equal(test.Match, field.Match(Utils.ToUInt32(TestUtils.ParseHex(test.Data), true)));
+				Assert.Equal(test.Match, field.Match((uint) Utils.ToUInt32(TestUtils.ParseHex(test.Data), true)));
 			}
 		}
 

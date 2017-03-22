@@ -1,4 +1,4 @@
-﻿namespace nStratis.BIP32
+﻿namespace NBitcoin.BIP32
 {
 	public abstract class BitcoinExtKeyBase : Base58Data, IDestination
 	{

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using nStratis.Crypto;
+using NBitcoin.Crypto;
 
-namespace nStratis.Stealth
+namespace NBitcoin.Stealth
 {
 	public class StealthMetadata
 	{

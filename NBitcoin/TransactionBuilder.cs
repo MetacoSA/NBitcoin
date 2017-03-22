@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using nStratis.BuilderExtensions;
-using nStratis.OpenAsset;
-using nStratis.Policy;
-using nStratis.Stealth;
-using Builder = System.Func<nStratis.TransactionBuilder.TransactionBuildingContext, nStratis.IMoney>;
+using NBitcoin.BuilderExtensions;
+using NBitcoin.OpenAsset;
+using NBitcoin.Policy;
+using NBitcoin.Stealth;
+using Builder = System.Func<NBitcoin.TransactionBuilder.TransactionBuildingContext, NBitcoin.IMoney>;
 
-namespace nStratis
+namespace NBitcoin
 {
 	[Flags]
 	public enum ChangeType : int

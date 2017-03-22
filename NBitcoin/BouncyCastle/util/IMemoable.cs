@@ -1,6 +1,6 @@
 using System;
 
-namespace nStratis.BouncyCastle.util
+namespace NBitcoin.BouncyCastle.util
 {
 	internal interface IMemoable
 	{

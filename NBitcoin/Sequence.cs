@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public enum SequenceLockType
 	{

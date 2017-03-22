@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Threading;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public enum FileLockType
 	{

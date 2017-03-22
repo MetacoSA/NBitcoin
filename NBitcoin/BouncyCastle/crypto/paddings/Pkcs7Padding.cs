@@ -1,6 +1,6 @@
-using nStratis.BouncyCastle.security;
+using NBitcoin.BouncyCastle.security;
 
-namespace nStratis.BouncyCastle.crypto.paddings
+namespace NBitcoin.BouncyCastle.crypto.paddings
 {
 	/**
     * A padder that adds Pkcs7/Pkcs5 padding to a block.

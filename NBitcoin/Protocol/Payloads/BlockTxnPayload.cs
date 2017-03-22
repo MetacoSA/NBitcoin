@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace nStratis.Protocol.Payloads
+namespace NBitcoin.Protocol.Payloads
 {
 	[Payload("blocktxn")]
 	public class BlockTxnPayload : Payload

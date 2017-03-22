@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class NoSqlBlockRepository : IBlockRepository
 	{

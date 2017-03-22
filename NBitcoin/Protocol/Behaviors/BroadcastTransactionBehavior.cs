@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using nStratis.Protocol.Payloads;
+using NBitcoin.Protocol.Payloads;
 
-namespace nStratis.Protocol.Behaviors
+namespace NBitcoin.Protocol.Behaviors
 {
 	public delegate void TransactionBroadcastedDelegate(Transaction transaction);
 	public delegate void TransactionRejectedDelegate(Transaction transaction, RejectPayload reject);

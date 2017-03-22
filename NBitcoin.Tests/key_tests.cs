@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using nStratis.Crypto;
-using nStratis.DataEncoders;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class key_tests
 	{

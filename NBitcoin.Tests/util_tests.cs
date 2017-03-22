@@ -3,15 +3,15 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using nStratis.BIP32;
-using nStratis.BIP38;
-using nStratis.Crypto.Cryptsharp;
-using nStratis.DataEncoders;
-using nStratis.OpenAsset;
+using NBitcoin.BIP32;
+using NBitcoin.BIP38;
+using NBitcoin.Crypto.Cryptsharp;
+using NBitcoin.DataEncoders;
+using NBitcoin.OpenAsset;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class util_tests
 	{
@@ -408,7 +408,7 @@ namespace nStratis.Tests
 			{
 				var bytes = Utils.BigIntegerToBytes(expected);
 				var actual = Utils.BytesToBigInteger(bytes);
-				Assert.Equal(expected, actual);
+				Assert.Equal<BigInteger>(expected, actual);
 			}
 		}
 		[Fact]

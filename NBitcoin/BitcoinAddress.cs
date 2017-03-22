@@ -1,7 +1,7 @@
 ﻿using System;
-using nStratis.OpenAsset;
+using NBitcoin.OpenAsset;
 
-namespace nStratis
+namespace NBitcoin
 {
 	/// <summary>
 	/// Base58 representaiton of a script hash

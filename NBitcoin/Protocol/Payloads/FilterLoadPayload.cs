@@ -1,4 +1,4 @@
-﻿namespace nStratis.Protocol.Payloads
+﻿namespace NBitcoin.Protocol.Payloads
 {
 	/// <summary>
 	/// Load a bloomfilter in the peer, used by SPV clients

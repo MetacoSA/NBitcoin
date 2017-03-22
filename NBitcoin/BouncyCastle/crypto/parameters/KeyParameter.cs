@@ -1,6 +1,6 @@
 using System;
 
-namespace nStratis.BouncyCastle.crypto.parameters
+namespace NBitcoin.BouncyCastle.crypto.parameters
 {
 	internal class KeyParameter
 		: ICipherParameters

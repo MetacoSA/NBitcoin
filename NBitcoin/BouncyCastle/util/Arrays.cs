@@ -1,8 +1,8 @@
 using System;
 using System.Text;
-using nStratis.BouncyCastle.math;
+using NBitcoin.BouncyCastle.math;
 
-namespace nStratis.BouncyCastle.util
+namespace NBitcoin.BouncyCastle.util
 {
 	/// <summary> General array utilities.</summary>
 	internal abstract class Arrays

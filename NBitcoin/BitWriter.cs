@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using nStratis.BIP39;
+using NBitcoin.BIP39;
 
-namespace nStratis
+namespace NBitcoin
 {
 	class BitReader
 	{

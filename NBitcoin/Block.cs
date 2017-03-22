@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using nStratis.Crypto;
-using nStratis.DataEncoders;
-using nStratis.RPC;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
+using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 
-namespace nStratis
+namespace NBitcoin
 {
 	/** Nodes collect new transactions into a block, hash them into a hash tree,
 	 * and scan through nonce values to make the block's hash satisfy proof-of-work

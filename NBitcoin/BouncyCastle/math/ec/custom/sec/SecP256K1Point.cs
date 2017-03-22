@@ -1,7 +1,7 @@
 ﻿using System;
-using nStratis.BouncyCastle.math.raw;
+using NBitcoin.BouncyCastle.math.raw;
 
-namespace nStratis.BouncyCastle.math.ec.custom.sec
+namespace NBitcoin.BouncyCastle.math.ec.custom.sec
 {
 	internal class SecP256K1Point
 		: AbstractFpPoint

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace nStratis.BitcoinCore
+namespace NBitcoin.BitcoinCore
 {
 	public class IndexedBlockUndoStore : IndexedStore<StoredItem<BlockUndo>, BlockUndo>
 	{

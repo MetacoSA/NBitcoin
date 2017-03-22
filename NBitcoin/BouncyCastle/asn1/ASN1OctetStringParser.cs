@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace nStratis.BouncyCastle.asn1
+namespace NBitcoin.BouncyCastle.asn1
 {
 	internal interface Asn1OctetStringParser
 		: IAsn1Convertible

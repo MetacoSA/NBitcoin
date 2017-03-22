@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using HashLib;
-using nStratis.Crypto;
-using nStratis.DataEncoders;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using Xunit;
-using Hashes = nStratis.Crypto.Hashes;
+using Hashes = NBitcoin.Crypto.Hashes;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	using Hashes = Hashes;
 

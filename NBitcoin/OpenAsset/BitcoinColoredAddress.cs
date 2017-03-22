@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 
-namespace nStratis.OpenAsset
+namespace NBitcoin.OpenAsset
 {
 	public class BitcoinColoredAddress : Base58Data, IDestination
 	{

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class CachedTransactionRepository : ITransactionRepository
 	{

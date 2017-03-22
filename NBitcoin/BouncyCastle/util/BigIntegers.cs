@@ -1,8 +1,8 @@
 using System;
-using nStratis.BouncyCastle.math;
-using nStratis.BouncyCastle.security;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.security;
 
-namespace nStratis.BouncyCastle.util
+namespace NBitcoin.BouncyCastle.util
 {
 	/**
      * BigInteger utilities.

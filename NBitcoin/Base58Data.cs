@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 
-namespace nStratis
+namespace NBitcoin
 {
 	/// <summary>
 	/// Base class for all Base58 check representation of data

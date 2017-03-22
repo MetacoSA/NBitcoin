@@ -2,10 +2,10 @@
 using System;
 using System.Net;
 using System.Threading;
-using nStratis.Protocol.Behaviors;
-using nStratis.Protocol.Payloads;
+using NBitcoin.Protocol.Behaviors;
+using NBitcoin.Protocol.Payloads;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 	public class NodeConnectionParameters
 	{

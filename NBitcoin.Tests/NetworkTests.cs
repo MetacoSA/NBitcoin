@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class NetworkTests
 	{

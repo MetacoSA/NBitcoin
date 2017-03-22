@@ -11,11 +11,11 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using nStratis.Protocol.Behaviors;
-using nStratis.Protocol.Filters;
-using nStratis.Protocol.Payloads;
+using NBitcoin.Protocol.Behaviors;
+using NBitcoin.Protocol.Filters;
+using NBitcoin.Protocol.Payloads;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 	public enum NodeState : int
 	{

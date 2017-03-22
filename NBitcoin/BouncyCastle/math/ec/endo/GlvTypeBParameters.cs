@@ -1,4 +1,4 @@
-﻿namespace nStratis.BouncyCastle.math.ec.endo
+﻿namespace NBitcoin.BouncyCastle.math.ec.endo
 {
 	internal class GlvTypeBParameters
 	{

@@ -5,14 +5,14 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Threading;
-using nStratis.BIP32;
-using nStratis.BIP38;
-using nStratis.DataEncoders;
-using nStratis.OpenAsset;
-using nStratis.Protocol;
-using nStratis.Stealth;
+using NBitcoin.BIP32;
+using NBitcoin.BIP38;
+using NBitcoin.DataEncoders;
+using NBitcoin.OpenAsset;
+using NBitcoin.Protocol;
+using NBitcoin.Stealth;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class DNSSeedData
 	{

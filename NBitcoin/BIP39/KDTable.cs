@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace nStratis.BIP39
+namespace NBitcoin.BIP39
 {
 	class KDTable
 	{

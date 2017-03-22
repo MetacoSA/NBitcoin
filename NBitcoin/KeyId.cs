@@ -1,7 +1,7 @@
 ﻿using System;
-using nStratis.DataEncoders;
+using NBitcoin.DataEncoders;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public abstract class TxDestination : IDestination
 	{

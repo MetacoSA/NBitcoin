@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using nStratis.Crypto;
-using nStratis.DataEncoders;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 
-namespace nStratis.Protocol.Payloads
+namespace NBitcoin.Protocol.Payloads
 {
 	[Payload("alert")]
 	public class AlertPayload : Payload, IBitcoinSerializable

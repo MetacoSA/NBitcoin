@@ -1,8 +1,7 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace nStratis
+namespace NBitcoin
 {
 	/// <summary>
 	/// A BlockHeader chained with all its ancestors

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace nStratis.SPV
+namespace NBitcoin.SPV
 {
 	public class WalletTransactionsCollection : IEnumerable<WalletTransaction>
 	{

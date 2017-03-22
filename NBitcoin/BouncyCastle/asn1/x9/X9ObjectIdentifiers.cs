@@ -1,6 +1,6 @@
 using System;
 
-namespace nStratis.BouncyCastle.asn1.x9
+namespace NBitcoin.BouncyCastle.asn1.x9
 {
 	internal abstract class X9ObjectIdentifiers
 	{

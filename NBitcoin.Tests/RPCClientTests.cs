@@ -1,19 +1,14 @@
 ﻿using System;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading;
-using nStratis.RPC;
+using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
-	using System.Diagnostics;
-
-	using Xunit.Sdk;
-
 	// This test requires a main net node running locally in server mode 
 	// on default port with -rpcuser=rpcuser -rpcpassword=rpcpassword
 	// if a node is not running locally all this tests will pass
@@ -271,17 +266,17 @@ namespace nStratis.Tests
 			endpoint = Utils.ParseIpEndpoint("google.com", 90);
 			Assert.Equal(90, endpoint.Port);
 			endpoint = Utils.ParseIpEndpoint("10.10.1.3", 90);
-			Assert.Equal("10.10.1.3", endpoint.Address.ToString());
+			Assert.Equal<string>("10.10.1.3", endpoint.Address.ToString());
 			Assert.Equal(90, endpoint.Port);
 			endpoint = Utils.ParseIpEndpoint("10.10.1.3:94", 90);
-			Assert.Equal("10.10.1.3", endpoint.Address.ToString());
+			Assert.Equal<string>("10.10.1.3", endpoint.Address.ToString());
 			Assert.Equal(94, endpoint.Port);
 			Assert.Throws<System.Net.Sockets.SocketException>(() => Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8:100", 90));
 			endpoint = Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8", 90);
-			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
+			Assert.Equal<string>("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
 			Assert.Equal(90, endpoint.Port);
 			endpoint = Utils.ParseIpEndpoint("[2001:db8:1f70::999:de8:7648:6e8]:94", 90);
-			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
+			Assert.Equal<string>("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
 			Assert.Equal(94, endpoint.Port);
 		}
 		[Fact]

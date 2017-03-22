@@ -2,13 +2,13 @@
 using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
-using nStratis.Payment;
+using NBitcoin.Payment;
 using Xunit;
 
 #if !PORTABLE
 #endif
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	//https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki
 	//Their examples are broken

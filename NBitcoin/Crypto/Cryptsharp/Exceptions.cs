@@ -19,7 +19,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 using System;
 
-namespace nStratis.Crypto.Cryptsharp
+namespace NBitcoin.Crypto.Cryptsharp
 {
 	static class Exceptions
 	{

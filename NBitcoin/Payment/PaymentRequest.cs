@@ -1,21 +1,16 @@
-﻿using nStratis.Crypto;
-using nStratis.Protobuf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-#if !NOHTTPCLIENT
-using System.Net.Http;
-#endif
-using System.Text;
-using System.Text.RegularExpressions;
-#if WIN
 using System.Security.Cryptography.X509Certificates;
+using NBitcoin.Crypto;
+using NBitcoin.Protobuf;
+#if !NOHTTPCLIENT
 #endif
-using System.Threading.Tasks;
+#if WIN
+#endif
 
-namespace nStratis.Payment
+namespace NBitcoin.Payment
 {
 	public enum PKIType
 	{

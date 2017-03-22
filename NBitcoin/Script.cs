@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using nStratis.Crypto;
-using nStratis.DataEncoders;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 
-namespace nStratis
+namespace NBitcoin
 {
 	/// <summary>
 	/// Script verification flags

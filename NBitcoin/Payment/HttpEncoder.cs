@@ -12,6 +12,7 @@
 
 using System;
 using System.IO;
+
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -37,7 +38,7 @@ using System.IO;
 using System.Web.Configuration;
 #endif
 
-namespace nStratis.Payment
+namespace NBitcoin.Payment
 {
 #if NET_4_0
 	public

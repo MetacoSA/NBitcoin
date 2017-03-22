@@ -3,7 +3,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace nStratis.RPC
+namespace NBitcoin.RPC
 {
 	//{"code":-32601,"message":"Method not found"}
 	public class RPCError

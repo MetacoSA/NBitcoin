@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using nStratis.Crypto;
+using NBitcoin.Crypto;
 
-namespace nStratis.Protocol.Payloads
+namespace NBitcoin.Protocol.Payloads
 {
 	[Payload("cmpctblock")]
 	public class CmpctBlockPayload : Payload

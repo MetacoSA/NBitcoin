@@ -2,7 +2,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class RNGCryptoServiceProviderRandom : IRandom
 	{

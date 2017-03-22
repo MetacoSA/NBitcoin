@@ -1,7 +1,7 @@
 using System;
-using nStratis.BouncyCastle.math;
+using NBitcoin.BouncyCastle.math;
 
-namespace nStratis.BouncyCastle.asn1.x9
+namespace NBitcoin.BouncyCastle.asn1.x9
 {
 	/**
      * ASN.1 def for Elliptic-Curve Field ID structure. See

@@ -1,6 +1,6 @@
-﻿using nStratis.DataEncoders;
+﻿using NBitcoin.DataEncoders;
 
-namespace nStratis.Protocol.Payloads
+namespace NBitcoin.Protocol.Payloads
 {
 
 	public enum RejectCode : byte

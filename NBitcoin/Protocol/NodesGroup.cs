@@ -1,14 +1,13 @@
 ﻿#if !NOSOCKET
 using System;
-using System.CodeDom;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using nStratis.Protocol.Behaviors;
+using NBitcoin.Protocol.Behaviors;
 
-namespace nStratis.Protocol
+namespace NBitcoin.Protocol
 {
 	public class NodesGroup : IDisposable
 	{

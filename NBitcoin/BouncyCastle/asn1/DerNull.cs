@@ -1,6 +1,6 @@
 using System;
 
-namespace nStratis.BouncyCastle.asn1
+namespace NBitcoin.BouncyCastle.asn1
 {
 	/**
 	 * A Null object.

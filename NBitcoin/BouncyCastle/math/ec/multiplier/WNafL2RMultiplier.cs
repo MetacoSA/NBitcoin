@@ -1,4 +1,4 @@
-namespace nStratis.BouncyCastle.math.ec.multiplier
+namespace NBitcoin.BouncyCastle.math.ec.multiplier
 {
 	/**
     * Class implementing the WNAF (Window Non-Adjacent Form) multiplication

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using nStratis.BIP38;
-using nStratis.BouncyCastle.math;
-using nStratis.Crypto;
+using NBitcoin.BIP38;
+using NBitcoin.BouncyCastle.math;
+using NBitcoin.Crypto;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class Key : IBitcoinSerializable, IDestination
 	{

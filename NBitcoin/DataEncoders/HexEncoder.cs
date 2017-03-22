@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace nStratis.DataEncoders
+namespace NBitcoin.DataEncoders
 {
 	public class HexEncoder : DataEncoder
 	{
