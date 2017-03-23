@@ -10,7 +10,7 @@ namespace NBitcoin
 			MinTime = minTime;
 		}
 		public SequenceLock(int minHeight, long minTime)
-			: this(minHeight, (DateTimeOffset) Utils.UnixTimeToDateTime(minTime))
+			: this(minHeight, Utils.UnixTimeToDateTime(minTime))
 		{
 		}
 		public int MinHeight

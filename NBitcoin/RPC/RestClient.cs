@@ -1,14 +1,17 @@
-﻿using System;
+﻿#if !NOJSONNET
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
+using NBitcoin.Protocol;
 using NBitcoin.Protocol.Payloads;
 using Newtonsoft.Json.Linq;
+using System.Runtime.ExceptionServices;
 
 namespace NBitcoin.RPC
 {
@@ -199,12 +202,12 @@ namespace NBitcoin.RPC
 			{
 				var stream = response.GetResponseStream();
 				var bytesToRead = (int)response.ContentLength;
-				var buffer = stream.ReadBytes(bytesToRead);
+				var buffer = await stream.ReadBytesAsync(bytesToRead).ConfigureAwait(false);
 				return buffer;
 			}
 		}
 
-		#region Private methods
+#region Private methods
 		private WebRequest BuildHttpRequest(string resource, RestResponseFormat format, params string[] parms)
 		{
 			var hasParams = parms != null && parms.Length > 0;
@@ -222,6 +225,7 @@ namespace NBitcoin.RPC
 		private static async Task<WebResponse> GetWebResponse(WebRequest request)
 		{
 			WebResponse response = null;
+			WebException exception = null;
 			try
 			{
 				response = await request.GetResponseAsync().ConfigureAwait(false);
@@ -235,16 +239,19 @@ namespace NBitcoin.RPC
 
 				if(response == null)
 					throw;
-
+				exception = ex;
+			}
+			if(exception != null)
+			{
 				var stream = response.GetResponseStream();
 				var bytesToRead = (int)response.ContentLength;
-				var buffer = stream.ReadBytes(bytesToRead);
+				var buffer = await stream.ReadBytesAsync(bytesToRead).ConfigureAwait(false);
 				response.Dispose();
-				throw new RestApiException(Encoding.UTF8.GetString(buffer, 0, buffer.Length - 2), ex);
+				throw new RestApiException(Encoding.UTF8.GetString(buffer, 0, buffer.Length - 2), exception);
 			}
 			return response;
 		}
-		#endregion
+#endregion
 	}
 
 	public class RestApiException : Exception
@@ -299,3 +306,4 @@ namespace NBitcoin.RPC
 		}
 	}
 }
+#endif

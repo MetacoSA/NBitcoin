@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿#if !NOJSONNET
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
@@ -12,7 +16,6 @@ namespace NBitcoin.RPC
 		protected override void BuildTransaction(JObject json, Transaction tx)
 		{
 			tx.Version = (uint)json.GetValue("version");
-			tx.Time = (uint)json.GetValue("time");
 			tx.LockTime = (uint)json.GetValue("locktime");
 
 			var vin = (JArray)json.GetValue("vin");
@@ -59,7 +62,6 @@ namespace NBitcoin.RPC
 		{
 			WritePropertyValue(writer, "txid", tx.GetHash().ToString());
 			WritePropertyValue(writer, "version", tx.Version);
-			WritePropertyValue(writer, "time", tx.Time);
 			WritePropertyValue(writer, "locktime", tx.LockTime.Value);
 
 			writer.WritePropertyName("vin");
@@ -125,23 +127,14 @@ namespace NBitcoin.RPC
 				else
 				{
 					var multi = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(txout.ScriptPubKey);
-					if (multi != null)
+					WritePropertyValue(writer, "reqSigs", multi.SignatureCount);
+					WritePropertyValue(writer, "type", GetScriptType(txout.ScriptPubKey.FindTemplate()));
+					writer.WriteStartArray();
+					foreach(var key in multi.PubKeys)
 					{
-						WritePropertyValue(writer, "reqSigs", multi.SignatureCount);
-						WritePropertyValue(writer, "type", GetScriptType(txout.ScriptPubKey.FindTemplate()));
-						writer.WriteStartArray();
-						foreach (var key in multi.PubKeys)
-						{
-							writer.WriteValue(key.Hash.GetAddress(Network).ToString());
-						}
-						writer.WriteEndArray();
+						writer.WriteValue(key.Hash.GetAddress(Network).ToString());
 					}
-					else
-					{
-						// nonstandard
-						WritePropertyValue(writer, "type", "nonstandard");
-					}
-					
+					writer.WriteEndArray();
 				}
 
 				writer.WriteEndObject(); //endscript
@@ -183,3 +176,4 @@ namespace NBitcoin.RPC
 		}
 	}
 }
+#endif

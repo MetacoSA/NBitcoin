@@ -1,6 +1,12 @@
-﻿using NBitcoin.DataEncoders;
+﻿#if !NOJSONNET
+using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
@@ -9,7 +15,6 @@ namespace NBitcoin.RPC
 		protected override void BuildTransaction(JObject json, Transaction tx)
 		{
 			tx.Version = (uint)json.GetValue("ver");
-			tx.Time = (uint)json.GetValue("time");
 			tx.LockTime = (uint)json.GetValue("lock_time");
 
 			var vin = (JArray)json.GetValue("in");
@@ -48,7 +53,7 @@ namespace NBitcoin.RPC
 			for(int i = 0; i < voutCount; i++)
 			{
 				var jsonOut = (JObject)vout[i];
-				var txout = new TxOut();
+				var txout = new NBitcoin.TxOut();
 				tx.Outputs.Add(txout);
 
 				txout.Value = Money.Parse((string)jsonOut.GetValue("value"));
@@ -64,7 +69,6 @@ namespace NBitcoin.RPC
 			WritePropertyValue(writer, "vin_sz", tx.Inputs.Count);
 			WritePropertyValue(writer, "vout_sz", tx.Outputs.Count);
 
-			WritePropertyValue(writer, "time", tx.Time);
 			WritePropertyValue(writer, "lock_time", tx.LockTime.Value);
 
 			WritePropertyValue(writer, "size", tx.GetSerializedSize());
@@ -116,3 +120,4 @@ namespace NBitcoin.RPC
 
 	}
 }
+#endif

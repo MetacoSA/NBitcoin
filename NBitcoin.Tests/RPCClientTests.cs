@@ -1,30 +1,29 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Threading;
+﻿using NBitcoin.DataEncoders;
 using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
 {
-	// This test requires a main net node running locally in server mode 
-	// on default port with -rpcuser=rpcuser -rpcpassword=rpcpassword
-	// if a node is not running locally all this tests will pass
-	// todo: implement the xuint skip framework https://github.com/xunit/samples.xunit/tree/master/DynamicSkipExample
-
+	//Require a rpc server on test network running on default port with -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword
+	//For me : 
+	//"bitcoin-qt.exe" -testnet -server -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword 
 	[Trait("RPCClient", "RPCClient")]
-	public class RPCClientTests 
+	public class RPCClientTests
 	{
-		public static bool noClient = !Process.GetProcesses().Any(p => p.ProcessName.Contains("stratis"));
-
-		const string TestAccount = "nStratis.RPCClientTests";
+		const string TestAccount = "NBitcoin.RPCClientTests";
 		[Fact]
 		public void InvalidCommandSendRPCException()
 		{
-			if (RPCClientTests.noClient) return;
-
 			using(var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
@@ -36,12 +35,11 @@ namespace NBitcoin.Tests
 			}
 		}
 
+
 		[Fact]
 		public void CanSendCommand()
 		{
-			if (RPCClientTests.noClient) return;
-
-			using (var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -53,179 +51,207 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetGenesisFromRPC()
 		{
-			if (RPCClientTests.noClient) return;
-
-			using (var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
 				var response = rpc.SendCommand(RPCOperations.getblockhash, 0);
 				var actualGenesis = (string)response.Result;
-				Assert.Equal(Network.Main.GetGenesis().GetHash().ToString(), actualGenesis);
-				//Assert.Equal(Network.Main.GetGenesis().GetHash(), rpc.GetBestBlockHash());
+				Assert.Equal(Network.RegTest.GetGenesis().GetHash().ToString(), actualGenesis);
+				Assert.Equal(Network.RegTest.GetGenesis().GetHash(), rpc.GetBestBlockHash());
 			}
 		}
 
 		[Fact]
 		public void CanGetRawMemPool()
 		{
-			if (RPCClientTests.noClient) return;
-
-			using (var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode();
 				var rpc = node.CreateRPCClient();
 				builder.StartAll();
-				//node.Generate(101);
-				//var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(1.0m), "hello", "world");
+				node.Generate(101);
+				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(1.0m), "hello", "world");
 				var ids = rpc.GetRawMempool();
-				Assert.NotNull(ids);
+				Assert.Equal(1, ids.Length);
+				Assert.Equal(txid, ids[0]);
 			}
 		}
 
 		[Fact]
 		public void CanUseAsyncRPC()
 		{
-			if (RPCClientTests.noClient) return;
-
-			using (var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode();
 				var rpc = node.CreateRPCClient();
 				builder.StartAll();
-				//node.Generate(10);
+				node.Generate(10);
 				var blkCount = rpc.GetBlockCountAsync().Result;
-				Assert.True(blkCount > 0);
+				Assert.Equal(10, blkCount);
 			}
 		}
 
 		[Fact]
 		public void CanGetBlockFromRPC()
 		{
-			if (RPCClientTests.noClient) return;
-
-			using (var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
 				var response = rpc.GetBlockHeader(0);
-				AssertEx.CollectionEquals(Network.Main.GetGenesis().Header.ToBytes(), response.ToBytes());
+				AssertEx.CollectionEquals(Network.RegTest.GetGenesis().Header.ToBytes(), response.ToBytes());
 
 				response = rpc.GetBlockHeader(0);
-				Assert.Equal(Network.Main.GenesisHash, response.GetHash());
-			}
-		}
-
-		// this method does not exist in stratis
-		//[Fact]
-		//public void CanEstimateFees()
-		//{
-		//	using(var builder = NodeBuilder.Create())
-		//	{
-		//		var node = builder.CreateNode();
-		//		builder.StartAll();
-		//		//node.Generate(101);
-		//		var rpc = node.CreateRPCClient();
-		//		var result = rpc.EstimateFee(1);
-		//		Assert.Equal(Money.Zero, result.FeePerK);
-		//	}
-		//}
-
-		[Fact]
-		public void CanGetBestBlock()
-		{
-			if (RPCClientTests.noClient) return;
-
-			using (var builder = NodeBuilder.Create())
-			{
-				var rpc = builder.CreateNode().CreateRPCClient();
-				builder.StartAll();
-				var block = rpc.GetBestBlockHash();
-				Assert.NotNull(block);
+				Assert.Equal(Network.RegTest.GenesisHash, response.GetHash());
 			}
 		}
 
 		[Fact]
-		public void CanGetBlockWithSignature()
+		public void EstimateFeeRate()
 		{
-			if (RPCClientTests.noClient) return;
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				node.Generate(101);
+				var rpc = node.CreateRPCClient();
+				Assert.Throws<NoEstimationException>(() => rpc.EstimateFeeRate(1));
+			}
+		}
 
-			using (var builder = NodeBuilder.Create())
+		[Fact]
+		public void TryEstimateFeeRate()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				node.Generate(101);
+				var rpc = node.CreateRPCClient();
+				Assert.Null(rpc.TryEstimateFeeRate(1));
+			}
+		}
+
+		[Fact]
+		public void CanGetTransactionBlockFromRPC()
+		{
+			using(var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
-				var blockId = uint256.Parse("ae36de379a543378e13b0ce70275f21487f613c216d76c7ffb36c685c8992a74");
+				var blockId = rpc.GetBestBlockHash();
 				var block = rpc.GetBlock(blockId);
-				Assert.NotNull(block);
-			}
-		}
-
-		[Fact]
-		public void CanGetBlockWithoutSignature()
-		{
-			if (RPCClientTests.noClient) return;
-
-			using (var builder = NodeBuilder.Create())
-			{
-				var rpc = builder.CreateNode().CreateRPCClient();
-				builder.StartAll();
-				var blockId = uint256.Parse("c9920baf967a314bd123efa184d54d4b9e7460301e3f2e059bafc77c45d03017");
-				var block = rpc.GetBlock(blockId);
-				Assert.NotNull(block);
+				Assert.True(block.CheckMerkleRoot());
 			}
 		}
 
 		[Fact]
 		public void CanGetPrivateKeysFromAccount()
 		{
-			if (RPCClientTests.noClient) return;
-
-			using (var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
 				Key key = new Key();
-				rpc.ImportPrivKey(key.GetBitcoinSecret(Network.Main));
-				BitcoinSecret secret = rpc.DumpPrivKey(key.PubKey.GetAddress(Network.Main));
+				rpc.ImportAddress(key.PubKey.GetAddress(Network.RegTest), TestAccount, false);
+				BitcoinAddress address = rpc.GetAccountAddress(TestAccount);
+				BitcoinSecret secret = rpc.DumpPrivKey(address);
+				BitcoinSecret secret2 = rpc.GetAccountSecret(TestAccount);
 
-				Assert.Equal(secret.ToString(), key.GetBitcoinSecret(Network.Main).ToString());
+				Assert.Equal(secret.ToString(), secret2.ToString());
+				Assert.Equal(address.ToString(), secret.GetAddress().ToString());
 			}
 		}
 
 		[Fact]
 		public void CanDecodeAndEncodeRawTransaction()
 		{
-			if (RPCClientTests.noClient) return;
-
-			var tests = TestCase.read_json(TestDataLocations.DataFolder(@"tx_raw.json"));
-			using(var builder = NodeBuilder.Create())
+			var a = new Protocol.AddressManager().Select();
+			var tests = TestCase.read_json("data/tx_raw.json");
+			foreach(var test in tests)
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
-				builder.StartAll();
-				var index = 0;
-				foreach(var test in tests)
-				{
-					var format = (RawFormat)Enum.Parse(typeof(RawFormat), (string)test[0], true);
-					var network = ((string)test[1]) == "Main" ? Network.Main : Network.TestNet;
-					var testData = ((JObject)test[2]).ToString();
+				var format = (RawFormat)Enum.Parse(typeof(RawFormat), (string)test[0], true);
+				var network = ((string)test[1]) == "Main" ? Network.Main : Network.TestNet;
+				var testData = ((JObject)test[2]).ToString();
 
-					Transaction raw = Transaction.Parse(testData, format, network);
+				Transaction raw = Transaction.Parse(testData, format, network);
 
-					AssertJsonEquals(raw.ToString(format, network), testData);
+				AssertJsonEquals(raw.ToString(format, network), testData);
 
-					var raw3 = Transaction.Parse(raw.ToString(format, network), format);
-					Assert.Equal(raw.ToString(format, network), raw3.ToString(format, network));
-					index++;
-				}
+				var raw3 = Transaction.Parse(raw.ToString(format, network), format);
+				Assert.Equal(raw.ToString(format, network), raw3.ToString(format, network));
 			}
+		}
+
+		[Fact]
+		public void CanDecodeUnspentCoinWatchOnlyAddress()
+		{
+			var testJson =
+@"{
+	""txid"" : ""d54994ece1d11b19785c7248868696250ab195605b469632b7bd68130e880c9a"",
+	""vout"" : 1,
+	""address"" : ""mgnucj8nYqdrPFh2JfZSB1NmUThUGnmsqe"",
+	""account"" : ""test label"",
+	""scriptPubKey"" : ""76a9140dfc8bafc8419853b34d5e072ad37d1a5159f58488ac"",
+	""amount"" : 0.00010000,
+	""confirmations"" : 6210,
+	""spendable"" : false
+}";
+			var testData = JObject.Parse(testJson);
+			var unspentCoin = new UnspentCoin(testData);
+
+			Assert.Equal("test label", unspentCoin.Account);
+			Assert.False(unspentCoin.IsSpendable);
+			Assert.Null(unspentCoin.RedeemScript);
+		}
+
+		[Fact]
+		public void CanDecodeUnspentCoinLegacyPre_0_10_0()
+		{
+			var testJson =
+@"{
+	""txid"" : ""d54994ece1d11b19785c7248868696250ab195605b469632b7bd68130e880c9a"",
+	""vout"" : 1,
+	""address"" : ""mgnucj8nYqdrPFh2JfZSB1NmUThUGnmsqe"",
+	""account"" : ""test label"",
+	""scriptPubKey"" : ""76a9140dfc8bafc8419853b34d5e072ad37d1a5159f58488ac"",
+	""amount"" : 0.00010000,
+	""confirmations"" : 6210
+}";
+			var testData = JObject.Parse(testJson);
+			var unspentCoin = new UnspentCoin(testData);
+
+			// Versions prior to 0.10.0 were always spendable (but had no JSON field)
+			Assert.True(unspentCoin.IsSpendable);
+		}
+
+		[Fact]
+		public void CanDecodeUnspentCoinWithRedeemScript()
+		{
+			var testJson =
+@"{
+	""txid"" : ""d54994ece1d11b19785c7248868696250ab195605b469632b7bd68130e880c9a"",
+	""vout"" : 1,
+	""address"" : ""mgnucj8nYqdrPFh2JfZSB1NmUThUGnmsqe"",
+	""account"" : ""test label"",
+	""scriptPubKey"" : ""76a9140dfc8bafc8419853b34d5e072ad37d1a5159f58488ac"",
+	""redeemScript"" : ""522103310188e911026cf18c3ce274e0ebb5f95b007f230d8cb7d09879d96dbeab1aff210243930746e6ed6552e03359db521b088134652905bd2d1541fa9124303a41e95621029e03a901b85534ff1e92c43c74431f7ce72046060fcf7a95c37e148f78c7725553ae"",
+	""amount"" : 0.00010000,
+	""confirmations"" : 6210,
+	""spendable"" : true
+}";
+			var testData = JObject.Parse(testJson);
+			var unspentCoin = new UnspentCoin(testData);
+
+			Console.WriteLine("Redeem Script: {0}", unspentCoin.RedeemScript);
+			Assert.NotNull(unspentCoin.RedeemScript);
 		}
 
 		[Fact]
 		public void RawTransactionIsConformsToRPC()
 		{
-			if (RPCClientTests.noClient) return;
-
-			using (var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -240,19 +266,17 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetPeersInfo()
 		{
-			if (RPCClientTests.noClient) return;
-
-			using (var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilder.Create())
 			{
 				var nodeA = builder.CreateNode();
 				builder.StartAll();
 				var rpc = nodeA.CreateRPCClient();
-				//using(var node = nodeA.CreateNodeClient())
-				//{
-					//node.VersionHandshake();
+				using(var node = nodeA.CreateNodeClient())
+				{
+					node.VersionHandshake();
 					var peers = rpc.GetPeersInfo();
 					Assert.NotEmpty(peers);
-				//}
+				}
 			}
 		}
 #endif
@@ -266,82 +290,122 @@ namespace NBitcoin.Tests
 			endpoint = Utils.ParseIpEndpoint("google.com", 90);
 			Assert.Equal(90, endpoint.Port);
 			endpoint = Utils.ParseIpEndpoint("10.10.1.3", 90);
-			Assert.Equal<string>("10.10.1.3", endpoint.Address.ToString());
+			Assert.Equal("10.10.1.3", endpoint.Address.ToString());
 			Assert.Equal(90, endpoint.Port);
 			endpoint = Utils.ParseIpEndpoint("10.10.1.3:94", 90);
-			Assert.Equal<string>("10.10.1.3", endpoint.Address.ToString());
+			Assert.Equal("10.10.1.3", endpoint.Address.ToString());
 			Assert.Equal(94, endpoint.Port);
 			Assert.Throws<System.Net.Sockets.SocketException>(() => Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8:100", 90));
 			endpoint = Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8", 90);
-			Assert.Equal<string>("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
+			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
 			Assert.Equal(90, endpoint.Port);
 			endpoint = Utils.ParseIpEndpoint("[2001:db8:1f70::999:de8:7648:6e8]:94", 90);
-			Assert.Equal<string>("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
+			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
 			Assert.Equal(94, endpoint.Port);
 		}
+
+		[Fact]
+		public void CanAuthWithCookieFile()
+		{
+			var rpc = new RPCClient("cookiefile=Data\\.cookie", new Uri("http://localhost/"), Network.RegTest);
+			Assert.Throws<ArgumentException>(() => new RPCClient("cookiefile=Data\\tx_valid.json", new Uri("http://localhost/"), Network.RegTest));
+			Assert.Throws<FileNotFoundException>(() => new RPCClient("cookiefile=Data\\efpwwie.json", new Uri("http://localhost/"), Network.RegTest));
+			rpc = new RPCClient("bla:bla", null as Uri, Network.RegTest);
+			Assert.Equal("http://127.0.0.1:" + Network.RegTest.RPCPort + "/", rpc.Address.AbsoluteUri);
+
+			rpc = new RPCClient("bla:bla", "http://toto/", Network.RegTest);
+		}
+
+
+
+		[Fact]
+		public void RPCSendRPCException()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				builder.StartAll();
+				var rpcClient = node.CreateRPCClient();
+				try
+				{
+					rpcClient.SendCommand("whatever");
+					Assert.False(true, "Should have thrown");
+				}
+				catch(RPCException ex)
+				{
+					if(ex.RPCCode != RPCErrorCode.RPC_METHOD_NOT_FOUND)
+					{
+						Assert.False(true, "Should have thrown RPC_METHOD_NOT_FOUND");
+					}
+				}
+			}
+		}
+
 		[Fact]
 		public void CanAddNodes()
 		{
-			if (RPCClientTests.noClient) return;
-
-			using (var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilder.Create())
 			{
 				var nodeA = builder.CreateNode();
-				//var nodeB = builder.CreateNode();
+				var nodeB = builder.CreateNode();
 				builder.StartAll();
 				var rpc = nodeA.CreateRPCClient();
-				//rpc.RemoveNode(nodeA.Endpoint);
-				var ep = new IPEndPoint(IPAddress.Parse("50.50.50.50"), 50505);
-				rpc.RemoveNode(ep);
+				rpc.RemoveNode(nodeA.Endpoint);
+				rpc.AddNode(nodeB.Endpoint);
 				Thread.Sleep(500);
 				var info = rpc.GetAddedNodeInfo(true);
-				Assert.False(info.Any(a => a.AddedNode.ToString() ==  ep.ToString()));
-
-				rpc.AddNode(ep);
-				Thread.Sleep(500);
-				info = rpc.GetAddedNodeInfo(true);
 				Assert.NotNull(info);
 				Assert.NotEmpty(info);
-				Assert.True(info.Any(a => a.AddedNode.ToString() == ep.ToString()));
+				//For some reason this one does not pass anymore in 0.13.1
+				//Assert.Equal(nodeB.Endpoint, info.First().Addresses.First().Address);
+				var oneInfo = rpc.GetAddedNodeInfo(true, nodeB.Endpoint);
+				Assert.NotNull(oneInfo);
+				Assert.True(oneInfo.AddedNode.ToString() == nodeB.Endpoint.ToString());
+				oneInfo = rpc.GetAddedNodeInfo(true, nodeA.Endpoint);
+				Assert.Null(oneInfo);
+				rpc.RemoveNode(nodeB.Endpoint);
+				Thread.Sleep(500);
+				info = rpc.GetAddedNodeInfo(true);
+				Assert.Equal(0, info.Count());
 			}
 		}
 #endif
-		//[Fact]
-		//public void CanBackupWallet()
-		//{
-		//	using(var builder = NodeBuilder.Create())
-		//	{
-		//		var node = builder.CreateNode();
-		//		builder.StartAll();
-		//		var buildOutputDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-		//		var filePath = Path.Combine(buildOutputDir, "wallet_backup.dat");
-		//		try
-		//		{
-		//			var rpc = node.CreateRPCClient();
-		//			rpc.BackupWallet(filePath);
-		//			Assert.True(File.Exists(filePath));
-		//		}
-		//		finally
-		//		{
-		//			if(File.Exists(filePath))
-		//				File.Delete(filePath);
-		//		}
-		//	}
-		//}
+		[Fact]
+		public void CanBackupWallet()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				var buildOutputDir = Path.GetDirectoryName(".");
+				var filePath = Path.Combine(buildOutputDir, "wallet_backup.dat");
+				try
+				{
+					var rpc = node.CreateRPCClient();
+					rpc.BackupWallet(filePath);
+					Assert.True(File.Exists(filePath));
+				}
+				finally
+				{
+					if(File.Exists(filePath))
+						File.Delete(filePath);
+				}
+			}
+		}
 
-		//[Fact]
-		//public void CanEstimatePriority()
-		//{
-		//	using(var builder = NodeBuilder.Create())
-		//	{
-		//		var node = builder.CreateNode();
-		//		node.Start();
-		//		var rpc = node.CreateRPCClient();
-		//		node.Generate(101);
-		//		var priority = rpc.EstimatePriority(10);
-		//		Assert.True(priority > 0 || priority == -1);
-		//	}
-		//}
+		[Fact]
+		public void CanEstimatePriority()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				var rpc = node.CreateRPCClient();
+				node.Generate(101);
+				var priority = rpc.EstimatePriority(10);
+				Assert.True(priority > 0 || priority == -1);
+			}
+		}
 
 
 		private void AssertJsonEquals(string json1, string json2)

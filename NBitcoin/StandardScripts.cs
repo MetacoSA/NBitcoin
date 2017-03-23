@@ -1,6 +1,6 @@
-﻿using System.Linq;
-using NBitcoin.BitcoinCore;
+﻿using NBitcoin.BitcoinCore;
 using NBitcoin.Policy;
+using System.Linq;
 
 namespace NBitcoin
 {

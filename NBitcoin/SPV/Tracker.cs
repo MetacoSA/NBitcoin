@@ -1,14 +1,18 @@
-﻿#if !NOSOCKET
+﻿#if !NOJSONNET
+#if !NOSOCKET
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NBitcoin.SPV
 {
@@ -829,4 +833,5 @@ namespace NBitcoin.SPV
 		}
 	}
 }
+#endif
 #endif

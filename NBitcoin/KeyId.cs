@@ -1,5 +1,6 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+using System;
 
 namespace NBitcoin
 {
@@ -202,7 +203,7 @@ namespace NBitcoin
 		}
 
 		public WitScriptId(Script script)
-			: this((byte[]) Crypto.Hashes.SHA256(script._Script))
+			: this(Hashes.SHA256(script._Script))
 		{
 		}
 
@@ -246,7 +247,7 @@ namespace NBitcoin
 		}
 
 		public ScriptId(Script script)
-			: this((uint160)Crypto.Hashes.Hash160(script._Script))
+			: this(Hashes.Hash160(script._Script))
 		{
 		}
 

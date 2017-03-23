@@ -1,6 +1,12 @@
-﻿using System.IO;
+﻿#if !NOJSONNET
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
 {
@@ -63,6 +69,15 @@ namespace NBitcoin.RPC
 					{
 						((JToken)Params[i]).WriteTo(writer);
 					}
+					else if(Params[i] is Array)
+					{
+						writer.WriteStartArray();
+						foreach(var x in (Array)Params[i])
+						{
+							writer.WriteValue(x);
+						}
+						writer.WriteEndArray();
+					}
 					else
 					{
 						writer.WriteValue(Params[i]);
@@ -81,3 +96,4 @@ namespace NBitcoin.RPC
 		}
 	}
 }
+#endif

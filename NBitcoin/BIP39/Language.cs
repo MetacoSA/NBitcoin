@@ -1,4 +1,4 @@
-﻿namespace NBitcoin.BIP39
+﻿namespace NBitcoin
 {
 	public enum Language
 	{

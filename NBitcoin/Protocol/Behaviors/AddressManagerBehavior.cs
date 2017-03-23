@@ -1,17 +1,20 @@
 ﻿#if !NOSOCKET
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using NBitcoin.Protocol.Payloads;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol.Behaviors
 {
 	[Flags]
 	public enum AddressManagerBehaviorMode
-	{		
+	{
 		/// <summary>
 		/// Do not advertize nor discover new peers
 		/// </summary>
-		None = 0,	
+		None = 0,
 		/// <summary>
 		/// Only advertize known peers
 		/// </summary>
@@ -64,6 +67,23 @@ namespace NBitcoin.Protocol.Behaviors
 			if(parameters == null)
 				throw new ArgumentNullException("parameters");
 			SetAddrman(parameters.TemplateBehaviors, addrman);
+		}
+
+		/// <summary>
+		/// The minimum number of peers to discover before trying to connect to a node using the AddressManager (Default: 1000)
+		/// </summary>
+
+		int _PeersToDiscover = 1000;
+		public int PeersToDiscover
+		{
+			get
+			{
+				return _PeersToDiscover;
+			}
+			set
+			{
+				_PeersToDiscover = value;
+			}
 		}
 
 		public static void SetAddrman(NodeBehaviorsCollection behaviors, AddressManager addrman)
@@ -155,7 +175,17 @@ namespace NBitcoin.Protocol.Behaviors
 
 		public override object Clone()
 		{
-			return new AddressManagerBehavior(AddressManager);
+			return new AddressManagerBehavior(AddressManager)
+			{
+				PeersToDiscover = PeersToDiscover,
+				Mode = Mode
+			};
+		}
+
+		internal void DiscoverPeers(Network network, NodeConnectionParameters parameters)
+		{
+			if(Mode.HasFlag(AddressManagerBehaviorMode.Discover))
+				AddressManager.DiscoverPeers(network, parameters, PeersToDiscover);
 		}
 
 		#endregion

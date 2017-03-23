@@ -1875,7 +1875,7 @@ namespace NBitcoin.BouncyCastle.math.ec
 		}
 
 		/* (non-Javadoc)
-         * @see NBitcoin.BouncyCastle.Math.EC.ECPoint#twice()
+         * @see NBitcoin.BouncyCastle.math.EC.ECPoint#twice()
          */
 		public override ECPoint Twice()
 		{

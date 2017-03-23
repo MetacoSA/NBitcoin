@@ -63,7 +63,6 @@
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Numerics" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.0.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
@@ -88,6 +87,7 @@
     <Compile Include="bip39_tests.cs" />
     <Compile Include="BitcoinAddressTest.cs" />
     <Compile Include="cmpctblock_tests.cs" />
+    <Compile Include="JsonConverterTests.cs" />
     <Compile Include="NodeBuilder.cs" />
     <Compile Include="bloom_tests.cs" />
     <Compile Include="ChainTests.cs" />
@@ -120,6 +120,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="data\.cookie">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="data\alertTests.raw">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

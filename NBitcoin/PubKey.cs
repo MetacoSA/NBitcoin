@@ -1,11 +1,13 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using NBitcoin.BouncyCastle.math;
-using NBitcoin.BouncyCastle.math.ec;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Stealth;
+using NBitcoin.BouncyCastle.math;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using NBitcoin.BouncyCastle.math.ec;
 
 namespace NBitcoin
 {
@@ -15,7 +17,7 @@ namespace NBitcoin
 		/// Create a new Public key from string
 		/// </summary>
 		public PubKey(string hex)
-			: this((byte[]) Encoders.Hex.DecodeData(hex))
+			: this(Encoders.Hex.DecodeData(hex))
 		{
 
 		}
@@ -32,7 +34,7 @@ namespace NBitcoin
 		/// Create a new Public key from byte array
 		/// </summary>
 		/// <param name="bytes">byte array</param>
-		/// <param name="unsafe">If false, make internal copy of bytes and does perform only a costly check for PubKey format. If true, the bytes array is used as is and only PubKey.QuickCheck is used for validating the format. </param>	 
+		/// <param name="unsafe">If false, make internal copy of bytes and does perform only a costly check for PubKey format. If true, the bytes array is used as is and only PubKey.Check is used for validating the format. </param>	 
 		public PubKey(byte[] bytes, bool @unsafe)
 		{
 			if(bytes == null)
@@ -58,7 +60,7 @@ namespace NBitcoin
 		}
 
 		ECKey _ECKey;
-		private ECKey ECKey
+		ECKey ECKey
 		{
 			get
 			{
@@ -326,7 +328,7 @@ namespace NBitcoin
 				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
 
 			q = q.Normalize();
-			var p = new FpPoint(ECKey.CURVE.Curve, q.XCoord, q.YCoord, true);
+			var p = new NBitcoin.BouncyCastle.math.EC.FpPoint(ECKey.CURVE.Curve, q.XCoord, q.YCoord, true);
 			return new PubKey(p.GetEncoded());
 		}
 
@@ -416,6 +418,24 @@ namespace NBitcoin
 				}
 				return _ScriptPubKey;
 			}
+		}
+
+		/// <summary>
+		/// Exchange shared secret through ECDH
+		/// </summary>
+		/// <param name="key">Private key</param>
+		/// <returns>Shared secret</returns>
+		public byte[] GetSharedSecret(Key key)
+		{
+			var pub = _ECKey.GetPublicKeyParameters();
+			var privKey = key._ECKey.PrivateKey;
+			if(!pub.Parameters.Equals(privKey.Parameters))
+				throw new InvalidOperationException("ECDH public key has wrong domain parameters");
+			ECPoint q = pub.Q.Multiply(privKey.D).Normalize();
+			if(q.IsInfinity)
+				throw new InvalidOperationException("Infinity is not a valid agreement value for ECDH");
+			var pubkey = ECKey.Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger()).GetEncoded(true);
+			return Hashes.SHA256(pubkey);
 		}
 
 		#endregion

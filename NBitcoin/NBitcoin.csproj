@@ -32,7 +32,7 @@
     <DefineConstants>TRACE;WIN</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NBitcoin.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\NBitcoin.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -42,7 +42,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base58Data.cs" />
@@ -77,6 +76,24 @@
     <Compile Include="BuilderExtensions\P2PKHBuilderExtension.cs" />
     <Compile Include="Crypto\HashX13.cs" />
     <Compile Include="FeeRate.cs" />
+    <Compile Include="JsonConverters\AssetIdJsonConverter.cs" />
+    <Compile Include="JsonConverters\Base58JsonConverter.cs" />
+    <Compile Include="JsonConverters\BitcoinSerializableJsonConverter.cs" />
+    <Compile Include="JsonConverters\CoinJsonConverter.cs" />
+    <Compile Include="JsonConverters\DateTimeToUnixTimeConverter.cs" />
+    <Compile Include="JsonConverters\HexJsonConverter.cs" />
+    <Compile Include="JsonConverters\KeyJsonConverter.cs" />
+    <Compile Include="JsonConverters\LockTimeJsonConverter.cs" />
+    <Compile Include="JsonConverters\Serializer.cs" />
+    <Compile Include="JsonConverters\TxDestinationJsonConverter.cs" />
+    <Compile Include="JsonConverters\SignatureJsonConverter.cs" />
+    <Compile Include="JsonConverters\JsonObjectException.cs" />
+    <Compile Include="JsonConverters\KeyPathJsonConverter.cs" />
+    <Compile Include="JsonConverters\MoneyJsonConverter.cs" />
+    <Compile Include="JsonConverters\NetworkJsonConverter.cs" />
+    <Compile Include="JsonConverters\ScriptJsonConverter.cs" />
+    <Compile Include="JsonConverters\UIntJsonConverter.cs" />
+    <Compile Include="NetworkBuilder.cs" />
     <Compile Include="OpenAsset\NullColoredTransactionRepository.cs" />
     <Compile Include="Payment\IChainChecker.cs" />
     <Compile Include="Payment\ICertificateServiceProvider.cs" />
@@ -178,7 +195,6 @@
     <Compile Include="RPC\SatoshiFormatter.cs" />
     <Compile Include="RPC\UnspentCoin.cs" />
     <Compile Include="BitcoinCore\IBlockProvider.cs" />
-    <Compile Include="Spendable.cs" />
     <Compile Include="SPV\Tracker.cs" />
     <Compile Include="SPV\TrackerBehavior.cs" />
     <Compile Include="SPV\Wallet.cs" />
@@ -292,6 +308,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="PushNuget.ps1" />
+    <Compile Include="RPC\RPCClient.Wallet.cs" />
     <None Include="UInt256.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>UInt2561.cs</LastGenOutput>

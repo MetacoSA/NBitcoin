@@ -1,9 +1,8 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
+using NBitcoin.BouncyCastle.math;
+using System;
 using System.Linq;
 using System.Text;
-using NBitcoin.BIP38;
-using NBitcoin.BouncyCastle.math;
-using NBitcoin.Crypto;
 
 namespace NBitcoin
 {
@@ -23,7 +22,7 @@ namespace NBitcoin
 		}
 
 		byte[] vch = new byte[0];
-		ECKey _ECKey;
+		internal ECKey _ECKey;
 		public bool IsCompressed
 		{
 			get;
@@ -175,7 +174,7 @@ namespace NBitcoin
 				throw new InvalidOperationException("You won a prize ! this should happen very rarely. Take a screenshot, and roll the dice again.");
 			var key = parse256LL.Add(kPar).Mod(N);
 			if(key == BigInteger.Zero)
-				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
+				throw new InvalidOperationException("You won the big prize ! this has probability lower than 1 in 2^127. Take a screenshot, and roll the dice again.");
 
 			var keyBytes = key.ToByteArrayUnsigned();
 			if(keyBytes.Length < 32)

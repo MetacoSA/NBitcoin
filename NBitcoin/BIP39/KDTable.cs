@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace NBitcoin.BIP39
+namespace NBitcoin
 {
 	class KDTable
 	{

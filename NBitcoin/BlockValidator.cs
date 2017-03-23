@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
+using NBitcoin.BouncyCastle.math;
 using NBitcoin.Crypto;
 
 namespace NBitcoin
@@ -29,7 +29,7 @@ namespace NBitcoin
 			return nTime > 1470467000;
 		}
 
-		private static System.Numerics.BigInteger GetProofOfStakeLimit(Consensus consensus, int height)
+		private static BigInteger GetProofOfStakeLimit(Consensus consensus, int height)
 		{
 			return IsProtocolV2(height) ? consensus.ProofOfStakeLimitV2 : consensus.ProofOfStakeLimit;
 		}
@@ -493,7 +493,7 @@ namespace NBitcoin
 
 			// Now check if proof-of-stake hash meets target protocol
 			var hashProofOfStakeTarget = new BigInteger(hashProofOfStake.ToBytes());
-			if (hashProofOfStakeTarget > bnTarget)
+			if (hashProofOfStakeTarget.CompareTo(bnTarget) > 0)
 				return false;
 			
 

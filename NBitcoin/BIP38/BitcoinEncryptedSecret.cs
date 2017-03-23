@@ -10,7 +10,7 @@ using NBitcoin.DataEncoders;
 
 #endif
 
-namespace NBitcoin.BIP38
+namespace NBitcoin
 {
 	public class BitcoinEncryptedSecretNoEC : BitcoinEncryptedSecret
 	{

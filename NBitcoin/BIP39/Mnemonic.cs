@@ -3,14 +3,14 @@ using System.Collections;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using NBitcoin.BIP32;
+using NBitcoin;
 using NBitcoin.Crypto;
 using NBitcoin.Crypto.Cryptsharp;
 #if !WINDOWS_UWP && !USEBC
 
 #endif
 
-namespace NBitcoin.BIP39
+namespace NBitcoin
 {
 	/// <summary>
 	/// A .NET implementation of the Bitcoin Improvement Proposal - 39 (BIP39)

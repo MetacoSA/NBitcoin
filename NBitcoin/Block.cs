@@ -1,21 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using NBitcoin.BouncyCastle.math;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.RPC;
+#if !NOJSONNET
 using Newtonsoft.Json.Linq;
+#endif
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace NBitcoin
 {
-	/** Nodes collect new transactions into a block, hash them into a hash tree,
-	 * and scan through nonce values to make the block's hash satisfy proof-of-work
-	 * requirements.  When they solve the proof-of-work, they broadcast the block
-	 * to everyone and the block is added to the block chain.  The first transaction
-	 * in the block is a special one that creates a new coin owned by the creator
-	 * of the block.
-	 */
+	/// <summary>
+	/// Nodes collect new transactions into a block, hash them into a hash tree,
+	/// and scan through nonce values to make the block's hash satisfy proof-of-work
+	/// requirements.  When they solve the proof-of-work, they broadcast the block
+	/// to everyone and the block is added to the block chain.  The first transaction
+	/// in the block is a special one that creates a new coin owned by the creator
+	/// of the block.
+	/// </summary>
 	public class BlockHeader : IBitcoinSerializable
 	{
 		internal const int Size = 80;
@@ -164,14 +168,29 @@ namespace NBitcoin
 			stream.ReadWrite(ref nNonce);
 		}
 
-		#endregion
+#endregion
 
 		public uint256 GetHash()
 		{
-            if (this.nVersion > 6)
-                return Hashes.Hash256(this.ToBytes());
-            else
-                return this.GetPoWHash();
+			uint256 h = null;
+			var hashes = _Hashes;
+			if(hashes != null)
+			{
+				h = hashes[0];
+			}
+			if(h != null)
+				return h;
+			if (this.nVersion > 6)
+				h = Hashes.Hash256(this.ToBytes());
+			else
+				h = this.GetPoWHash();
+			
+			hashes = _Hashes;
+			if(hashes != null)
+			{
+				hashes[0] = h;
+			}
+			return h;
 		}
 
         public uint256 GetPoWHash()
@@ -179,7 +198,10 @@ namespace NBitcoin
             return HashX13.Instance.Hash(this.ToBytes());
         }
 
-        public DateTimeOffset BlockTime
+
+		uint256[] _Hashes;
+
+		public DateTimeOffset BlockTime
 		{
 			get
 			{
@@ -191,12 +213,11 @@ namespace NBitcoin
 			}
 		}
 
-		static System.Numerics.BigInteger Pow256 = System.Numerics.BigInteger.Pow(2, 256);
+		static BigInteger Pow256 = BigInteger.ValueOf(2).Pow(256);
 		public bool CheckProofOfWork()
 		{
 			var bits = Bits.ToBigInteger();
-            // todo: change this to use the Network.PowLimit
-			if(bits <= System.Numerics.BigInteger.Zero || bits >= Pow256)
+			if(bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
 				return false;
 			// Check proof of work matches claimed amount
 			return GetPoWHash() <= Bits.ToUInt256();
@@ -416,6 +437,31 @@ namespace NBitcoin
 			return tx;
 		}
 
+		/// <summary>
+		/// Create a block with the specified option only. (useful for stripping data from a block)
+		/// </summary>
+		/// <param name="options">Options to keep</param>
+		/// <returns>A new block with only the options wanted</returns>
+		public Block WithOptions(TransactionOptions options)
+		{
+			if(Transactions.Count == 0)
+				return this;
+			if(options == TransactionOptions.Witness && Transactions[0].HasWitness)
+				return this;
+			if(options == TransactionOptions.None && !Transactions[0].HasWitness)
+				return this;
+			var instance = new Block();
+			var ms = new MemoryStream();
+			var bms = new BitcoinStream(ms, true);
+			bms.TransactionOptions = options;
+			this.ReadWrite(bms);
+			ms.Position = 0;
+			bms = new BitcoinStream(ms, false);
+			bms.TransactionOptions = options;
+			instance.ReadWrite(bms);
+			return instance;
+		}
+
 		public void UpdateMerkleRoot()
 		{
 			this.Header.HashMerkleRoot = GetMerkleRoot().Hash;
@@ -510,7 +556,7 @@ namespace NBitcoin
 			});
 			return block;
 		}
-
+#if !NOJSONNET
 		public static Block ParseJson(string json)
 		{
 			var formatter = new BlockExplorerFormatter();
@@ -529,7 +575,7 @@ namespace NBitcoin
 			}
 			return blk;
 		}
-
+#endif
 		public static Block Parse(string hex)
 		{
 			return new Block(Encoders.Hex.DecodeData(hex));

@@ -1,19 +1,18 @@
-﻿using System;
+﻿using NBitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
-using NBitcoin.DataEncoders;
-using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;
-using BigInteger = NBitcoin.BouncyCastle.math.BigInteger;
+using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
+using NBitcoin.BouncyCastle.math;
 #if !NOSOCKET
-
+using System.Net.Sockets;
 #endif
 #if WINDOWS_UWP
 using System.Net.Sockets;
@@ -75,6 +74,18 @@ namespace NBitcoin
 			return buffer;
 		}
 
+		public static async Task<byte[]> ReadBytesAsync(this Stream stream, int bytesToRead)
+		{
+			var buffer = new byte[bytesToRead];
+			int num = 0;
+			int num2;
+			do
+			{
+				num += (num2 = await stream.ReadAsync(buffer, num, bytesToRead - num).ConfigureAwait(false));
+			} while(num2 > 0 && num < bytesToRead);
+			return buffer;
+		}
+
 		public static int ReadBytes(this Stream stream, int count, out byte[] result)
 		{
 			result = new byte[count];
@@ -121,10 +132,6 @@ namespace NBitcoin
 			{
 				yield return toReturn;
 			}
-		}
-		public static bool Empty<T>(this IEnumerable<T> source)
-		{
-			return !source.Any();
 		}
 
 #if !(PORTABLE || NETCORE)
@@ -272,7 +279,8 @@ namespace NBitcoin
 				throw new ArgumentOutOfRangeException("offset");
 			if(count < 0 || offset + count > array.Length)
 				throw new ArgumentOutOfRangeException("count");
-
+			if(offset == 0 && array.Length == count)
+				return array;
 			var data = new byte[count];
 			Buffer.BlockCopy(array, offset, data, 0, count);
 			return data;
@@ -395,7 +403,7 @@ namespace NBitcoin
 			ms.Write(bytes, 0, bytes.Length);
 		}
 
-		internal static Array BigIntegerToBytes(BigInteger b, int numBytes)
+		internal static Array BigIntegerToBytes(NBitcoin.BouncyCastle.math.BigInteger b, int numBytes)
 		{
 			if(b == null)
 			{
@@ -410,49 +418,40 @@ namespace NBitcoin
 
 		}
 
-
-
-#if !NOBIGINT
-		//https://en.bitcoin.it/wiki/Script
-		public static byte[] BigIntegerToBytes(System.Numerics.BigInteger num)
-#else
-		internal static byte[] BigIntegerToBytes(BigInteger num)
-#endif
+		public static byte[] BigIntegerToBytes(BigInteger num)
 		{
-			if(num == 0)
+			if(num.Equals(BigInteger.Zero))
 				//Positive 0 is represented by a null-length vector
 				return new byte[0];
 
 			bool isPositive = true;
-			if(num < 0)
+			if(num.CompareTo(BigInteger.Zero) < 0)
 			{
 				isPositive = false;
-				num *= -1;
+				num = num.Multiply(BigInteger.ValueOf(-1));
 			}
 			var array = num.ToByteArray();
+			Array.Reverse(array);
 			if(!isPositive)
 				array[array.Length - 1] |= 0x80;
 			return array;
 		}
-
-#if !NOBIGINT
-		public static System.Numerics.BigInteger BytesToBigInteger(byte[] data)
-#else
-		internal static BigInteger BytesToBigInteger(byte[] data)
-#endif
+		
+		public static BigInteger BytesToBigInteger(byte[] data)
 		{
 			if(data == null)
 				throw new ArgumentNullException("data");
 			if(data.Length == 0)
-				return System.Numerics.BigInteger.Zero;
+				return BigInteger.Zero;
 			data = data.ToArray();
 			var positive = (data[data.Length - 1] & 0x80) == 0;
 			if(!positive)
 			{
 				data[data.Length - 1] &= unchecked((byte)~0x80);
-				return -new System.Numerics.BigInteger(data);
+				Array.Reverse(data);
+				return new BigInteger(1, data).Negate();
 			}
-			return new System.Numerics.BigInteger(data);
+			return new BigInteger(1, data);
 		}
 
 		static readonly TraceSource _TraceSource = new TraceSource("NBitcoin");
@@ -754,7 +753,7 @@ namespace NBitcoin
 		}
 
 #if NETCORE
-		private static async System.Threading.Tasks.Task<string> DnsLookup(string remoteHostName)
+		private static async Task<string> DnsLookup(string remoteHostName)
 		{
 			IPHostEntry data = await Dns.GetHostEntryAsync(remoteHostName).ConfigureAwait(false);
 

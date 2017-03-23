@@ -1,9 +1,13 @@
 ﻿#if !NOSOCKET
-using System;
-using System.Net;
-using System.Threading;
 using NBitcoin.Protocol.Behaviors;
-using NBitcoin.Protocol.Payloads;
+using System;
+using System.Collections.Generic;
+using System.Net.Sockets;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {
@@ -34,7 +38,6 @@ namespace NBitcoin.Protocol
 			ConnectCancellation = other.ConnectCancellation;
 			UserAgent = other.UserAgent;
 			AddressFrom = other.AddressFrom;
-			IsTrusted = other.IsTrusted;
 			Nonce = other.Nonce;
 			Advertize = other.Advertize;
 			ReuseBuffer = other.ReuseBuffer;
@@ -70,14 +73,6 @@ namespace NBitcoin.Protocol
 		}
 
 		public NodeServices Services
-		{
-			get;
-			set;
-		}
-		/// <summary>
-		/// If true, then no proof of work is checked on incoming headers, if null, will trust localhost
-		/// </summary>
-		public bool? IsTrusted
 		{
 			get;
 			set;

@@ -125,8 +125,8 @@ publish/
 # NuGet Packages Directory
 packages/
 *.nupkg
-nStratis.Mono.nuspec
-nStratis.nuspec
+NBitcoin.Mono.nuspec
+NBitcoin.nuspec
 
 ## TODO: If the tool you use requires repositories.config uncomment the next line
 #!packages/repositories.config
@@ -151,7 +151,7 @@ ClientBin/
 *~
 *.dbmdl
 *.dbproj.schemaview
-#*.pfx
+*.pfx
 *.publishsettings
 node_modules/
 
@@ -177,14 +177,16 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 /.vs/config/applicationhost.config
-/nStratis.Portable/nStratis(MonoAndroid).csproj.bak
-/nStratis.Portable/nStratis(Mono).csproj.bak
+/NBitcoin.Portable/NBitcoin(MonoAndroid).csproj.bak
+/NBitcoin.Portable/NBitcoin(Mono).csproj.bak
 
 # .NET Core projects
 .vs/
 project.lock.json
 .vscode/
-/nStratis.Tests/CanStoreInBlockRepository-Headers/StoreLock
-/nStratis.Tests/addrmancache.dat
-/nStratis.Tests/CanStoreBlocks/StoreLock
-/nStratis.Tests/libbitcoinconsensus-0.dll
+/NBitcoin.Tests/CanStoreInBlockRepository-Headers/StoreLock
+/NBitcoin.Tests/addrmancache.dat
+/NBitcoin.Tests/CanStoreBlocks/StoreLock
+/NBitcoin.Tests/libbitcoinconsensus-0.dll
+*.zip
+/dotnet-tpl35/

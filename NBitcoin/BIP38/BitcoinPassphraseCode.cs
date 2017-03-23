@@ -6,7 +6,7 @@ using NBitcoin.Crypto;
 using NBitcoin.Crypto.Cryptsharp;
 using NBitcoin.DataEncoders;
 
-namespace NBitcoin.BIP38
+namespace NBitcoin
 {
 	public class EncryptedKeyResult
 	{

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NBitcoin.Crypto;
 
 namespace NBitcoin
 {
@@ -150,13 +150,15 @@ namespace NBitcoin
 			if(ops.Length < 3)
 				return false;
 
-			var sigCount = ops[0];
-			if(!sigCount.IsSmallUInt)
+			var sigCount = ops[0].GetInt();
+			var keyCount = ops[ops.Length - 2].GetInt();
+
+			if(sigCount == null || keyCount == null)
+				return false;			
+			if(keyCount.Value < 0 || keyCount.Value > 20)
 				return false;
-			var pubKeyCount = ops[ops.Length - 2];
-			if(!pubKeyCount.IsSmallUInt)
+			if(sigCount.Value < 0 || sigCount.Value > keyCount.Value)
 				return false;
-			var keyCount = (uint)pubKeyCount.GetValue();
 			if(1 + keyCount + 1 + 1 != ops.Length)
 				return false;
 			for(int i = 1; i < keyCount + 1; i++)
@@ -176,9 +178,9 @@ namespace NBitcoin
 			if(!CheckScriptPubKeyCore(scriptPubKey, ops))
 				return null;
 
-			var sigCount = (int)ops[0].GetValue();
-			var keyCount = (int)ops[ops.Length - 2].GetValue();
-
+			//already checked in CheckScriptPubKeyCore
+			var sigCount = ops[0].GetInt().Value;
+			var keyCount = ops[ops.Length - 2].GetInt().Value;
 			List<PubKey> keys = new List<PubKey>();
 			List<byte[]> invalidKeys = new List<byte[]>();
 			for(int i = 1; i < keyCount + 1; i++)
@@ -233,7 +235,9 @@ namespace NBitcoin
 			{
 				if(!CheckScriptPubKeyCore(scriptPubKey, scriptPubKeyOps))
 					return false;
-				var sigCountExpected = scriptPubKeyOps[0].GetValue();
+				var sigCountExpected = scriptPubKeyOps[0].GetInt();
+				if(sigCountExpected == null)
+					return false;
 				return sigCountExpected == scriptSigOps.Length + 1;
 			}
 			return true;
@@ -452,8 +456,12 @@ namespace NBitcoin
 		}
 		public Script GenerateScriptPubKey(PubKey pubkey)
 		{
+			return GenerateScriptPubKey(pubkey.ToBytes(true));
+		}
+		public Script GenerateScriptPubKey(byte[] pubkey)
+		{
 			return new Script(
-					Op.GetPushOp(pubkey.ToBytes()),
+					Op.GetPushOp(pubkey),
 					OpcodeType.OP_CHECKSIG
 				);
 		}
@@ -524,14 +532,19 @@ namespace NBitcoin
 			}
 		}
 
-		public PubKey ExtractScriptPubKeyParameters(Script script)
+		/// <summary>
+		/// Extract the public key or null from the script, perform quick check on pubkey
+		/// </summary>
+		/// <param name="scriptPubKey"></param>
+		/// <returns>The public key</returns>
+		public PubKey ExtractScriptPubKeyParameters(Script scriptPubKey)
 		{
 			bool needMoreCheck;
-			if(!FastCheckScriptPubKey(script, out needMoreCheck))
+			if(!FastCheckScriptPubKey(scriptPubKey, out needMoreCheck))
 				return null;
 			try
 			{
-				return new PubKey(script.ToBytes(true).SafeSubarray(1, script.Length - 2), true);
+				return new PubKey(scriptPubKey.ToBytes(true).SafeSubarray(1, scriptPubKey.Length - 2), true);
 			}
 			catch(FormatException)
 			{
@@ -539,6 +552,19 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Extract the public key or null from the script
+		/// </summary>
+		/// <param name="scriptPubKey"></param>
+		/// <param name="deepCheck">Whether deep checks are done on public key</param>
+		/// <returns>The public key</returns>
+		public PubKey ExtractScriptPubKeyParameters(Script scriptPubKey, bool deepCheck)
+		{
+			var result = ExtractScriptPubKeyParameters(scriptPubKey);
+			if(result == null || !deepCheck)
+				return result;
+			return PubKey.Check(result.ToBytes(true), true) ? result : null;
+		}
 
 	}
 

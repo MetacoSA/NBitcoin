@@ -1,11 +1,11 @@
-﻿using System;
+﻿using System.Runtime.InteropServices;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
 
 namespace NBitcoin
 {
@@ -750,11 +750,6 @@ namespace NBitcoin
 			stream.Type = SerializationType.Hash;
 			stream.TransactionOptions = version == HashVersion.Original ? TransactionOptions.None : TransactionOptions.Witness;
 			return stream;
-		}
-
-		public static Script operator +(Script a, int value)
-		{
-			return a + Utils.BigIntegerToBytes(value);
 		}
 
 		public static Script operator +(Script a, IEnumerable<byte> bytes)

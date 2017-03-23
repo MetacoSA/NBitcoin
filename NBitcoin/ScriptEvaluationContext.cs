@@ -1,9 +1,9 @@
-﻿using System;
+﻿using System.Diagnostics;
+using NBitcoin.Crypto;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NBitcoin.Crypto;
-using BigInteger = NBitcoin.BouncyCastle.math.BigInteger;
 
 namespace NBitcoin
 {
@@ -410,8 +410,8 @@ namespace NBitcoin
 
 		public ScriptEvaluationContext()
 		{
-			ScriptVerify = ScriptVerify.Standard;
-			SigHash = SigHash.Undefined;
+			ScriptVerify = NBitcoin.ScriptVerify.Standard;
+			SigHash = NBitcoin.SigHash.Undefined;
 			Error = ScriptError.UnknownError;
 		}
 		public ScriptVerify ScriptVerify
@@ -1093,7 +1093,7 @@ namespace NBitcoin
 										return SetError(ScriptError.InvalidStackOperation);
 
 									var vch = _stack.Top(-1);
-									_stack.Insert(0, vch);
+									_stack.Insert(-3, vch);
 									break;
 								}
 							case OpcodeType.OP_SIZE:
@@ -1708,26 +1708,6 @@ namespace NBitcoin
 			return true;
 		}
 
-		public static bool IsLowDerSignature(byte[] vchSig)
-		{
-			if (!IsValidSignatureEncoding(vchSig))
-			{
-				return false;
-			}
-			int nLenR = vchSig[3];
-			int nLenS = vchSig[5 + nLenR];
-			var S = 6 + nLenR;
-			// If the S value is above the order of the curve divided by two, its
-			// complement modulo the order could have been used instead, which is
-			// one byte shorter when encoded correctly.
-			if (!CheckSignatureElement(vchSig, S, nLenS, true))
-			{
-				return false;
-			}
-
-			return true;
-		}
-
 		public ScriptError Error
 		{
 			get;
@@ -1735,27 +1715,28 @@ namespace NBitcoin
 		}
 
 		static byte[] vchMaxModOrder = new byte[]{
-			0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-			 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFE,
-			 0xBA,0xAE,0xDC,0xE6,0xAF,0x48,0xA0,0x3B,
-			0xBF,0xD2,0x5E,0x8C,0xD0,0x36,0x41,0x40
-			};
+0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+ 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFE,
+ 0xBA,0xAE,0xDC,0xE6,0xAF,0x48,0xA0,0x3B,
+0xBF,0xD2,0x5E,0x8C,0xD0,0x36,0x41,0x40
+};
 
 		static byte[] vchMaxModHalfOrder = new byte[]{
-			 0x7F,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-			 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-			 0x5D,0x57,0x6E,0x73,0x57,0xA4,0x50,0x1D,
-			0xDF,0xE9,0x2F,0x46,0x68,0x1B,0x20,0xA0
-			};
+ 0x7F,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+ 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
+ 0x5D,0x57,0x6E,0x73,0x57,0xA4,0x50,0x1D,
+0xDF,0xE9,0x2F,0x46,0x68,0x1B,0x20,0xA0
+};
 
-		private static bool CheckSignatureElement(byte[] vchSig, int i, int len, bool half)
+		private bool CheckSignatureElement(byte[] vchSig, int i, int len, bool half)
 		{
 			return vchSig != null
-				&& CompareBigEndian(vchSig, i, len, vchZero, 0) > 0 
-				&& CompareBigEndian(vchSig, i, len, half ? vchMaxModHalfOrder : vchMaxModOrder, 32) <= 0;
+						&&
+						 CompareBigEndian(vchSig, i, len, vchZero, 0) > 0 &&
+						 CompareBigEndian(vchSig, i, len, half ? vchMaxModHalfOrder : vchMaxModOrder, 32) <= 0;
 		}
 
-		private static int CompareBigEndian(byte[] c1, int ic1, int c1len, byte[] c2, int c2len)
+		private int CompareBigEndian(byte[] c1, int ic1, int c1len, byte[] c2, int c2len)
 		{
 			int ic2 = 0;
 			while(c1len > c2len)
@@ -1786,7 +1767,7 @@ namespace NBitcoin
 		}
 
 
-		public static bool IsValidSignatureEncoding(byte[] sig)
+		static bool IsValidSignatureEncoding(byte[] sig)
 		{
 			// Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S] [sighash]
 			// * total-length: 1-byte length descriptor of everything that follows,
@@ -1995,8 +1976,8 @@ namespace NBitcoin
 				var nLenS = vchSig[5 + nLenR];
 				var R = 4;
 				var S = 6 + nLenR;
-				var newS = new BigInteger(1, vchSig, S, nLenS);
-				var newR = new BigInteger(1, vchSig, R, nLenR);
+				var newS = new NBitcoin.BouncyCastle.math.BigInteger(1, vchSig, S, nLenS);
+				var newR = new NBitcoin.BouncyCastle.math.BigInteger(1, vchSig, R, nLenR);
 				var sig2 = new ECDSASignature(newR, newS);
 				if(sig2.R != scriptSig.Signature.R || sig2.S != scriptSig.Signature.S)
 				{
@@ -2011,7 +1992,7 @@ namespace NBitcoin
 
 		public bool IsAllowedSignature(SigHash sigHash)
 		{
-			if(SigHash == SigHash.Undefined)
+			if(SigHash == NBitcoin.SigHash.Undefined)
 				return true;
 			return SigHash == sigHash;
 		}
@@ -2168,10 +2149,13 @@ namespace NBitcoin
 		public void Insert(int position, T value)
 		{
 			EnsureSize();
-			var newArray = new T[_array.Length];
-			Array.Copy(_array, position, newArray, position + 1, _position - position + 1);
-			_array = newArray;
-			_array[position] = value;
+
+			position = Count + position;
+			for(int i = _position; i >= position + 1; i--)
+			{
+				_array[i + 1] = _array[i];
+			}
+			_array[position + 1] = value;
 			_position++;
 		}
 
@@ -2191,14 +2175,13 @@ namespace NBitcoin
 		/// <param name="to">The item position</param>
 		public void Remove(int from, int to)
 		{
-			var dest = new T[_array.Length];
-			var f = Count + from;
-			var t = Count + to;
-			var diff = t - f;
-			Array.Copy(_array, 0, dest, 0, f);
-			Array.Copy(_array, t, dest, f, _position - diff + 1);
-			_array = dest;
-			_position -= diff;
+			int toRemove = to - from;
+			for(int i = Count + from; i < Count + from + toRemove; i++)
+			{
+				for(int y = Count + from; y < Count; y++)
+					_array[y] = _array[y + 1];
+			}
+			_position -= toRemove;
 		}
 
 		private void EnsureSize()

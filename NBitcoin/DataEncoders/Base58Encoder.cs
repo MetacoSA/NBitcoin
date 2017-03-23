@@ -1,7 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Numerics;
+﻿using NBitcoin.BouncyCastle.math;
 using NBitcoin.Crypto;
+using System;
+using System.Linq;
+using System.Text;
 
 namespace NBitcoin.DataEncoders
 {
@@ -43,38 +44,42 @@ namespace NBitcoin.DataEncoders
 
 	public class Base58Encoder : DataEncoder
 	{
+		static readonly BigInteger bn58 = BigInteger.ValueOf(58);
 		public override string EncodeData(byte[] data, int offset, int count)
 		{
-			BigInteger bn58 = 58;
-			BigInteger bn0 = 0;
+			
+			BigInteger bn0 = BigInteger.Zero;
 
 			// Convert big endian data to little endian
 			// Extra zero at the end make sure bignum will interpret as a positive number
-			var vchTmp = data.SafeSubarray(offset, count).Reverse().Concat(new byte[] { 0x00 }).ToArray();
+			var vchTmp = data.SafeSubarray(offset, count);
 
 			// Convert little endian data to bignum
-			var bn = new BigInteger(vchTmp);
+			var bn = new BigInteger(1, vchTmp);
 
 			// Convert bignum to std::string
-			var str = "";
+			StringBuilder builder = new StringBuilder();
 			// Expected size increase from base58 conversion is approximately 137%
 			// use 138% to be safe
 
-			while(bn > bn0)
+			while(bn.CompareTo(bn0) > 0)
 			{
-				BigInteger rem;
-				var dv = BigInteger.DivRem(bn, bn58, out rem);
+				var r = bn.DivideAndRemainder(bn58);
+				var dv = r[0];
+				BigInteger rem = r[1];
 				bn = dv;
-				var c = (int)rem;
-				str += pszBase58[c];
+				var c = rem.IntValue;
+				builder.Append(pszBase58[c]);
 			}
 
 			// Leading zeroes encoded as base58 zeros
 			for(int i = offset; i < offset + count && data[i] == 0; i++)
-				str += pszBase58[0];
+				builder.Append(pszBase58[0]);
 
 			// Convert little endian std::string to big endian
-			str = new String(str.ToCharArray().Reverse().ToArray()); //keep that way to be portable
+			var chars = builder.ToString().ToCharArray();
+			Array.Reverse(chars);
+			var str = new String(chars); //keep that way to be portable
 			return str;
 		}
 
@@ -90,8 +95,7 @@ namespace NBitcoin.DataEncoders
 			var result = new byte[0];
 			if(encoded.Length == 0)
 				return result;
-			BigInteger bn58 = 58;
-			BigInteger bn = 0;
+			BigInteger bn = BigInteger.Zero;
 			int i = 0;
 			while(IsSpace(encoded[i]))
 			{
@@ -115,13 +119,14 @@ namespace NBitcoin.DataEncoders
 						throw new FormatException("Invalid base 58 string");
 					break;
 				}
-				var bnChar = new BigInteger(p1);
-				bn = BigInteger.Multiply(bn, bn58);
-				bn += bnChar;
+				var bnChar = BigInteger.ValueOf(p1);
+				bn = bn.Multiply(bn58);
+				bn = bn.Add(bnChar);
 			}
 
 			// Get bignum as little endian data
-			var vchTmp = bn.ToByteArray();
+			var vchTmp = bn.ToByteArrayUnsigned();
+			Array.Reverse(vchTmp);
 			if(vchTmp.All(b => b == 0))
 				vchTmp = new byte[0];
 

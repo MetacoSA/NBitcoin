@@ -1,195 +1,135 @@
-﻿using System;
+﻿#if !NOJSONNET
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
-using NBitcoin.DataEncoders;
-using Newtonsoft.Json.Linq;
 
 namespace NBitcoin.RPC
 {
-	public class RPCAccount
-	{
-		public Money Amount
-		{
-			get;
-			set;
-		}
-		public String AccountName
-		{
-			get;
-			set;
-		}
-	}
-
-	public class ChangeAddress
-	{
-		public Money Amount
-		{
-			get;
-			set;
-		}
-		public BitcoinAddress Address
-		{
-			get;
-			set;
-		}
-	}
-
-	public class AddressGrouping
-	{
-		public AddressGrouping()
-		{
-			ChangeAddresses = new List<ChangeAddress>();
-		}
-		public BitcoinAddress PublicAddress
-		{
-			get;
-			set;
-		}
-		public Money Amount
-		{
-			get;
-			set;
-		}
-		public string Account
-		{
-			get;
-			set;
-		}
-
-		public List<ChangeAddress> ChangeAddresses
-		{
-			get;
-			set;
-		}
-	}
-
 	/*
-        Category            Name                        Implemented 
-        ------------------ --------------------------- -----------------------
-        ------------------ Overall control/query calls 
-        control            getinfo
-        control            help
-        control            stop
+		Category			Name						Implemented 
+		------------------ --------------------------- -----------------------
+		------------------ Overall control/query calls 
+		control			getinfo
+		control			help
+		control			stop
 
-        ------------------ P2P networking
-        network            getnetworkinfo
-        network            addnode                      Yes
-        network            disconnectnode
-        network            getaddednodeinfo             Yes
-        network            getconnectioncount
-        network            getnettotals
-        network            getpeerinfo                  Yes
-        network            ping
-        network            setban
-        network            listbanned
-        network            clearbanned
+		------------------ P2P networking
+		network			getnetworkinfo
+		network			addnode					  Yes
+		network			disconnectnode
+		network			getaddednodeinfo			 Yes
+		network			getconnectioncount
+		network			getnettotals
+		network			getpeerinfo				  Yes
+		network			ping
+		network			setban
+		network			listbanned
+		network			clearbanned
 
-        ------------------ Block chain and UTXO
-        blockchain         getblockchaininfo
-        blockchain         getbestblockhash             Yes
-        blockchain         getblockcount                Yes
-        blockchain         getblock                     Yes
-        blockchain         getblockhash                 Yes
-        blockchain         getchaintips
-        blockchain         getdifficulty				Yes
-        blockchain         getmempoolinfo
-        blockchain         getrawmempool                Yes
-        blockchain         gettxout
-        blockchain         gettxoutproof
-        blockchain         verifytxoutproof
-        blockchain         gettxoutsetinfo
-        blockchain         verifychain
+		------------------ Block chain and UTXO
+		blockchain		 getblockchaininfo
+		blockchain		 getbestblockhash			 Yes
+		blockchain		 getblockcount				Yes
+		blockchain		 getblock					 Yes
+		blockchain		 getblockhash				 Yes
+		blockchain		 getchaintips
+		blockchain		 getdifficulty
+		blockchain		 getmempoolinfo
+		blockchain		 getrawmempool				Yes
+		blockchain		 gettxout
+		blockchain		 gettxoutproof
+		blockchain		 verifytxoutproof
+		blockchain		 gettxoutsetinfo
+		blockchain		 verifychain
 
-        ------------------ Mining
-        mining             getblocktemplate
-        mining             getmininginfo
-        mining             getnetworkhashps
-        mining             prioritisetransaction
-        mining             submitblock
+		------------------ Mining
+		mining			 getblocktemplate
+		mining			 getmininginfo
+		mining			 getnetworkhashps
+		mining			 prioritisetransaction
+		mining			 submitblock
 
-        ------------------ Coin generation
-        generating         getgenerate
-        generating         setgenerate
-        generating         generate
+		------------------ Coin generation
+		generating		 getgenerate
+		generating		 setgenerate
+		generating		 generate
 
-        ------------------ Raw transactions
-        rawtransactions    createrawtransaction
-        rawtransactions    decoderawtransaction
-        rawtransactions    decodescript
-        rawtransactions    getrawtransaction
-        rawtransactions    sendrawtransaction
-        rawtransactions    signrawtransaction
-        rawtransactions    fundrawtransaction
+		------------------ Raw transactions
+		rawtransactions	createrawtransaction
+		rawtransactions	decoderawtransaction
+		rawtransactions	decodescript
+		rawtransactions	getrawtransaction
+		rawtransactions	sendrawtransaction
+		rawtransactions	signrawtransaction
+		rawtransactions	fundrawtransaction
 
-        ------------------ Utility functions
-        util               createmultisig
-        util               validateaddress
-        util               verifymessage
-        util               estimatefee                  Yes
-        util               estimatepriority             Yes
+		------------------ Utility functions
+		util			   createmultisig
+		util			   validateaddress
+		util			   verifymessage
+		util			   estimatefee				  Yes
+		util			   estimatepriority			 Yes
 
-        ------------------ Not shown in help
-        hidden             invalidateblock
-        hidden             reconsiderblock
-        hidden             setmocktime
-        hidden             resendwallettransactions
+		------------------ Not shown in help
+		hidden			 invalidateblock
+		hidden			 reconsiderblock
+		hidden			 setmocktime
+		hidden			 resendwallettransactions
 
-        ------------------ Wallet
-        wallet             addmultisigaddress
-        wallet             backupwallet                 Yes
-        wallet             dumpprivkey                  Yes
-        wallet             dumpwallet
-        wallet             encryptwallet
-        wallet             getaccountaddress
-        wallet             getaccount                   Yes
-        wallet             getaddressesbyaccount
-        wallet             getbalance					Yes
-        wallet             getnewaddress
-        wallet             getrawchangeaddress
-        wallet             getreceivedbyaccount
-        wallet             getreceivedbyaddress
-        wallet             gettransaction               Yes
-        wallet             getunconfirmedbalance
-        wallet             getwalletinfo
-        wallet             importprivkey                Yes
-        wallet             importwallet
-        wallet             importaddress                Yes
-        wallet             keypoolrefill
-        wallet             listaccounts                 Yes
-        wallet             listaddressgroupings         Yes
-        wallet             listlockunspent
-        wallet             listreceivedbyaccount
-        wallet             listreceivedbyaddress
-        wallet             listsinceblock
-        wallet             listtransactions
-        wallet             listunspent                  Yes
-        wallet             lockunspent                  Yes
-        wallet             move
-        wallet             sendfrom
-        wallet             sendmany
-        wallet             sendtoaddress
-        wallet             setaccount
-        wallet             settxfee
-        wallet             signmessage
-        wallet             walletlock
-        wallet             walletpassphrasechange
-        wallet             walletpassphrase
-    */
-	public class RPCClient : IBlockRepository
+		------------------ Wallet
+		wallet			 addmultisigaddress
+		wallet			 backupwallet				 Yes
+		wallet			 dumpprivkey				  Yes
+		wallet			 dumpwallet
+		wallet			 encryptwallet
+		wallet			 getaccountaddress			Yes
+		wallet			 getaccount
+		wallet			 getaddressesbyaccount
+		wallet			 getbalance
+		wallet			 getnewaddress
+		wallet			 getrawchangeaddress
+		wallet			 getreceivedbyaccount
+		wallet			 getreceivedbyaddress
+		wallet			 gettransaction
+		wallet			 getunconfirmedbalance
+		wallet			 getwalletinfo
+		wallet			 importprivkey				Yes
+		wallet			 importwallet
+		wallet			 importaddress				Yes
+		wallet			 keypoolrefill
+		wallet			 listaccounts				 Yes
+		wallet			 listaddressgroupings		 Yes
+		wallet			 listlockunspent
+		wallet			 listreceivedbyaccount
+		wallet			 listreceivedbyaddress
+		wallet			 listsinceblock
+		wallet			 listtransactions
+		wallet			 listunspent				  Yes
+		wallet			 lockunspent				  Yes
+		wallet			 move
+		wallet			 sendfrom
+		wallet			 sendmany
+		wallet			 sendtoaddress
+		wallet			 setaccount
+		wallet			 settxfee
+		wallet			 signmessage
+		wallet			 walletlock
+		wallet			 walletpassphrasechange
+		wallet			 walletpassphrase
+	*/
+	public partial class RPCClient : IBlockRepository
 	{
-		private readonly NetworkCredential _credentials;
-		public NetworkCredential Credentials
-		{
-			get
-			{
-				return _credentials;
-			}
-		}
+		private readonly string _Authentication;
 		private readonly Uri _address;
 		public Uri Address
 		{
@@ -206,35 +146,127 @@ namespace NBitcoin.RPC
 				return _network;
 			}
 		}
+#if !NOFILEIO
+		/// <summary>
+		/// Use default bitcoin parameters to configure a RPCClient.
+		/// </summary>
+		/// <param name="network">The network used by the node. Must not be null.</param>
+		public RPCClient(Network network) : this(null as string, BuildUri(null, network.RPCPort), network)
+		{
+		}
+#endif
 		public RPCClient(NetworkCredential credentials, string host, Network network)
 			: this(credentials, BuildUri(host, network.RPCPort), network)
 		{
 		}
 
-		private static Uri BuildUri(string host, int port)
+		/// <summary>
+		/// Create a new RPCClient instance
+		/// </summary>
+		/// <param name="authenticationString">username:password, the content of the .cookie file, or cookiefile=pathToCookieFile</param>
+		/// <param name="hostOrUri"></param>
+		/// <param name="network"></param>
+		public RPCClient(string authenticationString, string hostOrUri, Network network)
+			: this(authenticationString, BuildUri(hostOrUri, network.RPCPort), network)
 		{
+		}
+
+		private static Uri BuildUri(string hostOrUri, int port)
+		{
+			if(hostOrUri != null)
+			{
+				hostOrUri = hostOrUri.Trim();
+				try
+				{
+					if(hostOrUri.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+					   hostOrUri.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+						return new Uri(hostOrUri, UriKind.Absolute);
+				}
+				catch { }
+			}
+			hostOrUri = hostOrUri ?? "127.0.0.1";
 			UriBuilder builder = new UriBuilder();
-			builder.Host = host;
+			builder.Host = hostOrUri;
 			builder.Scheme = "http";
 			builder.Port = port;
 			return builder.Uri;
 		}
 		public RPCClient(NetworkCredential credentials, Uri address, Network network = null)
+			: this(credentials == null ? null : (credentials.UserName + ":" + credentials.Password), address, network)
 		{
+		}
 
-			if(credentials == null)
-				throw new ArgumentNullException("credentials");
-			if(address == null)
-				throw new ArgumentNullException("address");
-			if(network == null)
+		/// <summary>
+		/// Create a new RPCClient instance
+		/// </summary>
+		/// <param name="authenticationString">username:password or the content of the .cookie file or null to auto configure</param>
+		/// <param name="address"></param>
+		/// <param name="network"></param>
+		public RPCClient(string authenticationString, Uri address, Network network = null)
+		{
+			authenticationString = string.IsNullOrWhiteSpace(authenticationString) ? null : authenticationString;
+#if !NOFILEIO
+			if(authenticationString != null)
 			{
-				network = new[] { Network.Main, Network.TestNet, Network.RegTest }.FirstOrDefault(n => n.RPCPort == address.Port);
+				if(authenticationString.StartsWith("cookiefile=", StringComparison.OrdinalIgnoreCase))
+				{
+					authenticationString = File.ReadAllText(authenticationString.Substring("cookiefile=".Length).Trim());
+					if(!authenticationString.StartsWith("__cookie__:", StringComparison.OrdinalIgnoreCase))
+						throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
+				}
+			}
+#endif
+
+			authenticationString = authenticationString ?? GetAuthenticationString(network);
+			if(authenticationString == null)
+				throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
+			if(address == null && network == null)
+				throw new ArgumentNullException("address");
+
+			if(address != null && network == null)
+			{
+				network = Network.GetNetworks().FirstOrDefault(n => n.RPCPort == address.Port);
 				if(network == null)
 					throw new ArgumentNullException("network");
 			}
-			_credentials = credentials;
+
+			if(address == null && network != null)
+			{
+				address = new Uri("http://127.0.0.1:" + network.RPCPort + "/");
+			}
+
+			_Authentication = authenticationString;
 			_address = address;
 			_network = network;
+		}
+
+		private string GetAuthenticationString(Network network)
+		{
+#if !NOFILEIO
+			if(network == null)
+				return null;
+			var home = Environment.GetEnvironmentVariable("HOME");
+			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
+			if(string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
+				return null;
+			string bitcoinFolder = null;
+			if(string.IsNullOrEmpty(localAppData))
+				bitcoinFolder = Path.Combine(home, ".bitcoin");
+			else
+				bitcoinFolder = Path.Combine(localAppData, "Bitcoin");
+			if(network == Network.TestNet)
+				bitcoinFolder = Path.Combine(bitcoinFolder, "testnet3");
+			if(network == Network.RegTest)
+				bitcoinFolder = Path.Combine(bitcoinFolder, "regtest");
+			var cookiePath = Path.Combine(bitcoinFolder, ".cookie");
+			try
+			{
+				return File.ReadAllText(cookiePath);
+			}
+			catch { return null; }
+#else
+			return null;
+#endif
 		}
 
 		public RPCResponse SendCommand(RPCOperations commandName, params object[] parameters)
@@ -268,6 +300,7 @@ namespace NBitcoin.RPC
 		{
 			return SendCommand(new RPCRequest(commandName, parameters));
 		}
+
 		public Task<RPCResponse> SendCommandAsync(string commandName, params object[] parameters)
 		{
 			return SendCommandAsync(new RPCRequest(commandName, parameters));
@@ -289,7 +322,7 @@ namespace NBitcoin.RPC
 		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
 		{
 			var webRequest = (HttpWebRequest)WebRequest.Create(Address);
-			webRequest.Headers[HttpRequestHeader.Authorization] = "Basic " + Encoders.Base64.EncodeData(Encoders.ASCII.DecodeData(Credentials.UserName + ":" + Credentials.Password));
+			webRequest.Headers[HttpRequestHeader.Authorization] = "Basic " + Encoders.Base64.EncodeData(Encoders.ASCII.DecodeData(_Authentication));
 			webRequest.ContentType = "application/json-rpc";
 			webRequest.Method = "POST";
 
@@ -303,14 +336,16 @@ namespace NBitcoin.RPC
 #endif
 			var dataStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false);
 			await dataStream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
+			await dataStream.FlushAsync().ConfigureAwait(false);
 			dataStream.Dispose();
 			RPCResponse response;
+			WebResponse webResponse = null;
+			WebResponse errorResponse = null;
 			try
 			{
-				using(var webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false))
-				{
-					response = RPCResponse.Load(webResponse.GetResponseStream());
-				}
+				webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false);
+				response = RPCResponse.Load(await ToMemoryStreamAsync(webResponse.GetResponseStream()).ConfigureAwait(false));
+
 				if(throwIfRPCError)
 					response.ThrowIfError();
 			}
@@ -318,11 +353,33 @@ namespace NBitcoin.RPC
 			{
 				if(ex.Response == null || ex.Response.ContentLength == 0)
 					throw;
-				response = RPCResponse.Load(ex.Response.GetResponseStream());
+				errorResponse = ex.Response;
+				response = RPCResponse.Load(await ToMemoryStreamAsync(errorResponse.GetResponseStream()).ConfigureAwait(false));
 				if(throwIfRPCError)
 					response.ThrowIfError();
 			}
+			finally
+			{
+				if(errorResponse != null)
+				{
+					errorResponse.Dispose();
+					errorResponse = null;
+				}
+				if(webResponse != null)
+				{
+					webResponse.Dispose();
+					webResponse = null;
+				}
+			}
 			return response;
+		}
+
+		private async Task<Stream> ToMemoryStreamAsync(Stream stream)
+		{
+			MemoryStream ms = new MemoryStream();
+			await stream.CopyToAsync(ms).ConfigureAwait(false);
+			ms.Position = 0;
+			return ms;
 		}
 
 		#region P2P Networking
@@ -356,7 +413,7 @@ namespace NBitcoin.RPC
 
 				result[i++] = new PeerInfo
 				{
-					//Id = (int)peer["id"],
+					Id = (int)peer["id"],
 					Address = Utils.ParseIpEndpoint((string)peer["addr"], this.Network.DefaultPort),
 					LocalAddress = Utils.ParseIpEndpoint(localAddr, this.Network.DefaultPort),
 					Services = ulong.Parse((string)peer["services"]),
@@ -366,18 +423,18 @@ namespace NBitcoin.RPC
 					BytesReceived = (long)peer["bytesrecv"],
 					ConnectionTime = Utils.UnixTimeToDateTime((uint)peer["conntime"]),
 					TimeOffset = TimeSpan.FromSeconds(Math.Min((long)int.MaxValue, (long)peer["timeoffset"])),
-					PingTime = TimeSpan.FromSeconds((double)peer["pingtime"]),
+					PingTime = peer["pingtime"] == null ? (TimeSpan?)null : TimeSpan.FromSeconds((double)peer["pingtime"]),
 					PingWait = TimeSpan.FromSeconds(pingWait),
-					//Blocks = peer["blocks"] != null ? (int)peer["blocks"] : -1,
+					Blocks = peer["blocks"] != null ? (int)peer["blocks"] : -1,
 					Version = (int)peer["version"],
 					SubVersion = (string)peer["subver"],
 					Inbound = (bool)peer["inbound"],
 					StartingHeight = (int)peer["startingheight"],
-					//SynchronizedBlocks = (int)peer["synced_blocks"],
-					//SynchronizedHeaders = (int)peer["synced_headers"],
-					//IsWhiteListed = (bool)peer["whitelisted"],
+					SynchronizedBlocks = (int)peer["synced_blocks"],
+					SynchronizedHeaders = (int)peer["synced_headers"],
+					IsWhiteListed = (bool)peer["whitelisted"],
 					BanScore = peer["banscore"] == null ? 0 : (int)peer["banscore"],
-					//Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
+					Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
 				};
 			}
 			return result;
@@ -417,11 +474,11 @@ namespace NBitcoin.RPC
 			var obj = result.Result;
 			return obj.Select(entry => new AddedNodeInfo
 			{
-				AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], Network.Main.DefaultPort),
+				AddedNode = Utils.ParseIpEndpoint((string)entry["addednode"], 8333),
 				Connected = (bool)entry["connected"],
 				Addresses = entry["addresses"].Select(x => new NodeAddressInfo
 				{
-					Address = Utils.ParseIpEndpoint((string)x["address"], Network.Main.DefaultPort),
+					Address = Utils.ParseIpEndpoint((string)x["address"], 8333),
 					Connected = (bool)x["connected"]
 				})
 			}).ToArray();
@@ -519,20 +576,7 @@ namespace NBitcoin.RPC
 		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
 			var resp = await SendCommandAsync("getblock", blockId.ToString(), false).ConfigureAwait(false);
-			var rpcBlock = SatoshiBlockFormatter.Parse(resp.Result as JObject);
-			return SatoshiBlockFormatter.ToBlock(rpcBlock);
-			//return new Block(Encoders.Hex.DecodeData(resp.Result.ToString()));
-		}
-
-		/// <summary>
-		/// Get the a whole block
-		/// </summary>
-		/// <param name="blockId"></param>
-		/// <returns></returns>
-		public async Task<RPCBlock> GetRPCBlock(uint256 blockId)
-		{
-			var resp = await SendCommandAsync("getblock", blockId.ToString(), false).ConfigureAwait(false);
-			return  SatoshiBlockFormatter.Parse(resp.Result as JObject);
+			return new Block(Encoders.Hex.DecodeData(resp.Result.ToString()));
 		}
 
 		/// <summary>
@@ -642,27 +686,34 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-        /// Get the current Proof Of Work difficulty of the network - not valid past first few blocks
-        /// </summary>
-        /// <returns></returns>
-        public double GetPowDifficulty()
-        {
-            var result = SendCommand("getdifficulty");
-            var powDifficulty = (double)result.Result["proof-of-work"];
-            return powDifficulty;
-        }
+		/// GetTransactions only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
+		/// </summary>
+		/// <param name="blockHash"></param>
+		/// <returns></returns>
+		public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
+		{
+			if(blockHash == null)
+				throw new ArgumentNullException("blockHash");
 
-        /// <summary>
-        /// Get the current Proof Of Stake difficulty of the network
-        /// </summary>
-        /// <returns></returns>
-        public double GetPosDifficulty()
-        {
-            var result = SendCommand("getdifficulty");
-            var posDifficulty = (double)result.Result["proof-of-stake"];
-            return posDifficulty;
-        }
-		
+			var resp = SendCommand("getblock", blockHash.ToString());
+
+			var tx = resp.Result["tx"] as JArray;
+			if(tx != null)
+			{
+				foreach(var item in tx)
+				{
+					var result = GetRawTransaction(uint256.Parse(item.ToString()), false);
+					if(result != null)
+						yield return result;
+				}
+			}
+		}
+
+		public IEnumerable<Transaction> GetTransactions(int height)
+		{
+			return GetTransactions(GetBlockHash(height));
+		}
+
 		#endregion
 
 		#region Coin generation
@@ -747,268 +798,13 @@ namespace NBitcoin.RPC
 
 		#endregion
 
-		#region Wallet
-
-		public void ImportPrivKey(BitcoinSecret secret)
-		{
-			SendCommand("importprivkey", secret.ToWif());
-		}
-
-		public void ImportPrivKey(BitcoinSecret secret, string label, bool rescan)
-		{
-			SendCommand("importprivkey", secret.ToWif(), label, rescan);
-		}
-
-		public async Task ImportPrivKeyAsync(BitcoinSecret secret)
-		{
-			await SendCommandAsync("importprivkey", secret.ToWif()).ConfigureAwait(false);
-		}
-
-		public async Task ImportPrivKeyAsync(BitcoinSecret secret, string label, bool rescan)
-		{
-			await SendCommandAsync("importprivkey", secret.ToWif(), label, rescan).ConfigureAwait(false);
-		}
-
-		public void ImportAddress(BitcoinAddress address)
-		{
-			SendCommand("importaddress", address.ToString());
-		}
-
-		public void ImportAddress(BitcoinAddress address, string label, bool rescan)
-		{
-			SendCommand("importaddress", address.ToString(), label, rescan);
-		}
-
-		public async Task ImportAddressAsync(BitcoinAddress address)
-		{
-			await SendCommandAsync("importaddress", address.ToString()).ConfigureAwait(false);
-		}
-
-		public async Task ImportAddressAsync(BitcoinAddress address, string label, bool rescan)
-		{
-			await SendCommandAsync("importaddress", address.ToString(), label, rescan).ConfigureAwait(false);
-		}
-
-		public BitcoinSecret DumpPrivKey(BitcoinAddress address)
-		{
-			var response = SendCommand("dumpprivkey", address.ToString());
-			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
-		}
-
-		public async Task<BitcoinSecret> DumpPrivKeyAsync(BitcoinAddress address)
-		{
-			var response = await SendCommandAsync("dumpprivkey", address.ToString()).ConfigureAwait(false);
-			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
-		}
-
-		public BitcoinAddress GetAccountAddress(string account)
-		{
-			var response = SendCommand("getaccountaddress", account);
-			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
-		}
-
-		public async Task<BitcoinAddress> GetAccountAddressAsync(string account)
-		{
-			var response = await SendCommandAsync("getaccountaddress", account).ConfigureAwait(false);
-			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
-		}
-
-		public BitcoinSecret GetAccountSecret(string account)
-		{
-			var address = GetAccountAddress(account);
-			return DumpPrivKey(address);
-		}
-
-		public async Task<BitcoinSecret> GetAccountSecretAsync(string account)
-		{
-			var address = await GetAccountAddressAsync(account).ConfigureAwait(false);
-			return await DumpPrivKeyAsync(address).ConfigureAwait(false);
-		}
-
-		public UnspentCoin[] ListUnspent()
-		{
-			var response = SendCommand("listunspent");
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
-		}
-
-		public UnspentCoin[] ListUnspent(int minconf, int maxconf, params BitcoinAddress[] addresses)
-		{
-			var addr = from a in addresses select a.ToString();
-			var response = SendCommand("listunspent", minconf, maxconf, addr.ToArray());
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
-		}
-
-		public async Task<UnspentCoin[]> ListUnspentAsync()
-		{
-			var response = await SendCommandAsync("listunspent").ConfigureAwait(false);
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
-		}
-
-		public async Task<UnspentCoin[]> ListUnspentAsync(int minconf, int maxconf, params BitcoinAddress[] addresses)
-		{
-			var addr = from a in addresses select a.ToString();
-			var response = await SendCommandAsync("listunspent", minconf, maxconf, addr.ToArray()).ConfigureAwait(false);
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
-		}
-
-		public void LockUnspent(params OutPoint[] outpoints)
-		{
-			LockUnspentCore(false, outpoints);
-		}
-
-		public void UnlockUnspent(params OutPoint[] outpoints)
-		{
-			LockUnspentCore(true, outpoints);
-		}
-
-		public Task LockUnspentAsync(params OutPoint[] outpoints)
-		{
-			return LockUnspentCoreAsync(false, outpoints);
-		}
-
-		public Task UnlockUnspentAsync(params OutPoint[] outpoints)
-		{
-			return LockUnspentCoreAsync(true, outpoints);
-		}
-
-		private void LockUnspentCore(bool unlock, OutPoint[] outpoints)
-		{
-			try
-			{
-				LockUnspentCoreAsync(unlock, outpoints).Wait();
-			}
-			catch(AggregateException ex)
-			{
-				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-			}
-		}
-
-		private async Task LockUnspentCoreAsync(bool unlock, OutPoint[] outpoints)
-		{
-			if(outpoints == null || outpoints.Length == 0)
-				return;
-			var parameters = new List<object>();
-			parameters.Add(unlock);
-			var array = new JArray();
-			parameters.Add(array);
-			foreach(var outp in outpoints)
-			{
-				var obj = new JObject();
-				obj["txid"] = outp.Hash.ToString();
-				obj["vout"] = outp.N;
-				array.Add(obj);
-			}
-			await SendCommandAsync("lockunspent", parameters.ToArray()).ConfigureAwait(false);
-		}
-
-		/// <summary>
-		/// GetTransactions only returns on txn which are not entirely spent unless you run bitcoinq with txindex=1.
-		/// </summary>
-		/// <param name="blockHash"></param>
-		/// <returns></returns>
-		public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
-		{
-			if(blockHash == null)
-				throw new ArgumentNullException("blockHash");
-
-			var resp = SendCommand("getblock", blockHash.ToString());
-
-			var tx = resp.Result["tx"] as JArray;
-			if(tx != null)
-			{
-				foreach(var item in tx)
-				{
-					var result = GetRawTransaction(uint256.Parse(item.ToString()), false);
-					if(result != null)
-						yield return result;
-				}
-			}
-		}
-
-		public IEnumerable<Transaction> GetTransactions(int height)
-		{
-			return GetTransactions(GetBlockHash(height));
-		}
-
-		public IEnumerable<RPCAccount> ListAccounts()
-		{
-			var result = SendCommand(RPCOperations.listaccounts);
-			var obj = (JObject)result.Result;
-			foreach(var prop in obj.Properties())
-			{
-				yield return new RPCAccount()
-				{
-					AccountName = prop.Name,
-					Amount = Money.Coins((decimal)prop.Value)
-				};
-			}
-		}
-
-		public void BackupWallet(string path)
-		{
-			if(string.IsNullOrEmpty(path))
-				throw new ArgumentNullException("path");
-			SendCommand("backupwallet", path);
-		}
-
-		public async Task BackupWalletAsync(string path)
-		{
-			if(string.IsNullOrEmpty(path))
-				throw new ArgumentNullException("path");
-			await SendCommandAsync("backupwallet", path).ConfigureAwait(false);
-		}
-
-		public IEnumerable<BitcoinSecret> ListSecrets()
-		{
-			foreach(var grouping in ListAddressGroupings())
-			{
-				yield return DumpPrivKey(grouping.PublicAddress);
-				foreach(var change in grouping.ChangeAddresses)
-					yield return DumpPrivKey(change.Address);
-			}
-		}
-
-		public IEnumerable<AddressGrouping> ListAddressGroupings()
-		{
-			var result = SendCommand(RPCOperations.listaddressgroupings);
-			var array = (JArray)result.Result;
-			foreach(var group in array.Children<JArray>())
-			{
-				var grouping = new AddressGrouping();
-				grouping.PublicAddress = BitcoinAddress.Create(group[0][0].ToString());
-				grouping.Amount = Money.Coins(group[0][1].Value<decimal>());
-				grouping.Account = group[0].Count() > 2 ? group[0][2].ToString() : null;
-
-				foreach(var subgroup in group.Skip(1))
-				{
-					var change = new ChangeAddress();
-					change.Address = BitcoinAddress.Create(subgroup[0].ToString());
-					change.Amount = Money.Coins(subgroup[1].Value<decimal>());
-					grouping.ChangeAddresses.Add(change);
-				}
-
-				yield return grouping;
-			}
-		}
-
-		public Money GetBalance()
-        {
-            var response = SendCommand("getbalance");
-            var result = response.Result.Value<decimal>();
-            var money = Money.Coins(result);
-            if (money.Satoshi < 0)
-                money = Money.Zero;
-            return money;
-        }
-		
-		#endregion
-
 		#region Utility functions
 		/// <summary>
 		/// Get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns></returns>
+		[Obsolete("Use EstimateFeeRate or TryEstimateFeeRate instead")]
 		public FeeRate EstimateFee(int nblock)
 		{
 			var response = SendCommand(RPCOperations.estimatefee, nblock);
@@ -1024,10 +820,66 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns></returns>
+		[Obsolete("Use EstimateFeeRateAsync instead")]
 		public async Task<Money> EstimateFeeAsync(int nblock)
 		{
 			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
 			return Money.Parse(response.Result.ToString());
+		}
+
+		/// <summary>
+		/// Get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="nblock">The time expected, in block, before getting confirmed</param>
+		/// <returns>The estimated fee rate</returns>
+		/// <exception cref="NoEstimationException">The Fee rate couldn't be estimated because of insufficient data from Bitcoin Core</exception>
+		public FeeRate EstimateFeeRate(int nblock)
+		{
+			return EstimateFeeRateAsync(nblock).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// Tries to get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="nblock">The time expected, in block, before getting confirmed</param>
+		/// <returns>The estimated fee rate or null</returns>
+		public async Task<FeeRate> TryEstimateFeeRateAsync(int nblock)
+		{
+			return await EstimateFeeRateImplAsync(nblock).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Tries to get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="nblock">The time expected, in block, before getting confirmed</param>
+		/// <returns>The estimated fee rate or null</returns>
+		public FeeRate TryEstimateFeeRate(int nblock)
+		{
+			return TryEstimateFeeRateAsync(nblock).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// Get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="nblock">The time expected, in block, before getting confirmed</param>
+		/// <returns>The estimated fee rate</returns>
+		/// <exception cref="NoEstimationException">when fee couldn't be estimated</exception>
+		public async Task<FeeRate> EstimateFeeRateAsync(int nblock)
+		{
+			var feeRate = await EstimateFeeRateImplAsync(nblock);
+			if(feeRate == null)
+				throw new NoEstimationException(nblock);
+			return feeRate;
+		}
+
+		private async Task<FeeRate> EstimateFeeRateImplAsync(int nblock)
+		{
+			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
+			var result = response.Result.Value<decimal>();
+			var money = Money.Coins(result);
+			if(money.Satoshi < 0)
+				return null;
+			return new FeeRate(money);
 		}
 
 		public decimal EstimatePriority(int nblock)
@@ -1142,7 +994,7 @@ namespace NBitcoin.RPC
 		{
 			get; internal set;
 		}
-		public TimeSpan PingTime
+		public TimeSpan? PingTime
 		{
 			get; internal set;
 		}
@@ -1224,4 +1076,14 @@ namespace NBitcoin.RPC
 		}
 	}
 #endif
+
+	public class NoEstimationException : Exception
+	{
+		public NoEstimationException(int nblock)
+			: base("The FeeRate couldn't be estimated because of insufficient data from Bitcoin Core. Try to use smaller nBlock, or wait Bitcoin Core to gather more data.")
+		{
+		}
+	}
+
 }
+#endif

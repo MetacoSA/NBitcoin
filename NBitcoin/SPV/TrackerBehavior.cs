@@ -1,11 +1,14 @@
-﻿#if !NOSOCKET
+﻿#if !NOJSONNET
+#if !NOSOCKET
+using NBitcoin.Protocol;
+using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
-using NBitcoin.Protocol;
-using NBitcoin.Protocol.Behaviors;
+using System.Threading.Tasks;
 using NBitcoin.Protocol.Payloads;
 
 namespace NBitcoin.SPV
@@ -412,4 +415,5 @@ namespace NBitcoin.SPV
 		}
 	}
 }
+#endif
 #endif

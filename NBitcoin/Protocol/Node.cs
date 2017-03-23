@@ -1,4 +1,6 @@
 ﻿#if !NOSOCKET
+using NBitcoin.Protocol.Behaviors;
+using NBitcoin.Protocol.Filters;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,11 +11,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NBitcoin.Protocol.Behaviors;
-using NBitcoin.Protocol.Filters;
-using NBitcoin.Protocol.Payloads;
 
 namespace NBitcoin.Protocol
 {
@@ -276,7 +276,7 @@ namespace NBitcoin.Protocol
 						Cleanup(unhandledException);
 					}
 				}).Start();
-			}			
+			}
 
 			int _CleaningUp;
 			public int _ListenerThreadId;
@@ -286,13 +286,13 @@ namespace NBitcoin.Protocol
 					return;
 				if(!Cancel.IsCancellationRequested)
 				{
-					Node.State = NodeState.Failed;
 					NodeServerTrace.Error("Connection to server stopped unexpectedly", unhandledException);
 					Node.DisconnectReason = new NodeDisconnectReason()
 					{
 						Reason = "Unexpected exception while connecting to socket",
 						Exception = unhandledException
 					};
+					Node.State = NodeState.Failed;
 				}
 
 				if(Node.State != NodeState.Failed)
@@ -416,14 +416,14 @@ namespace NBitcoin.Protocol
 				}
 			});
 
-			var enumerator = Enumerable.Concat<INodeFilter>(Filters, new[] { last }).GetEnumerator();
+			var enumerator = Filters.Concat(new[] { last }).GetEnumerator();
 			FireFilters(enumerator, message);
 		}
 
 
 		private void OnSendingMessage(Payload payload, Action final)
 		{
-			var enumerator = Enumerable.Concat<INodeFilter>(Filters, new[] { new ActionFilter(null, (n, p, a) => final()) }).GetEnumerator();
+			var enumerator = Filters.Concat(new[] { new ActionFilter(null, (n, p, a) => final()) }).GetEnumerator();
 			FireFilters(enumerator, payload);
 		}
 
@@ -491,13 +491,13 @@ namespace NBitcoin.Protocol
 		/// <param name="network">The network to connect to</param>
 		/// <param name="addrman">The addrman used for finding peers</param>
 		/// <param name="parameters">The parameters used by the found node</param>
-		/// <param name="connectedAddresses">The already connected addresses, the new address will be select outside of existing groups</param>
+		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
 		/// <returns></returns>
-		public static Node Connect(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, IPAddress[] connectedAddresses = null)
+		public static Node Connect(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null)
 		{
 			parameters = parameters ?? new NodeConnectionParameters();
 			AddressManagerBehavior.SetAddrman(parameters, addrman);
-			return Connect(network, parameters, connectedAddresses);
+			return Connect(network, parameters, connectedEndpoints);
 		}
 
 		/// <summary>
@@ -505,33 +505,48 @@ namespace NBitcoin.Protocol
 		/// </summary>
 		/// <param name="network">The network to connect to</param>
 		/// <param name="parameters">The parameters used by the found node, use AddressManagerBehavior.GetAddrman for finding peers</param>
-		/// <param name="connectedAddresses">The already connected addresses, the new address will be select outside of existing groups</param>
+		/// <param name="connectedEndpoints">The already connected endpoints, the new endpoint will be select outside of existing groups</param>
+		/// <param name="getGroup">Group selector, by default NBicoin.IpExtensions.GetGroup</param>
 		/// <returns></returns>
-		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPAddress[] connectedAddresses = null)
+		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null, Func<IPEndPoint, byte[]> getGroup = null)
 		{
-			connectedAddresses = connectedAddresses ?? new IPAddress[0];
+			getGroup = getGroup ?? new Func<IPEndPoint, byte[]>((a) => IpExtensions.GetGroup(a.Address));
+			connectedEndpoints = connectedEndpoints ?? new IPEndPoint[0];
 			parameters = parameters ?? new NodeConnectionParameters();
-			var addrman = AddressManagerBehavior.GetAddrman(parameters) ?? new AddressManager();
+			var addrmanBehavior = parameters.TemplateBehaviors.FindOrCreate(() => new AddressManagerBehavior(new AddressManager()));
+			var addrman = AddressManagerBehavior.GetAddrman(parameters);
 			DateTimeOffset start = DateTimeOffset.UtcNow;
 			while(true)
 			{
 				parameters.ConnectCancellation.ThrowIfCancellationRequested();
 				if(addrman.Count == 0 || DateTimeOffset.UtcNow - start > TimeSpan.FromSeconds(60))
 				{
-					addrman.DiscoverPeers(network, parameters);
+					addrmanBehavior.DiscoverPeers(network, parameters);
 					start = DateTimeOffset.UtcNow;
 				}
 				NetworkAddress addr = null;
+				int groupFail = 0;
 				while(true)
 				{
+					if(groupFail > 50)
+					{
+						parameters.ConnectCancellation.WaitHandle.WaitOne((int)TimeSpan.FromSeconds(60).TotalMilliseconds);
+						break;
+					}
 					addr = addrman.Select();
 					if(addr == null)
+					{
+						parameters.ConnectCancellation.WaitHandle.WaitOne(1000);
 						break;
+					}
 					if(!addr.Endpoint.Address.IsValid())
 						continue;
-					var groupExist = connectedAddresses.Any(a => a.GetGroup().SequenceEqual(addr.Endpoint.Address.GetGroup()));
+					var groupExist = connectedEndpoints.Any(a => getGroup(a).SequenceEqual(getGroup(addr.Endpoint)));
 					if(groupExist)
+					{
+						groupFail++;
 						continue;
+					}
 					break;
 				}
 				if(addr == null)
@@ -565,7 +580,7 @@ namespace NBitcoin.Protocol
 		public static Node ConnectToLocal(Network network,
 								NodeConnectionParameters parameters)
 		{
-			return Connect(network, (IPEndPoint) Utils.ParseIpEndpoint("localhost", network.DefaultPort), parameters);
+			return Connect(network, Utils.ParseIpEndpoint("localhost", network.DefaultPort), parameters);
 		}
 
 		public static Node ConnectToLocal(Network network,
@@ -584,7 +599,7 @@ namespace NBitcoin.Protocol
 		public static Node Connect(Network network,
 								 string endpoint, NodeConnectionParameters parameters)
 		{
-			return Connect(network, (IPEndPoint) Utils.ParseIpEndpoint(endpoint, network.DefaultPort), parameters);
+			return Connect(network, Utils.ParseIpEndpoint(endpoint, network.DefaultPort), parameters);
 		}
 
 		public static Node Connect(Network network,
@@ -593,7 +608,7 @@ namespace NBitcoin.Protocol
 								bool isRelay = true,
 								CancellationToken cancellation = default(CancellationToken))
 		{
-			return Connect(network, (IPEndPoint) Utils.ParseIpEndpoint(endpoint, network.DefaultPort), myVersion, isRelay, cancellation);
+			return Connect(network, Utils.ParseIpEndpoint(endpoint, network.DefaultPort), myVersion, isRelay, cancellation);
 		}
 
 		public static Node Connect(Network network,
@@ -667,6 +682,7 @@ namespace NBitcoin.Protocol
 						throw new SocketException((int)args.SocketError);
 					var remoteEndpoint = (IPEndPoint)(socket.RemoteEndPoint ?? args.RemoteEndPoint);
 					_RemoteSocketAddress = remoteEndpoint.Address;
+					_RemoteSocketEndpoint = remoteEndpoint;
 					_RemoteSocketPort = remoteEndpoint.Port;
 					State = NodeState.Connected;
 					ConnectedAt = DateTimeOffset.UtcNow;
@@ -704,6 +720,7 @@ namespace NBitcoin.Protocol
 		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
 		{
 			_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
+			_RemoteSocketEndpoint = ((IPEndPoint)socket.RemoteEndPoint);
 			_RemoteSocketPort = ((IPEndPoint)socket.RemoteEndPoint).Port;
 			Inbound = true;
 			_Behaviors = new NodeBehaviorsCollection(this);
@@ -732,6 +749,15 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		IPEndPoint _RemoteSocketEndpoint;
+		public IPEndPoint RemoteSocketEndpoint
+		{
+			get
+			{
+				return _RemoteSocketEndpoint;
+			}
+		}
+
 		int _RemoteSocketPort;
 		public int RemoteSocketPort
 		{
@@ -750,7 +776,6 @@ namespace NBitcoin.Protocol
 		bool _ReuseBuffer;
 		private void InitDefaultBehaviors(NodeConnectionParameters parameters)
 		{
-			IsTrusted = parameters.IsTrusted != null ? parameters.IsTrusted.Value : Peer.Endpoint.Address.IsLocal();
 			Advertize = parameters.Advertize;
 			PreferredTransactionOptions = parameters.PreferredTransactionOptions;
 			_ReuseBuffer = parameters.ReuseBuffer;
@@ -1211,27 +1236,17 @@ namespace NBitcoin.Protocol
 			if(headers.Count == 0)
 				return new ChainedBlock[0];
 			var newTip = headers[headers.Count - 1];
-			if(!IsTrusted)
+
+			if(newTip.Height <= oldTip.Height)
+				throw new ProtocolException("No tip should have been recieved older than the local one");
+			foreach(var header in headers)
 			{
-				if(newTip.Height <= oldTip.Height)
-					throw new ProtocolException("No tip should have been recieved older than the local one");
-				foreach(var header in headers)
-				{
-					if(!header.Validate(Network))
-						throw new ProtocolException("An header which does not pass proof of work verification has been received");
-				}
+				if(!header.Validate(Network))
+					throw new ProtocolException("An header which does not pass proof of work verification has been received");
 			}
+
 			chain.SetTip(newTip);
 			return headers;
-		}
-
-		/// <summary>
-		/// Will verify proof of work during chain operations
-		/// </summary>
-		public bool IsTrusted
-		{
-			get;
-			set;
 		}
 
 		public IEnumerable<Block> GetBlocks(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))

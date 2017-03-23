@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text;
-using NBitcoin.Crypto;
-
 #if !USEBC
+using System.Security.Cryptography;
 #endif
+using NBitcoin.Crypto;
 
 namespace NBitcoin
 {

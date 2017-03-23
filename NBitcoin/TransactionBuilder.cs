@@ -1,11 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NBitcoin.BuilderExtensions;
+﻿using NBitcoin.BuilderExtensions;
+using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Policy;
 using NBitcoin.Stealth;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Text;
+using System.Threading.Tasks;
 using Builder = System.Func<NBitcoin.TransactionBuilder.TransactionBuildingContext, NBitcoin.IMoney>;
 
 namespace NBitcoin
@@ -205,6 +209,44 @@ namespace NBitcoin
 
 			#endregion
 		}
+
+		class KnownSignatureSigner : ISigner, IKeyRepository
+		{
+			private ICoin coin;
+			private SigHash sigHash;
+			private IndexedTxIn txIn;
+			private List<Tuple<PubKey, ECDSASignature>> _KnownSignatures;
+			private Dictionary<KeyId, ECDSASignature> _VerifiedSignatures = new Dictionary<KeyId, ECDSASignature>();
+
+			public KnownSignatureSigner(List<Tuple<PubKey, ECDSASignature>> _KnownSignatures, ICoin coin, SigHash sigHash, IndexedTxIn txIn)
+			{
+				this._KnownSignatures = _KnownSignatures;
+				this.coin = coin;
+				this.sigHash = sigHash;
+				this.txIn = txIn;
+			}
+
+			public Key FindKey(Script scriptPubKey)
+			{
+				foreach(var tv in _KnownSignatures.Where(tv => IsCompatibleKey(tv.Item1, scriptPubKey)))
+				{
+					var hash = txIn.GetSignatureHash(coin, sigHash);
+					if(tv.Item1.Verify(hash, tv.Item2))
+					{
+						var key = new Key();
+						_VerifiedSignatures.AddOrReplace(key.PubKey.Hash, tv.Item2);
+						return key;
+					}
+				}
+				return null;
+			}
+
+			public TransactionSignature Sign(Key key)
+			{
+				return new TransactionSignature(_VerifiedSignatures[key.PubKey.Hash], sigHash);
+			}
+		}
+
 		internal class TransactionSigningContext
 		{
 			public TransactionSigningContext(TransactionBuilder builder, Transaction transaction)
@@ -525,6 +567,26 @@ namespace NBitcoin
 		public TransactionBuilder AddKeys(params Key[] keys)
 		{
 			_Keys.AddRange(keys);
+			return this;
+		}
+
+		public TransactionBuilder AddKnownSignature(PubKey pubKey, TransactionSignature signature)
+		{
+			if(pubKey == null)
+				throw new ArgumentNullException("pubKey");
+			if(signature == null)
+				throw new ArgumentNullException("signature");
+			_KnownSignatures.Add(Tuple.Create(pubKey, signature.Signature));
+			return this;
+		}
+
+		public TransactionBuilder AddKnownSignature(PubKey pubKey, ECDSASignature signature)
+		{
+			if(pubKey == null)
+				throw new ArgumentNullException("pubKey");
+			if(signature == null)
+				throw new ArgumentNullException("signature");
+			_KnownSignatures.Add(Tuple.Create(pubKey, signature));
 			return this;
 		}
 
@@ -899,7 +961,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="sign">True if signs all inputs with the available keys</param>
 		/// <returns>The transaction</returns>
-		/// <exception cref="NotEnoughFundsException">Not enough funds are available</exception>
+		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public Transaction BuildTransaction(bool sign)
 		{
 			return BuildTransaction(sign, SigHash.All);
@@ -911,7 +973,7 @@ namespace NBitcoin
 		/// <param name="sign">True if signs all inputs with the available keys</param>
 		/// <param name="sigHash">The type of signature</param>
 		/// <returns>The transaction</returns>
-		/// <exception cref="NotEnoughFundsException">Not enough funds are available</exception>
+		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public Transaction BuildTransaction(bool sign, SigHash sigHash)
 		{
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
@@ -1274,7 +1336,7 @@ namespace NBitcoin
 		{
 			if(coin is IColoredCoin)
 				coin = ((IColoredCoin)coin).Bearer;
-			
+
 			if(coin is ScriptCoin)
 			{
 				var scriptCoin = (ScriptCoin)coin;
@@ -1301,7 +1363,7 @@ namespace NBitcoin
 			{
 				if(extension.CanEstimateScriptSigSize(scriptPubkey))
 				{
-					scriptSigSize = extension.EstimateScriptSigSize(scriptPubkey);					
+					scriptSigSize = extension.EstimateScriptSigSize(scriptPubkey);
 					break;
 				}
 			}
@@ -1462,30 +1524,47 @@ namespace NBitcoin
 			var scriptPubKey = coin.GetScriptCode();
 			var keyRepo = new TransactionBuilderKeyRepository(this, ctx);
 			var signer = new TransactionBuilderSigner(coin, ctx.SigHash, txIn);
+
+			var signer2 = new KnownSignatureSigner(_KnownSignatures, coin, ctx.SigHash, txIn);
+
 			foreach(var extension in Extensions)
 			{
 				if(extension.CanGenerateScriptSig(scriptPubKey))
 				{
-					return extension.GenerateScriptSig(scriptPubKey, keyRepo, signer);
+					var scriptSig1 = extension.GenerateScriptSig(scriptPubKey, keyRepo, signer);
+					var scriptSig2 = extension.GenerateScriptSig(scriptPubKey, signer2, signer2);
+					if(scriptSig1 != null && scriptSig2 != null && extension.CanCombineScriptSig(scriptPubKey, scriptSig1, scriptSig2))
+					{
+						var combined = extension.CombineScriptSig(scriptPubKey, scriptSig1, scriptSig2);
+						return combined;
+					}
+					return scriptSig1 ?? scriptSig2;
 				}
 			}
+
 			throw new NotSupportedException("Unsupported scriptPubKey");
 		}
 
+		List<Tuple<PubKey, ECDSASignature>> _KnownSignatures = new List<Tuple<PubKey, ECDSASignature>>();
 
 		private Key FindKey(TransactionSigningContext ctx, Script scriptPubKey)
 		{
 			var key = _Keys
 				.Concat(ctx.AdditionalKeys)
-				.FirstOrDefault(k => k.PubKey.ScriptPubKey == scriptPubKey ||  //P2PK
-									k.PubKey.Hash.ScriptPubKey == scriptPubKey || //P2PKH
-									k.PubKey.ScriptPubKey.Hash.ScriptPubKey == scriptPubKey || //P2PK P2SH
-									k.PubKey.Hash.ScriptPubKey.Hash.ScriptPubKey == scriptPubKey); //P2PKH P2SH
+				.FirstOrDefault(k => IsCompatibleKey(k.PubKey, scriptPubKey));
 			if(key == null && KeyFinder != null)
 			{
 				key = KeyFinder(scriptPubKey);
 			}
 			return key;
+		}
+
+		private static bool IsCompatibleKey(PubKey k, Script scriptPubKey)
+		{
+			return k.ScriptPubKey == scriptPubKey ||  //P2PK
+					k.Hash.ScriptPubKey == scriptPubKey || //P2PKH
+					k.ScriptPubKey.Hash.ScriptPubKey == scriptPubKey || //P2PK P2SH
+					k.Hash.ScriptPubKey.Hash.ScriptPubKey == scriptPubKey; //P2PKH P2SH
 		}
 
 		/// <summary>

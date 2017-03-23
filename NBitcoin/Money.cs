@@ -1,8 +1,7 @@
-﻿using System;
+﻿using System.Globalization;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using NBitcoin.OpenAsset;
 
@@ -342,18 +341,7 @@ namespace NBitcoin
 			if(a < Money.Zero)
 				a = -a;
 			return a;
-		}
-
-#if !NOBIGINT
-		public Money(BigInteger satoshis)
-#else
-		internal Money(BigInteger satoshis)
-#endif
-		{
-			// Overflow Safe. 
-			// BigInteger's explicit operator long checks for overflows
-			Satoshi = (long)satoshis;
-		}
+		}		
 
 		public Money(int satoshis)
 		{

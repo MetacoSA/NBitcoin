@@ -1,14 +1,14 @@
 ﻿#if !NOSOCKET
+using NBitcoin.Crypto;
+using NBitcoin.Protocol.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NBitcoin.Crypto;
-using NBitcoin.Protocol.Behaviors;
-using NBitcoin.Protocol.Payloads;
 
 namespace NBitcoin.Protocol
 {
@@ -1127,9 +1127,8 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		internal void DiscoverPeers(Network network, NodeConnectionParameters parameters)
+		internal void DiscoverPeers(Network network, NodeConnectionParameters parameters, int peerToFind)
 		{
-			int peerToFind = 1000;
 			TraceCorrelation traceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Discovering nodes");
 			int found = 0;
 
@@ -1146,6 +1145,8 @@ namespace NBitcoin.Protocol
 						PopulateTableWithDNSNodes(network, peers);
 						PopulateTableWithHardNodes(network, peers);
 						peers = new List<NetworkAddress>(peers.OrderBy(a => RandomUtils.GetInt32()));
+						if(peers.Count == 0)
+							return;
 					}
 
 

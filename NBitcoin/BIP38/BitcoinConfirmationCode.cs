@@ -4,7 +4,7 @@ using NBitcoin.BouncyCastle.math;
 using NBitcoin.BouncyCastle.math.ec;
 using NBitcoin.Crypto;
 
-namespace NBitcoin.BIP38
+namespace NBitcoin
 {
 	public class BitcoinConfirmationCode : Base58Data
 	{
