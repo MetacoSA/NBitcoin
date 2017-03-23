@@ -320,8 +320,8 @@ namespace NBitcoin
 			if (!this.HeaderOnly)
 			{
 				this.Header.PosParameters = new PosParameters();
-			
-				if(this.IsProofOfStake())
+				this.Header.PosParameters.Set = true;
+				if (this.IsProofOfStake())
 				{
 					this.Header.PosParameters.SetProofOfStake();
 					this.Header.PosParameters.StakeTime = this.Transactions[1].Time;
@@ -571,6 +571,8 @@ namespace NBitcoin
 
 		public uint256 HashProof;
 
+		public bool Set;
+
 		public PosParameters()
 		{
 			this.StakeModifierV2 = uint256.Zero;
@@ -579,7 +581,8 @@ namespace NBitcoin
 
 		public bool IsSet()
 		{
-			return this.HashProof != uint256.Zero;
+			return Set;
+			//return this.HashProof != uint256.Zero;
 		}
 
 		public BlockFlag Flags
