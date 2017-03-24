@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using NBitcoin.BitcoinCore;
+using NBitcoin.Protocol.Payloads;
 
 namespace NBitcoin.Protocol
 {

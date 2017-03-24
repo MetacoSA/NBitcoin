@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NBitcoin.BIP32;
+using NBitcoin;
 using Xunit;
 
 namespace NBitcoin.Tests

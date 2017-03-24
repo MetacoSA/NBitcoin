@@ -11,6 +11,7 @@ using NBitcoin.Protocol;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using NBitcoin.BouncyCastle.math;
+using NBitcoin.OpenAsset;
 #if !NOSOCKET
 using System.Net.Sockets;
 #endif

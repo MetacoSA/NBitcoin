@@ -550,7 +550,7 @@ namespace NBitcoin
 			}
 		}
 
-        public bool IsEmpty => (this.value == 0 && this.ScriptPubKey.Length == 0);
+        public bool IsEmpty => (this.Value == 0 && this.ScriptPubKey.Length == 0);
 
 	    public TxOut()
 		{

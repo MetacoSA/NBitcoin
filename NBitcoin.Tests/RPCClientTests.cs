@@ -3,6 +3,7 @@ using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace NBitcoin.Tests
 	[Trait("RPCClient", "RPCClient")]
 	public class RPCClientTests
 	{
+		public static bool noClient = !Process.GetProcesses().Any(p => p.ProcessName.Contains("stratis"));
+
 		const string TestAccount = "NBitcoin.RPCClientTests";
 		[Fact]
 		public void InvalidCommandSendRPCException()

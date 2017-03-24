@@ -1670,6 +1670,25 @@ namespace NBitcoin
 			return true;
 		}
 
+		public static bool IsLowDerSignature(byte[] vchSig)
+		{
+			if (!IsValidSignatureEncoding(vchSig))
+			{
+				return false;
+			}
+			int nLenR = vchSig[3];
+			int nLenS = vchSig[5 + nLenR];
+			var S = 6 + nLenR;
+			// If the S value is above the order of the curve divided by two, its
+			// complement modulo the order could have been used instead, which is
+			// one byte shorter when encoded correctly.
+			if (!CheckSignatureElement(vchSig, S, nLenS, true))
+			{
+				return false;
+			}
+
+			return true;
+		}
 
 		static bool IsDefinedHashtypeSignature(byte[] vchSig)
 		{
@@ -1686,7 +1705,7 @@ namespace NBitcoin
 			return true;
 		}
 
-		private bool IsLowDERSignature(byte[] vchSig)
+		public bool IsLowDERSignature(byte[] vchSig)
 		{
 			if(!IsValidSignatureEncoding(vchSig))
 			{
@@ -1728,7 +1747,7 @@ namespace NBitcoin
 0xDF,0xE9,0x2F,0x46,0x68,0x1B,0x20,0xA0
 };
 
-		private bool CheckSignatureElement(byte[] vchSig, int i, int len, bool half)
+		private static bool CheckSignatureElement(byte[] vchSig, int i, int len, bool half)
 		{
 			return vchSig != null
 						&&
@@ -1736,7 +1755,7 @@ namespace NBitcoin
 						 CompareBigEndian(vchSig, i, len, half ? vchMaxModHalfOrder : vchMaxModOrder, 32) <= 0;
 		}
 
-		private int CompareBigEndian(byte[] c1, int ic1, int c1len, byte[] c2, int c2len)
+		private static int CompareBigEndian(byte[] c1, int ic1, int c1len, byte[] c2, int c2len)
 		{
 			int ic2 = 0;
 			while(c1len > c2len)
@@ -1767,7 +1786,7 @@ namespace NBitcoin
 		}
 
 
-		static bool IsValidSignatureEncoding(byte[] sig)
+		public static bool IsValidSignatureEncoding(byte[] sig)
 		{
 			// Format: 0x30 [total-length] 0x02 [R-length] [R] 0x02 [S-length] [S] [sighash]
 			// * total-length: 1-byte length descriptor of everything that follows,

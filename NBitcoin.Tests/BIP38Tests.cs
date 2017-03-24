@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
-using NBitcoin.BIP38;
+using NBitcoin;
 using Xunit;
 
 namespace NBitcoin.Tests

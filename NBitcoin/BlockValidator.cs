@@ -95,10 +95,14 @@ namespace NBitcoin
 			var target = pindexPrev.Header.Bits.ToBigInteger();
 
 			int interval = targetTimespan/targetSpacing;
-			target *= ((interval - 1)*targetSpacing + actualSpacing + actualSpacing);
-			target /= ((interval + 1)*targetSpacing);
+			target = target.Multiply(BigInteger.ValueOf(((interval - 1)*targetSpacing + actualSpacing + actualSpacing)));
+			target = target.Divide(BigInteger.ValueOf(((interval + 1)*targetSpacing)));
 
-			if (target <= 0 || target > targetLimit)
+			//target *= ((interval - 1)*targetSpacing + actualSpacing + actualSpacing);
+			//target /= ((interval + 1)*targetSpacing);
+
+			if (target.CompareTo(BigInteger.Zero) <=0 || target.CompareTo(targetLimit) > 1)
+			//if (target <= 0 || target > targetLimit)
 				target = targetLimit;
 
 			return new Target(target);
@@ -168,7 +172,7 @@ namespace NBitcoin
 			// that can be verified before saving an orphan block.
 
 			// Size limits
-			if (block.Transactions.Empty() || block.GetSerializedSize() > MAX_BLOCK_SIZE)
+			if (!block.Transactions.Any() || block.GetSerializedSize() > MAX_BLOCK_SIZE)
 				return false; // DoS(100, error("CheckBlock() : size limits failed"));
 
 			// Check proof of work matches claimed amount
@@ -444,10 +448,10 @@ namespace NBitcoin
 			
 			// Weighted target
 			var nValueIn = txPrev.Outputs[prevout.N].Value.Satoshi;
-			var bnWeight = new BigInteger(nValueIn);
-			bnTarget *= bnWeight;
+			var bnWeight = BigInteger.ValueOf(nValueIn);
+			bnTarget = bnTarget.Multiply(bnWeight);
 
-			// todo: investigate this issue, is the convertion to uint256 similar to the c++ implementation
+			// todo: investigate this issue, is the conversion to uint256 similar to the c++ implementation
 			//targetProofOfStake = Target.ToUInt256(bnTarget);
 
 			var nStakeModifier = pindexPrev.Header.PosParameters.StakeModifier;
@@ -492,7 +496,7 @@ namespace NBitcoin
 			}
 
 			// Now check if proof-of-stake hash meets target protocol
-			var hashProofOfStakeTarget = new BigInteger(hashProofOfStake.ToBytes());
+			var hashProofOfStakeTarget = new BigInteger(hashProofOfStake.ToBytes(false));
 			if (hashProofOfStakeTarget.CompareTo(bnTarget) > 0)
 				return false;
 			

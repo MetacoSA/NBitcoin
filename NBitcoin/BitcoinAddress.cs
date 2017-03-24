@@ -1,4 +1,5 @@
 ﻿using System;
+using NBitcoin.OpenAsset;
 
 namespace NBitcoin
 {

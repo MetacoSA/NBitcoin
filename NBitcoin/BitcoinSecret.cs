@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using NBitcoin.BIP38;
+using NBitcoin;
 using NBitcoin.DataEncoders;
 
 namespace NBitcoin
