@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using NBitcoin.BitcoinCore;
-using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;

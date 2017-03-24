@@ -1,8 +1,9 @@
 using System;
 using System.IO;
-using NBitcoin.BouncyCastle.util;
 
-namespace NBitcoin.BouncyCastle.asn1
+using NBitcoin.BouncyCastle.Utilities;
+
+namespace NBitcoin.BouncyCastle.Asn1
 {
 	internal abstract class Asn1OctetString
 		: Asn1Object, Asn1OctetStringParser

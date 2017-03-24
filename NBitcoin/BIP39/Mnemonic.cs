@@ -1,14 +1,16 @@
-﻿using System;
+﻿
+using System;
+using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
-using NBitcoin;
+using System.Threading.Tasks;
 using NBitcoin.Crypto;
-using NBitcoin.Crypto.Cryptsharp;
 #if !WINDOWS_UWP && !USEBC
-
+using System.Security.Cryptography;
 #endif
+using NBitcoin.BouncyCastle.Security;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
 
 namespace NBitcoin
 {
@@ -177,8 +179,8 @@ namespace NBitcoin
 			var bytes = Normalize(_Mnemonic);
 
 #if USEBC || WINDOWS_UWP || NETCORE
-			var mac = new nStratis.BouncyCastle.crypto.macs.HMac(new nStratis.BouncyCastle.crypto.digests.Sha512Digest());
-			mac.Init(new nStratis.BouncyCastle.crypto.parameters.KeyParameter(bytes));
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha512Digest());
+			mac.Init(new KeyParameter(bytes));
 			return Pbkdf2.ComputeDerivedKey(mac, salt, 2048, 64);
 #else
 			return Pbkdf2.ComputeDerivedKey(new HMACSHA512(bytes), salt, 2048, 64);

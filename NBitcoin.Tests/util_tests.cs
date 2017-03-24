@@ -1,4 +1,4 @@
-﻿using NBitcoin.BouncyCastle.math;
+﻿using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.JsonConverters;
@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using NBitcoin.Crypto.Cryptsharp;
+using NBitcoin.Crypto.Internal;
 using Xunit;
 
 namespace NBitcoin.Tests

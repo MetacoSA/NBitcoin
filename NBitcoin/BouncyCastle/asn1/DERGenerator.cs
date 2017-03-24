@@ -1,7 +1,8 @@
 using System.IO;
-using NBitcoin.BouncyCastle.util.io;
 
-namespace NBitcoin.BouncyCastle.asn1
+using NBitcoin.BouncyCastle.Utilities.IO;
+
+namespace NBitcoin.BouncyCastle.Asn1
 {
 	internal abstract class DerGenerator
 		: Asn1Generator

@@ -6,7 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using NBitcoin;
-using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.Math;
 using NBitcoin.DataEncoders;
 using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;

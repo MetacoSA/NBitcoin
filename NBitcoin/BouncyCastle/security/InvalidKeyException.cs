@@ -1,6 +1,6 @@
 using System;
 
-namespace NBitcoin.BouncyCastle.security
+namespace NBitcoin.BouncyCastle.Security
 {
 	internal class InvalidKeyException : KeyException
 	{

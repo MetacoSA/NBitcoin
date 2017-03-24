@@ -95,7 +95,7 @@ namespace NBitcoin.Crypto
 			NBitcoin.Crypto.Internal.Check.Null("salt", salt);
 			NBitcoin.Crypto.Internal.Check.Length("salt", salt, 0, int.MaxValue - 4);
 			NBitcoin.Crypto.Internal.Check.Range("iterations", iterations, 1, int.MaxValue);
-			if (hmacAlgorithm.HashSize == 0 || hmacAlgorithm.HashSize % 8 != 0)
+			if(hmacAlgorithm.HashSize == 0 || hmacAlgorithm.HashSize%8 != 0)
 			{
 				throw Exceptions.Argument("hmacAlgorithm", "Unsupported hash size.");
 			}
@@ -117,7 +117,7 @@ namespace NBitcoin.Crypto
 
 			byte[] buffer = new byte[count];
 			int bytes = Read(buffer, 0, count);
-			if (bytes < count)
+			if(bytes < count)
 			{
 				throw Exceptions.Argument("count", "Can only return {0} bytes.", bytes);
 			}
@@ -154,7 +154,7 @@ namespace NBitcoin.Crypto
 		{
 			NBitcoin.Crypto.Internal.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
 
-			using (Pbkdf2 kdf = new Pbkdf2(hmacAlgorithm, salt, iterations))
+			using(Pbkdf2 kdf = new Pbkdf2(hmacAlgorithm, salt, iterations))
 			{
 				return kdf.Read(derivedKeyLength);
 			}
@@ -190,10 +190,10 @@ namespace NBitcoin.Crypto
 			ComputeHmac(_saltBuffer, _digestT1);
 			Array.Copy(_digestT1, _digest, _digestT1.Length);
 
-			for (int i = 1; i < _iterations; i++)
+			for(int i = 1; i < _iterations; i++)
 			{
 				ComputeHmac(_digestT1, _digestT1);
-				for (int j = 0; j < _digest.Length; j++)
+				for(int j = 0; j < _digest.Length; j++)
 				{
 					_digest[j] ^= _digestT1[j];
 				}
@@ -236,11 +236,11 @@ namespace NBitcoin.Crypto
 			NBitcoin.Crypto.Internal.Check.Bounds("buffer", buffer, offset, count);
 			int bytes = 0;
 
-			while (count > 0)
+			while(count > 0)
 			{
-				if (Position < _blockStart || Position >= _blockEnd)
+				if(Position < _blockStart || Position >= _blockEnd)
 				{
-					if (Position >= Length)
+					if(Position >= Length)
 					{
 						break;
 					}
@@ -267,7 +267,7 @@ namespace NBitcoin.Crypto
 		{
 			long pos;
 
-			switch (origin)
+			switch(origin)
 			{
 				case SeekOrigin.Begin:
 					pos = offset;
@@ -282,7 +282,7 @@ namespace NBitcoin.Crypto
 					throw Exceptions.ArgumentOutOfRange("origin", "Unknown seek type.");
 			}
 
-			if (pos < 0)
+			if(pos < 0)
 			{
 				throw Exceptions.Argument("offset", "Can't seek before the stream start.");
 			}
@@ -351,7 +351,7 @@ namespace NBitcoin.Crypto
 			}
 			set
 			{
-				if (_pos < 0)
+				if(_pos < 0)
 				{
 					throw Exceptions.Argument(null, "Can't seek before the stream start.");
 				}

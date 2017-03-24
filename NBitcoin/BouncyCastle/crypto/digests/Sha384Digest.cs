@@ -1,7 +1,7 @@
-using NBitcoin.BouncyCastle.crypto.util;
-using NBitcoin.BouncyCastle.util;
+using NBitcoin.BouncyCastle.Crypto.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
 
-namespace NBitcoin.BouncyCastle.crypto.digests
+namespace NBitcoin.BouncyCastle.Crypto.Digests
 {
 	/**
      * Draft FIPS 180-2 implementation of SHA-384. <b>Note:</b> As this is

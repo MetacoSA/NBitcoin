@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Crypto;
 
 namespace NBitcoin

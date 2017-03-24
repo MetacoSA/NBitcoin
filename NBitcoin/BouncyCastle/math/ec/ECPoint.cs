@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Text;
 
-namespace NBitcoin.BouncyCastle.math.ec
+namespace NBitcoin.BouncyCastle.Math.EC
 {
 	/**
      * base class for points on elliptic curves.
@@ -1875,7 +1875,7 @@ namespace NBitcoin.BouncyCastle.math.ec
 		}
 
 		/* (non-Javadoc)
-         * @see NBitcoin.BouncyCastle.math.EC.ECPoint#twice()
+         * @see NBitcoin.BouncyCastle.Math.EC.ECPoint#twice()
          */
 		public override ECPoint Twice()
 		{

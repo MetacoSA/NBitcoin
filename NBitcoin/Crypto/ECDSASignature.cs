@@ -1,5 +1,5 @@
-﻿using NBitcoin.BouncyCastle.asn1;
-using NBitcoin.BouncyCastle.math;
+﻿using NBitcoin.BouncyCastle.Asn1;
+using NBitcoin.BouncyCastle.Math;
 using System;
 using System.Collections.Generic;
 using System.IO;

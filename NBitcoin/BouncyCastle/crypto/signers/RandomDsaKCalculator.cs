@@ -1,8 +1,9 @@
 ﻿using System;
-using NBitcoin.BouncyCastle.math;
-using NBitcoin.BouncyCastle.security;
 
-namespace NBitcoin.BouncyCastle.crypto.signers
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Security;
+
+namespace NBitcoin.BouncyCastle.Crypto.Signers
 {
 	internal class RandomDsaKCalculator
 		: IDsaKCalculator

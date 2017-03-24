@@ -1,9 +1,10 @@
 using System;
-using NBitcoin.BouncyCastle.crypto.parameters;
-using NBitcoin.BouncyCastle.crypto.util;
-using NBitcoin.BouncyCastle.util;
 
-namespace NBitcoin.BouncyCastle.crypto.engines
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Crypto.Utilities;
+using NBitcoin.BouncyCastle.Utilities;
+
+namespace NBitcoin.BouncyCastle.Crypto.Engines
 {
 	/**
     * an implementation of the AES (Rijndael), from FIPS-197.

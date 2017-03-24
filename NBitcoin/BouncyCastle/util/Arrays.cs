@@ -1,8 +1,9 @@
 using System;
 using System.Text;
-using NBitcoin.BouncyCastle.math;
 
-namespace NBitcoin.BouncyCastle.util
+using NBitcoin.BouncyCastle.Math;
+
+namespace NBitcoin.BouncyCastle.Utilities
 {
 	/// <summary> General array utilities.</summary>
 	internal abstract class Arrays

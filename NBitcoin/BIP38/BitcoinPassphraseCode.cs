@@ -1,10 +1,10 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
+using NBitcoin.BouncyCastle.Math;
+using System;
 using System.Linq;
 using System.Text;
-using NBitcoin.BouncyCastle.math;
-using NBitcoin.Crypto;
-using NBitcoin.Crypto.Cryptsharp;
-using NBitcoin.DataEncoders;
+
 
 namespace NBitcoin
 {

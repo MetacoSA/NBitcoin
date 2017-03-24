@@ -3,9 +3,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using System.Text;
 using System.Threading.Tasks;
-using NBitcoin.Protocol.Payloads;
+using NBitcoin;
+using System.Threading;
 
 namespace NBitcoin.Protocol.Behaviors
 {
@@ -55,7 +56,7 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 		public static BroadcastHub GetBroadcastHub(NodeBehaviorsCollection behaviors)
 		{
-			return Enumerable.OfType<BroadcastHubBehavior>(behaviors).Select(c => c.BroadcastHub).FirstOrDefault();
+			return behaviors.OfType<BroadcastHubBehavior>().Select(c => c.BroadcastHub).FirstOrDefault();
 		}
 
 		internal ConcurrentDictionary<uint256, Transaction> BroadcastedTransaction = new ConcurrentDictionary<uint256, Transaction>();
@@ -74,7 +75,7 @@ namespace NBitcoin.Protocol.Behaviors
 		internal void OnBroadcastTransaction(Transaction transaction)
 		{
 			var nodes = Nodes
-						.Select<KeyValuePair<Node, Node>, BroadcastHubBehavior>(n => n.Key.Behaviors.Find<BroadcastHubBehavior>())
+						.Select(n => n.Key.Behaviors.Find<BroadcastHubBehavior>())
 						.Where(n => n != null)
 						.ToArray();
 			foreach(var node in nodes)

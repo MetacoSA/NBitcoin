@@ -1,6 +1,6 @@
-using NBitcoin.BouncyCastle.asn1.x9;
+using NBitcoin.BouncyCastle.Asn1.X9;
 
-namespace NBitcoin.BouncyCastle.asn1.sec
+namespace NBitcoin.BouncyCastle.Asn1.Sec
 {
 	internal abstract class SecObjectIdentifiers
 	{

@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
 	/**
      * The base interface for implementations of message authentication codes (MACs).

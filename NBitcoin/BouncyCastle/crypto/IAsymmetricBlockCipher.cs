@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
 	/// <remarks>Base interface for a public/private key block cipher.</remarks>
 	internal interface IAsymmetricBlockCipher

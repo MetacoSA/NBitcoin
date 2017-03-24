@@ -1,7 +1,7 @@
-using NBitcoin.BouncyCastle.math;
-using NBitcoin.BouncyCastle.math.ec;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math.EC;
 
-namespace NBitcoin.BouncyCastle.asn1.x9
+namespace NBitcoin.BouncyCastle.Asn1.X9
 {
 	/**
      * Class for processing an ECFieldElement as a DER object.

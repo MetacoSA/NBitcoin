@@ -1,9 +1,8 @@
-﻿using NBitcoin.BouncyCastle.math;
+﻿using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Protocol;
 using System;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using NBitcoin.BitcoinCore;
 using Xunit;
 

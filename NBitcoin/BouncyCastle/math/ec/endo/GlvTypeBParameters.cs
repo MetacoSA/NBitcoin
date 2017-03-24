@@ -1,4 +1,4 @@
-﻿namespace NBitcoin.BouncyCastle.math.ec.endo
+﻿namespace NBitcoin.BouncyCastle.Math.EC.Endo
 {
 	internal class GlvTypeBParameters
 	{

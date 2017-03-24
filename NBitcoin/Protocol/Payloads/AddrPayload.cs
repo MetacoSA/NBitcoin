@@ -1,7 +1,11 @@
 ﻿#if !NOSOCKET
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace NBitcoin.Protocol.Payloads
+namespace NBitcoin.Protocol
 {
 	/// <summary>
 	/// An available peer address in the bitcoin network is announce (unsollicited or after a getaddr)

@@ -1,7 +1,8 @@
 using System;
-using NBitcoin.BouncyCastle.math.ec;
 
-namespace NBitcoin.BouncyCastle.crypto.parameters
+using NBitcoin.BouncyCastle.Math.EC;
+
+namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
 	internal class ECPublicKeyParameters
 		: ECKeyParameters

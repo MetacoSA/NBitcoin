@@ -17,9 +17,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 #endregion
 
+using NBitcoin.Crypto.Internal;
 using System;
 
-namespace NBitcoin.Crypto.Cryptsharp
+namespace NBitcoin.Crypto
 {
 	// Source: http://cr.yp.to/salsa20.html
 	/// <summary>

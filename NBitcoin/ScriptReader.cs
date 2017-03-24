@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ooo = NBitcoin.BouncyCastle.math;
+using ooo = NBitcoin.BouncyCastle.Math;
 using System.Reflection;
 
 namespace NBitcoin

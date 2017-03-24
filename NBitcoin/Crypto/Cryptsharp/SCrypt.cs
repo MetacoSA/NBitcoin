@@ -17,15 +17,18 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 #endregion
 
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Security;
+using NBitcoin.Crypto.Internal;
 using System;
+#if !USEBC
 using System.Security.Cryptography;
+#endif
 using System.Text;
 using System.Threading;
-#if !USEBC
+using System.Threading.Tasks;
 
-#endif
-
-namespace NBitcoin.Crypto.Cryptsharp
+namespace NBitcoin.Crypto
 {
 	// See http://www.tarsnap.com/scrypt/scrypt.pdf for algorithm details.
 	// TODO: Test on a big-endian machine and make sure it works.
@@ -153,8 +156,8 @@ namespace NBitcoin.Crypto.Cryptsharp
 									   int cost, int blockSize, int parallel, int? maxThreads)
 		{
 			byte[] B = GetEffectivePbkdf2Salt(key, salt, cost, blockSize, parallel, maxThreads);
-			var mac = new nStratis.BouncyCastle.crypto.macs.HMac(new nStratis.BouncyCastle.crypto.digests.Sha256Digest());
-			mac.Init(new nStratis.BouncyCastle.crypto.parameters.KeyParameter(key));
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest());
+			mac.Init(new KeyParameter(key));
 			Pbkdf2 kdf = new Pbkdf2(mac, B, 1);
 			Security.Clear(B);
 			return kdf;
@@ -181,8 +184,8 @@ namespace NBitcoin.Crypto.Cryptsharp
 #if !(USEBC || NETCORE)
 			byte[] B = Pbkdf2.ComputeDerivedKey(new HMACSHA256(P), S, 1, parallel * MFLen);
 #else
-			var mac = new nStratis.BouncyCastle.crypto.macs.HMac(new nStratis.BouncyCastle.crypto.digests.Sha256Digest());
-			mac.Init(new nStratis.BouncyCastle.crypto.parameters.KeyParameter(P));
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new NBitcoin.BouncyCastle.Crypto.Digests.Sha256Digest());
+			mac.Init(new KeyParameter(P));
 			byte[] B = Pbkdf2.ComputeDerivedKey(mac, S, 1, parallel * MFLen);
 #endif
 			uint[] B0 = new uint[B.Length / 4];
@@ -251,10 +254,10 @@ namespace NBitcoin.Crypto.Cryptsharp
 			};
 
 			int threadCount = Math.Max(1, Math.Min(Environment.ProcessorCount, Math.Min(maxThreads, parallel)));
-			System.Threading.Tasks.Task[] threads = new System.Threading.Tasks.Task[threadCount - 1];
+			Task[] threads = new Task[threadCount - 1];
 			for(int i = 0 ; i < threads.Length ; i++)
 			{
-				threads[i] = System.Threading.Tasks.Task.Run(workerThread);
+				threads[i] = Task.Run(workerThread);
 			}
 			workerThread();
 			for(int i = 0 ; i < threads.Length ; i++)
@@ -351,12 +354,12 @@ namespace NBitcoin.Crypto.Cryptsharp
 		//•Use of the parallelization parameter provides a modest opportunity for speedups in environments where concurrent threading is available - such environments would be selected for processes that must handle bulk quantities of encryption/decryption operations. Estimated time for an operation is in the tens or hundreds of milliseconds.
 		public static byte[] BitcoinComputeDerivedKey(byte[] password, byte[] salt, int outputCount = 64)
 		{
-			return SCrypt.ComputeDerivedKey(password, salt, 16384, 8, 8, 8, outputCount);
+			return NBitcoin.Crypto.SCrypt.ComputeDerivedKey(password, salt, 16384, 8, 8, 8, outputCount);
 		}
 
 		public static byte[] BitcoinComputeDerivedKey2(byte[] password, byte[] salt, int outputCount = 64)
 		{
-			return SCrypt.ComputeDerivedKey(password, salt, 1024, 1, 1, 1, outputCount);
+			return NBitcoin.Crypto.SCrypt.ComputeDerivedKey(password, salt, 1024, 1, 1, 1, outputCount);
 		}
 
 		public static byte[] BitcoinComputeDerivedKey(string password, byte[] salt)

@@ -1,13 +1,18 @@
 ﻿#if !NOSOCKET
-using System;
-using System.Net;
 using NBitcoin.DataEncoders;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using System.Reflection;
 
 #if WINDOWS_UWP
 using Windows.ApplicationModel;
 #endif
 
-namespace NBitcoin.Protocol.Payloads
+namespace NBitcoin.Protocol
 {
 	[Flags]
 	public enum NodeServices : ulong
@@ -57,7 +62,7 @@ namespace NBitcoin.Protocol.Payloads
 #else
 				var version = typeof(VersionPayload).GetTypeInfo().Assembly.GetName().Version;
 #endif
-				_NUserAgent = "/nStratis:" + version.Major + "." + version.MajorRevision + "." + version.Build + "/";
+				_NUserAgent = "/NBitcoin:" + version.Major + "." + version.MajorRevision + "." + version.Build + "/";
 #endif
 
 			}

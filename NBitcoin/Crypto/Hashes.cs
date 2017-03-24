@@ -1,10 +1,15 @@
-﻿using System;
+﻿using NBitcoin.BouncyCastle.Crypto.Digests;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Security;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using NBitcoin.BouncyCastle.crypto.digests;
-#if !WINDOWS_UWP && !USEBC
+using System.Text;
+using System.Threading.Tasks;
 
+#if !WINDOWS_UWP && !USEBC
+using System.Security.Cryptography;
 #endif
 
 namespace NBitcoin.Crypto
@@ -381,8 +386,8 @@ namespace NBitcoin.Crypto
 #if USEBC || WINDOWS_UWP
 		public static byte[] HMACSHA512(byte[] key, byte[] data)
 		{
-			var mac = new nStratis.BouncyCastle.crypto.macs.HMac(new Sha512Digest());
-			mac.Init(new nStratis.BouncyCastle.crypto.parameters.KeyParameter(key));
+			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new Sha512Digest());
+			mac.Init(new KeyParameter(key));
 			mac.Update(data);
 			byte[] result = new byte[mac.GetMacSize()];
 			mac.DoFinal(result, 0);

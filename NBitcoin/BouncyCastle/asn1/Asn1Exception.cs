@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace NBitcoin.BouncyCastle.asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
 	internal class Asn1Exception
 		: IOException

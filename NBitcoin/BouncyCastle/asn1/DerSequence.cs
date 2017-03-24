@@ -1,7 +1,8 @@
 using System.IO;
-using NBitcoin.BouncyCastle.util;
 
-namespace NBitcoin.BouncyCastle.asn1
+using NBitcoin.BouncyCastle.Utilities;
+
+namespace NBitcoin.BouncyCastle.Asn1
 {
 	internal class DerSequence
 		: Asn1Sequence

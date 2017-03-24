@@ -1,7 +1,8 @@
 ﻿using System;
-using NBitcoin.BouncyCastle.math.ec.endo;
 
-namespace NBitcoin.BouncyCastle.math.ec.multiplier
+using NBitcoin.BouncyCastle.Math.EC.Endo;
+
+namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 {
 	internal class GlvMultiplier
 		: AbstractECMultiplier

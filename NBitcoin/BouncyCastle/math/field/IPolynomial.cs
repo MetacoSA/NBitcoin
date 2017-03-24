@@ -1,4 +1,4 @@
-﻿namespace NBitcoin.BouncyCastle.math.field
+﻿namespace NBitcoin.BouncyCastle.Math.Field
 {
 	internal interface IPolynomial
 	{

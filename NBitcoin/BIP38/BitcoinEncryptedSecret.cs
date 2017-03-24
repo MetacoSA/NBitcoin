@@ -1,13 +1,14 @@
-﻿using System.Linq;
-using System.Security;
-using System.Security.Cryptography;
-using System.Text;
-using NBitcoin.BouncyCastle.math;
-using NBitcoin.Crypto;
-using NBitcoin.Crypto.Cryptsharp;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+using NBitcoin.BouncyCastle.Math;
+using System.Linq;
+using System.Security;
+using System.Text;
+using NBitcoin.BouncyCastle.Crypto.Paddings;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Crypto.Engines;
 #if !WINDOWS_UWP && !USEBC
-
+using System.Security.Cryptography;
 #endif
 
 namespace NBitcoin
@@ -325,10 +326,10 @@ namespace NBitcoin
 		}
 
 #if USEBC || WINDOWS_UWP
-		internal static nStratis.BouncyCastle.crypto.paddings.PaddedBufferedBlockCipher CreateAES256(bool encryption, byte[] key)
+		internal static PaddedBufferedBlockCipher CreateAES256(bool encryption, byte[] key)
 		{
-			var aes = new nStratis.BouncyCastle.crypto.paddings.PaddedBufferedBlockCipher(new nStratis.BouncyCastle.crypto.engines.AesFastEngine(), new nStratis.BouncyCastle.crypto.paddings.Pkcs7Padding());
-			aes.Init(encryption, new nStratis.BouncyCastle.crypto.parameters.KeyParameter(key));
+			var aes = new PaddedBufferedBlockCipher(new AesFastEngine(), new Pkcs7Padding());
+			aes.Init(encryption, new KeyParameter(key));
 			aes.ProcessBytes(new byte[16], 0, 16, new byte[16], 0);
 			return aes;
 		}

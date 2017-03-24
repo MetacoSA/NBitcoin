@@ -1,13 +1,16 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Sockets;
-using System.Threading;
-using NBitcoin.Crypto;
-using NBitcoin.DataEncoders;
+using System.Linq;
 #if !NOSOCKET
-
+using System.Net.Sockets;
 #endif
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NBitcoin.Protocol
 {

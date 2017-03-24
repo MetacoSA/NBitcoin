@@ -1,13 +1,13 @@
 ﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Stealth;
-using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NBitcoin.BouncyCastle.math.ec;
+using NBitcoin.BouncyCastle.Math.EC;
 
 namespace NBitcoin
 {
@@ -328,7 +328,7 @@ namespace NBitcoin
 				throw new InvalidOperationException("You won the big prize ! this would happen only 1 in 2^127. Take a screenshot, and roll the dice again.");
 
 			q = q.Normalize();
-			var p = new NBitcoin.BouncyCastle.math.ec.FpPoint(ECKey.CURVE.Curve, q.XCoord, q.YCoord, true);
+			var p = new NBitcoin.BouncyCastle.Math.EC.FpPoint(ECKey.CURVE.Curve, q.XCoord, q.YCoord, true);
 			return new PubKey(p.GetEncoded());
 		}
 

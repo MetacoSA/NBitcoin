@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NBitcoin.BouncyCastle.math.ec.multiplier
+namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 {
 	internal class FixedPointCombMultiplier
 		: AbstractECMultiplier

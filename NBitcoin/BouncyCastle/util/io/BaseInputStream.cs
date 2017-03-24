@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace NBitcoin.BouncyCastle.util.io
+namespace NBitcoin.BouncyCastle.Utilities.IO
 {
 	internal abstract class BaseInputStream : Stream
 	{

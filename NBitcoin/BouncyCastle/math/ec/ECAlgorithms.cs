@@ -1,9 +1,10 @@
 using System;
-using NBitcoin.BouncyCastle.math.ec.endo;
-using NBitcoin.BouncyCastle.math.ec.multiplier;
-using NBitcoin.BouncyCastle.math.field;
 
-namespace NBitcoin.BouncyCastle.math.ec
+using NBitcoin.BouncyCastle.Math.EC.Endo;
+using NBitcoin.BouncyCastle.Math.EC.Multiplier;
+using NBitcoin.BouncyCastle.Math.Field;
+
+namespace NBitcoin.BouncyCastle.Math.EC
 {
 	internal class ECAlgorithms
 	{

@@ -1,9 +1,10 @@
 using System;
 using System.Diagnostics;
-using NBitcoin.BouncyCastle.math.raw;
-using NBitcoin.BouncyCastle.util;
 
-namespace NBitcoin.BouncyCastle.math.ec
+using NBitcoin.BouncyCastle.Math.Raw;
+using NBitcoin.BouncyCastle.Utilities;
+
+namespace NBitcoin.BouncyCastle.Math.EC
 {
 	internal abstract class ECFieldElement
 	{

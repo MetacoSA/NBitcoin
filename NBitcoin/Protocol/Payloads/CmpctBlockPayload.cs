@@ -1,10 +1,12 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NBitcoin.Crypto;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace NBitcoin.Protocol.Payloads
+namespace NBitcoin.Protocol
 {
 	[Payload("cmpctblock")]
 	public class CmpctBlockPayload : Payload

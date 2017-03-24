@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.asn1
+namespace NBitcoin.BouncyCastle.Asn1
 {
 	internal class DerOctetString
 		: Asn1OctetString

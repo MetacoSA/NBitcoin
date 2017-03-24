@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.math.ec.multiplier
+namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 {
 	/**
 	* Interface for classes storing precomputation data for multiplication

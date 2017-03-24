@@ -1,7 +1,14 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
+using NBitcoin.DataEncoders;
+using NBitcoin.BouncyCastle.Math;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NBitcoin.Stealth
 {
@@ -60,7 +67,7 @@ namespace NBitcoin.Stealth
 			}
 		}
 		public BitField(uint encodedForm, int bitcount)
-			: this((byte[]) Utils.ToBytes(encodedForm, true), bitcount)
+			: this(Utils.ToBytes(encodedForm, true), bitcount)
 		{
 
 		}

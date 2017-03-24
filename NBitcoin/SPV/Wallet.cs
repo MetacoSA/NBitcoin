@@ -14,7 +14,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NBitcoin.Protocol.Payloads;
 
 namespace NBitcoin.SPV
 {

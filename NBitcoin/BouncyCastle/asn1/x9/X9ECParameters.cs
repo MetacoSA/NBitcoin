@@ -1,9 +1,10 @@
 using System;
-using NBitcoin.BouncyCastle.math;
-using NBitcoin.BouncyCastle.math.ec;
-using NBitcoin.BouncyCastle.math.field;
 
-namespace NBitcoin.BouncyCastle.asn1.x9
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math.EC;
+using NBitcoin.BouncyCastle.Math.Field;
+
+namespace NBitcoin.BouncyCastle.Asn1.X9
 {
 	/**
      * ASN.1 def for Elliptic-Curve ECParameters structure. See

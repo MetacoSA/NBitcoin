@@ -1,4 +1,4 @@
-﻿using NBitcoin.BouncyCastle.math;
+﻿using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Crypto;
 using System;
 using System.Linq;

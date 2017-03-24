@@ -1,11 +1,10 @@
-﻿using System;
-using NBitcoin.BouncyCastle.asn1.x9;
-using NBitcoin.BouncyCastle.crypto.ec;
-using NBitcoin.BouncyCastle.crypto.parameters;
-using NBitcoin.BouncyCastle.crypto.signers;
-using NBitcoin.BouncyCastle.math;
-using NBitcoin.BouncyCastle.math.ec;
-using NBitcoin.BouncyCastle.math.ec.custom.sec;
+﻿using NBitcoin.BouncyCastle.Asn1.X9;
+using NBitcoin.BouncyCastle.Crypto.Parameters;
+using NBitcoin.BouncyCastle.Crypto.Signers;
+using NBitcoin.BouncyCastle.Math;
+using NBitcoin.BouncyCastle.Math.EC;
+using System;
+using NBitcoin.BouncyCastle.Math.EC.Custom.Sec;
 
 namespace NBitcoin.Crypto
 {
@@ -27,7 +26,7 @@ namespace NBitcoin.Crypto
 		public static readonly X9ECParameters _Secp256k1;
 		static ECKey()
 		{
-			_Secp256k1 = CustomNamedCurves.Secp256k1;
+			_Secp256k1 = NBitcoin.BouncyCastle.Crypto.EC.CustomNamedCurves.Secp256k1;
 			CURVE = new ECDomainParameters(_Secp256k1.Curve, _Secp256k1.G, _Secp256k1.N, _Secp256k1.H);
 			HALF_CURVE_ORDER = _Secp256k1.N.ShiftRight(1);
 			CURVE_ORDER = _Secp256k1.N;
@@ -36,7 +35,7 @@ namespace NBitcoin.Crypto
 		public ECKey(byte[] vch, bool isPrivate)
 		{
 			if(isPrivate)
-				_Key = new ECPrivateKeyParameters(new BigInteger(1, vch), DomainParameter);
+				_Key = new ECPrivateKeyParameters(new NBitcoin.BouncyCastle.Math.BigInteger(1, vch), DomainParameter);
 			else
 			{
 				var q = Secp256k1.Curve.DecodePoint(vch);
@@ -132,7 +131,7 @@ namespace NBitcoin.Crypto
 			//   1.1 Let x = r + jn
 
 			var n = curve.N;
-			var i = BigInteger.ValueOf((long)recId / 2);
+			var i = NBitcoin.BouncyCastle.Math.BigInteger.ValueOf((long)recId / 2);
 			var x = sig.R.Add(i.Multiply(n));
 
 			//   1.2. Convert the integer x to an octet string X of length mlen using the conversion routine
@@ -157,7 +156,7 @@ namespace NBitcoin.Crypto
 				return null;
 
 			//   1.5. Compute e from M using Steps 2 and 3 of ECDSA signature verification.
-			var e = new BigInteger(1, message.ToBytes());
+			var e = new NBitcoin.BouncyCastle.Math.BigInteger(1, message.ToBytes());
 			//   1.6. For k from 1 to 2 do the following.   (loop is outside this function via iterating recId)
 			//   1.6.1. Compute a candidate public key as:
 			//               Q = mi(r) * (sR - eG)
@@ -170,7 +169,7 @@ namespace NBitcoin.Crypto
 			// We can find the additive inverse by subtracting e from zero then taking the mod. For example the additive
 			// inverse of 3 modulo 11 is 8 because 3 + 8 mod 11 = 0, and -3 mod 11 = 8.
 
-			var eInv = BigInteger.Zero.Subtract(e).Mod(n);
+			var eInv = NBitcoin.BouncyCastle.Math.BigInteger.Zero.Subtract(e).Mod(n);
 			var rInv = sig.R.ModInverse(n);
 			var srInv = rInv.Multiply(sig.S).Mod(n);
 			var eInvrInv = rInv.Multiply(eInv).Mod(n);
@@ -183,7 +182,7 @@ namespace NBitcoin.Crypto
 			return new ECKey(q.GetEncoded(), false);
 		}
 
-		private static ECPoint DecompressKey(BigInteger xBN, bool yBit)
+		private static ECPoint DecompressKey(NBitcoin.BouncyCastle.Math.BigInteger xBN, bool yBit)
 		{
 			var curve = ECKey.Secp256k1.Curve;
 			byte[] compEnc = X9IntegerConverter.IntegerToBytes(xBN, 1 + X9IntegerConverter.GetByteLength(curve));

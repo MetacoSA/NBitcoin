@@ -1,6 +1,6 @@
 using System;
 
-namespace NBitcoin.BouncyCastle.crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
 	/**
 	* A wrapper class that allows block ciphers to be used to process data in

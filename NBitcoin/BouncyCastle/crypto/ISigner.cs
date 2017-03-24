@@ -1,4 +1,4 @@
-namespace NBitcoin.BouncyCastle.crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
 	internal interface ISigner
 	{

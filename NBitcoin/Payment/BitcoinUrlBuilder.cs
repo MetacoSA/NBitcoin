@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+#if !NOHTTPCLIENT
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.ExceptionServices;
+#endif
 using System.Text;
 using System.Threading.Tasks;
-
-#if !NOHTTPCLIENT
-#endif
+using System.Web;
+using System.Web.NBitcoin;
+using System.Runtime.ExceptionServices;
 
 namespace NBitcoin.Payment
 {

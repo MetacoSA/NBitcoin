@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using NBitcoin.Protocol.Payloads;
+using NBitcoin.Protocol;
 using Xunit;
 
 namespace NBitcoin.Tests

@@ -1,6 +1,6 @@
 using System;
 
-namespace NBitcoin.BouncyCastle.crypto
+namespace NBitcoin.BouncyCastle.Crypto
 {
 	internal class CryptoException
 		: Exception

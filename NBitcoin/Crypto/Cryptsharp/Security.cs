@@ -19,7 +19,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 using System;
 
-namespace NBitcoin.Crypto.Cryptsharp
+namespace NBitcoin.Crypto.Internal
 {
 	static class Security
 	{

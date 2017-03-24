@@ -1,7 +1,8 @@
 using System;
-using NBitcoin.BouncyCastle.util;
 
-namespace NBitcoin.BouncyCastle.crypto.parameters
+using NBitcoin.BouncyCastle.Utilities;
+
+namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
 	internal abstract class ECKeyParameters
 		: AsymmetricKeyParameter

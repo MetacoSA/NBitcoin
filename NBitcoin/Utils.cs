@@ -10,7 +10,7 @@ using System.Threading;
 using NBitcoin.Protocol;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
-using NBitcoin.BouncyCastle.math;
+using NBitcoin.BouncyCastle.Math;
 using NBitcoin.OpenAsset;
 #if !NOSOCKET
 using System.Net.Sockets;
@@ -404,7 +404,7 @@ namespace NBitcoin
 			ms.Write(bytes, 0, bytes.Length);
 		}
 
-		internal static Array BigIntegerToBytes(NBitcoin.BouncyCastle.math.BigInteger b, int numBytes)
+		internal static Array BigIntegerToBytes(NBitcoin.BouncyCastle.Math.BigInteger b, int numBytes)
 		{
 			if(b == null)
 			{

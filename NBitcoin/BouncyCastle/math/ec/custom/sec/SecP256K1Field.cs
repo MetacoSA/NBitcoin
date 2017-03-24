@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics;
-using NBitcoin.BouncyCastle.math.raw;
 
-namespace NBitcoin.BouncyCastle.math.ec.custom.sec
+using NBitcoin.BouncyCastle.Math.Raw;
+
+namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 {
 	internal class SecP256K1Field
 	{
