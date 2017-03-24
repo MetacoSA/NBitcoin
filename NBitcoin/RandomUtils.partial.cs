@@ -1,6 +1,10 @@
 ﻿#if WIN
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -40,7 +44,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public class RandomNumberGeneratorRandom : IRandom
 	{
@@ -49,14 +53,14 @@ namespace nStratis
 		{
 			_Instance = RandomNumberGenerator.Create();
 		}
-		#region IRandom Members
+#region IRandom Members
 
 		public void GetBytes(byte[] output)
 		{
 			_Instance.GetBytes(output);
 		}
 
-		#endregion
+#endregion
 	}
 
 	public partial class RandomUtils
@@ -78,7 +82,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace nStratis
+namespace NBitcoin
 {
 	public partial class RandomUtils
 	{

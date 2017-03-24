@@ -17,14 +17,17 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 #endregion
 
+using NBitcoin.BouncyCastle.Crypto;
+using NBitcoin.Crypto.Internal;
 using System;
+using System.Diagnostics;
 using System.IO;
-using System.Security.Cryptography;
-#if !WINDOWS_UWP && !USEBC
 
+#if !WINDOWS_UWP && !USEBC
+using System.Security.Cryptography;
 #endif
 
-namespace NBitcoin.Crypto.Cryptsharp
+namespace NBitcoin.Crypto
 {
 	/// <summary>
 	/// Implements the PBKDF2 key derivation function.
@@ -53,7 +56,7 @@ namespace NBitcoin.Crypto.Cryptsharp
 		byte[] _saltBuffer, _digest, _digestT1;
 
 #if USEBC || WINDOWS_UWP || NETCORE
-		nStratis.BouncyCastle.crypto.IMac _hmacAlgorithm;
+		IMac _hmacAlgorithm;
 #else
 		KeyedHashAlgorithm _hmacAlgorithm;
 #endif
@@ -71,12 +74,12 @@ namespace NBitcoin.Crypto.Cryptsharp
 		/// </param>
 		/// <param name="iterations">The number of iterations to apply.</param>
 #if USEBC || WINDOWS_UWP || NETCORE
-		public Pbkdf2(nStratis.BouncyCastle.crypto.IMac hmacAlgorithm, byte[] salt, int iterations)
+		public Pbkdf2(IMac hmacAlgorithm, byte[] salt, int iterations)
 		{
-			nStratis.Crypto.Cryptsharp.Check.Null("hmacAlgorithm", hmacAlgorithm);
-			nStratis.Crypto.Cryptsharp.Check.Null("salt", salt);
-			nStratis.Crypto.Cryptsharp.Check.Length("salt", salt, 0, int.MaxValue - 4);
-			nStratis.Crypto.Cryptsharp.Check.Range("iterations", iterations, 1, int.MaxValue);
+			NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
+			NBitcoin.Crypto.Internal.Check.Null("salt", salt);
+			NBitcoin.Crypto.Internal.Check.Length("salt", salt, 0, int.MaxValue - 4);
+			NBitcoin.Crypto.Internal.Check.Range("iterations", iterations, 1, int.MaxValue);
 			int hmacLength = hmacAlgorithm.GetMacSize();
 			_saltBuffer = new byte[salt.Length + 4];
 			Array.Copy(salt, _saltBuffer, salt.Length);
@@ -88,11 +91,11 @@ namespace NBitcoin.Crypto.Cryptsharp
 #else
 		public Pbkdf2(KeyedHashAlgorithm hmacAlgorithm, byte[] salt, int iterations)
 		{
-			Check.Null("hmacAlgorithm", hmacAlgorithm);
-			Check.Null("salt", salt);
-			Check.Length("salt", salt, 0, int.MaxValue - 4);
-			Check.Range("iterations", iterations, 1, int.MaxValue);
-			if(hmacAlgorithm.HashSize == 0 || hmacAlgorithm.HashSize%8 != 0)
+			NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
+			NBitcoin.Crypto.Internal.Check.Null("salt", salt);
+			NBitcoin.Crypto.Internal.Check.Length("salt", salt, 0, int.MaxValue - 4);
+			NBitcoin.Crypto.Internal.Check.Range("iterations", iterations, 1, int.MaxValue);
+			if (hmacAlgorithm.HashSize == 0 || hmacAlgorithm.HashSize % 8 != 0)
 			{
 				throw Exceptions.Argument("hmacAlgorithm", "Unsupported hash size.");
 			}
@@ -110,11 +113,11 @@ namespace NBitcoin.Crypto.Cryptsharp
 		/// <returns>Bytes from the derived key stream.</returns>
 		public byte[] Read(int count)
 		{
-			Check.Range("count", count, 0, int.MaxValue);
+			NBitcoin.Crypto.Internal.Check.Range("count", count, 0, int.MaxValue);
 
 			byte[] buffer = new byte[count];
 			int bytes = Read(buffer, 0, count);
-			if(bytes < count)
+			if (bytes < count)
 			{
 				throw Exceptions.Argument("count", "Can only return {0} bytes.", bytes);
 			}
@@ -135,10 +138,10 @@ namespace NBitcoin.Crypto.Cryptsharp
 		/// <param name="derivedKeyLength">The desired length of the derived key.</param>
 		/// <returns>The derived key.</returns>
 #if USEBC || WINDOWS_UWP || NETCORE
-		public static byte[] ComputeDerivedKey(nStratis.BouncyCastle.crypto.IMac hmacAlgorithm, byte[] salt, int iterations,
+		public static byte[] ComputeDerivedKey(IMac hmacAlgorithm, byte[] salt, int iterations,
 											   int derivedKeyLength)
 		{
-			nStratis.Crypto.Cryptsharp.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
+			NBitcoin.Crypto.Internal.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
 
 			using(Pbkdf2 kdf = new Pbkdf2(hmacAlgorithm, salt, iterations))
 			{
@@ -149,9 +152,9 @@ namespace NBitcoin.Crypto.Cryptsharp
 		public static byte[] ComputeDerivedKey(KeyedHashAlgorithm hmacAlgorithm, byte[] salt, int iterations,
 											   int derivedKeyLength)
 		{
-			Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
+			NBitcoin.Crypto.Internal.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
 
-			using(Pbkdf2 kdf = new Pbkdf2(hmacAlgorithm, salt, iterations))
+			using (Pbkdf2 kdf = new Pbkdf2(hmacAlgorithm, salt, iterations))
 			{
 				return kdf.Read(derivedKeyLength);
 			}
@@ -173,9 +176,9 @@ namespace NBitcoin.Crypto.Cryptsharp
 #else
 		public override void Close()
 		{
-			Security.Clear(_saltBuffer);
-			Security.Clear(_digest);
-			Security.Clear(_digestT1);
+			NBitcoin.Crypto.Internal.Security.Clear(_saltBuffer);
+			NBitcoin.Crypto.Internal.Security.Clear(_digest);
+			NBitcoin.Crypto.Internal.Security.Clear(_digestT1);
 
 			_hmacAlgorithm.Clear();
 		}
@@ -187,16 +190,16 @@ namespace NBitcoin.Crypto.Cryptsharp
 			ComputeHmac(_saltBuffer, _digestT1);
 			Array.Copy(_digestT1, _digest, _digestT1.Length);
 
-			for(int i = 1; i < _iterations; i++)
+			for (int i = 1; i < _iterations; i++)
 			{
 				ComputeHmac(_digestT1, _digestT1);
-				for(int j = 0; j < _digest.Length; j++)
+				for (int j = 0; j < _digest.Length; j++)
 				{
 					_digest[j] ^= _digestT1[j];
 				}
 			}
 
-			Security.Clear(_digestT1);
+			NBitcoin.Crypto.Internal.Security.Clear(_digestT1);
 		}
 
 #if USEBC || WINDOWS_UWP || NETCORE
@@ -230,14 +233,14 @@ namespace NBitcoin.Crypto.Cryptsharp
 		/// <inheritdoc />
 		public override int Read(byte[] buffer, int offset, int count)
 		{
-			Check.Bounds("buffer", buffer, offset, count);
+			NBitcoin.Crypto.Internal.Check.Bounds("buffer", buffer, offset, count);
 			int bytes = 0;
 
-			while(count > 0)
+			while (count > 0)
 			{
-				if(Position < _blockStart || Position >= _blockEnd)
+				if (Position < _blockStart || Position >= _blockEnd)
 				{
-					if(Position >= Length)
+					if (Position >= Length)
 					{
 						break;
 					}
@@ -264,7 +267,7 @@ namespace NBitcoin.Crypto.Cryptsharp
 		{
 			long pos;
 
-			switch(origin)
+			switch (origin)
 			{
 				case SeekOrigin.Begin:
 					pos = offset;
@@ -279,7 +282,7 @@ namespace NBitcoin.Crypto.Cryptsharp
 					throw Exceptions.ArgumentOutOfRange("origin", "Unknown seek type.");
 			}
 
-			if(pos < 0)
+			if (pos < 0)
 			{
 				throw Exceptions.Argument("offset", "Can't seek before the stream start.");
 			}
@@ -348,7 +351,7 @@ namespace NBitcoin.Crypto.Cryptsharp
 			}
 			set
 			{
-				if(_pos < 0)
+				if (_pos < 0)
 				{
 					throw Exceptions.Argument(null, "Can't seek before the stream start.");
 				}
