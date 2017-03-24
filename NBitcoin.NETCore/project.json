@@ -1,6 +1,6 @@
 {
   "version": "1.0.0.0",
-  "name": "nStratis.NETCore",
+  "name": "NStratis",
   "dependencies": {
     "Newtonsoft.Json": "9.0.1",
     "NETStandard.Library": "1.6.0",
@@ -38,7 +38,7 @@
 	}
   },
   "buildOptions": {
-    "outputName": "nStratis",
+    "outputName": "NStratis",
     "debugType": "portable",
     "define": [
       "TRACE",
@@ -47,7 +47,7 @@
     ],
     "compile": {
       "include": [
-        "../nStratis/**/*.cs",
+        "../NBitcoin/**/*.cs",
         "../Stubs/TraceStub/TraceSource.cs"
       ]
     },
