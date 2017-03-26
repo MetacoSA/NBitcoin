@@ -301,7 +301,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BitcoinStream.Partial.cs</LastGenOutput>
     </None>
-    <None Include="nStratis.Tokenized.nuspec">
+    <None Include="NStratis.Tokenized.nuspec">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config">

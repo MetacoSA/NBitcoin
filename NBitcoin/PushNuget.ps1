@@ -1,10 +1,10 @@
 del *.nupkg
 
 ## build the project
-C:\"Program Files (x86)"\MSBuild\14.0\Bin\msbuild.exe  "..\nStratis\nStratis.csproj" -p:Configuration=Release
+C:\"Program Files (x86)"\MSBuild\14.0\Bin\msbuild.exe  "..\NBitcoin\NBitcoin.csproj" -p:Configuration=Release
 
 ## build in netcore
-cd ..\nStratis.NETCore
+cd ..\NBitcoin.NETCore
 dotnet restore
 dotnet build -c Release
 
@@ -13,7 +13,7 @@ cd ..\nStratis
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\Build\Deploy.csproj"
 
 ## enable debug in to the package by including the .pdb files
-.\GitLink.exe ".." -ignore "nStratis.portable.tests,common,nStratis.tests,build"
+.\GitLink.exe ".." -ignore "NBitcoin.portable.tests,common,NBitcoin.tests,build"
 
 ## package the code
 ..\.nuget\nuGet pack nStratis.nuspec -Symbols

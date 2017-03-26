@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
 	<metadata>
-		<id>nStratis</id>
+		<id>NStratis</id>
 		<version>$version$</version>
-		<title>nStratis</title>
+		<title>NStratis</title>
 		<authors>Stratis Platform</authors>
 		<owners>$author$</owners>
 		<iconUrl>http://stratisplatform.com/files/2016/06/Stratis_Logo-Full_Colored_On-White.jpg</iconUrl>
@@ -32,13 +32,13 @@
 	</metadata>
 
 	<files>
-		<file src="bin\Release\nStratis.*" target="lib\net45" />
-		<file src="..\nStratis.NETCore\bin\Release\netstandard1.3\*.*" target="lib\netstandard1.3" />
-		<file src="..\nStratis.NETCore\bin\Release\netstandard1.1\*.*" target="lib\netstandard1.1" />	
+		<file src="bin\Release\NBitcoin.*" target="lib\net45" />
+		<file src="..\NBitcoin.NETCore\bin\Release\netstandard1.3\*.*" target="lib\netstandard1.3" />
+		<file src="..\NBitcoin.NETCore\bin\Release\netstandard1.1\*.*" target="lib\netstandard1.1" />	
     
     <!--hashlib-->
     <file src="bin\Release\HashLib.*" target="lib\net45" />
-    <file src="..\nStratis.NETCore\bin\Release\netstandard1.3\HashLib.*" target="lib\netstandard1.3" />
-    <file src="..\nStratis.NETCore\bin\Release\netstandard1.1\HashLib.*" target="lib\netstandard1.1" />
+    <file src="..\NBitcoin.NETCore\bin\Release\netstandard1.3\HashLib.*" target="lib\netstandard1.3" />
+    <file src="..\NBitcoin.NETCore\bin\Release\netstandard1.1\HashLib.*" target="lib\netstandard1.1" />
   </files>
 </package>
