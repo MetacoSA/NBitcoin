@@ -9,14 +9,14 @@ dotnet restore
 dotnet build -c Release
 
 ## create the nuspec file
-cd ..\nStratis
+cd ..\NBitcoin
 C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe "..\Build\Deploy.csproj"
 
 ## enable debug in to the package by including the .pdb files
-.\GitLink.exe ".." -ignore "NBitcoin.portable.tests,common,NBitcoin.tests,build"
+##.\GitLink.exe ".." -ignore "NBitcoin.portable.tests,common,NBitcoin.tests,build"
 
 ## package the code
-..\.nuget\nuGet pack nStratis.nuspec -Symbols
+..\.nuget\nuGet pack NStratis.nuspec -Symbols
 
 ## push to nuget
 forfiles /m *.nupkg /c "cmd /c ..\.nuget\NuGet.exe push @FILE -source https://api.nuget.org/v3/index.json"

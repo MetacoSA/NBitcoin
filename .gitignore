@@ -127,6 +127,7 @@ packages/
 *.nupkg
 NBitcoin.Mono.nuspec
 NBitcoin.nuspec
+NStratis.nuspec
 
 ## TODO: If the tool you use requires repositories.config uncomment the next line
 #!packages/repositories.config
