@@ -597,8 +597,8 @@ namespace NBitcoin.Tests
 				if (client != null)
 				{
 					var fetched = client.GetRPCBlock(item.HashBlock).Result;
-					Assert.Equal(uint256.Parse(fetched.modifierv2), item.Header.PosParameters.StakeModifierV2);
-					Assert.Equal(uint256.Parse(fetched.proofhash), item.Header.PosParameters.HashProof);
+					Assert.Equal(uint256.Parse(fetched.modifierv2), item.Header.BlockStake.StakeModifierV2);
+					Assert.Equal(uint256.Parse(fetched.proofhash), item.Header.BlockStake.HashProof);
 				}
 			}
 		}

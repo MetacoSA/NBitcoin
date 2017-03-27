@@ -60,9 +60,9 @@ namespace NBitcoin
 						stream.ReadWrite<uint256.MutableUint256>(ref id);
 						BlockHeader header = null;
 						stream.ReadWrite(ref header);
-						PosParameters posParameters = null;
-						stream.ReadWrite(ref posParameters);
-						header.PosParameters = posParameters;
+						BlockStake blockStake = null;
+						stream.ReadWrite(ref blockStake);
+						header.BlockStake = blockStake;
 
 						if(height == 0)
 						{
@@ -103,7 +103,7 @@ namespace NBitcoin
 					var block = GetBlockNoLock(i);
 					stream.ReadWrite(block.HashBlock.AsBitcoinSerializable());
 					stream.ReadWrite(block.Header);
-					stream.ReadWrite(block.Header.PosParameters);
+					stream.ReadWrite(block.Header.BlockStake);
 				}
 			}
 		}

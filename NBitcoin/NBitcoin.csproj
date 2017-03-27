@@ -140,6 +140,7 @@
     <Compile Include="Payment\PaymentRequest.cs" />
     <Compile Include="Payment\UriHelper.cs" />
     <Compile Include="Payment\HttpUtility.cs" />
+    <Compile Include="BlockStake.cs" />
     <Compile Include="PrecomputedTransactionData.cs" />
     <Compile Include="Protobuf\ProtobufReaderWriter.cs" />
     <Compile Include="Protocol\AddressManager.cs" />

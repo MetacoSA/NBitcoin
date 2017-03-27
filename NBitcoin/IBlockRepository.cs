@@ -12,4 +12,8 @@ namespace NBitcoin
 		uint256 GetBlockHash(uint256 trxHash);
 	}
 
+	public interface IBlockStakeRepository
+	{
+		BlockStake GetBlockStake(uint256 blockId);
+	}
 }

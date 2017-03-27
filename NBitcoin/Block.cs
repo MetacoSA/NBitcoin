@@ -41,7 +41,7 @@ namespace NBitcoin
 		}
 
 		// header
-		const int CURRENT_VERSION = 7;
+		public static int CURRENT_VERSION = 7;
 
 		uint256 hashPrevBlock;
 
@@ -124,13 +124,6 @@ namespace NBitcoin
 			}
 		}
 
-		/// <summary>
-		/// Additional POS parameters attached to the header.
-		/// This is not used in serialization but only as a reference 
-		/// to set POS flags and make calculation.
-		/// </summary>
-		public PosParameters PosParameters { get; set; }
-
 		public BlockHeader()
 		{
 			SetNull();
@@ -145,7 +138,6 @@ namespace NBitcoin
 			nTime = 0;
 			nBits = 0;
 			nNonce = 0;
-			PosParameters = new PosParameters();
 		}
 
 		public bool IsNull
@@ -155,7 +147,6 @@ namespace NBitcoin
 				return (nBits == 0);
 			}
 		}
-
 		#region IBitcoinSerializable Members
 
 		public void ReadWrite(BitcoinStream stream)
@@ -168,35 +159,50 @@ namespace NBitcoin
 			stream.ReadWrite(ref nNonce);
 		}
 
-#endregion
+		#endregion
 
 		public uint256 GetHash()
 		{
 			uint256 h = null;
 			var hashes = _Hashes;
-			if(hashes != null)
+			if (hashes != null)
 			{
 				h = hashes[0];
 			}
-			if(h != null)
+			if (h != null)
 				return h;
-			if (this.nVersion > 6)
+			if (Block.BlockSignature)
+			{
+				if (this.nVersion > 6)
+					h = Hashes.Hash256(this.ToBytes());
+				else
+					h = this.GetPoWHash();
+			}
+				else
+			{
 				h = Hashes.Hash256(this.ToBytes());
-			else
-				h = this.GetPoWHash();
-			
+
+			}
 			hashes = _Hashes;
-			if(hashes != null)
+			if (hashes != null)
 			{
 				hashes[0] = h;
 			}
 			return h;
 		}
 
-        public uint256 GetPoWHash()
-        {
-            return HashX13.Instance.Hash(this.ToBytes());
-        }
+		public uint256 GetPoWHash()
+		{
+			return HashX13.Instance.Hash(this.ToBytes());
+		}
+
+		/// <summary>
+		/// If called, GetHash becomes cached, only use if you believe the instance will not be modified after calculation. Calling it a second type invalidate the cache.
+		/// </summary>
+		public void CacheHashes()
+		{
+			_Hashes = new uint256[1];
+		}
 
 
 		uint256[] _Hashes;
@@ -217,10 +223,12 @@ namespace NBitcoin
 		public bool CheckProofOfWork()
 		{
 			var bits = Bits.ToBigInteger();
-			if(bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
+			if (bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
 				return false;
 			// Check proof of work matches claimed amount
-			return GetPoWHash() <= Bits.ToUInt256();
+			if (Block.BlockSignature)
+				return GetPoWHash() <= Bits.ToUInt256();
+			return GetHash() <= Bits.ToUInt256();
 		}
 
 		public override string ToString()
@@ -260,11 +268,11 @@ namespace NBitcoin
 			var mtp = prev.GetMedianTimePast() + TimeSpan.FromSeconds(1);
 			var nNewTime = mtp > now ? mtp : now;
 
-			if(nOldTime < nNewTime)
+			if (nOldTime < nNewTime)
 				this.BlockTime = nNewTime;
 
 			// Updating time can change work required on testnet:
-			if(consensus.PowAllowMinDifficultyBlocks)
+			if (consensus.PowAllowMinDifficultyBlocks)
 				Bits = GetWorkRequired(consensus, prev);
 		}
 
@@ -290,8 +298,7 @@ namespace NBitcoin
 		}
 	}
 
-
-	public class Block : IBitcoinSerializable
+	public partial class Block : IBitcoinSerializable
 	{
 		//FIXME: it needs to be changed when Gavin Andresen increase the max block size. 
 		public const uint MAX_BLOCK_SIZE = 1000 * 1000;
@@ -302,23 +309,21 @@ namespace NBitcoin
 
 		public List<Transaction> Transactions
 		{
-			get { return vtx; }
-			set { vtx = value; }
-		}
-
-		// block signature - signed by one of the coin base txout[N]'s owner
-		private BlockSignature blockSignature = new BlockSignature();
-
-		public BlockSignature BlockSignatur
-		{
-			get { return this.blockSignature; }
-			set { this.blockSignature = value; }
+			get
+			{
+				return vtx;
+			}
+			set
+			{
+				vtx = value;
+			}
 		}
 
 		public MerkleNode GetMerkleRoot()
 		{
-			return MerkleNode.GetRoot(this.Transactions.Select(t => t.GetHash()));
+			return MerkleNode.GetRoot(Transactions.Select(t => t.GetHash()));
 		}
+
 
 		public Block()
 		{
@@ -330,36 +335,16 @@ namespace NBitcoin
 			SetNull();
 			header = blockHeader;
 		}
-
 		public Block(byte[] bytes)
 		{
 			this.ReadWrite(bytes);
 		}
 
-		public PosParameters SetPosParams()
-		{
-			if (!this.HeaderOnly)
-			{
-				this.Header.PosParameters = new PosParameters();
-				this.Header.PosParameters.Set = true;
-				if (this.IsProofOfStake())
-				{
-					this.Header.PosParameters.SetProofOfStake();
-					this.Header.PosParameters.StakeTime = this.Transactions[1].Time;
-					this.Header.PosParameters.PrevoutStake = this.Transactions[1].Inputs[0].PrevOut;
-				}
-			}
-
-			return this.Header.PosParameters;
-		}
 
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref header);
 			stream.ReadWrite(ref vtx);
-			stream.ReadWrite(ref blockSignature);
-			
-			this.SetPosParams();
 		}
 
 		public bool HeaderOnly
@@ -375,52 +360,19 @@ namespace NBitcoin
 		{
 			header.SetNull();
 			vtx.Clear();
-			blockSignature.SetNull();
 		}
 
-
-		public BlockHeader Header => this.header;
-
-	    public ulong GetStakeEntropyBit()
-	    {
-            // Take last bit of block hash as entropy bit
-            ulong nEntropyBit = (this.GetHash().GetLow64() & (ulong)1);
-
-	        //LogPrint("stakemodifier", "GetStakeEntropyBit: hashBlock=%s nEntropyBit=%u\n", GetHash().ToString(), nEntropyBit);
-	        return nEntropyBit;
-	    }
-
-	    public uint256 GetHash()
-		{
-			//Block's hash is his header's hash
-			//return Hashes.Hash256(header.ToBytes());
-		    return this.header.GetHash();
-		}
-
-        // ppcoin: two types of block: proof-of-work or proof-of-stake
-        public bool IsProofOfStake()
-        {
-            return this.vtx.Count > 1 && this.vtx[1].IsCoinStake;
-        }
-
-        public bool IsProofOfWork()
-        {
-            return !this.IsProofOfStake();
-        }
-
-        public Tuple<OutPoint, ulong> GetProofOfStake()
-        {
-            return this.IsProofOfStake() ? 
-            new Tuple<OutPoint, ulong>(vtx[1].Inputs.First().PrevOut, vtx[1].LockTime) : 
-            new Tuple<OutPoint, ulong>(new OutPoint(), (ulong)0);
-        }
-
-        public int Length
+		public BlockHeader Header
 		{
 			get
 			{
-				return this.header.ToBytes().Length;
+				return header;
 			}
+		}
+		public uint256 GetHash()
+		{
+			//Block's hash is his header's hash
+			return header.GetHash();
 		}
 
 		public void ReadWrite(byte[] array, int startIndex)
@@ -444,11 +396,11 @@ namespace NBitcoin
 		/// <returns>A new block with only the options wanted</returns>
 		public Block WithOptions(TransactionOptions options)
 		{
-			if(Transactions.Count == 0)
+			if (Transactions.Count == 0)
 				return this;
-			if(options == TransactionOptions.Witness && Transactions[0].HasWitness)
+			if (options == TransactionOptions.Witness && Transactions[0].HasWitness)
 				return this;
-			if(options == TransactionOptions.None && !Transactions[0].HasWitness)
+			if (options == TransactionOptions.None && !Transactions[0].HasWitness)
 				return this;
 			var instance = new Block();
 			var ms = new MemoryStream();
@@ -468,46 +420,22 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Check POW/POS and merkle root
+		/// Check proof of work and merkle root
 		/// </summary>
 		/// <returns></returns>
 		public bool Check()
 		{
-			return CheckMerkleRoot() && CheckProofOfWork() && CheckProofOfStake();
+			return CheckMerkleRoot() && Header.CheckProofOfWork();
 		}
 
 		public bool CheckProofOfWork()
 		{
-            // if POS return true else check POW algo
-			return this.IsProofOfStake() || Header.CheckProofOfWork();
+			return Header.CheckProofOfWork();
 		}
 
-        public bool CheckProofOfStake()
-        {
-			// todo: move this to the full node code.
-			// this code is not the full check of POS 
-			// full POS check will be introduced with the full node
-			
-            if (IsProofOfWork())
-                return true;
-
-            // Coinbase output should be empty if proof-of-stake block
-            if (this.vtx[0].Outputs.Count != 1 || !this.vtx[0].Outputs[0].IsEmpty)
-                return false;
-
-			// Second transaction must be coinstake, the rest must not be
-			if (!vtx[1].IsCoinStake)
-				return false; 
-
-			if (vtx.Skip(2).Any(t => t.IsCoinStake))
-				return false; 
-
-            return true;
-        }
-
-        public bool CheckMerkleRoot()
+		public bool CheckMerkleRoot()
 		{
-			return this.Header.HashMerkleRoot == this.GetMerkleRoot().Hash;
+			return Header.HashMerkleRoot == GetMerkleRoot().Hash;
 		}
 
 		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height)
@@ -516,7 +444,7 @@ namespace NBitcoin
 		}
 		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height, DateTimeOffset now)
 		{
-			if(address == null)
+			if (address == null)
 				throw new ArgumentNullException("address");
 			Block block = new Block();
 			block.Header.Nonce = RandomUtils.GetUInt32();
@@ -569,7 +497,7 @@ namespace NBitcoin
 			blk.Header.Version = (int)block["ver"];
 			blk.Header.HashPrevBlock = uint256.Parse((string)block["prev_block"]);
 			blk.Header.HashMerkleRoot = uint256.Parse((string)block["mrkl_root"]);
-			foreach(var tx in txs)
+			foreach (var tx in txs)
 			{
 				blk.AddTransaction(formatter.Parse((JObject)tx));
 			}
@@ -592,109 +520,4 @@ namespace NBitcoin
 		}
 	}
 
-	[Flags]
-	public enum BlockFlag //block index flags
-
-	{
-		BLOCK_PROOF_OF_STAKE = (1 << 0), // is proof-of-stake block
-		BLOCK_STAKE_ENTROPY = (1 << 1), // entropy bit for stake modifier
-		BLOCK_STAKE_MODIFIER = (1 << 2), // regenerated stake modifier
-	};
-
-	public class PosParameters : IBitcoinSerializable
-	{
-		public int Mint;
-
-		public OutPoint PrevoutStake;
-
-		public uint StakeTime;
-
-		public ulong StakeModifier; // hash modifier for proof-of-stake
-
-		public uint256 StakeModifierV2;
-
-		private int flags;
-
-		public uint256 HashProof;
-
-		public bool Set;
-
-		public PosParameters()
-		{
-			this.StakeModifierV2 = uint256.Zero;
-			this.HashProof = uint256.Zero;
-		}
-
-		public bool IsSet()
-		{
-			return Set;
-			//return this.HashProof != uint256.Zero;
-		}
-
-		public BlockFlag Flags
-		{
-			get
-			{
-				return (BlockFlag)this.flags;
-			}
-			set
-			{
-				this.flags = (int)value;
-			}
-		}
-
-		public void ReadWrite(BitcoinStream stream)
-		{
-			stream.ReadWrite(ref this.flags);
-			stream.ReadWrite(ref this.Mint);
-			stream.ReadWrite(ref this.StakeModifier);
-			stream.ReadWrite(ref this.StakeModifierV2);
-			if (this.IsProofOfStake())
-			{
-				stream.ReadWrite(ref this.PrevoutStake);
-				stream.ReadWrite(ref this.StakeTime);
-			}
-			stream.ReadWrite(ref this.HashProof);
-		}
-
-		public bool IsProofOfWork()
-		{
-			return !((this.Flags & BlockFlag.BLOCK_PROOF_OF_STAKE) > 0);
-		}
-
-		public bool IsProofOfStake()
-		{
-			return (this.Flags & BlockFlag.BLOCK_PROOF_OF_STAKE) > 0;
-		}
-
-		public void SetProofOfStake()
-		{
-			this.Flags |= BlockFlag.BLOCK_PROOF_OF_STAKE;
-		}
-
-		public uint GetStakeEntropyBit()
-		{
-			return (uint)(this.Flags & BlockFlag.BLOCK_STAKE_ENTROPY) >> 1;
-		}
-
-		public bool SetStakeEntropyBit(uint nEntropyBit)
-		{
-			if (nEntropyBit > 1)
-				return false;
-			this.Flags |= (nEntropyBit != 0 ? BlockFlag.BLOCK_STAKE_ENTROPY : 0);
-			return true;
-		}
-
-		public bool GeneratedStakeModifier()
-		{
-			return (this.Flags & BlockFlag.BLOCK_STAKE_MODIFIER) > 0;
-		}
-
-		public void SetStakeModifier(ulong modifier, bool fGeneratedStakeModifier)
-		{
-			this.StakeModifier = modifier;
-			if (fGeneratedStakeModifier)
-				this.Flags |= BlockFlag.BLOCK_STAKE_MODIFIER;
-		}
-	}
 }

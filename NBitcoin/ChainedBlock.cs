@@ -336,10 +336,10 @@ namespace NBitcoin
 			// if POS parameters is not set there is no way to know
 			// if this is a POS or a POW block and so we can't calculate 
 			// the work for POW or the target for POS
-			if (!this.Header.PosParameters.IsSet())
+			if (!this.Header.BlockStake.IsSet())
 				return true;
 
-			if (this.Header.PosParameters.IsProofOfWork() && !this.Header.CheckProofOfWork())
+			if (this.Header.BlockStake.IsProofOfWork() && !this.Header.CheckProofOfWork())
 				return false;
 
 			return this.Header.Bits == this.GetWorkRequired(consensus);
@@ -348,7 +348,7 @@ namespace NBitcoin
 		public Target GetWorkRequired(Consensus consensus)
 		{
 			this.EnsurePosHeader();
-			return BlockValidator.GetNextTargetRequired(this.Previous, consensus, this.Header.PosParameters.IsProofOfStake());
+			return BlockValidator.GetNextTargetRequired(this.Previous, consensus, this.Header.BlockStake.IsProofOfStake());
 		}
 
 
@@ -394,7 +394,7 @@ namespace NBitcoin
 
 		private void EnsurePosHeader()
 		{
-			if (!this.Header.PosParameters.IsSet())
+			if (!this.Header.BlockStake.IsSet())
 				throw new ArgumentNullException("PosParameters");
 		}
 	}

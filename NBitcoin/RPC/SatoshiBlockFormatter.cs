@@ -84,7 +84,7 @@ namespace NBitcoin.RPC
 			var header = new BlockHeader()
 			{
 				Time = rpcBlock.time,
-				PosParameters = new PosParameters
+				BlockStake = new BlockStake
 				{
 					HashProof = uint256.Parse( rpcBlock.proofhash),
 					Mint = rpcBlock.mint,
