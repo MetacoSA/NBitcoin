@@ -14,17 +14,21 @@ namespace NBitcoin
 	{
 		private const int MAX_BLOCK_SIZE = 1000000;
 
+		public const int STAKE_TIMESTAMP_MASK = 15;
+		public const long COIN = 100000000;
+		public const long CENT = 1000000;
+
 		private static bool IsProtocolV1RetargetingFixed(int height)
 		{
 			return height > 0;
 		}
 
-		private static bool IsProtocolV2(int height)
+		public static bool IsProtocolV2(int height)
 		{
 			return height > 0;
 		}
 
-		private static bool IsProtocolV3(int nTime)
+		public static bool IsProtocolV3(int nTime)
 		{
 			return nTime > 1470467000;
 		}
@@ -34,7 +38,7 @@ namespace NBitcoin
 			return IsProtocolV2(height) ? consensus.ProofOfStakeLimitV2 : consensus.ProofOfStakeLimit;
 		}
 
-		private static int GetTargetSpacing(int height)
+		public static int GetTargetSpacing(int height)
 		{
 			return IsProtocolV2(height) ? 64 : 60;
 		}
@@ -43,8 +47,38 @@ namespace NBitcoin
 		private static long FutureDriftV2(long nTime) { return nTime + 128 * 60 * 60; }
 		private static long FutureDrift(long nTime, int nHeight) { return IsProtocolV2(nHeight) ? FutureDriftV2(nTime) : FutureDriftV1(nTime); }
 
+		// Get time weight
+		public static long GetWeight(long nIntervalBeginning, long nIntervalEnd)
+		{
+			// Kernel hash weight starts from 0 at the min age
+			// this change increases active coins participating the hash and helps
+			// to secure the network when proof-of-stake difficulty is low
+
+			return nIntervalEnd - nIntervalBeginning - StakeMinAge;
+		}
+
+		public static uint GetPastTimeLimit(ChainedBlock chainedBlock)
+		{
+			if (IsProtocolV2(chainedBlock.Height))
+				return chainedBlock.Header.Time;
+			else
+				return GetMedianTimePast(chainedBlock);
+		}
+
+		private const int MedianTimeSpan = 11;
+
+		public static uint GetMedianTimePast(ChainedBlock chainedBlock)
+		{
+			var soretedList = new SortedSet<uint>();
+			var pindex = chainedBlock;
+			for (int i = 0; i < MedianTimeSpan && pindex != null; i++, pindex = pindex.Previous)
+				soretedList.Add(pindex.Header.Time);
+
+			return (soretedList.First() - soretedList.Last()) / 2;
+		}
+
 		// find last block index up to index
-		private static ChainedBlock GetLastBlockIndex(ChainedBlock index, bool proofOfStake)
+		public static ChainedBlock GetLastBlockIndex(ChainedBlock index, bool proofOfStake)
 		{
 			if (index == null)
 				throw new ArgumentNullException(nameof(index));
@@ -79,30 +113,27 @@ namespace NBitcoin
 
 
 			int targetSpacing = GetTargetSpacing(indexLast.Height);
-			int actualSpacing = (int) (pindexPrev.Header.Time - pindexPrevPrev.Header.Time);
+			int actualSpacing = (int)(pindexPrev.Header.Time - pindexPrevPrev.Header.Time);
 			if (IsProtocolV1RetargetingFixed(indexLast.Height))
 			{
 				if (actualSpacing < 0) actualSpacing = targetSpacing;
 			}
-			if (IsProtocolV3((int) indexLast.Header.Time))
+			if (IsProtocolV3((int)indexLast.Header.Time))
 			{
-				if (actualSpacing > targetSpacing*10) actualSpacing = targetSpacing*10;
+				if (actualSpacing > targetSpacing * 10) actualSpacing = targetSpacing * 10;
 			}
 
 			// target change every block
 			// retarget with exponential moving toward target spacing
-			var targetTimespan = 16*60; // 16 mins
+			var targetTimespan = 16 * 60; // 16 mins
 			var target = pindexPrev.Header.Bits.ToBigInteger();
 
-			int interval = targetTimespan/targetSpacing;
-			target = target.Multiply(BigInteger.ValueOf(((interval - 1)*targetSpacing + actualSpacing + actualSpacing)));
-			target = target.Divide(BigInteger.ValueOf(((interval + 1)*targetSpacing)));
+			int interval = targetTimespan / targetSpacing;
+			target = target.Multiply(BigInteger.ValueOf(((interval - 1) * targetSpacing + actualSpacing + actualSpacing)));
+			target = target.Divide(BigInteger.ValueOf(((interval + 1) * targetSpacing)));
 
-			//target *= ((interval - 1)*targetSpacing + actualSpacing + actualSpacing);
-			//target /= ((interval + 1)*targetSpacing);
-
-			if (target.CompareTo(BigInteger.Zero) <=0 || target.CompareTo(targetLimit) > 1)
-			//if (target <= 0 || target > targetLimit)
+			if (target.CompareTo(BigInteger.Zero) <= 0 || target.CompareTo(targetLimit) > 1)
+				//if (target <= 0 || target > targetLimit)
 				target = targetLimit;
 
 			return new Target(target);
@@ -152,8 +183,8 @@ namespace NBitcoin
 				return block.BlockSignatur.IsEmpty();
 			}
 
-			return checkLowS ? 
-				ScriptEvaluationContext.IsLowDerSignature(block.BlockSignatur.Signature) : 
+			return checkLowS ?
+				ScriptEvaluationContext.IsLowDerSignature(block.BlockSignatur.Signature) :
 				ScriptEvaluationContext.IsValidSignatureEncoding(block.BlockSignatur.Signature);
 		}
 
@@ -222,7 +253,7 @@ namespace NBitcoin
 			// Check for duplicate txids. This is caught by ConnectInputs(),
 			// but catching it earlier avoids a potential DoS attack:
 			var set = new HashSet<uint256>();
-			if(block.Transactions.Select(t => t.GetHash()).Any(h => !set.Add(h)))
+			if (block.Transactions.Select(t => t.GetHash()).Any(h => !set.Add(h)))
 				return false; //DoS(100, error("CheckBlock() : duplicate transaction"));
 
 			// todo: check if this is legacy from older implementtions and actually needed
@@ -256,7 +287,7 @@ namespace NBitcoin
 
 			// Kernel (input 0) must match the stake hash target per coin age (nBits)
 			var txIn = tx.Inputs[0];
-			
+
 			// First try finding the previous transaction in database
 			var txPrev = trasnactionStore.Get(txIn.PrevOut.Hash);
 			if (txPrev == null)
@@ -269,7 +300,7 @@ namespace NBitcoin
 			// Read block header
 			var blockHashPrev = mapStore.GetBlockHash(txIn.PrevOut.Hash);
 			var block = blockHashPrev == null ? null : blockStore.GetBlock(blockHashPrev);
-			if(block == null)
+			if (block == null)
 				return false; //fDebug? error("CheckProofOfStake() : read block failed") : false; // unable to read block of previous transaction
 
 			// Min age requirement
@@ -292,17 +323,19 @@ namespace NBitcoin
 			return true;
 		}
 
-		const int StakeMinConfirmations = 50;
-		const uint StakeMinAge = 60; // 8 hours
-		const uint ModifierInterval = 10 * 60; // time to elapse before new modifier is computed
+		public const int StakeMinConfirmations = 50;
+		public const uint StakeMinAge = 60; // 8 hours
+		public const uint ModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
 		public static bool CheckAndComputeStake(IBlockRepository blockStore, ITransactionRepository trasnactionStore, IBlockTransactionMapStore mapStore,
 			ChainBase chainIndex, ChainedBlock pindex, Block block)
 		{
-			if(block.GetHash() != pindex.HashBlock)
+			if (block.GetHash() != pindex.HashBlock)
 				throw new ArgumentException();
 
 			var pindexPrev = pindex.Previous;
+			if (pindexPrev != null && !pindexPrev.Header.PosParameters.IsSet())
+				return false; // the stake proof of the previous block is not set
 
 			uint256 hashProof = null;
 			// Verify hash target and signature of coinstake tx
@@ -345,6 +378,8 @@ namespace NBitcoin
 			for (var pindex = pindexFrom; pindex != null && pindexFrom.Height - pindex.Height < maxDepth; pindex = pindex.Previous)
 			{
 				var block = blockStore.GetBlock(pindex.HashBlock);
+				if (block == null)
+					return false;
 				if (block.Transactions.Any(b => b.GetHash() == hashPrev)) //pindex->nBlockPos == txindex.pos.nBlockPos && pindex->nFile == txindex.pos.nFile)
 				{
 					actualDepth = pindexFrom.Height - pindex.Height;
@@ -369,8 +404,8 @@ namespace NBitcoin
 
 			var txData = new PrecomputedTransactionData(txFrom);
 			var checker = new TransactionChecker(txTo, txToInN, output.Value, txData);
-			var ctx = new ScriptEvaluationContext {ScriptVerify = flagScriptVerify};
-			
+			var ctx = new ScriptEvaluationContext { ScriptVerify = flagScriptVerify };
+
 			return ctx.VerifyScript(input.ScriptSig, output.ScriptPubKey, checker);
 		}
 
@@ -445,13 +480,13 @@ namespace NBitcoin
 
 			// Base target
 			var bnTarget = new Target(nBits).ToBigInteger();
-			
+
 			// Weighted target
 			var nValueIn = txPrev.Outputs[prevout.N].Value.Satoshi;
 			var bnWeight = BigInteger.ValueOf(nValueIn);
 			bnTarget = bnTarget.Multiply(bnWeight);
 
-			// todo: investigate this issue, is the conversion to uint256 similar to the c++ implementation
+			// todo: investigate this issue, is the convertion to uint256 similar to the c++ implementation
 			//targetProofOfStake = Target.ToUInt256(bnTarget);
 
 			var nStakeModifier = pindexPrev.Header.PosParameters.StakeModifier;
@@ -463,7 +498,7 @@ namespace NBitcoin
 			using (var ms = new MemoryStream())
 			{
 				var serializer = new BitcoinStream(ms, true);
-				if (IsProtocolV3((int) nTimeTx))
+				if (IsProtocolV3((int)nTimeTx))
 				{
 					serializer.ReadWrite(bnStakeModifierV2);
 				}
@@ -499,7 +534,7 @@ namespace NBitcoin
 			var hashProofOfStakeTarget = new BigInteger(hashProofOfStake.ToBytes(false));
 			if (hashProofOfStakeTarget.CompareTo(bnTarget) > 0)
 				return false;
-			
+
 
 			//  if (fDebug && !fPrintProofOfStake)
 			//  {
@@ -518,9 +553,18 @@ namespace NBitcoin
 			return true;
 		}
 
+		// Check whether the coinstake timestamp meets protocol
+		public static bool CheckCoinStakeTimestamp(int nHeight, long nTimeBlock, long nTimeTx)
+		{
+			if (IsProtocolV2(nHeight))
+				return (nTimeBlock == nTimeTx) && ((nTimeTx & STAKE_TIMESTAMP_MASK) == 0);
+			else
+				return (nTimeBlock == nTimeTx);
+		}
+
 		public static bool CheckKernel(IBlockRepository blockStore, ITransactionRepository trasnactionStore,
 			IBlockTransactionMapStore mapStore,
-			ChainedBlock pindexPrev, uint nBits, uint nTime, OutPoint prevout, uint pBlockTime)
+			ChainedBlock pindexPrev, uint nBits, long nTime, OutPoint prevout, ref long pBlockTime)
 		{
 			uint256 hashProofOfStake = null, targetProofOfStake = null;
 
@@ -534,7 +578,7 @@ namespace NBitcoin
 			if (block == null)
 				return false;
 
-			if (IsProtocolV3((int) nTime))
+			if (IsProtocolV3((int)nTime))
 			{
 				int nDepth = 0;
 				if (IsConfirmedInNPrevBlocks(blockStore, txPrev, pindexPrev, StakeMinConfirmations - 1, ref nDepth))
@@ -551,7 +595,7 @@ namespace NBitcoin
 			//if (pBlockTime)
 			//	pBlockTime = block.Header.Time;
 
-			return CheckStakeKernelHash(pindexPrev, nBits, block, txPrev, prevout, nTime, out hashProofOfStake, out targetProofOfStake, false);
+			return CheckStakeKernelHash(pindexPrev, nBits, block, txPrev, prevout, (uint)nTime, out hashProofOfStake, out targetProofOfStake, false);
 		}
 
 		public static bool ComputeStakeModifier(ChainBase chainIndex, ChainedBlock pindex)
@@ -616,7 +660,7 @@ namespace NBitcoin
 		// select a block from the candidate blocks in vSortedByTimestamp, excluding
 		// already selected blocks in vSelectedBlocks, and with timestamp up to
 		// nSelectionIntervalStop.
-		private static bool SelectBlockFromCandidates(ChainBase chainIndex, SortedDictionary<uint, uint256> sortedByTimestamp,
+		private static bool SelectBlockFromCandidates(ChainedBlock chainIndex, SortedDictionary<uint, uint256> sortedByTimestamp,
 			Dictionary<uint256, ChainedBlock> mapSelectedBlocks,
 			long nSelectionIntervalStop, ulong nStakeModifierPrev, out ChainedBlock pindexSelected)
 		{
@@ -627,7 +671,7 @@ namespace NBitcoin
 
 			foreach (var item in sortedByTimestamp)
 			{
-				var pindex = chainIndex.GetBlock(item.Value);
+				var pindex = chainIndex.FindAncestorOrSelf(item.Value);
 				if (pindex == null)
 					return false; // error("SelectBlockFromCandidates: failed to find block index for candidate block %s", item.second.ToString());
 
@@ -701,8 +745,8 @@ namespace NBitcoin
 			long nModifierTime = 0;
 			if (!GetLastStakeModifier(pindexPrev, out nStakeModifier, out nModifierTime))
 				return false; //error("ComputeNextStakeModifier: unable to get last modifier");
-			//LogPrint("stakemodifier", "ComputeNextStakeModifier: prev modifier=0x%016x time=%s\n", nStakeModifier, DateTimeStrFormat(nModifierTime));
-			if (nModifierTime/ModifierInterval >= pindexPrev.Header.Time/ModifierInterval)
+							  //LogPrint("stakemodifier", "ComputeNextStakeModifier: prev modifier=0x%016x time=%s\n", nStakeModifier, DateTimeStrFormat(nModifierTime));
+			if (nModifierTime / ModifierInterval >= pindexPrev.Header.Time / ModifierInterval)
 				return true;
 
 			// Sort candidate blocks by timestamp
@@ -727,12 +771,12 @@ namespace NBitcoin
 				nSelectionIntervalStop += GetStakeModifierSelectionIntervalSection(nRound);
 
 				// select a block from the candidates of current round
-				if (!SelectBlockFromCandidates(chainIndex, sortedByTimestamp, mapSelectedBlocks, nSelectionIntervalStop, nStakeModifier, out pindex))
+				if (!SelectBlockFromCandidates(pindexPrev, sortedByTimestamp, mapSelectedBlocks, nSelectionIntervalStop, nStakeModifier, out pindex))
 					return false; // error("ComputeNextStakeModifier: unable to select block at round %d", nRound);
 
 				// write the entropy bit of the selected block
-				nStakeModifierNew |= ((ulong) pindex.Header.PosParameters.GetStakeEntropyBit() << nRound);
-			
+				nStakeModifierNew |= ((ulong)pindex.Header.PosParameters.GetStakeEntropyBit() << nRound);
+
 				// add the selected block from candidates to selected list
 				mapSelectedBlocks.Add(pindex.HashBlock, pindex);
 
@@ -792,5 +836,85 @@ namespace NBitcoin
 
 			return stakeModifier;
 		}
+
+		// ppcoin: total coin age spent in transaction, in the unit of coin-days.
+		// Only those coins meeting minimum age requirement counts. As those
+		// transactions not in main chain are not currently indexed so we
+		// might not find out about their coin age. Older transactions are 
+		// guaranteed to be in main chain by sync-checkpoint. This rule is
+		// introduced to help nodes establish a consistent view of the coin
+		// age (trust score) of competing branches.
+		public static bool GetCoinAge(IBlockRepository blockStore, ITransactionRepository trasnactionStore, IBlockTransactionMapStore mapStore,
+			Transaction trx, ChainedBlock pindexPrev, out ulong nCoinAge)
+		{
+
+			BigInteger bnCentSecond = BigInteger.Zero;  // coin age in the unit of cent-seconds
+			nCoinAge = 0;
+
+			if (trx.IsCoinBase)
+				return true;
+
+			foreach (var txin in trx.Inputs)
+			{
+				// First try finding the previous transaction in database
+				Transaction txPrev = trasnactionStore.Get(txin.PrevOut.Hash);
+				if (txPrev == null)
+					continue;  // previous transaction not in main chain
+				if (trx.Time < txPrev.Time)
+					return false;  // Transaction timestamp violation
+
+				if (IsProtocolV3((int)trx.Time))
+				{
+					int nSpendDepth = 0;
+					if (IsConfirmedInNPrevBlocks(blockStore, txPrev, pindexPrev, StakeMinConfirmations - 1, ref nSpendDepth))
+					{
+						//LogPrint("coinage", "coin age skip nSpendDepth=%d\n", nSpendDepth + 1);
+						continue; // only count coins meeting min confirmations requirement
+					}
+				}
+				else
+				{
+					// Read block header
+					var block = blockStore.GetBlock(txPrev.GetHash());
+					if (block == null)
+						return false; // unable to read block of previous transaction
+					if (block.Header.Time + StakeMinAge > trx.Time)
+						continue; // only count coins meeting min age requirement
+				}
+
+				long nValueIn = txPrev.Outputs[txin.PrevOut.N].Value;
+				var multiplier = BigInteger.ValueOf((trx.Time - txPrev.Time)/CENT);
+				bnCentSecond = bnCentSecond.Add(BigInteger.ValueOf(nValueIn).Multiply(multiplier));
+				//bnCentSecond += new BigInteger(nValueIn) * (trx.Time - txPrev.Time) / CENT;
+
+
+				//LogPrint("coinage", "coin age nValueIn=%d nTimeDiff=%d bnCentSecond=%s\n", nValueIn, nTime - txPrev.nTime, bnCentSecond.ToString());
+			}
+
+			BigInteger bnCoinDay = bnCentSecond.Multiply(BigInteger.ValueOf(CENT / COIN / (24 * 60 * 60)));
+			//BigInteger bnCoinDay = bnCentSecond * CENT / COIN / (24 * 60 * 60);
+
+			//LogPrint("coinage", "coin age bnCoinDay=%s\n", bnCoinDay.ToString());
+			nCoinAge = new Target(bnCoinDay).ToCompact();
+
+			return true;
+		}
+
+		public static long GetProofOfWorkReward(ConcurrentChain chainIndex, long fees)
+		{
+			long PreMine = 98000000 * BlockValidator.COIN;
+
+			if (chainIndex.Tip.Height == 1)
+				return PreMine;
+
+			return 4 * BlockValidator.COIN;
+		}
+
+		// miner's coin stake reward
+		public static long GetProofOfStakeReward(ChainedBlock pindexPrev, ulong nCoinAge, long nFees)
+		{
+			return 1 * BlockValidator.COIN + nFees;
+		}
+
 	}
 }

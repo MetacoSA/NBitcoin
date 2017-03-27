@@ -578,7 +578,10 @@ namespace NBitcoin.Tests
 				}
 			}
 
-			RPCClient client = null;// new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"), new Uri("http://127.0.0.1:" + Network.Main.RPCPort), Network.Main);
+			RPCClient client = null;
+			if (!RPCClientTests.noClient)
+				client = new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"),
+					new Uri("http://127.0.0.1:" + Network.Main.RPCPort), Network.Main);
 
 			// validate the stake trasnaction
 			foreach (var item in chain.ToEnumerable(false).Take(totalblocks).ToList())
