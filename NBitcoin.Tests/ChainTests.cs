@@ -233,7 +233,7 @@ namespace NBitcoin.Tests
 				lastIndex = height;
 
 				Assert.Equal(expectedTarget, chainedBlock.Header.Bits);
-				var target = stakeChain.GetWorkRequired(chainedBlock, stakeChain.Get(chainedBlock.HashBlock), Network.Main.consensus);
+				var target = stakeChain.GetWorkRequired(chainedBlock, stakeChain.Get(chainedBlock.HashBlock), Network.Main.Consensus);
 				//var target = chain.GetWorkRequired(Network.Main, height);
 				Assert.Equal(expectedTarget, target);
 			}
