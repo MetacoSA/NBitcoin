@@ -176,4 +176,40 @@ namespace NBitcoin
 			set { this.blockSignature = value; }
 		}
 	}
+
+	public abstract class StakeChain
+	{
+		public abstract BlockStake Get(uint256 blockid);
+
+		public abstract void Set(uint256 blockid, BlockStake blockStake);
+
+		public bool CheckPowPosAndTarget(ChainedBlock chainedBlock, BlockStake blockStake, Network network)
+		{
+			return this.CheckPowPosAndTarget(chainedBlock, blockStake, network.Consensus);
+		}
+
+		public bool CheckPowPosAndTarget(ChainedBlock chainedBlock, BlockStake blockStake, Consensus consensus)
+		{
+			if (chainedBlock.Height == 0)
+				return true;
+
+			if (blockStake.IsProofOfWork() && !chainedBlock.Header.CheckProofOfWork())
+				return false;
+
+			return chainedBlock.Header.Bits == this.GetWorkRequired(chainedBlock, blockStake, consensus);
+		}
+
+		public Target GetWorkRequired(ChainedBlock chainedBlock, BlockStake blockStake, Consensus consensus)
+		{
+			return BlockValidator.GetNextTargetRequired(this, chainedBlock.Previous, consensus, blockStake.IsProofOfStake());
+		}
+	}
+
+	public static class StakeExtentions
+	{
+		public static bool CheckProofOfStake(this Block block)
+		{
+			return BlockStake.CheckProofOfStake(block);
+		}
+	}
 }

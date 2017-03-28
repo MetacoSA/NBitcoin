@@ -78,22 +78,22 @@ namespace NBitcoin
 		}
 
 		// find last block index up to index
-		public static ChainedBlock GetLastBlockIndex(IBlockStakeRepository blockStakeRepository, ChainedBlock index, bool proofOfStake)
+		public static ChainedBlock GetLastBlockIndex(StakeChain stakeChain, ChainedBlock index, bool proofOfStake)
 		{
 			if (index == null)
 				throw new ArgumentNullException(nameof(index));
-			var blockStake = blockStakeRepository.GetBlockStake(index.HashBlock);
+			var blockStake = stakeChain.Get(index.HashBlock);
 
 			while (index.Previous != null && (blockStake.IsProofOfStake() != proofOfStake))
 			{
 				index = index.Previous;
-				blockStake = blockStakeRepository.GetBlockStake(index.HashBlock);
+				blockStake = stakeChain.Get(index.HashBlock);
 			}
 
 			return index;
 		}
 
-		public static Target GetNextTargetRequired(IBlockStakeRepository blockStakeRepository, ChainedBlock indexLast, Consensus consensus, bool proofOfStake)
+		public static Target GetNextTargetRequired(StakeChain stakeChain, ChainedBlock indexLast, Consensus consensus, bool proofOfStake)
 		{
 			// Genesis block
 			if (indexLast == null)
@@ -106,12 +106,12 @@ namespace NBitcoin
 				: consensus.PowLimit.ToBigInteger();
 
 			// first block
-			var pindexPrev = GetLastBlockIndex(blockStakeRepository, indexLast, proofOfStake);
+			var pindexPrev = GetLastBlockIndex(stakeChain, indexLast, proofOfStake);
 			if (pindexPrev.Previous == null)
 				return new Target(targetLimit);
 
 			// second block
-			var pindexPrevPrev = GetLastBlockIndex(blockStakeRepository, pindexPrev.Previous, proofOfStake);
+			var pindexPrevPrev = GetLastBlockIndex(stakeChain, pindexPrev.Previous, proofOfStake);
 			if (pindexPrevPrev == null)
 				return new Target(targetLimit);
 
@@ -331,16 +331,16 @@ namespace NBitcoin
 		public const uint StakeMinAge = 60; // 8 hours
 		public const uint ModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
-		public static bool CheckAndComputeStake(IBlockRepository blockStore, ITransactionRepository trasnactionStore, IBlockTransactionMapStore mapStore, IBlockStakeRepository blockStakeRepository,
-			ChainBase chainIndex, ChainedBlock pindex, Block block)
+		public static bool CheckAndComputeStake(IBlockRepository blockStore, ITransactionRepository trasnactionStore, IBlockTransactionMapStore mapStore, StakeChain stakeChain,
+			ChainBase chainIndex, ChainedBlock pindex, Block block, out BlockStake blockStake)
 		{
 			if (block.GetHash() != pindex.HashBlock)
 				throw new ArgumentException();
 
 			var pindexPrev = pindex.Previous;
 
-			var blockStake = new BlockStake(block);
-			var prevBlockStake = blockStakeRepository.GetBlockStake(pindexPrev.HashBlock);
+			blockStake = new BlockStake(block);
+			var prevBlockStake = stakeChain.Get(pindexPrev.HashBlock);
 			if (prevBlockStake == null)
 				return false; // the stake proof of the previous block is not set
 
@@ -372,7 +372,7 @@ namespace NBitcoin
 			blockStake.HashProof = hashProof;
 
 			// compute stake modifier
-			return ComputeStakeModifier(chainIndex, pindex, blockStake, blockStakeRepository);
+			return ComputeStakeModifier(chainIndex, pindex, blockStake, stakeChain);
 		}
 
 		private static bool IsConfirmedInNPrevBlocks(IBlockRepository blockStore, Transaction txPrev, ChainedBlock pindexFrom, int maxDepth, ref int actualDepth)
@@ -570,7 +570,7 @@ namespace NBitcoin
 		}
 
 		public static bool CheckKernel(IBlockRepository blockStore, ITransactionRepository trasnactionStore,
-			IBlockTransactionMapStore mapStore, IBlockStakeRepository blockStakeRepository,
+			IBlockTransactionMapStore mapStore, StakeChain stakeChain,
 			ChainedBlock pindexPrev, uint nBits, long nTime, OutPoint prevout, ref long pBlockTime)
 		{
 			uint256 hashProofOfStake = null, targetProofOfStake = null;
@@ -598,7 +598,7 @@ namespace NBitcoin
 					return false; // error("CheckProofOfStake() : min age violation");
 			}
 
-			var prevBlockStake = blockStakeRepository.GetBlockStake(pindexPrev.HashBlock);
+			var prevBlockStake = stakeChain.Get(pindexPrev.HashBlock);
 			if (prevBlockStake == null)
 				return false; // the stake proof of the previous block is not set
 
@@ -609,15 +609,15 @@ namespace NBitcoin
 			return CheckStakeKernelHash(pindexPrev, nBits, block, txPrev, prevBlockStake, prevout, (uint)nTime, out hashProofOfStake, out targetProofOfStake, false);
 		}
 
-		public static bool ComputeStakeModifier(ChainBase chainIndex, ChainedBlock pindex, BlockStake blockStake, IBlockStakeRepository blockStakeRepository)
+		public static bool ComputeStakeModifier(ChainBase chainIndex, ChainedBlock pindex, BlockStake blockStake, StakeChain stakeChain)
 		{
 			var pindexPrev = pindex.Previous;
-			var blockStakePrev = blockStakeRepository.GetBlockStake(pindexPrev.HashBlock);
+			var blockStakePrev = stakeChain.Get(pindexPrev.HashBlock);
 
 			// compute stake modifier
 			ulong nStakeModifier;
 			bool fGeneratedStakeModifier;
-			if (!ComputeNextStakeModifier(blockStakeRepository, chainIndex, pindexPrev, out nStakeModifier, out fGeneratedStakeModifier))
+			if (!ComputeNextStakeModifier(stakeChain, chainIndex, pindexPrev, out nStakeModifier, out fGeneratedStakeModifier))
 				return false; //error("AddToBlockIndex() : ComputeNextStakeModifier() failed");
 
 			blockStake.SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
@@ -628,7 +628,7 @@ namespace NBitcoin
 		}
 
 		// Get the last stake modifier and its generation time from a given block
-		private static bool GetLastStakeModifier(IBlockStakeRepository blockStakeRepository, ChainedBlock pindex, out ulong stakeModifier, out long modifierTime)
+		private static bool GetLastStakeModifier(StakeChain stakeChain, ChainedBlock pindex, out ulong stakeModifier, out long modifierTime)
 		{
 			stakeModifier = 0;
 			modifierTime = 0;
@@ -636,11 +636,11 @@ namespace NBitcoin
 			if (pindex == null)
 				return false; // error("GetLastStakeModifier: null pindex");
 
-			var blockStake = blockStakeRepository.GetBlockStake(pindex.HashBlock);
+			var blockStake = stakeChain.Get(pindex.HashBlock);
 			while (pindex != null && pindex.Previous != null && !blockStake.GeneratedStakeModifier())
 			{
 				pindex = pindex.Previous;
-				blockStake = blockStakeRepository.GetBlockStake(pindex.HashBlock);
+				blockStake = stakeChain.Get(pindex.HashBlock);
 			}
 
 			if (!blockStake.GeneratedStakeModifier())
@@ -676,7 +676,7 @@ namespace NBitcoin
 		// select a block from the candidate blocks in vSortedByTimestamp, excluding
 		// already selected blocks in vSelectedBlocks, and with timestamp up to
 		// nSelectionIntervalStop.
-		private static bool SelectBlockFromCandidates(IBlockStakeRepository blockStakeRepository, ChainedBlock chainIndex, SortedDictionary<uint, uint256> sortedByTimestamp,
+		private static bool SelectBlockFromCandidates(StakeChain stakeChain, ChainedBlock chainIndex, SortedDictionary<uint, uint256> sortedByTimestamp,
 			Dictionary<uint256, ChainedBlock> mapSelectedBlocks,
 			long nSelectionIntervalStop, ulong nStakeModifierPrev, out ChainedBlock pindexSelected)
 		{
@@ -697,7 +697,7 @@ namespace NBitcoin
 				if (mapSelectedBlocks.Keys.Any(key => key == pindex.HashBlock))
 					continue;
 
-				var blockStake = blockStakeRepository.GetBlockStake(pindex.HashBlock);
+				var blockStake = stakeChain.Get(pindex.HashBlock);
 
 				// compute the selection hash by hashing its proof-hash and the
 				// previous proof-of-stake modifier
@@ -747,7 +747,7 @@ namespace NBitcoin
 		// block. This is to make it difficult for an attacker to gain control of
 		// additional bits in the stake modifier, even after generating a chain of
 		// blocks.
-		private static bool ComputeNextStakeModifier(IBlockStakeRepository blockStakeRepository, ChainBase chainIndex, ChainedBlock pindexPrev, out ulong nStakeModifier,
+		private static bool ComputeNextStakeModifier(StakeChain stakeChain, ChainBase chainIndex, ChainedBlock pindexPrev, out ulong nStakeModifier,
 			out bool fGeneratedStakeModifier)
 		{
 			nStakeModifier = 0;
@@ -761,7 +761,7 @@ namespace NBitcoin
 			// First find current stake modifier and its generation block time
 			// if it's not old enough, return the same stake modifier
 			long nModifierTime = 0;
-			if (!GetLastStakeModifier(blockStakeRepository, pindexPrev, out nStakeModifier, out nModifierTime))
+			if (!GetLastStakeModifier(stakeChain, pindexPrev, out nStakeModifier, out nModifierTime))
 				return false; //error("ComputeNextStakeModifier: unable to get last modifier");
 							  //LogPrint("stakemodifier", "ComputeNextStakeModifier: prev modifier=0x%016x time=%s\n", nStakeModifier, DateTimeStrFormat(nModifierTime));
 			if (nModifierTime / ModifierInterval >= pindexPrev.Header.Time / ModifierInterval)
@@ -789,11 +789,11 @@ namespace NBitcoin
 				nSelectionIntervalStop += GetStakeModifierSelectionIntervalSection(nRound);
 
 				// select a block from the candidates of current round
-				if (!SelectBlockFromCandidates(blockStakeRepository, pindexPrev, sortedByTimestamp, mapSelectedBlocks, nSelectionIntervalStop, nStakeModifier, out pindex))
+				if (!SelectBlockFromCandidates(stakeChain, pindexPrev, sortedByTimestamp, mapSelectedBlocks, nSelectionIntervalStop, nStakeModifier, out pindex))
 					return false; // error("ComputeNextStakeModifier: unable to select block at round %d", nRound);
 
 				// write the entropy bit of the selected block
-				var blockStake = blockStakeRepository.GetBlockStake(pindex.HashBlock);
+				var blockStake = stakeChain.Get(pindex.HashBlock);
 				nStakeModifierNew |= ((ulong)blockStake.GetStakeEntropyBit() << nRound);
 
 				// add the selected block from candidates to selected list

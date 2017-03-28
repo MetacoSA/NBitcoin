@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace NBitcoin
@@ -74,4 +76,17 @@ namespace NBitcoin
 		}
 	}
 
+	public class MemoryStakeChain : StakeChain
+	{
+		private Dictionary<uint256, BlockStake> items = new Dictionary<uint256, BlockStake>();
+		public override BlockStake Get(uint256 blockid)
+		{
+			return this.items.TryGet(blockid);
+		}
+
+		public override void Set(uint256 blockid, BlockStake blockStake)
+		{
+			this.items.TryAdd(blockid, blockStake);
+		}
+	}
 }

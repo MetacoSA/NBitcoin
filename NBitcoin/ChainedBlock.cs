@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -67,7 +69,7 @@ namespace NBitcoin
 		public ChainedBlock(BlockHeader header, uint256 headerHash, ChainedBlock previous)
 		{
 			if (header == null)
-				throw new ArgumentNullException(nameof(header));
+				throw new ArgumentNullException("header");
 			if (previous != null)
 			{
 				nHeight = previous.Height + 1;
@@ -87,7 +89,6 @@ namespace NBitcoin
 				if (previous.HashBlock != header.HashPrevBlock)
 					throw new ArgumentException("The previous block has not the expected hash");
 			}
-
 			CalculateChainWork();
 		}
 
@@ -100,7 +101,7 @@ namespace NBitcoin
 		private BigInteger GetBlockProof()
 		{
 			var bnTarget = Header.Bits.ToBigInteger();
-			if(bnTarget.CompareTo(BigInteger.Zero) <= 0 || bnTarget.CompareTo(Pow256) >= 0)
+			if (bnTarget.CompareTo(BigInteger.Zero) <= 0 || bnTarget.CompareTo(Pow256) >= 0)
 				return BigInteger.Zero;
 			// We need to compute 2**256 / (bnTarget+1), but we can't represent 2**256
 			// as it's too large for a arith_uint256. However, as 2**256 is at least as large
@@ -113,7 +114,6 @@ namespace NBitcoin
 		{
 			if (header == null)
 				throw new ArgumentNullException("header");
-
 			nHeight = height;
 			//this.nDataPos = pos;
 			this.header = header;
@@ -130,11 +130,9 @@ namespace NBitcoin
 			while (pindex != null)
 			{
 				vHave.Add(pindex.HashBlock);
-				
 				// Stop when we have added the genesis block.
 				if (pindex.Height == 0)
 					break;
-
 				// Exponentially larger steps back, plus the genesis block.
 				int nHeight = Math.Max(pindex.Height - nStep, 0);
 				while (pindex.Height > nHeight)
@@ -155,15 +153,12 @@ namespace NBitcoin
 				return false;
 			return phashBlock.Equals(item.phashBlock);
 		}
-
 		public static bool operator ==(ChainedBlock a, ChainedBlock b)
 		{
 			if (System.Object.ReferenceEquals(a, b))
 				return true;
-
 			if (((object)a == null) || ((object)b == null))
 				return false;
-
 			return a.phashBlock == b.phashBlock;
 		}
 
@@ -200,7 +195,6 @@ namespace NBitcoin
 				throw new InvalidOperationException("Can only find blocks below or equals to current height");
 			if (height < 0)
 				throw new ArgumentOutOfRangeException("height");
-
 			ChainedBlock currentBlock = this;
 			while (height != currentBlock.Height)
 			{
@@ -208,7 +202,6 @@ namespace NBitcoin
 			}
 			return currentBlock;
 		}
-
 		public ChainedBlock FindAncestorOrSelf(uint256 blockHash)
 		{
 			ChainedBlock currentBlock = this;
@@ -221,10 +214,32 @@ namespace NBitcoin
 
 		public Target GetWorkRequired(Network network)
 		{
-			return this.GetWorkRequired(network.Consensus);
+			return GetWorkRequired(network.Consensus);
 		}
 
-		public Target GetPOWWorkRequired(Consensus consensus)
+		public Target GetNextWorkRequired(Network network)
+		{
+			return GetNextWorkRequired(network.Consensus);
+		}
+		public Target GetNextWorkRequired(Consensus consensus)
+		{
+			BlockHeader dummy = new BlockHeader();
+			dummy.HashPrevBlock = this.HashBlock;
+			dummy.BlockTime = DateTimeOffset.UtcNow;
+			return GetNextWorkRequired(dummy, consensus);
+		}
+
+		public Target GetNextWorkRequired(BlockHeader block, Network network)
+		{
+			return GetNextWorkRequired(block, network.Consensus);
+		}
+
+		public Target GetNextWorkRequired(BlockHeader block, Consensus consensus)
+		{
+			return new ChainedBlock(block, block.GetHash(), this).GetWorkRequired(consensus);
+		}
+
+		public Target GetWorkRequired(Consensus consensus)
 		{
 			// Genesis block
 			if (Height == 0)
@@ -284,6 +299,7 @@ namespace NBitcoin
 			return newTarget;
 		}
 
+
 		const int nMedianTimeSpan = 11;
 		public DateTimeOffset GetMedianTimePast()
 		{
@@ -292,7 +308,8 @@ namespace NBitcoin
 			int pend = nMedianTimeSpan;
 
 			ChainedBlock pindex = this;
-			for (int i = 0; i < nMedianTimeSpan && pindex != null; i++, pindex = pindex.Previous) pmedian[--pbegin] = pindex.Header.BlockTime;
+			for (int i = 0; i < nMedianTimeSpan && pindex != null; i++, pindex = pindex.Previous)
+				pmedian[--pbegin] = pindex.Header.BlockTime;
 
 			Array.Sort(pmedian);
 			return pmedian[pbegin + ((pend - pbegin) / 2)];
@@ -319,36 +336,18 @@ namespace NBitcoin
 			var genesisCorrect = Height != 0 || HashBlock == network.GetGenesis().GetHash();
 			var hashPrevCorrect = Height == 0 || Header.HashPrevBlock == Previous.HashBlock;
 			var hashCorrect = HashBlock == Header.GetHash();
-			var workCorrect = this.CheckPowPosAndTarget(network);
+			var workCorrect = CheckProofOfWorkAndTarget(network);
 			return heightCorrect && genesisCorrect && hashPrevCorrect && hashCorrect && workCorrect;
 		}
 
-		public bool CheckPowPosAndTarget(Network network)
+		public bool CheckProofOfWorkAndTarget(Network network)
 		{
-			return this.CheckPowPosAndTarget(network.Consensus);
+			return CheckProofOfWorkAndTarget(network.Consensus);
 		}
 
-		public bool CheckPowPosAndTarget(Consensus consensus)
+		public bool CheckProofOfWorkAndTarget(Consensus consensus)
 		{
-			if (this.Height == 0)
-				return true;
-
-			// if POS parameters is not set there is no way to know
-			// if this is a POS or a POW block and so we can't calculate 
-			// the work for POW or the target for POS
-			if (!this.Header.BlockStake.IsSet())
-				return true;
-
-			if (this.Header.BlockStake.IsProofOfWork() && !this.Header.CheckProofOfWork())
-				return false;
-
-			return this.Header.Bits == this.GetWorkRequired(consensus);
-		}
-
-		public Target GetWorkRequired(Consensus consensus)
-		{
-			this.EnsurePosHeader();
-			return BlockValidator.GetNextTargetRequired(this.Previous, consensus, this.Header.BlockStake.IsProofOfStake());
+			return Height == 0 || (Header.CheckProofOfWork() && Header.Bits <= GetWorkRequired(consensus));
 		}
 
 
@@ -359,20 +358,20 @@ namespace NBitcoin
 		/// <returns>First common block or null</returns>
 		public ChainedBlock FindFork(ChainedBlock block)
 		{
-			if(block == null)
+			if (block == null)
 				throw new ArgumentNullException("block");
 
 			var highChain = this.Height > block.Height ? this : block;
 			var lowChain = highChain == this ? block : this;
-			while(highChain.Height != lowChain.Height)
+			while (highChain.Height != lowChain.Height)
 			{
 				highChain = highChain.Previous;
 			}
-			while(highChain.HashBlock != lowChain.HashBlock)
+			while (highChain.HashBlock != lowChain.HashBlock)
 			{
 				lowChain = lowChain.Previous;
 				highChain = highChain.Previous;
-				if(lowChain == null || highChain == null)
+				if (lowChain == null || highChain == null)
 					return null;
 			}
 			return highChain;
@@ -382,20 +381,14 @@ namespace NBitcoin
 		{
 			if (height > Height || height < 0)
 				return null;
-
 			ChainedBlock current = this;
+
 			while (true)
 			{
 				if (current.Height == height)
 					return current;
 				current = current.Previous;
 			}
-		}
-
-		private void EnsurePosHeader()
-		{
-			if (!this.Header.BlockStake.IsSet())
-				throw new ArgumentNullException("PosParameters");
 		}
 	}
 }

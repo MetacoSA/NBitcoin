@@ -84,12 +84,12 @@ namespace NBitcoin.RPC
 			var header = new BlockHeader()
 			{
 				Time = rpcBlock.time,
-				BlockStake = new BlockStake
-				{
-					HashProof = uint256.Parse( rpcBlock.proofhash),
-					Mint = rpcBlock.mint,
-					StakeModifierV2 = uint256.Parse(rpcBlock.modifierv2)
-				},
+				//BlockStake = new BlockStake
+				//{
+				//	HashProof = uint256.Parse( rpcBlock.proofhash),
+				//	Mint = rpcBlock.mint,
+				//	StakeModifierV2 = uint256.Parse(rpcBlock.modifierv2)
+				//},
 				HashMerkleRoot = uint256.Parse(rpcBlock.merkleroot),
 				Bits = new Target(Encoders.Hex.DecodeData(rpcBlock.bits)),
 				HashPrevBlock = uint256.Parse(rpcBlock.previousblockhash),

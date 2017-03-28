@@ -583,12 +583,15 @@ namespace NBitcoin.Tests
 				client = new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"),
 					new Uri("http://127.0.0.1:" + Network.Main.RPCPort), Network.Main);
 
+			var stakeChain = new MemoryStakeChain();
+
 			// validate the stake trasnaction
 			foreach (var item in chain.ToEnumerable(false).Take(totalblocks).ToList())
 			{
 				var block = blockStore.GetBlock(item.HashBlock);
-				Assert.True(BlockValidator.CheckAndComputeStake(blockStore, trxStore, mapStore, chain, item, block));
-
+				BlockStake blockStake;
+				Assert.True(BlockValidator.CheckAndComputeStake(blockStore, trxStore, mapStore, stakeChain, chain, item, block, out blockStake));
+				stakeChain.Set(item.HashBlock, blockStake);
 				if (item.Height == 1125)
 				{
 					var g = block.ToHex();
@@ -597,8 +600,8 @@ namespace NBitcoin.Tests
 				if (client != null)
 				{
 					var fetched = client.GetRPCBlock(item.HashBlock).Result;
-					Assert.Equal(uint256.Parse(fetched.modifierv2), item.Header.BlockStake.StakeModifierV2);
-					Assert.Equal(uint256.Parse(fetched.proofhash), item.Header.BlockStake.HashProof);
+					Assert.Equal(uint256.Parse(fetched.modifierv2), blockStake.StakeModifierV2);
+					Assert.Equal(uint256.Parse(fetched.proofhash), blockStake.HashProof);
 				}
 			}
 		}

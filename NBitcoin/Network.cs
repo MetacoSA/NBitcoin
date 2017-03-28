@@ -646,6 +646,8 @@ namespace NBitcoin
 		{			
 			name = "Main";
 
+			Block.BlockSignature = true;
+
             consensus.SubsidyHalvingInterval = 210000;
             consensus.MajorityEnforceBlockUpgrade = 750;
             consensus.MajorityRejectBlockOutdated = 950;
