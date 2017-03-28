@@ -78,18 +78,22 @@ namespace NBitcoin
 		}
 
 		// find last block index up to index
-		public static ChainedBlock GetLastBlockIndex(ChainedBlock index, bool proofOfStake)
+		public static ChainedBlock GetLastBlockIndex(StakeChain stakeChain, ChainedBlock index, bool proofOfStake)
 		{
 			if (index == null)
 				throw new ArgumentNullException(nameof(index));
+			var blockStake = stakeChain.Get(index.HashBlock);
 
-			while (index.Previous != null && (index.Header.PosParameters.IsProofOfStake() != proofOfStake))
+			while (index.Previous != null && (blockStake.IsProofOfStake() != proofOfStake))
+			{
 				index = index.Previous;
+				blockStake = stakeChain.Get(index.HashBlock);
+			}
 
 			return index;
 		}
 
-		public static Target GetNextTargetRequired(ChainedBlock indexLast, Consensus consensus, bool proofOfStake)
+		public static Target GetNextTargetRequired(StakeChain stakeChain, ChainedBlock indexLast, Consensus consensus, bool proofOfStake)
 		{
 			// Genesis block
 			if (indexLast == null)
@@ -102,12 +106,12 @@ namespace NBitcoin
 				: consensus.PowLimit.ToBigInteger();
 
 			// first block
-			var pindexPrev = GetLastBlockIndex(indexLast, proofOfStake);
+			var pindexPrev = GetLastBlockIndex(stakeChain, indexLast, proofOfStake);
 			if (pindexPrev.Previous == null)
 				return new Target(targetLimit);
 
 			// second block
-			var pindexPrevPrev = GetLastBlockIndex(pindexPrev.Previous, proofOfStake);
+			var pindexPrevPrev = GetLastBlockIndex(stakeChain, pindexPrev.Previous, proofOfStake);
 			if (pindexPrevPrev == null)
 				return new Target(targetLimit);
 
@@ -141,7 +145,7 @@ namespace NBitcoin
 
 		public static bool CheckBlockSignature(Block block)
 		{
-			if (block.IsProofOfWork())
+			if (BlockStake.IsProofOfWork(block))
 				return block.BlockSignatur.IsEmpty();
 
 			if (block.BlockSignatur.IsEmpty())
@@ -178,7 +182,7 @@ namespace NBitcoin
 
 		public static bool IsCanonicalBlockSignature(Block block, bool checkLowS)
 		{
-			if (block.IsProofOfWork())
+			if (BlockStake.IsProofOfWork(block))
 			{
 				return block.BlockSignatur.IsEmpty();
 			}
@@ -207,7 +211,7 @@ namespace NBitcoin
 				return false; // DoS(100, error("CheckBlock() : size limits failed"));
 
 			// Check proof of work matches claimed amount
-			if (checkPow && block.IsProofOfWork() && !block.CheckProofOfWork())
+			if (checkPow && BlockStake.IsProofOfWork(block) && !block.CheckProofOfWork())
 				return false; //DoS(50, error("CheckBlock() : proof of work failed"));
 
 			// Check timestamp
@@ -221,7 +225,7 @@ namespace NBitcoin
 			if (block.Transactions.Skip(1).Any(t => t.IsCoinBase))
 				return false; //DoS(100, error("CheckBlock() : more than one coinbase"));
 
-			if (block.IsProofOfStake())
+			if (BlockStake.IsProofOfStake(block))
 			{
 				// Coinbase output should be empty if proof-of-stake block
 				if (block.Transactions[0].Outputs.Count != 1 || !block.Transactions[0].Outputs[0].IsEmpty)
@@ -274,7 +278,7 @@ namespace NBitcoin
 
 		// Check kernel hash target and coinstake signature
 		public static bool CheckProofOfStake(IBlockRepository blockStore, ITransactionRepository trasnactionStore, IBlockTransactionMapStore mapStore,
-			ChainedBlock pindexPrev, Transaction tx, uint nBits, out uint256 hashProofOfStake, out uint256 targetProofOfStake)
+			ChainedBlock pindexPrev, BlockStake prevBlockStake, Transaction tx, uint nBits, out uint256 hashProofOfStake, out uint256 targetProofOfStake)
 		{
 			targetProofOfStake = null; hashProofOfStake = null;
 
@@ -317,7 +321,7 @@ namespace NBitcoin
 					return false; // error("CheckProofOfStake() : min age violation");
 			}
 
-			if (!CheckStakeKernelHash(pindexPrev, nBits, block, txPrev, txIn.PrevOut, tx.Time, out hashProofOfStake, out targetProofOfStake, false))
+			if (!CheckStakeKernelHash(pindexPrev, nBits, block, txPrev, prevBlockStake, txIn.PrevOut, tx.Time, out hashProofOfStake, out targetProofOfStake, false))
 				return false; // tx.DoS(1, error("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s", tx.GetHash().ToString(), hashProofOfStake.ToString())); // may occur during initial download or if behind on block chain sync
 
 			return true;
@@ -327,28 +331,32 @@ namespace NBitcoin
 		public const uint StakeMinAge = 60; // 8 hours
 		public const uint ModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
-		public static bool CheckAndComputeStake(IBlockRepository blockStore, ITransactionRepository trasnactionStore, IBlockTransactionMapStore mapStore,
-			ChainBase chainIndex, ChainedBlock pindex, Block block)
+		public static bool CheckAndComputeStake(IBlockRepository blockStore, ITransactionRepository trasnactionStore, IBlockTransactionMapStore mapStore, StakeChain stakeChain,
+			ChainBase chainIndex, ChainedBlock pindex, Block block, out BlockStake blockStake)
 		{
 			if (block.GetHash() != pindex.HashBlock)
 				throw new ArgumentException();
 
-			var pindexPrev = pindex.Previous;
-			if (pindexPrev != null && !pindexPrev.Header.PosParameters.IsSet())
-				return false; // the stake proof of the previous block is not set
+			blockStake = new BlockStake(block);
 
 			uint256 hashProof = null;
 			// Verify hash target and signature of coinstake tx
-			if (pindex.Header.PosParameters.IsProofOfStake())
+			if (BlockStake.IsProofOfStake(block))
 			{
+				var pindexPrev = pindex.Previous;
+
+				var prevBlockStake = stakeChain.Get(pindexPrev.HashBlock);
+				if (prevBlockStake == null)
+					return false; // the stake proof of the previous block is not set
+
 				uint256 targetProofOfStake;
-				if (!CheckProofOfStake(blockStore, trasnactionStore, mapStore, pindexPrev, block.Transactions[1],
+				if (!CheckProofOfStake(blockStore, trasnactionStore, mapStore, pindexPrev, prevBlockStake, block.Transactions[1],
 						pindex.Header.Bits.ToCompact(), out hashProof, out targetProofOfStake))
 					return false; // error("AcceptBlock() : check proof-of-stake failed for block %s", hash.ToString());
 			}
 
 			// PoW is checked in CheckBlock()
-			if (pindex.Header.PosParameters.IsProofOfWork())
+			if (BlockStake.IsProofOfWork(block))
 			{
 				hashProof = pindex.Header.GetPoWHash();
 			}
@@ -358,14 +366,14 @@ namespace NBitcoin
 			//pindexNew.nChainTrust = (pindexNew->pprev ? pindexNew->pprev->nChainTrust : 0) + pindexNew->GetBlockTrust();
 
 			// compute stake entropy bit for stake modifier
-			if (!pindex.Header.PosParameters.SetStakeEntropyBit(pindex.Header.PosParameters.GetStakeEntropyBit()))
+			if (!blockStake.SetStakeEntropyBit(blockStake.GetStakeEntropyBit()))
 				return false; //error("AddToBlockIndex() : SetStakeEntropyBit() failed");
 
 			// Record proof hash value
-			pindex.Header.PosParameters.HashProof = hashProof;
+			blockStake.HashProof = hashProof;
 
 			// compute stake modifier
-			return ComputeStakeModifier(chainIndex, pindex);
+			return ComputeStakeModifier(chainIndex, pindex, blockStake, stakeChain);
 		}
 
 		private static bool IsConfirmedInNPrevBlocks(IBlockRepository blockStore, Transaction txPrev, ChainedBlock pindexFrom, int maxDepth, ref int actualDepth)
@@ -409,13 +417,13 @@ namespace NBitcoin
 			return ctx.VerifyScript(input.ScriptSig, output.ScriptPubKey, checker);
 		}
 
-		private static bool CheckStakeKernelHash(ChainedBlock pindexPrev, uint nBits, Block blockFrom, Transaction txPrev,
+		private static bool CheckStakeKernelHash(ChainedBlock pindexPrev, uint nBits, Block blockFrom, Transaction txPrev, BlockStake prevBlockStake,
 			OutPoint prevout, uint nTimeTx, out uint256 hashProofOfStake, out uint256 targetProofOfStake, bool fPrintProofOfStake)
 		{
 			targetProofOfStake = null; hashProofOfStake = null;
 
 			if (IsProtocolV2(pindexPrev.Height + 1))
-				return CheckStakeKernelHashV2(pindexPrev, nBits, blockFrom.Header.Time, txPrev, prevout, nTimeTx, out hashProofOfStake, out targetProofOfStake, fPrintProofOfStake);
+				return CheckStakeKernelHashV2(pindexPrev, nBits, blockFrom.Header.Time, prevBlockStake, txPrev, prevout, nTimeTx, out hashProofOfStake, out targetProofOfStake, fPrintProofOfStake);
 			else
 				return CheckStakeKernelHashV1();
 		}
@@ -470,7 +478,7 @@ namespace NBitcoin
 		//   quantities so as to generate blocks faster, degrading the system back into
 		//   a proof-of-work situation.
 		//
-		private static bool CheckStakeKernelHashV2(ChainedBlock pindexPrev, uint nBits, uint nTimeBlockFrom,
+		private static bool CheckStakeKernelHashV2(ChainedBlock pindexPrev, uint nBits, uint nTimeBlockFrom, BlockStake prevBlockStake,
 			Transaction txPrev, OutPoint prevout, uint nTimeTx, out uint256 hashProofOfStake, out uint256 targetProofOfStake, bool fPrintProofOfStake)
 		{
 			targetProofOfStake = null; hashProofOfStake = null;
@@ -489,8 +497,8 @@ namespace NBitcoin
 			// todo: investigate this issue, is the convertion to uint256 similar to the c++ implementation
 			//targetProofOfStake = Target.ToUInt256(bnTarget);
 
-			var nStakeModifier = pindexPrev.Header.PosParameters.StakeModifier;
-			uint256 bnStakeModifierV2 = pindexPrev.Header.PosParameters.StakeModifierV2;
+			var nStakeModifier = prevBlockStake.StakeModifier; //pindexPrev.Header.BlockStake.StakeModifier;
+			uint256 bnStakeModifierV2 = prevBlockStake.StakeModifierV2; //pindexPrev.Header.BlockStake.StakeModifierV2;
 			int nStakeModifierHeight = pindexPrev.Height;
 			var nStakeModifierTime = pindexPrev.Header.Time;
 
@@ -563,7 +571,7 @@ namespace NBitcoin
 		}
 
 		public static bool CheckKernel(IBlockRepository blockStore, ITransactionRepository trasnactionStore,
-			IBlockTransactionMapStore mapStore,
+			IBlockTransactionMapStore mapStore, StakeChain stakeChain,
 			ChainedBlock pindexPrev, uint nBits, long nTime, OutPoint prevout, ref long pBlockTime)
 		{
 			uint256 hashProofOfStake = null, targetProofOfStake = null;
@@ -591,32 +599,37 @@ namespace NBitcoin
 					return false; // error("CheckProofOfStake() : min age violation");
 			}
 
+			var prevBlockStake = stakeChain.Get(pindexPrev.HashBlock);
+			if (prevBlockStake == null)
+				return false; // the stake proof of the previous block is not set
+
 			// todo: check this unclear logic
 			//if (pBlockTime)
 			//	pBlockTime = block.Header.Time;
 
-			return CheckStakeKernelHash(pindexPrev, nBits, block, txPrev, prevout, (uint)nTime, out hashProofOfStake, out targetProofOfStake, false);
+			return CheckStakeKernelHash(pindexPrev, nBits, block, txPrev, prevBlockStake, prevout, (uint)nTime, out hashProofOfStake, out targetProofOfStake, false);
 		}
 
-		public static bool ComputeStakeModifier(ChainBase chainIndex, ChainedBlock pindex)
+		public static bool ComputeStakeModifier(ChainBase chainIndex, ChainedBlock pindex, BlockStake blockStake, StakeChain stakeChain)
 		{
 			var pindexPrev = pindex.Previous;
+			var blockStakePrev = pindexPrev == null? null : stakeChain.Get(pindexPrev.HashBlock);
 
 			// compute stake modifier
 			ulong nStakeModifier;
 			bool fGeneratedStakeModifier;
-			if (!ComputeNextStakeModifier(chainIndex, pindexPrev, out nStakeModifier, out fGeneratedStakeModifier))
+			if (!ComputeNextStakeModifier(stakeChain, chainIndex, pindexPrev, out nStakeModifier, out fGeneratedStakeModifier))
 				return false; //error("AddToBlockIndex() : ComputeNextStakeModifier() failed");
 
-			pindex.Header.PosParameters.SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
-			pindex.Header.PosParameters.StakeModifierV2 = ComputeStakeModifierV2(
-				pindexPrev, pindex.Header.PosParameters.IsProofOfWork() ? pindex.HashBlock : pindex.Header.PosParameters.PrevoutStake.Hash);
+			blockStake.SetStakeModifier(nStakeModifier, fGeneratedStakeModifier);
+			blockStake.StakeModifierV2 = ComputeStakeModifierV2(
+				pindexPrev, blockStakePrev, blockStake.IsProofOfWork() ? pindex.HashBlock : blockStake.PrevoutStake.Hash);
 
 			return true;
 		}
 
 		// Get the last stake modifier and its generation time from a given block
-		private static bool GetLastStakeModifier(ChainedBlock pindex, out ulong stakeModifier, out long modifierTime)
+		private static bool GetLastStakeModifier(StakeChain stakeChain, ChainedBlock pindex, out ulong stakeModifier, out long modifierTime)
 		{
 			stakeModifier = 0;
 			modifierTime = 0;
@@ -624,13 +637,17 @@ namespace NBitcoin
 			if (pindex == null)
 				return false; // error("GetLastStakeModifier: null pindex");
 
-			while (pindex != null && pindex.Previous != null && !pindex.Header.PosParameters.GeneratedStakeModifier())
+			var blockStake = stakeChain.Get(pindex.HashBlock);
+			while (pindex != null && pindex.Previous != null && !blockStake.GeneratedStakeModifier())
+			{
 				pindex = pindex.Previous;
+				blockStake = stakeChain.Get(pindex.HashBlock);
+			}
 
-			if (!pindex.Header.PosParameters.GeneratedStakeModifier())
+			if (!blockStake.GeneratedStakeModifier())
 				return false; // error("GetLastStakeModifier: no generation at genesis block");
 
-			stakeModifier = pindex.Header.PosParameters.StakeModifier;
+			stakeModifier = blockStake.StakeModifier;
 			modifierTime = pindex.Header.Time;
 
 			return true;
@@ -660,7 +677,7 @@ namespace NBitcoin
 		// select a block from the candidate blocks in vSortedByTimestamp, excluding
 		// already selected blocks in vSelectedBlocks, and with timestamp up to
 		// nSelectionIntervalStop.
-		private static bool SelectBlockFromCandidates(ChainedBlock chainIndex, SortedDictionary<uint, uint256> sortedByTimestamp,
+		private static bool SelectBlockFromCandidates(StakeChain stakeChain, ChainedBlock chainIndex, SortedDictionary<uint, uint256> sortedByTimestamp,
 			Dictionary<uint256, ChainedBlock> mapSelectedBlocks,
 			long nSelectionIntervalStop, ulong nStakeModifierPrev, out ChainedBlock pindexSelected)
 		{
@@ -681,13 +698,15 @@ namespace NBitcoin
 				if (mapSelectedBlocks.Keys.Any(key => key == pindex.HashBlock))
 					continue;
 
+				var blockStake = stakeChain.Get(pindex.HashBlock);
+
 				// compute the selection hash by hashing its proof-hash and the
 				// previous proof-of-stake modifier
 				uint256 hashSelection;
 				using (var ms = new MemoryStream())
 				{
 					var serializer = new BitcoinStream(ms, true);
-					serializer.ReadWrite(pindex.Header.PosParameters.HashProof);
+					serializer.ReadWrite(blockStake.HashProof);
 					serializer.ReadWrite(nStakeModifierPrev);
 
 					hashSelection = Hashes.Hash256(ms.ToArray());
@@ -696,7 +715,7 @@ namespace NBitcoin
 				// the selection hash is divided by 2**32 so that proof-of-stake block
 				// is always favored over proof-of-work block. this is to preserve
 				// the energy efficiency property
-				if (pindex.Header.PosParameters.IsProofOfStake())
+				if (blockStake.IsProofOfStake())
 					hashSelection >>= 32;
 
 				if (fSelected && hashSelection < hashBest)
@@ -729,7 +748,7 @@ namespace NBitcoin
 		// block. This is to make it difficult for an attacker to gain control of
 		// additional bits in the stake modifier, even after generating a chain of
 		// blocks.
-		private static bool ComputeNextStakeModifier(ChainBase chainIndex, ChainedBlock pindexPrev, out ulong nStakeModifier,
+		private static bool ComputeNextStakeModifier(StakeChain stakeChain, ChainBase chainIndex, ChainedBlock pindexPrev, out ulong nStakeModifier,
 			out bool fGeneratedStakeModifier)
 		{
 			nStakeModifier = 0;
@@ -743,7 +762,7 @@ namespace NBitcoin
 			// First find current stake modifier and its generation block time
 			// if it's not old enough, return the same stake modifier
 			long nModifierTime = 0;
-			if (!GetLastStakeModifier(pindexPrev, out nStakeModifier, out nModifierTime))
+			if (!GetLastStakeModifier(stakeChain, pindexPrev, out nStakeModifier, out nModifierTime))
 				return false; //error("ComputeNextStakeModifier: unable to get last modifier");
 							  //LogPrint("stakemodifier", "ComputeNextStakeModifier: prev modifier=0x%016x time=%s\n", nStakeModifier, DateTimeStrFormat(nModifierTime));
 			if (nModifierTime / ModifierInterval >= pindexPrev.Header.Time / ModifierInterval)
@@ -771,11 +790,12 @@ namespace NBitcoin
 				nSelectionIntervalStop += GetStakeModifierSelectionIntervalSection(nRound);
 
 				// select a block from the candidates of current round
-				if (!SelectBlockFromCandidates(pindexPrev, sortedByTimestamp, mapSelectedBlocks, nSelectionIntervalStop, nStakeModifier, out pindex))
+				if (!SelectBlockFromCandidates(stakeChain, pindexPrev, sortedByTimestamp, mapSelectedBlocks, nSelectionIntervalStop, nStakeModifier, out pindex))
 					return false; // error("ComputeNextStakeModifier: unable to select block at round %d", nRound);
 
 				// write the entropy bit of the selected block
-				nStakeModifierNew |= ((ulong)pindex.Header.PosParameters.GetStakeEntropyBit() << nRound);
+				var blockStake = stakeChain.Get(pindex.HashBlock);
+				nStakeModifierNew |= ((ulong)blockStake.GetStakeEntropyBit() << nRound);
 
 				// add the selected block from candidates to selected list
 				mapSelectedBlocks.Add(pindex.HashBlock, pindex);
@@ -820,7 +840,7 @@ namespace NBitcoin
 		// computing future proof-of-stake generated by this txout at the time
 		// of transaction confirmation. To meet kernel protocol, the txout
 		// must hash with a future stake modifier to generate the proof.
-		private static uint256 ComputeStakeModifierV2(ChainedBlock pindexPrev, uint256 kernel)
+		private static uint256 ComputeStakeModifierV2(ChainedBlock pindexPrev, BlockStake blockStakePrev, uint256 kernel)
 		{
 			if (pindexPrev == null)
 				return 0; // genesis block's modifier is 0
@@ -830,7 +850,7 @@ namespace NBitcoin
 			{
 				var serializer = new BitcoinStream(ms, true);
 				serializer.ReadWrite(kernel);
-				serializer.ReadWrite(pindexPrev.Header.PosParameters.StakeModifierV2);
+				serializer.ReadWrite(blockStakePrev.StakeModifierV2);
 				stakeModifier = Hashes.Hash256(ms.ToArray());
 			}
 

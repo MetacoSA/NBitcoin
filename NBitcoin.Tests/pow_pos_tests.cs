@@ -12,11 +12,21 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public static void CanCalculatePowPosCorrectly()
 		{
-			var chain = new ConcurrentChain(File.ReadAllBytes(TestDataLocations.BlockHeadersLocation));
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+			var chain = store.GetChain();
+			var stakeChain = new MemoryStakeChain(Network.Main);
+			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
+			var reindexed = indexStore.ReIndex();
+			Assert.Equal(reindexed, 103952);
 
-			foreach (var block in chain.EnumerateAfter(chain.Genesis))
+			foreach (var chainedBlock in chain.EnumerateAfter(chain.Genesis))
 			{
-				Assert.True(block.CheckPowPosAndTarget(Network.Main));
+				var block = indexStore.Get(chainedBlock.HashBlock);
+				var blockstake = new BlockStake(block);
+				stakeChain.Set(chainedBlock.HashBlock, blockstake);
+
+				// TODO: fix this test.
+				Assert.True(stakeChain.CheckPowPosAndTarget(chainedBlock, blockstake, Network.Main));
 			}
 		}
 

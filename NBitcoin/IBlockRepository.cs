@@ -11,5 +11,4 @@ namespace NBitcoin
 	{
 		uint256 GetBlockHash(uint256 trxHash);
 	}
-
 }

@@ -1102,6 +1102,8 @@ namespace NBitcoin
 	//https://en.bitcoin.it/wiki/Protocol_specification
 	public class Transaction : IBitcoinSerializable
 	{
+		public static bool TimeStamp = false;
+
 		public bool RBF
 		{
 			get
@@ -1210,8 +1212,9 @@ namespace NBitcoin
 			{
 				stream.ReadWrite(ref nVersion);
 
-                // the POS time stamp
-                stream.ReadWrite(ref this.nTime);
+				// the POS time stamp
+				if (Transaction.TimeStamp)
+					stream.ReadWrite(ref this.nTime);
 
                 /* Try to read the vin. In case the dummy is there, this will be read as an empty vector. */
                 stream.ReadWrite<TxInList, TxIn>(ref vin);
@@ -1262,9 +1265,10 @@ namespace NBitcoin
 			{
 				var version = (witSupported && (vin.Count == 0 && vout.Count > 0)) ? nVersion | NoDummyInput : nVersion;
 				stream.ReadWrite(ref version);
-             
-                // the POS time stamp
-                stream.ReadWrite(ref this.nTime);
+
+				// the POS time stamp
+				if (Transaction.TimeStamp)
+					stream.ReadWrite(ref this.nTime);
 
                 if (witSupported)
 				{
