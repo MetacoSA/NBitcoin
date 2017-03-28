@@ -492,9 +492,7 @@ namespace NBitcoin.Tests
             {
                 var hash = block.Item.GetHash();
                 listAll.Add(hash.ToString(), block);
-                Assert.True(block.Item.CheckMerkleRoot());
-                Assert.True(block.Item.CheckProofOfWork());
-                Assert.True(block.Item.CheckProofOfStake());
+                Assert.True(block.Item.Check());
             }
 
             // walk the chain and check that all block are loaded correctly 
@@ -583,7 +581,7 @@ namespace NBitcoin.Tests
 				client = new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"),
 					new Uri("http://127.0.0.1:" + Network.Main.RPCPort), Network.Main);
 
-			var stakeChain = new MemoryStakeChain();
+			var stakeChain = new MemoryStakeChain(Network.Main);
 
 			// validate the stake trasnaction
 			foreach (var item in chain.ToEnumerable(false).Take(totalblocks).ToList())

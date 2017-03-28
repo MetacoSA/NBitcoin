@@ -178,7 +178,7 @@ namespace NBitcoin
 				else
 					h = this.GetPoWHash();
 			}
-				else
+			else
 			{
 				h = Hashes.Hash256(this.ToBytes());
 
@@ -226,7 +226,7 @@ namespace NBitcoin
 			if (bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
 				return false;
 			// Check proof of work matches claimed amount
-			if (Block.BlockSignature)
+			if (Block.BlockSignature) // note this can only be called on a POW block
 				return GetPoWHash() <= Bits.ToUInt256();
 			return GetHash() <= Bits.ToUInt256();
 		}
@@ -345,6 +345,8 @@ namespace NBitcoin
 		{
 			stream.ReadWrite(ref header);
 			stream.ReadWrite(ref vtx);
+			if(Block.BlockSignature)
+				stream.ReadWrite(ref blockSignature);
 		}
 
 		public bool HeaderOnly
@@ -425,6 +427,9 @@ namespace NBitcoin
 		/// <returns></returns>
 		public bool Check()
 		{
+			if (Block.BlockSignature)
+				return BlockStake.Check(this);
+
 			return CheckMerkleRoot() && Header.CheckProofOfWork();
 		}
 

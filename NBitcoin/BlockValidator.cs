@@ -337,17 +337,18 @@ namespace NBitcoin
 			if (block.GetHash() != pindex.HashBlock)
 				throw new ArgumentException();
 
-			var pindexPrev = pindex.Previous;
-
 			blockStake = new BlockStake(block);
-			var prevBlockStake = stakeChain.Get(pindexPrev.HashBlock);
-			if (prevBlockStake == null)
-				return false; // the stake proof of the previous block is not set
 
 			uint256 hashProof = null;
 			// Verify hash target and signature of coinstake tx
 			if (BlockStake.IsProofOfStake(block))
 			{
+				var pindexPrev = pindex.Previous;
+
+				var prevBlockStake = stakeChain.Get(pindexPrev.HashBlock);
+				if (prevBlockStake == null)
+					return false; // the stake proof of the previous block is not set
+
 				uint256 targetProofOfStake;
 				if (!CheckProofOfStake(blockStore, trasnactionStore, mapStore, pindexPrev, prevBlockStake, block.Transactions[1],
 						pindex.Header.Bits.ToCompact(), out hashProof, out targetProofOfStake))
@@ -612,7 +613,7 @@ namespace NBitcoin
 		public static bool ComputeStakeModifier(ChainBase chainIndex, ChainedBlock pindex, BlockStake blockStake, StakeChain stakeChain)
 		{
 			var pindexPrev = pindex.Previous;
-			var blockStakePrev = stakeChain.Get(pindexPrev.HashBlock);
+			var blockStakePrev = pindexPrev == null? null : stakeChain.Get(pindexPrev.HashBlock);
 
 			// compute stake modifier
 			ulong nStakeModifier;

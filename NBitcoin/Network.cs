@@ -647,6 +647,7 @@ namespace NBitcoin
 			name = "Main";
 
 			Block.BlockSignature = true;
+			Transaction.TimeStamp = true;
 
             consensus.SubsidyHalvingInterval = 210000;
             consensus.MajorityEnforceBlockUpgrade = 750;
@@ -734,6 +735,9 @@ namespace NBitcoin
 		private void InitTest()
 		{
 			name = "TestNet";
+
+			Block.BlockSignature = true;
+			Transaction.TimeStamp = true;
 
 			consensus.SubsidyHalvingInterval = 210000;
 			consensus.MajorityEnforceBlockUpgrade = 51;

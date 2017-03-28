@@ -78,15 +78,23 @@ namespace NBitcoin
 
 	public class MemoryStakeChain : StakeChain
 	{
+		private readonly Network network;
 		private Dictionary<uint256, BlockStake> items = new Dictionary<uint256, BlockStake>();
+
+		public MemoryStakeChain(Network network)
+		{
+			this.network = network;
+		}
+
 		public override BlockStake Get(uint256 blockid)
 		{
 			return this.items.TryGet(blockid);
 		}
 
-		public override void Set(uint256 blockid, BlockStake blockStake)
+		public sealed override void Set(uint256 blockid, BlockStake blockStake)
 		{
-			this.items.TryAdd(blockid, blockStake);
+			// throw if item already exists
+			this.items.Add(blockid, blockStake);
 		}
 	}
 }

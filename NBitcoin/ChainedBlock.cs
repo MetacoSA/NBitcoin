@@ -332,6 +332,10 @@ namespace NBitcoin
 				throw new ArgumentNullException("network");
 			if (Height != 0 && Previous == null)
 				return false;
+
+			if (Block.BlockSignature)
+				return BlockStake.Validate(network, this);
+
 			var heightCorrect = Height == 0 || Height == Previous.Height + 1;
 			var genesisCorrect = Height != 0 || HashBlock == network.GetGenesis().GetHash();
 			var hashPrevCorrect = Height == 0 || Header.HashPrevBlock == Previous.HashBlock;

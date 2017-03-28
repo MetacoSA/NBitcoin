@@ -124,6 +124,11 @@ namespace NBitcoin
 				this.Flags |= BlockFlag.BLOCK_STAKE_MODIFIER;
 		}
 
+		public static bool Check(Block block)
+		{
+			return block.CheckMerkleRoot() && BlockStake.CheckProofOfWork(block) && BlockStake.CheckProofOfStake(block);
+		}
+
 		public static bool CheckProofOfWork(Block block)
 		{
 			// if POS return true else check POW algo
@@ -160,6 +165,29 @@ namespace NBitcoin
 
 			//LogPrint("stakemodifier", "GetStakeEntropyBit: hashBlock=%s nEntropyBit=%u\n", GetHash().ToString(), nEntropyBit);
 			return nEntropyBit;
+		}
+
+		/// <summary>
+		/// Check PoW and that the blocks connect correctly
+		/// </summary>
+		/// <param name="network">The network being used</param>
+		/// <returns>True if PoW is correct</returns>
+		public static bool Validate(Network network, ChainedBlock chainedBlock, StakeChain stakeChain = null)
+		{
+			if (network == null)
+				throw new ArgumentNullException("network");
+			if (chainedBlock.Height != 0 && chainedBlock.Previous == null)
+				return false;
+			var heightCorrect = chainedBlock.Height == 0 || chainedBlock.Height == chainedBlock.Previous.Height + 1;
+			var genesisCorrect = chainedBlock.Height != 0 || chainedBlock.HashBlock == network.GetGenesis().GetHash();
+			var hashPrevCorrect = chainedBlock.Height == 0 || chainedBlock.Header.HashPrevBlock == chainedBlock.Previous.HashBlock;
+			var hashCorrect = chainedBlock.HashBlock == chainedBlock.Header.GetHash();
+
+			if (stakeChain == null)
+				return heightCorrect && genesisCorrect && hashPrevCorrect && hashCorrect;
+
+			var workCorrect = stakeChain.CheckPowPosAndTarget(chainedBlock, stakeChain.Get(chainedBlock.HashBlock), network);
+			return heightCorrect && genesisCorrect && hashPrevCorrect && hashCorrect && workCorrect;
 		}
 	}
 

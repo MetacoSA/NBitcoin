@@ -14,7 +14,7 @@ namespace NBitcoin.Tests
 		{
 			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
 			var chain = store.GetChain();
-			var stakeChain = new MemoryStakeChain();
+			var stakeChain = new MemoryStakeChain(Network.Main);
 			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
 			var reindexed = indexStore.ReIndex();
 			Assert.Equal(reindexed, 103952);
@@ -25,12 +25,8 @@ namespace NBitcoin.Tests
 				var blockstake = new BlockStake(block);
 				stakeChain.Set(chainedBlock.HashBlock, blockstake);
 
-				var res = stakeChain.CheckPowPosAndTarget(chainedBlock, blockstake, Network.Main);
-				if (!res)
-				{
-					
-				}
-				//Assert.True();
+				// TODO: fix this test.
+				Assert.True(stakeChain.CheckPowPosAndTarget(chainedBlock, blockstake, Network.Main));
 			}
 		}
 
