@@ -25,7 +25,6 @@ namespace NBitcoin.Tests
 				var blockstake = new BlockStake(block);
 				stakeChain.Set(chainedBlock.HashBlock, blockstake);
 
-				// TODO: fix this test.
 				Assert.True(stakeChain.CheckPowPosAndTarget(chainedBlock, blockstake, Network.Main));
 			}
 		}

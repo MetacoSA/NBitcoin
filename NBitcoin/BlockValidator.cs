@@ -112,7 +112,7 @@ namespace NBitcoin
 
 			// second block
 			var pindexPrevPrev = GetLastBlockIndex(stakeChain, pindexPrev.Previous, proofOfStake);
-			if (pindexPrevPrev == null)
+			if (pindexPrevPrev.Previous == null)
 				return new Target(targetLimit);
 
 
@@ -136,7 +136,7 @@ namespace NBitcoin
 			target = target.Multiply(BigInteger.ValueOf(((interval - 1) * targetSpacing + actualSpacing + actualSpacing)));
 			target = target.Divide(BigInteger.ValueOf(((interval + 1) * targetSpacing)));
 
-			if (target.CompareTo(BigInteger.Zero) <= 0 || target.CompareTo(targetLimit) > 1)
+			if (target.CompareTo(BigInteger.Zero) <= 0 || target.CompareTo(targetLimit) >= 1)
 				//if (target <= 0 || target > targetLimit)
 				target = targetLimit;
 
