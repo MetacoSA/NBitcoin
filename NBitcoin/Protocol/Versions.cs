@@ -7,6 +7,9 @@
 	{
 		PROTOCOL_VERSION = 70012,
 
+
+		ALT_PROTOCOL_VERSION = 70000,
+
 		/// <summary>
 		/// Initial protocol version, to be increased after version/verack negotiation
 		/// </summary>
