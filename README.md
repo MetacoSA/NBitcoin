@@ -1,9 +1,9 @@
 
-## NStratis is a port of [NBitcoin](https://github.com/MetacoSA/NBitcoin) 
+## NStratis is a fork of [NBitcoin](https://github.com/MetacoSA/NBitcoin) with additional support for:
 
-### It includes additional support for:
-- POS (Proof of Stake) 
-- Hash functions for the X13 minining algorithem
+- ### POS (Proof of Stake) minining algorithem
+- ### Hash functions for the X13 POW minining algorithem
 
-### NStratis is targetd to the Stratis blockchain
+### NStratis is targetd to the Stratis blockchain 
+#### It's the core component of the stratis [fullnode](https://github.com/stratisproject/StratisBitcoinFullNode) freamwork, a port of the bitcoin blockcahin in C#
 
