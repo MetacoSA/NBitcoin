@@ -93,7 +93,7 @@ namespace NBitcoin.Tests
 					continue;
 					//network = Network.TestNet;
 				else
-					network = BitcoinNetwork.Main;
+					network = Network.Main;
 
 				if(isPrivkey)
 				{
@@ -156,7 +156,7 @@ namespace NBitcoin.Tests
 					continue; // todo: consider to sadd the bitcoin testnet network 
 					//network = Network.TestNet;
 				else
-					network = BitcoinNetwork.Main;
+					network = Network.Main;
 
 				if(isPrivkey)
 				{

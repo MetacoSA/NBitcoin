@@ -2228,12 +2228,11 @@ namespace NBitcoin.Tests
 			Assert.True(error == ScriptError.PushSize);
 		}
 
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void TestSigHashes()
 		{
-			BitcoinSecret secret = new BitcoinSecret("L5AQtV2HDm4xGsseLokK2VAT2EtYKcTm3c7HwqnJBFt9LdaQULsM", BitcoinNetwork.Main);
+			BitcoinSecret secret = new BitcoinSecret("L5AQtV2HDm4xGsseLokK2VAT2EtYKcTm3c7HwqnJBFt9LdaQULsM", Network.Main);
 			var key = secret.PrivateKey;
 			StringBuilder output = new StringBuilder();
 			foreach(var segwit in new[] { false, true })
