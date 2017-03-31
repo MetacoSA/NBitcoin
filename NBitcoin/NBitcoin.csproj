@@ -72,6 +72,7 @@
     <Compile Include="BuilderExtensions\P2MultiSigBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKHBuilderExtension.cs" />
+    <Compile Include="DataEncoders\Bech32Encoder.cs" />
     <Compile Include="FeeRate.cs" />
     <Compile Include="JsonConverters\AssetIdJsonConverter.cs" />
     <Compile Include="JsonConverters\Base58JsonConverter.cs" />
