@@ -1,4 +1,4 @@
-#NBitcoin
+# NBitcoin
 
 [![Join the chat at https://gitter.im/MetacoSA/NBitcoin](https://badges.gitter.im/MetacoSA/NBitcoin.svg)](https://gitter.im/MetacoSA/NBitcoin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -9,7 +9,7 @@ It works on Windows, Mac and Linux with Xamarin, Unity, .NET Core or CLR. (Porti
 
 The best documentation available is our [eBook](https://programmingblockchain.gitbooks.io/programmingblockchain/content/), and the excellent unit tests. There is also some more resources below.
 
-#How to use ?
+# How to use ?
 With nuget :
 >**Install-Package NBitcoin** 
 
@@ -23,7 +23,7 @@ The packages supports:
 To compile it by yourself, you can git clone, open the project and hit the compile button on visual studio.
 How to get started ? Check out this article [on CodeProject](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) for some basic Bitcoin operations, or [this Introduction to NBitcoin video](https://www.youtube.com/watch?v=X4ZwRWIF49w).
 
-#For using NBitcoin in Unity 3.5
+# For using NBitcoin in Unity 3.5
 
 In command prompt:
 
@@ -36,7 +36,7 @@ build-unity.bat
 
 Then put the two libraries, NBitcoin.dll and System.Threading.Tasks.Net35.dll found in "NBitcoin\NBitcoin\bin\Release" into your asset folder.
 
-##Description
+## Description
 NBitcoin notably includes:
 
 * A [TransactionBuilder](http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All) supporting Stealth, Open Asset, and all standard transactions
@@ -81,5 +81,5 @@ NBitcoin license is MIT and we encourage you to use it to explore, learn, debug,
 Please, use github issues for questions or feedback. For confidential requests or specific demands, contact us on [Metaco support](mailto:support@metaco.com "support@metaco.com").
 
 
-##Useful link for a free IDE :
+## Useful link for a free IDE :
 Visual Studio Community Edition : [https://www.visualstudio.com/products/visual-studio-community-vs](https://www.visualstudio.com/products/visual-studio-community-vs "https://www.visualstudio.com/products/visual-studio-community-vs")
