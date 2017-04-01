@@ -47,7 +47,7 @@ namespace NBitcoin.Tests
 				var bech = Bech32Encoder.ExtractEncoderFromString(test);
 				var pos = test.LastIndexOf('1');
 				var test2 = test.Substring(0, pos + 1) + ((test[pos + 1]) ^ 1) + test.Substring(pos + 2);
-				Assert.Throws<FormatException>(() => bech.Bech32Decode(test2));
+				Assert.Throws<FormatException>(() => bech.DecodeData(test2));
 			}
 		}
 

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace NBitcoin.DataEncoders
 {
-	public class Bech32Encoder
+	public class Bech32Encoder : DataEncoder
 	{
 		private static readonly byte[] Byteset = Encoders.ASCII.DecodeData("qpzry9x8gf2tvdw0s3jn54khce6mua7l");
 		private static readonly uint[] Generator = { 0x3b6a57b2U, 0x26508e6dU, 0x1ea119faU, 0x3d4233ddU, 0x2a1462b3U };
@@ -59,9 +59,14 @@ namespace NBitcoin.DataEncoders
 			return Polymod(values) == 1;
 		}
 
-		private byte[] CreateChecksum(byte[] data)
+		private byte[] CreateChecksum(byte[] data, int offset, int count)
 		{
-			var values = _HrpExpand.Concat(data, new byte[] { 0, 0, 0, 0, 0, 0 });
+			var values = new byte[_HrpExpand.Length + count + 6];
+			var valuesOffset = 0;
+			Array.Copy(_HrpExpand, 0, values, valuesOffset, _HrpExpand.Length);
+			valuesOffset += _HrpExpand.Length;
+			Array.Copy(data, offset, values, valuesOffset, count);
+			valuesOffset += count;
 			var polymod = Polymod(values) ^ 1;
 			var ret = new byte[6];
 			foreach (var i in Enumerable.Range(0, 6))
@@ -71,11 +76,17 @@ namespace NBitcoin.DataEncoders
 			return ret;
 		}
 
-		public string Bech32Encode(byte[] data)
+
+		public override string EncodeData(byte[] data, int offset, int count)
 		{
-			var combined = data.Concat(CreateChecksum(data));
+			var combined = new byte[count + 6];
+			int combinedOffset = 0;
+			Array.Copy(data, offset, combined, combinedOffset, count);
+			combinedOffset += count;
+			var checkSum = CreateChecksum(data, offset, count);
+			Array.Copy(checkSum, 0, combined, combinedOffset, 6);
 			var tmp = new byte[combined.Length];
-			for (int i = 0; i < combined.Length; i++)
+			for(int i = 0; i < combined.Length; i++)
 			{
 				tmp[i] = Byteset[combined[i]];
 			}
@@ -99,20 +110,20 @@ namespace NBitcoin.DataEncoders
 			return Encoders.Bech32(test.Substring(0, i));
 		}
 
-		public byte[] Bech32Decode(string bech)
+		public override byte[] DecodeData(string encoded)
 		{
-			if(bech == null)
-				throw new ArgumentNullException("bech");
-			CheckCase(bech);
-			var buffer = Encoders.ASCII.DecodeData(bech);
+			if(encoded == null)
+				throw new ArgumentNullException("encoded");
+			CheckCase(encoded);
+			var buffer = Encoders.ASCII.DecodeData(encoded);
 			if (buffer.Any(b => b < 33 || b > 126))
 			{
 				throw new FormatException("bech chars are out of range");
 			}
-			bech = bech.ToLowerInvariant();
-			buffer = Encoders.ASCII.DecodeData(bech);
-			var pos = bech.LastIndexOf("1", StringComparison.InvariantCultureIgnoreCase);
-			if (pos < 1 || pos + 7 > bech.Length || bech.Length > 90)
+			encoded = encoded.ToLowerInvariant();
+			buffer = Encoders.ASCII.DecodeData(encoded);
+			var pos = encoded.LastIndexOf("1", StringComparison.InvariantCultureIgnoreCase);
+			if (pos < 1 || pos + 7 > encoded.Length || encoded.Length > 90)
 			{
 				throw new FormatException("bech missing separator, separator misplaced or too long input");
 			}
@@ -121,14 +132,14 @@ namespace NBitcoin.DataEncoders
 				throw new FormatException("bech chars are out of range");
 			}
 
-			buffer = Encoders.ASCII.DecodeData(bech);
-			var hrp = Encoders.ASCII.DecodeData(bech.Substring(0, pos));
+			buffer = Encoders.ASCII.DecodeData(encoded);
+			var hrp = Encoders.ASCII.DecodeData(encoded.Substring(0, pos));
 			if(!hrp.SequenceEqual(_Hrp))
 			{
 				throw new FormatException("Mismatching human readeable part");
 			}
-			var data = new byte[bech.Length - pos - 1];
-			for (int j = 0, i = pos + 1; i < bech.Length; i++, j++)
+			var data = new byte[encoded.Length - pos - 1];
+			for (int j = 0, i = pos + 1; i < encoded.Length; i++, j++)
 			{
 				data[j] = (byte)Array.IndexOf(Byteset, buffer[i]);
 			}
@@ -176,7 +187,7 @@ namespace NBitcoin.DataEncoders
 			if(addr == null)
 				throw new ArgumentNullException("addr");
 			CheckCase(addr);
-			var data = Bech32Decode(addr);
+			var data = DecodeData(addr);
 
 			var decoded = ConvertBits(data.Skip(1), 5, 8, false);
 			if (decoded.Length < 2 || decoded.Length > 40)
@@ -194,7 +205,7 @@ namespace NBitcoin.DataEncoders
 		public string Encode(byte witnessVerion, byte[] witnessProgramm)
 		{
 			var data = (new[] { witnessVerion }).Concat(ConvertBits(witnessProgramm, 8, 5));
-			var ret = Bech32Encode(data);
+			var ret = EncodeData(data);
 			return ret;
 		}
 	}
