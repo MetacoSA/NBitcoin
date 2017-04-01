@@ -79,5 +79,14 @@
 				return _Base64;
 			}
 		}
+
+		private static readonly Bech32Encoder _Bech32Encoder = new Bech32Encoder();
+		public static Bech32Encoder Bech32
+		{
+			get
+			{
+				return _Bech32Encoder;
+			}
+		}
 	}
 }

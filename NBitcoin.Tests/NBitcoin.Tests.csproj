@@ -66,6 +66,7 @@
     <Compile Include="AssertEx.cs" />
     <Compile Include="AssetMoneyTests.cs" />
     <Compile Include="base58_tests.cs" />
+    <Compile Include="Bech32Test.cs" />
     <Compile Include="Benchmark.cs" />
     <Compile Include="bip32_tests.cs" />
     <Compile Include="BIP38Tests.cs" />
