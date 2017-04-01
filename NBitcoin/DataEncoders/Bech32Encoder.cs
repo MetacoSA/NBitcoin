@@ -148,7 +148,7 @@ namespace NBitcoin.DataEncoders
 			foreach (var value in data)
 			{
 				if ((value >> fromBits) > 0)
-					throw new ArgumentOutOfRangeException();
+					throw new FormatException("Invalid Bech32 string");
 				acc = (acc << fromBits) | value;
 				bits += fromBits;
 				while (bits >= toBits)
@@ -166,7 +166,7 @@ namespace NBitcoin.DataEncoders
 			}
 			else if (bits >= fromBits || (byte)(((acc << (toBits - bits)) & maxv)) != 0)
 			{
-				throw new FormatException();
+				throw new FormatException("Invalid Bech32 string");
 			}
 			return ret.ToArray();
 		}

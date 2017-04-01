@@ -87,8 +87,8 @@ namespace NBitcoin.DataEncoders
 			return new Bech32Encoder(hrp);
 		}
 
-		static Bech32Encoder bech32 = new Bech32Encoder("bc");
-		static Bech32Encoder tbech32 = new Bech32Encoder("tb");
+		static readonly Bech32Encoder bech32 = new Bech32Encoder("bc");
+		static readonly Bech32Encoder tbech32 = new Bech32Encoder("tb");
 		public static Bech32Encoder Bech32(string hrp)
 		{
 			if(hrp == null)
