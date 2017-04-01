@@ -79,18 +79,22 @@ namespace NBitcoin.DataEncoders
 
 		public override string EncodeData(byte[] data, int offset, int count)
 		{
-			var combined = new byte[count + 6];
+			var combined = new byte[_Hrp.Length + 1 + count + 6];
 			int combinedOffset = 0;
+			Array.Copy(_Hrp, 0, combined, 0, _Hrp.Length);
+			combinedOffset += _Hrp.Length;
+			combined[combinedOffset] = 49;
+			combinedOffset++; 
 			Array.Copy(data, offset, combined, combinedOffset, count);
 			combinedOffset += count;
 			var checkSum = CreateChecksum(data, offset, count);
 			Array.Copy(checkSum, 0, combined, combinedOffset, 6);
-			var tmp = new byte[combined.Length];
-			for(int i = 0; i < combined.Length; i++)
+			combinedOffset += 6;
+			for(int i = 0; i < count + 6; i++)
 			{
-				tmp[i] = Byteset[combined[i]];
+				combined[_Hrp.Length + 1 + i] = Byteset[combined[_Hrp.Length + 1 + i]];
 			}
-			return Encoders.ASCII.EncodeData(_Hrp.Concat(new byte[] { 49 }, tmp));
+			return Encoders.ASCII.EncodeData(combined);
 		}
 
 		internal static void CheckCase(string hrp)
