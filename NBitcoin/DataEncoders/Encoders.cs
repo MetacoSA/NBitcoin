@@ -1,4 +1,6 @@
-﻿namespace NBitcoin.DataEncoders
+﻿using System;
+
+namespace NBitcoin.DataEncoders
 {
 	public abstract class DataEncoder
 	{
@@ -80,13 +82,23 @@
 			}
 		}
 
-		private static readonly Bech32Encoder _Bech32Encoder = new Bech32Encoder();
-		public static Bech32Encoder Bech32
+		public static Bech32Encoder Bech32(byte[] hrp)
 		{
-			get
-			{
-				return _Bech32Encoder;
-			}
+			return new Bech32Encoder(hrp);
+		}
+
+		static Bech32Encoder bech32 = new Bech32Encoder("bc");
+		static Bech32Encoder tbech32 = new Bech32Encoder("tb");
+		public static Bech32Encoder Bech32(string hrp)
+		{
+			if(hrp == null)
+				throw new ArgumentNullException("hrp");
+			Bech32Encoder.CheckCase(hrp);
+			if(hrp.Equals("bc", System.StringComparison.OrdinalIgnoreCase))
+				return bech32;
+			if(hrp.Equals("tb", System.StringComparison.OrdinalIgnoreCase))
+				return tbech32;
+			return new Bech32Encoder(hrp);
 		}
 	}
 }

@@ -44,39 +44,39 @@ namespace NBitcoin.Tests
 		{
 			foreach (var test in VALID_CHECKSUM)
 			{
-				byte[] hrp;
-				Encoders.Bech32.Bech32Decode(test, out hrp);
-				if (hrp == null) throw new Exception();
+				var bech = Bech32Encoder.ExtractEncoderFromString(test);
 				var pos = test.LastIndexOf('1');
 				var test2 = test.Substring(0, pos + 1) + ((test[pos + 1]) ^ 1) + test.Substring(pos + 2);
-
-				Assert.Throws<FormatException>(() => Encoders.Bech32.Bech32Decode(test2, out hrp));
+				Assert.Throws<FormatException>(() => bech.Bech32Decode(test2));
 			}
 		}
 
+		Bech32Encoder bech32 = Encoders.Bech32("bc");
+		Bech32Encoder tbech32 = Encoders.Bech32("tb");
 		[Fact]
 		public void ValidAddress()
 		{
 			foreach (var address in VALID_ADDRESS)
 			{
 				byte witVer;
-				var hrp = "bc";
 				byte[] witProg;
+				Bech32Encoder encoder = bech32;
 				try
 				{
-					witProg = Encoders.Bech32.Decode(hrp, address[0], out witVer);
+					witProg = bech32.Decode(address[0], out witVer);
+					encoder = bech32;
 				}
 				catch
 				{
-					hrp = "tb";
-					witProg = Encoders.Bech32.Decode(hrp, address[0], out witVer);
+					witProg = tbech32.Decode(address[0], out witVer);
+					encoder = tbech32;
 				}
 
 				var scriptPubkey = Scriptpubkey(witVer, witProg);
 				var hex = string.Join("", scriptPubkey.Select(x => x.ToString("x2")));
 				Assert.Equal(hex, address[1]);
 
-				var addr = Encoders.Bech32.Encode(Encoding.ASCII.GetBytes(hrp), witVer, witProg);
+				var addr = encoder.Encode(witVer, witProg);
 				Assert.Equal(address[0].ToLowerInvariant(), addr);
 			}
 		}
@@ -87,8 +87,8 @@ namespace NBitcoin.Tests
 			foreach (var test in INVALID_ADDRESS)
 			{
 				byte witver;
-				Assert.Throws<FormatException>(()=>Encoders.Bech32.Decode("bc", test, out witver));
-				Assert.Throws<FormatException>(() => Encoders.Bech32.Decode("tb", test, out witver));
+				Assert.Throws<FormatException>(()=> bech32.Decode(test, out witver));
+				Assert.Throws<FormatException>(() => tbech32.Decode(test, out witver));
 			}
 		}
 
