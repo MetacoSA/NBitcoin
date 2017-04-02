@@ -126,7 +126,7 @@ namespace NBitcoin.DataEncoders
 			}
 			encoded = encoded.ToLowerInvariant();
 			buffer = Encoders.ASCII.DecodeData(encoded);
-			var pos = encoded.LastIndexOf("1", StringComparison.InvariantCultureIgnoreCase);
+			var pos = encoded.LastIndexOf("1", StringComparison.OrdinalIgnoreCase);
 			if (pos < 1 || pos + 7 > encoded.Length || encoded.Length > 90)
 			{
 				throw new FormatException("bech missing separator, separator misplaced or too long input");
