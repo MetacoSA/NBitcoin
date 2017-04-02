@@ -1197,7 +1197,7 @@ namespace NBitcoin.Tests
 
 			MemoryStream ms = new MemoryStream();
 			BitcoinStream stream = new BitcoinStream(ms, true);
-			stream.TransactionOptions = TransactionOptions.None;
+			stream.TransactionOptions = TransactionOptions.Witness;
 			stream.ReadWrite(before);
 
 			ms.Position = 0;
