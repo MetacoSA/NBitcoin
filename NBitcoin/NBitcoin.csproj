@@ -160,6 +160,8 @@
     <Compile Include="Protocol\Payloads\SendCmpctPayload.cs" />
     <Compile Include="Protocol\Payloads\SendHeadersPayload.cs" />
     <Compile Include="Protocol\Payloads\UTxOutputPayload.cs" />
+    <Compile Include="RPC\FundRawTransactionOptions.cs" />
+    <Compile Include="RPC\FundRawTransactionResponse.cs" />
     <Compile Include="RPC\RestClient.cs" />
     <Compile Include="Policy\StandardTransactionPolicy.cs" />
     <Compile Include="Sequence.cs" />
