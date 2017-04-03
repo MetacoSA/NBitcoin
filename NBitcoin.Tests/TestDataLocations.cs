@@ -61,19 +61,19 @@ namespace NBitcoin.Tests
 			var p = Path.DirectorySeparatorChar;
 			var current = AssemblyDirectory;
 
-			if (Directory.Exists($@"{current}\data".Replace('\\', p)))
+			if (Directory.Exists($@"{current}\data_pos".Replace('\\', p)))
 			{
-				return $@"{current}\data\{file}".Replace('\\', p);
+				return $@"{current}\data_pos\{file}".Replace('\\', p);
 			}
 
-			if (Directory.Exists($@"{current}\bin\Debug\netcoreapp1.0\data".Replace('\\', p)))
+			if (Directory.Exists($@"{current}\bin\Debug\netcoreapp1.0\data_pos".Replace('\\', p)))
 			{
-				return $@"{current}\bin\Debug\netcoreapp1.0\data\{file}".Replace('\\', p);
+				return $@"{current}\bin\Debug\netcoreapp1.0\data_pos\{file}".Replace('\\', p);
 			}
 
-			if (Directory.Exists($@"{current}\bin\Debug\netcoreapp1.1\data".Replace('\\', p)))
+			if (Directory.Exists($@"{current}\bin\Debug\netcoreapp1.1\data_pos".Replace('\\', p)))
 			{
-				return $@"{current}\bin\Debug\netcoreapp1.1\data\{file}".Replace('\\', p);
+				return $@"{current}\bin\Debug\netcoreapp1.1\data_pos\{file}".Replace('\\', p);
 			}
 
 			throw new DirectoryNotFoundException();

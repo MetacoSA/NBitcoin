@@ -9,7 +9,7 @@ using Xunit;
 
 namespace NBitcoin.Tests
 {
-	public class addrman_tests
+	public class addrman_tests_pos
 	{
 #if !NOFILEIO
 		[Fact]
@@ -17,18 +17,18 @@ namespace NBitcoin.Tests
 		public void CanSerializeDeserializePeerTable()
 		{
 			AddressManager addrman = new AddressManager();
-			addrman.SavePeerFile("CanSerializeDeserializePeerTable.dat", Network.Main);
-			AddressManager.LoadPeerFile("CanSerializeDeserializePeerTable.dat", Network.Main);
+			addrman.SavePeerFile("CanSerializeDeserializePeerTable.dat", Network.StratisMain);
+			AddressManager.LoadPeerFile("CanSerializeDeserializePeerTable.dat", Network.StratisMain);
 
-			addrman = AddressManager.LoadPeerFile(TestDataLocations.DataFolder("peers.dat"), Network.Main);
+			addrman = AddressManager.LoadPeerFile(TestDataLocations.DataFolder("peers.dat"), Network.StratisMain);
 			addrman.DebugMode = true;
 			addrman.Check();
-			addrman.SavePeerFile("serializerPeer.dat", Network.Main);
+			addrman.SavePeerFile("serializerPeer.dat", Network.StratisMain);
 
-			AddressManager addrman2 = AddressManager.LoadPeerFile("serializerPeer.dat", Network.Main);
+			AddressManager addrman2 = AddressManager.LoadPeerFile("serializerPeer.dat", Network.StratisMain);
 			addrman2.DebugMode = true;
 			addrman2.Check();
-			addrman2.SavePeerFile("serializerPeer2.dat", Network.Main);
+			addrman2.SavePeerFile("serializerPeer2.dat", Network.StratisMain);
 
 			var original = File.ReadAllBytes("serializerPeer2.dat");
 			var after = File.ReadAllBytes("serializerPeer.dat");

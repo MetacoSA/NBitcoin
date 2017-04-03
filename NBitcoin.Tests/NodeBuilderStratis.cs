@@ -15,6 +15,14 @@ using NBitcoin.RPC;
 
 namespace NBitcoin.Tests
 {
+
+		// Require a stratis node running with the following stratis.conf file
+		//server=1
+		//rpcuser=rpcuser
+		//rpcpassword = rpcpassword
+		//rpcallowip=*
+		//txindex=1 
+
 	public class NodeBuilderStratis : IDisposable
 	{
 		public static NodeBuilderStratis Create([CallerMemberName]string caller = null, string version = "0.12.1")

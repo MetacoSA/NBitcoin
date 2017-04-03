@@ -451,6 +451,48 @@ namespace NBitcoin.RPC
 			return result;
 		}
 
+		public async Task<PeerInfo[]> GetStratisPeersInfoAsync()
+		{
+			var resp = await SendCommandAsync("getpeerinfo").ConfigureAwait(false);
+			var peers = resp.Result as JArray;
+			var result = new PeerInfo[peers.Count];
+			var i = 0;
+			foreach (var peer in peers)
+			{
+				var localAddr = (string)peer["addrlocal"];
+				var pingWait = peer["pingwait"] != null ? (double)peer["pingwait"] : 0;
+
+				localAddr = string.IsNullOrEmpty(localAddr) ? "127.0.0.1:8333" : localAddr;
+
+				result[i++] = new PeerInfo
+				{
+					//Id = (int)peer["id"],
+					Address = Utils.ParseIpEndpoint((string)peer["addr"], this.Network.DefaultPort),
+					LocalAddress = Utils.ParseIpEndpoint(localAddr, this.Network.DefaultPort),
+					Services = ulong.Parse((string)peer["services"]),
+					LastSend = Utils.UnixTimeToDateTime((uint)peer["lastsend"]),
+					LastReceive = Utils.UnixTimeToDateTime((uint)peer["lastrecv"]),
+					BytesSent = (long)peer["bytessent"],
+					BytesReceived = (long)peer["bytesrecv"],
+					ConnectionTime = Utils.UnixTimeToDateTime((uint)peer["conntime"]),
+					TimeOffset = TimeSpan.FromSeconds(Math.Min((long)int.MaxValue, (long)peer["timeoffset"])),
+					PingTime = TimeSpan.FromSeconds((double)peer["pingtime"]),
+					PingWait = TimeSpan.FromSeconds(pingWait),
+					//Blocks = peer["blocks"] != null ? (int)peer["blocks"] : -1,
+					Version = (int)peer["version"],
+					SubVersion = (string)peer["subver"],
+					Inbound = (bool)peer["inbound"],
+					StartingHeight = (int)peer["startingheight"],
+					//SynchronizedBlocks = (int)peer["synced_blocks"],
+					//SynchronizedHeaders = (int)peer["synced_headers"],
+					//IsWhiteListed = (bool)peer["whitelisted"],
+					BanScore = peer["banscore"] == null ? 0 : (int)peer["banscore"],
+					//Inflight = peer["inflight"].Select(x => uint.Parse((string)x)).ToArray()
+				};
+			}
+			return result;
+		}
+
 		public void AddNode(EndPoint nodeEndPoint, bool onetry = false)
 		{
 			if(nodeEndPoint == null)
