@@ -88,6 +88,7 @@
     <Compile Include="BitcoinAddressTest.cs" />
     <Compile Include="cmpctblock_tests.cs" />
     <Compile Include="JsonConverterTests.cs" />
+    <Compile Include="NodeBuilderStratis.cs" />
     <Compile Include="NodeBuilder.cs" />
     <Compile Include="bloom_tests.cs" />
     <Compile Include="ChainTests.cs" />
@@ -101,10 +102,10 @@
     <Compile Include="PaymentTests.cs" />
     <Compile Include="pow_pos_tests.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="ProtocolTests.cs" />
-    <Compile Include="RepositoryTests.cs" />
+    <Compile Include="ProtocolTests_pos.cs" />
+    <Compile Include="RepositoryTests_pos.cs" />
     <Compile Include="RestClientTests.cs" />
-    <Compile Include="RPCClientTests.cs" />
+    <Compile Include="RPCClientTests_pos.cs" />
     <Compile Include="script_tests.cs" />
     <Compile Include="sighash_tests.cs" />
     <Compile Include="sigopcount_tests.cs" />

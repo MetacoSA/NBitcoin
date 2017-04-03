@@ -204,43 +204,6 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanCalculateDifficulty()
-		{
-			var histories = File.ReadAllLines(TestDataLocations.DataFolder(@"targethistory.csv"));
-
-			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
-			// todo: load the chain with a header only file
-			ConcurrentChain chain = store.GetChain();
-
-			var stakeChain = new MemoryStakeChain(Network.Main);
-			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
-			var reindexed = indexStore.ReIndex();
-			Assert.Equal(reindexed, 103952);
-
-			var lastIndex = 0;
-			foreach (var history in histories)
-			{
-				var height = int.Parse(history.Split(',')[0]);
-				var expectedTarget = new Target(new BigInteger(history.Split(',')[1].Trim(), 10));
-
-				var chainedBlock = chain.GetBlock(height);
-				for (int i = height; i > lastIndex; i--)
-				{
-					var g = chain.GetBlock(i);
-					var block = indexStore.Get(g.HashBlock);
-					stakeChain.Set(g.HashBlock, new BlockStake(block));
-				}
-				lastIndex = height;
-
-				Assert.Equal(expectedTarget, chainedBlock.Header.Bits);
-				var target = stakeChain.GetWorkRequired(chainedBlock, stakeChain.Get(chainedBlock.HashBlock), Network.Main.Consensus);
-				//var target = chain.GetWorkRequired(Network.Main, height);
-				Assert.Equal(expectedTarget, target);
-			}
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
 		public void CanEnumerateAfterChainedBlock()
 		{
 			ConcurrentChain chain = new ConcurrentChain(Network.Main);
