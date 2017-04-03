@@ -14,8 +14,8 @@ namespace NBitcoin.Tests
 		{
 			get
 			{
-				EnsureDownloaded(@"download\blocks\blk0001.dat", "https://onedrive.live.com/download.aspx?cid=3E5405DC8E6A9F4F&resid=3E5405DC8E6A9F4F%21120&canary=WEXg5NdVyhofKGNJlW0V0e8AbKxmTjJ1yP47KsA8hyU%3D8&ithint=%2Edat");
-				return @"download\blocks";
+				EnsureDownloaded(@"download\posblocks\blk0001.dat", "https://onedrive.live.com/download.aspx?cid=3E5405DC8E6A9F4F&resid=3E5405DC8E6A9F4F%21120&canary=WEXg5NdVyhofKGNJlW0V0e8AbKxmTjJ1yP47KsA8hyU%3D8&ithint=%2Edat");
+				return @"download\posblocks";
 			}
 		}
 
@@ -23,8 +23,8 @@ namespace NBitcoin.Tests
 		{
 			get
 			{
-				EnsureDownloaded(@"download\blocks\blk0001.dat", "https://onedrive.live.com/download.aspx?cid=3E5405DC8E6A9F4F&resid=3E5405DC8E6A9F4F%21120&canary=WEXg5NdVyhofKGNJlW0V0e8AbKxmTjJ1yP47KsA8hyU%3D8&ithint=%2Edat");
-				return @"download\blocks\blk0001.dat";
+				EnsureDownloaded(@"download\posblocks\blk0001.dat", "https://onedrive.live.com/download.aspx?cid=3E5405DC8E6A9F4F&resid=3E5405DC8E6A9F4F%21120&canary=WEXg5NdVyhofKGNJlW0V0e8AbKxmTjJ1yP47KsA8hyU%3D8&ithint=%2Edat");
+				return @"download\posblocks\blk0001.dat";
 			}
 		}
 
@@ -32,8 +32,8 @@ namespace NBitcoin.Tests
 		{
 			get
 			{
-				EnsureDownloaded(@"download\blocks\Headers.dat", "https://onedrive.live.com/download.aspx?cid=3E5405DC8E6A9F4F&resid=3E5405DC8E6A9F4F%21123&canary=HTsPi6qeFsOy7di8KBD7GIYBmHaRRumiJ%2FQnNMvz%2Fh0%3D4&ithint=%2Edat");
-				return @"download\blocks\Headers.dat";
+				EnsureDownloaded(@"download\posblocks\Headers.dat", "https://onedrive.live.com/download.aspx?cid=3E5405DC8E6A9F4F&resid=3E5405DC8E6A9F4F%21123&canary=HTsPi6qeFsOy7di8KBD7GIYBmHaRRumiJ%2FQnNMvz%2Fh0%3D4&ithint=%2Edat");
+				return @"download\posblocks\Headers.dat";
 			}
 		}
 
@@ -52,7 +52,7 @@ namespace NBitcoin.Tests
 		public static string DataBlockFolder(string file)
 		{
 			var p = Path.DirectorySeparatorChar;
-			var folder = DataFolder("blocks");
+			var folder = DataFolder("posblocks");
 			return $@"{folder}\{file}".Replace('\\', p);
 		}
 

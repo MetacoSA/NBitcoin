@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using NBitcoin.Crypto;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using NBitcoin.Crypto;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
@@ -16,7 +20,7 @@ namespace NBitcoin.BitcoinCore
 		{
 
 		}
-		public TxInUndo(TxOut txOut)
+		public TxInUndo(NBitcoin.TxOut txOut)
 		{
 			this.TxOut = txOut;
 		}

@@ -11,7 +11,6 @@ using NBitcoin.Protocol;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using NBitcoin.BouncyCastle.Math;
-using NBitcoin.OpenAsset;
 #if !NOSOCKET
 using System.Net.Sockets;
 #endif
@@ -31,7 +30,7 @@ namespace NBitcoin
 			{
 				return repository.GetBlockAsync(blockId).Result;
 			}
-			catch(AggregateException aex)
+			catch (AggregateException aex)
 			{
 				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
 				return null; //Can't happen
@@ -42,14 +41,14 @@ namespace NBitcoin
 
 		public static T ToNetwork<T>(this T base58, Network network) where T : Base58Data
 		{
-			if(network == null)
+			if (network == null)
 				throw new ArgumentNullException("network");
-			if(base58.Network == network)
+			if (base58.Network == network)
 				return base58;
-			if(base58 == null)
+			if (base58 == null)
 				throw new ArgumentNullException("base58");
 			var inner = base58.ToBytes();
-			if(base58.Type != Base58Type.COLORED_ADDRESS)
+			if (base58.Type != Base58Type.COLORED_ADDRESS)
 			{
 				byte[] version = network.GetVersionBytes(base58.Type);
 				var newBase58 = Encoders.Base58Check.EncodeData(version.Concat(inner).ToArray());
@@ -71,7 +70,7 @@ namespace NBitcoin
 			do
 			{
 				num += (num2 = stream.Read(buffer, num, bytesToRead - num));
-			} while(num2 > 0 && num < bytesToRead);
+			} while (num2 > 0 && num < bytesToRead);
 			return buffer;
 		}
 
@@ -83,7 +82,7 @@ namespace NBitcoin
 			do
 			{
 				num += (num2 = await stream.ReadAsync(buffer, num, bytesToRead - num).ConfigureAwait(false));
-			} while(num2 > 0 && num < bytesToRead);
+			} while (num2 > 0 && num < bytesToRead);
 			return buffer;
 		}
 
@@ -94,18 +93,18 @@ namespace NBitcoin
 		}
 		public static IEnumerable<T> Resize<T>(this List<T> list, int count)
 		{
-			if(list.Count == count)
+			if (list.Count == count)
 				return new T[0];
 
 			List<T> removed = new List<T>();
 
-			for(int i = list.Count - 1; i + 1 > count; i--)
+			for (int i = list.Count - 1; i + 1 > count; i--)
 			{
 				removed.Add(list[i]);
 				list.RemoveAt(i);
 			}
 
-			while(list.Count < count)
+			while (list.Count < count)
 			{
 				list.Add(default(T));
 			}
@@ -119,17 +118,17 @@ namespace NBitcoin
 		{
 			var partitionSize = max();
 			List<T> toReturn = new List<T>(partitionSize);
-			foreach(var item in source)
+			foreach (var item in source)
 			{
 				toReturn.Add(item);
-				if(toReturn.Count == partitionSize)
+				if (toReturn.Count == partitionSize)
 				{
 					yield return toReturn;
 					partitionSize = max();
 					toReturn = new List<T>(partitionSize);
 				}
 			}
-			if(toReturn.Any())
+			if (toReturn.Any())
 			{
 				yield return toReturn;
 			}
@@ -138,15 +137,15 @@ namespace NBitcoin
 #if !(PORTABLE || NETCORE)
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
-			if(stream == null) throw new ArgumentNullException("stream");
-			if(buffer == null) throw new ArgumentNullException("buffer");
-			if(offset < 0 || offset > buffer.Length) throw new ArgumentOutOfRangeException("offset");
-			if(count <= 0 || count > buffer.Length) throw new ArgumentOutOfRangeException("count"); //Disallow 0 as a debugging aid.
-			if(offset > buffer.Length - count) throw new ArgumentOutOfRangeException("count");
+			if (stream == null) throw new ArgumentNullException("stream");
+			if (buffer == null) throw new ArgumentNullException("buffer");
+			if (offset < 0 || offset > buffer.Length) throw new ArgumentOutOfRangeException("offset");
+			if (count <= 0 || count > buffer.Length) throw new ArgumentOutOfRangeException("count"); //Disallow 0 as a debugging aid.
+			if (offset > buffer.Length - count) throw new ArgumentOutOfRangeException("count");
 
 			int totalReadCount = 0;
 
-			while(totalReadCount < count)
+			while (totalReadCount < count)
 			{
 				cancellation.ThrowIfCancellationRequested();
 
@@ -154,10 +153,10 @@ namespace NBitcoin
 
 				//Big performance problem with BeginRead for other stream types than NetworkStream.
 				//Only take the slow path if cancellation is possible.
-				if(stream is NetworkStream && cancellation.CanBeCanceled)
+				if (stream is NetworkStream && cancellation.CanBeCanceled)
 				{
 					var ar = stream.BeginRead(buffer, offset + totalReadCount, count - totalReadCount, null, null);
-					if(!ar.CompletedSynchronously)
+					if (!ar.CompletedSynchronously)
 					{
 						WaitHandle.WaitAny(new WaitHandle[] { ar.AsyncWaitHandle, cancellation.WaitHandle }, -1);
 					}
@@ -165,7 +164,7 @@ namespace NBitcoin
 					//EndRead might block, so we need to test cancellation before calling it.
 					//This also is a bug because calling EndRead after BeginRead is contractually required.
 					//A potential fix is to use the ReadAsync API. Another fix is to register a callback with BeginRead that calls EndRead in all cases.
-					cancellation.ThrowIfCancellationRequested(); 
+					cancellation.ThrowIfCancellationRequested();
 
 					currentReadCount = stream.EndRead(ar);
 				}
@@ -175,7 +174,7 @@ namespace NBitcoin
 					currentReadCount = stream.Read(buffer, offset + totalReadCount, count - totalReadCount);
 				}
 
-				if(currentReadCount == 0)
+				if (currentReadCount == 0)
 					return 0;
 
 				totalReadCount += currentReadCount;
@@ -221,7 +220,7 @@ namespace NBitcoin
 #endif
 		public static void AddOrReplace<TKey, TValue>(this IDictionary<TKey, TValue> dico, TKey key, TValue value)
 		{
-			if(dico.ContainsKey(key))
+			if (dico.ContainsKey(key))
 			{
 				dico.Remove(key);
 				dico.Add(key, value);
@@ -241,7 +240,7 @@ namespace NBitcoin
 
 		public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
 		{
-			if(!dictionary.ContainsKey(key))
+			if (!dictionary.ContainsKey(key))
 			{
 				dictionary.Add(key, value);
 				return true;
@@ -274,13 +273,13 @@ namespace NBitcoin
 	{
 		internal static byte[] SafeSubarray(this byte[] array, int offset, int count)
 		{
-			if(array == null)
+			if (array == null)
 				throw new ArgumentNullException("array");
-			if(offset < 0 || offset > array.Length)
+			if (offset < 0 || offset > array.Length)
 				throw new ArgumentOutOfRangeException("offset");
-			if(count < 0 || offset + count > array.Length)
+			if (count < 0 || offset + count > array.Length)
 				throw new ArgumentOutOfRangeException("count");
-			if(offset == 0 && array.Length == count)
+			if (offset == 0 && array.Length == count)
 				return array;
 			var data = new byte[count];
 			Buffer.BlockCopy(array, offset, data, 0, count);
@@ -289,9 +288,9 @@ namespace NBitcoin
 
 		internal static byte[] SafeSubarray(this byte[] array, int offset)
 		{
-			if(array == null)
+			if (array == null)
 				throw new ArgumentNullException("array");
-			if(offset < 0 || offset > array.Length)
+			if (offset < 0 || offset > array.Length)
 				throw new ArgumentOutOfRangeException("offset");
 
 			var count = array.Length - offset;
@@ -299,6 +298,21 @@ namespace NBitcoin
 			Buffer.BlockCopy(array, offset, data, 0, count);
 			return data;
 		}
+
+		internal static byte[] Concat(this byte[] arr, params byte[][] arrs)
+		{
+			var len = arr.Length + arrs.Sum(a => a.Length);
+			var ret = new byte[len];
+			Buffer.BlockCopy(arr, 0, ret, 0, arr.Length);
+			var pos = arr.Length;
+			foreach (var a in arrs)
+			{
+				Buffer.BlockCopy(a, 0, ret, pos, a.Length);
+				pos += a.Length;
+			}
+			return ret;
+		}
+
 	}
 
 	public class Utils
@@ -308,7 +322,7 @@ namespace NBitcoin
 			try
 			{
 #if !NETCORE
-				if(!ar.SafeWaitHandle.IsClosed && !ar.SafeWaitHandle.IsInvalid)
+				if (!ar.SafeWaitHandle.IsClosed && !ar.SafeWaitHandle.IsInvalid)
 					ar.Set();
 #else
 				ar.Set();
@@ -318,31 +332,31 @@ namespace NBitcoin
 		}
 		public static bool ArrayEqual(byte[] a, byte[] b)
 		{
-			if(a == null && b == null)
+			if (a == null && b == null)
 				return true;
-			if(a == null)
+			if (a == null)
 				return false;
-			if(b == null)
+			if (b == null)
 				return false;
 			return ArrayEqual(a, 0, b, 0, Math.Max(a.Length, b.Length));
 		}
 		public static bool ArrayEqual(byte[] a, int startA, byte[] b, int startB, int length)
 		{
-			if(a == null && b == null)
+			if (a == null && b == null)
 				return true;
-			if(a == null)
+			if (a == null)
 				return false;
-			if(b == null)
+			if (b == null)
 				return false;
 			var alen = a.Length - startA;
 			var blen = b.Length - startB;
 
-			if(alen < length || blen < length)
+			if (alen < length || blen < length)
 				return false;
 
-			for(int ai = startA, bi = startB; ai < startA + length; ai++, bi++)
+			for (int ai = startA, bi = startB; ai < startA + length; ai++, bi++)
 			{
-				if(a[ai] != b[bi])
+				if (a[ai] != b[bi])
 					return false;
 			}
 			return true;
@@ -369,9 +383,9 @@ namespace NBitcoin
 #if !NOSOCKET
 		internal static IPAddress MapToIPv6(IPAddress address)
 		{
-			if(address.AddressFamily == AddressFamily.InterNetworkV6)
+			if (address.AddressFamily == AddressFamily.InterNetworkV6)
 				return address;
-			if(address.AddressFamily != AddressFamily.InterNetwork)
+			if (address.AddressFamily != AddressFamily.InterNetwork)
 				throw new Exception("Only AddressFamily.InterNetworkV4 can be converted to IPv6");
 
 			byte[] ipv4Bytes = address.GetAddressBytes();
@@ -385,14 +399,14 @@ namespace NBitcoin
 
 		internal static bool IsIPv4MappedToIPv6(IPAddress address)
 		{
-			if(address.AddressFamily != AddressFamily.InterNetworkV6)
+			if (address.AddressFamily != AddressFamily.InterNetworkV6)
 				return false;
 
 			byte[] bytes = address.GetAddressBytes();
 
-			for(int i = 0; i < 10; i++)
+			for (int i = 0; i < 10; i++)
 			{
-				if(bytes[0] != 0)
+				if (bytes[0] != 0)
 					return false;
 			}
 			return bytes[10] == 0xFF && bytes[11] == 0xFF;
@@ -406,7 +420,7 @@ namespace NBitcoin
 
 		internal static Array BigIntegerToBytes(NBitcoin.BouncyCastle.Math.BigInteger b, int numBytes)
 		{
-			if(b == null)
+			if (b == null)
 			{
 				return null;
 			}
@@ -421,32 +435,32 @@ namespace NBitcoin
 
 		public static byte[] BigIntegerToBytes(BigInteger num)
 		{
-			if(num.Equals(BigInteger.Zero))
+			if (num.Equals(BigInteger.Zero))
 				//Positive 0 is represented by a null-length vector
 				return new byte[0];
 
 			bool isPositive = true;
-			if(num.CompareTo(BigInteger.Zero) < 0)
+			if (num.CompareTo(BigInteger.Zero) < 0)
 			{
 				isPositive = false;
 				num = num.Multiply(BigInteger.ValueOf(-1));
 			}
 			var array = num.ToByteArray();
 			Array.Reverse(array);
-			if(!isPositive)
+			if (!isPositive)
 				array[array.Length - 1] |= 0x80;
 			return array;
 		}
-		
+
 		public static BigInteger BytesToBigInteger(byte[] data)
 		{
-			if(data == null)
+			if (data == null)
 				throw new ArgumentNullException("data");
-			if(data.Length == 0)
+			if (data.Length == 0)
 				return BigInteger.Zero;
 			data = data.ToArray();
 			var positive = (data[data.Length - 1] & 0x80) == 0;
-			if(!positive)
+			if (!positive)
 			{
 				data[data.Length - 1] &= unchecked((byte)~0x80);
 				Array.Reverse(data);
@@ -479,10 +493,10 @@ namespace NBitcoin
 		internal static ulong DateTimeToUnixTimeLong(DateTimeOffset dt)
 		{
 			dt = dt.ToUniversalTime();
-			if(dt < unixRef)
+			if (dt < unixRef)
 				throw new ArgumentOutOfRangeException("The supplied datetime can't be expressed in unix timestamp");
 			var result = (dt - unixRef).TotalSeconds;
-			if(result > UInt32.MaxValue)
+			if (result > UInt32.MaxValue)
 				throw new ArgumentOutOfRangeException("The supplied datetime can't be expressed in unix timestamp");
 			return (ulong)result;
 		}
@@ -509,14 +523,14 @@ namespace NBitcoin
 		{
 			Exception ex = exception;
 			StringBuilder stringBuilder = new StringBuilder(128);
-			while(ex != null)
+			while (ex != null)
 			{
 				stringBuilder.Append(ex.GetType().Name);
 				stringBuilder.Append(": ");
 				stringBuilder.Append(ex.Message);
 				stringBuilder.AppendLine(ex.StackTrace);
 				ex = ex.InnerException;
-				if(ex != null)
+				if (ex != null)
 				{
 					stringBuilder.Append(" ---> ");
 				}
@@ -527,7 +541,7 @@ namespace NBitcoin
 		public static void Shuffle<T>(T[] arr, Random rand)
 		{
 			rand = rand ?? new Random();
-			for(int i = 0; i < arr.Length; i++)
+			for (int i = 0; i < arr.Length; i++)
 			{
 				var fromIndex = rand.Next(arr.Length);
 				var from = arr[fromIndex];
@@ -542,7 +556,7 @@ namespace NBitcoin
 		public static void Shuffle<T>(List<T> arr, Random rand)
 		{
 			rand = rand ?? new Random();
-			for(int i = 0; i < arr.Count; i++)
+			for (int i = 0; i < arr.Count; i++)
 			{
 				var fromIndex = rand.Next(arr.Count);
 				var from = arr[fromIndex];
@@ -587,14 +601,14 @@ namespace NBitcoin
 
 		public static System.Net.IPEndPoint EnsureIPv6(System.Net.IPEndPoint endpoint)
 		{
-			if(endpoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
+			if (endpoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
 				return endpoint;
 			return new IPEndPoint(endpoint.Address.MapToIPv6Ex(), endpoint.Port);
 		}
 #endif
 		public static byte[] ToBytes(uint value, bool littleEndian)
 		{
-			if(littleEndian)
+			if (littleEndian)
 			{
 				return new byte[]
 				{
@@ -617,7 +631,7 @@ namespace NBitcoin
 		}
 		public static byte[] ToBytes(ulong value, bool littleEndian)
 		{
-			if(littleEndian)
+			if (littleEndian)
 			{
 				return new byte[]
 				{
@@ -649,7 +663,7 @@ namespace NBitcoin
 
 		public static uint ToUInt32(byte[] value, int index, bool littleEndian)
 		{
-			if(littleEndian)
+			if (littleEndian)
 			{
 				return value[index]
 					   + ((uint)value[index + 1] << 8)
@@ -677,7 +691,7 @@ namespace NBitcoin
 		}
 		internal static ulong ToUInt64(byte[] value, bool littleEndian)
 		{
-			if(littleEndian)
+			if (littleEndian)
 			{
 				return value[0]
 					   + ((ulong)value[1] << 8)
@@ -708,19 +722,19 @@ namespace NBitcoin
 			var splitted = endpoint.Trim().Split(new[] { ':' });
 			string ip = null;
 			int port = 0;
-			if(splitted.Length == 1)
+			if (splitted.Length == 1)
 			{
 				ip = splitted[0];
 				port = defaultPort;
 			}
-			else if(splitted.Length == 2)
+			else if (splitted.Length == 2)
 			{
 				ip = splitted[0];
 				port = int.Parse(splitted[1]);
 			}
 			else
 			{
-				if((endpoint.IndexOf(']') != -1) &&
+				if ((endpoint.IndexOf(']') != -1) &&
 					int.TryParse(splitted.Last(), out port))
 				{
 					ip = String.Join(":", splitted.Take(splitted.Length - 1).ToArray());
@@ -737,7 +751,7 @@ namespace NBitcoin
 			{
 				address = IPAddress.Parse(ip);
 			}
-			catch(FormatException)
+			catch (FormatException)
 			{
 #if !(WINDOWS_UWP || NETCORE)
 				address = Dns.GetHostEntry(ip).AddressList[0];
@@ -795,12 +809,12 @@ namespace NBitcoin
 		{
 			unchecked
 			{
-				if(array == null)
+				if (array == null)
 				{
 					return 0;
 				}
 				int hash = 17;
-				for(int i = 0; i < array.Length; i++)
+				for (int i = 0; i < array.Length; i++)
 				{
 					hash = hash * 31 + array[i];
 				}

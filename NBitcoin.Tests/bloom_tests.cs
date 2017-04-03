@@ -1,9 +1,14 @@
-﻿namespace NBitcoin.Tests
-{
-	// bloomo tests are disabled for now
-	// todo: get the bloom tests to work, need to crete test data specific for the stratis network
+﻿using NBitcoin.DataEncoders;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Xunit;
 
-	/*
+namespace NBitcoin.Tests
+{
 	public class bloom_tests
 	{
 		[Fact]
@@ -401,5 +406,4 @@
 			Assert.True(!filter.Contains((new OutPoint(uint256.Parse("0x02981fa052f0481dbc5868f4fc2166035a10f27a03cfd2de67326471df5bc041"), 0))));
 		}
 	}
-	*/
 }

@@ -712,7 +712,7 @@ namespace NBitcoin.RPC
 		{
 			var resp = await SendCommandAsync("getblockhash", height).ConfigureAwait(false);
 			return uint256.Parse(resp.Result.ToString());
-		}
+		}		
 
 		public int GetBlockCount()
 		{

@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using NBitcoin.Protocol;
+using System;
+using System.Collections.Generic;
 using System.IO;
-using NBitcoin.Protocol;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -34,7 +38,7 @@ namespace NBitcoin.Tests
 			foreach(var alert in alerts)
 			{
 				Assert.True(alert.CheckSignature(Network.Main));
-				//Assert.True(!alert.CheckSignature(Network.TestNet));
+				Assert.True(!alert.CheckSignature(Network.TestNet));
 				alert.Now = Utils.UnixTimeToDateTime(11);
 			}
 
@@ -73,7 +77,7 @@ namespace NBitcoin.Tests
 		private AlertPayload[] ReadAlerts()
 		{
 			List<AlertPayload> alerts = new List<AlertPayload>();
-			using(var fs = File.OpenRead(TestDataLocations.DataFolder(@"alertTests.raw")))
+			using(var fs = File.OpenRead("data/alertTests.raw"))
 			{
 				BitcoinStream stream = new BitcoinStream(fs, false);
 				while(stream.Inner.Position != stream.Inner.Length)

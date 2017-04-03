@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace nStratis.Tests
+namespace NBitcoin.Tests
 {
 	public class WebClient
 	{

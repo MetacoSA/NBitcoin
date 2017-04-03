@@ -6,7 +6,7 @@ using Xunit;
 
 namespace NBitcoin.Tests
 {
-	public class pow_pos_tests
+	public class pow_tests_pos
 	{
 
 		[Fact]

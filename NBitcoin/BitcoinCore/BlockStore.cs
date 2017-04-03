@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
@@ -29,6 +31,43 @@ namespace NBitcoin.BitcoinCore
 
 		public void SynchronizeChain(ChainBase chain)
 		{
+			Dictionary<uint256, BlockHeader> headers = new Dictionary<uint256, BlockHeader>();
+			HashSet<uint256> inChain = new HashSet<uint256>();
+			inChain.Add(chain.GetBlock(0).HashBlock);
+			foreach(var header in Enumerate(true).Select(b => b.Item.Header))
+			{
+				var hash = header.GetHash();
+				headers.Add(hash, header);
+			}
+			List<uint256> toRemove = new List<uint256>();
+			while(headers.Count != 0)
+			{
+				foreach(var header in headers)
+				{
+					if(inChain.Contains(header.Value.HashPrevBlock))
+					{
+						toRemove.Add(header.Key);
+						chain.SetTip(header.Value);
+						inChain.Add(header.Key);
+					}
+				}
+				foreach(var item in toRemove)
+					headers.Remove(item);
+				if(toRemove.Count == 0)
+					break;
+				toRemove.Clear();
+			}
+		}
+
+		public ConcurrentChain GetStratisChain()
+		{
+			ConcurrentChain chain = new ConcurrentChain(Network);
+			SynchronizeStratisChain(chain);
+			return chain;
+		}
+
+		public void SynchronizeStratisChain(ChainBase chain)
+		{
 			Dictionary<uint256, Block> blocks = new Dictionary<uint256, Block>();
 			Dictionary<uint256, ChainedBlock> chainedBlocks = new Dictionary<uint256, ChainedBlock>();
 			HashSet<uint256> inChain = new HashSet<uint256>();
@@ -51,7 +90,7 @@ namespace NBitcoin.BitcoinCore
 					{
 						toRemove.Add(block.Key);
 						ChainedBlock chainedBlock;
-						if(last.HashBlock == block.Value.Header.HashPrevBlock)
+						if (last.HashBlock == block.Value.Header.HashPrevBlock)
 						{
 							chainedBlock = last;
 						}

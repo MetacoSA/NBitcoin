@@ -17,8 +17,8 @@ namespace NBitcoin.Tests
 		public void CanSerializeDeserializePeerTable()
 		{
 			AddressManager addrman = new AddressManager();
-			addrman.SavePeerFile("CanSerializeDeserializePeerTable.dat", Network.StratisMain);
-			AddressManager.LoadPeerFile("CanSerializeDeserializePeerTable.dat", Network.StratisMain);
+			addrman.SavePeerFile("strat-CanSerializeDeserializePeerTable.dat", Network.StratisMain);
+			AddressManager.LoadPeerFile("strat-CanSerializeDeserializePeerTable.dat", Network.StratisMain);
 
 			addrman = AddressManager.LoadPeerFile(TestDataLocations.DataFolder("peers.dat"), Network.StratisMain);
 			addrman.DebugMode = true;

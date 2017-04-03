@@ -1,8 +1,12 @@
-﻿using System;
+﻿using System.Diagnostics;
+using NBitcoin.DataEncoders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using NBitcoin.DataEncoders;
+using System.Text;
+using System.Threading.Tasks;
 using Xunit;
+using Xunit.Extensions;
 
 namespace NBitcoin.Tests
 {
@@ -72,7 +76,7 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void base58_keys_valid_parse()
 		{
-			var tests = TestCase.read_json(TestDataLocations.DataFolder("base58_keys_valid.json"));
+			var tests = TestCase.read_json("Data\\base58_keys_valid.json");
 			Network network;
 			foreach(var test in tests)
 			{
@@ -88,10 +92,8 @@ namespace NBitcoin.Tests
 				//const Object &metadata = test[2].get_obj();
 				bool isPrivkey = (bool)test.GetDynamic(2).isPrivkey;
 				bool isTestnet = (bool)test.GetDynamic(2).isTestnet;
-
-				if (isTestnet)
-					continue;
-					//network = Network.TestNet;
+				if(isTestnet)
+					network = Network.TestNet;
 				else
 					network = Network.Main;
 
@@ -134,8 +136,8 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void base58_keys_valid_gen()
 		{
-			var tests = TestCase.read_json(TestDataLocations.DataFolder(@"base58_keys_valid.json"));
-			tests = tests.Concat(TestCase.read_json(TestDataLocations.DataFolder(@"base58_keys_valid2.json"))).ToArray();
+			var tests = TestCase.read_json("data/base58_keys_valid.json");
+			tests = tests.Concat(TestCase.read_json("data/base58_keys_valid2.json")).ToArray();
 			Network network = null;
 
 			foreach(var test in tests)
@@ -153,11 +155,9 @@ namespace NBitcoin.Tests
 				bool isTestnet = (bool)metadata.isTestnet;
 
 				if(isTestnet)
-					continue; // todo: consider to sadd the bitcoin testnet network 
-					//network = Network.TestNet;
+					network = Network.TestNet;
 				else
 					network = Network.Main;
-
 				if(isPrivkey)
 				{
 					bool isCompressed = metadata.isCompressed;
@@ -213,7 +213,7 @@ namespace NBitcoin.Tests
 		{
 			get
 			{
-				var dataset = TestCase.read_json(TestDataLocations.DataFolder(@"base58_keys_invalid.json"));
+				var dataset = TestCase.read_json("data/base58_keys_invalid.json");
 				return dataset.Select(x => x.ToArray());
 			}
 		}
