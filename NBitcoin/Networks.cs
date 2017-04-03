@@ -16,37 +16,55 @@ namespace NBitcoin
 {
 	public partial class Consensus
 	{
-		public BigInteger ProofOfStakeLimit { get; set; }
+		private Consensus OnClone(Consensus target)
+		{
+			target.LastPOWBlock = this.LastPOWBlock;
+			target.ProofOfStakeLimit = this.ProofOfStakeLimit;
+			target.ProofOfStakeLimitV2 = this.ProofOfStakeLimitV2;
 
-		public BigInteger ProofOfStakeLimitV2 { get; set; }
+			return target;
+		}
 
 
-		int _LastPOWBlock;
+		BigInteger proofOfStakeLimit;
+		public BigInteger ProofOfStakeLimit
+		{
+			get
+			{
+				return proofOfStakeLimit;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				proofOfStakeLimit = value;
+			}
+		}
+
+		BigInteger proofOfStakeLimitV2;
+		public BigInteger ProofOfStakeLimitV2
+		{
+			get
+			{
+				return proofOfStakeLimitV2;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				proofOfStakeLimitV2 = value;
+			}
+		}
+
+		int lastPOWBlock;
 		public int LastPOWBlock
 		{
 			get
 			{
-				return _LastPOWBlock;
+				return lastPOWBlock;
 			}
 			set
 			{
 				EnsureNotFrozen();
-				_LastPOWBlock = value;
-			}
-		}
-
-
-		int _SegWitHeight;
-		public int SegWitHeight
-		{
-			get
-			{
-				return _SegWitHeight;
-			}
-			set
-			{
-				EnsureNotFrozen();
-				_SegWitHeight = value;
+				lastPOWBlock = value;
 			}
 		}
 	}
@@ -80,7 +98,6 @@ namespace NBitcoin
             consensus.BuriedDeployments[BuriedDeployments.BIP66] = 363725;
             consensus.BIP34Hash = new uint256("0x000000000000024b89b42a942fe0d9fea3bb44ab7bd1b19115dd6a759c0808b8");
             consensus.PowLimit = new Target(new uint256("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-            consensus.SegWitHeight = 2000000000;
             consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
             consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
             consensus.PowAllowMinDifficultyBlocks = false;

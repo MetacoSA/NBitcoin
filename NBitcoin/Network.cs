@@ -423,7 +423,7 @@ namespace NBitcoin
 
 		public Consensus Clone()
 		{
-			return new Consensus()
+			return OnClone(new Consensus()
 			{
 				_BIP34Hash = _BIP34Hash,
 				_HashGenesisBlock = _HashGenesisBlock,
@@ -440,7 +440,7 @@ namespace NBitcoin
 				_SubsidyHalvingInterval = _SubsidyHalvingInterval,
 				_CoinbaseMaturity = _CoinbaseMaturity,
 				_MinimumChainWork = _MinimumChainWork
-			};
+			});
 		}
 	}
 	public partial class Network

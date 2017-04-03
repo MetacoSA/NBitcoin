@@ -12,9 +12,9 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public static void CanCalculatePowPosCorrectly()
 		{
-			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.StratisMain);
 			var chain = store.GetChain();
-			var stakeChain = new MemoryStakeChain(Network.Main);
+			var stakeChain = new MemoryStakeChain(Network.StratisMain);
 			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
 			var reindexed = indexStore.ReIndex();
 			Assert.Equal(reindexed, 103952);
@@ -25,7 +25,7 @@ namespace NBitcoin.Tests
 				var blockstake = new BlockStake(block);
 				stakeChain.Set(chainedBlock.HashBlock, blockstake);
 
-				Assert.True(stakeChain.CheckPowPosAndTarget(chainedBlock, blockstake, Network.Main));
+				Assert.True(stakeChain.CheckPowPosAndTarget(chainedBlock, blockstake, Network.StratisMain));
 			}
 		}
 
@@ -35,7 +35,7 @@ namespace NBitcoin.Tests
 		{
 			// validate a selection of block signatures
 
-			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.StratisMain);
 
 			foreach (var block in store.EnumerateFolder().Take(30000))
 			{
@@ -56,7 +56,7 @@ namespace NBitcoin.Tests
 		{
 			// validate all block signatures
 
-			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.StratisMain);
 
 			foreach (var block in store.EnumerateFolder().Take(30000))
 			{
