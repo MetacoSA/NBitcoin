@@ -19,7 +19,7 @@ namespace NBitcoin.Tests
 	//For me : 
 	//"bitcoin-qt.exe" -testnet -server -rpcuser=NBitcoin -rpcpassword=NBitcoinPassword 
 	[Trait("RPCClient", "RPCClient")]
-	public class RPCClientTests_pos
+	public class pos_RPCClientTests
 	{
 		public static bool noClient = !Process.GetProcesses().Any(p => p.ProcessName.Contains("stratis"));
 
@@ -27,7 +27,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void InvalidCommandSendRPCException()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -44,7 +44,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanSendCommand()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -58,7 +58,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetGenesisFromRPC()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -74,7 +74,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetRawMemPool()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -92,7 +92,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanUseAsyncRPC()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -108,7 +108,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetBlockFromRPC()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -155,7 +155,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetTransactionBlockFromRPC()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -289,7 +289,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetPeersInfo()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -335,7 +335,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void RPCSendRPCException()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -360,7 +360,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanAddNodes()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{

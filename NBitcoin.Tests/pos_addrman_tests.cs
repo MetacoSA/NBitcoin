@@ -9,7 +9,7 @@ using Xunit;
 
 namespace NBitcoin.Tests
 {
-	public class addrman_tests_pos
+	public class pos_addrman_tests
 	{
 #if !NOFILEIO
 		[Fact]

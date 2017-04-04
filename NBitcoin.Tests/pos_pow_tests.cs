@@ -6,7 +6,7 @@ using Xunit;
 
 namespace NBitcoin.Tests
 {
-	public class pow_tests_pos
+	public class pos_pow_tests
 	{
 
 		[Fact]
@@ -17,7 +17,7 @@ namespace NBitcoin.Tests
 
 			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.StratisMain);
 			// todo: load the chain with a header only file
-			ConcurrentChain chain = store.GetChain();
+			ConcurrentChain chain = store.GetStratisChain();
 
 			var stakeChain = new MemoryStakeChain(Network.StratisMain);
 			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);

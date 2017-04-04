@@ -13,7 +13,7 @@ using Xunit;
 
 namespace NBitcoin.Tests
 {
-	public class RepositoryTests_pos
+	public class pos_RepositoryTests
 	{
 		public class RawData : IBitcoinSerializable
 		{
@@ -577,7 +577,7 @@ namespace NBitcoin.Tests
 			}
 
 			RPCClient client = null;
-			if (!RPCClientTests_pos.noClient)
+			if (!pos_RPCClientTests.noClient)
 				client = new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"),
 					new Uri("http://127.0.0.1:" + Network.StratisMain.RPCPort), Network.StratisMain);
 

@@ -52,7 +52,7 @@ namespace NBitcoin.Tests
 		public static string DataBlockFolder(string file)
 		{
 			var p = Path.DirectorySeparatorChar;
-			var folder = DataFolder("posblocks");
+			var folder = DataFolder("blocks");
 			return $@"{folder}\{file}".Replace('\\', p);
 		}
 

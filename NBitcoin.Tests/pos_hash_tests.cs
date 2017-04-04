@@ -9,7 +9,7 @@ namespace NBitcoin.Tests
 {
 	using Hashes = Hashes;
 
-    public class hash_tests_pos
+    public class pos_hash_tests
 	{
 
 		[Fact]

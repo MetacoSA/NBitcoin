@@ -16,7 +16,7 @@ using Xunit;
 
 namespace NBitcoin.Tests
 {
-	public class transaction_tests_pos
+	public class pos_transaction_tests
 	{
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

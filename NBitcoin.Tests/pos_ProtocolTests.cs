@@ -15,7 +15,7 @@ using Xunit;
 
 namespace NBitcoin.Tests
 {
-	public class ProtocolTests_pos
+	public class pos_ProtocolTests
 	{
 		public static bool noClient = !Process.GetProcesses().Any(p => p.ProcessName.Contains("stratis"));
 
@@ -24,7 +24,7 @@ namespace NBitcoin.Tests
 		//Copied from https://en.bitcoin.it/wiki/Protocol_specification (19/04/2014)
 		public void CanParseMessages()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			var EST = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
 			var tests = new[]
@@ -100,7 +100,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanHandshake()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -184,7 +184,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanMaintainChainWithChainBehavior()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -222,7 +222,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanCancelConnection()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -247,7 +247,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanGetTransactionsFromMemPool()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -300,7 +300,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanGetBlocksWithProtocol()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -323,7 +323,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanGetMemPool()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -343,7 +343,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanGetChainsConcurrently()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			var stop = uint256.Parse("c9920baf967a314bd123efa184d54d4b9e7460301e3f2e059bafc77c45d03017");
 
@@ -398,7 +398,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void ServerDisconnectCorrectlyFromDroppingClient()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var tester = new NodeServerTester())
 			{
@@ -419,7 +419,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReceiveHandshake()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var tester = new NodeServerTester())
 			{
@@ -435,7 +435,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanRespondToPong()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var tester = new NodeServerTester())
 			{
@@ -463,7 +463,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CantConnectToYourself()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var tester = new NodeServerTester())
 			{
@@ -479,7 +479,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanExchangeFastPingPong()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var tester = new NodeServerTester())
 			{
@@ -515,7 +515,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConnectMultipleTimeToServer()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var tester = new NodeServerTester())
 			{
@@ -564,7 +564,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlock()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -585,7 +585,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadHeaders()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -607,7 +607,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlocks()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{
@@ -628,7 +628,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadLastBlocks()
 		{
-			if (RPCClientTests_pos.noClient) return;
+			if (pos_RPCClientTests.noClient) return;
 
 			using (var builder = NodeBuilderStratis.Create())
 			{

@@ -62,7 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="addrman_tests.cs" />
-    <Compile Include="addrman_tests_pos.cs" />
+    <Compile Include="pos_addrman_tests.cs" />
     <Compile Include="alert_tests.cs" />
     <Compile Include="AssertEx.cs" />
     <Compile Include="AssetMoneyTests.cs" />
@@ -74,7 +74,7 @@
     <Compile Include="bip39_tests.cs" />
     <Compile Include="BitcoinAddressTest.cs" />
     <Compile Include="cmpctblock_tests.cs" />
-    <Compile Include="hash_tests_pos.cs" />
+    <Compile Include="pos_hash_tests.cs" />
     <Compile Include="JsonConverterTests.cs" />
     <Compile Include="NodeBuilder.cs" />
     <Compile Include="bloom_tests.cs" />
@@ -88,16 +88,16 @@
     <Compile Include="NetworkTests.cs" />
     <Compile Include="NodeBuilderStratis.cs" />
     <Compile Include="PaymentTests.cs" />
-    <Compile Include="pow_tests_pos.cs" />
+    <Compile Include="pos_pow_tests.cs" />
     <Compile Include="pow_tests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProtocolTests.cs" />
-    <Compile Include="ProtocolTests_pos.cs" />
+    <Compile Include="pos_ProtocolTests.cs" />
     <Compile Include="RepositoryTests.cs" />
-    <Compile Include="RepositoryTests_pos.cs" />
+    <Compile Include="pos_RepositoryTests.cs" />
     <Compile Include="RestClientTests.cs" />
     <Compile Include="RPCClientTests.cs" />
-    <Compile Include="RPCClientTests_pos.cs" />
+    <Compile Include="pos_RPCClientTests.cs" />
     <Compile Include="script_tests.cs" />
     <Compile Include="sighash_tests.cs" />
     <Compile Include="sigopcount_tests.cs" />
@@ -107,7 +107,7 @@
     <Compile Include="TestDataLocations.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="transaction_tests.cs" />
-    <Compile Include="transaction_tests_pos.cs" />
+    <Compile Include="pos_transaction_tests.cs" />
     <Compile Include="util_tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebClient.cs" />
@@ -157,12 +157,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\openasset-known-tx.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\NicolasDorierCA.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\NicolasDorierMerchant.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\paymentack.data">
@@ -263,12 +257,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data_pos\paymentack.data">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data_pos\PaymentCA.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data_pos\PaymentMerchant.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data_pos\payreq.dat">
