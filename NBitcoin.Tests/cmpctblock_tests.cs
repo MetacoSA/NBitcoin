@@ -1,7 +1,11 @@
-﻿using System;
+﻿using NBitcoin.Protocol;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using NBitcoin.Protocol;
-using NBitcoin.Protocol.Payloads;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -18,9 +22,8 @@ namespace NBitcoin.Tests
 			cmpct.Clone();
 		}
 
-		// todo: revisit this test when fixing the node tests
-		//[Fact]
-		//[Trait("CoreBeta", "CoreBeta")]
+		[Fact]
+		[Trait("CoreBeta", "CoreBeta")]
 		public void CanAskCmpctBlock()
 		{
 			var alice = new BitcoinSecret("KypycJyxP5yA4gSedEBRse5q5f8RwYKG8xi8z4SRe2rdaioL3YNc").PrivateKey;

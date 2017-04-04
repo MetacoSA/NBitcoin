@@ -1,9 +1,13 @@
 ﻿using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Protocol;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NBitcoin.BitcoinCore;
+using System.Net;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -24,6 +28,7 @@ namespace NBitcoin.Tests
 			Assert.True(clone.Tip == fork2);
 		}
 
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSaveChain()
@@ -33,6 +38,8 @@ namespace NBitcoin.Tests
 			AppendBlock(chain);
 			var fork = AppendBlock(chain);
 			AppendBlock(chain);
+
+
 
 			var chain2 = new ConcurrentChain(chain.ToBytes());
 			Assert.True(chain.SameTip(chain2));
@@ -44,7 +51,6 @@ namespace NBitcoin.Tests
 		{
 			new Script(new byte[] { 0x4d }).ToString();
 		}
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseRandomScripts()
@@ -79,7 +85,6 @@ namespace NBitcoin.Tests
 			cchain.Load(cchain.ToBytes());
 			Assert.NotNull(cchain.GetBlock(0));
 		}
-
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildConcurrentChain()
@@ -206,39 +211,31 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCalculateDifficulty()
 		{
-			var histories = File.ReadAllLines(TestDataLocations.DataFolder(@"targethistory.csv"));
+			var main = new ConcurrentChain(LoadMainChain());
+			var histories = File.ReadAllText("data/targethistory.csv").Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
-			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
-			// todo: load the chain with a header only file
-			ConcurrentChain chain = store.GetChain();
-
-			var stakeChain = new MemoryStakeChain(Network.Main);
-			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
-			var reindexed = indexStore.ReIndex();
-			Assert.Equal(reindexed, 103952);
-
-			var lastIndex = 0;
-			foreach (var history in histories)
+			foreach(var history in histories)
 			{
 				var height = int.Parse(history.Split(',')[0]);
-				var expectedTarget = new Target(new BigInteger(history.Split(',')[1].Trim(), 10));
+				var expectedTarget = new Target(new BigInteger(history.Split(',')[1], 10));
 
-				var chainedBlock = chain.GetBlock(height);
-				for (int i = height; i > lastIndex; i--)
-				{
-					var g = chain.GetBlock(i);
-					var block = indexStore.Get(g.HashBlock);
-					stakeChain.Set(g.HashBlock, new BlockStake(block));
-				}
-				lastIndex = height;
+				var block = main.GetBlock(height).Header;
 
-				Assert.Equal(expectedTarget, chainedBlock.Header.Bits);
-				var target = stakeChain.GetWorkRequired(chainedBlock, stakeChain.Get(chainedBlock.HashBlock), Network.Main.Consensus);
-				//var target = chain.GetWorkRequired(Network.Main, height);
+				Assert.Equal(expectedTarget, block.Bits);
+				var target = main.GetWorkRequired(Network.Main, height);
 				Assert.Equal(expectedTarget, target);
 			}
 		}
 
+		private byte[] LoadMainChain()
+		{
+			if(!File.Exists("MainChain1.dat"))
+			{
+				WebClient client = new WebClient();
+				client.DownloadFile("https://aois.blob.core.windows.net/public/MainChain1.dat", "MainChain1.dat");
+			}
+			return File.ReadAllBytes("MainChain1.dat");
+		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanEnumerateAfterChainedBlock()
@@ -435,6 +432,7 @@ namespace NBitcoin.Tests
 			return chain;
 		}
 
+
 		public ChainedBlock AppendBlock(ChainedBlock previous, params ConcurrentChain[] chains)
 		{
 			ChainedBlock last = null;
@@ -449,7 +447,6 @@ namespace NBitcoin.Tests
 			}
 			return last;
 		}
-
 		private ChainedBlock AppendBlock(params ConcurrentChain[] chains)
 		{
 			ChainedBlock index = null;

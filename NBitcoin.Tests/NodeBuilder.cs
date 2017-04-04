@@ -1,7 +1,11 @@
-﻿using System;
+﻿using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
+using NBitcoin.RPC;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -9,9 +13,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NBitcoin.Protocol;
-using NBitcoin.Protocol.Payloads;
-using NBitcoin.RPC;
 
 namespace NBitcoin.Tests
 {
@@ -43,39 +44,39 @@ namespace NBitcoin.Tests
 	}
 	public class NodeBuilder : IDisposable
 	{
-		public static NodeBuilder Create([CallerMemberName]string caller = null, string version = "0.12.1")
+		public static NodeBuilder Create([CallerMemberNameAttribute]string caller = null, string version = "0.13.1")
 		{
-			//version = version ?? "0.12.1";
-			var path = string.Empty;//EnsureDownloaded(version);
-			//try
-			//{
-			//	Directory.Delete(caller, true);
-			//}
-			//catch(DirectoryNotFoundException)
-			//{
-			//}
-			//Directory.CreateDirectory(caller);
+			version = version ?? "0.13.1";
+			var path = EnsureDownloaded(version);
+			try
+			{
+				Directory.Delete(caller, true);
+			}
+			catch(DirectoryNotFoundException)
+			{
+			}
+			Directory.CreateDirectory(caller);
 			return new NodeBuilder(caller, path);
 		}
 
-		//private static string EnsureDownloaded(string version)
-		//{
-		//	//is a file
-		//	if(version.Length >= 2 && version[1] == ':')
-		//	{
-		//		return version;
-		//	}
+		private static string EnsureDownloaded(string version)
+		{
+			//is a file
+			if(version.Length >= 2 && version[1] == ':')
+			{
+				return version;
+			}
 
-		//	var bitcoind = String.Format("bitcoin-{0}/bin/bitcoind.exe", version);
-		//	if(File.Exists(bitcoind))
-		//		return bitcoind;
-		//	var zip = String.Format("bitcoin-{0}-win32.zip", version);
-		//	string url = String.Format("https://bitcoin.org/bin/bitcoin-core-{0}/" + zip, version);
-		//	WebClient client = new WebClient();
-		//	client.DownloadFile(url, zip);
-		//	ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
-		//	return bitcoind;
-		//}
+			var bitcoind = String.Format("bitcoin-{0}/bin/bitcoind.exe", version);
+			if(File.Exists(bitcoind))
+				return bitcoind;
+			var zip = String.Format("bitcoin-{0}-win32.zip", version);
+			string url = String.Format("https://bitcoin.org/bin/bitcoin-core-{0}/" + zip, version);
+			WebClient client = new WebClient();
+			client.DownloadFile(url, zip);
+			ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
+			return bitcoind;
+		}
 
 		int last = 0;
 		private string _Root;
@@ -118,13 +119,13 @@ namespace NBitcoin.Tests
 		{
 			var child = Path.Combine(_Root, last.ToString());
 			last++;
-			//try
-			//{
-			//	Directory.Delete(child, true);
-			//}
-			//catch(DirectoryNotFoundException)
-			//{
-			//}
+			try
+			{
+				Directory.Delete(child, true);
+			}
+			catch(DirectoryNotFoundException)
+			{
+			}
 			var node = new CoreNode(child, this);
 			Nodes.Add(node);
 			if(start)
@@ -134,10 +135,7 @@ namespace NBitcoin.Tests
 
 		public void StartAll()
 		{
-			if (!Process.GetProcesses().Any(p => p.ProcessName.Contains("stratis")))
-				throw new NotSupportedException("stratis node is not running");
-
-			//Task.WaitAll(Nodes.Where(n => n.State == CoreNodeState.Stopped).Select(n => n.StartAsync()).ToArray());
+			Task.WaitAll(Nodes.Where(n => n.State == CoreNodeState.Stopped).Select(n => n.StartAsync()).ToArray());
 		}
 
 		public void Dispose()
@@ -197,26 +195,24 @@ namespace NBitcoin.Tests
 		{
 			this._Builder = builder;
 			this._Folder = folder;
-			//_State = CoreNodeState.Stopped;
-			//CleanFolder();
-			//Directory.CreateDirectory(folder);
-			//dataDir = Path.Combine(folder, "data");
-			//Directory.CreateDirectory(dataDir);
-			//var pass = Encoders.Hex.EncodeData(RandomUtils.GetBytes(20));
-			//creds = new NetworkCredential(pass, pass);
-			//_Config = Path.Combine(dataDir, "bitcoin.conf");
-			//ConfigParameters.Import(builder.ConfigParameters);
+			_State = CoreNodeState.Stopped;
+			CleanFolder();
+			Directory.CreateDirectory(folder);
+			dataDir = Path.Combine(folder, "data");
+			Directory.CreateDirectory(dataDir);
+			var pass = Encoders.Hex.EncodeData(RandomUtils.GetBytes(20));
+			creds = new NetworkCredential(pass, pass);
+			_Config = Path.Combine(dataDir, "bitcoin.conf");
+			ConfigParameters.Import(builder.ConfigParameters);
 			ports = new int[2];
-			//FindPorts(ports);
-			ports[1] = Network.Main.RPCPort;
-			ports[0] = Network.Main.DefaultPort;
+			FindPorts(ports);
 		}
 
 		private void CleanFolder()
 		{
 			try
 			{
-				//Directory.Delete(_Folder, true);
+				Directory.Delete(_Folder, true);
 			}
 			catch(DirectoryNotFoundException) { }
 		}
@@ -260,10 +256,7 @@ namespace NBitcoin.Tests
 		readonly NetworkCredential creds;
 		public RPCClient CreateRPCClient()
 		{
-			//return new RPCClient(creds, new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network.RegTest);
-			// currently only use mainnet
-			// credentials should be set in advance
-			return new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"), new Uri("http://127.0.0.1:" + Network.Main.RPCPort + "/"), Network.Main);
+			return new RPCClient(creds, new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network.RegTest);
 		}
 
 		public RestClient CreateRESTClient()
@@ -273,7 +266,7 @@ namespace NBitcoin.Tests
 #if !NOSOCKET
 		public Node CreateNodeClient()
 		{
-			return Node.Connect(Network.Main, "127.0.0.1:" + Network.Main.DefaultPort); //ports[0].ToString());
+			return Node.Connect(Network.RegTest, "127.0.0.1:" + ports[0].ToString());
 		}
 		public Node CreateNodeClient(NodeConnectionParameters parameters)
 		{
@@ -294,6 +287,7 @@ namespace NBitcoin.Tests
 			config.Add("rpcport", ports[1].ToString());
 			config.Add("printtoconsole", "1");
 			config.Add("keypool", "10");
+			config.Add("whitebind", "127.0.0.1:" + ports[0].ToString());
 			config.Import(ConfigParameters);
 			File.WriteAllText(_Config, config.ToString());
 			lock(l)

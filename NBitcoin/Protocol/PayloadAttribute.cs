@@ -19,7 +19,7 @@ namespace NBitcoin.Protocol
 			_TypeToName = new Dictionary<Type, string>();
 			foreach(var pair in
 				GetLoadableTypes(typeof(PayloadAttribute).GetTypeInfo().Assembly)
-				.Where(t => t.Namespace != null) // == typeof(PayloadAttribute).Namespace}) payload is now in a different ns 
+				.Where(t => t.Namespace == typeof(PayloadAttribute).Namespace)
 				.Where(t => t.IsDefined(typeof(PayloadAttribute), true))
 				.Select(t =>
 					new

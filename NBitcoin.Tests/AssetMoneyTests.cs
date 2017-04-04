@@ -1,5 +1,8 @@
 ﻿using System;
-using NBitcoin.OpenAsset;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -10,8 +13,8 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void AssetMoneyToStringTest()
 		{
-			AssetId assetId = new AssetId("8f316d9a09");
-			AssetMoney assetMoney = new AssetMoney(assetId, 1);
+			OpenAsset.AssetId assetId = new OpenAsset.AssetId("8f316d9a09");
+			OpenAsset.AssetMoney assetMoney = new OpenAsset.AssetMoney(assetId, 1);
 
 			String actual = assetMoney.ToString();
 			Assert.Equal("1-8f316d9a09", actual);
@@ -21,10 +24,10 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void AssetMoneyMultiply()
 		{
-			AssetId assetId = new AssetId("8f316d9a09");
-			AssetMoney assetMoney = new AssetMoney(assetId, 2);
+			OpenAsset.AssetId assetId = new OpenAsset.AssetId("8f316d9a09");
+			OpenAsset.AssetMoney assetMoney = new OpenAsset.AssetMoney(assetId, 2);
 
-			AssetMoney actual = assetMoney * 2;
+			OpenAsset.AssetMoney actual = assetMoney * 2;
 
 			Assert.Equal(4, actual.Quantity);
 
@@ -36,9 +39,9 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void AssetMoneyGreaterThan()
 		{
-			AssetId assetId = new AssetId("8f316d9a09");
-			AssetMoney smallAssetMoney = new AssetMoney(assetId, 2);
-			AssetMoney largeAssetMoney = new AssetMoney(assetId, 5);
+			OpenAsset.AssetId assetId = new OpenAsset.AssetId("8f316d9a09");
+			OpenAsset.AssetMoney smallAssetMoney = new OpenAsset.AssetMoney(assetId, 2);
+			OpenAsset.AssetMoney largeAssetMoney = new OpenAsset.AssetMoney(assetId, 5);
 
 			Assert.True(largeAssetMoney > smallAssetMoney);
 			Assert.False(smallAssetMoney > largeAssetMoney);
@@ -48,9 +51,9 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void AssetMoneyLessThan()
 		{
-			AssetId assetId = new AssetId("8f316d9a09");
-			AssetMoney smallAssetMoney = new AssetMoney(assetId, 2);
-			AssetMoney largeAssetMoney = new AssetMoney(assetId, 5);
+			OpenAsset.AssetId assetId = new OpenAsset.AssetId("8f316d9a09");
+			OpenAsset.AssetMoney smallAssetMoney = new OpenAsset.AssetMoney(assetId, 2);
+			OpenAsset.AssetMoney largeAssetMoney = new OpenAsset.AssetMoney(assetId, 5);
 
 			Assert.True(smallAssetMoney < largeAssetMoney);
 			Assert.False(largeAssetMoney < smallAssetMoney);

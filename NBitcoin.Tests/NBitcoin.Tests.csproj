@@ -15,21 +15,6 @@
     <NuGetPackageImportStamp>193cb9e7</NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -77,16 +62,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="addrman_tests.cs" />
+    <Compile Include="pos_addrman_tests.cs" />
     <Compile Include="alert_tests.cs" />
     <Compile Include="AssertEx.cs" />
     <Compile Include="AssetMoneyTests.cs" />
     <Compile Include="base58_tests.cs" />
+    <Compile Include="Bech32Test.cs" />
     <Compile Include="Benchmark.cs" />
     <Compile Include="bip32_tests.cs" />
     <Compile Include="BIP38Tests.cs" />
     <Compile Include="bip39_tests.cs" />
     <Compile Include="BitcoinAddressTest.cs" />
     <Compile Include="cmpctblock_tests.cs" />
+    <Compile Include="pos_hash_tests.cs" />
     <Compile Include="JsonConverterTests.cs" />
     <Compile Include="NodeBuilder.cs" />
     <Compile Include="bloom_tests.cs" />
@@ -98,24 +86,30 @@
     <Compile Include="hash_tests.cs" />
     <Compile Include="key_tests.cs" />
     <Compile Include="NetworkTests.cs" />
+    <Compile Include="NodeBuilderStratis.cs" />
     <Compile Include="PaymentTests.cs" />
-    <Compile Include="pow_pos_tests.cs" />
+    <Compile Include="pos_pow_tests.cs" />
+    <Compile Include="pow_tests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProtocolTests.cs" />
+    <Compile Include="pos_ProtocolTests.cs" />
     <Compile Include="RepositoryTests.cs" />
+    <Compile Include="pos_RepositoryTests.cs" />
     <Compile Include="RestClientTests.cs" />
     <Compile Include="RPCClientTests.cs" />
+    <Compile Include="pos_RPCClientTests.cs" />
     <Compile Include="script_tests.cs" />
     <Compile Include="sighash_tests.cs" />
     <Compile Include="sigopcount_tests.cs" />
     <Compile Include="spv_tests.cs" />
     <Compile Include="StealthAddressTests.cs" />
     <Compile Include="TestCase.cs" />
+    <Compile Include="TestDataLocations.cs" />
     <Compile Include="TestUtils.cs" />
     <Compile Include="transaction_tests.cs" />
+    <Compile Include="pos_transaction_tests.cs" />
     <Compile Include="util_tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestDataLocations.cs" />
     <Compile Include="WebClient.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -132,10 +126,10 @@
     <None Include="data\base58_keys_valid.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="data\blocks\blk0001.dat">
+    <None Include="data\blocks\blk00000.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="data\blocks\blk0002.dat">
+    <None Include="data\blocks\blk00001.dat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\blocks\Block1.json">
@@ -168,12 +162,6 @@
     <None Include="data\paymentack.data">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="data\PaymentCA.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\PaymentMerchant.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="data\payreq1_sha1.paymentrequest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -201,9 +189,7 @@
     <None Include="data\payreq3_validchain.paymentrequest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="data\peers.dat">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="data\peers.dat" />
     <None Include="data\script_tests.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -231,6 +217,108 @@
     <None Include="data\tx_valid.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="data_pos\.cookie">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\base58_keys_invalid.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\base58_keys_valid.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\base58_keys_valid2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\bip39_JP.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\bip39_vectors.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\blocks\blk0001.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\blocks\blk0002.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\blocks\Block1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\blocks\incompleteblk.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\blocks\rev00000.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\can_parse_transaction.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\openasset-known-tx.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\paymentack.data">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\payreq.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\payreq1_sha1.paymentrequest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\payreq1_sha1_omitteddefault.paymentrequest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\payreq1_sha256.paymentrequest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\payreq1_sha256_omitteddefault.paymentrequest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\payreq2_sha1.paymentrequest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\payreq2_sha1_omitteddefault.paymentrequest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\payreq2_sha256.paymentrequest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\payreq2_sha256_omitteddefault.paymentrequest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\payreq3_validchain.paymentrequest">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\peers.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\README.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\script_tests.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\sighash.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\sig_canonical.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\sig_noncanonical.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\targethistory.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\tx_invalid.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\tx_raw.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data_pos\tx_valid.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <Compile Include="uint256_tests.cs" />
   </ItemGroup>
@@ -245,25 +333,22 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="data\block1125.txt">
+    <Content Include="data\block169482.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data_pos\alertTests.raw">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data_pos\block1125.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data_pos\determiniticECDSA.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

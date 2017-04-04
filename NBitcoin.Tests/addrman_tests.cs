@@ -1,10 +1,14 @@
 ﻿#if !NOSOCKET
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
-using NBitcoin.Protocol;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -20,7 +24,7 @@ namespace NBitcoin.Tests
 			addrman.SavePeerFile("CanSerializeDeserializePeerTable.dat", Network.Main);
 			AddressManager.LoadPeerFile("CanSerializeDeserializePeerTable.dat", Network.Main);
 
-			addrman = AddressManager.LoadPeerFile(TestDataLocations.DataFolder("peers.dat"), Network.Main);
+			addrman = AddressManager.LoadPeerFile("../../data/peers.dat", Network.Main);
 			addrman.DebugMode = true;
 			addrman.Check();
 			addrman.SavePeerFile("serializerPeer.dat", Network.Main);

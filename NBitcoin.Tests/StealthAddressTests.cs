@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Stealth;
+using NBitcoin.BouncyCastle.Math;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -77,12 +82,12 @@ namespace NBitcoin.Tests
 			foreach(var test in tests)
 			{
 				BitField field = new BitField(test.Encoded, test.BitCount);
-				Assert.Equal(test.Match, field.Match((uint) Utils.ToUInt32(TestUtils.ParseHex(test.Data), true)));
+				Assert.Equal(test.Match, field.Match(Utils.ToUInt32(TestUtils.ParseHex(test.Data), true)));
 			}
 		}
 
-		//[Fact]
-		//[Trait("UnitTest", "UnitTest")]
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//https://github.com/libbitcoin/libbitcoin/blob/master/test/stealth.cpp
 		public void BitFieldCanFetchTransaction()
 		{

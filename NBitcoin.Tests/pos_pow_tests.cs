@@ -1,20 +1,58 @@
 ﻿using System.IO;
 using System.Linq;
 using NBitcoin.BitcoinCore;
+using NBitcoin.BouncyCastle.Math;
 using Xunit;
 
 namespace NBitcoin.Tests
 {
-	public class pow_pos_tests
+	public class pos_pow_tests
 	{
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCalculateDifficulty()
+		{
+			var histories = File.ReadAllLines(TestDataLocations.DataFolder(@"targethistory.csv"));
+
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.StratisMain);
+			// todo: load the chain with a header only file
+			ConcurrentChain chain = store.GetStratisChain();
+
+			var stakeChain = new MemoryStakeChain(Network.StratisMain);
+			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
+			var reindexed = indexStore.ReIndex();
+			Assert.Equal(reindexed, 103952);
+
+			var lastIndex = 0;
+			foreach (var history in histories)
+			{
+				var height = int.Parse(history.Split(',')[0]);
+				var expectedTarget = new Target(new BigInteger(history.Split(',')[1].Trim(), 10));
+
+				var chainedBlock = chain.GetBlock(height);
+				for (int i = height; i > lastIndex; i--)
+				{
+					var g = chain.GetBlock(i);
+					var block = indexStore.Get(g.HashBlock);
+					stakeChain.Set(g.HashBlock, new BlockStake(block));
+				}
+				lastIndex = height;
+
+				Assert.Equal(expectedTarget, chainedBlock.Header.Bits);
+				var target = stakeChain.GetWorkRequired(chainedBlock, stakeChain.Get(chainedBlock.HashBlock), Network.StratisMain.Consensus);
+				//var target = chain.GetWorkRequired(Network.Main, height);
+				Assert.Equal(expectedTarget, target);
+			}
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public static void CanCalculatePowPosCorrectly()
 		{
-			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.StratisMain);
 			var chain = store.GetChain();
-			var stakeChain = new MemoryStakeChain(Network.Main);
+			var stakeChain = new MemoryStakeChain(Network.StratisMain);
 			var indexStore = new IndexedBlockStore(new InMemoryNoSqlRepository(), store);
 			var reindexed = indexStore.ReIndex();
 			Assert.Equal(reindexed, 103952);
@@ -25,7 +63,7 @@ namespace NBitcoin.Tests
 				var blockstake = new BlockStake(block);
 				stakeChain.Set(chainedBlock.HashBlock, blockstake);
 
-				Assert.True(stakeChain.CheckPowPosAndTarget(chainedBlock, blockstake, Network.Main));
+				Assert.True(stakeChain.CheckPowPosAndTarget(chainedBlock, blockstake, Network.StratisMain));
 			}
 		}
 
@@ -35,7 +73,7 @@ namespace NBitcoin.Tests
 		{
 			// validate a selection of block signatures
 
-			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.StratisMain);
 
 			foreach (var block in store.EnumerateFolder().Take(30000))
 			{
@@ -56,7 +94,7 @@ namespace NBitcoin.Tests
 		{
 			// validate all block signatures
 
-			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.Main);
+			var store = new BlockStore(TestDataLocations.BlockFolderLocation, Network.StratisMain);
 
 			foreach (var block in store.EnumerateFolder().Take(30000))
 			{

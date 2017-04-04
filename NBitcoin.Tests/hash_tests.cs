@@ -1,15 +1,16 @@
-﻿using System.Diagnostics;
-using HashLib;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Xunit;
-using Hashes = NBitcoin.Crypto.Hashes;
 
 namespace NBitcoin.Tests
 {
-	using Hashes = Hashes;
-
-    public class hash_tests
+	public class hash_tests
 	{
 
 		[Fact]
@@ -128,7 +129,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void hash256()
 		{
-			Assert.Equal(uint256.Parse("0x0000066e91e46e5a264d42c89e1204963b2ee6be230b443e9159020539d972af"), Network.Main.GetGenesis().GetHash());
+			Assert.Equal(uint256.Parse("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), Network.Main.GetGenesis().GetHash());
 		}
 
 		[Fact]
@@ -145,186 +146,5 @@ namespace NBitcoin.Tests
 		{
 			Assert.Equal(Hashes.MurmurHash3(seed, Encoders.Hex.DecodeData(data)), expected);
 		}
-
-
-        //==================X13Hash======================
-        //===============================================
-
-        // The genesis block header and the output of every hash algo in the x13 set
-        // genesis header	- 01000000000000000000000000000000000000000000000000000000000000000000000018157f44917c2514c1f339346200f8b27d8ffaae9d8205bfae51030bc26ba265b88ba557ffff0f1eddf21b00
-        // blake	  		- 042733333794f07574f6ca059eef16bacbfc5d563e5342d64fded94c6f6fbd139db7ebe1d48b962156391383ccb7f6064fe4583c64df954e5418b9a08908a082
-        // bmw 	     		- b2e1d72db8a3807d6d929a0e1349250cae0e99475d94bd869d0163755574a89078e08f604ff32833585dc45d28a69c0b269abb3fcd5c4ee09afc8ca32fa7e40d
-        // groest 			- 317024467e25cb6f1014f1b7a98c63b2ccc925b05a72180b0cdf23f42fabe653ddf51d11ce471dca48282b22261bbc7f5a729189c52554443a635889c7d47db6
-        // skein 	 		- a4d126f16372bd2df3e22bc95f61e696a72a1bee32e62ca90fedc24e94dbdf314446dc00a5e6bc2907d73c7210e6cb780be00b49b26b7a6f2db29249f2bd884b
-        // jh 		 		- c295dd0155177a9104a80ec27b245600f0de17db4aee4a16a1cf386db29b6a8e5ea74c32bb6c317f388f6585d4b338e53959399e75fcaa16045a4094da19cb6d
-        // keccak 	 		- c4f7a14f01cab51c317b7b0064932004ac72a85d8686a9165e1f8b8a968113cd7a3398554ef1c92a3c296c192f9314a2365bc0f7775d4e478787055a9b2ce897
-        // luffa 	 		- 8bc3589bea395cdd461226ccbea9cfa463edc5d556ff8c60f8053502135781747ae56b521ced7208fcf6c30dc6f9169b51f5452021b6951fa3d8240f3972d740
-        // cubehash 		- 50ddc199803de46305083d0852bc4005fc473ed05ec56347ae65e9875c0571da7375bb227678805e7ef868015bd4bf714bae038937538dd7819cc58b6d03ca7b
-        // shavit 			- 0bb309f45b7ec5b115a3318f0b2f0e431c8e415a3d6848087e7905e4e47c52874b79947e4bdee71668d1b1487716da57ac1f8d87e149ce1eee9080d6cc2827df
-        // simd 			- 921ca1f5fc388ff8217e5bc787acb7e5b462063c12dca18b56b8bff0791d5c338b6604b74cd2c77ed7ac3a5a3843deb27e82f077c71a11a7308fc90864a0bd89
-        // echo 			- ad8f8a4b105ffb83bb7546da799e29caa5bc9f2d0b584bdbf7d3275c65bdaae849e277187321d7d323e827c901530f6073bb967a198f3e3ba52c3a01716a442b
-        // hamsi 			- 73ed6f3bd1805c003de63ae11f76630d35602c1a1b9504ba3f42233176425213622c9c630c830175b4f8a81f633e8bb98c663e142bcc88b0baaa7dd9e73a6907
-        // fugue 			- af72d939050259913e440b23bee62e3b9604129ec8424d265a6ee4916e060000e51eead6ded2b584283ac0e04c1ea582e1a757245b5e8c408520216139e17848
-
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashX13Genesis()
-        {
-            // genesis uses an x13 hash
-            var genesisHeader = Encoders.Hex.DecodeData("01000000000000000000000000000000000000000000000000000000000000000000000018157f44917c2514c1f339346200f8b27d8ffaae9d8205bfae51030bc26ba265b88ba557ffff0f1eddf21b00");
-            var genesisHash = HashX13.Instance.Hash(genesisHeader);
-            Assert.Equal(genesisHash, uint256.Parse("0x0000066e91e46e5a264d42c89e1204963b2ee6be230b443e9159020539d972af"));
-        }
-
-	    [Fact]
-	    [Trait("UnitTest", "UnitTest")]
-	    public void hashBlake()
-	    {
-	        var paramIn = "01000000000000000000000000000000000000000000000000000000000000000000000018157f44917c2514c1f339346200f8b27d8ffaae9d8205bfae51030bc26ba265b88ba557ffff0f1eddf21b00";
-	        var paramOut = "042733333794f07574f6ca059eef16bacbfc5d563e5342d64fded94c6f6fbd139db7ebe1d48b962156391383ccb7f6064fe4583c64df954e5418b9a08908a082";
-	        var result = HashFactory.Crypto.SHA3.CreateBlake512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-	        Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-	    }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashBlueMidnightWish()
-        {
-            var paramIn = "042733333794f07574f6ca059eef16bacbfc5d563e5342d64fded94c6f6fbd139db7ebe1d48b962156391383ccb7f6064fe4583c64df954e5418b9a08908a082";
-            var paramOut = "b2e1d72db8a3807d6d929a0e1349250cae0e99475d94bd869d0163755574a89078e08f604ff32833585dc45d28a69c0b269abb3fcd5c4ee09afc8ca32fa7e40d";
-            var result = HashFactory.Crypto.SHA3.CreateBlueMidnightWish512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashGroestl()
-        {
-            var paramIn = "b2e1d72db8a3807d6d929a0e1349250cae0e99475d94bd869d0163755574a89078e08f604ff32833585dc45d28a69c0b269abb3fcd5c4ee09afc8ca32fa7e40d";
-            var paramOut = "317024467e25cb6f1014f1b7a98c63b2ccc925b05a72180b0cdf23f42fabe653ddf51d11ce471dca48282b22261bbc7f5a729189c52554443a635889c7d47db6";
-            var result = HashFactory.Crypto.SHA3.CreateGroestl512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-
-        //[Fact]
-        //[Trait("UnitTest", "UnitTest")]
-        //public void hashSkein()
-        //{
-        //    var paramIn = "317024467e25cb6f1014f1b7a98c63b2ccc925b05a72180b0cdf23f42fabe653ddf51d11ce471dca48282b22261bbc7f5a729189c52554443a635889c7d47db6";
-        //    var paramOut = "a4d126f16372bd2df3e22bc95f61e696a72a1bee32e62ca90fedc24e94dbdf314446dc00a5e6bc2907d73c7210e6cb780be00b49b26b7a6f2db29249f2bd884b";
-        //    var result = HashFactory.Crypto.SHA3.CreateSkein512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-        //    Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        //}
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashSkeinCustom()
-        {
-            var paramIn = "317024467e25cb6f1014f1b7a98c63b2ccc925b05a72180b0cdf23f42fabe653ddf51d11ce471dca48282b22261bbc7f5a729189c52554443a635889c7d47db6";
-            var paramOut = "a4d126f16372bd2df3e22bc95f61e696a72a1bee32e62ca90fedc24e94dbdf314446dc00a5e6bc2907d73c7210e6cb780be00b49b26b7a6f2db29249f2bd884b";
-            var result = HashFactory.Crypto.SHA3.CreateSkein512_Custom().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashJH()
-        {
-            var paramIn = "a4d126f16372bd2df3e22bc95f61e696a72a1bee32e62ca90fedc24e94dbdf314446dc00a5e6bc2907d73c7210e6cb780be00b49b26b7a6f2db29249f2bd884b";
-            var paramOut = "c295dd0155177a9104a80ec27b245600f0de17db4aee4a16a1cf386db29b6a8e5ea74c32bb6c317f388f6585d4b338e53959399e75fcaa16045a4094da19cb6d";
-            var result = HashFactory.Crypto.SHA3.CreateJH512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashKeccak()
-        {
-            var paramIn = "c295dd0155177a9104a80ec27b245600f0de17db4aee4a16a1cf386db29b6a8e5ea74c32bb6c317f388f6585d4b338e53959399e75fcaa16045a4094da19cb6d";
-            var paramOut = "c4f7a14f01cab51c317b7b0064932004ac72a85d8686a9165e1f8b8a968113cd7a3398554ef1c92a3c296c192f9314a2365bc0f7775d4e478787055a9b2ce897";
-            var result = HashFactory.Crypto.SHA3.CreateKeccak512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashLuffa()
-        {
-            var paramIn = "c4f7a14f01cab51c317b7b0064932004ac72a85d8686a9165e1f8b8a968113cd7a3398554ef1c92a3c296c192f9314a2365bc0f7775d4e478787055a9b2ce897";
-            var paramOut = "8bc3589bea395cdd461226ccbea9cfa463edc5d556ff8c60f8053502135781747ae56b521ced7208fcf6c30dc6f9169b51f5452021b6951fa3d8240f3972d740";
-            var result = HashFactory.Crypto.SHA3.CreateLuffa512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashCubeHash()
-        {
-            var paramIn = "8bc3589bea395cdd461226ccbea9cfa463edc5d556ff8c60f8053502135781747ae56b521ced7208fcf6c30dc6f9169b51f5452021b6951fa3d8240f3972d740";
-            var paramOut = "50ddc199803de46305083d0852bc4005fc473ed05ec56347ae65e9875c0571da7375bb227678805e7ef868015bd4bf714bae038937538dd7819cc58b6d03ca7b";
-            var result = HashFactory.Crypto.SHA3.CreateCubeHash512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-
-        //[Fact]
-        //[Trait("UnitTest", "UnitTest")]
-        //public void hashSHAvite3()
-        //{
-        //    var paramIn = "50ddc199803de46305083d0852bc4005fc473ed05ec56347ae65e9875c0571da7375bb227678805e7ef868015bd4bf714bae038937538dd7819cc58b6d03ca7b";
-        //    var paramOut = "0bb309f45b7ec5b115a3318f0b2f0e431c8e415a3d6848087e7905e4e47c52874b79947e4bdee71668d1b1487716da57ac1f8d87e149ce1eee9080d6cc2827df";
-        //    var result = HashFactory.Crypto.SHA3.CreateSHAvite3_512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-        //    Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        //}
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashSHAvite3Custom()
-        {
-            var paramIn = "50ddc199803de46305083d0852bc4005fc473ed05ec56347ae65e9875c0571da7375bb227678805e7ef868015bd4bf714bae038937538dd7819cc58b6d03ca7b";
-            var paramOut = "0bb309f45b7ec5b115a3318f0b2f0e431c8e415a3d6848087e7905e4e47c52874b79947e4bdee71668d1b1487716da57ac1f8d87e149ce1eee9080d6cc2827df";
-            var result = HashFactory.Crypto.SHA3.CreateSHAvite3_512_Custom().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashSIMD()
-        {
-            var paramIn = "0bb309f45b7ec5b115a3318f0b2f0e431c8e415a3d6848087e7905e4e47c52874b79947e4bdee71668d1b1487716da57ac1f8d87e149ce1eee9080d6cc2827df";
-            var paramOut = "921ca1f5fc388ff8217e5bc787acb7e5b462063c12dca18b56b8bff0791d5c338b6604b74cd2c77ed7ac3a5a3843deb27e82f077c71a11a7308fc90864a0bd89";
-            var result = HashFactory.Crypto.SHA3.CreateSIMD512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashEcho()
-        {
-            var paramIn = "921ca1f5fc388ff8217e5bc787acb7e5b462063c12dca18b56b8bff0791d5c338b6604b74cd2c77ed7ac3a5a3843deb27e82f077c71a11a7308fc90864a0bd89";
-            var paramOut = "ad8f8a4b105ffb83bb7546da799e29caa5bc9f2d0b584bdbf7d3275c65bdaae849e277187321d7d323e827c901530f6073bb967a198f3e3ba52c3a01716a442b";
-            var result = HashFactory.Crypto.SHA3.CreateEcho512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashHamsi()
-        {
-            var paramIn = "ad8f8a4b105ffb83bb7546da799e29caa5bc9f2d0b584bdbf7d3275c65bdaae849e277187321d7d323e827c901530f6073bb967a198f3e3ba52c3a01716a442b";
-            var paramOut = "73ed6f3bd1805c003de63ae11f76630d35602c1a1b9504ba3f42233176425213622c9c630c830175b4f8a81f633e8bb98c663e142bcc88b0baaa7dd9e73a6907";
-            var result = HashFactory.Crypto.SHA3.CreateHamsi512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-
-        [Fact]
-        [Trait("UnitTest", "UnitTest")]
-        public void hashFugue()
-        {
-            var paramIn = "73ed6f3bd1805c003de63ae11f76630d35602c1a1b9504ba3f42233176425213622c9c630c830175b4f8a81f633e8bb98c663e142bcc88b0baaa7dd9e73a6907";
-            var paramOut = "af72d939050259913e440b23bee62e3b9604129ec8424d265a6ee4916e060000e51eead6ded2b584283ac0e04c1ea582e1a757245b5e8c408520216139e17848";
-            var result = HashFactory.Crypto.SHA3.CreateFugue512().ComputeBytes(Encoders.Hex.DecodeData(paramIn));
-            Assert.Equal(paramOut, Encoders.Hex.EncodeData(result.GetBytes()));
-        }
-    }
+	}
 }

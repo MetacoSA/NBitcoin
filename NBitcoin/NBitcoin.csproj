@@ -75,6 +75,7 @@
     <Compile Include="BuilderExtensions\P2PKBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKHBuilderExtension.cs" />
     <Compile Include="Crypto\HashX13.cs" />
+    <Compile Include="DataEncoders\Bech32Encoder.cs" />
     <Compile Include="FeeRate.cs" />
     <Compile Include="JsonConverters\AssetIdJsonConverter.cs" />
     <Compile Include="JsonConverters\Base58JsonConverter.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="JsonConverters\NetworkJsonConverter.cs" />
     <Compile Include="JsonConverters\ScriptJsonConverter.cs" />
     <Compile Include="JsonConverters\UIntJsonConverter.cs" />
+    <Compile Include="Networks.cs" />
     <Compile Include="NetworkBuilder.cs" />
     <Compile Include="OpenAsset\NullColoredTransactionRepository.cs" />
     <Compile Include="Payment\IChainChecker.cs" />
@@ -163,6 +165,8 @@
     <Compile Include="Protocol\Payloads\SendCmpctPayload.cs" />
     <Compile Include="Protocol\Payloads\SendHeadersPayload.cs" />
     <Compile Include="Protocol\Payloads\UTxOutputPayload.cs" />
+    <Compile Include="RPC\FundRawTransactionOptions.cs" />
+    <Compile Include="RPC\FundRawTransactionResponse.cs" />
     <Compile Include="RPC\RestClient.cs" />
     <Compile Include="Policy\StandardTransactionPolicy.cs" />
     <Compile Include="RPC\SatoshiBlockFormatter.cs" />
