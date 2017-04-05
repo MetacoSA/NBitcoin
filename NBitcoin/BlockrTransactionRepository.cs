@@ -125,7 +125,7 @@ namespace NBitcoin
 				var json = JObject.Parse(result);
 				var status = json["status"];
 				var code = json["code"];
-				if(status != null && (status.ToString() == "error" || status.ToString() == "fail")
+				if(status != null && (status.ToString() == "error" || status.ToString() == "fail"))
 				{
 					throw new BlockrException(json);
 				}
