@@ -39,7 +39,7 @@ namespace NBitcoin
 
 
 
-		public static T ToNetwork<T>(this T base58, Network network) where T : Base58Data
+		public static T ToNetwork<T>(this T base58, Network network) where T : class, IWalletData
 		{
 			if(network == null)
 				throw new ArgumentNullException("network");

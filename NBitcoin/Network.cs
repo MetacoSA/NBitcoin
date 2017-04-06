@@ -896,12 +896,35 @@ namespace NBitcoin
 			return null;
 		}
 
-		/// <summary>
-		/// Find automatically the data type and the network to which belong the base58 data
-		/// </summary>
-		/// <param name="base58">base58 data</param>
-		/// <exception cref="System.FormatException">Invalid base58 data</exception>
-		public static Base58Data CreateFromBase58Data(string base58, Network expectedNetwork = null)
+	    internal static Base58Type GetTypeFromBase58Data(string base58, Network expectedNetwork = null)
+	    {
+            if (base58 == null)
+                throw new ArgumentNullException("base58");
+            bool invalidNetwork = false;
+            foreach (var network in GetNetworks())
+            {
+                var type = network.GetBase58Type(base58);
+                if (type.HasValue)
+                {
+                    if (expectedNetwork != null && network != expectedNetwork)
+                    {
+                        invalidNetwork = true;
+                        continue;
+                    }
+                    return type.Value;
+                }
+            }
+            if (invalidNetwork)
+                throw new FormatException("Invalid network");
+            throw new FormatException("Invalid base58 data");
+        }
+
+        /// <summary>
+        /// Find automatically the data type and the network to which belong the base58 data
+        /// </summary>
+        /// <param name="base58">base58 data</param>
+        /// <exception cref="System.FormatException">Invalid base58 data</exception>
+        public static IWalletData CreateFromBase58Data(string base58, Network expectedNetwork = null)
 		{
 			if(base58 == null)
 				throw new ArgumentNullException("base58");
@@ -934,17 +957,17 @@ namespace NBitcoin
 			throw new FormatException("Invalid base58 data");
 		}
 
-		public static T CreateFromBase58Data<T>(string base58, Network expectedNetwork = null) where T : Base58Data
+		public static T CreateFromBase58Data<T>(string base58, Network expectedNetwork = null) where T : class, IWalletData
 		{
 			if(base58 == null)
 				throw new ArgumentNullException("base58");
-			var result = CreateFromBase58Data(base58, expectedNetwork) as T;
+			var result = (T)CreateFromBase58Data(base58, expectedNetwork) as T;
 			if(result == null)
 				throw new FormatException("Invalid base58 data");
 			return result;
 		}
 
-		public T Parse<T>(string base58) where T : Base58Data
+		public T Parse<T>(string base58) where T : class, IWalletData
 		{
 			var type = GetBase58Type(base58);
 			if(type.HasValue)
@@ -967,50 +990,47 @@ namespace NBitcoin
 			return null;
 		}
 
-		public Base58Data CreateBase58Data(Base58Type type, string base58)
-		{
-			if(type == Base58Type.EXT_PUBLIC_KEY)
-				return CreateBitcoinExtPubKey(base58);
-			if(type == Base58Type.EXT_SECRET_KEY)
-				return CreateBitcoinExtKey(base58);
-			if(type == Base58Type.PUBKEY_ADDRESS)
-				return CreateBitcoinAddress(base58);
-			if(type == Base58Type.SCRIPT_ADDRESS)
-				return CreateBitcoinScriptAddress(base58);
-			if(type == Base58Type.SECRET_KEY)
-				return CreateBitcoinSecret(base58);
-			if(type == Base58Type.CONFIRMATION_CODE)
-				return CreateConfirmationCode(base58);
-			if(type == Base58Type.ENCRYPTED_SECRET_KEY_EC)
-				return CreateEncryptedKeyEC(base58);
-			if(type == Base58Type.ENCRYPTED_SECRET_KEY_NO_EC)
-				return CreateEncryptedKeyNoEC(base58);
-			if(type == Base58Type.PASSPHRASE_CODE)
-				return CreatePassphraseCode(base58);
-			if(type == Base58Type.STEALTH_ADDRESS)
-				return CreateStealthAddress(base58);
-			if(type == Base58Type.ASSET_ID)
-				return CreateAssetId(base58);
-			if(type == Base58Type.COLORED_ADDRESS)
-				return CreateColoredAddress(base58);
-			if(type == Base58Type.WITNESS_P2WPKH)
-				return CreateWitPubKeyAddress(base58);
-			if(type == Base58Type.WITNESS_P2WSH)
-				return CreateWitScriptAddress(base58);
-			throw new NotSupportedException("Invalid Base58Data type : " + type.ToString());
-		}
-
-		private BitcoinWitScriptAddress CreateWitScriptAddress(string base58)
-		{
-			return new BitcoinWitScriptAddress(base58, this);
-		}
-
-		private BitcoinWitPubKeyAddress CreateWitPubKeyAddress(string base58)
-		{
-			return new BitcoinWitPubKeyAddress(base58, this);
-		}
-
-		private BitcoinColoredAddress CreateColoredAddress(string base58)
+        public IWalletData CreateBase58Data(Base58Type type, string base58)
+        {
+            if (type == Base58Type.EXT_PUBLIC_KEY)
+                return CreateBitcoinExtPubKey(base58);
+            if (type == Base58Type.EXT_SECRET_KEY)
+                return CreateBitcoinExtKey(base58);
+            if (type == Base58Type.PUBKEY_ADDRESS)
+                return CreateBitcoinAddress(base58);
+            if (type == Base58Type.SCRIPT_ADDRESS)
+                return CreateBitcoinScriptAddress(base58);
+            if (type == Base58Type.SECRET_KEY)
+                return CreateBitcoinSecret(base58);
+            if (type == Base58Type.CONFIRMATION_CODE)
+                return CreateConfirmationCode(base58);
+            if (type == Base58Type.ENCRYPTED_SECRET_KEY_EC)
+                return CreateEncryptedKeyEC(base58);
+            if (type == Base58Type.ENCRYPTED_SECRET_KEY_NO_EC)
+                return CreateEncryptedKeyNoEC(base58);
+            if (type == Base58Type.PASSPHRASE_CODE)
+                return CreatePassphraseCode(base58);
+            if (type == Base58Type.STEALTH_ADDRESS)
+                return CreateStealthAddress(base58);
+            if (type == Base58Type.ASSET_ID)
+                return CreateAssetId(base58);
+            if (type == Base58Type.COLORED_ADDRESS)
+                return CreateColoredAddress(base58);
+            if (type == Base58Type.WITNESS_P2WPKH)
+                return CreateWitPubKeyAddress(base58);
+            if (type == Base58Type.WITNESS_P2WSH)
+                return CreateWitScriptAddress(base58);
+            throw new NotSupportedException("Invalid Base58Data type : " + type.ToString());
+        }
+        private BitcoinWitScriptAddress CreateWitScriptAddress(string base58)
+        {
+            return new BitcoinWitScriptAddress(base58, this);
+        }
+        private BitcoinWitPubKeyAddress CreateWitPubKeyAddress(string base58)
+        {
+            return new BitcoinWitPubKeyAddress(base58, this);
+        }
+        private BitcoinColoredAddress CreateColoredAddress(string base58)
 		{
 			return new BitcoinColoredAddress(base58, this);
 		}
