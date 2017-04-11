@@ -389,6 +389,7 @@ namespace NBitcoin.Protocol
 			}
 			if(version != null)
 			{
+				TimeOffset = DateTimeOffset.Now - version.Timestamp;
 				if((version.Services & NodeServices.NODE_WITNESS) != 0)
 					_SupportedTransactionOptions |= TransactionOptions.Witness;
 			}
@@ -807,6 +808,12 @@ namespace NBitcoin.Protocol
 		}
 
 		public DateTimeOffset LastSeen
+		{
+			get;
+			private set;
+		}
+
+		public TimeSpan? TimeOffset
 		{
 			get;
 			private set;
