@@ -4,7 +4,11 @@ del *.nupkg
 C:\"Program Files (x86)"\MSBuild\14.0\Bin\msbuild.exe  "..\NBitcoin\NBitcoin.csproj" -p:Configuration=Release
 
 ## build in netcore
-cd ..\NBitcoin.NETCore
+cd ..\Hashing\HashLib.NETCore\
+dotnet restore
+dotnet build -c Release
+
+cd ..\..\NBitcoin.NETCore
 dotnet restore
 dotnet build -c Release
 
