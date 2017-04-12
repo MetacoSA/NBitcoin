@@ -52,7 +52,7 @@ namespace NBitcoin
 	/// <summary>
 	/// Base58 representation of a bitcoin address
 	/// </summary>
-	public abstract class BitcoinAddress : IDestination, IWalletData
+	public abstract class BitcoinAddress : IDestination
 	{
 		/// <summary>
 		/// Detect whether the input base58 is a pubkey hash or a script hash
@@ -65,7 +65,10 @@ namespace NBitcoin
 		{
 			if (base58 == null)
 				throw new ArgumentNullException("base58");
-			return Network.CreateFromBase58Data<BitcoinAddress>(base58, expectedNetwork);
+			//return null;
+			//var type = Network.GetTypeFromBase58Data
+
+			return Network.CreateBitcoinAddressFromBase58Data(base58, expectedNetwork);
 		}
 
 		protected byte[] vchData = new byte[0];
@@ -108,7 +111,7 @@ namespace NBitcoin
 
 		public override bool Equals(object obj)
 		{
-			Base58Data item = obj as Base58Data;
+			var item = obj as BitcoinAddress;
 			if (item == null)
 				return false;
 			return ToString().Equals(item.ToString());

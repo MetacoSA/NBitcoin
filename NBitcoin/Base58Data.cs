@@ -7,18 +7,10 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public interface IWalletData
-	{
-		Network Network { get; }
-		Base58Type Type { get; }
-		byte[] ToBytes();
-		string ToWif();
-	}
-
 	/// <summary>
 	/// Base class for all Base58 check representation of data
 	/// </summary>
-	public abstract class Base58Data : IWalletData
+	public abstract class Base58Data 
 	{
 		protected byte[] vchData = new byte[0];
 		protected byte[] vchVersion = new byte[0];
@@ -46,7 +38,7 @@ namespace NBitcoin
 			SetData(rawBytes);
 		}
 
-		public static IWalletData GetFromBase58Data(string base58, Network expectedNetwork = null)
+		public static Base58Data GetFromBase58Data(string base58, Network expectedNetwork = null)
 		{
 			return Network.CreateFromBase58Data(base58, expectedNetwork);
 		}

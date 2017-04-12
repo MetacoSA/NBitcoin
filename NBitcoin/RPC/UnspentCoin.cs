@@ -14,7 +14,7 @@ namespace NBitcoin.RPC
 		internal UnspentCoin(JObject unspent)
 		{
 			OutPoint = new OutPoint(uint256.Parse((string)unspent["txid"]), (uint)unspent["vout"]);
-			Address = Network.CreateFromBase58Data<BitcoinAddress>((string)unspent["address"]);
+			Address = Network.CreateBitcoinAddressFromBase58Data((string)unspent["address"]);
 			Account = (string)unspent["account"];
 			ScriptPubKey = new Script(Encoders.Hex.DecodeData((string)unspent["scriptPubKey"]));
 			var redeemScriptHex = (string)unspent["redeemScript"];

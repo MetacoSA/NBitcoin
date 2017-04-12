@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class BitcoinColoredAddress : Base58Data, IDestination
+	public class BitcoinColoredAddress : BitcoinAddress
 	{
 		public BitcoinColoredAddress(string base58, Network expectedNetwork = null)
 			: base(base58, expectedNetwork)
@@ -57,24 +57,17 @@ namespace NBitcoin
 			}
 		}
 
-		#region IDestination Members
-
-		public Script ScriptPubKey
-		{
-			get
-			{
-				return Address.ScriptPubKey;
-			}
-		}
-
-		#endregion
-
 		public static string GetWrappedBase58(string base58, Network network)
 		{
 			var coloredVersion = network.GetVersionBytes(Base58Type.COLORED_ADDRESS);
 			var inner = Encoders.Base58Check.DecodeData(base58);
 			inner = inner.Skip(coloredVersion.Length).ToArray();
 			return Encoders.Base58Check.EncodeData(inner);
+		}
+
+		protected override Script GeneratePaymentScript()
+		{
+			return Address.ScriptPubKey;
 		}
 	}
 }

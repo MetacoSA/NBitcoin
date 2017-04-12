@@ -112,20 +112,20 @@ namespace NBitcoin.Tests
 			Assert.Equal("akB4NBW9UuCmHuepksob6yfZs6naHtRCPNy", colored.ToWif());
 			Assert.Equal(address.ScriptPubKey, colored.ScriptPubKey);
 
-			var testAddress = address.ToNetwork(Network.TestNet);
+			var testAddress = address.ToNetworkAddress(Network.TestNet);
 			var testColored = testAddress.ToColoredAddress();
 
 			Assert.Equal(Network.TestNet, testAddress.Network);
 			Assert.Equal(address.Hash, testAddress.Hash);
 
-			Assert.Equal(colored.ToNetwork(Network.TestNet), testColored);
+			Assert.Equal(colored.ToNetworkAddress(Network.TestNet), testColored);
 
 			Assert.Equal(testAddress.ScriptPubKey, testColored.ScriptPubKey);
 
 			Assert.Equal(Network.TestNet, testColored.Network);
 			testColored = new BitcoinColoredAddress("bWqaKUZETiECYgmJNbNZUoanBxnAzoVjCNx");
 			Assert.Equal(Network.TestNet, testColored.Network);
-			Assert.Equal(colored.ToNetwork(Network.TestNet), testColored);
+			Assert.Equal(colored.ToNetworkAddress(Network.TestNet), testColored);
 		}
 
 		[Fact]

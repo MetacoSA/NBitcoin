@@ -1,32 +1,9 @@
 ﻿namespace NBitcoin
 {
-	public abstract class BitcoinExtKeyBase : Base58Data, IDestination
-	{
-		protected BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
-			: base(key.ToBytes(), network)
-		{
-		}
-
-		protected BitcoinExtKeyBase(string base58, Network network)
-			: base(base58, network)
-		{
-		}
-
-
-		#region IDestination Members
-
-		public abstract Script ScriptPubKey
-		{
-			get;
-		}
-
-		#endregion
-	}
-
 	/// <summary>
 	/// Base58 representation of an ExtKey, within a particular network.
 	/// </summary>
-	public class BitcoinExtKey : BitcoinExtKeyBase, ISecret
+	public class BitcoinExtKey : BitcoinAddress, ISecret
 	{
 		/// <summary>
 		/// Constructor. Creates an extended key from the Base58 representation, checking the expected network.
@@ -40,7 +17,7 @@
 		/// Constructor. Creates a representation of an extended key, within the specified network.
 		/// </summary>
 		public BitcoinExtKey(ExtKey key, Network network)
-			: base(key, network)
+			: base(key.ToBytes(), network)
 		{
 		}
 
@@ -84,16 +61,10 @@
 			}
 		}
 
-		/// <summary>
-		/// Gets the script of the hash of the public key corresponing to the private key 
-		/// of the extended key of this Base58 item.
-		/// </summary>
-		public override Script ScriptPubKey
+
+		protected override Script GeneratePaymentScript()
 		{
-			get
-			{
-				return ExtKey.ScriptPubKey;
-			}
+			return ExtKey.ScriptPubKey;
 		}
 
 		/// <summary>
@@ -133,7 +104,7 @@
 	/// <summary>
 	/// Base58 representation of an ExtPubKey, within a particular network.
 	/// </summary>
-	public class BitcoinExtPubKey : BitcoinExtKeyBase
+	public class BitcoinExtPubKey : BitcoinAddress
 	{
 		/// <summary>
 		/// Constructor. Creates an extended public key from the Base58 representation, checking the expected network.
@@ -147,7 +118,7 @@
 		/// Constructor. Creates a representation of an extended public key, within the specified network.
 		/// </summary>
 		public BitcoinExtPubKey(ExtPubKey key, Network network)
-			: base(key, network)
+			: base(key.ToBytes(), network)
 		{
 		}
 
@@ -180,15 +151,9 @@
 			}
 		}
 
-		/// <summary>
-		/// Gets the script of the hash of the public key of the extended key of this Base58 item.
-		/// </summary>
-		public override Script ScriptPubKey
+		protected override Script GeneratePaymentScript()
 		{
-			get
-			{
-				return ExtPubKey.ScriptPubKey;
-			}
+			return ExtPubKey.ScriptPubKey;
 		}
 
 		/// <summary>

@@ -896,7 +896,102 @@ namespace NBitcoin
 			return null;
 		}
 
-		internal static Base58Type GetTypeFromBase58Data(string base58, Network expectedNetwork = null)
+		/// <summary>
+		/// Find automatically the data type and the network to which belong the base58 data
+		/// </summary>
+		/// <param name="base58">base58 data</param>
+		/// <exception cref="System.FormatException">Invalid base58 data</exception>
+		public static BitcoinAddress CreateBitcoinAddressFromBase58Data(string base58, Network expectedNetwork = null)
+		{
+			if (base58 == null)
+				throw new ArgumentNullException("base58");
+			bool invalidNetwork = false;
+			foreach(var network in GetNetworks())
+			{
+				var type = network.GetBase58Type(base58);
+				if(type.HasValue)
+				{
+					if(type.Value == Base58Type.COLORED_ADDRESS)
+					{
+						var wrapped = BitcoinColoredAddress.GetWrappedBase58(base58, network);
+						var wrappedType = network.GetBase58Type(wrapped);
+						if(wrappedType == null)
+							continue;
+						var inner = network.CreateBitcoinAddressBase58Data(wrappedType.Value, wrapped);
+						if(inner.Network != network)
+							continue;
+					}
+					if(expectedNetwork != null && network != expectedNetwork)
+					{
+						invalidNetwork = true;
+						continue;
+					}
+					return network.CreateBitcoinAddressBase58Data(type.Value, base58);
+				}
+			}
+			if(invalidNetwork)
+				throw new FormatException("Invalid network");
+			throw new FormatException("Invalid base58 data");
+		}
+
+		public static T CreateBitcoinAddressFromBase58Data<T>(string base58, Network expectedNetwork = null) where T : BitcoinAddress
+		{
+			if (base58 == null)
+				throw new ArgumentNullException("base58");
+			var result = CreateBitcoinAddressFromBase58Data(base58, expectedNetwork) as T;
+			if (result == null)
+				throw new FormatException("Invalid bitcoin address data");
+			return result;
+		}
+
+		/// <summary>
+		/// Find automatically the data type and the network to which belong the base58 data
+		/// </summary>
+		/// <param name="base58">base58 data</param>
+		/// <exception cref="System.FormatException">Invalid base58 data</exception>
+		public static Base58Data CreateFromBase58Data(string base58, Network expectedNetwork = null)
+		{
+			if (base58 == null)
+				throw new ArgumentNullException("base58");
+			bool invalidNetwork = false;
+			foreach (var network in GetNetworks())
+			{
+				var type = network.GetBase58Type(base58);
+				if (type.HasValue)
+				{
+					if (type.Value == Base58Type.COLORED_ADDRESS)
+					{
+						var wrapped = BitcoinColoredAddress.GetWrappedBase58(base58, network);
+						var wrappedType = network.GetBase58Type(wrapped);
+						if (wrappedType == null)
+							continue;
+						var inner = network.CreateBase58Data(wrappedType.Value, wrapped);
+						if (inner.Network != network)
+							continue;
+					}
+					if (expectedNetwork != null && network != expectedNetwork)
+					{
+						invalidNetwork = true;
+						continue;
+					}
+					return network.CreateBase58Data(type.Value, base58);
+				}
+			}
+			if (invalidNetwork)
+				throw new FormatException("Invalid network");
+			throw new FormatException("Invalid base58 data");
+		}
+		public static T CreateFromBase58Data<T>(string base58, Network expectedNetwork = null) where T : Base58Data
+		{
+			if(base58 == null)
+				throw new ArgumentNullException("base58");
+			var result = (T)CreateFromBase58Data(base58, expectedNetwork) as T;
+			if(result == null)
+				throw new FormatException("Invalid base58 data");
+			return result;
+		}
+
+		public static Base58Type GetBase58Type(string base58, Network expectedNetwork)
 		{
 			if (base58 == null)
 				throw new ArgumentNullException("base58");
@@ -919,67 +1014,6 @@ namespace NBitcoin
 			throw new FormatException("Invalid base58 data");
 		}
 
-		/// <summary>
-		/// Find automatically the data type and the network to which belong the base58 data
-		/// </summary>
-		/// <param name="base58">base58 data</param>
-		/// <exception cref="System.FormatException">Invalid base58 data</exception>
-		public static IWalletData CreateFromBase58Data(string base58, Network expectedNetwork = null)
-		{
-			if (base58 == null)
-				throw new ArgumentNullException("base58");
-			bool invalidNetwork = false;
-			foreach(var network in GetNetworks())
-			{
-				var type = network.GetBase58Type(base58);
-				if(type.HasValue)
-				{
-					if(type.Value == Base58Type.COLORED_ADDRESS)
-					{
-						var wrapped = BitcoinColoredAddress.GetWrappedBase58(base58, network);
-						var wrappedType = network.GetBase58Type(wrapped);
-						if(wrappedType == null)
-							continue;
-						var inner = network.CreateBase58Data(wrappedType.Value, wrapped);
-						if(inner.Network != network)
-							continue;
-					}
-					if(expectedNetwork != null && network != expectedNetwork)
-					{
-						invalidNetwork = true;
-						continue;
-					}
-					return network.CreateBase58Data(type.Value, base58);
-				}
-			}
-			if(invalidNetwork)
-				throw new FormatException("Invalid network");
-			throw new FormatException("Invalid base58 data");
-		}
-
-		public static T CreateFromBase58Data<T>(string base58, Network expectedNetwork = null) where T : class, IWalletData
-		{
-			if(base58 == null)
-				throw new ArgumentNullException("base58");
-			var result = (T)CreateFromBase58Data(base58, expectedNetwork) as T;
-			if(result == null)
-				throw new FormatException("Invalid base58 data");
-			return result;
-		}
-
-		public T Parse<T>(string base58) where T : class, IWalletData
-		{
-			var type = GetBase58Type(base58);
-			if(type.HasValue)
-			{
-				var result = CreateBase58Data(type.Value, base58) as T;
-				if(result == null)
-					throw new FormatException("Invalid base58 data");
-				return result;
-			}
-			throw new FormatException("Invalid base58 data");
-		}
-
 		public T TryParse<T>(string base58) where T : Base58Data
 		{
 			var type = GetBase58Type(base58);
@@ -990,7 +1024,7 @@ namespace NBitcoin
 			return null;
 		}
 
-		public IWalletData CreateBase58Data(Base58Type type, string base58)
+		public BitcoinAddress CreateBitcoinAddressBase58Data(Base58Type type, string base58)
 		{
 			if (type == Base58Type.EXT_PUBLIC_KEY)
 				return CreateBitcoinExtPubKey(base58);
@@ -1000,6 +1034,17 @@ namespace NBitcoin
 				return CreateBitcoinAddress(base58);
 			if (type == Base58Type.SCRIPT_ADDRESS)
 				return CreateBitcoinScriptAddress(base58);
+			if (type == Base58Type.COLORED_ADDRESS)
+				return CreateColoredAddress(base58);
+			if (type == Base58Type.WITNESS_P2WPKH)
+				return CreateWitPubKeyAddress(base58);
+			if (type == Base58Type.WITNESS_P2WSH)
+				return CreateWitScriptAddress(base58);
+			throw new NotSupportedException("Invalid Bitcoin Address type : " + type.ToString());
+		}
+
+		public Base58Data CreateBase58Data(Base58Type type, string base58)
+		{
 			if (type == Base58Type.SECRET_KEY)
 				return CreateBitcoinSecret(base58);
 			if (type == Base58Type.CONFIRMATION_CODE)
@@ -1014,12 +1059,6 @@ namespace NBitcoin
 				return CreateStealthAddress(base58);
 			if (type == Base58Type.ASSET_ID)
 				return CreateAssetId(base58);
-			if (type == Base58Type.COLORED_ADDRESS)
-				return CreateColoredAddress(base58);
-			if (type == Base58Type.WITNESS_P2WPKH)
-				return CreateWitPubKeyAddress(base58);
-			if (type == Base58Type.WITNESS_P2WSH)
-				return CreateWitScriptAddress(base58);
 			throw new NotSupportedException("Invalid Base58Data type : " + type.ToString());
 		}
 		private BitcoinWitScriptAddress CreateWitScriptAddress(string base58)
@@ -1065,7 +1104,7 @@ namespace NBitcoin
 			return new BitcoinConfirmationCode(base58, this);
 		}
 
-		private Base58Data CreateBitcoinExtPubKey(string base58)
+		private BitcoinAddress CreateBitcoinExtPubKey(string base58)
 		{
 			return new BitcoinExtPubKey(base58, this);
 		}
