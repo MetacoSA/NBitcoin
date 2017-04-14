@@ -43,10 +43,10 @@ namespace NBitcoin
 		{
 			if (network == null)
 				throw new ArgumentNullException("network");
-			if (base58.Network == network)
-				return base58;
 			if (base58 == null)
 				throw new ArgumentNullException("base58");
+			if (base58.Network == network)
+				return base58;
 			var inner = base58.ToBytes();
 			if (base58.Type != Base58Type.COLORED_ADDRESS)
 			{

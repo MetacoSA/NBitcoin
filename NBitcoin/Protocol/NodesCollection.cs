@@ -35,7 +35,18 @@ namespace NBitcoin.Protocol
 			}
 		}
 	}
-	public class NodesCollection : IEnumerable<Node>
+
+	public interface IReadOnlyNodesCollection : IEnumerable<Node>
+	{
+		event EventHandler<NodeEventArgs> Added;
+		event EventHandler<NodeEventArgs> Removed;
+
+		Node FindByEndpoint(IPEndPoint endpoint);
+		Node FindByIp(IPAddress ip);
+		Node FindLocal();
+	}
+
+	public class NodesCollection : IEnumerable<Node>, IReadOnlyNodesCollection
 	{
 		class Bridge : MessageListener<IncomingMessage>
 		{
