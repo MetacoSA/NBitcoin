@@ -1,7 +1,7 @@
 
 ## NStratis is a fork of [NBitcoin](https://github.com/MetacoSA/NBitcoin) with additional support for:
 
-- ### POS (Proof of Stake) minining algorithm
+- ### POS (Proof of Stake) mining algorithm
 - ### Hash functions for the X13 POW mining algorithm
 
 ### NStratis is targeted to the Stratis blockchain 
