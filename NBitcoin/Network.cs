@@ -1026,10 +1026,6 @@ namespace NBitcoin
 
 		public BitcoinAddress CreateBitcoinAddressBase58Data(Base58Type type, string base58)
 		{
-			if (type == Base58Type.EXT_PUBLIC_KEY)
-				return CreateBitcoinExtPubKey(base58);
-			if (type == Base58Type.EXT_SECRET_KEY)
-				return CreateBitcoinExtKey(base58);
 			if (type == Base58Type.PUBKEY_ADDRESS)
 				return CreateBitcoinAddress(base58);
 			if (type == Base58Type.SCRIPT_ADDRESS)
@@ -1045,6 +1041,10 @@ namespace NBitcoin
 
 		public Base58Data CreateBase58Data(Base58Type type, string base58)
 		{
+			if (type == Base58Type.EXT_PUBLIC_KEY)
+				return CreateBitcoinExtPubKey(base58);
+			if (type == Base58Type.EXT_SECRET_KEY)
+				return CreateBitcoinExtKey(base58);
 			if (type == Base58Type.SECRET_KEY)
 				return CreateBitcoinSecret(base58);
 			if (type == Base58Type.CONFIRMATION_CODE)
@@ -1104,7 +1104,7 @@ namespace NBitcoin
 			return new BitcoinConfirmationCode(base58, this);
 		}
 
-		private BitcoinAddress CreateBitcoinExtPubKey(string base58)
+		private BitcoinExtPubKey CreateBitcoinExtPubKey(string base58)
 		{
 			return new BitcoinExtPubKey(base58, this);
 		}

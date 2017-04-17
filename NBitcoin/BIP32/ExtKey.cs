@@ -17,7 +17,7 @@ namespace NBitcoin
 		/// </summary>
 		public static ExtKey Parse(string wif, Network expectedNetwork = null)
 		{
-			return Network.CreateBitcoinAddressFromBase58Data<BitcoinExtKey>(wif, expectedNetwork).ExtKey;
+			return Network.CreateFromBase58Data<BitcoinExtKey>(wif, expectedNetwork).ExtKey;
 		}
 
 		private const int FingerprintLength = 4;
