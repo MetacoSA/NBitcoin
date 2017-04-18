@@ -28,6 +28,15 @@ namespace NBitcoin
 
 		public uint256 HashProof;
 
+		public BlockStake()
+		{
+		}
+
+		public BlockStake(byte[] bytes)
+		{
+			this.ReadWrite(bytes);
+		}
+
 		public BlockStake(Block block)
 		{
 			this.StakeModifierV2 = uint256.Zero;
