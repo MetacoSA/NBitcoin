@@ -8,6 +8,32 @@ namespace NBitcoin.BitcoinCore
 {
 	public class Coins : IBitcoinSerializable
 	{
+		bool fCoinStake;
+		public bool CoinStake
+		{
+			get
+			{
+				return fCoinStake;
+			}
+			set
+			{
+				fCoinStake = value;
+			}
+		}
+
+		uint nTime;
+		public uint Time
+		{
+			get
+			{
+				return nTime;
+			}
+			set
+			{
+				nTime = value;
+			}
+		}
+
 		// whether transaction is a coinbase
 		bool fCoinBase;
 		public bool Coinbase
@@ -78,6 +104,12 @@ namespace NBitcoin.BitcoinCore
 		}
 		public Coins(Transaction tx, int height)
 		{
+			if (Transaction.TimeStamp)
+			{
+				fCoinStake = tx.IsCoinStake;
+				nTime = tx.Time;
+			}
+
 			fCoinBase = tx.IsCoinBase;
 			vout = tx.Outputs.ToList();
 			nVersion = tx.Version;
@@ -187,6 +219,12 @@ namespace NBitcoin.BitcoinCore
 				}
 				// coinbase height
 				stream.ReadWriteAsVarInt(ref nHeight);
+
+				if (Transaction.TimeStamp)
+				{
+					stream.ReadWrite(ref fCoinStake);
+					stream.ReadWrite(ref nTime);
+				}
 			}
 			else
 			{
@@ -226,6 +264,13 @@ namespace NBitcoin.BitcoinCore
 				}
 				//// coinbase height
 				stream.ReadWriteAsVarInt(ref nHeight);
+
+				if (Transaction.TimeStamp)
+				{
+					stream.ReadWrite(ref fCoinStake);
+					stream.ReadWrite(ref nTime);
+				}
+
 				Cleanup();
 				UpdateValue();
 			}
@@ -239,7 +284,10 @@ namespace NBitcoin.BitcoinCore
 				nHeight = nHeight,
 				nVersion = nVersion,
 				vout = vout.Select(txout => txout.Clone()).ToList(),
-				_Value = _Value
+				_Value = _Value,
+
+				fCoinStake = fCoinStake,
+				nTime = nTime
 			};
 		}
 
