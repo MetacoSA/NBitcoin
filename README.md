@@ -23,6 +23,16 @@ The packages supports:
 To compile it by yourself, you can git clone, open the project and hit the compile button on visual studio.
 How to get started ? Check out this article [on CodeProject](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) for some basic Bitcoin operations, or [this Introduction to NBitcoin video](https://www.youtube.com/watch?v=X4ZwRWIF49w).
 
+# How to use with Litecoin ?
+
+>**Install-Package NBitcoin.Litecoin** 
+
+This is a light weight package with corresponding `Network` instances for Litecoin mainnet and testnet. [Sources](https://github.com/MetacoSA/NBitcoin.Litecoin)
+
+# How to use with my own blockchain?
+
+ If your crypto currency is similar enough to Bitcoin, please, check out how we integrated [litecoin to NBitcoin](https://github.com/MetacoSA/NBitcoin.Litecoin).
+
 # For using NBitcoin in Unity 3.5
 
 In command prompt:
