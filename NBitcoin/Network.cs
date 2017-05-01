@@ -455,7 +455,8 @@ namespace NBitcoin
 				_RuleChangeActivationThreshold = _RuleChangeActivationThreshold,
 				_SubsidyHalvingInterval = _SubsidyHalvingInterval,
 				_CoinbaseMaturity = _CoinbaseMaturity,
-				_MinimumChainWork = _MinimumChainWork
+				_MinimumChainWork = _MinimumChainWork,
+				GetPoWHash = GetPoWHash
 			};
 		}
 	}
