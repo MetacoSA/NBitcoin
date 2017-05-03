@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
@@ -63,10 +60,10 @@ namespace NBitcoin.BitcoinCore
 
 		private void UpdateValue()
 		{
-            Value = Outputs
-                        .Where(o => !IsNull(o))
-                        .Sum(o=> o.Value);
-        }
+			Value = Outputs
+				.Where(o => !IsNull(o))
+				.Sum(o=> o.Value);
+		}
 
 		private bool IsNull(TxOut o) => o.Value.Satoshi == -1;
 		public bool IsEmpty => Outputs.Count == 0;
@@ -84,9 +81,9 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
-        public int UnspentCount => Outputs.Count(c => !IsNull(c));
+		public int UnspentCount => Outputs.Count(c => !IsNull(c));
 
-        public bool Spend(int position, out TxInUndo undo)
+		public bool Spend(int position, out TxInUndo undo)
 		{
 			undo = null;
 			if(position >= Outputs.Count)
