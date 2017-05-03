@@ -96,7 +96,7 @@ namespace NBitcoin.BitcoinCore
 			undo = new TxInUndo(Outputs[position].Clone());
 			Outputs[position] = NullTxOut;
 			Cleanup();
-			if(Outputs.Count == 0)
+			if(IsEmpty)
 			{
 				undo.Height = nHeight;
 				undo.CoinBase = CoinBase;
@@ -119,7 +119,7 @@ namespace NBitcoin.BitcoinCore
 			{
 				uint nMaskSize = 0, nMaskCode = 0;
 				CalcMaskSize(ref nMaskSize, ref nMaskCode);
-				bool fFirst = Outputs.Count > 0 && !IsNull(Outputs[0]);
+				bool fFirst = !IsEmpty && !IsNull(Outputs[0]);
 				bool fSecond = Outputs.Count > 1 && !IsNull(Outputs[1]);
 				uint nCode = unchecked((uint)(8 * (nMaskCode - (fFirst || fSecond ? 0 : 1)) + (CoinBase ? 1 : 0) + (fFirst ? 2 : 0) + (fSecond ? 4 : 0)));
 				// version
@@ -242,7 +242,7 @@ namespace NBitcoin.BitcoinCore
 
 		// check whether the entire CCoins is spent
 		// note that only !IsPruned() CCoins can be serialized
-		public bool IsPruned => Outputs.Count == 0 || Outputs.All(v => IsNull(v));
+		public bool IsPruned => IsEmpty || Outputs.All(v => IsNull(v));
 
 
 		#endregion
