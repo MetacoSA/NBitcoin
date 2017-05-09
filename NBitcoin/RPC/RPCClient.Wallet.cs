@@ -201,6 +201,28 @@ namespace NBitcoin.RPC
 		{
 			return FundRawTransactionAsync(transaction, options).GetAwaiter().GetResult();
 		}
+
+		public Money GetBalance(int minConf, bool includeWatchOnly)
+		{
+			return GetBalanceAsync(minConf, includeWatchOnly).GetAwaiter().GetResult();
+		}
+		public Money GetBalance()
+		{
+			return GetBalanceAsync().GetAwaiter().GetResult();
+		}
+
+		public async Task<Money> GetBalanceAsync()
+		{
+			var data = await SendCommandAsync(RPCOperations.getbalance, "*").ConfigureAwait(false);
+			return Money.Coins(data.Result.Value<decimal>());
+		}
+
+		public async Task<Money> GetBalanceAsync(int minConf, bool includeWatchOnly)
+		{
+			var data = await SendCommandAsync(RPCOperations.getbalance, "*", minConf, includeWatchOnly).ConfigureAwait(false);
+			return Money.Coins(data.Result.Value<decimal>());
+		}
+
 		public async Task<FundRawTransactionResponse> FundRawTransactionAsync(Transaction transaction, FundRawTransactionOptions options = null)
 		{
 			if(transaction == null)

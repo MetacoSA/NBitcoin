@@ -303,21 +303,6 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
 		{
-			var a = new BitcoinSecret("cMrtdanVXr8UHJcoZ6UJ82cFpJgHghsoWQXiHJiDZS24xV3DPjff", Network.TestNet);
-			var c = new Coin(OutPoint.Parse("73502c0c589b0ea72020270690b5049107c6a938b53716c628fb6f9fac476f73-1"), new TxOut(Money.Coins(1.52978762m), a.GetAddress().ScriptPubKey));
-
-			string mess = "Craig Wright is paid by Roger Ver for misleading the community";
-			var data = Hashes.SHA256(Encoding.UTF8.GetBytes(mess));
-
-
-			TransactionBuilder b = new TransactionBuilder();
-			b.AddCoins(c);
-			b.AddKeys(a);
-			b.Send(new Script("OP_RETURN " + Encoders.Hex.EncodeData(data)), Money.Coins(1.0m));
-			b.SetChange(a.GetAddress());
-			b.SendFees(Money.Coins(0.00978762m));
-			b.Shuffle();
-			var tx = b.BuildTransaction(true);
 		}
 
 		[Fact]
