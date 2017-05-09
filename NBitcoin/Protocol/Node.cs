@@ -1390,15 +1390,17 @@ namespace NBitcoin.Protocol
 					}).ToArray()));
 					try
 					{
-						while(result.Count < batch.Count)
+						List<Transaction> batchResult = new List<NBitcoin.Transaction>();
+						while(batchResult.Count < batch.Count)
 						{
 							CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10.0));
 							var payload = listener.ReceivePayload<Payload>(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token).Token);
 							if(payload is NotFoundPayload)
-								result.Add(null);
+								batchResult.Add(null);
 							else
-								result.Add(((TxPayload)payload).Object);
+								batchResult.Add(((TxPayload)payload).Object);
 						}
+						result.AddRange(batchResult);
 					}
 					catch(OperationCanceledException)
 					{
