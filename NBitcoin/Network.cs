@@ -426,6 +426,23 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Specify the BIP44 coin type for this network
+		/// </summary>
+		int _CoinType;
+		public int CoinType
+		{
+			get
+			{
+				return _CoinType;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_CoinType = value;
+			}
+		}
+
 		bool frozen = false;
 		public void Freeze()
 		{
@@ -437,7 +454,7 @@ namespace NBitcoin
 				throw new InvalidOperationException("This instance can't be modified");
 		}
 
-		public Consensus Clone()
+		public virtual Consensus Clone()
 		{
 			return new Consensus()
 			{
@@ -456,7 +473,8 @@ namespace NBitcoin
 				_SubsidyHalvingInterval = _SubsidyHalvingInterval,
 				_CoinbaseMaturity = _CoinbaseMaturity,
 				_MinimumChainWork = _MinimumChainWork,
-				GetPoWHash = GetPoWHash
+				GetPoWHash = GetPoWHash,
+				_CoinType = CoinType
 			};
 		}
 	}
@@ -649,6 +667,8 @@ namespace NBitcoin
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1462060800, 1493596800);
 			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 0, 0);
 
+			consensus.CoinType = 0; 
+
 			// The message start string is designed to be unlikely to occur in normal data.
 			// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
 			// a large 4-byte int at any alignment.
@@ -725,6 +745,8 @@ namespace NBitcoin
 			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 1199145601, 1230767999);
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1456790400, 1493596800);
 			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 1462060800, 1493596800);
+
+			consensus.CoinType = 1;
 
 			magic = 0x0709110B;
 
