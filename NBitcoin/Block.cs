@@ -231,6 +231,16 @@ namespace NBitcoin
 			return GetHash() <= Bits.ToUInt256();
 		}
 
+		public bool CheckProofOfWork(Consensus consensus)
+		{
+			consensus = consensus ?? Consensus.Main;
+			var bits = Bits.ToBigInteger();
+			if (bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
+				return false;
+			// Check proof of work matches claimed amount
+			return consensus.GetPoWHash(this) <= Bits.ToUInt256();
+		}
+
 		public override string ToString()
 		{
 			return GetHash().ToString();
@@ -436,6 +446,11 @@ namespace NBitcoin
 		public bool CheckProofOfWork()
 		{
 			return Header.CheckProofOfWork();
+		}
+
+		public bool CheckProofOfWork(Consensus consensus)
+		{
+			return Header.CheckProofOfWork(consensus);
 		}
 
 		public bool CheckMerkleRoot()

@@ -671,13 +671,13 @@ namespace NBitcoin.RPC
 
 		public BlockHeader GetBlockHeader(uint256 blockHash)
 		{
-			var resp = SendCommand("getblock", blockHash.ToString());
+			var resp = SendCommand("getblockheader", blockHash.ToString());
 			return ParseBlockHeader(resp);
 		}
 
 		public async Task<BlockHeader> GetBlockHeaderAsync(uint256 blockHash)
 		{
-			var resp = await SendCommandAsync("getblock", blockHash.ToString()).ConfigureAwait(false);
+			var resp = await SendCommandAsync("getblockheader", blockHash.ToString()).ConfigureAwait(false);
 			return ParseBlockHeader(resp);
 		}
 

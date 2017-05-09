@@ -198,8 +198,24 @@ namespace NBitcoin
 			}
 		}
 
+		private Func<BlockHeader, uint256> _GetPoWHash = h => h.GetHash();
 
-		int _MajorityEnforceBlockUpgrade;
+		public Func<BlockHeader, uint256> GetPoWHash
+		{
+			get
+			{
+				return _GetPoWHash;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_GetPoWHash = value;
+			}
+		}
+
+
+		int _MajorityEnforceBlockUpgrade;		
+
 		public int MajorityEnforceBlockUpgrade
 		{
 			get
@@ -439,7 +455,8 @@ namespace NBitcoin
 				_RuleChangeActivationThreshold = _RuleChangeActivationThreshold,
 				_SubsidyHalvingInterval = _SubsidyHalvingInterval,
 				_CoinbaseMaturity = _CoinbaseMaturity,
-				_MinimumChainWork = _MinimumChainWork
+				_MinimumChainWork = _MinimumChainWork,
+				GetPoWHash = GetPoWHash
 			});
 		}
 	}
