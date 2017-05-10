@@ -45,11 +45,11 @@ namespace NBitcoin.Protocol
 		}
 
 		#region IBitcoinSerializable Members
-
+		public const int MAX_INV_SZ = 50000;
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
 			var old = stream.MaxArraySize;
-			stream.MaxArraySize = 50000;
+			stream.MaxArraySize = MAX_INV_SZ;
 			stream.ReadWrite(ref _Inventory);
 			stream.MaxArraySize = old;
 		}
