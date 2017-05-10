@@ -117,6 +117,8 @@ namespace NBitcoin.Tests
 				node.Generate(101);
 				var rpc = node.CreateRPCClient();
 				Assert.Throws<NoEstimationException>(() => rpc.EstimateFeeRate(1));
+				Assert.Equal(Money.Coins(50m), rpc.GetBalance(1, false));
+				Assert.Equal(Money.Coins(50m), rpc.GetBalance());
 			}
 		}
 

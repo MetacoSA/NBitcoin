@@ -222,15 +222,8 @@ namespace NBitcoin
 		static BigInteger Pow256 = BigInteger.ValueOf(2).Pow(256);
 		public bool CheckProofOfWork()
 		{
-			var bits = Bits.ToBigInteger();
-			if (bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
-				return false;
-			// Check proof of work matches claimed amount
-			if (Block.BlockSignature) // note this can only be called on a POW block
-				return GetPoWHash() <= Bits.ToUInt256();
-			return GetHash() <= Bits.ToUInt256();
+			return CheckProofOfWork(null);
 		}
-
 		public bool CheckProofOfWork(Consensus consensus)
 		{
 			consensus = consensus ?? Consensus.Main;
@@ -238,8 +231,12 @@ namespace NBitcoin
 			if (bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
 				return false;
 			// Check proof of work matches claimed amount
+			if (Block.BlockSignature) // note this can only be called on a POW block
+				return GetPoWHash() <= Bits.ToUInt256();
 			return consensus.GetPoWHash(this) <= Bits.ToUInt256();
 		}
+
+	
 
 		public override string ToString()
 		{
@@ -437,15 +434,30 @@ namespace NBitcoin
 		/// <returns></returns>
 		public bool Check()
 		{
+			return Check(null);
+		}
+
+		/// <summary>
+		/// Check proof of work and merkle root
+		/// </summary>
+		/// <param name="consensus"></param>
+		/// <returns></returns>
+		public bool Check(Consensus consensus)
+		{
 			if (Block.BlockSignature)
 				return BlockStake.Check(this);
 
-			return CheckMerkleRoot() && Header.CheckProofOfWork();
+			return CheckMerkleRoot() && Header.CheckProofOfWork(consensus);
 		}
 
 		public bool CheckProofOfWork()
 		{
-			return Header.CheckProofOfWork();
+			return CheckProofOfWork(null);
+		}
+
+		public bool CheckProofOfWork(Consensus consensus)
+		{
+			return Header.CheckProofOfWork(consensus);
 		}
 
 		public bool CheckProofOfWork(Consensus consensus)
