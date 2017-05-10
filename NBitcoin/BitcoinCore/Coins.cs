@@ -32,7 +32,7 @@ namespace NBitcoin.BitcoinCore
 		}
 
 		// whether transaction is a coinbase
-		public bool CoinBase { get; private set; }
+		public bool CoinBase { get; set; }
 
 		// unspent transaction outputs; spent outputs are .IsNull(); spent outputs at the end of the array are dropped
 		public List<TxOut> Outputs { get; private set; } = new List<TxOut>();
