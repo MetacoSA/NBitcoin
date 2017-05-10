@@ -114,6 +114,8 @@ namespace NBitcoin
 			consensus.ProofOfStakeLimit =   new BigInteger(uint256.Parse("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").ToBytes(false));
 			consensus.ProofOfStakeLimitV2 = new BigInteger(uint256.Parse("000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffff").ToBytes(false));
 
+			consensus.CoinType = 105;
+
 			var genesis = CreateStratisGenesisBlock(1470467000, 1831645, 0x1e0fffff, 1, Money.Zero);
 			consensus.HashGenesisBlock = genesis.GetHash();
 
