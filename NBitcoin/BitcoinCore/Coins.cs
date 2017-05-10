@@ -116,7 +116,7 @@ namespace NBitcoin.BitcoinCore
 			{
 				uint nMaskSize = 0, nMaskCode = 0;
 				CalcMaskSize(ref nMaskSize, ref nMaskCode);
-				bool fFirst = !IsEmpty && !IsNull(Outputs[0]);
+				bool fFirst = Outputs.Count > 0 && !IsNull(Outputs[0]);
 				bool fSecond = Outputs.Count > 1 && !IsNull(Outputs[1]);
 				uint nCode = unchecked((uint)(8 * (nMaskCode - (fFirst || fSecond ? 0 : 1)) + (CoinBase ? 1 : 0) + (fFirst ? 2 : 0) + (fSecond ? 4 : 0)));
 				// version
@@ -194,6 +194,8 @@ namespace NBitcoin.BitcoinCore
 			{
 				nHeight = nHeight,
 				nVersion = nVersion,
+				CoinBase = CoinBase,
+				Value = Value,
 				Outputs = Outputs.Select(txout => txout.Clone()).ToList(),
 			};
 		}
