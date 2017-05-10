@@ -460,11 +460,6 @@ namespace NBitcoin
 			return Header.CheckProofOfWork(consensus);
 		}
 
-		public bool CheckProofOfWork(Consensus consensus)
-		{
-			return Header.CheckProofOfWork(consensus);
-		}
-
 		public bool CheckMerkleRoot()
 		{
 			return Header.HashMerkleRoot == GetMerkleRoot().Hash;
