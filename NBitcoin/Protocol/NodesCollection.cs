@@ -123,7 +123,7 @@ namespace NBitcoin.Protocol
 				added(this, new NodeEventArgs(node, true));
 		}
 
-		public void OnNodeRemoved(Node node)
+		private void OnNodeRemoved(Node node)
 		{
 			var removed = Removed;
 			if(removed != null)
