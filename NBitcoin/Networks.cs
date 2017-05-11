@@ -14,8 +14,19 @@ using NBitcoin.Stealth;
 
 namespace NBitcoin
 {
+
 	public partial class Consensus
 	{
+		/// <summary>
+		/// A class to enable additional 
+		/// options to the consensus class
+		/// </summary>
+		public class ConsensusOptions
+		{
+		}
+
+		public ConsensusOptions Options { get; set; }
+
 		private Consensus OnClone(Consensus target)
 		{
 			target.LastPOWBlock = this.LastPOWBlock;
