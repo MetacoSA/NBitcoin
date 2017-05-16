@@ -344,6 +344,25 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanCompareKey()
+		{
+			var privateKey = new Key();
+			var otherKey = new Key();
+			var bitcoinSecret = privateKey.GetWif(Network.Main);
+			var samePrivateKey = bitcoinSecret.PrivateKey;
+			Assert.Equal(samePrivateKey, privateKey);
+			Assert.True(samePrivateKey == privateKey);
+			Assert.False(samePrivateKey != privateKey);
+			Assert.True(samePrivateKey.GetHashCode() == privateKey.GetHashCode());
+
+			Assert.NotEqual(otherKey, privateKey);
+			Assert.False(otherKey == privateKey);
+			Assert.True(otherKey != privateKey);
+			Assert.False(otherKey.GetHashCode() == privateKey.GetHashCode());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void MoneyUnitSanityCheck()
 		{
 			Money.FromUnit(10m, MoneyUnit.BTC);

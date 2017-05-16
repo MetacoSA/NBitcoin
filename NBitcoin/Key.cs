@@ -238,5 +238,32 @@ namespace NBitcoin
 		{
 			return new TransactionSignature(Sign(hash), sigHash);
 		}
+
+
+		public override bool Equals(object obj)
+		{
+			Key item = obj as Key;
+			if(item == null)
+				return false;
+			return PubKey.Equals(item.PubKey);
+		}
+		public static bool operator ==(Key a, Key b)
+		{
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if(((object)a == null) || ((object)b == null))
+				return false;
+			return a.PubKey == b.PubKey;
+		}
+
+		public static bool operator !=(Key a, Key b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return PubKey.GetHashCode();
+		}
 	}
 }
