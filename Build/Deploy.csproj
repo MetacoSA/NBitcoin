@@ -6,25 +6,25 @@
 
   <Target Name="Build">
 
-    <Build.TokenizeTask InputFile="..\nStratis\nStratis.Tokenized.nuspec"
-							AssemblyFile="..\nStratis\Properties\AssemblyInfo.cs"
-							OutputFile="..\nStratis\nStratis.nuspec">
+    <Build.TokenizeTask InputFile="..\NBitcoin\NStratis.Tokenized.nuspec"
+							AssemblyFile="..\NBitcoin\Properties\AssemblyInfo.cs"
+							OutputFile="..\NBitcoin\NStratis.nuspec">
     </Build.TokenizeTask>
 
     <Build.AddCoreDependencies
 							TargetFramework=".NETStandard1.3"
 							FrameworkName="netstandard1.3"
-							InputFile="..\nStratis\nStratis.nuspec"
-							ProjectJsonFile="..\nStratis.NETCore\project.json"
-							OutputFile="..\nStratis\nStratis.nuspec">
+							InputFile="..\NBitcoin\NStratis.nuspec"
+							ProjectJsonFile="..\NBitcoin.NETCore\project.json"
+							OutputFile="..\NBitcoin\NStratis.nuspec">
     </Build.AddCoreDependencies>
 
     <Build.AddCoreDependencies
 							TargetFramework=".NETStandard1.1"
 							FrameworkName="netstandard1.1"
-							InputFile="..\nStratis\nStratis.nuspec"
-							ProjectJsonFile="..\nStratis.NETCore\project.json"
-							OutputFile="..\nStratis\nStratis.nuspec">
+							InputFile="..\NBitcoin\NStratis.nuspec"
+							ProjectJsonFile="..\NBitcoin.NETCore\project.json"
+							OutputFile="..\NBitcoin\NStratis.nuspec">
     </Build.AddCoreDependencies>
 
   </Target>

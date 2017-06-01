@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>NStratis</id>
+		<version>$version$</version>
+		<title>NStratis</title>
+		<authors>Stratis Platform</authors>
+		<owners>$author$</owners>
+		<iconUrl>http://stratisplatform.com/files/2016/06/Stratis_Logo-Full_Colored_On-White.jpg</iconUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>.NET Stratis Blockchain Framework</description>
+		<summary>
+      .NET Stratis Blockchain Framework
+    </summary>
+		<projectUrl>https://github.com/stratisproject/NStratis</projectUrl>
+		<copyright>Copyright 2016</copyright>
+		<tags>bitcoin, blockchain, stratis</tags>
+		<dependencies>
+			<group targetFramework="net45">
+				<dependency id="Newtonsoft.Json" version="9.0.1" />
+			</group>
+
+			<group targetFramework=".NETStandard1.1">
+			</group>
+
+			<group targetFramework=".NETStandard1.3">
+			</group>
+
+			<group>
+			</group>
+		</dependencies>
+	</metadata>
+
+	<files>
+		<file src="bin\Release\NBitcoin.*" target="lib\net45" />
+		<file src="..\NBitcoin.NETCore\bin\Release\netstandard1.3\*.*" target="lib\netstandard1.3" />
+		<file src="..\NBitcoin.NETCore\bin\Release\netstandard1.1\*.*" target="lib\netstandard1.1" />	
+    
+    <!--hashlib-->
+    <file src="bin\Release\HashLib.*" target="lib\net45" />
+    <file src="..\NBitcoin.NETCore\bin\Release\netstandard1.3\HashLib.*" target="lib\netstandard1.3" />
+    <file src="..\NBitcoin.NETCore\bin\Release\netstandard1.1\HashLib.*" target="lib\netstandard1.1" />
+  </files>
+</package>
