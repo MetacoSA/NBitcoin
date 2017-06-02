@@ -237,7 +237,7 @@ namespace NBitcoin.Tests
 				Assert.True(h.Validate(Network.Main));
 			}
 		}
-
+		
 		private byte[] LoadMainChain()
 		{
 			if(!File.Exists("MainChain1.dat"))

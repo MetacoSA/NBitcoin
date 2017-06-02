@@ -273,11 +273,21 @@ namespace NBitcoin
 				return pindexLast.Header.Bits;
 			}
 
-			// Go back by what we want to be 14 days worth of blocks
-			var pastHeight = pindexLast.Height - (consensus.DifficultyAdjustmentInterval - 1);
+			long pastHeight = 0;
+			if(consensus.LitecoinWorkCalculation)
+			{
+				long blockstogoback = consensus.DifficultyAdjustmentInterval - 1;
+				if((pindexLast.Height + 1) != consensus.DifficultyAdjustmentInterval)
+					blockstogoback = consensus.DifficultyAdjustmentInterval;
+				pastHeight = pindexLast.Height - blockstogoback;
+			}
+			else
+			{
+				// Go back by what we want to be 14 days worth of blocks
+				pastHeight = pindexLast.Height - (consensus.DifficultyAdjustmentInterval - 1);
+			}
 			ChainedBlock pindexFirst = this.EnumerateToGenesis().FirstOrDefault(o => o.Height == pastHeight);
 			assert(pindexFirst);
-
 			if(consensus.PowNoRetargeting)
 				return pindexLast.header.Bits;
 

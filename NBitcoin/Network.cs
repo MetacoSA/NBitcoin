@@ -214,7 +214,7 @@ namespace NBitcoin
 		}
 
 
-		int _MajorityEnforceBlockUpgrade;		
+		int _MajorityEnforceBlockUpgrade;
 
 		public int MajorityEnforceBlockUpgrade
 		{
@@ -426,10 +426,11 @@ namespace NBitcoin
 			}
 		}
 
+		int _CoinType;
+
 		/// <summary>
 		/// Specify the BIP44 coin type for this network
 		/// </summary>
-		int _CoinType;
 		public int CoinType
 		{
 			get
@@ -440,6 +441,24 @@ namespace NBitcoin
 			{
 				EnsureNotFrozen();
 				_CoinType = value;
+			}
+		}
+
+
+		bool _LitecoinWorkCalculation;
+		/// <summary>
+		/// Specify using litecoin calculation for difficulty
+		/// </summary>
+		public bool LitecoinWorkCalculation
+		{
+			get
+			{
+				return _LitecoinWorkCalculation;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_LitecoinWorkCalculation = value;
 			}
 		}
 
@@ -456,26 +475,32 @@ namespace NBitcoin
 
 		public virtual Consensus Clone()
 		{
-			return new Consensus()
-			{
-				_BIP34Hash = _BIP34Hash,
-				_HashGenesisBlock = _HashGenesisBlock,
-				_MajorityEnforceBlockUpgrade = _MajorityEnforceBlockUpgrade,
-				_MajorityRejectBlockOutdated = _MajorityRejectBlockOutdated,
-				_MajorityWindow = _MajorityWindow,
-				_MinerConfirmationWindow = _MinerConfirmationWindow,
-				_PowAllowMinDifficultyBlocks = _PowAllowMinDifficultyBlocks,
-				_PowLimit = _PowLimit,
-				_PowNoRetargeting = _PowNoRetargeting,
-				_PowTargetSpacing = _PowTargetSpacing,
-				_PowTargetTimespan =_PowTargetTimespan,
-				_RuleChangeActivationThreshold = _RuleChangeActivationThreshold,
-				_SubsidyHalvingInterval = _SubsidyHalvingInterval,
-				_CoinbaseMaturity = _CoinbaseMaturity,
-				_MinimumChainWork = _MinimumChainWork,
-				GetPoWHash = GetPoWHash,
-				_CoinType = CoinType
-			};
+			var consensus = new Consensus();
+			Fill(consensus);
+			return consensus;
+		}
+
+		protected void Fill(Consensus consensus)
+		{
+			consensus.EnsureNotFrozen();
+			consensus._BIP34Hash = _BIP34Hash;
+			consensus._HashGenesisBlock = _HashGenesisBlock;
+			consensus._MajorityEnforceBlockUpgrade = _MajorityEnforceBlockUpgrade;
+			consensus._MajorityRejectBlockOutdated = _MajorityRejectBlockOutdated;
+			consensus._MajorityWindow = _MajorityWindow;
+			consensus._MinerConfirmationWindow = _MinerConfirmationWindow;
+			consensus._PowAllowMinDifficultyBlocks = _PowAllowMinDifficultyBlocks;
+			consensus._PowLimit = _PowLimit;
+			consensus._PowNoRetargeting = _PowNoRetargeting;
+			consensus._PowTargetSpacing = _PowTargetSpacing;
+			consensus._PowTargetTimespan = _PowTargetTimespan;
+			consensus._RuleChangeActivationThreshold = _RuleChangeActivationThreshold;
+			consensus._SubsidyHalvingInterval = _SubsidyHalvingInterval;
+			consensus._CoinbaseMaturity = _CoinbaseMaturity;
+			consensus._MinimumChainWork = _MinimumChainWork;
+			consensus.GetPoWHash = GetPoWHash;
+			consensus._CoinType = CoinType;
+			consensus._LitecoinWorkCalculation = _LitecoinWorkCalculation;
 		}
 	}
 	public class Network
@@ -632,7 +657,7 @@ namespace NBitcoin
 				{
 					_OtherAliases.Add(alias.ToLowerInvariant(), network);
 				}
-				_OtherAliases.Add(network.name.ToLowerInvariant(), network);				
+				_OtherAliases.Add(network.name.ToLowerInvariant(), network);
 			}
 			lock(_OtherNetworks)
 			{
@@ -642,7 +667,7 @@ namespace NBitcoin
 		}
 
 		private void InitMain()
-		{			
+		{
 			name = "Main";
 
 			consensus.CoinbaseMaturity = 100;
@@ -667,7 +692,7 @@ namespace NBitcoin
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1462060800, 1493596800);
 			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 0, 0);
 
-			consensus.CoinType = 0; 
+			consensus.CoinType = 0;
 
 			// The message start string is designed to be unlikely to occur in normal data.
 			// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -1139,7 +1164,7 @@ namespace NBitcoin
 			yield return Main;
 			yield return TestNet;
 			yield return RegTest;
-			
+
 			if(_OtherNetworks.Count != 0)
 			{
 				List<Network> others = new List<Network>();
@@ -1300,7 +1325,7 @@ namespace NBitcoin
 				if(read != 1)
 					i--;
 				else if(_MagicBytes[i] != bytes[0])
-					i = _MagicBytes[0] == bytes[0] ? 0 : - 1;
+					i = _MagicBytes[0] == bytes[0] ? 0 : -1;
 			}
 			return true;
 		}
