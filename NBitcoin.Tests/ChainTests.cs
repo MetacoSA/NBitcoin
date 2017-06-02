@@ -227,6 +227,17 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanValidateChain()
+		{
+			var main = new ConcurrentChain(LoadMainChain());
+			foreach(var h in main.ToEnumerable(false))
+			{
+				Assert.True(h.Validate(Network.Main));
+			}
+		}
+
 		private byte[] LoadMainChain()
 		{
 			if(!File.Exists("MainChain1.dat"))
