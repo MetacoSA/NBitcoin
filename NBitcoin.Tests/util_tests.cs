@@ -597,7 +597,7 @@ namespace NBitcoin.Tests
 				Network = Network.RegTest
 			};
 
-			var result = Network.CreateFromBase58Data(address.Base58, address.Network);
+			var result = Network.CreateBitcoinAddressFromBase58Data(address.Base58, address.Network);
 			Assert.IsType<BitcoinColoredAddress>(result);
 			Assert.True(result.Network == Network.RegTest);
 
@@ -608,11 +608,11 @@ namespace NBitcoin.Tests
 				Network = Network.RegTest
 			};
 
-			result = Network.CreateFromBase58Data(address.Base58, address.Network);
+			result = Network.CreateBitcoinAddressFromBase58Data(address.Base58, address.Network);
 			Assert.IsType<BitcoinExtPubKey>(result);
 			Assert.True(result.Network == Network.RegTest);
 
-			result = Network.CreateFromBase58Data(address.Base58, null);
+			result = Network.CreateBitcoinAddressFromBase58Data(address.Base58, null);
 			Assert.True(result.Network == Network.TestNet);
 
 			var str = Serializer.ToString(new DummyClass() { ExtPubKey = new ExtKey().Neuter().GetWif(Network.RegTest) }, Network.RegTest);
@@ -627,54 +627,6 @@ namespace NBitcoin.Tests
 			new Key().PubKey.GetSegwitAddress(Network.TestNet);
 			var tests = new[]
 				{
-					new
-					{
-						Base58 = "T7nYdHtL34xLZ2S5KwqgySNNzGxovhszhtDM3wQRUEfUbUVvRZzTW",
-						ExpectedType = typeof(BitcoinWitScriptAddress),
-						Network = Network.TestNet
-					},
-					new
-					{
-						Base58 = "p2yCHe3JxDcT62fvAraCKHYoiiCLZsUzdbRQ",
-						ExpectedType = typeof(BitcoinWitPubKeyAddress),
-						Network = Network.Main
-					},
-					new
-					{
-						Base58 = "QWzJyQDz7iRTPkLFBg6XEeJFwbYESFC5KXxk",
-						ExpectedType = typeof(BitcoinWitPubKeyAddress),
-						Network = Network.TestNet
-					},
-					new
-					{
-						Base58 = "bWqaKUZETiECYgmJNbNZUoanBxnAzoVjCNx",
-						ExpectedType = typeof(BitcoinColoredAddress),
-						Network = Network.TestNet
-					},
-					new
-					{
-						Base58 = "17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem",
-						ExpectedType = typeof(BitcoinPubKeyAddress),
-						Network = Network.Main
-					},
-					new
-					{
-						Base58 = "17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem",
-						ExpectedType = typeof(BitcoinPubKeyAddress),
-						Network = Network.Main
-					},
-					new
-					{
-						Base58 = "3EktnHQD7RiAE6uzMj2ZifT9YgRrkSgzQX",
-						ExpectedType = typeof(BitcoinScriptAddress),
-						Network = Network.Main
-					},
-					new
-					{
-						Base58 = "mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn",
-						ExpectedType = typeof(BitcoinPubKeyAddress),
-						Network = Network.TestNet
-					},
 					new
 					{
 						Base58 = "5Hwgr3u458GLafKBgxtssHSPqJnYoGrSzgQsPwLFhLNYskDPyyA",
@@ -729,12 +681,6 @@ namespace NBitcoin.Tests
 						ExpectedType = typeof(BitcoinExtPubKey),
 						Network = Network.Main
 					},
-					new
-					{
-						Base58 = "akB4NBW9UuCmHuepksob6yfZs6naHtRCPNy",
-						ExpectedType = typeof(BitcoinColoredAddress),
-						Network = Network.Main
-					}
 				};
 
 			foreach(var test in tests)
@@ -757,6 +703,95 @@ namespace NBitcoin.Tests
 							if(network == test.Network)
 								break;
 							Assert.Throws<FormatException>(() => Network.CreateFromBase58Data(test.Base58, network));
+						}
+				}
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		//https://en.bitcoin.it/wiki/List_of_address_prefixes
+		public void CanDetectBase58NetworkAndTypeAddresses()
+		{
+			new Key().PubKey.GetSegwitAddress(Network.TestNet);
+			var tests = new[]
+				{
+					new
+					{
+						Base58 = "T7nYdHtL34xLZ2S5KwqgySNNzGxovhszhtDM3wQRUEfUbUVvRZzTW",
+						ExpectedType = typeof(BitcoinWitScriptAddress),
+						Network = Network.TestNet
+					},
+					new
+					{
+						Base58 = "p2yCHe3JxDcT62fvAraCKHYoiiCLZsUzdbRQ",
+						ExpectedType = typeof(BitcoinWitPubKeyAddress),
+						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "QWzJyQDz7iRTPkLFBg6XEeJFwbYESFC5KXxk",
+						ExpectedType = typeof(BitcoinWitPubKeyAddress),
+						Network = Network.TestNet
+					},
+					new
+					{
+						Base58 = "bWqaKUZETiECYgmJNbNZUoanBxnAzoVjCNx",
+						ExpectedType = typeof(BitcoinColoredAddress),
+						Network = Network.TestNet
+					},
+					new
+					{
+						Base58 = "17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem",
+						ExpectedType = typeof(BitcoinPubKeyAddress),
+						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem",
+						ExpectedType = typeof(BitcoinPubKeyAddress),
+						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "3EktnHQD7RiAE6uzMj2ZifT9YgRrkSgzQX",
+						ExpectedType = typeof(BitcoinScriptAddress),
+						Network = Network.Main
+					},
+					new
+					{
+						Base58 = "mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn",
+						ExpectedType = typeof(BitcoinPubKeyAddress),
+						Network = Network.TestNet
+					},
+					new
+					{
+						Base58 = "akB4NBW9UuCmHuepksob6yfZs6naHtRCPNy",
+						ExpectedType = typeof(BitcoinColoredAddress),
+						Network = Network.Main
+					}
+				};
+
+			foreach (var test in tests)
+			{
+				if (test.ExpectedType == null)
+				{
+					Assert.Throws<FormatException>(() => Network.CreateBitcoinAddressFromBase58Data(test.Base58));
+				}
+				else
+				{
+					var result = Network.CreateBitcoinAddressFromBase58Data(test.Base58);
+					Assert.True(test.ExpectedType == result.GetType());
+					if (test.Network != null)
+						Assert.Equal(test.Network, result.Network);
+					Network.CreateBitcoinAddressFromBase58Data(test.Base58, test.Network);
+
+					if (test.Network != null)
+						foreach (var network in Network.GetNetworks())
+						{
+							if (network == test.Network)
+								break;
+							Assert.Throws<FormatException>(() => Network.CreateBitcoinAddressFromBase58Data(test.Base58, network));
 						}
 				}
 			}

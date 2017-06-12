@@ -156,13 +156,13 @@ namespace NBitcoin.RPC
 		public BitcoinAddress GetAccountAddress(string account)
 		{
 			var response = SendCommand("getaccountaddress", account);
-			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
+			return Network.CreateBitcoinAddressFromBase58Data((string)response.Result);
 		}
 
 		public async Task<BitcoinAddress> GetAccountAddressAsync(string account)
 		{
 			var response = await SendCommandAsync("getaccountaddress", account).ConfigureAwait(false);
-			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
+			return Network.CreateBitcoinAddressFromBase58Data((string)response.Result);
 		}
 
 		public BitcoinSecret GetAccountSecret(string account)
@@ -194,7 +194,7 @@ namespace NBitcoin.RPC
 		public IEnumerable<BitcoinAddress> GetAddressesByAccount(string account)
 		{
 			var response = SendCommand(RPCOperations.getaddressesbyaccount, account);
-			return response.Result.Select(t => Network.CreateFromBase58Data<BitcoinAddress>((string)t));
+			return response.Result.Select(t => Network.CreateBitcoinAddressFromBase58Data((string)t));
 		}
 
 		public FundRawTransactionResponse FundRawTransaction(Transaction transaction, FundRawTransactionOptions options = null)

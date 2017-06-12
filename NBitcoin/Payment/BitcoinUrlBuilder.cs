@@ -51,7 +51,7 @@ namespace NBitcoin.Payment
 			}
 			if(address != String.Empty)
 			{
-				Address = Network.CreateFromBase58Data<BitcoinAddress>(address);
+				Address = Network.CreateBitcoinAddressFromBase58Data(address);
 			}
 			uri = uri.Remove(0, address.Length);
 

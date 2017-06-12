@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using NBitcoin.DataEncoders;
 
 namespace NBitcoin
 {
@@ -50,7 +52,7 @@ namespace NBitcoin
 	/// <summary>
 	/// Base58 representation of a bitcoin address
 	/// </summary>
-	public abstract class BitcoinAddress : Base58Data, IDestination
+	public abstract class BitcoinAddress : IDestination
 	{
 		/// <summary>
 		/// Detect whether the input base58 is a pubkey hash or a script hash
@@ -61,24 +63,131 @@ namespace NBitcoin
 		/// <exception cref="System.FormatException">Invalid format</exception>
 		public static BitcoinAddress Create(string base58, Network expectedNetwork = null)
 		{
-			if(base58 == null)
+			if (base58 == null)
 				throw new ArgumentNullException("base58");
-			return Network.CreateFromBase58Data<BitcoinAddress>(base58, expectedNetwork);
+			//return null;
+			//var type = Network.GetTypeFromBase58Data
+
+			return Network.CreateBitcoinAddressFromBase58Data(base58, expectedNetwork);
 		}
 
-		public BitcoinAddress(string base58, Network expectedNetwork = null)
-			: base(base58, expectedNetwork)
+		protected byte[] vchData = new byte[0];
+		protected byte[] vchVersion = new byte[0];
+		protected string wifData = "";
+		private Network _Network;
+		public Network Network
+		{
+			get
+			{
+				return _Network;
+			}
+		}
+
+		protected virtual bool IsValid
+		{
+			get
+			{
+				return true;
+			}
+		}
+
+		public abstract Base58Type Type
+		{
+			get;
+		}
+
+		public string ToWif()
+		{
+			return wifData;
+		}
+		public byte[] ToBytes()
+		{
+			return vchData.ToArray();
+		}
+		public override string ToString()
+		{
+			return wifData;
+		}
+
+		public override bool Equals(object obj)
+		{
+			var item = obj as BitcoinAddress;
+			if (item == null)
+				return false;
+			return ToString().Equals(item.ToString());
+		}
+
+		public static bool operator ==(BitcoinAddress a, BitcoinAddress b)
+		{
+			if (System.Object.ReferenceEquals(a, b))
+				return true;
+			if (((object)a == null) || ((object)b == null))
+				return false;
+			return a.ToString() == b.ToString();
+		}
+
+		public static bool operator !=(BitcoinAddress a, BitcoinAddress b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return ToString().GetHashCode();
+		}
+
+		private void SetString(string psz)
+		{
+			if (_Network == null)
+			{
+				_Network = Network.GetNetworkFromBase58Data(psz, Type);
+				if (_Network == null)
+					throw new FormatException("Invalid " + this.GetType().Name);
+			}
+
+			byte[] vchTemp = Encoders.Base58Check.DecodeData(psz);
+			var expectedVersion = _Network.GetVersionBytes(Type);
+
+
+			vchVersion = vchTemp.SafeSubarray(0, expectedVersion.Length);
+			if (!Utils.ArrayEqual(vchVersion, expectedVersion))
+				throw new FormatException("The version prefix does not match the expected one " + String.Join(",", expectedVersion));
+
+			vchData = vchTemp.SafeSubarray(expectedVersion.Length);
+			wifData = psz;
+
+			if (!IsValid)
+				throw new FormatException("Invalid " + this.GetType().Name);
+		}
+
+		private void SetData(byte[] vchData)
+		{
+			this.vchData = vchData;
+			this.vchVersion = _Network.GetVersionBytes(Type);
+			wifData = Encoders.Base58Check.EncodeData(vchVersion.Concat(vchData).ToArray());
+
+			if (!IsValid)
+				throw new FormatException("Invalid " + this.GetType().Name);
+		}
+
+		protected BitcoinAddress(string base58, Network expectedNetwork = null)
+		{
+			_Network = expectedNetwork;
+			SetString(base58);
+		}
+
+		protected BitcoinAddress(TxDestination id, Network network)
+			: this(id.ToBytes(), network)
 		{
 		}
 
-		public BitcoinAddress(TxDestination id, Network network)
-			: base(id.ToBytes(), network)
+		protected BitcoinAddress(byte[] rawBytes, Network network)
 		{
-		}
+			if (network == null)
+				throw new ArgumentNullException("network");
 
-		public BitcoinAddress(byte[] rawBytes, Network network)
-			: base(rawBytes, network)
-		{
+			_Network = network;
+			SetData(rawBytes);
 		}
 
 		Script _ScriptPubKey;
@@ -86,7 +195,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_ScriptPubKey == null)
+				if (_ScriptPubKey == null)
 				{
 					_ScriptPubKey = GeneratePaymentScript();
 				}
@@ -99,7 +208,7 @@ namespace NBitcoin
 		public BitcoinScriptAddress GetScriptAddress()
 		{
 			var bitcoinScriptAddress = this as BitcoinScriptAddress;
-			if(bitcoinScriptAddress != null)
+			if (bitcoinScriptAddress != null)
 				return bitcoinScriptAddress;
 
 			return new BitcoinScriptAddress(this.ScriptPubKey.Hash, Network);
