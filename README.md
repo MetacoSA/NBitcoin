@@ -33,7 +33,7 @@ This is a light weight package with corresponding `Network` instances for Liteco
 
  If your crypto currency is similar enough to Bitcoin, please, check out how we integrated [litecoin to NBitcoin](https://github.com/MetacoSA/NBitcoin.Litecoin).
 
-# For using NBitcoin in Unity 3.5
+# How to use in Unity 3.5
 
 In command prompt:
 
@@ -45,6 +45,41 @@ build-unity.bat
 ```
 
 Then put the two libraries, NBitcoin.dll and System.Threading.Tasks.Net35.dll found in "NBitcoin\NBitcoin\bin\Release" into your asset folder.
+
+# How to use in .NET Core
+
+If you want to use .NET Core, first install .NET Core [as documented here](https://www.microsoft.com/net/core#windowsvs2017).
+
+Then:
+```
+mkdir MyProject
+cd MyProject
+dotnet new console
+dotnet add package NBitcoin
+dotnet restore
+```
+Then edit your Program.cs:
+```
+using System;
+using NBitcoin;
+
+namespace _125350929
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Hello World! " + new Key().GetWif(Network.Main));
+        }
+    }
+}
+```
+You can then run with
+```
+dotnet run
+```
+
+We advice you to use [Visual Studio Code](https://code.visualstudio.com/) as the editor for your project.
 
 ## Description
 NBitcoin notably includes:
