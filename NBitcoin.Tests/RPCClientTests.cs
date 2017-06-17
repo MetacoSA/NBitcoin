@@ -156,6 +156,7 @@ namespace NBitcoin.Tests
 				var result1 = result;
 
 				var change = rpc.GetNewAddress();
+				var change2 = rpc.GetRawChangeAddress();
 				result = rpc.FundRawTransaction(tx, new FundRawTransactionOptions()
 				{
 					FeeRate = new FeeRate(Money.Satoshis(50), 1),

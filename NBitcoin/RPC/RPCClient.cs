@@ -285,6 +285,17 @@ namespace NBitcoin.RPC
 			return BitcoinAddress.Create(result.Result.ToString(), Network);
 		}
 
+		public BitcoinAddress GetRawChangeAddress()
+		{
+			return GetRawChangeAddressAsync().GetAwaiter().GetResult();
+		}
+
+		public async Task<BitcoinAddress> GetRawChangeAddressAsync()
+		{
+			var result = await SendCommandAsync(RPCOperations.getrawchangeaddress).ConfigureAwait(false);
+			return BitcoinAddress.Create(result.Result.ToString(), Network);
+		}
+
 		public Task<RPCResponse> SendCommandAsync(RPCOperations commandName, params object[] parameters)
 		{
 			return SendCommandAsync(commandName.ToString(), parameters);
