@@ -1964,6 +1964,8 @@ namespace NBitcoin.Tests
 			{
 				var param1 = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(tx.Inputs[input].WitScript);
 				Assert.NotNull(param1);
+				var param2 = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(param1.PublicKey.GetSegwitAddress(Network.Main).Hash.ScriptPubKey);
+				Assert.Equal(param1.PublicKey.WitHash, param2);
 				scriptCode = param1.ScriptPubKey;
 			}
 			else

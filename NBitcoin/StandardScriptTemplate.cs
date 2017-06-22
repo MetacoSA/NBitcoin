@@ -154,7 +154,7 @@ namespace NBitcoin
 			var keyCount = ops[ops.Length - 2].GetInt();
 
 			if(sigCount == null || keyCount == null)
-				return false;			
+				return false;
 			if(keyCount.Value < 0 || keyCount.Value > 20)
 				return false;
 			if(sigCount.Value < 0 || sigCount.Value > keyCount.Value)
@@ -804,6 +804,12 @@ namespace NBitcoin
 				);
 		}
 
+		public Script GenerateScriptPubKey(BitcoinWitPubKeyAddress address)
+		{
+			if(address == null)
+				throw new ArgumentNullException("address");
+			return GenerateScriptPubKey(address.Hash);
+		}
 
 		public override bool CheckScriptPubKey(Script scriptPubKey)
 		{
@@ -852,6 +858,7 @@ namespace NBitcoin
 		{
 			return GenerateWitScript(parameters.TransactionSignature, parameters.PublicKey);
 		}
+
 	}
 
 	public class PayToWitScriptHashTemplate : PayToWitTemplate

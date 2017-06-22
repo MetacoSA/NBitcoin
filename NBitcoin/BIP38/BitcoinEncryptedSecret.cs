@@ -46,7 +46,7 @@ namespace NBitcoin
 
 
 
-			var version = network.GetVersionBytes(Base58Type.ENCRYPTED_SECRET_KEY_NO_EC);
+			var version = network.GetVersionBytes(Base58Type.ENCRYPTED_SECRET_KEY_NO_EC, true);
 			byte flagByte = 0;
 			flagByte |= 0x0C0;
 			flagByte |= (key.IsCompressed ? (byte)0x20 : (byte)0x00);

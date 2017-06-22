@@ -433,6 +433,11 @@ namespace NBitcoin
 			return Hashes.SHA256(pubkey);
 		}
 
+		public BitcoinWitPubKeyAddress GetSegwitAddress(Network network)
+		{
+			return new BitcoinWitPubKeyAddress(WitHash, network);
+		}
+
 		#endregion
 	}
 }

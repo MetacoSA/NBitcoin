@@ -74,6 +74,7 @@
     <Compile Include="BuilderExtensions\P2PKHBuilderExtension.cs" />
     <Compile Include="DataEncoders\Bech32Encoder.cs" />
     <Compile Include="FeeRate.cs" />
+    <Compile Include="IBech32Data.cs" />
     <Compile Include="IBitcoinString.cs" />
     <Compile Include="JsonConverters\AssetIdJsonConverter.cs" />
     <Compile Include="JsonConverters\BitcoinStringJsonConverter.cs" />

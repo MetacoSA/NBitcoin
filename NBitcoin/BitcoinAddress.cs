@@ -13,17 +13,19 @@ namespace NBitcoin
 			: base(Validate(base58, ref expectedNetwork), expectedNetwork)
 		{
 			var decoded = Encoders.Base58Check.DecodeData(base58);
-			_Hash = new ScriptId(new uint160(decoded.Skip(expectedNetwork.GetVersionBytes(Base58Type.SCRIPT_ADDRESS).Length).ToArray()));
+			_Hash = new ScriptId(new uint160(decoded.Skip(expectedNetwork.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, true).Length).ToArray()));
 		}
 
 		private static string Validate(string base58, ref Network expectedNetwork)
 		{
+			if(base58 == null)
+				throw new ArgumentNullException("base58");
 			var networks = expectedNetwork == null ? Network.GetNetworks() : new[] { expectedNetwork };
 			var data = Encoders.Base58Check.DecodeData(base58);
 			foreach(var network in networks)
 			{
-				var versionBytes = network.GetVersionBytes(Base58Type.SCRIPT_ADDRESS);
-				if(data.StartWith(versionBytes))
+				var versionBytes = network.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, false);
+				if(versionBytes != null && data.StartWith(versionBytes))
 				{
 					if(data.Length == versionBytes.Length + 20)
 					{
@@ -32,7 +34,7 @@ namespace NBitcoin
 					}
 				}
 			}
-			throw new FormatException("Invalid BitcoinPubKeyAddress");
+			throw new FormatException("Invalid BitcoinScriptAddress");
 		}
 
 		public BitcoinScriptAddress(ScriptId scriptId, Network network)

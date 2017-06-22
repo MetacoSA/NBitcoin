@@ -57,7 +57,7 @@ namespace NBitcoin
 			}
 
 			byte[] vchTemp = Encoders.Base58Check.DecodeData(psz);
-			var expectedVersion = _Network.GetVersionBytes(Type);
+			var expectedVersion = _Network.GetVersionBytes(Type, true);
 
 
 			vchVersion = vchTemp.SafeSubarray(0, expectedVersion.Length);
@@ -76,7 +76,7 @@ namespace NBitcoin
 		private void SetData(byte[] vchData)
 		{
 			this.vchData = vchData;
-			this.vchVersion = _Network.GetVersionBytes(Type);
+			this.vchVersion = _Network.GetVersionBytes(Type, true);
 			wifData = Encoders.Base58Check.EncodeData(vchVersion.Concat(vchData).ToArray());
 
 			if(!IsValid)

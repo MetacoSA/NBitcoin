@@ -13,12 +13,12 @@ namespace NBitcoin.DataEncoders
 
 		internal Bech32Encoder(string hrp): this(hrp == null ? null : Encoders.ASCII.DecodeData(hrp))
 		{
-
 		}
 		public Bech32Encoder(byte[] hrp)
 		{
 			if(hrp == null)
 				throw new ArgumentNullException("hrp");
+			
 			_Hrp = hrp;
 			var len = hrp.Length;
 			_HrpExpand = new byte[(2 * len) + 1];
@@ -38,6 +38,7 @@ namespace NBitcoin.DataEncoders
 				return _Hrp;
 			}
 		}
+
 		private static uint Polymod(byte[] values)
 		{
 			uint chk = 1;
@@ -97,6 +98,14 @@ namespace NBitcoin.DataEncoders
 			return Encoders.ASCII.EncodeData(combined);
 		}
 
+		public static Bech32Encoder ExtractEncoderFromString(string test)
+		{
+			var i = test.IndexOf('1');
+			if(i == -1)
+				throw new FormatException("Invalid Bech32 string");
+			return Encoders.Bech32(test.Substring(0, i));
+		}
+
 		internal static void CheckCase(string hrp)
 		{
 			if(hrp.ToLowerInvariant().Equals(hrp))
@@ -104,14 +113,6 @@ namespace NBitcoin.DataEncoders
 			if(hrp.ToUpperInvariant().Equals(hrp))
 				return;
 			throw new FormatException("Invalid bech32 string, mixed case detected");
-		}
-
-		public static Bech32Encoder ExtractEncoderFromString(string test)
-		{
-			var i = test.IndexOf('1');
-			if(i == -1)
-				throw new FormatException("Invalid Bech32 string");
-			return Encoders.Bech32(test.Substring(0, i));
 		}
 
 		public override byte[] DecodeData(string encoded)

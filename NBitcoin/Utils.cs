@@ -50,7 +50,7 @@ namespace NBitcoin
 			if(!(obj is IBase58Data) ||  ((IBase58Data)obj).Type != Base58Type.COLORED_ADDRESS)
 			{
 				var b58 = (IBase58Data)obj;
-				byte[] version = network.GetVersionBytes(b58.Type);
+				byte[] version = network.GetVersionBytes(b58.Type, true);
 				var inner = Encoders.Base58Check.DecodeData(b58.ToString()).Skip(version.Length).ToArray();
 				var newBase58 = Encoders.Base58Check.EncodeData(version.Concat(inner).ToArray());
 				return Network.Parse<T>(newBase58, network);
