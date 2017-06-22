@@ -14,11 +14,13 @@ namespace NBitcoin.RPC
 		internal UnspentCoin(JObject unspent)
 		{
 			OutPoint = new OutPoint(uint256.Parse((string)unspent["txid"]), (uint)unspent["vout"]);
-			Address = Network.CreateFromBase58Data<BitcoinAddress>((string)unspent["address"]);
+			var address = (string)unspent["address"];
+			if(address != null)
+				Address = Network.CreateFromBase58Data<BitcoinAddress>(address);
 			Account = (string)unspent["account"];
 			ScriptPubKey = new Script(Encoders.Hex.DecodeData((string)unspent["scriptPubKey"]));
 			var redeemScriptHex = (string)unspent["redeemScript"];
-			if (redeemScriptHex != null)
+			if(redeemScriptHex != null)
 			{
 				RedeemScript = new Script(Encoders.Hex.DecodeData(redeemScriptHex));
 			}
@@ -27,7 +29,7 @@ namespace NBitcoin.RPC
 			Confirmations = (uint)unspent["confirmations"];
 
 			// Added in Bitcoin Core 0.10.0
-			if (unspent["spendable"] != null)
+			if(unspent["spendable"] != null)
 			{
 				IsSpendable = (bool)unspent["spendable"];
 			}
