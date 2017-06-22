@@ -117,6 +117,7 @@ namespace NBitcoin
 		public BitcoinWitScriptAddress(WitScriptId segwitScriptId, Network network)
 	: base(NotNull(segwitScriptId) ?? Network.CreateBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, segwitScriptId.ToBytes(), 0, network), network)
 		{
+			_Hash = segwitScriptId;
 		}
 
 
