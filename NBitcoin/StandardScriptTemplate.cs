@@ -897,6 +897,13 @@ namespace NBitcoin
 			return GenerateWitScript(new Script(scriptSig), redeemScript);
 		}
 
+		public Script GenerateScriptPubKey(BitcoinWitScriptAddress address)
+		{
+			if(address == null)
+				throw new ArgumentNullException("address");
+			return GenerateScriptPubKey(address.Hash);
+		}
+
 		public override bool CheckScriptPubKey(Script scriptPubKey)
 		{
 			if(scriptPubKey == null)

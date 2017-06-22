@@ -823,6 +823,12 @@ namespace NBitcoin
 				return PayToScriptHashTemplate.Instance.CheckScriptPubKey(this);
 			}
 		}
+
+		public BitcoinWitScriptAddress GetWitScriptAddress(Network network)
+		{
+			return (BitcoinWitScriptAddress)WitHash.GetAddress(network);
+		}
+
 		public uint GetSigOpCount(Script scriptSig)
 		{
 			if(!IsPayToScriptHash)

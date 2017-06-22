@@ -217,7 +217,7 @@ namespace NBitcoin
 
 		public override BitcoinAddress GetAddress(Network network)
 		{
-			throw new NotSupportedException();
+			return new BitcoinWitScriptAddress(this, network);
 		}
 	}
 
