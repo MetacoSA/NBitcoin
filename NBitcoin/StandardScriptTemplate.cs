@@ -783,12 +783,6 @@ namespace NBitcoin
 				return _Instance = _Instance ?? new PayToWitPubKeyHashTemplate();
 			}
 		}
-		public Script GenerateScriptPubKey(BitcoinWitPubKeyAddress address)
-		{
-			if(address == null)
-				throw new ArgumentNullException("address");
-			return GenerateScriptPubKey(address.Hash);
-		}
 		public Script GenerateScriptPubKey(PubKey pubKey)
 		{
 			if(pubKey == null)
@@ -869,12 +863,6 @@ namespace NBitcoin
 			{
 				return _Instance = _Instance ?? new PayToWitScriptHashTemplate();
 			}
-		}
-		public Script GenerateScriptPubKey(BitcoinWitScriptAddress address)
-		{
-			if(address == null)
-				throw new ArgumentNullException("address");
-			return GenerateScriptPubKey(address.Hash);
 		}
 		public Script GenerateScriptPubKey(WitScriptId scriptHash)
 		{

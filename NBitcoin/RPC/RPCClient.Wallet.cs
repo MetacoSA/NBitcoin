@@ -141,13 +141,13 @@ namespace NBitcoin.RPC
 		public BitcoinSecret DumpPrivKey(BitcoinAddress address)
 		{
 			var response = SendCommand("dumpprivkey", address.ToString());
-			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
+			return Network.Parse<BitcoinSecret>((string)response.Result);
 		}
 
 		public async Task<BitcoinSecret> DumpPrivKeyAsync(BitcoinAddress address)
 		{
 			var response = await SendCommandAsync("dumpprivkey", address.ToString()).ConfigureAwait(false);
-			return Network.CreateFromBase58Data<BitcoinSecret>((string)response.Result);
+			return Network.Parse<BitcoinSecret>((string)response.Result);
 		}
 
 
@@ -156,13 +156,13 @@ namespace NBitcoin.RPC
 		public BitcoinAddress GetAccountAddress(string account)
 		{
 			var response = SendCommand("getaccountaddress", account);
-			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
+			return Network.Parse<BitcoinAddress>((string)response.Result);
 		}
 
 		public async Task<BitcoinAddress> GetAccountAddressAsync(string account)
 		{
 			var response = await SendCommandAsync("getaccountaddress", account).ConfigureAwait(false);
-			return Network.CreateFromBase58Data<BitcoinAddress>((string)response.Result);
+			return Network.Parse<BitcoinAddress>((string)response.Result);
 		}
 
 		public BitcoinSecret GetAccountSecret(string account)
@@ -194,7 +194,7 @@ namespace NBitcoin.RPC
 		public IEnumerable<BitcoinAddress> GetAddressesByAccount(string account)
 		{
 			var response = SendCommand(RPCOperations.getaddressesbyaccount, account);
-			return response.Result.Select(t => Network.CreateFromBase58Data<BitcoinAddress>((string)t));
+			return response.Result.Select(t => Network.Parse<BitcoinAddress>((string)t));
 		}
 
 		public FundRawTransactionResponse FundRawTransaction(Transaction transaction, FundRawTransactionOptions options = null)
@@ -287,7 +287,7 @@ namespace NBitcoin.RPC
 		/// <returns>The number of bitcoins received by the address, excluding coinbase transactions. May be 0.</returns>
 		public Money GetReceivedByAddress(BitcoinAddress address)
 		{
-			var response = SendCommand(RPCOperations.getreceivedbyaddress, address.ToWif());
+			var response = SendCommand(RPCOperations.getreceivedbyaddress, address.ToString());
 			return Money.Coins(response.Result.Value<decimal>());
 		}
 
@@ -305,7 +305,7 @@ namespace NBitcoin.RPC
 		/// <returns>The number of bitcoins received by the address, excluding coinbase transactions. May be 0.</returns>
 		public Money GetReceivedByAddress(BitcoinAddress address, int confirmations)
 		{
-			var response = SendCommand(RPCOperations.getreceivedbyaddress, address.ToWif(), confirmations);
+			var response = SendCommand(RPCOperations.getreceivedbyaddress, address.ToString(), confirmations);
 			return Money.Coins(response.Result.Value<decimal>());
 		}
 
@@ -478,7 +478,7 @@ namespace NBitcoin.RPC
 		public UnspentCoin[] ListUnspent()
 		{
 			var response = SendCommand("listunspent");
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
+			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
 
 		/// <summary>
@@ -490,7 +490,7 @@ namespace NBitcoin.RPC
 		{
 			var addr = from a in addresses select a.ToString();
 			var response = SendCommand("listunspent", minconf, maxconf, addr.ToArray());
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
+			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
 		
 		/// <summary>
@@ -499,7 +499,7 @@ namespace NBitcoin.RPC
 		public async Task<UnspentCoin[]> ListUnspentAsync()
 		{
 			var response = await SendCommandAsync("listunspent").ConfigureAwait(false);
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
+			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
 
 		/// <summary>
@@ -511,7 +511,7 @@ namespace NBitcoin.RPC
 		{
 			var addr = from a in addresses select a.ToString();
 			var response = await SendCommandAsync("listunspent", minconf, maxconf, addr.ToArray()).ConfigureAwait(false);
-			return response.Result.Select(i => new UnspentCoin((JObject)i)).ToArray();
+			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
 
 		//listlockunspent

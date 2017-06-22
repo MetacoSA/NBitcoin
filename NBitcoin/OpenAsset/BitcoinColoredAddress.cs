@@ -22,9 +22,17 @@ namespace NBitcoin
 
 		private static byte[] Build(BitcoinAddress address)
 		{
-			var version = address.Network.GetVersionBytes(address.Type);
-			var data = address.ToBytes();
-			return version.Concat(data).ToArray();
+			if(address is IBase58Data)
+			{
+				var b58 = (IBase58Data)address;
+				var version = address.Network.GetVersionBytes(b58.Type);
+				var data = Encoders.Base58Check.DecodeData(b58.ToString()).Skip(version.Length).ToArray();
+				return version.Concat(data).ToArray();
+			}
+			else
+			{
+				throw new NotSupportedException("Building a colored address out of a non base58 string is not supported");
+			}
 		}
 
 		protected override bool IsValid

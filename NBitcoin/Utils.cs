@@ -39,25 +39,26 @@ namespace NBitcoin
 
 
 
-		public static T ToNetwork<T>(this T base58, Network network) where T : Base58Data
+		public static T ToNetwork<T>(this T obj, Network network) where T : IBitcoinString
 		{
 			if(network == null)
 				throw new ArgumentNullException("network");
-			if (base58 == null)
-				throw new ArgumentNullException("base58");
-			if (base58.Network == network)
-				return base58;
-			var inner = base58.ToBytes();
-			if(base58.Type != Base58Type.COLORED_ADDRESS)
+			if (obj == null)
+				throw new ArgumentNullException("obj");
+			if (obj.Network == network)
+				return obj;
+			if(!(obj is IBase58Data) ||  ((IBase58Data)obj).Type != Base58Type.COLORED_ADDRESS)
 			{
-				byte[] version = network.GetVersionBytes(base58.Type);
+				var b58 = (IBase58Data)obj;
+				byte[] version = network.GetVersionBytes(b58.Type);
+				var inner = Encoders.Base58Check.DecodeData(b58.ToString()).Skip(version.Length).ToArray();
 				var newBase58 = Encoders.Base58Check.EncodeData(version.Concat(inner).ToArray());
-				return Network.CreateFromBase58Data<T>(newBase58, network);
+				return Network.Parse<T>(newBase58, network);
 			}
 			else
 			{
-				var colored = BitcoinColoredAddress.GetWrappedBase58(base58.ToWif(), base58.Network);
-				var address = Network.CreateFromBase58Data<BitcoinAddress>(colored).ToNetwork(network);
+				var colored = BitcoinColoredAddress.GetWrappedBase58(obj.ToString(), obj.Network);
+				var address = Network.Parse<BitcoinAddress>(colored, obj.Network).ToNetwork(network);
 				return (T)(object)address.ToColoredAddress();
 			}
 		}
@@ -271,6 +272,17 @@ namespace NBitcoin
 
 	internal static class ByteArrayExtensions
 	{
+		internal static bool StartWith(this byte[] data, byte[] versionBytes)
+		{
+			if(data.Length < versionBytes.Length)
+				return false;
+			for(int i = 0; i < versionBytes.Length; i++)
+			{
+				if(data[i] != versionBytes[i])
+					return false;
+			}
+			return true;
+		}
 		internal static byte[] SafeSubarray(this byte[] array, int offset, int count)
 		{
 			if(array == null)
@@ -317,6 +329,7 @@ namespace NBitcoin
 
 	public class Utils
 	{
+
 		internal static void SafeSet(ManualResetEvent ar)
 		{
 			try

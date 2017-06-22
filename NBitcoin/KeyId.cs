@@ -173,7 +173,7 @@ namespace NBitcoin
 
 		public override BitcoinAddress GetAddress(Network network)
 		{
-			return new BitcoinWitPubKeyAddress(this, network);
+			throw new NotImplementedException();
 		}
 	}
 
@@ -217,7 +217,7 @@ namespace NBitcoin
 
 		public override BitcoinAddress GetAddress(Network network)
 		{
-			return new BitcoinWitScriptAddress(this, network);
+			throw new NotSupportedException();
 		}
 	}
 

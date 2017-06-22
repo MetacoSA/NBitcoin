@@ -815,10 +815,6 @@ namespace NBitcoin
 		{
 			return (BitcoinScriptAddress)Hash.GetAddress(network);
 		}
-		public BitcoinWitScriptAddress GetWitScriptAddress(Network network)
-		{
-			return (BitcoinWitScriptAddress)WitHash.GetAddress(network);
-		}
 
 		public bool IsPayToScriptHash
 		{

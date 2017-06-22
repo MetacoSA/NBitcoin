@@ -13,12 +13,12 @@ namespace NBitcoin
 
 		public static Key Parse(string wif, Network network = null)
 		{
-			return Network.CreateFromBase58Data<BitcoinSecret>(wif, network).PrivateKey;
+			return Network.Parse<BitcoinSecret>(wif, network).PrivateKey;
 		}
 
 		public static Key Parse(string wif, string password, Network network = null)
 		{
-			return Network.CreateFromBase58Data<BitcoinEncryptedSecret>(wif, network).GetKey(password);
+			return Network.Parse<BitcoinEncryptedSecret>(wif, network).GetKey(password);
 		}
 
 		byte[] vch = new byte[0];
