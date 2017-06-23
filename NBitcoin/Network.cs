@@ -697,6 +697,11 @@ namespace NBitcoin
 			{
 				network.base58Prefixes[(int)kv.Key] = kv.Value;
 			}
+			network.bech32Encoders = Network.Main.bech32Encoders.ToArray();
+			foreach(var kv in builder._Bech32Prefixes)
+			{
+				network.bech32Encoders[(int)kv.Key] = kv.Value;
+			}
 			lock(_OtherAliases)
 			{
 				foreach(var alias in builder._Aliases)
