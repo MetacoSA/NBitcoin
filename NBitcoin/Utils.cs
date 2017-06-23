@@ -43,24 +43,40 @@ namespace NBitcoin
 		{
 			if(network == null)
 				throw new ArgumentNullException("network");
-			if (obj == null)
+			if(obj == null)
 				throw new ArgumentNullException("obj");
-			if (obj.Network == network)
+			if(obj.Network == network)
 				return obj;
-			if(!(obj is IBase58Data) ||  ((IBase58Data)obj).Type != Base58Type.COLORED_ADDRESS)
+			if(obj is IBase58Data)
 			{
 				var b58 = (IBase58Data)obj;
-				byte[] version = network.GetVersionBytes(b58.Type, true);
-				var inner = Encoders.Base58Check.DecodeData(b58.ToString()).Skip(version.Length).ToArray();
-				var newBase58 = Encoders.Base58Check.EncodeData(version.Concat(inner).ToArray());
-				return Network.Parse<T>(newBase58, network);
+				if(b58.Type != Base58Type.COLORED_ADDRESS)
+				{
+
+					byte[] version = network.GetVersionBytes(b58.Type, true);
+					var inner = Encoders.Base58Check.DecodeData(b58.ToString()).Skip(version.Length).ToArray();
+					var newBase58 = Encoders.Base58Check.EncodeData(version.Concat(inner).ToArray());
+					return Network.Parse<T>(newBase58, network);
+				}
+				else
+				{
+					var colored = BitcoinColoredAddress.GetWrappedBase58(obj.ToString(), obj.Network);
+					var address = Network.Parse<BitcoinAddress>(colored, obj.Network).ToNetwork(network);
+					return (T)(object)address.ToColoredAddress();
+				}
+			}
+			else if(obj is IBech32Data)
+			{
+				var b32 = (IBech32Data)obj;
+				var encoder = b32.Network.GetBech32Encoder(b32.Type, true);
+				byte wit;
+				var data = encoder.Decode(b32.ToString(), out wit);
+				encoder = network.GetBech32Encoder(b32.Type, true);
+				var str = encoder.Encode(wit, data);
+				return (T)(object)Network.Parse<T>(str, network);
 			}
 			else
-			{
-				var colored = BitcoinColoredAddress.GetWrappedBase58(obj.ToString(), obj.Network);
-				var address = Network.Parse<BitcoinAddress>(colored, obj.Network).ToNetwork(network);
-				return (T)(object)address.ToColoredAddress();
-			}
+				throw new NotSupportedException();
 		}
 
 		public static byte[] ReadBytes(this Stream stream, int bytesToRead)
@@ -138,11 +154,16 @@ namespace NBitcoin
 #if !(PORTABLE || NETCORE)
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
-			if(stream == null) throw new ArgumentNullException("stream");
-			if(buffer == null) throw new ArgumentNullException("buffer");
-			if(offset < 0 || offset > buffer.Length) throw new ArgumentOutOfRangeException("offset");
-			if(count <= 0 || count > buffer.Length) throw new ArgumentOutOfRangeException("count"); //Disallow 0 as a debugging aid.
-			if(offset > buffer.Length - count) throw new ArgumentOutOfRangeException("count");
+			if(stream == null)
+				throw new ArgumentNullException("stream");
+			if(buffer == null)
+				throw new ArgumentNullException("buffer");
+			if(offset < 0 || offset > buffer.Length)
+				throw new ArgumentOutOfRangeException("offset");
+			if(count <= 0 || count > buffer.Length)
+				throw new ArgumentOutOfRangeException("count"); //Disallow 0 as a debugging aid.
+			if(offset > buffer.Length - count)
+				throw new ArgumentOutOfRangeException("count");
 
 			int totalReadCount = 0;
 
@@ -165,7 +186,7 @@ namespace NBitcoin
 					//EndRead might block, so we need to test cancellation before calling it.
 					//This also is a bug because calling EndRead after BeginRead is contractually required.
 					//A potential fix is to use the ReadAsync API. Another fix is to register a callback with BeginRead that calls EndRead in all cases.
-					cancellation.ThrowIfCancellationRequested(); 
+					cancellation.ThrowIfCancellationRequested();
 
 					currentReadCount = stream.EndRead(ar);
 				}
@@ -317,7 +338,7 @@ namespace NBitcoin
 			var ret = new byte[len];
 			Buffer.BlockCopy(arr, 0, ret, 0, arr.Length);
 			var pos = arr.Length;
-			foreach (var a in arrs)
+			foreach(var a in arrs)
 			{
 				Buffer.BlockCopy(a, 0, ret, pos, a.Length);
 				pos += a.Length;
@@ -464,7 +485,7 @@ namespace NBitcoin
 				array[array.Length - 1] |= 0x80;
 			return array;
 		}
-		
+
 		public static BigInteger BytesToBigInteger(byte[] data)
 		{
 			if(data == null)
