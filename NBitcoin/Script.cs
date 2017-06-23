@@ -428,7 +428,30 @@ namespace NBitcoin
 			}
 		}
 
-
+		/// <summary>
+		/// Extract the ScriptCode delimited by the <codeSeparatorIndex>th OP_CODESEPARATOR.
+		/// </summary>
+		/// <param name="codeSeparatorIndex">Index of the OP_CODESEPARATOR, or -1 for fetching the whole script</param>
+		/// <returns></returns>
+		public Script ExtractScriptCode(int codeSeparatorIndex)
+		{
+			if(codeSeparatorIndex == -1)
+				return this;
+			if(codeSeparatorIndex < -1)
+				throw new ArgumentOutOfRangeException("codeSeparatorIndex");
+			var separatorIndex = -1;
+			List<Op> ops = new List<Op>();
+			foreach(var op in ToOps())
+			{
+				if(op.Code == OpcodeType.OP_CODESEPARATOR)
+					separatorIndex++;
+				if(separatorIndex >= codeSeparatorIndex && !(separatorIndex == codeSeparatorIndex && op.Code == OpcodeType.OP_CODESEPARATOR))
+					ops.Add(op);
+			}
+			if(separatorIndex < codeSeparatorIndex)
+				throw new ArgumentOutOfRangeException("codeSeparatorIndex");
+			return new Script(ops.ToArray());
+		}
 
 
 		public ScriptReader CreateReader()
