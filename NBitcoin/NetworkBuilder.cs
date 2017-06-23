@@ -1,7 +1,7 @@
 ﻿#if !NOSOCKET
-using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 #endif
+using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;

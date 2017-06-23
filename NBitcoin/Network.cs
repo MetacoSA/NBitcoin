@@ -900,7 +900,8 @@ namespace NBitcoin
 			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
 			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
 
-			var encoder = new Bech32Encoder("tb"); ;
+			var encoder = new Bech32Encoder("tb");
+			;
 			bech32Encoders[(int)Bech32Type.WITNESS_PUBKEY_ADDRESS] = encoder;
 			bech32Encoders[(int)Bech32Type.WITNESS_SCRIPT_ADDRESS] = encoder;
 		}
@@ -1034,7 +1035,15 @@ namespace NBitcoin
 			if(str == null)
 				throw new ArgumentNullException("str");
 			var networks = expectedNetwork == null ? GetNetworks() : new[] { expectedNetwork };
-			var maybeb58 = str.All(c => Base58Encoder.pszBase58.Contains(c));
+			var maybeb58 = true;
+			for(int i = 0; i < str.Length; i++)
+			{
+				if(!Base58Encoder.pszBase58Chars.Contains(str[i]))
+				{
+					maybeb58 = false;
+					break;
+				}
+			}
 			if(maybeb58)
 			{
 				try
@@ -1069,7 +1078,7 @@ namespace NBitcoin
 					{
 						byte witVersion;
 						var bytes = encoder.Decode(str, out witVersion);
-						
+
 						if(witVersion == 0 && bytes.Length == 20 && type == Bech32Type.WITNESS_PUBKEY_ADDRESS)
 							return (T)(object)new BitcoinWitPubKeyAddress(str, network);
 						if(witVersion == 0 && bytes.Length == 32 && type == Bech32Type.WITNESS_SCRIPT_ADDRESS)
