@@ -4,6 +4,7 @@ using NBitcoin.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBitcoin.RPC
@@ -269,6 +271,25 @@ namespace NBitcoin.RPC
 #endif
 		}
 
+		
+		public string Authentication
+		{
+			get
+			{
+				return _Authentication;
+			}
+		}
+
+		ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> _BatchedRequests;
+
+		public RPCClient PrepareBatch()
+		{
+			return new RPCClient(_Authentication, Address, Network)
+			{
+				_BatchedRequests = new ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>()
+			};
+		}
+
 		public RPCResponse SendCommand(RPCOperations commandName, params object[] parameters)
 		{
 			return SendCommand(commandName.ToString(), parameters);
@@ -330,32 +351,183 @@ namespace NBitcoin.RPC
 			}
 		}
 
-		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
+		/// <summary>
+		///	Send all commands in one batch
+		/// </summary>
+		public void SendBatch()
 		{
-			var webRequest = (HttpWebRequest)WebRequest.Create(Address);
-			webRequest.Headers[HttpRequestHeader.Authorization] = "Basic " + Encoders.Base64.EncodeData(Encoders.ASCII.DecodeData(_Authentication));
-			webRequest.ContentType = "application/json-rpc";
-			webRequest.Method = "POST";
+			SendBatchAsync().GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		///	Cancel all commands
+		/// </summary>
+		public void CancelBatch()
+		{
+			var batches = _BatchedRequests;
+			if(batches == null)
+				throw new InvalidOperationException("This RPCClient instance is not a batch, use PrepareBatch");
+			_BatchedRequests = null;
+			Tuple<RPCRequest, TaskCompletionSource<RPCResponse>> req;
+			while(batches.TryDequeue(out req))
+			{
+				req.Item2.TrySetCanceled();
+			}
+		}
+
+		/// <summary>
+		///	Send all commands in one batch
+		/// </summary>
+		public async Task SendBatchAsync()
+		{
+			Tuple<RPCRequest, TaskCompletionSource<RPCResponse>> req;
+			List<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> requests = new List<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>();
+			var batches = _BatchedRequests;
+			if(batches == null)
+				throw new InvalidOperationException("This RPCClient instance is not a batch, use PrepareBatch");
+			_BatchedRequests = null;
+			while(batches.TryDequeue(out req))
+			{
+				requests.Add(req);
+			}
+			if(requests.Count == 0)
+				return;
 
 			var writer = new StringWriter();
-			request.WriteJSON(writer);
+			writer.Write("[");
+			bool first = true;
+			foreach(var item in requests)
+			{
+				if(!first)
+				{
+					writer.Write(",");
+				}
+				first = false;
+				item.Item1.WriteJSON(writer);
+			}
+			writer.Write("]");
 			writer.Flush();
+
 			var json = writer.ToString();
 			var bytes = Encoding.UTF8.GetBytes(json);
+
+			var webRequest = CreateWebRequest();
 #if !(PORTABLE || NETCORE)
 			webRequest.ContentLength = bytes.Length;
 #endif
+
+			int responseIndex = 0;
 			var dataStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false);
 			await dataStream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
 			await dataStream.FlushAsync().ConfigureAwait(false);
 			dataStream.Dispose();
-			RPCResponse response;
+			JArray response;
 			WebResponse webResponse = null;
 			WebResponse errorResponse = null;
 			try
 			{
 				webResponse = await webRequest.GetResponseAsync().ConfigureAwait(false);
-				response = RPCResponse.Load(await ToMemoryStreamAsync(webResponse.GetResponseStream()).ConfigureAwait(false));
+				response = JArray.Load(new JsonTextReader(
+						new StreamReader(
+								await ToMemoryStreamAsync(webResponse.GetResponseStream()).ConfigureAwait(false), Encoding.UTF8)));
+				foreach(var jobj in response.OfType<JObject>())
+				{
+					try
+					{
+						RPCResponse rpcResponse = new RPCResponse(jobj);
+						requests[responseIndex].Item2.TrySetResult(rpcResponse);
+					}
+					catch(Exception ex)
+					{
+						requests[responseIndex].Item2.TrySetException(ex);
+					}
+					responseIndex++;
+				}
+			}
+			catch(WebException ex)
+			{
+				if(ex.Response == null || ex.Response.ContentLength == 0)
+				{
+					foreach(var item in requests)
+					{
+						item.Item2.TrySetException(ex);
+					}
+				}
+				else
+				{
+					errorResponse = ex.Response;
+					try
+					{
+
+						RPCResponse rpcResponse = RPCResponse.Load(await ToMemoryStreamAsync(errorResponse.GetResponseStream()).ConfigureAwait(false));
+						foreach(var item in requests)
+						{
+							item.Item2.TrySetResult(rpcResponse);
+						}
+					}
+					catch(Exception)
+					{
+						foreach(var item in requests)
+						{
+							item.Item2.TrySetException(ex);
+						}
+					}
+				}
+			}
+			catch(Exception ex)
+			{
+				foreach(var item in requests)
+				{
+					item.Item2.TrySetException(ex);
+				}
+			}
+			finally
+			{
+				if(errorResponse != null)
+				{
+					errorResponse.Dispose();
+					errorResponse = null;
+				}
+				if(webResponse != null)
+				{
+					webResponse.Dispose();
+					webResponse = null;
+				}
+			}
+		}
+		
+		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
+		{
+			RPCResponse response = null;
+			var batches = _BatchedRequests;
+			if(batches != null)
+			{
+				TaskCompletionSource<RPCResponse> source = new TaskCompletionSource<RPCResponse>();
+				batches.Enqueue(Tuple.Create(request, source));
+				response = await source.Task.ConfigureAwait(false);
+			}
+			HttpWebRequest webRequest = response == null ? CreateWebRequest() : null;
+			if(response == null)
+			{
+				var writer = new StringWriter();
+				request.WriteJSON(writer);
+				writer.Flush();
+				var json = writer.ToString();
+				var bytes = Encoding.UTF8.GetBytes(json);
+#if !(PORTABLE || NETCORE)
+				webRequest.ContentLength = bytes.Length;
+#endif
+				var dataStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false);
+				await dataStream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
+				await dataStream.FlushAsync().ConfigureAwait(false);
+				dataStream.Dispose();
+			}
+			WebResponse webResponse = null;
+			WebResponse errorResponse = null;
+			try
+			{
+				webResponse = response == null ? await webRequest.GetResponseAsync().ConfigureAwait(false) : null;
+				response = response ?? RPCResponse.Load(await ToMemoryStreamAsync(webResponse.GetResponseStream()).ConfigureAwait(false));
 
 				if(throwIfRPCError)
 					response.ThrowIfError();
@@ -383,6 +555,15 @@ namespace NBitcoin.RPC
 				}
 			}
 			return response;
+		}
+
+		private HttpWebRequest CreateWebRequest()
+		{
+			var webRequest = (HttpWebRequest)WebRequest.Create(Address);
+			webRequest.Headers[HttpRequestHeader.Authorization] = "Basic " + Encoders.Base64.EncodeData(Encoders.ASCII.DecodeData(_Authentication));
+			webRequest.ContentType = "application/json-rpc";
+			webRequest.Method = "POST";
+			return webRequest;
 		}
 
 		private async Task<Stream> ToMemoryStreamAsync(Stream stream)
@@ -670,7 +851,7 @@ namespace NBitcoin.RPC
 		{
 			var resp = await SendCommandAsync("getblockhash", height).ConfigureAwait(false);
 			return uint256.Parse(resp.Result.ToString());
-		}		
+		}
 
 		public int GetBlockCount()
 		{

@@ -306,6 +306,58 @@ namespace NBitcoin.Tests
 				AssertJsonEquals(tx.ToString(RawFormat.Satoshi), tx2.ToString(RawFormat.Satoshi));
 			}
 		}
+		[Fact]
+		public void CanUseBatchedRequests()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var nodeA = builder.CreateNode();
+				builder.StartAll();
+				var rpc = nodeA.CreateRPCClient();
+				var blocks = rpc.Generate(10);
+				Assert.Throws<InvalidOperationException>(() => rpc.SendBatch());
+				rpc = rpc.PrepareBatch();
+				List<Task<uint256>> requests = new List<Task<uint256>>();
+				for(int i = 1; i < 11; i++)
+				{
+					requests.Add(rpc.GetBlockHashAsync(i));
+				}
+				Thread.Sleep(1000);
+				foreach(var req in requests)
+				{
+					Assert.Equal(TaskStatus.WaitingForActivation, req.Status);
+				}
+				rpc.SendBatch();
+				rpc = rpc.PrepareBatch();
+				int blockIndex = 0;
+				foreach(var req in requests)
+				{
+					Assert.Equal(blocks[blockIndex], req.Result);
+					Assert.Equal(TaskStatus.RanToCompletion, req.Status);
+					blockIndex++;
+				}
+				requests.Clear();
+
+				requests.Add(rpc.GetBlockHashAsync(10));
+				requests.Add(rpc.GetBlockHashAsync(11));
+				requests.Add(rpc.GetBlockHashAsync(9));
+				requests.Add(rpc.GetBlockHashAsync(8));
+				rpc.SendBatch();
+				rpc = rpc.PrepareBatch();
+				Assert.Equal(TaskStatus.RanToCompletion, requests[0].Status);
+				Assert.Equal(TaskStatus.Faulted, requests[1].Status);
+				Assert.Equal(TaskStatus.RanToCompletion, requests[2].Status);
+				Assert.Equal(TaskStatus.RanToCompletion, requests[3].Status);
+				requests.Clear();
+
+				requests.Add(rpc.GetBlockHashAsync(10));
+				requests.Add(rpc.GetBlockHashAsync(11));
+				rpc.CancelBatch();
+				rpc = rpc.PrepareBatch();
+				Assert.Equal(TaskStatus.Canceled, requests[0].Status);
+				Assert.Equal(TaskStatus.Canceled, requests[1].Status);
+			}
+		}
 
 #if !PORTABLE
 		[Fact]
