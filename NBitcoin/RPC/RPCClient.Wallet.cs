@@ -335,14 +335,34 @@ namespace NBitcoin.RPC
 
 		// importaddress
 
-		public void ImportAddress(BitcoinAddress address)
+		public void ImportAddress(IDestination address)
 		{
-			SendCommand("importaddress", address.ToString());
+			SendCommand("importaddress", address.ScriptPubKey);
 		}
 
-		public void ImportAddress(BitcoinAddress address, string label, bool rescan)
+		public void ImportAddress(IDestination address, string label, bool rescan)
 		{
-			SendCommand("importaddress", address.ToString(), label, rescan);
+			SendCommand("importaddress", address.ScriptPubKey, label, rescan);
+		}
+
+		public void ImportAddress(Script scriptPubKey)
+		{
+			SendCommand("importaddress", scriptPubKey.ToHex());
+		}
+
+		public void ImportAddress(Script scriptPubKey, string label, bool rescan)
+		{
+			SendCommand("importaddress", scriptPubKey.ToHex(), label, rescan);
+		}
+
+		public async Task ImportAddressAsync(Script scriptPubKey)
+		{
+			await SendCommandAsync("importaddress", scriptPubKey.ToHex()).ConfigureAwait(false);
+		}
+
+		public async Task ImportAddressAsync(Script scriptPubKey, string label, bool rescan)
+		{
+			await SendCommandAsync("importaddress", scriptPubKey.ToHex(), label, rescan).ConfigureAwait(false);
 		}
 
 		public async Task ImportAddressAsync(BitcoinAddress address)
