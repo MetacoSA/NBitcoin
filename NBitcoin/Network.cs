@@ -1096,6 +1096,7 @@ namespace NBitcoin
 						if(candidate is T)
 							return (T)(object)candidate;
 					}
+					catch(Bech32FormatException) { throw; }
 					catch(FormatException) { continue; }
 				}
 

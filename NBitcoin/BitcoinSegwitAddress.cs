@@ -37,6 +37,7 @@ namespace NBitcoin
 						return bech32;
 					}
 				}
+				catch(Bech32FormatException) { throw; }
 				catch(FormatException) { continue; }
 			}
 			throw new FormatException("Invalid BitcoinWitPubKeyAddress");
@@ -109,6 +110,7 @@ namespace NBitcoin
 						return bech32;
 					}
 				}
+				catch(Bech32FormatException) { throw; }
 				catch(FormatException) { continue; }
 			}
 			throw new FormatException("Invalid BitcoinWitScriptAddress");
