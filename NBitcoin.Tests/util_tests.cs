@@ -116,6 +116,10 @@ namespace NBitcoin.Tests
 			var addr = pubkey.GetAddress(Network.Main);
 			Assert.Equal("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM", addr.ToString());
 			Assert.Equal("mfcSEPR8EkJrpX91YkTJ9iscdAzppJrG9j", addr.ToNetwork(Network.TestNet).ToString());
+
+			Assert.Throws<FormatException>(()=> Network.Parse<IBase58Data>("bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3", Network.Main));
+
+			Network.Parse<IBitcoinString>("bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3", Network.Main);
 		}
 
 		[Fact]

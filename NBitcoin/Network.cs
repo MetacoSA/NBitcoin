@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -1041,12 +1042,15 @@ namespace NBitcoin
 				throw new ArgumentNullException("str");
 			var networks = expectedNetwork == null ? GetNetworks() : new[] { expectedNetwork };
 			var maybeb58 = true;
-			for(int i = 0; i < str.Length; i++)
+			if(maybeb58)
 			{
-				if(!Base58Encoder.pszBase58Chars.Contains(str[i]))
+				for(int i = 0; i < str.Length; i++)
 				{
-					maybeb58 = false;
-					break;
+					if(!Base58Encoder.pszBase58Chars.Contains(str[i]))
+					{
+						maybeb58 = false;
+						break;
+					}
 				}
 			}
 			if(maybeb58)
@@ -1069,7 +1073,6 @@ namespace NBitcoin
 				}
 			}
 
-
 			foreach(var network in networks)
 			{
 				int i = -1;
@@ -1083,11 +1086,15 @@ namespace NBitcoin
 					{
 						byte witVersion;
 						var bytes = encoder.Decode(str, out witVersion);
+						object candidate = null;
 
 						if(witVersion == 0 && bytes.Length == 20 && type == Bech32Type.WITNESS_PUBKEY_ADDRESS)
-							return (T)(object)new BitcoinWitPubKeyAddress(str, network);
+							candidate = new BitcoinWitPubKeyAddress(str, network);
 						if(witVersion == 0 && bytes.Length == 32 && type == Bech32Type.WITNESS_SCRIPT_ADDRESS)
-							return (T)(object)new BitcoinWitScriptAddress(str, network);
+							candidate = new BitcoinWitScriptAddress(str, network);
+
+						if(candidate is T)
+							return (T)(object)candidate;
 					}
 					catch(FormatException) { continue; }
 				}
