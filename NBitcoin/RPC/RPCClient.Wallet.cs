@@ -337,12 +337,12 @@ namespace NBitcoin.RPC
 
 		public void ImportAddress(IDestination address)
 		{
-			SendCommand("importaddress", address.ScriptPubKey);
+			SendCommand("importaddress", address.ScriptPubKey.ToHex());
 		}
 
 		public void ImportAddress(IDestination address, string label, bool rescan)
 		{
-			SendCommand("importaddress", address.ScriptPubKey, label, rescan);
+			SendCommand("importaddress", address.ScriptPubKey.ToHex(), label, rescan);
 		}
 
 		public void ImportAddress(Script scriptPubKey)
