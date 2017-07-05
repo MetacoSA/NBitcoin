@@ -14,18 +14,48 @@ namespace NBitcoin.Crypto
 
 		}
 
-		public override bool CanRead => throw new NotImplementedException();
+		public override bool CanRead
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
 
-		public override bool CanSeek => throw new NotImplementedException();
+		public override bool CanSeek
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
 
-		public override bool CanWrite => throw new NotImplementedException();
+		public override bool CanWrite
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
 
-		public override long Length => throw new NotImplementedException();
+		public override long Length
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
 
 		public override long Position
 		{
-			get => throw new NotImplementedException();
-			set => throw new NotImplementedException();
+			get
+			{
+				throw new NotImplementedException();
+			}
+			set
+			{
+				throw new NotImplementedException();
+			}
 		}
 
 		public override void Flush()
@@ -77,7 +107,7 @@ namespace NBitcoin.Crypto
 				ProcessBlock();
 		}
 
-#if (USEBC || WINDOWS_UWP || NETCORE)
+#if(USEBC || WINDOWS_UWP || NETCORE)
 		BouncyCastle.Crypto.Digests.Sha256Digest sha = new BouncyCastle.Crypto.Digests.Sha256Digest();
 		private void ProcessBlock()
 		{
@@ -103,7 +133,7 @@ namespace NBitcoin.Crypto
 			_Pos = 0;
 		}
 
-		static readonly byte[] Empty = new byte[0];	
+		static readonly byte[] Empty = new byte[0];
 		public uint256 GetHash()
 		{
 			ProcessBlock();
