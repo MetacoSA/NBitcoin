@@ -727,8 +727,9 @@ namespace NBitcoin
 
 		private static uint256 GetHash(BitcoinStream stream)
 		{
-			var preimage = ((MemoryStream)stream.Inner).ToArrayEfficient();
-			return Hashes.Hash256(preimage);
+			var preimage = ((HashStream)stream.Inner).GetHash();
+			stream.Inner.Dispose();
+			return preimage;
 		}
 
 		internal static uint256 GetHashOutputs(Transaction txTo)
@@ -769,7 +770,8 @@ namespace NBitcoin
 
 		private static BitcoinStream CreateHashWriter(HashVersion version)
 		{
-			BitcoinStream stream = new BitcoinStream(new MemoryStream(), true);
+			HashStream hs = new HashStream();
+			BitcoinStream stream = new BitcoinStream(hs, true);
 			stream.Type = SerializationType.Hash;
 			stream.TransactionOptions = version == HashVersion.Original ? TransactionOptions.None : TransactionOptions.Witness;
 			return stream;

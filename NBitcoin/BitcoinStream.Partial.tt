@@ -19,6 +19,7 @@ namespace NBitcoin
 {
 	public partial class BitcoinStream
 	{
+		VarInt _VarInt = new VarInt(0);
 		<# foreach(String signature in new string[]
 		{
 			"<T>(ref T[] data) where T : IBitcoinSerializable",
@@ -35,13 +36,13 @@ namespace NBitcoin
 		{
 			if(data == null && Serializing)
 				throw new ArgumentNullException("Impossible to serialize a null array");
-			var length = new VarInt(data == null ? 0 : (ulong)data.Length);
-			ReadWrite(ref length);
+			_VarInt.SetValue(data == null ? 0 : (ulong)data.Length);
+			ReadWrite(ref _VarInt);
 
-			if(length.ToLong() > (uint)MaxArraySize)
+			if(_VarInt.ToLong() > (uint)MaxArraySize)
 				throw new ArgumentOutOfRangeException("Array size not big");
 			if(!Serializing)
-				data = new <#= signature.Split(' ','[')[1] #>[length.ToLong()];
+				data = new <#= signature.Split(' ','[')[1] #>[_VarInt.ToLong()];
 			for(int i = 0 ; i < data.Length ; i++)
 			{
 				<#= signature.Split(' ','[')[1] #> obj = data[i];
@@ -72,20 +73,21 @@ namespace NBitcoin
 <# foreach (string t in new []{ "256","160" }) { 
 	int WIDTH_BYTE = int.Parse(t) / 8;
 #>
+		uint<#= t #>.MutableUint<#= t #> _MutableUint<#= t #> = new uint<#= t #>.MutableUint<#= t #>(uint<#= t #>.Zero);
 		public void ReadWrite(ref uint<#= t #> value)
 		{
 			value = value ?? uint<#= t #>.Zero;
-			var v = new uint<#= t #>.MutableUint<#= t #>(value);
-			this.ReadWrite(ref v);
-			value = v.Value;			
+			_MutableUint<#= t #>.Value = value;
+			this.ReadWrite(ref _MutableUint<#= t #>);
+			value = _MutableUint<#= t #>.Value;			
 		}
 
 		public void ReadWrite(uint<#= t #> value)
 		{
 			value = value ?? uint<#= t #>.Zero;
-			var v = new uint<#= t #>.MutableUint<#= t #>(value);
-			this.ReadWrite(ref v);
-			value = v.Value;			
+			_MutableUint<#= t #>.Value = value;
+			this.ReadWrite(ref _MutableUint<#= t #>);
+			value = _MutableUint<#= t #>.Value;			
 		}
 
 		public void ReadWrite(ref List<uint<#= t #>> value)

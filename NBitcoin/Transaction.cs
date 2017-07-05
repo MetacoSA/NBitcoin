@@ -1284,12 +1284,14 @@ namespace NBitcoin
 			if(h != null)
 				return h;
 
-			MemoryStream ms = new MemoryStream();
-			this.ReadWrite(new BitcoinStream(ms, true)
+			using(HashStream hs = new HashStream())
 			{
-				TransactionOptions = TransactionOptions.None
-			});
-			h = Hashes.Hash256(ms.ToArrayEfficient());
+				this.ReadWrite(new BitcoinStream(hs, true)
+				{
+					TransactionOptions = TransactionOptions.None
+				});
+				h = hs.GetHash();
+			}
 
 			hashes = _Hashes;
 			if(hashes != null)
@@ -1331,12 +1333,14 @@ namespace NBitcoin
 			if(h != null)
 				return h;
 
-			MemoryStream ms = new MemoryStream();
-			this.ReadWrite(new BitcoinStream(ms, true)
+			using(HashStream hs = new HashStream())
 			{
-				TransactionOptions = TransactionOptions.Witness
-			});
-			h = Hashes.Hash256(ms.ToArrayEfficient());
+				this.ReadWrite(new BitcoinStream(hs, true)
+				{
+					TransactionOptions = TransactionOptions.Witness
+				});
+				h = hs.GetHash();
+			}
 
 			hashes = _Hashes;
 			if(hashes != null)

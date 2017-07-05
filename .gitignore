@@ -190,3 +190,4 @@ project.lock.json
 /NBitcoin.Tests/libbitcoinconsensus-0.dll
 *.zip
 /dotnet-tpl35/
+/dotnet-tpl35

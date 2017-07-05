@@ -160,7 +160,13 @@ namespace NBitcoin
 			}
 			if(h != null)
 				return h;
-			h = Hashes.Hash256(this.ToBytes());
+
+			using(HashStream hs = new HashStream())
+			{
+				this.ReadWrite(new BitcoinStream(hs, true));
+				h = hs.GetHash();
+			}
+
 			hashes = _Hashes;
 			if(hashes != null)
 			{
