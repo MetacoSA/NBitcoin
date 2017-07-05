@@ -508,6 +508,7 @@ namespace NBitcoin.RPC
 			}
 			catch(WebException ex)
 			{
+#if !NOFILEIO
 				if(!ex.Message.Contains("401"))
 					throw;
 				if(_FromCookiePath != null)
@@ -519,6 +520,9 @@ namespace NBitcoin.RPC
 					catch { throw ex; }
 				}
 				return await SendCommandAsyncCore(request, throwIfRPCError).ConfigureAwait(false);
+#else
+				throw;
+#endif
 			}
 		}
 
