@@ -131,7 +131,7 @@ namespace NBitcoin.RPC
 	*/
 	public partial class RPCClient : IBlockRepository
 	{
-		private readonly string _Authentication;
+		private string _Authentication;
 		private readonly Uri _address;
 		public Uri Address
 		{
@@ -212,7 +212,8 @@ namespace NBitcoin.RPC
 			{
 				if(authenticationString.StartsWith("cookiefile=", StringComparison.OrdinalIgnoreCase))
 				{
-					authenticationString = File.ReadAllText(authenticationString.Substring("cookiefile=".Length).Trim());
+					_FromCookiePath = authenticationString.Substring("cookiefile=".Length).Trim();
+					authenticationString = File.ReadAllText(_FromCookiePath);
 					if(!authenticationString.StartsWith("__cookie__:", StringComparison.OrdinalIgnoreCase))
 						throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
 				}
@@ -263,7 +264,9 @@ namespace NBitcoin.RPC
 			var cookiePath = Path.Combine(bitcoinFolder, ".cookie");
 			try
 			{
-				return File.ReadAllText(cookiePath);
+				var auth = File.ReadAllText(cookiePath);
+				_FromCookiePath = cookiePath;
+				return auth;
 			}
 			catch { return null; }
 #else
@@ -271,7 +274,8 @@ namespace NBitcoin.RPC
 #endif
 		}
 
-		
+		string _FromCookiePath;
+
 		public string Authentication
 		{
 			get
@@ -495,8 +499,30 @@ namespace NBitcoin.RPC
 				}
 			}
 		}
-		
+
 		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
+		{
+			try
+			{
+				return await SendCommandAsyncCore(request, throwIfRPCError).ConfigureAwait(false);
+			}
+			catch(WebException ex)
+			{
+				if(!ex.Message.Contains("401"))
+					throw;
+				if(_FromCookiePath != null)
+				{
+					try
+					{
+						_Authentication = File.ReadAllText(_FromCookiePath);
+					}
+					catch { throw ex; }
+				}
+				return await SendCommandAsyncCore(request, throwIfRPCError).ConfigureAwait(false);
+			}
+		}
+
+		async Task<RPCResponse> SendCommandAsyncCore(RPCRequest request, bool throwIfRPCError)
 		{
 			RPCResponse response = null;
 			var batches = _BatchedRequests;
