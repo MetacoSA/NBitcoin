@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<Company>AO-IS</Company>
-		<Copyright>Copyright © AO-IS 2014</Copyright>
-		<Description>Implementation of bitcoin protocol</Description>
+		<Company>Metaco SA</Company>
+		<Copyright>Copyright © Metaco SA 2017</Copyright>
+		<Description>The C# Bitcoin Library</Description>
 	</PropertyGroup>
 	<PropertyGroup>
         <Version>4.0.0.8</Version>
@@ -25,7 +25,7 @@
     <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION</DefineConstants>
   </PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-     <DefineConstants>$(DefineConstants);NETCORE;PORTABLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG</DefineConstants>
+     <DefineConstants>$(DefineConstants);NETCORE;PORTABLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />

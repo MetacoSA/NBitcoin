@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿#if !NOFILEIO
+using NBitcoin.DataEncoders;
 using NBitcoin.Payment;
 using System;
 using System.Collections.Generic;
@@ -361,3 +362,4 @@ namespace NBitcoin.Tests
 	}
 #endif
 }
+#endif
