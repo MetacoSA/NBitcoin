@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBitcoin", "NBitcoin\NBitcoin.csproj", "{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBitcoin.Tests", "NBitcoin.Tests\NBitcoin.Tests.csproj", "{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Build", "Build\Build.csproj", "{FCD2502B-440B-4C39-8DD5-1052DEBBB0E3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FB4BE966-ECF6-4923-A0ED-3CB98DAF3591}"
@@ -15,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FB4BE9
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
+EndProject
+Project("{9344BDBB-3E7F-41FC-A0DD-8665D75EE146}") = "NBitcoin.Tests", "NBitcoin.Tests\NBitcoin.Tests.csproj", "{F9AED227-3C02-45FE-BA33-53C217F52DC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,14 +26,14 @@ Global
 		{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B692A4C-412A-41BA-A1F8-5DF8F7450ABC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FCD2502B-440B-4C39-8DD5-1052DEBBB0E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FCD2502B-440B-4C39-8DD5-1052DEBBB0E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCD2502B-440B-4C39-8DD5-1052DEBBB0E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCD2502B-440B-4C39-8DD5-1052DEBBB0E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9AED227-3C02-45FE-BA33-53C217F52DC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9AED227-3C02-45FE-BA33-53C217F52DC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9AED227-3C02-45FE-BA33-53C217F52DC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9AED227-3C02-45FE-BA33-53C217F52DC0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
