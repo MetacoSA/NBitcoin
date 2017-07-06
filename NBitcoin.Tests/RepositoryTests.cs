@@ -246,7 +246,7 @@ namespace NBitcoin.Tests
 			result = repo.Get("c3462373f1a722c66cbb1b93712df94aa7b3731f4142cd8413f10c9e872927df");
 			Assert.Null(result);
 
-			var unspent = repo.GetUnspentAsync("1KF8kUVHK42XzgcmJF4Lxz4wcL5WDL97PB").Result;
+			var unspent = repo.GetUnspentAsync("1Lc1tcWreT8jHUDP6HRfwLkUnnUKFomRJi").Result;
 			Assert.True(unspent.Count != 0);
 
 			repo = new BlockrTransactionRepository(Network.TestNet);
