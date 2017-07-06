@@ -36,7 +36,7 @@ namespace NBitcoin
 		{
 			var vch = key.ToBytes();
 			//Compute the Bitcoin address (ASCII),
-			var addressBytes = Encoders.ASCII.DecodeData(key.PubKey.GetAddress(network).ToWif());
+			var addressBytes = Encoders.ASCII.DecodeData(key.PubKey.GetAddress(network).ToString());
 			// and take the first four bytes of SHA256(SHA256()) of it. Let's call this "addresshash".
 			var addresshash = Hashes.Hash256(addressBytes).ToBytes().SafeSubarray(0, 4);
 
@@ -46,7 +46,7 @@ namespace NBitcoin
 
 
 
-			var version = network.GetVersionBytes(Base58Type.ENCRYPTED_SECRET_KEY_NO_EC);
+			var version = network.GetVersionBytes(Base58Type.ENCRYPTED_SECRET_KEY_NO_EC, true);
 			byte flagByte = 0;
 			flagByte |= 0x0C0;
 			flagByte |= (key.IsCompressed ? (byte)0x20 : (byte)0x00);
@@ -250,7 +250,7 @@ namespace NBitcoin
 	{
 		public static BitcoinEncryptedSecret Create(string wif, Network expectedNetwork = null)
 		{
-			return Network.CreateFromBase58Data<BitcoinEncryptedSecret>(wif, expectedNetwork);
+			return Network.Parse<BitcoinEncryptedSecret>(wif, expectedNetwork);
 		}
 
 		public static BitcoinEncryptedSecretNoEC Generate(Key key, string password, Network network)

@@ -12,7 +12,7 @@ namespace NBitcoin
 	{
 		public static ExtPubKey Parse(string wif, Network expectedNetwork = null)
 		{
-			return Network.CreateFromBase58Data<BitcoinExtPubKey>(wif, expectedNetwork).ExtPubKey;
+			return Network.Parse<BitcoinExtPubKey>(wif, expectedNetwork).ExtPubKey;
 		}
 
 		private const int FingerprintLength = 4;

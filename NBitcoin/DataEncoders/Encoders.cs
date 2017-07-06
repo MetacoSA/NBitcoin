@@ -82,22 +82,12 @@ namespace NBitcoin.DataEncoders
 			}
 		}
 
-		public static Bech32Encoder Bech32(byte[] hrp)
+		public static Bech32Encoder Bech32(string hrp)
 		{
 			return new Bech32Encoder(hrp);
 		}
-
-		static readonly Bech32Encoder bech32 = new Bech32Encoder("bc");
-		static readonly Bech32Encoder tbech32 = new Bech32Encoder("tb");
-		public static Bech32Encoder Bech32(string hrp)
+		public static Bech32Encoder Bech32(byte[] hrp)
 		{
-			if(hrp == null)
-				throw new ArgumentNullException("hrp");
-			Bech32Encoder.CheckCase(hrp);
-			if(hrp.Equals("bc", System.StringComparison.OrdinalIgnoreCase))
-				return bech32;
-			if(hrp.Equals("tb", System.StringComparison.OrdinalIgnoreCase))
-				return tbech32;
 			return new Bech32Encoder(hrp);
 		}
 	}

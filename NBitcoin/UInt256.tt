@@ -27,6 +27,10 @@ namespace NBitcoin
 				{
 					return _Value;
 				}
+				set
+				{
+					_Value = value;
+				}
 			}
 			public MutableUint<#= t #>()
 			{

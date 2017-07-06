@@ -86,6 +86,11 @@ namespace NBitcoin.Protocol
 		}
 		public VarInt(ulong value)
 		{
+			SetValue(value);
+		}
+
+		internal void SetValue(ulong value)
+		{
 			this._Value = value;
 			if(_Value < 0xFD)
 				_PrefixByte = (byte)(int)_Value;

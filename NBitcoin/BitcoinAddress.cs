@@ -1,40 +1,65 @@
-﻿using System;
-using NBitcoin.OpenAsset;
+﻿using NBitcoin.DataEncoders;
+using System;
+using System.Linq;
 
 namespace NBitcoin
 {
 	/// <summary>
 	/// Base58 representaiton of a script hash
 	/// </summary>
-	public class BitcoinScriptAddress : BitcoinAddress
+	public class BitcoinScriptAddress : BitcoinAddress, IBase58Data
 	{
-		public BitcoinScriptAddress(string address, Network expectedNetwork)
-			: base(address, expectedNetwork)
+		public BitcoinScriptAddress(string base58, Network expectedNetwork)
+			: base(Validate(base58, ref expectedNetwork), expectedNetwork)
 		{
+			var decoded = Encoders.Base58Check.DecodeData(base58);
+			_Hash = new ScriptId(new uint160(decoded.Skip(expectedNetwork.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, true).Length).ToArray()));
+		}
+
+		private static string Validate(string base58, ref Network expectedNetwork)
+		{
+			if(base58 == null)
+				throw new ArgumentNullException("base58");
+			var networks = expectedNetwork == null ? Network.GetNetworks() : new[] { expectedNetwork };
+			var data = Encoders.Base58Check.DecodeData(base58);
+			foreach(var network in networks)
+			{
+				var versionBytes = network.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, false);
+				if(versionBytes != null && data.StartWith(versionBytes))
+				{
+					if(data.Length == versionBytes.Length + 20)
+					{
+						expectedNetwork = network;
+						return base58;
+					}
+				}
+			}
+			throw new FormatException("Invalid BitcoinScriptAddress");
 		}
 
 		public BitcoinScriptAddress(ScriptId scriptId, Network network)
-			: base(scriptId, network)
+			: base(NotNull(scriptId) ?? Network.CreateBase58(Base58Type.SCRIPT_ADDRESS, scriptId.ToBytes(), network), network)
 		{
+			_Hash = scriptId;
 		}
 
-		protected override bool IsValid
+		private static string NotNull(ScriptId scriptId)
 		{
-			get
-			{
-				return vchData.Length == 20;
-			}
+			if(scriptId == null)
+				throw new ArgumentNullException("scriptId");
+			return null;
 		}
 
+		ScriptId _Hash;
 		public ScriptId Hash
 		{
 			get
 			{
-				return new ScriptId(vchData);
+				return _Hash;
 			}
 		}
 
-		public override Base58Type Type
+		public Base58Type Type
 		{
 			get
 			{
@@ -51,36 +76,33 @@ namespace NBitcoin
 	/// <summary>
 	/// Base58 representation of a bitcoin address
 	/// </summary>
-	public abstract class BitcoinAddress : Base58Data, IDestination
+	public abstract class BitcoinAddress : IDestination, IBitcoinString
 	{
 		/// <summary>
 		/// Detect whether the input base58 is a pubkey hash or a script hash
 		/// </summary>
-		/// <param name="base58">The Base58 string to parse</param>
+		/// <param name="str">The string to parse</param>
 		/// <param name="expectedNetwork">The expected network to which it belongs</param>
 		/// <returns>A BitcoinAddress or BitcoinScriptAddress</returns>
 		/// <exception cref="System.FormatException">Invalid format</exception>
-		public static BitcoinAddress Create(string base58, Network expectedNetwork = null)
+		public static BitcoinAddress Create(string str, Network expectedNetwork = null)
 		{
-			if(base58 == null)
+			if(str == null)
 				throw new ArgumentNullException("base58");
-			return Network.CreateFromBase58Data<BitcoinAddress>(base58, expectedNetwork);
+			return Network.Parse<BitcoinAddress>(str, expectedNetwork);
 		}
 
-		public BitcoinAddress(string base58, Network expectedNetwork = null)
-			: base(base58, expectedNetwork)
+		public BitcoinAddress(string str, Network network)
 		{
+			if(network == null)
+				throw new ArgumentNullException("network");
+			if(str == null)
+				throw new ArgumentNullException("str");
+			_Str = str;
+			_Network = network;
 		}
 
-		public BitcoinAddress(TxDestination id, Network network)
-			: base(id.ToBytes(), network)
-		{
-		}
-
-		public BitcoinAddress(byte[] rawBytes, Network network)
-			: base(rawBytes, network)
-		{
-		}
+		string _Str;		
 
 		Script _ScriptPubKey;
 		public Script ScriptPubKey
@@ -109,6 +131,48 @@ namespace NBitcoin
 		public BitcoinColoredAddress ToColoredAddress()
 		{
 			return new BitcoinColoredAddress(this);
+		}
+
+
+		private readonly Network _Network;
+		public Network Network
+		{
+			get
+			{
+				return _Network;
+			}
+		}
+
+		public override string ToString()
+		{
+			return _Str;
+		}
+
+
+		public override bool Equals(object obj)
+		{
+			BitcoinAddress item = obj as BitcoinAddress;
+			if(item == null)
+				return false;
+			return _Str.Equals(item._Str);
+		}
+		public static bool operator ==(BitcoinAddress a, BitcoinAddress b)
+		{
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if(((object)a == null) || ((object)b == null))
+				return false;
+			return a._Str == b._Str;
+		}
+
+		public static bool operator !=(BitcoinAddress a, BitcoinAddress b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return _Str.GetHashCode();
 		}
 	}
 }
