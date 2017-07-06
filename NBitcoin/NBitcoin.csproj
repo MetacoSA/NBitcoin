@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<Company>AO-IS</Company>
@@ -9,7 +9,7 @@
         <Version>4.0.0.8</Version>
     </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>net462;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard1.3;netstandard1.1</TargetFrameworks>
     <NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -21,17 +21,20 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
     <DefineConstants>$(DefineConstants);WIN</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION</DefineConstants>
   </PropertyGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
+     <DefineConstants>$(DefineConstants);NETCORE;PORTABLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />
-	<PackageReference Include="System.Net.Http" Version="4.3.2" />
+	  <PackageReference Include="System.Net.Http" Version="4.3.2" />
     
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
     <PackageReference Include="System.Globalization.Extensions" Version="4.3.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
@@ -40,7 +43,7 @@
    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6'">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' Or  '$(TargetFramework)' == 'netstandard1.1'">
     <Compile Include="..\Stubs\TraceStub\TraceSource.cs" />
   </ItemGroup>
 
