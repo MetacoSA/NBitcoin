@@ -154,7 +154,7 @@ namespace NBitcoin
 			var keyCount = ops[ops.Length - 2].GetInt();
 
 			if(sigCount == null || keyCount == null)
-				return false;			
+				return false;
 			if(keyCount.Value < 0 || keyCount.Value > 20)
 				return false;
 			if(sigCount.Value < 0 || sigCount.Value > keyCount.Value)
@@ -783,12 +783,6 @@ namespace NBitcoin
 				return _Instance = _Instance ?? new PayToWitPubKeyHashTemplate();
 			}
 		}
-		public Script GenerateScriptPubKey(BitcoinWitPubKeyAddress address)
-		{
-			if(address == null)
-				throw new ArgumentNullException("address");
-			return GenerateScriptPubKey(address.Hash);
-		}
 		public Script GenerateScriptPubKey(PubKey pubKey)
 		{
 			if(pubKey == null)
@@ -810,6 +804,12 @@ namespace NBitcoin
 				);
 		}
 
+		public Script GenerateScriptPubKey(BitcoinWitPubKeyAddress address)
+		{
+			if(address == null)
+				throw new ArgumentNullException("address");
+			return GenerateScriptPubKey(address.Hash);
+		}
 
 		public override bool CheckScriptPubKey(Script scriptPubKey)
 		{
@@ -858,6 +858,7 @@ namespace NBitcoin
 		{
 			return GenerateWitScript(parameters.TransactionSignature, parameters.PublicKey);
 		}
+
 	}
 
 	public class PayToWitScriptHashTemplate : PayToWitTemplate
@@ -869,12 +870,6 @@ namespace NBitcoin
 			{
 				return _Instance = _Instance ?? new PayToWitScriptHashTemplate();
 			}
-		}
-		public Script GenerateScriptPubKey(BitcoinWitScriptAddress address)
-		{
-			if(address == null)
-				throw new ArgumentNullException("address");
-			return GenerateScriptPubKey(address.Hash);
 		}
 		public Script GenerateScriptPubKey(WitScriptId scriptHash)
 		{
@@ -900,6 +895,13 @@ namespace NBitcoin
 			if(scriptSig == null)
 				throw new ArgumentNullException("scriptSig");
 			return GenerateWitScript(new Script(scriptSig), redeemScript);
+		}
+
+		public Script GenerateScriptPubKey(BitcoinWitScriptAddress address)
+		{
+			if(address == null)
+				throw new ArgumentNullException("address");
+			return GenerateScriptPubKey(address.Hash);
 		}
 
 		public override bool CheckScriptPubKey(Script scriptPubKey)

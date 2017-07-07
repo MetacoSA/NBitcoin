@@ -40,9 +40,24 @@ namespace NBitcoin.Tests
 		};
 
 		[Fact]
+		public void CanDetectError()
+		{
+			var bech = Encoders.Bech32("bc");
+			byte wit;
+			var ex = Assert.Throws<Bech32FormatException>(() => bech.Decode("bc1zw508e6qejxtdg4y5r3zarvaryvg6kdaj", out wit));
+			Assert.Equal(1, ex.ErrorIndexes.Length);
+			Assert.Equal(8, ex.ErrorIndexes[0]);
+
+			ex = Assert.Throws<Bech32FormatException>(() => bech.Decode("bc1zw508e6qeextdg4y5r3zarvaryvg6kdaj", out wit));
+			Assert.Equal(2, ex.ErrorIndexes.Length);
+			Assert.Equal(8, ex.ErrorIndexes[0]);
+			Assert.Equal(12, ex.ErrorIndexes[1]);
+		}
+
+		[Fact]
 		public void ValidateValidChecksum()
 		{
-			foreach (var test in VALID_CHECKSUM)
+			foreach(var test in VALID_CHECKSUM)
 			{
 				var bech = Bech32Encoder.ExtractEncoderFromString(test);
 				var pos = test.LastIndexOf('1');
@@ -56,7 +71,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void ValidAddress()
 		{
-			foreach (var address in VALID_ADDRESS)
+			foreach(var address in VALID_ADDRESS)
 			{
 				byte witVer;
 				byte[] witProg;
@@ -84,11 +99,19 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void InvalidAddress()
 		{
-			foreach (var test in INVALID_ADDRESS)
+			foreach(var test in INVALID_ADDRESS)
 			{
 				byte witver;
-				Assert.Throws<FormatException>(()=> bech32.Decode(test, out witver));
-				Assert.Throws<FormatException>(() => tbech32.Decode(test, out witver));
+				try
+				{
+					bech32.Decode(test, out witver);
+				}
+				catch(FormatException) { }
+				try
+				{
+					tbech32.Decode(test, out witver);
+				}
+				catch(FormatException) { }
 			}
 		}
 

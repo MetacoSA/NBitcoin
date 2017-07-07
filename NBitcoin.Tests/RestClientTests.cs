@@ -60,8 +60,8 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilder.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
-				var rpc = builder.Nodes[0].CreateRPCClient();
 				builder.StartAll();
+				var rpc = builder.Nodes[0].CreateRPCClient();
 				builder.Nodes[0].Generate(2);
 				var result = client.GetBlockHeadersAsync(RegNetGenesisBlock.GetHash(), 3).Result;
 				var headers = result.ToArray();
@@ -95,8 +95,8 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilder.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
-				var rpc = builder.Nodes[0].CreateRPCClient();
 				builder.StartAll();
+				var rpc = builder.Nodes[0].CreateRPCClient();
 				var k = new Key().GetBitcoinSecret(Network.RegTest);
 				builder.Nodes[0].SetMinerSecret(k);
 				builder.Nodes[0].Generate(110);

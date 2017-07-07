@@ -173,8 +173,8 @@ namespace NBitcoin
 				.SetBase58Bytes(Base58Type.STEALTH_ADDRESS, new byte[] {0x2a})
 				.SetBase58Bytes(Base58Type.ASSET_ID, new byte[] {23})
 				.SetBase58Bytes(Base58Type.COLORED_ADDRESS, new byte[] {0x13})
-				.SetBase58Bytes(Base58Type.WITNESS_P2WPKH, new byte[] {0x6})
-				.SetBase58Bytes(Base58Type.WITNESS_P2WSH, new byte[] {(10)});
+				.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, "bc")
+				.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, "bc");
 
 #if !NOSOCKET
 			var seed = new[] { "101.200.198.155", "103.24.76.21", "104.172.24.79" };

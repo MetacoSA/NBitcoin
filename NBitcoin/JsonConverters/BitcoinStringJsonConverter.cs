@@ -11,20 +11,20 @@ namespace NBitcoin.JsonConverters
 #else
 	internal
 #endif
-	class Base58DataJsonConverter : JsonConverter
+	class BitcoinStringJsonConverter : JsonConverter
 	{
-		public Base58DataJsonConverter()
+		public BitcoinStringJsonConverter()
 		{
 
 		}
-		public Base58DataJsonConverter(Network network)
+		public BitcoinStringJsonConverter(Network network)
 		{
 			Network = network;
 		}
 		public override bool CanConvert(Type objectType)
 		{
 			return
-				typeof(Base58Data).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()) ||
+				typeof(IBitcoinString).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()) ||
 				(typeof(IDestination).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo()) && objectType.GetTypeInfo().AssemblyQualifiedName.Contains("NBitcoin"));
 		}
 
@@ -35,25 +35,25 @@ namespace NBitcoin.JsonConverters
 
 			try
 			{
-				var result = Base58Data.GetFromBase58Data(reader.Value.ToString());
+				var result = Network.Parse(reader.Value.ToString(), null);
 				if(result == null)
 				{
-					throw new JsonObjectException("Invalid Base58Check data", reader);
+					throw new JsonObjectException("Invalid BitcoinString data", reader);
 				}
 				if(Network != null)
 				{
 					if(result.Network != Network)
 					{
-						result = Base58Data.GetFromBase58Data(reader.Value.ToString(), Network);
+						result = Network.Parse(reader.Value.ToString());
 						if(result.Network != Network)
 						{
-							throw new JsonObjectException("Invalid Base58Check network", reader);
+							throw new JsonObjectException("Invalid BitcoinString network", reader);
 						}
 					}
 				}
 				if(!objectType.GetTypeInfo().IsAssignableFrom(result.GetType().GetTypeInfo()))
 				{
-					throw new JsonObjectException("Invalid Base58Check type expected " + objectType.Name + ", actual " + result.GetType().Name, reader);
+					throw new JsonObjectException("Invalid BitcoinString type expected " + objectType.Name + ", actual " + result.GetType().Name, reader);
 				}
 				return result;
 			}
@@ -65,7 +65,7 @@ namespace NBitcoin.JsonConverters
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			var base58 = value as Base58Data;
+			var base58 = value as IBitcoinString;
 			if(base58 != null)
 			{
 				writer.WriteValue(value.ToString());

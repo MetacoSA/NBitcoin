@@ -212,7 +212,7 @@ namespace NBitcoin.Tests
 		public void CanCalculateDifficulty()
 		{
 			var main = new ConcurrentChain(LoadMainChain());
-			var histories = File.ReadAllText("data/targethistory.csv").Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+			var histories = File.ReadAllText("data/targethistory.csv").Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
 
 			foreach(var history in histories)
 			{
@@ -227,6 +227,17 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanValidateChain()
+		{
+			var main = new ConcurrentChain(LoadMainChain());
+			foreach(var h in main.ToEnumerable(false))
+			{
+				Assert.True(h.Validate(Network.Main));
+			}
+		}
+		
 		private byte[] LoadMainChain()
 		{
 			if(!File.Exists("MainChain1.dat"))

@@ -165,11 +165,11 @@ namespace NBitcoin
 		{
 			uint256 h = null;
 			var hashes = _Hashes;
-			if (hashes != null)
+			if(hashes != null)
 			{
 				h = hashes[0];
 			}
-			if (h != null)
+			if(h != null)
 				return h;
 			if (Block.BlockSignature)
 			{
@@ -180,11 +180,14 @@ namespace NBitcoin
 			}
 			else
 			{
-				h = Hashes.Hash256(this.ToBytes());
-
-			}
+			    using (HashStream hs = new HashStream())
+			    {
+			        this.ReadWrite(new BitcoinStream(hs, true));
+			        h = hs.GetHash();
+			    }
+            }
 			hashes = _Hashes;
-			if (hashes != null)
+			if(hashes != null)
 			{
 				hashes[0] = h;
 			}
@@ -228,15 +231,13 @@ namespace NBitcoin
 		{
 			consensus = consensus ?? Consensus.Main;
 			var bits = Bits.ToBigInteger();
-			if (bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
+			if(bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
 				return false;
 			// Check proof of work matches claimed amount
 			if (Block.BlockSignature) // note this can only be called on a POW block
 				return GetPoWHash() <= Bits.ToUInt256();
 			return consensus.GetPoWHash(this) <= Bits.ToUInt256();
 		}
-
-	
 
 		public override string ToString()
 		{
@@ -275,11 +276,11 @@ namespace NBitcoin
 			var mtp = prev.GetMedianTimePast() + TimeSpan.FromSeconds(1);
 			var nNewTime = mtp > now ? mtp : now;
 
-			if (nOldTime < nNewTime)
+			if(nOldTime < nNewTime)
 				this.BlockTime = nNewTime;
 
 			// Updating time can change work required on testnet:
-			if (consensus.PowAllowMinDifficultyBlocks)
+			if(consensus.PowAllowMinDifficultyBlocks)
 				Bits = GetWorkRequired(consensus, prev);
 		}
 
@@ -405,11 +406,11 @@ namespace NBitcoin
 		/// <returns>A new block with only the options wanted</returns>
 		public Block WithOptions(TransactionOptions options)
 		{
-			if (Transactions.Count == 0)
+			if(Transactions.Count == 0)
 				return this;
-			if (options == TransactionOptions.Witness && Transactions[0].HasWitness)
+			if(options == TransactionOptions.Witness && Transactions[0].HasWitness)
 				return this;
-			if (options == TransactionOptions.None && !Transactions[0].HasWitness)
+			if(options == TransactionOptions.None && !Transactions[0].HasWitness)
 				return this;
 			var instance = new Block();
 			var ms = new MemoryStream();
@@ -471,7 +472,7 @@ namespace NBitcoin
 		}
 		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height, DateTimeOffset now)
 		{
-			if (address == null)
+			if(address == null)
 				throw new ArgumentNullException("address");
 			Block block = new Block();
 			block.Header.Nonce = RandomUtils.GetUInt32();
@@ -524,7 +525,7 @@ namespace NBitcoin
 			blk.Header.Version = (int)block["ver"];
 			blk.Header.HashPrevBlock = uint256.Parse((string)block["prev_block"]);
 			blk.Header.HashMerkleRoot = uint256.Parse((string)block["mrkl_root"]);
-			foreach (var tx in txs)
+			foreach(var tx in txs)
 			{
 				blk.AddTransaction(formatter.Parse((JObject)tx));
 			}
@@ -546,5 +547,4 @@ namespace NBitcoin
 			return new MerkleBlock(this, filter);
 		}
 	}
-
 }

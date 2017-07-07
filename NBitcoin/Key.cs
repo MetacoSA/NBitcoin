@@ -13,12 +13,12 @@ namespace NBitcoin
 
 		public static Key Parse(string wif, Network network = null)
 		{
-			return Network.CreateFromBase58Data<BitcoinSecret>(wif, network).PrivateKey;
+			return Network.Parse<BitcoinSecret>(wif, network).PrivateKey;
 		}
 
 		public static Key Parse(string wif, string password, Network network = null)
 		{
-			return Network.CreateFromBase58Data<BitcoinEncryptedSecret>(wif, network).GetKey(password);
+			return Network.Parse<BitcoinEncryptedSecret>(wif, network).GetKey(password);
 		}
 
 		byte[] vch = new byte[0];
@@ -237,6 +237,33 @@ namespace NBitcoin
 		public TransactionSignature Sign(uint256 hash, SigHash sigHash)
 		{
 			return new TransactionSignature(Sign(hash), sigHash);
+		}
+
+
+		public override bool Equals(object obj)
+		{
+			Key item = obj as Key;
+			if(item == null)
+				return false;
+			return PubKey.Equals(item.PubKey);
+		}
+		public static bool operator ==(Key a, Key b)
+		{
+			if(System.Object.ReferenceEquals(a, b))
+				return true;
+			if(((object)a == null) || ((object)b == null))
+				return false;
+			return a.PubKey == b.PubKey;
+		}
+
+		public static bool operator !=(Key a, Key b)
+		{
+			return !(a == b);
+		}
+
+		public override int GetHashCode()
+		{
+			return PubKey.GetHashCode();
 		}
 	}
 }

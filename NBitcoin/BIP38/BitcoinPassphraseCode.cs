@@ -182,7 +182,7 @@ namespace NBitcoin
 			var passpoint = new Key(passfactor, fCompressedIn: true).PubKey.ToBytes();
 
 			var bytes =
-				network.GetVersionBytes(Base58Type.PASSPHRASE_CODE)
+				network.GetVersionBytes(Base58Type.PASSPHRASE_CODE, true)
 				.Concat(new[] { hasLotSequence ? (byte)0x51 : (byte)0x53 })
 				.Concat(ownerEntropy)
 				.Concat(passpoint)
@@ -268,7 +268,7 @@ namespace NBitcoin
 				var encryptedpointb = new byte[] { pointbprefix }.Concat(pointbx).ToArray();
 
 				var confirmBytes =
-					Network.GetVersionBytes(Base58Type.CONFIRMATION_CODE)
+					Network.GetVersionBytes(Base58Type.CONFIRMATION_CODE, true)
 					.Concat(new[] { flagByte })
 					.Concat(addresshash)
 					.Concat(OwnerEntropy)

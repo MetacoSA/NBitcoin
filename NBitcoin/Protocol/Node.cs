@@ -1353,7 +1353,14 @@ namespace NBitcoin.Protocol
 			using(var listener = CreateListener().OfType<InvPayload>())
 			{
 				this.SendMessageAsync(new MempoolPayload());
-				return listener.ReceivePayload<InvPayload>(cancellationToken).Inventory.Select(i => i.Hash).ToArray();
+				var invs = listener.ReceivePayload<InvPayload>(cancellationToken).Inventory.Select(i => i.Hash).ToList();
+				var result = invs;
+				while(invs.Count == InvPayload.MAX_INV_SZ)
+				{
+					invs = listener.ReceivePayload<InvPayload>(cancellationToken).Inventory.Select(i => i.Hash).ToList();
+					result.AddRange(invs);
+				}
+				return result.ToArray();
 			}
 		}
 
