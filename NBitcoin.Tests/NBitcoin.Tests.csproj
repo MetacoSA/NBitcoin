@@ -6,9 +6,9 @@
 		<Description>The C# Bitcoin Library</Description>
 	</PropertyGroup>
   <PropertyGroup>
-	  <TargetFrameworks>net462;netstandard1.5</TargetFrameworks>
+	  <TargetFrameworks>net461;netstandard1.5</TargetFrameworks>
   </PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'net462' ">
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
 		<DefineConstants>$(DefineConstants);WIN</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
