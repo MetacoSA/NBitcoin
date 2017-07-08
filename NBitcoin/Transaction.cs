@@ -1448,6 +1448,11 @@ namespace NBitcoin
 		/// <param name="coins">Coins to sign</param>
 		public void Sign(Key[] keys, params ICoin[] coins)
 		{
+			if (!coins.Any())
+			{
+				throw new ArgumentException("coins array to sign must not be empty", nameof(coins));
+			}
+
 			TransactionBuilder builder = new TransactionBuilder();
 			builder.AddKeys(keys);
 			builder.AddCoins(coins);
@@ -1835,6 +1840,12 @@ namespace NBitcoin
 						return TransactionCheckResult.NullInputPrevOut;
 			}
 
+			foreach (var txin in Inputs)
+			{
+				if (Script.IsNullOrEmpty(txin.ScriptSig))
+					return TransactionCheckResult.Unsigned;
+			}
+
 			return TransactionCheckResult.Success;
 		}
 	}
@@ -1851,5 +1862,6 @@ namespace NBitcoin
 		DuplicateInputs,
 		NullInputPrevOut,
 		CoinbaseScriptTooLarge,
+		Unsigned,
 	}
 }
