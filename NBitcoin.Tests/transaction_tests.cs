@@ -2771,6 +2771,17 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Core", "Core")]
+		public void tx_invalid_unsigned()
+		{
+			var someSignedAndExistingTrans = Transaction.Parse("010000000189632848f99722915727c5c75da8db2dbf194342a0429828f66ff88fab2af7d6000000008b483045022100abbc8a73fe2054480bda3f3281da2d0c51e2841391abd4c09f4f908a2034c18d02205bc9e4d68eafb918f3e9662338647a4419c0de1a650ab8983f1d216e2a31d8e30141046f55d7adeff6011c7eac294fe540c57830be80e9355c83869c9260a4b8bf4767a66bacbd70b804dc63d5beeb14180292ad7f3b083372b1d02d7a37dd97ff5c9effffffff0140420f000000000017a914f815b036d9bbbce5e9f2a00abd1bf3dc91e955108700000000");
+			Assert.Equal(TransactionCheckResult.Success, someSignedAndExistingTrans.Check());
+
+			var unsignedTrans = Transaction.Parse("0100000002b49ac2c0e715c06b323c301e8a200270b52e7fc9cf084a9bde6b911de543a91c0000000000ffffffff4d5ca0837c477711241b4ef540de5dbc7c1fd623013c8d3ec0c99f30601e57530000000000ffffffff0154351700000000001976a9142b1bf86dc6878152fd3994405c3f656c19e18e4988ac00000000");
+			Assert.Equal(TransactionCheckResult.Unsigned, unsignedTrans.Check());
+		}
+
+		[Fact]
+		[Trait("Core", "Core")]
 		public void test_Get()
 		{
 			byte[] dummyPubKey = TransactionSignature.Empty.ToBytes();
