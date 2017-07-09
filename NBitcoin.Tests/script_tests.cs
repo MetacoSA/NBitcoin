@@ -205,6 +205,20 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanExtractScriptCode()
+		{
+			var script = new Script("022b1300040df7414c0251433b7a2516e81689b02e33299c87ae870b5c9407b761 OP_DEPTH 3 OP_EQUAL OP_IF OP_SWAP 020524b8de0a1b57478f2d0e07aa9ea375b736f072281b3749fea044392bccfc52 OP_CHECKSIGVERIFY OP_CODESEPARATOR OP_CHECKSIG OP_ELSE 0 OP_CLTV OP_DROP OP_CHECKSIG OP_ENDIF");
+
+			Assert.Throws<ArgumentOutOfRangeException>(() => script.ExtractScriptCode(-2));
+			Assert.Throws<ArgumentOutOfRangeException>(() => script.ExtractScriptCode(1));
+
+			Assert.Equal("OP_CHECKSIG OP_ELSE 0 OP_CLTV OP_DROP OP_CHECKSIG OP_ENDIF", script.ExtractScriptCode(0).ToString());
+
+			Assert.Equal(script, script.ExtractScriptCode(-1));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCompressScript2()
 		{
 			var key = new Key(true);

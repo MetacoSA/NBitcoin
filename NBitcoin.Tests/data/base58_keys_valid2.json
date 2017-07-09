@@ -1,37 +1,37 @@
 [
     [
-        "QWz94mLsk3KzKmjRBkJbvZfoo5uyNVbFT4Xm", 
-        "7c4655a5e79cce2d4f82c09015e340048c8b0a4c", 
+        "tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx",
+        "751e76e8199196d454941c45d1b3a323f1433bd6",
         {
-            "addrType": "p2wpkh", 
-            "isPrivkey": false, 
+            "addrType": "p2wpkh",
+            "isPrivkey": false,
             "isTestnet": true
         }
     ],
-	[
-        "T7nYaW7h5R3PtYYRFnvvw7UMr3jjeKW9336hwhyXf93E82roLpuFT", 
-        "65baa201d936367ae5e4ca2a999adadfa04373f9c824a17359015a6c8dce9346", 
+    [
+        "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7",
+        "1863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262",
         {
-            "addrType": "p2wsh", 
-            "isPrivkey": false, 
+            "addrType": "p2wsh",
+            "isPrivkey": false,
             "isTestnet": true
         }
     ],
-	[
-        "p2yCbWd5jmSAPqRXuBEewjKcVcFiZx9dq6iG", 
-        "c6ce623540080f6f2f1422988e06b1f32425ea0c", 
+    [
+        "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4",
+        "751e76e8199196d454941c45d1b3a323f1433bd6",
         {
-            "addrType": "p2wpkh", 
-            "isPrivkey": false, 
+            "addrType": "p2wpkh",
+            "isPrivkey": false,
             "isTestnet": false
         }
     ],
-	[
-        "7XhPhmEAxcbtaJkT9ZHwJ37DKLLGCLD5QUGMcTpFq7aqDTJdfZmGd", 
-        "420c06240c0c9a8d72a1c24c9280b328ec6c21bee8a2f46a39872f54c7ce1ab9", 
+    [
+        "bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3",
+        "1863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262",
         {
-            "addrType": "p2wsh", 
-            "isPrivkey": false, 
+            "addrType": "p2wsh",
+            "isPrivkey": false,
             "isTestnet": false
         }
     ]

@@ -163,11 +163,6 @@ namespace NBitcoin
 			return new BitcoinScriptAddress(redeem.Hash, network);
 		}
 
-		public BitcoinWitPubKeyAddress GetSegwitAddress(Network network)
-		{
-			return new BitcoinWitPubKeyAddress(new WitKeyId(this.Hash), network);
-		}
-
 
 		public bool Verify(uint256 hash, ECDSASignature sig)
 		{
@@ -436,6 +431,11 @@ namespace NBitcoin
 				throw new InvalidOperationException("Infinity is not a valid agreement value for ECDH");
 			var pubkey = ECKey.Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger()).GetEncoded(true);
 			return Hashes.SHA256(pubkey);
+		}
+
+		public BitcoinWitPubKeyAddress GetSegwitAddress(Network network)
+		{
+			return new BitcoinWitPubKeyAddress(WitHash, network);
 		}
 
 		#endregion

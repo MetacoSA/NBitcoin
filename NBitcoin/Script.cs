@@ -428,7 +428,30 @@ namespace NBitcoin
 			}
 		}
 
-
+		/// <summary>
+		/// Extract the ScriptCode delimited by the <codeSeparatorIndex>th OP_CODESEPARATOR.
+		/// </summary>
+		/// <param name="codeSeparatorIndex">Index of the OP_CODESEPARATOR, or -1 for fetching the whole script</param>
+		/// <returns></returns>
+		public Script ExtractScriptCode(int codeSeparatorIndex)
+		{
+			if(codeSeparatorIndex == -1)
+				return this;
+			if(codeSeparatorIndex < -1)
+				throw new ArgumentOutOfRangeException("codeSeparatorIndex");
+			var separatorIndex = -1;
+			List<Op> ops = new List<Op>();
+			foreach(var op in ToOps())
+			{
+				if(op.Code == OpcodeType.OP_CODESEPARATOR)
+					separatorIndex++;
+				if(separatorIndex >= codeSeparatorIndex && !(separatorIndex == codeSeparatorIndex && op.Code == OpcodeType.OP_CODESEPARATOR))
+					ops.Add(op);
+			}
+			if(separatorIndex < codeSeparatorIndex)
+				throw new ArgumentOutOfRangeException("codeSeparatorIndex");
+			return new Script(ops.ToArray());
+		}
 
 
 		public ScriptReader CreateReader()
@@ -704,8 +727,9 @@ namespace NBitcoin
 
 		private static uint256 GetHash(BitcoinStream stream)
 		{
-			var preimage = ((MemoryStream)stream.Inner).ToArrayEfficient();
-			return Hashes.Hash256(preimage);
+			var preimage = ((HashStream)stream.Inner).GetHash();
+			stream.Inner.Dispose();
+			return preimage;
 		}
 
 		internal static uint256 GetHashOutputs(Transaction txTo)
@@ -746,7 +770,8 @@ namespace NBitcoin
 
 		private static BitcoinStream CreateHashWriter(HashVersion version)
 		{
-			BitcoinStream stream = new BitcoinStream(new MemoryStream(), true);
+			HashStream hs = new HashStream();
+			BitcoinStream stream = new BitcoinStream(hs, true);
 			stream.Type = SerializationType.Hash;
 			stream.TransactionOptions = version == HashVersion.Original ? TransactionOptions.None : TransactionOptions.Witness;
 			return stream;
@@ -815,10 +840,6 @@ namespace NBitcoin
 		{
 			return (BitcoinScriptAddress)Hash.GetAddress(network);
 		}
-		public BitcoinWitScriptAddress GetWitScriptAddress(Network network)
-		{
-			return (BitcoinWitScriptAddress)WitHash.GetAddress(network);
-		}
 
 		public bool IsPayToScriptHash
 		{
@@ -827,6 +848,12 @@ namespace NBitcoin
 				return PayToScriptHashTemplate.Instance.CheckScriptPubKey(this);
 			}
 		}
+
+		public BitcoinWitScriptAddress GetWitScriptAddress(Network network)
+		{
+			return (BitcoinWitScriptAddress)WitHash.GetAddress(network);
+		}
+
 		public uint GetSigOpCount(Script scriptSig)
 		{
 			if(!IsPayToScriptHash)

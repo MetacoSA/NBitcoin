@@ -40,6 +40,7 @@ namespace NBitcoin
 		/// <exception cref="System.InvalidOperationException">Additional information needed to get the ScriptCode</exception>
 		/// <returns>The executed script</returns>
 		Script GetScriptCode();
+		void OverrideScriptCode(Script scriptCode);
 		bool CanGetScriptCode
 		{
 			get;
@@ -198,6 +199,11 @@ namespace NBitcoin
 		public HashVersion GetHashVersion()
 		{
 			return this.Bearer.GetHashVersion();
+		}
+
+		public void OverrideScriptCode(Script scriptCode)
+		{
+			this.Bearer.OverrideScriptCode(scriptCode);
 		}
 
 		#endregion
@@ -380,6 +386,11 @@ namespace NBitcoin
 			return this.Bearer.GetHashVersion();
 		}
 
+		public void OverrideScriptCode(Script scriptCode)
+		{
+			this.Bearer.OverrideScriptCode(scriptCode);
+		}
+
 		#endregion
 	}
 	public class Coin : ICoin
@@ -428,6 +439,8 @@ namespace NBitcoin
 		{
 			if(!CanGetScriptCode)
 				throw new InvalidOperationException("You need to provide P2WSH or P2SH redeem script with Coin.ToScriptCoin()");
+			if(_OverrideScriptCode != null)
+				return _OverrideScriptCode;
 			var key = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(ScriptPubKey);
 			if(key != null)
 				return key.WitScriptPubKey;
@@ -438,7 +451,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return !ScriptPubKey.IsPayToScriptHash && !PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(ScriptPubKey);
+				return _OverrideScriptCode != null || !ScriptPubKey.IsPayToScriptHash && !PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(ScriptPubKey);
 			}
 		}
 
@@ -505,6 +518,12 @@ namespace NBitcoin
 		{
 			if(TxOut == null)
 				TxOut = new TxOut();
+		}
+
+		protected Script _OverrideScriptCode;
+		public void OverrideScriptCode(Script scriptCode)
+		{
+			_OverrideScriptCode = scriptCode;
 		}
 
 		#endregion
@@ -686,6 +705,8 @@ namespace NBitcoin
 		{
 			if(!CanGetScriptCode)
 				throw new InvalidOperationException("You need to provide the P2WSH redeem script with ScriptCoin.ToScriptCoin()");
+			if(_OverrideScriptCode != null)
+				return _OverrideScriptCode;
 			var key = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(Redeem);
 			if(key != null)
 				return key.WitScriptPubKey;
@@ -696,7 +717,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				return !IsP2SH || !PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(Redeem);
+				return _OverrideScriptCode != null || !IsP2SH || !PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(Redeem);
 			}
 		}
 
@@ -755,6 +776,8 @@ namespace NBitcoin
 
 		public override Script GetScriptCode()
 		{
+			if(_OverrideScriptCode != null)
+				return _OverrideScriptCode;
 			if(Redeem == null)
 				return base.GetScriptCode();
 			else

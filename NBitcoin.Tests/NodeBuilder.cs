@@ -254,9 +254,10 @@ namespace NBitcoin.Tests
 		}
 
 		readonly NetworkCredential creds;
+		string _RPCAuth;
 		public RPCClient CreateRPCClient()
 		{
-			return new RPCClient(creds, new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network.RegTest);
+			return new RPCClient(_RPCAuth, new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network.RegTest);
 		}
 
 		public RestClient CreateRESTClient()
@@ -281,8 +282,16 @@ namespace NBitcoin.Tests
 			config.Add("rest", "1");
 			config.Add("server", "1");
 			config.Add("txindex", "1");
-			config.Add("rpcuser", creds.UserName);
-			config.Add("rpcpassword", creds.Password);
+			if(!CookieAuth)
+			{
+				config.Add("rpcuser", creds.UserName);
+				config.Add("rpcpassword", creds.Password);
+				_RPCAuth = creds.UserName + ":" + creds.Password;
+			}
+			else
+			{
+				_RPCAuth = "cookiefile=" + Path.Combine(dataDir, "regtest", ".cookie");
+			}
 			config.Add("port", ports[0].ToString());
 			config.Add("rpcport", ports[1].ToString());
 			config.Add("printtoconsole", "1");
@@ -290,6 +299,11 @@ namespace NBitcoin.Tests
 			config.Add("whitebind", "127.0.0.1:" + ports[0].ToString());
 			config.Import(ConfigParameters);
 			File.WriteAllText(_Config, config.ToString());
+			await Run();
+		}
+
+		private async Task Run()
+		{
 			lock(l)
 			{
 				_Process = Process.Start(new FileInfo(this._Builder.BitcoinD).FullName, "-conf=bitcoin.conf" + " -datadir=" + dataDir + " -debug=net");
@@ -309,6 +323,11 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		public void Restart()
+		{
+			Kill(false);
+			Run().GetAwaiter().GetResult();
+		}
 
 
 		Process _Process;
@@ -446,6 +465,11 @@ namespace NBitcoin.Tests
 			get;
 			private set;
 		}
+		public bool CookieAuth
+		{
+			get;
+			internal set;
+		}
 
 		public Block[] Generate(int blockCount, bool includeUnbroadcasted = true, bool broadcast = true)
 		{
@@ -528,7 +552,7 @@ namespace NBitcoin.Tests
 			public uint256 Hash = null;
 			public Transaction Transaction = null;
 			public List<TransactionNode> DependsOn = new List<TransactionNode>();
-		}
+		}		
 
 		private List<Transaction> Reorder(List<Transaction> transactions)
 		{

@@ -74,11 +74,14 @@
     <Compile Include="BuilderExtensions\P2MultiSigBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKBuilderExtension.cs" />
     <Compile Include="BuilderExtensions\P2PKHBuilderExtension.cs" />
+    <Compile Include="Crypto\HashStream.cs" />
     <Compile Include="Crypto\HashX13.cs" />
     <Compile Include="DataEncoders\Bech32Encoder.cs" />
     <Compile Include="FeeRate.cs" />
+    <Compile Include="IBech32Data.cs" />
+    <Compile Include="IBitcoinString.cs" />
     <Compile Include="JsonConverters\AssetIdJsonConverter.cs" />
-    <Compile Include="JsonConverters\Base58JsonConverter.cs" />
+    <Compile Include="JsonConverters\BitcoinStringJsonConverter.cs" />
     <Compile Include="JsonConverters\BitcoinSerializableJsonConverter.cs" />
     <Compile Include="JsonConverters\CoinJsonConverter.cs" />
     <Compile Include="JsonConverters\DateTimeToUnixTimeConverter.cs" />
