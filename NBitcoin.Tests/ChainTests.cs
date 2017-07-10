@@ -217,7 +217,7 @@ namespace NBitcoin.Tests
 			foreach(var history in histories)
 			{
 				var height = int.Parse(history.Split(',')[0]);
-				var expectedTarget = new Target(new BigInteger(history.Split(',')[1], 10));
+				var expectedTarget = new Target(new BouncyCastle.Math.BigInteger(history.Split(',')[1], 10));
 
 				var block = main.GetBlock(height).Header;
 
