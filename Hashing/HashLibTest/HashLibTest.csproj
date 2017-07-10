@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HashLibTest</RootNamespace>
     <AssemblyName>HashLibTest</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <StartupObject>
@@ -41,7 +41,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETCORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -135,6 +135,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
@@ -144,9 +145,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HashLib\HashLib.csproj">
-      <Project>{31880FB6-5B86-42B8-AB92-864045B5D7A2}</Project>
-      <Name>HashLib</Name>
+    <ProjectReference Include="..\HashLib\HashLibReferencedAsNET45.csproj">
+      <Project>{5aac157c-0d4f-4b53-b863-a2b3d1ddddac}</Project>
+      <Name>HashLibReferencedAsNET45</Name>
     </ProjectReference>
     <ProjectReference Include="..\TomanuExtensions\TomanuExtensions.csproj">
       <Project>{4653b49e-d5a5-43b7-8ced-160e7bc09917}</Project>
