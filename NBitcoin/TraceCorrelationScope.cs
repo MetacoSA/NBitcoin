@@ -29,15 +29,16 @@ namespace NBitcoin
 		TraceSource _Source;
 		public TraceCorrelationScope(Guid activity, TraceSource source, bool traceTransfer)
 		{
-			this.old = Trace.CorrelationManager.ActivityId;
+			// NETSTDCONV
+			// this.old = Trace.CorrelationManager.ActivityId;
 
 			_Transfered = old != activity && traceTransfer;
 			if(_Transfered)
 			{
 				_Source = source;
-				_Source.TraceTransfer(0, "t", activity);
+				// _Source.TraceTransfer(0, "t", activity);
 			}
-			Trace.CorrelationManager.ActivityId = activity;
+			// Trace.CorrelationManager.ActivityId = activity;
 		}
 
 
@@ -47,9 +48,10 @@ namespace NBitcoin
 		{
 			if(_Transfered)
 			{
-				_Source.TraceTransfer(0, "transfer", old);
+				// NETSTDCONV
+				//_Source.TraceTransfer(0, "transfer", old);
 			}
-			Trace.CorrelationManager.ActivityId = old;
+			// Trace.CorrelationManager.ActivityId = old;
 		}
 
 		#endregion
@@ -96,7 +98,9 @@ namespace NBitcoin
 			if(_First)
 			{
 				_First = false;
-				_Source.TraceEvent(TraceEventType.Start, 0, _ActivityName);
+				// NETSTDCONV
+				// _Source.TraceEvent(TraceEventType.Start, 0, _ActivityName);
+				_Source.TraceEvent(TraceEventType.Critical, 0, _ActivityName);
 			}
 			return scope;
 		}
