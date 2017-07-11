@@ -4,7 +4,7 @@ using System.Net;
 using System.Reflection;
 
 #if NOWEBCLIENT
-using nStratis.Tests;
+//using nStratis.Tests;
 #endif
 namespace NBitcoin.Tests
 {

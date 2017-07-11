@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5AAC157C-0D4F-4B53-B863-A2B3D1DDDDAC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HashLib</RootNamespace>
+    <AssemblyName>HashLib</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <ResolveNuGetPackages>false</ResolveNuGetPackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Checksum\Adler32.cs" />
+    <Compile Include="Checksum\CRC32.cs" />
+    <Compile Include="Checksum\CRC64.cs" />
+    <Compile Include="Crypto\BuildIn\MD5CryptoServiceProvider.cs" />
+    <Compile Include="Crypto\BuildIn\RIPEMD160Managed .cs" />
+    <Compile Include="Crypto\BuildIn\SHA1Cng.cs" />
+    <Compile Include="Crypto\BuildIn\SHA1CryptoServiceProvider.cs" />
+    <Compile Include="Crypto\BuildIn\SHA1Managed.cs" />
+    <Compile Include="Crypto\BuildIn\SHA256Cng.cs" />
+    <Compile Include="Crypto\BuildIn\SHA256CryptoServiceProvider.cs" />
+    <Compile Include="Crypto\BuildIn\SHA256Managed.cs" />
+    <Compile Include="Crypto\BuildIn\SHA384Cng.cs" />
+    <Compile Include="Crypto\BuildIn\SHA384CryptoServiceProvider.cs" />
+    <Compile Include="Crypto\BuildIn\SHA384Managed.cs" />
+    <Compile Include="Crypto\BuildIn\SHA512Cng.cs" />
+    <Compile Include="Crypto\BuildIn\SHA512CryptoServiceProvider.cs" />
+    <Compile Include="Crypto\BuildIn\SHA512Managed.cs" />
+    <Compile Include="Crypto\Gost.cs" />
+    <Compile Include="Crypto\Grindahl256.cs" />
+    <Compile Include="Crypto\Grindahl512.cs" />
+    <Compile Include="Crypto\HAS160.cs" />
+    <Compile Include="Crypto\Haval.cs" />
+    <Compile Include="Crypto\MD2.cs" />
+    <Compile Include="Crypto\MD4.cs" />
+    <Compile Include="Crypto\MD5.cs" />
+    <Compile Include="Crypto\MDBase.cs" />
+    <Compile Include="Crypto\Panama.cs" />
+    <Compile Include="Crypto\RadioGatun32.cs" />
+    <Compile Include="Crypto\RadioGatun64.cs" />
+    <Compile Include="Crypto\RIPEMD.cs" />
+    <Compile Include="Crypto\RIPEMD128.cs" />
+    <Compile Include="Crypto\RIPEMD160.cs" />
+    <Compile Include="Crypto\RIPEMD256.cs" />
+    <Compile Include="Crypto\RipeMD320.cs" />
+    <Compile Include="Crypto\SHA0.cs" />
+    <Compile Include="Crypto\SHA1.cs" />
+    <Compile Include="Crypto\SHA224.cs" />
+    <Compile Include="Crypto\SHA256.cs" />
+    <Compile Include="Crypto\SHA256Base.cs" />
+    <Compile Include="Crypto\SHA384.cs" />
+    <Compile Include="Crypto\SHA3\Blake.cs" />
+    <Compile Include="Crypto\SHA3\BlueMidnightWish.cs" />
+    <Compile Include="Crypto\SHA3\CubeHash.cs" />
+    <Compile Include="Crypto\SHA3\Echo.cs" />
+    <Compile Include="Crypto\SHA3\Fugue.cs" />
+    <Compile Include="Crypto\SHA3\Groestl.cs" />
+    <Compile Include="Crypto\SHA3\Hamsi.cs" />
+    <Compile Include="Crypto\SHA3\JH.cs" />
+    <Compile Include="Crypto\SHA3\Keccak.cs" />
+    <Compile Include="Crypto\SHA3\Luffa.cs" />
+    <Compile Include="Crypto\SHA3\Shabal.cs" />
+    <Compile Include="Crypto\SHA3\SHAvite3.cs" />
+    <Compile Include="Crypto\SHA3\SHAvite3Custom.cs" />
+    <Compile Include="Crypto\SHA3\SIMD.cs" />
+    <Compile Include="Crypto\SHA3\Skein.cs" />
+    <Compile Include="Crypto\SHA3\SkeinCustom.cs" />
+    <Compile Include="Crypto\SHA512.cs" />
+    <Compile Include="Crypto\SHA512Base.cs" />
+    <Compile Include="Crypto\Snefru.cs" />
+    <Compile Include="Crypto\Tiger.cs" />
+    <Compile Include="Crypto\Tiger2.cs" />
+    <Compile Include="Crypto\Whirlpool.cs" />
+    <Compile Include="Extensions\ArrayExtensions.cs" />
+    <Compile Include="Extensions\Bits.cs" />
+    <Compile Include="Extensions\Converters.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="Hash.cs" />
+    <Compile Include="Hash128\Murmur3_128.cs" />
+    <Compile Include="Hash32\AP.cs" />
+    <Compile Include="Hash32\Bernstein.cs" />
+    <Compile Include="Hash32\Bernstein1.cs" />
+    <Compile Include="Hash32\BKDR.cs" />
+    <Compile Include="Hash32\DEK.cs" />
+    <Compile Include="Hash32\DJB.cs" />
+    <Compile Include="Hash32\DotNet.cs" />
+    <Compile Include="Hash32\ELF.cs" />
+    <Compile Include="Hash32\FNV.cs" />
+    <Compile Include="Hash32\FNV1a.cs" />
+    <Compile Include="Hash32\Jenkins3.cs" />
+    <Compile Include="Hash32\JS.cs" />
+    <Compile Include="Hash32\Murmur2.cs" />
+    <Compile Include="Hash32\Murmur3.cs" />
+    <Compile Include="Hash32\OneAtTime.cs" />
+    <Compile Include="Hash32\PJW.cs" />
+    <Compile Include="Hash32\Rotating.cs" />
+    <Compile Include="Hash32\RS.cs" />
+    <Compile Include="Hash32\SDBM.cs" />
+    <Compile Include="Hash32\ShiftAndXor.cs" />
+    <Compile Include="Hash32\SuperFast.cs" />
+    <Compile Include="Hash64\FNV1a64.cs" />
+    <Compile Include="Hash64\FNV64.cs" />
+    <Compile Include="Hash64\Murmur2_64.cs" />
+    <Compile Include="Hash64\SipHash.cs" />
+    <Compile Include="HashAlgorithmWrapper.cs" />
+    <Compile Include="HashBuffer.cs" />
+    <Compile Include="HashCryptoBuildIn.cs" />
+    <Compile Include="HashCryptoNotBuildIn.cs" />
+    <Compile Include="Hashes.cs" />
+    <Compile Include="HashFactory.cs" />
+    <Compile Include="HashResult.cs" />
+    <Compile Include="HashRounds.cs" />
+    <Compile Include="HashSize.cs" />
+    <Compile Include="HMACBuildInAdapter.cs" />
+    <Compile Include="HMACNotBuildInAdapter.cs" />
+    <Compile Include="IHash.cs" />
+    <Compile Include="IHashInfo.cs" />
+    <Compile Include="MultipleTransformsNonBlock.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
