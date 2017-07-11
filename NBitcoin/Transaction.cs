@@ -1426,6 +1426,7 @@ namespace NBitcoin
 			var @in = new TxIn();
 			@in.PrevOut.Hash = prevTx.GetHash();
 			@in.PrevOut.N = (uint)outIndex;
+			@in.ScriptSig = prevTx.Outputs.ElementAt(outIndex).ScriptPubKey;
 			AddInput(@in);
 			return @in;
 		}
