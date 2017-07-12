@@ -11,13 +11,11 @@ namespace NBitcoin.Tests
 		{
 			HttpClient client = new HttpClient();
 
-			// The default value is 100,000 milliseconds (100 seconds).
-			// That's long enough to download Bitcoin.
+			// The default value is 100,000 milliseconds (100 seconds) and
+			// that's not long enough to download Bitcoin on slower connections.
 			client.Timeout = TimeSpan.FromMinutes(5);
 
-			// Changed .GetAwaiter().GetResult() to .Result
-			// https://stackoverflow.com/questions/17284517/is-task-result-the-same-as-getawaiter-getresult
-			var bytes = client.GetByteArrayAsync(url).Result;
+			var bytes = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
 			File.WriteAllBytes(file, bytes);
 		}
 	}
