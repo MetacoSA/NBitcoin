@@ -175,11 +175,11 @@ namespace NBitcoin.Protocol
 							message.Payload = payload;
 							if(isVerbose)
 							{
-								Trace.CorrelationManager.ActivityId = kv.ActivityId;
+								// NETSTDCONV Trace.CorrelationManager.ActivityId = kv.ActivityId;
 								if(kv.ActivityId != TraceCorrelation.Activity)
 								{
 									NodeServerTrace.Transfer(TraceCorrelation.Activity);
-									Trace.CorrelationManager.ActivityId = TraceCorrelation.Activity;
+									// NETSTDCONV Trace.CorrelationManager.ActivityId = TraceCorrelation.Activity;
 								}
 								NodeServerTrace.Verbose("Sending message " + message);
 							}
@@ -224,10 +224,10 @@ namespace NBitcoin.Protocol
 					{
 						if(isVerbose)
 						{
-							Trace.CorrelationManager.ActivityId = pending.ActivityId;
-							if(pending != processing && pending.ActivityId != TraceCorrelation.Activity)
+							// NETSTDCONV Trace.CorrelationManager.ActivityId = pending.ActivityId;
+							if (pending != processing && pending.ActivityId != TraceCorrelation.Activity)
 								NodeServerTrace.Transfer(TraceCorrelation.Activity);
-							Trace.CorrelationManager.ActivityId = TraceCorrelation.Activity;
+							// NETSTDCONV Trace.CorrelationManager.ActivityId = TraceCorrelation.Activity;
 							NodeServerTrace.Verbose("The connection cancelled before the message was sent");
 						}
 						pending.Completion.SetException(new OperationCanceledException("The peer has been disconnected"));
@@ -339,7 +339,9 @@ namespace NBitcoin.Protocol
 					OnStateChanged(previous);
 					if(value == NodeState.Failed || value == NodeState.Offline)
 					{
-						TraceCorrelation.LogInside(() => NodeServerTrace.Trace.TraceEvent(TraceEventType.Stop, 0, "Communication closed"));
+						// NETSTDCONV 
+						// TraceCorrelation.LogInside(() => NodeServerTrace.Trace.TraceEvent(TraceEventType.Stop, 0, "Communication closed"));
+						TraceCorrelation.LogInside(() => NodeServerTrace.Trace.TraceEvent(TraceEventType.Critical, 0, "Communication closed"));
 						OnDisconnected();
 					}
 				}
@@ -853,7 +855,10 @@ namespace NBitcoin.Protocol
 				completion.SetException(new OperationCanceledException("The peer has been disconnected"));
 				return completion.Task;
 			}
-			var activity = Trace.CorrelationManager.ActivityId;
+			// NETSTDCONV
+			// var activity = Trace.CorrelationManager.ActivityId;
+			var activity = Guid.NewGuid();
+
 			Action final = () =>
 			{
 				_Connection.Messages.Add(new SentMessage()
