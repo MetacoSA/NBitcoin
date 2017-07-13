@@ -8,4 +8,8 @@
     <DefineConstants>TRACE;DEBUG;NETSTANDARD1_6;NETCORE</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;NETSTANDARD1_6;NETCORE;</DefineConstants>
+  </PropertyGroup>
+
 </Project>

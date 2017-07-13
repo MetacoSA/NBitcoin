@@ -9,6 +9,10 @@
     <DefineConstants>TRACE;DEBUG;NETSTANDARD1_6;NETCORE;NOSTRNORMALIZE;NOCUSTOMSSLVALIDATION;</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;NETSTANDARD1_6;NETCORE;NOSTRNORMALIZE;NOCUSTOMSSLVALIDATION;;NETSTANDARD1_6</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="BitcoinStream.Partial.tt" />
   </ItemGroup>
