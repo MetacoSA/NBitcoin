@@ -93,6 +93,17 @@ namespace NBitcoin
 			}
 		}
 
+		static Network _StratisTest;
+		public static Network StratisTest
+		{
+			get
+			{
+				if (_StratisTest == null)
+					_StratisTest = InitStratisTest();
+				return _StratisTest;
+			}
+		}
+
 		private static Network InitStratisMain()
 		{			
 			Block.BlockSignature = true;
@@ -199,125 +210,111 @@ namespace NBitcoin
 			return builder.BuildAndRegister();
 		}
 
-//		private void InitTest()
-//		{
-//			name = "TestNet";
+		private static Network InitStratisTest()
+		{
+			Block.BlockSignature = true;
+			Transaction.TimeStamp = true;
 
-//			Block.BlockSignature = true;
-//			Transaction.TimeStamp = true;
+			var consensus = Network.StratisMain.Consensus.Clone();
+			consensus.PowLimit = new Target(uint256.Parse("0000ffff00000000000000000000000000000000000000000000000000000000"));
 
-//			consensus.SubsidyHalvingInterval = 210000;
-//			consensus.MajorityEnforceBlockUpgrade = 51;
-//			consensus.MajorityRejectBlockOutdated = 75;
-//			consensus.MajorityWindow = 100;
-//			consensus.BuriedDeployments[BuriedDeployments.BIP34] = 21111;
-//			consensus.BuriedDeployments[BuriedDeployments.BIP65] = 581885;
-//			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 330776;
-//			consensus.BIP34Hash = new uint256("0x0000000023b3a96d3484e5abb3755c413e7d41500f8e2a5c3f0dd01299cd8ef8");
-//			consensus.PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-//			consensus.MinimumChainWork = new uint256("0x0000000000000000000000000000000000000000000000198b4def2baa9338d6");
-//			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
-//			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
-//			consensus.PowAllowMinDifficultyBlocks = true;
-//			consensus.PowNoRetargeting = false;
-//			consensus.RuleChangeActivationThreshold = 1512; // 75% for testchains
-//			consensus.MinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
+			// The message start string is designed to be unlikely to occur in normal data.
+			// The characters are rarely used upper ASCII, not valid as UTF-8, and produce
+			// a large 4-byte int at any alignment.
+			var pchMessageStart = new byte[4];
+			pchMessageStart[0] = 0x71;
+			pchMessageStart[1] = 0x31;
+			pchMessageStart[2] = 0x21;
+			pchMessageStart[3] = 0x11;
+			var magic = BitConverter.ToUInt32(pchMessageStart, 0); //0x5223570; 
 
-//			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 1199145601, 1230767999);
-//			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 1456790400, 1493596800);
-//			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 1462060800, 1493596800);
+			var genesis = Network.StratisMain.GetGenesis().Clone();
+			genesis.Header.Time = 1493909211;
+			genesis.Header.Nonce = 2433759;
+			genesis.Header.Bits = consensus.PowLimit;
+			consensus.HashGenesisBlock = genesis.GetHash();
 
-//			consensus.LastPOWBlock = 0x7fffffff;
+			assert(consensus.HashGenesisBlock == uint256.Parse("0x00000e246d7b73b88c9ab55f2e5e94d9e22d471def3df5ea448f5576b1d156b9"));
 
-//			var pchMessageStart = new byte[4];
-//			pchMessageStart[0] = 0xcd;
-//			pchMessageStart[1] = 0xf2;
-//			pchMessageStart[2] = 0xc0;
-//			pchMessageStart[3] = 0xef;
-//			var mhash = BitConverter.ToUInt32(pchMessageStart, 0);
-//			magic = mhash;
+			var builder = new NetworkBuilder()
+				.SetName("StratisTest")
+				.SetConsensus(consensus)
+				.SetMagic(magic)
+				.SetGenesis(genesis)
+				.SetPort(26178)
+				.SetRPCPort(26174)
+				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { (65) })
+				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { (196) })
+				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { (65 + 128) })
+				.SetBase58Bytes(Base58Type.ENCRYPTED_SECRET_KEY_NO_EC, new byte[] { 0x01, 0x42 })
+				.SetBase58Bytes(Base58Type.ENCRYPTED_SECRET_KEY_EC, new byte[] { 0x01, 0x43 })
+				.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { (0x04), (0x88), (0xB2), (0x1E) })
+				.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { (0x04), (0x88), (0xAD), (0xE4) })
 
-//			vAlertPubKey = DataEncoders.Encoders.Hex.DecodeData("0471dc165db490094d35cde15b1f5d755fa6ad6f2b5ed0f340e3f17f57389c3c2af113a8cbcc885bde73305a553b5640c83021128008ddf882e856336269080496");
-//			nDefaultPort = 25714;
-//			nRPCPort = 25715;
+#if !NOSOCKET
+				.AddDNSSeeds(new[]
+				{
+					new DNSSeedData("stratisplatform.com", "testnode1.stratisplatform.com"),
+				});
+#endif
 
-//			// Modify the testnet genesis block so the timestamp is valid for a later start.
-//			genesis = CreateGenesisBlock(1470467000, 235708, 520159231, 1, Money.Zero);
-//			consensus.HashGenesisBlock = genesis.GetHash();
+            return builder.BuildAndRegister();
+		}
 
-//			assert(consensus.HashGenesisBlock == uint256.Parse("0x00000161ec84df354cc488b6de9c2a24ba12046e6c0286a797d6a0c8a43f0515"));
+		//		private void InitReg()
+		//		{
+		//			name = "RegTest";
+		//			consensus.SubsidyHalvingInterval = 150;
+		//			consensus.MajorityEnforceBlockUpgrade = 750;
+		//			consensus.MajorityRejectBlockOutdated = 950;
+		//			consensus.MajorityWindow = 1000;
+		//			consensus.BuriedDeployments[BuriedDeployments.BIP34] = 100000000;
+		//			consensus.BuriedDeployments[BuriedDeployments.BIP65] = 100000000;
+		//			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 100000000;
+		//			consensus.BIP34Hash = new uint256();
+		//			consensus.PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
+		//			consensus.MinimumChainWork = uint256.Zero;
+		//			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
+		//			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
+		//			consensus.PowAllowMinDifficultyBlocks = true;
+		//			consensus.PowNoRetargeting = true;
+		//			consensus.RuleChangeActivationThreshold = 108;
+		//			consensus.MinerConfirmationWindow = 144;
 
-//#if !NOSOCKET
-//			vFixedSeeds.Clear();
-//			vSeeds.Clear();
-//#endif
+		//			consensus.LastPOWBlock = 0x7fffffff;
 
-//			base58Prefixes = Network.Main.base58Prefixes.ToArray();
-//			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (111) };
-//			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (196) };
-//			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (239) };
-//			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x35), (0x87), (0xCF) };
-//			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
-//			base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2b };
-//			base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 115 };
-//			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
-//			base58Prefixes[(int)Base58Type.WITNESS_P2WPKH] = new byte[] { (0x03) };
-//			base58Prefixes[(int)Base58Type.WITNESS_P2WSH] = new byte[] { (40) };
-//		}
-//		private void InitReg()
-//		{
-//			name = "RegTest";
-//			consensus.SubsidyHalvingInterval = 150;
-//			consensus.MajorityEnforceBlockUpgrade = 750;
-//			consensus.MajorityRejectBlockOutdated = 950;
-//			consensus.MajorityWindow = 1000;
-//			consensus.BuriedDeployments[BuriedDeployments.BIP34] = 100000000;
-//			consensus.BuriedDeployments[BuriedDeployments.BIP65] = 100000000;
-//			consensus.BuriedDeployments[BuriedDeployments.BIP66] = 100000000;
-//			consensus.BIP34Hash = new uint256();
-//			consensus.PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
-//			consensus.MinimumChainWork = uint256.Zero;
-//			consensus.PowTargetTimespan = TimeSpan.FromSeconds(14 * 24 * 60 * 60); // two weeks
-//			consensus.PowTargetSpacing = TimeSpan.FromSeconds(10 * 60);
-//			consensus.PowAllowMinDifficultyBlocks = true;
-//			consensus.PowNoRetargeting = true;
-//			consensus.RuleChangeActivationThreshold = 108;
-//			consensus.MinerConfirmationWindow = 144;
+		//			var pchMessageStart = new byte[4];
+		//			pchMessageStart[0] = 0xcd;
+		//			pchMessageStart[1] = 0xf2;
+		//			pchMessageStart[2] = 0xc0;
+		//			pchMessageStart[3] = 0xef;
+		//			var mhash = BitConverter.ToUInt32(pchMessageStart, 0);
+		//			magic = mhash;
 
-//			consensus.LastPOWBlock = 0x7fffffff;
+		//			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 0, 999999999);
+		//			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 0, 999999999);
+		//			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 0, 999999999);
 
-//			var pchMessageStart = new byte[4];
-//			pchMessageStart[0] = 0xcd;
-//			pchMessageStart[1] = 0xf2;
-//			pchMessageStart[2] = 0xc0;
-//			pchMessageStart[3] = 0xef;
-//			var mhash = BitConverter.ToUInt32(pchMessageStart, 0);
-//			magic = mhash;
+		//			genesis = CreateGenesisBlock(1411111111, 1659424, 545259519, 1, Money.Zero);
+		//			consensus.HashGenesisBlock = genesis.GetHash();
+		//			nDefaultPort = 18444;
 
-//			consensus.BIP9Deployments[BIP9Deployments.TestDummy] = new BIP9DeploymentsParameters(28, 0, 999999999);
-//			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 0, 999999999);
-//			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, 0, 999999999);
+		//			// TODO disable this till networks are sorted
+		//			//assert(consensus.HashGenesisBlock == uint256.Parse("0x00000d97ffc6d5e27e78954c5bf9022b081177756488f44780b4f3c2210b1645"));
 
-//			genesis = CreateGenesisBlock(1411111111, 1659424, 545259519, 1, Money.Zero);
-//			consensus.HashGenesisBlock = genesis.GetHash();
-//			nDefaultPort = 18444;
+		//#if !NOSOCKET
+		//			vSeeds.Clear();  // Regtest mode doesn't have any DNS seeds.
+		//#endif
+		//			base58Prefixes = Network.TestNet.base58Prefixes.ToArray();
+		//			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (111) };
+		//			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (196) };
+		//			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (239) };
+		//			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x35), (0x87), (0xCF) };
+		//			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
+		//			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
+		//		}
 
-//			// TODO disable this till networks are sorted
-//			//assert(consensus.HashGenesisBlock == uint256.Parse("0x00000d97ffc6d5e27e78954c5bf9022b081177756488f44780b4f3c2210b1645"));
-
-//#if !NOSOCKET
-//			vSeeds.Clear();  // Regtest mode doesn't have any DNS seeds.
-//#endif
-//			base58Prefixes = Network.TestNet.base58Prefixes.ToArray();
-//			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (111) };
-//			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (196) };
-//			base58Prefixes[(int)Base58Type.SECRET_KEY] = new byte[] { (239) };
-//			base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x35), (0x87), (0xCF) };
-//			base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
-//			base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
-//		}
-
-        private static Block CreateStratisGenesisBlock(uint nTime, uint nNonce, uint nBits, int nVersion, Money genesisReward)
+		private static Block CreateStratisGenesisBlock(uint nTime, uint nNonce, uint nBits, int nVersion, Money genesisReward)
         {
             string pszTimestamp = "http://www.theonion.com/article/olympics-head-priestess-slits-throat-official-rio--53466";
             return CreateStratisGenesisBlock(pszTimestamp, nTime, nNonce, nBits, nVersion, genesisReward);
