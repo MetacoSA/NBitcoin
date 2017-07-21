@@ -6,7 +6,7 @@
 		<Description>The C# Bitcoin Library</Description>
 	</PropertyGroup>
 	<PropertyGroup>
-        <Version>4.0.0.8</Version>
+        <Version>4.0.0.9</Version>
     </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard1.3;netstandard1.1</TargetFrameworks>
@@ -25,7 +25,7 @@
     <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION</DefineConstants>
   </PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-     <DefineConstants>$(DefineConstants);NETCORE;PORTABLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC</DefineConstants>
+     <DefineConstants>$(DefineConstants);NETCORE;PORTABLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
@@ -40,10 +40,11 @@
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Threading.Tasks.Parallel" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-   <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+    <PackageReference Include="System.Security.Cryptography.Csp" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' Or  '$(TargetFramework)' == 'netstandard1.1'">
+  <ItemGroup Condition="$(DefineConstants.Contains('NOTRACESOURCE'))">
     <Compile Include="..\Stubs\TraceStub\TraceSource.cs" />
   </ItemGroup>
 

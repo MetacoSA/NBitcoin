@@ -104,13 +104,11 @@ namespace NBitcoin.Tests
 		{
 			foreach(var provider in new ICertificateServiceProvider[]
 			{ 
-#if WIN
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid |
 						X509VerificationFlags.AllowUnknownCertificateAuthority |
 						X509VerificationFlags.IgnoreRootRevocationUnknown |
 						X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown |
 						X509VerificationFlags.IgnoreEndRevocationUnknown)
-#endif
 			})
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
@@ -134,9 +132,7 @@ namespace NBitcoin.Tests
 		{
 			foreach(var provider in new ICertificateServiceProvider[]
 			{ 
-#if WIN
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid, X509RevocationMode.NoCheck)
-#endif
 			})
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
@@ -164,13 +160,11 @@ namespace NBitcoin.Tests
 
 			foreach(var provider in new ICertificateServiceProvider[]
 			{ 
-#if WIN
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid |
 						X509VerificationFlags.AllowUnknownCertificateAuthority |
 						X509VerificationFlags.IgnoreRootRevocationUnknown |
 						X509VerificationFlags.IgnoreCertificateAuthorityRevocationUnknown |
 						X509VerificationFlags.IgnoreEndRevocationUnknown)
-#endif
 			})
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
@@ -194,20 +188,16 @@ namespace NBitcoin.Tests
 		{
 			foreach(var provider in new ICertificateServiceProvider[]
 			{ 
-#if WIN
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid)
-#endif
 			})
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
 				var cert = File.ReadAllBytes("Data/NicolasDorierMerchant.pfx");
 				CanCreatePaymentRequestCore(cert);
-#if WIN
 				if(provider is WindowsCertificateServiceProvider)
 				{
 					CanCreatePaymentRequestCore(new X509Certificate2(cert, "", X509KeyStorageFlags.Exportable | X509KeyStorageFlags.PersistKeySet));
 				}
-#endif
 			}
 		}
 
@@ -218,9 +208,7 @@ namespace NBitcoin.Tests
 			request.Sign(cert, PKIType.X509SHA256);
 
 			Assert.NotNull(request.MerchantCertificate);
-#if WIN
 			Assert.False(new X509Certificate2(request.MerchantCertificate, "", X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable).HasPrivateKey);
-#endif
 			Assert.True(request.VerifySignature());
 			Assert.False(request.VerifyChain());
 			AssertEx.CollectionEquals(request.ToBytes(), PaymentRequest.Load(request.ToBytes()).ToBytes());
