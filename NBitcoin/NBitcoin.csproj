@@ -6,7 +6,7 @@
 		<Description>The C# Bitcoin Library</Description>
 	</PropertyGroup>
 	<PropertyGroup>
-        <Version>4.0.0.10</Version>
+        <Version>4.0.0.11</Version>
     </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard1.3;netstandard1.1</TargetFrameworks>
