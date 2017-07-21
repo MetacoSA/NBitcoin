@@ -6,12 +6,12 @@
 		<Description>The C# Bitcoin Library</Description>
 	</PropertyGroup>
   <PropertyGroup>
-	  <TargetFrameworks>net461;netstandard1.5</TargetFrameworks>
+	  <TargetFrameworks>net461;netcoreapp1.1</TargetFrameworks>
   </PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
 		<DefineConstants>$(DefineConstants);WIN</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
 		<DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER</DefineConstants>
 	</PropertyGroup>
 
@@ -29,7 +29,7 @@
 		<Reference Include="System.IO.Compression.FileSystem" />
 	</ItemGroup>
 
-	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
 		<PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
 		<PackageReference Include="System.Globalization.Extensions" Version="4.3.0" />
 		<PackageReference Include="System.Net.NameResolution" Version="4.3.0" />

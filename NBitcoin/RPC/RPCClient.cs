@@ -243,6 +243,9 @@ namespace NBitcoin.RPC
 			_network = network;
 		}
 
+#if !NOFILEIO
+		string _FromCookiePath;
+#endif
 		private string GetAuthenticationString(Network network)
 		{
 #if !NOFILEIO
@@ -273,8 +276,6 @@ namespace NBitcoin.RPC
 			return null;
 #endif
 		}
-
-		string _FromCookiePath;
 
 		public string Authentication
 		{
@@ -506,9 +507,9 @@ namespace NBitcoin.RPC
 			{
 				return await SendCommandAsyncCore(request, throwIfRPCError).ConfigureAwait(false);
 			}
+#if !NOFILEIO
 			catch(WebException ex)
 			{
-#if !NOFILEIO
 				if(!ex.Message.Contains("401"))
 					throw;
 				if(_FromCookiePath != null)
@@ -520,10 +521,14 @@ namespace NBitcoin.RPC
 					catch { throw ex; }
 				}
 				return await SendCommandAsyncCore(request, throwIfRPCError).ConfigureAwait(false);
-#else
-				throw;
-#endif
 			}
+#else
+			catch(WebException)
+			{
+				throw;
+			}
+#endif
+			
 		}
 
 		async Task<RPCResponse> SendCommandAsyncCore(RPCRequest request, bool throwIfRPCError)
@@ -604,7 +609,7 @@ namespace NBitcoin.RPC
 			return ms;
 		}
 
-		#region P2P Networking
+#region P2P Networking
 #if !NOSOCKET
 		public PeerInfo[] GetPeersInfo()
 		{
@@ -764,9 +769,9 @@ namespace NBitcoin.RPC
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Block chain and UTXO
+#region Block chain and UTXO
 
 		public uint256 GetBestBlockHash()
 		{
@@ -936,13 +941,13 @@ namespace NBitcoin.RPC
 			return GetTransactions(GetBlockHash(height));
 		}
 
-		#endregion
+#endregion
 
-		#region Coin generation
+#region Coin generation
 
-		#endregion
+#endregion
 
-		#region Raw Transaction
+#region Raw Transaction
 
 		public Transaction DecodeRawTransaction(string rawHex)
 		{
@@ -1018,9 +1023,9 @@ namespace NBitcoin.RPC
 			return SendCommandAsync("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
 		}
 
-		#endregion
+#endregion
 
-		#region Utility functions
+#region Utility functions
 		/// <summary>
 		/// Get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
@@ -1174,7 +1179,7 @@ namespace NBitcoin.RPC
 			return SendCommand(RPCOperations.settxfee, new[] { feeRate.FeePerK.ToString() }).Result.ToString() == "true";
 		}
 
-		#endregion
+#endregion
 
 		public async Task<uint256[]> GenerateAsync(int nBlocks)
 		{

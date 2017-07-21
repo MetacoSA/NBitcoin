@@ -374,7 +374,7 @@ namespace NBitcoin.Payment
 			}
 		}
 
-#if WIN
+#if !NOX509
 		private static ICertificateServiceProvider _DefaultCertificateServiceProvider = new WindowsCertificateServiceProvider();
 #else
 		private static ICertificateServiceProvider _DefaultCertificateServiceProvider;		

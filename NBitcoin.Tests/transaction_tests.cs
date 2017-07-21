@@ -1281,6 +1281,7 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+			Assert.Equal(previousCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
 
 			//P2WSH
 			previousTx = new Transaction();
@@ -1297,6 +1298,7 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+			Assert.Equal(witnessCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
 
 
 			//P2SH(P2WPKH)
@@ -1314,6 +1316,7 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+			Assert.Equal(scriptCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
 
 			//P2SH(P2WSH)
 			previousTx = new Transaction();
@@ -1330,6 +1333,7 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+			Assert.Equal(witnessCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
 
 			//Can remove witness data from tx
 			var signedTx2 = signedTx.WithOptions(TransactionOptions.None);
