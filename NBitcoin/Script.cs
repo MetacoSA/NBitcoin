@@ -519,6 +519,18 @@ namespace NBitcoin
 			}
 		}
 
+
+		/// <summary>
+		/// True if the scriptPubKey is witness
+		/// </summary>
+		public bool IsWitness
+		{
+			get
+			{
+				return PayToWitTemplate.Instance.CheckScriptPubKey(this);
+			}
+		}
+
 		public override string ToString()
 		{
 			// by default StringBuilder capacity is 16 (too small)
