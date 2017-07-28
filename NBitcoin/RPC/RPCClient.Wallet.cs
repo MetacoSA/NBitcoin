@@ -123,14 +123,14 @@ namespace NBitcoin.RPC
 
 		public void BackupWallet(string path)
 		{
-			if (string.IsNullOrEmpty(path))
+			if(string.IsNullOrEmpty(path))
 				throw new ArgumentNullException("path");
 			SendCommand("backupwallet", path);
 		}
 
 		public async Task BackupWalletAsync(string path)
 		{
-			if (string.IsNullOrEmpty(path))
+			if(string.IsNullOrEmpty(path))
 				throw new ArgumentNullException("path");
 			await SendCommandAsync("backupwallet", path).ConfigureAwait(false);
 		}
@@ -437,7 +437,7 @@ namespace NBitcoin.RPC
 		private IEnumerable<RPCAccount> AsRPCAccount(RPCResponse response)
 		{
 			var obj = (JObject)response.Result;
-			foreach (var prop in obj.Properties())
+			foreach(var prop in obj.Properties())
 			{
 				yield return new RPCAccount()
 				{
@@ -454,14 +454,14 @@ namespace NBitcoin.RPC
 		{
 			var result = SendCommand(RPCOperations.listaddressgroupings);
 			var array = (JArray)result.Result;
-			foreach (var group in array.Children<JArray>())
+			foreach(var group in array.Children<JArray>())
 			{
 				var grouping = new AddressGrouping();
 				grouping.PublicAddress = BitcoinAddress.Create(group[0][0].ToString());
 				grouping.Amount = Money.Coins(group[0][1].Value<decimal>());
 				grouping.Account = group[0].Count() > 2 ? group[0][2].ToString() : null;
 
-				foreach (var subgroup in group.Skip(1))
+				foreach(var subgroup in group.Skip(1))
 				{
 					var change = new ChangeAddress();
 					change.Address = BitcoinAddress.Create(subgroup[0].ToString());
@@ -475,10 +475,10 @@ namespace NBitcoin.RPC
 
 		public IEnumerable<BitcoinSecret> ListSecrets()
 		{
-			foreach (var grouping in ListAddressGroupings())
+			foreach(var grouping in ListAddressGroupings())
 			{
 				yield return DumpPrivKey(grouping.PublicAddress);
-				foreach (var change in grouping.ChangeAddresses)
+				foreach(var change in grouping.ChangeAddresses)
 					yield return DumpPrivKey(change.Address);
 			}
 		}
@@ -512,7 +512,7 @@ namespace NBitcoin.RPC
 			var response = SendCommand("listunspent", minconf, maxconf, addr.ToArray());
 			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
-		
+
 		/// <summary>
 		/// Returns an array of unspent transaction outputs belonging to this wallet. 
 		/// </summary>
@@ -577,7 +577,7 @@ namespace NBitcoin.RPC
 			{
 				LockUnspentCoreAsync(unlock, outpoints).Wait();
 			}
-			catch (AggregateException ex)
+			catch(AggregateException ex)
 			{
 				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
 			}
@@ -585,13 +585,13 @@ namespace NBitcoin.RPC
 
 		private async Task LockUnspentCoreAsync(bool unlock, OutPoint[] outpoints)
 		{
-			if (outpoints == null || outpoints.Length == 0)
+			if(outpoints == null || outpoints.Length == 0)
 				return;
 			var parameters = new List<object>();
 			parameters.Add(unlock);
 			var array = new JArray();
 			parameters.Add(array);
-			foreach (var outp in outpoints)
+			foreach(var outp in outpoints)
 			{
 				var obj = new JObject();
 				obj["txid"] = outp.Hash.ToString();
@@ -603,21 +603,26 @@ namespace NBitcoin.RPC
 
 		// walletpassphrase
 
+		/// <summary>
+		/// The walletpassphrase RPC stores the wallet decryption key in memory for the indicated number of seconds.Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock time that overrides the old one.
+		/// </summary>
+		/// <param name="passphrase">The passphrase</param>
+		/// <param name="timeout">Timeout in seconds</param>
 		public void WalletPassphrase(string passphrase, int timeout)
 		{
-			var parameters = new List<object>();
-			parameters.Add(passphrase)
-			parameters.Add(timeout)
-
-			SendCommand("walletpassphrase", parameters.ToArray());
+			WalletPassphraseAsync(passphrase, timeout).GetAwaiter().GetResult();
 		}
 
-		public async Task WalletPassphrase(string passphrase, int timeout)
+		/// <summary>
+		/// The walletpassphrase RPC stores the wallet decryption key in memory for the indicated number of seconds.Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock time that overrides the old one.
+		/// </summary>
+		/// <param name="passphrase">The passphrase</param>
+		/// <param name="timeout">Timeout in seconds</param>
+		public async Task WalletPassphraseAsync(string passphrase, int timeout)
 		{
 			var parameters = new List<object>();
-			parameters.Add(passphrase)
-			parameters.Add(timeout)
-
+			parameters.Add(passphrase);
+			parameters.Add(timeout);
 			await SendCommandAsync("walletpassphrase", parameters.ToArray()).ConfigureAwait(false);
 		}
 	}
