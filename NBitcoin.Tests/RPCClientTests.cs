@@ -221,7 +221,7 @@ namespace NBitcoin.Tests
 				rpc.SendCommand("encryptwallet", passphrase);
 				rpc.ImportAddress(key.PubKey.GetAddress(Network.RegTest), TestAccount, false);
 				BitcoinAddress address = rpc.GetAccountAddress(TestAccount);
-				rpc.WalletPassPhrase(passphrase, 60);
+				rpc.WalletPassphrase(passphrase, 60);
 				BitcoinSecret secret = rpc.DumpPrivKey(address);
 				BitcoinSecret secret2 = rpc.GetAccountSecret(TestAccount);
 
