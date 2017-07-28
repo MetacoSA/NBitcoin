@@ -26,7 +26,7 @@ namespace NBitcoin.Tests
 		{
 			using(var builder = NodeBuilder.Create())
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
+				var rpc = builder.CreateNode(true).CreateRPCClient();
 				builder.StartAll();
 				AssertException<RPCException>(() => rpc.SendCommand("donotexist"), (ex) =>
 				{
@@ -41,7 +41,7 @@ namespace NBitcoin.Tests
 		{
 			using(var builder = NodeBuilder.Create())
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
+				var rpc = builder.CreateNode(true).CreateRPCClient();
 				builder.StartAll();
 				var response = rpc.SendCommand(RPCOperations.getinfo);
 				Assert.NotNull(response.Result);
@@ -53,7 +53,7 @@ namespace NBitcoin.Tests
 		{
 			using(var builder = NodeBuilder.Create())
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
+				var rpc = builder.CreateNode(true).CreateRPCClient();
 				builder.StartAll();
 				var response = rpc.SendCommand(RPCOperations.getblockhash, 0);
 				var actualGenesis = (string)response.Result;
@@ -67,7 +67,7 @@ namespace NBitcoin.Tests
 		{
 			using(var builder = NodeBuilder.Create())
 			{
-				var node = builder.CreateNode();
+				var node = builder.CreateNode(true);
 				var rpc = node.CreateRPCClient();
 				builder.StartAll();
 				node.Generate(101);
@@ -97,7 +97,7 @@ namespace NBitcoin.Tests
 		{
 			using(var builder = NodeBuilder.Create())
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
+				var rpc = builder.CreateNode(true).CreateRPCClient();
 				builder.StartAll();
 				var response = rpc.GetBlockHeader(0);
 				AssertEx.CollectionEquals(Network.RegTest.GetGenesis().Header.ToBytes(), response.ToBytes());
@@ -183,7 +183,7 @@ namespace NBitcoin.Tests
 		{
 			using(var builder = NodeBuilder.Create())
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
+				var rpc = builder.CreateNode(true).CreateRPCClient();
 				builder.StartAll();
 				var blockId = rpc.GetBestBlockHash();
 				var block = rpc.GetBlock(blockId);
@@ -196,7 +196,7 @@ namespace NBitcoin.Tests
 		{
 			using(var builder = NodeBuilder.Create())
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
+				var rpc = builder.CreateNode(true).CreateRPCClient();
 				builder.StartAll();
 				Key key = new Key();
 				rpc.ImportAddress(key.PubKey.GetAddress(Network.RegTest), TestAccount, false);
@@ -320,7 +320,7 @@ namespace NBitcoin.Tests
 		{
 			using(var builder = NodeBuilder.Create())
 			{
-				var rpc = builder.CreateNode().CreateRPCClient();
+				var rpc = builder.CreateNode(true).CreateRPCClient();
 				builder.StartAll();
 				var tx = Network.TestNet.GetGenesis().Transactions[0];
 
