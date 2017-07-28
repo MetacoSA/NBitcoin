@@ -606,8 +606,8 @@ namespace NBitcoin.RPC
 		public void WalletPassphrase(string passphrase, int timeout)
 		{
 			var parameters = new List<object>();
-			parameters.Add(passphrase)
-			parameters.Add(timeout)
+			parameters.Add(passphrase);
+			parameters.Add(timeout);
 
 			SendCommand("walletpassphrase", parameters.ToArray());
 		}
@@ -615,8 +615,8 @@ namespace NBitcoin.RPC
 		public async Task WalletPassphrase(string passphrase, int timeout)
 		{
 			var parameters = new List<object>();
-			parameters.Add(passphrase)
-			parameters.Add(timeout)
+			parameters.Add(passphrase);
+			parameters.Add(timeout);
 
 			await SendCommandAsync("walletpassphrase", parameters.ToArray()).ConfigureAwait(false);
 		}
