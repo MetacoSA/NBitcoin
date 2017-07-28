@@ -127,7 +127,7 @@ namespace NBitcoin.RPC
 		wallet			 signmessage
 		wallet			 walletlock
 		wallet			 walletpassphrasechange
-		wallet			 walletpassphrase
+		wallet			 walletpassphrase			yes
 	*/
 	public partial class RPCClient : IBlockRepository
 	{

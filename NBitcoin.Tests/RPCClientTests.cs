@@ -210,6 +210,27 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanGetPrivateKeysFromLockedAccount()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				Key key = new Key();
+				var passphrase = "password1234"
+				rpc.SendCommand("encryptwallet", passphrase)
+				rpc.ImportAddress(key.PubKey.GetAddress(Network.RegTest), TestAccount, false);
+				BitcoinAddress address = rpc.GetAccountAddress(TestAccount);
+				rpc.WalletPassPhrase(passphrase, 60)
+				BitcoinSecret secret = rpc.DumpPrivKey(address);
+				BitcoinSecret secret2 = rpc.GetAccountSecret(TestAccount);
+
+				Assert.Equal(secret.ToString(), secret2.ToString());
+				Assert.Equal(address.ToString(), secret.GetAddress().ToString());
+			}
+		}
+
+		[Fact]
 		public void CanDecodeAndEncodeRawTransaction()
 		{
 			var a = new Protocol.AddressManager().Select();

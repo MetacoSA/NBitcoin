@@ -115,7 +115,7 @@ namespace NBitcoin.RPC
 		wallet			 signmessage
 		wallet			 walletlock
 		wallet			 walletpassphrasechange
-		wallet			 walletpassphrase
+		wallet			 walletpassphrase			yes
 	*/
 	public partial class RPCClient
 	{
@@ -599,6 +599,26 @@ namespace NBitcoin.RPC
 				array.Add(obj);
 			}
 			await SendCommandAsync("lockunspent", parameters.ToArray()).ConfigureAwait(false);
+		}
+
+		// walletpassphrase
+
+		public void WalletPassphrase(string passphrase, int timeout)
+		{
+			var parameters = new List<object>();
+			parameters.Add(passphrase)
+			parameters.Add(timeout)
+
+			SendCommand("walletpassphrase", parameters.ToArray());
+		}
+
+		public async Task WalletPassphrase(string passphrase, int timeout)
+		{
+			var parameters = new List<object>();
+			parameters.Add(passphrase)
+			parameters.Add(timeout)
+
+			await SendCommandAsync("walletpassphrase", parameters.ToArray()).ConfigureAwait(false);
 		}
 	}
 }
