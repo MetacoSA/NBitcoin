@@ -612,7 +612,7 @@ namespace NBitcoin.RPC
 			SendCommand("walletpassphrase", parameters.ToArray());
 		}
 
-		public async Task WalletPassphrase(string passphrase, int timeout)
+		public async Task WalletPassphraseAsync(string passphrase, int timeout)
 		{
 			var parameters = new List<object>();
 			parameters.Add(passphrase);
