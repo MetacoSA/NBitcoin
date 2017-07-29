@@ -42,6 +42,8 @@ namespace NBitcoin.Protocol
 		/// witness data. 
 		/// </summary> 
 		NODE_WITNESS = (1 << 3),
+
+		NODE_BITCOIN_CASH = 0x20
 	}
 	[Payload("version")]
 	public class VersionPayload : Payload, IBitcoinSerializable

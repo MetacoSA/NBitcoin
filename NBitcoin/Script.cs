@@ -173,6 +173,8 @@ namespace NBitcoin
 		/// If set, no inputs, except this, are part of the signature
 		/// </summary>
 		AnyoneCanPay = 0x80,
+
+		ForkId = (1U << 16)
 	};
 
 	/// <summary>
@@ -605,8 +607,9 @@ namespace NBitcoin
 		//https://en.bitcoin.it/wiki/OP_CHECKSIG
 		public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
-			if(sigversion == HashVersion.Witness)
+			if((nHashType & SigHash.ForkId) != 0)
 			{
+				nHashType = (SigHash)((int)nHashType & 0x1f);
 				if(amount == null)
 					throw new ArgumentException("The amount of the output being signed must be provided", "amount");
 				uint256 hashPrevouts = uint256.Zero;
@@ -655,7 +658,7 @@ namespace NBitcoin
 				// Locktime
 				sss.ReadWriteStruct(txTo.LockTime);
 				// Sighash type
-				sss.ReadWrite((uint)nHashType);
+				sss.ReadWrite((uint)nHashType | (uint)SigHash.ForkId);
 
 				return GetHash(sss);
 			}

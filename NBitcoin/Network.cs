@@ -759,12 +759,29 @@ namespace NBitcoin
 			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
 			assert(genesis.Header.HashMerkleRoot == uint256.Parse("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
 #if !NOSOCKET
-			vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be")); // Pieter Wuille
-			vSeeds.Add(new DNSSeedData("bluematt.me", "dnsseed.bluematt.me")); // Matt Corallo
-			vSeeds.Add(new DNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org")); // Luke Dashjr
-			vSeeds.Add(new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com")); // Christian Decker
-			vSeeds.Add(new DNSSeedData("xf2.org", "bitseed.xf2.org")); // Jeff Garzik
-			vSeeds.Add(new DNSSeedData("bitcoin.jonasschnelli.ch", "seed.bitcoin.jonasschnelli.ch")); // Jonas Schnelli
+			//vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be")); // Pieter Wuille
+			//vSeeds.Add(new DNSSeedData("bluematt.me", "dnsseed.bluematt.me")); // Matt Corallo
+			//vSeeds.Add(new DNSSeedData("dashjr.org", "dnsseed.bitcoin.dashjr.org")); // Luke Dashjr
+			//vSeeds.Add(new DNSSeedData("bitcoinstats.com", "seed.bitcoinstats.com")); // Christian Decker
+			//vSeeds.Add(new DNSSeedData("xf2.org", "bitseed.xf2.org")); // Jeff Garzik
+			//vSeeds.Add(new DNSSeedData("bitcoin.jonasschnelli.ch", "seed.bitcoin.jonasschnelli.ch")); // Jonas Schnelli
+
+			vSeeds.Add(
+		   new DNSSeedData("bitcoinabc.org", "seed.bitcoinabc.org"));
+			// bitcoinforks seeders
+			vSeeds.Add(new DNSSeedData("bitcoinforks.org",
+										  "seed-abc.bitcoinforks.org"));
+			// BU backed seeder
+			vSeeds.Add(new DNSSeedData("bitcoinunlimited.info",
+										  "btccash-seeder.bitcoinunlimited.info"));
+			// Bitprim
+			vSeeds.Add(new DNSSeedData("bitprim.org", "seed.bitprim.org"));
+			// Amaury SÉCHET
+			vSeeds.Add(new DNSSeedData(
+				"deadalnix.me", "seed.deadalnix.me"));
+			// criptolayer.net
+			vSeeds.Add(
+				new DNSSeedData("criptolayer.net", "seeder.criptolayer.net"));
 #endif
 			base58Prefixes[(int)Base58Type.PUBKEY_ADDRESS] = new byte[] { (0) };
 			base58Prefixes[(int)Base58Type.SCRIPT_ADDRESS] = new byte[] { (5) };
@@ -785,19 +802,19 @@ namespace NBitcoin
 
 #if !NOSOCKET
 			// Convert the pnSeeds array into usable address objects.
-			Random rand = new Random();
-			TimeSpan nOneWeek = TimeSpan.FromDays(7);
-			for(int i = 0; i < pnSeed.Length; i++)
-			{
-				// It'll only connect to one or two seed nodes because once it connects,
-				// it'll get a pile of addresses with newer timestamps.				
-				NetworkAddress addr = new NetworkAddress();
-				// Seed nodes are given a random 'last seen time' of between one and two
-				// weeks ago.
-				addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
-				addr.Endpoint = Utils.ParseIpEndpoint(pnSeed[i], DefaultPort);
-				vFixedSeeds.Add(addr);
-			}
+			//Random rand = new Random();
+			//TimeSpan nOneWeek = TimeSpan.FromDays(7);
+			//for(int i = 0; i < pnSeed.Length; i++)
+			//{
+			//	// It'll only connect to one or two seed nodes because once it connects,
+			//	// it'll get a pile of addresses with newer timestamps.				
+			//	NetworkAddress addr = new NetworkAddress();
+			//	// Seed nodes are given a random 'last seen time' of between one and two
+			//	// weeks ago.
+			//	addr.Time = DateTime.UtcNow - (TimeSpan.FromSeconds(rand.NextDouble() * nOneWeek.TotalSeconds)) - nOneWeek;
+			//	addr.Endpoint = Utils.ParseIpEndpoint(pnSeed[i], DefaultPort);
+			//	vFixedSeeds.Add(addr);
+			//}
 #endif
 		}
 		private void InitTest()
