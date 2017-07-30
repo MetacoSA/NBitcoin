@@ -174,7 +174,7 @@ namespace NBitcoin
 		/// </summary>
 		AnyoneCanPay = 0x80,
 
-		ForkId = (1U << 16)
+		ForkId = 0x40
 	};
 
 	/// <summary>
