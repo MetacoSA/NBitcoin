@@ -6,7 +6,7 @@
 		<Description>The C# Bitcoin Library</Description>
 	</PropertyGroup>
 	<PropertyGroup>
-        <Version>4.0.0.12</Version>
+        <Version>4.0.0.13</Version>
     </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard1.3;netstandard1.1</TargetFrameworks>
@@ -59,4 +59,15 @@
       <LastGenOutput>UInt2561.cs</LastGenOutput>
     </None>
   </ItemGroup>
+
+	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
+		<ItemGroup>
+			<DocFile Include="bin\$(Configuration)\$(TargetFramework)\*.xml" />
+		</ItemGroup>
+		<Copy SourceFiles="@(DocFile)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="false" />
+	</Target>
+
+	<PropertyGroup>
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\NBitcoin.xml</DocumentationFile>
+	</PropertyGroup>
 </Project>
