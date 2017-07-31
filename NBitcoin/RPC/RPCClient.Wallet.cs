@@ -115,7 +115,7 @@ namespace NBitcoin.RPC
 		wallet			 signmessage
 		wallet			 walletlock
 		wallet			 walletpassphrasechange
-		wallet			 walletpassphrase
+		wallet			 walletpassphrase			yes
 	*/
 	public partial class RPCClient
 	{
@@ -512,7 +512,7 @@ namespace NBitcoin.RPC
 			var response = SendCommand("listunspent", minconf, maxconf, addr.ToArray());
 			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
-		
+
 		/// <summary>
 		/// Returns an array of unspent transaction outputs belonging to this wallet. 
 		/// </summary>
@@ -599,6 +599,31 @@ namespace NBitcoin.RPC
 				array.Add(obj);
 			}
 			await SendCommandAsync("lockunspent", parameters.ToArray()).ConfigureAwait(false);
+		}
+
+		// walletpassphrase
+
+		/// <summary>
+		/// The walletpassphrase RPC stores the wallet decryption key in memory for the indicated number of seconds.Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock time that overrides the old one.
+		/// </summary>
+		/// <param name="passphrase">The passphrase</param>
+		/// <param name="timeout">Timeout in seconds</param>
+		public void WalletPassphrase(string passphrase, int timeout)
+		{
+			WalletPassphraseAsync(passphrase, timeout).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// The walletpassphrase RPC stores the wallet decryption key in memory for the indicated number of seconds.Issuing the walletpassphrase command while the wallet is already unlocked will set a new unlock time that overrides the old one.
+		/// </summary>
+		/// <param name="passphrase">The passphrase</param>
+		/// <param name="timeout">Timeout in seconds</param>
+		public async Task WalletPassphraseAsync(string passphrase, int timeout)
+		{
+			var parameters = new List<object>();
+			parameters.Add(passphrase);
+			parameters.Add(timeout);
+			await SendCommandAsync("walletpassphrase", parameters.ToArray()).ConfigureAwait(false);
 		}
 	}
 }

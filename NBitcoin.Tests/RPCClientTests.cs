@@ -67,9 +67,9 @@ namespace NBitcoin.Tests
 		{
 			using(var builder = NodeBuilder.Create())
 			{
-				var node = builder.CreateNode(); builder.StartAll();
-
+				var node = builder.CreateNode(true);
 				var rpc = node.CreateRPCClient();
+				builder.StartAll();
 				node.Generate(101);
 				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(1.0m), "hello", "world");
 				var ids = rpc.GetRawMempool();
@@ -84,8 +84,8 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode();
-				builder.StartAll();
 				var rpc = node.CreateRPCClient();
+				builder.StartAll();
 				node.Generate(10);
 				var blkCount = rpc.GetBlockCountAsync().Result;
 				Assert.Equal(10, blkCount);
@@ -98,7 +98,7 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode(true).CreateRPCClient();
-				
+				builder.StartAll();
 				var response = rpc.GetBlockHeader(0);
 				AssertEx.CollectionEquals(Network.RegTest.GetGenesis().Header.ToBytes(), response.ToBytes());
 
@@ -201,6 +201,28 @@ namespace NBitcoin.Tests
 				Key key = new Key();
 				rpc.ImportAddress(key.PubKey.GetAddress(Network.RegTest), TestAccount, false);
 				BitcoinAddress address = rpc.GetAccountAddress(TestAccount);
+				BitcoinSecret secret = rpc.DumpPrivKey(address);
+				BitcoinSecret secret2 = rpc.GetAccountSecret(TestAccount);
+
+				Assert.Equal(secret.ToString(), secret2.ToString());
+				Assert.Equal(address.ToString(), secret.GetAddress().ToString());
+			}
+		}
+
+		[Fact]
+		public void CanGetPrivateKeysFromLockedAccount()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				Key key = new Key();
+				var passphrase = "password1234";
+				rpc.SendCommand("encryptwallet", passphrase);
+				builder.Nodes[0].Restart();
+				rpc.ImportAddress(key.PubKey.GetAddress(Network.RegTest), TestAccount, false);
+				BitcoinAddress address = rpc.GetAccountAddress(TestAccount);
+				rpc.WalletPassphrase(passphrase, 60);
 				BitcoinSecret secret = rpc.DumpPrivKey(address);
 				BitcoinSecret secret2 = rpc.GetAccountSecret(TestAccount);
 
