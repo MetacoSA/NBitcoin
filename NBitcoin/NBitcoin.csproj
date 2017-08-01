@@ -1,8 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Company>NStratis</Company>
+    <Copyright>Copyright © Stratis Platform SA 2017</Copyright>
+    <Description>The C# Bitcoin Library based on NBitcoin</Description>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Version>4.0.0.13</Version>
+  </PropertyGroup>
+  
+  <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
     <RootNamespace>NBitcoin</RootNamespace>
+    <PackageId>NStratis</PackageId>
+    <Authors>NStratis</Authors>
+    <Product>NStratis</Product>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
