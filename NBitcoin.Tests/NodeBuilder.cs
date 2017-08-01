@@ -1,4 +1,5 @@
-﻿using NBitcoin.DataEncoders;
+﻿#if !NOSOCKET
+using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
 using System;
@@ -8,6 +9,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -72,8 +74,12 @@ namespace NBitcoin.Tests
 				return bitcoind;
 			var zip = String.Format("bitcoin-{0}-win32.zip", version);
 			string url = String.Format("https://bitcoin.org/bin/bitcoin-core-{0}/" + zip, version);
-			WebClient client = new WebClient();
-			client.DownloadFile(url, zip);
+
+			HttpClient client = new HttpClient();
+			client.Timeout = TimeSpan.FromMinutes(5.0);
+			var bytes = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
+			File.WriteAllBytes(zip, bytes);
+
 			ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
 			return bitcoind;
 		}
@@ -254,10 +260,9 @@ namespace NBitcoin.Tests
 		}
 
 		readonly NetworkCredential creds;
-		string _RPCAuth;
 		public RPCClient CreateRPCClient()
 		{
-			return new RPCClient(_RPCAuth, new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network.RegTest);
+			return new RPCClient(GetRPCAuth(), new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network.RegTest);
 		}
 
 		public RestClient CreateRESTClient()
@@ -275,6 +280,14 @@ namespace NBitcoin.Tests
 		}
 #endif
 
+		string GetRPCAuth()
+		{
+			if(!CookieAuth)
+				return creds.UserName + ":" + creds.Password;
+			else
+				return "cookiefile=" + Path.Combine(dataDir, "regtest", ".cookie");
+		}
+
 		public async Task StartAsync()
 		{
 			NodeConfigParameters config = new NodeConfigParameters();
@@ -286,11 +299,6 @@ namespace NBitcoin.Tests
 			{
 				config.Add("rpcuser", creds.UserName);
 				config.Add("rpcpassword", creds.Password);
-				_RPCAuth = creds.UserName + ":" + creds.Password;
-			}
-			else
-			{
-				_RPCAuth = "cookiefile=" + Path.Combine(dataDir, "regtest", ".cookie");
 			}
 			config.Add("port", ports[0].ToString());
 			config.Add("rpcport", ports[1].ToString());
@@ -604,3 +612,4 @@ namespace NBitcoin.Tests
 		}
 	}
 }
+#endif

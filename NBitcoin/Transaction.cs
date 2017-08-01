@@ -226,6 +226,11 @@ namespace NBitcoin
 			}
 		}
 
+		public IDestination GetSigner()
+		{
+			return scriptSig.GetSigner() ?? witScript.GetSigner();
+		}
+
 		WitScript witScript = WitScript.Empty;
 
 		/// <summary>
@@ -1055,6 +1060,17 @@ namespace NBitcoin
 		public WitScript Clone()
 		{
 			return new WitScript(ToBytes());
+		}
+
+		public TxDestination GetSigner()
+		{
+			var pubKey = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(this);
+			if(pubKey != null)
+			{
+				return pubKey.PublicKey.WitHash;
+			}
+			var p2sh = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(this);
+			return p2sh != null ? p2sh.WitHash : null;
 		}
 	}
 

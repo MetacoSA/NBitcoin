@@ -1281,6 +1281,7 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+			Assert.Equal(previousCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
 
 			//P2WSH
 			previousTx = new Transaction();
@@ -1297,6 +1298,7 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+			Assert.Equal(witnessCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
 
 
 			//P2SH(P2WPKH)
@@ -1314,6 +1316,7 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+			Assert.Equal(scriptCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
 
 			//P2SH(P2WSH)
 			previousTx = new Transaction();
@@ -1330,6 +1333,7 @@ namespace NBitcoin.Tests
 			signedTx = builder.BuildTransaction(true);
 			AssertEstimatedSize(signedTx, builder);
 			Assert.True(builder.Verify(signedTx));
+			Assert.Equal(witnessCoin.ScriptPubKey, signedTx.Inputs[0].GetSigner().ScriptPubKey);
 
 			//Can remove witness data from tx
 			var signedTx2 = signedTx.WithOptions(TransactionOptions.None);
@@ -1449,7 +1453,14 @@ namespace NBitcoin.Tests
 				.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx, "0.0001"));
 
+			//Verify that we can detect malleability
+			txBuilder.StandardTransactionPolicy = EasyPolicy.Clone();
+			txBuilder.StandardTransactionPolicy.CheckMalleabilitySafe = true;
+			Assert.False(txBuilder.Verify(tx, "0.0001"));
 			Assert.Equal(3, tx.Outputs.Count);
+			var errors = txBuilder.Check(tx);
+			Assert.True(errors.Length > 0);
+			Assert.Equal(witCoins.Count, tx.Inputs.Count - errors.Length);
 
 			txBuilder = new TransactionBuilder(0);
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
@@ -1899,7 +1910,7 @@ namespace NBitcoin.Tests
 				ctx.Stack.Top(-3) ,
 				ctx.Stack.Top(-2),
 				ctx.Stack.Top(-1) };
-			var expected = new[] 
+			var expected = new[]
 			{
 				Op.GetPushOp(3).PushData,
 				Op.GetPushOp(4).PushData,
