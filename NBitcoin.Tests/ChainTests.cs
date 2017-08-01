@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -207,6 +208,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(expectedFork, fork);
 		}
 
+#if !NOFILEIO
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCalculateDifficulty()
@@ -242,11 +244,14 @@ namespace NBitcoin.Tests
 		{
 			if(!File.Exists("MainChain1.dat"))
 			{
-				WebClient client = new WebClient();
-				client.DownloadFile("https://aois.blob.core.windows.net/public/MainChain1.dat", "MainChain1.dat");
+				HttpClient client = new HttpClient();
+				var bytes = client.GetByteArrayAsync("https://aois.blob.core.windows.net/public/MainChain1.dat").GetAwaiter().GetResult();
+				File.WriteAllBytes("MainChain1.dat", bytes);
 			}
 			return File.ReadAllBytes("MainChain1.dat");
 		}
+#endif
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanEnumerateAfterChainedBlock()

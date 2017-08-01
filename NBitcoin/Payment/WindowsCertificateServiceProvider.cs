@@ -20,7 +20,7 @@ namespace NBitcoin.Payment
 			{
 				try
 				{
-					return ((RSACryptoServiceProvider)new X509Certificate2(certificate).PublicKey.Key).VerifyHash(hash, hashOID, signature);
+					return new X509Certificate2(certificate).GetRSAPublicKey().VerifyHash(hash, signature, new HashAlgorithmName(hashOID.ToUpperInvariant()), RSASignaturePadding.Pkcs1);
 				}
 				catch(CryptographicException)
 				{
@@ -41,10 +41,10 @@ namespace NBitcoin.Payment
 
 			public static byte[] Sign(X509Certificate2 certificate, byte[] hash, string hashOID)
 			{
-				var privateKey = certificate.PrivateKey as RSACryptoServiceProvider;
+				var privateKey = certificate.GetRSAPrivateKey();
 				if(privateKey == null)
 					throw new ArgumentException("Private key not present in the certificate, impossible to sign");
-				return privateKey.SignHash(hash, hashOID);
+				return privateKey.SignHash(hash, new HashAlgorithmName(hashOID.ToUpperInvariant()), RSASignaturePadding.Pkcs1);
 			}
 
 			public byte[] StripPrivateKey(byte[] certificate)
@@ -53,7 +53,7 @@ namespace NBitcoin.Payment
 			}
 			public byte[] StripPrivateKey(X509Certificate2 certificate)
 			{
-				return new X509Certificate2(certificate.Export(X509ContentType.Cert)).GetRawCertData();
+				return new X509Certificate2(certificate.Export(X509ContentType.Cert)).RawData;
 			}
 
 			#endregion

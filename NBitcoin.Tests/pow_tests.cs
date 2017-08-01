@@ -33,6 +33,7 @@ namespace NBitcoin.Tests
 			if(File.Exists(file))
 				return;
 			HttpClient client = new HttpClient();
+			client.Timeout = TimeSpan.FromMinutes(5);
 			var data = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
 			File.WriteAllBytes(file, data);
 		}

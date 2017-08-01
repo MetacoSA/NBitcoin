@@ -42,6 +42,13 @@ namespace NBitcoin.Policy
 			get;
 			set;
 		}
+		/// <summary>
+		/// Check if the transaction is safe from malleability (default: false)
+		/// </summary>
+		public bool CheckMalleabilitySafe
+		{
+			get; set;
+		} = false;
 		public bool CheckFee
 		{
 			get;
@@ -95,6 +102,16 @@ namespace NBitcoin.Policy
 				if(!txin.ScriptSig.HasCanonicalPushes)
 				{
 					errors.Add(new InputPolicyError("All operation should be canonical push", input));
+				}
+			}
+
+			if(CheckMalleabilitySafe)
+			{
+				foreach(var input in transaction.Inputs.AsIndexedInputs())
+				{
+					var coin = spentCoins.FirstOrDefault(s => s.Outpoint == input.PrevOut);
+					if(coin != null && coin.GetHashVersion() != HashVersion.Witness)
+						errors.Add(new InputPolicyError("Malleable input detected", input));
 				}
 			}
 
@@ -196,6 +213,8 @@ namespace NBitcoin.Policy
 #if !NOCONSENSUSLIB
 				UseConsensusLib = UseConsensusLib,
 #endif
+				CheckMalleabilitySafe = CheckMalleabilitySafe,
+				CheckScriptPubKey = CheckScriptPubKey,
 				CheckFee = CheckFee
 			};
 		}
