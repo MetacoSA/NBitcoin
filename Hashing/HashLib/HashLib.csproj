@@ -1,7 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Company>NStratis.HashLib</Company>
+    <Copyright>Copyright © Stratis Platform SA 2017</Copyright>
+    <Description>The C# hash library based on HashLib</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>1.0.0.1</Version>
+  </PropertyGroup>
+  
+  <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
+    <PackageId>NStratis.HashLib</PackageId>
+    <Authors>NStratis.HashLib</Authors>
+    <Product>NStratis.HashLib</Product>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
