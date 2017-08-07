@@ -4,15 +4,20 @@
 		<Company>Metaco SA</Company>
 		<Copyright>Copyright © Metaco SA 2017</Copyright>
 		<Description>The C# Bitcoin Library</Description>
+		<PackageIconUrl>https://aois.blob.core.windows.net/public/Bitcoin.png</PackageIconUrl>
+		<PackageTags>bitcoin</PackageTags>
+		<PackageProjectUrl>https://github.com/MetacoSA/NBitcoin</PackageProjectUrl>
+		<PackageLicenseUrl>https://github.com/MetacoSA/NBitcoin/blob/master/LICENSE</PackageLicenseUrl>
+		<RepositoryUrl>https://github.com/MetacoSA/NBitcoin</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-        <Version>4.0.0.14</Version>
+        <Version>4.0.0.15</Version>
     </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1</TargetFrameworks>
     <NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	<iconUrl>https://aois.blob.core.windows.net/public/Bitcoin.png</iconUrl>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
