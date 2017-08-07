@@ -6,12 +6,13 @@
 		<Description>The C# Bitcoin Library</Description>
 	</PropertyGroup>
 	<PropertyGroup>
-        <Version>4.0.0.13</Version>
+        <Version>4.0.0.14</Version>
     </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard1.3;netstandard1.1</TargetFrameworks>
+    <TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1</TargetFrameworks>
     <NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<iconUrl>https://aois.blob.core.windows.net/public/Bitcoin.png</iconUrl>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -21,6 +22,9 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <DefineConstants>$(DefineConstants);WIN</DefineConstants>
   </PropertyGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
+		<DefineConstants>$(DefineConstants);WIN;LEGACY_X509</DefineConstants>
+	</PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION</DefineConstants>
   </PropertyGroup>
