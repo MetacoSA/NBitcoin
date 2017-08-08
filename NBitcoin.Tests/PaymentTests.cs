@@ -103,7 +103,7 @@ namespace NBitcoin.Tests
 		public void CanReadPaymentRequest()
 		{
 			foreach(var provider in new ICertificateServiceProvider[]
-			{ 
+			{
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid |
 						X509VerificationFlags.AllowUnknownCertificateAuthority |
 						X509VerificationFlags.IgnoreRootRevocationUnknown |
@@ -131,7 +131,7 @@ namespace NBitcoin.Tests
 		public void CanVerifyValidChain()
 		{
 			foreach(var provider in new ICertificateServiceProvider[]
-			{ 
+			{
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid, X509RevocationMode.NoCheck)
 			})
 			{
@@ -159,7 +159,7 @@ namespace NBitcoin.Tests
 			};
 
 			foreach(var provider in new ICertificateServiceProvider[]
-			{ 
+			{
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid |
 						X509VerificationFlags.AllowUnknownCertificateAuthority |
 						X509VerificationFlags.IgnoreRootRevocationUnknown |
@@ -187,7 +187,7 @@ namespace NBitcoin.Tests
 		public void CanCreatePaymentRequest()
 		{
 			foreach(var provider in new ICertificateServiceProvider[]
-			{ 
+			{
 				new WindowsCertificateServiceProvider(X509VerificationFlags.IgnoreNotTimeValid)
 			})
 			{
@@ -293,13 +293,20 @@ namespace NBitcoin.Tests
 				var context = _Listener.EndGetContext(ar);
 				var type = context.Request.QueryString.Get("type");
 				var businessId = int.Parse(context.Request.QueryString.Get("id"));
+				var now = DateTimeOffset.UtcNow;
+				var expire = now + TimeSpan.FromDays(1);
+				TxOut txOut = new TxOut(Money.Coins(1), new Key().ScriptPubKey);
 				if(type == "Request")
 				{
 					Assert.Equal(PaymentRequest.MediaType, context.Request.AcceptTypes[0]);
 					context.Response.ContentType = PaymentRequest.MediaType;
 					PaymentRequest request = new PaymentRequest();
 					request.Details.MerchantData = BitConverter.GetBytes(businessId);
+					request.Details.Network = Network.RegTest;
+					request.Details.Expires = expire;
+					request.Details.Time = now;
 					request.Details.PaymentUrl = new Uri(_Prefix + "?id=" + businessId + "&type=Payment");
+					request.Details.Outputs.Add(new PaymentOutput(txOut));
 					request.Sign(File.ReadAllBytes("data/NicolasDorierMerchant.pfx"), PKIType.X509SHA256);
 					request.WriteTo(context.Response.OutputStream);
 				}
