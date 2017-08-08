@@ -11,6 +11,7 @@ using System.Net.Http;
 #endif
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -320,6 +321,7 @@ namespace NBitcoin.Tests
 
 					context.Response.ContentType = PaymentACK.MediaType;
 					var ack = payment.CreateACK();
+					ack.Memo = "Thanks for your purchase";
 					ack.WriteTo(context.Response.OutputStream);
 				}
 				else
