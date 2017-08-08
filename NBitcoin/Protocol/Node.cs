@@ -193,7 +193,8 @@ namespace NBitcoin.Protocol
 							evt.SetBuffer(bytes, 0, bytes.Length);
 							_Node.Counter.AddWritten(bytes.Length);
 							ar.Reset();
-							Socket.SendAsync(evt);
+							if (!Socket.SendAsync(evt))
+								Utils.SafeSet(ar);
 							WaitHandle.WaitAny(new WaitHandle[] { ar, Cancel.Token.WaitHandle }, -1);
 							if(!Cancel.Token.IsCancellationRequested)
 							{
