@@ -1458,7 +1458,7 @@ namespace NBitcoin
 		/// <summary>
 		/// Sign a specific coin with the given secret
 		/// </summary>
-		/// <param name="key">Private keys</param>
+		/// <param name="keys">Private keys</param>
 		/// <param name="coins">Coins to sign</param>
 		public void Sign(Key[] keys, params ICoin[] coins)
 		{
