@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Sdk;
 
 namespace NBitcoin.Tests
 {
@@ -376,6 +377,7 @@ namespace NBitcoin.Tests
 				requests.Add(rpc.GetBlockHashAsync(11));
 				rpc.CancelBatch();
 				rpc = rpc.PrepareBatch();
+				Thread.Sleep(100);
 				Assert.Equal(TaskStatus.Canceled, requests[0].Status);
 				Assert.Equal(TaskStatus.Canceled, requests[1].Status);
 			}
@@ -480,10 +482,14 @@ namespace NBitcoin.Tests
 				var rpc = nodeA.CreateRPCClient();
 				rpc.RemoveNode(nodeA.Endpoint);
 				rpc.AddNode(nodeB.Endpoint);
-				Thread.Sleep(500);
-				var info = rpc.GetAddedNodeInfo(true);
-				Assert.NotNull(info);
-				Assert.NotEmpty(info);
+
+				AddedNodeInfo[] info = null;
+				WaitAssert(() =>
+				{
+					info = rpc.GetAddedNodeInfo(true);
+					Assert.NotNull(info);
+					Assert.NotEmpty(info);
+				});
 				//For some reason this one does not pass anymore in 0.13.1
 				//Assert.Equal(nodeB.Endpoint, info.First().Addresses.First().Address);
 				var oneInfo = rpc.GetAddedNodeInfo(true, nodeB.Endpoint);
@@ -492,9 +498,30 @@ namespace NBitcoin.Tests
 				oneInfo = rpc.GetAddedNodeInfo(true, nodeA.Endpoint);
 				Assert.Null(oneInfo);
 				rpc.RemoveNode(nodeB.Endpoint);
-				Thread.Sleep(500);
-				info = rpc.GetAddedNodeInfo(true);
-				Assert.Equal(0, info.Count());
+
+				WaitAssert(() =>
+				{
+					info = rpc.GetAddedNodeInfo(true);
+					Assert.Equal(0, info.Count());
+				});
+			}
+		}
+
+		void WaitAssert(Action act)
+		{
+			int totalTry = 15;
+			while(totalTry > 0)
+			{
+				try
+				{
+					act();
+					return;
+				}
+				catch(AssertActualExpectedException)
+				{
+					Thread.Sleep(100);
+					totalTry--;
+				}
 			}
 		}
 #endif
