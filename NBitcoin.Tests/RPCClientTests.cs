@@ -509,7 +509,7 @@ namespace NBitcoin.Tests
 
 		void WaitAssert(Action act)
 		{
-			int totalTry = 15;
+			int totalTry = 30;
 			while(totalTry > 0)
 			{
 				try
