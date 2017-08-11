@@ -235,7 +235,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(40, count);
 		}
 		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Trait("UnitTest", "UnitTest")]
 		public static void CanRequestBlockr()
 		{
 			var repo = new BlockrTransactionRepository(Network.Main);
@@ -257,7 +257,7 @@ namespace NBitcoin.Tests
 			Assert.True(unspent.Count != 0);
 		}
 		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Trait("UnitTest", "UnitTest")]
 		public static void CanPushTxBlockr()
 		{
 			var repo = new BlockrTransactionRepository(Network.Main);
