@@ -590,7 +590,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		[Trait("UnitTest", "UnitTest")]
+		//[Trait("UnitTest", "UnitTest")]
 		public void CanBroadcastTransaction()
 		{
 			using(NodeServerTester servers = new NodeServerTester())
