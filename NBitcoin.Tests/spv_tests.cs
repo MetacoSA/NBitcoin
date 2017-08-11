@@ -625,36 +625,40 @@ namespace NBitcoin.Tests
 					rejected = true;
 					evt.Set();
 				};
-				BroadcastHubBehavior behavior = null;
-				while(behavior == null || behavior.AttachedNode.State != NodeState.HandShaked)
+				while(connected.ConnectedNodes.Count != 2 && connected.ConnectedNodes.All(n => n.State == NodeState.HandShaked))
 				{
-					behavior = connected.ConnectedNodes.Select(n => n.Behaviors.Find<BroadcastHubBehavior>()).FirstOrDefault();
-					Thread.Sleep(1);
+					Thread.Sleep(10);
 				}
 
-				Assert.Equal(1, behavior.Broadcasts.Count());
+				var behaviors = connected.ConnectedNodes.Select(n => n.Behaviors.Find<BroadcastHubBehavior>()).ToArray();
+
+				TestUtils.Eventually(() => behaviors.All(b => b.Broadcasts.Count() == 1));
 				Assert.Equal(1, hub.BroadcastingTransactions.Count());
 				hub.BroadcastTransactions();
 				Assert.True(evt.WaitOne(20000));
 				Assert.True(broadcasting.Wait(2000));
 				Assert.True(passed);
 				evt.Reset();
-				Assert.Equal(0, behavior.Broadcasts.Count());
+
+
+				TestUtils.Eventually(() => behaviors.All(b => b.Broadcasts.Count() == 0));
 				Assert.Equal(0, hub.BroadcastingTransactions.Count());
 				Assert.Null(broadcasting.Result);
 
 				broadcasting = wallet.BroadcastTransactionAsync(tx);
 
-				Assert.Equal(1, behavior.Broadcasts.Count());
+				TestUtils.Eventually(() => behaviors.All(b => b.Broadcasts.Count() == 1));
 				hub.BroadcastTransactions();
 				Assert.True(evt.WaitOne(20000));
 				Assert.True(broadcasting.Wait(2000));
 				Assert.True(rejected);
-				Assert.Equal(0, behavior.Broadcasts.Count());
+				TestUtils.Eventually(() => behaviors.All(b => b.Broadcasts.Count() == 0));
 				Assert.Equal(0, hub.BroadcastingTransactions.Count());
 				Assert.NotNull(broadcasting.Result);
 			}
 		}
+
+
 
 		//[Fact]
 		//public void Play()
