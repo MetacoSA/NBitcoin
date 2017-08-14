@@ -1387,6 +1387,24 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanSubstractFees()
+		{
+			var alice = new Key();
+			var bob = new Key();
+			var tx =
+				new TransactionBuilder()
+				.AddCoins(new Coin(new OutPoint(Rand(), 1), new TxOut(Money.Coins(1.0m), alice.ScriptPubKey)))
+				.AddKeys(alice)
+				.Send(bob, Money.Coins(0.6m))
+				.SubstractFees()
+				.SendFees(Money.Coins(0.01m))
+				.SetChange(alice)
+				.BuildTransaction(true);
+			Assert.True(tx.Outputs.Any(o => o.Value == Money.Coins(0.59m)));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildTransaction()
 		{
 			var keys = Enumerable.Range(0, 5).Select(i => new Key()).ToArray();
