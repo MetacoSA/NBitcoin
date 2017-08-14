@@ -671,10 +671,10 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Will substract fees from the previous TxOut added by the last TransactionBuidler.Send() call
+		/// Will subtract fees from the previous TxOut added by the last TransactionBuidler.Send() call
 		/// </summary>
 		/// <returns></returns>
-		public TransactionBuilder SubstractFees()
+		public TransactionBuilder SubtractFees()
 		{
 			if(_LastSendBuilder == null)
 				throw new InvalidOperationException("No call to TransactionBuilder.Send has been done which can support the fees");

@@ -1396,7 +1396,7 @@ namespace NBitcoin.Tests
 				.AddCoins(new Coin(new OutPoint(Rand(), 1), new TxOut(Money.Coins(1.0m), alice.ScriptPubKey)))
 				.AddKeys(alice)
 				.Send(bob, Money.Coins(0.6m))
-				.SubstractFees()
+				.SubtractFees()
 				.SendFees(Money.Coins(0.01m))
 				.SetChange(alice)
 				.BuildTransaction(true);
