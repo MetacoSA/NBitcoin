@@ -243,14 +243,9 @@ namespace NBitcoin
 		public static void AddOrReplace<TKey, TValue>(this IDictionary<TKey, TValue> dico, TKey key, TValue value)
 		{
 			if(dico.ContainsKey(key))
-			{
-				dico.Remove(key);
-				dico.Add(key, value);
-			}
+				dico[key] = value;
 			else
-			{
 				dico.Add(key, value);
-			}
 		}
 
 		public static TValue TryGet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)

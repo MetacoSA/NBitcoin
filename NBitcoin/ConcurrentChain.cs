@@ -147,7 +147,7 @@ namespace NBitcoin
 			}
 			var fork = GetBlockNoLock(height);
 			foreach(var newBlock in block.EnumerateToGenesis()
-				.TakeWhile(c => c != Tip))
+				.TakeWhile(c => c != fork))
 			{
 				_BlocksById.AddOrReplace(newBlock.HashBlock, newBlock);
 				_BlocksByHeight.AddOrReplace(newBlock.Height, newBlock);
