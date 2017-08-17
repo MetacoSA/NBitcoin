@@ -94,6 +94,24 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanSignRawTransaction()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+				node.CreateRPCClient().Generate(101);
+
+				var tx = new Transaction();
+				tx.Outputs.Add(new TxOut(Money.Coins(1.0m), new Key()));
+				var funded = node.CreateRPCClient().FundRawTransaction(tx);
+				var signed = node.CreateRPCClient().SignRawTransaction(funded.Transaction);
+				node.CreateRPCClient().SendRawTransaction(signed);
+			}
+		}
+
+		[Fact]
 		public void CanGetBlockFromRPC()
 		{
 			using(var builder = NodeBuilder.Create())
