@@ -451,7 +451,8 @@ namespace NBitcoin.RPC
 			}
 			catch(WebException ex)
 			{
-				if(ex.Response == null || ex.Response.ContentLength == 0)
+				if(ex.Response == null || ex.Response.ContentLength == 0 
+					|| !ex.Response.ContentType.Equals("application/json", StringComparison.Ordinal))
 				{
 					foreach(var item in requests)
 					{
@@ -570,7 +571,7 @@ namespace NBitcoin.RPC
 			catch(WebException ex)
 			{
 				if(ex.Response == null || ex.Response.ContentLength == 0 || 
-					ex.Response.ContentType.Equals("application/json", StringComparison.Ordinal))
+					!ex.Response.ContentType.Equals("application/json", StringComparison.Ordinal))
 					throw;
 				errorResponse = ex.Response;
 				response = RPCResponse.Load(await ToMemoryStreamAsync(errorResponse.GetResponseStream()).ConfigureAwait(false));
