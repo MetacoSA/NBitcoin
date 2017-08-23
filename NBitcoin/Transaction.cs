@@ -1673,7 +1673,7 @@ namespace NBitcoin
 			var fee = GetFee(spentCoins);
 			if(fee == null)
 				return null;
-			return new FeeRate(fee, this.GetSerializedSize());
+			return new FeeRate(fee, this.GetVirtualSize());
 		}
 
 		public bool IsFinal(ChainedBlock block)
