@@ -225,6 +225,11 @@ namespace NBitcoin
 			}
 		}
 
+
+		/// <summary>
+		/// Try to get the expected scriptPubKey of this TxIn based on its scriptSig and witScript.
+		/// </summary>
+		/// <returns>Null if could not infer the scriptPubKey, else, the expected scriptPubKey</returns>
 		public IDestination GetSigner()
 		{
 			return scriptSig.GetSigner() ?? witScript.GetSigner();
