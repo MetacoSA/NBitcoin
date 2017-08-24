@@ -291,7 +291,10 @@ namespace NBitcoin.RPC
 		{
 			return new RPCClient(_Authentication, Address, Network)
 			{
-				_BatchedRequests = new ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>()
+				_BatchedRequests = new ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>(),
+#if !NOFILEIO
+				_FromCookiePath = _FromCookiePath
+#endif
 			};
 		}
 
@@ -398,6 +401,27 @@ namespace NBitcoin.RPC
 			if(requests.Count == 0)
 				return;
 
+			try
+			{
+				await SendBatchAsyncCore(requests).ConfigureAwait(false);
+			}
+#if !NOFILEIO
+			catch(WebException ex)
+			{
+				if(!IsUnauthorized(ex))
+					throw;
+				TryRenewCookie(ex);
+				await SendBatchAsyncCore(requests).ConfigureAwait(false);
+			}
+#else
+			catch(WebException)
+			{
+				throw;
+			}
+#endif
+		}
+		private async Task SendBatchAsyncCore(List<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> requests)
+		{
 			var writer = new StringWriter();
 			writer.Write("[");
 			bool first = true;
@@ -451,7 +475,9 @@ namespace NBitcoin.RPC
 			}
 			catch(WebException ex)
 			{
-				if(ex.Response == null || ex.Response.ContentLength == 0 
+				if(IsUnauthorized(ex))
+					throw;
+				if(ex.Response == null || ex.Response.ContentLength == 0
 					|| !ex.Response.ContentType.Equals("application/json", StringComparison.Ordinal))
 				{
 					foreach(var item in requests)
@@ -502,6 +528,13 @@ namespace NBitcoin.RPC
 			}
 		}
 
+		private static bool IsUnauthorized(WebException ex)
+		{
+			var httpResp = ex.Response as HttpWebResponse;
+			var isUnauthorized = httpResp != null && httpResp.StatusCode == HttpStatusCode.Unauthorized;
+			return isUnauthorized;
+		}
+
 		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
 		{
 			try
@@ -511,16 +544,9 @@ namespace NBitcoin.RPC
 #if !NOFILEIO
 			catch(WebException ex)
 			{
-				if(!ex.Message.Contains("401"))
+				if(!IsUnauthorized(ex))
 					throw;
-				if(_FromCookiePath != null)
-				{
-					try
-					{
-						_Authentication = File.ReadAllText(_FromCookiePath);
-					}
-					catch { throw ex; }
-				}
+				TryRenewCookie(ex);
 				return await SendCommandAsyncCore(request, throwIfRPCError).ConfigureAwait(false);
 			}
 #else
@@ -531,6 +557,23 @@ namespace NBitcoin.RPC
 #endif
 
 		}
+
+#if !NOFILEIO
+		private void TryRenewCookie(WebException ex)
+		{
+			if(_FromCookiePath != null)
+			{
+				try
+				{
+					_Authentication = File.ReadAllText(_FromCookiePath);
+				}
+				//We are only interested into the previous exception
+				catch { ExceptionDispatchInfo.Capture(ex).Throw(); }
+			}
+			else
+				ExceptionDispatchInfo.Capture(ex).Throw();
+		}
+#endif
 
 		async Task<RPCResponse> SendCommandAsyncCore(RPCRequest request, bool throwIfRPCError)
 		{
