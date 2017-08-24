@@ -446,7 +446,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanAuthWithCookieFile()
 		{
-#if !NOFILEIO
+#if NOFILEIO
 			Assert.Throws<NotSupportedException>(() => new RPCClient(Network.Main));
 #else
 			using(var builder = NodeBuilder.Create())
