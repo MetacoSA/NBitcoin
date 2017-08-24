@@ -278,11 +278,19 @@ namespace NBitcoin.RPC
 			return null;
 		}
 
-		private string GetDefaultCookieFilePath(Network network)
+		public static string GetDefaultCookieFilePath(Network network)
 		{
 			string path = null;
 			if(!_DefaultPaths.TryGetValue(network, out path))
 				throw new ArgumentException("This network has no default cookie file path registered, use RPCClient.RegisterDefaultCookiePath to register", "network");
+			return path;
+		}
+
+		public static string TryGetDefaultCookieFilePath(Network network)
+		{
+			string path = null;
+			if(!_DefaultPaths.TryGetValue(network, out path))
+				return null;
 			return path;
 		}
 
@@ -610,7 +618,7 @@ namespace NBitcoin.RPC
 				throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
 			_Authentication = auth;
 #else
-			throw new InvalidOperationException("Cookie authentication is not supported for this plateform");
+			throw new NotSupportedException("Cookie authentication is not supported for this plateform");
 #endif
 		}
 		private void TryRenewCookie(WebException ex)
@@ -626,7 +634,7 @@ namespace NBitcoin.RPC
 			//We are only interested into the previous exception
 			catch { ExceptionDispatchInfo.Capture(ex).Throw(); }
 #else
-			throw new InvalidOperationException("Cookie authentication is not supported for this plateform");
+			throw new NotSupportedException("Cookie authentication is not supported for this plateform");
 #endif
 		}
 
@@ -709,7 +717,7 @@ namespace NBitcoin.RPC
 			return ms;
 		}
 
-		#region P2P Networking
+#region P2P Networking
 #if !NOSOCKET
 		public PeerInfo[] GetPeersInfo()
 		{
@@ -869,9 +877,9 @@ namespace NBitcoin.RPC
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Block chain and UTXO
+#region Block chain and UTXO
 
 		public uint256 GetBestBlockHash()
 		{
@@ -1041,13 +1049,13 @@ namespace NBitcoin.RPC
 			return GetTransactions(GetBlockHash(height));
 		}
 
-		#endregion
+#endregion
 
-		#region Coin generation
+#region Coin generation
 
-		#endregion
+#endregion
 
-		#region Raw Transaction
+#region Raw Transaction
 
 		public Transaction DecodeRawTransaction(string rawHex)
 		{
@@ -1123,9 +1131,9 @@ namespace NBitcoin.RPC
 			return SendCommandAsync("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
 		}
 
-		#endregion
+#endregion
 
-		#region Utility functions
+#region Utility functions
 		/// <summary>
 		/// Get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
@@ -1279,7 +1287,7 @@ namespace NBitcoin.RPC
 			return SendCommand(RPCOperations.settxfee, new[] { feeRate.FeePerK.ToString() }).Result.ToString() == "true";
 		}
 
-		#endregion
+#endregion
 
 		public async Task<uint256[]> GenerateAsync(int nBlocks)
 		{

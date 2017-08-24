@@ -446,8 +446,12 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanAuthWithCookieFile()
 		{
+#if !NOFILEIO
+			Assert.Throws<NotSupportedException>(() => new RPCClient(Network.Main));
+#else
 			using(var builder = NodeBuilder.Create())
 			{
+				
 				var node = builder.CreateNode();
 				node.CookieAuth = true;
 				node.Start();
@@ -476,6 +480,7 @@ namespace NBitcoin.Tests
 
 				rpc = new RPCClient("bla:bla", "http://toto/", Network.RegTest);
 			}
+#endif
 		}
 
 
