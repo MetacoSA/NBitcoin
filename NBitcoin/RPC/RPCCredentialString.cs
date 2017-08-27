@@ -40,7 +40,7 @@ namespace NBitcoin.RPC
 			if(str.IndexOf(':') != -1)
 			{
 				var parts = str.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-				if(parts.Length <= 2)
+				if(parts.Length >= 2)
 				{
 					parts[1] = string.Join(":", parts.Skip(1).ToArray());
 					connectionString = new RPCCredentialString();
