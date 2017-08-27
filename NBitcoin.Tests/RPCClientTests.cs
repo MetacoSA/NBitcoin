@@ -451,7 +451,10 @@ namespace NBitcoin.Tests
 #else
 			using(var builder = NodeBuilder.Create())
 			{
-				
+				//Sanity check that it does not throw
+#pragma warning disable CS0618
+				new RPCClient(new NetworkCredential("toto", "tata"), "localhost:10393", Network.Main);
+
 				var node = builder.CreateNode();
 				node.CookieAuth = true;
 				node.Start();

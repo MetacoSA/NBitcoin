@@ -319,6 +319,12 @@ namespace NBitcoin.RPC
 				catch { }
 			}
 			hostOrUri = hostOrUri ?? "127.0.0.1";
+			var indexOfPort = hostOrUri.IndexOf(":");
+			if(indexOfPort != -1)
+			{
+				port = int.Parse(hostOrUri.Substring(indexOfPort + 1));
+				hostOrUri = hostOrUri.Substring(0, indexOfPort);
+			}
 			UriBuilder builder = new UriBuilder();
 			builder.Host = hostOrUri;
 			builder.Scheme = "http";
