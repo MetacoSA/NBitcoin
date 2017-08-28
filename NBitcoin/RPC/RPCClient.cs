@@ -234,7 +234,7 @@ namespace NBitcoin.RPC
 
 			if(!string.IsNullOrEmpty(home))
 			{
-				var bitcoinFolder = Path.Combine(home, ".bitcoin", ".cookie");
+				var bitcoinFolder = Path.Combine(home, ".bitcoin");
 				RegisterDefaultCookiePath(Network.Main, bitcoinFolder);
 
 				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
