@@ -1176,6 +1176,7 @@ namespace NBitcoin.Protocol
 			NodeServerTrace.Information("Building chain");
 			using(var listener = this.CreateListener().OfType<HeadersPayload>())
 			{
+				bool headersRequestTimeout = false;
 				while(true)
 				{
 					//Get before last so, at the end, we should only receive 1 header equals to this one (so we will not have race problems with concurrent GetChains)
@@ -1189,18 +1190,22 @@ namespace NBitcoin.Protocol
 					while(true)
 					{
 						bool isOurs = false;
-						var headersCancel = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken); //30 sec delay before reasking GetHeaders
-						headersCancel.CancelAfter(PollHeaderDelay);
 						HeadersPayload headers = null;
-						try
+
+						using(var headersCancel = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
 						{
-							headers = listener.ReceivePayload<HeadersPayload>(headersCancel.Token);
-						}
-						catch(OperationCanceledException)
-						{
-							if(cancellationToken.IsCancellationRequested)
-								throw;
-							break; //Send a new GetHeaders
+							headersCancel.CancelAfter(PollHeaderDelay);
+							try
+							{
+								headers = listener.ReceivePayload<HeadersPayload>(headersCancel.Token);
+							}
+							catch(OperationCanceledException)
+							{
+								headersRequestTimeout = true;
+								if(cancellationToken.IsCancellationRequested)
+									throw;
+								break; //Send a new GetHeaders
+							}
 						}
 						if(headers.Headers.Count == 0 && PeerVersion.StartHeight == 0 && currentTip.HashBlock == Network.GenesisHash) //In the special case where the remote node is at height 0 as well as us, then the headers count will be 0
 							yield break;
@@ -1211,6 +1216,20 @@ namespace NBitcoin.Protocol
 							var h = header.GetHash();
 							if(h == currentTip.HashBlock)
 								continue;
+
+							//The previous headers request timeout, this can arrive in case of big reorg
+							if(headersRequestTimeout && header.HashPrevBlock != currentTip.HashBlock)
+							{
+								headersRequestTimeout = false;
+								var tempCurrentTip = currentTip;
+								while(tempCurrentTip != null && header.HashPrevBlock != tempCurrentTip.HashBlock)
+								{
+									tempCurrentTip = tempCurrentTip.Previous;
+								}
+								if(tempCurrentTip != null)
+									currentTip = tempCurrentTip;
+							}
+
 							if(header.HashPrevBlock == currentTip.HashBlock)
 							{
 								isOurs = true;
