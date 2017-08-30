@@ -1176,7 +1176,7 @@ namespace NBitcoin.Protocol
 			NodeServerTrace.Information("Building chain");
 			using(var listener = this.CreateListener().OfType<HeadersPayload>())
 			{
-				bool headersRequestTimeout = false;
+				int acceptMaxReorgDepth = 0;
 				while(true)
 				{
 					//Get before last so, at the end, we should only receive 1 header equals to this one (so we will not have race problems with concurrent GetChains)
@@ -1201,7 +1201,7 @@ namespace NBitcoin.Protocol
 							}
 							catch(OperationCanceledException)
 							{
-								headersRequestTimeout = true;
+								acceptMaxReorgDepth += 6;
 								if(cancellationToken.IsCancellationRequested)
 									throw;
 								break; //Send a new GetHeaders
@@ -1218,15 +1218,16 @@ namespace NBitcoin.Protocol
 								continue;
 
 							//The previous headers request timeout, this can arrive in case of big reorg
-							if(headersRequestTimeout && header.HashPrevBlock != currentTip.HashBlock)
+							if(header.HashPrevBlock != currentTip.HashBlock)
 							{
-								headersRequestTimeout = false;
+								int reorgDepth = 0;
 								var tempCurrentTip = currentTip;
-								while(tempCurrentTip != null && header.HashPrevBlock != tempCurrentTip.HashBlock)
+								while(reorgDepth != acceptMaxReorgDepth && tempCurrentTip != null && header.HashPrevBlock != tempCurrentTip.HashBlock)
 								{
+									reorgDepth++;
 									tempCurrentTip = tempCurrentTip.Previous;
 								}
-								if(tempCurrentTip != null)
+								if(reorgDepth != acceptMaxReorgDepth && tempCurrentTip != null)
 									currentTip = tempCurrentTip;
 							}
 
