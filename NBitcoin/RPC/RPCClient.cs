@@ -48,7 +48,7 @@ namespace NBitcoin.RPC
 		blockchain		 getdifficulty
 		blockchain		 getmempoolinfo
 		blockchain		 getrawmempool				Yes
-		blockchain		 gettxout
+		blockchain		 gettxout					Yes
 		blockchain		 gettxoutproof
 		blockchain		 verifytxoutproof
 		blockchain		 gettxoutsetinfo
@@ -963,6 +963,28 @@ namespace NBitcoin.RPC
 			var result = await SendCommandAsync("getrawmempool").ConfigureAwait(false);
 			var array = (JArray)result.Result;
 			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
+		}
+
+		public UnspentTransaction GetTxOut(uint256 txid, uint vout, bool includeMemPool = true)
+		{
+			var response = SendCommand("gettxout", txid.ToString(), vout, includeMemPool);
+			var responseObject = response.Result as JObject;
+			if(responseObject == null)
+			{
+				return null;
+			}
+			return new UnspentTransaction(response.Result as JObject);
+		}
+
+		public async Task<UnspentTransaction> GetTxOutAsync(uint256 txid, uint vout, bool includeMemPool = true)
+		{
+			var response = await SendCommandAsync("gettxout", txid.ToString(), vout, includeMemPool).ConfigureAwait(false);
+			var responseObject = response.Result as JObject;
+			if (responseObject == null)
+			{
+				return null;
+			}
+			return new UnspentTransaction(responseObject);
 		}
 
 		/// <summary>
