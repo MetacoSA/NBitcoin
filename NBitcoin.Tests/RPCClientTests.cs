@@ -179,6 +179,58 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanGetTxOutNoneFromRPC()
+		{
+			using (var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				var rpc = node.CreateRPCClient();
+				var txid = rpc.Generate(1).Single();
+				var resultTxOut = rpc.GetTxOut(txid, 0, true);
+				Assert.Null(resultTxOut);
+			}
+		}
+
+		[Fact]
+		public void CanGetTxOutFromRPC()
+		{
+			using (var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				node.Generate(101);
+				var rpc = node.CreateRPCClient();
+				var unspent = rpc.ListUnspent();
+				Assert.True(unspent.Any());
+				var coin = unspent[0] ;
+				var resultTxOut = rpc.GetTxOut(coin.OutPoint.Hash, coin.OutPoint.N, true);
+				Assert.Equal((int)coin.Confirmations, resultTxOut.confirmations);
+				Assert.Equal(coin.Amount.ToDecimal(MoneyUnit.BTC), resultTxOut.value);
+				Assert.Equal(coin.Address.ToString(), resultTxOut.scriptPubKey.addresses[0]);
+			}
+		}
+
+		[Fact]
+		public async Task CanGetTxOutAsyncFromRPC()
+		{
+			using (var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				node.Generate(101);
+				var rpc = node.CreateRPCClient();
+				var unspent = rpc.ListUnspent();
+				Assert.True(unspent.Any());
+				var coin = unspent[0];
+				var resultTxOut = await rpc.GetTxOutAsync(coin.OutPoint.Hash, coin.OutPoint.N, true);
+				Assert.Equal((int)coin.Confirmations, resultTxOut.confirmations);
+				Assert.Equal(coin.Amount.ToDecimal(MoneyUnit.BTC), resultTxOut.value);
+				Assert.Equal(coin.Address.ToString(), resultTxOut.scriptPubKey.addresses[0]);
+			}
+		}
+
+		[Fact]
 		public void CanGetTransactionBlockFromRPC()
 		{
 			using(var builder = NodeBuilder.Create())
@@ -249,6 +301,33 @@ namespace NBitcoin.Tests
 				var raw3 = Transaction.Parse(raw.ToString(format, network), format);
 				Assert.Equal(raw.ToString(format, network), raw3.ToString(format, network));
 			}
+		}
+
+		[Fact]
+		public void CanDecodeUnspentTransaction()
+		{
+			var testJson =
+@"{
+	""bestblock"": ""d54994ece1d11b19785c7248868696250ab195605b469632b7bd68130e880c9a"",
+	""confirmations"": 1,
+	""value"": 7.744E-05,
+	""scriptPubKey"": {
+		""asm"": ""OP_DUP OP_HASH160 fdb12c93cf639eb38d1998959cfd2f35eb730ede OP_EQUALVERIFY OP_CHECKSIG"",
+		""hex"": ""76a914fdb12c93cf639eb38d1998959cfd2f35eb730ede88ac"",
+		""reqSigs"": 1,
+		""type"": ""pubkeyhash"",
+		""addresses"": [
+		  ""n4eMVrvNqe4EtZDEeei3o63hymTKZNZGhf""
+		]
+	},
+	""coinbase"": true
+}";
+			var testData = JObject.Parse(testJson);
+			var unspentTransaction = new UnspentTransaction(testData);
+			Assert.Equal(1, unspentTransaction.confirmations);
+			Assert.Equal(1, unspentTransaction.scriptPubKey.reqSigs);
+			Assert.Equal(1, unspentTransaction.scriptPubKey.addresses.Count);
+			Assert.Equal(7.744E-05m, unspentTransaction.value);
 		}
 
 		[Fact]
