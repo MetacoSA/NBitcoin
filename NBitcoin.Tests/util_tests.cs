@@ -117,8 +117,8 @@ namespace NBitcoin.Tests
 			Assert.Equal("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM", addr.ToString());
 			Assert.Equal("mfcSEPR8EkJrpX91YkTJ9iscdAzppJrG9j", addr.ToNetwork(Network.TestNet).ToString());
 
-			Assert.Throws<FormatException>(()=> Network.Parse<IBase58Data>("bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3", Network.Main));
-			
+			Assert.Throws<FormatException>(() => Network.Parse<IBase58Data>("bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3", Network.Main));
+
 
 			Network.Parse<IBitcoinString>("bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3", Network.Main);
 
@@ -521,6 +521,18 @@ namespace NBitcoin.Tests
 				Assert.Equal<BigInteger>(BigInteger.ValueOf(expected), actual);
 			}
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanDivideMoney()
+		{
+			var bobInput = Money.Coins(1.1M);
+			var aliceInput = Money.Coins(0.275M);
+			var actual = (bobInput + aliceInput) / 2;
+			Money expected = Money.Satoshis((bobInput.Satoshi + aliceInput.Satoshi) / 2);
+			Assert.Equal(expected, actual);
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertBigIntegerToBytes()
