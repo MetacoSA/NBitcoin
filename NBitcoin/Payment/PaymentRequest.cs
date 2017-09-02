@@ -41,6 +41,11 @@ namespace NBitcoin.Payment
 			if(destination != null)
 				Script = destination.ScriptPubKey;
 		}
+		public PaymentOutput(TxOut txOut)
+		{
+			Amount = txOut.Value;
+			Script = txOut.ScriptPubKey;
+		}
 		Money _Amount;
 		public Money Amount
 		{
@@ -123,7 +128,8 @@ namespace NBitcoin.Payment
 					case 1:
 						var network = reader.ReadString();
 						result.Network = network.Equals("main", StringComparison.OrdinalIgnoreCase) ? Network.Main :
-										 network.Equals("test", StringComparison.OrdinalIgnoreCase) ? Network.TestNet : null;
+										 network.Equals("test", StringComparison.OrdinalIgnoreCase) ? Network.TestNet :
+										 network.Equals("regtest", StringComparison.OrdinalIgnoreCase) ? Network.RegTest : null;
 						if(result.Network == null)
 							throw new NotSupportedException("Invalid network");
 						break;
@@ -158,7 +164,8 @@ namespace NBitcoin.Payment
 			if(_Network != null)
 			{
 				var str = _Network == Network.Main ? "main" :
-					_Network == Network.TestNet ? "test" : null;
+					_Network == Network.TestNet ? "test" : 
+					_Network == Network.RegTest ? "regtest" : null;
 				if(str == null)
 					throw new InvalidOperationException("Impossible to serialize a payment request on network " + _Network);
 				writer.WriteKey(1, ProtobufReaderWriter.PROTOBUF_LENDELIM);
@@ -374,7 +381,7 @@ namespace NBitcoin.Payment
 			}
 		}
 
-#if WIN
+#if !NOX509
 		private static ICertificateServiceProvider _DefaultCertificateServiceProvider = new WindowsCertificateServiceProvider();
 #else
 		private static ICertificateServiceProvider _DefaultCertificateServiceProvider;		
