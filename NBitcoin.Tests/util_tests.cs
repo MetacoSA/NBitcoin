@@ -3,6 +3,7 @@ using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.JsonConverters;
 using NBitcoin.OpenAsset;
+using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
@@ -428,6 +429,23 @@ namespace NBitcoin.Tests
 
 			Assert.Throws<ArgumentException>(() => Money.FromUnit(10, (MoneyUnit)14));
 			Assert.Throws<ArgumentException>(() => Money.FromUnit(10, (MoneyUnit)(-41)));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParseRPCCredentialString()
+		{
+			Assert.True(RPCCredentialString.Parse("default").UseDefault);
+			Assert.Equal("c:/", RPCCredentialString.Parse("cookiefile=c:/").CookieFile);
+			Assert.Equal("abc", RPCCredentialString.Parse("abc:def").UserPassword.UserName);
+			Assert.Equal("def", RPCCredentialString.Parse("abc:def").UserPassword.Password);
+			Assert.Equal("def:def", RPCCredentialString.Parse("abc:def:def").UserPassword.Password);
+
+			Assert.Equal("abc", RPCCredentialString.Parse("wallet=abcd;abc:def").UserPassword.UserName);
+			Assert.Equal("abcd", RPCCredentialString.Parse("wallet=abcd;abc:def").WalletName);
+			Assert.Equal("wallet=abcd;abc:def", RPCCredentialString.Parse("wallet=abcd;abc:def").ToString());
+
+			Assert.Equal("wallet=abcd;server=toto:3030;abc:def", RPCCredentialString.Parse("wallet=abcd;server=toto:3030;abc:def").ToString());
 		}
 
 		[Fact]

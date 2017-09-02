@@ -20,8 +20,41 @@ namespace NBitcoin.RPC
 
 		public static bool TryParse(string str, out RPCCredentialString connectionString)
 		{
+			connectionString = null;
 			if(str == null)
 				throw new ArgumentNullException(nameof(str));
+
+			var parts = str.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+			string walletName = null;
+			string server = null;
+			foreach(var part in parts)
+			{
+				if(part == parts[parts.Length - 1])
+				{
+					TryParseAuth(part, out connectionString);
+					break;
+				}
+				if(part.StartsWith("wallet=", StringComparison.OrdinalIgnoreCase))
+				{
+					walletName = part.Substring("wallet=".Length);
+				}
+				else if(part.StartsWith("server=", StringComparison.OrdinalIgnoreCase))
+				{
+					server = part.Substring("server=".Length);
+				}
+				else
+					return false;
+			}
+
+			if(connectionString == null)
+				return false;
+			connectionString.WalletName = walletName;
+			connectionString.Server = server;
+			return true;
+		}
+
+		private static bool TryParseAuth(string str, out RPCCredentialString connectionString)
+		{
 			str = str.Trim();
 			if(str.Equals("default", StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(str))
 			{
@@ -53,6 +86,13 @@ namespace NBitcoin.RPC
 			return false;
 		}
 
+		public string Server
+		{
+			get; set;
+		}
+
+
+
 		/// <summary>
 		/// Use default connection settings of the chain
 		/// </summary>
@@ -64,6 +104,13 @@ namespace NBitcoin.RPC
 			}
 		}
 
+		/// <summary>
+		/// Name of the wallet in multi wallet mode
+		/// </summary>
+		public string WalletName
+		{
+			get; set;
+		}
 
 		/// <summary>
 		/// Path to cookie file
@@ -110,10 +157,21 @@ namespace NBitcoin.RPC
 
 		public override string ToString()
 		{
-			return UseDefault ? "default" :
+			StringBuilder builder = new StringBuilder();
+			if(!string.IsNullOrEmpty(WalletName))
+			{
+				builder.Append($"wallet={WalletName};");
+			}
+			if(!string.IsNullOrEmpty(Server))
+			{
+				builder.Append($"server={Server};");
+			}
+			var authPath = UseDefault ? "default" :
 				   CookieFile != null ? ("cookiefile=" + CookieFile) :
 				   UserPassword != null ? $"{UserPassword.UserName}:{UserPassword.Password}" :
 				   "default";
+			builder.Append(authPath);
+			return builder.ToString();
 		}
 	}
 }

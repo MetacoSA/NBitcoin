@@ -164,18 +164,23 @@ namespace NBitcoin.RPC
 		/// Use default bitcoin parameters to configure a RPCClient.
 		/// </summary>
 		/// <param name="network">The network used by the node. Must not be null.</param>
-		public RPCClient(Network network) : this(null as string, BuildUri(null, network.RPCPort), network)
+		public RPCClient(Network network) : this(null as string, BuildUri(null, null, network.RPCPort), network)
 		{
 		}
 
 		[Obsolete("Use RPCClient(ConnectionString, string, Network)")]
 		public RPCClient(NetworkCredential credentials, string host, Network network)
-			: this(credentials, BuildUri(host, network.RPCPort), network)
+			: this(credentials, BuildUri(host, null, network.RPCPort), network)
+		{
+		}
+
+		public RPCClient(RPCCredentialString credentials, Network network)
+			: this(credentials, null as String, network)
 		{
 		}
 
 		public RPCClient(RPCCredentialString credentials, string host, Network network)
-			: this(credentials, BuildUri(host, network.RPCPort), network)
+			: this(credentials, BuildUri(host, credentials.ToString(), network.RPCPort), network)
 		{
 		}
 
@@ -301,12 +306,18 @@ namespace NBitcoin.RPC
 		/// <param name="hostOrUri"></param>
 		/// <param name="network"></param>
 		public RPCClient(string authenticationString, string hostOrUri, Network network)
-			: this(authenticationString, BuildUri(hostOrUri, network.RPCPort), network)
+			: this(authenticationString, BuildUri(hostOrUri, authenticationString, network.RPCPort), network)
 		{
 		}
 
-		private static Uri BuildUri(string hostOrUri, int port)
+		private static Uri BuildUri(string hostOrUri, string connectionString, int port)
 		{
+			RPCCredentialString connString;
+			if(connectionString != null && RPCCredentialString.TryParse(connectionString, out connString))
+			{
+				if(connString.Server != null)
+					hostOrUri = connString.Server;
+			}
 			if(hostOrUri != null)
 			{
 				hostOrUri = hostOrUri.Trim();
@@ -596,7 +607,7 @@ namespace NBitcoin.RPC
 			var isUnauthorized = httpResp != null && httpResp.StatusCode == HttpStatusCode.Unauthorized;
 			return isUnauthorized;
 		}
-
+		
 		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
 		{
 			try
@@ -708,7 +719,14 @@ namespace NBitcoin.RPC
 
 		private HttpWebRequest CreateWebRequest()
 		{
-			var webRequest = (HttpWebRequest)WebRequest.Create(Address);
+			var address = Address.AbsoluteUri;
+			if(!string.IsNullOrEmpty(CredentialString.WalletName))
+			{
+				if(!address.EndsWith("/"))
+					address = address + "/";
+				address += "wallet/" + CredentialString.WalletName;
+			}
+			var webRequest = (HttpWebRequest)WebRequest.Create(address);
 			webRequest.Headers[HttpRequestHeader.Authorization] = "Basic " + Encoders.Base64.EncodeData(Encoders.ASCII.DecodeData(_Authentication));
 			webRequest.ContentType = "application/json-rpc";
 			webRequest.Method = "POST";
