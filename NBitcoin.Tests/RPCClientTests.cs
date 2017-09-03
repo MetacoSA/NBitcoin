@@ -46,6 +46,30 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				var response = rpc.SendCommand(RPCOperations.getinfo);
 				Assert.NotNull(response.Result);
+				var copy = RPCCredentialString.Parse(rpc.CredentialString.ToString());
+				copy.Server = rpc.Address.AbsoluteUri;
+				rpc = new RPCClient(copy, null as string, Network.RegTest);
+				response = rpc.SendCommand(RPCOperations.getinfo);
+				Assert.NotNull(response.Result);
+			}
+		}
+
+		[Fact]
+		public void CanUseMultipleWallets()
+		{
+			using(var builder = NodeBuilder.Create(version: "0.15.0"))
+			{
+				var node = builder.CreateNode();
+				node.ConfigParameters.Add("wallet", "w1");
+				node.Start();
+				var rpc = node.CreateRPCClient();
+				var creds = RPCCredentialString.Parse(rpc.CredentialString.ToString());
+				creds.Server = rpc.Address.AbsoluteUri;
+				creds.WalletName = "w1";
+				rpc = new RPCClient(creds, Network.RegTest);
+				rpc.SendCommandAsync(RPCOperations.getwalletinfo).GetAwaiter().GetResult().ThrowIfError();
+				Assert.NotNull(rpc.GetBalance());
+				Assert.NotNull(rpc.GetBestBlockHash());
 			}
 		}
 
