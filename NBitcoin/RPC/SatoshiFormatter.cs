@@ -124,7 +124,7 @@ namespace NBitcoin.RPC
 					writer.WriteValue(destinations[0].GetAddress(Network).ToString());
 					writer.WriteEndArray();
 				}
-				else
+				else if(destinations.Count > 1)
 				{
 					var multi = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(txout.ScriptPubKey);
 					WritePropertyValue(writer, "reqSigs", multi.SignatureCount);
