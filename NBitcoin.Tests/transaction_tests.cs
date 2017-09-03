@@ -1403,6 +1403,26 @@ namespace NBitcoin.Tests
 			Assert.True(tx.Outputs.Any(o => o.Value == Money.Coins(0.59m)));
 		}
 
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildWithKnownSignatures()
+		{
+			var k = new Key();
+			var tx = new Transaction();
+
+			var coin = new Coin(new OutPoint(Rand(), 0), new TxOut(Money.Coins(1.0m), k.PubKey.Hash));
+			tx.Inputs.Add(new TxIn(coin.Outpoint));
+			var signature = tx.SignInput(k, coin);
+
+			var txBuilder = new TransactionBuilder();
+			txBuilder.AddCoins(coin);
+			txBuilder.AddKnownSignature(k.PubKey, signature);
+			txBuilder.SignTransactionInPlace(tx);
+
+			Assert.True(tx.Inputs.AsIndexedInputs().First().VerifyScript(coin));
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildTransaction()
