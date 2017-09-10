@@ -268,6 +268,45 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanGuessRedeemScriptWithInputKeys()
+		{
+			var k = new Key();
+
+			//This gives you a Bech32 address (currently not really interoperable in wallets, so you need to convert it into P2SH)
+			var address = k.PubKey.WitHash.GetAddress(Network.Main);
+			var p2sh = address.GetScriptAddress();
+			//p2sh is now an interoperable P2SH segwit address
+
+			//For spending, it works the same as a a normal P2SH
+			//You need to get the ScriptCoin, the RedeemScript of you script coin should be k.PubKey.WitHash.ScriptPubKey.
+
+			var coins =
+				//Get coins from any block explorer.
+				GetCoins(p2sh)
+				//Nobody knows your redeem script, so you add here the information
+				//This line is actually optional since 4.0.0.38, as the TransactionBuilder is smart enough to figure out
+				//the redeems from the keys added by AddKeys.
+				//However, explicitely having the redeem will make code more easy to update to other payment like 2-2
+				//.Select(c => c.ToScriptCoin(k.PubKey.WitHash.ScriptPubKey))
+				.ToArray();
+
+			TransactionBuilder builder = new TransactionBuilder();
+			builder.AddCoins(coins);
+			builder.AddKeys(k);
+			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.SendFees(Money.Coins(0.001m));
+			builder.SetChange(p2sh);
+			var signedTx = builder.BuildTransaction(true);
+			Assert.True(builder.Verify(signedTx));
+		}
+
+		private Coin[] GetCoins(BitcoinScriptAddress p2sh)
+		{
+			return new Coin[] { new Coin(new uint256(Enumerable.Range(0, 32).Select(i => (byte)0xaa).ToArray()), 0, Money.Coins(2.0m), p2sh.ScriptPubKey) };
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//https://github.com/NicolasDorier/NBitcoin/issues/34
 		public void CanBuildAnyoneCanPayTransaction()
 		{

@@ -70,6 +70,16 @@ namespace NBitcoin.Tests
 				rpc.SendCommandAsync(RPCOperations.getwalletinfo).GetAwaiter().GetResult().ThrowIfError();
 				Assert.NotNull(rpc.GetBalance());
 				Assert.NotNull(rpc.GetBestBlockHash());
+				var block = rpc.GetBlock(rpc.Generate(1)[0]);
+
+				rpc = rpc.PrepareBatch();
+				var b = rpc.GetBalanceAsync();
+				var b2 = rpc.GetBestBlockHashAsync();
+				var a = rpc.SendCommandAsync("gettransaction", block.Transactions.First().GetHash().ToString());
+				rpc.SendBatch();
+				b.GetAwaiter().GetResult();
+				b2.GetAwaiter().GetResult();
+				a.GetAwaiter().GetResult();
 			}
 		}
 

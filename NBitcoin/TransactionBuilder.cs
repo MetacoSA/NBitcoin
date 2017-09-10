@@ -579,13 +579,19 @@ namespace NBitcoin
 
 		public TransactionBuilder AddKeys(params ISecret[] keys)
 		{
-			_Keys.AddRange(keys.Select(k => k.PrivateKey));
+			AddKeys(keys.Select(k => k.PrivateKey).ToArray());
 			return this;
 		}
 
 		public TransactionBuilder AddKeys(params Key[] keys)
 		{
 			_Keys.AddRange(keys);
+			foreach(var k in keys)
+			{
+				AddKnownRedeems(k.PubKey.ScriptPubKey);
+				AddKnownRedeems(k.PubKey.WitHash.ScriptPubKey);
+				AddKnownRedeems(k.PubKey.Hash.ScriptPubKey);
+			}
 			return this;
 		}
 
