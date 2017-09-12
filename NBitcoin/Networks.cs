@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using NBitcoin;
-using NBitcoin.BouncyCastle.Math;
+﻿using NBitcoin.BouncyCastle.Math;
 using NBitcoin.DataEncoders;
-using NBitcoin.OpenAsset;
 using NBitcoin.Protocol;
-using NBitcoin.Stealth;
+using System;
+using System.Collections.Generic;
+using System.Net;
 
 namespace NBitcoin
 {
@@ -256,9 +249,11 @@ namespace NBitcoin
 				{
 					new DNSSeedData("stratisplatform.com", "testnode1.stratisplatform.com"),
 				});
+
+				builder.AddSeeds(new[] { new NetworkAddress(IPAddress.Parse("51.141.51.129"), builder._Port) }); // the c# testnet node
 #endif
 
-            return builder.BuildAndRegister();
+			return builder.BuildAndRegister();
 		}
 
 		//		private void InitReg()
