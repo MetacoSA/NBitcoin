@@ -61,6 +61,7 @@ namespace NBitcoin.Tests
 			{
 				var node = builder.CreateNode();
 				node.ConfigParameters.Add("wallet", "w1");
+				//node.ConfigParameters.Add("wallet", "w2");
 				node.Start();
 				var rpc = node.CreateRPCClient();
 				var creds = RPCCredentialString.Parse(rpc.CredentialString.ToString());
