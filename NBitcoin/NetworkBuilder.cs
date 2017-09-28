@@ -4,9 +4,6 @@ using NBitcoin.Protocol;
 using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -25,10 +22,21 @@ namespace NBitcoin
 		internal List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
 #endif
 		internal Block _Genesis;
+		internal long _MinTxFee;
+		internal long _FallbackFee;
+		internal long _MinRelayTxFee;
 
 		public NetworkBuilder SetName(string name)
 		{
 			_Name = name;
+			return this;
+		}
+
+		public NetworkBuilder SetTxFees(long minTxFee, long fallbackFee, long minRelayTxFee)
+		{
+			_MinTxFee = minTxFee;
+			_FallbackFee = fallbackFee;
+			_MinRelayTxFee = minRelayTxFee;
 			return this;
 		}
 
@@ -51,6 +59,7 @@ namespace NBitcoin
 			SetMagic(_Magic).
 			SetPort(network.DefaultPort).
 			SetRPCPort(network.RPCPort);
+			SetTxFees(network.MinTxFee, network.FallbackFee, network.MinRelayTxFee);
 		}
 
 		public NetworkBuilder AddAlias(string alias)
