@@ -154,6 +154,7 @@ namespace NBitcoin
 				.SetGenesis(genesis)
 				.SetPort(16178)
 				.SetRPCPort(16174)
+				.SetTxFees(10000, 40000, 10000)
 #if !NOSOCKET
 
 				.AddDNSSeeds(new[]
@@ -236,6 +237,7 @@ namespace NBitcoin
 				.SetGenesis(genesis)
 				.SetPort(26178)
 				.SetRPCPort(26174)
+				.SetTxFees(10000, 40000, 10000)
 				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { (65) })
 				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { (196) })
 				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { (65 + 128) })

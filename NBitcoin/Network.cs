@@ -6,10 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -580,6 +577,10 @@ namespace NBitcoin
 #endif
 		Block genesis = new Block();
 
+		public long MinTxFee { get; private set; }
+		public long FallbackFee { get; private set; }
+		public long MinRelayTxFee { get; private set; }
+
 		private int nRPCPort;
 		public int RPCPort
 		{
@@ -682,7 +683,7 @@ namespace NBitcoin
 			network.consensus.Freeze();
 
 #if !NOSOCKET
-			foreach(var seed in builder.vSeeds)
+			foreach (var seed in builder.vSeeds)
 			{
 				network.vSeeds.Add(seed);
 			}
@@ -713,6 +714,11 @@ namespace NBitcoin
 			{
 				_OtherNetworks.Add(network);
 			}
+
+			network.MinTxFee = builder._MinTxFee;
+			network.FallbackFee = builder._FallbackFee;
+			network.MinRelayTxFee = builder._MinRelayTxFee;
+
 			return network;
 		}
 
@@ -797,7 +803,11 @@ namespace NBitcoin
 				vFixedSeeds.Add(addr);
 			}
 #endif
+			MinTxFee = 1000;
+			FallbackFee = 20000;
+			MinRelayTxFee = 1000;
 		}
+
 		private void InitTest()
 		{
 			name = "TestNet";
@@ -859,6 +869,10 @@ namespace NBitcoin
 			var encoder = new Bech32Encoder("tb");
 			bech32Encoders[(int)Bech32Type.WITNESS_PUBKEY_ADDRESS] = encoder;
 			bech32Encoders[(int)Bech32Type.WITNESS_SCRIPT_ADDRESS] = encoder;
+
+			MinTxFee = 1000;
+			FallbackFee = 20000;
+			MinRelayTxFee = 1000;
 		}
 		private void InitReg()
 		{
@@ -908,6 +922,10 @@ namespace NBitcoin
 			;
 			bech32Encoders[(int)Bech32Type.WITNESS_PUBKEY_ADDRESS] = encoder;
 			bech32Encoders[(int)Bech32Type.WITNESS_SCRIPT_ADDRESS] = encoder;
+
+			MinTxFee = 1000;
+			FallbackFee = 20000;
+			MinRelayTxFee = 1000;
 		}
 
 		private Block CreateGenesisBlock(uint nTime, uint nNonce, uint nBits, int nVersion, Money genesisReward)
