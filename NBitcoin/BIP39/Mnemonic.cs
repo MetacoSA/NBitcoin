@@ -37,7 +37,7 @@ namespace NBitcoin
 			//if the sentence is not at least 12 characters or cleanly divisible by 3, it is bad!
 			if(!CorrectWordCount(words.Length))
 			{
-				throw new FormatException("Word count should be equals to 12,15,18,21 or 24");
+				throw new FormatException("Word count should be 12,15,18,21 or 24");
 			}
 			_Words = words;
 			_WordList = wordlist;
@@ -81,7 +81,7 @@ namespace NBitcoin
 		{
 			var ms = (int)wordCount;
 			if(!CorrectWordCount(ms))
-				throw new ArgumentException("Word count should be equal to 12,15,18,21 or 24", "wordCount");
+				throw new ArgumentException("Word count should be 12,15,18,21 or 24", "wordCount");
 			int i = Array.IndexOf(msArray, (int)wordCount);
 			return RandomUtils.GetBytes(entArray[i] / 8);
 		}
