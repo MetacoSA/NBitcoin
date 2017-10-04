@@ -1,18 +1,20 @@
-﻿using System;
+﻿using HashLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using HashLib;
 
 namespace NBitcoin.Crypto
 {
 	// this hashing class is not thread safe to use with static instances.
-    // the hashing objects maintain state during hash calculation.
-    // to use in a multi threaded environment create a new instance for every hash.
+	// the hashing objects maintain state during hash calculation.
+	// to use in a multi threaded environment create a new instance for every hash.
 
-    public sealed class HashX13
+	public sealed class HashX13
     {
         private readonly List<IHash> hashers;
+
+        private readonly object hashLock;
 
         private static readonly Lazy<HashX13> SingletonInstance = new Lazy<HashX13>(LazyThreadSafetyMode.PublicationOnly);
 
@@ -35,6 +37,7 @@ namespace NBitcoin.Crypto
                 HashFactory.Crypto.SHA3.CreateFugue512(),
             };
 
+            this.hashLock = new object();
             this.Multiplier = 1;
         }
 
@@ -55,9 +58,12 @@ namespace NBitcoin.Crypto
         {
             var buffer = input;
 
-            foreach (var hasher in this.hashers)
+            lock (this.hashLock)
             {
-                buffer = hasher.ComputeBytes(buffer).GetBytes();
+                foreach (var hasher in this.hashers)
+                {
+                    buffer = hasher.ComputeBytes(buffer).GetBytes();
+                }
             }
 
             return new uint256(buffer.Take(32).ToArray());
