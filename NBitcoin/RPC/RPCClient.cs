@@ -48,7 +48,7 @@ namespace NBitcoin.RPC
 		blockchain		 getdifficulty
 		blockchain		 getmempoolinfo
 		blockchain		 getrawmempool				Yes
-		blockchain		 gettxout
+		blockchain		 gettxout					Yes
 		blockchain		 gettxoutproof
 		blockchain		 verifytxoutproof
 		blockchain		 gettxoutsetinfo
@@ -140,6 +140,17 @@ namespace NBitcoin.RPC
 				return _address;
 			}
 		}
+
+
+		RPCCredentialString _CredentialString;
+		public RPCCredentialString CredentialString
+		{
+			get
+			{
+				return _CredentialString;
+			}
+		}
+
 		private readonly Network _network;
 		public Network Network
 		{
@@ -148,7 +159,7 @@ namespace NBitcoin.RPC
 				return _network;
 			}
 		}
-#if !NOFILEIO
+
 		/// <summary>
 		/// Use default bitcoin parameters to configure a RPCClient.
 		/// </summary>
@@ -156,10 +167,131 @@ namespace NBitcoin.RPC
 		public RPCClient(Network network) : this(null as string, BuildUri(null, network.RPCPort), network)
 		{
 		}
-#endif
+
+		[Obsolete("Use RPCClient(ConnectionString, string, Network)")]
 		public RPCClient(NetworkCredential credentials, string host, Network network)
 			: this(credentials, BuildUri(host, network.RPCPort), network)
 		{
+		}
+
+		public RPCClient(RPCCredentialString credentials, string host, Network network)
+			: this(credentials, BuildUri(host, network.RPCPort), network)
+		{
+		}
+
+		public RPCClient(RPCCredentialString credentials, Uri address, Network network)
+		{
+			credentials = credentials ?? new RPCCredentialString();
+
+			if(address != null && network == null)
+			{
+				network = Network.GetNetworks().FirstOrDefault(n => n.RPCPort == address.Port);
+				if(network == null)
+					throw new ArgumentNullException("network");
+			}
+
+			if(credentials.UseDefault && network == null)
+				throw new ArgumentException("network parameter is required if you use default credentials");
+			if(address == null && network == null)
+				throw new ArgumentException("network parameter is required if you use default uri");
+
+			if(address == null)
+				address = new Uri("http://127.0.0.1:" + network.RPCPort + "/");
+
+
+			if(credentials.UseDefault)
+			{
+				//will throw impossible to get the cookie path
+				GetDefaultCookieFilePath(network);
+			}
+
+			_CredentialString = credentials;
+			_address = address;
+			_network = network;
+
+			if(credentials.UserPassword != null)
+			{
+				_Authentication = $"{credentials.UserPassword.UserName}:{credentials.UserPassword.Password}";
+			}
+
+			if(_Authentication == null)
+				RenewCookie();
+
+			if(_Authentication == null)
+				throw new ArgumentException("Impossible to infer the authentication of the RPCClient");
+		}
+
+
+		static ConcurrentDictionary<Network, string> _DefaultPaths = new ConcurrentDictionary<Network, string>();
+		static RPCClient()
+		{
+#if !NOFILEIO
+			var home = Environment.GetEnvironmentVariable("HOME");
+			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
+
+			if(string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
+				return;
+
+			if(!string.IsNullOrEmpty(home))
+			{
+				var bitcoinFolder = Path.Combine(home, ".bitcoin");
+				RegisterDefaultCookiePath(Network.Main, bitcoinFolder);
+
+				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
+				RegisterDefaultCookiePath(Network.Main, mainnet);
+
+				var testnet = Path.Combine(bitcoinFolder, "testnet3", ".cookie");
+				RegisterDefaultCookiePath(Network.TestNet, testnet);
+
+				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
+				RegisterDefaultCookiePath(Network.RegTest, regtest);
+			}
+			else if(!string.IsNullOrEmpty(localAppData))
+			{
+				var bitcoinFolder = Path.Combine(localAppData, "Bitcoin");
+
+				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
+				RegisterDefaultCookiePath(Network.Main, mainnet);
+
+				var testnet = Path.Combine(bitcoinFolder, "testnet3", ".cookie");
+				RegisterDefaultCookiePath(Network.TestNet, testnet);
+
+				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
+				RegisterDefaultCookiePath(Network.RegTest, regtest);
+			}
+#endif
+		}
+		public static void RegisterDefaultCookiePath(Network network, string path)
+		{
+			_DefaultPaths.TryAdd(network, path);
+		}
+
+
+		private string GetCookiePath()
+		{
+			if(CredentialString.UseDefault && Network == null)
+				throw new InvalidOperationException("NBitcoin bug, report to the developers");
+			if(CredentialString.UseDefault)
+				return GetDefaultCookieFilePath(Network);
+			if(CredentialString.CookieFile != null)
+				return CredentialString.CookieFile;
+			return null;
+		}
+
+		public static string GetDefaultCookieFilePath(Network network)
+		{
+			string path = null;
+			if(!_DefaultPaths.TryGetValue(network, out path))
+				throw new ArgumentException("This network has no default cookie file path registered, use RPCClient.RegisterDefaultCookiePath to register", "network");
+			return path;
+		}
+
+		public static string TryGetDefaultCookieFilePath(Network network)
+		{
+			string path = null;
+			if(!_DefaultPaths.TryGetValue(network, out path))
+				return null;
+			return path;
 		}
 
 		/// <summary>
@@ -187,6 +319,12 @@ namespace NBitcoin.RPC
 				catch { }
 			}
 			hostOrUri = hostOrUri ?? "127.0.0.1";
+			var indexOfPort = hostOrUri.IndexOf(":");
+			if(indexOfPort != -1)
+			{
+				port = int.Parse(hostOrUri.Substring(indexOfPort + 1));
+				hostOrUri = hostOrUri.Substring(0, indexOfPort);
+			}
 			UriBuilder builder = new UriBuilder();
 			builder.Host = hostOrUri;
 			builder.Scheme = "http";
@@ -205,76 +343,8 @@ namespace NBitcoin.RPC
 		/// <param name="address"></param>
 		/// <param name="network"></param>
 		public RPCClient(string authenticationString, Uri address, Network network = null)
+			: this(authenticationString == null ? null as RPCCredentialString : RPCCredentialString.Parse(authenticationString), address, network)
 		{
-			authenticationString = string.IsNullOrWhiteSpace(authenticationString) ? null : authenticationString;
-#if !NOFILEIO
-			if(authenticationString != null)
-			{
-				if(authenticationString.StartsWith("cookiefile=", StringComparison.OrdinalIgnoreCase))
-				{
-					_FromCookiePath = authenticationString.Substring("cookiefile=".Length).Trim();
-					authenticationString = File.ReadAllText(_FromCookiePath);
-					if(!authenticationString.StartsWith("__cookie__:", StringComparison.OrdinalIgnoreCase))
-						throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
-				}
-			}
-#endif
-
-			authenticationString = authenticationString ?? GetAuthenticationString(network);
-			if(authenticationString == null)
-				throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
-			if(address == null && network == null)
-				throw new ArgumentNullException("address");
-
-			if(address != null && network == null)
-			{
-				network = Network.GetNetworks().FirstOrDefault(n => n.RPCPort == address.Port);
-				if(network == null)
-					throw new ArgumentNullException("network");
-			}
-
-			if(address == null && network != null)
-			{
-				address = new Uri("http://127.0.0.1:" + network.RPCPort + "/");
-			}
-
-			_Authentication = authenticationString;
-			_address = address;
-			_network = network;
-		}
-
-#if !NOFILEIO
-		string _FromCookiePath;
-#endif
-		private string GetAuthenticationString(Network network)
-		{
-#if !NOFILEIO
-			if(network == null)
-				return null;
-			var home = Environment.GetEnvironmentVariable("HOME");
-			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
-			if(string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
-				return null;
-			string bitcoinFolder = null;
-			if(string.IsNullOrEmpty(localAppData))
-				bitcoinFolder = Path.Combine(home, ".bitcoin");
-			else
-				bitcoinFolder = Path.Combine(localAppData, "Bitcoin");
-			if(network == Network.TestNet)
-				bitcoinFolder = Path.Combine(bitcoinFolder, "testnet3");
-			if(network == Network.RegTest)
-				bitcoinFolder = Path.Combine(bitcoinFolder, "regtest");
-			var cookiePath = Path.Combine(bitcoinFolder, ".cookie");
-			try
-			{
-				var auth = File.ReadAllText(cookiePath);
-				_FromCookiePath = cookiePath;
-				return auth;
-			}
-			catch { return null; }
-#else
-			return null;
-#endif
 		}
 
 		public string Authentication
@@ -289,7 +359,7 @@ namespace NBitcoin.RPC
 
 		public RPCClient PrepareBatch()
 		{
-			return new RPCClient(_Authentication, Address, Network)
+			return new RPCClient(CredentialString, Address, Network)
 			{
 				_BatchedRequests = new ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>()
 			};
@@ -409,6 +479,22 @@ namespace NBitcoin.RPC
 			if(requests.Count == 0)
 				return;
 
+			try
+			{
+				await SendBatchAsyncCore(requests).ConfigureAwait(false);
+			}
+			catch(WebException ex)
+			{
+				if(!IsUnauthorized(ex))
+					throw;
+				if(GetCookiePath() == null)
+					throw;
+				TryRenewCookie(ex);
+				await SendBatchAsyncCore(requests).ConfigureAwait(false);
+			}
+		}
+		private async Task SendBatchAsyncCore(List<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>> requests)
+		{
 			var writer = new StringWriter();
 			writer.Write("[");
 			bool first = true;
@@ -462,7 +548,10 @@ namespace NBitcoin.RPC
 			}
 			catch(WebException ex)
 			{
-				if(ex.Response == null || ex.Response.ContentLength == 0)
+				if(IsUnauthorized(ex))
+					throw;
+				if(ex.Response == null || ex.Response.ContentLength == 0
+					|| !ex.Response.ContentType.Equals("application/json", StringComparison.Ordinal))
 				{
 					foreach(var item in requests)
 					{
@@ -512,34 +601,58 @@ namespace NBitcoin.RPC
 			}
 		}
 
+		private static bool IsUnauthorized(WebException ex)
+		{
+			var httpResp = ex.Response as HttpWebResponse;
+			var isUnauthorized = httpResp != null && httpResp.StatusCode == HttpStatusCode.Unauthorized;
+			return isUnauthorized;
+		}
+
 		public async Task<RPCResponse> SendCommandAsync(RPCRequest request, bool throwIfRPCError = true)
 		{
 			try
 			{
 				return await SendCommandAsyncCore(request, throwIfRPCError).ConfigureAwait(false);
 			}
-#if !NOFILEIO
 			catch(WebException ex)
 			{
-				if(!ex.Message.Contains("401"))
+				if(!IsUnauthorized(ex))
 					throw;
-				if(_FromCookiePath != null)
-				{
-					try
-					{
-						_Authentication = File.ReadAllText(_FromCookiePath);
-					}
-					catch { throw ex; }
-				}
+				if(GetCookiePath() == null)
+					throw;
+				TryRenewCookie(ex);
 				return await SendCommandAsyncCore(request, throwIfRPCError).ConfigureAwait(false);
 			}
+		}
+
+		private void RenewCookie()
+		{
+			if(GetCookiePath() == null)
+				throw new InvalidOperationException("Bug in NBitcoin notify the developers");
+#if !NOFILEIO
+			var auth = File.ReadAllText(GetCookiePath());
+			if(!auth.StartsWith("__cookie__:", StringComparison.OrdinalIgnoreCase))
+				throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
+			_Authentication = auth;
 #else
-			catch(WebException)
-			{
-				throw;
-			}
+			throw new NotSupportedException("Cookie authentication is not supported for this plateform");
 #endif
-			
+		}
+		private void TryRenewCookie(WebException ex)
+		{
+			if(GetCookiePath() == null)
+				throw new InvalidOperationException("Bug in NBitcoin notify the developers");
+
+#if !NOFILEIO
+			try
+			{
+				_Authentication = File.ReadAllText(GetCookiePath());
+			}
+			//We are only interested into the previous exception
+			catch { ExceptionDispatchInfo.Capture(ex).Throw(); }
+#else
+			throw new NotSupportedException("Cookie authentication is not supported for this plateform");
+#endif
 		}
 
 		async Task<RPCResponse> SendCommandAsyncCore(RPCRequest request, bool throwIfRPCError)
@@ -580,7 +693,8 @@ namespace NBitcoin.RPC
 			}
 			catch(WebException ex)
 			{
-				if(ex.Response == null || ex.Response.ContentLength == 0)
+				if(ex.Response == null || ex.Response.ContentLength == 0 ||
+					!ex.Response.ContentType.Equals("application/json", StringComparison.Ordinal))
 					throw;
 				errorResponse = ex.Response;
 				response = RPCResponse.Load(await ToMemoryStreamAsync(errorResponse.GetResponseStream()).ConfigureAwait(false));
@@ -963,6 +1077,28 @@ namespace NBitcoin.RPC
 			var result = await SendCommandAsync("getrawmempool").ConfigureAwait(false);
 			var array = (JArray)result.Result;
 			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
+		}
+
+		public UnspentTransaction GetTxOut(uint256 txid, uint vout, bool includeMemPool = true)
+		{
+			var response = SendCommand("gettxout", txid.ToString(), vout, includeMemPool);
+			var responseObject = response.Result as JObject;
+			if(responseObject == null)
+			{
+				return null;
+			}
+			return new UnspentTransaction(response.Result as JObject);
+		}
+
+		public async Task<UnspentTransaction> GetTxOutAsync(uint256 txid, uint vout, bool includeMemPool = true)
+		{
+			var response = await SendCommandAsync("gettxout", txid.ToString(), vout, includeMemPool).ConfigureAwait(false);
+			var responseObject = response.Result as JObject;
+			if (responseObject == null)
+			{
+				return null;
+			}
+			return new UnspentTransaction(responseObject);
 		}
 
 		/// <summary>

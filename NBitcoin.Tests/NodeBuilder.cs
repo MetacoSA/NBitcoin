@@ -80,7 +80,14 @@ namespace NBitcoin.Tests
 			var bytes = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
 			File.WriteAllBytes(zip, bytes);
 
-			ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
+			try
+			{
+				ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
+			}
+			catch(IOException)
+			{
+				//The file probably already exist, continue
+			}
 			return bitcoind;
 		}
 
@@ -560,7 +567,7 @@ namespace NBitcoin.Tests
 			public uint256 Hash = null;
 			public Transaction Transaction = null;
 			public List<TransactionNode> DependsOn = new List<TransactionNode>();
-		}		
+		}
 
 		private List<Transaction> Reorder(List<Transaction> transactions)
 		{

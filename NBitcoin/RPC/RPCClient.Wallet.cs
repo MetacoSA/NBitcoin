@@ -625,6 +625,29 @@ namespace NBitcoin.RPC
 			parameters.Add(timeout);
 			await SendCommandAsync("walletpassphrase", parameters.ToArray()).ConfigureAwait(false);
 		}
+	
+		/// <summary>
+		/// Sign a transaction
+		/// </summary>
+		/// <param name="tx">The transaction to be signed</param>
+		/// <returns>The signed transaction</returns>
+		public Transaction SignRawTransaction(Transaction tx)
+		{
+			if(tx == null)
+				throw new ArgumentNullException("tx");
+			return SignRawTransactionAsync(tx).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// Sign a transaction
+		/// </summary>
+		/// <param name="tx">The transaction to be signed</param>
+		/// <returns>The signed transaction</returns>
+		public async Task<Transaction> SignRawTransactionAsync(Transaction tx)
+		{
+			var result = await SendCommandAsync(RPCOperations.signrawtransaction, tx.ToHex()).ConfigureAwait(false);
+			return new Transaction(result.Result["hex"].Value<string>());
+		}
 	}
 }
 #endif

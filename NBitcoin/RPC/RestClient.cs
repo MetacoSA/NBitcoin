@@ -195,6 +195,26 @@ namespace NBitcoin.RPC
 			return utxos;
 		}
 
+		/// <summary>
+		/// Gets an unspent transaction
+		/// </summary>
+		/// <param name="txid">The transaction id</param>
+		/// <param name="vout">The vout of the transaction</param>
+		/// <param name="includeMemPool">Whether or not to include the mempool</param>
+		/// <returns>The unspent transaction for the specified transaction and vout</returns>
+		public async Task<UnspentTransaction> GetTxOutAsync(uint256 txid, uint vout, bool includeMemPool = true)
+		{
+			var result = await SendRequestAsync($"gettxout/{txid.ToString()}/{vout.ToString() + (includeMemPool ? "/includemempool" : "")}",
+							RestResponseFormat.Json).ConfigureAwait(false);
+			var responseString = Encoding.UTF8.GetString(result, 0, result.Length);
+			if(string.IsNullOrEmpty(responseString))
+			{
+				return null;
+			}
+			var objectResult = JObject.Parse(responseString);
+			return new UnspentTransaction(objectResult);
+		}
+
 		public async Task<byte[]> SendRequestAsync(string resource, RestResponseFormat format, params string[] parms)
 		{
 			var request = BuildHttpRequest(resource, format, parms);

@@ -476,6 +476,29 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
+		public void SynchronizeChainSurviveReorg()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				ConcurrentChain chain = new ConcurrentChain(Network.RegTest);
+				var node1 = builder.CreateNode(true);
+				node1.CreateRPCClient().Generate(10);
+				node1.CreateNodeClient().SynchronizeChain(chain);
+				Assert.Equal(10, chain.Height);
+
+
+				var node2 = builder.CreateNode(true);
+				node2.CreateRPCClient().Generate(12);
+
+				var node2c = node2.CreateNodeClient();
+				node2c.PollHeaderDelay = TimeSpan.FromSeconds(2);
+				node2c.SynchronizeChain(chain);
+				Assert.Equal(12, chain.Height);
+			}
+		}
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
 		public void CanGetChainsConcurrenty()
 		{
 			using(var builder = NodeBuilder.Create())

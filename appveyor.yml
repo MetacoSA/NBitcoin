@@ -1,0 +1,76 @@
+#  reference: https://www.appveyor.com/docs/appveyor-yml/
+
+# you can use {branch} name in version format too
+# version: 1.0.{build}-{branch}
+
+version: 4.0.0.{build}
+pull_requests:
+  do_not_increment_build_number: true
+skip_tags: true
+
+
+# branches to build 
+branches:
+  # whitelist
+  only:
+    - master
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+image: Visual Studio 2017
+clone_folder: c:\projects\nbitcoin
+
+configuration:
+- Release
+
+init:
+- ps: dotnet --info
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+before_build:
+- ps: |
+      Write-Host "[$env:configuration] STARTED dotnet restore" -foregroundcolor "magenta"
+      
+      dotnet restore -v m
+      Write-Host "[$env:configuration] FINISHED dotnet restore" -foregroundcolor "magenta"
+      if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
+    
+build_script:
+- ps: |
+      Write-Host "[$env:configuration] STARTED dotnet build" -foregroundcolor "magenta"
+      dotnet msbuild /p:Configuration=$env:configuration /p:Version=$env:APPVEYOR_BUILD_VERSION 
+      Write-Host "[$env:configuration] FINISHED dotnet build" -foregroundcolor "magenta"
+      if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
+# scripts to run after build
+after_build:
+- ps: |
+      if($env:configuration -eq 'Release')
+      {
+        Write-Host "[$env:configuration] STARTED dotnet pack" -foregroundcolor "magenta"
+        
+        cd NBitcoin
+        dotnet pack -c $env:configuration -v m --no-build -o $env:APPVEYOR_BUILD_FOLDER\nuget\      
+        
+        Write-Host "[$env:configuration] FINISHED dotnet pack" -foregroundcolor "magenta"
+      }
+      if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
+    
+test_script:
+- ps: |
+      Write-Host "[$env:configuration] STARTED dotnet test" -foregroundcolor "magenta"
+      cd $env:APPVEYOR_BUILD_FOLDER
+      dotnet test -c Release ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false
+      Write-Host "[$env:configuration] FINISHED dotnet test" -foregroundcolor "magenta"
+      if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
+#---------------------------------#
+#      artifacts configuration    #
+#---------------------------------#
+
+# pushing all files in build directory recursively
+artifacts:
+- path: nuget\*.nupkg
+  name: nuget packages

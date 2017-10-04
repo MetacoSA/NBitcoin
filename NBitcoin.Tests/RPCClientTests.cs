@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Sdk;
 
 namespace NBitcoin.Tests
 {
@@ -89,6 +90,24 @@ namespace NBitcoin.Tests
 				node.Generate(10);
 				var blkCount = rpc.GetBlockCountAsync().Result;
 				Assert.Equal(10, blkCount);
+			}
+		}
+
+		[Fact]
+		public void CanSignRawTransaction()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+				node.CreateRPCClient().Generate(101);
+
+				var tx = new Transaction();
+				tx.Outputs.Add(new TxOut(Money.Coins(1.0m), new Key()));
+				var funded = node.CreateRPCClient().FundRawTransaction(tx);
+				var signed = node.CreateRPCClient().SignRawTransaction(funded.Transaction);
+				node.CreateRPCClient().SendRawTransaction(signed);
 			}
 		}
 
@@ -179,6 +198,58 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanGetTxOutNoneFromRPC()
+		{
+			using (var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				var rpc = node.CreateRPCClient();
+				var txid = rpc.Generate(1).Single();
+				var resultTxOut = rpc.GetTxOut(txid, 0, true);
+				Assert.Null(resultTxOut);
+			}
+		}
+
+		[Fact]
+		public void CanGetTxOutFromRPC()
+		{
+			using (var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				node.Generate(101);
+				var rpc = node.CreateRPCClient();
+				var unspent = rpc.ListUnspent();
+				Assert.True(unspent.Any());
+				var coin = unspent[0] ;
+				var resultTxOut = rpc.GetTxOut(coin.OutPoint.Hash, coin.OutPoint.N, true);
+				Assert.Equal((int)coin.Confirmations, resultTxOut.confirmations);
+				Assert.Equal(coin.Amount.ToDecimal(MoneyUnit.BTC), resultTxOut.value);
+				Assert.Equal(coin.Address.ToString(), resultTxOut.scriptPubKey.addresses[0]);
+			}
+		}
+
+		[Fact]
+		public async Task CanGetTxOutAsyncFromRPC()
+		{
+			using (var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				node.Generate(101);
+				var rpc = node.CreateRPCClient();
+				var unspent = rpc.ListUnspent();
+				Assert.True(unspent.Any());
+				var coin = unspent[0];
+				var resultTxOut = await rpc.GetTxOutAsync(coin.OutPoint.Hash, coin.OutPoint.N, true);
+				Assert.Equal((int)coin.Confirmations, resultTxOut.confirmations);
+				Assert.Equal(coin.Amount.ToDecimal(MoneyUnit.BTC), resultTxOut.value);
+				Assert.Equal(coin.Address.ToString(), resultTxOut.scriptPubKey.addresses[0]);
+			}
+		}
+
+		[Fact]
 		public void CanGetTransactionBlockFromRPC()
 		{
 			using(var builder = NodeBuilder.Create())
@@ -249,6 +320,33 @@ namespace NBitcoin.Tests
 				var raw3 = Transaction.Parse(raw.ToString(format, network), format);
 				Assert.Equal(raw.ToString(format, network), raw3.ToString(format, network));
 			}
+		}
+
+		[Fact]
+		public void CanDecodeUnspentTransaction()
+		{
+			var testJson =
+@"{
+	""bestblock"": ""d54994ece1d11b19785c7248868696250ab195605b469632b7bd68130e880c9a"",
+	""confirmations"": 1,
+	""value"": 7.744E-05,
+	""scriptPubKey"": {
+		""asm"": ""OP_DUP OP_HASH160 fdb12c93cf639eb38d1998959cfd2f35eb730ede OP_EQUALVERIFY OP_CHECKSIG"",
+		""hex"": ""76a914fdb12c93cf639eb38d1998959cfd2f35eb730ede88ac"",
+		""reqSigs"": 1,
+		""type"": ""pubkeyhash"",
+		""addresses"": [
+		  ""n4eMVrvNqe4EtZDEeei3o63hymTKZNZGhf""
+		]
+	},
+	""coinbase"": true
+}";
+			var testData = JObject.Parse(testJson);
+			var unspentTransaction = new UnspentTransaction(testData);
+			Assert.Equal(1, unspentTransaction.confirmations);
+			Assert.Equal(1, unspentTransaction.scriptPubKey.reqSigs);
+			Assert.Equal(1, unspentTransaction.scriptPubKey.addresses.Count);
+			Assert.Equal(7.744E-05m, unspentTransaction.value);
 		}
 
 		[Fact]
@@ -376,6 +474,7 @@ namespace NBitcoin.Tests
 				requests.Add(rpc.GetBlockHashAsync(11));
 				rpc.CancelBatch();
 				rpc = rpc.PrepareBatch();
+				Thread.Sleep(100);
 				Assert.Equal(TaskStatus.Canceled, requests[0].Status);
 				Assert.Equal(TaskStatus.Canceled, requests[1].Status);
 			}
@@ -426,8 +525,15 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanAuthWithCookieFile()
 		{
+#if NOFILEIO
+			Assert.Throws<NotSupportedException>(() => new RPCClient(Network.Main));
+#else
 			using(var builder = NodeBuilder.Create())
 			{
+				//Sanity check that it does not throw
+#pragma warning disable CS0618
+				new RPCClient(new NetworkCredential("toto", "tata:blah"), "localhost:10393", Network.Main);
+
 				var node = builder.CreateNode();
 				node.CookieAuth = true;
 				node.Start();
@@ -437,11 +543,26 @@ namespace NBitcoin.Tests
 				rpc.GetBlockCount();
 				Assert.Throws<ArgumentException>(() => new RPCClient("cookiefile=Data\\tx_valid.json", new Uri("http://localhost/"), Network.RegTest));
 				Assert.Throws<FileNotFoundException>(() => new RPCClient("cookiefile=Data\\efpwwie.json", new Uri("http://localhost/"), Network.RegTest));
+
 				rpc = new RPCClient("bla:bla", null as Uri, Network.RegTest);
 				Assert.Equal("http://127.0.0.1:" + Network.RegTest.RPCPort + "/", rpc.Address.AbsoluteUri);
 
+				rpc = node.CreateRPCClient();
+				rpc = rpc.PrepareBatch();
+				var blockCountAsync = rpc.GetBlockCountAsync();
+				rpc.SendBatch();
+				var blockCount = blockCountAsync.GetAwaiter().GetResult();
+
+				node.Restart();
+
+				rpc = rpc.PrepareBatch();
+				blockCountAsync = rpc.GetBlockCountAsync();
+				rpc.SendBatch();
+				blockCount = blockCountAsync.GetAwaiter().GetResult();
+
 				rpc = new RPCClient("bla:bla", "http://toto/", Network.RegTest);
 			}
+#endif
 		}
 
 
@@ -480,10 +601,14 @@ namespace NBitcoin.Tests
 				var rpc = nodeA.CreateRPCClient();
 				rpc.RemoveNode(nodeA.Endpoint);
 				rpc.AddNode(nodeB.Endpoint);
-				Thread.Sleep(500);
-				var info = rpc.GetAddedNodeInfo(true);
-				Assert.NotNull(info);
-				Assert.NotEmpty(info);
+
+				AddedNodeInfo[] info = null;
+				WaitAssert(() =>
+				{
+					info = rpc.GetAddedNodeInfo(true);
+					Assert.NotNull(info);
+					Assert.NotEmpty(info);
+				});
 				//For some reason this one does not pass anymore in 0.13.1
 				//Assert.Equal(nodeB.Endpoint, info.First().Addresses.First().Address);
 				var oneInfo = rpc.GetAddedNodeInfo(true, nodeB.Endpoint);
@@ -492,9 +617,30 @@ namespace NBitcoin.Tests
 				oneInfo = rpc.GetAddedNodeInfo(true, nodeA.Endpoint);
 				Assert.Null(oneInfo);
 				rpc.RemoveNode(nodeB.Endpoint);
-				Thread.Sleep(500);
-				info = rpc.GetAddedNodeInfo(true);
-				Assert.Equal(0, info.Count());
+
+				WaitAssert(() =>
+				{
+					info = rpc.GetAddedNodeInfo(true);
+					Assert.Equal(0, info.Count());
+				});
+			}
+		}
+
+		void WaitAssert(Action act)
+		{
+			int totalTry = 30;
+			while(totalTry > 0)
+			{
+				try
+				{
+					act();
+					return;
+				}
+				catch(AssertActualExpectedException)
+				{
+					Thread.Sleep(100);
+					totalTry--;
+				}
 			}
 		}
 #endif
