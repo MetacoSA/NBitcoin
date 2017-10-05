@@ -165,7 +165,7 @@ namespace NBitcoin
 				.SetGenesis(genesis)
 				.SetPort(16178)
 				.SetRPCPort(16174)
-				.SetTxFees(10000, 40000, 10000)
+				.SetTxFees(10000, 60000, 10000)
 #if !NOSOCKET
 
 				.AddDNSSeeds(new[]
@@ -248,7 +248,7 @@ namespace NBitcoin
 				.SetGenesis(genesis)
 				.SetPort(26178)
 				.SetRPCPort(26174)
-				.SetTxFees(10000, 40000, 10000)
+				.SetTxFees(10000, 60000, 10000)
 				.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { (65) })
 				.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { (196) })
 				.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { (65 + 128) })
@@ -263,7 +263,7 @@ namespace NBitcoin
 					new DNSSeedData("stratisplatform.com", "testnode1.stratisplatform.com"),
 				});
 
-				builder.AddSeeds(new[] { new NetworkAddress(IPAddress.Parse("51.141.51.129"), builder._Port) }); // the c# testnet node
+				builder.AddSeeds(new[] { new NetworkAddress(IPAddress.Parse("51.141.28.47"), builder._Port) }); // the c# testnet node
 #endif
 
 			return builder.BuildAndRegister();
