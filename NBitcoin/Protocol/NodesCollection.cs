@@ -64,6 +64,25 @@ namespace NBitcoin.Protocol
 
 			#endregion
 		}
+
+		/// <summary>
+		/// Provides a comparer to specify how nodes are compared for equality
+		/// </summary>
+		public class NodeComparer:IEqualityComparer<Node>
+		{
+			public bool Equals(Node a, Node b)
+			{
+				bool same = a.RemoteSocketAddress.MapToIPv6().ToString() == b.RemoteSocketAddress.MapToIPv6().ToString() && a.RemoteSocketPort == b.RemoteSocketPort;
+				return same;
+			}
+
+			public int GetHashCode(Node x)
+			{
+				int hash = x.RemoteSocketPort.GetHashCode() ^ x.RemoteSocketAddress.MapToIPv6().ToString().GetHashCode();
+				return hash;
+			}
+		}
+
 		Bridge bridge;
 		public NodesCollection()
 		{
@@ -79,7 +98,8 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		ConcurrentDictionary<Node, Node> _Nodes = new ConcurrentDictionary<Node, Node>();
+		ConcurrentDictionary<Node, Node> _Nodes = new ConcurrentDictionary<Node, Node>(new NodeComparer());
+
 
 		public int Count
 		{
