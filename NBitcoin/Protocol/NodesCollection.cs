@@ -70,16 +70,20 @@ namespace NBitcoin.Protocol
 		/// </summary>
 		public class NodeComparer:IEqualityComparer<Node>
 		{
-			public bool Equals(Node a, Node b)
+			public bool Equals(Node nodeA, Node nodeB)
 			{
-				bool same = a.RemoteSocketAddress.MapToIPv6().ToString() == b.RemoteSocketAddress.MapToIPv6().ToString() && a.RemoteSocketPort == b.RemoteSocketPort;
-				return same;
+				if (nodeA == null || nodeB == null)
+					return nodeA == null && nodeB == null;
+
+				return nodeA.RemoteSocketAddress.MapToIPv6().ToString() == nodeB.RemoteSocketAddress.MapToIPv6().ToString() && nodeA.RemoteSocketPort == nodeB.RemoteSocketPort;
 			}
 
-			public int GetHashCode(Node x)
+			public int GetHashCode(Node node)
 			{
-				int hash = x.RemoteSocketPort.GetHashCode() ^ x.RemoteSocketAddress.MapToIPv6().ToString().GetHashCode();
-				return hash;
+				if (node == null)
+					return 0;
+
+				return node.RemoteSocketPort.GetHashCode() ^ node.RemoteSocketAddress.MapToIPv6().ToString().GetHashCode();
 			}
 		}
 
