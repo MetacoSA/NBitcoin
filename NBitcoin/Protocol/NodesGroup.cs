@@ -66,6 +66,31 @@ namespace NBitcoin.Protocol
 			}
 		}
 	}
+
+	public class RelatedNodesGroups:Dictionary<string, NodesGroup>
+	{
+		public void Register(string name, NodesGroup nodeGroup)
+		{
+			if (nodeGroup != null)
+			{ 
+				this.Add(name, nodeGroup);
+				nodeGroup.RelatedGroups = this;
+			}
+		}
+
+		public IPEndPoint[] GlobalConnectedNodes()
+		{
+			IPEndPoint[] all = new IPEndPoint[0];
+			foreach (var kv in this)
+			{
+				var endPoints = kv.Value._ConnectedNodes.Select(n => n.RemoteSocketEndpoint).ToArray<IPEndPoint>();
+				all = all.Union<IPEndPoint>(endPoints).ToArray<IPEndPoint>();
+			}
+
+			return all;
+		}
+	}
+
 	public class NodesGroup : IDisposable
 	{
 		TraceCorrelation _Trace = new TraceCorrelation(NodeServerTrace.Trace, "Group connection");
@@ -82,9 +107,17 @@ namespace NBitcoin.Protocol
 			}
 		}
 
+		public RelatedNodesGroups RelatedGroups { get; set; }
 		NodeRequirement _Requirements;
 		CancellationTokenSource _Disconnect;
 		Network _Network;
+		public string Name
+		{
+			get
+			{
+				return this.RelatedGroups?.Where(x => x.Value == this).Select(x => x.Key).FirstOrDefault();
+			}
+		}
 		object cs;
 
 		public NodesGroup(
@@ -160,7 +193,12 @@ namespace NBitcoin.Protocol
 							{
 								var groupSelector = CustomGroupSelector != null ? CustomGroupSelector :
 													AllowSameGroup ? WellKnownGroupSelectors.ByRandom : null;
-								node = Node.Connect(_Network, parameters, _ConnectedNodes.Select(n => n.RemoteSocketEndpoint).ToArray(), groupSelector);
+
+								if (this.RelatedGroups == null)
+									node = Node.Connect(_Network, parameters, this._ConnectedNodes.Select(n => n.RemoteSocketEndpoint).ToArray(), groupSelector);
+								else
+									node = Node.Connect(_Network, parameters, this.RelatedGroups.GlobalConnectedNodes, groupSelector);
+
 								var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token);
 								timeout.CancelAfter(5000);
 								node.VersionHandshake(_Requirements, timeout.Token);

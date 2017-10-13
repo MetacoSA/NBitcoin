@@ -514,8 +514,21 @@ namespace NBitcoin.Protocol
 		/// <returns></returns>
 		public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null, Func<IPEndPoint, byte[]> getGroup = null)
 		{
+			return Connect(network, parameters, new Func<IPEndPoint[]>(() => connectedEndpoints), getGroup);
+		}
+
+		/// <summary>
+		/// Connect to a random node on the network
+		/// </summary>
+		/// <param name="network">The network to connect to</param>
+		/// <param name="parameters">The parameters used by the found node, use AddressManagerBehavior.GetAddrman for finding peers</param>
+		/// <param name="connectedEndpoints">Function returning the already connected endpoints, the new endpoint will be select outside of existing groups</param>
+		/// <param name="getGroup">Group selector, by default NBicoin.IpExtensions.GetGroup</param>
+		/// <returns></returns>
+		public static Node Connect(Network network, NodeConnectionParameters parameters = null, Func<IPEndPoint[]> connectedEndpoints = null, Func<IPEndPoint, byte[]> getGroup = null)
+		{
 			getGroup = getGroup ?? new Func<IPEndPoint, byte[]>((a) => IpExtensions.GetGroup(a.Address));
-			connectedEndpoints = connectedEndpoints ?? new IPEndPoint[0];
+			connectedEndpoints = connectedEndpoints ?? new Func<IPEndPoint[]>(() => new IPEndPoint[0]);
 			parameters = parameters ?? new NodeConnectionParameters();
 			var addrmanBehavior = parameters.TemplateBehaviors.FindOrCreate(() => new AddressManagerBehavior(new AddressManager()));
 			var addrman = AddressManagerBehavior.GetAddrman(parameters);
@@ -545,7 +558,7 @@ namespace NBitcoin.Protocol
 					}
 					if(!addr.Endpoint.Address.IsValid())
 						continue;
-					var groupExist = connectedEndpoints.Any(a => getGroup(a).SequenceEqual(getGroup(addr.Endpoint)));
+					var groupExist = connectedEndpoints().Any(a => getGroup(a).SequenceEqual(getGroup(addr.Endpoint)));
 					if(groupExist)
 					{
 						groupFail++;
