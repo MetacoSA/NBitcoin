@@ -272,13 +272,14 @@ namespace NBitcoin.Tests
 			var addrman = GetCachedAddrMan("addrmancache.dat");
 			parameters.TemplateBehaviors.Add(new AddressManagerBehavior(addrman));
 			watch.Start();
-			using (var node = Node.Connect(Network.StratisMain, parameters))
+			IPEndPoint[] connectedEndpoints = null;
+			using (var node = Node.Connect(Network.StratisMain, parameters, connectedEndpoints))
 			{
 				var timeToFind = watch.Elapsed;
 				node.VersionHandshake();
 				node.Dispose();
 				watch.Restart();
-				using (var node2 = Node.Connect(Network.StratisMain, parameters))
+				using (var node2 = Node.Connect(Network.StratisMain, parameters, connectedEndpoints))
 				{
 					var timeToFind2 = watch.Elapsed;
 				}

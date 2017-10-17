@@ -411,13 +411,14 @@ namespace NBitcoin.Tests
 				PeersToDiscover = 50
 			});
 			watch.Start();
-			using(var node = Node.Connect(Network.Main, parameters))
+			IPEndPoint[] connectedEndpoints = null;
+			using (var node = Node.Connect(Network.Main, parameters, connectedEndpoints))
 			{
 				var timeToFind = watch.Elapsed;
 				node.VersionHandshake();
 				node.Dispose();
 				watch.Restart();
-				using(var node2 = Node.Connect(Network.Main, parameters))
+				using (var node2 = Node.Connect(Network.Main, parameters, connectedEndpoints))
 				{
 					var timeToFind2 = watch.Elapsed;
 				}
