@@ -525,7 +525,7 @@ namespace NBitcoin.Protocol
 		/// <param name="connectedEndpoints">Function returning the already connected endpoints, the new endpoint will be select outside of existing groups</param>
 		/// <param name="getGroup">Group selector, by default NBicoin.IpExtensions.GetGroup</param>
 		/// <returns></returns>
-		public static Node Connect(Network network, NodeConnectionParameters parameters = null, Func<IPEndPoint[]> connectedEndpoints = null, Func<IPEndPoint, byte[]> getGroup = null)
+		public static Node Connect(Network network, NodeConnectionParameters parameters, Func<IPEndPoint[]> connectedEndpoints, Func<IPEndPoint, byte[]> getGroup = null)
 		{
 			getGroup = getGroup ?? new Func<IPEndPoint, byte[]>((a) => IpExtensions.GetGroup(a.Address));
 			connectedEndpoints = connectedEndpoints ?? new Func<IPEndPoint[]>(() => new IPEndPoint[0]);
