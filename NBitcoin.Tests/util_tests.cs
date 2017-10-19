@@ -3,6 +3,7 @@ using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.JsonConverters;
 using NBitcoin.OpenAsset;
+using NBitcoin.RPC;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
@@ -117,8 +118,8 @@ namespace NBitcoin.Tests
 			Assert.Equal("16UwLL9Risc3QfPqBUvKofHmBQ7wMtjvM", addr.ToString());
 			Assert.Equal("mfcSEPR8EkJrpX91YkTJ9iscdAzppJrG9j", addr.ToNetwork(Network.TestNet).ToString());
 
-			Assert.Throws<FormatException>(()=> Network.Parse<IBase58Data>("bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3", Network.Main));
-			
+			Assert.Throws<FormatException>(() => Network.Parse<IBase58Data>("bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3", Network.Main));
+
 
 			Network.Parse<IBitcoinString>("bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3", Network.Main);
 
@@ -432,6 +433,23 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanParseRPCCredentialString()
+		{
+			Assert.True(RPCCredentialString.Parse("default").UseDefault);
+			Assert.Equal("c:/", RPCCredentialString.Parse("cookiefile=c:/").CookieFile);
+			Assert.Equal("abc", RPCCredentialString.Parse("abc:def").UserPassword.UserName);
+			Assert.Equal("def", RPCCredentialString.Parse("abc:def").UserPassword.Password);
+			Assert.Equal("def:def", RPCCredentialString.Parse("abc:def:def").UserPassword.Password);
+
+			Assert.Equal("abc", RPCCredentialString.Parse("wallet=abcd;abc:def").UserPassword.UserName);
+			Assert.Equal("abcd", RPCCredentialString.Parse("wallet=abcd;abc:def").WalletName);
+			Assert.Equal("wallet=abcd;abc:def", RPCCredentialString.Parse("wallet=abcd;abc:def").ToString());
+
+			Assert.Equal("wallet=abcd;server=toto:3030;abc:def", RPCCredentialString.Parse("wallet=abcd;server=toto:3030;abc:def").ToString());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void Overflow()
 		{
 			Assert.Throws<OverflowException>(() => Money.Satoshis(decimal.MaxValue));
@@ -521,6 +539,18 @@ namespace NBitcoin.Tests
 				Assert.Equal<BigInteger>(BigInteger.ValueOf(expected), actual);
 			}
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanDivideMoney()
+		{
+			var bobInput = Money.Coins(1.1M);
+			var aliceInput = Money.Coins(0.275M);
+			var actual = (bobInput + aliceInput) / 2;
+			Money expected = Money.Satoshis((bobInput.Satoshi + aliceInput.Satoshi) / 2);
+			Assert.Equal(expected, actual);
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanConvertBigIntegerToBytes()

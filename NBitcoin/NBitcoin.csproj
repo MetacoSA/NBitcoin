@@ -4,12 +4,18 @@
 		<Company>Metaco SA</Company>
 		<Copyright>Copyright © Metaco SA 2017</Copyright>
 		<Description>The C# Bitcoin Library</Description>
+		<PackageIconUrl>https://aois.blob.core.windows.net/public/Bitcoin.png</PackageIconUrl>
+		<PackageTags>bitcoin</PackageTags>
+		<PackageProjectUrl>https://github.com/MetacoSA/NBitcoin</PackageProjectUrl>
+		<PackageLicenseUrl>https://github.com/MetacoSA/NBitcoin/blob/master/LICENSE</PackageLicenseUrl>
+		<RepositoryUrl>https://github.com/MetacoSA/NBitcoin</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-        <Version>4.0.0.11</Version>
+        <Version Condition=" '$(Version)' == '' ">4.0.0.38</Version>
     </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard1.3;netstandard1.1</TargetFrameworks>
+    <TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1</TargetFrameworks>
     <NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -21,6 +27,9 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <DefineConstants>$(DefineConstants);WIN</DefineConstants>
   </PropertyGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
+		<DefineConstants>$(DefineConstants);WIN;LEGACY_X509</DefineConstants>
+	</PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION</DefineConstants>
   </PropertyGroup>
@@ -59,4 +68,15 @@
       <LastGenOutput>UInt2561.cs</LastGenOutput>
     </None>
   </ItemGroup>
+
+	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
+		<ItemGroup>
+			<DocFile Include="bin\$(Configuration)\$(TargetFramework)\*.xml" />
+		</ItemGroup>
+		<Copy SourceFiles="@(DocFile)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="false" />
+	</Target>
+
+	<PropertyGroup>
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\NBitcoin.xml</DocumentationFile>
+	</PropertyGroup>
 </Project>

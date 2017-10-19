@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -227,6 +225,11 @@ namespace NBitcoin
 			}
 		}
 
+
+		/// <summary>
+		/// Try to get the expected scriptPubKey of this TxIn based on its scriptSig and witScript.
+		/// </summary>
+		/// <returns>Null if could not infer the scriptPubKey, else, the expected scriptPubKey</returns>
 		public IDestination GetSigner()
 		{
 			return scriptSig.GetSigner() ?? witScript.GetSigner();
@@ -1452,7 +1455,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="secrets">Secrets</param>
 		/// <param name="coins">Coins to sign</param>
-		public void Sign(ISecret[] secrets, params ICoin[] coins)
+		public void Sign(ISecret[] secrets, ICoin[] coins)
 		{
 			Sign(secrets.Select(s => s.PrivateKey).ToArray(), coins);
 		}
@@ -1460,21 +1463,22 @@ namespace NBitcoin
 		/// <summary>
 		/// Sign a specific coin with the given secret
 		/// </summary>
-		/// <param name="key">Private keys</param>
+		/// <param name="keys">Private keys</param>
 		/// <param name="coins">Coins to sign</param>
-		public void Sign(Key[] keys, params ICoin[] coins)
+		public void Sign(Key[] keys, ICoin[] coins)
 		{
 			TransactionBuilder builder = new TransactionBuilder();
 			builder.AddKeys(keys);
 			builder.AddCoins(coins);
 			builder.SignTransactionInPlace(this);
 		}
+
 		/// <summary>
 		/// Sign a specific coin with the given secret
 		/// </summary>
 		/// <param name="secret">Secret</param>
 		/// <param name="coins">Coins to sign</param>
-		public void Sign(ISecret secret, params ICoin[] coins)
+		public void Sign(ISecret secret, ICoin[] coins)
 		{
 			Sign(new[] { secret }, coins);
 		}
@@ -1482,11 +1486,51 @@ namespace NBitcoin
 		/// <summary>
 		/// Sign a specific coin with the given secret
 		/// </summary>
+		/// <param name="secrets">Secrets</param>
+		/// <param name="coins">Coins to sign</param>
+		public void Sign(ISecret[] secrets, ICoin coin)
+		{
+			Sign(secrets, new[] { coin });
+		}
+
+		/// <summary>
+		/// Sign a specific coin with the given secret
+		/// </summary>
+		/// <param name="secret">Secret</param>
+		/// <param name="coin">Coins to sign</param>
+		public void Sign(ISecret secret, ICoin coin)
+		{
+			Sign(new[] { secret }, new[] { coin });
+		}
+
+		/// <summary>
+		/// Sign a specific coin with the given secret
+		/// </summary>
 		/// <param name="key">Private key</param>
 		/// <param name="coins">Coins to sign</param>
-		public void Sign(Key key, params ICoin[] coins)
+		public void Sign(Key key, ICoin[] coins)
 		{
 			Sign(new[] { key }, coins);
+		}
+
+		/// <summary>
+		/// Sign a specific coin with the given secret
+		/// </summary>
+		/// <param name="key">Private key</param>
+		/// <param name="coin">Coin to sign</param>
+		public void Sign(Key key, ICoin coin)
+		{
+			Sign(new[] { key }, new[] { coin });
+		}
+
+		/// <summary>
+		/// Sign a specific coin with the given secret
+		/// </summary>
+		/// <param name="keys">Private keys</param>
+		/// <param name="coin">Coin to sign</param>
+		public void Sign(Key[] keys, ICoin coin)
+		{
+			Sign(keys, new[] { coin });
 		}
 
 		/// <summary>
@@ -1495,6 +1539,7 @@ namespace NBitcoin
 		/// <para>For more complex scenario, use TransactionBuilder</para>
 		/// </summary>
 		/// <param name="secret"></param>
+		[Obsolete("Use Sign(ISecret,ICoin[]) instead)")]
 		public void Sign(ISecret secret, bool assumeP2SH)
 		{
 			Sign(secret.PrivateKey, assumeP2SH);
@@ -1506,6 +1551,7 @@ namespace NBitcoin
 		/// <para>For more complex scenario, use TransactionBuilder</para>
 		/// </summary>
 		/// <param name="secret"></param>
+		[Obsolete("Use Sign(Key,ICoin[]) instead)")]
 		public void Sign(Key key, bool assumeP2SH)
 		{
 			List<Coin> coins = new List<Coin>();
@@ -1634,7 +1680,7 @@ namespace NBitcoin
 			var fee = GetFee(spentCoins);
 			if(fee == null)
 				return null;
-			return new FeeRate(fee, this.GetSerializedSize());
+			return new FeeRate(fee, this.GetVirtualSize());
 		}
 
 		public bool IsFinal(ChainedBlock block)

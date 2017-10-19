@@ -139,6 +139,31 @@ namespace NBitcoin.Protocol.Behaviors
 			return completion.Task;
 		}
 
+		/// <summary>
+		/// If true, the user need to call BroadcastTransactions to ask to the nodes to broadcast it
+		/// </summary>
+		public bool ManualBroadcast
+		{
+			get; set;
+		} = false;
+
+		/// <summary>
+		/// Ask the nodes in the hub to broadcast transactions in the Hub manually
+		/// </summary>
+		public void BroadcastTransactions()
+		{
+			if(!ManualBroadcast)
+				throw new InvalidOperationException("ManualBroadcast should be true to call this method");
+			var nodes = Nodes
+						.Select(n => n.Key.Behaviors.Find<BroadcastHubBehavior>())
+						.Where(n => n != null)
+						.ToArray();
+			foreach(var node in nodes)
+			{
+				node.AnnounceAll(true);
+			}
+		}
+
 		public BroadcastHubBehavior CreateBehavior()
 		{
 			return new BroadcastHubBehavior(this);
@@ -221,13 +246,13 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
-		private void AnnounceAll()
+		internal void AnnounceAll(bool force = false)
 		{
 			foreach(var broadcasted in _HashToTransaction)
 			{
 				if(broadcasted.Value.State == BroadcastState.NotSent ||
 				   (DateTime.UtcNow - broadcasted.Value.AnnouncedTime) < TimeSpan.FromMinutes(5.0))
-					Announce(broadcasted.Value, broadcasted.Key);
+					Announce(broadcasted.Value, broadcasted.Key, force);
 			}
 		}
 
@@ -246,8 +271,10 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 		}
 
-		private void Announce(TransactionBroadcast tx, uint256 hash)
+		internal void Announce(TransactionBroadcast tx, uint256 hash, bool force = false)
 		{
+			if(!force && BroadcastHub.ManualBroadcast)
+				return;
 			var node = AttachedNode;
 			if(node != null && node.State == NodeState.HandShaked)
 			{

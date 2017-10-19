@@ -443,7 +443,7 @@ namespace NBitcoin
 				return _OverrideScriptCode;
 			var key = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(ScriptPubKey);
 			if(key != null)
-				return key.WitScriptPubKey;
+				return key.AsKeyId().ScriptPubKey;
 			return ScriptPubKey;
 		}
 
@@ -709,7 +709,7 @@ namespace NBitcoin
 				return _OverrideScriptCode;
 			var key = PayToWitPubKeyHashTemplate.Instance.ExtractScriptPubKeyParameters(Redeem);
 			if(key != null)
-				return key.WitScriptPubKey;
+				return key.AsKeyId().ScriptPubKey;
 			return Redeem;
 		}
 

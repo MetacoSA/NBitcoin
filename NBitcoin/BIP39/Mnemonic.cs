@@ -37,7 +37,7 @@ namespace NBitcoin
 			//if the sentence is not at least 12 characters or cleanly divisible by 3, it is bad!
 			if(!CorrectWordCount(words.Length))
 			{
-				throw new FormatException("Word count should be equals to 12,15,18,21 or 24");
+				throw new FormatException("Word count should be 12,15,18,21 or 24");
 			}
 			_Words = words;
 			_WordList = wordlist;
@@ -81,7 +81,7 @@ namespace NBitcoin
 		{
 			var ms = (int)wordCount;
 			if(!CorrectWordCount(ms))
-				throw new ArgumentException("Word count should be equal to 12,15,18,21 or 24", "wordCount");
+				throw new ArgumentException("Word count should be 12,15,18,21 or 24", "wordCount");
 			int i = Array.IndexOf(msArray, (int)wordCount);
 			return RandomUtils.GetBytes(entArray[i] / 8);
 		}
@@ -196,33 +196,43 @@ namespace NBitcoin
 		internal static string NormalizeString(string word)
 		{
 #if !NOSTRNORMALIZE
-			if(IsRunningOnMono())
+			if(!SupportOsNormalization())
 			{
 				return KDTable.NormalizeKD(word);
 			}
 			else
 			{
-				try
-				{
-					return word.Normalize(NormalizationForm.FormKD);
-				}
-				catch(NotImplementedException)
-				{
-					return KDTable.NormalizeKD(word);
-				}
+				return word.Normalize(NormalizationForm.FormKD);
 			}
 #else
 			return KDTable.NormalizeKD(word);
 #endif
 		}
 
-		static bool? _IsRunningOnMono;
-		internal static bool IsRunningOnMono()
+#if !NOSTRNORMALIZE
+		static bool? _SupportOSNormalization;
+		internal static bool SupportOsNormalization()
 		{
-			if(_IsRunningOnMono == null)
-				_IsRunningOnMono = Type.GetType("Mono.Runtime") != null;
-			return _IsRunningOnMono.Value;
+			if(_SupportOSNormalization == null)
+			{
+				var notNormalized = "あおぞら";
+				var normalized = "あおぞら";
+				if(notNormalized.Equals(normalized, StringComparison.Ordinal))
+				{
+					_SupportOSNormalization = false;
+				}
+				else
+				{
+					try
+					{
+						_SupportOSNormalization = notNormalized.Normalize(NormalizationForm.FormKD).Equals(normalized, StringComparison.Ordinal);
+					}
+					catch { _SupportOSNormalization = false; }
+				}
+			}
+			return _SupportOSNormalization.Value;
 		}
+#endif
 
 		public ExtKey DeriveExtKey(string passphrase = null)
 		{

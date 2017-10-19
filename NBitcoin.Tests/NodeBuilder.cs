@@ -15,6 +15,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace NBitcoin.Tests
 {
@@ -25,15 +26,32 @@ namespace NBitcoin.Tests
 		Running,
 		Killed
 	}
-	public class NodeConfigParameters : Dictionary<string, string>
+	public class NodeConfigParameters : IEnumerable<KeyValuePair<string,string>>
 	{
 		public void Import(NodeConfigParameters configParameters)
 		{
+			var toAdd = new List<KeyValuePair<string, string>>();
 			foreach(var kv in configParameters)
 			{
 				if(!ContainsKey(kv.Key))
-					Add(kv.Key, kv.Value);
+					toAdd.Add(new KeyValuePair<string, string>(kv.Key, kv.Value));
 			}
+
+			foreach(var add in toAdd)
+			{
+				Add(add.Key, add.Value);
+			}
+		}
+
+		public bool ContainsKey(string key)
+		{
+			return _KValues.Any(k => k.Key == key);
+		}
+
+		List<KeyValuePair<string, string>> _KValues = new List<KeyValuePair<string, string>>();
+		public void Add(string key, string value)
+		{
+			_KValues.Add(new KeyValuePair<string, string>(key, value));
 		}
 
 		public override string ToString()
@@ -42,6 +60,16 @@ namespace NBitcoin.Tests
 			foreach(var kv in this)
 				builder.AppendLine(kv.Key + "=" + kv.Value);
 			return builder.ToString();
+		}
+
+		public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+		{
+			return _KValues.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 	}
 	public class NodeBuilder : IDisposable
@@ -80,7 +108,14 @@ namespace NBitcoin.Tests
 			var bytes = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
 			File.WriteAllBytes(zip, bytes);
 
-			ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
+			try
+			{
+				ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
+			}
+			catch(IOException)
+			{
+				//The file probably already exist, continue
+			}
 			return bitcoind;
 		}
 
@@ -560,7 +595,7 @@ namespace NBitcoin.Tests
 			public uint256 Hash = null;
 			public Transaction Transaction = null;
 			public List<TransactionNode> DependsOn = new List<TransactionNode>();
-		}		
+		}
 
 		private List<Transaction> Reorder(List<Transaction> transactions)
 		{

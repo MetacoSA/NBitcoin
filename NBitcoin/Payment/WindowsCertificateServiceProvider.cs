@@ -20,7 +20,11 @@ namespace NBitcoin.Payment
 			{
 				try
 				{
+#if !LEGACY_X509
 					return new X509Certificate2(certificate).GetRSAPublicKey().VerifyHash(hash, signature, new HashAlgorithmName(hashOID.ToUpperInvariant()), RSASignaturePadding.Pkcs1);
+#else
+					return ((RSACryptoServiceProvider)new X509Certificate2(certificate).PublicKey.Key).VerifyHash(hash, hashOID, signature);
+# endif
 				}
 				catch(CryptographicException)
 				{
@@ -28,11 +32,11 @@ namespace NBitcoin.Payment
 				}
 			}
 
-			#endregion
+#endregion
 		}
 		public class WindowsSigner : ISigner
 		{
-			#region ISigner Members
+#region ISigner Members
 
 			public byte[] Sign(byte[] certificate, byte[] hash, string hashOID)
 			{
@@ -41,10 +45,18 @@ namespace NBitcoin.Payment
 
 			public static byte[] Sign(X509Certificate2 certificate, byte[] hash, string hashOID)
 			{
+#if !LEGACY_X509
 				var privateKey = certificate.GetRSAPrivateKey();
+#else
+				var privateKey = certificate.PrivateKey as RSACryptoServiceProvider;
+#endif
 				if(privateKey == null)
 					throw new ArgumentException("Private key not present in the certificate, impossible to sign");
+#if !LEGACY_X509
 				return privateKey.SignHash(hash, new HashAlgorithmName(hashOID.ToUpperInvariant()), RSASignaturePadding.Pkcs1);
+#else
+				return privateKey.SignHash(hash, hashOID);
+#endif
 			}
 
 			public byte[] StripPrivateKey(byte[] certificate)
@@ -53,7 +65,11 @@ namespace NBitcoin.Payment
 			}
 			public byte[] StripPrivateKey(X509Certificate2 certificate)
 			{
+#if !LEGACY_X509
 				return new X509Certificate2(certificate.Export(X509ContentType.Cert)).RawData;
+#else
+				return new X509Certificate2(certificate.Export(X509ContentType.Cert)).GetRawCertData();
+#endif
 			}
 
 			#endregion
@@ -78,7 +94,7 @@ namespace NBitcoin.Payment
 				throw new NotSupportedException("Certificate object's type is not supported");
 			}
 
-			#endregion
+#endregion
 		}
 		public class WindowsChainChecker : IChainChecker
 		{
@@ -99,7 +115,7 @@ namespace NBitcoin.Payment
 				set;
 			}
 
-			#region IChainChecker Members
+#region IChainChecker Members
 
 			public bool VerifyChain(byte[] certificate, byte[][] additionalCertificates)
 			{
@@ -117,7 +133,7 @@ namespace NBitcoin.Payment
 				return chain.Build(certificate);
 			}
 
-			#endregion
+#endregion
 		}
 
 
@@ -161,7 +177,7 @@ namespace NBitcoin.Payment
 			_VerificationFlags = verificationFlags;
 			_RevocationMode = revocationMode;
 		}
-		#region ICertificateServiceProvider Members
+#region ICertificateServiceProvider Members
 
 		public IChainChecker GetChainChecker()
 		{
@@ -182,7 +198,7 @@ namespace NBitcoin.Payment
 			return new WindowsSigner();
 		}
 
-		#endregion
+#endregion
 	}
 }
 #endif

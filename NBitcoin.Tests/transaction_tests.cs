@@ -268,6 +268,45 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanGuessRedeemScriptWithInputKeys()
+		{
+			var k = new Key();
+
+			//This gives you a Bech32 address (currently not really interoperable in wallets, so you need to convert it into P2SH)
+			var address = k.PubKey.WitHash.GetAddress(Network.Main);
+			var p2sh = address.GetScriptAddress();
+			//p2sh is now an interoperable P2SH segwit address
+
+			//For spending, it works the same as a a normal P2SH
+			//You need to get the ScriptCoin, the RedeemScript of you script coin should be k.PubKey.WitHash.ScriptPubKey.
+
+			var coins =
+				//Get coins from any block explorer.
+				GetCoins(p2sh)
+				//Nobody knows your redeem script, so you add here the information
+				//This line is actually optional since 4.0.0.38, as the TransactionBuilder is smart enough to figure out
+				//the redeems from the keys added by AddKeys.
+				//However, explicitely having the redeem will make code more easy to update to other payment like 2-2
+				//.Select(c => c.ToScriptCoin(k.PubKey.WitHash.ScriptPubKey))
+				.ToArray();
+
+			TransactionBuilder builder = new TransactionBuilder();
+			builder.AddCoins(coins);
+			builder.AddKeys(k);
+			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.SendFees(Money.Coins(0.001m));
+			builder.SetChange(p2sh);
+			var signedTx = builder.BuildTransaction(true);
+			Assert.True(builder.Verify(signedTx));
+		}
+
+		private Coin[] GetCoins(BitcoinScriptAddress p2sh)
+		{
+			return new Coin[] { new Coin(new uint256(Enumerable.Range(0, 32).Select(i => (byte)0xaa).ToArray()), 0, Money.Coins(2.0m), p2sh.ScriptPubKey) };
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//https://github.com/NicolasDorier/NBitcoin/issues/34
 		public void CanBuildAnyoneCanPayTransaction()
 		{
@@ -1387,6 +1426,44 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanSubstractFees()
+		{
+			var alice = new Key();
+			var bob = new Key();
+			var tx =
+				new TransactionBuilder()
+				.AddCoins(new Coin(new OutPoint(Rand(), 1), new TxOut(Money.Coins(1.0m), alice.ScriptPubKey)))
+				.AddKeys(alice)
+				.Send(bob, Money.Coins(0.6m))
+				.SubtractFees()
+				.SendFees(Money.Coins(0.01m))
+				.SetChange(alice)
+				.BuildTransaction(true);
+			Assert.True(tx.Outputs.Any(o => o.Value == Money.Coins(0.59m)));
+		}
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildWithKnownSignatures()
+		{
+			var k = new Key();
+			var tx = new Transaction();
+
+			var coin = new Coin(new OutPoint(Rand(), 0), new TxOut(Money.Coins(1.0m), k.PubKey.Hash));
+			tx.Inputs.Add(new TxIn(coin.Outpoint));
+			var signature = tx.SignInput(k, coin);
+
+			var txBuilder = new TransactionBuilder();
+			txBuilder.AddCoins(coin);
+			txBuilder.AddKnownSignature(k.PubKey, signature);
+			txBuilder.SignTransactionInPlace(tx);
+
+			Assert.True(tx.Inputs.AsIndexedInputs().First().VerifyScript(coin));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildTransaction()
 		{
 			var keys = Enumerable.Range(0, 5).Select(i => new Key()).ToArray();
@@ -1453,7 +1530,14 @@ namespace NBitcoin.Tests
 				.BuildTransaction(true);
 			Assert.True(txBuilder.Verify(tx, "0.0001"));
 
+			//Verify that we can detect malleability
+			txBuilder.StandardTransactionPolicy = EasyPolicy.Clone();
+			txBuilder.StandardTransactionPolicy.CheckMalleabilitySafe = true;
+			Assert.False(txBuilder.Verify(tx, "0.0001"));
 			Assert.Equal(3, tx.Outputs.Count);
+			var errors = txBuilder.Check(tx);
+			Assert.True(errors.Length > 0);
+			Assert.Equal(witCoins.Count, tx.Inputs.Count - errors.Length);
 
 			txBuilder = new TransactionBuilder(0);
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
@@ -1903,7 +1987,7 @@ namespace NBitcoin.Tests
 				ctx.Stack.Top(-3) ,
 				ctx.Stack.Top(-2),
 				ctx.Stack.Top(-1) };
-			var expected = new[] 
+			var expected = new[]
 			{
 				Op.GetPushOp(3).PushData,
 				Op.GetPushOp(4).PushData,
@@ -2028,6 +2112,17 @@ namespace NBitcoin.Tests
 			spending.Inputs[0].WitScript = new WitScript(new[] { new byte[521] }.Concat(spending.Inputs[0].WitScript.Pushes).ToArray());
 			Assert.False(spending.Inputs.AsIndexedInputs().First().VerifyScript(coin, out error));
 			Assert.Equal(ScriptError.PushSize, error);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void DoNotThrowsWithSatoshiFormatAndNoOutputs()
+		{
+			var tx = Transaction.Parse("02000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0401700101ffffffff02" +
+				"00f2052a0100000023210295aefb5b15cd9204f18ceda653ebeaada10c69b6ef7f757450c5d66c0f0ebb8dac0000000000000000266a24aa21a9" +
+				"ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf900000000");
+
+			tx.ToString(RawFormat.Satoshi);
 		}
 
 		[Fact]
