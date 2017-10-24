@@ -32,7 +32,7 @@ namespace NBitcoin.Protocol
 		/// <param name="endpoint">The end point to connect to.</param>
 		internal static NodeSocketEventManager Create(ManualResetEvent completedEvent, IPEndPoint endPoint)
 		{
-			var eventManager = Create(completedEvent);
+			NodeSocketEventManager eventManager = Create(completedEvent);
 			eventManager.Instance.RemoteEndPoint = endPoint;
 			return eventManager;
 		}
@@ -52,8 +52,11 @@ namespace NBitcoin.Protocol
 
 		public void Dispose()
 		{
-			this.instance.Dispose();
-			this.instance = null;
+			if (this.instance != null)
+			{
+				this.instance.Dispose();
+				this.instance = null;
+			}
 		}
 	}
 }
