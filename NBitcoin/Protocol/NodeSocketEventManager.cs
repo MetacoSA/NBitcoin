@@ -10,52 +10,45 @@ namespace NBitcoin.Protocol
 	/// </summary>
 	internal sealed class NodeSocketEventManager : IDisposable
 	{
-		private SocketAsyncEventArgs instance;
+		private SocketAsyncEventArgs socketEvent;
 
 		private NodeSocketEventManager() { }
 
 		/// <summary>
-		/// Creates an instance of <see cref="SocketAsyncEventArgs"/>.
-		/// </summary>
-		/// <param name="completedEvent">The event that will fire once the connection has been completed.</param>
-		internal static NodeSocketEventManager Create(ManualResetEvent completedEvent)
-		{
-			var eventManager = new NodeSocketEventManager();
-			eventManager.Instance.Completed += (s, a) => { Utils.SafeSet(completedEvent); };
-			return eventManager;
-		}
-
-		/// <summary>
-		/// Creates an instance of <see cref="SocketAsyncEventArgs"/>.
+		/// Creates a <see cref="NodeSocketEventManager"/> with a instance of <see cref="SocketAsyncEventArgs"/>.
 		/// </summary>
 		/// <param name="completedEvent">The event that will fire once the connection has been completed.</param>
 		/// <param name="endpoint">The end point to connect to.</param>
-		internal static NodeSocketEventManager Create(ManualResetEvent completedEvent, IPEndPoint endPoint)
+		internal static NodeSocketEventManager Create(ManualResetEvent completedEvent, IPEndPoint endPoint = null)
 		{
-			NodeSocketEventManager eventManager = Create(completedEvent);
-			eventManager.Instance.RemoteEndPoint = endPoint;
+			var eventManager = new NodeSocketEventManager();
+			eventManager.SocketEvent.Completed += (s, a) => { Utils.SafeSet(completedEvent); };
+
+			if (endPoint != null)
+				eventManager.SocketEvent.RemoteEndPoint = endPoint;
+
 			return eventManager;
 		}
 
 		/// <summary>
 		/// An instance of <see cref="SocketAsyncEventArgs"/> which we will use in this manager.
 		/// </summary>
-		public SocketAsyncEventArgs Instance
+		public SocketAsyncEventArgs SocketEvent
 		{
 			get
 			{
-				if (this.instance == null)
-					this.instance = new SocketAsyncEventArgs();
-				return this.instance;
+				if (this.socketEvent == null)
+					this.socketEvent = new SocketAsyncEventArgs();
+				return this.socketEvent;
 			}
 		}
 
 		public void Dispose()
 		{
-			if (this.instance != null)
+			if (this.socketEvent != null)
 			{
-				this.instance.Dispose();
-				this.instance = null;
+				this.socketEvent.Dispose();
+				this.socketEvent = null;
 			}
 		}
 	}

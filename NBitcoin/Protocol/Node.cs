@@ -164,7 +164,7 @@ namespace NBitcoin.Protocol
 					{
 						using (var socketEvent = NodeSocketEventManager.Create(completedEvent))
 						{
-							socketEvent.Instance.SocketFlags = SocketFlags.None;
+							socketEvent.SocketEvent.SocketFlags = SocketFlags.None;
 
 							try
 							{
@@ -196,21 +196,21 @@ namespace NBitcoin.Protocol
 
 									var bytes = ms.ToArrayEfficient();
 
-									socketEvent.Instance.SetBuffer(bytes, 0, bytes.Length);
+									socketEvent.SocketEvent.SetBuffer(bytes, 0, bytes.Length);
 
 									_Node.Counter.AddWritten(bytes.Length);
 
 									completedEvent.Reset();
 
-									if (!Socket.SendAsync(socketEvent.Instance))
+									if (!Socket.SendAsync(socketEvent.SocketEvent))
 										Utils.SafeSet(completedEvent);
 
 									WaitHandle.WaitAny(new WaitHandle[] { completedEvent, Cancel.Token.WaitHandle }, -1);
 
 									if (!Cancel.Token.IsCancellationRequested)
 									{
-										if (socketEvent.Instance.SocketError != SocketError.Success)
-											throw new SocketException((int)socketEvent.Instance.SocketError);
+										if (socketEvent.SocketEvent.SocketError != SocketError.Success)
+											throw new SocketException((int)socketEvent.SocketEvent.SocketError);
 
 										processing.Completion.SetResult(true);
 										processing = null;
@@ -701,7 +701,7 @@ namespace NBitcoin.Protocol
 						using (var socketEventManager = NodeSocketEventManager.Create(completedEvent, peer.Endpoint))
 						{
 							//If the socket connected straight away (synchronously) unblock all threads.
-							if (!socket.ConnectAsync(socketEventManager.Instance))
+							if (!socket.ConnectAsync(socketEventManager.SocketEvent))
 								completedEvent.Set();
 
 							//Otherwise wait for the socket connection to complete OR if the operation got cancelled.
@@ -709,10 +709,10 @@ namespace NBitcoin.Protocol
 
 							parameters.ConnectCancellation.ThrowIfCancellationRequested();
 
-							if (socketEventManager.Instance.SocketError != SocketError.Success)
-								throw new SocketException((int)socketEventManager.Instance.SocketError);
+							if (socketEventManager.SocketEvent.SocketError != SocketError.Success)
+								throw new SocketException((int)socketEventManager.SocketEvent.SocketError);
 
-							var remoteEndpoint = (IPEndPoint)(socket.RemoteEndPoint ?? socketEventManager.Instance.RemoteEndPoint);
+							var remoteEndpoint = (IPEndPoint)(socket.RemoteEndPoint ?? socketEventManager.SocketEvent.RemoteEndPoint);
 							_RemoteSocketAddress = remoteEndpoint.Address;
 							_RemoteSocketEndpoint = remoteEndpoint;
 							_RemoteSocketPort = remoteEndpoint.Port;
