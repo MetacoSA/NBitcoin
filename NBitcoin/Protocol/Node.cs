@@ -224,11 +224,6 @@ namespace NBitcoin.Protocol
 							{
 								unhandledException = ex;
 							}
-							finally
-							{
-								socketEvent.Dispose();
-								completedEvent.Dispose();
-							}
 						}
 					}
 
