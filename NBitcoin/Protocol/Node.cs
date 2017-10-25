@@ -541,8 +541,7 @@ namespace NBitcoin.Protocol
 		{
 			getGroup = getGroup ?? new Func<IPEndPoint, byte[]>((a) => IpExtensions.GetGroup(a.Address));
 
-			var IPEndPoints = connectedEndpoints();
-			if (IPEndPoints == null)
+			if (connectedEndpoints() == null)
 				connectedEndpoints = new Func<IPEndPoint[]>(() => new IPEndPoint[0]);
 
 			parameters = parameters ?? new NodeConnectionParameters();
@@ -698,10 +697,10 @@ namespace NBitcoin.Protocol
 				{
 					using (var completedEvent = new ManualResetEvent(false))
 					{
-						using (var socketEventManager = NodeSocketEventManager.Create(completedEvent, peer.Endpoint))
+						using (var nodeSocketEventManager = NodeSocketEventManager.Create(completedEvent, peer.Endpoint))
 						{
 							//If the socket connected straight away (synchronously) unblock all threads.
-							if (!socket.ConnectAsync(socketEventManager.SocketEvent))
+							if (!socket.ConnectAsync(nodeSocketEventManager.SocketEvent))
 								completedEvent.Set();
 
 							//Otherwise wait for the socket connection to complete OR if the operation got cancelled.
@@ -709,15 +708,16 @@ namespace NBitcoin.Protocol
 
 							parameters.ConnectCancellation.ThrowIfCancellationRequested();
 
-							if (socketEventManager.SocketEvent.SocketError != SocketError.Success)
-								throw new SocketException((int)socketEventManager.SocketEvent.SocketError);
+							if (nodeSocketEventManager.SocketEvent.SocketError != SocketError.Success)
+								throw new SocketException((int)nodeSocketEventManager.SocketEvent.SocketError);
 
-							var remoteEndpoint = (IPEndPoint)(socket.RemoteEndPoint ?? socketEventManager.SocketEvent.RemoteEndPoint);
+							var remoteEndpoint = (IPEndPoint)(socket.RemoteEndPoint ?? nodeSocketEventManager.SocketEvent.RemoteEndPoint);
 							_RemoteSocketAddress = remoteEndpoint.Address;
 							_RemoteSocketEndpoint = remoteEndpoint;
 							_RemoteSocketPort = remoteEndpoint.Port;
 
 							State = NodeState.Connected;
+							ConnectedAt = DateTimeOffset.UtcNow;
 
 							NodeServerTrace.Information("Outbound connection successful.");
 
