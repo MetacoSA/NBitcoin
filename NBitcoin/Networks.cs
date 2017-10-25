@@ -171,7 +171,11 @@ namespace NBitcoin
 				.AddDNSSeeds(new[]
 				{
 					new DNSSeedData("seed.stratisplatform.com", "seed.stratisplatform.com"),
-					new DNSSeedData("seed.cloudstratis.com", "seed.cloudstratis.com")
+					new DNSSeedData("seed.cloudstratis.com", "seed.cloudstratis.com"),
+					new DNSSeedData("seednode1.stratisplatform.com", "seednode1.stratisplatform.com"),
+					new DNSSeedData("seednode2.stratis.cloud", "seednode2.stratis.cloud"),
+					new DNSSeedData("seednode3.stratisplatform.com", "seednode3.stratisplatform.com"),
+					new DNSSeedData("seednode4.stratis.cloud", "seednode4.stratis.cloud")
 				})
 #endif
 
