@@ -264,7 +264,8 @@ namespace NBitcoin
 #if !NOSOCKET
 				.AddDNSSeeds(new[]
 				{
-					new DNSSeedData("stratisplatform.com", "testnode1.stratisplatform.com"),
+					new DNSSeedData("testnode1.stratisplatform.com", "testnode1.stratisplatform.com"),
+					new DNSSeedData("testnode2.stratis.cloud", "testnode2.stratis.cloud")
 				});
 
 				builder.AddSeeds(new[] { new NetworkAddress(IPAddress.Parse("51.141.28.47"), builder._Port) }); // the c# testnet node
