@@ -546,7 +546,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void CanAddNodes()
 		{
 			using(var builder = NodeBuilder.Create())
