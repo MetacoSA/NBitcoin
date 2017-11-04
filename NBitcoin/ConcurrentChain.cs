@@ -69,7 +69,7 @@ namespace NBitcoin
 							_Tip = null;
 							SetTipNoLock(new ChainedBlock(header, 0));
 						}
-						else if(_Tip.HashBlock == header.HashPrevBlock)
+						else if(_Tip.HashBlock == header.HashPrevBlock && !header.IsNull)
 							SetTipNoLock(new ChainedBlock(header, id.Value, Tip));
 						else
 							break;
