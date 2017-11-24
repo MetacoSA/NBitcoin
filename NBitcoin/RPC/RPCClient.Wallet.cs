@@ -431,7 +431,7 @@ namespace NBitcoin.RPC
 
 			var response = await SendCommandAsync("importmulti", parameters.ToArray()).ConfigureAwait(false);
 
-			// return response so caller knows if it was successful or not.
+			// return response so caller knows if it was successful or not. 
 			return response;
 		}
 
