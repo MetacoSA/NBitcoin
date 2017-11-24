@@ -406,6 +406,36 @@ namespace NBitcoin.RPC
 		}
 
 
+		// importmulti
+
+		public RPCResponse ImportMulti(ImportMultiAddress[] addresses, bool rescan)
+		{
+			return ImportMultiAsync(addresses, rescan).GetAwaiter().GetResult();
+		}
+
+		public async Task<RPCResponse> ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan)
+		{
+			var parameters = new List<object>();
+
+			var array = new JArray();
+			parameters.Add(array);
+
+			foreach (var addr in addresses)
+			{
+				var obj = JObject.FromObject(addr);
+				array.Add(obj);
+			}
+
+			var oRescan = JObject.FromObject(new { rescan = rescan });
+			parameters.Add(oRescan);
+
+			var response = await SendCommandAsync("importmulti", parameters.ToArray()).ConfigureAwait(false);
+
+			// return response so caller knows if it was successful or not.
+			return response;
+		}
+
+
 		// listaccounts
 
 		/// <summary>
