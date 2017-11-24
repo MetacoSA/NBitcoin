@@ -56,7 +56,7 @@ namespace NBitcoin.RPC
 	}
 
 	/// <summary>
-	/// Customer JsonConvert to deal with loose type of scriptPubKey property in the ImportMulti method
+	/// Custom JsonConvert to deal with loose type of scriptPubKey property in the ImportMulti method
 	/// </summary>
 	public class ImportMultiScriptPubKeyConverter : JsonConverter
 	{
