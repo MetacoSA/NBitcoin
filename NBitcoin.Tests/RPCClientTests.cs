@@ -262,7 +262,6 @@ namespace NBitcoin.Tests
 				Assert.Equal(address.ToString(), secret.GetAddress().ToString());
 			}
 		}
-
 		[Fact]
 		public void CanImportMultiAddresses()
 		{
@@ -292,7 +291,7 @@ namespace NBitcoin.Tests
 				new ImportMultiAddress
 				{
 					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
-					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" }
+					Timestamp = "now"
 				}
 			};
 
@@ -305,7 +304,7 @@ namespace NBitcoin.Tests
 				new ImportMultiAddress
 				{
 					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = "not valid address" },
-					Timestamp = new ImportMultiAddress.TimestampObject { DateTimestamp = DateTimeOffset.Now.AddDays(-1) }
+					Timestamp = DateTimeOffset.Now.AddDays(-1)
 				}
 			};
 
@@ -322,7 +321,7 @@ namespace NBitcoin.Tests
 				new ImportMultiAddress
 				{
 					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
-					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
+					Timestamp = "now",
 					Internal = true
 				}
 			};
@@ -339,7 +338,7 @@ namespace NBitcoin.Tests
 				new ImportMultiAddress
 				{
 					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
-					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" }
+					Timestamp = "now"
 				}
 			};
 
@@ -357,7 +356,7 @@ namespace NBitcoin.Tests
 				new ImportMultiAddress
 				{
 					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
-					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
+					Timestamp = "now",
 					PubKeys = new string[] { key.PubKey.ToString() }
 				}
 			};
@@ -374,7 +373,7 @@ namespace NBitcoin.Tests
 				new ImportMultiAddress
 				{
 					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
-					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
+					Timestamp = "now",
 					PubKeys = new string[] { key.PubKey.ToString() },
 					Internal = true
 				}
@@ -392,7 +391,7 @@ namespace NBitcoin.Tests
 				new ImportMultiAddress
 				{
 					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
-					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
+					Timestamp = "now",
 					PubKeys = new string[] { key.PubKey.ToString() }
 				}
 			};
@@ -410,7 +409,7 @@ namespace NBitcoin.Tests
 				new ImportMultiAddress
 				{
 					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
-					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
+					Timestamp = "now",
 					Keys = new string[] { key.GetWif(network).ToString() }
 				}
 			};
@@ -423,7 +422,7 @@ namespace NBitcoin.Tests
 				new ImportMultiAddress
 				{
 					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
-					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
+					Timestamp = "now",
 					Keys = new string[] { key.GetWif(network).ToString() }
 				}
 			};
@@ -443,7 +442,7 @@ namespace NBitcoin.Tests
 				new ImportMultiAddress
 				{
 					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
-					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
+					Timestamp = "now",
 					Keys = new string[] { key.GetWif(network).ToString() },
 					WatchOnly = true
 				}
@@ -503,6 +502,8 @@ namespace NBitcoin.Tests
 			//TODO
 			#endregion
 		}
+
+
 
 		[Fact]
 		public void CanGetPrivateKeysFromLockedAccount()

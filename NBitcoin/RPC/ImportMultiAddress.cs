@@ -29,26 +29,13 @@ namespace NBitcoin.RPC
 			}
 		}
 
-		public class TimestampObject
-		{
-			public DateTimeOffset? DateTimestamp{ get; set; }
-
-			/// <summary>
-			/// Set to "now" or "0". If DateTimestamp is populated, this property will be ignored.
-			/// </summary>
-			public string NowZero { get; set; }
-		}
-
 		[JsonProperty("scriptPubKey", NullValueHandling = NullValueHandling.Ignore)]
 		[JsonConverter(typeof(ImportMultiScriptPubKeyConverter))]
 		public ScriptPubKeyObject ScriptPubKey { get; set; }
 
-		//[JsonProperty("timestamp")]
-		//public uint Timestamp { get; set; }
-
 		[JsonProperty("timestamp")]
 		[JsonConverter(typeof(ImportMultiTimestampConverter))]
-		public TimestampObject Timestamp { get; set; }
+		public object Timestamp { get; set; }
 
 		[JsonProperty("redeemscript", NullValueHandling = NullValueHandling.Ignore)]
 		public string RedeemScript { get; set; }
@@ -73,7 +60,9 @@ namespace NBitcoin.RPC
 	{
 		public override bool CanConvert(Type objectType)
 		{
-			return objectType == typeof(ImportMultiAddress.ScriptPubKeyObject);
+			return (objectType == typeof(string)
+				|| objectType == typeof(uint)
+				|| objectType == typeof(DateTimeOffset));
 		}
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -83,18 +72,27 @@ namespace NBitcoin.RPC
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
-			ImportMultiAddress.TimestampObject req = (ImportMultiAddress.TimestampObject)value;
 			JToken t = JToken.FromObject(value);
 
-			if (req.DateTimestamp.HasValue)
+			if (value.GetType() == typeof(DateTimeOffset))
 			{
-				JToken timestamp = JToken.FromObject(Utils.DateTimeToUnixTime(req.DateTimestamp.Value));
+				JToken timestamp = JToken.FromObject(Utils.DateTimeToUnixTime((DateTimeOffset)value));
+				timestamp.WriteTo(writer);
+			}
+			else if (value.GetType() == typeof(int))
+			{
+				JToken timestamp = JToken.FromObject((int)value);
+				timestamp.WriteTo(writer);
+			}
+			else if (value.GetType() == typeof(string))
+			{
+				JToken timestamp = JToken.FromObject((string)value);
 				timestamp.WriteTo(writer);
 			}
 			else
 			{
-				// If it's "now" then we serialize a string. Else, serialize as a uint (with "0" expected).
-				JToken timestamp =  req.NowZero == "now" ? JToken.FromObject(req.NowZero) : JToken.FromObject(UInt32.Parse(req.NowZero));
+				// Default to "now" if Timestamp is not initialized properly
+				JToken timestamp = JToken.FromObject("now");
 				timestamp.WriteTo(writer);
 			}
 		}
