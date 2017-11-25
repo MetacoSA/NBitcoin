@@ -264,18 +264,24 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanImportMultiAddresses()
+		public void CanImportMultiAddresses2()
 		{
 			// Test cases borrowed from: https://github.com/bitcoin/bitcoin/blob/master/test/functional/importmulti.py
 
-			Network network = Network.RegTest;
-			string rpcUrl = "http://127.0.0.1:8332";
-			string rpcUser = "NBitcoin";
-			string rpcPassword = "NBitcoinPassword";
+			//Network network = Network.RegTest;
+			//string rpcUrl = "http://127.0.0.1:8332";
+			//string rpcUser = "NBitcoin";
+			//string rpcPassword = "NBitcoinPassword";
+
+			Network network = Network.Main;
+			string rpcUrl = "http://192.168.255.129:8332";
+			string rpcUser = "meuser";
+			string rpcPassword = "mepw99923";
+
 
 			RPCClient rpc = new RPCClient(
-				new RPCCredentialString { UserPassword = new NetworkCredential(rpcUser, rpcPassword) }, 
-				new Uri(rpcUrl), 
+				new RPCCredentialString { UserPassword = new NetworkCredential(rpcUser, rpcPassword) },
+				new Uri(rpcUrl),
 				Network.Main);
 
 			Key key;
@@ -291,8 +297,8 @@ namespace NBitcoin.Tests
 			{
 				new ImportMultiAddress
 				{
-					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyProperty { Address = key.PubKey.GetAddress(network).ToString() },
-					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now))
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" }
 				}
 			};
 
@@ -304,14 +310,15 @@ namespace NBitcoin.Tests
 			{
 				new ImportMultiAddress
 				{
-					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyProperty { Address = "not valid address" },
-					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now))
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = "not valid address" },
+					Timestamp = new ImportMultiAddress.TimestampObject { DateTimestamp = DateTimeOffset.Now.AddDays(-1) }
 				}
 			};
 
 			response = rpc.ImportMulti(multiAddresses.ToArray(), false);
 			Assert.False(response.Result[0]["success"].Value<bool>());
 			#endregion
+
 
 			#region ScriptPubKey + internal
 			Console.WriteLine("Should import a scriptPubKey with internal flag");
@@ -320,8 +327,8 @@ namespace NBitcoin.Tests
 			{
 				new ImportMultiAddress
 				{
-					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyProperty { ScriptPubKey = key.PubKey.ToString() },
-					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
+					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
 					Internal = true
 				}
 			};
@@ -337,8 +344,8 @@ namespace NBitcoin.Tests
 			{
 				new ImportMultiAddress
 				{
-					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyProperty { ScriptPubKey = key.PubKey.ToString() },
-					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now))
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
+					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" }
 				}
 			};
 
@@ -355,8 +362,8 @@ namespace NBitcoin.Tests
 			{
 				new ImportMultiAddress
 				{
-					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyProperty { Address = key.PubKey.GetAddress(network).ToString() },
-					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
 					PubKeys = new string[] { key.PubKey.ToString() }
 				}
 			};
@@ -372,8 +379,8 @@ namespace NBitcoin.Tests
 			{
 				new ImportMultiAddress
 				{
-					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyProperty { ScriptPubKey = key.PubKey.ToString() },
-					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
+					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
 					PubKeys = new string[] { key.PubKey.ToString() },
 					Internal = true
 				}
@@ -390,8 +397,8 @@ namespace NBitcoin.Tests
 			{
 				new ImportMultiAddress
 				{
-					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyProperty { ScriptPubKey = key.PubKey.ToString() },
-					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
+					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
 					PubKeys = new string[] { key.PubKey.ToString() }
 				}
 			};
@@ -408,8 +415,8 @@ namespace NBitcoin.Tests
 			{
 				new ImportMultiAddress
 				{
-					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyProperty { Address = key.PubKey.GetAddress(network).ToString() },
-					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
 					Keys = new string[] { key.GetWif(network).ToString() }
 				}
 			};
@@ -421,8 +428,8 @@ namespace NBitcoin.Tests
 			{
 				new ImportMultiAddress
 				{
-					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyProperty { Address = key.PubKey.GetAddress(network).ToString() },
-					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
 					Keys = new string[] { key.GetWif(network).ToString() }
 				}
 			};
@@ -441,8 +448,8 @@ namespace NBitcoin.Tests
 			{
 				new ImportMultiAddress
 				{
-					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyProperty { Address = key.PubKey.GetAddress(network).ToString() },
-					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+					Timestamp = new ImportMultiAddress.TimestampObject { NowZero = "now" },
 					Keys = new string[] { key.GetWif(network).ToString() },
 					WatchOnly = true
 				}
@@ -501,8 +508,251 @@ namespace NBitcoin.Tests
 			#region restart nodes to check for proper serialization/deserialization of watch only address
 			//TODO
 			#endregion
+		}
+
+#if false
+		[Fact]
+		public void CanImportMultiAddresses()
+		{
+			// Test cases borrowed from: https://github.com/bitcoin/bitcoin/blob/master/test/functional/importmulti.py
+
+			Network network = Network.RegTest;
+			string rpcUrl = "http://127.0.0.1:8332";
+			string rpcUser = "NBitcoin";
+			string rpcPassword = "NBitcoinPassword";
+
+			RPCClient rpc = new RPCClient(
+				new RPCCredentialString { UserPassword = new NetworkCredential(rpcUser, rpcPassword) }, 
+				new Uri(rpcUrl), 
+				Network.Main);
+
+			Key key;
+			List<ImportMultiAddress> multiAddresses;
+			RPCResponse response;
+
+			// 20 total test cases
+
+		#region Bitcoin Address
+			Console.WriteLine("Should import an address");
+			key = new Key();
+			multiAddresses = new List<ImportMultiAddress>
+			{
+				new ImportMultiAddress
+				{
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now))
+				}
+			};
+
+			response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+			Assert.True(response.Result[0]["success"].Value<bool>());
+
+			Console.WriteLine("Should not import an invalid address");
+			multiAddresses = new List<ImportMultiAddress>
+			{
+				new ImportMultiAddress
+				{
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = "not valid address" },
+					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now))
+				}
+			};
+
+			response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+			Assert.False(response.Result[0]["success"].Value<bool>());
+		#endregion
+
+		#region ScriptPubKey + internal
+			Console.WriteLine("Should import a scriptPubKey with internal flag");
+			key = new Key();
+			multiAddresses = new List<ImportMultiAddress>
+			{
+				new ImportMultiAddress
+				{
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
+					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					Internal = true
+				}
+			};
+
+			response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+			Assert.True(response.Result[0]["success"].Value<bool>());
+		#endregion
+
+		#region ScriptPubKey + !internal
+			Console.WriteLine("Should not import a scriptPubKey without internal flag");
+			key = new Key();
+			multiAddresses = new List<ImportMultiAddress>
+			{
+				new ImportMultiAddress
+				{
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
+					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now))
+				}
+			};
+
+			response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+			Assert.False(response.Result[0]["success"].Value<bool>());
+			Assert.Equal(response.Result[0]["error"]["code"].Value<int>(), -8);
+			Assert.Equal(response.Result[0]["error"]["message"].Value<string>(), "Internal must be set for hex scriptPubKey");
+		#endregion
+
+		#region Address + Public key + !internal
+			Console.WriteLine("Should import an address with public key");
+			key = new Key();
+			multiAddresses = new List<ImportMultiAddress>
+			{
+				new ImportMultiAddress
+				{
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					PubKeys = new string[] { key.PubKey.ToString() }
+				}
+			};
+
+			response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+			Assert.True(response.Result[0]["success"].Value<bool>());
+		#endregion
+
+		#region ScriptPubKey + Public key + internal
+			Console.WriteLine("Should import a scriptPubKey with internal and with public key");
+			key = new Key();
+			multiAddresses = new List<ImportMultiAddress>
+			{
+				new ImportMultiAddress
+				{
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
+					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					PubKeys = new string[] { key.PubKey.ToString() },
+					Internal = true
+				}
+			};
+
+			response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+			Assert.True(response.Result[0]["success"].Value<bool>());
+		#endregion
+
+		#region ScriptPubKey + Public key + !internal
+			Console.WriteLine("Should not import a scriptPubKey without internal and with public key");
+			key = new Key();
+			multiAddresses = new List<ImportMultiAddress>
+			{
+				new ImportMultiAddress
+				{
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.PubKey.ToString() },
+					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					PubKeys = new string[] { key.PubKey.ToString() }
+				}
+			};
+			response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+			Assert.False(response.Result[0]["success"].Value<bool>());
+			Assert.Equal(response.Result[0]["error"]["code"].Value<int>(), -8);
+			Assert.Equal(response.Result[0]["error"]["message"].Value<string>(), "Internal must be set for hex scriptPubKey");
+		#endregion
+
+		#region Address + Private key + !watchonly
+			Console.WriteLine("Should import an address with private key");
+			key = new Key();
+			multiAddresses = new List<ImportMultiAddress>
+			{
+				new ImportMultiAddress
+				{
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					Keys = new string[] { key.GetWif(network).ToString() }
+				}
+			};
+			response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+			Assert.True(response.Result[0]["success"].Value<bool>());
+
+			Console.WriteLine("Should not import an address with private key if is already imported");
+			multiAddresses = new List<ImportMultiAddress>
+			{
+				new ImportMultiAddress
+				{
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					Keys = new string[] { key.GetWif(network).ToString() }
+				}
+			};
+			response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+
+			// Note: bitcoin returns an unexpected result format of '{ "result" : false }' instead of
+			//       the expected format '{ "result" : { success: false } }'. So our assertion expression below is different.
+			Assert.False(response.Result[0].Value<bool>());
+
+		#endregion
+
+		#region Address + Private key + watchonly
+			Console.WriteLine("Should import an address with private key");
+			key = new Key();
+			multiAddresses = new List<ImportMultiAddress>
+			{
+				new ImportMultiAddress
+				{
+					ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+					Timestamp = Utils.DateTimeToUnixTime(new DateTimeOffset(DateTime.Now)),
+					Keys = new string[] { key.GetWif(network).ToString() },
+					WatchOnly = true
+				}
+			};
+			response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+			Assert.False(response.Result[0]["success"].Value<bool>());
+			Assert.Equal(response.Result[0]["error"]["code"].Value<int>(), -8);
+			Assert.Equal(response.Result[0]["error"]["message"].Value<string>(), "Incompatibility found between watchonly and keys");
+
+		#endregion
+
+		#region ScriptPubKey + Private key + internal
+			//TODO
+		#endregion
+
+		#region ScriptPubKey + Private key + !internal
+			//TODO
+		#endregion
+
+		#region P2SH address
+			//TODO
+		#endregion
+
+		#region P2SH + Redeem script
+			//TODO
+		#endregion
+
+		#region P2SH + Redeem script + Private Keys + !Watchonly
+			//TODO
+		#endregion
+
+		#region P2SH + Redeem script + Private Keys + Watchonly
+			//TODO
+		#endregion
+
+		#region Address + Public key + !Internal + Wrong pubkey
+			//TODO
+		#endregion
+
+		#region ScriptPubKey + Public key + internal + Wrong pubkey
+			//TODO
+		#endregion
+
+		#region Address + Private key + !watchonly + Wrong private key
+			//TODO
+		#endregion
+
+		#region ScriptPubKey + Private key + internal + Wrong private key
+			//TODO
+		#endregion
+
+		#region Importing existing watch only address with new timestamp should replace saved timestamp.
+			//TODO
+		#endregion
+
+		#region restart nodes to check for proper serialization/deserialization of watch only address
+			//TODO
+		#endregion
 			
 		}
+
+#endif
 
 		[Fact]
 		public void CanGetPrivateKeysFromLockedAccount()
