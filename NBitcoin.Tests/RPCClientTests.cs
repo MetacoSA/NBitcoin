@@ -262,6 +262,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(address.ToString(), secret.GetAddress().ToString());
 			}
 		}
+
 		[Fact]
 		public void CanImportMultiAddresses()
 		{
@@ -502,8 +503,6 @@ namespace NBitcoin.Tests
 			//TODO
 			#endregion
 		}
-
-
 
 		[Fact]
 		public void CanGetPrivateKeysFromLockedAccount()

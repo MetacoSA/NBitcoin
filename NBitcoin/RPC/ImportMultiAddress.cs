@@ -61,7 +61,7 @@ namespace NBitcoin.RPC
 		public override bool CanConvert(Type objectType)
 		{
 			return (objectType == typeof(string)
-				|| objectType == typeof(uint)
+				|| objectType == typeof(int)
 				|| objectType == typeof(DateTimeOffset));
 		}
 
