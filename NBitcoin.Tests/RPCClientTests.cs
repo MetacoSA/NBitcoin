@@ -267,7 +267,7 @@ namespace NBitcoin.Tests
 		public void CanImportMultiAddresses()
 		{
 			// Test cases borrowed from: https://github.com/bitcoin/bitcoin/blob/master/test/functional/importmulti.py
-			using (var builder = NodeBuilder.Create())
+			using (var builder = NodeBuilder.Create(version : "0.15.1"))
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -427,9 +427,8 @@ namespace NBitcoin.Tests
 
 				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
 
-				// Note: bitcoin returns an unexpected result format of '{ "result" : false }' instead of
-				//       the expected format '{ "result" : { success: false } }'. So our assertion expression below is different.
-				Assert.False(response.Result[0].Value<bool>());
+				//Assert.False(response.Result[0].Value<bool>());
+				Assert.False(response.Result[0]["success"].Value<bool>());
 
 				#endregion
 
