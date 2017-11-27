@@ -264,6 +264,336 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanImportMultiAddresses()
+		{
+			// Test cases borrowed from: https://github.com/bitcoin/bitcoin/blob/master/test/functional/importmulti.py
+			using (var builder = NodeBuilder.Create(version : "0.15.1"))
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+
+				Key key;
+				List<ImportMultiAddress> multiAddresses;
+				RPCResponse response;
+				Network network = Network.RegTest;
+
+				// 20 total test cases
+
+				#region Bitcoin Address
+				Console.WriteLine("Should import an address");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+						Timestamp = "now"
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.True(response.Result[0]["success"].Value<bool>());
+
+				Console.WriteLine("Should not import an invalid address");
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = "not valid address" },
+						Timestamp = DateTimeOffset.Now.AddDays(-1)
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.False(response.Result[0]["success"].Value<bool>());
+				#endregion
+
+				#region ScriptPubKey + internal
+				Console.WriteLine("Should import a scriptPubKey with internal flag");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey.ToHex() },
+						Timestamp = "now",
+						Internal = true
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.True(response.Result[0]["success"].Value<bool>());
+				#endregion
+
+				#region ScriptPubKey + !internal
+				Console.WriteLine("Should not import a scriptPubKey without internal flag");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey.ToHex() },
+						Timestamp = "now"
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.False(response.Result[0]["success"].Value<bool>());
+				Assert.Equal(response.Result[0]["error"]["code"].Value<int>(), -8);
+				Assert.Equal(response.Result[0]["error"]["message"].Value<string>(), "Internal must be set for hex scriptPubKey");
+				#endregion
+
+				#region Address + Public key + !internal
+				Console.WriteLine("Should import an address with public key");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+						Timestamp = "now",
+						PubKeys = new string[] { key.PubKey.ToString() }
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.True(response.Result[0]["success"].Value<bool>());
+				#endregion
+
+				#region ScriptPubKey + Public key + internal
+				Console.WriteLine("Should import a scriptPubKey with internal and with public key");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey.ToHex() },
+						Timestamp = "now",
+						PubKeys = new string[] { key.PubKey.ToString() },
+						Internal = true
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.True(response.Result[0]["success"].Value<bool>());
+				#endregion
+
+				#region ScriptPubKey + Public key + !internal
+				Console.WriteLine("Should not import a scriptPubKey without internal and with public key");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey.ToHex() },
+						Timestamp = "now",
+						PubKeys = new string[] { key.PubKey.ToString() }
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.False(response.Result[0]["success"].Value<bool>());
+				Assert.Equal(response.Result[0]["error"]["code"].Value<int>(), -8);
+				Assert.Equal(response.Result[0]["error"]["message"].Value<string>(), "Internal must be set for hex scriptPubKey");
+				#endregion
+
+				#region Address + Private key + !watchonly
+				Console.WriteLine("Should import an address with private key");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+						Timestamp = "now",
+						Keys = new string[] { key.GetWif(network).ToString() }
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.True(response.Result[0]["success"].Value<bool>());
+
+				Console.WriteLine("Should not import an address with private key if is already imported");
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+						Timestamp = "now",
+						Keys = new string[] { key.GetWif(network).ToString() }
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+
+				//Assert.False(response.Result[0].Value<bool>());
+				Assert.False(response.Result[0]["success"].Value<bool>());
+
+				#endregion
+
+				#region Address + Private key + watchonly
+				Console.WriteLine("Should not import an address with private key and with watchonly");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+						Timestamp = "now",
+						Keys = new string[] { key.GetWif(network).ToString() },
+						WatchOnly = true
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.False(response.Result[0]["success"].Value<bool>());
+				Assert.Equal(response.Result[0]["error"]["code"].Value<int>(), -8);
+				Assert.Equal(response.Result[0]["error"]["message"].Value<string>(), "Incompatibility found between watchonly and keys");
+				#endregion
+
+				#region ScriptPubKey + Private key + internal
+				Console.WriteLine("Should import a scriptPubKey with internal and with private key");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey.ToHex() },
+						Timestamp = "now",
+						Keys = new string[] { key.GetWif(network).ToString() },
+						Internal = true
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.True(response.Result[0]["success"].Value<bool>());
+				#endregion
+
+				#region ScriptPubKey + Private key + !internal
+				Console.WriteLine("Should not import a scriptPubKey without internal and with private key");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey.ToHex() },
+						Timestamp = "now",
+						Keys = new string[] { key.GetWif(network).ToString() }
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.False(response.Result[0]["success"].Value<bool>());
+				#endregion
+
+				#region P2SH address
+				//Blocked : Dependent on implementation of rpc.CreateMultiSig()
+				#endregion
+
+				#region P2SH + Redeem script
+				//Blocked : Dependent on implementation of rpc.CreateMultiSig()
+				#endregion
+
+				#region P2SH + Redeem script + Private Keys + !Watchonly
+				//Blocked : Dependent on implementation of rpc.CreateMultiSig()
+				#endregion
+
+				#region P2SH + Redeem script + Private Keys + Watchonly
+				//Blocked : Dependent on implementation of rpc.CreateMultiSig()
+				#endregion
+
+				#region Address + Public key + !Internal + Wrong pubkey
+				Console.WriteLine("Should not import an address with a wrong public key");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+						Timestamp = "now",
+						PubKeys = new string[] { new Key().PubKey.ToString() }
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.False(response.Result[0]["success"].Value<bool>());
+				Assert.Equal(response.Result[0]["error"]["code"].Value<int>(), -5);
+				Assert.Equal(response.Result[0]["error"]["message"].Value<string>(), "Consistency check failed");
+				#endregion
+
+				#region ScriptPubKey + Public key + internal + Wrong pubkey
+				Console.WriteLine("Should not import a scriptPubKey with internal and with a wrong public key");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey.ToHex() },
+						Timestamp = "now",
+						PubKeys = new string[] { new Key().PubKey.ToString() },
+						Internal = true
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.False(response.Result[0]["success"].Value<bool>());
+				Assert.Equal(response.Result[0]["error"]["code"].Value<int>(), -5);
+				Assert.Equal(response.Result[0]["error"]["message"].Value<string>(), "Consistency check failed");
+				#endregion
+
+				#region Address + Private key + !watchonly + Wrong private key
+				Console.WriteLine("Should not import an address with a wrong private key");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { Address = key.PubKey.GetAddress(network).ToString() },
+						Timestamp = "now",
+						Keys = new string[] { new Key().GetWif(network).ToString() }
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.False(response.Result[0]["success"].Value<bool>());
+				Assert.Equal(response.Result[0]["error"]["code"].Value<int>(), -5);
+				Assert.Equal(response.Result[0]["error"]["message"].Value<string>(), "Consistency check failed");
+				#endregion
+
+				#region ScriptPubKey + Private key + internal + Wrong private key
+				Console.WriteLine("Should not import a scriptPubKey with internal and with a wrong private key");
+				key = new Key();
+				multiAddresses = new List<ImportMultiAddress>
+				{
+					new ImportMultiAddress
+					{
+						ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject { ScriptPubKey = key.ScriptPubKey.ToHex() },
+						Timestamp = "now",
+						Keys = new string[] { new Key().GetWif(network).ToString() },
+						Internal = true
+					}
+				};
+
+				response = rpc.ImportMulti(multiAddresses.ToArray(), false);
+				Assert.False(response.Result[0]["success"].Value<bool>());
+				Assert.Equal(response.Result[0]["error"]["code"].Value<int>(), -5);
+				Assert.Equal(response.Result[0]["error"]["message"].Value<string>(), "Consistency check failed");
+				#endregion
+
+				#region Importing existing watch only address with new timestamp should replace saved timestamp.
+				//TODO
+				#endregion
+
+				#region restart nodes to check for proper serialization/deserialization of watch only address
+				//TODO
+				#endregion
+
+			}
+
+
+		}
+
+		[Fact]
 		public void CanGetPrivateKeysFromLockedAccount()
 		{
 			using(var builder = NodeBuilder.Create())
