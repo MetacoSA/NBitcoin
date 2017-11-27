@@ -981,7 +981,7 @@ namespace NBitcoin
 			return new BitcoinScriptAddress(base58, this);
 		}
 
-		private Base58Type? GetBase58Type(string base58)
+		public Base58Type? GetBase58Type(string base58)
 		{
 			var bytes = Encoders.Base58Check.DecodeData(base58);
 			for(int i = 0; i < base58Prefixes.Length; i++)
