@@ -25,7 +25,7 @@ namespace NBitcoin
 			var networks = expectedNetwork == null ? Network.GetNetworks() : new[] { expectedNetwork };
 			foreach(var network in networks)
 			{
-				var encoder = expectedNetwork.GetBech32Encoder(Bech32Type.WITNESS_PUBKEY_ADDRESS, false);
+				var encoder = network.GetBech32Encoder(Bech32Type.WITNESS_PUBKEY_ADDRESS, false);
 				if(encoder == null)
 					continue;
 				try
@@ -34,6 +34,7 @@ namespace NBitcoin
 					var data = encoder.Decode(bech32, out witVersion);
 					if(data.Length == 20 && witVersion == 0)
 					{
+						expectedNetwork = network;
 						return bech32;
 					}
 				}
@@ -54,6 +55,12 @@ namespace NBitcoin
 			if(segwitKeyId == null)
 				throw new ArgumentNullException("segwitKeyId");
 			return null;
+		}
+
+		public bool VerifyMessage(string message, string signature)
+		{
+			var key = PubKey.RecoverFromMessage(message, signature);
+			return key.WitHash == Hash;
 		}
 
 		WitKeyId _Hash;
@@ -98,7 +105,7 @@ namespace NBitcoin
 			var networks = expectedNetwork == null ? Network.GetNetworks() : new[] { expectedNetwork };
 			foreach(var network in networks)
 			{
-				var encoder = expectedNetwork.GetBech32Encoder(Bech32Type.WITNESS_SCRIPT_ADDRESS, false);
+				var encoder = network.GetBech32Encoder(Bech32Type.WITNESS_SCRIPT_ADDRESS, false);
 				if(encoder == null)
 					continue;
 				try
@@ -107,6 +114,7 @@ namespace NBitcoin
 					var data = encoder.Decode(bech32, out witVersion);
 					if(data.Length == 32 && witVersion == 0)
 					{
+						expectedNetwork = network;
 						return bech32;
 					}
 				}

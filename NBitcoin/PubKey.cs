@@ -420,7 +420,18 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="key">Private key</param>
 		/// <returns>Shared secret</returns>
+		[Obsolete("Use GetSharedPubkey instead")]
 		public byte[] GetSharedSecret(Key key)
+		{
+			return Hashes.SHA256(GetSharedPubkey(key).ToBytes());
+		}
+
+		/// <summary>
+		/// Exchange shared secret through ECDH
+		/// </summary>
+		/// <param name="key">Private key</param>
+		/// <returns>Shared pubkey</returns>
+		public PubKey GetSharedPubkey(Key key)
 		{
 			var pub = _ECKey.GetPublicKeyParameters();
 			var privKey = key._ECKey.PrivateKey;
@@ -429,8 +440,9 @@ namespace NBitcoin
 			ECPoint q = pub.Q.Multiply(privKey.D).Normalize();
 			if(q.IsInfinity)
 				throw new InvalidOperationException("Infinity is not a valid agreement value for ECDH");
-			var pubkey = ECKey.Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger()).GetEncoded(true);
-			return Hashes.SHA256(pubkey);
+			var pubkey = ECKey.Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger());
+			pubkey = pubkey.Normalize();
+			return new ECKey(pubkey.GetEncoded(true), false).GetPubKey(true);
 		}
 
 		public BitcoinWitPubKeyAddress GetSegwitAddress(Network network)

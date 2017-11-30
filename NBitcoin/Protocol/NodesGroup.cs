@@ -50,7 +50,7 @@ namespace NBitcoin.Protocol
 					var result = new byte[bytes.Length + port.Length];
 					Array.Copy(bytes, result, bytes.Length);
 					Array.Copy(port, 0, result, bytes.Length, port.Length);
-					return bytes;
+					return result;
 				});
 			}
 		}

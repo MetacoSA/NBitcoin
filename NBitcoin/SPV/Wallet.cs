@@ -302,6 +302,16 @@ namespace NBitcoin.SPV
 			}
 		}
 
+		public bool Rescan(uint256 blockId)
+		{
+			var block = Chain?.GetBlock(blockId);
+			if(block == null)
+				return false;
+			_ScanLocation = block.GetLocator();
+			_Group?.Purge("Rescanning");
+			return true;
+		}
+
 		private bool AddKnownScriptToTracker()
 		{
 			string walletName = Name;

@@ -406,6 +406,48 @@ namespace NBitcoin.RPC
 		}
 
 
+		// importmulti
+
+		public void ImportMulti(ImportMultiAddress[] addresses, bool rescan)
+		{
+			ImportMultiAsync(addresses, rescan).GetAwaiter().GetResult();
+		}
+
+		public async Task ImportMultiAsync(ImportMultiAddress[] addresses, bool rescan)
+		{
+			var parameters = new List<object>();
+
+			var array = new JArray();
+			parameters.Add(array);
+
+			foreach (var addr in addresses)
+			{
+				var obj = JObject.FromObject(addr);
+				if(obj["timestamp"] == null || obj["timestamp"].Type == JTokenType.Null)
+					obj["timestamp"] = "now";
+				else
+					obj["timestamp"] = new JValue(Utils.DateTimeToUnixTime(addr.Timestamp.Value));
+				array.Add(obj);
+			}
+
+			var oRescan = JObject.FromObject(new { rescan = rescan });
+			parameters.Add(oRescan);
+
+			var response = await SendCommandAsync("importmulti", parameters.ToArray()).ConfigureAwait(false);
+			response.ThrowIfError();
+
+			//Somehow, this one has error embedded
+			var error = ((JArray)response.Result).OfType<JObject>()
+				.Select(j => j.GetValue("error") as JObject)
+				.FirstOrDefault(o => o != null);
+			if(error != null)
+			{
+				var errorObj = new RPCError(error);
+				throw new RPCException(errorObj.Code, errorObj.Message, response);
+			}
+		}
+
+
 		// listaccounts
 
 		/// <summary>
