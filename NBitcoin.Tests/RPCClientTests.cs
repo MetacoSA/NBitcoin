@@ -912,21 +912,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Fact]
-		public void CanEstimatePriority()
-		{
-			using(var builder = NodeBuilder.Create())
-			{
-				var node = builder.CreateNode();
-				node.Start();
-				var rpc = node.CreateRPCClient();
-				node.Generate(101);
-				var priority = rpc.EstimatePriority(10);
-				Assert.True(priority > 0 || priority == -1);
-			}
-		}
-
-
 		private void AssertJsonEquals(string json1, string json2)
 		{
 			foreach(var c in new[] { "\r\n", " ", "\t" })
