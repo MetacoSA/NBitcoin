@@ -48,7 +48,7 @@ namespace NBitcoin.RPC
 		blockchain		 getdifficulty
 		blockchain		 getmempoolinfo
 		blockchain		 getrawmempool				Yes
-		blockchain		 gettxout
+		blockchain		 gettxout					Yes
 		blockchain		 gettxoutproof
 		blockchain		 verifytxoutproof
 		blockchain		 gettxoutsetinfo
@@ -1041,6 +1041,47 @@ namespace NBitcoin.RPC
 			var result = await SendCommandAsync("getrawmempool").ConfigureAwait(false);
 			var array = (JArray)result.Result;
 			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
+		}
+
+		/// <summary>
+		/// gettxout "txid" n ( include_mempool ) - Returns details about an unspent transaction output.
+		/// </summary>
+		/// <param name="txid">The transaction id</param>
+		/// <param name="index">vout number</param>
+		/// <param name="includeMempool">Whether to include the mempool. Note that an unspent output that is spent in the mempool won't appear.</param>
+		/// <returns>null if spent or never existed</returns>
+		public GetTxOutResponse GetUnspentTransactionOutput(uint256 txid, int index, bool includeMempool = true)
+		{
+			return GetUnspentTransactionOutputAsync(txid, index, includeMempool).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// gettxout "txid" n ( include_mempool ) - Returns details about an unspent transaction output.
+		/// </summary>
+		/// <param name="txid">The transaction id</param>
+		/// <param name="index">vout number</param>
+		/// <param name="includeMempool">Whether to include the mempool. Note that an unspent output that is spent in the mempool won't appear.</param>
+		/// <returns>null if spent or never existed</returns>
+		public async Task<GetTxOutResponse> GetUnspentTransactionOutputAsync(uint256 txid, int index, bool includeMempool = true)
+		{
+			var response = await SendCommandAsync(RPCOperations.gettxout, txid.ToString(), index, includeMempool).ConfigureAwait(false);
+			if (string.IsNullOrWhiteSpace(response?.ResultString))
+			{
+				return null;
+			}
+
+			var result = response.Result;
+			var value = result.Value<decimal>("value"); // The transaction value in BTC
+			var txOut = new TxOut(Money.Coins(value), new Script(result["scriptPubKey"].Value<string>("asm")));
+
+			return new GetTxOutResponse
+			{
+				BestBlock = new uint256(result.Value<string>("bestblock")), // the block hash
+				Confirmations = result.Value<int>("confirmations"), // The number of confirmations
+				IsCoinBase = result.Value<bool>("coinbase"), // Coinbase or not
+				ScriptPubKeyType = result["scriptPubKey"].Value<string>("type"),  // The type, eg pubkeyhash
+				TxOut = txOut
+			};
 		}
 
 		/// <summary>

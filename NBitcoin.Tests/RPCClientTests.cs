@@ -162,6 +162,25 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public async Task CanGetUtxoFromRPCAsync()
+		{
+			using (var builder = NodeBuilder.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				// nopara73 burned these coins
+				GetTxOutResponse getTxOutResponse = await rpc.GetUnspentTransactionOutputAsync(new uint256("eed54c03582962b251f561b45213ce12af2a25228bfa8ca646bdb3c9b80e1079"), 1, false);
+
+				Assert.Equal(new uint256("00000000c51279096409c3af389960c93a4bf89acdd185dce810c53299707c48"), getTxOutResponse.BestBlock);
+				Assert.InRange(getTxOutResponse.Confirmations, 2, int.MaxValue); // At the time of creation of this test the txout had 2 confirmations
+				Assert.Equal(Money.Parse("0.0001"), getTxOutResponse.TxOut.Value);
+				Assert.Equal(new Script("OP_DUP OP_HASH160 bf681ed628efe7e9c3f61ff0bc61d2a8a84a0e67 OP_EQUALVERIFY OP_CHECKSIG"), getTxOutResponse.TxOut.ScriptPubKey);
+				Assert.Equal("pubkeyhash", getTxOutResponse.ScriptPubKeyType);
+				Assert.False(getTxOutResponse.IsCoinBase);
+			}
+		}
+
+		[Fact]
 		public void EstimateFeeRate()
 		{
 			using(var builder = NodeBuilder.Create())
