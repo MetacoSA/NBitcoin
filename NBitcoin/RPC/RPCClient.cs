@@ -80,6 +80,7 @@ namespace NBitcoin.RPC
 		util			   validateaddress
 		util			   verifymessage
 		util			   estimatefee				  Yes
+		util			   estimatesmartfee			  Yes
 		util			   estimatepriority			 Yes
 
 		------------------ Not shown in help
@@ -1154,21 +1155,110 @@ namespace NBitcoin.RPC
 			return SendCommandAsync("sendrawtransaction", Encoders.Hex.EncodeData(bytes));
 		}
 
-#endregion
+		#endregion
 
-#region Utility functions
+		#region Utility functions
+
+		// Estimates the approximate fee per kilobyte needed for a transaction to begin
+		// confirmation within conf_target blocks if possible and return the number of blocks
+		// for which the estimate is valid.Uses virtual transaction size as defined
+		// in BIP 141 (witness data is discounted).
+		#region Fee Estimation
+
+		/// <summary>
+		/// (>= Bitcoin Core 0.14) Get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
+		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
+		/// <returns>The estimated fee rate, block number where estimate was found</returns>
+		/// <exception cref="NoEstimationException">The Fee rate couldn't be estimated because of insufficient data from Bitcoin Core</exception>
+		public EstimateSmartFeeResponse EstimateSmartFeeRate(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative)
+		{
+			return EstimateSmartFeeRateAsync(confirmationTarget, estimateMode).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// (>= Bitcoin Core 0.14) Tries to get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
+		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
+		/// <returns>The estimated fee rate, block number where estimate was found or null</returns>
+		public async Task<EstimateSmartFeeResponse> TryEstimateSmartFeeRateAsync(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative)
+		{
+			return await EstimateSmartFeeRateImplAsync(confirmationTarget, estimateMode).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// (>= Bitcoin Core 0.14) Tries to get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
+		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
+		/// <returns>The estimated fee rate, block number where estimate was found or null</returns>
+		public EstimateSmartFeeResponse TryEstimateSmartFeeRate(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative)
+		{
+			return TryEstimateSmartFeeRateAsync(confirmationTarget, estimateMode).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// (>= Bitcoin Core 0.14) Get the estimated fee per kb for being confirmed in nblock
+		/// </summary>
+		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
+		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
+		/// <returns>The estimated fee rate, block number where estimate was found</returns>
+		/// <exception cref="NoEstimationException">when fee couldn't be estimated</exception>
+		public async Task<EstimateSmartFeeResponse> EstimateSmartFeeRateAsync(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative)
+		{
+			var feeRate = await EstimateSmartFeeRateImplAsync(confirmationTarget, estimateMode);
+			if (feeRate == null)
+				throw new NoEstimationException(confirmationTarget);
+			return feeRate;
+		}
+
+		/// <summary>
+		/// (>= Bitcoin Core 0.14)
+		/// </summary>
+		private async Task<EstimateSmartFeeResponse> EstimateSmartFeeRateImplAsync(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative)
+		{
+			var response = await SendCommandAsync(RPCOperations.estimatesmartfee, confirmationTarget, estimateMode.ToString().ToUpperInvariant()).ConfigureAwait(false);
+			if (string.IsNullOrWhiteSpace(response?.ResultString))
+			{
+				return null;
+			}
+			var resultJToken = response.Result;
+			var feeRateDecimal = resultJToken.Value<decimal>("feerate"); // estimate fee-per-kilobyte (in BTC)
+			var blocks = resultJToken.Value<int>("blocks"); // block number where estimate was found
+			var money = Money.Coins(feeRateDecimal);
+			if (money.Satoshi < 0)
+			{
+				return null;
+			}
+			return new EstimateSmartFeeResponse
+			{
+				FeeRate = new FeeRate(money),
+				Blocks = blocks
+			};
+		}
+
+		#endregion
+
+		// DEPRECATED. Please use estimatesmartfee for more intelligent estimates.
+		// Estimates the approximate fee per kilobyte needed for a transaction to begin
+		// confirmation within nblocks blocks.Uses virtual transaction size of transaction
+		// as defined in BIP 141 (witness data is discounted).
+		#region Obsoleted Fee Estimation
+
 		/// <summary>
 		/// Get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns></returns>
-		[Obsolete("Use EstimateFeeRate or TryEstimateFeeRate instead")]
+		[Obsolete("Use EstimateSmartFeeRate or TryEstimateSmartFeeRate instead")]
 		public FeeRate EstimateFee(int nblock)
 		{
 			var response = SendCommand(RPCOperations.estimatefee, nblock);
 			var result = response.Result.Value<decimal>();
 			var money = Money.Coins(result);
-			if(money.Satoshi < 0)
+			if (money.Satoshi < 0)
 				money = Money.Zero;
 			return new FeeRate(money);
 		}
@@ -1178,7 +1268,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="nblock"></param>
 		/// <returns></returns>
-		[Obsolete("Use EstimateFeeRateAsync instead")]
+		[Obsolete("Use EstimateSmartFeeRateAsync instead")]
 		public async Task<Money> EstimateFeeAsync(int nblock)
 		{
 			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
@@ -1191,6 +1281,7 @@ namespace NBitcoin.RPC
 		/// <param name="nblock">The time expected, in block, before getting confirmed</param>
 		/// <returns>The estimated fee rate</returns>
 		/// <exception cref="NoEstimationException">The Fee rate couldn't be estimated because of insufficient data from Bitcoin Core</exception>
+		[Obsolete("Use EstimateSmartFeeRate instead")]
 		public FeeRate EstimateFeeRate(int nblock)
 		{
 			return EstimateFeeRateAsync(nblock).GetAwaiter().GetResult();
@@ -1201,6 +1292,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="nblock">The time expected, in block, before getting confirmed</param>
 		/// <returns>The estimated fee rate or null</returns>
+		[Obsolete("Use TryEstimateSmartFeeRateAsync instead")]
 		public async Task<FeeRate> TryEstimateFeeRateAsync(int nblock)
 		{
 			return await EstimateFeeRateImplAsync(nblock).ConfigureAwait(false);
@@ -1211,6 +1303,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="nblock">The time expected, in block, before getting confirmed</param>
 		/// <returns>The estimated fee rate or null</returns>
+		[Obsolete("Use TryEstimateSmartFeeRate instead")]
 		public FeeRate TryEstimateFeeRate(int nblock)
 		{
 			return TryEstimateFeeRateAsync(nblock).GetAwaiter().GetResult();
@@ -1222,23 +1315,27 @@ namespace NBitcoin.RPC
 		/// <param name="nblock">The time expected, in block, before getting confirmed</param>
 		/// <returns>The estimated fee rate</returns>
 		/// <exception cref="NoEstimationException">when fee couldn't be estimated</exception>
+		[Obsolete("Use EstimateSmartFeeRateAsync instead")]
 		public async Task<FeeRate> EstimateFeeRateAsync(int nblock)
 		{
 			var feeRate = await EstimateFeeRateImplAsync(nblock);
-			if(feeRate == null)
+			if (feeRate == null)
 				throw new NoEstimationException(nblock);
 			return feeRate;
 		}
 
+		[Obsolete("Use EstimateSmartFeeRateImplAsync instead")]
 		private async Task<FeeRate> EstimateFeeRateImplAsync(int nblock)
 		{
 			var response = await SendCommandAsync(RPCOperations.estimatefee, nblock).ConfigureAwait(false);
 			var result = response.Result.Value<decimal>();
 			var money = Money.Coins(result);
-			if(money.Satoshi < 0)
+			if (money.Satoshi < 0)
 				return null;
 			return new FeeRate(money);
 		}
+
+		#endregion
 
 		public decimal EstimatePriority(int nblock)
 		{
