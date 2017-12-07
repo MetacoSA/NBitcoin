@@ -44,15 +44,7 @@ namespace NBitcoin.BitcoinCore
 
 		public int ReIndex()
 		{
-			try
-			{
-				return ReIndexAsync().Result;
-			}
-			catch(AggregateException aex)
-			{
-				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
-				return 0; //Can't happen
-			}
+			return ReIndexAsync().GetAwaiter().GetResult();
 		}
 
 		public async Task<int> ReIndexAsync()
@@ -76,15 +68,7 @@ namespace NBitcoin.BitcoinCore
 
 		public TItem Get(string key)
 		{
-			try
-			{
-				return GetAsync(key).Result;
-			}
-			catch(AggregateException aex)
-			{
-				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
-				return default(TItem); //Can't happen
-			}
+			return GetAsync(key).GetAwaiter().GetResult();
 		}
 
 		public async Task<TItem> GetAsync(string key)

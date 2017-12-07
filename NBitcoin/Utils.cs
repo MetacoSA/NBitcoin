@@ -26,15 +26,7 @@ namespace NBitcoin
 	{
 		public static Block GetBlock(this IBlockRepository repository, uint256 blockId)
 		{
-			try
-			{
-				return repository.GetBlockAsync(blockId).Result;
-			}
-			catch(AggregateException aex)
-			{
-				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
-				return null; //Can't happen
-			}
+			return repository.GetBlockAsync(blockId).GetAwaiter().GetResult();
 		}
 
 

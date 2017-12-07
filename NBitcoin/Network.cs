@@ -41,14 +41,8 @@ namespace NBitcoin
 		{
 			if(_Addresses != null)
 				return _Addresses;
-			try
-			{
-				_Addresses = Dns.GetHostAddressesAsync(host).Result;
-			}
-			catch(AggregateException ex)
-			{
-				System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-			}
+			
+			_Addresses = Dns.GetHostAddressesAsync(host).GetAwaiter().GetResult();
 			return _Addresses;
 		}
 #endif
