@@ -65,15 +65,7 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentNullException">blockId cannot be null.</exception>
 		public Block GetBlock(uint256 blockId)
 		{
-			try
-			{
-				return GetBlockAsync(blockId).Result;
-			}
-			catch(AggregateException aex)
-			{
-				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
-				throw;
-			}
+			return GetBlockAsync(blockId).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
@@ -98,15 +90,7 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentNullException">txId cannot be null</exception>
 		public Transaction GetTransaction(uint256 txId)
 		{
-			try
-			{
-				return GetTransactionAsync(txId).Result;
-			}
-			catch(AggregateException ex)
-			{
-				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-				throw;
-			}
+			return GetTransactionAsync(txId).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
@@ -141,15 +125,7 @@ namespace NBitcoin.RPC
 		/// <exception cref="System.ArgumentOutOfRangeException">count must be greater or equal to one.</exception>
 		public IEnumerable<BlockHeader> GetBlockHeaders(uint256 blockId, int count)
 		{
-			try
-			{
-				return GetBlockHeadersAsync(blockId, count).Result;
-			}
-			catch(AggregateException aex)
-			{
-				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
-				throw;
-			}
+			return GetBlockHeadersAsync(blockId, count).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
