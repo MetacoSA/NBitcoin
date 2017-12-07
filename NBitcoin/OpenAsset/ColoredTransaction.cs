@@ -99,15 +99,7 @@ namespace NBitcoin.OpenAsset
 		}
 		public static ColoredTransaction FetchColors(uint256 txId, Transaction tx, IColoredTransactionRepository repo)
 		{
-			try
-			{
-				return FetchColorsAsync(txId, tx, repo).Result;
-			}
-			catch(AggregateException aex)
-			{
-				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
-				return null;
-			}
+			return FetchColorsAsync(txId, tx, repo).GetAwaiter().GetResult();
 		}
 
 		class ColoredFrame
