@@ -80,7 +80,6 @@ namespace NBitcoin.RPC
 		util			   validateaddress
 		util			   verifymessage
 		util			   estimatefee				  Yes
-		util			   estimatepriority			 Yes
 
 		------------------ Not shown in help
 		hidden			 invalidateblock
@@ -1240,6 +1239,7 @@ namespace NBitcoin.RPC
 			return new FeeRate(money);
 		}
 
+		[Obsolete("Removed by Bitcoin Core v0.15.0 Release")]
 		public decimal EstimatePriority(int nblock)
 		{
 			decimal priority = 0;
@@ -1254,6 +1254,7 @@ namespace NBitcoin.RPC
 			return priority;
 		}
 
+		[Obsolete("Removed by Bitcoin Core v0.15.0 Release")]
 		public async Task<decimal> EstimatePriorityAsync(int nblock)
 		{
 			if(nblock < 0)
