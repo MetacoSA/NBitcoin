@@ -11,7 +11,7 @@
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
 		<DefineConstants>$(DefineConstants);WIN</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
 		<DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER</DefineConstants>
 	</PropertyGroup>
 
