@@ -162,7 +162,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void EstimateFeeRate()
+		public void EstimateSmartFee()
 		{
 			using(var builder = NodeBuilder.Create())
 			{
@@ -170,14 +170,14 @@ namespace NBitcoin.Tests
 				node.Start();
 				node.Generate(101);
 				var rpc = node.CreateRPCClient();
-				Assert.Throws<NoEstimationException>(() => rpc.EstimateFeeRate(1));
+				Assert.Throws<NoEstimationException>(() => rpc.EstimateSmartFee(1));
 				Assert.Equal(Money.Coins(50m), rpc.GetBalance(1, false));
 				Assert.Equal(Money.Coins(50m), rpc.GetBalance());
 			}
 		}
 
 		[Fact]
-		public void TryEstimateFeeRate()
+		public void TryEstimateSmartFee()
 		{
 			using(var builder = NodeBuilder.Create())
 			{
@@ -185,7 +185,7 @@ namespace NBitcoin.Tests
 				node.Start();
 				node.Generate(101);
 				var rpc = node.CreateRPCClient();
-				Assert.Null(rpc.TryEstimateFeeRate(1));
+				Assert.Null(rpc.TryEstimateSmartFee(1));
 			}
 		}
 

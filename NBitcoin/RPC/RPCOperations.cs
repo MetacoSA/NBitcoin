@@ -33,6 +33,7 @@ namespace NBitcoin.RPC
 		getblocktemplate,
 		submitblock,
 		estimatefee,
+		estimatesmartfee,
 
 		getnewaddress,
 		getaccountaddress,
