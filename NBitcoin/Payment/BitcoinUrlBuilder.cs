@@ -103,15 +103,8 @@ namespace NBitcoin.Payment
 		{
 			if(PaymentRequestUrl == null)
 				throw new InvalidOperationException("No PaymentRequestUrl specified");
-			try
-			{
-				return GetPaymentRequestAsync().Result;
-			}
-			catch(AggregateException aex)
-			{
-				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
-				return null;
-			}
+			
+			return GetPaymentRequestAsync().GetAwaiter().GetResult();
 		}
 		public async Task<PaymentRequest> GetPaymentRequestAsync(HttpClient httpClient = null)
 		{

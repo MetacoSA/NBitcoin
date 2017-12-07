@@ -645,14 +645,7 @@ namespace NBitcoin.RPC
 
 		private void LockUnspentCore(bool unlock, OutPoint[] outpoints)
 		{
-			try
-			{
-				LockUnspentCoreAsync(unlock, outpoints).Wait();
-			}
-			catch(AggregateException ex)
-			{
-				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-			}
+			LockUnspentCoreAsync(unlock, outpoints).GetAwaiter().GetResult();
 		}
 
 		private async Task LockUnspentCoreAsync(bool unlock, OutPoint[] outpoints)
