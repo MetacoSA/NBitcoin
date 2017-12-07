@@ -76,7 +76,7 @@ namespace NBitcoin.Tests
 				rpc = rpc.PrepareBatch();
 				var b = rpc.GetBalanceAsync();
 				var b2 = rpc.GetBestBlockHashAsync();
-				var a = rpc.SendCommandAsync("gettransaction", block.Transactions.First().GetHash().ToString());
+				var a = rpc.SendCommandAsync(RPCOperations.gettransaction, block.Transactions.First().GetHash().ToString());
 				rpc.SendBatch();
 				b.GetAwaiter().GetResult();
 				b2.GetAwaiter().GetResult();
@@ -561,7 +561,7 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				Key key = new Key();
 				var passphrase = "password1234";
-				rpc.SendCommand("encryptwallet", passphrase);
+				rpc.SendCommand(RPCOperations.encryptwallet, passphrase);
 				builder.Nodes[0].Restart();
 				rpc.ImportAddress(key.PubKey.GetAddress(Network.RegTest), TestAccount, false);
 				BitcoinAddress address = rpc.GetAccountAddress(TestAccount);
