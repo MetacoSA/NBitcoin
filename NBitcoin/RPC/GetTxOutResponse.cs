@@ -8,26 +8,38 @@ namespace NBitcoin.RPC
 {
     public class GetTxOutResponse
 	{
-		// the block hash
+		/// <summary>
+		/// the block hash
+		/// </summary>
 		public uint256 BestBlock
 		{
 			get; set;
 		}
-		// The number of confirmations
+
+		/// <summary>
+		/// The number of confirmations
+		/// </summary>
 		public int Confirmations
 		{
 			get; set;
 		}
+
 		public TxOut TxOut
 		{
 			get; set;
 		}
-		// Coinbase or not
+
+		/// <summary>
+		/// Coinbase or not
+		/// </summary>
 		public bool IsCoinBase
 		{
 			get; set;
 		}
-		// The type, eg pubkeyhash
+
+		/// <summary>
+		/// The type, eg pubkeyhash
+		/// </summary>
 		public string ScriptPubKeyType
 		{
 			get; set;
