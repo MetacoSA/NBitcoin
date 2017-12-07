@@ -1166,7 +1166,7 @@ namespace NBitcoin.RPC
 		#region Fee Estimation
 
 		/// <summary>
-		/// (>= Bitcoin Core 0.14) Get the estimated fee per kb for being confirmed in nblock
+		/// (>= Bitcoin Core v0.14) Get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
 		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
@@ -1178,7 +1178,7 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// (>= Bitcoin Core 0.14) Tries to get the estimated fee per kb for being confirmed in nblock
+		/// (>= Bitcoin Core v0.14) Tries to get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
 		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
@@ -1189,7 +1189,7 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// (>= Bitcoin Core 0.14) Tries to get the estimated fee per kb for being confirmed in nblock
+		/// (>= Bitcoin Core v0.14) Tries to get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
 		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
@@ -1200,7 +1200,7 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// (>= Bitcoin Core 0.14) Get the estimated fee per kb for being confirmed in nblock
+		/// (>= Bitcoin Core v0.14) Get the estimated fee per kb for being confirmed in nblock
 		/// </summary>
 		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
@@ -1215,12 +1215,15 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// (>= Bitcoin Core 0.14)
+		/// (>= Bitcoin Core v0.14)
 		/// </summary>
 		private async Task<EstimateSmartFeeResponse> EstimateSmartFeeRateImplAsync(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative)
 		{
-			var response = await SendCommandAsync(RPCOperations.estimatesmartfee, confirmationTarget, estimateMode.ToString().ToUpperInvariant()).ConfigureAwait(false);
-			if (string.IsNullOrWhiteSpace(response?.ResultString))
+			var request = new RPCRequest(RPCOperations.estimatesmartfee.ToString(), new object[] { confirmationTarget, estimateMode.ToString().ToUpperInvariant() });
+
+			var response = await SendCommandAsync(request, throwIfRPCError: false).ConfigureAwait(false);
+
+			if (response?.Error != null)
 			{
 				return null;
 			}
