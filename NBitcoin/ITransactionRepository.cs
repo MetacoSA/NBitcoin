@@ -37,27 +37,12 @@ namespace NBitcoin
 
 		public static Transaction Get(this ITransactionRepository repo, uint256 txId)
 		{
-			try
-			{
-				return repo.GetAsync(txId).Result;
-			}
-			catch(AggregateException aex)
-			{
-				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
-				return null;
-			}
+			return repo.GetAsync(txId).GetAwaiter().GetResult();
 		}
 
 		public static void Put(this ITransactionRepository repo, uint256 txId, Transaction tx)
 		{
-			try
-			{
-				repo.PutAsync(txId, tx).Wait();
-			}
-			catch(AggregateException aex)
-			{
-				ExceptionDispatchInfo.Capture(aex.InnerException).Throw();
-			}
+			repo.PutAsync(txId, tx).GetAwaiter().GetResult();
 		}
 	}
 }

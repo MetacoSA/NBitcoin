@@ -125,14 +125,14 @@ namespace NBitcoin.RPC
 		{
 			if(string.IsNullOrEmpty(path))
 				throw new ArgumentNullException("path");
-			SendCommand("backupwallet", path);
+			SendCommand(RPCOperations.backupwallet, path);
 		}
 
 		public async Task BackupWalletAsync(string path)
 		{
 			if(string.IsNullOrEmpty(path))
 				throw new ArgumentNullException("path");
-			await SendCommandAsync("backupwallet", path).ConfigureAwait(false);
+			await SendCommandAsync(RPCOperations.backupwallet, path).ConfigureAwait(false);
 		}
 
 
@@ -140,13 +140,13 @@ namespace NBitcoin.RPC
 
 		public BitcoinSecret DumpPrivKey(BitcoinAddress address)
 		{
-			var response = SendCommand("dumpprivkey", address.ToString());
+			var response = SendCommand(RPCOperations.dumpprivkey, address.ToString());
 			return Network.Parse<BitcoinSecret>((string)response.Result);
 		}
 
 		public async Task<BitcoinSecret> DumpPrivKeyAsync(BitcoinAddress address)
 		{
-			var response = await SendCommandAsync("dumpprivkey", address.ToString()).ConfigureAwait(false);
+			var response = await SendCommandAsync(RPCOperations.dumpprivkey, address.ToString()).ConfigureAwait(false);
 			return Network.Parse<BitcoinSecret>((string)response.Result);
 		}
 
@@ -155,13 +155,13 @@ namespace NBitcoin.RPC
 
 		public BitcoinAddress GetAccountAddress(string account)
 		{
-			var response = SendCommand("getaccountaddress", account);
+			var response = SendCommand(RPCOperations.getaccountaddress, account);
 			return Network.Parse<BitcoinAddress>((string)response.Result);
 		}
 
 		public async Task<BitcoinAddress> GetAccountAddressAsync(string account)
 		{
-			var response = await SendCommandAsync("getaccountaddress", account).ConfigureAwait(false);
+			var response = await SendCommandAsync(RPCOperations.getaccountaddress, account).ConfigureAwait(false);
 			return Network.Parse<BitcoinAddress>((string)response.Result);
 		}
 
@@ -344,22 +344,22 @@ namespace NBitcoin.RPC
 
 		public void ImportPrivKey(BitcoinSecret secret)
 		{
-			SendCommand("importprivkey", secret.ToWif());
+			SendCommand(RPCOperations.importprivkey, secret.ToWif());
 		}
 
 		public void ImportPrivKey(BitcoinSecret secret, string label, bool rescan)
 		{
-			SendCommand("importprivkey", secret.ToWif(), label, rescan);
+			SendCommand(RPCOperations.importprivkey, secret.ToWif(), label, rescan);
 		}
 
 		public async Task ImportPrivKeyAsync(BitcoinSecret secret)
 		{
-			await SendCommandAsync("importprivkey", secret.ToWif()).ConfigureAwait(false);
+			await SendCommandAsync(RPCOperations.importprivkey, secret.ToWif()).ConfigureAwait(false);
 		}
 
 		public async Task ImportPrivKeyAsync(BitcoinSecret secret, string label, bool rescan)
 		{
-			await SendCommandAsync("importprivkey", secret.ToWif(), label, rescan).ConfigureAwait(false);
+			await SendCommandAsync(RPCOperations.importprivkey, secret.ToWif(), label, rescan).ConfigureAwait(false);
 		}
 
 
@@ -367,42 +367,42 @@ namespace NBitcoin.RPC
 
 		public void ImportAddress(IDestination address)
 		{
-			SendCommand("importaddress", address.ScriptPubKey.ToHex());
+			SendCommand(RPCOperations.importaddress, address.ScriptPubKey.ToHex());
 		}
 
 		public void ImportAddress(IDestination address, string label, bool rescan)
 		{
-			SendCommand("importaddress", address.ScriptPubKey.ToHex(), label, rescan);
+			SendCommand(RPCOperations.importaddress, address.ScriptPubKey.ToHex(), label, rescan);
 		}
 
 		public void ImportAddress(Script scriptPubKey)
 		{
-			SendCommand("importaddress", scriptPubKey.ToHex());
+			SendCommand(RPCOperations.importaddress, scriptPubKey.ToHex());
 		}
 
 		public void ImportAddress(Script scriptPubKey, string label, bool rescan)
 		{
-			SendCommand("importaddress", scriptPubKey.ToHex(), label, rescan);
+			SendCommand(RPCOperations.importaddress, scriptPubKey.ToHex(), label, rescan);
 		}
 
 		public async Task ImportAddressAsync(Script scriptPubKey)
 		{
-			await SendCommandAsync("importaddress", scriptPubKey.ToHex()).ConfigureAwait(false);
+			await SendCommandAsync(RPCOperations.importaddress, scriptPubKey.ToHex()).ConfigureAwait(false);
 		}
 
 		public async Task ImportAddressAsync(Script scriptPubKey, string label, bool rescan)
 		{
-			await SendCommandAsync("importaddress", scriptPubKey.ToHex(), label, rescan).ConfigureAwait(false);
+			await SendCommandAsync(RPCOperations.importaddress, scriptPubKey.ToHex(), label, rescan).ConfigureAwait(false);
 		}
 
 		public async Task ImportAddressAsync(BitcoinAddress address)
 		{
-			await SendCommandAsync("importaddress", address.ToString()).ConfigureAwait(false);
+			await SendCommandAsync(RPCOperations.importaddress, address.ToString()).ConfigureAwait(false);
 		}
 
 		public async Task ImportAddressAsync(BitcoinAddress address, string label, bool rescan)
 		{
-			await SendCommandAsync("importaddress", address.ToString(), label, rescan).ConfigureAwait(false);
+			await SendCommandAsync(RPCOperations.importaddress, address.ToString(), label, rescan).ConfigureAwait(false);
 		}
 
 
@@ -569,7 +569,7 @@ namespace NBitcoin.RPC
 		/// </remarks>
 		public UnspentCoin[] ListUnspent()
 		{
-			var response = SendCommand("listunspent");
+			var response = SendCommand(RPCOperations.listunspent);
 			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
 
@@ -581,7 +581,7 @@ namespace NBitcoin.RPC
 		public UnspentCoin[] ListUnspent(int minconf, int maxconf, params BitcoinAddress[] addresses)
 		{
 			var addr = from a in addresses select a.ToString();
-			var response = SendCommand("listunspent", minconf, maxconf, addr.ToArray());
+			var response = SendCommand(RPCOperations.listunspent, minconf, maxconf, addr.ToArray());
 			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
 
@@ -590,7 +590,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		public async Task<UnspentCoin[]> ListUnspentAsync()
 		{
-			var response = await SendCommandAsync("listunspent").ConfigureAwait(false);
+			var response = await SendCommandAsync(RPCOperations.listunspent).ConfigureAwait(false);
 			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
 
@@ -602,14 +602,14 @@ namespace NBitcoin.RPC
 		public async Task<UnspentCoin[]> ListUnspentAsync(int minconf, int maxconf, params BitcoinAddress[] addresses)
 		{
 			var addr = from a in addresses select a.ToString();
-			var response = await SendCommandAsync("listunspent", minconf, maxconf, addr.ToArray()).ConfigureAwait(false);
+			var response = await SendCommandAsync(RPCOperations.listunspent, minconf, maxconf, addr.ToArray()).ConfigureAwait(false);
 			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
 
 		//listlockunspent
 		public async Task<OutPoint[]> ListLockUnspentAsync()
 		{
-			var unspent = await SendCommandAsync("listlockunspent").ConfigureAwait(false);
+			var unspent = await SendCommandAsync(RPCOperations.listlockunspent).ConfigureAwait(false);
 			return ((JArray)unspent.Result)
 				.Select(i => new OutPoint(new uint256(i["txid"].Value<string>()), i["vout"].Value<int>()))
 				.ToArray();
@@ -645,14 +645,7 @@ namespace NBitcoin.RPC
 
 		private void LockUnspentCore(bool unlock, OutPoint[] outpoints)
 		{
-			try
-			{
-				LockUnspentCoreAsync(unlock, outpoints).Wait();
-			}
-			catch(AggregateException ex)
-			{
-				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-			}
+			LockUnspentCoreAsync(unlock, outpoints).GetAwaiter().GetResult();
 		}
 
 		private async Task LockUnspentCoreAsync(bool unlock, OutPoint[] outpoints)
@@ -670,7 +663,7 @@ namespace NBitcoin.RPC
 				obj["vout"] = outp.N;
 				array.Add(obj);
 			}
-			await SendCommandAsync("lockunspent", parameters.ToArray()).ConfigureAwait(false);
+			await SendCommandAsync(RPCOperations.lockunspent, parameters.ToArray()).ConfigureAwait(false);
 		}
 
 		// walletpassphrase
@@ -695,7 +688,7 @@ namespace NBitcoin.RPC
 			var parameters = new List<object>();
 			parameters.Add(passphrase);
 			parameters.Add(timeout);
-			await SendCommandAsync("walletpassphrase", parameters.ToArray()).ConfigureAwait(false);
+			await SendCommandAsync(RPCOperations.walletpassphrase, parameters.ToArray()).ConfigureAwait(false);
 		}
 	
 		/// <summary>

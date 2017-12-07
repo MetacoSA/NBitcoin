@@ -76,7 +76,7 @@ namespace NBitcoin.Tests
 				rpc = rpc.PrepareBatch();
 				var b = rpc.GetBalanceAsync();
 				var b2 = rpc.GetBestBlockHashAsync();
-				var a = rpc.SendCommandAsync("gettransaction", block.Transactions.First().GetHash().ToString());
+				var a = rpc.SendCommandAsync(RPCOperations.gettransaction, block.Transactions.First().GetHash().ToString());
 				rpc.SendBatch();
 				b.GetAwaiter().GetResult();
 				b2.GetAwaiter().GetResult();
@@ -216,7 +216,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void EstimateFeeRate()
+		public void EstimateSmartFee()
 		{
 			using(var builder = NodeBuilder.Create())
 			{
@@ -224,14 +224,14 @@ namespace NBitcoin.Tests
 				node.Start();
 				node.Generate(101);
 				var rpc = node.CreateRPCClient();
-				Assert.Throws<NoEstimationException>(() => rpc.EstimateFeeRate(1));
+				Assert.Throws<NoEstimationException>(() => rpc.EstimateSmartFee(1));
 				Assert.Equal(Money.Coins(50m), rpc.GetBalance(1, false));
 				Assert.Equal(Money.Coins(50m), rpc.GetBalance());
 			}
 		}
 
 		[Fact]
-		public void TryEstimateFeeRate()
+		public void TryEstimateSmartFee()
 		{
 			using(var builder = NodeBuilder.Create())
 			{
@@ -239,7 +239,7 @@ namespace NBitcoin.Tests
 				node.Start();
 				node.Generate(101);
 				var rpc = node.CreateRPCClient();
-				Assert.Null(rpc.TryEstimateFeeRate(1));
+				Assert.Null(rpc.TryEstimateSmartFee(1));
 			}
 		}
 
@@ -615,7 +615,7 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				Key key = new Key();
 				var passphrase = "password1234";
-				rpc.SendCommand("encryptwallet", passphrase);
+				rpc.SendCommand(RPCOperations.encryptwallet, passphrase);
 				builder.Nodes[0].Restart();
 				rpc.ImportAddress(key.PubKey.GetAddress(Network.RegTest), TestAccount, false);
 				BitcoinAddress address = rpc.GetAccountAddress(TestAccount);
@@ -965,21 +965,6 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
-
-		[Fact]
-		public void CanEstimatePriority()
-		{
-			using(var builder = NodeBuilder.Create())
-			{
-				var node = builder.CreateNode();
-				node.Start();
-				var rpc = node.CreateRPCClient();
-				node.Generate(101);
-				var priority = rpc.EstimatePriority(10);
-				Assert.True(priority > 0 || priority == -1);
-			}
-		}
-
 
 		private void AssertJsonEquals(string json1, string json2)
 		{
