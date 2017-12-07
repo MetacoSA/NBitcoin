@@ -1044,25 +1044,25 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// gettxout "txid" n ( include_mempool ) - Returns details about an unspent transaction output.
+		/// Returns details about an unspent transaction output.
 		/// </summary>
 		/// <param name="txid">The transaction id</param>
 		/// <param name="index">vout number</param>
 		/// <param name="includeMempool">Whether to include the mempool. Note that an unspent output that is spent in the mempool won't appear.</param>
 		/// <returns>null if spent or never existed</returns>
-		public GetTxOutResponse GetUnspentTransactionOutput(uint256 txid, int index, bool includeMempool = true)
+		public GetTxOutResponse GetTxOut(uint256 txid, int index, bool includeMempool = true)
 		{
-			return GetUnspentTransactionOutputAsync(txid, index, includeMempool).GetAwaiter().GetResult();
+			return GetTxOutAsync(txid, index, includeMempool).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
-		/// gettxout "txid" n ( include_mempool ) - Returns details about an unspent transaction output.
+		/// Returns details about an unspent transaction output.
 		/// </summary>
 		/// <param name="txid">The transaction id</param>
 		/// <param name="index">vout number</param>
 		/// <param name="includeMempool">Whether to include the mempool. Note that an unspent output that is spent in the mempool won't appear.</param>
 		/// <returns>null if spent or never existed</returns>
-		public async Task<GetTxOutResponse> GetUnspentTransactionOutputAsync(uint256 txid, int index, bool includeMempool = true)
+		public async Task<GetTxOutResponse> GetTxOutAsync(uint256 txid, int index, bool includeMempool = true)
 		{
 			var response = await SendCommandAsync(RPCOperations.gettxout, txid.ToString(), index, includeMempool).ConfigureAwait(false);
 			if (string.IsNullOrWhiteSpace(response?.ResultString))
