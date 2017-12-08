@@ -403,7 +403,7 @@ namespace NBitcoin.RPC
 
 		public Task<RPCResponse> SendCommandAsync(RPCOperations commandName, params object[] parameters)
 		{
-			return SendCommandAsync(commandName, parameters);
+			return SendCommandAsync(commandName.ToString(), parameters);
 		}
 
 		/// <summary>

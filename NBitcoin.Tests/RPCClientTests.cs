@@ -57,7 +57,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanUseMultipleWallets()
 		{
-			using(var builder = NodeBuilder.Create(version: "0.15.0"))
+			using(var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode();
 				node.ConfigParameters.Add("wallet", "w1");
@@ -321,7 +321,7 @@ namespace NBitcoin.Tests
 		public void CanImportMultiAddresses()
 		{
 			// Test cases borrowed from: https://github.com/bitcoin/bitcoin/blob/master/test/functional/importmulti.py
-			using(var builder = NodeBuilder.Create(version: "0.15.1"))
+			using(var builder = NodeBuilder.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
