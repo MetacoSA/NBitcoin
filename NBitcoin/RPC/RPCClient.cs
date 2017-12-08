@@ -1220,7 +1220,7 @@ namespace NBitcoin.RPC
 			var feeRateDecimal = resultJToken.Value<decimal>("feerate"); // estimate fee-per-kilobyte (in BTC)
 			var blocks = resultJToken.Value<int>("blocks"); // block number where estimate was found
 			var money = Money.Coins(feeRateDecimal);
-			if (money.Satoshi < 0)
+			if (money.Satoshi <= 0)
 			{
 				return null;
 			}
