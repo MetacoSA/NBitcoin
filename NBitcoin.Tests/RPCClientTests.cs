@@ -162,6 +162,60 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public async Task CanGetTxOutFromRPCAsync()
+		{
+			using (var builder = NodeBuilder.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+
+				// 1. Generate some blocks and check if gettxout gives the right outputs for the first coin
+				var blocksToGenerate = 101;
+				uint256[] blockHashes = await rpc.GenerateAsync(blocksToGenerate);
+				var txId = rpc.GetTransactions(blockHashes.First()).First().GetHash();
+				GetTxOutResponse getTxOutResponse = await rpc.GetTxOutAsync(txId, 0);
+				Assert.NotNull(getTxOutResponse); // null if spent
+				Assert.Equal(blockHashes.Last(), getTxOutResponse.BestBlock);
+				Assert.Equal(getTxOutResponse.Confirmations, blocksToGenerate);
+				Assert.Equal(Money.Coins(50), getTxOutResponse.TxOut.Value);
+				Assert.NotNull(getTxOutResponse.TxOut.ScriptPubKey);
+				Assert.Equal("pubkey", getTxOutResponse.ScriptPubKeyType);
+				Assert.True(getTxOutResponse.IsCoinBase);
+
+				// 2. Spend the first coin
+				var address = new Key().PubKey.GetAddress(rpc.Network);
+				Money sendAmount = Money.Parse("49");
+				txId = await rpc.SendToAddressAsync(address, sendAmount);
+
+				// 3. Make sure if we don't include the mempool into the database the txo will not be considered utxo
+				getTxOutResponse = await rpc.GetTxOutAsync(txId, 0, false);
+				Assert.Null(getTxOutResponse);
+
+				// 4. Find the output index we want to check
+				var tx = rpc.GetRawTransaction(txId);
+				int index = -1;
+				for (int i = 0; i < tx.Outputs.Count; i++)
+				{
+					if(tx.Outputs[i].Value == sendAmount)
+					{
+						index = i;
+					}
+				}
+				Assert.NotEqual(index, -1);
+				
+				// 5. Make sure the expected amounts are received for unconfirmed transactions
+				getTxOutResponse = await rpc.GetTxOutAsync(txId, index, true);
+				Assert.NotNull(getTxOutResponse); // null if spent
+				Assert.Equal(blockHashes.Last(), getTxOutResponse.BestBlock);
+				Assert.Equal(getTxOutResponse.Confirmations, 0);
+				Assert.Equal(Money.Coins(49), getTxOutResponse.TxOut.Value);
+				Assert.NotNull(getTxOutResponse.TxOut.ScriptPubKey);
+				Assert.Equal("pubkeyhash", getTxOutResponse.ScriptPubKeyType);
+				Assert.False(getTxOutResponse.IsCoinBase);
+			}
+		}
+
+		[Fact]
 		public void EstimateSmartFee()
 		{
 			using(var builder = NodeBuilder.Create())
