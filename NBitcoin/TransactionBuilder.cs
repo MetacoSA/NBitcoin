@@ -1482,6 +1482,7 @@ namespace NBitcoin
 				{
 					CurrentGroup.Builders.RemoveAt(CurrentGroup.Builders.Count - 1);
 				}
+				_TotalFee -= feeSent;
 			}
 			return feeSent;
 		}
