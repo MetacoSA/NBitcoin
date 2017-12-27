@@ -74,9 +74,9 @@ namespace NBitcoin.Tests
 	}
 	public class NodeBuilder : IDisposable
 	{
-		public static NodeBuilder Create([CallerMemberNameAttribute]string caller = null, string version = "0.13.1")
+		public static NodeBuilder Create([CallerMemberNameAttribute]string caller = null, string version = "0.15.1")
 		{
-			version = version ?? "0.13.1";
+			version = version ?? "0.15.1";
 			var path = EnsureDownloaded(version);
 			try
 			{

@@ -264,6 +264,21 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildTransactionWithSubstractFeeAndSendEstimatedFees()
+		{
+			var signer = new Key();
+			var builder = new TransactionBuilder();
+			builder.AddKeys(signer);
+			builder.AddCoins(RandomCoin(signer, Money.Coins(1)));
+			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
+			builder.SubtractFees();
+			builder.SendEstimatedFees(new FeeRate(Money.Satoshis(100), 1));
+			var result = builder.BuildTransaction(true);
+			Assert.Equal(Money.Coins(0.00011200m), result.GetFee(builder.FindSpentCoins(result)));
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanStoreInBlockRepository()
 		{
 			var blockRepository = CreateBlockRepository();

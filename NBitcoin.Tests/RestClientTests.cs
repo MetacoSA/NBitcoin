@@ -106,7 +106,7 @@ namespace NBitcoin.Tests
 				var outPoint = c.OutPoint;
 				var utxos = client.GetUnspentOutputsAsync(new[] { outPoint }, true).Result;
 				Assert.Equal(1, utxos.Outputs.Length);
-				Assert.Equal(1, (int)utxos.Outputs[0].Version);
+				Assert.Equal(0, (int)utxos.Outputs[0].Version);
 				Assert.Equal(Money.Coins(50m), utxos.Outputs[0].Output.Value);
 
 				var countBefore = rpc.ListUnspent().Length;
