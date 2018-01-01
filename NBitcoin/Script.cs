@@ -669,8 +669,10 @@ namespace NBitcoin
 				return uint256.One;
 			}
 
+			var hashType = nHashType & (SigHash)31;
+
 			// Check for invalid use of SIGHASH_SINGLE
-			if(nHashType == SigHash.Single)
+			if(hashType == SigHash.Single)
 			{
 				if(nIn >= txTo.Outputs.Count)
 				{
@@ -692,7 +694,6 @@ namespace NBitcoin
 			//Copy subscript into the txin script you are checking
 			txCopy.Inputs[nIn].ScriptSig = scriptCopy;
 
-			var hashType = nHashType & (SigHash)31;
 			if(hashType == SigHash.None)
 			{
 				//The output of txCopy is set to a vector of zero size.
