@@ -163,7 +163,7 @@ namespace NBitcoin
 		{
 			if (vch.Length != WIDTH_BYTE)
 			{
-				throw new FormatException("the byte array should be 256 byte long");
+				throw new FormatException("the byte array should be 32 bytes long");
 			}
 
 			if(!lendian)
@@ -527,7 +527,7 @@ namespace NBitcoin
 		{
 			if (vch.Length != WIDTH_BYTE)
 			{
-				throw new FormatException("the byte array should be 160 byte long");
+				throw new FormatException("the byte array should be 20 bytes long");
 			}
 
 			if(!lendian)

@@ -15,6 +15,7 @@ namespace NBitcoin
 {
 <# foreach (string t in new []{ "256","160" }) { 
 	int WIDTH = int.Parse(t) / 32;
+	int WIDTH_BYTE = int.Parse(t) / 8; 
 #>
 	public class uint<#= t #>
 	{
@@ -140,7 +141,7 @@ internal readonly UInt32 pn<#= i #>;
 		{
 			if (vch.Length != WIDTH_BYTE)
 			{
-				throw new FormatException("the byte array should be <#= t #> byte long");
+				throw new FormatException("the byte array should be <#= WIDTH_BYTE #> bytes long");
 			}
 
 			if(!lendian)
