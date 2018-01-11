@@ -696,7 +696,7 @@ namespace NBitcoin.SPV
 		/// Remove old spent & confirmed TrackedOutpoint, old unconf operations, and old forked operations
 		/// </summary>
 		/// <param name="chain"></param>
-		internal List<object> Prune(ConcurrentChain chain, int blockExpiration = 2000, TimeSpan? timeExpiration = null)
+		internal List<object> Prune(ChainBase chain, int blockExpiration = 2000, TimeSpan? timeExpiration = null)
 		{
 			List<object> removed = new List<object>();
 			timeExpiration = timeExpiration ?? TimeSpan.FromDays(7.0);

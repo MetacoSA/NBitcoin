@@ -352,7 +352,7 @@ namespace NBitcoin.SPV
 			}
 		}
 
-		public ConcurrentChain Chain
+		public ChainBase Chain
 		{
 			get
 			{
@@ -570,7 +570,7 @@ namespace NBitcoin.SPV
 		/// <param name="chain">The chain to keep in sync, if not provided the whole chain will be downloaded on the network (more than 30MB)</param>
 		/// <param name="addrman">The Address Manager for speeding up peer discovery</param>
 		/// <param name="tracker">The tracker responsible for providing bloom filters</param>
-		public void Configure(ConcurrentChain chain = null,
+		public void Configure(ChainBase chain = null,
 							AddressManager addrman = null,
 							Tracker tracker = null)
 		{

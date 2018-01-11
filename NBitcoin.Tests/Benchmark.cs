@@ -138,7 +138,7 @@ namespace NBitcoin.Tests
 		public void BenchmarkCreateChainFromBlocks()
 		{
 			BlockStore store = new BlockStore(@"E:\Bitcoin\blocks\", Network.Main);
-			ConcurrentChain chain = null;
+			ChainBase chain = null;
 			var fullBuild = Bench(() =>
 			{
 				chain = store.GetChain();

@@ -22,9 +22,9 @@ namespace NBitcoin.BitcoinCore
 		}
 
 
-		public ConcurrentChain GetChain()
+		public ChainBase GetChain()
 		{
-			ConcurrentChain chain = new ConcurrentChain(Network);
+			ChainBase chain = new ConcurrentChain(Network);
 			SynchronizeChain(chain);
 			return chain;
 		}
