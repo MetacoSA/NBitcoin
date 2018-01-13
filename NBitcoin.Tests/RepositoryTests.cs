@@ -260,6 +260,14 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
 		{
+			var tx = new Transaction("01000000000101e502f6440f6c9db9a0b431f07eaec96797915c009f590f4bb38bfa78be8b1aaf0400000000ffffffff02c03b47030000000017a914ec732bc1867010d1ce9a92047316cf5c31dfb47987d876503800000000220020701a8d401c84fb13e6baf169d59684e17abd9fa216c8cc5b9fc63d622ff8c58d040047304402200aa8d36495fddfd806167106051a2a720689639e43995b1af72b52dbe596b503022058aa0966dc323faf54b0228c2ad99aaaad9bb80ca31fad3141d8c3f651fcfd1801483045022100d2f1b0d6db2bf9032d761ec1da6fce8bdf05f1fbab6db0436e6603bc06faaa160220275ef8749b6e6a0bc0571c547a96f1d8328c52efcde0fd8ea95898626c7417b2016952210279d1f38c1c80d47cb00ddbbe2915a60d5706e1ef66056a169150f083b288eb952102cb7d02b654f8616bfc5ab017b7a3ec9092e466381af0f552b7efcd8d920453672103c96d495bfdd5ba4145e3e046fee45e84a8a48ad05bd8dbb395c011a32cf9f88053ae00000000");
+
+			foreach(var input in tx.Inputs.AsIndexedInputs())
+			{
+				var parent = new QBitNinjaTransactionRepository(Network.Main).Get(input.PrevOut.Hash);
+				var verified = input.VerifyScript(parent.Outputs.AsCoins().Skip((int)input.PrevOut.N).First());
+				Assert.True(verified);
+			}
 		}
 
 		[Fact]

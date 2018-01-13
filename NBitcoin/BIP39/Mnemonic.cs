@@ -172,10 +172,11 @@ namespace NBitcoin
 			}
 		}
 
+		static Encoding NoBOMUTF8 = new UTF8Encoding(false);
 		public byte[] DeriveSeed(string passphrase = null)
 		{
 			passphrase = passphrase ?? "";
-			var salt = Concat(Encoding.UTF8.GetBytes("mnemonic"), Normalize(passphrase));
+			var salt = Concat(NoBOMUTF8.GetBytes("mnemonic"), Normalize(passphrase));
 			var bytes = Normalize(_Mnemonic);
 
 #if USEBC || WINDOWS_UWP || NETCORE
@@ -190,7 +191,7 @@ namespace NBitcoin
 
 		internal static byte[] Normalize(string str)
 		{
-			return Encoding.UTF8.GetBytes(NormalizeString(str));
+			return NoBOMUTF8.GetBytes(NormalizeString(str));
 		}
 
 		internal static string NormalizeString(string word)

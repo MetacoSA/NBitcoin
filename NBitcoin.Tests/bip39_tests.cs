@@ -34,6 +34,31 @@ namespace NBitcoin.Tests
 			Assert.False(mnemonic.IsValidChecksum);
 		}
 
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCheckBIP39TestVectors()
+		{
+			CanCheckBIP39TestVectorsCore("fr", Wordlist.French);
+			CanCheckBIP39TestVectorsCore("ja", Wordlist.Japanese);
+			CanCheckBIP39TestVectorsCore("es", Wordlist.Spanish);
+			CanCheckBIP39TestVectorsCore("en", Wordlist.English);
+			CanCheckBIP39TestVectorsCore("zh-CN", Wordlist.ChineseSimplified);
+			CanCheckBIP39TestVectorsCore("zh-TW", Wordlist.ChineseTraditional);
+		}
+
+		private void CanCheckBIP39TestVectorsCore(string file, Wordlist wordlist)
+		{
+			var tests = JArray.Parse(File.ReadAllText($"data/bip39_vectors.{file}.json"));
+			foreach(var test in tests.Children().OfType<JObject>())
+			{
+				var mnemonic = new Mnemonic(test["mnemonic"].Value<string>(), wordlist);
+				var actual = mnemonic.DeriveExtKey(test["passphrase"].Value<string>()).GetWif(Network.Main);
+				var expected = new BitcoinExtKey(test["bip32_xprv"].Value<string>(), Network.Main);
+				Assert.Equal(actual, expected);
+			}
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void EngTest()
