@@ -536,7 +536,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		private static void SyncAll(Node node, Random rand, ConcurrentChain[] chains)
+		private static void SyncAll(Node node, Random rand, ChainBase[] chains)
 		{
 			Task.WaitAll(Enumerable.Range(0, 5)
 								.Select(_ => Task.Factory.StartNew(() =>

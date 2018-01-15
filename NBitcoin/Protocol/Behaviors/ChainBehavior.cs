@@ -10,12 +10,12 @@ namespace NBitcoin.Protocol.Behaviors
 {
 
 	/// <summary>
-	/// The Chain Behavior is responsible for keeping a ConcurrentChain up to date with the peer, it also responds to getheaders messages.
+	/// The Chain Behavior is responsible for keeping a ChainBase up to date with the peer, it also responds to getheaders messages.
 	/// </summary>
 	public class ChainBehavior : NodeBehavior
 	{
 		State _State;
-		public ChainBehavior(ConcurrentChain chain)
+		public ChainBehavior(ChainBase chain)
 		{
 			if(chain == null)
 				throw new ArgumentNullException("chain");
@@ -50,8 +50,8 @@ namespace NBitcoin.Protocol.Behaviors
 			set;
 		}
 
-		ConcurrentChain _Chain;
-		public ConcurrentChain Chain
+		ChainBase _Chain;
+		public ChainBase Chain
 		{
 			get
 			{

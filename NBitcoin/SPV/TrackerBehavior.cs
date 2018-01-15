@@ -37,14 +37,14 @@ namespace NBitcoin.SPV
 	public class TrackerBehavior : NodeBehavior
 	{
 		Tracker _Tracker;
-		ConcurrentChain _Chain;
-		ConcurrentChain _ExplicitChain;
+		ChainBase _Chain;
+		ChainBase _ExplicitChain;
 		/// <summary>
 		/// Create a new TrackerBehavior instance
 		/// </summary>
 		/// <param name="tracker">The Tracker registering transactions and confirmations</param>
 		/// <param name="chain">The chain used to fetch height of incoming blocks, if null, use the chain of ChainBehavior</param>
-		public TrackerBehavior(Tracker tracker, ConcurrentChain chain = null)
+		public TrackerBehavior(Tracker tracker, ChainBase chain = null)
 		{
 			if(tracker == null)
 				throw new ArgumentNullException("tracker");

@@ -1161,9 +1161,9 @@ namespace NBitcoin.Protocol
 		/// <param name="hashStop">The highest block wanted</param>
 		/// <param name="cancellationToken"></param>
 		/// <returns>The chain of headers</returns>
-		public ConcurrentChain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		public ChainBase GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			ConcurrentChain chain = new ConcurrentChain(Network);
+			ChainBase chain = new ConcurrentChain(Network);
 			SynchronizeChain(chain, hashStop, cancellationToken);
 			return chain;
 		}
