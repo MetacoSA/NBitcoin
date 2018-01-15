@@ -754,12 +754,18 @@ namespace NBitcoin.RPC
 
 				localAddr = string.IsNullOrEmpty(localAddr) ? "127.0.0.1:8333" : localAddr;
 
+				ulong services;
+				if(!ulong.TryParse((string)peer["services"], out services))
+				{
+					services = Utils.ToUInt64(Encoders.Hex.DecodeData((string)peer["services"]), false);
+				}
+
 				result[i++] = new PeerInfo
 				{
 					Id = (int)peer["id"],
 					Address = Utils.ParseIpEndpoint((string)peer["addr"], this.Network.DefaultPort),
 					LocalAddress = Utils.ParseIpEndpoint(localAddr, this.Network.DefaultPort),
-					Services = ulong.Parse((string)peer["services"]),
+					Services = (NodeServices)services,
 					LastSend = Utils.UnixTimeToDateTime((uint)peer["lastsend"]),
 					LastReceive = Utils.UnixTimeToDateTime((uint)peer["lastrecv"]),
 					BytesSent = (long)peer["bytessent"],
@@ -1418,7 +1424,7 @@ namespace NBitcoin.RPC
 		{
 			get; internal set;
 		}
-		public ulong Services
+		public NodeServices Services
 		{
 			get; internal set;
 		}
