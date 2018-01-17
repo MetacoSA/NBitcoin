@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBitcoin
 {
@@ -15,6 +11,9 @@ namespace NBitcoin
 
 	public class BIP9DeploymentsParameters
 	{
+		/// <summary>Special flag for timeout to indicate always active.</summary>
+		public const long AlwaysActive = -1;
+
 		public BIP9DeploymentsParameters(int bit, DateTimeOffset startTime, DateTimeOffset timeout)
 		{
 			Bit = bit;
