@@ -427,6 +427,73 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanPrecomputeHashes()
+		{
+			Transaction tx = new Transaction();
+			tx.AddInput(new TxIn(RandomCoin(Money.Coins(1.0m), new Key()).Outpoint, Script.Empty));
+			tx.Inputs[0].WitScript = new WitScript(Op.GetPushOp(3));
+			tx.AddOutput(RandomCoin(Money.Coins(1.0m), new Key()).TxOut);
+			var template = tx.Clone();
+
+			// If lazy is true, then the cache will be calculated later
+			tx = template.Clone();
+			var initialHashes = new uint256[] { tx.GetHash(), tx.GetWitHash() };
+			tx.PrecomputeHash(false, true);
+			tx.Outputs[0].Value = Money.Coins(1.1m);
+			var afterHashes = new uint256[] { tx.GetHash(), tx.GetWitHash() };
+			Assert.NotEqual(initialHashes[0], afterHashes[0]);
+			Assert.NotEqual(initialHashes[1], afterHashes[1]);
+			Assert.NotEqual(afterHashes[1], afterHashes[0]);
+			/////
+
+			// If lazy is false, then the cache is calculated now
+			tx = template.Clone();
+			initialHashes = new uint256[] { tx.GetHash(), tx.GetWitHash() };
+			tx.PrecomputeHash(false, false);
+			tx.Outputs[0].Value = Money.Coins(1.1m);
+			afterHashes = new uint256[] { tx.GetHash(), tx.GetWitHash() };
+			// The hash should be outdated, because they were not calculated during second call to tx.GetHash()
+			Assert.Equal(initialHashes[0], afterHashes[0]);
+			Assert.Equal(initialHashes[1], afterHashes[1]);
+			Assert.NotEqual(afterHashes[1], afterHashes[0]);
+			/////
+
+			// If invalidExisting is false, then the cache is not recalculated
+			tx = template.Clone();
+			initialHashes = new uint256[] { tx.GetHash(), tx.GetWitHash() };
+			tx.PrecomputeHash(false, false);
+			tx.Outputs[0].Value = Money.Coins(1.1m);
+			afterHashes = new uint256[] { tx.GetHash(), tx.GetWitHash() };
+			// Out of date...
+			Assert.Equal(initialHashes[0], afterHashes[0]);
+			Assert.Equal(initialHashes[1], afterHashes[1]);
+			tx.PrecomputeHash(false, false);
+			// Always out of date...
+			var afterHashes2 = new uint256[] { tx.GetHash(), tx.GetWitHash() };
+			Assert.Equal(afterHashes2[0], afterHashes[0]);
+			Assert.Equal(afterHashes2[1], afterHashes[1]);
+			Assert.NotEqual(afterHashes2[1], afterHashes2[0]);
+			///////
+
+			// If invalidExisting is true, then the cache is recalculated
+			tx = template.Clone();
+			initialHashes = new uint256[] { tx.GetHash(), tx.GetWitHash() };
+			tx.PrecomputeHash(false, false);
+			tx.Outputs[0].Value = Money.Coins(1.1m);
+			afterHashes = new uint256[] { tx.GetHash(), tx.GetWitHash() };
+			// Out of date...
+			Assert.Equal(initialHashes[0], afterHashes[0]);
+			Assert.Equal(initialHashes[1], afterHashes[1]);
+			tx.PrecomputeHash(true, false);
+			// Not out of date anymore...
+			afterHashes2 = new uint256[] { tx.GetHash(), tx.GetWitHash() };
+			Assert.NotEqual(afterHashes2[0], afterHashes[0]);
+			Assert.NotEqual(afterHashes2[1], afterHashes[1]);
+			///////
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildShuffleColoredTransaction()
 		{
 			var gold = new Key();

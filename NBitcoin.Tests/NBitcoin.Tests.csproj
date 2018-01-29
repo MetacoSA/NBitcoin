@@ -7,6 +7,7 @@
 	</PropertyGroup>
   <PropertyGroup>
 	  <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+	  <NoWarn>CS0618</NoWarn>
   </PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
 		<DefineConstants>$(DefineConstants);WIN</DefineConstants>

@@ -175,12 +175,22 @@ namespace NBitcoin
 			return h;
 		}
 
-		/// <summary>
-		/// If called, GetHash becomes cached, only use if you believe the instance will not be modified after calculation. Calling it a second type invalidate the cache.
-		/// </summary>
+		[Obsolete("Call PrecomputeHash(true, true) instead")]
 		public void CacheHashes()
 		{
-			_Hashes = new uint256[1];
+			PrecomputeHash(true, true);
+		}
+
+		/// <summary>
+		/// Precompute the block header hash so that later calls to GetHash() will returns the precomputed hash
+		/// </summary>
+		/// <param name="invalidateExisting">If true, the previous precomputed hash is thrown away, else it is reused</param>
+		/// <param name="lazily">If true, the hash will be calculated and cached at the first call to GetHash(), else it will be immediately</param>
+		public void PrecomputeHash(bool invalidateExisting, bool lazily)
+		{
+			_Hashes = invalidateExisting ? new uint256[1] : _Hashes ?? new uint256[1];
+			if(!lazily && _Hashes[0] == null)
+				_Hashes[0] = GetHash();
 		}
 
 
