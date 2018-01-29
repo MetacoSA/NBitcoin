@@ -202,13 +202,25 @@ namespace NBitcoin.Tests
 				CreateCoin("3.0"),
 				CreateCoin("3.0")
 			}, Money.Parse("10.0")));
+
+
+			// Should spend all coins belonging to same scriptPubKey
+			var bob = new Key().ScriptPubKey;
+			var alice = new Key().ScriptPubKey;
+			var selected = selector.Select(new ICoin[] { CreateCoin("5", bob), CreateCoin("5", bob) }, Money.Parse("2.0")).ToArray();
+			Assert.Equal(2, selected.Length);
+
+			selected = selector.Select(new ICoin[] { CreateCoin("5", alice), CreateCoin("5", bob) }, Money.Parse("2.0")).ToArray();
+			Assert.Equal(1, selected.Length);
+			///////
 		}
 
-		private Coin CreateCoin(Money amount)
+		private Coin CreateCoin(Money amount, Script scriptPubKey = null)
 		{
 			return new Coin(new OutPoint(Rand(), 0), new TxOut()
 			{
-				Value = amount
+				Value = amount,
+				ScriptPubKey = scriptPubKey
 			});
 		}
 
@@ -369,6 +381,7 @@ namespace NBitcoin.Tests
 			//Scenario 1 : Carla knows aliceBobCoins so she can calculate how much coin she need to complete the transaction
 			//Carla fills and signs
 			txBuilder = new TransactionBuilder();
+			((DefaultCoinSelector)txBuilder.CoinSelector).GroupByScriptPubKey = false;
 			var carlaSigned = txBuilder
 				.AddCoins(aliceBobCoins)
 				.Then()
@@ -395,6 +408,7 @@ namespace NBitcoin.Tests
 			//Scenario 2 : Carla is told by Bob to complete 0.05 BTC
 			//Carla fills and signs
 			txBuilder = new TransactionBuilder();
+			((DefaultCoinSelector)txBuilder.CoinSelector).GroupByScriptPubKey = false;
 			carlaSigned = txBuilder
 				.AddKeys(carlaKey)
 				.AddCoins(carlaCoins)
