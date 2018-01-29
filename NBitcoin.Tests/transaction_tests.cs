@@ -1449,6 +1449,36 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanFilterUneconomicalCoins()
+		{
+			var builder = new TransactionBuilder();
+			var alice = new Key();
+			var bob = new Key();
+			//P2SH(P2WSH)
+			var previousTx = new Transaction();
+			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.ScriptPubKey.WitHash.ScriptPubKey.Hash));
+			var previousCoin = previousTx.Outputs.AsCoins().First();
+
+			var witnessCoin = new ScriptCoin(previousCoin, alice.PubKey.ScriptPubKey);
+			builder = new TransactionBuilder();
+			builder.AddKeys(alice);
+			builder.AddCoins(witnessCoin);
+			builder.Send(bob, Money.Coins(0.4m));
+			builder.SendFees(Money.Satoshis(30000));
+			builder.SetChange(alice);
+			builder.BuildTransaction(true);
+			builder.FilterUneconomicalCoinsRate = new FeeRate(Money.Coins(1m), 1);
+			Assert.Throws<NotEnoughFundsException>(() => builder.BuildTransaction(true));
+			builder.FilterUneconomicalCoins = false;
+			builder.BuildTransaction(true);
+			builder.FilterUneconomicalCoins = true;
+			Assert.Throws<NotEnoughFundsException>(() => builder.BuildTransaction(true));
+			builder.FilterUneconomicalCoinsRate = new FeeRate(Money.Satoshis(1m), 1);
+			builder.BuildTransaction(true);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanCheckSegwitPubkey()
 		{
 			var a = new Script("OP_DUP 033fbe0a2aa8dc28ee3b2e271e3fedc7568529ffa20df179b803bf9073c11b6a8b OP_CHECKSIG OP_IF OP_DROP 0382fdfb0a3898bc6504f63204e7d15a63be82a3b910b5b865690dc96d1249f98c OP_ELSE OP_CODESEPARATOR 033fbe0a2aa8dc28ee3b2e271e3fedc7568529ffa20df179b803bf9073c11b6a8b OP_ENDIF OP_CHECKSIG");
