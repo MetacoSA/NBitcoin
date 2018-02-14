@@ -112,12 +112,11 @@ namespace NBitcoin
 			var lastValue1 = 0UL;
 			var lastValue2 = hs[0];
 			var i = 1;
-			var j = 0;
 
 			var bitStream = new BitStream(Data);
 			var sr = new GRCodedStreamReader(bitStream, P, 0);
 
-			while (lastValue1 != lastValue2 && j<N)
+			while (lastValue1 != lastValue2)
 			{
 				if (lastValue1 > lastValue2)
 				{
@@ -137,7 +136,7 @@ namespace NBitcoin
 					lastValue1 = val;
 				}
 			}
-			return j<N;
+			return true;
 		}
 
 		internal static ulong FastReduction(ulong value, ulong nhi, ulong nlo)
