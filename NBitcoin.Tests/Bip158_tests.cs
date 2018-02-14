@@ -10,6 +10,7 @@ namespace NBitcoin.Tests
 	public class GolombRiceFilterTest
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void BuildFilterAndMatchValues()
 		{
 			var names = from name in new[] { "New York", "Amsterdam", "Paris", "Buenos Aires", "La Habana" }
@@ -52,6 +53,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void FalsePositivesTest()
 		{
 			// Given this library can be used for building and query filters for each block of 
@@ -139,6 +141,7 @@ namespace NBitcoin.Tests
 	public class FastBitArrayTest
 	{
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void GetBitsTest()
 		{
 			// 1 1 1 0 1 0 1 1 - 1 0 1 0 1 0 1 1 - 1 0 1 0 1 1 1 0 - 1 0 1 0 1 1 1 0 
@@ -169,6 +172,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void SetRandomBitsTest()
 		{
 			var barr = new FastBitArray(new byte[0]);
@@ -201,6 +205,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void SetBitAndGetBitsTest()
 		{
 			var barr = new FastBitArray(new byte[0]);
@@ -238,6 +243,8 @@ namespace NBitcoin.Tests
 			Assert.Equal(0b11001UL, barr.GetBits(29, 5));
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void SetBitsBigEndianTest()
 		{
 			var barr = new FastBitArray(new byte[0]);
