@@ -45,7 +45,10 @@ namespace NBitcoin
 
 		public void WriteBits(ulong data, byte count)
 		{
-			_buffer.Length += count;
+			if (_buffer.Length < _position + count)
+			{
+				_buffer.Length = _position + count;
+			}
 			_buffer.SetBits(_position, data, count);
 			_position += count;
 		}

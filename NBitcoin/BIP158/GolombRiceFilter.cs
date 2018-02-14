@@ -10,15 +10,17 @@ namespace NBitcoin
 	/// for a new kind Bitcoin light clients. This code is based on the BIP:
 	/// https://github.com/Roasbeef/bips/blob/master/gcs_light_client.mediawiki
 	/// </summary>
-	public class GCSFilter
+	public class GolombRiceFilter
 	{
+		private const byte DefaultP = 20;
+
 		public byte P { get; }
 		public int N { get; }
 		public ulong ModulusP { get;  }
 		public ulong ModulusNP { get; }
 		public FastBitArray Data { get;  }
 
-		public GCSFilter(FastBitArray data, byte P, int N)
+		public GolombRiceFilter(FastBitArray data, int N, byte P = DefaultP)
 		{
 			this.P = P;
 			this.N = N;
@@ -29,7 +31,7 @@ namespace NBitcoin
 			this.Data = data;
 		}
 
-		public static GCSFilter Build(byte[] k, byte P, IEnumerable<byte[]> data)
+		public static GolombRiceFilter Build(byte[] k, IEnumerable<byte[]> data, byte P = DefaultP)
 		{
 			if (P == 0x00)
 				throw new ArgumentException("P cannot be zero", nameof(P));
@@ -43,7 +45,7 @@ namespace NBitcoin
 			var hs = ConstructHashedSet(P, N, k, bytesData);
 			var filterData = Compress(hs, P);
 
-			return new GCSFilter(filterData, P, N);
+			return new GolombRiceFilter(filterData, N, P);
 		}
 
 

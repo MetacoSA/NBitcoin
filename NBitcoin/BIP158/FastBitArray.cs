@@ -38,20 +38,13 @@ namespace NBitcoin
 				                | (uint)(bytes[num2 + 3] & 255) << 24);
 				num2 += 4;
 			}
-			switch (bytes.Length - num2)
-			{
-				case 1:
-					_buffer[num] |= (uint)(bytes[num2] & 255);
-					return;
-				case 2:
-					_buffer[num] |= (uint)(bytes[num2 + 1] & 255) << 8;
-					return;
-				case 3:
-					_buffer[num] = (uint)(bytes[num2 + 2] & 255) << 16;
-					break;
-				default:
-					return;
-			}
+			var diff = bytes.Length - num2;
+			if (diff > 0)
+				_buffer[num] |= (uint)(bytes[num2 + 0] & 255);
+			if (diff > 1)
+				_buffer[num] |= (uint)(bytes[num2 + 1] & 255) << 8;
+			if (diff > 2)
+				_buffer[num] |= (uint)(bytes[num2 + 2] & 255) << 16;
 		}
 
 		public bool this[int index]
