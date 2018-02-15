@@ -93,7 +93,6 @@ namespace NBitcoin.Tests
 
 				blocks.Add(new BlockFilter(filter, txouts));
 			}
-			Console.WriteLine("Block filter generation time (): {0}ms", sw.ElapsedMilliseconds);
 			sw.Reset();
 
 
@@ -115,9 +114,6 @@ namespace NBitcoin.Tests
 			}
 
 			sw.Stop();
-
-			Console.WriteLine("MatchAny time (false positives): {0}ms", sw.ElapsedMilliseconds);
-			Console.WriteLine("   False positives             : {0}", falsePositiveCount);
 			Assert.True(falsePositiveCount < 5);
 
 			// Filter has to mat existing values
@@ -132,8 +128,6 @@ namespace NBitcoin.Tests
 
 			sw.Stop();
 
-			Console.WriteLine("MatchAny time (false Negatives): {0}ms", sw.ElapsedMilliseconds);
-			Console.WriteLine("   False negatives             : {0}", falseNegativeCount);
 			Assert.Equal(0, falseNegativeCount);
 		}
 	}
