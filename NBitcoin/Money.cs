@@ -865,7 +865,7 @@ namespace NBitcoin
 					unitToUseInCalc = MoneyUnit.BTC;
 					break;
 			}
-			var val = Convert.ToDecimal(arg) / (int)unitToUseInCalc;
+			var val = Convert.ToDecimal(arg, CultureInfo.InvariantCulture) / (int)unitToUseInCalc;
 			var zeros = new string('0', decPos);
 			var rest = new string('#', 10 - decPos);
 			var fmt = plus && val > 0 ? "+" : string.Empty;
