@@ -670,7 +670,7 @@ namespace NBitcoin
 		/// <returns></returns>
 		public string ToString(bool fplus, bool trimExcessZero = true)
 		{
-			var fmt = string.Format("{{0:{0}{1}B}}",
+			var fmt = string.Format(CultureInfo.InvariantCulture, "{{0:{0}{1}B}}",
 									(fplus ? "+" : null),
 									(trimExcessZero ? "2" : "8"));
 			return string.Format(BitcoinFormatter.Formatter, fmt, _Satoshis);
