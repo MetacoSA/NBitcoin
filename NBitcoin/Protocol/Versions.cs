@@ -64,7 +64,7 @@
 		WITNESS_VERSION = 70012,
 
 		/// <summary>
-		/// shord-id-based block download starts with this version
+		/// short-id-based block download starts with this version
 		/// </summary>
 		SHORT_IDS_BLOCKS_VERSION = 70014
 }
