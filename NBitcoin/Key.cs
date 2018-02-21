@@ -51,7 +51,7 @@ namespace NBitcoin
 				count = data.Length;
 			if(count != KEY_SIZE)
 			{
-				throw new FormatException("The size of an EC key should be 32");
+				throw new FormatException($"The size of an EC key should be {KEY_SIZE}");
 			}
 			if(Check(data))
 			{
