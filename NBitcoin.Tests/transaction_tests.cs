@@ -239,7 +239,7 @@ namespace NBitcoin.Tests
 			var goldAssetId = goldScriptPubKey.Hash.ToAssetId();
 
 			var issuanceCoin = new IssuanceCoin(
-				new ScriptCoin(RandOutpoint(), new TxOut(new Money(2880), goldScriptPubKey), goldRedeem));
+				new ScriptCoin(RandOutpoint(), new TxOut(Money.Satoshis(576), goldScriptPubKey), goldRedeem));
 
 			var nico = new Key();
 
@@ -265,16 +265,14 @@ namespace NBitcoin.Tests
 					.Verify(aliceSigned));
 
 			//In one two one line
-
 			var builder = new TransactionBuilder();
-			builder.StandardTransactionPolicy = RelayPolicy.Clone();
-			builder.StandardTransactionPolicy.CheckFee = false;
 			var tx =
 				builder
 				.AddCoins(issuanceCoin)
 				.AddKeys(alice, satoshi)
 				.IssueAsset(nico.PubKey, new AssetMoney(goldAssetId, 1000))
 				.BuildTransaction(true);
+			builder.StandardTransactionPolicy = EasyPolicy;
 			Assert.True(builder.Verify(tx));
 		}
 
