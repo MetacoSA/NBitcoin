@@ -53,7 +53,7 @@
     <PackageReference Include="System.Security.Cryptography.Csp" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(DefineConstants.Contains('NOTRACESOURCE'))">
+  <ItemGroup>
     <Compile Include="..\Stubs\TraceStub\TraceSource.cs" />
   </ItemGroup>
 

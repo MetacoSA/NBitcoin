@@ -8,7 +8,21 @@ using System.Threading.Tasks;
 
 namespace System.Diagnostics
 {
-	internal enum TraceEventType
+	public class TraceSourceFactory
+	{
+		public static TraceSource CreateTraceSource(string name)
+		{
+			return CreateTraceSourceFactory(name);
+		}
+
+		public static Func<string, TraceSource> CreateTraceSourceFactory
+		{
+			get;
+			set;
+		} = (n) => new NullTraceSource(n);
+	}
+
+	public enum TraceEventType
 	{
 		Error,
 		Information,
@@ -18,7 +32,7 @@ namespace System.Diagnostics
 		Stop,
 	}
 
-	internal class CorrelationManager
+	public class CorrelationManager
 	{
 		public Guid ActivityId
 		{
@@ -26,7 +40,7 @@ namespace System.Diagnostics
 			set;
 		}
 	}
-	internal class Trace
+	public class Trace
 	{
 		static CorrelationManager _CorrelationManager = new CorrelationManager();
 		public static CorrelationManager CorrelationManager
@@ -37,48 +51,72 @@ namespace System.Diagnostics
 			}
 		}
 	}
-	internal class Switch
+	public class Switch
 	{
 		public bool ShouldTrace(TraceEventType level)
 		{
 			return false;
 		}
 	}
-	internal class TraceSource
+	public interface TraceSource
 	{
-		private string p;
-
-		public TraceSource(string p)
+		Switch Switch
 		{
-			
-			this.p = p;
-			Switch = new Switch();
+			get;
+			set;
 		}
 
+		void TraceEvent(TraceEventType traceEventType, int eventId, string msg, object[] args);
+
+		void TraceEvent(TraceEventType traceEventType, int eventId, string msg);
+
+		void TraceTransfer(int eventId, string p2, Guid activity);
+
+		void TraceInformation(string msg);
+	}
+
+	class NullTraceSource : TraceSource
+	{
+		string n;
+		public NullTraceSource(string n)
+		{
+			this.n = n;
+		}
 		public Switch Switch
 		{
 			get;
 			set;
 		}
 
-		internal void TraceEvent(TraceEventType traceEventType, int p, string msg, object[] args)
+		public void TraceEvent(TraceEventType traceEventType, int eventId, string msg, object[] args)
 		{
 			
 		}
 
-		internal void TraceEvent(TraceEventType traceEventType, int p, string msg)
+		public void TraceEvent(TraceEventType traceEventType, int eventId, string msg)
 		{
 			
 		}
 
-		internal void TraceTransfer(int p1, string p2, Guid activity)
+		public void TraceInformation(string msg)
 		{
 			
 		}
 
-		internal void TraceInformation(string p)
+		public void TraceTransfer(int eventId, string p2, Guid activity)
 		{
 			
+		}
+	}
+}
+#else
+namespace System.Diagnostics
+{
+	public class TraceSourceFactory
+	{
+		public static TraceSource CreateTraceSource(string name)
+		{
+			return new TraceSource(name);
 		}
 	}
 }
