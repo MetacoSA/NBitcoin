@@ -79,7 +79,7 @@ You can then run with
 dotnet run
 ```
 
-We advice you to use [Visual Studio Code](https://code.visualstudio.com/) as the editor for your project.
+We advise you to use [Visual Studio Code](https://code.visualstudio.com/) as the editor for your project.
 
 ## Description
 NBitcoin notably includes:
