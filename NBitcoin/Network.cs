@@ -882,7 +882,7 @@ namespace NBitcoin
 			genesis = CreateGenesisBlock(1296688602, 2, 0x207fffff, 1, Money.Coins(50m));
 			consensus.HashGenesisBlock = genesis.GetHash();
 			nDefaultPort = 18444;
-			nRPCPort = 18332;
+			nRPCPort = 18443; // From Bitcoin Core 0.16: https://github.com/bitcoin/bitcoin/pull/10825
 			//strDataDir = "regtest";
 			assert(consensus.HashGenesisBlock == uint256.Parse("0x0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"));
 
