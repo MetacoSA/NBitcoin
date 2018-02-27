@@ -86,7 +86,7 @@ namespace System.Diagnostics
 		{
 			get;
 			set;
-		}
+		} = new Switch();
 
 		public void TraceEvent(TraceEventType traceEventType, int eventId, string msg, object[] args)
 		{
