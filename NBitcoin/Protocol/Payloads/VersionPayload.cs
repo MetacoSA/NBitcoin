@@ -42,6 +42,12 @@ namespace NBitcoin.Protocol
 		/// witness data. 
 		/// </summary> 
 		NODE_WITNESS = (1 << 3),
+
+		/// <summary> NODE_NETWORK_LIMITED means the same as NODE_NETWORK with the limitation of only
+		/// serving the last 288 (2 day) blocks
+		/// See BIP159 for details on how this is implemented.
+		/// </summary> 
+		NODE_NETWORK_LIMITED = (1 << 10)
 	}
 	[Payload("version")]
 	public class VersionPayload : Payload, IBitcoinSerializable
