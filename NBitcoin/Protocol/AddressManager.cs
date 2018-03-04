@@ -322,6 +322,8 @@ namespace NBitcoin.Protocol
 			stream.ReadWrite(this);
 			var hash = Hashes.Hash256(ms.ToArray());
 			stream.ReadWrite(hash.AsBitcoinSerializable());
+
+			Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 			File.WriteAllBytes(filePath, ms.ToArray());
 		}
 #endif
