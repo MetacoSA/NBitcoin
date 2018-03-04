@@ -2890,9 +2890,9 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void SequenceStructParsedCorrectly()
 		{
-			Assert.True(new Sequence() == 0xFFFFFFFFU);
-			Assert.False(new Sequence().IsRelativeLock);
-			Assert.False(new Sequence().IsRBF);
+			Assert.True(new Sequence() == 0x000000000);
+			Assert.True(new Sequence().IsRelativeLock);
+			Assert.True(new Sequence().IsRBF);
 
 			Assert.True(new Sequence(1) == 1U);
 			Assert.True(new Sequence(1).IsRelativeLock);

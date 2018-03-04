@@ -59,15 +59,19 @@ namespace NBitcoin
 		/// </summary>
 		internal const int SEQUENCE_LOCKTIME_GRANULARITY = 9;
 
-
-		uint _ValueInv;
+		uint? _ValueInv;
 		public uint Value
 		{
 			get
 			{
-				return 0xFFFFFFFF - _ValueInv;
+				if (_ValueInv.HasValue)
+					return 0xFFFFFFFF - _ValueInv.Value;
+
+				// enable RBF by default (see BIP125)
+				return 0x00000000;
 			}
 		}
+
 		public Sequence(uint value)
 		{
 			_ValueInv = 0xFFFFFFFF - value;
