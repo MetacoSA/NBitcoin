@@ -781,7 +781,7 @@ namespace NBitcoin.Protocol
 			Advertize = parameters.Advertize;
 			PreferredTransactionOptions = parameters.PreferredTransactionOptions;
 			_ReuseBuffer = parameters.ReuseBuffer;
-
+			SkipPoWCheck = parameters.SkipPoWCheck;
 			_Behaviors.DelayAttach = true;
 			foreach(var behavior in parameters.TemplateBehaviors)
 			{
@@ -1267,14 +1267,24 @@ namespace NBitcoin.Protocol
 
 			if(newTip.Height <= oldTip.Height)
 				throw new ProtocolException("No tip should have been recieved older than the local one");
-			foreach(var header in headers)
+			if(!SkipPoWCheck)
 			{
-				if(!header.Validate(Network))
-					throw new ProtocolException("An header which does not pass proof of work verification has been received");
+				foreach(var header in headers)
+				{
+					if(!header.Validate(Network))
+						throw new ProtocolException("An header which does not pass proof of work verification has been received");
+				}
 			}
-
 			chain.SetTip(newTip);
 			return headers;
+		}
+
+		/// <summary>
+		/// If true, skip PoW checks for SynchronizeChain and GetChain (default: false)
+		/// </summary>
+		public bool SkipPoWCheck
+		{
+			get; set;
 		}
 
 		public IEnumerable<Block> GetBlocks(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))

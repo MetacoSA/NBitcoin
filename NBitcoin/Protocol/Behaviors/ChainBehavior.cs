@@ -26,6 +26,14 @@ namespace NBitcoin.Protocol.Behaviors
 			CanRespondToGetHeaders = true;
 		}
 
+		/// <summary>
+		/// If true, skip PoW checks (default: false)
+		/// </summary>
+		public bool SkipPoWCheck
+		{
+			get; set;
+		}
+
 		public State SharedState
 		{
 			get
@@ -146,7 +154,7 @@ namespace NBitcoin.Protocol.Behaviors
 					if(prev == null)
 						break;
 					tip = new ChainedBlock(header, header.GetHash(), prev);
-					var validated = Chain.GetBlock(tip.HashBlock) != null || tip.Validate(AttachedNode.Network);
+					var validated = Chain.GetBlock(tip.HashBlock) != null || (SkipPoWCheck || tip.Validate(AttachedNode.Network));
 					validated &= !SharedState.IsMarkedInvalid(tip.HashBlock);
 					if(!validated)
 					{
@@ -320,6 +328,7 @@ namespace NBitcoin.Protocol.Behaviors
 				CanSync = CanSync,
 				CanRespondToGetHeaders = CanRespondToGetHeaders,
 				AutoSync = AutoSync,
+				SkipPoWCheck = SkipPoWCheck,
 				_State = _State
 			};
 			return clone;
