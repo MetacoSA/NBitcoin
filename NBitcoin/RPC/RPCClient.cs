@@ -1007,6 +1007,20 @@ namespace NBitcoin.RPC
 			};
 		}
 
+		/// <summary>
+		/// Waits for a specific new block and returns useful info about it.
+		/// </summary>
+		/// <param name="timeout">(int, optional, default=0) Time in milliseconds to wait for a response. 0 indicates no timeout.</param>
+		/// <returns>Returns the current block on timeout or exit</returns>
+		public async Task<BlockInfo> WaitForBlockAsync(uint256 blockhash, long timeout=0)
+		{
+			var resp = await SendCommandAsync(RPCOperations.waitforblock, blockhash.ToString(), timeout).ConfigureAwait(false);
+			return new BlockInfo{ 
+				Height = int.Parse(resp.Result["height"].ToString()),
+				Hash = uint256.Parse(resp.Result["hash"].ToString())
+			};
+		}
+
 		public uint256[] GetRawMempool()
 		{
 			var result = SendCommand(RPCOperations.getrawmempool);
