@@ -163,7 +163,7 @@ namespace NBitcoin.Protocol.Behaviors
 					}
 					_PendingTip = tip;
 				}
-				if(_PendingTip.ChainWork > Chain.Tip.ChainWork)
+				if(SkipPoWCheck || _PendingTip.GetChainWork(true) > Chain.Tip.GetChainWork(true))
 				{
 					Chain.SetTip(_PendingTip);
 				}

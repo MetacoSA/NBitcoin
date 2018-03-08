@@ -1,6 +1,7 @@
 ﻿using NBitcoin.BouncyCastle.Math;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,10 +20,25 @@ namespace NBitcoin
 		{
 			get
 			{
-				return phashBlock;
+				var h = phashBlock;
+				if(h == null)
+				{
+					h = Header.GetHash();
+					phashBlock = h;
+				}
+				return h;
 			}
 		}
 
+
+		/// <summary>
+		/// Free up some memory (cached HashBlock and ChainWork) at the price of efficiency
+		/// </summary>
+		public void StripCachedData()
+		{
+			phashBlock = null;
+			_ChainWork = null;
+		}
 
 		// pointer to the index of the predecessor of this block
 		ChainedBlock pprev;
@@ -58,12 +74,64 @@ namespace NBitcoin
 		}
 
 		BigInteger _ChainWork;
+
+		// Might be computationally intense
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		[Obsolete("Use GetChainWork() instead")]
 		public uint256 ChainWork
 		{
 			get
 			{
-				return Target.ToUInt256(_ChainWork);
+				return GetChainWork(true);
 			}
+		}
+
+
+		/// <summary>
+		/// Get the value of the chain work
+		/// </summary>
+		/// <param name="cacheResult">If true, called GetChainWork on this block and future block will be faster, but this trade for space</param>
+		/// <returns>The chain work value</returns>
+		public uint256 GetChainWork(bool cacheResult)
+		{
+			return Target.ToUInt256(GetChainWorkValue(cacheResult));
+		}
+
+		
+		private BigInteger GetChainWorkValue(bool cacheResult)
+		{
+			var chainWork = _ChainWork;
+			if(chainWork == null)
+			{
+				chainWork = CalculateChainWork();
+				if(cacheResult)
+					_ChainWork = chainWork;
+			}
+			return chainWork;
+		}
+
+		private BigInteger CalculateChainWork()
+		{
+			BigInteger aggregate = BigInteger.Zero;
+			Stack<ChainedBlock> previous = new Stack<ChainedBlock>();
+			foreach(var header in this.EnumerateToGenesis().Skip(1))
+			{
+				var value = header._ChainWork;
+				if(value == null)
+				{
+					previous.Push(header);
+				}
+				else
+				{
+					aggregate = value;
+					break;
+				}
+			}
+			while(previous.Count != 0)
+			{
+				aggregate = aggregate.Add(previous.Pop().GetBlockProof());
+			}
+			return aggregate.Add(GetBlockProof());
 		}
 
 		public ChainedBlock(BlockHeader header, uint256 headerHash, ChainedBlock previous)
@@ -89,12 +157,6 @@ namespace NBitcoin
 				if(previous.HashBlock != header.HashPrevBlock)
 					throw new ArgumentException("The previous block has not the expected hash");
 			}
-			CalculateChainWork();
-		}
-
-		private void CalculateChainWork()
-		{
-			_ChainWork = (Previous == null ? BigInteger.Zero : Previous._ChainWork).Add(GetBlockProof());
 		}
 
 		static BigInteger Pow256 = BigInteger.ValueOf(2).Pow(256);
@@ -118,7 +180,6 @@ namespace NBitcoin
 			//this.nDataPos = pos;
 			this.header = header;
 			this.phashBlock = header.GetHash();
-			CalculateChainWork();
 		}
 
 		public BlockLocator GetLocator()
@@ -151,7 +212,7 @@ namespace NBitcoin
 			ChainedBlock item = obj as ChainedBlock;
 			if(item == null)
 				return false;
-			return phashBlock.Equals(item.phashBlock);
+			return HashBlock.Equals(item.HashBlock);
 		}
 		public static bool operator ==(ChainedBlock a, ChainedBlock b)
 		{
@@ -159,7 +220,7 @@ namespace NBitcoin
 				return true;
 			if(((object)a == null) || ((object)b == null))
 				return false;
-			return a.phashBlock == b.phashBlock;
+			return a.HashBlock == b.HashBlock;
 		}
 
 		public static bool operator !=(ChainedBlock a, ChainedBlock b)
@@ -169,7 +230,7 @@ namespace NBitcoin
 
 		public override int GetHashCode()
 		{
-			return phashBlock.GetHashCode();
+			return HashBlock.GetHashCode();
 		}
 
 
