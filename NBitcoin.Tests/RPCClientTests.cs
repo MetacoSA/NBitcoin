@@ -162,6 +162,22 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanWaitForBlockFromRPC()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				var latestBlockTask = rpc.WaitForNewBlockAsync(2 * 1000); // wait for 2 seconds
+				var generatedBlock = builder.Nodes.First().Generate(1);
+				latestBlockTask.Wait();
+				var latestBlock = latestBlockTask.Result;
+				Assert.True(latestBlockTask.IsCompleted && !latestBlockTask.IsFaulted);
+				Assert.Equal(generatedBlock[0].GetHash(), latestBlock.Hash);
+			}
+		}
+
+		[Fact]
 		public async Task CanGetTxOutFromRPCAsync()
 		{
 			using (var builder = NodeBuilder.Create())
