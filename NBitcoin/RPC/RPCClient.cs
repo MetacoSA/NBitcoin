@@ -992,6 +992,35 @@ namespace NBitcoin.RPC
 			return (int)(await SendCommandAsync(RPCOperations.getblockcount).ConfigureAwait(false)).Result;
 		}
 
+
+		/// <summary>
+		/// Waits for a specific new block and returns useful info about it.
+		/// </summary>
+		/// <param name="timeout">(int, optional, default=0) Time in milliseconds to wait for a response. 0 indicates no timeout.</param>
+		/// <returns>Returns the current block on timeout or exit</returns>
+		public async Task<BlockInfo> WaitForNewBlockAsync(long timeout=0)
+		{
+			var resp = await SendCommandAsync(RPCOperations.waitfornewblock, timeout).ConfigureAwait(false);
+			return new BlockInfo{ 
+				Height = int.Parse(resp.Result["height"].ToString()),
+				Hash = uint256.Parse(resp.Result["hash"].ToString())
+			};
+		}
+
+		/// <summary>
+		/// Waits for a specific new block and returns useful info about it.
+		/// </summary>
+		/// <param name="timeout">(int, optional, default=0) Time in milliseconds to wait for a response. 0 indicates no timeout.</param>
+		/// <returns>Returns the current block on timeout or exit</returns>
+		public async Task<BlockInfo> WaitForBlockAsync(uint256 blockhash, long timeout=0)
+		{
+			var resp = await SendCommandAsync(RPCOperations.waitforblock, blockhash.ToString(), timeout).ConfigureAwait(false);
+			return new BlockInfo{ 
+				Height = int.Parse(resp.Result["height"].ToString()),
+				Hash = uint256.Parse(resp.Result["hash"].ToString())
+			};
+		}
+
 		public uint256[] GetRawMempool()
 		{
 			var result = SendCommand(RPCOperations.getrawmempool);
@@ -1406,7 +1435,7 @@ namespace NBitcoin.RPC
 		public uint256[] Generate(int nBlocks)
 		{
 			return GenerateAsync(nBlocks).GetAwaiter().GetResult();
-		}
+		}		
 	}
 
 #if !NOSOCKET
@@ -1531,6 +1560,11 @@ namespace NBitcoin.RPC
 	}
 #endif
 
+	public class BlockInfo
+	{
+		public int Height { get; internal set; }
+		public uint256 Hash { get; internal set; }
+	}
 	public class NoEstimationException : Exception
 	{
 		public NoEstimationException(int nblock)
