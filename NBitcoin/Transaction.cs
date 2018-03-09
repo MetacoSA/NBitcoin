@@ -1697,9 +1697,10 @@ namespace NBitcoin
 
 		public bool IsFinal(ChainedBlock block)
 		{
-			AssertHasHeader();
 			if(block == null)
 				return IsFinal(Utils.UnixTimeToDateTime(0), 0);
+			if(block.Header == null)
+				throw new InvalidOperationException("ChainedBlock.Header must be available");
 			return IsFinal(block.Header.BlockTime, block.Height);
 		}
 		public bool IsFinal(DateTimeOffset blockTime, int blockHeight)
