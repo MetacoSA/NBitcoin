@@ -23,6 +23,7 @@ namespace NBitcoin
 				var h = phashBlock;
 				if(h == null)
 				{
+					AssertHasHeader();
 					h = Header.GetHash();
 					phashBlock = h;
 				}
@@ -38,6 +39,14 @@ namespace NBitcoin
 		{
 			phashBlock = null;
 			_ChainWork = null;
+		}
+
+		/// <summary>
+		/// Strip the Header to free up memory
+		/// </summary>
+		public void StripHeader()
+		{
+			header = null;
 		}
 
 		// pointer to the index of the predecessor of this block
@@ -162,6 +171,7 @@ namespace NBitcoin
 		static BigInteger Pow256 = BigInteger.ValueOf(2).Pow(256);
 		private BigInteger GetBlockProof()
 		{
+			AssertHasHeader();
 			var bnTarget = Header.Bits.ToBigInteger();
 			if(bnTarget.CompareTo(BigInteger.Zero) <= 0 || bnTarget.CompareTo(Pow256) >= 0)
 				return BigInteger.Zero;
@@ -300,8 +310,14 @@ namespace NBitcoin
 			return new ChainedBlock(block, block.GetHash(), this).GetWorkRequired(consensus);
 		}
 
+		private void AssertHasHeader()
+		{
+			if(header == null)
+				throw new InvalidOperationException("ChainedBlock.Header must be available");
+		}
 		public Target GetWorkRequired(Consensus consensus)
 		{
+			AssertHasHeader();
 			// Genesis block
 			if(Height == 0)
 				return consensus.PowLimit;
@@ -350,7 +366,7 @@ namespace NBitcoin
 			ChainedBlock pindexFirst = this.EnumerateToGenesis().FirstOrDefault(o => o.Height == pastHeight);
 			assert(pindexFirst);
 			if(consensus.PowNoRetargeting)
-				return pindexLast.header.Bits;
+				return pindexLast.Header.Bits;
 
 			// Limit adjustment step
 			var nActualTimespan = pindexLast.Header.BlockTime - pindexFirst.Header.BlockTime;
@@ -374,6 +390,7 @@ namespace NBitcoin
 		const int nMedianTimeSpan = 11;
 		public DateTimeOffset GetMedianTimePast()
 		{
+			AssertHasHeader();
 			DateTimeOffset[] pmedian = new DateTimeOffset[nMedianTimeSpan];
 			int pbegin = nMedianTimeSpan;
 			int pend = nMedianTimeSpan;
@@ -412,6 +429,7 @@ namespace NBitcoin
 		/// <returns>True if PoW is correct</returns>
 		public bool Validate(Consensus consensus)
 		{
+			AssertHasHeader();
 			if(consensus == null)
 				throw new ArgumentNullException("consensus");
 			if(Height != 0 && Previous == null)
@@ -430,6 +448,7 @@ namespace NBitcoin
 
 		public bool CheckProofOfWorkAndTarget(Consensus consensus)
 		{
+			AssertHasHeader();
 			return Height == 0 || (Header.CheckProofOfWork(consensus) && Header.Bits == GetWorkRequired(consensus));
 		}
 
