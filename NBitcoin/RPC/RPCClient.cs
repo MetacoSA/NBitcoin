@@ -1416,7 +1416,7 @@ namespace NBitcoin.RPC
 		/// <param name="blockhash">the hash of the block to mark as invalid</param>
 		public void InvalidateBlock(uint256 blockhash)
 		{
-			SendCommand(RPCOperations.invalidateblock, blockhash.ToString()).ConfigureAwait(false);
+			SendCommand(RPCOperations.invalidateblock, blockhash.ToString());
 		}
 
 		/// <summary>
