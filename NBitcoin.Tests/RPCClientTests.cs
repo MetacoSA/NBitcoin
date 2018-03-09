@@ -740,6 +740,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(tip, bestBlockHash);
 
 				rpc.InvalidateBlock(bestBlockHash);
+				tip = rpc.GetBestBlockHash();
 				Assert.NotEqual(tip, bestBlockHash);
 
 				bestBlockHash = generatedBlockHashes.First();
