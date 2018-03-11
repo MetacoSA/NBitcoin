@@ -725,6 +725,30 @@ namespace NBitcoin.Tests
 				AssertJsonEquals(tx.ToString(RawFormat.Satoshi), tx2.ToString(RawFormat.Satoshi));
 			}
 		}
+
+		[Fact]
+		public void InvalidateBlockToRPC()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				var generatedBlockHashes = rpc.Generate(2);
+				var tip = rpc.GetBestBlockHash();
+
+				var bestBlockHash = generatedBlockHashes.Last();
+				Assert.Equal(tip, bestBlockHash);
+
+				rpc.InvalidateBlock(bestBlockHash);
+				tip = rpc.GetBestBlockHash();
+				Assert.NotEqual(tip, bestBlockHash);
+
+				bestBlockHash = generatedBlockHashes.First();
+				Assert.Equal(tip, bestBlockHash);
+			}
+		}
+
+
 		[Fact]
 		public void CanUseBatchedRequests()
 		{

@@ -96,6 +96,7 @@ namespace NBitcoin.RPC
 		gettxoutsetinfo,
 		gettxout,
 		verifychain,
-		getchaintips
+		getchaintips,
+		invalidateblock
 	}
 }

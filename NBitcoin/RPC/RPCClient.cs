@@ -76,16 +76,16 @@ namespace NBitcoin.RPC
 		rawtransactions	fundrawtransaction
 
 		------------------ Utility functions
-		util			   createmultisig
-		util			   validateaddress
-		util			   verifymessage
-		util			   estimatefee				  Yes
-		util			   estimatesmartfee			  Yes
+		util			createmultisig
+		util			validateaddress
+		util			verifymessage
+		util			estimatefee				  Yes
+		util			estimatesmartfee			  Yes
 		------------------ Not shown in help
-		hidden			 invalidateblock
-		hidden			 reconsiderblock
-		hidden			 setmocktime
-		hidden			 resendwallettransactions
+		hidden			invalidateblock				Yes
+		hidden			reconsiderblock
+		hidden			setmocktime
+		hidden			resendwallettransactions
 
 		------------------ Wallet
 		wallet			 addmultisigaddress
@@ -1407,6 +1407,28 @@ namespace NBitcoin.RPC
 		{
 			return GenerateAsync(nBlocks).GetAwaiter().GetResult();
 		}
+
+#region Region Hidden Methods
+
+		/// <summary>
+		/// Permanently marks a block as invalid, as if it violated a consensus rule.
+		/// </summary>
+		/// <param name="blockhash">the hash of the block to mark as invalid</param>
+		public void InvalidateBlock(uint256 blockhash)
+		{
+			SendCommand(RPCOperations.invalidateblock, blockhash.ToString());
+		}
+
+		/// <summary>
+		/// Permanently marks a block as invalid, as if it violated a consensus rule.
+		/// </summary>
+		/// <param name="blockhash">the hash of the block to mark as invalid</param>
+		public async Task InvalidateBlockAsync(uint256 blockhash)
+		{
+			await SendCommandAsync(RPCOperations.invalidateblock, blockhash.ToString()).ConfigureAwait(false);
+		}
+
+#endregion
 	}
 
 #if !NOSOCKET
