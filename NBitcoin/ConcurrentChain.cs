@@ -13,6 +13,28 @@ namespace NBitcoin
 	/// </summary>
 	public class ConcurrentChain : ChainBase
 	{
+		public class ChainSerializationFormat
+		{
+			public ChainSerializationFormat()
+			{
+				SerializePrecomputedBlockHash = true;
+				SerializeBlockHeader = true;
+			}
+			public bool SerializePrecomputedBlockHash
+			{
+				get; set;
+			}
+			public bool SerializeBlockHeader
+			{
+				get; set;
+			}
+
+			internal void AssertCoherent()
+			{
+				if(!SerializePrecomputedBlockHash && !SerializeBlockHeader)
+					throw new InvalidOperationException("The ChainSerializationFormat is invalid, SerializePrecomputedBlockHash or SerializeBlockHeader shoudl be true");
+			}
+		}
 		Dictionary<uint256, ChainedBlock> _BlocksById = new Dictionary<uint256, ChainedBlock>();
 		Dictionary<int, ChainedBlock> _BlocksByHeight = new Dictionary<int, ChainedBlock>();
 		ReaderWriterLock @lock = new ReaderWriterLock();
@@ -34,23 +56,42 @@ namespace NBitcoin
 			}
 		}
 
-		public ConcurrentChain(byte[] bytes)
+		public ConcurrentChain(byte[] bytes) : this(bytes, null)
 		{
-			Load(bytes);
+		}
+		public ConcurrentChain(byte[] bytes, ChainSerializationFormat format)
+		{
+			Load(bytes, format);
+		}
+
+		public void Load(byte[] chain, ChainSerializationFormat format)
+		{
+			Load(new MemoryStream(chain), format);
 		}
 
 		public void Load(byte[] chain)
 		{
-			Load(new MemoryStream(chain));
+			Load(new MemoryStream(chain), null);
 		}
 
+		public void Load(Stream stream, ChainSerializationFormat format)
+		{
+			Load(new BitcoinStream(stream, false), format);
+		}
 		public void Load(Stream stream)
 		{
-			Load(new BitcoinStream(stream, false));
+			Load(new BitcoinStream(stream, false), null);
 		}
 
 		public void Load(BitcoinStream stream)
 		{
+			Load(stream, null);
+		}
+		public void Load(BitcoinStream stream, ChainSerializationFormat format)
+		{
+			format = format ?? new ChainSerializationFormat();
+			format.AssertCoherent();
+			var genesis = this.Genesis;
 			using(@lock.LockWrite())
 			{
 				try
@@ -59,18 +100,25 @@ namespace NBitcoin
 					while(true)
 					{
 						uint256.MutableUint256 id = null;
-						stream.ReadWrite<uint256.MutableUint256>(ref id);
+						if(format.SerializePrecomputedBlockHash)
+							stream.ReadWrite<uint256.MutableUint256>(ref id);
 						BlockHeader header = null;
-						stream.ReadWrite(ref header);
+						if(format.SerializeBlockHeader)
+							stream.ReadWrite(ref header);
 						if(height == 0)
 						{
 							_BlocksByHeight.Clear();
 							_BlocksById.Clear();
 							_Tip = null;
-							SetTipNoLock(new ChainedBlock(header, 0));
+							if(header != null && genesis != null && header.GetHash() != genesis.HashBlock)
+							{
+								throw new InvalidOperationException("Unexpected genesis block");
+							}
+							SetTipNoLock(new ChainedBlock(genesis?.Header ?? header, 0));
 						}
-						else if(_Tip.HashBlock == header.HashPrevBlock && !(header.IsNull && header.Nonce == 0))
-							SetTipNoLock(new ChainedBlock(header, id.Value, Tip));
+						else if(!format.SerializeBlockHeader || 
+								(_Tip.HashBlock == header.HashPrevBlock && !(header.IsNull && header.Nonce == 0)))
+							SetTipNoLock(new ChainedBlock(header, id?.Value, Tip));
 						else
 							break;
 						height++;
@@ -91,18 +139,31 @@ namespace NBitcoin
 
 		public void WriteTo(Stream stream)
 		{
-			WriteTo(new BitcoinStream(stream, true));
+			WriteTo(stream, null);
+		}
+		public void WriteTo(Stream stream, ChainSerializationFormat format)
+		{
+			WriteTo(new BitcoinStream(stream, true), format);
 		}
 
 		public void WriteTo(BitcoinStream stream)
 		{
+			WriteTo(stream, null);
+		}
+
+		public void WriteTo(BitcoinStream stream, ChainSerializationFormat format)
+		{
+			format = format ?? new ChainSerializationFormat();
+			format.AssertCoherent();
 			using(@lock.LockRead())
 			{
 				for(int i = 0; i < Tip.Height + 1; i++)
 				{
 					var block = GetBlockNoLock(i);
-					stream.ReadWrite(block.HashBlock.AsBitcoinSerializable());
-					stream.ReadWrite(block.Header);
+					if(format.SerializePrecomputedBlockHash)
+						stream.ReadWrite(block.HashBlock.AsBitcoinSerializable());
+					if(format.SerializeBlockHeader)
+						stream.ReadWrite(block.Header);
 				}
 			}
 		}

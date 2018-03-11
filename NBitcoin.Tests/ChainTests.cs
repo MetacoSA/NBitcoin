@@ -239,7 +239,69 @@ namespace NBitcoin.Tests
 				Assert.True(h.Validate(Network.Main));
 			}
 		}
-		
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanPersistMainchain()
+		{
+			var main = new ConcurrentChain(LoadMainChain());
+			MemoryStream ms = new MemoryStream();
+			main.WriteTo(ms);	
+			ms.Position = 0;
+			main.SetTip(main.Genesis);
+			main.Load(ms);
+			Assert.True(main.Tip.HasHeader);
+
+			var original = main;
+
+			foreach(var options in new[]{
+				new ConcurrentChain.ChainSerializationFormat()
+				{
+					SerializeBlockHeader = true,
+					SerializePrecomputedBlockHash = true,
+				},
+				new ConcurrentChain.ChainSerializationFormat()
+				{
+					SerializeBlockHeader = true,
+					SerializePrecomputedBlockHash = false,
+				},
+				new ConcurrentChain.ChainSerializationFormat()
+				{
+					SerializeBlockHeader = false,
+					SerializePrecomputedBlockHash = true,
+				}
+			})
+			{
+				main = new ConcurrentChain();
+				main.SetTip(original.Tip);
+				ms = new MemoryStream();
+				main.WriteTo(ms, options);
+				ms.Position = 0;
+				main.SetTip(main.Genesis);
+				main.Load(ms, options);
+				Assert.Equal(options.SerializeBlockHeader, main.Tip.HasHeader);
+				if(main.Tip.HasHeader)
+				{
+					Assert.True(main.Tip.TryGetHeader(out var unused));
+				}
+				else
+				{
+					Assert.False(main.Tip.TryGetHeader(out var unused));
+					Assert.Throws<InvalidOperationException>(() => main.Tip.Header);
+				}
+				Assert.Equal(original.Tip.HashBlock, main.Tip.HashBlock);
+			}
+
+			Assert.Throws<InvalidOperationException>(() =>
+			{
+				main.WriteTo(new MemoryStream(), new ConcurrentChain.ChainSerializationFormat()
+				{
+					SerializeBlockHeader = false,
+					SerializePrecomputedBlockHash = false,
+				});
+			});
+		}
+
 		private byte[] LoadMainChain()
 		{
 			if(!File.Exists("MainChain1.dat"))

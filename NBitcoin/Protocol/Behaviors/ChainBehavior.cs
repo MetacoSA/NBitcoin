@@ -27,6 +27,14 @@ namespace NBitcoin.Protocol.Behaviors
 		}
 
 		/// <summary>
+		/// If true, the Chain maintained by the behavior with have its ChainedBlock with no Header (default: false)
+		/// </summary>
+		public bool StripHeader
+		{
+			get; set;
+		}
+
+		/// <summary>
 		/// If true, skip PoW checks (default: false)
 		/// </summary>
 		public bool SkipPoWCheck
@@ -116,7 +124,7 @@ namespace NBitcoin.Protocol.Behaviors
 			}
 
 			var getheaders = message.Message.Payload as GetHeadersPayload;
-			if(getheaders != null && CanRespondToGetHeaders)
+			if(getheaders != null && CanRespondToGetHeaders && !StripHeader)
 			{
 				HeadersPayload headers = new HeadersPayload();
 				var highestPow = SharedState.HighestValidatedPoW;
@@ -166,6 +174,8 @@ namespace NBitcoin.Protocol.Behaviors
 				if(SkipPoWCheck || _PendingTip.GetChainWork(true) > Chain.Tip.GetChainWork(true))
 				{
 					Chain.SetTip(_PendingTip);
+					if(StripHeader)
+						_PendingTip.StripHeader();
 				}
 
 				var chainedPendingTip = Chain.GetBlock(_PendingTip.HashBlock);
@@ -329,6 +339,7 @@ namespace NBitcoin.Protocol.Behaviors
 				CanRespondToGetHeaders = CanRespondToGetHeaders,
 				AutoSync = AutoSync,
 				SkipPoWCheck = SkipPoWCheck,
+				StripHeader = StripHeader,
 				_State = _State
 			};
 			return clone;

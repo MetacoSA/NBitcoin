@@ -2362,65 +2362,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void Play2()
-		{
-			BitcoinSecret secret = new BitcoinSecret("L5AQtV2HDm4xGsseLokK2VAT2EtYKcTm3c7HwqnJBFt9LdaQULsM");
-			var all = GetCombinaisons().ToArray();
-			while(true)
-			{
-				Utils.Shuffle(all);
-				if(((uint)all[0].SigHash & 0x1f) != (uint)SigHash.All)
-					break;
-			}
-			int i = 0;
-			Transaction tx = new Transaction();
-			List<ICoin> coins = new List<ICoin>();
-			foreach(var combinaison in all)
-			{
-				var scriptPubKey = combinaison.Segwit ? secret.PubKey.WitHash.ScriptPubKey : secret.PubKey.Hash.ScriptPubKey;
-				ICoin coin = new Coin(
-								new uint256("0000000000000000000000000000000000000000000000000000000000000100"), (uint)i,
-								Money.Satoshis(1000 + i), scriptPubKey);
-				tx.Inputs.Add(new TxIn(coin.Outpoint));
-				tx.AddOutput(new TxOut(Money.Satoshis(1000 + i), new Script(OpcodeType.OP_TRUE)));
-				coins.Add(coin);
-				i++;
-			}
-
-			TransactionBuilder builder2 = new TransactionBuilder();
-			builder2.SetTransactionPolicy(new StandardTransactionPolicy()
-			{
-				CheckFee = false,
-				MinRelayTxFee = null,
-				CheckScriptPubKey = false
-			});
-			builder2.AddCoins(coins.ToArray());
-			builder2.AddKeys(secret);
-			builder2.SignTransactionInPlace(tx);
-			var verified = builder2.Verify(tx);
-
-			StringBuilder output = new StringBuilder();
-			output.Append("[\"Transaction mixing all SigHash and segwit and non segwit inputs");
-
-			output.Append("\"],");
-			output.AppendLine();
-			WriteTest(output, coins.OfType<Coin>().ToList(), tx);
-
-
-			//var scriptPubKey = new Script(OpcodeType.OP_16, Op.GetPushOp(new byte[] { 0, 1 }));
-			//ICoin coin1 = new Coin(
-			//					new uint256("0000000000000000000000000000000000000000000000000000000000000100"), 0,
-			//					Money.Satoshis(1000), scriptPubKey);
-			//Transaction tx = new Transaction();
-			//tx.Inputs.Add(new TxIn(coin1.Outpoint)
-			//{
-			//	ScriptSig = new Script(OpcodeType.OP_1)
-			//});
-			//tx.Outputs.Add(new TxOut(Money.Zero, new Script(OpcodeType.OP_TRUE)));
-			//var verified = tx.Inputs.AsIndexedInputs().First().VerifyScript(coin1, ScriptVerify.P2SH | ScriptVerify.Witness);
-		}
-
-		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCacheHashes()
 		{

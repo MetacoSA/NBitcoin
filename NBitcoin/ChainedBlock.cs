@@ -74,10 +74,36 @@ namespace NBitcoin
 
 		BlockHeader header;
 
+		/// <summary>
+		/// Returns true if this ChainedBlock has the underlying header
+		/// </summary>
+		public bool HasHeader
+		{
+			get
+			{
+				return header != null;
+			}
+		}
+
+		/// <summary>
+		/// Get the BlockHeader
+		/// </summary>
+		/// <param name="header">The block header</param>
+		/// <returns>True if this ChainedBlock has block header</returns>
+		public bool TryGetHeader(out BlockHeader header)
+		{
+			header = this.header;
+			return header != null;
+		}
+
+		/// <summary>
+		/// Get the underlying block header, throws if the Header is not present.
+		/// </summary>
 		public BlockHeader Header
 		{
 			get
 			{
+				AssertHasHeader();
 				return header;
 			}
 		}
@@ -106,7 +132,7 @@ namespace NBitcoin
 			return Target.ToUInt256(GetChainWorkValue(cacheResult));
 		}
 
-		
+
 		private BigInteger GetChainWorkValue(bool cacheResult)
 		{
 			var chainWork = _ChainWork;
@@ -145,8 +171,10 @@ namespace NBitcoin
 
 		public ChainedBlock(BlockHeader header, uint256 headerHash, ChainedBlock previous)
 		{
-			if(header == null)
-				throw new ArgumentNullException("header");
+			if(header == null && headerHash == null)
+			{
+				throw new ArgumentException(message: "At least, either header or headerHash should be different from null");
+			}
 			if(previous != null)
 			{
 				nHeight = previous.Height + 1;
@@ -156,15 +184,18 @@ namespace NBitcoin
 			this.header = header;
 			this.phashBlock = headerHash ?? header.GetHash();
 
-			if(previous == null)
+			if(header != null)
 			{
-				if(header.HashPrevBlock != uint256.Zero)
-					throw new ArgumentException("Only the genesis block can have no previous block");
-			}
-			else
-			{
-				if(previous.HashBlock != header.HashPrevBlock)
-					throw new ArgumentException("The previous block has not the expected hash");
+				if(previous == null)
+				{
+					if(header.HashPrevBlock != uint256.Zero)
+						throw new ArgumentException("Only the genesis block can have no previous block");
+				}
+				else
+				{
+					if(previous.HashBlock != header.HashPrevBlock)
+						throw new ArgumentException("The previous block has not the expected hash");
+				}
 			}
 		}
 
