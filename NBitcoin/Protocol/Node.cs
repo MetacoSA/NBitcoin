@@ -1178,6 +1178,20 @@ namespace NBitcoin.Protocol
 
 		internal TimeSpan PollHeaderDelay = TimeSpan.FromMinutes(1.0);
 
+
+		/// <summary>
+		/// Get the chain of headers from the peer (thread safe)
+		/// </summary>
+		/// <param name="options">The synchronization chain options</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>The chain of headers</returns>
+		public ConcurrentChain GetChain(SynchronizeChainOptions options, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			ConcurrentChain chain = new ConcurrentChain(Network);
+			SynchronizeChain(chain, options, cancellationToken);
+			return chain;
+		}
+
 		/// <summary>
 		/// Get the chain of headers from the peer (thread safe)
 		/// </summary>
@@ -1186,10 +1200,9 @@ namespace NBitcoin.Protocol
 		/// <returns>The chain of headers</returns>
 		public ConcurrentChain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			ConcurrentChain chain = new ConcurrentChain(Network);
-			SynchronizeChain(chain, hashStop, cancellationToken);
-			return chain;
+			return GetChain(new SynchronizeChainOptions() { HashStop = hashStop }, cancellationToken);
 		}
+
 		public IEnumerable<ChainedBlock> GetHeadersFromFork(ChainedBlock currentTip,
 														SynchronizeChainOptions options,
 														CancellationToken cancellationToken = default(CancellationToken))

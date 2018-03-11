@@ -533,6 +533,9 @@ namespace NBitcoin.Tests
 				{
 					Assert.Equal(600, c.Height);
 				}
+
+				var chainNoHeader = node.GetChain(new SynchronizeChainOptions() { SkipPoWCheck = true, StripHeaders = true });
+				Assert.False(chainNoHeader.Tip.HasHeader);
 			}
 		}
 
