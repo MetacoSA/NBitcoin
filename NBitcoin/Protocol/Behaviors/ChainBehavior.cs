@@ -171,7 +171,14 @@ namespace NBitcoin.Protocol.Behaviors
 					}
 					_PendingTip = tip;
 				}
-				if(SkipPoWCheck || _PendingTip.GetChainWork(true) > Chain.Tip.GetChainWork(true))
+
+				bool isHigherBlock = false;
+				if(SkipPoWCheck)
+					isHigherBlock = _PendingTip.Height > Chain.Tip.Height;
+				else
+					isHigherBlock = _PendingTip.GetChainWork(true) > Chain.Tip.GetChainWork(true);
+
+				if(isHigherBlock)
 				{
 					Chain.SetTip(_PendingTip);
 					if(StripHeader)

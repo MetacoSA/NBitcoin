@@ -46,7 +46,6 @@ namespace NBitcoin.Protocol
 			Advertize = other.Advertize;
 			ReuseBuffer = other.ReuseBuffer;
 			PreferredTransactionOptions = other.PreferredTransactionOptions;
-			SkipPoWCheck = other.SkipPoWCheck;
 			foreach(var behavior in other.TemplateBehaviors)
 			{
 				TemplateBehaviors.Add(behavior.Clone());
@@ -60,14 +59,6 @@ namespace NBitcoin.Protocol
 		{
 			get;
 			set;
-		}
-
-		/// <summary>
-		/// If true, skip PoW checks for SynchronizeChain and GetChain (default: false)
-		/// </summary>
-		public bool SkipPoWCheck
-		{
-			get; set;
 		}
 
 		public ProtocolVersion Version
