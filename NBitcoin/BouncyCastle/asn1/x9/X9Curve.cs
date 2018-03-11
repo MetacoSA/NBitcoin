@@ -10,7 +10,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
      * ASN.1 def for Elliptic-Curve Curve structure. See
      * X9.62, for further details.
      */
-	internal class X9Curve
+	public class X9Curve
 		: Asn1Encodable
 	{
 		private readonly ECCurve curve;

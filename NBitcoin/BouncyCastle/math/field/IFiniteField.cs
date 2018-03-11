@@ -1,6 +1,6 @@
 ﻿namespace NBitcoin.BouncyCastle.Math.Field
 {
-	internal interface IFiniteField
+	public interface IFiniteField
 	{
 		BigInteger Characteristic
 		{

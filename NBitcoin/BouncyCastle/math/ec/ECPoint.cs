@@ -7,7 +7,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 	/**
      * base class for points on elliptic curves.
      */
-	internal abstract class ECPoint
+	public abstract class ECPoint
 	{
 		protected static ECFieldElement[] EMPTY_ZS = new ECFieldElement[0];
 

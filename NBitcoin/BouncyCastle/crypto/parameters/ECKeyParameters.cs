@@ -4,7 +4,7 @@ using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Crypto.Parameters
 {
-	internal abstract class ECKeyParameters
+	public abstract class ECKeyParameters
 		: AsymmetricKeyParameter
 	{
 		private static readonly string[] algorithms = { "EC", "ECDSA", "ECDH", "ECDHC", "ECGOST3410", "ECMQV" };

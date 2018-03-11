@@ -6,7 +6,7 @@ using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Math.EC
 {
-	internal abstract class ECFieldElement
+	public abstract class ECFieldElement
 	{
 		public abstract BigInteger ToBigInteger();
 		public abstract string FieldName
