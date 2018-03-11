@@ -15,7 +15,7 @@
         <Version Condition=" '$(Version)' == '' ">4.0.0.64</Version>
     </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;netstandard1.1</TargetFrameworks>
     <NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -24,12 +24,6 @@
     <Optimize>true</Optimize>
     <DocumentationFile>bin\Release\NBitcoin.XML</DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
-    <DefineConstants>$(DefineConstants);WIN</DefineConstants>
-  </PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-		<DefineConstants>$(DefineConstants);WIN;LEGACY_X509</DefineConstants>
-	</PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION</DefineConstants>
   </PropertyGroup>

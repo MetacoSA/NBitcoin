@@ -6,12 +6,9 @@
 		<Description>The C# Bitcoin Library</Description>
 	</PropertyGroup>
   <PropertyGroup>
-	  <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+	  <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
 	  <NoWarn>CS0618</NoWarn>
   </PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
-		<DefineConstants>$(DefineConstants);WIN</DefineConstants>
-	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
 		<DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER</DefineConstants>
 	</PropertyGroup>
