@@ -51,14 +51,14 @@ namespace NBitcoin
 				count = data.Length;
 			if(count != KEY_SIZE)
 			{
-				throw new FormatException($"The size of an EC key should be {KEY_SIZE}");
+				throw new ArgumentException(paramName:"data", message: $"The size of an EC key should be {KEY_SIZE}");
 			}
 			if(Check(data))
 			{
 				SetBytes(data, count, fCompressedIn);
 			}
 			else
-				throw new FormatException("Invalid EC key");
+				throw new ArgumentException(paramName: "data", message: "Invalid EC key");
 		}
 
 		private void SetBytes(byte[] data, int count, bool fCompressedIn)
@@ -70,7 +70,7 @@ namespace NBitcoin
 
 		private static bool Check(byte[] vch)
 		{
-			var candidateKey = new uint256(vch.SafeSubarray(0, KEY_SIZE));
+			var candidateKey = new uint256(vch.SafeSubarray(0, KEY_SIZE), false);
 			return candidateKey > 0 && candidateKey < N;
 		}
 
