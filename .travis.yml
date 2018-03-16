@@ -1,9 +1,17 @@
 language: csharp
 mono: none
-dotnet: 2.0.0
 
 notifications:
   email: false
+
+matrix:
+  include:
+    - os: linux 
+      dist: trusty # Ubuntu 14.04
+      dotnet: 2.0.0
+    - os: osx
+      dotnet: 2.0.0
+      osx_image: xcode8.1 # dotnet requires at least this version
 
 addons:
   apt:
@@ -13,12 +21,6 @@ addons:
     packages:
     - apt-transport-https
     - dotnet-sdk-2.1.2
-
-matrix:
-  include:
-    - os: linux
-      dist: trusty     
-    - os: osx
 
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update; fi
