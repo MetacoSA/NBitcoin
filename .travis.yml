@@ -1,0 +1,20 @@
+language: csharp
+mono: none
+dotnet: 2.0.0
+
+notifications:
+  email: false
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty     
+    - os: osx
+
+before_install:
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update fi
+  - if [ $TRAVIS_OS_NAME = osx ]; then ulimit -S -n 4096; fi
+
+script:
+  - dotnet build -c Release -f netcoreapp2.0
+  - dotnet test --no-build -c Release -f netcoreapp2.0 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false
