@@ -841,10 +841,10 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseBlockJSON()
 		{
-			var jobj = JObject.Parse(File.ReadAllText("Data/blocks/Block1.json"));
+			var jobj = JObject.Parse(File.ReadAllText("data/blocks/Block1.json"));
 			var array = (JArray)jobj["mrkl_tree"];
 			var expected = array.OfType<JValue>().Select(v => uint256.Parse(v.ToString())).ToList();
-			var block = Block.ParseJson(File.ReadAllText("Data/blocks/Block1.json"));
+			var block = Block.ParseJson(File.ReadAllText("data/blocks/Block1.json"));
 			Assert.Equal("000000000000000040cd080615718eb68f00a0138706e7afd4068f3e08d4ca20", block.GetHash().ToString());
 			Assert.True(block.CheckMerkleRoot());
 		}
