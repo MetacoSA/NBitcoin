@@ -12,7 +12,7 @@ matrix:
     - os: osx
 
 before_install:
-  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update fi
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update; fi
   - if [ $TRAVIS_OS_NAME = osx ]; then ulimit -S -n 4096; fi
 
 script:
