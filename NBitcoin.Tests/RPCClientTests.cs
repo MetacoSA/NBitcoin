@@ -821,7 +821,7 @@ namespace NBitcoin.Tests
 			}
 		}
 #endif
-#if !NOSOCKET
+#if !NOSOCKET && WIN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseIpEndpoint()
@@ -864,8 +864,8 @@ namespace NBitcoin.Tests
 				rpc.GetBlockCount();
 				node.Restart();
 				rpc.GetBlockCount();
-				Assert.Throws<ArgumentException>(() => new RPCClient("cookiefile=Data\\tx_valid.json", new Uri("http://localhost/"), Network.RegTest));
-				Assert.Throws<FileNotFoundException>(() => new RPCClient("cookiefile=Data\\efpwwie.json", new Uri("http://localhost/"), Network.RegTest));
+				Assert.Throws<ArgumentException>(() => new RPCClient("cookiefile=data/tx_valid.json", new Uri("http://localhost/"), Network.RegTest));
+				Assert.Throws<FileNotFoundException>(() => new RPCClient("cookiefile=data/efpwwie.json", new Uri("http://localhost/"), Network.RegTest));
 
 				rpc = new RPCClient("bla:bla", null as Uri, Network.RegTest);
 				Assert.Equal("http://127.0.0.1:" + Network.RegTest.RPCPort + "/", rpc.Address.AbsoluteUri);

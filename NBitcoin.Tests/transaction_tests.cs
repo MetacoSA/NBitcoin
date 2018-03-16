@@ -3075,7 +3075,7 @@ namespace NBitcoin.Tests
 				{
 					CheckFee = false,
 					MinRelayTxFee = null,
-#if !NOCONSENSUSLIB
+#if !NOCONSENSUSLIB && WIN
 					UseConsensusLib = false,
 #endif
 					CheckScriptPubKey = false

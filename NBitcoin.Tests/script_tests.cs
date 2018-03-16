@@ -380,7 +380,7 @@ namespace NBitcoin.Tests
 			ScriptError actual;
 			Script.VerifyScript(scriptSig, scriptPubKey, spendingTransaction, 0, amount, flags, SigHash.Undefined, out actual);
 			Assert.True(expectedError == actual, "Test : " + testIndex + " " + comment);			
-#if !NOCONSENSUSLIB
+#if !NOCONSENSUSLIB && WIN
 			var ok = Script.VerifyScriptConsensus(scriptPubKey, spendingTransaction, 0, amount, flags);
 			Assert.True(ok == (expectedError == ScriptError.OK), "[ConsensusLib] Test : " + testIndex + " " + comment);
 #endif
@@ -389,7 +389,7 @@ namespace NBitcoin.Tests
 
 		private void EnsureHasLibConsensus()
 		{
-#if !NOCONSENSUSLIB
+#if !NOCONSENSUSLIB && WIN
 			string environment = RuntimeInformation.ProcessArchitecture == Architecture.X64 ? "x64" : "x86";
 			if(File.Exists(Script.LibConsensusDll))
 			{
@@ -406,7 +406,7 @@ namespace NBitcoin.Tests
 			File.WriteAllBytes(Script.LibConsensusDll, libConsensus);
 #endif
 		}
-#if !NOCONSENSUSLIB
+#if !NOCONSENSUSLIB && WIN
 		private bool CheckHashConsensus(byte[] bytes, string env)
 		{
 			//from bitcoin-0.13.1 rc2
@@ -767,7 +767,7 @@ namespace NBitcoin.Tests
 		private void AssertInvalidScript(Script scriptPubKey, Transaction tx, int n, ScriptVerify verify)
 		{
 			Assert.False(Script.VerifyScript(scriptPubKey, tx, n, null, flags));
-#if !NOCONSENSUSLIB
+#if !NOCONSENSUSLIB && WIN
 			Assert.False(Script.VerifyScriptConsensus(scriptPubKey, tx, (uint)n, flags));
 #endif
 		}
@@ -775,7 +775,7 @@ namespace NBitcoin.Tests
 		private void AssertValidScript(Script scriptPubKey, Transaction tx, int n, ScriptVerify verify)
 		{
 			Assert.True(Script.VerifyScript(scriptPubKey, tx, n, null, flags));
-#if !NOCONSENSUSLIB
+#if !NOCONSENSUSLIB && WIN
 			Assert.True(Script.VerifyScriptConsensus(scriptPubKey, tx, (uint)n, flags));
 #endif
 		}
