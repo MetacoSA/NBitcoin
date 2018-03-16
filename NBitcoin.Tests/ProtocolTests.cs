@@ -136,7 +136,16 @@ namespace NBitcoin.Tests
 		//Copied from https://en.bitcoin.it/wiki/Protocol_specification (19/04/2014)
 		public void CanParseMessages()
 		{
-			var EST = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+			TimeZoneInfo EST;
+			try
+			{
+				EST = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+			}
+			catch (TimeZoneNotFoundException)
+			{
+				EST = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
+			}
+
 			var tests = new[]
 				{
 					new
