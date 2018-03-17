@@ -19,4 +19,4 @@ before_install:
 
 script:
   - dotnet build -c Release -f netcoreapp2.0
-  - travis_wait dotnet test --no-build -c Release -f netcoreapp2.0 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false
+  - dotnet test --no-build -c Release -f netcoreapp2.0 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false
