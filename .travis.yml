@@ -4,6 +4,10 @@ mono: none
 notifications:
   email: false
 
+branches:
+  only:
+    - master
+
 matrix:
   include:
     - os: linux 
