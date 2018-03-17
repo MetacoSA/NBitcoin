@@ -716,18 +716,19 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
-		public void CanDownloadBlock()
+		public async Task CanDownloadBlockAsync()
 		{
 			using(var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode(true).CreateNodeClient();
 				node.VersionHandshake();
-				node.SendMessageAsync(new GetDataPayload(new InventoryVector()
+				await node.SendMessageAsync(new GetDataPayload(new InventoryVector()
 				{
 					Hash = Network.RegTest.GenesisHash,
 					Type = InventoryType.MSG_BLOCK
 				}));
-
+				await Task.Delay(100);
+				
 				var block = node.ReceiveMessage<BlockPayload>();
 				Assert.True(block.Object.CheckMerkleRoot());
 			}
