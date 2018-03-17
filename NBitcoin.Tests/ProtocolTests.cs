@@ -714,25 +714,26 @@ namespace NBitcoin.Tests
 			Assert.True(reject.Hash == uint256.Parse("964182ffbcec5fafd8f33594b17d6aad4937ff1c59f699e91af44fda94967a57"));
 		}
 
+#if WIN
 		[Fact]
 		[Trait("Protocol", "Protocol")]
-		public async Task CanDownloadBlockAsync()
+		public void CanDownloadBlock()
 		{
 			using(var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode(true).CreateNodeClient();
 				node.VersionHandshake();
-				await node.SendMessageAsync(new GetDataPayload(new InventoryVector()
+				node.SendMessageAsync(new GetDataPayload(new InventoryVector()
 				{
 					Hash = Network.RegTest.GenesisHash,
 					Type = InventoryType.MSG_BLOCK
 				}));
-				await Task.Delay(100);
 				
 				var block = node.ReceiveMessage<BlockPayload>();
 				Assert.True(block.Object.CheckMerkleRoot());
 			}
 		}
+#endif 
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
