@@ -13,19 +13,10 @@ matrix:
       dotnet: 2.1.2
       osx_image: xcode8.3 # dotnet requires at least this version
 
-#addons:
-#  apt:
-#    sources:
-#    - sourceline: 'deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-trusty-prod trusty main'
-#      key_url: 'https://packages.microsoft.com/keys/microsoft.asc'
-#    packages:
-#    - apt-transport-https
-#    - dotnet-sdk-2.1.2
-
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update; fi
   - if [ $TRAVIS_OS_NAME = osx ]; then ulimit -S -n 4096; fi
 
 script:
   - dotnet build -c Release -f netcoreapp2.0
-  - dotnet test --no-build -c Release -f netcoreapp2.0 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false
+  - travis_wait dotnet test --no-build -c Release -f netcoreapp2.0 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false
