@@ -1059,11 +1059,7 @@ namespace NBitcoin
 
 #if !NOCONSENSUSLIB
 
-#if WIN
-		public const string LibConsensusDll = "libbitcoinconsensus-0.dll";
-#else
-		public const string LibConsensusDll = "libbitcoinconsensus.so";
-#endif
+		public const string LibConsensusDll = "libbitcoinconsensus";
 		public enum BitcoinConsensusError
 		{
 			ERR_OK = 0,
