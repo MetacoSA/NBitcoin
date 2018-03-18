@@ -147,7 +147,7 @@ namespace NBitcoin.Tests
 			var hashes = fileLines
 				.Skip(3)
 				.TakeWhile(x=> !x.StartsWith("-----")) 
-				.Select(x=>x.Split("  "))
+				.Select(x=>x.Split(new string[]{"  "}, StringSplitOptions.None))
 				.ToDictionary(x=> x[1], x=>x[0]);
 
 			var fileName = Path.GetFileName(compressedFilePath);
