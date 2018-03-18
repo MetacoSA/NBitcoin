@@ -401,13 +401,17 @@ namespace NBitcoin.Tests
 			{
 				libConsensusDll = "libbitcoinconsensus-0.dll";
 			}
+			else if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+			{
+				libConsensusDll = "libbitcoinconsensus.0.dylib";
+			}
 			else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 			{
 				libConsensusDll = "libbitcoinconsensus.so";
 			}
 			else
 			{
-				libConsensusDll = "libbitcoinconsensus.0.dylib";
+				throw new NotSupportedException("Unknown operating system");
 			}
 
 			var bitcoinBinFolderPath = Path.GetDirectoryName(NodeBuilder.EnsureDownloaded("0.15.1"));
