@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Runtime.InteropServices;
+using NBitcoin.Crypto;
 
 namespace NBitcoin.Tests
 {
@@ -79,6 +80,7 @@ namespace NBitcoin.Tests
 		{
 			version = version ?? "0.15.1";
 			var path = EnsureDownloaded(version);
+
 			try
 			{
 				Directory.Delete(caller, true);
@@ -90,7 +92,7 @@ namespace NBitcoin.Tests
 			return new NodeBuilder(caller, path);
 		}
 
-		private static string EnsureDownloaded(string version)
+		internal static string EnsureDownloaded(string version)
 		{
 			//is a file
 			if (version.Length >= 2 && version[1] == ':')
@@ -111,6 +113,8 @@ namespace NBitcoin.Tests
 				HttpClient client = new HttpClient();
 				client.Timeout = TimeSpan.FromMinutes(10.0);
 				var data = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
+
+				VerifyBinary(zip, data);
 				File.WriteAllBytes(zip, data);
 				ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
 			}
@@ -128,11 +132,31 @@ namespace NBitcoin.Tests
 				HttpClient client = new HttpClient();
 				client.Timeout = TimeSpan.FromMinutes(10.0);
 				var data = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
+
+				VerifyBinary(zip, data);
 				File.WriteAllBytes(zip, data);
 				Process.Start("tar", "-zxvf " + zip + " -C " + dataDir).WaitForExit();
 			}
 			File.Delete(zip);
 			return bitcoind;
+		}		
+
+		private static void VerifyBinary(string compressedFilePath, byte[] bytes)
+		{
+			var fileLines = File.ReadAllLines("data/SHA256SUMS.asc");
+			var hashes = fileLines
+				.Skip(3)
+				.TakeWhile(x=> !x.StartsWith("-----"))
+				.Select(x=>x.Split("  "))
+				.ToDictionary(x=> x[1], x=>x[0]);
+
+			var fileName = Path.GetFileName(compressedFilePath);
+			var isValid = hashes.ContainsKey(fileName) && hashes[fileName] == Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
+
+			if(!isValid)
+			{
+				throw new InvalidDataException("Downloaded Bitcoin Core node couldn't be verified");
+			}
 		}
 
 
