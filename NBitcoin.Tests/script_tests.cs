@@ -375,9 +375,6 @@ namespace NBitcoin.Tests
 				flags |= ScriptVerify.Witness;
 				flags |= ScriptVerify.P2SH;
 			}
-
-			// Bitcoin Core Consensus Library doesn't accept StrictEnc
-			flags &= ~ScriptVerify.StrictEnc;
 			
 			var creditingTransaction = CreateCreditingTransaction(scriptPubKey, amount);
 			var spendingTransaction = CreateSpendingTransaction(wit, scriptSig, creditingTransaction);
