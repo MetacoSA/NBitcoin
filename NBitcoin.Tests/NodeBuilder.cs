@@ -146,7 +146,7 @@ namespace NBitcoin.Tests
 			var fileLines = File.ReadAllLines("data/SHA256SUMS.asc");
 			var hashes = fileLines
 				.Skip(3)
-				.TakeWhile(x=> !x.StartsWith("-----"))
+				.TakeWhile(x=> !x.StartsWith("-----")) 
 				.Select(x=>x.Split("  "))
 				.ToDictionary(x=> x[1], x=>x[0]);
 
