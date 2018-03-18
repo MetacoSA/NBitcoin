@@ -396,8 +396,22 @@ namespace NBitcoin.Tests
 				return;
 			}
 
+			string libConsensusDll = null;
+			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				libConsensusDll = "libbitcoinconsensus-0.dll";
+			}
+			else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+			{
+				libConsensusDll = "libbitcoinconsensus.so";
+			}
+			else
+			{
+				libConsensusDll = "libbitcoinconsensus.0.dylib";
+			}
+
 			var bitcoinBinFolderPath = Path.GetDirectoryName(NodeBuilder.EnsureDownloaded("0.15.1"));
-			var libConsensusPath = Path.Combine(bitcoinBinFolderPath, "../lib", Script.LibConsensusDll);
+			var libConsensusPath = Path.Combine(bitcoinBinFolderPath, "../lib", libConsensusDll);
 
 			File.Copy(libConsensusPath, Script.LibConsensusDll);
 #endif
