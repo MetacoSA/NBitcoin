@@ -375,12 +375,16 @@ namespace NBitcoin.Tests
 				flags |= ScriptVerify.Witness;
 				flags |= ScriptVerify.P2SH;
 			}
+
+			// Bitcoin Core Consensus Library doesn't accept StrictEnc
+			flags &= ~ScriptVerify.StrictEnc;
+			
 			var creditingTransaction = CreateCreditingTransaction(scriptPubKey, amount);
 			var spendingTransaction = CreateSpendingTransaction(wit, scriptSig, creditingTransaction);
 			ScriptError actual;
 			Script.VerifyScript(scriptSig, scriptPubKey, spendingTransaction, 0, amount, flags, SigHash.Undefined, out actual);
 			Assert.True(expectedError == actual, "Test : " + testIndex + " " + comment);			
-#if !NOCONSENSUSLIB && WIN
+#if !NOCONSENSUSLIB
 			var ok = Script.VerifyScriptConsensus(scriptPubKey, spendingTransaction, 0, amount, flags);
 			Assert.True(ok == (expectedError == ScriptError.OK), "[ConsensusLib] Test : " + testIndex + " " + comment);
 #endif
@@ -389,39 +393,18 @@ namespace NBitcoin.Tests
 
 		private void EnsureHasLibConsensus()
 		{
-#if !NOCONSENSUSLIB && WIN
-			string environment = RuntimeInformation.ProcessArchitecture == Architecture.X64 ? "x64" : "x86";
+#if !NOCONSENSUSLIB
 			if(File.Exists(Script.LibConsensusDll))
 			{
-				var bytes = File.ReadAllBytes(Script.LibConsensusDll);
-				if(CheckHashConsensus(bytes, environment))
-					return;
+				return;
 			}
-			HttpClient client = new HttpClient();
-			var libConsensus = client.GetByteArrayAsync("https://aois.blob.core.windows.net/public/libbitcoinconsensus/" + environment + "/libbitcoinconsensus-0.dll").Result;
-			if(!CheckHashConsensus(libConsensus, environment))
-			{
-				throw new InvalidOperationException("Downloaded consensus li has wrong hash");
-			}
-			File.WriteAllBytes(Script.LibConsensusDll, libConsensus);
+
+			var bitcoinBinFolderPath = Path.GetDirectoryName(NodeBuilder.EnsureDownloaded("0.15.1"));
+			var libConsensusPath = Path.Combine(bitcoinBinFolderPath, "../lib", Script.LibConsensusDll);
+
+			File.Copy(libConsensusPath, Script.LibConsensusDll);
 #endif
 		}
-#if !NOCONSENSUSLIB && WIN
-		private bool CheckHashConsensus(byte[] bytes, string env)
-		{
-			//from bitcoin-0.13.1 rc2
-			if(env == "x86")
-			{
-				var actualHash = Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
-				return actualHash == "1b812e2dad7bf041d16b51654aab029cf547b858d6415456c89f0fd5566a4706";
-			}
-			else
-			{
-				var actualHash = Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
-				return actualHash == "eb099bf52e57add12bb8ec28f10fdfd15f1e066604948c68ea52b69a0d5d32b8";
-			}
-		}
-#endif
 
 		private static Transaction CreateSpendingTransaction(WitScript wit, Script scriptSig, Transaction creditingTransaction)
 		{
@@ -767,7 +750,7 @@ namespace NBitcoin.Tests
 		private void AssertInvalidScript(Script scriptPubKey, Transaction tx, int n, ScriptVerify verify)
 		{
 			Assert.False(Script.VerifyScript(scriptPubKey, tx, n, null, flags));
-#if !NOCONSENSUSLIB && WIN
+#if !NOCONSENSUSLIB
 			Assert.False(Script.VerifyScriptConsensus(scriptPubKey, tx, (uint)n, flags));
 #endif
 		}
@@ -775,7 +758,7 @@ namespace NBitcoin.Tests
 		private void AssertValidScript(Script scriptPubKey, Transaction tx, int n, ScriptVerify verify)
 		{
 			Assert.True(Script.VerifyScript(scriptPubKey, tx, n, null, flags));
-#if !NOCONSENSUSLIB && WIN
+#if !NOCONSENSUSLIB
 			Assert.True(Script.VerifyScriptConsensus(scriptPubKey, tx, (uint)n, flags));
 #endif
 		}

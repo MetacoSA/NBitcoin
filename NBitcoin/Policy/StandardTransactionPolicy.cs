@@ -54,7 +54,7 @@ namespace NBitcoin.Policy
 			get;
 			set;
 		}
-#if !NOCONSENSUSLIB && WIN
+#if !NOCONSENSUSLIB
 		public bool UseConsensusLib
 		{
 			get;
@@ -177,11 +177,11 @@ namespace NBitcoin.Policy
 
 		private bool VerifyScript(IndexedTxIn input, Script scriptPubKey, Money value, ScriptVerify scriptVerify, out ScriptError error)
 		{
-#if !NOCONSENSUSLIB && WIN
+#if !NOCONSENSUSLIB
 			if(!UseConsensusLib)
 #endif
 				return input.VerifyScript(scriptPubKey, value, scriptVerify, out error);
-#if !NOCONSENSUSLIB && WIN
+#if !NOCONSENSUSLIB
 			else
 			{
 				var ok = Script.VerifyScriptConsensus(scriptPubKey, input.Transaction, input.Index, scriptVerify);
@@ -210,7 +210,7 @@ namespace NBitcoin.Policy
 				MaxTxFee = MaxTxFee,
 				MinRelayTxFee = MinRelayTxFee,
 				ScriptVerify = ScriptVerify,
-#if !NOCONSENSUSLIB && WIN
+#if !NOCONSENSUSLIB
 				UseConsensusLib = UseConsensusLib,
 #endif
 				CheckMalleabilitySafe = CheckMalleabilitySafe,
