@@ -391,10 +391,6 @@ namespace NBitcoin.Tests
 		private void EnsureHasLibConsensus()
 		{
 #if !NOCONSENSUSLIB
-			if(File.Exists(Script.LibConsensusDll))
-			{
-				return;
-			}
 
 			string libConsensusDll = null;
 			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -417,7 +413,7 @@ namespace NBitcoin.Tests
 			var bitcoinBinFolderPath = Path.GetDirectoryName(NodeBuilder.EnsureDownloaded("0.15.1"));
 			var libConsensusPath = Path.Combine(bitcoinBinFolderPath, "../lib", libConsensusDll);
 
-			File.Copy(libConsensusPath, Script.LibConsensusDll);
+			File.Copy(libConsensusPath, Script.LibConsensusDll, overwrite:true);
 #endif
 		}
 
