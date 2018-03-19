@@ -413,7 +413,9 @@ namespace NBitcoin.Tests
 			var bitcoinBinFolderPath = Path.GetDirectoryName(NodeBuilder.EnsureDownloaded("0.15.1"));
 			var libConsensusPath = Path.Combine(bitcoinBinFolderPath, "../lib", libConsensusDll);
 
-			File.Copy(libConsensusPath, Script.LibConsensusDll, overwrite:true);
+			if (File.Exists(Script.LibConsensusDll))
+				return;
+			File.Copy(libConsensusPath, Script.LibConsensusDll, overwrite:false);
 #endif
 		}
 
