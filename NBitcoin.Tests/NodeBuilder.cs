@@ -106,7 +106,9 @@ namespace NBitcoin.Tests
 				bitcoind = Path.Combine(dataDir,$"bitcoin-{version}", "bin", "bitcoind.exe");
 				if (File.Exists(bitcoind))
 					return bitcoind;
-				zip = Path.Combine(dataDir, $"bitcoin-{version}-win32.zip");
+				var environment = RuntimeInformation.ProcessArchitecture == Architecture.X64 ? "win64" : "win32";
+
+				zip = Path.Combine(dataDir, $"bitcoin-{version}-{environment}.zip");
 				string url = string.Format("https://bitcoin.org/bin/bitcoin-core-{0}/" + Path.GetFileName(zip), version);
 				HttpClient client = new HttpClient();
 				client.Timeout = TimeSpan.FromMinutes(10.0);
