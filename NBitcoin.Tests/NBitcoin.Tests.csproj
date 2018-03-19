@@ -13,7 +13,7 @@
 		<DefineConstants>$(DefineConstants);WIN</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
-		<DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER;NOCONSENSUSLIB</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -34,9 +34,9 @@
 		<PackageReference Include="System.Globalization.Extensions" Version="4.3.0" />
 		<PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
 		<PackageReference Include="System.Threading.Tasks.Parallel" Version="4.3.0" />
-		<PackageReference Include="System.Threading.Thread" Version="4.3.0" />		
+		<PackageReference Include="System.Threading.Thread" Version="4.3.0" />
 	</ItemGroup>
-	
+
   <ItemGroup>
     <None Include="App.config" />
     <None Include="data\.cookie">
