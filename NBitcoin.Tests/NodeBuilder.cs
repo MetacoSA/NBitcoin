@@ -16,7 +16,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
-using System.Runtime.InteropServices;
 
 namespace NBitcoin.Tests
 {
@@ -93,50 +92,32 @@ namespace NBitcoin.Tests
 		private static string EnsureDownloaded(string version)
 		{
 			//is a file
-			if (version.Length >= 2 && version[1] == ':')
+			if(version.Length >= 2 && version[1] == ':')
 			{
 				return version;
 			}
 
-			var dataDir = ".";
-			string zip;
-			string bitcoind;
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			{
-				bitcoind = Path.Combine(dataDir,$"bitcoin-{version}", "bin", "bitcoind.exe");
-				if (File.Exists(bitcoind))
-					return bitcoind;
-				var environment = RuntimeInformation.ProcessArchitecture == Architecture.X64 ? "win64" : "win32";
+			var bitcoind = String.Format("bitcoin-{0}/bin/bitcoind.exe", version);
+			if(File.Exists(bitcoind))
+				return bitcoind;
+			var zip = String.Format("bitcoin-{0}-win32.zip", version);
+			string url = String.Format("https://bitcoin.org/bin/bitcoin-core-{0}/" + zip, version);
 
-				zip = Path.Combine(dataDir, $"bitcoin-{version}-{environment}.zip");
-				string url = string.Format("https://bitcoin.org/bin/bitcoin-core-{0}/" + Path.GetFileName(zip), version);
-				HttpClient client = new HttpClient();
-				client.Timeout = TimeSpan.FromMinutes(10.0);
-				var data = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
-				File.WriteAllBytes(zip, data);
+			HttpClient client = new HttpClient();
+			client.Timeout = TimeSpan.FromMinutes(5.0);
+			var bytes = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
+			File.WriteAllBytes(zip, bytes);
+
+			try
+			{
 				ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
 			}
-			else
+			catch(IOException)
 			{
-				bitcoind = Path.Combine(dataDir, $"bitcoin-{version}", "bin", "bitcoind");
-				if (File.Exists(bitcoind))
-					return bitcoind;
-
-				zip = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ?
-					Path.Combine(dataDir, $"bitcoin-{version}-x86_64-linux-gnu.tar.gz")
-					: Path.Combine(dataDir, $"bitcoin-{version}-osx64.tar.gz");
-
-				string url = string.Format("https://bitcoin.org/bin/bitcoin-core-{0}/" + Path.GetFileName(zip), version);
-				HttpClient client = new HttpClient();
-				client.Timeout = TimeSpan.FromMinutes(10.0);
-				var data = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
-				File.WriteAllBytes(zip, data);
-				Process.Start("tar", "-zxvf " + zip + " -C " + dataDir).WaitForExit();
+				//The file probably already exist, continue
 			}
-			File.Delete(zip);
 			return bitcoind;
 		}
-
 
 		int last = 0;
 		private string _Root;
