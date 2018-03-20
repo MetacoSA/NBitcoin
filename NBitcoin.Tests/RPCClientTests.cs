@@ -146,6 +146,29 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		public void CanRBFTransaction()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+				node.CreateRPCClient().Generate(101);
+
+				var key = new Key();
+				var address = key.PubKey.GetAddress(rpc.Network);
+
+				var txid = rpc.SendToAddress(address, Money.Coins(2), null, null, false, true);
+				var txbumpid = rpc.BumpFee(txid);
+				var blocks = rpc.Generate(1); 
+
+				var block = rpc.GetBlock(blocks.First());
+				Assert.False( block.Transactions.Any(x=>x.GetHash() == txid) );
+				Assert.True( block.Transactions.Any(x=>x.GetHash() == txbumpid.TransactionId) );
+			}
+		}
+
 
 		[Fact]
 		public async Task CanGetBlockchainInfo()
@@ -234,6 +257,7 @@ namespace NBitcoin.Tests
 				Assert.False(getTxOutResponse.IsCoinBase);
 			}
 		}
+
 
 		[Fact]
 		public void EstimateSmartFee()

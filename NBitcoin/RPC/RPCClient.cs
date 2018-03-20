@@ -1197,6 +1197,23 @@ namespace NBitcoin.RPC
 			return SendCommandAsync(RPCOperations.sendrawtransaction, Encoders.Hex.EncodeData(bytes));
 		}
 
+		public BumpResponse BumpFee(uint256 txid)
+		{
+			return BumpFeeAsync(txid).GetAwaiter().GetResult();
+		}
+
+		public async Task<BumpResponse> BumpFeeAsync(uint256 txid)
+		{
+			var response = await SendCommandAsync(RPCOperations.bumpfee, txid.ToString());
+			var o = response.Result;
+			return new BumpResponse{
+				TransactionId = uint256.Parse((string)o["txid"]),
+				OriginalFee = (ulong)o["origfee"],
+				Fee = (ulong)o["fee"],
+				Errors = o["errors"].Select(x=>(string)x).ToList()
+			};
+		}
+
 		#endregion
 
 		#region Utility functions
@@ -1405,12 +1422,21 @@ namespace NBitcoin.RPC
 		/// <param name="amount">The amount to spend</param>
 		/// <param name="commentTx">A locally-stored (not broadcast) comment assigned to this transaction. Default is no comment</param>
 		/// <param name="commentDest">A locally-stored (not broadcast) comment assigned to this transaction. Meant to be used for describing who the payment was sent to. Default is no comment</param>
+		/// <param name="subtractFeeFromAmount">The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. </param>
+		/// <param name="replaceable">Allow this transaction to be replaced by a transaction with higher fees. </param>
 		/// <returns>The TXID of the sent transaction</returns>
-		public uint256 SendToAddress(BitcoinAddress address, Money amount, string commentTx = null, string commentDest = null)
+		public uint256 SendToAddress(
+			BitcoinAddress address, 
+			Money amount, 
+			string commentTx = null, 
+			string commentDest = null,
+			bool subtractFeeFromAmount = false,
+			bool replaceable = false
+		)
 		{
 			uint256 txid = null;
 
-			txid = SendToAddressAsync(address, amount, commentTx, commentDest).GetAwaiter().GetResult();
+			txid = SendToAddressAsync(address, amount, commentTx, commentDest, subtractFeeFromAmount, replaceable).GetAwaiter().GetResult();
 			return txid;
 		}
 
@@ -1646,6 +1672,14 @@ namespace NBitcoin.RPC
 
 	
 #endif
+
+	public class BumpResponse
+	{
+		public uint256 TransactionId { get; set; }
+		public ulong OriginalFee { get; set; }
+		public ulong Fee { get; set; }
+		public List<string> Errors { get; set; }
+	}
 
 	public class NoEstimationException : Exception
 	{
