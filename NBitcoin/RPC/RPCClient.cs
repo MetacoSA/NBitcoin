@@ -1633,6 +1633,8 @@ namespace NBitcoin.RPC
 			get; internal set;
 		}
 	}
+	
+#endif
 
 	public class BlockchainInfo
 	{
@@ -1669,9 +1671,6 @@ namespace NBitcoin.RPC
 		public List<SoftFork> SoftForks { get; set; } 
 		public List<Bip9SoftFork> Bip9SoftForks { get; set; }
 	}
-
-	
-#endif
 
 	public class BumpResponse
 	{
