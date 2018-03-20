@@ -1421,16 +1421,25 @@ namespace NBitcoin.RPC
 		/// <param name="amount">The amount to spend</param>
 		/// <param name="commentTx">A locally-stored (not broadcast) comment assigned to this transaction. Default is no comment</param>
 		/// <param name="commentDest">A locally-stored (not broadcast) comment assigned to this transaction. Meant to be used for describing who the payment was sent to. Default is no comment</param>
+		/// <param name="subtractFeeFromAmount">The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. </param>
+		/// <param name="replaceable">Allow this transaction to be replaced by a transaction with higher fees. </param>
 		/// <returns>The TXID of the sent transaction</returns>
-		public async Task<uint256> SendToAddressAsync(BitcoinAddress address, Money amount, string commentTx = null, string commentDest = null)
+		public async Task<uint256> SendToAddressAsync(
+			BitcoinAddress address, 
+			Money amount, 
+			string commentTx = null, 
+			string commentDest = null, 
+			bool subtractFeeFromAmount = false,
+			bool replaceable = false
+			)
 		{
 			List<object> parameters = new List<object>();
 			parameters.Add(address.ToString());
 			parameters.Add(amount.ToString());
-			if(commentTx != null)
-				parameters.Add(commentTx);
-			if(commentDest != null)
-				parameters.Add(commentDest);
+			parameters.Add($"{commentTx}");
+			parameters.Add($"{commentDest}");
+			parameters.Add(subtractFeeFromAmount);
+			parameters.Add(replaceable);
 			var resp = await SendCommandAsync(RPCOperations.sendtoaddress, parameters.ToArray()).ConfigureAwait(false);
 			return uint256.Parse(resp.Result.ToString());
 		}
