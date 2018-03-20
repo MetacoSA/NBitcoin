@@ -39,7 +39,7 @@ namespace NBitcoin.RPC
 		network			clearbanned
 
 		------------------ Block chain and UTXO
-		blockchain		 getblockchaininfo
+		blockchain		 getblockchaininfo			Yes
 		blockchain		 getbestblockhash			 Yes
 		blockchain		 getblockcount				Yes
 		blockchain		 getblock					 Yes
@@ -883,6 +883,53 @@ namespace NBitcoin.RPC
 
 #region Block chain and UTXO
 
+		public async Task<BlockchainInfo> GetBlockchainInfoAsync()
+		{
+			var response = await SendCommandAsync(RPCOperations.getblockchaininfo).ConfigureAwait(false);
+			var result = response.Result;
+
+			var epochToDtateTimeOffset = new Func<ulong, DateTimeOffset>(epoch=>{
+				try{
+					return Utils.UnixTimeToDateTime(epoch);
+				}catch(OverflowException){
+					return DateTimeOffset.MaxValue;
+				}
+			});
+
+			var blockchainInfo = new BlockchainInfo
+			{
+				Chain = Network.GetNetwork(result.Value<string>("chain")),
+				Blocks = result.Value<ulong>("blocks"),
+				Headers = result.Value<ulong>("headers"),
+				BestBlockHash = new uint256(result.Value<string>("bestblockhash")), // the block hash
+				Difficulty = result.Value<ulong>("difficulty"),
+				MedianTime = result.Value<ulong>("mediantime"),
+				VerificationProgress = result.Value<float>("verificationprogress"),
+				InitialBlockDownload = result.Value<bool>("initialblockdownload"),
+				ChainWork = new uint256(result.Value<string>("chainwork")), 
+				SizeOnDisk = result.Value<ulong>("size_on_disk"),
+				Pruned = result.Value<bool>("pruned"),
+				SoftForks = result["softforks"].Select(x=> 
+					new BlockchainInfo.SoftFork {
+						Bip = (string)(x["id"]),
+						Version = (int)(x["version"]),
+						RejectStatus = bool.Parse((string)(x["reject"]["status"]))
+					}).ToList(),
+				Bip9SoftForks = result["bip9_softforks"].Select(x=> {
+					var o = x.First();
+					return new BlockchainInfo.Bip9SoftFork {
+						Name = ((JProperty)x).Name,
+						Status = (string)o["status"],
+						StartTime = epochToDtateTimeOffset((ulong)o["startTime"]),
+						Timeout =   epochToDtateTimeOffset((ulong)o["timeout"]),
+						SinceHeight =  (ulong)o["since"],
+					};
+					}).ToList()
+			};
+
+			return blockchainInfo;
+		}
+
 		public uint256 GetBestBlockHash()
 		{
 			return uint256.Parse((string)SendCommand(RPCOperations.getbestblockhash).Result);
@@ -1551,6 +1598,44 @@ namespace NBitcoin.RPC
 			get; internal set;
 		}
 	}
+
+	public class BlockchainInfo
+	{
+		public class SoftFork
+		{
+			public string Bip { get; set; }
+			public int Version { get; set; }
+			public bool RejectStatus { get; set; }
+		}
+
+		public class Bip9SoftFork
+		{
+			public string Name { get; set; }
+			public string Status { get; set; }
+			public DateTimeOffset StartTime { get; set; }
+			public DateTimeOffset Timeout { get; set; }
+			public ulong SinceHeight { get; set; }
+			
+		}
+		
+		public Network Chain { get; set; }
+		public ulong Blocks { get; set; }
+		public ulong Headers { get; set; }
+		public uint256 BestBlockHash { get; set; }
+		public ulong Difficulty { get; set; }
+		public ulong MedianTime { get; set; }
+
+		public float VerificationProgress { get; set; }
+		public bool InitialBlockDownload { get; set; }
+		public uint256 ChainWork { get; set; }
+		public ulong SizeOnDisk { get; set; }
+		public bool Pruned { get; set; }
+
+		public List<SoftFork> SoftForks { get; set; } 
+		public List<Bip9SoftFork> Bip9SoftForks { get; set; }
+	}
+
+	
 #endif
 
 	public class NoEstimationException : Exception

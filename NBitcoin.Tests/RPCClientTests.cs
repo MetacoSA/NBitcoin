@@ -146,6 +146,26 @@ namespace NBitcoin.Tests
 			}
 		}
 
+
+		[Fact]
+		public async Task CanGetBlockchainInfo()
+		{
+			using(var builder = NodeBuilder.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				var response = await rpc.GetBlockchainInfoAsync();
+
+				Assert.Equal(Network.RegTest, response.Chain);
+				Assert.Equal(Network.RegTest.GetGenesis().GetHash(), response.BestBlockHash);
+				Assert.True(response.Bip9SoftForks.Any(x=>x.Name == "segwit"));
+				Assert.True(response.Bip9SoftForks.Any(x=>x.Name == "csv"));
+				Assert.True(response.SoftForks.Any(x=>x.Bip == "bip34"));
+				Assert.True(response.SoftForks.Any(x=>x.Bip == "bip65"));
+				Assert.True(response.SoftForks.Any(x=>x.Bip == "bip66"));
+			}
+		}
+
 		[Fact]
 		public void CanGetBlockFromRPC()
 		{
