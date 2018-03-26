@@ -236,7 +236,7 @@ namespace NBitcoin
 		}
 
 		private Func<BlockHeader, uint256> _GetPoWHash = h => h.GetHash();
-
+		[Obsolete]
 		public Func<BlockHeader, uint256> GetPoWHash
 		{
 			get

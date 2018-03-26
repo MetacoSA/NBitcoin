@@ -12,6 +12,14 @@ using System.Linq;
 
 namespace NBitcoin
 {
+	public class BlockHeaderFactory
+	{
+		public BlockHeader CreateNewBlockHeader()
+		{
+			return new BlockHeader();
+		}
+	}
+
 	/// <summary>
 	/// Nodes collect new transactions into a block, hash them into a hash tree,
 	/// and scan through nonce values to make the block's hash satisfy proof-of-work
@@ -138,7 +146,7 @@ namespace NBitcoin
 		}
 #region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public virtual void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref nVersion);
 			stream.ReadWrite(ref hashPrevBlock);
@@ -150,7 +158,7 @@ namespace NBitcoin
 
 #endregion
 
-		public uint256 GetHash()
+		public virtual uint256 GetHash()
 		{
 			uint256 h = null;
 			var hashes = _Hashes;
