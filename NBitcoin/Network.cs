@@ -551,6 +551,7 @@ namespace NBitcoin
 			consensus._MinimumChainWork = _MinimumChainWork;
 			consensus.GetPoWHash = GetPoWHash;
 			consensus._CoinType = CoinType;
+			consensus.BlockHeaderFactory = _BlockHeaderFactory;
 			consensus._LitecoinWorkCalculation = _LitecoinWorkCalculation;
 		}
 	}
