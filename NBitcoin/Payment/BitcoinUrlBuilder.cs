@@ -223,7 +223,7 @@ namespace NBitcoin.Payment
 					builder.Append("&");
 				builder.Append(parameter.Key);
 				builder.Append("=");
-				builder.Append(HttpUtility.UrlEncode(parameter.Value));
+				builder.Append(System.Web.NBitcoin.HttpUtility.UrlEncode(parameter.Value));
 			}
 		}
 

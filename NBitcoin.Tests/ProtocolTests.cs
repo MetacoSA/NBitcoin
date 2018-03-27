@@ -136,7 +136,16 @@ namespace NBitcoin.Tests
 		//Copied from https://en.bitcoin.it/wiki/Protocol_specification (19/04/2014)
 		public void CanParseMessages()
 		{
-			var EST = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+			TimeZoneInfo EST;
+			try
+			{
+				EST = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+			}
+			catch (TimeZoneNotFoundException)
+			{
+				EST = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
+			}
+
 			var tests = new[]
 				{
 					new
@@ -325,7 +334,7 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode(true).CreateNodeClient();
-				builder.Nodes[0].Generate(600);
+				builder.Nodes[0].CreateRPCClient().Generate(600);
 				var rpc = builder.Nodes[0].CreateRPCClient();
 				var chain = node.GetChain(rpc.GetBlockHash(500));
 				Assert.True(chain.Height == 500);
@@ -705,6 +714,7 @@ namespace NBitcoin.Tests
 			Assert.True(reject.Hash == uint256.Parse("964182ffbcec5fafd8f33594b17d6aad4937ff1c59f699e91af44fda94967a57"));
 		}
 
+#if WIN
 		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlock()
@@ -718,11 +728,12 @@ namespace NBitcoin.Tests
 					Hash = Network.RegTest.GenesisHash,
 					Type = InventoryType.MSG_BLOCK
 				}));
-
+				
 				var block = node.ReceiveMessage<BlockPayload>();
 				Assert.True(block.Object.CheckMerkleRoot());
 			}
 		}
+#endif 
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
