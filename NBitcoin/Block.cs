@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace NBitcoin
 {
@@ -38,6 +39,7 @@ namespace NBitcoin
 	public interface IBlockHeader<in TCoinStream> : ICoinSerializable<TCoinStream> where TCoinStream: ICoinStream
 	{
 		uint256 GetHash();
+		uint256 GetPoWHash();
 	}
 
 	/// <summary>
@@ -186,6 +188,12 @@ namespace NBitcoin
 
 		#endregion
 
+
+		public virtual uint256 GetPoWHash()
+		{
+			return GetHash();
+		}
+
 		public virtual uint256 GetHash()
 		{
 			uint256 h = null;
@@ -253,7 +261,7 @@ namespace NBitcoin
 			if (bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
 				return false;
 			// Check proof of work matches claimed amount
-			return GetHash() <= Bits.ToUInt256();
+			return GetPoWHash() <= Bits.ToUInt256();
 		}
 
 		[Obsolete]
@@ -262,7 +270,7 @@ namespace NBitcoin
 			return CheckProofOfWork();
 		}
 
-	
+
 		public override string ToString()
 		{
 			return GetHash().ToString();
