@@ -15,7 +15,7 @@
         <Version Condition=" '$(Version)' == '' ">4.0.0.65</Version>
     </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1</TargetFrameworks>
+    <TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.0</TargetFrameworks>
     <NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -30,6 +30,9 @@
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
 		<DefineConstants>$(DefineConstants);WIN;LEGACY_X509</DefineConstants>
 	</PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
+    <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOCONSENSUSLIB</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION</DefineConstants>
   </PropertyGroup>
@@ -40,7 +43,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />
 	  <PackageReference Include="System.Net.Http" Version="4.3.2" />
-    
+
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -57,7 +60,7 @@
     <Compile Include="..\Stubs\TraceStub\TraceSource.cs" />
   </ItemGroup>
 
-	
+
   <ItemGroup>
 	<None Update="BitcoinStream.Partial.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
