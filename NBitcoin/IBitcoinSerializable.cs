@@ -8,9 +8,17 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public interface IBitcoinSerializable
+	public interface ICoinStream
 	{
-		void ReadWrite(BitcoinStream stream);
+	}
+
+	public interface ICoinSerializable<in TCoinStream> where TCoinStream: ICoinStream
+	{
+		void ReadWrite(TCoinStream stream);
+	}
+
+	public interface IBitcoinSerializable: ICoinSerializable<BitcoinStream>
+	{
 	}
 
 	public static class BitcoinSerializableExtensions

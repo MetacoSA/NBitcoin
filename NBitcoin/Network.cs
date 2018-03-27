@@ -250,6 +250,20 @@ namespace NBitcoin
 			}
 		}
 
+		private IBlockHeaderFactory _BlockHeaderFactory = new BlockHeaderFactory();
+		public IBlockHeaderFactory BlockHeaderFactory
+		{
+			get
+			{
+				return _BlockHeaderFactory;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_BlockHeaderFactory = value;
+			}
+		}
+
 
 		int _MajorityEnforceBlockUpgrade;
 

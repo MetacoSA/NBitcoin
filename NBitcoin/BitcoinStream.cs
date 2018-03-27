@@ -48,7 +48,7 @@ namespace NBitcoin
 			}
 		}
 	}
-	public partial class BitcoinStream
+	public partial class BitcoinStream : ICoinStream
 	{
 		int _MaxArraySize = 1024 * 1024;
 		public int MaxArraySize

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public partial class BitcoinStream
+	public partial class BitcoinStream : ICoinStream
 	{
 		VarInt _VarInt = new VarInt(0);
 		

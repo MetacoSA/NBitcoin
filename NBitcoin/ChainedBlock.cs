@@ -480,7 +480,7 @@ namespace NBitcoin
 		public bool CheckProofOfWorkAndTarget(Consensus consensus)
 		{
 			AssertHasHeader();
-			return Height == 0 || (Header.CheckProofOfWork(consensus) && Header.Bits == GetWorkRequired(consensus));
+			return Height == 0 || (Header.CheckProofOfWork() && Header.Bits == GetWorkRequired(consensus));
 		}
 
 
