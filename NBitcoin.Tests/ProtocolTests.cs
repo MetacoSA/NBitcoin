@@ -334,7 +334,7 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilder.Create())
 			{
 				var node = builder.CreateNode(true).CreateNodeClient();
-				builder.Nodes[0].Generate(600);
+				builder.Nodes[0].CreateRPCClient().Generate(600);
 				var rpc = builder.Nodes[0].CreateRPCClient();
 				var chain = node.GetChain(rpc.GetBlockHash(500));
 				Assert.True(chain.Height == 500);
