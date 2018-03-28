@@ -9,37 +9,30 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 
 namespace NBitcoin
 {
-	public class BlockHeaderFactory: IBlockHeaderFactory
+	public class BlockHeaderFactory: IBlockHeaderFactory<BlockHeader>
 	{
-		public IBlockHeader<ICoinStream> CreateNewBlockHeader()
+		public BlockHeader CreateNewBlockHeader()
 		{
 			return new BlockHeader();
 		}
 
-		public IBlockHeader<ICoinStream> CreateNewBlockHeader(byte[] bytes)
+		public BlockHeader CreateNewBlockHeader(byte[] bytes)
 		{
 			return new BlockHeader(bytes);
 		}
 
-		public IBlockHeader<ICoinStream> CreateNewBlockHeader(string hex)
+		public BlockHeader CreateNewBlockHeader(string hex)
 		{
 			return new BlockHeader(hex);
 		}
 	}
 
-	public interface IBlockHeaderFactory
+	public interface IBlockHeaderFactory<out TBlockHeader> where TBlockHeader:BlockHeader
 	{
-		IBlockHeader<ICoinStream> CreateNewBlockHeader();
-	}
-
-	public interface IBlockHeader<in TCoinStream> : ICoinSerializable<TCoinStream> where TCoinStream: ICoinStream
-	{
-		uint256 GetHash();
-		uint256 GetPoWHash();
+		TBlockHeader CreateNewBlockHeader();
 	}
 
 	/// <summary>
@@ -50,7 +43,7 @@ namespace NBitcoin
 	/// in the block is a special one that creates a new coin owned by the creator
 	/// of the block.
 	/// </summary>
-	public class BlockHeader : IBitcoinSerializable, IBlockHeader<ICoinStream>
+	public class BlockHeader : IBitcoinSerializable
 	{
 		internal const int Size = 80;
 
@@ -168,13 +161,7 @@ namespace NBitcoin
 		}
 #region IBitcoinSerializable Members
 
-		public virtual void ReadWrite(ICoinStream stream)
-		{
-			var bitcoinStream = stream as BitcoinStream;
-			ReadWrite(bitcoinStream);
-		}
-
-		public void ReadWrite(BitcoinStream stream)
+		public virtual void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref nVersion);
 			stream.ReadWrite(ref hashPrevBlock);

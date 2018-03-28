@@ -235,8 +235,8 @@ namespace NBitcoin
 			}
 		}
 
-		private IBlockHeaderFactory _BlockHeaderFactory = new BlockHeaderFactory();
-		public IBlockHeaderFactory BlockHeaderFactory
+		private IBlockHeaderFactory<BlockHeader> _BlockHeaderFactory = new BlockHeaderFactory();
+		public IBlockHeaderFactory<BlockHeader> BlockHeaderFactory
 		{
 			get
 			{
