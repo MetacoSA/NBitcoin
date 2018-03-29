@@ -16,17 +16,32 @@ namespace NBitcoin
 	{
 		public BlockHeader CreateNewBlockHeader()
 		{
-			return new BlockHeader();
+			return new ConstructableBlockHeader();
 		}
 
 		public BlockHeader CreateNewBlockHeader(byte[] bytes)
 		{
-			return new BlockHeader(bytes);
+			return new ConstructableBlockHeader(bytes);
 		}
 
 		public BlockHeader CreateNewBlockHeader(string hex)
 		{
-			return new BlockHeader(hex);
+			return new ConstructableBlockHeader(hex);
+		}
+
+		private class ConstructableBlockHeader : BlockHeader
+		{
+			public ConstructableBlockHeader()
+			{
+				
+			}
+			public ConstructableBlockHeader(string hex) : base(hex)
+			{
+			}
+
+			public ConstructableBlockHeader(byte[] bytes) : base(bytes)
+			{
+			}
 		}
 	}
 
@@ -47,18 +62,23 @@ namespace NBitcoin
 	{
 		internal const int Size = 80;
 
-		public static BlockHeader Parse(string hex)
+		protected static BlockHeader Parse(string hex)
 		{
-			return new BlockHeader(Encoders.Hex.DecodeData(hex));
+			return new BlockHeader();
 		}
 
-		public BlockHeader(string hex)
+		protected BlockHeader()
+		{
+			SetNull();
+		}
+
+		protected BlockHeader(string hex)
 			: this(Encoders.Hex.DecodeData(hex))
 		{
 
 		}
 
-		public BlockHeader(byte[] bytes)
+		protected BlockHeader(byte[] bytes)
 		{
 			this.ReadWrite(bytes);
 		}
@@ -135,12 +155,6 @@ namespace NBitcoin
 				hashMerkleRoot = value;
 			}
 		}
-
-		public BlockHeader()
-		{
-			SetNull();
-		}
-
 
 		internal void SetNull()
 		{
