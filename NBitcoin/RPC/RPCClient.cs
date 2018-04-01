@@ -987,18 +987,18 @@ namespace NBitcoin.RPC
 		public BlockHeader GetBlockHeader(uint256 blockHash)
 		{
 			var resp = SendCommand("getblockheader", blockHash.ToString());
-			return ParseBlockHeader(resp);
+			return ParseBlockHeader(resp, Network.Consensus.BlockHeaderFactory.CreateNewBlockHeader());
 		}
 
 		public async Task<BlockHeader> GetBlockHeaderAsync(uint256 blockHash)
 		{
 			var resp = await SendCommandAsync("getblockheader", blockHash.ToString()).ConfigureAwait(false);
-			return ParseBlockHeader(resp);
+			return ParseBlockHeader(resp, Network.Consensus.BlockHeaderFactory.CreateNewBlockHeader());
 		}
 
-		private static BlockHeader ParseBlockHeader(RPCResponse resp)
+		private static BlockHeader ParseBlockHeader(RPCResponse resp, BlockHeader blockheader)
 		{
-			var header = new BlockHeader();
+			var header = blockheader;
 			header.Version = (int)resp.Result["version"];
 			header.Nonce = (uint)resp.Result["nonce"];
 			header.Bits = new Target(Encoders.Hex.DecodeData((string)resp.Result["bits"]));
