@@ -16,33 +16,21 @@ namespace NBitcoin
 	{
 		public BlockHeader CreateNewBlockHeader()
 		{
-			return new ConstructableBlockHeader();
+#pragma warning disable 618
+			return new BlockHeader();
+
 		}
 
 		public BlockHeader CreateNewBlockHeader(byte[] bytes)
 		{
-			return new ConstructableBlockHeader(bytes);
+			return new BlockHeader(bytes);
 		}
 
 		public BlockHeader CreateNewBlockHeader(string hex)
 		{
-			return new ConstructableBlockHeader(hex);
+			return new BlockHeader(hex);
 		}
-
-		private class ConstructableBlockHeader : BlockHeader
-		{
-			public ConstructableBlockHeader()
-			{
-				
-			}
-			public ConstructableBlockHeader(string hex) : base(hex)
-			{
-			}
-
-			public ConstructableBlockHeader(byte[] bytes) : base(bytes)
-			{
-			}
-		}
+#pragma warning restore 618
 	}
 
 	public interface IBlockHeaderFactory<out TBlockHeader> where TBlockHeader:BlockHeader
@@ -62,23 +50,27 @@ namespace NBitcoin
 	{
 		internal const int Size = 80;
 
-		protected static BlockHeader Parse(string hex)
+		[Obsolete("You should instantiate BlockHeader from BlockHeaderFactory.CreateNewBlockHeader")]
+		public static BlockHeader Parse(string hex)
 		{
 			return new BlockHeader();
 		}
 
-		protected BlockHeader()
+		[Obsolete("You should instantiate BlockHeader from BlockHeaderFactory.CreateNewBlockHeader")]
+		public BlockHeader()
 		{
 			SetNull();
 		}
 
-		protected BlockHeader(string hex)
+		[Obsolete("You should instantiate BlockHeader from BlockHeaderFactory.CreateNewBlockHeader")]
+		public BlockHeader(string hex)
 			: this(Encoders.Hex.DecodeData(hex))
 		{
 
 		}
 
-		protected BlockHeader(byte[] bytes)
+		[Obsolete("You should instantiate BlockHeader from BlockHeaderFactory.CreateNewBlockHeader")]
+		public BlockHeader(byte[] bytes)
 		{
 			this.ReadWrite(bytes);
 		}
