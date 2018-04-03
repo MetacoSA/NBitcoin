@@ -335,10 +335,13 @@ namespace NBitcoin
 
 	public class Block : IBitcoinSerializable
 	{
+		private static BlockHeaderFactory _blockHeaderFactory = new BlockHeaderFactory();
+
+		private BlockHeader header = _blockHeaderFactory.CreateNewBlockHeader();
+
 		//FIXME: it needs to be changed when Gavin Andresen increase the max block size. 
 		public const uint MAX_BLOCK_SIZE = 1000 * 1000;
 
-		BlockHeader header = new BlockHeader();
 		// network and disk
 		List<Transaction> vtx = new List<Transaction>();
 
