@@ -12,6 +12,32 @@ using System.Linq;
 
 namespace NBitcoin
 {
+	public class BlockHeaderFactory: IBlockHeaderFactory<BlockHeader>
+	{
+		public BlockHeader CreateNewBlockHeader()
+		{
+#pragma warning disable 618
+			return new BlockHeader();
+
+		}
+
+		public BlockHeader CreateNewBlockHeader(byte[] bytes)
+		{
+			return new BlockHeader(bytes);
+		}
+
+		public BlockHeader CreateNewBlockHeader(string hex)
+		{
+			return new BlockHeader(hex);
+		}
+#pragma warning restore 618
+	}
+
+	public interface IBlockHeaderFactory<out TBlockHeader> where TBlockHeader:BlockHeader
+	{
+		TBlockHeader CreateNewBlockHeader();
+	}
+
 	/// <summary>
 	/// Nodes collect new transactions into a block, hash them into a hash tree,
 	/// and scan through nonce values to make the block's hash satisfy proof-of-work
@@ -24,17 +50,26 @@ namespace NBitcoin
 	{
 		internal const int Size = 80;
 
+		[Obsolete("You should instantiate BlockHeader from BlockHeaderFactory.CreateNewBlockHeader")]
 		public static BlockHeader Parse(string hex)
 		{
-			return new BlockHeader(Encoders.Hex.DecodeData(hex));
+			return new BlockHeader();
 		}
 
+		[Obsolete("You should instantiate BlockHeader from BlockHeaderFactory.CreateNewBlockHeader")]
+		public BlockHeader()
+		{
+			SetNull();
+		}
+
+		[Obsolete("You should instantiate BlockHeader from BlockHeaderFactory.CreateNewBlockHeader")]
 		public BlockHeader(string hex)
 			: this(Encoders.Hex.DecodeData(hex))
 		{
 
 		}
 
+		[Obsolete("You should instantiate BlockHeader from BlockHeaderFactory.CreateNewBlockHeader")]
 		public BlockHeader(byte[] bytes)
 		{
 			this.ReadWrite(bytes);
@@ -113,12 +148,6 @@ namespace NBitcoin
 			}
 		}
 
-		public BlockHeader()
-		{
-			SetNull();
-		}
-
-
 		internal void SetNull()
 		{
 			nVersion = CURRENT_VERSION;
@@ -138,7 +167,7 @@ namespace NBitcoin
 		}
 #region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public virtual void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref nVersion);
 			stream.ReadWrite(ref hashPrevBlock);
@@ -146,11 +175,19 @@ namespace NBitcoin
 			stream.ReadWrite(ref nTime);
 			stream.ReadWrite(ref nBits);
 			stream.ReadWrite(ref nNonce);
+
 		}
 
-#endregion
 
-		public uint256 GetHash()
+		#endregion
+
+
+		public virtual uint256 GetPoWHash()
+		{
+			return GetHash();
+		}
+
+		public virtual uint256 GetHash()
 		{
 			uint256 h = null;
 			var hashes = _Hashes;
@@ -174,6 +211,8 @@ namespace NBitcoin
 			}
 			return h;
 		}
+
+		
 
 		[Obsolete("Call PrecomputeHash(true, true) instead")]
 		public void CacheHashes()
@@ -211,17 +250,19 @@ namespace NBitcoin
 		static BigInteger Pow256 = BigInteger.ValueOf(2).Pow(256);
 		public bool CheckProofOfWork()
 		{
-			return CheckProofOfWork(null);
-		}
-		public bool CheckProofOfWork(Consensus consensus)
-		{
-			consensus = consensus ?? Consensus.Main;
 			var bits = Bits.ToBigInteger();
-			if(bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
+			if (bits.CompareTo(BigInteger.Zero) <= 0 || bits.CompareTo(Pow256) >= 0)
 				return false;
 			// Check proof of work matches claimed amount
-			return consensus.GetPoWHash(this) <= Bits.ToUInt256();
+			return GetPoWHash() <= Bits.ToUInt256();
 		}
+
+		[Obsolete]
+		public bool CheckProofOfWork(Consensus consensus)
+		{
+			return CheckProofOfWork();
+		}
+
 
 		public override string ToString()
 		{
@@ -288,15 +329,19 @@ namespace NBitcoin
 		{
 			return new ChainedBlock(this, null, prev).GetWorkRequired(consensus);
 		}
+
 	}
 
 
 	public class Block : IBitcoinSerializable
 	{
+		private static BlockHeaderFactory _blockHeaderFactory = new BlockHeaderFactory();
+
+		private BlockHeader header = _blockHeaderFactory.CreateNewBlockHeader();
+
 		//FIXME: it needs to be changed when Gavin Andresen increase the max block size. 
 		public const uint MAX_BLOCK_SIZE = 1000 * 1000;
 
-		BlockHeader header = new BlockHeader();
 		// network and disk
 		List<Transaction> vtx = new List<Transaction>();
 
@@ -418,7 +463,7 @@ namespace NBitcoin
 		/// <returns></returns>
 		public bool Check()
 		{
-			return Check(null);
+			return CheckMerkleRoot() && Header.CheckProofOfWork();
 		}
 
 		/// <summary>
@@ -426,19 +471,20 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="consensus"></param>
 		/// <returns></returns>
+		[Obsolete("Use Check() instead")]
 		public bool Check(Consensus consensus)
 		{
-			return CheckMerkleRoot() && Header.CheckProofOfWork(consensus);
+			return Check();
 		}
 
 		public bool CheckProofOfWork()
 		{
-			return CheckProofOfWork(null);
+			return Header.CheckProofOfWork();
 		}
-
+		[Obsolete("Use CheckProofOfWork() instead")]
 		public bool CheckProofOfWork(Consensus consensus)
 		{
-			return Header.CheckProofOfWork(consensus);
+			return CheckProofOfWork();
 		}
 
 		public bool CheckMerkleRoot()

@@ -235,18 +235,17 @@ namespace NBitcoin
 			}
 		}
 
-		private Func<BlockHeader, uint256> _GetPoWHash = h => h.GetHash();
-
-		public Func<BlockHeader, uint256> GetPoWHash
+		private IBlockHeaderFactory<BlockHeader> _BlockHeaderFactory = new BlockHeaderFactory();
+		public IBlockHeaderFactory<BlockHeader> BlockHeaderFactory
 		{
 			get
 			{
-				return _GetPoWHash;
+				return _BlockHeaderFactory;
 			}
 			set
 			{
 				EnsureNotFrozen();
-				_GetPoWHash = value;
+				_BlockHeaderFactory = value;
 			}
 		}
 
@@ -535,8 +534,8 @@ namespace NBitcoin
 			consensus._SubsidyHalvingInterval = _SubsidyHalvingInterval;
 			consensus._CoinbaseMaturity = _CoinbaseMaturity;
 			consensus._MinimumChainWork = _MinimumChainWork;
-			consensus.GetPoWHash = GetPoWHash;
 			consensus._CoinType = CoinType;
+			consensus.BlockHeaderFactory = _BlockHeaderFactory;
 			consensus._LitecoinWorkCalculation = _LitecoinWorkCalculation;
 		}
 	}

@@ -325,7 +325,7 @@ namespace NBitcoin
 		}
 		public Target GetNextWorkRequired(Consensus consensus)
 		{
-			BlockHeader dummy = new BlockHeader();
+			BlockHeader dummy = consensus.BlockHeaderFactory.CreateNewBlockHeader();
 			dummy.HashPrevBlock = this.HashBlock;
 			dummy.BlockTime = DateTimeOffset.UtcNow;
 			return GetNextWorkRequired(dummy, consensus);
@@ -480,7 +480,7 @@ namespace NBitcoin
 		public bool CheckProofOfWorkAndTarget(Consensus consensus)
 		{
 			AssertHasHeader();
-			return Height == 0 || (Header.CheckProofOfWork(consensus) && Header.Bits == GetWorkRequired(consensus));
+			return Height == 0 || (Header.CheckProofOfWork() && Header.Bits == GetWorkRequired(consensus));
 		}
 
 
