@@ -471,7 +471,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="consensus"></param>
 		/// <returns></returns>
-		[Obsolete]
+		[Obsolete("Use Check() instead")]
 		public bool Check(Consensus consensus)
 		{
 			return Check();
@@ -481,7 +481,7 @@ namespace NBitcoin
 		{
 			return Header.CheckProofOfWork();
 		}
-		[Obsolete]
+		[Obsolete("Use CheckProofOfWork() instead")]
 		public bool CheckProofOfWork(Consensus consensus)
 		{
 			return CheckProofOfWork();
