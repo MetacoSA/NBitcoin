@@ -996,9 +996,9 @@ namespace NBitcoin.RPC
 			return ParseBlockHeader(resp);
 		}
 
-		private static BlockHeader ParseBlockHeader(RPCResponse resp)
+		private BlockHeader ParseBlockHeader(RPCResponse resp)
 		{
-			var header = new BlockHeader();
+			var header = Network.Consensus.BlockHeaderFactory.CreateNewBlockHeader();
 			header.Version = (int)resp.Result["version"];
 			header.Nonce = (uint)resp.Result["nonce"];
 			header.Bits = new Target(Encoders.Hex.DecodeData((string)resp.Result["bits"]));

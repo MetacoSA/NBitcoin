@@ -589,7 +589,7 @@ namespace NBitcoin.Tests
 						transactions.Clear();
 					}
 					block.UpdateMerkleRoot();
-					while(!block.CheckProofOfWork(node.Network.Consensus))
+					while(!block.CheckProofOfWork())
 						block.Header.Nonce = ++nonce;
 					blocks.Add(block);
 					chain.SetTip(block.Header);
