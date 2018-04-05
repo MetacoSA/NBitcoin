@@ -135,6 +135,14 @@ namespace NBitcoin
 			return data;
 		}
 
+		/// <summary>
+		/// Set the format to use when deserializing a Block, BlockHeader or a Transaction.
+		/// </summary>
+		public Consensus Consensus
+		{
+			get; set;
+		} = Network.Main.Consensus;
+
 		public void ReadWriteAsVarString(ref byte[] bytes)
 		{
 			if(Serializing)
@@ -194,7 +202,10 @@ namespace NBitcoin
 		{
 			var obj = data;
 			if(obj == null)
-				obj = Activator.CreateInstance<T>();
+			{
+				if(!Consensus.TryCreateNew<T>(out obj))
+					obj = Activator.CreateInstance<T>();
+			}
 			obj.ReadWrite(this);
 			if(!Serializing)
 				data = obj;

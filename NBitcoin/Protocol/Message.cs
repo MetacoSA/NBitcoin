@@ -196,7 +196,8 @@ namespace NBitcoin.Protocol
 			BitcoinStream bitStream = new BitcoinStream(stream, false)
 			{
 				ProtocolVersion = version,
-				ReadCancellationToken = cancellationToken
+				ReadCancellationToken = cancellationToken,
+				Consensus = network.Consensus
 			};
 
 			if(!network.ReadMagic(stream, cancellationToken, true))

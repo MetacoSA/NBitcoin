@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.Stealth;
+using System.Collections.Concurrent;
 
 namespace NBitcoin
 {
@@ -38,7 +40,7 @@ namespace NBitcoin
 		{
 			if(_Addresses != null)
 				return _Addresses;
-			
+
 			_Addresses = Dns.GetHostAddressesAsync(host).GetAwaiter().GetResult();
 			return _Addresses;
 		}
@@ -197,6 +199,30 @@ namespace NBitcoin
 			}
 		}
 
+		ConcurrentDictionary<Type, bool> _IsAssignableFromBlockHeader = new ConcurrentDictionary<Type, bool>();
+		TypeInfo BlockHeaderType = typeof(BlockHeader).GetTypeInfo();
+		public bool TryCreateNew<T>(out T result) where T : IBitcoinSerializable
+		{
+			result = default(T);
+			if(IsAssignable<T>(BlockHeaderType, _IsAssignableFromBlockHeader))
+			{
+				result = (T)(object)_BlockHeaderFactory.CreateNewBlockHeader();
+				return true;
+			}
+			return false;
+		}
+
+		private bool IsAssignable<T>(TypeInfo type, ConcurrentDictionary<Type, bool> cache)
+		{
+			bool isAssignable = false;
+			if(!cache.TryGetValue(typeof(T), out isAssignable))
+			{
+				isAssignable = type.IsAssignableFrom(typeof(T).GetTypeInfo());
+				_IsAssignableFromBlockHeader.TryAdd(typeof(T), isAssignable);
+			}
+			return isAssignable;
+		}
+
 		public Consensus()
 		{
 			_BuriedDeployments = new BuriedDeploymentsArray(this);
@@ -235,7 +261,7 @@ namespace NBitcoin
 			}
 		}
 
-		private IBlockHeaderFactory<BlockHeader> _BlockHeaderFactory = new BlockHeaderFactory();
+		private IBlockHeaderFactory<BlockHeader> _BlockHeaderFactory = new NBitcoin.BlockHeaderFactory();
 		public IBlockHeaderFactory<BlockHeader> BlockHeaderFactory
 		{
 			get
@@ -1327,10 +1353,11 @@ namespace NBitcoin
 		public Message ParseMessage(byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
 		{
 			BitcoinStream bstream = new BitcoinStream(bytes);
+			bstream.Consensus = this.Consensus;
 			Message message = new Message();
 			using(bstream.ProtocolVersionScope(version))
 			{
-				bstream.ReadWrite(ref message);
+				message.ReadWrite(bstream);
 			}
 			if(message.Magic != magic)
 				throw new FormatException("Unexpected magic field in the message");
