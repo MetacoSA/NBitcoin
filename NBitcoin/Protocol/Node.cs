@@ -211,7 +211,8 @@ namespace NBitcoin.Protocol
 							message.ReadWrite(new BitcoinStream(ms, true)
 							{
 								ProtocolVersion = Node.Version,
-								TransactionOptions = Node.SupportedTransactionOptions
+								TransactionOptions = Node.SupportedTransactionOptions,
+								Consensus = Node.Network.Consensus
 							});
 							var bytes = ms.ToArrayEfficient();
 							evt.SetBuffer(bytes, 0, bytes.Length);

@@ -28,7 +28,6 @@ namespace NBitcoin
 			{
 				get; set;
 			}
-
 			internal void AssertCoherent()
 			{
 				if(!SerializePrecomputedBlockHash && !SerializeBlockHeader)
