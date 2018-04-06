@@ -77,6 +77,13 @@ namespace NBitcoin
 	{
 		internal byte[][] base58Prefixes = new byte[12][];
 		internal Bech32Encoder[] bech32Encoders = new Bech32Encoder[2];
+
+		public uint MaxP2PVersion
+		{
+			get;
+			internal set;
+		}
+
 		public Bech32Encoder GetBech32Encoder(Bech32Type type, bool throws)
 		{
 			var encoder = bech32Encoders[(int)type];
@@ -199,30 +206,6 @@ namespace NBitcoin
 			}
 		}
 
-		ConcurrentDictionary<Type, bool> _IsAssignableFromBlockHeader = new ConcurrentDictionary<Type, bool>();
-		TypeInfo BlockHeaderType = typeof(BlockHeader).GetTypeInfo();
-		public bool TryCreateNew<T>(out T result) where T : IBitcoinSerializable
-		{
-			result = default(T);
-			if(IsAssignable<T>(BlockHeaderType, _IsAssignableFromBlockHeader))
-			{
-				result = (T)(object)_BlockHeaderFactory.CreateNewBlockHeader();
-				return true;
-			}
-			return false;
-		}
-
-		private bool IsAssignable<T>(TypeInfo type, ConcurrentDictionary<Type, bool> cache)
-		{
-			bool isAssignable = false;
-			if(!cache.TryGetValue(typeof(T), out isAssignable))
-			{
-				isAssignable = type.IsAssignableFrom(typeof(T).GetTypeInfo());
-				_IsAssignableFromBlockHeader.TryAdd(typeof(T), isAssignable);
-			}
-			return isAssignable;
-		}
-
 		public Consensus()
 		{
 			_BuriedDeployments = new BuriedDeploymentsArray(this);
@@ -261,17 +244,17 @@ namespace NBitcoin
 			}
 		}
 
-		private IBlockHeaderFactory<BlockHeader> _BlockHeaderFactory = new NBitcoin.BlockHeaderFactory();
-		public IBlockHeaderFactory<BlockHeader> BlockHeaderFactory
+		private ConsensusFactory _ConsensusFactory = new ConsensusFactory();
+		public ConsensusFactory ConsensusFactory
 		{
 			get
 			{
-				return _BlockHeaderFactory;
+				return _ConsensusFactory;
 			}
 			set
 			{
 				EnsureNotFrozen();
-				_BlockHeaderFactory = value;
+				_ConsensusFactory = value;
 			}
 		}
 
@@ -561,7 +544,7 @@ namespace NBitcoin
 			consensus._CoinbaseMaturity = _CoinbaseMaturity;
 			consensus._MinimumChainWork = _MinimumChainWork;
 			consensus._CoinType = CoinType;
-			consensus.BlockHeaderFactory = _BlockHeaderFactory;
+			consensus.ConsensusFactory = _ConsensusFactory;
 			consensus._LitecoinWorkCalculation = _LitecoinWorkCalculation;
 		}
 	}
@@ -596,7 +579,7 @@ namespace NBitcoin
 		List<string> vSeeds = new List<string>();
 		List<string> vFixedSeeds = new List<string>();
 #endif
-		Block genesis = new Block();
+		Block genesis;
 
 		private int nRPCPort;
 		public int RPCPort
@@ -695,7 +678,11 @@ namespace NBitcoin
 			network.magic = builder._Magic;
 			network.nDefaultPort = builder._Port;
 			network.nRPCPort = builder._RPCPort;
-			network.genesis = builder._Genesis;
+
+			var block = network.consensus.ConsensusFactory.CreateBlock();
+			block.ReadWrite(builder._Genesis);
+			network.genesis = block;
+			network.MaxP2PVersion = builder._MaxP2PVersion == null ? BITCOIN_MAX_P2P_VERSION : builder._MaxP2PVersion.Value;
 			network.consensus.HashGenesisBlock = network.genesis.GetHash();
 			network.consensus.Freeze();
 
@@ -734,10 +721,12 @@ namespace NBitcoin
 			return network;
 		}
 
+
+		const uint BITCOIN_MAX_P2P_VERSION = 70012;
 		private void InitMain()
 		{
 			name = "Main";
-
+			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.CoinbaseMaturity = 100;
 			consensus.SubsidyHalvingInterval = 210000;
 			consensus.MajorityEnforceBlockUpgrade = 750;
@@ -819,7 +808,7 @@ namespace NBitcoin
 		private void InitTest()
 		{
 			name = "TestNet";
-
+			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 210000;
 			consensus.MajorityEnforceBlockUpgrade = 51;
 			consensus.MajorityRejectBlockOutdated = 75;
@@ -881,6 +870,7 @@ namespace NBitcoin
 		private void InitReg()
 		{
 			name = "RegTest";
+			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 150;
 			consensus.MajorityEnforceBlockUpgrade = 750;
 			consensus.MajorityRejectBlockOutdated = 950;
@@ -951,7 +941,7 @@ namespace NBitcoin
 				Value = genesisReward,
 				ScriptPubKey = genesisOutputScript
 			});
-			Block genesis = new Block();
+			Block genesis = Consensus.ConsensusFactory.CreateBlock();
 			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(nTime);
 			genesis.Header.Bits = nBits;
 			genesis.Header.Nonce = nNonce;
@@ -1258,9 +1248,7 @@ namespace NBitcoin
 
 		public Block GetGenesis()
 		{
-			var block = new Block();
-			block.ReadWrite(genesis.ToBytes());
-			return block;
+			return genesis;
 		}
 
 
@@ -1350,10 +1338,10 @@ namespace NBitcoin
 			return new BitcoinScriptAddress(scriptId, this);
 		}
 
-		public Message ParseMessage(byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public Message ParseMessage(byte[] bytes, uint? version = null)
 		{
 			BitcoinStream bstream = new BitcoinStream(bytes);
-			bstream.Consensus = this.Consensus;
+			bstream.ConsensusFactory = this.Consensus.ConsensusFactory;
 			Message message = new Message();
 			using(bstream.ProtocolVersionScope(version))
 			{

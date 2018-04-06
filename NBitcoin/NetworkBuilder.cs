@@ -24,8 +24,15 @@ namespace NBitcoin
 		internal List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		internal List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
 #endif
-		internal Block _Genesis;
+		internal byte[] _Genesis;
+		internal uint? _MaxP2PVersion;
 
+		public NetworkBuilder SetMaxP2PVersion(uint version)
+		{
+			_MaxP2PVersion = version;
+			return this;
+		}
+	
 		public NetworkBuilder SetName(string name)
 		{
 			_Name = name;
@@ -47,7 +54,7 @@ namespace NBitcoin
 				SetBech32((Bech32Type)i, network.bech32Encoders[i]);
 			}
 			SetConsensus(network.Consensus).
-			SetGenesis(network.GetGenesis()).
+			SetGenesis(Encoders.Hex.EncodeData(network.GetGenesis().ToBytes())).
 			SetMagic(_Magic).
 			SetPort(network.DefaultPort).
 			SetRPCPort(network.RPCPort);
@@ -97,9 +104,9 @@ namespace NBitcoin
 			return this;
 		}
 		
-		public NetworkBuilder SetGenesis(Block genesis)
+		public NetworkBuilder SetGenesis(string hex)
 		{
-			_Genesis = genesis;
+			_Genesis = Encoders.Hex.DecodeData(hex);
 			return this;
 		}		
 

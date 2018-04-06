@@ -135,13 +135,25 @@ namespace NBitcoin
 			return data;
 		}
 
+
+		ConsensusFactory _ConsensusFactory = Consensus.Main.ConsensusFactory;
+
 		/// <summary>
-		/// Set the format to use when deserializing a Block, BlockHeader or a Transaction.
+		/// Set the format to use when serializing and deserializing consensus related types.
 		/// </summary>
-		public Consensus Consensus
+		public ConsensusFactory ConsensusFactory
 		{
-			get; set;
-		} = Network.Main.Consensus;
+			get
+			{
+				return _ConsensusFactory;
+			}
+			set
+			{
+				if(value == null)
+					throw new ArgumentNullException(nameof(value));
+				_ConsensusFactory = value;
+			}
+		}
 
 		public void ReadWriteAsVarString(ref byte[] bytes)
 		{
@@ -203,7 +215,7 @@ namespace NBitcoin
 			var obj = data;
 			if(obj == null)
 			{
-				if(!Consensus.TryCreateNew<T>(out obj))
+				if(!ConsensusFactory.TryCreateNew<T>(out obj))
 					obj = Activator.CreateInstance<T>();
 			}
 			obj.ReadWrite(this);
@@ -355,8 +367,9 @@ namespace NBitcoin
 			});
 		}
 
-		ProtocolVersion _ProtocolVersion = ProtocolVersion.PROTOCOL_VERSION;
-		public ProtocolVersion ProtocolVersion
+#pragma warning disable CS0618 // Type or member is obsolete
+		uint? _ProtocolVersion = null;
+		public uint? ProtocolVersion
 		{
 			get
 			{
@@ -365,8 +378,26 @@ namespace NBitcoin
 			set
 			{
 				_ProtocolVersion = value;
+				_ProtocolCapabilities = null;
 			}
 		}
+
+
+		ProtocolCapabilities _ProtocolCapabilities;
+		public ProtocolCapabilities ProtocolCapabilities
+		{
+			get
+			{
+				var capabilities = _ProtocolCapabilities;
+				if(capabilities == null)
+				{
+					capabilities = ProtocolVersion == null ? ProtocolCapabilities.CreateSupportAll() : ConsensusFactory.GetProtocolCapabilities(ProtocolVersion.Value);
+					_ProtocolCapabilities = capabilities;
+				}
+				return capabilities;
+			}
+		}
+#pragma warning restore CS0618 // Type or member is obsolete
 
 		TransactionOptions _TransactionSupportedOptions = TransactionOptions.All;
 		public TransactionOptions TransactionOptions
@@ -382,7 +413,7 @@ namespace NBitcoin
 		}
 
 
-		public IDisposable ProtocolVersionScope(ProtocolVersion version)
+		public IDisposable ProtocolVersionScope(uint? version)
 		{
 			var old = ProtocolVersion;
 			return new Scope(() =>
@@ -400,6 +431,8 @@ namespace NBitcoin
 			if(stream == null)
 				throw new ArgumentNullException("stream");
 			ProtocolVersion = stream.ProtocolVersion;
+			ConsensusFactory = stream.ConsensusFactory;
+			_ProtocolCapabilities = stream._ProtocolCapabilities;
 			IsBigEndian = stream.IsBigEndian;
 			MaxArraySize = stream.MaxArraySize;
 			Type = stream.Type;

@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-        <Version Condition=" '$(Version)' == '' ">4.0.0.65</Version>
+        <Version Condition=" '$(Version)' == '' ">4.1.0.3</Version>
     </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.0</TargetFrameworks>
@@ -31,7 +31,7 @@
 		<DefineConstants>$(DefineConstants);WIN;LEGACY_X509</DefineConstants>
 	</PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
-    <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOCONSENSUSLIB</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETCORE;NOCUSTOMSSLVALIDATION;NOCONSENSUSLIB</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION</DefineConstants>
