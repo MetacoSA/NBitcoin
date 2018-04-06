@@ -3,6 +3,7 @@
 Currently supported altcoins are:
 
 * Litecoin
+* BCash (also known as Bitcoin Cash)
 
 ## How to use?
 
