@@ -16,7 +16,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetChainInfo()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
 				builder.StartAll();
@@ -28,7 +28,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanCalculateChainWork()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
 				builder.StartAll();
@@ -45,7 +45,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetBlock()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
 				builder.StartAll();
@@ -57,7 +57,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetBlockHeader()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
 				var rpc = builder.Nodes[0].CreateRPCClient();
@@ -76,7 +76,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetTransaction()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
 				builder.StartAll();
@@ -92,7 +92,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetUTXOsMempool()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
 				var rpc = builder.Nodes[0].CreateRPCClient();
@@ -119,7 +119,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetUTXOs()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
 				builder.StartAll();
@@ -135,7 +135,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void ThrowsRestApiClientException()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var client = builder.CreateNode().CreateRESTClient();
 				builder.StartAll();

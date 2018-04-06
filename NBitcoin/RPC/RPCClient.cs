@@ -219,10 +219,9 @@ namespace NBitcoin.RPC
 			}
 
 			if(_Authentication == null)
-				RenewCookie();
-
-			if(_Authentication == null)
-				throw new ArgumentException("Impossible to infer the authentication of the RPCClient");
+			{
+				TryRenewCookie(null);
+			}
 		}
 
 
@@ -614,20 +613,6 @@ namespace NBitcoin.RPC
 				return await SendCommandAsyncCore(request, throwIfRPCError).ConfigureAwait(false);
 			}
 		}
-
-		private void RenewCookie()
-		{
-			if(GetCookiePath() == null)
-				throw new InvalidOperationException("Bug in NBitcoin notify the developers");
-#if !NOFILEIO
-			var auth = File.ReadAllText(GetCookiePath());
-			if(!auth.StartsWith("__cookie__:", StringComparison.OrdinalIgnoreCase))
-				throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
-			_Authentication = auth;
-#else
-			throw new NotSupportedException("Cookie authentication is not supported for this plateform");
-#endif
-		}
 		private void TryRenewCookie(WebException ex)
 		{
 			if(GetCookiePath() == null)
@@ -639,7 +624,12 @@ namespace NBitcoin.RPC
 				_Authentication = File.ReadAllText(GetCookiePath());
 			}
 			//We are only interested into the previous exception
-			catch { ExceptionDispatchInfo.Capture(ex).Throw(); }
+			catch
+			{
+				if(ex == null)
+					return;
+				ExceptionDispatchInfo.Capture(ex).Throw();
+			}
 #else
 			throw new NotSupportedException("Cookie authentication is not supported for this plateform");
 #endif
@@ -888,7 +878,7 @@ namespace NBitcoin.RPC
 			var response = await SendCommandAsync(RPCOperations.getblockchaininfo).ConfigureAwait(false);
 			var result = response.Result;
 
-			var epochToDtateTimeOffset = new Func<ulong, DateTimeOffset>(epoch=>{
+			var epochToDtateTimeOffset = new Func<long, DateTimeOffset>(epoch=>{
 				try{
 					return Utils.UnixTimeToDateTime(epoch);
 				}catch(OverflowException){
@@ -920,8 +910,8 @@ namespace NBitcoin.RPC
 					return new BlockchainInfo.Bip9SoftFork {
 						Name = ((JProperty)x).Name,
 						Status = (string)o["status"],
-						StartTime = epochToDtateTimeOffset((ulong)o["startTime"]),
-						Timeout =   epochToDtateTimeOffset((ulong)o["timeout"]),
+						StartTime = epochToDtateTimeOffset((long)o["startTime"]),
+						Timeout =   epochToDtateTimeOffset((long)o["timeout"]),
 						SinceHeight =  (ulong)o["since"],
 					};
 					}).ToList()

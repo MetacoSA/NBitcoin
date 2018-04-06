@@ -11,6 +11,7 @@ namespace NBitcoin.Tests
 {
 	class TestUtils
 	{
+
 		public static void Eventually(Func<bool> act)
 		{
 			var cancel = new CancellationTokenSource(20000);

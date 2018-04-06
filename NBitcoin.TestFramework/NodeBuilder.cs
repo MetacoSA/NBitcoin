@@ -1,4 +1,5 @@
-﻿#if !NOSOCKET
+﻿using NBitcoin;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
@@ -12,12 +13,11 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections;
-using System.Runtime.InteropServices;
-using NBitcoin.Crypto;
 
 namespace NBitcoin.Tests
 {
@@ -28,32 +28,20 @@ namespace NBitcoin.Tests
 		Running,
 		Killed
 	}
-	public class NodeConfigParameters : IEnumerable<KeyValuePair<string,string>>
+	public class NodeConfigParameters : Dictionary<string, string>
 	{
-		public void Import(NodeConfigParameters configParameters)
+		public void Import(NodeConfigParameters configParameters, bool overrides)
 		{
-			var toAdd = new List<KeyValuePair<string, string>>();
 			foreach(var kv in configParameters)
 			{
 				if(!ContainsKey(kv.Key))
-					toAdd.Add(new KeyValuePair<string, string>(kv.Key, kv.Value));
+					Add(kv.Key, kv.Value);
+				else if(overrides)
+				{
+					Remove(kv.Key);
+					Add(kv.Key, kv.Value);
+				}
 			}
-
-			foreach(var add in toAdd)
-			{
-				Add(add.Key, add.Value);
-			}
-		}
-
-		public bool ContainsKey(string key)
-		{
-			return _KValues.Any(k => k.Key == key);
-		}
-
-		List<KeyValuePair<string, string>> _KValues = new List<KeyValuePair<string, string>>();
-		public void Add(string key, string value)
-		{
-			_KValues.Add(new KeyValuePair<string, string>(key, value));
 		}
 
 		public override string ToString()
@@ -63,104 +51,118 @@ namespace NBitcoin.Tests
 				builder.AppendLine(kv.Key + "=" + kv.Value);
 			return builder.ToString();
 		}
+	}
 
-		public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+	public class NodeOSDownloadData
+	{
+		public string Archive
 		{
-			return _KValues.GetEnumerator();
+			get; set;
+		}
+		public string DownloadLink
+		{
+			get; set;
+		}
+		public string Executable
+		{
+			get; set;
+		}
+		public string Hash
+		{
+			get; set;
+		}
+	}
+
+	public partial class NodeDownloadData
+	{
+		public string Version
+		{
+			get; set;
 		}
 
-		IEnumerator IEnumerable.GetEnumerator()
+		public NodeOSDownloadData Linux
 		{
-			return GetEnumerator();
+			get; set;
+		}
+
+		public NodeOSDownloadData Mac
+		{
+			get; set;
+		}
+
+		public NodeOSDownloadData Windows
+		{
+			get; set;
+		}
+
+		public NodeOSDownloadData GetCurrentOSDownloadData()
+		{
+			return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Windows :
+				   RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? Linux :
+				   RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? Mac :
+				   throw new NotSupportedException();
 		}
 	}
 	public class NodeBuilder : IDisposable
 	{
-		public static NodeBuilder Create([CallerMemberNameAttribute]string caller = null, string version = "0.15.1")
+		public static NodeBuilder Create(NodeDownloadData downloadData, Network network = null, [CallerMemberNameAttribute]string caller = null)
 		{
-			version = version ?? "0.15.1";
-			var path = EnsureDownloaded(version);
-
-			try
-			{
-				Directory.Delete(caller, true);
-			}
-			catch(DirectoryNotFoundException)
-			{
-			}
-			Directory.CreateDirectory(caller);
-			return new NodeBuilder(caller, path);
+			network = network ?? Network.RegTest;
+			var isFilePath = downloadData.Version.Length >= 2 && downloadData.Version[1] == ':';
+			var path = isFilePath ? downloadData.Version : EnsureDownloaded(downloadData);
+			if(!Directory.Exists(caller))
+				Directory.CreateDirectory(caller);
+			return new NodeBuilder(caller, path) { Network = network };
 		}
 
-		internal static string EnsureDownloaded(string version)
+		private static string EnsureDownloaded(NodeDownloadData downloadData)
 		{
-			//is a file
-			if (version.Length >= 2 && version[1] == ':')
-			{
-				return version;
-			}
+			if(!Directory.Exists("TestData"))
+				Directory.CreateDirectory("TestData");
 
-			var dataDir = ".";
 			string zip;
 			string bitcoind;
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			{
-				bitcoind = Path.Combine(dataDir,$"bitcoin-{version}", "bin", "bitcoind.exe");
-				if (File.Exists(bitcoind))
-					return bitcoind;
-				var environment = RuntimeInformation.ProcessArchitecture == Architecture.X64 ? "win64" : "win32";
 
-				zip = Path.Combine(dataDir, $"bitcoin-{version}-{environment}.zip");
-				string url = string.Format("https://bitcoin.org/bin/bitcoin-core-{0}/" + Path.GetFileName(zip), version);
+			var osDownloadData = downloadData.GetCurrentOSDownloadData();
+			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				bitcoind = "TestData/" + String.Format(osDownloadData.Executable, downloadData.Version);
+				if(File.Exists(bitcoind))
+					return bitcoind;
+				zip = "TestData/" + String.Format(osDownloadData.Archive, downloadData.Version);
+				string url = String.Format(osDownloadData.DownloadLink, downloadData.Version);
 				HttpClient client = new HttpClient();
 				client.Timeout = TimeSpan.FromMinutes(10.0);
 				var data = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
-
-				VerifyBinary(zip, data);
+				CheckHash(osDownloadData, data);
 				File.WriteAllBytes(zip, data);
 				ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
 			}
 			else
 			{
-				bitcoind = Path.Combine(dataDir, $"bitcoin-{version}", "bin", "bitcoind");
-				if (File.Exists(bitcoind))
+				bitcoind = "TestData/" + String.Format(osDownloadData.Executable, downloadData.Version);
+				if(File.Exists(bitcoind))
 					return bitcoind;
 
-				zip = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ?
-					Path.Combine(dataDir, $"bitcoin-{version}-x86_64-linux-gnu.tar.gz")
-					: Path.Combine(dataDir, $"bitcoin-{version}-osx64.tar.gz");
+				zip = "TestData/" + String.Format(osDownloadData.Archive, downloadData.Version);
 
-				string url = string.Format("https://bitcoin.org/bin/bitcoin-core-{0}/" + Path.GetFileName(zip), version);
+				string url = String.Format(osDownloadData.DownloadLink, downloadData.Version);
 				HttpClient client = new HttpClient();
 				client.Timeout = TimeSpan.FromMinutes(10.0);
 				var data = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
-
-				VerifyBinary(zip, data);
+				CheckHash(osDownloadData, data);
 				File.WriteAllBytes(zip, data);
-				Process.Start("tar", "-zxvf " + zip + " -C " + dataDir).WaitForExit();
+				Process.Start("tar", "-zxvf " + zip + " -C TestData").WaitForExit();
 			}
 			File.Delete(zip);
 			return bitcoind;
-		}		
-
-		private static void VerifyBinary(string compressedFilePath, byte[] bytes)
-		{
-			var fileLines = File.ReadAllLines("data/SHA256SUMS.asc");
-			var hashes = fileLines
-				.Skip(3)
-				.TakeWhile(x=> !x.StartsWith("-----")) 
-				.Select(x=>x.Split(new string[]{"  "}, StringSplitOptions.None))
-				.ToDictionary(x=> x[1], x=>x[0]);
-
-			var fileName = Path.GetFileName(compressedFilePath);
-			var isValid = hashes.ContainsKey(fileName) && hashes[fileName] == Encoders.Hex.EncodeData(Hashes.SHA256(bytes));
-
-			if(!isValid)
-			{
-				throw new InvalidDataException("Downloaded Bitcoin Core node couldn't be verified");
-			}
 		}
 
+		private static void CheckHash(NodeOSDownloadData osDownloadData, byte[] data)
+		{
+			if(Encoders.Hex.EncodeData(Hashes.SHA256(data)) != osDownloadData.Hash)
+				throw new Exception("Hash of downloaded file does not match");
+		}
 
 		int last = 0;
 		private string _Root;
@@ -178,6 +180,11 @@ namespace NBitcoin.Tests
 				return _Bitcoind;
 			}
 		}
+
+		public bool CleanBeforeStartingNode
+		{
+			get; set;
+		} = true;
 
 
 		private readonly List<CoreNode> _Nodes = new List<CoreNode>();
@@ -199,17 +206,16 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		public Network Network
+		{
+			get;
+			set;
+		} = Network.RegTest;
+
 		public CoreNode CreateNode(bool start = false)
 		{
 			var child = Path.Combine(_Root, last.ToString());
 			last++;
-			try
-			{
-				Directory.Delete(child, true);
-			}
-			catch(DirectoryNotFoundException)
-			{
-			}
 			var node = new CoreNode(child, this);
 			Nodes.Add(node);
 			if(start)
@@ -280,17 +286,85 @@ namespace NBitcoin.Tests
 			this._Builder = builder;
 			this._Folder = folder;
 			_State = CoreNodeState.Stopped;
-			CleanFolder();
-			Directory.CreateDirectory(folder);
+
 			dataDir = Path.Combine(folder, "data");
-			Directory.CreateDirectory(dataDir);
-			var pass = Encoders.Hex.EncodeData(RandomUtils.GetBytes(20));
+			var pass = Hashes.Hash256(Encoding.UTF8.GetBytes(folder)).ToString();
 			creds = new NetworkCredential(pass, pass);
 			_Config = Path.Combine(dataDir, "bitcoin.conf");
-			ConfigParameters.Import(builder.ConfigParameters);
+			ConfigParameters.Import(builder.ConfigParameters, true);
 			ports = new int[2];
+
+			if(builder.CleanBeforeStartingNode && File.Exists(_Config))
+			{
+				var oldCreds = ExtractCreds(File.ReadAllText(_Config));
+				CookieAuth = oldCreds == null;
+				ExtractPorts(ports, File.ReadAllText(_Config));
+
+				try
+				{
+
+					this.CreateRPCClient().SendCommand("stop");
+				}
+				catch
+				{
+					try
+					{
+						CleanFolder();
+					}
+					catch
+					{
+						throw new InvalidOperationException("A running instance of bitcoind of a previous run prevent this test from starting. Please close bitcoind process manually and restart the test.");
+					}
+				}
+				CancellationTokenSource cts = new CancellationTokenSource();
+				cts.CancelAfter(10000);
+				while(!cts.IsCancellationRequested && Directory.Exists(_Folder))
+				{
+					try
+					{
+						CleanFolder();
+						break;
+					}
+					catch { }
+					Thread.Sleep(100);
+				}
+				if(cts.IsCancellationRequested)
+					throw new InvalidOperationException("You seem to have a running node from a previous test, please kill the process and restart the test.");
+			}
+
+			CookieAuth = true;
+			Directory.CreateDirectory(folder);
+			Directory.CreateDirectory(dataDir);
 			FindPorts(ports);
 		}
+
+		string GetRPCAuth()
+		{
+			if(!CookieAuth)
+				return creds.UserName + ":" + creds.Password;
+			else
+				return "cookiefile=" + Path.Combine(dataDir, "regtest", ".cookie");
+		}
+
+		private void ExtractPorts(int[] ports, string config)
+		{
+			var p = Regex.Match(config, "rpcport=(.*)");
+			ports[1] = int.Parse(p.Groups[1].Value.Trim());
+		}
+
+		private NetworkCredential ExtractCreds(string config)
+		{
+			var user = Regex.Match(config, "rpcuser=(.*)");
+			if(!user.Success)
+				return null;
+			var pass = Regex.Match(config, "rpcpassword=(.*)");
+			return new NetworkCredential(user.Groups[1].Value.Trim(), pass.Groups[1].Value.Trim());
+		}
+
+		public Network Network
+		{
+			get; set;
+		} = Network.RegTest;
 
 		private void CleanFolder()
 		{
@@ -340,7 +414,23 @@ namespace NBitcoin.Tests
 		readonly NetworkCredential creds;
 		public RPCClient CreateRPCClient()
 		{
-			return new RPCClient(GetRPCAuth(), new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network.RegTest);
+			return new RPCClient(GetRPCAuth(), RPCUri, Network);
+		}
+
+		public Uri RPCUri
+		{
+			get
+			{
+				return new Uri("http://127.0.0.1:" + ports[1].ToString() + "/");
+			}
+		}
+
+		public IPEndPoint NodeEndpoint
+		{
+			get
+			{
+				return new IPEndPoint(IPAddress.Parse("127.0.0.1"), ports[0]);
+			}
 		}
 
 		public RestClient CreateRESTClient()
@@ -350,20 +440,20 @@ namespace NBitcoin.Tests
 #if !NOSOCKET
 		public Node CreateNodeClient()
 		{
-			return Node.Connect(Network.RegTest, "127.0.0.1:" + ports[0].ToString());
+			return Node.Connect(Network, NodeEndpoint);
 		}
 		public Node CreateNodeClient(NodeConnectionParameters parameters)
 		{
-			return Node.Connect(Network.RegTest, "127.0.0.1:" + ports[0].ToString(), parameters);
+			return Node.Connect(Network, "127.0.0.1:" + ports[0].ToString(), parameters);
 		}
 #endif
 
-		string GetRPCAuth()
+		/// <summary>
+		/// Nodes connecting to this node will be whitelisted (default: false)
+		/// </summary>
+		public bool WhiteBind
 		{
-			if(!CookieAuth)
-				return creds.UserName + ":" + creds.Password;
-			else
-				return "cookiefile=" + Path.Combine(dataDir, "regtest", ".cookie");
+			get; set;
 		}
 
 		public async Task StartAsync()
@@ -378,12 +468,14 @@ namespace NBitcoin.Tests
 				config.Add("rpcuser", creds.UserName);
 				config.Add("rpcpassword", creds.Password);
 			}
-			config.Add("port", ports[0].ToString());
+			if(!WhiteBind)
+				config.Add("port", ports[0].ToString());
+			else
+				config.Add("whitebind", "127.0.0.1:" + ports[0].ToString());
 			config.Add("rpcport", ports[1].ToString());
 			config.Add("printtoconsole", "1");
 			config.Add("keypool", "10");
-			config.Add("whitebind", "127.0.0.1:" + ports[0].ToString());
-			config.Import(ConfigParameters);
+			config.Import(ConfigParameters, true);
 			File.WriteAllText(_Config, config.ToString());
 			await Run();
 		}
@@ -407,12 +499,6 @@ namespace NBitcoin.Tests
 				if(_Process == null || _Process.HasExited)
 					break;
 			}
-		}
-
-		public void Restart()
-		{
-			Kill(false);
-			Run().GetAwaiter().GetResult();
 		}
 
 
@@ -501,6 +587,12 @@ namespace NBitcoin.Tests
 			transactions.AddRange(tasks.Select(t => t.Result).ToArray());
 		}
 
+		public void Broadcast(Transaction[] transactions)
+		{
+			foreach(var tx in transactions)
+				Broadcast(tx);
+		}
+
 		public void Split(Money amount, int parts)
 		{
 			var rpc = CreateRPCClient();
@@ -534,6 +626,14 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		public void WaitForExit()
+		{
+			if(_Process != null && !_Process.HasExited)
+			{
+				_Process.WaitForExit();
+			}
+		}
+
 		public DateTimeOffset? MockTime
 		{
 			get;
@@ -551,11 +651,12 @@ namespace NBitcoin.Tests
 			get;
 			private set;
 		}
+
 		public bool CookieAuth
 		{
 			get;
-			internal set;
-		}
+			set;
+		} = true;
 
 		public Block[] Generate(int blockCount, bool includeUnbroadcasted = true, bool broadcast = true)
 		{
@@ -574,7 +675,7 @@ namespace NBitcoin.Tests
 				for(int i = 0; i < blockCount; i++)
 				{
 					uint nonce = 0;
-					Block block = new Block();
+					Block block = Network.Consensus.ConsensusFactory.CreateBlock();
 					block.Header.HashPrevBlock = chain.Tip.HashBlock;
 					block.Header.Bits = block.Header.GetWorkRequired(rpc.Network, chain.Tip);
 					block.Header.UpdateTime(now, rpc.Network, chain.Tip);
@@ -622,10 +723,10 @@ namespace NBitcoin.Tests
 			node.PingPong();
 		}
 
-		public void FindBlock(int blockCount = 1, bool includeMempool = true)
+		public Block[] FindBlock(int blockCount = 1, bool includeMempool = true)
 		{
 			SelectMempoolTransactions();
-			Generate(blockCount, includeMempool);
+			return Generate(blockCount, includeMempool);
 		}
 
 		class TransactionNode
@@ -688,6 +789,11 @@ namespace NBitcoin.Tests
 			}
 			return dest;
 		}
+
+		public void Restart()
+		{
+			Kill(false);
+			Run().GetAwaiter().GetResult();
+		}
 	}
 }
-#endif
