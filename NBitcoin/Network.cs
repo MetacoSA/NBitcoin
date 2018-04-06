@@ -678,7 +678,10 @@ namespace NBitcoin
 			network.magic = builder._Magic;
 			network.nDefaultPort = builder._Port;
 			network.nRPCPort = builder._RPCPort;
-			network.genesis = builder._Genesis;
+
+			var block = network.consensus.ConsensusFactory.CreateBlock();
+			block.ReadWrite(builder._Genesis);
+			network.genesis = block;
 			network.MaxP2PVersion = builder._MaxP2PVersion == null ? BITCOIN_MAX_P2P_VERSION : builder._MaxP2PVersion.Value;
 			network.consensus.HashGenesisBlock = network.genesis.GetHash();
 			network.consensus.Freeze();

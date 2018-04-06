@@ -24,7 +24,7 @@ namespace NBitcoin
 		internal List<DNSSeedData> vSeeds = new List<DNSSeedData>();
 		internal List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
 #endif
-		internal Block _Genesis;
+		internal byte[] _Genesis;
 		internal uint? _MaxP2PVersion = uint.MaxValue;
 
 		public NetworkBuilder SetMaxP2PVersion(uint version)
@@ -104,9 +104,9 @@ namespace NBitcoin
 			return this;
 		}
 		
-		public NetworkBuilder SetGenesis(Block genesis)
+		public NetworkBuilder SetGenesis(string hex)
 		{
-			_Genesis = genesis;
+			_Genesis = Encoders.Hex.DecodeData(hex);
 			return this;
 		}		
 
