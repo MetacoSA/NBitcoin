@@ -9,7 +9,7 @@ namespace NBitcoin.Tests
 {
 	[Trait("Altcoins", "Altcoins")]
 	public class AltcoinTests
-    {
+	{
 		[Fact]
 		public async Task HasCorrectGenesisBlock()
 		{
@@ -19,6 +19,20 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				var response = await rpc.GetBlockchainInfoAsync();
 				Assert.Equal(builder.Network.GetGenesis().GetHash(), response.BestBlockHash);
+			}
+		}
+
+		[Fact]
+		public void CanParseBlock()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				builder.StartAll();
+				var rpc = node.CreateRPCClient();
+				rpc.Generate(100);
+				var hash = rpc.GetBestBlockHash();
+				Assert.NotNull(rpc.GetBlock(hash));
 			}
 		}
 
