@@ -150,7 +150,7 @@ namespace NBitcoin.Tests
 				{
 					new
 					{
-						Version = ProtocolVersion.INIT_PROTO_VERSION,
+						Version = 209U,
 						Message = "f9beb4d976657273696f6e0000000000550000009c7c00000100000000000000e615104d00000000010000000000000000000000000000000000ffff0a000001208d010000000000000000000000000000000000ffff0a000002208ddd9d202c3ab457130055810100",
 						Test = new Action<object>(o=>
 						{
@@ -160,12 +160,12 @@ namespace NBitcoin.Tests
 							Assert.Equal("::ffff:10.0.0.2", version.AddressFrom.Address.ToString());
 							Assert.Equal(8333, version.AddressFrom.Port);
 							Assert.Equal(0x00018155, version.StartHeight);
-							Assert.Equal((ProtocolVersion)31900, version.Version);
+							Assert.Equal<uint>(31900, version.Version);
 						})
 					},
 					new
 					{
-						Version = ProtocolVersion.MEMPOOL_GD_VERSION,
+						Version = 60002U,
 						Message = "f9beb4d976657273696f6e000000000064000000358d493262ea0000010000000000000011b2d05000000000010000000000000000000000000000000000ffff000000000000000000000000000000000000000000000000ffff0000000000003b2eb35d8ce617650f2f5361746f7368693a302e372e322fc03e0300",
 						Test = new Action<object>(o=>
 						{
@@ -176,7 +176,7 @@ namespace NBitcoin.Tests
 					},
 					new
 					{
-						Version = ProtocolVersion.PROTOCOL_VERSION,
+						Version = 70012U,
 						Message = "f9beb4d976657261636b000000000000000000005df6e0e2",
 						Test = new Action<object>(o=>
 							{
@@ -185,7 +185,7 @@ namespace NBitcoin.Tests
 					},
 					new
 					{
-						Version = ProtocolVersion.MEMPOOL_GD_VERSION,
+						Version = 60002U,
 						Message = "f9beb4d96164647200000000000000001f000000ed52399b01e215104d010000000000000000000000000000000000ffff0a000001208d",
 						Test = new Action<object>(o=>
 							{

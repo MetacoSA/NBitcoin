@@ -25,7 +25,14 @@ namespace NBitcoin
 		internal List<NetworkAddress> vFixedSeeds = new List<NetworkAddress>();
 #endif
 		internal Block _Genesis;
+		internal uint? _MaxP2PVersion = uint.MaxValue;
 
+		public NetworkBuilder SetMaxP2PVersion(uint version)
+		{
+			_MaxP2PVersion = version;
+			return this;
+		}
+	
 		public NetworkBuilder SetName(string name)
 		{
 			_Name = name;

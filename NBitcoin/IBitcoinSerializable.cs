@@ -15,7 +15,7 @@ namespace NBitcoin
 
 	public static class BitcoinSerializableExtensions
 	{
-		public static void ReadWrite(this IBitcoinSerializable serializable, Stream stream, bool serializing, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public static void ReadWrite(this IBitcoinSerializable serializable, Stream stream, bool serializing, uint? version = null)
 		{
 			BitcoinStream s = new BitcoinStream(stream, serializing)
 			{
@@ -23,10 +23,11 @@ namespace NBitcoin
 			};
 			serializable.ReadWrite(s);
 		}
-		public static int GetSerializedSize(this IBitcoinSerializable serializable, ProtocolVersion version, SerializationType serializationType)
+		public static int GetSerializedSize(this IBitcoinSerializable serializable, uint? version, SerializationType serializationType)
 		{
 			BitcoinStream s = new BitcoinStream(Stream.Null, true);
 			s.Type = serializationType;
+			s.ProtocolVersion = version;
 			s.ReadWrite(serializable);
 			return (int)s.Counter.WrittenBytes;
 		}
@@ -37,16 +38,16 @@ namespace NBitcoin
 			serializable.ReadWrite(bms);
 			return (int)bms.Counter.WrittenBytes;
 		}
-		public static int GetSerializedSize(this IBitcoinSerializable serializable, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public static int GetSerializedSize(this IBitcoinSerializable serializable, uint? version = null)
 		{
 			return GetSerializedSize(serializable, version, SerializationType.Disk);
 		}
 
-		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public static void ReadWrite(this IBitcoinSerializable serializable, byte[] bytes, uint? version = null)
 		{
 			ReadWrite(serializable, new MemoryStream(bytes), false, version);
 		}
-		public static void FromBytes(this IBitcoinSerializable serializable, byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public static void FromBytes(this IBitcoinSerializable serializable, byte[] bytes, uint? version = null)
 		{
 			serializable.ReadWrite(new BitcoinStream(bytes)
 			{
@@ -54,13 +55,13 @@ namespace NBitcoin
 			});
 		}
 
-		public static T Clone<T>(this T serializable, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION) where T : IBitcoinSerializable, new()
+		public static T Clone<T>(this T serializable, uint? version = null) where T : IBitcoinSerializable, new()
 		{
 			var instance = new T();
 			instance.FromBytes(serializable.ToBytes(version), version);
 			return instance;
 		}
-		public static byte[] ToBytes(this IBitcoinSerializable serializable, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public static byte[] ToBytes(this IBitcoinSerializable serializable, uint? version = null)
 		{
 			MemoryStream ms = new MemoryStream();
 			serializable.ReadWrite(new BitcoinStream(ms, true)

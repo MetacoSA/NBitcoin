@@ -273,7 +273,7 @@ namespace NBitcoin.RPC
 			if(tx.Inputs.Count > 0)
 				return tx.ToHex();
 			// if there is, do this ACK so that NBitcoin does not change the version number
-			return Encoders.Hex.EncodeData(tx.ToBytes(NBitcoin.Protocol.ProtocolVersion.WITNESS_VERSION - 1));
+			return Encoders.Hex.EncodeData(tx.ToBytes(70012 - 1));
 		}
 
 

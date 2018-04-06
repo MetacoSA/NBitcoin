@@ -1,71 +1,133 @@
-﻿namespace NBitcoin.Protocol
+﻿using System;
+
+namespace NBitcoin.Protocol
 {
-	/// <summary>
-	/// Network protocol versioning
-	/// </summary>
-	public enum ProtocolVersion : uint
+	public class ProtocolCapabilities
 	{
-		PROTOCOL_VERSION = 70012,
-
-		/// <summary>
-		/// Initial protocol version, to be increased after version/verack negotiation
-		/// </summary>
-		INIT_PROTO_VERSION = 209,
-
 		/// <summary>
 		/// Disconnect from peers older than this protocol version
 		/// </summary>
-		MIN_PEER_PROTO_VERSION = 209,
+		public bool PeerTooOld
+		{
+			get; set;
+		}
 
 		/// <summary>
 		/// nTime field added to CAddress, starting with this version;
 		/// if possible, avoid requesting addresses nodes older than this
 		/// </summary>
-		CADDR_TIME_VERSION = 31402,
+		public bool SupportTimeAddress
+		{
+			get; set;
+		}
 
-		/// <summary>
-		/// Only request blocks from nodes outside this range of versions (START)
-		/// </summary>
-		NOBLKS_VERSION_START = 32000,
-
-		/// <summary>
-		/// Only request blocks from nodes outside this range of versions (END)
-		/// </summary>
-		NOBLKS_VERSION_END = 32400,
-
+		public bool SupportGetBlock
+		{
+			get; set;
+		}
 		/// <summary>
 		/// BIP 0031, pong message, is enabled for all versions AFTER this one
 		/// </summary>
-		BIP0031_VERSION = 60000,
+		public bool SupportPingPong
+		{
+			get; set;
+		}
 
 		/// <summary>
 		/// "mempool" command, enhanced "getdata" behavior starts with this version
 		/// </summary>
-		MEMPOOL_GD_VERSION = 60002,
+		public bool SupportMempoolQuery
+		{
+			get; set;
+		}
 
 		/// <summary>
 		/// "reject" command
 		/// </summary>
-		REJECT_VERSION = 70002,
+		public bool SupportReject
+		{
+			get; set;
+		}
 
 		/// <summary>
 		/// ! "filter*" commands are disabled without NODE_BLOOM after and including this version
 		/// </summary>
-		NO_BLOOM_VERSION = 70011,
+		public bool SupportNodeBloom
+		{
+			get; set;
+		}
 
 		/// <summary>
 		/// ! "sendheaders" command and announcing blocks with headers starts with this version
 		/// </summary>
-		SENDHEADERS_VERSION = 70012,
+		public bool SupportSendHeaders
+		{
+			get; set;
+		}
 
 		/// <summary>
 		/// ! Version after which witness support potentially exists
 		/// </summary>
-		WITNESS_VERSION = 70012,
+		public bool SupportWitness
+		{
+			get; set;
+		}
 
 		/// <summary>
 		/// short-id-based block download starts with this version
 		/// </summary>
-		SHORT_IDS_BLOCKS_VERSION = 70014
-}
+		public bool SupportCompactBlocks
+		{
+			get; set;
+		}
+
+		/// <summary>
+		/// Support checksum at p2p message level
+		/// </summary>
+		public bool SupportCheckSum
+		{
+			get;
+			set;
+		}
+		public bool SupportUserAgent
+		{
+			get;
+			set;
+		}
+
+		public static ProtocolCapabilities CreateSupportAll()
+		{
+			return new ProtocolCapabilities()
+			{
+				PeerTooOld = false,
+				SupportCheckSum = true,
+				SupportCompactBlocks = true,
+				SupportGetBlock = true,
+				SupportMempoolQuery = true,
+				SupportNodeBloom = true,
+				SupportPingPong = true,
+				SupportReject = true,
+				SupportSendHeaders = true,
+				SupportTimeAddress = true,
+				SupportUserAgent = true,
+				SupportWitness = true
+			};
+		}
+
+		public bool IsSupersetOf(ProtocolCapabilities capabilities)
+		{
+			return (!capabilities.SupportCheckSum || SupportCheckSum) &&
+				(!capabilities.SupportCompactBlocks || SupportCompactBlocks) &&
+				(!capabilities.SupportGetBlock || SupportGetBlock) &&
+				(!capabilities.SupportMempoolQuery || SupportMempoolQuery) &&
+				(!capabilities.SupportNodeBloom || SupportNodeBloom) &&
+				(!capabilities.SupportPingPong || SupportPingPong) &&
+				(!capabilities.SupportReject || SupportReject) &&
+				(!capabilities.SupportSendHeaders || SupportSendHeaders) &&
+				(!capabilities.SupportTimeAddress || SupportTimeAddress) &&
+				(!capabilities.SupportWitness || SupportWitness) &&
+				(!capabilities.SupportUserAgent || SupportUserAgent) &&
+				(!capabilities.SupportCheckSum || SupportCheckSum);
+		}
+	}
 }

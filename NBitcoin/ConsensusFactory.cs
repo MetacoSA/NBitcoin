@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.Protocol;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,6 +65,25 @@ namespace NBitcoin
 				return true;
 			}
 			return false;
+		}
+
+		public virtual ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)
+		{
+			return new ProtocolCapabilities()
+			{
+				PeerTooOld = protocolVersion < 209U,
+				SupportTimeAddress = protocolVersion >= 31402U,
+				SupportGetBlock = protocolVersion < 32000U || protocolVersion > 32400U,
+				SupportPingPong = protocolVersion > 60000U,
+				SupportMempoolQuery = protocolVersion >= 60002U,
+				SupportReject = protocolVersion >= 70002U,
+				SupportNodeBloom = protocolVersion >= 70011U,
+				SupportSendHeaders = protocolVersion >= 70012U,
+				SupportWitness = protocolVersion >= 70012U,
+				SupportCompactBlocks = protocolVersion >= 70014U,
+				SupportCheckSum = protocolVersion >= 60002,
+				SupportUserAgent = protocolVersion >= 60002
+			};
 		}
 
 		public virtual Block CreateBlock()
