@@ -54,7 +54,7 @@ namespace NBitcoin
 				SetBech32((Bech32Type)i, network.bech32Encoders[i]);
 			}
 			SetConsensus(network.Consensus).
-			SetGenesis(network.GetGenesis()).
+			SetGenesis(Encoders.Hex.EncodeData(network.GetGenesis().ToBytes())).
 			SetMagic(_Magic).
 			SetPort(network.DefaultPort).
 			SetRPCPort(network.RPCPort);
