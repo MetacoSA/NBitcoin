@@ -151,21 +151,21 @@ namespace NBitcoin.Tests
 				Version = "0.13.1",
 				Windows = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/FeatherCoin/Feathercoin/releases/download/{0}/feathercoin-{0}-win-setup.exe",
+					DownloadLink = "https://github.com/FeatherCoin/Feathercoin/releases/download/v{0}.0/feathercoin-{0}-win-setup.exe",
 					Archive = "feathercoin-{0}-win64.zip",
 					Executable = "feathercoin-{0}/bin/feathercoind.exe",
 					Hash = "7eb76875e38bf3c2ed35afe06d2b133780b935b81a285f8de5522ebb6e99523c"
 				},
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/FeatherCoin/Feathercoin/releases/download/{0}/feathercoin-{0}-linux64.tar.gz",
+					DownloadLink = "https://github.com/FeatherCoin/Feathercoin/releases/download/v{0}.0/feathercoin-{0}-linux64.tar.gz",
 					Archive = "feathercoin-{0}-linux64.tar.gz",
 					Executable = "feathercoin-{0}/bin/feathercoind",
 					Hash = "a24ec110cc45c935028f64198e054e1a7b096caf7671614f288f38ec516e1fd9"
 				},
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/FeatherCoin/Feathercoin/releases/download/{0}/feathercoin-{0}-mac.dmg",
+					DownloadLink = "https://github.com/FeatherCoin/Feathercoin/releases/download/v{0}.0/feathercoin-{0}-mac.dmg",
 					Archive = "feathercoin-{0}-osx64.tar.gz",
 					Executable = "feathercoin-{0}/bin/feathercoind",
 					Hash = "19d243507d8e1ad5de22b82363f5fad069037f9b419f7c01ed56af5150060737"
