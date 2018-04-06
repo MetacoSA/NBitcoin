@@ -197,7 +197,7 @@ namespace NBitcoin.Protocol
 			{
 				ProtocolVersion = version,
 				ReadCancellationToken = cancellationToken,
-				Consensus = network.Consensus
+				ConsensusFactory = network.Consensus.ConsensusFactory
 			};
 
 			if(!network.ReadMagic(stream, cancellationToken, true))

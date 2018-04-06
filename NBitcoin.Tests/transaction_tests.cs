@@ -64,10 +64,7 @@ namespace NBitcoin.Tests
 
 		private ChainedBlock CreateBlock(DateTimeOffset now, int offset, ChainBase chain = null)
 		{
-			Block b = new Block(new BlockHeader()
-			{
-				BlockTime = now + TimeSpan.FromMinutes(offset)
-			});
+			Block b = Consensus.Main.ConsensusFactory.CreateBlock();
 			if(chain != null)
 			{
 				b.Header.HashPrevBlock = chain.Tip.HashBlock;

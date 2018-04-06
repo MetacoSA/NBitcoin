@@ -325,7 +325,7 @@ namespace NBitcoin
 		}
 		public Target GetNextWorkRequired(Consensus consensus)
 		{
-			BlockHeader dummy = consensus.BlockHeaderFactory.CreateNewBlockHeader();
+			BlockHeader dummy = consensus.ConsensusFactory.CreateBlockHeader();
 			dummy.HashPrevBlock = this.HashBlock;
 			dummy.BlockTime = DateTimeOffset.UtcNow;
 			return GetNextWorkRequired(dummy, consensus);

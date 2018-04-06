@@ -49,12 +49,16 @@ namespace NBitcoin.BitcoinCore
 			return item.BlockId.ToString();
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		protected override IEnumerable<StoredItem<BlockUndo>> EnumerateForIndex(DiskBlockPosRange range)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			return Store.Enumerate(range);
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		protected override IEnumerable<StoredItem<BlockUndo>> EnumerateForGet(DiskBlockPosRange range)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			return Store.Enumerate(range);
 		}

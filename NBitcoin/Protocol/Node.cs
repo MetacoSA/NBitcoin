@@ -212,7 +212,7 @@ namespace NBitcoin.Protocol
 							{
 								ProtocolVersion = Node.Version,
 								TransactionOptions = Node.SupportedTransactionOptions,
-								Consensus = Node.Network.Consensus
+								ConsensusFactory = Node.Network.Consensus.ConsensusFactory
 							});
 							var bytes = ms.ToArrayEfficient();
 							evt.SetBuffer(bytes, 0, bytes.Length);

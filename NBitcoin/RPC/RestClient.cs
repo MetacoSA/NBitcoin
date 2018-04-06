@@ -82,7 +82,7 @@ namespace NBitcoin.RPC
 				throw new ArgumentNullException("blockId");
 
 			var result = await SendRequestAsync("block", RestResponseFormat.Bin, blockId.ToString()).ConfigureAwait(false);
-			return new Block(result);
+			return new Block(result, Network);
 		}
 		/// <summary>
 		/// Gets the block.
@@ -139,7 +139,7 @@ namespace NBitcoin.RPC
 			const int hexSize = (BlockHeader.Size);
 			return Enumerable
 				.Range(0, result.Length / hexSize)
-				.Select(i => new BlockHeader(result.SafeSubarray(i * hexSize, hexSize)));
+				.Select(i => new BlockHeader(result.SafeSubarray(i * hexSize, hexSize), Network));
 		}
 
 		/// <summary>

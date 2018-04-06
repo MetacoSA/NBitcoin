@@ -31,7 +31,7 @@
 		<DefineConstants>$(DefineConstants);WIN;LEGACY_X509</DefineConstants>
 	</PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
-    <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOCONSENSUSLIB</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETCORE;NOCUSTOMSSLVALIDATION;NOCONSENSUSLIB</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION</DefineConstants>
