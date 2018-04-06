@@ -136,12 +136,12 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Set the format to use when deserializing a Block, BlockHeader or a Transaction.
+		/// Set the format to use when serializing and deserializing consensus related types.
 		/// </summary>
-		public Consensus Consensus
+		public ConsensusFactory ConsensusFactory
 		{
 			get; set;
-		} = Network.Main.Consensus;
+		} = Consensus.Main.ConsensusFactory;
 
 		public void ReadWriteAsVarString(ref byte[] bytes)
 		{
@@ -203,7 +203,7 @@ namespace NBitcoin
 			var obj = data;
 			if(obj == null)
 			{
-				if(!Consensus.TryCreateNew<T>(out obj))
+				if(!ConsensusFactory.TryCreateNew<T>(out obj))
 					obj = Activator.CreateInstance<T>();
 			}
 			obj.ReadWrite(this);

@@ -36,7 +36,9 @@ namespace NBitcoin.BitcoinCore
 			var pos = await Index.GetAsync<DiskBlockPos>(hash.ToString()).ConfigureAwait(false);
 			if(pos == null)
 				return null;
+#pragma warning disable CS0612 // Type or member is obsolete
 			var stored = _Store.Enumerate(false, new DiskBlockPosRange(pos)).FirstOrDefault();
+#pragma warning restore CS0612 // Type or member is obsolete
 			if(stored == null)
 				return null;
 			return stored.Item.Header;
@@ -68,12 +70,16 @@ namespace NBitcoin.BitcoinCore
 			return item.GetHash().ToString();
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		protected override IEnumerable<StoredBlock> EnumerateForIndex(DiskBlockPosRange range)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			return Store.Enumerate(true, range);
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		protected override IEnumerable<StoredBlock> EnumerateForGet(DiskBlockPosRange range)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			return Store.Enumerate(false, range);
 		}

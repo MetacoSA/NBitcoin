@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
+	[Obsolete]
 	public class StoredHeader : IBitcoinSerializable
 	{
 		public StoredHeader()
@@ -79,7 +80,9 @@ namespace NBitcoin.BitcoinCore
 	{
 		public StoredItem(Network expectedNetwork, DiskBlockPos position)
 		{
+#pragma warning disable CS0612 // Type or member is obsolete
 			_Header = new StoredHeader(expectedNetwork);
+#pragma warning restore CS0612 // Type or member is obsolete
 			_BlockPosition = position;
 		}
 		public StoredItem(uint magic, T item, DiskBlockPos position)
@@ -106,8 +109,14 @@ namespace NBitcoin.BitcoinCore
 
 
 
+#pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0612 // Type or member is obsolete
 		private StoredHeader _Header = new StoredHeader();
+#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning disable CS0612 // Type or member is obsolete
 		public StoredHeader Header
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			get
 			{

@@ -960,7 +960,7 @@ namespace NBitcoin.RPC
 		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
 			var resp = await SendCommandAsync(RPCOperations.getblock, blockId.ToString(), false).ConfigureAwait(false);
-			return new Block(Encoders.Hex.DecodeData(resp.Result.ToString()));
+			return new Block(Encoders.Hex.DecodeData(resp.Result.ToString()), Network);
 		}
 
 		/// <summary>
@@ -998,7 +998,7 @@ namespace NBitcoin.RPC
 
 		private BlockHeader ParseBlockHeader(RPCResponse resp)
 		{
-			var header = Network.Consensus.BlockHeaderFactory.CreateNewBlockHeader();
+			var header = Network.Consensus.ConsensusFactory.CreateBlockHeader();
 			header.Version = (int)resp.Result["version"];
 			header.Nonce = (uint)resp.Result["nonce"];
 			header.Bits = new Target(Encoders.Hex.DecodeData((string)resp.Result["bits"]));

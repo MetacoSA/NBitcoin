@@ -93,10 +93,14 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		public IEnumerable<TStoredItem> Enumerate(DiskBlockPosRange range)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			if(range == null)
+#pragma warning disable CS0612 // Type or member is obsolete
 				range = DiskBlockPosRange.All;
+#pragma warning restore CS0612 // Type or member is obsolete
 			using(CreateLock(FileLockType.Read))
 			{
 				foreach(var b in EnumerateFolder(range))
@@ -109,10 +113,14 @@ namespace NBitcoin.BitcoinCore
 
 
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		public IEnumerable<TStoredItem> Enumerate(Stream stream, uint fileIndex = 0, DiskBlockPosRange range = null)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			if(range == null)
+#pragma warning disable CS0612 // Type or member is obsolete
 				range = DiskBlockPosRange.All;
+#pragma warning restore CS0612 // Type or member is obsolete
 
 			if(fileIndex < range.Begin.File || range.End.File < fileIndex)
 				yield break;
@@ -121,14 +129,18 @@ namespace NBitcoin.BitcoinCore
 				var start = DiskBlockPos.Begin.OfFile(fileIndex);
 				if(start >= range.End)
 					yield break;
+#pragma warning disable CS0612 // Type or member is obsolete
 				range = new DiskBlockPosRange(start, range.End);
+#pragma warning restore CS0612 // Type or member is obsolete
 			}
 			if(range.End.File > fileIndex)
 			{
 				var end = DiskBlockPos.End.OfFile(fileIndex);
 				if(range.Begin >= end)
 					yield break;
+#pragma warning disable CS0612 // Type or member is obsolete
 				range = new DiskBlockPosRange(range.Begin, end);
+#pragma warning restore CS0612 // Type or member is obsolete
 			}
 
 			stream.Position = range.Begin.Position;
@@ -144,10 +156,14 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		public IEnumerable<TStoredItem> EnumerateFile(FileInfo file, uint fileIndex = 0, DiskBlockPosRange range = null)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			if(range == null)
+#pragma warning disable CS0612 // Type or member is obsolete
 				range = DiskBlockPosRange.All;
+#pragma warning restore CS0612 // Type or member is obsolete
 
 			using(var fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, BufferSize))
 			{
@@ -159,18 +175,26 @@ namespace NBitcoin.BitcoinCore
 			}
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		public IEnumerable<TStoredItem> EnumerateFile(string fileName, uint fileIndex = 0, DiskBlockPosRange range = null)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			if(range == null)
+#pragma warning disable CS0612 // Type or member is obsolete
 				range = DiskBlockPosRange.All;
+#pragma warning restore CS0612 // Type or member is obsolete
 			return EnumerateFile(new FileInfo(fileName), fileIndex, range);
 		}
 
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		public IEnumerable<TStoredItem> EnumerateFolder(DiskBlockPosRange range = null)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			if(range == null)
+#pragma warning disable CS0612 // Type or member is obsolete
 				range = DiskBlockPosRange.All;
+#pragma warning restore CS0612 // Type or member is obsolete
 			foreach(var file in _Folder.GetFiles().OrderBy(f => f.Name))
 			{
 				var fileIndex = GetFileIndex(file.Name);
