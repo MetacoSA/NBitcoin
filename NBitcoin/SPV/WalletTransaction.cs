@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.SPV
 {
+	[Obsolete]
 	public class BlockInformation
 	{
 		public BlockHeader Header
@@ -24,6 +25,7 @@ namespace NBitcoin.SPV
 			set;
 		}
 	}
+	[Obsolete]
 	public class WalletTransaction
 	{
 		public WalletTransaction()

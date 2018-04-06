@@ -17,13 +17,14 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.SPV
 {
+	[Obsolete]
 	public enum WalletState
 	{
 		Created,
 		Disconnected,
 		Connected
 	}
-
+	[Obsolete]
 	public class WalletCreation
 	{
 
@@ -129,7 +130,9 @@ namespace NBitcoin.SPV
 		}
 	}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 	public delegate void NewWalletTransactionDelegate(Wallet sender, WalletTransaction walletTransaction);
+#pragma warning restore CS0612 // Type or member is obsolete
 
 	/// <summary>
 	/// A SPV Wallet respecting recommendation for privacy http://eprint.iacr.org/2014/763.pdf
@@ -146,7 +149,9 @@ namespace NBitcoin.SPV
 					return _Wallet;
 				}
 			}
+#pragma warning disable CS0612 // Type or member is obsolete
 			TrackerBehavior _Tracker;
+#pragma warning restore CS0612 // Type or member is obsolete
 			BroadcastHub _Broadcast;
 			public WalletBehavior(Wallet wallet)
 			{
@@ -154,7 +159,9 @@ namespace NBitcoin.SPV
 			}
 			protected override void AttachCore()
 			{
+#pragma warning disable CS0612 // Type or member is obsolete
 				_Tracker = AttachedNode.Behaviors.Find<TrackerBehavior>();
+#pragma warning restore CS0612 // Type or member is obsolete
 				if(_Tracker != null)
 				{
 					AttachedNode.Disconnected += AttachedNode_Disconnected;
@@ -220,7 +227,9 @@ namespace NBitcoin.SPV
 
 		int _KeyPoolSize;
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		WalletCreation _Parameters;
+#pragma warning restore CS0612 // Type or member is obsolete
 
 		Dictionary<Script, KeyPath> _KnownScripts = new Dictionary<Script, KeyPath>();
 
@@ -238,12 +247,14 @@ namespace NBitcoin.SPV
 
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		/// <summary>
 		/// Create a new wallet
 		/// </summary>
 		/// <param name="creation">Creation parameters</param>
 		/// <param name="keyPoolSize">The number of keys which will be pre-created</param>
 		public Wallet(WalletCreation creation, int keyPoolSize = 500)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			if(creation == null)
 				throw new ArgumentNullException("creation");
@@ -260,7 +271,9 @@ namespace NBitcoin.SPV
 		/// <param name="rootKey"></param>
 		/// <param name="keyPoolSize"></param>
 		public Wallet(BitcoinExtPubKey rootKey, int keyPoolSize = 500)
+#pragma warning disable CS0612 // Type or member is obsolete
 			: this(new WalletCreation(rootKey), keyPoolSize)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 		}
 
@@ -286,7 +299,9 @@ namespace NBitcoin.SPV
 		{
 			AddKnown(keyPath, Tracker, IsInternal(keyPath));
 		}
+#pragma warning disable CS0612 // Type or member is obsolete
 		private void AddKnown(KeyPath keyPath, Tracker tracker, bool isInternal)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			if(_Parameters.UseP2SH)
 			{
@@ -338,13 +353,17 @@ namespace NBitcoin.SPV
 			}
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		public WalletTransactionsCollection GetTransactions()
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			AssertGroupAffected();
 			return Tracker.GetWalletTransactions(Chain, Name);
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		public WalletCreation CreationSettings
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			get
 			{
@@ -378,14 +397,18 @@ namespace NBitcoin.SPV
 			}
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		public Tracker Tracker
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			get
 			{
 				if(_Group == null)
 					return null;
 				return _Group.NodeConnectionParameters.TemplateBehaviors
+#pragma warning disable CS0612 // Type or member is obsolete
 							.OfType<TrackerBehavior>()
+#pragma warning restore CS0612 // Type or member is obsolete
 							.Select(t => t.Tracker)
 							.FirstOrDefault();
 			}
@@ -426,7 +449,9 @@ namespace NBitcoin.SPV
 					{
 						foreach(var node in _Group.ConnectedNodes)
 						{
+#pragma warning disable CS0612 // Type or member is obsolete
 							var tracker = node.Behaviors.Find<TrackerBehavior>();
+#pragma warning restore CS0612 // Type or member is obsolete
 							if(tracker == null)
 								continue;
 							foreach(var data in result.ToOps().Select(o => o.PushData).Where(o => o != null))
@@ -450,7 +475,9 @@ namespace NBitcoin.SPV
 				{
 					foreach(var node in _Group.ConnectedNodes)
 					{
+#pragma warning disable CS0612 // Type or member is obsolete
 						node.Behaviors.Find<TrackerBehavior>().RefreshBloomFilter();
+#pragma warning restore CS0612 // Type or member is obsolete
 					}
 				}
 			}
@@ -551,14 +578,24 @@ namespace NBitcoin.SPV
 			return _ParentKeys[rootKeyIndex].Derive(keyPath);
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		WalletState _State;
+#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning disable CS0612 // Type or member is obsolete
 		public WalletState State
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			get
 			{
+#pragma warning disable CS0612 // Type or member is obsolete
 				if(_State == WalletState.Created)
+#pragma warning restore CS0612 // Type or member is obsolete
 					return _State;
+#pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0612 // Type or member is obsolete
 				return _Group.ConnectedNodes.Count == _Group.MaximumNodeConnection ? WalletState.Connected : WalletState.Disconnected;
+#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning restore CS0612 // Type or member is obsolete
 			}
 		}
 
@@ -572,9 +609,13 @@ namespace NBitcoin.SPV
 		/// <param name="tracker">The tracker responsible for providing bloom filters</param>
 		public void Configure(ConcurrentChain chain = null,
 							AddressManager addrman = null,
+#pragma warning disable CS0612 // Type or member is obsolete
 							Tracker tracker = null)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
+#pragma warning disable CS0612 // Type or member is obsolete
 			if(State != WalletState.Created)
+#pragma warning restore CS0612 // Type or member is obsolete
 				throw new InvalidOperationException("The wallet is already connecting or connected");
 
 			var parameters = new NodeConnectionParameters();
@@ -587,7 +628,9 @@ namespace NBitcoin.SPV
 			if(chain != null)
 				parameters.TemplateBehaviors.Add(new ChainBehavior(chain)); //Keep chain in sync
 			if(tracker != null)
+#pragma warning disable CS0612 // Type or member is obsolete
 				parameters.TemplateBehaviors.Add(new TrackerBehavior(tracker, chain)); //Set bloom filters and scan the blockchain
+#pragma warning restore CS0612 // Type or member is obsolete
 
 			Configure(parameters);
 		}
@@ -631,10 +674,16 @@ namespace NBitcoin.SPV
 				parameters.TemplateBehaviors.Add(addrman);
 			}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 			var tracker = parameters.TemplateBehaviors.Find<TrackerBehavior>();
+#pragma warning restore CS0612 // Type or member is obsolete
 			if(tracker == null)
 			{
+#pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0612 // Type or member is obsolete
 				tracker = new TrackerBehavior(new Tracker(), chain.Chain);
+#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning restore CS0612 // Type or member is obsolete
 				parameters.TemplateBehaviors.Add(tracker);
 			}
 			var wallet = FindWalletBehavior(parameters.TemplateBehaviors);
@@ -664,7 +713,11 @@ namespace NBitcoin.SPV
 			return behaviors.OfType<WalletBehavior>().FirstOrDefault(o => o.Wallet == this);
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0612 // Type or member is obsolete
 		void _ListenerTracked_NewOperation(Tracker sender, Tracker.IOperation trackerOperation)
+#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			var newWalletTransaction = NewWalletTransaction;
 			if(newWalletTransaction != null && _Group != null)
@@ -675,7 +728,9 @@ namespace NBitcoin.SPV
 				}
 			}
 		}
+#pragma warning disable CS0612 // Type or member is obsolete
 		Tracker _ListenedTracker;
+#pragma warning restore CS0612 // Type or member is obsolete
 
 		/// <summary>
 		/// Start the connection to the NodeGroup
@@ -683,9 +738,13 @@ namespace NBitcoin.SPV
 		public void Connect()
 		{
 			AssertGroupAffected();
+#pragma warning disable CS0612 // Type or member is obsolete
 			if(State != WalletState.Created)
+#pragma warning restore CS0612 // Type or member is obsolete
 				throw new InvalidOperationException("The wallet is already connecting or connected");
+#pragma warning disable CS0612 // Type or member is obsolete
 			_State = WalletState.Disconnected;
+#pragma warning restore CS0612 // Type or member is obsolete
 			_Group.Connect();
 			_Group.ConnectedNodes.Added += ConnectedNodes_Added;
 			foreach(var node in _Group.ConnectedNodes)
@@ -734,7 +793,9 @@ namespace NBitcoin.SPV
 					return;
 				var progress =
 						nodes
+#pragma warning disable CS0612 // Type or member is obsolete
 					   .Select(f => f.Behaviors.Find<TrackerBehavior>())
+#pragma warning restore CS0612 // Type or member is obsolete
 					   .Where(f => f != null)
 					   .Select(f => f.CurrentProgress)
 					   .Where(p => p != null)
@@ -760,12 +821,16 @@ namespace NBitcoin.SPV
 
 		public void Disconnect()
 		{
+#pragma warning disable CS0612 // Type or member is obsolete
 			if(_State == WalletState.Created)
+#pragma warning restore CS0612 // Type or member is obsolete
 				return;
 			TryUpdateLocation();
 			_Group.Disconnect();
 			_Group.ConnectedNodes.Added -= ConnectedNodes_Added;
+#pragma warning disable CS0612 // Type or member is obsolete
 			_State = WalletState.Created;
+#pragma warning restore CS0612 // Type or member is obsolete
 		}
 
 		public int ConnectedNodes
@@ -830,7 +895,9 @@ namespace NBitcoin.SPV
 			{
 				DateParseHandling = DateParseHandling.DateTimeOffset
 			});
+#pragma warning disable CS0612 // Type or member is obsolete
 			_Parameters = WalletCreation.FromJson((JObject)obj["Parameters"]);
+#pragma warning restore CS0612 // Type or member is obsolete
 			_PathStates = new Dictionary<KeyPath, PathState>();
 			if(obj.Property("CurrentIndex") != null) //legacy
 			{

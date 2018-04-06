@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.SPV
 {
+	[Obsolete]
 	public class WalletTransactionsCollection : IEnumerable<WalletTransaction>
 	{
 		public WalletTransactionsCollection(WalletTransaction[] walletTransactions)
