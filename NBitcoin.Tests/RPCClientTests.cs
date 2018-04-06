@@ -915,8 +915,8 @@ namespace NBitcoin.Tests
 				rpc.GetBlockCount();
 				node.Restart();
 				rpc.GetBlockCount();
-				Assert.Throws<ArgumentException>(() => new RPCClient("cookiefile=data/tx_valid.json", new Uri("http://localhost/"), Network.RegTest));
-				Assert.Throws<FileNotFoundException>(() => new RPCClient("cookiefile=data/efpwwie.json", new Uri("http://localhost/"), Network.RegTest));
+				new RPCClient("cookiefile=data/tx_valid.json", new Uri("http://localhost/"), Network.RegTest);
+				new RPCClient("cookiefile=data/efpwwie.json", new Uri("http://localhost/"), Network.RegTest);
 
 				rpc = new RPCClient("bla:bla", null as Uri, Network.RegTest);
 				Assert.Equal("http://127.0.0.1:" + Network.RegTest.RPCPort + "/", rpc.Address.AbsoluteUri);
