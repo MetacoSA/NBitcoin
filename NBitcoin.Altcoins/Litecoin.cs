@@ -10,7 +10,7 @@ using System.Net;
 
 namespace NBitcoin.Altcoins
 {
-	public class Networks
+	public class Litecoin
 	{
 		//Format visual studio
 		//{({.*?}), (.*?)}
@@ -118,6 +118,7 @@ namespace NBitcoin.Altcoins
 				return new uint256(h);
 			}
 		}
+
 #pragma warning restore CS0618 // Type or member is obsolete
 
 		public static void EnsureRegistered()
@@ -271,26 +272,26 @@ namespace NBitcoin.Altcoins
 				var bitcoinFolder = Path.Combine(home, ".litecoin");
 
 				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Networks._Mainnet, mainnet);
+				RPCClient.RegisterDefaultCookiePath(Litecoin._Mainnet, mainnet);
 
 				var testnet = Path.Combine(bitcoinFolder, "testnet4", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Networks._Testnet, testnet);
+				RPCClient.RegisterDefaultCookiePath(Litecoin._Testnet, testnet);
 
 				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Networks._Regtest, regtest);
+				RPCClient.RegisterDefaultCookiePath(Litecoin._Regtest, regtest);
 			}
 			else if(!string.IsNullOrEmpty(localAppData))
 			{
 				var bitcoinFolder = Path.Combine(localAppData, "Litecoin");
 
 				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Networks._Mainnet, mainnet);
+				RPCClient.RegisterDefaultCookiePath(Litecoin._Mainnet, mainnet);
 
 				var testnet = Path.Combine(bitcoinFolder, "testnet4", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Networks._Testnet, testnet);
+				RPCClient.RegisterDefaultCookiePath(Litecoin._Testnet, testnet);
 
 				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Networks._Regtest, regtest);
+				RPCClient.RegisterDefaultCookiePath(Litecoin._Regtest, regtest);
 			}
 			return new object();
 		}

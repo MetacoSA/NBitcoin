@@ -11,6 +11,8 @@ namespace NBitcoin.Tests
 	{
 		public static NodeBuilder Create([CallerMemberName] string caller = null)
 		{
+			//Altcoins.Litecoin.EnsureRegistered();
+			//return NodeBuilder.Create(NodeDownloadData.Litecoin.v0_15_1, Altcoins.Litecoin.Regtest, caller);
 			return NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_16_0, Network.RegTest, caller);
 		}
 	}

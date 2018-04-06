@@ -41,7 +41,7 @@ namespace NBitcoin
 			if(!cache.TryGetValue(typeof(T), out isAssignable))
 			{
 				isAssignable = type.IsAssignableFrom(typeof(T).GetTypeInfo());
-				_IsAssignableFromBlockHeader.TryAdd(typeof(T), isAssignable);
+				cache.TryAdd(typeof(T), isAssignable);
 			}
 			return isAssignable;
 		}
