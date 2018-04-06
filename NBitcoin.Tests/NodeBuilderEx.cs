@@ -13,6 +13,10 @@ namespace NBitcoin.Tests
 		{
 			//Altcoins.Litecoin.EnsureRegistered();
 			//return NodeBuilder.Create(NodeDownloadData.Litecoin.v0_15_1, Altcoins.Litecoin.Regtest, caller);
+
+			//Altcoins.BCash.EnsureRegistered();
+			//return NodeBuilder.Create(NodeDownloadData.BCash.v0_16_2, Altcoins.BCash.Regtest, caller);
+
 			return NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_16_0, Network.RegTest, caller);
 		}
 	}

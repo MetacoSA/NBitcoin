@@ -34,14 +34,16 @@ Once you made your own `Network`, fill [WellknownNodeDownloadData](../NBitcoin.T
 Then, change [NodeBuilderEx](../NBitcoin.Tests/NodeBuilderEx.cs) like the following example.
 
 ```
-		public static NodeBuilder Create([CallerMemberName] string caller = null)
-		{
-			Altcoins.Litecoin.EnsureRegistered();
-			return NodeBuilder.Create(NodeDownloadData.Litecoin.v0_15_1, Altcoins.Litecoin.Regtest, caller);
-		}
+public static NodeBuilder Create([CallerMemberName] string caller = null)
+{
+	Altcoins.Litecoin.EnsureRegistered();
+	return NodeBuilder.Create(NodeDownloadData.Litecoin.v0_15_1, Altcoins.Litecoin.Regtest, caller);
+}
 ```
 
 You can then run the tests with your altcoin in command line from the NBitcoin.Tests project:
+
+Note that the first time can take a while because the test environment download the node binaries.
 
 ```
 dotnet test -c Release NBitcoin.Tests.csproj --filter "Altcoins=Altcoins" -p:ParallelizeTestCollections=false --framework netcoreapp2.0

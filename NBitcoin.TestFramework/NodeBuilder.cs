@@ -338,7 +338,7 @@ namespace NBitcoin.Tests
 			FindPorts(ports);
 		}
 
-		string GetRPCAuth()
+		public string GetRPCAuth()
 		{
 			if(!CookieAuth)
 				return creds.UserName + ":" + creds.Password;
