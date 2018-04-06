@@ -166,6 +166,16 @@ namespace NBitcoin.Altcoins
 		}
 		static Lazy<object> _LazyRegistered = new Lazy<object>(RegisterLazy, false);
 
+		class BCashConsensusFactory : ConsensusFactory
+		{
+			public override ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)
+			{
+				var capabilities = base.GetProtocolCapabilities(protocolVersion);
+				capabilities.SupportWitness = false;
+				return capabilities;
+			}
+		}
+
 		private static object RegisterLazy()
 		{
 			#region Mainnet
@@ -187,7 +197,8 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
 				HashGenesisBlock = new uint256("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
-				MinimumChainWork = new uint256("0000000000000000000000000000000000000000007e5dbf54c7f6b58a6853cd")
+				MinimumChainWork = new uint256("0000000000000000000000000000000000000000007e5dbf54c7f6b58a6853cd"),
+				ConsensusFactory = new BCashConsensusFactory()
 			})
 			// See https://support.bitpay.com/hc/en-us/articles/115004671663-BitPay-s-Adopted-Conventions-for-Bitcoin-Cash-Addresses-URIs-and-Payment-Requests
 			// Note: This is not compatible with Bitcoin ABC
@@ -239,6 +250,7 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				HashGenesisBlock = new uint256("000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"),
 				MinimumChainWork = new uint256("00000000000000000000000000000000000000000000002888c34d61b53a244a"),
+				ConsensusFactory = new BCashConsensusFactory()
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
@@ -286,7 +298,8 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206")
+				HashGenesisBlock = new uint256("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"),
+				ConsensusFactory = new BCashConsensusFactory()
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
