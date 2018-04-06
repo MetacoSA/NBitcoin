@@ -216,7 +216,7 @@ namespace NBitcoin.Tests
 		{
 			var child = Path.Combine(_Root, last.ToString());
 			last++;
-			var node = new CoreNode(child, this);
+			var node = new CoreNode(child, this) { Network = Network };
 			Nodes.Add(node);
 			if(start)
 				node.Start();
