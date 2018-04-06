@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.SPV
 {
+	[Obsolete]
 	public class WalletSummary
 	{
 		public WalletSummary()
@@ -34,6 +35,7 @@ namespace NBitcoin.SPV
 			set;
 		}
 	}
+	[Obsolete]
 	public class WalletSummaryDetails
 	{
 
