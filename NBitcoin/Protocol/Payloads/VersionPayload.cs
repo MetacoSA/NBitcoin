@@ -76,19 +76,15 @@ namespace NBitcoin.Protocol
 		}
 		uint version;
 
-		public ProtocolVersion Version
+		public uint Version
 		{
 			get
 			{
-				if(version == 10300) //A version number of 10300 is converted to 300 before being processed
-					return (ProtocolVersion)(300);  //https://en.bitcoin.it/wiki/Version_Handshake
-				return (ProtocolVersion)version;
+				return version;
 			}
 			set
 			{
-				if(value == (ProtocolVersion)10300)
-					value = (ProtocolVersion)300;
-				version = (uint)value;
+				version = value;
 			}
 		}
 		ulong services;
@@ -201,23 +197,23 @@ namespace NBitcoin.Protocol
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref version);
-			using(stream.ProtocolVersionScope((ProtocolVersion)version))
+			using(stream.ProtocolVersionScope(version))
 			{
 				stream.ReadWrite(ref services);
 				stream.ReadWrite(ref timestamp);
-				using(stream.ProtocolVersionScope(ProtocolVersion.CADDR_TIME_VERSION - 1)) //No time field in version message
+				using(stream.SerializationTypeScope(SerializationType.Hash)) //No time field in version message
 				{
 					stream.ReadWrite(ref addr_recv);
 				}
 				if(version >= 106)
 				{
-					using(stream.ProtocolVersionScope(ProtocolVersion.CADDR_TIME_VERSION - 1)) //No time field in version message
+					using(stream.SerializationTypeScope(SerializationType.Hash)) //No time field in version message
 					{
 						stream.ReadWrite(ref addr_from);
 					}
 					stream.ReadWrite(ref nonce);
 					stream.ReadWrite(ref user_agent);
-					if(version < 60002)
+					if(!stream.ProtocolCapabilities.SupportUserAgent)
 						if(user_agent.Length != 0)
 							throw new FormatException("Should not find user agent for current version " + version);
 					stream.ReadWrite(ref start_height);

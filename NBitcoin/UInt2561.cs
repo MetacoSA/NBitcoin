@@ -349,7 +349,7 @@ namespace NBitcoin
 			return new MutableUint256(this);
 		}
 		
-		public int GetSerializeSize(int nType=0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
+		public int GetSerializeSize(int nType=0, uint? protocolVersion = null)
 		{
 			return WIDTH_BYTE;
 		}
@@ -683,7 +683,7 @@ namespace NBitcoin
 			return new MutableUint160(this);
 		}
 		
-		public int GetSerializeSize(int nType=0, ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
+		public int GetSerializeSize(int nType=0, uint? protocolVersion = null)
 		{
 			return WIDTH_BYTE;
 		}

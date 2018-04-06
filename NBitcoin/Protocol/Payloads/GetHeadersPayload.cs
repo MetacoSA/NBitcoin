@@ -20,16 +20,16 @@ namespace NBitcoin.Protocol
 		{
 			BlockLocators = locator;
 		}
-		uint version = (uint)ProtocolVersion.PROTOCOL_VERSION;
-		public ProtocolVersion Version
+		uint version = (uint)Network.Main.MaxP2PVersion;
+		public uint Version
 		{
 			get
 			{
-				return (ProtocolVersion)version;
+				return version;
 			}
 			set
 			{
-				version = (uint)value;
+				version = value;
 			}
 		}
 
