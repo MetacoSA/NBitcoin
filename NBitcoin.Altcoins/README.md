@@ -26,11 +26,11 @@ Network network = NBitcoin.Altcoins.Litecoin.Testnet;
 
 Follow Litecoin example and make a pull request.
 
-NBitcoin developer does not test those PRs, so you are responsible to keep it working.
+NBitcoin developers do not test those PRs, so you are responsible to keep it working.
 
 ## How to test?
 
-Once you made your own `Network`, fill [WellknownNodeDownloadData](../NBitcoin.Tests/WellknownNodeDownloadData.cs) so the test environment can download and execute your coin.
+If you wnat to test your newly created `Network`, update [WellknownNodeDownloadData](../NBitcoin.Tests/WellknownNodeDownloadData.cs) so the test environment can download binaries and run for your blockchain on regtest.
 
 Then, change [NodeBuilderEx](../NBitcoin.Tests/NodeBuilderEx.cs) like the following example.
 
@@ -42,7 +42,7 @@ public static NodeBuilder Create([CallerMemberName] string caller = null)
 }
 ```
 
-You can then run the tests with your altcoin in command line from the NBitcoin.Tests project:
+You can then run the tests for your altcoin in command line from the NBitcoin.Tests project:
 
 Note that the first time can take a while because the test environment download the node binaries.
 
@@ -50,6 +50,6 @@ Note that the first time can take a while because the test environment download 
 dotnet test -c Release NBitcoin.Tests.csproj --filter "Altcoins=Altcoins" -p:ParallelizeTestCollections=false --framework netcoreapp2.0
 ```
 
-Or with visual studio.
+You can also manually execute any test with Visual Studio.
 
 Note that the tests with the trait `Altcoins=Altcoins` are only doing some sanity check. You might want to run additional tests.
