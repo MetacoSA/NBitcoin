@@ -28,11 +28,11 @@ How to get started ? Check out this article [on CodeProject](http://www.codeproj
 
 > **Install-Package NBitcoin.Altcoins** 
 
-Find more information [here](https://github.com/MetacoSA/NBitcoin/NBitcoin.Altcoins).
+Find more information [here](NBitcoin.Altcoins).
 
 # How to use with my own blockchain?
 
- Find more information [here](https://github.com/MetacoSA/NBitcoin/NBitcoin.Altcoins).
+ Find more information [here](NBitcoin.Altcoins).
 
 # How to use in Unity 3.5
 
