@@ -43,7 +43,7 @@ namespace NBitcoin.Tests
 			{
 				var node = builder.CreateNode();
 				builder.StartAll();
-				node.CreateRPCClient().Generate(100);
+				node.Generate(100);
 
 				var nodeClient = node.CreateNodeClient();
 				nodeClient.VersionHandshake();
@@ -60,7 +60,7 @@ namespace NBitcoin.Tests
 			{
 				var node = builder.CreateNode();
 				builder.StartAll();
-				node.CreateRPCClient().Generate(100);
+				node.Generate(100);
 				var nodeClient = node.CreateNodeClient();
 				nodeClient.VersionHandshake();
 				ConcurrentChain chain = new ConcurrentChain(builder.Network);

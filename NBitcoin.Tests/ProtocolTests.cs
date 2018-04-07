@@ -237,29 +237,30 @@ namespace NBitcoin.Tests
 		{
 			using(var builder = NodeBuilderEx.Create())
 			{
-				var node = builder.CreateNode(true).CreateNodeClient();
-				builder.Nodes[0].Generate(101);
-				var rpc = builder.Nodes[0].CreateRPCClient();
-				builder.Nodes[0].Split(Money.Coins(50m), 50);
-				builder.Nodes[0].SelectMempoolTransactions();
-				builder.Nodes[0].Generate(1);
+				var node = builder.CreateNode(true);
+				var rpc = node.CreateRPCClient();
+				var nodeClient = node.CreateNodeClient();
+				rpc.Generate(101);
+				var batch = rpc.PrepareBatch();
 				for(int i = 0; i < 20; i++)
 				{
-					rpc.SendToAddress(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(0.5m));
+#pragma warning disable CS4014
+					batch.SendToAddressAsync(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(0.5m));
+#pragma warning restore CS4014
 				}
-				builder.Nodes[0].SelectMempoolTransactions();
-				builder.Nodes[0].Generate(1);
-				var block = builder.Nodes[0].CreateRPCClient().GetBlock(103);
-				var knownTx = block.Transactions[0].GetHash();
-				var knownAddress = block.Transactions[0].Outputs[0].ScriptPubKey.GetDestination();
-				node.VersionHandshake();
-				using(var list = node.CreateListener()
+				batch.SendBatch();
+				var blockId = rpc.Generate(1)[0];
+				var block = rpc.GetBlock(blockId);
+				var knownTx = block.Transactions[1].GetHash();
+				var knownAddress = block.Transactions[1].Outputs[0].ScriptPubKey.GetDestination();
+				nodeClient.VersionHandshake();
+				using(var list = nodeClient.CreateListener()
 										.Where(m => m.Message.Payload is MerkleBlockPayload || m.Message.Payload is TxPayload))
 				{
 					BloomFilter filter = new BloomFilter(1, 0.005, 50, BloomFlags.UPDATE_NONE);
 					filter.Insert(knownAddress.ToBytes());
-					node.SendMessageAsync(new FilterLoadPayload(filter));
-					node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, block.GetHash())));
+					nodeClient.SendMessageAsync(new FilterLoadPayload(filter));
+					nodeClient.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, block.GetHash())));
 					var merkle = list.ReceivePayload<MerkleBlockPayload>();
 					var tree = merkle.Object.PartialMerkleTree;
 					Assert.True(tree.Check(block.Header.HashMerkleRoot));
@@ -288,7 +289,7 @@ namespace NBitcoin.Tests
 					act();
 
 					var unknownBlock = uint256.Parse("00000000ad262227291eaf90cafdc56a8f8451e2d7653843122c5bb0bf2dfcdd");
-					node.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, Network.RegTest.GetGenesis().GetHash())));
+					nodeClient.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, Network.RegTest.GetGenesis().GetHash())));
 
 					merkle = list.ReceivePayload<MerkleBlockPayload>();
 					tree = merkle.Object.PartialMerkleTree;
@@ -334,7 +335,7 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode(true).CreateNodeClient();
-				builder.Nodes[0].CreateRPCClient().Generate(600);
+				builder.Nodes[0].Generate(600);
 				var rpc = builder.Nodes[0].CreateRPCClient();
 				var chain = node.GetChain(rpc.GetBlockHash(500));
 				Assert.True(chain.Height == 500);
@@ -399,8 +400,9 @@ namespace NBitcoin.Tests
 				var node = builder.CreateNode();
 				node.ConfigParameters.Add("whitelist", "127.0.0.1");
 				node.Start();
-				node.Generate(101);
-				node.CreateRPCClient().SendToAddress(new Key().PubKey.GetAddress(Network.RegTest), Money.Coins(1.0m));
+				var rpc = node.CreateRPCClient();
+				rpc.Generate(101);
+				rpc.SendToAddress(new Key().PubKey.GetAddress(Network.RegTest), Money.Coins(1.0m));
 				var client = node.CreateNodeClient();
 				client.VersionHandshake();
 				var transactions = client.GetMempoolTransactions();
@@ -451,7 +453,8 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode(true);
-				node.Generate(50);
+				var rpc = node.CreateRPCClient();
+				rpc.Generate(50);
 				var client = node.CreateNodeClient();
 				var chain = client.GetChain();
 				var blocks = client.GetBlocks(chain.GetBlock(20).HashBlock).ToArray();
@@ -472,9 +475,10 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
 				node.ConfigParameters.Add("whitelist", "127.0.0.1");
 				node.Start();
-				node.Generate(102);
+				rpc.Generate(102);
 				for(int i = 0; i < 2; i++)
 					node.CreateRPCClient().SendToAddress(new Key().PubKey.GetAddress(Network.RegTest), Money.Coins(1.0m));
 				var client = node.CreateNodeClient();
@@ -491,13 +495,13 @@ namespace NBitcoin.Tests
 			{
 				ConcurrentChain chain = new ConcurrentChain(Network.RegTest);
 				var node1 = builder.CreateNode(true);
-				node1.CreateRPCClient().Generate(10);
+				node1.Generate(10);
 				node1.CreateNodeClient().SynchronizeChain(chain);
 				Assert.Equal(10, chain.Height);
 
 
 				var node2 = builder.CreateNode(true);
-				node2.CreateRPCClient().Generate(12);
+				node2.Generate(12);
 
 				var node2c = node2.CreateNodeClient();
 				node2c.PollHeaderDelay = TimeSpan.FromSeconds(2);
@@ -513,15 +517,16 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilderEx.Create())
 			{
 				bool generating = true;
-				builder.CreateNode(true);
+				var node = builder.CreateNode(true);
+				var rpc = node.CreateRPCClient();
 				Task.Run(() =>
 				{
-					builder.Nodes[0].Generate(600);
+					rpc.Generate(600);
 					generating = false;
 				});
-				var node = builder.Nodes[0].CreateNodeClient();
-				node.PollHeaderDelay = TimeSpan.FromSeconds(2);
-				node.VersionHandshake();
+				var nodeClient = node.CreateNodeClient();
+				nodeClient.PollHeaderDelay = TimeSpan.FromSeconds(2);
+				nodeClient.VersionHandshake();
 				Random rand = new Random();
 				Thread.Sleep(1000);
 				var chains =
@@ -529,21 +534,21 @@ namespace NBitcoin.Tests
 					.Select(_ => Task.Factory.StartNew(() =>
 					{
 						Thread.Sleep(rand.Next(0, 1000));
-						return node.GetChain();
+						return nodeClient.GetChain();
 					}))
 					.Select(t => t.Result)
 					.ToArray();
 				while(generating)
 				{
-					SyncAll(node, rand, chains);
+					SyncAll(nodeClient, rand, chains);
 				}
-				SyncAll(node, rand, chains);
+				SyncAll(nodeClient, rand, chains);
 				foreach(var c in chains)
 				{
 					Assert.Equal(600, c.Height);
 				}
 
-				var chainNoHeader = node.GetChain(new SynchronizeChainOptions() { SkipPoWCheck = true, StripHeaders = true });
+				var chainNoHeader = nodeClient.GetChain(new SynchronizeChainOptions() { SkipPoWCheck = true, StripHeaders = true });
 				Assert.False(chainNoHeader.Tip.HasHeader);
 			}
 		}
