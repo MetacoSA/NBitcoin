@@ -526,88 +526,20 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		List<Transaction> transactions = new List<Transaction>();
-		HashSet<OutPoint> locked = new HashSet<OutPoint>();
-		Money fee = Money.Coins(0.0001m);
-		public Transaction GiveMoney(Script destination, Money amount, bool broadcast = true)
+		public uint256[] Generate(int blockCount)
+		{
+			return CreateRPCClient().Generate(blockCount);
+		}
+
+		public void Broadcast(params Transaction[] transactions)
 		{
 			var rpc = CreateRPCClient();
-			TransactionBuilder builder = new TransactionBuilder();
-			builder.AddKeys(rpc.ListSecrets().OfType<ISecret>().ToArray());
-			builder.AddCoins(rpc.ListUnspent().Where(c => !locked.Contains(c.OutPoint)).Select(c => c.AsCoin()));
-			builder.Send(destination, amount);
-			builder.SendFees(fee);
-			builder.SetChange(GetFirstSecret(rpc));
-			var tx = builder.BuildTransaction(true);
-			foreach(var outpoint in tx.Inputs.Select(i => i.PrevOut))
-			{
-				locked.Add(outpoint);
-			}
-			if(broadcast)
-				Broadcast(tx);
-			else
-				transactions.Add(tx);
-			return tx;
-		}
-
-		public void Rollback(Transaction tx)
-		{
-			transactions.Remove(tx);
-			foreach(var outpoint in tx.Inputs.Select(i => i.PrevOut))
-			{
-				locked.Remove(outpoint);
-			}
-
-		}
-
-#if !NOSOCKET
-		public void Broadcast(Transaction transaction)
-		{
-			using(var node = CreateNodeClient())
-			{
-				node.VersionHandshake();
-				node.SendMessageAsync(new InvPayload(transaction));
-				node.SendMessageAsync(new TxPayload(transaction));
-				node.PingPong();
-			}
-		}
-#else
-        public void Broadcast(Transaction transaction)
-        {
-            var rpc = CreateRPCClient();
-            rpc.SendRawTransaction(transaction);
-        }
-#endif
-		public void SelectMempoolTransactions()
-		{
-			var rpc = CreateRPCClient();
-			var txs = rpc.GetRawMempool();
-			var tasks = txs.Select(t => rpc.GetRawTransactionAsync(t)).ToArray();
-			Task.WaitAll(tasks);
-			transactions.AddRange(tasks.Select(t => t.Result).ToArray());
-		}
-
-		public void Broadcast(Transaction[] transactions)
-		{
+			var batch = rpc.PrepareBatch();
 			foreach(var tx in transactions)
-				Broadcast(tx);
-		}
-
-		public void Split(Money amount, int parts)
-		{
-			var rpc = CreateRPCClient();
-			TransactionBuilder builder = new TransactionBuilder();
-			builder.AddKeys(rpc.ListSecrets().OfType<ISecret>().ToArray());
-			builder.AddCoins(rpc.ListUnspent().Select(c => c.AsCoin()));
-			var secret = GetFirstSecret(rpc);
-			foreach(var part in (amount - fee).Split(parts))
 			{
-				builder.Send(secret, part);
+				batch.SendRawTransactionAsync(tx);
 			}
-			builder.SendFees(fee);
-			builder.SetChange(secret);
-			var tx = builder.BuildTransaction(true);
-			Broadcast(tx);
+			rpc.SendBatch();
 		}
 
 		object l = new object();
@@ -634,18 +566,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		public DateTimeOffset? MockTime
-		{
-			get;
-			set;
-		}
-
-		public void SetMinerSecret(BitcoinSecret secret)
-		{
-			CreateRPCClient().ImportPrivKey(secret);
-			MinerSecret = secret;
-		}
-
 		public BitcoinSecret MinerSecret
 		{
 			get;
@@ -657,77 +577,6 @@ namespace NBitcoin.Tests
 			get;
 			set;
 		} = true;
-
-		public Block[] Generate(int blockCount, bool includeUnbroadcasted = true, bool broadcast = true)
-		{
-			var rpc = CreateRPCClient();
-			BitcoinSecret dest = GetFirstSecret(rpc);
-			var bestBlock = rpc.GetBestBlockHash();
-			ConcurrentChain chain = null;
-			List<Block> blocks = new List<Block>();
-			DateTimeOffset now = MockTime == null ? DateTimeOffset.UtcNow : MockTime.Value;
-#if !NOSOCKET
-			using(var node = CreateNodeClient())
-			{
-
-				node.VersionHandshake();
-				chain = bestBlock == node.Network.GenesisHash ? new ConcurrentChain(node.Network) : node.GetChain();
-				for(int i = 0; i < blockCount; i++)
-				{
-					uint nonce = 0;
-					Block block = Network.Consensus.ConsensusFactory.CreateBlock();
-					block.Header.HashPrevBlock = chain.Tip.HashBlock;
-					block.Header.Bits = block.Header.GetWorkRequired(rpc.Network, chain.Tip);
-					block.Header.UpdateTime(now, rpc.Network, chain.Tip);
-					var coinbase = new Transaction();
-					coinbase.AddInput(TxIn.CreateCoinbase(chain.Height + 1));
-					coinbase.AddOutput(new TxOut(rpc.Network.GetReward(chain.Height + 1), dest.GetAddress()));
-					block.AddTransaction(coinbase);
-					if(includeUnbroadcasted)
-					{
-						transactions = Reorder(transactions);
-						block.Transactions.AddRange(transactions);
-						transactions.Clear();
-					}
-					block.UpdateMerkleRoot();
-					while(!block.CheckProofOfWork())
-						block.Header.Nonce = ++nonce;
-					blocks.Add(block);
-					chain.SetTip(block.Header);
-				}
-				if(broadcast)
-					BroadcastBlocks(blocks.ToArray(), node);
-			}
-			return blocks.ToArray();
-#endif
-		}
-
-		public void BroadcastBlocks(Block[] blocks)
-		{
-			using(var node = CreateNodeClient())
-			{
-				node.VersionHandshake();
-				BroadcastBlocks(blocks, node);
-			}
-		}
-
-		public void BroadcastBlocks(Block[] blocks, Node node)
-		{
-			Block lastSent = null;
-			foreach(var block in blocks)
-			{
-				node.SendMessageAsync(new InvPayload(block));
-				node.SendMessageAsync(new BlockPayload(block));
-				lastSent = block;
-			}
-			node.PingPong();
-		}
-
-		public Block[] FindBlock(int blockCount = 1, bool includeMempool = true)
-		{
-			SelectMempoolTransactions();
-			return Generate(blockCount, includeMempool);
-		}
 
 		class TransactionNode
 		{

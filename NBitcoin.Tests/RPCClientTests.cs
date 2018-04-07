@@ -134,9 +134,8 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
-				var rpc = node.CreateRPCClient();
 				builder.StartAll();
-				node.CreateRPCClient().Generate(101);
+				node.Generate(101);
 
 				var tx = new Transaction();
 				tx.Outputs.Add(new TxOut(Money.Coins(1.0m), new Key()));
@@ -154,7 +153,7 @@ namespace NBitcoin.Tests
 				var node = builder.CreateNode();
 				var rpc = node.CreateRPCClient();
 				builder.StartAll();
-				node.CreateRPCClient().Generate(101);
+				node.Generate(101);
 
 				var key = new Key();
 				var address = key.PubKey.GetAddress(rpc.Network);
@@ -293,13 +292,13 @@ namespace NBitcoin.Tests
 			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
 				node.Start();
-				node.Generate(101);
+				rpc.Generate(101);
 
 				var k = new Key();
 				var tx = new Transaction();
 				tx.Outputs.Add(new TxOut(Money.Coins(1), k));
-				var rpc = node.CreateRPCClient();
 				var result = rpc.FundRawTransaction(tx);
 				TestFundRawTransactionResult(tx, result);
 

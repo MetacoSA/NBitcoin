@@ -30,13 +30,15 @@ namespace NBitcoin.Tests
 		{
 			using(var builder = NodeBuilderEx.Create())
 			{
-				var client = builder.CreateNode().CreateRESTClient();
+				var node = builder.CreateNode();
+				var client = node.CreateRESTClient();
+				var rpc = node.CreateRPCClient();
 				builder.StartAll();
 				var info = client.GetChainInfoAsync().Result;
 				Assert.Equal("regtest", info.Chain);
 				Assert.Equal(new ChainedBlock(Network.RegTest.GetGenesis().Header, 0).ChainWork, info.ChainWork);
-				builder.Nodes[0].Generate(10);
-				var chain = builder.Nodes[0].CreateNodeClient().GetChain();
+				rpc.Generate(10);
+				var chain = node.CreateNodeClient().GetChain();
 				info = client.GetChainInfoAsync().Result;
 				Assert.Equal(info.ChainWork, chain.Tip.ChainWork);
 			}
@@ -62,7 +64,7 @@ namespace NBitcoin.Tests
 				var client = builder.CreateNode().CreateRESTClient();
 				var rpc = builder.Nodes[0].CreateRPCClient();
 				builder.StartAll();
-				builder.Nodes[0].Generate(2);
+				rpc.Generate(2);
 				var result = client.GetBlockHeadersAsync(RegNetGenesisBlock.GetHash(), 3).Result;
 				var headers = result.ToArray();
 				var last = headers.Last();
@@ -98,9 +100,10 @@ namespace NBitcoin.Tests
 				var rpc = builder.Nodes[0].CreateRPCClient();
 				builder.StartAll();
 				var k = new Key().GetBitcoinSecret(Network.RegTest);
-				builder.Nodes[0].SetMinerSecret(k);
-				builder.Nodes[0].Generate(110);
-
+				rpc.Generate(102);
+				rpc.ImportPrivKey(k);
+				rpc.SendToAddress(k.GetAddress(), Money.Coins(50m));
+				rpc.Generate(1);
 				var c = rpc.ListUnspent().First();
 				c = rpc.ListUnspent(0, 999999, k.GetAddress()).First();
 				var outPoint = c.OutPoint;
