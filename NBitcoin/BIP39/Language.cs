@@ -14,6 +14,7 @@ namespace NBitcoin
 		ChineseSimplified,
 		ChineseTraditional,
 		French,
+		PortugueseBrazil,
 		Unknown
 	};
 }
