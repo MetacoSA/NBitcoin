@@ -147,8 +147,8 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 20160,
                 CoinbaseMaturity = 100,
                 HashGenesisBlock = new uint256("12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2"),
-                GetPoWHash = GetPoWHash,
-                FeathercoinWorkCalculation = true
+                LitecoinWorkCalculation = true,
+                ConsensusFactory = new LitecoinConsensusFactory()
             })
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 14 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 5 })
@@ -192,8 +192,8 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 500,
                 CoinbaseMaturity = 100,
                 HashGenesisBlock = new uint256("4966625a4b2851d9fdee139e56211a0d88575f59ed816ff5e6a63deb4e3e29a0"),
-                GetPoWHash = GetPoWHash,
-                FeathercoinWorkCalculation = true
+                LitecoinWorkCalculation = true,
+                ConsensusFactory = new LitecoinConsensusFactory()
             })
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
@@ -236,8 +236,8 @@ namespace NBitcoin.Altcoins
                 MinerConfirmationWindow = 144,
                 CoinbaseMaturity = 100,
                 HashGenesisBlock = new uint256("f5ae71e26c74beacc88382716aced69cddf3dffff24f384e1808905e0188f68f"),
-                GetPoWHash = GetPoWHash,
-                FeathercoinWorkCalculation = true
+                LitecoinWorkCalculation = true,
+                ConsensusFactory = new LitecoinConsensusFactory()
             })
             .SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
             .SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
