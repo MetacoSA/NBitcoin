@@ -11,14 +11,14 @@ namespace NBitcoin.Tests
 	public class AltcoinTests
 	{
 		[Fact]
-		public async Task HasCorrectGenesisBlock()
+		public void HasCorrectGenesisBlock()
 		{
 			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
-				var response = await rpc.GetBlockchainInfoAsync();
-				Assert.Equal(builder.Network.GetGenesis().GetHash(), response.BestBlockHash);
+				var actual = (rpc.GetBlock(0)).GetHash();
+				Assert.Equal(builder.Network.GetGenesis().GetHash(), actual);
 			}
 		}
 
