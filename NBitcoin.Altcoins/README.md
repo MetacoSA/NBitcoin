@@ -32,7 +32,7 @@ NBitcoin developers do not test those PRs, so you are responsible to keep it wor
 
 ## How to test?
 
-If you wnat to test your newly created `Network`, update [WellknownNodeDownloadData](../NBitcoin.Tests/WellknownNodeDownloadData.cs) so the test environment can download binaries and run for your blockchain on regtest.
+If you want to test your newly created `Network`, update [WellknownNodeDownloadData](../NBitcoin.Tests/WellknownNodeDownloadData.cs) so the test environment can download binaries and run for your blockchain on regtest.
 
 Then, change [NodeBuilderEx](../NBitcoin.Tests/NodeBuilderEx.cs) like the following example.
 
@@ -55,3 +55,5 @@ dotnet test -c Release NBitcoin.Tests.csproj --filter "Altcoins=Altcoins" -p:Par
 You can also manually execute any test with Visual Studio.
 
 Note that the tests with the trait `Altcoins=Altcoins` are only doing some sanity check. You might want to run additional tests.
+
+You can take a look at [this commit as an example](https://github.com/MetacoSA/NBitcoin/commit/e075d1549ddd356f112cb3322c240490382c757e).
