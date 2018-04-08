@@ -120,10 +120,9 @@ namespace NBitcoin.Tests
 			if(!Directory.Exists("TestData"))
 				Directory.CreateDirectory("TestData");
 
-			
 			var osDownloadData = downloadData.GetCurrentOSDownloadData();
-			var bitcoind = "TestData/" + String.Format(osDownloadData.Executable, downloadData.Version);
-			var zip = "TestData/" + String.Format(osDownloadData.Archive, downloadData.Version);
+			var bitcoind = Path.Combine("TestData", String.Format(osDownloadData.Executable, downloadData.Version));
+			var zip = Path.Combine("TestData", String.Format(osDownloadData.Archive, downloadData.Version));
 			if(File.Exists(bitcoind))
 				return bitcoind;
 
@@ -200,6 +199,11 @@ namespace NBitcoin.Tests
 			get;
 			set;
 		} = Network.RegTest;
+		public bool SupportCookieFile
+		{
+			get;
+			set;
+		} = true;
 
 		public CoreNode CreateNode(bool start = false)
 		{
@@ -321,7 +325,7 @@ namespace NBitcoin.Tests
 					throw new InvalidOperationException("You seem to have a running node from a previous test, please kill the process and restart the test.");
 			}
 
-			CookieAuth = true;
+			CookieAuth = builder.SupportCookieFile;
 			Directory.CreateDirectory(folder);
 			Directory.CreateDirectory(dataDir);
 			FindPorts(ports);
