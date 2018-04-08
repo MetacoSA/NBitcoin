@@ -114,7 +114,7 @@ namespace NBitcoin.Altcoins
 
 		public class FeathercoinBlockHeader : BlockHeader
 		{
-			public override uint256 GetPoWHash()
+			public override unsafe uint256 GetPoWHash()
 			{
                 var headerBytes = this.ToBytes();
                 var result = new byte[32];
