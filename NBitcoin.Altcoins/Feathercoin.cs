@@ -16,7 +16,7 @@ namespace NBitcoin.Altcoins
 	{
 
         [DllImport("NBitcoin\\lib\\NeoScrypt.dll", EntryPoint = "neoscrypt_export", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int neoscrypt(byte* input, byte* output, uint inputLength, uint profile);
+        public static extern unsafe int neoscrypt(byte* input, byte* output, uint inputLength, uint profile);
 
         //Format visual studio
         //{({.*?}), (.*?)}
@@ -126,7 +126,7 @@ namespace NBitcoin.Altcoins
                         neoscrypt(input, output, (uint)headerBytes.Length, 1);
                     }
                 }
-                return uint256(result);
+                return new uint256(result);
 			}
 		}
 
