@@ -7,15 +7,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 
 namespace NBitcoin.Altcoins
 {
-	public class Feathercoin
+
+    public class Feathercoin
 	{
-		//Format visual studio
-		//{({.*?}), (.*?)}
-		//Tuple.Create(new byte[]$1, $2)
-		static Tuple<byte[], int>[] pnSeed6_main = {
+
+        [DllImport("NBitcoin\\lib\\NeoScrypt.dll", EntryPoint = "neoscrypt_export", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int neoscrypt(byte* input, byte* output, uint inputLength, uint profile);
+
+        //Format visual studio
+        //{({.*?}), (.*?)}
+        //Tuple.Create(new byte[]$1, $2)
+        static Tuple<byte[], int>[] pnSeed6_main = {
     Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xc6,0x0f,0x7f,0xf2}, 11533),
     Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0x49,0xa2,0x04,0xe8}, 9336),
     Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0x49,0x88,0xa4,0xe1}, 9336),
@@ -110,9 +116,17 @@ namespace NBitcoin.Altcoins
 		{
 			public override uint256 GetPoWHash()
 			{
-				var headerBytes = this.ToBytes();
-				var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
-				return new uint256(h);
+                var headerBytes = this.ToBytes();
+                var result = new byte[32];
+
+                fixed (byte* input = headerBytes)
+                {
+                    fixed (byte* output = result)
+                    {
+                        neoscrypt(input, output, (uint)headerBytes.Length, 1);
+                    }
+                }
+                return uint256(result);
 			}
 		}
 
