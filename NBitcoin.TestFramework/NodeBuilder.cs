@@ -120,38 +120,26 @@ namespace NBitcoin.Tests
 			if(!Directory.Exists("TestData"))
 				Directory.CreateDirectory("TestData");
 
-			string zip;
-			string bitcoind;
-
+			
 			var osDownloadData = downloadData.GetCurrentOSDownloadData();
+			var bitcoind = "TestData/" + String.Format(osDownloadData.Executable, downloadData.Version);
+			var zip = "TestData/" + String.Format(osDownloadData.Archive, downloadData.Version);
+			if(File.Exists(bitcoind))
+				return bitcoind;
+
+			string url = String.Format(osDownloadData.DownloadLink, downloadData.Version);
+			HttpClient client = new HttpClient();
+			client.Timeout = TimeSpan.FromMinutes(10.0);
+			var data = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
+			CheckHash(osDownloadData, data);
+			File.WriteAllBytes(zip, data);
+
 			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
-				bitcoind = "TestData/" + String.Format(osDownloadData.Executable, downloadData.Version);
-				if(File.Exists(bitcoind))
-					return bitcoind;
-				zip = "TestData/" + String.Format(osDownloadData.Archive, downloadData.Version);
-				string url = String.Format(osDownloadData.DownloadLink, downloadData.Version);
-				HttpClient client = new HttpClient();
-				client.Timeout = TimeSpan.FromMinutes(10.0);
-				var data = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
-				CheckHash(osDownloadData, data);
-				File.WriteAllBytes(zip, data);
 				ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
 			}
 			else
 			{
-				bitcoind = "TestData/" + String.Format(osDownloadData.Executable, downloadData.Version);
-				if(File.Exists(bitcoind))
-					return bitcoind;
-
-				zip = "TestData/" + String.Format(osDownloadData.Archive, downloadData.Version);
-
-				string url = String.Format(osDownloadData.DownloadLink, downloadData.Version);
-				HttpClient client = new HttpClient();
-				client.Timeout = TimeSpan.FromMinutes(10.0);
-				var data = client.GetByteArrayAsync(url).GetAwaiter().GetResult();
-				CheckHash(osDownloadData, data);
-				File.WriteAllBytes(zip, data);
 				Process.Start("tar", "-zxvf " + zip + " -C TestData").WaitForExit();
 			}
 			File.Delete(zip);
@@ -160,8 +148,9 @@ namespace NBitcoin.Tests
 
 		private static void CheckHash(NodeOSDownloadData osDownloadData, byte[] data)
 		{
-			if(Encoders.Hex.EncodeData(Hashes.SHA256(data)) != osDownloadData.Hash)
-				throw new Exception("Hash of downloaded file does not match");
+			var actual = Encoders.Hex.EncodeData(Hashes.SHA256(data));
+			if(actual != osDownloadData.Hash)
+				throw new Exception($"Hash of downloaded file does not match (Expected: {osDownloadData.Hash}, Actual: {actual})");
 		}
 
 		int last = 0;

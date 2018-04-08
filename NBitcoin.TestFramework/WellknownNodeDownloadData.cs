@@ -173,6 +173,35 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class DogecoinNodeDownloadData
+		{
+			public NodeDownloadData v1_10_0 = new NodeDownloadData()
+			{
+				Version = "1.10.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dogecoin/dogecoin/releases/download/v{0}/dogecoin-{0}-win64.zip",
+					Archive = "dogecoin-{0}-win64.zip",
+					Executable = "dogecoin-{0}/bin/dogecoind.exe",
+					Hash = "e3a2aa652cb35465d9727b51d1b91094881e6c099883955e9d275add2e26f0ce"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dogecoin/dogecoin/releases/download/v{0}/dogecoin-{0}-linux64.tar.gz",
+					Archive = "dogecoin-{0}-linux64.tar.gz",
+					Executable = "dogecoin-{0}/bin/dogecoind",
+					Hash = "2e5b61842695d74ebcd30f21014cf74b6265f0f7756e9f140f031259bb3cd656"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/dogecoin/dogecoin/releases/download/v{0}/dogecoin-{0}-osx-signed.dmg",
+					Archive = "dogecoin-{0}-osx64.tar.gz",
+					Executable = "dogecoin-{0}/bin/dogecoind",
+					Hash = "be854af97efecf30ee18ed846a3bf3a780a0eb0e459a49377d7a8261c212b322"
+				}
+			};
+		}
+
 		public static BitcoinNodeDownloadData Bitcoin
 		{
 			get; set;
@@ -192,5 +221,10 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new FeathercoinNodeDownloadData();
+
+		public static DogecoinNodeDownloadData Dogecoin
+		{
+			get; set;
+		} = new DogecoinNodeDownloadData();
 	}
 }
