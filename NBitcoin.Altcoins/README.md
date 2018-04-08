@@ -3,6 +3,8 @@
 Currently supported altcoins are:
 
 * Litecoin
+* Feathercoin
+* Dogecoin
 * BCash (also known as Bitcoin Cash)
 
 ## How to use?
