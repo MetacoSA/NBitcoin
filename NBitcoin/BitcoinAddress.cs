@@ -106,7 +106,7 @@ namespace NBitcoin
 			return Network.Parse<BitcoinAddress>(str, null);
 		}
 
-		internal BitcoinAddress(string str, Network network)
+		internal protected BitcoinAddress(string str, Network network)
 		{
 			if(network == null)
 				throw new ArgumentNullException("network");

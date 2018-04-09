@@ -678,7 +678,7 @@ namespace NBitcoin
 			network.magic = builder._Magic;
 			network.nDefaultPort = builder._Port;
 			network.nRPCPort = builder._RPCPort;
-
+			network.NetworkStringParser = builder._NetworkStringParser;
 			var block = network.consensus.ConsensusFactory.CreateBlock();
 			block.ReadWrite(builder._Genesis);
 			network.genesis = block;
@@ -1045,6 +1045,13 @@ namespace NBitcoin
 		{
 			if(str == null)
 				throw new ArgumentNullException("str");
+
+			if(expectedNetwork != null)
+			{
+				if(expectedNetwork.NetworkStringParser.TryParse<T>(str, expectedNetwork, out T o))
+					return o;
+			}
+
 			var networks = expectedNetwork == null ? GetNetworks() : new[] { expectedNetwork };
 			var maybeb58 = true;
 			if(maybeb58)
@@ -1110,7 +1117,6 @@ namespace NBitcoin
 			throw new FormatException("Invalid string");
 		}
 
-
 		private static IEnumerable<IBase58Data> GetCandidates(IEnumerable<Network> networks, string base58)
 		{
 			if(base58 == null)
@@ -1145,6 +1151,13 @@ namespace NBitcoin
 				}
 			}
 		}
+
+
+		internal NetworkStringParser NetworkStringParser
+		{
+			get;
+			set;
+		} = new NetworkStringParser();
 
 		private IBase58Data CreateBase58Data(Base58Type type, string base58)
 		{

@@ -12,6 +12,7 @@ namespace NBitcoin
 {
 	public class NetworkBuilder
 	{
+		internal NetworkStringParser _NetworkStringParser = new NetworkStringParser();
 		internal string _Name;
 		internal Dictionary<Base58Type, byte[]> _Base58Prefixes = new Dictionary<Base58Type, byte[]>();
 		internal Dictionary<Bech32Type, Bech32Encoder> _Bech32Prefixes = new Dictionary<Bech32Type, Bech32Encoder>();
@@ -58,13 +59,19 @@ namespace NBitcoin
 			SetMagic(_Magic).
 			SetPort(network.DefaultPort).
 			SetRPCPort(network.RPCPort);
+			SetNetworkStringParser(network.NetworkStringParser);
 		}
 
+		public NetworkBuilder SetNetworkStringParser(NetworkStringParser networkStringParser)
+		{
+			_NetworkStringParser = networkStringParser ?? new NetworkStringParser();
+			return this;
+		}
 		public NetworkBuilder AddAlias(string alias)
 		{
 			_Aliases.Add(alias);
 			return this;
-		}		
+		}
 
 		public NetworkBuilder SetRPCPort(int port)
 		{
