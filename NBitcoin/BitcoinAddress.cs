@@ -85,14 +85,28 @@ namespace NBitcoin
 		/// <param name="expectedNetwork">The expected network to which it belongs</param>
 		/// <returns>A BitcoinAddress or BitcoinScriptAddress</returns>
 		/// <exception cref="System.FormatException">Invalid format</exception>
-		public static BitcoinAddress Create(string str, Network expectedNetwork = null)
+		public static BitcoinAddress Create(string str, Network expectedNetwork)
 		{
 			if(str == null)
 				throw new ArgumentNullException("base58");
 			return Network.Parse<BitcoinAddress>(str, expectedNetwork);
 		}
 
-		public BitcoinAddress(string str, Network network)
+		/// <summary>
+		/// Detect whether the input base58 is a pubkey hash or a script hash
+		/// </summary>
+		/// <param name="str">The string to parse</param>
+		/// <returns>A BitcoinAddress or BitcoinScriptAddress</returns>
+		/// <exception cref="System.FormatException">Invalid format</exception>
+		[Obsolete("Use BitcoinCreate(string, Network) instead")]
+		public static BitcoinAddress Create(string str)
+		{
+			if(str == null)
+				throw new ArgumentNullException("base58");
+			return Network.Parse<BitcoinAddress>(str, null);
+		}
+
+		internal BitcoinAddress(string str, Network network)
 		{
 			if(network == null)
 				throw new ArgumentNullException("network");

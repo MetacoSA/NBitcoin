@@ -1368,7 +1368,7 @@ namespace NBitcoin
 			}
 		}
 #endif
-		public byte[] _MagicBytes;
+		byte[] _MagicBytes;
 		public byte[] MagicBytes
 		{
 			get
