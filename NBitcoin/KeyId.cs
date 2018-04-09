@@ -120,7 +120,7 @@ namespace NBitcoin
 
 		public override BitcoinAddress GetAddress(Network network)
 		{
-			return new BitcoinPubKeyAddress(this, network);
+			return network.NetworkStringParser.CreateP2PKH(this, network);
 		}
 	}
 	public class WitKeyId : TxDestination
@@ -179,7 +179,7 @@ namespace NBitcoin
 
 		public override BitcoinAddress GetAddress(Network network)
 		{
-			return new BitcoinWitPubKeyAddress(this, network);
+			return network.NetworkStringParser.CreateP2WPKH(this, network);
 		}
 	}
 
@@ -223,7 +223,7 @@ namespace NBitcoin
 
 		public override BitcoinAddress GetAddress(Network network)
 		{
-			return new BitcoinWitScriptAddress(this, network);
+			return network.NetworkStringParser.CreateP2WSH(this, network);
 		}
 	}
 
@@ -267,7 +267,7 @@ namespace NBitcoin
 
 		public override BitcoinAddress GetAddress(Network network)
 		{
-			return new BitcoinScriptAddress(this, network);
+			return network.NetworkStringParser.CreateP2SH(this, network);
 		}
 	}
 }

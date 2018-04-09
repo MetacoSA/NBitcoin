@@ -219,6 +219,19 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanDecodeBTrashAddress()
+		{
+			var trashAddress = NBitcoin.Altcoins.BCash.Mainnet.Parse<NBitcoin.Altcoins.BCash.BTrashAddress>("bitcoincash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a");
+			var trashAddress2 = trashAddress.ScriptPubKey.GetDestinationAddress(NBitcoin.Altcoins.BCash.Mainnet);
+			Assert.Equal(trashAddress.ToString(), trashAddress2.ToString());
+
+			trashAddress = NBitcoin.Altcoins.BCash.Mainnet.Parse<NBitcoin.Altcoins.BCash.BTrashAddress>("bitcoincash:ppm2qsznhks23z7629mms6s4cwef74vcwvn0h829pq");
+			trashAddress2 = trashAddress.ScriptPubKey.GetDestinationAddress(NBitcoin.Altcoins.BCash.Mainnet);
+			Assert.Equal(trashAddress.ToString(), trashAddress2.ToString());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void MoneyCoverage()
 		{
 			Money a = Money.Coins(2.0m);
