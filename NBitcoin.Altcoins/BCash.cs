@@ -236,7 +236,8 @@ namespace NBitcoin.Altcoins
 					Format = BCashAddr.BchAddr.CashFormat.Cashaddr,
 					Prefix = _Prefix,
 					Hash = keyId.ToBytes(true),
-					Type = BCashAddr.BchAddr.CashType.P2PKH
+					Type = BCashAddr.BchAddr.CashType.P2PKH,
+					Network = network
 				};
 				var str = BCashAddr.BchAddr.EncodeAsCashaddr(addr);
 				return new BTrashAddress(str, addr);
@@ -248,7 +249,8 @@ namespace NBitcoin.Altcoins
 					Format = BCashAddr.BchAddr.CashFormat.Cashaddr,
 					Prefix = _Prefix,
 					Hash = scriptId.ToBytes(true),
-					Type = BCashAddr.BchAddr.CashType.P2SH
+					Type = BCashAddr.BchAddr.CashType.P2SH,
+					Network = network
 				};
 				var str = BCashAddr.BchAddr.EncodeAsCashaddr(addr);
 				return new BTrashAddress(str, addr);
@@ -598,7 +600,7 @@ namespace BCashAddr
 			//{
 			try
 			{
-				var result = DecodeCashAddressWithPrefix(prefix + ":" + address, network);
+				var result = DecodeCashAddressWithPrefix(address, network);
 				return result;
 			}
 			catch { }
