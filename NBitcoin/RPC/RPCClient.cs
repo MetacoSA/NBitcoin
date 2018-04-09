@@ -1454,8 +1454,12 @@ namespace NBitcoin.RPC
 			parameters.Add(amount.ToString());
 			parameters.Add($"{commentTx}");
 			parameters.Add($"{commentDest}");
-			parameters.Add(subtractFeeFromAmount);
-			parameters.Add(replaceable);
+			if(subtractFeeFromAmount || replaceable)
+			{
+				parameters.Add(subtractFeeFromAmount);
+				if(replaceable)
+					parameters.Add(replaceable);
+			}
 			var resp = await SendCommandAsync(RPCOperations.sendtoaddress, parameters.ToArray()).ConfigureAwait(false);
 			return uint256.Parse(resp.Result.ToString());
 		}
