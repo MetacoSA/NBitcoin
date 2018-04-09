@@ -37,6 +37,19 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanParseAddress()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				builder.StartAll();
+				var addr = node.CreateRPCClient().SendCommand(RPC.RPCOperations.getnewaddress).Result.ToString();
+				var addr2 = BitcoinAddress.Create(addr, builder.Network).ToString();
+				Assert.Equal(addr, addr2);
+			}
+		}
+
+		[Fact]
 		public void CanSyncWithPoW()
 		{
 			using(var builder = NodeBuilderEx.Create())

@@ -180,9 +180,14 @@ namespace NBitcoin.Altcoins
 		public class BTrashAddress : BitcoinAddress
 		{
 			BCashAddr.BchAddr.BchAddrData addr;
-			internal BTrashAddress(string str, BCashAddr.BchAddr.BchAddrData addr, Network network) : base(str, network)
+			internal BTrashAddress(string str, BCashAddr.BchAddr.BchAddrData addr) : base(str, addr.Network)
 			{
 				this.addr = addr;
+			}
+
+			public BitcoinAddress AsBitpay()
+			{
+				return this.addr.Type == BCashAddr.BchAddr.CashType.P2PKH ? (BitcoinAddress)new BitcoinPubKeyAddress(new KeyId(this.addr.Hash), Network) : new BitcoinScriptAddress(new ScriptId(this.addr.Hash), Network);
 			}
 
 			protected override Script GeneratePaymentScript()
@@ -214,8 +219,8 @@ namespace NBitcoin.Altcoins
 					{
 						try
 						{
-							var addr = BCashAddr.BchAddr.DecodeAddress(str);
-							result = (T)(object)new BTrashAddress(str, addr, network);
+							var addr = BCashAddr.BchAddr.DecodeAddress(str, prefix, network);
+							result = (T)(object)new BTrashAddress(str, addr);
 							return true;
 						}
 						catch { }
@@ -234,7 +239,7 @@ namespace NBitcoin.Altcoins
 					Type = BCashAddr.BchAddr.CashType.P2PKH
 				};
 				var str = BCashAddr.BchAddr.EncodeAsCashaddr(addr);
-				return new BTrashAddress(str, addr, network);
+				return new BTrashAddress(str, addr);
 			}
 			public override BitcoinAddress CreateP2SH(ScriptId scriptId, Network network)
 			{
@@ -246,7 +251,7 @@ namespace NBitcoin.Altcoins
 					Type = BCashAddr.BchAddr.CashType.P2SH
 				};
 				var str = BCashAddr.BchAddr.EncodeAsCashaddr(addr);
-				return new BTrashAddress(str, addr, network);
+				return new BTrashAddress(str, addr);
 			}
 		}
 
@@ -485,13 +490,6 @@ namespace BCashAddr
 			Cashaddr
 		}
 
-		public enum CashNetwork
-		{
-			Mainnet,
-			Testnet,
-			RegTest
-		}
-
 		public enum CashType
 		{
 			P2PKH,
@@ -504,7 +502,7 @@ namespace BCashAddr
 			{
 				get; set;
 			}
-			public CashNetwork Network
+			public Network Network
 			{
 				get; set;
 			}
@@ -524,18 +522,13 @@ namespace BCashAddr
 				return Encoders.Hex.EncodeData(Hash);
 			}
 
-			public string AsLegacyAddress => EncodeAsLegacy(this);
-			public string AsBitpayAddress => EncodeAsBitpay(this);
-			public string AsCashaddrAddress => EncodeAsCashaddr(this);
-			public string AsCashaddrAddressNoPrefix => EncodeAsCashaddrNoPrefix(this);
-
 			public string Prefix
 			{
 				get;
 				internal set;
 			}
 
-			public static BchAddrData Create(CashFormat format, CashNetwork network, CashType type, byte[] hash)
+			public static BchAddrData Create(CashFormat format, Network network, CashType type, byte[] hash)
 			{
 				return new BchAddrData
 				{
@@ -548,39 +541,13 @@ namespace BCashAddr
 		}
 
 		/// <summary>
-		/// Encodes the given decoded address into legacy format
-		/// </summary>
-		/// <param name="decoded"></param>
-		/// <returns></returns>
-		public static string EncodeAsLegacy(BchAddrData decoded)
-		{
-			var versionByte = GetVersionByte(CashFormat.Legacy, decoded.Network, decoded.Type);
-			var buffer = new byte[1] { versionByte };
-			buffer = buffer.Concat(decoded.Hash).ToArray();
-			return Encoders.Base58Check.EncodeData(buffer);
-		}
-
-		/// <summary>
-		/// Encodes the given decoded address into bitpay format
-		/// </summary>
-		/// <param name="decoded"></param>
-		/// <returns></returns>
-		public static string EncodeAsBitpay(BchAddrData decoded)
-		{
-			var versionByte = GetVersionByte(CashFormat.Bitpay, decoded.Network, decoded.Type);
-			var buffer = new byte[1] { versionByte };
-			buffer = buffer.Concat(decoded.Hash).ToArray();
-			return Encoders.Base58Check.EncodeData(buffer);
-		}
-
-		/// <summary>
 		/// Encodes the given decoded address into cashaddr format
 		/// </summary>
 		/// <param name="decoded"></param>
 		/// <returns></returns>
 		public static string EncodeAsCashaddr(BchAddrData decoded)
 		{
-			var prefix = decoded.Prefix ?? GetCashaddrkPrefix(decoded);
+			var prefix = decoded.Prefix;
 			var type = decoded.Type == CashType.P2PKH ? "P2PKH" : "P2SH";
 			var hash = decoded.Hash;
 			return CashAddr.Encode(prefix, type, hash);
@@ -601,102 +568,19 @@ namespace BCashAddr
 			throw new Validation.ValidationError($"Invalid BchAddrData");
 		}
 
-		public static string GetCashaddrkPrefix(BchAddrData data)
-		{
-			switch(data.Network)
-			{
-				case CashNetwork.Mainnet:
-					return "bitcoincash";
-				case CashNetwork.Testnet:
-					return "bchtest";
-				case CashNetwork.RegTest:
-					return "bchreg";
-			}
-			throw new Validation.ValidationError($"Invalid BchAddrData");
-		}
-
 		/// <summary>
 		/// Detects what is the given address' format
 		/// </summary>
 		/// <param name="address"></param>
 		/// <returns></returns>
-		public static BchAddrData DecodeAddress(string address)
+		public static BchAddrData DecodeAddress(string address, string prefix, Network network)
 		{
 			try
 			{
-				return DecodeBase58Address(address);
-			}
-			catch { }
-			try
-			{
-				return DecodeCashAddress(address);
+				return DecodeCashAddress(address, prefix, network);
 			}
 			catch { }
 			throw new Validation.ValidationError($"Invalid address {address}");
-		}
-
-		/// <summary>
-		/// returns the Version byte for base58 formats
-		/// </summary>
-		/// <param name="format"></param>
-		/// <param name="network"></param>
-		/// <param name="type"></param>
-		/// <returns></returns>
-		private static byte GetVersionByte(CashFormat format, CashNetwork network, CashType type)
-		{
-			switch(format)
-			{
-				case CashFormat.Legacy:
-					if(network == CashNetwork.Mainnet && type == CashType.P2PKH)
-						return 0;
-					else if(network == CashNetwork.Mainnet && type == CashType.P2SH)
-						return 5;
-					break;
-				case CashFormat.Bitpay:
-					if(network == CashNetwork.Mainnet && type == CashType.P2PKH)
-						return 28;
-					else if(network == CashNetwork.Mainnet && type == CashType.P2SH)
-						return 40;
-					break;
-			}
-			if(network == CashNetwork.Testnet && type == CashType.P2PKH)
-				return 111;
-			else if(network == CashNetwork.Testnet && type == CashType.P2SH)
-				return 196;
-			else if(network == CashNetwork.RegTest && type == CashType.P2PKH)
-				return 111;
-			else if(network == CashNetwork.RegTest && type == CashType.P2SH)
-				return 196;
-			throw new Validation.ValidationError("Invalid parameters");
-		}
-
-		/// <summary>
-		/// Decodes the given address into its constituting hash, format, network and type
-		/// </summary>
-		/// <param name="address">A valid Bitcoin Cash address in any format</param>
-		/// <returns></returns>
-		private static BchAddrData DecodeBase58Address(string address)
-		{
-			var payload = Encoders.Base58Check.DecodeData(address);
-			var versionByte = payload[0];
-			var hash = payload.Skip(1).ToArray();
-			switch(versionByte)
-			{
-				case 0:
-					return BchAddrData.Create(CashFormat.Legacy, CashNetwork.Mainnet, CashType.P2PKH, hash);
-				case 5:
-					return BchAddrData.Create(CashFormat.Legacy, CashNetwork.Mainnet, CashType.P2SH, hash);
-				case 111:
-					return BchAddrData.Create(CashFormat.Legacy, CashNetwork.Testnet, CashType.P2PKH, hash);
-				case 196:
-					return BchAddrData.Create(CashFormat.Legacy, CashNetwork.Testnet, CashType.P2SH, hash);
-				case 28:
-					return BchAddrData.Create(CashFormat.Bitpay, CashNetwork.Mainnet, CashType.P2PKH, hash);
-				case 40:
-					return BchAddrData.Create(CashFormat.Bitpay, CashNetwork.Mainnet, CashType.P2SH, hash);
-				default:
-					throw new Validation.ValidationError($"Invalid address type in version byte: {versionByte}");
-			}
 		}
 
 		/// <summary>
@@ -704,25 +588,21 @@ namespace BCashAddr
 		/// </summary>
 		/// <param name="address">A valid Bitcoin Cash address in any format</param>
 		/// <returns></returns>
-		private static BchAddrData DecodeCashAddress(string address)
+		private static BchAddrData DecodeCashAddress(string address, string prefix, Network network)
 		{
-			if(address.IndexOf(":") != -1)
+			//if(address.IndexOf(":") != -1)
+			//{
+			//	return DecodeCashAddressWithPrefix(address);
+			//}
+			//else
+			//{
+			try
 			{
-				return DecodeCashAddressWithPrefix(address);
+				var result = DecodeCashAddressWithPrefix(prefix + ":" + address, network);
+				return result;
 			}
-			else
-			{
-				var prefixes = new string[] { "bitcoincash", "bchtest", "bchreg" };
-				foreach(var prefix in prefixes)
-				{
-					try
-					{
-						var result = DecodeCashAddressWithPrefix(prefix + ":" + address);
-						return result;
-					}
-					catch { }
-				}
-			}
+			catch { }
+			//}
 			throw new Validation.ValidationError($"Invalid address {address}");
 		}
 
@@ -731,20 +611,11 @@ namespace BCashAddr
 		/// </summary>
 		/// <param name="address">A valid Bitcoin Cash address in any format</param>
 		/// <returns></returns>
-		private static BchAddrData DecodeCashAddressWithPrefix(string address)
+		private static BchAddrData DecodeCashAddressWithPrefix(string address, Network network)
 		{
 			var decoded = CashAddr.Decode(address);
 			var type = decoded.Type == "P2PKH" ? CashType.P2PKH : CashType.P2SH;
-			switch(decoded.Prefix)
-			{
-				case "bitcoincash":
-					return BchAddrData.Create(CashFormat.Cashaddr, CashNetwork.Mainnet, type, decoded.Hash);
-				case "bchtest":
-					return BchAddrData.Create(CashFormat.Cashaddr, CashNetwork.Testnet, type, decoded.Hash);
-				case "regtest":
-					return BchAddrData.Create(CashFormat.Cashaddr, CashNetwork.RegTest, type, decoded.Hash);
-			}
-			throw new Validation.ValidationError($"Invalid address {address}");
+			return BchAddrData.Create(CashFormat.Cashaddr, network, type, decoded.Hash);
 		}
 	}
 
