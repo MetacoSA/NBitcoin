@@ -17,7 +17,7 @@ namespace NBitcoin.Tests
 			//Altcoins.BCash.EnsureRegistered();
 			//return NodeBuilder.Create(NodeDownloadData.BCash.v0_16_2, Altcoins.BCash.Regtest, caller);
 
-			return NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_16_0, Network.RegTest, caller);
+			return NodeBuilder.Create(NodeDownloadData.Feathercoin.v0_16_0, Network.RegTest, caller);
 		}
 	}
 }
