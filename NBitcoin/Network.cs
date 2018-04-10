@@ -518,6 +518,21 @@ namespace NBitcoin
 				throw new InvalidOperationException("This instance can't be modified");
 		}
 
+
+		bool _SupportSegwit = true;
+		public bool SupportSegwit
+		{
+			get
+			{
+				return _SupportSegwit;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_SupportSegwit = value;
+			}
+		}
+
 		public virtual Consensus Clone()
 		{
 			var consensus = new Consensus();
@@ -544,8 +559,9 @@ namespace NBitcoin
 			consensus._CoinbaseMaturity = _CoinbaseMaturity;
 			consensus._MinimumChainWork = _MinimumChainWork;
 			consensus._CoinType = CoinType;
-			consensus.ConsensusFactory = _ConsensusFactory;
+			consensus._ConsensusFactory = _ConsensusFactory;
 			consensus._LitecoinWorkCalculation = _LitecoinWorkCalculation;
+			consensus._SupportSegwit = _SupportSegwit;
 		}
 	}
 	public partial class Network
