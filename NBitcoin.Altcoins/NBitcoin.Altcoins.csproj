@@ -26,6 +26,5 @@
 		<DebugType>pdbonly</DebugType>
 		<Optimize>true</Optimize>
 		<DocumentationFile>bin\Release\NBitcoin.Altcoins.XML</DocumentationFile>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 </Project>

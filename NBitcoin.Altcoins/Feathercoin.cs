@@ -15,9 +15,6 @@ namespace NBitcoin.Altcoins
     public class Feathercoin
 	{
 
-        [DllImport("NBitcoin\\lib\\NeoScrypt.dll", EntryPoint = "neoscrypt_export", CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe int neoscrypt(byte* input, byte* output, uint inputLength, uint profile);
-
         //Format visual studio
         //{({.*?}), (.*?)}
         //Tuple.Create(new byte[]$1, $2)
@@ -114,21 +111,13 @@ namespace NBitcoin.Altcoins
 
 		public class FeathercoinBlockHeader : BlockHeader
 		{
-			public override unsafe uint256 GetPoWHash()
-			{
+            public override uint256 GetPoWHash()
+            {
                 var headerBytes = this.ToBytes();
-                var result = new byte[32];
-
-                fixed (byte* input = headerBytes)
-                {
-                    fixed (byte* output = result)
-                    {
-                        neoscrypt(input, output, (uint)headerBytes.Length, 1);
-                    }
-                }
-                return new uint256(result);
-			}
-		}
+                var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
+                return new uint256(h);
+            }
+        }
 
 #pragma warning restore CS0618 // Type or member is obsolete
 
