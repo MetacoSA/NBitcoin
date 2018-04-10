@@ -99,6 +99,11 @@ namespace NBitcoin
 				throw new NotImplementedException("The network " + this + " does not have any prefix for base58 " + Enum.GetName(typeof(Base58Type), type));
 			return prefix?.ToArray();
 		}
+		
+		public void SetVersionBytes(Base58Type type, byte[] bytes)
+		{
+			base58Prefixes[(int)type] = bytes;            
+		}
 
 		internal static string CreateBase58(Base58Type type, byte[] bytes, Network network)
 		{
