@@ -89,6 +89,7 @@ namespace NBitcoin.Altcoins
 				HashGenesisBlock = new uint256("1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691"),
 				ConsensusFactory = new DogeConsensusFactory(),
 				LitecoinWorkCalculation = true,
+				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 30 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 22 })
@@ -164,6 +165,7 @@ namespace NBitcoin.Altcoins
 				HashGenesisBlock = new uint256("1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691"),
 				LitecoinWorkCalculation = true,
 				ConsensusFactory = new DogeConsensusFactory(),
+				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 113 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
@@ -212,7 +214,8 @@ namespace NBitcoin.Altcoins
 				//MinerConfirmationWindow = 8064,
 				HashGenesisBlock = new uint256("3d2160a3b5dc4a9d62e7e66a295f70313ac808440ef7400d6c0772171ce973a5"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new DogeConsensusFactory()
+				ConsensusFactory = new DogeConsensusFactory(),
+				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 113 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
