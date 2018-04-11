@@ -177,27 +177,36 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
-		public class BTrashAddress : BitcoinAddress
+		public class BTrashPubKeyAddress : BitcoinPubKeyAddress
 		{
 			BCashAddr.BchAddr.BchAddrData addr;
-			internal BTrashAddress(string str, BCashAddr.BchAddr.BchAddrData addr) : base(str, addr.Network)
+			internal BTrashPubKeyAddress(string str, BCashAddr.BchAddr.BchAddrData addr) : base(str, new KeyId(addr.Hash), addr.Network)
 			{
 				this.addr = addr;
 			}
 
-			public BitcoinAddress AsBitpay()
+			public BitcoinPubKeyAddress AsBitpay()
 			{
-				return this.addr.Type == BCashAddr.BchAddr.CashType.P2PKH ? (BitcoinAddress)new BitcoinPubKeyAddress(new KeyId(this.addr.Hash), Network) : new BitcoinScriptAddress(new ScriptId(this.addr.Hash), Network);
+				return new BitcoinPubKeyAddress(new KeyId(this.addr.Hash), Network);
 			}
 
 			protected override Script GeneratePaymentScript()
 			{
-				return this.addr.Type == BCashAddr.BchAddr.CashType.P2PKH ? new KeyId(this.addr.Hash).ScriptPubKey : new ScriptId(this.addr.Hash).ScriptPubKey;
+				return new KeyId(this.addr.Hash).ScriptPubKey;
+			}
+		}
+
+		public class BTrashScriptAddress : BitcoinScriptAddress
+		{
+			BCashAddr.BchAddr.BchAddrData addr;
+			internal BTrashScriptAddress(string str, BCashAddr.BchAddr.BchAddrData addr) : base(str, new ScriptId(addr.Hash), addr.Network)
+			{
+				this.addr = addr;
 			}
 
-			public override string ToString()
+			public BitcoinScriptAddress AsBitpay()
 			{
-				return base.ToString();
+				return new BitcoinScriptAddress(new ScriptId(this.addr.Hash), Network);
 			}
 		}
 
@@ -220,7 +229,10 @@ namespace NBitcoin.Altcoins
 						try
 						{
 							var addr = BCashAddr.BchAddr.DecodeAddress(str, prefix, network);
-							result = (T)(object)new BTrashAddress(str, addr);
+							if(addr.Type == BCashAddr.BchAddr.CashType.P2PKH)
+								result = (T)(object)new BTrashPubKeyAddress(str, addr);
+							else
+								result = (T)(object)new BTrashScriptAddress(str, addr);
 							return true;
 						}
 						catch { }
@@ -229,7 +241,7 @@ namespace NBitcoin.Altcoins
 				return base.TryParse(str, network, out result);
 			}
 
-			public override BitcoinAddress CreateP2PKH(KeyId keyId, Network network)
+			public override BitcoinPubKeyAddress CreateP2PKH(KeyId keyId, Network network)
 			{
 				var addr = new BCashAddr.BchAddr.BchAddrData()
 				{
@@ -240,9 +252,9 @@ namespace NBitcoin.Altcoins
 					Network = network
 				};
 				var str = BCashAddr.BchAddr.EncodeAsCashaddr(addr);
-				return new BTrashAddress(str, addr);
+				return new BTrashPubKeyAddress(str, addr);
 			}
-			public override BitcoinAddress CreateP2SH(ScriptId scriptId, Network network)
+			public override BitcoinScriptAddress CreateP2SH(ScriptId scriptId, Network network)
 			{
 				var addr = new BCashAddr.BchAddr.BchAddrData()
 				{
@@ -253,7 +265,7 @@ namespace NBitcoin.Altcoins
 					Network = network
 				};
 				var str = BCashAddr.BchAddr.EncodeAsCashaddr(addr);
-				return new BTrashAddress(str, addr);
+				return new BTrashScriptAddress(str, addr);
 			}
 		}
 

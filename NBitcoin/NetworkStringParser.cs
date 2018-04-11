@@ -26,12 +26,12 @@ namespace NBitcoin
 		}
 
 
-		public virtual BitcoinAddress CreateP2PKH(KeyId keyId, Network network)
+		public virtual BitcoinPubKeyAddress CreateP2PKH(KeyId keyId, Network network)
 		{
 			return new BitcoinPubKeyAddress(keyId, network);
 		}
 
-		public virtual BitcoinAddress CreateP2SH(ScriptId scriptId, Network network)
+		public virtual BitcoinScriptAddress CreateP2SH(ScriptId scriptId, Network network)
 		{
 			return new BitcoinScriptAddress(scriptId, network);
 		}

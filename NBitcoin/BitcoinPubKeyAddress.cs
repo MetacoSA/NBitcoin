@@ -19,6 +19,14 @@ namespace NBitcoin
 			_KeyId = new KeyId(new uint160(decoded.Skip(expectedNetwork.GetVersionBytes(Base58Type.PUBKEY_ADDRESS, true).Length).ToArray()));
 		}
 
+		public BitcoinPubKeyAddress(string str, KeyId id, Network expectedNetwork = null)
+			: base(str, expectedNetwork)
+		{
+			if(id == null)
+				throw new ArgumentNullException(nameof(id));
+			_KeyId = id;
+		}
+
 		private static string Validate(string base58, ref Network expectedNetwork)
 		{
 			if(base58 == null)
