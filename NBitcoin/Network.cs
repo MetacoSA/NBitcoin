@@ -1359,12 +1359,12 @@ namespace NBitcoin
 		{
 			if(dest == null)
 				throw new ArgumentNullException("dest");
-			return new BitcoinPubKeyAddress(dest, this);
+			return NetworkStringParser.CreateP2PKH(dest, this);
 		}
 
-		private BitcoinAddress CreateBitcoinScriptAddress(ScriptId scriptId)
+		private BitcoinScriptAddress CreateBitcoinScriptAddress(ScriptId scriptId)
 		{
-			return new BitcoinScriptAddress(scriptId, this);
+			return NetworkStringParser.CreateP2SH(scriptId, this);
 		}
 
 		public Message ParseMessage(byte[] bytes, uint? version = null)

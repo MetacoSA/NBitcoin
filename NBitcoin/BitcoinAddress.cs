@@ -16,6 +16,14 @@ namespace NBitcoin
 			_Hash = new ScriptId(new uint160(decoded.Skip(expectedNetwork.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, true).Length).ToArray()));
 		}
 
+		public BitcoinScriptAddress(string str, ScriptId id, Network expectedNetwork = null)
+			: base(str, expectedNetwork)
+		{
+			if(id == null)
+				throw new ArgumentNullException(nameof(id));
+			_Hash = id;
+		}
+
 		private static string Validate(string base58, ref Network expectedNetwork)
 		{
 			if(base58 == null)
