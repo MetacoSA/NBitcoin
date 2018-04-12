@@ -47,6 +47,12 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void ThrowOnInvalidECKey()
+		{
+			Assert.Throws<ArgumentException>(() => new Key(Encoders.Base58.DecodeData("JEKNVnkbo3jma5nREBBJCD7MJVUPAg5THBwPPejEsG9v")));
+		}
+
+		[Fact]
 		public void ShouldDecodeProperly()
 		{
 			foreach(var i in DataSet)
@@ -76,7 +82,7 @@ namespace NBitcoin.Tests
 		[Trait("Core", "Core")]
 		public void base58_keys_valid_parse()
 		{
-			var tests = TestCase.read_json("Data\\base58_keys_valid.json");
+			var tests = TestCase.read_json("data/base58_keys_valid.json");
 			Network network;
 			foreach(var test in tests)
 			{

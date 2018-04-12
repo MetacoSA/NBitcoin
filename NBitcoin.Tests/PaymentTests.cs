@@ -99,6 +99,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
+#if WIN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadPaymentRequest()
@@ -126,6 +127,7 @@ namespace NBitcoin.Tests
 				Assert.True(request.VerifySignature());
 			}
 		}
+#endif
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -143,6 +145,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
+#if WIN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadTestVectorPayments()
@@ -182,6 +185,7 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
+#endif
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -193,7 +197,7 @@ namespace NBitcoin.Tests
 			})
 			{
 				PaymentRequest.DefaultCertificateServiceProvider = provider;
-				var cert = File.ReadAllBytes("Data/NicolasDorierMerchant.pfx");
+				var cert = File.ReadAllBytes("data/NicolasDorierMerchant.pfx");
 				CanCreatePaymentRequestCore(cert);
 				if(provider is WindowsCertificateServiceProvider)
 				{

@@ -1151,7 +1151,7 @@ namespace NBitcoin
 			vout = new TxOutList(this);
 		}
 
-		public Transaction(string hex, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public Transaction(string hex, uint? version = null)
 			: this()
 		{
 			this.FromBytes(Encoders.Hex.DecodeData(hex), version);
@@ -1206,7 +1206,7 @@ namespace NBitcoin
 		public virtual void ReadWrite(BitcoinStream stream)
 		{
 			var witSupported = (((uint)stream.TransactionOptions & (uint)TransactionOptions.Witness) != 0) &&
-								stream.ProtocolVersion >= ProtocolVersion.WITNESS_VERSION;
+								stream.ProtocolCapabilities.SupportWitness;
 
 			byte flags = 0;
 			if(!stream.Serializing)

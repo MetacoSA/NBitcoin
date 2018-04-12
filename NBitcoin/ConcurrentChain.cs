@@ -28,7 +28,6 @@ namespace NBitcoin
 			{
 				get; set;
 			}
-
 			internal void AssertCoherent()
 			{
 				if(!SerializePrecomputedBlockHash && !SerializeBlockHeader)
@@ -56,27 +55,111 @@ namespace NBitcoin
 			}
 		}
 
-		public ConcurrentChain(byte[] bytes) : this(bytes, null)
+		public ConcurrentChain(byte[] bytes, ConsensusFactory consensusFactory) : this(bytes, consensusFactory, null)
 		{
 		}
+
+		public ConcurrentChain(byte[] bytes, Consensus consensus) : this(bytes, consensus, null)
+		{
+		}
+
+		public ConcurrentChain(byte[] bytes, Network network) : this(bytes, network, null)
+		{
+		}
+
+		[Obsolete("Use ConcurrentChain(byte[], ConsensusFactory|Network|Consensus) instead")]
+		public ConcurrentChain(byte[] bytes) : this(bytes, Consensus.Main.ConsensusFactory, null)
+		{
+		}
+
+		public ConcurrentChain(byte[] bytes, ConsensusFactory consensusFactory, ChainSerializationFormat format)
+		{
+			Load(bytes, consensusFactory, format);
+		}
+
+		public ConcurrentChain(byte[] bytes, Consensus consensus, ChainSerializationFormat format)
+		{
+			Load(bytes, consensus, format);
+		}
+
+		public ConcurrentChain(byte[] bytes, Network network, ChainSerializationFormat format)
+		{
+			Load(bytes, network, format);
+		}
+
+		[Obsolete("Use ConcurrentChain(byte[], ConsensusFactory|Network|Consensus, ChainSerializationFormat format) instead")]
 		public ConcurrentChain(byte[] bytes, ChainSerializationFormat format)
 		{
-			Load(bytes, format);
+			Load(bytes, Consensus.Main.ConsensusFactory, format);
 		}
 
+		public void Load(byte[] chain, Network network, ChainSerializationFormat format)
+		{
+			Load(new MemoryStream(chain), network, format);
+		}
+
+		public void Load(byte[] chain, Consensus consensus, ChainSerializationFormat format)
+		{
+			Load(new MemoryStream(chain), consensus, format);
+		}
+
+		public void Load(byte[] chain, ConsensusFactory consensusFactory, ChainSerializationFormat format)
+		{
+			Load(new MemoryStream(chain), consensusFactory, format);
+		}
+
+		[Obsolete("Use Load(byte[], ConsensusFactory|Network|Consensus, ChainSerializationFormat format) instead")]
 		public void Load(byte[] chain, ChainSerializationFormat format)
 		{
-			Load(new MemoryStream(chain), format);
+			Load(new MemoryStream(chain), Consensus.Main.ConsensusFactory, format);
 		}
 
+		public void Load(byte[] chain, ConsensusFactory consensusFactory)
+		{
+			Load(chain, consensusFactory, null);
+		}
+
+		public void Load(byte[] chain, Consensus consensus)
+		{
+			Load(chain, consensus, null);
+		}
+
+		public void Load(byte[] chain, Network network)
+		{
+			Load(chain, network, null);
+		}
+
+		[Obsolete("Use Load(byte[], ConsensusFactory|Network|Consensus) instead")]
 		public void Load(byte[] chain)
 		{
-			Load(new MemoryStream(chain), null);
+			Load(new MemoryStream(chain), Consensus.Main.ConsensusFactory, null);
 		}
 
+		public void Load(Stream stream, ConsensusFactory consensusFactory, ChainSerializationFormat format)
+		{
+			if(consensusFactory == null)
+				throw new ArgumentNullException(nameof(consensusFactory));
+			Load(new BitcoinStream(stream, false) { ConsensusFactory = consensusFactory }, format);
+		}
+
+		public void Load(Stream stream, Network network, ChainSerializationFormat format)
+		{
+			if(network == null)
+				throw new ArgumentNullException(nameof(network));
+			Load(stream, network.Consensus.ConsensusFactory, format);
+		}
+
+		public void Load(Stream stream, Consensus consensus, ChainSerializationFormat format)
+		{
+			if(consensus == null)
+				throw new ArgumentNullException(nameof(consensus));
+			Load(stream, consensus.ConsensusFactory, format);
+		}
+
+		[Obsolete("Use Load(Stream, ConsensusFactory|Network|Consensus, ChainSerializationFormat) instead")]
 		public void Load(Stream stream, ChainSerializationFormat format)
 		{
-			Load(new BitcoinStream(stream, false), format);
+			Load(stream, Consensus.Main.ConsensusFactory, format);
 		}
 		public void Load(Stream stream)
 		{

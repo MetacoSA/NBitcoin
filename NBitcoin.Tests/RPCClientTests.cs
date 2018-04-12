@@ -25,7 +25,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void InvalidCommandSendRPCException()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -40,16 +40,16 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanSendCommand()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
-				var response = rpc.SendCommand(RPCOperations.getinfo);
+				var response = rpc.SendCommand(RPCOperations.getblockchaininfo);
 				Assert.NotNull(response.Result);
 				var copy = RPCCredentialString.Parse(rpc.CredentialString.ToString());
 				copy.Server = rpc.Address.AbsoluteUri;
-				rpc = new RPCClient(copy, null as string, Network.RegTest);
-				response = rpc.SendCommand(RPCOperations.getinfo);
+				rpc = new RPCClient(copy, null as string, builder.Network);
+				response = rpc.SendCommand(RPCOperations.getblockchaininfo);
 				Assert.NotNull(response.Result);
 			}
 		}
@@ -57,7 +57,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanUseMultipleWallets()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				node.ConfigParameters.Add("wallet", "w1");
@@ -87,7 +87,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetGenesisFromRPC()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -101,7 +101,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetRawMemPool()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				var rpc = node.CreateRPCClient();
@@ -117,7 +117,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanUseAsyncRPC()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				var rpc = node.CreateRPCClient();
@@ -131,12 +131,11 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanSignRawTransaction()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
-				var rpc = node.CreateRPCClient();
 				builder.StartAll();
-				node.CreateRPCClient().Generate(101);
+				node.Generate(101);
 
 				var tx = new Transaction();
 				tx.Outputs.Add(new TxOut(Money.Coins(1.0m), new Key()));
@@ -147,9 +146,52 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanRBFTransaction()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+				node.Generate(101);
+
+				var key = new Key();
+				var address = key.PubKey.GetAddress(rpc.Network);
+
+				var txid = rpc.SendToAddress(address, Money.Coins(2), null, null, false, true);
+				var txbumpid = rpc.BumpFee(txid);
+				var blocks = rpc.Generate(1); 
+
+				var block = rpc.GetBlock(blocks.First());
+				Assert.False( block.Transactions.Any(x=>x.GetHash() == txid) );
+				Assert.True( block.Transactions.Any(x=>x.GetHash() == txbumpid.TransactionId) );
+			}
+		}
+
+
+		[Fact]
+		public async Task CanGetBlockchainInfo()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				var response = await rpc.GetBlockchainInfoAsync();
+
+				Assert.Equal(builder.Network, response.Chain);
+				Assert.Equal(builder.Network.GetGenesis().GetHash(), response.BestBlockHash);
+				Assert.True(response.Bip9SoftForks.Any(x=>x.Name == "segwit"));
+				Assert.True(response.Bip9SoftForks.Any(x=>x.Name == "csv"));
+				Assert.True(response.SoftForks.Any(x=>x.Bip == "bip34"));
+				Assert.True(response.SoftForks.Any(x=>x.Bip == "bip65"));
+				Assert.True(response.SoftForks.Any(x=>x.Bip == "bip66"));
+			}
+		}
+
+		[Fact]
 		public void CanGetBlockFromRPC()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -164,7 +206,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public async Task CanGetTxOutFromRPCAsync()
 		{
-			using (var builder = NodeBuilder.Create())
+			using (var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -215,10 +257,11 @@ namespace NBitcoin.Tests
 			}
 		}
 
+
 		[Fact]
 		public void EstimateSmartFee()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				node.Start();
@@ -233,7 +276,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void TryEstimateSmartFee()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				node.Start();
@@ -246,16 +289,16 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void TestFundRawTransaction()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
 				node.Start();
-				node.Generate(101);
+				rpc.Generate(101);
 
 				var k = new Key();
 				var tx = new Transaction();
 				tx.Outputs.Add(new TxOut(Money.Coins(1), k));
-				var rpc = node.CreateRPCClient();
 				var result = rpc.FundRawTransaction(tx);
 				TestFundRawTransactionResult(tx, result);
 
@@ -289,7 +332,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetTransactionBlockFromRPC()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -302,18 +345,21 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetPrivateKeysFromAccount()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
 				Key key = new Key();
-				rpc.ImportAddress(key.PubKey.GetAddress(Network.RegTest), TestAccount, false);
+				rpc.ImportAddress(key.PubKey.GetAddress(builder.Network), TestAccount, false);
 				BitcoinAddress address = rpc.GetAccountAddress(TestAccount);
 				BitcoinSecret secret = rpc.DumpPrivKey(address);
 				BitcoinSecret secret2 = rpc.GetAccountSecret(TestAccount);
 
 				Assert.Equal(secret.ToString(), secret2.ToString());
-				Assert.Equal(address.ToString(), secret.GetAddress().ToString());
+				var p2pkh = secret.GetAddress().ToString();
+				var wit = secret.PubKey.WitHash.GetAddress(builder.Network).ToString();
+				var p2shwit = secret.PubKey.WitHash.ScriptPubKey.GetScriptAddress(builder.Network).ToString();
+				Assert.True(address.ToString() == p2pkh || address.ToString() == wit || address.ToString() == p2shwit);
 			}
 		}
 
@@ -321,7 +367,7 @@ namespace NBitcoin.Tests
 		public void CanImportMultiAddresses()
 		{
 			// Test cases borrowed from: https://github.com/bitcoin/bitcoin/blob/master/test/functional/importmulti.py
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -609,7 +655,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetPrivateKeysFromLockedAccount()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -624,7 +670,11 @@ namespace NBitcoin.Tests
 				BitcoinSecret secret2 = rpc.GetAccountSecret(TestAccount);
 
 				Assert.Equal(secret.ToString(), secret2.ToString());
-				Assert.Equal(address.ToString(), secret.GetAddress().ToString());
+
+				var p2pkh = secret.GetAddress().ToString();
+				var wit = secret.PubKey.WitHash.GetAddress(builder.Network).ToString();
+				var p2shwit = secret.PubKey.WitHash.ScriptPubKey.GetScriptAddress(builder.Network).ToString();
+				Assert.True(address.ToString() == p2pkh || address.ToString() == wit || address.ToString() == p2shwit);
 			}
 		}
 
@@ -715,7 +765,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void RawTransactionIsConformsToRPC()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -729,7 +779,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void InvalidateBlockToRPC()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -752,7 +802,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanUseBatchedRequests()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var nodeA = builder.CreateNode();
 				builder.StartAll();
@@ -807,7 +857,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanGetPeersInfo()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var nodeA = builder.CreateNode();
 				builder.StartAll();
@@ -821,7 +871,7 @@ namespace NBitcoin.Tests
 			}
 		}
 #endif
-#if !NOSOCKET
+#if !NOSOCKET && WIN
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseIpEndpoint()
@@ -851,7 +901,7 @@ namespace NBitcoin.Tests
 #if NOFILEIO
 			Assert.Throws<NotSupportedException>(() => new RPCClient(Network.Main));
 #else
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				//Sanity check that it does not throw
 #pragma warning disable CS0618
@@ -864,8 +914,8 @@ namespace NBitcoin.Tests
 				rpc.GetBlockCount();
 				node.Restart();
 				rpc.GetBlockCount();
-				Assert.Throws<ArgumentException>(() => new RPCClient("cookiefile=Data\\tx_valid.json", new Uri("http://localhost/"), Network.RegTest));
-				Assert.Throws<FileNotFoundException>(() => new RPCClient("cookiefile=Data\\efpwwie.json", new Uri("http://localhost/"), Network.RegTest));
+				new RPCClient("cookiefile=data/tx_valid.json", new Uri("http://localhost/"), Network.RegTest);
+				new RPCClient("cookiefile=data/efpwwie.json", new Uri("http://localhost/"), Network.RegTest);
 
 				rpc = new RPCClient("bla:bla", null as Uri, Network.RegTest);
 				Assert.Equal("http://127.0.0.1:" + Network.RegTest.RPCPort + "/", rpc.Address.AbsoluteUri);
@@ -893,7 +943,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void RPCSendRPCException()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				builder.StartAll();
@@ -916,7 +966,7 @@ namespace NBitcoin.Tests
 		//[Fact]
 		public void CanAddNodes()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var nodeA = builder.CreateNode();
 				var nodeB = builder.CreateNode();
@@ -970,7 +1020,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanBackupWallet()
 		{
-			using(var builder = NodeBuilder.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				node.Start();

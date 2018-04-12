@@ -84,7 +84,7 @@ namespace NBitcoin.Protocol.Behaviors
 
 		protected override void AttachCore()
 		{
-			if(AttachedNode.PeerVersion != null && !PingVersion()) //If not handshaked, still attach (the callback will also check version)
+			if(AttachedNode.PeerVersion != null && !PingVersion()) //If not handshaked, stil attach (the callback will also check version)
 				return;
 			AttachedNode.MessageReceived += AttachedNode_MessageReceived;
 			AttachedNode.StateChanged += AttachedNode_StateChanged;
@@ -94,7 +94,7 @@ namespace NBitcoin.Protocol.Behaviors
 		private bool PingVersion()
 		{
 			var node = AttachedNode;
-			return node != null && node.Version > ProtocolVersion.BIP0031_VERSION;
+			return node != null && node.ProtocolCapabilities.SupportPingPong;
 		}
 
 		void AttachedNode_StateChanged(Node node, NodeState oldState)

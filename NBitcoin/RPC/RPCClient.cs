@@ -39,7 +39,7 @@ namespace NBitcoin.RPC
 		network			clearbanned
 
 		------------------ Block chain and UTXO
-		blockchain		 getblockchaininfo
+		blockchain		 getblockchaininfo			Yes
 		blockchain		 getbestblockhash			 Yes
 		blockchain		 getblockcount				Yes
 		blockchain		 getblock					 Yes
@@ -219,10 +219,9 @@ namespace NBitcoin.RPC
 			}
 
 			if(_Authentication == null)
-				RenewCookie();
-
-			if(_Authentication == null)
-				throw new ArgumentException("Impossible to infer the authentication of the RPCClient");
+			{
+				TryRenewCookie(null);
+			}
 		}
 
 
@@ -614,20 +613,6 @@ namespace NBitcoin.RPC
 				return await SendCommandAsyncCore(request, throwIfRPCError).ConfigureAwait(false);
 			}
 		}
-
-		private void RenewCookie()
-		{
-			if(GetCookiePath() == null)
-				throw new InvalidOperationException("Bug in NBitcoin notify the developers");
-#if !NOFILEIO
-			var auth = File.ReadAllText(GetCookiePath());
-			if(!auth.StartsWith("__cookie__:", StringComparison.OrdinalIgnoreCase))
-				throw new ArgumentException("The authentication string to RPC is not provided and can't be inferred");
-			_Authentication = auth;
-#else
-			throw new NotSupportedException("Cookie authentication is not supported for this plateform");
-#endif
-		}
 		private void TryRenewCookie(WebException ex)
 		{
 			if(GetCookiePath() == null)
@@ -639,7 +624,12 @@ namespace NBitcoin.RPC
 				_Authentication = File.ReadAllText(GetCookiePath());
 			}
 			//We are only interested into the previous exception
-			catch { ExceptionDispatchInfo.Capture(ex).Throw(); }
+			catch
+			{
+				if(ex == null)
+					return;
+				ExceptionDispatchInfo.Capture(ex).Throw();
+			}
 #else
 			throw new NotSupportedException("Cookie authentication is not supported for this plateform");
 #endif
@@ -883,6 +873,53 @@ namespace NBitcoin.RPC
 
 #region Block chain and UTXO
 
+		public async Task<BlockchainInfo> GetBlockchainInfoAsync()
+		{
+			var response = await SendCommandAsync(RPCOperations.getblockchaininfo).ConfigureAwait(false);
+			var result = response.Result;
+
+			var epochToDtateTimeOffset = new Func<long, DateTimeOffset>(epoch=>{
+				try{
+					return Utils.UnixTimeToDateTime(epoch);
+				}catch(OverflowException){
+					return DateTimeOffset.MaxValue;
+				}
+			});
+
+			var blockchainInfo = new BlockchainInfo
+			{
+				Chain = Network.GetNetwork(result.Value<string>("chain")),
+				Blocks = result.Value<ulong>("blocks"),
+				Headers = result.Value<ulong>("headers"),
+				BestBlockHash = new uint256(result.Value<string>("bestblockhash")), // the block hash
+				Difficulty = result.Value<ulong>("difficulty"),
+				MedianTime = result.Value<ulong>("mediantime"),
+				VerificationProgress = result.Value<float>("verificationprogress"),
+				InitialBlockDownload = result.Value<bool>("initialblockdownload"),
+				ChainWork = new uint256(result.Value<string>("chainwork")), 
+				SizeOnDisk = result.Value<ulong>("size_on_disk"),
+				Pruned = result.Value<bool>("pruned"),
+				SoftForks = result["softforks"].Select(x=> 
+					new BlockchainInfo.SoftFork {
+						Bip = (string)(x["id"]),
+						Version = (int)(x["version"]),
+						RejectStatus = bool.Parse((string)(x["reject"]["status"]))
+					}).ToList(),
+				Bip9SoftForks = result["bip9_softforks"].Select(x=> {
+					var o = x.First();
+					return new BlockchainInfo.Bip9SoftFork {
+						Name = ((JProperty)x).Name,
+						Status = (string)o["status"],
+						StartTime = epochToDtateTimeOffset((long)o["startTime"]),
+						Timeout =   epochToDtateTimeOffset((long)o["timeout"]),
+						SinceHeight =  (ulong)o["since"],
+					};
+					}).ToList()
+			};
+
+			return blockchainInfo;
+		}
+
 		public uint256 GetBestBlockHash()
 		{
 			return uint256.Parse((string)SendCommand(RPCOperations.getbestblockhash).Result);
@@ -913,7 +950,7 @@ namespace NBitcoin.RPC
 		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
 			var resp = await SendCommandAsync(RPCOperations.getblock, blockId.ToString(), false).ConfigureAwait(false);
-			return new Block(Encoders.Hex.DecodeData(resp.Result.ToString()));
+			return new Block(Encoders.Hex.DecodeData(resp.Result.ToString()), Network);
 		}
 
 		/// <summary>
@@ -949,9 +986,9 @@ namespace NBitcoin.RPC
 			return ParseBlockHeader(resp);
 		}
 
-		private static BlockHeader ParseBlockHeader(RPCResponse resp)
+		private BlockHeader ParseBlockHeader(RPCResponse resp)
 		{
-			var header = new BlockHeader();
+			var header = Network.Consensus.ConsensusFactory.CreateBlockHeader();
 			header.Version = (int)resp.Result["version"];
 			header.Nonce = (uint)resp.Result["nonce"];
 			header.Bits = new Target(Encoders.Hex.DecodeData((string)resp.Result["bits"]));
@@ -1148,6 +1185,23 @@ namespace NBitcoin.RPC
 		public Task SendRawTransactionAsync(byte[] bytes)
 		{
 			return SendCommandAsync(RPCOperations.sendrawtransaction, Encoders.Hex.EncodeData(bytes));
+		}
+
+		public BumpResponse BumpFee(uint256 txid)
+		{
+			return BumpFeeAsync(txid).GetAwaiter().GetResult();
+		}
+
+		public async Task<BumpResponse> BumpFeeAsync(uint256 txid)
+		{
+			var response = await SendCommandAsync(RPCOperations.bumpfee, txid.ToString());
+			var o = response.Result;
+			return new BumpResponse{
+				TransactionId = uint256.Parse((string)o["txid"]),
+				OriginalFee = (ulong)o["origfee"],
+				Fee = (ulong)o["fee"],
+				Errors = o["errors"].Select(x=>(string)x).ToList()
+			};
 		}
 
 		#endregion
@@ -1358,12 +1412,21 @@ namespace NBitcoin.RPC
 		/// <param name="amount">The amount to spend</param>
 		/// <param name="commentTx">A locally-stored (not broadcast) comment assigned to this transaction. Default is no comment</param>
 		/// <param name="commentDest">A locally-stored (not broadcast) comment assigned to this transaction. Meant to be used for describing who the payment was sent to. Default is no comment</param>
+		/// <param name="subtractFeeFromAmount">The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. </param>
+		/// <param name="replaceable">Allow this transaction to be replaced by a transaction with higher fees. </param>
 		/// <returns>The TXID of the sent transaction</returns>
-		public uint256 SendToAddress(BitcoinAddress address, Money amount, string commentTx = null, string commentDest = null)
+		public uint256 SendToAddress(
+			BitcoinAddress address, 
+			Money amount, 
+			string commentTx = null, 
+			string commentDest = null,
+			bool subtractFeeFromAmount = false,
+			bool replaceable = false
+		)
 		{
 			uint256 txid = null;
 
-			txid = SendToAddressAsync(address, amount, commentTx, commentDest).GetAwaiter().GetResult();
+			txid = SendToAddressAsync(address, amount, commentTx, commentDest, subtractFeeFromAmount, replaceable).GetAwaiter().GetResult();
 			return txid;
 		}
 
@@ -1374,16 +1437,29 @@ namespace NBitcoin.RPC
 		/// <param name="amount">The amount to spend</param>
 		/// <param name="commentTx">A locally-stored (not broadcast) comment assigned to this transaction. Default is no comment</param>
 		/// <param name="commentDest">A locally-stored (not broadcast) comment assigned to this transaction. Meant to be used for describing who the payment was sent to. Default is no comment</param>
+		/// <param name="subtractFeeFromAmount">The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. </param>
+		/// <param name="replaceable">Allow this transaction to be replaced by a transaction with higher fees. </param>
 		/// <returns>The TXID of the sent transaction</returns>
-		public async Task<uint256> SendToAddressAsync(BitcoinAddress address, Money amount, string commentTx = null, string commentDest = null)
+		public async Task<uint256> SendToAddressAsync(
+			BitcoinAddress address, 
+			Money amount, 
+			string commentTx = null, 
+			string commentDest = null, 
+			bool subtractFeeFromAmount = false,
+			bool replaceable = false
+			)
 		{
 			List<object> parameters = new List<object>();
 			parameters.Add(address.ToString());
 			parameters.Add(amount.ToString());
-			if(commentTx != null)
-				parameters.Add(commentTx);
-			if(commentDest != null)
-				parameters.Add(commentDest);
+			parameters.Add($"{commentTx}");
+			parameters.Add($"{commentDest}");
+			if(subtractFeeFromAmount || replaceable)
+			{
+				parameters.Add(subtractFeeFromAmount);
+				if(replaceable)
+					parameters.Add(replaceable);
+			}
 			var resp = await SendCommandAsync(RPCOperations.sendtoaddress, parameters.ToArray()).ConfigureAwait(false);
 			return uint256.Parse(resp.Result.ToString());
 		}
@@ -1551,7 +1627,52 @@ namespace NBitcoin.RPC
 			get; internal set;
 		}
 	}
+	
 #endif
+
+	public class BlockchainInfo
+	{
+		public class SoftFork
+		{
+			public string Bip { get; set; }
+			public int Version { get; set; }
+			public bool RejectStatus { get; set; }
+		}
+
+		public class Bip9SoftFork
+		{
+			public string Name { get; set; }
+			public string Status { get; set; }
+			public DateTimeOffset StartTime { get; set; }
+			public DateTimeOffset Timeout { get; set; }
+			public ulong SinceHeight { get; set; }
+			
+		}
+		
+		public Network Chain { get; set; }
+		public ulong Blocks { get; set; }
+		public ulong Headers { get; set; }
+		public uint256 BestBlockHash { get; set; }
+		public ulong Difficulty { get; set; }
+		public ulong MedianTime { get; set; }
+
+		public float VerificationProgress { get; set; }
+		public bool InitialBlockDownload { get; set; }
+		public uint256 ChainWork { get; set; }
+		public ulong SizeOnDisk { get; set; }
+		public bool Pruned { get; set; }
+
+		public List<SoftFork> SoftForks { get; set; } 
+		public List<Bip9SoftFork> Bip9SoftForks { get; set; }
+	}
+
+	public class BumpResponse
+	{
+		public uint256 TransactionId { get; set; }
+		public ulong OriginalFee { get; set; }
+		public ulong Fee { get; set; }
+		public List<string> Errors { get; set; }
+	}
 
 	public class NoEstimationException : Exception
 	{

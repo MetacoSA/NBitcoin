@@ -219,6 +219,19 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanDecodeBTrashAddress()
+		{
+			BitcoinAddress trashAddress = NBitcoin.Altcoins.BCash.Mainnet.Parse<NBitcoin.Altcoins.BCash.BTrashPubKeyAddress>("bitcoincash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a");
+			BitcoinAddress trashAddress2 = trashAddress.ScriptPubKey.GetDestinationAddress(NBitcoin.Altcoins.BCash.Mainnet);
+			Assert.Equal(trashAddress.ToString(), trashAddress2.ToString());
+
+			trashAddress = NBitcoin.Altcoins.BCash.Mainnet.Parse<NBitcoin.Altcoins.BCash.BTrashScriptAddress>("bitcoincash:ppm2qsznhks23z7629mms6s4cwef74vcwvn0h829pq");
+			trashAddress2 = trashAddress.ScriptPubKey.GetDestinationAddress(NBitcoin.Altcoins.BCash.Mainnet);
+			Assert.Equal(trashAddress.ToString(), trashAddress2.ToString());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void MoneyCoverage()
 		{
 			Money a = Money.Coins(2.0m);
@@ -841,10 +854,10 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseBlockJSON()
 		{
-			var jobj = JObject.Parse(File.ReadAllText("Data/blocks/Block1.json"));
+			var jobj = JObject.Parse(File.ReadAllText("data/blocks/Block1.json"));
 			var array = (JArray)jobj["mrkl_tree"];
 			var expected = array.OfType<JValue>().Select(v => uint256.Parse(v.ToString())).ToList();
-			var block = Block.ParseJson(File.ReadAllText("Data/blocks/Block1.json"));
+			var block = Block.ParseJson(File.ReadAllText("data/blocks/Block1.json"));
 			Assert.Equal("000000000000000040cd080615718eb68f00a0138706e7afd4068f3e08d4ca20", block.GetHash().ToString());
 			Assert.True(block.CheckMerkleRoot());
 		}

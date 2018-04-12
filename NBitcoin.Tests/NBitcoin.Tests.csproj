@@ -9,17 +9,22 @@
 	  <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
 	  <NoWarn>CS0618</NoWarn>
   </PropertyGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
+		<DefineConstants>$(DefineConstants);WIN;NOCONSENSUSLIB</DefineConstants>
+	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
-		<DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER;NOCONSENSUSLIB</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
 		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
+		<ProjectReference Include="..\NBitcoin.Altcoins\NBitcoin.Altcoins.csproj" />
+		<ProjectReference Include="..\NBitcoin.TestFramework\NBitcoin.TestFramework.csproj" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.3.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
 		<PackageReference Include="System.Net.Requests" Version="4.3.0" />
-		<PackageReference Include="System.Net.Http" Version="4.3.2" />
+		<PackageReference Include="System.Net.Http" Version="4.3.3" />
 		<PackageReference Include="xunit" Version="2.2.0" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
 		<PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
@@ -31,9 +36,9 @@
 		<PackageReference Include="System.Globalization.Extensions" Version="4.3.0" />
 		<PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
 		<PackageReference Include="System.Threading.Tasks.Parallel" Version="4.3.0" />
-		<PackageReference Include="System.Threading.Thread" Version="4.3.0" />		
+		<PackageReference Include="System.Threading.Thread" Version="4.3.0" />
 	</ItemGroup>
-	
+
   <ItemGroup>
     <None Include="App.config" />
     <None Include="data\.cookie">
@@ -143,6 +148,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="data\tx_valid.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="data\SHA256SUMS.asc">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

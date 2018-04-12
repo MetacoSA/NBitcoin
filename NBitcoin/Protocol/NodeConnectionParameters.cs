@@ -18,7 +18,7 @@ namespace NBitcoin.Protocol
 		{
 			ReuseBuffer = true;
 			TemplateBehaviors.Add(new PingPongBehavior());
-			Version = ProtocolVersion.PROTOCOL_VERSION;
+			Version = null;
 			IsRelay = true;
 			Services = NodeServices.Nothing;
 			ConnectCancellation = default(CancellationToken);
@@ -61,7 +61,7 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
-		public ProtocolVersion Version
+		public uint? Version
 		{
 			get;
 			set;
@@ -150,7 +150,7 @@ namespace NBitcoin.Protocol
 			{
 				Nonce = Nonce == null ? RandomUtils.GetUInt64() : Nonce.Value,
 				UserAgent = UserAgent,
-				Version = Version,
+				Version = Version == null ? network.MaxP2PVersion : Version.Value,
 				Timestamp = DateTimeOffset.UtcNow,
 				AddressReceiver = peer,
 				AddressFrom = AddressFrom ?? new IPEndPoint(IPAddress.Parse("0.0.0.0").MapToIPv6Ex(), network.DefaultPort),

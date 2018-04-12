@@ -27,8 +27,9 @@ namespace NBitcoin.Protocol
 				return _Network;
 			}
 		}
-		private readonly ProtocolVersion _Version;
-		public ProtocolVersion Version
+
+		uint _Version;
+		public uint Version
 		{
 			get
 			{
@@ -45,7 +46,7 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
-		public NodeServer(Network network, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION,
+		public NodeServer(Network network, uint? version = null,
 			int internalPort = -1)
 		{
 			AllowLocalPeers = true;
@@ -55,7 +56,7 @@ namespace NBitcoin.Protocol
 			MaxConnections = 125;
 			_Network = network;
 			_ExternalEndpoint = new IPEndPoint(_LocalEndpoint.Address, Network.DefaultPort);
-			_Version = version;
+			_Version = version == null ? network.MaxP2PVersion : version.Value;
 			var listener = new EventLoopMessageListener<IncomingMessage>(ProcessMessage);
 			_MessageProducer.AddMessageListener(listener);
 			OwnResource(listener);
@@ -180,11 +181,11 @@ namespace NBitcoin.Protocol
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
 					var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token);
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
-					
+
 					var stream = new NetworkStream(client, false);
 					while(true)
 					{
-						if (ConnectedNodes.Count >= MaxConnections)
+						if(ConnectedNodes.Count >= MaxConnections)
 						{
 							NodeServerTrace.Information("MaxConnections limit reached");
 							Utils.SafeCloseSocket(client);

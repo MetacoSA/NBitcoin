@@ -1058,7 +1058,8 @@ namespace NBitcoin
 
 
 #if !NOCONSENSUSLIB
-		public const string LibConsensusDll = "libbitcoinconsensus-0.dll";
+
+		public const string LibConsensusDll = "libbitcoinconsensus.dll";
 		public enum BitcoinConsensusError
 		{
 			ERR_OK = 0,
@@ -1076,7 +1077,7 @@ namespace NBitcoin
 		private static extern int VerifyScriptConsensus(byte[] scriptPubKey, uint scriptPubKeyLen, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
 
 		[DllImport(LibConsensusDll, EntryPoint = "bitcoinconsensus_verify_script_with_amount", CallingConvention = CallingConvention.Cdecl)]
-		private static extern int VerifyScriptConsensusWithAmount(byte[] scriptPubKey, uint scriptPubKeyLen, long amount, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
+		static extern int VerifyScriptConsensusWithAmount(byte[] scriptPubKey, uint scriptPubKeyLen, long amount, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
 
 		public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags)
 		{

@@ -150,7 +150,7 @@ namespace NBitcoin.Protocol
 			signature = new VarString(key.Sign(Hashes.Hash256(payload.GetString())).ToDER());
 		}
 
-		public void UpdatePayload(ProtocolVersion protocolVersion = ProtocolVersion.PROTOCOL_VERSION)
+		public void UpdatePayload(uint? protocolVersion = null)
 		{
 			UpdatePayload(new BitcoinStream(new byte[0])
 			{

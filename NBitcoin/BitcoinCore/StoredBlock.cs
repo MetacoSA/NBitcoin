@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
+	[Obsolete]
 	public class DiskBlockPosRange
 	{
 		private static DiskBlockPosRange _All = new DiskBlockPosRange(DiskBlockPos.Begin, DiskBlockPos.End);
@@ -238,7 +239,9 @@ namespace NBitcoin.BitcoinCore
 				BlockHeader header = item == null ? null : item.Header;
 				stream.ReadWrite(ref header);
 				if(!stream.Serializing)
+#pragma warning disable CS0612 // Type or member is obsolete
 					item = new Block(header);
+#pragma warning restore CS0612 // Type or member is obsolete
 
 				var headerSize = stream.Inner.Position - beforeReading;
 				var bodySize = this.Header.ItemSize - headerSize;
@@ -256,12 +259,16 @@ namespace NBitcoin.BitcoinCore
 
 		#endregion
 #if !NOFILEIO
+#pragma warning disable CS0612 // Type or member is obsolete
 		public static IEnumerable<StoredBlock> EnumerateFile(string file, uint fileIndex = 0, DiskBlockPosRange range = null)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			return new BlockStore(Path.GetDirectoryName(file), Network.Main).EnumerateFile(file, fileIndex, range);
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		public static IEnumerable<StoredBlock> EnumerateFolder(string folder, DiskBlockPosRange range = null)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			return new BlockStore(folder, Network.Main).EnumerateFolder(range);
 		}

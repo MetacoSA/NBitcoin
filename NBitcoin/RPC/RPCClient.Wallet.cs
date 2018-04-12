@@ -273,7 +273,7 @@ namespace NBitcoin.RPC
 			if(tx.Inputs.Count > 0)
 				return tx.ToHex();
 			// if there is, do this ACK so that NBitcoin does not change the version number
-			return Encoders.Hex.EncodeData(tx.ToBytes(NBitcoin.Protocol.ProtocolVersion.WITNESS_VERSION - 1));
+			return Encoders.Hex.EncodeData(tx.ToBytes(70012 - 1));
 		}
 
 
@@ -529,14 +529,14 @@ namespace NBitcoin.RPC
 			foreach(var group in array.Children<JArray>())
 			{
 				var grouping = new AddressGrouping();
-				grouping.PublicAddress = BitcoinAddress.Create(group[0][0].ToString());
+				grouping.PublicAddress = BitcoinAddress.Create(group[0][0].ToString(), Network);
 				grouping.Amount = Money.Coins(group[0][1].Value<decimal>());
 				grouping.Account = group[0].Count() > 2 ? group[0][2].ToString() : null;
 
 				foreach(var subgroup in group.Skip(1))
 				{
 					var change = new ChangeAddress();
-					change.Address = BitcoinAddress.Create(subgroup[0].ToString());
+					change.Address = BitcoinAddress.Create(subgroup[0].ToString(), Network);
 					change.Amount = Money.Coins(subgroup[1].Value<decimal>());
 					grouping.ChangeAddresses.Add(change);
 				}

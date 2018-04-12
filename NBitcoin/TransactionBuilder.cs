@@ -1159,14 +1159,14 @@ namespace NBitcoin
 			var unconsumed = coins.Where(c => ctx.ConsumedCoins.All(cc => cc.Outpoint != c.Outpoint));
 			var selection = CoinSelector.Select(unconsumed, target);
 			if(selection == null)
-				throw new NotEnoughFundsException("Not enough fund to cover the target",
+				throw new NotEnoughFundsException("Not enough funds to cover the target",
 					group.Name,
 					target.Sub(unconsumed.Select(u => u.Amount).Sum(zero))
 					);
 			var total = selection.Select(s => s.Amount).Sum(zero);
 			var change = total.Sub(target);
 			if(change.CompareTo(zero) == -1)
-				throw new NotEnoughFundsException("Not enough fund to cover the target",
+				throw new NotEnoughFundsException("Not enough funds to cover the target",
 					group.Name,
 					change.Negate()
 				);

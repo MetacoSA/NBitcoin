@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-        <Version Condition=" '$(Version)' == '' ">4.0.0.64</Version>
+        <Version Condition=" '$(Version)' == '' ">4.1.0.9</Version>
     </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>netstandard1.3;netstandard1.1</TargetFrameworks>
@@ -34,7 +34,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="System.Net.Requests" Version="4.3.0" />
 	  <PackageReference Include="System.Net.Http" Version="4.3.2" />
-    
+
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -51,7 +51,7 @@
     <Compile Include="..\Stubs\TraceStub\TraceSource.cs" />
   </ItemGroup>
 
-	
+
   <ItemGroup>
 	<None Update="BitcoinStream.Partial.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

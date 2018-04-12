@@ -42,11 +42,17 @@ namespace NBitcoin.Protocol
 
 	public class NodeRequirement
 	{
-		public ProtocolVersion? MinVersion
+		public uint? MinVersion
 		{
 			get;
 			set;
 		}
+
+		public ProtocolCapabilities MinProtocolCapabilities
+		{
+			get; set;
+		}
+
 		public NodeServices RequiredServices
 		{
 			get;
@@ -59,6 +65,28 @@ namespace NBitcoin.Protocol
 			set;
 		}
 
+		public virtual bool Check(VersionPayload version, ProtocolCapabilities capabilities)
+		{
+#pragma warning disable CS0618 // Type or member is obsolete
+			if(!Check(version))
+#pragma warning restore CS0618 // Type or member is obsolete
+				return false;
+			if(capabilities.PeerTooOld)
+				return false;
+			if(MinProtocolCapabilities == null)
+				return true;
+
+			if(SupportSPV)
+			{
+				if(capabilities.SupportNodeBloom && ((version.Services & NodeServices.NODE_BLOOM) == 0))
+					return false;
+			}
+
+			return capabilities.IsSupersetOf(MinProtocolCapabilities);
+		}
+
+#pragma warning disable CS0618 // Type or member is obsolete
+		[Obsolete("Use Check(VersionPayload, ProtocolCapabilities capabilities) instead")]
 		public virtual bool Check(VersionPayload version)
 		{
 			if(MinVersion != null)
@@ -70,15 +98,9 @@ namespace NBitcoin.Protocol
 			{
 				return false;
 			}
-			if(SupportSPV)
-			{
-				if(version.Version < ProtocolVersion.MEMPOOL_GD_VERSION)
-					return false;
-				if(ProtocolVersion.NO_BLOOM_VERSION <= version.Version && ((version.Services & NodeServices.NODE_BLOOM) == 0))
-					return false;
-			}
 			return true;
 		}
+#pragma warning restore CS0618 // Type or member is obsolete
 	}
 
 	public class SynchronizeChainOptions
@@ -197,6 +219,14 @@ namespace NBitcoin.Protocol
 							var message = new Message();
 							message.Magic = _Node.Network.Magic;
 							message.Payload = payload;
+							if(payload is GetHeadersPayload getHeaders)
+							{
+								getHeaders.Version = Node.Version;
+							}
+							if(payload is GetBlocksPayload getBlocks)
+							{
+								getBlocks.Version = Node.Version;
+							}
 							if(isVerbose)
 							{
 								Trace.CorrelationManager.ActivityId = kv.ActivityId;
@@ -211,7 +241,8 @@ namespace NBitcoin.Protocol
 							message.ReadWrite(new BitcoinStream(ms, true)
 							{
 								ProtocolVersion = Node.Version,
-								TransactionOptions = Node.SupportedTransactionOptions
+								TransactionOptions = Node.SupportedTransactionOptions,
+								ConsensusFactory = Node.Network.Consensus.ConsensusFactory
 							});
 							var bytes = ms.ToArrayEfficient();
 							evt.SetBuffer(bytes, 0, bytes.Length);
@@ -406,7 +437,7 @@ namespace NBitcoin.Protocol
 			var version = message.Message.Payload as VersionPayload;
 			if(version != null && State == NodeState.HandShaked)
 			{
-				if(message.Node.Version >= ProtocolVersion.REJECT_VERSION)
+				if(message.Node.ProtocolCapabilities.SupportReject)
 					message.Node.SendMessageAsync(new RejectPayload()
 					{
 						Code = RejectCode.DUPLICATE
@@ -610,7 +641,7 @@ namespace NBitcoin.Protocol
 		}
 
 		public static Node ConnectToLocal(Network network,
-								ProtocolVersion myVersion = ProtocolVersion.PROTOCOL_VERSION,
+								uint? myVersion = null,
 								bool isRelay = true,
 								CancellationToken cancellation = default(CancellationToken))
 		{
@@ -630,7 +661,7 @@ namespace NBitcoin.Protocol
 
 		public static Node Connect(Network network,
 								 string endpoint,
-								 ProtocolVersion myVersion = ProtocolVersion.PROTOCOL_VERSION,
+								 uint? myVersion = null,
 								bool isRelay = true,
 								CancellationToken cancellation = default(CancellationToken))
 		{
@@ -659,7 +690,7 @@ namespace NBitcoin.Protocol
 
 		public static Node Connect(Network network,
 								 IPEndPoint endpoint,
-								 ProtocolVersion myVersion = ProtocolVersion.PROTOCOL_VERSION,
+								 uint? myVersion = null,
 								bool isRelay = true,
 								CancellationToken cancellation = default(CancellationToken))
 		{
@@ -680,6 +711,7 @@ namespace NBitcoin.Protocol
 			_Behaviors = new NodeBehaviorsCollection(this);
 			_MyVersion = parameters.CreateVersion(peer.Endpoint, network);
 			Network = network;
+			SetVersion(_MyVersion.Version);
 			_Peer = peer;
 			LastSeen = peer.Time;
 
@@ -743,6 +775,13 @@ namespace NBitcoin.Protocol
 				_Connection.BeginListen();
 			}
 		}
+
+		private void SetVersion(uint version)
+		{
+			Version = version;
+			ProtocolCapabilities = Network.Consensus.ConsensusFactory.GetProtocolCapabilities(version);
+		}
+
 		internal Node(NetworkAddress peer, Network network, NodeConnectionParameters parameters, Socket socket, VersionPayload peerVersion)
 		{
 			_RemoteSocketAddress = ((IPEndPoint)socket.RemoteEndPoint).Address;
@@ -751,10 +790,17 @@ namespace NBitcoin.Protocol
 			Inbound = true;
 			_Behaviors = new NodeBehaviorsCollection(this);
 			_MyVersion = parameters.CreateVersion(peer.Endpoint, network);
+			if(peerVersion == null)
+				SetVersion((uint)_MyVersion.Version);
 			Network = network;
 			_Peer = peer;
 			_Connection = new NodeConnection(this, socket);
 			_PeerVersion = peerVersion;
+			if(peerVersion != null)
+			{
+				SetVersion(Math.Min(_MyVersion.Version, _PeerVersion.Version));
+			}
+
 			LastSeen = peer.Time;
 			ConnectedAt = DateTimeOffset.UtcNow;
 			TraceCorrelation.LogInside(() =>
@@ -926,15 +972,16 @@ namespace NBitcoin.Protocol
 		/// <summary>
 		/// The negociated protocol version (minimum of supported version between MyVersion and the PeerVersion)
 		/// </summary>
-		public ProtocolVersion Version
+		public uint Version
 		{
-			get
-			{
-				var peerVersion = PeerVersion == null ? MyVersion.Version : PeerVersion.Version;
-				var myVersion = MyVersion.Version;
-				var min = Math.Min((uint)peerVersion, (uint)myVersion);
-				return (ProtocolVersion)min;
-			}
+			get;
+			internal set;
+		}
+
+		public ProtocolCapabilities ProtocolCapabilities
+		{
+			get;
+			internal set;
 		}
 
 		public bool IsConnected
@@ -1019,18 +1066,19 @@ namespace NBitcoin.Protocol
 				}
 				var version = (VersionPayload)payload;
 				_PeerVersion = version;
+				SetVersion(Math.Min(MyVersion.Version, version.Version));
 				if(!version.AddressReceiver.Address.Equals(MyVersion.AddressFrom.Address))
 				{
 					NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReceiver.Address + " instead of " + MyVersion.AddressFrom.Address);
 				}
-				if(version.Version < ProtocolVersion.MIN_PEER_PROTO_VERSION)
+				if(ProtocolCapabilities.PeerTooOld)
 				{
 					NodeServerTrace.Warning("Outdated version " + version.Version + " disconnecting");
 					Disconnect("Outdated version");
 					return;
 				}
 
-				if(!requirements.Check(version))
+				if(!requirements.Check(version, ProtocolCapabilities))
 				{
 					Disconnect("The peer does not support the required services requirement");
 					return;

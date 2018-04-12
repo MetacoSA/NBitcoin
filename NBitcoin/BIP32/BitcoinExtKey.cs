@@ -169,6 +169,23 @@
 			}
 		}
 
+		protected override bool IsValid
+		{
+			get
+			{
+				var baseSize = 1 + 4 + 4 + 32;
+				if(vchData.Length != baseSize + 33 && vchData.Length != baseSize + 65)
+					return false;
+				try
+				{
+					_PubKey = new ExtPubKey();
+					_PubKey.ReadWrite(vchData);
+					return true;
+				}
+				catch { return false; }
+			}
+		}
+
 		/// <summary>
 		/// Gets the type of item represented by this Base58 data.
 		/// </summary>

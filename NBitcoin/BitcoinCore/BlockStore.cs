@@ -61,7 +61,9 @@ namespace NBitcoin.BitcoinCore
 
 		bool headerOnly;
 		// FIXME: this methods doesn't have a path to stop the recursion.
+#pragma warning disable CS0612 // Type or member is obsolete
 		public IEnumerable<StoredBlock> Enumerate(Stream stream, uint fileIndex = 0, DiskBlockPosRange range = null, bool headersOnly = false)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			using(HeaderOnlyScope(headersOnly))
 			{
@@ -113,7 +115,9 @@ namespace NBitcoin.BitcoinCore
 
 
 			int i = 0;
+#pragma warning disable CS0612 // Type or member is obsolete
 			foreach(var result in Enumerate(headersOnly, new DiskBlockPosRange(start)))
+#pragma warning restore CS0612 // Type or member is obsolete
 			{
 				if(i >= count)
 					break;
@@ -123,7 +127,9 @@ namespace NBitcoin.BitcoinCore
 
 		}
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		public IEnumerable<StoredBlock> Enumerate(bool headersOnly, DiskBlockPosRange range = null)
+#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			using(HeaderOnlyScope(headersOnly))
 			{

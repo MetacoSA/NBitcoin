@@ -2,6 +2,7 @@
 
 [![Join the chat at https://gitter.im/MetacoSA/NBitcoin](https://badges.gitter.im/MetacoSA/NBitcoin.svg)](https://gitter.im/MetacoSA/NBitcoin?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build status](https://ci.appveyor.com/api/projects/status/6xq0yg942jatra0x?svg=true)](https://ci.appveyor.com/project/NicolasDorier/nbitcoin)
+[![Build Status](https://travis-ci.org/MetacoSA/NBitcoin.svg?branch=master)](https://travis-ci.org/MetacoSA/NBitcoin)
 <img src="http://segwit.co/static/public/images/logo.png" width="100"> [![NuGet](https://img.shields.io/nuget/v/NBitcoin.svg)](https://www.nuget.org/packages/NBitcoin)
 
 NBitcoin is the most complete Bitcoin library for the .NET platform. It implements all most relevant Bitcoin Improvement Proposals (BIPs). It also provides low level access to Bitcoin primitives so you can easily build your application on top of it. Join us in our [gitter chat room](https://gitter.im/MetacoSA/NBitcoin).
@@ -23,15 +24,15 @@ The packages supports:
 To compile it by yourself, you can git clone, open the project and hit the compile button in Visual Studio.
 How to get started ? Check out this article [on CodeProject](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) for some basic Bitcoin operations, or [this Introduction to NBitcoin video](https://www.youtube.com/watch?v=X4ZwRWIF49w).
 
-# How to use with Litecoin ?
+# How to use with Altcoins ?
 
->**Install-Package NBitcoin.Litecoin** 
+> **Install-Package NBitcoin.Altcoins** 
 
-This is a light weight package with corresponding `Network` instances for Litecoin mainnet and testnet. [Sources](https://github.com/MetacoSA/NBitcoin.Litecoin)
+Find more information [here](NBitcoin.Altcoins).
 
 # How to use with my own blockchain?
 
- If your cryptocurrency is similar enough to Bitcoin, please check out how we integrated [litecoin to NBitcoin](https://github.com/MetacoSA/NBitcoin.Litecoin).
+ Find more information [here](NBitcoin.Altcoins).
 
 # How to use in Unity 3.5
 
@@ -122,7 +123,7 @@ NBitcoin is licensed under the [MIT License](https://opensource.org/licenses/MIT
 
 * **Using the NBitcoin Indexer** : [http://www.codeproject.com/Articles/819567/NBitcoin-Indexer-A-scalable-and-fault-tolerant-blo](http://www.codeproject.com/Articles/819567/NBitcoin-Indexer-A-scalable-and-fault-tolerant-blo "http://www.codeproject.com/Articles/819567/NBitcoin-Indexer-A-scalable-and-fault-tolerant-blo")
 
-* **How to Scan the blockchain** : [http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain](http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain "http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain") (You can dismissthe ScanState for that, now I concentrate on the indexer)
+* **How to Scan the blockchain** : [http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain](http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain "http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain") (You can dismiss the ScanState for that, now I concentrate on the indexer)
 
 Please, use github issues for questions or feedback. For confidential requests or specific demands, contact us on [Metaco support](mailto:support@metaco.com "support@metaco.com").
 

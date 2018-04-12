@@ -22,6 +22,14 @@ namespace NBitcoin.Tests
 	{
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanParseExtKey()
+		{
+			Assert.Throws<FormatException>(() => new BitcoinExtPubKey("2hETSoyNygffyGQTYW2m5YZYVYTxUMByde", Network.RegTest));
+			new BitcoinExtPubKey("tpubDDtSBgfc8peQPRWaSUfPC6k3QosE6QWv1P3ZBXbmCBQehxd4KdZLpsLJGe4qML2AcgbxZNHdi87929AXeFD2tENmLZD2DWFPGXBDcQzeQ3d", Network.RegTest);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanParseOutpoint()
 		{
 			var outpoint = RandOutpoint();
@@ -64,10 +72,7 @@ namespace NBitcoin.Tests
 
 		private ChainedBlock CreateBlock(DateTimeOffset now, int offset, ChainBase chain = null)
 		{
-			Block b = new Block(new BlockHeader()
-			{
-				BlockTime = now + TimeSpan.FromMinutes(offset)
-			});
+			Block b = Consensus.Main.ConsensusFactory.CreateBlock();
 			if(chain != null)
 			{
 				b.Header.HashPrevBlock = chain.Tip.HashBlock;

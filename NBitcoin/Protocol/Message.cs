@@ -78,11 +78,11 @@ namespace NBitcoin.Protocol
 			int length = 0;
 			uint checksum = 0;
 			bool hasChecksum = false;
-			byte[] payloadBytes = stream.Serializing ? GetPayloadBytes(stream.ProtocolVersion, out length) : null;
+			byte[] payloadBytes = stream.Serializing ? GetPayloadBytes(stream, out length) : null;
 			length = payloadBytes == null ? 0 : length;
 			stream.ReadWrite(ref length);
 
-			if(stream.ProtocolVersion >= ProtocolVersion.MEMPOOL_GD_VERSION)
+			if(stream.ProtocolCapabilities.SupportCheckSum)
 			{
 				if(stream.Serializing)
 					checksum = Hashes.Hash256(payloadBytes, 0, length).GetLow32();
@@ -127,11 +127,12 @@ namespace NBitcoin.Protocol
 			}
 		}
 
-		// FIXME: protocolVersion is not used. Is this a defect?
-		private byte[] GetPayloadBytes(ProtocolVersion protocolVersion, out int length)
+		private byte[] GetPayloadBytes(BitcoinStream stream, out int length)
 		{
 			MemoryStream ms = _Buffer == null ? new MemoryStream() : new MemoryStream(_Buffer);
-			Payload.ReadWrite(new BitcoinStream(ms, true));
+			var stream2 = new BitcoinStream(ms, true);
+			stream2.CopyParameters(stream);
+			Payload.ReadWrite(stream2);
 			length = (int)ms.Position;
 			return _Buffer ?? GetBuffer(ms);
 		}
@@ -165,38 +166,39 @@ namespace NBitcoin.Protocol
 		}
 
 #if !NOSOCKET
-		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken)
+		public static Message ReadNext(Socket socket, Network network, uint version, CancellationToken cancellationToken)
 		{
 			PerformanceCounter counter;
 			return ReadNext(socket, network, version, cancellationToken, out counter);
 		}
 
-		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken, out PerformanceCounter counter)
+		public static Message ReadNext(Socket socket, Network network, uint version, CancellationToken cancellationToken, out PerformanceCounter counter)
 		{
 			return ReadNext(socket, network, version, cancellationToken, null, out counter);
 		}
-		public static Message ReadNext(Socket socket, Network network, ProtocolVersion version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
+		public static Message ReadNext(Socket socket, Network network, uint version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
 		{
 			var stream = new NetworkStream(socket, false);
 			return ReadNext(stream, network, version, cancellationToken, buffer, out counter);
 		}
 #endif
-		public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken)
+		public static Message ReadNext(Stream stream, Network network, uint version, CancellationToken cancellationToken)
 		{
 			PerformanceCounter counter;
 			return ReadNext(stream, network, version, cancellationToken, out counter);
 		}
 
-		public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken, out PerformanceCounter counter)
+		public static Message ReadNext(Stream stream, Network network, uint version, CancellationToken cancellationToken, out PerformanceCounter counter)
 		{
 			return ReadNext(stream, network, version, cancellationToken, null, out counter);
 		}
-		public static Message ReadNext(Stream stream, Network network, ProtocolVersion version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
+		public static Message ReadNext(Stream stream, Network network, uint version, CancellationToken cancellationToken, byte[] buffer, out PerformanceCounter counter)
 		{
 			BitcoinStream bitStream = new BitcoinStream(stream, false)
 			{
 				ProtocolVersion = version,
-				ReadCancellationToken = cancellationToken
+				ReadCancellationToken = cancellationToken,
+				ConsensusFactory = network.Consensus.ConsensusFactory
 			};
 
 			if(!network.ReadMagic(stream, cancellationToken, true))

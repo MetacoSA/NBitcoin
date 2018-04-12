@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Threading;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.Stealth;
+using System.Collections.Concurrent;
 
 namespace NBitcoin
 {
@@ -38,7 +40,7 @@ namespace NBitcoin
 		{
 			if(_Addresses != null)
 				return _Addresses;
-			
+
 			_Addresses = Dns.GetHostAddressesAsync(host).GetAwaiter().GetResult();
 			return _Addresses;
 		}
@@ -75,6 +77,13 @@ namespace NBitcoin
 	{
 		internal byte[][] base58Prefixes = new byte[12][];
 		internal Bech32Encoder[] bech32Encoders = new Bech32Encoder[2];
+
+		public uint MaxP2PVersion
+		{
+			get;
+			internal set;
+		}
+
 		public Bech32Encoder GetBech32Encoder(Bech32Type type, bool throws)
 		{
 			var encoder = bech32Encoders[(int)type];
@@ -235,18 +244,17 @@ namespace NBitcoin
 			}
 		}
 
-		private Func<BlockHeader, uint256> _GetPoWHash = h => h.GetHash();
-
-		public Func<BlockHeader, uint256> GetPoWHash
+		private ConsensusFactory _ConsensusFactory = new ConsensusFactory();
+		public ConsensusFactory ConsensusFactory
 		{
 			get
 			{
-				return _GetPoWHash;
+				return _ConsensusFactory;
 			}
 			set
 			{
 				EnsureNotFrozen();
-				_GetPoWHash = value;
+				_ConsensusFactory = value;
 			}
 		}
 
@@ -510,6 +518,21 @@ namespace NBitcoin
 				throw new InvalidOperationException("This instance can't be modified");
 		}
 
+
+		bool _SupportSegwit = true;
+		public bool SupportSegwit
+		{
+			get
+			{
+				return _SupportSegwit;
+			}
+			set
+			{
+				EnsureNotFrozen();
+				_SupportSegwit = value;
+			}
+		}
+
 		public virtual Consensus Clone()
 		{
 			var consensus = new Consensus();
@@ -535,9 +558,10 @@ namespace NBitcoin
 			consensus._SubsidyHalvingInterval = _SubsidyHalvingInterval;
 			consensus._CoinbaseMaturity = _CoinbaseMaturity;
 			consensus._MinimumChainWork = _MinimumChainWork;
-			consensus.GetPoWHash = GetPoWHash;
 			consensus._CoinType = CoinType;
+			consensus._ConsensusFactory = _ConsensusFactory;
 			consensus._LitecoinWorkCalculation = _LitecoinWorkCalculation;
+			consensus._SupportSegwit = _SupportSegwit;
 		}
 	}
 	public partial class Network
@@ -571,7 +595,7 @@ namespace NBitcoin
 		List<string> vSeeds = new List<string>();
 		List<string> vFixedSeeds = new List<string>();
 #endif
-		Block genesis = new Block();
+		Block genesis;
 
 		private int nRPCPort;
 		public int RPCPort
@@ -670,7 +694,11 @@ namespace NBitcoin
 			network.magic = builder._Magic;
 			network.nDefaultPort = builder._Port;
 			network.nRPCPort = builder._RPCPort;
-			network.genesis = builder._Genesis;
+			network.NetworkStringParser = builder._NetworkStringParser;
+			var block = network.consensus.ConsensusFactory.CreateBlock();
+			block.ReadWrite(builder._Genesis);
+			network.genesis = block;
+			network.MaxP2PVersion = builder._MaxP2PVersion == null ? BITCOIN_MAX_P2P_VERSION : builder._MaxP2PVersion.Value;
 			network.consensus.HashGenesisBlock = network.genesis.GetHash();
 			network.consensus.Freeze();
 
@@ -709,10 +737,12 @@ namespace NBitcoin
 			return network;
 		}
 
+
+		const uint BITCOIN_MAX_P2P_VERSION = 70012;
 		private void InitMain()
 		{
 			name = "Main";
-
+			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.CoinbaseMaturity = 100;
 			consensus.SubsidyHalvingInterval = 210000;
 			consensus.MajorityEnforceBlockUpgrade = 750;
@@ -794,7 +824,7 @@ namespace NBitcoin
 		private void InitTest()
 		{
 			name = "TestNet";
-
+			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 210000;
 			consensus.MajorityEnforceBlockUpgrade = 51;
 			consensus.MajorityRejectBlockOutdated = 75;
@@ -856,6 +886,7 @@ namespace NBitcoin
 		private void InitReg()
 		{
 			name = "RegTest";
+			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 150;
 			consensus.MajorityEnforceBlockUpgrade = 750;
 			consensus.MajorityRejectBlockOutdated = 950;
@@ -926,7 +957,7 @@ namespace NBitcoin
 				Value = genesisReward,
 				ScriptPubKey = genesisOutputScript
 			});
-			Block genesis = new Block();
+			Block genesis = Consensus.ConsensusFactory.CreateBlock();
 			genesis.Header.BlockTime = Utils.UnixTimeToDateTime(nTime);
 			genesis.Header.Bits = nBits;
 			genesis.Header.Nonce = nNonce;
@@ -1030,6 +1061,13 @@ namespace NBitcoin
 		{
 			if(str == null)
 				throw new ArgumentNullException("str");
+
+			if(expectedNetwork != null)
+			{
+				if(expectedNetwork.NetworkStringParser.TryParse<T>(str, expectedNetwork, out T o))
+					return o;
+			}
+
 			var networks = expectedNetwork == null ? GetNetworks() : new[] { expectedNetwork };
 			var maybeb58 = true;
 			if(maybeb58)
@@ -1095,7 +1133,6 @@ namespace NBitcoin
 			throw new FormatException("Invalid string");
 		}
 
-
 		private static IEnumerable<IBase58Data> GetCandidates(IEnumerable<Network> networks, string base58)
 		{
 			if(base58 == null)
@@ -1130,6 +1167,13 @@ namespace NBitcoin
 				}
 			}
 		}
+
+
+		internal NetworkStringParser NetworkStringParser
+		{
+			get;
+			set;
+		} = new NetworkStringParser();
 
 		private IBase58Data CreateBase58Data(Base58Type type, string base58)
 		{
@@ -1233,9 +1277,7 @@ namespace NBitcoin
 
 		public Block GetGenesis()
 		{
-			var block = new Block();
-			block.ReadWrite(genesis.ToBytes());
-			return block;
+			return genesis;
 		}
 
 
@@ -1317,21 +1359,22 @@ namespace NBitcoin
 		{
 			if(dest == null)
 				throw new ArgumentNullException("dest");
-			return new BitcoinPubKeyAddress(dest, this);
+			return NetworkStringParser.CreateP2PKH(dest, this);
 		}
 
-		private BitcoinAddress CreateBitcoinScriptAddress(ScriptId scriptId)
+		private BitcoinScriptAddress CreateBitcoinScriptAddress(ScriptId scriptId)
 		{
-			return new BitcoinScriptAddress(scriptId, this);
+			return NetworkStringParser.CreateP2SH(scriptId, this);
 		}
 
-		public Message ParseMessage(byte[] bytes, ProtocolVersion version = ProtocolVersion.PROTOCOL_VERSION)
+		public Message ParseMessage(byte[] bytes, uint? version = null)
 		{
 			BitcoinStream bstream = new BitcoinStream(bytes);
+			bstream.ConsensusFactory = this.Consensus.ConsensusFactory;
 			Message message = new Message();
 			using(bstream.ProtocolVersionScope(version))
 			{
-				bstream.ReadWrite(ref message);
+				message.ReadWrite(bstream);
 			}
 			if(message.Magic != magic)
 				throw new FormatException("Unexpected magic field in the message");
@@ -1354,7 +1397,7 @@ namespace NBitcoin
 			}
 		}
 #endif
-		public byte[] _MagicBytes;
+		byte[] _MagicBytes;
 		public byte[] MagicBytes
 		{
 			get

@@ -19,6 +19,7 @@ namespace NBitcoin.SPV
 	/// <summary>
 	/// Idempotent and thread safe for tracking operations belonging to a set of ScriptPubKeys
 	/// </summary>
+	[Obsolete]
 	public class Tracker
 	{
 		public delegate void NewTrackerOperation(Tracker sender, IOperation trackerOperation);
