@@ -88,9 +88,9 @@ namespace NBitcoin
 
 		public virtual Block CreateBlock()
 		{
-#pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
 			return new Block(CreateBlockHeader());
-#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
 		}
 
 		public virtual BlockHeader CreateBlockHeader()

@@ -84,6 +84,13 @@ namespace NBitcoin.Tests
 				ConcurrentChain chain = new ConcurrentChain(builder.Network);
 				nodeClient.SynchronizeChain(chain, new Protocol.SynchronizeChainOptions() { SkipPoWCheck = true });
 				Assert.Equal(100, chain.Height);
+
+				// If it fails, override Block.GetConsensusFactory()
+				var b = node.CreateRPCClient().GetBlock(50);
+				Assert.Equal(b.WithOptions(TransactionOptions.Witness).Header.GetType(), chain.GetBlock(50).Header.GetType());
+
+				var b2 = nodeClient.GetBlocks().ToArray()[50];
+				Assert.Equal(b2.Header.GetType(), chain.GetBlock(50).Header.GetType());
 			}
 		}
 	}
