@@ -211,22 +211,22 @@ namespace NBitcoin.Tests
 				{
 					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-win64.zip",
 					Archive = "dashcore-{0}-win64.zip",
-					Executable = "dashcore-{0}/bin/dashd.exe",
-					Hash = "19768b5395ce072387a2c130b65f4fdd6d7bf16a7cef88c0acfc46bd759201e2"
+					Executable = "dashcore-0.12.2/bin/dashd.exe",
+					Hash = "04e95d11443d785ad9d98b04fd2313ca96d937e424be80f639b73846304d154c"
 				},
 				Linux = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-linux64.tar.gz",
 					Archive = "dashcore-{0}-linux64.tar.gz",
-					Executable = "dashcore-{0}/bin/dashd",
-					Hash = "90ca27d6733df6fc69b0fc8220f2315623fe5b0cbd1fe31f247684d51808cb81"
+					Executable = "dashcore-0.12.2/bin/dashd",
+					Hash = "8b7c72197f87be1f5d988c274cac06f6539ddb4591a578bfb852a412022378f2"
 				},
 				Mac = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/dashpay/dash/releases/download/v{0}/dashcore-{0}-osx.dmg",
 					Archive = "dashcore-{0}-osx.dmg",
-					Executable = "dashcore-{0}/bin/dashd",
-					Hash = "687cd53026bc7c88efd1c722dd6eec3b6e23c0ccc309aa462d7257c82dd8cf57"
+					Executable = "dashcore-0.12.2/bin/dashd",
+					Hash = "90ca27d6733df6fc69b0fc8220f2315623fe5b0cbd1fe31f247684d51808cb81"
 				}
 			};
 		}
