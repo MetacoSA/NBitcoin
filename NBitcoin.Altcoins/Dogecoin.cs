@@ -24,6 +24,10 @@ namespace NBitcoin.Altcoins
 			{
 				return new DogecoinBlockHeader();
 			}
+			public override Block CreateBlock()
+			{
+				return new DogecoinBlock(new DogecoinBlockHeader());
+			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -139,6 +143,18 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
+		public class DogecoinBlock : Block
+		{
+			public DogecoinBlock(DogecoinBlockHeader header) : base(header)
+			{
+
+			}
+
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return Dogecoin.Mainnet.Consensus.ConsensusFactory;
+			}
+		}
 		public class DogecoinBlockHeader : BlockHeader
 		{
 			const int VERSION_AUXPOW = (1 << 8);
@@ -167,9 +183,9 @@ namespace NBitcoin.Altcoins
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				base.ReadWrite(stream);
-				if ((Version & VERSION_AUXPOW) != 0)
+				if((Version & VERSION_AUXPOW) != 0)
 				{
-					if (!stream.Serializing)
+					if(!stream.Serializing)
 					{
 						stream.ReadWrite(ref auxPow);
 					}

@@ -950,7 +950,7 @@ namespace NBitcoin.RPC
 		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
 			var resp = await SendCommandAsync(RPCOperations.getblock, blockId.ToString(), false).ConfigureAwait(false);
-			return new Block(Encoders.Hex.DecodeData(resp.Result.ToString()), Network);
+			return Block.Parse(resp.Result.ToString(), Network);
 		}
 
 		/// <summary>

@@ -410,12 +410,12 @@ namespace NBitcoin
 		}
 
 
-		[Obsolete("You should use ConsensusFactory.CreateBlock()")]
+		[Obsolete("Should use Network.Consensus.ConsensusFactory.CreateNewBlock()")]
 		public Block() : this(Consensus.Main.ConsensusFactory.CreateBlockHeader())
 		{
 		}
 
-		[Obsolete()]
+		[Obsolete("Should use ConsensusFactories")]
 		public Block(BlockHeader blockHeader)
 		{
 			if(blockHeader == null)
@@ -424,26 +424,29 @@ namespace NBitcoin
 			header = blockHeader;
 		}
 
+		[Obsolete("Should use Block.Load outside of ConsensusFactories")]
 		public Block(byte[] bytes, Network network) : this(bytes, network.Consensus.ConsensusFactory)
 		{
 
 		}
 
+		[Obsolete("Should use Block.Load outside of ConsensusFactories")]
 		public Block(byte[] bytes, Consensus consensus) : this(bytes, consensus.ConsensusFactory)
 		{
 
 		}
 
+		[Obsolete("Should use Block.Load outside of ConsensusFactories")]
 		public Block(byte[] bytes, ConsensusFactory consensusFactory)
 		{
 			BitcoinStream stream = new BitcoinStream(bytes)
 			{
-				 ConsensusFactory = consensusFactory
+				ConsensusFactory = consensusFactory
 			};
 			ReadWrite(stream);
 		}
 
-		[Obsolete("Use Block(byte[], Network|Consensus|ConsensusFactory)")]
+		[Obsolete("Should use Block.Load outside of ConsensusFactories")]
 		public Block(byte[] bytes) : this(bytes, Consensus.Main.ConsensusFactory)
 		{
 		}
@@ -592,7 +595,7 @@ namespace NBitcoin
 			return block;
 		}
 
-		
+
 
 		public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value, DateTimeOffset now, ConsensusFactory consensusFactory)
 		{
@@ -667,9 +670,40 @@ namespace NBitcoin
 
 		public static Block Parse(string hex, ConsensusFactory consensusFactory)
 		{
+			if(hex == null)
+				throw new ArgumentNullException(nameof(hex));
 			if(consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
-			return new Block(Encoders.Hex.DecodeData(hex), consensusFactory);
+			var block = consensusFactory.CreateBlock();
+			block.ReadWrite(Encoders.Hex.DecodeData(hex));
+			return block;
+		}
+
+		public static Block Load(byte[] hex, Network network)
+		{
+			if(hex == null)
+				throw new ArgumentNullException(nameof(hex));
+			if(network == null)
+				throw new ArgumentNullException(nameof(network));
+			return Load(hex, network.Consensus.ConsensusFactory);
+		}
+		public static Block Load(byte[] hex, Consensus consensus)
+		{
+			if(hex == null)
+				throw new ArgumentNullException(nameof(hex));
+			if(consensus == null)
+				throw new ArgumentNullException(nameof(consensus));
+			return Load(hex, consensus.ConsensusFactory);
+		}
+		public static Block Load(byte[] hex, ConsensusFactory consensusFactory)
+		{
+			if(hex == null)
+				throw new ArgumentNullException(nameof(hex));
+			if(consensusFactory == null)
+				throw new ArgumentNullException(nameof(consensusFactory));
+			var block = consensusFactory.CreateBlock();
+			block.ReadWrite(hex);
+			return block;
 		}
 
 		[Obsolete("Use Parse(byte[], Network|Consensus|ConsensusFactory)")]

@@ -24,6 +24,10 @@ namespace NBitcoin.Altcoins
 			{
 				return new DashBlockHeader();
 			}
+			public override Block CreateBlock()
+			{
+				return new DashBlock(new DashBlockHeader());
+			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -35,6 +39,20 @@ namespace NBitcoin.Altcoins
 				var headerBytes = this.ToBytes();
 				var h = new HashX11.X11().ComputeBytes(headerBytes);
 				return new uint256(h);
+			}
+		}
+
+		public class DashBlock : Block
+		{
+#pragma warning disable CS0612 // Type or member is obsolete
+			public DashBlock(DashBlockHeader h) : base(h)
+#pragma warning restore CS0612 // Type or member is obsolete
+			{
+
+			}
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return Dash.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete

@@ -239,9 +239,9 @@ namespace NBitcoin.BitcoinCore
 				BlockHeader header = item == null ? null : item.Header;
 				stream.ReadWrite(ref header);
 				if(!stream.Serializing)
-#pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
 					item = new Block(header);
-#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
 
 				var headerSize = stream.Inner.Position - beforeReading;
 				var bodySize = this.Header.ItemSize - headerSize;
