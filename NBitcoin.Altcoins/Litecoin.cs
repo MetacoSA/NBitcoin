@@ -119,6 +119,46 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
+		public class LitecoinMainnetAddressStringParser : NetworkStringParser
+		{
+			public override bool TryParse<T>(string str, Network network, out T result)
+			{
+				if(str.StartsWith("Ltpv", StringComparison.OrdinalIgnoreCase) && typeof(T) == typeof(BitcoinExtKey))
+				{
+					try
+					{
+						var decoded = Encoders.Base58Check.DecodeData(str);
+						decoded[0] = 0x04;
+						decoded[1] = 0x88;
+						decoded[2] = 0xAD;
+						decoded[3] = 0xE4;
+						result = (T)(object)new BitcoinExtKey(Encoders.Base58Check.EncodeData(decoded), network);
+						return true;
+					}
+					catch
+					{
+					}
+				}
+				if(str.StartsWith("Ltub", StringComparison.OrdinalIgnoreCase) && typeof(T) == typeof(BitcoinExtPubKey))
+				{
+					try
+					{
+						var decoded = Encoders.Base58Check.DecodeData(str);
+						decoded[0] = 0x04;
+						decoded[1] = 0x88;
+						decoded[2] = 0xB2;
+						decoded[3] = 0x1E;
+						result = (T)(object)new BitcoinExtPubKey(Encoders.Base58Check.EncodeData(decoded), network);
+						return true;
+					}
+					catch
+					{
+					}
+				}
+				return base.TryParse(str, network, out result);
+			}
+		}
+
 #pragma warning restore CS0618 // Type or member is obsolete
 
 		public static void EnsureRegistered()
@@ -156,8 +196,9 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 48 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 50 })
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 176 })
-			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x01, 0x9d, 0xa4, 0x62 })
-			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x01, 0x9d, 0x9c, 0xfe })
+			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
+			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
+			.SetNetworkStringParser(new LitecoinMainnetAddressStringParser())
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("ltc"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("ltc"))
 			.SetMagic(0xdbb6c0fb)

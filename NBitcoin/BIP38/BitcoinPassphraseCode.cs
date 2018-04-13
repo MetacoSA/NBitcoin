@@ -154,8 +154,8 @@ namespace NBitcoin
 	{
 
 		public BitcoinPassphraseCode(string passphrase, Network network, LotSequence lotsequence, byte[] ownersalt = null)
-			: base(GenerateWif(passphrase, network, lotsequence, ownersalt), network)
 		{
+			Init<BitcoinPassphraseCode>(GenerateWif(passphrase, network, lotsequence, ownersalt), network);
 		}
 		private static string GenerateWif(string passphrase, Network network, LotSequence lotsequence, byte[] ownersalt)
 		{
@@ -191,8 +191,8 @@ namespace NBitcoin
 		}
 
 		public BitcoinPassphraseCode(string wif, Network expectedNetwork = null)
-			: base(wif, expectedNetwork)
 		{
+			Init<BitcoinPassphraseCode>(wif, expectedNetwork);
 		}
 
 		LotSequence _LotSequence;
