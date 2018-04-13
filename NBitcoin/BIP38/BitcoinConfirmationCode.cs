@@ -11,8 +11,8 @@ namespace NBitcoin
 	{
 
 		public BitcoinConfirmationCode(string wif, Network expectedNetwork = null)
-			: base(wif, expectedNetwork)
 		{
+			Init<BitcoinConfirmationCode>(wif, expectedNetwork);
 		}
 		public BitcoinConfirmationCode(byte[] rawBytes, Network network)
 			: base(rawBytes, network)

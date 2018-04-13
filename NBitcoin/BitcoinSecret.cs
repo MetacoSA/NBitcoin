@@ -23,8 +23,8 @@ namespace NBitcoin
 				return keyBytes.Concat(new byte[] { 0x01 }).ToArray();
 		}
 		public BitcoinSecret(string base58, Network expectedAddress = null)
-			: base(base58, expectedAddress)
 		{
+			Init<BitcoinSecret>(base58, expectedAddress);
 		}
 
 		private BitcoinPubKeyAddress _address;
