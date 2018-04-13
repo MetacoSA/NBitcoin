@@ -22,6 +22,11 @@ namespace NBitcoin.Tests
 			//builder.SupportCookieFile = false;
 			//return builder;
 
+			//Altcoins.Dash.EnsureRegistered();
+			//var builder = NodeBuilder.Create(NodeDownloadData.Dash.v0_12_2, Altcoins.Dash.Regtest, caller);
+			//builder.SupportCookieFile = false;
+			//return builder;
+
 			return NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_16_0, Network.RegTest, caller);
 		}
 	}
