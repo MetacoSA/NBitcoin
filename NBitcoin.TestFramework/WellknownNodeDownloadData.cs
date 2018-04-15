@@ -290,7 +290,7 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new DashNodeDownloadData();
 
-		public static PolisNodeDownloadData Dash
+		public static PolisNodeDownloadData Polis
 		{
 			get; set;
 		} = new PolisNodeDownloadData();
