@@ -230,6 +230,35 @@ namespace NBitcoin.Tests
 				}
 			};
 		}
+		
+		public class BitcoinGoldNodeDownloadData
+		{
+			public NodeDownloadData v0_15_0 = new NodeDownloadData()
+			{
+				Version = "0.15.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/BTCGPU/BTCGPU/releases/download/v{0}.2/bitcoin-gold-{0}-win64.zip",
+					Archive = "bitcoin-gold-{0}-win64.zip",
+					Executable = "bitcoin-gold-{0}/bin/bgoldd.exe",
+					Hash = "497dba65c2047bc374532d83f91bf38bc7b44eae2eca36b9a375b59abfe9e6fc"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/BTCGPU/BTCGPU/releases/download/v{0}.2/bitcoin-gold-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "bitcoin-gold-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-gold-{0}/bin/bgoldd",
+					Hash = "c49fa0874333837526cf1b4fce5b58abe6437b48e64dcf095654e6317e1f66a3"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/BTCGPU/BTCGPU/releases/download/v{0}.2/bitcoin-gold-{0}-osx64.tar.gz",
+					Archive = "bitcoin-gold-{0}-osx64.tar.gz",
+					Executable = "bitcoin-gold-{0}/bin/bgoldd",
+					Hash = "87bb6dd288ffa3d0cd753a8013a177a2e48b63ddf10f3593634388b59a60c45b"
+				},
+			};
+		}
 
 		public static BitcoinNodeDownloadData Bitcoin
 		{
@@ -260,5 +289,10 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new DashNodeDownloadData();
+
+		public static BitcoinGoldNodeDownloadData BitcoinGold
+		{
+			get; set;
+		} = new BitcoinGoldNodeDownloadData();
 	}
 }

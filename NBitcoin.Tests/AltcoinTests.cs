@@ -1,8 +1,12 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -12,12 +16,67 @@ namespace NBitcoin.Tests
 	public class AltcoinTests
 	{
 		[Fact]
+		private async Task LoadChainFromNode()
+		{
+			var _Network = NBitcoin.Altcoins.BitcoinGold.Mainnet;
+			var _Chain = new ConcurrentChain(_Network);
+			CancellationToken cancellation = new CancellationTokenSource().Token;
+			var userAgent = "NBXplorer-" + RandomUtils.GetInt64();
+			bool handshaked = false;
+			using (var handshakeTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation))
+			{
+				try
+				{
+					handshakeTimeout.CancelAfter(TimeSpan.FromSeconds(10));
+					using (var node = Node.Connect(_Network, new IPEndPoint(IPAddress.Parse("52.169.220.127"), 8081), new NodeConnectionParameters()
+					{
+						UserAgent = userAgent,
+						ConnectCancellation = handshakeTimeout.Token,
+						IsRelay = false
+					}))
+					{
+						node.VersionHandshake(handshakeTimeout.Token);
+						handshaked = true;
+						var	loadChainTimeout = TimeSpan.FromDays(7); // unlimited
+
+						var synchronizeOptions = new SynchronizeChainOptions()
+						{
+							SkipPoWCheck = true,
+							StripHeaders = true
+						};
+
+						try
+						{
+							using (var cts1 = CancellationTokenSource.CreateLinkedTokenSource(cancellation))
+							{
+								cts1.CancelAfter(loadChainTimeout);
+								node.SynchronizeChain(_Chain, synchronizeOptions, cancellationToken: cts1.Token);
+							}
+						}
+						catch // Timeout happens with SynchronizeChain, if so, throw away the cached chain
+						{
+							_Chain.SetTip(_Chain.Genesis);
+							node.SynchronizeChain(_Chain, synchronizeOptions, cancellationToken: cancellation);
+						}
+
+					}
+				}
+				catch (OperationCanceledException) when (!handshaked && handshakeTimeout.IsCancellationRequested)
+				{
+					throw;
+				}
+			}
+		}
+
+
+		[Fact]
 		public void HasCorrectGenesisBlock()
 		{
 			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
+				var blockHex = new HexEncoder().EncodeData(rpc.GetBlock(0).ToBytes());
 				var actual = (rpc.GetBlock(0)).GetHash();
 				Assert.Equal(builder.Network.GetGenesis().GetHash(), actual);
 			}

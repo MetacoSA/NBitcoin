@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ namespace NBitcoin.Tests
 	{
 		public static NodeBuilder Create([CallerMemberName] string caller = null)
 		{
+			ServicePointManager.Expect100Continue = true;
+			ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 			//Altcoins.Litecoin.EnsureRegistered();
 			//return NodeBuilder.Create(NodeDownloadData.Litecoin.v0_15_1, Altcoins.Litecoin.Regtest, caller);
 
@@ -24,6 +27,10 @@ namespace NBitcoin.Tests
 
 			//Altcoins.Dash.EnsureRegistered();
 			//var builder = NodeBuilder.Create(NodeDownloadData.Dash.v0_12_2, Altcoins.Dash.Regtest, caller);
+			//return builder;
+
+			//Altcoins.BitcoinGold.EnsureRegistered();
+			//var builder = NodeBuilder.Create(NodeDownloadData.BitcoinGold.v0_15_0, Altcoins.BitcoinGold.Regtest, caller);
 			//return builder;
 
 			return NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_16_0, Network.RegTest, caller);
