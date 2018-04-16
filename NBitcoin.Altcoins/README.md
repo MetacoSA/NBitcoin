@@ -6,6 +6,7 @@ Currently supported altcoins are:
 * Feathercoin
 * Dogecoin
 * Dash
+* BitcoinGold
 * BCash (also known as Bitcoin Cash)
 
 ## How to use?

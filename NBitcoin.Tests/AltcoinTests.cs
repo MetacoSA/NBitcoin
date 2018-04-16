@@ -76,7 +76,6 @@ namespace NBitcoin.Tests
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
-				var blockHex = new HexEncoder().EncodeData(rpc.GetBlock(0).ToBytes());
 				var actual = (rpc.GetBlock(0)).GetHash();
 				Assert.Equal(builder.Network.GetGenesis().GetHash(), actual);
 			}
