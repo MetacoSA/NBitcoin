@@ -7,6 +7,7 @@ Currently supported altcoins are:
 * Dogecoin
 * Dash
 * BitcoinGold
+* Polis
 * BCash (also known as Bitcoin Cash)
 
 ## How to use?
