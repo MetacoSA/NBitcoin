@@ -1439,18 +1439,29 @@ namespace NBitcoin
 			var baseSize = clone.GetSerializedSize();
 
 			int witSize = 0;
-			if(tx.HasWitness)
-				witSize += 2;
+			bool hasWitness = tx.HasWitness;
 			foreach(var txin in tx.Inputs.AsIndexedInputs())
 			{
 				var coin = FindSignableCoin(txin) ?? FindCoin(txin.PrevOut);
 				if(coin == null)
 					throw CoinNotFound(txin);
+				if(coin.GetHashVersion() == HashVersion.Witness)
+					hasWitness = true;
 				EstimateScriptSigSize(coin, ref witSize, ref baseSize);
 				baseSize += 41;
 			}
+			if(hasWitness)
+				witSize += 2;
 
-			return (virtualSize ? witSize / Transaction.WITNESS_SCALE_FACTOR + baseSize : witSize + baseSize);
+			if(virtualSize)
+			{
+				var totalSize = witSize + baseSize;
+				var strippedSize = baseSize;
+				var weight = strippedSize * (Transaction.WITNESS_SCALE_FACTOR - 1) + totalSize;
+				return (weight + Transaction.WITNESS_SCALE_FACTOR - 1) / Transaction.WITNESS_SCALE_FACTOR;
+			}
+
+			return witSize + baseSize;
 		}
 
 		private void EstimateScriptSigSize(ICoin coin, ref int witSize, ref int baseSize)
