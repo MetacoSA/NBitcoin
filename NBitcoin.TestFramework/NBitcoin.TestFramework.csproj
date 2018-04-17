@@ -5,7 +5,7 @@
     <TargetFrameworks>netstandard1.6;net452</TargetFrameworks>
     <AssemblyName>NBitcoin.TestFramework</AssemblyName>
     <PackageId>NBitcoin.TestFramework</PackageId>
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <NetStandardImplicitPackageVersion>1.6.2</NetStandardImplicitPackageVersion>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
