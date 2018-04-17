@@ -141,7 +141,7 @@ namespace NBitcoin.Tests
 			{
 				EST = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
 			}
-			catch (TimeZoneNotFoundException)
+			catch(TimeZoneNotFoundException)
 			{
 				EST = TimeZoneInfo.FindSystemTimeZoneById("America/New_York");
 			}
@@ -241,30 +241,36 @@ namespace NBitcoin.Tests
 				var rpc = node.CreateRPCClient();
 				var nodeClient = node.CreateNodeClient();
 				rpc.Generate(101);
+
+				List<TxDestination> knownAddresses = new List<TxDestination>();
 				var batch = rpc.PrepareBatch();
 				for(int i = 0; i < 20; i++)
 				{
+					var address = new Key().PubKey.GetAddress(rpc.Network);
+					knownAddresses.Add(address.Hash);
 #pragma warning disable CS4014
-					batch.SendToAddressAsync(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(0.5m));
+					batch.SendToAddressAsync(address, Money.Coins(0.5m));
 #pragma warning restore CS4014
 				}
 				batch.SendBatch();
+				knownAddresses = knownAddresses.Take(10).ToList();
 				var blockId = rpc.Generate(1)[0];
 				var block = rpc.GetBlock(blockId);
+				Assert.Equal(21, block.Transactions.Count);
 				var knownTx = block.Transactions[1].GetHash();
-				var knownAddress = block.Transactions[1].Outputs[0].ScriptPubKey.GetDestination();
 				nodeClient.VersionHandshake();
 				using(var list = nodeClient.CreateListener()
 										.Where(m => m.Message.Payload is MerkleBlockPayload || m.Message.Payload is TxPayload))
 				{
-					BloomFilter filter = new BloomFilter(1, 0.005, 50, BloomFlags.UPDATE_NONE);
-					filter.Insert(knownAddress.ToBytes());
+					BloomFilter filter = new BloomFilter(1, 0.0001, 50, BloomFlags.UPDATE_NONE);
+					foreach(var a in knownAddresses)
+						filter.Insert(a.ToBytes());
 					nodeClient.SendMessageAsync(new FilterLoadPayload(filter));
 					nodeClient.SendMessageAsync(new GetDataPayload(new InventoryVector(InventoryType.MSG_FILTERED_BLOCK, block.GetHash())));
 					var merkle = list.ReceivePayload<MerkleBlockPayload>();
 					var tree = merkle.Object.PartialMerkleTree;
 					Assert.True(tree.Check(block.Header.HashMerkleRoot));
-					Assert.True(tree.GetMatchedTransactions().Count() > 1);
+					Assert.True(tree.GetMatchedTransactions().Count() >= 10);
 					Assert.True(tree.GetMatchedTransactions().Contains(knownTx));
 
 					List<Transaction> matched = new List<Transaction>();
@@ -272,7 +278,7 @@ namespace NBitcoin.Tests
 					{
 						matched.Add(list.ReceivePayload<TxPayload>().Object);
 					}
-					Assert.True(matched.Count > 1);
+					Assert.True(matched.Count >= 10);
 					tree = tree.Trim(knownTx);
 					Assert.True(tree.GetMatchedTransactions().Count() == 1);
 					Assert.True(tree.GetMatchedTransactions().Contains(knownTx));
@@ -303,7 +309,7 @@ namespace NBitcoin.Tests
 		[Trait("Protocol", "Protocol")]
 		public void MaxConnectionLimit()
 		{
-			using (var tester = new NodeServerTester())
+			using(var tester = new NodeServerTester())
 			{
 				tester.Server1.MaxConnections = 4;
 				Node.Connect(tester.Network, tester.Server1.ExternalEndpoint).VersionHandshake();
@@ -733,12 +739,12 @@ namespace NBitcoin.Tests
 					Hash = Network.RegTest.GenesisHash,
 					Type = InventoryType.MSG_BLOCK
 				}));
-				
+
 				var block = node.ReceiveMessage<BlockPayload>();
 				Assert.True(block.Object.CheckMerkleRoot());
 			}
 		}
-#endif 
+#endif
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
