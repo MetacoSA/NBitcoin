@@ -51,7 +51,8 @@ namespace NBitcoin.BuilderExtensions
 
 		public override int EstimateScriptSigSize(Script scriptPubKey)
 		{
-			return PayToPubkeyHashTemplate.Instance.GenerateScriptSig(DummySignature, DummyPubKey).Length;
+			// return PayToPubkeyHashTemplate.Instance.GenerateScriptSig(DummySignature, DummyPubKey).Length;
+			return 107;
 		}
 
 		public override Script GenerateScriptSig(Script scriptPubKey, IKeyRepository keyRepo, ISigner signer)
