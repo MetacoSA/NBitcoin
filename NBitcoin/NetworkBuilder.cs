@@ -14,7 +14,7 @@ namespace NBitcoin
 	{
 		internal NetworkStringParser _NetworkStringParser = new NetworkStringParser();
 		internal string _Name;
-		internal NetworkType _NetworkType; // @@@
+		internal NetworkType _NetworkType;
 		internal Dictionary<Base58Type, byte[]> _Base58Prefixes = new Dictionary<Base58Type, byte[]>();
 		internal Dictionary<Bech32Type, Bech32Encoder> _Bech32Prefixes = new Dictionary<Bech32Type, Bech32Encoder>();
 		internal List<string> _Aliases = new List<string>();
@@ -135,7 +135,7 @@ namespace NBitcoin
 			return this;
 		}
 
-		public NetworkBuilder SetNetworkType(NetworkType network) // @@@
+		public NetworkBuilder SetNetworkType(NetworkType network)
 		{
 			_NetworkType = network;
 			return this;
