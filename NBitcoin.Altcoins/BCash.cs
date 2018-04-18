@@ -166,7 +166,22 @@ namespace NBitcoin.Altcoins
 			new Lazy<object>[] { _LazyRegistered }.Select(o => o.Value != null).ToList();
 		}
 		static Lazy<object> _LazyRegistered = new Lazy<object>(RegisterLazy, false);
-
+		
+		public static Network GetNetwork(NetworkType networkType) // @@@
+		{
+			EnsureRegistered();
+			switch (networkType)
+			{
+				case NetworkType.Main:
+					return _Mainnet;
+				case NetworkType.Testnet:
+					return _Testnet;
+				case NetworkType.Regtest:
+					return _Regtest;
+			}
+			return null;
+		}
+		
 		class BCashConsensusFactory : ConsensusFactory
 		{
 			public override ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)
