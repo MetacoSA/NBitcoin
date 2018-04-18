@@ -51,7 +51,7 @@ namespace NBitcoin
 		}
 	}
 
-	public enum NetworkType // @@@
+	public enum NetworkType
 	{
 		Main,
 		Testnet,
@@ -647,7 +647,7 @@ namespace NBitcoin
 			}
 		}
 
-		private NetworkType networkType; // @@@
+		private NetworkType networkType;
 		public NetworkType NetworkType
 		{
 			get
@@ -707,7 +707,7 @@ namespace NBitcoin
 				throw new InvalidOperationException("The network " + builder._Name + " is already registered");
 			Network network = new Network();
 			network.name = builder._Name;
-			network.networkType = builder._NetworkType; // @@@
+			network.networkType = builder._NetworkType;
 			network.consensus = builder._Consensus;
 			network.magic = builder._Magic;
 			network.nDefaultPort = builder._Port;
@@ -760,7 +760,7 @@ namespace NBitcoin
 		private void InitMain()
 		{
 			name = "Main";
-			networkType = NetworkType.Main; // @@@
+			networkType = NetworkType.Main;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.CoinbaseMaturity = 100;
 			consensus.SubsidyHalvingInterval = 210000;
@@ -843,7 +843,7 @@ namespace NBitcoin
 		private void InitTest()
 		{
 			name = "TestNet";
-			networkType = NetworkType.Testnet; // @@@
+			networkType = NetworkType.Testnet;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 210000;
 			consensus.MajorityEnforceBlockUpgrade = 51;
@@ -906,7 +906,7 @@ namespace NBitcoin
 		private void InitReg()
 		{
 			name = "RegTest";
-			networkType = NetworkType.Regtest; // @@@
+			networkType = NetworkType.Regtest;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 150;
 			consensus.MajorityEnforceBlockUpgrade = 750;
@@ -1372,7 +1372,7 @@ namespace NBitcoin
 			return null;
 		}
 		
-		public static Network GetNetwork(NetworkType networkType) // @@@
+		public static Network GetNetwork(NetworkType networkType)
 		{
 			switch (networkType)
 			{
