@@ -1,4 +1,4 @@
-﻿#if !NOSOCKET
+#if !NOSOCKET
 using NBitcoin.Protocol;
 #endif
 using NBitcoin.DataEncoders;
@@ -14,6 +14,7 @@ namespace NBitcoin
 	{
 		internal NetworkStringParser _NetworkStringParser = new NetworkStringParser();
 		internal string _Name;
+		internal NetworkType _NetworkType; // @@@
 		internal Dictionary<Base58Type, byte[]> _Base58Prefixes = new Dictionary<Base58Type, byte[]>();
 		internal Dictionary<Bech32Type, Bech32Encoder> _Bech32Prefixes = new Dictionary<Bech32Type, Bech32Encoder>();
 		internal List<string> _Aliases = new List<string>();
@@ -131,6 +132,12 @@ namespace NBitcoin
 		public NetworkBuilder SetBech32(Bech32Type type, Bech32Encoder encoder)
 		{
 			_Bech32Prefixes.AddOrReplace(type, encoder);
+			return this;
+		}
+
+		public NetworkBuilder SetNetworkType(NetworkType network) // @@@
+		{
+			_NetworkType = network;
 			return this;
 		}
 
