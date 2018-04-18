@@ -147,7 +147,7 @@ namespace NBitcoin.Tests
 			builder.SubtractFees();
 			builder.SendEstimatedFees(new FeeRate(Money.Satoshis(100), 1));
 			var result = builder.BuildTransaction(true);
-			Assert.Equal(Money.Coins(0.00011200m), result.GetFee(builder.FindSpentCoins(result)));
+			Assert.Equal(Money.Coins(0.00011300m), result.GetFee(builder.FindSpentCoins(result)));
 		}
 
 		[Fact]
