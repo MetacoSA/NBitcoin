@@ -1371,7 +1371,21 @@ namespace NBitcoin
 			}
 			return null;
 		}
-
+		
+		public static Network GetNetwork(NetworkType networkType) // @@@
+		{
+			switch (networkType)
+			{
+				case NetworkType.Main:
+					return Main;
+				case NetworkType.Testnet:
+					return TestNet;
+				case NetworkType.Regtest:
+					return RegTest;
+			}
+			return null;
+		}		
+		
 		public BitcoinSecret CreateBitcoinSecret(Key key)
 		{
 			return new BitcoinSecret(key, this);
