@@ -15,7 +15,6 @@ namespace NBitcoin.Altcoins
 	// Reference: https://github.com/BTCGPU/BTCGPU/blob/master/src/chainparams.cpp
 	public class BitcoinGold
 	{
-
 		[Obsolete("Use EnsureRegistered instead")]
 		public static void Register()
 		{
