@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
@@ -50,6 +50,14 @@ namespace NBitcoin
 			return name + " (" + host + ")";
 		}
 	}
+
+	public enum NetworkType
+	{
+		Main,
+		Testnet,
+		Regtest
+	}
+
 	public enum Base58Type
 	{
 		PUBKEY_ADDRESS,
@@ -639,6 +647,15 @@ namespace NBitcoin
 			}
 		}
 
+		private NetworkType networkType;
+		public NetworkType NetworkType
+		{
+			get
+			{
+				return networkType;
+			}
+		}
+
 		static Network()
 		{
 			_Main = new Network();
@@ -690,6 +707,7 @@ namespace NBitcoin
 				throw new InvalidOperationException("The network " + builder._Name + " is already registered");
 			Network network = new Network();
 			network.name = builder._Name;
+			network.networkType = builder._NetworkType;
 			network.consensus = builder._Consensus;
 			network.magic = builder._Magic;
 			network.nDefaultPort = builder._Port;
@@ -742,6 +760,7 @@ namespace NBitcoin
 		private void InitMain()
 		{
 			name = "Main";
+			networkType = NetworkType.Main;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.CoinbaseMaturity = 100;
 			consensus.SubsidyHalvingInterval = 210000;
@@ -824,6 +843,7 @@ namespace NBitcoin
 		private void InitTest()
 		{
 			name = "TestNet";
+			networkType = NetworkType.Testnet;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 210000;
 			consensus.MajorityEnforceBlockUpgrade = 51;
@@ -886,6 +906,7 @@ namespace NBitcoin
 		private void InitReg()
 		{
 			name = "RegTest";
+			networkType = NetworkType.Regtest;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 150;
 			consensus.MajorityEnforceBlockUpgrade = 750;
@@ -1350,7 +1371,21 @@ namespace NBitcoin
 			}
 			return null;
 		}
-
+		
+		public static Network GetNetwork(NetworkType networkType)
+		{
+			switch (networkType)
+			{
+				case NetworkType.Main:
+					return Main;
+				case NetworkType.Testnet:
+					return TestNet;
+				case NetworkType.Regtest:
+					return RegTest;
+			}
+			return null;
+		}		
+		
 		public BitcoinSecret CreateBitcoinSecret(Key key)
 		{
 			return new BitcoinSecret(key, this);
