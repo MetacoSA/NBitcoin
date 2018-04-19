@@ -16,6 +16,9 @@ namespace NBitcoin.Altcoins
 	public class BGold : NetworkSetBase
 	{
 		public static BGold Instance { get; } = new BGold();
+
+		public override string CryptoCode => "BTG";
+
 		private BGold()
 		{
 

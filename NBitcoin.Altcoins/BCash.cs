@@ -15,6 +15,9 @@ namespace NBitcoin.Altcoins
 	public class BCash : NetworkSetBase
 	{
 		public static BCash Instance { get; } = new BCash();
+
+		public override string CryptoCode => "BCH";
+
 		private BCash()
 		{
 

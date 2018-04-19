@@ -15,6 +15,9 @@ namespace NBitcoin.Altcoins
 	public class Polis : NetworkSetBase
 	{
 		public static Polis Instance { get; } = new Polis();
+
+		public override string CryptoCode => "POLIS";
+
 		private Polis()
 		{
 

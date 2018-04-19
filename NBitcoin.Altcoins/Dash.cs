@@ -15,6 +15,9 @@ namespace NBitcoin.Altcoins
 	public class Dash : NetworkSetBase
 	{
 		public static Dash Instance { get; } = new Dash();
+
+		public override string CryptoCode => "DASH";
+
 		private Dash()
 		{
 

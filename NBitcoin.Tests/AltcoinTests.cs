@@ -18,9 +18,16 @@ namespace NBitcoin.Tests
 			{
 				Assert.NotEqual(network.Mainnet, network.Regtest);
 				Assert.NotEqual(network.Regtest, network.Testnet);
-				Assert.Equal(NetworkType.Main, network.Mainnet.NetworkType);
+				Assert.Equal(network.Regtest.NetworkSet, network.Testnet.NetworkSet);
+				Assert.Equal(network.Mainnet.NetworkSet, network.Testnet.NetworkSet);
+				Assert.Equal(network, network.Testnet.NetworkSet);
+				Assert.Equal(NetworkType.Mainnet, network.Mainnet.NetworkType);
 				Assert.Equal(NetworkType.Testnet, network.Testnet.NetworkType);
 				Assert.Equal(NetworkType.Regtest, network.Regtest.NetworkType);
+				Assert.Equal(network.CryptoCode, network.CryptoCode.ToUpperInvariant());
+				Assert.Equal(network.Mainnet, Network.GetNetwork(network.CryptoCode.ToLowerInvariant() + "-mainnet"));
+				Assert.Equal(network.Testnet, Network.GetNetwork(network.CryptoCode.ToLowerInvariant() + "-testnet"));
+				Assert.Equal(network.Regtest, Network.GetNetwork(network.CryptoCode.ToLowerInvariant() + "-regtest"));
 			}
 		}
 

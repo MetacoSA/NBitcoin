@@ -15,6 +15,9 @@ namespace NBitcoin.Altcoins
 	public class Dogecoin : NetworkSetBase
 	{
 		public static Dogecoin Instance { get; } = new Dogecoin();
+
+		public override string CryptoCode => "DOGE";
+
 		private Dogecoin()
 		{
 
