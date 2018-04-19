@@ -28,6 +28,13 @@ namespace NBitcoin
 #endif
 		internal byte[] _Genesis;
 		internal uint? _MaxP2PVersion;
+		internal INetworkSet _NetworkSet;
+
+		public NetworkBuilder SetNetworkSet(INetworkSet networkSet)
+		{
+			_NetworkSet = networkSet;
+			return this;
+		}
 
 		public NetworkBuilder SetMaxP2PVersion(uint version)
 		{
@@ -61,6 +68,8 @@ namespace NBitcoin
 			SetPort(network.DefaultPort).
 			SetRPCPort(network.RPCPort);
 			SetNetworkStringParser(network.NetworkStringParser);
+			SetNetworkSet(network.NetworkSet);
+			SetNetworkType(network.NetworkType);
 		}
 
 		public NetworkBuilder SetNetworkStringParser(NetworkStringParser networkStringParser)

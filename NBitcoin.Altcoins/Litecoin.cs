@@ -13,6 +13,9 @@ namespace NBitcoin.Altcoins
 	public class Litecoin : NetworkSetBase
 	{
 		public static Litecoin Instance { get; } = new Litecoin();
+
+		public override string CryptoCode => "LTC";
+
 		private Litecoin()
 		{
 

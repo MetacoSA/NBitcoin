@@ -25,6 +25,10 @@ namespace NBitcoin
 		{
 			get;
 		}
+		string CryptoCode
+		{
+			get;
+		}
 	}
 	public abstract class NetworkSetBase : INetworkSet
 	{
@@ -36,7 +40,7 @@ namespace NBitcoin
 		{
 			switch(networkType)
 			{
-				case NetworkType.Main:
+				case NetworkType.Mainnet:
 					return Mainnet;
 				case NetworkType.Testnet:
 					return Testnet;
@@ -58,13 +62,16 @@ namespace NBitcoin
 		object RegisterLazy()
 		{
 			var builder = CreateMainnet();
-			builder.SetNetworkType(NetworkType.Main);
+			builder.SetNetworkType(NetworkType.Mainnet);
+			builder.SetNetworkSet(this);
 			_Mainnet = builder.BuildAndRegister();
 			builder = CreateTestnet();
 			builder.SetNetworkType(NetworkType.Testnet);
+			builder.SetNetworkSet(this);
 			_Testnet = builder.BuildAndRegister();
 			builder = CreateRegtest();
 			builder.SetNetworkType(NetworkType.Regtest);
+			builder.SetNetworkSet(this);
 			_Regtest = builder.BuildAndRegister();
 			PostInit();
 			return null;
@@ -112,6 +119,8 @@ namespace NBitcoin
 				return _Regtest;
 			}
 		}
+
+		public abstract string CryptoCode { get; }
 
 #if !NOFILEIO
 		protected void RegisterDefaultCookiePath(string folderName)

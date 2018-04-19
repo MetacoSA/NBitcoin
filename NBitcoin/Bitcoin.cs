@@ -20,11 +20,13 @@ namespace NBitcoin
 
 		public Network Regtest => Network.RegTest;
 
+		public string CryptoCode => "BTC";
+
 		public Network GetNetwork(NetworkType networkType)
 		{
 			switch(networkType)
 			{
-				case NetworkType.Main:
+				case NetworkType.Mainnet:
 					return Mainnet;
 				case NetworkType.Testnet:
 					return Testnet;

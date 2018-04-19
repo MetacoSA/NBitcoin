@@ -53,7 +53,7 @@ namespace NBitcoin
 
 	public enum NetworkType
 	{
-		Main,
+		Mainnet,
 		Testnet,
 		Regtest
 	}
@@ -660,14 +660,18 @@ namespace NBitcoin
 		{
 			_Main = new Network();
 			_Main.InitMain();
+			_Main._NetworkSet = NBitcoin.Bitcoin.Instance;
 			_Main.Consensus.Freeze();
 
 			_TestNet = new Network();
+			_TestNet._NetworkSet = NBitcoin.Bitcoin.Instance;
 			_TestNet.InitTest();
 			_TestNet.Consensus.Freeze();
 
 			_RegTest = new Network();
+			_RegTest._NetworkSet = NBitcoin.Bitcoin.Instance;
 			_RegTest.InitReg();
+			_RegTest.Consensus.Freeze();
 		}
 
 		static Network _Main;
@@ -699,6 +703,17 @@ namespace NBitcoin
 
 		static Dictionary<string, Network> _OtherAliases = new Dictionary<string, Network>();
 		static List<Network> _OtherNetworks = new List<Network>();
+
+
+		private INetworkSet _NetworkSet;
+		public INetworkSet NetworkSet
+		{
+			get
+			{
+				return _NetworkSet;
+			}
+		}
+
 		internal static Network Register(NetworkBuilder builder)
 		{
 			if(builder._Name == null)
@@ -710,6 +725,7 @@ namespace NBitcoin
 			network.networkType = builder._NetworkType;
 			network.consensus = builder._Consensus;
 			network.magic = builder._Magic;
+			network._NetworkSet = builder._NetworkSet;
 			network.nDefaultPort = builder._Port;
 			network.nRPCPort = builder._RPCPort;
 			network.NetworkStringParser = builder._NetworkStringParser;
@@ -747,6 +763,9 @@ namespace NBitcoin
 					_OtherAliases.Add(alias.ToLowerInvariant(), network);
 				}
 				_OtherAliases.Add(network.name.ToLowerInvariant(), network);
+				var defaultAlias = network._NetworkSet.CryptoCode.ToLowerInvariant() + "-" + network.NetworkType.ToString().ToLowerInvariant();
+				if(!_OtherAliases.ContainsKey(defaultAlias))
+					_OtherAliases.Add(defaultAlias, network);
 			}
 			lock(_OtherNetworks)
 			{
@@ -760,7 +779,7 @@ namespace NBitcoin
 		private void InitMain()
 		{
 			name = "Main";
-			networkType = NetworkType.Main;
+			networkType = NetworkType.Mainnet;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.CoinbaseMaturity = 100;
 			consensus.SubsidyHalvingInterval = 210000;
@@ -843,6 +862,7 @@ namespace NBitcoin
 		private void InitTest()
 		{
 			name = "TestNet";
+			_TestNet.networkType = NetworkType.Testnet;
 			networkType = NetworkType.Testnet;
 			MaxP2PVersion = BITCOIN_MAX_P2P_VERSION;
 			consensus.SubsidyHalvingInterval = 210000;
@@ -1331,16 +1351,6 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Get network from protocol magic number
-		/// </summary>
-		/// <param name="magic">Magic number</param>
-		/// <returns>The network, or null of the magic number does not match any network</returns>
-		public static Network GetNetwork(uint magic)
-		{
-			return GetNetworks().FirstOrDefault(r => r.Magic == magic);
-		}
-
-		/// <summary>
 		/// Get network from name
 		/// </summary>
 		/// <param name="name">main,mainnet,testnet,test,testnet3,reg,regtest,seg,segnet</param>
@@ -1353,13 +1363,16 @@ namespace NBitcoin
 			switch(name)
 			{
 				case "main":
+				case "btc-mainnet":
 				case "mainnet":
 					return Network.Main;
 				case "testnet":
+				case "btc-testnet":
 				case "test":
 				case "testnet3":
 					return Network.TestNet;
 				case "reg":
+				case "btc-regtest":
 				case "regtest":
 				case "regnet":
 					return Network.RegTest;
@@ -1371,20 +1384,6 @@ namespace NBitcoin
 			}
 			return null;
 		}
-		
-		public static Network GetNetwork(NetworkType networkType)
-		{
-			switch (networkType)
-			{
-				case NetworkType.Main:
-					return Main;
-				case NetworkType.Testnet:
-					return TestNet;
-				case NetworkType.Regtest:
-					return RegTest;
-			}
-			return null;
-		}		
 		
 		public BitcoinSecret CreateBitcoinSecret(Key key)
 		{
