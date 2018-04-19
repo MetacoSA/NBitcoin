@@ -52,7 +52,6 @@ namespace NBitcoin
 				return;
 			// This will cause RegisterLazy to evaluate
 			new Lazy<object>[] { _LazyRegistered }.Select(o => o.Value != null).ToList();
-			PostInit();
 		}
 		Lazy<object> _LazyRegistered;
 
@@ -67,6 +66,7 @@ namespace NBitcoin
 			builder = CreateRegtest();
 			builder.SetNetworkType(NetworkType.Regtest);
 			_Regtest = builder.BuildAndRegister();
+			PostInit();
 			return null;
 		}
 
@@ -85,7 +85,8 @@ namespace NBitcoin
 		{
 			get
 			{
-				EnsureRegistered();
+				if(_Mainnet == null)
+					EnsureRegistered();
 				return _Mainnet;
 			}
 		}
@@ -95,7 +96,8 @@ namespace NBitcoin
 		{
 			get
 			{
-				EnsureRegistered();
+				if(_Testnet == null)
+					EnsureRegistered();
 				return _Testnet;
 			}
 		}
@@ -105,7 +107,8 @@ namespace NBitcoin
 		{
 			get
 			{
-				EnsureRegistered();
+				if(_Regtest == null)
+					EnsureRegistered();
 				return _Regtest;
 			}
 		}

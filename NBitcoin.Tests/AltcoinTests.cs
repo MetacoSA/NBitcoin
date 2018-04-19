@@ -18,6 +18,9 @@ namespace NBitcoin.Tests
 			{
 				Assert.NotEqual(network.Mainnet, network.Regtest);
 				Assert.NotEqual(network.Regtest, network.Testnet);
+				Assert.Equal(NetworkType.Main, network.Mainnet.NetworkType);
+				Assert.Equal(NetworkType.Testnet, network.Testnet.NetworkType);
+				Assert.Equal(NetworkType.Regtest, network.Regtest.NetworkType);
 			}
 		}
 
