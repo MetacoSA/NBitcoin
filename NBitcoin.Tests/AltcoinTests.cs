@@ -12,9 +12,20 @@ namespace NBitcoin.Tests
 	public class AltcoinTests
 	{
 		[Fact]
+		public void NoCrashQuickTest()
+		{
+			foreach(var network in NBitcoin.Altcoins.AltNetworkSets.GetAll().ToList())
+			{
+				Assert.NotEqual(network.Mainnet, network.Regtest);
+				Assert.NotEqual(network.Regtest, network.Testnet);
+			}
+		}
+
+
+		[Fact]
 		public void HasCorrectGenesisBlock()
 		{
-			using (var builder = NodeBuilderEx.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
@@ -26,7 +37,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanParseBlock()
 		{
-			using (var builder = NodeBuilderEx.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				builder.StartAll();
@@ -40,7 +51,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanParseAddress()
 		{
-			using (var builder = NodeBuilderEx.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				builder.StartAll();
@@ -57,7 +68,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanSyncWithPoW()
 		{
-			using (var builder = NodeBuilderEx.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				builder.StartAll();
@@ -74,7 +85,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void CanSyncWithoutPoW()
 		{
-			using (var builder = NodeBuilderEx.Create())
+			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				builder.StartAll();

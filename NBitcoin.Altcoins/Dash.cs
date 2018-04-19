@@ -12,8 +12,14 @@ using System.Threading.Tasks;
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/dashpay/dash/blob/master/src/chainparams.cpp
-	public class Dash
+	public class Dash : NetworkSetBase
 	{
+		public static Dash Instance { get; } = new Dash();
+		private Dash()
+		{
+
+		}
+
 		public class DashConsensusFactory : ConsensusFactory
 		{
 			public DashConsensusFactory()
@@ -52,53 +58,29 @@ namespace NBitcoin.Altcoins
 			}
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Dash.Mainnet.Consensus.ConsensusFactory;
+				return Dash.Instance.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
 
-		[Obsolete("Use EnsureRegistered instead")]
-		public static void Register()
+		protected override void PostInit()
 		{
-			EnsureRegistered();
-		}
-		public static void EnsureRegistered()
-		{
-			if(_LazyRegistered.IsValueCreated)
-				return;
-			// This will cause RegisterLazy to evaluate
-			new Lazy<object>[] { _LazyRegistered }.Select(o => o.Value != null).ToList();
-		}
-		static Lazy<object> _LazyRegistered = new Lazy<object>(RegisterLazy, false);
-		
-		public static Network GetNetwork(NetworkType networkType)
-		{
-			EnsureRegistered();
-			switch (networkType)
-			{
-				case NetworkType.Main:
-					return _Mainnet;
-				case NetworkType.Testnet:
-					return _Testnet;
-				case NetworkType.Regtest:
-					return _Regtest;
-			}
-			return null;
+			RegisterDefaultCookiePath(Mainnet, ".cookie");
+			RegisterDefaultCookiePath(Regtest, "regtest", ".cookie");
+			RegisterDefaultCookiePath(Testnet, "testnet3", ".cookie");
 		}
 
-		private static object RegisterLazy()
+		static uint256 GetPoWHash(BlockHeader header)
 		{
-			_Mainnet = mainnetReg();
-			_Testnet = testnetReg();
-			_Regtest = regtestReg();
-
-			return new object();
+			var headerBytes = header.ToBytes();
+			var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
+			return new uint256(h);
 		}
 
-		private static Network mainnetReg()
+		protected override NetworkBuilder CreateMainnet()
 		{
 			var builder = new NetworkBuilder();
-			var res = builder.SetConsensus(new Consensus()
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 210240,
 				MajorityEnforceBlockUpgrade = 750,
@@ -139,38 +121,11 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("dashpay.io", "dnsseed.dashpay.io")
 			})
 			.AddSeeds(new NetworkAddress[0])
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0022ddb52f0ff0f1ec23fb9010101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
-			.SetNetworkType(NetworkType.Main)
-			.BuildAndRegister();
-
-			registerDefaultCookiePath(res, ".cookie");
-
-			return res;
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0022ddb52f0ff0f1ec23fb9010101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			return builder;
 		}
 
-		private static void registerDefaultCookiePath(Network network, params string[] subfolders)
-		{
-			var home = Environment.GetEnvironmentVariable("HOME");
-			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
-			if(!string.IsNullOrEmpty(home))
-			{
-				var pathList = new List<string> { home, ".dash" };
-				pathList.AddRange(subfolders);
-
-				var fullPath = Path.Combine(pathList.ToArray());
-				RPCClient.RegisterDefaultCookiePath(network, fullPath);
-			}
-			else if(!string.IsNullOrEmpty(localAppData))
-			{
-				var pathList = new List<string> { localAppData, "Dash" };
-				pathList.AddRange(subfolders);
-
-				var fullPath = Path.Combine(pathList.ToArray());
-				RPCClient.RegisterDefaultCookiePath(network, fullPath);
-			}
-		}
-
-		private static Network testnetReg()
+		protected override NetworkBuilder CreateTestnet()
 		{
 			var builder = new NetworkBuilder();
 			var res = builder.SetConsensus(new Consensus()
@@ -212,19 +167,14 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("masternode.io", "test.dnsseed.masternode.io")
 		   })
 		   .AddSeeds(new NetworkAddress[0])
-		   .SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0dee1e352f0ff0f1ec3c927e60101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
-		   .SetNetworkType(NetworkType.Testnet)		
-		   .BuildAndRegister();
-
-			registerDefaultCookiePath(res, "testnet3", ".cookie");
-
-			return res;
+		   .SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0dee1e352f0ff0f1ec3c927e60101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			return builder;
 		}
 
-		private static Network regtestReg()
+		protected override NetworkBuilder CreateRegtest()
 		{
 			var builder = new NetworkBuilder();
-			var res = builder.SetConsensus(new Consensus()
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 150,
 				MajorityEnforceBlockUpgrade = 750,
@@ -259,50 +209,8 @@ namespace NBitcoin.Altcoins
 			.AddAlias("dash-regtest")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0b9968054ffff7f20ffba10000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
-			.SetNetworkType(NetworkType.Regtest)
-			.BuildAndRegister();
-
-			registerDefaultCookiePath(res, "regtest", ".cookie");
-
-			return res;
-		}
-
-		static uint256 GetPoWHash(BlockHeader header)
-		{
-			var headerBytes = header.ToBytes();
-			var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
-			return new uint256(h);
-		}
-
-		private static Network _Mainnet;
-		public static Network Mainnet
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Mainnet;
-			}
-		}
-
-		private static Network _Regtest;
-		public static Network Regtest
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Regtest;
-			}
-		}
-
-		private static Network _Testnet;
-		public static Network Testnet
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Testnet;
-			}
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0b9968054ffff7f20ffba10000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			return builder;
 		}
 	}
 }
