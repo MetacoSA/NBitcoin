@@ -115,6 +115,10 @@ namespace NBitcoin.Altcoins
 			{
 				return new LitecoinBlockHeader();
 			}
+			public override Block CreateBlock()
+			{
+				return new LitecoinBlock(new LitecoinBlockHeader());
+			}
 		}
 
 		public class LitecoinBlockHeader : BlockHeader
@@ -124,6 +128,18 @@ namespace NBitcoin.Altcoins
 				var headerBytes = this.ToBytes();
 				var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
 				return new uint256(h);
+			}
+		}
+
+		public class LitecoinBlock : Block
+		{
+			public LitecoinBlock(LitecoinBlockHeader header) : base(header)
+			{
+
+			}
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return Litecoin.Instance.Mainnet.Consensus.ConsensusFactory;
 			}
 		}
 
@@ -168,7 +184,7 @@ namespace NBitcoin.Altcoins
 		}
 
 #pragma warning restore CS0618 // Type or member is obsolete
-		
+
 		protected override void PostInit()
 		{
 			RegisterDefaultCookiePath("Litecoin");
