@@ -231,7 +231,7 @@ namespace NBitcoin.Tests
 			};
 		}
 		
-		public class BitcoinGoldNodeDownloadData
+		public class BGoldNodeDownloadData
 		{
 			public NodeDownloadData v0_15_0 = new NodeDownloadData()
 			{
@@ -319,10 +319,10 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new DashNodeDownloadData();
 
-		public static BitcoinGoldNodeDownloadData BitcoinGold
+		public static BGoldNodeDownloadData BGold
 		{
 			get; set;
-		} = new BitcoinGoldNodeDownloadData();
+		} = new BGoldNodeDownloadData();
 
 		public static PolisNodeDownloadData Polis
 		{
