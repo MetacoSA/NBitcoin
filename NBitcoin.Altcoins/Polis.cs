@@ -71,6 +71,21 @@ namespace NBitcoin.Altcoins
 		}
 		static Lazy<object> _LazyRegistered = new Lazy<object>(RegisterLazy, false);
 
+		public static Network GetNetwork(NetworkType networkType)
+		{
+			EnsureRegistered();
+			switch (networkType)
+			{
+				case NetworkType.Main:
+					return _Mainnet;
+				case NetworkType.Testnet:
+					return _Testnet;
+				case NetworkType.Regtest:
+					return _Regtest;
+			}
+			return null;
+		}
+		
 		private static object RegisterLazy()
 		{
 			_Mainnet = mainnetReg();
@@ -125,6 +140,7 @@ namespace NBitcoin.Altcoins
 			})
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000fc4b8cb903aed54e11e1ae8a5b7ad097ade34988a84500ad2d80e4d1f5bcc95d2bb73b5af0ff0f1edbff04000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff2404ffff001d01041c506f6c69732c2066726f6d2070656f706c6520746f2070656f706c65ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000")
+			.SetNetworkType(NetworkType.Main)
 			.BuildAndRegister();
 
 			registerDefaultCookiePath(res, ".cookie");
@@ -197,6 +213,7 @@ namespace NBitcoin.Altcoins
 		   })
 		   .AddSeeds(new NetworkAddress[0])
 		   .SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0dee1e352f0ff0f1ec3c927e60101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
+		   .SetNetworkType(NetworkType.Testnet)
 		   .BuildAndRegister();
 
 			registerDefaultCookiePath(res, "testnet3", ".cookie");
@@ -243,16 +260,13 @@ namespace NBitcoin.Altcoins
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0b9968054ffff7f20ffba10000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
+			.SetNetworkType(NetworkType.Regtest)
 			.BuildAndRegister();
 
 			registerDefaultCookiePath(res, "regtest", ".cookie");
 
 			return res;
 		}
-
-
-
-
 
 		static uint256 GetPoWHash(BlockHeader header)
 		{

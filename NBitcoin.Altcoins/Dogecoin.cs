@@ -215,6 +215,21 @@ namespace NBitcoin.Altcoins
 		}
 		static Lazy<object> _LazyRegistered = new Lazy<object>(RegisterLazy, false);
 
+		public static Network GetNetwork(NetworkType networkType)
+		{
+			EnsureRegistered();
+			switch (networkType)
+			{
+				case NetworkType.Main:
+					return _Mainnet;
+				case NetworkType.Testnet:
+					return _Testnet;
+				case NetworkType.Regtest:
+					return _Regtest;
+			}
+			return null;
+		}
+		
 		private static object RegisterLazy()
 		{
 			_Mainnet = mainnetReg();
@@ -270,6 +285,7 @@ namespace NBitcoin.Altcoins
 			})
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000696ad20e2dd4365c7459b4a4a5af743d5e92c6da3229e6532cd605f6533f2a5b24a6a152f0ff0f1e678601000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1004ffff001d0104084e696e746f6e646fffffffff010058850c020000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
+			.SetNetworkType(NetworkType.Main)
 			.BuildAndRegister();
 
 			registerDefaultCookiePath(res, ".cookie");
@@ -343,6 +359,7 @@ namespace NBitcoin.Altcoins
 		   })
 		   .AddSeeds(new NetworkAddress[0])
 		   .SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000696ad20e2dd4365c7459b4a4a5af743d5e92c6da3229e6532cd605f6533f2a5bb9a7f052f0ff0f1ef7390f000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1004ffff001d0104084e696e746f6e646fffffffff010058850c020000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
+		   .SetNetworkType(NetworkType.Testnet)
 		   .BuildAndRegister();
 
 			registerDefaultCookiePath(res, "testnet3", ".cookie");
@@ -390,16 +407,13 @@ namespace NBitcoin.Altcoins
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000696ad20e2dd4365c7459b4a4a5af743d5e92c6da3229e6532cd605f6533f2a5bdae5494dffff7f20020000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1004ffff001d0104084e696e746f6e646fffffffff010058850c020000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
+			.SetNetworkType(NetworkType.Regtest)
 			.BuildAndRegister();
 
 			registerDefaultCookiePath(res, "regtest", ".cookie");
 
 			return res;
 		}
-
-
-
-
 
 		static uint256 GetPoWHash(BlockHeader header)
 		{
