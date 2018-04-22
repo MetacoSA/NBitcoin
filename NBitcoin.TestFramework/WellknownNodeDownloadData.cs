@@ -122,10 +122,10 @@ namespace NBitcoin.Tests
 				Version = "0.15.1",
 				Windows = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/viacoin/viacoin/releases/download/v{0}.0/viacoin-{0}-win-setup-unsigned.exe",
+					DownloadLink = "https://github.com/viacoin/viacoin/releases/download/v{0}/viacoin-{0}-win64.zip",
 					Archive = "viacoin-{0}-win64.zip",
 					Executable = "viacoin-{0}/bin/viacoind.exe",
-					Hash = "002dacfe55c786d7f1fa8ba39e8df7bbfa1f8eaf1717f65fb348de6c2834b36d"
+					Hash = "408d270db88e345fb5d4e93b5ec0f7761c676e4d795458ebaffce6de6cde65af"
 				},
 				Linux = new NodeOSDownloadData()
 				{
