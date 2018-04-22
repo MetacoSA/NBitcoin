@@ -224,10 +224,20 @@ namespace NBitcoin
 		/// <returns>True if signatures is valid</returns>
 		public bool VerifyMessage(byte[] messageBytes, string signature)
 		{
-			var sig = DecodeSigString(signature);
-			var messageSigned = Utils.FormatMessageForSigning(messageBytes);
-			var hash = Hashes.Hash256(messageSigned);
-			return ECKey.Verify(hash, sig);
+			return VerifyMessage(messageBytes, DecodeSigString(signature));
+		}
+
+		/// <summary>
+		/// Verify message signed using signmessage from bitcoincore
+		/// </summary>
+		/// <param name="message">The message</param>
+		/// <param name="signature">The signature</param>
+		/// <returns>True if signatures is valid</returns>
+		public bool VerifyMessage(byte[] message, ECDSASignature signature)
+		{
+			var messageToSign = Utils.FormatMessageForSigning(message);
+			var hash = Hashes.Hash256(messageToSign);
+			return ECKey.Verify(hash, signature);
 		}
 
 		/// <summary>
