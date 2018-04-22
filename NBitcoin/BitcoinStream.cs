@@ -457,6 +457,18 @@ namespace NBitcoin
 			});
 		}
 
+		public IDisposable ConsensusFactoryScope(ConsensusFactory consensusFactory)
+		{
+			var old = ConsensusFactory;
+			return new Scope(() =>
+			{
+				ConsensusFactory = consensusFactory;
+			}, () =>
+			{
+				ConsensusFactory = old;
+			});
+		}
+
 		public System.Threading.CancellationToken ReadCancellationToken
 		{
 			get;

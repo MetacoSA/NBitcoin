@@ -454,8 +454,11 @@ namespace NBitcoin
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref header);
-			stream.ReadWrite(ref vtx);
+			using(stream.ConsensusFactoryScope(GetConsensusFactory()))
+			{
+				stream.ReadWrite(ref header);
+				stream.ReadWrite(ref vtx);
+			}
 		}
 
 		public bool HeaderOnly
@@ -579,11 +582,11 @@ namespace NBitcoin
 		{
 			if(address == null)
 				throw new ArgumentNullException("address");
-			Block block = address.Network.Consensus.ConsensusFactory.CreateBlock();
+			Block block = GetConsensusFactory().CreateBlock();
 			block.Header.Nonce = RandomUtils.GetUInt32();
 			block.Header.HashPrevBlock = this.GetHash();
 			block.Header.BlockTime = now;
-			var tx = block.AddTransaction(new Transaction());
+			var tx = block.AddTransaction(GetConsensusFactory().CreateTransaction());
 			tx.AddInput(new TxIn()
 			{
 				ScriptSig = new Script(Op.GetPushOp(RandomUtils.GetBytes(30)))
