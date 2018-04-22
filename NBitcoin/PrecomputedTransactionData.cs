@@ -4,9 +4,9 @@
 	{
 		public PrecomputedTransactionData(Transaction tx)
 		{
-			HashOutputs = Script.GetHashOutputs(tx);
-			HashSequence = Script.GetHashSequence(tx);
-			HashPrevouts = Script.GetHashPrevouts(tx);
+			HashOutputs = tx.GetHashOutputs();
+			HashSequence = tx.GetHashSequence();
+			HashPrevouts = tx.GetHashPrevouts();
 		}
 		public uint256 HashPrevouts
 		{
