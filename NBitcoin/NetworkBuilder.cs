@@ -114,7 +114,7 @@ namespace NBitcoin
 			return this;
 		}
 #endif
-		
+
 		public NetworkBuilder SetConsensus(Consensus consensus)
 		{
 			_Consensus = consensus == null ? null : consensus.Clone();
