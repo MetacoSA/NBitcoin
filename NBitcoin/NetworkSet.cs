@@ -181,6 +181,9 @@ namespace NBitcoin
 				RPCClient.RegisterDefaultCookiePath(network, fullPath);
 			}
 		}
+#else
+		public static void RegisterDefaultCookiePath(Network network, params string[] subfolders) {}
+		protected void RegisterDefaultCookiePath(string folderName) {}
 #endif
 #if !NOSOCKET
 		protected static IEnumerable<NetworkAddress> ToSeed(Tuple<byte[], int>[] tuples)
