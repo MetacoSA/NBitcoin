@@ -15,8 +15,8 @@
 		<Version Condition=" '$(Version)' == '' ">4.1.1.0</Version>
 	</PropertyGroup>
 	<PropertyGroup>
-		<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' != 'true'">net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.0;netstandard2.0</TargetFrameworks>
-		<TargetFramework Condition="'$(BuildingInsideVisualStudio)' == 'true'">netstandard2.0</TargetFramework>
+		<TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.0;netstandard2.0</TargetFrameworks>
+		<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netstandard2.0</TargetFrameworks>
 		<NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
