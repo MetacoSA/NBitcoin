@@ -63,6 +63,12 @@ namespace NBitcoin
 			return key.WitHash == Hash;
 		}
 
+		public bool VerifyMessage(byte[] message, byte[] signature)
+		{
+			var key = PubKey.RecoverFromMessage(message, signature);
+			return key.WitHash == Hash;
+		}
+
 		WitKeyId _Hash;
 		public WitKeyId Hash
 		{
