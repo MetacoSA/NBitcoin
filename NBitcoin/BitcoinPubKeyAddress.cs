@@ -8,9 +8,19 @@ using System.Threading.Tasks;
 namespace NBitcoin
 {
 	/// <summary>
+	/// Abstracts an object able to verify messages from which it is possible to extract public key.
+	/// </summary>
+	public interface IPubkeyHashUsable
+	{
+		bool VerifyMessage(string message, string signature);
+
+		bool VerifyMessage(byte[] message, byte[] signature);
+	}
+
+	/// <summary>
 	/// Base58 representation of a pubkey hash and base class for the representation of a script hash
 	/// </summary>
-	public class BitcoinPubKeyAddress : BitcoinAddress, IBase58Data
+	public class BitcoinPubKeyAddress : BitcoinAddress, IBase58Data, IPubkeyHashUsable
 	{
 		public BitcoinPubKeyAddress(string base58, Network expectedNetwork = null)
 			: base(Validate(base58, ref expectedNetwork), expectedNetwork)
@@ -64,6 +74,12 @@ namespace NBitcoin
 		}
 
 		public bool VerifyMessage(string message, string signature)
+		{
+			var key = PubKey.RecoverFromMessage(message, signature);
+			return key.Hash == Hash;
+		}
+
+		public bool VerifyMessage(byte[] message, byte[] signature)
 		{
 			var key = PubKey.RecoverFromMessage(message, signature);
 			return key.Hash == Hash;
