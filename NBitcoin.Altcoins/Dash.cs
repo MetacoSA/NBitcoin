@@ -25,9 +25,11 @@ namespace NBitcoin.Altcoins
 
 		public class DashConsensusFactory : ConsensusFactory
 		{
-			public DashConsensusFactory()
+			private DashConsensusFactory()
 			{
 			}
+
+			public static DashConsensusFactory Instance { get; } = new DashConsensusFactory();
 
 			public override BlockHeader CreateBlockHeader()
 			{
@@ -100,7 +102,7 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 1916,
 				MinerConfirmationWindow = 2016,
 				HashGenesisBlock = new uint256("0x00000ffd590b1485b3caadc19b22e6379c733355108f107a430458cdf3407ab6"),
-				ConsensusFactory = new DashConsensusFactory(),
+				ConsensusFactory = DashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 76 })
@@ -148,7 +150,7 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 1512,
 				MinerConfirmationWindow = 2016,
 				HashGenesisBlock = new uint256("00000bafbc94add76cb75e2ec92894837288a481e5c005f6563d91623bf8bc2c"),
-				ConsensusFactory = new DashConsensusFactory(),
+				ConsensusFactory = DashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 140 })
@@ -194,7 +196,7 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
 				HashGenesisBlock = new uint256("000008ca1832a4baf228eb1553c03d3a2c8e02399550dd6ea8d65cec3ef23d2e"),
-				ConsensusFactory = new DashConsensusFactory(),
+				ConsensusFactory = DashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 140 })

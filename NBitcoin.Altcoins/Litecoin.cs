@@ -107,9 +107,11 @@ namespace NBitcoin.Altcoins
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class LitecoinConsensusFactory : ConsensusFactory
 		{
-			public LitecoinConsensusFactory()
+			private LitecoinConsensusFactory()
 			{
 			}
+
+			public static LitecoinConsensusFactory Instance { get; } = new LitecoinConsensusFactory();
 
 			public override BlockHeader CreateBlockHeader()
 			{
@@ -139,7 +141,7 @@ namespace NBitcoin.Altcoins
 			}
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Litecoin.Instance.Mainnet.Consensus.ConsensusFactory;
+				return LitecoinConsensusFactory.Instance;
 			}
 		}
 
@@ -210,7 +212,7 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				HashGenesisBlock = new uint256("12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new LitecoinConsensusFactory()
+				ConsensusFactory = LitecoinConsensusFactory.Instance
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 48 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 50 })
@@ -259,7 +261,7 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				HashGenesisBlock = new uint256("4966625a4b2851d9fdee139e56211a0d88575f59ed816ff5e6a63deb4e3e29a0"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new LitecoinConsensusFactory()
+				ConsensusFactory = LitecoinConsensusFactory.Instance
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 58 })
@@ -306,7 +308,7 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				HashGenesisBlock = new uint256("f5ae71e26c74beacc88382716aced69cddf3dffff24f384e1808905e0188f68f"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new LitecoinConsensusFactory()
+				ConsensusFactory = LitecoinConsensusFactory.Instance
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 58 })

@@ -24,9 +24,10 @@ namespace NBitcoin.Altcoins
 		}
 		public class DogeConsensusFactory : ConsensusFactory
 		{
-			public DogeConsensusFactory()
+			private DogeConsensusFactory()
 			{
 			}
+			public static DogeConsensusFactory Instance { get; } = new DogeConsensusFactory();
 
 			public override BlockHeader CreateBlockHeader()
 			{
@@ -160,7 +161,7 @@ namespace NBitcoin.Altcoins
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Dogecoin.Instance.Mainnet.Consensus.ConsensusFactory;
+				return DogeConsensusFactory.Instance;
 			}
 		}
 		public class DogecoinBlockHeader : BlockHeader
@@ -236,7 +237,7 @@ namespace NBitcoin.Altcoins
 				//RuleChangeActivationThreshold = 6048,
 				//MinerConfirmationWindow = 8064,
 				HashGenesisBlock = new uint256("1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691"),
-				ConsensusFactory = new DogeConsensusFactory(),
+				ConsensusFactory = DogeConsensusFactory.Instance,
 				LitecoinWorkCalculation = true,
 				SupportSegwit = false
 			})
@@ -287,7 +288,7 @@ namespace NBitcoin.Altcoins
 				//MinerConfirmationWindow = 8064,
 				HashGenesisBlock = new uint256("1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new DogeConsensusFactory(),
+				ConsensusFactory = DogeConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 113 })
@@ -333,7 +334,7 @@ namespace NBitcoin.Altcoins
 				//MinerConfirmationWindow = 8064,
 				HashGenesisBlock = new uint256("3d2160a3b5dc4a9d62e7e66a295f70313ac808440ef7400d6c0772171ce973a5"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new DogeConsensusFactory(),
+				ConsensusFactory = DogeConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 113 })
