@@ -1,4 +1,4 @@
-﻿using NBitcoin.Crypto;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Stealth;
 using NBitcoin.BouncyCastle.Math;
@@ -273,6 +273,12 @@ namespace NBitcoin
 			return RecoverCompact(hash, signatureEncoded);
 		}
 
+		public static PubKey RecoverFromMessage(byte[] messageBytes, byte[] signatureEncoded)
+		{
+			var message = Utils.FormatMessageForSigning(messageBytes);
+			var hash = Hashes.Hash256(message);
+			return RecoverCompact(hash, signatureEncoded);
+		}
 
 		public static PubKey RecoverCompact(uint256 hash, byte[] signatureEncoded)
 		{
