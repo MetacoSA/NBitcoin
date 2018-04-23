@@ -69,6 +69,12 @@ namespace NBitcoin
 			return key.Hash == Hash;
 		}
 
+		public bool VerifyMessage(byte[] message, byte[] signature)
+		{
+			var key = PubKey.RecoverFromMessage(message, signature);
+			return key.Hash == Hash;
+		}
+
 		KeyId _KeyId;
 		public KeyId Hash
 		{
