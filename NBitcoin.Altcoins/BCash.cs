@@ -161,10 +161,15 @@ namespace NBitcoin.Altcoins
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xcf,0x9a,0xd2,0xde}, 10201),
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xda,0xf4,0x92,0x6f}, 18333)
 };
-	
 		
 		class BCashConsensusFactory : ConsensusFactory
 		{
+			private BCashConsensusFactory()
+			{
+
+			}
+			public static BCashConsensusFactory Instance { get; } = new BCashConsensusFactory();
+
 			public override ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)
 			{
 				var capabilities = base.GetProtocolCapabilities(protocolVersion);
@@ -290,7 +295,7 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				HashGenesisBlock = new uint256("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
 				MinimumChainWork = new uint256("0000000000000000000000000000000000000000007e5dbf54c7f6b58a6853cd"),
-				ConsensusFactory = new BCashConsensusFactory(),
+				ConsensusFactory = BCashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			// See https://support.bitpay.com/hc/en-us/articles/115004671663-BitPay-s-Adopted-Conventions-for-Bitcoin-Cash-Addresses-URIs-and-Payment-Requests
@@ -343,7 +348,7 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				HashGenesisBlock = new uint256("000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"),
 				MinimumChainWork = new uint256("00000000000000000000000000000000000000000000002888c34d61b53a244a"),
-				ConsensusFactory = new BCashConsensusFactory(),
+				ConsensusFactory = BCashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
@@ -394,7 +399,7 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 144,
 				CoinbaseMaturity = 100,
 				HashGenesisBlock = new uint256("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"),
-				ConsensusFactory = new BCashConsensusFactory(),
+				ConsensusFactory = BCashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })

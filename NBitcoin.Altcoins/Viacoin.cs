@@ -38,9 +38,11 @@ namespace NBitcoin.Altcoins
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class ViacoinConsensusFactory : ConsensusFactory
 		{
-			public ViacoinConsensusFactory()
+			private ViacoinConsensusFactory()
 			{
 			}
+
+			public static ViacoinConsensusFactory Instance { get; } = new ViacoinConsensusFactory();
 
 			public override BlockHeader CreateBlockHeader()
 			{
@@ -70,7 +72,7 @@ namespace NBitcoin.Altcoins
 			}
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Viacoin.Instance.Mainnet.Consensus.ConsensusFactory;
+				return ViacoinConsensusFactory.Instance;
 			}
 		}
 
@@ -101,7 +103,7 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 30,
 				HashGenesisBlock = new uint256("4e9b54001f9976049830128ec0331515eaabe35a70970d79971da1539a400ba1"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new ViacoinConsensusFactory()
+				ConsensusFactory = ViacoinConsensusFactory.Instance
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 71 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 33 })
@@ -148,7 +150,7 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 30,
 				HashGenesisBlock = new uint256("770aa712aa08fdcbdecc1c8df1b3e2d4e17a7cf6e63a28b785b32e74c96cb27d"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new ViacoinConsensusFactory()
+				ConsensusFactory = ViacoinConsensusFactory.Instance
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 127 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
@@ -194,7 +196,7 @@ namespace NBitcoin.Altcoins
 				CoinbaseMaturity = 100,
 				HashGenesisBlock = new uint256("770aa712aa08fdcbdecc1c8df1b3e2d4e17a7cf6e63a28b785b32e74c96cb27d"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new ViacoinConsensusFactory()
+				ConsensusFactory = ViacoinConsensusFactory.Instance
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 196 })
