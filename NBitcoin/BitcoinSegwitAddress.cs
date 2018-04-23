@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class BitcoinWitPubKeyAddress : BitcoinAddress, IBech32Data
+	public class BitcoinWitPubKeyAddress : BitcoinAddress, IBech32Data, IPubkeyHashUsable
 	{
 		public BitcoinWitPubKeyAddress(string bech32, Network expectedNetwork = null)
 				: base(Validate(bech32, ref expectedNetwork), expectedNetwork)
