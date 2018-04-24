@@ -236,7 +236,6 @@ namespace NBitcoin.Altcoins
 				PowNoRetargeting = false,
 				//RuleChangeActivationThreshold = 6048,
 				//MinerConfirmationWindow = 8064,
-				HashGenesisBlock = new uint256("1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691"),
 				ConsensusFactory = DogeConsensusFactory.Instance,
 				LitecoinWorkCalculation = true,
 				SupportSegwit = false
@@ -286,7 +285,6 @@ namespace NBitcoin.Altcoins
 				PowNoRetargeting = false,
 				//RuleChangeActivationThreshold = 6048,
 				//MinerConfirmationWindow = 8064,
-				HashGenesisBlock = new uint256("1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691"),
 				LitecoinWorkCalculation = true,
 				ConsensusFactory = DogeConsensusFactory.Instance,
 				SupportSegwit = false
@@ -332,7 +330,6 @@ namespace NBitcoin.Altcoins
 				PowNoRetargeting = false,
 				//RuleChangeActivationThreshold = 6048,
 				//MinerConfirmationWindow = 8064,
-				HashGenesisBlock = new uint256("3d2160a3b5dc4a9d62e7e66a295f70313ac808440ef7400d6c0772171ce973a5"),
 				LitecoinWorkCalculation = true,
 				ConsensusFactory = DogeConsensusFactory.Instance,
 				SupportSegwit = false
