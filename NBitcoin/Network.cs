@@ -399,18 +399,23 @@ namespace NBitcoin
 			}
 		}
 
+		internal void SetBlock(byte[] genesis)
+		{
+			EnsureNotFrozen();
+			_HashGenesisBlock = new Lazy<uint256>(()=>
+			{
+				var block = ConsensusFactory.CreateBlock();
+				block.ReadWrite(genesis);
+				return block.GetHash();
+			}, true);
+		}
 
-		uint256 _HashGenesisBlock;
+		Lazy<uint256> _HashGenesisBlock;
 		public uint256 HashGenesisBlock
 		{
 			get
 			{
-				return _HashGenesisBlock;
-			}
-			set
-			{
-				EnsureNotFrozen();
-				_HashGenesisBlock = value;
+				return _HashGenesisBlock.Value;
 			}
 		}
 
@@ -603,7 +608,7 @@ namespace NBitcoin
 		List<string> vSeeds = new List<string>();
 		List<string> vFixedSeeds = new List<string>();
 #endif
-		Block genesis;
+		byte[] _GenesisBytes;
 
 		private int nRPCPort;
 		public int RPCPort
@@ -729,12 +734,7 @@ namespace NBitcoin
 			network.nDefaultPort = builder._Port;
 			network.nRPCPort = builder._RPCPort;
 			network.NetworkStringParser = builder._NetworkStringParser;
-			var block = network.consensus.ConsensusFactory.CreateBlock();
-			block.ReadWrite(builder._Genesis);
-			network.genesis = block;
 			network.MaxP2PVersion = builder._MaxP2PVersion == null ? BITCOIN_MAX_P2P_VERSION : builder._MaxP2PVersion.Value;
-			network.consensus.HashGenesisBlock = network.genesis.GetHash();
-			network.consensus.Freeze();
 
 #if !NOSOCKET
 			foreach(var seed in builder.vSeeds)
@@ -771,6 +771,11 @@ namespace NBitcoin
 			{
 				_OtherNetworks.Add(network);
 			}
+
+			
+			network._GenesisBytes = builder._Genesis;
+			network.consensus.SetBlock(builder._Genesis);
+			network.consensus.Freeze();
 			return network;
 		}
 
@@ -812,11 +817,9 @@ namespace NBitcoin
 			vAlertPubKey = Encoders.Hex.DecodeData("04fc9702847840aaf195de8442ebecedf5b095cdbb9bc716bda9110971b28a49e0ead8564ff0db22209e0374782c093bb899692d524e9d6a6956e7c5ecbcd68284");
 			nDefaultPort = 8333;
 			nRPCPort = 8332;
-
-			genesis = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1, Money.Coins(50m));
-			consensus.HashGenesisBlock = genesis.GetHash();
+			_GenesisBytes = CreateGenesisBlock(1231006505, 2083236893, 0x1d00ffff, 1, Money.Coins(50m)).ToBytes();
+			consensus.SetBlock(_GenesisBytes);
 			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
-			assert(genesis.Header.HashMerkleRoot == uint256.Parse("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
 #if !NOSOCKET
 			vSeeds.Add(new DNSSeedData("bitcoin.sipa.be", "seed.bitcoin.sipa.be")); // Pieter Wuille
 			vSeeds.Add(new DNSSeedData("bluematt.me", "dnsseed.bluematt.me")); // Matt Corallo
@@ -896,9 +899,8 @@ namespace NBitcoin
 			//strDataDir = "testnet3";
 
 			// Modify the testnet genesis block so the timestamp is valid for a later start.
-			genesis = CreateGenesisBlock(1296688602, 414098458, 0x1d00ffff, 1, Money.Coins(50m));
-			consensus.HashGenesisBlock = genesis.GetHash();
-
+			_GenesisBytes = CreateGenesisBlock(1296688602, 414098458, 0x1d00ffff, 1, Money.Coins(50m)).ToBytes();
+			consensus.SetBlock(_GenesisBytes);
 			assert(consensus.HashGenesisBlock == uint256.Parse("0x000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"));
 
 #if !NOSOCKET
@@ -951,8 +953,8 @@ namespace NBitcoin
 			consensus.BIP9Deployments[BIP9Deployments.CSV] = new BIP9DeploymentsParameters(0, 0, 999999999);
 			consensus.BIP9Deployments[BIP9Deployments.Segwit] = new BIP9DeploymentsParameters(1, BIP9DeploymentsParameters.AlwaysActive, 999999999);
 
-			genesis = CreateGenesisBlock(1296688602, 2, 0x207fffff, 1, Money.Coins(50m));
-			consensus.HashGenesisBlock = genesis.GetHash();
+			_GenesisBytes = CreateGenesisBlock(1296688602, 2, 0x207fffff, 1, Money.Coins(50m)).ToBytes();
+			consensus.SetBlock(_GenesisBytes);
 			nDefaultPort = 18444;
 			nRPCPort = 18443;
 			//strDataDir = "regtest";
@@ -1318,7 +1320,9 @@ namespace NBitcoin
 
 		public Block GetGenesis()
 		{
-			return genesis;
+			var block = Consensus.ConsensusFactory.CreateBlock();
+			block.ReadWrite(_GenesisBytes);
+			return block;
 		}
 
 

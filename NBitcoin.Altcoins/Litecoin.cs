@@ -210,7 +210,6 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 6048,
 				MinerConfirmationWindow = 8064,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2"),
 				LitecoinWorkCalculation = true,
 				ConsensusFactory = LitecoinConsensusFactory.Instance
 			})
@@ -259,7 +258,6 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 1512,
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("4966625a4b2851d9fdee139e56211a0d88575f59ed816ff5e6a63deb4e3e29a0"),
 				LitecoinWorkCalculation = true,
 				ConsensusFactory = LitecoinConsensusFactory.Instance
 			})
@@ -306,7 +304,6 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("f5ae71e26c74beacc88382716aced69cddf3dffff24f384e1808905e0188f68f"),
 				LitecoinWorkCalculation = true,
 				ConsensusFactory = LitecoinConsensusFactory.Instance
 			})

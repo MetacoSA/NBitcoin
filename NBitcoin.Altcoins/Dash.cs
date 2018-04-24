@@ -101,7 +101,6 @@ namespace NBitcoin.Altcoins
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 1916,
 				MinerConfirmationWindow = 2016,
-				HashGenesisBlock = new uint256("0x00000ffd590b1485b3caadc19b22e6379c733355108f107a430458cdf3407ab6"),
 				ConsensusFactory = DashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
@@ -149,7 +148,6 @@ namespace NBitcoin.Altcoins
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 1512,
 				MinerConfirmationWindow = 2016,
-				HashGenesisBlock = new uint256("00000bafbc94add76cb75e2ec92894837288a481e5c005f6563d91623bf8bc2c"),
 				ConsensusFactory = DashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
@@ -195,7 +193,6 @@ namespace NBitcoin.Altcoins
 				PowNoRetargeting = true,
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
-				HashGenesisBlock = new uint256("000008ca1832a4baf228eb1553c03d3a2c8e02399550dd6ea8d65cec3ef23d2e"),
 				ConsensusFactory = DashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
