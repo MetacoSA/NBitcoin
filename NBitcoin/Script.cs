@@ -460,7 +460,7 @@ namespace NBitcoin
 		}
 
 
-		internal int FindAndDelete(OpcodeType op)
+		public int FindAndDelete(OpcodeType op)
 		{
 			return FindAndDelete(new Op()
 			{

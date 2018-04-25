@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using NBitcoin.RPC;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +58,34 @@ namespace NBitcoin.Tests
 				rpc.Generate(100);
 				var hash = rpc.GetBestBlockHash();
 				Assert.NotNull(rpc.GetBlock(hash));
+			}
+		}
+
+		[Fact]
+		public void CanSignTransactions()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				builder.StartAll();
+				node.Generate(101);
+				var rpc = node.CreateRPCClient();
+
+				var alice = new Key().GetBitcoinSecret(builder.Network);
+				var aliceAddress = alice.GetAddress();
+				var txid = rpc.SendToAddress(aliceAddress, Money.Coins(1.0m));
+				var tx = rpc.GetRawTransaction(txid);
+				var coin = tx.Outputs.AsCoins().First(c => c.ScriptPubKey == aliceAddress.ScriptPubKey);
+
+				TransactionBuilder txbuilder = new TransactionBuilder();
+				txbuilder.SetConsensusFactory(builder.Network);
+				txbuilder.AddCoins(coin);
+				txbuilder.AddKeys(alice);
+				txbuilder.Send(new Key().ScriptPubKey, Money.Coins(0.4m));
+				txbuilder.SendFees(Money.Coins(0.00004m));
+				txbuilder.SetChange(aliceAddress);
+				var signed = txbuilder.BuildTransaction(true);
+				rpc.SendRawTransaction(signed);
 			}
 		}
 

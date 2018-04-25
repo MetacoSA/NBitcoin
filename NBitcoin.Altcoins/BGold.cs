@@ -40,6 +40,11 @@ namespace NBitcoin.Altcoins
 			{
 				return new BitcoinGoldBlock(new BitcoinGoldBlockHeader());
 			}
+
+			public override Transaction CreateTransaction()
+			{
+				return new ForkIdTransaction(79, true, this);
+			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
