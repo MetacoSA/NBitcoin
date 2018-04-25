@@ -10,8 +10,8 @@ namespace NBitcoin
 	public class BitcoinColoredAddress : Base58Data, IDestination
 	{
 		public BitcoinColoredAddress(string base58, Network expectedNetwork = null)
-			: base(base58, expectedNetwork)
 		{
+			Init<BitcoinColoredAddress>(base58, expectedNetwork);
 		}
 
 		public BitcoinColoredAddress(BitcoinAddress address)

@@ -5,6 +5,9 @@ Currently supported altcoins are:
 * Litecoin
 * Feathercoin
 * Dogecoin
+* Dash
+* BGold (also known as Bitcoin Gold)
+* Polis
 * BCash (also known as Bitcoin Cash)
 
 ## How to use?

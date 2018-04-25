@@ -2,13 +2,12 @@
 {
 	public abstract class BitcoinExtKeyBase : Base58Data, IDestination
 	{
+		protected BitcoinExtKeyBase()
+		{
+
+		}
 		protected BitcoinExtKeyBase(IBitcoinSerializable key, Network network)
 			: base(key.ToBytes(), network)
-		{
-		}
-
-		protected BitcoinExtKeyBase(string base58, Network network)
-			: base(base58, network)
 		{
 		}
 
@@ -32,8 +31,8 @@
 		/// Constructor. Creates an extended key from the Base58 representation, checking the expected network.
 		/// </summary>
 		public BitcoinExtKey(string base58, Network expectedNetwork = null)
-			: base(base58, expectedNetwork)
 		{
+			Init<BitcoinExtKey>(base58, expectedNetwork);
 		}
 
 		/// <summary>
@@ -139,8 +138,8 @@
 		/// Constructor. Creates an extended public key from the Base58 representation, checking the expected network.
 		/// </summary>
 		public BitcoinExtPubKey(string base58, Network expectedNetwork = null)
-			: base(base58, expectedNetwork)
 		{
+			Init<BitcoinExtPubKey>(base58, expectedNetwork);
 		}
 
 		/// <summary>

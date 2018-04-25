@@ -69,21 +69,44 @@ namespace NBitcoin.Tests
 					Message = "this is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long message",
 					Signature = "HFKBHewleUsotk6fWG0OvWS/E2pP4o5hixdD6ui60in/x4376FBI4DvtJYrljXLNJTG1pBOZG+qRT/7S9WiIBfQ="
 				},
+				new
+				{
+					Address = "bc1q463gmsagg5u8wvqqcqj92yytt0pmevvg39h9jp",
+					PrivateKey = "5JEeah4w29axvf5Yg9v9PKv86zcCN9qVbizJDMHmiSUxBqDFoUT",
+					Message = "this is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long message",
+					Signature = "HFKBHewleUsotk6fWG0OvWS/E2pP4o5hixdD6ui60in/x4376FBI4DvtJYrljXLNJTG1pBOZG+qRT/7S9WiIBfQ="
+				},
+				new
+				{
+					// p2wpkh
+					Address = "bc1q463gmsagg5u8wvqqcqj92yytt0pmevvg39h9jp",
+					PrivateKey = "5JEeah4w29axvf5Yg9v9PKv86zcCN9qVbizJDMHmiSUxBqDFoUT",
+					Message = "this is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long message",
+					Signature = "HFKBHewleUsotk6fWG0OvWS/E2pP4o5hixdD6ui60in/x4376FBI4DvtJYrljXLNJTG1pBOZG+qRT/7S9WiIBfQ="
+				},
+				new
+				{
+					// p2wsh
+					Address = "bc1qrr8fncdd8gsxajghfcy2upq37dvvc84t285g4lvfak9nrkqsalds9ms6qa",
+					PrivateKey = "5JEeah4w29axvf5Yg9v9PKv86zcCN9qVbizJDMHmiSUxBqDFoUT",
+					Message = "this is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long messagethis is a very long message",
+					Signature = "HFKBHewleUsotk6fWG0OvWS/E2pP4o5hixdD6ui60in/x4376FBI4DvtJYrljXLNJTG1pBOZG+qRT/7S9WiIBfQ="
+				},
 			};
-
 
 			foreach(var test in tests)
 			{
+				var address = BitcoinAddress.Create(test.Address, Network.Main);
+				var pkh = (address as IPubkeyHashUsable);
 				if(test.PrivateKey != null)
 				{
 					var secret = Network.Main.CreateBitcoinSecret(test.PrivateKey);
 					var signature = secret.PrivateKey.SignMessage(test.Message);
-					Assert.True(((BitcoinPubKeyAddress)Network.Main.CreateBitcoinAddress(test.Address)).VerifyMessage(test.Message, signature));
+					Assert.True(pkh.VerifyMessage(test.Message, signature));
 					Assert.True(secret.PubKey.VerifyMessage(test.Message, signature));
 				}
-				BitcoinPubKeyAddress address = (BitcoinPubKeyAddress)Network.Main.CreateBitcoinAddress(test.Address);
-				Assert.True(address.VerifyMessage(test.Message, test.Signature));
-				Assert.True(!address.VerifyMessage("bad message", test.Signature));
+				Assert.True(pkh.VerifyMessage(test.Message, test.Signature));
+				Assert.True(!pkh.VerifyMessage("bad message", test.Signature));
 			}
 		}
 

@@ -321,7 +321,7 @@ namespace NBitcoin
 			public TransactionBuildingContext(TransactionBuilder builder)
 			{
 				Builder = builder;
-				Transaction = new Transaction();
+				Transaction = builder._ConsensusFactory.CreateTransaction();
 				AdditionalFees = Money.Zero;
 			}
 			public TransactionBuilder.BuilderGroup Group
@@ -1044,6 +1044,18 @@ namespace NBitcoin
 			return this;
 		}
 
+		ConsensusFactory _ConsensusFactory = Network.Main.Consensus.ConsensusFactory;
+		public TransactionBuilder SetConsensusFactory(ConsensusFactory consensusFactory)
+		{
+			_ConsensusFactory = consensusFactory ?? Network.Main.Consensus.ConsensusFactory;
+			return this;
+		}
+
+		public TransactionBuilder SetConsensusFactory(Network network)
+		{
+			return SetConsensusFactory(network?.Consensus?.ConsensusFactory);
+		}
+
 		public TransactionBuilder SetCoinSelector(ICoinSelector selector)
 		{
 			if(selector == null)
@@ -1222,6 +1234,10 @@ namespace NBitcoin
 		public Transaction SignTransactionInPlace(Transaction transaction, SigHash sigHash)
 		{
 			TransactionSigningContext ctx = new TransactionSigningContext(this, transaction);
+			if(transaction is IHasForkId hasForkId)
+			{
+				sigHash = (SigHash)((uint)sigHash | 0x40u);
+			}
 			ctx.SigHash = sigHash;
 			foreach(var input in transaction.Inputs.AsIndexedInputs())
 			{
@@ -1439,18 +1455,29 @@ namespace NBitcoin
 			var baseSize = clone.GetSerializedSize();
 
 			int witSize = 0;
-			if(tx.HasWitness)
-				witSize += 2;
+			bool hasWitness = tx.HasWitness;
 			foreach(var txin in tx.Inputs.AsIndexedInputs())
 			{
 				var coin = FindSignableCoin(txin) ?? FindCoin(txin.PrevOut);
 				if(coin == null)
 					throw CoinNotFound(txin);
+				if(coin.GetHashVersion() == HashVersion.Witness)
+					hasWitness = true;
 				EstimateScriptSigSize(coin, ref witSize, ref baseSize);
 				baseSize += 41;
 			}
+			if(hasWitness)
+				witSize += 2;
 
-			return (virtualSize ? witSize / Transaction.WITNESS_SCALE_FACTOR + baseSize : witSize + baseSize);
+			if(virtualSize)
+			{
+				var totalSize = witSize + baseSize;
+				var strippedSize = baseSize;
+				var weight = strippedSize * (Transaction.WITNESS_SCALE_FACTOR - 1) + totalSize;
+				return (weight + Transaction.WITNESS_SCALE_FACTOR - 1) / Transaction.WITNESS_SCALE_FACTOR;
+			}
+
+			return witSize + baseSize;
 		}
 
 		private void EstimateScriptSigSize(ICoin coin, ref int witSize, ref int baseSize)

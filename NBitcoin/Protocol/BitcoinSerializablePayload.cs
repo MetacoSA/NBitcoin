@@ -30,6 +30,8 @@ namespace NBitcoin.Protocol
 		}
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
+			if(!stream.Serializing)
+				_Object = default(T);
 			stream.ReadWrite(ref _Object);
 		}
 	}

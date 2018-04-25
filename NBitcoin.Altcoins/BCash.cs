@@ -1,4 +1,4 @@
-﻿using NBitcoin;
+using NBitcoin;
 using System.Reflection;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
@@ -12,8 +12,18 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Altcoins
 {
-	public class BCash
+	public class BCash : NetworkSetBase
 	{
+		public static BCash Instance { get; } = new BCash();
+
+		public override string CryptoCode => "BCH";
+
+		private BCash()
+		{
+
+		}
+
+
 		//Format visual studio
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)
@@ -151,29 +161,25 @@ namespace NBitcoin.Altcoins
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xcf,0x9a,0xd2,0xde}, 10201),
 		Tuple.Create(new byte[]{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xda,0xf4,0x92,0x6f}, 18333)
 };
-
-
-		[Obsolete("Use EnsureRegistered instead")]
-		public static void Register()
-		{
-			EnsureRegistered();
-		}
-		public static void EnsureRegistered()
-		{
-			if(_LazyRegistered.IsValueCreated)
-				return;
-			// This will cause RegisterLazy to evaluate
-			new Lazy<object>[] { _LazyRegistered }.Select(o => o.Value != null).ToList();
-		}
-		static Lazy<object> _LazyRegistered = new Lazy<object>(RegisterLazy, false);
-
+		
 		class BCashConsensusFactory : ConsensusFactory
 		{
+			private BCashConsensusFactory()
+			{
+
+			}
+			public static BCashConsensusFactory Instance { get; } = new BCashConsensusFactory();
+
 			public override ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)
 			{
 				var capabilities = base.GetProtocolCapabilities(protocolVersion);
 				capabilities.SupportWitness = false;
 				return capabilities;
+			}
+
+			public override Transaction CreateTransaction()
+			{
+				return new ForkIdTransaction(0x00, false, this);
 			}
 		}
 
@@ -269,12 +275,15 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
-		private static object RegisterLazy()
+		protected override void PostInit()
 		{
-			#region Mainnet
-			var port = 8333;
-			NetworkBuilder builder = new NetworkBuilder();
-			_Mainnet = builder.SetConsensus(new Consensus()
+			RegisterDefaultCookiePath("bitcoin");
+		}
+
+		protected override NetworkBuilder CreateMainnet()
+		{
+			var builder = new NetworkBuilder();
+			return builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 210000,
 				MajorityEnforceBlockUpgrade = 750,
@@ -289,9 +298,8 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 1916,
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
 				MinimumChainWork = new uint256("0000000000000000000000000000000000000000007e5dbf54c7f6b58a6853cd"),
-				ConsensusFactory = new BCashConsensusFactory(),
+				ConsensusFactory = BCashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			// See https://support.bitpay.com/hc/en-us/articles/115004671663-BitPay-s-Adopted-Conventions-for-Bitcoin-Cash-Addresses-URIs-and-Payment-Requests
@@ -304,7 +312,7 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("bch"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("bch"))
 			.SetMagic(0xe8f3e1e3)
-			.SetPort(port)
+			.SetPort(8333)
 			.SetRPCPort(8332)
 			.SetNetworkStringParser(new BCashStringParser("bitcoincash"))
 			.SetName("bch-main")
@@ -321,14 +329,13 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("criptolayer.net", "seeder.criptolayer.net"),
 			})
 			.AddSeeds(ToSeed(pnSeed6_main))
-			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000")
-			.BuildAndRegister();
-			#endregion
+			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
+		}
 
-			#region Testnet
-			builder = new NetworkBuilder();
-			port = 18333;
-			_Testnet = builder.SetConsensus(new Consensus()
+		protected override NetworkBuilder CreateTestnet()
+		{
+			var builder = new NetworkBuilder();
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 210000,
 				MajorityEnforceBlockUpgrade = 51,
@@ -343,9 +350,8 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 1512,
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"),
 				MinimumChainWork = new uint256("00000000000000000000000000000000000000000000002888c34d61b53a244a"),
-				ConsensusFactory = new BCashConsensusFactory(),
+				ConsensusFactory = BCashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
@@ -356,7 +362,7 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tbch"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tbch"))
 			.SetMagic(0xf4f3e5f4)
-			.SetPort(port)
+			.SetPort(18333)
 			.SetRPCPort(18332)
 			.SetNetworkStringParser(new BCashStringParser("bchtest"))
 			.SetName("bch-test")
@@ -372,14 +378,14 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("criptolayer.net", "testnet-seeder.criptolayer.net"),
 			})
 			.AddSeeds(ToSeed(pnSeed6_test))
-			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff001d1aa4ae180101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000")
-			.BuildAndRegister();
-			#endregion
+			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff001d1aa4ae180101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
+			return builder;
+		}
 
-			#region Regtest
-			builder = new NetworkBuilder();
-			port = 18444;
-			_Regtest = builder.SetConsensus(new Consensus()
+		protected override NetworkBuilder CreateRegtest()
+		{
+			var builder = new NetworkBuilder();
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 150,
 				MajorityEnforceBlockUpgrade = 750,
@@ -395,8 +401,7 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"),
-				ConsensusFactory = new BCashConsensusFactory(),
+				ConsensusFactory = BCashConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
@@ -407,87 +412,15 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tbch"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tbch"))
 			.SetMagic(0xfabfb5da)
-			.SetPort(port)
+			.SetPort(18444)
 			.SetRPCPort(18443)
 			.SetNetworkStringParser(new BCashStringParser("bchreg"))
 			.SetName("bch-reg")
 			.AddAlias("bch-regtest")
 			.AddAlias("bcash-reg")
 			.AddAlias("bcash-regtest")
-			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff7f20020000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000")
-			.BuildAndRegister();
-			#endregion
-
-			var home = Environment.GetEnvironmentVariable("HOME");
-			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
-
-			if(string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
-				return new object();
-
-			if(!string.IsNullOrEmpty(home))
-			{
-				var bitcoinFolder = Path.Combine(home, ".bitcoin");
-
-				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BCash._Mainnet, mainnet);
-
-				var testnet = Path.Combine(bitcoinFolder, "testnet3", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BCash._Testnet, testnet);
-
-				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BCash._Regtest, regtest);
-			}
-			else if(!string.IsNullOrEmpty(localAppData))
-			{
-				var bitcoinFolder = Path.Combine(localAppData, "Bitcoin");
-
-				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BCash._Mainnet, mainnet);
-
-				var testnet = Path.Combine(bitcoinFolder, "testnet3", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BCash._Testnet, testnet);
-
-				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BCash._Regtest, regtest);
-			}
-			return new object();
-		}
-
-		private static IEnumerable<NetworkAddress> ToSeed(Tuple<byte[], int>[] tuples)
-		{
-			return tuples
-					.Select(t => new NetworkAddress(new IPAddress(t.Item1), t.Item2))
-					.ToArray();
-		}
-
-		private static Network _Mainnet;
-		public static Network Mainnet
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Mainnet;
-			}
-		}
-
-		private static Network _Regtest;
-		public static Network Regtest
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Regtest;
-			}
-		}
-
-		private static Network _Testnet;
-		public static Network Testnet
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Testnet;
-			}
+			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff7f20020000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
+			return builder;
 		}
 	}
 }

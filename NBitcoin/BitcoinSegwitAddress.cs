@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-	public class BitcoinWitPubKeyAddress : BitcoinAddress, IBech32Data
+	public class BitcoinWitPubKeyAddress : BitcoinAddress, IBech32Data, IPubkeyHashUsable
 	{
 		public BitcoinWitPubKeyAddress(string bech32, Network expectedNetwork = null)
 				: base(Validate(bech32, ref expectedNetwork), expectedNetwork)
@@ -63,6 +63,12 @@ namespace NBitcoin
 			return key.WitHash == Hash;
 		}
 
+		public bool VerifyMessage(byte[] message, byte[] signature)
+		{
+			var key = PubKey.RecoverFromMessage(message, signature);
+			return key.WitHash == Hash;
+		}
+
 		WitKeyId _Hash;
 		public WitKeyId Hash
 		{
@@ -87,7 +93,7 @@ namespace NBitcoin
 		}
 	}
 
-	public class BitcoinWitScriptAddress : BitcoinAddress, IBech32Data
+	public class BitcoinWitScriptAddress : BitcoinAddress, IBech32Data, IPubkeyHashUsable
 	{
 		public BitcoinWitScriptAddress(string bech32, Network expectedNetwork = null)
 				: base(Validate(bech32, ref expectedNetwork), expectedNetwork)
@@ -125,7 +131,7 @@ namespace NBitcoin
 		}
 
 		public BitcoinWitScriptAddress(WitScriptId segwitScriptId, Network network)
-	: base(NotNull(segwitScriptId) ?? Network.CreateBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, segwitScriptId.ToBytes(), 0, network), network)
+			: base(NotNull(segwitScriptId) ?? Network.CreateBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, segwitScriptId.ToBytes(), 0, network), network)
 		{
 			_Hash = segwitScriptId;
 		}
@@ -137,6 +143,19 @@ namespace NBitcoin
 				throw new ArgumentNullException("segwitScriptId");
 			return null;
 		}
+
+		public bool VerifyMessage(string message, string signature)
+		{
+			var key = PubKey.RecoverFromMessage(message, signature);
+			return key.WitHash.ScriptPubKey.WitHash == Hash;
+		}
+
+		public bool VerifyMessage(byte[] message, byte[] signature)
+		{
+			var key = PubKey.RecoverFromMessage(message, signature);
+			return key.WitHash.ScriptPubKey.WitHash == Hash;
+		}
+
 
 		WitScriptId _Hash;
 		public WitScriptId Hash

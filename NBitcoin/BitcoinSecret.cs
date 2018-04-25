@@ -23,8 +23,8 @@ namespace NBitcoin
 				return keyBytes.Concat(new byte[] { 0x01 }).ToArray();
 		}
 		public BitcoinSecret(string base58, Network expectedAddress = null)
-			: base(base58, expectedAddress)
 		{
+			Init<BitcoinSecret>(base58, expectedAddress);
 		}
 
 		private BitcoinPubKeyAddress _address;
@@ -32,6 +32,11 @@ namespace NBitcoin
 		public BitcoinPubKeyAddress GetAddress()
 		{
 			return _address ?? (_address = PrivateKey.PubKey.GetAddress(Network));
+		}
+
+		public BitcoinWitPubKeyAddress GetSegwitAddress()
+		{
+			return PrivateKey.PubKey.GetSegwitAddress(Network);
 		}
 
 		public virtual KeyId PubKeyHash
@@ -135,7 +140,5 @@ namespace NBitcoin
 		}
 
 		#endregion
-
-
 	}
 }

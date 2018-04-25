@@ -123,8 +123,8 @@ namespace NBitcoin.Stealth
 	{
 
 		public BitcoinStealthAddress(string base58, Network expectedNetwork = null)
-			: base(base58, expectedNetwork)
 		{
+			Init<BitcoinStealthAddress>(base58, expectedNetwork);
 		}
 		public BitcoinStealthAddress(byte[] raw, Network network)
 			: base(raw, network)

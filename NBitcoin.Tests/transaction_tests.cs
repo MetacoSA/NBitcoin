@@ -1799,6 +1799,36 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanParseLTubLitecoin()
+		{
+			new BitcoinExtKey("Ltpv71G8qDifUiNesyXJM9i5RzRB5HHFWfjseAX7mXY6vim2BHMBHgZJi9poW2J5FveLFg4PnPXf6y2VLtYoTDxJAhbVRRpo3GeKKx1wveysYnw", NBitcoin.Altcoins.Litecoin.Instance.Mainnet);
+			new BitcoinExtPubKey("Ltub2SSUS19CirucVaJxxH11bYDCEmze824yTDJCzRg5fDNN3oBWussWgRA7Zyiya98dAErcvDsw7rAuuZuZug3Ve6iT5uVkwPAKwQphBiQdjNd", NBitcoin.Altcoins.Litecoin.Instance.Mainnet);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void EnsureThatTransactionBuilderDoesNotMakeTooLowFeeTransaction()
+		{
+			var fromKey = new Key();
+			var redeem = fromKey.PubKey.WitHash.ScriptPubKey;
+			var from = redeem.Hash.ScriptPubKey;
+			var p2wpkh = new Key().PubKey.WitHash.ScriptPubKey;
+
+			var oneSatPerByte = new FeeRate(Money.Satoshis(1), 1);
+			TransactionBuilder builder = new TransactionBuilder();
+			builder.AddCoins(new ScriptCoin(RandOutpoint(), new TxOut(Money.Coins(1), from), redeem));
+			builder.AddKeys(fromKey);
+			builder.Send(p2wpkh, Money.Coins(1));
+			builder.SubtractFees();
+			builder.SendEstimatedFees(oneSatPerByte);
+			var tx = builder.BuildTransaction(true);
+
+			var feeRate = tx.GetFeeRate(builder.FindSpentCoins(tx));
+			Assert.True(feeRate >= oneSatPerByte);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//https://gist.github.com/gavinandresen/3966071
 		public void CanBuildTransactionWithDustPrevention()
 		{

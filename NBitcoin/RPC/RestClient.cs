@@ -82,7 +82,7 @@ namespace NBitcoin.RPC
 				throw new ArgumentNullException("blockId");
 
 			var result = await SendRequestAsync("block", RestResponseFormat.Bin, blockId.ToString()).ConfigureAwait(false);
-			return new Block(result, Network);
+			return Block.Load(result, Network);
 		}
 		/// <summary>
 		/// Gets the block.
