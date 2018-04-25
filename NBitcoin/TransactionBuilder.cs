@@ -321,7 +321,7 @@ namespace NBitcoin
 			public TransactionBuildingContext(TransactionBuilder builder)
 			{
 				Builder = builder;
-				Transaction = new Transaction();
+				Transaction = builder._ConsensusFactory.CreateTransaction();
 				AdditionalFees = Money.Zero;
 			}
 			public TransactionBuilder.BuilderGroup Group
@@ -1044,6 +1044,18 @@ namespace NBitcoin
 			return this;
 		}
 
+		ConsensusFactory _ConsensusFactory = Network.Main.Consensus.ConsensusFactory;
+		public TransactionBuilder SetConsensusFactory(ConsensusFactory consensusFactory)
+		{
+			_ConsensusFactory = consensusFactory ?? Network.Main.Consensus.ConsensusFactory;
+			return this;
+		}
+
+		public TransactionBuilder SetConsensusFactory(Network network)
+		{
+			return SetConsensusFactory(network?.Consensus?.ConsensusFactory);
+		}
+
 		public TransactionBuilder SetCoinSelector(ICoinSelector selector)
 		{
 			if(selector == null)
@@ -1222,6 +1234,10 @@ namespace NBitcoin
 		public Transaction SignTransactionInPlace(Transaction transaction, SigHash sigHash)
 		{
 			TransactionSigningContext ctx = new TransactionSigningContext(this, transaction);
+			if(transaction is IHasForkId hasForkId)
+			{
+				sigHash = (SigHash)((uint)sigHash | 0x40u);
+			}
 			ctx.SigHash = sigHash;
 			foreach(var input in transaction.Inputs.AsIndexedInputs())
 			{

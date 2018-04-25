@@ -176,6 +176,11 @@ namespace NBitcoin.Altcoins
 				capabilities.SupportWitness = false;
 				return capabilities;
 			}
+
+			public override Transaction CreateTransaction()
+			{
+				return new ForkIdTransaction(0x00, false, this);
+			}
 		}
 
 		public class BTrashPubKeyAddress : BitcoinPubKeyAddress

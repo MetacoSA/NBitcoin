@@ -2111,6 +2111,13 @@ namespace NBitcoin
 		{
 			return Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
 		}
+
+		public Transaction Clone()
+		{
+			var instance = GetConsensusFactory().CreateTransaction();
+			instance.FromBytes(this.ToBytes());
+			return instance;
+		}
 	}
 
 	public enum TransactionCheckResult
