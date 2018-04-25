@@ -190,7 +190,7 @@ namespace NBitcoin.Policy
 			else
 			{
 			if(input.Transaction is IHasForkId)
-					scriptVerify |= (1U << 16);
+					scriptVerify |= (NBitcoin.ScriptVerify)(1U << 16);
 				var ok = Script.VerifyScriptConsensus(scriptPubKey, input.Transaction, input.Index, scriptVerify);
 				if(!ok)
 				{
