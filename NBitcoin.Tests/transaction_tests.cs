@@ -2892,6 +2892,29 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CannotBuildDoubleSpendingTransactions()
+		{
+			var key = new Key();
+
+			var coin = new Coin(new OutPoint(Rand(), 0), new TxOut(Money.Coins(1.0m), key.PubKey.Hash));
+
+			var txBuilder = new TransactionBuilder();
+			var tx = txBuilder
+				.AddCoins(coin)
+				.AddKeys(key)
+				.Send(key.ScriptPubKey, Money.Coins(0.999m))
+				.SendFees(Money.Coins(0.001m))
+				.BuildTransaction(false);
+
+			Assert.Throws<InvalidOperationException>(()=>{
+				txBuilder
+					.ContinueToBuild(tx)
+					.BuildTransaction(true);
+			});
+		}
+
+		[Fact]
 		[Trait("Core", "Core")]
 		public void tx_invalid()
 		{
