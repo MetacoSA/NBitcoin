@@ -1071,7 +1071,9 @@ namespace NBitcoin
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public Transaction BuildTransaction(bool sign)
 		{
-			return BuildTransaction(sign, SigHash.All);
+			var tx = BuildTransaction(sign, SigHash.All);
+			_built = true;
+			return tx;
 		}
 
 		/// <summary>
@@ -1760,7 +1762,8 @@ namespace NBitcoin
 
 
 		Transaction _CompletedTransaction;
-
+		private bool _built = false;
+		
 		/// <summary>
 		/// Allows to keep building on the top of a partially built transaction
 		/// </summary>
@@ -1768,6 +1771,8 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TransactionBuilder ContinueToBuild(Transaction transaction)
 		{
+			if(_built) 
+				throw new InvalidOperationException("ContinueToBuild must be called with a new TransactionBuilder instance"); 
 			if(_CompletedTransaction != null)
 				throw new InvalidOperationException("Transaction to complete already set");
 			_CompletedTransaction = transaction.Clone();
