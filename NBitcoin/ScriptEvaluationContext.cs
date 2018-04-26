@@ -1671,7 +1671,7 @@ namespace NBitcoin
 		}
 
 
-		static bool IsDefinedHashtypeSignature(byte[] vchSig)
+		bool IsDefinedHashtypeSignature(byte[] vchSig)
 		{
 			if(vchSig.Length == 0)
 			{
@@ -1679,6 +1679,10 @@ namespace NBitcoin
 			}
 
 			var temp = ~(SigHash.AnyoneCanPay);
+			if((ScriptVerify & ScriptVerify.ForkId) != 0)
+			{
+				temp = (SigHash)((uint)temp & ~(0x40u));
+			}
 			byte nHashType = (byte)(vchSig[vchSig.Length - 1] & (byte)temp);
 			if(nHashType < (byte)SigHash.All || nHashType > (byte)SigHash.Single)
 				return false;

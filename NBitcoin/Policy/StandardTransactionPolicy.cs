@@ -177,13 +177,20 @@ namespace NBitcoin.Policy
 
 		private bool VerifyScript(IndexedTxIn input, Script scriptPubKey, Money value, ScriptVerify scriptVerify, out ScriptError error)
 		{
+
 #if !NOCONSENSUSLIB
 			if(!UseConsensusLib)
 #endif
+			{
+				if(input.Transaction is IHasForkId)
+					scriptVerify |= NBitcoin.ScriptVerify.ForkId;
 				return input.VerifyScript(scriptPubKey, value, scriptVerify, out error);
+			}
 #if !NOCONSENSUSLIB
 			else
 			{
+			if(input.Transaction is IHasForkId)
+					scriptVerify |= (NBitcoin.ScriptVerify)(1U << 16);
 				var ok = Script.VerifyScriptConsensus(scriptPubKey, input.Transaction, input.Index, scriptVerify);
 				if(!ok)
 				{

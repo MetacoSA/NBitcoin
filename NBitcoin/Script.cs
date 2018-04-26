@@ -119,6 +119,11 @@ namespace NBitcoin
 		WitnessPubkeyType = (1U << 15),
 
 		/// <summary>
+		/// Some altcoins like BCash and BGold requires ForkId inside the sigHash
+		/// </summary>
+		ForkId = (1U << 29),
+
+		/// <summary>
 		/// Mandatory script verification flags that all new blocks must comply with for
 		/// them to be valid. (but old blocks may not comply with) Currently just P2SH,
 		/// but in the future other flags may be added, such as a soft-fork to enforce

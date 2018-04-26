@@ -85,6 +85,7 @@ namespace NBitcoin.Tests
 				txbuilder.SendFees(Money.Coins(0.00004m));
 				txbuilder.SetChange(aliceAddress);
 				var signed = txbuilder.BuildTransaction(true);
+				Assert.True(txbuilder.Verify(signed));
 				rpc.SendRawTransaction(signed);
 			}
 		}
