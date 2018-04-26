@@ -8,7 +8,7 @@ using NBitcoin.BouncyCastle.Math.EC.Custom.Sec;
 
 namespace NBitcoin.Crypto
 {
-	internal class ECKey
+	public class ECKey
 	{
 		public ECPrivateKeyParameters PrivateKey
 		{

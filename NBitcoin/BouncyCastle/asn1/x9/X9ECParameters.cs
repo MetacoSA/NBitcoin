@@ -10,7 +10,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
      * ASN.1 def for Elliptic-Curve ECParameters structure. See
      * X9.62, for further details.
      */
-	internal class X9ECParameters
+	public class X9ECParameters
 		: Asn1Encodable
 	{
 		private X9FieldID fieldID;

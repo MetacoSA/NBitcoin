@@ -6,7 +6,7 @@ using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1
 {
-	internal abstract class Asn1Sequence
+	public abstract class Asn1Sequence
 		: Asn1Object, IEnumerable
 	{
 		private readonly IList seq;

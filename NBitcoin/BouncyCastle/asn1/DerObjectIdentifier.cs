@@ -7,7 +7,7 @@ using NBitcoin.BouncyCastle.Utilities;
 
 namespace NBitcoin.BouncyCastle.Asn1
 {
-	internal class DerObjectIdentifier
+	public class DerObjectIdentifier
 		: Asn1Object
 	{
 		private readonly string identifier;

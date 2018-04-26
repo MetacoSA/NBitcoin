@@ -1,6 +1,6 @@
 ﻿namespace NBitcoin.BouncyCastle.Math.EC
 {
-	internal interface ECPointMap
+	public interface ECPointMap
 	{
 		ECPoint Map(ECPoint p);
 	}
