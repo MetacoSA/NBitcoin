@@ -15,16 +15,14 @@ Currently supported altcoins are:
 This package expose altcoin's `Network` class.
 For example if you want to use Litecoin testnet:
 
-Once in your program call:
-
-```
-NBitcoin.Altcoins.Litecoin.EnsureRegistered();
-```
-
-Then you can get the network instance in this way:
-
 ```
 Network network = NBitcoin.Altcoins.Litecoin.Testnet;
+```
+
+You can then use this fork generating a Litecoin address for example:
+
+```
+
 ```
 
 ## How to support my own altcoin?
