@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NBitcoin.Crypto;
+using NBitcoin.Protocol;
 
 namespace NBitcoin
 {
@@ -144,6 +145,12 @@ namespace NBitcoin
 			}
 
 			return true;
+		}
+
+		public byte[] ToByteArray()
+		{
+			var n = new VarInt((ulong)N).ToBytes();
+			return n.Concat(this.Data);
 		}
 
 		internal static ulong FastReduction(ulong value, ulong nhi, ulong nlo)
