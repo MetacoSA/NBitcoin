@@ -161,6 +161,9 @@
     <Content Include="data\block169482.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="data\testnet-20.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
