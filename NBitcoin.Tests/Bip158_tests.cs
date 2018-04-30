@@ -1,14 +1,62 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Xunit;
+using NBitcoin.DataEncoders;
+using NBitcoin.Crypto;
 
 namespace NBitcoin.Tests
 {
 	public class GolombRiceFilterTest
 	{
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void GenerateTestVectorsTest()
+		{
+			var testLines = File.ReadAllLines("data/testnet-20.csv");
+			foreach(var testLine in testLines.Skip(1))
+			{
+				var i= 0;
+				var test = testLine.Split(',');
+				var blockHeight = int.Parse(test[i++]); 
+				var blockHash = uint256.Parse(test[i++]);
+				var block = Block.Parse(test[i++]);
+				var previousBasicHeader = test[i++];
+				var previousExtHeader = test[i++];
+				var basicFilter = test[i++];
+				var extFilter = test[i++];
+				var basicHeader = test[i++];
+				var extHeader = test[i++];
+
+				var builder = new GolombRiceFilterBuilder()
+					.SetKey(block.GetHash());
+
+				foreach(var tx in block.Transactions)
+				{
+					builder.AddTxId(tx.GetHash());
+					if(!tx.IsCoinBase)
+					{
+						foreach(var txin in tx.Inputs)
+						{
+							builder.AddOutPoint(txin.PrevOut);
+						}
+					}
+
+					foreach(var txout in tx.Outputs)
+					{
+						builder.AddScriptPubkey(txout.ScriptPubKey);
+					}
+				}
+
+				var filter = builder.Build();
+				var serialized =  Encoders.Hex.EncodeData(filter.ToByteArray());
+			 	Assert.Equal(serialized, basicFilter);
+			}
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void BuildFilterAndMatchValues()
