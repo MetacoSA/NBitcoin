@@ -18,9 +18,9 @@ namespace NBitcoin
 		public int N { get; }
 		public ulong ModulusP { get;  }
 		public ulong ModulusNP { get; }
-		public FastBitArray Data { get;  }
+		public byte[] Data { get;  }
 
-		public GolombRiceFilter(FastBitArray data, int N, byte P = DefaultP)
+		public GolombRiceFilter(byte[] data, int N, byte P = DefaultP)
 		{
 			this.P = P;
 			this.N = N;
@@ -83,17 +83,16 @@ namespace NBitcoin
 			return hasher.Finalize();
 		}
 
-		private static FastBitArray Compress(List<ulong> values, byte P)
+		private static byte[] Compress(List<ulong> values, byte P)
 		{
-			var bitArray = new FastBitArray();
-			var bitStream = new BitStream(bitArray);
+			var bitStream = new BitStream();
 			var sw = new GRCodedStreamWriter(bitStream, P);
 
 			foreach (var value in values)
 			{
 				sw.Write(value);
 			}
-			return bitArray;
+			return bitStream.ToByteArray();
 		}
 
 
