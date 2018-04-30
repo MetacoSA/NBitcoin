@@ -17,7 +17,11 @@ namespace NBitcoin.Tests
 				select Encoding.ASCII.GetBytes(name);
 
 			var key = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-			var filter = GolombRiceFilter.Build(key, names, 0x10);
+			var filter = new GolombRiceFilterBuilder()
+				.SetKey( new uint256(key)) 
+				.AddEntries(names)
+				.SetP(0x10)
+				.Build();
 
 			// The filter should match all ther values that were added.
 			foreach (var name in names)
@@ -76,6 +80,10 @@ namespace NBitcoin.Tests
 			var random = new Random();
 			var sw = new Stopwatch();
 
+			var builder = new GolombRiceFilterBuilder()
+				.SetKey(Hashes.Hash256(key))
+				.SetP(P);
+				
 			var blocks = new List<BlockFilter>(blockCount);
 			for (var i = 0; i < blockCount; i++)
 			{
@@ -87,8 +95,10 @@ namespace NBitcoin.Tests
 					txouts.Add(pushDataBuffer);
 				}
 
+				builder.AddEntries(txouts);
+
 				sw.Start();
-				var filter = GolombRiceFilter.Build(key, txouts, P);
+				var filter = builder.Build();
 				sw.Stop();
 
 				blocks.Add(new BlockFilter(filter, txouts));

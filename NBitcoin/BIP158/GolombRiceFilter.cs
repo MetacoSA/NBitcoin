@@ -13,42 +13,22 @@ namespace NBitcoin
 	/// </summary>
 	public class GolombRiceFilter
 	{
-		private const byte DefaultP = 20;
-
 		public byte P { get; }
 		public int N { get; }
 		public ulong ModulusP { get;  }
 		public ulong ModulusNP { get; }
 		public byte[] Data { get;  }
 
-		public GolombRiceFilter(byte[] data, int N, byte P = DefaultP)
+		internal GolombRiceFilter(byte[] data, int n, byte p)
 		{
-			this.P = P;
-			this.N = N;
+			this.P = p;
+			this.N = n;
 
 			var modP = 1UL << P;
 			this.ModulusP = modP;
 			this.ModulusNP = ((ulong) N) * modP;
 			this.Data = data;
 		}
-
-		public static GolombRiceFilter Build(byte[] k, IEnumerable<byte[]> data, byte P = DefaultP)
-		{
-			if (P == 0x00)
-				throw new ArgumentException("P cannot be zero", nameof(P));
-
-			var bytesData = data as byte[][] ?? data.ToArray();
-			if (data == null || !bytesData.Any())
-				throw new ArgumentException("data can not be null or empty array", nameof(data));
-
-
-			var N = bytesData.Length;
-			var hs = ConstructHashedSet(P, N, k, bytesData);
-			var filterData = Compress(hs, P);
-
-			return new GolombRiceFilter(filterData, N, P);
-		}
-
 
 		internal static List<ulong> ConstructHashedSet(byte P, int N, byte[] key, IEnumerable<byte[]> data)
 		{
@@ -83,19 +63,6 @@ namespace NBitcoin
 			hasher.Write(data);
 			return hasher.Finalize();
 		}
-
-		private static byte[] Compress(List<ulong> values, byte P)
-		{
-			var bitStream = new BitStream();
-			var sw = new GRCodedStreamWriter(bitStream, P);
-
-			foreach (var value in values)
-			{
-				sw.Write(value);
-			}
-			return bitStream.ToByteArray();
-		}
-
 
 		public bool Match(byte[] data, byte[] key)
 		{
@@ -174,5 +141,110 @@ namespace NBitcoin
 
 			return value;
 		}
+	}
+
+	public class GolombRiceFilterBuilder
+	{
+		private const byte DefaultP = 20;
+		private byte _p = DefaultP;
+		private byte[] _key;
+		private HashSet<byte[]> _values;
+		
+		class ByteArrayComparer : IEqualityComparer<byte[]> {
+			public bool Equals(byte[] a, byte[] b)
+			{
+				if (a.Length != b.Length) return false;
+				for (int i = 0; i < a.Length; i++)
+					if (a[i] != b[i]) return false;
+				return true;
+			}
+			public int GetHashCode(byte[] a)
+			{
+				uint b = 0;
+				for (int i = 0; i < a.Length; i++)
+					b = ((b << 23) | (b >> 9)) ^ a[i];
+				return unchecked((int)b);
+			}
+		}
+		
+		public GolombRiceFilterBuilder()
+		{
+			_values = new HashSet<byte[]>(new ByteArrayComparer());
+		}
+
+		public GolombRiceFilterBuilder SetKey(uint256 blockHash)
+		{
+			_key = blockHash.ToBytes().SafeSubarray(0,16);
+			return this;
+		}
+
+		public GolombRiceFilterBuilder SetP(int p)
+		{
+			if (p <= 0 || p > 32)
+				throw new ArgumentOutOfRangeException(nameof(p), "value has to be greater than zero and less or equal to 32");
+			
+			_p = (byte)p;
+			return this;
+		}
+
+		public GolombRiceFilterBuilder AddTxId(uint256 id)
+		{
+			if (id == null)
+				throw new ArgumentNullException(nameof(id));
+
+			_values.Add(id.ToBytes());
+			return this;
+		}
+
+		public GolombRiceFilterBuilder AddScriptPubkey(Script scriptPubkey)
+		{
+			if (scriptPubkey == null)
+				throw new ArgumentNullException(nameof(scriptPubkey));
+
+			_values.Add(scriptPubkey.ToBytes());
+			return this;
+		}
+
+		public GolombRiceFilterBuilder AddOutPoint(OutPoint outpoint)
+		{
+			if (outpoint == null)
+				throw new ArgumentNullException(nameof(outpoint));
+
+			_values.Add(outpoint.ToBytes());
+			return this;
+		}
+
+		public GolombRiceFilterBuilder AddEntries(IEnumerable<byte[]> entries)
+		{
+			if (entries == null)
+				throw new ArgumentNullException(nameof(entries));
+
+			foreach(var entry in entries)
+			{
+				_values.Add(entry);
+			}
+			return this;
+		}
+
+		public GolombRiceFilter Build()
+		{
+			var n = _values.Count;
+			var hs = GolombRiceFilter.ConstructHashedSet(_p, n, _key, _values);
+			var filterData = Compress(hs, _p);
+
+			return new GolombRiceFilter(filterData, n, _p);
+		}
+		
+		private static byte[] Compress(List<ulong> values, byte P)
+		{
+			var bitStream = new BitStream();
+			var sw = new GRCodedStreamWriter(bitStream, P);
+
+			foreach (var value in values)
+			{
+				sw.Write(value);
+			}
+			return bitStream.ToByteArray();
+		}		
 	}
 }
