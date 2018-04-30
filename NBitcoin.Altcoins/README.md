@@ -22,7 +22,7 @@ Network network = NBitcoin.Altcoins.Litecoin.Testnet;
 You can then use this fork generating a Litecoin address for example:
 
 ```
-
+Console.WriteLine(new Key().PubKey.GetAddress(network));
 ```
 
 ## How to support my own altcoin?
