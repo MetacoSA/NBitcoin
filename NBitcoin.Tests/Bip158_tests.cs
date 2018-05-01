@@ -16,7 +16,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void GenerateTestVectorsTest()
 		{
-			var testLines = File.ReadAllLines("data/testnet-20.csv");
+			var testLines = File.ReadAllLines("data/bip158_vectors.csv");
 			foreach(var testLine in testLines.Skip(1))
 			{
 				var i= 0;
