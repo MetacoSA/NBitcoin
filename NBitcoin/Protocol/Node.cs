@@ -1381,14 +1381,18 @@ namespace NBitcoin.Protocol
 			return SynchronizeChain(chain, new SynchronizeChainOptions() { HashStop = hashStop }, cancellationToken);
 		}
 
-		public IEnumerable<Block> GetBlocks(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		public IEnumerable<Block> GetBlocks(SynchronizeChainOptions synchronizeChainOptions, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var genesis = new ChainedBlock(Network.GetGenesis().Header, 0);
-			return GetBlocksFromFork(genesis, hashStop, cancellationToken);
+			return GetBlocksFromFork(genesis, synchronizeChainOptions, cancellationToken);
 		}
 
+		public IEnumerable<Block> GetBlocks(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return GetBlocks(new SynchronizeChainOptions() { StripHeaders = true, HashStop = hashStop });
+		}
 
-		public IEnumerable<Block> GetBlocksFromFork(ChainedBlock currentTip, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		public IEnumerable<Block> GetBlocksFromFork(ChainedBlock currentTip, SynchronizeChainOptions synchronizeChainOptions, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			using(var listener = CreateListener())
 			{
@@ -1397,13 +1401,18 @@ namespace NBitcoin.Protocol
 					BlockLocators = currentTip.GetLocator(),
 				});
 
-				var headers = GetHeadersFromFork(currentTip, hashStop, cancellationToken);
+				var headers = GetHeadersFromFork(currentTip, synchronizeChainOptions, cancellationToken);
 
 				foreach(var block in GetBlocks(headers.Select(b => b.HashBlock), cancellationToken))
 				{
 					yield return block;
 				}
 			}
+		}
+
+		public IEnumerable<Block> GetBlocksFromFork(ChainedBlock currentTip, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			return GetBlocksFromFork(currentTip, new SynchronizeChainOptions() { HashStop = hashStop, StripHeaders = true });
 		}
 
 		public IEnumerable<Block> GetBlocks(IEnumerable<ChainedBlock> blocks, CancellationToken cancellationToken = default(CancellationToken))
