@@ -114,10 +114,15 @@ namespace NBitcoin
 			return true;
 		}
 
-		public byte[] ToByteArray()
+		public byte[] ToBytes()
 		{
 			var n = new VarInt((ulong)N).ToBytes();
 			return n.Concat(this.Data);
+		}
+
+		public override string ToString()
+		{
+			return DataEncoders.Encoders.Hex.EncodeData(ToBytes());
 		}
 
 		internal static ulong FastReduction(ulong value, ulong nhi, ulong nlo)
