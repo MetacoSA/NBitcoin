@@ -178,7 +178,59 @@ namespace NBitcoin
 				return unchecked((int)b);
 			}
 		}
-		
+
+		public static GolombRiceFilter BuildBasicFilter(Block block)
+		{
+			var builder = new GolombRiceFilterBuilder()
+				.SetKey(block.GetHash());
+
+			foreach(var tx in block.Transactions)
+			{
+				builder.AddTxId(tx.GetHash());
+				if(!tx.IsCoinBase)
+				{
+					foreach(var txin in tx.Inputs)
+					{
+						builder.AddOutPoint(txin.PrevOut);
+					}
+				}
+
+				foreach(var txout in tx.Outputs)
+				{
+					builder.AddScriptPubkey(txout.ScriptPubKey);
+				}
+			}
+
+			return builder.Build();
+		}
+
+		public static GolombRiceFilter BuildExtendedFilter(Block block)
+		{
+			var builder = new GolombRiceFilterBuilder()
+				.SetKey(block.GetHash());
+
+			foreach(var tx in block.Transactions)
+			{
+				if(!tx.IsCoinBase)
+				{
+					foreach(var txin in tx.Inputs)
+					{
+						if(txin.ScriptSig != Script.Empty)
+						{
+							builder.AddScriptSig(txin.ScriptSig);
+						}
+
+						if( txin.WitScript != WitScript.Empty)
+						{
+							builder.AddWitness(txin.WitScript);
+						}
+					}
+				}
+			}
+
+			return builder.Build();
+		}
+
 		public GolombRiceFilterBuilder()
 		{
 			_values = new HashSet<byte[]>(new ByteArrayComparer());
