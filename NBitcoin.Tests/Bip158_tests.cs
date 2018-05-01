@@ -49,32 +49,33 @@ namespace NBitcoin.Tests
 			var names = from name in new[] { "New York", "Amsterdam", "Paris", "Buenos Aires", "La Habana" }
 				select Encoding.ASCII.GetBytes(name);
 
-			var key = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+			var key = Hashes.Hash256(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
 			var filter = new GolombRiceFilterBuilder()
-				.SetKey( new uint256(key)) 
+				.SetKey( key ) 
 				.AddEntries(names)
 				.SetP(0x10)
 				.Build();
 
+			var testKey = key.ToBytes().SafeSubarray(0, 16);
 			// The filter should match all ther values that were added.
 			foreach (var name in names)
 			{
-				Assert.True(filter.Match(name, key));
+				Assert.True(filter.Match(name, testKey));
 			}
 
 			// The filter should NOT match any extra value.
-			Assert.False(filter.Match(Encoding.ASCII.GetBytes("Porto Alegre"), key));
-			Assert.False(filter.Match(Encoding.ASCII.GetBytes("Madrid"), key));
+			Assert.False(filter.Match(Encoding.ASCII.GetBytes("Porto Alegre"), testKey));
+			Assert.False(filter.Match(Encoding.ASCII.GetBytes("Madrid"), testKey));
 
 			// The filter should match because it has one element indexed: Buenos Aires.
 			var otherCities = new[] { "La Paz", "Barcelona", "El Cairo", "Buenos Aires", "Asunción" };
 			var otherNames = from name in otherCities select Encoding.ASCII.GetBytes(name);
-			Assert.True(filter.MatchAny(otherNames, key));
+			Assert.True(filter.MatchAny(otherNames, testKey));
 
 			// The filter should NOT match because it doesn't have any element indexed.
 			var otherCities2 = new[] { "La Paz", "Barcelona", "El Cairo", "Córdoba", "Asunción" };
 			var otherNames2 = from name in otherCities2 select Encoding.ASCII.GetBytes(name);
-			Assert.False(filter.MatchAny(otherNames2, key));
+			Assert.False(filter.MatchAny(otherNames2, testKey));
 		}
 
 		class BlockFilter
@@ -101,25 +102,26 @@ namespace NBitcoin.Tests
 			// per block.
 			const byte P = 20;
 			const int blockCount = 100;
-			const int maxBlockSize = 4 * 1000 * 1000;
+			const int maxBlockSize = 4000_000;
 			const int avgTxSize = 250;                  // Currently the average is around 1kb.
 			const int txoutCountPerBlock = maxBlockSize / avgTxSize;
 			const int avgTxoutPushDataSize = 20;        // P2PKH scripts has 20 bytes.
-			const int walletAddressCount = 1000;        // We estimate that our user will have 1000 addresses.
+			const int walletAddressCount = 1_000;       // We estimate that our user will have 1000 addresses.
 
-			var key = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+			var key = Hashes.Hash256(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
+			var testKey = key.ToBytes().SafeSubarray(0, 16);
 
 			// Generation of data to be added into the filter
 			var random = new Random();
 			var sw = new Stopwatch();
-
-			var builder = new GolombRiceFilterBuilder()
-				.SetKey(Hashes.Hash256(key))
-				.SetP(P);
 				
 			var blocks = new List<BlockFilter>(blockCount);
 			for (var i = 0; i < blockCount; i++)
 			{
+				var builder = new GolombRiceFilterBuilder()
+					.SetKey(key)
+					.SetP(P);
+
 				var txouts = new List<byte[]>(txoutCountPerBlock);
 				for (var j = 0; j < txoutCountPerBlock; j++)
 				{
@@ -152,7 +154,7 @@ namespace NBitcoin.Tests
 			// Check that the filter can match every single txout in every block.
 			foreach (var block in blocks)
 			{
-				if (block.Filter.MatchAny(walletAddresses, key))
+				if (block.Filter.MatchAny(walletAddresses, testKey))
 					falsePositiveCount++;
 			}
 
@@ -165,7 +167,7 @@ namespace NBitcoin.Tests
 			// Check that the filter can match every single txout in every block.
 			foreach (var block in blocks)
 			{
-				if (!block.Filter.MatchAny(block.Data, key))
+				if (!block.Filter.MatchAny(block.Data, testKey))
 					falseNegativeCount++;
 			}
 
