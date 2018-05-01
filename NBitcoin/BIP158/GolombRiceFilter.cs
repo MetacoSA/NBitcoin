@@ -113,7 +113,7 @@ namespace NBitcoin
 					}
 				}
 			}
-			catch (ArgumentOutOfRangeException) // end-of-stream 
+			catch (InvalidOperationException) // end-of-stream 
 			{
 				return false;
 			}
