@@ -217,6 +217,31 @@ namespace NBitcoin
 			return this;
 		}
 
+		public GolombRiceFilterBuilder AddScriptSig(Script scriptSig)
+		{
+			if (scriptSig == null)
+				throw new ArgumentNullException(nameof(scriptSig));
+
+			var data = new List<byte[]>();
+			foreach(var op in scriptSig.ToOps())
+			{
+				if(op.PushData != null)
+					data.Add(op.PushData);
+				else if(op.Code == OpcodeType.OP_0)
+					data.Add(new byte[0]);
+			}
+			AddEntries(data);
+			return this;
+		}
+
+		public void AddWitness(WitScript witScript)
+		{
+			if (witScript == null)
+				throw new ArgumentNullException(nameof(witScript));
+
+			AddEntries(witScript.Pushes);
+		}
+
 		public GolombRiceFilterBuilder AddOutPoint(OutPoint outpoint)
 		{
 			if (outpoint == null)
@@ -246,7 +271,16 @@ namespace NBitcoin
 
 			return new GolombRiceFilter(filterData, n, _p);
 		}
-		
+
+		public GolombRiceFilter BuildBasicFilter()
+		{
+			var n = _values.Count;
+			var hs = GolombRiceFilter.ConstructHashedSet(_p, n, _key, _values);
+			var filterData = Compress(hs, _p);
+
+			return new GolombRiceFilter(filterData, n, _p);
+		}
+
 		private static byte[] Compress(List<ulong> values, byte P)
 		{
 			var bitStream = new BitStream();
