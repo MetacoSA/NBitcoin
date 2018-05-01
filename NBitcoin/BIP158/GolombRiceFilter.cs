@@ -54,6 +54,13 @@ namespace NBitcoin
 			return values;
 		}
 
+		internal uint256 GetHeader(uint256 previousHeader)
+		{
+			var curFilterHashBytes = Hashes.Hash256(ToBytes()).ToBytes();
+			var prvFilterHashBytes =previousHeader.ToBytes();
+			return Hashes.Hash256(curFilterHashBytes.Concat(prvFilterHashBytes));
+		}
+
 		private static ulong SipHash(byte[] key, byte[] data)
 		{
 			var k0 = BitConverter.ToUInt64(key, 0);
