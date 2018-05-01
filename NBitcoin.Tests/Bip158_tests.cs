@@ -21,39 +21,24 @@ namespace NBitcoin.Tests
 			{
 				var i= 0;
 				var test = testLine.Split(',');
-				var blockHeight = int.Parse(test[i++]); 
-				var blockHash = uint256.Parse(test[i++]);
-				var block = Block.Parse(test[i++]);
-				var previousBasicHeader = test[i++];
-				var previousExtHeader = test[i++];
-				var basicFilter = test[i++];
-				var extFilter = test[i++];
-				var basicHeader = test[i++];
-				var extHeader = test[i++];
+				var testBlockHeight = int.Parse(test[i++]); 
+				var testBlockHash = uint256.Parse(test[i++]);
+				var testBlock = Block.Parse(test[i++]);
+				var testPreviousBasicHeader = uint256.Parse(test[i++]);
+				var testPreviousExtHeader = uint256.Parse(test[i++]);
+				var testBasicFilter = test[i++];
+				var testExtFilter = test[i++] ;
+				var testBasicHeader = test[i++];
+				var testExtHeader = test[i++];
 
-				var builder = new GolombRiceFilterBuilder()
-					.SetKey(block.GetHash());
+				var basicFilter = GolombRiceFilterBuilder.BuildBasicFilter(testBlock);
+			 	Assert.Equal(testBasicFilter, basicFilter.ToString());
+				Assert.Equal(testBasicHeader, basicFilter.GetHeader(testPreviousBasicHeader).ToString());
 
-				foreach(var tx in block.Transactions)
-				{
-					builder.AddTxId(tx.GetHash());
-					if(!tx.IsCoinBase)
-					{
-						foreach(var txin in tx.Inputs)
-						{
-							builder.AddOutPoint(txin.PrevOut);
-						}
-					}
-
-					foreach(var txout in tx.Outputs)
-					{
-						builder.AddScriptPubkey(txout.ScriptPubKey);
-					}
-				}
-
-				var filter = builder.Build();
-				var serialized =  Encoders.Hex.EncodeData(filter.ToByteArray());
-			 	Assert.Equal(serialized, basicFilter);
+				testExtFilter = !string.IsNullOrEmpty(testExtFilter) ? testExtFilter : "00";
+				var extFilter = GolombRiceFilterBuilder.BuildExtendedFilter(testBlock);
+			 	Assert.Equal(testExtFilter, extFilter.ToString());
+				Assert.Equal(testExtHeader, extFilter.GetHeader(testPreviousExtHeader).ToString());
 			}
 		}
 
