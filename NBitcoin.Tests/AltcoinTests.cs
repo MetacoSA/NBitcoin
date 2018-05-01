@@ -142,7 +142,7 @@ namespace NBitcoin.Tests
 				var b = node.CreateRPCClient().GetBlock(50);
 				Assert.Equal(b.WithOptions(TransactionOptions.Witness).Header.GetType(), chain.GetBlock(50).Header.GetType());
 
-				var b2 = nodeClient.GetBlocks().ToArray()[50];
+				var b2 = nodeClient.GetBlocks(new Protocol.SynchronizeChainOptions() { SkipPoWCheck = true }).ToArray()[50];
 				Assert.Equal(b2.Header.GetType(), chain.GetBlock(50).Header.GetType());
 			}
 		}
