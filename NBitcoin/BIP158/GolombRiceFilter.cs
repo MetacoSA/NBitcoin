@@ -57,7 +57,7 @@ namespace NBitcoin
 		internal uint256 GetHeader(uint256 previousHeader)
 		{
 			var curFilterHashBytes = Hashes.Hash256(ToBytes()).ToBytes();
-			var prvFilterHashBytes =previousHeader.ToBytes();
+			var prvFilterHashBytes = previousHeader.ToBytes();
 			return Hashes.Hash256(curFilterHashBytes.Concat(prvFilterHashBytes));
 		}
 
@@ -79,7 +79,7 @@ namespace NBitcoin
 		public bool MatchAny(IEnumerable<byte[]> data, byte[] key)
 		{
 			if (data == null || !data.Any())
-				throw new ArgumentException("data can not be null or empty array", nameof(data));
+				throw new ArgumentException("data can not be null or empty array.", nameof(data));
 
 			var hs = ConstructHashedSet(P, N, key, data);
 
@@ -245,7 +245,7 @@ namespace NBitcoin
 		public GolombRiceFilterBuilder SetP(int p)
 		{
 			if (p <= 0 || p > 32)
-				throw new ArgumentOutOfRangeException(nameof(p), "value has to be greater than zero and less or equal to 32");
+				throw new ArgumentOutOfRangeException(nameof(p), "value has to be greater than zero and less or equal to 32.");
 			
 			_p = (byte)p;
 			return this;

@@ -83,12 +83,12 @@ namespace NBitcoin
 		public bool ReadBit()
 		{
 			if (_buffer.Length == 0)
-				throw new InvalidOperationException("The stream is empty");
+				throw new InvalidOperationException("The stream is empty.");
 
 			if(_remainCount == 0)
 			{
 				if (_buffer.Length == 1) {
-					throw new InvalidOperationException("End of stream reached");
+					throw new InvalidOperationException("End of stream reached.");
 				}
 				var newBuffer = new byte[_buffer.Length - 1];
 				Buffer.BlockCopy(_buffer, 1, newBuffer, 0, _buffer.Length - 1);
@@ -125,13 +125,13 @@ namespace NBitcoin
 		public byte ReadByte()
 		{
 			if (_buffer.Length == 0)
-				throw new InvalidOperationException("The stream is empty");
+				throw new InvalidOperationException("The stream is empty.");
 
 			if (_remainCount == 0)
 			{
 				if (_buffer.Length == 1)
 				{
-					throw new InvalidOperationException("End of stream reached");
+					throw new InvalidOperationException("End of stream reached.");
 				}
 				var newBuffer = new byte[_buffer.Length - 1];
 				Buffer.BlockCopy(_buffer, 1, newBuffer, 0, _buffer.Length - 1);
@@ -150,7 +150,7 @@ namespace NBitcoin
 
 			if (_buffer.Length == 0)
 			{
-				throw new InvalidOperationException("End of stream reached");
+				throw new InvalidOperationException("End of stream reached.");
 			}
 
 			b |= (byte)(_buffer[0] >> _remainCount);
