@@ -16,7 +16,7 @@ This package expose altcoin's `Network` class.
 For example if you want to use Litecoin testnet:
 
 ```
-Network network = NBitcoin.Altcoins.Litecoin.Testnet;
+Network network = NBitcoin.Altcoins.Litecoin.Instance.Testnet;
 ```
 
 You can then use this fork generating a Litecoin address for example:
