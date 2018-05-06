@@ -1389,7 +1389,7 @@ namespace NBitcoin.Protocol
 
 		public IEnumerable<Block> GetBlocks(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return GetBlocks(new SynchronizeChainOptions() { StripHeaders = true, HashStop = hashStop });
+			return GetBlocks(new SynchronizeChainOptions() { HashStop = hashStop });
 		}
 
 		public IEnumerable<Block> GetBlocksFromFork(ChainedBlock currentTip, SynchronizeChainOptions synchronizeChainOptions, CancellationToken cancellationToken = default(CancellationToken))
@@ -1412,7 +1412,7 @@ namespace NBitcoin.Protocol
 
 		public IEnumerable<Block> GetBlocksFromFork(ChainedBlock currentTip, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return GetBlocksFromFork(currentTip, new SynchronizeChainOptions() { HashStop = hashStop, StripHeaders = true });
+			return GetBlocksFromFork(currentTip, new SynchronizeChainOptions() { HashStop = hashStop });
 		}
 
 		public IEnumerable<Block> GetBlocks(IEnumerable<ChainedBlock> blocks, CancellationToken cancellationToken = default(CancellationToken))
