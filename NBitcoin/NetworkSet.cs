@@ -130,9 +130,18 @@ namespace NBitcoin
 		}
 
 #if !NOFILEIO
-		protected void RegisterDefaultCookiePath(string folderName)
-		{
 
+		protected class FolderName
+		{
+			public string TestnetFolder
+			{
+				get; set;
+			} = "testnet3";
+		}
+
+		protected void RegisterDefaultCookiePath(string folderName, FolderName folder = null)
+		{
+			folder = folder ?? new FolderName();
 			var home = Environment.GetEnvironmentVariable("HOME");
 			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
 
@@ -146,7 +155,7 @@ namespace NBitcoin
 				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
 				RPCClient.RegisterDefaultCookiePath(Mainnet, mainnet);
 
-				var testnet = Path.Combine(bitcoinFolder, "testnet3", ".cookie");
+				var testnet = Path.Combine(bitcoinFolder, folder.TestnetFolder, ".cookie");
 				RPCClient.RegisterDefaultCookiePath(Testnet, testnet);
 
 				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
@@ -159,7 +168,7 @@ namespace NBitcoin
 				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
 				RPCClient.RegisterDefaultCookiePath(Mainnet, mainnet);
 
-				var testnet = Path.Combine(bitcoinFolder, "testnet3", ".cookie");
+				var testnet = Path.Combine(bitcoinFolder, testnetFolderName, ".cookie");
 				RPCClient.RegisterDefaultCookiePath(Testnet, testnet);
 
 				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
