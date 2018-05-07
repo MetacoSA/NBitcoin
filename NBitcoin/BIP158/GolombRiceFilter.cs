@@ -97,11 +97,10 @@ namespace NBitcoin
 		/// <param name="key">Key used for hashing the datalements.</param>
 		/// <param name="data">Data elements to be computed in the list.</param>
 		/// <returns></returns>
-		internal static List<ulong> ConstructHashedSet(byte P, byte[] key, IEnumerable<byte[]> data)
+		internal static List<ulong> ConstructHashedSet(byte P, int n, byte[] key, IEnumerable<byte[]> data)
 		{
 			// N the number of items to be inserted into the set.
 			var dataArrayBytes = data as byte[][] ?? data.ToArray();
-			var n = dataArrayBytes.Length;
 
 			// The list of data item hashes.
 			var values = new List<ulong>();
@@ -156,7 +155,7 @@ namespace NBitcoin
 			if (data == null || !data.Any())
 				throw new ArgumentException("data can not be null or empty array.", nameof(data));
 
-			var hs = ConstructHashedSet(P, key, data);
+			var hs = ConstructHashedSet(P, N, key, data);
 
 			var lastValue1 = 0UL;
 			var lastValue2 = hs[0];
@@ -497,7 +496,7 @@ namespace NBitcoin
 		public GolombRiceFilter Build()
 		{
 			var n = _values.Count;
-			var hs = GolombRiceFilter.ConstructHashedSet(_p, _key, _values);
+			var hs = GolombRiceFilter.ConstructHashedSet(_p, n, _key, _values);
 			var filterData = Compress(hs, _p);
 
 			return new GolombRiceFilter(filterData, n, _p);

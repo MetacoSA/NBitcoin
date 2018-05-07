@@ -127,7 +127,7 @@ namespace NBitcoin.Tests
 			// per block.
 			const byte P = 20;
 			const int blockCount = 100;
-			const int maxBlockSize = 4000_000;
+			const int maxBlockSize = 4_000_000;
 			const int avgTxSize = 250;                  // Currently the average is around 1kb.
 			const int txoutCountPerBlock = maxBlockSize / avgTxSize;
 			const int avgTxoutPushDataSize = 20;        // P2PKH scripts has 20 bytes.
