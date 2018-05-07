@@ -39,7 +39,32 @@ namespace NBitcoin.Tests
 				var extFilter = GolombRiceFilterBuilder.BuildExtendedFilter(testBlock);
 			 	Assert.Equal(testExtFilter, extFilter.ToString());
 				Assert.Equal(testExtHeader, extFilter.GetHeader(testPreviousExtHeader).ToString());
+
+				var deserializedBasicFilter = GolombRiceFilter.Parse(testBasicFilter);
+				Assert.Equal(testBasicFilter, deserializedBasicFilter.ToString());
+
+				var deserializedExtFilter = GolombRiceFilter.Parse(testExtFilter);
+				Assert.Equal(testExtFilter, deserializedExtFilter.ToString());
+
 			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanHandleDuplicatedValuesTest()
+		{
+			var byteArray0 = new byte[] { 1, 2, 3, 4 };
+			var byteArray1 = new byte[] { 1, 2, 3, 4 };
+			var byteArray2 = new byte[] { 1, 2, 3, 4 };
+
+			var filter = new GolombRiceFilterBuilder()
+				.SetKey(Hashes.Hash256(new byte[]{ 99, 99, 99, 99 }))
+				.AddEntries(new [] { byteArray0, byteArray1, byteArray2 })
+				.AddScriptPubkey( Script.FromBytesUnsafe(byteArray0) )
+				.AddScriptPubkey( Script.FromBytesUnsafe(byteArray1) )
+				.AddScriptPubkey( Script.FromBytesUnsafe(byteArray2) )
+				.Build();
+			Assert.Equal(1, filter.N);
 		}
 
 		[Fact]
