@@ -189,7 +189,7 @@ namespace NBitcoin.Altcoins
 
 		protected override void PostInit()
 		{
-			RegisterDefaultCookiePath("Litecoin");
+			RegisterDefaultCookiePath("Litecoin", new FolderName() { TestnetFolder = "testnet4" });
 		}
 
 		protected override NetworkBuilder CreateMainnet()
