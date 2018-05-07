@@ -168,7 +168,7 @@ namespace NBitcoin
 				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
 				RPCClient.RegisterDefaultCookiePath(Mainnet, mainnet);
 
-				var testnet = Path.Combine(bitcoinFolder, testnetFolderName, ".cookie");
+				var testnet = Path.Combine(bitcoinFolder, folder.TestnetFolder, ".cookie");
 				RPCClient.RegisterDefaultCookiePath(Testnet, testnet);
 
 				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
