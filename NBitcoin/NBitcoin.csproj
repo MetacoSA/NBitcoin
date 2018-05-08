@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<Version Condition=" '$(Version)' == '' ">4.1.1.6</Version>
+		<Version Condition=" '$(Version)' == '' ">4.1.1.7</Version>
 	</PropertyGroup>
 	<PropertyGroup>
 		<TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.0;netstandard2.0</TargetFrameworks>
