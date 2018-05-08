@@ -4,62 +4,165 @@ using System.Collections;
 namespace NBitcoin
 {
 	/// <summary> Provides a view of an array of bits as a stream of bits. </summary>
-	internal class BitStream
+	class BitStream
 	{
-		private readonly FastBitArray _buffer;
-		private int _position;
+		private byte[] _buffer;
+		private int _remainCount;
 
-		internal int Position
+		public BitStream()
+			: this(new byte[0])
 		{
-			get => _position;
-			set => _position = value;
 		}
 
-		public BitStream(FastBitArray bitArray)
+		public BitStream(byte[] buffer)
 		{
-			_buffer = bitArray;
-			_position = 0;
+			var newBuffer = new byte[buffer.Length];
+			Buffer.BlockCopy(buffer, 0, newBuffer, 0, buffer.Length);
+			_buffer = newBuffer;
+			_remainCount = buffer.Length == 0 ? 0 : 8;
 		}
 
-		public bool ReadBit()
+		private void AddZeroByte()
 		{
-			return _buffer[_position++];
+			var newBuffer = new byte[_buffer.Length + 1];
+			Buffer.BlockCopy(_buffer, 0, newBuffer, 0, _buffer.Length);
+			_buffer = newBuffer;
 		}
 
-		public ulong ReadBits(int count)
+		private void EnsureCapacity()
 		{
-			var ret = _buffer.GetBits(_position, count);
-			_position += count;
-			return ret;
+			if (_remainCount == 0)
+			{
+				AddZeroByte();
+				_remainCount = 8;
+			}
 		}
 
 		public void WriteBit(bool bit)
 		{
-			if (_buffer.Length == _position)
+			EnsureCapacity();
+			if (bit)
 			{
-				_buffer.Length++;
+				var lastIndex = _buffer.Length - 1;
+				_buffer[lastIndex] |= (byte)(1 << (_remainCount - 1));
 			}
-
-			_buffer[_position++] = bit;
+			_remainCount--;
 		}
 
-		public void WriteBits(ulong data, byte count)
-		{
-			if (_buffer.Length < _position + count)
+        public void WriteBits(ulong data, byte count)
+        {
+			data <<= (64 - count);
+			while(count >= 8)
 			{
-				_buffer.Length = _position + count;
+				var b = (byte)(data >> (64 - 8));
+				WriteByte(b);
+				data <<= 8;
+				count -= 8;
 			}
-			_buffer.SetBits(_position, data, count);
-			_position += count;
+
+			while(count > 0)
+			{
+				var bit = data >> (64 - 1);
+				WriteBit(bit == 1);
+				data <<= 1;
+				count--;
+			}
+		}
+
+		public void WriteByte(byte b)
+		{
+			EnsureCapacity();
+
+			var lastIndex = _buffer.Length - 1;
+			_buffer[lastIndex] |= (byte)(b >> (8 - _remainCount));
+
+			AddZeroByte();
+			_buffer[lastIndex + 1] = (byte)(b << _remainCount);
+		}
+
+		public bool ReadBit()
+		{
+			if (_buffer.Length == 0)
+				throw new InvalidOperationException("The stream is empty.");
+
+			if(_remainCount == 0)
+			{
+				if (_buffer.Length == 1) {
+					throw new InvalidOperationException("End of stream reached.");
+				}
+				var newBuffer = new byte[_buffer.Length - 1];
+				Buffer.BlockCopy(_buffer, 1, newBuffer, 0, _buffer.Length - 1);
+				_buffer = newBuffer;
+				_remainCount = 8;
+			}
+
+			var bit = _buffer[0] & 0x80;
+			_buffer[0] <<= 1;
+			_remainCount--;
+
+			return bit != 0;
+		}
+
+		public ulong ReadBits(int count)
+		{
+			var val = 0UL;
+			while(count >= 8)
+			{
+				val <<= 8;
+				val |= (ulong)ReadByte();
+				count -= 8;
+			}
+
+			while(count > 0)
+			{
+				val <<= 1;
+				val |= ReadBit() ? 1UL : 0UL;
+				count--;
+			}
+			return val;
+		}
+
+		public byte ReadByte()
+		{
+			if (_buffer.Length == 0)
+				throw new InvalidOperationException("The stream is empty.");
+
+			if (_remainCount == 0)
+			{
+				if (_buffer.Length == 1)
+				{
+					throw new InvalidOperationException("End of stream reached.");
+				}
+				var newBuffer = new byte[_buffer.Length - 1];
+				Buffer.BlockCopy(_buffer, 1, newBuffer, 0, _buffer.Length - 1);
+				_buffer = newBuffer;
+				_remainCount = 8;
+			}
+
+			var b = _buffer[0];
+			var newBuffer1 = new byte[_buffer.Length - 1];
+			Buffer.BlockCopy(_buffer, 1, newBuffer1, 0, _buffer.Length - 1);
+			_buffer = newBuffer1;
+			if (_remainCount == 8)
+			{
+				return b;
+			}
+
+			if (_buffer.Length == 0)
+			{
+				throw new InvalidOperationException("End of stream reached.");
+			}
+
+			b |= (byte)(_buffer[0] >> _remainCount);
+			_buffer[0] <<= (8 - _remainCount);
+			return b;
 		}
 
 		public byte[] ToByteArray()
 		{
-			var byteArray = new byte[(_position + (_position - 1)) / 8];
-			_buffer.CopyTo(byteArray, 0);
-			return byteArray;
+			return _buffer;
 		}
-	}
+    }
 
 
 	internal class GRCodedStreamWriter
@@ -77,7 +180,7 @@ namespace NBitcoin
 			_lastValue = 0UL;
 		}
 
-		public int Write(ulong value)
+		public void Write(ulong value)
 		{
 			var diff = value - _lastValue;
 
@@ -92,7 +195,6 @@ namespace NBitcoin
 			_stream.WriteBit(false);
 			_stream.WriteBits(remainder, _p);
 			_lastValue = value;
-			return _stream.Position;
 		}
 	}
 
