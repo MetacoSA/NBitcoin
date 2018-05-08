@@ -1,9 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Xunit;
+using NBitcoin.DataEncoders;
+using NBitcoin.Crypto;
 
 namespace NBitcoin.Tests
 {
@@ -11,33 +14,93 @@ namespace NBitcoin.Tests
 	{
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void GenerateTestVectorsTest()
+		{
+			var testLines = File.ReadAllLines("data/bip158_vectors.csv");
+			foreach(var testLine in testLines.Skip(1))
+			{
+				var i= 0;
+				var test = testLine.Split(',');
+				var testBlockHeight = int.Parse(test[i++]); 
+				var testBlockHash = uint256.Parse(test[i++]);
+				var testBlock = Block.Parse(test[i++]);
+				var testPreviousBasicHeader = uint256.Parse(test[i++]);
+				var testPreviousExtHeader = uint256.Parse(test[i++]);
+				var testBasicFilter = test[i++];
+				var testExtFilter = test[i++] ;
+				var testBasicHeader = test[i++];
+				var testExtHeader = test[i++];
+
+				var basicFilter = GolombRiceFilterBuilder.BuildBasicFilter(testBlock);
+			 	Assert.Equal(testBasicFilter, basicFilter.ToString());
+				Assert.Equal(testBasicHeader, basicFilter.GetHeader(testPreviousBasicHeader).ToString());
+
+				testExtFilter = !string.IsNullOrEmpty(testExtFilter) ? testExtFilter : "00";
+				var extFilter = GolombRiceFilterBuilder.BuildExtendedFilter(testBlock);
+			 	Assert.Equal(testExtFilter, extFilter.ToString());
+				Assert.Equal(testExtHeader, extFilter.GetHeader(testPreviousExtHeader).ToString());
+
+				var deserializedBasicFilter = GolombRiceFilter.Parse(testBasicFilter);
+				Assert.Equal(testBasicFilter, deserializedBasicFilter.ToString());
+
+				var deserializedExtFilter = GolombRiceFilter.Parse(testExtFilter);
+				Assert.Equal(testExtFilter, deserializedExtFilter.ToString());
+
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanHandleDuplicatedValuesTest()
+		{
+			var byteArray0 = new byte[] { 1, 2, 3, 4 };
+			var byteArray1 = new byte[] { 1, 2, 3, 4 };
+			var byteArray2 = new byte[] { 1, 2, 3, 4 };
+
+			var filter = new GolombRiceFilterBuilder()
+				.SetKey(Hashes.Hash256(new byte[]{ 99, 99, 99, 99 }))
+				.AddEntries(new [] { byteArray0, byteArray1, byteArray2 })
+				.AddScriptPubkey( Script.FromBytesUnsafe(byteArray0) )
+				.AddScriptPubkey( Script.FromBytesUnsafe(byteArray1) )
+				.AddScriptPubkey( Script.FromBytesUnsafe(byteArray2) )
+				.Build();
+			Assert.Equal(1, filter.N);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void BuildFilterAndMatchValues()
 		{
 			var names = from name in new[] { "New York", "Amsterdam", "Paris", "Buenos Aires", "La Habana" }
 				select Encoding.ASCII.GetBytes(name);
 
-			var key = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-			var filter = GolombRiceFilter.Build(key, names, 0x10);
+			var key = Hashes.Hash256(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
+			var filter = new GolombRiceFilterBuilder()
+				.SetKey( key ) 
+				.AddEntries(names)
+				.SetP(0x10)
+				.Build();
 
+			var testKey = key.ToBytes().SafeSubarray(0, 16);
 			// The filter should match all ther values that were added.
 			foreach (var name in names)
 			{
-				Assert.True(filter.Match(name, key));
+				Assert.True(filter.Match(name, testKey));
 			}
 
 			// The filter should NOT match any extra value.
-			Assert.False(filter.Match(Encoding.ASCII.GetBytes("Porto Alegre"), key));
-			Assert.False(filter.Match(Encoding.ASCII.GetBytes("Madrid"), key));
+			Assert.False(filter.Match(Encoding.ASCII.GetBytes("Porto Alegre"), testKey));
+			Assert.False(filter.Match(Encoding.ASCII.GetBytes("Madrid"), testKey));
 
 			// The filter should match because it has one element indexed: Buenos Aires.
 			var otherCities = new[] { "La Paz", "Barcelona", "El Cairo", "Buenos Aires", "Asunción" };
 			var otherNames = from name in otherCities select Encoding.ASCII.GetBytes(name);
-			Assert.True(filter.MatchAny(otherNames, key));
+			Assert.True(filter.MatchAny(otherNames, testKey));
 
 			// The filter should NOT match because it doesn't have any element indexed.
 			var otherCities2 = new[] { "La Paz", "Barcelona", "El Cairo", "Córdoba", "Asunción" };
 			var otherNames2 = from name in otherCities2 select Encoding.ASCII.GetBytes(name);
-			Assert.False(filter.MatchAny(otherNames2, key));
+			Assert.False(filter.MatchAny(otherNames2, testKey));
 		}
 
 		class BlockFilter
@@ -64,21 +127,26 @@ namespace NBitcoin.Tests
 			// per block.
 			const byte P = 20;
 			const int blockCount = 100;
-			const int maxBlockSize = 4 * 1000 * 1000;
+			const int maxBlockSize = 4_000_000;
 			const int avgTxSize = 250;                  // Currently the average is around 1kb.
 			const int txoutCountPerBlock = maxBlockSize / avgTxSize;
 			const int avgTxoutPushDataSize = 20;        // P2PKH scripts has 20 bytes.
-			const int walletAddressCount = 1000;        // We estimate that our user will have 1000 addresses.
+			const int walletAddressCount = 1_000;       // We estimate that our user will have 1000 addresses.
 
-			var key = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+			var key = Hashes.Hash256(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
+			var testKey = key.ToBytes().SafeSubarray(0, 16);
 
 			// Generation of data to be added into the filter
 			var random = new Random();
 			var sw = new Stopwatch();
-
+				
 			var blocks = new List<BlockFilter>(blockCount);
 			for (var i = 0; i < blockCount; i++)
 			{
+				var builder = new GolombRiceFilterBuilder()
+					.SetKey(key)
+					.SetP(P);
+
 				var txouts = new List<byte[]>(txoutCountPerBlock);
 				for (var j = 0; j < txoutCountPerBlock; j++)
 				{
@@ -87,8 +155,10 @@ namespace NBitcoin.Tests
 					txouts.Add(pushDataBuffer);
 				}
 
+				builder.AddEntries(txouts);
+
 				sw.Start();
-				var filter = GolombRiceFilter.Build(key, txouts, P);
+				var filter = builder.Build();
 				sw.Stop();
 
 				blocks.Add(new BlockFilter(filter, txouts));
@@ -109,7 +179,7 @@ namespace NBitcoin.Tests
 			// Check that the filter can match every single txout in every block.
 			foreach (var block in blocks)
 			{
-				if (block.Filter.MatchAny(walletAddresses, key))
+				if (block.Filter.MatchAny(walletAddresses, testKey))
 					falsePositiveCount++;
 			}
 
@@ -122,137 +192,13 @@ namespace NBitcoin.Tests
 			// Check that the filter can match every single txout in every block.
 			foreach (var block in blocks)
 			{
-				if (!block.Filter.MatchAny(block.Data, key))
+				if (!block.Filter.MatchAny(block.Data, testKey))
 					falseNegativeCount++;
 			}
 
 			sw.Stop();
 
 			Assert.Equal(0, falseNegativeCount);
-		}
-	}
-
-	public class FastBitArrayTest
-	{
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void GetBitsTest()
-		{
-			// 1 1 1 0 1 0 1 1 - 1 0 1 0 1 0 1 1 - 1 0 1 0 1 1 1 0 - 1 0 1 0 1 1 1 0 
-			// 1 0 1 1 1 0 1 0 
-			var barr = new FastBitArray();
-			barr.Length = 50;
-			for (var i = 0; i < 40; i++)
-			{
-				if (i % 7 == 0)
-				{
-					barr[i] = true;
-					i++;
-					barr[i] = true;
-				}
-				else
-				{
-					barr[i] = i % 2 == 0;
-				}
-			}
-
-			// Get bits in the same int.
-			Assert.Equal((ulong)0b111, barr.GetBits(0, 3));
-			Assert.Equal((ulong)0b10111, barr.GetBits(0, 5));
-			Assert.Equal((ulong)0b01010111010, barr.GetBits(3, 11));
-
-			// Get bits in cross int
-			Assert.Equal((ulong)0b101110101110101, barr.GetBits(24, 16));
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void SetRandomBitsTest()
-		{
-			var barr = new FastBitArray(new byte[0]);
-			barr.Length = 150;
-			var values = new List<int>();
-			var lengths = new List<int>();
-			var rnd = new Random();
-			var pos = 0;
-
-			for (int i = 0; i < 10; i++)
-			{
-				var val = rnd.Next();
-				var len = rnd.Next(1, 20);
-				barr.SetBits(pos, (ulong)val, len);
-
-				values.Add(val);
-				lengths.Add(len);
-				pos += len;
-			}
-
-			pos = 0;
-			for (int i = 0; i < 10; i++)
-			{
-				var len = lengths[i];
-				var expectedValue = values[i];
-				var value = barr.GetBits(pos, len);
-				Assert.Equal(((ulong)expectedValue & value), value);
-				pos += len;
-			}
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void SetBitAndGetBitsTest()
-		{
-			var barr = new FastBitArray(new byte[0]);
-			barr.Length = 150;
-
-			var j = true;
-			for (int i = 0; i < 64; i += 2)
-			{
-				if (j)
-				{
-					barr.SetBit(i, true);
-					barr.SetBit(i + 1, true);
-				}
-				else
-				{
-					barr.SetBit(i, false);
-					barr.SetBit(i + 1, false);
-				}
-
-				j = !j;
-			}
-
-			for (var i = 0; i < 16; i++)
-			{
-				Assert.Equal(0b11UL, barr.GetBits(i * 4, 2));
-				Assert.Equal(0b00UL, barr.GetBits((i * 4) + 2, 2));
-			}
-
-			for (var i = 0; i < 8; i++)
-			{
-				Assert.Equal(0b0011UL, barr.GetBits(i * 8, 4));
-				Assert.Equal(0b0011UL, barr.GetBits((i * 8) + 4, 2));
-			}
-
-			Assert.Equal(0b11001UL, barr.GetBits(29, 5));
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void SetBitsBigEndianTest()
-		{
-			var barr = new FastBitArray(new byte[0]);
-			barr.Length = 5;
-			barr.SetBits(0, 14, 4);
-			var val = barr.GetBits(0, 4);
-
-			barr = new FastBitArray(new byte[0]);
-			barr.Length = 5;
-			barr.SetBit(0, false);
-			barr.SetBit(1, true);
-			barr.SetBit(2, true);
-			barr.SetBit(3, true);
-			val = barr.GetBits(0, 4);
 		}
 	}
 }
