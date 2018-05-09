@@ -318,6 +318,35 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class MonacoinNodeDownloadData
+		{
+			public NodeDownloadData v0_15_1 = new NodeDownloadData()
+			{
+				Version = "0.15.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/monacoinproject/monacoin/releases/download/monacoin-{0}/monacoin-{0}-win64.zip",
+					Archive = "monacoin-{0}-win64.zip",
+					Executable = "monacoin-{0}/bin/monacoind.exe",
+					Hash = "420cba3c5e70cc913c2cacab9162e8fd1408fc2aaa345b04d3f44615c63d7b17"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/monacoinproject/monacoin/releases/download/monacoin-{0}/monacoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "monacoin-{0}-linux64.tar.gz",
+					Executable = "monacoin-{0}/bin/monacoind",
+					Hash = "8199f92d4296ea99891db34f5d779d7e95a2338425544b82b04fd8b427dae905"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/monacoinproject/monacoin/releases/download/monacoin-{0}/monacoin-{0}-osx-unsigned.dmg",
+					Archive = "monacoin-{0}-osx.dmg",
+					Executable = "monacoin-{0}/bin/monacoind",
+					Hash = "d19cc2cc12732c49351add23075c4f7a4ec92ee04874ec7037429dc4f9f1c058"
+				}
+			};
+		}
+
 		public static BitcoinNodeDownloadData Bitcoin
 		{
 			get; set;
@@ -363,5 +392,9 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new PolisNodeDownloadData();
 
+		public static MonacoinNodeDownloadData Monacoin
+		{
+			get; set;
+		} = new MonacoinNodeDownloadData();
 	}
 }
