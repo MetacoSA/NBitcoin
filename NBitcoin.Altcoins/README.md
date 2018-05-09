@@ -9,6 +9,7 @@ Currently supported altcoins are:
 * BGold (also known as Bitcoin Gold)
 * Polis
 * BCash (also known as Bitcoin Cash)
+* Monacoin
 
 ## How to use?
 
