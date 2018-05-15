@@ -189,6 +189,34 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanGetTransactionInfo()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+
+				var blocks = node.Generate(5);
+				var secondBlockHash = blocks.First();
+				var secondBlock = rpc.GetBlock(secondBlockHash);
+				var firstTx =secondBlock.Transactions.First();
+				
+				var txInfo = rpc.GetRawTransactionInfo(firstTx.GetHash());
+
+				Assert.Equal(5U, txInfo.Confirmations);
+				Assert.Equal(secondBlockHash, txInfo.BlockHash);
+				Assert.Equal(firstTx.GetHash(), txInfo.TransactionId);
+				Assert.Equal(secondBlock.Header.BlockTime, txInfo.BlockTime);
+				Assert.Equal(firstTx.Version, txInfo.Version);
+				Assert.Equal(firstTx.LockTime, txInfo.LockTime);
+				Assert.Equal(firstTx.GetWitHash(), txInfo.Hash);
+				Assert.Equal((uint)firstTx.GetSerializedSize(), txInfo.Size);
+				Assert.Equal((uint)firstTx.GetVirtualSize(), txInfo.VirtualSize);
+			}
+		}
+
+		[Fact]
 		public void CanGetBlockFromRPC()
 		{
 			using(var builder = NodeBuilderEx.Create())
