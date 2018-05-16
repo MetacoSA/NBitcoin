@@ -189,6 +189,42 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanGetTransactionInfo()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+
+				var blocks = node.Generate(101);
+				var secondBlockHash = blocks.First();
+				var secondBlock = rpc.GetBlock(secondBlockHash);
+				var firstTx =secondBlock.Transactions.First();
+				
+				var txInfo = rpc.GetRawTransactionInfo(firstTx.GetHash());
+
+				Assert.Equal(101U, txInfo.Confirmations);
+				Assert.Equal(secondBlockHash, txInfo.BlockHash);
+				Assert.Equal(firstTx.GetHash(), txInfo.TransactionId);
+				Assert.Equal(secondBlock.Header.BlockTime, txInfo.BlockTime);
+				Assert.Equal(firstTx.Version, txInfo.Version);
+				Assert.Equal(firstTx.LockTime, txInfo.LockTime);
+				Assert.Equal(firstTx.GetWitHash(), txInfo.Hash);
+				Assert.Equal((uint)firstTx.GetSerializedSize(), txInfo.Size);
+				Assert.Equal((uint)firstTx.GetVirtualSize(), txInfo.VirtualSize);
+
+				// unconfirmed tx doesn't have blockhash, blocktime nor transactiontime.
+				var mempoolTxId = rpc.SendToAddress(new Key().PubKey.GetAddress(builder.Network), Money.Coins(1));
+				txInfo = rpc.GetRawTransactionInfo(mempoolTxId);
+				Assert.Null(txInfo.TransactionTime);
+				Assert.Null(txInfo.BlockHash);
+				Assert.Null(txInfo.BlockTime);
+				Assert.Equal(0U, txInfo.Confirmations);
+			}
+		}
+
+		[Fact]
 		public void CanGetBlockFromRPC()
 		{
 			using(var builder = NodeBuilderEx.Create())
