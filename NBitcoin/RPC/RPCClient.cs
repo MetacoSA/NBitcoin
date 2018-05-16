@@ -1167,6 +1167,31 @@ namespace NBitcoin.RPC
 			return tx;
 		}
 
+		public RawTransactionInfo GetRawTransactionInfo(uint256 txid)
+		{
+			return GetRawTransactionInfoAsync(txid).GetAwaiter().GetResult();
+		}
+
+		public async Task<RawTransactionInfo> GetRawTransactionInfoAsync(uint256 txId)
+		{
+			var request = new RPCRequest(RPCOperations.getrawtransaction, new object[]{ txId.ToString(), true });
+			var response = await SendCommandAsync(request);
+			var json = response.Result;
+			return new RawTransactionInfo{
+				Transaction = Transaction.Parse(json.Value<string>("hex")),
+				TransactionId = uint256.Parse(json.Value<string>("txid")),
+				TransactionTime = json["time"] != null ? NBitcoin.Utils.UnixTimeToDateTime(json.Value<long>("time")): (DateTimeOffset?)null,
+				Hash = uint256.Parse(json.Value<string>("hash")),
+				Size = json.Value<uint>("size"),
+				VirtualSize = json.Value<uint>("vsize"),
+				Version = json.Value<uint>("version"),
+				LockTime = new LockTime(json.Value<uint>("locktime")),
+				BlockHash = json["blockhash"] != null ? uint256.Parse(json.Value<string>("blockhash")): null,
+				Confirmations = json.Value<uint>("confirmations"),
+				BlockTime = json["blocktime"] != null ? NBitcoin.Utils.UnixTimeToDateTime(json.Value<long>("blocktime")) : (DateTimeOffset?)null
+			};
+		}
+
 		public void SendRawTransaction(Transaction tx)
 		{
 			SendRawTransaction(tx.ToBytes());
@@ -1562,6 +1587,21 @@ namespace NBitcoin.RPC
 		public List<Bip9SoftFork> Bip9SoftForks { get; set; }
 	}
 
+	public class RawTransactionInfo
+	{
+		public Transaction Transaction {get; internal set;}
+		public uint256 TransactionId {get; internal set;}
+		public uint256 Hash {get; internal set;}
+		public uint Size {get; internal set;}
+		public uint VirtualSize {get; internal set;}
+		public uint Version {get; internal set;}
+		public LockTime LockTime {get; internal set;}
+		public uint256 BlockHash {get; internal set;}
+		public uint Confirmations {get; internal set;}
+		public DateTimeOffset? TransactionTime {get; internal set;}
+		public DateTimeOffset? BlockTime {get; internal set;}
+	}
+	
 	public class BumpResponse
 	{
 		public uint256 TransactionId { get; set; }
