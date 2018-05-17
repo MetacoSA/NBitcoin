@@ -33,7 +33,7 @@ namespace NBitcoin.Tests
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Monacoin.v0_15_1, Altcoins.Monacoin.Regtest, caller);
 
-			//var builder = NodeBuilder.Create(NodeDownloadData.Feathercoin.v0_16_0, Altcoins.Feathercoin.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Feathercoin.v0_16_0, Altcoins.AltNetworkSets.Feathercoin.Regtest, caller);
 
 			var builder = NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_16_0, Altcoins.AltNetworkSets.Bitcoin.Regtest, caller);
 			return builder;

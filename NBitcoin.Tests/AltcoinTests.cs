@@ -82,7 +82,7 @@ namespace NBitcoin.Tests
 				txbuilder.AddCoins(coin);
 				txbuilder.AddKeys(alice);
 				txbuilder.Send(new Key().ScriptPubKey, Money.Coins(0.4m));
-				txbuilder.SendFees(Money.Coins(0.00004m));
+				txbuilder.SendFees(Money.Coins(0.001m));
 				txbuilder.SetChange(aliceAddress);
 				var signed = txbuilder.BuildTransaction(true);
 				Assert.True(txbuilder.Verify(signed));
