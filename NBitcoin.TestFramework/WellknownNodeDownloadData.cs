@@ -175,9 +175,9 @@ namespace NBitcoin.Tests
 
 		public class FeathercoinNodeDownloadData
 		{
-			public NodeDownloadData v0_13_1 = new NodeDownloadData()
+			public NodeDownloadData v0_16_0 = new NodeDownloadData()
 			{
-				Version = "0.13.1",
+				Version = "0.16.0",
 				Windows = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/FeatherCoin/Feathercoin/releases/download/v{0}.0/feathercoin-{0}-win-setup.exe",
