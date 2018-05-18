@@ -38,7 +38,7 @@ namespace NBitcoin
 		public PubKey(byte[] bytes, bool @unsafe)
 		{
 			if(bytes == null)
-				throw new ArgumentNullException("bytes");
+				throw new ArgumentNullException(nameof(bytes));
 			if(!Check(bytes, false))
 			{
 				throw new FormatException("Invalid public key");

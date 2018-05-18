@@ -21,7 +21,7 @@ namespace NBitcoin
 		private static string Validate(string bech32, ref Network expectedNetwork)
 		{
 			if(bech32 == null)
-				throw new ArgumentNullException("bech32");
+				throw new ArgumentNullException(nameof(bech32));
 			var networks = expectedNetwork == null ? Network.GetNetworks() : new[] { expectedNetwork };
 			foreach(var network in networks)
 			{
@@ -53,7 +53,7 @@ namespace NBitcoin
 		private static string NotNull(WitKeyId segwitKeyId)
 		{
 			if(segwitKeyId == null)
-				throw new ArgumentNullException("segwitKeyId");
+				throw new ArgumentNullException(nameof(segwitKeyId));
 			return null;
 		}
 
@@ -107,7 +107,7 @@ namespace NBitcoin
 		private static string Validate(string bech32, ref Network expectedNetwork)
 		{
 			if(bech32 == null)
-				throw new ArgumentNullException("bech32");
+				throw new ArgumentNullException(nameof(bech32));
 			var networks = expectedNetwork == null ? Network.GetNetworks() : new[] { expectedNetwork };
 			foreach(var network in networks)
 			{
@@ -140,7 +140,7 @@ namespace NBitcoin
 		private static string NotNull(WitScriptId segwitScriptId)
 		{
 			if(segwitScriptId == null)
-				throw new ArgumentNullException("segwitScriptId");
+				throw new ArgumentNullException(nameof(segwitScriptId));
 			return null;
 		}
 

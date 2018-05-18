@@ -75,9 +75,9 @@ namespace NBitcoin.BitcoinCore
 		protected Store(DirectoryInfo folder, Network network)
 		{
 			if(folder == null)
-				throw new ArgumentNullException("folder");
+				throw new ArgumentNullException(nameof(folder));
 			if(network == null)
-				throw new ArgumentNullException("network");
+				throw new ArgumentNullException(nameof(network));
 			_Folder = folder;
 			_Network = network;
 

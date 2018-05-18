@@ -32,7 +32,7 @@ namespace NBitcoin
 		public FeeRate(Money feePerK)
 		{
 			if(feePerK == null)
-				throw new ArgumentNullException("feePerK");
+				throw new ArgumentNullException(nameof(feePerK));
 			if(feePerK.Satoshi < 0)
 				throw new ArgumentOutOfRangeException("feePerK");
 			_FeePerK = feePerK;
@@ -41,7 +41,7 @@ namespace NBitcoin
 		public FeeRate(Money feePaid, int size)
 		{
 			if(feePaid == null)
-				throw new ArgumentNullException("feePaid");
+				throw new ArgumentNullException(nameof(feePaid));
 			if(feePaid.Satoshi < 0)
 				throw new ArgumentOutOfRangeException("feePaid");
 			if(size > 0)
@@ -122,33 +122,33 @@ namespace NBitcoin
 		public static bool operator <(FeeRate left, FeeRate right)
 		{
 			if (left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if (right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK < right._FeePerK;
 		}
 		public static bool operator >(FeeRate left, FeeRate right)
 		{
 			if (left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if (right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK > right._FeePerK;
 		}
 		public static bool operator <=(FeeRate left, FeeRate right)
 		{
 			if (left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if (right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK <= right._FeePerK;
 		}
 		public static bool operator >=(FeeRate left, FeeRate right)
 		{
 			if (left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if (right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return left._FeePerK >= right._FeePerK;
 		}
 
@@ -174,9 +174,9 @@ namespace NBitcoin
 		public static FeeRate Min(FeeRate left, FeeRate right)
 		{
 			if (left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if (right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return left <= right 
 				? left 
 				: right;
@@ -185,9 +185,9 @@ namespace NBitcoin
 		public static FeeRate Max(FeeRate left, FeeRate right)
 		{
 			if (left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if (right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return left >= right
 				? left
 				: right;

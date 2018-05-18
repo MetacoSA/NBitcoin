@@ -28,7 +28,7 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 			byte[] seed)
 		{
 			if(curve == null)
-				throw new ArgumentNullException("curve");
+				throw new ArgumentNullException(nameof(curve));
 
 			this.curve = curve;
 			this.seed = Arrays.Clone(seed);
@@ -52,9 +52,9 @@ namespace NBitcoin.BouncyCastle.Asn1.X9
 			Asn1Sequence seq)
 		{
 			if(fieldID == null)
-				throw new ArgumentNullException("fieldID");
+				throw new ArgumentNullException(nameof(fieldID));
 			if(seq == null)
-				throw new ArgumentNullException("seq");
+				throw new ArgumentNullException(nameof(seq));
 
 			this.fieldIdentifier = fieldID.Identifier;
 

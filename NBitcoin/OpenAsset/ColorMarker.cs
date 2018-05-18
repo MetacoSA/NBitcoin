@@ -180,7 +180,7 @@ namespace NBitcoin.OpenAsset
 		public ColorMarker(ulong[] quantities)
 		{
 			if(quantities == null)
-				throw new ArgumentNullException("quantities");
+				throw new ArgumentNullException(nameof(quantities));
 			Quantities = quantities;
 		}
 		ushort _Version = 1;
@@ -271,7 +271,7 @@ namespace NBitcoin.OpenAsset
 		public static ColorMarker Get(Transaction transaction, out uint markerPosition)
 		{
 			if(transaction == null)
-				throw new ArgumentNullException("transaction");
+				throw new ArgumentNullException(nameof(transaction));
 			uint resultIndex = 0;
 			if(transaction.Inputs.Count == 0 || transaction.IsCoinBase)
 			{

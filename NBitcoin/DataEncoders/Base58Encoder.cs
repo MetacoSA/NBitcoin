@@ -91,7 +91,7 @@ namespace NBitcoin.DataEncoders
 		public override byte[] DecodeData(string encoded)
 		{
 			if(encoded == null)
-				throw new ArgumentNullException("encoded");
+				throw new ArgumentNullException(nameof(encoded));
 
 			var result = new byte[0];
 			if(encoded.Length == 0)

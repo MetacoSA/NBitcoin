@@ -581,7 +581,7 @@ namespace NBitcoin
 		public Block CreateNextBlockWithCoinbase(BitcoinAddress address, int height, DateTimeOffset now)
 		{
 			if(address == null)
-				throw new ArgumentNullException("address");
+				throw new ArgumentNullException(nameof(address));
 			Block block = GetConsensusFactory().CreateBlock();
 			block.Header.Nonce = RandomUtils.GetUInt32();
 			block.Header.HashPrevBlock = this.GetHash();

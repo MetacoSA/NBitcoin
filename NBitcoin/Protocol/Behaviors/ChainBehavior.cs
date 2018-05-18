@@ -18,7 +18,7 @@ namespace NBitcoin.Protocol.Behaviors
 		public ChainBehavior(ConcurrentChain chain)
 		{
 			if(chain == null)
-				throw new ArgumentNullException("chain");
+				throw new ArgumentNullException(nameof(chain));
 			_State = new ChainBehavior.State();
 			_Chain = chain;
 			AutoSync = true;

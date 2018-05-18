@@ -12,7 +12,7 @@ namespace NBitcoin.BitcoinCore
 		public CoinsView(NoSqlRepository index)
 		{
 			if(index == null)
-				throw new ArgumentNullException("index");
+				throw new ArgumentNullException(nameof(index));
 			_Index = index;
 		}
 

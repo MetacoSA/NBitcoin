@@ -191,7 +191,7 @@ namespace NBitcoin.RPC
 			{
 				network = Network.GetNetworks().FirstOrDefault(n => n.RPCPort == address.Port);
 				if(network == null)
-					throw new ArgumentNullException("network");
+					throw new ArgumentNullException(nameof(network));
 			}
 
 			if(credentials.UseDefault && network == null)
@@ -782,28 +782,28 @@ namespace NBitcoin.RPC
 		public void AddNode(EndPoint nodeEndPoint, bool onetry = false)
 		{
 			if(nodeEndPoint == null)
-				throw new ArgumentNullException("nodeEndPoint");
+				throw new ArgumentNullException(nameof(nodeEndPoint));
 			SendCommand("addnode", nodeEndPoint.ToString(), onetry ? "onetry" : "add");
 		}
 
 		public async Task AddNodeAsync(EndPoint nodeEndPoint, bool onetry = false)
 		{
 			if(nodeEndPoint == null)
-				throw new ArgumentNullException("nodeEndPoint");
+				throw new ArgumentNullException(nameof(nodeEndPoint));
 			await SendCommandAsync(RPCOperations.addnode, nodeEndPoint.ToString(), onetry ? "onetry" : "add").ConfigureAwait(false);
 		}
 
 		public void RemoveNode(EndPoint nodeEndPoint)
 		{
 			if(nodeEndPoint == null)
-				throw new ArgumentNullException("nodeEndPoint");
+				throw new ArgumentNullException(nameof(nodeEndPoint));
 			SendCommandAsync(RPCOperations.addnode, nodeEndPoint.ToString(), "remove");
 		}
 
 		public async Task RemoveNodeAsync(EndPoint nodeEndPoint)
 		{
 			if(nodeEndPoint == null)
-				throw new ArgumentNullException("nodeEndPoint");
+				throw new ArgumentNullException(nameof(nodeEndPoint));
 			await SendCommandAsync(RPCOperations.addnode, nodeEndPoint.ToString(), "remove").ConfigureAwait(false);
 		}
 
@@ -842,7 +842,7 @@ namespace NBitcoin.RPC
 		public async Task<AddedNodeInfo> GetAddedNodeInfoAync(bool detailed, EndPoint nodeEndPoint)
 		{
 			if(nodeEndPoint == null)
-				throw new ArgumentNullException("nodeEndPoint");
+				throw new ArgumentNullException(nameof(nodeEndPoint));
 
 			try
 			{
@@ -1092,7 +1092,7 @@ namespace NBitcoin.RPC
 		public IEnumerable<Transaction> GetTransactions(uint256 blockHash)
 		{
 			if(blockHash == null)
-				throw new ArgumentNullException("blockHash");
+				throw new ArgumentNullException(nameof(blockHash));
 
 			var resp = SendCommand(RPCOperations.getblock, blockHash.ToString());
 

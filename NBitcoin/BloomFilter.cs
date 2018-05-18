@@ -102,28 +102,28 @@ namespace NBitcoin
 		public bool Contains(OutPoint outPoint)
 		{
 			if(outPoint == null)
-				throw new ArgumentNullException("outPoint");
+				throw new ArgumentNullException(nameof(outPoint));
 			return Contains(outPoint.ToBytes());
 		}
 
 		public bool Contains(uint256 hash)
 		{
 			if(hash == null)
-				throw new ArgumentNullException("hash");
+				throw new ArgumentNullException(nameof(hash));
 			return Contains(hash.ToBytes());
 		}
 
 		public void Insert(OutPoint outPoint)
 		{
 			if(outPoint == null)
-				throw new ArgumentNullException("outPoint");
+				throw new ArgumentNullException(nameof(outPoint));
 			Insert(outPoint.ToBytes());
 		}
 
 		public void Insert(uint256 value)
 		{
 			if(value == null)
-				throw new ArgumentNullException("value");
+				throw new ArgumentNullException(nameof(value));
 			Insert(value.ToBytes());
 		}
 
@@ -149,7 +149,7 @@ namespace NBitcoin
 		public bool IsRelevantAndUpdate(Transaction tx)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			var hash = tx.GetHash();
 			bool fFound = false;
 			// Match if the filter contains the hash of tx

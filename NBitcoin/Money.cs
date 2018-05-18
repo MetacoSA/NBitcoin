@@ -12,7 +12,7 @@ namespace NBitcoin
 		public static Money Sum(this IEnumerable<Money> moneys)
 		{
 			if(moneys == null)
-				throw new ArgumentNullException("moneys");
+				throw new ArgumentNullException(nameof(moneys));
 			long result = 0;
 			foreach(var money in moneys)
 			{
@@ -24,9 +24,9 @@ namespace NBitcoin
 		public static IMoney Sum(this IEnumerable<IMoney> moneys, IMoney zero)
 		{
 			if(moneys == null)
-				throw new ArgumentNullException("moneys");
+				throw new ArgumentNullException(nameof(moneys));
 			if(zero == null)
-				throw new ArgumentNullException("zero");
+				throw new ArgumentNullException(nameof(zero));
 			IMoney result = zero;
 			foreach(var money in moneys)
 			{
@@ -39,9 +39,9 @@ namespace NBitcoin
 		public static AssetMoney Sum(this IEnumerable<AssetMoney> moneys, AssetId assetId)
 		{
 			if(moneys == null)
-				throw new ArgumentNullException("moneys");
+				throw new ArgumentNullException(nameof(moneys));
 			if(assetId == null)
-				throw new ArgumentNullException("assetId");
+				throw new ArgumentNullException(nameof(assetId));
 			long result = 0;
 			AssetId id = null;
 			foreach(var money in moneys)
@@ -158,18 +158,18 @@ namespace NBitcoin
 		public static MoneyBag operator -(MoneyBag left, IMoney right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return (MoneyBag)((IMoney)left).Sub(right);
 		}
 
 		public static MoneyBag operator +(MoneyBag left, IMoney right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return (MoneyBag)((IMoney)left).Add(right);
 		}
 
@@ -507,88 +507,88 @@ namespace NBitcoin
 		public static Money operator -(Money left, Money right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return new Money(checked(left._Satoshis - right._Satoshis));
 		}
 		public static Money operator -(Money left)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			return new Money(checked(-left._Satoshis));
 		}
 		public static Money operator +(Money left, Money right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return new Money(checked(left._Satoshis + right._Satoshis));
 		}
 		public static Money operator *(int left, Money right)
 		{
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return Money.Satoshis(checked(left * right._Satoshis));
 		}
 
 		public static Money operator *(Money right, int left)
 		{
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return Money.Satoshis(checked(right._Satoshis * left));
 		}
 		public static Money operator *(long left, Money right)
 		{
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return Money.Satoshis(checked(left * right._Satoshis));
 		}
 		public static Money operator *(Money right, long left)
 		{
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return Money.Satoshis(checked(left * right._Satoshis));
 		}
 
 		public static Money operator /(Money left, long right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			return new Money(checked(left._Satoshis / right));
 		}
 
 		public static bool operator <(Money left, Money right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return left._Satoshis < right._Satoshis;
 		}
 		public static bool operator >(Money left, Money right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return left._Satoshis > right._Satoshis;
 		}
 		public static bool operator <=(Money left, Money right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return left._Satoshis <= right._Satoshis;
 		}
 		public static bool operator >=(Money left, Money right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return left._Satoshis >= right._Satoshis;
 		}
 
@@ -695,9 +695,9 @@ namespace NBitcoin
 		public bool Almost(Money amount, Money dust)
 		{
 			if(amount == null)
-				throw new ArgumentNullException("amount");
+				throw new ArgumentNullException(nameof(amount));
 			if(dust == null)
-				throw new ArgumentNullException("dust");
+				throw new ArgumentNullException(nameof(dust));
 			return (amount - this).Abs() <= dust;
 		}
 
@@ -710,7 +710,7 @@ namespace NBitcoin
 		public bool Almost(Money amount, decimal margin)
 		{
 			if(amount == null)
-				throw new ArgumentNullException("amount");
+				throw new ArgumentNullException(nameof(amount));
 			if(margin < 0.0m || margin > 1.0m)
 				throw new ArgumentOutOfRangeException("margin", "margin should be between 0 and 1");
 			var dust = Money.Satoshis((decimal)this.Satoshi * margin);
@@ -720,9 +720,9 @@ namespace NBitcoin
 		public static Money Min(Money a, Money b)
 		{
 			if(a == null)
-				throw new ArgumentNullException("a");
+				throw new ArgumentNullException(nameof(a));
 			if(b == null)
-				throw new ArgumentNullException("b");
+				throw new ArgumentNullException(nameof(b));
 			if(a <= b)
 				return a;
 			return b;
@@ -731,9 +731,9 @@ namespace NBitcoin
 		public static Money Max(Money a, Money b)
 		{
 			if(a == null)
-				throw new ArgumentNullException("a");
+				throw new ArgumentNullException(nameof(a));
 			if(b == null)
-				throw new ArgumentNullException("b");
+				throw new ArgumentNullException(nameof(b));
 			if(a >= b)
 				return a;
 			return b;
@@ -801,7 +801,7 @@ namespace NBitcoin
 		bool IMoney.IsCompatible(IMoney money)
 		{
 			if(money == null)
-				throw new ArgumentNullException("money");
+				throw new ArgumentNullException(nameof(money));
 			return money is Money;
 		}
 

@@ -27,7 +27,7 @@ namespace NBitcoin
 		public Mnemonic(string mnemonic, Wordlist wordlist = null)
 		{
 			if(mnemonic == null)
-				throw new ArgumentNullException("mnemonic");
+				throw new ArgumentNullException(nameof(mnemonic));
 			_Mnemonic = mnemonic.Trim();
 
 			if(wordlist == null)

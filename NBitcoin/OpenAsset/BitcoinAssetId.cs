@@ -24,9 +24,9 @@ namespace NBitcoin.OpenAsset
 			: this(assetId._Bytes, network)
 		{
 			if(assetId == null)
-				throw new ArgumentNullException("assetId");
+				throw new ArgumentNullException(nameof(assetId));
 			if(network == null)
-				throw new ArgumentNullException("network");
+				throw new ArgumentNullException(nameof(network));
 		}
 
 		AssetId _AssetId;

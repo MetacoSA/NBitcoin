@@ -709,7 +709,7 @@ namespace NBitcoin
 		public ScriptReader(Stream stream)
 		{
 			if(stream == null)
-				throw new ArgumentNullException("stream");
+				throw new ArgumentNullException(nameof(stream));
 			_Inner = stream;
 		}
 		public ScriptReader(byte[] data)

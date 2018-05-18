@@ -36,7 +36,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			BigInteger value)
 		{
 			if(value == null)
-				throw new ArgumentNullException("value");
+				throw new ArgumentNullException(nameof(value));
 
 			bytes = value.ToByteArray();
 		}

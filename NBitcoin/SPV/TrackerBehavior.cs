@@ -50,7 +50,7 @@ namespace NBitcoin.SPV
 		public TrackerBehavior(Tracker tracker, ConcurrentChain chain = null)
 		{
 			if(tracker == null)
-				throw new ArgumentNullException("tracker");
+				throw new ArgumentNullException(nameof(tracker));
 			FalsePositiveRate = 0.000005;
 			_Chain = chain;
 			_ExplicitChain = chain;
