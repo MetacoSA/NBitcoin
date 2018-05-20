@@ -1416,12 +1416,22 @@ namespace NBitcoin
 
 		public TxOut AddOutput(Money money, IDestination destination)
 		{
-			return AddOutput(new TxOut(money, destination));
+			return AddOutput(money, destination.ScriptPubKey);
 		}
 		public TxOut AddOutput(Money money, Script scriptPubKey)
 		{
-			return AddOutput(new TxOut(money, scriptPubKey));
+			return AddOutput(CreateOutput(money,scriptPubKey));
 		}
+
+		public TxOut CreateOutput(Money money, Script scriptPubKey)
+		{
+			if(!GetConsensusFactory().TryCreateNew<TxOut>(out var txout))
+				txout = new TxOut();
+			txout.Value = money;
+			txout.ScriptPubKey = scriptPubKey;
+			return txout;
+		}
+
 		public TxOut AddOutput(TxOut @out)
 		{
 			this.vout.Add(@out);

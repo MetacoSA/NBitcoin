@@ -567,6 +567,14 @@ namespace NBitcoin
 		}
 
 		/// <summary>
+		/// If true and the transaction has two outputs sending to the same scriptPubKey, those will be collapsed into a single output. (Default: true)
+		/// </summary>
+		public bool CollapseSameDestination
+		{
+			get; set;
+		} = true;
+
+		/// <summary>
 		/// If true, the TransactionBuilder will not select coins whose fee to spend is higher than its value. (Default: true)
 		/// The cost of spending a coin is based on the <see cref="FilterUneconomicalCoinsRate"/>.
 		/// </summary>
@@ -1147,6 +1155,7 @@ namespace NBitcoin
 			IEnumerable<ICoin> coins,
 			IMoney zero)
 		{
+			var hasColoredCoins = _BuilderGroups.Any(g => g.BuildersByAsset.Count != 0 || g.IssuanceBuilders.Count != 0);
 			var originalCtx = ctx.CreateMemento();
 			var fees = _TotalFee + ctx.AdditionalFees;
 
@@ -1213,6 +1222,18 @@ namespace NBitcoin
 				{
 					input.Sequence = 0;
 					ctx.NonFinalSequenceSet = true;
+				}
+			}
+			if(CollapseSameDestination && !hasColoredCoins)
+			{
+				var collapsedOutputs = ctx.Transaction.Outputs
+							   .GroupBy(o => o.ScriptPubKey)
+							   .Select(o => o.Count() == 1 ? o.First() : ctx.Transaction.CreateOutput(o.Select(txout=>txout.Value).Sum(), o.Key))
+							   .ToArray();
+				if(collapsedOutputs.Length < ctx.Transaction.Outputs.Count)
+				{
+					ctx.Transaction.Outputs.Clear();
+					ctx.Transaction.Outputs.AddRange(collapsedOutputs);
 				}
 			}
 			return selection;
