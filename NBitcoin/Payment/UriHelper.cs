@@ -13,7 +13,7 @@ namespace NBitcoin.Payment
 		public static Dictionary<string, string> DecodeQueryParameters(string uri)
 		{
 			if(uri == null)
-				throw new ArgumentNullException("uri");
+				throw new ArgumentNullException(nameof(uri));
 
 			if(uri.Length == 0)
 				return new Dictionary<string, string>();

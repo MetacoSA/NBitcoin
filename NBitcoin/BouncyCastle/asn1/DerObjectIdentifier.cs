@@ -18,7 +18,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			string identifier)
 		{
 			if(identifier == null)
-				throw new ArgumentNullException("identifier");
+				throw new ArgumentNullException(nameof(identifier));
 			if(!IsValidIdentifier(identifier))
 				throw new FormatException("string " + identifier + " not an OID");
 

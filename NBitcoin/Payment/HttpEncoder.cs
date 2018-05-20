@@ -134,7 +134,7 @@ namespace System.Web.Util
 		internal static byte[] UrlEncodeToBytes(byte[] bytes, int offset, int count)
 		{
 			if(bytes == null)
-				throw new ArgumentNullException("bytes");
+				throw new ArgumentNullException(nameof(bytes));
 
 			int blen = bytes.Length;
 			if(blen == 0)

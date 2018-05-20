@@ -916,7 +916,7 @@ namespace NBitcoin.Protocol
 		public Task SendMessageAsync(Payload payload)
 		{
 			if(payload == null)
-				throw new ArgumentNullException("payload");
+				throw new ArgumentNullException(nameof(payload));
 			TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>();
 			if(!IsConnected)
 			{

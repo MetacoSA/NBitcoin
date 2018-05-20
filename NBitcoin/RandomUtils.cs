@@ -74,14 +74,14 @@ namespace NBitcoin
 		public static void AddEntropy(string data)
 		{
 			if(data == null)
-				throw new ArgumentNullException("data");
+				throw new ArgumentNullException(nameof(data));
 			AddEntropy(Encoding.UTF8.GetBytes(data));
 		}
 
 		public static void AddEntropy(byte[] data)
 		{
 			if(data == null)
-				throw new ArgumentNullException("data");
+				throw new ArgumentNullException(nameof(data));
 			var entropy = Hashes.SHA256(data);
 			if(additionalEntropy == null)
 				additionalEntropy = entropy;

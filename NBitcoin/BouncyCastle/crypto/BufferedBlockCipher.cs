@@ -36,7 +36,7 @@ namespace NBitcoin.BouncyCastle.Crypto
 			IBlockCipher cipher)
 		{
 			if(cipher == null)
-				throw new ArgumentNullException("cipher");
+				throw new ArgumentNullException(nameof(cipher));
 
 			this.cipher = cipher;
 			buf = new byte[cipher.GetBlockSize()];
@@ -167,7 +167,7 @@ namespace NBitcoin.BouncyCastle.Crypto
 			int length)
 		{
 			if(input == null)
-				throw new ArgumentNullException("input");
+				throw new ArgumentNullException(nameof(input));
 			if(length < 1)
 				return null;
 
@@ -279,7 +279,7 @@ namespace NBitcoin.BouncyCastle.Crypto
 			int inLen)
 		{
 			if(input == null)
-				throw new ArgumentNullException("input");
+				throw new ArgumentNullException(nameof(input));
 
 			int length = GetOutputSize(inLen);
 

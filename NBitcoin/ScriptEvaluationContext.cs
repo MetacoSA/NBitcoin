@@ -69,7 +69,7 @@ namespace NBitcoin
 		public TransactionChecker(Transaction tx, int index, Money amount, PrecomputedTransactionData precomputedTransactionData)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			_Transaction = tx;
 			_Index = index;
 			_Amount = amount;
@@ -78,7 +78,7 @@ namespace NBitcoin
 		public TransactionChecker(Transaction tx, int index, Money amount = null)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			_Transaction = tx;
 			_Index = index;
 			_Amount = amount;

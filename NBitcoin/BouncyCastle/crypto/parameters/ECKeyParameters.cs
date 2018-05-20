@@ -19,9 +19,9 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 			: base(isPrivate)
 		{
 			if(algorithm == null)
-				throw new ArgumentNullException("algorithm");
+				throw new ArgumentNullException(nameof(algorithm));
 			if(parameters == null)
-				throw new ArgumentNullException("parameters");
+				throw new ArgumentNullException(nameof(parameters));
 
 			this.algorithm = VerifyAlgorithmName(algorithm);
 			this.parameters = parameters;

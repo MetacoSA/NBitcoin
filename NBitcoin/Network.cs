@@ -111,9 +111,9 @@ namespace NBitcoin
 		internal static string CreateBase58(Base58Type type, byte[] bytes, Network network)
 		{
 			if(network == null)
-				throw new ArgumentNullException("network");
+				throw new ArgumentNullException(nameof(network));
 			if(bytes == null)
-				throw new ArgumentNullException("bytes");
+				throw new ArgumentNullException(nameof(bytes));
 			var versionBytes = network.GetVersionBytes(type, true);
 			return Encoders.Base58Check.EncodeData(versionBytes.Concat(bytes));
 		}
@@ -121,9 +121,9 @@ namespace NBitcoin
 		internal static string CreateBech32(Bech32Type type, byte[] bytes, byte witnessVersion, Network network)
 		{
 			if(network == null)
-				throw new ArgumentNullException("network");
+				throw new ArgumentNullException(nameof(network));
 			if(bytes == null)
-				throw new ArgumentNullException("bytes");
+				throw new ArgumentNullException(nameof(bytes));
 			var encoder = network.GetBech32Encoder(type, true);
 			return encoder.Encode(witnessVersion, bytes);
 		}
@@ -1103,7 +1103,7 @@ namespace NBitcoin
 		public static T Parse<T>(string str, Network expectedNetwork = null) where T : IBitcoinString
 		{
 			if(str == null)
-				throw new ArgumentNullException("str");
+				throw new ArgumentNullException(nameof(str));
 
 			if(expectedNetwork != null)
 			{
@@ -1179,7 +1179,7 @@ namespace NBitcoin
 		private static IEnumerable<IBase58Data> GetCandidates(IEnumerable<Network> networks, string base58)
 		{
 			if(base58 == null)
-				throw new ArgumentNullException("base58");
+				throw new ArgumentNullException(nameof(base58));
 			foreach(var network in networks)
 			{
 				var type = network.GetBase58Type(base58);
@@ -1362,7 +1362,7 @@ namespace NBitcoin
 		public static Network GetNetwork(string name)
 		{
 			if(name == null)
-				throw new ArgumentNullException("name");
+				throw new ArgumentNullException(nameof(name));
 			name = name.ToLowerInvariant();
 			switch(name)
 			{
@@ -1396,7 +1396,7 @@ namespace NBitcoin
 		public BitcoinPubKeyAddress CreateBitcoinAddress(KeyId dest)
 		{
 			if(dest == null)
-				throw new ArgumentNullException("dest");
+				throw new ArgumentNullException(nameof(dest));
 			return NetworkStringParser.CreateP2PKH(dest, this);
 		}
 

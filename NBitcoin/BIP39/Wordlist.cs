@@ -132,7 +132,7 @@ namespace NBitcoin
 		public static async Task<Wordlist> LoadWordList(string name)
 		{
 			if(name == null)
-				throw new ArgumentNullException("name");
+				throw new ArgumentNullException(nameof(name));
 			Wordlist result = null;
 			lock(_LoadedLists)
 			{

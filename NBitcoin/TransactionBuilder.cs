@@ -640,9 +640,9 @@ namespace NBitcoin
 		public TransactionBuilder AddKnownSignature(PubKey pubKey, TransactionSignature signature)
 		{
 			if(pubKey == null)
-				throw new ArgumentNullException("pubKey");
+				throw new ArgumentNullException(nameof(pubKey));
 			if(signature == null)
-				throw new ArgumentNullException("signature");
+				throw new ArgumentNullException(nameof(signature));
 			_KnownSignatures.Add(Tuple.Create(pubKey, signature.Signature));
 			return this;
 		}
@@ -650,9 +650,9 @@ namespace NBitcoin
 		public TransactionBuilder AddKnownSignature(PubKey pubKey, ECDSASignature signature)
 		{
 			if(pubKey == null)
-				throw new ArgumentNullException("pubKey");
+				throw new ArgumentNullException(nameof(pubKey));
 			if(signature == null)
-				throw new ArgumentNullException("signature");
+				throw new ArgumentNullException(nameof(signature));
 			_KnownSignatures.Add(Tuple.Create(pubKey, signature));
 			return this;
 		}
@@ -962,7 +962,7 @@ namespace NBitcoin
 		public TransactionBuilder SendFees(Money fees)
 		{
 			if(fees == null)
-				throw new ArgumentNullException("fees");
+				throw new ArgumentNullException(nameof(fees));
 			CurrentGroup.Builders.Add(ctx => fees);
 			_TotalFee += fees;
 			return this;
@@ -1004,7 +1004,7 @@ namespace NBitcoin
 		public TransactionBuilder SendFeesSplit(Money fees)
 		{
 			if(fees == null)
-				throw new ArgumentNullException("fees");
+				throw new ArgumentNullException(nameof(fees));
 			var lastGroup = CurrentGroup; //Make sure at least one group exists
 			var totalWeight = _BuilderGroups.Select(b => b.FeeWeight).Sum();
 			Money totalSent = Money.Zero;
@@ -1067,7 +1067,7 @@ namespace NBitcoin
 		public TransactionBuilder SetCoinSelector(ICoinSelector selector)
 		{
 			if(selector == null)
-				throw new ArgumentNullException("selector");
+				throw new ArgumentNullException(nameof(selector));
 			CoinSelector = selector;
 			return this;
 		}
@@ -1358,7 +1358,7 @@ namespace NBitcoin
 		public bool Verify(Transaction tx, Money expectedFees, out TransactionPolicyError[] errors)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			var coins = tx.Inputs.Select(i => FindCoin(i.PrevOut)).Where(c => c != null).ToArray();
 			List<TransactionPolicyError> exceptions = new List<TransactionPolicyError>();
 			var policyErrors = MinerTransactionPolicy.Instance.Check(tx, coins);
@@ -1390,7 +1390,7 @@ namespace NBitcoin
 		public bool Verify(Transaction tx, FeeRate expectedFeeRate, out TransactionPolicyError[] errors)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			return Verify(tx, expectedFeeRate == null ? null : expectedFeeRate.GetFee(tx), out errors);
 		}
 		/// <summary>
@@ -1472,7 +1472,7 @@ namespace NBitcoin
 		public int EstimateSize(Transaction tx, bool virtualSize)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			var clone = tx.Clone();
 			clone.Inputs.Clear();
 			var baseSize = clone.GetSerializedSize();
@@ -1555,7 +1555,7 @@ namespace NBitcoin
 		public Money EstimateFees(FeeRate feeRate)
 		{
 			if(feeRate == null)
-				throw new ArgumentNullException("feeRate");
+				throw new ArgumentNullException(nameof(feeRate));
 
 			int builderCount = CurrentGroup.Builders.Count;
 			Money feeSent = Money.Zero;
@@ -1592,9 +1592,9 @@ namespace NBitcoin
 		public Money EstimateFees(Transaction tx, FeeRate feeRate)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			if(feeRate == null)
-				throw new ArgumentNullException("feeRate");
+				throw new ArgumentNullException(nameof(feeRate));
 
 			var estimation = EstimateSize(tx, true);
 			return feeRate.GetFee(estimation);

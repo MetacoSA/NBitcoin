@@ -687,7 +687,7 @@ namespace NBitcoin.Payment
 		public void Sign(object certificate, Payment.PKIType type)
 		{
 			if(certificate == null)
-				throw new ArgumentNullException("certificate");
+				throw new ArgumentNullException(nameof(certificate));
 			if(type == Payment.PKIType.None)
 				throw new ArgumentException("PKIType can't be none if signing");
 			var signer = GetCertificateProvider().GetSigner();

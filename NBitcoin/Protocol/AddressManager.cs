@@ -311,9 +311,9 @@ namespace NBitcoin.Protocol
 		public void SavePeerFile(string filePath, Network network)
 		{
 			if(network == null)
-				throw new ArgumentNullException("network");
+				throw new ArgumentNullException(nameof(network));
 			if(filePath == null)
-				throw new ArgumentNullException("filePath");
+				throw new ArgumentNullException(nameof(filePath));
 
 			MemoryStream ms = new MemoryStream();
 			BitcoinStream stream = new BitcoinStream(ms, true);

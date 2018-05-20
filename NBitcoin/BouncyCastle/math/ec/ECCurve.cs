@@ -362,7 +362,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 		protected virtual void CheckPoints(ECPoint[] points, int off, int len)
 		{
 			if(points == null)
-				throw new ArgumentNullException("points");
+				throw new ArgumentNullException(nameof(points));
 			if(off < 0 || len < 0 || (off > (points.Length - len)))
 				throw new ArgumentException("invalid range specified", "points");
 

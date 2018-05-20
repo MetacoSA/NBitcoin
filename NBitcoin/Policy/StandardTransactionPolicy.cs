@@ -67,7 +67,7 @@ namespace NBitcoin.Policy
 		public TransactionPolicyError[] Check(Transaction transaction, ICoin[] spentCoins)
 		{
 			if(transaction == null)
-				throw new ArgumentNullException("transaction");
+				throw new ArgumentNullException(nameof(transaction));
 
 			spentCoins = spentCoins ?? new ICoin[0];
 

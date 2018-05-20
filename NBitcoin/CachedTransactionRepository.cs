@@ -15,7 +15,7 @@ namespace NBitcoin
 		public CachedTransactionRepository(ITransactionRepository inner)
 		{
 			if(inner == null)
-				throw new ArgumentNullException("inner");
+				throw new ArgumentNullException(nameof(inner));
 			ReadThrough = true;
 			WriteThrough = true;
 			_Inner = inner;

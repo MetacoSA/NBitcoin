@@ -51,7 +51,7 @@ namespace NBitcoin
 		public void CopyFrom(Network network)
 		{
 			if(network == null)
-				throw new ArgumentNullException("network");
+				throw new ArgumentNullException(nameof(network));
 			_Base58Prefixes.Clear();
 			_Bech32Prefixes.Clear();
 			for(int i = 0; i < network.base58Prefixes.Length; i++)
