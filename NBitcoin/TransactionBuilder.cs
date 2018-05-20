@@ -567,9 +567,9 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// If true and the transaction has two outputs sending to the same scriptPubKey, those will be collapsed into a single output. (Default: true)
+		/// If true and the transaction has two outputs sending to the same scriptPubKey, those will be merged into a single output. (Default: true)
 		/// </summary>
-		public bool CollapseSameDestination
+		public bool MergeOutputs
 		{
 			get; set;
 		} = true;
@@ -1224,7 +1224,7 @@ namespace NBitcoin
 					ctx.NonFinalSequenceSet = true;
 				}
 			}
-			if(CollapseSameDestination && !hasColoredCoins)
+			if(MergeOutputs && !hasColoredCoins)
 			{
 				var collapsedOutputs = ctx.Transaction.Outputs
 							   .GroupBy(o => o.ScriptPubKey)
