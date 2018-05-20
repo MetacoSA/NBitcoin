@@ -68,7 +68,7 @@ namespace NBitcoin.Tests
 			{
 				var node = builder.CreateNode();
 				builder.StartAll();
-				node.Generate(121);
+				node.Generate(builder.Network.Consensus.CoinbaseMaturity + 1);
 				var rpc = node.CreateRPCClient();
 
 				var alice = new Key().GetBitcoinSecret(builder.Network);
