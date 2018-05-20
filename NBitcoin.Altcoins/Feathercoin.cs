@@ -136,7 +136,7 @@ namespace NBitcoin.Altcoins
                 PowNoRetargeting = false,
                 RuleChangeActivationThreshold = 15120,
                 MinerConfirmationWindow = 20160,
-                CoinbaseMaturity = 100,
+                CoinbaseMaturity = 120,
                 LitecoinWorkCalculation = true,
                 ConsensusFactory = FeathercoinConsensusFactory.Instance
             })
@@ -182,7 +182,7 @@ namespace NBitcoin.Altcoins
                 PowNoRetargeting = false,
                 RuleChangeActivationThreshold = 375,
                 MinerConfirmationWindow = 500,
-                CoinbaseMaturity = 100,
+                CoinbaseMaturity = 120,
                 LitecoinWorkCalculation = true,
                 ConsensusFactory = FeathercoinConsensusFactory.Instance
             })
@@ -227,7 +227,7 @@ namespace NBitcoin.Altcoins
                 PowNoRetargeting = true,
                 RuleChangeActivationThreshold = 108,
                 MinerConfirmationWindow = 2016,
-                CoinbaseMaturity = 100,
+                CoinbaseMaturity = 120,
                 LitecoinWorkCalculation = true,
                 ConsensusFactory = FeathercoinConsensusFactory.Instance
             })
