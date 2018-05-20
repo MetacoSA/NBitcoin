@@ -33,9 +33,9 @@ namespace NBitcoin.BitcoinCore
 		protected IndexedStore(NoSqlRepository index, Store<TStoredItem, TItem> store)
 		{
 			if(index == null)
-				throw new ArgumentNullException("index");
+				throw new ArgumentNullException(nameof(index));
 			if(store == null)
-				throw new ArgumentNullException("store");
+				throw new ArgumentNullException(nameof(store));
 			_Index = index;
 			_Store = store;
 		}

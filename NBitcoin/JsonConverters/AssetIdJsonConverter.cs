@@ -21,7 +21,7 @@ namespace NBitcoin.JsonConverters
         public AssetIdJsonConverter(Network network)
         {
             if(network == null)
-                throw new ArgumentNullException("network");
+                throw new ArgumentNullException(nameof(network));
             Network = network;
         }
         public override bool CanConvert(Type objectType)

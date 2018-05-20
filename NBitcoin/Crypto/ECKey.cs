@@ -122,7 +122,7 @@ namespace NBitcoin.Crypto
 			if(sig.S.SignValue < 0)
 				throw new ArgumentException("s should be positive");
 			if(message == null)
-				throw new ArgumentNullException("message");
+				throw new ArgumentNullException(nameof(message));
 
 
 			var curve = ECKey.Secp256k1;

@@ -37,7 +37,7 @@ namespace NBitcoin.Protocol.Behaviors
 		public void Attach(Node node)
 		{
 			if(node == null)
-				throw new ArgumentNullException("node");
+				throw new ArgumentNullException(nameof(node));
 			if(AttachedNode != null)
 				throw new InvalidOperationException("Behavior already attached to a node");
 			lock(cs)

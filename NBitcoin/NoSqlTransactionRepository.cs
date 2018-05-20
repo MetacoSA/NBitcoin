@@ -24,7 +24,7 @@ namespace NBitcoin
 		public NoSqlTransactionRepository(NoSqlRepository repository)
 		{
 			if(repository == null)
-				throw new ArgumentNullException("repository");
+				throw new ArgumentNullException(nameof(repository));
 			_Repository = repository;
 		}
 		#region ITransactionRepository Members

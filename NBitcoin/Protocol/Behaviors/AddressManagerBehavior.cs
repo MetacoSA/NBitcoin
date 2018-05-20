@@ -42,14 +42,14 @@ namespace NBitcoin.Protocol.Behaviors
 		public static AddressManager GetAddrman(NodeConnectionParameters parameters)
 		{
 			if(parameters == null)
-				throw new ArgumentNullException("parameters");
+				throw new ArgumentNullException(nameof(parameters));
 			return GetAddrman(parameters.TemplateBehaviors);
 		}
 
 		public static AddressManager GetAddrman(NodeBehaviorsCollection behaviors)
 		{
 			if(behaviors == null)
-				throw new ArgumentNullException("behaviors");
+				throw new ArgumentNullException(nameof(behaviors));
 			var behavior = behaviors.Find<AddressManagerBehavior>();
 			if(behavior == null)
 				return null;
@@ -58,14 +58,14 @@ namespace NBitcoin.Protocol.Behaviors
 		public static void SetAddrman(Node node, AddressManager addrman)
 		{
 			if(node == null)
-				throw new ArgumentNullException("node");
+				throw new ArgumentNullException(nameof(node));
 			SetAddrman(node.Behaviors, addrman);
 		}
 
 		public static void SetAddrman(NodeConnectionParameters parameters, AddressManager addrman)
 		{
 			if(parameters == null)
-				throw new ArgumentNullException("parameters");
+				throw new ArgumentNullException(nameof(parameters));
 			SetAddrman(parameters.TemplateBehaviors, addrman);
 		}
 
@@ -89,7 +89,7 @@ namespace NBitcoin.Protocol.Behaviors
 		public static void SetAddrman(NodeBehaviorsCollection behaviors, AddressManager addrman)
 		{
 			if(behaviors == null)
-				throw new ArgumentNullException("behaviors");
+				throw new ArgumentNullException(nameof(behaviors));
 			var behavior = behaviors.Find<AddressManagerBehavior>();
 			if(behavior == null)
 			{
@@ -103,7 +103,7 @@ namespace NBitcoin.Protocol.Behaviors
 		public AddressManagerBehavior(AddressManager manager)
 		{
 			if(manager == null)
-				throw new ArgumentNullException("manager");
+				throw new ArgumentNullException(nameof(manager));
 			_AddressManager = manager;
 			Mode = AddressManagerBehaviorMode.AdvertizeDiscover;
 		}
@@ -124,7 +124,7 @@ namespace NBitcoin.Protocol.Behaviors
 			{
 				AssertNotAttached();
 				if(value == null)
-					throw new ArgumentNullException("value");
+					throw new ArgumentNullException(nameof(value));
 				_AddressManager = value;
 			}
 		}

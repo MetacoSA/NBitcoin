@@ -52,7 +52,7 @@ namespace NBitcoin
 		public ChainedBlock SetTip(ChainBase otherChain)
 		{
 			if(otherChain == null)
-				throw new ArgumentNullException("otherChain");
+				throw new ArgumentNullException(nameof(otherChain));
 			return SetTip(otherChain.Tip);
 		}
 
@@ -65,7 +65,7 @@ namespace NBitcoin
 		public bool TrySetTip(BlockHeader header, out ChainedBlock chainedHeader)
 		{
 			if(header == null)
-				throw new ArgumentNullException("header");
+				throw new ArgumentNullException(nameof(header));
 			chainedHeader = null;
 			var prev = GetBlock(header.HashPrevBlock);
 			if(prev == null)
@@ -80,14 +80,14 @@ namespace NBitcoin
 		public bool Contains(ChainedBlock blockIndex)
 		{
 			if(blockIndex == null)
-				throw new ArgumentNullException("blockIndex");
+				throw new ArgumentNullException(nameof(blockIndex));
 			return GetBlock(blockIndex.Height) != null;
 		}
 
 		public bool SameTip(ChainBase chain)
 		{
 			if(chain == null)
-				throw new ArgumentNullException("chain");
+				throw new ArgumentNullException(nameof(chain));
 			return Tip.HashBlock == chain.Tip.HashBlock;
 		}
 
@@ -124,7 +124,7 @@ namespace NBitcoin
 		public ChainedBlock FindFork(ChainBase chain)
 		{
 			if(chain == null)
-				throw new ArgumentNullException("chain");
+				throw new ArgumentNullException(nameof(chain));
 			return FindFork(chain.Tip.EnumerateToGenesis().Select(o => o.HashBlock));
 		}
 
@@ -136,7 +136,7 @@ namespace NBitcoin
 		public ChainedBlock FindFork(IEnumerable<uint256> hashes)
 		{
 			if(hashes == null)
-				throw new ArgumentNullException("hashes");
+				throw new ArgumentNullException(nameof(hashes));
 			// Find the first block the caller has in the main chain
 			foreach(uint256 hash in hashes)
 			{
@@ -152,7 +152,7 @@ namespace NBitcoin
 		public ChainedBlock FindFork(BlockLocator locator)
 		{
 			if(locator == null)
-				throw new ArgumentNullException("locator");
+				throw new ArgumentNullException(nameof(locator));
 			return FindFork(locator.Blocks);
 		}
 
@@ -167,7 +167,7 @@ namespace NBitcoin
 		public IEnumerable<ChainedBlock> EnumerateToTip(ChainedBlock block)
 		{
 			if(block == null)
-				throw new ArgumentNullException("block");
+				throw new ArgumentNullException(nameof(block));
 			return EnumerateToTip(block.HashBlock);
 		}
 

@@ -58,7 +58,7 @@ namespace NBitcoin.OpenAsset
 		public AssetMoney(AssetId assetId)
 		{
 			if(assetId == null)
-				throw new ArgumentNullException("assetId");
+				throw new ArgumentNullException(nameof(assetId));
 			_Id = assetId;
 		}
 
@@ -69,7 +69,7 @@ namespace NBitcoin.OpenAsset
 		public AssetMoney(AssetId assetId, int quantity)
 		{
 			if(assetId == null)
-				throw new ArgumentNullException("assetId");
+				throw new ArgumentNullException(nameof(assetId));
 			_Id = assetId;
 			Quantity = quantity;
 		}
@@ -77,14 +77,14 @@ namespace NBitcoin.OpenAsset
 		public AssetMoney(AssetId assetId, uint quantity)
 		{
 			if(assetId == null)
-				throw new ArgumentNullException("assetId");
+				throw new ArgumentNullException(nameof(assetId));
 			_Id = assetId;
 			Quantity = quantity;
 		}
 		public AssetMoney(AssetId assetId, long quantity)
 		{
 			if(assetId == null)
-				throw new ArgumentNullException("assetId");
+				throw new ArgumentNullException(nameof(assetId));
 			_Id = assetId;
 			Quantity = quantity;
 		}
@@ -92,7 +92,7 @@ namespace NBitcoin.OpenAsset
 		public AssetMoney(AssetId assetId, ulong quantity)
 		{
 			if(assetId == null)
-				throw new ArgumentNullException("assetId");
+				throw new ArgumentNullException(nameof(assetId));
 			_Id = assetId;
 
 			// overflow check. 
@@ -106,7 +106,7 @@ namespace NBitcoin.OpenAsset
 		public AssetMoney(AssetId assetId, decimal amount, int divisibility)
 		{
 			if(assetId == null)
-				throw new ArgumentNullException("assetId");
+				throw new ArgumentNullException(nameof(assetId));
 			_Id = assetId;
 			// sanity check. Only valid units are allowed
 			checked
@@ -212,9 +212,9 @@ namespace NBitcoin.OpenAsset
 		public static AssetMoney operator -(AssetMoney left, AssetMoney right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			left.CheckAssetId(right, "right");
 			return new AssetMoney(left.Id, checked(left.Quantity - right.Quantity));
 		}
@@ -222,16 +222,16 @@ namespace NBitcoin.OpenAsset
 		public static AssetMoney operator -(AssetMoney left)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			return new AssetMoney(left.Id, checked(-left.Quantity));
 		}
 
 		public static AssetMoney operator +(AssetMoney left, AssetMoney right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			left.CheckAssetId(right, "right");
 			return new AssetMoney(left.Id, checked(left.Quantity + right.Quantity));
 		}
@@ -239,37 +239,37 @@ namespace NBitcoin.OpenAsset
 		public static AssetMoney operator *(int left, AssetMoney right)
 		{
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return new AssetMoney(right.Id, checked(left * right.Quantity));
 		}
 
 		public static AssetMoney operator *(AssetMoney right, int left)
 		{
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return new AssetMoney(right.Id, checked(right.Quantity * left));
 		}
 
 		public static AssetMoney operator *(long left, AssetMoney right)
 		{
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return new AssetMoney(right.Id, checked(left * right.Quantity));
 		}
 
 		public static AssetMoney operator *(AssetMoney right, long left)
 		{
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			return new AssetMoney(right.Id, checked(left * right.Quantity));
 		}
 
 		public static bool operator <(AssetMoney left, AssetMoney right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			left.CheckAssetId(right, "right");
 			return left.Quantity < right.Quantity;
 		}
@@ -277,9 +277,9 @@ namespace NBitcoin.OpenAsset
 		public static bool operator >(AssetMoney left, AssetMoney right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			left.CheckAssetId(right, "right");
 			return left.Quantity > right.Quantity;
 		}
@@ -287,9 +287,9 @@ namespace NBitcoin.OpenAsset
 		public static bool operator <=(AssetMoney left, AssetMoney right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			left.CheckAssetId(right, "right");
 			return left.Quantity <= right.Quantity;
 		}
@@ -297,9 +297,9 @@ namespace NBitcoin.OpenAsset
 		public static bool operator >=(AssetMoney left, AssetMoney right)
 		{
 			if(left == null)
-				throw new ArgumentNullException("left");
+				throw new ArgumentNullException(nameof(left));
 			if(right == null)
-				throw new ArgumentNullException("right");
+				throw new ArgumentNullException(nameof(right));
 			left.CheckAssetId(right, "right");
 			return left.Quantity >= right.Quantity;
 		}
@@ -344,9 +344,9 @@ namespace NBitcoin.OpenAsset
 		public static AssetMoney Min(AssetMoney a, AssetMoney b)
 		{
 			if(a == null)
-				throw new ArgumentNullException("a");
+				throw new ArgumentNullException(nameof(a));
 			if(b == null)
-				throw new ArgumentNullException("b");
+				throw new ArgumentNullException(nameof(b));
 			a.CheckAssetId(b, "b");
 			if(a <= b)
 				return a;
@@ -391,7 +391,7 @@ namespace NBitcoin.OpenAsset
 		bool IMoney.IsCompatible(IMoney money)
 		{
 			if(money == null)
-				throw new ArgumentNullException("money");
+				throw new ArgumentNullException(nameof(money));
 			AssetMoney assetMoney = money as AssetMoney;
 			if(assetMoney == null)
 				return false;

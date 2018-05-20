@@ -84,9 +84,9 @@ namespace NBitcoin
 		public ExtKey(ExtPubKey extPubKey, Key privateKey)
 		{
 			if(extPubKey == null)
-				throw new ArgumentNullException("extPubKey");
+				throw new ArgumentNullException(nameof(extPubKey));
 			if(privateKey == null)
-				throw new ArgumentNullException("privateKey");
+				throw new ArgumentNullException(nameof(privateKey));
 			this.nChild = extPubKey.nChild;
 			this.nDepth = extPubKey.nDepth;
 			this.vchChainCode = extPubKey.vchChainCode;
@@ -101,11 +101,11 @@ namespace NBitcoin
 		public ExtKey(Key key, byte[] chainCode, byte depth, byte[] fingerprint, uint child)
 		{
 			if(key == null)
-				throw new ArgumentNullException("key");
+				throw new ArgumentNullException(nameof(key));
 			if(chainCode == null)
-				throw new ArgumentNullException("chainCode");
+				throw new ArgumentNullException(nameof(chainCode));
 			if(fingerprint == null)
-				throw new ArgumentNullException("fingerprint");
+				throw new ArgumentNullException(nameof(fingerprint));
 			if(fingerprint.Length != FingerprintLength)
 				throw new ArgumentException(string.Format("The fingerprint must be {0} bytes.", FingerprintLength), "fingerprint");
 			if(chainCode.Length != ChainCodeLength)
@@ -124,9 +124,9 @@ namespace NBitcoin
 		public ExtKey(Key masterKey, byte[] chainCode)
 		{
 			if(masterKey == null)
-				throw new ArgumentNullException("masterKey");
+				throw new ArgumentNullException(nameof(masterKey));
 			if(chainCode == null)
-				throw new ArgumentNullException("chainCode");
+				throw new ArgumentNullException(nameof(chainCode));
 			if(chainCode.Length != ChainCodeLength)
 				throw new ArgumentException(string.Format("The chain code must be {0} bytes.", ChainCodeLength), "chainCode");
 			this.key = masterKey;
@@ -322,7 +322,7 @@ namespace NBitcoin
 		public ExtKey GetParentExtKey(ExtPubKey parent)
 		{
 			if(parent == null)
-				throw new ArgumentNullException("parent");
+				throw new ArgumentNullException(nameof(parent));
 			if(Depth == 0)
 				throw new InvalidOperationException("This ExtKey is the root key of the HD tree");
 			if(IsHardened)

@@ -14,7 +14,7 @@ namespace NBitcoin
 		public RPCTransactionRepository(RPCClient client)
 		{
 			if(client == null)
-				throw new ArgumentNullException("client");
+				throw new ArgumentNullException(nameof(client));
 			_Client = client;
 		}
 #region ITransactionRepository Members

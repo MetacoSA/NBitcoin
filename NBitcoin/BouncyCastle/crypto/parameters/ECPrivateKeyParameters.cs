@@ -23,7 +23,7 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 			: base(algorithm, true, parameters)
 		{
 			if(d == null)
-				throw new ArgumentNullException("d");
+				throw new ArgumentNullException(nameof(d));
 
 			this.d = d;
 		}

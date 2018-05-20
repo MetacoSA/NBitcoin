@@ -10,7 +10,7 @@ namespace NBitcoin.DataEncoders
 		public Bech32FormatException(string message, int[] indexes) : base(message)
 		{
 			if(indexes == null)
-				throw new ArgumentNullException("indexes");
+				throw new ArgumentNullException(nameof(indexes));
 			ErrorIndexes = indexes;
 			Array.Sort(ErrorIndexes);
 		}
@@ -267,7 +267,7 @@ namespace NBitcoin.DataEncoders
 		public Bech32Encoder(byte[] hrp)
 		{
 			if(hrp == null)
-				throw new ArgumentNullException("hrp");
+				throw new ArgumentNullException(nameof(hrp));
 
 			_Hrp = hrp;
 			var len = hrp.Length;
@@ -382,7 +382,7 @@ namespace NBitcoin.DataEncoders
 		public override byte[] DecodeData(string encoded)
 		{
 			if(encoded == null)
-				throw new ArgumentNullException("encoded");
+				throw new ArgumentNullException(nameof(encoded));
 			CheckCase(encoded);
 			var buffer = Encoders.ASCII.DecodeData(encoded);
 			if(buffer.Any(b => b < 33 || b > 126))
@@ -459,7 +459,7 @@ namespace NBitcoin.DataEncoders
 		public byte[] Decode(string addr, out byte witnessVerion)
 		{
 			if(addr == null)
-				throw new ArgumentNullException("addr");
+				throw new ArgumentNullException(nameof(addr));
 			CheckCase(addr);
 			var data = DecodeData(addr);
 

@@ -19,7 +19,7 @@ namespace NBitcoin.OpenAsset
 		public ColoredEntry(uint index, AssetMoney asset)
 		{
 			if(asset == null)
-				throw new ArgumentNullException("asset");
+				throw new ArgumentNullException(nameof(asset));
 			Index = index;
 			Asset = asset;
 		}
@@ -125,7 +125,7 @@ namespace NBitcoin.OpenAsset
 		public static async Task<ColoredTransaction> FetchColorsAsync(uint256 txId, Transaction tx, IColoredTransactionRepository repo)
 		{
 			if(repo == null)
-				throw new ArgumentNullException("repo");
+				throw new ArgumentNullException(nameof(repo));
 			if(txId == null)
 			{
 				if(tx == null)
@@ -285,9 +285,9 @@ namespace NBitcoin.OpenAsset
 			: this()
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			if(spentCoins == null)
-				throw new ArgumentNullException("spentCoins");
+				throw new ArgumentNullException(nameof(spentCoins));
 			if(tx.IsCoinBase || tx.Inputs.Count == 0)
 				return;
 			txId = txId ?? tx.GetHash();

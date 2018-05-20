@@ -32,7 +32,7 @@ namespace NBitcoin.Protocol
 		public NewThreadMessageListener(Action<T> process)
 		{
 			if(process == null)
-				throw new ArgumentNullException("process");
+				throw new ArgumentNullException(nameof(process));
 			_Process = process;
 		}
 		#region MessageListener<T> Members

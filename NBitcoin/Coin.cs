@@ -225,9 +225,9 @@ namespace NBitcoin
 			: this(entry.Asset, new Coin(tx, entry.Index))
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			if(entry == null)
-				throw new ArgumentNullException("entry");
+				throw new ArgumentNullException(nameof(entry));
 		}
 
 		public AssetId AssetId
@@ -298,9 +298,9 @@ namespace NBitcoin
 		public static IEnumerable<ColoredCoin> Find(uint256 txId, Transaction tx, ColoredTransaction colored)
 		{
 			if(colored == null)
-				throw new ArgumentNullException("colored");
+				throw new ArgumentNullException(nameof(colored));
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			if(txId == null)
 				txId = tx.GetHash();
 			foreach(var entry in colored.Issuances.Concat(colored.Transfers))
@@ -408,7 +408,7 @@ namespace NBitcoin
 		public Coin(Transaction fromTx, uint fromOutputIndex)
 		{
 			if(fromTx == null)
-				throw new ArgumentNullException("fromTx");
+				throw new ArgumentNullException(nameof(fromTx));
 			Outpoint = new OutPoint(fromTx, fromOutputIndex);
 			TxOut = fromTx.Outputs[fromOutputIndex];
 		}
@@ -416,9 +416,9 @@ namespace NBitcoin
 		public Coin(Transaction fromTx, TxOut fromOutput)
 		{
 			if(fromTx == null)
-				throw new ArgumentNullException("fromTx");
+				throw new ArgumentNullException(nameof(fromTx));
 			if(fromOutput == null)
-				throw new ArgumentNullException("fromOutput");
+				throw new ArgumentNullException(nameof(fromOutput));
 			uint outputIndex = (uint)fromTx.Outputs.FindIndex(r => Object.ReferenceEquals(fromOutput, r));
 			Outpoint = new OutPoint(fromTx, outputIndex);
 			TxOut = fromOutput;
@@ -465,7 +465,7 @@ namespace NBitcoin
 		public ScriptCoin ToScriptCoin(Script redeemScript)
 		{
 			if(redeemScript == null)
-				throw new ArgumentNullException("redeemScript");
+				throw new ArgumentNullException(nameof(redeemScript));
 			var scriptCoin = this as ScriptCoin;
 			if(scriptCoin != null)
 				return scriptCoin;
@@ -737,7 +737,7 @@ namespace NBitcoin
 		public static TxDestination GetRedeemHash(Script scriptPubKey)
 		{
 			if(scriptPubKey == null)
-				throw new ArgumentNullException("scriptPubKey");
+				throw new ArgumentNullException(nameof(scriptPubKey));
 			return PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey) as TxDestination
 					??
 					PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(scriptPubKey);

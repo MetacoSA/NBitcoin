@@ -38,7 +38,7 @@ namespace NBitcoin
 		public static bool IsValid(byte[] sig, ScriptVerify scriptVerify, out ScriptError error)
 		{
 			if(sig == null)
-				throw new ArgumentNullException("sig");
+				throw new ArgumentNullException(nameof(sig));
 			if(sig.Length == 0)
 			{
 				error = ScriptError.SigDer;

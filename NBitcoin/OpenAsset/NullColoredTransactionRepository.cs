@@ -15,7 +15,7 @@ namespace NBitcoin.OpenAsset
 		public NullColoredTransactionRepository(ITransactionRepository repo)
 		{
 			if(repo == null)
-				throw new ArgumentNullException("repo");
+				throw new ArgumentNullException(nameof(repo));
 			_Inner = repo;
 		}
 		#region IColoredTransactionRepository Members
