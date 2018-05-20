@@ -83,6 +83,10 @@ namespace NBitcoin.RPC
 						}
 						writer.WriteEndArray();
 					}
+					else if(Params[i] is uint256)
+					{
+						writer.WriteValue(Params[i].ToString());
+					}
 					else
 					{
 						writer.WriteValue(Params[i]);
