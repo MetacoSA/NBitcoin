@@ -1633,6 +1633,7 @@ namespace NBitcoin.Tests
 
 			var txBuilder = new TransactionBuilder(0);
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
+			txBuilder.MergeOutputs = false;
 			var tx = txBuilder
 				.AddCoins(allCoins)
 				.AddKeys(keys)
@@ -1654,6 +1655,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(witCoins.Count, tx.Inputs.Count - errors.Length);
 
 			txBuilder = new TransactionBuilder(0);
+			txBuilder.MergeOutputs = false;
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			tx = txBuilder
 			   .AddCoins(allCoins)
@@ -1674,6 +1676,7 @@ namespace NBitcoin.Tests
 			Assert.True((Money)ex.Missing == Money.Parse("0.9999"));
 			//Can sign partially
 			txBuilder = new TransactionBuilder(0);
+			txBuilder.MergeOutputs = false;
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			tx = txBuilder
 					.AddCoins(allCoins)
@@ -1846,7 +1849,7 @@ namespace NBitcoin.Tests
 			var builder = new TransactionBuilder();
 			builder.StandardTransactionPolicy = EasyPolicy.Clone();
 			builder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(new Money(1000));
-
+			builder.MergeOutputs = false;
 			Func<Transaction> create = () => builder
 				.AddCoins(coins)
 				.AddKeys(bob)
@@ -1869,6 +1872,7 @@ namespace NBitcoin.Tests
 			Assert.True((Money)ex.Missing == Money.Parse("-0.00000500"));
 
 			builder = new TransactionBuilder();
+			builder.MergeOutputs = false;
 			builder.DustPrevention = false;
 			builder.StandardTransactionPolicy = EasyPolicy.Clone();
 			builder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(new Money(1000));
