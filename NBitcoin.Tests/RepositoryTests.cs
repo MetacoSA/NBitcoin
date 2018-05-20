@@ -106,7 +106,7 @@ namespace NBitcoin.Tests
 		{
 			TestUtils.EnsureNew(folderName);
 			return new IndexedBlockStore(new InMemoryNoSqlRepository(), new BlockStore(folderName, Network.Main));
-		}		
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -129,6 +129,10 @@ namespace NBitcoin.Tests
 		{
 			return new Coin(new uint256(Enumerable.Range(0, 32).Select(i => (byte)0xaa).ToArray()), 0, amount, p2pkh ? bob.PubKey.Hash.ScriptPubKey : bob.PubKey.WitHash.ScriptPubKey);
 		}
+		private static Coin RandomCoin2(Key bob, Money amount, bool p2pkh = false)
+		{
+			return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, p2pkh ? bob.PubKey.Hash.ScriptPubKey : bob.PubKey.WitHash.ScriptPubKey);
+		}
 
 		[Fact]
 		public void Play()
@@ -148,6 +152,46 @@ namespace NBitcoin.Tests
 			builder.SendEstimatedFees(new FeeRate(Money.Satoshis(100), 1));
 			var result = builder.BuildTransaction(true);
 			Assert.Equal(Money.Coins(0.00011300m), result.GetFee(builder.FindSpentCoins(result)));
+		}
+
+
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void TwoGroupsCanSendToSameDestination()
+		{
+			var alice = new Key();
+			var carol = new Key();
+			var bob = new Key();
+
+			var builder = new TransactionBuilder();
+			builder.StandardTransactionPolicy.CheckFee = false;
+			Transaction tx = builder
+				.AddCoins(RandomCoin2(alice, Money.Coins(1.0m)))
+				.AddKeys(alice)
+				.Send(bob, Money.Coins(0.3m))
+				.SetChange(alice)
+				.Then()
+				.AddCoins(RandomCoin2(carol, Money.Coins(1.1m)))
+				.AddKeys(carol)
+				.Send(bob, Money.Coins(0.1m))
+				.SetChange(carol)
+				.BuildTransaction(sign: true);
+
+			Assert.Equal(2, tx.Inputs.Count);
+			Assert.Equal(3, tx.Outputs.Count);
+			Assert.Equal(1, tx.Outputs
+								.Where(o => o.ScriptPubKey == bob.ScriptPubKey)
+								.Where(o => o.Value == Money.Coins(0.3m) + Money.Coins(0.1m))
+								.Count());
+			Assert.Equal(1, tx.Outputs
+							  .Where(o => o.ScriptPubKey == alice.ScriptPubKey)
+							  .Where(o => o.Value == Money.Coins(0.7m))
+							  .Count());
+			Assert.Equal(1, tx.Outputs
+								.Where(o => o.ScriptPubKey == carol.ScriptPubKey)
+								.Where(o => o.Value == Money.Coins(1.0m))
+								.Count());
 		}
 
 		[Fact]
