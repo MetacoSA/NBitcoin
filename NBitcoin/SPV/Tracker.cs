@@ -502,9 +502,9 @@ namespace NBitcoin.SPV
 		public bool Add(Script scriptPubKey, bool isRedeemScript = false, bool isInternal = false, string filter = "a", string wallet = "default")
 		{
 			if(filter == null)
-				throw new ArgumentNullException("filter");
+				throw new ArgumentNullException(nameof(filter));
 			if(wallet == null)
-				throw new ArgumentNullException("wallet");
+				throw new ArgumentNullException(nameof(wallet));
 			Script redeem = isRedeemScript ? scriptPubKey : null;
 			scriptPubKey = isRedeemScript ? scriptPubKey.Hash.ScriptPubKey : scriptPubKey;
 			var data = scriptPubKey.ToOps().First(o => o.PushData != null).PushData;
@@ -545,7 +545,7 @@ namespace NBitcoin.SPV
 			if(chainedBlock != null)
 			{
 				if(proof == null)
-					throw new ArgumentNullException("proof");
+					throw new ArgumentNullException(nameof(proof));
 				if(proof.Header.GetHash() != chainedBlock.Header.GetHash())
 					throw new InvalidOperationException("The chained block and the merkle block are different blocks");
 				if(!proof.PartialMerkleTree.Check(chainedBlock.Header.HashMerkleRoot))

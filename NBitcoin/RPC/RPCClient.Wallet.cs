@@ -124,14 +124,14 @@ namespace NBitcoin.RPC
 		public void BackupWallet(string path)
 		{
 			if(string.IsNullOrEmpty(path))
-				throw new ArgumentNullException("path");
+				throw new ArgumentNullException(nameof(path));
 			SendCommand(RPCOperations.backupwallet, path);
 		}
 
 		public async Task BackupWalletAsync(string path)
 		{
 			if(string.IsNullOrEmpty(path))
-				throw new ArgumentNullException("path");
+				throw new ArgumentNullException(nameof(path));
 			await SendCommandAsync(RPCOperations.backupwallet, path).ConfigureAwait(false);
 		}
 
@@ -226,7 +226,7 @@ namespace NBitcoin.RPC
 		public async Task<FundRawTransactionResponse> FundRawTransactionAsync(Transaction transaction, FundRawTransactionOptions options = null)
 		{
 			if(transaction == null)
-				throw new ArgumentNullException("transaction");
+				throw new ArgumentNullException(nameof(transaction));
 
 			RPCResponse response = null;
 			if(options != null)
@@ -699,7 +699,7 @@ namespace NBitcoin.RPC
 		public Transaction SignRawTransaction(Transaction tx)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			return SignRawTransactionAsync(tx).GetAwaiter().GetResult();
 		}
 

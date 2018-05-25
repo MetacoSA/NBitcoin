@@ -39,13 +39,13 @@ namespace NBitcoin.BouncyCastle.Crypto.Parameters
 			byte[] seed)
 		{
 			if(curve == null)
-				throw new ArgumentNullException("curve");
+				throw new ArgumentNullException(nameof(curve));
 			if(g == null)
-				throw new ArgumentNullException("g");
+				throw new ArgumentNullException(nameof(g));
 			if(n == null)
-				throw new ArgumentNullException("n");
+				throw new ArgumentNullException(nameof(n));
 			if(h == null)
-				throw new ArgumentNullException("h");
+				throw new ArgumentNullException(nameof(h));
 
 			this.curve = curve;
 			this.g = g.Normalize();

@@ -221,12 +221,13 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanDecodeBTrashAddress()
 		{
-			BitcoinAddress trashAddress = NBitcoin.Altcoins.BCash.Mainnet.Parse<NBitcoin.Altcoins.BCash.BTrashPubKeyAddress>("bitcoincash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a");
-			BitcoinAddress trashAddress2 = trashAddress.ScriptPubKey.GetDestinationAddress(NBitcoin.Altcoins.BCash.Mainnet);
+			var bcash = NBitcoin.Altcoins.BCash.Instance.Mainnet;
+			BitcoinAddress trashAddress = bcash.Parse<NBitcoin.Altcoins.BCash.BTrashPubKeyAddress>("bitcoincash:qpm2qsznhks23z7629mms6s4cwef74vcwvy22gdx6a");
+			BitcoinAddress trashAddress2 = trashAddress.ScriptPubKey.GetDestinationAddress(bcash);
 			Assert.Equal(trashAddress.ToString(), trashAddress2.ToString());
 
-			trashAddress = NBitcoin.Altcoins.BCash.Mainnet.Parse<NBitcoin.Altcoins.BCash.BTrashScriptAddress>("bitcoincash:ppm2qsznhks23z7629mms6s4cwef74vcwvn0h829pq");
-			trashAddress2 = trashAddress.ScriptPubKey.GetDestinationAddress(NBitcoin.Altcoins.BCash.Mainnet);
+			trashAddress = bcash.Parse<NBitcoin.Altcoins.BCash.BTrashScriptAddress>("bitcoincash:ppm2qsznhks23z7629mms6s4cwef74vcwvn0h829pq");
+			trashAddress2 = trashAddress.ScriptPubKey.GetDestinationAddress(bcash);
 			Assert.Equal(trashAddress.ToString(), trashAddress2.ToString());
 		}
 

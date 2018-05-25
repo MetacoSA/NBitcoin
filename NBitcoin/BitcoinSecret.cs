@@ -34,6 +34,11 @@ namespace NBitcoin
 			return _address ?? (_address = PrivateKey.PubKey.GetAddress(Network));
 		}
 
+		public BitcoinWitPubKeyAddress GetSegwitAddress()
+		{
+			return PrivateKey.PubKey.GetSegwitAddress(Network);
+		}
+
 		public virtual KeyId PubKeyHash
 		{
 			get
@@ -135,7 +140,5 @@ namespace NBitcoin
 		}
 
 		#endregion
-
-
 	}
 }

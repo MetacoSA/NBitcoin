@@ -13,28 +13,24 @@ using System.Threading.Tasks;
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/BTCGPU/BTCGPU/blob/master/src/chainparams.cpp
-	public class BitcoinGold
+	public class BGold : NetworkSetBase
 	{
+		public static BGold Instance { get; } = new BGold();
 
-		[Obsolete("Use EnsureRegistered instead")]
-		public static void Register()
+		public override string CryptoCode => "BTG";
+
+		private BGold()
 		{
-			EnsureRegistered();
+
 		}
-		public static void EnsureRegistered()
-		{
-			if(_LazyRegistered.IsValueCreated)
-				return;
-			// This will cause RegisterLazy to evaluate
-			new Lazy<object>[] { _LazyRegistered }.Select(o => o.Value != null).ToList();
-		}
-		static Lazy<object> _LazyRegistered = new Lazy<object>(RegisterLazy, false);
 
 		public class BitcoinGoldConsensusFactory : ConsensusFactory
 		{
-			public BitcoinGoldConsensusFactory()
+			private BitcoinGoldConsensusFactory()
 			{
 			}
+
+			public static BitcoinGoldConsensusFactory Instance { get; } = new BitcoinGoldConsensusFactory();
 
 			public override BlockHeader CreateBlockHeader()
 			{
@@ -43,6 +39,11 @@ namespace NBitcoin.Altcoins
 			public override Block CreateBlock()
 			{
 				return new BitcoinGoldBlock(new BitcoinGoldBlockHeader());
+			}
+
+			public override Transaction CreateTransaction()
+			{
+				return new ForkIdTransaction(79, true, this);
 			}
 		}
 
@@ -56,7 +57,7 @@ namespace NBitcoin.Altcoins
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return BitcoinGold.Mainnet.Consensus.ConsensusFactory;
+				return BitcoinGoldConsensusFactory.Instance;
 			}
 		}
 		public class BitcoinGoldBlockHeader : BlockHeader
@@ -185,12 +186,16 @@ namespace NBitcoin.Altcoins
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
 
-		private static object RegisterLazy()
+		protected override void PostInit()
 		{
-			#region Mainnet
-			var port = 8338;
+			RegisterDefaultCookiePath("BitcoinGold");
+		}
+
+
+		protected override NetworkBuilder CreateMainnet()
+		{
 			NetworkBuilder builder = new NetworkBuilder();
-			_Mainnet = builder.SetConsensus(new Consensus()
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 210000,
 				MajorityEnforceBlockUpgrade = 750,
@@ -205,9 +210,8 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 1916,
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
 				MinimumChainWork = new uint256("0000000000000000000000000000000000000000007e5dbf54c7f6b58a6853cd"),
-				ConsensusFactory = new BitcoinGoldConsensusFactory(),
+				ConsensusFactory = BitcoinGoldConsensusFactory.Instance,
 				SupportSegwit = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 38 })
@@ -218,7 +222,7 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("btg"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("btg"))
 			.SetMagic(0x446d47e1)
-			.SetPort(port)
+			.SetPort(8338)
 			.SetRPCPort(8337)
 			.SetMaxP2PVersion(70016)
 			.SetName("btg-main")
@@ -232,14 +236,14 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("btcgpu.org", "dnsseed.btcgpu.org"),
 			})
 			.AddSeeds(new NetworkAddress[0])
-			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a000000000000000000000000000000000000000000000000000000000000000029ab5f49ffff001d1dac2b7c00000000000000000000000000000000000000000000000000000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000")
-			.BuildAndRegister();
-			#endregion
+			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a000000000000000000000000000000000000000000000000000000000000000029ab5f49ffff001d1dac2b7c00000000000000000000000000000000000000000000000000000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
+			return builder;
+		}
 
-			#region Testnet
-			builder = new NetworkBuilder();
-			port = 18338;
-			_Testnet = builder.SetConsensus(new Consensus()
+		protected override NetworkBuilder CreateTestnet()
+		{
+			var builder = new NetworkBuilder();
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 210000,
 				MajorityEnforceBlockUpgrade = 51,
@@ -254,9 +258,8 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 1512,
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("00000000e0781ebe24b91eedc293adfea2f557b53ec379e78959de3853e6f9f6"),
 				MinimumChainWork = new uint256("00000000000000000000000000000000000000000000002888c34d61b53a244a"),
-				ConsensusFactory = new BitcoinGoldConsensusFactory(),
+				ConsensusFactory = BitcoinGoldConsensusFactory.Instance,
 				SupportSegwit = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
@@ -267,7 +270,7 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tbtg"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tbtg"))
 			.SetMagic(0x456e48e2)
-			.SetPort(port)
+			.SetPort(18338)
 			.SetRPCPort(18337)
 			.SetMaxP2PVersion(70016)
 			.SetName("btg-test")
@@ -281,14 +284,14 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("btcgpu.org", "test-dnsseed.btcgpu.org"),
 			})
 			.AddSeeds(new NetworkAddress[0])
-			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a00000000000000000000000000000000000000000000000000000000000000007c355e5affff001d4251bd5600000000000000000000000000000000000000000000000000000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000")
-			.BuildAndRegister();
-			#endregion
+			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a00000000000000000000000000000000000000000000000000000000000000007c355e5affff001d4251bd5600000000000000000000000000000000000000000000000000000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
+			return builder;
+		}
 
-			#region Regtest
-			builder = new NetworkBuilder();
-			port = 18444;
-			_Regtest = builder.SetConsensus(new Consensus()
+		protected override NetworkBuilder CreateRegtest()
+		{
+			var builder = new NetworkBuilder();
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 150,
 				MajorityEnforceBlockUpgrade = 750,
@@ -304,8 +307,7 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"),
-				ConsensusFactory = new BitcoinGoldConsensusFactory(),
+				ConsensusFactory = BitcoinGoldConsensusFactory.Instance,
 				SupportSegwit = true
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
@@ -316,87 +318,15 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tbtg"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tbtg"))
 			.SetMagic(0xdab5bffa)
-			.SetPort(port)
+			.SetPort(18444)
 			.SetRPCPort(18443)
 			.SetMaxP2PVersion(70016)
 			.SetName("btg-reg")
 			.AddAlias("btg-regtest")
 			.AddAlias("bitcoingold-reg")
 			.AddAlias("bitcoingold-regtest")
-			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a0000000000000000000000000000000000000000000000000000000000000000dae5494dffff7f200200000000000000000000000000000000000000000000000000000000000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000")
-			.BuildAndRegister();
-			#endregion
-
-			var home = Environment.GetEnvironmentVariable("HOME");
-			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
-
-			if(string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
-				return new object();
-
-			if(!string.IsNullOrEmpty(home))
-			{
-				var bitcoinFolder = Path.Combine(home, ".bitcoingold");
-
-				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BitcoinGold._Mainnet, mainnet);
-
-				var testnet = Path.Combine(bitcoinFolder, "testnet3", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BitcoinGold._Testnet, testnet);
-
-				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BitcoinGold._Regtest, regtest);
-			}
-			else if(!string.IsNullOrEmpty(localAppData))
-			{
-				var bitcoinFolder = Path.Combine(localAppData, "BitcoinGold");
-
-				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BitcoinGold._Mainnet, mainnet);
-
-				var testnet = Path.Combine(bitcoinFolder, "testnet3", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BitcoinGold._Testnet, testnet);
-
-				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(BitcoinGold._Regtest, regtest);
-			}
-			return new object();
-		}
-
-		private static IEnumerable<NetworkAddress> ToSeed(Tuple<byte[], int>[] tuples)
-		{
-			return tuples
-					.Select(t => new NetworkAddress(new IPAddress(t.Item1), t.Item2))
-					.ToArray();
-		}
-
-		private static Network _Mainnet;
-		public static Network Mainnet
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Mainnet;
-			}
-		}
-
-		private static Network _Regtest;
-		public static Network Regtest
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Regtest;
-			}
-		}
-
-		private static Network _Testnet;
-		public static Network Testnet
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Testnet;
-			}
+			.SetGenesis("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a0000000000000000000000000000000000000000000000000000000000000000dae5494dffff7f200200000000000000000000000000000000000000000000000000000000000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
+			return builder;
 		}
 	}
 }

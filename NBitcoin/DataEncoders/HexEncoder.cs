@@ -17,7 +17,7 @@ namespace NBitcoin.DataEncoders
 		public override string EncodeData(byte[] data, int offset, int count)
 		{
 			if(data == null)
-				throw new ArgumentNullException("data");
+				throw new ArgumentNullException(nameof(data));
 
 			int pos = 0;
 			var spaces = (Space ? Math.Max((count - 1), 0) : 0);
@@ -36,7 +36,7 @@ namespace NBitcoin.DataEncoders
 		public override byte[] DecodeData(string encoded)
 		{
 			if(encoded == null)
-				throw new ArgumentNullException("encoded");
+				throw new ArgumentNullException(nameof(encoded));
 			if(encoded.Length % 2 == 1)
 				throw new FormatException("Invalid Hex String");
 

@@ -6,25 +6,24 @@ Currently supported altcoins are:
 * Feathercoin
 * Dogecoin
 * Dash
-* BitcoinGold
+* BGold (also known as Bitcoin Gold)
 * Polis
 * BCash (also known as Bitcoin Cash)
+* Monacoin
 
 ## How to use?
 
 This package expose altcoin's `Network` class.
 For example if you want to use Litecoin testnet:
 
-Once in your program call:
-
 ```
-NBitcoin.Altcoins.Litecoin.EnsureRegistered();
+Network network = NBitcoin.Altcoins.Litecoin.Instance.Testnet;
 ```
 
-Then you can get the network instance in this way:
+You can then use this fork generating a Litecoin address for example:
 
 ```
-Network network = NBitcoin.Altcoins.Litecoin.Testnet;
+Console.WriteLine(new Key().PubKey.GetAddress(network));
 ```
 
 ## How to support my own altcoin?
@@ -42,8 +41,7 @@ Then, change [NodeBuilderEx](../NBitcoin.Tests/NodeBuilderEx.cs) like the follow
 ```
 public static NodeBuilder Create([CallerMemberName] string caller = null)
 {
-	Altcoins.Litecoin.EnsureRegistered();
-	return NodeBuilder.Create(NodeDownloadData.Litecoin.v0_15_1, Altcoins.Litecoin.Regtest, caller);
+	return NodeBuilder.Create(NodeDownloadData.Litecoin.v0_15_1, Altcoins.AltNetworkSets.Litecoin.Regtest, caller);
 }
 ```
 

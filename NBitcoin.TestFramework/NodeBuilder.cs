@@ -1,5 +1,4 @@
-﻿using NBitcoin;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
@@ -148,7 +147,7 @@ namespace NBitcoin.Tests
 		private static void CheckHash(NodeOSDownloadData osDownloadData, byte[] data)
 		{
 			var actual = Encoders.Hex.EncodeData(Hashes.SHA256(data));
-			if(actual != osDownloadData.Hash)
+			if(!actual.Equals(osDownloadData.Hash, StringComparison.OrdinalIgnoreCase))
 				throw new Exception($"Hash of downloaded file does not match (Expected: {osDownloadData.Hash}, Actual: {actual})");
 		}
 
@@ -375,7 +374,7 @@ namespace NBitcoin.Tests
 			rpc.AddNode(node.Endpoint, true);
 			while(rpc.GetBestBlockHash() != rpc1.GetBestBlockHash())
 			{
-				Thread.Sleep(200);
+				Task.Delay(200).GetAwaiter().GetResult();
 			}
 			if(!keepConnection)
 				rpc.RemoveNode(node.Endpoint);

@@ -12,13 +12,22 @@ using System.Threading.Tasks;
 namespace NBitcoin.Altcoins
 {
 	// Reference: https://github.com/dogecoin/dogecoin/blob/10a5e93a055ab5f239c5447a5fe05283af09e293/src/chainparams.cpp
-	public class Dogecoin
+	public class Dogecoin : NetworkSetBase
 	{
+		public static Dogecoin Instance { get; } = new Dogecoin();
+
+		public override string CryptoCode => "DOGE";
+
+		private Dogecoin()
+		{
+
+		}
 		public class DogeConsensusFactory : ConsensusFactory
 		{
-			public DogeConsensusFactory()
+			private DogeConsensusFactory()
 			{
 			}
+			public static DogeConsensusFactory Instance { get; } = new DogeConsensusFactory();
 
 			public override BlockHeader CreateBlockHeader()
 			{
@@ -152,7 +161,7 @@ namespace NBitcoin.Altcoins
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Dogecoin.Mainnet.Consensus.ConsensusFactory;
+				return DogeConsensusFactory.Instance;
 			}
 		}
 		public class DogecoinBlockHeader : BlockHeader
@@ -200,34 +209,19 @@ namespace NBitcoin.Altcoins
 		//static Tuple<byte[], int>[] pnSeed6_main = null;
 		//static Tuple<byte[], int>[] pnSeed6_test = null;
 		// Not used in DOGE: https://github.com/dogecoin/dogecoin/blob/10a5e93a055ab5f239c5447a5fe05283af09e293/src/chainparams.cpp#L135
+		
 
-		[Obsolete("Use EnsureRegistered instead")]
-		public static void Register()
+		static uint256 GetPoWHash(BlockHeader header)
 		{
-			EnsureRegistered();
-		}
-		public static void EnsureRegistered()
-		{
-			if(_LazyRegistered.IsValueCreated)
-				return;
-			// This will cause RegisterLazy to evaluate
-			new Lazy<object>[] { _LazyRegistered }.Select(o => o.Value != null).ToList();
-		}
-		static Lazy<object> _LazyRegistered = new Lazy<object>(RegisterLazy, false);
-
-		private static object RegisterLazy()
-		{
-			_Mainnet = mainnetReg();
-			_Testnet = testnetReg();
-			_Regtest = regtestReg();
-
-			return new object();
+			var headerBytes = header.ToBytes();
+			var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
+			return new uint256(h);
 		}
 
-		private static Network mainnetReg()
+		protected override NetworkBuilder CreateMainnet()
 		{
 			var builder = new NetworkBuilder();
-			var res = builder.SetConsensus(new Consensus()
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 100000,
 				MajorityEnforceBlockUpgrade = 1500,
@@ -242,8 +236,7 @@ namespace NBitcoin.Altcoins
 				PowNoRetargeting = false,
 				//RuleChangeActivationThreshold = 6048,
 				//MinerConfirmationWindow = 8064,
-				HashGenesisBlock = new uint256("1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691"),
-				ConsensusFactory = new DogeConsensusFactory(),
+				ConsensusFactory = DogeConsensusFactory.Instance,
 				LitecoinWorkCalculation = true,
 				SupportSegwit = false
 			})
@@ -269,40 +262,14 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("doger.dogecoin.com", "seed.doger.dogecoin.com")
 			})
 			.AddSeeds(new NetworkAddress[0])
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000696ad20e2dd4365c7459b4a4a5af743d5e92c6da3229e6532cd605f6533f2a5b24a6a152f0ff0f1e678601000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1004ffff001d0104084e696e746f6e646fffffffff010058850c020000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
-			.BuildAndRegister();
-
-			registerDefaultCookiePath(res, ".cookie");
-
-			return res;
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000696ad20e2dd4365c7459b4a4a5af743d5e92c6da3229e6532cd605f6533f2a5b24a6a152f0ff0f1e678601000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1004ffff001d0104084e696e746f6e646fffffffff010058850c020000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			return builder;
 		}
 
-		private static void registerDefaultCookiePath(Network network, params string[] subfolders)
-		{
-			var home = Environment.GetEnvironmentVariable("HOME");
-			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
-			if(!string.IsNullOrEmpty(home))
-			{
-				var pathList = new List<string> { home, ".dogecoin" };
-				pathList.AddRange(subfolders);
-
-				var fullPath = Path.Combine(pathList.ToArray());
-				RPCClient.RegisterDefaultCookiePath(network, fullPath);
-			}
-			else if(!string.IsNullOrEmpty(localAppData))
-			{
-				var pathList = new List<string> { localAppData, "Dogecoin" };
-				pathList.AddRange(subfolders);
-
-				var fullPath = Path.Combine(pathList.ToArray());
-				RPCClient.RegisterDefaultCookiePath(network, fullPath);
-			}
-		}
-
-		private static Network testnetReg()
+		protected override NetworkBuilder CreateTestnet()
 		{
 			var builder = new NetworkBuilder();
-			var res = builder.SetConsensus(new Consensus()
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 100000,
 				MajorityEnforceBlockUpgrade = 501,
@@ -318,9 +285,8 @@ namespace NBitcoin.Altcoins
 				PowNoRetargeting = false,
 				//RuleChangeActivationThreshold = 6048,
 				//MinerConfirmationWindow = 8064,
-				HashGenesisBlock = new uint256("1a91e3dace36e2be3bf030a65679fe821aa1d6ef92e7c9902eb318182c355691"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new DogeConsensusFactory(),
+				ConsensusFactory = DogeConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 113 })
@@ -342,18 +308,14 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("jrn.me.uk", "testseed.jrn.me.uk")
 		   })
 		   .AddSeeds(new NetworkAddress[0])
-		   .SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000696ad20e2dd4365c7459b4a4a5af743d5e92c6da3229e6532cd605f6533f2a5bb9a7f052f0ff0f1ef7390f000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1004ffff001d0104084e696e746f6e646fffffffff010058850c020000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
-		   .BuildAndRegister();
-
-			registerDefaultCookiePath(res, "testnet3", ".cookie");
-
-			return res;
+		   .SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000696ad20e2dd4365c7459b4a4a5af743d5e92c6da3229e6532cd605f6533f2a5bb9a7f052f0ff0f1ef7390f000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1004ffff001d0104084e696e746f6e646fffffffff010058850c020000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			return builder;
 		}
 
-		private static Network regtestReg()
+		protected override NetworkBuilder CreateRegtest()
 		{
 			var builder = new NetworkBuilder();
-			var res = builder.SetConsensus(new Consensus()
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 150,
 				MajorityEnforceBlockUpgrade = 750,
@@ -368,9 +330,8 @@ namespace NBitcoin.Altcoins
 				PowNoRetargeting = false,
 				//RuleChangeActivationThreshold = 6048,
 				//MinerConfirmationWindow = 8064,
-				HashGenesisBlock = new uint256("3d2160a3b5dc4a9d62e7e66a295f70313ac808440ef7400d6c0772171ce973a5"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new DogeConsensusFactory(),
+				ConsensusFactory = DogeConsensusFactory.Instance,
 				SupportSegwit = false
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 113 })
@@ -389,53 +350,16 @@ namespace NBitcoin.Altcoins
 			.AddAlias("dogecoin-reg")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000696ad20e2dd4365c7459b4a4a5af743d5e92c6da3229e6532cd605f6533f2a5bdae5494dffff7f20020000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1004ffff001d0104084e696e746f6e646fffffffff010058850c020000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
-			.BuildAndRegister();
-
-			registerDefaultCookiePath(res, "regtest", ".cookie");
-
-			return res;
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000696ad20e2dd4365c7459b4a4a5af743d5e92c6da3229e6532cd605f6533f2a5bdae5494dffff7f20020000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1004ffff001d0104084e696e746f6e646fffffffff010058850c020000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			return builder;
 		}
 
-
-
-
-
-		static uint256 GetPoWHash(BlockHeader header)
+		protected override void PostInit()
 		{
-			var headerBytes = header.ToBytes();
-			var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
-			return new uint256(h);
+			RegisterDefaultCookiePath(Mainnet, ".cookie");
+			RegisterDefaultCookiePath(Testnet, "testnet3", ".cookie");
+			RegisterDefaultCookiePath(Regtest, "regtest", ".cookie");
 		}
 
-		private static Network _Mainnet;
-		public static Network Mainnet
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Mainnet;
-			}
-		}
-
-		private static Network _Regtest;
-		public static Network Regtest
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Regtest;
-			}
-		}
-
-		private static Network _Testnet;
-		public static Network Testnet
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Testnet;
-			}
-		}
 	}
 }

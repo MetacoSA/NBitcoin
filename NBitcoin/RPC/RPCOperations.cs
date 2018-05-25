@@ -98,6 +98,7 @@ namespace NBitcoin.RPC
 		verifychain,
 		getchaintips,
 		invalidateblock,
-		bumpfee
+		bumpfee,
+		abandontransaction
 	}
 }

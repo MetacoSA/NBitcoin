@@ -136,9 +136,9 @@ namespace NBitcoin.Stealth
 		public void AddToTransaction(Transaction transaction, Money value)
 		{
 			if(transaction == null)
-				throw new ArgumentNullException("transaction");
+				throw new ArgumentNullException(nameof(transaction));
 			if(value == null)
-				throw new ArgumentNullException("value");
+				throw new ArgumentNullException(nameof(value));
 			transaction.Outputs.Add(new TxOut(0, Metadata.Script));
 			transaction.Outputs.Add(new TxOut(value, ScriptPubKey));
 		}
@@ -159,7 +159,7 @@ namespace NBitcoin.Stealth
 					if(scriptId != null)
 					{
 						if(address == null)
-							throw new ArgumentNullException("address");
+							throw new ArgumentNullException(nameof(address));
 						redeem = CreatePaymentScript(address, metadata.EphemKey, scan);
 						expectedScriptPubKey = redeem.Hash.ScriptPubKey;
 						if(expectedScriptPubKey != scriptPubKey)

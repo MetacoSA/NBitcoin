@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FB4BE9
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NBitcoin.Tests", "NBitcoin.Tests\NBitcoin.Tests.csproj", "{9F7C1BCF-0BCE-41D3-9DF3-D4939A98636D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBitcoin.Altcoins", "NBitcoin.Altcoins\NBitcoin.Altcoins.csproj", "{3588C2BF-783C-4DBF-ADBC-16C78B8B109A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NBitcoin.Altcoins", "NBitcoin.Altcoins\NBitcoin.Altcoins.csproj", "{3588C2BF-783C-4DBF-ADBC-16C78B8B109A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NBitcoin.TestFramework", "NBitcoin.TestFramework\NBitcoin.TestFramework.csproj", "{653C0F21-25FE-4B72-95AC-20D070A45415}"
 EndProject

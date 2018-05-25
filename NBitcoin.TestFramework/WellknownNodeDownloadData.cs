@@ -115,6 +115,35 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class ViacoinNodeDownloadData
+		{
+			public NodeDownloadData v0_15_1 = new NodeDownloadData()
+			{
+				Version = "0.15.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/viacoin/viacoin/releases/download/v{0}/viacoin-{0}-win64.zip",
+					Archive = "viacoin-{0}-win64.zip",
+					Executable = "viacoin-{0}/bin/viacoind.exe",
+					Hash = "408d270db88e345fb5d4e93b5ec0f7761c676e4d795458ebaffce6de6cde65af"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/viacoin/viacoin/releases/download/v{0}.0/viacoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "viacoin-{0}-linux64.tar.gz",
+					Executable = "viacoin-{0}/bin/viacoind",
+					Hash = "673bfd17194ca4fe8408450e1871447d461ce26925e71ea55eebd89c379f5775"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/viacoin/viacoin/releases/download/v{0}.0/viacoin-{0}-osx-unsigned.dmg",
+					Archive = "viacoin-{0}-osx64.tar.gz",
+					Executable = "viacoin-{0}/bin/viacoind",
+					Hash = "673bfd17194ca4fe8408450e1871447d461ce26925e71ea55eebd89c379f5775"
+				}
+			};
+		}
+
 		public class BCashNodeDownloadData
 		{
 			public NodeDownloadData v0_16_2 = new NodeDownloadData()
@@ -146,30 +175,30 @@ namespace NBitcoin.Tests
 
 		public class FeathercoinNodeDownloadData
 		{
-			public NodeDownloadData v0_13_1 = new NodeDownloadData()
+			public NodeDownloadData v0_16_0 = new NodeDownloadData()
 			{
-				Version = "0.13.1",
+				Version = "0.16.0",
 				Windows = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/FeatherCoin/Feathercoin/releases/download/v{0}.0/feathercoin-{0}-win-setup.exe",
+					DownloadLink = "https://downloads.feathercoin.com/feathercoin-{0}.zip",
 					Archive = "feathercoin-{0}-win64.zip",
 					Executable = "feathercoin-{0}/bin/feathercoind.exe",
-					Hash = "7eb76875e38bf3c2ed35afe06d2b133780b935b81a285f8de5522ebb6e99523c"
-				},
+					Hash = "5BA572C4283E8C4C0332A8072C82B4C8FD6CADD0D15E6400BA1C0C2991575155"
+                },
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/FeatherCoin/Feathercoin/releases/download/v{0}.0/feathercoin-{0}-linux64.tar.gz",
-					Archive = "feathercoin-{0}-linux64.tar.gz",
+					DownloadLink = "http://downloads.feathercoin.com/feathercoin-0.16.0-x86_64-linux-gnu.tar.gz",
+					Archive = "feathercoin-{0}-x86_64-linux-gnu.tar.gz",
 					Executable = "feathercoin-{0}/bin/feathercoind",
-					Hash = "a24ec110cc45c935028f64198e054e1a7b096caf7671614f288f38ec516e1fd9"
-				},
+					Hash = "5673DA0CE1141D5417D6EE502DAD8741F36100CDF89B4F67A525475E9EB435DE"
+                },
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/FeatherCoin/Feathercoin/releases/download/v{0}.0/feathercoin-{0}-mac.dmg",
+					DownloadLink = "http://downloads.feathercoin.com/feathercoin-{0}-osx64.tar.gz",
 					Archive = "feathercoin-{0}-osx64.tar.gz",
 					Executable = "feathercoin-{0}/bin/feathercoind",
-					Hash = "19d243507d8e1ad5de22b82363f5fad069037f9b419f7c01ed56af5150060737"
-				}
+					Hash = "E6ECE15424DDD83E3FAC64F9A0786AD40F8D89A24ECDC6285353435CD46EEBB1"
+                }
 			};
 		}
 
@@ -231,7 +260,7 @@ namespace NBitcoin.Tests
 			};
 		}
 		
-		public class BitcoinGoldNodeDownloadData
+		public class BGoldNodeDownloadData
 		{
 			public NodeDownloadData v0_15_0 = new NodeDownloadData()
 			{
@@ -289,6 +318,35 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class MonacoinNodeDownloadData
+		{
+			public NodeDownloadData v0_15_1 = new NodeDownloadData()
+			{
+				Version = "0.15.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/monacoinproject/monacoin/releases/download/monacoin-{0}/monacoin-{0}-win64.zip",
+					Archive = "monacoin-{0}-win64.zip",
+					Executable = "monacoin-{0}/bin/monacoind.exe",
+					Hash = "420cba3c5e70cc913c2cacab9162e8fd1408fc2aaa345b04d3f44615c63d7b17"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/monacoinproject/monacoin/releases/download/monacoin-{0}/monacoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "monacoin-{0}-linux64.tar.gz",
+					Executable = "monacoin-{0}/bin/monacoind",
+					Hash = "8199f92d4296ea99891db34f5d779d7e95a2338425544b82b04fd8b427dae905"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/monacoinproject/monacoin/releases/download/monacoin-{0}/monacoin-{0}-osx-unsigned.dmg",
+					Archive = "monacoin-{0}-osx.dmg",
+					Executable = "monacoin-{0}/bin/monacoind",
+					Hash = "d19cc2cc12732c49351add23075c4f7a4ec92ee04874ec7037429dc4f9f1c058"
+				}
+			};
+		}
+
 		public static BitcoinNodeDownloadData Bitcoin
 		{
 			get; set;
@@ -299,6 +357,11 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new LitecoinNodeDownloadData();
 
+		public static ViacoinNodeDownloadData Viacoin
+		{
+			get; set;
+		} = new ViacoinNodeDownloadData();
+		
 		public static BCashNodeDownloadData BCash
 		{
 			get; set;
@@ -319,15 +382,19 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new DashNodeDownloadData();
 
-		public static BitcoinGoldNodeDownloadData BitcoinGold
+		public static BGoldNodeDownloadData BGold
 		{
 			get; set;
-		} = new BitcoinGoldNodeDownloadData();
+		} = new BGoldNodeDownloadData();
 
 		public static PolisNodeDownloadData Polis
 		{
 			get; set;
 		} = new PolisNodeDownloadData();
 
+		public static MonacoinNodeDownloadData Monacoin
+		{
+			get; set;
+		} = new MonacoinNodeDownloadData();
 	}
 }

@@ -257,7 +257,7 @@ namespace NBitcoin.SPV
 #pragma warning restore CS0612 // Type or member is obsolete
 		{
 			if(creation == null)
-				throw new ArgumentNullException("creation");
+				throw new ArgumentNullException(nameof(creation));
 			_Parameters = creation;
 			_ScanLocation = new BlockLocator();
 			_ScanLocation.Blocks.Add(creation.Network.GetGenesis().GetHash());
@@ -642,7 +642,7 @@ namespace NBitcoin.SPV
 		public void Configure(NodeConnectionParameters parameters)
 		{
 			if(parameters == null)
-				throw new ArgumentNullException("parameters");
+				throw new ArgumentNullException(nameof(parameters));
 			Configure(new NodesGroup(_Parameters.Network, parameters));
 		}
 
@@ -653,7 +653,7 @@ namespace NBitcoin.SPV
 		public void Configure(NodesGroup group)
 		{
 			if(group == null)
-				throw new ArgumentNullException("group");
+				throw new ArgumentNullException(nameof(group));
 
 			var parameters = group.NodeConnectionParameters;
 			group.Requirements.SupportSPV = true;

@@ -23,7 +23,7 @@ namespace NBitcoin.Protocol
 		public VarString(byte[] bytes)
 		{
 			if(bytes == null)
-				throw new ArgumentNullException("bytes");
+				throw new ArgumentNullException(nameof(bytes));
 			_Bytes = bytes;
 		}
 		public byte[] GetString()

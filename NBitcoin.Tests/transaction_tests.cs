@@ -1633,6 +1633,7 @@ namespace NBitcoin.Tests
 
 			var txBuilder = new TransactionBuilder(0);
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
+			txBuilder.MergeOutputs = false;
 			var tx = txBuilder
 				.AddCoins(allCoins)
 				.AddKeys(keys)
@@ -1654,6 +1655,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(witCoins.Count, tx.Inputs.Count - errors.Length);
 
 			txBuilder = new TransactionBuilder(0);
+			txBuilder.MergeOutputs = false;
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			tx = txBuilder
 			   .AddCoins(allCoins)
@@ -1674,6 +1676,7 @@ namespace NBitcoin.Tests
 			Assert.True((Money)ex.Missing == Money.Parse("0.9999"));
 			//Can sign partially
 			txBuilder = new TransactionBuilder(0);
+			txBuilder.MergeOutputs = false;
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			tx = txBuilder
 					.AddCoins(allCoins)
@@ -1801,8 +1804,30 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseLTubLitecoin()
 		{
-			new BitcoinExtKey("Ltpv71G8qDifUiNesyXJM9i5RzRB5HHFWfjseAX7mXY6vim2BHMBHgZJi9poW2J5FveLFg4PnPXf6y2VLtYoTDxJAhbVRRpo3GeKKx1wveysYnw", NBitcoin.Altcoins.Litecoin.Mainnet);
-			new BitcoinExtPubKey("Ltub2SSUS19CirucVaJxxH11bYDCEmze824yTDJCzRg5fDNN3oBWussWgRA7Zyiya98dAErcvDsw7rAuuZuZug3Ve6iT5uVkwPAKwQphBiQdjNd", NBitcoin.Altcoins.Litecoin.Mainnet);
+			new BitcoinExtKey("Ltpv71G8qDifUiNesyXJM9i5RzRB5HHFWfjseAX7mXY6vim2BHMBHgZJi9poW2J5FveLFg4PnPXf6y2VLtYoTDxJAhbVRRpo3GeKKx1wveysYnw", NBitcoin.Altcoins.Litecoin.Instance.Mainnet);
+			new BitcoinExtPubKey("Ltub2SSUS19CirucVaJxxH11bYDCEmze824yTDJCzRg5fDNN3oBWussWgRA7Zyiya98dAErcvDsw7rAuuZuZug3Ve6iT5uVkwPAKwQphBiQdjNd", NBitcoin.Altcoins.Litecoin.Instance.Mainnet);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void EnsureThatTransactionBuilderDoesNotMakeTooLowFeeTransaction()
+		{
+			var fromKey = new Key();
+			var redeem = fromKey.PubKey.WitHash.ScriptPubKey;
+			var from = redeem.Hash.ScriptPubKey;
+			var p2wpkh = new Key().PubKey.WitHash.ScriptPubKey;
+
+			var oneSatPerByte = new FeeRate(Money.Satoshis(1), 1);
+			TransactionBuilder builder = new TransactionBuilder();
+			builder.AddCoins(new ScriptCoin(RandOutpoint(), new TxOut(Money.Coins(1), from), redeem));
+			builder.AddKeys(fromKey);
+			builder.Send(p2wpkh, Money.Coins(1));
+			builder.SubtractFees();
+			builder.SendEstimatedFees(oneSatPerByte);
+			var tx = builder.BuildTransaction(true);
+
+			var feeRate = tx.GetFeeRate(builder.FindSpentCoins(tx));
+			Assert.True(feeRate >= oneSatPerByte);
 		}
 
 		[Fact]
@@ -1824,7 +1849,7 @@ namespace NBitcoin.Tests
 			var builder = new TransactionBuilder();
 			builder.StandardTransactionPolicy = EasyPolicy.Clone();
 			builder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(new Money(1000));
-
+			builder.MergeOutputs = false;
 			Func<Transaction> create = () => builder
 				.AddCoins(coins)
 				.AddKeys(bob)
@@ -1847,6 +1872,7 @@ namespace NBitcoin.Tests
 			Assert.True((Money)ex.Missing == Money.Parse("-0.00000500"));
 
 			builder = new TransactionBuilder();
+			builder.MergeOutputs = false;
 			builder.DustPrevention = false;
 			builder.StandardTransactionPolicy = EasyPolicy.Clone();
 			builder.StandardTransactionPolicy.MinRelayTxFee = new FeeRate(new Money(1000));
@@ -2867,6 +2893,29 @@ namespace NBitcoin.Tests
 			Assert.Throws<ArgumentOutOfRangeException>(() => new Sequence(TimeSpan.FromSeconds(512 * (0xFFFF + 1))));
 			new Sequence(TimeSpan.FromSeconds(512 * (0xFFFF)));
 			Assert.Throws<InvalidOperationException>(() => new Sequence(time).LockHeight);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CannotBuildDoubleSpendingTransactions()
+		{
+			var key = new Key();
+
+			var coin = new Coin(new OutPoint(Rand(), 0), new TxOut(Money.Coins(1.0m), key.PubKey.Hash));
+
+			var txBuilder = new TransactionBuilder();
+			var tx = txBuilder
+				.AddCoins(coin)
+				.AddKeys(key)
+				.Send(key.ScriptPubKey, Money.Coins(0.999m))
+				.SendFees(Money.Coins(0.001m))
+				.BuildTransaction(false);
+
+			Assert.Throws<InvalidOperationException>(()=>{
+				txBuilder
+					.ContinueToBuild(tx)
+					.BuildTransaction(true);
+			});
 		}
 
 		[Fact]

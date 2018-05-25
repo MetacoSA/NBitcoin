@@ -13,7 +13,7 @@ namespace NBitcoin.Protocol
 		public IDisposable AddMessageListener(MessageListener<T> listener)
 		{
 			if(listener == null)
-				throw new ArgumentNullException("listener");
+				throw new ArgumentNullException(nameof(listener));
 			lock(_Listeners)
 			{
 				return new Scope(() =>
@@ -32,7 +32,7 @@ namespace NBitcoin.Protocol
 		public void RemoveMessageListener(MessageListener<T> listener)
 		{
 			if(listener == null)
-				throw new ArgumentNullException("listener");
+				throw new ArgumentNullException(nameof(listener));
 			lock(_Listeners)
 			{
 				_Listeners.Add(listener);
@@ -42,7 +42,7 @@ namespace NBitcoin.Protocol
 		public void PushMessage(T message)
 		{
 			if(message == null)
-				throw new ArgumentNullException("message");
+				throw new ArgumentNullException(nameof(message));
 			lock(_Listeners)
 			{
 				foreach(var listener in _Listeners)
@@ -56,13 +56,13 @@ namespace NBitcoin.Protocol
 		public void PushMessages(IEnumerable<T> messages)
 		{
 			if(messages == null)
-				throw new ArgumentNullException("messages");
+				throw new ArgumentNullException(nameof(messages));
 			lock(_Listeners)
 			{
 				foreach(var message in messages)
 				{
 					if(message == null)
-						throw new ArgumentNullException("message");
+						throw new ArgumentNullException(nameof(message));
 					foreach(var listener in _Listeners)
 					{
 						listener.PushMessage(message);

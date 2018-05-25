@@ -7,6 +7,8 @@
 	</PropertyGroup>
   <PropertyGroup>
 	  <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+	  <TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true' And '$(MSBuildRuntimeType)' == 'Full' ">net461</TargetFrameworks>
+	  <TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true' And '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp2.0</TargetFrameworks>
 	  <NoWarn>CS0618</NoWarn>
   </PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
@@ -157,6 +159,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="data\block169482.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\bip158_vectors.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="README.txt" />

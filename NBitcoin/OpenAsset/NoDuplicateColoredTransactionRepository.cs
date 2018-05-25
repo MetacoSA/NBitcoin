@@ -11,7 +11,7 @@ namespace NBitcoin.OpenAsset
 		public NoDuplicateColoredTransactionRepository(IColoredTransactionRepository inner)
 		{
 			if(inner == null)
-				throw new ArgumentNullException("inner");
+				throw new ArgumentNullException(nameof(inner));
 			_Inner = inner;
 		}
 		IColoredTransactionRepository _Inner;

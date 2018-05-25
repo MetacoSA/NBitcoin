@@ -119,6 +119,11 @@ namespace NBitcoin
 		WitnessPubkeyType = (1U << 15),
 
 		/// <summary>
+		/// Some altcoins like BCash and BGold requires ForkId inside the sigHash
+		/// </summary>
+		ForkId = (1U << 29),
+
+		/// <summary>
 		/// Mandatory script verification flags that all new blocks must comply with for
 		/// them to be valid. (but old blocks may not comply with) Currently just P2SH,
 		/// but in the future other flags may be added, such as a soft-fork to enforce
@@ -460,7 +465,7 @@ namespace NBitcoin
 		}
 
 
-		internal int FindAndDelete(OpcodeType op)
+		public int FindAndDelete(OpcodeType op)
 		{
 			return FindAndDelete(new Op()
 			{
@@ -588,206 +593,22 @@ namespace NBitcoin
 			}
 		}
 
-		//https://en.bitcoin.it/wiki/OP_CHECKSIG
+		[Obsolete("Use Transaction.GetSignatureHash(ICoin coin, SigHash nHashType = SigHash.All) instead")]
 		public static uint256 SignatureHash(ICoin coin, Transaction txTo, SigHash nHashType = SigHash.All)
 		{
-			var input = txTo.Inputs.AsIndexedInputs().FirstOrDefault(i => i.PrevOut == coin.Outpoint);
-			if(input == null)
-				throw new ArgumentException("coin should be spent spent in txTo", "coin");
-			return input.GetSignatureHash(coin, nHashType);
+			return txTo.GetSignatureHash(coin, nHashType);
 		}
 
+		[Obsolete("Use Transaction.GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original) instead")]
 		public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original)
 		{
-			return SignatureHash(scriptCode, txTo, nIn, nHashType, amount, sigversion, null);
+			return txTo.GetSignatureHash(scriptCode, nIn, nHashType, amount, sigversion, null);
 		}
 
-		//https://en.bitcoin.it/wiki/OP_CHECKSIG
+		[Obsolete("Use Transaction.GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData) instead")]
 		public static uint256 SignatureHash(Script scriptCode, Transaction txTo, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
-			if(sigversion == HashVersion.Witness)
-			{
-				if(amount == null)
-					throw new ArgumentException("The amount of the output being signed must be provided", "amount");
-				uint256 hashPrevouts = uint256.Zero;
-				uint256 hashSequence = uint256.Zero;
-				uint256 hashOutputs = uint256.Zero;
-
-				if((nHashType & SigHash.AnyoneCanPay) == 0)
-				{
-					hashPrevouts = precomputedTransactionData == null ?
-								   GetHashPrevouts(txTo) : precomputedTransactionData.HashPrevouts;
-				}
-
-				if((nHashType & SigHash.AnyoneCanPay) == 0 && ((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
-				{
-					hashSequence = precomputedTransactionData == null ?
-								   GetHashSequence(txTo) : precomputedTransactionData.HashSequence;
-				}
-
-				if(((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
-				{
-					hashOutputs = precomputedTransactionData == null ?
-									GetHashOutputs(txTo) : precomputedTransactionData.HashOutputs;
-				}
-				else if(((uint)nHashType & 0x1f) == (uint)SigHash.Single && nIn < txTo.Outputs.Count)
-				{
-					BitcoinStream ss = CreateHashWriter(sigversion);
-					ss.ReadWrite(txTo.Outputs[nIn]);
-					hashOutputs = GetHash(ss);
-				}
-
-				BitcoinStream sss = CreateHashWriter(sigversion);
-				// Version
-				sss.ReadWrite(txTo.Version);
-				// Input prevouts/nSequence (none/all, depending on flags)
-				sss.ReadWrite(hashPrevouts);
-				sss.ReadWrite(hashSequence);
-				// The input being signed (replacing the scriptSig with scriptCode + amount)
-				// The prevout may already be contained in hashPrevout, and the nSequence
-				// may already be contain in hashSequence.
-				sss.ReadWrite(txTo.Inputs[nIn].PrevOut);
-				sss.ReadWrite(scriptCode);
-				sss.ReadWrite(amount.Satoshi);
-				sss.ReadWrite((uint)txTo.Inputs[nIn].Sequence);
-				// Outputs (none/one/all, depending on flags)
-				sss.ReadWrite(hashOutputs);
-				// Locktime
-				sss.ReadWriteStruct(txTo.LockTime);
-				// Sighash type
-				sss.ReadWrite((uint)nHashType);
-
-				return GetHash(sss);
-			}
-
-
-
-
-			if(nIn >= txTo.Inputs.Count)
-			{
-				Utils.log("ERROR: SignatureHash() : nIn=" + nIn + " out of range\n");
-				return uint256.One;
-			}
-
-			var hashType = nHashType & (SigHash)31;
-
-			// Check for invalid use of SIGHASH_SINGLE
-			if(hashType == SigHash.Single)
-			{
-				if(nIn >= txTo.Outputs.Count)
-				{
-					Utils.log("ERROR: SignatureHash() : nOut=" + nIn + " out of range\n");
-					return uint256.One;
-				}
-			}
-
-			var scriptCopy = new Script(scriptCode._Script);
-			scriptCopy.FindAndDelete(OpcodeType.OP_CODESEPARATOR);
-
-			var txCopy = new Transaction(txTo.ToBytes());
-
-			//Set all TxIn script to empty string
-			foreach(var txin in txCopy.Inputs)
-			{
-				txin.ScriptSig = new Script();
-			}
-			//Copy subscript into the txin script you are checking
-			txCopy.Inputs[nIn].ScriptSig = scriptCopy;
-
-			if(hashType == SigHash.None)
-			{
-				//The output of txCopy is set to a vector of zero size.
-				txCopy.Outputs.Clear();
-
-				//All other inputs aside from the current input in txCopy have their nSequence index set to zero
-				foreach(var input in txCopy.Inputs.Where((x, i) => i != nIn))
-					input.Sequence = 0;
-			}
-			else if(hashType == SigHash.Single)
-			{
-				//The output of txCopy is resized to the size of the current input index+1.
-				txCopy.Outputs.RemoveRange(nIn + 1, txCopy.Outputs.Count - (nIn + 1));
-				//All other txCopy outputs aside from the output that is the same as the current input index are set to a blank script and a value of (long) -1.
-				for(var i = 0; i < txCopy.Outputs.Count; i++)
-				{
-					if(i == nIn)
-						continue;
-					txCopy.Outputs[i] = new TxOut();
-				}
-				//All other txCopy inputs aside from the current input are set to have an nSequence index of zero.
-				foreach(var input in txCopy.Inputs.Where((x, i) => i != nIn))
-					input.Sequence = 0;
-			}
-
-
-			if((nHashType & SigHash.AnyoneCanPay) != 0)
-			{
-				//The txCopy input vector is resized to a length of one.
-				var script = txCopy.Inputs[nIn];
-				txCopy.Inputs.Clear();
-				txCopy.Inputs.Add(script);
-				//The subScript (lead in by its length as a var-integer encoded!) is set as the first and only member of this vector.
-				txCopy.Inputs[0].ScriptSig = scriptCopy;
-			}
-
-
-			//Serialize TxCopy, append 4 byte hashtypecode
-			var stream = CreateHashWriter(sigversion);
-			txCopy.ReadWrite(stream);
-			stream.ReadWrite((uint)nHashType);
-			return GetHash(stream);
-		}
-
-		private static uint256 GetHash(BitcoinStream stream)
-		{
-			var preimage = ((HashStream)stream.Inner).GetHash();
-			stream.Inner.Dispose();
-			return preimage;
-		}
-
-		internal static uint256 GetHashOutputs(Transaction txTo)
-		{
-			uint256 hashOutputs;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
-			foreach(var txout in txTo.Outputs)
-			{
-				ss.ReadWrite(txout);
-			}
-			hashOutputs = GetHash(ss);
-			return hashOutputs;
-		}
-
-		internal static uint256 GetHashSequence(Transaction txTo)
-		{
-			uint256 hashSequence;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
-			foreach(var input in txTo.Inputs)
-			{
-				ss.ReadWrite((uint)input.Sequence);
-			}
-			hashSequence = GetHash(ss);
-			return hashSequence;
-		}
-
-		internal static uint256 GetHashPrevouts(Transaction txTo)
-		{
-			uint256 hashPrevouts;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
-			foreach(var input in txTo.Inputs)
-			{
-				ss.ReadWrite(input.PrevOut);
-			}
-			hashPrevouts = GetHash(ss);
-			return hashPrevouts;
-		}
-
-		private static BitcoinStream CreateHashWriter(HashVersion version)
-		{
-			HashStream hs = new HashStream();
-			BitcoinStream stream = new BitcoinStream(hs, true);
-			stream.Type = SerializationType.Hash;
-			stream.TransactionOptions = version == HashVersion.Original ? TransactionOptions.None : TransactionOptions.Witness;
-			return stream;
+			return txTo.GetSignatureHash(scriptCode, nIn, nHashType, amount, sigversion, precomputedTransactionData);
 		}
 
 		public static Script operator +(Script a, IEnumerable<byte> bytes)

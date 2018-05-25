@@ -10,8 +10,16 @@ using System.Net;
 
 namespace NBitcoin.Altcoins
 {
-	public class Litecoin
+	public class Litecoin : NetworkSetBase
 	{
+		public static Litecoin Instance { get; } = new Litecoin();
+
+		public override string CryptoCode => "LTC";
+
+		private Litecoin()
+		{
+
+		}
 		//Format visual studio
 		//{({.*?}), (.*?)}
 		//Tuple.Create(new byte[]$1, $2)
@@ -99,13 +107,19 @@ namespace NBitcoin.Altcoins
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class LitecoinConsensusFactory : ConsensusFactory
 		{
-			public LitecoinConsensusFactory()
+			private LitecoinConsensusFactory()
 			{
 			}
+
+			public static LitecoinConsensusFactory Instance { get; } = new LitecoinConsensusFactory();
 
 			public override BlockHeader CreateBlockHeader()
 			{
 				return new LitecoinBlockHeader();
+			}
+			public override Block CreateBlock()
+			{
+				return new LitecoinBlock(new LitecoinBlockHeader());
 			}
 		}
 
@@ -116,6 +130,18 @@ namespace NBitcoin.Altcoins
 				var headerBytes = this.ToBytes();
 				var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
 				return new uint256(h);
+			}
+		}
+
+		public class LitecoinBlock : Block
+		{
+			public LitecoinBlock(LitecoinBlockHeader header) : base(header)
+			{
+
+			}
+			public override ConsensusFactory GetConsensusFactory()
+			{
+				return LitecoinConsensusFactory.Instance;
 			}
 		}
 
@@ -161,20 +187,15 @@ namespace NBitcoin.Altcoins
 
 #pragma warning restore CS0618 // Type or member is obsolete
 
-		public static void EnsureRegistered()
+		protected override void PostInit()
 		{
-			if(_LazyRegistered.IsValueCreated)
-				return;
-			// This will cause RegisterLazy to evaluate
-			new Lazy<object>[] { _LazyRegistered }.Select(o => o.Value != null).ToList();
+			RegisterDefaultCookiePath("Litecoin", new FolderName() { TestnetFolder = "testnet4" });
 		}
-		static Lazy<object> _LazyRegistered = new Lazy<object>(RegisterLazy, false);
 
-		private static object RegisterLazy()
+		protected override NetworkBuilder CreateMainnet()
 		{
-			var port = 9333;
 			NetworkBuilder builder = new NetworkBuilder();
-			_Mainnet = builder.SetConsensus(new Consensus()
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 840000,
 				MajorityEnforceBlockUpgrade = 750,
@@ -189,9 +210,8 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 6048,
 				MinerConfirmationWindow = 8064,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new LitecoinConsensusFactory()
+				ConsensusFactory = LitecoinConsensusFactory.Instance
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 48 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 50 })
@@ -202,7 +222,7 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("ltc"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("ltc"))
 			.SetMagic(0xdbb6c0fb)
-			.SetPort(port)
+			.SetPort(9333)
 			.SetRPCPort(9332)
 			.SetName("ltc-main")
 			.AddAlias("ltc-mainnet")
@@ -217,12 +237,14 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("koin-project.com", "dnsseed.koin-project.com"),
 			})
 			.AddSeeds(ToSeed(pnSeed6_main))
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000d9ced4ed1130f7b7faad9be25323ffafa33232a17c3edf6cfd97bee6bafbdd97b9aa8e4ef0ff0f1ecd513f7c0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4804ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
-			.BuildAndRegister();
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000d9ced4ed1130f7b7faad9be25323ffafa33232a17c3edf6cfd97bee6bafbdd97b9aa8e4ef0ff0f1ecd513f7c0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4804ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			return builder;
+		}
 
-			builder = new NetworkBuilder();
-			port = 19335;
-			_Testnet = builder.SetConsensus(new Consensus()
+		protected override NetworkBuilder CreateTestnet()
+		{
+			var builder = new NetworkBuilder();
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 840000,
 				MajorityEnforceBlockUpgrade = 51,
@@ -236,9 +258,8 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 1512,
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("4966625a4b2851d9fdee139e56211a0d88575f59ed816ff5e6a63deb4e3e29a0"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new LitecoinConsensusFactory()
+				ConsensusFactory = LitecoinConsensusFactory.Instance
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 58 })
@@ -248,7 +269,7 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tltc"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tltc"))
 			.SetMagic(0xf1c8d2fd)
-			.SetPort(port)
+			.SetPort(19335)
 			.SetRPCPort(19332)
 			.SetName("ltc-test")
 			.AddAlias("ltc-testnet")
@@ -261,12 +282,14 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("thrasher.io", "dnsseed-testnet.thrasher.io"),
 			})
 			.AddSeeds(ToSeed(pnSeed6_test))
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000d9ced4ed1130f7b7faad9be25323ffafa33232a17c3edf6cfd97bee6bafbdd97f60ba158f0ff0f1ee17904000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4804ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
-			.BuildAndRegister();
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000d9ced4ed1130f7b7faad9be25323ffafa33232a17c3edf6cfd97bee6bafbdd97f60ba158f0ff0f1ee17904000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4804ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			return builder;
+		}
 
-			builder = new NetworkBuilder();
-			port = 19444;
-			_Regtest = builder.SetConsensus(new Consensus()
+		protected override NetworkBuilder CreateRegtest()
+		{
+			var builder = new NetworkBuilder();
+			builder.SetConsensus(new Consensus()
 			{
 				SubsidyHalvingInterval = 150,
 				MajorityEnforceBlockUpgrade = 51,
@@ -281,9 +304,8 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
-				HashGenesisBlock = new uint256("f5ae71e26c74beacc88382716aced69cddf3dffff24f384e1808905e0188f68f"),
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = new LitecoinConsensusFactory()
+				ConsensusFactory = LitecoinConsensusFactory.Instance
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 111 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 58 })
@@ -293,85 +315,14 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tltc"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tltc"))
 			.SetMagic(0xdab5bffa)
-			.SetPort(port)
+			.SetPort(19444)
 			.SetRPCPort(19332)
 			.SetName("ltc-reg")
 			.AddAlias("ltc-regtest")
 			.AddAlias("litecoin-reg")
 			.AddAlias("litecoin-regtest")
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000d9ced4ed1130f7b7faad9be25323ffafa33232a17c3edf6cfd97bee6bafbdd97dae5494dffff7f20000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4804ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000")
-			.BuildAndRegister();
-
-			var home = Environment.GetEnvironmentVariable("HOME");
-			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
-
-			if(string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
-				return new object();
-
-			if(!string.IsNullOrEmpty(home))
-			{
-				var bitcoinFolder = Path.Combine(home, ".litecoin");
-
-				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Litecoin._Mainnet, mainnet);
-
-				var testnet = Path.Combine(bitcoinFolder, "testnet4", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Litecoin._Testnet, testnet);
-
-				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Litecoin._Regtest, regtest);
-			}
-			else if(!string.IsNullOrEmpty(localAppData))
-			{
-				var bitcoinFolder = Path.Combine(localAppData, "Litecoin");
-
-				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Litecoin._Mainnet, mainnet);
-
-				var testnet = Path.Combine(bitcoinFolder, "testnet4", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Litecoin._Testnet, testnet);
-
-				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Litecoin._Regtest, regtest);
-			}
-			return new object();
-		}
-
-		private static IEnumerable<NetworkAddress> ToSeed(Tuple<byte[], int>[] tuples)
-		{
-			return tuples
-					.Select(t => new NetworkAddress(new IPAddress(t.Item1), t.Item2))
-					.ToArray();
-		}
-
-		private static Network _Mainnet;
-		public static Network Mainnet
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Mainnet;
-			}
-		}
-
-		private static Network _Regtest;
-		public static Network Regtest
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Regtest;
-			}
-		}
-
-		private static Network _Testnet;
-		public static Network Testnet
-		{
-			get
-			{
-				EnsureRegistered();
-				return _Testnet;
-			}
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000d9ced4ed1130f7b7faad9be25323ffafa33232a17c3edf6cfd97bee6bafbdd97dae5494dffff7f20000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4804ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			return builder;
 		}
 	}
 }

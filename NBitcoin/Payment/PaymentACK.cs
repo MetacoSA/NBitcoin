@@ -233,7 +233,7 @@ namespace NBitcoin.Payment
 			if(paymentUrl == null)
 				paymentUrl = ImplicitPaymentUrl;
 			if(paymentUrl == null)
-				throw new ArgumentNullException("paymentUrl");
+				throw new ArgumentNullException(nameof(paymentUrl));
 			try
 			{
 				return SubmitPaymentAsync(paymentUrl, null).Result;
@@ -250,7 +250,7 @@ namespace NBitcoin.Payment
 			if(paymentUrl == null)
 				paymentUrl = ImplicitPaymentUrl;
 			if(paymentUrl == null)
-				throw new ArgumentNullException("paymentUrl");
+				throw new ArgumentNullException(nameof(paymentUrl));
 			if(httpClient == null)
 			{
 				httpClient = new HttpClient();

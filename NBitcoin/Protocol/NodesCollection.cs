@@ -91,7 +91,7 @@ namespace NBitcoin.Protocol
 		public bool Add(Node node)
 		{
 			if(node == null)
-				throw new ArgumentNullException("node");
+				throw new ArgumentNullException(nameof(node));
 			if(_Nodes.TryAdd(node, node))
 			{
 				node.MessageProducer.AddMessageListener(bridge);

@@ -17,9 +17,9 @@ namespace NBitcoin.BitcoinCore
 							   IndexedBlockStore headerStore)
 		{
 			if(blockStore == null)
-				throw new ArgumentNullException("blockStore");
+				throw new ArgumentNullException(nameof(blockStore));
 			if(headerStore == null)
-				throw new ArgumentNullException("headerStore");
+				throw new ArgumentNullException(nameof(headerStore));
 			if(blockStore == headerStore)
 				throw new ArgumentException("The two stores should be different");
 			_BlockStore = blockStore;

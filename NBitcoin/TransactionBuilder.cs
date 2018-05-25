@@ -321,7 +321,7 @@ namespace NBitcoin
 			public TransactionBuildingContext(TransactionBuilder builder)
 			{
 				Builder = builder;
-				Transaction = new Transaction();
+				Transaction = builder._ConsensusFactory.CreateTransaction();
 				AdditionalFees = Money.Zero;
 			}
 			public TransactionBuilder.BuilderGroup Group
@@ -567,6 +567,14 @@ namespace NBitcoin
 		}
 
 		/// <summary>
+		/// If true and the transaction has two outputs sending to the same scriptPubKey, those will be merged into a single output. (Default: true)
+		/// </summary>
+		public bool MergeOutputs
+		{
+			get; set;
+		} = true;
+
+		/// <summary>
 		/// If true, the TransactionBuilder will not select coins whose fee to spend is higher than its value. (Default: true)
 		/// The cost of spending a coin is based on the <see cref="FilterUneconomicalCoinsRate"/>.
 		/// </summary>
@@ -632,9 +640,9 @@ namespace NBitcoin
 		public TransactionBuilder AddKnownSignature(PubKey pubKey, TransactionSignature signature)
 		{
 			if(pubKey == null)
-				throw new ArgumentNullException("pubKey");
+				throw new ArgumentNullException(nameof(pubKey));
 			if(signature == null)
-				throw new ArgumentNullException("signature");
+				throw new ArgumentNullException(nameof(signature));
 			_KnownSignatures.Add(Tuple.Create(pubKey, signature.Signature));
 			return this;
 		}
@@ -642,9 +650,9 @@ namespace NBitcoin
 		public TransactionBuilder AddKnownSignature(PubKey pubKey, ECDSASignature signature)
 		{
 			if(pubKey == null)
-				throw new ArgumentNullException("pubKey");
+				throw new ArgumentNullException(nameof(pubKey));
 			if(signature == null)
-				throw new ArgumentNullException("signature");
+				throw new ArgumentNullException(nameof(signature));
 			_KnownSignatures.Add(Tuple.Create(pubKey, signature));
 			return this;
 		}
@@ -954,7 +962,7 @@ namespace NBitcoin
 		public TransactionBuilder SendFees(Money fees)
 		{
 			if(fees == null)
-				throw new ArgumentNullException("fees");
+				throw new ArgumentNullException(nameof(fees));
 			CurrentGroup.Builders.Add(ctx => fees);
 			_TotalFee += fees;
 			return this;
@@ -996,7 +1004,7 @@ namespace NBitcoin
 		public TransactionBuilder SendFeesSplit(Money fees)
 		{
 			if(fees == null)
-				throw new ArgumentNullException("fees");
+				throw new ArgumentNullException(nameof(fees));
 			var lastGroup = CurrentGroup; //Make sure at least one group exists
 			var totalWeight = _BuilderGroups.Select(b => b.FeeWeight).Sum();
 			Money totalSent = Money.Zero;
@@ -1044,10 +1052,22 @@ namespace NBitcoin
 			return this;
 		}
 
+		ConsensusFactory _ConsensusFactory = Network.Main.Consensus.ConsensusFactory;
+		public TransactionBuilder SetConsensusFactory(ConsensusFactory consensusFactory)
+		{
+			_ConsensusFactory = consensusFactory ?? Network.Main.Consensus.ConsensusFactory;
+			return this;
+		}
+
+		public TransactionBuilder SetConsensusFactory(Network network)
+		{
+			return SetConsensusFactory(network?.Consensus?.ConsensusFactory);
+		}
+
 		public TransactionBuilder SetCoinSelector(ICoinSelector selector)
 		{
 			if(selector == null)
-				throw new ArgumentNullException("selector");
+				throw new ArgumentNullException(nameof(selector));
 			CoinSelector = selector;
 			return this;
 		}
@@ -1059,7 +1079,9 @@ namespace NBitcoin
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public Transaction BuildTransaction(bool sign)
 		{
-			return BuildTransaction(sign, SigHash.All);
+			var tx = BuildTransaction(sign, SigHash.All);
+			_built = true;
+			return tx;
 		}
 
 		/// <summary>
@@ -1133,6 +1155,7 @@ namespace NBitcoin
 			IEnumerable<ICoin> coins,
 			IMoney zero)
 		{
+			var hasColoredCoins = _BuilderGroups.Any(g => g.BuildersByAsset.Count != 0 || g.IssuanceBuilders.Count != 0);
 			var originalCtx = ctx.CreateMemento();
 			var fees = _TotalFee + ctx.AdditionalFees;
 
@@ -1201,6 +1224,18 @@ namespace NBitcoin
 					ctx.NonFinalSequenceSet = true;
 				}
 			}
+			if(MergeOutputs && !hasColoredCoins)
+			{
+				var collapsedOutputs = ctx.Transaction.Outputs
+							   .GroupBy(o => o.ScriptPubKey)
+							   .Select(o => o.Count() == 1 ? o.First() : ctx.Transaction.CreateOutput(o.Select(txout=>txout.Value).Sum(), o.Key))
+							   .ToArray();
+				if(collapsedOutputs.Length < ctx.Transaction.Outputs.Count)
+				{
+					ctx.Transaction.Outputs.Clear();
+					ctx.Transaction.Outputs.AddRange(collapsedOutputs);
+				}
+			}
 			return selection;
 		}
 
@@ -1222,6 +1257,10 @@ namespace NBitcoin
 		public Transaction SignTransactionInPlace(Transaction transaction, SigHash sigHash)
 		{
 			TransactionSigningContext ctx = new TransactionSigningContext(this, transaction);
+			if(transaction is IHasForkId hasForkId)
+			{
+				sigHash = (SigHash)((uint)sigHash | 0x40u);
+			}
 			ctx.SigHash = sigHash;
 			foreach(var input in transaction.Inputs.AsIndexedInputs())
 			{
@@ -1319,7 +1358,7 @@ namespace NBitcoin
 		public bool Verify(Transaction tx, Money expectedFees, out TransactionPolicyError[] errors)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			var coins = tx.Inputs.Select(i => FindCoin(i.PrevOut)).Where(c => c != null).ToArray();
 			List<TransactionPolicyError> exceptions = new List<TransactionPolicyError>();
 			var policyErrors = MinerTransactionPolicy.Instance.Check(tx, coins);
@@ -1351,7 +1390,7 @@ namespace NBitcoin
 		public bool Verify(Transaction tx, FeeRate expectedFeeRate, out TransactionPolicyError[] errors)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			return Verify(tx, expectedFeeRate == null ? null : expectedFeeRate.GetFee(tx), out errors);
 		}
 		/// <summary>
@@ -1433,24 +1472,35 @@ namespace NBitcoin
 		public int EstimateSize(Transaction tx, bool virtualSize)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			var clone = tx.Clone();
 			clone.Inputs.Clear();
 			var baseSize = clone.GetSerializedSize();
 
 			int witSize = 0;
-			if(tx.HasWitness)
-				witSize += 2;
+			bool hasWitness = tx.HasWitness;
 			foreach(var txin in tx.Inputs.AsIndexedInputs())
 			{
 				var coin = FindSignableCoin(txin) ?? FindCoin(txin.PrevOut);
 				if(coin == null)
 					throw CoinNotFound(txin);
+				if(coin.GetHashVersion() == HashVersion.Witness)
+					hasWitness = true;
 				EstimateScriptSigSize(coin, ref witSize, ref baseSize);
 				baseSize += 41;
 			}
+			if(hasWitness)
+				witSize += 2;
 
-			return (virtualSize ? witSize / Transaction.WITNESS_SCALE_FACTOR + baseSize : witSize + baseSize);
+			if(virtualSize)
+			{
+				var totalSize = witSize + baseSize;
+				var strippedSize = baseSize;
+				var weight = strippedSize * (Transaction.WITNESS_SCALE_FACTOR - 1) + totalSize;
+				return (weight + Transaction.WITNESS_SCALE_FACTOR - 1) / Transaction.WITNESS_SCALE_FACTOR;
+			}
+
+			return witSize + baseSize;
 		}
 
 		private void EstimateScriptSigSize(ICoin coin, ref int witSize, ref int baseSize)
@@ -1505,7 +1555,7 @@ namespace NBitcoin
 		public Money EstimateFees(FeeRate feeRate)
 		{
 			if(feeRate == null)
-				throw new ArgumentNullException("feeRate");
+				throw new ArgumentNullException(nameof(feeRate));
 
 			int builderCount = CurrentGroup.Builders.Count;
 			Money feeSent = Money.Zero;
@@ -1542,9 +1592,9 @@ namespace NBitcoin
 		public Money EstimateFees(Transaction tx, FeeRate feeRate)
 		{
 			if(tx == null)
-				throw new ArgumentNullException("tx");
+				throw new ArgumentNullException(nameof(tx));
 			if(feeRate == null)
-				throw new ArgumentNullException("feeRate");
+				throw new ArgumentNullException(nameof(feeRate));
 
 			var estimation = EstimateSize(tx, true);
 			return feeRate.GetFee(estimation);
@@ -1733,7 +1783,8 @@ namespace NBitcoin
 
 
 		Transaction _CompletedTransaction;
-
+		private bool _built = false;
+		
 		/// <summary>
 		/// Allows to keep building on the top of a partially built transaction
 		/// </summary>
@@ -1741,6 +1792,8 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TransactionBuilder ContinueToBuild(Transaction transaction)
 		{
+			if(_built) 
+				throw new InvalidOperationException("ContinueToBuild must be called with a new TransactionBuilder instance"); 
 			if(_CompletedTransaction != null)
 				throw new InvalidOperationException("Transaction to complete already set");
 			_CompletedTransaction = transaction.Clone();

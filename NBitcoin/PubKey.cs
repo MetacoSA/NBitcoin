@@ -1,4 +1,4 @@
-﻿using NBitcoin.Crypto;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Stealth;
 using NBitcoin.BouncyCastle.Math;
@@ -38,7 +38,7 @@ namespace NBitcoin
 		public PubKey(byte[] bytes, bool @unsafe)
 		{
 			if(bytes == null)
-				throw new ArgumentNullException("bytes");
+				throw new ArgumentNullException(nameof(bytes));
 			if(!Check(bytes, false))
 			{
 				throw new FormatException("Invalid public key");
@@ -224,10 +224,20 @@ namespace NBitcoin
 		/// <returns>True if signatures is valid</returns>
 		public bool VerifyMessage(byte[] messageBytes, string signature)
 		{
-			var sig = DecodeSigString(signature);
-			var messageSigned = Utils.FormatMessageForSigning(messageBytes);
-			var hash = Hashes.Hash256(messageSigned);
-			return ECKey.Verify(hash, sig);
+			return VerifyMessage(messageBytes, DecodeSigString(signature));
+		}
+
+		/// <summary>
+		/// Verify message signed using signmessage from bitcoincore
+		/// </summary>
+		/// <param name="message">The message</param>
+		/// <param name="signature">The signature</param>
+		/// <returns>True if signatures is valid</returns>
+		public bool VerifyMessage(byte[] message, ECDSASignature signature)
+		{
+			var messageToSign = Utils.FormatMessageForSigning(message);
+			var hash = Hashes.Hash256(messageToSign);
+			return ECKey.Verify(hash, signature);
 		}
 
 		/// <summary>
@@ -263,6 +273,12 @@ namespace NBitcoin
 			return RecoverCompact(hash, signatureEncoded);
 		}
 
+		public static PubKey RecoverFromMessage(byte[] messageBytes, byte[] signatureEncoded)
+		{
+			var message = Utils.FormatMessageForSigning(messageBytes);
+			var hash = Hashes.Hash256(message);
+			return RecoverCompact(hash, signatureEncoded);
+		}
 
 		public static PubKey RecoverCompact(uint256 hash, byte[] signatureEncoded)
 		{

@@ -63,9 +63,9 @@ namespace NBitcoin.RPC
 		public RestClient(Uri address, Network network)
 		{
 			if(address == null)
-				throw new ArgumentNullException("address");
+				throw new ArgumentNullException(nameof(address));
 			if(network == null)
-				throw new ArgumentNullException("network");
+				throw new ArgumentNullException(nameof(network));
 			_address = address;
 			_network = network;
 		}
@@ -79,7 +79,7 @@ namespace NBitcoin.RPC
 		public async Task<Block> GetBlockAsync(uint256 blockId)
 		{
 			if(blockId == null)
-				throw new ArgumentNullException("blockId");
+				throw new ArgumentNullException(nameof(blockId));
 
 			var result = await SendRequestAsync("block", RestResponseFormat.Bin, blockId.ToString()).ConfigureAwait(false);
 			return Block.Load(result, Network);
@@ -104,7 +104,7 @@ namespace NBitcoin.RPC
 		public async Task<Transaction> GetTransactionAsync(uint256 txId)
 		{
 			if(txId == null)
-				throw new ArgumentNullException("txId");
+				throw new ArgumentNullException(nameof(txId));
 
 			var result = await SendRequestAsync("tx", RestResponseFormat.Bin, txId.ToString()).ConfigureAwait(false);
 			return new Transaction(result);
@@ -131,7 +131,7 @@ namespace NBitcoin.RPC
 		public async Task<IEnumerable<BlockHeader>> GetBlockHeadersAsync(uint256 blockId, int count)
 		{
 			if(blockId == null)
-				throw new ArgumentNullException("blockId");
+				throw new ArgumentNullException(nameof(blockId));
 			if(count < 1)
 				throw new ArgumentOutOfRangeException("count", "count must be greater or equal to one.");
 
@@ -186,7 +186,7 @@ namespace NBitcoin.RPC
 		public async Task<UTxOutputs> GetUnspentOutputsAsync(IEnumerable<OutPoint> outPoints, bool checkMempool)
 		{
 			if(outPoints == null)
-				throw new ArgumentNullException("outPoints");
+				throw new ArgumentNullException(nameof(outPoints));
 			var ids = from op in outPoints
 					  select op.ToString();
 			var result = await SendRequestAsync("getutxos" + (checkMempool ? "/checkmempool" : ""), RestResponseFormat.Bin, ids.ToArray()).ConfigureAwait(false);

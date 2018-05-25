@@ -106,7 +106,7 @@ namespace NBitcoin.Protocol.Behaviors
 		public Task<RejectPayload> BroadcastTransactionAsync(Transaction transaction)
 		{
 			if(transaction == null)
-				throw new ArgumentNullException("transaction");
+				throw new ArgumentNullException(nameof(transaction));
 
 			TaskCompletionSource<RejectPayload> completion = new TaskCompletionSource<RejectPayload>();
 			var hash = transaction.GetHash();
@@ -260,7 +260,7 @@ namespace NBitcoin.Protocol.Behaviors
 		internal void BroadcastTransactionCore(Transaction transaction)
 		{
 			if(transaction == null)
-				throw new ArgumentNullException("transaction");
+				throw new ArgumentNullException(nameof(transaction));
 			var tx = new TransactionBroadcast();
 			tx.Transaction = transaction;
 			tx.State = BroadcastState.NotSent;

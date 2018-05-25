@@ -16,7 +16,7 @@ namespace NBitcoin
 		public TxDestination(byte[] value)
 		{
 			if(value == null)
-				throw new ArgumentNullException("value");
+				throw new ArgumentNullException(nameof(value));
 			_DestBytes = value;
 		}
 

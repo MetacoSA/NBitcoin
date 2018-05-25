@@ -299,7 +299,7 @@ namespace NBitcoin
 
 		private void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
 		{
-			if(data == null) throw new ArgumentNullException("data");
+			if(data == null) throw new ArgumentNullException(nameof(data));
 
 			if(data.Length == 0) return;
 
@@ -429,7 +429,7 @@ namespace NBitcoin
 		public void CopyParameters(BitcoinStream stream)
 		{
 			if(stream == null)
-				throw new ArgumentNullException("stream");
+				throw new ArgumentNullException(nameof(stream));
 			ProtocolVersion = stream.ProtocolVersion;
 			ConsensusFactory = stream.ConsensusFactory;
 			_ProtocolCapabilities = stream._ProtocolCapabilities;
@@ -454,6 +454,18 @@ namespace NBitcoin
 			}, () =>
 			{
 				Type = old;
+			});
+		}
+
+		public IDisposable ConsensusFactoryScope(ConsensusFactory consensusFactory)
+		{
+			var old = ConsensusFactory;
+			return new Scope(() =>
+			{
+				ConsensusFactory = consensusFactory;
+			}, () =>
+			{
+				ConsensusFactory = old;
 			});
 		}
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Crypto
 {
-	internal class HashStream : Stream
+	public class HashStream : Stream
 	{
 		public HashStream()
 		{
