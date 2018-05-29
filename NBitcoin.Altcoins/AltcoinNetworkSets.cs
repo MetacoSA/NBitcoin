@@ -17,6 +17,7 @@ namespace NBitcoin.Altcoins
 		public static Viacoin Viacoin {get; } = Viacoin.Instance;
 		public static Polis Polis { get; } = Polis.Instance;
 		public static Monacoin Monacoin { get; } = Monacoin.Instance;
+		public static Ufo Ufo { get; } = Ufo.Instance;
 		public static Bitcoin Bitcoin { get; } = Bitcoin.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
@@ -31,6 +32,7 @@ namespace NBitcoin.Altcoins
 			yield return Polis;
 			yield return Monacoin;
 			yield return Dash;
+			yield return Ufo;
 		}
 	}
 }
