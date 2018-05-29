@@ -347,6 +347,35 @@ namespace NBitcoin.Tests
 			};
 		}
 
+        public class UfoNodeDownloadData
+        {
+            public NodeDownloadData v0_16_0 = new NodeDownloadData()
+            {
+                Version = "0.16.0",
+                Windows = new NodeOSDownloadData()
+                {
+                    DownloadLink = "https://downloads.ufobject.com/ufo-0.16.0.zip",
+                    Archive = "UFO-{0}-win64.zip",
+                    Executable = "UFO-{0}/bin/ufod.exe",
+                    Hash = "B06D8564CF2BF95EDD4AECEB3F725C12FB18A31398E59B48A242AED210261FAE"
+                },
+                Linux = new NodeOSDownloadData()
+                {
+                    DownloadLink = "https://downloads.ufobject.com/ufo-0.16.0-x86_64-linux-gnu.tar.gz",
+                    Archive = "UFO-{0}-linux64.tar.gz",
+                    Executable = "UFO-{0}/bin/ufod",
+                    Hash = "2A0F4ED78EA58C232CCEA6DDD4EB36F766C72663D1DF9B6FDA0CB39143FE0F60"
+                },
+                Mac = new NodeOSDownloadData()
+                {
+                    DownloadLink = "https://downloads.ufobject.com/ufo-0.16.0-osx64.tar.gz",
+                    Archive = "UFO-{0}-osx.dmg",
+                    Executable = "UFO-{0}/bin/ufod",
+                    Hash = "5CC7E5F742584BAD0CADD516B09C93566D38B42C352F21D521C84C9490088ACB"
+				}
+			};
+		}
+
 		public static BitcoinNodeDownloadData Bitcoin
 		{
 			get; set;
@@ -396,5 +425,10 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new MonacoinNodeDownloadData();
+
+		public static UfoNodeDownloadData Ufo
+		{
+			get; set;
+		} = new UfoNodeDownloadData();
 	}
 }
