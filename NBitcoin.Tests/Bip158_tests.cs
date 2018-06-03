@@ -25,26 +25,16 @@ namespace NBitcoin.Tests
 				var testBlockHash = uint256.Parse((string)test[i++]);
 				var testBlock = Block.Parse((string)test[i++]);
 				var testPreviousBasicHeader = uint256.Parse((string)test[i++]);
-				var testPreviousExtHeader = uint256.Parse((string)test[i++]);
 				var testBasicFilter = (string)test[i++];
-				var testExtFilter = (string)test[i++] ;
 				var testBasicHeader = (string)test[i++];
-				var testExtHeader = (string)test[i++];
 				var message = (string)test[i++];
 
 				var basicFilter = GolombRiceFilterBuilder.BuildBasicFilter(testBlock);
 			 	Assert.Equal(testBasicFilter, basicFilter.ToString());
 				Assert.Equal(testBasicHeader, basicFilter.GetHeader(testPreviousBasicHeader).ToString());
 
-				var extFilter = GolombRiceFilterBuilder.BuildExtendedFilter(testBlock);
-			 	Assert.Equal(testExtFilter, extFilter.ToString());
-				Assert.Equal(testExtHeader, extFilter.GetHeader(testPreviousExtHeader).ToString());
-
 				var deserializedBasicFilter = GolombRiceFilter.Parse(testBasicFilter);
 				Assert.Equal(testBasicFilter, deserializedBasicFilter.ToString());
-
-				var deserializedExtFilter = GolombRiceFilter.Parse(testExtFilter);
-				Assert.Equal(testExtFilter, deserializedExtFilter.ToString());
 			}
 		}
 
