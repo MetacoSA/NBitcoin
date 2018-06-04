@@ -14,12 +14,20 @@ namespace NBitcoin
 	public class GolombRiceFilter
 	{
 		// This is the value used by default as P as defined in the BIP.
-		internal const byte DefaultP = 20;
+		internal const byte DefaultP = 19;
+		internal const uint DefaultM = 784931;
 
 		/// <summary>
 		/// a value which is computed as 1/fp where fp is the desired false positive rate.
 		/// </summary>
 		public byte P { get; }
+
+		/// <summary>
+		/// a value which is computed as N * fp (or false positive rate = 1/M).
+		/// this value allows filter to uniquely tune the range that items are hashed onto
+		/// before compressing
+		/// </summary>
+		public uint M { get; }
 
 		/// <summary>
 		/// Number of elements in the filter
@@ -52,7 +60,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="data">A serialized Golomb-Rice filter.</param>
 		public GolombRiceFilter(byte[] data)
-			: this(data, DefaultP)
+			: this(data, DefaultP, DefaultM)
 		{
 		}
 
@@ -62,9 +70,11 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="data">A serialized Golomb-Rice filter.</param>
 		/// <param name="p">The P value to use.</param>
-		public GolombRiceFilter(byte[] data, byte p)
+		/// <param name="m">The M value to use.</param>
+		public GolombRiceFilter(byte[] data, byte p, uint m)
 		{
 			P = p;
+			M = m;
 			var n = new VarInt();
 			var stream = new BitcoinStream(data);
 			stream.ReadWrite(ref n);
@@ -79,14 +89,15 @@ namespace NBitcoin
 		/// <param name="data">A serialized Golomb-Rice filter.</param>
 		/// <param name="n">The number of elements in the filter.</param>
 		/// <param name="p">The P value to use.</param>
-		internal GolombRiceFilter(byte[] data, int n, byte p)
+		/// <param name="m">The M value to use.</param>
+		internal GolombRiceFilter(byte[] data, int n, byte p, uint m)
 		{
 			this.P = p;
 			this.N = n;
+			this.M = m;
 
-			var modP = 1UL << P;
-			this.ModulusP = modP;
-			this.ModulusNP = ((ulong) N) * modP;
+			this.ModulusP = 1UL << P;  
+			this.ModulusNP = (ulong)N * M;
 			this.Data = data;
 		}
 
@@ -97,7 +108,7 @@ namespace NBitcoin
 		/// <param name="key">Key used for hashing the datalements.</param>
 		/// <param name="data">Data elements to be computed in the list.</param>
 		/// <returns></returns>
-		internal static List<ulong> ConstructHashedSet(byte P, int n, byte[] key, IEnumerable<byte[]> data)
+		internal static List<ulong> ConstructHashedSet(byte P, int n, uint m, byte[] key, IEnumerable<byte[]> data)
 		{
 			// N the number of items to be inserted into the set.
 			var dataArrayBytes = data as byte[][] ?? data.ToArray();
@@ -105,7 +116,7 @@ namespace NBitcoin
 			// The list of data item hashes.
 			var values = new List<ulong>();
 			var modP = 1UL << P;
-			var modNP = ((ulong)n) * modP;
+			var modNP = ((ulong)n) * m;
 			var nphi = modNP >> 32;
 			var nplo = (ulong)((uint)modNP);
 
@@ -155,7 +166,7 @@ namespace NBitcoin
 			if (data == null || !data.Any())
 				throw new ArgumentException("data can not be null or empty array.", nameof(data));
 
-			var hs = ConstructHashedSet(P, N, key, data);
+			var hs = ConstructHashedSet(P, N, M, key, data);
 
 			var lastValue1 = 0UL;
 			var lastValue2 = hs[0];
@@ -256,6 +267,7 @@ namespace NBitcoin
 	public class GolombRiceFilterBuilder
 	{
 		private byte _p = GolombRiceFilter.DefaultP;
+		private uint _m = GolombRiceFilter.DefaultM;
 		private byte[] _key;
 		private HashSet<byte[]> _values;
 		
@@ -298,8 +310,6 @@ namespace NBitcoin
 
 			foreach(var tx in block.Transactions)
 			{
-				// The txid of the transaction itself
-				builder.AddTxId(tx.GetHash());
 				if(!tx.IsCoinBase) // except for the coinbase transaction
 				{
 					foreach(var txin in tx.Inputs)
@@ -319,44 +329,6 @@ namespace NBitcoin
 			return builder.Build();
 		}
 
-		/// <summary>
-		/// Builds the extended filter for a given block.
-		///
-		/// The extended filter contains extra data that is meant to enable applications with more advanced smart contracts. 
-		/// An extended filter MUST contain exactly the following items for each transaction in a block except the coinbase:
-		///  * Each item within the witness stack of each input (if the input has a witness)
-		///  * Each data push in the scriptSig of each input
-		/// </summary>
-		/// <param name="block">The block used for building the filter.</param>
-		/// <returns>The extended filter for the block.</returns>
-		public static GolombRiceFilter BuildExtendedFilter(Block block)
-		{
-			var builder = new GolombRiceFilterBuilder()
-				.SetKey(block.GetHash());
-
-			foreach(var tx in block.Transactions)
-			{
-				if(!tx.IsCoinBase) // except the coinbase
-				{
-					foreach(var txin in tx.Inputs)
-					{
-						if(txin.ScriptSig != Script.Empty)
-						{
-							// Each data push in the scriptSig of each input
-							builder.AddScriptSig(txin.ScriptSig);
-						}
-
-						if( txin.WitScript != WitScript.Empty)
-						{
-							// Each item within the witness stack of each input (if the input has a witness)
-							builder.AddWitness(txin.WitScript);
-						}
-					}
-				}
-			}
-
-			return builder.Build();
-		}
 
 		/// <summary>
 		/// Creates a new Golob-Rice filter builder.
@@ -394,6 +366,21 @@ namespace NBitcoin
 			_p = (byte)p;
 			return this;
 		}
+
+		/// <summary>
+		/// Sets the M value to use.
+		/// </summary>
+		/// <param name="m">M value</param>
+		/// <returns>The updated filter builder instance.</returns>
+		public GolombRiceFilterBuilder SetM(ulong m)
+		{
+			if (m > 32)
+				throw new ArgumentOutOfRangeException(nameof(m), "value has to be greater than zero and less or equal to 32.");
+			
+			_m = (byte)m;
+			return this;
+		}
+
 
 		/// <summary>
 		/// Adds a transacion id to the list of elements that will be used for building the filter.
@@ -496,10 +483,10 @@ namespace NBitcoin
 		public GolombRiceFilter Build()
 		{
 			var n = _values.Count;
-			var hs = GolombRiceFilter.ConstructHashedSet(_p, n, _key, _values);
+			var hs = GolombRiceFilter.ConstructHashedSet(_p, n, _m, _key, _values);
 			var filterData = Compress(hs, _p);
 
-			return new GolombRiceFilter(filterData, n, _p);
+			return new GolombRiceFilter(filterData, n, _p, _m);
 		}
 
 		private static byte[] Compress(List<ulong> values, byte P)

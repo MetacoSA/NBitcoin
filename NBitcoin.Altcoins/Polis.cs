@@ -66,15 +66,15 @@ namespace NBitcoin.Altcoins
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
-		
+
 
 		protected override void PostInit()
 		{
 			RegisterDefaultCookiePath(Mainnet, ".cookie");
 			RegisterDefaultCookiePath(Testnet, "testnet3", ".cookie");
 			RegisterDefaultCookiePath(Regtest, "regtest", ".cookie");
-		}		
-		
+		}
+
 
 		static uint256 GetPoWHash(BlockHeader header)
 		{
@@ -108,8 +108,8 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 55 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 56 })
 			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 60 })
-			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
-			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
+			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x03, 0xE2, 0x5D, 0x7E })
+			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x03, 0xE2, 0x59, 0x45 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("polis"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("polis"))
 			.SetMagic(0xBD6B0CBF)
@@ -215,6 +215,6 @@ namespace NBitcoin.Altcoins
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0b9968054ffff7f20ffba10000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
 			return builder;
 		}
-		
+
 	}
 }

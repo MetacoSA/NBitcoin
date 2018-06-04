@@ -16,36 +16,25 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void GenerateTestVectorsTest()
 		{
-			var testLines = File.ReadAllLines("data/bip158_vectors.csv");
-			foreach(var testLine in testLines.Skip(1))
+			var tests = TestCase.read_json("data/bip158_vectors.json");
+
+			foreach(var test in tests.Skip(1))
 			{
 				var i= 0;
-				var test = testLine.Split(',');
-				var testBlockHeight = int.Parse(test[i++]); 
-				var testBlockHash = uint256.Parse(test[i++]);
-				var testBlock = Block.Parse(test[i++]);
-				var testPreviousBasicHeader = uint256.Parse(test[i++]);
-				var testPreviousExtHeader = uint256.Parse(test[i++]);
-				var testBasicFilter = test[i++];
-				var testExtFilter = test[i++] ;
-				var testBasicHeader = test[i++];
-				var testExtHeader = test[i++];
+				var testBlockHeight = test[i++]; 
+				var testBlockHash = uint256.Parse((string)test[i++]);
+				var testBlock = Block.Parse((string)test[i++]);
+				var testPreviousBasicHeader = uint256.Parse((string)test[i++]);
+				var testBasicFilter = (string)test[i++];
+				var testBasicHeader = (string)test[i++];
+				var message = (string)test[i++];
 
 				var basicFilter = GolombRiceFilterBuilder.BuildBasicFilter(testBlock);
 			 	Assert.Equal(testBasicFilter, basicFilter.ToString());
 				Assert.Equal(testBasicHeader, basicFilter.GetHeader(testPreviousBasicHeader).ToString());
 
-				testExtFilter = !string.IsNullOrEmpty(testExtFilter) ? testExtFilter : "00";
-				var extFilter = GolombRiceFilterBuilder.BuildExtendedFilter(testBlock);
-			 	Assert.Equal(testExtFilter, extFilter.ToString());
-				Assert.Equal(testExtHeader, extFilter.GetHeader(testPreviousExtHeader).ToString());
-
 				var deserializedBasicFilter = GolombRiceFilter.Parse(testBasicFilter);
 				Assert.Equal(testBasicFilter, deserializedBasicFilter.ToString());
-
-				var deserializedExtFilter = GolombRiceFilter.Parse(testExtFilter);
-				Assert.Equal(testExtFilter, deserializedExtFilter.ToString());
-
 			}
 		}
 

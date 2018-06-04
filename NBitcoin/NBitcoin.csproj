@@ -12,10 +12,10 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<Version Condition=" '$(Version)' == '' ">4.1.1.8</Version>
+		<Version Condition=" '$(Version)' == '' ">4.1.1.10</Version>
 	</PropertyGroup>
 	<PropertyGroup>
-		<TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.0;netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.1;netstandard2.0</TargetFrameworks>
 		<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netstandard2.0</TargetFrameworks>
 		<NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -31,7 +31,7 @@
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
 		<DefineConstants>$(DefineConstants);WIN;LEGACY_X509</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' Or '$(TargetFramework)' == 'netstandard2.0' ">
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netstandard2.0' ">
 		<DefineConstants>$(DefineConstants);NETCORE;NOCUSTOMSSLVALIDATION;NOCONSENSUSLIB</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -41,10 +41,9 @@
 		<DefineConstants>$(DefineConstants);NETCORE;PORTABLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 		<PackageReference Include="System.Net.Requests" Version="4.3.0" />
-		<PackageReference Include="System.Net.Http" Version="4.3.2" />
-
+		<PackageReference Include="System.Net.Http" Version="4.3.3" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
