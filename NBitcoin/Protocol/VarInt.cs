@@ -113,13 +113,13 @@ namespace NBitcoin.Protocol
 			else if(length <= 0xffff)
 			{
 				var value = (uint)length;
-				stream.WriteByte((byte)0xFD);
+				stream.WriteByte((byte)0xFE);
 				bs.ReadWrite(ref value);
 			}
 			else if(length <= 0xffffffff)
 			{
 				var value = length;
-				stream.WriteByte((byte)0xFE);
+				stream.WriteByte((byte)0xFF);
 				bs.ReadWrite(ref value);
 			}
 		}
