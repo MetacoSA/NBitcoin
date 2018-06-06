@@ -12,9 +12,9 @@ matrix:
   include:
     - os: linux 
       dist: trusty # Ubuntu 14.04
-      dotnet: 2.1.2
+      dotnet: 2.1
     - os: osx
-      dotnet: 2.1.2
+      dotnet: 2.1
       osx_image: xcode8.3 # dotnet requires at least this version
 
 before_install:
