@@ -212,15 +212,17 @@ namespace NBitcoin
 			if(offset > buffer.Length - count) throw new ArgumentOutOfRangeException("count");
 
 			//IO interruption not supported on these platforms.
-
+			
 			int totalReadCount = 0;
-
+#if !NOSOCKET
+			var interruptable = stream is NetworkStream && cancellation.CanBeCanceled;
+#endif
 			while(totalReadCount < count)
 			{
 				cancellation.ThrowIfCancellationRequested();
 				int currentReadCount = 0;
 #if !NOSOCKET
-				if(stream is NetworkStream && cancellation.CanBeCanceled)
+				if(interruptable)
 				{
 					currentReadCount = stream.ReadAsync(buffer, offset + totalReadCount, count - totalReadCount, cancellation).GetAwaiter().GetResult();
 				}
@@ -231,6 +233,26 @@ namespace NBitcoin
 				}
 				if(currentReadCount == 0)
 					return 0;
+				totalReadCount += currentReadCount;
+			}
+
+			return totalReadCount;
+		}
+#endif
+
+#if HAS_SPAN
+		public static int ReadEx(this Stream stream, Span<byte> buffer, CancellationToken cancellation = default(CancellationToken))
+		{
+			if(stream == null)
+				throw new ArgumentNullException(nameof(stream));
+			int totalReadCount = 0;
+			while(!buffer.IsEmpty)
+			{
+				cancellation.ThrowIfCancellationRequested();
+				int currentReadCount = stream.Read(buffer);
+				if(currentReadCount == 0)
+					return 0;
+				buffer = buffer.Slice(currentReadCount);
 				totalReadCount += currentReadCount;
 			}
 
