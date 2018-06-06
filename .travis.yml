@@ -14,7 +14,7 @@ matrix:
       dist: trusty # Ubuntu 14.04
       dotnet: 2.1
     - os: osx
-      dotnet: 2.1
+      dotnet: 2.1.300
       osx_image: xcode8.3 # dotnet requires at least this version
 
 before_install:
