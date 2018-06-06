@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,6 +50,19 @@ namespace NBitcoin.Protocol
 				_Bytes = new byte[len.ToLong()];
 			}
 			stream.ReadWrite(ref _Bytes);
+		}
+
+		internal static void StaticWrite(BitcoinStream bs, byte[] bytes)
+		{
+			VarInt.StaticWrite(bs, (ulong)bytes.Length);
+			bs.ReadWrite(ref bytes);
+		}
+
+		internal static void StaticRead(BitcoinStream bs, ref byte[] bytes)
+		{
+			var len = VarInt.StaticRead(bs);
+			bytes = new byte[len];
+			bs.ReadWrite(ref bytes);
 		}
 
 		#endregion

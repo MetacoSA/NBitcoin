@@ -168,14 +168,11 @@ namespace NBitcoin
 		{
 			if(Serializing)
 			{
-				VarString str = new VarString(bytes);
-				str.ReadWrite(this);
+				VarString.StaticWrite(this, bytes);
 			}
 			else
 			{
-				VarString str = new VarString();
-				str.ReadWrite(this);
-				bytes = str.GetString(true);
+				VarString.StaticRead(this, ref bytes);
 			}
 		}
 
@@ -552,17 +549,17 @@ namespace NBitcoin
 
 		public void ReadWriteAsVarInt(ref uint val)
 		{
-			ulong vallong = val;
-			ReadWriteAsVarInt(ref vallong);
-			if(!Serializing)
-				val = (uint)vallong;
+			if(Serializing)
+				VarInt.StaticWrite(this, val);
+			else
+				val = (uint)Math.Min(uint.MaxValue, VarInt.StaticRead(this));
 		}
 		public void ReadWriteAsVarInt(ref ulong val)
 		{
-			var value = new VarInt(val);
-			ReadWrite(ref value);
-			if(!Serializing)
-				val = value.ToLong();
+			if(Serializing)
+				VarInt.StaticWrite(this, val);
+			else
+				val = VarInt.StaticRead(this);
 		}
 
 		public void ReadWriteAsCompactVarInt(ref uint val)
