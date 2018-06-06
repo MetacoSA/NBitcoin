@@ -102,8 +102,11 @@ namespace NBitcoin.Protocol
 			if(!bs.Serializing)
 				throw new InvalidOperationException("Stream should be serializing");
 			var stream = bs.Inner;
+			bs.Counter.AddWritten(1);
 			if(length < 0xFD)
+			{
 				stream.WriteByte((byte)length);
+			}
 			else if(length <= 0xffff)
 			{
 				var value = (ushort)length;
@@ -129,6 +132,7 @@ namespace NBitcoin.Protocol
 			if(bs.Serializing)
 				throw new InvalidOperationException("Stream should not be serializing");
 			var prefix= bs.Inner.ReadByte();
+			bs.Counter.AddReaden(1);
 			if(prefix == -1)
 				throw new EndOfStreamException("No more byte to read");
 			if(prefix < 0xFD)
