@@ -50,7 +50,7 @@ You can then run the tests for your altcoin in command line from the NBitcoin.Te
 Note that the first time can take a while because the test environment download the node binaries.
 
 ```
-dotnet test NBitcoin.Tests.csproj --filter "Altcoins=Altcoins" -p:ParallelizeTestCollections=false --framework netcoreapp2.0
+dotnet test NBitcoin.Tests.csproj --filter "Altcoins=Altcoins" -p:ParallelizeTestCollections=false --framework netcoreapp2.1
 ```
 
 You can also manually execute any test with Visual Studio.
