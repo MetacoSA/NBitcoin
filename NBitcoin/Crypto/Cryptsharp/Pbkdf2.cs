@@ -50,7 +50,8 @@ namespace NBitcoin.Crypto
 	/// Stream derivedKeyStream = new Pbkdf2(new HMACSHA512(key), salt, 1000);
 	/// </code>
 	/// </example>
-	internal class Pbkdf2 : Stream
+	[Obsolete("This might disappear in favour of .NET BCL's Rfc2898DeriveBytes class")]
+	public class Pbkdf2 : Stream
 	{
 		#region PBKDF2
 		byte[] _saltBuffer, _digest, _digestT1;
@@ -74,7 +75,7 @@ namespace NBitcoin.Crypto
 		/// </param>
 		/// <param name="iterations">The number of iterations to apply.</param>
 #if USEBC || WINDOWS_UWP || NETCORE
-		public Pbkdf2(IMac hmacAlgorithm, byte[] salt, int iterations)
+		internal Pbkdf2(IMac hmacAlgorithm, byte[] salt, int iterations)
 		{
 			NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
 			NBitcoin.Crypto.Internal.Check.Null("salt", salt);
@@ -138,7 +139,7 @@ namespace NBitcoin.Crypto
 		/// <param name="derivedKeyLength">The desired length of the derived key.</param>
 		/// <returns>The derived key.</returns>
 #if USEBC || WINDOWS_UWP || NETCORE
-		public static byte[] ComputeDerivedKey(IMac hmacAlgorithm, byte[] salt, int iterations,
+		internal static byte[] ComputeDerivedKey(IMac hmacAlgorithm, byte[] salt, int iterations,
 											   int derivedKeyLength)
 		{
 			NBitcoin.Crypto.Internal.Check.Range("derivedKeyLength", derivedKeyLength, 0, int.MaxValue);
