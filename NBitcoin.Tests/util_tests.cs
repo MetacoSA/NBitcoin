@@ -129,7 +129,7 @@ namespace NBitcoin.Tests
 
 			Assert.Throws<Bech32FormatException>(() => new BitcoinWitPubKeyAddress("bc1qw507d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4", Network.Main));
 
-			var addr1 = new BitcoinWitPubKeyAddress("tb1qr5d68t6qm8t2n7ch4nph3ha4prztteuw98ewda", Network.TestNet); 
+			var addr1 = new BitcoinWitPubKeyAddress("tb1qr5d68t6qm8t2n7ch4nph3ha4prztteuw98ewda", Network.TestNet);
 			var addr2 = new BitcoinWitPubKeyAddress("tb1qr5d68t6qm8t2n7ch4nph3ha4prztteuw98ewda");
 			Assert.Equal(addr1, addr2);
 		}
@@ -169,6 +169,9 @@ namespace NBitcoin.Tests
 
 			Assert.Equal(packed, new Target((uint)0x1b0404cb));
 			Assert.Equal((uint)packed, (uint)0x1b0404cb);
+
+			packed = new Target((uint)0x1b0404d1);
+			Assert.Equal(16307.04943863739, packed.Difficulty, "420938523983".Length);
 
 			packed = new Target(0x1d00ffff);
 			Assert.Equal((uint)packed, (uint)0x1d00ffff);
