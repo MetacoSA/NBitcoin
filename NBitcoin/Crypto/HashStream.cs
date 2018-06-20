@@ -78,6 +78,25 @@ namespace NBitcoin.Crypto
 			throw new NotImplementedException();
 		}
 
+#if HAS_SPAN
+		public override void Write(ReadOnlySpan<byte> buffer)
+		{
+			int copied = 0;
+			int toCopy = 0;
+			var innerSpan = new Span<byte>(_Buffer, _Pos, _Buffer.Length - _Pos);
+			while(!buffer.IsEmpty)
+			{
+				toCopy = Math.Min(innerSpan.Length, buffer.Length);
+				buffer.Slice(0, toCopy).CopyTo(innerSpan.Slice(0, toCopy));
+				buffer = buffer.Slice(toCopy);
+				innerSpan = innerSpan.Slice(toCopy);
+				copied += (byte)toCopy;
+				_Pos += (byte)toCopy;
+				if(ProcessBlockIfNeeded())
+					innerSpan = _Buffer.AsSpan();
+			}
+		}
+#endif
 		public override void Write(byte[] buffer, int offset, int count)
 		{
 			int copied = 0;
@@ -101,10 +120,14 @@ namespace NBitcoin.Crypto
 			ProcessBlockIfNeeded();
 		}
 
-		private void ProcessBlockIfNeeded()
+		private bool ProcessBlockIfNeeded()
 		{
 			if(_Pos == _Buffer.Length)
+			{
 				ProcessBlock();
+				return true;
+			}
+			return false;
 		}
 
 #if(USEBC || WINDOWS_UWP || NETCORE)

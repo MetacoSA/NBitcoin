@@ -27,7 +27,11 @@ namespace NBitcoin.Protocol
 			if(stream.Serializing)
 			{
 				ulong n = _Value;
+#if HAS_SPAN
+				Span<byte> tmp = stackalloc byte[(_Size * 8 + 6) / 7];
+#else
 				byte[] tmp = new byte[(_Size * 8 + 6) / 7];
+#endif
 				int len = 0;
 				while(true)
 				{
@@ -76,7 +80,6 @@ namespace NBitcoin.Protocol
 	//https://en.bitcoin.it/wiki/Protocol_specification#Variable_length_integer
 	public class VarInt : IBitcoinSerializable
 	{
-		private byte _PrefixByte = 0;
 		private ulong _Value = 0;
 
 		public VarInt()
@@ -92,14 +95,66 @@ namespace NBitcoin.Protocol
 		internal void SetValue(ulong value)
 		{
 			this._Value = value;
-			if(_Value < 0xFD)
-				_PrefixByte = (byte)(int)_Value;
-			else if(_Value <= 0xffff)
-				_PrefixByte = 0xFD;
-			else if(_Value <= 0xffffffff)
-				_PrefixByte = 0xFE;
+		}
+
+		public static void StaticWrite(BitcoinStream bs, ulong length)
+		{
+			if(!bs.Serializing)
+				throw new InvalidOperationException("Stream should be serializing");
+			var stream = bs.Inner;
+			bs.Counter.AddWritten(1);
+			if(length < 0xFD)
+			{
+				stream.WriteByte((byte)length);
+			}
+			else if(length <= 0xffff)
+			{
+				var value = (ushort)length;
+				stream.WriteByte((byte)0xFD);
+				bs.ReadWrite(ref value);
+			}
+			else if(length <= 0xffff)
+			{
+				var value = (uint)length;
+				stream.WriteByte((byte)0xFE);
+				bs.ReadWrite(ref value);
+			}
+			else if(length <= 0xffffffff)
+			{
+				var value = length;
+				stream.WriteByte((byte)0xFF);
+				bs.ReadWrite(ref value);
+			}
+		}
+
+		public static ulong StaticRead(BitcoinStream bs)
+		{
+			if(bs.Serializing)
+				throw new InvalidOperationException("Stream should not be serializing");
+			var prefix= bs.Inner.ReadByte();
+			bs.Counter.AddReaden(1);
+			if(prefix == -1)
+				throw new EndOfStreamException("No more byte to read");
+			if(prefix < 0xFD)
+				return (byte)prefix;
+			else if(prefix == 0xFD)
+			{
+				var value = (ushort)0;
+				bs.ReadWrite(ref value);
+				return value;
+			}
+			else if(prefix == 0xFE)
+			{
+				var value = (uint)0;
+				bs.ReadWrite(ref value);
+				return value;
+			}
 			else
-				_PrefixByte = 0xFF;
+			{
+				var value = (ulong)0;
+				bs.ReadWrite(ref value);
+				return value;
+			}
 		}
 
 		public ulong ToLong()
@@ -111,29 +166,10 @@ namespace NBitcoin.Protocol
 
 		public void ReadWrite(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref _PrefixByte);
-			if(_PrefixByte < 0xFD)
-			{
-				_Value = _PrefixByte;
-			}
-			else if(_PrefixByte == 0xFD)
-			{
-				var value = (ushort)_Value;
-				stream.ReadWrite(ref value);
-				_Value = value;
-			}
-			else if(_PrefixByte == 0xFE)
-			{
-				var value = (uint)_Value;
-				stream.ReadWrite(ref value);
-				_Value = value;
-			}
+			if(stream.Serializing)
+				StaticWrite(stream, _Value);
 			else
-			{
-				var value = (ulong)_Value;
-				stream.ReadWrite(ref value);
-				_Value = value;
-			}
+				_Value = StaticRead(stream);			
 		}
 
 		#endregion

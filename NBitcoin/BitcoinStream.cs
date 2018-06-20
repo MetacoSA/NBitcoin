@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+#if !NOSOCKET
+using System.Net.Sockets;
+#endif
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,14 +30,14 @@ namespace NBitcoin
 			open();
 		}
 
-		#region IDisposable Members
+#region IDisposable Members
 
 		public void Dispose()
 		{
 			close();
 		}
 
-		#endregion
+#endregion
 
 		public static IDisposable Nothing
 		{
@@ -77,6 +80,9 @@ namespace NBitcoin
 			.First();
 		}
 
+#if !NOSOCKET
+		private readonly bool _IsNetworkStream;
+#endif
 		private readonly Stream _Inner;
 		public Stream Inner
 		{
@@ -97,6 +103,9 @@ namespace NBitcoin
 		public BitcoinStream(Stream inner, bool serializing)
 		{
 			_Serializing = serializing;
+#if !NOSOCKET
+			_IsNetworkStream = inner is NetworkStream;
+#endif
 			_Inner = inner;
 		}
 
@@ -159,14 +168,11 @@ namespace NBitcoin
 		{
 			if(Serializing)
 			{
-				VarString str = new VarString(bytes);
-				str.ReadWrite(this);
+				VarString.StaticWrite(this, bytes);
 			}
 			else
 			{
-				VarString str = new VarString();
-				str.ReadWrite(this);
-				bytes = str.GetString(true);
+				VarString.StaticRead(this, ref bytes);
 			}
 		}
 
@@ -275,7 +281,39 @@ namespace NBitcoin
 			value = unchecked((long)uvalue);
 		}
 
+#if HAS_SPAN
 		private void ReadWriteNumber(ref ulong value, int size)
+		{
+			if(_IsNetworkStream && ReadCancellationToken.CanBeCanceled)
+			{
+				ReadWriteNumberInefficient(ref value, size);
+				return;
+			}
+			Span<byte> bytes = stackalloc byte[size];
+			for(int i = 0; i < size; i++)
+			{
+				bytes[i] = (byte)(value >> i * 8);
+			}
+			if(IsBigEndian)
+				bytes.Reverse();
+			ReadWriteBytes(bytes);
+			if(IsBigEndian)
+				bytes.Reverse();
+			ulong valueTemp = 0;
+			for(int i = 0; i < bytes.Length; i++)
+			{
+				var v = (ulong)bytes[i];
+				valueTemp += v << (i * 8);
+			}
+			value = valueTemp;
+		}
+#endif
+
+#if !HAS_SPAN
+		private void ReadWriteNumber(ref ulong value, int size)
+#else
+		private void ReadWriteNumberInefficient(ref ulong value, int size)
+#endif
 		{
 			var bytes = new byte[size];
 
@@ -297,15 +335,48 @@ namespace NBitcoin
 			value = valueTemp;
 		}
 
+#if HAS_SPAN
 		private void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
 		{
-			if(data == null) throw new ArgumentNullException(nameof(data));
+			if(data == null)
+				throw new ArgumentNullException(nameof(data));
+			if(data.Length == 0)
+				return;
+			count = count == -1 ? data.Length : count;
+			if(count == 0)
+				return;
+			ReadWriteBytes(new Span<byte>(data, offset, count));
+		}
 
-			if(data.Length == 0) return;
+		private void ReadWriteBytes(Span<byte> data)
+		{
+			if(Serializing)
+			{
+				Inner.Write(data);
+				Counter.AddWritten(data.Length);
+			}
+			else
+			{
+				var readen = Inner.ReadEx(data, ReadCancellationToken);
+				if(readen == 0)
+					throw new EndOfStreamException("No more byte to read");
+				Counter.AddReaden(readen);
+
+			}
+		}
+#else
+		private void ReadWriteBytes(ref byte[] data, int offset = 0, int count = -1)
+		{
+			if(data == null)
+				throw new ArgumentNullException(nameof(data));
+
+			if(data.Length == 0)
+				return;
 
 			count = count == -1 ? data.Length : count;
 
-			if(count == 0) return;
+			if(count == 0)
+				return;
 
 			if(Serializing)
 			{
@@ -321,6 +392,7 @@ namespace NBitcoin
 
 			}
 		}
+#endif
 		private PerformanceCounter _Counter;
 		public PerformanceCounter Counter
 		{
@@ -477,17 +549,17 @@ namespace NBitcoin
 
 		public void ReadWriteAsVarInt(ref uint val)
 		{
-			ulong vallong = val;
-			ReadWriteAsVarInt(ref vallong);
-			if(!Serializing)
-				val = (uint)vallong;
+			if(Serializing)
+				VarInt.StaticWrite(this, val);
+			else
+				val = (uint)Math.Min(uint.MaxValue, VarInt.StaticRead(this));
 		}
 		public void ReadWriteAsVarInt(ref ulong val)
 		{
-			var value = new VarInt(val);
-			ReadWrite(ref value);
-			if(!Serializing)
-				val = value.ToLong();
+			if(Serializing)
+				VarInt.StaticWrite(this, val);
+			else
+				val = VarInt.StaticRead(this);
 		}
 
 		public void ReadWriteAsCompactVarInt(ref uint val)
