@@ -202,7 +202,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tvia"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tvia"))
-			.SetMagic(0xda5bbffa)
+			.SetMagic(0x377b972d)
 			.SetPort(15224)
 			.SetRPCPort(15223)
 			.SetName("via-reg")
