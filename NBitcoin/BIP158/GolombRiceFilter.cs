@@ -15,7 +15,7 @@ namespace NBitcoin
 	{
 		// This is the value used by default as P as defined in the BIP.
 		internal const byte DefaultP = 19;
-		internal const uint DefaultM = 784931;
+		internal const uint DefaultM = 784_931;
 
 		/// <summary>
 		/// a value which is computed as 1/fp where fp is the desired false positive rate.
@@ -372,12 +372,9 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="m">M value</param>
 		/// <returns>The updated filter builder instance.</returns>
-		public GolombRiceFilterBuilder SetM(ulong m)
+		public GolombRiceFilterBuilder SetM(uint m)
 		{
-			if (m > 32)
-				throw new ArgumentOutOfRangeException(nameof(m), "value has to be greater than zero and less or equal to 32.");
-			
-			_m = (byte)m;
+			_m = m;
 			return this;
 		}
 
