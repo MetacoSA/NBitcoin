@@ -55,6 +55,35 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanGetNewAddress()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				var address = rpc.GetNewAddress(new GetNewAddressRequest()
+				{
+					AddressType = AddressType.Bech32
+				});
+				Assert.IsType<BitcoinWitPubKeyAddress>(address);
+
+				address = rpc.GetNewAddress(new GetNewAddressRequest()
+				{
+					AddressType = AddressType.P2SHSegwit
+				});
+
+				Assert.IsType<BitcoinScriptAddress>(address);
+
+				address = rpc.GetNewAddress(new GetNewAddressRequest()
+				{
+					AddressType = AddressType.Legacy
+				});
+
+				Assert.IsType<BitcoinPubKeyAddress>(address);
+			}
+		}
+
+		[Fact]
 		public void CanUseMultipleWallets()
 		{
 			using(var builder = NodeBuilderEx.Create())

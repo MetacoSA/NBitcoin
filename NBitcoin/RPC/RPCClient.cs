@@ -383,10 +383,36 @@ namespace NBitcoin.RPC
 			return BitcoinAddress.Create(SendCommand(RPCOperations.getnewaddress).Result.ToString(), Network);
 		}
 
+		public BitcoinAddress GetNewAddress(GetNewAddressRequest request)
+		{
+			return GetNewAddressAsync(request).GetAwaiter().GetResult();
+		}
+
 		public async Task<BitcoinAddress> GetNewAddressAsync()
 		{
 			var result = await SendCommandAsync(RPCOperations.getnewaddress).ConfigureAwait(false);
 			return BitcoinAddress.Create(result.Result.ToString(), Network);
+		}
+
+		public async Task<BitcoinAddress> GetNewAddressAsync(GetNewAddressRequest request)
+		{
+			var p = new Dictionary<string, object>();
+			if(request != null)
+			{
+				if(request.Label != null)
+				{
+					p.Add("label", request.Label);
+				}
+				if(request.AddressType != null)
+				{
+					p.Add("address_type", request.AddressType.Value == AddressType.Bech32 ? "bech32" :
+										  request.AddressType.Value == AddressType.Legacy ? "legacy" :
+										  request.AddressType.Value == AddressType.P2SHSegwit ? "p2sh-segwit" :
+										  throw new NotSupportedException(request.AddressType.Value.ToString())
+										  );
+				}
+			}
+			return BitcoinAddress.Create((await SendCommandWithNamedArgsAsync(RPCOperations.getnewaddress.ToString(), p).ConfigureAwait(false)).Result.ToString(), Network);
 		}
 
 		public BitcoinAddress GetRawChangeAddress()
@@ -414,6 +440,16 @@ namespace NBitcoin.RPC
 		public RPCResponse SendCommand(string commandName, params object[] parameters)
 		{
 			return SendCommand(new RPCRequest(commandName, parameters));
+		}
+
+		public RPCResponse SendCommandWithNamedArgs(string commandName, Dictionary<string, object> parameters)
+		{
+			return SendCommand(new RPCRequest() { Method = commandName, NamedParams = parameters });
+		}
+
+		public Task<RPCResponse> SendCommandWithNamedArgsAsync(string commandName, Dictionary<string, object> parameters)
+		{
+			return SendCommandAsync(new RPCRequest() { Method = commandName, NamedParams = parameters });
 		}
 
 		public Task<RPCResponse> SendCommandAsync(string commandName, params object[] parameters)
