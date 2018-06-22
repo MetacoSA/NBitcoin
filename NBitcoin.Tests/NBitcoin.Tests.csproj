@@ -158,6 +158,9 @@
     <Content Include="data\block169482.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="data\block-testnet-828575.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\bip158_vectors.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
