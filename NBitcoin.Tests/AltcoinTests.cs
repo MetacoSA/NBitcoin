@@ -76,6 +76,8 @@ namespace NBitcoin.Tests
 				var b = rpc.GetBlock(hash);
 				Assert.NotNull(b);
 				Assert.Equal(hash, b.GetHash());
+
+				new ConcurrentChain(builder.Network);
 			}
 		}
 

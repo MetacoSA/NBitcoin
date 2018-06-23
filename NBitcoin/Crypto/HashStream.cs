@@ -202,7 +202,7 @@ namespace NBitcoin.Crypto
 			}
 			protected override uint256 GetHash(byte[] data, int offset, int length)
 			{
-				return new uint256(_CalculateHash(data, offset, length));
+				return new uint256(_CalculateHash(data, offset, length), 0, 32);
 			}
 		}
 		public static BufferedHashStream CreateFrom(Func<byte[], int, int, byte[]> calculateHash, int capacity = 0)
