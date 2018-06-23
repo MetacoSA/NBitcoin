@@ -29,6 +29,12 @@ namespace NBitcoin.Crypto
 
 		public static uint256 Hash256(byte[] data, int offset, int count)
 		{
+			return new uint256(Hash256RawBytes(data, offset, count));
+		}
+		#endregion
+
+		public static byte[] Hash256RawBytes(byte[] data, int offset, int count)
+		{
 #if USEBC || WINDOWS_UWP || NETCORE
 			Sha256Digest sha256 = new Sha256Digest();
 			sha256.BlockUpdate(data, offset, count);
@@ -36,16 +42,15 @@ namespace NBitcoin.Crypto
 			sha256.DoFinal(rv, 0);
 			sha256.BlockUpdate(rv, 0, rv.Length);
 			sha256.DoFinal(rv, 0);
-			return new uint256(rv);
+			return rv;
 #else
 			using(var sha = new SHA256Managed())
 			{
 				var h = sha.ComputeHash(data, offset, count);
-				return new uint256(sha.ComputeHash(h, 0, h.Length));
+				return sha.ComputeHash(h, 0, h.Length);
 			}
 #endif
 		}
-		#endregion
 
 		#region Hash160
 		public static uint160 Hash160(byte[] data)

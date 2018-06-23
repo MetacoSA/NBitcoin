@@ -134,17 +134,6 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
-			public override uint256 GetPoWHash()
-			{
-				// Different PoW after hard-fork, not implemented, but still will work if you skip pow check.
-				return base.GetPoWHash();
-			}
-
-			public override uint256 GetHash()
-			{
-				return base.GetHash();
-			}
-
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				var isNewFormat = !stream.Serializing || (nSolutionSize != 0);

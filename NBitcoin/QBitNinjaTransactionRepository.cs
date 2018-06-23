@@ -28,19 +28,35 @@ namespace NBitcoin
 			if(network == null)
 				throw new ArgumentNullException(nameof(network));
 			_BaseUri = new Uri("http://" + (network == Network.Main ? "" : "t") + "api.qbit.ninja/");
+			_Network = network;
 		}
 
-		public QBitNinjaTransactionRepository(Uri baseUri)
-			: this(baseUri.AbsoluteUri)
+
+		private readonly Network _Network;
+		public Network Network
+		{
+			get
+			{
+				return _Network;
+			}
+		}
+
+		public QBitNinjaTransactionRepository(Uri baseUri, Network network)
+			: this(baseUri?.AbsoluteUri, network)
 		{
 
 		}
 
-		public QBitNinjaTransactionRepository(string baseUri)
+		public QBitNinjaTransactionRepository(string baseUri, Network network)
 		{
+			if(baseUri == null)
+				throw new ArgumentNullException(nameof(baseUri));
+			if(network == null)
+				throw new ArgumentNullException(nameof(network));
 			if(!baseUri.EndsWith("/"))
 				baseUri += "/";
 			_BaseUri = new Uri(baseUri, UriKind.Absolute);
+			_Network = network;
 		}
 
 
@@ -56,7 +72,9 @@ namespace NBitcoin
 					return null;
 				tx.EnsureSuccessStatusCode();
 				var bytes = await tx.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-				return new Transaction(bytes);
+				var txx = _Network.Consensus.ConsensusFactory.CreateTransaction();
+				txx.ReadWrite(bytes);
+				return txx;
 			}
 		}
 

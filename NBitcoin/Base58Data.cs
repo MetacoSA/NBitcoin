@@ -60,7 +60,7 @@ namespace NBitcoin
 					throw new FormatException("Invalid " + this.GetType().Name);
 			}
 
-			byte[] vchTemp = Encoders.Base58Check.DecodeData(psz);
+			byte[] vchTemp = _Network.NetworkStringParser.GetBase58CheckEncoder().DecodeData(psz);
 			var expectedVersion = _Network.GetVersionBytes(Type, true);
 
 
@@ -94,7 +94,7 @@ namespace NBitcoin
 		{
 			this.vchData = vchData;
 			this.vchVersion = _Network.GetVersionBytes(Type, true);
-			wifData = Encoders.Base58Check.EncodeData(vchVersion.Concat(vchData).ToArray());
+			wifData = _Network.NetworkStringParser.GetBase58CheckEncoder().EncodeData(vchVersion.Concat(vchData).ToArray());
 
 			if(!IsValid)
 				throw new FormatException("Invalid " + this.GetType().Name);

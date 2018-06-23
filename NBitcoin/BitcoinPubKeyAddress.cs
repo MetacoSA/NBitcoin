@@ -25,7 +25,7 @@ namespace NBitcoin
 		public BitcoinPubKeyAddress(string base58, Network expectedNetwork = null)
 			: base(Validate(base58, ref expectedNetwork), expectedNetwork)
 		{
-			var decoded = Encoders.Base58Check.DecodeData(base58);
+			var decoded = (expectedNetwork == null ? Encoders.Base58Check : expectedNetwork.NetworkStringParser.GetBase58CheckEncoder()).DecodeData(base58);
 			_KeyId = new KeyId(new uint160(decoded.Skip(expectedNetwork.GetVersionBytes(Base58Type.PUBKEY_ADDRESS, true).Length).ToArray()));
 		}
 
@@ -42,7 +42,7 @@ namespace NBitcoin
 			if(base58 == null)
 				throw new ArgumentNullException(nameof(base58));
 			var networks = expectedNetwork == null ? Network.GetNetworks() : new[] { expectedNetwork };
-			var data = Encoders.Base58Check.DecodeData(base58);
+			var data = (expectedNetwork == null ? Encoders.Base58Check : expectedNetwork.NetworkStringParser.GetBase58CheckEncoder()).DecodeData(base58);
 			foreach(var network in networks)
 			{
 				var versionBytes = network.GetVersionBytes(Base58Type.PUBKEY_ADDRESS, false);

@@ -520,7 +520,16 @@ namespace NBitcoin.Tests
 
 		public uint256[] Generate(int blockCount)
 		{
-			return CreateRPCClient().Generate(blockCount);
+			uint256[] blockIds = new uint256[blockCount];
+			int generated = 0;
+			while(generated < blockCount)
+			{
+				foreach(var id in CreateRPCClient().Generate(blockCount - generated))
+				{
+					blockIds[generated++] = id;
+				}
+			}
+			return blockIds;
 		}
 
 		public void Broadcast(params Transaction[] transactions)

@@ -102,7 +102,9 @@ namespace NBitcoin
 
 		public virtual Transaction CreateTransaction()
 		{
+#pragma warning disable CS0618 // Type or member is obsolete
 			return new Transaction();
+#pragma warning restore CS0618 // Type or member is obsolete
 		}
 	}
 }

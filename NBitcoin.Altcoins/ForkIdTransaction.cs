@@ -8,12 +8,14 @@ namespace NBitcoin.Altcoins
 {
     public class ForkIdTransaction : Transaction, IHasForkId
 	{
+#pragma warning disable CS0618 // Type or member is obsolete
 		public ForkIdTransaction(uint forkId, bool supportSegwit, ConsensusFactory consensusFactory)
 		{
 			_ForkId = forkId;
 			_SupportSegwit = supportSegwit;
 			_Factory = consensusFactory;
 		}
+#pragma warning restore CS0618 // Type or member is obsolete
 
 		ConsensusFactory _Factory;
 		public override ConsensusFactory GetConsensusFactory()

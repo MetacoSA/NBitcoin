@@ -1159,8 +1159,7 @@ namespace NBitcoin.RPC
 
 		public Transaction DecodeRawTransaction(string rawHex)
 		{
-			var response = SendCommand(RPCOperations.decoderawtransaction, rawHex);
-			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
+			return ParseTxHex(rawHex);
 		}
 
 		public Transaction DecodeRawTransaction(byte[] raw)
@@ -1168,10 +1167,9 @@ namespace NBitcoin.RPC
 
 			return DecodeRawTransaction(Encoders.Hex.EncodeData(raw));
 		}
-		public async Task<Transaction> DecodeRawTransactionAsync(string rawHex)
+		public Task<Transaction> DecodeRawTransactionAsync(string rawHex)
 		{
-			var response = await SendCommandAsync(RPCOperations.decoderawtransaction, rawHex).ConfigureAwait(false);
-			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
+			return Task.FromResult(ParseTxHex(rawHex));
 		}
 
 		public Task<Transaction> DecodeRawTransactionAsync(byte[] raw)
@@ -1198,7 +1196,7 @@ namespace NBitcoin.RPC
 				return null;
 
 			response.ThrowIfError();
-			var tx = new Transaction();
+			var tx = Network.Consensus.ConsensusFactory.CreateTransaction();
 			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()));
 			return tx;
 		}
@@ -1208,13 +1206,21 @@ namespace NBitcoin.RPC
 			return GetRawTransactionInfoAsync(txid).GetAwaiter().GetResult();
 		}
 
+		private Transaction ParseTxHex(string hex)
+		{
+			var tx = Network.Consensus.ConsensusFactory.CreateTransaction();
+			tx.ReadWrite(Encoders.Hex.DecodeData(hex));
+			return tx;
+		}
+
 		public async Task<RawTransactionInfo> GetRawTransactionInfoAsync(uint256 txId)
 		{
 			var request = new RPCRequest(RPCOperations.getrawtransaction, new object[]{ txId, true });
 			var response = await SendCommandAsync(request);
 			var json = response.Result;
+
 			return new RawTransactionInfo{
-				Transaction = Transaction.Parse(json.Value<string>("hex")),
+				Transaction = ParseTxHex(json.Value<string>("hex")),
 				TransactionId = uint256.Parse(json.Value<string>("txid")),
 				TransactionTime = json["time"] != null ? NBitcoin.Utils.UnixTimeToDateTime(json.Value<long>("time")): (DateTimeOffset?)null,
 				Hash = uint256.Parse(json.Value<string>("hash")),

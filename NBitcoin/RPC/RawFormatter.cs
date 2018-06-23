@@ -17,6 +17,8 @@ namespace NBitcoin.RPC
 			get;
 			set;
 		}
+
+		[Obsolete("Do not parse JSON")]
 		public Transaction ParseJson(string str)
 		{
 			JObject obj = JObject.Parse(str);
@@ -30,6 +32,7 @@ namespace NBitcoin.RPC
 			return Parse(obj);
 		}
 
+		[Obsolete("Do not parse JSON")]
 		public Transaction Parse(JObject obj)
 		{
 			Transaction tx = new Transaction();
