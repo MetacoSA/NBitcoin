@@ -225,7 +225,7 @@ internal abstract class GroestlSmallCore : DigestEngine {
   */
 
   /** @see Digest */
-  public override uint getBlockLength()
+  public override int getBlockLength()
   {
     return 64;
   }
@@ -233,7 +233,7 @@ internal abstract class GroestlSmallCore : DigestEngine {
   /** @see DigestEngine */
   protected Digest copyState(GroestlSmallCore dst)
   {
-    Array.Copy(H, 0, dst.H, 0, (uint)H.Length);
+    Array.Copy(H, 0, dst.H, 0, H.Length);
     return base.copyState(dst);
   }
 
@@ -246,18 +246,18 @@ internal abstract class GroestlSmallCore : DigestEngine {
   }
 
   /** @see DigestEngine */
-  protected override void doPadding(byte[] output, uint outputOffset)
+  protected override void doPadding(byte[] output, int outputOffset)
   {
     byte[] buf = getBlockBuffer();
-    uint ptr = flush();
+    int ptr = flush();
     buf[ptr ++] = (byte)0x80;
     ulong count = getBlockCount();
     if (ptr <= 56) {
-      for (uint i = ptr; i < 56; i ++)
+      for (int i = ptr; i < 56; i ++)
         buf[i] = 0;
       count ++;
     } else {
-      for (uint i = ptr; i < 64; i ++)
+      for (int i = ptr; i < 64; i ++)
         buf[i] = 0;
       processBlock(buf);
       for (uint i = 0; i < 56; i ++)
@@ -266,11 +266,11 @@ internal abstract class GroestlSmallCore : DigestEngine {
     }
     encodeBELong(count, buf, 56);
     processBlock(buf);
-    Array.Copy(H, 0, G, 0, (uint)H.Length);
+    Array.Copy(H, 0, G, 0, H.Length);
     doPermP(G);
     for (uint i = 0; i < 4; i ++)
       encodeBELong(H[i + 4] ^ G[i + 4], buf, 8 * i);
-    uint outLen = getDigestLength();
+    int outLen = getDigestLength();
     Array.Copy(buf, 32 - outLen,
       output, outputOffset, outLen);
   }

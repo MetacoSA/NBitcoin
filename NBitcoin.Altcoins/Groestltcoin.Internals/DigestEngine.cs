@@ -51,9 +51,9 @@ namespace NBitcoin.Altcoins.Groestltcoin.Internals
  */
 
 internal abstract class DigestEngine : Digest {
-  public abstract uint getDigestLength();
+  public abstract int getDigestLength();
   public abstract Digest copy();
-  public abstract uint getBlockLength();
+  public abstract int getBlockLength();
   public abstract string toString();
   
 
@@ -78,7 +78,7 @@ internal abstract class DigestEngine : Digest {
    * @param buf   the output buffer
    * @param off   the output offset
    */
-  protected abstract void doPadding(byte[] buf, uint off);
+  protected abstract void doPadding(byte[] buf, int off);
 
   /**
    * This function is called at object creation time; the
@@ -89,7 +89,7 @@ internal abstract class DigestEngine : Digest {
    */
   protected abstract void doInit();
 
-  private uint digestLen, blockLen, inputLen;
+  private int digestLen, blockLen, inputLen;
   private byte[] inputBuf, outputBuf;
   private ulong blockCount;
 
@@ -127,12 +127,12 @@ internal abstract class DigestEngine : Digest {
   /** @see Digest */
   public byte[] digest(byte[] input)
   {
-    update(input, 0, (uint)input.Length);
+    update(input, 0, input.Length);
     return digest();
   }
 
   /** @see Digest */
-  public uint digest(byte[] buf, uint offset, uint len)
+  public int digest(byte[] buf, int offset, int len)
   {
     adjustDigestLen();
     if (len >= digestLen) {
@@ -169,14 +169,14 @@ internal abstract class DigestEngine : Digest {
   /** @see Digest */
   public void update(byte[] input)
   {
-    update(input, 0, (uint)input.Length);
+    update(input, 0, input.Length);
   }
 
   /** @see Digest */
-  public void update(byte[] input, uint offset, uint len)
+  public void update(byte[] input, int offset, int len)
   {
     while (len > 0) {
-      uint copyLen = blockLen - inputLen;
+      int copyLen = blockLen - inputLen;
       if (copyLen > len)
         copyLen = len;
       Array.Copy(input, offset, inputBuf, inputLen,
@@ -203,7 +203,7 @@ internal abstract class DigestEngine : Digest {
    *
    * @return  the internal block length (in bytes)
    */
-  protected uint getInternalBlockLength()
+  protected int getInternalBlockLength()
   {
     return getBlockLength();
   }
@@ -214,7 +214,7 @@ internal abstract class DigestEngine : Digest {
    *
    * @return  the number of bytes still unprocessed after the flush
    */
-  protected uint flush()
+  protected int flush()
   {
     return inputLen;
   }
@@ -264,11 +264,11 @@ internal abstract class DigestEngine : Digest {
     dest.inputLen = inputLen;
     dest.blockCount = blockCount;
     Array.Copy(inputBuf, 0, dest.inputBuf, 0,
-      (uint)inputBuf.Length);
+      inputBuf.Length);
     adjustDigestLen();
     dest.adjustDigestLen();
     Array.Copy(outputBuf, 0, dest.outputBuf, 0,
-      (uint)outputBuf.Length);
+      outputBuf.Length);
     return dest;
   }
 }

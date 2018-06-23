@@ -81,7 +81,7 @@ internal interface Digest {
    * @param off     the data offset in {@code inbuf}
    * @param len     the data length (in bytes)
    */
-  void update(byte[] inbuf, uint off, uint len);
+  void update(byte[] inbuf, int off, int len);
 
   /**
    * Finalize the current hash computation and return the hash value
@@ -115,14 +115,14 @@ internal interface Digest {
    * @param len      the requested hash output length (in bytes)
    * @return  the number of bytes actually written in {@code outbuf}
    */
-  uint digest(byte[] outbuf, uint off, uint len);
+  int digest(byte[] outbuf, int off, int len);
 
   /**
    * Get the natural hash function output length (in bytes).
    *
    * @return  the digest output length (in bytes)
    */
-  uint getDigestLength();
+  int getDigestLength();
 
   /**
    * Reset the object: this makes it suitable for a new hash
@@ -156,7 +156,7 @@ internal interface Digest {
    *
    * @return  the internal block length (in bytes), or {@code -n}
    */
-  uint getBlockLength();
+  int getBlockLength();
 
   /**
    * <p>Get the display name for this function (e.g. {@code "SHA-1"}

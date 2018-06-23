@@ -43,10 +43,10 @@ namespace NBitcoin.Altcoins
 		public static byte[] GroestlHash(byte[] arr, int offset, int length)
 		{
 			var digest = new Groestl512();
-			digest.update(arr, (uint)offset, (uint)length);
+			digest.update(arr, offset, length);
 			var h1 = digest.digest();
 			digest.reset();
-			digest.update(h1, 0, (uint)h1.Length);
+			digest.update(h1, 0, h1.Length);
 			return digest.digest();
 		}
 
