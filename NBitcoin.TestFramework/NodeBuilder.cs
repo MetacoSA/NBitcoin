@@ -70,6 +70,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		}
+		public string CreateFolder
+		{
+			get;
+			internal set;
+		}
 	}
 
 	public partial class NodeDownloadData
@@ -132,13 +137,21 @@ namespace NBitcoin.Tests
 			CheckHash(osDownloadData, data);
 			File.WriteAllBytes(zip, data);
 
+			var extractDirectory = "TestData";
+			if(osDownloadData.CreateFolder != null)
+			{
+				if(!Directory.Exists(osDownloadData.CreateFolder))
+					Directory.CreateDirectory(osDownloadData.CreateFolder);
+				extractDirectory = Path.Combine(extractDirectory, string.Format(osDownloadData.CreateFolder, downloadData.Version));
+			}
+
 			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
-				ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
+				ZipFile.ExtractToDirectory(zip, extractDirectory);
 			}
 			else
 			{
-				Process.Start("tar", "-zxvf " + zip + " -C TestData").WaitForExit();
+				Process.Start("tar", "-zxvf " + zip + " -C " + extractDirectory).WaitForExit();
 			}
 			File.Delete(zip);
 			return bitcoind;
