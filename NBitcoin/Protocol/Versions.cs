@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
+using System;
 
 namespace NBitcoin.Protocol
 {
@@ -89,6 +90,12 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
+		public virtual uint CalculateChecksum(byte[] bytes, int offset, int length)
+		{
+			return Utils.ToUInt32(Hashes.Hash256RawBytes(bytes, 0, length), 0, true);
+		}
+
+
 		public bool SupportUserAgent
 		{
 			get;

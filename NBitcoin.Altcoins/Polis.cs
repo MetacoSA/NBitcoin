@@ -1,4 +1,5 @@
 ﻿using NBitcoin;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
@@ -43,12 +44,16 @@ namespace NBitcoin.Altcoins
 #pragma warning disable CS0618 // Type or member is obsolete
 		public class PolisBlockHeader : BlockHeader
 		{
-			// https://github.com/polispay/polis/blob/e596762ca22d703a79c6880a9d3edb1c7c972fd3/src/primitives/block.cpp#L13
-			public override uint256 GetHash()
+			
+			static byte[] CalculateHash(byte[] data, int offset, int count)
 			{
-				var headerBytes = this.ToBytes();
-				var h = new HashX11.X11().ComputeBytes(headerBytes);
-				return new uint256(h);
+				return new HashX11.X11().ComputeBytes(data.Skip(offset).Take(count).ToArray());
+			}
+
+			// https://github.com/polispay/polis/blob/e596762ca22d703a79c6880a9d3edb1c7c972fd3/src/primitives/block.cpp#L13
+			protected override HashStreamBase CreateHashStream()
+			{
+				return BufferedHashStream.CreateFrom(CalculateHash, 80);
 			}
 		}
 

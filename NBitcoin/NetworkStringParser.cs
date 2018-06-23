@@ -25,6 +25,10 @@ namespace NBitcoin
 			return false;
 		}
 
+		public virtual Base58CheckEncoder GetBase58CheckEncoder()
+		{
+			return (Base58CheckEncoder)Encoders.Base58Check;
+		}
 
 		public virtual BitcoinPubKeyAddress CreateP2PKH(KeyId keyId, Network network)
 		{

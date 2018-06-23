@@ -16,12 +16,19 @@ namespace NBitcoin.Payment
 	public class PaymentACK
 	{
 		public const int MaxLength = 60000;
+
+		public static PaymentACK Load(byte[] data, Network network)
+		{
+			return Load(new MemoryStream(data), network);
+		}
+
+		[Obsolete("Use Load(byte[] data, Network network) instead")]
 		public static PaymentACK Load(byte[] data)
 		{
 			return Load(new MemoryStream(data));
 		}
 
-		public static PaymentACK Load(Stream source)
+		public static PaymentACK Load(Stream source, Network network)
 		{
 			if(source.CanSeek && source.Length > MaxLength)
 				throw new ArgumentOutOfRangeException("PaymentACK messages larger than " + MaxLength + " bytes should be rejected", "source");
@@ -35,7 +42,7 @@ namespace NBitcoin.Payment
 				{
 					case 1:
 						var bytes = reader.ReadBytes();
-						ack.Payment = PaymentMessage.Load(bytes);
+						ack.Payment = PaymentMessage.Load(bytes, network);
 						break;
 					case 2:
 						ack.Memo = reader.ReadString();
@@ -45,6 +52,12 @@ namespace NBitcoin.Payment
 				}
 			}
 			return ack;
+		}
+
+		[Obsolete("Use Load(Stream source, Network network) instead")]
+		public static PaymentACK Load(Stream source)
+		{
+			return Load(source, null);
 		}
 		public PaymentACK()
 		{
@@ -87,21 +100,33 @@ namespace NBitcoin.Payment
 			}
 		}
 #if !NOFILEIO
-		public static PaymentACK Load(string file)
+		public static PaymentACK Load(string file, Network network)
 		{
 			using(var fs = File.OpenRead(file))
 			{
-				return Load(fs);
+				return Load(fs, network);
 			}
+		}
+
+		[Obsolete("Use Load(string file, Network network) instead")]
+		public static PaymentACK Load(string file)
+		{
+			return Load(file, null);
 		}
 #endif
 	}
 	public class PaymentMessage
 	{
 		public const int MaxLength = 50000;
+		public static PaymentMessage Load(byte[] data, Network network)
+		{
+			return Load(new MemoryStream(data), network);
+		}
+
+		[Obsolete("Use Load(byte[] data, Network network)")]
 		public static PaymentMessage Load(byte[] data)
 		{
-			return Load(new MemoryStream(data));
+			return Load(new MemoryStream(data), null);
 		}
 
 		public PaymentACK CreateACK(string memo = null)
@@ -112,12 +137,13 @@ namespace NBitcoin.Payment
 			};
 		}
 
-		public static PaymentMessage Load(Stream source)
+
+		public static PaymentMessage Load(Stream source, Network network)
 		{
 			if(source.CanSeek && source.Length > MaxLength)
 				throw new ArgumentException("Payment messages larger than " + MaxLength + " bytes should be rejected by the merchant's server", "source");
+			network = network ?? Network.Main;
 			PaymentMessage message = new PaymentMessage();
-
 			ProtobufReaderWriter proto = new ProtobufReaderWriter(source);
 			int key;
 			while(proto.TryReadKey(out key))
@@ -128,7 +154,9 @@ namespace NBitcoin.Payment
 						message.MerchantData = proto.ReadBytes();
 						break;
 					case 2:
-						message.Transactions.Add(new Transaction(proto.ReadBytes()));
+						var tx = network.Consensus.ConsensusFactory.CreateTransaction();
+						tx.ReadWrite(proto.ReadBytes());
+						message.Transactions.Add(tx);
 						break;
 					case 3:
 						message.RefundTo.Add(PaymentOutput.Load(proto.ReadBytes()));
@@ -140,7 +168,14 @@ namespace NBitcoin.Payment
 						break;
 				}
 			}
+			message.Network = network;
 			return message;
+		}
+
+		[Obsolete("Use Load(Stream, Network)")]
+		public static PaymentMessage Load(Stream source)
+		{
+			return Load(source, null);
 		}
 
 		public string Memo
@@ -186,6 +221,11 @@ namespace NBitcoin.Payment
 		{
 			get;
 			set;
+		}
+		public Network Network
+		{
+			get;
+			private set;
 		}
 
 		public byte[] ToBytes()
@@ -274,7 +314,7 @@ namespace NBitcoin.Payment
 					throw new WebException("Invalid contenttype received, expecting " + PaymentACK.MediaType + ", but got " + result.Content.Headers.ContentType);
 				}
 				var response = await result.Content.ReadAsStreamAsync().ConfigureAwait(false);
-				return PaymentACK.Load(response);
+				return PaymentACK.Load(response, Network);
 			}
 			finally
 			{
@@ -284,6 +324,14 @@ namespace NBitcoin.Payment
 		}
 #endif
 #if !NOFILEIO
+		public static PaymentMessage Load(string file, Network network)
+		{
+			using(var fs = File.OpenRead(file))
+			{
+				return Load(fs, network);
+			}
+		}
+		[Obsolete("Use Load(String file, Network network)")]
 		public static PaymentMessage Load(string file)
 		{
 			using(var fs = File.OpenRead(file))

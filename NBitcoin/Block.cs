@@ -236,7 +236,7 @@ namespace NBitcoin
 			return GetHash();
 		}
 
-		public virtual uint256 GetHash()
+		public uint256 GetHash()
 		{
 			uint256 h = null;
 			var hashes = _Hashes;
@@ -247,7 +247,7 @@ namespace NBitcoin
 			if(h != null)
 				return h;
 
-			using(HashStream hs = new HashStream())
+			using(var hs = CreateHashStream())
 			{
 				this.ReadWrite(new BitcoinStream(hs, true));
 				h = hs.GetHash();
@@ -261,7 +261,10 @@ namespace NBitcoin
 			return h;
 		}
 
-
+		protected virtual HashStreamBase CreateHashStream()
+		{
+			return new HashStream();
+		}
 
 		[Obsolete("Call PrecomputeHash(true, true) instead")]
 		public void CacheHashes()
@@ -606,7 +609,7 @@ namespace NBitcoin
 			block.Header.Nonce = RandomUtils.GetUInt32();
 			block.Header.HashPrevBlock = this.GetHash();
 			block.Header.BlockTime = now;
-			var tx = block.AddTransaction(new Transaction());
+			var tx = block.AddTransaction(consensusFactory.CreateTransaction());
 			tx.AddInput(new TxIn()
 			{
 				ScriptSig = new Script(Op.GetPushOp(RandomUtils.GetBytes(30)))

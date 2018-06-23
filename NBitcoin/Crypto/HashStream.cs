@@ -7,7 +7,15 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Crypto
 {
-	public class HashStream : Stream
+	public abstract class HashStreamBase : Stream
+	{
+		public abstract uint256 GetHash();
+	}
+
+	/// <summary>
+	/// Double SHA256 hash stream
+	/// </summary>
+	public class HashStream : HashStreamBase
 	{
 		public HashStream()
 		{
@@ -138,7 +146,7 @@ namespace NBitcoin.Crypto
 			_Pos = 0;
 		}
 
-		public uint256 GetHash()
+		public override uint256 GetHash()
 		{
 			ProcessBlock();
 			sha.DoFinal(_Buffer, 0);
@@ -157,7 +165,7 @@ namespace NBitcoin.Crypto
 		}
 
 		static readonly byte[] Empty = new byte[0];
-		public uint256 GetHash()
+		public override uint256 GetHash()
 		{
 			ProcessBlock();
 			sha.TransformFinalBlock(Empty, 0, 0);
@@ -176,5 +184,121 @@ namespace NBitcoin.Crypto
 			base.Dispose(disposing);
 		}
 #endif
+	}
+
+	/// <summary>
+	/// Unoptimized hash stream, bufferize all the data
+	/// </summary>
+	public abstract class BufferedHashStream : HashStreamBase
+	{
+		class FuncBufferedHashStream : BufferedHashStream
+		{
+			Func<byte[], int, int, byte[]> _CalculateHash;
+			public FuncBufferedHashStream(Func<byte[], int, int, byte[]> calculateHash, int capacity) : base(capacity)
+			{
+				if(calculateHash == null)
+					throw new ArgumentNullException(nameof(calculateHash));
+				_CalculateHash = calculateHash;
+			}
+			protected override uint256 GetHash(byte[] data, int offset, int length)
+			{
+				return new uint256(_CalculateHash(data, offset, length));
+			}
+		}
+		public static BufferedHashStream CreateFrom(Func<byte[], int, int, byte[]> calculateHash, int capacity = 0)
+		{
+			return new FuncBufferedHashStream(calculateHash, capacity);
+		}
+
+		MemoryStream ms;
+
+		public BufferedHashStream(int capacity)
+		{
+			ms = new MemoryStream(capacity);
+		}
+
+		public override bool CanRead
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public override bool CanSeek
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public override bool CanWrite
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public override long Length
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public override long Position
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public override void Flush()
+		{
+			throw new NotImplementedException();
+		}
+
+		public override int Read(byte[] buffer, int offset, int count)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override long Seek(long offset, SeekOrigin origin)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void SetLength(long value)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void Write(byte[] buffer, int offset, int count)
+		{
+			ms.Write(buffer, offset, count);
+		}
+
+
+
+		public override void WriteByte(byte value)
+		{
+			ms.WriteByte(value);
+		}
+
+
+		public override uint256 GetHash()
+		{
+			return GetHash(ms.GetBuffer(), 0, (int)ms.Length);
+		}
+
+		protected abstract uint256 GetHash(byte[] data, int offset, int length);
 	}
 }

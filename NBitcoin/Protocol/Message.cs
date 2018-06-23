@@ -67,13 +67,14 @@ namespace NBitcoin.Protocol
 		}
 
 		#region IBitcoinSerializable Members
-
+		
 		public void ReadWrite(BitcoinStream stream)
 		{
 			if(Payload == null && stream.Serializing)
 				throw new InvalidOperationException("Payload not affected");
 			if(stream.Serializing || (!stream.Serializing && !_SkipMagic))
 				stream.ReadWrite(ref magic);
+
 			stream.ReadWrite(ref command);
 			int length = 0;
 			uint checksum = 0;
@@ -85,7 +86,7 @@ namespace NBitcoin.Protocol
 			if(stream.ProtocolCapabilities.SupportCheckSum)
 			{
 				if(stream.Serializing)
-					checksum = Hashes.Hash256(payloadBytes, 0, length).GetLow32();
+					checksum = stream.ProtocolCapabilities.CalculateChecksum(payloadBytes, 0, length);
 				stream.ReadWrite(ref checksum);
 				hasChecksum = true;
 			}
@@ -105,7 +106,7 @@ namespace NBitcoin.Protocol
 
 				if(hasChecksum)
 				{
-					if(!VerifyChecksum(checksum, payloadBytes, length))
+					if(stream.ProtocolCapabilities.CalculateChecksum(payloadBytes, 0, length) != checksum)
 					{
 						if(NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose))
 							NodeServerTrace.Trace.TraceEvent(TraceEventType.Verbose, 0, "Invalid message checksum bytes");
@@ -147,13 +148,6 @@ namespace NBitcoin.Protocol
 		}
 
 		#endregion
-
-		internal static bool VerifyChecksum(uint256 checksum, byte[] payload, int length)
-		{
-			return checksum == Hashes.Hash256(payload, 0, length).GetLow32();
-		}
-
-
 
 		/// <summary>
 		/// When parsing, maybe Magic is already parsed

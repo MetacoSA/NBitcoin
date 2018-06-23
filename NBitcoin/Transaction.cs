@@ -1145,18 +1145,22 @@ namespace NBitcoin
 		TxOutList vout;
 		LockTime nLockTime;
 
+
+		[Obsolete("You should instantiate Transaction from ConsensusFactory.CreateTransaction")]
 		public Transaction()
 		{
 			vin = new TxInList(this);
 			vout = new TxOutList(this);
 		}
 
+		[Obsolete("You should instantiate Transaction from ConsensusFactory.CreateTransaction")]
 		public Transaction(string hex, uint? version = null)
 			: this()
 		{
 			this.FromBytes(Encoders.Hex.DecodeData(hex), version);
 		}
 
+		[Obsolete("You should instantiate Transaction from ConsensusFactory.CreateTransaction")]
 		public Transaction(byte[] bytes)
 			: this()
 		{
@@ -1303,7 +1307,7 @@ namespace NBitcoin
 			if(h != null)
 				return h;
 
-			using(HashStream hs = new HashStream())
+			using(var hs = CreateHashStream())
 			{
 				this.ReadWrite(new BitcoinStream(hs, true)
 				{
@@ -1318,6 +1322,16 @@ namespace NBitcoin
 				hashes[0] = h;
 			}
 			return h;
+		}
+
+		protected virtual HashStreamBase CreateHashStream()
+		{
+			return new HashStream();
+		}
+
+		protected virtual HashStreamBase CreateSignatureHashStream()
+		{
+			return new HashStream();
 		}
 
 		[Obsolete("Call PrecomputeHash(true, true) instead")]
@@ -1618,12 +1632,14 @@ namespace NBitcoin
 		}
 
 #if !NOJSONNET
+		[Obsolete("Do not parse JSON")]
 		public static Transaction Parse(string tx, RawFormat format, Network network = null)
 		{
 			return GetFormatter(format, network).ParseJson(tx);
 		}
 #endif
 
+		[Obsolete("You should instantiate Transaction from ConsensusFactory.CreateTransaction")]
 		public static Transaction Parse(string hex)
 		{
 			return new Transaction(Encoders.Hex.DecodeData(hex));
@@ -1849,7 +1865,7 @@ namespace NBitcoin
 				return this;
 			if(options == TransactionOptions.None && !HasWitness)
 				return this;
-			var instance = new Transaction();
+			var instance = GetConsensusFactory().CreateTransaction();
 			var ms = new MemoryStream();
 			var bms = new BitcoinStream(ms, true);
 			bms.TransactionOptions = options;
@@ -2067,7 +2083,7 @@ namespace NBitcoin
 
 		private static uint256 GetHash(BitcoinStream stream)
 		{
-			var preimage = ((HashStream)stream.Inner).GetHash();
+			var preimage = ((HashStreamBase)stream.Inner).GetHash();
 			stream.Inner.Dispose();
 			return preimage;
 		}
@@ -2108,9 +2124,9 @@ namespace NBitcoin
 			return hashPrevouts;
 		}
 
-		private static BitcoinStream CreateHashWriter(HashVersion version)
+		private BitcoinStream CreateHashWriter(HashVersion version)
 		{
-			HashStream hs = new HashStream();
+			var hs = CreateSignatureHashStream();
 			BitcoinStream stream = new BitcoinStream(hs, true);
 			stream.Type = SerializationType.Hash;
 			stream.TransactionOptions = version == HashVersion.Original ? TransactionOptions.None : TransactionOptions.Witness;

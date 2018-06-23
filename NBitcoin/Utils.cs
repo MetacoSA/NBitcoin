@@ -51,8 +51,9 @@ namespace NBitcoin
 				{
 
 					byte[] version = network.GetVersionBytes(b58.Type, true);
-					var inner = Encoders.Base58Check.DecodeData(b58.ToString()).Skip(version.Length).ToArray();
-					var newBase58 = Encoders.Base58Check.EncodeData(version.Concat(inner).ToArray());
+					var enc = network.NetworkStringParser.GetBase58CheckEncoder();
+					var inner = enc.DecodeData(b58.ToString()).Skip(version.Length).ToArray();
+					var newBase58 = enc.EncodeData(version.Concat(inner).ToArray());
 					return Network.Parse<T>(newBase58, network);
 				}
 				else
