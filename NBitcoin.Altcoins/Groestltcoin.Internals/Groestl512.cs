@@ -49,7 +49,7 @@ internal class Groestl512 : GroestlBigCore {
   }
 
   /** @see Digest */
-  public override uint getDigestLength()
+  public override int getDigestLength()
   {
     return 64;
   }

@@ -181,13 +181,13 @@ internal abstract class GroestlBigCore : DigestEngine {
     0x6d0c61d661dad66dL, 0x2c624e3a4e583a2cL
   };
 
-  private static readonly  ulong[] T1 = new ulong[(uint)T0.Length];
-  private static readonly  ulong[] T2 = new ulong[(uint)T0.Length];
-  private static readonly  ulong[] T3 = new ulong[(uint)T0.Length];
-  private static readonly  ulong[] T4 = new ulong[(uint)T0.Length];
-  private static readonly  ulong[] T5 = new ulong[(uint)T0.Length];
-  private static readonly  ulong[] T6 = new ulong[(uint)T0.Length];
-  private static readonly  ulong[] T7 = new ulong[(uint)T0.Length];
+  private static readonly  ulong[] T1 = new ulong[T0.Length];
+  private static readonly  ulong[] T2 = new ulong[T0.Length];
+  private static readonly  ulong[] T3 = new ulong[T0.Length];
+  private static readonly  ulong[] T4 = new ulong[T0.Length];
+  private static readonly  ulong[] T5 = new ulong[T0.Length];
+  private static readonly  ulong[] T6 = new ulong[T0.Length];
+  private static readonly  ulong[] T7 = new ulong[T0.Length];
 
   static GroestlBigCore() {
     for (uint i = 0; i < (uint)T0.Length; i ++) {
@@ -225,7 +225,7 @@ internal abstract class GroestlBigCore : DigestEngine {
   */
 
   /** @see Digest */
-  public override uint getBlockLength()
+  public override int getBlockLength()
   {
     return 128;
   }
@@ -233,7 +233,7 @@ internal abstract class GroestlBigCore : DigestEngine {
   /** @see DigestEngine */
   protected Digest copyState(GroestlBigCore dst)
   {
-    Array.Copy(H, 0, dst.H, 0, (uint)H.Length);
+    Array.Copy(H, 0, dst.H, 0, H.Length);
     return base.copyState(dst);
   }
 
@@ -246,31 +246,31 @@ internal abstract class GroestlBigCore : DigestEngine {
   }
 
   /** @see DigestEngine */
-  protected override void doPadding(byte[] output, uint outputOffset)
+  protected override void doPadding(byte[] output, int outputOffset)
   {
     byte[] buf = getBlockBuffer();
-    uint ptr = flush();
+    int ptr = flush();
     buf[ptr ++] = (byte)0x80;
     ulong count = getBlockCount();
     if (ptr <= 120) {
-      for (uint i = ptr; i < 120; i ++)
+      for (int i = ptr; i < 120; i ++)
         buf[i] = 0;
       count ++;
     } else {
-      for (uint i = ptr; i < 128; i ++)
+      for (int i = ptr; i < 128; i ++)
         buf[i] = 0;
       processBlock(buf);
-      for (uint i = 0; i < 120; i ++)
+      for (int i = 0; i < 120; i ++)
         buf[i] = 0;
       count += 2;
     }
     encodeBELong(count, buf, 120);
     processBlock(buf);
-    Array.Copy(H, 0, G, 0, (uint)H.Length);
+    Array.Copy(H, 0, G, 0, H.Length);
     doPermP(G);
     for (uint i = 0; i < 8; i ++)
       encodeBELong(H[i + 8] ^ G[i + 8], buf, 8 * i);
-    uint outLen = getDigestLength();
+    int outLen = getDigestLength();
     Array.Copy(buf, 64 - outLen,
       output, outputOffset, outLen);
   }

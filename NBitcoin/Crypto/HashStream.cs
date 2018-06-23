@@ -296,7 +296,12 @@ namespace NBitcoin.Crypto
 
 		public override uint256 GetHash()
 		{
+#if NO_MEM_BUFFER
+			var copy = ms.ToArray();
+			return GetHash(copy, 0, (int)copy.Length);
+#else
 			return GetHash(ms.GetBuffer(), 0, (int)ms.Length);
+#endif
 		}
 
 		protected abstract uint256 GetHash(byte[] data, int offset, int length);
