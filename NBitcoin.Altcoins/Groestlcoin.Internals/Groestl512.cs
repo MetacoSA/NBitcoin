@@ -2,7 +2,7 @@
 
 using System;
 
-namespace NBitcoin.Altcoins.Groestltcoin.Internals
+namespace NBitcoin.Altcoins.GroestlcoinInternals
 {
 
 /**
