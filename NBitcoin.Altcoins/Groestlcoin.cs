@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-using NBitcoin.Altcoins.Groestltcoin.Internals;
+using NBitcoin.Altcoins.GroestlcoinInternals;
 using NBitcoin.Protocol;
 using NBitcoin.Crypto;
 

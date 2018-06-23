@@ -1209,6 +1209,12 @@ namespace NBitcoin
 			set;
 		} = new NetworkStringParser();
 
+
+		public Base58CheckEncoder GetBase58CheckEncoder()
+		{
+			return NetworkStringParser.GetBase58CheckEncoder();
+		}
+
 		private IBase58Data CreateBase58Data(Base58Type type, string base58)
 		{
 			if(type == Base58Type.EXT_PUBLIC_KEY)
