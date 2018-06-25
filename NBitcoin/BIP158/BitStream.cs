@@ -80,58 +80,74 @@ namespace NBitcoin
 			_buffer[lastIndex + 1] = (byte)(b << _remainCount);
 		}
 
-		public bool ReadBit()
+		public bool TryReadBit(out bool bit)
 		{
-			if (_buffer.Length == 0)
-				throw new InvalidOperationException("The stream is empty.");
+			bit = false;
+			if (_buffer.Length == 0){
+				return false;
+			}
 
 			if(_remainCount == 0)
 			{
-				if (_buffer.Length == 1) {
-					throw new InvalidOperationException("End of stream reached.");
-				}
+				if (_buffer.Length == 1)
+					return false;
+				
 				var newBuffer = new byte[_buffer.Length - 1];
 				Buffer.BlockCopy(_buffer, 1, newBuffer, 0, _buffer.Length - 1);
 				_buffer = newBuffer;
 				_remainCount = 8;
 			}
 
-			var bit = _buffer[0] & 0x80;
+			var curbit = _buffer[0] & 0x80;
 			_buffer[0] <<= 1;
 			_remainCount--;
 
-			return bit != 0;
+			bit = curbit != 0;
+			return true;
 		}
 
-		public ulong ReadBits(int count)
+		public bool TryReadBits(int count, out ulong bits)
 		{
 			var val = 0UL;
 			while(count >= 8)
 			{
 				val <<= 8;
-				val |= (ulong)ReadByte();
+				if(!TryReadByte(out var readedByte)){
+					bits = 0U;
+					return false;
+				}
+				val |= (ulong)readedByte;
 				count -= 8;
 			}
 
 			while(count > 0)
 			{
 				val <<= 1;
-				val |= ReadBit() ? 1UL : 0UL;
-				count--;
+				if(TryReadBit(out var bit)){
+					val |= bit ? 1UL : 0UL;
+					count--;
+				}
+				else
+				{
+					bits = 0U;
+					return false;
+				}
 			}
-			return val;
+			bits = val;
+			return true;
 		}
 
-		public byte ReadByte()
+		public bool TryReadByte(out byte b)
 		{
+			b = 0;
 			if (_buffer.Length == 0)
-				throw new InvalidOperationException("The stream is empty.");
+				return false;
 
 			if (_remainCount == 0)
 			{
 				if (_buffer.Length == 1)
 				{
-					throw new InvalidOperationException("End of stream reached.");
+					return false;
 				}
 				var newBuffer = new byte[_buffer.Length - 1];
 				Buffer.BlockCopy(_buffer, 1, newBuffer, 0, _buffer.Length - 1);
@@ -139,23 +155,24 @@ namespace NBitcoin
 				_remainCount = 8;
 			}
 
-			var b = _buffer[0];
+			b = _buffer[0];
 			var newBuffer1 = new byte[_buffer.Length - 1];
 			Buffer.BlockCopy(_buffer, 1, newBuffer1, 0, _buffer.Length - 1);
 			_buffer = newBuffer1;
 			if (_remainCount == 8)
 			{
-				return b;
+				return true;
 			}
 
 			if (_buffer.Length == 0)
 			{
-				throw new InvalidOperationException("End of stream reached.");
+				b = 0;
+				return false;
 			}
 
 			b |= (byte)(_buffer[0] >> _remainCount);
 			_buffer[0] <<= (8 - _remainCount);
-			return b;
+			return true;
 		}
 
 		public byte[] ToByteArray()
@@ -213,26 +230,40 @@ namespace NBitcoin
 			_lastValue = lastValue;
 		}
 
-		public ulong Read()
+		public bool TryRead(out ulong value)
 		{
-			var currentValue = _lastValue + ReadUInt64();
-			_lastValue = currentValue;
-			return currentValue;
+			if(TryReadUInt64(out var readedValue)){
+				var currentValue = _lastValue + readedValue;
+				_lastValue = currentValue;
+				value = currentValue;
+				return true;
+			}
+
+			value = 0;
+			return false;
 		}
 
-		private ulong ReadUInt64()
+		private bool TryReadUInt64(out ulong value)
 		{
+			value = 0U;
 			var count = 0UL;
-			var bit = _stream.ReadBit();
+			if(!_stream.TryReadBit(out var bit))
+				return false;
+
 			while (bit)
 			{
 				count++;
-				bit = _stream.ReadBit();
+				if(!_stream.TryReadBit(out bit))
+					return false;
 			}
 
-			var remainder = _stream.ReadBits(_p);
-			var value = (count * _modP) + remainder;
-			return value;
+			if(_stream.TryReadBits(_p, out var remainder))
+			{
+				value = (count * _modP) + remainder;
+				return true;
+			}
+
+			return false;
 		}
 	}
 }
