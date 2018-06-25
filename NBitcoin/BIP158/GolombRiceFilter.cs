@@ -49,7 +49,7 @@ namespace NBitcoin
 		/// <param name="data">A serialized Golomb-Rice filter.</param>
 		public static GolombRiceFilter Parse(string str)
 		{
-			var bytes = DataEncoders.Encoders.Hex.DecodeData(str);
+			var bytes = NBitcoin.DataEncoders.Encoders.Hex.DecodeData(str);
 			return new GolombRiceFilter(bytes);
 		}
 
@@ -175,32 +175,28 @@ namespace NBitcoin
 			var bitStream = new BitStream(Data);
 			var sr = new GRCodedStreamReader(bitStream, P, 0);
 
-			try
+			while (lastValue1 != lastValue2)
 			{
-				while (lastValue1 != lastValue2)
+				if (lastValue1 > lastValue2)
 				{
-					if (lastValue1 > lastValue2)
+					if (i < hs.Count)
 					{
-						if (i < hs.Count)
-						{
-							lastValue2 = hs[i];
-							i++;
-						}
-						else
-						{
-							return false;
-						}
+						lastValue2 = hs[i];
+						i++;
 					}
-					else if (lastValue2 > lastValue1)
+					else
 					{
-						var val = sr.Read();
-						lastValue1 = val;
+						return false;
 					}
 				}
-			}
-			catch (InvalidOperationException) // end-of-stream 
-			{
-				return false;
+				else if (lastValue2 > lastValue1)
+				{
+
+					if(sr.TryRead(out var val))
+						lastValue1 = val;
+					else
+						return false;
+				}
 			}
 
 			return true;
@@ -222,7 +218,7 @@ namespace NBitcoin
 		/// <returns>A string with the serialized filter data</returns>
 		public override string ToString()
 		{
-			return DataEncoders.Encoders.Hex.EncodeData(ToBytes());
+			return NBitcoin.DataEncoders.Encoders.Hex.EncodeData(ToBytes());
 		}
 
 		internal static ulong FastReduction(ulong value, ulong nhi, ulong nlo)
