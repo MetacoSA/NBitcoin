@@ -90,9 +90,13 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
-		public virtual uint CalculateChecksum(byte[] bytes, int offset, int length)
+		public virtual HashStreamBase GetChecksumHashStream()
 		{
-			return Utils.ToUInt32(Hashes.Hash256RawBytes(bytes, 0, length), 0, true);
+			return new HashStream();
+		}
+		public virtual HashStreamBase GetChecksumHashStream(int hintSize)
+		{
+			return GetChecksumHashStream();
 		}
 
 

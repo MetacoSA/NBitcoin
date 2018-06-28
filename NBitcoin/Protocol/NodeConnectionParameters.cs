@@ -16,7 +16,6 @@ namespace NBitcoin.Protocol
 
 		public NodeConnectionParameters()
 		{
-			ReuseBuffer = true;
 			TemplateBehaviors.Add(new PingPongBehavior());
 			Version = null;
 			IsRelay = true;
@@ -44,7 +43,6 @@ namespace NBitcoin.Protocol
 			AddressFrom = other.AddressFrom;
 			Nonce = other.Nonce;
 			Advertize = other.Advertize;
-			ReuseBuffer = other.ReuseBuffer;
 			PreferredTransactionOptions = other.PreferredTransactionOptions;
 			foreach(var behavior in other.TemplateBehaviors)
 			{
@@ -107,6 +105,7 @@ namespace NBitcoin.Protocol
 		/// <summary>
 		/// Whether we reuse a 1MB buffer for deserializing messages, for limiting GC activity (Default : true)
 		/// </summary>
+		[Obsolete("Ignored, all arrays are allocated through ArrayPool")]
 		public bool ReuseBuffer
 		{
 			get;

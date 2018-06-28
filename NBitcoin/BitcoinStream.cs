@@ -67,7 +67,7 @@ namespace NBitcoin
 		}
 
 		//ReadWrite<T>(ref T data)
-		static MethodInfo _ReadWriteTyped;
+		internal static MethodInfo _ReadWriteTyped;
 		static BitcoinStream()
 		{
 			_ReadWriteTyped = typeof(BitcoinStream)
@@ -498,16 +498,16 @@ namespace NBitcoin
 			});
 		}
 
-		public void CopyParameters(BitcoinStream stream)
+		public void CopyParameters(BitcoinStream from)
 		{
-			if(stream == null)
-				throw new ArgumentNullException(nameof(stream));
-			ProtocolVersion = stream.ProtocolVersion;
-			ConsensusFactory = stream.ConsensusFactory;
-			_ProtocolCapabilities = stream._ProtocolCapabilities;
-			IsBigEndian = stream.IsBigEndian;
-			MaxArraySize = stream.MaxArraySize;
-			Type = stream.Type;
+			if(from == null)
+				throw new ArgumentNullException(nameof(from));
+			ProtocolVersion = from.ProtocolVersion;
+			ConsensusFactory = from.ConsensusFactory;
+			_ProtocolCapabilities = from._ProtocolCapabilities;
+			IsBigEndian = from.IsBigEndian;
+			MaxArraySize = from.MaxArraySize;
+			Type = from.Type;
 		}
 
 
