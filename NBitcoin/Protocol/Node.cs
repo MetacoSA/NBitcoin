@@ -299,7 +299,6 @@ namespace NBitcoin.Protocol
 					{
 						NodeServerTrace.Information("Listening");
 						Exception unhandledException = null;
-						byte[] buffer = _Node._ReuseBuffer ? new byte[1024 * 1024] : null;
 						try
 						{
 							var stream = new NetworkStream(Socket, false);
@@ -307,7 +306,7 @@ namespace NBitcoin.Protocol
 							{
 								PerformanceCounter counter;
 
-								var message = Message.ReadNext(stream, Node.Network, Node.Version, Cancel.Token, buffer, out counter);
+								var message = Message.ReadNext(stream, Node.Network, Node.Version, Cancel.Token, out counter);
 								if(NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose))
 									NodeServerTrace.Verbose("Receiving message : " + message.Command + " (" + message.Payload + ")");
 								Node.LastSeen = DateTimeOffset.UtcNow;
@@ -845,12 +844,10 @@ namespace NBitcoin.Protocol
 			private set;
 		}
 
-		bool _ReuseBuffer;
 		private void InitDefaultBehaviors(NodeConnectionParameters parameters)
 		{
 			Advertize = parameters.Advertize;
 			PreferredTransactionOptions = parameters.PreferredTransactionOptions;
-			_ReuseBuffer = parameters.ReuseBuffer;
 			_Behaviors.DelayAttach = true;
 			foreach(var behavior in parameters.TemplateBehaviors)
 			{

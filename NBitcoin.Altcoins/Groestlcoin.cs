@@ -94,9 +94,13 @@ namespace NBitcoin.Altcoins
 					SupportWitness = true;
 				}
 
-				public override uint CalculateChecksum(byte[] bytes, int offset, int length)
+				public override HashStreamBase GetChecksumHashStream(int hintSize)
 				{
-					return Utils.ToUInt32(GroestlHash(bytes, offset, length), 0, true);
+					return BufferedHashStream.CreateFrom(GroestlHash, hintSize);
+				}
+				public override HashStreamBase GetChecksumHashStream()
+				{
+					return BufferedHashStream.CreateFrom(GroestlHash, 300);
 				}
 			}
 
