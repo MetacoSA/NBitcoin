@@ -128,6 +128,7 @@ namespace NBitcoin.Tests
 			// Generation of data to be added into the filter
 			var random = new Random();
 			var sw = new Stopwatch();
+			sw.Start();
 				
 			var blocks = new List<BlockFilter>(blockCount);
 			for (var i = 0; i < blockCount; i++)
@@ -146,14 +147,14 @@ namespace NBitcoin.Tests
 
 				builder.AddEntries(txouts);
 
-				sw.Start();
 				var filter = builder.Build();
-				sw.Stop();
 
 				blocks.Add(new BlockFilter(filter, txouts));
 			}
-			sw.Reset();
+			sw.Stop();
+			Console.WriteLine($"Filters generation time: {sw.Elapsed}");
 
+			sw.Reset();
 
 			var walletAddresses = new List<byte[]>(walletAddressCount);
 			var falsePositiveCount = 0;
@@ -171,11 +172,13 @@ namespace NBitcoin.Tests
 				if (block.Filter.MatchAny(walletAddresses, testKey))
 					falsePositiveCount++;
 			}
-
 			sw.Stop();
+			Console.WriteLine($"Filters matching time: {sw.Elapsed}");
+
 			Assert.True(falsePositiveCount < 5);
 
 			// Filter has to mat existing values
+			sw.Reset();
 			sw.Start();
 			var falseNegativeCount = 0;
 			// Check that the filter can match every single txout in every block.
@@ -186,6 +189,7 @@ namespace NBitcoin.Tests
 			}
 
 			sw.Stop();
+			Console.WriteLine($"Filters matching false time: {sw.Elapsed}");
 
 			Assert.Equal(0, falseNegativeCount);
 		}

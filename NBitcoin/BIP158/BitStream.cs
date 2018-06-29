@@ -8,9 +8,10 @@ namespace NBitcoin
 	{
 		private byte[] _buffer;
 		private int _remainCount;
+		private int _remainBitsInBuffer;
 
 		public BitStream()
-			: this(new byte[0])
+			: this(new byte[10_000])
 		{
 		}
 
@@ -20,20 +21,23 @@ namespace NBitcoin
 			Buffer.BlockCopy(buffer, 0, newBuffer, 0, buffer.Length);
 			_buffer = newBuffer;
 			_remainCount = buffer.Length == 0 ? 0 : 8;
+			_remainBitsInBuffer = 8 * buffer.Length;
 		}
 
 		private void AddZeroByte()
 		{
-			var newBuffer = new byte[_buffer.Length + 1];
-			Buffer.BlockCopy(_buffer, 0, newBuffer, 0, _buffer.Length);
-			_buffer = newBuffer;
+			Array.Resize(ref _buffer, _buffer.Length + 100);
+			_remainBitsInBuffer += 8 * 100;
 		}
 
 		private void EnsureCapacity()
 		{
-			if (_remainCount == 0)
+			if (_remainBitsInBuffer < 10)
 			{
 				AddZeroByte();
+			}
+			if(_remainCount == 0)
+			{
 				_remainCount = 8;
 			}
 		}
@@ -43,10 +47,11 @@ namespace NBitcoin
 			EnsureCapacity();
 			if (bit)
 			{
-				var lastIndex = _buffer.Length - 1;
+				var lastIndex = GetLastIndex();
 				_buffer[lastIndex] |= (byte)(1 << (_remainCount - 1));
 			}
 			_remainCount--;
+			_remainBitsInBuffer--;
 		}
 
         public void WriteBits(ulong data, byte count)
@@ -73,11 +78,12 @@ namespace NBitcoin
 		{
 			EnsureCapacity();
 
-			var lastIndex = _buffer.Length - 1;
+			var lastIndex = GetLastIndex(); 
 			_buffer[lastIndex] |= (byte)(b >> (8 - _remainCount));
 
-			AddZeroByte();
+			EnsureCapacity();
 			_buffer[lastIndex + 1] = (byte)(b << _remainCount);
+			_remainBitsInBuffer-=8;
 		}
 
 		public bool TryReadBit(out bool bit)
@@ -177,9 +183,17 @@ namespace NBitcoin
 
 		public byte[] ToByteArray()
 		{
-			return _buffer;
+			var arraySize = 1 + GetLastIndex();
+			var byteArray = new byte[arraySize];
+			Array.Copy(_buffer, byteArray, arraySize);
+			return byteArray;
 		}
-    }
+
+		private int GetLastIndex()
+		{
+			return _buffer.Length - ((_remainBitsInBuffer + 7) / 8);
+		}
+	}
 
 
 	internal class GRCodedStreamWriter
