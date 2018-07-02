@@ -127,8 +127,6 @@ namespace NBitcoin.Tests
 
 			// Generation of data to be added into the filter
 			var random = new Random();
-			var sw = new Stopwatch();
-			sw.Start();
 				
 			var blocks = new List<BlockFilter>(blockCount);
 			for (var i = 0; i < blockCount; i++)
@@ -151,10 +149,6 @@ namespace NBitcoin.Tests
 
 				blocks.Add(new BlockFilter(filter, txouts));
 			}
-			sw.Stop();
-			Console.WriteLine($"Filters generation time: {sw.Elapsed}");
-
-			sw.Reset();
 
 			var walletAddresses = new List<byte[]>(walletAddressCount);
 			var falsePositiveCount = 0;
@@ -165,21 +159,16 @@ namespace NBitcoin.Tests
 				walletAddresses.Add(walletAddress);
 			}
 
-			sw.Start();
 			// Check that the filter can match every single txout in every block.
 			foreach (var block in blocks)
 			{
 				if (block.Filter.MatchAny(walletAddresses, testKey))
 					falsePositiveCount++;
 			}
-			sw.Stop();
-			Console.WriteLine($"Filters matching time: {sw.Elapsed}");
 
 			Assert.True(falsePositiveCount < 5);
 
 			// Filter has to mat existing values
-			sw.Reset();
-			sw.Start();
 			var falseNegativeCount = 0;
 			// Check that the filter can match every single txout in every block.
 			foreach (var block in blocks)
@@ -187,9 +176,6 @@ namespace NBitcoin.Tests
 				if (!block.Filter.MatchAny(block.Data, testKey))
 					falseNegativeCount++;
 			}
-
-			sw.Stop();
-			Console.WriteLine($"Filters matching false time: {sw.Elapsed}");
 
 			Assert.Equal(0, falseNegativeCount);
 		}
@@ -311,15 +297,19 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void GensTest()
+		public void WriteAndReadBitStreamTest()
 		{
-			var bs = new BitStream();
-			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
-			bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);
-			bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(false);
-			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
-			bs.WriteBit(true);
+			var createBitStream = new Func<BitStream>(()=> {
+				var bsx = new BitStream();
+				bsx.WriteBit(false);bsx.WriteBit(true);bsx.WriteBit(false);bsx.WriteBit(true);
+				bsx.WriteBit(true);bsx.WriteBit(false);bsx.WriteBit(true);bsx.WriteBit(false);
+				bsx.WriteBit(true);bsx.WriteBit(true);bsx.WriteBit(true);bsx.WriteBit(false);
+				bsx.WriteBit(false);bsx.WriteBit(true);bsx.WriteBit(false);bsx.WriteBit(true);
+				bsx.WriteBit(true);
+				return bsx;
+			});
 
+			var bs = createBitStream();
 			bs.TryReadBit(out var bit); Assert.False(bit);
 			bs.TryReadBit(out bit); Assert.True(bit);
 			bs.TryReadBit(out bit); Assert.False(bit);
@@ -338,34 +328,18 @@ namespace NBitcoin.Tests
 			bs.TryReadBit(out bit); Assert.True(bit);
 			bs.TryReadBit(out bit); Assert.True(bit);
 
-			bs = new BitStream();
-			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
-			bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);
-			bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(false);
-			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
-			bs.WriteBit(true);
-
+			bs = createBitStream();
 			bs.TryReadBits(17, out var bits);
 			Assert.Equal(46539U, bits);
 
-			bs = new BitStream();
-			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
-			bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);
-			bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(false);
-			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
-			bs.WriteBit(true);
+			bs = createBitStream();
 
 			bs.TryReadByte(out var b);
 			Assert.Equal(90, b);
 			bs.TryReadByte(out b);
 			Assert.Equal(229, b);
 
-			bs = new BitStream();
-			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
-			bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);
-			bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(false);
-			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
-			bs.WriteBit(true);
+			bs = createBitStream();
 
 			bs.TryReadBit(out bit);
 			bs.TryReadByte(out b);
@@ -373,12 +347,7 @@ namespace NBitcoin.Tests
 			bs.TryReadByte(out b);
 			Assert.Equal(203, b);
 
-			bs = new BitStream();
-			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
-			bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);
-			bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(false);
-			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
-			bs.WriteBit(true);
+			bs = createBitStream();
 
 			bs.TryReadBit(out bit);
 			bs.TryReadBit(out bit);
