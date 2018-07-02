@@ -155,7 +155,7 @@ namespace NBitcoin
 		{
 			if ( (_writePos / 8) == (_buffer.Length - 1))
 			{
-				Array.Resize(ref _buffer, _buffer.Length + 100);
+				Array.Resize(ref _buffer, _buffer.Length + ( 4 * 1024 ));
 			}
 		}
 	}
