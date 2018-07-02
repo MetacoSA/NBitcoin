@@ -308,5 +308,84 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void GensTest()
+		{
+			var bs = new BitStream();
+			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
+			bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);
+			bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(false);
+			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
+			bs.WriteBit(true);
+
+			bs.TryReadBit(out var bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+
+			bs = new BitStream();
+			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
+			bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);
+			bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(false);
+			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
+			bs.WriteBit(true);
+
+			bs.TryReadBits(17, out var bits);
+			Assert.Equal(46539U, bits);
+
+			bs = new BitStream();
+			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
+			bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);
+			bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(false);
+			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
+			bs.WriteBit(true);
+
+			bs.TryReadByte(out var b);
+			Assert.Equal(90, b);
+			bs.TryReadByte(out b);
+			Assert.Equal(229, b);
+
+			bs = new BitStream();
+			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
+			bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);
+			bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(false);
+			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
+			bs.WriteBit(true);
+
+			bs.TryReadBit(out bit);
+			bs.TryReadByte(out b);
+			Assert.Equal(181, b);
+			bs.TryReadByte(out b);
+			Assert.Equal(203, b);
+
+			bs = new BitStream();
+			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
+			bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);
+			bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(true);bs.WriteBit(false);
+			bs.WriteBit(false);bs.WriteBit(true);bs.WriteBit(false);bs.WriteBit(true);
+			bs.WriteBit(true);
+
+			bs.TryReadBit(out bit);
+			bs.TryReadBit(out bit);
+			bs.TryReadBit(out bit);
+
+			bs.TryReadBits(14, out bits);
+			Assert.Equal(13771U, bits);
+		}
 	}
 }
