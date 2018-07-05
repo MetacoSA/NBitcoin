@@ -2020,7 +2020,7 @@ namespace NBitcoin
 			}
 
 			var scriptCopy = new Script(scriptCode._Script);
-			scriptCopy.FindAndDelete(OpcodeType.OP_CODESEPARATOR);
+			scriptCopy = scriptCopy.FindAndDelete(OpcodeType.OP_CODESEPARATOR);
 
 			var txCopy = GetConsensusFactory().CreateTransaction();
 			txCopy.FromBytes(this.ToBytes());
