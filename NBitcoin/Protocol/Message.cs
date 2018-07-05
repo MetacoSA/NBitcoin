@@ -124,18 +124,8 @@ namespace NBitcoin.Protocol
 
 					stream.ReadWrite(ref payloadBytes, 0, length);
 
-					if(stream.ProtocolCapabilities.SupportCheckSum)
-					{
-						var hashStream = stream.ProtocolCapabilities.GetChecksumHashStream(length);
-						hashStream.Write(payloadBytes, 0, length);
-						var actualChecksum = hashStream.GetHash().GetLow32();
-						if(expectedChecksum != actualChecksum)
-						{
-							if(NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose))
-								NodeServerTrace.Trace.TraceEvent(TraceEventType.Verbose, 0, "Invalid message checksum bytes");
-							throw new FormatException("Message checksum invalid");
-						}
-					}
+					//  We do not verify the checksum anymore because for 1000 blocks, it takes 80 seconds.
+
 					BitcoinStream payloadStream = new BitcoinStream(new MemoryStream(payloadBytes, 0, length, false), false);
 					payloadStream.CopyParameters(stream);
 
