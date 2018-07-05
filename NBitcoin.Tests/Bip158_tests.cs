@@ -127,7 +127,6 @@ namespace NBitcoin.Tests
 
 			// Generation of data to be added into the filter
 			var random = new Random();
-			var sw = new Stopwatch();
 				
 			var blocks = new List<BlockFilter>(blockCount);
 			for (var i = 0; i < blockCount; i++)
@@ -146,14 +145,10 @@ namespace NBitcoin.Tests
 
 				builder.AddEntries(txouts);
 
-				sw.Start();
 				var filter = builder.Build();
-				sw.Stop();
 
 				blocks.Add(new BlockFilter(filter, txouts));
 			}
-			sw.Reset();
-
 
 			var walletAddresses = new List<byte[]>(walletAddressCount);
 			var falsePositiveCount = 0;
@@ -164,7 +159,6 @@ namespace NBitcoin.Tests
 				walletAddresses.Add(walletAddress);
 			}
 
-			sw.Start();
 			// Check that the filter can match every single txout in every block.
 			foreach (var block in blocks)
 			{
@@ -172,11 +166,9 @@ namespace NBitcoin.Tests
 					falsePositiveCount++;
 			}
 
-			sw.Stop();
 			Assert.True(falsePositiveCount < 5);
 
 			// Filter has to mat existing values
-			sw.Start();
 			var falseNegativeCount = 0;
 			// Check that the filter can match every single txout in every block.
 			foreach (var block in blocks)
@@ -184,8 +176,6 @@ namespace NBitcoin.Tests
 				if (!block.Filter.MatchAny(block.Data, testKey))
 					falseNegativeCount++;
 			}
-
-			sw.Stop();
 
 			Assert.Equal(0, falseNegativeCount);
 		}
@@ -303,6 +293,68 @@ namespace NBitcoin.Tests
 					}
 				}
 			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void WriteAndReadBitStreamTest()
+		{
+			var createBitStream = new Func<BitStream>(()=> {
+				var bsx = new BitStream();
+				bsx.WriteBit(false);bsx.WriteBit(true);bsx.WriteBit(false);bsx.WriteBit(true);
+				bsx.WriteBit(true);bsx.WriteBit(false);bsx.WriteBit(true);bsx.WriteBit(false);
+				bsx.WriteBit(true);bsx.WriteBit(true);bsx.WriteBit(true);bsx.WriteBit(false);
+				bsx.WriteBit(false);bsx.WriteBit(true);bsx.WriteBit(false);bsx.WriteBit(true);
+				bsx.WriteBit(true);
+				return bsx;
+			});
+
+			var bs = createBitStream();
+			bs.TryReadBit(out var bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.False(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+			bs.TryReadBit(out bit); Assert.True(bit);
+
+			bs = createBitStream();
+			bs.TryReadBits(17, out var bits);
+			Assert.Equal(46539U, bits);
+
+			bs = createBitStream();
+
+			bs.TryReadByte(out var b);
+			Assert.Equal(90, b);
+			bs.TryReadByte(out b);
+			Assert.Equal(229, b);
+
+			bs = createBitStream();
+
+			bs.TryReadBit(out bit);
+			bs.TryReadByte(out b);
+			Assert.Equal(181, b);
+			bs.TryReadByte(out b);
+			Assert.Equal(203, b);
+
+			bs = createBitStream();
+
+			bs.TryReadBit(out bit);
+			bs.TryReadBit(out bit);
+			bs.TryReadBit(out bit);
+
+			bs.TryReadBits(14, out bits);
+			Assert.Equal(13771U, bits);
 		}
 	}
 }

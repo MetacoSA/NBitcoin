@@ -7,10 +7,11 @@ namespace NBitcoin
 	class BitStream
 	{
 		private byte[] _buffer;
-		private int _remainCount;
+		private int _writePos;
+		private int _readPos;
 
 		public BitStream()
-			: this(new byte[0])
+			: this(new byte[8 * 1024])
 		{
 		}
 
@@ -19,23 +20,8 @@ namespace NBitcoin
 			var newBuffer = new byte[buffer.Length];
 			Buffer.BlockCopy(buffer, 0, newBuffer, 0, buffer.Length);
 			_buffer = newBuffer;
-			_remainCount = buffer.Length == 0 ? 0 : 8;
-		}
-
-		private void AddZeroByte()
-		{
-			var newBuffer = new byte[_buffer.Length + 1];
-			Buffer.BlockCopy(_buffer, 0, newBuffer, 0, _buffer.Length);
-			_buffer = newBuffer;
-		}
-
-		private void EnsureCapacity()
-		{
-			if (_remainCount == 0)
-			{
-				AddZeroByte();
-				_remainCount = 8;
-			}
+			_writePos = 0;
+			_readPos = 0;
 		}
 
 		public void WriteBit(bool bit)
@@ -43,10 +29,9 @@ namespace NBitcoin
 			EnsureCapacity();
 			if (bit)
 			{
-				var lastIndex = _buffer.Length - 1;
-				_buffer[lastIndex] |= (byte)(1 << (_remainCount - 1));
+				_buffer[_writePos / 8] |= (byte)(1 << ( 8 - (_writePos % 8) - 1));
 			}
-			_remainCount--;
+			_writePos++;
 		}
 
         public void WriteBits(ulong data, byte count)
@@ -73,36 +58,32 @@ namespace NBitcoin
 		{
 			EnsureCapacity();
 
-			var lastIndex = _buffer.Length - 1;
-			_buffer[lastIndex] |= (byte)(b >> (8 - _remainCount));
+			var remainCount = (_writePos % 8);
+			var i = _writePos / 8;
+			_buffer[i] |= (byte)(b >> remainCount);
 
-			AddZeroByte();
-			_buffer[lastIndex + 1] = (byte)(b << _remainCount);
+			if(remainCount > 0)
+			{
+				EnsureCapacity();
+				
+				_buffer[i+1] = (byte)(b << (8 - remainCount));
+			}
+			_writePos+=8;
 		}
 
 		public bool TryReadBit(out bool bit)
 		{
 			bit = false;
-			if (_buffer.Length == 0){
+			var i = _readPos / 8;
+			if ( i == _buffer.Length)
+			{
 				return false;
 			}
 
-			if(_remainCount == 0)
-			{
-				if (_buffer.Length == 1)
-					return false;
-				
-				var newBuffer = new byte[_buffer.Length - 1];
-				Buffer.BlockCopy(_buffer, 1, newBuffer, 0, _buffer.Length - 1);
-				_buffer = newBuffer;
-				_remainCount = 8;
-			}
+			var mask = 1 << (8 - (_readPos % 8) - 1); 
 
-			var curbit = _buffer[0] & 0x80;
-			_buffer[0] <<= 1;
-			_remainCount--;
-
-			bit = curbit != 0;
+			bit = (_buffer[i] & mask) == mask;
+			_readPos++;
 			return true;
 		}
 
@@ -140,46 +121,44 @@ namespace NBitcoin
 		public bool TryReadByte(out byte b)
 		{
 			b = 0;
-			if (_buffer.Length == 0)
-				return false;
-
-			if (_remainCount == 0)
+			var i = _readPos / 8;
+			if ( i == _buffer.Length)
 			{
-				if (_buffer.Length == 1)
+				return false;
+			}
+
+			var remainCount = _readPos % 8;
+			b = (byte)(_buffer[i] << remainCount);
+
+			if(remainCount > 0)
+			{
+				if(i+1 == _buffer.Length)
 				{
+					b = 0;
 					return false;
 				}
-				var newBuffer = new byte[_buffer.Length - 1];
-				Buffer.BlockCopy(_buffer, 1, newBuffer, 0, _buffer.Length - 1);
-				_buffer = newBuffer;
-				_remainCount = 8;
+				b |= (byte)(_buffer[i+1] >> (8 - remainCount));
 			}
-
-			b = _buffer[0];
-			var newBuffer1 = new byte[_buffer.Length - 1];
-			Buffer.BlockCopy(_buffer, 1, newBuffer1, 0, _buffer.Length - 1);
-			_buffer = newBuffer1;
-			if (_remainCount == 8)
-			{
-				return true;
-			}
-
-			if (_buffer.Length == 0)
-			{
-				b = 0;
-				return false;
-			}
-
-			b |= (byte)(_buffer[0] >> _remainCount);
-			_buffer[0] <<= (8 - _remainCount);
+			_readPos += 8;
 			return true;
 		}
 
 		public byte[] ToByteArray()
 		{
-			return _buffer;
+			var arraySize = (_writePos + 7) / 8;
+			var byteArray = new byte[arraySize];
+			Array.Copy(_buffer, byteArray, arraySize);
+			return byteArray;
 		}
-    }
+
+		private void EnsureCapacity()
+		{
+			if ( (_writePos / 8) == (_buffer.Length - 1))
+			{
+				Array.Resize(ref _buffer, _buffer.Length + ( 4 * 1024 ));
+			}
+		}
+	}
 
 
 	internal class GRCodedStreamWriter
