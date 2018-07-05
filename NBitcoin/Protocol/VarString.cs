@@ -11,9 +11,9 @@ namespace NBitcoin.Protocol
 	{
 		public VarString()
 		{
-
+			_Bytes = new byte[0];
 		}
-		byte[] _Bytes = new byte[0];
+		byte[] _Bytes;
 		public int Length
 		{
 			get
