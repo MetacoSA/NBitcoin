@@ -1311,7 +1311,8 @@ namespace NBitcoin
 			{
 				this.ReadWrite(new BitcoinStream(hs, true)
 				{
-					TransactionOptions = TransactionOptions.None
+					TransactionOptions = TransactionOptions.None,
+					ConsensusFactory = GetConsensusFactory(),
 				});
 				h = hs.GetHash();
 			}
