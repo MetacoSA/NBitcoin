@@ -506,6 +506,18 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void FeeRateFormatting()
+		{
+			var fee = new FeeRate(0.5m);
+			Assert.Equal("0.5 Sat/B", fee.ToString());
+			fee = new FeeRate(1.0m);
+			Assert.Equal("1 Sat/B", fee.ToString());
+			fee = new FeeRate(0.521748274m);
+			Assert.Equal("0.521 Sat/B", fee.ToString());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void FeeRateComparison()
 		{
 			var a = new FeeRate(Money.Coins(2.0m));

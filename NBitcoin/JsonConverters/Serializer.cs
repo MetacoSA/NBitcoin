@@ -22,6 +22,7 @@ namespace NBitcoin.JsonConverters
 			settings.Converters.Add(new KeyJsonConverter());
 			settings.Converters.Add(new CoinJsonConverter(network));
 			settings.Converters.Add(new ScriptJsonConverter());
+			settings.Converters.Add(new FeeRateJsonConverter());
 			settings.Converters.Add(new UInt160JsonConverter());
 			settings.Converters.Add(new UInt256JsonConverter());
 			settings.Converters.Add(new BitcoinSerializableJsonConverter(network));
