@@ -124,9 +124,9 @@ namespace NBitcoin
 			}
 			else
 			{
-				var varString = new VarString();
-				varString.ReadWrite(this);
-				return Script.FromBytesUnsafe(varString.GetString(true));
+				byte[] bytes = null;
+				VarString.StaticRead(this, ref bytes);
+				return Script.FromBytesUnsafe(bytes);
 			}
 		}
 
