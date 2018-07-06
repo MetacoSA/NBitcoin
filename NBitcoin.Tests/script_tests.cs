@@ -393,30 +393,11 @@ namespace NBitcoin.Tests
 #if !NOCONSENSUSLIB
 			var bitcoinPath = NodeBuilder.EnsureDownloaded(NodeDownloadData.Bitcoin.v0_16_0);
 
-			string libConsensusDll = null;
-			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			{
-				libConsensusDll = "libbitcoinconsensus-0.dll";
-			}
-			else if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-			{
-				libConsensusDll = "libbitcoinconsensus.0.dylib";
-			}
-			else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-			{
-				libConsensusDll = "libbitcoinconsensus.so";
-			}
-			else
-			{
-				throw new NotSupportedException("Unknown operating system");
-			}
-
 			var bitcoinBinFolderPath = Path.GetDirectoryName("TestData");
-			var libConsensusPath = Path.Combine(bitcoinPath, "../../lib", libConsensusDll);
+			var libConsensusPath = Path.Combine(bitcoinPath, "../../lib");
 
-			if (File.Exists(Script.LibConsensusDll))
-				return;
-			File.Copy(libConsensusPath, Script.LibConsensusDll, overwrite:false);
+			foreach (string newPath in Directory.GetFiles(libConsensusPath))
+				File.Copy(newPath, newPath.Replace(libConsensusPath, "./"), true);
 #endif
 		}
 
@@ -869,7 +850,6 @@ namespace NBitcoin.Tests
 
 			uint256 hash3 = Script.SignatureHash(scriptPubKey, txTo, 0, SigHash.Single);
 			var sig3 = new TransactionSignature(keys[2].Sign(hash3), SigHash.Single);
-
 
 			// Not fussy about order (or even existence) of placeholders or signatures:
 			Script partial1a = new Script() + OpcodeType.OP_0 + Op.GetPushOp(sig1.ToBytes()) + OpcodeType.OP_0;
