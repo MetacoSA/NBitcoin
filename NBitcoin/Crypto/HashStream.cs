@@ -4,6 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if !NONATIVEHASH
+using System.Security.Cryptography;
+#endif
 
 namespace NBitcoin.Crypto
 {
@@ -138,7 +141,7 @@ namespace NBitcoin.Crypto
 			return false;
 		}
 
-#if(USEBC || WINDOWS_UWP)
+#if NONATIVEHASH
 		BouncyCastle.Crypto.Digests.Sha256Digest sha = new BouncyCastle.Crypto.Digests.Sha256Digest();
 		private void ProcessBlock()
 		{
@@ -157,7 +160,7 @@ namespace NBitcoin.Crypto
 		}
 
 #else
-		System.Security.Cryptography.SHA256Managed sha = new System.Security.Cryptography.SHA256Managed();
+		SHA256Managed sha = new SHA256Managed();
 		private void ProcessBlock()
 		{
 			sha.TransformBlock(_Buffer, 0, _Pos, _Buffer, 0);
