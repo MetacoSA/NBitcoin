@@ -39,10 +39,10 @@
 		<DefineConstants>$(DefineConstants);HAS_SPAN</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-		<DefineConstants>$(DefineConstants);NO_MEM_BUFFER;NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION</DefineConstants>
+		<DefineConstants>$(DefineConstants);NO_MEM_BUFFER;NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-		<DefineConstants>$(DefineConstants);NO_MEM_BUFFER;NETCORE;PORTABLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509</DefineConstants>
+		<DefineConstants>$(DefineConstants);NO_MEM_BUFFER;NETCORE;PORTABLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />

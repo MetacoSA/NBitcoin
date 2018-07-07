@@ -104,7 +104,7 @@ namespace NBitcoin
 			var value = SatoshiPerByte;
 			while(true)
 			{
-				var rounded = decimal.Round(value, divisibility, MidpointRounding.AwayFromZero);
+				var rounded = Math.Round(value, divisibility, MidpointRounding.AwayFromZero);
 				if((Math.Abs(rounded - value) / value) < 0.001m)
 				{
 					value = rounded;

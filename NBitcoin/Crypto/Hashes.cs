@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-#if !WINDOWS_UWP && !USEBC
+#if !NONATIVEHASH
 using System.Security.Cryptography;
 #endif
 
@@ -35,7 +35,7 @@ namespace NBitcoin.Crypto
 
 		public static byte[] Hash256RawBytes(byte[] data, int offset, int count)
 		{
-#if USEBC || WINDOWS_UWP || NETCORE
+#if NONATIVEHASH
 			Sha256Digest sha256 = new Sha256Digest();
 			sha256.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[32];
@@ -82,7 +82,7 @@ namespace NBitcoin.Crypto
 
 		public static byte[] RIPEMD160(byte[] data, int offset, int count)
 		{
-#if USEBC || WINDOWS_UWP || NETCORE
+#if NONATIVEHASH || NETCORE
 			RipeMD160Digest ripemd = new RipeMD160Digest();
 			ripemd.BlockUpdate(data, offset, count);
 			byte[] rv = new byte[20];
@@ -388,7 +388,7 @@ namespace NBitcoin.Crypto
 			}
 		}
 
-#if USEBC || WINDOWS_UWP
+#if NONATIVEHASH
 		public static byte[] HMACSHA512(byte[] key, byte[] data)
 		{
 			var mac = new NBitcoin.BouncyCastle.Crypto.Macs.HMac(new Sha512Digest());
