@@ -122,13 +122,9 @@ namespace NBitcoin.Crypto
 			}
 		}
 
-#if NONATIVEHASH
-		byte[] _Buffer = new byte[32];
-#else
-		byte[] _Buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(32 * 10);
-#endif
 
-		int _Pos;
+		byte[] _Buffer = new byte[32];
+		byte _Pos;
 		public override void WriteByte(byte value)
 		{
 			_Buffer[_Pos++] = value;
@@ -167,7 +163,7 @@ namespace NBitcoin.Crypto
 		SHA256Managed sha = new SHA256Managed();
 		private void ProcessBlock()
 		{
-			sha.TransformBlock(_Buffer, 0, _Pos, null, -1);
+			sha.TransformBlock(_Buffer, 0, _Pos, _Buffer, 0);
 			_Pos = 0;
 		}
 
@@ -186,7 +182,6 @@ namespace NBitcoin.Crypto
 
 		protected override void Dispose(bool disposing)
 		{
-			System.Buffers.ArrayPool<byte>.Shared.Return(_Buffer);
 			if(disposing)
 				sha.Dispose();
 			base.Dispose(disposing);
