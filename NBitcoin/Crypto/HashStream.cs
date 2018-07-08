@@ -101,8 +101,8 @@ namespace NBitcoin.Crypto
 				buffer.Slice(0, toCopy).CopyTo(innerSpan.Slice(0, toCopy));
 				buffer = buffer.Slice(toCopy);
 				innerSpan = innerSpan.Slice(toCopy);
-				copied += (byte)toCopy;
-				_Pos += (byte)toCopy;
+				copied += toCopy;
+				_Pos += toCopy;
 				if(ProcessBlockIfNeeded())
 					innerSpan = _Buffer.AsSpan();
 			}
@@ -116,8 +116,8 @@ namespace NBitcoin.Crypto
 			{
 				toCopy = Math.Min(_Buffer.Length - _Pos, count - copied);
 				Buffer.BlockCopy(buffer, offset + copied, _Buffer, _Pos, toCopy);
-				copied += (byte)toCopy;
-				_Pos += (byte)toCopy;
+				copied += toCopy;
+				_Pos += toCopy;
 				ProcessBlockIfNeeded();
 			}
 		}
