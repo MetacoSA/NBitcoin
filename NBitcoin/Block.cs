@@ -472,6 +472,16 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Get the coinbase height as specified by the first tx input of this block (BIP 34)
+		/// </summary>
+		/// <returns>Null if block has been created before BIP34 got enforced, else, the height</returns>
+		public int? GetCoinbaseHeight()
+		{
+			if(Header.Version < 2 || Transactions.Count == 0 || Transactions[0].Inputs.Count == 0)
+				return null;
+			return Transactions[0].Inputs[0].ScriptSig.ToOps().FirstOrDefault()?.GetInt();
+		}
 
 		void SetNull()
 		{
