@@ -1975,6 +1975,18 @@ namespace NBitcoin.Tests
 			ScriptVerify = ScriptVerify.Standard & ~ScriptVerify.LowS
 		};
 
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanReadCoinbaseHeight()
+		{
+			Block bip34Block = Block.Parse(File.ReadAllText("data/block-testnet-828575.txt"), Network.TestNet);
+			Block noBip34Block = Block.Parse(File.ReadAllText("data/block169482.txt"), Network.Main);
+
+			Assert.Null(noBip34Block.GetCoinbaseHeight());
+			Assert.Equal(828575, bip34Block.GetCoinbaseHeight());
+		}
+
 		[Trait("UnitTest", "UnitTest")]
 		[Fact]
 		public void CanMutateSignature()
