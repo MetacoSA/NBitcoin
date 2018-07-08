@@ -7,7 +7,6 @@ namespace NBitcoin.Tests
 {
 	public class SchnorrSignerTests
 	{
-
         [Fact]
         public void SingningTest()
         {
@@ -33,11 +32,63 @@ namespace NBitcoin.Tests
             foreach(var vector in vectors)
             {
                 var privatekey= Encoders.Hex.DecodeData(vector.PrivateKey);
+                var publicKey= Encoders.Hex.DecodeData(vector.PublickKey);
                 var message= uint256.Parse(vector.Message);
                 var expectedSignature= vector.Signature;
 
-                var signature = signer.Sign(privatekey, message);
+                var signature = signer.Sign(message, privatekey);
                 Assert.Equal(expectedSignature, Encoders.Hex.EncodeData(signature).ToUpper());
+
+                Assert.True(signer.Verify(message, publicKey, signature));
+            }
+        }
+
+        [Fact]
+        public void ShouldPassVerifycation()
+        {
+            var publicKey= Encoders.Hex.DecodeData("03DEFDEA4CDB677750A420FEE807EACF21EB9898AE79B9768766E4FAA04A2D4A34");
+            var message= uint256.Parse("4DF3C3F68FCC83B27E9D42C90431A72499F17875C81A599B566C9889B9696703");
+            var signature= Encoders.Hex.DecodeData("00000000000000000000003B78CE563F89A0ED9414F5AA28AD0D96D6795F9C6302A8DC32E64E86A333F20EF56EAC9BA30B7246D6D25E22ADB8C6BE1AEB08D49D");            
+
+            var signer = new SchnorrSigner();
+            Assert.True(signer.Verify(message, publicKey, signature));
+        }
+
+        [Fact]
+        public void ShouldFailVerifycation()
+        {
+            var vectors = new (string Name, string PublickKey, string Message, string Signature, string error)[]{
+                ("Test vector 5",
+                    "02DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659",
+                    "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89", 
+                    "2A298DACAE57395A15D0795DDBFD1DCB564DA82B0F269BC70A74F8220429BA1DFA16AEE06609280A19B67A24E1977E4697712B5FD2943914ECD5F730901B4AB7",
+                    "incorrect R residuosity"),
+                ("Test vector 6",
+                    "03FAC2114C2FBB091527EB7C64ECB11F8021CB45E8E7809D3C0938E4B8C0E5F84B",
+                    "5E2D58D8B3BCDF1ABADEC7829054F90DDA9805AAB56C77333024B9D0A508B75C",
+                    "00DA9B08172A9B6F0466A2DEFD817F2D7AB437E0D253CB5395A963866B3574BED092F9D860F1776A1F7412AD8A1EB50DACCC222BC8C0E26B2056DF2F273EFDEC",
+                    "negated message hash"),
+                ("Test vector 7",
+                    "0279BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798",
+                    "0000000000000000000000000000000000000000000000000000000000000000",
+                    "787A848E71043D280C50470E8E1532B2DD5D20EE912A45DBDD2BD1DFBF187EF68FCE5677CE7A623CB20011225797CE7A8DE1DC6CCD4F754A47DA6C600E59543C",
+                    "negated s value"),
+                ("Test vector 8",
+                    "03DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659",
+                    "243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89",
+                    "2A298DACAE57395A15D0795DDBFD1DCB564DA82B0F269BC70A74F8220429BA1D1E51A22CCEC35599B8F266912281F8365FFC2D035A230434A1A64DC59F7013FD",
+                    "negated public key")
+            };
+
+            var signer = new SchnorrSigner();
+
+            foreach(var vector in vectors)
+            {
+                var publicKey= Encoders.Hex.DecodeData(vector.PublickKey);
+                var message= uint256.Parse(vector.Message);
+                var signature= Encoders.Hex.DecodeData(vector.Signature);
+
+                Assert.False(signer.Verify(message, publicKey, signature));
             }
         }
     }
