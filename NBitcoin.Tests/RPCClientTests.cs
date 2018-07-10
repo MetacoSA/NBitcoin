@@ -144,6 +144,23 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanGetMemPool()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+				node.Generate(101);
+
+				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(1.0m), "hello", "world");
+				var memPoolInfo = rpc.GetMemPool();
+				Assert.NotNull(memPoolInfo);
+				Assert.Equal(1, memPoolInfo.Size);
+			}
+		}
+
+		[Fact]
 		public void CanUseAsyncRPC()
 		{
 			using(var builder = NodeBuilderEx.Create())
