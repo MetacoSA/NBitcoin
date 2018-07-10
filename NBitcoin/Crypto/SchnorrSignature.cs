@@ -13,22 +13,6 @@ using NBitcoin.DataEncoders;
 
 namespace NBitcoin.Crypto
 {
-
-	class Utilsx
-	{
-		public static byte[] ToBytes(BigInteger me)
-		{
-			var buff = me.ToByteArrayUnsigned();
-			var zeros = 32 - buff.Length;
-			if(zeros==0)
-				return buff;
-			else if(zeros > 0)
-				return ByteArrayExtensions.Concat(new byte[zeros], buff);
-			else
-				return buff.SafeSubarray(0, 32);
-		}
-	}
-
 	public class SchnorrSignature
 	{
 		public BigInteger R { get; }
@@ -57,7 +41,7 @@ namespace NBitcoin.Crypto
 
 		public byte[] ToBytes()
 		{
-			return Utilsx.ToBytes(R).Concat( Utilsx.ToBytes(S) );
+			return Utils.BigIntegerToBytes(R, 32).Concat( Utils.BigIntegerToBytes(S, 32) );
 		}
 	}
 
@@ -73,7 +57,7 @@ namespace NBitcoin.Crypto
 
 		public SchnorrSignature Sign(uint256 m, BigInteger secret)
 		{
-			var k = new BigInteger(1, Hashes.SHA256(Utilsx.ToBytes(secret).Concat(m.ToBytes(false))));
+			var k = new BigInteger(1, Hashes.SHA256(Utils.BigIntegerToBytes(secret, 32).Concat(m.ToBytes(false))));
 			var R = Secp256k1.G.Multiply(k).Normalize();
 			var (Xr, Yr) = (R.XCoord.ToBigInteger(), R.YCoord.ToBigInteger());
 
@@ -81,7 +65,7 @@ namespace NBitcoin.Crypto
 				k = Secp256k1.N.Subtract(k);
 
 			var P = Secp256k1.G.Multiply(secret); 
-			var keyPrefixedM = Utilsx.ToBytes(Xr).Concat( P.GetEncoded(true), m.ToBytes(false) ); 
+			var keyPrefixedM = Utils.BigIntegerToBytes(Xr, 32).Concat( P.GetEncoded(true), m.ToBytes(false) ); 
 			var e = new BigInteger(1, Hashes.SHA256(keyPrefixedM));
 
 			var s = k.Add(e.Multiply(secret)).Mod(Secp256k1.N);
@@ -98,7 +82,7 @@ namespace NBitcoin.Crypto
 			if( sig.R.CompareTo(PP)>=0 || sig.S.CompareTo(Secp256k1.N)>=0)
 				return false;
 
-			var e = new BigInteger(1, Hashes.SHA256( Utilsx.ToBytes( sig.R ).Concat( pubkey, m.ToBytes(false))));
+			var e = new BigInteger(1, Hashes.SHA256( Utils.BigIntegerToBytes( sig.R, 32 ).Concat( pubkey, m.ToBytes(false))));
 
 			var eckey = new ECKey(pubkey, false);
 			var q = eckey.GetPublicKeyParameters().Q.Normalize();
