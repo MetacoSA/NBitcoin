@@ -31,7 +31,7 @@ namespace NBitcoin.Tests
 
 			foreach(var vector in vectors)
 			{
-				var privatekey= new BigInteger(1, Encoders.Hex.DecodeData(vector.PrivateKey));
+				var privatekey= new Key(Encoders.Hex.DecodeData(vector.PrivateKey));
 				var publicKey= Encoders.Hex.DecodeData(vector.PublickKey);
 				var message= uint256.Parse(vector.Message);
 				var expectedSignature= SchnorrSignature.Parse(vector.Signature);
@@ -40,6 +40,7 @@ namespace NBitcoin.Tests
 				Assert.Equal(expectedSignature.ToBytes(), signature.ToBytes());
 
 				Assert.True(signer.Verify(message, publicKey, signature));
+				Assert.True(signer.Verify(message, privatekey.PubKey, signature));
 			}
 		}
 
