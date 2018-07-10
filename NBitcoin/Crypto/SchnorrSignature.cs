@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NBitcoin.BouncyCastle.Asn1.X9;
-using System.Security.Cryptography;
 using NBitcoin.BouncyCastle.Math.EC.Custom.Sec;
 using NBitcoin.DataEncoders;
 
@@ -59,8 +58,8 @@ namespace NBitcoin.Crypto
 		{
 			var k = new BigInteger(1, Hashes.SHA256(Utils.BigIntegerToBytes(secret, 32).Concat(m.ToBytes(false))));
 			var R = Secp256k1.G.Multiply(k).Normalize();
-			var (Xr, Yr) = (R.XCoord.ToBigInteger(), R.YCoord.ToBigInteger());
-
+			var Xr = R.XCoord.ToBigInteger();
+			var Yr = R.YCoord.ToBigInteger();
 			if( BigInteger.Jacobi(Yr, PP) != 1)
 				k = Secp256k1.N.Subtract(k);
 
