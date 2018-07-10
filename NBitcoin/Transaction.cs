@@ -1640,7 +1640,18 @@ namespace NBitcoin
 		}
 #endif
 
-		[Obsolete("You should instantiate Transaction from ConsensusFactory.CreateTransaction")]
+		public static Transaction Parse(string hex, Network network)
+		{
+			var tx = network.Consensus.ConsensusFactory.CreateTransaction();
+			var data = Encoders.Hex.DecodeData(hex);
+			var stream = new BitcoinStream(data);
+			stream.ConsensusFactory = network.Consensus.ConsensusFactory;
+			tx.ReadWrite(stream);
+			return tx;
+		}
+
+
+		[Obsolete("Use Transaction.Parse(string hex, Network network)")]
 		public static Transaction Parse(string hex)
 		{
 			return new Transaction(Encoders.Hex.DecodeData(hex));
