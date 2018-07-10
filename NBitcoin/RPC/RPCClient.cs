@@ -1065,6 +1065,26 @@ namespace NBitcoin.RPC
 			return (int)(await SendCommandAsync(RPCOperations.getblockcount).ConfigureAwait(false)).Result;
 		}
 
+		public MemPoolInfo GetMemPool()
+		{
+			return this.GetMemPoolAsync().GetAwaiter().GetResult();
+		}
+
+		public async Task<MemPoolInfo> GetMemPoolAsync()
+		{
+			var response = await SendCommandAsync(RPCOperations.getmempoolinfo);
+
+			return new MemPoolInfo()
+			{
+				Size = Int32.Parse((string)response.Result["size"], CultureInfo.InvariantCulture),
+				Bytes = Int32.Parse((string)response.Result["bytes"], CultureInfo.InvariantCulture),
+				Usage = Int32.Parse((string)response.Result["usage"], CultureInfo.InvariantCulture),
+				MaxMemPool = Double.Parse((string)response.Result["maxmempool"], CultureInfo.InvariantCulture),
+				MemPoolMinFee = Double.Parse((string)response.Result["mempoolminfee"], CultureInfo.InvariantCulture),
+				MinRelayTxFee = Double.Parse((string)response.Result["minrelaytxfee"], CultureInfo.InvariantCulture)
+			};
+		}
+
 		public uint256[] GetRawMempool()
 		{
 			var result = SendCommand(RPCOperations.getrawmempool);
