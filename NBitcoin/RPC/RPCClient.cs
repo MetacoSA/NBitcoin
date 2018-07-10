@@ -1076,12 +1076,12 @@ namespace NBitcoin.RPC
 
 			return new MemPoolInfo()
 			{
-				Size = Int32.Parse((string)response.Result["size"]),
-				Bytes = Int32.Parse((string)response.Result["bytes"]),
-				Usage = Int32.Parse((string)response.Result["usage"]),
-				MaxMemPool = Double.Parse((string)response.Result["maxmempool"]),
-				MemPoolMinFee = Double.Parse((string)response.Result["mempoolminfee"]),
-				MinRelayTxFee = Double.Parse((string)response.Result["minrelaytxfee"])
+				Size = Int32.Parse((string)response.Result["size"], CultureInfo.InvariantCulture),
+				Bytes = Int32.Parse((string)response.Result["bytes"], CultureInfo.InvariantCulture),
+				Usage = Int32.Parse((string)response.Result["usage"], CultureInfo.InvariantCulture),
+				MaxMemPool = Double.Parse((string)response.Result["maxmempool"], CultureInfo.InvariantCulture),
+				MemPoolMinFee = Double.Parse((string)response.Result["mempoolminfee"], CultureInfo.InvariantCulture),
+				MinRelayTxFee = Double.Parse((string)response.Result["minrelaytxfee"], CultureInfo.InvariantCulture)
 			};
 		}
 
