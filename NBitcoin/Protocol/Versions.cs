@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBitcoin.Crypto;
+using System;
 
 namespace NBitcoin.Protocol
 {
@@ -89,6 +90,16 @@ namespace NBitcoin.Protocol
 			get;
 			set;
 		}
+		public virtual HashStreamBase GetChecksumHashStream()
+		{
+			return new HashStream();
+		}
+		public virtual HashStreamBase GetChecksumHashStream(int hintSize)
+		{
+			return GetChecksumHashStream();
+		}
+
+
 		public bool SupportUserAgent
 		{
 			get;

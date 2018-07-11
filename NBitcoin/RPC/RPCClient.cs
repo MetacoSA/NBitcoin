@@ -383,10 +383,36 @@ namespace NBitcoin.RPC
 			return BitcoinAddress.Create(SendCommand(RPCOperations.getnewaddress).Result.ToString(), Network);
 		}
 
+		public BitcoinAddress GetNewAddress(GetNewAddressRequest request)
+		{
+			return GetNewAddressAsync(request).GetAwaiter().GetResult();
+		}
+
 		public async Task<BitcoinAddress> GetNewAddressAsync()
 		{
 			var result = await SendCommandAsync(RPCOperations.getnewaddress).ConfigureAwait(false);
 			return BitcoinAddress.Create(result.Result.ToString(), Network);
+		}
+
+		public async Task<BitcoinAddress> GetNewAddressAsync(GetNewAddressRequest request)
+		{
+			var p = new Dictionary<string, object>();
+			if(request != null)
+			{
+				if(request.Label != null)
+				{
+					p.Add("label", request.Label);
+				}
+				if(request.AddressType != null)
+				{
+					p.Add("address_type", request.AddressType.Value == AddressType.Bech32 ? "bech32" :
+										  request.AddressType.Value == AddressType.Legacy ? "legacy" :
+										  request.AddressType.Value == AddressType.P2SHSegwit ? "p2sh-segwit" :
+										  throw new NotSupportedException(request.AddressType.Value.ToString())
+										  );
+				}
+			}
+			return BitcoinAddress.Create((await SendCommandWithNamedArgsAsync(RPCOperations.getnewaddress.ToString(), p).ConfigureAwait(false)).Result.ToString(), Network);
 		}
 
 		public BitcoinAddress GetRawChangeAddress()
@@ -414,6 +440,16 @@ namespace NBitcoin.RPC
 		public RPCResponse SendCommand(string commandName, params object[] parameters)
 		{
 			return SendCommand(new RPCRequest(commandName, parameters));
+		}
+
+		public RPCResponse SendCommandWithNamedArgs(string commandName, Dictionary<string, object> parameters)
+		{
+			return SendCommand(new RPCRequest() { Method = commandName, NamedParams = parameters });
+		}
+
+		public Task<RPCResponse> SendCommandWithNamedArgsAsync(string commandName, Dictionary<string, object> parameters)
+		{
+			return SendCommandAsync(new RPCRequest() { Method = commandName, NamedParams = parameters });
 		}
 
 		public Task<RPCResponse> SendCommandAsync(string commandName, params object[] parameters)
@@ -1029,6 +1065,26 @@ namespace NBitcoin.RPC
 			return (int)(await SendCommandAsync(RPCOperations.getblockcount).ConfigureAwait(false)).Result;
 		}
 
+		public MemPoolInfo GetMemPool()
+		{
+			return this.GetMemPoolAsync().GetAwaiter().GetResult();
+		}
+
+		public async Task<MemPoolInfo> GetMemPoolAsync()
+		{
+			var response = await SendCommandAsync(RPCOperations.getmempoolinfo);
+
+			return new MemPoolInfo()
+			{
+				Size = Int32.Parse((string)response.Result["size"], CultureInfo.InvariantCulture),
+				Bytes = Int32.Parse((string)response.Result["bytes"], CultureInfo.InvariantCulture),
+				Usage = Int32.Parse((string)response.Result["usage"], CultureInfo.InvariantCulture),
+				MaxMemPool = Double.Parse((string)response.Result["maxmempool"], CultureInfo.InvariantCulture),
+				MemPoolMinFee = Double.Parse((string)response.Result["mempoolminfee"], CultureInfo.InvariantCulture),
+				MinRelayTxFee = Double.Parse((string)response.Result["minrelaytxfee"], CultureInfo.InvariantCulture)
+			};
+		}
+
 		public uint256[] GetRawMempool()
 		{
 			var result = SendCommand(RPCOperations.getrawmempool);
@@ -1123,8 +1179,7 @@ namespace NBitcoin.RPC
 
 		public Transaction DecodeRawTransaction(string rawHex)
 		{
-			var response = SendCommand(RPCOperations.decoderawtransaction, rawHex);
-			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
+			return ParseTxHex(rawHex);
 		}
 
 		public Transaction DecodeRawTransaction(byte[] raw)
@@ -1132,10 +1187,9 @@ namespace NBitcoin.RPC
 
 			return DecodeRawTransaction(Encoders.Hex.EncodeData(raw));
 		}
-		public async Task<Transaction> DecodeRawTransactionAsync(string rawHex)
+		public Task<Transaction> DecodeRawTransactionAsync(string rawHex)
 		{
-			var response = await SendCommandAsync(RPCOperations.decoderawtransaction, rawHex).ConfigureAwait(false);
-			return Transaction.Parse(response.Result.ToString(), RawFormat.Satoshi);
+			return Task.FromResult(ParseTxHex(rawHex));
 		}
 
 		public Task<Transaction> DecodeRawTransactionAsync(byte[] raw)
@@ -1162,7 +1216,7 @@ namespace NBitcoin.RPC
 				return null;
 
 			response.ThrowIfError();
-			var tx = new Transaction();
+			var tx = Network.Consensus.ConsensusFactory.CreateTransaction();
 			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()));
 			return tx;
 		}
@@ -1172,13 +1226,21 @@ namespace NBitcoin.RPC
 			return GetRawTransactionInfoAsync(txid).GetAwaiter().GetResult();
 		}
 
+		private Transaction ParseTxHex(string hex)
+		{
+			var tx = Network.Consensus.ConsensusFactory.CreateTransaction();
+			tx.ReadWrite(Encoders.Hex.DecodeData(hex));
+			return tx;
+		}
+
 		public async Task<RawTransactionInfo> GetRawTransactionInfoAsync(uint256 txId)
 		{
 			var request = new RPCRequest(RPCOperations.getrawtransaction, new object[]{ txId, true });
 			var response = await SendCommandAsync(request);
 			var json = response.Result;
+
 			return new RawTransactionInfo{
-				Transaction = Transaction.Parse(json.Value<string>("hex")),
+				Transaction = ParseTxHex(json.Value<string>("hex")),
 				TransactionId = uint256.Parse(json.Value<string>("txid")),
 				TransactionTime = json["time"] != null ? NBitcoin.Utils.UnixTimeToDateTime(json.Value<long>("time")): (DateTimeOffset?)null,
 				Hash = uint256.Parse(json.Value<string>("hash")),

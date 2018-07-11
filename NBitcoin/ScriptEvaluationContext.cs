@@ -1328,7 +1328,7 @@ namespace NBitcoin
 									var scriptCode = new Script(s._Script.Skip(pbegincodehash).ToArray());
 									// Drop the signature, since there's no way for a signature to sign itself
 									if(hashversion == (int)HashVersion.Original)
-										scriptCode.FindAndDelete(vchSig);
+										scriptCode = scriptCode.FindAndDelete(vchSig);
 
 									if(!CheckSignatureEncoding(vchSig) || !CheckPubKeyEncoding(vchPubKey, hashversion))
 									{
@@ -1393,7 +1393,7 @@ namespace NBitcoin
 									{
 										var vchSig = _stack.Top(-isig - k);
 										if(hashversion == (int)HashVersion.Original)
-											scriptCode.FindAndDelete(vchSig);
+											scriptCode = scriptCode.FindAndDelete(vchSig);
 									}
 
 									bool fSuccess = true;

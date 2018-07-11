@@ -115,7 +115,7 @@ namespace NBitcoin
 			if(bytes == null)
 				throw new ArgumentNullException(nameof(bytes));
 			var versionBytes = network.GetVersionBytes(type, true);
-			return Encoders.Base58Check.EncodeData(versionBytes.Concat(bytes));
+			return network.NetworkStringParser.GetBase58CheckEncoder().EncodeData(versionBytes.Concat(bytes));
 		}
 
 		internal static string CreateBech32(Bech32Type type, byte[] bytes, byte witnessVersion, Network network)
@@ -985,7 +985,7 @@ namespace NBitcoin
 
 		private Block CreateGenesisBlock(string pszTimestamp, Script genesisOutputScript, uint nTime, uint nNonce, uint nBits, int nVersion, Money genesisReward)
 		{
-			Transaction txNew = new Transaction();
+			Transaction txNew = Consensus.ConsensusFactory.CreateTransaction();
 			txNew.Version = 1;
 			txNew.AddInput(new TxIn()
 			{
@@ -1047,7 +1047,7 @@ namespace NBitcoin
 
 		private Base58Type? GetBase58Type(string base58)
 		{
-			var bytes = Encoders.Base58Check.DecodeData(base58);
+			var bytes = NetworkStringParser.GetBase58CheckEncoder().DecodeData(base58);
 			for(int i = 0; i < base58Prefixes.Length; i++)
 			{
 				var prefix = base58Prefixes[i];
@@ -1073,12 +1073,12 @@ namespace NBitcoin
 						continue;
 					if(type.Value == Base58Type.COLORED_ADDRESS)
 					{
-						var raw = Encoders.Base58Check.DecodeData(base58);
+						var raw = network.NetworkStringParser.GetBase58CheckEncoder().DecodeData(base58);
 						var version = network.GetVersionBytes(type.Value, false);
 						if(version == null)
 							continue;
 						raw = raw.Skip(version.Length).ToArray();
-						base58 = Encoders.Base58Check.EncodeData(raw);
+						base58 = network.NetworkStringParser.GetBase58CheckEncoder().EncodeData(raw);
 						return GetNetworkFromBase58Data(base58, null);
 					}
 					return network;
@@ -1111,24 +1111,15 @@ namespace NBitcoin
 					return o;
 			}
 
+			var base58Encoder = (Base58CheckEncoder)(expectedNetwork == null ? Encoders.Base58Check : expectedNetwork.NetworkStringParser.GetBase58CheckEncoder());
+
 			var networks = expectedNetwork == null ? GetNetworks() : new[] { expectedNetwork };
-			var maybeb58 = true;
-			if(maybeb58)
-			{
-				for(int i = 0; i < str.Length; i++)
-				{
-					if(!Base58Encoder.pszBase58Chars.Contains(str[i]))
-					{
-						maybeb58 = false;
-						break;
-					}
-				}
-			}
+			var maybeb58 = base58Encoder.IsMaybeEncoded(str);
 			if(maybeb58)
 			{
 				try
 				{
-					Encoders.Base58Check.DecodeData(str);
+					base58Encoder.DecodeData(str);
 				}
 				catch(FormatException) { maybeb58 = false; }
 				if(maybeb58)
@@ -1217,6 +1208,12 @@ namespace NBitcoin
 			get;
 			set;
 		} = new NetworkStringParser();
+
+
+		public Base58CheckEncoder GetBase58CheckEncoder()
+		{
+			return NetworkStringParser.GetBase58CheckEncoder();
+		}
 
 		private IBase58Data CreateBase58Data(Base58Type type, string base58)
 		{

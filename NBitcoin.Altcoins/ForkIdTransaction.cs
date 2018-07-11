@@ -8,12 +8,14 @@ namespace NBitcoin.Altcoins
 {
     public class ForkIdTransaction : Transaction, IHasForkId
 	{
+#pragma warning disable CS0618 // Type or member is obsolete
 		public ForkIdTransaction(uint forkId, bool supportSegwit, ConsensusFactory consensusFactory)
 		{
 			_ForkId = forkId;
 			_SupportSegwit = supportSegwit;
 			_Factory = consensusFactory;
 		}
+#pragma warning restore CS0618 // Type or member is obsolete
 
 		ConsensusFactory _Factory;
 		public override ConsensusFactory GetConsensusFactory()
@@ -120,7 +122,7 @@ namespace NBitcoin.Altcoins
 			}
 
 			var scriptCopy = scriptCode.Clone();
-			scriptCopy.FindAndDelete(OpcodeType.OP_CODESEPARATOR);
+			scriptCode = scriptCopy.FindAndDelete(OpcodeType.OP_CODESEPARATOR);
 
 			var txCopy = GetConsensusFactory().CreateTransaction();
 			txCopy.FromBytes(this.ToBytes());
@@ -188,7 +190,7 @@ namespace NBitcoin.Altcoins
 			return preimage;
 		}
 
-		internal virtual uint256 GetHashOutputs()
+		internal override uint256 GetHashOutputs()
 		{
 			uint256 hashOutputs;
 			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
@@ -200,7 +202,7 @@ namespace NBitcoin.Altcoins
 			return hashOutputs;
 		}
 
-		internal virtual uint256 GetHashSequence()
+		internal override uint256 GetHashSequence()
 		{
 			uint256 hashSequence;
 			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
@@ -212,7 +214,7 @@ namespace NBitcoin.Altcoins
 			return hashSequence;
 		}
 
-		internal virtual uint256 GetHashPrevouts()
+		internal override uint256 GetHashPrevouts()
 		{
 			uint256 hashPrevouts;
 			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);

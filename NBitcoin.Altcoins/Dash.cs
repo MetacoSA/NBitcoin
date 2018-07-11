@@ -1,4 +1,5 @@
 ﻿using NBitcoin;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.RPC;
@@ -45,11 +46,14 @@ namespace NBitcoin.Altcoins
 		public class DashBlockHeader : BlockHeader
 		{
 			// https://github.com/dashpay/dash/blob/e596762ca22d703a79c6880a9d3edb1c7c972fd3/src/primitives/block.cpp#L13
-			public override uint256 GetHash()
+			static byte[] CalculateHash(byte[] data, int offset, int count)
 			{
-				var headerBytes = this.ToBytes();
-				var h = new HashX11.X11().ComputeBytes(headerBytes);
-				return new uint256(h);
+				return new HashX11.X11().ComputeBytes(data.Skip(offset).Take(count).ToArray());
+			}
+
+			protected override HashStreamBase CreateHashStream()
+			{
+				return BufferedHashStream.CreateFrom(CalculateHash);
 			}
 		}
 
@@ -97,7 +101,7 @@ namespace NBitcoin.Altcoins
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
 				PowAllowMinDifficultyBlocks = false,
-				CoinbaseMaturity = 30,
+				CoinbaseMaturity = 100,
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 1916,
 				MinerConfirmationWindow = 2016,
@@ -144,7 +148,7 @@ namespace NBitcoin.Altcoins
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
 				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 30,
+				CoinbaseMaturity = 100,
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 1512,
 				MinerConfirmationWindow = 2016,
@@ -189,7 +193,7 @@ namespace NBitcoin.Altcoins
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
 				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 30,
+				CoinbaseMaturity = 100,
 				PowNoRetargeting = true,
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,

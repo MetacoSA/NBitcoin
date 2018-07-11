@@ -55,6 +55,35 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanGetNewAddress()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				var address = rpc.GetNewAddress(new GetNewAddressRequest()
+				{
+					AddressType = AddressType.Bech32
+				});
+				Assert.IsType<BitcoinWitPubKeyAddress>(address);
+
+				address = rpc.GetNewAddress(new GetNewAddressRequest()
+				{
+					AddressType = AddressType.P2SHSegwit
+				});
+
+				Assert.IsType<BitcoinScriptAddress>(address);
+
+				address = rpc.GetNewAddress(new GetNewAddressRequest()
+				{
+					AddressType = AddressType.Legacy
+				});
+
+				Assert.IsType<BitcoinPubKeyAddress>(address);
+			}
+		}
+
+		[Fact]
 		public void CanUseMultipleWallets()
 		{
 			using(var builder = NodeBuilderEx.Create())
@@ -111,6 +140,23 @@ namespace NBitcoin.Tests
 				var ids = rpc.GetRawMempool();
 				Assert.Equal(1, ids.Length);
 				Assert.Equal(txid, ids[0]);
+			}
+		}
+
+		[Fact]
+		public void CanGetMemPool()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+				node.Generate(101);
+
+				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(1.0m), "hello", "world");
+				var memPoolInfo = rpc.GetMemPool();
+				Assert.NotNull(memPoolInfo);
+				Assert.Equal(1, memPoolInfo.Size);
 			}
 		}
 

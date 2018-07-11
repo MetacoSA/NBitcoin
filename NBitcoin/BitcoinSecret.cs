@@ -98,7 +98,8 @@ namespace NBitcoin
 			}
 			else
 			{
-				byte[] result = Encoders.Base58Check.DecodeData(wifData);
+				var enc = Network.NetworkStringParser.GetBase58CheckEncoder();
+				byte[] result = enc.DecodeData(wifData);
 				var resultList = result.ToList();
 
 				if(compressed.Value)
@@ -109,7 +110,7 @@ namespace NBitcoin
 				{
 					resultList.RemoveAt(resultList.Count - 1);
 				}
-				return new BitcoinSecret(Encoders.Base58Check.EncodeData(resultList.ToArray()), Network);
+				return new BitcoinSecret(enc.EncodeData(resultList.ToArray()), Network);
 			}
 		}
 

@@ -114,9 +114,7 @@ namespace NBitcoin.Altcoins
 
         protected override void PostInit()
         {
-            RegisterDefaultCookiePath(Mainnet, ".cookie");
-            RegisterDefaultCookiePath(Regtest, "regtest", ".cookie");
-            RegisterDefaultCookiePath(Testnet, "testnet3", ".cookie");
+            RegisterDefaultCookiePath("Feathercoin", new FolderName() { TestnetFolder = "testnet4" });
         }
 
         protected override NetworkBuilder CreateMainnet()

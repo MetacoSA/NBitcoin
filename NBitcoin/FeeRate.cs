@@ -20,6 +20,17 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Satoshi per Byte
+		/// </summary>
+		public decimal SatoshiPerByte
+		{
+			get
+			{
+				return (decimal)_FeePerK.Satoshi/1000;
+			}
+		}
+
 		readonly static FeeRate _Zero = new FeeRate(Money.Zero);
 		public static FeeRate Zero
 		{
@@ -48,6 +59,13 @@ namespace NBitcoin
 				_FeePerK = feePaid * 1000 / size;
 			else
 				_FeePerK = 0;
+		}
+
+		public FeeRate(decimal satoshiPerByte)
+		{
+			if(satoshiPerByte < 0)
+				throw new ArgumentOutOfRangeException("satoshiPerByte");
+			_FeePerK = Money.Satoshis(satoshiPerByte * 1000);
 		}
 
 		/// <summary>
@@ -82,7 +100,19 @@ namespace NBitcoin
 
 		public override string ToString()
 		{
-			return String.Format("{0} BTC/kB", _FeePerK.ToString());
+			int divisibility = 0;
+			var value = SatoshiPerByte;
+			while(true)
+			{
+				var rounded = Math.Round(value, divisibility, MidpointRounding.AwayFromZero);
+				if((Math.Abs(rounded - value) / value) < 0.001m)
+				{
+					value = rounded;
+					break;
+				}
+				divisibility++;
+			}
+			return String.Format("{0} Sat/B", value.ToString(System.Globalization.CultureInfo.InvariantCulture));
 		}
 
 		#region IEquatable<FeeRate> Members

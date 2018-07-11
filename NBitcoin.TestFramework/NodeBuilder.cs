@@ -70,6 +70,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		}
+		public string CreateFolder
+		{
+			get;
+			internal set;
+		}
 	}
 
 	public partial class NodeDownloadData
@@ -132,13 +137,21 @@ namespace NBitcoin.Tests
 			CheckHash(osDownloadData, data);
 			File.WriteAllBytes(zip, data);
 
+			var extractDirectory = "TestData";
+			if(osDownloadData.CreateFolder != null)
+			{
+				if(!Directory.Exists(osDownloadData.CreateFolder))
+					Directory.CreateDirectory(osDownloadData.CreateFolder);
+				extractDirectory = Path.Combine(extractDirectory, string.Format(osDownloadData.CreateFolder, downloadData.Version));
+			}
+
 			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
-				ZipFile.ExtractToDirectory(zip, new FileInfo(zip).Directory.FullName);
+				ZipFile.ExtractToDirectory(zip, extractDirectory);
 			}
 			else
 			{
-				Process.Start("tar", "-zxvf " + zip + " -C TestData").WaitForExit();
+				Process.Start("tar", "-zxvf " + zip + " -C " + extractDirectory).WaitForExit();
 			}
 			File.Delete(zip);
 			return bitcoind;
@@ -520,7 +533,16 @@ namespace NBitcoin.Tests
 
 		public uint256[] Generate(int blockCount)
 		{
-			return CreateRPCClient().Generate(blockCount);
+			uint256[] blockIds = new uint256[blockCount];
+			int generated = 0;
+			while(generated < blockCount)
+			{
+				foreach(var id in CreateRPCClient().Generate(blockCount - generated))
+				{
+					blockIds[generated++] = id;
+				}
+			}
+			return blockIds;
 		}
 
 		public void Broadcast(params Transaction[] transactions)

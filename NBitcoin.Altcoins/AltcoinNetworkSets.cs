@@ -20,6 +20,8 @@ namespace NBitcoin.Altcoins
 		public static Ufo Ufo { get; } = Ufo.Instance;
 		public static Bitcoin Bitcoin { get; } = Bitcoin.Instance;
 
+		public static Groestlcoin Groestlcoin { get; } = Groestlcoin.Instance;
+
 		public static IEnumerable<INetworkSet> GetAll()
 		{
 			yield return Bitcoin;
@@ -33,6 +35,7 @@ namespace NBitcoin.Altcoins
 			yield return Monacoin;
 			yield return Dash;
 			yield return Ufo;
+			yield return Groestlcoin;
 		}
 	}
 }
