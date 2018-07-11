@@ -26,7 +26,7 @@ namespace NBitcoin.Crypto
 		public SchnorrSignature(byte[] bytes)
 		{
 			if(bytes.Length != 64)
-				throw new ArgumentException("Invalid schnorr signature lenght.");
+				throw new ArgumentException("Invalid schnorr signature length.");
 
 			R = new BigInteger(1, bytes, 0, 32);
 			S = new BigInteger(1, bytes, 32, 32);
@@ -73,18 +73,11 @@ namespace NBitcoin.Crypto
 
 		public bool Verify(uint256 m, PubKey pubkey, SchnorrSignature sig)
 		{
-			return Verify(m, pubkey.ToBytes(), sig);
-		}
-
-		public bool Verify(uint256 m, byte[] pubkey, SchnorrSignature sig)
-		{
 			if( sig.R.CompareTo(PP)>=0 || sig.S.CompareTo(Secp256k1.N)>=0)
 				return false;
 
-			var e = new BigInteger(1, Hashes.SHA256( Utils.BigIntegerToBytes( sig.R, 32 ).Concat( pubkey, m.ToBytes(false))));
-
-			var eckey = new ECKey(pubkey, false);
-			var q = eckey.GetPublicKeyParameters().Q.Normalize();
+			var e = new BigInteger(1, Hashes.SHA256( Utils.BigIntegerToBytes( sig.R, 32 ).Concat( pubkey.ToBytes(), m.ToBytes(false))));
+			var q = pubkey.ECKey.GetPublicKeyParameters().Q.Normalize();
 			var P = Secp256k1.Curve.CreatePoint(q.XCoord.ToBigInteger(), q.YCoord.ToBigInteger());
 
 			var R = Secp256k1.G.Multiply(sig.S).Add(P.Multiply(Secp256k1.N.Subtract(e))).Normalize();

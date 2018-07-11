@@ -32,7 +32,7 @@ namespace NBitcoin.Tests
 			foreach(var vector in vectors)
 			{
 				var privatekey= new Key(Encoders.Hex.DecodeData(vector[1]));
-				var publicKey= Encoders.Hex.DecodeData(vector[2]);
+				var publicKey= new PubKey(Encoders.Hex.DecodeData(vector[2]));
 				var message= uint256.Parse(vector[3]);
 				var expectedSignature= SchnorrSignature.Parse(vector[4]);
 
@@ -47,7 +47,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void ShouldPassVerifycation()
 		{
-			var publicKey= Encoders.Hex.DecodeData("03DEFDEA4CDB677750A420FEE807EACF21EB9898AE79B9768766E4FAA04A2D4A34");
+			var publicKey= new PubKey(Encoders.Hex.DecodeData("03DEFDEA4CDB677750A420FEE807EACF21EB9898AE79B9768766E4FAA04A2D4A34"));
 			var message= uint256.Parse("4DF3C3F68FCC83B27E9D42C90431A72499F17875C81A599B566C9889B9696703");
 			var signature= SchnorrSignature.Parse("00000000000000000000003B78CE563F89A0ED9414F5AA28AD0D96D6795F9C6302A8DC32E64E86A333F20EF56EAC9BA30B7246D6D25E22ADB8C6BE1AEB08D49D");            
 
@@ -85,7 +85,7 @@ namespace NBitcoin.Tests
 
 			foreach(var vector in vectors)
 			{
-				var publicKey= Encoders.Hex.DecodeData(vector[1]);
+				var publicKey= new PubKey(Encoders.Hex.DecodeData(vector[1]));
 				var message= uint256.Parse(vector[2]);
 				var signature= SchnorrSignature.Parse(vector[3]);
 				var reason = vector[4];
