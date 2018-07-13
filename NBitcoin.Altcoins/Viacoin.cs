@@ -232,6 +232,11 @@ namespace NBitcoin.Altcoins
 			return new uint256(h);
 		}
 
+		protected override void PostInit()
+		{
+			RegisterDefaultCookiePath("Viacoin");
+		}
+
 		protected override NetworkBuilder CreateMainnet()
 		{
 			NetworkBuilder builder = new NetworkBuilder();
