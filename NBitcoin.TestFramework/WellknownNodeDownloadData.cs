@@ -136,10 +136,10 @@ namespace NBitcoin.Tests
 				},
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/viacoin/viacoin/releases/download/v{0}/viacoin-{0}-osx-unsigned.dmg",
+					DownloadLink = "https://github.com/viacoin/viacoin/releases/download/v{0}/viacoin-{0}-osx64.tar.gz",
 					Archive = "viacoin-{0}-osx64.tar.gz",
 					Executable = "viacoin-{0}/bin/viacoind",
-					Hash = "673bfd17194ca4fe8408450e1871447d461ce26925e71ea55eebd89c379f5775"
+					Hash = "995ad91744f037d4476737acdaf4d3eadbc6f02fba3404df0bb8fed20de52cfc"
 				}
 			};
 		}
