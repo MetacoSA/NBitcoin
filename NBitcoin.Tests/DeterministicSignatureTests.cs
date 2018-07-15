@@ -250,5 +250,82 @@ namespace NBitcoin.Tests
 			return key;
 		}
 
+		[Fact]
+		public void BlindingSignature()
+		{
+			// Test with known values 
+			var requester = new ECdsaBlinding.Requester();
+			var signingKey = new Key(Encoders.Hex.DecodeData("31E151628AED2A6ABF7155809CF4F3C762E7160F38B4DA56B784D9045190CFA0"));
+			var verificationKey = new Key(Encoders.Hex.DecodeData("B7E151628AED2A6ABF7158809CF4F3C762E7160F38B4DA56A784D9045190CFEF"));
+			var signer = new ECdsaBlinding.Signer(signingKey, verificationKey);
+
+			var message = new uint256(Encoders.Hex.DecodeData("243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89"), false);
+			var blindedMessage = requester.BlindMessage(message, signer.SignerKey.PubKey, signer.VerificationKey.PubKey);
+
+			var blindSignature = signer.Sign(blindedMessage);
+			var unblindedSignature = requester.UnblindSignature(blindSignature);
+
+			Assert.True( ECdsaBlinding.VerifySignature(message, unblindedSignature, verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(uint256.One, unblindedSignature, verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(uint256.One, unblindedSignature, verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(
+				message, 
+				new BlindSignature(unblindedSignature.C, BigInteger.Zero.Subtract(unblindedSignature.S)), 
+				verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(
+				message, 
+				new BlindSignature(BigInteger.Zero.Subtract(unblindedSignature.C), unblindedSignature.S), 
+				verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(
+				message, 
+				new BlindSignature(BigInteger.Zero.Subtract(unblindedSignature.C), unblindedSignature.S), 
+				new Key().PubKey) );
+
+			// Test with unknown values 
+			requester = new ECdsaBlinding.Requester();
+			signer = new ECdsaBlinding.Signer(new Key(), new Key());
+
+			message = Hashes.Hash256(Encoders.ASCII.DecodeData("Hello world!"));
+			blindedMessage = requester.BlindMessage(message, signer.SignerKey.PubKey, signer.VerificationKey.PubKey);
+
+			blindSignature = signer.Sign(blindedMessage);
+			unblindedSignature = requester.UnblindSignature(blindSignature);
+
+			Assert.True( ECdsaBlinding.VerifySignature(message, unblindedSignature, signer.VerificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(uint256.One, unblindedSignature, signer.VerificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(uint256.One, unblindedSignature, signer.VerificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(
+				message, 
+				new BlindSignature(BigInteger.Zero, unblindedSignature.S), 
+				verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(
+				message, 
+				new BlindSignature(unblindedSignature.C, BigInteger.Zero), 
+				verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(
+				message, 
+				new BlindSignature(BigInteger.One, unblindedSignature.S), 
+				verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(
+				message, 
+				new BlindSignature(unblindedSignature.C, BigInteger.One), 
+				verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(
+				message, 
+				new BlindSignature(BigInteger.One, BigInteger.One), 
+				verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(
+				message, 
+				new BlindSignature(unblindedSignature.C, BigInteger.Zero.Subtract(unblindedSignature.S)), 
+				verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(
+				message, 
+				new BlindSignature(BigInteger.Zero.Subtract(unblindedSignature.C), unblindedSignature.S), 
+				verificationKey.PubKey) );
+			Assert.False(ECdsaBlinding.VerifySignature(
+				message, 
+				new BlindSignature(BigInteger.Zero.Subtract(unblindedSignature.C), unblindedSignature.S), 
+				new Key().PubKey) );
+		}
 	}
 }
