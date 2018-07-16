@@ -1010,7 +1010,7 @@ namespace NBitcoin
 			Money totalSent = Money.Zero;
 			foreach(var group in _BuilderGroups)
 			{
-				var groupFee = Money.Satoshis((group.FeeWeight / totalWeight) * fees.Satoshi);
+				var groupFee = Money.Satoshis((long)((group.FeeWeight / totalWeight) * fees.Satoshi));
 				totalSent += groupFee;
 				if(_BuilderGroups.Last() == group)
 				{
