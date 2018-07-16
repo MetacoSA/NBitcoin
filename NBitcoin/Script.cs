@@ -891,7 +891,7 @@ namespace NBitcoin
 
 #if !NOCONSENSUSLIB
 
-		public const string LibConsensusDll = "libbitcoinconsensus";
+		public const string LibConsensusDll = "libbitcoinconsensus.dll";
 		public enum BitcoinConsensusError
 		{
 			ERR_OK = 0,
@@ -937,7 +937,7 @@ namespace NBitcoin
 			var txToBytes = tx.ToBytes();
 			err = BitcoinConsensusError.ERR_OK;
 
-			var valid = VerifyScriptConsensusWithAmount(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, amount.Satoshi, txToBytes, (uint)txToBytes.Length, 0, flags & ScriptVerify.Consensus, ref err);
+			int	valid = VerifyScriptConsensusWithAmount(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, amount.Satoshi, txToBytes, (uint)txToBytes.Length, 0, flags & ScriptVerify.Consensus, ref err);
 			return valid == 1;
 		}
 #endif
