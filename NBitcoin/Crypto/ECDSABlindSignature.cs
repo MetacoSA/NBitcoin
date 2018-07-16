@@ -18,7 +18,7 @@ namespace NBitcoin.Crypto
 		}
 	}
 
-    public class ECdsaBlinding
+    public class ECDSABlinding
     {
         private static X9ECParameters Secp256k1 = ECKey.Secp256k1;
 
@@ -35,10 +35,10 @@ namespace NBitcoin.Crypto
                 _k.Init(BigInteger.Arbitrary(256), new SecureRandom());
             }
 
-            public uint256 BlindMessage(uint256 message, PubKey signerPubKey, PubKey verificationPubKey)
+            public uint256 BlindMessage(uint256 message, PubKey Rpubkey, PubKey signerPubKey)
             {
-                var P = new ECKey(verificationPubKey.ToBytes(), false).GetPublicKeyParameters().Q;
-                var R = new ECKey(signerPubKey.ToBytes(), false).GetPublicKeyParameters().Q;
+                var P = signerPubKey.ECKey.GetPublicKeyParameters().Q;
+                var R = Rpubkey.ECKey.GetPublicKeyParameters().Q;
 
                 var t = BigInteger.Zero;
                 while(t.SignValue == 0)
@@ -65,32 +65,37 @@ namespace NBitcoin.Crypto
 
         public class Signer
         {
-            public Key SignerKey { get; }
-            public Key VerificationKey { get; }
+            // The random generated r value. It is used to derivate an R point where
+            // R = r*G that has to be sent to the requester in order to allow him to
+            // blind the message to be signed.
+            public Key R { get; }
 
-            public Signer(Key signerKey)
-                : this(signerKey, new Key())
+            // The signer key used for signing
+            public Key Key { get; }
+
+            public Signer(Key key)
+                : this(key, new Key())
             {}
 
-            public Signer(Key signerKey, Key verificationKey)
+            public Signer(Key key, Key r)
             {
-                SignerKey = signerKey;
-                VerificationKey = verificationKey;
+                R = r;
+                Key = key;
             }
 
-            public BigInteger Sign(uint256 message)
+            public BigInteger Sign(uint256 blindedMessage)
             {
-                var r = new BigInteger(1, SignerKey.ToBytes());
-                var d = new BigInteger(1, VerificationKey.ToBytes());
-                var cp = new BigInteger(1, message.ToBytes());
+                var r = R._ECKey.PrivateKey.D;
+                var d = Key._ECKey.PrivateKey.D;
+                var cp = new BigInteger(1, blindedMessage.ToBytes());
                 var sp = r.Subtract(cp.Multiply(d)).Mod(ECKey.Secp256k1.N);
                 return sp;
             }
         }
 
-        internal static bool VerifySignature(uint256 message, BlindSignature signature, PubKey verificationPubKey)
+        internal static bool VerifySignature(uint256 message, BlindSignature signature, PubKey signerPubKey)
         {
-            var P = new ECKey(verificationPubKey.ToBytes(), false).GetPublicKeyParameters().Q;
+            var P = signerPubKey.ECKey.GetPublicKeyParameters().Q;
 
             var sG = Secp256k1.G.Multiply(signature.S);
             var cP = P.Multiply(signature.C);
