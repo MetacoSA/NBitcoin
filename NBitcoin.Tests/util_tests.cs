@@ -352,6 +352,9 @@ namespace NBitcoin.Tests
 
 				// Attempted 63 bit overflow should fail
 				Assert.False(Money.TryParse(prefix + "92233720368.54775808", out ret));
+
+				// Attempted parsing a very small value (loosing money)  should fail
+				Assert.False(Money.TryParse(prefix + "0.00000000000001", out ret));
 			}
 		}
 
