@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NBitcoin.DataEncoders;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -217,6 +218,22 @@ namespace NBitcoin.Tests
 			Assert.True(ExtKey.Parse(key.ToString(Network.Main)).ToString(Network.Main) == key.ToString(Network.Main));
 			Assert.True(ExtPubKey.Parse(pubkey.ToString(Network.Main)).ToString(Network.Main) == pubkey.ToString(Network.Main));
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanRecoverExtPubKeyFromHexString()
+		{
+		    var key = new ExtKey();
+		    var pubkeyBytes = key.Neuter().ToBytes();
+		    var pubkeyHexString = Encoders.Hex.EncodeData(pubkeyBytes);
+
+
+		    var pubKeyFromBytes = new ExtPubKey(pubkeyBytes);
+		    var pubKeyFromHexString = new ExtPubKey(pubkeyHexString);
+
+		    Assert.True(pubKeyFromBytes.Equals(pubKeyFromHexString));
+		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCheckChildKey()
