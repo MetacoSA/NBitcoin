@@ -355,6 +355,9 @@ namespace NBitcoin.Tests
 
 				// Attempted parsing a very small value (loosing money)  should fail
 				Assert.False(Money.TryParse(prefix + "0.00000000000001", out ret));
+				Assert.False(Money.TryParse(prefix + "0.000000001", out ret));
+				Assert.True(Money.TryParse(prefix + "0.00000000", out ret));
+				Assert.True(Money.TryParse(prefix + "0.00000000000", out ret));
 			}
 		}
 
