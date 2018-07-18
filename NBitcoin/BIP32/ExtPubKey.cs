@@ -23,7 +23,6 @@ namespace NBitcoin
 		internal byte[] vchFingerprint = new byte[FingerprintLength];
 		internal uint nChild;
 
-		//
 		internal PubKey pubkey = new PubKey(validPubKey);
 		internal byte[] vchChainCode = new byte[ChainCodeLength];
 
@@ -72,7 +71,7 @@ namespace NBitcoin
 		{
 		}
 
-        	/// <summary>
+		/// <summary>
 		/// Constructor. Creates a new extended public key from the specified extended public key bytes.
 		/// </summary>
 		public ExtPubKey(byte[] bytes)
