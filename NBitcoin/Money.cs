@@ -295,6 +295,10 @@ namespace NBitcoin
 				nRet = new Money(value, MoneyUnit.BTC);
 				return true;
 			}
+			catch(ArgumentOutOfRangeException)
+			{
+				return false;
+			}
 			catch(OverflowException)
 			{
 				return false;
@@ -372,6 +376,7 @@ namespace NBitcoin
 		{
 			// sanity check. Only valid units are allowed
 			CheckMoneyUnit(unit, "unit");
+			CheckMoneyLimits(amount, unit);
 			checked
 			{
 				var satoshi = amount * (int)unit;
@@ -751,6 +756,18 @@ namespace NBitcoin
 			if(!Enum.IsDefined(typeOfMoneyUnit, value))
 			{
 				throw new ArgumentException("Invalid value for MoneyUnit", paramName);
+			}
+		}
+
+		private static void CheckMoneyLimits(decimal amount, MoneyUnit unit)
+		{
+			checked
+			{
+				var satoshis = amount * (int)unit;
+				if(satoshis % 1 != 0 )
+				{
+					throw new ArgumentOutOfRangeException("Invalid value for amount. Min unit is one satoshi.");
+				}
 			}
 		}
 
