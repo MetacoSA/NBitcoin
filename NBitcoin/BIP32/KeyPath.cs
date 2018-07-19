@@ -79,6 +79,11 @@ namespace NBitcoin
 			return Derive(new KeyPath(realIndex));
 		}
 
+		public KeyPath Derive(string path)
+		{
+			return Derive(new KeyPath(path));
+		}
+
 		public KeyPath Derive(uint index)
 		{
 			return Derive(new KeyPath(index));
