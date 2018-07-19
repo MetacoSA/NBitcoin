@@ -65,7 +65,7 @@ namespace NBitcoin
 		{
 			if(satoshiPerByte < 0)
 				throw new ArgumentOutOfRangeException("satoshiPerByte");
-			_FeePerK = Money.Satoshis(satoshiPerByte * 1000);
+			_FeePerK = Money.Satoshis((long)(satoshiPerByte * 1000));
 		}
 
 		/// <summary>
