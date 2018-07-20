@@ -1679,9 +1679,9 @@ namespace NBitcoin
 			}
 
 			var temp = ~(SigHash.AnyoneCanPay);
-			if((ScriptVerify & ScriptVerify.ForkId) != 0)
+			if((ScriptVerify & ScriptVerify.ForkIdBCCBTG) != 0)
 			{
-				temp = (SigHash)((uint)temp & ~(0x40u));
+				temp = (SigHash)((uint)temp & ~((uint)SigHash.ForkId));
 			}
 			byte nHashType = (byte)(vchSig[vchSig.Length - 1] & (byte)temp);
 			if(nHashType < (byte)SigHash.All || nHashType > (byte)SigHash.Single)
