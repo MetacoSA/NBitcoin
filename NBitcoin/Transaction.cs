@@ -1146,11 +1146,16 @@ namespace NBitcoin
 		LockTime nLockTime;
 
 
-		[Obsolete("You should instantiate Transaction from ConsensusFactory.CreateTransaction")]
+		[Obsolete("You should better use Transaction.Create(Network network)")]
 		public Transaction()
 		{
 			vin = new TxInList(this);
 			vout = new TxOutList(this);
+		}
+
+		public Transaction Create(Network network)
+		{
+			return network.Consensus.ConsensusFactory.CreateTransaction();
 		}
 
 		[Obsolete("You should instantiate Transaction from ConsensusFactory.CreateTransaction")]
