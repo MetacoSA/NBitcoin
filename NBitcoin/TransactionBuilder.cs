@@ -1228,7 +1228,7 @@ namespace NBitcoin
 			{
 				var collapsedOutputs = ctx.Transaction.Outputs
 							   .GroupBy(o => o.ScriptPubKey)
-							   .Select(o => o.Count() == 1 ? o.First() : ctx.Transaction.CreateOutput(o.Select(txout=>txout.Value).Sum(), o.Key))
+							   .Select(o => o.Count() == 1 ? o.First() : ctx.Transaction.CreateOutput(o.Select(txout => txout.Value).Sum(), o.Key))
 							   .ToArray();
 				if(collapsedOutputs.Length < ctx.Transaction.Outputs.Count)
 				{
@@ -1473,11 +1473,28 @@ namespace NBitcoin
 		{
 			if(tx == null)
 				throw new ArgumentNullException(nameof(tx));
+			EstimateSizes(tx, out var witSize, out var baseSize);
+			if(virtualSize)
+			{
+				var totalSize = witSize + baseSize;
+				var strippedSize = baseSize;
+				var weight = strippedSize * (Transaction.WITNESS_SCALE_FACTOR - 1) + totalSize;
+				return (weight + Transaction.WITNESS_SCALE_FACTOR - 1) / Transaction.WITNESS_SCALE_FACTOR;
+			}
+			return witSize + baseSize;
+		}
+
+		public void EstimateSizes(Transaction tx, out int witSize, out int baseSize)
+		{
+			if(tx == null)
+				throw new ArgumentNullException(nameof(tx));
 			var clone = tx.Clone();
 			clone.Inputs.Clear();
-			var baseSize = clone.GetSerializedSize();
+			baseSize = clone.GetSerializedSize() - 1;
+			baseSize += new Protocol.VarInt((ulong)tx.Inputs.Count).GetSerializedSize();
 
-			int witSize = 0;
+			witSize = 0;
+			int nonWitnessCount = 0;
 			bool hasWitness = tx.HasWitness;
 			foreach(var txin in tx.Inputs.AsIndexedInputs())
 			{
@@ -1486,21 +1503,18 @@ namespace NBitcoin
 					throw CoinNotFound(txin);
 				if(coin.GetHashVersion() == HashVersion.Witness)
 					hasWitness = true;
+				else
+					nonWitnessCount++;
 				EstimateScriptSigSize(coin, ref witSize, ref baseSize);
-				baseSize += 41;
+				baseSize += (32 + 4) + 4;
 			}
+
+
 			if(hasWitness)
-				witSize += 2;
-
-			if(virtualSize)
 			{
-				var totalSize = witSize + baseSize;
-				var strippedSize = baseSize;
-				var weight = strippedSize * (Transaction.WITNESS_SCALE_FACTOR - 1) + totalSize;
-				return (weight + Transaction.WITNESS_SCALE_FACTOR - 1) / Transaction.WITNESS_SCALE_FACTOR;
+				witSize += 2; // 1 Dummy + 1 Flag
+				witSize += nonWitnessCount; // Non witness inputs have 1 byte pushed on the witness
 			}
-
-			return witSize + baseSize;
 		}
 
 		private void EstimateScriptSigSize(ICoin coin, ref int witSize, ref int baseSize)
@@ -1508,6 +1522,8 @@ namespace NBitcoin
 			if(coin is IColoredCoin)
 				coin = ((IColoredCoin)coin).Bearer;
 
+			int p2shPushRedeemSize = 0;
+			int segwitPushRedeemSize = 0;
 			if(coin is ScriptCoin)
 			{
 				var scriptCoin = (ScriptCoin)coin;
@@ -1515,7 +1531,8 @@ namespace NBitcoin
 				if(p2sh != null)
 				{
 					coin = new Coin(scriptCoin.Outpoint, new TxOut(scriptCoin.Amount, p2sh));
-					baseSize += new Script(Op.GetPushOp(p2sh.ToBytes(true))).Length;
+					p2shPushRedeemSize = new Script(Op.GetPushOp(p2sh.ToBytes(true))).Length;
+					baseSize += p2shPushRedeemSize;
 					if(scriptCoin.RedeemType == RedeemType.WitnessV0)
 					{
 						coin = new ScriptCoin(coin, scriptCoin.Redeem);
@@ -1524,7 +1541,8 @@ namespace NBitcoin
 
 				if(scriptCoin.RedeemType == RedeemType.WitnessV0)
 				{
-					witSize += new Script(Op.GetPushOp(scriptCoin.Redeem.ToBytes(true))).Length;
+					segwitPushRedeemSize = new Script(Op.GetPushOp(scriptCoin.Redeem.ToBytes(true))).Length;
+					witSize += segwitPushRedeemSize;
 				}
 			}
 
@@ -1542,9 +1560,12 @@ namespace NBitcoin
 			if(scriptSigSize == -1)
 				scriptSigSize += coin.TxOut.ScriptPubKey.Length; //Using heurestic to approximate size of unknown scriptPubKey
 			if(coin.GetHashVersion() == HashVersion.Witness)
-				witSize += scriptSigSize + 1; //Account for the push
+			{
+				baseSize += new Protocol.VarInt((ulong)p2shPushRedeemSize).GetSerializedSize();
+				witSize += scriptSigSize + new Protocol.VarInt((ulong)(scriptSigSize + segwitPushRedeemSize)).GetSerializedSize();
+			}
 			if(coin.GetHashVersion() == HashVersion.Original)
-				baseSize += scriptSigSize;
+				baseSize += scriptSigSize + new Protocol.VarInt((ulong)(scriptSigSize + p2shPushRedeemSize)).GetSerializedSize();
 		}
 
 		/// <summary>
@@ -1784,7 +1805,7 @@ namespace NBitcoin
 
 		Transaction _CompletedTransaction;
 		private bool _built = false;
-		
+
 		/// <summary>
 		/// Allows to keep building on the top of a partially built transaction
 		/// </summary>
@@ -1792,8 +1813,8 @@ namespace NBitcoin
 		/// <returns></returns>
 		public TransactionBuilder ContinueToBuild(Transaction transaction)
 		{
-			if(_built) 
-				throw new InvalidOperationException("ContinueToBuild must be called with a new TransactionBuilder instance"); 
+			if(_built)
+				throw new InvalidOperationException("ContinueToBuild must be called with a new TransactionBuilder instance");
 			if(_CompletedTransaction != null)
 				throw new InvalidOperationException("Transaction to complete already set");
 			_CompletedTransaction = transaction.Clone();
