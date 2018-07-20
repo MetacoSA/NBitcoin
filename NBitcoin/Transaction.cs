@@ -1153,7 +1153,7 @@ namespace NBitcoin
 			vout = new TxOutList(this);
 		}
 
-		public Transaction Create(Network network)
+		public static Transaction Create(Network network)
 		{
 			return network.Consensus.ConsensusFactory.CreateTransaction();
 		}
