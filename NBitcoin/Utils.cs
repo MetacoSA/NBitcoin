@@ -677,6 +677,27 @@ namespace NBitcoin
 				};
 			}
 		}
+
+#if HAS_SPAN
+		public static void ToBytes(uint value, bool littleEndian, Span<byte> output)
+		{
+			if(littleEndian)
+			{
+				output[0] = (byte)value;
+				output[1] = (byte)(value >> 8);
+				output[2] = (byte)(value >> 16);
+				output[3] = (byte)(value >> 24);
+			}
+			else
+			{
+				output[0] = (byte)(value >> 24);
+				output[1] = (byte)(value >> 16);
+				output[2] = (byte)(value >> 8);
+				output[3] = (byte)value;
+			}
+		}
+#endif
+
 		public static byte[] ToBytes(ulong value, bool littleEndian)
 		{
 			if(littleEndian)
@@ -726,6 +747,25 @@ namespace NBitcoin
 					   + ((uint)value[index + 0] << 24);
 			}
 		}
+#if HAS_SPAN
+		public static uint ToUInt32(Span<byte> value, int index, bool littleEndian)
+		{
+			if(littleEndian)
+			{
+				return value[index]
+					   + ((uint)value[index + 1] << 8)
+					   + ((uint)value[index + 2] << 16)
+					   + ((uint)value[index + 3] << 24);
+			}
+			else
+			{
+				return value[index + 3]
+					   + ((uint)value[index + 2] << 8)
+					   + ((uint)value[index + 1] << 16)
+					   + ((uint)value[index + 0] << 24);
+			}
+		}
+#endif
 
 
 		public static int ToInt32(byte[] value, int index, bool littleEndian)
