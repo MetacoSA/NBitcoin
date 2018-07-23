@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
+	[Obsolete]
 	public class IndexedBlockUndoStore : IndexedStore<StoredItem<BlockUndo>, BlockUndo>
 	{
 		public IndexedBlockUndoStore(NoSqlRepository index, BlockUndoStore store)

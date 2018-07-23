@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
+	[Obsolete]
 	public class IndexedBlockStore : IndexedStore<StoredBlock, Block>, IBlockProvider
 	{
 		private readonly BlockStore _Store;

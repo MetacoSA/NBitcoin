@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
+	[Obsolete]
 	public class BlockUndoStore : Store<StoredItem<BlockUndo>, BlockUndo>
 	{
 		public BlockUndoStore(string folder, Network network)

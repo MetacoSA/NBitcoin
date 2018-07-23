@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace NBitcoin.BitcoinCore
 {
+	[System.Obsolete]
 	public class Coins : IBitcoinSerializable
 	{
 		// whether transaction is a coinbase
@@ -83,6 +84,7 @@ namespace NBitcoin.BitcoinCore
 
 		public int UnspentCount => Outputs.Count(c => !IsNull(c));
 
+#pragma warning disable CS0612 // Type or member is obsolete
 		public bool Spend(int position, out TxInUndo undo)
 		{
 			undo = null;
@@ -91,6 +93,7 @@ namespace NBitcoin.BitcoinCore
 			if(IsNull(Outputs[position]))
 				return false;
 			undo = new TxInUndo(Outputs[position].Clone());
+#pragma warning restore CS0612 // Type or member is obsolete
 			Outputs[position] = NullTxOut;
 			Cleanup();
 			if(IsEmpty)
@@ -104,7 +107,9 @@ namespace NBitcoin.BitcoinCore
 
 		public bool Spend(int position)
 		{
+#pragma warning disable CS0612 // Type or member is obsolete
 			TxInUndo undo;
+#pragma warning restore CS0612 // Type or member is obsolete
 			return Spend(position, out undo);
 		}
 

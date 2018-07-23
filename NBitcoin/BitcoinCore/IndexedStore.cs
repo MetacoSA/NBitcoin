@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
+	[Obsolete]
 	public abstract class IndexedStore<TStoredItem, TItem>
 		where TStoredItem : StoredItem<TItem>
 		where TItem : IBitcoinSerializable, new()

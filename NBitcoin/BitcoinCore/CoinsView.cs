@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
+	[Obsolete]
 	public class CoinsView
 	{
 		public CoinsView(NoSqlRepository index)
