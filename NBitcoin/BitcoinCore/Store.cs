@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace NBitcoin.BitcoinCore
 {
+	[Obsolete]
 	public abstract class Store<TStoredItem, TItem>
 		where TStoredItem : StoredItem<TItem>
 		where TItem : IBitcoinSerializable, new()
