@@ -187,7 +187,8 @@ namespace NBitcoin.Tests
 				tx.Outputs.Add(new TxOut(Money.Coins(1.0m), new Key()));
 				var funded = node.CreateRPCClient().FundRawTransaction(tx);
 				var signed = node.CreateRPCClient().SignRawTransaction(funded.Transaction);
-				node.CreateRPCClient().SendRawTransaction(signed);
+				var txId = node.CreateRPCClient().SendRawTransaction(signed);
+				Assert.Equal(signed.GetHash(), txId);
 			}
 		}
 

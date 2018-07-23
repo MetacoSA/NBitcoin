@@ -1254,24 +1254,28 @@ namespace NBitcoin.RPC
 			};
 		}
 
-		public void SendRawTransaction(Transaction tx)
+		public uint256 SendRawTransaction(Transaction tx)
 		{
-			SendRawTransaction(tx.ToBytes());
+			return SendRawTransaction(tx.ToBytes());
 		}
 
-		public void SendRawTransaction(byte[] bytes)
+		public uint256 SendRawTransaction(byte[] bytes)
 		{
-			SendCommand(RPCOperations.sendrawtransaction, Encoders.Hex.EncodeData(bytes));
+			return SendRawTransactionAsync(bytes).GetAwaiter().GetResult();
 		}
 
-		public Task SendRawTransactionAsync(Transaction tx)
+		public Task<uint256> SendRawTransactionAsync(Transaction tx)
 		{
 			return SendRawTransactionAsync(tx.ToBytes());
 		}
 
-		public Task SendRawTransactionAsync(byte[] bytes)
+		public async Task<uint256> SendRawTransactionAsync(byte[] bytes)
 		{
-			return SendCommandAsync(RPCOperations.sendrawtransaction, Encoders.Hex.EncodeData(bytes));
+			var result = await SendCommandAsync(RPCOperations.sendrawtransaction, Encoders.Hex.EncodeData(bytes)).ConfigureAwait(false);
+			result.ThrowIfError();
+			if(result.Result.Type != JTokenType.String)
+				return null;
+			return new uint256(result.Result.Value<string>());
 		}
 
 		public BumpResponse BumpFee(uint256 txid)
