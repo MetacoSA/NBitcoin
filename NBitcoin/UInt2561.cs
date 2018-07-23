@@ -36,14 +36,26 @@ namespace NBitcoin
 			{
 				if(stream.Serializing)
 				{
+#if !HAS_SPAN
 					var b = Value.ToBytes();
 					stream.ReadWrite(ref b);
+#else
+					Span<byte> b = stackalloc byte[WIDTH_BYTE];
+					Value.ToBytes(b);
+					stream.ReadWrite(ref b);
+#endif
 				}
 				else
 				{
+#if !HAS_SPAN
 					byte[] b = new byte[WIDTH_BYTE];
 					stream.ReadWrite(ref b);
 					_Value = new uint256(b);
+#else
+					Span<byte> b = stackalloc byte[WIDTH_BYTE];
+					stream.ReadWrite(ref b);
+					_Value = new uint256(b);
+#endif
 				}
 			}
 		}
@@ -194,6 +206,25 @@ namespace NBitcoin
 			pn7 = Utils.ToUInt32(vch, offset + 4 * 7, true);
 
 		}
+
+#if HAS_SPAN
+		public uint256(Span<byte> bytes)
+		{
+			if(bytes.Length != WIDTH_BYTE)
+			{
+				throw new FormatException("the byte array should be 32 bytes long");
+			}
+
+			pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
+			pn1 = Utils.ToUInt32(bytes, 4 * 1, true);
+			pn2 = Utils.ToUInt32(bytes, 4 * 2, true);
+			pn3 = Utils.ToUInt32(bytes, 4 * 3, true);
+			pn4 = Utils.ToUInt32(bytes, 4 * 4, true);
+			pn5 = Utils.ToUInt32(bytes, 4 * 5, true);
+			pn6 = Utils.ToUInt32(bytes, 4 * 6, true);
+			pn7 = Utils.ToUInt32(bytes, 4 * 7, true);
+		}
+#endif
 
 		public uint256(string str)
 		{
@@ -359,6 +390,33 @@ namespace NBitcoin
 			return arr;
 		}
 
+#if HAS_SPAN
+		public void ToBytes(Span<byte> output, bool lendian = true)
+		{
+			if(output.Length < WIDTH_BYTE)
+				throw new ArgumentException(message: $"The array should be at least of size {WIDTH_BYTE}", paramName: nameof(output));
+
+			var initial = output;
+			Utils.ToBytes(pn0, true, output);
+			output = output.Slice(4);
+			Utils.ToBytes(pn1, true, output);
+			output = output.Slice(4);
+			Utils.ToBytes(pn2, true, output);
+			output = output.Slice(4);
+			Utils.ToBytes(pn3, true, output);
+			output = output.Slice(4);
+			Utils.ToBytes(pn4, true, output);
+			output = output.Slice(4);
+			Utils.ToBytes(pn5, true, output);
+			output = output.Slice(4);
+			Utils.ToBytes(pn6, true, output);
+			output = output.Slice(4);
+			Utils.ToBytes(pn7, true, output);
+
+			if(!lendian)
+				initial.Reverse();
+		}
+#endif
 		public MutableUint256 AsBitcoinSerializable()
 		{
 			return new MutableUint256(this);

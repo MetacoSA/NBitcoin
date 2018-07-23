@@ -265,6 +265,12 @@ namespace NBitcoin
 		{
 			ReadWriteBytes(ref arr);
 		}
+#if HAS_SPAN
+		public void ReadWrite(ref Span<byte> arr)
+		{
+			ReadWriteBytes(arr);
+		}
+#endif
 		public void ReadWrite(ref byte[] arr, int offset, int count)
 		{
 			ReadWriteBytes(ref arr, offset, count);
