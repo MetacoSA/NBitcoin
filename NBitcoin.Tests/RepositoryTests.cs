@@ -58,56 +58,12 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanEnumerateBlockCountRange()
-		{
-			var store = new BlockStore(@"data/blocks", Network.Main);
-			var expectedBlock = store.Enumerate(false).Skip(4).First();
-			var actualBlocks = store.Enumerate(false, 4, 2).ToArray();
-			Assert.Equal(2, actualBlocks.Length);
-			Assert.Equal(expectedBlock.Item.Header.GetHash(), actualBlocks[0].Item.Header.GetHash());
-			Assert.True(actualBlocks[0].Item.CheckMerkleRoot());
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
 		//The last block is off by 1 byte + lots of padding zero at the end
 		public void CanEnumerateIncompleteBlk()
 		{
 			Assert.Equal(301, StoredBlock.EnumerateFile(@"data/blocks/incompleteblk.dat").Count());
 		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanBuildChainFromBlocks()
-		{
-			var store = new BlockStore(@"data/blocks", Network.Main);
-			var chain = store.GetChain();
-			Assert.True(chain.Height == 599);
-
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanIndexBlock()
-		{
-			var index = CreateIndexedStore();
-			foreach(var block in StoredBlock.EnumerateFile(@"data/blocks/blk00000.dat").Take(50))
-			{
-				index.Put(block.Item);
-			}
-			var genesis = index.Get(uint256.Parse("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
-			Assert.NotNull(genesis);
-			var invalidBlock = index.Get(uint256.Parse("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26e"));
-			Assert.Null(invalidBlock);
-		}
-
-
-		public static IndexedBlockStore CreateIndexedStore([CallerMemberName]string folderName = null)
-		{
-			TestUtils.EnsureNew(folderName);
-			return new IndexedBlockStore(new InMemoryNoSqlRepository(), new BlockStore(folderName, Network.Main));
-		}
-
+		
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public static void CanRequestTransactionOnQBit()
