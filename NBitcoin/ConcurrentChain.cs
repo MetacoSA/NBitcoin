@@ -350,7 +350,7 @@ namespace NBitcoin
 		private bool TryGetBlocksByHeight(int height, out ChainedBlock result)
 		{
 			result = null;
-			if(height >= _BlocksByHeight.Length)
+			if(height >= _BlocksByHeight.Length || height < 0)
 				return false;
 			result = _BlocksByHeight[height];
 			return result != null;
