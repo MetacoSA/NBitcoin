@@ -93,7 +93,7 @@ namespace NBitcoin.Crypto
             }
         }
 
-        internal static bool VerifySignature(uint256 message, BlindSignature signature, PubKey signerPubKey)
+        public static bool VerifySignature(uint256 message, BlindSignature signature, PubKey signerPubKey)
         {
             var P = signerPubKey.ECKey.GetPublicKeyParameters().Q;
 
