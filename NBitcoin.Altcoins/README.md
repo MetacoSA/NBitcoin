@@ -6,6 +6,7 @@ Currently supported altcoins are:
 * Feathercoin
 * Dogecoin
 * Dash
+* Dystem
 * BGold
 * Polis
 * BCash

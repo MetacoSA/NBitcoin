@@ -259,6 +259,36 @@ namespace NBitcoin.Tests
 				}
 			};
 		}
+
+		public class DystemNodeDownloadData
+		{
+			public NodeDownloadData v1_0_8_8 = new NodeDownloadData()
+			{
+				Version = "1.0.8.8",
+				Windows = new NodeOSDownloadData()
+				{//
+					DownloadLink = "https://github.com/Dystem/dystem-core/releases/download/v{0}/dystem-qt-v{0}.exe",
+					Executable = "dystemd.exe",
+					//Hash = "04e95d11443d785ad9d98b04fd2313ca96d937e424be80f639b73846304d154c"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Dystem/dystem-core/releases/download/v{0}/dystemd.tar.gz",
+					Archive = "dystemd.tar.gz",
+					Executable = "dystemd",
+					//Hash = "8b7c72197f87be1f5d988c274cac06f6539ddb4591a578bfb852a412022378f2"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Dystem/dystem-core/releases/download/v{0}/DYSTEM-Qt.dmg",
+					Archive = "DYSTEM-Qt.dmg",
+					Executable = "dystemd",
+					//Hash = "90ca27d6733df6fc69b0fc8220f2315623fe5b0cbd1fe31f247684d51808cb81"
+				}
+			};
+		}
+
+
 		
 		public class BGoldNodeDownloadData
 		{
@@ -448,6 +478,11 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new DashNodeDownloadData();
 
+		public static DystemNodeDownloadData Dystem
+		{
+			get; set;
+		} = new DystemNodeDownloadData();
+
 		public static BGoldNodeDownloadData BGold
 		{
 			get; set;
@@ -467,5 +502,7 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new UfoNodeDownloadData();
+
+
 	}
 }
