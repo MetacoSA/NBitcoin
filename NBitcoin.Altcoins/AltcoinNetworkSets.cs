@@ -12,6 +12,10 @@ namespace NBitcoin.Altcoins
 		public static BGold BGold { get; } = BGold.Instance;
 		public static Dash Dash { get; } = Dash.Instance;
 		public static Dogecoin Dogecoin { get; } = Dogecoin.Instance;
+
+	    public static Dystem Dystem { get; } = Dystem.Instance;
+
+
 		public static Litecoin Litecoin { get; } = Litecoin.Instance;
 		public static Feathercoin Feathercoin { get; } = Feathercoin.Instance;
 		public static Viacoin Viacoin {get; } = Viacoin.Instance;
