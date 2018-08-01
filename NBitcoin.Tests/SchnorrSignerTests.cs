@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
@@ -92,6 +94,33 @@ namespace NBitcoin.Tests
 
 				Assert.False(signer.Verify(message, publicKey, signature), reason);
 			}
+		}
+
+		[Fact]
+		public void ShouldPassBatchVerifycation()
+		{
+			var vectors = new string[][]{
+				new []{
+					"0279BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798",
+					"0000000000000000000000000000000000000000000000000000000000000000",
+					"787A848E71043D280C50470E8E1532B2DD5D20EE912A45DBDD2BD1DFBF187EF67031A98831859DC34DFFEEDDA86831842CCD0079E1F92AF177F7F22CC1DCED05"},
+				new []{
+					"02DFF1D77F2A671C5F36183726DB2341BE58FEAE1DA2DECED843240F7B502BA659",
+					"243F6A8885A308D313198A2E03707344A4093822299F31D0082EFA98EC4E6C89",
+					"2A298DACAE57395A15D0795DDBFD1DCB564DA82B0F269BC70A74F8220429BA1D1E51A22CCEC35599B8F266912281F8365FFC2D035A230434A1A64DC59F7013FD"},
+				new []{
+					"03FAC2114C2FBB091527EB7C64ECB11F8021CB45E8E7809D3C0938E4B8C0E5F84B",
+					"5E2D58D8B3BCDF1ABADEC7829054F90DDA9805AAB56C77333024B9D0A508B75C",
+					"00DA9B08172A9B6F0466A2DEFD817F2D7AB437E0D253CB5395A963866B3574BE00880371D01766935B92D2AB4CD5C8A2A5837EC57FED7660773A05F0DE142380"} 
+			};
+	
+			var messages = vectors.Select(v => uint256.Parse(v[1])).ToArray();
+			var pubkeys = vectors.Select(v=>new PubKey(Encoders.Hex.DecodeData(v[0]))).ToArray();
+			var signatures = vectors.Select(v=> SchnorrSignature.Parse(v[2])).ToArray();
+			
+			var randoms = Enumerable.Range(0, 2).Select(x=> BigInteger.Arbitrary(256)).ToArray();
+			var ok = SchnorrSigner.BatchVerify(messages, pubkeys, signatures, randoms);
+			Assert.True(ok);
 		}
 	}
 }
