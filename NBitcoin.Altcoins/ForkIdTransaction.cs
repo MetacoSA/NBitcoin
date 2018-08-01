@@ -44,10 +44,12 @@ namespace NBitcoin.Altcoins
 		public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
 			uint nForkHashType = (uint)nHashType;
-			if(UsesForkId(nHashType))
+			if((nHashType & SigHash.ForkId) != 0)
 				nForkHashType |= ForkId << 8;
 
-			if((SupportSegwit && sigversion == HashVersion.Witness) || UsesForkId(nHashType))
+			bool isBTCP = ForkId == 42;
+
+			if((SupportSegwit && sigversion == HashVersion.Witness) || ((nHashType & SigHash.ForkId) != 0 && !isBTCP))
 			{
 				if(amount == null)
 					throw new ArgumentException("The amount of the output being signed must be provided", "amount");
@@ -101,8 +103,6 @@ namespace NBitcoin.Altcoins
 
 				return GetHash(sss);
 			}
-
-
 
 
 			if(nIn >= Inputs.Count)
@@ -176,11 +176,6 @@ namespace NBitcoin.Altcoins
 			txCopy.ReadWrite(stream);
 			stream.ReadWrite((uint)nForkHashType);
 			return GetHash(stream);
-		}
-
-		private bool UsesForkId(SigHash nHashType)
-		{
-			return ((uint)nHashType & 0x40u) != 0;
 		}
 
 		private static uint256 GetHash(BitcoinStream stream)

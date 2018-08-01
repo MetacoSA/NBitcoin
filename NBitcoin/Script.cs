@@ -119,9 +119,17 @@ namespace NBitcoin
 		WitnessPubkeyType = (1U << 15),
 
 		/// <summary>
+		/// Verify ForkId's presence when evaluating the script
+		/// https://github.com/Bitcoin-ABC/bitcoin-abc/blob/d46be71cdae64b50207a78b2804968f919cac408/src/script/bitcoinconsensus.h#L63
+		/// https://github.com/BTCGPU/BTCGPU/blob/0f0bb60bbd2a6aee990f813387980ee9a5f248df/src/script/interpreter.h#L122
+		/// https://github.com/BTCPrivate/BitcoinPrivate/blob/4031ff02ec7c56bcafa085b01100cbddfcd33ea3/src/script/interpreter.h#L130
+		/// </summary>
+		ForkId = (1U << 16),
+
+		/// <summary>
 		/// Some altcoins like BCash and BGold requires ForkId inside the sigHash
 		/// </summary>
-		ForkId = (1U << 29),
+		ForkIdBCCBTG = (1U << 29),
 
 		/// <summary>
 		/// Mandatory script verification flags that all new blocks must comply with for
@@ -174,6 +182,10 @@ namespace NBitcoin
 		/// Only the output with the same index as this input is signed
 		/// </summary>
 		Single = 3,
+		/// <summary>
+		/// Fork enabled! For BCC, BTG, BTCP
+		/// </summary>
+		ForkId = 0x40,
 		/// <summary>
 		/// If set, no inputs, except this, are part of the signature
 		/// </summary>
