@@ -47,7 +47,7 @@ namespace NBitcoin.Altcoins
 			if(UsesForkId(nHashType))
 				nForkHashType |= ForkId << 8;
 
-			if((SupportSegwit && sigversion == HashVersion.Witness) || UsesForkId(nHashType))
+			if((SupportSegwit && sigversion == HashVersion.Witness) || (UsesForkId(nHashType) && ForkId != 42))
 			{
 				if(amount == null)
 					throw new ArgumentException("The amount of the output being signed must be provided", "amount");
