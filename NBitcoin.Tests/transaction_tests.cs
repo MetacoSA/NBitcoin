@@ -2327,6 +2327,13 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		public void Play()
+		{
+			
+		}
+
+
 		//[Fact]
 		//http://bitcoin.stackexchange.com/questions/25814/ecdsa-signature-and-the-z-value
 		//http://www.nilsschneider.net/2013/01/28/recovering-bitcoin-private-keys.html
