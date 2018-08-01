@@ -133,7 +133,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void Play()
+		public void Pregenerate()
 		{
 		}
 
