@@ -1678,10 +1678,10 @@ namespace NBitcoin
 				return false;
 			}
 
-			var temp = ~(SigHash.AnyoneCanPay);
-			if((ScriptVerify & ScriptVerify.ForkId) != 0)
+			var temp = ~SigHash.AnyoneCanPay;
+			if((ScriptVerify & ScriptVerify.ForkIdBCCBTG) != 0)
 			{
-				temp = (SigHash)((uint)temp & ~(0x40u));
+				temp &= ~SigHash.ForkId;
 			}
 			byte nHashType = (byte)(vchSig[vchSig.Length - 1] & (byte)temp);
 			if(nHashType < (byte)SigHash.All || nHashType > (byte)SigHash.Single)

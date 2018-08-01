@@ -1259,7 +1259,7 @@ namespace NBitcoin
 			TransactionSigningContext ctx = new TransactionSigningContext(this, transaction);
 			if(transaction is IHasForkId hasForkId)
 			{
-				sigHash = (SigHash)((uint)sigHash | 0x40u);
+				sigHash |= SigHash.ForkId;
 			}
 			ctx.SigHash = sigHash;
 			foreach(var input in transaction.Inputs.AsIndexedInputs())
