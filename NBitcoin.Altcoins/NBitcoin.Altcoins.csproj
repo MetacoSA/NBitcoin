@@ -19,17 +19,17 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
+	  <Compile Remove="NeoScrypt\**" />
+	  <EmbeddedResource Remove="NeoScrypt\**" />
+	  <None Remove="NeoScrypt\**" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="NeoScrypt\" />
+		<ProjectReference Include="..\..\NeoScryptCSharp\NeoScryptCSharp\NeoScryptCSharp.csproj" />
+		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
 	</ItemGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 		<DebugType>pdbonly</DebugType>
 		<Optimize>true</Optimize>
 		<DocumentationFile>bin\Release\NBitcoin.Altcoins.XML</DocumentationFile>
-	</PropertyGroup>
-	<PropertyGroup>
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 </Project>
