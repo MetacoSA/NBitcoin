@@ -19,6 +19,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\..\NeoScryptCSharp\NeoScryptCSharp\NeoScryptCSharp.csproj" />
 		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
 	</ItemGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
