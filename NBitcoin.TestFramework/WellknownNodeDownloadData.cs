@@ -259,7 +259,36 @@ namespace NBitcoin.Tests
 				}
 			};
 		}
-		
+
+		public class MogwaiNodeDownloadData
+		{
+			public NodeDownloadData v0_12_2 = new NodeDownloadData()
+			{
+				Version = "0.12.2.4",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/mogwaicoin/mogwai/releases/download/v{0}/mogwaicore-{0}-win64.zip",
+					Archive = "mogwaicore-{0}-win64.zip",
+					Executable = "mogwaicore-0.12.2/bin/mogwaid.exe",
+					Hash = "f9066a6f370109c468247d6c07b0026c66a5a57603fa90693c7e8a81e481f4f5"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/mogwaicoin/mogwai/releases/download/v{0}/mogwaicore-{0}-linux64.tar.gz",
+					Archive = "mogwaicore-{0}-linux64.tar.gz",
+					Executable = "mogwaicore-0.12.2/bin/mogwaid",
+					Hash = "8b7c72197f87be1f5d988c274cac06f6539ddb4591a578bfb852a412022378f2"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/mogwaicoin/mogwai/releases/download/v{0}/mogwaicore-{0}-osx.dmg",
+					Archive = "mogwaicore-{0}-osx.dmg",
+					Executable = "mogwaicore-0.12.2/bin/mogwaid",
+					Hash = "90ca27d6733df6fc69b0fc8220f2315623fe5b0cbd1fe31f247684d51808cb81"
+				}
+			};
+		}
+
 		public class BGoldNodeDownloadData
 		{
 			public NodeDownloadData v0_15_0 = new NodeDownloadData()
@@ -412,6 +441,12 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new GroestlcoinNodeDownloadData();
+
+		public static MogwaiNodeDownloadData Mogwai
+		{
+			get; set;
+		} = new MogwaiNodeDownloadData();
+
 
 		public static BitcoinNodeDownloadData Bitcoin
 		{
