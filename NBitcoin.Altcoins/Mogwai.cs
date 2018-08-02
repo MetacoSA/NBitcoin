@@ -52,7 +52,7 @@ namespace NBitcoin.Altcoins
 				var output = new byte[32];
 				// reference https://github.com/mogwaicoin/NeoScryptCSharp for correct neoscrypt native c# hashing
 				// haven't added source because it will need to have unsafe code checked for the project.
-				NeoScrypt.NeoScrypt.neoscrypt(data, ref output, 0x0);
+				//NeoScrypt.NeoScrypt.neoscrypt(data, ref output, 0x0);
 				return output;
 			}
 
