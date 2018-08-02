@@ -268,8 +268,10 @@ namespace NBitcoin.Tests
 				Windows = new NodeOSDownloadData()
 				{//
 					DownloadLink = "https://github.com/Dystem/dystem-core/releases/download/v{0}/dystem-qt-v{0}.exe",
+					Archive = "",
+
 					Executable = "dystemd.exe",
-					//Hash = "04e95d11443d785ad9d98b04fd2313ca96d937e424be80f639b73846304d154c"
+					Hash = "1cf1f317aaae6e8edf520d2439f9c950aafb01bd5b46c399c8582524c59273dc"
 				},
 				Linux = new NodeOSDownloadData()
 				{
