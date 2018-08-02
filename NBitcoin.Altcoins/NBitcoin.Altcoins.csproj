@@ -21,9 +21,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="HashQuark\" />
-	</ItemGroup>
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
 		<DebugType>pdbonly</DebugType>
 		<Optimize>true</Optimize>
