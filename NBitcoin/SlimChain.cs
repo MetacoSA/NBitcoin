@@ -62,6 +62,11 @@ namespace NBitcoin
 			return true;
 		}
 
+		public void ResetToGenesis()
+		{
+			TrySetTip(Genesis, default(UInt256Struct));
+		}
+
 		public bool TrySetTip(in UInt256Struct tip, in UInt256Struct previous, bool nopIfContainsTip = false)
 		{
 			using(_lock.LockWrite())
@@ -76,17 +81,25 @@ namespace NBitcoin
 				throw new ArgumentException(message: "tip should be different from previous");
 			if(tip == _BlockHashesByHeight[_Height])
 				return false;
+
+			bool isGenesis = false;
 			if(_HeightsByBlockHash.TryGetValue(tip, out int newTipHeight))
 			{
-				// We can't replace the genesis
-				if(newTipHeight - 1 < 0)
-					return false;
-				if(_BlockHashesByHeight[newTipHeight - 1] != previous)
+				if(newTipHeight - 1 >= 0 && _BlockHashesByHeight[newTipHeight - 1] != previous)
 					throw new ArgumentException(message: "This tip is already inserted with a different previous block, this should never happen");
+
+				isGenesis = newTipHeight == 0;
+				if(newTipHeight == 0 && _BlockHashesByHeight[0] != tip)
+				{
+					throw new InvalidOperationException("Unexpected genesis block");
+				}
+
 				if(nopIfContainsTip)
 					return false;
 			}
-			if(!_HeightsByBlockHash.TryGetValue(previous, out var prevHeight))
+
+			int prevHeight = -1;
+			if(!isGenesis && !_HeightsByBlockHash.TryGetValue(previous, out prevHeight))
 				return false;
 			for(int i = _Height; i > prevHeight; i--)
 			{
@@ -109,6 +122,26 @@ namespace NBitcoin
 			}
 		}
 
+		public BlockLocator GetLocator(int height)
+		{
+			using(_lock.LockRead())
+			{
+				if(height > _Height || height < 0)
+					return null;
+				return GetLocatorNoLock(_Height);
+			}
+		}
+
+		public BlockLocator GetLocator(UInt256Struct blockHash)
+		{
+			using(_lock.LockRead())
+			{
+				if(!_HeightsByBlockHash.TryGetValue(blockHash, out int height))
+					return null;
+				return GetLocatorNoLock(height);
+			}
+		}
+
 		private BlockLocator GetLocatorNoLock(int height)
 		{
 			int nStep = 1;
@@ -128,6 +161,26 @@ namespace NBitcoin
 			var locators = new BlockLocator();
 			locators.Blocks = vHave;
 			return locators;
+		}
+
+		/// <summary>
+		/// Returns the first found block
+		/// </summary>
+		/// <param name="hashes">Hash to search for</param>
+		/// <returns>First found block or null</returns>
+		public SlimChainedBlock FindFork(BlockLocator blockLocator)
+		{
+			if(blockLocator == null)
+				throw new ArgumentNullException(nameof(blockLocator));
+			// Find the first block the caller has in the main chain
+			foreach(uint256 hash in blockLocator.Blocks)
+			{
+				if(_HeightsByBlockHash.TryGetValue(hash, out int height))
+				{
+					return CreateSlimBlock(height);
+				}
+			}
+			return null;
 		}
 
 		public UInt256Struct Tip
