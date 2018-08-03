@@ -494,10 +494,13 @@ namespace NBitcoin.Protocol
 				catch(Exception ex)
 				{
 					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnSendingMessage)", ex.InnerException), false);
+					UncaughtException?.Invoke(this, ex);
 				}
 			}
 		}
 
+		public delegate void NodeExceptionDelegate(Node sender, Exception ex);
+		public event NodeExceptionDelegate UncaughtException;
 
 		private void FireFilters(IEnumerator<INodeFilter> enumerator, IncomingMessage message)
 		{
@@ -511,6 +514,7 @@ namespace NBitcoin.Protocol
 				catch(Exception ex)
 				{
 					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnReceivingMessage)", ex.InnerException), false);
+					UncaughtException?.Invoke(this, ex);
 				}
 			}
 		}
