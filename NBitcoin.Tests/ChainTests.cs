@@ -82,14 +82,14 @@ namespace NBitcoin.Tests
 
 			var chain2 = new SlimChain(RandomUInt256());
 			var ms = new MemoryStream();
-			chain.Save(ms).GetAwaiter().GetResult();
+			chain.Save(ms);
 			ms.Position = 0;
 			// Not good genesis
-			Assert.Throws<InvalidOperationException>(() => chain2.Load(ms).GetAwaiter().GetResult());
+			Assert.Throws<InvalidOperationException>(() => chain2.Load(ms));
 
 			chain2 = new SlimChain(b0);
 			ms.Position = 0;
-			chain2.Load(ms).GetAwaiter().GetResult();
+			chain2.Load(ms);
 			Assert.Equal(chain.Tip, chain2.Tip);
 		}
 
