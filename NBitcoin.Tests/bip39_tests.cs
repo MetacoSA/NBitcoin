@@ -84,6 +84,25 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		public void CanReturnTheListOfWords()
+		{
+			var lang = Wordlist.English;
+			var words = lang.GetWords();
+			int i;
+			foreach(var word in words)
+			{
+				Assert.True(lang.WordExists(word, out i));
+				Assert.True(i >=0 );
+			}
+
+			var modifiedWord = words[0];
+			words[0] = "modified";
+			Assert.True(lang.WordExists(modifiedWord, out i));
+			Assert.True(i == 0 );
+			Assert.False(lang.WordExists(words[0], out i));
+			Assert.True(i == -1);
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

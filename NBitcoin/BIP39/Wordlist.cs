@@ -347,6 +347,11 @@ namespace NBitcoin
 			return _Name;
 		}
 
+		public string[] GetWords()
+		{
+			return (string[])_words.Clone();
+		}
+
 		public string[] GetWords(int[] indices)
 		{
 			return
