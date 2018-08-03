@@ -234,6 +234,69 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
+		public void CanHandshakeWithSeveralTemplateBehaviors()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode(true);
+				node.Generate(101);
+				AddressManager manager = new AddressManager();
+				manager.Add(new NetworkAddress(node.NodeEndpoint), IPAddress.Loopback);
+
+				var chain = new SlimChain(builder.Network.GenesisHash);
+				NodesGroup group = new NodesGroup(builder.Network, new NodeConnectionParameters()
+				{
+					Services = NodeServices.Nothing,
+					IsRelay = true,
+					TemplateBehaviors =
+				{
+					new AddressManagerBehavior(manager)
+					{
+						PeersToDiscover = 1,
+						Mode = AddressManagerBehaviorMode.None
+					},
+					new SlimChainBehavior(chain),
+					new PingPongBehavior()
+				}
+				});
+				group.AllowSameGroup = true;
+				group.MaximumNodeConnection = 1;
+				var connecting = WaitConnected(group);
+				try
+				{
+
+					group.Connect();
+					connecting.GetAwaiter().GetResult();
+					Eventually(() =>
+					{
+						Assert.Equal(101, chain.Height);
+					});
+				}
+				finally
+				{
+					group.Disconnect();
+				}
+			}
+		}
+		private static async Task WaitConnected(NodesGroup group)
+		{
+			TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+			EventHandler<NodeEventArgs> waitingConnected = null;
+			waitingConnected = (a, b) =>
+			{
+				tcs.TrySetResult(true);
+				group.ConnectedNodes.Added -= waitingConnected;
+			};
+			group.ConnectedNodes.Added += waitingConnected;
+			CancellationTokenSource cts = new CancellationTokenSource(5000);
+			using(cts.Token.Register(() => tcs.TrySetCanceled()))
+			{
+				await tcs.Task;
+			}
+		}
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
 		public void CanGetMerkleRoot()
 		{
 			using(var builder = NodeBuilderEx.Create())

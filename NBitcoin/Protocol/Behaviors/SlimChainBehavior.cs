@@ -53,29 +53,33 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void Intercept(IncomingMessage message, Action act)
 		{
-			message.Message.IfPayloadIs<HeadersPayload>(headers =>
+			if(message.Node.State == NodeState.HandShaked)
 			{
-				bool updated = false;
-				foreach(var h in headers.Headers)
+				message.Message.IfPayloadIs<HeadersPayload>(headers =>
 				{
-					updated |= AddToChain(h);
-				}
-				if(updated)
-				{
-					message.Node.SendMessageAsync(new GetHeadersPayload()
+					bool updated = false;
+					foreach(var h in headers.Headers)
 					{
-						BlockLocators = Chain.GetTipLocator()
-					});
-				}
-			});
+						updated |= AddToChain(h);
+					}
+					if(updated)
+					{
+						message.Node.SendMessageAsync(new GetHeadersPayload()
+						{
+							BlockLocators = Chain.GetTipLocator()
+						});
+					}
+				});
 
-			message.Message.IfPayloadIs<InvPayload>(invs =>
-			{
-				var needSync = invs.Where(v => v.Type == InventoryType.MSG_BLOCK)
-					.Any(b => !_Chain.Contains(b.Hash));
-				if(needSync)
-					TrySync();
-			});
+				message.Message.IfPayloadIs<InvPayload>(invs =>
+				{
+					var needSync = invs.Where(v => v.Type == InventoryType.MSG_BLOCK)
+						.Any(b => !_Chain.Contains(b.Hash));
+					if(needSync)
+						TrySync();
+				});
+			}
+			act();
 		}
 
 		private bool AddToChain(BlockHeader blockHeader)
