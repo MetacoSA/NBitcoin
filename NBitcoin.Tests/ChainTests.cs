@@ -55,7 +55,11 @@ namespace NBitcoin.Tests
 
 			Assert.True(chain.TrySetTip(b2, b1));
 			Assert.Throws<ArgumentException>(() => chain.TrySetTip(b1, b2)); // Incoherent
-			Assert.False(chain.TrySetTip(b0, b1, true)); // Can't replace the genesis
+			Assert.False(chain.TrySetTip(b0, b1, true));
+			Assert.True(chain.TrySetTip(b0, b1));
+			Assert.Equal(0, chain.Height);
+			Assert.True(chain.TrySetTip(b1, b0, true));
+			Assert.True(chain.TrySetTip(b2, b1));
 
 			var b3 = RandomUInt256();
 			var block = chain.GetBlock(b2);
