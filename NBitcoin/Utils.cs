@@ -748,7 +748,7 @@ namespace NBitcoin
 			}
 		}
 #if HAS_SPAN
-		public static uint ToUInt32(Span<byte> value, int index, bool littleEndian)
+		public static uint ToUInt32(ReadOnlySpan<byte> value, int index, bool littleEndian)
 		{
 			if(littleEndian)
 			{

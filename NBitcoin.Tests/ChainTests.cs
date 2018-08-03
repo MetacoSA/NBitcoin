@@ -29,6 +29,70 @@ namespace NBitcoin.Tests
 			Assert.True(clone.Tip == fork2);
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanBuildSlimChain()
+		{
+			var b0 = RandomUInt256();
+			SlimChain chain = new SlimChain(b0);
+			var b1 = RandomUInt256();
+			Assert.Throws<ArgumentException>(() => chain.TrySetTip(b0, b0));
+			Assert.True(chain.TrySetTip(b1, b0));
+			var b2 = RandomUInt256();
+			Assert.True(chain.TrySetTip(b2, b1));
+			Assert.False(chain.TrySetTip(b2, b1));
+			Assert.Equal(b0, chain.Genesis);
+			Assert.Equal(b2, chain.Tip);
+			Assert.True(chain.Contains(b2));
+			Assert.Equal(2, chain.Height);
+			Assert.False(chain.TrySetTip(b1, b0, true));
+			Assert.True(chain.TrySetTip(b1, b0, false));
+			Assert.Equal(b1, chain.Tip);
+			Assert.False(chain.TryGetHeight(b2, out int height));
+			Assert.False(chain.Contains(b2));
+			Assert.True(chain.TryGetHeight(b1, out height));
+			Assert.Equal(1, height);
+
+			Assert.True(chain.TrySetTip(b2, b1));
+			Assert.Throws<ArgumentException>(() => chain.TrySetTip(b1, b2)); // Incoherent
+			Assert.False(chain.TrySetTip(b0, b1, true)); // Can't replace the genesis
+
+			var b3 = RandomUInt256();
+			var block = chain.GetBlock(b2);
+			Assert.Equal(b2, block.Hash.ToUInt256Struct());
+			Assert.Equal(b1, block.Previous.ToUInt256Struct());
+			Assert.Equal(2, block.Height);
+			Assert.Null(chain.GetBlock(b3));
+
+			block = chain.GetBlock(2);
+			Assert.Equal(b2, block.Hash.ToUInt256Struct());
+			Assert.Equal(b1, block.Previous.ToUInt256Struct());
+			Assert.Equal(2, block.Height);
+			Assert.Null(chain.GetBlock(3));
+			Assert.Null(chain.GetBlock(-1));
+
+			block = chain.GetBlock(0);
+			Assert.Equal(b0, block.Hash.ToUInt256Struct());
+			Assert.Null(block.Previous);
+			Assert.Equal(0, block.Height);
+
+			var chain2 = new SlimChain(RandomUInt256());
+			var ms = new MemoryStream();
+			chain.Save(ms).GetAwaiter().GetResult();
+			ms.Position = 0;
+			// Not good genesis
+			Assert.Throws<InvalidOperationException>(() => chain2.Load(ms).GetAwaiter().GetResult());
+
+			chain2 = new SlimChain(b0);
+			ms.Position = 0;
+			chain2.Load(ms).GetAwaiter().GetResult();
+			Assert.Equal(chain.Tip, chain2.Tip);
+		}
+
+		private UInt256Struct RandomUInt256()
+		{
+			return new UInt256Struct(RandomUtils.GetUInt256());
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

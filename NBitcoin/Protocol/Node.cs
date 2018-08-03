@@ -476,7 +476,6 @@ namespace NBitcoin.Protocol
 			FireFilters(enumerator, message);
 		}
 
-
 		private void OnSendingMessage(Payload payload, Action final)
 		{
 			var enumerator = Filters.Concat(new[] { new ActionFilter(null, (n, p, a) => final()) }).GetEnumerator();
@@ -1238,6 +1237,20 @@ namespace NBitcoin.Protocol
 		}
 
 		/// <summary>
+		/// Get the chain of block hashes from the peer (thread safe)
+		/// </summary>
+		/// <param name="hashStop">Location until which synchronization should be stopped (default: null)</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>The chain of headers</returns>
+		public async Task<SlimChain> GetSlimChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			SlimChain chain = new SlimChain(Network.GenesisHash);
+			await SynchronizeSlimChain(chain, hashStop, cancellationToken);
+			return chain;
+		}
+
+
+		/// <summary>
 		/// Get the chain of headers from the peer (thread safe)
 		/// </summary>
 		/// <param name="hashStop">The highest block wanted</param>
@@ -1376,6 +1389,32 @@ namespace NBitcoin.Protocol
 		public IEnumerable<ChainedBlock> SynchronizeChain(ChainBase chain, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			return SynchronizeChain(chain, new SynchronizeChainOptions() { HashStop = hashStop }, cancellationToken);
+		}
+
+		/// <summary>
+		/// Synchronize a given SlimChain to the tip of this node if its height is higher.
+		/// </summary>
+		/// <param name="chain">The chain to synchronize</param>
+		/// <param name="hashStop">The location until which it synchronize</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>Task which finish when complete</returns>
+		public async Task SynchronizeSlimChain(SlimChain chain, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			if(chain == null)
+				throw new ArgumentNullException(nameof(chain));
+			AssertState(NodeState.HandShaked, cancellationToken);
+			using(var listener = this.CreateListener().OfType<HeadersPayload>())
+			{
+				var locator = chain.GetTipLocator();
+				await SendMessageAsync(new GetHeadersPayload(locator) { HashStop = hashStop });
+				var headers = listener.ReceivePayload<HeadersPayload>(cancellationToken);
+				if(headers.Headers.Count == 0)
+					return;
+				foreach(var header in headers.Headers)
+				{
+					chain.TrySetTip(header.GetHash(), header.HashPrevBlock, false);
+				}
+			}
 		}
 
 		public IEnumerable<Block> GetBlocks(SynchronizeChainOptions synchronizeChainOptions, CancellationToken cancellationToken = default(CancellationToken))
