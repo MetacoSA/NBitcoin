@@ -162,7 +162,9 @@ namespace NBitcoin
 
 		public override string ToString()
 		{
-			return Encoder.EncodeData(ToBytes().Reverse().ToArray());
+			var bytes = ToBytes();
+			Array.Reverse(bytes);
+			return Encoder.EncodeData(bytes);
 		}
 
 		public uint256(ulong b)
@@ -175,6 +177,18 @@ namespace NBitcoin
 			pn5 = 0;
 			pn6 = 0;
 			pn7 = 0;
+		}
+
+		public uint256(UInt256Struct value)
+		{
+			pn0 = value.pn0;
+			pn1 = value.pn1;
+			pn2 = value.pn2;
+			pn3 = value.pn3;
+			pn4 = value.pn4;
+			pn5 = value.pn5;
+			pn6 = value.pn6;
+			pn7 = value.pn7;
 		}
 
 		public uint256(byte[] vch, bool lendian = true) : this(vch, 0, vch.Length, lendian)
@@ -208,7 +222,7 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
-		public uint256(Span<byte> bytes)
+		public uint256(ReadOnlySpan<byte> bytes)
 		{
 			if(bytes.Length != WIDTH_BYTE)
 			{
@@ -241,7 +255,8 @@ namespace NBitcoin
 			if(str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				str = str.Substring(2);
 
-			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
+			var bytes = Encoder.DecodeData(str);
+			Array.Reverse(bytes);
 			if(bytes.Length != WIDTH_BYTE)
 				throw new FormatException("Invalid hex length");
 			pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
@@ -264,7 +279,13 @@ namespace NBitcoin
 		{
 			var item = obj as uint256;
 			if(item == null)
-				return false;
+			{
+				if(obj is UInt256Struct obj2)
+					return new UInt256Struct(this).Equals(obj2);
+				else
+					return false;
+			}
+
 			bool equals = true;
 			equals &= pn0 == item.pn0;
 			equals &= pn1 == item.pn1;
@@ -353,6 +374,11 @@ namespace NBitcoin
 			return 0;
 		}
 
+		public static implicit operator uint256(UInt256Struct value)
+		{
+			return new uint256(value);
+		}
+
 		public static bool operator !=(uint256 a, uint256 b)
 		{
 			return !(a == b);
@@ -420,6 +446,11 @@ namespace NBitcoin
 		public MutableUint256 AsBitcoinSerializable()
 		{
 			return new MutableUint256(this);
+		}
+
+		public UInt256Struct ToUInt256Struct()
+		{
+			return new UInt256Struct(this);
 		}
 
 		public int GetSerializeSize(int nType = 0, uint? protocolVersion = null)

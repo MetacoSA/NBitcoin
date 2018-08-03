@@ -14,6 +14,7 @@ using NBitcoin.DataEncoders;
 using System.Net.Sockets;
 using NBitcoin.Protocol.Behaviors;
 using System.Diagnostics;
+using Xunit.Sdk;
 
 namespace NBitcoin.Tests
 {
@@ -370,6 +371,56 @@ namespace NBitcoin.Tests
 					n1.Behaviors.Find<ChainBehavior>().SharedState.HighestValidatedPoW = chain1.GetBlock(300);
 					chain1 = n2.GetChain(rpc.GetBlockHash(499));
 					Assert.True(chain1.Height == 300);
+				}
+			}
+		}
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
+		public async Task CanMaintainChainWithSlimChainBehavior()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var nodeClient = builder.CreateNode(true).CreateNodeClient();
+				builder.Nodes[0].Generate(300);
+				var rpc = builder.Nodes[0].CreateRPCClient();
+				var slimChain = await nodeClient.GetSlimChain(rpc.GetBlockHash(200));
+				Assert.True(slimChain.Height == 200);
+
+				var node2 = builder.CreateNode(true);
+				var nodeClient2 = node2.CreateNodeClient();
+				var rpc2 = node2.CreateRPCClient();
+				rpc2.Generate(600);
+
+				await nodeClient2.SynchronizeSlimChain(slimChain);
+				Assert.Equal(slimChain.Tip, rpc2.GetBestBlockHash().ToUInt256Struct());
+
+				nodeClient.Behaviors.Add(new SlimChainBehavior(slimChain));
+
+				Eventually(() =>
+				{
+					Assert.Equal(slimChain.Tip, rpc.GetBestBlockHash().ToUInt256Struct());
+				});
+				node2.Sync(builder.Nodes[0]);
+				Eventually(() =>
+				{
+					Assert.Equal(slimChain.Tip, rpc2.GetBestBlockHash().ToUInt256Struct());
+				});
+			}
+		}
+		private void Eventually(Action act)
+		{
+			CancellationTokenSource cts = new CancellationTokenSource(30000);
+			while(true)
+			{
+				try
+				{
+					act();
+					break;
+				}
+				catch(XunitException) when(!cts.Token.IsCancellationRequested)
+				{
+					cts.Token.WaitHandle.WaitOne(500);
 				}
 			}
 		}
