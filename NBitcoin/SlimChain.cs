@@ -128,7 +128,7 @@ namespace NBitcoin
 			{
 				if(height > _Height || height < 0)
 					return null;
-				return GetLocatorNoLock(_Height);
+				return GetLocatorNoLock(height);
 			}
 		}
 

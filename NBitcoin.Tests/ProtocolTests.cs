@@ -440,14 +440,14 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
-		public async Task CanMaintainChainWithSlimChainBehavior()
+		public void CanMaintainChainWithSlimChainBehavior()
 		{
 			using(var builder = NodeBuilderEx.Create())
 			{
 				var nodeClient = builder.CreateNode(true).CreateNodeClient();
 				builder.Nodes[0].Generate(300);
 				var rpc = builder.Nodes[0].CreateRPCClient();
-				var slimChain = await nodeClient.GetSlimChain(rpc.GetBlockHash(200));
+				var slimChain = nodeClient.GetSlimChain(rpc.GetBlockHash(200));
 				Assert.True(slimChain.Height == 200);
 
 				var node2 = builder.CreateNode(true);
@@ -455,7 +455,7 @@ namespace NBitcoin.Tests
 				var rpc2 = node2.CreateRPCClient();
 				rpc2.Generate(600);
 
-				await nodeClient2.SynchronizeSlimChain(slimChain);
+				nodeClient2.SynchronizeSlimChain(slimChain);
 				Assert.Equal(slimChain.Tip, rpc2.GetBestBlockHash().ToUInt256Struct());
 
 				nodeClient.Behaviors.Add(new SlimChainBehavior(slimChain));
