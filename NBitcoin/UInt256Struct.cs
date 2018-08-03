@@ -70,7 +70,7 @@ namespace NBitcoin
 		public UInt256Struct(uint256 value)
 		{
 			if(value == null)
-				throw new ArgumentNullException(nameof(value));
+				value = uint256.Zero;
 			pn0 = value.pn0;
 			pn1 = value.pn1;
 			pn2 = value.pn2;
