@@ -241,7 +241,7 @@ namespace NBitcoin
 			}
 		}
 
-		public async Task Save(Stream output)
+		public void Save(Stream output)
 		{
 			using(_lock.LockRead())
 			{
@@ -249,12 +249,12 @@ namespace NBitcoin
 				for(int i = 0; i <= _Height; i++)
 				{
 					_BlockHashesByHeight[i].ToBytes(bytes);
-					await output.WriteAsync(bytes, 0, UInt256Struct.Length);
+					output.Write(bytes, 0, UInt256Struct.Length);
 				}
 			}
 		}
 
-		public async Task Load(Stream input)
+		public void Load(Stream input)
 		{
 			using(_lock.LockWrite())
 			{
@@ -262,7 +262,7 @@ namespace NBitcoin
 				bool prevSet = false;
 				UInt256Struct prev = _BlockHashesByHeight[0];
 
-				while(await input.ReadAsync(bytes, 0, UInt256Struct.Length) == UInt256Struct.Length)
+				while(input.Read(bytes, 0, UInt256Struct.Length) == UInt256Struct.Length)
 				{
 					UInt256Struct tip = new UInt256Struct(bytes);
 					if(prevSet)
