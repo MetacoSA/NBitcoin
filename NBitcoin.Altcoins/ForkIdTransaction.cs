@@ -47,7 +47,7 @@ namespace NBitcoin.Altcoins
 			if(UsesForkId(nHashType))
 				nForkHashType |= ForkId << 8;
 
-			if((SupportSegwit && sigversion == HashVersion.Witness) || (UsesForkId(nHashType) && ForkId != 42))
+			if((SupportSegwit && sigversion == HashVersion.Witness) || UsesForkId(nHashType))
 			{
 				if(amount == null)
 					throw new ArgumentException("The amount of the output being signed must be provided", "amount");
@@ -178,7 +178,7 @@ namespace NBitcoin.Altcoins
 			return GetHash(stream);
 		}
 
-		private bool UsesForkId(SigHash nHashType)
+		protected virtual bool UsesForkId(SigHash nHashType)
 		{
 			return ((uint)nHashType & 0x40u) != 0;
 		}
