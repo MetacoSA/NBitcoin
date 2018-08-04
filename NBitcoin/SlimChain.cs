@@ -12,12 +12,12 @@ namespace NBitcoin
 	/// </summary>
 	public class SlimChain
 	{
-		Dictionary<UInt256Struct, int> _HeightsByBlockHash = new Dictionary<UInt256Struct, int>();
-		UInt256Struct[] _BlockHashesByHeight = new UInt256Struct[1];
+		Dictionary<uint256, int> _HeightsByBlockHash = new Dictionary<uint256, int>();
+		uint256[] _BlockHashesByHeight = new uint256[1];
 		int _Height;
 		ReaderWriterLock _lock = new ReaderWriterLock();
 
-		public SlimChain(in UInt256Struct genesis)
+		public SlimChain(uint256 genesis)
 		{
 			_BlockHashesByHeight[0] = genesis;
 			_HeightsByBlockHash.Add(genesis, 0);
@@ -32,7 +32,7 @@ namespace NBitcoin
 			}
 		}
 
-		public bool Contains(UInt256Struct blockHash)
+		public bool Contains(uint256 blockHash)
 		{
 			using(_lock.LockRead())
 			{
@@ -40,7 +40,7 @@ namespace NBitcoin
 			}
 		}
 
-		public bool TryGetHeight(UInt256Struct blockHash, out int height)
+		public bool TryGetHeight(uint256 blockHash, out int height)
 		{
 			using(_lock.LockRead())
 			{
@@ -48,13 +48,13 @@ namespace NBitcoin
 			}
 		}
 
-		public bool TryGetHash(int height, out UInt256Struct blockHash)
+		public bool TryGetHash(int height, out uint256 blockHash)
 		{
 			using(_lock.LockRead())
 			{
 				if(height > _Height || height < 0)
 				{
-					blockHash = default(UInt256Struct);
+					blockHash = default(uint256);
 					return false;
 				}
 				blockHash = _BlockHashesByHeight[height];
@@ -64,53 +64,71 @@ namespace NBitcoin
 
 		public void ResetToGenesis()
 		{
-			TrySetTip(Genesis, default(UInt256Struct));
+			TrySetTip(Genesis, null);
 		}
 
-		public bool TrySetTip(in UInt256Struct tip, in UInt256Struct previous, bool nopIfContainsTip = false)
+		/// <summary>
+		/// Set a new tip in the chain
+		/// </summary>
+		/// <param name="newTip">The new tip</param>
+		/// <param name="previous">The block hash before the new tip</param>
+		/// <param name="nopIfContainsTip">If true and the new tip is already included somewhere in the chain, do nothing</param>
+		/// <returns>True if newTip is the new tip</returns>
+		public bool TrySetTip(uint256 newTip, uint256 previous, bool nopIfContainsTip = false)
 		{
 			using(_lock.LockWrite())
 			{
-				return TrySetTipNoLock(tip, previous, nopIfContainsTip);
+				return TrySetTipNoLock(newTip, previous, nopIfContainsTip);
 			}
 		}
 
-		private bool TrySetTipNoLock(UInt256Struct tip, UInt256Struct previous, bool nopIfContainsTip)
+		private bool TrySetTipNoLock(in uint256 newTip, in uint256 previous, bool nopIfContainsTip)
 		{
-			if(tip == previous)
-				throw new ArgumentException(message: "tip should be different from previous");
-			if(tip == _BlockHashesByHeight[_Height])
-				return false;
+			if(newTip == null)
+				throw new ArgumentNullException(nameof(newTip));
+			if(newTip == previous)
+				throw new ArgumentException(message: "newTip should be different from previous");
 
-			bool isGenesis = false;
-			if(_HeightsByBlockHash.TryGetValue(tip, out int newTipHeight))
+			if(newTip == _BlockHashesByHeight[_Height])
+			{
+				if(newTip != _BlockHashesByHeight[0] && _BlockHashesByHeight[_Height - 1] != previous)
+					throw new ArgumentException(message: "newTip is already inserted with a different previous block, this should never happen");
+				return true;
+			}
+
+			if(_HeightsByBlockHash.TryGetValue(newTip, out int newTipHeight))
 			{
 				if(newTipHeight - 1 >= 0 && _BlockHashesByHeight[newTipHeight - 1] != previous)
-					throw new ArgumentException(message: "This tip is already inserted with a different previous block, this should never happen");
+					throw new ArgumentException(message: "newTip is already inserted with a different previous block, this should never happen");
 
-				isGenesis = newTipHeight == 0;
-				if(newTipHeight == 0 && _BlockHashesByHeight[0] != tip)
+				if(newTipHeight == 0 && _BlockHashesByHeight[0] != newTip)
 				{
 					throw new InvalidOperationException("Unexpected genesis block");
 				}
+
+				if(newTipHeight == 0 && previous != null)
+					throw new ArgumentException(message: "Genesis block should not have previous block", paramName: nameof(previous));
 
 				if(nopIfContainsTip)
 					return false;
 			}
 
+			if(previous == null && newTip != _BlockHashesByHeight[0])
+				throw new InvalidOperationException("Unexpected genesis block");
+
 			int prevHeight = -1;
-			if(!isGenesis && !_HeightsByBlockHash.TryGetValue(previous, out prevHeight))
+			if(previous != null && !_HeightsByBlockHash.TryGetValue(previous, out prevHeight))
 				return false;
 			for(int i = _Height; i > prevHeight; i--)
 			{
 				_HeightsByBlockHash.Remove(_BlockHashesByHeight[i]);
-				_BlockHashesByHeight[i] = UInt256Struct.Zero;
+				_BlockHashesByHeight[i] = null;
 			}
 			_Height = prevHeight + 1;
 			if(_BlockHashesByHeight.Length <= _Height)
 				Array.Resize(ref _BlockHashesByHeight, (int)((_Height + 100) * 1.1));
-			_BlockHashesByHeight[_Height] = tip;
-			_HeightsByBlockHash.Add(tip, _Height);
+			_BlockHashesByHeight[_Height] = newTip;
+			_HeightsByBlockHash.Add(newTip, _Height);
 			return true;
 		}
 
@@ -132,7 +150,7 @@ namespace NBitcoin
 			}
 		}
 
-		public BlockLocator GetLocator(UInt256Struct blockHash)
+		public BlockLocator GetLocator(uint256 blockHash)
 		{
 			using(_lock.LockRead())
 			{
@@ -183,7 +201,7 @@ namespace NBitcoin
 			return null;
 		}
 
-		public UInt256Struct Tip
+		public uint256 Tip
 		{
 			get
 			{
@@ -215,7 +233,7 @@ namespace NBitcoin
 			}
 		}
 
-		public SlimChainedBlock GetBlock(UInt256Struct blockHash)
+		public SlimChainedBlock GetBlock(uint256 blockHash)
 		{
 			using(_lock.LockRead())
 			{
@@ -227,10 +245,10 @@ namespace NBitcoin
 
 		private SlimChainedBlock CreateSlimBlock(int height)
 		{
-			return new SlimChainedBlock(_BlockHashesByHeight[height], height == 0 ? null : _BlockHashesByHeight[height - 1].ToUInt256(), height);
+			return new SlimChainedBlock(_BlockHashesByHeight[height], height == 0 ? null : _BlockHashesByHeight[height - 1], height);
 		}
 
-		public UInt256Struct Genesis
+		public uint256 Genesis
 		{
 			get
 			{
@@ -245,11 +263,11 @@ namespace NBitcoin
 		{
 			using(_lock.LockRead())
 			{
-				var bytes = new byte[UInt256Struct.Length];
+				var bytes = new byte[32];
 				for(int i = 0; i <= _Height; i++)
 				{
 					_BlockHashesByHeight[i].ToBytes(bytes);
-					output.Write(bytes, 0, UInt256Struct.Length);
+					output.Write(bytes, 0, 32);
 				}
 			}
 		}
@@ -258,25 +276,14 @@ namespace NBitcoin
 		{
 			using(_lock.LockWrite())
 			{
-				var bytes = new byte[UInt256Struct.Length];
-				bool prevSet = false;
-				UInt256Struct prev = _BlockHashesByHeight[0];
-
-				while(input.Read(bytes, 0, UInt256Struct.Length) == UInt256Struct.Length)
+				var bytes = new byte[32];
+				uint256 prev = null;
+				while(input.ReadBytes(32, bytes) == 32)
 				{
-					UInt256Struct tip = new UInt256Struct(bytes);
-					if(prevSet)
-					{
-						TrySetTipNoLock(tip, prev, false);
-					}
-					else if(tip == prev)
-					{
-						prevSet = true;
-					}
-					else
-					{
+					uint256 tip = new uint256(bytes);
+					if(!TrySetTipNoLock(tip, prev, false))
 						throw new InvalidOperationException("Unexpected genesis block");
-					}
+					prev = tip;
 				}
 
 			}

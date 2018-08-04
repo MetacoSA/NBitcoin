@@ -271,6 +271,27 @@ namespace NBitcoin.Tests
 					{
 						Assert.Equal(101, chain.Height);
 					});
+					var ms = new MemoryStream();
+					chain.Save(ms);
+
+					var chain2 = new SlimChain(chain.Genesis);
+					ms.Position = 0;
+					chain2.Load(ms);
+					Assert.Equal(chain.Tip, chain2.Tip);
+
+					using(var fs = new FileStream("test.slim.dat", FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024))
+					{
+						chain.Save(fs);
+						fs.Flush();
+					}
+
+					chain.ResetToGenesis();
+					using(var fs = new FileStream("test.slim.dat", FileMode.Open, FileAccess.Read, FileShare.None, 1024 * 1024))
+					{
+						chain.Load(fs);
+					}
+					Assert.Equal(101, chain2.Height);
+					chain.ResetToGenesis();
 				}
 				finally
 				{
@@ -456,18 +477,18 @@ namespace NBitcoin.Tests
 				rpc2.Generate(600);
 
 				nodeClient2.SynchronizeSlimChain(slimChain);
-				Assert.Equal(slimChain.Tip, rpc2.GetBestBlockHash().ToUInt256Struct());
+				Assert.Equal(slimChain.Tip, rpc2.GetBestBlockHash());
 
 				nodeClient.Behaviors.Add(new SlimChainBehavior(slimChain));
 
 				Eventually(() =>
 				{
-					Assert.Equal(slimChain.Tip, rpc.GetBestBlockHash().ToUInt256Struct());
+					Assert.Equal(slimChain.Tip, rpc.GetBestBlockHash());
 				});
 				node2.Sync(builder.Nodes[0]);
 				Eventually(() =>
 				{
-					Assert.Equal(slimChain.Tip, rpc2.GetBestBlockHash().ToUInt256Struct());
+					Assert.Equal(slimChain.Tip, rpc2.GetBestBlockHash());
 				});
 			}
 		}

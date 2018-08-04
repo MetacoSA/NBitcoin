@@ -179,18 +179,6 @@ namespace NBitcoin
 			pn7 = 0;
 		}
 
-		public uint256(UInt256Struct value)
-		{
-			pn0 = value.pn0;
-			pn1 = value.pn1;
-			pn2 = value.pn2;
-			pn3 = value.pn3;
-			pn4 = value.pn4;
-			pn5 = value.pn5;
-			pn6 = value.pn6;
-			pn7 = value.pn7;
-		}
-
 		public uint256(byte[] vch, bool lendian = true) : this(vch, 0, vch.Length, lendian)
 		{
 
@@ -280,10 +268,7 @@ namespace NBitcoin
 			var item = obj as uint256;
 			if(item == null)
 			{
-				if(obj is UInt256Struct obj2)
-					return new UInt256Struct(this).Equals(obj2);
-				else
-					return false;
+				return false;
 			}
 
 			bool equals = true;
@@ -374,11 +359,6 @@ namespace NBitcoin
 			return 0;
 		}
 
-		public static implicit operator uint256(UInt256Struct value)
-		{
-			return new uint256(value);
-		}
-
 		public static bool operator !=(uint256 a, uint256 b)
 		{
 			return !(a == b);
@@ -403,17 +383,22 @@ namespace NBitcoin
 		public byte[] ToBytes(bool lendian = true)
 		{
 			var arr = new byte[WIDTH_BYTE];
-			Buffer.BlockCopy(Utils.ToBytes(pn0, true), 0, arr, 4 * 0, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn1, true), 0, arr, 4 * 1, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn2, true), 0, arr, 4 * 2, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn3, true), 0, arr, 4 * 3, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn4, true), 0, arr, 4 * 4, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn5, true), 0, arr, 4 * 5, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn6, true), 0, arr, 4 * 6, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn7, true), 0, arr, 4 * 7, 4);
+			ToBytes(arr);
 			if(!lendian)
 				Array.Reverse(arr);
 			return arr;
+		}
+
+		public void ToBytes(byte[] output)
+		{
+			Buffer.BlockCopy(Utils.ToBytes(pn0, true), 0, output, 4 * 0, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn1, true), 0, output, 4 * 1, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn2, true), 0, output, 4 * 2, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn3, true), 0, output, 4 * 3, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn4, true), 0, output, 4 * 4, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn5, true), 0, output, 4 * 5, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn6, true), 0, output, 4 * 6, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn7, true), 0, output, 4 * 7, 4);
 		}
 
 #if HAS_SPAN
@@ -446,11 +431,6 @@ namespace NBitcoin
 		public MutableUint256 AsBitcoinSerializable()
 		{
 			return new MutableUint256(this);
-		}
-
-		public UInt256Struct ToUInt256Struct()
-		{
-			return new UInt256Struct(this);
 		}
 
 		public int GetSerializeSize(int nType = 0, uint? protocolVersion = null)
