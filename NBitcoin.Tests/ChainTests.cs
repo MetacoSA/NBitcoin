@@ -40,7 +40,7 @@ namespace NBitcoin.Tests
 			Assert.True(chain.TrySetTip(b1, b0));
 			var b2 = RandomUInt256();
 			Assert.True(chain.TrySetTip(b2, b1));
-			Assert.False(chain.TrySetTip(b2, b1));
+			Assert.True(chain.TrySetTip(b2, b1));
 			Assert.Equal(b0, chain.Genesis);
 			Assert.Equal(b2, chain.Tip);
 			Assert.True(chain.Contains(b2));
@@ -55,28 +55,29 @@ namespace NBitcoin.Tests
 
 			Assert.True(chain.TrySetTip(b2, b1));
 			Assert.Throws<ArgumentException>(() => chain.TrySetTip(b1, b2)); // Incoherent
-			Assert.False(chain.TrySetTip(b0, b1, true));
-			Assert.True(chain.TrySetTip(b0, b1));
+			Assert.Throws<ArgumentException>(() => chain.TrySetTip(b0, b1, true)); // Genesis block should not have previosu
+			Assert.Throws<ArgumentException>(() => chain.TrySetTip(b0, b1, false));
+			Assert.True(chain.TrySetTip(b0, null));
 			Assert.Equal(0, chain.Height);
 			Assert.True(chain.TrySetTip(b1, b0, true));
 			Assert.True(chain.TrySetTip(b2, b1));
 
 			var b3 = RandomUInt256();
 			var block = chain.GetBlock(b2);
-			Assert.Equal(b2, block.Hash.ToUInt256Struct());
-			Assert.Equal(b1, block.Previous.ToUInt256Struct());
+			Assert.Equal(b2, block.Hash);
+			Assert.Equal(b1, block.Previous);
 			Assert.Equal(2, block.Height);
 			Assert.Null(chain.GetBlock(b3));
 
 			block = chain.GetBlock(2);
-			Assert.Equal(b2, block.Hash.ToUInt256Struct());
-			Assert.Equal(b1, block.Previous.ToUInt256Struct());
+			Assert.Equal(b2, block.Hash);
+			Assert.Equal(b1, block.Previous);
 			Assert.Equal(2, block.Height);
 			Assert.Null(chain.GetBlock(3));
 			Assert.Null(chain.GetBlock(-1));
 
 			block = chain.GetBlock(0);
-			Assert.Equal(b0, block.Hash.ToUInt256Struct());
+			Assert.Equal(b0, block.Hash);
 			Assert.Null(block.Previous);
 			Assert.Equal(0, block.Height);
 
@@ -91,11 +92,12 @@ namespace NBitcoin.Tests
 			ms.Position = 0;
 			chain2.Load(ms);
 			Assert.Equal(chain.Tip, chain2.Tip);
+			Assert.Equal(2, chain2.Height);
 		}
 
-		private UInt256Struct RandomUInt256()
+		private uint256 RandomUInt256()
 		{
-			return new UInt256Struct(RandomUtils.GetUInt256());
+			return RandomUtils.GetUInt256();
 		}
 
 		[Fact]
