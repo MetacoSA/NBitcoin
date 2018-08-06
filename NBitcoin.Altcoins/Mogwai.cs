@@ -58,6 +58,7 @@ namespace NBitcoin.Altcoins
 			}
 
 		}
+#pragma warning restore CS0618 // Type or member is obsolete
 
 		protected override void PostInit()
 		{
