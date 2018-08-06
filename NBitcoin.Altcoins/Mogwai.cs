@@ -37,10 +37,6 @@ namespace NBitcoin.Altcoins
 			{
 				return new MogwaiBlockHeader();
 			}
-			public override Block CreateBlock()
-			{
-				return new MogwaiBlock(new MogwaiBlockHeader());
-			}
 		}
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -56,37 +52,12 @@ namespace NBitcoin.Altcoins
 				return output;
 			}
 
-			public override void ReadWrite(BitcoinStream stream)
-			{
-				stream.ReadWrite(ref nVersion);
-				stream.ReadWrite(ref hashPrevBlock);
-				stream.ReadWrite(ref hashMerkleRoot);
-				stream.ReadWrite(ref nTime);
-				stream.ReadWrite(ref nBits);
-				stream.ReadWrite(ref nNonce);
-			}
-
 			protected override HashStreamBase CreateHashStream()
 			{
 				return BufferedHashStream.CreateFrom(CalculateHash);
 			}
 
 		}
-
-		public class MogwaiBlock : Block
-		{
-#pragma warning disable CS0612 // Type or member is obsolete
-			public MogwaiBlock(MogwaiBlockHeader h) : base(h)
-#pragma warning restore CS0612 // Type or member is obsolete
-			{
-
-			}
-			public override ConsensusFactory GetConsensusFactory()
-			{
-				return Mogwai.Instance.Mainnet.Consensus.ConsensusFactory;
-			}
-		}
-#pragma warning restore CS0618 // Type or member is obsolete
 
 		protected override void PostInit()
 		{
