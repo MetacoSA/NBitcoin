@@ -61,7 +61,7 @@ namespace NBitcoin.Tests
 			addrman.Connected(localhost);
 
 			addr = addrman.Select();
-			Assert.True(addr.Ago < TimeSpan.FromSeconds(10.0));
+			Assert.True(addr.Ago < TimeSpan.FromSeconds(1.0));
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

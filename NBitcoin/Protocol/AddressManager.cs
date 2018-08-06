@@ -239,9 +239,8 @@ namespace NBitcoin.Protocol
 
 				return fChance;
 			}
-
-
 		}
+
 		//! total number of buckets for tried addresses
 		internal const int ADDRMAN_TRIED_BUCKET_COUNT = 256;
 
@@ -259,7 +258,6 @@ namespace NBitcoin.Protocol
 
 		//! in how many buckets for entries with new addresses a single address may occur
 		const int ADDRMAN_NEW_BUCKETS_PER_ADDRESS = 8;
-
 
 		//! how old addresses can maximally be
 		internal const int ADDRMAN_HORIZON_DAYS = 30;
@@ -1043,17 +1041,21 @@ namespace NBitcoin.Protocol
 			if(vRandom.Count == 0)
 				return null;
 
+			var rnd = new Random();
+
 			// Use a 50% chance for choosing between tried and new table entries.
 			if(nTried > 0 && (nNew == 0 || GetRandInt(2) == 0))
 			{
 				// use a tried node
 				double fChanceFactor = 1.0;
-				while(true)
-				{
+				while (true) {
 					int nKBucket = GetRandInt(ADDRMAN_TRIED_BUCKET_COUNT);
 					int nKBucketPos = GetRandInt(ADDRMAN_BUCKET_SIZE);
-					if(vvTried[nKBucket, nKBucketPos] == -1)
-						continue;
+					while(vvTried[nKBucket, nKBucketPos] == -1)
+					{
+						nKBucket = (nKBucket + rnd.Next(ADDRMAN_TRIED_BUCKET_COUNT)) % ADDRMAN_TRIED_BUCKET_COUNT;
+						nKBucketPos = (nKBucketPos + rnd.Next(ADDRMAN_BUCKET_SIZE)) % ADDRMAN_BUCKET_SIZE;
+					}
 					int nId = vvTried[nKBucket, nKBucketPos];
 					assert(mapInfo.ContainsKey(nId));
 					AddressInfo info = mapInfo[nId];
@@ -1066,12 +1068,14 @@ namespace NBitcoin.Protocol
 			{
 				// use a new node
 				double fChanceFactor = 1.0;
-				while(true)
-				{
+				while (true) {
 					int nUBucket = GetRandInt(ADDRMAN_NEW_BUCKET_COUNT);
 					int nUBucketPos = GetRandInt(ADDRMAN_BUCKET_SIZE);
-					if(vvNew[nUBucket, nUBucketPos] == -1)
-						continue;
+					while(vvNew[nUBucket, nUBucketPos] == -1)
+					{
+						nUBucket = (nUBucket + rnd.Next(ADDRMAN_NEW_BUCKET_COUNT)) % ADDRMAN_NEW_BUCKET_COUNT;
+						nUBucketPos = (nUBucketPos + rnd.Next(ADDRMAN_BUCKET_SIZE)) % ADDRMAN_BUCKET_SIZE;
+					}
 					int nId = vvNew[nUBucket, nUBucketPos];
 					assert(mapInfo.ContainsKey(nId));
 					AddressInfo info = mapInfo[nId];
