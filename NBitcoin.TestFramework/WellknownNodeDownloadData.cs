@@ -270,8 +270,8 @@ namespace NBitcoin.Tests
 					DownloadLink = "https://github.com/mogwaicoin/mogwai/releases/download/v{0}/mogwaicore-{0}-win64.zip",
 					Archive = "mogwaicore-{0}-win64.zip",
 					Executable = "mogwaicore-0.12.2/bin/mogwaid.exe",
-					Hash = "f9066a6f370109c468247d6c07b0026c66a5a57603fa90693c7e8a81e481f4f5"
-				},
+					Hash = "ee16d88bacacbfc87bc8ea8a34283b068431ad59a2abdf9b90a238b79979ae36"
+                },
 				Linux = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/mogwaicoin/mogwai/releases/download/v{0}/mogwaicore-{0}-linux64.tar.gz",
