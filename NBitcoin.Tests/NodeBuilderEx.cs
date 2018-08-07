@@ -38,8 +38,11 @@ namespace NBitcoin.Tests
 			//var builder = NodeBuilder.Create(NodeDownloadData.Ufo.v0_16_0, Altcoins.AltNetworkSets.Ufo.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Groestlcoin.v2_16_0, Altcoins.AltNetworkSets.Groestlcoin.Regtest, caller);
-
+            
+			//var builder = NodeBuilder.Create(NodeDownloadData.Mogwai.v0_12_2, Altcoins.AltNetworkSets.Mogwai.Regtest, caller);
+			
 			var builder = NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_16_0, Altcoins.AltNetworkSets.Bitcoin.Regtest, caller);
+			
 			return builder;
 		}
 	}
