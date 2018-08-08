@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -347,9 +348,9 @@ namespace NBitcoin
 			return _Name;
 		}
 
-		public string[] GetWords()
+		public ReadOnlyCollection<string> GetWords()
 		{
-			return (string[])_words.Clone();
+			return new ReadOnlyCollection<string>(_words);
 		}
 
 		public string[] GetWords(int[] indices)
