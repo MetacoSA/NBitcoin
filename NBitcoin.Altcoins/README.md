@@ -14,6 +14,7 @@ Currently supported altcoins are:
 * Polis
 * UFO
 * Viacoin
+* Zclassic
 
 ## How to use?
 
