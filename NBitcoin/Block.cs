@@ -637,7 +637,10 @@ namespace NBitcoin
 			return block;
 		}
 
-
+		public int GetWeight()
+		{
+			return this.GetSerializedSize(TransactionOptions.None) * 3 + this.GetSerializedSize(TransactionOptions.All);
+		}
 
 		public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value, DateTimeOffset now, ConsensusFactory consensusFactory)
 		{
