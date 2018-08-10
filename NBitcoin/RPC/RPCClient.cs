@@ -1207,9 +1207,19 @@ namespace NBitcoin.RPC
 			return GetRawTransactionAsync(txid, throwIfNotFound).GetAwaiter().GetResult();
 		}
 
-		public async Task<Transaction> GetRawTransactionAsync(uint256 txid, bool throwIfNotFound = true)
+		public Task<Transaction> GetRawTransactionAsync(uint256 txid, bool throwIfNotFound = true)
 		{
-			var response = await SendCommandAsync(new RPCRequest(RPCOperations.getrawtransaction, new[] { txid }), throwIfNotFound).ConfigureAwait(false);
+			return GetRawTransactionAsync(txid, null, throwIfNotFound);
+		}
+
+		public async Task<Transaction> GetRawTransactionAsync(uint256 txid, uint256 blockId, bool throwIfNotFound = true)
+		{
+			List<object> args = new List<object>(3);
+			args.Add(txid);
+			args.Add(false);
+			if(blockId != null)
+				args.Add(blockId);
+			var response = await SendCommandAsync(new RPCRequest(RPCOperations.getrawtransaction, args.ToArray()), throwIfNotFound).ConfigureAwait(false);
 			if(throwIfNotFound)
 				response.ThrowIfError();
 			if(response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
