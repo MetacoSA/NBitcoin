@@ -110,7 +110,7 @@ namespace NBitcoin.Tests
 
 		private void TestSig(ECPrivateKeyParameters key, DeterministicSigTest test)
 		{
-			var dsa = new DeterministicECDSA(GetHash(test.Hash));
+			var dsa = new DeterministicECDSA(GetHash(test.Hash), false);
 			dsa.setPrivateKey(key);
 			dsa.update(Encoding.UTF8.GetBytes(test.Message));
 			var result = dsa.sign();
