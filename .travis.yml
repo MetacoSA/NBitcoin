@@ -19,8 +19,8 @@ matrix:
 
 before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get -qq update; fi
-  - if [ $TRAVIS_OS_NAME = osx ]; then ulimit -S -n 4096; fi
+  - if [ $TRAVIS_OS_NAME = osx ]; then ulimit -S -n 4096; EXTRA_CONSTANT=-p:BuildConstants=NOCONSENSUSLIB; fi
 
 script:
-  - dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj -c Release -f netcoreapp2.1
+  - dotnet build ./NBitcoin.Tests/NBitcoin.Tests.csproj -c Release -f netcoreapp2.1  $EXTRA_CONSTANT
   - dotnet test --no-build -c Release -f netcoreapp2.1 ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false
