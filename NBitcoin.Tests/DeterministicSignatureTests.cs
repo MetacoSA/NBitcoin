@@ -327,5 +327,21 @@ namespace NBitcoin.Tests
 				new BlindSignature(BigInteger.Zero.Subtract(unblindedSignature.C), unblindedSignature.S), 
 				new Key().PubKey) );
 		}
+
+		[Fact]
+		public void Signatures_use_low_R()
+		{
+			var rnd = new Random();
+			for(var i=0; i < 100; i++)
+			{
+				var key = new Key();
+				var msgLen = rnd.Next(10, 1000);
+				var msg = new byte[msgLen];
+				rnd.NextBytes(msg);
+
+				var sig = key.Sign(Hashes.Hash256(msg));
+				Assert.True(sig.IsLowR && sig.ToDER().Length <= 70);
+			}
+		}
 	}
 }
