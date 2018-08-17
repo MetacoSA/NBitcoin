@@ -116,6 +116,14 @@ namespace NBitcoin.Crypto
 			}
 		}
 
+		public bool IsLowR
+		{
+			get
+			{
+				var rBytes = this.R.ToByteArrayUnsigned();
+				return rBytes[0] < 0x80;
+			}
+		}
 
 
 		public static bool IsValidDER(byte[] bytes)
