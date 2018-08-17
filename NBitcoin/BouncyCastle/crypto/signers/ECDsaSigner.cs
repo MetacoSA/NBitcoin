@@ -116,9 +116,8 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
 						r = p.AffineXCoord.ToBigInteger().Mod(n);
 					}
 					while(r.SignValue == 0);
-					rBytes = r.ToByteArrayUnsigned();
 				}
-				while(forceLowR && rBytes[0] >= 0x80);
+				while(forceLowR && r.ToByteArrayUnsigned()[0] >= 0x80);
 
 				s = k.ModInverse(n).Multiply(e.Add(d.Multiply(r))).Mod(n);
 			}
