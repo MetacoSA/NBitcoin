@@ -119,7 +119,7 @@ namespace NBitcoin.Tests
 			return new NodeBuilder(caller, path) { Network = network };
 		}
 
-		private static string EnsureDownloaded(NodeDownloadData downloadData)
+		public static string EnsureDownloaded(NodeDownloadData downloadData)
 		{
 			if(!Directory.Exists("TestData"))
 				Directory.CreateDirectory("TestData");

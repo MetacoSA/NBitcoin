@@ -15,7 +15,7 @@
 		<DefineConstants>$(DefineConstants);WIN;NOCONSENSUSLIB</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
-		<DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER;NOCONSENSUSLIB;HAS_SPAN</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOHTTPSERVER;HAS_SPAN;$(BuildConstants)</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
