@@ -10,6 +10,7 @@ namespace NBitcoin.Altcoins
     {
 		public static BCash BCash { get; } = BCash.Instance;
 		public static BGold BGold { get; } = BGold.Instance;
+		public static BPrivate BPrivate { get; } = BPrivate.Instance;
 		public static Dash Dash { get; } = Dash.Instance;
 		public static Dogecoin Dogecoin { get; } = Dogecoin.Instance;
 		public static Litecoin Litecoin { get; } = Litecoin.Instance;
@@ -31,6 +32,7 @@ namespace NBitcoin.Altcoins
 			yield return Dogecoin;
 			yield return BCash;
 			yield return BGold;
+			yield return BPrivate;
 			yield return Polis;
 			yield return Monacoin;
 			yield return Dash;

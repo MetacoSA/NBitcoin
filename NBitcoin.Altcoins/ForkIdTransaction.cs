@@ -178,7 +178,7 @@ namespace NBitcoin.Altcoins
 			return GetHash(stream);
 		}
 
-		private bool UsesForkId(SigHash nHashType)
+		protected virtual bool UsesForkId(SigHash nHashType)
 		{
 			return ((uint)nHashType & 0x40u) != 0;
 		}
