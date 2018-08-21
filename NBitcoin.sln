@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NBitcoin.Altcoins", "NBitco
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NBitcoin.TestFramework", "NBitcoin.TestFramework\NBitcoin.TestFramework.csproj", "{653C0F21-25FE-4B72-95AC-20D070A45415}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NBitcoin.Demo", "NBitcoin.Demo\NBitcoin.Demo.csproj", "{07F1F092-C4AB-480B-89F2-2F11127231EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{653C0F21-25FE-4B72-95AC-20D070A45415}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{653C0F21-25FE-4B72-95AC-20D070A45415}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{653C0F21-25FE-4B72-95AC-20D070A45415}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07F1F092-C4AB-480B-89F2-2F11127231EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07F1F092-C4AB-480B-89F2-2F11127231EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07F1F092-C4AB-480B-89F2-2F11127231EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07F1F092-C4AB-480B-89F2-2F11127231EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
