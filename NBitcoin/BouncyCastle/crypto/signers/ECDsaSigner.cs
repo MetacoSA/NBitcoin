@@ -103,7 +103,6 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
 			do // Generate s
 			{
 				BigInteger k;
-				byte[] rBytes = null;
 				do // Generate r
 				{
 					do 
