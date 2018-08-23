@@ -34,6 +34,32 @@ namespace NBitcoin.Tests
 				}
 			};
 
+			public NodeDownloadData v0_16_0 = new NodeDownloadData()
+			{
+				Version = "0.16.0",
+				Linux = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "e6322c69bcc974a29e6a715e0ecb8799d2d21691d683eeb8fef65fc5f6a66477"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-osx64.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "ade85a8e39de8c36a134721c3da9853a80f29a8625048e0c2a5295ca8b23a88c"
+				},
+				Windows = new NodeOSDownloadData()
+				{
+					Executable = "bitcoin-{0}/bin/bitcoind.exe",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win32.zip",
+					Archive = "bitcoin-{0}-win32.zip",
+					Hash = "60d65d6e57f42164e1c04bb5bb65156d87f0433825a1c1f1f5f6aebf5c8df424"
+				}
+			};
+
 			public NodeDownloadData v0_16_2 = new NodeDownloadData()
 			{
 				Version = "0.16.2",
