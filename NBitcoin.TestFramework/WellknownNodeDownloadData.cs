@@ -14,21 +14,21 @@ namespace NBitcoin.Tests
 				Linux = new NodeOSDownloadData()
 				{
 					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
 					Executable = "bitcoin-{0}/bin/bitcoind",
 					Hash = "2293de5682375b8edfde612d9e152b42344d25d3852663ba36f7f472b27954a4"
 				},
 				Mac = new NodeOSDownloadData()
 				{
 					Archive = "bitcoin-{0}-osx64.tar.gz",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
 					Executable = "bitcoin-{0}/bin/bitcoind",
 					Hash = "499be4f48c933d92c43468ee2853dddaba4af7e1a17f767a85023b69a21b6e77"
 				},
 				Windows = new NodeOSDownloadData()
 				{
 					Executable = "bitcoin-{0}/bin/bitcoind.exe",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-win32.zip",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win32.zip",
 					Archive = "bitcoin-{0}-win32.zip",
 					Hash = "fcf6089fc013b175e3c5e32580afb3cb4310c62d2e133e992b8a9d2e0cbbafaa"
 				}
@@ -40,23 +40,49 @@ namespace NBitcoin.Tests
 				Linux = new NodeOSDownloadData()
 				{
 					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
 					Executable = "bitcoin-{0}/bin/bitcoind",
 					Hash = "e6322c69bcc974a29e6a715e0ecb8799d2d21691d683eeb8fef65fc5f6a66477"
 				},
 				Mac = new NodeOSDownloadData()
 				{
 					Archive = "bitcoin-{0}-osx64.tar.gz",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
 					Executable = "bitcoin-{0}/bin/bitcoind",
 					Hash = "ade85a8e39de8c36a134721c3da9853a80f29a8625048e0c2a5295ca8b23a88c"
 				},
 				Windows = new NodeOSDownloadData()
 				{
 					Executable = "bitcoin-{0}/bin/bitcoind.exe",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-win32.zip",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win32.zip",
 					Archive = "bitcoin-{0}-win32.zip",
 					Hash = "60d65d6e57f42164e1c04bb5bb65156d87f0433825a1c1f1f5f6aebf5c8df424"
+				}
+			};
+
+			public NodeDownloadData v0_16_2 = new NodeDownloadData()
+			{
+				Version = "0.16.2",
+				Linux = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "71f217e30e98d5ccc1fb574b9499595e87e118e596278fad5507a7b84650859c"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-osx64.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "64e7d96d0497112aa808ff94e63eb18bff1535cf6237e7c1d602f0fca167e863"
+				},
+				Windows = new NodeOSDownloadData()
+				{
+					Executable = "bitcoin-{0}/bin/bitcoind.exe",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win32.zip",
+					Archive = "bitcoin-{0}-win32.zip",
+					Hash = "b03a249811f0e889084b29b9ee8427faea641259d04e917db776973c0124631e"
 				}
 			};
 		}

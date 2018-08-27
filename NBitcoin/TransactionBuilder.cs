@@ -858,11 +858,11 @@ namespace NBitcoin
 			return this;
 		}
 
-		Money GetDust()
+		internal Money GetDust()
 		{
 			return GetDust(new Script(new byte[25]));
 		}
-		Money GetDust(Script script)
+		internal Money GetDust(Script script)
 		{
 			if(StandardTransactionPolicy == null || StandardTransactionPolicy.MinRelayTxFee == null)
 				return Money.Zero;
@@ -1167,8 +1167,22 @@ namespace NBitcoin
 				{
 					builderList.Remove(builderList[i]);
 					var newTxOut = _SubstractFeeBuilder._TxOut.Clone();
+					var minimumTxOutValue = (DustPrevention ? GetDust(newTxOut.ScriptPubKey) : Money.Zero);
 					newTxOut.Value -= fees;
-					builderList.Insert(i, new SendBuilder(newTxOut).Build);
+					if(newTxOut.Value < Money.Zero)
+					{
+						throw new NotEnoughFundsException("Can't substract fee from this output because the amount is too small",
+						group.Name,
+						-newTxOut.Value
+						);
+					}
+					if(newTxOut.Value >= minimumTxOutValue)
+						builderList.Insert(i, new SendBuilder(newTxOut).Build);
+					else
+					{
+						fees += newTxOut.Value;
+						builderList.Insert(i, _ => newTxOut.Value);
+					}
 				}
 			}
 			////////////////////////////////////////////////////////

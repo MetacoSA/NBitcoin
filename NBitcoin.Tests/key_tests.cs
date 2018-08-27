@@ -217,7 +217,6 @@ namespace NBitcoin.Tests
 			Assert.True(addr2C.Hash == pubkey2C.Hash);
 
 
-
 			for(int n = 0; n < 16; n++)
 			{
 				string strMsg = String.Format("Very secret message {0}: 11", n);
@@ -292,9 +291,13 @@ namespace NBitcoin.Tests
 				Assert.True(rkey2.ToHex() == pubkey2.ToHex());
 				Assert.True(rkey1C.ToHex() == pubkey1C.ToHex());
 				Assert.True(rkey2C.ToHex() == pubkey2C.ToHex());
+
+				Assert.True(sign1.IsLowR && sign1.ToDER().Length <= 70);
+				Assert.True(sign2.IsLowR && sign2.ToDER().Length <= 70);
+				Assert.True(sign1C.IsLowR && sign1C.ToDER().Length <= 70);
+				Assert.True(sign2C.IsLowR && sign2C.ToDER().Length <= 70);
 			}
 		}
-
 
 		[Fact]
 		[Trait("Core", "Core")]
