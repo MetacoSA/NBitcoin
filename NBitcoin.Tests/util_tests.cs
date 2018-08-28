@@ -199,7 +199,21 @@ namespace NBitcoin.Tests
 			var genesis = Network.Main.GetGenesis();
 			Assert.True(genesis.GetHash() < genesis.Header.Bits.ToUInt256());
 			Assert.True(Target.Difficulty1 == Target.Difficulty1);
+
+
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void Target_Should_Roundtrip_Implicit_Uint()
+		{
+			var orig = 0U;
+			var target = (Target)orig;
+			var roundtripped = (uint)target;
+
+			Assert.Equal(orig, roundtripped);
+		}
+
 
 		[Fact]
 		[Trait("Core", "Core")]
