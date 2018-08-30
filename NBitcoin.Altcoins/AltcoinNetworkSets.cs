@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,12 +20,13 @@ namespace NBitcoin.Altcoins
 		public static Monacoin Monacoin { get; } = Monacoin.Instance;
 		public static Ufo Ufo { get; } = Ufo.Instance;
 		public static Bitcoin Bitcoin { get; } = Bitcoin.Instance;
-
+		public static Bitcore Bitcore { get; } = Bitcore.Instance;
 		public static Groestlcoin Groestlcoin { get; } = Groestlcoin.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
 			yield return Bitcoin;
+			yield return Bitcore;
 			yield return Litecoin;
 			yield return Feathercoin;
 			yield return Viacoin;

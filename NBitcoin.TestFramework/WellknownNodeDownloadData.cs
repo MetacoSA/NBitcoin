@@ -372,6 +372,35 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class BitcoreNodeDownloadData
+		{
+			public NodeDownloadData v0_15_1 = new NodeDownloadData()
+			{
+				Version = "0.15.1.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/Windows.zip",
+					Archive = "Windows.zip",
+					Executable = "Windows/bitcored.exe",
+					Hash = "9d884f0a9221060172101997e15d58ca63db88ad51907fe89b31b55348b10f97"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/linux.Ubuntu.16.04.regtest-noqt.tar.gz",
+					Archive = "linux.Ubuntu.16.04.regtest-noqt.tar.gz",
+					Executable = "bitcored",
+					Hash = "ecbffb6ed6bbe1209e78246c1ae6e6f55e375c7ffbd82fdc40ff95db350ce5c6"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/bitcore-qt.dmg",
+					Archive = "bitcore-qt.dmg",
+					Executable = "bitcored",
+					Hash = "929005100984972bb66253278826af4698720d1f01fd6429ac3ab2b19f811f97"
+				}
+			};
+		}
+
 		public class MonacoinNodeDownloadData
 		{
 			public NodeDownloadData v0_15_1 = new NodeDownloadData()
@@ -525,5 +554,10 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new UfoNodeDownloadData();
+
+		public static BitcoreNodeDownloadData Bitcore
+		{
+			get; set;
+		} = new BitcoreNodeDownloadData();
 	}
 }
