@@ -41,6 +41,8 @@ namespace NBitcoin.Tests
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Mogwai.v0_12_2, Altcoins.AltNetworkSets.Mogwai.Regtest, caller);
 			var builder = NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_16_2, Altcoins.AltNetworkSets.Bitcoin.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Bitcore.v0_15_1, Altcoins.Bitcore.Instance.Regtest, caller);
+			
 			return builder;
 		}
 	}
