@@ -117,7 +117,7 @@ NBitcoin is licensed under the [MIT License](https://opensource.org/licenses/MIT
 
 * [BlockExplorer](http://github.com/stratisproject/BlockExplorer): A set of projects that can index and query stratis blockchains on the fullnode. 
 
-* [BTCPay](http://github.com/btcpayserver/btcpayserver): A cross platform, self-hosted server compatible with Bitpay API 
+* [BTCPay Server](http://github.com/btcpayserver/btcpayserver): A cross platform, self-hosted server compatible with Bitpay API 
 
 * [NTumbleBit](http://github.com/NTumbleBit/NTumbleBit): TumbleBit Implementation in .NET Core 
 
@@ -131,9 +131,7 @@ NBitcoin is licensed under the [MIT License](https://opensource.org/licenses/MIT
 
 * [Nako](http://github.com/CoinVault/Nako): A Bitcoin and Altcoin server api that indexes blockchain transactions and addresses 
 
-* [NBXplorer](http://github.com/dgarage/NBXplorer): NBitcoin Explorer 
-
-* [NElements](http://github.com/NicolasDorier/NElements): Adapting NBitcoin for NElements 
+* [NBXplorer](http://github.com/dgarage/NBXplorer): A minimalist UTXO tracker for HD Wallets with bitcoin based altcoin support 
 
 * [UnitCurrency](http://github.com/unitcurrency/unitcurrency): UnitCoin - a hybrid scrypt PoW + PoS based cryptocurrency.
 
@@ -141,6 +139,7 @@ NBitcoin is licensed under the [MIT License](https://opensource.org/licenses/MIT
 
 * [BreezeProject](http://github.com/BreezeHub/BreezeProject): Breeze Masternode and Wallet with Breeze Privacy Protocol 
 
+* [Geewallet](https://github.com/diginex/geewallet): a minimalistic and pragmatist lightweight wallet for people that want to hold the most important cryptocurrencies in the same application without hassle
 
 ## Useful doc :
 
