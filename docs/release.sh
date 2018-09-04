@@ -18,7 +18,7 @@ git clone https://github.com/Kukks/NBitcoin.git --branch gh-pages $TEMP_REPO_DIR
 
 echo "Clear repo directory"
 cd $TEMP_REPO_DIR
-git rm -r *
+git rm -r --ignore-unmatch *
 
 echo "Copy documentation into the repo"
 cp -r $SOURCE_DIR/docs/_site/* .
