@@ -14,13 +14,22 @@ branches:
   # whitelist
   only:
     - master
-
+    - feature/docs
 #---------------------------------#
 #    environment configuration    #
 #---------------------------------#
+environment:
+  github_access_token:
+    secure: /FamLw/uvGi0NNcmbw7tG8mNWgGK/bXTy6bS+KtaUb5Ztc9Qgy0Oxiz5BgBKzB4m   
+  github_email:
+    secure: p5VMsRKubRBjE6cqWpaDhNKEJPh0Z6Gddx2K//zAfus=
+  github_user: Kukks
+
 
 image: Visual Studio 2017
 clone_folder: c:\projects\nbitcoin
+
+clone_depth: 1
 
 configuration:
 - Release
@@ -66,6 +75,21 @@ test_script:
       dotnet test -c Release ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false -f net461
       Write-Host "[$env:configuration] FINISHED dotnet test" -foregroundcolor "magenta"
       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
+#---------------------------------#
+#      docs configuration         #
+#---------------------------------#     
+
+on_success: 
+install:
+- cinst docfx
+- dotnet restore
+- dotnet build --configuration Release
+- dotnet test test/MyProject.UnitTests/MyProject.UnitTests.csproj --configuration Release
+- git config --global credential.helper store
+- ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"
+- git config --global user.email %github_email%
+- git config --global user.name %github_user%
+- bash ./docs/releaseDocs.sh   
 #---------------------------------#
 #      artifacts configuration    #
 #---------------------------------#
