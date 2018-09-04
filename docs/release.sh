@@ -6,7 +6,7 @@ export VisualStudioVersion="15.0"
 
 SOURCE_DIR=$PWD
 TEMP_REPO_DIR=$PWD/../NBitcoin-gh-pages
-docfx ./docfx.json
+docfx ./docs/docfx.json
 
 
 echo "Removing temporary doc directory $TEMP_REPO_DIR"
