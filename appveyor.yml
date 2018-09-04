@@ -80,7 +80,6 @@ test_script:
 #---------------------------------#     
 
 on_success: 
-install:
 - cinst docfx
 - git config --global credential.helper store
 - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"
