@@ -14,7 +14,6 @@ branches:
   # whitelist
   only:
     - master
-    - feature/docs
 #---------------------------------#
 #    environment configuration    #
 #---------------------------------#
