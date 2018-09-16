@@ -922,6 +922,10 @@ namespace NBitcoin.RPC
 				}
 			});
 
+
+
+
+
 			var blockchainInfo = new BlockchainInfo
 			{
 				Chain = Network.GetNetwork(result.Value<string>("chain")),
@@ -932,25 +936,28 @@ namespace NBitcoin.RPC
 				MedianTime = result.Value<ulong>("mediantime"),
 				VerificationProgress = result.Value<float>("verificationprogress"),
 				InitialBlockDownload = result.Value<bool>("initialblockdownload"),
-				ChainWork = new uint256(result.Value<string>("chainwork")), 
+				ChainWork = new uint256(result.Value<string>("chainwork")),
 				SizeOnDisk = result.Value<ulong>("size_on_disk"),
 				Pruned = result.Value<bool>("pruned"),
-				SoftForks = result["softforks"].Select(x=> 
-					new BlockchainInfo.SoftFork {
-						Bip = (string)(x["id"]),
-						Version = (int)(x["version"]),
-						RejectStatus = bool.Parse((string)(x["reject"]["status"]))
+				SoftForks = result["softforks"]?.Select(x =>
+					new BlockchainInfo.SoftFork
+					{
+						Bip = (string) (x["id"]),
+						Version = (int) (x["version"]),
+						RejectStatus = bool.Parse((string) (x["reject"]["status"]))
 					}).ToList(),
-				Bip9SoftForks = result["bip9_softforks"].Select(x=> {
+				Bip9SoftForks = result["bip9_softforks"]?.Select(x =>
+				{
 					var o = x.First();
-					return new BlockchainInfo.Bip9SoftFork {
-						Name = ((JProperty)x).Name,
-						Status = (string)o["status"],
-						StartTime = epochToDtateTimeOffset((long)o["startTime"]),
-						Timeout =   epochToDtateTimeOffset((long)o["timeout"]),
-						SinceHeight =  (ulong)o["since"],
+					return new BlockchainInfo.Bip9SoftFork
+					{
+						Name = ((JProperty) x).Name,
+						Status = (string) o["status"],
+						StartTime = epochToDtateTimeOffset((long) o["startTime"]),
+						Timeout = epochToDtateTimeOffset((long) o["timeout"]),
+						SinceHeight = (ulong) o["since"],
 					};
-					}).ToList()
+				}).ToList()
 			};
 
 			return blockchainInfo;
