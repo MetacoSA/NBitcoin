@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NBitcoin.Altcoins.HashX11;
 using Xunit;
 
 namespace NBitcoin.Tests
@@ -146,5 +147,41 @@ namespace NBitcoin.Tests
 		{
 			Assert.Equal(Hashes.MurmurHash3(seed, Encoders.Hex.DecodeData(data)), expected);
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void quark()
+		{
+			var bytes = Encoders.Hex.DecodeData("01000000000000000000000000000000000000000000000000000000000000000000000027cc0d8f6a20e41f445b1045d1c73ba4b068ee60b5fd4aa34027cbbe5c2e161e1546db5af0ff0f1e18cb3f01");
+
+			Console.WriteLine(Encoders.Hex.EncodeData(bytes));
+
+			var hashBytes = new Quark().ComputeBytes(bytes).ToArray();
+
+			var hash = Encoders.Hex.EncodeData(hashBytes.Reverse().ToArray());
+
+			Console.WriteLine(hash);
+
+			Assert.Equal("00000f4fb42644a07735beea3647155995ab01cf49d05fdc082c08eb673433f9", hash);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void x11()
+		{
+			var bytes = Encoders.Hex.DecodeData("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0022ddb52f0ff0f1ec23fb901");
+
+			Console.WriteLine(Encoders.Hex.EncodeData(bytes));
+
+			var hashBytes = new X11().ComputeBytes(bytes).ToArray();
+
+			var hash = Encoders.Hex.EncodeData(hashBytes.Reverse().ToArray());
+
+			Console.WriteLine(hash);
+
+			Assert.Equal("00000ffd590b1485b3caadc19b22e6379c733355108f107a430458cdf3407ab6", hash);
+		}
+
+
 	}
 }
