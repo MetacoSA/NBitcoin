@@ -129,7 +129,7 @@ namespace NBitcoin.Altcoins
 				.SetMagic(0x3595a329)
 				.SetPort(16443)
 				.SetRPCPort(17200)
-				.SetMaxP2PVersion(70902)
+				.SetMaxP2PVersion(70912)
 
 				.SetName("Dystem-main")
 				.AddAlias("Dystem-mainnet")
