@@ -1,7 +1,6 @@
 ﻿using System.Linq;
-using NBitcoin.Altcoins.HashX11;
 
-namespace NBitcoin.Altcoins.Hash
+namespace NBitcoin.Altcoins.HashX11
 {
 	public class Quark
 	{
