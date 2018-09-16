@@ -470,7 +470,7 @@ namespace NBitcoin.Tests
 					Archive = "groestlcoin-{0}-x86_64-w64-mingw32.zip",
 					Executable = "GRS-{0}\\groestlcoind.exe",
 					Hash = "327aaee189255f2722736a426732a0f38fef90bae6495f42fd148138523c586c",
-					CreateFolder = "GRS-{0}"
+					CreateFolder = "GRS-{0}",
 				},
 				Linux = new NodeOSDownloadData()
 				{
@@ -478,7 +478,7 @@ namespace NBitcoin.Tests
 					Archive = "groestlcoin-{0}-x86_64-linux-gnu.tar.gz",
 					Executable = "GRS-{0}/groestlcoind",
 					Hash = "4e7683bbc6f3b7899761d1360f52a91f417e2b7e6c56b75b522d95b86ca46628",
-					CreateFolder = "GRS-{0}"
+					CreateFolder = "GRS-{0}",
 				},
 				Mac = new NodeOSDownloadData()
 				{
@@ -486,7 +486,7 @@ namespace NBitcoin.Tests
 					Archive = "groestlcoin-{0}-x86_64-apple-darwin11.tar.gz",
 					Executable = "GRS-{0}/groestlcoind",
 					Hash = "5ff6e5a509e0c69f4a832bd3c40a1a93f80a68bc5f55a0b5d517716fb123164e",
-					CreateFolder = "GRS-{0}"
+					CreateFolder = "GRS-{0}",
 				}
 			};
 		}
@@ -538,7 +538,7 @@ namespace NBitcoin.Tests
 				{
 					DownloadLink = "https://github.com/gobytecoin/gobyte/releases/download/v{0}/GoByteCore-{0}_Linux64.tar.gz",
 					Archive = "GoByteCore-{0}_Linux64.tar.gz",
-					Executable = "GoByteCore-{0}_Linux64/gobytedd",
+					Executable = "GoByteCore-{0}_Linux64/gobyted",
 					Hash = "d2419274d1234b80c5756247775ace04abc85a8f74b91760c8c25f65212e4e57",
 					CreateFolder = "GoByteCore-{0}_Linux64",
 				}
@@ -553,7 +553,7 @@ namespace NBitcoin.Tests
 				{
 					DownloadLink = "https://github.com/ColossusCoinXT/ColossusCoinXT/releases/download/v{0}/colx-v{0}-win32.zip",
 					Archive = "colx-v{0}-win64.zip",
-					Executable = "colx-v{0}/bin/colxd.exe"
+					Executable = "colx-v{0}/bin/colxd.exe",
 					Hash = "d4ec16815d85a122f57a6a1a1fe9ca19487a1aac3294dc041315bce2e76772bd",
 					CreateFolder = "colx-v{0}",
 				},
@@ -561,7 +561,7 @@ namespace NBitcoin.Tests
 				{
 					DownloadLink = "https://github.com/ColossusCoinXT/ColossusCoinXT/releases/download/v{0}/colx-v{0}-x86_64-linux-gnu.tar.gz",
 					Archive = "colx-v{0}-x86_64-linux-gnu.tar.gz",
-					Executable = "colx-v{0}/bin/colxd"
+					Executable = "colx-v{0}/bin/colxd",
 					Hash = "4812cd2296467b0524625a13c205832039d03990eddf7e31e180f6cbdb9f8917",
 					CreateFolder = "colx-v{0}",
 				},
@@ -569,7 +569,7 @@ namespace NBitcoin.Tests
 				{
 					DownloadLink = "https://github.com/ColossusCoinXT/ColossusCoinXT/releases/download/v{0}/colx-v{0}-osx64.tar.gz",
 					Archive = "colx-v{0}-osx64.tar.gz",
-					Executable = "colx-v{0}/bin/colxd"
+					Executable = "colx-v{0}/bin/colxd",
 					Hash = "85e58f98d4a19ae03a2990651345926f2020375b6b51c7e3f536d13175c07f0f",
 					CreateFolder = "colx-v{0}",
 				}
