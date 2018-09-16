@@ -935,13 +935,13 @@ namespace NBitcoin.RPC
 				ChainWork = new uint256(result.Value<string>("chainwork")), 
 				SizeOnDisk = result.Value<ulong>("size_on_disk"),
 				Pruned = result.Value<bool>("pruned"),
-				SoftForks = result["softforks"].Select(x=> 
+				SoftForks = result["softforks"]?.Select(x=> 
 					new BlockchainInfo.SoftFork {
 						Bip = (string)(x["id"]),
 						Version = (int)(x["version"]),
 						RejectStatus = bool.Parse((string)(x["reject"]["status"]))
 					}).ToList(),
-				Bip9SoftForks = result["bip9_softforks"].Select(x=> {
+				Bip9SoftForks = result["bip9_softforks"]?.Select(x=> {
 					var o = x.First();
 					return new BlockchainInfo.Bip9SoftFork {
 						Name = ((JProperty)x).Name,
