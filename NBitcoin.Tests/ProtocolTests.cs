@@ -14,6 +14,7 @@ using NBitcoin.DataEncoders;
 using System.Net.Sockets;
 using NBitcoin.Protocol.Behaviors;
 using System.Diagnostics;
+using Xunit.Sdk;
 
 namespace NBitcoin.Tests
 {
@@ -233,6 +234,90 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]
+		public void CanHandshakeWithSeveralTemplateBehaviors()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode(true);
+				node.Generate(101);
+				AddressManager manager = new AddressManager();
+				manager.Add(new NetworkAddress(node.NodeEndpoint), IPAddress.Loopback);
+
+				var chain = new SlimChain(builder.Network.GenesisHash);
+				NodesGroup group = new NodesGroup(builder.Network, new NodeConnectionParameters()
+				{
+					Services = NodeServices.Nothing,
+					IsRelay = true,
+					TemplateBehaviors =
+				{
+					new AddressManagerBehavior(manager)
+					{
+						PeersToDiscover = 1,
+						Mode = AddressManagerBehaviorMode.None
+					},
+					new SlimChainBehavior(chain),
+					new PingPongBehavior()
+				}
+				});
+				group.AllowSameGroup = true;
+				group.MaximumNodeConnection = 1;
+				var connecting = WaitConnected(group);
+				try
+				{
+
+					group.Connect();
+					connecting.GetAwaiter().GetResult();
+					Eventually(() =>
+					{
+						Assert.Equal(101, chain.Height);
+					});
+					var ms = new MemoryStream();
+					chain.Save(ms);
+
+					var chain2 = new SlimChain(chain.Genesis);
+					ms.Position = 0;
+					chain2.Load(ms);
+					Assert.Equal(chain.Tip, chain2.Tip);
+
+					using(var fs = new FileStream("test.slim.dat", FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024))
+					{
+						chain.Save(fs);
+						fs.Flush();
+					}
+
+					chain.ResetToGenesis();
+					using(var fs = new FileStream("test.slim.dat", FileMode.Open, FileAccess.Read, FileShare.None, 1024 * 1024))
+					{
+						chain.Load(fs);
+					}
+					Assert.Equal(101, chain2.Height);
+					chain.ResetToGenesis();
+				}
+				finally
+				{
+					group.Disconnect();
+				}
+			}
+		}
+		private static async Task WaitConnected(NodesGroup group)
+		{
+			TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+			EventHandler<NodeEventArgs> waitingConnected = null;
+			waitingConnected = (a, b) =>
+			{
+				tcs.TrySetResult(true);
+				group.ConnectedNodes.Added -= waitingConnected;
+			};
+			group.ConnectedNodes.Added += waitingConnected;
+			CancellationTokenSource cts = new CancellationTokenSource(5000);
+			using(cts.Token.Register(() => tcs.TrySetCanceled()))
+			{
+				await tcs.Task;
+			}
+		}
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
 		public void CanGetMerkleRoot()
 		{
 			using(var builder = NodeBuilderEx.Create())
@@ -370,6 +455,56 @@ namespace NBitcoin.Tests
 					n1.Behaviors.Find<ChainBehavior>().SharedState.HighestValidatedPoW = chain1.GetBlock(300);
 					chain1 = n2.GetChain(rpc.GetBlockHash(499));
 					Assert.True(chain1.Height == 300);
+				}
+			}
+		}
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
+		public void CanMaintainChainWithSlimChainBehavior()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var nodeClient = builder.CreateNode(true).CreateNodeClient();
+				builder.Nodes[0].Generate(300);
+				var rpc = builder.Nodes[0].CreateRPCClient();
+				var slimChain = nodeClient.GetSlimChain(rpc.GetBlockHash(200));
+				Assert.True(slimChain.Height == 200);
+
+				var node2 = builder.CreateNode(true);
+				var nodeClient2 = node2.CreateNodeClient();
+				var rpc2 = node2.CreateRPCClient();
+				rpc2.Generate(600);
+
+				nodeClient2.SynchronizeSlimChain(slimChain);
+				Assert.Equal(slimChain.Tip, rpc2.GetBestBlockHash());
+
+				nodeClient.Behaviors.Add(new SlimChainBehavior(slimChain));
+
+				Eventually(() =>
+				{
+					Assert.Equal(slimChain.Tip, rpc.GetBestBlockHash());
+				});
+				node2.Sync(builder.Nodes[0]);
+				Eventually(() =>
+				{
+					Assert.Equal(slimChain.Tip, rpc2.GetBestBlockHash());
+				});
+			}
+		}
+		private void Eventually(Action act)
+		{
+			CancellationTokenSource cts = new CancellationTokenSource(30000);
+			while(true)
+			{
+				try
+				{
+					act();
+					break;
+				}
+				catch(XunitException) when(!cts.Token.IsCancellationRequested)
+				{
+					cts.Token.WaitHandle.WaitOne(500);
 				}
 			}
 		}

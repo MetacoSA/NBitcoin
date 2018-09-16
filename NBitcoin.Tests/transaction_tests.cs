@@ -322,6 +322,43 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		// https://github.com/MetacoSA/NBitcoin/issues/480#issuecomment-412654772
+		public void DoNotGenerateTransactionWithNegativeFees()
+		{
+			var k = new Key();
+			var scriptCoin = RandomCoin(Money.Coins(0.0001m), k.PubKey.ScriptPubKey, true);
+			var builder = new TransactionBuilder();
+			Assert.Throws<NotEnoughFundsException>(() => builder
+			.AddCoins(scriptCoin)
+			.Send(new Key(), scriptCoin.Amount)
+			.SubtractFees()
+			.SetChange(new Key())
+			.SendFees(Money.Coins(0.0002m))
+			.BuildTransaction(false));
+
+			var scriptCoin1 = RandomCoin(Money.Coins(0.0001m), k.PubKey.ScriptPubKey, true);
+			var scriptCoin2 = RandomCoin(Money.Coins(0.0001m), k.PubKey.ScriptPubKey, true);
+
+			var dust = builder.GetDust(scriptCoin2.ScriptPubKey);
+			foreach(var dustPrevention in new[] { true, false })
+			{
+				builder = new TransactionBuilder();
+				builder.DustPrevention = dustPrevention;
+				var tx = builder
+				.AddCoins(scriptCoin1, scriptCoin2)
+				.Send(new Key(), scriptCoin1.Amount)
+				.Send(new Key(), scriptCoin2.Amount)
+				.SubtractFees()
+				.SetChange(new Key())
+				.SendFees(scriptCoin2.Amount - dust - Money.Satoshis(1))
+				.BuildTransaction(false);
+				// The txout must be kicked out because of dust rule
+				Assert.Equal(dustPrevention ? 1 : 2, tx.Outputs.Count);
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		//https://github.com/NicolasDorier/NBitcoin/issues/34
 		public void CanBuildAnyoneCanPayTransaction()
 		{
@@ -2327,6 +2364,13 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		public void Play()
+        {
+
+		}
+
+
 		//[Fact]
 		//http://bitcoin.stackexchange.com/questions/25814/ecdsa-signature-and-the-z-value
 		//http://www.nilsschneider.net/2013/01/28/recovering-bitcoin-private-keys.html
@@ -2923,7 +2967,8 @@ namespace NBitcoin.Tests
 				.SendFees(Money.Coins(0.001m))
 				.BuildTransaction(false);
 
-			Assert.Throws<InvalidOperationException>(()=>{
+			Assert.Throws<InvalidOperationException>(() =>
+			{
 				txBuilder
 					.ContinueToBuild(tx)
 					.BuildTransaction(true);

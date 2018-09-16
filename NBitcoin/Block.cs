@@ -412,10 +412,36 @@ namespace NBitcoin
 			return MerkleNode.GetRoot(Transactions.Select(t => t.GetHash()));
 		}
 
-
-		[Obsolete("Should use Network.Consensus.ConsensusFactory.CreateNewBlock()")]
+		[Obsolete("Should use Block.CreateBlock(Network)")]
 		public Block() : this(Consensus.Main.ConsensusFactory.CreateBlockHeader())
 		{
+		}
+
+		public static Block CreateBlock(Network network)
+		{
+			return CreateBlock(network.Consensus.ConsensusFactory);
+		}
+		public static Block CreateBlock(ConsensusFactory consensusFactory)
+		{
+			return consensusFactory.CreateBlock();
+		}
+
+		public static Block CreateBlock(BlockHeader header, Network network)
+		{
+			return CreateBlock(header, network.Consensus.ConsensusFactory);
+		}
+		public static Block CreateBlock(BlockHeader header, ConsensusFactory consensusFactory)
+		{
+			var ms = new MemoryStream(100);
+			BitcoinStream bs = new BitcoinStream(ms, true);
+			bs.ConsensusFactory = consensusFactory;
+			bs.ReadWrite(header);
+
+			var block = consensusFactory.CreateBlock();
+			ms.Position = 0;
+			bs = new BitcoinStream(ms, false);
+			block.Header.ReadWrite(bs);
+			return block;
 		}
 
 		[Obsolete("Should use ConsensusFactories")]
@@ -611,7 +637,10 @@ namespace NBitcoin
 			return block;
 		}
 
-
+		public int GetWeight()
+		{
+			return this.GetSerializedSize(TransactionOptions.None) * 3 + this.GetSerializedSize(TransactionOptions.All);
+		}
 
 		public Block CreateNextBlockWithCoinbase(PubKey pubkey, Money value, DateTimeOffset now, ConsensusFactory consensusFactory)
 		{

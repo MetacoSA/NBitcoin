@@ -80,13 +80,19 @@ namespace NBitcoin
 		public static byte[] ReadBytes(this Stream stream, int bytesToRead)
 		{
 			var buffer = new byte[bytesToRead];
+			ReadBytes(stream, bytesToRead, buffer);
+			return buffer;
+		}
+
+		public static int ReadBytes(this Stream stream, int bytesToRead, byte[] buffer)
+		{
 			int num = 0;
 			int num2;
 			do
 			{
 				num += (num2 = stream.Read(buffer, num, bytesToRead - num));
 			} while(num2 > 0 && num < bytesToRead);
-			return buffer;
+			return num;
 		}
 
 		public static async Task<byte[]> ReadBytesAsync(this Stream stream, int bytesToRead)
@@ -748,7 +754,7 @@ namespace NBitcoin
 			}
 		}
 #if HAS_SPAN
-		public static uint ToUInt32(Span<byte> value, int index, bool littleEndian)
+		public static uint ToUInt32(ReadOnlySpan<byte> value, int index, bool littleEndian)
 		{
 			if(littleEndian)
 			{

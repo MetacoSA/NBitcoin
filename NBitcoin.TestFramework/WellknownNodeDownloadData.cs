@@ -14,21 +14,21 @@ namespace NBitcoin.Tests
 				Linux = new NodeOSDownloadData()
 				{
 					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
 					Executable = "bitcoin-{0}/bin/bitcoind",
 					Hash = "2293de5682375b8edfde612d9e152b42344d25d3852663ba36f7f472b27954a4"
 				},
 				Mac = new NodeOSDownloadData()
 				{
 					Archive = "bitcoin-{0}-osx64.tar.gz",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
 					Executable = "bitcoin-{0}/bin/bitcoind",
 					Hash = "499be4f48c933d92c43468ee2853dddaba4af7e1a17f767a85023b69a21b6e77"
 				},
 				Windows = new NodeOSDownloadData()
 				{
 					Executable = "bitcoin-{0}/bin/bitcoind.exe",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-win32.zip",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win32.zip",
 					Archive = "bitcoin-{0}-win32.zip",
 					Hash = "fcf6089fc013b175e3c5e32580afb3cb4310c62d2e133e992b8a9d2e0cbbafaa"
 				}
@@ -40,23 +40,49 @@ namespace NBitcoin.Tests
 				Linux = new NodeOSDownloadData()
 				{
 					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
 					Executable = "bitcoin-{0}/bin/bitcoind",
 					Hash = "e6322c69bcc974a29e6a715e0ecb8799d2d21691d683eeb8fef65fc5f6a66477"
 				},
 				Mac = new NodeOSDownloadData()
 				{
 					Archive = "bitcoin-{0}-osx64.tar.gz",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
 					Executable = "bitcoin-{0}/bin/bitcoind",
 					Hash = "ade85a8e39de8c36a134721c3da9853a80f29a8625048e0c2a5295ca8b23a88c"
 				},
 				Windows = new NodeOSDownloadData()
 				{
 					Executable = "bitcoin-{0}/bin/bitcoind.exe",
-					DownloadLink = "https://bitcoin.org/bin/bitcoin-core-{0}/bitcoin-{0}-win32.zip",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win32.zip",
 					Archive = "bitcoin-{0}-win32.zip",
 					Hash = "60d65d6e57f42164e1c04bb5bb65156d87f0433825a1c1f1f5f6aebf5c8df424"
+				}
+			};
+
+			public NodeDownloadData v0_16_2 = new NodeDownloadData()
+			{
+				Version = "0.16.2",
+				Linux = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "71f217e30e98d5ccc1fb574b9499595e87e118e596278fad5507a7b84650859c"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-osx64.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "64e7d96d0497112aa808ff94e63eb18bff1535cf6237e7c1d602f0fca167e863"
+				},
+				Windows = new NodeOSDownloadData()
+				{
+					Executable = "bitcoin-{0}/bin/bitcoind.exe",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win32.zip",
+					Archive = "bitcoin-{0}-win32.zip",
+					Hash = "b03a249811f0e889084b29b9ee8427faea641259d04e917db776973c0124631e"
 				}
 			};
 		}
@@ -260,6 +286,35 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class MogwaiNodeDownloadData
+		{
+			public NodeDownloadData v0_12_2 = new NodeDownloadData()
+			{
+				Version = "0.12.2.4",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/mogwaicoin/mogwai/releases/download/v{0}/mogwaicore-{0}-win64.zip",
+					Archive = "mogwaicore-{0}-win64.zip",
+					Executable = "mogwaicore-0.12.2/bin/mogwaid.exe",
+					Hash = "af830999026809416cf5b93d840e6e90ce8af0dc61738bd9bf1c5f059439b0a6"
+                },
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/mogwaicoin/mogwai/releases/download/v{0}/mogwaicore-{0}-linux64.tar.gz",
+					Archive = "mogwaicore-{0}-linux64.tar.gz",
+					Executable = "mogwaicore-0.12.2/bin/mogwaid",
+					Hash = "8b7c72197f87be1f5d988c274cac06f6539ddb4591a578bfb852a412022378f2"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/mogwaicoin/mogwai/releases/download/v{0}/mogwaicore-{0}-osx.dmg",
+					Archive = "mogwaicore-{0}-osx.dmg",
+					Executable = "mogwaicore-0.12.2/bin/mogwaid",
+					Hash = "90ca27d6733df6fc69b0fc8220f2315623fe5b0cbd1fe31f247684d51808cb81"
+				}
+			};
+		}
+
 		public class DystemNodeDownloadData
 		{
 			public NodeDownloadData v1_0_8_8 = new NodeDownloadData()
@@ -346,6 +401,35 @@ namespace NBitcoin.Tests
 					Archive = "poliscore-{0}-osx.dmg",
 					Executable = "poliscore-1.3.0/bin/polisd",
 					Hash = "2d67048a8e51d6c1384752cfde6a3562b1b1ba250fce28020e8afe894a9b5afe"
+				}
+			};
+		}
+
+		public class BitcoreNodeDownloadData
+		{
+			public NodeDownloadData v0_15_1 = new NodeDownloadData()
+			{
+				Version = "0.15.1.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/Windows.zip",
+					Archive = "Windows.zip",
+					Executable = "Windows/bitcored.exe",
+					Hash = "9d884f0a9221060172101997e15d58ca63db88ad51907fe89b31b55348b10f97"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/linux.Ubuntu.16.04.regtest-noqt.tar.gz",
+					Archive = "linux.Ubuntu.16.04.regtest-noqt.tar.gz",
+					Executable = "bitcored",
+					Hash = "ecbffb6ed6bbe1209e78246c1ae6e6f55e375c7ffbd82fdc40ff95db350ce5c6"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/bitcore-qt.dmg",
+					Archive = "bitcore-qt.dmg",
+					Executable = "bitcored",
+					Hash = "929005100984972bb66253278826af4698720d1f01fd6429ac3ab2b19f811f97"
 				}
 			};
 		}
@@ -445,6 +529,10 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new GroestlcoinNodeDownloadData();
 
+		public static MogwaiNodeDownloadData Mogwai
+		{
+			get; set;
+		} = new MogwaiNodeDownloadData();
 		public static BitcoinNodeDownloadData Bitcoin
 		{
 			get; set;
@@ -459,7 +547,7 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new ViacoinNodeDownloadData();
-		
+
 		public static BCashNodeDownloadData BCash
 		{
 			get; set;
@@ -505,6 +593,9 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new UfoNodeDownloadData();
 
-
+		public static BitcoreNodeDownloadData Bitcore
+		{
+			get; set;
+		} = new BitcoreNodeDownloadData();
 	}
 }

@@ -377,6 +377,12 @@ namespace NBitcoin.Tests
 			Assert.True(expectedError == actual, "Test : " + testIndex + " " + comment);			
 #if !NOCONSENSUSLIB
 			var ok = Script.VerifyScriptConsensus(scriptPubKey, spendingTransaction, 0, amount, flags);
+
+			// If the spendingTransaction correctly spends the scriptPubKey but the expected error is not okay
+			// because of a policy flags then, we ignore the test; otherwise assert everything the expected result
+			// is the expected one.
+			if(ok && (expectedError != ScriptError.OK) && (flags & ~ScriptVerify.Consensus)!=0)
+				return;
 			Assert.True(ok == (expectedError == ScriptError.OK), "[ConsensusLib] Test : " + testIndex + " " + comment);
 #endif
 		}
@@ -385,6 +391,7 @@ namespace NBitcoin.Tests
 		private void EnsureHasLibConsensus()
 		{
 #if !NOCONSENSUSLIB
+			var bitcoinPath = NodeBuilder.EnsureDownloaded(NodeDownloadData.Bitcoin.v0_16_2);
 
 			string libConsensusDll = null;
 			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -404,8 +411,8 @@ namespace NBitcoin.Tests
 				throw new NotSupportedException("Unknown operating system");
 			}
 
-			var bitcoinBinFolderPath = Path.GetDirectoryName(NodeBuilder.EnsureDownloaded("0.15.1"));
-			var libConsensusPath = Path.Combine(bitcoinBinFolderPath, "../lib", libConsensusDll);
+			var bitcoinBinFolderPath = Path.GetDirectoryName("TestData");
+			var libConsensusPath = Path.Combine(bitcoinPath, "../../lib", libConsensusDll);
 
 			if (File.Exists(Script.LibConsensusDll))
 				return;
@@ -766,7 +773,7 @@ namespace NBitcoin.Tests
 		{
 			Assert.True(Script.VerifyScript(scriptPubKey, tx, n, null, flags));
 #if !NOCONSENSUSLIB
-			Assert.True(Script.VerifyScriptConsensus(scriptPubKey, tx, (uint)n, flags));
+			Assert.True(Script.VerifyScriptConsensus(scriptPubKey, tx, (uint)n, flags & ScriptVerify.Consensus));
 #endif
 		}
 

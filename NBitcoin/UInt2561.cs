@@ -162,7 +162,9 @@ namespace NBitcoin
 
 		public override string ToString()
 		{
-			return Encoder.EncodeData(ToBytes().Reverse().ToArray());
+			var bytes = ToBytes();
+			Array.Reverse(bytes);
+			return Encoder.EncodeData(bytes);
 		}
 
 		public uint256(ulong b)
@@ -208,7 +210,7 @@ namespace NBitcoin
 		}
 
 #if HAS_SPAN
-		public uint256(Span<byte> bytes)
+		public uint256(ReadOnlySpan<byte> bytes)
 		{
 			if(bytes.Length != WIDTH_BYTE)
 			{
@@ -241,7 +243,8 @@ namespace NBitcoin
 			if(str.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
 				str = str.Substring(2);
 
-			var bytes = Encoder.DecodeData(str).Reverse().ToArray();
+			var bytes = Encoder.DecodeData(str);
+			Array.Reverse(bytes);
 			if(bytes.Length != WIDTH_BYTE)
 				throw new FormatException("Invalid hex length");
 			pn0 = Utils.ToUInt32(bytes, 4 * 0, true);
@@ -264,7 +267,10 @@ namespace NBitcoin
 		{
 			var item = obj as uint256;
 			if(item == null)
+			{
 				return false;
+			}
+
 			bool equals = true;
 			equals &= pn0 == item.pn0;
 			equals &= pn1 == item.pn1;
@@ -377,17 +383,22 @@ namespace NBitcoin
 		public byte[] ToBytes(bool lendian = true)
 		{
 			var arr = new byte[WIDTH_BYTE];
-			Buffer.BlockCopy(Utils.ToBytes(pn0, true), 0, arr, 4 * 0, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn1, true), 0, arr, 4 * 1, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn2, true), 0, arr, 4 * 2, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn3, true), 0, arr, 4 * 3, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn4, true), 0, arr, 4 * 4, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn5, true), 0, arr, 4 * 5, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn6, true), 0, arr, 4 * 6, 4);
-			Buffer.BlockCopy(Utils.ToBytes(pn7, true), 0, arr, 4 * 7, 4);
+			ToBytes(arr);
 			if(!lendian)
 				Array.Reverse(arr);
 			return arr;
+		}
+
+		public void ToBytes(byte[] output)
+		{
+			Buffer.BlockCopy(Utils.ToBytes(pn0, true), 0, output, 4 * 0, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn1, true), 0, output, 4 * 1, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn2, true), 0, output, 4 * 2, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn3, true), 0, output, 4 * 3, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn4, true), 0, output, 4 * 4, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn5, true), 0, output, 4 * 5, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn6, true), 0, output, 4 * 6, 4);
+			Buffer.BlockCopy(Utils.ToBytes(pn7, true), 0, output, 4 * 7, 4);
 		}
 
 #if HAS_SPAN

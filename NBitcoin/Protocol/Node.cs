@@ -476,7 +476,6 @@ namespace NBitcoin.Protocol
 			FireFilters(enumerator, message);
 		}
 
-
 		private void OnSendingMessage(Payload payload, Action final)
 		{
 			var enumerator = Filters.Concat(new[] { new ActionFilter(null, (n, p, a) => final()) }).GetEnumerator();
@@ -495,10 +494,13 @@ namespace NBitcoin.Protocol
 				catch(Exception ex)
 				{
 					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnSendingMessage)", ex.InnerException), false);
+					UncaughtException?.Invoke(this, ex);
 				}
 			}
 		}
 
+		public delegate void NodeExceptionDelegate(Node sender, Exception ex);
+		public event NodeExceptionDelegate UncaughtException;
 
 		private void FireFilters(IEnumerator<INodeFilter> enumerator, IncomingMessage message)
 		{
@@ -512,6 +514,7 @@ namespace NBitcoin.Protocol
 				catch(Exception ex)
 				{
 					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnReceivingMessage)", ex.InnerException), false);
+					UncaughtException?.Invoke(this, ex);
 				}
 			}
 		}
@@ -1238,6 +1241,20 @@ namespace NBitcoin.Protocol
 		}
 
 		/// <summary>
+		/// Get the chain of block hashes from the peer (thread safe)
+		/// </summary>
+		/// <param name="hashStop">Location until which synchronization should be stopped (default: null)</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>The chain of headers</returns>
+		public SlimChain GetSlimChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			SlimChain chain = new SlimChain(Network.GenesisHash);
+			SynchronizeSlimChain(chain, hashStop, cancellationToken);
+			return chain;
+		}
+
+
+		/// <summary>
 		/// Get the chain of headers from the peer (thread safe)
 		/// </summary>
 		/// <param name="hashStop">The highest block wanted</param>
@@ -1376,6 +1393,87 @@ namespace NBitcoin.Protocol
 		public IEnumerable<ChainedBlock> SynchronizeChain(ChainBase chain, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			return SynchronizeChain(chain, new SynchronizeChainOptions() { HashStop = hashStop }, cancellationToken);
+		}
+
+		/// <summary>
+		/// Synchronize a given SlimChain to the tip of this node if its height is higher.
+		/// </summary>
+		/// <param name="chain">The chain to synchronize</param>
+		/// <param name="hashStop">The location until which it synchronize</param>
+		/// <param name="cancellationToken"></param>
+		/// <returns>Task which finish when complete</returns>
+		public void SynchronizeSlimChain(SlimChain chain, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			if(chain == null)
+				throw new ArgumentNullException(nameof(chain));
+			AssertState(NodeState.HandShaked, cancellationToken);
+
+			NodeServerTrace.Information("Building chain");
+			using(var listener = this.CreateListener().OfType<HeadersPayload>())
+			{
+				while(true)
+				{
+					var currentTip = chain.TipBlock;
+
+					//Get before last so, at the end, we should only receive 1 header equals to this one (so we will not have race problems with concurrent GetChains)
+					var awaited = currentTip.Previous == null ? chain.GetLocator(currentTip.Height) : chain.GetLocator(currentTip.Height - 1);
+					if(awaited == null)
+						continue;
+					SendMessageAsync(new GetHeadersPayload()
+					{
+						BlockLocators = awaited,
+						HashStop = hashStop
+					});
+
+					while(true)
+					{
+						bool isOurs = false;
+						HeadersPayload headers = null;
+
+						using(var headersCancel = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+						{
+							headersCancel.CancelAfter(PollHeaderDelay);
+							try
+							{
+								headers = listener.ReceivePayload<HeadersPayload>(headersCancel.Token);
+							}
+							catch(OperationCanceledException)
+							{
+								if(cancellationToken.IsCancellationRequested)
+									throw;
+								break; //Send a new GetHeaders
+							}
+						}
+						if(headers.Headers.Count == 0 && PeerVersion.StartHeight == 0 && currentTip.Hash == Network.GenesisHash) //In the special case where the remote node is at height 0 as well as us, then the headers count will be 0
+							return;
+						if(headers.Headers.Count == 1 && headers.Headers[0].GetHash() == currentTip.Hash)
+							return;
+						foreach(var header in headers.Headers)
+						{
+							var h = header.GetHash();
+							if(h == currentTip.Hash)
+								continue;
+
+							if(header.HashPrevBlock == currentTip.Hash)
+							{
+								isOurs = true;
+								currentTip = new SlimChainedBlock(h, currentTip.Hash, currentTip.Height + 1);
+								chain.TrySetTip(currentTip.Hash, currentTip.Previous);
+								if(currentTip.Hash == hashStop)
+									return;
+							}
+							else if(chain.TrySetTip(h, header.HashPrevBlock))
+							{
+								currentTip = chain.TipBlock;
+							}
+							else 
+							 break;
+						}
+						if(isOurs)
+							break;  //Go ask for next header
+					}
+				}
+			}
 		}
 
 		public IEnumerable<Block> GetBlocks(SynchronizeChainOptions synchronizeChainOptions, CancellationToken cancellationToken = default(CancellationToken))

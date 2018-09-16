@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +11,7 @@ namespace NBitcoin.Altcoins
 		public static BCash BCash { get; } = BCash.Instance;
 		public static BGold BGold { get; } = BGold.Instance;
 		public static Dash Dash { get; } = Dash.Instance;
+		public static Mogwai Mogwai { get; } = Mogwai.Instance;
 		public static Dogecoin Dogecoin { get; } = Dogecoin.Instance;
 
 	    public static Dystem Dystem { get; } = Dystem.Instance;
@@ -23,12 +24,13 @@ namespace NBitcoin.Altcoins
 		public static Monacoin Monacoin { get; } = Monacoin.Instance;
 		public static Ufo Ufo { get; } = Ufo.Instance;
 		public static Bitcoin Bitcoin { get; } = Bitcoin.Instance;
-
+		public static Bitcore Bitcore { get; } = Bitcore.Instance;
 		public static Groestlcoin Groestlcoin { get; } = Groestlcoin.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
 			yield return Bitcoin;
+			yield return Bitcore;
 			yield return Litecoin;
 			yield return Feathercoin;
 			yield return Viacoin;
@@ -38,6 +40,7 @@ namespace NBitcoin.Altcoins
 			yield return Polis;
 			yield return Monacoin;
 			yield return Dash;
+			yield return Mogwai;
 			yield return Ufo;
 			yield return Groestlcoin;
 		}

@@ -153,7 +153,19 @@ namespace NBitcoin
 			| Witness
 			| DiscourageUpgradableWitnessProgram
 			| NullFail
-			| MinimalIf
+			| MinimalIf,
+
+		/// <summary>
+		/// Strict consensus script verification flags that are checked by the Bitcoin Core
+		/// consensus library before validating the transaction.
+		/// </summary>
+		Consensus =
+			  ScriptVerify.DerSig
+			| ScriptVerify.P2SH
+			| ScriptVerify.NullDummy
+			| ScriptVerify.CheckLockTimeVerify
+			| ScriptVerify.CheckSequenceVerify
+			| ScriptVerify.Witness
 	}
 
 	/// <summary>
@@ -924,7 +936,8 @@ namespace NBitcoin
 			var scriptPubKeyBytes = scriptPubKey.ToBytes();
 			var txToBytes = tx.ToBytes();
 			err = BitcoinConsensusError.ERR_OK;
-			var valid = VerifyScriptConsensusWithAmount(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, amount.Satoshi, txToBytes, (uint)txToBytes.Length, nIn, flags, ref err);
+
+			int	valid = VerifyScriptConsensusWithAmount(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, amount.Satoshi, txToBytes, (uint)txToBytes.Length, 0, flags & ScriptVerify.Consensus, ref err);
 			return valid == 1;
 		}
 #endif
