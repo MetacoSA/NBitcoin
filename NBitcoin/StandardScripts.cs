@@ -1,5 +1,6 @@
 ﻿using NBitcoin.BitcoinCore;
 using NBitcoin.Policy;
+using System;
 using System.Linq;
 
 namespace NBitcoin
@@ -55,7 +56,7 @@ namespace NBitcoin
 		// script can be anything; an attacker could use a very
 		// expensive-to-check-upon-redemption script like:
 		//   DUP CHECKSIG DROP ... repeated 100 times... OP_1
-		//
+		[Obsolete]
 		public static bool AreInputsStandard(Transaction tx, CoinsView coinsView)
 		{
 			if(tx.IsCoinBase)

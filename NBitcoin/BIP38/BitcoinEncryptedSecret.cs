@@ -55,7 +55,7 @@ namespace NBitcoin
 							.Concat(new[] { flagByte })
 							.Concat(addresshash)
 							.Concat(encrypted).ToArray();
-			return Encoders.Base58Check.EncodeData(bytes);
+			return network.NetworkStringParser.GetBase58CheckEncoder().EncodeData(bytes);
 		}
 
 		byte[] _FirstHalf;

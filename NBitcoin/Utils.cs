@@ -51,8 +51,9 @@ namespace NBitcoin
 				{
 
 					byte[] version = network.GetVersionBytes(b58.Type, true);
-					var inner = Encoders.Base58Check.DecodeData(b58.ToString()).Skip(version.Length).ToArray();
-					var newBase58 = Encoders.Base58Check.EncodeData(version.Concat(inner).ToArray());
+					var enc = network.NetworkStringParser.GetBase58CheckEncoder();
+					var inner = enc.DecodeData(b58.ToString()).Skip(version.Length).ToArray();
+					var newBase58 = enc.EncodeData(version.Concat(inner).ToArray());
 					return Network.Parse<T>(newBase58, network);
 				}
 				else
@@ -79,13 +80,19 @@ namespace NBitcoin
 		public static byte[] ReadBytes(this Stream stream, int bytesToRead)
 		{
 			var buffer = new byte[bytesToRead];
+			ReadBytes(stream, bytesToRead, buffer);
+			return buffer;
+		}
+
+		public static int ReadBytes(this Stream stream, int bytesToRead, byte[] buffer)
+		{
 			int num = 0;
 			int num2;
 			do
 			{
 				num += (num2 = stream.Read(buffer, num, bytesToRead - num));
 			} while(num2 > 0 && num < bytesToRead);
-			return buffer;
+			return num;
 		}
 
 		public static async Task<byte[]> ReadBytesAsync(this Stream stream, int bytesToRead)
@@ -466,7 +473,7 @@ namespace NBitcoin
 			ms.Write(bytes, 0, bytes.Length);
 		}
 
-		internal static Array BigIntegerToBytes(NBitcoin.BouncyCastle.Math.BigInteger b, int numBytes)
+		internal static byte[] BigIntegerToBytes(BigInteger b, int numBytes)
 		{
 			if(b == null)
 			{
@@ -478,7 +485,6 @@ namespace NBitcoin
 			int length = Math.Min(biBytes.Length, numBytes);
 			Array.Copy(biBytes, start, bytes, numBytes - length, length);
 			return bytes;
-
 		}
 
 		public static byte[] BigIntegerToBytes(BigInteger num)
@@ -677,6 +683,27 @@ namespace NBitcoin
 				};
 			}
 		}
+
+#if HAS_SPAN
+		public static void ToBytes(uint value, bool littleEndian, Span<byte> output)
+		{
+			if(littleEndian)
+			{
+				output[0] = (byte)value;
+				output[1] = (byte)(value >> 8);
+				output[2] = (byte)(value >> 16);
+				output[3] = (byte)(value >> 24);
+			}
+			else
+			{
+				output[0] = (byte)(value >> 24);
+				output[1] = (byte)(value >> 16);
+				output[2] = (byte)(value >> 8);
+				output[3] = (byte)value;
+			}
+		}
+#endif
+
 		public static byte[] ToBytes(ulong value, bool littleEndian)
 		{
 			if(littleEndian)
@@ -726,6 +753,25 @@ namespace NBitcoin
 					   + ((uint)value[index + 0] << 24);
 			}
 		}
+#if HAS_SPAN
+		public static uint ToUInt32(ReadOnlySpan<byte> value, int index, bool littleEndian)
+		{
+			if(littleEndian)
+			{
+				return value[index]
+					   + ((uint)value[index + 1] << 8)
+					   + ((uint)value[index + 2] << 16)
+					   + ((uint)value[index + 3] << 24);
+			}
+			else
+			{
+				return value[index + 3]
+					   + ((uint)value[index + 2] << 8)
+					   + ((uint)value[index + 1] << 16)
+					   + ((uint)value[index + 0] << 24);
+			}
+		}
+#endif
 
 
 		public static int ToInt32(byte[] value, int index, bool littleEndian)

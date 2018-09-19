@@ -11,9 +11,9 @@ namespace NBitcoin.Protocol
 	{
 		public VarString()
 		{
-
+			_Bytes = new byte[0];
 		}
-		byte[] _Bytes = new byte[0];
+		byte[] _Bytes;
 		public int Length
 		{
 			get
@@ -54,13 +54,19 @@ namespace NBitcoin.Protocol
 
 		internal static void StaticWrite(BitcoinStream bs, byte[] bytes)
 		{
-			VarInt.StaticWrite(bs, (ulong)bytes.Length);
-			bs.ReadWrite(ref bytes);
+			var len = bytes == null ? 0 : (ulong)bytes.Length;
+			if(len > (uint)bs.MaxArraySize)
+				throw new ArgumentOutOfRangeException("Array size too big");
+			VarInt.StaticWrite(bs, len);
+			if(bytes != null)
+				bs.ReadWrite(ref bytes);
 		}
 
 		internal static void StaticRead(BitcoinStream bs, ref byte[] bytes)
 		{
 			var len = VarInt.StaticRead(bs);
+			if(len > (uint)bs.MaxArraySize)
+				throw new ArgumentOutOfRangeException("Array size too big");
 			bytes = new byte[len];
 			bs.ReadWrite(ref bytes);
 		}

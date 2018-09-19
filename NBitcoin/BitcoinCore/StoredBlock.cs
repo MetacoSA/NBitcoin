@@ -261,17 +261,17 @@ namespace NBitcoin.BitcoinCore
 #if !NOFILEIO
 #pragma warning disable CS0612 // Type or member is obsolete
 		public static IEnumerable<StoredBlock> EnumerateFile(string file, uint fileIndex = 0, DiskBlockPosRange range = null)
-#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			return new BlockStore(Path.GetDirectoryName(file), Network.Main).EnumerateFile(file, fileIndex, range);
 		}
+#pragma warning restore CS0612 // Type or member is obsolete
 
 #pragma warning disable CS0612 // Type or member is obsolete
 		public static IEnumerable<StoredBlock> EnumerateFolder(string folder, DiskBlockPosRange range = null)
-#pragma warning restore CS0612 // Type or member is obsolete
 		{
 			return new BlockStore(folder, Network.Main).EnumerateFolder(range);
 		}
+#pragma warning restore CS0612 // Type or member is obsolete
 #endif
 	}
 }

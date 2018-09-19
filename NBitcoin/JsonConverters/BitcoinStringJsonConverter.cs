@@ -35,20 +35,21 @@ namespace NBitcoin.JsonConverters
 
 			try
 			{
-				var result = Network.Parse(reader.Value.ToString(), null);
-				if(result == null)
-				{
-					throw new JsonObjectException("Invalid BitcoinString data", reader);
-				}
+				IBitcoinString result = null;
 				if(Network != null)
 				{
-					if(result.Network != Network)
+					result = Network.Parse(reader.Value.ToString());
+					if(result == null)
 					{
-						result = Network.Parse(reader.Value.ToString());
-						if(result.Network != Network)
-						{
-							throw new JsonObjectException("Invalid BitcoinString network", reader);
-						}
+						throw new JsonObjectException("Invalid BitcoinString network", reader);
+					}
+				}
+				else
+				{
+					result = Network.Parse(reader.Value.ToString(), null);
+					if(result == null)
+					{
+						throw new JsonObjectException("Invalid BitcoinString data", reader);
 					}
 				}
 				if(!objectType.GetTypeInfo().IsAssignableFrom(result.GetType().GetTypeInfo()))

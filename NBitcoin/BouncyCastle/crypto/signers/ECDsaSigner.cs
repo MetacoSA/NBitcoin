@@ -1,3 +1,4 @@
+using System;
 using NBitcoin.BouncyCastle.Crypto.Parameters;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
@@ -19,9 +20,11 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
 		protected ECKeyParameters key = null;
 		protected SecureRandom random = null;
 
+		protected bool forceLowR = false;
+
 		/**
-         * Default configuration, random K values.
-         */
+		* Default configuration, random K values.
+		*/
 		public ECDsaSigner()
 		{
 			this.kCalculator = new RandomDsaKCalculator();
@@ -32,9 +35,10 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
          *
          * @param kCalculator a K value calculator.
          */
-		public ECDsaSigner(IDsaKCalculator kCalculator)
+		public ECDsaSigner(IDsaKCalculator kCalculator, bool forceLowR=true)
 		{
 			this.kCalculator = kCalculator;
+			this.forceLowR = forceLowR;
 		}
 
 		public virtual string AlgorithmName
@@ -101,14 +105,18 @@ namespace NBitcoin.BouncyCastle.Crypto.Signers
 				BigInteger k;
 				do // Generate r
 				{
-					k = kCalculator.NextK();
+					do 
+					{
+						k = kCalculator.NextK();
 
-					ECPoint p = basePointMultiplier.Multiply(ec.G, k).Normalize();
+						ECPoint p = basePointMultiplier.Multiply(ec.G, k).Normalize();
 
-					// 5.3.3
-					r = p.AffineXCoord.ToBigInteger().Mod(n);
+						// 5.3.3
+						r = p.AffineXCoord.ToBigInteger().Mod(n);
+					}
+					while(r.SignValue == 0);
 				}
-				while(r.SignValue == 0);
+				while(forceLowR && r.ToByteArrayUnsigned()[0] >= 0x80);
 
 				s = k.ModInverse(n).Multiply(e.Add(d.Multiply(r))).Mod(n);
 			}

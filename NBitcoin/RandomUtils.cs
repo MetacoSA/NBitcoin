@@ -95,6 +95,11 @@ namespace NBitcoin
 			}
 		}
 
+		public static uint256 GetUInt256()
+		{
+			return new uint256(GetBytes(32));
+		}
+
 		public static uint GetUInt32()
 		{
 			return BitConverter.ToUInt32(GetBytes(sizeof(uint)), 0);

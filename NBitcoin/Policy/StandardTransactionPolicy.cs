@@ -135,11 +135,12 @@ namespace NBitcoin.Policy
 			var fees = transaction.GetFee(spentCoins);
 			if(fees != null)
 			{
+				var virtualSize = transaction.GetVirtualSize();
 				if(CheckFee)
 				{
 					if(MaxTxFee != null)
 					{
-						var max = MaxTxFee.GetFee(txSize);
+						var max = MaxTxFee.GetFee(virtualSize);
 						if(fees > max)
 							errors.Add(new FeeTooHighPolicyError(fees, max));
 					}
@@ -148,7 +149,7 @@ namespace NBitcoin.Policy
 					{
 						if(MinRelayTxFee != null)
 						{
-							var min = MinRelayTxFee.GetFee(txSize);
+							var min = MinRelayTxFee.GetFee(virtualSize);
 							if(fees < min)
 								errors.Add(new FeeTooLowPolicyError(fees, min));
 						}

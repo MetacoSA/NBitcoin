@@ -58,56 +58,12 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanEnumerateBlockCountRange()
-		{
-			var store = new BlockStore(@"data/blocks", Network.Main);
-			var expectedBlock = store.Enumerate(false).Skip(4).First();
-			var actualBlocks = store.Enumerate(false, 4, 2).ToArray();
-			Assert.Equal(2, actualBlocks.Length);
-			Assert.Equal(expectedBlock.Item.Header.GetHash(), actualBlocks[0].Item.Header.GetHash());
-			Assert.True(actualBlocks[0].Item.CheckMerkleRoot());
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
 		//The last block is off by 1 byte + lots of padding zero at the end
 		public void CanEnumerateIncompleteBlk()
 		{
 			Assert.Equal(301, StoredBlock.EnumerateFile(@"data/blocks/incompleteblk.dat").Count());
 		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanBuildChainFromBlocks()
-		{
-			var store = new BlockStore(@"data/blocks", Network.Main);
-			var chain = store.GetChain();
-			Assert.True(chain.Height == 599);
-
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanIndexBlock()
-		{
-			var index = CreateIndexedStore();
-			foreach(var block in StoredBlock.EnumerateFile(@"data/blocks/blk00000.dat").Take(50))
-			{
-				index.Put(block.Item);
-			}
-			var genesis = index.Get(uint256.Parse("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"));
-			Assert.NotNull(genesis);
-			var invalidBlock = index.Get(uint256.Parse("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26e"));
-			Assert.Null(invalidBlock);
-		}
-
-
-		public static IndexedBlockStore CreateIndexedStore([CallerMemberName]string folderName = null)
-		{
-			TestUtils.EnsureNew(folderName);
-			return new IndexedBlockStore(new InMemoryNoSqlRepository(), new BlockStore(folderName, Network.Main));
-		}
-
+		
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public static void CanRequestTransactionOnQBit()
@@ -125,9 +81,51 @@ namespace NBitcoin.Tests
 			Assert.NotNull(result);
 		}
 
+		enum CoinType : int
+		{
+			Segwit = 0,
+			SegwitP2SH = 1,
+			P2SH = 2,
+			Normal = 3,
+			P2WPKH = 4
+		}
+		private static Coin RandomCoin(Key[] bobs, Money amount, CoinType type)
+		{
+			if(bobs.Length == 1)
+			{
+				var bob = bobs[0];
+				if(type == CoinType.Normal)
+					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, bob.PubKey.Hash.ScriptPubKey);
+				if(type == CoinType.P2WPKH)
+					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, bob.PubKey.WitHash.ScriptPubKey);
+				if(type == CoinType.P2SH)
+					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, bob.PubKey.ScriptPubKey.Hash.ScriptPubKey).ToScriptCoin(bob.PubKey.ScriptPubKey);
+				if(type == CoinType.SegwitP2SH)
+					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, bob.PubKey.ScriptPubKey.WitHash.ScriptPubKey.Hash.ScriptPubKey).ToScriptCoin(bob.PubKey.ScriptPubKey);
+				if(type == CoinType.Segwit)
+					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, bob.PubKey.ScriptPubKey.WitHash.ScriptPubKey).ToScriptCoin(bob.PubKey.ScriptPubKey);
+				throw new NotSupportedException();
+			}
+			else
+			{
+				while(type == CoinType.Normal || type == CoinType.P2WPKH)
+				{
+					type = (CoinType)(RandomUtils.GetUInt32() % 5);
+				}
+				var script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey((int)(1 + (RandomUtils.GetUInt32() % bobs.Length)), bobs.Select(b => b.PubKey).ToArray());
+				if(type == CoinType.P2SH)
+					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, script.Hash.ScriptPubKey).ToScriptCoin(script);
+				if(type == CoinType.SegwitP2SH)
+					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, script.WitHash.ScriptPubKey.Hash.ScriptPubKey).ToScriptCoin(script);
+				if(type == CoinType.Segwit)
+					return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, script.WitHash.ScriptPubKey).ToScriptCoin(script);
+				throw new NotSupportedException();
+			}
+		}
+
 		private static Coin RandomCoin(Key bob, Money amount, bool p2pkh = false)
 		{
-			return new Coin(new uint256(Enumerable.Range(0, 32).Select(i => (byte)0xaa).ToArray()), 0, amount, p2pkh ? bob.PubKey.Hash.ScriptPubKey : bob.PubKey.WitHash.ScriptPubKey);
+			return new Coin(new uint256(RandomUtils.GetBytes(32)), 0, amount, p2pkh ? bob.PubKey.Hash.ScriptPubKey : bob.PubKey.WitHash.ScriptPubKey);
 		}
 		private static Coin RandomCoin2(Key bob, Money amount, bool p2pkh = false)
 		{
@@ -135,7 +133,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void Play()
+		public void Pregenerate()
 		{
 		}
 
@@ -150,10 +148,43 @@ namespace NBitcoin.Tests
 			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
 			builder.SubtractFees();
 			builder.SendEstimatedFees(new FeeRate(Money.Satoshis(100), 1));
-			var result = builder.BuildTransaction(true);
-			Assert.Equal(Money.Coins(0.00011300m), result.GetFee(builder.FindSpentCoins(result)));
+			var v = VerifyFees(builder, new FeeRate(Money.Satoshis(100), 1));
+			Assert.Equal(v.expectedBaseSize, v.baseSize); // No signature here, should be fix
+			Assert.True(v.witSize - v.expectedWitsize < 2); // the signature size might vary of 1 or 2 bytes
+
+			for(int i = 0; i < 100; i++)
+			{
+				builder = new TransactionBuilder();
+				for(int ii = 0; ii < 1 + RandomUtils.GetUInt32() % 10; ii++)
+				{
+					var signersCount = 1 + (int)(RandomUtils.GetUInt32() % 6);
+					var signers = Enumerable.Range(0, signersCount).Select(_ => new Key()).ToArray();
+					builder.AddCoins(RandomCoin(signers, Money.Coins(1), (CoinType)(RandomUtils.GetUInt32() % 5)));
+					builder.AddKeys(signers);
+					builder.Send(new Key().ScriptPubKey, Money.Coins(0.9m));
+
+				}
+				builder.SubtractFees();
+				builder.SetChange(new Key().ScriptPubKey);
+				builder.SendEstimatedFees(builder.StandardTransactionPolicy.MinRelayTxFee);
+				VerifyFees(builder);
+			}
 		}
 
+		private static (int expectedBaseSize, int expectedWitsize, int baseSize, int witSize) VerifyFees(TransactionBuilder builder, FeeRate feeRate = null)
+		{
+			feeRate = feeRate ?? builder.StandardTransactionPolicy.MinRelayTxFee;
+			var result = builder.BuildTransaction(true);
+			builder.EstimateSizes(result, out int witSize, out int baseSize);
+			var expectedWitsize = result.ToBytes().Length - result.WithOptions(TransactionOptions.None).ToBytes().Length;
+			var expectedBaseSize = result.WithOptions(TransactionOptions.None).ToBytes().Length;
+			Assert.True(expectedBaseSize <= baseSize);
+			Assert.True(expectedWitsize <= witSize);
+			Assert.True(feeRate.FeePerK.Almost(result.GetFeeRate(builder.FindSpentCoins(result)).FeePerK, 0.01m));
+			Assert.True(feeRate.FeePerK <= result.GetFeeRate(builder.FindSpentCoins(result)).FeePerK);
+
+			return (expectedBaseSize, expectedWitsize, baseSize, witSize);
+		}
 
 
 		[Fact]

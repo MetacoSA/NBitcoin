@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
+	[Obsolete]
 	public class CachedBlockProvider : IBlockProvider
 	{
 		public CachedBlockProvider(IBlockProvider inner)

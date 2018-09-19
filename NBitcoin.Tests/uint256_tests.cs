@@ -57,6 +57,17 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void spanUintSerializationTests()
+		{
+			var v = new uint256(RandomUtils.GetBytes(32));
+			Assert.Equal(v, new uint256(v.ToBytes()));
+			AssertEx.CollectionEquals(v.ToBytes(), v.AsBitcoinSerializable().ToBytes());
+			uint256.MutableUint256 mutable = new uint256.MutableUint256();
+			mutable.ReadWrite(v.ToBytes());
+			Assert.Equal(v, mutable.Value);
+		}
+
+		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void uitnSerializationTests()
 		{

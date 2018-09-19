@@ -60,7 +60,7 @@ namespace NBitcoin
 		}
 
 		ECKey _ECKey;
-		ECKey ECKey
+		internal ECKey ECKey
 		{
 			get
 			{

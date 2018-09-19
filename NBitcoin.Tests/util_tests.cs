@@ -81,6 +81,17 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanCalculateGoestlcoinTransactionHash()
+		{
+			var bs = new BitcoinStream(Encoders.Hex.DecodeData("020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03510101ffffffff0200002cd6e21500002321023035994e950a694cd81e0384abc1850cfe3e541a9de9706ca669d21c61548f8bac0000000000000000266a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf90120000000000000000000000000000000000000000000000000000000000000000000000000"));
+			bs.ConsensusFactory = Altcoins.Groestlcoin.Instance.Mainnet.Consensus.ConsensusFactory;
+			var tx = bs.ConsensusFactory.CreateTransaction();
+			tx.ReadWrite(bs);
+			Assert.Equal("f347692c823932e4329b2f720a9ecb84d945341a2d6e663ee4fbe23d53c50386", tx.GetHash().ToString());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanUseSegwitAddress()
 		{
 			var address = (BitcoinWitPubKeyAddress)BitcoinAddress.Create("bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4");
@@ -188,7 +199,21 @@ namespace NBitcoin.Tests
 			var genesis = Network.Main.GetGenesis();
 			Assert.True(genesis.GetHash() < genesis.Header.Bits.ToUInt256());
 			Assert.True(Target.Difficulty1 == Target.Difficulty1);
+
+
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void Target_Should_Roundtrip_Implicit_Uint()
+		{
+			var orig = 0U;
+			var target = (Target)orig;
+			var roundtripped = (uint)target;
+
+			Assert.Equal(orig, roundtripped);
+		}
+
 
 		[Fact]
 		[Trait("Core", "Core")]
@@ -491,6 +516,18 @@ namespace NBitcoin.Tests
 				m--;
 			});
 			Assert.Throws<OverflowException>(() => -1 * (Money)long.MinValue);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void FeeRateFormatting()
+		{
+			var fee = new FeeRate(0.5m);
+			Assert.Equal("0.5 Sat/B", fee.ToString());
+			fee = new FeeRate(1.0m);
+			Assert.Equal("1 Sat/B", fee.ToString());
+			fee = new FeeRate(0.521748274m);
+			Assert.Equal("0.521 Sat/B", fee.ToString());
 		}
 
 		[Fact]

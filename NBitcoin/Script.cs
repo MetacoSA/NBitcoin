@@ -153,7 +153,19 @@ namespace NBitcoin
 			| Witness
 			| DiscourageUpgradableWitnessProgram
 			| NullFail
-			| MinimalIf
+			| MinimalIf,
+
+		/// <summary>
+		/// Strict consensus script verification flags that are checked by the Bitcoin Core
+		/// consensus library before validating the transaction.
+		/// </summary>
+		Consensus =
+			  ScriptVerify.DerSig
+			| ScriptVerify.P2SH
+			| ScriptVerify.NullDummy
+			| ScriptVerify.CheckLockTimeVerify
+			| ScriptVerify.CheckSequenceVerify
+			| ScriptVerify.Witness
 	}
 
 	/// <summary>
@@ -356,10 +368,10 @@ namespace NBitcoin
 			}
 		}
 
-		internal byte[] _Script = new byte[0];
+		internal readonly byte[] _Script;
 		public Script()
 		{
-
+			_Script = new byte[0];
 		}
 		public Script(params Op[] ops)
 			: this((IEnumerable<Op>)ops)
@@ -464,29 +476,29 @@ namespace NBitcoin
 			return new ScriptReader(_Script);
 		}
 
+		private Script FindAndDelete(Op op)
+		{
+			return op == null ? this : FindAndDelete(o => o.Code == op.Code && Utils.ArrayEqual(o.PushData, op.PushData));
+		}
 
-		public int FindAndDelete(OpcodeType op)
+		internal Script FindAndDelete(byte[] pushedData)
+		{
+			if(pushedData.Length == 0)
+				return this;
+			var standardOp = Op.GetPushOp(pushedData);
+			return FindAndDelete(op =>
+							op.Code == standardOp.Code &&
+							op.PushData != null && Utils.ArrayEqual(op.PushData, pushedData));
+		}
+		internal Script FindAndDelete(OpcodeType op)
 		{
 			return FindAndDelete(new Op()
 			{
 				Code = op
 			});
 		}
-		internal int FindAndDelete(Op op)
-		{
-			return op == null ? 0 : FindAndDelete(o => o.Code == op.Code && Utils.ArrayEqual(o.PushData, op.PushData));
-		}
 
-		internal int FindAndDelete(byte[] pushedData)
-		{
-			if(pushedData.Length == 0)
-				return 0;
-			var standardOp = Op.GetPushOp(pushedData);
-			return FindAndDelete(op =>
-							op.Code == standardOp.Code &&
-							op.PushData != null && Utils.ArrayEqual(op.PushData, pushedData));
-		}
-		internal int FindAndDelete(Func<Op, bool> predicate)
+		private Script FindAndDelete(Func<Op, bool> predicate)
 		{
 			int nFound = 0;
 			List<Op> operations = new List<Op>();
@@ -501,9 +513,8 @@ namespace NBitcoin
 					nFound++;
 			}
 			if(nFound == 0)
-				return 0;
-			_Script = new Script(operations)._Script;
-			return nFound;
+				return this;
+			return new Script(operations);
 		}
 
 		public string ToHex()
@@ -925,7 +936,8 @@ namespace NBitcoin
 			var scriptPubKeyBytes = scriptPubKey.ToBytes();
 			var txToBytes = tx.ToBytes();
 			err = BitcoinConsensusError.ERR_OK;
-			var valid = VerifyScriptConsensusWithAmount(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, amount.Satoshi, txToBytes, (uint)txToBytes.Length, nIn, flags, ref err);
+
+			int	valid = VerifyScriptConsensusWithAmount(scriptPubKeyBytes, (uint)scriptPubKeyBytes.Length, amount.Satoshi, txToBytes, (uint)txToBytes.Length, 0, flags & ScriptVerify.Consensus, ref err);
 			return valid == 1;
 		}
 #endif

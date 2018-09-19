@@ -35,7 +35,7 @@ namespace NBitcoin
 			}
 		}
 		Dictionary<uint256, ChainedBlock> _BlocksById = new Dictionary<uint256, ChainedBlock>();
-		Dictionary<int, ChainedBlock> _BlocksByHeight = new Dictionary<int, ChainedBlock>();
+		ChainedBlock[] _BlocksByHeight = new ChainedBlock[0];
 		ReaderWriterLock @lock = new ReaderWriterLock();
 
 		public ConcurrentChain()
@@ -190,7 +190,7 @@ namespace NBitcoin
 							stream.ReadWrite(ref header);
 						if(height == 0)
 						{
-							_BlocksByHeight.Clear();
+							_BlocksByHeight = new ChainedBlock[0];
 							_BlocksById.Clear();
 							_Tip = null;
 							if(header != null && genesis != null && header.GetHash() != genesis.HashBlock)
@@ -261,10 +261,7 @@ namespace NBitcoin
 				{
 					chain._BlocksById.Add(kv.Key, kv.Value);
 				}
-				foreach(var kv in _BlocksByHeight)
-				{
-					chain._BlocksByHeight.Add(kv.Key, kv.Value);
-				}
+				chain._BlocksByHeight = _BlocksByHeight.ToArray();
 			}
 			return chain;
 		}
@@ -288,7 +285,7 @@ namespace NBitcoin
 			foreach(var orphaned in EnumerateThisToFork(block))
 			{
 				_BlocksById.Remove(orphaned.HashBlock);
-				_BlocksByHeight.Remove(orphaned.Height);
+				RemoveBlocksByHeight(orphaned.Height);
 				height--;
 			}
 			var fork = GetBlockNoLock(height);
@@ -296,13 +293,11 @@ namespace NBitcoin
 				.TakeWhile(c => c != fork))
 			{
 				_BlocksById.AddOrReplace(newBlock.HashBlock, newBlock);
-				_BlocksByHeight.AddOrReplace(newBlock.Height, newBlock);
+				AddOrReplaceBlocksByHeight(newBlock.Height, newBlock);
 			}
 			_Tip = block;
 			return fork;
 		}
-
-
 
 		private IEnumerable<ChainedBlock> EnumerateThisToFork(ChainedBlock block)
 		{
@@ -348,8 +343,33 @@ namespace NBitcoin
 		private ChainedBlock GetBlockNoLock(int height)
 		{
 			ChainedBlock result;
-			_BlocksByHeight.TryGetValue(height, out result);
+			TryGetBlocksByHeight(height, out result);
 			return result;
+		}
+
+		private bool TryGetBlocksByHeight(int height, out ChainedBlock result)
+		{
+			result = null;
+			if(height >= _BlocksByHeight.Length || height < 0)
+				return false;
+			result = _BlocksByHeight[height];
+			return result != null;
+		}
+
+		private void RemoveBlocksByHeight(int height)
+		{
+			if(height >= _BlocksByHeight.Length)
+				return;
+			_BlocksByHeight[height] = null;
+		}
+
+		private void AddOrReplaceBlocksByHeight(int height, ChainedBlock newBlock)
+		{
+			while(height >= _BlocksByHeight.Length)
+			{
+				Array.Resize(ref _BlocksByHeight, (int)((_BlocksByHeight.Length + 100) * 1.1));
+			}
+			_BlocksByHeight[height] = newBlock;
 		}
 
 		public override ChainedBlock GetBlock(int height)

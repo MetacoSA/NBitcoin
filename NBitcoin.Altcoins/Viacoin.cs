@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace NBitcoin.Altcoins
 {
@@ -54,13 +55,116 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
-		public class ViacoinBlockHeader : BlockHeader
+#pragma warning disable CS0618 // Type or member is obsolete
+		public class AuxPow : IBitcoinSerializable
 		{
-			public override uint256 GetPoWHash()
+			Transaction tx = new Transaction();
+
+			public Transaction Transactions
 			{
-				var headerBytes = this.ToBytes();
-				var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
-				return new uint256(h);
+				get
+				{
+					return tx;
+				}
+				set
+				{
+					tx = value;
+				}
+			}
+
+			uint nIndex = 0;
+
+			public uint Index
+			{
+				get
+				{
+					return nIndex;
+				}
+				set
+				{
+					nIndex = value;
+				}
+			}
+
+			uint256 hashBlock = new uint256();
+
+			public uint256 HashBlock
+			{
+				get
+				{
+					return hashBlock;
+				}
+				set
+				{
+					hashBlock = value;
+				}
+			}
+
+			List<uint256> vMerkelBranch = new List<uint256>();
+
+			public List<uint256> MerkelBranch
+			{
+				get
+				{
+					return vMerkelBranch;
+				}
+				set
+				{
+					vMerkelBranch = value;
+				}
+			}
+
+			List<uint256> vChainMerkleBranch = new List<uint256>();
+
+			public List<uint256> ChainMerkleBranch
+			{
+				get
+				{
+					return vChainMerkleBranch;
+				}
+				set
+				{
+					vChainMerkleBranch = value;
+				}
+			}
+
+			uint nChainIndex = 0;
+
+			public uint ChainIndex
+			{
+				get
+				{
+					return nChainIndex;
+				}
+				set
+				{
+					nChainIndex = value;
+				}
+			}
+
+			BlockHeader parentBlock = new BlockHeader();
+
+			public BlockHeader ParentBlock
+			{
+				get
+				{
+					return parentBlock;
+				}
+				set
+				{
+					parentBlock = value;
+				}
+			}
+
+			public void ReadWrite(BitcoinStream stream)
+			{
+				stream.ReadWrite(ref tx);
+				stream.ReadWrite(ref hashBlock);
+				stream.ReadWrite(ref vMerkelBranch);
+				stream.ReadWrite(ref nIndex);
+				stream.ReadWrite(ref vChainMerkleBranch);
+				stream.ReadWrite(ref nChainIndex);
+				stream.ReadWrite(ref parentBlock);
 			}
 		}
 
@@ -70,13 +174,63 @@ namespace NBitcoin.Altcoins
 			{
 
 			}
+
 			public override ConsensusFactory GetConsensusFactory()
 			{
 				return ViacoinConsensusFactory.Instance;
 			}
 		}
+		public class ViacoinBlockHeader : BlockHeader
+		{
+			const int VERSION_AUXPOW = (1 << 8);
 
+			AuxPow auxPow = new AuxPow();
+
+			public AuxPow AuxPow
+			{
+				get
+				{
+					return auxPow;
+				}
+				set
+				{
+					auxPow = value;
+				}
+			}
+
+			public override uint256 GetPoWHash()
+			{
+				var headerBytes = this.ToBytes();
+				var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
+				return new uint256(h);
+			}
+
+			public override void ReadWrite(BitcoinStream stream)
+			{
+				base.ReadWrite(stream);
+				if((Version & VERSION_AUXPOW) != 0)
+				{
+					if(!stream.Serializing)
+					{
+						stream.ReadWrite(ref auxPow);
+					}
+				}
+			}
+		}
 #pragma warning restore CS0618 // Type or member is obsolete
+
+		//Format visual studio
+		//{({.*?}), (.*?)}
+		//Tuple.Create(new byte[]$1, $2)
+		//static Tuple<byte[], int>[] pnSeed6_main = null;
+		//static Tuple<byte[], int>[] pnSeed6_test = null;		
+
+		static uint256 GetPoWHash(BlockHeader header)
+		{
+			var headerBytes = header.ToBytes();
+			var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
+			return new uint256(h);
+		}
 
 		protected override void PostInit()
 		{
@@ -106,10 +260,9 @@ namespace NBitcoin.Altcoins
 			})
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { 71 })
 			.SetBase58Bytes(Base58Type.SCRIPT_ADDRESS, new byte[] { 33 })
-			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 176 })
+			.SetBase58Bytes(Base58Type.SECRET_KEY, new byte[] { 199 })
 			.SetBase58Bytes(Base58Type.EXT_PUBLIC_KEY, new byte[] { 0x04, 0x88, 0xB2, 0x1E })
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
-			//.SetNetworkStringParser(new ViacoinMainnetAddressStringParser())
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("via"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("via"))
 			.SetMagic(0xcbc6680f)
@@ -126,7 +279,7 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("viacoin.net", "mainnet.viacoin.net"),
 			})
 			.AddSeeds(ToSeed(pnSeed6_main))
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000d9ced4ed1130f7b7faad9be25323ffafa33232a17c3edf6cfd97bee6bafbdd97b9aa8e4ef0ff0f1ecd513f7c0101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4804ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			.SetGenesis("01000000000000000000000000000000000000000000000000000000000000000000000000522753002939c78659b4fdc6ed56c6b6aacdc7586facf2f6ada2012ed31703e61cc153ffff011ea1473d000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff5704ffff001d01044c4e426c6f636b20233331303337393a30303030303030303030303030303030323431323532613762623237626539376265666539323138633132393064666633366331666631323965633732313161ffffffff01000000000000000043410459934a6a228ce9716fa0b13aa1cdc01593fca5f8599473c803a5109ff834dfdaf4c9ee35f2218c9ee3e7cf7db734e1179524b9d6ae8ebbeba883d4cb89b6c7bfac00000000");
 			return builder;
 		}
 
@@ -170,7 +323,7 @@ namespace NBitcoin.Altcoins
 				new DNSSeedData("viacoin.net", "seed-testnet.viacoin.net")
 			})
 			.AddSeeds(ToSeed(pnSeed6_test))
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0dee1e352f0ff0f1ec3c927e60101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			.SetGenesis("01000000000000000000000000000000000000000000000000000000000000000000000000522753002939c78659b4fdc6ed56c6b6aacdc7586facf2f6ada2012ed31703842cc153ffff1f1e110304000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff5704ffff001d01044c4e426c6f636b20233331303337393a30303030303030303030303030303030323431323532613762623237626539376265666539323138633132393064666633366331666631323965633732313161ffffffff01000000000000000043410459934a6a228ce9716fa0b13aa1cdc01593fca5f8599473c803a5109ff834dfdaf4c9ee35f2218c9ee3e7cf7db734e1179524b9d6ae8ebbeba883d4cb89b6c7bfac00000000");
 			return builder;
 		}
 
@@ -202,14 +355,14 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x35, 0x83, 0x94 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tvia"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tvia"))
-			.SetMagic(0xda5bbffa)
+			.SetMagic(0x377b972d)
 			.SetPort(15224)
 			.SetRPCPort(15223)
 			.SetName("via-reg")
 			.AddAlias("via-regtest")
 			.AddAlias("viacoin-reg")
 			.AddAlias("viacoin-regtest")
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000d9ced4ed1130f7b7faad9be25323ffafa33232a17c3edf6cfd97bee6bafbdd97f6028c4ef0ff0f1e38c3f6160101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4804ffff001d0104404e592054696d65732030352f4f63742f32303131205374657665204a6f62732c204170706c65e280997320566973696f6e6172792c2044696573206174203536ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			.SetGenesis("01000000000000000000000000000000000000000000000000000000000000000000000000522753002939c78659b4fdc6ed56c6b6aacdc7586facf2f6ada2012ed31703d321c153ffff7f20000000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff5704ffff001d01044c4e426c6f636b20233331303337393a30303030303030303030303030303030323431323532613762623237626539376265666539323138633132393064666633366331666631323965633732313161ffffffff01000000000000000043410459934a6a228ce9716fa0b13aa1cdc01593fca5f8599473c803a5109ff834dfdaf4c9ee35f2218c9ee3e7cf7db734e1179524b9d6ae8ebbeba883d4cb89b6c7bfac00000000");
 			return builder;
 		}
 	}

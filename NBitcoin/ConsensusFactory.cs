@@ -20,51 +20,61 @@ namespace NBitcoin
 		ConcurrentDictionary<Type, bool> _IsAssignableFromTransaction = new ConcurrentDictionary<Type, bool>();
 		TypeInfo TransactionType = typeof(Transaction).GetTypeInfo();
 
-		protected bool IsBlockHeader<T>()
+		protected bool IsBlockHeader(Type type)
 		{
-			return IsAssignable<T>(BlockHeaderType, _IsAssignableFromBlockHeader);
+			return IsAssignable(type, BlockHeaderType, _IsAssignableFromBlockHeader);
 		}
 
-		protected bool IsBlock<T>()
+		protected bool IsBlock(Type type)
 		{
-			return IsAssignable<T>(BlockType, _IsAssignableFromBlock);
+			return IsAssignable(type, BlockType, _IsAssignableFromBlock);
 		}
 
-		protected bool IsTransaction<T>()
+		protected bool IsTransaction(Type type)
 		{
-			return IsAssignable<T>(TransactionType, _IsAssignableFromTransaction);
+			return IsAssignable(type, TransactionType, _IsAssignableFromTransaction);
 		}
 
-		private bool IsAssignable<T>(TypeInfo type, ConcurrentDictionary<Type, bool> cache)
+		private bool IsAssignable(Type type, TypeInfo baseType, ConcurrentDictionary<Type, bool> cache)
 		{
 			bool isAssignable = false;
-			if(!cache.TryGetValue(typeof(T), out isAssignable))
+			if(!cache.TryGetValue(type, out isAssignable))
 			{
-				isAssignable = type.IsAssignableFrom(typeof(T).GetTypeInfo());
-				cache.TryAdd(typeof(T), isAssignable);
+				isAssignable = baseType.IsAssignableFrom(type.GetTypeInfo());
+				cache.TryAdd(type, isAssignable);
 			}
 			return isAssignable;
 		}
 
-		public virtual bool TryCreateNew<T>(out T result) where T : IBitcoinSerializable
+		public virtual bool TryCreateNew(Type type, out IBitcoinSerializable result)
 		{
-			result = default(T);
-			if(IsBlock<T>())
+			result = null;
+			if(IsBlock(type))
 			{
-				result = (T)(object)CreateBlock();
+				result = CreateBlock();
 				return true;
 			}
-			if(IsBlockHeader<T>())
+			if(IsBlockHeader(type))
 			{
-				result = (T)(object)CreateBlockHeader();
+				result = CreateBlockHeader();
 				return true;
 			}
-			if(IsTransaction<T>())
+			if(IsTransaction(type))
 			{
-				result = (T)(object)CreateTransaction();
+				result = CreateTransaction();
 				return true;
 			}
 			return false;
+		}
+
+		public bool TryCreateNew<T>(out T result) where T : IBitcoinSerializable
+		{
+			result = default(T);
+			IBitcoinSerializable r = null;
+			var success = TryCreateNew(typeof(T), out r);
+			if(success)
+				result = (T)r;
+			return success;
 		}
 
 		public virtual ProtocolCapabilities GetProtocolCapabilities(uint protocolVersion)
@@ -102,7 +112,9 @@ namespace NBitcoin
 
 		public virtual Transaction CreateTransaction()
 		{
+#pragma warning disable CS0618 // Type or member is obsolete
 			return new Transaction();
+#pragma warning restore CS0618 // Type or member is obsolete
 		}
 	}
 }

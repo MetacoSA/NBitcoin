@@ -36,6 +36,20 @@ namespace NBitcoin.Tests
 
 
 		[Fact]
+		public void CanCalculateTransactionHash()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var rpc = builder.CreateNode().CreateRPCClient();
+				builder.StartAll();
+				var blockHash = rpc.Generate(1)[0];
+				var block = rpc.GetBlock(blockHash);
+				var walletTx = rpc.SendCommand(RPCOperations.gettransaction, block.Transactions[0].GetHash());
+				walletTx.ThrowIfError();
+			}
+		}
+
+		[Fact]
 		public void HasCorrectGenesisBlock()
 		{
 			using(var builder = NodeBuilderEx.Create())
@@ -43,7 +57,9 @@ namespace NBitcoin.Tests
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
 				var actual = (rpc.GetBlock(0)).GetHash();
-				Assert.Equal(builder.Network.GetGenesis().GetHash(), actual);
+				var calculatedGenesis = builder.Network.GetGenesis().GetHash();
+				Assert.Equal(calculatedGenesis, actual);
+				Assert.Equal(rpc.GetBlockHash(0), calculatedGenesis);
 			}
 		}
 
@@ -55,9 +71,13 @@ namespace NBitcoin.Tests
 				var node = builder.CreateNode();
 				builder.StartAll();
 				var rpc = node.CreateRPCClient();
-				rpc.Generate(100);
+				rpc.Generate(10);
 				var hash = rpc.GetBestBlockHash();
-				Assert.NotNull(rpc.GetBlock(hash));
+				var b = rpc.GetBlock(hash);
+				Assert.NotNull(b);
+				Assert.Equal(hash, b.GetHash());
+
+				new ConcurrentChain(builder.Network);
 			}
 		}
 
@@ -77,6 +97,8 @@ namespace NBitcoin.Tests
 				var tx = rpc.GetRawTransaction(txid);
 				var coin = tx.Outputs.AsCoins().First(c => c.ScriptPubKey == aliceAddress.ScriptPubKey);
 
+				// Check the hash calculated correctly
+				Assert.Equal(txid, tx.GetHash());
 				TransactionBuilder txbuilder = new TransactionBuilder();
 				txbuilder.SetConsensusFactory(builder.Network);
 				txbuilder.AddCoins(coin);
@@ -101,8 +123,15 @@ namespace NBitcoin.Tests
 				var addr2 = BitcoinAddress.Create(addr, builder.Network).ToString();
 				Assert.Equal(addr, addr2);
 
-				var address = new Key().PubKey.GetAddress(builder.Network);
+				var address = (BitcoinAddress)new Key().PubKey.GetAddress(builder.Network);
+
+				// Test normal address
 				var isValid = ((JObject)node.CreateRPCClient().SendCommand("validateaddress", address.ToString()).Result)["isvalid"].Value<bool>();
+				Assert.True(isValid);
+
+				// Test p2sh
+				address = new Key().PubKey.ScriptPubKey.Hash.ScriptPubKey.GetDestinationAddress(builder.Network);
+				isValid = ((JObject)node.CreateRPCClient().SendCommand("validateaddress", address.ToString()).Result)["isvalid"].Value<bool>();
 				Assert.True(isValid);
 			}
 		}
@@ -125,6 +154,21 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CorrectCoinMaturity()
+		{
+			using(var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				builder.StartAll();
+				node.Generate(builder.Network.Consensus.CoinbaseMaturity);
+				var rpc = node.CreateRPCClient();
+				Assert.Equal(Money.Zero, rpc.GetBalance());
+				node.Generate(1);
+				Assert.NotEqual(Money.Zero, rpc.GetBalance());
+			}
+		}
+
+		[Fact]
 		public void CanSyncWithoutPoW()
 		{
 			using(var builder = NodeBuilderEx.Create())
@@ -136,6 +180,7 @@ namespace NBitcoin.Tests
 				nodeClient.VersionHandshake();
 				ConcurrentChain chain = new ConcurrentChain(builder.Network);
 				nodeClient.SynchronizeChain(chain, new Protocol.SynchronizeChainOptions() { SkipPoWCheck = true });
+				Assert.Equal(node.CreateRPCClient().GetBestBlockHash(), chain.Tip.HashBlock);
 				Assert.Equal(100, chain.Height);
 
 				// If it fails, override Block.GetConsensusFactory()

@@ -40,6 +40,8 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(new WitScript(new Script(Op.GetPushOp(sig.ToDER()), Op.GetPushOp(sig.ToDER()))));
 			CanSerializeInJsonCore(new LockTime(1));
 			CanSerializeInJsonCore(new LockTime(DateTime.UtcNow));
+			CanSerializeInJsonCore(new FeeRate(Money.Satoshis(1), 1000));
+			CanSerializeInJsonCore(new FeeRate(Money.Satoshis(1000), 1000));
 		}
 
 		private T CanSerializeInJsonCore<T>(T value)

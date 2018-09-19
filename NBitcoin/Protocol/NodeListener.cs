@@ -44,16 +44,20 @@ namespace NBitcoin.Protocol
 			Queue<IncomingMessage> pushedAside = new Queue<IncomingMessage>();
 			try
 			{
-				while(true)
+				using(var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, Node._Connection.Cancel.Token))
 				{
-					var message = ReceiveMessage(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, Node._Connection.Cancel.Token).Token);
-					if(_Predicates.All(p => p(message)))
+					while(true)
 					{
-						if(message.Message.Payload is TPayload)
-							return (TPayload)message.Message.Payload;
-						else
+						var message = ReceiveMessage(cts.Token);
+						if(_Predicates.All(p => p(message)))
 						{
-							pushedAside.Enqueue(message);
+							if(message.Message.Payload is TPayload)
+								return (TPayload)message.Message.Payload;
+							else
+							{
+								pushedAside.Enqueue(message);
+							}
+
 						}
 					}
 				}

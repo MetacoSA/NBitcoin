@@ -74,6 +74,8 @@ namespace NBitcoin
 			var val = bytes.SafeSubarray(0, Math.Min(bytes.Length, 3));
 			Array.Reverse(val);
 			var exp = (byte)(bytes.Length);
+			if(exp == 1 && bytes[0] == 0)
+				exp = 0;
 			var missing = 4 - val.Length;
 			if(missing > 0)
 				val = val.Concat(new byte[missing]).ToArray();

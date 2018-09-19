@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.BitcoinCore
 {
+	[Obsolete]
 	public class BlockStore : Store<StoredBlock, Block>
 	{
 		public const int MAX_BLOCKFILE_SIZE = 0x8000000; // 128 MiB

@@ -1523,47 +1523,41 @@ namespace NBitcoin.BouncyCastle.Math
 		//			return true;
 		//		}
 		//
-		//		private static int Jacobi(
-		//			BigInteger	a,
-		//			BigInteger	b)
-		//		{
-		//			Debug.Assert(a.sign >= 0);
-		//			Debug.Assert(b.sign > 0);
-		//			Debug.Assert(b.TestBit(0));
-		//			Debug.Assert(a.CompareTo(b) < 0);
-		//
-		//			int totalS = 1;
-		//			for (;;)
-		//			{
-		//				if (a.sign == 0)
-		//					return 0;
-		//
-		//				if (a.Equals(One))
-		//					break;
-		//
-		//				int e = a.GetLowestSetBit();
-		//
-		//				int bLsw = b.magnitude[b.magnitude.Length - 1];
-		//				if ((e & 1) != 0 && ((bLsw & 7) == 3 || (bLsw & 7) == 5))
-		//					totalS = -totalS;
-		//
-		//				// TODO Confirm this is faster than later a1.Equals(One) test
-		//				if (a.BitLength == e + 1)
-		//					break;
-		//				BigInteger a1 = a.ShiftRight(e);
-		////				if (a1.Equals(One))
-		////					break;
-		//
-		//				int a1Lsw = a1.magnitude[a1.magnitude.Length - 1];
-		//				if ((bLsw & 3) == 3 && (a1Lsw & 3) == 3)
-		//					totalS = -totalS;
-		//
-		////				a = b.Mod(a1);
-		//				a = b.Remainder(a1);
-		//				b = a1;
-		//			}
-		//			return totalS;
-		//		}
+		public static int Jacobi( BigInteger a, BigInteger	b)
+		{
+			Debug.Assert(a.sign >= 0);
+			Debug.Assert(b.sign > 0);
+			Debug.Assert(b.TestBit(0));
+			Debug.Assert(a.CompareTo(b) < 0);
+
+			int totalS = 1;
+			for (;;)
+			{
+				if (a.sign == 0)
+					return 0;
+
+				if (a.Equals(One))
+					break;
+
+				int e = a.GetLowestSetBit();
+
+				int bLsw = b.magnitude[b.magnitude.Length - 1];
+				if ((e & 1) != 0 && ((bLsw & 7) == 3 || (bLsw & 7) == 5))
+					totalS = -totalS;
+
+				if (a.BitLength == e + 1)
+					break;
+				BigInteger a1 = a.ShiftRight(e);
+
+				int a1Lsw = a1.magnitude[a1.magnitude.Length - 1];
+				if ((bLsw & 3) == 3 && (a1Lsw & 3) == 3)
+					totalS = -totalS;
+
+				a = b.Remainder(a1);
+				b = a1;
+			}
+			return totalS;
+		}
 
 		public long LongValue
 		{

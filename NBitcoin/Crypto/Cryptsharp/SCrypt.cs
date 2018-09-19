@@ -1,4 +1,5 @@
-﻿#region License
+﻿#pragma warning disable CS0618 // Type or member is obsolete
+#region License
 /*
 CryptSharp
 Copyright (c) 2011, 2013 James F. Bellinger <http://www.zer7.com/software/cryptsharp>
@@ -115,6 +116,7 @@ namespace NBitcoin.Crypto
 			return MFcrypt(key, salt, cost, blockSize, parallel, maxThreads);
 		}
 
+
 		/// <summary>
 		/// Creates a derived key stream from which a derived key can be read.
 		/// </summary>
@@ -152,6 +154,7 @@ namespace NBitcoin.Crypto
 		}
 
 #else
+
 		internal static Pbkdf2 GetStream(byte[] key, byte[] salt,
 									   int cost, int blockSize, int parallel, int? maxThreads)
 		{
@@ -368,3 +371,4 @@ namespace NBitcoin.Crypto
 		}
 	}
 }
+#pragma warning restore CS0618 // Type or member is obsolete

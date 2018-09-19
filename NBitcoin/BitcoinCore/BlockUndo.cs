@@ -14,6 +14,7 @@ namespace NBitcoin.BitcoinCore
  *  last output of the affected transaction, its metadata as well
  *  (coinbase or not, height, transaction version)
  */
+	[Obsolete]
 	public class TxInUndo : IBitcoinSerializable
 	{
 		public TxInUndo()
@@ -111,6 +112,7 @@ namespace NBitcoin.BitcoinCore
 	public class TxUndo : IBitcoinSerializable
 	{
 		// undo information for all txins
+#pragma warning disable CS0612 // Type or member is obsolete
 		List<TxInUndo> vprevout = new List<TxInUndo>();
 		public List<TxInUndo> Prevout
 		{
@@ -119,6 +121,7 @@ namespace NBitcoin.BitcoinCore
 				return vprevout;
 			}
 		}
+#pragma warning restore CS0612 // Type or member is obsolete
 
 		#region IBitcoinSerializable Members
 

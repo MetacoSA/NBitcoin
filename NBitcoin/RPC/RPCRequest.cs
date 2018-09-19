@@ -49,6 +49,11 @@ namespace NBitcoin.RPC
 			set;
 		}
 
+		public Dictionary<string, object> NamedParams
+		{
+			get; set;
+		}
+
 		public void WriteJSON(TextWriter writer)
 		{
 			var jsonWriter = new JsonTextWriter(writer);
@@ -64,38 +69,59 @@ namespace NBitcoin.RPC
 			WriteProperty(writer, "method", Method);
 
 			writer.WritePropertyName("params");
-			writer.WriteStartArray();
+
 
 			if(Params != null)
 			{
+				writer.WriteStartArray();
 				for(int i = 0; i < Params.Length; i++)
 				{
-					if(Params[i] is JToken)
-					{
-						((JToken)Params[i]).WriteTo(writer);
-					}
-					else if(Params[i] is Array)
-					{
-						writer.WriteStartArray();
-						foreach(var x in (Array)Params[i])
-						{
-							writer.WriteValue(x);
-						}
-						writer.WriteEndArray();
-					}
-					else if(Params[i] is uint256)
-					{
-						writer.WriteValue(Params[i].ToString());
-					}
-					else
-					{
-						writer.WriteValue(Params[i]);
-					}
+					WriteValue(writer, Params[i]);
 				}
+				writer.WriteEndArray();
 			}
-
-			writer.WriteEndArray();
+			else if(NamedParams != null)
+			{
+				writer.WriteStartObject();
+				foreach(var namedParam in NamedParams)
+				{
+					writer.WritePropertyName(namedParam.Key);
+					WriteValue(writer, namedParam.Value);
+				}
+				writer.WriteEndObject();
+			}
+			else
+			{
+				writer.WriteStartArray();
+				writer.WriteEndArray();
+			}
+			
 			writer.WriteEndObject();
+		}
+
+		private void WriteValue(JsonTextWriter writer, object obj)
+		{
+			if(obj is JToken)
+			{
+				((JToken)obj).WriteTo(writer);
+			}
+			else if(obj is Array)
+			{
+				writer.WriteStartArray();
+				foreach(var x in (Array)obj)
+				{
+					writer.WriteValue(x);
+				}
+				writer.WriteEndArray();
+			}
+			else if(obj is uint256)
+			{
+				writer.WriteValue(obj.ToString());
+			}
+			else
+			{
+				writer.WriteValue(obj);
+			}
 		}
 
 		private void WriteProperty<TValue>(JsonTextWriter writer, string property, TValue value)
