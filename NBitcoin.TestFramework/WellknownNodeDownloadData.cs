@@ -491,7 +491,7 @@ namespace NBitcoin.Tests
 			};
 		}
 
-		public class ZclassicNodeDownloadData
+		public class ZClassicNodeDownloadData
 		{
 			public NodeDownloadData v1_0_14 = new NodeDownloadData()
 			{
@@ -589,9 +589,9 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new BitcoreNodeDownloadData();
 
-		public static ZclassicNodeDownloadData Zclassic
+		public static ZClassicNodeDownloadData Zclassic
 		{
 			get; set;
-		} = new ZclassicNodeDownloadData();
+		} = new ZClassicNodeDownloadData();
 	}
 }
