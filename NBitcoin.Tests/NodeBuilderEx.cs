@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -38,6 +38,8 @@ namespace NBitcoin.Tests
 			//var builder = NodeBuilder.Create(NodeDownloadData.Ufo.v0_16_0, Altcoins.AltNetworkSets.Ufo.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Groestlcoin.v2_16_0, Altcoins.AltNetworkSets.Groestlcoin.Regtest, caller);
+
+			//var builder = NodeBuilder.Create(NodeDownloadData.Navcoin.v4_3_0, Altcoins.AltNetworkSets.Navcoin.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Mogwai.v0_12_2, Altcoins.AltNetworkSets.Mogwai.Regtest, caller);
 			var builder = NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_16_2, Altcoins.AltNetworkSets.Bitcoin.Regtest, caller);

@@ -22,6 +22,7 @@ namespace NBitcoin.Altcoins
 		public static Bitcoin Bitcoin { get; } = Bitcoin.Instance;
 		public static Bitcore Bitcore { get; } = Bitcore.Instance;
 		public static Groestlcoin Groestlcoin { get; } = Groestlcoin.Instance;
+		public static Navcoin Navcoin { get; } = Navcoin.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
@@ -39,6 +40,7 @@ namespace NBitcoin.Altcoins
 			yield return Mogwai;
 			yield return Ufo;
 			yield return Groestlcoin;
+			yield return Navcoin;
 		}
 	}
 }

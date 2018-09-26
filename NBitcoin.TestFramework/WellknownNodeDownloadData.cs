@@ -491,6 +491,40 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class NavcoinNodeDownloadData
+		{
+			public NodeDownloadData v4_3_0 = new NodeDownloadData()
+			{
+				Version = "4.3.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/NAVCoin/navcoin-core/releases/download/{0}/navcoin-{0}-win64.zip",
+					Archive = "navcoin-{0}-win64.zip",
+					Executable = "navcoin-{0}/bin/navcoind.exe",
+					Hash = "23be804ce938a63ad68b4092b1d7d65beb63841a76e1b2c77f9dc6ec31841914"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/NAVCoin/navcoin-core/releases/download/{0}/navcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "navcoin-{0}-linux64.tar.gz",
+					Executable = "navcoin-{0}/bin/navcoind",
+					Hash = "2411ce5cafe486ab5d399621f8a88ce54b03a3737f0f1fabd4a73e82c6dba6c7"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/NAVCoin/navcoin-core/releases/download/{0}/navcoin-{0}-osx64.tar.gz",
+					Archive = "navcoin-{0}-osx64.tar.gz",
+					Executable = "navcoin-{0}/bin/navcoind",
+					Hash = "c0b8ce632c5bd7669c8a46fa52423183d52649b8b042a8e9601710430a874900"
+				}
+			};
+		}
+
+		public static NavcoinNodeDownloadData Navcoin
+		{
+			get; set;
+		} = new NavcoinNodeDownloadData();
+
 		public static GroestlcoinNodeDownloadData Groestlcoin
 		{
 			get; set;
