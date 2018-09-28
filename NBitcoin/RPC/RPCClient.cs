@@ -235,7 +235,7 @@ namespace NBitcoin.RPC
 			if(string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
 				return;
 
-			if(!string.IsNullOrEmpty(home))
+			if(!string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
 			{
 				var bitcoinFolder = Path.Combine(home, ".bitcoin");
 
