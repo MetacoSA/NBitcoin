@@ -760,6 +760,31 @@ namespace NBitcoin
 			}
 		}
 
+		/// <summary>
+		/// Returns the IndexedTxIn whose PrevOut is equal to <paramref name="outpoint"/> or null.
+		/// </summary>
+		/// <param name="outpoint">The outpoint being searched for</param>
+		/// <returns>The IndexedTxIn which PrevOut is equal to <paramref name="outpoint"/> or null if not found</returns>
+		public IndexedTxIn FindIndexedInput(OutPoint outpoint)
+		{
+			if (outpoint == null)
+				throw new ArgumentNullException(nameof(outpoint));
+			for (int i = 0; i < this.Count; i++)
+			{
+				var txin = this[i];
+				if(outpoint == txin.PrevOut)
+				{
+					return new IndexedTxIn()
+					{
+						TxIn = txin,
+						Index = (uint)i,
+						Transaction = Transaction
+					};
+				}
+			}
+			return null;
+		}
+
 		public IEnumerable<IndexedTxIn> AsIndexedInputs()
 		{
 			// We want i as the index of txIn in Intputs[], not index in enumerable after where filter
@@ -1402,7 +1427,7 @@ namespace NBitcoin
 		}
 		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)
 		{
-			return Inputs.AsIndexedInputs().ToArray()[GetIndex(coin)].GetSignatureHash(coin, sigHash);
+			return GetIndexedInput(coin).GetSignatureHash(coin, sigHash);
 		}
 		public TransactionSignature SignInput(ISecret secret, ICoin coin, SigHash sigHash = SigHash.All)
 		{
@@ -1410,17 +1435,12 @@ namespace NBitcoin
 		}
 		public TransactionSignature SignInput(Key key, ICoin coin, SigHash sigHash = SigHash.All)
 		{
-			return Inputs.AsIndexedInputs().ToArray()[GetIndex(coin)].Sign(key, coin, sigHash);
+			return GetIndexedInput(coin).Sign(key, coin, sigHash);
 		}
 
-		private int GetIndex(ICoin coin)
+		private IndexedTxIn GetIndexedInput(ICoin coin)
 		{
-			for(int i = 0; i < Inputs.Count; i++)
-			{
-				if(Inputs[i].PrevOut == coin.Outpoint)
-					return i;
-			}
-			throw new ArgumentException("The coin is not being spent by this transaction", "coin");
+			return Inputs.FindIndexedInput(coin.Outpoint) ?? throw new ArgumentException("The coin is not being spent by this transaction", nameof(coin));
 		}
 
 		public bool IsCoinBase
