@@ -619,7 +619,7 @@ namespace NBitcoin.SPV
 						catch(TargetInvocationException ex)
 						{
 							//NodeServerTrace.Error("Error while calling Tracker callback", ex.InnerException); //Todo:Remove
-							Logs.NodeServer.LogError(ex.InnerException,"Error while calling Tracker callback");
+							Logs.NodeServer.LogError(default, ex.InnerException,"Error while calling Tracker callback");
 						}
 					}
 				}

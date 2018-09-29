@@ -1,14 +1,11 @@
 ﻿#if !NOSOCKET
 using NBitcoin.Protocol.Behaviors;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using NBitcoin.Logging;
 
 namespace NBitcoin.Protocol
@@ -179,14 +176,14 @@ namespace NBitcoin.Protocol
 								if(_Disconnect.Token.IsCancellationRequested)
 									break;
 								//NodeServerTrace.Error("Timeout for picked node", ex); //Todo:Remove
-								Logs.NodeServer.LogError(ex,"Timeout for picked node");
+								Logs.NodeServer.LogError(default,ex,"Timeout for picked node");
 								if(node != null)
 									node.DisconnectAsync("Handshake timeout", ex);
 							}
 							catch(Exception ex)
 							{
 								//NodeServerTrace.Error("Error while connecting to node", ex); //Todo:Remove
-								Logs.NodeServer.LogError(ex,"Error while connecting to node");
+								Logs.NodeServer.LogError(default,ex,"Error while connecting to node");
 								if(node != null)
 									node.DisconnectAsync("Error while connecting", ex);
 							}

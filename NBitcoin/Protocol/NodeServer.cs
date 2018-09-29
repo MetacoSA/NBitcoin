@@ -148,7 +148,7 @@ namespace NBitcoin.Protocol
 				catch(Exception ex)
 				{
 					//NodeServerTrace.Error("Error while opening the Protocol server", ex); //Todo:Remove
-					Logs.NodeServer.LogError(ex,"Error while opening the Protocol server");
+					Logs.NodeServer.LogError(default, ex,"Error while opening the Protocol server");
 					throw;
 				}
 			}
@@ -234,14 +234,14 @@ namespace NBitcoin.Protocol
 					if(client == null)
 					{
 						//NodeServerTrace.Error("Error while accepting connection ", ex); //Todo:Remove
-						Logs.NodeServer.LogError(ex,"Error while accepting connection");
+						Logs.NodeServer.LogError(default, ex,"Error while accepting connection");
 						Thread.Sleep(3000);
 					}
 					else
 					{
 						Utils.SafeCloseSocket(client);
 						//odeServerTrace.Error("Invalid message received from the remote connecting node", ex); //Todo:Remove
-						Logs.NodeServer.LogError(ex,"Invalid message received from the remote connecting node");
+						Logs.NodeServer.LogError(default, ex,"Invalid message received from the remote connecting node");
 					}
 				}
 				BeginAccept();
@@ -352,7 +352,7 @@ namespace NBitcoin.Protocol
 					catch(OperationCanceledException ex)
 					{
 						//NodeServerTrace.Error("The remote node did not respond fast enough (10 seconds) to the handshake completion, dropping connection", ex); //Todo:Remove
-						Logs.NodeServer.LogError(ex,"The remote node did not respond fast enough (10 seconds) to the handshake completion, dropping connection");
+						Logs.NodeServer.LogError(default, ex,"The remote node did not respond fast enough (10 seconds) to the handshake completion, dropping connection");
 						node.DisconnectAsync();
 						throw;
 					}

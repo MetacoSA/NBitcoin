@@ -366,7 +366,7 @@ namespace NBitcoin.Protocol
 					return;
 				if(!Cancel.IsCancellationRequested)
 				{
-					Logs.NodeServer.LogError( unhandledException, "Connection to server stopped unexpectedly");
+					Logs.NodeServer.LogError(default, unhandledException, "Connection to server stopped unexpectedly");
 					Node.DisconnectReason = new NodeDisconnectReason()
 					{
 						Reason = "Unexpected exception while connecting to socket",
@@ -390,8 +390,7 @@ namespace NBitcoin.Protocol
 					catch(Exception ex)
 					{
 						//NodeServerTrace.Error("Error while detaching behavior " + behavior.GetType().FullName, ex);//Todo:Remove
-			
-						Logs.NodeServer.LogError( ex, "Error while detaching behavior {behaviour}" , behavior.GetType().FullName);
+						Logs.NodeServer.LogError(default, ex, "Error while detaching behavior {behaviour}" , behavior.GetType().FullName);
 					}
 				}
 			}
@@ -449,7 +448,7 @@ namespace NBitcoin.Protocol
 					catch(TargetInvocationException ex)
 					{
 						//TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while StateChanged event raised", ex.InnerException));//Todo:Remove
-						Logs.NodeServer.LogError(  ex.InnerException, "Error while StateChanged event raised");
+						Logs.NodeServer.LogError(default, ex.InnerException, "Error while StateChanged event raised");
 					}
 				}
 			}
@@ -530,7 +529,7 @@ namespace NBitcoin.Protocol
 				{
 					//TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnSendingMessage)", ex.InnerException), false);//Todo:Remove
 
-					Logs.NodeServer.LogError( ex.InnerException, "Unhandled exception raised by a node filter (OnSendingMessage)");
+					Logs.NodeServer.LogError(default, ex.InnerException, "Unhandled exception raised by a node filter (OnSendingMessage)");
 
 					UncaughtException?.Invoke(this, ex);
 				}
@@ -552,7 +551,7 @@ namespace NBitcoin.Protocol
 				catch(Exception ex)
 				{
 					//TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnReceivingMessage)", ex.InnerException), false);//Todo:Remove
-					Logs.NodeServer.LogError( ex.InnerException, "Unhandled exception raised by a node filter (OnReceivingMessage)");
+					Logs.NodeServer.LogError(default, ex.InnerException, "Unhandled exception raised by a node filter (OnReceivingMessage)");
 
 					UncaughtException?.Invoke(this, ex);
 				}
@@ -574,7 +573,7 @@ namespace NBitcoin.Protocol
 					catch(TargetInvocationException ex)
 					{
 						//TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while Disconnected event raised", ex.InnerException));//Todo:Remove
-						Logs.NodeServer.LogError( ex.InnerException, "Error while Disconnected event raised");
+						Logs.NodeServer.LogError(default, ex.InnerException, "Error while Disconnected event raised");
 					}
 				}
 			}
@@ -815,7 +814,7 @@ namespace NBitcoin.Protocol
 				{
 					Utils.SafeCloseSocket(socket);
 					//NodeServerTrace.Error("Error connecting to the remote endpoint ", ex);//Todo:Remove
-					Logs.NodeServer.LogError(ex,"Error connecting to the remote endpoint");
+					Logs.NodeServer.LogError(default, ex,"Error connecting to the remote endpoint");
 
 					DisconnectReason = new NodeDisconnectReason()
 					{
