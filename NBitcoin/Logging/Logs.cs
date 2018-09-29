@@ -12,22 +12,19 @@ namespace NBitcoin.Logging
 		}
 		public static void Configure(ILoggerFactory factory)
 		{
-			Configuration = factory.CreateLogger("Configuration");
-			Explorer = factory.CreateLogger("Explorer");
-			Events = factory.CreateLogger("Events");
+			NodeServer = factory.CreateLogger("NodeServer");
+			NodeServer = factory.CreateLogger("Utils");
 		}
-		public static ILogger Configuration
+		public static ILogger NodeServer 
 		{
 			get; set;
 		}
-		public static ILogger Events
+
+		public static ILogger Utils
 		{
 			get; set;
 		}
-		public static ILogger Explorer
-		{
-			get; set;
-		}
+
 		public const int ColumnLength = 16;
 	}
 

@@ -1,7 +1,6 @@
 ﻿using NBitcoin.DataEncoders;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -523,18 +522,18 @@ namespace NBitcoin
 			return new BigInteger(1, data);
 		}
 
-		static readonly TraceSource _TraceSource = TraceSourceFactory.CreateTraceSource("NBitcoin");
+		//static readonly TraceSource _TraceSource = TraceSourceFactory.CreateTraceSource("NBitcoin"); //Todo:Remove
 
-		internal static bool error(string msg)
-		{
-			_TraceSource.TraceEvent(TraceEventType.Error, 0, msg);
-			return false;
-		}
+		//internal static bool error(string msg) //Todo:Remove
+		//{
+		//	_TraceSource.TraceEvent(TraceEventType.Error, 0, msg);
+		//	return false;
+		//}
 
-		internal static void log(string msg)
-		{
-			_TraceSource.TraceEvent(TraceEventType.Information, 0, msg);
-		}
+		//internal static void log(string msg) //Todo:Remove
+		//{
+		//	_TraceSource.TraceEvent(TraceEventType.Information, 0, msg);
+		//}
 
 
 		static DateTimeOffset unixRef = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);

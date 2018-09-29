@@ -4,7 +4,7 @@ using NBitcoin.Protocol.Filters;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
+//using System.Diagnostics; TODO:Remove
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,6 +14,8 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using NBitcoin.Logging;
 
 namespace NBitcoin.Protocol
 {
@@ -173,18 +175,18 @@ namespace NBitcoin.Protocol
 					return _Cancel;
 				}
 			}
-#if NOTRACESOURCE
-			internal
-#else
-			public
-#endif
- TraceCorrelation TraceCorrelation
-			{
-				get
-				{
-					return Node.TraceCorrelation;
-				}
-			}
+//#if NOTRACESOURCE TODO:Remove
+//			internal
+//#else
+//			public
+//#endif
+// TraceCorrelation TraceCorrelation
+//			{
+//				get
+//				{
+//					return Node.TraceCorrelation;
+//				}
+//			}
 
 			public NodeConnection(Node node, Socket socket)
 			{
@@ -194,6 +196,9 @@ namespace NBitcoin.Protocol
 				_Cancel = new CancellationTokenSource();
 			}
 
+			internal bool IsVerbose =>  Logs.NodeServer.IsEnabled(LogLevel.Trace);
+
+
 			internal BlockingCollection<SentMessage> Messages = new BlockingCollection<SentMessage>(new ConcurrentQueue<SentMessage>());
 			public void BeginListen()
 			{
@@ -201,7 +206,9 @@ namespace NBitcoin.Protocol
 				{
 					SentMessage processing = null;
 					Exception unhandledException = null;
-					bool isVerbose = NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose);
+
+					// bool isVerbose = NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose); TODO:Remove
+				
 					ManualResetEvent ar = new ManualResetEvent(false);
 					SocketAsyncEventArgs evt = new SocketAsyncEventArgs();
 					evt.SocketFlags = SocketFlags.None;
@@ -227,15 +234,17 @@ namespace NBitcoin.Protocol
 							{
 								getBlocks.Version = Node.Version;
 							}
-							if(isVerbose)
+							if(IsVerbose)
 							{
-								Trace.CorrelationManager.ActivityId = kv.ActivityId;
-								if(kv.ActivityId != TraceCorrelation.Activity)
-								{
-									NodeServerTrace.Transfer(TraceCorrelation.Activity);
-									Trace.CorrelationManager.ActivityId = TraceCorrelation.Activity;
-								}
-								NodeServerTrace.Verbose("Sending message " + message);
+								//Trace.CorrelationManager.ActivityId = kv.ActivityId; //Todo:Remove
+								//if(kv.ActivityId != TraceCorrelation.Activity)
+								//{
+								//	NodeServerTrace.Transfer(TraceCorrelation.Activity);
+								//	Trace.CorrelationManager.ActivityId = TraceCorrelation.Activity;
+								//}
+								//NodeServerTrace.Verbose("Sending message " + message);
+
+								Logs.NodeServer.LogTrace("Sending message {message}" , message);
 							}
 							MemoryStream ms = new MemoryStream();
 							message.ReadWrite(new BitcoinStream(ms, true)
@@ -278,26 +287,36 @@ namespace NBitcoin.Protocol
 
 					foreach(var pending in Messages)
 					{
-						if(isVerbose)
+						if(IsVerbose)
 						{
-							Trace.CorrelationManager.ActivityId = pending.ActivityId;
-							if(pending != processing && pending.ActivityId != TraceCorrelation.Activity)
-								NodeServerTrace.Transfer(TraceCorrelation.Activity);
-							Trace.CorrelationManager.ActivityId = TraceCorrelation.Activity;
-							NodeServerTrace.Verbose("The connection cancelled before the message was sent");
+							//Trace.CorrelationManager.ActivityId = pending.ActivityId; //Todo:Remove
+							//if(pending != processing && pending.ActivityId != TraceCorrelation.Activity)
+							//	NodeServerTrace.Transfer(TraceCorrelation.Activity);
+							//Trace.CorrelationManager.ActivityId = TraceCorrelation.Activity;
+							//NodeServerTrace.Verbose("The connection cancelled before the message was sent");
+
+							Logs.NodeServer.LogTrace("The connection cancelled before the message was sent" );
 						}
 						pending.Completion.SetException(new OperationCanceledException("The peer has been disconnected"));
 					}
 					Messages = new BlockingCollection<SentMessage>(new ConcurrentQueue<SentMessage>());
-					NodeServerTrace.Information("Stop sending");
+					// NodeServerTrace.Information("Stop sending"); //Todo:Remove
+					Logs.NodeServer.LogInformation("Stop sending");
 					Cleanup(unhandledException);
 				}).Start();
 				new Thread(() =>
 				{
 					_ListenerThreadId = Thread.CurrentThread.ManagedThreadId;
-					using(TraceCorrelation.Open(false))
+
+					
+					using (Logs.NodeServer.BeginScope("Thead scope {ThreadId}", _ListenerThreadId))
+
+					//using(TraceCorrelation.Open(false))//Todo:Remove
 					{
-						NodeServerTrace.Information("Listening");
+						//NodeServerTrace.Information("Listening");//Todo:Remove
+						Logs.NodeServer.LogInformation("Start Listening");
+
+
 						Exception unhandledException = null;
 						try
 						{
@@ -307,8 +326,14 @@ namespace NBitcoin.Protocol
 								PerformanceCounter counter;
 
 								var message = Message.ReadNext(stream, Node.Network, Node.Version, Cancel.Token, out counter);
-								if(NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose))
-									NodeServerTrace.Verbose("Receiving message : " + message.Command + " (" + message.Payload + ")");
+
+								if (IsVerbose)
+
+									//if(NodeServerTrace.Trace.Switch.ShouldTrace(TraceEventType.Verbose)) Logs.NodeServer.Log//Todo:Remove
+								{
+									Logs.NodeServer.LogTrace("Receiving message: {command} ({payload})", message.Command, message.Payload);
+								}
+
 								Node.LastSeen = DateTimeOffset.UtcNow;
 								Node.Counter.Add(counter);
 								Node.OnMessageReceived(new IncomingMessage()
@@ -327,7 +352,7 @@ namespace NBitcoin.Protocol
 						{
 							unhandledException = ex;
 						}
-						NodeServerTrace.Information("Stop listening");
+						Logs.NodeServer.LogInformation("Stop listening");
 						Cleanup(unhandledException);
 					}
 				}).Start();
@@ -341,7 +366,7 @@ namespace NBitcoin.Protocol
 					return;
 				if(!Cancel.IsCancellationRequested)
 				{
-					NodeServerTrace.Error("Connection to server stopped unexpectedly", unhandledException);
+					Logs.NodeServer.LogError( unhandledException, "Connection to server stopped unexpectedly");
 					Node.DisconnectReason = new NodeDisconnectReason()
 					{
 						Reason = "Unexpected exception while connecting to socket",
@@ -364,7 +389,9 @@ namespace NBitcoin.Protocol
 					}
 					catch(Exception ex)
 					{
-						NodeServerTrace.Error("Error while detaching behavior " + behavior.GetType().FullName, ex);
+						//NodeServerTrace.Error("Error while detaching behavior " + behavior.GetType().FullName, ex);//Todo:Remove
+			
+						Logs.NodeServer.LogError( ex, "Error while detaching behavior {behaviour}" , behavior.GetType().FullName);
 					}
 				}
 			}
@@ -386,7 +413,10 @@ namespace NBitcoin.Protocol
 			}
 			private set
 			{
-				TraceCorrelation.LogInside(() => NodeServerTrace.Information("State changed from " + _State + " to " + value));
+				//TraceCorrelation.LogInside(() => NodeServerTrace.Information("State changed from " + _State + " to " + value));//Todo:Remove
+				Logs.NodeServer.LogInformation("State changed from {stateFrom} to {stateTo}", _State, value);
+
+
 				var previous = _State;
 				_State = value;
 				if(previous != _State)
@@ -394,7 +424,10 @@ namespace NBitcoin.Protocol
 					OnStateChanged(previous);
 					if(value == NodeState.Failed || value == NodeState.Offline)
 					{
-						TraceCorrelation.LogInside(() => NodeServerTrace.Trace.TraceEvent(TraceEventType.Stop, 0, "Communication closed"));
+						//TraceCorrelation.LogInside(() => NodeServerTrace.Trace.TraceEvent(TraceEventType.Stop, 0, "Communication closed"));//Todo:Remove
+						Logs.NodeServer.LogInformation("Communication closed");
+
+
 						OnDisconnected();
 					}
 				}
@@ -415,7 +448,8 @@ namespace NBitcoin.Protocol
 					}
 					catch(TargetInvocationException ex)
 					{
-						TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while StateChanged event raised", ex.InnerException));
+						//TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while StateChanged event raised", ex.InnerException));//Todo:Remove
+						Logs.NodeServer.LogError(  ex.InnerException, "Error while StateChanged event raised");
 					}
 				}
 			}
@@ -466,8 +500,8 @@ namespace NBitcoin.Protocol
 						}
 						catch(TargetInvocationException ex)
 						{
-							TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while OnMessageReceived event raised", ex.InnerException), false);
-							UncaughtException?.Invoke(this, ex.InnerException);
+							Logs.NodeServer.LogError(ex.InnerException, "Error while OnMessageReceived event raised" );
+						    UncaughtException?.Invoke(this, ex.InnerException);
 						}
 					}
 				}
@@ -494,7 +528,10 @@ namespace NBitcoin.Protocol
 				}
 				catch(Exception ex)
 				{
-					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnSendingMessage)", ex.InnerException), false);
+					//TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnSendingMessage)", ex.InnerException), false);//Todo:Remove
+
+					Logs.NodeServer.LogError( ex.InnerException, "Unhandled exception raised by a node filter (OnSendingMessage)");
+
 					UncaughtException?.Invoke(this, ex);
 				}
 			}
@@ -514,7 +551,9 @@ namespace NBitcoin.Protocol
 				}
 				catch(Exception ex)
 				{
-					TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnReceivingMessage)", ex.InnerException), false);
+					//TraceCorrelation.LogInside(() => NodeServerTrace.Error("Unhandled exception raised by a node filter (OnReceivingMessage)", ex.InnerException), false);//Todo:Remove
+					Logs.NodeServer.LogError( ex.InnerException, "Unhandled exception raised by a node filter (OnReceivingMessage)");
+
 					UncaughtException?.Invoke(this, ex);
 				}
 			}
@@ -534,7 +573,8 @@ namespace NBitcoin.Protocol
 					}
 					catch(TargetInvocationException ex)
 					{
-						TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while Disconnected event raised", ex.InnerException));
+						//TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while Disconnected event raised", ex.InnerException));//Todo:Remove
+						Logs.NodeServer.LogError( ex.InnerException, "Error while Disconnected event raised");
 					}
 				}
 			}
@@ -727,7 +767,10 @@ namespace NBitcoin.Protocol
 			_Connection = new NodeConnection(this, socket);
 			socket.ReceiveBufferSize = parameters.ReceiveBufferSize;
 			socket.SendBufferSize = parameters.SendBufferSize;
-			using(TraceCorrelation.Open())
+			
+			//using(TraceCorrelation.Open()) //Todo:Remove
+			using (Logs.NodeServer.BeginScope("Node"))
+
 			{
 				try
 				{
@@ -750,14 +793,19 @@ namespace NBitcoin.Protocol
 					_RemoteSocketPort = remoteEndpoint.Port;
 					State = NodeState.Connected;
 					ConnectedAt = DateTimeOffset.UtcNow;
-					NodeServerTrace.Information("Outbound connection successfull");
+					//NodeServerTrace.Information("Outbound connection successfull");//Todo:Remove
+					Logs.NodeServer.LogInformation("Outbound connection successfull");
+
+
 					if(addrman != null)
 						addrman.Attempt(Peer);
 				}
 				catch(OperationCanceledException)
 				{
 					Utils.SafeCloseSocket(socket);
-					NodeServerTrace.Information("Connection to node cancelled");
+					//NodeServerTrace.Information("Connection to node cancelled");//Todo:Remove
+					Logs.NodeServer.LogInformation("Connection to node cancelled");
+
 					State = NodeState.Offline;
 					if(addrman != null)
 						addrman.Attempt(Peer);
@@ -766,7 +814,9 @@ namespace NBitcoin.Protocol
 				catch(Exception ex)
 				{
 					Utils.SafeCloseSocket(socket);
-					NodeServerTrace.Error("Error connecting to the remote endpoint ", ex);
+					//NodeServerTrace.Error("Error connecting to the remote endpoint ", ex);//Todo:Remove
+					Logs.NodeServer.LogError(ex,"Error connecting to the remote endpoint");
+
 					DisconnectReason = new NodeDisconnectReason()
 					{
 						Reason = "Unexpected exception while connecting to socket",
@@ -809,11 +859,13 @@ namespace NBitcoin.Protocol
 
 			LastSeen = peer.Time;
 			ConnectedAt = DateTimeOffset.UtcNow;
-			TraceCorrelation.LogInside(() =>
-			{
-				NodeServerTrace.Information("Connected to advertised node " + _Peer.Endpoint);
+			//TraceCorrelation.LogInside(() =>//Todo:Remove
+			//{
+				//NodeServerTrace.Information("Connected to advertised node " + _Peer.Endpoint);//Todo:Remove
+				Logs.NodeServer.LogInformation("Connected to advertised node {endpoint}", _Peer.Endpoint);
 				State = NodeState.Connected;
-			});
+			//});
+
 			InitDefaultBehaviors(parameters);
 			_Connection.BeginListen();
 		}
@@ -893,24 +945,24 @@ namespace NBitcoin.Protocol
 			private set;
 		}
 
-		TraceCorrelation _TraceCorrelation = null;
-		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-#if NOTRACESOURCE
-		internal
-#else
-		public
-#endif
- TraceCorrelation TraceCorrelation
-		{
-			get
-			{
-				if(_TraceCorrelation == null)
-				{
-					_TraceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Communication with " + Peer.Endpoint.ToString());
-				}
-				return _TraceCorrelation;
-			}
-		}
+//		TraceCorrelation _TraceCorrelation = null;//Todo:Remove
+//		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+//#if NOTRACESOURCE
+//		internal
+//#else
+//		public
+//#endif
+ //TraceCorrelation TraceCorrelation //Todo:Remove
+	//	{
+	//		get
+	//		{
+	//			if(_TraceCorrelation == null)
+	//			{
+	//				_TraceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Communication with " + Peer.Endpoint.ToString());
+	//			}
+	//			return _TraceCorrelation;
+	//		}
+	//	}
 
 		/// <summary>
 		/// Send a message to the peer asynchronously
@@ -927,7 +979,10 @@ namespace NBitcoin.Protocol
 				completion.SetException(new OperationCanceledException("The peer has been disconnected"));
 				return completion.Task;
 			}
-			var activity = Trace.CorrelationManager.ActivityId;
+			//var activity = Trace.CorrelationManager.ActivityId;//Todo:Remove
+
+			var activity = Guid.NewGuid();
+
 			Action final = () =>
 			{
 				_Connection.Messages.Add(new SentMessage()
@@ -1073,11 +1128,14 @@ namespace NBitcoin.Protocol
 				SetVersion(Math.Min(MyVersion.Version, version.Version));
 				if(!version.AddressReceiver.Address.Equals(MyVersion.AddressFrom.Address))
 				{
-					NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReceiver.Address + " instead of " + MyVersion.AddressFrom.Address);
+					//NodeServerTrace.Warning("Different external address detected by the node " + version.AddressReceiver.Address + " instead of " + MyVersion.AddressFrom.Address);//Todo:Remove
+			Logs.NodeServer.LogWarning("Different external address detected by the node {addressReceiver} instead of {addressFrom}" , version.AddressReceiver.Address , MyVersion.AddressFrom.Address);
+			
 				}
 				if(ProtocolCapabilities.PeerTooOld)
 				{
-					NodeServerTrace.Warning("Outdated version " + version.Version + " disconnecting");
+					//NodeServerTrace.Warning("Outdated version " + version.Version + " disconnecting");//Todo:Remove
+					Logs.NodeServer.LogWarning("Outdated version {version} disconnecting", version.Version);
 					Disconnect("Outdated version");
 					return;
 				}
@@ -1110,11 +1168,13 @@ namespace NBitcoin.Protocol
 		/// <param name="cancellation"></param>
 		public void RespondToHandShake(CancellationToken cancellation = default(CancellationToken))
 		{
-			using(TraceCorrelation.Open())
-			{
+			//using(TraceCorrelation.Open())//Todo:Remove
+			//{
 				using(var list = CreateListener().Where(m => m.Message.Payload is VerAckPayload || m.Message.Payload is RejectPayload))
 				{
-					NodeServerTrace.Information("Responding to handshake");
+					//NodeServerTrace.Information("Responding to handshake");//Todo:Remove
+					Logs.NodeServer.LogInformation("Responding to handshake");
+
 					SendMessageAsync(MyVersion);
 					var message = list.ReceiveMessage(cancellation);
 					var reject = message.Message.Payload as RejectPayload;
@@ -1123,7 +1183,7 @@ namespace NBitcoin.Protocol
 					SendMessageAsync(new VerAckPayload());
 					State = NodeState.HandShaked;
 				}
-			}
+			//}
 		}
 
 		public void Disconnect()
@@ -1155,9 +1215,12 @@ namespace NBitcoin.Protocol
 				return;
 			if(Interlocked.CompareExchange(ref _Disconnecting, 1, 0) == 1)
 				return;
-			using(TraceCorrelation.Open())
-			{
-				NodeServerTrace.Information("Disconnection request " + reason);
+
+			//using(TraceCorrelation.Open())//Todo:Remove
+			//{
+				//NodeServerTrace.Information("Disconnection request " + reason);//Todo:Remove
+			Logs.NodeServer.LogInformation("Disconnection request {reason}", reason);
+
 				State = NodeState.Disconnecting;
 				_Connection.Cancel.Cancel();
 				if(DisconnectReason == null)
@@ -1166,7 +1229,7 @@ namespace NBitcoin.Protocol
 						Reason = reason,
 						Exception = exception
 					};
-			}
+			//}
 		}
 
 		TransactionOptions _PreferredTransactionOptions = TransactionOptions.All;
@@ -1276,7 +1339,9 @@ namespace NBitcoin.Protocol
 			AssertState(NodeState.HandShaked, cancellationToken);
 			options = options ?? new SynchronizeChainOptions();
 
-			NodeServerTrace.Information("Building chain");
+			//NodeServerTrace.Information("Building chain");//Todo:Remove
+			Logs.NodeServer.LogInformation("Building chain");
+
 			using(var listener = this.CreateListener().OfType<HeadersPayload>())
 			{
 				int acceptMaxReorgDepth = 0;
@@ -1412,7 +1477,9 @@ namespace NBitcoin.Protocol
 				throw new ArgumentNullException(nameof(chain));
 			AssertState(NodeState.HandShaked, cancellationToken);
 
-			NodeServerTrace.Information("Building chain");
+			//NodeServerTrace.Information("Building chain");//Todo:Remove
+			Logs.NodeServer.LogInformation("Building chain");
+
 			using(var listener = this.CreateListener().OfType<HeadersPayload>())
 			{
 				while(true)

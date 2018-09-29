@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+using NBitcoin.Logging;
 
 namespace NBitcoin
 {
@@ -2133,7 +2135,8 @@ namespace NBitcoin
 
 			if (nIn >= Inputs.Count)
 			{
-				Utils.log("ERROR: SignatureHash() : nIn=" + nIn + " out of range\n");
+				//Utils.log("ERROR: SignatureHash() : nIn=" + nIn + " out of range\n"); //Todo:Remove
+				Logs.Utils.LogWarning("ERROR: SignatureHash() : nOut=" + nIn + " out of range\n");
 				return uint256.One;
 			}
 
@@ -2144,7 +2147,9 @@ namespace NBitcoin
 			{
 				if (nIn >= Outputs.Count)
 				{
-					Utils.log("ERROR: SignatureHash() : nOut=" + nIn + " out of range\n");
+		
+					//Utils.log("ERROR: SignatureHash() : nOut=" + nIn + " out of range\n"); //Todo:Remove
+					Logs.Utils.LogWarning("ERROR: SignatureHash() : nOut=" + nIn + " out of range\n");
 					return uint256.One;
 				}
 			}

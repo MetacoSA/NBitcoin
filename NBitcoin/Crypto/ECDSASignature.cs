@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using NBitcoin.Logging;
 
 namespace NBitcoin.Crypto
 {
@@ -139,7 +141,8 @@ namespace NBitcoin.Crypto
 			}
 			catch(Exception ex)
 			{
-				Utils.error("Unexpected exception in ECDSASignature.IsValidDER " + ex.Message);
+				//Utils.error("Unexpected exception in ECDSASignature.IsValidDER " + ex.Message); //Todo:Remove
+				Logs.Utils.LogError(ex, "Unexpected exception in ECDSASignature.IsValidDER");
 				return false;
 			}
 		}
