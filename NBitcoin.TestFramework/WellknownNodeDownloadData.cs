@@ -260,6 +260,35 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class DystemNodeDownloadData
+		{
+			public NodeDownloadData v1_0_9_9 = new NodeDownloadData()
+			{
+				Version = "1.0.9.9",
+				Windows = new NodeOSDownloadData()
+				{//
+					DownloadLink = "https://github.com/Dystem/dystem-core/releases/download/v{0}/dystem-qt-v{0}.exe",
+					Archive = "",
+					Executable = "dystemd.exe",
+					Hash = "1cf1f317aaae6e8edf520d2439f9c950aafb01bd5b46c399c8582524c59273dc"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Dystem/dystem-core/releases/download/v{0}/dystemd.tar.gz",
+					Archive = "dystemd.tar.gz",
+					Executable = "dystemd",
+					//Hash = "8b7c72197f87be1f5d988c274cac06f6539ddb4591a578bfb852a412022378f2"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Dystem/dystem-core/releases/download/v{0}/DYSTEM-Qt.dmg",
+					Archive = "DYSTEM-Qt.dmg",
+					Executable = "dystemd",
+					//Hash = "90ca27d6733df6fc69b0fc8220f2315623fe5b0cbd1fe31f247684d51808cb81"
+				}
+			};
+		}
+
 		public class MogwaiNodeDownloadData
 		{
 			public NodeDownloadData v0_12_2 = new NodeDownloadData()
