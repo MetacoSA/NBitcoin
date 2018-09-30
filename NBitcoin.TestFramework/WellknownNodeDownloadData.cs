@@ -505,10 +505,10 @@ namespace NBitcoin.Tests
 				},
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/z-classic/zclassic/releases/download/v{0}/zclassic-v{0}-linux.zip",
-					Archive = "zclassic-v{0}-linux.zip",
+					DownloadLink = "https://github.com/z-classic/zclassic/releases/download/v{0}/zclassic-v{0}-linux.tar.gz",
+					Archive = "zclassic-v{0}-linux.tar.gz",
 					Executable = "zclassic-{0}/bin/zcld",
-					Hash = ""
+					Hash = "51e49a81f8493923c08e3cdd72b253bbcc10fe582e97f6926e6267a4f337b696"
 				},
 				Mac = new NodeOSDownloadData()
 				{
