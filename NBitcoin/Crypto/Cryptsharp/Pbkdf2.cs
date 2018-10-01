@@ -56,7 +56,7 @@ namespace NBitcoin.Crypto
 		#region PBKDF2
 		byte[] _saltBuffer, _digest, _digestT1;
 
-#if USEBC || WINDOWS_UWP || NETCORE
+#if USEBC || WINDOWS_UWP || NETCORE || NETSTANDARD1X
 		IMac _hmacAlgorithm;
 #else
 		KeyedHashAlgorithm _hmacAlgorithm;
@@ -74,7 +74,7 @@ namespace NBitcoin.Crypto
 		///     A unique salt means a unique PBKDF2 stream, even if the original key is identical.
 		/// </param>
 		/// <param name="iterations">The number of iterations to apply.</param>
-#if USEBC || WINDOWS_UWP || NETCORE
+#if USEBC || WINDOWS_UWP || NETCORE || NETSTANDARD1X
 		internal Pbkdf2(IMac hmacAlgorithm, byte[] salt, int iterations)
 		{
 			NBitcoin.Crypto.Internal.Check.Null("hmacAlgorithm", hmacAlgorithm);
@@ -138,7 +138,7 @@ namespace NBitcoin.Crypto
 		/// <param name="iterations">The number of iterations to apply.</param>
 		/// <param name="derivedKeyLength">The desired length of the derived key.</param>
 		/// <returns>The derived key.</returns>
-#if USEBC || WINDOWS_UWP || NETCORE
+#if USEBC || WINDOWS_UWP || NETCORE || NETSTANDARD1X
 		internal static byte[] ComputeDerivedKey(IMac hmacAlgorithm, byte[] salt, int iterations,
 											   int derivedKeyLength)
 		{
@@ -166,13 +166,14 @@ namespace NBitcoin.Crypto
 		/// <summary>
 		/// Closes the stream, clearing memory and disposing of the HMAC algorithm.
 		/// </summary>
-#if USEBC || WINDOWS_UWP || NETCORE
+#if USEBC || WINDOWS_UWP || NETCORE || NETSTANDARD1X
 		protected override void Dispose(bool disposing)
 		{
 			Security.Clear(_saltBuffer);
 			Security.Clear(_digest);
 			Security.Clear(_digestT1);
-			_hmacAlgorithm.Reset();
+
+			DisposeHmac();
 		}
 #else
 		public override void Close()
@@ -181,9 +182,18 @@ namespace NBitcoin.Crypto
 			NBitcoin.Crypto.Internal.Security.Clear(_digest);
 			NBitcoin.Crypto.Internal.Security.Clear(_digestT1);
 
-			_hmacAlgorithm.Clear();
+			DisposeHmac();
 		}
 #endif
+
+		private void DisposeHmac()
+		{
+#if USEBC || WINDOWS_UWP || NETCORE || NETSTANDARD1X
+			_hmacAlgorithm.Reset();
+#else
+			_hmacAlgorithm.Clear();
+#endif
+		}
 
 		void ComputeBlock(uint pos)
 		{
@@ -203,7 +213,7 @@ namespace NBitcoin.Crypto
 			NBitcoin.Crypto.Internal.Security.Clear(_digestT1);
 		}
 
-#if USEBC || WINDOWS_UWP || NETCORE
+#if USEBC || WINDOWS_UWP || NETCORE || NETSTANDARD1X
 		void ComputeHmac(byte[] input, byte[] output)
 		{
 			var hash = new byte[_hmacAlgorithm.GetMacSize()];

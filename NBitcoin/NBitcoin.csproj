@@ -33,16 +33,19 @@
 		<DefineConstants>$(DefineConstants);WIN;LEGACY_X509</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netstandard2.0' ">
-		<DefineConstants>$(DefineConstants);NETCORE;NOCUSTOMSSLVALIDATION</DefineConstants>
+		<DefineConstants>$(DefineConstants);NOCUSTOMSSLVALIDATION</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
-		<DefineConstants>$(DefineConstants);HAS_SPAN</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETCORE;HAS_SPAN</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+		<DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-		<DefineConstants>$(DefineConstants);NO_MEM_BUFFER;NETCORE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NONATIVEHASH</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
-		<DefineConstants>$(DefineConstants);NO_MEM_BUFFER;NETCORE;PORTABLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;NETSTANDARD1X;NO_MEM_BUFFER;PORTABLE;NOTRACESOURCE;NOCUSTOMSSLVALIDATION;NOSTRNORMALIZE;NOSOCKET;NOFILEIO;USEBC;NODEFAULTRNG;NODYNAMIC;NOX509;NONATIVEHASH</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />

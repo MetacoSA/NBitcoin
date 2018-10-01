@@ -166,7 +166,7 @@ namespace NBitcoin.BouncyCastle.Utilities
 
 		internal static string ToLowerInvariant(string s)
 		{
-#if PORTABLE || NETCORE
+#if PORTABLE || NETSTANDARD1X
             return s.ToLowerInvariant();
 #else
 			return s.ToLower(CultureInfo.InvariantCulture);
@@ -175,7 +175,7 @@ namespace NBitcoin.BouncyCastle.Utilities
 
 		internal static string ToUpperInvariant(string s)
 		{
-#if PORTABLE || NETCORE
+#if PORTABLE || NETSTANDARD1X
             return s.ToUpperInvariant();
 #else
 			return s.ToUpper(CultureInfo.InvariantCulture);
@@ -184,7 +184,7 @@ namespace NBitcoin.BouncyCastle.Utilities
 
 		internal static readonly string NewLine = GetNewLine();
 
-#if PORTABLE || NETCORE
+#if PORTABLE || NETSTANDARD1X
         internal static void Dispose(IDisposable d)
         {
             d.Dispose();

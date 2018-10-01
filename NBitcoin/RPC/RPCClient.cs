@@ -539,7 +539,7 @@ namespace NBitcoin.RPC
 			var bytes = Encoding.UTF8.GetBytes(json);
 
 			var webRequest = CreateWebRequest();
-#if !(PORTABLE || NETCORE)
+#if !(PORTABLE || NETSTANDARD1X)
 			webRequest.ContentLength = bytes.Length;
 #endif
 
@@ -689,7 +689,7 @@ namespace NBitcoin.RPC
 				writer.Flush();
 				var json = writer.ToString();
 				var bytes = Encoding.UTF8.GetBytes(json);
-#if !(PORTABLE || NETCORE)
+#if !(PORTABLE || NETSTANDARD1X)
 				webRequest.ContentLength = bytes.Length;
 #endif
 				var dataStream = await webRequest.GetRequestStreamAsync().ConfigureAwait(false);
