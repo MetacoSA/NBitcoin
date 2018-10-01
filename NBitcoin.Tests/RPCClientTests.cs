@@ -954,7 +954,7 @@ namespace NBitcoin.Tests
 			}
 		}
 #endif
-#if !NOSOCKET && WIN
+#if !NOSOCKET && CLASSICDOTNET
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseIpEndpoint()

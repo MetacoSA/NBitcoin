@@ -860,7 +860,7 @@ namespace NBitcoin.Tests
 			Assert.True(reject.Hash == uint256.Parse("964182ffbcec5fafd8f33594b17d6aad4937ff1c59f699e91af44fda94967a57"));
 		}
 
-#if WIN
+#if CLASSICDOTNET
 		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlock()

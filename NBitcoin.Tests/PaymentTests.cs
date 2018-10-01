@@ -99,7 +99,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-#if WIN
+#if CLASSICDOTNET
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadPaymentRequest()
@@ -145,7 +145,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-#if WIN
+#if CLASSICDOTNET
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadTestVectorPayments()

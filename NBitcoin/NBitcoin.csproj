@@ -27,10 +27,10 @@
 		<DocumentationFile>bin\Release\NBitcoin.XML</DocumentationFile>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
-		<DefineConstants>$(DefineConstants);WIN</DefineConstants>
+		<DefineConstants>$(DefineConstants);CLASSICDOTNET</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-		<DefineConstants>$(DefineConstants);WIN;LEGACY_X509</DefineConstants>
+		<DefineConstants>$(DefineConstants);CLASSICDOTNET;LEGACY_X509</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netstandard2.0' ">
 		<DefineConstants>$(DefineConstants);NOCUSTOMSSLVALIDATION</DefineConstants>
