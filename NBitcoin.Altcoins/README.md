@@ -12,6 +12,7 @@ Currently supported altcoins are:
 * Groestlcoin
 * Litecoin
 * Monacoin
+* Navcoin
 * Polis
 * UFO
 * Viacoin
