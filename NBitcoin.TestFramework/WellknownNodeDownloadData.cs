@@ -494,6 +494,35 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class ZclassicNodeDownloadData
+		{
+			public NodeDownloadData v1_0_14 = new NodeDownloadData()
+			{
+				Version = "1.0.14",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/z-classic/zclassic/releases/download/v{0}/zclassic-v{0}-win.zip",
+					Archive = "zclassic-v{0}-win.zip",
+					Executable = "zclassic-{0}/bin/zcld.exe",
+					Hash = "99923ACC9D45609FDD4098AF8033542A34E41840091C9121C326571889811A2A"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/z-classic/zclassic/releases/download/v{0}/zclassic-v{0}-linux.tar.gz",
+					Archive = "zclassic-v{0}-linux.tar.gz",
+					Executable = "zclassic-{0}/bin/zcld",
+					Hash = "51e49a81f8493923c08e3cdd72b253bbcc10fe582e97f6926e6267a4f337b696"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/z-classic/zclassic/releases/download/v{0}/zclassic-v{0}-mac.zip",
+					Archive = "zclassic-v{0}-mac.zip",
+					Executable = "zclassic-{0}/bin/zcld",
+					Hash = ""
+				},
+			};
+		}
+
 		public static GroestlcoinNodeDownloadData Groestlcoin
 		{
 			get; set;
@@ -562,5 +591,10 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new BitcoreNodeDownloadData();
+
+		public static ZclassicNodeDownloadData Zclassic
+		{
+			get; set;
+		} = new ZclassicNodeDownloadData();
 	}
 }
