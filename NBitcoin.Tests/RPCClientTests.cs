@@ -936,7 +936,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-#if !PORTABLE
 		[Fact]
 		public void CanGetPeersInfo()
 		{
@@ -953,7 +952,7 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
-#endif
+
 #if !NOSOCKET && CLASSICDOTNET
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

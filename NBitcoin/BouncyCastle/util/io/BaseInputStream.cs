@@ -29,7 +29,7 @@ namespace NBitcoin.BouncyCastle.Utilities.IO
 			}
 		}
 
-#if PORTABLE || NETSTANDARD1X
+#if NETSTANDARD1X
         protected override void Dispose(bool disposing)
         {
             if (disposing)
