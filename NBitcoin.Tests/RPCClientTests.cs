@@ -10,7 +10,10 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NBitcoin.Logging;
+using NBitcoin.Tests.Helpers;
 using Xunit;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace NBitcoin.Tests
@@ -22,6 +25,13 @@ namespace NBitcoin.Tests
 	public class RPCClientTests
 	{
 		const string TestAccount = "NBitcoin.RPCClientTests";
+
+		public RPCClientTests(ITestOutputHelper testOutputHelper)
+		{
+			var logger = new XunitLogger(testOutputHelper, "RPCClientTests");
+			Logs.Configure(new FuncLoggerFactory(l=>logger));
+		}
+
 		[Fact]
 		public void InvalidCommandSendRPCException()
 		{

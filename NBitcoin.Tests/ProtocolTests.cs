@@ -14,6 +14,9 @@ using NBitcoin.DataEncoders;
 using System.Net.Sockets;
 using NBitcoin.Protocol.Behaviors;
 using System.Diagnostics;
+using NBitcoin.Logging;
+using NBitcoin.Tests.Helpers;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace NBitcoin.Tests
@@ -132,6 +135,13 @@ namespace NBitcoin.Tests
 	}
 	public class ProtocolTests
 	{
+
+		public ProtocolTests(ITestOutputHelper testOutputHelper)
+		{
+			var logger = new XunitLogger(testOutputHelper, "ProtocolTests");
+			Logs.Configure(new FuncLoggerFactory(l=>logger));
+		}
+		
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		//Copied from https://en.bitcoin.it/wiki/Protocol_specification (19/04/2014)
