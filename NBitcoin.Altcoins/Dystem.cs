@@ -114,7 +114,7 @@ namespace NBitcoin.Altcoins
 				.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("Dystem"))
 				.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("Dystem"))
 				.SetMagic(0x3595a329)
-				.SetPort(16443)
+				.SetPort(65443)
 				.SetRPCPort(17200)
 				.SetMaxP2PVersion(70912)
 				.SetName("Dystem-main")
