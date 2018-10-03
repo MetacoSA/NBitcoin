@@ -936,7 +936,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-#if !PORTABLE
 		[Fact]
 		public void CanGetPeersInfo()
 		{
@@ -953,8 +952,8 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
-#endif
-#if !NOSOCKET && WIN
+
+#if !NOSOCKET
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseIpEndpoint()
@@ -969,7 +968,16 @@ namespace NBitcoin.Tests
 			endpoint = Utils.ParseIpEndpoint("10.10.1.3:94", 90);
 			Assert.Equal("10.10.1.3", endpoint.Address.ToString());
 			Assert.Equal(94, endpoint.Port);
-			Assert.Throws<System.Net.Sockets.SocketException>(() => Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8:100", 90));
+
+			Exception exception = null;
+			try {
+				Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8:100", 90);
+			} catch (Exception ex) {
+				exception = ex;
+			}
+			Assert.NotNull(exception);
+			Assert.True(exception.GetType().FullName.Contains("SocketException"));
+
 			endpoint = Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8", 90);
 			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
 			Assert.Equal(90, endpoint.Port);

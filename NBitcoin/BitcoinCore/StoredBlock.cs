@@ -195,7 +195,7 @@ namespace NBitcoin.BitcoinCore
 		}
 
 		static readonly Regex _Reg = new Regex("f:([0-9]*)p:([0-9]*)"
-#if !PORTABLE
+#if !NETSTANDARD1X
 			, RegexOptions.Compiled
 #endif
 			);

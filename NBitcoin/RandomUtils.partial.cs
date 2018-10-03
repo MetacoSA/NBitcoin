@@ -1,4 +1,4 @@
-﻿#if WIN
+﻿#if CLASSICDOTNET
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +37,7 @@ namespace NBitcoin
 }
 #endif
 
-#if !WIN && !NODEFAULTRNG
+#if !CLASSICDOTNET && !NODEFAULTRNG
 using System;
 using System.Collections.Generic;
 using System.Linq;
