@@ -19,7 +19,7 @@ namespace NBitcoin.JsonConverters
 		{
 			try
 			{
-				return reader.TokenType == JsonToken.Null ? LockTime.Zero : new LockTime((uint)reader.Value);
+				return reader.TokenType == JsonToken.Null ? LockTime.Zero : new LockTime((uint)(long)reader.Value);
 			}
 			catch
 			{
