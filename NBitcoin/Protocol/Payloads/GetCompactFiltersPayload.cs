@@ -1,4 +1,4 @@
-﻿#if !NOSOCKET
+#if !NOSOCKET
 using NBitcoin.Crypto;
 using NBitcoin.Protocol.Behaviors;
 using System;
@@ -10,6 +10,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
 namespace NBitcoin.Protocol
 {
 	public enum FilterType : byte
@@ -24,9 +25,9 @@ namespace NBitcoin.Protocol
 	/// </summary>
 	public abstract class CompactFiltersQueryPayload : Payload
 	{
-		private byte _filterType;
-		private uint _startHeight;
-		private uint256 _stopHash;
+		private byte _filterType = 0;
+		private uint _startHeight = 0;
+		private uint256 _stopHash = new uint256();
 		/// <summary>
 		/// Gets the Filter type for which headers are requested  
 		/// </summary>
@@ -55,14 +56,15 @@ namespace NBitcoin.Protocol
 			_stopHash = stopHash;
 		}
 
+		protected CompactFiltersQueryPayload() { }
+
 		#region IBitcoinSerializable Members
-		public void ReadWrite(BitcoinStream stream)
+		public override void ReadWriteCore(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref _filterType);
 			stream.ReadWrite(ref _startHeight);
 			stream.ReadWrite(ref _stopHash);
 		}
-
 		#endregion
 	}
 	/// <summary>
@@ -71,10 +73,14 @@ namespace NBitcoin.Protocol
 	[Payload("getcfilters")]
 	public class GetCompactFiltersPayload : CompactFiltersQueryPayload
 	{
+
 		public GetCompactFiltersPayload(FilterType filterType, uint startHeight, uint256 stopHash)
 			: base(filterType, startHeight, stopHash)
 		{
 		}
+
+		public GetCompactFiltersPayload() { }
+
 	}
 	/// <summary>
 	/// Represents the p2p message payload used for requesting a range of compact filter headers.
@@ -86,6 +92,8 @@ namespace NBitcoin.Protocol
 			: base(filterType, startHeight, stopHash)
 		{
 		}
+
+		public GetCompactFilterHeadersPayload() { }
 	}
 
 	[Payload("getcfcheckpt")]
@@ -96,7 +104,21 @@ namespace NBitcoin.Protocol
 
 		public GetCompactFilterCheckPointPayload(FilterType filterType, uint256 stopHash)
 		{
+			if (filterType != FilterType.Basic /*&& filterType != FilterType.Extended*/) //Extended Filter removed
+				throw new ArgumentException($"'{filterType}' is not a valid value. Try with Basic.", nameof(filterType));
+			if (stopHash == null)
+				throw new ArgumentNullException(nameof(stopHash));
 
+			FilterType = filterType;
+			_stopHash = stopHash;
+		}
+
+		public GetCompactFilterCheckPointPayload() { }
+
+		public override void ReadWriteCore(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref _filterType);
+			stream.ReadWrite(ref _stopHash);
 		}
 
 

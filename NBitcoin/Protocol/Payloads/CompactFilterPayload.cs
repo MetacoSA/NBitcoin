@@ -1,4 +1,4 @@
-﻿#if !NOSOCKET
+#if !NOSOCKET
 using NBitcoin.Crypto;
 using NBitcoin.Protocol.Behaviors;
 using System;
@@ -19,9 +19,10 @@ namespace NBitcoin.Protocol
 	[Payload("cfilter")]
 	public class CompactFilterPayload : Payload
 	{
-		private byte _filterType;
+		private byte _filterType = 0;
 		private byte[] _filterBytes;
-		private uint256 _blockHash;
+		private VarInt _numFilterBytes = new VarInt(0);
+		private uint256 _blockHash = new uint256();
 
 		/// <summary>
 		/// Gets the Filter type for which headers are requested  
@@ -56,15 +57,38 @@ namespace NBitcoin.Protocol
 			_filterBytes = filterBytes;
 		}
 
+		public CompactFilterPayload()
+		{
+		}
+
 		#region IBitcoinSerializable Members
+
 		public void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref _filterType);
 			stream.ReadWrite(ref _blockHash);
-			stream.ReadWriteAsVarString(ref _filterBytes);
+			stream.ReadWrite(ref _filterBytes);
 		}
 
 		#endregion
+
+		public override void ReadWriteCore(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref _filterType);
+
+			stream.ReadWrite(ref _blockHash);
+
+			stream.ReadWrite(ref _numFilterBytes);
+
+			_filterBytes = new byte[_numFilterBytes.ToLong()];
+
+			stream.ReadWrite(ref _filterBytes);
+		}
+
+		public override string ToString()
+		{
+			return $"Cfilter type: {this.FilterType}| Block hash: {this.BlockHash}| cfilter bytes omitted.";
+		}
 	}
 }
 #endif
