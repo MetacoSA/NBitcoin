@@ -26,11 +26,11 @@ namespace NBitcoin.Tests
 	{
 		const string TestAccount = "NBitcoin.RPCClientTests";
 
-		public RPCClientTests(ITestOutputHelper testOutputHelper)
-		{
-			var logger = new XunitLogger(testOutputHelper, "RPCClientTests");
-			Logs.Configure(new FuncLoggerFactory(l=>logger));
-		}
+		//public RPCClientTests(ITestOutputHelper testOutputHelper)
+		//{
+		//	var logger = new XunitLogger(testOutputHelper, "RPCClientTests");
+		//	Logs.Configure(new FuncLoggerFactory(l=>logger));
+		//}
 
 		[Fact]
 		public void InvalidCommandSendRPCException()
