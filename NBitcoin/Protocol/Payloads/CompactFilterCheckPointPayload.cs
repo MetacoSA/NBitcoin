@@ -20,7 +20,7 @@ namespace NBitcoin.Protocol
 
 		public CompactFilterCheckPointPayload(FilterType filterType, uint256 stopHash, uint filtersHeaderLength, byte[] filterHeaders)
 		{
-			if (filterType != FilterType.Basic)
+			if (filterType != FilterType.Basic /*&& filterType != FilterType.Extended*/) //Extended filters removed
 				throw new ArgumentException(nameof(filterType));
 			if (stopHash == null)
 				throw new ArgumentException(nameof(stopHash));

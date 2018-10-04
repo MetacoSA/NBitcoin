@@ -45,7 +45,7 @@ namespace NBitcoin.Protocol
 		public CompactFilterPayload(FilterType filterType, uint256 blockhash, byte[] filterBytes)
 		{
 			if (filterType != FilterType.Basic /*&& filterType != FilterType.Extended*/) //Extended filters removed
-				throw new ArgumentException($"'{filterType}' is not a valid value. Try with Basic or Extended.", nameof(filterType));
+				throw new ArgumentException($"'{filterType}' is not a valid value. Try with Basic.", nameof(filterType));
 			if (blockhash == null)
 				throw new ArgumentNullException(nameof(blockhash));
 			if (filterBytes == null)

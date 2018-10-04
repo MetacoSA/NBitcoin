@@ -24,8 +24,8 @@ namespace NBitcoin.Protocol
 
 		public CompactFilterHeadersPayload(FilterType filterType, uint256 stopHash, uint256 previousFilterHeader, byte[] filterHashes)
 		{
-			if (filterType != FilterType.Basic)
-				throw new ArgumentException(nameof(filterType));
+			if (filterType != FilterType.Basic /*&& filterType != FilterType.Extended*/) //Extended filters removed
+				throw new ArgumentException($"'{filterType}' is not a valid value. Try with Basic.", nameof(filterType));
 			if (stopHash == null)
 				throw new ArgumentException(nameof(stopHash));
 			if (previousFilterHeader == null)
