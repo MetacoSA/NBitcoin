@@ -1,17 +1,10 @@
 ﻿#if !NOJSONNET
-using NBitcoin.DataEncoders;
-using NBitcoin.Protocol;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Runtime.ExceptionServices;
-using System.Text;
 using System.Threading.Tasks;
+using NBitcoin.DataEncoders;
+using Newtonsoft.Json.Linq;
 
 namespace NBitcoin.RPC
 {
@@ -610,6 +603,12 @@ namespace NBitcoin.RPC
 		/// Returns an array of unspent transaction outputs belonging to this wallet,
 		/// with query options and the list of addresses to include. 
 		/// </summary>
+		/// <param name="options">
+		/// MinimumAmount - Minimum value of each UTXO
+		/// MaximumAmount - Maximum value of each UTXO
+		/// MaximumCount - Maximum number of UTXOs
+		/// MinimumSumAmount - Minimum sum value of all UTXOs
+		/// </param>
 		public async Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options = null, params BitcoinAddress[] addresses)
 		{
 			var queryOptions = new Dictionary<string, object>();
@@ -640,7 +639,6 @@ namespace NBitcoin.RPC
 			queryOptions.Add("addresses", addr);
 
 			var response = await SendCommandWithNamedArgsAsync(RPCOperations.listunspent.ToString(), queryOptions).ConfigureAwait(false);
-
 			return response.Result.Select(i => new UnspentCoin((JObject)i, Network)).ToArray();
 		}
 
