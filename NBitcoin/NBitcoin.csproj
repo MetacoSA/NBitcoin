@@ -64,10 +64,6 @@
 		<PackageReference Include="System.Security.Cryptography.Csp" Version="4.3.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Compile Include="..\Stubs\TraceStub\TraceSource.cs" />
-	</ItemGroup>
-
 
 	<ItemGroup>
 		<None Update="BitcoinStream.Partial.tt">

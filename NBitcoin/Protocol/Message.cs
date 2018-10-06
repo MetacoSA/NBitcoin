@@ -134,7 +134,6 @@ namespace NBitcoin.Protocol
 					var unknown = payloadType == typeof(UnknowPayload);
 					if (unknown)
 					{
-						//NodeServerTrace.Trace.TraceEvent(TraceEventType.Warning, 0, "Unknown command received : " + Command); //Todo:Remove
 						Logs.NodeServer.LogWarning("Unknown command received {command}", Command); 
 					}
 

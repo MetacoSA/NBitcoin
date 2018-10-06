@@ -141,8 +141,7 @@ namespace NBitcoin.Crypto
 			}
 			catch(Exception ex)
 			{
-				//Utils.error("Unexpected exception in ECDSASignature.IsValidDER " + ex.Message); //Todo:Remove
-				Logs.Utils.LogError(default, ex, "Unexpected exception in ECDSASignature.IsValidDER");
+				//Logs.Utils.LogError(default, ex, "Unexpected exception in ECDSASignature.IsValidDER"); //Potential Side Effect
 				return false;
 			}
 		}

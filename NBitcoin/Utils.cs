@@ -522,20 +522,6 @@ namespace NBitcoin
 			return new BigInteger(1, data);
 		}
 
-		//static readonly TraceSource _TraceSource = TraceSourceFactory.CreateTraceSource("NBitcoin"); //Todo:Remove
-
-		//internal static bool error(string msg) //Todo:Remove
-		//{
-		//	_TraceSource.TraceEvent(TraceEventType.Error, 0, msg);
-		//	return false;
-		//}
-
-		//internal static void log(string msg) //Todo:Remove
-		//{
-		//	_TraceSource.TraceEvent(TraceEventType.Information, 0, msg);
-		//}
-
-
 		static DateTimeOffset unixRef = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
 		public static uint DateTimeToUnixTime(DateTimeOffset dt)

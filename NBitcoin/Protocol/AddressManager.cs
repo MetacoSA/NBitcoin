@@ -1141,18 +1141,18 @@ namespace NBitcoin.Protocol
 
 		internal void DiscoverPeers(Network network, NodeConnectionParameters parameters, int peerToFind)
 		{
-			//TraceCorrelation traceCorrelation = new TraceCorrelation(NodeServerTrace.Trace, "Discovering nodes"); //Todo:Remove
+
+			Logs.NodeServer.LogTrace("Discovering nodes");
+
 			int found = 0;
 
-			//using(traceCorrelation.Open()) //Todo:Remove
 			{
 				while(found < peerToFind)
 				{
 					parameters.ConnectCancellation.ThrowIfCancellationRequested();
-					//NodeServerTrace.PeerTableRemainingPeerToGet(-found + peerToFind); //Todo:Remove
-				Logs.NodeServer.LogTrace("Remaining peer to get {remainingPeerCount}" , (-found + peerToFind));
 
-
+					Logs.NodeServer.LogTrace("Remaining peer to get {remainingPeerCount}" , (-found + peerToFind));
+					
 					List<NetworkAddress> peers = new List<NetworkAddress>();
 					peers.AddRange(this.GetAddr());
 					if(peers.Count == 0)
@@ -1163,7 +1163,6 @@ namespace NBitcoin.Protocol
 						if(peers.Count == 0)
 							return;
 					}
-
 
 					CancellationTokenSource peerTableFull = new CancellationTokenSource();
 					CancellationToken loopCancel = CancellationTokenSource.CreateLinkedTokenSource(peerTableFull.Token, parameters.ConnectCancellation).Token;
@@ -1213,8 +1212,7 @@ namespace NBitcoin.Protocol
 							if(found >= peerToFind)
 								peerTableFull.Cancel();
 							else
-								//NodeServerTrace.Information("Need " + (-found + peerToFind) + " more peers"); //Todo:Remove
-							Logs.NodeServer.LogInformation("Need {neededPeerCount} more peers", (-found + peerToFind));
+								Logs.NodeServer.LogInformation("Need {neededPeerCount} more peers", (-found + peerToFind));
 						});
 					}
 					catch(OperationCanceledException)

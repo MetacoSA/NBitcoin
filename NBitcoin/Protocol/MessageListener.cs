@@ -50,7 +50,6 @@ namespace NBitcoin.Protocol
 					}
 					catch(Exception ex)
 					{
-						//NodeServerTrace.Error("Unexpected expected during message loop", ex); //Todo:Remove
 						Logs.NodeServer.LogError(default,ex,"Unexpected expected during message loop");
 					}
 				});
@@ -78,7 +77,6 @@ namespace NBitcoin.Protocol
 							}
 							catch(Exception ex)
 							{
-								//NodeServerTrace.Error("Unexpected expected during message loop", ex); //Todo:Remove
 								Logs.NodeServer.LogError(default,ex,"Unexpected expected during message loop");
 							}
 						}
