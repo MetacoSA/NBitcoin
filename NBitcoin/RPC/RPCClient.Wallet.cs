@@ -1,10 +1,17 @@
 ﻿#if !NOJSONNET
+using NBitcoin.DataEncoders;
+using NBitcoin.Protocol;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Runtime.ExceptionServices;
+using System.Text;
 using System.Threading.Tasks;
-using NBitcoin.DataEncoders;
-using Newtonsoft.Json.Linq;
 
 namespace NBitcoin.RPC
 {
