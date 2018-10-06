@@ -601,7 +601,7 @@ namespace NBitcoin.RPC
 
 		/// <summary>
 		/// Returns an array of unspent transaction outputs belonging to this wallet,
-		/// with query options and the list of addresses to include. 
+		/// with query_options and the list of addresses to include. 
 		/// </summary>
 		/// <param name="options">
 		/// MinimumAmount - Minimum value of each UTXO
@@ -613,6 +613,7 @@ namespace NBitcoin.RPC
 		{
 			var queryOptions = new Dictionary<string, object>();
 			var queryObjects = new JObject(); 
+
 			if (options != null)
 			{
 				if (options.MinimumAmount != null)
