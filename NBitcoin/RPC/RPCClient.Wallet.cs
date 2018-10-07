@@ -616,32 +616,29 @@ namespace NBitcoin.RPC
 		/// MaximumCount - Maximum number of UTXOs
 		/// MinimumSumAmount - Minimum sum value of all UTXOs
 		/// </param>
-		public async Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options = null, params BitcoinAddress[] addresses)
+		public async Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options, params BitcoinAddress[] addresses)
 		{
 			var queryOptions = new Dictionary<string, object>();
 			var queryObjects = new JObject(); 
 
-			if (options != null)
+			if (options.MinimumAmount != null)
 			{
-				if (options.MinimumAmount != null)
-				{
-					queryObjects.Add("minimumAmount", options.MinimumAmount);
-				}
-				if (options.MaximumAmount != null)
-				{
-					queryObjects.Add("maximumAmount", options.MaximumAmount);
-				}
-				if (options.MaximumCount != null)
-				{
-					queryObjects.Add("maximumCount", options.MaximumCount);
-				}
-				if (options.MinimumSumAmount != null)
-				{
-					queryObjects.Add("minimumSumAmount", options.MinimumSumAmount);
-				}
-
-				queryOptions.Add("query_options", queryObjects);
+				queryObjects.Add("minimumAmount", options.MinimumAmount);
 			}
+			if (options.MaximumAmount != null)
+			{
+				queryObjects.Add("maximumAmount", options.MaximumAmount);
+			}
+			if (options.MaximumCount != null)
+			{
+				queryObjects.Add("maximumCount", options.MaximumCount);
+			}
+			if (options.MinimumSumAmount != null)
+			{
+				queryObjects.Add("minimumSumAmount", options.MinimumSumAmount);
+			}
+
+			queryOptions.Add("query_options", queryObjects);
 
 			var addr = (from a in addresses select a.ToString()).ToArray();
 			queryOptions.Add("addresses", addr);
