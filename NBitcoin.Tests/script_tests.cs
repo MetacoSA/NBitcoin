@@ -391,7 +391,7 @@ namespace NBitcoin.Tests
 		private void EnsureHasLibConsensus()
 		{
 #if !NOCONSENSUSLIB
-			var bitcoinPath = NodeBuilder.EnsureDownloaded(NodeDownloadData.Bitcoin.v0_16_3);
+			var bitcoinPath = NodeBuilder.EnsureDownloaded(NodeDownloadData.Bitcoin.v0_17_0);
 
 			string libConsensusDll = null;
 			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
