@@ -161,10 +161,12 @@ namespace NBitcoin.Protocol
 								var groupSelector = CustomGroupSelector != null ? CustomGroupSelector :
 													AllowSameGroup ? WellKnownGroupSelectors.ByRandom : null;
 								node = Node.Connect(_Network, parameters, _ConnectedNodes.Select(n => n.RemoteSocketEndpoint).ToArray(), groupSelector);
-								var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token);
-								timeout.CancelAfter(5000);
-								node.VersionHandshake(_Requirements, timeout.Token);
-								NodeServerTrace.Information("Node successfully connected to and handshaked");
+								using(var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token))
+								{
+									timeout.CancelAfter(5000);
+									node.VersionHandshake(_Requirements, timeout.Token);
+									NodeServerTrace.Information("Node successfully connected to and handshaked");
+								}
 							}
 							catch(OperationCanceledException ex)
 							{

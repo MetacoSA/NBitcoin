@@ -1170,38 +1170,40 @@ namespace NBitcoin.Protocol
 							CancellationToken = loopCancel,
 						}, p =>
 						{
-							CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-							var cancelConnection = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, loopCancel);
-							Node n = null;
-							try
+							using(CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
+							using(var cancelConnection = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, loopCancel))
 							{
-								var param2 = parameters.Clone();
-								param2.ConnectCancellation = cancelConnection.Token;
-								var addrman = param2.TemplateBehaviors.Find<AddressManagerBehavior>();
-								param2.TemplateBehaviors.Clear();
-								param2.TemplateBehaviors.Add(addrman);
-								n = Node.Connect(network, p.Endpoint, param2);
-								n.VersionHandshake(cancelConnection.Token);
-								n.MessageReceived += (s, a) =>
+								Node n = null;
+								try
 								{
-									var addr = (a.Message.Payload as AddrPayload);
-									if(addr != null)
+									var param2 = parameters.Clone();
+									param2.ConnectCancellation = cancelConnection.Token;
+									var addrman = param2.TemplateBehaviors.Find<AddressManagerBehavior>();
+									param2.TemplateBehaviors.Clear();
+									param2.TemplateBehaviors.Add(addrman);
+									n = Node.Connect(network, p.Endpoint, param2);
+									n.VersionHandshake(cancelConnection.Token);
+									n.MessageReceived += (s, a) =>
 									{
-										Interlocked.Add(ref found, addr.Addresses.Length);
-										if(found >= peerToFind)
-											peerTableFull.Cancel();
-									}
-								};
-								n.SendMessageAsync(new GetAddrPayload());
-								loopCancel.WaitHandle.WaitOne(2000);
-							}
-							catch
-							{
-							}
-							finally
-							{
-								if(n != null)
-									n.DisconnectAsync();
+										var addr = (a.Message.Payload as AddrPayload);
+										if(addr != null)
+										{
+											Interlocked.Add(ref found, addr.Addresses.Length);
+											if(found >= peerToFind)
+												peerTableFull.Cancel();
+										}
+									};
+									n.SendMessageAsync(new GetAddrPayload());
+									loopCancel.WaitHandle.WaitOne(2000);
+								}
+								catch
+								{
+								}
+								finally
+								{
+									if(n != null)
+										n.DisconnectAsync();
+								}
 							}
 							if(found >= peerToFind)
 								peerTableFull.Cancel();
