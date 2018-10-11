@@ -175,24 +175,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanSignRawTransaction()
-		{
-			using(var builder = NodeBuilderEx.Create())
-			{
-				var node = builder.CreateNode();
-				builder.StartAll();
-				node.Generate(101);
-
-				var tx = new Transaction();
-				tx.Outputs.Add(new TxOut(Money.Coins(1.0m), new Key()));
-				var funded = node.CreateRPCClient().FundRawTransaction(tx);
-				var signed = node.CreateRPCClient().SignRawTransaction(funded.Transaction);
-				var txId = node.CreateRPCClient().SendRawTransaction(signed);
-				Assert.Equal(signed.GetHash(), txId);
-			}
-		}
-
-		[Fact]
 		public void CanRBFTransaction()
 		{
 			using(var builder = NodeBuilderEx.Create())

@@ -690,6 +690,7 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="tx">The transaction to be signed</param>
 		/// <returns>The signed transaction</returns>
+		[Obsolete("signrawtransaction is deprecated and will be fully removed in v0.18. To use signrawtransaction in v0.17, restart bitcoind with -deprecatedrpc=signrawtransaction. Projects should transition to using signrawtransactionwithkey and signrawtransactionwithwallet before upgrading to v0.18")]
 		public Transaction SignRawTransaction(Transaction tx)
 		{
 			if(tx == null)
