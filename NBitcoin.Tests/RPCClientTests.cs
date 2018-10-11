@@ -426,27 +426,6 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
-		public void CanGetPrivateKeysFromAccount()
-		{
-			using(var builder = NodeBuilderEx.Create())
-			{
-				var rpc = builder.CreateNode().CreateRPCClient();
-				builder.StartAll();
-				Key key = new Key();
-				rpc.ImportAddress(key.PubKey.GetAddress(builder.Network), TestAccount, false);
-				BitcoinAddress address = rpc.GetAccountAddress(TestAccount);
-				BitcoinSecret secret = rpc.DumpPrivKey(address);
-				BitcoinSecret secret2 = rpc.GetAccountSecret(TestAccount);
-
-				Assert.Equal(secret.ToString(), secret2.ToString());
-				var p2pkh = secret.GetAddress().ToString();
-				var wit = secret.PubKey.WitHash.GetAddress(builder.Network).ToString();
-				var p2shwit = secret.PubKey.WitHash.ScriptPubKey.GetScriptAddress(builder.Network).ToString();
-				Assert.True(address.ToString() == p2pkh || address.ToString() == wit || address.ToString() == p2shwit);
-			}
-		}
-
-		[Fact]
 		public void CanImportMultiAddresses()
 		{
 			// Test cases borrowed from: https://github.com/bitcoin/bitcoin/blob/master/test/functional/importmulti.py
@@ -733,32 +712,6 @@ namespace NBitcoin.Tests
 			}
 
 
-		}
-
-		[Fact]
-		public void CanGetPrivateKeysFromLockedAccount()
-		{
-			using(var builder = NodeBuilderEx.Create())
-			{
-				var rpc = builder.CreateNode().CreateRPCClient();
-				builder.StartAll();
-				Key key = new Key();
-				var passphrase = "password1234";
-				rpc.SendCommand(RPCOperations.encryptwallet, passphrase);
-				builder.Nodes[0].Restart();
-				rpc.ImportAddress(key.PubKey.GetAddress(Network.RegTest), TestAccount, false);
-				BitcoinAddress address = rpc.GetAccountAddress(TestAccount);
-				rpc.WalletPassphrase(passphrase, 60);
-				BitcoinSecret secret = rpc.DumpPrivKey(address);
-				BitcoinSecret secret2 = rpc.GetAccountSecret(TestAccount);
-
-				Assert.Equal(secret.ToString(), secret2.ToString());
-
-				var p2pkh = secret.GetAddress().ToString();
-				var wit = secret.PubKey.WitHash.GetAddress(builder.Network).ToString();
-				var p2shwit = secret.PubKey.WitHash.ScriptPubKey.GetScriptAddress(builder.Network).ToString();
-				Assert.True(address.ToString() == p2pkh || address.ToString() == wit || address.ToString() == p2shwit);
-			}
 		}
 
 		[Fact]

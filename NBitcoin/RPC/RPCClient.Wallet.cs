@@ -150,53 +150,6 @@ namespace NBitcoin.RPC
 			return Network.Parse<BitcoinSecret>((string)response.Result);
 		}
 
-
-		// getaccountaddress
-
-		public BitcoinAddress GetAccountAddress(string account)
-		{
-			var response = SendCommand(RPCOperations.getaccountaddress, account);
-			return Network.Parse<BitcoinAddress>((string)response.Result);
-		}
-
-		public async Task<BitcoinAddress> GetAccountAddressAsync(string account)
-		{
-			var response = await SendCommandAsync(RPCOperations.getaccountaddress, account).ConfigureAwait(false);
-			return Network.Parse<BitcoinAddress>((string)response.Result);
-		}
-
-		public BitcoinSecret GetAccountSecret(string account)
-		{
-			var address = GetAccountAddress(account);
-			return DumpPrivKey(address);
-		}
-
-		public async Task<BitcoinSecret> GetAccountSecretAsync(string account)
-		{
-			var address = await GetAccountAddressAsync(account).ConfigureAwait(false);
-			return await DumpPrivKeyAsync(address).ConfigureAwait(false);
-		}
-
-
-		// getaddressesbyaccount 
-
-		/// <summary>
-		/// Returns a list of every address assigned to a particular account.
-		/// </summary>
-		/// <param name="account">
-		/// The name of the account containing the addresses to get. To get addresses from the default account, 
-		/// pass an empty string ("").
-		/// </param>
-		/// <returns>
-		/// A collection of all addresses belonging to the specified account. 
-		/// If the account has no addresses, the collection will be empty
-		/// </returns>
-		public IEnumerable<BitcoinAddress> GetAddressesByAccount(string account)
-		{
-			var response = SendCommand(RPCOperations.getaddressesbyaccount, account);
-			return response.Result.Select(t => Network.Parse<BitcoinAddress>((string)t));
-		}
-
 		public FundRawTransactionResponse FundRawTransaction(Transaction transaction, FundRawTransactionOptions options = null)
 		{
 			return FundRawTransactionAsync(transaction, options).GetAwaiter().GetResult();
