@@ -1394,14 +1394,6 @@ namespace NBitcoin.RPC
 
 		#endregion
 
-		// DEPRECATED. Please use estimatesmartfee for more intelligent estimates.
-		// Estimates the approximate fee per kilobyte needed for a transaction to begin
-		// confirmation within nblocks blocks.Uses virtual transaction size of transaction
-		// as defined in BIP 141 (witness data is discounted).
-		#region Obsoleted Fee Estimation
-
-		#endregion
-
 		/// <summary>
 		/// Requires wallet support. Requires an unlocked wallet or an unencrypted wallet.
 		/// </summary>
