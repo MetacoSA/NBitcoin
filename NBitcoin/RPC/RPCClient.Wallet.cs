@@ -123,14 +123,14 @@ namespace NBitcoin.RPC
 
 		public void BackupWallet(string path)
 		{
-			if(string.IsNullOrEmpty(path))
+			if (string.IsNullOrEmpty(path))
 				throw new ArgumentNullException(nameof(path));
 			SendCommand(RPCOperations.backupwallet, path);
 		}
 
 		public async Task BackupWalletAsync(string path)
 		{
-			if(string.IsNullOrEmpty(path))
+			if (string.IsNullOrEmpty(path))
 				throw new ArgumentNullException(nameof(path));
 			await SendCommandAsync(RPCOperations.backupwallet, path).ConfigureAwait(false);
 		}
@@ -178,27 +178,27 @@ namespace NBitcoin.RPC
 
 		public async Task<FundRawTransactionResponse> FundRawTransactionAsync(Transaction transaction, FundRawTransactionOptions options = null)
 		{
-			if(transaction == null)
+			if (transaction == null)
 				throw new ArgumentNullException(nameof(transaction));
 
 			RPCResponse response = null;
-			if(options != null)
+			if (options != null)
 			{
 				var jOptions = new JObject();
-				if(options.ChangeAddress != null)
+				if (options.ChangeAddress != null)
 					jOptions.Add(new JProperty("changeAddress", options.ChangeAddress.ToString()));
-				if(options.ChangePosition != null)
+				if (options.ChangePosition != null)
 					jOptions.Add(new JProperty("changePosition", options.ChangePosition.Value));
 				jOptions.Add(new JProperty("includeWatching", options.IncludeWatching));
 				jOptions.Add(new JProperty("lockUnspents", options.LockUnspents));
-				if(options.ReserveChangeKey != null)
+				if (options.ReserveChangeKey != null)
 					jOptions.Add(new JProperty("reserveChangeKey", options.ReserveChangeKey));
-				if(options.FeeRate != null)
+				if (options.FeeRate != null)
 					jOptions.Add(new JProperty("feeRate", options.FeeRate.GetFee(1000).ToDecimal(MoneyUnit.BTC)));
-				if(options.SubtractFeeFromOutputs != null)
+				if (options.SubtractFeeFromOutputs != null)
 				{
 					JArray array = new JArray();
-					foreach(var v in options.SubtractFeeFromOutputs)
+					foreach (var v in options.SubtractFeeFromOutputs)
 					{
 						array.Add(new JValue(v));
 					}
@@ -223,7 +223,7 @@ namespace NBitcoin.RPC
 		private string ToHex(Transaction tx)
 		{
 			// if there is inputs, then it can't be confusing
-			if(tx.Inputs.Count > 0)
+			if (tx.Inputs.Count > 0)
 				return tx.ToHex();
 			// if there is, do this ACK so that NBitcoin does not change the version number
 			return Encoders.Hex.EncodeData(tx.ToBytes(70012 - 1));
@@ -376,7 +376,7 @@ namespace NBitcoin.RPC
 			foreach (var addr in addresses)
 			{
 				var obj = JObject.FromObject(addr);
-				if(obj["timestamp"] == null || obj["timestamp"].Type == JTokenType.Null)
+				if (obj["timestamp"] == null || obj["timestamp"].Type == JTokenType.Null)
 					obj["timestamp"] = "now";
 				else
 					obj["timestamp"] = new JValue(Utils.DateTimeToUnixTime(addr.Timestamp.Value));
@@ -393,7 +393,7 @@ namespace NBitcoin.RPC
 			var error = ((JArray)response.Result).OfType<JObject>()
 				.Select(j => j.GetValue("error") as JObject)
 				.FirstOrDefault(o => o != null);
-			if(error != null)
+			if (error != null)
 			{
 				var errorObj = new RPCError(error);
 				throw new RPCException(errorObj.Code, errorObj.Message, response);
@@ -462,7 +462,7 @@ namespace NBitcoin.RPC
 		private IEnumerable<RPCAccount> AsRPCAccount(RPCResponse response)
 		{
 			var obj = (JObject)response.Result;
-			foreach(var prop in obj.Properties())
+			foreach (var prop in obj.Properties())
 			{
 				yield return new RPCAccount()
 				{
@@ -479,14 +479,14 @@ namespace NBitcoin.RPC
 		{
 			var result = SendCommand(RPCOperations.listaddressgroupings);
 			var array = (JArray)result.Result;
-			foreach(var group in array.Children<JArray>())
+			foreach (var group in array.Children<JArray>())
 			{
 				var grouping = new AddressGrouping();
 				grouping.PublicAddress = BitcoinAddress.Create(group[0][0].ToString(), Network);
 				grouping.Amount = Money.Coins(group[0][1].Value<decimal>());
 				grouping.Account = group[0].Count() > 2 ? group[0][2].ToString() : null;
 
-				foreach(var subgroup in group.Skip(1))
+				foreach (var subgroup in group.Skip(1))
 				{
 					var change = new ChangeAddress();
 					change.Address = BitcoinAddress.Create(subgroup[0].ToString(), Network);
@@ -500,10 +500,10 @@ namespace NBitcoin.RPC
 
 		public IEnumerable<BitcoinSecret> ListSecrets()
 		{
-			foreach(var grouping in ListAddressGroupings())
+			foreach (var grouping in ListAddressGroupings())
 			{
 				yield return DumpPrivKey(grouping.PublicAddress);
-				foreach(var change in grouping.ChangeAddresses)
+				foreach (var change in grouping.ChangeAddresses)
 					yield return DumpPrivKey(change.Address);
 			}
 		}
@@ -572,7 +572,7 @@ namespace NBitcoin.RPC
 		public async Task<UnspentCoin[]> ListUnspentAsync(ListUnspentOptions options, params BitcoinAddress[] addresses)
 		{
 			var queryOptions = new Dictionary<string, object>();
-			var queryObjects = new JObject(); 
+			var queryObjects = new JObject();
 
 			if (options.MinimumAmount != null)
 			{
@@ -644,13 +644,13 @@ namespace NBitcoin.RPC
 
 		private async Task LockUnspentCoreAsync(bool unlock, OutPoint[] outpoints)
 		{
-			if(outpoints == null || outpoints.Length == 0)
+			if (outpoints == null || outpoints.Length == 0)
 				return;
 			var parameters = new List<object>();
 			parameters.Add(unlock);
 			var array = new JArray();
 			parameters.Add(array);
-			foreach(var outp in outpoints)
+			foreach (var outp in outpoints)
 			{
 				var obj = new JObject();
 				obj["txid"] = outp.Hash.ToString();
@@ -684,7 +684,7 @@ namespace NBitcoin.RPC
 			parameters.Add(timeout);
 			await SendCommandAsync(RPCOperations.walletpassphrase, parameters.ToArray()).ConfigureAwait(false);
 		}
-	
+
 		/// <summary>
 		/// Sign a transaction
 		/// </summary>
@@ -693,7 +693,7 @@ namespace NBitcoin.RPC
 		[Obsolete("signrawtransaction is deprecated and will be fully removed in v0.18. To use signrawtransaction in v0.17, restart bitcoind with -deprecatedrpc=signrawtransaction. Projects should transition to using signrawtransactionwithkey and signrawtransactionwithwallet before upgrading to v0.18")]
 		public Transaction SignRawTransaction(Transaction tx)
 		{
-			if(tx == null)
+			if (tx == null)
 				throw new ArgumentNullException(nameof(tx));
 			return SignRawTransactionAsync(tx).GetAwaiter().GetResult();
 		}
@@ -703,10 +703,170 @@ namespace NBitcoin.RPC
 		/// </summary>
 		/// <param name="tx">The transaction to be signed</param>
 		/// <returns>The signed transaction</returns>
+		[Obsolete("signrawtransaction is deprecated and will be fully removed in v0.18. To use signrawtransaction in v0.17, restart bitcoind with -deprecatedrpc=signrawtransaction. Projects should transition to using signrawtransactionwithkey and signrawtransactionwithwallet before upgrading to v0.18")]
 		public async Task<Transaction> SignRawTransactionAsync(Transaction tx)
 		{
 			var result = await SendCommandAsync(RPCOperations.signrawtransaction, tx.ToHex()).ConfigureAwait(false);
 			return ParseTxHex(result.Result["hex"].Value<string>());
+		}
+
+		/// <summary>
+		/// Sign a transaction
+		/// </summary>
+		/// <param name="request">The transaction to be signed</param>
+		/// <returns>The signed transaction</returns>
+		public SignRawTransactionResponse SignRawTransactionWithKey(SignRawTransactionWithKeyRequest request)
+		{
+			if (request == null)
+				throw new ArgumentNullException(nameof(request));
+			return SignRawTransactionWithKeyAsync(request).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// Sign a transaction
+		/// </summary>
+		/// <param name="request">The transaction to be signed</param>
+		/// <returns>The signed transaction</returns>
+		public async Task<SignRawTransactionResponse> SignRawTransactionWithKeyAsync(SignRawTransactionWithKeyRequest request)
+		{
+			Dictionary<string, object> values = new Dictionary<string, object>();
+			values.Add("hexstring", request.Transaction.ToHex());
+			JArray keys = new JArray();
+			foreach (var k in request.PrivateKeys ?? new Key[0])
+			{
+				keys.Add(k.GetBitcoinSecret(Network).ToString());
+			}
+			values.Add("privkeys", keys);
+
+			if (request.PreviousTransactions != null)
+			{
+				JArray prevs = new JArray();
+				foreach (var prev in request.PreviousTransactions)
+				{
+					JObject prevObj = new JObject();
+					prevObj.Add(new JProperty("txid", prev.OutPoint.Hash.ToString()));
+					prevObj.Add(new JProperty("vout", prev.OutPoint.N));
+					prevObj.Add(new JProperty("scriptPubKey", prev.ScriptPubKey.ToHex()));
+					if (prev.RedeemScript != null)
+						prevObj.Add(new JProperty("redeemScript", prev.RedeemScript.ToHex()));
+					prevObj.Add(new JProperty("amount", prev.Amount.ToDecimal(MoneyUnit.BTC).ToString()));
+					prevs.Add(prevObj);
+				}
+				values.Add("prevtxs", prevs);
+
+				if (request.SigHash.HasValue)
+				{
+					values.Add("sighashtype", SigHashToString(request.SigHash.Value));
+				}
+			}
+
+			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithkey", values).ConfigureAwait(false);
+			var response = new SignRawTransactionResponse();
+			response.SignedTransaction = ParseTxHex(result.Result["hex"].Value<string>());
+			response.Complete = result.Result["complete"].Value<bool>();
+			var errors = result.Result["errors"] as JArray;
+			var errorList = new List<SignRawTransactionResponse.ScriptError>();
+			if(errors != null)
+			{
+				foreach(var error in errors)
+				{
+					var scriptError = new SignRawTransactionResponse.ScriptError();
+					scriptError.OutPoint = OutPoint.Parse($"{error["txid"].Value<string>()}-{(int)error["vout"].Value<long>()}");
+					scriptError.ScriptSig = Script.FromBytesUnsafe(Encoders.Hex.DecodeData(error["scriptSig"].Value<string>()));
+					scriptError.Sequence = new Sequence((uint)error["sequence"].Value<long>());
+					scriptError.Error = error["error"].Value<string>();
+					errorList.Add(scriptError);
+				}
+			}
+			response.Errors = errorList.ToArray();
+			return response;
+		}
+
+		/// <summary>
+		/// Sign a transaction with wallet keys
+		/// </summary>
+		/// <param name="request">The transaction to be signed</param>
+		/// <returns>The signed transaction</returns>
+		public SignRawTransactionResponse SignRawTransactionWithWallet(SignRawTransactionRequest request)
+		{
+			if (request == null)
+				throw new ArgumentNullException(nameof(request));
+			return SignRawTransactionWithWalletAsync(request).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// Sign a transaction with wallet keys
+		/// </summary>
+		/// <param name="request">The transaction to be signed</param>
+		/// <returns>The signed transaction</returns>
+		public async Task<SignRawTransactionResponse> SignRawTransactionWithWalletAsync(SignRawTransactionRequest request)
+		{
+			Dictionary<string, object> values = new Dictionary<string, object>();
+			values.Add("hexstring", request.Transaction.ToHex());
+
+			if (request.PreviousTransactions != null)
+			{
+				JArray prevs = new JArray();
+				foreach (var prev in request.PreviousTransactions)
+				{
+					JObject prevObj = new JObject();
+					prevObj.Add(new JProperty("txid", prev.OutPoint.Hash.ToString()));
+					prevObj.Add(new JProperty("vout", prev.OutPoint.N));
+					prevObj.Add(new JProperty("scriptPubKey", prev.ScriptPubKey.ToHex()));
+					if (prev.RedeemScript != null)
+						prevObj.Add(new JProperty("redeemScript", prev.RedeemScript.ToHex()));
+					prevObj.Add(new JProperty("amount", prev.Amount.ToDecimal(MoneyUnit.BTC).ToString()));
+					prevs.Add(prevObj);
+				}
+				values.Add("prevtxs", prevs);
+
+				if (request.SigHash.HasValue)
+				{
+					values.Add("sighashtype", SigHashToString(request.SigHash.Value));
+				}
+			}
+
+			var result = await SendCommandWithNamedArgsAsync("signrawtransactionwithwallet", values).ConfigureAwait(false);
+			var response = new SignRawTransactionResponse();
+			response.SignedTransaction = ParseTxHex(result.Result["hex"].Value<string>());
+			response.Complete = result.Result["complete"].Value<bool>();
+			var errors = result.Result["errors"] as JArray;
+			var errorList = new List<SignRawTransactionResponse.ScriptError>();
+			if (errors != null)
+			{
+				foreach (var error in errors)
+				{
+					var scriptError = new SignRawTransactionResponse.ScriptError();
+					scriptError.OutPoint = OutPoint.Parse($"{error["txid"].Value<string>()}-{(int)error["vout"].Value<long>()}");
+					scriptError.ScriptSig = Script.FromBytesUnsafe(Encoders.Hex.DecodeData(error["scriptSig"].Value<string>()));
+					scriptError.Sequence = new Sequence((uint)error["sequence"].Value<long>());
+					scriptError.Error = error["error"].Value<string>();
+					errorList.Add(scriptError);
+				}
+			}
+			response.Errors = errorList.ToArray();
+			return response;
+		}
+
+		public string SigHashToString(SigHash value)
+		{
+			switch (value)
+			{
+				case SigHash.All:
+					return "ALL";
+				case SigHash.None:
+					return "NONE";
+				case SigHash.Single:
+					return "SINGLE";
+				case SigHash.All | SigHash.AnyoneCanPay:
+					return "ALL|ANYONECANPAY";
+				case SigHash.None | SigHash.AnyoneCanPay:
+					return "NONE|ANYONECANPAY";
+				case SigHash.Single | SigHash.AnyoneCanPay:
+					return "SINGLE|ANYONECANPAY";
+				default:
+					throw new NotSupportedException();
+			}
 		}
 	}
 }
