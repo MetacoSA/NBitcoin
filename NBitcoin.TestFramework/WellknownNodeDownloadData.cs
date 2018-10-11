@@ -59,6 +59,33 @@ namespace NBitcoin.Tests
 					Hash = "52469c56222c1b5344065ef2d3ce6fc58ae42939a7b80643a7e3ee75ec237da9"
 				}
 			};
+
+			public NodeDownloadData v0_17_0 = new NodeDownloadData()
+			{
+				Version = "0.17.0",
+				Linux = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "9d6b472dc2aceedb1a974b93a3003a81b7e0265963bd2aa0acdcb17598215a4f"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					Archive = "bitcoin-{0}-osx64.tar.gz",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-osx64.tar.gz",
+					Executable = "bitcoin-{0}/bin/bitcoind",
+					Hash = "e4210edfff313e4e00169e9170369537bb45024c318f5b339623d5fd08715d61"
+				},
+				Windows = new NodeOSDownloadData()
+				{
+					Executable = "bitcoin-{0}/bin/bitcoind.exe",
+					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win64.zip",
+					Archive = "bitcoin-{0}-win64.zip",
+					Hash = "d6312ef594fa701d6bc863415baeccd3a140f200259fcfac56dde81a73d50799"
+				},
+				UseSectionInConfigFile = true
+			};
 		}
 
 		public class LitecoinNodeDownloadData
@@ -596,5 +623,6 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new ZclassicNodeDownloadData();
+		public bool UseSectionInConfigFile { get; private set; }
 	}
 }
