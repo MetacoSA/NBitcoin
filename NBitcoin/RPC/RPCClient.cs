@@ -667,7 +667,7 @@ namespace NBitcoin.RPC
 				ExceptionDispatchInfo.Capture(ex).Throw();
 			}
 #else
-			throw new NotSupportedException("Cookie authentication is not supported for this plateform");
+			throw new NotSupportedException("Cookie authentication is not supported for this platform");
 #endif
 		}
 
