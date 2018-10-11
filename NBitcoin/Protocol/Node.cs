@@ -614,9 +614,12 @@ namespace NBitcoin.Protocol
 				{
 					var timeout = new CancellationTokenSource(5000);
 					var param2 = parameters.Clone();
-					param2.ConnectCancellation = CancellationTokenSource.CreateLinkedTokenSource(parameters.ConnectCancellation, timeout.Token).Token;
-					var node = Node.Connect(network, addr.Endpoint, param2);
-					return node;
+					using(var cts = CancellationTokenSource.CreateLinkedTokenSource(parameters.ConnectCancellation, timeout.Token))
+					{
+						param2.ConnectCancellation = cts.Token;
+						var node = Node.Connect(network, addr.Endpoint, param2);
+						return node;
+					}
 				}
 				catch(OperationCanceledException ex)
 				{
@@ -1630,11 +1633,14 @@ namespace NBitcoin.Protocol
 						while(batchResult.Count < batch.Count)
 						{
 							CancellationTokenSource timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10.0));
-							var payload = listener.ReceivePayload<Payload>(CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token).Token);
-							if(payload is NotFoundPayload)
-								batchResult.Add(null);
-							else
-								batchResult.Add(((TxPayload)payload).Object);
+							using(var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeout.Token))
+							{
+								var payload = listener.ReceivePayload<Payload>(cts.Token);
+								if(payload is NotFoundPayload)
+									batchResult.Add(null);
+								else
+									batchResult.Add(((TxPayload)payload).Object);
+							}
 						}
 						result.AddRange(batchResult);
 					}
