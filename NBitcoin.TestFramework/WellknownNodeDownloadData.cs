@@ -83,7 +83,8 @@ namespace NBitcoin.Tests
 					DownloadLink = "https://bitcoincore.org/bin/bitcoin-core-{0}/bitcoin-{0}-win64.zip",
 					Archive = "bitcoin-{0}-win64.zip",
 					Hash = "d6312ef594fa701d6bc863415baeccd3a140f200259fcfac56dde81a73d50799"
-				}
+				},
+				UseSectionInConfigFile = true
 			};
 		}
 
@@ -622,5 +623,6 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new ZclassicNodeDownloadData();
+		public bool UseSectionInConfigFile { get; private set; }
 	}
 }
