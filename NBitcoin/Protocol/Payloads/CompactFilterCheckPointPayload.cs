@@ -9,9 +9,9 @@ namespace NBitcoin.Protocol
 	[Payload("cfcheckpt")]
 	public class CompactFilterCheckPointPayload : Payload, IBitcoinSerializable
 	{
-		private byte _filterType = 0;
-		private uint256 _stopHash = new uint256();
-		private uint256[] _filterHeaders = { };
+		private byte _FilterType = 0;
+		private uint256 _StopHash = new uint256();
+		private uint256[] _FilterHeaders = { };
 		private VarInt _FilterHeadersLength = new VarInt(0);
 		public CompactFilterCheckPointPayload()
 		{
@@ -28,8 +28,8 @@ namespace NBitcoin.Protocol
 				throw new ArgumentException(nameof(filterHeaders));
 
 			FilterType = filterType;
-			_stopHash = stopHash;
-			_filterHeaders = GetHashes(filterHeaders);
+			_StopHash = stopHash;
+			_FilterHeaders = GetHashes(filterHeaders);
 		}
 
 		private uint256[] GetHashes(byte[] filterHeaders)
@@ -52,19 +52,19 @@ namespace NBitcoin.Protocol
 
 		public FilterType FilterType
 		{
-			get => (FilterType)_filterType;
-			internal set => _filterType = (byte)value;
+			get => (FilterType)_FilterType;
+			internal set => _FilterType = (byte)value;
 		}
-		public uint256 StopHash { get => _stopHash; set => _stopHash = value; }
-		public uint256[] FilterHeaders { get => _filterHeaders; set => _filterHeaders = value; }
+		public uint256 StopHash { get => _StopHash; set => _StopHash = value; }
+		public uint256[] FilterHeaders { get => _FilterHeaders; set => _FilterHeaders = value; }
 		public VarInt FilterHeadersLength { get => _FilterHeadersLength; set => _FilterHeadersLength = value; }
 
-		public void ReadWrite(BitcoinStream stream)
+		public new void ReadWrite(BitcoinStream stream)
 		{
 			var length = stream.Inner.Length;
 
-			stream.ReadWrite(ref _filterType);
-			stream.ReadWrite(ref _stopHash);
+			stream.ReadWrite(ref _FilterType);
+			stream.ReadWrite(ref _StopHash);
 			stream.ReadWrite(ref _FilterHeadersLength);
 
 			//when serializing(Writing) we have to fill the tempfilterHeaders
@@ -74,7 +74,7 @@ namespace NBitcoin.Protocol
 				List<byte> _tempfilterHeaders = new List<byte>();
 				byte[] _tempFilterHeaderBytes = new byte[_FilterHeadersLength.ToLong() * 32]; //Init byte array to hold list after conversion
 
-				foreach (var hash in _filterHeaders)
+				foreach (var hash in _FilterHeaders)
 				{
 					foreach (var bytee in hash.ToBytes())
 					{
@@ -97,14 +97,14 @@ namespace NBitcoin.Protocol
 				stream.ReadWrite(ref _tempfilterHeaders);
 
 				//Convert the byte[] into "readable" uint256 hashes
-				_filterHeaders = GetHashes(_tempfilterHeaders);
+				_FilterHeaders = GetHashes(_tempfilterHeaders);
 			}
 		}
 
 
 		public override string ToString()
 		{
-			return $"cfcheckpt - filter type: {this._filterType}| Stop Hash {this.StopHash}| # of checkpoints: {this._FilterHeadersLength.ToLong()}";
+			return $"cfcheckpt - filter type: {this._FilterType}| Stop Hash {this.StopHash}| # of checkpoints: {this._FilterHeadersLength.ToLong()}";
 		}
 	}
 }

@@ -25,25 +25,25 @@ namespace NBitcoin.Protocol
 	/// </summary>
 	public abstract class CompactFiltersQueryPayload : Payload
 	{
-		private byte _filterType = 0;
-		private uint _startHeight = 0;
-		private uint256 _stopHash = new uint256();
+		private byte _FilterType = 0;
+		private uint _StartHeight = 0;
+		private uint256 _StopHash = new uint256();
 		/// <summary>
 		/// Gets the Filter type for which headers are requested  
 		/// </summary>
 		public FilterType FilterType
 		{
-			get => (FilterType)_filterType;
-			internal set => _filterType = (byte)value;
+			get => (FilterType)_FilterType;
+			internal set => _FilterType = (byte)value;
 		}
 		/// <summary>
 		/// Gets the height of the first block in the requested range
 		/// </summary>
-		public uint StartHeight => _startHeight;
+		public uint StartHeight => _StartHeight;
 		/// <summary>
 		/// Gets the hash of the last block in the requested range 
 		/// </summary>
-		public uint256 StopHash => _stopHash;
+		public uint256 StopHash => _StopHash;
 		protected CompactFiltersQueryPayload(FilterType filterType, uint startHeight, uint256 stopHash)
 		{
 			if (filterType != FilterType.Basic /*&& filterType != FilterType.Extended*/) //Extended Filter removed
@@ -52,8 +52,8 @@ namespace NBitcoin.Protocol
 				throw new ArgumentNullException(nameof(stopHash));
 
 			FilterType = filterType;
-			_startHeight = startHeight;
-			_stopHash = stopHash;
+			_StartHeight = startHeight;
+			_StopHash = stopHash;
 		}
 
 		protected CompactFiltersQueryPayload() { }
@@ -61,9 +61,9 @@ namespace NBitcoin.Protocol
 		#region IBitcoinSerializable Members
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref _filterType);
-			stream.ReadWrite(ref _startHeight);
-			stream.ReadWrite(ref _stopHash);
+			stream.ReadWrite(ref _FilterType);
+			stream.ReadWrite(ref _StartHeight);
+			stream.ReadWrite(ref _StopHash);
 		}
 		#endregion
 	}
@@ -99,8 +99,8 @@ namespace NBitcoin.Protocol
 	[Payload("getcfcheckpt")]
 	public class GetCompactFilterCheckPointPayload : Payload
 	{
-		private byte _filterType;
-		private uint256 _stopHash;
+		private byte _FilterType;
+		private uint256 _StopHash;
 
 		public GetCompactFilterCheckPointPayload(FilterType filterType, uint256 stopHash)
 		{
@@ -110,22 +110,22 @@ namespace NBitcoin.Protocol
 				throw new ArgumentNullException(nameof(stopHash));
 
 			FilterType = filterType;
-			_stopHash = stopHash;
+			_StopHash = stopHash;
 		}
 
 		public GetCompactFilterCheckPointPayload() { }
 
 		public override void ReadWriteCore(BitcoinStream stream)
 		{
-			stream.ReadWrite(ref _filterType);
-			stream.ReadWrite(ref _stopHash);
+			stream.ReadWrite(ref _FilterType);
+			stream.ReadWrite(ref _StopHash);
 		}
 
 
 		public FilterType FilterType
 		{
-			get => (FilterType)_filterType;
-			internal set => _filterType = (byte)value;
+			get => (FilterType)_FilterType;
+			internal set => _FilterType = (byte)value;
 		}
 		/// <summary>
 		/// Gets the height of the first block in the requested range
@@ -136,7 +136,7 @@ namespace NBitcoin.Protocol
 		/// <summary>
 		/// Gets the hash of the last block in the requested range 
 		/// </summary>
-		public uint256 StopHash => _stopHash;
+		public uint256 StopHash => _StopHash;
 	}
 
 
