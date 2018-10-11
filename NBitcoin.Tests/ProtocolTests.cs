@@ -868,14 +868,17 @@ namespace NBitcoin.Tests
 			{
 				var node = builder.CreateNode(true).CreateNodeClient();
 				node.VersionHandshake();
-				node.SendMessageAsync(new GetDataPayload(new InventoryVector()
-				{
-					Hash = Network.RegTest.GenesisHash,
-					Type = InventoryType.MSG_BLOCK
-				}));
+				using (var listener = node.CreateListener())
+				{ 
+					node.SendMessageAsync(new GetDataPayload(new InventoryVector()
+					{
+						Hash = Network.RegTest.GenesisHash,
+						Type = InventoryType.MSG_BLOCK
+					}));
 
 				var block = node.ReceiveMessage<BlockPayload>();
 				Assert.True(block.Object.CheckMerkleRoot());
+				}
 			}
 		}
 
