@@ -863,7 +863,7 @@ namespace NBitcoin.Tests
 		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlock()
-		{
+		{	
 			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode(true).CreateNodeClient();
@@ -875,9 +875,8 @@ namespace NBitcoin.Tests
 						Hash = Network.RegTest.GenesisHash,
 						Type = InventoryType.MSG_BLOCK
 					}));
-
-				var block = node.ReceiveMessage<BlockPayload>();
-				Assert.True(block.Object.CheckMerkleRoot());
+					var block = listener.ReceivePayload<BlockPayload>();
+					Assert.True(block.Object.CheckMerkleRoot());
 				}
 			}
 		}
