@@ -404,7 +404,7 @@ namespace NBitcoin.Tests
 			}
 			else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 			{
-				libConsensusDll = "libbitcoinconsensus.so";
+				libConsensusDll = "libbitcoinconsensus.so.0.0.0";
 			}
 			else
 			{
