@@ -150,7 +150,7 @@ namespace NBitcoin.Tests
 			builder.SendEstimatedFees(new FeeRate(Money.Satoshis(100), 1));
 			var v = VerifyFees(builder, new FeeRate(Money.Satoshis(100), 1));
 			Assert.Equal(v.expectedBaseSize, v.baseSize); // No signature here, should be fix
-			Assert.True(v.witSize - v.expectedWitsize < 2); // the signature size might vary of 1 or 2 bytes
+			Assert.True(v.witSize - v.expectedWitsize < 4); // the signature size might vary
 
 			for(int i = 0; i < 100; i++)
 			{
