@@ -404,7 +404,7 @@ namespace NBitcoin.Tests
 			}
 			else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 			{
-				libConsensusDll = "libbitcoinconsensus.so.0.0.0";
+				libConsensusDll = "libbitcoinconsensus.so";
 			}
 			else
 			{
@@ -412,11 +412,12 @@ namespace NBitcoin.Tests
 			}
 
 			var bitcoinBinFolderPath = Path.GetDirectoryName("TestData");
-			var libConsensusPath = Path.Combine(bitcoinPath, "../../lib", libConsensusDll);
+			bitcoinPath = bitcoinPath.Substring(0, bitcoinPath.LastIndexOf('/'));
+			Directory.CreateDirectory("lib");
+			var libConsensusPath = Path.Combine(bitcoinPath, "../lib", libConsensusDll);
 
-			if (File.Exists(Script.LibConsensusDll))
-				return;
-			File.Copy(libConsensusPath, Script.LibConsensusDll, overwrite:false);
+
+			File.Copy(libConsensusPath, "./", overwrite:false);
 #endif
 		}
 
