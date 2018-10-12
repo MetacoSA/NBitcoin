@@ -214,6 +214,48 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		public void CanScanTxoutSet()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+				node.Generate(101);
+
+
+				var key = new Key();
+				var dest = key.PubKey.Hash.GetAddress(builder.Network);
+				var txid = rpc.SendToAddress(dest, Money.Coins(1.0m));
+				var funding = rpc.GetRawTransaction(txid);
+				var coin = funding.Outputs.AsCoins().Single(o => o.ScriptPubKey == dest.ScriptPubKey);
+
+				var result = rpc.StartScanTxoutSet(new ScanTxoutSetObject(ScanTxoutDescriptor.Addr(dest)));
+
+				Assert.Equal(101, result.SearchedItems);
+				Assert.True(result.Success);
+				Assert.Equal(0, result.Outputs.Length);
+				Assert.Equal(Money.Zero, result.TotalAmount);
+
+				Assert.False(rpc.AbortScanTxoutSet());
+				Assert.Null(rpc.GetStatusScanTxoutSet());
+
+				rpc.Generate(1);
+
+				result = rpc.StartScanTxoutSet(new ScanTxoutSetObject(ScanTxoutDescriptor.Addr(dest)));
+
+				Assert.True(result.SearchedItems > 100);
+				Assert.True(result.Success);
+				Assert.Equal(1, result.Outputs.Length);
+				Assert.Equal(102, result.Outputs[0].Height);
+				Assert.Equal(Money.Coins(1.0m), result.TotalAmount);
+
+				Assert.False(rpc.AbortScanTxoutSet());
+				Assert.Null(rpc.GetStatusScanTxoutSet());
+			}
+		}
+
+		[Fact]
 		public void CanSignWithWallet()
 		{
 			using (var builder = NodeBuilderEx.Create())

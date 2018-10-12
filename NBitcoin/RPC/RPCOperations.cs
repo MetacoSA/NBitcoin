@@ -100,6 +100,7 @@ namespace NBitcoin.RPC
 		invalidateblock,
 		bumpfee,
 		abandontransaction,
-		signrawtransactionwithkey
+		signrawtransactionwithkey,
+		scantxoutset
 	}
 }
