@@ -550,6 +550,33 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class ChaincoinNodeDownloadData
+		{
+			public NodeDownloadData v0_16_1 = new NodeDownloadData()
+			{
+				Version = "0.16.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/chaincoin/chaincoin/releases/download/v{0}/chaincoin-{0}-win64-setup.exe",
+					Archive = "chaincoin-qt.exe.zip",
+					Executable = "chaincoincore-{0}/bin/chaincoind.exe",
+					Hash = "e495e6a646d4bda2f50ff7fb8850ee9a35425e8719efd09df465685cb63c2e49"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/chaincoin/chaincoin/archive/v{0}.tar.gz",
+					Archive = "v{0}.tar.gz",
+					Executable = "chaincoincore-{0}/bin/chaincoind"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/chaincoin/chaincoin/releases/download/v{0}/Chaincoin.Core.dmg",
+					Archive = "",
+					Executable = "chaincoincore-{0}/bin/chaincoind"
+				}
+			};
+		}
+
 		public static GroestlcoinNodeDownloadData Groestlcoin
 		{
 			get; set;
@@ -623,6 +650,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new ZclassicNodeDownloadData();
+		public static ChaincoinNodeDownloadData Chaincoin
+		{
+			get; set;
+		} = new ChaincoinNodeDownloadData();
+
 		public bool UseSectionInConfigFile { get; private set; }
 	}
 }

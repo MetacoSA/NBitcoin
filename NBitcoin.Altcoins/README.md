@@ -5,6 +5,7 @@ Currently supported altcoins are:
 * BCash
 * BGold
 * BitCore
+* Chaincoin
 * Dash
 * Dogecoin
 * Dystem
