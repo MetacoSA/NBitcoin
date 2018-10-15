@@ -628,6 +628,32 @@ namespace NBitcoin.Tests
 			}
 		}
 
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
+		public async Task CanMaskExceptionThrownByMessageReceivers()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				node.Start();
+				var nodeClient = node.CreateNodeClient();
+				TaskCompletionSource<bool> ok = new TaskCompletionSource<bool>();
+				nodeClient.VersionHandshake();
+				nodeClient.UncaughtException += (s, m) =>
+				{
+					ok.TrySetResult(m.GetType() == typeof(Exception) && m.Message == "test");
+				};
+				nodeClient.MessageReceived += (s, m) =>
+				{
+					throw new Exception("test");
+				};
+				nodeClient.SendMessage(new PingPayload());
+				Assert.True(await ok.Task);
+			}
+		}
+
 		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void SynchronizeChainSurviveReorg()

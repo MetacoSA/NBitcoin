@@ -467,6 +467,7 @@ namespace NBitcoin.Protocol
 						catch(TargetInvocationException ex)
 						{
 							TraceCorrelation.LogInside(() => NodeServerTrace.Error("Error while OnMessageReceived event raised", ex.InnerException), false);
+							UncaughtException?.Invoke(this, ex.InnerException);
 						}
 					}
 				}
