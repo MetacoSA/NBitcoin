@@ -24,7 +24,7 @@ namespace NBitcoin.Altcoins
 		public static Bitcore Bitcore { get; } = Bitcore.Instance;
 		public static Groestlcoin Groestlcoin { get; } = Groestlcoin.Instance;
 		public static Zclassic Zclassic { get; } = Zclassic.Instance;
-		public static Chaincoin Chaincoin { get; }
+		public static Chaincoin Chaincoin { get; } = Chaincoin.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
