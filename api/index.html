@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>PLACEHOLDER </title>
+    <title>NBitcoin </title>
     <meta name="viewport" content="width=device-width">
-    <meta name="title" content="PLACEHOLDER ">
+    <meta name="title" content="NBitcoin ">
     <meta name="generator" content="docfx 2.40.0.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
@@ -67,9 +67,151 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="placeholder">PLACEHOLDER</h1>
+<h1 id="nbitcoin">NBitcoin</h1>
 
-<p>TODO: Add .NET projects to the <em>src</em> folder and run <code>docfx</code> to generate <strong>REAL</strong> <em>API Documentation</em>!</p>
+<p><a href="https://gitter.im/MetacoSA/NBitcoin?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/MetacoSA/NBitcoin.svg" alt="Join the chat at https://gitter.im/MetacoSA/NBitcoin"></a>
+<a href="https://ci.appveyor.com/project/NicolasDorier/nbitcoin"><img src="https://ci.appveyor.com/api/projects/status/6xq0yg942jatra0x?svg=true" alt="Build status"></a>
+<a href="https://travis-ci.org/MetacoSA/NBitcoin"><img src="https://travis-ci.org/MetacoSA/NBitcoin.svg?branch=master" alt="Build Status"></a>
+<img src="http://segwit.co/static/public/images/logo.png" width="100"> <a href="https://www.nuget.org/packages/NBitcoin"><img src="https://img.shields.io/nuget/v/NBitcoin.svg" alt="NuGet"></a></p>
+<p>NBitcoin is the most complete Bitcoin library for the .NET platform. It implements all most relevant Bitcoin Improvement Proposals (BIPs). It also provides low level access to Bitcoin primitives so you can easily build your application on top of it. Join us in our <a href="https://gitter.im/MetacoSA/NBitcoin">gitter chat room</a>.
+It works on Windows, Mac and Linux with Xamarin, Unity, .NET Core or CLR. (Porting to Unity should not be that hard if you need it)</p>
+<p>The best documentation available is our <a href="https://programmingblockchain.gitbooks.io/programmingblockchain/content/">eBook</a>, and the excellent unit tests. There are also some more resources below.</p>
+<h1 id="how-to-use-">How to use ?</h1>
+<p>With NuGet :</p>
+<blockquote>
+<p><strong>Install-Package NBitcoin</strong></p>
+</blockquote>
+<p>Go on the <a href="https://www.nuget.org/packages/NBitcoin/">NuGet website</a> for more information.</p>
+<p>The packages supports:</p>
+<ul>
+<li>With full features: Windows Desktop applications, Mono Desktop applications and platforms supported by <a href="https://docs.microsoft.com/en-us/dotnet/articles/standard/library">.NET Standard 1.3</a> (.NET Core, Xamarin IOS, Xamarin Android, UWP and more).</li>
+<li>With limited features: Platforms supported by <a href="https://docs.microsoft.com/en-us/dotnet/articles/standard/library">.NET Standard 1.1</a> (Windows Phone, Windows 8.0 apps).</li>
+</ul>
+<p>To compile it by yourself, you can git clone, open the project and hit the compile button in Visual Studio.
+How to get started ? Check out this article <a href="http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt">on CodeProject</a> for some basic Bitcoin operations, or <a href="https://www.youtube.com/watch?v=X4ZwRWIF49w">this Introduction to NBitcoin video</a>.</p>
+<h1 id="how-to-use-with-altcoins-">How to use with Altcoins ?</h1>
+<blockquote>
+<p><strong>Install-Package NBitcoin.Altcoins</strong></p>
+</blockquote>
+<p>Find more information <a href="NBitcoin.Altcoins">here</a>.</p>
+<h1 id="how-to-use-with-my-own-blockchain">How to use with my own blockchain?</h1>
+<p>Find more information <a href="NBitcoin.Altcoins">here</a>.</p>
+<h1 id="how-to-use-in-unity-35">How to use in Unity 3.5</h1>
+<p>In command prompt:</p>
+<pre><code>git clone https://github.com/MetacoSA/NBitcoin/
+cd NBitcoin
+git checkout unity35
+build-unity.bat
+</code></pre>
+<p>Then put the two libraries NBitcoin.dll and System.Threading.Tasks.Net35.dll found in &quot;NBitcoin\NBitcoin\bin\Release&quot; into your asset folder.</p>
+<h1 id="how-to-use-in-net-core">How to use in .NET Core</h1>
+<p>If you want to use .NET Core, first install .NET Core <a href="https://www.microsoft.com/net/core#windowsvs2017">as documented here</a>.</p>
+<p>Then:</p>
+<pre><code>mkdir MyProject
+cd MyProject
+dotnet new console
+dotnet add package NBitcoin
+dotnet restore
+</code></pre>
+<p>Then edit your Program.cs:</p>
+<pre><code>using System;
+using NBitcoin;
+
+namespace _125350929
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine(&quot;Hello World! &quot; + new Key().GetWif(Network.Main));
+        }
+    }
+}
+</code></pre>
+<p>You can then run with</p>
+<pre><code>dotnet run
+</code></pre>
+<p>We advise you to use <a href="https://code.visualstudio.com/">Visual Studio Code</a> as the editor for your project.</p>
+<h2 id="description">Description</h2>
+<p>NBitcoin notably includes:</p>
+<ul>
+<li>A <a href="http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All">TransactionBuilder</a> supporting Stealth, Open Asset, and all standard transactions</li>
+<li>Full script evaluation and parsing</li>
+<li>A RPC Client</li>
+<li>A Rest Client</li>
+<li>A SPV Wallet implementation <a href="https://github.com/NicolasDorier/NBitcoin.SPVSample">with sample</a></li>
+<li>The parsing of standard scripts and creation of custom ones</li>
+<li>The serialization of blocks, transactions and scripts</li>
+<li>The signing and verification with private keys (with support for compact signatures) for proving ownership</li>
+<li>Bloom filters and partial merkle trees</li>
+<li>Segregated Witness (<a href="https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki">BIP 141</a>, <a href="https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki">BIP 143</a>, <a href="https://github.com/bitcoin/bips/blob/master/bip-0144.mediawiki">BIP 144</a>)</li>
+<li>Bech32 segwit address implementation with error detection <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki">BIP 173</a></li>
+<li>Mnemonic code for generating deterministic keys (<a href="https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki">BIP 39</a>), credits to <a href="https://github.com/Thashiznets/BIP39.NET">Thasshiznets</a></li>
+<li>Hierarchical Deterministic Wallets (<a href="https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki">BIP 32</a>)</li>
+<li>Payment Protocol (<a href="https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki">BIP 70</a>)</li>
+<li>Payment URLs (<a href="https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki">BIP 21</a>,<a href="https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki">BIP 72</a>)</li>
+<li>Two-Factor keys (<a href="http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part">BIP 38</a>)</li>
+<li>Stealth Addresses (<a href="http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part">Also on codeproject</a>)</li>
+</ul>
+<p>NBitcoin is inspired by Bitcoin Core code but provides a simpler object oriented API (e.g., new Key().PubKey.Address.ToString() to generate a key and get the associated address). It relies on the BouncyCastle cryptography library instead of OpenSSL, yet replicates OpenSSL bugs to guarantee compatibility. NBitcoin also ports the integrality of Bitcoin Core unit tests with their original data in order to validate the compatibility of the two implementations.</p>
+<p>NBitcoin is licensed under the <a href="https://opensource.org/licenses/MIT">MIT License</a> and we encourage you to use it to explore, learn, debug, play, share and create software for Bitcoin and with other Metaco services.</p>
+<h2 id="some-oss-projects-using-nbitcoin">Some OSS projects using NBitcoin</h2>
+<ul>
+<li><p><a href="http://github.com/zkSNACKs/WalletWasabi">Wasabi</a>: Privacy focused, ZeroLink compliant Bitcoin wallet.</p>
+</li>
+<li><p><a href="http://github.com/stratisproject/StratisBitcoinFullNode">StratisBitcoinFullNode</a>: Bitcoin full node in C# <a href="https://stratisplatform.com">https://stratisplatform.com</a></p>
+</li>
+<li><p><a href="http://github.com/stratisproject/Breeze">Breeze</a>: Breeze Wallet, the first full-block SPV bitcoin wallet</p>
+</li>
+<li><p><a href="http://github.com/stratisproject/BlockExplorer">BlockExplorer</a>: A set of projects that can index and query stratis blockchains on the fullnode.</p>
+</li>
+<li><p><a href="http://github.com/btcpayserver/btcpayserver">BTCPay Server</a>: A cross platform, self-hosted server compatible with Bitpay API</p>
+</li>
+<li><p><a href="http://github.com/NTumbleBit/NTumbleBit">NTumbleBit</a>: TumbleBit Implementation in .NET Core</p>
+</li>
+<li><p><a href="http://github.com/bitcoinbrisbane/BitPoker">BitPoker</a>: Decentralised peer to peer poker, using bitcoin <a href="http://www.bitpoker.io">http://www.bitpoker.io</a></p>
+</li>
+<li><p><a href="http://github.com/zenprotocol/zen-wallet">Zen-Wallet</a>: Node and GUI for the Zen Protocol. <a href="https://www.zenprotocol.com">https://www.zenprotocol.com</a></p>
+</li>
+<li><p><a href="http://github.com/MetacoSA/Metaco-Trader">Metaco-Trader</a>: Bitcoin Wallet for advanced user based on a NBitcoin.Server</p>
+</li>
+<li><p><a href="http://github.com/Swarmops/Swarmops">Swarmops</a>: Admin backend for any bitcoin-native or swarm organization <a href="http://sandbox.swarmops.com/">http://sandbox.swarmops.com/</a></p>
+</li>
+<li><p><a href="http://github.com/CoinVault/Nako">Nako</a>: A Bitcoin and Altcoin server api that indexes blockchain transactions and addresses</p>
+</li>
+<li><p><a href="http://github.com/dgarage/NBXplorer">NBXplorer</a>: A minimalist UTXO tracker for HD Wallets with bitcoin based altcoin support</p>
+</li>
+<li><p><a href="http://github.com/unitcurrency/unitcurrency">UnitCurrency</a>: UnitCoin - a hybrid scrypt PoW + PoS based cryptocurrency.</p>
+</li>
+<li><p><a href="http://github.com/openchain/openchain">Openchain</a>: Openchain node reference implementation. <a href="https://www.openchain.org/">https://www.openchain.org/</a></p>
+</li>
+<li><p><a href="http://github.com/BreezeHub/BreezeProject">BreezeProject</a>: Breeze Masternode and Wallet with Breeze Privacy Protocol</p>
+</li>
+<li><p><a href="https://github.com/diginex/geewallet">Geewallet</a>: a minimalistic and pragmatist lightweight wallet for people that want to hold the most important cryptocurrencies in the same application without hassle</p>
+</li>
+</ul>
+<h2 id="useful-doc-">Useful doc :</h2>
+<ul>
+<li><p><strong>Ebook</strong> <a href="https://www.gitbook.com/book/programmingblockchain/programmingblockchain/details">Programming The Blockchain in C#</a></p>
+</li>
+<li><p><strong>NBitcoin Github</strong> : <a href="https://github.com/NicolasDorier/NBitcoin" title="https://github.com/NicolasDorier/NBitcoin">https://github.com/NicolasDorier/NBitcoin</a></p>
+</li>
+<li><p><strong>NBitcoin Nuget</strong> : <a href="https://www.nuget.org/packages/NBitcoin/" title="https://www.nuget.org/packages/NBitcoin/">https://www.nuget.org/packages/NBitcoin/</a></p>
+</li>
+<li><p><strong>Intro</strong>: <a href="http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt">http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt</a></p>
+</li>
+<li><p><strong>Stealth Payment</strong>, and <strong>BIP38</strong> : <a href="http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part">http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part</a></p>
+</li>
+<li><p><strong>How to build transaction</strong> : <a href="http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All" title="http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All">http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All</a></p>
+</li>
+<li><p><strong>Using the NBitcoin Indexer</strong> : <a href="http://www.codeproject.com/Articles/819567/NBitcoin-Indexer-A-scalable-and-fault-tolerant-blo" title="http://www.codeproject.com/Articles/819567/NBitcoin-Indexer-A-scalable-and-fault-tolerant-blo">http://www.codeproject.com/Articles/819567/NBitcoin-Indexer-A-scalable-and-fault-tolerant-blo</a></p>
+</li>
+<li><p><strong>How to Scan the blockchain</strong> : <a href="http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain" title="http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain">http://www.codeproject.com/Articles/784519/NBitcoin-How-to-scan-the-Blockchain</a> (You can dismiss the ScanState for that, now I concentrate on the indexer)</p>
+</li>
+</ul>
+<p>Please, use github issues for questions or feedback. For confidential requests or specific demands, contact us on <a href="mailto:support@metaco.com" title="support@metaco.com">Metaco support</a>.</p>
+<h2 id="useful-link-for-a-free-ide-">Useful link for a free IDE :</h2>
+<p>Visual Studio Community Edition : <a href="https://www.visualstudio.com/products/visual-studio-community-vs" title="https://www.visualstudio.com/products/visual-studio-community-vs">https://www.visualstudio.com/products/visual-studio-community-vs</a></p>
 </article>
           </div>
           

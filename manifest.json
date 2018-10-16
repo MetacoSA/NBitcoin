@@ -6592,12 +6592,15 @@
       "version": ""
     },
     {
+      "log_codes": [
+        "InvalidFileLink"
+      ],
       "type": "Conceptual",
       "source_relative_path": "api/index.md",
       "output": {
         ".html": {
           "relative_path": "api/index.html",
-          "hash": "a+TF7TA7EWqAPoP81ve/vw=="
+          "hash": "fRjE4wy2IZ/pUl4JEfYcUQ=="
         }
       },
       "is_incremental": false,
