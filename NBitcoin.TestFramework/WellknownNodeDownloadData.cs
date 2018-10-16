@@ -550,6 +550,21 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class ElementsNodeDownloadData
+		{
+			public NodeDownloadData v0_14_1 = new NodeDownloadData()
+			{
+				Version = "0.14.1",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://aois.blob.core.windows.net/public/ElementsBinaries/elements-{0}-win64.zip",
+					Archive = "elements-{0}-win64.zip",
+					Executable = "elements-{0}/bin/elementsd.exe",
+					Hash = "d0d2e2a26d1fb64979e3050aa6b0e5e619d80f0f40552b39c62d07fdb889df90"
+				}
+			};
+		}
+
 		public static GroestlcoinNodeDownloadData Groestlcoin
 		{
 			get; set;
@@ -623,6 +638,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new ZclassicNodeDownloadData();
+
+		public static ElementsNodeDownloadData Elements
+		{
+			get; set;
+		} = new ElementsNodeDownloadData();
 		public bool UseSectionInConfigFile { get; private set; }
 	}
 }

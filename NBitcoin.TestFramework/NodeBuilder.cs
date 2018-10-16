@@ -125,6 +125,8 @@ namespace NBitcoin.Tests
 				Directory.CreateDirectory("TestData");
 
 			var osDownloadData = downloadData.GetCurrentOSDownloadData();
+			if (osDownloadData == null)
+				throw new Exception("This platform does not support tests involving this crypto currency, DownloadData for this OS are unavailable");
 			var bitcoind = Path.Combine("TestData", String.Format(osDownloadData.Executable, downloadData.Version));
 			var zip = Path.Combine("TestData", String.Format(osDownloadData.Archive, downloadData.Version));
 			if(File.Exists(bitcoind))
