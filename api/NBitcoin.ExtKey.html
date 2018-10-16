@@ -1,0 +1,1182 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class ExtKey
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class ExtKey
+   ">
+    <meta name="generator" content="docfx 2.40.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="NBitcoin.ExtKey">
+  
+  
+  <h1 id="NBitcoin_ExtKey" data-uid="NBitcoin.ExtKey" class="text-break">Class ExtKey
+  </h1>
+  <div class="markdown level0 summary"><p>A private Hierarchical Deterministic key</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">ExtKey</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="NBitcoin.IBitcoinSerializable.html">IBitcoinSerializable</a></div>
+    <div><a class="xref" href="NBitcoin.IDestination.html">IDestination</a></div>
+    <div><a class="xref" href="NBitcoin.ISecret.html">ISecret</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="NBitcoin.html">NBitcoin</a></h6>
+  <h6><strong>Assembly</strong>: NBitcoin.dll</h6>
+  <h5 id="NBitcoin_ExtKey_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class ExtKey : IBitcoinSerializable, IDestination, ISecret</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey__ctor.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L139">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey__ctor_" data-uid="NBitcoin.ExtKey.#ctor*"></a>
+  <h4 id="NBitcoin_ExtKey__ctor" data-uid="NBitcoin.ExtKey.#ctor">ExtKey()</h4>
+  <div class="markdown level1 summary"><p>Constructor. Creates a new extended key with a random 64 byte seed.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtKey()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey__ctor_NBitcoin_BitcoinExtPubKey_NBitcoin_BitcoinSecret_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.%23ctor(NBitcoin.BitcoinExtPubKey%2CNBitcoin.BitcoinSecret)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L71">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey__ctor_" data-uid="NBitcoin.ExtKey.#ctor*"></a>
+  <h4 id="NBitcoin_ExtKey__ctor_NBitcoin_BitcoinExtPubKey_NBitcoin_BitcoinSecret_" data-uid="NBitcoin.ExtKey.#ctor(NBitcoin.BitcoinExtPubKey,NBitcoin.BitcoinSecret)">ExtKey(BitcoinExtPubKey, BitcoinSecret)</h4>
+  <div class="markdown level1 summary"><p>Constructor. Reconstructs an extended key from the Base58 representations of
+the public key and corresponding private key.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtKey(BitcoinExtPubKey extPubKey, BitcoinSecret key)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.BitcoinExtPubKey.html">BitcoinExtPubKey</a></td>
+        <td><span class="parametername">extPubKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.BitcoinSecret.html">BitcoinSecret</a></td>
+        <td><span class="parametername">key</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey__ctor_NBitcoin_ExtPubKey_NBitcoin_Key_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.%23ctor(NBitcoin.ExtPubKey%2CNBitcoin.Key)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L84">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey__ctor_" data-uid="NBitcoin.ExtKey.#ctor*"></a>
+  <h4 id="NBitcoin_ExtKey__ctor_NBitcoin_ExtPubKey_NBitcoin_Key_" data-uid="NBitcoin.ExtKey.#ctor(NBitcoin.ExtPubKey,NBitcoin.Key)">ExtKey(ExtPubKey, Key)</h4>
+  <div class="markdown level1 summary"><p>Constructor. Creates an extended key from the public key and corresponding private key.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtKey(ExtPubKey extPubKey, Key privateKey)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ExtPubKey.html">ExtPubKey</a></td>
+        <td><span class="parametername">extPubKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Key.html">Key</a></td>
+        <td><span class="parametername">privateKey</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 id="NBitcoin_ExtKey__ctor_NBitcoin_ExtPubKey_NBitcoin_Key__remarks">Remarks</h5>
+  <div class="markdown level1 remarks"><p>
+The ExtPubKey has the relevant values for child number, depth, chain code, and fingerprint.
+</p>
+</div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey__ctor_NBitcoin_Key_System_Byte___.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.%23ctor(NBitcoin.Key%2CSystem.Byte%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L124">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey__ctor_" data-uid="NBitcoin.ExtKey.#ctor*"></a>
+  <h4 id="NBitcoin_ExtKey__ctor_NBitcoin_Key_System_Byte___" data-uid="NBitcoin.ExtKey.#ctor(NBitcoin.Key,System.Byte[])">ExtKey(Key, Byte[])</h4>
+  <div class="markdown level1 summary"><p>Constructor. Creates an extended key from the private key, with the specified value
+for chain code. Depth, fingerprint, and child number, will have their default values.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtKey(Key masterKey, byte[] chainCode)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Key.html">Key</a></td>
+        <td><span class="parametername">masterKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">chainCode</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey__ctor_NBitcoin_Key_System_Byte___System_Byte_System_Byte___System_UInt32_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.%23ctor(NBitcoin.Key%2CSystem.Byte%5B%5D%2CSystem.Byte%2CSystem.Byte%5B%5D%2CSystem.UInt32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L101">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey__ctor_" data-uid="NBitcoin.ExtKey.#ctor*"></a>
+  <h4 id="NBitcoin_ExtKey__ctor_NBitcoin_Key_System_Byte___System_Byte_System_Byte___System_UInt32_" data-uid="NBitcoin.ExtKey.#ctor(NBitcoin.Key,System.Byte[],System.Byte,System.Byte[],System.UInt32)">ExtKey(Key, Byte[], Byte, Byte[], UInt32)</h4>
+  <div class="markdown level1 summary"><p>Constructor. Creates an extended key from the private key, and specified values for
+chain code, depth, fingerprint, and child number.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtKey(Key key, byte[] chainCode, byte depth, byte[] fingerprint, uint child)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Key.html">Key</a></td>
+        <td><span class="parametername">key</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">chainCode</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Byte</span></td>
+        <td><span class="parametername">depth</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">fingerprint</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.UInt32</span></td>
+        <td><span class="parametername">child</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey__ctor_System_Byte___.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.%23ctor(System.Byte%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L156">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey__ctor_" data-uid="NBitcoin.ExtKey.#ctor*"></a>
+  <h4 id="NBitcoin_ExtKey__ctor_System_Byte___" data-uid="NBitcoin.ExtKey.#ctor(System.Byte[])">ExtKey(Byte[])</h4>
+  <div class="markdown level1 summary"><p>Constructor. Creates a new extended key from the specified seed bytes.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtKey(byte[] seed)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">seed</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey__ctor_System_String_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.%23ctor(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L148">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey__ctor_" data-uid="NBitcoin.ExtKey.#ctor*"></a>
+  <h4 id="NBitcoin_ExtKey__ctor_System_String_" data-uid="NBitcoin.ExtKey.#ctor(System.String)">ExtKey(String)</h4>
+  <div class="markdown level1 summary"><p>Constructor. Creates a new extended key from the specified seed bytes, from the given hex string.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtKey(string seedHex)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">seedHex</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_ChainCode.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.ChainCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L56">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_ChainCode_" data-uid="NBitcoin.ExtKey.ChainCode*"></a>
+  <h4 id="NBitcoin_ExtKey_ChainCode" data-uid="NBitcoin.ExtKey.ChainCode">ChainCode</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public byte[] ChainCode { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_Child.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.Child%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L48">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_Child_" data-uid="NBitcoin.ExtKey.Child*"></a>
+  <h4 id="NBitcoin_ExtKey_Child" data-uid="NBitcoin.ExtKey.Child">Child</h4>
+  <div class="markdown level1 summary"><p>Gets the child number of this key (in reference to the parent).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public uint Child { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.UInt32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_Depth.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.Depth%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L37">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_Depth_" data-uid="NBitcoin.ExtKey.Depth*"></a>
+  <h4 id="NBitcoin_ExtKey_Depth" data-uid="NBitcoin.ExtKey.Depth">Depth</h4>
+  <div class="markdown level1 summary"><p>Gets the depth of this extended key from the root key.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public byte Depth { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_Fingerprint.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.Fingerprint%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L211">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_Fingerprint_" data-uid="NBitcoin.ExtKey.Fingerprint*"></a>
+  <h4 id="NBitcoin_ExtKey_Fingerprint" data-uid="NBitcoin.ExtKey.Fingerprint">Fingerprint</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public byte[] Fingerprint { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_IsHardened.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.IsHardened%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L309">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_IsHardened_" data-uid="NBitcoin.ExtKey.IsHardened*"></a>
+  <h4 id="NBitcoin_ExtKey_IsHardened" data-uid="NBitcoin.ExtKey.IsHardened">IsHardened</h4>
+  <div class="markdown level1 summary"><p>Gets whether or not this extended key is a hardened child.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsHardened { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_PrivateKey.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.PrivateKey%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L172">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_PrivateKey_" data-uid="NBitcoin.ExtKey.PrivateKey*"></a>
+  <h4 id="NBitcoin_ExtKey_PrivateKey" data-uid="NBitcoin.ExtKey.PrivateKey">PrivateKey</h4>
+  <div class="markdown level1 summary"><p>Get the private key of this extended key.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Key PrivateKey { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Key.html">Key</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_ScriptPubKey.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.ScriptPubKey%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L296">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_ScriptPubKey_" data-uid="NBitcoin.ExtKey.ScriptPubKey*"></a>
+  <h4 id="NBitcoin_ExtKey_ScriptPubKey" data-uid="NBitcoin.ExtKey.ScriptPubKey">ScriptPubKey</h4>
+  <div class="markdown level1 summary"><p>Gets the script of the hash of the public key corresponding to the private key.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Script ScriptPubKey { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_Derive_NBitcoin_KeyPath_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.Derive(NBitcoin.KeyPath)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L251">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_Derive_" data-uid="NBitcoin.ExtKey.Derive*"></a>
+  <h4 id="NBitcoin_ExtKey_Derive_NBitcoin_KeyPath_" data-uid="NBitcoin.ExtKey.Derive(NBitcoin.KeyPath)">Derive(KeyPath)</h4>
+  <div class="markdown level1 summary"><p>Derives a new extended key in the hierarchy at the given path below the current key,
+by deriving the specified child at each step.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtKey Derive(KeyPath derivation)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.KeyPath.html">KeyPath</a></td>
+        <td><span class="parametername">derivation</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ExtKey.html">ExtKey</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_Derive_System_Int32_System_Boolean_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.Derive(System.Int32%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L238">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_Derive_" data-uid="NBitcoin.ExtKey.Derive*"></a>
+  <h4 id="NBitcoin_ExtKey_Derive_System_Int32_System_Boolean_" data-uid="NBitcoin.ExtKey.Derive(System.Int32,System.Boolean)">Derive(Int32, Boolean)</h4>
+  <div class="markdown level1 summary"><p>Derives a new extended key in the hierarchy as the given child number,
+setting the high bit if hardened is specified.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtKey Derive(int index, bool hardened)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">index</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">hardened</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ExtKey.html">ExtKey</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_Derive_System_UInt32_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.Derive(System.UInt32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L222">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_Derive_" data-uid="NBitcoin.ExtKey.Derive*"></a>
+  <h4 id="NBitcoin_ExtKey_Derive_System_UInt32_" data-uid="NBitcoin.ExtKey.Derive(System.UInt32)">Derive(UInt32)</h4>
+  <div class="markdown level1 summary"><p>Derives a new extended key in the hierarchy as the given child number.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtKey Derive(uint index)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.UInt32</span></td>
+        <td><span class="parametername">index</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ExtKey.html">ExtKey</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_GetParentExtKey_NBitcoin_ExtPubKey_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.GetParentExtKey(NBitcoin.ExtPubKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L322">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_GetParentExtKey_" data-uid="NBitcoin.ExtKey.GetParentExtKey*"></a>
+  <h4 id="NBitcoin_ExtKey_GetParentExtKey_NBitcoin_ExtPubKey_" data-uid="NBitcoin.ExtKey.GetParentExtKey(NBitcoin.ExtPubKey)">GetParentExtKey(ExtPubKey)</h4>
+  <div class="markdown level1 summary"><p>Recreates the private key of the parent from the private key of the child
+combinated with the public key of the parent (hardened children cannot be
+used to recreate the parent).</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtKey GetParentExtKey(ExtPubKey parent)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ExtPubKey.html">ExtPubKey</a></td>
+        <td><span class="parametername">parent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ExtKey.html">ExtKey</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_GetWif_NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.GetWif(NBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L260">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_GetWif_" data-uid="NBitcoin.ExtKey.GetWif*"></a>
+  <h4 id="NBitcoin_ExtKey_GetWif_NBitcoin_Network_" data-uid="NBitcoin.ExtKey.GetWif(NBitcoin.Network)">GetWif(Network)</h4>
+  <div class="markdown level1 summary"><p>Converts the extended key to the base58 representation, within the specified network.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BitcoinExtKey GetWif(Network network)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.BitcoinExtKey.html">BitcoinExtKey</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_IsChildOf_NBitcoin_ExtKey_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.IsChildOf(NBitcoin.ExtKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L196">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_IsChildOf_" data-uid="NBitcoin.ExtKey.IsChildOf*"></a>
+  <h4 id="NBitcoin_ExtKey_IsChildOf_NBitcoin_ExtKey_" data-uid="NBitcoin.ExtKey.IsChildOf(NBitcoin.ExtKey)">IsChildOf(ExtKey)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsChildOf(ExtKey parentKey)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ExtKey.html">ExtKey</a></td>
+        <td><span class="parametername">parentKey</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_IsParentOf_NBitcoin_ExtKey_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.IsParentOf(NBitcoin.ExtKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L202">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_IsParentOf_" data-uid="NBitcoin.ExtKey.IsParentOf*"></a>
+  <h4 id="NBitcoin_ExtKey_IsParentOf_NBitcoin_ExtKey_" data-uid="NBitcoin.ExtKey.IsParentOf(NBitcoin.ExtKey)">IsParentOf(ExtKey)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsParentOf(ExtKey childKey)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ExtKey.html">ExtKey</a></td>
+        <td><span class="parametername">childKey</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_Neuter.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.Neuter%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L183">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_Neuter_" data-uid="NBitcoin.ExtKey.Neuter*"></a>
+  <h4 id="NBitcoin_ExtKey_Neuter" data-uid="NBitcoin.ExtKey.Neuter">Neuter()</h4>
+  <div class="markdown level1 summary"><p>Create the public key from this key.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ExtPubKey Neuter()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ExtPubKey.html">ExtPubKey</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_Parse_System_String_NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.Parse(System.String%2CNBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L18">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_Parse_" data-uid="NBitcoin.ExtKey.Parse*"></a>
+  <h4 id="NBitcoin_ExtKey_Parse_System_String_NBitcoin_Network_" data-uid="NBitcoin.ExtKey.Parse(System.String,NBitcoin.Network)">Parse(String, Network)</h4>
+  <div class="markdown level1 summary"><p>Parses the Base58 data (checking the network if specified), checks it represents the
+correct type of item, and then returns the corresponding ExtKey.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static ExtKey Parse(string wif, Network expectedNetwork = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">wif</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">expectedNetwork</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ExtKey.html">ExtKey</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_ReadWrite_NBitcoin_BitcoinStream_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.ReadWrite(NBitcoin.BitcoinStream)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L267">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_ReadWrite_" data-uid="NBitcoin.ExtKey.ReadWrite*"></a>
+  <h4 id="NBitcoin_ExtKey_ReadWrite_NBitcoin_BitcoinStream_" data-uid="NBitcoin.ExtKey.ReadWrite(NBitcoin.BitcoinStream)">ReadWrite(BitcoinStream)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void ReadWrite(BitcoinStream stream)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.BitcoinStream.html">BitcoinStream</a></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_ToString_NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.ToString(NBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L286">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_ToString_" data-uid="NBitcoin.ExtKey.ToString*"></a>
+  <h4 id="NBitcoin_ExtKey_ToString_NBitcoin_Network_" data-uid="NBitcoin.ExtKey.ToString(NBitcoin.Network)">ToString(Network)</h4>
+  <div class="markdown level1 summary"><p>Converts the extended key to the base58 representation, as a string, within the specified network.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public string ToString(Network network)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="NBitcoin.IBitcoinSerializable.html">IBitcoinSerializable</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.IDestination.html">IDestination</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.ISecret.html">ISecret</a>
+  </div>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_IO_Stream_System_Boolean_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Stream, Boolean, Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_GetSerializedSize_NBitcoin_IBitcoinSerializable_System_Nullable_System_UInt32__NBitcoin_SerializationType_">BitcoinSerializableExtensions.GetSerializedSize(IBitcoinSerializable, Nullable&lt;UInt32&gt;, SerializationType)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_GetSerializedSize_NBitcoin_IBitcoinSerializable_NBitcoin_TransactionOptions_">BitcoinSerializableExtensions.GetSerializedSize(IBitcoinSerializable, TransactionOptions)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_GetSerializedSize_NBitcoin_IBitcoinSerializable_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.GetSerializedSize(IBitcoinSerializable, Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_Byte___System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Byte[], Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_FromBytes_NBitcoin_IBitcoinSerializable_System_Byte___System_Nullable_System_UInt32__">BitcoinSerializableExtensions.FromBytes(IBitcoinSerializable, Byte[], Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_Clone__1___0_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.Clone&lt;T&gt;(T, Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ToBytes_NBitcoin_IBitcoinSerializable_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ToBytes(IBitcoinSerializable, Nullable&lt;UInt32&gt;)</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L12" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

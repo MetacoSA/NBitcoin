@@ -1,0 +1,583 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class TxInList
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class TxInList
+   ">
+    <meta name="generator" content="docfx 2.40.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="NBitcoin.TxInList">
+  
+  
+  <h1 id="NBitcoin_TxInList" data-uid="NBitcoin.TxInList" class="text-break">Class TxInList
+  </h1>
+  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">System.Collections.Generic.List</span>&lt;<a class="xref" href="NBitcoin.TxIn.html">TxIn</a>&gt;</div>
+    <div class="level2"><a class="xref" href="NBitcoin.UnsignedList-1.html">UnsignedList</a>&lt;<a class="xref" href="NBitcoin.TxIn.html">TxIn</a>&gt;</div>
+    <div class="level3"><span class="xref">TxInList</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">System.Collections.Generic.IList</span>&lt;<a class="xref" href="NBitcoin.TxIn.html">TxIn</a>&gt;</div>
+    <div><span class="xref">System.Collections.Generic.ICollection</span>&lt;<a class="xref" href="NBitcoin.TxIn.html">TxIn</a>&gt;</div>
+    <div><span class="xref">System.Collections.Generic.IReadOnlyList</span>&lt;<a class="xref" href="NBitcoin.TxIn.html">TxIn</a>&gt;</div>
+    <div><span class="xref">System.Collections.Generic.IReadOnlyCollection</span>&lt;<a class="xref" href="NBitcoin.TxIn.html">TxIn</a>&gt;</div>
+    <div><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.TxIn.html">TxIn</a>&gt;</div>
+    <div><span class="xref">System.Collections.IList</span></div>
+    <div><span class="xref">System.Collections.ICollection</span></div>
+    <div><span class="xref">System.Collections.IEnumerable</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="NBitcoin.UnsignedList-1.html#NBitcoin_UnsignedList_1_Transaction">UnsignedList&lt;TxIn&gt;.Transaction</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.UnsignedList-1.html#NBitcoin_UnsignedList_1_Item_System_UInt32_">UnsignedList&lt;TxIn&gt;.Item[UInt32]</a>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.IList.get_Item(System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.IList.set_Item(System.Int32, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Add(NBitcoin.TxIn)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.AddRange(System.Collections.Generic.IEnumerable&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.AsReadOnly()</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.BinarySearch(NBitcoin.TxIn)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.BinarySearch(NBitcoin.TxIn, System.Collections.Generic.IComparer&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.BinarySearch(System.Int32, System.Int32, NBitcoin.TxIn, System.Collections.Generic.IComparer&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Clear()</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Contains(NBitcoin.TxIn)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.ConvertAll&lt;TOutput&gt;(System.Converter&lt;NBitcoin.TxIn, TOutput&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.CopyTo(NBitcoin.TxIn[])</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.CopyTo(NBitcoin.TxIn[], System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.CopyTo(System.Int32, NBitcoin.TxIn[], System.Int32, System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Exists(System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Find(System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.FindAll(System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.FindIndex(System.Int32, System.Int32, System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.FindIndex(System.Int32, System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.FindIndex(System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.FindLast(System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.FindLastIndex(System.Int32, System.Int32, System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.FindLastIndex(System.Int32, System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.FindLastIndex(System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.ForEach(System.Action&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.GetEnumerator()</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.GetRange(System.Int32, System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.IndexOf(NBitcoin.TxIn)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.IndexOf(NBitcoin.TxIn, System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.IndexOf(NBitcoin.TxIn, System.Int32, System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Insert(System.Int32, NBitcoin.TxIn)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.InsertRange(System.Int32, System.Collections.Generic.IEnumerable&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.LastIndexOf(NBitcoin.TxIn)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.LastIndexOf(NBitcoin.TxIn, System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.LastIndexOf(NBitcoin.TxIn, System.Int32, System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Remove(NBitcoin.TxIn)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.RemoveAll(System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.RemoveAt(System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.RemoveRange(System.Int32, System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Reverse()</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Reverse(System.Int32, System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Sort()</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Sort(System.Collections.Generic.IComparer&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Sort(System.Comparison&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Sort(System.Int32, System.Int32, System.Collections.Generic.IComparer&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.Generic.IEnumerable&lt;NBitcoin.TxIn&gt;.GetEnumerator()</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.ICollection.CopyTo(System.Array, System.Int32)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.IEnumerable.GetEnumerator()</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.IList.Add(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.IList.Contains(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.IList.IndexOf(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.IList.Insert(System.Int32, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.IList.Remove(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.ToArray()</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.TrimExcess()</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.TrueForAll(System.Predicate&lt;NBitcoin.TxIn&gt;)</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Capacity</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Count</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.Item[System.Int32]</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.Generic.ICollection&lt;NBitcoin.TxIn&gt;.IsReadOnly</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.ICollection.IsSynchronized</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.ICollection.SyncRoot</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.IList.IsFixedSize</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.IList.IsReadOnly</span>
+    </div>
+    <div>
+      <span class="xref">System.Collections.Generic.List&lt;NBitcoin.TxIn&gt;.System.Collections.IList.Item[System.Int32]</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="NBitcoin.html">NBitcoin</a></h6>
+  <h6><strong>Assembly</strong>: NBitcoin.dll</h6>
+  <h5 id="NBitcoin_TxInList_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class TxInList : UnsignedList&lt;TxIn&gt;, IList&lt;TxIn&gt;, ICollection&lt;TxIn&gt;, IReadOnlyList&lt;TxIn&gt;, IReadOnlyCollection&lt;TxIn&gt;, IEnumerable&lt;TxIn&gt;, IList, ICollection, IEnumerable</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TxInList__ctor.md&amp;value=---%0Auid%3A%20NBitcoin.TxInList.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Transaction.cs/#L742">View Source</a>
+  </span>
+  <a id="NBitcoin_TxInList__ctor_" data-uid="NBitcoin.TxInList.#ctor*"></a>
+  <h4 id="NBitcoin_TxInList__ctor" data-uid="NBitcoin.TxInList.#ctor">TxInList()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TxInList()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TxInList__ctor_NBitcoin_Transaction_.md&amp;value=---%0Auid%3A%20NBitcoin.TxInList.%23ctor(NBitcoin.Transaction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Transaction.cs/#L746">View Source</a>
+  </span>
+  <a id="NBitcoin_TxInList__ctor_" data-uid="NBitcoin.TxInList.#ctor*"></a>
+  <h4 id="NBitcoin_TxInList__ctor_NBitcoin_Transaction_" data-uid="NBitcoin.TxInList.#ctor(NBitcoin.Transaction)">TxInList(Transaction)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TxInList(Transaction parent)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">parent</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TxInList_Item_NBitcoin_OutPoint_.md&amp;value=---%0Auid%3A%20NBitcoin.TxInList.Item(NBitcoin.OutPoint)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Transaction.cs/#L751">View Source</a>
+  </span>
+  <a id="NBitcoin_TxInList_Item_" data-uid="NBitcoin.TxInList.Item*"></a>
+  <h4 id="NBitcoin_TxInList_Item_NBitcoin_OutPoint_" data-uid="NBitcoin.TxInList.Item(NBitcoin.OutPoint)">Item[OutPoint]</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TxIn this[OutPoint outpoint] { get; set; }</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.OutPoint.html">OutPoint</a></td>
+        <td><span class="parametername">outpoint</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TxIn.html">TxIn</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TxInList_AsIndexedInputs.md&amp;value=---%0Auid%3A%20NBitcoin.TxInList.AsIndexedInputs%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Transaction.cs/#L788">View Source</a>
+  </span>
+  <a id="NBitcoin_TxInList_AsIndexedInputs_" data-uid="NBitcoin.TxInList.AsIndexedInputs*"></a>
+  <h4 id="NBitcoin_TxInList_AsIndexedInputs" data-uid="NBitcoin.TxInList.AsIndexedInputs">AsIndexedInputs()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;IndexedTxIn&gt; AsIndexedInputs()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.IndexedTxIn.html">IndexedTxIn</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TxInList_FindIndexedInput_NBitcoin_OutPoint_.md&amp;value=---%0Auid%3A%20NBitcoin.TxInList.FindIndexedInput(NBitcoin.OutPoint)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Transaction.cs/#L768">View Source</a>
+  </span>
+  <a id="NBitcoin_TxInList_FindIndexedInput_" data-uid="NBitcoin.TxInList.FindIndexedInput*"></a>
+  <h4 id="NBitcoin_TxInList_FindIndexedInput_NBitcoin_OutPoint_" data-uid="NBitcoin.TxInList.FindIndexedInput(NBitcoin.OutPoint)">FindIndexedInput(OutPoint)</h4>
+  <div class="markdown level1 summary"><p>Returns the IndexedTxIn whose PrevOut is equal to <code data-dev-comment-type="paramref" class="paramref">outpoint</code> or null.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IndexedTxIn FindIndexedInput(OutPoint outpoint)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.OutPoint.html">OutPoint</a></td>
+        <td><span class="parametername">outpoint</span></td>
+        <td><p>The outpoint being searched for</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.IndexedTxIn.html">IndexedTxIn</a></td>
+        <td><p>The IndexedTxIn which PrevOut is equal to <code data-dev-comment-type="paramref" class="paramref">outpoint</code> or null if not found</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">System.Collections.Generic.IList&lt;T&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.Generic.ICollection&lt;T&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.Generic.IReadOnlyList&lt;T&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.Generic.IReadOnlyCollection&lt;T&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.Generic.IEnumerable&lt;T&gt;</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.IList</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.ICollection</span>
+  </div>
+  <div>
+      <span class="xref">System.Collections.IEnumerable</span>
+  </div>
+  <h3 id="extensionmethods">Extension Methods</h3>
+  <div>
+      <a class="xref" href="NBitcoin.Extensions.html#NBitcoin_Extensions_Resize__1_System_Collections_Generic_List___0__System_Int32_">Extensions.Resize&lt;T&gt;(List&lt;T&gt;, Int32)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.Extensions.html#NBitcoin_Extensions_Partition__1_System_Collections_Generic_IEnumerable___0__System_Int32_">Extensions.Partition&lt;T&gt;(IEnumerable&lt;T&gt;, Int32)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.Extensions.html#NBitcoin_Extensions_Partition__1_System_Collections_Generic_IEnumerable___0__System_Func_System_Int32__">Extensions.Partition&lt;T&gt;(IEnumerable&lt;T&gt;, Func&lt;Int32&gt;)</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TxInList.md&amp;value=---%0Auid%3A%20NBitcoin.TxInList%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Transaction.cs/#L740" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

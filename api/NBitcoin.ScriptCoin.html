@@ -1,0 +1,742 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class ScriptCoin
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class ScriptCoin
+   ">
+    <meta name="generator" content="docfx 2.40.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="NBitcoin.ScriptCoin">
+  
+  
+  <h1 id="NBitcoin_ScriptCoin" data-uid="NBitcoin.ScriptCoin" class="text-break">Class ScriptCoin
+  </h1>
+  <div class="markdown level0 summary"><p>Represent a coin which need a redeem script to be spent (P2SH or P2WSH)</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="NBitcoin.Coin.html">Coin</a></div>
+    <div class="level2"><span class="xref">ScriptCoin</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="NBitcoin.ICoin.html">ICoin</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_ToScriptCoin_NBitcoin_Script_">Coin.ToScriptCoin(Script)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_ToColoredCoin_NBitcoin_OpenAsset_AssetId_System_UInt64_">Coin.ToColoredCoin(AssetId, UInt64)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_ToColoredCoin_NBitcoin_OpenAsset_BitcoinAssetId_System_UInt64_">Coin.ToColoredCoin(BitcoinAssetId, UInt64)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_ToColoredCoin_NBitcoin_OpenAsset_AssetMoney_">Coin.ToColoredCoin(AssetMoney)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_Outpoint">Coin.Outpoint</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_TxOut">Coin.TxOut</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_Amount">Coin.Amount</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin__OverrideScriptCode">Coin._OverrideScriptCode</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_OverrideScriptCode_NBitcoin_Script_">Coin.OverrideScriptCode(Script)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_ScriptPubKey">Coin.ScriptPubKey</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_NBitcoin_ICoin_Amount">Coin.ICoin.Amount</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_NBitcoin_ICoin_Outpoint">Coin.ICoin.Outpoint</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_NBitcoin_ICoin_TxOut">Coin.ICoin.TxOut</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="NBitcoin.html">NBitcoin</a></h6>
+  <h6><strong>Assembly</strong>: NBitcoin.dll</h6>
+  <h5 id="NBitcoin_ScriptCoin_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class ScriptCoin : Coin, ICoin</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin__ctor.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L588">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin__ctor_" data-uid="NBitcoin.ScriptCoin.#ctor*"></a>
+  <h4 id="NBitcoin_ScriptCoin__ctor" data-uid="NBitcoin.ScriptCoin.#ctor">ScriptCoin()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ScriptCoin()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin__ctor_NBitcoin_ICoin_NBitcoin_Script_.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.%23ctor(NBitcoin.ICoin%2CNBitcoin.Script)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L613">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin__ctor_" data-uid="NBitcoin.ScriptCoin.#ctor*"></a>
+  <h4 id="NBitcoin_ScriptCoin__ctor_NBitcoin_ICoin_NBitcoin_Script_" data-uid="NBitcoin.ScriptCoin.#ctor(NBitcoin.ICoin,NBitcoin.Script)">ScriptCoin(ICoin, Script)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ScriptCoin(ICoin coin, Script redeem)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ICoin.html">ICoin</a></td>
+        <td><span class="parametername">coin</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">redeem</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin__ctor_NBitcoin_IndexedTxOut_NBitcoin_Script_.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.%23ctor(NBitcoin.IndexedTxOut%2CNBitcoin.Script)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L684">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin__ctor_" data-uid="NBitcoin.ScriptCoin.#ctor*"></a>
+  <h4 id="NBitcoin_ScriptCoin__ctor_NBitcoin_IndexedTxOut_NBitcoin_Script_" data-uid="NBitcoin.ScriptCoin.#ctor(NBitcoin.IndexedTxOut,NBitcoin.Script)">ScriptCoin(IndexedTxOut, Script)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ScriptCoin(IndexedTxOut txOut, Script redeem)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.IndexedTxOut.html">IndexedTxOut</a></td>
+        <td><span class="parametername">txOut</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">redeem</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin__ctor_NBitcoin_OutPoint_NBitcoin_TxOut_NBitcoin_Script_.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.%23ctor(NBitcoin.OutPoint%2CNBitcoin.TxOut%2CNBitcoin.Script)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L593">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin__ctor_" data-uid="NBitcoin.ScriptCoin.#ctor*"></a>
+  <h4 id="NBitcoin_ScriptCoin__ctor_NBitcoin_OutPoint_NBitcoin_TxOut_NBitcoin_Script_" data-uid="NBitcoin.ScriptCoin.#ctor(NBitcoin.OutPoint,NBitcoin.TxOut,NBitcoin.Script)">ScriptCoin(OutPoint, TxOut, Script)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ScriptCoin(OutPoint fromOutpoint, TxOut fromTxOut, Script redeem)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.OutPoint.html">OutPoint</a></td>
+        <td><span class="parametername">fromOutpoint</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TxOut.html">TxOut</a></td>
+        <td><span class="parametername">fromTxOut</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">redeem</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin__ctor_NBitcoin_Transaction_NBitcoin_TxOut_NBitcoin_Script_.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.%23ctor(NBitcoin.Transaction%2CNBitcoin.TxOut%2CNBitcoin.Script)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L607">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin__ctor_" data-uid="NBitcoin.ScriptCoin.#ctor*"></a>
+  <h4 id="NBitcoin_ScriptCoin__ctor_NBitcoin_Transaction_NBitcoin_TxOut_NBitcoin_Script_" data-uid="NBitcoin.ScriptCoin.#ctor(NBitcoin.Transaction,NBitcoin.TxOut,NBitcoin.Script)">ScriptCoin(Transaction, TxOut, Script)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ScriptCoin(Transaction fromTx, TxOut fromOutput, Script redeem)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">fromTx</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TxOut.html">TxOut</a></td>
+        <td><span class="parametername">fromOutput</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">redeem</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin__ctor_NBitcoin_Transaction_System_UInt32_NBitcoin_Script_.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.%23ctor(NBitcoin.Transaction%2CSystem.UInt32%2CNBitcoin.Script)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L600">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin__ctor_" data-uid="NBitcoin.ScriptCoin.#ctor*"></a>
+  <h4 id="NBitcoin_ScriptCoin__ctor_NBitcoin_Transaction_System_UInt32_NBitcoin_Script_" data-uid="NBitcoin.ScriptCoin.#ctor(NBitcoin.Transaction,System.UInt32,NBitcoin.Script)">ScriptCoin(Transaction, UInt32, Script)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ScriptCoin(Transaction fromTx, uint fromOutputIndex, Script redeem)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">fromTx</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.UInt32</span></td>
+        <td><span class="parametername">fromOutputIndex</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">redeem</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin__ctor_NBitcoin_uint256_System_UInt32_NBitcoin_Money_NBitcoin_Script_NBitcoin_Script_.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.%23ctor(NBitcoin.uint256%2CSystem.UInt32%2CNBitcoin.Money%2CNBitcoin.Script%2CNBitcoin.Script)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L691">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin__ctor_" data-uid="NBitcoin.ScriptCoin.#ctor*"></a>
+  <h4 id="NBitcoin_ScriptCoin__ctor_NBitcoin_uint256_System_UInt32_NBitcoin_Money_NBitcoin_Script_NBitcoin_Script_" data-uid="NBitcoin.ScriptCoin.#ctor(NBitcoin.uint256,System.UInt32,NBitcoin.Money,NBitcoin.Script,NBitcoin.Script)">ScriptCoin(uint256, UInt32, Money, Script, Script)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ScriptCoin(uint256 txHash, uint outputIndex, Money amount, Script scriptPubKey, Script redeem)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a></td>
+        <td><span class="parametername">txHash</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.UInt32</span></td>
+        <td><span class="parametername">outputIndex</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td><span class="parametername">amount</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">scriptPubKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">redeem</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin_CanGetScriptCode.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.CanGetScriptCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L716">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin_CanGetScriptCode_" data-uid="NBitcoin.ScriptCoin.CanGetScriptCode*"></a>
+  <h4 id="NBitcoin_ScriptCoin_CanGetScriptCode" data-uid="NBitcoin.ScriptCoin.CanGetScriptCode">CanGetScriptCode</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool CanGetScriptCode { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_CanGetScriptCode">Coin.CanGetScriptCode</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin_IsP2SH.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.IsP2SH%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L620">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin_IsP2SH_" data-uid="NBitcoin.ScriptCoin.IsP2SH*"></a>
+  <h4 id="NBitcoin_ScriptCoin_IsP2SH" data-uid="NBitcoin.ScriptCoin.IsP2SH">IsP2SH</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsP2SH { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin_Redeem.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.Redeem%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L698">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin_Redeem_" data-uid="NBitcoin.ScriptCoin.Redeem*"></a>
+  <h4 id="NBitcoin_ScriptCoin_Redeem" data-uid="NBitcoin.ScriptCoin.Redeem">Redeem</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Script Redeem { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin_RedeemType.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.RedeemType%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L641">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin_RedeemType_" data-uid="NBitcoin.ScriptCoin.RedeemType*"></a>
+  <h4 id="NBitcoin_ScriptCoin_RedeemType" data-uid="NBitcoin.ScriptCoin.RedeemType">RedeemType</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public RedeemType RedeemType { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.RedeemType.html">RedeemType</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin_GetHashVersion.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.GetHashVersion%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L724">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin_GetHashVersion_" data-uid="NBitcoin.ScriptCoin.GetHashVersion*"></a>
+  <h4 id="NBitcoin_ScriptCoin_GetHashVersion" data-uid="NBitcoin.ScriptCoin.GetHashVersion">GetHashVersion()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override HashVersion GetHashVersion()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.HashVersion.html">HashVersion</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_GetHashVersion">Coin.GetHashVersion()</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin_GetP2SHRedeem.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.GetP2SHRedeem%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L629">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin_GetP2SHRedeem_" data-uid="NBitcoin.ScriptCoin.GetP2SHRedeem*"></a>
+  <h4 id="NBitcoin_ScriptCoin_GetP2SHRedeem" data-uid="NBitcoin.ScriptCoin.GetP2SHRedeem">GetP2SHRedeem()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Script GetP2SHRedeem()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin_GetRedeemHash_NBitcoin_Script_.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.GetRedeemHash(NBitcoin.Script)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L737">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin_GetRedeemHash_" data-uid="NBitcoin.ScriptCoin.GetRedeemHash*"></a>
+  <h4 id="NBitcoin_ScriptCoin_GetRedeemHash_NBitcoin_Script_" data-uid="NBitcoin.ScriptCoin.GetRedeemHash(NBitcoin.Script)">GetRedeemHash(Script)</h4>
+  <div class="markdown level1 summary"><p>Returns the hash contained in the scriptPubKey (P2SH or P2WSH)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static TxDestination GetRedeemHash(Script scriptPubKey)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">scriptPubKey</span></td>
+        <td><p>The scriptPubKey</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TxDestination.html">TxDestination</a></td>
+        <td><p>The hash of the scriptPubkey</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin_GetScriptCode.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin.GetScriptCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L704">View Source</a>
+  </span>
+  <a id="NBitcoin_ScriptCoin_GetScriptCode_" data-uid="NBitcoin.ScriptCoin.GetScriptCode*"></a>
+  <h4 id="NBitcoin_ScriptCoin_GetScriptCode" data-uid="NBitcoin.ScriptCoin.GetScriptCode">GetScriptCode()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Script GetScriptCode()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_GetScriptCode">Coin.GetScriptCode()</a></div>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="NBitcoin.ICoin.html">ICoin</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ScriptCoin.md&amp;value=---%0Auid%3A%20NBitcoin.ScriptCoin%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L586" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

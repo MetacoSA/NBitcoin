@@ -1,0 +1,6705 @@
+{
+  "homepages": [],
+  "source_base_path": "C:/projects/nbitcoin/docs",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.AltNetworkSets.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.AltNetworkSets.html",
+          "hash": "Jj34gyfGFlS3TRX+sptd5g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.BCash.BTrashPubKeyAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.BCash.BTrashPubKeyAddress.html",
+          "hash": "ZUc5MmMFFCT6kSfFRjm0CA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.BCash.BTrashScriptAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.BCash.BTrashScriptAddress.html",
+          "hash": "Uf9xUqeOAI6UphZRA6y76A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.BCash.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.BCash.html",
+          "hash": "JmnlfK4TXYWcXePzqr50SQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.BGold.BitcoinGoldBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.BGold.BitcoinGoldBlock.html",
+          "hash": "idJ5H3B4PLAADGpybW0joA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.BGold.BitcoinGoldBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.BGold.BitcoinGoldBlockHeader.html",
+          "hash": "CaZ1RbrCzek90umW5s6HBQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.BGold.BitcoinGoldConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.BGold.BitcoinGoldConsensusFactory.html",
+          "hash": "B0upl4VFjok2JXZxm8ulYA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.BGold.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.BGold.html",
+          "hash": "MCLEMmTb7slIYjL7lIzQKw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Bitcore.BitcoreBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Bitcore.BitcoreBlock.html",
+          "hash": "t/YwyZ9klqYnhuJaZw6Ljw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Bitcore.BitcoreBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Bitcore.BitcoreBlockHeader.html",
+          "hash": "QjSwwDUpAF1GNNwyQdWFZw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Bitcore.BitcoreConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Bitcore.BitcoreConsensusFactory.html",
+          "hash": "NRWo7kq+ulM5M4UWx//bnw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Bitcore.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Bitcore.html",
+          "hash": "OUt9V3ABnmTYlD0mmOtHkA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dash.DashBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dash.DashBlock.html",
+          "hash": "glUUbIA4CNSMGQTus/7DAA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dash.DashBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dash.DashBlockHeader.html",
+          "hash": "ocenC/oBqM+w3vUXXnViuQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dash.DashConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dash.DashConsensusFactory.html",
+          "hash": "Bei0VhFEZjwxdRzZXshFNg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dash.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dash.html",
+          "hash": "ome1S2CQGc0MRqsNWHlTlA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dogecoin.AuxPow.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dogecoin.AuxPow.html",
+          "hash": "YwmJeBgJy7G2pMZfCP4QPA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dogecoin.DogeConsensusFactory.html",
+          "hash": "lPWQ/Xx/J5xEHB6A2YQ6ag=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dogecoin.DogecoinBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dogecoin.DogecoinBlock.html",
+          "hash": "rqN0VB1tHFyx4DtshRVr+w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dogecoin.DogecoinBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dogecoin.DogecoinBlockHeader.html",
+          "hash": "nK7PojE3WJjSzzY2UmIFgw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dogecoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dogecoin.html",
+          "hash": "CgVl8dMkcntIUsAoTOwFnA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dystem.DystemBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dystem.DystemBlock.html",
+          "hash": "rhWGIEyt+PPFL2pIKdOm1w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dystem.DystemBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dystem.DystemBlockHeader.html",
+          "hash": "lrlnNuqacmfrrrOn3Xt4Jg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dystem.DystemConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dystem.DystemConsensusFactory.html",
+          "hash": "4B55sOTMqTk5lvd4D/RfJQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Dystem.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Dystem.html",
+          "hash": "oKxAbAMa7MZGtG5LWkHp0A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Feathercoin.FeathercoinBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Feathercoin.FeathercoinBlock.html",
+          "hash": "Mqn6aoAEcS6kEfH3scVm/w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Feathercoin.FeathercoinBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Feathercoin.FeathercoinBlockHeader.html",
+          "hash": "BfzrZDn2dEAhDewisryZYg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Feathercoin.FeathercoinConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Feathercoin.FeathercoinConsensusFactory.html",
+          "hash": "YmbR8N6s3oT2/Nfii0jK0w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Feathercoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Feathercoin.html",
+          "hash": "bW7Gisz1GJDAbT0HARkTjA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.ForkIdTransaction.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.ForkIdTransaction.html",
+          "hash": "RJYtijEuAnpp/t73EsESBg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Groestlcoin.GroestlEncoder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Groestlcoin.GroestlEncoder.html",
+          "hash": "aR/Ey41oYKMGq0UfCNwfuw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Groestlcoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Groestlcoin.html",
+          "hash": "G4ELo2w0iZzPP8AmDMThRA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.HashX11.HashSize.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.HashX11.HashSize.html",
+          "hash": "RX6ITmiX5/2a+2qRLBw+JQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.HashX11.IBlockHash.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.HashX11.IBlockHash.html",
+          "hash": "Ztg4Wq70a/wfK66jme8avQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.HashX11.IChecksum.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.HashX11.IChecksum.html",
+          "hash": "W7gBpNJWJz0XhMvMd8iJaQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.HashX11.INonBlockHash.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.HashX11.INonBlockHash.html",
+          "hash": "whq/TRhaQkQ4g9uZTUdm5A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.HashX11.Quark.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.HashX11.Quark.html",
+          "hash": "dreQnSmns1no8mW/sE4Kfw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.HashX11.X11.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.HashX11.X11.html",
+          "hash": "jgAMvKhkBGhz4p1g2o8ddA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.HashX11.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.HashX11.html",
+          "hash": "YN3Cngz2+iW18sRTB4M/dw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinBlock.html",
+          "hash": "TZxDpD0ERJqymnRp3dKxcQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinBlockHeader.html",
+          "hash": "/BLh3pUulPL6c62ebilFyw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinConsensusFactory.html",
+          "hash": "h8AV0w8HshYQLrWbQWl8HQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinMainnetAddressStringParser.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Litecoin.LitecoinMainnetAddressStringParser.html",
+          "hash": "kPYCJc/dJ9g51IGQd+vk6A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Litecoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Litecoin.html",
+          "hash": "4MKIJoDlagJdKRpxBE5aTQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Mogwai.MogwaiBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Mogwai.MogwaiBlockHeader.html",
+          "hash": "G6PoDvPXScuWslR1X3A7RQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Mogwai.MogwaiConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Mogwai.MogwaiConsensusFactory.html",
+          "hash": "SmYJuAMrioq+CEBDiF2r1A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Mogwai.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Mogwai.html",
+          "hash": "1MfgKU5A+g5twiyFrtZlfg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Monacoin.MonacoinBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Monacoin.MonacoinBlock.html",
+          "hash": "oZgmGJefUFOcDXpwTJ0jyQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Monacoin.MonacoinBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Monacoin.MonacoinBlockHeader.html",
+          "hash": "0JTDX+7whvDcN81m4GuXGQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Monacoin.MonacoinConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Monacoin.MonacoinConsensusFactory.html",
+          "hash": "7uSdY5Ho2odkgs9c3TTx1w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Monacoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Monacoin.html",
+          "hash": "XXFeWNhcgdpvvv2trkXNGA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Polis.PolisBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Polis.PolisBlock.html",
+          "hash": "WgV7SCfNxj8P+Ll4K/hDGA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Polis.PolisBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Polis.PolisBlockHeader.html",
+          "hash": "0KnY5Tl6XFNKHZhCB7j83A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Polis.PolisConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Polis.PolisConsensusFactory.html",
+          "hash": "1f8aquwCo6uIp7Eo5KJhCg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Polis.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Polis.html",
+          "hash": "fW8OtDp9ejw6gQvjwBPADw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Ufo.UfoBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Ufo.UfoBlock.html",
+          "hash": "usCtZJ5YLUuMvrb0rsg70g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Ufo.UfoBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Ufo.UfoBlockHeader.html",
+          "hash": "SDzrMfZG6cQ4LOLKfD6FtA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Ufo.UfoConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Ufo.UfoConsensusFactory.html",
+          "hash": "J4wffIn9GDitmTLQ+anw7Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Ufo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Ufo.html",
+          "hash": "KBlrTpXgIlr0LPef4v6EuA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Viacoin.AuxPow.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Viacoin.AuxPow.html",
+          "hash": "4hkfX14l8AuU4GmidnAAMw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Viacoin.ViacoinBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Viacoin.ViacoinBlock.html",
+          "hash": "2XsfZBzb6AO3gGVBv0iSag=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Viacoin.ViacoinBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Viacoin.ViacoinBlockHeader.html",
+          "hash": "hfuRZQfW6GmjG18gK638vg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Viacoin.ViacoinConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Viacoin.ViacoinConsensusFactory.html",
+          "hash": "M/5DR80qRpXpZqrQJI8jLw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Viacoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Viacoin.html",
+          "hash": "EnS6S3RZzposrLU6U+M9KA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Zclassic.ZclassicBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Zclassic.ZclassicBlock.html",
+          "hash": "3QeiS+TUvtTyyxS1Rhx6ww=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Zclassic.ZclassicBlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Zclassic.ZclassicBlockHeader.html",
+          "hash": "oprXeysynNZZiivYaECrbg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Zclassic.ZclassicConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Zclassic.ZclassicConsensusFactory.html",
+          "hash": "9gy9lKQA6r+2I+GBBbDYLw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.Zclassic.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.Zclassic.html",
+          "hash": "GDbUh8NAcO/uOvyiuYY+wQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Altcoins.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Altcoins.html",
+          "hash": "K94kxGZEq+J1TUiHY3KMCQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BIP9Deployments.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BIP9Deployments.html",
+          "hash": "d6ImGpPuuII1xJyUvt0Xng=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BIP9DeploymentsParameters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BIP9DeploymentsParameters.html",
+          "hash": "V9UqTNLFVjwDDTgO7D6oCA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Base58Data.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Base58Data.html",
+          "hash": "zt+XD1U2oM7nda16F4eyrw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Base58Type.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Base58Type.html",
+          "hash": "XngNT+Y3US59HgExqklDgg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Bech32Type.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Bech32Type.html",
+          "hash": "xBlMJOtT3JGyoDhMHXp7vA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Bitcoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Bitcoin.html",
+          "hash": "ZMkwK58Q32Cd4I2fU27fsQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinAddress.html",
+          "hash": "SLvZpWsNezIwXFxVntEbUQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinColoredAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinColoredAddress.html",
+          "hash": "Kp2UVN8dz0jGoxasN/ijWw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinConfirmationCode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinConfirmationCode.html",
+          "hash": "sWIuGxHniDGuaaXytA/PMA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.BlockRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.BlockRepository.html",
+          "hash": "ehv2xoYPuGxsKKjA+5sECQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.BlockStore.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.BlockStore.html",
+          "hash": "Oetep/1RW89GamjcYixbzg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.BlockUndo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.BlockUndo.html",
+          "hash": "uQY/0TRwzF5B7pDBDkiBSQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.BlockUndoStore.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.BlockUndoStore.html",
+          "hash": "Seiz4Y82tWI6j0ZTVQDBFA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.CachedBlockProvider.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.CachedBlockProvider.html",
+          "hash": "8G/A4TgnlyIpRXl5C8Mf4Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.Coins.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.Coins.html",
+          "hash": "sM6E68pgqSBvvyA9SSZbTQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.CoinsView.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.CoinsView.html",
+          "hash": "yO+icMIrMm3aWQYfS/j8qg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.DataDirectory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.DataDirectory.html",
+          "hash": "9XJmuLGQtt10sZMRBbAD6g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.DiskBlockPos.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.DiskBlockPos.html",
+          "hash": "molRdB8Ez0FInD9TjtuB9w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.DiskBlockPosRange.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.DiskBlockPosRange.html",
+          "hash": "fPN6kmkjdTA0UIF+g2DFQg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.IBlockProvider.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.IBlockProvider.html",
+          "hash": "oD5fO0gD3WYTFQg3cfFt2A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.IndexedBlockStore.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.IndexedBlockStore.html",
+          "hash": "Am1Lo9Gyis0MrEd7eTE2sA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.IndexedBlockUndoStore.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.IndexedBlockUndoStore.html",
+          "hash": "i/2IY1/y2Pcc871/WzPosg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.IndexedStore-2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.IndexedStore-2.html",
+          "hash": "0QsWqzx6W0Mfdg2grBuWgw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.Store-2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.Store-2.html",
+          "hash": "xmEin47zUDe0hJycguXtzw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.StoredBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.StoredBlock.html",
+          "hash": "8DGxTgw17TTIiBre2uSirA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.StoredHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.StoredHeader.html",
+          "hash": "X0V75PRPPD3bvcHupmNmDQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.StoredItem-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.StoredItem-1.html",
+          "hash": "8KmQzDDF6JukXJo+QIh6fg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.TxInUndo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.TxInUndo.html",
+          "hash": "WdnGK6VdzMdziF8aAOzdrg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.TxUndo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.TxUndo.html",
+          "hash": "wc+UMcxSIiJtnwD9T/nYgQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinCore.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinCore.html",
+          "hash": "s5sfcQZlQYB3JcU1JYtQ1A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinEncryptedSecret.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinEncryptedSecret.html",
+          "hash": "CeVdab095IbssxbmTE+0DQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinEncryptedSecretEC.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinEncryptedSecretEC.html",
+          "hash": "MdqH7gX7jYu7G8BXnmwbug=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinEncryptedSecretNoEC.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinEncryptedSecretNoEC.html",
+          "hash": "W5F545YtjNcRpaYuSusgtw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinExtKey.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinExtKey.html",
+          "hash": "PfXKw46cu7ebj/P2RIBSpQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinExtKeyBase.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinExtKeyBase.html",
+          "hash": "ugSBv/jZZ7/aiCa4eDOzLQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinExtPubKey.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinExtPubKey.html",
+          "hash": "NNACutRpoEqFL/VN+JjIdQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinPassphraseCode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinPassphraseCode.html",
+          "hash": "UJ3DfmsiOnWPK21TFTfkGw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinPubKeyAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinPubKeyAddress.html",
+          "hash": "I1eVsvb58VfK8qNWMGC/yA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinScriptAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinScriptAddress.html",
+          "hash": "vuIfK2eXx43Vt46lqmtXOg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinSecret.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinSecret.html",
+          "hash": "xvT8JWLYIiOB80/xulJXsA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinSerializableExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinSerializableExtensions.html",
+          "hash": "U1nDsNkjb7uwsH9k5B+G1w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinStream.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinStream.html",
+          "hash": "jV8Z8FKS4om+0oaJGtukDQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinWitPubKeyAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinWitPubKeyAddress.html",
+          "hash": "7qXlFnmX7s3G8LKun2VMpw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BitcoinWitScriptAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BitcoinWitScriptAddress.html",
+          "hash": "rLsAv+A7ahAb91yn2ow3Ow=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Block.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Block.html",
+          "hash": "hKPKPBUkhHLfYQM4i+4oYQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BlockHeader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BlockHeader.html",
+          "hash": "BGbApWN9iJVTabcb5UsXwQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BlockLocator.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BlockLocator.html",
+          "hash": "GUl76h3EJJ5XDFuA4dZtog=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BloomFilter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BloomFilter.html",
+          "hash": "TbgUCxzhsTCv/Hh+89cewA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BloomFlags.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BloomFlags.html",
+          "hash": "2tWaudroiGnk6133UhW3iA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BouncyCastle.Math.BigInteger.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BouncyCastle.Math.BigInteger.html",
+          "hash": "EVv8co02q81Wdfy0HywZsw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BouncyCastle.Math.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BouncyCastle.Math.html",
+          "hash": "2T0isEXLCAvZlCceWE0M7A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BoundedDictionary-2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BoundedDictionary-2.html",
+          "hash": "nOzfozf9lZhomCFx/N67DA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BuilderExtensions.BuilderExtension.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BuilderExtensions.BuilderExtension.html",
+          "hash": "rofC3lZwE/mocMXSCjudjA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BuilderExtensions.IKeyRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BuilderExtensions.IKeyRepository.html",
+          "hash": "fjqS5XiL9N+mULOje/Odww=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BuilderExtensions.ISigner.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BuilderExtensions.ISigner.html",
+          "hash": "6SlqV6chMxbU5d0Fy0uUAg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BuilderExtensions.OPTrueExtension.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BuilderExtensions.OPTrueExtension.html",
+          "hash": "MB7SBLNf2gXNK/MeFZoBwg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BuilderExtensions.P2MultiSigBuilderExtension.html",
+          "hash": "Q6Bo6r3MjhDfcSeN5MGWXQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BuilderExtensions.P2PKBuilderExtension.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BuilderExtensions.P2PKBuilderExtension.html",
+          "hash": "bBcEbl2CRS1UuqfVNd1ycg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BuilderExtensions.P2PKHBuilderExtension.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BuilderExtensions.P2PKHBuilderExtension.html",
+          "hash": "zlA59nuCztgTj8Y3jDaYhA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BuilderExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BuilderExtensions.html",
+          "hash": "9VYApVDrAep6b+jJMqWpVQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.BuriedDeployments.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.BuriedDeployments.html",
+          "hash": "WJzZaYJQvW0R0ifHvvwwPg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.CachedNoSqlRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.CachedNoSqlRepository.html",
+          "hash": "mEWjUjKkYzw2AfsPdpTQ1Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.CachedTransactionRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.CachedTransactionRepository.html",
+          "hash": "TJNyNy/Ft7cq2PdDzsK8Ag=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ChainBase.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ChainBase.html",
+          "hash": "Ode0I6ceg6u/ds89c3qdYw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ChainedBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ChainedBlock.html",
+          "hash": "v86qzPH5TLbAMsauWXWYmA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ChangeType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ChangeType.html",
+          "hash": "HOC1V5yTEtgxv+K0jZdaXw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Coin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Coin.html",
+          "hash": "6Z0JkQHgghbyjq//L8GYtQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.CoinNotFoundException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.CoinNotFoundException.html",
+          "hash": "28fMTt4i+5DUkXhoXrgf2g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ColoredCoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ColoredCoin.html",
+          "hash": "PJS3V2OEHW5zj4kkrDA+DQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ConcurrentChain.ChainSerializationFormat.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ConcurrentChain.ChainSerializationFormat.html",
+          "hash": "KpfdZPgofOioSIeDdf8z7A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ConcurrentChain.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ConcurrentChain.html",
+          "hash": "VaT9XBBtHXuXKQleHUSDpQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Consensus.BIP9DeploymentsArray.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Consensus.BIP9DeploymentsArray.html",
+          "hash": "HHD6nr6CGVHl0sXJDNpnLg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Consensus.BuriedDeploymentsArray.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Consensus.BuriedDeploymentsArray.html",
+          "hash": "3mjguTlK+KBwVspsAtYgLQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Consensus.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Consensus.html",
+          "hash": "QelVPaDzHugWPVanhALn3Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ConsensusFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ConsensusFactory.html",
+          "hash": "TAYF0+9MouDA3ly36jDzsw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ContextStack-1.Enumerator.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ContextStack-1.Enumerator.html",
+          "hash": "+XGnExiKPaZtBEgU8PAeEg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ContextStack-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ContextStack-1.html",
+          "hash": "uPlIPxgFiStuoJkdBKj8iw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.BlindSignature.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.BlindSignature.html",
+          "hash": "13waaMWxhlrcIEwtiwtk0A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.BufferedHashStream.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.BufferedHashStream.html",
+          "hash": "xCgxQaaPxsoi1N/bhSM8ag=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.ECDSABlinding.Requester.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.ECDSABlinding.Requester.html",
+          "hash": "z9B+X6PuTFqfWKK72tcQhA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.ECDSABlinding.Signer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.ECDSABlinding.Signer.html",
+          "hash": "OIdDH+VS3pR/dYvhHNrbdw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.ECDSABlinding.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.ECDSABlinding.html",
+          "hash": "Yp02izqwcJYIDl+iWeOvoQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.ECDSASignature.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.ECDSASignature.html",
+          "hash": "2KdDUX82ReXfq+peiuoOZQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.HashStream.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.HashStream.html",
+          "hash": "2KLUyjzukSJWXUkZy7oFQw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.HashStreamBase.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.HashStreamBase.html",
+          "hash": "68hM0Dceofm7V4mf9WvM7A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.Hashes.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.Hashes.html",
+          "hash": "nG/KD1zY9E3+YMH6ieYHng=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.Pbkdf2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.Pbkdf2.html",
+          "hash": "Nr/75oDuuAUcc53/yTmTQQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.SCrypt.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.SCrypt.html",
+          "hash": "7ecMM4r9GEX01LIP04zMAA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.Salsa20Core.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.Salsa20Core.html",
+          "hash": "Ix7fs+ymVnRcnvUpLt+hdw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.SchnorrSignature.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.SchnorrSignature.html",
+          "hash": "OY2paqTEaLB/WyoFlMJ+wg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.SchnorrSigner.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.SchnorrSigner.html",
+          "hash": "NA1yJxveUBPbBNp6GozJPA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Crypto.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Crypto.html",
+          "hash": "rpik2XbOrs+S79RvpNXJFA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DNSSeedData.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DNSSeedData.html",
+          "hash": "x78M95IocD+No7iEcm//FQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DataEncoders.ASCIIEncoder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DataEncoders.ASCIIEncoder.html",
+          "hash": "a5ISKs//dSNBimKEUm336w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DataEncoders.Base58CheckEncoder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DataEncoders.Base58CheckEncoder.html",
+          "hash": "Z6gyyxBLyufx7dyV8SQrtw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DataEncoders.Base58Encoder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DataEncoders.Base58Encoder.html",
+          "hash": "AAGQbfUKPvJcjzw7RCNLnA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DataEncoders.Base64Encoder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DataEncoders.Base64Encoder.html",
+          "hash": "t4PaZZ/KEGcEj/DApRqHoQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DataEncoders.Bech32Encoder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DataEncoders.Bech32Encoder.html",
+          "hash": "ZbGfgU1GqEKskx3LZare3Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DataEncoders.Bech32FormatException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DataEncoders.Bech32FormatException.html",
+          "hash": "mO52m9wRPXziLTrhlmlSoA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DataEncoders.DataEncoder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DataEncoders.DataEncoder.html",
+          "hash": "zyaU0qhFTpd1/cak9t/MKg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DataEncoders.Encoders.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DataEncoders.Encoders.html",
+          "hash": "Kch5pQ/0QGKjb1L6Cz/c3Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DataEncoders.HexEncoder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DataEncoders.HexEncoder.html",
+          "hash": "aMenvLj9yCcA4i1QHse6jw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DataEncoders.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DataEncoders.html",
+          "hash": "ehoBV3xo6OU55it80wU4kA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DecryptionResult.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DecryptionResult.html",
+          "hash": "G2IDG7iwmPUWpDb6Y1cNRQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.DefaultCoinSelector.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.DefaultCoinSelector.html",
+          "hash": "3Rwm8AuJADxr6n9o6xjUSA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.EncryptedKeyResult.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.EncryptedKeyResult.html",
+          "hash": "RwAsaipIMnCpp70po1XyBA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ExtKey.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ExtKey.html",
+          "hash": "h6r1N1OFjwlK/op32ELNtA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ExtPubKey.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ExtPubKey.html",
+          "hash": "4tJ7Zo4EJXbvBKTdjaYLrQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Extensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Extensions.html",
+          "hash": "sLIKEOIJf29+UrpC8VfMgQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.FeeRate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.FeeRate.html",
+          "hash": "DEdW9tCsrqer0zJIoMyDxA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.FileLock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.FileLock.html",
+          "hash": "O+iJUaHQepcB4GGY41O6kg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.FileLockType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.FileLockType.html",
+          "hash": "cQegIbP1jgFbV67QzS+l5Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.GolombRiceFilter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.GolombRiceFilter.html",
+          "hash": "I3EHPtRUBqm9wneCz1saog=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.GolombRiceFilterBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.GolombRiceFilterBuilder.html",
+          "hash": "u1I0X7TO+CbNrZXRCR7hpA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.HardcodedWordlistSource.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.HardcodedWordlistSource.html",
+          "hash": "8X0pXGTeV4TU6rYCZKzjDw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.HashVersion.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.HashVersion.html",
+          "hash": "5QuG24kzzHp8/nEc9xwyqg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IBase58Data.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IBase58Data.html",
+          "hash": "gAyJHDqgvCAB8L3mywOtYA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IBech32Data.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IBech32Data.html",
+          "hash": "1QmpKr93OkMK5dxsyscqHA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IBitcoinSerializable.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IBitcoinSerializable.html",
+          "hash": "S7p/tFvPsC8IWV51qsvMGA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IBitcoinString.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IBitcoinString.html",
+          "hash": "VuVQ5UrvL89LcXwk0xqWXQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IBlockRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IBlockRepository.html",
+          "hash": "ws4PMokM8aWKeWtTZlmrRA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ICoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ICoin.html",
+          "hash": "FeW19Tb+mO4RhOSiSVbbAA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ICoinSelector.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ICoinSelector.html",
+          "hash": "RjupW9cMBHvfRJKudDY2yQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IColoredCoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IColoredCoin.html",
+          "hash": "kTict/By57u7lkmzo4PbBQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IDestination.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IDestination.html",
+          "hash": "NR1PYaDWnlbnEqhGiP8vzw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IHasForkId.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IHasForkId.html",
+          "hash": "71ZHmTXhjWBkNSWEWtXWVw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IMoney.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IMoney.html",
+          "hash": "Ko9gAUKhMwPl5SaIFKjBJw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.INetworkSet.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.INetworkSet.html",
+          "hash": "XdcA01bSY8I7T616kJeRRQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IPubkeyHashUsable.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IPubkeyHashUsable.html",
+          "hash": "Gr55FwT2aHJ9uCVwyI4T6w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IRandom.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IRandom.html",
+          "hash": "4nxiAMK8KH7HIzCNlbpRwg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ISecret.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ISecret.html",
+          "hash": "7rm2SaThAgC3hbvWzSs8+A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ITransactionRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ITransactionRepository.html",
+          "hash": "o1WuaXdJvDUjXjiTSbMU+g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IWordlistSource.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IWordlistSource.html",
+          "hash": "a62eqk6YcU64PRI+ktn8eA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.InMemoryNoSqlRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.InMemoryNoSqlRepository.html",
+          "hash": "8kY+debcvyrzgwzgRLsucw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IndexedTxIn.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IndexedTxIn.html",
+          "hash": "q27TdXna89B2QkSW5CxOnQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IndexedTxOut.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IndexedTxOut.html",
+          "hash": "zqcYtDrHvkVW99jOYMLXww=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IpExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IpExtensions.html",
+          "hash": "6KlKf9W+aEds0+epuVO/fw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.IssuanceCoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.IssuanceCoin.html",
+          "hash": "SZtgSPwMbNgcIaZFhShXnQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.AssetIdJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.AssetIdJsonConverter.html",
+          "hash": "qRryL5x6dvr9C2Hadg4tJg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.BitcoinSerializableJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.BitcoinSerializableJsonConverter.html",
+          "hash": "PvVDNj/ylT5T3s0jGWIf6A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.BitcoinStringJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.BitcoinStringJsonConverter.html",
+          "hash": "3+Ll32s0CZJdFginsJyD9w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.CoinJsonConverter.CoinJson.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.CoinJsonConverter.CoinJson.html",
+          "hash": "Smr00oe3SymPYB97W5FN5w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.CoinJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.CoinJsonConverter.html",
+          "hash": "MTAZEW1tOYXLprS6H2Ea5A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.DateTimeToUnixTimeConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.DateTimeToUnixTimeConverter.html",
+          "hash": "/pi3KFNk0Psj/esIMGhl4A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.FeeRateJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.FeeRateJsonConverter.html",
+          "hash": "sVMgoij2cZRwihYWW1dItA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.HexJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.HexJsonConverter.html",
+          "hash": "8LX5MwDoIV8YA1lEFICW+Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.JsonObjectException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.JsonObjectException.html",
+          "hash": "4Tnsz7QDiGAXCbF0YIH2Jg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.KeyJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.KeyJsonConverter.html",
+          "hash": "SCo2I0zk0BPQ9h0/j84VOg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.KeyPathJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.KeyPathJsonConverter.html",
+          "hash": "X7z/gEE2NaohVfvAJCyoxA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.LockTimeJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.LockTimeJsonConverter.html",
+          "hash": "6wH/KqFc6A5w8DUJCdPTFQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.MoneyJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.MoneyJsonConverter.html",
+          "hash": "kQOYRDnKhVz/X3/gvAUvPA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.NetworkJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.NetworkJsonConverter.html",
+          "hash": "1z7qnmxD6SUnxEJBipMZQQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.ScriptJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.ScriptJsonConverter.html",
+          "hash": "tZWBgLsqeU/beI9HrdP8Bw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.Serializer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.Serializer.html",
+          "hash": "FRFa02epftL3HUDW2r8UGw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.SignatureJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.SignatureJsonConverter.html",
+          "hash": "z27H0/YkrNrsRAfWVkS39Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.TxDestinationJsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.TxDestinationJsonConverter.html",
+          "hash": "iEVSTm19DeW4nV5YF8evzg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.UInt160JsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.UInt160JsonConverter.html",
+          "hash": "wk2Kw0rSq4/JXlqoPuCCrg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.UInt256JsonConverter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.UInt256JsonConverter.html",
+          "hash": "KuG19I002Of7oq3Yn8ZDbw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.JsonConverters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.JsonConverters.html",
+          "hash": "8HOMe62gU9j4YIpC76OHPg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Key.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Key.html",
+          "hash": "5fmJ6jU68JWPc8UT1sDUeg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.KeyId.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.KeyId.html",
+          "hash": "v2IRpi5aG2mkGY4KSsd4sw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.KeyPath.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.KeyPath.html",
+          "hash": "/8yDsDPzLGyiOl0q8Nf2BQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Language.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Language.html",
+          "hash": "Z0Zf6BQERaHImH3c0GYQxA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.LockTime.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.LockTime.html",
+          "hash": "Y3ULy2QuwQ7wIJW1aDohMQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.LotSequence.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.LotSequence.html",
+          "hash": "VqreI/U2InwBw40tRSEfMQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.MedianFilterInt32.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.MedianFilterInt32.html",
+          "hash": "RBaytekZ/HkeFhvbAoBZPg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.MedianFilterInt64.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.MedianFilterInt64.html",
+          "hash": "cvuhZ3Gx/On5qBrst3tCig=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.MemPoolInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.MemPoolInfo.html",
+          "hash": "fTfQu5KcbDk4uJ4M8BV59A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.MerkleBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.MerkleBlock.html",
+          "hash": "9woM7Sh4YUZ22XAuUYkJlw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.MerkleNode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.MerkleNode.html",
+          "hash": "xrE1gp6jJpU0CmPSEAsfyg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Mnemonic.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Mnemonic.html",
+          "hash": "awpLKhf28kxejm32uRH/nA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Money.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Money.html",
+          "hash": "l7YdqdoH8oBR4sPJxP8UZg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.MoneyBag.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.MoneyBag.html",
+          "hash": "ledUz5IxKTqvSXyZWvQADw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.MoneyExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.MoneyExtensions.html",
+          "hash": "gfkzf8SzSAfL0RDKZeZFWw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.MoneyUnit.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.MoneyUnit.html",
+          "hash": "EAX89YjscTmwkN/nLmN+FA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Network.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Network.html",
+          "hash": "kz8SBbI8XcmDtjdfg0c8Yw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.NetworkBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.NetworkBuilder.html",
+          "hash": "D/7mPmxoEs0FgiyAXVN8rQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.NetworkSetBase.FolderName.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.NetworkSetBase.FolderName.html",
+          "hash": "XEPf1HGj74GFPfspm1ipig=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.NetworkSetBase.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.NetworkSetBase.html",
+          "hash": "mmiXC8meY9f/eE6yShe3RQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.NetworkStringParser.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.NetworkStringParser.html",
+          "hash": "KcwXirnXdBSNVD2hE/tAWw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.NetworkType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.NetworkType.html",
+          "hash": "AioxkfC2WB71KEhcqii6ew=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.NoSqlBlockRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.NoSqlBlockRepository.html",
+          "hash": "6Z0DdGa1Tsl1Y1xxGdQuRg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.NoSqlRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.NoSqlRepository.html",
+          "hash": "xcECiy6pKO5lC5ev2k+ahA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.NoSqlTransactionRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.NoSqlTransactionRepository.html",
+          "hash": "RvkmVuCRqauAw2dmtJMJ8w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.NotEnoughFundsException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.NotEnoughFundsException.html",
+          "hash": "rgQZlRT6ecwk3lDqFLsrAA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Op.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Op.html",
+          "hash": "73H+zKc0gxiAswej/2mFhw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpcodeType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpcodeType.html",
+          "hash": "DORIblPd9AGeswdQMSceCg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.AssetId.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.AssetId.html",
+          "hash": "87Hul/0PvYcuSSAxIjvv8w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.AssetMoney.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.AssetMoney.html",
+          "hash": "jLUXOBf/Ti0mQ7VRMUHj7A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.BitcoinAssetId.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.BitcoinAssetId.html",
+          "hash": "RNBX1PtUoI5FumfW6W2j0w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.CachedColoredTransactionRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.CachedColoredTransactionRepository.html",
+          "hash": "Jr7qNXePy7iujVaBvCOqFg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.ColorMarker.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.ColorMarker.html",
+          "hash": "HBTgkQBfcSthYAclKbLQ3Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.ColoredEntry.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.ColoredEntry.html",
+          "hash": "oOR7vXgmOPqo/PH/tYK+Gw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.ColoredTransaction.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.ColoredTransaction.html",
+          "hash": "rMabiVmEr4Sz82xVNbKBTQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.ColoredTxRepoExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.ColoredTxRepoExtensions.html",
+          "hash": "e1vSXl2KpDWDjak76AE3+g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.Extensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.Extensions.html",
+          "hash": "YT/JfocKoqmgVxppCDg7lw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.IColoredTransactionRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.IColoredTransactionRepository.html",
+          "hash": "lMdNJ4xFfq4AA0LatAzDeg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.NoSqlColoredTransactionRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.NoSqlColoredTransactionRepository.html",
+          "hash": "nkhrc85gm/m2MMSV1uiWkA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.NullColoredTransactionRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.NullColoredTransactionRepository.html",
+          "hash": "6IkLPNEJ0C13uwtDUA6jIg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OpenAsset.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OpenAsset.html",
+          "hash": "DK1u/xD5Dr5kAeTxDBvY6A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.OutPoint.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.OutPoint.html",
+          "hash": "YiD5jiIc5+dJuifMMl7C9Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PartialMerkleTree.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PartialMerkleTree.html",
+          "hash": "rbeFTWBwFV5bQ8MV8cu3Ew=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PayToMultiSigTemplate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PayToMultiSigTemplate.html",
+          "hash": "JNEmqz+gxFhJfsB7W9LH5Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PayToMultiSigTemplateParameters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PayToMultiSigTemplateParameters.html",
+          "hash": "CIP541OwB/B1/SYGwFwZeg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PayToPubkeyHashScriptSigParameters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PayToPubkeyHashScriptSigParameters.html",
+          "hash": "T0BO6Jh+FxX3KGn8MWYu6g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PayToPubkeyHashTemplate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PayToPubkeyHashTemplate.html",
+          "hash": "W1NyyfmooilGE2403Fnd+g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PayToPubkeyTemplate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PayToPubkeyTemplate.html",
+          "hash": "5gganJ1iIGbKlK8piGFFZw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PayToScriptHashSigParameters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PayToScriptHashSigParameters.html",
+          "hash": "9V6OFsVYH6gRp8c7YckQ4Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PayToScriptHashTemplate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PayToScriptHashTemplate.html",
+          "hash": "m87rCZNiih20/4I5jf3a4A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PayToWitPubKeyHashTemplate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PayToWitPubKeyHashTemplate.html",
+          "hash": "v57NNFDQ5eVAFDXTXd9E7g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PayToWitPubkeyHashScriptSigParameters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PayToWitPubkeyHashScriptSigParameters.html",
+          "hash": "HHIkFFGxlIEYrWdej8Ny9g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PayToWitScriptHashTemplate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PayToWitScriptHashTemplate.html",
+          "hash": "4gT4l2eUCJWqlnLmkXltdQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PayToWitTemplate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PayToWitTemplate.html",
+          "hash": "Q4SpBJ+7cq/1yYrO2daMiA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.BitcoinUrlBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.BitcoinUrlBuilder.html",
+          "hash": "NJKX8ZZSqSHQJOsLc7yADQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.ICertificateServiceProvider.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.ICertificateServiceProvider.html",
+          "hash": "maKPRWW7lcPUxv9CVXiW3w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.IChainChecker.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.IChainChecker.html",
+          "hash": "S2AtEhv0C7X3gETURO6LPw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.ISignatureChecker.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.ISignatureChecker.html",
+          "hash": "ruzP5IGsRCx8LXlrN/GM1Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.ISigner.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.ISigner.html",
+          "hash": "YSJgLop6VS+XD2NKPiOaYA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.PKIType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.PKIType.html",
+          "hash": "tumCRTbsGaq0uc9/oNe8OQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.PaymentACK.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.PaymentACK.html",
+          "hash": "QAhM/Nnnfsz+hRPedqHpKg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.PaymentDetails.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.PaymentDetails.html",
+          "hash": "RHe2Ix3IKecx0IquzTPyUQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.PaymentMessage.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.PaymentMessage.html",
+          "hash": "nSXGMXKJXyypq1w+CizJNQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.PaymentOutput.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.PaymentOutput.html",
+          "hash": "uyukAU402HLQkHNX/y4U5w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.PaymentRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.PaymentRequest.html",
+          "hash": "Kp628gf5jGD9HaXh0djzIA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.WindowsChainChecker.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.WindowsChainChecker.html",
+          "hash": "NcbwymQHs47zdV01c7U7CA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.WindowsHashChecker.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.WindowsHashChecker.html",
+          "hash": "Kj6rHRyyIMU7cbDHmLKlxA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.WindowsSigner.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.WindowsSigner.html",
+          "hash": "hF/SxaQDdEzk6QnAnYePPg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.WindowsCertificateServiceProvider.html",
+          "hash": "1ta6GSVuCqLyPPW2ncG9FA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Payment.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Payment.html",
+          "hash": "B5+7qxf+H0PkkfehvkLg8g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PerformanceCounter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PerformanceCounter.html",
+          "hash": "4X42vZ5hmB8Uk3vBD8E3yg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PerformanceSnapshot.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PerformanceSnapshot.html",
+          "hash": "o2RlZNx1AXx80WI9KAEkCg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.CoinNotFoundPolicyError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.CoinNotFoundPolicyError.html",
+          "hash": "orgHxcSY2lcA5R5gk6Y4PQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.DuplicateInputPolicyError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.DuplicateInputPolicyError.html",
+          "hash": "SI4nXbktXNCf26I8TUCj2Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.DustPolicyError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.DustPolicyError.html",
+          "hash": "A+MHhGc1z82dQYwkA+QYWw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.FeeTooHighPolicyError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.FeeTooHighPolicyError.html",
+          "hash": "BqY3M5808dT6mGvvKb+KMg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.FeeTooLowPolicyError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.FeeTooLowPolicyError.html",
+          "hash": "9KaR1EzBSaqwor4q9mxUqw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.ITransactionPolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.ITransactionPolicy.html",
+          "hash": "B5wXjJfgFbmui9F3w+O8nA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.InputPolicyError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.InputPolicyError.html",
+          "hash": "EQhQ2iNNSHIJguLubyhXGQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.MinerTransactionPolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.MinerTransactionPolicy.html",
+          "hash": "m/WgqnS+NBERxObbij5wyg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.NotEnoughFundsPolicyError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.NotEnoughFundsPolicyError.html",
+          "hash": "3yvpTcaXAli8RVMMy7C50g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.OutputPolicyError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.OutputPolicyError.html",
+          "hash": "bCigBqIUWAoUAdtWtKo/og=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.ScriptPolicyError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.ScriptPolicyError.html",
+          "hash": "5ojpC8F/o93MAZDI37OCag=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.StandardTransactionPolicy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.StandardTransactionPolicy.html",
+          "hash": "5bmG78CINKITXV4oEO8Ktw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.TransactionPolicyError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.TransactionPolicyError.html",
+          "hash": "6KjGm9J0r1J9W7Kc1TT/OA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.TransactionSizePolicyError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.TransactionSizePolicyError.html",
+          "hash": "HzUc8KwVw1meJnyjedsyEg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Policy.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Policy.html",
+          "hash": "VAnJ+ey2Lu+2uQX1ELcZxA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PrecomputedTransactionData.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PrecomputedTransactionData.html",
+          "hash": "QCvmaYJl/MLxs/X3rAy33Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.AddrPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.AddrPayload.html",
+          "hash": "EWCJvJ5hfSi6rRbCle/6jg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.AddressManager.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.AddressManager.html",
+          "hash": "GTls7osT0BmwKurfmWNYgQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.AddressManagerBehavior.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.AddressManagerBehavior.html",
+          "hash": "Z3qvGsG+eMaz1b3FNgTu8w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.AddressManagerBehaviorMode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.AddressManagerBehaviorMode.html",
+          "hash": "+3R9zBirq1p22HuVL1h/5w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.BroadcastHub.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.BroadcastHub.html",
+          "hash": "YDu1wyf/GAFJrB7y11nsFA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.BroadcastHubBehavior.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.BroadcastHubBehavior.html",
+          "hash": "6fGea17Rfai6o8L21Qb34A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.BroadcastState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.BroadcastState.html",
+          "hash": "I84bk4x71DfsSCqsjg4J6g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.ChainBehavior.State.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.ChainBehavior.State.html",
+          "hash": "AvdKR1Rbfr2DVPBFf/aP9Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.ChainBehavior.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.ChainBehavior.html",
+          "hash": "A50xgqrpTlk/okbM4OMbUg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.INodeBehavior.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.INodeBehavior.html",
+          "hash": "GcAqYi3vPA6zYSUDcMmIVw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.NodeBehavior.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.NodeBehavior.html",
+          "hash": "AfS1RAINM8+qfDcxoXFkEQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.NodeBehaviorsCollection.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.NodeBehaviorsCollection.html",
+          "hash": "HuFQsmOF49YiOVJawJ7Q6A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.PingPongBehavior.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.PingPongBehavior.html",
+          "hash": "P6yekLYY515+QqP88EwcCA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.PingPongMode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.PingPongMode.html",
+          "hash": "4wYhwd2l0ymlAIhr0gV1vA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.SlimChainBehavior.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.SlimChainBehavior.html",
+          "hash": "GkONYCAodvgVfIUybfoYmg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.TransactionBroadcast.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.TransactionBroadcast.html",
+          "hash": "WHnzzRCWzvUd+rDGxei1Lg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.TransactionBroadcastedDelegate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.TransactionBroadcastedDelegate.html",
+          "hash": "dCxCdQjzs1uIM/gkj18QmQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.TransactionRejectedDelegate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.TransactionRejectedDelegate.html",
+          "hash": "jW43seSUKIextzd28d/dhg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Behaviors.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Behaviors.html",
+          "hash": "B7WEHIOZ0gPBYpNqBs0tBA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.BitcoinSerializablePayload-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.BitcoinSerializablePayload-1.html",
+          "hash": "xoe/w8BVRObq6L1/h4zaXg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.BlockPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.BlockPayload.html",
+          "hash": "Gic7sdFB9+Gqd2AqBnP7KQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.BlockTxnPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.BlockTxnPayload.html",
+          "hash": "jGYjzoswpGLJFvcQgX6M1w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.CmpctBlockPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.CmpctBlockPayload.html",
+          "hash": "muqHsgwCw2zPCLFbfOpUNA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.CompactVarInt.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.CompactVarInt.html",
+          "hash": "c+KsUHryUYtS5NhSOj5Wiw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.EventLoopMessageListener-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.EventLoopMessageListener-1.html",
+          "hash": "3oNvBb2bO+x0n2/ErQJbOg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.FilterAddPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.FilterAddPayload.html",
+          "hash": "WzG2STnU+kIPWMrpZ5T7nA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.FilterLoadPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.FilterLoadPayload.html",
+          "hash": "ypmonzo7Wy+WX88SHszS4w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Filters.ActionFilter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Filters.ActionFilter.html",
+          "hash": "J6ck6bigzLZksCXm6tQRIA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Filters.INodeFilter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Filters.INodeFilter.html",
+          "hash": "NNezNZLfBSusTIDgbcjodw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Filters.NodeFiltersCollection.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Filters.NodeFiltersCollection.html",
+          "hash": "xdweUk34wCGpOPy2j0C+SQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Filters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Filters.html",
+          "hash": "obiDdBiagw/Qt1PPzLle9w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.GetAddrPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.GetAddrPayload.html",
+          "hash": "xur7P0Y9j9nvSYacqNVWog=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.GetBlockTxnPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.GetBlockTxnPayload.html",
+          "hash": "JwCAqJSYILoO9IfXkCPidQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.GetBlocksPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.GetBlocksPayload.html",
+          "hash": "BS1L1gCalaZkZ+tERO3gSw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.GetDataPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.GetDataPayload.html",
+          "hash": "F3k4aJQauRdvMxa5z/hKvQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.GetHeadersPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.GetHeadersPayload.html",
+          "hash": "DFuZnWR+DKaxJaNkO4h4MQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.HaveWitnessPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.HaveWitnessPayload.html",
+          "hash": "P6P6p+dClCC/UPmlUbO4yw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.HeadersPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.HeadersPayload.html",
+          "hash": "1lRgWppO9vz+Od+YJt+NSg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.IReadOnlyNodesCollection.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.IReadOnlyNodesCollection.html",
+          "hash": "hyRcrBn77XxUT21z9OgXIA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.IncomingMessage.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.IncomingMessage.html",
+          "hash": "PL+Jk+NsOS3KILeN2dLV+A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.InvPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.InvPayload.html",
+          "hash": "Lxe3ah2ElOfh5RLP14kLbQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.InventoryType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.InventoryType.html",
+          "hash": "aWsKN9GXEnkNc+8fmRIQCQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.InventoryVector.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.InventoryVector.html",
+          "hash": "pxSiFP9y/r8o8a8tJRUdJQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.MempoolPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.MempoolPayload.html",
+          "hash": "+SkFW1MmySgURB9KV65z7Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.MerkleBlockPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.MerkleBlockPayload.html",
+          "hash": "ggJW6diwRPlK4ifhQhIGeQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Message.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Message.html",
+          "hash": "9TPjoJbeBHPuUNMFSvWcKg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.MessageListener-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.MessageListener-1.html",
+          "hash": "zRfc86lWKwPgFrMbhLacjQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.MessageProducer-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.MessageProducer-1.html",
+          "hash": "CJpV8sEj9laGs3W1Izp36Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NetworkAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NetworkAddress.html",
+          "hash": "1Oo7asZimwPRtEz0Ln13mg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NewThreadMessageListener-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NewThreadMessageListener-1.html",
+          "hash": "4QZUcFd6DMDjqnNfUULgug=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Node.NodeConnection.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Node.NodeConnection.html",
+          "hash": "2DCeE+wMVzXt7hjfRVe1lQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Node.NodeExceptionDelegate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Node.NodeExceptionDelegate.html",
+          "hash": "OLDzTGiSlieUHRPp/CCk6A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Node.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Node.html",
+          "hash": "aJXtD52JT3g8L8d+NAHwKQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeConnectionParameters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeConnectionParameters.html",
+          "hash": "sCe/egO2tbFs5TUfNw0yTQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeDisconnectReason.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeDisconnectReason.html",
+          "hash": "Nd5AsvgLG2DWCzV5qp4Rvw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeEventArgs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeEventArgs.html",
+          "hash": "Bapm4gToNfqVWKkisoDgdQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeEventHandler.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeEventHandler.html",
+          "hash": "cSJfAdY1iDI76H84xhFPLg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeEventMessageIncoming.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeEventMessageIncoming.html",
+          "hash": "NExV7fLYfcmFM1gg88iA6w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeListener.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeListener.html",
+          "hash": "NqTcEZQbP1McPvJERttv+A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeRequirement.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeRequirement.html",
+          "hash": "Ck4LTAx3SdNa2DL7XMYWJw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeServer.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeServer.html",
+          "hash": "f2GVSMTX31F8H3xtsNBzqA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeServerMessageEventHandler.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeServerMessageEventHandler.html",
+          "hash": "M6PS5+zhmkpSwnDXwUIXVA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeServerNodeEventHandler.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeServerNodeEventHandler.html",
+          "hash": "huLsmHCV32qG94Q8Gjbk7g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeServerTrace.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeServerTrace.html",
+          "hash": "wqaZw/vlvTrMfFJDSHPXQw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeServices.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeServices.html",
+          "hash": "Hzt9fXmJV7agXT+wCtwZRw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeState.html",
+          "hash": "09rtsNaQBFL/Gs/K6aIqfA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodeStateEventHandler.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodeStateEventHandler.html",
+          "hash": "Y+O9s3/krAKj1vBFM5musw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodesCollection.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodesCollection.html",
+          "hash": "zte0yUGm5tE3ocKFH7xtMA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NodesGroup.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NodesGroup.html",
+          "hash": "PfKC3u2FcyYGm67wVvvmWA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NotFoundPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NotFoundPayload.html",
+          "hash": "rZsZadeJhbgeofCW2PBEoA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.NullMessageListener-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.NullMessageListener-1.html",
+          "hash": "fqrrLupPXmhnd0++L8XNvw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Payload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Payload.html",
+          "hash": "7OJyInMXi3YKhSTwTVrkUA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.PayloadAttribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.PayloadAttribute.html",
+          "hash": "Y3PxIm5U7BqqpITNf9qaag=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Payloads.UTxOut.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Payloads.UTxOut.html",
+          "hash": "LJBEW4vuol5m3K09EgnGvg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Payloads.UTxOutputPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Payloads.UTxOutputPayload.html",
+          "hash": "QmSTB/a0pe7Z3pUGYGMTOA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Payloads.UTxOutputs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Payloads.UTxOutputs.html",
+          "hash": "JynZ7OLRnLNUSZTchhHhBg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.Payloads.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.Payloads.html",
+          "hash": "bNJqHrHKyOLaJWI3il9uig=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.PingPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.PingPayload.html",
+          "hash": "B9vqTr3R1bWHDGYXtjMNrg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.PollMessageListener-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.PollMessageListener-1.html",
+          "hash": "gT4ovfVfNJHQ4XjcTUevbA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.PongPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.PongPayload.html",
+          "hash": "Cwf7o2ZA4geB67Osr2xk+A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.PrefilledTransaction.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.PrefilledTransaction.html",
+          "hash": "LgQeYTBcm9Flw9EF8+cajg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.ProtocolCapabilities.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.ProtocolCapabilities.html",
+          "hash": "D7mKdh1pwFdib2Xi/A41lw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.ProtocolException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.ProtocolException.html",
+          "hash": "vaNqlKZM8Fil5maYiMJj5g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.RejectCode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.RejectCode.html",
+          "hash": "KNm0QqU/NEYilEzu8VIiTg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.RejectCodeType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.RejectCodeType.html",
+          "hash": "G3eRKW8PRVLrxIiNfG6EjQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.RejectPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.RejectPayload.html",
+          "hash": "+kW7NVxU+Ya++Hz2PDfsCg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.SendCmpctPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.SendCmpctPayload.html",
+          "hash": "+D2NkDNF5rzYWVlTE02ACA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.SendHeadersPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.SendHeadersPayload.html",
+          "hash": "2IEkS4mlwirxl7whWKaNrA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.SynchronizeChainOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.SynchronizeChainOptions.html",
+          "hash": "sTGEHmJXRCdCRtnwHLZ9QA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.TxPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.TxPayload.html",
+          "hash": "AOf0gjVQ8ymapy2AbuOuWg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.UnknowPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.UnknowPayload.html",
+          "hash": "AHKghb4Ch8Ig2yeKUMWRRw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.VarInt.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.VarInt.html",
+          "hash": "/8ze9oZrDPRTBY/tye1+7A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.VarString.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.VarString.html",
+          "hash": "NeLGknNDbCfxuLymK4URQQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.VerAckPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.VerAckPayload.html",
+          "hash": "+4XoJGd2a5mzYnJGoVr06A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.VersionPayload.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.VersionPayload.html",
+          "hash": "fkV36KsPEAh6ocfiRg+f4A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.WellKnownGroupSelectors.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.WellKnownGroupSelectors.html",
+          "hash": "9rY3X/SPwrdKfNmNvsfDnw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Protocol.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Protocol.html",
+          "hash": "YiZzYgeDjH9wAgrFQ3A+bQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.PubKey.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.PubKey.html",
+          "hash": "F1tccV57+k0c971Ex3AYng=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.QBitNinjaTransactionRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.QBitNinjaTransactionRepository.html",
+          "hash": "H8tRW8wenysyqKCYlCV3WQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.AddedNodeInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.AddedNodeInfo.html",
+          "hash": "6CrQmacH9C6UBkyZKRQjDQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.AddressGrouping.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.AddressGrouping.html",
+          "hash": "fcc00/C2EGWuLiy/+7HZRw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.AddressType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.AddressType.html",
+          "hash": "IGOs8CKUuR2Ilkd6NmpVTQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.BlockchainInfo.Bip9SoftFork.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.BlockchainInfo.Bip9SoftFork.html",
+          "hash": "NJH1EilSdCzwFUV7B/VMcQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.BlockchainInfo.SoftFork.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.BlockchainInfo.SoftFork.html",
+          "hash": "ES0HHiZaiRwW6faHaGAaTA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.BlockchainInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.BlockchainInfo.html",
+          "hash": "7A+j+z3WX3MNw/+Urj4biA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.BumpResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.BumpResponse.html",
+          "hash": "W8C5nycbiA/0zp8F/xKzTw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.ChainInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.ChainInfo.html",
+          "hash": "vSHWk4JDxq7OvXWain2c7w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.ChangeAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.ChangeAddress.html",
+          "hash": "u7OJ3CXCrjLq5H/s16ibaQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.EstimateSmartFeeMode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.EstimateSmartFeeMode.html",
+          "hash": "eqhU3wm+0IRauNMUKkQxfA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.EstimateSmartFeeResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.EstimateSmartFeeResponse.html",
+          "hash": "F8uw15uE25PSsb1TJwI9rw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.FundRawTransactionOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.FundRawTransactionOptions.html",
+          "hash": "nmzkODBOsALug3pLvxo6UA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.FundRawTransactionResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.FundRawTransactionResponse.html",
+          "hash": "JawN6Z62pmYggLe2YQntMA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.GetNewAddressRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.GetNewAddressRequest.html",
+          "hash": "gISqx7Xo25EWp2h5F/v1Sw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.GetTxOutResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.GetTxOutResponse.html",
+          "hash": "qT7Yfhb5JaQFt+fzdcbWiQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.ImportMultiAddress.ScriptPubKeyObject.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.ImportMultiAddress.ScriptPubKeyObject.html",
+          "hash": "+U+SVboy0tAHpqeMW96NyQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.ImportMultiAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.ImportMultiAddress.html",
+          "hash": "f6lsN9yDqVrTkNq0g+71cg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.ListUnspentOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.ListUnspentOptions.html",
+          "hash": "ifWKvpRVxrVspqlP+sWhrQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.NoEstimationException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.NoEstimationException.html",
+          "hash": "lF5sltoeG694r3B/Wx19GQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.NodeAddressInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.NodeAddressInfo.html",
+          "hash": "AQt9LwWIa00OisxY+5Lu5g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.PeerInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.PeerInfo.html",
+          "hash": "reZtDEZJG7bw712rY8XaGA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RPCAccount.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RPCAccount.html",
+          "hash": "m/9QEUqGkswzrF4rfeW1ag=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RPCClient.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RPCClient.html",
+          "hash": "OzsxfV2xXlND1YeWo186ng=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RPCCredentialString.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RPCCredentialString.html",
+          "hash": "t9sfP64uyEd1XVtX+T0Plg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RPCError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RPCError.html",
+          "hash": "89vfIewA/wZp01Cvxk1uFw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RPCErrorCode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RPCErrorCode.html",
+          "hash": "lVtSy/p4mboBoIaIniaQQA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RPCException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RPCException.html",
+          "hash": "S+UxJyUaV/u0v3GL1y8LZw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RPCOperations.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RPCOperations.html",
+          "hash": "UBAA7X8EVQzW9O9Pmz26KA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RPCRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RPCRequest.html",
+          "hash": "UlRtZwLD2aSN4lGPXYqx+w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RPCResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RPCResponse.html",
+          "hash": "KqbF7zA0HMK5K5j7wT/Xow=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RawTransactionInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RawTransactionInfo.html",
+          "hash": "KUMiuK1d01YW2YHqnbHSgw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RestApiException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RestApiException.html",
+          "hash": "PZmKajxM5AyyUyJLz69baQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RestClient.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RestClient.html",
+          "hash": "jqipBmUEAcK512UNHkgDiA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.RestResponseFormat.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.RestResponseFormat.html",
+          "hash": "dChspMlQ+V87yEoDYegUiw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.ScanTxoutDescriptor.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.ScanTxoutDescriptor.html",
+          "hash": "F7664yKu/1n+HHzyCIkVUw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.ScanTxoutOutput.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.ScanTxoutOutput.html",
+          "hash": "auB0888mip1/HzuqGaPymw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.ScanTxoutPubkey.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.ScanTxoutPubkey.html",
+          "hash": "aNRMmu5/OC4rAowytQ7GKQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.ScanTxoutSetObject.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.ScanTxoutSetObject.html",
+          "hash": "zqTY710KhUpoYezBVPcIsw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.ScanTxoutSetResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.ScanTxoutSetResponse.html",
+          "hash": "cfDoJUTDtQnvie/QdP4eRw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.SignRawTransactionRequest.PrevTx.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.SignRawTransactionRequest.PrevTx.html",
+          "hash": "MSG8MVTXMPQO+Efrn2xm5A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.SignRawTransactionRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.SignRawTransactionRequest.html",
+          "hash": "VpaBcoBnYRfiFyB/X32Anw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.SignRawTransactionResponse.ScriptError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.SignRawTransactionResponse.ScriptError.html",
+          "hash": "qVdEtoSQxvc47xZn1IgGMw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.SignRawTransactionResponse.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.SignRawTransactionResponse.html",
+          "hash": "j3DgHTYUTC/b2N5GomHwIA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.SignRawTransactionWithKeyRequest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.SignRawTransactionWithKeyRequest.html",
+          "hash": "r8KVy56sxy1Lt7ebkTdtSw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.UnspentCoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.UnspentCoin.html",
+          "hash": "AijGsgLQ8v5f5O8uBh9mHg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPC.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPC.html",
+          "hash": "LaPCel3cSypJfaDzpvbCDQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RPCTransactionRepository.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RPCTransactionRepository.html",
+          "hash": "8Pqk3th3bGf/fk7WYouHXw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RandomNumberGeneratorRandom.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RandomNumberGeneratorRandom.html",
+          "hash": "mcGVI1jyRn86UJUZ+mubCQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RandomUtils.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RandomUtils.html",
+          "hash": "HNPTDp6OntNkHYMCO6D1Ng=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RawFormat.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RawFormat.html",
+          "hash": "726z7MrUzaNxELnMiQf7Ug=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.RedeemType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.RedeemType.html",
+          "hash": "dXJrZ8lW8jNhAzNo9Ru+ww=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.BlockInformation.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.BlockInformation.html",
+          "hash": "OC4zp1ah1nR/VTA1PzjjMw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.FilterState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.FilterState.html",
+          "hash": "RS5qVlOJu7B309YUu+YBdg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.NewWalletTransactionDelegate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.NewWalletTransactionDelegate.html",
+          "hash": "7oeUHAAiH6iQffTDLU5zRg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.Tracker.IOperation.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.Tracker.IOperation.html",
+          "hash": "qa3wzI/BRAaHVEswgr3s+g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.Tracker.NewTrackerOperation.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.Tracker.NewTrackerOperation.html",
+          "hash": "3ArwBcVBPm5mSkT/otPWWw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.Tracker.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.Tracker.html",
+          "hash": "Xf426JjXCoBlPSVK8Ftp1A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.TrackerBehavior.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.TrackerBehavior.html",
+          "hash": "S9BPay37Xa9U5c4/TucvDw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.TrackerScanPosition.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.TrackerScanPosition.html",
+          "hash": "4sE+hvkU4VSwtzAk/lCfwg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.Wallet.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.Wallet.html",
+          "hash": "iaP0myka7CwbWngmHxzZiA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.WalletCreation.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.WalletCreation.html",
+          "hash": "RQsWMAWb7X/j8tAu08Ek2g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.WalletState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.WalletState.html",
+          "hash": "qtLWkSU12sz/+Kor3bJzjQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.WalletSummary.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.WalletSummary.html",
+          "hash": "xI4kth+hWcQ8eIYT2ke71w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.WalletSummaryDetails.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.WalletSummaryDetails.html",
+          "hash": "Bu7tKPemhtJ9cw+cal1n9w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.WalletTransaction.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.WalletTransaction.html",
+          "hash": "GqJn8PvsQeQSlj+HKdh/xA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.WalletTransactionsCollection.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.WalletTransactionsCollection.html",
+          "hash": "pRxKa4gAP1rqd0EzarTJyg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SPV.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SPV.html",
+          "hash": "jPv0Yi4C2C7lVPKD3op2og=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Scope.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Scope.html",
+          "hash": "eyu5Orl60cIETwyApMSB1g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Script.BitcoinConsensusError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Script.BitcoinConsensusError.html",
+          "hash": "Bfd1xufkixtlW3FAf2iryQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Script.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Script.html",
+          "hash": "MxVl3b+IjjMnj3IO9NChBw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ScriptCoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ScriptCoin.html",
+          "hash": "wZn3A/8r2/KbdHgpSfAatw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ScriptCompressor.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ScriptCompressor.html",
+          "hash": "S5cligrg3gSZp3XP8smLeg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ScriptError.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ScriptError.html",
+          "hash": "sjbYRdQNnAKduqxspqM5Qg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ScriptEvaluationContext.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ScriptEvaluationContext.html",
+          "hash": "/JI5nKJPdI46L9+3mHxM2A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ScriptId.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ScriptId.html",
+          "hash": "sb5R4tBHCF7Un2wsm5MCBw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ScriptReader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ScriptReader.html",
+          "hash": "R6APJyga7gTwk+CNa9OVfw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ScriptSigs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ScriptSigs.html",
+          "hash": "7oT2CS2YvDNSH5WG/DhlkQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ScriptTemplate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ScriptTemplate.html",
+          "hash": "OkW63bBDRuaYo1E1VETgZA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ScriptVerify.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ScriptVerify.html",
+          "hash": "ilBInMi0ylCOINDFhGl79w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Sequence.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Sequence.html",
+          "hash": "CevIslxACQewyhtOaqX0pg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SequenceLock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SequenceLock.html",
+          "hash": "B9LZf9QZEwBX/8exWG4nOQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SequenceLockType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SequenceLockType.html",
+          "hash": "lc90LVnsnym9p5m7yMiYxA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SerializationType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SerializationType.html",
+          "hash": "oENlaTx9xxwZ/oWbTAXPNw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SigHash.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SigHash.html",
+          "hash": "D9Ka/dwfMNVtulbMwR/bxg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SignedHash.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SignedHash.html",
+          "hash": "Jj9qqa5f255dFwQtdXZD1g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SlimChain.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SlimChain.html",
+          "hash": "DEJku2J28bZjL1yoz0PR1Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.SlimChainedBlock.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.SlimChainedBlock.html",
+          "hash": "h417Qu9Lg/Jua+Kx29jB2w=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.StandardScripts.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.StandardScripts.html",
+          "hash": "Awxh+koGde11cfcloUlkBQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Stealth.BitField.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Stealth.BitField.html",
+          "hash": "zVUnNyUlZv3+PUi3U7KpGQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Stealth.BitcoinStealthAddress.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Stealth.BitcoinStealthAddress.html",
+          "hash": "oN2vpko3iY1DMomcVuEi4Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Stealth.StealthMetadata.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Stealth.StealthMetadata.html",
+          "hash": "wluOV6QpKs572hM4jS08Kg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Stealth.StealthPayment.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Stealth.StealthPayment.html",
+          "hash": "Cx0tZ9M0VK7t6cJLFregiQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Stealth.StealthSpendKey.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Stealth.StealthSpendKey.html",
+          "hash": "cIONg1XA6nbuBL3rwul/zQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Stealth.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Stealth.html",
+          "hash": "jk910vX7fDI+6g1ft0HIMw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.StealthCoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.StealthCoin.html",
+          "hash": "S9jitah7lrMu+UJrP00MVA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Target.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Target.html",
+          "hash": "G9a+dBJWb4lD2hC0weSmmg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.ThreadSafeCollection-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.ThreadSafeCollection-1.html",
+          "hash": "uD9KLOFcVWQANLVIrWtBJA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TraceCorrelation.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TraceCorrelation.html",
+          "hash": "WsfVNNPwulOnJSZnqo2A8A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TraceCorrelationScope.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TraceCorrelationScope.html",
+          "hash": "Q/BFfat/1nWl5CfN65Ol8g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Transaction.LockTimeFlags.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Transaction.LockTimeFlags.html",
+          "hash": "C1X+s3aZilrUyPejaovOVQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Transaction.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Transaction.html",
+          "hash": "6EeRc83fMM/8Hr9G1UBksw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TransactionBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TransactionBuilder.html",
+          "hash": "5+JUAtKnoyFUTi2qrNEiCQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TransactionCheckResult.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TransactionCheckResult.html",
+          "hash": "w2TL4mTQ1x5/z9Hwi26Y2A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TransactionChecker.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TransactionChecker.html",
+          "hash": "AWUJ5jZc9I5NF4pjJj4D3g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TransactionNotFoundException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TransactionNotFoundException.html",
+          "hash": "bhkG6qT1Qnm05YCTUqeAVg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TransactionOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TransactionOptions.html",
+          "hash": "mgzzclExox81OZO/+MED+Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TransactionSignature.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TransactionSignature.html",
+          "hash": "Cu5lZt7d3jbCknQt+U1bjQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TxDestination.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TxDestination.html",
+          "hash": "ve/FML4Q4h4kwoubP3xK4A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TxIn.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TxIn.html",
+          "hash": "zhY49PANQ7TtD1Xx76cJTQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TxInList.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TxInList.html",
+          "hash": "Tc6mtosPpjhiJw5j0mPhwQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TxNullDataTemplate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TxNullDataTemplate.html",
+          "hash": "6lHR1GL6izUakpvdUu/eHg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TxOut.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TxOut.html",
+          "hash": "gehhVt0m/eQhjRs56gpV+Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TxOutCompressor.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TxOutCompressor.html",
+          "hash": "cBw2XNqsgbwojVKehcYebA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TxOutList.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TxOutList.html",
+          "hash": "EN8Pyz7ZqpIhtU8TJT1eJA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TxOutType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TxOutType.html",
+          "hash": "4SeweYWt3qLz/s2D0aGamA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.TxRepoExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.TxRepoExtensions.html",
+          "hash": "ThuP/B1ixPZ4yJRNGCIsSw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.UnsecureRandom.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.UnsecureRandom.html",
+          "hash": "qnbnG0xs96GjK4uUnWDG3A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.UnsignedList-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.UnsignedList-1.html",
+          "hash": "86sANzf92KF3ZWz2J6ZtQw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Utils.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Utils.html",
+          "hash": "n8QBt23cHLX8gZiPbfQq5A=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.WitKeyId.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.WitKeyId.html",
+          "hash": "P2iVCJgFDVYi+RMcmk/JAg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.WitProgramParameters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.WitProgramParameters.html",
+          "hash": "eamyj2tUPfx4bcSKMmZovg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.WitScript.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.WitScript.html",
+          "hash": "Q3XoKW+ffF2u4ESk9IPqnA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.WitScriptId.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.WitScriptId.html",
+          "hash": "s5Ddk33uhgz5HGaRobOZmg=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.WordCount.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.WordCount.html",
+          "hash": "lWjkAYe1wCYK1qTQE3WVzQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.Wordlist.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.Wordlist.html",
+          "hash": "R8lbofu0guBSaMEUXmLhiA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.uint160.MutableUint160.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.uint160.MutableUint160.html",
+          "hash": "RFKQNYnnBpRB0hp7hEyPfw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.uint160.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.uint160.html",
+          "hash": "w3QXADqFx/KBu39pPzw+xQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.uint256.MutableUint256.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.uint256.MutableUint256.html",
+          "hash": "F/n5khsnAJF5T6e8tfo8WA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.uint256.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.uint256.html",
+          "hash": "D3kuLM2SFm257qkLlnfdew=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/NBitcoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/NBitcoin.html",
+          "hash": "7bt8Y3FAkp6KvPSmD2Wbhw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/System.Diagnostics.TraceSourceFactory.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/System.Diagnostics.TraceSourceFactory.html",
+          "hash": "KbKpaEiFu/S/r3mQirknFA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/System.Diagnostics.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/System.Diagnostics.html",
+          "hash": "47pH2UAIPDs2ALqUZuhR9Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/System.Web.NBitcoin.HttpUtility.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/System.Web.NBitcoin.HttpUtility.html",
+          "hash": "BVXZnKvjPKMuWwgxO1/5Uw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/System.Web.NBitcoin.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/System.Web.NBitcoin.html",
+          "hash": "MENF7YSvBrADWuY/f4JfgA=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "api/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "api/index.html",
+          "hash": "a+TF7TA7EWqAPoP81ve/vw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "api/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/toc.html",
+          "hash": "/15Gm4tfGHOgrIiubbpQjQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/intro.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/intro.html",
+          "hash": "XEI7kE1oV2gyJjJOtz9m1g=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/toc.html",
+          "hash": "t7iiFrmuYmrKWisdq+lN6Q=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html",
+          "hash": "wkdKi0415RYp16y1aBCwZQ=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "toc.html",
+          "hash": "k+/dkjFuwAVS32HduMpmBw=="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    }
+  ],
+  "incremental_info": [
+    {
+      "status": {
+        "can_incremental": false,
+        "details": "Cannot build incrementally because last build info is missing.",
+        "incrementalPhase": "build"
+      },
+      "processors": {
+        "TocDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build"
+        },
+        "ConceptualDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build"
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build"
+        }
+      }
+    },
+    {
+      "status": {
+        "can_incremental": false,
+        "details": "Cannot support incremental post processing, the reason is: last post processor info is null.",
+        "incrementalPhase": "postProcessing"
+      },
+      "processors": {}
+    }
+  ],
+  "version_info": {},
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}

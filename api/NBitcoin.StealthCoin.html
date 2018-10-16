@@ -1,0 +1,627 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class StealthCoin
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class StealthCoin
+   ">
+    <meta name="generator" content="docfx 2.40.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="NBitcoin.StealthCoin">
+  
+  
+  <h1 id="NBitcoin_StealthCoin" data-uid="NBitcoin.StealthCoin" class="text-break">Class StealthCoin
+  </h1>
+  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="NBitcoin.Coin.html">Coin</a></div>
+    <div class="level2"><span class="xref">StealthCoin</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="NBitcoin.ICoin.html">ICoin</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_CanGetScriptCode">Coin.CanGetScriptCode</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_ToScriptCoin_NBitcoin_Script_">Coin.ToScriptCoin(Script)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_ToColoredCoin_NBitcoin_OpenAsset_AssetId_System_UInt64_">Coin.ToColoredCoin(AssetId, UInt64)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_ToColoredCoin_NBitcoin_OpenAsset_BitcoinAssetId_System_UInt64_">Coin.ToColoredCoin(BitcoinAssetId, UInt64)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_ToColoredCoin_NBitcoin_OpenAsset_AssetMoney_">Coin.ToColoredCoin(AssetMoney)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_Outpoint">Coin.Outpoint</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_TxOut">Coin.TxOut</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_Amount">Coin.Amount</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin__OverrideScriptCode">Coin._OverrideScriptCode</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_OverrideScriptCode_NBitcoin_Script_">Coin.OverrideScriptCode(Script)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_ScriptPubKey">Coin.ScriptPubKey</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_NBitcoin_ICoin_Amount">Coin.ICoin.Amount</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_NBitcoin_ICoin_Outpoint">Coin.ICoin.Outpoint</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_NBitcoin_ICoin_TxOut">Coin.ICoin.TxOut</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="NBitcoin.html">NBitcoin</a></h6>
+  <h6><strong>Assembly</strong>: NBitcoin.dll</h6>
+  <h5 id="NBitcoin_StealthCoin_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class StealthCoin : Coin, ICoin</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin__ctor.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L749">View Source</a>
+  </span>
+  <a id="NBitcoin_StealthCoin__ctor_" data-uid="NBitcoin.StealthCoin.#ctor*"></a>
+  <h4 id="NBitcoin_StealthCoin__ctor" data-uid="NBitcoin.StealthCoin.#ctor">StealthCoin()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StealthCoin()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin__ctor_NBitcoin_OutPoint_NBitcoin_TxOut_NBitcoin_Script_NBitcoin_Stealth_StealthMetadata_NBitcoin_Stealth_BitcoinStealthAddress_.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin.%23ctor(NBitcoin.OutPoint%2CNBitcoin.TxOut%2CNBitcoin.Script%2CNBitcoin.Stealth.StealthMetadata%2CNBitcoin.Stealth.BitcoinStealthAddress)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L752">View Source</a>
+  </span>
+  <a id="NBitcoin_StealthCoin__ctor_" data-uid="NBitcoin.StealthCoin.#ctor*"></a>
+  <h4 id="NBitcoin_StealthCoin__ctor_NBitcoin_OutPoint_NBitcoin_TxOut_NBitcoin_Script_NBitcoin_Stealth_StealthMetadata_NBitcoin_Stealth_BitcoinStealthAddress_" data-uid="NBitcoin.StealthCoin.#ctor(NBitcoin.OutPoint,NBitcoin.TxOut,NBitcoin.Script,NBitcoin.Stealth.StealthMetadata,NBitcoin.Stealth.BitcoinStealthAddress)">StealthCoin(OutPoint, TxOut, Script, StealthMetadata, BitcoinStealthAddress)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StealthCoin(OutPoint outpoint, TxOut txOut, Script redeem, StealthMetadata stealthMetadata, BitcoinStealthAddress address)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.OutPoint.html">OutPoint</a></td>
+        <td><span class="parametername">outpoint</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TxOut.html">TxOut</a></td>
+        <td><span class="parametername">txOut</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">redeem</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Stealth.StealthMetadata.html">StealthMetadata</a></td>
+        <td><span class="parametername">stealthMetadata</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Stealth.BitcoinStealthAddress.html">BitcoinStealthAddress</a></td>
+        <td><span class="parametername">address</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin_Address.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin.Address%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L765">View Source</a>
+  </span>
+  <a id="NBitcoin_StealthCoin_Address_" data-uid="NBitcoin.StealthCoin.Address*"></a>
+  <h4 id="NBitcoin_StealthCoin_Address" data-uid="NBitcoin.StealthCoin.Address">Address</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public BitcoinStealthAddress Address { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Stealth.BitcoinStealthAddress.html">BitcoinStealthAddress</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin_Redeem.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin.Redeem%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L771">View Source</a>
+  </span>
+  <a id="NBitcoin_StealthCoin_Redeem_" data-uid="NBitcoin.StealthCoin.Redeem*"></a>
+  <h4 id="NBitcoin_StealthCoin_Redeem" data-uid="NBitcoin.StealthCoin.Redeem">Redeem</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Script Redeem { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin_StealthMetadata.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin.StealthMetadata%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L759">View Source</a>
+  </span>
+  <a id="NBitcoin_StealthCoin_StealthMetadata_" data-uid="NBitcoin.StealthCoin.StealthMetadata*"></a>
+  <h4 id="NBitcoin_StealthCoin_StealthMetadata" data-uid="NBitcoin.StealthCoin.StealthMetadata">StealthMetadata</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StealthMetadata StealthMetadata { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Stealth.StealthMetadata.html">StealthMetadata</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin_Find_NBitcoin_Transaction_NBitcoin_Stealth_BitcoinStealthAddress_NBitcoin_Key_.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin.Find(NBitcoin.Transaction%2CNBitcoin.Stealth.BitcoinStealthAddress%2CNBitcoin.Key)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L802">View Source</a>
+  </span>
+  <a id="NBitcoin_StealthCoin_Find_" data-uid="NBitcoin.StealthCoin.Find*"></a>
+  <h4 id="NBitcoin_StealthCoin_Find_NBitcoin_Transaction_NBitcoin_Stealth_BitcoinStealthAddress_NBitcoin_Key_" data-uid="NBitcoin.StealthCoin.Find(NBitcoin.Transaction,NBitcoin.Stealth.BitcoinStealthAddress,NBitcoin.Key)">Find(Transaction, BitcoinStealthAddress, Key)</h4>
+  <div class="markdown level1 summary"><p>Scan the Transaction for StealthCoin given address and scan key</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static StealthCoin Find(Transaction tx, BitcoinStealthAddress address, Key scan)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>The transaction to scan</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Stealth.BitcoinStealthAddress.html">BitcoinStealthAddress</a></td>
+        <td><span class="parametername">address</span></td>
+        <td><p>The stealth address</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Key.html">Key</a></td>
+        <td><span class="parametername">scan</span></td>
+        <td><p>The scan private key</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.StealthCoin.html">StealthCoin</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin_GetHashVersion.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin.GetHashVersion%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L787">View Source</a>
+  </span>
+  <a id="NBitcoin_StealthCoin_GetHashVersion_" data-uid="NBitcoin.StealthCoin.GetHashVersion*"></a>
+  <h4 id="NBitcoin_StealthCoin_GetHashVersion" data-uid="NBitcoin.StealthCoin.GetHashVersion">GetHashVersion()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override HashVersion GetHashVersion()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.HashVersion.html">HashVersion</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_GetHashVersion">Coin.GetHashVersion()</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin_GetPayment.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin.GetPayment%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L812">View Source</a>
+  </span>
+  <a id="NBitcoin_StealthCoin_GetPayment_" data-uid="NBitcoin.StealthCoin.GetPayment*"></a>
+  <h4 id="NBitcoin_StealthCoin_GetPayment" data-uid="NBitcoin.StealthCoin.GetPayment">GetPayment()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StealthPayment GetPayment()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Stealth.StealthPayment.html">StealthPayment</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin_GetScriptCode.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin.GetScriptCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L777">View Source</a>
+  </span>
+  <a id="NBitcoin_StealthCoin_GetScriptCode_" data-uid="NBitcoin.StealthCoin.GetScriptCode*"></a>
+  <h4 id="NBitcoin_StealthCoin_GetScriptCode" data-uid="NBitcoin.StealthCoin.GetScriptCode">GetScriptCode()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Script GetScriptCode()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.Coin.html#NBitcoin_Coin_GetScriptCode">Coin.GetScriptCode()</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin_Uncover_NBitcoin_Key___NBitcoin_Key_.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin.Uncover(NBitcoin.Key%5B%5D%2CNBitcoin.Key)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L827">View Source</a>
+  </span>
+  <a id="NBitcoin_StealthCoin_Uncover_" data-uid="NBitcoin.StealthCoin.Uncover*"></a>
+  <h4 id="NBitcoin_StealthCoin_Uncover_NBitcoin_Key___NBitcoin_Key_" data-uid="NBitcoin.StealthCoin.Uncover(NBitcoin.Key[],NBitcoin.Key)">Uncover(Key[], Key)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Key[] Uncover(Key[] spendKeys, Key scanKey)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Key.html">Key</a>[]</td>
+        <td><span class="parametername">spendKeys</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Key.html">Key</a></td>
+        <td><span class="parametername">scanKey</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Key.html">Key</a>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin_Uncover_NBitcoin_PubKey___NBitcoin_Key_.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin.Uncover(NBitcoin.PubKey%5B%5D%2CNBitcoin.Key)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L817">View Source</a>
+  </span>
+  <a id="NBitcoin_StealthCoin_Uncover_" data-uid="NBitcoin.StealthCoin.Uncover*"></a>
+  <h4 id="NBitcoin_StealthCoin_Uncover_NBitcoin_PubKey___NBitcoin_Key_" data-uid="NBitcoin.StealthCoin.Uncover(NBitcoin.PubKey[],NBitcoin.Key)">Uncover(PubKey[], Key)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public PubKey[] Uncover(PubKey[] spendPubKeys, Key scanKey)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.PubKey.html">PubKey</a>[]</td>
+        <td><span class="parametername">spendPubKeys</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Key.html">Key</a></td>
+        <td><span class="parametername">scanKey</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.PubKey.html">PubKey</a>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="NBitcoin.ICoin.html">ICoin</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_StealthCoin.md&amp;value=---%0Auid%3A%20NBitcoin.StealthCoin%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Coin.cs/#L747" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

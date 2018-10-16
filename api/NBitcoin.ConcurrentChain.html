@@ -1,0 +1,1645 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class ConcurrentChain
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class ConcurrentChain
+   ">
+    <meta name="generator" content="docfx 2.40.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="NBitcoin.ConcurrentChain">
+  
+  
+  <h1 id="NBitcoin_ConcurrentChain" data-uid="NBitcoin.ConcurrentChain" class="text-break">Class ConcurrentChain
+  </h1>
+  <div class="markdown level0 summary"><p>Thread safe class representing a chain of headers from genesis</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="NBitcoin.ChainBase.html">ChainBase</a></div>
+    <div class="level2"><span class="xref">ConcurrentChain</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_Genesis">ChainBase.Genesis</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_Contains_NBitcoin_uint256_">ChainBase.Contains(uint256)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_ToEnumerable_System_Boolean_">ChainBase.ToEnumerable(Boolean)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_SetTip_NBitcoin_ChainBase_">ChainBase.SetTip(ChainBase)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_SetTip_NBitcoin_BlockHeader_">ChainBase.SetTip(BlockHeader)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_TrySetTip_NBitcoin_BlockHeader_NBitcoin_ChainedBlock__">ChainBase.TrySetTip(BlockHeader, ChainedBlock)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_Contains_NBitcoin_ChainedBlock_">ChainBase.Contains(ChainedBlock)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_SameTip_NBitcoin_ChainBase_">ChainBase.SameTip(ChainBase)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_GetWorkRequired_NBitcoin_Network_System_Int32_">ChainBase.GetWorkRequired(Network, Int32)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_Validate_NBitcoin_Network_System_Boolean_">ChainBase.Validate(Network, Boolean)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_FindFork_NBitcoin_ChainBase_">ChainBase.FindFork(ChainBase)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_FindFork_System_Collections_Generic_IEnumerable_NBitcoin_uint256__">ChainBase.FindFork(IEnumerable&lt;uint256&gt;)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_FindFork_NBitcoin_BlockLocator_">ChainBase.FindFork(BlockLocator)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_EnumerateAfter_NBitcoin_uint256_">ChainBase.EnumerateAfter(uint256)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_EnumerateToTip_NBitcoin_ChainedBlock_">ChainBase.EnumerateToTip(ChainedBlock)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_EnumerateToTip_NBitcoin_uint256_">ChainBase.EnumerateToTip(uint256)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_EnumerateAfter_NBitcoin_ChainedBlock_">ChainBase.EnumerateAfter(ChainedBlock)</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="NBitcoin.html">NBitcoin</a></h6>
+  <h6><strong>Assembly</strong>: NBitcoin.dll</h6>
+  <h5 id="NBitcoin_ConcurrentChain_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class ConcurrentChain : ChainBase</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain__ctor.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L41">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain__ctor_" data-uid="NBitcoin.ConcurrentChain.#ctor*"></a>
+  <h4 id="NBitcoin_ConcurrentChain__ctor" data-uid="NBitcoin.ConcurrentChain.#ctor">ConcurrentChain()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain__ctor_NBitcoin_BlockHeader_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.%23ctor(NBitcoin.BlockHeader)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L45">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain__ctor_" data-uid="NBitcoin.ConcurrentChain.#ctor*"></a>
+  <h4 id="NBitcoin_ConcurrentChain__ctor_NBitcoin_BlockHeader_" data-uid="NBitcoin.ConcurrentChain.#ctor(NBitcoin.BlockHeader)">ConcurrentChain(BlockHeader)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain(BlockHeader genesis)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.BlockHeader.html">BlockHeader</a></td>
+        <td><span class="parametername">genesis</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain__ctor_NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.%23ctor(NBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L49">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain__ctor_" data-uid="NBitcoin.ConcurrentChain.#ctor*"></a>
+  <h4 id="NBitcoin_ConcurrentChain__ctor_NBitcoin_Network_" data-uid="NBitcoin.ConcurrentChain.#ctor(NBitcoin.Network)">ConcurrentChain(Network)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain(Network network)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain__ctor_System_Byte___.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.%23ctor(System.Byte%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L70">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain__ctor_" data-uid="NBitcoin.ConcurrentChain.#ctor*"></a>
+  <h4 id="NBitcoin_ConcurrentChain__ctor_System_Byte___" data-uid="NBitcoin.ConcurrentChain.#ctor(System.Byte[])">ConcurrentChain(Byte[])</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use ConcurrentChain(byte[], ConsensusFactory|Network|Consensus) instead&quot;)]
+public ConcurrentChain(byte[] bytes)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">bytes</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.%23ctor(System.Byte%5B%5D%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L90">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain__ctor_" data-uid="NBitcoin.ConcurrentChain.#ctor*"></a>
+  <h4 id="NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.#ctor(System.Byte[],NBitcoin.ConcurrentChain.ChainSerializationFormat)">ConcurrentChain(Byte[], ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use ConcurrentChain(byte[], ConsensusFactory|Network|Consensus, ChainSerializationFormat format) instead&quot;)]
+public ConcurrentChain(byte[] bytes, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">bytes</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_Consensus_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.%23ctor(System.Byte%5B%5D%2CNBitcoin.Consensus)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L62">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain__ctor_" data-uid="NBitcoin.ConcurrentChain.#ctor*"></a>
+  <h4 id="NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_Consensus_" data-uid="NBitcoin.ConcurrentChain.#ctor(System.Byte[],NBitcoin.Consensus)">ConcurrentChain(Byte[], Consensus)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain(byte[] bytes, Consensus consensus)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">bytes</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Consensus.html">Consensus</a></td>
+        <td><span class="parametername">consensus</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_Consensus_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.%23ctor(System.Byte%5B%5D%2CNBitcoin.Consensus%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L80">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain__ctor_" data-uid="NBitcoin.ConcurrentChain.#ctor*"></a>
+  <h4 id="NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_Consensus_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.#ctor(System.Byte[],NBitcoin.Consensus,NBitcoin.ConcurrentChain.ChainSerializationFormat)">ConcurrentChain(Byte[], Consensus, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain(byte[] bytes, Consensus consensus, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">bytes</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Consensus.html">Consensus</a></td>
+        <td><span class="parametername">consensus</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_ConsensusFactory_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.%23ctor(System.Byte%5B%5D%2CNBitcoin.ConsensusFactory)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L58">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain__ctor_" data-uid="NBitcoin.ConcurrentChain.#ctor*"></a>
+  <h4 id="NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_ConsensusFactory_" data-uid="NBitcoin.ConcurrentChain.#ctor(System.Byte[],NBitcoin.ConsensusFactory)">ConcurrentChain(Byte[], ConsensusFactory)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain(byte[] bytes, ConsensusFactory consensusFactory)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">bytes</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConsensusFactory.html">ConsensusFactory</a></td>
+        <td><span class="parametername">consensusFactory</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_ConsensusFactory_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.%23ctor(System.Byte%5B%5D%2CNBitcoin.ConsensusFactory%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L75">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain__ctor_" data-uid="NBitcoin.ConcurrentChain.#ctor*"></a>
+  <h4 id="NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_ConsensusFactory_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.#ctor(System.Byte[],NBitcoin.ConsensusFactory,NBitcoin.ConcurrentChain.ChainSerializationFormat)">ConcurrentChain(Byte[], ConsensusFactory, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain(byte[] bytes, ConsensusFactory consensusFactory, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">bytes</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConsensusFactory.html">ConsensusFactory</a></td>
+        <td><span class="parametername">consensusFactory</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.%23ctor(System.Byte%5B%5D%2CNBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L66">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain__ctor_" data-uid="NBitcoin.ConcurrentChain.#ctor*"></a>
+  <h4 id="NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_Network_" data-uid="NBitcoin.ConcurrentChain.#ctor(System.Byte[],NBitcoin.Network)">ConcurrentChain(Byte[], Network)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain(byte[] bytes, Network network)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">bytes</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_Network_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.%23ctor(System.Byte%5B%5D%2CNBitcoin.Network%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L85">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain__ctor_" data-uid="NBitcoin.ConcurrentChain.#ctor*"></a>
+  <h4 id="NBitcoin_ConcurrentChain__ctor_System_Byte___NBitcoin_Network_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.#ctor(System.Byte[],NBitcoin.Network,NBitcoin.ConcurrentChain.ChainSerializationFormat)">ConcurrentChain(Byte[], Network, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain(byte[] bytes, Network network, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">bytes</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Height.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Height%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L393">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Height_" data-uid="NBitcoin.ConcurrentChain.Height*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Height" data-uid="NBitcoin.ConcurrentChain.Height">Height</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override int Height { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_Height">ChainBase.Height</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Tip.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Tip%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L385">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Tip_" data-uid="NBitcoin.ConcurrentChain.Tip*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Tip" data-uid="NBitcoin.ConcurrentChain.Tip">Tip</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override ChainedBlock Tip { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_Tip">ChainBase.Tip</a></div>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Clone.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Clone%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L254">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Clone_" data-uid="NBitcoin.ConcurrentChain.Clone*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Clone" data-uid="NBitcoin.ConcurrentChain.Clone">Clone()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain Clone()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.html">ConcurrentChain</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_EnumerateFromStart.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.EnumerateFromStart%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L403">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_EnumerateFromStart_" data-uid="NBitcoin.ConcurrentChain.EnumerateFromStart*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_EnumerateFromStart" data-uid="NBitcoin.ConcurrentChain.EnumerateFromStart">EnumerateFromStart()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected override IEnumerable&lt;ChainedBlock&gt; EnumerateFromStart()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_EnumerateFromStart">ChainBase.EnumerateFromStart()</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_GetBlock_NBitcoin_uint256_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.GetBlock(NBitcoin.uint256)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L333">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_GetBlock_" data-uid="NBitcoin.ConcurrentChain.GetBlock*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_GetBlock_NBitcoin_uint256_" data-uid="NBitcoin.ConcurrentChain.GetBlock(NBitcoin.uint256)">GetBlock(uint256)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override ChainedBlock GetBlock(uint256 id)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a></td>
+        <td><span class="parametername">id</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_GetBlock_NBitcoin_uint256_">ChainBase.GetBlock(uint256)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_GetBlock_System_Int32_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.GetBlock(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L375">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_GetBlock_" data-uid="NBitcoin.ConcurrentChain.GetBlock*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_GetBlock_System_Int32_" data-uid="NBitcoin.ConcurrentChain.GetBlock(System.Int32)">GetBlock(Int32)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override ChainedBlock GetBlock(int height)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">height</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_GetBlock_System_Int32_">ChainBase.GetBlock(Int32)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_NBitcoin_BitcoinStream_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(NBitcoin.BitcoinStream)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L169">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_NBitcoin_BitcoinStream_" data-uid="NBitcoin.ConcurrentChain.Load(NBitcoin.BitcoinStream)">Load(BitcoinStream)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(BitcoinStream stream)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.BitcoinStream.html">BitcoinStream</a></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_NBitcoin_BitcoinStream_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(NBitcoin.BitcoinStream%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L173">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_NBitcoin_BitcoinStream_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.Load(NBitcoin.BitcoinStream,NBitcoin.ConcurrentChain.ChainSerializationFormat)">Load(BitcoinStream, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(BitcoinStream stream, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.BitcoinStream.html">BitcoinStream</a></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_Byte___.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.Byte%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L132">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_Byte___" data-uid="NBitcoin.ConcurrentChain.Load(System.Byte[])">Load(Byte[])</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use Load(byte[], ConsensusFactory|Network|Consensus) instead&quot;)]
+public void Load(byte[] chain)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">chain</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.Byte%5B%5D%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L111">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.Load(System.Byte[],NBitcoin.ConcurrentChain.ChainSerializationFormat)">Load(Byte[], ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use Load(byte[], ConsensusFactory|Network|Consensus, ChainSerializationFormat format) instead&quot;)]
+public void Load(byte[] chain, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">chain</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_Consensus_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.Byte%5B%5D%2CNBitcoin.Consensus)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L122">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_Consensus_" data-uid="NBitcoin.ConcurrentChain.Load(System.Byte[],NBitcoin.Consensus)">Load(Byte[], Consensus)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(byte[] chain, Consensus consensus)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">chain</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Consensus.html">Consensus</a></td>
+        <td><span class="parametername">consensus</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_Consensus_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.Byte%5B%5D%2CNBitcoin.Consensus%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L101">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_Consensus_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.Load(System.Byte[],NBitcoin.Consensus,NBitcoin.ConcurrentChain.ChainSerializationFormat)">Load(Byte[], Consensus, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(byte[] chain, Consensus consensus, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">chain</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Consensus.html">Consensus</a></td>
+        <td><span class="parametername">consensus</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_ConsensusFactory_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.Byte%5B%5D%2CNBitcoin.ConsensusFactory)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L117">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_ConsensusFactory_" data-uid="NBitcoin.ConcurrentChain.Load(System.Byte[],NBitcoin.ConsensusFactory)">Load(Byte[], ConsensusFactory)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(byte[] chain, ConsensusFactory consensusFactory)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">chain</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConsensusFactory.html">ConsensusFactory</a></td>
+        <td><span class="parametername">consensusFactory</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_ConsensusFactory_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.Byte%5B%5D%2CNBitcoin.ConsensusFactory%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L106">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_ConsensusFactory_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.Load(System.Byte[],NBitcoin.ConsensusFactory,NBitcoin.ConcurrentChain.ChainSerializationFormat)">Load(Byte[], ConsensusFactory, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(byte[] chain, ConsensusFactory consensusFactory, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">chain</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConsensusFactory.html">ConsensusFactory</a></td>
+        <td><span class="parametername">consensusFactory</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.Byte%5B%5D%2CNBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L127">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_Network_" data-uid="NBitcoin.ConcurrentChain.Load(System.Byte[],NBitcoin.Network)">Load(Byte[], Network)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(byte[] chain, Network network)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">chain</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_Network_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.Byte%5B%5D%2CNBitcoin.Network%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L96">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_Byte___NBitcoin_Network_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.Load(System.Byte[],NBitcoin.Network,NBitcoin.ConcurrentChain.ChainSerializationFormat)">Load(Byte[], Network, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(byte[] chain, Network network, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td><span class="parametername">chain</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_IO_Stream_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.IO.Stream)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L164">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_IO_Stream_" data-uid="NBitcoin.ConcurrentChain.Load(System.IO.Stream)">Load(Stream)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(Stream stream)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.Stream</span></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_IO_Stream_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.IO.Stream%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L159">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_IO_Stream_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.Load(System.IO.Stream,NBitcoin.ConcurrentChain.ChainSerializationFormat)">Load(Stream, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">[Obsolete(&quot;Use Load(Stream, ConsensusFactory|Network|Consensus, ChainSerializationFormat) instead&quot;)]
+public void Load(Stream stream, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.Stream</span></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_IO_Stream_NBitcoin_Consensus_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.IO.Stream%2CNBitcoin.Consensus%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L152">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_IO_Stream_NBitcoin_Consensus_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.Load(System.IO.Stream,NBitcoin.Consensus,NBitcoin.ConcurrentChain.ChainSerializationFormat)">Load(Stream, Consensus, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(Stream stream, Consensus consensus, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.Stream</span></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Consensus.html">Consensus</a></td>
+        <td><span class="parametername">consensus</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_IO_Stream_NBitcoin_ConsensusFactory_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.IO.Stream%2CNBitcoin.ConsensusFactory%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L138">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_IO_Stream_NBitcoin_ConsensusFactory_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.Load(System.IO.Stream,NBitcoin.ConsensusFactory,NBitcoin.ConcurrentChain.ChainSerializationFormat)">Load(Stream, ConsensusFactory, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(Stream stream, ConsensusFactory consensusFactory, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.Stream</span></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConsensusFactory.html">ConsensusFactory</a></td>
+        <td><span class="parametername">consensusFactory</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_Load_System_IO_Stream_NBitcoin_Network_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.Load(System.IO.Stream%2CNBitcoin.Network%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L145">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_Load_" data-uid="NBitcoin.ConcurrentChain.Load*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_Load_System_IO_Stream_NBitcoin_Network_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.Load(System.IO.Stream,NBitcoin.Network,NBitcoin.ConcurrentChain.ChainSerializationFormat)">Load(Stream, Network, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Load(Stream stream, Network network, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.Stream</span></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_SetTip_NBitcoin_ChainedBlock_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.SetTip(NBitcoin.ChainedBlock)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L274">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_SetTip_" data-uid="NBitcoin.ConcurrentChain.SetTip*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_SetTip_NBitcoin_ChainedBlock_" data-uid="NBitcoin.ConcurrentChain.SetTip(NBitcoin.ChainedBlock)">SetTip(ChainedBlock)</h4>
+  <div class="markdown level1 summary"><p>Force a new tip for the chain</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override ChainedBlock SetTip(ChainedBlock block)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a></td>
+        <td><span class="parametername">block</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a></td>
+        <td><p>forking point</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.ChainBase.html#NBitcoin_ChainBase_SetTip_NBitcoin_ChainedBlock_">ChainBase.SetTip(ChainedBlock)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_ToBytes.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.ToBytes%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L216">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_ToBytes_" data-uid="NBitcoin.ConcurrentChain.ToBytes*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_ToBytes" data-uid="NBitcoin.ConcurrentChain.ToBytes">ToBytes()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public byte[] ToBytes()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Byte</span>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_ToString.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.ToString%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L420">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_ToString_" data-uid="NBitcoin.ConcurrentChain.ToString*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_ToString" data-uid="NBitcoin.ConcurrentChain.ToString">ToString()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.Object.ToString()</span></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_WriteTo_NBitcoin_BitcoinStream_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.WriteTo(NBitcoin.BitcoinStream)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L232">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_WriteTo_" data-uid="NBitcoin.ConcurrentChain.WriteTo*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_WriteTo_NBitcoin_BitcoinStream_" data-uid="NBitcoin.ConcurrentChain.WriteTo(NBitcoin.BitcoinStream)">WriteTo(BitcoinStream)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void WriteTo(BitcoinStream stream)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.BitcoinStream.html">BitcoinStream</a></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_WriteTo_NBitcoin_BitcoinStream_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.WriteTo(NBitcoin.BitcoinStream%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L237">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_WriteTo_" data-uid="NBitcoin.ConcurrentChain.WriteTo*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_WriteTo_NBitcoin_BitcoinStream_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.WriteTo(NBitcoin.BitcoinStream,NBitcoin.ConcurrentChain.ChainSerializationFormat)">WriteTo(BitcoinStream, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void WriteTo(BitcoinStream stream, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.BitcoinStream.html">BitcoinStream</a></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_WriteTo_System_IO_Stream_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.WriteTo(System.IO.Stream)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L223">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_WriteTo_" data-uid="NBitcoin.ConcurrentChain.WriteTo*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_WriteTo_System_IO_Stream_" data-uid="NBitcoin.ConcurrentChain.WriteTo(System.IO.Stream)">WriteTo(Stream)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void WriteTo(Stream stream)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.Stream</span></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain_WriteTo_System_IO_Stream_NBitcoin_ConcurrentChain_ChainSerializationFormat_.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain.WriteTo(System.IO.Stream%2CNBitcoin.ConcurrentChain.ChainSerializationFormat)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L227">View Source</a>
+  </span>
+  <a id="NBitcoin_ConcurrentChain_WriteTo_" data-uid="NBitcoin.ConcurrentChain.WriteTo*"></a>
+  <h4 id="NBitcoin_ConcurrentChain_WriteTo_System_IO_Stream_NBitcoin_ConcurrentChain_ChainSerializationFormat_" data-uid="NBitcoin.ConcurrentChain.WriteTo(System.IO.Stream,NBitcoin.ConcurrentChain.ChainSerializationFormat)">WriteTo(Stream, ConcurrentChain.ChainSerializationFormat)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void WriteTo(Stream stream, ConcurrentChain.ChainSerializationFormat format)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.IO.Stream</span></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.ChainSerializationFormat.html">ConcurrentChain.ChainSerializationFormat</a></td>
+        <td><span class="parametername">format</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ConcurrentChain.md&amp;value=---%0Auid%3A%20NBitcoin.ConcurrentChain%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/ConcurrentChain.cs/#L14" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

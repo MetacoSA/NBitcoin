@@ -1,0 +1,3172 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class Node
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class Node
+   ">
+    <meta name="generator" content="docfx 2.40.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="NBitcoin.Protocol.Node">
+  
+  
+  <h1 id="NBitcoin_Protocol_Node" data-uid="NBitcoin.Protocol.Node" class="text-break">Class Node
+  </h1>
+  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">Node</span></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><span class="xref">System.IDisposable</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="NBitcoin.Protocol.html">NBitcoin.Protocol</a></h6>
+  <h6><strong>Assembly</strong>: NBitcoin.dll</h6>
+  <h5 id="NBitcoin_Protocol_Node_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class Node : IDisposable</code></pre>
+  </div>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_ActualTransactionOptions.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.ActualTransactionOptions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1204">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_ActualTransactionOptions_" data-uid="NBitcoin.Protocol.Node.ActualTransactionOptions*"></a>
+  <h4 id="NBitcoin_Protocol_Node_ActualTransactionOptions" data-uid="NBitcoin.Protocol.Node.ActualTransactionOptions">ActualTransactionOptions</h4>
+  <div class="markdown level1 summary"><p>Transaction options we prefer and which is also supported by peer</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionOptions ActualTransactionOptions { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionOptions.html">TransactionOptions</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Advertize.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Advertize%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1028">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Advertize_" data-uid="NBitcoin.Protocol.Node.Advertize*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Advertize" data-uid="NBitcoin.Protocol.Node.Advertize">Advertize</h4>
+  <div class="markdown level1 summary"><p>Send addr unsollicited message of the AddressFrom peer when passing to Handshaked state</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Advertize { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Behaviors.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Behaviors%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L867">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Behaviors_" data-uid="NBitcoin.Protocol.Node.Behaviors*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Behaviors" data-uid="NBitcoin.Protocol.Node.Behaviors">Behaviors</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NodeBehaviorsCollection Behaviors { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Behaviors.NodeBehaviorsCollection.html">NodeBehaviorsCollection</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_ConnectedAt.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.ConnectedAt%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L374">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_ConnectedAt_" data-uid="NBitcoin.Protocol.Node.ConnectedAt*"></a>
+  <h4 id="NBitcoin_Protocol_Node_ConnectedAt" data-uid="NBitcoin.Protocol.Node.ConnectedAt">ConnectedAt</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public DateTimeOffset ConnectedAt { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.DateTimeOffset</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Counter.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Counter%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L966">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Counter_" data-uid="NBitcoin.Protocol.Node.Counter*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Counter" data-uid="NBitcoin.Protocol.Node.Counter">Counter</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public PerformanceCounter Counter { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.PerformanceCounter.html">PerformanceCounter</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_DisconnectReason.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.DisconnectReason%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1212">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_DisconnectReason_" data-uid="NBitcoin.Protocol.Node.DisconnectReason*"></a>
+  <h4 id="NBitcoin_Protocol_Node_DisconnectReason" data-uid="NBitcoin.Protocol.Node.DisconnectReason">DisconnectReason</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NodeDisconnectReason DisconnectReason { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeDisconnectReason.html">NodeDisconnectReason</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Filters.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Filters%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L425">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Filters_" data-uid="NBitcoin.Protocol.Node.Filters*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Filters" data-uid="NBitcoin.Protocol.Node.Filters">Filters</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NodeFiltersCollection Filters { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Filters.NodeFiltersCollection.html">NodeFiltersCollection</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Inbound.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Inbound%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L848">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Inbound_" data-uid="NBitcoin.Protocol.Node.Inbound*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Inbound" data-uid="NBitcoin.Protocol.Node.Inbound">Inbound</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Inbound { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_IsConnected.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.IsConnected%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L991">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_IsConnected_" data-uid="NBitcoin.Protocol.Node.IsConnected*"></a>
+  <h4 id="NBitcoin_Protocol_Node_IsConnected" data-uid="NBitcoin.Protocol.Node.IsConnected">IsConnected</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool IsConnected { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_LastSeen.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.LastSeen%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L884">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_LastSeen_" data-uid="NBitcoin.Protocol.Node.LastSeen*"></a>
+  <h4 id="NBitcoin_Protocol_Node_LastSeen" data-uid="NBitcoin.Protocol.Node.LastSeen">LastSeen</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public DateTimeOffset LastSeen { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.DateTimeOffset</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_MessageProducer.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.MessageProducer%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1000">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_MessageProducer_" data-uid="NBitcoin.Protocol.Node.MessageProducer*"></a>
+  <h4 id="NBitcoin_Protocol_Node_MessageProducer" data-uid="NBitcoin.Protocol.Node.MessageProducer">MessageProducer</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public MessageProducer&lt;IncomingMessage&gt; MessageProducer { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.MessageProducer-1.html">MessageProducer</a>&lt;<a class="xref" href="NBitcoin.Protocol.IncomingMessage.html">IncomingMessage</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_MyVersion.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.MyVersion%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1035">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_MyVersion_" data-uid="NBitcoin.Protocol.Node.MyVersion*"></a>
+  <h4 id="NBitcoin_Protocol_Node_MyVersion" data-uid="NBitcoin.Protocol.Node.MyVersion">MyVersion</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public VersionPayload MyVersion { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.VersionPayload.html">VersionPayload</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Network.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Network%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1672">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Network_" data-uid="NBitcoin.Protocol.Node.Network*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Network" data-uid="NBitcoin.Protocol.Node.Network">Network</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Network Network { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Peer.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Peer%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L876">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Peer_" data-uid="NBitcoin.Protocol.Node.Peer*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Peer" data-uid="NBitcoin.Protocol.Node.Peer">Peer</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NetworkAddress Peer { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NetworkAddress.html">NetworkAddress</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_PeerVersion.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.PeerVersion%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1044">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_PeerVersion_" data-uid="NBitcoin.Protocol.Node.PeerVersion*"></a>
+  <h4 id="NBitcoin_Protocol_Node_PeerVersion" data-uid="NBitcoin.Protocol.Node.PeerVersion">PeerVersion</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public VersionPayload PeerVersion { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.VersionPayload.html">VersionPayload</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_PreferredTransactionOptions.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.PreferredTransactionOptions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1177">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_PreferredTransactionOptions_" data-uid="NBitcoin.Protocol.Node.PreferredTransactionOptions*"></a>
+  <h4 id="NBitcoin_Protocol_Node_PreferredTransactionOptions" data-uid="NBitcoin.Protocol.Node.PreferredTransactionOptions">PreferredTransactionOptions</h4>
+  <div class="markdown level1 summary"><p>Transaction options we would like</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionOptions PreferredTransactionOptions { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionOptions.html">TransactionOptions</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_ProtocolCapabilities.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.ProtocolCapabilities%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L985">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_ProtocolCapabilities_" data-uid="NBitcoin.Protocol.Node.ProtocolCapabilities*"></a>
+  <h4 id="NBitcoin_Protocol_Node_ProtocolCapabilities" data-uid="NBitcoin.Protocol.Node.ProtocolCapabilities">ProtocolCapabilities</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ProtocolCapabilities ProtocolCapabilities { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.ProtocolCapabilities.html">ProtocolCapabilities</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_RemoteSocketAddress.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.RemoteSocketAddress%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L822">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_RemoteSocketAddress_" data-uid="NBitcoin.Protocol.Node.RemoteSocketAddress*"></a>
+  <h4 id="NBitcoin_Protocol_Node_RemoteSocketAddress" data-uid="NBitcoin.Protocol.Node.RemoteSocketAddress">RemoteSocketAddress</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IPAddress RemoteSocketAddress { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Net.IPAddress</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_RemoteSocketEndpoint.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.RemoteSocketEndpoint%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L831">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_RemoteSocketEndpoint_" data-uid="NBitcoin.Protocol.Node.RemoteSocketEndpoint*"></a>
+  <h4 id="NBitcoin_Protocol_Node_RemoteSocketEndpoint" data-uid="NBitcoin.Protocol.Node.RemoteSocketEndpoint">RemoteSocketEndpoint</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IPEndPoint RemoteSocketEndpoint { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Net.IPEndPoint</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_RemoteSocketPort.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.RemoteSocketPort%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L840">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_RemoteSocketPort_" data-uid="NBitcoin.Protocol.Node.RemoteSocketPort*"></a>
+  <h4 id="NBitcoin_Protocol_Node_RemoteSocketPort" data-uid="NBitcoin.Protocol.Node.RemoteSocketPort">RemoteSocketPort</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int RemoteSocketPort { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_State.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.State%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L381">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_State_" data-uid="NBitcoin.Protocol.Node.State*"></a>
+  <h4 id="NBitcoin_Protocol_Node_State" data-uid="NBitcoin.Protocol.Node.State">State</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NodeState State { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeState.html">NodeState</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_SupportedTransactionOptions.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.SupportedTransactionOptions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1193">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_SupportedTransactionOptions_" data-uid="NBitcoin.Protocol.Node.SupportedTransactionOptions*"></a>
+  <h4 id="NBitcoin_Protocol_Node_SupportedTransactionOptions" data-uid="NBitcoin.Protocol.Node.SupportedTransactionOptions">SupportedTransactionOptions</h4>
+  <div class="markdown level1 summary"><p>Transaction options supported by the peer</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionOptions SupportedTransactionOptions { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionOptions.html">TransactionOptions</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_TimeOffset.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.TimeOffset%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L890">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_TimeOffset_" data-uid="NBitcoin.Protocol.Node.TimeOffset*"></a>
+  <h4 id="NBitcoin_Protocol_Node_TimeOffset" data-uid="NBitcoin.Protocol.Node.TimeOffset">TimeOffset</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan? TimeOffset { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.TimeSpan</span>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_TraceCorrelation.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.TraceCorrelation%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L897">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_TraceCorrelation_" data-uid="NBitcoin.Protocol.Node.TraceCorrelation*"></a>
+  <h4 id="NBitcoin_Protocol_Node_TraceCorrelation" data-uid="NBitcoin.Protocol.Node.TraceCorrelation">TraceCorrelation</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TraceCorrelation TraceCorrelation { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TraceCorrelation.html">TraceCorrelation</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Version.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Version%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L979">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Version_" data-uid="NBitcoin.Protocol.Node.Version*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Version" data-uid="NBitcoin.Protocol.Node.Version">Version</h4>
+  <div class="markdown level1 summary"><p>The negociated protocol version (minimum of supported version between MyVersion and the PeerVersion)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public uint Version { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.UInt32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_AddSupportedOptions_NBitcoin_Protocol_InventoryType_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.AddSupportedOptions(NBitcoin.Protocol.InventoryType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1665">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_AddSupportedOptions_" data-uid="NBitcoin.Protocol.Node.AddSupportedOptions*"></a>
+  <h4 id="NBitcoin_Protocol_Node_AddSupportedOptions_NBitcoin_Protocol_InventoryType_" data-uid="NBitcoin.Protocol.Node.AddSupportedOptions(NBitcoin.Protocol.InventoryType)">AddSupportedOptions(InventoryType)</h4>
+  <div class="markdown level1 summary"><p>Add supported option to the input inventory type</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public InventoryType AddSupportedOptions(InventoryType inventoryType)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.InventoryType.html">InventoryType</a></td>
+        <td><span class="parametername">inventoryType</span></td>
+        <td><p>Inventory type (like MSG_TX)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.InventoryType.html">InventoryType</a></td>
+        <td><p>Inventory type with options (MSG_TX | MSG_WITNESS_FLAG)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Connect_NBitcoin_Network_NBitcoin_Protocol_AddressManager_NBitcoin_Protocol_NodeConnectionParameters_System_Net_IPEndPoint___.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Connect(NBitcoin.Network%2CNBitcoin.Protocol.AddressManager%2CNBitcoin.Protocol.NodeConnectionParameters%2CSystem.Net.IPEndPoint%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L556">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Connect_" data-uid="NBitcoin.Protocol.Node.Connect*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Connect_NBitcoin_Network_NBitcoin_Protocol_AddressManager_NBitcoin_Protocol_NodeConnectionParameters_System_Net_IPEndPoint___" data-uid="NBitcoin.Protocol.Node.Connect(NBitcoin.Network,NBitcoin.Protocol.AddressManager,NBitcoin.Protocol.NodeConnectionParameters,System.Net.IPEndPoint[])">Connect(Network, AddressManager, NodeConnectionParameters, IPEndPoint[])</h4>
+  <div class="markdown level1 summary"><p>Connect to a random node on the network</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Node Connect(Network network, AddressManager addrman, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td><p>The network to connect to</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.AddressManager.html">AddressManager</a></td>
+        <td><span class="parametername">addrman</span></td>
+        <td><p>The addrman used for finding peers</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeConnectionParameters.html">NodeConnectionParameters</a></td>
+        <td><span class="parametername">parameters</span></td>
+        <td><p>The parameters used by the found node</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Net.IPEndPoint</span>[]</td>
+        <td><span class="parametername">connectedEndpoints</span></td>
+        <td><p>The already connected endpoints, the new endpoint will be select outside of existing groups</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Node.html">Node</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Connect_NBitcoin_Network_NBitcoin_Protocol_NetworkAddress_NBitcoin_Protocol_NodeConnectionParameters_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Connect(NBitcoin.Network%2CNBitcoin.Protocol.NetworkAddress%2CNBitcoin.Protocol.NodeConnectionParameters)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L677">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Connect_" data-uid="NBitcoin.Protocol.Node.Connect*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Connect_NBitcoin_Network_NBitcoin_Protocol_NetworkAddress_NBitcoin_Protocol_NodeConnectionParameters_" data-uid="NBitcoin.Protocol.Node.Connect(NBitcoin.Network,NBitcoin.Protocol.NetworkAddress,NBitcoin.Protocol.NodeConnectionParameters)">Connect(Network, NetworkAddress, NodeConnectionParameters)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Node Connect(Network network, NetworkAddress endpoint, NodeConnectionParameters parameters)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NetworkAddress.html">NetworkAddress</a></td>
+        <td><span class="parametername">endpoint</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeConnectionParameters.html">NodeConnectionParameters</a></td>
+        <td><span class="parametername">parameters</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Node.html">Node</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Connect_NBitcoin_Network_NBitcoin_Protocol_NodeConnectionParameters_System_Net_IPEndPoint___System_Func_System_Net_IPEndPoint_System_Byte____.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Connect(NBitcoin.Network%2CNBitcoin.Protocol.NodeConnectionParameters%2CSystem.Net.IPEndPoint%5B%5D%2CSystem.Func%7BSystem.Net.IPEndPoint%2CSystem.Byte%5B%5D%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L571">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Connect_" data-uid="NBitcoin.Protocol.Node.Connect*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Connect_NBitcoin_Network_NBitcoin_Protocol_NodeConnectionParameters_System_Net_IPEndPoint___System_Func_System_Net_IPEndPoint_System_Byte____" data-uid="NBitcoin.Protocol.Node.Connect(NBitcoin.Network,NBitcoin.Protocol.NodeConnectionParameters,System.Net.IPEndPoint[],System.Func{System.Net.IPEndPoint,System.Byte[]})">Connect(Network, NodeConnectionParameters, IPEndPoint[], Func&lt;IPEndPoint, Byte[]&gt;)</h4>
+  <div class="markdown level1 summary"><p>Connect to a random node on the network</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Node Connect(Network network, NodeConnectionParameters parameters = null, IPEndPoint[] connectedEndpoints = null, Func&lt;IPEndPoint, byte[]&gt; getGroup = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td><p>The network to connect to</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeConnectionParameters.html">NodeConnectionParameters</a></td>
+        <td><span class="parametername">parameters</span></td>
+        <td><p>The parameters used by the found node, use AddressManagerBehavior.GetAddrman for finding peers</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Net.IPEndPoint</span>[]</td>
+        <td><span class="parametername">connectedEndpoints</span></td>
+        <td><p>The already connected endpoints, the new endpoint will be select outside of existing groups</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<span class="xref">System.Net.IPEndPoint</span>, <span class="xref">System.Byte</span>[]&gt;</td>
+        <td><span class="parametername">getGroup</span></td>
+        <td><p>Group selector, by default NBicoin.IpExtensions.GetGroup</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Node.html">Node</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_Net_IPEndPoint_NBitcoin_Protocol_NodeConnectionParameters_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Connect(NBitcoin.Network%2CSystem.Net.IPEndPoint%2CNBitcoin.Protocol.NodeConnectionParameters)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L684">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Connect_" data-uid="NBitcoin.Protocol.Node.Connect*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_Net_IPEndPoint_NBitcoin_Protocol_NodeConnectionParameters_" data-uid="NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.Net.IPEndPoint,NBitcoin.Protocol.NodeConnectionParameters)">Connect(Network, IPEndPoint, NodeConnectionParameters)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Node Connect(Network network, IPEndPoint endpoint, NodeConnectionParameters parameters)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Net.IPEndPoint</span></td>
+        <td><span class="parametername">endpoint</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeConnectionParameters.html">NodeConnectionParameters</a></td>
+        <td><span class="parametername">parameters</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Node.html">Node</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_Net_IPEndPoint_System_Nullable_System_UInt32__System_Boolean_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Connect(NBitcoin.Network%2CSystem.Net.IPEndPoint%2CSystem.Nullable%7BSystem.UInt32%7D%2CSystem.Boolean%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L697">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Connect_" data-uid="NBitcoin.Protocol.Node.Connect*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_Net_IPEndPoint_System_Nullable_System_UInt32__System_Boolean_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.Net.IPEndPoint,System.Nullable{System.UInt32},System.Boolean,System.Threading.CancellationToken)">Connect(Network, IPEndPoint, Nullable&lt;UInt32&gt;, Boolean, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Node Connect(Network network, IPEndPoint endpoint, uint? myVersion = default(uint? ), bool isRelay = true, CancellationToken cancellation = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Net.IPEndPoint</span></td>
+        <td><span class="parametername">endpoint</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.UInt32</span>&gt;</td>
+        <td><span class="parametername">myVersion</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">isRelay</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Node.html">Node</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_String_NBitcoin_Protocol_NodeConnectionParameters_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Connect(NBitcoin.Network%2CSystem.String%2CNBitcoin.Protocol.NodeConnectionParameters)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L662">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Connect_" data-uid="NBitcoin.Protocol.Node.Connect*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_String_NBitcoin_Protocol_NodeConnectionParameters_" data-uid="NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.String,NBitcoin.Protocol.NodeConnectionParameters)">Connect(Network, String, NodeConnectionParameters)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Node Connect(Network network, string endpoint, NodeConnectionParameters parameters)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">endpoint</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeConnectionParameters.html">NodeConnectionParameters</a></td>
+        <td><span class="parametername">parameters</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Node.html">Node</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_String_System_Nullable_System_UInt32__System_Boolean_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Connect(NBitcoin.Network%2CSystem.String%2CSystem.Nullable%7BSystem.UInt32%7D%2CSystem.Boolean%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L668">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Connect_" data-uid="NBitcoin.Protocol.Node.Connect*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Connect_NBitcoin_Network_System_String_System_Nullable_System_UInt32__System_Boolean_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.Connect(NBitcoin.Network,System.String,System.Nullable{System.UInt32},System.Boolean,System.Threading.CancellationToken)">Connect(Network, String, Nullable&lt;UInt32&gt;, Boolean, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Node Connect(Network network, string endpoint, uint? myVersion = default(uint? ), bool isRelay = true, CancellationToken cancellation = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">endpoint</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.UInt32</span>&gt;</td>
+        <td><span class="parametername">myVersion</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">isRelay</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Node.html">Node</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_ConnectToLocal_NBitcoin_Network_NBitcoin_Protocol_NodeConnectionParameters_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.ConnectToLocal(NBitcoin.Network%2CNBitcoin.Protocol.NodeConnectionParameters)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L643">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_ConnectToLocal_" data-uid="NBitcoin.Protocol.Node.ConnectToLocal*"></a>
+  <h4 id="NBitcoin_Protocol_Node_ConnectToLocal_NBitcoin_Network_NBitcoin_Protocol_NodeConnectionParameters_" data-uid="NBitcoin.Protocol.Node.ConnectToLocal(NBitcoin.Network,NBitcoin.Protocol.NodeConnectionParameters)">ConnectToLocal(Network, NodeConnectionParameters)</h4>
+  <div class="markdown level1 summary"><p>Connect to the node of this machine</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Node ConnectToLocal(Network network, NodeConnectionParameters parameters)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeConnectionParameters.html">NodeConnectionParameters</a></td>
+        <td><span class="parametername">parameters</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Node.html">Node</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_ConnectToLocal_NBitcoin_Network_System_Nullable_System_UInt32__System_Boolean_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.ConnectToLocal(NBitcoin.Network%2CSystem.Nullable%7BSystem.UInt32%7D%2CSystem.Boolean%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L649">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_ConnectToLocal_" data-uid="NBitcoin.Protocol.Node.ConnectToLocal*"></a>
+  <h4 id="NBitcoin_Protocol_Node_ConnectToLocal_NBitcoin_Network_System_Nullable_System_UInt32__System_Boolean_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.ConnectToLocal(NBitcoin.Network,System.Nullable{System.UInt32},System.Boolean,System.Threading.CancellationToken)">ConnectToLocal(Network, Nullable&lt;UInt32&gt;, Boolean, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public static Node ConnectToLocal(Network network, uint? myVersion = default(uint? ), bool isRelay = true, CancellationToken cancellation = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Nullable</span>&lt;<span class="xref">System.UInt32</span>&gt;</td>
+        <td><span class="parametername">myVersion</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">isRelay</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Node.html">Node</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_CreateListener.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.CreateListener%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1568">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_CreateListener_" data-uid="NBitcoin.Protocol.Node.CreateListener*"></a>
+  <h4 id="NBitcoin_Protocol_Node_CreateListener" data-uid="NBitcoin.Protocol.Node.CreateListener">CreateListener()</h4>
+  <div class="markdown level1 summary"><p>Create a listener that will queue messages until diposed</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public NodeListener CreateListener()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeListener.html">NodeListener</a></td>
+        <td><p>The listener</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.InvalidOperationException</span></td>
+        <td><p>Thrown if used on the listener's thread, as it would result in a deadlock</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Disconnect.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Disconnect%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1129">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Disconnect_" data-uid="NBitcoin.Protocol.Node.Disconnect*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Disconnect" data-uid="NBitcoin.Protocol.Node.Disconnect">Disconnect()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Disconnect()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Disconnect_System_String_System_Exception_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Disconnect(System.String%2CSystem.Exception)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1136">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Disconnect_" data-uid="NBitcoin.Protocol.Node.Disconnect*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Disconnect_System_String_System_Exception_" data-uid="NBitcoin.Protocol.Node.Disconnect(System.String,System.Exception)">Disconnect(String, Exception)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Disconnect(string reason, Exception exception = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">reason</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Exception</span></td>
+        <td><span class="parametername">exception</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_DisconnectAsync.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.DisconnectAsync%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1148">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_DisconnectAsync_" data-uid="NBitcoin.Protocol.Node.DisconnectAsync*"></a>
+  <h4 id="NBitcoin_Protocol_Node_DisconnectAsync" data-uid="NBitcoin.Protocol.Node.DisconnectAsync">DisconnectAsync()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void DisconnectAsync()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_DisconnectAsync_System_String_System_Exception_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.DisconnectAsync(System.String%2CSystem.Exception)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1152">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_DisconnectAsync_" data-uid="NBitcoin.Protocol.Node.DisconnectAsync*"></a>
+  <h4 id="NBitcoin_Protocol_Node_DisconnectAsync_System_String_System_Exception_" data-uid="NBitcoin.Protocol.Node.DisconnectAsync(System.String,System.Exception)">DisconnectAsync(String, Exception)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void DisconnectAsync(string reason, Exception exception = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">reason</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Exception</span></td>
+        <td><span class="parametername">exception</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Dispose.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Dispose%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1680">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_Dispose_" data-uid="NBitcoin.Protocol.Node.Dispose*"></a>
+  <h4 id="NBitcoin_Protocol_Node_Dispose" data-uid="NBitcoin.Protocol.Node.Dispose">Dispose()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void Dispose()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetBlocks_NBitcoin_Protocol_SynchronizeChainOptions_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetBlocks(NBitcoin.Protocol.SynchronizeChainOptions%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1483">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetBlocks_" data-uid="NBitcoin.Protocol.Node.GetBlocks*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetBlocks_NBitcoin_Protocol_SynchronizeChainOptions_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetBlocks(NBitcoin.Protocol.SynchronizeChainOptions,System.Threading.CancellationToken)">GetBlocks(SynchronizeChainOptions, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;Block&gt; GetBlocks(SynchronizeChainOptions synchronizeChainOptions, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.SynchronizeChainOptions.html">SynchronizeChainOptions</a></td>
+        <td><span class="parametername">synchronizeChainOptions</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.Block.html">Block</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetBlocks_NBitcoin_uint256_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetBlocks(NBitcoin.uint256%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1489">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetBlocks_" data-uid="NBitcoin.Protocol.Node.GetBlocks*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetBlocks_NBitcoin_uint256_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetBlocks(NBitcoin.uint256,System.Threading.CancellationToken)">GetBlocks(uint256, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;Block&gt; GetBlocks(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a></td>
+        <td><span class="parametername">hashStop</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.Block.html">Block</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetBlocks_System_Collections_Generic_IEnumerable_NBitcoin_ChainedBlock__System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetBlocks(System.Collections.Generic.IEnumerable%7BNBitcoin.ChainedBlock%7D%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1517">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetBlocks_" data-uid="NBitcoin.Protocol.Node.GetBlocks*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetBlocks_System_Collections_Generic_IEnumerable_NBitcoin_ChainedBlock__System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetBlocks(System.Collections.Generic.IEnumerable{NBitcoin.ChainedBlock},System.Threading.CancellationToken)">GetBlocks(IEnumerable&lt;ChainedBlock&gt;, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;Block&gt; GetBlocks(IEnumerable&lt;ChainedBlock&gt; blocks, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a>&gt;</td>
+        <td><span class="parametername">blocks</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.Block.html">Block</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetBlocks_System_Collections_Generic_IEnumerable_NBitcoin_uint256__System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetBlocks(System.Collections.Generic.IEnumerable%7BNBitcoin.uint256%7D%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1522">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetBlocks_" data-uid="NBitcoin.Protocol.Node.GetBlocks*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetBlocks_System_Collections_Generic_IEnumerable_NBitcoin_uint256__System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetBlocks(System.Collections.Generic.IEnumerable{NBitcoin.uint256},System.Threading.CancellationToken)">GetBlocks(IEnumerable&lt;uint256&gt;, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;Block&gt; GetBlocks(IEnumerable&lt;uint256&gt; neededBlocks, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.uint256.html">uint256</a>&gt;</td>
+        <td><span class="parametername">neededBlocks</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.Block.html">Block</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetBlocksFromFork_NBitcoin_ChainedBlock_NBitcoin_Protocol_SynchronizeChainOptions_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetBlocksFromFork(NBitcoin.ChainedBlock%2CNBitcoin.Protocol.SynchronizeChainOptions%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1494">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetBlocksFromFork_" data-uid="NBitcoin.Protocol.Node.GetBlocksFromFork*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetBlocksFromFork_NBitcoin_ChainedBlock_NBitcoin_Protocol_SynchronizeChainOptions_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetBlocksFromFork(NBitcoin.ChainedBlock,NBitcoin.Protocol.SynchronizeChainOptions,System.Threading.CancellationToken)">GetBlocksFromFork(ChainedBlock, SynchronizeChainOptions, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;Block&gt; GetBlocksFromFork(ChainedBlock currentTip, SynchronizeChainOptions synchronizeChainOptions, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a></td>
+        <td><span class="parametername">currentTip</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.SynchronizeChainOptions.html">SynchronizeChainOptions</a></td>
+        <td><span class="parametername">synchronizeChainOptions</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.Block.html">Block</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetBlocksFromFork_NBitcoin_ChainedBlock_NBitcoin_uint256_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetBlocksFromFork(NBitcoin.ChainedBlock%2CNBitcoin.uint256%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1512">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetBlocksFromFork_" data-uid="NBitcoin.Protocol.Node.GetBlocksFromFork*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetBlocksFromFork_NBitcoin_ChainedBlock_NBitcoin_uint256_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetBlocksFromFork(NBitcoin.ChainedBlock,NBitcoin.uint256,System.Threading.CancellationToken)">GetBlocksFromFork(ChainedBlock, uint256, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;Block&gt; GetBlocksFromFork(ChainedBlock currentTip, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a></td>
+        <td><span class="parametername">currentTip</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a></td>
+        <td><span class="parametername">hashStop</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.Block.html">Block</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetChain_NBitcoin_Protocol_SynchronizeChainOptions_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetChain(NBitcoin.Protocol.SynchronizeChainOptions%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1240">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetChain_" data-uid="NBitcoin.Protocol.Node.GetChain*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetChain_NBitcoin_Protocol_SynchronizeChainOptions_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetChain(NBitcoin.Protocol.SynchronizeChainOptions,System.Threading.CancellationToken)">GetChain(SynchronizeChainOptions, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Get the chain of headers from the peer (thread safe)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain GetChain(SynchronizeChainOptions options, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.SynchronizeChainOptions.html">SynchronizeChainOptions</a></td>
+        <td><span class="parametername">options</span></td>
+        <td><p>The synchronization chain options</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.html">ConcurrentChain</a></td>
+        <td><p>The chain of headers</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetChain_NBitcoin_uint256_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetChain(NBitcoin.uint256%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1267">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetChain_" data-uid="NBitcoin.Protocol.Node.GetChain*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetChain_NBitcoin_uint256_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetChain(NBitcoin.uint256,System.Threading.CancellationToken)">GetChain(uint256, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Get the chain of headers from the peer (thread safe)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ConcurrentChain GetChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a></td>
+        <td><span class="parametername">hashStop</span></td>
+        <td><p>The highest block wanted</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConcurrentChain.html">ConcurrentChain</a></td>
+        <td><p>The chain of headers</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetHeadersFromFork_NBitcoin_ChainedBlock_NBitcoin_Protocol_SynchronizeChainOptions_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetHeadersFromFork(NBitcoin.ChainedBlock%2CNBitcoin.Protocol.SynchronizeChainOptions%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1272">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetHeadersFromFork_" data-uid="NBitcoin.Protocol.Node.GetHeadersFromFork*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetHeadersFromFork_NBitcoin_ChainedBlock_NBitcoin_Protocol_SynchronizeChainOptions_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetHeadersFromFork(NBitcoin.ChainedBlock,NBitcoin.Protocol.SynchronizeChainOptions,System.Threading.CancellationToken)">GetHeadersFromFork(ChainedBlock, SynchronizeChainOptions, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;ChainedBlock&gt; GetHeadersFromFork(ChainedBlock currentTip, SynchronizeChainOptions options, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a></td>
+        <td><span class="parametername">currentTip</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.SynchronizeChainOptions.html">SynchronizeChainOptions</a></td>
+        <td><span class="parametername">options</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetHeadersFromFork_NBitcoin_ChainedBlock_NBitcoin_uint256_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetHeadersFromFork(NBitcoin.ChainedBlock%2CNBitcoin.uint256%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1362">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetHeadersFromFork_" data-uid="NBitcoin.Protocol.Node.GetHeadersFromFork*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetHeadersFromFork_NBitcoin_ChainedBlock_NBitcoin_uint256_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetHeadersFromFork(NBitcoin.ChainedBlock,NBitcoin.uint256,System.Threading.CancellationToken)">GetHeadersFromFork(ChainedBlock, uint256, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;ChainedBlock&gt; GetHeadersFromFork(ChainedBlock currentTip, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a></td>
+        <td><span class="parametername">currentTip</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a></td>
+        <td><span class="parametername">hashStop</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetMempool_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetMempool(System.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1583">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetMempool_" data-uid="NBitcoin.Protocol.Node.GetMempool*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetMempool_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetMempool(System.Threading.CancellationToken)">GetMempool(CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public uint256[] GetMempool(CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a>[]</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetMempoolTransactions_NBitcoin_uint256___System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetMempoolTransactions(NBitcoin.uint256%5B%5D%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1616">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetMempoolTransactions_" data-uid="NBitcoin.Protocol.Node.GetMempoolTransactions*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetMempoolTransactions_NBitcoin_uint256___System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetMempoolTransactions(NBitcoin.uint256[],System.Threading.CancellationToken)">GetMempoolTransactions(uint256[], CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Retrieve transactions from the mempool by ids</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Transaction[] GetMempoolTransactions(uint256[] txIds, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a>[]</td>
+        <td><span class="parametername">txIds</span></td>
+        <td><p>Transaction ids to retrieve</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td><p>Cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a>[]</td>
+        <td><p>The transactions, if a transaction is not found, then it is not returned in the array.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetMempoolTransactions_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetMempoolTransactions(System.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1605">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetMempoolTransactions_" data-uid="NBitcoin.Protocol.Node.GetMempoolTransactions*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetMempoolTransactions_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetMempoolTransactions(System.Threading.CancellationToken)">GetMempoolTransactions(CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Retrieve transactions from the mempool</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Transaction[] GetMempoolTransactions(CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td><p>Cancellation token</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a>[]</td>
+        <td><p>Transactions in the mempool</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_GetSlimChain_NBitcoin_uint256_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.GetSlimChain(NBitcoin.uint256%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1253">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_GetSlimChain_" data-uid="NBitcoin.Protocol.Node.GetSlimChain*"></a>
+  <h4 id="NBitcoin_Protocol_Node_GetSlimChain_NBitcoin_uint256_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.GetSlimChain(NBitcoin.uint256,System.Threading.CancellationToken)">GetSlimChain(uint256, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Get the chain of block hashes from the peer (thread safe)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public SlimChain GetSlimChain(uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a></td>
+        <td><span class="parametername">hashStop</span></td>
+        <td><p>Location until which synchronization should be stopped (default: null)</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.SlimChain.html">SlimChain</a></td>
+        <td><p>The chain of headers</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_OnMessageReceived_NBitcoin_Protocol_IncomingMessage_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.OnMessageReceived(NBitcoin.Protocol.IncomingMessage)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L434">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_OnMessageReceived_" data-uid="NBitcoin.Protocol.Node.OnMessageReceived*"></a>
+  <h4 id="NBitcoin_Protocol_Node_OnMessageReceived_NBitcoin_Protocol_IncomingMessage_" data-uid="NBitcoin.Protocol.Node.OnMessageReceived(NBitcoin.Protocol.IncomingMessage)">OnMessageReceived(IncomingMessage)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">protected void OnMessageReceived(IncomingMessage message)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.IncomingMessage.html">IncomingMessage</a></td>
+        <td><span class="parametername">message</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_PingPong_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.PingPong(System.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1692">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_PingPong_" data-uid="NBitcoin.Protocol.Node.PingPong*"></a>
+  <h4 id="NBitcoin_Protocol_Node_PingPong_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.PingPong(System.Threading.CancellationToken)">PingPong(CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Emit a ping and wait the pong</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TimeSpan PingPong(CancellationToken cancellation = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.TimeSpan</span></td>
+        <td><p>Latency</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_ReceiveMessage__1_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.ReceiveMessage%60%601(System.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1017">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_ReceiveMessage_" data-uid="NBitcoin.Protocol.Node.ReceiveMessage*"></a>
+  <h4 id="NBitcoin_Protocol_Node_ReceiveMessage__1_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.ReceiveMessage``1(System.Threading.CancellationToken)">ReceiveMessage&lt;TPayload&gt;(CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TPayload ReceiveMessage&lt;TPayload&gt;(CancellationToken cancellationToken = default(CancellationToken))
+    where TPayload : Payload</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TPayload</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TPayload</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_ReceiveMessage__1_System_TimeSpan_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.ReceiveMessage%60%601(System.TimeSpan)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1008">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_ReceiveMessage_" data-uid="NBitcoin.Protocol.Node.ReceiveMessage*"></a>
+  <h4 id="NBitcoin_Protocol_Node_ReceiveMessage__1_System_TimeSpan_" data-uid="NBitcoin.Protocol.Node.ReceiveMessage``1(System.TimeSpan)">ReceiveMessage&lt;TPayload&gt;(TimeSpan)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TPayload ReceiveMessage&lt;TPayload&gt;(TimeSpan timeout)
+    where TPayload : Payload</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.TimeSpan</span></td>
+        <td><span class="parametername">timeout</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">TPayload</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="typeParameters">Type Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="parametername">TPayload</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_RespondToHandShake_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.RespondToHandShake(System.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1111">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_RespondToHandShake_" data-uid="NBitcoin.Protocol.Node.RespondToHandShake*"></a>
+  <h4 id="NBitcoin_Protocol_Node_RespondToHandShake_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.RespondToHandShake(System.Threading.CancellationToken)">RespondToHandShake(CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void RespondToHandShake(CancellationToken cancellation = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_SendMessage_NBitcoin_Protocol_Payload_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.SendMessage(NBitcoin.Protocol.Payload%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L952">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_SendMessage_" data-uid="NBitcoin.Protocol.Node.SendMessage*"></a>
+  <h4 id="NBitcoin_Protocol_Node_SendMessage_NBitcoin_Protocol_Payload_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.SendMessage(NBitcoin.Protocol.Payload,System.Threading.CancellationToken)">SendMessage(Payload, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Send a message to the peer synchronously</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SendMessage(Payload payload, CancellationToken cancellation = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Payload.html">Payload</a></td>
+        <td><span class="parametername">payload</span></td>
+        <td><p>The payload to send</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellation</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.ArgumentNullException</span></td>
+        <td><p>Payload is null</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_SendMessageAsync_NBitcoin_Protocol_Payload_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.SendMessageAsync(NBitcoin.Protocol.Payload)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L920">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_SendMessageAsync_" data-uid="NBitcoin.Protocol.Node.SendMessageAsync*"></a>
+  <h4 id="NBitcoin_Protocol_Node_SendMessageAsync_NBitcoin_Protocol_Payload_" data-uid="NBitcoin.Protocol.Node.SendMessageAsync(NBitcoin.Protocol.Payload)">SendMessageAsync(Payload)</h4>
+  <div class="markdown level1 summary"><p>Send a message to the peer asynchronously</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Task SendMessageAsync(Payload payload)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Payload.html">Payload</a></td>
+        <td><span class="parametername">payload</span></td>
+        <td><p>The payload to send</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.Tasks.Task</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_SynchronizeChain_NBitcoin_ChainBase_NBitcoin_Protocol_SynchronizeChainOptions_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.SynchronizeChain(NBitcoin.ChainBase%2CNBitcoin.Protocol.SynchronizeChainOptions%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1376">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_SynchronizeChain_" data-uid="NBitcoin.Protocol.Node.SynchronizeChain*"></a>
+  <h4 id="NBitcoin_Protocol_Node_SynchronizeChain_NBitcoin_ChainBase_NBitcoin_Protocol_SynchronizeChainOptions_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.SynchronizeChain(NBitcoin.ChainBase,NBitcoin.Protocol.SynchronizeChainOptions,System.Threading.CancellationToken)">SynchronizeChain(ChainBase, SynchronizeChainOptions, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Synchronize a given Chain to the tip of this node if its height is higher. (Thread safe)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;ChainedBlock&gt; SynchronizeChain(ChainBase chain, SynchronizeChainOptions options, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChainBase.html">ChainBase</a></td>
+        <td><span class="parametername">chain</span></td>
+        <td><p>The chain to synchronize</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.SynchronizeChainOptions.html">SynchronizeChainOptions</a></td>
+        <td><span class="parametername">options</span></td>
+        <td><p>The synchronisation options</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a>&gt;</td>
+        <td><p>The chain of block retrieved</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_SynchronizeChain_NBitcoin_ChainBase_NBitcoin_uint256_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.SynchronizeChain(NBitcoin.ChainBase%2CNBitcoin.uint256%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1397">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_SynchronizeChain_" data-uid="NBitcoin.Protocol.Node.SynchronizeChain*"></a>
+  <h4 id="NBitcoin_Protocol_Node_SynchronizeChain_NBitcoin_ChainBase_NBitcoin_uint256_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.SynchronizeChain(NBitcoin.ChainBase,NBitcoin.uint256,System.Threading.CancellationToken)">SynchronizeChain(ChainBase, uint256, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Synchronize a given Chain to the tip of this node if its height is higher. (Thread safe)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public IEnumerable&lt;ChainedBlock&gt; SynchronizeChain(ChainBase chain, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChainBase.html">ChainBase</a></td>
+        <td><span class="parametername">chain</span></td>
+        <td><p>The chain to synchronize</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a></td>
+        <td><span class="parametername">hashStop</span></td>
+        <td><p>The location until which it synchronize</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.ChainedBlock.html">ChainedBlock</a>&gt;</td>
+        <td><p>The chain of block retrieved</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_SynchronizeSlimChain_NBitcoin_SlimChain_NBitcoin_uint256_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.SynchronizeSlimChain(NBitcoin.SlimChain%2CNBitcoin.uint256%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1409">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_SynchronizeSlimChain_" data-uid="NBitcoin.Protocol.Node.SynchronizeSlimChain*"></a>
+  <h4 id="NBitcoin_Protocol_Node_SynchronizeSlimChain_NBitcoin_SlimChain_NBitcoin_uint256_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.SynchronizeSlimChain(NBitcoin.SlimChain,NBitcoin.uint256,System.Threading.CancellationToken)">SynchronizeSlimChain(SlimChain, uint256, CancellationToken)</h4>
+  <div class="markdown level1 summary"><p>Synchronize a given SlimChain to the tip of this node if its height is higher.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void SynchronizeSlimChain(SlimChain chain, uint256 hashStop = null, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.SlimChain.html">SlimChain</a></td>
+        <td><span class="parametername">chain</span></td>
+        <td><p>The chain to synchronize</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a></td>
+        <td><span class="parametername">hashStop</span></td>
+        <td><p>The location until which it synchronize</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_ToString.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.ToString%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1218">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_ToString_" data-uid="NBitcoin.Protocol.Node.ToString*"></a>
+  <h4 id="NBitcoin_Protocol_Node_ToString" data-uid="NBitcoin.Protocol.Node.ToString">ToString()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override string ToString()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><span class="xref">System.Object.ToString()</span></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_VersionHandshake_NBitcoin_Protocol_NodeRequirement_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.VersionHandshake(NBitcoin.Protocol.NodeRequirement%2CSystem.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1056">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_VersionHandshake_" data-uid="NBitcoin.Protocol.Node.VersionHandshake*"></a>
+  <h4 id="NBitcoin_Protocol_Node_VersionHandshake_NBitcoin_Protocol_NodeRequirement_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.VersionHandshake(NBitcoin.Protocol.NodeRequirement,System.Threading.CancellationToken)">VersionHandshake(NodeRequirement, CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void VersionHandshake(NodeRequirement requirements, CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeRequirement.html">NodeRequirement</a></td>
+        <td><span class="parametername">requirements</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_VersionHandshake_System_Threading_CancellationToken_.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.VersionHandshake(System.Threading.CancellationToken)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L1052">View Source</a>
+  </span>
+  <a id="NBitcoin_Protocol_Node_VersionHandshake_" data-uid="NBitcoin.Protocol.Node.VersionHandshake*"></a>
+  <h4 id="NBitcoin_Protocol_Node_VersionHandshake_System_Threading_CancellationToken_" data-uid="NBitcoin.Protocol.Node.VersionHandshake(System.Threading.CancellationToken)">VersionHandshake(CancellationToken)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void VersionHandshake(CancellationToken cancellationToken = default(CancellationToken))</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Threading.CancellationToken</span></td>
+        <td><span class="parametername">cancellationToken</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="events">Events
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_Disconnected.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.Disconnected%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L523">View Source</a>
+  </span>
+  <h4 id="NBitcoin_Protocol_Node_Disconnected" data-uid="NBitcoin.Protocol.Node.Disconnected">Disconnected</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event NodeEventHandler Disconnected</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeEventHandler.html">NodeEventHandler</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_MessageReceived.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.MessageReceived%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L433">View Source</a>
+  </span>
+  <h4 id="NBitcoin_Protocol_Node_MessageReceived" data-uid="NBitcoin.Protocol.Node.MessageReceived">MessageReceived</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event NodeEventMessageIncoming MessageReceived</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeEventMessageIncoming.html">NodeEventMessageIncoming</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_StateChanged.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.StateChanged%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L404">View Source</a>
+  </span>
+  <h4 id="NBitcoin_Protocol_Node_StateChanged" data-uid="NBitcoin.Protocol.Node.StateChanged">StateChanged</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event NodeStateEventHandler StateChanged</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.NodeStateEventHandler.html">NodeStateEventHandler</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node_UncaughtException.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node.UncaughtException%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L504">View Source</a>
+  </span>
+  <h4 id="NBitcoin_Protocol_Node_UncaughtException" data-uid="NBitcoin.Protocol.Node.UncaughtException">UncaughtException</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public event Node.NodeExceptionDelegate UncaughtException</code></pre>
+  </div>
+  <h5 class="eventType">Event Type</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Protocol.Node.NodeExceptionDelegate.html">Node.NodeExceptionDelegate</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <span class="xref">System.IDisposable</span>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Protocol_Node.md&amp;value=---%0Auid%3A%20NBitcoin.Protocol.Node%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/Protocol/Node.cs/#L134" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

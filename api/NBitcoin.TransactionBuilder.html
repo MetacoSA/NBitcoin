@@ -1,0 +1,3686 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class TransactionBuilder
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class TransactionBuilder
+   ">
+    <meta name="generator" content="docfx 2.40.0.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="NBitcoin.TransactionBuilder">
+  
+  
+  <h1 id="NBitcoin_TransactionBuilder" data-uid="NBitcoin.TransactionBuilder" class="text-break">Class TransactionBuilder
+  </h1>
+  <div class="markdown level0 summary"><p>A class for building and signing all sort of transactions easily (<a href="http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All">http://www.codeproject.com/Articles/835098/NBitcoin-Build-Them-All</a>)</p>
+</div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><span class="xref">TransactionBuilder</span></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ToString()</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="NBitcoin.html">NBitcoin</a></h6>
+  <h6><strong>Assembly</strong>: NBitcoin.dll</h6>
+  <h5 id="NBitcoin_TransactionBuilder_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public class TransactionBuilder</code></pre>
+  </div>
+  <h3 id="constructors">Constructors
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder__ctor.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.%23ctor%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L527">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder__ctor_" data-uid="NBitcoin.TransactionBuilder.#ctor*"></a>
+  <h4 id="NBitcoin_TransactionBuilder__ctor" data-uid="NBitcoin.TransactionBuilder.#ctor">TransactionBuilder()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder()</code></pre>
+  </div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder__ctor_System_Int32_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.%23ctor(System.Int32)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L545">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder__ctor_" data-uid="NBitcoin.TransactionBuilder.#ctor*"></a>
+  <h4 id="NBitcoin_TransactionBuilder__ctor_System_Int32_" data-uid="NBitcoin.TransactionBuilder.#ctor(System.Int32)">TransactionBuilder(Int32)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder(int seed)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">seed</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_CoinFinder.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.CoinFinder%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L598">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_CoinFinder_" data-uid="NBitcoin.TransactionBuilder.CoinFinder*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_CoinFinder" data-uid="NBitcoin.TransactionBuilder.CoinFinder">CoinFinder</h4>
+  <div class="markdown level1 summary"><p>A callback used by the TransactionBuilder when it does not find the coin for an input</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Func&lt;OutPoint, ICoin&gt; CoinFinder { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<a class="xref" href="NBitcoin.OutPoint.html">OutPoint</a>, <a class="xref" href="NBitcoin.ICoin.html">ICoin</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_CoinSelector.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.CoinSelector%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L554">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_CoinSelector_" data-uid="NBitcoin.TransactionBuilder.CoinSelector*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_CoinSelector" data-uid="NBitcoin.TransactionBuilder.CoinSelector">CoinSelector</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ICoinSelector CoinSelector { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ICoinSelector.html">ICoinSelector</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_DustPrevention.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.DustPrevention%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L563">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_DustPrevention_" data-uid="NBitcoin.TransactionBuilder.DustPrevention*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_DustPrevention" data-uid="NBitcoin.TransactionBuilder.DustPrevention">DustPrevention</h4>
+  <div class="markdown level1 summary"><p>If true, it will remove any TxOut below Dust, so the transaction get correctly relayed by the network. (Default: true)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool DustPrevention { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Extensions.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Extensions%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1907">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Extensions_" data-uid="NBitcoin.TransactionBuilder.Extensions*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Extensions" data-uid="NBitcoin.TransactionBuilder.Extensions">Extensions</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public List&lt;BuilderExtension&gt; Extensions { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.List</span>&lt;<a class="xref" href="NBitcoin.BuilderExtensions.BuilderExtension.html">BuilderExtension</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_FilterUneconomicalCoins.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.FilterUneconomicalCoins%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L581">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_FilterUneconomicalCoins_" data-uid="NBitcoin.TransactionBuilder.FilterUneconomicalCoins*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_FilterUneconomicalCoins" data-uid="NBitcoin.TransactionBuilder.FilterUneconomicalCoins">FilterUneconomicalCoins</h4>
+  <div class="markdown level1 summary"><p>If true, the TransactionBuilder will not select coins whose fee to spend is higher than its value. (Default: true)
+The cost of spending a coin is based on the <a class="xref" href="NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_FilterUneconomicalCoinsRate">FilterUneconomicalCoinsRate</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool FilterUneconomicalCoins { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_FilterUneconomicalCoinsRate.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.FilterUneconomicalCoinsRate%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L590">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_FilterUneconomicalCoinsRate_" data-uid="NBitcoin.TransactionBuilder.FilterUneconomicalCoinsRate*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_FilterUneconomicalCoinsRate" data-uid="NBitcoin.TransactionBuilder.FilterUneconomicalCoinsRate">FilterUneconomicalCoinsRate</h4>
+  <div class="markdown level1 summary"><p>If <a class="xref" href="NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_FilterUneconomicalCoins">FilterUneconomicalCoins</a> is true, this rate is used to know if an output is economical.
+This property is set automatically when calling <a class="xref" href="NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_SendEstimatedFees_NBitcoin_FeeRate_">SendEstimatedFees(FeeRate)</a> or <a class="xref" href="NBitcoin.TransactionBuilder.html#NBitcoin_TransactionBuilder_SendEstimatedFeesSplit_NBitcoin_FeeRate_">SendEstimatedFeesSplit(FeeRate)</a>.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public FeeRate FilterUneconomicalCoinsRate { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.FeeRate.html">FeeRate</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_KeyFinder.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.KeyFinder%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L607">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_KeyFinder_" data-uid="NBitcoin.TransactionBuilder.KeyFinder*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_KeyFinder" data-uid="NBitcoin.TransactionBuilder.KeyFinder">KeyFinder</h4>
+  <div class="markdown level1 summary"><p>A callback used by the TransactionBuilder when it does not find the key for a scriptPubKey</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Func&lt;Script, Key&gt; KeyFinder { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Func</span>&lt;<a class="xref" href="NBitcoin.Script.html">Script</a>, <a class="xref" href="NBitcoin.Key.html">Key</a>&gt;</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_MergeOutputs.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.MergeOutputs%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L572">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_MergeOutputs_" data-uid="NBitcoin.TransactionBuilder.MergeOutputs*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_MergeOutputs" data-uid="NBitcoin.TransactionBuilder.MergeOutputs">MergeOutputs</h4>
+  <div class="markdown level1 summary"><p>If true and the transaction has two outputs sending to the same scriptPubKey, those will be merged into a single output. (Default: true)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool MergeOutputs { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_StandardTransactionPolicy.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.StandardTransactionPolicy%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L882">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_StandardTransactionPolicy_" data-uid="NBitcoin.TransactionBuilder.StandardTransactionPolicy*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_StandardTransactionPolicy" data-uid="NBitcoin.TransactionBuilder.StandardTransactionPolicy">StandardTransactionPolicy</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public StandardTransactionPolicy StandardTransactionPolicy { get; set; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Policy.StandardTransactionPolicy.html">StandardTransactionPolicy</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_AddCoins_NBitcoin_ICoin___.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.AddCoins(NBitcoin.ICoin%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L660">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_AddCoins_" data-uid="NBitcoin.TransactionBuilder.AddCoins*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_AddCoins_NBitcoin_ICoin___" data-uid="NBitcoin.TransactionBuilder.AddCoins(NBitcoin.ICoin[])">AddCoins(ICoin[])</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder AddCoins(params ICoin[] coins)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ICoin.html">ICoin</a>[]</td>
+        <td><span class="parametername">coins</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_AddCoins_NBitcoin_Transaction_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.AddCoins(NBitcoin.Transaction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1870">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_AddCoins_" data-uid="NBitcoin.TransactionBuilder.AddCoins*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_AddCoins_NBitcoin_Transaction_" data-uid="NBitcoin.TransactionBuilder.AddCoins(NBitcoin.Transaction)">AddCoins(Transaction)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder AddCoins(Transaction transaction)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">transaction</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_AddCoins_System_Collections_Generic_IEnumerable_NBitcoin_ICoin__.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.AddCoins(System.Collections.Generic.IEnumerable%7BNBitcoin.ICoin%7D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L665">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_AddCoins_" data-uid="NBitcoin.TransactionBuilder.AddCoins*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_AddCoins_System_Collections_Generic_IEnumerable_NBitcoin_ICoin__" data-uid="NBitcoin.TransactionBuilder.AddCoins(System.Collections.Generic.IEnumerable{NBitcoin.ICoin})">AddCoins(IEnumerable&lt;ICoin&gt;)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder AddCoins(IEnumerable&lt;ICoin&gt; coins)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Collections.Generic.IEnumerable</span>&lt;<a class="xref" href="NBitcoin.ICoin.html">ICoin</a>&gt;</td>
+        <td><span class="parametername">coins</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_AddKeys_NBitcoin_ISecret___.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.AddKeys(NBitcoin.ISecret%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L622">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_AddKeys_" data-uid="NBitcoin.TransactionBuilder.AddKeys*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_AddKeys_NBitcoin_ISecret___" data-uid="NBitcoin.TransactionBuilder.AddKeys(NBitcoin.ISecret[])">AddKeys(ISecret[])</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder AddKeys(params ISecret[] keys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ISecret.html">ISecret</a>[]</td>
+        <td><span class="parametername">keys</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_AddKeys_NBitcoin_Key___.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.AddKeys(NBitcoin.Key%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L628">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_AddKeys_" data-uid="NBitcoin.TransactionBuilder.AddKeys*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_AddKeys_NBitcoin_Key___" data-uid="NBitcoin.TransactionBuilder.AddKeys(NBitcoin.Key[])">AddKeys(Key[])</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder AddKeys(params Key[] keys)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Key.html">Key</a>[]</td>
+        <td><span class="parametername">keys</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_AddKnownRedeems_NBitcoin_Script___.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.AddKnownRedeems(NBitcoin.Script%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1878">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_AddKnownRedeems_" data-uid="NBitcoin.TransactionBuilder.AddKnownRedeems*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_AddKnownRedeems_NBitcoin_Script___" data-uid="NBitcoin.TransactionBuilder.AddKnownRedeems(NBitcoin.Script[])">AddKnownRedeems(Script[])</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder AddKnownRedeems(params Script[] knownRedeems)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a>[]</td>
+        <td><span class="parametername">knownRedeems</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_AddKnownSignature_NBitcoin_PubKey_NBitcoin_Crypto_ECDSASignature_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey%2CNBitcoin.Crypto.ECDSASignature)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L650">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_AddKnownSignature_" data-uid="NBitcoin.TransactionBuilder.AddKnownSignature*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_AddKnownSignature_NBitcoin_PubKey_NBitcoin_Crypto_ECDSASignature_" data-uid="NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey,NBitcoin.Crypto.ECDSASignature)">AddKnownSignature(PubKey, ECDSASignature)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder AddKnownSignature(PubKey pubKey, ECDSASignature signature)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.PubKey.html">PubKey</a></td>
+        <td><span class="parametername">pubKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Crypto.ECDSASignature.html">ECDSASignature</a></td>
+        <td><span class="parametername">signature</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_AddKnownSignature_NBitcoin_PubKey_NBitcoin_TransactionSignature_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey%2CNBitcoin.TransactionSignature)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L640">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_AddKnownSignature_" data-uid="NBitcoin.TransactionBuilder.AddKnownSignature*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_AddKnownSignature_NBitcoin_PubKey_NBitcoin_TransactionSignature_" data-uid="NBitcoin.TransactionBuilder.AddKnownSignature(NBitcoin.PubKey,NBitcoin.TransactionSignature)">AddKnownSignature(PubKey, TransactionSignature)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder AddKnownSignature(PubKey pubKey, TransactionSignature signature)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.PubKey.html">PubKey</a></td>
+        <td><span class="parametername">pubKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionSignature.html">TransactionSignature</a></td>
+        <td><span class="parametername">signature</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_BuildTransaction_System_Boolean_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.BuildTransaction(System.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1080">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_BuildTransaction_" data-uid="NBitcoin.TransactionBuilder.BuildTransaction*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_BuildTransaction_System_Boolean_" data-uid="NBitcoin.TransactionBuilder.BuildTransaction(System.Boolean)">BuildTransaction(Boolean)</h4>
+  <div class="markdown level1 summary"><p>Build the transaction</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Transaction BuildTransaction(bool sign)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">sign</span></td>
+        <td><p>True if signs all inputs with the available keys</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><p>The transaction</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.NotEnoughFundsException.html">NotEnoughFundsException</a></td>
+        <td><p>Not enough funds are available</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_BuildTransaction_System_Boolean_NBitcoin_SigHash_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.BuildTransaction(System.Boolean%2CNBitcoin.SigHash)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1094">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_BuildTransaction_" data-uid="NBitcoin.TransactionBuilder.BuildTransaction*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_BuildTransaction_System_Boolean_NBitcoin_SigHash_" data-uid="NBitcoin.TransactionBuilder.BuildTransaction(System.Boolean,NBitcoin.SigHash)">BuildTransaction(Boolean, SigHash)</h4>
+  <div class="markdown level1 summary"><p>Build the transaction</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Transaction BuildTransaction(bool sign, SigHash sigHash)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">sign</span></td>
+        <td><p>True if signs all inputs with the available keys</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.SigHash.html">SigHash</a></td>
+        <td><span class="parametername">sigHash</span></td>
+        <td><p>The type of signature</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><p>The transaction</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.NotEnoughFundsException.html">NotEnoughFundsException</a></td>
+        <td><p>Not enough funds are available</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Check_NBitcoin_Transaction_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Check(NBitcoin.Transaction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1437">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Check_" data-uid="NBitcoin.TransactionBuilder.Check*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Check_NBitcoin_Transaction_" data-uid="NBitcoin.TransactionBuilder.Check(NBitcoin.Transaction)">Check(Transaction)</h4>
+  <div class="markdown level1 summary"><p>Verify that a transaction is fully signed and have enough fees</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionPolicyError[] Check(Transaction tx)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>he transaction to check</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Policy.TransactionPolicyError.html">TransactionPolicyError</a>[]</td>
+        <td><p>Detected errors</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Check_NBitcoin_Transaction_NBitcoin_FeeRate_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Check(NBitcoin.Transaction%2CNBitcoin.FeeRate)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1416">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Check_" data-uid="NBitcoin.TransactionBuilder.Check*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Check_NBitcoin_Transaction_NBitcoin_FeeRate_" data-uid="NBitcoin.TransactionBuilder.Check(NBitcoin.Transaction,NBitcoin.FeeRate)">Check(Transaction, FeeRate)</h4>
+  <div class="markdown level1 summary"><p>Verify that a transaction is fully signed and have enough fees</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionPolicyError[] Check(Transaction tx, FeeRate expectedFeeRate)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>he transaction to check</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.FeeRate.html">FeeRate</a></td>
+        <td><span class="parametername">expectedFeeRate</span></td>
+        <td><p>The expected fee rate</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Policy.TransactionPolicyError.html">TransactionPolicyError</a>[]</td>
+        <td><p>Detected errors</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Check_NBitcoin_Transaction_NBitcoin_Money_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Check(NBitcoin.Transaction%2CNBitcoin.Money)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1426">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Check_" data-uid="NBitcoin.TransactionBuilder.Check*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Check_NBitcoin_Transaction_NBitcoin_Money_" data-uid="NBitcoin.TransactionBuilder.Check(NBitcoin.Transaction,NBitcoin.Money)">Check(Transaction, Money)</h4>
+  <div class="markdown level1 summary"><p>Verify that a transaction is fully signed and have enough fees</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionPolicyError[] Check(Transaction tx, Money expectedFee)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>he transaction to check</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td><span class="parametername">expectedFee</span></td>
+        <td><p>The expected fee</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Policy.TransactionPolicyError.html">TransactionPolicyError</a>[]</td>
+        <td><p>Detected errors</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_CombineSignatures_NBitcoin_Transaction___.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.CombineSignatures(NBitcoin.Transaction%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1889">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_CombineSignatures_" data-uid="NBitcoin.TransactionBuilder.CombineSignatures*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_CombineSignatures_NBitcoin_Transaction___" data-uid="NBitcoin.TransactionBuilder.CombineSignatures(NBitcoin.Transaction[])">CombineSignatures(Transaction[])</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Transaction CombineSignatures(params Transaction[] transactions)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a>[]</td>
+        <td><span class="parametername">transactions</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_ContinueToBuild_NBitcoin_Transaction_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.ContinueToBuild(NBitcoin.Transaction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1828">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_ContinueToBuild_" data-uid="NBitcoin.TransactionBuilder.ContinueToBuild*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_ContinueToBuild_NBitcoin_Transaction_" data-uid="NBitcoin.TransactionBuilder.ContinueToBuild(NBitcoin.Transaction)">ContinueToBuild(Transaction)</h4>
+  <div class="markdown level1 summary"><p>Allows to keep building on the top of a partially built transaction</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder ContinueToBuild(Transaction transaction)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">transaction</span></td>
+        <td><p>Transaction to complete</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_CoverOnly_NBitcoin_Money_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.CoverOnly(NBitcoin.Money)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1813">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_CoverOnly_" data-uid="NBitcoin.TransactionBuilder.CoverOnly*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_CoverOnly_NBitcoin_Money_" data-uid="NBitcoin.TransactionBuilder.CoverOnly(NBitcoin.Money)">CoverOnly(Money)</h4>
+  <div class="markdown level1 summary"><p>Specify the amount of money to cover txouts, if not specified all txout will be covered</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder CoverOnly(Money amount)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td><span class="parametername">amount</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_CoverTheRest.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.CoverTheRest%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1842">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_CoverTheRest_" data-uid="NBitcoin.TransactionBuilder.CoverTheRest*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_CoverTheRest" data-uid="NBitcoin.TransactionBuilder.CoverTheRest">CoverTheRest()</h4>
+  <div class="markdown level1 summary"><p>Will cover the remaining amount of TxOut of a partially built transaction (to call after ContinueToBuild)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder CoverTheRest()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_EstimateFees_NBitcoin_FeeRate_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.EstimateFees(NBitcoin.FeeRate)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1590">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_EstimateFees_" data-uid="NBitcoin.TransactionBuilder.EstimateFees*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_EstimateFees_NBitcoin_FeeRate_" data-uid="NBitcoin.TransactionBuilder.EstimateFees(NBitcoin.FeeRate)">EstimateFees(FeeRate)</h4>
+  <div class="markdown level1 summary"><p>Estimate fees of the built transaction</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Money EstimateFees(FeeRate feeRate)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.FeeRate.html">FeeRate</a></td>
+        <td><span class="parametername">feeRate</span></td>
+        <td><p>Fee rate</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_EstimateFees_NBitcoin_Transaction_NBitcoin_FeeRate_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.EstimateFees(NBitcoin.Transaction%2CNBitcoin.FeeRate)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1627">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_EstimateFees_" data-uid="NBitcoin.TransactionBuilder.EstimateFees*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_EstimateFees_NBitcoin_Transaction_NBitcoin_FeeRate_" data-uid="NBitcoin.TransactionBuilder.EstimateFees(NBitcoin.Transaction,NBitcoin.FeeRate)">EstimateFees(Transaction, FeeRate)</h4>
+  <div class="markdown level1 summary"><p>Estimate fees of an unsigned transaction</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Money EstimateFees(Transaction tx, FeeRate feeRate)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.FeeRate.html">FeeRate</a></td>
+        <td><span class="parametername">feeRate</span></td>
+        <td><p>Fee rate</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_EstimateSize_NBitcoin_Transaction_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.EstimateSize(NBitcoin.Transaction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1475">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_EstimateSize_" data-uid="NBitcoin.TransactionBuilder.EstimateSize*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_EstimateSize_NBitcoin_Transaction_" data-uid="NBitcoin.TransactionBuilder.EstimateSize(NBitcoin.Transaction)">EstimateSize(Transaction)</h4>
+  <div class="markdown level1 summary"><p>Estimate the physical size of the transaction</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int EstimateSize(Transaction tx)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>The transaction to be estimated</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_EstimateSize_NBitcoin_Transaction_System_Boolean_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.EstimateSize(NBitcoin.Transaction%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1486">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_EstimateSize_" data-uid="NBitcoin.TransactionBuilder.EstimateSize*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_EstimateSize_NBitcoin_Transaction_System_Boolean_" data-uid="NBitcoin.TransactionBuilder.EstimateSize(NBitcoin.Transaction,System.Boolean)">EstimateSize(Transaction, Boolean)</h4>
+  <div class="markdown level1 summary"><p>Estimate the size of the transaction</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int EstimateSize(Transaction tx, bool virtualSize)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>The transaction to be estimated</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><span class="parametername">virtualSize</span></td>
+        <td><p>If true, returns the size on which fee calculation are based, else returns the physical byte size</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_EstimateSizes_NBitcoin_Transaction_System_Int32__System_Int32__.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.EstimateSizes(NBitcoin.Transaction%2CSystem.Int32%40%2CSystem.Int32%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1501">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_EstimateSizes_" data-uid="NBitcoin.TransactionBuilder.EstimateSizes*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_EstimateSizes_NBitcoin_Transaction_System_Int32__System_Int32__" data-uid="NBitcoin.TransactionBuilder.EstimateSizes(NBitcoin.Transaction,System.Int32@,System.Int32@)">EstimateSizes(Transaction, out Int32, out Int32)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void EstimateSizes(Transaction tx, out int witSize, out int baseSize)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">witSize</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">baseSize</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_FindCoin_NBitcoin_OutPoint_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.FindCoin(NBitcoin.OutPoint)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1448">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_FindCoin_" data-uid="NBitcoin.TransactionBuilder.FindCoin*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_FindCoin_NBitcoin_OutPoint_" data-uid="NBitcoin.TransactionBuilder.FindCoin(NBitcoin.OutPoint)">FindCoin(OutPoint)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ICoin FindCoin(OutPoint outPoint)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.OutPoint.html">OutPoint</a></td>
+        <td><span class="parametername">outPoint</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ICoin.html">ICoin</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_FindSignableCoin_NBitcoin_IndexedTxIn_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.FindSignableCoin(NBitcoin.IndexedTxIn)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1290">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_FindSignableCoin_" data-uid="NBitcoin.TransactionBuilder.FindSignableCoin*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_FindSignableCoin_NBitcoin_IndexedTxIn_" data-uid="NBitcoin.TransactionBuilder.FindSignableCoin(NBitcoin.IndexedTxIn)">FindSignableCoin(IndexedTxIn)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ICoin FindSignableCoin(IndexedTxIn txIn)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.IndexedTxIn.html">IndexedTxIn</a></td>
+        <td><span class="parametername">txIn</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ICoin.html">ICoin</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_FindSpentCoins_NBitcoin_Transaction_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.FindSpentCoins(NBitcoin.Transaction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1461">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_FindSpentCoins_" data-uid="NBitcoin.TransactionBuilder.FindSpentCoins*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_FindSpentCoins_NBitcoin_Transaction_" data-uid="NBitcoin.TransactionBuilder.FindSpentCoins(NBitcoin.Transaction)">FindSpentCoins(Transaction)</h4>
+  <div class="markdown level1 summary"><p>Find spent coins of a transaction</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public ICoin[] FindSpentCoins(Transaction tx)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>The transaction</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ICoin.html">ICoin</a>[]</td>
+        <td><p>Array of size tx.Input.Count, if a coin is not fund, a null coin is returned.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_IssueAsset_NBitcoin_IDestination_NBitcoin_OpenAsset_AssetMoney_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.IssueAsset(NBitcoin.IDestination%2CNBitcoin.OpenAsset.AssetMoney)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L922">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_IssueAsset_" data-uid="NBitcoin.TransactionBuilder.IssueAsset*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_IssueAsset_NBitcoin_IDestination_NBitcoin_OpenAsset_AssetMoney_" data-uid="NBitcoin.TransactionBuilder.IssueAsset(NBitcoin.IDestination,NBitcoin.OpenAsset.AssetMoney)">IssueAsset(IDestination, AssetMoney)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder IssueAsset(IDestination destination, AssetMoney asset)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.IDestination.html">IDestination</a></td>
+        <td><span class="parametername">destination</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.OpenAsset.AssetMoney.html">AssetMoney</a></td>
+        <td><span class="parametername">asset</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_IssueAsset_NBitcoin_Script_NBitcoin_OpenAsset_AssetMoney_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.IssueAsset(NBitcoin.Script%2CNBitcoin.OpenAsset.AssetMoney)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L929">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_IssueAsset_" data-uid="NBitcoin.TransactionBuilder.IssueAsset*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_IssueAsset_NBitcoin_Script_NBitcoin_OpenAsset_AssetMoney_" data-uid="NBitcoin.TransactionBuilder.IssueAsset(NBitcoin.Script,NBitcoin.OpenAsset.AssetMoney)">IssueAsset(Script, AssetMoney)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder IssueAsset(Script scriptPubKey, AssetMoney asset)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">scriptPubKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.OpenAsset.AssetMoney.html">AssetMoney</a></td>
+        <td><span class="parametername">asset</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Send_NBitcoin_IDestination_NBitcoin_IMoney_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Send(NBitcoin.IDestination%2CNBitcoin.IMoney)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L759">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Send_" data-uid="NBitcoin.TransactionBuilder.Send*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Send_NBitcoin_IDestination_NBitcoin_IMoney_" data-uid="NBitcoin.TransactionBuilder.Send(NBitcoin.IDestination,NBitcoin.IMoney)">Send(IDestination, IMoney)</h4>
+  <div class="markdown level1 summary"><p>Send a money amount to the destination</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder Send(IDestination destination, IMoney amount)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.IDestination.html">IDestination</a></td>
+        <td><span class="parametername">destination</span></td>
+        <td><p>The destination</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.IMoney.html">IMoney</a></td>
+        <td><span class="parametername">amount</span></td>
+        <td><p>The amount (supported : Money, AssetMoney, MoneyBag)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.NotSupportedException</span></td>
+        <td><p>The coin type is not supported</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Send_NBitcoin_IDestination_NBitcoin_Money_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Send(NBitcoin.IDestination%2CNBitcoin.Money)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L691">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Send_" data-uid="NBitcoin.TransactionBuilder.Send*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Send_NBitcoin_IDestination_NBitcoin_Money_" data-uid="NBitcoin.TransactionBuilder.Send(NBitcoin.IDestination,NBitcoin.Money)">Send(IDestination, Money)</h4>
+  <div class="markdown level1 summary"><p>Send bitcoins to a destination</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder Send(IDestination destination, Money amount)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.IDestination.html">IDestination</a></td>
+        <td><span class="parametername">destination</span></td>
+        <td><p>The destination</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td><span class="parametername">amount</span></td>
+        <td><p>The amount</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Send_NBitcoin_Script_NBitcoin_IMoney_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Send(NBitcoin.Script%2CNBitcoin.IMoney)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L770">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Send_" data-uid="NBitcoin.TransactionBuilder.Send*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Send_NBitcoin_Script_NBitcoin_IMoney_" data-uid="NBitcoin.TransactionBuilder.Send(NBitcoin.Script,NBitcoin.IMoney)">Send(Script, IMoney)</h4>
+  <div class="markdown level1 summary"><p>Send a money amount to the destination</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder Send(Script scriptPubKey, IMoney amount)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">scriptPubKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.IMoney.html">IMoney</a></td>
+        <td><span class="parametername">amount</span></td>
+        <td><p>The amount (supported : Money, AssetMoney, MoneyBag)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="exceptions">Exceptions</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Condition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.NotSupportedException</span></td>
+        <td><p>The coin type is not supported</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Send_NBitcoin_Script_NBitcoin_Money_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Send(NBitcoin.Script%2CNBitcoin.Money)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L704">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Send_" data-uid="NBitcoin.TransactionBuilder.Send*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Send_NBitcoin_Script_NBitcoin_Money_" data-uid="NBitcoin.TransactionBuilder.Send(NBitcoin.Script,NBitcoin.Money)">Send(Script, Money)</h4>
+  <div class="markdown level1 summary"><p>Send bitcoins to a destination</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder Send(Script scriptPubKey, Money amount)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">scriptPubKey</span></td>
+        <td><p>The destination</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td><span class="parametername">amount</span></td>
+        <td><p>The amount</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Send_NBitcoin_Stealth_BitcoinStealthAddress_NBitcoin_Money_NBitcoin_Key_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Send(NBitcoin.Stealth.BitcoinStealthAddress%2CNBitcoin.Money%2CNBitcoin.Key)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L903">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Send_" data-uid="NBitcoin.TransactionBuilder.Send*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Send_NBitcoin_Stealth_BitcoinStealthAddress_NBitcoin_Money_NBitcoin_Key_" data-uid="NBitcoin.TransactionBuilder.Send(NBitcoin.Stealth.BitcoinStealthAddress,NBitcoin.Money,NBitcoin.Key)">Send(BitcoinStealthAddress, Money, Key)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder Send(BitcoinStealthAddress address, Money amount, Key ephemKey = null)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Stealth.BitcoinStealthAddress.html">BitcoinStealthAddress</a></td>
+        <td><span class="parametername">address</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td><span class="parametername">amount</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Key.html">Key</a></td>
+        <td><span class="parametername">ephemKey</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SendAsset_NBitcoin_IDestination_NBitcoin_OpenAsset_AssetId_System_UInt64_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SendAsset(NBitcoin.IDestination%2CNBitcoin.OpenAsset.AssetId%2CSystem.UInt64)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L805">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SendAsset_" data-uid="NBitcoin.TransactionBuilder.SendAsset*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SendAsset_NBitcoin_IDestination_NBitcoin_OpenAsset_AssetId_System_UInt64_" data-uid="NBitcoin.TransactionBuilder.SendAsset(NBitcoin.IDestination,NBitcoin.OpenAsset.AssetId,System.UInt64)">SendAsset(IDestination, AssetId, UInt64)</h4>
+  <div class="markdown level1 summary"><p>Send assets (Open Asset) to a destination</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SendAsset(IDestination destination, AssetId assetId, ulong quantity)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.IDestination.html">IDestination</a></td>
+        <td><span class="parametername">destination</span></td>
+        <td><p>The destination</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.OpenAsset.AssetId.html">AssetId</a></td>
+        <td><span class="parametername">assetId</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.UInt64</span></td>
+        <td><span class="parametername">quantity</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SendAsset_NBitcoin_IDestination_NBitcoin_OpenAsset_AssetMoney_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SendAsset(NBitcoin.IDestination%2CNBitcoin.OpenAsset.AssetMoney)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L794">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SendAsset_" data-uid="NBitcoin.TransactionBuilder.SendAsset*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SendAsset_NBitcoin_IDestination_NBitcoin_OpenAsset_AssetMoney_" data-uid="NBitcoin.TransactionBuilder.SendAsset(NBitcoin.IDestination,NBitcoin.OpenAsset.AssetMoney)">SendAsset(IDestination, AssetMoney)</h4>
+  <div class="markdown level1 summary"><p>Send assets (Open Asset) to a destination</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SendAsset(IDestination destination, AssetMoney asset)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.IDestination.html">IDestination</a></td>
+        <td><span class="parametername">destination</span></td>
+        <td><p>The destination</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.OpenAsset.AssetMoney.html">AssetMoney</a></td>
+        <td><span class="parametername">asset</span></td>
+        <td><p>The asset and amount</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SendAsset_NBitcoin_Script_NBitcoin_OpenAsset_AssetId_System_UInt64_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SendAsset(NBitcoin.Script%2CNBitcoin.OpenAsset.AssetId%2CSystem.UInt64)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L831">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SendAsset_" data-uid="NBitcoin.TransactionBuilder.SendAsset*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SendAsset_NBitcoin_Script_NBitcoin_OpenAsset_AssetId_System_UInt64_" data-uid="NBitcoin.TransactionBuilder.SendAsset(NBitcoin.Script,NBitcoin.OpenAsset.AssetId,System.UInt64)">SendAsset(Script, AssetId, UInt64)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SendAsset(Script scriptPubKey, AssetId assetId, ulong assetQuantity)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">scriptPubKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.OpenAsset.AssetId.html">AssetId</a></td>
+        <td><span class="parametername">assetId</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.UInt64</span></td>
+        <td><span class="parametername">assetQuantity</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SendAsset_NBitcoin_Script_NBitcoin_OpenAsset_AssetMoney_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SendAsset(NBitcoin.Script%2CNBitcoin.OpenAsset.AssetMoney)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L836">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SendAsset_" data-uid="NBitcoin.TransactionBuilder.SendAsset*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SendAsset_NBitcoin_Script_NBitcoin_OpenAsset_AssetMoney_" data-uid="NBitcoin.TransactionBuilder.SendAsset(NBitcoin.Script,NBitcoin.OpenAsset.AssetMoney)">SendAsset(Script, AssetMoney)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SendAsset(Script scriptPubKey, AssetMoney asset)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">scriptPubKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.OpenAsset.AssetMoney.html">AssetMoney</a></td>
+        <td><span class="parametername">asset</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SendEstimatedFees_NBitcoin_FeeRate_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SendEstimatedFees(NBitcoin.FeeRate)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L978">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SendEstimatedFees_" data-uid="NBitcoin.TransactionBuilder.SendEstimatedFees*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SendEstimatedFees_NBitcoin_FeeRate_" data-uid="NBitcoin.TransactionBuilder.SendEstimatedFees(NBitcoin.FeeRate)">SendEstimatedFees(FeeRate)</h4>
+  <div class="markdown level1 summary"><p>Split the estimated fees accross the several groups (separated by Then())</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SendEstimatedFees(FeeRate feeRate)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.FeeRate.html">FeeRate</a></td>
+        <td><span class="parametername">feeRate</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SendEstimatedFeesSplit_NBitcoin_FeeRate_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SendEstimatedFeesSplit(NBitcoin.FeeRate)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L991">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SendEstimatedFeesSplit_" data-uid="NBitcoin.TransactionBuilder.SendEstimatedFeesSplit*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SendEstimatedFeesSplit_NBitcoin_FeeRate_" data-uid="NBitcoin.TransactionBuilder.SendEstimatedFeesSplit(NBitcoin.FeeRate)">SendEstimatedFeesSplit(FeeRate)</h4>
+  <div class="markdown level1 summary"><p>Estimate the fee needed for the transaction, and split among groups according to their fee weight</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SendEstimatedFeesSplit(FeeRate feeRate)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.FeeRate.html">FeeRate</a></td>
+        <td><span class="parametername">feeRate</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SendFees_NBitcoin_Money_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SendFees(NBitcoin.Money)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L962">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SendFees_" data-uid="NBitcoin.TransactionBuilder.SendFees*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SendFees_NBitcoin_Money_" data-uid="NBitcoin.TransactionBuilder.SendFees(NBitcoin.Money)">SendFees(Money)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SendFees(Money fees)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td><span class="parametername">fees</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SendFeesSplit_NBitcoin_Money_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SendFeesSplit(NBitcoin.Money)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1004">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SendFeesSplit_" data-uid="NBitcoin.TransactionBuilder.SendFeesSplit*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SendFeesSplit_NBitcoin_Money_" data-uid="NBitcoin.TransactionBuilder.SendFeesSplit(NBitcoin.Money)">SendFeesSplit(Money)</h4>
+  <div class="markdown level1 summary"><p>Send the fee splitted among groups according to their fee weight</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SendFeesSplit(Money fees)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td><span class="parametername">fees</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SetChange_NBitcoin_IDestination_NBitcoin_ChangeType_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SetChange(NBitcoin.IDestination%2CNBitcoin.ChangeType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1037">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SetChange_" data-uid="NBitcoin.TransactionBuilder.SetChange*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SetChange_NBitcoin_IDestination_NBitcoin_ChangeType_" data-uid="NBitcoin.TransactionBuilder.SetChange(NBitcoin.IDestination,NBitcoin.ChangeType)">SetChange(IDestination, ChangeType)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SetChange(IDestination destination, ChangeType changeType = ChangeType.All | ChangeType.Colored | ChangeType.Uncolored)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.IDestination.html">IDestination</a></td>
+        <td><span class="parametername">destination</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChangeType.html">ChangeType</a></td>
+        <td><span class="parametername">changeType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SetChange_NBitcoin_Script_NBitcoin_ChangeType_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SetChange(NBitcoin.Script%2CNBitcoin.ChangeType)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1042">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SetChange_" data-uid="NBitcoin.TransactionBuilder.SetChange*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SetChange_NBitcoin_Script_NBitcoin_ChangeType_" data-uid="NBitcoin.TransactionBuilder.SetChange(NBitcoin.Script,NBitcoin.ChangeType)">SetChange(Script, ChangeType)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SetChange(Script scriptPubKey, ChangeType changeType = ChangeType.All | ChangeType.Colored | ChangeType.Uncolored)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">scriptPubKey</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ChangeType.html">ChangeType</a></td>
+        <td><span class="parametername">changeType</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SetCoinSelector_NBitcoin_ICoinSelector_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SetCoinSelector(NBitcoin.ICoinSelector)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1067">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SetCoinSelector_" data-uid="NBitcoin.TransactionBuilder.SetCoinSelector*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SetCoinSelector_NBitcoin_ICoinSelector_" data-uid="NBitcoin.TransactionBuilder.SetCoinSelector(NBitcoin.ICoinSelector)">SetCoinSelector(ICoinSelector)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SetCoinSelector(ICoinSelector selector)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ICoinSelector.html">ICoinSelector</a></td>
+        <td><span class="parametername">selector</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SetConsensusFactory_NBitcoin_ConsensusFactory_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SetConsensusFactory(NBitcoin.ConsensusFactory)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1056">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SetConsensusFactory_" data-uid="NBitcoin.TransactionBuilder.SetConsensusFactory*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SetConsensusFactory_NBitcoin_ConsensusFactory_" data-uid="NBitcoin.TransactionBuilder.SetConsensusFactory(NBitcoin.ConsensusFactory)">SetConsensusFactory(ConsensusFactory)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SetConsensusFactory(ConsensusFactory consensusFactory)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ConsensusFactory.html">ConsensusFactory</a></td>
+        <td><span class="parametername">consensusFactory</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SetConsensusFactory_NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SetConsensusFactory(NBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1062">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SetConsensusFactory_" data-uid="NBitcoin.TransactionBuilder.SetConsensusFactory*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SetConsensusFactory_NBitcoin_Network_" data-uid="NBitcoin.TransactionBuilder.SetConsensusFactory(NBitcoin.Network)">SetConsensusFactory(Network)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SetConsensusFactory(Network network)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Network.html">Network</a></td>
+        <td><span class="parametername">network</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SetFeeWeight_System_Decimal_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SetFeeWeight(System.Decimal)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1031">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SetFeeWeight_" data-uid="NBitcoin.TransactionBuilder.SetFeeWeight*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SetFeeWeight_System_Decimal_" data-uid="NBitcoin.TransactionBuilder.SetFeeWeight(System.Decimal)">SetFeeWeight(Decimal)</h4>
+  <div class="markdown level1 summary"><p>If using SendFeesSplit or SendEstimatedFeesSplit, determine the weight this group participate in paying the fees</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SetFeeWeight(decimal feeWeight)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Decimal</span></td>
+        <td><span class="parametername">feeWeight</span></td>
+        <td><p>The weight of fee participation</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SetGroupName_System_String_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SetGroupName(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L679">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SetGroupName_" data-uid="NBitcoin.TransactionBuilder.SetGroupName*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SetGroupName_System_String_" data-uid="NBitcoin.TransactionBuilder.SetGroupName(System.String)">SetGroupName(String)</h4>
+  <div class="markdown level1 summary"><p>Set the name of this group (group are separated by call to Then())</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SetGroupName(string groupName)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">groupName</span></td>
+        <td><p>Name of the group</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SetLockTime_NBitcoin_LockTime_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SetLockTime(NBitcoin.LockTime)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L614">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SetLockTime_" data-uid="NBitcoin.TransactionBuilder.SetLockTime*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SetLockTime_NBitcoin_LockTime_" data-uid="NBitcoin.TransactionBuilder.SetLockTime(NBitcoin.LockTime)">SetLockTime(LockTime)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SetLockTime(LockTime lockTime)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.LockTime.html">LockTime</a></td>
+        <td><span class="parametername">lockTime</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SetTransactionPolicy_NBitcoin_Policy_StandardTransactionPolicy_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SetTransactionPolicy(NBitcoin.Policy.StandardTransactionPolicy)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L877">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SetTransactionPolicy_" data-uid="NBitcoin.TransactionBuilder.SetTransactionPolicy*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SetTransactionPolicy_NBitcoin_Policy_StandardTransactionPolicy_" data-uid="NBitcoin.TransactionBuilder.SetTransactionPolicy(NBitcoin.Policy.StandardTransactionPolicy)">SetTransactionPolicy(StandardTransactionPolicy)</h4>
+  <div class="markdown level1 summary"><p>Set transaction policy fluently</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SetTransactionPolicy(StandardTransactionPolicy policy)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Policy.StandardTransactionPolicy.html">StandardTransactionPolicy</a></td>
+        <td><span class="parametername">policy</span></td>
+        <td><p>The policy</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td><p>this</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Shuffle.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Shuffle%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L810">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Shuffle_" data-uid="NBitcoin.TransactionBuilder.Shuffle*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Shuffle" data-uid="NBitcoin.TransactionBuilder.Shuffle">Shuffle()</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder Shuffle()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SignTransaction_NBitcoin_Transaction_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SignTransaction(NBitcoin.Transaction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1263">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SignTransaction_" data-uid="NBitcoin.TransactionBuilder.SignTransaction*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SignTransaction_NBitcoin_Transaction_" data-uid="NBitcoin.TransactionBuilder.SignTransaction(NBitcoin.Transaction)">SignTransaction(Transaction)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Transaction SignTransaction(Transaction transaction)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">transaction</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SignTransaction_NBitcoin_Transaction_NBitcoin_SigHash_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SignTransaction(NBitcoin.Transaction%2CNBitcoin.SigHash)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1256">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SignTransaction_" data-uid="NBitcoin.TransactionBuilder.SignTransaction*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SignTransaction_NBitcoin_Transaction_NBitcoin_SigHash_" data-uid="NBitcoin.TransactionBuilder.SignTransaction(NBitcoin.Transaction,NBitcoin.SigHash)">SignTransaction(Transaction, SigHash)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Transaction SignTransaction(Transaction transaction, SigHash sigHash)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">transaction</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.SigHash.html">SigHash</a></td>
+        <td><span class="parametername">sigHash</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SignTransactionInPlace_NBitcoin_Transaction_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SignTransactionInPlace(NBitcoin.Transaction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1267">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SignTransactionInPlace_" data-uid="NBitcoin.TransactionBuilder.SignTransactionInPlace*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SignTransactionInPlace_NBitcoin_Transaction_" data-uid="NBitcoin.TransactionBuilder.SignTransactionInPlace(NBitcoin.Transaction)">SignTransactionInPlace(Transaction)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Transaction SignTransactionInPlace(Transaction transaction)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">transaction</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SignTransactionInPlace_NBitcoin_Transaction_NBitcoin_SigHash_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SignTransactionInPlace(NBitcoin.Transaction%2CNBitcoin.SigHash)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1271">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SignTransactionInPlace_" data-uid="NBitcoin.TransactionBuilder.SignTransactionInPlace*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SignTransactionInPlace_NBitcoin_Transaction_NBitcoin_SigHash_" data-uid="NBitcoin.TransactionBuilder.SignTransactionInPlace(NBitcoin.Transaction,NBitcoin.SigHash)">SignTransactionInPlace(Transaction, SigHash)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Transaction SignTransactionInPlace(Transaction transaction, SigHash sigHash)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">transaction</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.SigHash.html">SigHash</a></td>
+        <td><span class="parametername">sigHash</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_SubtractFees.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.SubtractFees%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L744">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_SubtractFees_" data-uid="NBitcoin.TransactionBuilder.SubtractFees*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_SubtractFees" data-uid="NBitcoin.TransactionBuilder.SubtractFees">SubtractFees()</h4>
+  <div class="markdown level1 summary"><p>Will subtract fees from the previous TxOut added by the last TransactionBuidler.Send() call</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder SubtractFees()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Then.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Then%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1785">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Then_" data-uid="NBitcoin.TransactionBuilder.Then*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Then" data-uid="NBitcoin.TransactionBuilder.Then">Then()</h4>
+  <div class="markdown level1 summary"><p>Create a new participant in the transaction with its own set of coins and keys</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder Then()</code></pre>
+  </div>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Then_System_String_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Then(System.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1795">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Then_" data-uid="NBitcoin.TransactionBuilder.Then*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Then_System_String_" data-uid="NBitcoin.TransactionBuilder.Then(System.String)">Then(String)</h4>
+  <div class="markdown level1 summary"><p>Switch to another participant in the transaction, or create a new one if it is not found.</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public TransactionBuilder Then(string groupName)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">groupName</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TransactionBuilder.html">TransactionBuilder</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1326">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Verify_" data-uid="NBitcoin.TransactionBuilder.Verify*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_" data-uid="NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction)">Verify(Transaction)</h4>
+  <div class="markdown level1 summary"><p>Verify that a transaction is fully signed and have enough fees</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Verify(Transaction tx)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>The transaction to check</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if no error</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_NBitcoin_FeeRate_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction%2CNBitcoin.FeeRate)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1349">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Verify_" data-uid="NBitcoin.TransactionBuilder.Verify*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_NBitcoin_FeeRate_" data-uid="NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction,NBitcoin.FeeRate)">Verify(Transaction, FeeRate)</h4>
+  <div class="markdown level1 summary"><p>Verify that a transaction is fully signed and have enough fees</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Verify(Transaction tx, FeeRate expectedFeeRate)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>The transaction to check</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.FeeRate.html">FeeRate</a></td>
+        <td><span class="parametername">expectedFeeRate</span></td>
+        <td><p>The expected fee rate</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if no error</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_NBitcoin_FeeRate_NBitcoin_Policy_TransactionPolicyError____.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction%2CNBitcoin.FeeRate%2CNBitcoin.Policy.TransactionPolicyError%5B%5D%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1404">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Verify_" data-uid="NBitcoin.TransactionBuilder.Verify*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_NBitcoin_FeeRate_NBitcoin_Policy_TransactionPolicyError____" data-uid="NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction,NBitcoin.FeeRate,NBitcoin.Policy.TransactionPolicyError[]@)">Verify(Transaction, FeeRate, out TransactionPolicyError[])</h4>
+  <div class="markdown level1 summary"><p>Verify that a transaction is fully signed and have enough fees</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Verify(Transaction tx, FeeRate expectedFeeRate, out TransactionPolicyError[] errors)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>The transaction to check</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.FeeRate.html">FeeRate</a></td>
+        <td><span class="parametername">expectedFeeRate</span></td>
+        <td><p>The expected fee rate</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Policy.TransactionPolicyError.html">TransactionPolicyError</a>[]</td>
+        <td><span class="parametername">errors</span></td>
+        <td><p>Detected errors</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if no error</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_NBitcoin_Money_.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction%2CNBitcoin.Money)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1337">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Verify_" data-uid="NBitcoin.TransactionBuilder.Verify*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_NBitcoin_Money_" data-uid="NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction,NBitcoin.Money)">Verify(Transaction, Money)</h4>
+  <div class="markdown level1 summary"><p>Verify that a transaction is fully signed and have enough fees</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Verify(Transaction tx, Money expectedFees)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>The transaction to check</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td><span class="parametername">expectedFees</span></td>
+        <td><p>The expected fees (more or less 10%)</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if no error</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_NBitcoin_Money_NBitcoin_Policy_TransactionPolicyError____.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction%2CNBitcoin.Money%2CNBitcoin.Policy.TransactionPolicyError%5B%5D%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1372">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Verify_" data-uid="NBitcoin.TransactionBuilder.Verify*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_NBitcoin_Money_NBitcoin_Policy_TransactionPolicyError____" data-uid="NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction,NBitcoin.Money,NBitcoin.Policy.TransactionPolicyError[]@)">Verify(Transaction, Money, out TransactionPolicyError[])</h4>
+  <div class="markdown level1 summary"><p>Verify that a transaction is fully signed, have enough fees, and follow the Standard and Miner Transaction Policy rules</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Verify(Transaction tx, Money expectedFees, out TransactionPolicyError[] errors)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>The transaction to check</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td><span class="parametername">expectedFees</span></td>
+        <td><p>The expected fees (more or less 10%)</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Policy.TransactionPolicyError.html">TransactionPolicyError</a>[]</td>
+        <td><span class="parametername">errors</span></td>
+        <td><p>Detected errors</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if no error</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_NBitcoin_Policy_TransactionPolicyError____.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction%2CNBitcoin.Policy.TransactionPolicyError%5B%5D%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L1361">View Source</a>
+  </span>
+  <a id="NBitcoin_TransactionBuilder_Verify_" data-uid="NBitcoin.TransactionBuilder.Verify*"></a>
+  <h4 id="NBitcoin_TransactionBuilder_Verify_NBitcoin_Transaction_NBitcoin_Policy_TransactionPolicyError____" data-uid="NBitcoin.TransactionBuilder.Verify(NBitcoin.Transaction,NBitcoin.Policy.TransactionPolicyError[]@)">Verify(Transaction, out TransactionPolicyError[])</h4>
+  <div class="markdown level1 summary"><p>Verify that a transaction is fully signed and have enough fees</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Verify(Transaction tx, out TransactionPolicyError[] errors)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></td>
+        <td><span class="parametername">tx</span></td>
+        <td><p>The transaction to check</p>
+</td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Policy.TransactionPolicyError.html">TransactionPolicyError</a>[]</td>
+        <td><span class="parametername">errors</span></td>
+        <td><p>Detected errors</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td><p>True if no error</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_TransactionBuilder.md&amp;value=---%0Auid%3A%20NBitcoin.TransactionBuilder%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/TransactionBuilder.cs/#L188" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>
