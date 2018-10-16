@@ -544,7 +544,6 @@ namespace NBitcoin.Tests
 				// 20 total test cases
 
 				#region Bitcoin Address
-				Console.WriteLine("Should import an address");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -560,7 +559,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region ScriptPubKey + internal
-				Console.WriteLine("Should import a scriptPubKey with internal flag");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -575,7 +573,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region ScriptPubKey + !internal
-				Console.WriteLine("Should not import a scriptPubKey without internal flag");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -591,7 +588,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region Address + Public key + !internal
-				Console.WriteLine("Should import an address with public key");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -606,7 +602,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region ScriptPubKey + Public key + internal
-				Console.WriteLine("Should import a scriptPubKey with internal and with public key");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -622,7 +617,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region ScriptPubKey + Public key + !internal
-				// Console.WriteLine("Should not import a scriptPubKey without internal and with public key");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -639,7 +633,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region Address + Private key + !watchonly
-				// Console.WriteLine("Should import an address with private key");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -652,7 +645,6 @@ namespace NBitcoin.Tests
 
 				rpc.ImportMulti(multiAddresses.ToArray(), false);
 
-				Console.WriteLine("Should not import an address with private key if is already imported");
 				multiAddresses = new List<ImportMultiAddress>
 				{
 					new ImportMultiAddress
@@ -669,7 +661,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region Address + Private key + watchonly
-				Console.WriteLine("Should not import an address with private key and with watchonly");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -687,7 +678,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region ScriptPubKey + Private key + internal
-				Console.WriteLine("Should import a scriptPubKey with internal and with private key");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -703,7 +693,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region ScriptPubKey + Private key + !internal
-				Console.WriteLine("Should not import a scriptPubKey without internal and with private key");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -734,7 +723,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region Address + Public key + !Internal + Wrong pubkey
-				Console.WriteLine("Should not import an address with a wrong public key");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -751,7 +739,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region ScriptPubKey + Public key + internal + Wrong pubkey
-				Console.WriteLine("Should not import a scriptPubKey with internal and with a wrong public key");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -769,7 +756,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region Address + Private key + !watchonly + Wrong private key
-				Console.WriteLine("Should not import an address with a wrong private key");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -786,7 +772,6 @@ namespace NBitcoin.Tests
 				#endregion
 
 				#region ScriptPubKey + Private key + internal + Wrong private key
-				Console.WriteLine("Should not import a scriptPubKey with internal and with a wrong private key");
 				key = new Key();
 				multiAddresses = new List<ImportMultiAddress>
 				{
@@ -896,7 +881,6 @@ namespace NBitcoin.Tests
 			var testData = JObject.Parse(testJson);
 			var unspentCoin = new UnspentCoin(testData, Network.TestNet);
 
-			Console.WriteLine("Redeem Script: {0}", unspentCoin.RedeemScript);
 			Assert.NotNull(unspentCoin.RedeemScript);
 		}
 
