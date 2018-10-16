@@ -88,6 +88,7 @@ on_success:
       echo "Identified build as PR(${APPVEYOR_PULL_REQUEST_NUMBER}):  Not deploying docs"
       exit 0
     fi
+    echo "TEST: $APPVEYOR_PULL_REQUEST_NUMBER"
 - cinst docfx
 - git config --global credential.helper store
 - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"
