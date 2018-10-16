@@ -10,6 +10,8 @@ It works on Windows, Mac and Linux with Xamarin, Unity, .NET Core or CLR. (Porti
 
 The best documentation available is our [eBook](https://programmingblockchain.gitbooks.io/programmingblockchain/content/), and the excellent unit tests. There are also some more resources below.
 
+You can also browse the API easily through [the API reference](https://metacosa.github.io/NBitcoin/api/index.html).
+
 # How to use ?
 With NuGet :
 >**Install-Package NBitcoin** 
