@@ -83,18 +83,19 @@ test_script:
 #---------------------------------#     
 
 on_success: 
-- bash: |
-    if [[  ${APPVEYOR_PULL_REQUEST_NUMBER} && ${APPVEYOR_PULL_REQUEST_NUMBER-x} ]]; then
-      echo "Identified build as PR(${APPVEYOR_PULL_REQUEST_NUMBER}):  Not deploying docs"
-      exit 0
-    fi
-    echo "TEST: $APPVEYOR_PULL_REQUEST_NUMBER"
-- cinst docfx
-- git config --global credential.helper store
-- ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"
-- git config --global user.email %github_email%
-- git config --global user.name %github_user%
-- bash ./docs/release.sh   
+- ps: |
+       
+        if (-not (Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER)) { 
+            Write-Host "Generating Docs "
+            cinst docfx
+            git config --global credential.helper store
+            Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"
+            git config --global user.email %github_email%
+            git config --global user.name %github_user%
+            sh ./docs/release.sh 
+        } else {
+            Write-Host "Identified build as PR [$env:APPVEYOR_PULL_REQUEST_NUMBER], skipping docs gen "
+        }
 #---------------------------------#
       
 #---------------------------------#
