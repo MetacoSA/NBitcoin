@@ -19,10 +19,10 @@ branches:
 #---------------------------------#
 environment:
   github_access_token:
-    secure: /FamLw/uvGi0NNcmbw7tG8mNWgGK/bXTy6bS+KtaUb5Ztc9Qgy0Oxiz5BgBKzB4m   
+    secure: b6+unGPAP8A/oMD1o5F6tHPNW5nJ3NqXLrcN8Ja0bIHktkUoPmW83zTX9uGn9Vp7   
   github_email:
-    secure: p5VMsRKubRBjE6cqWpaDhNKEJPh0Z6Gddx2K//zAfus=
-  github_user: Kukks
+    secure: 7WEBdwurN3nc4zkdDPfkFIog4U14s5XhamiCk4oGvOY=
+  github_user: NicolasDorier
 
 
 image: Visual Studio 2017
