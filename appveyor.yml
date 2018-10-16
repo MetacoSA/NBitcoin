@@ -15,7 +15,7 @@ branches:
   only:
     - master
 
-    #---------------------------------#
+#---------------------------------#
 #    environment configuration    #
 #---------------------------------#
 environment:
@@ -78,11 +78,16 @@ test_script:
       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
 
       
-      #---------------------------------#
+#---------------------------------#
 #      docs configuration         #
 #---------------------------------#     
 
 on_success: 
+- bash: |
+    if [[  ${APPVEYOR_PULL_REQUEST_NUMBER} && ${APPVEYOR_PULL_REQUEST_NUMBER-x} ]]; then
+      echo "Identified build as PR(${APPVEYOR_PULL_REQUEST_NUMBER}):  Not deploying docs"
+      exit 0
+    fi
 - cinst docfx
 - git config --global credential.helper store
 - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"

@@ -1,11 +1,6 @@
 #!/bin/sh
 set -e
 
-if [[ -z "${APPVEYOR_PULL_REQUEST_NUMBER}" ]]; then
-  echo "Identified build as PR(${APPVEYOR_PULL_REQUEST_NUMBER}):  Not deploying docs"
-  exit 0
-fi
-
 export VSINSTALLDIR="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community"
 export VisualStudioVersion="15.0"
 
