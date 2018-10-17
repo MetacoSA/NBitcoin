@@ -27,6 +27,8 @@ namespace NBitcoin.Tests
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Dash.v0_12_2, Altcoins.Dash.Instance.Regtest, caller);
 
+			//var builder = NodeBuilder.Create(NodeDownloadData.Terracoin.v0_12_2, Altcoins.Terracoin.Instance.Regtest, caller);
+
 			//var builder = NodeBuilder.Create(NodeDownloadData.BGold.v0_15_0, Altcoins.BGold.Instance.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Polis.v1_3_0, Altcoins.Polis.Instance.Regtest, caller);
