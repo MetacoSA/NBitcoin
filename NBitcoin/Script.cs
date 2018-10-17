@@ -446,7 +446,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Extract the ScriptCode delimited by the <codeSeparatorIndex>th OP_CODESEPARATOR.
+		/// Extract the ScriptCode delimited by the codeSeparatorIndex th OP_CODESEPARATOR.
 		/// </summary>
 		/// <param name="codeSeparatorIndex">Index of the OP_CODESEPARATOR, or -1 for fetching the whole script</param>
 		/// <returns></returns>
