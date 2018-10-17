@@ -92,6 +92,7 @@ on_success:
             Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"
             git config --global user.email %github_email%
             git config --global user.name %github_user%
+            git config --global core.safecrlf false
             sh ./docs/release.sh 
         } else {
             Write-Host "Identified build as PR [$env:APPVEYOR_PULL_REQUEST_NUMBER], skipping docs gen "
