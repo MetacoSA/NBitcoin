@@ -5817,7 +5817,7 @@
       "output": {
         ".html": {
           "relative_path": "api/NBitcoin.Script.html",
-          "hash": "MxVl3b+IjjMnj3IO9NChBw=="
+          "hash": "NhUdVqk8FCPrK7Gt8xJlvA=="
         }
       },
       "is_incremental": false,
@@ -6675,11 +6675,11 @@
         "incrementalPhase": "build"
       },
       "processors": {
-        "ConceptualDocumentProcessor": {
+        "ManagedReferenceDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build"
         },
-        "ManagedReferenceDocumentProcessor": {
+        "ConceptualDocumentProcessor": {
           "can_incremental": false,
           "incrementalPhase": "build"
         },
