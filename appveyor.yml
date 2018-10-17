@@ -15,6 +15,17 @@ branches:
   only:
     - master
 
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+environment:
+  github_access_token:
+    secure: /FamLw/uvGi0NNcmbw7tG8mNWgGK/bXTy6bS+KtaUb5Ztc9Qgy0Oxiz5BgBKzB4m   
+  github_email:
+    secure: p5VMsRKubRBjE6cqWpaDhNKEJPh0Z6Gddx2K//zAfus=
+  github_user: Kukks
+
+    
 
 image: Visual Studio 2017
 clone_folder: c:\projects\nbitcoin
@@ -66,6 +77,27 @@ test_script:
       Write-Host "[$env:configuration] FINISHED dotnet test" -foregroundcolor "magenta"
       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
 
+      
+#---------------------------------#
+#      docs configuration         #
+#---------------------------------#     
+
+on_success: 
+- ps: |
+       
+        if (-not (Test-Path env:APPVEYOR_PULL_REQUEST_NUMBER)) { 
+            Write-Host "Generating Docs "
+            cinst docfx
+            git config --global credential.helper store
+            Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"
+            git config --global user.email %github_email%
+            git config --global user.name %github_user%
+            sh ./docs/release.sh 
+        } else {
+            Write-Host "Identified build as PR [$env:APPVEYOR_PULL_REQUEST_NUMBER], skipping docs gen "
+        }
+#---------------------------------#
+      
 #---------------------------------#
 #      artifacts configuration    #
 #---------------------------------#
