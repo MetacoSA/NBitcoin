@@ -149,12 +149,12 @@ namespace NBitcoin.Tests
 				node.Generate(builder.Network.Consensus.CoinbaseMaturity + 1);
 				var rpc = node.CreateRPCClient();
 				rpc.ScanRPCCapabilities();
-				Assert.NotNull(rpc.RPCCapabilities);
+				Assert.NotNull(rpc.Capabilities);
 
-				CheckCapabilities(rpc, "getnetworkinfo", rpc.RPCCapabilities.SupportGetNetworkInfo);
-				CheckCapabilities(rpc, "scantxoutset", rpc.RPCCapabilities.SupportScanUTXOSet);
-				CheckCapabilities(rpc, "signrawtransactionwithkey", rpc.RPCCapabilities.SupportSignRawTransactionWith);
-				CheckCapabilities(rpc, "estimatesmartfee", rpc.RPCCapabilities.SupportEstimateSmartFee);
+				CheckCapabilities(rpc, "getnetworkinfo", rpc.Capabilities.SupportGetNetworkInfo);
+				CheckCapabilities(rpc, "scantxoutset", rpc.Capabilities.SupportScanUTXOSet);
+				CheckCapabilities(rpc, "signrawtransactionwithkey", rpc.Capabilities.SupportSignRawTransactionWith);
+				CheckCapabilities(rpc, "estimatesmartfee", rpc.Capabilities.SupportEstimateSmartFee);
 
 				try
 				{
@@ -163,13 +163,13 @@ namespace NBitcoin.Tests
 						AddressType = AddressType.Bech32
 					});
 					// If this fail, rpc support segwit bug you said it does not
-					Assert.Equal(rpc.RPCCapabilities.SupportSegwit, address.ScriptPubKey.IsWitness);
-					if(rpc.RPCCapabilities.SupportSegwit)
+					Assert.Equal(rpc.Capabilities.SupportSegwit, address.ScriptPubKey.IsWitness);
+					if(rpc.Capabilities.SupportSegwit)
 					{
 						rpc.SendToAddress(address, Money.Coins(1.0m));
 					}
 				}
-				catch (RPCException) when (!rpc.RPCCapabilities.SupportSegwit)
+				catch (RPCException) when (!rpc.Capabilities.SupportSegwit)
 				{
 				}
 			}

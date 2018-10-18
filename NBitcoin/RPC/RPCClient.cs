@@ -283,7 +283,7 @@ namespace NBitcoin.RPC
 		/// <summary>
 		/// The RPC Capabilities of this RPCClient instance, this property will be set by a call to GetVersionAsync or ScanRPCCapabilitiesAsync
 		/// </summary>
-		public RPCCapabilities RPCCapabilities { get; set; }
+		public RPCCapabilities Capabilities { get; set; }
 
 		/// <summary>
 		/// Run several RPC function to scan the RPC capabilities, then set RPCClient.RPCCapabilities
@@ -301,8 +301,10 @@ namespace NBitcoin.RPC
 			CheckSegwitCapabilities(rpc, v => capabilities.SupportSegwit = v));
 			await rpc.SendBatchAsync();
 			await waiting;
+#if !NETSTANDARD1X
 			Thread.MemoryBarrier();
-			RPCCapabilities = capabilities;
+#endif
+			Capabilities = capabilities;
 			return capabilities;
 		}
 
@@ -466,7 +468,7 @@ namespace NBitcoin.RPC
 			return new RPCClient(CredentialString, Address, Network)
 			{
 				_BatchedRequests = new ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>(),
-				RPCCapabilities = RPCCapabilities
+				Capabilities = Capabilities
 			};
 		}
 
@@ -954,7 +956,7 @@ namespace NBitcoin.RPC
 			return ms;
 		}
 
-		#region P2P Networking
+#region P2P Networking
 #if !NOSOCKET
 		public PeerInfo[] GetPeersInfo()
 		{
@@ -1102,9 +1104,9 @@ namespace NBitcoin.RPC
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Block chain and UTXO
+#region Block chain and UTXO
 
 		public async Task<BlockchainInfo> GetBlockchainInfoAsync()
 		{
@@ -1373,13 +1375,13 @@ namespace NBitcoin.RPC
 			return GetTransactions(GetBlockHash(height));
 		}
 
-		#endregion
+#endregion
 
-		#region Coin generation
+#region Coin generation
 
-		#endregion
+#endregion
 
-		#region Raw Transaction
+#region Raw Transaction
 
 		public Transaction DecodeRawTransaction(string rawHex)
 		{
@@ -1511,15 +1513,15 @@ namespace NBitcoin.RPC
 			};
 		}
 
-		#endregion
+#endregion
 
-		#region Utility functions
+#region Utility functions
 
 		// Estimates the approximate fee per kilobyte needed for a transaction to begin
 		// confirmation within conf_target blocks if possible and return the number of blocks
 		// for which the estimate is valid.Uses virtual transaction size as defined
 		// in BIP 141 (witness data is discounted).
-		#region Fee Estimation
+#region Fee Estimation
 
 		/// <summary>
 		/// (>= Bitcoin Core v0.14) Get the estimated fee per kb for being confirmed in nblock
@@ -1598,7 +1600,7 @@ namespace NBitcoin.RPC
 			};
 		}
 
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Requires wallet support. Requires an unlocked wallet or an unencrypted wallet.
@@ -1664,7 +1666,7 @@ namespace NBitcoin.RPC
 			return SendCommand(RPCOperations.settxfee, new[] { feeRate.FeePerK.ToString() }).Result.ToString() == "true";
 		}
 
-		#endregion
+#endregion
 
 		public async Task<uint256[]> GenerateAsync(int nBlocks)
 		{
@@ -1679,7 +1681,7 @@ namespace NBitcoin.RPC
 			return GenerateAsync(nBlocks).GetAwaiter().GetResult();
 		}
 
-		#region Region Hidden Methods
+#region Region Hidden Methods
 
 		/// <summary>
 		/// Permanently marks a block as invalid, as if it violated a consensus rule.
@@ -1719,7 +1721,7 @@ namespace NBitcoin.RPC
 			await SendCommandAsync(RPCOperations.abandontransaction, txId.ToString()).ConfigureAwait(false);
 		}
 
-		#endregion
+#endregion
 	}
 
 #if !NOSOCKET
