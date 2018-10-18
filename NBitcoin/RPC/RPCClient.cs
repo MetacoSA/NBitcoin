@@ -281,12 +281,12 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// The RPC Capabilities of this RPCClient instance, this property will be set by a call to GetVersionAsync or ScanRPCCapabilitiesAsync
+		/// The RPC Capabilities of this RPCClient instance, this property will be set by a call to ScanRPCCapabilitiesAsync
 		/// </summary>
 		public RPCCapabilities Capabilities { get; set; }
 
 		/// <summary>
-		/// Run several RPC function to scan the RPC capabilities, then set RPCClient.RPCCapabilities
+		/// Run several RPC function to scan the RPC capabilities, then set RPCClient.Capabilities
 		/// </summary>
 		/// <returns>The RPCCapabilities</returns>
 		public async Task<RPCCapabilities> ScanRPCCapabilitiesAsync()
