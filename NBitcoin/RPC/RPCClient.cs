@@ -280,6 +280,102 @@ namespace NBitcoin.RPC
 			return null;
 		}
 
+		/// <summary>
+		/// The RPC Capabilities of this RPCClient instance, this property will be set by a call to GetVersionAsync or ScanRPCCapabilitiesAsync
+		/// </summary>
+		public RPCCapabilities RPCCapabilities { get; set; }
+
+		/// <summary>
+		/// Run several RPC function to scan the RPC capabilities, then set RPCClient.RPCCapabilities
+		/// </summary>
+		/// <returns>The RPCCapabilities</returns>
+		public async Task<RPCCapabilities> ScanRPCCapabilitiesAsync()
+		{
+			var capabilities = new RPCCapabilities();
+			var rpc = this.PrepareBatch();
+			var waiting = Task.WhenAll(
+			SetVersion(capabilities),
+			CheckCapabilities(rpc, "scantxoutset", v => capabilities.SupportScanUTXOSet = v),
+			CheckCapabilities(rpc, "signrawtransactionwithkey", v => capabilities.SupportSignRawTransactionWith = v),
+			CheckCapabilities(rpc, "estimatesmartfee", v => capabilities.SupportEstimateSmartFee = v),
+			CheckSegwitCapabilities(rpc, v => capabilities.SupportSegwit = v));
+			await rpc.SendBatchAsync();
+			await waiting;
+			Thread.MemoryBarrier();
+			RPCCapabilities = capabilities;
+			return capabilities;
+		}
+
+		private async Task SetVersion(RPCCapabilities capabilities)
+		{
+			try
+			{
+				var getInfo = await SendCommandAsync(RPCOperations.getnetworkinfo);
+				capabilities.Version = ((JObject)getInfo.Result)["version"].Value<int>();
+				capabilities.SupportGetNetworkInfo = true;
+				return;
+			}
+			catch (RPCException ex) when (ex.RPCCode == RPCErrorCode.RPC_METHOD_NOT_FOUND || ex.RPCCode == RPCErrorCode.RPC_METHOD_DEPRECATED)
+			{
+				capabilities.SupportGetNetworkInfo = false;
+			}
+
+			{
+#pragma warning disable CS0618 // Type or member is obsolete
+				var getInfo = await SendCommandAsync(RPCOperations.getinfo);
+#pragma warning restore CS0618 // Type or member is obsolete
+				capabilities.Version = ((JObject)getInfo.Result)["version"].Value<int>();
+			}
+		}
+
+		/// <summary>
+		/// Run several RPC function to scan the RPC capabilities, then set RPCClient.RPCCapabilities
+		/// </summary>
+		/// <returns>The RPCCapabilities</returns>
+		public RPCCapabilities ScanRPCCapabilities()
+		{
+			return ScanRPCCapabilitiesAsync().GetAwaiter().GetResult();
+		}
+
+		async static Task CheckSegwitCapabilities(RPCClient rpc, Action<bool> setResult)
+		{
+			var address = new Key().ScriptPubKey.WitHash.ScriptPubKey.GetDestinationAddress(rpc.Network);
+			if (address == null)
+			{
+				setResult(false);
+				return;
+			}
+			try
+			{
+				await rpc.SendToAddressAsync(address, Money.Coins(-1.0m));
+			}
+			catch (RPCException ex)
+			{
+				setResult(ex.RPCCode == RPCErrorCode.RPC_TYPE_ERROR);
+			}
+		}
+
+		private static async Task CheckCapabilities(Func<Task> command, Action<bool> setResult)
+		{
+			try
+			{
+				await command();
+				setResult(true);
+			}
+			catch (RPCException ex) when (ex.RPCCode == RPCErrorCode.RPC_METHOD_NOT_FOUND || ex.RPCCode == RPCErrorCode.RPC_METHOD_DEPRECATED)
+			{
+				setResult(false);
+			}
+			catch (RPCException)
+			{
+				setResult(true);
+			}
+		}
+		private static Task CheckCapabilities(RPCClient rpc, string command, Action<bool> setResult)
+		{
+			return CheckCapabilities(() => rpc.SendCommandAsync(command, "random"), setResult);
+		}
+
 		public static string GetDefaultCookieFilePath(Network network)
 		{
 			string path = null;
@@ -369,7 +465,8 @@ namespace NBitcoin.RPC
 		{
 			return new RPCClient(CredentialString, Address, Network)
 			{
-				_BatchedRequests = new ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>()
+				_BatchedRequests = new ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>(),
+				RPCCapabilities = RPCCapabilities
 			};
 		}
 

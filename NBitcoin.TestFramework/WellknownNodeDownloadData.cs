@@ -140,6 +140,32 @@ namespace NBitcoin.Tests
 					Hash = "2bb565a77779be4ed5b186c93891bc0a12352c94316a1fc44388898f7afb7bc2"
 				}
 			};
+
+			public NodeDownloadData v0_16_3 = new NodeDownloadData()
+			{
+				Version = "0.16.3",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.litecoin.org/litecoin-{0}/win/litecoin-{0}-win64.zip",
+					Archive = "litecoin-{0}-win64.zip",
+					Executable = "litecoin-{0}/bin/litecoind.exe",
+					Hash = "1958608b52056d0489451cdba4f631b3010419ea85edc9271a9efe4341870b4d"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.litecoin.org/litecoin-{0}/linux/litecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "litecoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "litecoin-{0}/bin/litecoind",
+					Hash = "686d99d1746528648c2c54a1363d046436fd172beadaceea80bdc93043805994"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://download.litecoin.org/litecoin-{0}/osx/litecoin-{0}-osx64.tar.gz",
+					Archive = "litecoin-{0}-osx64.tar.gz",
+					Executable = "litecoin-{0}/bin/litecoind",
+					Hash = "fe1a593ffb10fec817157903a49d8965c49594dda4021fb76cf7d341e5300e17"
+				}
+			};
 		}
 
 		public class ViacoinNodeDownloadData
@@ -516,6 +542,35 @@ namespace NBitcoin.Tests
 					Archive = "groestlcoin-{0}-x86_64-apple-darwin11.tar.gz",
 					Executable = "GRS-{0}/groestlcoind",
 					Hash = "5ff6e5a509e0c69f4a832bd3c40a1a93f80a68bc5f55a0b5d517716fb123164e",
+					CreateFolder = "GRS-{0}"
+				}
+			};
+
+			public NodeDownloadData v2_16_3 = new NodeDownloadData()
+			{
+				Version = "2.16.3",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-x86_64-w64-mingw32.zip",
+					Archive = "groestlcoin-{0}-x86_64-w64-mingw32.zip",
+					Executable = "GRS-{0}\\groestlcoind.exe",
+					Hash = "9617e7ec61a1f8850d11613ff3d4f4e1d8caa29e118ec1c29e07ef323b16557d",
+					CreateFolder = "GRS-{0}"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "groestlcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "GRS-{0}/groestlcoind",
+					Hash = "f15bd5e38b25a103821f1563cd0e1b2cf7146ec9f9835493a30bd57313d3b86f",
+					CreateFolder = "GRS-{0}"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Groestlcoin/groestlcoin/releases/download/v{0}/groestlcoin-{0}-x86_64-apple-darwin11.tar.gz",
+					Archive = "groestlcoin-{0}-x86_64-apple-darwin11.tar.gz",
+					Executable = "GRS-{0}/groestlcoind",
+					Hash = "4976c8f60105a32bb0d8e230577f60438d5bed45a9aa92c51f0dd79a13c6b89e",
 					CreateFolder = "GRS-{0}"
 				}
 			};
