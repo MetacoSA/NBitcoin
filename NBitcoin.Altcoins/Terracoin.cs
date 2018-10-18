@@ -315,7 +315,7 @@ namespace NBitcoin.Altcoins
 				MajorityWindow = 1000,
 				BIP34Hash = new uint256(),
 				PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
-				MinimumChainWork = new uint256("0x00"),
+				MinimumChainWork = new uint256(),
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2 * 60),
 				PowAllowMinDifficultyBlocks = true,
