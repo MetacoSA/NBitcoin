@@ -163,7 +163,7 @@ namespace NBitcoin.Altcoins
 
 			public override ConsensusFactory GetConsensusFactory()
 			{
-				return Terracoin.Instance.Mainnet.Consensus.ConsensusFactory;
+				return TerracoinConsensusFactory.Instance;
 			}
 		}
 
@@ -185,6 +185,11 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
+			public override uint256 GetPoWHash()
+			{
+                                throw new NotSupportedException("PoW for AuxPow is not supported");
+			}
+
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				base.ReadWrite(stream);
@@ -195,11 +200,6 @@ namespace NBitcoin.Altcoins
 						stream.ReadWrite(ref auxPow);
 					}
 				}
-			}
-
-			public override uint256 GetPoWHash()
-			{
-                                throw new NotSupportedException("PoW for AuxPow is not supported");
 			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
