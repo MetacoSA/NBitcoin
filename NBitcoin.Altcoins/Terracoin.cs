@@ -197,6 +197,11 @@ namespace NBitcoin.Altcoins
 					}
 				}
 			}
+
+			public override uint256 GetPoWHash()
+			{
+                                throw new NotSupportedException("PoW for AuxPow is not supported");
+			}
 		}
 #pragma warning restore CS0618 // Type or member is obsolete
 
@@ -217,12 +222,12 @@ namespace NBitcoin.Altcoins
 				MajorityRejectBlockOutdated = 950,
 				MajorityWindow = 1000,
 				BIP34Hash = new uint256("0x0000000000006a908847f2d6b7ac98e8ac9ce54c544aca63c66473e637f4741e"),
-				PowLimit = new Target(new uint256("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
+				PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				MinimumChainWork = new uint256("0x00000000000000000000000000000000000000000013c31ec956b02ded0e535c"),
 				PowTargetTimespan = TimeSpan.FromSeconds(60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2 * 60),
 				PowAllowMinDifficultyBlocks = false,
-				CoinbaseMaturity = 100,
+				CoinbaseMaturity = 20,
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 90,
 				MinerConfirmationWindow = 30,
@@ -264,12 +269,12 @@ namespace NBitcoin.Altcoins
 				MajorityRejectBlockOutdated = 75,
 				MajorityWindow = 100,
 				BIP34Hash = new uint256("0x57e446ce39f87a0949e7400db06b1e2e1680fe4bc4621db0af04b5ecabb92abd"),
-				PowLimit = new Target(new uint256("0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
+				PowLimit = new Target(new uint256("00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				MinimumChainWork = new uint256("0x0000000000000000000000000000000000000000000000000001a9c85200164b"),
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2 * 60),
 				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 100,
+				CoinbaseMaturity = 20,
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 1512,
 				MinerConfirmationWindow = 2016,
@@ -311,11 +316,11 @@ namespace NBitcoin.Altcoins
 				MajorityWindow = 1000,
 				BIP34Hash = new uint256(),
 				PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
-				MinimumChainWork = new uint256("0x000000000000000000000000000000000000000000000000000924e924a21715"),
+				MinimumChainWork = new uint256("0x00"),
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2 * 60),
 				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 100,
+				CoinbaseMaturity = 20,
 				PowNoRetargeting = true,
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
