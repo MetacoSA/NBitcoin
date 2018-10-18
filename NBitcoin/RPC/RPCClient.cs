@@ -1525,6 +1525,7 @@ namespace NBitcoin.RPC
 
 		/// <summary>
 		/// (>= Bitcoin Core v0.14) Get the estimated fee per kb for being confirmed in nblock
+		/// If Capabilities is set and estimatesmartfee is not supported, will fallback on estimatefee
 		/// </summary>
 		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
@@ -1537,6 +1538,7 @@ namespace NBitcoin.RPC
 
 		/// <summary>
 		/// (>= Bitcoin Core v0.14) Tries to get the estimated fee per kb for being confirmed in nblock
+		/// If Capabilities is set and estimatesmartfee is not supported, will fallback on estimatefee
 		/// </summary>
 		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
@@ -1548,6 +1550,7 @@ namespace NBitcoin.RPC
 
 		/// <summary>
 		/// (>= Bitcoin Core v0.14) Tries to get the estimated fee per kb for being confirmed in nblock
+		/// If Capabilities is set and estimatesmartfee is not supported, will fallback on estimatefee
 		/// </summary>
 		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
@@ -1559,6 +1562,7 @@ namespace NBitcoin.RPC
 
 		/// <summary>
 		/// (>= Bitcoin Core v0.14) Get the estimated fee per kb for being confirmed in nblock
+		/// If Capabilities is set and estimatesmartfee is not supported, will fallback on estimatefee
 		/// </summary>
 		/// <param name="confirmationTarget">Confirmation target in blocks (1 - 1008)</param>
 		/// <param name="estimateMode">Whether to return a more conservative estimate which also satisfies a longer history. A conservative estimate potentially returns a higher feerate and is more likely to be sufficient for the desired target, but is not as responsive to short term drops in the prevailing fee market.</param>
@@ -1577,27 +1581,39 @@ namespace NBitcoin.RPC
 		/// </summary>
 		private async Task<EstimateSmartFeeResponse> EstimateSmartFeeImplAsync(int confirmationTarget, EstimateSmartFeeMode estimateMode = EstimateSmartFeeMode.Conservative)
 		{
-			var request = new RPCRequest(RPCOperations.estimatesmartfee.ToString(), new object[] { confirmationTarget, estimateMode.ToString().ToUpperInvariant() });
+			if (Capabilities == null || Capabilities.SupportEstimateSmartFee)
+			{
+				var request = new RPCRequest(RPCOperations.estimatesmartfee.ToString(), new object[] { confirmationTarget, estimateMode.ToString().ToUpperInvariant() });
 
-			var response = await SendCommandAsync(request, throwIfRPCError: false).ConfigureAwait(false);
+				var response = await SendCommandAsync(request, throwIfRPCError: false).ConfigureAwait(false);
 
-			if (response?.Error != null)
-			{
-				return null;
+				if (response?.Error != null)
+				{
+					return null;
+				}
+				var resultJToken = response.Result;
+				var feeRateDecimal = resultJToken.Value<decimal>("feerate"); // estimate fee-per-kilobyte (in BTC)
+				var blocks = resultJToken.Value<int>("blocks"); // block number where estimate was found
+				var money = Money.Coins(feeRateDecimal);
+				if (money.Satoshi <= 0)
+				{
+					return null;
+				}
+				return new EstimateSmartFeeResponse
+				{
+					FeeRate = new FeeRate(money),
+					Blocks = blocks
+				};
 			}
-			var resultJToken = response.Result;
-			var feeRateDecimal = resultJToken.Value<decimal>("feerate"); // estimate fee-per-kilobyte (in BTC)
-			var blocks = resultJToken.Value<int>("blocks"); // block number where estimate was found
-			var money = Money.Coins(feeRateDecimal);
-			if (money.Satoshi <= 0)
+			else
 			{
-				return null;
-			}
-			return new EstimateSmartFeeResponse
-			{
-				FeeRate = new FeeRate(money),
-				Blocks = blocks
-			};
+				var response = await SendCommandAsync(RPCOperations.estimatefee, confirmationTarget).ConfigureAwait(false);
+				var result = response.Result.Value<decimal>();
+				var money = Money.Coins(result);
+				if (money.Satoshi < 0)
+					return null;
+				return new EstimateSmartFeeResponse() { FeeRate = new FeeRate(money), Blocks = confirmationTarget };
+			}			
 		}
 
 #endregion

@@ -686,11 +686,10 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// Sign a transaction
+		/// Sign a transaction, if RPCClient.Capabilities is set, will call SignRawTransactionWithWallet if available
 		/// </summary>
 		/// <param name="tx">The transaction to be signed</param>
 		/// <returns>The signed transaction</returns>
-		[Obsolete("signrawtransaction is deprecated and will be fully removed in v0.18. To use signrawtransaction in v0.17, restart bitcoind with -deprecatedrpc=signrawtransaction. Projects should transition to using signrawtransactionwithkey and signrawtransactionwithwallet before upgrading to v0.18")]
 		public Transaction SignRawTransaction(Transaction tx)
 		{
 			if (tx == null)
@@ -699,15 +698,26 @@ namespace NBitcoin.RPC
 		}
 
 		/// <summary>
-		/// Sign a transaction
+		/// Sign a transaction, if RPCClient.Capabilities is set, will call SignRawTransactionWithWallet if available
 		/// </summary>
 		/// <param name="tx">The transaction to be signed</param>
 		/// <returns>The signed transaction</returns>
-		[Obsolete("signrawtransaction is deprecated and will be fully removed in v0.18. To use signrawtransaction in v0.17, restart bitcoind with -deprecatedrpc=signrawtransaction. Projects should transition to using signrawtransactionwithkey and signrawtransactionwithwallet before upgrading to v0.18")]
 		public async Task<Transaction> SignRawTransactionAsync(Transaction tx)
 		{
-			var result = await SendCommandAsync(RPCOperations.signrawtransaction, tx.ToHex()).ConfigureAwait(false);
-			return ParseTxHex(result.Result["hex"].Value<string>());
+			if (tx == null)
+				throw new ArgumentNullException(nameof(tx));
+			if (Capabilities != null && Capabilities.SupportSignRawTransactionWith)
+			{
+				return (await SignRawTransactionWithWalletAsync(new SignRawTransactionRequest()
+				{
+					Transaction = tx
+				}).ConfigureAwait(false)).SignedTransaction;
+			}
+			else
+			{
+				var result = await SendCommandAsync(RPCOperations.signrawtransaction, tx.ToHex()).ConfigureAwait(false);
+				return ParseTxHex(result.Result["hex"].Value<string>());
+			}
 		}
 
 		/// <summary>
