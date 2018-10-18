@@ -185,11 +185,6 @@ namespace NBitcoin.Altcoins
 				}
 			}
 
-			public override uint256 GetPoWHash()
-			{
-                                throw new NotSupportedException("PoW for AuxPow is not supported");
-			}
-
 			public override void ReadWrite(BitcoinStream stream)
 			{
 				base.ReadWrite(stream);
@@ -226,7 +221,7 @@ namespace NBitcoin.Altcoins
 				PowTargetTimespan = TimeSpan.FromSeconds(60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2 * 60),
 				PowAllowMinDifficultyBlocks = false,
-				CoinbaseMaturity = 20,
+				CoinbaseMaturity = 100,
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 90,
 				MinerConfirmationWindow = 30,
@@ -273,7 +268,7 @@ namespace NBitcoin.Altcoins
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2 * 60),
 				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 20,
+				CoinbaseMaturity = 100,
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 1512,
 				MinerConfirmationWindow = 2016,
@@ -319,7 +314,7 @@ namespace NBitcoin.Altcoins
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2 * 60),
 				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 20,
+				CoinbaseMaturity = 100,
 				PowNoRetargeting = true,
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
@@ -337,7 +332,9 @@ namespace NBitcoin.Altcoins
 			.SetPort(18444)
 			.SetRPCPort(18332)
 			.SetMaxP2PVersion(70208)
-			.SetName("terracoin-reg")
+			.SetName("trc-reg")
+			.AddAlias("trc-regtest")
+			.AddAlias("terracoin-reg")
 			.AddAlias("terracoin-regtest")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
