@@ -401,29 +401,29 @@ namespace NBitcoin.Tests
 
 		public class PolisNodeDownloadData
 		{
-			public NodeDownloadData v1_3_0 = new NodeDownloadData()
+			public NodeDownloadData v1_4_3 = new NodeDownloadData()
 			{
-				Version = "1.3.0",
+				Version = "1.4.3",
 				Windows = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/polispay/polis/releases/download/v{0}/poliscore-{0}-win64.zip",
 					Archive = "poliscore-{0}-win64.zip",
-					Executable = "poliscore-1.3.0/bin/polisd.exe",
-					Hash = "eec3d9b0c721d690139bc9ac11344ba370245c4ade5d6ec6750eda27493b2390"
+					Executable = "poliscore-{0}/bin/polisd.exe",
+					Hash = "ca470f2c4fcee527019f08406d26a469fc84e3118f87b1f4ac1e1f05dcee284e"
 				},
 				Linux = new NodeOSDownloadData()
 				{
 					DownloadLink = "https://github.com/polispay/polis/releases/download/v{0}/poliscore-{0}-x86_64-linux-gnu.tar.gz",
-					Archive = "poliscore-{0}-linux64.tar.gz",
-					Executable = "poliscore-1.3.0/bin/polisd",
-					Hash = "50c3599645fbcfdfa35f4704ed742bbb5fa1ca432067f9b2368deea9784ec771"
+					Archive = "poliscore-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "poliscore-{0}/bin/polisd",
+					Hash = "9b49c912b154c4584b7e77ba7665f60cc78cc1c1321f3ca08b36efca016d359f"
 				},
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/polispay/polis/releases/download/v{0}/poliscore-{0}-osx.dmg",
-					Archive = "poliscore-{0}-osx.dmg",
-					Executable = "poliscore-1.3.0/bin/polisd",
-					Hash = "2d67048a8e51d6c1384752cfde6a3562b1b1ba250fce28020e8afe894a9b5afe"
+					DownloadLink = "https://github.com/polispay/polis/releases/download/v{0}/poliscore-{0}-osx64.tar.gz",
+					Archive = "poliscore-{0}-osx64.tar.gz",
+					Executable = "poliscore-{0}/bin/polisd",
+					Hash = "9d7ae6cdc6afdecfbf6425e4e652baeb7c6b440c90dc8e7ac1cb30a7f7e0574e"
 				}
 			};
 		}
