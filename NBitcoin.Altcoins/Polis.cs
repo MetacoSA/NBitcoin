@@ -93,7 +93,7 @@ namespace NBitcoin.Altcoins
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
-				SubsidyHalvingInterval = 1569325056,
+				SubsidyHalvingInterval = 262800,
 				MajorityEnforceBlockUpgrade = 750,
 				MajorityRejectBlockOutdated = 950,
 				MajorityWindow = 1000,
@@ -120,15 +120,16 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xBD6B0CBF)
 			.SetPort(24126)
 			.SetRPCPort(24127)
-			.SetMaxP2PVersion(70208)
+			.SetMaxP2PVersion(70211)
 			.SetName("polis-main")
 			.AddAlias("polis-mainnet")
 			.AddDNSSeeds(new[]
 			{
-				new DNSSeedData("node1.polispay.org", "node1.polispay.org"),
+				new DNSSeedData("dnsseed.poliscentral.org", "dnsseed.poliscentral.org"),
+				new DNSSeedData("dnsseed2.poliscentral.org", "dnsseed2.poliscentral.org"),
+				new DNSSeedData("dnsseed3.poliscentral.org", "dnsseed3.poliscentral.org"),
 				new DNSSeedData("polis.seeds.mn.zone", "polis.seeds.mn.zone"),
-				new DNSSeedData("polis.mnseeds.com", "polis.mnseeds.com"),
-				new DNSSeedData("node2.polispay.org", "node2.polispay.org")
+				new DNSSeedData("polis.mnseeds.com", "polis.mnseeds.com")
 			})
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000fc4b8cb903aed54e11e1ae8a5b7ad097ade34988a84500ad2d80e4d1f5bcc95d2bb73b5af0ff0f1edbff04000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff2404ffff001d01041c506f6c69732c2066726f6d2070656f706c6520746f2070656f706c65ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
@@ -167,7 +168,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xFFCAE2CE)
 			.SetPort(19999)
 			.SetRPCPort(19998)
-			.SetMaxP2PVersion(70208)
+			.SetMaxP2PVersion(70211)
 		   .SetName("polis-test")
 		   .AddAlias("polis-testnet")
 		   .AddDNSSeeds(new[]
@@ -212,7 +213,7 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xDCB7C1FC)
 			.SetPort(19994)
 			.SetRPCPort(19993)
-			.SetMaxP2PVersion(70208)
+			.SetMaxP2PVersion(70211)
 			.SetName("polis-reg")
 			.AddAlias("polis-regtest")
 			.AddDNSSeeds(new DNSSeedData[0])
