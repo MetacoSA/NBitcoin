@@ -24,6 +24,7 @@ namespace NBitcoin.Altcoins
 		public static Bitcore Bitcore { get; } = Bitcore.Instance;
 		public static Groestlcoin Groestlcoin { get; } = Groestlcoin.Instance;
 		public static Zclassic Zclassic { get; } = Zclassic.Instance;
+		public static Colossus Colossus { get; } = Colossus.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
@@ -43,6 +44,8 @@ namespace NBitcoin.Altcoins
 			yield return Ufo;
 			yield return Groestlcoin;
 			yield return Zclassic;
+			yield return Colossus;
+
 		}
 	}
 }
