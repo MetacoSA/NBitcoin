@@ -18,9 +18,19 @@ branches:
 #---------------------------------#
 #    environment configuration    #
 #---------------------------------#
+environment:
+  github_access_token:
+    secure: N2gnAR45uwx/+8B8yJY0K8cRFzpXm8W/e1nbsF6O+36h171tTBirkAgnDTfQiUtF
+  github_email:
+    secure: 7WEBdwurN3nc4zkdDPfkFIog4U14s5XhamiCk4oGvOY=
+  github_user: NicolasDoirer
+
+    
 
 image: Visual Studio 2017
 clone_folder: c:\projects\nbitcoin
+
+clone_depth: 1
 
 configuration:
 - Release
@@ -66,6 +76,10 @@ test_script:
       dotnet test -c Release ./NBitcoin.Tests/NBitcoin.Tests.csproj --filter "RestClient=RestClient|RPCClient=RPCClient|Protocol=Protocol|Core=Core|UnitTest=UnitTest" -p:ParallelizeTestCollections=false -f net461
       Write-Host "[$env:configuration] FINISHED dotnet test" -foregroundcolor "magenta"
       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
+
+     
+#---------------------------------#
+      
 #---------------------------------#
 #      artifacts configuration    #
 #---------------------------------#

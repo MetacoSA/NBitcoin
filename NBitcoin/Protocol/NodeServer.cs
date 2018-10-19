@@ -179,32 +179,34 @@ namespace NBitcoin.Protocol
 					if(_Cancel.IsCancellationRequested)
 						return;
 					NodeServerTrace.Information("Client connection accepted : " + client.RemoteEndPoint);
-					var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token);
-					cancel.CancelAfter(TimeSpan.FromSeconds(10));
-
-					var stream = new NetworkStream(client, false);
-					while(true)
+					using(var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token))
 					{
-						if(ConnectedNodes.Count >= MaxConnections)
+						cancel.CancelAfter(TimeSpan.FromSeconds(10));
+
+						var stream = new NetworkStream(client, false);
+						while(true)
 						{
-							NodeServerTrace.Information("MaxConnections limit reached");
-							Utils.SafeCloseSocket(client);
-							break;
+							if(ConnectedNodes.Count >= MaxConnections)
+							{
+								NodeServerTrace.Information("MaxConnections limit reached");
+								Utils.SafeCloseSocket(client);
+								break;
+							}
+							cancel.Token.ThrowIfCancellationRequested();
+							PerformanceCounter counter;
+							var message = Message.ReadNext(stream, Network, Version, cancel.Token, out counter);
+							_MessageProducer.PushMessage(new IncomingMessage()
+							{
+								Socket = client,
+								Message = message,
+								Length = counter.ReadenBytes,
+								Node = null,
+							});
+							if(message.Payload is VersionPayload)
+								break;
+							else
+								NodeServerTrace.Error("The first message of the remote peer did not contained a Version payload", null);
 						}
-						cancel.Token.ThrowIfCancellationRequested();
-						PerformanceCounter counter;
-						var message = Message.ReadNext(stream, Network, Version, cancel.Token, out counter);
-						_MessageProducer.PushMessage(new IncomingMessage()
-						{
-							Socket = client,
-							Message = message,
-							Length = counter.ReadenBytes,
-							Node = null,
-						});
-						if(message.Payload is VersionPayload)
-							break;
-						else
-							NodeServerTrace.Error("The first message of the remote peer did not contained a Version payload", null);
 					}
 				}
 				catch(OperationCanceledException)

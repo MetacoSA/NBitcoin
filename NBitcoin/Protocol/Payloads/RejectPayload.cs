@@ -26,7 +26,6 @@ namespace NBitcoin.Protocol
 		Transaction,
 		Block
 	}
-#if !PORTABLE
 
 	/// <summary>
 	/// A transaction or block are rejected being transmitted through tx or block messages
@@ -138,5 +137,4 @@ namespace NBitcoin.Protocol
 				stream.ReadWrite(ref _Hash);
 		}
 	}
-#endif
 }

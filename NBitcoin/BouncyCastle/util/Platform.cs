@@ -2,11 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 
-#if SILVERLIGHT || PORTABLE
 using System.Collections.Generic;
-#else
-using System.Collections;
-#endif
 
 namespace NBitcoin.BouncyCastle.Utilities
 {
@@ -33,14 +29,10 @@ namespace NBitcoin.BouncyCastle.Utilities
 
 		internal static bool EqualsIgnoreCase(string a, string b)
 		{
-#if PORTABLE
-            return String.Equals(a, b, StringComparison.OrdinalIgnoreCase);
-#else
 			return ToUpperInvariant(a) == ToUpperInvariant(b);
-#endif
 		}
 
-#if NETCF_1_0 || NETCF_2_0 || SILVERLIGHT || PORTABLE
+#if NETCF_1_0 || NETCF_2_0 || NETSTANDARD1X
 		internal static string GetEnvironmentVariable(
 			string variable)
 		{
@@ -84,7 +76,6 @@ namespace NBitcoin.BouncyCastle.Utilities
 		}
 #endif
 
-#if SILVERLIGHT || PORTABLE
 		internal static System.Collections.IList CreateArrayList()
 		{
 			return new List<object>();
@@ -128,45 +119,10 @@ namespace NBitcoin.BouncyCastle.Utilities
 			}
 			return result;
 		}
-#else
-        internal static System.Collections.IList CreateArrayList()
-        {
-            return new ArrayList();
-        }
-        internal static System.Collections.IList CreateArrayList(int capacity)
-        {
-            return new ArrayList(capacity);
-        }
-        internal static System.Collections.IList CreateArrayList(System.Collections.ICollection collection)
-        {
-            return new ArrayList(collection);
-        }
-        internal static System.Collections.IList CreateArrayList(System.Collections.IEnumerable collection)
-        {
-            ArrayList result = new ArrayList();
-            foreach (object o in collection)
-            {
-                result.Add(o);
-            }
-            return result;
-        }
-        internal static System.Collections.IDictionary CreateHashtable()
-        {
-            return new Hashtable();
-        }
-        internal static System.Collections.IDictionary CreateHashtable(int capacity)
-        {
-            return new Hashtable(capacity);
-        }
-        internal static System.Collections.IDictionary CreateHashtable(System.Collections.IDictionary dictionary)
-        {
-            return new Hashtable(dictionary);
-        }
-#endif
 
 		internal static string ToLowerInvariant(string s)
 		{
-#if PORTABLE || NETCORE
+#if NETSTANDARD1X
             return s.ToLowerInvariant();
 #else
 			return s.ToLower(CultureInfo.InvariantCulture);
@@ -175,7 +131,7 @@ namespace NBitcoin.BouncyCastle.Utilities
 
 		internal static string ToUpperInvariant(string s)
 		{
-#if PORTABLE || NETCORE
+#if NETSTANDARD1X
             return s.ToUpperInvariant();
 #else
 			return s.ToUpper(CultureInfo.InvariantCulture);
@@ -184,7 +140,7 @@ namespace NBitcoin.BouncyCastle.Utilities
 
 		internal static readonly string NewLine = GetNewLine();
 
-#if PORTABLE || NETCORE
+#if NETSTANDARD1X
         internal static void Dispose(IDisposable d)
         {
             d.Dispose();

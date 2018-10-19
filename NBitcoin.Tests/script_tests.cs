@@ -391,7 +391,7 @@ namespace NBitcoin.Tests
 		private void EnsureHasLibConsensus()
 		{
 #if !NOCONSENSUSLIB
-			var bitcoinPath = NodeBuilder.EnsureDownloaded(NodeDownloadData.Bitcoin.v0_16_2);
+			var bitcoinPath = NodeBuilder.EnsureDownloaded(NodeDownloadData.Bitcoin.v0_17_0);
 
 			string libConsensusDll = null;
 			if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -404,7 +404,7 @@ namespace NBitcoin.Tests
 			}
 			else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 			{
-				libConsensusDll = "libbitcoinconsensus.so";
+				libConsensusDll = "libbitcoinconsensus.so.0.0.0";
 			}
 			else
 			{

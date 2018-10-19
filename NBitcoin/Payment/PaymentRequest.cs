@@ -10,7 +10,7 @@ using System.Net.Http;
 #endif
 using System.Text;
 using System.Text.RegularExpressions;
-#if WIN
+#if CLASSICDOTNET
 using System.Security.Cryptography.X509Certificates;
 #endif
 using System.Threading.Tasks;
@@ -674,7 +674,7 @@ namespace NBitcoin.Payment
 			return signed;
 		}
 
-#if WIN
+#if CLASSICDOTNET
 		public void Sign(X509Certificate2 certificate, Payment.PKIType type)
 		{
 			Sign((object)certificate, type);

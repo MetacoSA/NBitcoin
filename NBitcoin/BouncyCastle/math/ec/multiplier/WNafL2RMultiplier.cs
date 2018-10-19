@@ -55,8 +55,6 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 					R = table[i1 >> 1].Add(table[i2 >> 1]);
 
 					zeroes -= scale;
-
-					//Console.WriteLine("Optimized: 2^" + scale + " * " + n + " = " + i1 + " + " + i2);
 				}
 				else
 				{

@@ -116,7 +116,7 @@ namespace NBitcoin.Tests
 			var path = isFilePath ? downloadData.Version : EnsureDownloaded(downloadData);
 			if(!Directory.Exists(caller))
 				Directory.CreateDirectory(caller);
-			return new NodeBuilder(caller, path) { Network = network };
+			return new NodeBuilder(caller, path) { Network = network, NodeImplementation = downloadData };
 		}
 
 		public static string EnsureDownloaded(NodeDownloadData downloadData)
@@ -125,6 +125,8 @@ namespace NBitcoin.Tests
 				Directory.CreateDirectory("TestData");
 
 			var osDownloadData = downloadData.GetCurrentOSDownloadData();
+			if (osDownloadData == null)
+				throw new Exception("This platform does not support tests involving this crypto currency, DownloadData for this OS are unavailable");
 			var bitcoind = Path.Combine("TestData", String.Format(osDownloadData.Executable, downloadData.Version));
 			var zip = Path.Combine("TestData", String.Format(osDownloadData.Archive, downloadData.Version));
 			if(File.Exists(bitcoind))
@@ -216,6 +218,7 @@ namespace NBitcoin.Tests
 			get;
 			set;
 		} = true;
+		public NodeDownloadData NodeImplementation { get; private set; }
 
 		public CoreNode CreateNode(bool start = false)
 		{
@@ -461,10 +464,28 @@ namespace NBitcoin.Tests
 			get; set;
 		}
 
+		NodeDownloadData _NodeImplementation;
+		public NodeDownloadData NodeImplementation
+		{
+			get
+			{
+				return _NodeImplementation ?? this._Builder.NodeImplementation;
+			}
+			set
+			{
+				_NodeImplementation = value;
+			}
+		}
+
 		public async Task StartAsync()
 		{
 			NodeConfigParameters config = new NodeConfigParameters();
-			config.Add("regtest", "1");
+			StringBuilder configStr = new StringBuilder();
+			configStr.AppendLine("regtest=1");
+			if (NodeImplementation.UseSectionInConfigFile)
+			{
+				configStr.AppendLine("[regtest]");
+			}
 			config.Add("rest", "1");
 			config.Add("server", "1");
 			config.Add("txindex", "1");
@@ -481,7 +502,8 @@ namespace NBitcoin.Tests
 			config.Add("printtoconsole", "1");
 			config.Add("keypool", "10");
 			config.Import(ConfigParameters, true);
-			File.WriteAllText(_Config, config.ToString());
+			configStr.Append(config.ToString());
+			File.WriteAllText(_Config, configStr.ToString());
 			await Run();
 		}
 

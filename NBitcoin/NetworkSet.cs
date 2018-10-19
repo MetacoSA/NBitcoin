@@ -148,7 +148,7 @@ namespace NBitcoin
 			if(string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
 				return;
 
-			if(!string.IsNullOrEmpty(home))
+			if(!string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
 			{
 				var bitcoinFolder = Path.Combine(home, "." + folderName.ToLowerInvariant());
 
@@ -180,7 +180,7 @@ namespace NBitcoin
 		{
 			var home = Environment.GetEnvironmentVariable("HOME");
 			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
-			if(!string.IsNullOrEmpty(home))
+			if(!string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
 			{
 				var pathList = new List<string> { home, ".dash" };
 				pathList.AddRange(subfolders);

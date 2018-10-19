@@ -11,7 +11,7 @@ namespace NBitcoin
 {
 	public static class IpExtensions
 	{
-#if WIN
+#if CLASSICDOTNET
 		interface ICompatibility
 		{
 			IPAddress MapToIPv6(IPAddress address);
@@ -222,7 +222,7 @@ namespace NBitcoin
 
 		public static IPAddress MapToIPv6Ex(this IPAddress address)
 		{
-#if WIN
+#if CLASSICDOTNET
 			return Compatibility.MapToIPv6(address);
 #else
 			return Utils.MapToIPv6(address);
@@ -230,7 +230,7 @@ namespace NBitcoin
 		}
 		public static bool IsIPv4MappedToIPv6Ex(this IPAddress address)
 		{
-#if WIN
+#if CLASSICDOTNET
 			return Compatibility.IsIPv4MappedToIPv6(address);
 #else
 			return Utils.IsIPv4MappedToIPv6(address);

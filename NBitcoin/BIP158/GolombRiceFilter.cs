@@ -120,10 +120,13 @@ namespace NBitcoin
 			var nphi = modNP >> 32;
 			var nplo = (ulong)((uint)modNP);
 
-			// Process the data items and calculate the 64 bits hash for each of them.
+			var k0 = BitConverter.ToUInt64(key, 0);
+			var k1 = BitConverter.ToUInt64(key, 8);
+
+			// Process the data items and calculate the 64 bits hash for each of them.			
 			foreach(var item in dataArrayBytes )
 			{
-				var hash = SipHash(key, item);
+				var hash = SipHash(k0, k1, item);
 				var value = FastReduction(hash, nphi, nplo);
 				values.Add(value);
 			}
@@ -243,16 +246,12 @@ namespace NBitcoin
 			return value;
 		}
 
-		private static ulong SipHash(byte[] key, byte[] data)
+		private static ulong SipHash(ulong k0, ulong k1, byte[] data)
 		{
-			var k0 = BitConverter.ToUInt64(key, 0);
-			var k1 = BitConverter.ToUInt64(key, 8);
-
 			var hasher = new Hashes.SipHasher(k0, k1);
 			hasher.Write(data);
 			return hasher.Finalize();
 		}
-		
 	}
 
 	/// <summary>

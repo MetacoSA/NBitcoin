@@ -628,6 +628,32 @@ namespace NBitcoin.Tests
 			}
 		}
 
+
+		[Fact]
+		[Trait("Protocol", "Protocol")]
+		public async Task CanMaskExceptionThrownByMessageReceivers()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				node.Start();
+				var nodeClient = node.CreateNodeClient();
+				TaskCompletionSource<bool> ok = new TaskCompletionSource<bool>();
+				nodeClient.VersionHandshake();
+				nodeClient.UncaughtException += (s, m) =>
+				{
+					ok.TrySetResult(m.GetType() == typeof(Exception) && m.Message == "test");
+				};
+				nodeClient.MessageReceived += (s, m) =>
+				{
+					throw new Exception("test");
+				};
+				nodeClient.SendMessage(new PingPayload());
+				Assert.True(await ok.Task);
+			}
+		}
+
 		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void SynchronizeChainSurviveReorg()
@@ -860,26 +886,26 @@ namespace NBitcoin.Tests
 			Assert.True(reject.Hash == uint256.Parse("964182ffbcec5fafd8f33594b17d6aad4937ff1c59f699e91af44fda94967a57"));
 		}
 
-#if WIN
 		[Fact]
 		[Trait("Protocol", "Protocol")]
 		public void CanDownloadBlock()
-		{
+		{	
 			using(var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode(true).CreateNodeClient();
 				node.VersionHandshake();
-				node.SendMessageAsync(new GetDataPayload(new InventoryVector()
-				{
-					Hash = Network.RegTest.GenesisHash,
-					Type = InventoryType.MSG_BLOCK
-				}));
-
-				var block = node.ReceiveMessage<BlockPayload>();
-				Assert.True(block.Object.CheckMerkleRoot());
+				using (var listener = node.CreateListener())
+				{ 
+					node.SendMessageAsync(new GetDataPayload(new InventoryVector()
+					{
+						Hash = Network.RegTest.GenesisHash,
+						Type = InventoryType.MSG_BLOCK
+					}));
+					var block = listener.ReceivePayload<BlockPayload>();
+					Assert.True(block.Object.CheckMerkleRoot());
+				}
 			}
 		}
-#endif
 
 		[Fact]
 		[Trait("Protocol", "Protocol")]

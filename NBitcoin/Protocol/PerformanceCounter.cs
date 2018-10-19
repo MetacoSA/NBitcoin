@@ -136,7 +136,7 @@ namespace NBitcoin
 
 		public PerformanceSnapshot Snapshot()
 		{
-#if !(PORTABLE || NETCORE)
+#if !NETSTANDARD1X
 			Thread.MemoryBarrier();
 #endif
 			var snap = new PerformanceSnapshot(ReadenBytes, WrittenBytes)

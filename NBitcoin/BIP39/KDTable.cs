@@ -15,7 +15,7 @@ namespace NBitcoin
 			{
 				if(!Supported(c))
 				{
-					throw new PlatformNotSupportedException("the input string can't be normalized on this plateform");
+					throw new PlatformNotSupportedException("the input string can't be normalized on this platform");
 				}
 				Substitute(c, builder);
 			}

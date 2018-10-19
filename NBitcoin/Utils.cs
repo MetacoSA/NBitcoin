@@ -155,7 +155,7 @@ namespace NBitcoin
 			}
 		}
 
-#if !(PORTABLE || NETCORE)
+#if !NETSTANDARD1X
 		public static int ReadEx(this Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellation = default(CancellationToken))
 		{
 			if(stream == null)
@@ -376,7 +376,7 @@ namespace NBitcoin
 		{
 			try
 			{
-#if !NETCORE
+#if !NETSTANDARD1X
 				if(!ar.SafeWaitHandle.IsClosed && !ar.SafeWaitHandle.IsInvalid)
 					ar.Set();
 #else
@@ -847,7 +847,7 @@ namespace NBitcoin
 			}
 			catch(FormatException)
 			{
-#if !(WINDOWS_UWP || NETCORE)
+#if !(WINDOWS_UWP || NETSTANDARD1X)
 				address = Dns.GetHostEntry(ip).AddressList[0];
 #else
 				string adr = DnsLookup(ip).GetAwaiter().GetResult();
@@ -861,7 +861,7 @@ namespace NBitcoin
 			return new IPEndPoint(address, port);
 		}
 
-#if NETCORE
+#if NETSTANDARD1X
 		private static async Task<string> DnsLookup(string remoteHostName)
 		{
 			IPHostEntry data = await Dns.GetHostEntryAsync(remoteHostName).ConfigureAwait(false);

@@ -6,9 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-#if !PORTABLE
 using System.Net.Http;
-#endif
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -99,7 +97,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-#if WIN
+#if CLASSICDOTNET
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadPaymentRequest()
@@ -145,7 +143,7 @@ namespace NBitcoin.Tests
 			}
 		}
 
-#if WIN
+#if CLASSICDOTNET
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanReadTestVectorPayments()

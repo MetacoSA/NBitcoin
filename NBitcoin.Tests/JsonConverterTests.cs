@@ -39,6 +39,8 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(k.PubKey);
 			CanSerializeInJsonCore(new WitScript(new Script(Op.GetPushOp(sig.ToDER()), Op.GetPushOp(sig.ToDER()))));
 			CanSerializeInJsonCore(new LockTime(1));
+			CanSerializeInJsonCore(new LockTime(130), out var str);
+			Assert.Equal("130", str);
 			CanSerializeInJsonCore(new LockTime(DateTime.UtcNow));
 			CanSerializeInJsonCore(new FeeRate(Money.Satoshis(1), 1000));
 			CanSerializeInJsonCore(new FeeRate(Money.Satoshis(1000), 1000));
@@ -47,6 +49,13 @@ namespace NBitcoin.Tests
 		private T CanSerializeInJsonCore<T>(T value)
 		{
 			var str = Serializer.ToString(value);
+			var obj2 = Serializer.ToObject<T>(str);
+			Assert.Equal(str, Serializer.ToString(obj2));
+			return obj2;
+		}
+		private T CanSerializeInJsonCore<T>(T value, out string str)
+		{
+			str = Serializer.ToString(value);
 			var obj2 = Serializer.ToObject<T>(str);
 			Assert.Equal(str, Serializer.ToString(obj2));
 			return obj2;

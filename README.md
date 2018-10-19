@@ -10,6 +10,8 @@ It works on Windows, Mac and Linux with Xamarin, Unity, .NET Core or CLR. (Porti
 
 The best documentation available is our [eBook](https://programmingblockchain.gitbooks.io/programmingblockchain/content/), and the excellent unit tests. There are also some more resources below.
 
+You can also browse the API easily through [the API reference](https://metacosa.github.io/NBitcoin/api/index.html).
+
 # How to use ?
 With NuGet :
 >**Install-Package NBitcoin** 
@@ -106,6 +108,40 @@ NBitcoin notably includes:
 NBitcoin is inspired by Bitcoin Core code but provides a simpler object oriented API (e.g., new Key().PubKey.Address.ToString() to generate a key and get the associated address). It relies on the BouncyCastle cryptography library instead of OpenSSL, yet replicates OpenSSL bugs to guarantee compatibility. NBitcoin also ports the integrality of Bitcoin Core unit tests with their original data in order to validate the compatibility of the two implementations.
 
 NBitcoin is licensed under the [MIT License](https://opensource.org/licenses/MIT) and we encourage you to use it to explore, learn, debug, play, share and create software for Bitcoin and with other Metaco services.
+
+## Some OSS projects using NBitcoin
+
+* [Wasabi](http://github.com/zkSNACKs/WalletWasabi): Privacy focused, ZeroLink compliant Bitcoin wallet.
+
+* [StratisBitcoinFullNode](http://github.com/stratisproject/StratisBitcoinFullNode): Bitcoin full node in C# https://stratisplatform.com
+
+* [Breeze](http://github.com/stratisproject/Breeze): Breeze Wallet, the first full-block SPV bitcoin wallet 
+
+* [BlockExplorer](http://github.com/stratisproject/BlockExplorer): A set of projects that can index and query stratis blockchains on the fullnode. 
+
+* [BTCPay Server](http://github.com/btcpayserver/btcpayserver): A cross platform, self-hosted server compatible with Bitpay API 
+
+* [NTumbleBit](http://github.com/NTumbleBit/NTumbleBit): TumbleBit Implementation in .NET Core 
+
+* [BitPoker](http://github.com/bitcoinbrisbane/BitPoker): Decentralised peer to peer poker, using bitcoin http://www.bitpoker.io
+
+* [Zen-Wallet](http://github.com/zenprotocol/zen-wallet): Node and GUI for the Zen Protocol. https://www.zenprotocol.com
+
+* [Metaco-Trader](http://github.com/MetacoSA/Metaco-Trader): Bitcoin Wallet for advanced user based on a NBitcoin.Server 
+
+* [Swarmops](http://github.com/Swarmops/Swarmops): Admin backend for any bitcoin-native or swarm organization http://sandbox.swarmops.com/
+
+* [Nako](http://github.com/CoinVault/Nako): A Bitcoin and Altcoin server api that indexes blockchain transactions and addresses 
+
+* [NBXplorer](http://github.com/dgarage/NBXplorer): A minimalist UTXO tracker for HD Wallets with bitcoin based altcoin support 
+
+* [UnitCurrency](http://github.com/unitcurrency/unitcurrency): UnitCoin - a hybrid scrypt PoW + PoS based cryptocurrency.
+
+* [Openchain](http://github.com/openchain/openchain): Openchain node reference implementation. https://www.openchain.org/
+
+* [BreezeProject](http://github.com/BreezeHub/BreezeProject): Breeze Masternode and Wallet with Breeze Privacy Protocol 
+
+* [Geewallet](https://github.com/diginex/geewallet): a minimalistic and pragmatist lightweight wallet for people that want to hold the most important cryptocurrencies in the same application without hassle
 
 ## Useful doc :
 
