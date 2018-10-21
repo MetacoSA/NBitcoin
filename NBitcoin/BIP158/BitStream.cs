@@ -87,21 +87,16 @@ namespace NBitcoin
 			return true;
 		}
 
-
 		public bool TryReadBits(int count, out ulong bits)
 		{
-			var i = (_readPos + count) / 8;
-			if ( i >= _buffer.Length)
-			{
-				bits = 0U;
-				return false;
-			}
-
 			var val = 0UL;
 			while(count >= 8)
 			{
 				val <<= 8;
-				TryReadByte(out var readedByte);
+				if(!TryReadByte(out var readedByte)){
+					bits = 0U;
+					return false;
+				}
 				val |= (ulong)readedByte;
 				count -= 8;
 			}
@@ -109,15 +104,15 @@ namespace NBitcoin
 			while(count > 0)
 			{
 				val <<= 1;
-				var	bit = false;
-				var ii = _readPos / 8;
-
-				var mask = 1 << (8 - (_readPos % 8) - 1); 
-
-				bit = (_buffer[ii] & mask) == mask;
-				_readPos++;
-				val |= bit ? 1UL : 0UL;
-				count--;
+				if(TryReadBit(out var bit)){
+					val |= bit ? 1UL : 0UL;
+					count--;
+				}
+				else
+				{
+					bits = 0U;
+					return false;
+				}
 			}
 			bits = val;
 			return true;
