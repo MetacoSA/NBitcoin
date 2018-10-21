@@ -115,7 +115,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("btx"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("btx"))
-			.SetMagic(0xD9B4BeF9) //defined in inverted direction, 0xF9BEB4D9
+			.SetMagic(0xD9B4BEF9) //defined in inverted direction, 0xF9BEB4D9
 			.SetPort(8555) 
 			.SetRPCPort(8556)
 			.SetMaxP2PVersion(80000)
@@ -125,6 +125,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("bitcore-main")
 			.AddDNSSeeds(new[]
 			{
+				new DNSSeedData("bitcore.biz", "seed.bitcore.biz"),
 				new DNSSeedData("37.120.190.76", "37.120.190.76"),
 				new DNSSeedData("37.120.186.85", "37.120.186.85"),
 				new DNSSeedData("185.194.140.60", "185.194.140.60"),
@@ -171,6 +172,7 @@ namespace NBitcoin.Altcoins
 			.AddAlias("bitcore-testnet")
 			.AddDNSSeeds(new[]
 			{
+				new DNSSeedData("51.15.84.165", "51.15.84.165"),
 				new DNSSeedData("188.68.52.172", "188.68.52.172"),
 				new DNSSeedData("37.120.186.85", "37.120.186.85"),
 				new DNSSeedData("188.71.223.206", "188.71.223.206")

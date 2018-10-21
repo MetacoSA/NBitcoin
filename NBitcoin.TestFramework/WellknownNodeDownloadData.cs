@@ -430,29 +430,29 @@ namespace NBitcoin.Tests
 
 		public class BitcoreNodeDownloadData
 		{
-			public NodeDownloadData v0_15_1 = new NodeDownloadData()
+			public NodeDownloadData v0_15_2 = new NodeDownloadData()
 			{
-				Version = "0.15.1.0",
+				Version = "0.15.2.0.0",
 				Windows = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/Windows.zip",
-					Archive = "Windows.zip",
-					Executable = "Windows/bitcored.exe",
-					Hash = "9d884f0a9221060172101997e15d58ca63db88ad51907fe89b31b55348b10f97"
+					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/windows.zip",
+					Archive = "windows.zip",
+					Executable = "bitcored.exe",
+					Hash = "96b70ff0828af1a147c0be9326a941d541c6c82d96767d79378289d3e6a80b9a"
 				},
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/linux.Ubuntu.16.04.regtest-noqt.tar.gz",
-					Archive = "linux.Ubuntu.16.04.regtest-noqt.tar.gz",
+					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/linux.Ubuntu.16.04.LTS-static-libstdc.tar.gz",
+					Archive = "linux.Ubuntu.16.04.LTS-static-libstdc.tar.gz",
 					Executable = "bitcored",
-					Hash = "ecbffb6ed6bbe1209e78246c1ae6e6f55e375c7ffbd82fdc40ff95db350ce5c6"
+					Hash = "b9092c1ad8e814b95f1d2199c535f24a02174af342399fe9b7f457d9d182f5a4"
 				},
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/bitcore-qt.dmg",
-					Archive = "bitcore-qt.dmg",
+					DownloadLink = "https://github.com/LIMXTEC/BitCore/releases/download/{0}/BitCore-Qt.dmg",
+					Archive = "BitCore-Qt.dmg",
 					Executable = "bitcored",
-					Hash = "929005100984972bb66253278826af4698720d1f01fd6429ac3ab2b19f811f97"
+					Hash = "74efb6069278ef99fa361d70368a15da8cfc7bc92b33ead4af0b06277e16ef25"
 				}
 			};
 		}
