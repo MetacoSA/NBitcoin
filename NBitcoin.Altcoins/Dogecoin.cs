@@ -323,7 +323,7 @@ namespace NBitcoin.Altcoins
 				MajorityWindow = 1000,
 				PowLimit = new Target(new uint256("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				PowTargetTimespan = TimeSpan.FromSeconds(4 * 60 * 60),
-				PowTargetSpacing = TimeSpan.FromSeconds(1),
+				PowTargetSpacing = TimeSpan.FromSeconds(60),
 				PowAllowMinDifficultyBlocks = false,
 				CoinbaseMaturity = 60,
 				//  Not set in reference client, assuming false

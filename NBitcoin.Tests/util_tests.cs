@@ -283,6 +283,13 @@ namespace NBitcoin.Tests
 			Assert.Equal("5.00000000", Money.Coins(5).ToString());
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCalculateBlockTimeCorrectly()
+		{
+			Assert.Equal(1.5, Network.Main.Consensus.GetExpectedBlocksFor(TimeSpan.FromMinutes(15)));
+			Assert.Equal(TimeSpan.FromMinutes(15), Network.Main.Consensus.GetExpectedTimeFor(1.5));
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

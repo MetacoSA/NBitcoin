@@ -553,6 +553,16 @@ namespace NBitcoin
 			return consensus;
 		}
 
+		public TimeSpan GetExpectedTimeFor(double blockCount)
+		{
+			return TimeSpan.FromSeconds(blockCount * PowTargetSpacing.TotalSeconds);
+		}
+
+		public double GetExpectedBlocksFor(TimeSpan timeSpan)
+		{
+			return timeSpan.TotalSeconds / PowTargetSpacing.TotalSeconds;
+		}
+
 		protected void Fill(Consensus consensus)
 		{
 			consensus.EnsureNotFrozen();
