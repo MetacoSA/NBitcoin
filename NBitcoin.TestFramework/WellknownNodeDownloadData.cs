@@ -626,31 +626,31 @@ namespace NBitcoin.Tests
 				Version = "0.12.2.3",
 				Windows = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/monacocoin-net/monoeci-core/releases/download/v{0}/monoeciCore-v{0}-win32.zip",
-					Archive = "monoeciCore-v{0}-win32.zip",
-					Executable = "monoeciCore-v{0}/bin/monoecid.exe",
+					DownloadLink = "https://github.com/monacocoin-net/monoeci-core/releases/download/v{0}/monoeciCore-{0}-win32.zip",
+					Archive = "monoeciCore-{0}-win32.zip",
+					Executable = "monoeciCore-{0}/bin/monoecid.exe",
 					Hash = "19172ed041227ce0eaebaa67fd6cd36ea5a1c753013c035da34e7817a30c5c35",
-					CreateFolder = "monoeciCore-v{0}",
+					CreateFolder = "monoeciCore-{0}",
 				},
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/monacocoin-net/monoeci-core/releases/download/v{0}/monoeciCore-v{0}-linux64.tar.gz",
-					Archive = "monoeciCore-v{0}-linux64.tar.gz",
-					Executable = "monoeciCore-v{0}/bin/monoecid",
+					DownloadLink = "https://github.com/monacocoin-net/monoeci-core/releases/download/v{0}/monoeciCore-{0}-linux64.tar.gz",
+					Archive = "monoeciCore-{0}-linux64.tar.gz",
+					Executable = "monoeciCore-{0}/bin/monoecid",
 					Hash = "8cab56a02a2b7f5d41af6dd9e09208be13ded20a06b29c5e2e95bb19db3694f1",
-					CreateFolder = "monoeciCore-v{0}",
+					CreateFolder = "monoeciCore-{0}",
 				},
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/monacocoin-net/monoeci-core/releases/download/v{0}/monoeciCore-v{0}-osx.tar.gz",
-					Archive = "monoeciCore-v{0}-osx.tar.gz",
-					Executable = "monoeciCore-v{0}/bin/monoecid",
+					DownloadLink = "https://github.com/monacocoin-net/monoeci-core/releases/download/v{0}/monoeciCore-{0}-osx.tar.gz",
+					Archive = "monoeciCore-{0}-osx.tar.gz",
+					Executable = "monoeciCore-{0}/bin/monoecid",
 					Hash = "60a2414e01950e8f2f91da56334116866261e12240f4da2a698ed142c7c68d4a",
-					CreateFolder = "monoeciCore-v{0}",
+					CreateFolder = "monoeciCore-{0}",
 				}
 			};
 		}
-		public class GobyteNodeDownloadData
+		public class GoByteNodeDownloadData
 		{
 			public NodeDownloadData v0_12_2_4 = new NodeDownloadData()
 			{
@@ -661,7 +661,6 @@ namespace NBitcoin.Tests
 					Archive = "GoByte_{0}_Windows32.zip",
 					Executable = "GoByte_{0}_Windows32/gobyted.exe",
 					Hash = "333144de13cb5b1a5e1d81890ed8e91dbc9e52bb63eecd10f397c879f5725de1",
-					CreateFolder = "GoByte_{0}_Windows32",
 				},
 				Linux = new NodeOSDownloadData()
 				{
@@ -669,7 +668,13 @@ namespace NBitcoin.Tests
 					Archive = "GoByteCore-{0}_Linux64.tar.gz",
 					Executable = "GoByteCore-{0}_Linux64/gobyted",
 					Hash = "d2419274d1234b80c5756247775ace04abc85a8f74b91760c8c25f65212e4e57",
-					CreateFolder = "GoByteCore-{0}_Linux64",
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/gobytecoin/gobyte/releases/download/v0.12.2.4/GoByte_0.12.2.4_MacOS.dmg",
+					Archive = "GoByte_0.12.2.4_MacOS.dmg",
+					Executable = "gobyted",
+					Hash = "de8fa9bd6aa4dbab2c93627b94185eb58b24cd05d5628ede1086f305362f1b0f",
 				}
 			};
 		}
@@ -696,19 +701,19 @@ namespace NBitcoin.Tests
 				},
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/ColossusCoinXT/ColossusCoinXT/releases/download/v{0}/colx-v{0}-osx64.tar.gz",
-					Archive = "colx-v{0}-osx64.tar.gz",
-					Executable = "colx-v{0}/bin/colxd",
-					Hash = "85e58f98d4a19ae03a2990651345926f2020375b6b51c7e3f536d13175c07f0f",
+					DownloadLink = "https://github.com/ColossusCoinXT/ColossusCoinXT/releases/download/v{0}/colx-{0}-osx64.tar.gz",
+					Archive = "colx-{0}-osx64.tar.gz",
+					Executable = "colx-{0}/bin/colxd",
+					Hash = "6cb3411ea02d2e7dc17824dffece1ba1e61ea9842eb1f14f15ae78b99bb8493a",
 					CreateFolder = "colx-v{0}",
 				}
 			};
 		}
 
-		public static GobyteNodeDownloadData Gobyte
+		public static GoByteNodeDownloadData GoByte
 		{
 			get; set;
-		} = new GobyteNodeDownloadData();
+		} = new GoByteNodeDownloadData();
 
 		public static ColossusNodeDownloadData Colossus
 		{
