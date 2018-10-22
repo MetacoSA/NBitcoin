@@ -83,11 +83,11 @@ using System.Threading.Tasks;
 				MajorityWindow = 1000,
 				BIP34Hash = new uint256("0x00000c8a1ff01bae3f3875c81cb14115429af5744643b34b4ad1cbb7d2d59ca2"),
 				PowLimit = new Target(new uint256("00000fffff000000000000000000000000000000000000000000000000000000")),
-				MinimumChainWork = new uint256("0x00000000000000000000000000000000000000000000000004ce57668f63f9b4"),
-				PowTargetTimespan = TimeSpan.FromSeconds( 60 * 60),
+				MinimumChainWork = new uint256("00000fffff000000000000000000000000000000000000000000000000000000"),
+				PowTargetTimespan = TimeSpan.FromSeconds(60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
-				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 15, // this does not exist on GBX
+				PowAllowMinDifficultyBlocks = false,
+				CoinbaseMaturity = 100,
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 1916, // 95% of 2016
 				MinerConfirmationWindow = 2016,
@@ -103,10 +103,10 @@ using System.Threading.Tasks;
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("gobyte"))
 			.SetMagic(0xD4C3B21A) 
 			.SetPort(12455) 
-			.SetRPCPort(13454) // check this
-			.SetMaxP2PVersion(70208)
+			.SetRPCPort(12454)
+			.SetMaxP2PVersion(70209)
 			.SetName("gobyte-main")
-			.AddAlias("gobyte-mainnet") // done
+			.AddAlias("gobyte-mainnet")
 			.AddDNSSeeds(new[]
 			{
 				new  DNSSeedData("seed1.gobyte.network", "seed1.gobyte.network"),
@@ -139,7 +139,7 @@ using System.Threading.Tasks;
 				PowTargetTimespan = TimeSpan.FromSeconds(60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
 				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 30, // nope
+				CoinbaseMaturity = 100,
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 1512, 
 				MinerConfirmationWindow = 2016, 
@@ -154,9 +154,9 @@ using System.Threading.Tasks;
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tgobyte"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tgobyte"))
 			.SetMagic(0xFFCAE2CE)
-			.SetPort(19999)
-			.SetRPCPort(19998)
-			.SetMaxP2PVersion(70208)
+			.SetPort(13455)
+			.SetRPCPort(13454)
+			.SetMaxP2PVersion(70209)
 		   .SetName("gobyte-test")
 		   .AddAlias("gobyte-testnet")
 		   .AddDNSSeeds(new[]
@@ -165,7 +165,7 @@ using System.Threading.Tasks;
 			   new DNSSeedData("gobyte.network",  "testnet2-dns.gobyte.network")
 		   })
 		   .AddSeeds(new NetworkAddress[0])
-		   .SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0dee1e352f0ff0f1ec3c927e60101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+		   .SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000219f39f283f43185a0ef69cba1702151ab0cf02454a57e1039dabcc19d719adc20de0b5af0ff0f1ebbc02d000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4204ffff001d01043a5468652053746172204d616c61797369612031377468204e6f76656d626572203230313720476f427974652047656e65736973205265626f726effffffff0100f2052a010000004341043e5a5fbfbb2caa5f4b7c8fd24d890d6c244de254d579b5ba629f64c1b48275f59e0e1c834a60f6ffb4aaa022aaa4866434ca729a12465f80618fb2070045cb16ac00000000");
 			return builder;
 		}
  		protected override NetworkBuilder CreateRegtest()
@@ -183,7 +183,7 @@ using System.Threading.Tasks;
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
 				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
 				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 30,
+				CoinbaseMaturity = 100,
 				PowNoRetargeting = true,
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
@@ -198,14 +198,14 @@ using System.Threading.Tasks;
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tgobyte"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tgobyte"))
 			.SetMagic(0x7BD5B3A1)
-			.SetPort(13455)
-			.SetRPCPort(19993) // dont know
-			.SetMaxP2PVersion(70208) // 
+			.SetPort(13565)
+			.SetRPCPort(13564)
+			.SetMaxP2PVersion(70209) 
 			.SetName("gobyte-reg")
 			.AddAlias("gobyte-regtest")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0b9968054ffff7f20ffba10000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000219f39f283f43185a0ef69cba1702151ab0cf02454a57e1039dabcc19d719adcbcdd0b5af0ff0f1e63c00d000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4204ffff001d01043a5468652053746172204d616c61797369612031377468204e6f76656d626572203230313720476f427974652047656e65736973205265626f726effffffff0100f2052a010000004341043e5a5fbfbb2caa5f4b7c8fd24d890d6c244de254d579b5ba629f64c1b48275f59e0e1c834a60f6ffb4aaa022aaa4866434ca729a12465f80618fb2070045cb16ac00000000");
 			return builder;
 		}
  	}
