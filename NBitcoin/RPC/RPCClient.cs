@@ -1223,34 +1223,21 @@ namespace NBitcoin.RPC
 
 		public BlockHeader GetBlockHeader(uint256 blockHash)
 		{
-			var resp = SendCommand("getblockheader", blockHash);
+			var resp = SendCommand("getblockheader", blockHash, false);
 			return ParseBlockHeader(resp);
 		}
 
 		public async Task<BlockHeader> GetBlockHeaderAsync(uint256 blockHash)
 		{
-			var resp = await SendCommandAsync("getblockheader", blockHash).ConfigureAwait(false);
+			var resp = await SendCommandAsync("getblockheader", blockHash, false).ConfigureAwait(false);
 			return ParseBlockHeader(resp);
 		}
 
 		private BlockHeader ParseBlockHeader(RPCResponse resp)
 		{
 			var header = Network.Consensus.ConsensusFactory.CreateBlockHeader();
-			header.Version = (int)resp.Result["version"];
-			header.Nonce = (uint)resp.Result["nonce"];
-			header.Bits = new Target(Encoders.Hex.DecodeData((string)resp.Result["bits"]));
-			if (resp.Result["previousblockhash"] != null)
-			{
-				header.HashPrevBlock = uint256.Parse((string)resp.Result["previousblockhash"]);
-			}
-			if (resp.Result["time"] != null)
-			{
-				header.BlockTime = Utils.UnixTimeToDateTime((uint)resp.Result["time"]);
-			}
-			if (resp.Result["merkleroot"] != null)
-			{
-				header.HashMerkleRoot = uint256.Parse((string)resp.Result["merkleroot"]);
-			}
+			var hex = Encoders.Hex.DecodeData(resp.Result.Value<string>());
+			header.ReadWrite(new BitcoinStream(hex));
 			return header;
 		}
 
