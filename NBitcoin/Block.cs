@@ -197,7 +197,7 @@ namespace NBitcoin
 			}
 		}
 
-		internal void SetNull()
+		protected internal virtual void SetNull()
 		{
 			nVersion = CURRENT_VERSION;
 			hashPrevBlock = 0;
@@ -249,7 +249,9 @@ namespace NBitcoin
 
 			using(var hs = CreateHashStream())
 			{
-				this.ReadWrite(new BitcoinStream(hs, true));
+				var stream = new BitcoinStream(hs, true);
+				stream.SerializationTypeScope(SerializationType.Hash);
+				this.ReadWrite(stream);
 				h = hs.GetHash();
 			}
 

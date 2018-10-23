@@ -185,9 +185,9 @@ namespace NBitcoin
 		{
 			this.prevout = prevout;
 		}
-		OutPoint prevout = new OutPoint();
-		Script scriptSig = Script.Empty;
-		uint nSequence = uint.MaxValue;
+		protected OutPoint prevout = new OutPoint();
+		protected Script scriptSig = Script.Empty;
+		protected uint nSequence = uint.MaxValue;
 
 		public Sequence Sequence
 		{
@@ -254,7 +254,7 @@ namespace NBitcoin
 
 		#region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public virtual void ReadWrite(BitcoinStream stream)
 		{
 			stream.ReadWrite(ref prevout);
 			stream.ReadWrite(ref scriptSig);
@@ -546,7 +546,7 @@ namespace NBitcoin
 
 	public class TxOut : IBitcoinSerializable, IDestination
 	{
-		Script publicKey = Script.Empty;
+		protected Script publicKey = Script.Empty;
 		public Script ScriptPubKey
 		{
 			get
@@ -609,7 +609,7 @@ namespace NBitcoin
 
 		#region IBitcoinSerializable Members
 
-		public void ReadWrite(BitcoinStream stream)
+		public virtual void ReadWrite(BitcoinStream stream)
 		{
 			long value = Value.Satoshi;
 			stream.ReadWrite(ref value);
@@ -1153,7 +1153,7 @@ namespace NBitcoin
 			}
 		}
 
-		uint nVersion = 1;
+		protected uint nVersion = 1;
 
 		public uint Version
 		{
@@ -1166,9 +1166,9 @@ namespace NBitcoin
 				nVersion = value;
 			}
 		}
-		TxInList vin;
-		TxOutList vout;
-		LockTime nLockTime;
+		protected TxInList vin;
+		protected TxOutList vout;
+		protected LockTime nLockTime;
 
 
 		[Obsolete("You should better use Transaction.Create(Network network)")]
@@ -1233,7 +1233,7 @@ namespace NBitcoin
 		}
 
 		//Since it is impossible to serialize a transaction with 0 input without problems during deserialization with wit activated, we fit a flag in the version to workaround it
-		const uint NoDummyInput = (1 << 27);
+		protected const uint NoDummyInput = (1 << 27);
 
 		#region IBitcoinSerializable Members
 
@@ -1339,11 +1339,13 @@ namespace NBitcoin
 
 			using(var hs = CreateHashStream())
 			{
-				this.ReadWrite(new BitcoinStream(hs, true)
+				var stream = new BitcoinStream(hs, true)
 				{
 					TransactionOptions = TransactionOptions.None,
 					ConsensusFactory = GetConsensusFactory(),
-				});
+				};
+				stream.SerializationTypeScope(SerializationType.Hash);
+				this.ReadWrite(stream);
 				h = hs.GetHash();
 			}
 
@@ -1728,7 +1730,7 @@ namespace NBitcoin
 		/// </summary>
 		/// <param name="spentCoins">Coins being spent</param>
 		/// <returns>Fee or null if some spent coins are missing or if spentCoins is null</returns>
-		public Money GetFee(ICoin[] spentCoins)
+		public virtual Money GetFee(ICoin[] spentCoins)
 		{
 			if(IsCoinBase)
 				return Money.Zero;

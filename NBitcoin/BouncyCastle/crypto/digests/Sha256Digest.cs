@@ -65,6 +65,26 @@ namespace NBitcoin.BouncyCastle.Crypto.Digests
 			}
 		}
 
+		public byte[] MidState
+		{
+			get
+			{
+				var ms = new System.IO.MemoryStream();
+				BitcoinStream bs = new BitcoinStream(ms, true);
+				bs.BigEndianScope();
+
+				bs.ReadWrite(this.H1);
+				bs.ReadWrite(this.H2);
+				bs.ReadWrite(this.H3);
+				bs.ReadWrite(this.H4);
+				bs.ReadWrite(this.H5);
+				bs.ReadWrite(this.H6);
+				bs.ReadWrite(this.H7);
+				bs.ReadWrite(this.H8);
+
+				return ms.ToArray();
+			}
+		}
 		public override int GetDigestSize()
 		{
 			return DigestLength;
