@@ -84,9 +84,9 @@ namespace NBitcoin
 					builder.SetNetworkSet(this);
 					_Regtest = builder.BuildAndRegister();
 				}
-				PostInit();
 				_Registered = true;
 				_Registering = false;
+				PostInit();
 			}
 		}
 
