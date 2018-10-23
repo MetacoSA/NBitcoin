@@ -143,6 +143,7 @@ namespace NBitcoin
 			{
 				get; set;
 			} = "testnet3";
+			public string RegtestFolder { get; set; } = "regtest";
 		}
 
 		protected void RegisterDefaultCookiePath(string folderName, FolderName folder = null)
@@ -164,7 +165,7 @@ namespace NBitcoin
 				var testnet = Path.Combine(bitcoinFolder, folder.TestnetFolder, ".cookie");
 				RPCClient.RegisterDefaultCookiePath(Testnet, testnet);
 
-				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
+				var regtest = Path.Combine(bitcoinFolder, folder.RegtestFolder, ".cookie");
 				RPCClient.RegisterDefaultCookiePath(Regtest, regtest);
 			}
 			else if(!string.IsNullOrEmpty(localAppData))
@@ -177,7 +178,7 @@ namespace NBitcoin
 				var testnet = Path.Combine(bitcoinFolder, folder.TestnetFolder, ".cookie");
 				RPCClient.RegisterDefaultCookiePath(Testnet, testnet);
 
-				var regtest = Path.Combine(bitcoinFolder, "regtest", ".cookie");
+				var regtest = Path.Combine(bitcoinFolder, folder.RegtestFolder, ".cookie");
 				RPCClient.RegisterDefaultCookiePath(Regtest, regtest);
 			}
 		}
