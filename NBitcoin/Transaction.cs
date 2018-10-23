@@ -850,7 +850,7 @@ namespace NBitcoin
 			var @in = CreateNewTxIn();
 			@in.PrevOut.Hash = prevTx.GetHash();
 			@in.PrevOut.N = (uint)outIndex;
-			return @in;
+			return this.Add(@in);
 		}
 	}
 
