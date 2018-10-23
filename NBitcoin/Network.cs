@@ -405,7 +405,7 @@ namespace NBitcoin
 			_HashGenesisBlock = new Lazy<uint256>(()=>
 			{
 				var block = ConsensusFactory.CreateBlock();
-				block.ReadWrite(genesis);
+				block.ReadWrite(genesis, ConsensusFactory);
 				return block.GetHash();
 			}, true);
 		}
@@ -1328,7 +1328,7 @@ namespace NBitcoin
 		public Block GetGenesis()
 		{
 			var block = Consensus.ConsensusFactory.CreateBlock();
-			block.ReadWrite(_GenesisBytes);
+			block.ReadWrite(_GenesisBytes, Consensus.ConsensusFactory);
 			return block;
 		}
 

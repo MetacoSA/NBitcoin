@@ -53,7 +53,7 @@ namespace NBitcoin.JsonConverters
 						obj = (IBitcoinSerializable)Activator.CreateInstance(objectType);
 					}
 				}
-				obj.ReadWrite(bytes);
+				obj.ReadWrite(bytes, Network);
 				return obj;
 			}
 			catch (EndOfStreamException)

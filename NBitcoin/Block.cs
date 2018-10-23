@@ -722,7 +722,7 @@ namespace NBitcoin
 			if(consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
 			var block = consensusFactory.CreateBlock();
-			block.ReadWrite(Encoders.Hex.DecodeData(hex));
+			block.ReadWrite(Encoders.Hex.DecodeData(hex), consensusFactory);
 			return block;
 		}
 
@@ -749,7 +749,7 @@ namespace NBitcoin
 			if(consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
 			var block = consensusFactory.CreateBlock();
-			block.ReadWrite(hex);
+			block.ReadWrite(hex, consensusFactory);
 			return block;
 		}
 

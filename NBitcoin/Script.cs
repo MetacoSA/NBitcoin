@@ -432,7 +432,7 @@ namespace NBitcoin
 			else
 			{
 				ScriptCompressor compressor = new ScriptCompressor();
-				compressor.ReadWrite(data);
+				compressor.ReadWrite(new BitcoinStream(data));
 				_Script = compressor.GetScript()._Script;
 			}
 		}

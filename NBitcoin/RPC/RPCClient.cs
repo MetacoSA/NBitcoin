@@ -1430,7 +1430,7 @@ namespace NBitcoin.RPC
 
 			response.ThrowIfError();
 			var tx = Network.Consensus.ConsensusFactory.CreateTransaction();
-			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()), tx.GetConsensusFactory());
+			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()), Network);
 			return tx;
 		}
 
@@ -1442,7 +1442,7 @@ namespace NBitcoin.RPC
 		private Transaction ParseTxHex(string hex)
 		{
 			var tx = Network.Consensus.ConsensusFactory.CreateTransaction();
-			tx.ReadWrite(Encoders.Hex.DecodeData(hex));
+			tx.ReadWrite(Encoders.Hex.DecodeData(hex), Network);
 			return tx;
 		}
 

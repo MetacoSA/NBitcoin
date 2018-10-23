@@ -109,7 +109,7 @@ namespace NBitcoin.RPC
 			var result = await SendRequestAsync("tx", RestResponseFormat.Bin, txId.ToString()).ConfigureAwait(false);
 
 			var tx = Network.Consensus.ConsensusFactory.CreateTransaction();
-			tx.ReadWrite(result);
+			tx.ReadWrite(result, Network);
 			return tx;
 		}
 		/// <summary>
