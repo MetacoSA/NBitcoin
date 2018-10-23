@@ -9,10 +9,12 @@ namespace NBitcoin
 		private byte[] _buffer;
 		private int _writePos;
 		private int _readPos;
+		private int _lengthInBits;
 
 		public BitStream()
 			: this(new byte[8 * 1024])
 		{
+			_lengthInBits = 0;
 		}
 
 		public BitStream(byte[] buffer)
@@ -22,6 +24,7 @@ namespace NBitcoin
 			_buffer = newBuffer;
 			_writePos = 0;
 			_readPos = 0;
+			_lengthInBits = buffer.Length * 8;
 		}
 
 		public void WriteBit(bool bit)
@@ -61,28 +64,28 @@ namespace NBitcoin
 			var remainCount = (_writePos % 8);
 			var i = _writePos / 8;
 			_buffer[i] |= (byte)(b >> remainCount);
+			_writePos += (8 - remainCount);
 
 			if(remainCount > 0)
 			{
 				EnsureCapacity();
 				
 				_buffer[i+1] = (byte)(b << (8 - remainCount));
+				_writePos += remainCount;
 			}
-			_writePos+=8;
 		}
 
 		public bool TryReadBit(out bool bit)
 		{
 			bit = false;
-			var i = _readPos / 8;
-			if ( i == _buffer.Length)
+			if ( _readPos == _lengthInBits)
 			{
 				return false;
 			}
 
 			var mask = 1 << (8 - (_readPos % 8) - 1); 
 
-			bit = (_buffer[i] & mask) == mask;
+			bit = (_buffer[_readPos / 8] & mask) == mask;
 			_readPos++;
 			return true;
 		}
@@ -121,12 +124,12 @@ namespace NBitcoin
 		public bool TryReadByte(out byte b)
 		{
 			b = 0;
-			var i = _readPos / 8;
-			if ( i == _buffer.Length)
+			if ( _readPos == _lengthInBits)
 			{
 				return false;
 			}
 
+			var i = _readPos / 8;
 			var remainCount = _readPos % 8;
 			b = (byte)(_buffer[i] << remainCount);
 
@@ -153,9 +156,10 @@ namespace NBitcoin
 
 		private void EnsureCapacity()
 		{
-			if ( (_writePos / 8) == (_buffer.Length - 1))
+			if ( _writePos == _lengthInBits)
 			{
-				Array.Resize(ref _buffer, _buffer.Length + ( 4 * 1024 ));
+				_lengthInBits += ( 4 * 1024 ) * 8;
+				Array.Resize(ref _buffer, _buffer.Length + ( 4 * 1024 ) );
 			}
 		}
 	}
