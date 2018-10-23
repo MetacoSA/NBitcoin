@@ -945,8 +945,11 @@ namespace NBitcoin.RPC
 			webRequest.Headers[HttpRequestHeader.Authorization] = "Basic " + Encoders.Base64.EncodeData(Encoders.ASCII.DecodeData(_Authentication));
 			webRequest.ContentType = "application/json-rpc";
 			webRequest.Method = "POST";
+			webRequest.Timeout = (int)RequestTimeout.TotalMilliseconds;
 			return webRequest;
 		}
+
+		public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(100);
 
 		private async Task<Stream> ToMemoryStreamAsync(Stream stream)
 		{

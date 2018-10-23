@@ -2367,7 +2367,6 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
         {
-
 		}
 
 
