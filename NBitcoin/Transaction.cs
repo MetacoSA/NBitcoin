@@ -2254,7 +2254,7 @@ namespace NBitcoin
 			return hashPrevouts;
 		}
 
-		private BitcoinStream CreateHashWriter(HashVersion version)
+		protected BitcoinStream CreateHashWriter(HashVersion version)
 		{
 			var hs = CreateSignatureHashStream();
 			BitcoinStream stream = new BitcoinStream(hs, true);
