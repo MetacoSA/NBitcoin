@@ -1659,10 +1659,7 @@ namespace NBitcoin.RPC
 			bool replaceable = false
 		)
 		{
-			uint256 txid = null;
-
-			txid = SendToAddressAsync(scriptPubKey, amount, commentTx, commentDest, subtractFeeFromAmount, replaceable).GetAwaiter().GetResult();
-			return txid;
+			return SendToAddressAsync(scriptPubKey, amount, commentTx, commentDest, subtractFeeFromAmount, replaceable).GetAwaiter().GetResult();
 		}
 
 		/// <summary>
@@ -1684,6 +1681,8 @@ namespace NBitcoin.RPC
 			bool replaceable = false
 			)
 		{
+			if (scriptPubKey == null)
+				throw new ArgumentNullException(nameof(scriptPubKey));
 			return SendToAddressAsync(scriptPubKey.GetDestinationAddress(Network), amount, commentTx, commentDest, subtractFeeFromAmount, replaceable);
 		}
 
@@ -1706,6 +1705,10 @@ namespace NBitcoin.RPC
 			bool replaceable = false
 			)
 		{
+			if (address == null)
+				throw new ArgumentNullException(nameof(address));
+			if (amount == null)
+				throw new ArgumentNullException(nameof(amount));
 			List<object> parameters = new List<object>();
 			parameters.Add(address.ToString());
 			parameters.Add(amount.ToString());
