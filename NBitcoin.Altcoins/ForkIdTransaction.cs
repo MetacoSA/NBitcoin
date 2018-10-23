@@ -225,14 +225,5 @@ namespace NBitcoin.Altcoins
 			hashPrevouts = GetHash(ss);
 			return hashPrevouts;
 		}
-
-		private static BitcoinStream CreateHashWriter(HashVersion version)
-		{
-			HashStream hs = new HashStream();
-			BitcoinStream stream = new BitcoinStream(hs, true);
-			stream.Type = SerializationType.Hash;
-			stream.TransactionOptions = version == HashVersion.Original ? TransactionOptions.None : TransactionOptions.Witness;
-			return stream;
-		}
 	}
 }

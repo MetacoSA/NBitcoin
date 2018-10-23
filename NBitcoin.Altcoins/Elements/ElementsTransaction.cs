@@ -162,7 +162,7 @@ namespace NBitcoin.Altcoins.Elements
 
 		public bool IsNull()
 		{
-			return (_Amount == null || _Amount.IsNull() == null) && (InflationKeys == null || InflationKeys.IsNull());
+			return (_Amount == null || _Amount.IsNull()) && (InflationKeys == null || InflationKeys.IsNull());
 		}
 
 		uint256 _BlindingNonce = uint256.Zero;
