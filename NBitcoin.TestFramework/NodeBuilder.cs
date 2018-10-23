@@ -98,6 +98,7 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		}
+		public string RegtestFolderName { get; set; }
 
 		public NodeOSDownloadData GetCurrentOSDownloadData()
 		{
@@ -351,7 +352,7 @@ namespace NBitcoin.Tests
 			if(!CookieAuth)
 				return creds.UserName + ":" + creds.Password;
 			else
-				return "cookiefile=" + Path.Combine(dataDir, "regtest", ".cookie");
+				return "cookiefile=" + Path.Combine(dataDir, this._Builder.NodeImplementation.RegtestFolderName ?? "regtest", ".cookie");
 		}
 
 		private void ExtractPorts(int[] ports, string config)
