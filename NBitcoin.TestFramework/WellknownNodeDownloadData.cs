@@ -617,7 +617,8 @@ namespace NBitcoin.Tests
 					Executable = "elements-{0}/bin/elementsd.exe",
 					Hash = "d0d2e2a26d1fb64979e3050aa6b0e5e619d80f0f40552b39c62d07fdb889df90"
 				},
-				RegtestFolderName = "elementsregtest"
+				RegtestFolderName = "elementsregtest",
+				AdditionalRegtestConfig = "initialfreecoins=210000000000000"
 			};
 		}
 
@@ -700,5 +701,6 @@ namespace NBitcoin.Tests
 			get; set;
 		} = new ElementsNodeDownloadData();
 		public bool UseSectionInConfigFile { get; private set; }
+		public string AdditionalRegtestConfig { get; private set; }
 	}
 }

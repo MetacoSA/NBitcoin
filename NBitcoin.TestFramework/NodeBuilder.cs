@@ -503,7 +503,9 @@ namespace NBitcoin.Tests
 			config.Add("printtoconsole", "1");
 			config.Add("keypool", "10");
 			config.Import(ConfigParameters, true);
-			configStr.Append(config.ToString());
+			configStr.AppendLine(config.ToString());
+			if (NodeImplementation.AdditionalRegtestConfig != null)
+				configStr.AppendLine(NodeImplementation.AdditionalRegtestConfig);
 			File.WriteAllText(_Config, configStr.ToString());
 			await Run();
 		}

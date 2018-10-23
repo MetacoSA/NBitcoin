@@ -39,7 +39,7 @@ namespace NBitcoin.Altcoins.Elements
 			{
 				if (typeof(TxIn).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
 				{
-					result = new ElementsTxIn();
+					result = new ElementsTxIn(this);
 					return true;
 				}
 				if (typeof(TxOut).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))

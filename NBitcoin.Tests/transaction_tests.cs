@@ -149,11 +149,8 @@ namespace NBitcoin.Tests
 			var secret = new BitcoinSecret("KyJTjvFpPF6DDX4fnT56d2eATPfxjdUPXFFUb85psnCdh34iyXRQ");
 
 			var tx = new Transaction();
-			var p2pkh = new TxOut(new Money((UInt64)45000000), secret.GetAddress());
-			var p2pk = new TxOut(new Money((UInt64)80000000), secret.PrivateKey.PubKey);
-
-			tx.AddOutput(p2pkh);
-			tx.AddOutput(p2pk);
+			var p2pkh = tx.Outputs.Add(new Money((UInt64)45000000), secret.GetAddress());
+			var p2pk = tx.Outputs.Add(new Money((UInt64)80000000), secret.PrivateKey.PubKey);
 
 			Assert.False(p2pkh.IsTo(secret.PrivateKey.PubKey));
 			Assert.True(p2pkh.IsTo(secret.GetAddress()));
@@ -169,15 +166,9 @@ namespace NBitcoin.Tests
 			var scriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey);
 
 			Transaction tx = new Transaction();
-			tx.AddInput(new TxIn(new OutPoint(tx.GetHash(), 0))
-			{
-				ScriptSig = scriptPubKey
-			});
-			tx.AddInput(new TxIn(new OutPoint(tx.GetHash(), 1))
-			{
-				ScriptSig = scriptPubKey
-			});
-			tx.AddOutput(new TxOut("21", key.PubKey.Hash));
+			tx.Inputs.Add(new OutPoint(tx.GetHash(), 0), scriptPubKey);
+			tx.Inputs.Add(new OutPoint(tx.GetHash(), 1), scriptPubKey);
+			tx.Outputs.Add("21", key.PubKey.Hash);
 			var clone = tx.Clone();
 			tx.Sign(key, false);
 			AssertCorrectlySigned(tx, scriptPubKey);
@@ -485,9 +476,9 @@ namespace NBitcoin.Tests
 		public void CanPrecomputeHashes()
 		{
 			Transaction tx = new Transaction();
-			tx.AddInput(new TxIn(RandomCoin(Money.Coins(1.0m), new Key()).Outpoint, Script.Empty));
+			tx.Inputs.Add(RandomCoin(Money.Coins(1.0m), new Key()).Outpoint, Script.Empty);
 			tx.Inputs[0].WitScript = new WitScript(Op.GetPushOp(3));
-			tx.AddOutput(RandomCoin(Money.Coins(1.0m), new Key()).TxOut);
+			tx.Outputs.Add(RandomCoin(Money.Coins(1.0m), new Key()).TxOut);
 			var template = tx.Clone();
 
 			// If lazy is true, then the cache will be calculated later
@@ -2328,7 +2319,7 @@ namespace NBitcoin.Tests
 			ScriptCoin coin = new ScriptCoin(tx.Outputs.AsCoins().First(), bob.PubKey.ScriptPubKey);
 
 			Transaction spending = new Transaction();
-			spending.AddInput(tx, 0);
+			spending.Inputs.Add(tx, 0);
 			spending.Sign(bob, coin);
 			ScriptError error;
 			Assert.True(spending.Inputs.AsIndexedInputs().First().VerifyScript(coin, out error));

@@ -227,9 +227,11 @@ namespace NBitcoin.Altcoins.Elements
 
 	public class ElementsTxIn : TxIn
 	{
-		public ElementsTxIn()
+		public ElementsTxIn(ConsensusFactory consensusFactory)
 		{
-
+			if (consensusFactory == null)
+				throw new ArgumentNullException(nameof(consensusFactory));
+			ElementsConsensusFactory = consensusFactory;
 		}
 		public uint256 GetIssuedAssetId()
 		{
@@ -347,6 +349,21 @@ namespace NBitcoin.Altcoins.Elements
 		}
 
 		public WitScript PeginWitScript { get; set; }
+
+		public ConsensusFactory ElementsConsensusFactory { get; set; }
+		public override ConsensusFactory GetConsensusFactory()
+		{
+			return ElementsConsensusFactory;
+		}
+
+		public override TxIn Clone()
+		{
+			var txIn = (ElementsTxIn)base.Clone();
+			txIn.InflationKeysRangeProof = InflationKeysRangeProof;
+			txIn.IssuanceAmountRangeProof = IssuanceAmountRangeProof;
+			txIn.AssetIssuance = AssetIssuance;
+			return txIn;
+		}
 	}
 
 	public class ConfidentialNonce : ConfidentialCommitment
@@ -505,6 +522,14 @@ namespace NBitcoin.Altcoins.Elements
 			if(Value != null)
 				_ConfidentialValue = new ConfidentialValue(Value);
 		}
+
+		public override TxOut Clone()
+		{
+			var txOut = (ElementsTxOut)base.Clone();
+			txOut.SurjectionProof = SurjectionProof;
+			txOut.RangeProof = RangeProof;
+			return txOut;
+		}
 	}
 #pragma warning disable CS0618 // Type or member is obsolete
 	public class ElementsTransaction : Transaction
@@ -534,15 +559,15 @@ namespace NBitcoin.Altcoins.Elements
 			{
 				return Inputs.Cast<ElementsTxIn>().Any(i => 
 				(i.WitScript != WitScript.Empty && i.WitScript != null) ||
-				(i.InflationKeysRangeProof.Length != 0) ||
-				(i.IssuanceAmountRangeProof.Length != 0) ||
+				(i.InflationKeysRangeProof != null && i.InflationKeysRangeProof.Length != 0) ||
+				(i.IssuanceAmountRangeProof != null && i.IssuanceAmountRangeProof.Length != 0) ||
 				(i.PeginWitScript != WitScript.Empty && i.PeginWitScript != null))
 
 				||
 				
 				Outputs.Cast<ElementsTxOut>().Any(i =>
-					i.RangeProof.Length != 0 ||
-					i.SurjectionProof.Length != 0);
+					(i.RangeProof != null && i.RangeProof.Length != 0) ||
+					(i.SurjectionProof != null && i.SurjectionProof.Length != 0));
 			}
 		}
 

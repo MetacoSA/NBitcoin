@@ -378,7 +378,7 @@ namespace NBitcoin
 			private TxOut EnsureMarkerInserted()
 			{
 				uint position;
-				var dummy = Transaction.AddInput(new TxIn(new OutPoint(new uint256(1), 0))); //Since a transaction without input will be considered without marker, insert a dummy
+				var dummy = Transaction.Inputs.Add(new OutPoint(new uint256(1), 0)); //Since a transaction without input will be considered without marker, insert a dummy
 				try
 				{
 					if(ColorMarker.Get(Transaction, out position) != null)
@@ -388,10 +388,7 @@ namespace NBitcoin
 				{
 					Transaction.Inputs.Remove(dummy);
 				}
-				var txout = Transaction.AddOutput(new TxOut()
-				{
-					ScriptPubKey = new ColorMarker().GetScript()
-				});
+				var txout = Transaction.Outputs.Add(scriptPubKey: new ColorMarker().GetScript());
 				txout.Value = Money.Zero;
 				return txout;
 			}
@@ -471,7 +468,7 @@ namespace NBitcoin
 				var changeAmount = (Money)ctx.ChangeAmount;
 				if(changeAmount.Satoshi == 0)
 					return Money.Zero;
-				ctx.Transaction.AddOutput(new TxOut(changeAmount, ctx.Group.ChangeScript[(int)ChangeType.Uncolored]));
+				ctx.Transaction.Outputs.Add(changeAmount, ctx.Group.ChangeScript[(int)ChangeType.Uncolored]);
 				return changeAmount;
 			}
 			internal List<Builder> Builders = new List<Builder>();
@@ -712,7 +709,7 @@ namespace NBitcoin
 				return this;
 			}
 
-			var builder = new SendBuilder(new TxOut(amount, scriptPubKey));
+			var builder = new SendBuilder(CreateTxOut(amount, scriptPubKey));
 			CurrentGroup.Builders.Add(builder.Build);
 			_LastSendBuilder = builder;
 			return this;
@@ -822,7 +819,7 @@ namespace NBitcoin
 				return changeAmount;
 			var marker = ctx.GetColorMarker(false);
 			var script = ctx.Group.ChangeScript[(int)ChangeType.Colored];
-			var txout = ctx.Transaction.AddOutput(new TxOut(GetDust(script), script));
+			var txout = ctx.Transaction.Outputs.Add(GetDust(script), script);
 			marker.SetQuantity(ctx.Transaction.Outputs.Count - 2, changeAmount.Quantity);
 			ctx.AdditionalFees += txout.Value;
 			return changeAmount;
@@ -850,7 +847,7 @@ namespace NBitcoin
 			builders.Add(ctx =>
 			{
 				var marker = ctx.GetColorMarker(false);
-				var txout = ctx.Transaction.AddOutput(new TxOut(GetDust(scriptPubKey), scriptPubKey));
+				var txout = ctx.Transaction.Outputs.Add(GetDust(scriptPubKey), scriptPubKey);
 				marker.SetQuantity(ctx.Transaction.Outputs.Count - 2, asset.Quantity);
 				ctx.AdditionalFees += txout.Value;
 				return asset;
@@ -866,7 +863,7 @@ namespace NBitcoin
 		{
 			if(StandardTransactionPolicy == null || StandardTransactionPolicy.MinRelayTxFee == null)
 				return Money.Zero;
-			return new TxOut(Money.Zero, script).GetDustThreshold(StandardTransactionPolicy.MinRelayTxFee);
+			return CreateTxOut(Money.Zero, script).GetDustThreshold(StandardTransactionPolicy.MinRelayTxFee);
 		}
 
 		/// <summary>
@@ -943,7 +940,9 @@ namespace NBitcoin
 					if(issuance == null)
 						throw new InvalidOperationException("No issuance coin for emitting asset found");
 					ctx.IssuanceCoin = issuance;
-					ctx.Transaction.Inputs.Insert(0, new TxIn(issuance.Outpoint));
+					var input = ctx.Transaction.Inputs.CreateNewTxIn();
+					input.PrevOut = issuance.Outpoint;
+					ctx.Transaction.Inputs.Insert(0, input);
 					ctx.AdditionalFees -= issuance.Bearer.Amount;
 					if(issuance.DefinitionUrl != null)
 					{
@@ -951,7 +950,7 @@ namespace NBitcoin
 					}
 				}
 
-				ctx.Transaction.Outputs.Insert(0, new TxOut(GetDust(scriptPubKey), scriptPubKey));
+				ctx.Transaction.Outputs.Insert(0, CreateTxOut(GetDust(scriptPubKey), scriptPubKey));
 				marker.Quantities = new[] { checked((ulong)asset.Quantity) }.Concat(marker.Quantities).ToArray();
 				ctx.AdditionalFees += ctx.Transaction.Outputs[0].Value;
 				return asset;
@@ -1231,7 +1230,7 @@ namespace NBitcoin
 				ctx.ConsumedCoins.Add(coin);
 				var input = ctx.Transaction.Inputs.FirstOrDefault(i => i.PrevOut == coin.Outpoint);
 				if(input == null)
-					input = ctx.Transaction.AddInput(new TxIn(coin.Outpoint));
+					input = ctx.Transaction.Inputs.Add(coin.Outpoint);
 				if(_LockTime != null && !ctx.NonFinalSequenceSet)
 				{
 					input.Sequence = 0;
@@ -1242,7 +1241,7 @@ namespace NBitcoin
 			{
 				var collapsedOutputs = ctx.Transaction.Outputs
 							   .GroupBy(o => o.ScriptPubKey)
-							   .Select(o => o.Count() == 1 ? o.First() : ctx.Transaction.CreateOutput(o.Select(txout => txout.Value).Sum(), o.Key))
+							   .Select(o => o.Count() == 1 ? o.First() : ctx.Transaction.Outputs.CreateNewTxOut(o.Select(txout => txout.Value).Sum(), o.Key))
 							   .ToArray();
 				if(collapsedOutputs.Length < ctx.Transaction.Outputs.Count)
 				{
@@ -1531,6 +1530,17 @@ namespace NBitcoin
 			}
 		}
 
+		private TxOut CreateTxOut(Money amount = null, Script script = null)
+		{
+			if (!this._ConsensusFactory.TryCreateNew<TxOut>(out var txOut))
+				txOut = new TxOut();
+			if (amount != null)
+				txOut.Value = amount;
+			if (script != null)
+				txOut.ScriptPubKey = script;
+			return txOut;
+		}
+
 		private void EstimateScriptSigSize(ICoin coin, ref int witSize, ref int baseSize)
 		{
 			if(coin is IColoredCoin)
@@ -1544,7 +1554,7 @@ namespace NBitcoin
 				var p2sh = scriptCoin.GetP2SHRedeem();
 				if(p2sh != null)
 				{
-					coin = new Coin(scriptCoin.Outpoint, new TxOut(scriptCoin.Amount, p2sh));
+					coin = new Coin(scriptCoin.Outpoint, CreateTxOut(scriptCoin.Amount, p2sh));
 					p2shPushRedeemSize = new Script(Op.GetPushOp(p2sh.ToBytes(true))).Length;
 					baseSize += p2shPushRedeemSize;
 					if(scriptCoin.RedeemType == RedeemType.WitnessV0)
