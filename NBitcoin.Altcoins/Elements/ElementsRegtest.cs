@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
 
 namespace NBitcoin.Altcoins.Elements
 {
@@ -15,7 +16,7 @@ namespace NBitcoin.Altcoins.Elements
 			public override bool TryParse<T>(string str, Network network, out T result)
 			{
 				if (str.StartsWith("CT", StringComparison.OrdinalIgnoreCase) 
-									&& (typeof(BitcoinAddress).IsAssignableFrom(typeof(T))))
+									&& (typeof(BitcoinAddress).GetTypeInfo().IsAssignableFrom(typeof(T))))
 				{
 					try
 					{
@@ -36,7 +37,7 @@ namespace NBitcoin.Altcoins.Elements
 
 			public override bool TryCreateNew(Type type, out IBitcoinSerializable result)
 			{
-				if (typeof(TxIn).IsAssignableFrom(type))
+				if (typeof(TxIn).GetTypeInfo().IsAssignableFrom(type))
 				{
 					result = new ElementsTxIn();
 					return true;
