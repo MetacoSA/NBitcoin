@@ -1,4 +1,5 @@
-﻿using NBitcoin.BitcoinCore;
+﻿using NBitcoin.Altcoins.Elements;
+using NBitcoin.BitcoinCore;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
@@ -1843,6 +1844,31 @@ namespace NBitcoin.Tests
 		{
 			new BitcoinExtKey("Ltpv71G8qDifUiNesyXJM9i5RzRB5HHFWfjseAX7mXY6vim2BHMBHgZJi9poW2J5FveLFg4PnPXf6y2VLtYoTDxJAhbVRRpo3GeKKx1wveysYnw", NBitcoin.Altcoins.Litecoin.Instance.Mainnet);
 			new BitcoinExtPubKey("Ltub2SSUS19CirucVaJxxH11bYDCEmze824yTDJCzRg5fDNN3oBWussWgRA7Zyiya98dAErcvDsw7rAuuZuZug3Ve6iT5uVkwPAKwQphBiQdjNd", NBitcoin.Altcoins.Litecoin.Instance.Mainnet);
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanParseElementsStuff()
+		{
+			var ba = new BitcoinBlindedAddress("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", ElementsNetworks.Regtest);
+			Assert.Equal("2dqVdTn57d4ViCv3gc3kDgCW8diFgKn9owQ", ba.UnblindedAddress.ToString());
+			Assert.Equal("03757c827d7fb2867d0a181bf6e38f105e6eab121284627d61e5d52c1ca1f1ed25", ba.BlindingKey.ToHex());
+			Assert.Equal("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", ba.ToString());
+
+			var ba2 = new BitcoinBlindedAddress(ba.BlindingKey, ba.UnblindedAddress);
+			Assert.Equal("2dqVdTn57d4ViCv3gc3kDgCW8diFgKn9owQ", ba2.UnblindedAddress.ToString());
+			Assert.Equal("03757c827d7fb2867d0a181bf6e38f105e6eab121284627d61e5d52c1ca1f1ed25", ba2.BlindingKey.ToHex());
+			Assert.Equal("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", ba2.ToString());
+
+			var txStr = "0200000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03510101ffffffff0201230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000016a01230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000266a24aa21a9ed94f15ed3a62165e4a0b99699cc28b48e19cb5bc1b1f47155db62d63f1e047d45000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000";
+			var tx = Transaction.Parse(txStr, ElementsNetworks.Regtest);
+			Assert.Equal(txStr, tx.ToHex());
+			Assert.Equal("43732c47c526dfdb57203e66c2ebf9c0bff23189737b6ef432bd5040b5a697a2", tx.GetHash().ToString());
+
+			txStr = "0200000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03510101ffffffff0201230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000016a01230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000266a24aa21a9ed94f15ed3a62165e4a0b99699cc28b48e19cb5bc1b1f47155db62d63f1e047d45000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000";
+			tx = Transaction.Parse(txStr, ElementsNetworks.Regtest);
+			Assert.Equal(txStr, tx.ToHex());
+			
 		}
 
 		[Fact]

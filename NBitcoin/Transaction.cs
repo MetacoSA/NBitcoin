@@ -1916,7 +1916,7 @@ namespace NBitcoin
 			return instance;
 		}
 
-		public bool HasWitness
+		public virtual bool HasWitness
 		{
 			get
 			{

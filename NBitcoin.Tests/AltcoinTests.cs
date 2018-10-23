@@ -46,8 +46,18 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				var blockHash = rpc.Generate(1)[0];
 				var block = rpc.GetBlock(blockHash);
-				var walletTx = rpc.SendCommand(RPCOperations.gettransaction, block.Transactions[0].GetHash());
-				walletTx.ThrowIfError();
+
+				Transaction walletTx = null;
+				try
+				{
+					walletTx = rpc.GetRawTransaction(block.Transactions[0].GetHash(), block.GetHash());
+				}
+				// Some nodes does not support the blockid
+				catch
+				{
+					walletTx = rpc.GetRawTransaction(block.Transactions[0].GetHash());
+				}
+				Assert.Equal(walletTx.ToHex(), block.Transactions[0].ToHex());
 			}
 		}
 
@@ -176,21 +186,6 @@ namespace NBitcoin.Tests
 				}
 			}
 		}
-
-		[Fact]
-		public void CanParseElementsAddress()
-		{
-			var ba = new BitcoinBlindedAddress("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", ElementsNetworks.Regtest);
-			Assert.Equal("2dqVdTn57d4ViCv3gc3kDgCW8diFgKn9owQ", ba.UnblindedAddress.ToString());
-			Assert.Equal("03757c827d7fb2867d0a181bf6e38f105e6eab121284627d61e5d52c1ca1f1ed25", ba.BlindingKey.ToHex());
-			Assert.Equal("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", ba.ToString());
-
-			var ba2 = new BitcoinBlindedAddress(ba.BlindingKey, ba.UnblindedAddress);
-			Assert.Equal("2dqVdTn57d4ViCv3gc3kDgCW8diFgKn9owQ", ba2.UnblindedAddress.ToString());
-			Assert.Equal("03757c827d7fb2867d0a181bf6e38f105e6eab121284627d61e5d52c1ca1f1ed25", ba2.BlindingKey.ToHex());
-			Assert.Equal("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", ba2.ToString());
-		}
-
 		private void CheckCapabilities(Action command, bool supported)
 		{
 			if (!supported)

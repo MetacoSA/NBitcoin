@@ -1410,6 +1410,11 @@ namespace NBitcoin.RPC
 			return GetRawTransactionAsync(txid, null, throwIfNotFound);
 		}
 
+		public Transaction GetRawTransaction(uint256 txid, uint256 blockId, bool throwIfNotFound = true)
+		{
+			return GetRawTransactionAsync(txid, blockId, throwIfNotFound).GetAwaiter().GetResult();
+		}
+
 		public async Task<Transaction> GetRawTransactionAsync(uint256 txid, uint256 blockId, bool throwIfNotFound = true)
 		{
 			List<object> args = new List<object>(3);
@@ -1425,7 +1430,7 @@ namespace NBitcoin.RPC
 
 			response.ThrowIfError();
 			var tx = Network.Consensus.ConsensusFactory.CreateTransaction();
-			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()));
+			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()), tx.GetConsensusFactory());
 			return tx;
 		}
 
