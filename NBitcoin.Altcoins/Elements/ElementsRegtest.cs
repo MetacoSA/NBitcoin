@@ -16,7 +16,7 @@ namespace NBitcoin.Altcoins.Elements
 			public override bool TryParse<T>(string str, Network network, out T result)
 			{
 				if (str.StartsWith("CT", StringComparison.OrdinalIgnoreCase) 
-									&& (typeof(BitcoinAddress).GetTypeInfo().IsAssignableFrom(typeof(T))))
+									&& (typeof(BitcoinAddress).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo())))
 				{
 					try
 					{
@@ -37,12 +37,12 @@ namespace NBitcoin.Altcoins.Elements
 
 			public override bool TryCreateNew(Type type, out IBitcoinSerializable result)
 			{
-				if (typeof(TxIn).GetTypeInfo().IsAssignableFrom(type))
+				if (typeof(TxIn).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
 				{
 					result = new ElementsTxIn();
 					return true;
 				}
-				if (typeof(TxOut).IsAssignableFrom(type))
+				if (typeof(TxOut).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
 				{
 					result = new ElementsTxOut();
 					return true;
