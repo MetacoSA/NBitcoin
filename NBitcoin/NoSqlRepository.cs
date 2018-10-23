@@ -28,7 +28,7 @@ namespace NBitcoin
 			if(data == null)
 				return default(T);
 			T obj = new T();
-			obj.ReadWrite(data);
+			obj.ReadWrite(new BitcoinStream(data));
 			return obj;
 		}
 

@@ -64,20 +64,29 @@ namespace NBitcoin
 					throw new InvalidOperationException("It seems like you are recursively accessing a Network which is not yet built.");
 				_Registering = true;
 				var builder = CreateMainnet();
-				builder.SetNetworkType(NetworkType.Mainnet);
-				builder.SetNetworkSet(this);
-				_Mainnet = builder.BuildAndRegister();
+				if (builder != null)
+				{
+					builder.SetNetworkType(NetworkType.Mainnet);
+					builder.SetNetworkSet(this);
+					_Mainnet = builder.BuildAndRegister();
+				}
 				builder = CreateTestnet();
-				builder.SetNetworkType(NetworkType.Testnet);
-				builder.SetNetworkSet(this);
-				_Testnet = builder.BuildAndRegister();
+				if (builder != null)
+				{
+					builder.SetNetworkType(NetworkType.Testnet);
+					builder.SetNetworkSet(this);
+					_Testnet = builder.BuildAndRegister();
+				}
 				builder = CreateRegtest();
-				builder.SetNetworkType(NetworkType.Regtest);
-				builder.SetNetworkSet(this);
-				_Regtest = builder.BuildAndRegister();
-				PostInit();
+				if (builder != null)
+				{
+					builder.SetNetworkType(NetworkType.Regtest);
+					builder.SetNetworkSet(this);
+					_Regtest = builder.BuildAndRegister();
+				}
 				_Registered = true;
 				_Registering = false;
+				PostInit();
 			}
 		}
 
@@ -96,8 +105,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_Mainnet == null)
-					EnsureRegistered();
+				EnsureRegistered();
 				return _Mainnet;
 			}
 		}
@@ -107,8 +115,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_Testnet == null)
-					EnsureRegistered();
+				EnsureRegistered();
 				return _Testnet;
 			}
 		}
@@ -118,8 +125,7 @@ namespace NBitcoin
 		{
 			get
 			{
-				if(_Regtest == null)
-					EnsureRegistered();
+				EnsureRegistered();
 				return _Regtest;
 			}
 		}

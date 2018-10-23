@@ -423,16 +423,8 @@ namespace NBitcoin.Tests
 		private static Transaction CreateSpendingTransaction(WitScript wit, Script scriptSig, Transaction creditingTransaction)
 		{
 			var spendingTransaction = new Transaction();
-			spendingTransaction.AddInput(new TxIn(new OutPoint(creditingTransaction, 0))
-			{
-				ScriptSig = scriptSig,
-				WitScript = wit ?? WitScript.Empty
-			});
-			spendingTransaction.AddOutput(new TxOut()
-			{
-				ScriptPubKey = new Script(),
-				Value = creditingTransaction.Outputs[0].Value
-			});
+			spendingTransaction.Inputs.Add(new OutPoint(creditingTransaction, 0), scriptSig, wit ?? WitScript.Empty);
+			spendingTransaction.Outputs.Add(creditingTransaction.Outputs[0].Value, new Script());
 			return spendingTransaction;
 		}
 
@@ -442,12 +434,8 @@ namespace NBitcoin.Tests
 			var creditingTransaction = new Transaction();
 			creditingTransaction.Version = 1;
 			creditingTransaction.LockTime = LockTime.Zero;
-			creditingTransaction.AddInput(new TxIn()
-			{
-				ScriptSig = new Script(OpcodeType.OP_0, OpcodeType.OP_0),
-				Sequence = Sequence.Final
-			});
-			creditingTransaction.AddOutput(amount, scriptPubKey);
+			creditingTransaction.Inputs.Add(scriptSig: new Script(OpcodeType.OP_0, OpcodeType.OP_0), sequence: Sequence.Final);
+			creditingTransaction.Outputs.Add(amount, scriptPubKey);
 			return creditingTransaction;
 		}
 

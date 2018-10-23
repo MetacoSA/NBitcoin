@@ -98,6 +98,7 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		}
+		public string RegtestFolderName { get; set; }
 
 		public NodeOSDownloadData GetCurrentOSDownloadData()
 		{
@@ -351,7 +352,7 @@ namespace NBitcoin.Tests
 			if(!CookieAuth)
 				return creds.UserName + ":" + creds.Password;
 			else
-				return "cookiefile=" + Path.Combine(dataDir, "regtest", ".cookie");
+				return "cookiefile=" + Path.Combine(dataDir, this._Builder.NodeImplementation.RegtestFolderName ?? "regtest", ".cookie");
 		}
 
 		private void ExtractPorts(int[] ports, string config)
@@ -502,7 +503,9 @@ namespace NBitcoin.Tests
 			config.Add("printtoconsole", "1");
 			config.Add("keypool", "10");
 			config.Import(ConfigParameters, true);
-			configStr.Append(config.ToString());
+			configStr.AppendLine(config.ToString());
+			if (NodeImplementation.AdditionalRegtestConfig != null)
+				configStr.AppendLine(NodeImplementation.AdditionalRegtestConfig);
 			File.WriteAllText(_Config, configStr.ToString());
 			await Run();
 		}

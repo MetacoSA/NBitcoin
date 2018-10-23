@@ -155,7 +155,7 @@ namespace NBitcoin.Payment
 						break;
 					case 2:
 						var tx = network.Consensus.ConsensusFactory.CreateTransaction();
-						tx.ReadWrite(proto.ReadBytes());
+						tx.ReadWrite(proto.ReadBytes(), network);
 						message.Transactions.Add(tx);
 						break;
 					case 3:

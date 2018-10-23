@@ -945,9 +945,14 @@ namespace NBitcoin.RPC
 			webRequest.Headers[HttpRequestHeader.Authorization] = "Basic " + Encoders.Base64.EncodeData(Encoders.ASCII.DecodeData(_Authentication));
 			webRequest.ContentType = "application/json-rpc";
 			webRequest.Method = "POST";
+#if !NETSTANDARD1X
+			webRequest.Timeout = (int)RequestTimeout.TotalMilliseconds;
+#endif
 			return webRequest;
 		}
-
+#if !NETSTANDARD1X
+		public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(100);
+#endif
 		private async Task<Stream> ToMemoryStreamAsync(Stream stream)
 		{
 			MemoryStream ms = new MemoryStream();
@@ -1218,34 +1223,21 @@ namespace NBitcoin.RPC
 
 		public BlockHeader GetBlockHeader(uint256 blockHash)
 		{
-			var resp = SendCommand("getblockheader", blockHash);
+			var resp = SendCommand("getblockheader", blockHash, false);
 			return ParseBlockHeader(resp);
 		}
 
 		public async Task<BlockHeader> GetBlockHeaderAsync(uint256 blockHash)
 		{
-			var resp = await SendCommandAsync("getblockheader", blockHash).ConfigureAwait(false);
+			var resp = await SendCommandAsync("getblockheader", blockHash, false).ConfigureAwait(false);
 			return ParseBlockHeader(resp);
 		}
 
 		private BlockHeader ParseBlockHeader(RPCResponse resp)
 		{
 			var header = Network.Consensus.ConsensusFactory.CreateBlockHeader();
-			header.Version = (int)resp.Result["version"];
-			header.Nonce = (uint)resp.Result["nonce"];
-			header.Bits = new Target(Encoders.Hex.DecodeData((string)resp.Result["bits"]));
-			if (resp.Result["previousblockhash"] != null)
-			{
-				header.HashPrevBlock = uint256.Parse((string)resp.Result["previousblockhash"]);
-			}
-			if (resp.Result["time"] != null)
-			{
-				header.BlockTime = Utils.UnixTimeToDateTime((uint)resp.Result["time"]);
-			}
-			if (resp.Result["merkleroot"] != null)
-			{
-				header.HashMerkleRoot = uint256.Parse((string)resp.Result["merkleroot"]);
-			}
+			var hex = Encoders.Hex.DecodeData(resp.Result.Value<string>());
+			header.ReadWrite(new BitcoinStream(hex));
 			return header;
 		}
 
@@ -1418,6 +1410,11 @@ namespace NBitcoin.RPC
 			return GetRawTransactionAsync(txid, null, throwIfNotFound);
 		}
 
+		public Transaction GetRawTransaction(uint256 txid, uint256 blockId, bool throwIfNotFound = true)
+		{
+			return GetRawTransactionAsync(txid, blockId, throwIfNotFound).GetAwaiter().GetResult();
+		}
+
 		public async Task<Transaction> GetRawTransactionAsync(uint256 txid, uint256 blockId, bool throwIfNotFound = true)
 		{
 			List<object> args = new List<object>(3);
@@ -1433,7 +1430,7 @@ namespace NBitcoin.RPC
 
 			response.ThrowIfError();
 			var tx = Network.Consensus.ConsensusFactory.CreateTransaction();
-			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()));
+			tx.ReadWrite(Encoders.Hex.DecodeData(response.Result.ToString()), Network);
 			return tx;
 		}
 
@@ -1445,7 +1442,7 @@ namespace NBitcoin.RPC
 		private Transaction ParseTxHex(string hex)
 		{
 			var tx = Network.Consensus.ConsensusFactory.CreateTransaction();
-			tx.ReadWrite(Encoders.Hex.DecodeData(hex));
+			tx.ReadWrite(Encoders.Hex.DecodeData(hex), Network);
 			return tx;
 		}
 

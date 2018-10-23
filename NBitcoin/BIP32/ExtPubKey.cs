@@ -78,7 +78,7 @@ namespace NBitcoin
 		{
 			if(bytes == null)
 				throw new ArgumentNullException(nameof(bytes));
-			this.ReadWrite(bytes);
+			this.ReadWrite(new BitcoinStream(bytes));
 		}
         
 		/// <summary>

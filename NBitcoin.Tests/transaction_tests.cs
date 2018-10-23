@@ -1,4 +1,5 @@
-﻿using NBitcoin.BitcoinCore;
+﻿using NBitcoin.Altcoins.Elements;
+using NBitcoin.BitcoinCore;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
@@ -148,11 +149,8 @@ namespace NBitcoin.Tests
 			var secret = new BitcoinSecret("KyJTjvFpPF6DDX4fnT56d2eATPfxjdUPXFFUb85psnCdh34iyXRQ");
 
 			var tx = new Transaction();
-			var p2pkh = new TxOut(new Money((UInt64)45000000), secret.GetAddress());
-			var p2pk = new TxOut(new Money((UInt64)80000000), secret.PrivateKey.PubKey);
-
-			tx.AddOutput(p2pkh);
-			tx.AddOutput(p2pk);
+			var p2pkh = tx.Outputs.Add(new Money((UInt64)45000000), secret.GetAddress());
+			var p2pk = tx.Outputs.Add(new Money((UInt64)80000000), secret.PrivateKey.PubKey);
 
 			Assert.False(p2pkh.IsTo(secret.PrivateKey.PubKey));
 			Assert.True(p2pkh.IsTo(secret.GetAddress()));
@@ -168,15 +166,9 @@ namespace NBitcoin.Tests
 			var scriptPubKey = PayToPubkeyHashTemplate.Instance.GenerateScriptPubKey(key.PubKey);
 
 			Transaction tx = new Transaction();
-			tx.AddInput(new TxIn(new OutPoint(tx.GetHash(), 0))
-			{
-				ScriptSig = scriptPubKey
-			});
-			tx.AddInput(new TxIn(new OutPoint(tx.GetHash(), 1))
-			{
-				ScriptSig = scriptPubKey
-			});
-			tx.AddOutput(new TxOut("21", key.PubKey.Hash));
+			tx.Inputs.Add(new OutPoint(tx.GetHash(), 0), scriptPubKey);
+			tx.Inputs.Add(new OutPoint(tx.GetHash(), 1), scriptPubKey);
+			tx.Outputs.Add("21", key.PubKey.Hash);
 			var clone = tx.Clone();
 			tx.Sign(key, false);
 			AssertCorrectlySigned(tx, scriptPubKey);
@@ -484,9 +476,9 @@ namespace NBitcoin.Tests
 		public void CanPrecomputeHashes()
 		{
 			Transaction tx = new Transaction();
-			tx.AddInput(new TxIn(RandomCoin(Money.Coins(1.0m), new Key()).Outpoint, Script.Empty));
+			tx.Inputs.Add(RandomCoin(Money.Coins(1.0m), new Key()).Outpoint, Script.Empty);
 			tx.Inputs[0].WitScript = new WitScript(Op.GetPushOp(3));
-			tx.AddOutput(RandomCoin(Money.Coins(1.0m), new Key()).TxOut);
+			tx.Outputs.Add(RandomCoin(Money.Coins(1.0m), new Key()).TxOut);
 			var template = tx.Clone();
 
 			// If lazy is true, then the cache will be calculated later
@@ -1847,6 +1839,31 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanParseElementsStuff()
+		{
+			var ba = new BitcoinBlindedAddress("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", ElementsNetworks.Regtest);
+			Assert.Equal("2dqVdTn57d4ViCv3gc3kDgCW8diFgKn9owQ", ba.UnblindedAddress.ToString());
+			Assert.Equal("03757c827d7fb2867d0a181bf6e38f105e6eab121284627d61e5d52c1ca1f1ed25", ba.BlindingKey.ToHex());
+			Assert.Equal("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", ba.ToString());
+
+			var ba2 = new BitcoinBlindedAddress(ba.BlindingKey, ba.UnblindedAddress);
+			Assert.Equal("2dqVdTn57d4ViCv3gc3kDgCW8diFgKn9owQ", ba2.UnblindedAddress.ToString());
+			Assert.Equal("03757c827d7fb2867d0a181bf6e38f105e6eab121284627d61e5d52c1ca1f1ed25", ba2.BlindingKey.ToHex());
+			Assert.Equal("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", ba2.ToString());
+
+			var txStr = "0200000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03510101ffffffff0201230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000016a01230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000266a24aa21a9ed94f15ed3a62165e4a0b99699cc28b48e19cb5bc1b1f47155db62d63f1e047d45000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000";
+			var tx = Transaction.Parse(txStr, ElementsNetworks.Regtest);
+			Assert.Equal(txStr, tx.ToHex());
+			Assert.Equal("43732c47c526dfdb57203e66c2ebf9c0bff23189737b6ef432bd5040b5a697a2", tx.GetHash().ToString());
+
+			txStr = "0200000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03510101ffffffff0201230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000016a01230f4f5d4b7c6fa845806ee4f67713459e1b69e8e60fcee2e4940c7a0d5de1b201000000000000000000266a24aa21a9ed94f15ed3a62165e4a0b99699cc28b48e19cb5bc1b1f47155db62d63f1e047d45000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000";
+			tx = Transaction.Parse(txStr, ElementsNetworks.Regtest);
+			Assert.Equal(txStr, tx.ToHex());
+			
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void EnsureThatTransactionBuilderDoesNotMakeTooLowFeeTransaction()
 		{
 			var fromKey = new Key();
@@ -2302,7 +2319,7 @@ namespace NBitcoin.Tests
 			ScriptCoin coin = new ScriptCoin(tx.Outputs.AsCoins().First(), bob.PubKey.ScriptPubKey);
 
 			Transaction spending = new Transaction();
-			spending.AddInput(tx, 0);
+			spending.Inputs.Add(tx, 0);
 			spending.Sign(bob, coin);
 			ScriptError error;
 			Assert.True(spending.Inputs.AsIndexedInputs().First().VerifyScript(coin, out error));
@@ -2367,7 +2384,6 @@ namespace NBitcoin.Tests
 		[Fact]
 		public void Play()
         {
-
 		}
 
 

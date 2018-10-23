@@ -66,7 +66,7 @@
 				if(_Key == null)
 				{
 					_Key = new ExtKey();
-					_Key.ReadWrite(vchData);
+					_Key.ReadWrite(new BitcoinStream(vchData));
 				}
 				return _Key;
 			}
@@ -162,7 +162,7 @@
 				if(_PubKey == null)
 				{
 					_PubKey = new ExtPubKey();
-					_PubKey.ReadWrite(vchData);
+					_PubKey.ReadWrite(new BitcoinStream(vchData));
 				}
 				return _PubKey;
 			}
@@ -178,7 +178,7 @@
 				try
 				{
 					_PubKey = new ExtPubKey();
-					_PubKey.ReadWrite(vchData);
+					_PubKey.ReadWrite(new BitcoinStream(vchData));
 					return true;
 				}
 				catch { return false; }

@@ -197,7 +197,7 @@ namespace NBitcoin
 			}
 		}
 
-		internal void SetNull()
+		protected internal virtual void SetNull()
 		{
 			nVersion = CURRENT_VERSION;
 			hashPrevBlock = 0;
@@ -249,7 +249,9 @@ namespace NBitcoin
 
 			using(var hs = CreateHashStream())
 			{
-				this.ReadWrite(new BitcoinStream(hs, true));
+				var stream = new BitcoinStream(hs, true);
+				stream.SerializationTypeScope(SerializationType.Hash);
+				this.ReadWrite(stream);
 				h = hs.GetHash();
 			}
 
@@ -626,10 +628,7 @@ namespace NBitcoin
 			block.Header.HashPrevBlock = this.GetHash();
 			block.Header.BlockTime = now;
 			var tx = block.AddTransaction(GetConsensusFactory().CreateTransaction());
-			tx.AddInput(new TxIn()
-			{
-				ScriptSig = new Script(Op.GetPushOp(RandomUtils.GetBytes(30)))
-			});
+			tx.Inputs.Add(scriptSig: new Script(Op.GetPushOp(RandomUtils.GetBytes(30))));
 			tx.Outputs.Add(new TxOut(address.Network.GetReward(height), address)
 			{
 				Value = address.Network.GetReward(height)
@@ -649,10 +648,7 @@ namespace NBitcoin
 			block.Header.HashPrevBlock = this.GetHash();
 			block.Header.BlockTime = now;
 			var tx = block.AddTransaction(consensusFactory.CreateTransaction());
-			tx.AddInput(new TxIn()
-			{
-				ScriptSig = new Script(Op.GetPushOp(RandomUtils.GetBytes(30)))
-			});
+			tx.Inputs.Add(scriptSig: new Script(Op.GetPushOp(RandomUtils.GetBytes(30))));
 			tx.Outputs.Add(new TxOut()
 			{
 				Value = value,
@@ -720,7 +716,7 @@ namespace NBitcoin
 			if(consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
 			var block = consensusFactory.CreateBlock();
-			block.ReadWrite(Encoders.Hex.DecodeData(hex));
+			block.ReadWrite(Encoders.Hex.DecodeData(hex), consensusFactory);
 			return block;
 		}
 
@@ -747,7 +743,7 @@ namespace NBitcoin
 			if(consensusFactory == null)
 				throw new ArgumentNullException(nameof(consensusFactory));
 			var block = consensusFactory.CreateBlock();
-			block.ReadWrite(hex);
+			block.ReadWrite(hex, consensusFactory);
 			return block;
 		}
 
