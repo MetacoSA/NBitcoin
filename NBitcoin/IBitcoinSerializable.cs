@@ -32,9 +32,10 @@ namespace NBitcoin
 		{
 			BitcoinStream s = new BitcoinStream(stream, serializing)
 			{
-				ProtocolVersion = version,
-				ConsensusFactory = consensusFactory
+				ProtocolVersion = version
 			};
+			if (consensusFactory != null)
+				s.ConsensusFactory = consensusFactory;
 			serializable.ReadWrite(s);
 		}
 		public static int GetSerializedSize(this IBitcoinSerializable serializable, uint? version, SerializationType serializationType)
