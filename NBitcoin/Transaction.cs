@@ -850,7 +850,7 @@ namespace NBitcoin
 			var @in = CreateNewTxIn();
 			@in.PrevOut.Hash = prevTx.GetHash();
 			@in.PrevOut.N = (uint)outIndex;
-			return @in;
+			return this.Add(@in);
 		}
 	}
 
@@ -2254,7 +2254,7 @@ namespace NBitcoin
 			return hashPrevouts;
 		}
 
-		private BitcoinStream CreateHashWriter(HashVersion version)
+		protected BitcoinStream CreateHashWriter(HashVersion version)
 		{
 			var hs = CreateSignatureHashStream();
 			BitcoinStream stream = new BitcoinStream(hs, true);
