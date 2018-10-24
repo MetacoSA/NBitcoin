@@ -468,7 +468,8 @@ namespace NBitcoin.RPC
 			return new RPCClient(CredentialString, Address, Network)
 			{
 				_BatchedRequests = new ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>(),
-				Capabilities = Capabilities
+				Capabilities = Capabilities,
+				RequestTimeout = RequestTimeout
 			};
 		}
 
