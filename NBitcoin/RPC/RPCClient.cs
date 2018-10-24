@@ -469,7 +469,9 @@ namespace NBitcoin.RPC
 			{
 				_BatchedRequests = new ConcurrentQueue<Tuple<RPCRequest, TaskCompletionSource<RPCResponse>>>(),
 				Capabilities = Capabilities,
+#if !NETSTANDARD1X
 				RequestTimeout = RequestTimeout
+#endif
 			};
 		}
 
