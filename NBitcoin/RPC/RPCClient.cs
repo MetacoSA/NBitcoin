@@ -946,6 +946,7 @@ namespace NBitcoin.RPC
 			webRequest.ContentType = "application/json-rpc";
 			webRequest.Method = "POST";
 #if !NETSTANDARD1X
+			webRequest.KeepAlive = false;
 			webRequest.Timeout = (int)RequestTimeout.TotalMilliseconds;
 #endif
 			return webRequest;
