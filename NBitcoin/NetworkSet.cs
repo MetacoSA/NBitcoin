@@ -159,27 +159,44 @@ namespace NBitcoin
 			{
 				var bitcoinFolder = Path.Combine(home, "." + folderName.ToLowerInvariant());
 
-				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Mainnet, mainnet);
+				if (Mainnet != null)
+				{
+					var mainnet = Path.Combine(bitcoinFolder, ".cookie");
+					RPCClient.RegisterDefaultCookiePath(Mainnet, mainnet);
+				}
 
-				var testnet = Path.Combine(bitcoinFolder, folder.TestnetFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Testnet, testnet);
+				if (Testnet != null)
+				{
+					var testnet = Path.Combine(bitcoinFolder, folder.TestnetFolder, ".cookie");
+					RPCClient.RegisterDefaultCookiePath(Testnet, testnet);
+				}
 
-				var regtest = Path.Combine(bitcoinFolder, folder.RegtestFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Regtest, regtest);
+				if (Regtest != null)
+				{
+					var regtest = Path.Combine(bitcoinFolder, folder.RegtestFolder, ".cookie");
+					RPCClient.RegisterDefaultCookiePath(Regtest, regtest);
+				}
 			}
 			else if(!string.IsNullOrEmpty(localAppData))
 			{
 				var bitcoinFolder = Path.Combine(localAppData, char.ToUpperInvariant(folderName[0]) + folderName.Substring(1));
+				if (Mainnet != null)
+				{
+					var mainnet = Path.Combine(bitcoinFolder, ".cookie");
+					RPCClient.RegisterDefaultCookiePath(Mainnet, mainnet);
+				}
 
-				var mainnet = Path.Combine(bitcoinFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Mainnet, mainnet);
+				if (Testnet != null)
+				{
+					var testnet = Path.Combine(bitcoinFolder, folder.TestnetFolder, ".cookie");
+					RPCClient.RegisterDefaultCookiePath(Testnet, testnet);
+				}
 
-				var testnet = Path.Combine(bitcoinFolder, folder.TestnetFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Testnet, testnet);
-
-				var regtest = Path.Combine(bitcoinFolder, folder.RegtestFolder, ".cookie");
-				RPCClient.RegisterDefaultCookiePath(Regtest, regtest);
+				if (Regtest != null)
+				{
+					var regtest = Path.Combine(bitcoinFolder, folder.RegtestFolder, ".cookie");
+					RPCClient.RegisterDefaultCookiePath(Regtest, regtest);
+				}
 			}
 		}
 
