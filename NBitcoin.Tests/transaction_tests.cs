@@ -1413,7 +1413,7 @@ namespace NBitcoin.Tests
 			ScriptCoin scriptCoin = null;
 
 			//P2WPKH
-			previousTx = builder.ConsensusFactory.CreateTransaction();
+			previousTx = Network.CreateTransaction();
 			previousTx.Outputs.Add(new TxOut(Money.Coins(1.0m), alice.PubKey.WitHash));
 			previousCoin = previousTx.Outputs.AsCoins().First();
 
