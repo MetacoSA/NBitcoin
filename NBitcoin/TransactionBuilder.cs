@@ -1633,7 +1633,7 @@ namespace NBitcoin
 			if(feeRate == null)
 				throw new ArgumentNullException(nameof(feeRate));
 
-			int builderCount = CurrentGroup.Builders.Count;
+			List<Builder> feeBuilders = new List<Builder>();
 			Money feeSent = Money.Zero;
 			try
 			{
@@ -1645,14 +1645,15 @@ namespace NBitcoin
 					if(delta <= Money.Zero)
 						break;
 					SendFees(delta);
+					feeBuilders.Add(CurrentGroup.Builders[CurrentGroup.Builders.Count - 1]);
 					feeSent += delta;
 				}
 			}
 			finally
 			{
-				while(CurrentGroup.Builders.Count != builderCount)
+				foreach(var feeBuilder in feeBuilders)
 				{
-					CurrentGroup.Builders.RemoveAt(CurrentGroup.Builders.Count - 1);
+					CurrentGroup.Builders.Remove(feeBuilder);
 				}
 				_TotalFee -= feeSent;
 			}

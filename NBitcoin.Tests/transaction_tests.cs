@@ -1002,7 +1002,7 @@ namespace NBitcoin.Tests
 			var aliceCoins = new ICoin[] { RandomCoin("0.4", alice), RandomCoin("0.6", alice) };
 			var bobCoins = new ICoin[] { RandomCoin("0.2", bob), RandomCoin("0.3", bob) };
 
-			TransactionBuilder builder = Network.CreateTransactionBuilder();
+			TransactionBuilder builder = Network.CreateTransactionBuilder(0);
 			FeeRate rate = new FeeRate(Money.Coins(0.0004m));
 			var tx1 = builder
 				.AddCoins(aliceCoins)
@@ -1017,7 +1017,7 @@ namespace NBitcoin.Tests
 				.SendEstimatedFeesSplit(rate)
 				.BuildTransaction(true);
 
-			builder = Network.CreateTransactionBuilder();
+			builder = Network.CreateTransactionBuilder(0);
 			var tx2 = builder
 				.Then("Alice")
 				.AddCoins(aliceCoins)
