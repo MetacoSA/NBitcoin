@@ -18,7 +18,7 @@ namespace NBitcoin.Tests
 		{
 			ConcurrentChain chain = new ConcurrentChain(Network.Main);
 			EnsureDownloaded("MainChain.dat", "https://aois.blob.core.windows.net/public/MainChain.dat");
-			chain.Load(File.ReadAllBytes("MainChain.dat"));
+			chain.Load(File.ReadAllBytes("MainChain.dat"), Network.Main);
 			foreach(var block in chain.EnumerateAfter(chain.Genesis))
 			{
 				var thisWork = block.GetWorkRequired(Network.Main);

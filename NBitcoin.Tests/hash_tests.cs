@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NBitcoin.Altcoins.HashX11;
 using Xunit;
+using System.IO;
 
 namespace NBitcoin.Tests
 {
@@ -172,6 +173,13 @@ namespace NBitcoin.Tests
 			Assert.Equal("00000ffd590b1485b3caadc19b22e6379c733355108f107a430458cdf3407ab6", hash);
 		}
 
-
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCalculateMerkleRoot()
+		{
+			Block block = Network.Main.Consensus.ConsensusFactory.CreateBlock();
+			block.ReadWrite(Encoders.Hex.DecodeData(File.ReadAllText(@"data/block169482.txt")), Network.Main);
+			Assert.Equal(block.Header.HashMerkleRoot, block.GetMerkleRoot().Hash);
+		}
 	}
 }

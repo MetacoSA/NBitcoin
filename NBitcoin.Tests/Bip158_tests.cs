@@ -23,7 +23,7 @@ namespace NBitcoin.Tests
 				var i= 0;
 				var testBlockHeight = test[i++]; 
 				var testBlockHash = uint256.Parse((string)test[i++]);
-				var testBlock = Block.Parse((string)test[i++]);
+				var testBlock = Block.Parse((string)test[i++], Network.Main);
 				var testPreviousBasicHeader = uint256.Parse((string)test[i++]);
 				var testBasicFilter = (string)test[i++];
 				var testBasicHeader = (string)test[i++];

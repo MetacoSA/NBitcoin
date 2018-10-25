@@ -870,6 +870,15 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanRoundtripCmpctBlock()
+		{
+			Block block = Network.Main.Consensus.ConsensusFactory.CreateBlock();
+			block.Transactions.Add(Network.Main.Consensus.ConsensusFactory.CreateTransaction());
+			var cmpct = new CmpctBlockPayload(block);
+			cmpct.Clone();
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]

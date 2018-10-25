@@ -67,7 +67,7 @@ namespace NBitcoin.Tests
 
 				string raw_tx, raw_script, sigHashHex;
 				int nIn, nHashType;
-				Transaction tx = new Transaction();
+				Transaction tx = Network.Main.CreateTransaction();
 				Script scriptCode = new Script();
 
 
@@ -79,12 +79,12 @@ namespace NBitcoin.Tests
 				sigHashHex = (string)test[4];
 
 
-				tx.ReadWrite(ParseHex(raw_tx));				
+				tx.ReadWrite(ParseHex(raw_tx), Network.Main);
 
 				var raw = ParseHex(raw_script);
 				scriptCode = new Script(raw);
 
-				var sh = Script.SignatureHash(scriptCode, tx, nIn, (SigHash)nHashType);
+				var sh = tx.GetSignatureHash(scriptCode, nIn, (SigHash)nHashType);
 				Assert.True(sh.ToString() == sigHashHex, strTest);
 			}
 		}

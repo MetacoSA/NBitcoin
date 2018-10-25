@@ -93,7 +93,7 @@ namespace NBitcoin.Tests
 		{
 			using(var fs = File.OpenRead(path))
 			{
-				return PaymentACK.Load(fs);
+				return PaymentACK.Load(fs, Network.Main);
 			}
 		}
 
@@ -226,7 +226,7 @@ namespace NBitcoin.Tests
 			Assert.Equal("thanks merchant !", ack.Payment.Memo);
 			Assert.Equal(2, ack.Payment.Transactions.Count);
 			Assert.Equal(2, ack.Payment.RefundTo.Count);
-			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
+			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes(), Network.Main).ToBytes());
 			AssertEx.CollectionEquals(ack.ToBytes(), File.ReadAllBytes("data/paymentack.data"));
 		}
 		[Fact]
@@ -236,14 +236,14 @@ namespace NBitcoin.Tests
 			var request = LoadPaymentRequest("data/payreq1_sha1.paymentrequest");
 			var payment = request.CreatePayment();
 			AssertEx.CollectionEquals(request.Details.MerchantData, payment.MerchantData);
-			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
+			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes(), Network.Main).ToBytes());
 			payment.Memo = "thanks merchant !";
-			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
+			AssertEx.CollectionEquals(payment.ToBytes(), PaymentMessage.Load(payment.ToBytes(), Network.Main).ToBytes());
 			var ack = payment.CreateACK();
-			AssertEx.CollectionEquals(ack.Payment.ToBytes(), PaymentMessage.Load(payment.ToBytes()).ToBytes());
-			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
+			AssertEx.CollectionEquals(ack.Payment.ToBytes(), PaymentMessage.Load(payment.ToBytes(), Network.Main).ToBytes());
+			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes(), Network.Main).ToBytes());
 			ack.Memo = "thanks customer !";
-			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes()).ToBytes());
+			AssertEx.CollectionEquals(ack.ToBytes(), PaymentACK.Load(ack.ToBytes(), Network.Main).ToBytes());
 		}
 #if !NOHTTPCLIENT && !NOHTTPSERVER
 		[Fact]

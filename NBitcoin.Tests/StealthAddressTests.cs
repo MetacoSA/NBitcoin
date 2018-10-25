@@ -119,7 +119,7 @@ namespace NBitcoin.Tests
 			foreach(var test in tests)
 			{
 				var field = new BitField(TestUtils.ParseHex(test.Encoded), test.BitCount);
-				Transaction transaction = new Transaction();
+				Transaction transaction = Network.Main.CreateTransaction();
 				transaction.FromBytes(TestUtils.ParseHex(test.Transaction));
 
 				var stealthOutput = field.GetPayments(transaction).FirstOrDefault();
@@ -249,7 +249,7 @@ namespace NBitcoin.Tests
 				AssertEx.CollectionEquals(uncoveredSender.ToBytes(), uncovertedReceiver.ToBytes());
 				AssertEx.CollectionEquals(generatedKey.PubKey.ToBytes(), uncovertedReceiver.ToBytes());
 
-				var transaction = new Transaction();
+				var transaction = Network.Main.CreateTransaction();
 				payment.AddToTransaction(transaction, 100);
 			}
 		}

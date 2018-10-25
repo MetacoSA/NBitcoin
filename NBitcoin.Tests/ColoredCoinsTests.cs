@@ -26,7 +26,7 @@ namespace NBitcoin.Tests
 				NoSqlTransactionRepository repository = new NoSqlTransactionRepository();
 				foreach(var tx in testcase.txs)
 				{
-					var txObj = Transaction.Parse(tx);
+					var txObj = Transaction.Parse(tx, Network.Main);
 					repository.Put(txObj.GetHash(), txObj);
 				}
 				TestedTxId = uint256.Parse(testcase.testedtx);
@@ -150,13 +150,13 @@ namespace NBitcoin.Tests
 			Assert.True(destroyed[0].Quantity == 6);
 			Assert.True(destroyed[0].Id == a2.Id);
 
-			var prior = new Transaction();
+			var prior = Network.Main.CreateTransaction();
 			prior.Outputs.Add(new TxOut(dust, a1.ScriptPubKey));
 			prior.Outputs.Add(new TxOut(dust, a2.ScriptPubKey));
 			prior.Outputs.Add(new TxOut(dust, h.ScriptPubKey));
 			repo.Transactions.Put(prior.GetHash(), prior);
 
-			var issuanceA1 = new Transaction();
+			var issuanceA1 = Network.Main.CreateTransaction();
 			issuanceA1.Inputs.Add(new TxIn(new OutPoint(prior.GetHash(), 0)));
 			issuanceA1.Outputs.Add(new TxOut(dust, h.ScriptPubKey));
 			issuanceA1.Outputs.Add(new TxOut(dust, sender));
@@ -165,7 +165,7 @@ namespace NBitcoin.Tests
 			issuanceA1.Outputs.Add(new TxOut(dust, new ColorMarker(new ulong[] { 3, 2, 5, 3 }).GetScript()));
 			repo.Transactions.Put(issuanceA1.GetHash(), issuanceA1);
 
-			var issuanceA2 = new Transaction();
+			var issuanceA2 = Network.Main.CreateTransaction();
 			issuanceA2.Inputs.Add(new TxIn(new OutPoint(prior.GetHash(), 1)));
 			issuanceA2.Outputs.Add(new TxOut(dust, sender));
 			issuanceA2.Outputs.Add(new TxOut(dust, new ColorMarker(new ulong[] { 9 }).GetScript()));
@@ -209,7 +209,7 @@ namespace NBitcoin.Tests
 
 		private static Transaction CreateSpecTransaction(NoSqlColoredTransactionRepository repo, Money dust, BitcoinAddress receiver, Transaction prior, Transaction issuanceA1, Transaction issuanceA2)
 		{
-			var testedTx = new Transaction();
+			var testedTx = Network.Main.CreateTransaction();
 			testedTx.Inputs.Add(new TxIn(new OutPoint(issuanceA1.GetHash(), 0)));
 			testedTx.Inputs.Add(new TxIn(new OutPoint(issuanceA1.GetHash(), 1)));
 			testedTx.Inputs.Add(new TxIn(new OutPoint(prior.GetHash(), 0)));
@@ -232,7 +232,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanParseAndSetUrlInAssetMetadata()
 		{
-			var tx = Transaction.Parse("0100000001ed6f645a2d0eccf693692bc6677cd3c5efaba021db1527c91b9b441fe16da2f7020000006c493046022100991a71c15ebbf77032fc65ccd16ed286435fcc5ba48435510f561079e46dbb2a022100f1e477385196f083a779fd3366e074d34db12754330f02693520951081d5ab19012103f82af267c2f60b7ce274e7e8bc065dad3c1b0ca7a694801c814f128e63242a12ffffffff0358020000000000001976a91477e3e6acdeca221685d0d23a12989b96335a463988ac0000000000000000276a254f4101000180ade2041b753d68747470733a2f2f6370722e736d2f3954627276364a435776e89c0c00000000001976a9142d14f700c8b0a9ff95cb6092faad0795bf790dc788ac00000000");
+			var tx = Transaction.Parse("0100000001ed6f645a2d0eccf693692bc6677cd3c5efaba021db1527c91b9b441fe16da2f7020000006c493046022100991a71c15ebbf77032fc65ccd16ed286435fcc5ba48435510f561079e46dbb2a022100f1e477385196f083a779fd3366e074d34db12754330f02693520951081d5ab19012103f82af267c2f60b7ce274e7e8bc065dad3c1b0ca7a694801c814f128e63242a12ffffffff0358020000000000001976a91477e3e6acdeca221685d0d23a12989b96335a463988ac0000000000000000276a254f4101000180ade2041b753d68747470733a2f2f6370722e736d2f3954627276364a435776e89c0c00000000001976a9142d14f700c8b0a9ff95cb6092faad0795bf790dc788ac00000000", Network.Main);
 
 			var marker = tx.GetColoredMarker();
 			var url = marker.GetMetadataUrl();
@@ -425,7 +425,7 @@ namespace NBitcoin.Tests
 				Assert.NotNull(marker);
 			}
 
-			Transaction tx = new Transaction();
+			Transaction tx = Network.Main.CreateTransaction();
 			tx.Outputs.Add(new TxOut(Money.Zero, new Script(Encoders.Hex.DecodeData("6a114f41010003f00100e58e26041234567800104f41010003f00100e58e260412345678"))));
 			tx.Outputs.Add(new TxOut(Money.Zero, new Script(Encoders.Hex.DecodeData("6a104f41010003ac0200e58e260412345678"))));
 			var marker2 = ColorMarker.TryParse(tx);
