@@ -499,7 +499,7 @@ namespace NBitcoin.Protocol
 						}
 						catch(TargetInvocationException ex)
 						{
-							Logs.NodeServer.LogError(ex.InnerException, "Error while OnMessageReceived event raised" );
+							Logs.NodeServer.LogError(default, ex.InnerException, "Error while OnMessageReceived event raised" );
 						    UncaughtException?.Invoke(this, ex.InnerException);
 						}
 					}
