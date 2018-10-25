@@ -170,10 +170,25 @@ namespace NBitcoin.Tests
 			tx.Inputs.Add(new OutPoint(tx.GetHash(), 1), scriptPubKey);
 			tx.Outputs.Add("21", key.PubKey.Hash);
 			var clone = tx.Clone();
-			tx.Sign(key, tx.Outputs.AsCoins().ToArray());
+			tx.Sign(key, CreateFakeCoins(tx.Inputs, scriptPubKey));
 			AssertCorrectlySigned(tx, scriptPubKey);
-			clone.Sign(key, tx.Outputs.AsCoins().ToArray());
+			clone.Sign(key, CreateFakeCoins(clone.Inputs, scriptPubKey, true));
 			AssertCorrectlySigned(clone, scriptPubKey.Hash.ScriptPubKey);
+		}
+
+		private ICoin[] CreateFakeCoins(TxInList inputs, Script scriptPubKey, bool p2sh = false)
+		{
+			var coins = inputs.Select(i => new Coin(i.PrevOut, inputs.Transaction.Outputs.CreateNewTxOut(Money.Coins(0.1m), p2sh ? 
+				scriptPubKey.Hash.ScriptPubKey : 
+				scriptPubKey))).ToArray();
+			if (p2sh)
+			{
+				for (int i = 0; i < coins.Length; i++)
+				{
+					coins[i] = coins[i].ToScriptCoin(scriptPubKey);
+				}
+			}
+			return coins;
 		}
 
 		[Fact]
@@ -1121,6 +1136,8 @@ namespace NBitcoin.Tests
 				h = Network.Consensus.ConsensusFactory.CreateBlockHeader();
 				h.BlockTime = first;
 				h.HashMerkleRoot = chain.Tip.HashBlock;
+				h.HashPrevBlock = chain.Tip.HashBlock;
+				chain.SetTip(h);
 				first = first + TimeSpan.FromMinutes(10);
 			}
 			Transaction tx = Network.CreateTransaction();
@@ -1944,10 +1961,11 @@ namespace NBitcoin.Tests
 			var partiallySigned = spendTransaction.Clone();
 			//... Now I can partially sign it using one private key:
 
-			partiallySigned.Sign(privKeys[0], spendTransaction.Outputs.AsCoins().ToArray());
+			var coins = CreateFakeCoins(spendTransaction.Inputs, redeem, true);
+			partiallySigned.Sign(privKeys[0], coins);
 
 			//the other private keys (note the "hex" result getting longer):
-			partiallySigned.Sign(privKeys[1], spendTransaction.Outputs.AsCoins().ToArray());
+			partiallySigned.Sign(privKeys[1], coins);
 
 
 			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0].ScriptPubKey, allowHighS);
@@ -1959,8 +1977,8 @@ namespace NBitcoin.Tests
 
 			//Can sign out of order
 			partiallySigned = spendTransaction.Clone();
-			partiallySigned.Sign(privKeys[2], partiallySigned.Outputs.AsCoins().ToArray());
-			partiallySigned.Sign(privKeys[0], partiallySigned.Outputs.AsCoins().ToArray());
+			partiallySigned.Sign(privKeys[2], coins);
+			partiallySigned.Sign(privKeys[0], coins);
 			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0].ScriptPubKey);
 
 			//Can sign multiple inputs
