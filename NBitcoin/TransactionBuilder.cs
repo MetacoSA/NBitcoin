@@ -41,6 +41,10 @@ namespace NBitcoin
 		{
 			_Rand = new Random(seed);
 		}
+		public DefaultCoinSelector(Random random)
+		{
+			_Rand = random;
+		}
 
 		/// <summary>
 		/// Select all coins belonging to same scriptPubKey together to protect privacy. (Default: true)
@@ -485,7 +489,7 @@ namespace NBitcoin
 			}
 			private void Shuffle(List<Builder> builders)
 			{
-				Utils.Shuffle(builders, _Parent._Rand);
+				Utils.Shuffle(builders, _Parent.ShuffleRandom);
 			}
 
 			public Money CoverOnly
@@ -521,10 +525,11 @@ namespace NBitcoin
 				return _CurrentGroup;
 			}
 		}
+		[Obsolete("Use Network.CreateTransactionBuilder() or ConsensusFactory.CreateTransactionBuilder() instead")]
 		public TransactionBuilder()
 		{
-			_Rand = new Random();
-			CoinSelector = new DefaultCoinSelector();
+			ShuffleRandom = new Random();
+			CoinSelector = new DefaultCoinSelector(ShuffleRandom);
 			StandardTransactionPolicy = new StandardTransactionPolicy();
 			DustPrevention = true;
 			InitExtensions();
@@ -538,11 +543,16 @@ namespace NBitcoin
 			Extensions.Add(new OPTrueExtension());
 		}
 
-		internal Random _Rand;
+		/// <summary>
+		/// The random number generator used for shuffling transaction outputs or selected coins
+		/// </summary>
+		public Random ShuffleRandom { get; set; } = new Random();
+
+		[Obsolete("Use Network.CreateTransactionBuilder(int seed) or ConsensusFactory.CreateTransactionBuilder(int seed) instead")]
 		public TransactionBuilder(int seed)
 		{
-			_Rand = new Random(seed);
-			CoinSelector = new DefaultCoinSelector(seed);
+			ShuffleRandom = new Random(seed);
+			CoinSelector = new DefaultCoinSelector(ShuffleRandom);
 			StandardTransactionPolicy = new StandardTransactionPolicy();
 			DustPrevention = true;
 			InitExtensions();
@@ -804,11 +814,15 @@ namespace NBitcoin
 			return SendAsset(destination, new AssetMoney(assetId, quantity));
 		}
 
+		[Obsolete("Transaction builder is automatically shuffled")]
 		public TransactionBuilder Shuffle()
 		{
-			Utils.Shuffle(_BuilderGroups, _Rand);
-			foreach(var group in _BuilderGroups)
-				group.Shuffle();
+			if (ShuffleRandom != null)
+			{
+				Utils.Shuffle(_BuilderGroups, ShuffleRandom);
+				foreach (var group in _BuilderGroups)
+					group.Shuffle();
+			}
 			return this;
 		}
 
@@ -1052,12 +1066,23 @@ namespace NBitcoin
 		}
 
 		ConsensusFactory _ConsensusFactory = Network.Main.Consensus.ConsensusFactory;
+
+		public ConsensusFactory ConsensusFactory
+		{
+			get
+			{
+				return _ConsensusFactory;
+			}
+		}
+
+		[Obsolete("Use ConsensusFactory.CreateTransactionBuilder() instead, so you don't have to use this method anymore")]
 		public TransactionBuilder SetConsensusFactory(ConsensusFactory consensusFactory)
 		{
 			_ConsensusFactory = consensusFactory ?? Network.Main.Consensus.ConsensusFactory;
 			return this;
 		}
 
+		[Obsolete("Use Network.CreateTransactionBuilder() instead, so you don't have to use this method anymore")]
 		public TransactionBuilder SetConsensusFactory(Network network)
 		{
 			return SetConsensusFactory(network?.Consensus?.ConsensusFactory);

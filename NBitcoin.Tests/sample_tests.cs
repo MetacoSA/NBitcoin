@@ -50,7 +50,7 @@ namespace NBitcoin.Tests
 				var privateKeys = keyRedeemAddresses.SelectMany(kra => kra.Keys).ToArray();
 
 
-				var builder = new TransactionBuilder();
+				var builder = Network.CreateTransactionBuilder();
 				var rate = new FeeRate(Money.Satoshis(1), 1);
 				var signedTx = builder
 					.AddCoins(scriptCoins)

@@ -127,6 +127,11 @@ namespace NBitcoin
 			var encoder = network.GetBech32Encoder(type, true);
 			return encoder.Encode(witnessVersion, bytes);
 		}
+
+		public Transaction CreateTransaction()
+		{
+			return Consensus.ConsensusFactory.CreateTransaction();
+		}
 	}
 
 	public enum BuriedDeployments : int
@@ -1212,6 +1217,15 @@ namespace NBitcoin
 			set;
 		} = new NetworkStringParser();
 
+		public TransactionBuilder CreateTransactionBuilder()
+		{
+			return consensus.ConsensusFactory.CreateTransactionBuilder();
+		}
+
+		public TransactionBuilder CreateTransactionBuilder(int seed)
+		{
+			return consensus.ConsensusFactory.CreateTransactionBuilder(seed);
+		}
 
 		public Base58CheckEncoder GetBase58CheckEncoder()
 		{

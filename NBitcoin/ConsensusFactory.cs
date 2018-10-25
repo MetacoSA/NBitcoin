@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace NBitcoin
 {
-    public class ConsensusFactory
-    {
+	public class ConsensusFactory
+	{
 		ConcurrentDictionary<Type, bool> _IsAssignableFromBlockHeader = new ConcurrentDictionary<Type, bool>();
 		TypeInfo BlockHeaderType = typeof(BlockHeader).GetTypeInfo();
 
@@ -38,7 +38,7 @@ namespace NBitcoin
 		private bool IsAssignable(Type type, TypeInfo baseType, ConcurrentDictionary<Type, bool> cache)
 		{
 			bool isAssignable = false;
-			if(!cache.TryGetValue(type, out isAssignable))
+			if (!cache.TryGetValue(type, out isAssignable))
 			{
 				isAssignable = baseType.IsAssignableFrom(type.GetTypeInfo());
 				cache.TryAdd(type, isAssignable);
@@ -49,17 +49,17 @@ namespace NBitcoin
 		public virtual bool TryCreateNew(Type type, out IBitcoinSerializable result)
 		{
 			result = null;
-			if(IsBlock(type))
+			if (IsBlock(type))
 			{
 				result = CreateBlock();
 				return true;
 			}
-			if(IsBlockHeader(type))
+			if (IsBlockHeader(type))
 			{
 				result = CreateBlockHeader();
 				return true;
 			}
-			if(IsTransaction(type))
+			if (IsTransaction(type))
 			{
 				result = CreateTransaction();
 				return true;
@@ -72,7 +72,7 @@ namespace NBitcoin
 			result = default(T);
 			IBitcoinSerializable r = null;
 			var success = TryCreateNew(typeof(T), out r);
-			if(success)
+			if (success)
 				result = (T)r;
 			return success;
 		}
@@ -114,6 +114,32 @@ namespace NBitcoin
 		{
 #pragma warning disable CS0618 // Type or member is obsolete
 			return new Transaction();
+#pragma warning restore CS0618 // Type or member is obsolete
+		}
+
+		protected virtual TransactionBuilder CreateTransactionBuilderCore()
+		{
+#pragma warning disable CS0618 // Type or member is obsolete
+			return new TransactionBuilder();
+#pragma warning restore CS0618 // Type or member is obsolete
+		}
+
+		public TransactionBuilder CreateTransactionBuilder()
+		{
+#pragma warning disable CS0618 // Type or member is obsolete
+			var builder = CreateTransactionBuilderCore();
+			builder.SetConsensusFactory(this);
+			return builder;
+#pragma warning restore CS0618 // Type or member is obsolete
+		}
+
+		public TransactionBuilder CreateTransactionBuilder(int seed)
+		{
+#pragma warning disable CS0618 // Type or member is obsolete
+			var builder = CreateTransactionBuilderCore();
+			builder.SetConsensusFactory(this);
+			builder.ShuffleRandom = new Random(seed);
+			return builder;
 #pragma warning restore CS0618 // Type or member is obsolete
 		}
 	}

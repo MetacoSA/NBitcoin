@@ -111,8 +111,7 @@ namespace NBitcoin.Tests
 
 				// Check the hash calculated correctly
 				Assert.Equal(txid, tx.GetHash());
-				TransactionBuilder txbuilder = new TransactionBuilder();
-				txbuilder.SetConsensusFactory(builder.Network);
+				TransactionBuilder txbuilder = builder.Network.CreateTransactionBuilder();
 				txbuilder.AddCoins(coin);
 				txbuilder.AddKeys(alice);
 				txbuilder.Send(new Key().ScriptPubKey, Money.Coins(0.4m));

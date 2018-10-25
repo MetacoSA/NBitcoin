@@ -482,7 +482,7 @@ namespace NBitcoin.Tests
 				rpc.Generate(101);
 
 				var k = new Key();
-				var tx = new Transaction();
+				var tx = builder.Network.CreateTransaction();
 				tx.Outputs.Add(new TxOut(Money.Coins(1), k));
 				var result = rpc.FundRawTransaction(tx);
 				TestFundRawTransactionResult(tx, result);
@@ -799,26 +799,6 @@ namespace NBitcoin.Tests
 			}
 
 
-		}
-
-		[Fact]
-		public void CanDecodeAndEncodeRawTransaction()
-		{
-			var a = new Protocol.AddressManager().Select();
-			var tests = TestCase.read_json("data/tx_raw.json");
-			foreach (var test in tests)
-			{
-				var format = (RawFormat)Enum.Parse(typeof(RawFormat), (string)test[0], true);
-				var network = ((string)test[1]) == "Main" ? Network.Main : Network.TestNet;
-				var testData = ((JObject)test[2]).ToString();
-
-				Transaction raw = Transaction.Parse(testData, format, network);
-
-				AssertJsonEquals(raw.ToString(format, network), testData);
-
-				var raw3 = Transaction.Parse(raw.ToString(format, network), format);
-				Assert.Equal(raw.ToString(format, network), raw3.ToString(format, network));
-			}
 		}
 
 		[Fact]

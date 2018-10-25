@@ -36,11 +36,11 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				var info = client.GetChainInfoAsync().Result;
 				Assert.Equal("regtest", info.Chain);
-				Assert.Equal(new ChainedBlock(Network.RegTest.GetGenesis().Header, 0).ChainWork, info.ChainWork);
+				Assert.Equal(new ChainedBlock(Network.RegTest.GetGenesis().Header, 0).GetChainWork(false), info.ChainWork);
 				rpc.Generate(10);
 				var chain = node.CreateNodeClient().GetChain();
 				info = client.GetChainInfoAsync().Result;
-				Assert.Equal(info.ChainWork, chain.Tip.ChainWork);
+				Assert.Equal(info.ChainWork, chain.Tip.GetChainWork(false));
 			}
 		}
 

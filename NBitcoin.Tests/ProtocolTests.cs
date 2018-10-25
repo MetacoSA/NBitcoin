@@ -877,7 +877,7 @@ namespace NBitcoin.Tests
 		{
 			var hex = "f9beb4d972656a6563740000000000003a000000db7f7e7802747812156261642d74786e732d696e707574732d7370656e74577a9694da4ff41ae999f6591cff3749ad6a7db19435f3d8af5fecbcff824196";
 			Message message = new Message();
-			message.ReadWrite(Encoders.Hex.DecodeData(hex));
+			message.ReadWrite(Encoders.Hex.DecodeData(hex), Network.Main);
 			var reject = (RejectPayload)message.Payload;
 			Assert.True(reject.Message == "tx");
 			Assert.True(reject.Code == RejectCode.DUPLICATE);

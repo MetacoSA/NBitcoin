@@ -63,7 +63,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(v, new uint256(v.ToBytes()));
 			AssertEx.CollectionEquals(v.ToBytes(), v.AsBitcoinSerializable().ToBytes());
 			uint256.MutableUint256 mutable = new uint256.MutableUint256();
-			mutable.ReadWrite(v.ToBytes());
+			mutable.ReadWrite(v.ToBytes(), Network.Main);
 			Assert.Equal(v, mutable.Value);
 		}
 

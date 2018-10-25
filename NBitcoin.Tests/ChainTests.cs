@@ -112,7 +112,7 @@ namespace NBitcoin.Tests
 
 
 
-			var chain2 = new ConcurrentChain(chain.ToBytes());
+			var chain2 = new ConcurrentChain(chain.ToBytes(), Network.Main);
 			Assert.True(chain.SameTip(chain2));
 		}
 
@@ -147,13 +147,13 @@ namespace NBitcoin.Tests
 
 			var bytes = cchain.ToBytes();
 			cchain = new ConcurrentChain();
-			cchain.Load(bytes);
+			cchain.Load(bytes, Network.TestNet);
 
 			Assert.Equal(cchain.Tip, chain.Tip);
 			Assert.NotNull(cchain.GetBlock(0));
 
 			cchain = new ConcurrentChain(Network.TestNet);
-			cchain.Load(cchain.ToBytes());
+			cchain.Load(cchain.ToBytes(), Network.TestNet);
 			Assert.NotNull(cchain.GetBlock(0));
 		}
 		[Fact]
@@ -201,7 +201,7 @@ namespace NBitcoin.Tests
 
 		private ChainedBlock AddBlock(ConcurrentChain chain)
 		{
-			BlockHeader header = new BlockHeader();
+			BlockHeader header = Network.Main.Consensus.ConsensusFactory.CreateBlockHeader();
 			header.Nonce = RandomUtils.GetUInt32();
 			header.HashPrevBlock = chain.Tip.HashBlock;
 			chain.SetTip(header);
@@ -283,7 +283,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanCalculateDifficulty()
 		{
-			var main = new ConcurrentChain(LoadMainChain());
+			var main = new ConcurrentChain(LoadMainChain(), Network.Main);
 			var histories = File.ReadAllText("data/targethistory.csv").Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
 
 			foreach(var history in histories)
@@ -303,7 +303,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanValidateChain()
 		{
-			var main = new ConcurrentChain(LoadMainChain());
+			var main = new ConcurrentChain(LoadMainChain(), Network.Main);
 			foreach(var h in main.ToEnumerable(false))
 			{
 				Assert.True(h.Validate(Network.Main));
@@ -314,7 +314,7 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanPersistMainchain()
 		{
-			var main = new ConcurrentChain(LoadMainChain());
+			var main = new ConcurrentChain(LoadMainChain(), Network.Main);
 			MemoryStream ms = new MemoryStream();
 			main.WriteTo(ms);	
 			ms.Position = 0;
@@ -348,7 +348,7 @@ namespace NBitcoin.Tests
 				main.WriteTo(ms, options);
 				ms.Position = 0;
 				main.SetTip(main.Genesis);
-				main.Load(ms, options);
+				main.Load(ms, Network.Main, options);
 				Assert.Equal(options.SerializeBlockHeader, main.Tip.HasHeader);
 				if(main.Tip.HasHeader)
 				{
@@ -587,7 +587,7 @@ namespace NBitcoin.Tests
 			var nonce = RandomUtils.GetUInt32();
 			foreach(var chain in chains)
 			{
-				var block = TestUtils.CreateFakeBlock(new Transaction());
+				var block = TestUtils.CreateFakeBlock(Network.Main.CreateTransaction());
 				block.Header.HashPrevBlock = previous == null ? chain.Tip.HashBlock : previous.HashBlock;
 				block.Header.Nonce = nonce;
 				if(!chain.TrySetTip(block.Header, out last))

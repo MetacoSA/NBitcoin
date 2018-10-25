@@ -1622,7 +1622,7 @@ namespace NBitcoin
 		/// <param name="coins">Coins to sign</param>
 		public void Sign(Key[] keys, ICoin[] coins)
 		{
-			TransactionBuilder builder = new TransactionBuilder();
+			TransactionBuilder builder = this.GetConsensusFactory().CreateTransactionBuilder();
 			builder.AddKeys(keys);
 			builder.AddCoins(coins);
 			builder.SignTransactionInPlace(this);

@@ -137,12 +137,14 @@ namespace NBitcoin.Tests
 		{
 		}
 
+		Network Network => Network.Main;
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanBuildTransactionWithSubstractFeeAndSendEstimatedFees()
 		{
 			var signer = new Key();
-			var builder = new TransactionBuilder();
+			var builder = Network.CreateTransactionBuilder();
 			builder.AddKeys(signer);
 			builder.AddCoins(RandomCoin(signer, Money.Coins(1)));
 			builder.Send(new Key().ScriptPubKey, Money.Coins(1));
@@ -154,7 +156,7 @@ namespace NBitcoin.Tests
 
 			for(int i = 0; i < 100; i++)
 			{
-				builder = new TransactionBuilder();
+				builder = Network.CreateTransactionBuilder();
 				for(int ii = 0; ii < 1 + RandomUtils.GetUInt32() % 10; ii++)
 				{
 					var signersCount = 1 + (int)(RandomUtils.GetUInt32() % 6);
@@ -195,7 +197,7 @@ namespace NBitcoin.Tests
 			var carol = new Key();
 			var bob = new Key();
 
-			var builder = new TransactionBuilder();
+			var builder = Network.CreateTransactionBuilder();
 			builder.StandardTransactionPolicy.CheckFee = false;
 			Transaction tx = builder
 				.AddCoins(RandomCoin2(alice, Money.Coins(1.0m)))
