@@ -817,13 +817,18 @@ namespace NBitcoin
 		[Obsolete("Transaction builder is automatically shuffled")]
 		public TransactionBuilder Shuffle()
 		{
+			DoShuffle();
+			return this;
+		}
+
+		private void DoShuffle()
+		{
 			if (ShuffleRandom != null)
 			{
 				Utils.Shuffle(_BuilderGroups, ShuffleRandom);
 				foreach (var group in _BuilderGroups)
 					group.Shuffle();
 			}
-			return this;
 		}
 
 		IMoney SetColoredChange(TransactionBuildingContext ctx)
@@ -1117,12 +1122,13 @@ namespace NBitcoin
 		/// <exception cref="NBitcoin.NotEnoughFundsException">Not enough funds are available</exception>
 		public Transaction BuildTransaction(bool sign, SigHash sigHash)
 		{
+			DoShuffle();
 			TransactionBuildingContext ctx = new TransactionBuildingContext(this);
 			if(_CompletedTransaction != null)
 				ctx.Transaction = _CompletedTransaction.Clone();
 			if(_LockTime != null)
 				ctx.Transaction.LockTime = _LockTime.Value;
-			foreach(var group in _BuilderGroups)
+			foreach (var group in _BuilderGroups)
 			{
 				ctx.Group = group;
 				ctx.AdditionalBuilders.Clear();
