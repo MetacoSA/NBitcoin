@@ -746,6 +746,7 @@ namespace NBitcoin.Tests
 			//Bob receive silver and 2 btc
 			txBuilder = Network.CreateTransactionBuilder();
 			txBuilder.StandardTransactionPolicy = RelayPolicy;
+			txBuilder.ShuffleRandom = null;
 			tx = txBuilder
 					.AddKeys(silver, gold)
 					.AddCoins(issuanceCoins)
@@ -764,6 +765,7 @@ namespace NBitcoin.Tests
 			//Bob receive gold
 			txBuilder = Network.CreateTransactionBuilder();
 			txBuilder.StandardTransactionPolicy = RelayPolicy;
+			txBuilder.ShuffleRandom = null;
 			tx = txBuilder
 					.AddKeys(gold)
 					.AddCoins(issuanceCoins)
@@ -819,6 +821,7 @@ namespace NBitcoin.Tests
 			//Bob send coins to Satoshi, but alice pay for the dust
 			var builder = Network.CreateTransactionBuilder();
 			builder.StandardTransactionPolicy = RelayPolicy;
+			builder.ShuffleRandom = null;
 			var funding =
 				builder.AddCoins(issuanceCoins)
 				.AddKeys(gold)
@@ -844,12 +847,13 @@ namespace NBitcoin.Tests
 					.BuildTransaction(true);
 				Assert.False(true, "Should have thrown");
 			}
-			catch(NotEnoughFundsException ex) //Not enough dust to send the change
+			catch (NotEnoughFundsException ex) //Not enough dust to send the change
 			{
 				Assert.True(((Money)ex.Missing).Satoshi == 2730);
 				var rate = new FeeRate(Money.Coins(0.0004m));
 				txBuilder = Network.CreateTransactionBuilder();
 				txBuilder.StandardTransactionPolicy = RelayPolicy;
+				txBuilder.ShuffleRandom = null;
 				transfer =
 					txBuilder
 					.AddCoins(bobGold)
@@ -899,7 +903,7 @@ namespace NBitcoin.Tests
 					.SetChange(bob.PubKey)
 					.BuildTransaction(true);
 
-				foreach(var output in transfer.Outputs)
+				foreach (var output in transfer.Outputs)
 				{
 					Assert.False(TxNullDataTemplate.Instance.CheckScriptPubKey(output.ScriptPubKey));
 					Assert.False(output.Value == output.GetDustThreshold(txBuilder.StandardTransactionPolicy.MinRelayTxFee));
