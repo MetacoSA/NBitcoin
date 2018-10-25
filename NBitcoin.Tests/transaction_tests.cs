@@ -391,6 +391,7 @@ namespace NBitcoin.Tests
 
 			// first Bob constructs the TX
 			txBuilder = Network.CreateTransactionBuilder();
+			txBuilder.ShuffleRandom = null;
 			var unsigned = txBuilder
 				// spend from the Alice+Bob wallet to Carla
 				.AddCoins(aliceBobCoins)
@@ -664,6 +665,7 @@ namespace NBitcoin.Tests
 			var coins = new List<ICoin>();
 			coins.AddRange(issuanceCoins);
 			var txBuilder = Network.CreateTransactionBuilder();
+			txBuilder.ShuffleRandom = null;
 			txBuilder.StandardTransactionPolicy = RelayPolicy;
 			//Can issue gold to satoshi and bob
 			var tx = txBuilder
@@ -695,6 +697,7 @@ namespace NBitcoin.Tests
 			coins.Add(coloredCoins.First(c => c.ScriptPubKey == bob.PubKey.ScriptPubKey));
 			txBuilder = Network.CreateTransactionBuilder();
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
+			txBuilder.ShuffleRandom = null;
 			tx = txBuilder
 				.AddCoins(coins.ToArray())
 				.AddKeys(silver, bob)
@@ -775,6 +778,7 @@ namespace NBitcoin.Tests
 
 			txBuilder = Network.CreateTransactionBuilder();
 			txBuilder.StandardTransactionPolicy = RelayPolicy;
+			txBuilder.ShuffleRandom = null;
 			tx = txBuilder
 				.AddCoins(satoshiCoin)
 				.AddCoins(satoshiBTC)
@@ -1003,6 +1007,7 @@ namespace NBitcoin.Tests
 			var bobCoins = new ICoin[] { RandomCoin("0.2", bob), RandomCoin("0.3", bob) };
 
 			TransactionBuilder builder = Network.CreateTransactionBuilder(0);
+			builder.ShuffleRandom = null;
 			FeeRate rate = new FeeRate(Money.Coins(0.0004m));
 			var tx1 = builder
 				.AddCoins(aliceCoins)
@@ -1016,8 +1021,8 @@ namespace NBitcoin.Tests
 				.SetChange(bob)
 				.SendEstimatedFeesSplit(rate)
 				.BuildTransaction(true);
-
 			builder = Network.CreateTransactionBuilder(0);
+			builder.ShuffleRandom = null;
 			var tx2 = builder
 				.Then("Alice")
 				.AddCoins(aliceCoins)
