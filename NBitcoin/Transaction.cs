@@ -2129,13 +2129,9 @@ namespace NBitcoin
 
 				return GetHash(sss);
 			}
-
-
-
-
+			
 			if (nIn >= Inputs.Count)
 			{
-				Logs.Utils.LogWarning("ERROR: SignatureHash() : nOut={nIn} out of range\n", nIn); 
 				return uint256.One;
 			}
 
@@ -2146,7 +2142,6 @@ namespace NBitcoin
 			{
 				if (nIn >= Outputs.Count)
 				{
-					Logs.Utils.LogWarning("ERROR: SignatureHash() : nOut={nIn} out of range\n",nIn);
 					return uint256.One;
 				}
 			}

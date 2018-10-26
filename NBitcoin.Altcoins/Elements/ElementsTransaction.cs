@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using NBitcoin.Logging;
 
 namespace NBitcoin.Altcoins.Elements
 {
@@ -753,13 +755,11 @@ namespace NBitcoin.Altcoins.Elements
 
 				return GetHash(sss);
 			}
-
-
-
+			
 
 			if (nIn >= Inputs.Count)
 			{
-				Utils.log("ERROR: SignatureHash() : nIn=" + nIn + " out of range\n");
+				Logs.Utils.LogWarning("ERROR: SignatureHash() : nIn=" + nIn + " out of range");
 				return uint256.One;
 			}
 
@@ -770,7 +770,7 @@ namespace NBitcoin.Altcoins.Elements
 			{
 				if (nIn >= Outputs.Count)
 				{
-					Utils.log("ERROR: SignatureHash() : nOut=" + nIn + " out of range\n");
+					Logs.Utils.LogWarning("ERROR: SignatureHash() : nOut=" + nIn + " out of range");
 					return uint256.One;
 				}
 			}
