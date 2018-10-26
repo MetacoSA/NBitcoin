@@ -25,13 +25,7 @@ namespace NBitcoin.Tests
 	public class RPCClientTests
 	{
 		const string TestAccount = "NBitcoin.RPCClientTests";
-
-		//public RPCClientTests(ITestOutputHelper testOutputHelper)
-		//{
-		//	var logger = new XunitLogger(testOutputHelper, "RPCClientTests");
-		//	Logs.Configure(new FuncLoggerFactory(l=>logger));
-		//}
-
+		
 		[Fact]
 		public void InvalidCommandSendRPCException()
 		{
