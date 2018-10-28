@@ -93,7 +93,7 @@ namespace NBitcoin.Altcoins
 			var builder = new NetworkBuilder();
 			builder.SetConsensus(new Consensus()
 			{
-				SubsidyHalvingInterval = 1569325056,
+				SubsidyHalvingInterval = 262800,
 				MajorityEnforceBlockUpgrade = 750,
 				MajorityRejectBlockOutdated = 950,
 				MajorityWindow = 1000,
@@ -120,15 +120,16 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xBD6B0CBF)
 			.SetPort(24126)
 			.SetRPCPort(24127)
-			.SetMaxP2PVersion(70208)
+			.SetMaxP2PVersion(70211)
 			.SetName("polis-main")
 			.AddAlias("polis-mainnet")
 			.AddDNSSeeds(new[]
 			{
-				new DNSSeedData("node1.polispay.org", "node1.polispay.org"),
+				new DNSSeedData("dnsseed.poliscentral.org", "dnsseed.poliscentral.org"),
+				new DNSSeedData("dnsseed2.poliscentral.org", "dnsseed2.poliscentral.org"),
+				new DNSSeedData("dnsseed3.poliscentral.org", "dnsseed3.poliscentral.org"),
 				new DNSSeedData("polis.seeds.mn.zone", "polis.seeds.mn.zone"),
-				new DNSSeedData("polis.mnseeds.com", "polis.mnseeds.com"),
-				new DNSSeedData("node2.polispay.org", "node2.polispay.org")
+				new DNSSeedData("polis.mnseeds.com", "polis.mnseeds.com")
 			})
 			.AddSeeds(new NetworkAddress[0])
 			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000fc4b8cb903aed54e11e1ae8a5b7ad097ade34988a84500ad2d80e4d1f5bcc95d2bb73b5af0ff0f1edbff04000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff2404ffff001d01041c506f6c69732c2066726f6d2070656f706c6520746f2070656f706c65ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
@@ -148,9 +149,9 @@ namespace NBitcoin.Altcoins
 				PowLimit = new Target(new uint256("0x00000fffff000000000000000000000000000000000000000000000000000000")),
 				MinimumChainWork = new uint256("0x000000000000000000000000000000000000000000000000000924e924a21715"),
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
-				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
+				PowTargetSpacing = TimeSpan.FromSeconds(2 * 60),
 				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 30,
+				CoinbaseMaturity = 15,
 				PowNoRetargeting = false,
 				RuleChangeActivationThreshold = 1512,
 				MinerConfirmationWindow = 2016,
@@ -165,18 +166,13 @@ namespace NBitcoin.Altcoins
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("tpolis"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("tpolis"))
 			.SetMagic(0xFFCAE2CE)
-			.SetPort(19999)
-			.SetRPCPort(19998)
-			.SetMaxP2PVersion(70208)
-		   .SetName("polis-test")
-		   .AddAlias("polis-testnet")
-		   .AddDNSSeeds(new[]
-		   {
-				new DNSSeedData("polisdot.io",  "testnet-seed.polisdot.io"),
-				new DNSSeedData("masternode.io", "test.dnsseed.masternode.io")
-		   })
-		   .AddSeeds(new NetworkAddress[0])
-		   .SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0dee1e352f0ff0f1ec3c927e60101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			.SetPort(24130)
+			.SetRPCPort(24131)
+			.SetMaxP2PVersion(70211)
+		   	.SetName("polis-test")
+		   	.AddAlias("polis-testnet")
+		   	.AddSeeds(new NetworkAddress[0])
+		   	.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000fc4b8cb903aed54e11e1ae8a5b7ad097ade34988a84500ad2d80e4d1f5bcc95d678f875af0ff0f1e94ba01000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff2404ffff001d01041c506f6c69732c2066726f6d2070656f706c6520746f2070656f706c65ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 			return builder;
 		}
 
@@ -193,9 +189,9 @@ namespace NBitcoin.Altcoins
 				PowLimit = new Target(new uint256("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")),
 				MinimumChainWork = new uint256("0x000000000000000000000000000000000000000000000000000924e924a21715"),
 				PowTargetTimespan = TimeSpan.FromSeconds(24 * 60 * 60),
-				PowTargetSpacing = TimeSpan.FromSeconds(2.5 * 60),
+				PowTargetSpacing = TimeSpan.FromSeconds(2 * 60),
 				PowAllowMinDifficultyBlocks = true,
-				CoinbaseMaturity = 30,
+				CoinbaseMaturity = 15,
 				PowNoRetargeting = true,
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
@@ -212,12 +208,12 @@ namespace NBitcoin.Altcoins
 			.SetMagic(0xDCB7C1FC)
 			.SetPort(19994)
 			.SetRPCPort(19993)
-			.SetMaxP2PVersion(70208)
+			.SetMaxP2PVersion(70211)
 			.SetName("polis-reg")
 			.AddAlias("polis-regtest")
 			.AddDNSSeeds(new DNSSeedData[0])
 			.AddSeeds(new NetworkAddress[0])
-			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000c762a6567f3cc092f0684bb62b7e00a84890b990f07cc71a6bb58d64b98e02e0b9968054ffff7f20ffba10000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff6204ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73ffffffff0100f2052a010000004341040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9ac00000000");
+			.SetGenesis("010000000000000000000000000000000000000000000000000000000000000000000000fc4b8cb903aed54e11e1ae8a5b7ad097ade34988a84500ad2d80e4d1f5bcc95d9a3b3b5af0ff0f1e3c8b0d000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff2404ffff001d01041c506f6c69732c2066726f6d2070656f706c6520746f2070656f706c65ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
 			return builder;
 		}
 
