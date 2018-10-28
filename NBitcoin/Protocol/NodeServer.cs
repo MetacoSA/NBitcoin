@@ -178,7 +178,7 @@ namespace NBitcoin.Protocol
 				client = args.AcceptSocket;
 				if(_Cancel.IsCancellationRequested)
 					return;
-			    Logs.NodeServer.LogInformation("Client connection accepted {remoteEndPoint}", client.RemoteEndPoint);
+				Logs.NodeServer.LogInformation("Client connection accepted {remoteEndPoint}", client.RemoteEndPoint);
 				using(var cancel = CancellationTokenSource.CreateLinkedTokenSource(_Cancel.Token))
 				{
 					cancel.CancelAfter(TimeSpan.FromSeconds(10));
@@ -188,7 +188,7 @@ namespace NBitcoin.Protocol
 					{
 						if(ConnectedNodes.Count >= MaxConnections)
 						{
-						    Logs.NodeServer.LogInformation("MaxConnections limit reached");
+							Logs.NodeServer.LogInformation("MaxConnections limit reached");
 							Utils.SafeCloseSocket(client);
 							break;
 						}
@@ -205,7 +205,7 @@ namespace NBitcoin.Protocol
 						if(message.Payload is VersionPayload)
 							break;
 						else
-						    Logs.NodeServer.LogError("The first message of the remote peer did not contained a Version payload");
+							Logs.NodeServer.LogError("The first message of the remote peer did not contained a Version payload");
 					}
 				}
 			}
