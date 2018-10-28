@@ -1549,32 +1549,32 @@ namespace NBitcoin
 		public static uint CURRENT_VERSION = 2;
 		public static uint MAX_STANDARD_TX_SIZE = 100000;
 
-		[Obsolete("Use Output.Add(Money money = null, IDestination destination = null) instead")]
+		[Obsolete("Use Transaction.Outputs.Add(Money money = null, IDestination destination = null) instead")]
 		public TxOut AddOutput(Money money, IDestination destination)
 		{
 			return AddOutput(money, destination.ScriptPubKey);
 		}
 
-		[Obsolete("Use Output.Add(Money money = null, Script scriptPubKey = null) instead")]
+		[Obsolete("Use Transaction.Outputs.Add(Money money = null, Script scriptPubKey = null) instead")]
 		public TxOut AddOutput(Money money, Script scriptPubKey)
 		{
 			return AddOutput(CreateOutput(money, scriptPubKey));
 		}
 
-		[Obsolete("Use Output.CreateNewTxOut(Money money = null, Script scriptPubKey = null) instead")]
+		[Obsolete("Use Transaction.Outputs.CreateNewTxOut(Money money = null, Script scriptPubKey = null) instead")]
 		public TxOut CreateOutput(Money money, Script scriptPubKey)
 		{
 			return Outputs.CreateNewTxOut(money, scriptPubKey);
 		}
 
-		[Obsolete("Use Output.Add(Money money = null, Script scriptPubKey = null) instead")]
+		[Obsolete("Use Transaction.Outputs.Add(Money money = null, Script scriptPubKey = null) instead")]
 		public TxOut AddOutput(TxOut @out)
 		{
 			this.vout.Add(@out);
 			return @out;
 		}
 
-		[Obsolete("Use Inputs.Add(OutPoint outpoint = null, Script scriptSig = null, Sequence? sequence = null) instead")]
+		[Obsolete("Use Transaction.Inputs.Add(OutPoint outpoint = null, Script scriptSig = null, Sequence? sequence = null) instead")]
 		public TxIn AddInput(TxIn @in)
 		{
 			this.vin.Add(@in);
@@ -1598,7 +1598,7 @@ namespace NBitcoin
 			return (weight + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR;
 		}
 
-		[Obsolete("Use Inputs.Add(prevTx, int outIndex) instead")]
+		[Obsolete("Use Transaction.Inputs.Add(prevTx, int outIndex) instead")]
 		public TxIn AddInput(Transaction prevTx, int outIndex)
 		{
 			return Inputs.Add(prevTx, outIndex);
