@@ -158,7 +158,7 @@ namespace NBitcoin.Tests
 		public void CanUseKeyPath()
 		{
 			var keyPath = KeyPath.Parse("0/1/2/3");
-			Assert.Equal(keyPath.ToString(), "0/1/2/3");
+			Assert.Equal("0/1/2/3", keyPath.ToString());
 			var key = new ExtKey();
 			Assert.Equal(key
 							.Derive(0)
@@ -178,26 +178,26 @@ namespace NBitcoin.Tests
 			Assert.Equal(neuter.Derive(keyPath).ToString(Network.Main), key.Derive(keyPath).Neuter().ToString(Network.Main));
 
 			keyPath = new KeyPath(new uint[] { 0x8000002Cu, 1u });
-			Assert.Equal(keyPath.ToString(), "44'/1");
+			Assert.Equal("44'/1", keyPath.ToString());
 
 			keyPath = KeyPath.Parse("44'/1");
 			Assert.False(keyPath.IsHardened);
 			Assert.True(KeyPath.Parse("44'/1'").IsHardened);
-			Assert.Equal(keyPath[0], 0x8000002Cu);
-			Assert.Equal(keyPath[1], 1u);
+			Assert.Equal(0x8000002Cu, keyPath[0]);
+			Assert.Equal(1u, keyPath[1]);
 
 			key = new ExtKey();
 			Assert.Equal(key.Derive(keyPath).ToString(Network.Main), key.Derive(44, true).Derive(1, false).ToString(Network.Main));
 
 			keyPath = KeyPath.Parse("");
 			keyPath = keyPath.Derive(44, true).Derive(1, false);
-			Assert.Equal(keyPath.ToString(), "44'/1");
-			Assert.Equal(keyPath.Increment().ToString(), "44'/2");
-			Assert.Equal(keyPath.Derive(1, true).Increment().ToString(), "44'/1/2'");
-			Assert.Equal(keyPath.Parent.ToString(), "44'");
-			Assert.Equal(keyPath.Parent.Parent.ToString(), "");
-			Assert.Equal(keyPath.Parent.Parent.Parent, null);
-			Assert.Equal(keyPath.Parent.Parent.Increment(), null);
+			Assert.Equal("44'/1", keyPath.ToString());
+			Assert.Equal("44'/2", keyPath.Increment().ToString());
+			Assert.Equal("44'/1/2'", keyPath.Derive(1, true).Increment().ToString());
+			Assert.Equal("44'", keyPath.Parent.ToString());
+			Assert.Equal("", keyPath.Parent.Parent.ToString());
+			Assert.Null(keyPath.Parent.Parent.Parent);
+			Assert.Null(keyPath.Parent.Parent.Increment());
 			Assert.Equal(key.Derive(keyPath).ToString(Network.Main), key.Derive(44, true).Derive(1, false).ToString(Network.Main));
 
 			Assert.True(key.Derive(44, true).IsHardened);

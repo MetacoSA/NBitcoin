@@ -142,7 +142,7 @@ namespace NBitcoin.Tests
 				node.Generate(101);
 				var txid = rpc.SendToAddress(new Key().PubKey.GetAddress(rpc.Network), Money.Coins(1.0m), "hello", "world");
 				var ids = rpc.GetRawMempool();
-				Assert.Equal(1, ids.Length);
+				Assert.Single(ids);
 				Assert.Equal(txid, ids[0]);
 			}
 		}
@@ -238,7 +238,7 @@ namespace NBitcoin.Tests
 
 				Assert.Equal(101, result.SearchedItems);
 				Assert.True(result.Success);
-				Assert.Equal(0, result.Outputs.Length);
+				Assert.Empty(result.Outputs);
 				Assert.Equal(Money.Zero, result.TotalAmount);
 
 				Assert.False(rpc.AbortScanTxoutSet());
@@ -250,7 +250,7 @@ namespace NBitcoin.Tests
 
 				Assert.True(result.SearchedItems > 100);
 				Assert.True(result.Success);
-				Assert.Equal(1, result.Outputs.Length);
+				Assert.Single(result.Outputs);
 				Assert.Equal(102, result.Outputs[0].Height);
 				Assert.Equal(Money.Coins(1.0m), result.TotalAmount);
 
@@ -316,8 +316,8 @@ namespace NBitcoin.Tests
 				var blocks = rpc.Generate(1);
 
 				var block = rpc.GetBlock(blocks.First());
-				Assert.False(block.Transactions.Any(x => x.GetHash() == txid));
-				Assert.True(block.Transactions.Any(x => x.GetHash() == txbumpid.TransactionId));
+				Assert.DoesNotContain(block.Transactions, x => x.GetHash() == txid);
+				Assert.Contains(block.Transactions, x => x.GetHash() == txbumpid.TransactionId);
 			}
 		}
 
@@ -333,11 +333,11 @@ namespace NBitcoin.Tests
 
 				Assert.Equal(builder.Network, response.Chain);
 				Assert.Equal(builder.Network.GetGenesis().GetHash(), response.BestBlockHash);
-				Assert.True(response.Bip9SoftForks.Any(x => x.Name == "segwit"));
-				Assert.True(response.Bip9SoftForks.Any(x => x.Name == "csv"));
-				Assert.True(response.SoftForks.Any(x => x.Bip == "bip34"));
-				Assert.True(response.SoftForks.Any(x => x.Bip == "bip65"));
-				Assert.True(response.SoftForks.Any(x => x.Bip == "bip66"));
+				Assert.Contains(response.Bip9SoftForks, x => x.Name == "segwit");
+				Assert.Contains(response.Bip9SoftForks, x => x.Name == "csv");
+				Assert.Contains(response.SoftForks, x => x.Bip == "bip34");
+				Assert.Contains(response.SoftForks, x => x.Bip == "bip65");
+				Assert.Contains(response.SoftForks, x => x.Bip == "bip66");
 			}
 		}
 
@@ -438,7 +438,7 @@ namespace NBitcoin.Tests
 				getTxOutResponse = await rpc.GetTxOutAsync(txId, index, true);
 				Assert.NotNull(getTxOutResponse); // null if spent
 				Assert.Equal(blockHashes.Last(), getTxOutResponse.BestBlock);
-				Assert.Equal(getTxOutResponse.Confirmations, 0);
+				Assert.Equal(0, getTxOutResponse.Confirmations);
 				Assert.Equal(Money.Coins(49), getTxOutResponse.TxOut.Value);
 				Assert.NotNull(getTxOutResponse.TxOut.ScriptPubKey);
 				Assert.Equal("pubkeyhash", getTxOutResponse.ScriptPubKeyType);
@@ -505,7 +505,7 @@ namespace NBitcoin.Tests
 				});
 				TestFundRawTransactionResult(tx, result);
 				Assert.True(result1.Fee < result.Fee);
-				Assert.True(result.Transaction.Outputs.Any(o => o.ScriptPubKey == change.ScriptPubKey));
+				Assert.Contains(result.Transaction.Outputs, o => o.ScriptPubKey == change.ScriptPubKey);
 			}
 		}
 
@@ -587,8 +587,8 @@ namespace NBitcoin.Tests
 				};
 
 				response = Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
-				Assert.Equal(response.RPCCode, RPCErrorCode.RPC_INVALID_PARAMETER);
-				Assert.Equal(response.Message, "Internal must be set for hex scriptPubKey");
+				Assert.Equal(RPCErrorCode.RPC_INVALID_PARAMETER, response.RPCCode);
+				Assert.Equal("Internal must be set for hex scriptPubKey", response.Message);
 				#endregion
 
 				#region Address + Public key + !internal
@@ -632,8 +632,8 @@ namespace NBitcoin.Tests
 				};
 
 				response = Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
-				Assert.Equal(response.RPCCode, RPCErrorCode.RPC_INVALID_PARAMETER);
-				Assert.Equal(response.Message, "Internal must be set for hex scriptPubKey");
+				Assert.Equal(RPCErrorCode.RPC_INVALID_PARAMETER, response.RPCCode);
+				Assert.Equal("Internal must be set for hex scriptPubKey", response.Message);
 				#endregion
 
 				#region Address + Private key + !watchonly
@@ -677,8 +677,8 @@ namespace NBitcoin.Tests
 				};
 
 				response = Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
-				Assert.Equal(response.RPCCode, RPCErrorCode.RPC_INVALID_PARAMETER);
-				Assert.Equal(response.Message, "Incompatibility found between watchonly and keys");
+				Assert.Equal(RPCErrorCode.RPC_INVALID_PARAMETER, response.RPCCode);
+				Assert.Equal("Incompatibility found between watchonly and keys", response.Message);
 				#endregion
 
 				#region ScriptPubKey + Private key + internal
@@ -738,8 +738,8 @@ namespace NBitcoin.Tests
 				};
 
 				response = Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
-				Assert.Equal(response.RPCCode, RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY);
-				Assert.Equal(response.Message, "Consistency check failed");
+				Assert.Equal(RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY, response.RPCCode);
+				Assert.Equal("Consistency check failed", response.Message);
 				#endregion
 
 				#region ScriptPubKey + Public key + internal + Wrong pubkey
@@ -755,8 +755,8 @@ namespace NBitcoin.Tests
 				};
 
 				response = Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
-				Assert.Equal(response.RPCCode, RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY);
-				Assert.Equal(response.Message, "Consistency check failed");
+				Assert.Equal(RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY, response.RPCCode);
+				Assert.Equal("Consistency check failed", response.Message);
 				#endregion
 
 				#region Address + Private key + !watchonly + Wrong private key
@@ -771,8 +771,8 @@ namespace NBitcoin.Tests
 				};
 
 				response = Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
-				Assert.Equal(response.RPCCode, RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY);
-				Assert.Equal(response.Message, "Consistency check failed");
+				Assert.Equal(RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY, response.RPCCode);
+				Assert.Equal("Consistency check failed", response.Message);
 				#endregion
 
 				#region ScriptPubKey + Private key + internal + Wrong private key
@@ -788,8 +788,8 @@ namespace NBitcoin.Tests
 				};
 
 				response = Assert.Throws<RPCException>(() => rpc.ImportMulti(multiAddresses.ToArray(), false));
-				Assert.Equal(response.RPCCode, RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY);
-				Assert.Equal(response.Message, "Consistency check failed");
+				Assert.Equal(RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY, response.RPCCode);
+				Assert.Equal("Consistency check failed", response.Message);
 				#endregion
 
 				#region Importing existing watch only address with new timestamp should replace saved timestamp.
@@ -1002,7 +1002,7 @@ namespace NBitcoin.Tests
 				exception = ex;
 			}
 			Assert.NotNull(exception);
-			Assert.True(exception.GetType().FullName.Contains("SocketException"));
+			Assert.Contains("SocketException", exception.GetType().FullName);
 
 			endpoint = Utils.ParseIpEndpoint("2001:db8:1f70::999:de8:7648:6e8", 90);
 			Assert.Equal("2001:db8:1f70:0:999:de8:7648:6e8", endpoint.Address.ToString());
@@ -1077,42 +1077,6 @@ namespace NBitcoin.Tests
 						Assert.False(true, "Should have thrown RPC_METHOD_NOT_FOUND");
 					}
 				}
-			}
-		}
-
-		//[Fact]
-		public void CanAddNodes()
-		{
-			using (var builder = NodeBuilderEx.Create())
-			{
-				var nodeA = builder.CreateNode();
-				var nodeB = builder.CreateNode();
-				builder.StartAll();
-				var rpc = nodeA.CreateRPCClient();
-				rpc.RemoveNode(nodeA.Endpoint);
-				rpc.AddNode(nodeB.Endpoint);
-
-				AddedNodeInfo[] info = null;
-				WaitAssert(() =>
-				{
-					info = rpc.GetAddedNodeInfo(true);
-					Assert.NotNull(info);
-					Assert.NotEmpty(info);
-				});
-				//For some reason this one does not pass anymore in 0.13.1
-				//Assert.Equal(nodeB.Endpoint, info.First().Addresses.First().Address);
-				var oneInfo = rpc.GetAddedNodeInfo(true, nodeB.Endpoint);
-				Assert.NotNull(oneInfo);
-				Assert.True(oneInfo.AddedNode.ToString() == nodeB.Endpoint.ToString());
-				oneInfo = rpc.GetAddedNodeInfo(true, nodeA.Endpoint);
-				Assert.Null(oneInfo);
-				rpc.RemoveNode(nodeB.Endpoint);
-
-				WaitAssert(() =>
-				{
-					info = rpc.GetAddedNodeInfo(true);
-					Assert.Equal(0, info.Count());
-				});
 			}
 		}
 

@@ -179,8 +179,8 @@ namespace NBitcoin.Tests
 			Assert.Equal(cchain.GetBlock(b5.HashBlock), chain.Tip);
 
 			Assert.Equal(cchain.SetTip(b1), b1);
-			Assert.Equal(cchain.GetBlock(b5.HashBlock), null);
-			Assert.Equal(cchain.GetBlock(b2.HashBlock), null);
+			Assert.Null(cchain.GetBlock(b5.HashBlock));
+			Assert.Null(cchain.GetBlock(b2.HashBlock));
 
 			Assert.Equal(cchain.SetTip(b5), b1);
 			Assert.Equal(cchain.GetBlock(b5.HashBlock), chain.Tip);
@@ -193,7 +193,7 @@ namespace NBitcoin.Tests
 
 			Assert.Equal(cchain.SetTip(b6b), b2);
 
-			Assert.Equal(cchain.GetBlock(b5.HashBlock), null);
+			Assert.Null(cchain.GetBlock(b5.HashBlock));
 			Assert.Equal(cchain.GetBlock(b2.HashBlock), b2);
 			Assert.Equal(cchain.GetBlock(6), b6b);
 			Assert.Equal(cchain.GetBlock(5), b5b);

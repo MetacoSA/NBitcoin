@@ -108,7 +108,7 @@ namespace NBitcoin.Tests
 				c = rpc.ListUnspent(0, 999999, k.GetAddress()).First();
 				var outPoint = c.OutPoint;
 				var utxos = client.GetUnspentOutputsAsync(new[] { outPoint }, true).Result;
-				Assert.Equal(1, utxos.Outputs.Length);
+				Assert.Single(utxos.Outputs);
 				Assert.Equal(0, (int)utxos.Outputs[0].Version);
 				Assert.Equal(Money.Coins(50m), utxos.Outputs[0].Output.Value);
 
@@ -129,9 +129,9 @@ namespace NBitcoin.Tests
 				var txId = uint256.Parse("3a3422dfd155f1d2ffc3e46cf978a9c5698c17c187f04cfa1b93358699c4ed3f");
 				var outPoint = new OutPoint(txId, 0);
 				var utxos = client.GetUnspentOutputsAsync(new[] { outPoint }, false).Result;
-				Assert.Equal(true, utxos.Bitmap[0]);
-				Assert.Equal(false, utxos.Bitmap[1]);
-				Assert.Equal(0, utxos.Outputs.Length);
+				Assert.True(utxos.Bitmap[0]);
+				Assert.False(utxos.Bitmap[1]);
+				Assert.Empty(utxos.Outputs);
 			}
 		}
 

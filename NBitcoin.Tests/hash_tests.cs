@@ -80,30 +80,30 @@ namespace NBitcoin.Tests
 		public void siphash()
 		{
 			Hashes.SipHasher hasher = new Hashes.SipHasher(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL);
-			Assert.Equal(hasher.Finalize(), 0x726fdb47dd0e0e31UL);
+			Assert.Equal(0x726fdb47dd0e0e31UL, hasher.Finalize());
 			byte[] t0 = new byte[]{ 0 };
 			hasher.Write(t0);
-			Assert.Equal(hasher.Finalize(), 0x74f839c593dc67fdUL);
+			Assert.Equal(0x74f839c593dc67fdUL, hasher.Finalize());
 			byte[] t1 = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
 			hasher.Write(t1);
-			Assert.Equal(hasher.Finalize(), 0x93f5f5799a932462UL);
+			Assert.Equal(0x93f5f5799a932462UL, hasher.Finalize());
 			hasher.Write(0x0F0E0D0C0B0A0908UL);
-			Assert.Equal(hasher.Finalize(), 0x3f2acc7f57c29bdbUL);
+			Assert.Equal(0x3f2acc7f57c29bdbUL, hasher.Finalize());
 			byte[] t2 = new byte[] { 16, 17 };
 			hasher.Write(t2);
-			Assert.Equal(hasher.Finalize(), 0x4bc1b3f0968dd39cUL);
+			Assert.Equal(0x4bc1b3f0968dd39cUL, hasher.Finalize());
 			byte[] t3 = new byte[] { 18, 19, 20, 21, 22, 23, 24, 25, 26 };
 			hasher.Write(t3);
-			Assert.Equal(hasher.Finalize(), 0x2f2e6163076bcfadUL);
+			Assert.Equal(0x2f2e6163076bcfadUL, hasher.Finalize());
 			byte[] t4 = new byte[]{ 27, 28, 29, 30, 31 };
 			hasher.Write(t4);
-			Assert.Equal(hasher.Finalize(), 0x7127512f72f27cceUL);
+			Assert.Equal(0x7127512f72f27cceUL, hasher.Finalize());
 			hasher.Write(0x2726252423222120UL);
-			Assert.Equal(hasher.Finalize(), 0x0e3ea96b5304a7d0UL);
+			Assert.Equal(0x0e3ea96b5304a7d0UL, hasher.Finalize());
 			hasher.Write(0x2F2E2D2C2B2A2928UL);
-			Assert.Equal(hasher.Finalize(), 0xe612a3cb9ecba951UL);
+			Assert.Equal(0xe612a3cb9ecba951UL, hasher.Finalize());
 
-			Assert.Equal(Hashes.SipHash(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL, new uint256("1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100")), 0x7127512f72f27cceUL);
+			Assert.Equal(0x7127512f72f27cceUL, Hashes.SipHash(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL, new uint256("1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100")));
 
 			// Check test vectors from spec, one byte at a time
 			Hashes.SipHasher hasher2 = new Hashes.SipHasher(0x0706050403020100UL, 0x0F0E0D0C0B0A0908UL);

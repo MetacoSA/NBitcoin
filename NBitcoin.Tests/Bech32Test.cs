@@ -45,7 +45,7 @@ namespace NBitcoin.Tests
 			var bech = Encoders.Bech32("bc");
 			byte wit;
 			var ex = Assert.Throws<Bech32FormatException>(() => bech.Decode("bc1zw508e6qejxtdg4y5r3zarvaryvg6kdaj", out wit));
-			Assert.Equal(1, ex.ErrorIndexes.Length);
+			Assert.Single(ex.ErrorIndexes);
 			Assert.Equal(8, ex.ErrorIndexes[0]);
 
 			ex = Assert.Throws<Bech32FormatException>(() => bech.Decode("bc1zw508e6qeextdg4y5r3zarvaryvg6kdaj", out wit));
