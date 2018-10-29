@@ -3,7 +3,6 @@ using NBitcoin.DataEncoders;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 #if !NOSOCKET
@@ -12,6 +11,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using NBitcoin.Logging;
 
 namespace NBitcoin.Protocol
 {
@@ -131,8 +132,9 @@ namespace NBitcoin.Protocol
 
 					var payloadType = PayloadAttribute.GetCommandType(Command);
 					var unknown = payloadType == typeof(UnknowPayload);
-					if(unknown)
-						NodeServerTrace.Trace.TraceEvent(TraceEventType.Warning, 0, "Unknown command received : " + Command);
+					if (unknown)
+						Logs.NodeServer.LogWarning("Unknown command received {command}", Command); 
+			
 					IBitcoinSerializable payload = null;
 					if(!stream.ConsensusFactory.TryCreateNew(payloadType, out payload))
 						payload = (IBitcoinSerializable)Activator.CreateInstance(payloadType);

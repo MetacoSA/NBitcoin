@@ -13,6 +13,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using NBitcoin.Logging;
 
 namespace NBitcoin.SPV
 {
@@ -616,7 +618,7 @@ namespace NBitcoin.SPV
 						}
 						catch(TargetInvocationException ex)
 						{
-							NodeServerTrace.Error("Error while calling Tracker callback", ex.InnerException);
+							Logs.NodeServer.LogError(default, ex.InnerException,"Error while calling Tracker callback");
 						}
 					}
 				}

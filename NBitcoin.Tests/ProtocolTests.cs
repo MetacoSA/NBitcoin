@@ -1,6 +1,7 @@
 ﻿#if !NOSOCKET
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,9 @@ using System.IO;
 using NBitcoin.DataEncoders;
 using System.Net.Sockets;
 using NBitcoin.Protocol.Behaviors;
-using System.Diagnostics;
+using NBitcoin.Logging;
+using NBitcoin.Tests.Helpers;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace NBitcoin.Tests
@@ -132,6 +135,7 @@ namespace NBitcoin.Tests
 	}
 	public class ProtocolTests
 	{
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		//Copied from https://en.bitcoin.it/wiki/Protocol_specification (19/04/2014)

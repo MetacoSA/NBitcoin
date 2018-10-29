@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using NBitcoin.Logging;
 
 namespace NBitcoin.Protocol
 {
@@ -48,7 +50,7 @@ namespace NBitcoin.Protocol
 					}
 					catch(Exception ex)
 					{
-						NodeServerTrace.Error("Unexpected expected during message loop", ex);
+						Logs.NodeServer.LogError(default,ex,"Unexpected expected during message loop");
 					}
 				});
 		}
@@ -75,7 +77,7 @@ namespace NBitcoin.Protocol
 							}
 							catch(Exception ex)
 							{
-								NodeServerTrace.Error("Unexpected expected during message loop", ex);
+								Logs.NodeServer.LogError(default,ex,"Unexpected expected during message loop");
 							}
 						}
 					}

@@ -1,12 +1,12 @@
 ﻿#if !NOSOCKET
 using NBitcoin.Protocol.Behaviors;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using NBitcoin.Logging;
 
 namespace NBitcoin.Protocol
 {
@@ -68,7 +68,8 @@ namespace NBitcoin.Protocol
 	}
 	public class NodesGroup : IDisposable
 	{
-		TraceCorrelation _Trace = new TraceCorrelation(NodeServerTrace.Trace, "Group connection");
+		IDisposable _logScope = Logs.NodeServer.BeginScope("Group connection");
+
 		NodeConnectionParameters _ConnectionParameters;
 		public NodeConnectionParameters NodeConnectionParameters
 		{
@@ -136,20 +137,17 @@ namespace NBitcoin.Protocol
 				if(Monitor.TryEnter(cs))
 				{
 					_Connecting = true;
-					TraceCorrelationScope scope = null;
 					try
 					{
-						while(!_Disconnect.IsCancellationRequested && _ConnectedNodes.Count < MaximumNodeConnection)
+						while (!_Disconnect.IsCancellationRequested && _ConnectedNodes.Count < MaximumNodeConnection)
 						{
-							scope = scope ?? _Trace.Open();
-
-							NodeServerTrace.Information("Connected nodes : " + _ConnectedNodes.Count + "/" + MaximumNodeConnection);
+							Logs.NodeServer.LogInformation("Connected nodes {connectedNodeCount} / {maximumNodeCount} ", _ConnectedNodes.Count, MaximumNodeConnection);
 							var parameters = _ConnectionParameters.Clone();
 							parameters.TemplateBehaviors.Add(new NodesGroupBehavior(this));
 							parameters.ConnectCancellation = _Disconnect.Token;
 							var addrman = AddressManagerBehavior.GetAddrman(parameters);
 
-							if(addrman == null)
+							if (addrman == null)
 							{
 								addrman = _DefaultAddressManager;
 								AddressManagerBehavior.SetAddrman(parameters, addrman);
@@ -159,27 +157,27 @@ namespace NBitcoin.Protocol
 							try
 							{
 								var groupSelector = CustomGroupSelector != null ? CustomGroupSelector :
-													AllowSameGroup ? WellKnownGroupSelectors.ByRandom : null;
+									AllowSameGroup ? WellKnownGroupSelectors.ByRandom : null;
 								node = Node.Connect(_Network, parameters, _ConnectedNodes.Select(n => n.RemoteSocketEndpoint).ToArray(), groupSelector);
-								using(var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token))
+								using (var timeout = CancellationTokenSource.CreateLinkedTokenSource(_Disconnect.Token))
 								{
 									timeout.CancelAfter(5000);
 									node.VersionHandshake(_Requirements, timeout.Token);
-									NodeServerTrace.Information("Node successfully connected to and handshaked");
+									Logs.NodeServer.LogInformation("Node successfully connected to and handshaked");
 								}
 							}
-							catch(OperationCanceledException ex)
+							catch (OperationCanceledException ex)
 							{
-								if(_Disconnect.Token.IsCancellationRequested)
+								if (_Disconnect.Token.IsCancellationRequested)
 									break;
-								NodeServerTrace.Error("Timeout for picked node", ex);
-								if(node != null)
+								Logs.NodeServer.LogError(default, ex, "Timeout for picked node");
+								if (node != null)
 									node.DisconnectAsync("Handshake timeout", ex);
 							}
-							catch(Exception ex)
+							catch (Exception ex)
 							{
-								NodeServerTrace.Error("Error while connecting to node", ex);
-								if(node != null)
+								Logs.NodeServer.LogError(default, ex, "Error while connecting to node");
+								if (node != null)
 									node.DisconnectAsync("Error while connecting", ex);
 							}
 
@@ -189,8 +187,6 @@ namespace NBitcoin.Protocol
 					{
 						Monitor.Exit(cs);
 						_Connecting = false;
-						if(scope != null)
-							scope.Dispose();
 					}
 				}
 			}, TaskCreationOptions.LongRunning);
@@ -286,6 +282,8 @@ namespace NBitcoin.Protocol
 		public void Dispose()
 		{
 			Disconnect();
+			_logScope.Dispose();
+			
 		}
 
 		#endregion
