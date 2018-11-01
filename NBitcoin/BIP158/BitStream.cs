@@ -22,8 +22,8 @@ namespace NBitcoin
 			var newBuffer = new byte[buffer.Length];
 			Buffer.BlockCopy(buffer, 0, newBuffer, 0, buffer.Length);
 			_buffer = newBuffer;
-			_writePos = 0;
 			_readPos = 0;
+			_writePos = 0;
 			_lengthInBits = buffer.Length * 8;
 		}
 
@@ -35,6 +35,7 @@ namespace NBitcoin
 				_buffer[_writePos / 8] |= (byte)(1 << ( 8 - (_writePos % 8) - 1));
 			}
 			_writePos++;
+			_lengthInBits++;
 		}
 
         public void WriteBits(ulong data, byte count)
@@ -64,7 +65,10 @@ namespace NBitcoin
 			var remainCount = (_writePos % 8);
 			var i = _writePos / 8;
 			_buffer[i] |= (byte)(b >> remainCount);
-			_writePos += (8 - remainCount);
+
+			var written = (8 - remainCount); 
+			_writePos += written;
+			_lengthInBits += written; 
 
 			if(remainCount > 0)
 			{
@@ -72,6 +76,7 @@ namespace NBitcoin
 				
 				_buffer[i+1] = (byte)(b << (8 - remainCount));
 				_writePos += remainCount;
+				_lengthInBits += remainCount;
 			}
 		}
 
@@ -156,9 +161,8 @@ namespace NBitcoin
 
 		private void EnsureCapacity()
 		{
-			if ( _writePos == _lengthInBits)
+			if ( _writePos / 8 == _buffer.Length)
 			{
-				_lengthInBits += ( 4 * 1024 ) * 8;
 				Array.Resize(ref _buffer, _buffer.Length + ( 4 * 1024 ) );
 			}
 		}
