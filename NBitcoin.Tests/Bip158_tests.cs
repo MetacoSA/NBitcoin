@@ -381,48 +381,35 @@ namespace NBitcoin.Tests
 			Assert.False(bit);
 		}
 
-/*
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void xxxxxx()
+		public void RealScriptPubKeyFilterTest()
 		{
-			var rnd = new Random();
-			var createBitStream = new Func<(BitStream bs1, BitStream bs2)>(()=> {
-				var __bs1 = new BitStream();
-				var __bs2 = new BitStream();
-				for(var i = 0; i < rnd.Next(5); i++)
-				{
-					var __val = (ulong)rnd.Next();
-					var __cnt = (byte)rnd.Next(32);
-					__bs1.WriteBits(__val, __cnt);
-					__bs2.WriteBits(__val, __cnt);
-				}
-				return (__bs1, __bs2);
-			});
-
-			foreach(var i in Enumerable.Range(0, 10))
+			var scripts = new List<Script>();
+			for(var i=0; i < 10_000; i++)
 			{
-				var (b1, b2) = createBitStream();
+				var script = new Key().PubKey.GetSegwitAddress(Network.Main).ScriptPubKey;
+				scripts.Add(script);
+			}
 
-				bool bv1 = true;
-				bool bv2 = true;
-				while(bv1 && bv2)
-				{
-					var cnt = (byte)rnd.Next(32);
-					var (c1, c2) = (b1._readPos, b2._readPos);
+			var key = Hashes.Hash256(Encoding.ASCII.GetBytes("A key for testing"));
+			var builder = new GolombRiceFilterBuilder()
+				.SetKey( key ) 
+				.SetP(0x20);
 
-					bv1 = b1.TryReadBits(cnt, out var val1);
-					bv2 = b2.TryReadBits2(cnt, out var val2);
-					if(val1 != val2 || bv1 != bv2)
-					{
-						b1._readPos = c1;
-						b2._readPos = c2;
-						bv2 = b2.TryReadBits2(cnt, out val2);
-						bv1 = b1.TryReadBits(cnt, out val1);
-					}
-				}
+			foreach(var script in scripts)
+			{
+				builder = builder.AddScriptPubkey(script);
+			}
+
+			var filter = builder.Build();
+
+			var keyMatch = key.ToBytes().SafeSubarray(0,16);
+			foreach(var script in scripts)
+			{
+				var match = filter.MatchAny( new[]{ script.ToBytes() }, keyMatch);
+				Assert.True(match);
 			}
 		}
- */
- 	}
+	}
 }
