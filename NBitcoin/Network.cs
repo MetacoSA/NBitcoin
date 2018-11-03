@@ -1482,7 +1482,7 @@ namespace NBitcoin
 			int halvings = nHeight / consensus.SubsidyHalvingInterval;
 
 			// Force block reward to zero when right shift is undefined.
-			if(halvings >= 64)
+			if (halvings >= 64)
 				return Money.Zero;
 
 			// Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.

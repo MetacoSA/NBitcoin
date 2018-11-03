@@ -184,14 +184,14 @@ namespace NBitcoin.Policy
 #endif
 			{
 				if(input.Transaction is IHasForkId)
-					scriptVerify |= NBitcoin.ScriptVerify.ForkId;
+					scriptVerify |= NBitcoin.ScriptVerify.ForkIdBCCBTG;
 				return input.VerifyScript(scriptPubKey, value, scriptVerify, out error);
 			}
 #if !NOCONSENSUSLIB
 			else
 			{
-			if(input.Transaction is IHasForkId)
-					scriptVerify |= (NBitcoin.ScriptVerify)(1U << 16);
+				if(input.Transaction is IHasForkId)
+					scriptVerify |= NBitcoin.ScriptVerify.ForkId;
 				var ok = Script.VerifyScriptConsensus(scriptPubKey, input.Transaction, input.Index, scriptVerify);
 				if(!ok)
 				{

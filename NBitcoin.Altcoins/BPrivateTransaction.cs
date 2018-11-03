@@ -1,53 +1,26 @@
-﻿using System;
+using System;
 using System.Linq;
-using System.Collections.Generic;
-using System.Text;
 using NBitcoin.Crypto;
 
 namespace NBitcoin.Altcoins
 {
-    public class ForkIdTransaction : Transaction, IHasForkId
-	{
-#pragma warning disable CS0618 // Type or member is obsolete
-		public ForkIdTransaction(uint forkId, bool supportSegwit, ConsensusFactory consensusFactory)
+  	public class BPrivateTransaction : ForkIdTransaction
+  	{
+		public BPrivateTransaction(ConsensusFactory consensusFactory) : base(42, false, consensusFactory)
 		{
-			_ForkId = forkId;
-			_SupportSegwit = supportSegwit;
-			_Factory = consensusFactory;
-		}
-#pragma warning restore CS0618 // Type or member is obsolete
-
-		ConsensusFactory _Factory;
-		public override ConsensusFactory GetConsensusFactory()
-		{
-			return _Factory;
-		}
-
-		private readonly bool _SupportSegwit;
-		public bool SupportSegwit
-		{
-			get
-			{
-				return _SupportSegwit;
-			}
-		}
-
-		private readonly uint _ForkId;
-		public uint ForkId
-		{
-			get
-			{
-				return _ForkId;
-			}
+			// BTCP is a fork of Zclassic
+			// FORKID_BTCP = 42: https://github.com/BTCPrivate/BitcoinPrivate/blob/4031ff02ec7c56bcafa085b01100cbddfcd33ea3/src/script/interpreter.h#L41
+			// No Segwit (For now)
 		}
 
 		public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
 			uint nForkHashType = (uint)nHashType;
-			if((nHashType & SigHash.ForkId) != 0)
+			if((nForkHashType & (uint)SigHash.ForkId) != 0)
 				nForkHashType |= ForkId << 8;
 
-			if((SupportSegwit && sigversion == HashVersion.Witness) || (nHashType & SigHash.ForkId) != 0)
+			/* TODO Segwit compat
+			if(false && (SupportSegwit && sigversion == HashVersion.Witness) || (nHashType & SigHash.ForkId) != 0)
 			{
 				if(amount == null)
 					throw new ArgumentException("The amount of the output being signed must be provided", "amount");
@@ -58,13 +31,13 @@ namespace NBitcoin.Altcoins
 				if((nHashType & SigHash.AnyoneCanPay) == 0)
 				{
 					hashPrevouts = precomputedTransactionData == null ?
-								   GetHashPrevouts() : precomputedTransactionData.HashPrevouts;
+									GetHashPrevouts() : precomputedTransactionData.HashPrevouts;
 				}
 
 				if((nHashType & SigHash.AnyoneCanPay) == 0 && ((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
 				{
 					hashSequence = precomputedTransactionData == null ?
-								   GetHashSequence() : precomputedTransactionData.HashSequence;
+									GetHashSequence() : precomputedTransactionData.HashSequence;
 				}
 
 				if(((uint)nHashType & 0x1f) != (uint)SigHash.Single && ((uint)nHashType & 0x1f) != (uint)SigHash.None)
@@ -101,9 +74,7 @@ namespace NBitcoin.Altcoins
 
 				return GetHash(sss);
 			}
-
-
-
+			*/
 
 			if(nIn >= Inputs.Count)
 			{
@@ -159,7 +130,6 @@ namespace NBitcoin.Altcoins
 					input.Sequence = 0;
 			}
 
-
 			if((nHashType & SigHash.AnyoneCanPay) != 0)
 			{
 				//The txCopy input vector is resized to a length of one.
@@ -170,64 +140,11 @@ namespace NBitcoin.Altcoins
 				txCopy.Inputs[0].ScriptSig = scriptCopy;
 			}
 
-
 			//Serialize TxCopy, append 4 byte hashtypecode
 			var stream = CreateHashWriter(sigversion);
 			txCopy.ReadWrite(stream);
 			stream.ReadWrite((uint)nForkHashType);
 			return GetHash(stream);
 		}
-
-		protected static uint256 GetHash(BitcoinStream stream)
-		{
-			var preimage = ((HashStream)stream.Inner).GetHash();
-			stream.Inner.Dispose();
-			return preimage;
-		}
-
-		internal override uint256 GetHashOutputs()
-		{
-			uint256 hashOutputs;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
-			foreach(var txout in Outputs)
-			{
-				ss.ReadWrite(txout);
-			}
-			hashOutputs = GetHash(ss);
-			return hashOutputs;
-		}
-
-		internal override uint256 GetHashSequence()
-		{
-			uint256 hashSequence;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
-			foreach(var input in Inputs)
-			{
-				ss.ReadWrite((uint)input.Sequence);
-			}
-			hashSequence = GetHash(ss);
-			return hashSequence;
-		}
-
-		internal override uint256 GetHashPrevouts()
-		{
-			uint256 hashPrevouts;
-			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
-			foreach(var input in Inputs)
-			{
-				ss.ReadWrite(input.PrevOut);
-			}
-			hashPrevouts = GetHash(ss);
-			return hashPrevouts;
-		}
-
-		protected static BitcoinStream CreateHashWriter(HashVersion version)
-		{
-			HashStream hs = new HashStream();
-			BitcoinStream stream = new BitcoinStream(hs, true);
-			stream.Type = SerializationType.Hash;
-			stream.TransactionOptions = version == HashVersion.Original ? TransactionOptions.None : TransactionOptions.Witness;
-			return stream;
-		}
-	}
+  	}
 }
