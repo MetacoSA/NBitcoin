@@ -71,7 +71,7 @@ namespace NBitcoin.Tests
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
 				var genesis = rpc.GetBlock(0);
-				if(builder.Network == Altcoins.Liquid.Instance.Regtest)
+				if (builder.Network == Altcoins.Liquid.Instance.Regtest)
 				{
 					Assert.Contains(genesis.Transactions.SelectMany(t => t.Outputs).OfType<ElementsTxOut>(), o => o.IsPeggedAsset == true && o.ConfidentialValue.Amount != null && o.ConfidentialValue.Amount != Money.Zero);
 				}
@@ -124,7 +124,10 @@ namespace NBitcoin.Tests
 				txbuilder.Send(new Key().ScriptPubKey, Money.Coins(0.4m));
 				txbuilder.SendFees(Money.Coins(0.001m));
 				txbuilder.SetChange(aliceAddress);
-				var signed = txbuilder.BuildTransaction(true);
+				var signed = txbuilder.BuildTransaction(false);
+				signed.Outputs.Add(txbuilder.FindSpentCoins(signed).Select(c => (Money)c.Amount).Sum() - signed.Outputs.Select(o => o.Value).Sum(), Script.Empty);
+				txbuilder.SignTransactionInPlace(signed);
+				txbuilder.Verify(signed, out var err);
 				Assert.True(txbuilder.Verify(signed));
 				rpc.SendRawTransaction(signed);
 			}
@@ -182,7 +185,7 @@ namespace NBitcoin.Tests
 					});
 					// If this fail, rpc support segwit bug you said it does not
 					Assert.Equal(rpc.Capabilities.SupportSegwit, address.ScriptPubKey.IsWitness);
-					if(rpc.Capabilities.SupportSegwit)
+					if (rpc.Capabilities.SupportSegwit)
 					{
 						rpc.SendToAddress(address, Money.Coins(1.0m));
 					}

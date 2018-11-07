@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
+using NBitcoin.Policy;
 
 namespace NBitcoin.Altcoins.Elements
 {
@@ -35,6 +36,23 @@ namespace NBitcoin.Altcoins.Elements
 		public override Transaction CreateTransaction()
 		{
 			return new ElementsTransaction<TNetwork>();
+		}
+
+		protected override TransactionBuilder CreateTransactionBuilderCore()
+		{
+			var builder = base.CreateTransactionBuilderCore();
+			builder.StandardTransactionPolicy.Strategy = new StandardElementsTransactionPolicyStrategy();
+			return builder;
+		}
+
+		class StandardElementsTransactionPolicyStrategy : StandardTransactionPolicyStrategy
+		{
+			public override bool IsStandardOutput(TxOut txout)
+			{
+				if (txout is ElementsTxOut elTxout && elTxout.IsFee)
+					return true;
+				return base.IsStandardOutput(txout);
+			}
 		}
 	}
 }

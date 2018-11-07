@@ -356,7 +356,7 @@ namespace NBitcoin.Altcoins.Elements
 				_AssetIssuance = null;
 		}
 
-		AssetIssuance _AssetIssuance = new AssetIssuance();
+		AssetIssuance _AssetIssuance;
 		public AssetIssuance AssetIssuance
 		{
 			get
@@ -488,6 +488,7 @@ namespace NBitcoin.Altcoins.Elements
 			set
 			{
 				_ConfidentialValue = value;
+				UpdateValue();
 			}
 		}
 
@@ -522,20 +523,31 @@ namespace NBitcoin.Altcoins.Elements
 		/// <summary>
 		/// Make sure TxOut.Value reflect ConfidentialValue
 		/// </summary>
-		public void UpdateValue()
+		protected void UpdateValue()
 		{
-			Value = _ConfidentialValue.Amount;
+			base.Value = _ConfidentialValue.Amount;
 		}
 
 		/// <summary>
 		/// Make sure ConfidentialValue reflects Value
 		/// </summary>
-		public void UpdateConfidentialValue()
+		private void UpdateConfidentialValue()
 		{
-			if (Value != null)
-				_ConfidentialValue = new ConfidentialValue(Value);
+			_ConfidentialValue = new ConfidentialValue(Value);
 		}
 
+		public override Money Value
+		{
+			get
+			{
+				return base.Value;
+			}
+			set
+			{
+				base.Value = value;
+				UpdateConfidentialValue();
+			}
+		}
 	}
 
 	public class ElementsTxOut<TNetwork> : ElementsTxOut

@@ -1844,6 +1844,12 @@ namespace NBitcoin.Tests
 			var tx = Transaction.Parse("0200000001010000000000000000000000000000000000000000000000000000000000000000ffffffff03520101ffffffff02016d521c38ec1ea15734ae22b7c46064412829c0d0579f0a713d1c04ede979026f01000000000000133f001976a914fc26751a5025129a2fd006c6fbfa598ddd67f7e188ac016d521c38ec1ea15734ae22b7c46064412829c0d0579f0a713d1c04ede979026f01000000000000000000266a24aa21a9ed23ecf05909c8f45525aede26cdad87f0ca9ce8777cfdc3328ab165d87953a520000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000", Altcoins.Liquid.Instance.Mainnet);
 			Assert.Equal("QLFdUboUPJnUzvsXKu83hUtrQ1DuxyggRg", tx.Outputs[0].ScriptPubKey.GetDestinationAddress(Altcoins.Liquid.Instance.Mainnet).ToString());
 			Assert.True(((ElementsTxOut)tx.Outputs[0]).IsPeggedAsset.Value);
+			Assert.Equal(Money.Coins(0.00004927m), tx.Outputs[0].Value);
+			Assert.Equal(new uint256("bee744e41cca994ec5f6ff21ffe4a578be70923e64973cba12dbd89b1cc17ff1"), tx.GetHash());
+			tx.Outputs[0].Value = Money.Coins(0.00004926m);
+			Assert.NotEqual(new uint256("bee744e41cca994ec5f6ff21ffe4a578be70923e64973cba12dbd89b1cc17ff1"), tx.GetHash());
+			tx.Outputs[0].Value = Money.Coins(0.00004927m);
+			Assert.Equal(new uint256("bee744e41cca994ec5f6ff21ffe4a578be70923e64973cba12dbd89b1cc17ff1"), tx.GetHash());
 
 			var ba = new BitcoinBlindedAddress("CTEuoJahNytfiEJ9UEGBHKsfvfceqg3fvYNC9dfdA8ECCrBzanANe5LFPuyUBJK5C2p1n1XrK5qwYvAw", Altcoins.Liquid.Instance.Regtest);
 			Assert.Equal("2dqVdTn57d4ViCv3gc3kDgCW8diFgKn9owQ", ba.UnblindedAddress.ToString());

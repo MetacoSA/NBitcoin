@@ -588,7 +588,7 @@ namespace NBitcoin
 
 		readonly static Money NullMoney = new Money(-1);
 		Money _Value = NullMoney;
-		public Money Value
+		public virtual Money Value
 		{
 			get
 			{
