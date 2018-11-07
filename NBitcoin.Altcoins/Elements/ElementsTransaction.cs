@@ -43,7 +43,7 @@ namespace NBitcoin.Altcoins.Elements
 
 		private static byte[] ToCommitment(Money amount)
 		{
-			if(amount == null)
+			if (amount == null)
 				return null;
 			var ms = new MemoryStream();
 			var stream = new BitcoinStream(ms, true);
@@ -58,7 +58,7 @@ namespace NBitcoin.Altcoins.Elements
 		{
 			get
 			{
-				if(!IsExplicit)
+				if (!IsExplicit)
 					return null;
 				var stream = new BitcoinStream(Commitment);
 				stream.BigEndianScope();
@@ -109,10 +109,10 @@ namespace NBitcoin.Altcoins.Elements
 		{
 			byte version = _Commitment.Length == 0 ? (byte)0 : _Commitment[0];
 			stream.ReadWrite(ref version);
-			if(!stream.Serializing)
+			if (!stream.Serializing)
 			{
 				var def = GetDef();
-				switch(version)
+				switch (version)
 				{
 					/* Null */
 					case 0:
@@ -127,7 +127,7 @@ namespace NBitcoin.Altcoins.Elements
 
 					default:
 						/* Confidential commitment */
-						if(version == def.PrefixA || version == def.PrefixB)
+						if (version == def.PrefixA || version == def.PrefixB)
 						{
 							_Commitment = new byte[nCommittedSize];
 							break;
@@ -141,7 +141,7 @@ namespace NBitcoin.Altcoins.Elements
 				_Commitment[0] = version;
 			}
 
-			if(_Commitment.Length > 1)
+			if (_Commitment.Length > 1)
 			{
 				stream.ReadWrite(ref _Commitment, 1, _Commitment.Length - 1);
 			}
@@ -239,18 +239,35 @@ namespace NBitcoin.Altcoins.Elements
 		}
 	}
 
-
-	public class ElementsTxIn : TxIn
+	public class ElementsTxIn<TNetwork> : ElementsTxIn
 	{
-		public ElementsTxIn(ConsensusFactory consensusFactory)
+		public ElementsTxIn()
 		{
-			if (consensusFactory == null)
-				throw new ArgumentNullException(nameof(consensusFactory));
-			ElementsConsensusFactory = consensusFactory;
+
+		}
+
+		public override ConsensusFactory GetConsensusFactory()
+		{
+			return ElementsConsensusFactory<TNetwork>.Instance;
+		}
+
+		public override TxIn Clone()
+		{
+			var txIn = (ElementsTxIn<TNetwork>)base.Clone();
+			txIn.InflationKeysRangeProof = InflationKeysRangeProof;
+			txIn.IssuanceAmountRangeProof = IssuanceAmountRangeProof;
+			txIn.AssetIssuance = AssetIssuance;
+			return txIn;
+		}
+	}
+	public abstract class ElementsTxIn : TxIn
+	{
+		public ElementsTxIn()
+		{
 		}
 		public uint256 GetIssuedAssetId()
 		{
-			if(AssetIssuance?.BlindingNonce != uint256.Zero)
+			if (AssetIssuance?.BlindingNonce != uint256.Zero)
 				return null;
 			var assetEntropy = new MerkleNode(
 				new MerkleNode(Hashes.Hash256(PrevOut.ToBytes())),
@@ -290,21 +307,21 @@ namespace NBitcoin.Altcoins.Elements
 			bool fHasAssetIssuance = false;
 			OutPoint outpoint = null;
 
-			if(stream.Serializing)
+			if (stream.Serializing)
 			{
-				if(PrevOut.IsNull)
+				if (PrevOut.IsNull)
 				{
 					fHasAssetIssuance = false;
 					outpoint = prevout.Clone();
 				}
 				else
 				{
-					if((prevout.N & ~OUTPOINT_INDEX_MASK) != 0)
+					if ((prevout.N & ~OUTPOINT_INDEX_MASK) != 0)
 						throw new FormatException("Prevout.N should not have OUTPOINT_INDEX_MASK");
 					fHasAssetIssuance = _AssetIssuance != null && !_AssetIssuance.IsNull();
 					outpoint = prevout.Clone();
 					outpoint.N = prevout.N & OUTPOINT_INDEX_MASK;
-					if(fHasAssetIssuance)
+					if (fHasAssetIssuance)
 					{
 						outpoint.N |= OUTPOINT_ISSUANCE_FLAG;
 					}
@@ -313,9 +330,9 @@ namespace NBitcoin.Altcoins.Elements
 
 			stream.ReadWrite(ref outpoint);
 
-			if(!stream.Serializing)
+			if (!stream.Serializing)
 			{
-				if(outpoint.IsNull)
+				if (outpoint.IsNull)
 				{
 					fHasAssetIssuance = false;
 					prevout = outpoint;
@@ -331,11 +348,11 @@ namespace NBitcoin.Altcoins.Elements
 			stream.ReadWrite(ref scriptSig);
 			stream.ReadWrite(ref nSequence);
 
-			if(fHasAssetIssuance)
+			if (fHasAssetIssuance)
 			{
 				stream.ReadWrite(ref _AssetIssuance);
 			}
-			else if(!stream.Serializing)
+			else if (!stream.Serializing)
 				_AssetIssuance = null;
 		}
 
@@ -364,21 +381,6 @@ namespace NBitcoin.Altcoins.Elements
 		}
 
 		public WitScript PeginWitScript { get; set; }
-
-		public ConsensusFactory ElementsConsensusFactory { get; set; }
-		public override ConsensusFactory GetConsensusFactory()
-		{
-			return ElementsConsensusFactory;
-		}
-
-		public override TxIn Clone()
-		{
-			var txIn = (ElementsTxIn)base.Clone();
-			txIn.InflationKeysRangeProof = InflationKeysRangeProof;
-			txIn.IssuanceAmountRangeProof = IssuanceAmountRangeProof;
-			txIn.AssetIssuance = AssetIssuance;
-			return txIn;
-		}
 	}
 
 	public class ConfidentialNonce : ConfidentialCommitment
@@ -390,37 +392,21 @@ namespace NBitcoin.Altcoins.Elements
 		}
 	}
 
-	public class ConfidentialAsset : ConfidentialCommitment
+	public abstract class ConfidentialAsset : ConfidentialCommitment
 	{
 		static Def _Def = new Def() { ExplicitSize = 33, PrefixA = 10, PrefixB = 11 };
 		protected override Def GetDef()
 		{
 			return _Def;
 		}
-
-		static uint256 _BTC = new uint256("6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d");
-		public ConfidentialAsset() : base(ToCommitment(_BTC))
+		public ConfidentialAsset(byte[] commitment) : base(commitment)
 		{
 
 		}
 
-		public bool? IsBTC
+		protected static byte[] ToCommitment(uint256 id)
 		{
-			get
-			{
-				if(!IsExplicit)
-					return null;
-				return AssetId == _BTC;
-			}
-		}
-		public ConfidentialAsset(uint256 id) : base(ToCommitment(id))
-		{
-
-		}
-
-		private static byte[] ToCommitment(uint256 id)
-		{
-			if(id == null)
+			if (id == null)
 				return null;
 			var ms = new MemoryStream();
 			var stream = new BitcoinStream(ms, true);
@@ -433,7 +419,7 @@ namespace NBitcoin.Altcoins.Elements
 		{
 			get
 			{
-				if(!IsExplicit)
+				if (!IsExplicit)
 					return null;
 				var stream = new BitcoinStream(Commitment);
 				stream.Inner.ReadByte();
@@ -442,9 +428,40 @@ namespace NBitcoin.Altcoins.Elements
 				return m;
 			}
 		}
+
+		public bool? IsPeggedAsset
+		{
+			get
+			{
+				if (!IsExplicit)
+					return null;
+				return IsPeggedCore();
+			}
+		}
+
+		protected abstract bool IsPeggedCore();
 	}
 
-	public class ElementsTxOut : TxOut
+	public class ConfidentialAsset<TNetwork> : ConfidentialAsset
+	{
+
+
+		public ConfidentialAsset() : base(ToCommitment(ElementsParams<TNetwork>.PeggedAssetId))
+		{
+
+		}
+		public ConfidentialAsset(uint256 id) : base(ToCommitment(id))
+		{
+
+		}
+
+		protected override bool IsPeggedCore()
+		{
+			return AssetId == ElementsParams<TNetwork>.PeggedAssetId;
+		}
+	}
+
+	public abstract class ElementsTxOut : TxOut
 	{
 		public ElementsTxOut()
 		{
@@ -455,11 +472,13 @@ namespace NBitcoin.Altcoins.Elements
 		{
 			get
 			{
-				return this.ScriptPubKey == Script.Empty && _ConfidentialValue.IsExplicit && _Asset.IsExplicit;
+				return this.ScriptPubKey == Script.Empty && _ConfidentialValue.IsExplicit && Asset.IsExplicit;
 			}
 		}
 
-		ConfidentialValue _ConfidentialValue = new ConfidentialValue();
+		public ConfidentialAsset Asset => GetAssetCore();
+
+		protected ConfidentialValue _ConfidentialValue = new ConfidentialValue();
 		public ConfidentialValue ConfidentialValue
 		{
 			get
@@ -473,7 +492,7 @@ namespace NBitcoin.Altcoins.Elements
 		}
 
 
-		ConfidentialNonce _Nonce = new ConfidentialNonce();
+		protected ConfidentialNonce _Nonce = new ConfidentialNonce();
 		public ConfidentialNonce Nonce
 		{
 			get
@@ -486,19 +505,7 @@ namespace NBitcoin.Altcoins.Elements
 			}
 		}
 
-
-		ConfidentialAsset _Asset = new ConfidentialAsset();
-		public ConfidentialAsset Asset
-		{
-			get
-			{
-				return _Asset;
-			}
-			set
-			{
-				_Asset = value;
-			}
-		}
+		protected abstract ConfidentialAsset GetAssetCore();
 
 		public byte[] SurjectionProof
 		{
@@ -510,16 +517,7 @@ namespace NBitcoin.Altcoins.Elements
 			get;
 			set;
 		}
-
-		public override void ReadWrite(BitcoinStream stream)
-		{
-			stream.ReadWrite(ref _Asset);
-			stream.ReadWrite(ref _ConfidentialValue);
-			if(!stream.Serializing)
-				UpdateValue();
-			stream.ReadWrite(ref _Nonce);
-			stream.ReadWrite(ref publicKey);
-		}
+		public bool? IsPeggedAsset => Asset.IsPeggedAsset;
 
 		/// <summary>
 		/// Make sure TxOut.Value reflect ConfidentialValue
@@ -534,27 +532,65 @@ namespace NBitcoin.Altcoins.Elements
 		/// </summary>
 		public void UpdateConfidentialValue()
 		{
-			if(Value != null)
+			if (Value != null)
 				_ConfidentialValue = new ConfidentialValue(Value);
+		}
+
+	}
+
+	public class ElementsTxOut<TNetwork> : ElementsTxOut
+	{
+		public ElementsTxOut()
+		{
+			_Asset = new ConfidentialAsset<TNetwork>();
+		}
+		ConfidentialAsset<TNetwork> _Asset;
+		public new ConfidentialAsset<TNetwork> Asset
+		{
+			get
+			{
+				return _Asset;
+			}
+			set
+			{
+				_Asset = value;
+			}
+		}
+
+		public override void ReadWrite(BitcoinStream stream)
+		{
+			stream.ReadWrite(ref _Asset);
+			stream.ReadWrite(ref _ConfidentialValue);
+			if (!stream.Serializing)
+				UpdateValue();
+			stream.ReadWrite(ref _Nonce);
+			stream.ReadWrite(ref publicKey);
 		}
 
 		public override TxOut Clone()
 		{
-			var txOut = (ElementsTxOut)base.Clone();
+			var txOut = (ElementsTxOut<TNetwork>)base.Clone();
 			txOut.SurjectionProof = SurjectionProof;
 			txOut.RangeProof = RangeProof;
 			return txOut;
 		}
+
+		protected override ConfidentialAsset GetAssetCore()
+		{
+			return Asset;
+		}
 	}
 #pragma warning disable CS0618 // Type or member is obsolete
-	public class ElementsTransaction : Transaction
+
+	public class ElementsTransaction<TNetwork> : ElementsTransaction
 	{
-		public ConsensusFactory ElementsConsensusFactory { get; set; }
 		public override ConsensusFactory GetConsensusFactory()
 		{
-			return ElementsConsensusFactory;
+			return ElementsConsensusFactory<TNetwork>.Instance;
 		}
-
+	}
+	public abstract class ElementsTransaction : Transaction
+	{
 		public Money Fee
 		{
 			get
@@ -572,14 +608,14 @@ namespace NBitcoin.Altcoins.Elements
 		{
 			get
 			{
-				return Inputs.Cast<ElementsTxIn>().Any(i => 
+				return Inputs.Cast<ElementsTxIn>().Any(i =>
 				(i.WitScript != WitScript.Empty && i.WitScript != null) ||
 				(i.InflationKeysRangeProof != null && i.InflationKeysRangeProof.Length != 0) ||
 				(i.IssuanceAmountRangeProof != null && i.IssuanceAmountRangeProof.Length != 0) ||
 				(i.PeginWitScript != WitScript.Empty && i.PeginWitScript != null))
 
 				||
-				
+
 				Outputs.Cast<ElementsTxOut>().Any(i =>
 					(i.RangeProof != null && i.RangeProof.Length != 0) ||
 					(i.SurjectionProof != null && i.SurjectionProof.Length != 0));
@@ -606,7 +642,7 @@ namespace NBitcoin.Altcoins.Elements
 				wit.ReadWrite(stream);
 			}
 
-			if(flags != 0)
+			if (flags != 0)
 				throw new FormatException("Unknown transaction optional data");
 		}
 
@@ -755,7 +791,7 @@ namespace NBitcoin.Altcoins.Elements
 
 				return GetHash(sss);
 			}
-			
+
 
 			if (nIn >= Inputs.Count)
 			{

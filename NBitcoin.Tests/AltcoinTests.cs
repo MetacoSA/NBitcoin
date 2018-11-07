@@ -70,7 +70,12 @@ namespace NBitcoin.Tests
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
-				var actual = (rpc.GetBlock(0)).GetHash();
+				var genesis = rpc.GetBlock(0);
+				if(builder.Network == Altcoins.Liquid.Instance.Regtest)
+				{
+					Assert.Contains(genesis.Transactions.SelectMany(t => t.Outputs).OfType<ElementsTxOut>(), o => o.IsPeggedAsset == true && o.ConfidentialValue.Amount != null && o.ConfidentialValue.Amount != Money.Zero);
+				}
+				var actual = genesis.GetHash();
 				var calculatedGenesis = builder.Network.GetGenesis().GetHash();
 				Assert.Equal(calculatedGenesis, actual);
 				Assert.Equal(rpc.GetBlockHash(0), calculatedGenesis);

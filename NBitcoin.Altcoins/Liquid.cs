@@ -8,61 +8,14 @@ namespace NBitcoin.Altcoins
 {
 	public class Liquid : NetworkSetBase
 	{
+		class LiquidRegtest { }
+		static Liquid()
+		{
+			ElementsParams<Liquid>.PeggedAssetId = new uint256("6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d");
+			ElementsParams<LiquidRegtest>.PeggedAssetId = new uint256("5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225");
+		}
+		public override string CryptoCode => "LBTC";
 		public static Liquid Instance { get; } = new Liquid();
-
-		public override string CryptoCode => "LIQUID";
-
-		public class ElementsStringParser : NetworkStringParser
-		{
-			public override bool TryParse<T>(string str, Network network, out T result)
-			{
-				if (typeof(BitcoinAddress).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo()))
-				{
-					try
-					{
-						result = (T)(object)new BitcoinBlindedAddress(str, network);
-						return true;
-					}
-					catch
-					{
-					}
-				}
-				return base.TryParse(str, network, out result);
-			}
-		}
-
-		public class ElementsConsensusFactory : ConsensusFactory
-		{
-			public static ElementsConsensusFactory Instance { get; } = new ElementsConsensusFactory();
-
-			public override bool TryCreateNew(Type type, out IBitcoinSerializable result)
-			{
-				if (typeof(TxIn).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
-				{
-					result = new ElementsTxIn(this);
-					return true;
-				}
-				if (typeof(TxOut).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo()))
-				{
-					result = new ElementsTxOut();
-					return true;
-				}
-				return base.TryCreateNew(type, out result);
-			}
-			public override BlockHeader CreateBlockHeader()
-			{
-				return new ElementsBlockHeader();
-			}
-			public override Block CreateBlock()
-			{
-				return new ElementsBlock(new ElementsBlockHeader(), this);
-			}
-
-			public override Transaction CreateTransaction()
-			{
-				return new ElementsTransaction() { ElementsConsensusFactory = this };
-			}
-		}
 
 		protected override NetworkBuilder CreateMainnet()
 		{
@@ -82,7 +35,7 @@ namespace NBitcoin.Altcoins
 				RuleChangeActivationThreshold = 108,
 				MinerConfirmationWindow = 144,
 				CoinbaseMaturity = 100,
-				ConsensusFactory = ElementsConsensusFactory.Instance
+				ConsensusFactory = ElementsConsensusFactory<Liquid>.Instance
 			})
 			.SetNetworkStringParser(new ElementsStringParser())
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { (57) })
@@ -125,7 +78,7 @@ namespace NBitcoin.Altcoins
 				MinerConfirmationWindow = 2016,
 				CoinbaseMaturity = 100,
 				LitecoinWorkCalculation = true,
-				ConsensusFactory = ElementsConsensusFactory.Instance
+				ConsensusFactory = ElementsConsensusFactory<LiquidRegtest>.Instance
 			})
 			.SetNetworkStringParser(new ElementsStringParser())
 			.SetBase58Bytes(Base58Type.PUBKEY_ADDRESS, new byte[] { (235) })
