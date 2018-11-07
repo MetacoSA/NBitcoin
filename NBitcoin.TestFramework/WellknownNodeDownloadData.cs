@@ -621,6 +621,29 @@ namespace NBitcoin.Tests
 				AdditionalRegtestConfig = "initialfreecoins=210000000000000"
 			};
 		}
+		public class LiquidNodeDownloadData
+		{
+			public NodeDownloadData v3_14_1_21 = new NodeDownloadData()
+			{
+				Version = "3.14.1.21",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://aois.blob.core.windows.net/public/LiquidBinaries/liquid-{0}-win64.zip",
+					Archive = "liquid-{0}-win64.zip",
+					Executable = "liquid-{0}/bin/liquidd.exe",
+					Hash = "cedab6e7d3f5b6eac4ce8cf81c480dc49599ac34a2d7ede1d15bb9547f800a8a"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Blockstream/liquid/releases/download/liquid.{0}/liquid-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "liquid-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "liquid-{0}/bin/liquidd",
+					Hash = "ea2836aa267b32b29e890acdd5e724b4be225c34891fd26426ce741c12c1e166"
+				},
+				RegtestFolderName = "liquidregtest",
+				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0"
+			};
+		}
 		public class MonoeciNodeDownloadData
 		{
 			public NodeDownloadData v0_12_2_3 = new NodeDownloadData()
@@ -805,6 +828,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new ElementsNodeDownloadData();
+
+		public static LiquidNodeDownloadData Liquid
+		{
+			get; set;
+		} = new LiquidNodeDownloadData();
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
 	}

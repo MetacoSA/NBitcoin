@@ -9,31 +9,31 @@ namespace NBitcoin.Altcoins.Elements
 {
 	public class BitcoinBlindedAddress : BitcoinAddress
 	{
-		static readonly byte[] CTVersionBytes = new byte[] { 4 };
 		public BitcoinBlindedAddress(string base58, Network network)
 			: base(base58, network)
 		{
+			var prefix = network.GetVersionBytes(Base58Type.BLINDED_ADDRESS, true);
 			var vchData = Encoders.Base58Check.DecodeData(base58);
 			var version = network.GetVersionBytes(Base58Type.PUBKEY_ADDRESS, false);
 			bool p2pkh = true;
-			if (version == null || !StartWith(CTVersionBytes.Length, vchData, version))
+			if (version == null || !StartWith(prefix.Length, vchData, version))
 			{
 				p2pkh = false;
 				version = network.GetVersionBytes(Base58Type.SCRIPT_ADDRESS, false);
-				if (version == null || !StartWith(CTVersionBytes.Length, vchData, version))
+				if (version == null || !StartWith(prefix.Length, vchData, version))
 				{
 					throw new FormatException("Invalid Bitcoin Blinded Address");
 				}
 			}
 
-			if (vchData.Length != CTVersionBytes.Length + version.Length + 33 + 20)
+			if (vchData.Length != prefix.Length + version.Length + 33 + 20)
 				throw new FormatException("Invalid Bitcoin Blinded Address");
-			var blinding = vchData.SafeSubarray(CTVersionBytes.Length + version.Length, 33);
+			var blinding = vchData.SafeSubarray(prefix.Length + version.Length, 33);
 			if (PubKey.Check(blinding, true))
 			{
 				_BlindingKey = new PubKey(blinding);
 
-				var hash = vchData.SafeSubarray(CTVersionBytes.Length + version.Length + 33, 20);
+				var hash = vchData.SafeSubarray(prefix.Length + version.Length + 33, 20);
 				_UnblindedAddress =
 					p2pkh ? (BitcoinAddress)new BitcoinPubKeyAddress(new KeyId(hash), network)
 						  : new BitcoinScriptAddress(new ScriptId(hash), network);
@@ -67,7 +67,7 @@ namespace NBitcoin.Altcoins.Elements
 			var keyId = address.ScriptPubKey.GetDestination();
 			if (keyId == null)
 				throw new ArgumentException("The passed address can't be reduced to a hash");
-			var bytes = CTVersionBytes.Concat(network.GetVersionBytes(((IBase58Data)address).Type, true), blindingKey.ToBytes(), keyId.ToBytes());
+			var bytes = address.Network.GetVersionBytes(Base58Type.BLINDED_ADDRESS, true).Concat(network.GetVersionBytes(((IBase58Data)address).Type, true), blindingKey.ToBytes(), keyId.ToBytes());
 			return Encoders.Base58Check.EncodeData(bytes);
 		}
 

@@ -26,6 +26,7 @@ namespace NBitcoin.Altcoins
 		public static Zclassic Zclassic { get; } = Zclassic.Instance;
 		public static Colossus Colossus { get; } = Colossus.Instance;
 		public static GoByte GoByte { get; } = GoByte.Instance;
+		public static Liquid Liquid { get; } = Liquid.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
@@ -47,7 +48,7 @@ namespace NBitcoin.Altcoins
 			yield return Zclassic;
 			yield return Colossus;
 			yield return GoByte;
-
+			yield return Liquid;
 		}
 	}
 }
