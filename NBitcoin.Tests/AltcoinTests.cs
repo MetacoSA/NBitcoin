@@ -125,7 +125,7 @@ namespace NBitcoin.Tests
 				txbuilder.SendFees(Money.Coins(0.001m));
 				txbuilder.SetChange(aliceAddress);
 				var signed = txbuilder.BuildTransaction(false);
-				signed.Outputs.Add(txbuilder.FindSpentCoins(signed).Select(c => (Money)c.Amount).Sum() - signed.Outputs.Select(o => o.Value).Sum(), Script.Empty);
+				//signed.Outputs.Add(txbuilder.FindSpentCoins(signed).Select(c => (Money)c.Amount).Sum() - signed.Outputs.Select(o => o.Value).Sum(), Script.Empty);
 				txbuilder.SignTransactionInPlace(signed);
 				txbuilder.Verify(signed, out var err);
 				Assert.True(txbuilder.Verify(signed));
