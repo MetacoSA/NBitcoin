@@ -398,7 +398,7 @@ namespace NBitcoin.Altcoins.Elements
 			return _Def;
 		}
 
-		static uint256 _BTC = new uint256("09f663de96be771f50cab5ded00256ffe63773e2eaa9a604092951cc3d7c6621");
+		static uint256 _BTC = new uint256("6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d");
 		public ConfidentialAsset() : base(ToCommitment(_BTC))
 		{
 
