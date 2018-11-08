@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Text;
@@ -40,11 +41,37 @@ namespace NBitcoin.Altcoins.Elements
 
 		protected override TransactionBuilder CreateTransactionBuilderCore()
 		{
-			var builder = base.CreateTransactionBuilderCore();
+			var builder = new ElementsTransactionBuilder();
 			builder.StandardTransactionPolicy.Strategy = new StandardElementsTransactionPolicyStrategy();
 			return builder;
 		}
-
+#pragma warning disable CS0618 // Type or member is obsolete
+		class ElementsTransactionBuilder : TransactionBuilder
+		{
+			protected override void AfterBuild(Transaction transaction)
+			{
+				if (transaction.Outputs.OfType<ElementsTxOut>().All(o => !o.IsFee))
+				{
+					var totalInput =
+						this.FindSpentCoins(transaction)
+						.Select(c => c.TxOut)
+						.OfType<ElementsTxOut>()
+						.Where(o => o.IsPeggedAsset == true)
+						.Select(c => c.Value)
+						.OfType<Money>()
+						.Sum();
+					var totalOutput =
+						transaction.Outputs.OfType<ElementsTxOut>()
+						.Where(o => o.IsPeggedAsset == true)
+						.Select(o => o.Value)
+						.Sum();
+					var fee = totalInput - totalOutput;
+					if(fee > Money.Zero)
+						transaction.Outputs.Add(fee, Script.Empty);
+				}
+			}
+		}
+#pragma warning restore CS0618 // Type or member is obsolete
 		class StandardElementsTransactionPolicyStrategy : StandardTransactionPolicyStrategy
 		{
 			public override bool IsStandardOutput(TxOut txout)

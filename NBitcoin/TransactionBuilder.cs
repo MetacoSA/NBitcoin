@@ -1275,7 +1275,12 @@ namespace NBitcoin
 					ctx.Transaction.Outputs.AddRange(collapsedOutputs);
 				}
 			}
+			AfterBuild(ctx.Transaction);
 			return selection;
+		}
+
+		protected virtual void AfterBuild(Transaction transaction)
+		{
 		}
 
 		public Transaction SignTransaction(Transaction transaction, SigHash sigHash)

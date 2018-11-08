@@ -2236,7 +2236,7 @@ namespace NBitcoin
 			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
 			foreach (var txout in Outputs)
 			{
-				ss.ReadWrite(txout);
+				txout.ReadWrite(ss);
 			}
 			hashOutputs = GetHash(ss);
 			return hashOutputs;
