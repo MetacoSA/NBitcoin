@@ -413,11 +413,11 @@ namespace NBitcoin.Tests
 
 			var bitcoinBinFolderPath = Path.GetDirectoryName("TestData");
 			bitcoinPath = bitcoinPath.Substring(0, bitcoinPath.LastIndexOf('/'));
-			Directory.CreateDirectory("lib");
-			var libConsensusPath = Path.Combine(bitcoinPath, "../lib", libConsensusDll);
+			bitcoinPath = bitcoinPath.Replace("/bin", "/lib");
+			var libConsensusPath = Path.Combine(bitcoinPath, libConsensusDll);
 
 
-			File.Copy(libConsensusPath, "./", overwrite:false);
+			File.Copy(libConsensusPath, "./", overwrite:true);
 #endif
 		}
 

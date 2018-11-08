@@ -905,11 +905,11 @@ namespace NBitcoin
 		/// the additional constraints specified by flags.
 		/// If not NULL, err will contain an error/success code for the operation
 		[DefaultDllImportSearchPathsAttribute(DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.AssemblyDirectory)]
-		[DllImport("libbitcoinconsensus", EntryPoint = "bitcoinconsensus_verify_script", CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("./libbitcoinconsensus", EntryPoint = "bitcoinconsensus_verify_script", CallingConvention = CallingConvention.Cdecl)]
 		private static extern int VerifyScriptConsensus(byte[] scriptPubKey, uint scriptPubKeyLen, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
 
 		[DefaultDllImportSearchPathsAttribute(DllImportSearchPath.ApplicationDirectory | DllImportSearchPath.AssemblyDirectory)]
-		[DllImport("libbitcoinconsensus", EntryPoint = "bitcoinconsensus_verify_script_with_amount", CallingConvention = CallingConvention.Cdecl)]
+		[DllImport("./libbitcoinconsensus", EntryPoint = "bitcoinconsensus_verify_script_with_amount", CallingConvention = CallingConvention.Cdecl)]
 		static extern int VerifyScriptConsensusWithAmount(byte[] scriptPubKey, uint scriptPubKeyLen, long amount, byte[] txTo, uint txToLen, uint nIn, ScriptVerify flags, ref BitcoinConsensusError err);
 
 		public static bool VerifyScriptConsensus(Script scriptPubKey, Transaction tx, uint nIn, ScriptVerify flags)
