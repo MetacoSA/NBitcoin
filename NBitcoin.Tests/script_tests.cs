@@ -417,7 +417,7 @@ namespace NBitcoin.Tests
 			var libConsensusPath = Path.Combine(bitcoinPath, libConsensusDll);
 
 
-			File.Copy(libConsensusPath, "./", overwrite:true);
+			File.Copy(libConsensusPath, "./libbitcoinconsensus", overwrite:true);
 #endif
 		}
 
