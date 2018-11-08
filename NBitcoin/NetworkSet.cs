@@ -144,6 +144,7 @@ namespace NBitcoin
 				get; set;
 			} = "testnet3";
 			public string RegtestFolder { get; set; } = "regtest";
+			public string MainnetFolder { get; set; }
 		}
 
 		protected void RegisterDefaultCookiePath(string folderName, FolderName folder = null)
@@ -161,7 +162,8 @@ namespace NBitcoin
 
 				if (Mainnet != null)
 				{
-					var mainnet = Path.Combine(bitcoinFolder, ".cookie");
+					var mainnet = folder.MainnetFolder == null ? Path.Combine(bitcoinFolder, ".cookie")
+						                                       : Path.Combine(bitcoinFolder, folder.MainnetFolder, ".cookie"); ;
 					RPCClient.RegisterDefaultCookiePath(Mainnet, mainnet);
 				}
 
@@ -182,7 +184,8 @@ namespace NBitcoin
 				var bitcoinFolder = Path.Combine(localAppData, char.ToUpperInvariant(folderName[0]) + folderName.Substring(1));
 				if (Mainnet != null)
 				{
-					var mainnet = Path.Combine(bitcoinFolder, ".cookie");
+					var mainnet = folder.MainnetFolder == null ? Path.Combine(bitcoinFolder, ".cookie")
+															   : Path.Combine(bitcoinFolder, folder.MainnetFolder, ".cookie");
 					RPCClient.RegisterDefaultCookiePath(Mainnet, mainnet);
 				}
 
@@ -200,27 +203,6 @@ namespace NBitcoin
 			}
 		}
 
-		public static void RegisterDefaultCookiePath(Network network, params string[] subfolders)
-		{
-			var home = Environment.GetEnvironmentVariable("HOME");
-			var localAppData = Environment.GetEnvironmentVariable("APPDATA");
-			if(!string.IsNullOrEmpty(home) && string.IsNullOrEmpty(localAppData))
-			{
-				var pathList = new List<string> { home, ".dash" };
-				pathList.AddRange(subfolders);
-
-				var fullPath = Path.Combine(pathList.ToArray());
-				RPCClient.RegisterDefaultCookiePath(network, fullPath);
-			}
-			else if(!string.IsNullOrEmpty(localAppData))
-			{
-				var pathList = new List<string> { localAppData, "Dash" };
-				pathList.AddRange(subfolders);
-
-				var fullPath = Path.Combine(pathList.ToArray());
-				RPCClient.RegisterDefaultCookiePath(network, fullPath);
-			}
-		}
 #else
 		public static void RegisterDefaultCookiePath(Network network, params string[] subfolders) {}
 		protected void RegisterDefaultCookiePath(string folderName) {}

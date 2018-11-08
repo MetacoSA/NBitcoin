@@ -349,7 +349,9 @@ namespace NBitcoin.RPC
 			}
 			try
 			{
-				await rpc.SendToAddressAsync(address, Money.Coins(-1.0m));
+				var result = await rpc.SendCommandAsync("validateaddress", new[] { address.ToString() });
+				result.ThrowIfError();
+				setResult(result.Result["isvalid"].Value<bool>());
 			}
 			catch (RPCException ex)
 			{

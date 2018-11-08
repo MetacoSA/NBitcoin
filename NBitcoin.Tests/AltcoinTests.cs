@@ -20,6 +20,8 @@ namespace NBitcoin.Tests
 			HashSet<string> coins = new HashSet<string>();
 			foreach (var network in NBitcoin.Altcoins.AltNetworkSets.GetAll().ToList())
 			{
+				if (network == Altcoins.AltNetworkSets.Liquid) // No testnet
+					continue;
 				Assert.True(coins.Add(network.CryptoCode.ToLowerInvariant()));
 				Assert.NotEqual(network.Mainnet, network.Regtest);
 				Assert.NotEqual(network.Regtest, network.Testnet);
@@ -68,7 +70,12 @@ namespace NBitcoin.Tests
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
-				var actual = (rpc.GetBlock(0)).GetHash();
+				var genesis = rpc.GetBlock(0);
+				if (builder.Network == Altcoins.Liquid.Instance.Regtest)
+				{
+					Assert.Contains(genesis.Transactions.SelectMany(t => t.Outputs).OfType<ElementsTxOut>(), o => o.IsPeggedAsset == true && o.ConfidentialValue.Amount != null && o.ConfidentialValue.Amount != Money.Zero);
+				}
+				var actual = genesis.GetHash();
 				var calculatedGenesis = builder.Network.GetGenesis().GetHash();
 				Assert.Equal(calculatedGenesis, actual);
 				Assert.Equal(rpc.GetBlockHash(0), calculatedGenesis);
@@ -117,7 +124,9 @@ namespace NBitcoin.Tests
 				txbuilder.Send(new Key().ScriptPubKey, Money.Coins(0.4m));
 				txbuilder.SendFees(Money.Coins(0.001m));
 				txbuilder.SetChange(aliceAddress);
-				var signed = txbuilder.BuildTransaction(true);
+				var signed = txbuilder.BuildTransaction(false);
+				txbuilder.SignTransactionInPlace(signed);
+				txbuilder.Verify(signed, out var err);
 				Assert.True(txbuilder.Verify(signed));
 				rpc.SendRawTransaction(signed);
 			}
@@ -175,7 +184,7 @@ namespace NBitcoin.Tests
 					});
 					// If this fail, rpc support segwit bug you said it does not
 					Assert.Equal(rpc.Capabilities.SupportSegwit, address.ScriptPubKey.IsWitness);
-					if(rpc.Capabilities.SupportSegwit)
+					if (rpc.Capabilities.SupportSegwit)
 					{
 						rpc.SendToAddress(address, Money.Coins(1.0m));
 					}

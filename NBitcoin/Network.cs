@@ -72,6 +72,7 @@ namespace NBitcoin
 		STEALTH_ADDRESS,
 		ASSET_ID,
 		COLORED_ADDRESS,
+		BLINDED_ADDRESS,
 		MAX_BASE58_TYPES,
 	};
 
@@ -83,7 +84,7 @@ namespace NBitcoin
 
 	public partial class Network
 	{
-		internal byte[][] base58Prefixes = new byte[12][];
+		internal byte[][] base58Prefixes = new byte[13][];
 		internal Bech32Encoder[] bech32Encoders = new Bech32Encoder[2];
 
 		public uint MaxP2PVersion

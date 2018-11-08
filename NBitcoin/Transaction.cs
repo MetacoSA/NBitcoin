@@ -588,7 +588,7 @@ namespace NBitcoin
 
 		readonly static Money NullMoney = new Money(-1);
 		Money _Value = NullMoney;
-		public Money Value
+		public virtual Money Value
 		{
 			get
 			{
@@ -2129,16 +2129,16 @@ namespace NBitcoin
 
 				return GetHash(sss);
 			}
-			
+
+			bool fAnyoneCanPay = (nHashType & SigHash.AnyoneCanPay) != 0;
+			bool fHashSingle = ((byte)nHashType & 0x1f) == (byte)SigHash.Single;
+			bool fHashNone = ((byte)nHashType & 0x1f) == (byte)SigHash.None;
+
 			if (nIn >= Inputs.Count)
 			{
 				return uint256.One;
 			}
-
-			var hashType = nHashType & (SigHash)31;
-
-			// Check for invalid use of SIGHASH_SINGLE
-			if (hashType == SigHash.Single)
+			if (fHashSingle)
 			{
 				if (nIn >= Outputs.Count)
 				{
@@ -2146,61 +2146,76 @@ namespace NBitcoin
 				}
 			}
 
-			var scriptCopy = new Script(scriptCode._Script);
-			scriptCopy = scriptCopy.FindAndDelete(OpcodeType.OP_CODESEPARATOR);
-
-			var txCopy = GetConsensusFactory().CreateTransaction();
-			txCopy.FromBytes(this.ToBytes());
-			//Set all TxIn script to empty string
-			foreach (var txin in txCopy.Inputs)
-			{
-				txin.ScriptSig = new Script();
-			}
-			//Copy subscript into the txin script you are checking
-			txCopy.Inputs[nIn].ScriptSig = scriptCopy;
-
-			if (hashType == SigHash.None)
-			{
-				//The output of txCopy is set to a vector of zero size.
-				txCopy.Outputs.Clear();
-
-				//All other inputs aside from the current input in txCopy have their nSequence index set to zero
-				foreach (var input in txCopy.Inputs.Where((x, i) => i != nIn))
-					input.Sequence = 0;
-			}
-			else if (hashType == SigHash.Single)
-			{
-				//The output of txCopy is resized to the size of the current input index+1.
-				txCopy.Outputs.RemoveRange(nIn + 1, txCopy.Outputs.Count - (nIn + 1));
-				//All other txCopy outputs aside from the output that is the same as the current input index are set to a blank script and a value of (long) -1.
-				for (var i = 0; i < txCopy.Outputs.Count; i++)
-				{
-					if (i == nIn)
-						continue;
-					txCopy.Outputs[i] = txCopy.Outputs.CreateNewTxOut();
-				}
-				//All other txCopy inputs aside from the current input are set to have an nSequence index of zero.
-				foreach (var input in txCopy.Inputs.Where((x, i) => i != nIn))
-					input.Sequence = 0;
-			}
-
-
-			if ((nHashType & SigHash.AnyoneCanPay) != 0)
-			{
-				//The txCopy input vector is resized to a length of one.
-				var script = txCopy.Inputs[nIn];
-				txCopy.Inputs.Clear();
-				txCopy.Inputs.Add(script);
-				//The subScript (lead in by its length as a var-integer encoded!) is set as the first and only member of this vector.
-				txCopy.Inputs[0].ScriptSig = scriptCopy;
-			}
-
-
-			//Serialize TxCopy, append 4 byte hashtypecode
 			var stream = CreateHashWriter(sigversion);
-			txCopy.ReadWrite(stream);
+			stream.ReadWrite(Version);
+			uint nInputs = (uint)(fAnyoneCanPay ? 1 : Inputs.Count);
+			stream.ReadWriteAsVarInt(ref nInputs);
+			for (int nInput = 0; nInput < nInputs; nInput++)
+			{
+				if (fAnyoneCanPay)
+					nInput = nIn;
+				stream.ReadWrite(Inputs[nInput].PrevOut);
+				if (nInput != nIn)
+				{
+					stream.ReadWrite(Script.Empty);
+				}
+				else
+				{
+					WriteScriptCode(stream, scriptCode);
+				}
+
+				if (nInput != nIn && (fHashSingle || fHashNone))
+					stream.ReadWrite((uint)0);
+				else
+					stream.ReadWrite((uint)Inputs[nInput].Sequence);
+			}
+
+			uint nOutputs = (uint)(fHashNone ? 0 : (fHashSingle ? nIn + 1 : Outputs.Count));
+			stream.ReadWriteAsVarInt(ref nOutputs);
+			for (int nOutput = 0; nOutput < nOutputs; nOutput++)
+			{
+				if (fHashSingle && nOutput != nIn)
+				{
+					this.Outputs.CreateNewTxOut().ReadWrite(stream);
+				}
+				else
+				{
+					Outputs[nOutput].ReadWrite(stream);
+				}
+			}
+
+			stream.ReadWriteStruct(LockTime);
 			stream.ReadWrite((uint)nHashType);
 			return GetHash(stream);
+		}
+
+		private static void WriteScriptCode(BitcoinStream stream, Script scriptCode)
+		{
+			int nCodeSeparators = 0;
+			var reader = scriptCode.CreateReader();
+			OpcodeType opcode;
+			while (reader.TryReadOpCode(out opcode))
+			{
+				if (opcode == OpcodeType.OP_CODESEPARATOR)
+					nCodeSeparators++;
+			}
+
+			uint n = (uint)(scriptCode.Length - nCodeSeparators);
+			stream.ReadWriteAsVarInt(ref n);
+
+			reader = scriptCode.CreateReader();
+			int itBegin = 0;
+			while (reader.TryReadOpCode(out opcode))
+			{
+				if (opcode == OpcodeType.OP_CODESEPARATOR)
+				{
+					stream.Inner.Write(scriptCode.ToBytes(true), itBegin, (int)(reader.Inner.Position - itBegin - 1));
+					itBegin = (int)reader.Inner.Position;
+				}
+			}
+
+			if (itBegin != scriptCode.Length)
+				stream.Inner.Write(scriptCode.ToBytes(true), itBegin, (int)(reader.Inner.Position - itBegin));
 		}
 
 		public uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, Money amount = null, HashVersion sigversion = HashVersion.Original)
@@ -2221,7 +2236,7 @@ namespace NBitcoin
 			BitcoinStream ss = CreateHashWriter(HashVersion.Witness);
 			foreach (var txout in Outputs)
 			{
-				ss.ReadWrite(txout);
+				txout.ReadWrite(ss);
 			}
 			hashOutputs = GetHash(ss);
 			return hashOutputs;

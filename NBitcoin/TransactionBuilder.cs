@@ -1185,6 +1185,7 @@ namespace NBitcoin
 			IEnumerable<ICoin> coins,
 			IMoney zero)
 		{
+			retry:
 			var hasColoredCoins = _BuilderGroups.Any(g => g.BuildersByAsset.Count != 0 || g.IssuanceBuilders.Count != 0);
 			var originalCtx = ctx.CreateMemento();
 			var fees = _TotalFee + ctx.AdditionalFees;
@@ -1246,17 +1247,11 @@ namespace NBitcoin
 				{
 					ctx.RestoreMemento(originalCtx);
 					ctx.ChangeAmount = change;
-					try
-					{
-						return BuildTransaction(ctx, group, builders, coins, zero);
-					}
-					finally
-					{
-						ctx.ChangeAmount = zero;
-					}
+					goto retry;
 				}
 			}
-			foreach(var coin in selection)
+			ctx.ChangeAmount = zero;
+			foreach (var coin in selection)
 			{
 				ctx.ConsumedCoins.Add(coin);
 				var input = ctx.Transaction.Inputs.FirstOrDefault(i => i.PrevOut == coin.Outpoint);
@@ -1280,7 +1275,12 @@ namespace NBitcoin
 					ctx.Transaction.Outputs.AddRange(collapsedOutputs);
 				}
 			}
+			AfterBuild(ctx.Transaction);
 			return selection;
+		}
+
+		protected virtual void AfterBuild(Transaction transaction)
+		{
 		}
 
 		public Transaction SignTransaction(Transaction transaction, SigHash sigHash)

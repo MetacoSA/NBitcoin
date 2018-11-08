@@ -119,8 +119,7 @@ namespace NBitcoin.Policy
 			{
 				foreach(var txout in transaction.Outputs.AsCoins())
 				{
-					var template = StandardScripts.GetTemplateFromScriptPubKey(txout.ScriptPubKey);
-					if(template == null)
+					if(!Strategy.IsStandardOutput(txout.TxOut))
 						errors.Add(new OutputPolicyError("Non-Standard scriptPubKey", (int)txout.Outpoint.N));
 				}
 			}
@@ -210,6 +209,8 @@ namespace NBitcoin.Policy
 
 		#endregion
 
+		public StandardTransactionPolicyStrategy Strategy { get; set; } = StandardTransactionPolicyStrategy.Instance;
+
 		public StandardTransactionPolicy Clone()
 		{
 			return new StandardTransactionPolicy()
@@ -223,7 +224,8 @@ namespace NBitcoin.Policy
 #endif
 				CheckMalleabilitySafe = CheckMalleabilitySafe,
 				CheckScriptPubKey = CheckScriptPubKey,
-				CheckFee = CheckFee
+				CheckFee = CheckFee,
+				Strategy = Strategy
 			};
 		}
 
@@ -234,6 +236,16 @@ namespace NBitcoin.Policy
 		{
 			get;
 			set;
+		}
+	}
+
+	public class StandardTransactionPolicyStrategy
+	{
+        public static StandardTransactionPolicyStrategy Instance { get; } = new StandardTransactionPolicyStrategy();
+
+		public virtual bool IsStandardOutput(TxOut txout)
+		{
+			return StandardScripts.GetTemplateFromScriptPubKey(txout.ScriptPubKey) != null;
 		}
 	}
 }
