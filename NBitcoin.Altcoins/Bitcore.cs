@@ -82,10 +82,7 @@ namespace NBitcoin.Altcoins
 
 		protected override void PostInit()
 		{
-			//RegisterDefaultCookiePath("Bitcore", new FolderName() { TestnetFolder = "testnet3" });
-			RegisterDefaultCookiePath(Mainnet, ".cookie");
-                        RegisterDefaultCookiePath(Testnet, "testnet3", ".cookie");
-                        RegisterDefaultCookiePath(Regtest, "regtest", ".cookie");
+			RegisterDefaultCookiePath("Bitcore");
 		}
 
 		protected override NetworkBuilder CreateMainnet()

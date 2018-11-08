@@ -75,9 +75,7 @@ namespace NBitcoin.Altcoins
 
 		protected override void PostInit()
 		{
-			RegisterDefaultCookiePath(Mainnet, ".cookie");
-			RegisterDefaultCookiePath(Testnet, "testnet3", ".cookie");
-			RegisterDefaultCookiePath(Regtest, "regtest", ".cookie");
+			RegisterDefaultCookiePath("MonoeciCore");
 		}
 
 

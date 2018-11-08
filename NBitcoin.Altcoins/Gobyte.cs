@@ -62,9 +62,7 @@ using System.Threading.Tasks;
 #pragma warning restore CS0618 // Type or member is obsolete
  		protected override void PostInit()
 		{
-			RegisterDefaultCookiePath(Mainnet, ".cookie");
-			RegisterDefaultCookiePath(Testnet, "testnet3", ".cookie");
-			RegisterDefaultCookiePath(Regtest, "regtest", ".cookie");
+			RegisterDefaultCookiePath("GoByteCore");
 		}
  		static uint256 GetPoWHash(BlockHeader header)
 		{
