@@ -214,11 +214,6 @@ namespace NBitcoin.Tests
 			get;
 			set;
 		} = Network.RegTest;
-		public bool SupportCookieFile
-		{
-			get;
-			set;
-		} = true;
 		public NodeDownloadData NodeImplementation { get; private set; }
 
 		public CoreNode CreateNode(bool start = false)
@@ -341,7 +336,7 @@ namespace NBitcoin.Tests
 					throw new InvalidOperationException("You seem to have a running node from a previous test, please kill the process and restart the test.");
 			}
 
-			CookieAuth = builder.SupportCookieFile;
+			CookieAuth = NodeImplementation.SupportCookieFile;
 			Directory.CreateDirectory(folder);
 			Directory.CreateDirectory(dataDir);
 			FindPorts(ports);

@@ -6,6 +6,8 @@ namespace NBitcoin.Tests
 {
 	public partial class NodeDownloadData
 	{
+		public bool SupportCookieFile { get; set; } = true;
+
 		public class BitcoinNodeDownloadData
 		{
 			public NodeDownloadData v0_13_1 = new NodeDownloadData()
@@ -280,7 +282,8 @@ namespace NBitcoin.Tests
 					Archive = "dogecoin-{0}-osx64.tar.gz",
 					Executable = "dogecoin-{0}/bin/dogecoind",
 					Hash = "be854af97efecf30ee18ed846a3bf3a780a0eb0e459a49377d7a8261c212b322"
-				}
+				},
+				SupportCookieFile = false
 			};
 		}
 
