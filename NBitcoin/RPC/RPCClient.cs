@@ -1425,7 +1425,7 @@ namespace NBitcoin.RPC
 		{
 			List<object> args = new List<object>(3);
 			args.Add(txid);
-			args.Add(false);
+			args.Add(0);
 			if (blockId != null)
 				args.Add(blockId);
 			var response = await SendCommandAsync(new RPCRequest(RPCOperations.getrawtransaction, args.ToArray()), throwIfNotFound).ConfigureAwait(false);
