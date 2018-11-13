@@ -1,0 +1,28 @@
+using System;
+using FsCheck;
+using FsCheck.Xunit;
+using NBitcoin.Crypto;
+using NBitcoin.Tests.Generators;
+using Xunit;
+
+namespace NBitcoin.Tests.PropertyTest
+{
+  public class SegwitTransactionTest
+  {
+    public SegwitTransactionTest()
+    {
+      Arb.Register<SegwitTransactionGenerators>();
+    }
+
+    [Property(MaxTest = 10)]
+    [Trait("PropertyTest", "BidirectionalConversion")]
+    [Trait("PropertyTest", "Commutativity")]
+    public void WitnessTxIdProp(Tuple<Transaction, Network> testcase)
+    {
+      var tx = testcase.Item1;
+      Assert.Equal(tx.GetWitHash(), Hashes.Hash256(tx.ToBytes()));
+
+      Assert.NotEqual(tx.GetHash(), tx.GetWitHash());
+    }
+  }
+}
