@@ -42,11 +42,11 @@ namespace NBitcoin.Tests
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Dystem.v1_0_9_9, Altcoins.Dystem.Instance.Regtest, caller);
 
-			//var builder = NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_17_0, Altcoins.AltNetworkSets.Bitcoin.Regtest, caller);
+			var builder = NodeBuilder.Create(NodeDownloadData.Bitcoin.v0_17_0, Altcoins.AltNetworkSets.Bitcoin.Regtest, caller);
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Bitcore.v0_15_1, Altcoins.Bitcore.Instance.Regtest, caller);
 
-			var builder = NodeBuilder.Create(NodeDownloadData.Chaincoin.v0_16_1, Altcoins.Chaincoin.Instance.Regtest, caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Chaincoin.v0_16_1, Altcoins.Chaincoin.Instance.Regtest, caller);
 
 			return builder;
 		}
