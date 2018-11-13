@@ -186,7 +186,12 @@ namespace NBitcoin.Tests
 					Assert.Equal(rpc.Capabilities.SupportSegwit, address.ScriptPubKey.IsWitness);
 					if (rpc.Capabilities.SupportSegwit)
 					{
+						Assert.True(builder.Network.Consensus.SupportSegwit, "The node RPC support segwit, but Network.Consensus.SupportSegwit is set to false");
 						rpc.SendToAddress(address, Money.Coins(1.0m));
+					}
+					else
+					{
+						Assert.False(builder.Network.Consensus.SupportSegwit, "The node RPC does not support segwit, but Network.Consensus.SupportSegwit is set to true (This error can be normal if you are using a old node version)");
 					}
 				}
 				catch (RPCException) when (!rpc.Capabilities.SupportSegwit)
