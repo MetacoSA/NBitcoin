@@ -18,25 +18,25 @@ namespace NBitcoin.Tests.Generators
       return Arb.From(result);
     }
 
-    public static Gen<OutPoint> outPoint() => from txid in CryptoGenerator.hash256()
+    public static Gen<OutPoint> OutPoint() => from txid in CryptoGenerator.Hash256()
                                               from vout in Gen.Choose(0, Int32.MaxValue)
                                               select new OutPoint(txid, vout);
 
-    public static Gen<TxIn> input() => from prevout in outPoint()
-                                       from ss in ScriptGenerator.scriptSig()
-                                       from nSequence in PrimitiveGenerator.uint32()
+    public static Gen<TxIn> Input() => from prevout in OutPoint()
+                                       from ss in ScriptGenerator.ScriptSig()
+                                       from nSequence in PrimitiveGenerator.UInt32()
                                        select new TxIn(prevout, ss) { Sequence = nSequence };
 
-    public static Gen<List<TxIn>> nonEmptyInputs() => from txins in Gen.NonEmptyListOf(input())
+    public static Gen<List<TxIn>> NonEmptyInputs() => from txins in Gen.NonEmptyListOf(Input())
                                                      select txins.ToList();
 
-    public static Gen<TxOut> output() =>
+    public static Gen<TxOut> Output() =>
       from m in MoneyGenerator.Money()
-      from spk in ScriptGenerator.legacyScriptPubKey()
+      from spk in ScriptGenerator.LegacyScriptPubKey()
       select new TxOut(m, spk);
 
-    public static Gen<List<TxOut>> nonEmptyOutputs() =>
-      from txouts in Gen.NonEmptyListOf(output())
+    public static Gen<List<TxOut>> NonEmptyOutputs() =>
+      from txouts in Gen.NonEmptyListOf(Output())
       select txouts.ToList();
 
     public static Gen<Transaction> TX() =>
@@ -46,13 +46,13 @@ namespace NBitcoin.Tests.Generators
 
     public static Gen<Transaction> TX(Network network) =>
       from version in Gen.Choose(0, Int32.MaxValue)
-      from txin in nonEmptyInputs()
-      from txout in nonEmptyOutputs()
-      from locktime in PrimitiveGenerator.uint32()
-      select CompoundTx(Transaction.Create(network), txin, txout, locktime);
+      from txin in NonEmptyInputs()
+      from txout in NonEmptyOutputs()
+      from locktime in PrimitiveGenerator.UInt32()
+      select ComposeTx(Transaction.Create(network), txin, txout, locktime);
 
     // We need this since Tranaction is mutable.
-    public static Transaction CompoundTx(Transaction tx, List<TxIn> inputs, List<TxOut> outputs, uint locktime)
+    public static Transaction ComposeTx(Transaction tx, List<TxIn> inputs, List<TxOut> outputs, uint locktime)
     {
       tx.Inputs.AddRange(inputs);
       tx.Outputs.AddRange(outputs);

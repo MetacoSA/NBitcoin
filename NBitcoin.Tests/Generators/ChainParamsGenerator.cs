@@ -16,7 +16,7 @@ namespace NBitcoin.Tests.Generators
           Gen.Constant(Network.RegTest)
       });
 
-    public static Gen<NetworkType> NetworkTypeGen =>
+    public static Gen<NetworkType> NetworkType =>
       NetworkGen().Select(n => n.NetworkType);
   }
 }

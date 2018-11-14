@@ -13,67 +13,68 @@ namespace NBitcoin.Tests.Generators
     #region PrivateKey
     public static Arbitrary<Key> KeysArb()
     {
-      return Arb.From(privateKey());
+      return Arb.From(PrivateKey());
     }
 
     public static Arbitrary<List<Key>> KeysListArb()
     {
-      return Arb.From(privateKeys(15));
+      return Arb.From(PrivateKeys(15));
     }
 
-    public static Gen<Key> privateKey() => Gen.Fresh(() => new Key());
+    public static Gen<Key> PrivateKey() => Gen.Fresh(() => new Key());
 
-    public static Gen<List<Key>> privateKeys(int n) => Gen.ListOf<Key>(n, privateKey()).Select(pk => pk.ToList());
+    public static Gen<List<Key>> PrivateKeys(int n) =>
+      Gen.ListOf<Key>(n, PrivateKey()).Select(pk => pk.ToList());
 
-    public static Gen<Tuple<List<Key>, int>> privateKeysWithRequiredSigs(int n)
+    public static Gen<Tuple<List<Key>, int>> PrivateKeysWithRequiredSigs(int n)
     {
       if (n <= 0)
         return Gen.Constant(Tuple.Create<List<Key>, int>(new List<Key> { null, null }, 0));
       else
       {
-        var keys = privateKeys(n);
+        var keys = PrivateKeys(n);
         var sigs = Gen.Choose(0, n);
         return keys.Zip(sigs);
       }
     }
 
-    public static Gen<Tuple<List<Key>, int>> privateKeysWithRequiredSigs()
+    public static Gen<Tuple<List<Key>, int>> PrivateKeysWithRequiredSigs()
     {
       var ng = Gen.Choose(0, 15);
-      return ng.SelectMany((n) => privateKeysWithRequiredSigs(n));
+      return ng.SelectMany((n) => PrivateKeysWithRequiredSigs(n));
     }
     #endregion
 
-    public static Gen<PubKey> publicKey() =>
-      privateKey().Select(p => p.PubKey);
+    public static Gen<PubKey> PublicKey() =>
+      PrivateKey().Select(p => p.PubKey);
 
-    public static Gen<List<PubKey>> publicKeys() =>
+    public static Gen<List<PubKey>> PublicKeys() =>
       from n in Gen.Choose(0, 15)
-      from pks in Gen.ListOf(n, publicKey())
+      from pks in Gen.ListOf(n, PublicKey())
       select pks.ToList();
 
     #region hash
-    public static Gen<uint256> hash256() =>
-      PrimitiveGenerator.randomBytes().Select(bs => Hashes.Hash256(bs));
+    public static Gen<uint256> Hash256() =>
+      PrimitiveGenerator.RandomBytes().Select(bs => Hashes.Hash256(bs));
 
-    public static Gen<uint160> hash160() =>
-      PrimitiveGenerator.randomBytes().Select(bs => Hashes.Hash160(bs));
+    public static Gen<uint160> Hash160() =>
+      PrimitiveGenerator.RandomBytes().Select(bs => Hashes.Hash160(bs));
     #endregion
 
     #region ECDSASignature
-    public static Gen<ECDSASignature> ecdsa()
+    public static Gen<ECDSASignature> ECDSA()
     {
-      return hash256().SelectMany(h => privateKey().Select(p => p.Sign(h)));
+      return Hash256().SelectMany(h => PrivateKey().Select(p => p.Sign(h)));
     }
     #endregion
 
     #region TransactionSignature
-    public static Gen<TransactionSignature> transactionSignature() =>
-      from rawsig in ecdsa()
-      from sighash in sigHashType()
+    public static Gen<TransactionSignature> TransactionSignature() =>
+      from rawsig in ECDSA()
+      from sighash in SigHashType()
       select new TransactionSignature(rawsig, sighash);
 
-    public static Gen<SigHash> sigHashType() =>
+    public static Gen<SigHash> SigHashType() =>
       Gen.OneOf<SigHash>(new List<Gen<SigHash>> {
         Gen.Constant(SigHash.All),
         Gen.Constant(SigHash.Single),
@@ -81,8 +82,8 @@ namespace NBitcoin.Tests.Generators
       });
     #endregion
 
-    public static Gen<ExtKey> extPrivateKey() => Gen.Fresh(() => new ExtKey());
+    public static Gen<ExtKey> ExtPrivateKey() => Gen.Fresh(() => new ExtKey());
 
-    public static Gen<ExtPubKey> extPublicKey() => extPrivateKey().Select(ek => ek.Neuter());
+    public static Gen<ExtPubKey> ExtPublicKey() => ExtPrivateKey().Select(ek => ek.Neuter());
   }
 }

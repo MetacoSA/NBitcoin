@@ -19,8 +19,8 @@ namespace NBitcoin.Tests.Generators
     }
 
     public static Gen<TxIn> WitnessInput() =>
-      from txin in LegacyTransactionGenerators.input()
-      from witscript in ScriptGenerator.randomWitScript()
+      from txin in LegacyTransactionGenerators.Input()
+      from witscript in ScriptGenerator.RandomWitScript()
       select AttachWitScript(txin, witscript);
 
     private static TxIn AttachWitScript(TxIn txIn, WitScript wit)
@@ -31,7 +31,7 @@ namespace NBitcoin.Tests.Generators
 
     public static Gen<TxOut> WitnessOutput() =>
       from m in MoneyGenerator.Money()
-      from spk in ScriptGenerator.witnessScriptPubKey()
+      from spk in ScriptGenerator.WitnessScriptPubKey()
       select new TxOut(m, spk);
 
     public static Gen<List<TxIn>> NonEmptyInputs() =>
@@ -50,7 +50,7 @@ namespace NBitcoin.Tests.Generators
       from version in Gen.Choose(0, Int32.MaxValue)
       from inputs in NonEmptyInputs()
       from outputs in NonEmptyOutputs()
-      from locktime in PrimitiveGenerator.uint32()
-      select LegacyTransactionGenerators.CompoundTx(Transaction.Create(network), inputs, outputs, locktime);
+      from locktime in PrimitiveGenerator.UInt32()
+      select LegacyTransactionGenerators.ComposeTx(Transaction.Create(network), inputs, outputs, locktime);
   }
 }
