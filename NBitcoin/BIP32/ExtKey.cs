@@ -9,7 +9,7 @@ namespace NBitcoin
 	/// <summary>
 	/// A private Hierarchical Deterministic key
 	/// </summary>
-	public class ExtKey : IBitcoinSerializable, IDestination, ISecret
+	public class ExtKey : IBitcoinSerializable, IDestination, ISecret, IEquatable<ExtKey>
 	{
 		/// <summary>
 		/// Parses the Base58 data (checking the network if specified), checks it represents the
@@ -366,5 +366,13 @@ namespace NBitcoin
 			return parentExtKey;
 		}
 
+    public bool Equals(ExtKey other)
+		{
+			return nChild == other.nChild && 
+			  nDepth == other.nDepth &&
+			  vchChainCode.SequenceEqual(other.vchChainCode) &&
+			  vchFingerprint.SequenceEqual(other.vchFingerprint) &&
+			  key.Equals(other.key);
+		}
 	}
 }
