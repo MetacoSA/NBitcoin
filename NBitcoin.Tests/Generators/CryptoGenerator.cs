@@ -55,10 +55,12 @@ namespace NBitcoin.Tests.Generators
 
     #region hash
     public static Gen<uint256> Hash256() =>
-      PrimitiveGenerator.RandomBytes().Select(bs => Hashes.Hash256(bs));
+      from bytes in PrimitiveGenerator.RandomBytes(32)
+      select new uint256(bytes);
 
     public static Gen<uint160> Hash160() =>
-      PrimitiveGenerator.RandomBytes().Select(bs => Hashes.Hash160(bs));
+      from bytes in PrimitiveGenerator.RandomBytes(20)
+      select new uint160(bytes);
     #endregion
 
     #region ECDSASignature
@@ -78,7 +80,10 @@ namespace NBitcoin.Tests.Generators
       Gen.OneOf<SigHash>(new List<Gen<SigHash>> {
         Gen.Constant(SigHash.All),
         Gen.Constant(SigHash.Single),
-        Gen.Constant(SigHash.None)
+        Gen.Constant(SigHash.None),
+        Gen.Constant(SigHash.AnyoneCanPay | SigHash.All),
+        Gen.Constant(SigHash.AnyoneCanPay | SigHash.Single),
+        Gen.Constant(SigHash.AnyoneCanPay | SigHash.None)
       });
     #endregion
 

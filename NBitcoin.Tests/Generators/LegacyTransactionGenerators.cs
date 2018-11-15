@@ -23,7 +23,7 @@ namespace NBitcoin.Tests.Generators
                                               select new OutPoint(txid, vout);
 
     public static Gen<TxIn> Input() => from prevout in OutPoint()
-                                       from ss in ScriptGenerator.ScriptSig()
+                                       from ss in ScriptGenerator.RandomScriptSig()
                                        from nSequence in PrimitiveGenerator.UInt32()
                                        select new TxIn(prevout, ss) { Sequence = nSequence };
 
