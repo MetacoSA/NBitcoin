@@ -51,6 +51,8 @@ namespace NBitcoin.Tests.Generators
       from inputs in NonEmptyInputs()
       from outputs in NonEmptyOutputs()
       from locktime in PrimitiveGenerator.UInt32()
-      select LegacyTransactionGenerators.ComposeTx(Transaction.Create(network), inputs, outputs, locktime);
+      let tx = LegacyTransactionGenerators.ComposeTx(Transaction.Create(network), inputs, outputs, locktime)
+	  where tx.HasWitness
+	  select tx;
   }
 }

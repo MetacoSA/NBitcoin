@@ -21,7 +21,6 @@ namespace NBitcoin.Tests.PropertyTest
     {
       var tx = testcase.Item1;
       Assert.Equal(tx.GetWitHash(), Hashes.Hash256(tx.ToBytes()));
-
       Assert.NotEqual(tx.GetHash(), tx.GetWitHash());
     }
   }
