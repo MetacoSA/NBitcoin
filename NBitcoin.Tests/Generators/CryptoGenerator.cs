@@ -16,6 +16,11 @@ namespace NBitcoin.Tests.Generators
       return Arb.From(PrivateKey());
     }
 
+    public static Arbitrary<ExtKey> ExtKeysArb()
+    {
+      return Arb.From(ExtKey());
+    }
+
     public static Arbitrary<List<Key>> KeysListArb()
     {
       return Arb.From(PrivateKeys(15));
@@ -24,25 +29,9 @@ namespace NBitcoin.Tests.Generators
     public static Gen<Key> PrivateKey() => Gen.Fresh(() => new Key());
 
     public static Gen<List<Key>> PrivateKeys(int n) =>
-      Gen.ListOf<Key>(n, PrivateKey()).Select(pk => pk.ToList());
+      from pk in Gen.ListOf<Key>(n, PrivateKey())
+      select pk.ToList();
 
-    public static Gen<Tuple<List<Key>, int>> PrivateKeysWithRequiredSigs(int n)
-    {
-      if (n <= 0)
-        return Gen.Constant(Tuple.Create<List<Key>, int>(new List<Key> { null, null }, 0));
-      else
-      {
-        var keys = PrivateKeys(n);
-        var sigs = Gen.Choose(0, n);
-        return keys.Zip(sigs);
-      }
-    }
-
-    public static Gen<Tuple<List<Key>, int>> PrivateKeysWithRequiredSigs()
-    {
-      var ng = Gen.Choose(0, 15);
-      return ng.SelectMany((n) => PrivateKeysWithRequiredSigs(n));
-    }
     #endregion
 
     public static Gen<PubKey> PublicKey() =>
@@ -64,10 +53,10 @@ namespace NBitcoin.Tests.Generators
     #endregion
 
     #region ECDSASignature
-    public static Gen<ECDSASignature> ECDSA()
-    {
-      return Hash256().SelectMany(h => PrivateKey().Select(p => p.Sign(h)));
-    }
+    public static Gen<ECDSASignature> ECDSA() =>
+      from hash in Hash256()
+      from priv in PrivateKey()
+      select priv.Sign(hash);
     #endregion
 
     #region TransactionSignature
@@ -87,8 +76,8 @@ namespace NBitcoin.Tests.Generators
       });
     #endregion
 
-    public static Gen<ExtKey> ExtPrivateKey() => Gen.Fresh(() => new ExtKey());
+    public static Gen<ExtKey> ExtKey() => Gen.Fresh(() => new ExtKey());
 
-    public static Gen<ExtPubKey> ExtPublicKey() => ExtPrivateKey().Select(ek => ek.Neuter());
+    public static Gen<ExtPubKey> ExtPubKey() => ExtKey().Select(ek => ek.Neuter());
   }
 }

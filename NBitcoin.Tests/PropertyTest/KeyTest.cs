@@ -3,6 +3,8 @@ using FsCheck.Xunit;
 using NBitcoin.Tests.Generators;
 using NBitcoin;
 using Xunit;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NBitcoin.Tests.PropertyTest
 {
@@ -22,5 +24,13 @@ namespace NBitcoin.Tests.PropertyTest
       string wif = new BitcoinSecret(key, network).ToWif();
       return Key.Parse(wif, network).Equals(key);
     }
+
+    [Property(MaxTest = 10)]
+    [Trait("PropertyTest", "Verification")]
+    public bool ShouldNotGenerateSameKey(List<Key> keys)
+    {
+      return keys.Distinct().Count() == keys.Count();
+    }
+
   }
 }
