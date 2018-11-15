@@ -9,9 +9,8 @@ namespace NBitcoin.Tests.Generators
   {
 
     public static Gen<Money> Money() =>
-      (from bytes in Gen.ListOf(8, PrimitiveGenerator.RandomByte())
-       select BitConverter.ToUInt64(bytes.ToArray(), 0))
-       .Where(u => u < Transaction.MAX_MONEY)
+      (from bytes in Gen.ListOf(6, PrimitiveGenerator.RandomByte()) // Make sure we are below 21M
+       select Utils.ToUInt64(bytes.Concat(new byte[] { 0, 0 }).ToArray(), true))
        .Select(u64 => new Money(u64));
   }
 }
