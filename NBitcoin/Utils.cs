@@ -798,6 +798,10 @@ namespace NBitcoin
 #if !NOSOCKET
 		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort)
 		{
+			return ParseIpEndpoint(endpoint, default, true);
+		}
+		public static IPEndPoint ParseIpEndpoint(string endpoint, int defaultPort, bool useDNS)
+		{
 			var splitted = endpoint.Trim().Split(new[] { ':' });
 			string ip = null;
 			int port = 0;
@@ -832,8 +836,10 @@ namespace NBitcoin
 			}
 			catch(FormatException)
 			{
+				if (useDNS)
+				{
 #if !(WINDOWS_UWP || NETSTANDARD1X)
-				address = Dns.GetHostEntry(ip).AddressList[0];
+					address = Dns.GetHostEntry(ip).AddressList[0];
 #else
 				string adr = DnsLookup(ip).GetAwaiter().GetResult();
 				// if not resolved behave like GetHostEntry
@@ -842,6 +848,7 @@ namespace NBitcoin
 				else
 					address = IPAddress.Parse(adr);
 #endif
+				}
 			}
 			return new IPEndPoint(address, port);
 		}
