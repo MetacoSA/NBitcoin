@@ -366,13 +366,13 @@ namespace NBitcoin
 			return parentExtKey;
 		}
 
-    public bool Equals(ExtKey other)
+		public bool Equals(ExtKey other)
 		{
-			return nChild == other.nChild && 
-			  nDepth == other.nDepth &&
-			  vchChainCode.SequenceEqual(other.vchChainCode) &&
-			  vchFingerprint.SequenceEqual(other.vchFingerprint) &&
-			  key.Equals(other.key);
+			return nChild == other.nChild &&
+				nDepth == other.nDepth &&
+				vchChainCode.SequenceEqual(other.vchChainCode) &&
+				vchFingerprint.SequenceEqual(other.vchFingerprint) &&
+				key.Equals(other.key);
 		}
 	}
 }

@@ -6,23 +6,23 @@ using Xunit;
 
 namespace NBitcoin.Tests.PropertyTest
 {
-  public class AddressTest
-  {
-    public AddressTest()
-    {
-      Arb.Register<AddressGenerator>();
-      Arb.Register<ChainParamsGenerator>();
-    }
+	public class AddressTest
+	{
+		public AddressTest()
+		{
+			Arb.Register<AddressGenerator>();
+			Arb.Register<ChainParamsGenerator>();
+		}
 
-    [Property]
-    [Trait("UnitTest", "UnitTest")]
-    public bool CanSerializeAsymmetric(Tuple<BitcoinAddress, Network> testcase)
-    {
-      var addrstr = testcase.Item1.ToString();
-      var network = testcase.Item2;
-      var addr2 = BitcoinAddress.Create(addrstr, network);
+		[Property]
+		[Trait("UnitTest", "UnitTest")]
+		public bool CanSerializeAsymmetric(Tuple<BitcoinAddress, Network> testcase)
+		{
+			var addrstr = testcase.Item1.ToString();
+			var network = testcase.Item2;
+			var addr2 = BitcoinAddress.Create(addrstr, network);
 
-      return addrstr == addr2.ToString();
-    }
-  }
+			return addrstr == addr2.ToString();
+		}
+	}
 }
