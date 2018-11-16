@@ -428,9 +428,7 @@ namespace NBitcoin
 		[Obsolete("Use VerifyScript(Script scriptSig, Transaction txTo, int nIn, TxOut spentOutput) instead")]
 		public bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction txTo, int nIn, Money value)
 		{
-			TxOut txOut = txTo.Outputs.CreateNewTxOut();
-			txOut.Value = value;
-			txOut.ScriptPubKey = scriptPubKey;
+			TxOut txOut = txTo.Outputs.CreateNewTxOut(value, scriptPubKey);
 			return VerifyScript(scriptSig, scriptPubKey, new TransactionChecker(txTo, nIn, txOut));
 		}
 

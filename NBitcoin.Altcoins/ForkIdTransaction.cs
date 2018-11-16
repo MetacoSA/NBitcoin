@@ -49,7 +49,7 @@ namespace NBitcoin.Altcoins
 
 			if((SupportSegwit && sigversion == HashVersion.Witness) || UsesForkId(nHashType))
 			{
-				if(spentOutput?.Value == null)
+				if (spentOutput?.Value == null || spentOutput.Value == TxOut.NullMoney)
 					throw new ArgumentException("The output being signed with the amount must be provided", nameof(spentOutput));
 				uint256 hashPrevouts = uint256.Zero;
 				uint256 hashSequence = uint256.Zero;

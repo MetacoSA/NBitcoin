@@ -586,7 +586,7 @@ namespace NBitcoin
 			ScriptPubKey = scriptPubKey;
 		}
 
-		readonly static Money NullMoney = new Money(-1);
+		internal readonly static Money NullMoney = new Money(-1);
 		Money _Value = NullMoney;
 		public virtual Money Value
 		{
@@ -727,9 +727,7 @@ namespace NBitcoin
 		[Obsolete("Use VerifyScript(TxOut spentOutput, out ScriptError error) instead")]
 		public bool VerifyScript(Script scriptPubKey, out ScriptError error)
 		{
-			var txOut = this.Transaction.Outputs.CreateNewTxOut();
-			txOut.ScriptPubKey = scriptPubKey;
-			txOut.Value = null;
+			TxOut txOut = Transaction.Outputs.CreateNewTxOut(null, scriptPubKey);
 			return Script.VerifyScript(Transaction, (int)Index, txOut, out error);
 		}
 		public bool VerifyScript(TxOut spentOutput, out ScriptError error)
@@ -739,18 +737,14 @@ namespace NBitcoin
 		[Obsolete("Use VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error) instead")]
 		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify, out ScriptError error)
 		{
-			var txOut = this.Transaction.Outputs.CreateNewTxOut();
-			txOut.ScriptPubKey = scriptPubKey;
-			txOut.Value = null;
+			TxOut txOut = Transaction.Outputs.CreateNewTxOut(null, scriptPubKey);
 			return Script.VerifyScript(Transaction, (int)Index, txOut, scriptVerify, SigHash.Undefined, out error);
 		}
 
 		[Obsolete("Use VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error) instead")]
 		public bool VerifyScript(Script scriptPubKey, Money value, ScriptVerify scriptVerify, out ScriptError error)
 		{
-			var txOut = this.Transaction.Outputs.CreateNewTxOut();
-			txOut.Value = value;
-			txOut.ScriptPubKey = scriptPubKey;
+			TxOut txOut = Transaction.Outputs.CreateNewTxOut(value, scriptPubKey);
 			return Script.VerifyScript(Transaction, (int)Index, txOut, scriptVerify, SigHash.Undefined, out error);
 		}
 
@@ -2111,7 +2105,7 @@ namespace NBitcoin
 		{
 			if (sigversion == HashVersion.Witness)
 			{
-				if (spentOutput?.Value == null)
+				if (spentOutput?.Value == null || spentOutput.Value == TxOut.NullMoney)
 					throw new ArgumentException("The output being signed with the amount must be provided", nameof(spentOutput));
 				uint256 hashPrevouts = uint256.Zero;
 				uint256 hashSequence = uint256.Zero;
