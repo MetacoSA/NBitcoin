@@ -739,7 +739,10 @@ namespace NBitcoin
 		[Obsolete("Use VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error) instead")]
 		public bool VerifyScript(Script scriptPubKey, ScriptVerify scriptVerify, out ScriptError error)
 		{
-			return Script.VerifyScript(scriptPubKey, Transaction, (int)Index, null as TxOut, scriptVerify, SigHash.Undefined, out error);
+			var txOut = this.Transaction.Outputs.CreateNewTxOut();
+			txOut.ScriptPubKey = scriptPubKey;
+			txOut.Value = null;
+			return Script.VerifyScript(Transaction, (int)Index, txOut, scriptVerify, SigHash.Undefined, out error);
 		}
 
 		[Obsolete("Use VerifyScript(TxOut spentOutput, ScriptVerify scriptVerify, out ScriptError error) instead")]
