@@ -14,7 +14,7 @@ namespace NBitcoin.Tests.PropertyTest
       Arb.Register<SegwitTransactionGenerators>();
     }
 
-    [Property(MaxTest = 10)]
+    [Property(MaxTest = 100)]
     [Trait("UnitTest", "UnitTest")]
     public void WitnessTxIdProp(Tuple<Transaction, Network> testcase)
     {

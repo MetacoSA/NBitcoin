@@ -47,6 +47,7 @@ namespace NBitcoin.Tests.Generators
       from op in PushOnlyOpcodes()
       select new WitScript(op);
 
+    // -------- opcodes -------
     private static Gen<Op[]> PushOnlyOpcodes() =>
       from ops in Gen.ListOf<Op>(PushOnlyOpcode())
       select ops.ToArray();
@@ -55,22 +56,27 @@ namespace NBitcoin.Tests.Generators
       from bytes in PrimitiveGenerator.RandomBytes(4)
       select Op.GetPushOp(bytes);
 
+    public static Gen<Op[]> RandomOpcodes() =>
+      from ops in Gen.ListOf(RandomOpcode())
+      select ops.ToArray();
+    public static Gen<Op> RandomOpcode() =>
+      Gen.OneOf(PushOnlyOpcode(), NonPushOpcode());
+
+    public static Gen<Op> NonPushOpcode()
+      => from b in PrimitiveGenerator.RandomByte()
+         where Enum.IsDefined(typeof(OpcodeType), b)
+         let op = (OpcodeType)b
+         where !Op.IsPushCode(op)
+         let opc = (Op)(OpcodeType)b
+         where !opc.IsInvalid
+         select opc;
+
     // ------- facades -------
     public static Gen<Script> ScriptSig() => Gen.OneOf(P2PKHScriptSig(), MultiSignatureScriptSig());
-    public static Gen<Script> PickCorrespondingScriptSignature(Script scriptPubKey)
-    {
-      if (PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(scriptPubKey))
-      {
-        return P2PKHScriptSig();
-      }
 
-      if (PayToScriptHashTemplate.Instance.CheckScriptPubKey(scriptPubKey))
-      {
-        return MultiSignatureScriptSig();
-      }
-
-      throw new Exception("Unknown Script PubKey");
-    }
+    public static Gen<Script> RandomScriptSig() =>
+      from op in RandomOpcodes()
+      select new Script(op);
 
     #endregion
 
@@ -97,6 +103,10 @@ namespace NBitcoin.Tests.Generators
 
     public static Gen<Script> WitnessScriptPubKey() =>
       Gen.OneOf(P2WSHScriptPubKey(), P2WPKHScriptPubKey());
+
+    // -------- facades --------
+    public static Gen<Script> ScriptPubKey() =>
+      Gen.OneOf(LegacyScriptPubKey(), WitnessScriptPubKey());
 
     #endregion
 

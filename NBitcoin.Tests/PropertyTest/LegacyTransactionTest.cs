@@ -16,7 +16,7 @@ namespace NBitcoin.Tests.PropertyTest
       Arb.Register<LegacyTransactionGenerators>();
     }
 
-    [Property(MaxTest = 10)]
+    [Property(MaxTest = 100)]    
     [Trait("UnitTest", "UnitTest")]
     public bool CanConvertToRaw(Tuple<Transaction, Network> param)
     {
@@ -26,7 +26,8 @@ namespace NBitcoin.Tests.PropertyTest
 
       return tx.GetHash() == tx.GetHash();
     }
-    [Property(MaxTest = 10)]
+
+    [Property(MaxTest = 100)]
     [Trait("UnitTest", "UnitTest")]
     public bool TxIdMustMatchHexSha256(Transaction tx)
     {
