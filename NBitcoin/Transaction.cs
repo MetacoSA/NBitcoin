@@ -767,7 +767,7 @@ namespace NBitcoin
 
 		public bool VerifyScript(ICoin coin, ScriptVerify scriptVerify, out ScriptError error)
 		{
-			return Script.VerifyScript(coin.TxOut.ScriptPubKey, Transaction, (int)Index, coin.TxOut, scriptVerify, SigHash.Undefined, out error);
+			return Script.VerifyScript(Transaction, (int)Index, coin.TxOut, scriptVerify, SigHash.Undefined, out error);
 		}
 		public bool VerifyScript(ICoin coin, out ScriptError error)
 		{
