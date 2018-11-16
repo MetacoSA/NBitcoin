@@ -15,7 +15,7 @@ namespace NBitcoin.Tests.PropertyTest
     }
 
     [Property]
-    [Trait("PropertyTest", "BidirectionalConversion")]
+    [Trait("UnitTest", "UnitTest")]
     public bool CanSerializeAsymmetric(Tuple<BitcoinAddress, Network> testcase)
     {
       var addrstr = testcase.Item1.ToString();

@@ -66,22 +66,22 @@ namespace NBitcoin
 
 	public class TransactionChecker
 	{
-		public TransactionChecker(Transaction tx, int index, Money amount, PrecomputedTransactionData precomputedTransactionData)
+		public TransactionChecker(Transaction tx, int index, TxOut spentOutput, PrecomputedTransactionData precomputedTransactionData)
 		{
 			if(tx == null)
 				throw new ArgumentNullException(nameof(tx));
 			_Transaction = tx;
 			_Index = index;
-			_Amount = amount;
+			_SpentOutput = spentOutput;
 			_PrecomputedTransactionData = precomputedTransactionData;
 		}
-		public TransactionChecker(Transaction tx, int index, Money amount = null)
+		public TransactionChecker(Transaction tx, int index, TxOut spentOutput = null)
 		{
 			if(tx == null)
 				throw new ArgumentNullException(nameof(tx));
 			_Transaction = tx;
 			_Index = index;
-			_Amount = amount;
+			_SpentOutput = spentOutput;
 		}
 
 
@@ -120,12 +120,12 @@ namespace NBitcoin
 			}
 		}
 
-		private readonly Money _Amount;
-		public Money Amount
+		private readonly TxOut _SpentOutput;
+		public TxOut SpentOutput
 		{
 			get
 			{
-				return _Amount;
+				return _SpentOutput;
 			}
 		}
 	}
@@ -424,9 +424,17 @@ namespace NBitcoin
 			get;
 			set;
 		}
+
+		[Obsolete("Use VerifyScript(Script scriptSig, Transaction txTo, int nIn, TxOut spentOutput) instead")]
 		public bool VerifyScript(Script scriptSig, Script scriptPubKey, Transaction txTo, int nIn, Money value)
 		{
-			return VerifyScript(scriptSig, scriptPubKey, new TransactionChecker(txTo, nIn, value));
+			TxOut txOut = txTo.Outputs.CreateNewTxOut(value, scriptPubKey);
+			return VerifyScript(scriptSig, scriptPubKey, new TransactionChecker(txTo, nIn, txOut));
+		}
+
+		public bool VerifyScript(Script scriptSig, Transaction txTo, int nIn, TxOut spentOutput)
+		{
+			return VerifyScript(scriptSig, spentOutput.ScriptPubKey, new TransactionChecker(txTo, nIn, spentOutput));
 		}
 
 		public bool VerifyScript(Script scriptSig, Script scriptPubKey, TransactionChecker checker)
@@ -1962,7 +1970,7 @@ namespace NBitcoin
 			if(!IsAllowedSignature(scriptSig.SigHash))
 				return false;
 
-			uint256 sighash = checker.Transaction.GetSignatureHash(scriptCode, checker.Index, scriptSig.SigHash, checker.Amount, (HashVersion)sigversion, checker.PrecomputedTransactionData);
+			uint256 sighash = checker.Transaction.GetSignatureHash(scriptCode, checker.Index, scriptSig.SigHash, checker.SpentOutput, (HashVersion)sigversion, checker.PrecomputedTransactionData);
 			_SignedHashes.Add(new SignedHash()
 			{
 				ScriptCode = scriptCode,

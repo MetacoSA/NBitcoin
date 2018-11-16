@@ -996,11 +996,33 @@ namespace NBitcoin.RPC
 					services = Utils.ToUInt64(Encoders.Hex.DecodeData((string)peer["services"]), false);
 				}
 
+				IPEndPoint addressEnpoint = null;
+				try
+				{
+					addressEnpoint = Utils.ParseIpEndpoint((string)peer["addr"], this.Network.DefaultPort, false);
+				}
+				catch
+				{
+
+				}
+
+				IPEndPoint localEndpoint = null;
+				try
+				{
+					localEndpoint = Utils.ParseIpEndpoint(localAddr, this.Network.DefaultPort, false);
+				}
+				catch
+				{
+
+				}
+
 				result[i++] = new PeerInfo
 				{
 					Id = (int)peer["id"],
-					Address = Utils.ParseIpEndpoint((string)peer["addr"], this.Network.DefaultPort),
-					LocalAddress = Utils.ParseIpEndpoint(localAddr, this.Network.DefaultPort),
+					Address = addressEnpoint,
+					AddressString = (string)peer["addr"],
+					LocalAddress = localEndpoint,
+					LocalAddressString = localAddr,
 					Services = (NodeServices)services,
 					LastSend = Utils.UnixTimeToDateTime((uint)peer["lastsend"]),
 					LastReceive = Utils.UnixTimeToDateTime((uint)peer["lastrecv"]),
@@ -1804,10 +1826,12 @@ namespace NBitcoin.RPC
 		{
 			get; internal set;
 		}
+		public string AddressString { get; set; }
 		public IPEndPoint LocalAddress
 		{
 			get; internal set;
 		}
+		public string LocalAddressString { get; set; }
 		public NodeServices Services
 		{
 			get; internal set;

@@ -15,8 +15,7 @@ namespace NBitcoin.Tests.PropertyTest
     }
 
     [Property(MaxTest = 100)]
-    [Trait("PropertyTest", "BidirectionalConversion")]
-    [Trait("PropertyTest", "Commutativity")]
+    [Trait("UnitTest", "UnitTest")]
     public void WitnessTxIdProp(Tuple<Transaction, Network> testcase)
     {
       var tx = testcase.Item1;

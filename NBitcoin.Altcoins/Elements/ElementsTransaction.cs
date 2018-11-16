@@ -744,12 +744,13 @@ namespace NBitcoin.Altcoins.Elements
 			}
 		}
 
-		public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
+		public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
 			if (sigversion == HashVersion.Witness)
 			{
-				if (amount == null)
-					throw new ArgumentException("The amount of the output being signed must be provided", "amount");
+				var spentOutputElem = spentOutput as ElementsTxOut;
+				if (spentOutputElem == null)
+					throw new ArgumentException("The output being spent must be provided", nameof(spentOutput));
 				uint256 hashPrevouts = uint256.Zero;
 				uint256 hashSequence = uint256.Zero;
 				uint256 hashOutputs = uint256.Zero;
@@ -796,7 +797,7 @@ namespace NBitcoin.Altcoins.Elements
 				// may already be contain in hashSequence.
 				Inputs[nIn].PrevOut.ReadWrite(sss);
 				sss.ReadWrite(scriptCode);
-				sss.ReadWrite(new ConfidentialValue(amount));
+				sss.ReadWrite(spentOutputElem.ConfidentialValue);
 				sss.ReadWrite((uint)Inputs[nIn].Sequence);
 				if(this.Inputs[nIn] is ElementsTxIn elemInput && elemInput.HasAssetIssuance)
 				{

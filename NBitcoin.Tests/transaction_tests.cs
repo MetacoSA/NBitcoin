@@ -171,9 +171,9 @@ namespace NBitcoin.Tests
 			tx.Outputs.Add("21", key.PubKey.Hash);
 			var clone = tx.Clone();
 			tx.Sign(key, CreateFakeCoins(tx.Inputs, scriptPubKey));
-			AssertCorrectlySigned(tx, scriptPubKey);
+			AssertCorrectlySigned(tx, new TxOut(null, scriptPubKey));
 			clone.Sign(key, CreateFakeCoins(clone.Inputs, scriptPubKey, true));
-			AssertCorrectlySigned(clone, scriptPubKey.Hash.ScriptPubKey);
+			AssertCorrectlySigned(clone, new TxOut(TxOut.NullMoney, scriptPubKey.Hash.ScriptPubKey));
 		}
 
 		private ICoin[] CreateFakeCoins(TxInList inputs, Script scriptPubKey, bool p2sh = false)
@@ -2016,18 +2016,18 @@ namespace NBitcoin.Tests
 			partiallySigned.Sign(privKeys[1], coins);
 
 
-			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0].ScriptPubKey, allowHighS);
+			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0], allowHighS);
 
 			//Verify the transaction from the gist is also correctly signed
 			var gistTransaction = Transaction.Parse("0100000001aca7f3b45654c230e0886a57fb988c3044ef5e8f7f39726d305c61d5e818903c00000000fd5d010048304502200187af928e9d155c4b1ac9c1c9118153239aba76774f775d7c1f9c3e106ff33c0221008822b0f658edec22274d0b6ae9de10ebf2da06b1bbdaaba4e50eb078f39e3d78014730440220795f0f4f5941a77ae032ecb9e33753788d7eb5cb0c78d805575d6b00a1d9bfed02203e1f4ad9332d1416ae01e27038e945bc9db59c732728a383a6f1ed2fb99da7a4014cc952410491bba2510912a5bd37da1fb5b1673010e43d2c6d812c514e91bfa9f2eb129e1c183329db55bd868e209aac2fbc02cb33d98fe74bf23f0c235d6126b1d8334f864104865c40293a680cb9c020e7b1e106d8c1916d3cef99aa431a56d253e69256dac09ef122b1a986818a7cb624532f062c1d1f8722084861c5c3291ccffef4ec687441048d2455d2403e08708fc1f556002f1b6cd83f992d085097f9974ab08a28838f07896fbab08f39495e15fa6fad6edbfb1e754e35fa1c7844c41f322a1863d4621353aeffffffff0140420f00000000001976a914ae56b4db13554d321c402db3961187aed1bbed5b88ac00000000", Network.Main);
 
-			AssertCorrectlySigned(gistTransaction, fundingTransaction.Outputs[0].ScriptPubKey, allowHighS); //One sig in the hard code tx is high
+			AssertCorrectlySigned(gistTransaction, fundingTransaction.Outputs[0], allowHighS); //One sig in the hard code tx is high
 
 			//Can sign out of order
 			partiallySigned = spendTransaction.Clone();
 			partiallySigned.Sign(privKeys[2], coins);
 			partiallySigned.Sign(privKeys[0], coins);
-			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0].ScriptPubKey);
+			AssertCorrectlySigned(partiallySigned, fundingTransaction.Outputs[0]);
 
 			//Can sign multiple inputs
 			partiallySigned = spendTransaction.Clone();
@@ -2040,11 +2040,11 @@ namespace NBitcoin.Tests
 			partiallySigned.Sign(privKeys[0], partiallySigned.Outputs.AsCoins().ToArray());
 		}
 
-		private void AssertCorrectlySigned(Transaction tx, Script scriptPubKey, ScriptVerify scriptVerify = ScriptVerify.Standard)
+		private void AssertCorrectlySigned(Transaction tx, TxOut txOut, ScriptVerify scriptVerify = ScriptVerify.Standard)
 		{
 			for(int i = 0; i < tx.Inputs.Count; i++)
 			{
-				Assert.True(Script.VerifyScript(scriptPubKey, tx, i, null, scriptVerify));
+				Assert.True(Script.VerifyScript(tx, i, txOut, scriptVerify));
 			}
 		}
 
@@ -2197,7 +2197,7 @@ namespace NBitcoin.Tests
 			var spending = Transaction.Parse("0100000001914853959297db6a5aa0e3945a750e4ee311cf47e723dd81d4e397df04c8f500000000008b483045022100bef86c24185a568ce76a4527a88eda58b6ce531e9549d8135d334a6bd077c0350220398385675415edac18a6e623f3f7f7dc2e6a3b11f3beaa2c2763232e0cbf958f012103b81eecef4a027975ea51e6d1220129ed21b6d97c17b27bbbe32a5b934561ba6400000e89dbf6109a1e40f015dfceb0832c0e8856df1cc6b5d55a12704c261963ffffffff01a086010000000000232103b81eecef4a027975ea51e6d1220129ed21b6d97c17b27bbbe32a5b934561ba64ac00000000", Network);
 			var ctx = new ScriptEvaluationContext();
 			ctx.ScriptVerify = ScriptVerify.Mandatory | ScriptVerify.DerSig;
-			var passed = ctx.VerifyScript(spending.Inputs[0].ScriptSig, source.Outputs[0].ScriptPubKey, spending, 0, Money.Zero);
+			var passed = ctx.VerifyScript(spending.Inputs[0].ScriptSig, spending, 0, source.Outputs[0]);
 			Assert.True(passed);
 		}
 
@@ -2209,7 +2209,7 @@ namespace NBitcoin.Tests
 			Script scriptSig = new Script(Op.GetPushOp(1), Op.GetPushOp(2), Op.GetPushOp(3));
 			Script scriptPubKey = new Script(OpcodeType.OP_NIP);
 			var ctx = new ScriptEvaluationContext();
-			ctx.VerifyScript(scriptSig, scriptPubKey, CreateDummy(), 0, Money.Zero);
+			ctx.VerifyScript(scriptSig, CreateDummy(), 0, new TxOut(Money.Zero, scriptPubKey));
 			Assert.Equal(2, ctx.Stack.Count);
 			var actual = new[] { ctx.Stack.Top(-2), ctx.Stack.Top(-1) };
 			var expected = new[] { Op.GetPushOp(1).PushData, Op.GetPushOp(3).PushData };
@@ -2227,7 +2227,7 @@ namespace NBitcoin.Tests
 			Script scriptSig = new Script(Op.GetPushOp(1), Op.GetPushOp(2), Op.GetPushOp(3), Op.GetPushOp(4), Op.GetPushOp(5), Op.GetPushOp(6));
 			Script scriptPubKey = new Script(OpcodeType.OP_2ROT);
 			var ctx = new ScriptEvaluationContext();
-			ctx.VerifyScript(scriptSig, scriptPubKey, CreateDummy(), 0, Money.Zero);
+			ctx.VerifyScript(scriptSig, CreateDummy(), 0, new TxOut(Money.Zero, scriptPubKey));
 			Assert.Equal(6, ctx.Stack.Count);
 			var actual = new[] {
 				ctx.Stack.Top(-6),
@@ -2260,7 +2260,7 @@ namespace NBitcoin.Tests
 			Script scriptSig = new Script(Op.GetPushOp(1), Op.GetPushOp(2), Op.GetPushOp(3));
 			Script scriptPubKey = new Script(OpcodeType.OP_TUCK);
 			var ctx = new ScriptEvaluationContext();
-			ctx.VerifyScript(scriptSig, scriptPubKey, CreateDummy(), 0, Money.Zero);
+			ctx.VerifyScript(scriptSig, CreateDummy(), 0, new TxOut(Money.Zero, scriptPubKey));
 			Assert.Equal(4, ctx.Stack.Count);
 			var actual = new[] { ctx.Stack.Top(-3), ctx.Stack.Top(-2), ctx.Stack.Top(-1) };
 			var expected = new[] { Op.GetPushOp(3).PushData, Op.GetPushOp(2).PushData, Op.GetPushOp(3).PushData };
@@ -2287,7 +2287,9 @@ namespace NBitcoin.Tests
 			Transaction toCheck = Transaction.Parse("01000000000103b019e2344634c5b34aeb867f2cd8b09dbbd95b5bf8c5d56d58be1dd9077f9d3a00000000da0047304402201b2be1016abd4df4ca699e0430b97bc8dcd4c1c90b6a6ee382be75f42956566402205ab38fddace15ba4b2c4dbacc6793bb1f35a371aa8386f1348bd65dfeda9657201483045022100db1dbea1a5d05ff7daf6d106931ab701a29d2dddd8cd7781e9eb7fefd31139790220319eb8a238e6c635ebe2960f5960eeb96371f5a38503cf41aa89a33807c8b6a50147522102a96e9843b846b8cc3277ea54638f1454378219854ef89c81a8a4e9217f1f3ca02103d5feb2e2f2fa1403ede18aaac7631dd2c9a893953a9ab338e7d9fa749d91f03b52aeffffffffb019e2344634c5b34aeb867f2cd8b09dbbd95b5bf8c5d56d58be1dd9077f9d3a01000000db00483045022100aec68f5760337efdf425007387f094df284a576e824492597b0d046e038034100220434cb22f056e97cd823a13751c482a9f2d3fb956abcfa69db4dcd2679379070101483045022100c7ce0a9617cbcaa9308758092d336b228f67d358ad25a786711a87a29e2f72d102203d608bf6a4416e9493a5d89552633da300e9a237811e9affea3cda3320a3257c0147522102c4bd91a554815c73814848b311051c43ad6a75810269e1ff0eb9c13d828fc6fb21031035e69a48e04bc4d6315590620f784ab79d8369d122bd45ad7e77c81ac1cb1c52aeffffffffbcf750fad5ddd1909d8b3e2edda94f7ae3c866952932823763291b9467e3b9580000000023220020e0be53749d09a8e2d3843633cf11133e51e73944334d11a147f1ae53f1c3dfe5ffffffff019cbaf0080000000017a9148d52e4999751ec43c07eb371119f8c45047d26dc870000040047304402205bdc03fac6c3be92309e4fdd1572147ca56210dbb4413539874a4e3b0670ac0b02206422cd069e6078bcdc8f698ff77aed65566b6fa1ff028cc322d14d036d2c192401473044022022fa0bda2e8e21716b9d74499665e4f31cbcf2bf49d0b535188e7e196e8e90d8022076ad55655fbd54637c0cf5bbd7f07905446e23a621f82a940cb07677dab2f8fe0147522102d01cf4abc1b6c22cc0e0e43e5277f1a7fb544eca52244cd4cb88bef5943c5563210284a2ffb3e6b6ac0ac9444b0ecd9856f79b53bbd3100894ec6dc80e6e956edbeb52ae00000000", Network);
 
 			ScriptError error;
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.True(toCheck.Inputs.AsIndexedInputs().Skip(0).First().VerifyScript(new Script("OP_HASH160 442afa4f034468652c571202da0bf277cb729def OP_EQUAL"), Money.Satoshis(100000), ScriptVerify.Mandatory, out error));
+#pragma warning restore CS0618 // Type or member is obsolete
 		}
 
 		private static void CanCheckSegwitSigCore(Transaction tx, int input, Money amount, string scriptCodeHex = null)
@@ -2307,7 +2309,7 @@ namespace NBitcoin.Tests
 			}
 
 			ScriptError err;
-			var r = Script.VerifyScript(scriptCode, tx, 0, amount, out err);
+			var r = Script.VerifyScript(tx, 0, new TxOut(amount, scriptCode), out err);
 			Assert.True(r);
 		}
 
@@ -2329,7 +2331,9 @@ namespace NBitcoin.Tests
 			tx = Transaction.Parse("010000000001015d896079097272b13ed9cb22acfabeca9ce83f586d98cc15a08ea2f9c558013b0200000000ffffffff01605af40500000000160014a8cbb5eca9af499cecaa08457690ab367f23d95b02483045022100d3edd272c4ff247c36a1af34a2394859ece319f61ee85f759b94ec0ecd61912402206dbdc7c6ca8f7279405464d2d935b5e171dfd76656872f76399dbf333c0ac3a001fd08020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000", Network);
 
 			ScriptError error;
+#pragma warning disable CS0618 // Type or member is obsolete
 			Assert.False(tx.Inputs.AsIndexedInputs().First().VerifyScript(new Script("0 b7854eb547106248b136ca2bf48d8df2f1167588"), out error));
+#pragma warning restore CS0618 // Type or member is obsolete
 			Assert.Equal(ScriptError.EqualVerify, error);
 		}
 		[Fact]
@@ -2337,7 +2341,9 @@ namespace NBitcoin.Tests
 		public void bip143Test()
 		{
 			Transaction tx = Transaction.Parse("0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac11000000", Network);
+#pragma warning disable CS0618 // Type or member is obsolete
 			var h = tx.GetSignatureHash(new Script(Encoders.Hex.DecodeData("76a9141d0f172a0ecb48aee1be1f2687d2963ae33f71a188ac")), 1, SigHash.All, Money.Satoshis(0x23c34600L), HashVersion.Witness);
+#pragma warning restore CS0618 // Type or member is obsolete
 			Assert.Equal(new uint256(Encoders.Hex.DecodeData("c37af31116d1b27caf68aae9e3ac82f1477929014d5b917657d0eb49478cb670"), true), h);
 		}
 		[Fact]
@@ -2895,11 +2901,11 @@ namespace NBitcoin.Tests
 						continue;
 					}
 
+					var txOut = new TxOut(mapprevOutScriptPubKeysAmount.TryGet(tx.Inputs[i].PrevOut), mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut]);
 					var valid = Script.VerifyScript(
-						mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
 						tx,
 						i,
-						mapprevOutScriptPubKeysAmount.TryGet(tx.Inputs[i].PrevOut),
+						txOut,
 						ParseFlags(test[2].ToString())
 						, 0);
 					Assert.True(valid, strTest + " failed");
@@ -3041,11 +3047,11 @@ namespace NBitcoin.Tests
 						continue;
 					}
 
+					var txOut = new TxOut(mapprevOutScriptPubKeysAmount.TryGet(tx.Inputs[i].PrevOut), mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut]);
 					fValid = Script.VerifyScript(
-					   mapprevOutScriptPubKeys[tx.Inputs[i].PrevOut],
 					   tx,
 					   i,
-					   mapprevOutScriptPubKeysAmount.TryGet(tx.Inputs[i].PrevOut),
+					   txOut,
 					   ParseFlags(test[2].ToString())
 					   , 0);
 				}
@@ -3160,7 +3166,7 @@ namespace NBitcoin.Tests
 			Transaction inputi = input.Clone();
 			ScriptEvaluationContext ctx = new ScriptEvaluationContext();
 			ctx.ScriptVerify = flags;
-			bool ret = ctx.VerifyScript(inputi.Inputs[0].ScriptSig, output.Outputs[0].ScriptPubKey, new TransactionChecker(inputi, 0, output.Outputs[0].Value));
+			bool ret = ctx.VerifyScript(inputi.Inputs[0].ScriptSig, output.Outputs[0].ScriptPubKey, new TransactionChecker(inputi, 0, output.Outputs[0]));
 			Assert.True(ret == success);
 		}
 

@@ -1973,12 +1973,14 @@ namespace NBitcoin
 					? (DeduceScriptPubKey(txIn.ScriptSig) ?? DeduceScriptPubKey(signed2.Inputs[i].ScriptSig))
 					: coin.TxOut.ScriptPubKey;
 
-				Money amount = null;
-				if(coin != null)
-					amount = coin is IColoredCoin ? ((IColoredCoin)coin).Bearer.Amount : ((Coin)coin).Amount;
+				var txout = coin?.TxOut;
+				if(txout == null)
+				{
+					txout = signed1.Outputs.CreateNewTxOut(null, scriptPubKey);
+				}
 				var result = Script.CombineSignatures(
 									scriptPubKey,
-									new TransactionChecker(tx, i, amount),
+									new TransactionChecker(tx, i, txout),
 									 GetScriptSigs(signed1.Inputs.AsIndexedInputs().Skip(i).First()),
 									 GetScriptSigs(signed2.Inputs.AsIndexedInputs().Skip(i).First()));
 				var input = tx.Inputs.AsIndexedInputs().Skip(i).First();

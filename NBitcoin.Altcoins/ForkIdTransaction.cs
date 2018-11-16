@@ -41,7 +41,7 @@ namespace NBitcoin.Altcoins
 			}
 		}
 
-		public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
+		public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)
 		{
 			uint nForkHashType = (uint)nHashType;
 			if(UsesForkId(nHashType))
@@ -49,8 +49,8 @@ namespace NBitcoin.Altcoins
 
 			if((SupportSegwit && sigversion == HashVersion.Witness) || UsesForkId(nHashType))
 			{
-				if(amount == null)
-					throw new ArgumentException("The amount of the output being signed must be provided", "amount");
+				if (spentOutput?.Value == null || spentOutput.Value == TxOut.NullMoney)
+					throw new ArgumentException("The output being signed with the amount must be provided", nameof(spentOutput));
 				uint256 hashPrevouts = uint256.Zero;
 				uint256 hashSequence = uint256.Zero;
 				uint256 hashOutputs = uint256.Zero;
@@ -90,7 +90,7 @@ namespace NBitcoin.Altcoins
 				// may already be contain in hashSequence.
 				sss.ReadWrite(Inputs[nIn].PrevOut);
 				sss.ReadWrite(scriptCode);
-				sss.ReadWrite(amount.Satoshi);
+				sss.ReadWrite(spentOutput.Value.Satoshi);
 				sss.ReadWrite((uint)Inputs[nIn].Sequence);
 				// Outputs (none/one/all, depending on flags)
 				sss.ReadWrite(hashOutputs);
