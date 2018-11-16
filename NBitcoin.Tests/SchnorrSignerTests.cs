@@ -7,6 +7,7 @@ using Xunit;
 
 namespace NBitcoin.Tests
 {
+	[Trait("UnitTest", "UnitTest")]
 	public class SchnorrSignerTests
 	{
 		[Fact]

@@ -251,6 +251,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void BlindingSignature()
 		{
 			// Test with known values 
@@ -329,6 +330,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void Signatures_use_low_R()
 		{
 			var rnd = new Random();

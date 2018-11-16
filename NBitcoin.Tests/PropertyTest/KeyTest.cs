@@ -15,7 +15,7 @@ namespace NBitcoin.Tests.PropertyTest
     }
 
     [Property]
-    [Trait("PropertyTest", "BidirectionalConversion")]
+    [Trait("UnitTest", "UnitTest")]
     public bool CanSerializeAsymmetric(Key key, Network network)
     {
       var keyStr = key.ToString();

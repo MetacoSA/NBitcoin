@@ -17,7 +17,7 @@ namespace NBitcoin.Tests.PropertyTest
     }
 
     [Property(MaxTest = 10)]
-    [Trait("PropertyTest", "BidirectionalConversion")]
+    [Trait("UnitTest", "UnitTest")]
     public bool CanConvertToRaw(Tuple<Transaction, Network> param)
     {
       var tx = param.Item1;
@@ -27,7 +27,7 @@ namespace NBitcoin.Tests.PropertyTest
       return tx.GetHash() == tx.GetHash();
     }
     [Property(MaxTest = 10)]
-    [Trait("PropertyTest", "Commutativity")]
+    [Trait("UnitTest", "UnitTest")]
     public bool TxIdMustMatchHexSha256(Transaction tx)
     {
       return tx.GetHash() == Hashes.Hash256(tx.ToBytes());
