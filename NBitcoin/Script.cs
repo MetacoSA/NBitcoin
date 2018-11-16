@@ -927,6 +927,8 @@ namespace NBitcoin
 
 		public static bool VerifyScript(Script scriptSig, Transaction tx, int i, TxOut spentOutput, ScriptVerify scriptVerify, SigHash sigHash, out ScriptError error)
 		{
+			if (spentOutput == null)
+				throw new ArgumentNullException(nameof(spentOutput));
 			var eval = new ScriptEvaluationContext
 			{
 				SigHash = sigHash,
