@@ -52,7 +52,9 @@ namespace NBitcoin.Altcoins
 				if (this.nTime <= GincoinInternals.Consensus.LYRA2Z_TIMESTAMP)
 				{
 					var output = new byte[32];
-					NeoScrypt.NeoScrypt.neoscrypt(data.Skip(offset).Take(count).ToArray(), ref output, 0x0);
+					// reference https://github.com/mogwaicoin/NeoScryptCSharp for correct neoscrypt native c# hashing
+					// haven't added source because it will need to have unsafe code checked for the project.
+					//NeoScrypt.NeoScrypt.neoscrypt(data.Skip(offset).Take(count).ToArray(), ref output, 0x0);
 					thash = output;
 				}
 				else
