@@ -738,6 +738,39 @@ namespace NBitcoin.Tests
 			};
 		}
 
+		public class GincoinNodeDownloadData
+		{
+			public NodeDownloadData v1_1_0_0 = new NodeDownloadData()
+			{
+				Version = "1.1.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink =
+						"https://github.com/gincoin-dev/gincoin-core/releases/download/{0}.0/gincoincore-{0}-windows-64bit.exe",
+					Archive = "gincoincore-{0}-windows-64bit.exe",
+					Executable = "gincoincore-{0}-windows-64bit.exe",
+					Hash = "B64E4C334D3597FC7A094DE4CA1955DBE06E9C5856598D9A2B3D8E5907D71EF9"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink =
+						"https://github.com/gincoin-dev/gincoin-core/releases/download/{0}.0/gincoincore-{0}-linux-64bit.tar.gz",
+					Archive = "gincoincore-{0}-linux-64bit.tar.gz",
+					Executable = "gincoincore-{0}-linux-64bit/bin/dashd",
+					Hash = "2A04164FDD2DDF8A8EBAEE75DEF0063A1B6295FD674B119421203056F95B4606"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/gincoin-dev/gincoin-core/releases/download/{0}.0/gincoincore-{0}-osx.dmg",
+					Archive = "gincoincore-{0}-osx.dmg",
+					Executable = "gincoincore-{0}-osx/bin/dashd",
+					Hash = "8CBE13CCFC9C877C4573C3C592C8781C1501B99BB4FE09CC3E14A3B15FCDEC91"
+				}
+			};
+		}
+
+
+
 		public static GoByteNodeDownloadData GoByte
 		{
 			get; set;
@@ -836,6 +869,12 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new LiquidNodeDownloadData();
+
+		public static GincoinNodeDownloadData Gincoin
+		{
+			get; set;
+		} = new GincoinNodeDownloadData();
+
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
 	}

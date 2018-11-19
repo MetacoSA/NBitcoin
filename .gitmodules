@@ -1,0 +1,3 @@
+[submodule "Submodules/Lyra2"]
+	path = Submodules/Lyra2
+	url = https://github.com/kkabala/Lyra2.git
