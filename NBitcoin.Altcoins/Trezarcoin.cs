@@ -224,7 +224,7 @@ namespace NBitcoin.Altcoins
 
         protected override void PostInit()
         {
-            RegisterDefaultCookiePath("Trezarcoin", new FolderName() { TestnetFolder = "testnet3" });
+            RegisterDefaultCookiePath("Trezarcoin");
         }
 
         protected override NetworkBuilder CreateMainnet()
@@ -244,7 +244,7 @@ namespace NBitcoin.Altcoins
                 PowNoRetargeting = false,
                 RuleChangeActivationThreshold = 15120,
                 MinerConfirmationWindow = 20160,
-                CoinbaseMaturity = 120,
+                CoinbaseMaturity = 200,
                 LitecoinWorkCalculation = true,
                 ConsensusFactory = TrezarcoinConsensusFactory.Instance
             })
@@ -278,7 +278,7 @@ namespace NBitcoin.Altcoins
             var builder = new NetworkBuilder();
             builder.SetConsensus(new Consensus()
             {
-                SubsidyHalvingInterval = 2100000,
+                SubsidyHalvingInterval = 1600000,
                 MajorityEnforceBlockUpgrade = 51,
                 MajorityRejectBlockOutdated = 75,
                 MajorityWindow = 100,
@@ -289,7 +289,7 @@ namespace NBitcoin.Altcoins
                 PowNoRetargeting = false,
                 RuleChangeActivationThreshold = 1512,
                 MinerConfirmationWindow = 2016,
-                CoinbaseMaturity = 120,
+                CoinbaseMaturity = 200,
                 LitecoinWorkCalculation = true,
                 ConsensusFactory = TrezarcoinConsensusFactory.Instance
             })
@@ -333,8 +333,8 @@ namespace NBitcoin.Altcoins
                 MinimumChainWork = uint256.Zero,
                 PowNoRetargeting = true,
                 RuleChangeActivationThreshold = 108,
-                MinerConfirmationWindow = 2016,
-                CoinbaseMaturity = 120,
+                MinerConfirmationWindow = 144,
+                CoinbaseMaturity = 200,
                 LitecoinWorkCalculation = true,
                 ConsensusFactory = TrezarcoinConsensusFactory.Instance
             })
