@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NBitcoin.Tests
+﻿namespace NBitcoin.Tests
 {
 	public partial class NodeDownloadData
 	{

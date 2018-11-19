@@ -1,19 +1,12 @@
-﻿using NBitcoin;
-using NBitcoin.Crypto;
+﻿using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
-using NBitcoin.RPC;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using NBitcoin.Altcoins.GincoinInternals;
 
 namespace NBitcoin.Altcoins
 {
-	// Reference: https://github.com/dashpay/dash/blob/master/src/chainparams.cpp
 	public class Gincoin : NetworkSetBase
 	{
 		public static Gincoin Instance { get; } = new Gincoin();
@@ -22,7 +15,6 @@ namespace NBitcoin.Altcoins
 
 		public Gincoin()
 		{
-
 		}
 
 		public class GincoinConsensusFactory : ConsensusFactory
@@ -95,7 +87,7 @@ namespace NBitcoin.Altcoins
 		static uint256 GetPoWHash(BlockHeader header)
 		{
 			var headerBytes = header.ToBytes();
-			var h = NBitcoin.Crypto.SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
+			var h = SCrypt.ComputeDerivedKey(headerBytes, headerBytes, 1024, 1, 1, null, 32);
 			return new uint256(h);
 		}
 
