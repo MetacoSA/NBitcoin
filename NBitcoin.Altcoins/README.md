@@ -16,6 +16,7 @@ Currently supported altcoins are:
 * UFO
 * Viacoin
 * Zclassic
+* Trezarcoin
 
 ## How to use?
 

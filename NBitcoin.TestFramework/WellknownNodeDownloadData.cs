@@ -737,6 +737,35 @@ namespace NBitcoin.Tests
 				}
 			};
 		}
+		public class TrezarcoinNodeDownloadData
+		{
+			public NodeDownloadData v1_2_0 = new NodeDownloadData()
+			{
+				Version = "1.2.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://trezarcoin.com/Downloads/trezarcoin-{0}-win64.zip",
+					Archive = "trezarcoin-{0}-win64.zip",
+					Executable = "trezarcoin-{0}/bin/trezarcoind.exe",
+					Hash = "45dfc75c8b1c8619ebba1cbd377ec826958ad9a1131d85f98cfaa82ce771f312"
+                },
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://trezarcoin.com/Downloads/trezarcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "trezarcoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "trezarcoin-{0}/bin/trezarcoind",
+					Hash = "0de29d6f95f6d918da80532f912b45f2e362d4ea3f439f809ae3725ba7699bd6"
+                },
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://trezarcoin.com/Downloads/trezarcoin-{0}-MacOS.dmg",
+					Archive = "TrezarCoin-Core.dmg",
+					Executable = "trezarcoind",
+					Hash = "203250e4d3327fb98d7e022286c5d703551a3a4da7fa69937918e43026fc7f68"
+                }
+			};
+		}
+    }
 
 		public static GoByteNodeDownloadData GoByte
 		{
@@ -836,6 +865,11 @@ namespace NBitcoin.Tests
 		{
 			get; set;
 		} = new LiquidNodeDownloadData();
+
+		public static TrezarcoinNodeDownloadData Trezarcoin
+		{
+			get; set;
+		} = new TrezarcoinNodeDownloadData();
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
 	}
