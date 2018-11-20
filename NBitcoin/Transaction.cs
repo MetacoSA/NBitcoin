@@ -553,7 +553,7 @@ namespace NBitcoin
 		#endregion
 	}
 
-	public class TxOut : IBitcoinSerializable, IDestination
+	public class TxOut : IBitcoinSerializable, IDestination, IEquatable<TxOut>
 	{
 		protected Script publicKey = Script.Empty;
 		public Script ScriptPubKey
@@ -585,6 +585,9 @@ namespace NBitcoin
 			Value = value;
 			ScriptPubKey = scriptPubKey;
 		}
+
+		public bool Equals(TxOut other) =>
+			this.ScriptPubKey.Equals(other.ScriptPubKey) && this.Value == other.Value;
 
 		internal readonly static Money NullMoney = new Money(-1);
 		Money _Value = NullMoney;
@@ -985,7 +988,7 @@ namespace NBitcoin
 		BlockExplorer,
 	}
 
-	public class WitScript
+	public class WitScript : IEquatable<WitScript>
 	{
 		byte[][] _Pushes;
 		public WitScript(string script)
@@ -1062,6 +1065,7 @@ namespace NBitcoin
 			_Pushes = pushes.ToArray();
 		}
 
+
 		public static WitScript Load(BitcoinStream stream)
 		{
 			WitScript script = new WitScript();
@@ -1118,10 +1122,10 @@ namespace NBitcoin
 			WitScript item = obj as WitScript;
 			if (item == null)
 				return false;
-			return EqualsCore(item);
+			return Equals(item);
 		}
 
-		private bool EqualsCore(WitScript item)
+		public bool Equals(WitScript item)
 		{
 			if (_Pushes.Length != item._Pushes.Length)
 				return false;
@@ -1138,7 +1142,7 @@ namespace NBitcoin
 				return true;
 			if (((object)a == null) || ((object)b == null))
 				return false;
-			return a.EqualsCore(b);
+			return a.Equals(b);
 		}
 
 		public static bool operator !=(WitScript a, WitScript b)
@@ -1260,7 +1264,7 @@ namespace NBitcoin
 
 	//https://en.bitcoin.it/wiki/Transactions
 	//https://en.bitcoin.it/wiki/Protocol_specification
-	public class Transaction : IBitcoinSerializable
+	public class Transaction : IBitcoinSerializable, IEquatable<Transaction>
 	{
 		public bool RBF
 		{
@@ -1351,6 +1355,9 @@ namespace NBitcoin
 
 		//Since it is impossible to serialize a transaction with 0 input without problems during deserialization with wit activated, we fit a flag in the version to workaround it
 		protected const uint NoDummyInput = (1 << 27);
+
+		public bool Equals(Transaction other) =>
+			this.GetHash() == other.GetHash() && this.GetWitHash() == other.GetWitHash();
 
 		#region IBitcoinSerializable Members
 
@@ -2325,6 +2332,7 @@ namespace NBitcoin
 		{
 			this.ReadWrite(new BitcoinStream(bytes) { ConsensusFactory = GetConsensusFactory() });
 		}
+
 	}
 
 	public enum TransactionCheckResult
