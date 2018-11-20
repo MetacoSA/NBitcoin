@@ -439,13 +439,16 @@ namespace NBitcoin.BIP174
 		}
 		public bool Equals(PSBTInput other) =>
 			IsReferencingSamePrevOut(other) &&
-			Utils.DictEqual(partial_sigs, other.partial_sigs) &&
+			Utils.DictEqual(partial_sigs, other.partial_sigs, IsPartialSigSame) &&
 			sighash_type == other.sighash_type &&
 			Utils.NullSafeEquals(redeem_script, redeem_script) &&
 			Utils.NullSafeEquals(witness_script, witness_script) &&
 			Utils.NullSafeEquals<Script>(final_script_sig, other.final_script_sig) &&
 			Utils.NullSafeEquals<WitScript>(final_script_witness, other.final_script_witness) &&
-			Utils.DictEqual(hd_keypaths, other.hd_keypaths);
+			Utils.DictEqual(hd_keypaths, other.hd_keypaths, (x, y) => x.SequenceEqual(y));
+
+		private bool IsPartialSigSame(Tuple<PubKey, ECDSASignature> a, Tuple<PubKey, ECDSASignature> b) =>
+			a.Item1.Equals(b.Item1) && a.Item2.ToDER().SequenceEqual(b.Item2.ToDER());
 
 		public static bool operator ==(PSBTInput a, PSBTInput b) => a.Equals(b);
 		public static bool operator !=(PSBTInput a, PSBTInput b) => !(a == b);
@@ -648,7 +651,7 @@ namespace NBitcoin.BIP174
 		public bool Equals(PSBTOutput b) =>
 			Utils.NullSafeEquals(redeem_script, b.redeem_script) &&
 			Utils.NullSafeEquals(witness_script, b.witness_script) &&
-			Utils.DictEqual(hd_keypaths, b.hd_keypaths);
+			Utils.DictEqual(hd_keypaths, b.hd_keypaths, (x, y) => x.SequenceEqual(y));
 
 		public static bool operator ==(PSBTOutput a, PSBTOutput b) => a.Equals(b);
 		public static bool operator !=(PSBTOutput a, PSBTOutput b) => !(a == b);
