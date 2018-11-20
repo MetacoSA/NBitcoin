@@ -881,7 +881,7 @@ namespace NBitcoin.BIP174
 			if (!isInputAllSame)
 				return false;
 			bool isOutputAllSame = aouts.Zip(bouts, (PSBTOutput aout, PSBTOutput bout) => aout.Equals(bout)).All(res => res);
-			if (!isInputAllSame)
+			if (!isOutputAllSame)
 				return false;
 
 			return true;
