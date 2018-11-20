@@ -415,6 +415,32 @@ namespace NBitcoin
 			return true;
 		}
 
+		public static bool NullSafeEquals<T>(T a, T b) where T : IEquatable<T> =>
+			(a == null && b == null) || ((a != null && b != null) && a.Equals(b));
+
+		public static bool DictEqual<T, U>(Dictionary<T, U> x, Dictionary<T, U> y)
+		{
+			if (null == y)
+				return null == x;
+			if (null == x)
+				return false;
+			if (object.ReferenceEquals(x, y))
+				return true;
+			if (x.Count != y.Count)
+				return false;
+
+			// check keys are the same
+			foreach (T k in x.Keys)
+				if (!y.ContainsKey(k))
+					return false;
+
+			// check values are the same
+			foreach (T k in x.Keys)
+				if (!x[k].Equals(y[k]))
+						return false;
+
+			return true;
+		}
 
 		internal static String BITCOIN_SIGNED_MESSAGE_HEADER = "Bitcoin Signed Message:\n";
 		internal static byte[] BITCOIN_SIGNED_MESSAGE_HEADER_BYTES = Encoding.UTF8.GetBytes(BITCOIN_SIGNED_MESSAGE_HEADER);
@@ -554,8 +580,6 @@ namespace NBitcoin
 			var span = TimeSpan.FromSeconds(timestamp);
 			return unixRef + span;
 		}
-
-
 
 		public static string ExceptionToString(Exception exception)
 		{
