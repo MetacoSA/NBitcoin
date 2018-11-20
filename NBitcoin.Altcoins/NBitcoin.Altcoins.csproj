@@ -20,7 +20,6 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
-		<ProjectReference Include="..\Submodules\Lyra2\Source\Lyra2\Lyra2.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Compile Remove="HashX11\NeoScrypt.cs" />

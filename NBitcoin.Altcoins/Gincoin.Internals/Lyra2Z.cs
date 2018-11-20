@@ -1,5 +1,4 @@
-﻿using Kabala.Lyra2;
-using NBitcoin.Altcoins.HashX11.Crypto.SHA3;
+﻿using NBitcoin.Altcoins.HashX11.Crypto.SHA3;
 using System;
 
 namespace NBitcoin.Altcoins.GincoinInternals
@@ -14,7 +13,7 @@ namespace NBitcoin.Altcoins.GincoinInternals
 			byte[] hashB = new byte[hashSizeInBytes];
 			var blake = new Blake256();
 			hashA = blake.ComputeBytes(input).GetBytes();
-			Lyra2 lyra2 = new Lyra2();
+			Lyra2.Lyra2 lyra2 = new Lyra2.Lyra2();
 			lyra2.Calculate(hashB, hashA, hashA, 8, 8, 8);
 		
 			return hashB;
