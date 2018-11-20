@@ -29,7 +29,4 @@
 		<Optimize>true</Optimize>
 		<DocumentationFile>bin\Release\NBitcoin.Altcoins.XML</DocumentationFile>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-	  <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-	</PropertyGroup>
 </Project>
