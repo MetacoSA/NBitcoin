@@ -120,7 +120,7 @@ namespace NBitcoin.Altcoins
 			.SetBase58Bytes(Base58Type.EXT_SECRET_KEY, new byte[] { 0x04, 0x88, 0xAD, 0xE4 })
 			.SetBech32(Bech32Type.WITNESS_PUBKEY_ADDRESS, Encoders.Bech32("gin"))
 			.SetBech32(Bech32Type.WITNESS_SCRIPT_ADDRESS, Encoders.Bech32("gin"))
-			.SetMagic(0xFFCAE2CE)
+			.SetMagic(0xBD6B0CBF)
 			.SetPort(10111)
 			.SetRPCPort(10211)
 			.SetMaxP2PVersion(70208)
