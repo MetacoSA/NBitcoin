@@ -39,6 +39,10 @@ namespace NBitcoin.Tests.Generators
 
 		public static Gen<List<PubKey>> PublicKeys() =>
 			from n in Gen.Choose(0, 15)
+			from pks in PublicKeys(n)
+			select pks;
+
+		public static Gen<List<PubKey>> PublicKeys(int n) =>
 			from pks in Gen.ListOf(n, PublicKey())
 			select pks.ToList();
 
@@ -57,6 +61,15 @@ namespace NBitcoin.Tests.Generators
 			from hash in Hash256()
 			from priv in PrivateKey()
 			select priv.Sign(hash);
+
+		public static Gen<List<ECDSASignature>> ECDSAs() =>
+			from n in Gen.Choose(0, 20)
+			from sigs in ECDSAs(n)
+			select sigs.ToList();
+
+		public static Gen<List<ECDSASignature>> ECDSAs(int n) =>
+			from sigs in Gen.ListOf(n, ECDSA())
+			select sigs.ToList();
 		#endregion
 
 		#region TransactionSignature

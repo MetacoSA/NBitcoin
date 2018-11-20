@@ -10,7 +10,7 @@ namespace NBitcoin.Tests.Generators
 			Gen.Choose(0, 255).Select(i => (byte) i);
 
 		public static Gen<byte[]> RandomBytes() =>
-			Gen.ListOf(RandomByte()).Select(bs => bs.ToArray());
+			Gen.NonEmptyListOf(RandomByte()).Select(bs => bs.ToArray());
 
 		public static Gen<byte[]> RandomBytes(int length) =>
 			from bytes in Gen.ListOf(length, RandomByte())
