@@ -749,18 +749,18 @@
 				},
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink =
-						"https://github.com/gincoin-dev/gincoin-core/releases/download/{0}.0/gincoincore-{0}-linux-64bit.tar.gz",
-					Archive = "gincoincore-{0}-linux-64bit.tar.gz",
-					Executable = "gincoincore-{0}-linux-64bit/bin/dashd",
-					Hash = "2A04164FDD2DDF8A8EBAEE75DEF0063A1B6295FD674B119421203056F95B4606"
+					DownloadLink = 
+						"https://github.com/gincoin-dev/gincoin-core/releases/download/{0}.0/gincoin-binaries-linux-64bit.tar.gz",
+					Archive = "gincoin-binaries-linux-64bit.tar.gz",
+					Executable = "gincoin-binaries/gincoind",
+					Hash = "1C249AEC8CD3D66F8D9D49CF3AD1526736216C76200D4BB83E89657879D55F92"
 				},
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/gincoin-dev/gincoin-core/releases/download/{0}.0/gincoincore-{0}-osx.dmg",
-					Archive = "gincoincore-{0}-osx.dmg",
-					Executable = "gincoincore-{0}-osx/bin/dashd",
-					Hash = "8CBE13CCFC9C877C4573C3C592C8781C1501B99BB4FE09CC3E14A3B15FCDEC91"
+					DownloadLink = "https://github.com/gincoin-dev/gincoin-core/releases/download/{0}.0/gincoin-binaries-mac.zip",
+					Archive = "gincoin-binaries-mac.zip",
+					Executable = "gincoin-binaries-mac/gincoind",
+					Hash = "CFFE613A18AB3ABB0200EC5E100036DDF710C4EC832FBB67B3D5196CDBF541EA"
 				}
 			};
 		}
