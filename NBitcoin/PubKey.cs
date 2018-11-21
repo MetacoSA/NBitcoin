@@ -353,7 +353,7 @@ namespace NBitcoin
 				return false;
 			return Equals(item);
 		}
-		public bool Equals(PubKey pk) => ToHex().Equals(pk.ToHex());
+		public bool Equals(PubKey pk) => pk != null && ToBytes().SequenceEqual(pk.ToBytes());
 		public static bool operator ==(PubKey a, PubKey b)
 		{
 			if(System.Object.ReferenceEquals(a, b))

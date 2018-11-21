@@ -420,10 +420,6 @@ namespace NBitcoin
 
 		public static bool DictEqual<T, U>(Dictionary<T, U> x, Dictionary<T, U> y, Func<U, U, bool> ValueComparator)
 		{
-			if (null == y)
-				return null == x;
-			if (null == x)
-				return false;
 			if (object.ReferenceEquals(x, y))
 				return true;
 			if (x.Count != y.Count)
