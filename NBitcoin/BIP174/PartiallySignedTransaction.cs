@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
+using Newtonsoft.Json;
 
 namespace NBitcoin.BIP174
 {
@@ -468,41 +469,7 @@ namespace NBitcoin.BIP174
 
 		public override string ToString()
 		{
-			var builder = new StringBuilder();
-			builder.AppendFormat("non_witness_utxo: {0} \n", non_witness_utxo);
-			if (witness_utxo != null)
-			{
-				builder.Append("witness_utxo {\n");
-				builder.AppendFormat("	value: {0},\n", witness_utxo.Value);
-				builder.AppendFormat("	scriptPubKey: {0},\n", witness_utxo.ScriptPubKey);
-				builder.Append("}\n");
-			}
-			builder.AppendFormat("redeem_script: {0} \n", redeem_script);
-			builder.AppendFormat("witness_script: {0} \n", witness_script);
-			builder.AppendFormat("final_script_sig: {0} \n", final_script_sig);
-			builder.AppendFormat("final_script_witness: {0} \n", final_script_witness);
-
-			builder.Append("partial_signatures: [\n");
-			foreach (var kv in partial_sigs)
-			{
-				builder.AppendFormat("	{0}: {1},\n", kv.Key, kv.Value);
-			}
-			builder.Append("]\n");
-
-			builder.Append("hd_keypaths: [\n");
-			foreach (var kv in hd_keypaths)
-			{
-				builder.AppendFormat("	{0}: {1}, \n", kv.Key, Encoders.Hex.EncodeData(kv.Value));
-			}
-			builder.Append("]\n");
-
-			builder.Append("unknown: [\n");
-			foreach (var kv in unknown)
-			{
-				builder.AppendFormat("	{0}: {1}, \n", Encoders.Hex.EncodeData(kv.Key), Encoders.Hex.EncodeData(kv.Value));
-			}
-			builder.Append("]\n");
-			return builder.ToString();
+			return JsonConvert.SerializeObject(this);
 		}
 	}
 
@@ -690,24 +657,7 @@ namespace NBitcoin.BIP174
 
 		public override string ToString()
 		{
-			var builder = new StringBuilder();
-			builder.AppendFormat("redeem_script: {0} \n", redeem_script);
-			builder.AppendFormat("witness_script: {0} \n", witness_script);
-
-			builder.Append("hd_keypaths: [\n");
-			foreach (var kv in hd_keypaths)
-			{
-				builder.AppendFormat("	{0}: {1}, \n", kv.Key, Encoders.Hex.EncodeData(kv.Value));
-			}
-			builder.Append("]\n");
-
-			builder.Append("unknown: [\n");
-			foreach (var kv in unknown)
-			{
-				builder.AppendFormat("	{0}: {1}, \n", Encoders.Hex.EncodeData(kv.Key), Encoders.Hex.EncodeData(kv.Value));
-			}
-			builder.Append("]\n");
-			return builder.ToString();
+			return JsonConvert.SerializeObject(this);
 		}
 
 		public override bool Equals(object obj)
@@ -884,7 +834,7 @@ namespace NBitcoin.BIP174
 
 						tx.FromBytes(v);
 						if (tx.Inputs.Any(txin => txin.ScriptSig != Script.Empty || txin.WitScript != WitScript.Empty))
-							throw new FormatException("Malformed global tx. It should not contain any script or witness but it does.");
+							throw new FormatException("Malformed global tx. It should not contain any scriptsig or witness by itself");
 						txFound = true;
 						break;
 					default:
@@ -918,28 +868,7 @@ namespace NBitcoin.BIP174
 
 		public override string ToString()
 		{
-			var builder = new StringBuilder();
-			builder.AppendFormat("tx: {0}\n", tx);
-			builder.Append("inputs: [\n");
-			foreach (var psbtin in inputs)
-			{
-				builder.AppendFormat("{0},\n", psbtin);
-			}
-
-			builder.Append("outputs: [\n");
-			foreach (var psbtout in outputs)
-			{
-				builder.AppendFormat("{0}\n", psbtout);
-			}
-			builder.Append("]\n");
-
-			builder.Append("unknown: [\n");
-			foreach (var kv in unknown)
-			{
-				builder.AppendFormat("	{0}: {1}, \n", Encoders.Hex.EncodeData(kv.Key), Encoders.Hex.EncodeData(kv.Value));
-			}
-			builder.Append("]\n");
-			return builder.ToString();
+			return JsonConvert.SerializeObject(this);
 		}
 
 		public virtual ConsensusFactory GetConsensusFactory() => Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
