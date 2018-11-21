@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FsCheck;
@@ -11,9 +12,8 @@ namespace NBitcoin.Tests.Generators
 		{
 			Assert.Equal(keys.Count(), values.Count());
 			var dict = new Dictionary<T, U>();
-			foreach (var k in keys)
-				foreach (var v in values)
-					dict.Add(k, v);
+			foreach (var kv in keys.Zip(values, (k, v) => Tuple.Create(k, v)))
+				dict.Add(kv.Item1, kv.Item2);
 
 			return dict;
 		}
