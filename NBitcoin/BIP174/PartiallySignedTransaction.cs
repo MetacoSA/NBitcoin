@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 
@@ -219,7 +220,7 @@ namespace NBitcoin.BIP174
 				return non_witness_utxo.Outputs[prevout.N];
 			return null;
 		}
-		private void Serialize(BitcoinStream stream)
+		public void Serialize(BitcoinStream stream)
 		{
 			CheckSanity();
 			// Write the utxo
@@ -323,9 +324,12 @@ namespace NBitcoin.BIP174
 				stream.ReadWriteAsVarString(ref k);
 				stream.ReadWriteAsVarString(ref v);
 			}
+
+			var sep = PSBTConstants.PSBT_SEPARATOR;
+			stream.ReadWrite(ref sep);
 		}
 
-		private void Deserialize(BitcoinStream stream)
+		public void Deserialize(BitcoinStream stream)
 		{
 			byte[] k = new byte[0];
 			byte[] v = new byte[0];
@@ -403,6 +407,7 @@ namespace NBitcoin.BIP174
 						var pubkey2 = new PubKey(k.Skip(1).ToArray());
 						if (hd_keypaths.ContainsKey(pubkey2))
 							throw new FormatException("Invalid PSBTInput. Duplicate key for hd_keypaths");
+						hd_keypaths.Add(pubkey2, v);
 						break;
 					case PSBTConstants.PSBT_IN_SCRIPTSIG:
 						if (k.Length != 1)
@@ -435,8 +440,9 @@ namespace NBitcoin.BIP174
 			var item = obj as PSBTInput;
 			if (item == null)
 				return false;
-			return item == this;
+			return item.Equals(this);
 		}
+
 		public bool Equals(PSBTInput other) =>
 			IsReferencingSamePrevOut(other) &&
 			Utils.DictEqual(partial_sigs, other.partial_sigs, IsPartialSigSame) &&
@@ -448,10 +454,7 @@ namespace NBitcoin.BIP174
 			Utils.DictEqual(hd_keypaths, other.hd_keypaths, (x, y) => x.SequenceEqual(y));
 
 		private bool IsPartialSigSame(Tuple<PubKey, ECDSASignature> a, Tuple<PubKey, ECDSASignature> b) =>
-			a.Item1.Equals(b.Item1) && a.Item2.ToDER().SequenceEqual(b.Item2.ToDER());
-
-		public static bool operator ==(PSBTInput a, PSBTInput b) => a.Equals(b);
-		public static bool operator !=(PSBTInput a, PSBTInput b) => !(a == b);
+			Utils.NullSafeEquals(a.Item1, b.Item1) && a.Item2.ToDER().SequenceEqual(b.Item2.ToDER());
 
 		public override int GetHashCode() => Utils.GetHashCode(this.ToBytes());
 
@@ -461,6 +464,45 @@ namespace NBitcoin.BIP174
 			Utils.NullSafeEquals(witness_utxo, other.witness_utxo);
 
 		public virtual ConsensusFactory GetConsensusFactory() => Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
+
+		public override string ToString()
+		{
+			var builder = new StringBuilder();
+			builder.AppendFormat("non_witness_utxo: {0} \n", non_witness_utxo);
+			if (witness_utxo != null)
+			{
+				builder.Append("witness_utxo {\n");
+				builder.AppendFormat("	value: {0},\n", witness_utxo.Value);
+				builder.AppendFormat("	scriptPubKey: {0},\n", witness_utxo.ScriptPubKey);
+				builder.Append("}\n");
+			}
+			builder.AppendFormat("redeem_script: {0} \n", redeem_script);
+			builder.AppendFormat("witness_script: {0} \n", witness_script);
+			builder.AppendFormat("final_script_sig: {0} \n", final_script_sig);
+			builder.AppendFormat("final_script_witness: {0} \n", final_script_witness);
+
+			builder.Append("partial_signatures: [\n");
+			foreach (var kv in partial_sigs)
+			{
+				builder.AppendFormat("	{0}: {1},\n", kv.Key, kv.Value);
+			}
+			builder.Append("]\n");
+
+			builder.Append("hd_keypaths: [\n");
+			foreach (var kv in hd_keypaths)
+			{
+				builder.AppendFormat("	{0}: {1}, \n", kv.Key, Encoders.Hex.EncodeData(kv.Value));
+			}
+			builder.Append("]\n");
+
+			builder.Append("unknown: [\n");
+			foreach (var kv in unknown)
+			{
+				builder.AppendFormat("	{0}: {1}, \n", Encoders.Hex.EncodeData(kv.Key), Encoders.Hex.EncodeData(kv.Value));
+			}
+			builder.Append("]\n");
+			return builder.ToString();
+		}
 	}
 
 	public class PSBTInputList : UnsignedList<PSBTInput>
@@ -585,6 +627,9 @@ namespace NBitcoin.BIP174
 				stream.ReadWriteAsVarString(ref k);
 				stream.ReadWriteAsVarString(ref v);
 			}
+
+			var sep = PSBTConstants.PSBT_SEPARATOR;
+			stream.ReadWrite(ref sep);
 		}
 
 		public void Deserialize(BitcoinStream stream)
@@ -629,6 +674,7 @@ namespace NBitcoin.BIP174
 						var pubkey2 = new PubKey(k.Skip(1).ToArray());
 						if (hd_keypaths.ContainsKey(pubkey2))
 							throw new FormatException("Invalid PSBTOutput, duplicate key for hd_keypaths");
+						hd_keypaths.Add(pubkey2, v);
 						break;
 					default:
 						if (unknown.ContainsKey(k))
@@ -641,6 +687,28 @@ namespace NBitcoin.BIP174
 		}
 		#endregion
 
+		public override string ToString()
+		{
+			var builder = new StringBuilder();
+			builder.AppendFormat("redeem_script: {0} \n", redeem_script);
+			builder.AppendFormat("witness_script: {0} \n", witness_script);
+
+			builder.Append("hd_keypaths: [\n");
+			foreach (var kv in hd_keypaths)
+			{
+				builder.AppendFormat("	{0}: {1}, \n", kv.Key, Encoders.Hex.EncodeData(kv.Value));
+			}
+			builder.Append("]\n");
+
+			builder.Append("unknown: [\n");
+			foreach (var kv in unknown)
+			{
+				builder.AppendFormat("	{0}: {1}, \n", Encoders.Hex.EncodeData(kv.Key), Encoders.Hex.EncodeData(kv.Value));
+			}
+			builder.Append("]\n");
+			return builder.ToString();
+		}
+
 		public override bool Equals(object obj)
 		{
 			var item = obj as PSBTOutput;
@@ -652,9 +720,6 @@ namespace NBitcoin.BIP174
 			Utils.NullSafeEquals(redeem_script, b.redeem_script) &&
 			Utils.NullSafeEquals(witness_script, b.witness_script) &&
 			Utils.DictEqual(hd_keypaths, b.hd_keypaths, (x, y) => x.SequenceEqual(y));
-
-		public static bool operator ==(PSBTOutput a, PSBTOutput b) => a.Equals(b);
-		public static bool operator !=(PSBTOutput a, PSBTOutput b) => !(a == b);
 
 		public override int GetHashCode() => Utils.GetHashCode(this.ToBytes());
 	}
@@ -751,7 +816,7 @@ namespace NBitcoin.BIP174
 		}
 
 		private static uint defaultKeyLen = 1;
-		private void Serialize(BitcoinStream stream)
+		public void Serialize(BitcoinStream stream)
 		{
 			CheckSanity();
 			// magic bytes
@@ -783,17 +848,15 @@ namespace NBitcoin.BIP174
 			foreach (var psbtin in inputs)
 			{
 				stream.ReadWrite(psbtin);
-				stream.ReadWrite(sep);
 			}
 			// Write outputs
 			foreach (var psbtout in outputs)
 			{
 				stream.ReadWrite(psbtout);
-				stream.ReadWrite(sep);
 			}
 		}
 
-		private void Deserialize(BitcoinStream stream)
+		public void Deserialize(BitcoinStream stream)
 		{
 			var magicBytes = stream.Inner.ReadBytes(PSBT_MAGIC_BYTES.Length);
 			if (!magicBytes.SequenceEqual(PSBT_MAGIC_BYTES))
@@ -851,6 +914,32 @@ namespace NBitcoin.BIP174
 			CheckSanity();
 		}
 		#endregion
+
+		public override string ToString()
+		{
+			var builder = new StringBuilder();
+			builder.AppendFormat("tx: {0}\n", tx);
+			builder.Append("inputs: [\n");
+			foreach (var psbtin in inputs)
+			{
+				builder.AppendFormat("{0},\n", psbtin);
+			}
+
+			builder.Append("outputs: [\n");
+			foreach (var psbtout in outputs)
+			{
+				builder.AppendFormat("{0}\n", psbtout);
+			}
+			builder.Append("]\n");
+
+			builder.Append("unknown: [\n");
+			foreach (var kv in unknown)
+			{
+				builder.AppendFormat("	{0}: {1}, \n", Encoders.Hex.EncodeData(kv.Key), Encoders.Hex.EncodeData(kv.Value));
+			}
+			builder.Append("]\n");
+			return builder.ToString();
+		}
 
 		public virtual ConsensusFactory GetConsensusFactory() => Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
 
