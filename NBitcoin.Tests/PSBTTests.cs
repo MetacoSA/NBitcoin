@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System;
 using NBitcoin.DataEncoders;
+using System.Collections.Generic;
 
 namespace NBitcoin.Tests
 {
@@ -38,8 +39,14 @@ namespace NBitcoin.Tests
 				var psbt = PSBT.Parse(i);
 				var psbtBase64 = Encoders.Base64.EncodeData(psbt.ToBytes());
 				var psbt2 = PSBT.Parse(psbtBase64);
-				Assert.True(psbt.Equals(psbt2));
+				Assert.Equal(psbt, psbt2, new PSBTComparer());
 			}
+		}
+
+		private class PSBTComparer : IEqualityComparer<PSBT>
+		{
+			public bool Equals(PSBT a, PSBT b) => a.Equals(b);
+			public int GetHashCode(PSBT psbt) => psbt.GetHashCode();
 		}
 	}
 }
