@@ -447,25 +447,9 @@ namespace NBitcoin.BIP174
 			return item.Equals(this);
 		}
 
-		public bool Equals(PSBTInput other) =>
-			IsReferencingSamePrevOut(other) &&
-			Utils.DictEqual(partial_sigs, other.partial_sigs, IsPartialSigSame) &&
-			sighash_type == other.sighash_type &&
-			Utils.NullSafeEquals(redeem_script, redeem_script) &&
-			Utils.NullSafeEquals(witness_script, witness_script) &&
-			Utils.NullSafeEquals<Script>(final_script_sig, other.final_script_sig) &&
-			Utils.NullSafeEquals<WitScript>(final_script_witness, other.final_script_witness) &&
-			Utils.DictEqual(hd_keypaths, other.hd_keypaths, (x, y) => x.SequenceEqual(y));
-
-		private bool IsPartialSigSame(Tuple<PubKey, ECDSASignature> a, Tuple<PubKey, ECDSASignature> b) =>
-			Utils.NullSafeEquals(a.Item1, b.Item1) && a.Item2.ToDER().SequenceEqual(b.Item2.ToDER());
+		public bool Equals(PSBTInput other) => other != null && this.ToBytes().SequenceEqual(other.ToBytes());
 
 		public override int GetHashCode() => Utils.GetHashCode(this.ToBytes());
-
-		private bool IsReferencingSamePrevOut(PSBTInput other) =>
-			(non_witness_utxo == null && other.non_witness_utxo == null && witness_utxo == null && other.witness_utxo == null) ||
-			Utils.NullSafeEquals(non_witness_utxo, other.non_witness_utxo) ||
-			Utils.NullSafeEquals(witness_utxo, other.witness_utxo);
 
 		public virtual ConsensusFactory GetConsensusFactory() => Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
 
@@ -670,9 +654,7 @@ namespace NBitcoin.BIP174
 			return item.Equals(this);
 		}
 		public bool Equals(PSBTOutput b) =>
-			Utils.NullSafeEquals(redeem_script, b.redeem_script) &&
-			Utils.NullSafeEquals(witness_script, b.witness_script) &&
-			Utils.DictEqual(hd_keypaths, b.hd_keypaths, (x, y) => x.SequenceEqual(y));
+			b != null && this.ToBytes().SequenceEqual(b.ToBytes());
 
 		public override int GetHashCode() => Utils.GetHashCode(this.ToBytes());
 	}
@@ -877,7 +859,8 @@ namespace NBitcoin.BIP174
 
 		public virtual ConsensusFactory GetConsensusFactory() => Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
 
-		public bool HasEqualTx(PSBT other) => this.tx.Equals(other.tx);
+		public bool HasEqualTx(PSBT other) =>
+			Object.ReferenceEquals(this.tx, other.tx) || this.tx.ToBytes().SequenceEqual(other.tx.ToBytes());
 
 		public override bool Equals(object obj)
 		{
@@ -909,9 +892,6 @@ namespace NBitcoin.BIP174
 
 			return true;
 		}
-		public static bool operator ==(PSBT a, PSBT b) => a.Equals(b);
-		public static bool operator !=(PSBT a, PSBT b) => !(a == b);
-
 		public override int GetHashCode() => Utils.GetHashCode(this.ToBytes());
 	}
 }
