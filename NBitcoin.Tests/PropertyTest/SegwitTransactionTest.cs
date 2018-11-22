@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FsCheck;
 using FsCheck.Xunit;
 using NBitcoin.Crypto;
@@ -22,7 +23,15 @@ namespace NBitcoin.Tests.PropertyTest
 			Assert.Equal(tx.GetWitHash(), Hashes.Hash256(tx.ToBytes()));
 			Assert.NotEqual(tx.GetHash(), tx.GetWitHash());
 			var tx2 = Transaction.Parse(tx.ToHex(), testcase.Item2);
-			Assert.Equal(tx, tx2);
+			Assert.Equal(tx, tx2, new TransactionComparer());
+		}
+
+		private class TransactionComparer : IEqualityComparer<Transaction>
+		{
+			public bool Equals(Transaction a, Transaction b) =>
+				a.GetHash() == b.GetHash() && a.GetWitHash() == b.GetWitHash();
+
+			public int GetHashCode(Transaction a) => a.GetHashCode();
 		}
 	}
 }

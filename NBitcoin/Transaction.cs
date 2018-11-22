@@ -553,7 +553,7 @@ namespace NBitcoin
 		#endregion
 	}
 
-	public class TxOut : IBitcoinSerializable, IDestination, IEquatable<TxOut>
+	public class TxOut : IBitcoinSerializable, IDestination
 	{
 		protected Script publicKey = Script.Empty;
 		public Script ScriptPubKey
@@ -585,9 +585,6 @@ namespace NBitcoin
 			Value = value;
 			ScriptPubKey = scriptPubKey;
 		}
-
-		public bool Equals(TxOut other) =>
-			this.ScriptPubKey.Equals(other.ScriptPubKey) && this.Value == other.Value;
 
 		internal readonly static Money NullMoney = new Money(-1);
 		Money _Value = NullMoney;
@@ -1264,7 +1261,7 @@ namespace NBitcoin
 
 	//https://en.bitcoin.it/wiki/Transactions
 	//https://en.bitcoin.it/wiki/Protocol_specification
-	public class Transaction : IBitcoinSerializable, IEquatable<Transaction>
+	public class Transaction : IBitcoinSerializable
 	{
 		public bool RBF
 		{
@@ -1355,9 +1352,6 @@ namespace NBitcoin
 
 		//Since it is impossible to serialize a transaction with 0 input without problems during deserialization with wit activated, we fit a flag in the version to workaround it
 		protected const uint NoDummyInput = (1 << 27);
-
-		public bool Equals(Transaction other) =>
-			this.GetHash() == other.GetHash() && this.GetWitHash() == other.GetWitHash();
 
 		#region IBitcoinSerializable Members
 
