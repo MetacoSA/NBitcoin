@@ -200,17 +200,19 @@ namespace NBitcoin.BIP174
 
 		public void CheckSanity()
 		{
-			var (isSane, reason) = IsSane();
+			var result = IsSane();
+			var isSane = result.Item1;
+			var reason = result.Item2;
 			if (!isSane)
 				throw new FormatException(reason);
 		}
 
-		private (bool, string) IsSane()
+		private Tuple<bool, string> IsSane()
 		{
 			if (this.IsFinalized())
 				if (partial_sigs.Count != 0 || hd_keypaths.Count != 0 || sighash_type != 0 || redeem_script != null || witness_script != null)
-					return (false, "PSBT Input is dirty. It has been finalized but properties are not cleared");
-			return (true, "");
+					return Tuple.Create(false, "PSBT Input is dirty. It has been finalized but properties are not cleared");
+			return Tuple.Create(true, "");
 		}
 
 		public TxOut GetOutput(OutPoint prevout)
@@ -725,11 +727,13 @@ namespace NBitcoin.BIP174
 		public void CheckSanity()
 		{
 			var result = IsSane();
-			if (!result.Item1)
-				throw new FormatException(result.Item2);
+			var isSane = result.Item1;
+			var reason = result.Item2;
+			if (!isSane)
+				throw new FormatException(reason);
 		}
 
-		private (bool, string) IsSane()
+		private Tuple<bool, string> IsSane()
 		{
 			for (var i = 0; i < this.tx.Inputs.Count(); i++)
 			{
@@ -738,18 +742,18 @@ namespace NBitcoin.BIP174
 				{
 					var prevOutIndex = this.tx.Inputs[i].PrevOut.N;
 					if (!psbtin.NonWitnessUtxo.Outputs[prevOutIndex].Equals(psbtin.NonWitnessUtxo))
-						return (false, "malformed PSBT! witness_utxo and non_witness_utxo is different");
+						return Tuple.Create(false, "malformed PSBT! witness_utxo and non_witness_utxo is different");
 				}
 
 				if (psbtin.NonWitnessUtxo != null)
 				{
 					var prevOutTxId = psbtin.NonWitnessUtxo.GetHash();
 					if (this.tx.Inputs[i].PrevOut.Hash != prevOutTxId)
-						return (false, "malformed PSBT! wrong non_witness_utxo.");
+						return Tuple.Create(false, "malformed PSBT! wrong non_witness_utxo.");
 				}
 			}
 
-			return (true, "");
+			return Tuple.Create(true, "");
 		}
 
 		#region IBitcoinSerializable Members
