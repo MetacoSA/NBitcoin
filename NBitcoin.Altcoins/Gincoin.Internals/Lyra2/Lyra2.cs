@@ -150,12 +150,12 @@ namespace NBitcoin.Altcoins.GincoinInternals.Lyra2
 		private void Initialize()
 		{
 			state = new ulong[16];
-			initState();
+			InitState();
 
 			sponge = new Sponge(state, memMatrix);
 		}
 
-		private void initState()
+		private void InitState()
 		{
 			Array.Clear(state, 0, state.Length);
 

@@ -223,15 +223,15 @@ namespace NBitcoin.Altcoins.GincoinInternals.Lyra2
 			var fullBlocks = len / LyraConstants.BLOCK_LEN_BYTES;
 			var ptr = 0;
 
-			var v_state_bytes = state.SelectMany(BitConverter.GetBytes).ToArray();
+			var stateBytes = state.SelectMany(BitConverter.GetBytes).ToArray();
 			for (ulong i = 0; i < fullBlocks; i++)
 			{
-				Array.Copy(v_state_bytes, 0, K, ptr, (int)LyraConstants.BLOCK_LEN_BYTES);
+				Array.Copy(stateBytes, 0, K, ptr, (int)LyraConstants.BLOCK_LEN_BYTES);
 				Blake2bLyra(12);
 				ptr += (int)LyraConstants.BLOCK_LEN_BYTES;
 			}
 
-			Array.Copy(v_state_bytes, 0, K, ptr, (int)(len % LyraConstants.BLOCK_LEN_BYTES));
+			Array.Copy(stateBytes, 0, K, ptr, (int)(len % LyraConstants.BLOCK_LEN_BYTES));
 		}
 	}
 }
