@@ -14,6 +14,7 @@ namespace NBitcoin.Tests.PropertyTest
 		public PSBTTest()
 		{
 			Arb.Register<PSBTGenerator>();
+			Arb.Register<StandardTransactionGenerator>();
 		}
 
 		[Property]
@@ -34,6 +35,13 @@ namespace NBitcoin.Tests.PropertyTest
 			var item2 = new T();
 			item2.ReadWrite(stream2);
 			Assert.Equal(item, item2);
+		}
+
+		[Property]
+		[Trait("UnitTest", "UnitTest")]
+		public void PSBTInputShouldInstantiateFromTxIn(TxIn txin)
+		{
+			var psbtin = PSBTInput.FromTxIn(txin);
 		}
 	}
 }

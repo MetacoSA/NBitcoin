@@ -317,6 +317,11 @@ namespace NBitcoin
 		{
 			return PayToMultiSigTemplate.Instance.ExtractScriptSigParameters(new Script(Pushes.Select(p => Op.GetPushOp(p)).ToArray()));
 		}
+
+		public PubKey[] GetMultisigPubKeys()
+		{
+			return PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(RedeemScript).PubKeys;
+		}
 	}
 	//https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki
 	public class PayToScriptHashTemplate : ScriptTemplate

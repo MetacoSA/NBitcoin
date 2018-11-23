@@ -180,23 +180,126 @@ namespace NBitcoin.BIP174
 			unknown = new UnknownKVMap();
 		}
 
-		#region IBitcoinSerializable Members
-
-		public void ReadWrite(BitcoinStream stream)
+		public PSBTInput(TxIn txin)
 		{
-			if (stream.Serializing)
+			new PSBTInput(txin, null, null, null);
+		}
+		public PSBTInput(TxIn txin, Transaction globalTX, TxOut prevOut, uint? index)
+		{
+			if (txin == null)
 			{
-				Serialize(stream);
+				throw new ArgumentNullException(nameof(txin));
 			}
-			else
+
+			DeconstructScripts(txin.ScriptSig, txin.WitScript, globalTX, prevOut, index);
+		}
+
+		private void DeconstructScripts(Script ScriptSig, WitScript witScript, Transaction globalTX, TxOut prevOut, uint? index)
+		{
+			var nextScript = prevOut != null ? prevOut.ScriptPubKey : null;
+
+			// p2pkh
+			var P2PKHIngredients = prevOut != null ? PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(ScriptSig) : null;
+			if (P2PKHIngredients != null)
 			{
-				Deserialize(stream);
+				if (P2PKHIngredients.TransactionSignature != null) // already finalized
+				{
+					final_script_sig = ScriptSig;
+				}
+				// do not store anything if it is not finalized.
+				return;
+			}
+
+			// p2sh
+			var scriptId = nextScript != null ? PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(nextScript) : null;
+			var P2SHIngredients = PayToScriptHashTemplate.Instance.ExtractScriptSigParameters(ScriptSig, scriptId);
+			if (P2SHIngredients != null)
+			{
+				redeem_script = nextScript = P2SHIngredients.RedeemScript;
+				// Without information for tx. We can never be sure which sig corresponds to which pubkey.
+				if (globalTX != null && prevOut != null && index != null)
+				{
+					TransactionSignature[] txSigs = P2SHIngredients.GetMultisigSignatures();
+					PubKey[] pubkeys = P2SHIngredients.GetMultisigPubKeys();
+					DeconstructMultisig(txSigs.ToList(), pubkeys.ToList(), globalTX, nextScript, index);
+
+					if (TryFinalize())
+						return;
+				}
+
+				// Do not return here. Since it may be p2sh-nested-witness.
+			}
+
+			// p2wpkh
+			var P2WPKHIngredients = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(witScript);
+			if (P2WPKHIngredients != null)
+			{
+				if (prevOut != null)
+					witness_utxo = prevOut;
+				if (P2WPKHIngredients.TransactionSignature != null) // already finalized
+				{
+					if (redeem_script != null) // p2sh-p2wpkh
+					{
+						final_script_sig = redeem_script.Clone();
+						redeem_script = null;
+					}
+					final_script_witness = witScript;
+				}
+				// do not store anything if it is not finalized.
+				return;
+			}
+
+			// p2wsh
+			WitScriptId witScriptId = nextScript != null ? PayToWitScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(nextScript) : null;
+			witness_script = PayToWitScriptHashTemplate.Instance.ExtractWitScriptParameters(witScript, witScriptId);
+			if (witness_script != null)
+			{
+				if (prevOut != null)
+					witness_utxo = prevOut;
+				var txSigs = new List<TransactionSignature> { };
+				var pubkeys = new List<PubKey> { };
+				// This may be slow. But the performance does not really matter for PSBT in many case.
+				foreach (byte[] item in witScript.Pushes)
+				{
+					if (TransactionSignature.IsValid(item))
+					{
+						txSigs.Add(new TransactionSignature(item));
+					}
+					else if (PubKey.Check(item, true))
+					{
+						pubkeys.Add(new PubKey(item));
+					}
+
+					DeconstructMultisig(txSigs, pubkeys, globalTX, nextScript, index);
+					TryFinalize();
+				}
+
+				return;
+			}
+
+			// we may not throw Exception here. But let's start with the most strict way.
+			throw new InvalidDataException("PSBTInput does not know how to handle this type of TxIn");
+		}
+
+		private void DeconstructMultisig(List<TransactionSignature> txSigs, List<PubKey> pubkeys, Transaction globalTX, Script nextScript, uint? index)
+		{
+			var sigHashes = txSigs.Select(sig => sig.SigHash);
+			if (sigHashes.Any(i => i != sigHashes.First()))
+				throw new InvalidDataException("All signatures in input must have a same sighash type.");
+
+			foreach (var txSig in txSigs)
+			{
+				foreach (var pubkey in pubkeys)
+				{
+					if (txSig.Check(pubkey, nextScript, tx: globalTX, nIndex: (uint)index))
+						partial_sigs.Add(pubkey.Hash, Tuple.Create(pubkey, txSig.Signature));
+				}
 			}
 		}
 
-		private static uint defaultKeyLen = 1;
-
 		public bool IsFinalized() => final_script_sig != null || final_script_witness != null;
+
+		public bool TryFinalize() => false;
 
 		public void CheckSanity()
 		{
@@ -223,6 +326,22 @@ namespace NBitcoin.BIP174
 				return non_witness_utxo.Outputs[prevout.N];
 			return null;
 		}
+
+		#region IBitcoinSerializable Members
+		public void ReadWrite(BitcoinStream stream)
+		{
+			if (stream.Serializing)
+			{
+				Serialize(stream);
+			}
+			else
+			{
+				Deserialize(stream);
+			}
+		}
+
+		private static uint defaultKeyLen = 1;
+
 		public void Serialize(BitcoinStream stream)
 		{
 			CheckSanity();
@@ -679,6 +798,7 @@ namespace NBitcoin.BIP174
 		protected PSBTInputList inputs;
 		protected PSBTOutputList outputs;
 
+
 		protected Dictionary<byte[], byte[]> unknown;
 
 		public static PSBT Parse(string base64)
@@ -690,12 +810,98 @@ namespace NBitcoin.BIP174
 			return ret;
 		}
 
+		public PSBT(Transaction globalTx, IEnumerable<Transaction> prevTXs)
+		{
+			tx = globalTx ?? throw new ArgumentNullException(nameof(globalTx));
+			if (prevTXs == null)
+			{
+				throw new ArgumentNullException(nameof(prevTXs));
+			}
+
+			Initialize();
+
+			// extract relevant coins from prevTXs
+			var items = from txin in tx.Inputs
+									from prevtx in prevTXs
+									where txin.PrevOut.Hash == prevtx.GetHash()
+									select Tuple.Create(new Coin(txin.PrevOut, prevtx.Outputs[txin.PrevOut.N]), prevtx);
+			SetUpInputWithCoins(items.Select(i => i.Item1));
+
+			// Set NonWitnessUTXO 
+			// This is O(n^2) ... but who cares?
+			foreach (var item in items)
+			{
+				for (var i = 0; i < tx.Inputs.Count; i++)
+				{
+					var txin = tx.Inputs[i];
+					if (item.Item1.Outpoint == txin.PrevOut)
+						this.inputs[i].NonWitnessUtxo = item.Item2;
+				}
+			}
+
+			SetUpOutput();
+		}
+		/// <summary>
+		/// NOTE: This won't preserve signatures in case of multisig.
+		/// If you want to, give coins or previous TXs as a second argument.
+		/// </summary>
+		/// <param name="globalTx"></param>
 		public PSBT(Transaction globalTx)
 		{
-			tx = globalTx;
-			new PSBT();
+			tx = globalTx ?? throw new ArgumentNullException(nameof(globalTx));
+			Initialize();
+			SetUpInput();
+			SetUpOutput();
 		}
+
+		public PSBT(Transaction globalTx, IEnumerable<ICoin> coins)
+		{
+			tx = globalTx ?? throw new ArgumentNullException(nameof(globalTx));
+			if (coins == null)
+			{
+				throw new ArgumentNullException(nameof(coins));
+			}
+			Initialize();
+			SetUpInputWithCoins(coins);
+			SetUpOutput();
+		}
+
+		private void SetUpInputWithCoins(IEnumerable<ICoin> coins)
+		{
+			for (var i = 0; i < tx.Inputs.Count; i++)
+			{
+				var txin = tx.Inputs[i];
+				var coin = coins.FirstOrDefault(c => c.Outpoint == txin.PrevOut);
+				if (coin != null)
+				{
+					this.inputs.Add(new PSBTInput(txin, tx, coin.TxOut, (uint)i));
+				}
+				else
+				{
+					this.inputs.Add(new PSBTInput(tx.Inputs[i]));
+				}
+			}
+
+		}
+
+		private void SetUpInput()
+		{
+			for (var i = 0; i < tx.Inputs.Count; i++)
+				this.inputs.Add(new PSBTInput(tx.Inputs[i]));
+		}
+
+		private void SetUpOutput()
+		{
+			for (var i = 0; i < tx.Outputs.Count; i++)
+				this.outputs.Add(new PSBTOutput());
+		}
+
+
 		public PSBT()
+		{
+			Initialize();
+		}
+		private void Initialize()
 		{
 			if (tx == null)
 			{
