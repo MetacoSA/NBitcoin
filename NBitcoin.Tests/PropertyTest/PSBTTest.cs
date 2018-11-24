@@ -5,6 +5,9 @@ using NBitcoin.BIP174;
 using NBitcoin.Tests.Generators;
 using NBitcoin;
 using Xunit;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NBitcoin.Tests.PropertyTest
 {
@@ -15,6 +18,7 @@ namespace NBitcoin.Tests.PropertyTest
 		{
 			Arb.Register<PSBTGenerator>();
 			Arb.Register<StandardTransactionGenerator>();
+			Arb.Register<ChainParamsGenerator>();
 		}
 
 		[Property]
@@ -37,11 +41,12 @@ namespace NBitcoin.Tests.PropertyTest
 			Assert.Equal(item, item2);
 		}
 
-		[Property]
+		[Property(MaxTest = 5)]
 		[Trait("UnitTest", "UnitTest")]
-		public void PSBTInputShouldInstantiateFromTxIn(TxIn txin)
+		public void ShouldInstantiateFromTx(Transaction tx)
 		{
-			var psbtin = PSBTInput.FromTxIn(txin);
+			var psbt = PSBT.FromTransaction(tx);
+			Assert.NotNull(psbt);
 		}
 	}
 }
