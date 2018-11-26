@@ -622,20 +622,22 @@ namespace NBitcoin
 #if !NOSOCKET
 		internal static void SafeCloseSocket(System.Net.Sockets.Socket socket)
 		{
-			try
-			{
-				socket.Shutdown(SocketShutdown.Both);
-			}
-			catch
-			{
-			}
-			try
-			{
-				socket.Dispose();
-			}
-			catch
-			{
-			}
+			Task.Run(()=>{
+				try
+				{
+					socket.Shutdown(SocketShutdown.Both);
+				}
+				catch
+				{
+				}
+				try
+				{
+					socket.Close();
+				}
+				catch
+				{
+				}
+			});
 		}
 
 		public static System.Net.IPEndPoint EnsureIPv6(System.Net.IPEndPoint endpoint)
