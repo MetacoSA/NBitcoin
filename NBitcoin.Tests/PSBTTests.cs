@@ -48,7 +48,7 @@ namespace NBitcoin.Tests
 		public void ShouldPreserveOriginalTxPropertyAsPossible()
 		{
 			var keys = new Key[] { new Key(), new Key(), new Key() };
-			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, keys.Select(k => k.PubKey).ToArray());
+			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
 			var network = Network.Main;
 			var funds = CreateDummyFunds(network, keys, redeem);
 
@@ -92,8 +92,8 @@ namespace NBitcoin.Tests
 			Assert.NotNull(psbt.inputs[5].WitnessScript);
 			Assert.NotNull(psbt.inputs[5].RedeemScript);
 
-			Assert.Equal(psbt.inputs[2].PartialSigs.Count, 0); // But it still can not hold partial_sigs
-			Assert.Equal(psbt.inputs[3].PartialSigs.Count, 0); // Even in p2wsh
+			Assert.Empty(psbt.inputs[2].PartialSigs); // But it still can not hold partial_sigs
+			Assert.Empty(psbt.inputs[3].PartialSigs); // Even in p2wsh
 		}
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -117,6 +117,28 @@ namespace NBitcoin.Tests
 				Assert.Null(psbtin.NonWitnessUtxo);
 			}
 
+			// Check if it holds scripts as expected.
+			Assert.Null(PSBTWithCoins.inputs[0].RedeemScript); // p2pkh
+			Assert.Null(PSBTWithCoins.inputs[0].WitnessScript); // p2pkh
+			Assert.Null(PSBTWithCoins.inputs[1].WitnessScript); // p2wpkh
+			Assert.NotNull(PSBTWithCoins.inputs[2].RedeemScript); // p2sh
+			Assert.NotNull(PSBTWithCoins.inputs[4].RedeemScript); // p2sh-p2wpkh
+			Assert.NotNull(PSBTWithCoins.inputs[5].RedeemScript); // p2sh-p2wsh
+			Assert.NotNull(PSBTWithCoins.inputs[3].WitnessScript); // p2wsh
+			Assert.NotNull(PSBTWithCoins.inputs[5].WitnessScript); // p2sh-p2wsh
+
+			var SignedPSBTWithCoins = PSBTWithCoins
+				.TrySignAll(alice);
+			Assert.Empty(SignedPSBTWithCoins.inputs[0].PartialSigs); // can not sign for non segwit input without non-witness UTXO
+			Assert.Empty(SignedPSBTWithCoins.inputs[2].PartialSigs); // This too.
+			// otherwise, It will increase Partial sigs count.
+			Assert.Single(SignedPSBTWithCoins.inputs[1].PartialSigs);
+			Assert.Single(SignedPSBTWithCoins.inputs[3].PartialSigs);
+			Assert.Single(SignedPSBTWithCoins.inputs[4].PartialSigs);
+			Assert.Single(SignedPSBTWithCoins.inputs[5].PartialSigs);
+			SignedPSBTWithCoins.TryFinalize(out bool HasFinalizationSucceedForPSBTWithoutPrevTX);
+			Assert.False(HasFinalizationSucceedForPSBTWithoutPrevTX);
+
 			var PSBTWithTXs = PSBT.FromTransaction(tx)
 				.AddTransactions(funds);
 			foreach (var psbtin in PSBTWithTXs.inputs)
@@ -124,31 +146,33 @@ namespace NBitcoin.Tests
 				Assert.Null(psbtin.WitnessUtxo);
 				Assert.NotNull(psbtin.NonWitnessUtxo);
 			}
-
-			var SignedPSBTWithCoins = PSBTWithCoins
-				.TrySignAll(alice);
-			Assert.Equal(0, SignedPSBTWithCoins.inputs[0].PartialSigs.Count); // can not sign for non segwit input without non-witness UTXO
-			Assert.Equal(0, SignedPSBTWithCoins.inputs[2].PartialSigs.Count); // This too.
-			// otherwise, It will increase Partial sigs count.
-			Assert.Equal(1, SignedPSBTWithCoins.inputs[1].PartialSigs.Count);
-			Assert.Equal(1, SignedPSBTWithCoins.inputs[3].PartialSigs.Count);
-			Assert.Equal(1, SignedPSBTWithCoins.inputs[4].PartialSigs.Count);
-			Assert.Equal(1, SignedPSBTWithCoins.inputs[5].PartialSigs.Count);
-			SignedPSBTWithCoins.Finalize(out bool HasFinalizationSucceedForPSBTWithoutPrevTX);
-			Assert.False(HasFinalizationSucceedForPSBTWithoutPrevTX);
-
 			var SignedPSBTWithTXs = PSBTWithTXs
 				.TrySignAll(keys);
 
-			var FinalizedPSBT = SignedPSBTWithTXs.Finalize(out bool HasFinalizationSucceedForFullySignedPSBT);
-			Assert.True(HasFinalizationSucceedForFullySignedPSBT);
+			// must sign only once for whole kinds of non-multisig tx.
+			Assert.Single(SignedPSBTWithTXs.inputs[0].PartialSigs);
+			Assert.Single(SignedPSBTWithTXs.inputs[1].PartialSigs);
+			Assert.Single(SignedPSBTWithTXs.inputs[4].PartialSigs);
+			// for multisig
+			Assert.Equal(3, SignedPSBTWithTXs.inputs[2].PartialSigs.Count);
+			Assert.Equal(3, SignedPSBTWithTXs.inputs[3].PartialSigs.Count);
+			Assert.Equal(3, SignedPSBTWithTXs.inputs[5].PartialSigs.Count);
 
+			Assert.False(SignedPSBTWithTXs.CanExtractTX());
+
+			var FinalizedPSBT = SignedPSBTWithTXs.Finalize();
 			Assert.True(FinalizedPSBT.CanExtractTX());
+
 			var finalTX = FinalizedPSBT.ExtractTX();
 			var result = finalTX.Check();
-			Assert.Equal(result, TransactionCheckResult.Success);
+			Assert.Equal(TransactionCheckResult.Success, result);
 			// TODO: Contextual check for tx.
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ShouldPreserveSignatureInOriginalTX()
+		{}
 
 		private ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs) =>
 			txs.SelectMany(tx => tx.Outputs.AsCoins()).ToArray();
@@ -165,11 +189,11 @@ namespace NBitcoin.Tests
 			var p2wshPushes = new Op[] { OpcodeType.OP_0 };
 			var p2shWit = PayToWitScriptHashTemplate.Instance.GenerateWitScript(p2wshPushes, redeem);
 			tx.Inputs.Add(new OutPoint(funds[0].GetHash(), 0)); // p2pkh
-			tx.Inputs.Add(new OutPoint(funds[0].GetHash(), 1), null, p2wpkhWit); // p2wpkh
-			tx.Inputs.Add(new OutPoint(funds[1].GetHash(), 0), redeem); // p2sh
-			tx.Inputs.Add(new OutPoint(funds[2].GetHash(), 0), null, p2shWit); // p2wsh
-			tx.Inputs.Add(new OutPoint(funds[3].GetHash(), 0), keys[0].PubKey.WitHash.ScriptPubKey, p2wpkhWit); // p2sh-p2wpkh
-			tx.Inputs.Add(new OutPoint(funds[4].GetHash(), 0), redeem.WitHash.ScriptPubKey, p2shWit); // p2sh-p2wsh
+			tx.Inputs.Add(new OutPoint(funds[0].GetHash(), 1), Script.Empty, p2wpkhWit); // p2wpkh
+			tx.Inputs.Add(new OutPoint(funds[1].GetHash(), 0), new Script(Op.GetPushOp(redeem.ToBytes()))); // p2sh
+			tx.Inputs.Add(new OutPoint(funds[2].GetHash(), 0), Script.Empty, p2shWit); // p2wsh
+			tx.Inputs.Add(new OutPoint(funds[3].GetHash(), 0), new Script(Op.GetPushOp(keys[0].PubKey.WitHash.ScriptPubKey.ToBytes())), p2wpkhWit); // p2sh-p2wpkh
+			tx.Inputs.Add(new OutPoint(funds[4].GetHash(), 0), new Script(Op.GetPushOp(redeem.WitHash.ScriptPubKey.ToBytes())), p2shWit); // p2sh-p2wsh
 
 			var dummyOut = new TxOut(Money.Coins(0.1m), keys[0]);
 			tx.Outputs.Add(dummyOut);
@@ -204,7 +228,7 @@ namespace NBitcoin.Tests
 			tx4.Inputs.Add(TxIn.CreateCoinbase(200));
 			tx4.Outputs.Add(new TxOut(Money.Coins(0.1m), keyForOutput[0].PubKey.WitHash.ScriptPubKey.Hash));
 
-			// 5. p2sh-p2wpkh
+			// 5. p2sh-p2wsh
 			var tx5 = network.CreateTransaction();
 			tx5.Inputs.Add(TxIn.CreateCoinbase(200));
 			tx5.Outputs.Add(new TxOut(Money.Coins(0.1m), redeem.WitHash.ScriptPubKey.Hash));
