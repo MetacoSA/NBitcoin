@@ -836,7 +836,7 @@ namespace NBitcoin
 			{
 				return new PayToWitPubkeyHashScriptSigParameters()
 				{
-					TransactionSignature = (witScript[0].Length == 1 && witScript[0][0] == 0) ? null : new TransactionSignature(witScript[0]),
+					TransactionSignature = (witScript[0].Length == 0) ? null : new TransactionSignature(witScript[0]),
 					PublicKey = new PubKey(witScript[1], true),
 				};
 			}
@@ -849,7 +849,7 @@ namespace NBitcoin
 		private bool CheckWitScriptCore(WitScript witScript)
 		{
 			return witScript.PushCount == 2 &&
-				   ((witScript[0].Length == 1 && witScript[0][0] == 0) || (TransactionSignature.IsValid(witScript[0], ScriptVerify.None))) &&
+				   ((witScript[0].Length == 0) || (TransactionSignature.IsValid(witScript[0], ScriptVerify.None))) &&
 				   PubKey.Check(witScript[1], false);
 		}
 

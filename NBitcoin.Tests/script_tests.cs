@@ -1014,6 +1014,11 @@ namespace NBitcoin.Tests
 			});
 			Assert.Equal(expected, actual);
 
+			var witScriptWithoutSig = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(null, pubkey);
+			var actualParam = PayToWitPubKeyHashTemplate.Instance.ExtractWitScriptParameters(witScriptWithoutSig);
+			Assert.NotNull(actualParam);
+			Assert.Equal(pubkey, actualParam.PublicKey);
+
 			var scriptSig = new Script("304402206b782f095f52f12133a96c078b558458b84c925afdb620d96c5f5bbf483e28d502206206796ff45d80216b83c77bafc4e7951fdb10a5bf3e4041c0e6c0938079b22b01 2103");
 			var redeem = new Script(Encoders.Hex.DecodeData("2103a65786c1a48d4167aca08cf6eb8eed081e13f45c02dc6000fd8f3bb16242579aac"));
 			expected = new WitScript(new Script("304402206b782f095f52f12133a96c078b558458b84c925afdb620d96c5f5bbf483e28d502206206796ff45d80216b83c77bafc4e7951fdb10a5bf3e4041c0e6c0938079b22b01 2103 2103a65786c1a48d4167aca08cf6eb8eed081e13f45c02dc6000fd8f3bb16242579aac"));
