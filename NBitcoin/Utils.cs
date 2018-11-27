@@ -632,7 +632,7 @@ namespace NBitcoin
 				}
 				try
 				{
-					socket.Close();
+					socket.Dispose();
 				}
 				catch
 				{
