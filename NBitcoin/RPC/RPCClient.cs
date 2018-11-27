@@ -298,6 +298,7 @@ namespace NBitcoin.RPC
 			CheckCapabilities(rpc, "scantxoutset", v => capabilities.SupportScanUTXOSet = v),
 			CheckCapabilities(rpc, "signrawtransactionwithkey", v => capabilities.SupportSignRawTransactionWith = v),
 			CheckCapabilities(rpc, "estimatesmartfee", v => capabilities.SupportEstimateSmartFee = v),
+			CheckCapabilities(rpc, "generatetoaddress", v => capabilities.SupportGenerateToAddress = v),
 			CheckSegwitCapabilities(rpc, v => capabilities.SupportSegwit = v));
 			await rpc.SendBatchAsync();
 			await waiting;
@@ -1763,13 +1764,38 @@ namespace NBitcoin.RPC
 		{
 			if (nBlocks < 0)
 				throw new ArgumentOutOfRangeException("nBlocks");
-			var result = (JArray)(await SendCommandAsync(RPCOperations.generate, nBlocks).ConfigureAwait(false)).Result;
-			return result.Select(r => new uint256(r.Value<string>())).ToArray();
+
+			if (Capabilities == null || Capabilities.SupportGenerateToAddress)
+			{
+				var address = await GetNewAddressAsync();
+				return await GenerateToAddressAsync(nBlocks, address);
+			}
+			else
+			{
+				var result = (JArray)(await SendCommandAsync(RPCOperations.generate, nBlocks).ConfigureAwait(false)).Result;
+				return result.Select(r => new uint256(r.Value<string>())).ToArray();
+			}
 		}
 
 		public uint256[] Generate(int nBlocks)
 		{
 			return GenerateAsync(nBlocks).GetAwaiter().GetResult();
+		}
+
+		public async Task<uint256[]> GenerateToAddressAsync(int nBlocks, BitcoinAddress address)
+		{
+			if (nBlocks < 0)
+				throw new ArgumentOutOfRangeException(nameof(nBlocks));
+			if (address == null)
+				throw new ArgumentNullException(nameof(address));
+
+			var result = (JArray)(await SendCommandAsync(RPCOperations.generatetoaddress, nBlocks, address.ToString()).ConfigureAwait(false)).Result;
+			return result.Select(r => new uint256(r.Value<string>())).ToArray();
+		}
+
+		public uint256[] GenerateToAddress(int nBlocks, BitcoinAddress address)
+		{
+			return GenerateToAddressAsync(nBlocks, address).GetAwaiter().GetResult();
 		}
 
 #region Region Hidden Methods

@@ -14,6 +14,7 @@ namespace NBitcoin.RPC
 		public bool SupportScanUTXOSet { get; set; }
 		public bool SupportGetNetworkInfo { get; set; }
 		public bool SupportEstimateSmartFee { get; set; }
+		public bool SupportGenerateToAddress { get; set; }
 
 		public RPCCapabilities Clone(int newVersion)
 		{
@@ -24,7 +25,8 @@ namespace NBitcoin.RPC
 				SupportSegwit = SupportSegwit,
 				SupportSignRawTransactionWith = SupportSignRawTransactionWith,
 				SupportGetNetworkInfo = SupportGetNetworkInfo,
-				SupportEstimateSmartFee = SupportEstimateSmartFee
+				SupportEstimateSmartFee = SupportEstimateSmartFee,
+				SupportGenerateToAddress = SupportGenerateToAddress
 			};
 		}
 
@@ -35,7 +37,8 @@ namespace NBitcoin.RPC
 				$"SupportSegwit: {SupportSegwit}{Environment.NewLine}" +
 				$"SupportSignRawTransactionWith: {SupportSignRawTransactionWith}{Environment.NewLine}" +
 				$"SupportGetNetworkInfo: {SupportGetNetworkInfo}{Environment.NewLine}" +
-				$"SupportEstimateSmartFee: {SupportEstimateSmartFee}{Environment.NewLine}";
+				$"SupportEstimateSmartFee: {SupportEstimateSmartFee}{Environment.NewLine}" +
+				$"SupportGenerateToAddress: {SupportGenerateToAddress}{Environment.NewLine}";
 		}
 	}
 }
