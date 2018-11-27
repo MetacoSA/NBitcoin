@@ -834,6 +834,8 @@ namespace NBitcoin
 			return @unsafe ? _Script : _Script.ToArray();
 		}
 
+		public WitScript ToWitScript() => new WitScript(this);
+
 		public byte[] ToCompressedBytes()
 		{
 			var compressor = new ScriptCompressor(this);
