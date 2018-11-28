@@ -231,6 +231,24 @@ namespace NBitcoin.Tests
 			return new Transaction[] { tx1, tx2, tx3, tx4, tx5 };
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ShouldFailToSignForTestcaseInvalidForSigner()
+		{
+			JArray testcases = (JArray)testdata["invalidForSigners"];
+			foreach (string i in testcases)
+			{
+				var psbt = PSBT.Parse(i);
+				Assert.Throws<FormatException>(() => psbt.TrySignAll(new Key()));
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ShouldPassLongestTestCaseInBIP()
+		{
+		}
+
 		private class PSBTComparer : IEqualityComparer<PSBT>
 		{
 			public bool Equals(PSBT a, PSBT b) => a.Equals(b);
