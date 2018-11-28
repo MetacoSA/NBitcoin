@@ -93,11 +93,12 @@ namespace NBitcoin.Tests
 			var PSBTWithCoins = PSBT.FromTransaction(tx)
 				.AddCoins(DummyFundsToCoins(funds));
 
-			foreach (var psbtin in PSBTWithCoins.inputs)
-			{
-				Assert.NotNull(psbtin.WitnessUtxo);
-				Assert.Null(psbtin.NonWitnessUtxo);
-			}
+			Assert.Null(PSBTWithCoins.inputs[0].WitnessUtxo);
+			Assert.NotNull(PSBTWithCoins.inputs[1].WitnessUtxo);
+			Assert.Null(PSBTWithCoins.inputs[2].WitnessUtxo);
+			Assert.NotNull(PSBTWithCoins.inputs[3].WitnessUtxo);
+			Assert.NotNull(PSBTWithCoins.inputs[4].WitnessUtxo);
+			Assert.NotNull(PSBTWithCoins.inputs[5].WitnessUtxo);
 
 			// Check if it holds scripts as expected.
 			Assert.Null(PSBTWithCoins.inputs[0].RedeemScript); // p2pkh

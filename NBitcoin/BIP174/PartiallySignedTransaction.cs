@@ -268,7 +268,7 @@ namespace NBitcoin.BIP174
 					}
 				}
 				OrphanPubKeys.AddRange(ExtractPubKeyFromScript(witness_script));
-			return;
+				return;
 			}
 		}
 
@@ -277,7 +277,25 @@ namespace NBitcoin.BIP174
 
 		internal void AddCoin(ICoin coin)
 		{
-			witness_utxo = coin.TxOut;
+			if (coin is ScriptCoin)
+			{
+				if ((coin as ScriptCoin).RedeemType == RedeemType.P2SH)
+				{
+					redeem_script = (coin as ScriptCoin).Redeem;
+				}
+				else
+				{
+					witness_script = (coin as ScriptCoin).Redeem;
+				}
+			}
+
+			// Why we need this check? because we should never add witness_utxo to non_segwit input.
+			if (
+				PayToWitTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey) ||
+				(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey) && redeem_script != null && PayToWitTemplate.Instance.CheckScriptPubKey(redeem_script)))
+			{
+				witness_utxo = coin.TxOut;
+			}
 		}
 
 		/// <summary>
@@ -287,7 +305,7 @@ namespace NBitcoin.BIP174
 		/// </summary>
 		/// <param name="globalTx"></param>
 		internal void MoveOrphansToPartialSigs(Transaction globalTx)
-		{}
+		{ }
 
 		private bool IsRelatedKey(PubKey pk, Script ScriptPubKey) =>
 			OrphanPubKeys.Any(k => k.Equals(pk)) || // key was in script or ...
@@ -307,7 +325,9 @@ namespace NBitcoin.BIP174
 		}
 		internal bool Sign(int index, Transaction tx, Key[] keys)
 		{
-			var outpoint = tx.Inputs[index].PrevOut;
+			var txin = tx.Inputs[index];
+			CheckSanityForSigner(txin);
+			var outpoint = txin.PrevOut;
 			var prevout = this.GetOutput(outpoint);
 			if (prevout == null) // no way we can sign without utxo.
 				return false;
@@ -509,6 +529,51 @@ namespace NBitcoin.BIP174
 			if (this.IsFinalized())
 				if (partial_sigs.Count != 0 || hd_keypaths.Count != 0 || sighash_type != 0 || redeem_script != null || witness_script != null)
 					return Tuple.Create(false, "PSBT Input is dirty. It has been finalized but properties are not cleared");
+			return Tuple.Create(true, "");
+		}
+
+		internal void CheckSanityForSigner(TxIn txin)
+		{
+			var result = IsSaneForSigner(txin);
+			var isSane = result.Item1;
+			var reason = result.Item2;
+			if (!isSane)
+				throw new FormatException(reason);
+		}
+
+		private Tuple<bool, string> IsSaneForSigner(TxIn txin)
+		{
+			// Tests for signer.
+			var prevout = GetOutput(txin.PrevOut);
+			if (prevout != null)
+			{
+				if (
+					PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(prevout.ScriptPubKey) || // p2pkh
+					(PayToScriptHashTemplate.Instance.CheckScriptPubKey(prevout.ScriptPubKey) &&
+						!PayToWitTemplate.Instance.CheckScriptPubKey(RedeemScript)) // bare p2sh
+				)
+				{
+					if (NonWitnessUtxo == null)
+						return Tuple.Create(false, "malformed PSBTInput for Signer! witness_utxo for non_witness_output");
+				}
+
+				var nextScript = prevout.ScriptPubKey;
+				if (redeem_script != null)
+				{
+					if (redeem_script.Hash != PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(prevout.ScriptPubKey))
+						return Tuple.Create(false, "malformed PSBTInput for Signer! redeem_script hash does not match to actual hash scriptPubKey");
+
+					nextScript = redeem_script;
+				}
+
+				if (witness_script != null)
+				{
+					var scriptId = PayToWitTemplate.Instance.ExtractScriptPubKeyParameters(nextScript);
+					if (scriptId == null || scriptId != witness_script.WitHash)
+						return Tuple.Create(false, "malformed PSBTInput for Signer! witness_script hash does not match to actual scriptPubKey");
+				}
+			}
+
 			return Tuple.Create(true, "");
 		}
 
@@ -1121,6 +1186,7 @@ namespace NBitcoin.BIP174
 				if (coin != null)
 				{
 					this.inputs[i].AddCoin(coin);
+					this.inputs[i].CheckSanityForSigner(txin);
 					this.inputs[i].MoveOrphansToPartialSigs(tx);
 				}
 			}
@@ -1168,6 +1234,7 @@ namespace NBitcoin.BIP174
 
 		public PSBT TrySignAll(params Key[] keys)
 		{
+			CheckSanity();
 			for (var i = 0; i < inputs.Count; i++)
 			{
 				Sign(i, keys);
@@ -1177,7 +1244,7 @@ namespace NBitcoin.BIP174
 		}
 		public PSBT Sign(int index, Key[] keys) => Sign(index, keys, out bool _);
 
-		public PSBT Sign(int index, Key[] keys ,out bool success)
+		public PSBT Sign(int index, Key[] keys, out bool success)
 		{
 			success = this.inputs[index].Sign(index, tx, keys);
 			return this;
@@ -1243,6 +1310,7 @@ namespace NBitcoin.BIP174
 					if (txin.PrevOut.Hash != prevOutTxId)
 						return Tuple.Create(false, "malformed PSBT! wrong non_witness_utxo.");
 				}
+
 			}
 
 			return Tuple.Create(true, "");
