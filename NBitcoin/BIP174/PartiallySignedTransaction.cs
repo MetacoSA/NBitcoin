@@ -279,13 +279,16 @@ namespace NBitcoin.BIP174
 		{
 			if (coin is ScriptCoin)
 			{
-				if ((coin as ScriptCoin).RedeemType == RedeemType.P2SH)
+				var sCoin = (coin as ScriptCoin);
+				if (sCoin.RedeemType == RedeemType.P2SH) // p2sh, p2sh-p2wpkh
 				{
-					redeem_script = (coin as ScriptCoin).Redeem;
+					redeem_script = sCoin.Redeem;
 				}
-				else
+				else // p2wsh, p2sh-p2wsh
 				{
-					witness_script = (coin as ScriptCoin).Redeem;
+					witness_script = sCoin.Redeem;
+					if (sCoin.IsP2SH)
+						redeem_script = witness_script.WitHash.ScriptPubKey;
 				}
 			}
 
@@ -577,7 +580,7 @@ namespace NBitcoin.BIP174
 			return Tuple.Create(true, "");
 		}
 
-		public TxOut GetOutput(OutPoint prevout)
+		internal TxOut GetOutput(OutPoint prevout)
 		{
 			if (witness_utxo != null)
 				return witness_utxo;

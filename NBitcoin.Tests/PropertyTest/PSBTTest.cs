@@ -17,7 +17,7 @@ namespace NBitcoin.Tests.PropertyTest
 		public PSBTTest()
 		{
 			Arb.Register<PSBTGenerator>();
-			Arb.Register<StandardTransactionGenerator>();
+			Arb.Register<SegwitTransactionGenerators>();
 			Arb.Register<ChainParamsGenerator>();
 		}
 

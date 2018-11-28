@@ -91,7 +91,7 @@ namespace NBitcoin.Tests
 
 			var tx = CompleteTransaction(network.CreateTransaction(), funds, keys, redeem, false);
 			var PSBTWithCoins = PSBT.FromTransaction(tx)
-				.AddCoins(DummyFundsToCoins(funds));
+				.AddCoins(DummyFundsToCoins(funds, redeem, alice));
 
 			Assert.Null(PSBTWithCoins.inputs[0].WitnessUtxo);
 			Assert.NotNull(PSBTWithCoins.inputs[1].WitnessUtxo);
@@ -157,8 +157,18 @@ namespace NBitcoin.Tests
 		public void ShouldPreserveSignatureInOriginalTX()
 		{}
 
-		private ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs) =>
-			txs.SelectMany(tx => tx.Outputs.AsCoins()).ToArray();
+		private ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs, Script redeem, Key key)
+		{
+			var barecoins = txs.SelectMany(tx => tx.Outputs.AsCoins()).ToArray();
+			var coins = new ICoin[barecoins.Length];
+			coins[0] = barecoins[0];
+			coins[1] = barecoins[1];
+			coins[2] = new ScriptCoin(barecoins[2], redeem); // p2sh
+			coins[3] = new ScriptCoin(barecoins[3], redeem); // p2wsh
+			coins[4] = new ScriptCoin(barecoins[4], key.PubKey.WitHash.ScriptPubKey); // p2sh-p2wpkh
+			coins[5] = new ScriptCoin(barecoins[5], redeem); // p2sh-p2wsh
+			return coins;
+		}
 
 		private Transaction CompleteTransaction(
 				Transaction tx,
@@ -168,36 +178,19 @@ namespace NBitcoin.Tests
 				bool sign
 			)
 		{
-			var p2wpkhWit = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(null, keys[0].PubKey);
-			var p2wshPushes = new Op[] { OpcodeType.OP_0 };
-			var p2shWit = PayToWitScriptHashTemplate.Instance.GenerateWitScript(p2wshPushes, redeem);
 			tx.Inputs.Add(new OutPoint(funds[0].GetHash(), 0)); // p2pkh
-<<<<<<< HEAD
 			tx.Inputs.Add(new OutPoint(funds[0].GetHash(), 1), Script.Empty, p2wpkhWit); // p2wpkh
 			tx.Inputs.Add(new OutPoint(funds[1].GetHash(), 0), new Script(Op.GetPushOp(redeem.ToBytes()))); // p2sh
 			tx.Inputs.Add(new OutPoint(funds[2].GetHash(), 0), Script.Empty, p2shWit); // p2wsh
 			tx.Inputs.Add(new OutPoint(funds[3].GetHash(), 0), new Script(Op.GetPushOp(keys[0].PubKey.WitHash.ScriptPubKey.ToBytes())), p2wpkhWit); // p2sh-p2wpkh
 			tx.Inputs.Add(new OutPoint(funds[4].GetHash(), 0), new Script(Op.GetPushOp(redeem.WitHash.ScriptPubKey.ToBytes())), p2shWit); // p2sh-p2wsh
-||||||| parent of 4e4b90ce... update psbt test
-			tx.Inputs.Add(new OutPoint(funds[0].GetHash(), 1), null, p2wpkhWit); // p2wpkh
-			tx.Inputs.Add(new OutPoint(funds[1].GetHash(), 0), redeem); // p2sh
-			tx.Inputs.Add(new OutPoint(funds[2].GetHash(), 0), null, p2shWit); // p2wsh
-			tx.Inputs.Add(new OutPoint(funds[3].GetHash(), 0), keys[0].PubKey.WitHash.ScriptPubKey, p2wpkhWit); // p2sh-p2wpkh
-			tx.Inputs.Add(new OutPoint(funds[4].GetHash(), 0), redeem.WitHash.ScriptPubKey, p2shWit); // p2sh-p2wsh
-=======
-			tx.Inputs.Add(new OutPoint(funds[0].GetHash(), 1), Script.Empty, keys[0].PubKey.WitHash.ScriptPubKey); // p2wpkh
-			tx.Inputs.Add(new OutPoint(funds[1].GetHash(), 0), new Script(Op.GetPushOp(redeem.ToBytes()))); // p2sh
-			tx.Inputs.Add(new OutPoint(funds[2].GetHash(), 0), Script.Empty, p2shWit); // p2wsh
-			tx.Inputs.Add(new OutPoint(funds[3].GetHash(), 0), new Script(Op.GetPushOp(keys[0].PubKey.WitHash.ScriptPubKey.ToBytes())), p2wpkhWit); // p2sh-p2wpkh
-			tx.Inputs.Add(new OutPoint(funds[4].GetHash(), 0), new Script(Op.GetPushOp(p2shWit.ToBytes())), p2shWit); // p2sh-p2wsh
->>>>>>> 4e4b90ce... update psbt test
 
 			var dummyOut = new TxOut(Money.Coins(0.1m), keys[0]);
 			tx.Outputs.Add(dummyOut);
 
 			if (sign)
 			{
-				tx.Sign(keys, DummyFundsToCoins(funds));
+				tx.Sign(keys, DummyFundsToCoins(funds, redeem, keys[0]));
 			}
 			return tx;
 		}
@@ -228,7 +221,7 @@ namespace NBitcoin.Tests
 			// 5. p2sh-p2wsh
 			var tx5 = network.CreateTransaction();
 			tx5.Inputs.Add(TxIn.CreateCoinbase(200));
-			tx5.Outputs.Add(new TxOut(Money.Coins(0.1m), redeem.WitHash.ScriptPubKey.Hash));
+			tx5.Outputs.Add(new TxOut(Money.Coins(0.1m), redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey));
 			return new Transaction[] { tx1, tx2, tx3, tx4, tx5 };
 		}
 
