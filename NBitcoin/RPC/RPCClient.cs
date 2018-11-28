@@ -1765,7 +1765,7 @@ namespace NBitcoin.RPC
 			if (nBlocks < 0)
 				throw new ArgumentOutOfRangeException("nBlocks");
 
-			if (Capabilities == null || Capabilities.SupportGenerateToAddress)
+			if (Capabilities != null && Capabilities.SupportGenerateToAddress)
 			{
 				var address = await GetNewAddressAsync();
 				return await GenerateToAddressAsync(nBlocks, address);
