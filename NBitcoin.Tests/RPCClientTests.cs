@@ -1121,6 +1121,35 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		[Fact]
+		public async Task CanGenerateBlocks()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				node.CookieAuth = true;
+				node.Start();
+				var rpc = node.CreateRPCClient();
+				var capabilities = await rpc.ScanRPCCapabilitiesAsync();
+
+				var address = new Key().PubKey.GetSegwitAddress(Network.RegTest);
+				var blockHash1 = rpc.GenerateToAddress(1, address);
+				var block = rpc.GetBlock(blockHash1[0]);
+
+				var coinbaseScriptPubKey = block.Transactions[0].Outputs[0].ScriptPubKey;
+				Assert.Equal(address, coinbaseScriptPubKey.GetDestinationAddress(Network.RegTest));
+
+				rpc.Capabilities.SupportGenerateToAddress = true;
+				var blockHash2 = rpc.Generate(1);
+
+				rpc.Capabilities.SupportGenerateToAddress = false;
+				var blockHash3 = rpc.Generate(1);
+
+				var heigh = rpc.GetBlockCount();
+				Assert.Equal(3, heigh);
+			}
+		}
+
 		private void AssertJsonEquals(string json1, string json2)
 		{
 			foreach (var c in new[] { "\r\n", " ", "\t" })
