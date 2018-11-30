@@ -223,13 +223,15 @@ namespace NBitcoin.BIP174
 				redeem_script = P2SHIngredients.RedeemScript;
 
 				TransactionSignature[] txSigs = P2SHIngredients.GetMultisigSignatures();
-				if (txSigs != null)
+				if (txSigs != null && txSigs.Length != 0 && txSigs.Any(sig => sig != null))
 				{
-					var sigHashes = txSigs.Select(sig => sig.SigHash);
-					if (sigHashes.Any(i => i != sigHashes.First()))
+					var sigs = txSigs.Where(sig => sig != null);
+					var sigHashes = sigs.Select(sig => sig.SigHash);
+					var first = sigHashes.First();
+					if (sigHashes.Any(i => i != first))
 						throw new InvalidDataException("All signatures in input must have a same sighash type.");
-					sighash_type = txSigs.Select(sig => (int)sig.SigHash).First();
-					this.OrphanPartialSigs = txSigs.Select(txSig => txSig.Signature).ToList();
+					sighash_type = sigs.Select(sig => (int)sig.SigHash).First();
+					this.OrphanPartialSigs = sigs.Select(txSig => txSig.Signature).ToList();
 
 				}
 
@@ -283,10 +285,12 @@ namespace NBitcoin.BIP174
 				if (sCoin.RedeemType == RedeemType.P2SH) // p2sh, p2sh-p2wpkh
 				{
 					redeem_script = sCoin.Redeem;
+					OrphanPubKeys.AddRange(ExtractPubKeyFromScript(redeem_script));
 				}
 				else // p2wsh, p2sh-p2wsh
 				{
 					witness_script = sCoin.Redeem;
+					OrphanPubKeys.AddRange(ExtractPubKeyFromScript(witness_script));
 					if (sCoin.IsP2SH)
 						redeem_script = witness_script.WitHash.ScriptPubKey;
 				}
@@ -335,17 +339,6 @@ namespace NBitcoin.BIP174
 			if (prevout == null) // no way we can sign without utxo.
 				return false;
 			var coin = new Coin(outpoint, prevout);
-
-			// non_witness_utxo is necessary for non_segwit case.
-			if (
-				PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(prevout.ScriptPubKey) || // p2pkh
-				(PayToScriptHashTemplate.Instance.CheckScriptPubKey(prevout.ScriptPubKey) &&
-					!PayToWitTemplate.Instance.CheckScriptPubKey(redeem_script)) // bare p2sh
-			)
-			{
-				if (non_witness_utxo == null)
-					return false;
-			}
 
 			bool result = false;
 			var dummyTx = tx.Clone();
@@ -553,7 +546,7 @@ namespace NBitcoin.BIP174
 				if (
 					PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(prevout.ScriptPubKey) || // p2pkh
 					(PayToScriptHashTemplate.Instance.CheckScriptPubKey(prevout.ScriptPubKey) &&
-						!PayToWitTemplate.Instance.CheckScriptPubKey(RedeemScript)) // bare p2sh
+						RedeemScript != null && !PayToWitTemplate.Instance.CheckScriptPubKey(RedeemScript)) // bare p2sh
 				)
 				{
 					if (NonWitnessUtxo == null)

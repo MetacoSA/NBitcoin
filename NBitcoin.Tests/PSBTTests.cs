@@ -52,8 +52,11 @@ namespace NBitcoin.Tests
 			var network = Network.Main;
 			var funds = CreateDummyFunds(network, keys, redeem);
 
-			// 1. should preserve redeem and witScript if not signed (and non_witness_utxo only in case of witness output.)
-			var tx = CompleteTransaction(network.CreateTransaction(), funds, keys, redeem, false);
+			// 1. without signature nor scripts.
+			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
+
+			// 2. with (unsigned) scriptSig and witness.
+			tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
 			var psbt = new PSBT(tx);
 			Assert.Null(psbt.inputs[0].FinalScriptSig); // it is not finalized since it is not signed
 			Assert.Null(psbt.inputs[1].FinalScriptWitness); // This too
@@ -62,7 +65,8 @@ namespace NBitcoin.Tests
 			Assert.NotNull(psbt.inputs[5].WitnessScript); // even in p2sh-nested-p2wsh
 			Assert.NotNull(psbt.inputs[5].RedeemScript);
 
-			tx = CompleteTransaction(network.CreateTransaction(), funds, keys, redeem, true);
+			// 3. with finalized scriptSig and witness
+			tx = CreateTxToSpendFunds(funds, keys, redeem, true, true);
 			psbt = new PSBT(tx);
 			Assert.NotNull(psbt.inputs[0].FinalScriptSig); // it should be finalized
 			Assert.NotNull(psbt.inputs[1].FinalScriptWitness); // p2wpkh too
@@ -85,11 +89,11 @@ namespace NBitcoin.Tests
 			var bob = new Key();
 			var carol = new Key();
 			var keys = new Key[]{ alice, bob, carol };
-			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, keys.Select(k => k.PubKey).ToArray());
+			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
 			var network = Network.Main;
 			var funds = CreateDummyFunds(network, keys, redeem);
 
-			var tx = CompleteTransaction(network.CreateTransaction(), funds, keys, redeem, false);
+			var tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
 			var PSBTWithCoins = PSBT.FromTransaction(tx)
 				.AddCoins(DummyFundsToCoins(funds, redeem, alice));
 
@@ -170,23 +174,38 @@ namespace NBitcoin.Tests
 			return coins;
 		}
 
-		private Transaction CompleteTransaction(
-				Transaction tx,
+		private Transaction CreateTxToSpendFunds(
 				Transaction[] funds,
 				Key[] keys,
 				Script redeem,
+				bool withScript,
 				bool sign
 			)
 		{
+			var tx = Network.Main.CreateTransaction();
 			tx.Inputs.Add(new OutPoint(funds[0].GetHash(), 0)); // p2pkh
-			tx.Inputs.Add(new OutPoint(funds[0].GetHash(), 1), Script.Empty, p2wpkhWit); // p2wpkh
-			tx.Inputs.Add(new OutPoint(funds[1].GetHash(), 0), new Script(Op.GetPushOp(redeem.ToBytes()))); // p2sh
-			tx.Inputs.Add(new OutPoint(funds[2].GetHash(), 0), Script.Empty, p2shWit); // p2wsh
-			tx.Inputs.Add(new OutPoint(funds[3].GetHash(), 0), new Script(Op.GetPushOp(keys[0].PubKey.WitHash.ScriptPubKey.ToBytes())), p2wpkhWit); // p2sh-p2wpkh
-			tx.Inputs.Add(new OutPoint(funds[4].GetHash(), 0), new Script(Op.GetPushOp(redeem.WitHash.ScriptPubKey.ToBytes())), p2shWit); // p2sh-p2wsh
+			tx.Inputs.Add(new OutPoint(funds[0].GetHash(), 1)); // p2wpkh
+			tx.Inputs.Add(new OutPoint(funds[1].GetHash(), 0)); // p2sh
+			tx.Inputs.Add(new OutPoint(funds[2].GetHash(), 0)); // p2wsh
+			tx.Inputs.Add(new OutPoint(funds[3].GetHash(), 0)); // p2sh-p2wpkh
+			tx.Inputs.Add(new OutPoint(funds[4].GetHash(), 0)); // p2sh-p2wsh
 
 			var dummyOut = new TxOut(Money.Coins(0.1m), keys[0]);
 			tx.Outputs.Add(dummyOut);
+
+			if (withScript)
+			{
+				// OP_0 + three empty signatures
+				var emptySigPush = new Script(OpcodeType.OP_0, OpcodeType.OP_0, OpcodeType.OP_0, OpcodeType.OP_0);
+				tx.Inputs[0].ScriptSig = PayToPubkeyHashTemplate.Instance.GenerateScriptSig(null, keys[0].PubKey);
+				tx.Inputs[1].WitScript = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(null, keys[0].PubKey);
+				tx.Inputs[2].ScriptSig = emptySigPush + Op.GetPushOp(redeem.ToBytes());
+				tx.Inputs[3].WitScript = PayToWitScriptHashTemplate.Instance.GenerateWitScript(emptySigPush, redeem);
+				tx.Inputs[4].ScriptSig = new Script(Op.GetPushOp(keys[0].PubKey.WitHash.ScriptPubKey.ToBytes()));
+				tx.Inputs[4].WitScript = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(null, keys[0].PubKey);
+				tx.Inputs[5].ScriptSig = new Script(Op.GetPushOp(redeem.WitHash.ScriptPubKey.ToBytes()));
+				tx.Inputs[5].WitScript = PayToWitScriptHashTemplate.Instance.GenerateWitScript(emptySigPush, redeem);
+			}
 
 			if (sign)
 			{
