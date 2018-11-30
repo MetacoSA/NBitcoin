@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace NBitcoin.BIP174
 {
-	using HDKeyPathKVMap = Dictionary<PubKey, byte[]>;
+	using HDKeyPathKVMap = Dictionary<PubKey, Tuple<uint, KeyPath>>;
 	using PartialSigKVMap = Dictionary<KeyId, Tuple<PubKey, ECDSASignature>>;
 	using UnknownKVMap = Dictionary<byte[], byte[]>;
 	static class PSBTConstants
@@ -670,8 +670,10 @@ namespace NBitcoin.BIP174
 			{
 				var key = new byte[] { PSBTConstants.PSBT_IN_BIP32_DERIVATION }.Concat(pathPair.Key.ToBytes());
 				stream.ReadWriteAsVarString(ref key);
-				var path = pathPair.Value;
-				stream.ReadWriteAsVarString(ref path);
+				var masterFingerPrint = BitConverter.GetBytes(pathPair.Value.Item1);
+				var path = pathPair.Value.Item2.ToBytes();
+				var pathInfo = masterFingerPrint.Concat(path);
+				stream.ReadWriteAsVarString(ref pathInfo);
 			}
 
 			// Write script sig
@@ -785,7 +787,9 @@ namespace NBitcoin.BIP174
 						var pubkey2 = new PubKey(k.Skip(1).ToArray());
 						if (hd_keypaths.ContainsKey(pubkey2))
 							throw new FormatException("Invalid PSBTInput. Duplicate key for hd_keypaths");
-						hd_keypaths.Add(pubkey2, v);
+						uint masterFingerPrint = BitConverter.ToUInt32(v.Take(4).ToArray(), 0);
+						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
+						hd_keypaths.Add(pubkey2, Tuple.Create(masterFingerPrint, path));
 						break;
 					case PSBTConstants.PSBT_IN_SCRIPTSIG:
 						if (k.Length != 1)
@@ -945,8 +949,10 @@ namespace NBitcoin.BIP174
 			{
 				var key = new byte[] { PSBTConstants.PSBT_OUT_BIP32_DERIVATION }.Concat(pathPair.Key.ToBytes());
 				stream.ReadWriteAsVarString(ref key);
-				var path = pathPair.Value;
-				stream.ReadWriteAsVarString(ref path);
+				var masterFingerPrint = BitConverter.GetBytes(pathPair.Value.Item1);
+				var path = pathPair.Value.Item2.ToBytes();
+				var pathInfo = masterFingerPrint.Concat(path);
+				stream.ReadWriteAsVarString(ref pathInfo);
 			}
 
 			foreach (var entry in unknown)
@@ -1003,7 +1009,9 @@ namespace NBitcoin.BIP174
 						var pubkey2 = new PubKey(k.Skip(1).ToArray());
 						if (hd_keypaths.ContainsKey(pubkey2))
 							throw new FormatException("Invalid PSBTOutput, duplicate key for hd_keypaths");
-						hd_keypaths.Add(pubkey2, v);
+						uint masterFingerPrint = BitConverter.ToUInt32(v.Take(4).ToArray(), 0);
+						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
+						hd_keypaths.Add(pubkey2, Tuple.Create(masterFingerPrint, path));
 						break;
 					default:
 						if (unknown.ContainsKey(k))
@@ -1263,16 +1271,21 @@ namespace NBitcoin.BIP174
 
 		public bool IsAllFinalized() => this.inputs.All(i => i.IsFinalized());
 
-		public PSBT AddPathTo(PubKey key, KeyPath path, int index, bool ToInput = true)
+		public PSBT AddPathTo(int index, PubKey key, uint MasterKeyFingerprint, KeyPath path, bool ToInput = true)
 		{
-			// TODO: Convert path object to storable type.
+			if (key == null)
+				throw new ArgumentNullException(nameof(key));
+
+			if (path == null)
+				throw new ArgumentNullException(nameof(path));
+
 			if (ToInput)
 			{
-				// inputs[index].HDKeyPaths.Add(key, path);
+				inputs[index].HDKeyPaths.Add(key, Tuple.Create(MasterKeyFingerprint, path));
 			}
 			else
 			{
-				// outputs[index].HDKeyPaths.Add(key, path);
+				outputs[index].HDKeyPaths.Add(key, Tuple.Create(MasterKeyFingerprint, path));
 			}
 
 			return this;
@@ -1428,9 +1441,10 @@ namespace NBitcoin.BIP174
 
 		public override string ToString()
 		{
-			return "Not Implemented";
-			// return JsonConvert.SerializeObject(this);
+			return ToBase64();
 		}
+
+		public string ToBase64() => Encoders.Base64.EncodeData(this.ToBytes());
 
 		public virtual ConsensusFactory GetConsensusFactory() => Bitcoin.Instance.Mainnet.Consensus.ConsensusFactory;
 

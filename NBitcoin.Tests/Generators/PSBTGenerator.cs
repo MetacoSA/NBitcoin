@@ -8,7 +8,7 @@ using Xunit;
 
 namespace NBitcoin.Tests.Generators
 {
-	using HDKeyPathKVMap = Dictionary<PubKey, byte[]>;
+	using HDKeyPathKVMap = Dictionary<PubKey, Tuple<uint, KeyPath>>;
 	using PartialSigKVMap = Dictionary<KeyId, Tuple<PubKey, ECDSASignature>>;
 	using UnknownKVMap = Dictionary<byte[], byte[]>;
 	public class PSBTGenerator
@@ -108,8 +108,9 @@ namespace NBitcoin.Tests.Generators
 		public static Gen<HDKeyPathKVMap> HDKeyPaths() =>
 				from itemNum in Gen.Choose(0, 15)
 				from pks in Gen.ListOf(itemNum, CryptoGenerator.PublicKey())
-				from paths in Gen.ListOf(itemNum, PrimitiveGenerator.RandomBytes(itemNum))
-				select Utils.DictionaryFromList<PubKey, byte[]>(pks.ToList(), paths.ToList());
-
+				from MasterKeyFingerPrints in Gen.ListOf(itemNum, PrimitiveGenerator.UInt32())
+				from paths in Gen.ListOf(itemNum, CryptoGenerator.KeyPath())
+				let fingerPrintAndPath = MasterKeyFingerPrints.ToArray().Zip(paths.ToArray(), (m, p) => Tuple.Create(m, p)).ToList()
+				select Utils.DictionaryFromList<PubKey, Tuple<uint, KeyPath>>(pks.ToList(), fingerPrintAndPath);
 	}
 }

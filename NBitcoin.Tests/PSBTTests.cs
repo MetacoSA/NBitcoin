@@ -158,7 +158,7 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void ShouldPreserveSignatureInOriginalTX()
+		public void ShouldPairSignaturesAndPubkeyInOriginalTXWhenCoinsAreAdd()
 		{}
 
 		private ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs, Script redeem, Key key)
@@ -258,8 +258,28 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void ShouldPassLongestTestCaseInBIP()
+		public void ShouldPassLongestTestInTheBIP()
 		{
+			JObject testcase = (JObject)testdata["final"];
+			var network = Network.TestNet;
+			var master = ExtKey.Parse((string)testcase["master"], network);
+			var tx = network.CreateTransaction();
+			tx.Version = 2;
+
+			var scriptPubKey1 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["out1"]["script"]));
+			var money1 = Money.Coins((decimal)testcase["out1"]["value"]);
+			var scriptPubKey2 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["out2"]["script"]));
+			var money2 = Money.Coins((decimal)testcase["out2"]["value"]);
+			tx.Outputs.Add(new TxOut(value: money1, scriptPubKey: scriptPubKey1));
+			tx.Outputs.Add(new TxOut(value: money2, scriptPubKey: scriptPubKey2));
+			tx.Inputs.Add(new OutPoint(uint256.Parse((string)testcase["in1"]["txid"]), (uint)testcase["in1"]["index"]));
+			tx.Inputs.Add(new OutPoint(uint256.Parse((string)testcase["in2"]["txid"]), (uint)testcase["in2"]["index"]));
+
+			var psbt1 = PSBT.Parse((string)testcase["psbt1"]);
+			var psbt = PSBT.FromTransaction(tx);
+			Assert.Equal(psbt, psbt1, new PSBTComparer());
+
+			// TODO: proceed.
 		}
 
 		private class PSBTComparer : IEqualityComparer<PSBT>

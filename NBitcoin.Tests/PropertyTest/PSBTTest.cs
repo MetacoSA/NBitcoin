@@ -19,6 +19,8 @@ namespace NBitcoin.Tests.PropertyTest
 			Arb.Register<PSBTGenerator>();
 			Arb.Register<SegwitTransactionGenerators>();
 			Arb.Register<ChainParamsGenerator>();
+			Arb.Register<CryptoGenerator>();
+			Arb.Register<PrimitiveGenerator>();
 		}
 
 		[Property]
@@ -41,12 +43,29 @@ namespace NBitcoin.Tests.PropertyTest
 			Assert.Equal(item, item2);
 		}
 
-		[Property(MaxTest = 5)]
+		[Property(MaxTest = 10)]
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldInstantiateFromTx(Transaction tx)
 		{
 			var psbt = PSBT.FromTransaction(tx);
 			Assert.NotNull(psbt);
+		}
+
+		[Property(MaxTest = 20)]
+		[Trait("UnitTest", "UnitTest")]
+		public void ShouldAddKeyInfo(Transaction tx, Key key, uint MasterKeyFingerPrint, KeyPath path)
+		{
+			var psbt = PSBT.FromTransaction(tx);
+			for (var i = 0; i < tx.Inputs.Count; i++)
+			{
+				psbt.AddPathTo(i, key.PubKey, MasterKeyFingerPrint, path);
+				Assert.Single(psbt.inputs[i].HDKeyPaths);
+			}
+			for (var i = 0; i < tx.Outputs.Count; i++)
+			{
+				psbt.AddPathTo(i, key.PubKey, MasterKeyFingerPrint, path, false);
+				Assert.Single(psbt.outputs[i].HDKeyPaths);
+			}
 		}
 	}
 }

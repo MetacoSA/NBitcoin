@@ -40,6 +40,23 @@ namespace NBitcoin
 				.ToArray();
 		}
 
+		public static KeyPath FromBytes(byte[] data)
+		{
+			if (data.Length % 4 != 0)
+				throw new ArgumentOutOfRangeException("data length is not suited for KeyPath");
+			var depth = data.Length / 4;
+			uint[] result = new uint[depth];
+			for (int i = 0;  i < depth; i++)
+			{
+				result[i] = BitConverter.ToUInt32(data, i * 4);
+			}
+
+			return new KeyPath(result);
+		}
+
+		public byte[] ToBytes() =>
+			Indexes.Select(i => BitConverter.GetBytes(i)).Aggregate((a, b) => a.Concat(b)).ToArray();
+
 		private static uint ParseCore(string i)
 		{
 			bool hardened = i.EndsWith("'");

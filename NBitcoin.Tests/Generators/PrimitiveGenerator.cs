@@ -6,6 +6,8 @@ namespace NBitcoin.Tests.Generators
 {
 	public class PrimitiveGenerator
 	{
+		public static Arbitrary<uint> UIntArb() =>
+			Arb.From(UInt32());
 		public static Gen<byte> RandomByte() =>
 			Gen.Choose(0, 255).Select(i => (byte) i);
 
