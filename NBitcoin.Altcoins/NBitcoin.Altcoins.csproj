@@ -5,10 +5,9 @@
 		<Description>The C# Bitcoin Library</Description>
 		<PackageIconUrl>https://aois.blob.core.windows.net/public/Bitcoin.png</PackageIconUrl>
 		<PackageId>NBitcoin.Altcoins</PackageId>
-		<PackageTags>bitcoin,altcoins,litecoin</PackageTags>
+		<PackageTags>bitcoin,altcoins,bcash,bgold,bitcore,dash,dogecoin,dystem,feathercoin,groestlcoin,litecoin,monacoin,polis,ufo,viacoin,zclassic,liquid</PackageTags>
 		<PackageProjectUrl>https://github.com/MetacoSA/NBitcoin</PackageProjectUrl>
-		<PackageLicenseUrl>https://github.com/MetacoSA/NBitcoin/blob/master/LICENSE</PackageLicenseUrl>
-		<RepositoryUrl>https://github.com/MetacoSA/NBitcoin</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
