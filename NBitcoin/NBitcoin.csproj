@@ -7,7 +7,7 @@
 		<PackageIconUrl>https://aois.blob.core.windows.net/public/Bitcoin.png</PackageIconUrl>
 		<PackageTags>bitcoin</PackageTags>
 		<PackageProjectUrl>https://github.com/MetacoSA/NBitcoin</PackageProjectUrl>
-		<PackageLicenseUrl>https://github.com/MetacoSA/NBitcoin/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/MetacoSA/NBitcoin</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
