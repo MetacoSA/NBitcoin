@@ -182,7 +182,7 @@ namespace NBitcoin.Tests
 			var expectedBaseSize = result.WithOptions(TransactionOptions.None).ToBytes().Length;
 			Assert.True(expectedBaseSize <= baseSize);
 			Assert.True(expectedWitsize <= witSize);
-			Assert.True(feeRate.FeePerK.Almost(result.GetFeeRate(builder.FindSpentCoins(result)).FeePerK, 0.01m));
+			Assert.True(feeRate.FeePerK.Almost(result.GetFeeRate(builder.FindSpentCoins(result)).FeePerK, 0.02m));
 			Assert.True(feeRate.FeePerK <= result.GetFeeRate(builder.FindSpentCoins(result)).FeePerK);
 
 			return (expectedBaseSize, expectedWitsize, baseSize, witSize);
