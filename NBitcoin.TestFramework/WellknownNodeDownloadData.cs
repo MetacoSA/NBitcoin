@@ -552,15 +552,17 @@ namespace NBitcoin.Tests
 
 		public class ChaincoinNodeDownloadData
 		{
-			public NodeDownloadData v0_16_1 = new NodeDownloadData()
+			// todo: regtest fault - could be windows build - will fail unit tests but mainnet/testnet okay 
+			// todo: Linux, Mac properties update
+			public NodeDownloadData v0_16_3 = new NodeDownloadData()
 			{
-				Version = "0.16.1",
+				Version = "0.16.3",
 				Windows = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/chaincoin/chaincoin/releases/download/v{0}/chaincoin-{0}-win64-setup.exe",
-					Archive = "chaincoin-qt.exe.zip",
-					Executable = "chaincoincore-{0}/bin/chaincoind.exe",
-					Hash = "e495e6a646d4bda2f50ff7fb8850ee9a35425e8719efd09df465685cb63c2e49"
+					DownloadLink = "https://github.com/fellowserf/ChainCoin/releases/download/v{0}/chaincoincore-{0}-win64.zip",
+					Archive = "chaincoincore-v{0}-win64.zip",
+					Executable = "chaincoincore-0.16.3/bin/chaincoind.exe",
+					Hash = "02e8c8273c0951f2e9d4ef5846052120ed76eb54e5722b3efe97db8f874fdaed"
 				},
 				Linux = new NodeOSDownloadData()
 				{
@@ -575,6 +577,7 @@ namespace NBitcoin.Tests
 					Executable = "chaincoincore-{0}/bin/chaincoind"
 				}
 			};
+
 		}
 
 		public static GroestlcoinNodeDownloadData Groestlcoin
