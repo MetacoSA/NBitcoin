@@ -46,7 +46,7 @@ namespace NBitcoin.Tests
 
 			//var builder = NodeBuilder.Create(NodeDownloadData.Bitcore.v0_15_1, Altcoins.Bitcore.Instance.Regtest, caller);
 
-			//var builder = NodeBuilder.Create(NodeDownloadData.Chaincoin.v0_16_3, Altcoins.Chaincoin.Instance.Regtest  , caller);
+			//var builder = NodeBuilder.Create(NodeDownloadData.Chaincoin.v0_16_3, Altcoins.Chaincoin.Instance.Regtest, caller);
 
 			return builder;
 		}
