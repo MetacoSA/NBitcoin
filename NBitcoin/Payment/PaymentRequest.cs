@@ -17,13 +17,14 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Payment
 {
+	[Obsolete("BIP70 is obsolete")]
 	public enum PKIType
 	{
 		None,
 		X509SHA256,
 		X509SHA1,
 	}
-
+	[Obsolete("BIP70 is obsolete")]
 	public class PaymentOutput
 	{
 		public PaymentOutput()
@@ -105,6 +106,7 @@ namespace NBitcoin.Payment
 			writer.WriteBytes(Script == null ? new byte[0] : Script.ToBytes(true));
 		}
 	}
+	[Obsolete("BIP70 is obsolete")]
 	public class PaymentDetails
 	{
 		public PaymentDetails()
@@ -267,7 +269,7 @@ namespace NBitcoin.Payment
 			}
 		}
 	}
-
+	[Obsolete("BIP70 is obsolete")]
 	public class PaymentRequest
 	{
 		class RecorderStream : Stream

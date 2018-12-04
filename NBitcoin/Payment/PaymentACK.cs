@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Payment
 {
+	[Obsolete("BIP70 is obsolete")]
 	public class PaymentACK
 	{
 		public const int MaxLength = 60000;
@@ -115,6 +116,7 @@ namespace NBitcoin.Payment
 		}
 #endif
 	}
+	[Obsolete("BIP70 is obsolete")]
 	public class PaymentMessage
 	{
 		public const int MaxLength = 50000;

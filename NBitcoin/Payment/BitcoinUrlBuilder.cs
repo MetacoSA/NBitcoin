@@ -79,11 +79,13 @@ namespace NBitcoin.Payment
 				Message = parameters["message"];
 				parameters.Remove("message");
 			}
-			if(parameters.ContainsKey("r"))
+#pragma warning disable CS0618 // Type or member is obsolete
+			if (parameters.ContainsKey("r"))
 			{
 				PaymentRequestUrl = new Uri(parameters["r"], UriKind.Absolute);
 				parameters.Remove("r");
 			}
+#pragma warning restore CS0618 // Type or member is obsolete
 			_UnknowParameters = parameters;
 			var reqParam = parameters.Keys.FirstOrDefault(k => k.StartsWith("req-", StringComparison.OrdinalIgnoreCase));
 			if(reqParam != null)
@@ -99,6 +101,7 @@ namespace NBitcoin.Payment
 			}
 		}
 #if !NOHTTPCLIENT
+		[Obsolete("BIP70 is obsolete")]
 		public PaymentRequest GetPaymentRequest()
 		{
 			if(PaymentRequestUrl == null)
@@ -106,6 +109,7 @@ namespace NBitcoin.Payment
 			
 			return GetPaymentRequestAsync().GetAwaiter().GetResult();
 		}
+		[Obsolete("BIP70 is obsolete")]
 		public async Task<PaymentRequest> GetPaymentRequestAsync(HttpClient httpClient = null)
 		{
 			if(PaymentRequestUrl == null)
@@ -140,9 +144,7 @@ namespace NBitcoin.Payment
 			}
 		}
 #endif
-		/// <summary>
-		/// https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki
-		/// </summary>
+		[Obsolete("BIP70 is obsolete")]
 		public Uri PaymentRequestUrl
 		{
 			get;
@@ -193,12 +195,14 @@ namespace NBitcoin.Payment
 				{
 					parameters.Add("message", Message.ToString());
 				}
-				if(PaymentRequestUrl != null)
+#pragma warning disable CS0618 // Type or member is obsolete
+				if (PaymentRequestUrl != null)
 				{
 					parameters.Add("r", PaymentRequestUrl.ToString());
 				}
+#pragma warning restore CS0618 // Type or member is obsolete
 
-				foreach(var kv in UnknowParameters)
+				foreach (var kv in UnknowParameters)
 				{
 					parameters.Add(kv.Key, kv.Value);
 				}

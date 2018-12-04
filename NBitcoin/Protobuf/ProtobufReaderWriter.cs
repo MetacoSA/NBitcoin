@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Protobuf
 {
+	[Obsolete("BIP70 is obsolete")]
 	internal class ProtobufReaderWriter
 	{
 		internal const int PROTOBUF_VARINT = 0; // int32, int64, uint32, uint64, sint32, sint64, bool, enum

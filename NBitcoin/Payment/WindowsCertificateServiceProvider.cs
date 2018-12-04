@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Payment
 {
+	[Obsolete("BIP70 is obsolete")]
 	public class WindowsCertificateServiceProvider : ICertificateServiceProvider
 	{
 		public class WindowsHashChecker : ISignatureChecker

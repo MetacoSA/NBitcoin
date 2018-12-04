@@ -93,36 +93,6 @@
     <None Include="data\NicolasDorierMerchant.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="data\paymentack.data">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\payreq1_sha1.paymentrequest">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\payreq1_sha1_omitteddefault.paymentrequest">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\payreq1_sha256_omitteddefault.paymentrequest">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\payreq1_sha256.paymentrequest">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\payreq2_sha1.paymentrequest">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\payreq2_sha1_omitteddefault.paymentrequest">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\payreq2_sha256_omitteddefault.paymentrequest">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\payreq2_sha256.paymentrequest">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="data\payreq3_validchain.paymentrequest">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="data\peers.dat" />
     <None Include="data\script_tests.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
