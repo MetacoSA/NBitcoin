@@ -44,6 +44,7 @@ namespace NBitcoin.Tests
 			CanSerializeInJsonCore(new LockTime(DateTime.UtcNow));
 			CanSerializeInJsonCore(new FeeRate(Money.Satoshis(1), 1000));
 			CanSerializeInJsonCore(new FeeRate(Money.Satoshis(1000), 1000));
+			CanSerializeInJsonCore(new FeeRate(0.5m));
 		}
 
 		private T CanSerializeInJsonCore<T>(T value)
