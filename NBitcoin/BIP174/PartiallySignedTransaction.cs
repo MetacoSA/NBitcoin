@@ -9,9 +9,10 @@ using Newtonsoft.Json;
 
 namespace NBitcoin.BIP174
 {
-	using HDKeyPathKVMap = Dictionary<PubKey, Tuple<uint, KeyPath>>;
-	using PartialSigKVMap = Dictionary<KeyId, Tuple<PubKey, ECDSASignature>>;
-	using UnknownKVMap = Dictionary<byte[], byte[]>;
+	using HDKeyPathKVMap = SortedDictionary<PubKey, Tuple<uint, KeyPath>>;
+	using PartialSigKVMap = SortedDictionary<KeyId, Tuple<PubKey, ECDSASignature>>;
+	using UnKnownKVMap = SortedDictionary<byte[], byte[]>;
+
 	static class PSBTConstants
 	{
 		public static byte[] PSBT_GLOBAL_ALL { get; }
@@ -74,12 +75,12 @@ namespace NBitcoin.BIP174
 
 		private HDKeyPathKVMap hd_keypaths;
 		private PartialSigKVMap partial_sigs;
-		private UnknownKVMap unknown;
-		int sighash_type = 0;
+		private UnKnownKVMap unknown;
+		SigHash sighash_type = 0;
 
 		// Signatures which does not know which pubkey corresponds to him.
-		private List<ECDSASignature> OrphanPartialSigs = new List<ECDSASignature>();
-		private List<PubKey> OrphanPubKeys = new List<PubKey>();
+		private HashSet<ECDSASignature> OrphanPartialSigs = new HashSet<ECDSASignature>();
+		private HashSet<PubKey> OrphanPubKeys = new HashSet<PubKey>();
 		public Transaction NonWitnessUtxo
 		{
 			get
@@ -128,6 +129,18 @@ namespace NBitcoin.BIP174
 			}
 		}
 
+		public SigHash SighashType
+		{
+			get
+			{
+				return sighash_type;
+			}
+			set
+			{
+				sighash_type = value;
+			}
+		}
+
 		public Script FinalScriptSig
 		{
 			get
@@ -168,11 +181,29 @@ namespace NBitcoin.BIP174
 			}
 		}
 
-		public UnknownKVMap Unknown
+		public SortedDictionary<byte[], byte[]> Unknown
 		{
 			get
 			{
 				return unknown;
+			}
+		}
+
+		private class PubKeyComparer : IComparer<PubKey>
+		{
+			public Comparer<byte[]> ByteComparer = new Utils.ByteComparer();
+			public int Compare(PubKey x, PubKey y)
+			{
+				return ByteComparer.Compare(x.ToBytes(), y.ToBytes());
+			}
+		}
+
+		private class KeyIdComparer : IComparer<KeyId>
+		{
+			public Comparer<byte[]> ByteComparer = new Utils.ByteComparer();
+			public int Compare(KeyId x, KeyId y)
+			{
+				return ByteComparer.Compare(x._DestBytes, y._DestBytes);
 			}
 		}
 
@@ -183,9 +214,9 @@ namespace NBitcoin.BIP174
 
 		private void SetUp()
 		{
-			hd_keypaths = new HDKeyPathKVMap();
-			partial_sigs = new PartialSigKVMap();
-			unknown = new UnknownKVMap();
+			hd_keypaths = new HDKeyPathKVMap(new PubKeyComparer());
+			partial_sigs = new PartialSigKVMap(new KeyIdComparer());
+			unknown = new SortedDictionary<byte[], byte[]>(new Utils.ByteComparer());
 		}
 
 		public PSBTInput(TxIn txin)
@@ -196,10 +227,10 @@ namespace NBitcoin.BIP174
 			}
 			SetUp();
 
-			DeconstructScripts(txin);
+			DeconstructTxIn(txin);
 		}
 
-		private void DeconstructScripts(TxIn txin)
+		private void DeconstructTxIn(TxIn txin)
 		{
 			var ScriptSig = txin.ScriptSig;
 			var witScript = txin.WitScript;
@@ -230,12 +261,14 @@ namespace NBitcoin.BIP174
 					var first = sigHashes.First();
 					if (sigHashes.Any(i => i != first))
 						throw new InvalidDataException("All signatures in input must have a same sighash type.");
-					sighash_type = sigs.Select(sig => (int)sig.SigHash).First();
-					this.OrphanPartialSigs = sigs.Select(txSig => txSig.Signature).ToList();
+					sighash_type = sigs.Select(sig => sig.SigHash).First();
 
+					foreach (var sig in sigs)
+						OrphanPartialSigs.Add(sig.Signature);
 				}
 
-				OrphanPubKeys.AddRange(ExtractPubKeyFromScript(redeem_script));
+				foreach (var pk in redeem_script.GetAllPubKeys())
+					OrphanPubKeys.Add(pk);
 
 				// Do not return here. Since it may be p2sh-nested-witness.
 			}
@@ -269,13 +302,11 @@ namespace NBitcoin.BIP174
 						OrphanPartialSigs.Add(new TransactionSignature(item).Signature);
 					}
 				}
-				OrphanPubKeys.AddRange(ExtractPubKeyFromScript(witness_script));
+				foreach (var pk in witness_script.GetAllPubKeys())
+					OrphanPubKeys.Add(pk);
 				return;
 			}
 		}
-
-		private List<PubKey> ExtractPubKeyFromScript(Script script) =>
-			script.ToOps().Where(op => op.PushData != null && PubKey.Check(op.PushData, true)).Select(op => new PubKey(op.PushData)).ToList();
 
 		internal void AddCoin(ICoin coin)
 		{
@@ -285,21 +316,21 @@ namespace NBitcoin.BIP174
 				if (sCoin.RedeemType == RedeemType.P2SH) // p2sh, p2sh-p2wpkh
 				{
 					redeem_script = sCoin.Redeem;
-					OrphanPubKeys.AddRange(ExtractPubKeyFromScript(redeem_script));
+					foreach (var pk in redeem_script.GetAllPubKeys())
+						OrphanPubKeys.Add(pk);
 				}
 				else // p2wsh, p2sh-p2wsh
 				{
 					witness_script = sCoin.Redeem;
-					OrphanPubKeys.AddRange(ExtractPubKeyFromScript(witness_script));
+					foreach (var pk in witness_script.GetAllPubKeys())
+						OrphanPubKeys.Add(pk);
 					if (sCoin.IsP2SH)
 						redeem_script = witness_script.WitHash.ScriptPubKey;
 				}
 			}
 
 			// Why we need this check? because we should never add witness_utxo to non_segwit input.
-			if (
-				PayToWitTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey) ||
-				(PayToScriptHashTemplate.Instance.CheckScriptPubKey(coin.TxOut.ScriptPubKey) && redeem_script != null && PayToWitTemplate.Instance.CheckScriptPubKey(redeem_script)))
+			if (IsDefinitelyWitness(coin.TxOut))
 			{
 				witness_utxo = coin.TxOut;
 			}
@@ -314,15 +345,39 @@ namespace NBitcoin.BIP174
 		internal void MoveOrphansToPartialSigs(Transaction globalTx)
 		{ }
 
+		private bool IsDefinitelyWitness(TxOut txout) =>
+				PayToWitTemplate.Instance.CheckScriptPubKey(txout.ScriptPubKey) ||
+				(PayToScriptHashTemplate.Instance.CheckScriptPubKey(txout.ScriptPubKey) && redeem_script != null && PayToWitTemplate.Instance.CheckScriptPubKey(redeem_script));
+
+		/// <summary>
+		/// Check if this satisfies criteria for witness. if it does, delete non_witness_utxo
+		/// This is useful for following reasons.
+		/// 1. It will make a data smaller which is an obviously good thing.
+		/// 2. Future HW Wallet may not support non segwit tx and thus won't recognize non_witness_utxo
+		/// 3. To pass test in BIP174
+		/// </summary>
+		internal void TrySlimOutput(TxIn txin)
+		{
+			var txout = GetOutput(txin.PrevOut);
+			if (txout == null)
+				return;
+			if (IsDefinitelyWitness(txout))
+			{
+				witness_utxo = txout;
+				non_witness_utxo = null;
+			}
+		}
+
+
 		private bool IsRelatedKey(PubKey pk, Script ScriptPubKey) =>
-			OrphanPubKeys.Any(k => k.Equals(pk)) || // key was in script or ...
-				pk.Hash.ScriptPubKey.Equals(ScriptPubKey) || // matches as p2pkh
-				pk.WitHash.ScriptPubKey.Equals(ScriptPubKey) || // as p2wpkh
-				pk.WitHash.ScriptPubKey.Equals(redeem_script); // as p2sh-p2wpkh
+			OrphanPubKeys.Contains(pk) || // key was in script or ...
+				pk.Hash.ScriptPubKey.Equals(ScriptPubKey) || // matches as p2pkh or
+				pk.WitHash.ScriptPubKey.Equals(ScriptPubKey) || // as p2wpkh or
+				(redeem_script != null && pk.WitHash.ScriptPubKey.Equals(redeem_script)); // as p2sh-p2wpkh or
 
 
 		// Wny not just use `Transaction.Sign()` ? Because we must pass sighash_type somehow.
-		// TODO: Using Transaction Builder here is ugly. It must be somewhere a method just for creating signature.
+		// TODO: Using Transaction Builder here is ugly. It may be more simpler.
 		private void SignTx(ref Transaction tx, Key key, ICoin coin)
 		{
 			TransactionBuilder builder = this.GetConsensusFactory().CreateTransactionBuilder();
@@ -582,6 +637,44 @@ namespace NBitcoin.BIP174
 			return null;
 		}
 
+		internal void TryAddKeyPath(PubKey key, Tuple<uint, KeyPath> path, TxIn txin)
+		{
+			if (OrphanPubKeys.Contains(key))
+			{
+				hd_keypaths.Add(key, path);
+				return;
+			}
+
+			var output = GetOutput(txin.PrevOut);
+			if (output == null)
+				return;
+
+			if (IsRelatedKey(key, output.ScriptPubKey))
+				hd_keypaths.AddOrReplace(key, path);
+		}
+
+		internal void TryAddScript(Script script, TxIn txin)
+		{
+			var output = GetOutput(txin.PrevOut);
+			if (output == null)
+				return;
+
+			if (script.Hash.ScriptPubKey == output.ScriptPubKey)
+			{
+				redeem_script = script;
+				foreach (var pk in redeem_script.GetAllPubKeys())
+					OrphanPubKeys.Add(pk);
+			}
+
+			var witProgram = script.WitHash.ScriptPubKey;
+			if (witProgram.Equals(output.ScriptPubKey) || (redeem_script != null && witProgram.Equals(redeem_script)))
+			{
+				witness_script = script;
+				foreach (var pk in witness_script.GetAllPubKeys())
+					OrphanPubKeys.Add(pk);
+			}
+		}
+
 		#region IBitcoinSerializable Members
 		public void ReadWrite(BitcoinStream stream)
 		{
@@ -601,7 +694,7 @@ namespace NBitcoin.BIP174
 		{
 			CheckSanity();
 			// Write the utxo
-			// If there is a non-witness utxo, then don't add the witness one.
+			// If there is a non-witness utxo, then don't serialize the witness one.
 			if (witness_utxo != null)
 			{
 				// key
@@ -613,7 +706,8 @@ namespace NBitcoin.BIP174
 				var data = witness_utxo.ToBytes();
 				stream.ReadWriteAsVarString(ref data);
 			}
-			else if (non_witness_utxo != null)
+
+			if (non_witness_utxo != null)
 			{
 				// key
 				stream.ReadWriteAsVarInt(ref defaultKeyLen);
@@ -767,7 +861,7 @@ namespace NBitcoin.BIP174
 							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for SigHash type");
 						if (sighash_type != 0)
 							throw new FormatException("Invalid PSBTInput. Duplicate key for sighash_type");
-						sighash_type = (int)v[0];
+						sighash_type = (SigHash)v[0];
 						break;
 					case PSBTConstants.PSBT_IN_REDEEMSCRIPT:
 						if (k.Length != 1)
@@ -840,7 +934,7 @@ namespace NBitcoin.BIP174
 
 	public class PSBTInputList : UnsignedList<PSBTInput>
 	{
-		public PSBTInputList() { }
+		public PSBTInputList(IEnumerable<PSBTInput> items): base(items) { }
 		public PSBTInputList(Transaction globalTx) : base(globalTx) { }
 
 		public PSBTInput CreateNewPSBTInput()
@@ -863,9 +957,21 @@ namespace NBitcoin.BIP174
 		private Script redeem_script;
 		private Script witness_script;
 		private HDKeyPathKVMap hd_keypaths;
-		private UnknownKVMap unknown;
+		private UnKnownKVMap unknown;
+
+		private HashSet<PubKey> OrphanPubKeys = new HashSet<PubKey>();
 
 		private static uint defaultKeyLen = 1;
+
+		private class PubKeyComparer : IComparer<PubKey>
+		{
+			public Comparer<byte[]> ByteComparer = new Utils.ByteComparer();
+			public int Compare(PubKey x, PubKey y)
+			{
+				return ByteComparer.Compare(x.ToBytes(), y.ToBytes());
+			}
+		}
+
 
 		public Script RedeemScript
 		{
@@ -899,7 +1005,7 @@ namespace NBitcoin.BIP174
 			}
 		}
 
-		public UnknownKVMap Unknown
+		public UnKnownKVMap Unknown
 		{
 			get
 			{
@@ -909,9 +1015,39 @@ namespace NBitcoin.BIP174
 
 		public PSBTOutput()
 		{
-			hd_keypaths = new HDKeyPathKVMap();
-			unknown = new UnknownKVMap();
+			hd_keypaths = new HDKeyPathKVMap(new PubKeyComparer());
+			unknown = new UnKnownKVMap(new Utils.ByteComparer());
 		}
+
+		internal void TryAddScript(Script script, TxOut output)
+		{
+			if (script.Hash.ScriptPubKey == output.ScriptPubKey)
+			{
+				redeem_script = script;
+				foreach (var pk in redeem_script.GetAllPubKeys())
+					OrphanPubKeys.Add(pk);
+			}
+
+			var witProgram = script.WitHash.ScriptPubKey;
+			if (witProgram == output.ScriptPubKey || (redeem_script != null && witProgram == redeem_script))
+			{
+				witness_script = script;
+				foreach (var pk in witness_script.GetAllPubKeys())
+					OrphanPubKeys.Add(pk);
+			}
+		}
+
+		internal void TryAddKeyPath(PubKey key, Tuple<uint, KeyPath> path, TxOut output)
+		{
+			if (IsRelatedKey(key, output.ScriptPubKey))
+				hd_keypaths.Add(key, path);
+		}
+
+		private bool IsRelatedKey(PubKey pk, Script ScriptPubKey) =>
+			OrphanPubKeys.Contains(pk) || // key was in script or ...
+				pk.Hash.ScriptPubKey.Equals(ScriptPubKey) || // matches as p2pkh or
+				pk.WitHash.ScriptPubKey.Equals(ScriptPubKey) || // as p2wpkh or
+				(redeem_script != null && pk.WitHash.ScriptPubKey.Equals(redeem_script)); // as p2sh-p2wpkh
 
 		#region IBitcoinSerializable Members
 
@@ -1045,7 +1181,7 @@ namespace NBitcoin.BIP174
 
 	public class PSBTOutputList : UnsignedList<PSBTOutput>
 	{
-		public PSBTOutputList() { }
+		public PSBTOutputList(IEnumerable<PSBTOutput> items): base(items) { }
 		public PSBTOutputList(Transaction globalTx) : base(globalTx) { }
 		public new PSBTOutput Add(PSBTOutput item)
 		{
@@ -1064,7 +1200,7 @@ namespace NBitcoin.BIP174
 		public PSBTOutputList outputs;
 
 
-		protected Dictionary<byte[], byte[]> unknown;
+		protected UnKnownKVMap unknown;
 
 		public static PSBT Parse(string base64)
 		{
@@ -1141,7 +1277,9 @@ namespace NBitcoin.BIP174
 				{
 					this.inputs.Add(new PSBTInput(txin));
 					this.inputs[i].AddCoin(coin);
+					this.inputs[i].CheckSanityForSigner(txin);
 					this.inputs[i].MoveOrphansToPartialSigs(tx);
+					this.inputs[i].TrySlimOutput(txin);
 					this.inputs[i].TryFinalize(tx, i);
 				}
 				else
@@ -1176,7 +1314,7 @@ namespace NBitcoin.BIP174
 			}
 			inputs = new PSBTInputList(tx);
 			outputs = new PSBTOutputList(tx);
-			unknown = new UnknownKVMap();
+			unknown = new UnKnownKVMap(new Utils.ByteComparer());
 		}
 
 		public static PSBT FromTransaction(Transaction tx) => new PSBT(tx);
@@ -1191,6 +1329,7 @@ namespace NBitcoin.BIP174
 				{
 					this.inputs[i].AddCoin(coin);
 					this.inputs[i].CheckSanityForSigner(txin);
+					this.inputs[i].TrySlimOutput(txin);
 					this.inputs[i].MoveOrphansToPartialSigs(tx);
 				}
 			}
@@ -1208,6 +1347,11 @@ namespace NBitcoin.BIP174
 				{
 					this.inputs[i].NonWitnessUtxo = nonWitnessUtxo;
 					this.inputs[i].MoveOrphansToPartialSigs(tx);
+					// Also, check if we can add witness_utxo
+					var coins = nonWitnessUtxo.Outputs.AsCoins();
+					var coin = coins.FirstOrDefault(c => c.Outpoint == txin.PrevOut);
+					this.inputs[i].AddCoin(coin);
+					this.inputs[i].TrySlimOutput(txin);
 				}
 			}
 
@@ -1286,6 +1430,39 @@ namespace NBitcoin.BIP174
 			else
 			{
 				outputs[index].HDKeyPaths.Add(key, Tuple.Create(MasterKeyFingerprint, path));
+			}
+
+			return this;
+		}
+
+		public PSBT TryAddKeyPath(PubKey key, Tuple<uint, KeyPath> path)
+		{
+			for (int i = 0; i < inputs.Count; i++)
+			{
+				inputs[i].TryAddKeyPath(key, path, tx.Inputs[i]);
+			}
+			for (int i = 0; i < outputs.Count; i++)
+			{
+				outputs[i].TryAddKeyPath(key, path, tx.Outputs[i]);
+			}
+
+			return this;
+		}
+
+		public PSBT TryAddScript(Script script)
+		{
+			for (int i = 0; i < inputs.Count; i++)
+			{
+				var psbtin = this.inputs[i];
+				var txin = tx.Inputs[i];
+				psbtin.TryAddScript(script, txin);
+				psbtin.TrySlimOutput(txin);
+			}
+			for (int i = 0; i < outputs.Count; i++)
+			{
+				var psbtout = this.outputs[i];
+				var txout = tx.Outputs[i];
+				psbtout.TryAddScript(script, txout);
 			}
 
 			return this;
