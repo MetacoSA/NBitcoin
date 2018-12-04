@@ -999,6 +999,47 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanSerializeDeserializeVarInt()
+		{
+			var testCases = new (byte[] Bytes, ulong Value)[]
+			{
+				(Bytes: new byte[] { 0 }, Value: 0),
+				(Bytes: new byte[] { 1 }, Value: 1),
+				(Bytes: new byte[] { 0xFD-1  }, Value: 0xFD-1),
+				(Bytes: new byte[] { 0xFD, 0xFD, 0x00 }, Value: 0xFD),
+				(Bytes: new byte[] { 0xFD, 0xFF, 0xFF }, Value: 0xFFFF),
+				(Bytes: new byte[] { 0xFE, 0x00, 0x00, 0x01, 0x00 }, Value: 0x00010000),
+				(Bytes: new byte[] { 0xFE, 0xFF, 0xFF, 0xFF, 0xFF }, Value: 0xFFFFFFFF),
+				(Bytes: new byte[] { 0xFF, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00 }, Value: 0x0000000100000000),
+				(Bytes: new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }, Value: 0xFFFFFFFFFFFFFFFF)
+			};
+			foreach(var testCase in testCases)
+			{
+				var stream = new BitcoinStream(testCase.Bytes);
+				Assert.Equal(testCase.Value, VarInt.StaticRead(stream));
+				var ms = new MemoryStream();
+				stream = new BitcoinStream(ms, true);
+				VarInt.StaticWrite(stream, testCase.Value);
+				var actualBytes = ms.ToArray();
+				Assert.Equal(Encoders.Hex.EncodeData(testCase.Bytes), Encoders.Hex.EncodeData(actualBytes));
+			}
+
+			// Test on non canonic values
+			testCases = new (byte[] Bytes, ulong Value)[]
+			{
+				(Bytes: new byte[] { 0xFD, 0x01, 0x00 }, Value: 0x01),
+				(Bytes: new byte[] { 0xFE, 0x01, 0x00, 0x00, 0x00 }, Value: 0x01),
+				(Bytes: new byte[] { 0xFF, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, Value: 0x01)
+			};
+			foreach (var testCase in testCases)
+			{
+				var stream = new BitcoinStream(testCase.Bytes);
+				Assert.Equal(testCase.Value, VarInt.StaticRead(stream));
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanParseAndGenerateSegwitScripts()
 		{
 			var pubkey = new PubKey("03a65786c1a48d4167aca08cf6eb8eed081e13f45c02dc6000fd8f3bb16242579a");
