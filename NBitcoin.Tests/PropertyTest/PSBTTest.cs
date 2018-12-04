@@ -51,7 +51,7 @@ namespace NBitcoin.Tests.PropertyTest
 			Assert.NotNull(psbt);
 		}
 
-		[Property(MaxTest = 20)]
+		[Property]
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldAddKeyInfo(Transaction tx, Key key, uint MasterKeyFingerPrint, KeyPath path)
 		{
@@ -66,6 +66,15 @@ namespace NBitcoin.Tests.PropertyTest
 				psbt.AddPathTo(i, key.PubKey, MasterKeyFingerPrint, path, false);
 				Assert.Single(psbt.outputs[i].HDKeyPaths);
 			}
+		}
+		[Property]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanCloneAndCombine(PSBT psbt)
+		{
+			var tmp = psbt.Clone();
+			Assert.Equal(tmp, psbt);
+			var combined = psbt.Combine(tmp);
+			Assert.Equal(psbt, combined);
 		}
 	}
 }

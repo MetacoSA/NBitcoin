@@ -15,6 +15,7 @@ namespace NBitcoin.Tests.Generators
 	{
 		public static Arbitrary<PSBTInput> PSBTInputArb() => Arb.From(PSBTInput());
 		public static Arbitrary<PSBTOutput> PSBTOutputArb() => Arb.From(PSBTOutput());
+		public static Arbitrary<PSBT> PSBTArb() => Arb.From(PSBT());
 		#region PSBTInput
 
 		public static Gen<PSBTInput> PSBTInput() => Gen.OneOf(PSBTInputFinal(), PSBTInputNonFinal());
@@ -95,6 +96,18 @@ namespace NBitcoin.Tests.Generators
 			return output;
 		}
 
+
+		#endregion
+		#region PSBT
+
+		public static Gen<PSBT> PSBT() =>
+			from tx in SegwitTransactionGenerators.TX()
+			from psbt in PSBT(tx)
+			select psbt;
+		public static Gen<PSBT> PSBT(Transaction tx) =>
+			from psbtins in Gen.ListOf(tx.Inputs.Count, PSBTInput())
+			from psbtouts in Gen.ListOf(tx.Outputs.Count, PSBTOutput())
+			select new PSBT() { outputs = new PSBTOutputList(psbtouts.ToList()), inputs = new PSBTInputList(psbtins.ToList()) };
 
 		#endregion
 		public static Gen<UnknownKVMap> UnknownKVMap() =>
