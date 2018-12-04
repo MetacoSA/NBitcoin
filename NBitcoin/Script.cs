@@ -794,6 +794,9 @@ namespace NBitcoin
 			return result.ToArray();
 		}
 
+		public PubKey[] GetAllPubKeys() =>
+			ToOps().Where(op => op.PushData != null && PubKey.Check(op.PushData, true)).Select(op => new PubKey(op.PushData)).ToArray();
+
 		/// <summary>
 		/// Get script byte array
 		/// </summary>
