@@ -128,11 +128,15 @@ namespace NBitcoin.Tests
 
 			var PSBTWithTXs = PSBT.FromTransaction(tx)
 				.AddTransactions(funds);
-			foreach (var psbtin in PSBTWithTXs.inputs)
-			{
-				Assert.Null(psbtin.WitnessUtxo);
-				Assert.NotNull(psbtin.NonWitnessUtxo);
-			}
+			Assert.Null(PSBTWithTXs.inputs[0].WitnessUtxo);
+			Assert.NotNull(PSBTWithTXs.inputs[0].NonWitnessUtxo);
+			Assert.NotNull(PSBTWithTXs.inputs[1].WitnessUtxo);
+			Assert.Null(PSBTWithTXs.inputs[2].WitnessUtxo);
+			Assert.NotNull(PSBTWithTXs.inputs[2].NonWitnessUtxo);
+			Assert.NotNull(PSBTWithTXs.inputs[3].WitnessUtxo);
+			Assert.NotNull(PSBTWithTXs.inputs[4].WitnessUtxo);
+			Assert.NotNull(PSBTWithTXs.inputs[5].WitnessUtxo);
+
 			var SignedPSBTWithTXs = PSBTWithTXs
 				.TrySignAll(keys);
 
@@ -160,6 +164,96 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldPairSignaturesAndPubkeyInOriginalTXWhenCoinsAreAdd()
 		{}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ShouldFailToSignForTestcaseInvalidForSigner()
+		{
+			JArray testcases = (JArray)testdata["invalidForSigners"];
+			foreach (string i in testcases)
+			{
+				var psbt = PSBT.Parse(i);
+				Assert.Throws<FormatException>(() => psbt.TrySignAll(new Key()));
+			}
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ShouldPassTheLongestTestInBIP174()
+		{
+			JObject testcase = (JObject)testdata["final"];
+			var network = Network.TestNet;
+			var master = ExtKey.Parse((string)testcase["master"], network);
+			var masterFP = BitConverter.ToUInt32(master.PrivateKey.PubKey.Hash.ToBytes().SafeSubarray(0, 4), 0);
+			var tx = network.CreateTransaction();
+			tx.Version = 2;
+
+			var scriptPubKey1 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["out1"]["script"]));
+			var money1 = Money.Coins((decimal)testcase["out1"]["value"]);
+			var scriptPubKey2 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["out2"]["script"]));
+			var money2 = Money.Coins((decimal)testcase["out2"]["value"]);
+			tx.Outputs.Add(new TxOut(value: money1, scriptPubKey: scriptPubKey1));
+			tx.Outputs.Add(new TxOut(value: money2, scriptPubKey: scriptPubKey2));
+			tx.Inputs.Add(new OutPoint(uint256.Parse((string)testcase["in1"]["txid"]), (uint)testcase["in1"]["index"]));
+			tx.Inputs.Add(new OutPoint(uint256.Parse((string)testcase["in2"]["txid"]), (uint)testcase["in2"]["index"]));
+
+			var expected = PSBT.Parse((string)testcase["psbt1"]);
+
+			var psbt = PSBT.FromTransaction(tx);
+			Assert.Equal(expected, psbt, new PSBTComparer());
+
+			var prevtx1 = Transaction.Parse((string)testcase["prevtx1"], network);
+			var prevtx2 = Transaction.Parse((string)testcase["prevtx2"], network);
+			psbt.AddTransactions(prevtx1, prevtx2);
+			var redeem1 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["redeem1"]));
+			var redeem2 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["redeem2"]));
+			var witness_script1 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["witness1"]));
+			foreach (var sc in new Script[] {redeem1, redeem2, witness_script1})
+				psbt.TryAddScript(sc);
+
+			for (int i = 0; i < 6; i++)
+			{
+				var pk = testcase[$"pubkey{i}"];
+				var pubkey = new PubKey((string)pk["hex"]);
+				var path = KeyPath.Parse((string)pk["path"]);
+				psbt.TryAddKeyPath(pubkey, Tuple.Create(masterFP, path));
+			}
+
+			expected = PSBT.Parse((string)testcase["psbt2"]);
+			Assert.Equal(expected, psbt, new PSBTComparer());
+
+			foreach(var psbtin in psbt.inputs)
+				psbtin.SighashType = SigHash.All;
+			expected = PSBT.Parse((string)testcase["psbt3"]);
+			Assert.Equal(expected, psbt, new PSBTComparer());
+
+			// path 1 ... alice
+			psbt.CheckSanity();
+			var psbtForBob = psbt.Clone();
+			Assert.Equal(psbt, psbtForBob, new PSBTComparer());
+			var aliceKey1 = master.Derive(new KeyPath((string)testcase["key7"]["path"])).PrivateKey;
+			var aliceKey2 = master.Derive(new KeyPath((string)testcase["key8"]["path"])).PrivateKey;
+			psbt.TrySignAll(aliceKey1, aliceKey2);
+			expected = PSBT.Parse((string)testcase["psbt4"]);
+			Assert.Equal(expected, psbt);
+
+			// path 2 ... bob.
+			var bobKey1 = master.Derive(new KeyPath((string)testcase["key9"]["path"])).PrivateKey;
+			var bobKey2 = master.Derive(new KeyPath((string)testcase["key10"]["path"])).PrivateKey;
+			psbtForBob.TrySignAll(bobKey1, bobKey2);
+			expected = PSBT.Parse((string)testcase["psbt5"]);
+			Assert.Equal(expected, psbtForBob);
+
+			// merge above 2
+			// psbt.Combine(psbtForBob);
+		}
+
+		private class PSBTComparer : EqualityComparer<PSBT>
+		{
+			public override bool Equals(PSBT a, PSBT b) => a.Equals(b);
+			public override int GetHashCode(PSBT psbt) => psbt.GetHashCode();
+		}
+
 
 		private ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs, Script redeem, Key key)
 		{
@@ -242,50 +336,6 @@ namespace NBitcoin.Tests
 			tx5.Inputs.Add(TxIn.CreateCoinbase(200));
 			tx5.Outputs.Add(new TxOut(Money.Coins(0.1m), redeem.WitHash.ScriptPubKey.Hash.ScriptPubKey));
 			return new Transaction[] { tx1, tx2, tx3, tx4, tx5 };
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void ShouldFailToSignForTestcaseInvalidForSigner()
-		{
-			JArray testcases = (JArray)testdata["invalidForSigners"];
-			foreach (string i in testcases)
-			{
-				var psbt = PSBT.Parse(i);
-				Assert.Throws<FormatException>(() => psbt.TrySignAll(new Key()));
-			}
-		}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
-		public void ShouldPassLongestTestInTheBIP()
-		{
-			JObject testcase = (JObject)testdata["final"];
-			var network = Network.TestNet;
-			var master = ExtKey.Parse((string)testcase["master"], network);
-			var tx = network.CreateTransaction();
-			tx.Version = 2;
-
-			var scriptPubKey1 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["out1"]["script"]));
-			var money1 = Money.Coins((decimal)testcase["out1"]["value"]);
-			var scriptPubKey2 = Script.FromBytesUnsafe(Encoders.Hex.DecodeData((string)testcase["out2"]["script"]));
-			var money2 = Money.Coins((decimal)testcase["out2"]["value"]);
-			tx.Outputs.Add(new TxOut(value: money1, scriptPubKey: scriptPubKey1));
-			tx.Outputs.Add(new TxOut(value: money2, scriptPubKey: scriptPubKey2));
-			tx.Inputs.Add(new OutPoint(uint256.Parse((string)testcase["in1"]["txid"]), (uint)testcase["in1"]["index"]));
-			tx.Inputs.Add(new OutPoint(uint256.Parse((string)testcase["in2"]["txid"]), (uint)testcase["in2"]["index"]));
-
-			var psbt1 = PSBT.Parse((string)testcase["psbt1"]);
-			var psbt = PSBT.FromTransaction(tx);
-			Assert.Equal(psbt, psbt1, new PSBTComparer());
-
-			// TODO: proceed.
-		}
-
-		private class PSBTComparer : IEqualityComparer<PSBT>
-		{
-			public bool Equals(PSBT a, PSBT b) => a.Equals(b);
-			public int GetHashCode(PSBT psbt) => psbt.GetHashCode();
 		}
 
 	}
