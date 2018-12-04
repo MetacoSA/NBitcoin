@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace NBitcoin.Altcoins
 {
-    public class AltNetworkSets
-    {
+	public class AltNetworkSets
+	{
 		public static BCash BCash { get; } = BCash.Instance;
 		public static BGold BGold { get; } = BGold.Instance;
 		public static Dash Dash { get; } = Dash.Instance;
@@ -16,7 +16,7 @@ namespace NBitcoin.Altcoins
 		public static Dystem Dystem { get; } = Dystem.Instance;
 		public static Litecoin Litecoin { get; } = Litecoin.Instance;
 		public static Feathercoin Feathercoin { get; } = Feathercoin.Instance;
-		public static Viacoin Viacoin {get; } = Viacoin.Instance;
+		public static Viacoin Viacoin { get; } = Viacoin.Instance;
 		public static Polis Polis { get; } = Polis.Instance;
 		public static Monacoin Monacoin { get; } = Monacoin.Instance;
 		public static Ufo Ufo { get; } = Ufo.Instance;
@@ -24,7 +24,11 @@ namespace NBitcoin.Altcoins
 		public static Bitcore Bitcore { get; } = Bitcore.Instance;
 		public static Groestlcoin Groestlcoin { get; } = Groestlcoin.Instance;
 		public static Zclassic Zclassic { get; } = Zclassic.Instance;
+		public static Colossus Colossus { get; } = Colossus.Instance;
+		public static GoByte GoByte { get; } = GoByte.Instance;
+		public static Liquid Liquid { get; } = Liquid.Instance;
 		public static Chaincoin Chaincoin { get; } = Chaincoin.Instance;
+
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
@@ -44,7 +48,11 @@ namespace NBitcoin.Altcoins
 			yield return Ufo;
 			yield return Groestlcoin;
 			yield return Zclassic;
+			yield return Colossus;
+			yield return GoByte;
+			yield return Liquid;
 			yield return Chaincoin;
+
 		}
 	}
 }
