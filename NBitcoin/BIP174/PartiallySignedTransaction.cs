@@ -861,7 +861,11 @@ namespace NBitcoin.BIP174
 							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for SigHash type");
 						if (sighash_type != 0)
 							throw new FormatException("Invalid PSBTInput. Duplicate key for sighash_type");
-						sighash_type = (SigHash)v[0];
+
+						var value = BitConverter.ToUInt32(new byte[] { v[0], 0x00, 0x00, 0x00 }, 0);
+						if (!Enum.IsDefined(typeof(SigHash), value))
+							throw new FormatException($"Invalid PSBTInput Unknown SigHash Type {value}");
+						sighash_type = (SigHash)value;
 						break;
 					case PSBTConstants.PSBT_IN_REDEEMSCRIPT:
 						if (k.Length != 1)
@@ -1321,6 +1325,8 @@ namespace NBitcoin.BIP174
 
 		public PSBT AddCoins(params ICoin[] coins)
 		{
+			if (coins == null)
+				return this;
 			for (var i = 0; i < tx.Inputs.Count; i++)
 			{
 				var txin = tx.Inputs[i];
@@ -1339,6 +1345,8 @@ namespace NBitcoin.BIP174
 
 		public PSBT AddTransactions(params Transaction[] txs)
 		{
+			if (txs == null)
+				return this;
 			for (var i = 0; i < tx.Inputs.Count; i++)
 			{
 				var txin = tx.Inputs[i];
@@ -1350,8 +1358,11 @@ namespace NBitcoin.BIP174
 					// Also, check if we can add witness_utxo
 					var coins = nonWitnessUtxo.Outputs.AsCoins();
 					var coin = coins.FirstOrDefault(c => c.Outpoint == txin.PrevOut);
-					this.inputs[i].AddCoin(coin);
-					this.inputs[i].TrySlimOutput(txin);
+					if (coin != null)
+					{
+						this.inputs[i].AddCoin(coin);
+						this.inputs[i].TrySlimOutput(txin);
+					}
 				}
 			}
 
@@ -1449,20 +1460,23 @@ namespace NBitcoin.BIP174
 			return this;
 		}
 
-		public PSBT TryAddScript(Script script)
+		public PSBT TryAddScript(params Script[] scripts)
 		{
-			for (int i = 0; i < inputs.Count; i++)
+			foreach (var script in scripts)
 			{
-				var psbtin = this.inputs[i];
-				var txin = tx.Inputs[i];
-				psbtin.TryAddScript(script, txin);
-				psbtin.TrySlimOutput(txin);
-			}
-			for (int i = 0; i < outputs.Count; i++)
-			{
-				var psbtout = this.outputs[i];
-				var txout = tx.Outputs[i];
-				psbtout.TryAddScript(script, txout);
+				for (int i = 0; i < inputs.Count; i++)
+				{
+					var psbtin = this.inputs[i];
+					var txin = tx.Inputs[i];
+					psbtin.TryAddScript(script, txin);
+					psbtin.TrySlimOutput(txin);
+				}
+				for (int i = 0; i < outputs.Count; i++)
+				{
+					var psbtout = this.outputs[i];
+					var txout = tx.Outputs[i];
+					psbtout.TryAddScript(script, txout);
+				}
 			}
 
 			return this;

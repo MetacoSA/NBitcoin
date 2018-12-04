@@ -15,7 +15,7 @@ namespace NBitcoin.Tests.Generators
 	{
 		public static Arbitrary<PSBTInput> PSBTInputArb() => Arb.From(PSBTInput());
 		public static Arbitrary<PSBTOutput> PSBTOutputArb() => Arb.From(PSBTOutput());
-		public static Arbitrary<PSBT> PSBTArb() => Arb.From(PSBT());
+		public static Arbitrary<PSBT> PSBTArb() => Arb.From(SanePSBT());
 		#region PSBTInput
 
 		public static Gen<PSBTInput> PSBTInput() => Gen.OneOf(PSBTInputFinal(), PSBTInputNonFinal());
@@ -100,14 +100,60 @@ namespace NBitcoin.Tests.Generators
 		#endregion
 		#region PSBT
 
-		public static Gen<PSBT> PSBT() =>
-			from tx in SegwitTransactionGenerators.TX()
-			from psbt in PSBT(tx)
+
+		public static Gen<PSBT> SanePSBT() =>
+			from network in ChainParamsGenerator.NetworkGen()
+			from psbt in SanePSBT(network)
 			select psbt;
-		public static Gen<PSBT> PSBT(Transaction tx) =>
+
+		/// <summary>
+		/// This is slow, provably because `Add*` methods will iterate over inputs.
+		/// </summary>
+		/// <param name="network"></param>
+		/// <returns></returns>
+		public static Gen<PSBT> SanePSBT(Network network) =>
+			from inputN in Gen.Choose(0, 15)
+			from scripts in Gen.ListOf(inputN, ScriptGenerator.RandomScriptSig())
+			from txOuts in Gen.Sequence(scripts.Select(sc => OutputFromRedeem(sc)))
+			from prevN in Gen.Choose(0, 5)
+			from prevTxs in Gen.Sequence(txOuts.Select(o => TXFromOutput(o, network, prevN)))
+			let txins = prevTxs.Select(tx => new TxIn(new OutPoint(tx.GetHash(), prevN)))
+			from locktime in PrimitiveGenerator.UInt32()
+			let tx = LegacyTransactionGenerators.ComposeTx(network.CreateTransaction(), txins.ToList(), txOuts.ToList(), locktime)
+			from TxsToAdd in Gen.SubListOf(prevTxs)
+			from CoinsToAdd in Gen.SubListOf(prevTxs.SelectMany(tx => tx.Outputs.AsCoins()))
+			from scriptsToAdd in Gen.SubListOf<Script>(scripts)
+			let psbt = PSBT
+				.FromTransaction(tx)
+				.AddTransactions(prevTxs.ToArray())
+				.AddCoins(CoinsToAdd.ToArray())
+				.TryAddScript(scriptsToAdd.ToArray())
+			select psbt;
+		public static Gen<PSBT> PSBTGen(Transaction tx) =>
 			from psbtins in Gen.ListOf(tx.Inputs.Count, PSBTInput())
 			from psbtouts in Gen.ListOf(tx.Outputs.Count, PSBTOutput())
-			select new PSBT() { outputs = new PSBTOutputList(psbtouts.ToList()), inputs = new PSBTInputList(psbtins.ToList()) };
+			select new PSBT(tx) { outputs = new PSBTOutputList(psbtouts.ToList()), inputs = new PSBTInputList(psbtins.ToList()) };
+
+		private static Gen<TxOut> OutputFromRedeem(Script sc) =>
+			from money in MoneyGenerator.Money()
+			from isP2WSH in PrimitiveGenerator.Bool()
+			from isP2SH in PrimitiveGenerator.Bool()
+			where isP2WSH || isP2SH
+			let redeem = (isP2SH && isP2WSH) ? sc.WitHash.ScriptPubKey : sc
+			let scriptPubKey = isP2SH ? redeem.Hash.ScriptPubKey : redeem.WitHash.ScriptPubKey
+			select new TxOut(money, scriptPubKey);
+
+		private static Gen<Transaction> TXFromOutput(TxOut txout, Network network, int vout) =>
+			from outNum in Gen.Choose(0, 4)
+			from tx in SegwitTransactionGenerators.TX(network)
+			where tx.Outputs.Count > vout
+			select ReplaceTxOut(tx, txout, vout);
+
+		private static Transaction ReplaceTxOut (Transaction tx, TxOut txout, int index)
+		{
+			tx.Outputs[index] = txout;
+			return tx;
+		}
 
 		#endregion
 		public static Gen<UnknownKVMap> UnknownKVMap() =>
@@ -121,6 +167,10 @@ namespace NBitcoin.Tests.Generators
 		public static Gen<HDKeyPathKVMap> HDKeyPaths() =>
 				from itemNum in Gen.Choose(0, 15)
 				from pks in Gen.ListOf(itemNum, CryptoGenerator.PublicKey())
+				from map in HDKeyPaths(pks, itemNum)
+				select map;
+
+		public static Gen<HDKeyPathKVMap> HDKeyPaths(IEnumerable<PubKey> pks, int itemNum) =>
 				from MasterKeyFingerPrints in Gen.ListOf(itemNum, PrimitiveGenerator.UInt32())
 				from paths in Gen.ListOf(itemNum, CryptoGenerator.KeyPath())
 				let fingerPrintAndPath = MasterKeyFingerPrints.ToArray().Zip(paths.ToArray(), (m, p) => Tuple.Create(m, p)).ToList()

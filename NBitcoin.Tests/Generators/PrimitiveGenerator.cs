@@ -11,6 +11,8 @@ namespace NBitcoin.Tests.Generators
 		public static Gen<byte> RandomByte() =>
 			Gen.Choose(0, 255).Select(i => (byte) i);
 
+		public static Gen<bool> Bool() => Gen.Choose(0, 1).Select(i => i == 0);
+
 		public static Gen<byte[]> RandomBytes() =>
 			Gen.NonEmptyListOf(RandomByte()).Select(bs => bs.ToArray());
 
