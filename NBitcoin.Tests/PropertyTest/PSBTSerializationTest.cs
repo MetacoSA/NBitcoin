@@ -45,14 +45,6 @@ namespace NBitcoin.Tests.PropertyTest
 			Assert.Equal(item, copy);
 		}
 
-		[Property(MaxTest = 10)]
-		[Trait("UnitTest", "UnitTest")]
-		public void ShouldInstantiateFromTx(Transaction tx)
-		{
-			var psbt = PSBT.FromTransaction(tx);
-			Assert.NotNull(psbt);
-		}
-
 		[Property(MaxTest = 15)]
 		[Trait("UnitTest", "UnitTest")]
 		public void ShouldAddKeyInfo(PSBT psbt, Key key, uint MasterKeyFingerPrint, KeyPath path)
