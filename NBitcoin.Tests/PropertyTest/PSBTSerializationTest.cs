@@ -71,6 +71,16 @@ namespace NBitcoin.Tests.PropertyTest
 			// Assert.Equal(psbt, combined);
 		}
 
+		[Property(MaxTest = 10)]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanSignPSBT(Tuple<List<Key>, PSBT> items)
+		{
+			var (keys, psbt) = items;
+			psbt.TrySignAll(keys.ToArray());
+			foreach (var psbtin in psbt.inputs)
+				Assert.Single(psbtin.PartialSigs);
+		}
+
 		private class PSBTComparer : EqualityComparer<PSBT>
 		{
 			public override bool Equals(PSBT a, PSBT b) => a.Equals(b);

@@ -16,6 +16,8 @@ namespace NBitcoin.Tests.Generators
 		public static Arbitrary<PSBTInput> PSBTInputArb() => Arb.From(PSBTInput());
 		public static Arbitrary<PSBTOutput> PSBTOutputArb() => Arb.From(PSBTOutput());
 		public static Arbitrary<PSBT> PSBTArb() => Arb.From(SanePSBT());
+
+		public static Arbitrary<Tuple<List<Key>, PSBT>> SignablePSBTArb() => Arb.From(SignablePSBT());
 		#region PSBTInput
 
 		public static Gen<PSBTInput> PSBTInput() => Gen.OneOf(PSBTInputFinal(), PSBTInputNonFinal());
@@ -100,6 +102,26 @@ namespace NBitcoin.Tests.Generators
 		#endregion
 		#region PSBT
 
+		public static Gen<Tuple<List<Key>, PSBT>> SignablePSBT() =>
+			from keys in Gen.NonEmptyListOf(CryptoGenerator.PrivateKey())
+			from network in ChainParamsGenerator.NetworkGen()
+			from psbt in SignablePSBT(keys.Select(k => k.PubKey).ToList(), network)
+			select Tuple.Create(keys.ToList(), psbt);
+		public static Gen<PSBT> SignablePSBT(IEnumerable<PubKey> keys, Network network) =>
+			from inputN in Gen.Choose(0, 8)
+			from key in Gen.Elements(keys)
+			from sc in Gen.Frequency(Tuple.Create(2, Gen.Constant<Script>(null)), Tuple.Create(3, StandardScriptGenerator.FromKey(key)))
+			from txOuts in Gen.ListOf(inputN, OutputFromRedeemOrKey(sc, key))
+			from prevN in Gen.Choose(0, 5)
+			from prevTxs in Gen.Sequence(txOuts.Select(o => TXFromOutput(o, network, prevN)))
+			let txins = prevTxs.Select(tx => new TxIn(new OutPoint(tx.GetHash(), prevN)))
+			from locktime in PrimitiveGenerator.UInt32()
+			let tx = LegacyTransactionGenerators.ComposeTx(network.CreateTransaction(), txins.ToList(), txOuts.ToList(), locktime)
+			let psbt = PSBT
+				.FromTransaction(tx)
+				.AddTransactions(prevTxs.ToArray())
+				.TryAddScript(sc)
+			select psbt;
 
 		public static Gen<PSBT> SanePSBT() =>
 			from network in ChainParamsGenerator.NetworkGen()
@@ -112,7 +134,7 @@ namespace NBitcoin.Tests.Generators
 		/// <param name="network"></param>
 		/// <returns></returns>
 		public static Gen<PSBT> SanePSBT(Network network) =>
-			from inputN in Gen.Choose(0, 15)
+			from inputN in Gen.Choose(0, 8)
 			from scripts in Gen.ListOf(inputN, ScriptGenerator.RandomScriptSig())
 			from txOuts in Gen.Sequence(scripts.Select(sc => OutputFromRedeem(sc)))
 			from prevN in Gen.Choose(0, 5)
@@ -134,6 +156,15 @@ namespace NBitcoin.Tests.Generators
 			from psbtouts in Gen.ListOf(tx.Outputs.Count, PSBTOutput())
 			select new PSBT(tx) { outputs = new PSBTOutputList(psbtouts.ToList()), inputs = new PSBTInputList(psbtins.ToList()) };
 
+		private static Gen<TxOut> OutputFromRedeemOrKey(Script sc, PubKey key) =>
+			sc != null ? OutputFromRedeem(sc) : OutputFromKey(key);
+
+		private static Gen<TxOut> OutputFromKey(PubKey key) =>
+			from money in MoneyGenerator.Money()
+			from isP2WPKH in PrimitiveGenerator.Bool()
+			from isP2SH in PrimitiveGenerator.Bool()
+			let scriptPubKey = (isP2SH && isP2WPKH) ? key.WitHash.ScriptPubKey.Hash.ScriptPubKey : isP2WPKH ? key.WitHash.ScriptPubKey : key.Hash.ScriptPubKey
+			select new TxOut(money, scriptPubKey);
 		private static Gen<TxOut> OutputFromRedeem(Script sc) =>
 			from money in MoneyGenerator.Money()
 			from isP2WSH in PrimitiveGenerator.Bool()

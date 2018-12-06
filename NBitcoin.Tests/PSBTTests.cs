@@ -85,17 +85,18 @@ namespace NBitcoin.Tests
 		[Trait("UnitTest", "UnitTest")]
 		public void CanUpdate()
 		{
-			var alice = new Key();
-			var bob = new Key();
-			var carol = new Key();
+			var network = Network.Main;
+			var alice = Key.Parse("L23Ng7B8iXTcQ9emwDYpabUJVsxDQDxKwePrTwAZo1VT9xcDPfBF", network);
+			var bob = Key.Parse("L2nRrbzZytXSTjn95a4droGrAj5uwSEeG3JUHeNwdB9pUHu8Znjo", network);
+			var carol = Key.Parse("KzHNhJn4P3FML22cQ9yr6rc35hmTPwVmaCnXkc114fQ8ZKRR9hoK", network);
 			var keys = new Key[]{ alice, bob, carol };
 			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
-			var network = Network.Main;
 			var funds = CreateDummyFunds(network, keys, redeem);
 
 			var tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
+			var coins = DummyFundsToCoins(funds, redeem, alice);
 			var PSBTWithCoins = PSBT.FromTransaction(tx)
-				.AddCoins(DummyFundsToCoins(funds, redeem, alice));
+				.AddCoins(coins);
 
 			Assert.Null(PSBTWithCoins.inputs[0].WitnessUtxo);
 			Assert.NotNull(PSBTWithCoins.inputs[1].WitnessUtxo);
@@ -146,8 +147,11 @@ namespace NBitcoin.Tests
 			Assert.Single(SignedPSBTWithTXs.inputs[4].PartialSigs);
 			// for multisig
 			Assert.Equal(3, SignedPSBTWithTXs.inputs[2].PartialSigs.Count);
+			Assert.Equal(3, SignedPSBTWithTXs.inputs[2].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
 			Assert.Equal(3, SignedPSBTWithTXs.inputs[3].PartialSigs.Count);
+			Assert.Equal(3, SignedPSBTWithTXs.inputs[3].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
 			Assert.Equal(3, SignedPSBTWithTXs.inputs[5].PartialSigs.Count);
+			Assert.Equal(3, SignedPSBTWithTXs.inputs[5].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
 
 			Assert.False(SignedPSBTWithTXs.CanExtractTX());
 
@@ -157,7 +161,11 @@ namespace NBitcoin.Tests
 			var finalTX = FinalizedPSBT.ExtractTX();
 			var result = finalTX.Check();
 			Assert.Equal(TransactionCheckResult.Success, result);
-			// TODO: Contextual check for tx.
+
+			var builder = network.CreateTransactionBuilder();
+			builder.AddCoins(coins).AddKeys(keys);
+			if (!builder.Verify(finalTX, (Money)null, out var errors))
+				throw new InvalidOperationException(errors.Aggregate(string.Empty, (a, b) => a + ";\n" + b));
 		}
 
 		[Fact]
@@ -227,9 +235,10 @@ namespace NBitcoin.Tests
 			expected = PSBT.Parse((string)testcase["psbt3"]);
 			Assert.Equal(expected, psbt, new PSBTComparer());
 
-			// path 1 ... alice
 			psbt.CheckSanity();
 			var psbtForBob = psbt.Clone();
+
+			// path 1 ... alice
 			Assert.Equal(psbt, psbtForBob, new PSBTComparer());
 			var aliceKey1 = master.Derive(new KeyPath((string)testcase["key7"]["path"])).PrivateKey;
 			var aliceKey2 = master.Derive(new KeyPath((string)testcase["key8"]["path"])).PrivateKey;
@@ -240,8 +249,16 @@ namespace NBitcoin.Tests
 			// path 2 ... bob.
 			var bobKey1 = master.Derive(new KeyPath((string)testcase["key9"]["path"])).PrivateKey;
 			var bobKey2 = master.Derive(new KeyPath((string)testcase["key10"]["path"])).PrivateKey;
+			var bobKeyhex1 = (string)testcase["key9"]["wif"];
+			var bobKeyhex2 = (string)testcase["key10"]["wif"];
+			Assert.Equal(bobKey1, new BitcoinSecret(bobKeyhex1, network).PrivateKey);
+			Assert.Equal(bobKey2, new BitcoinSecret(bobKeyhex2, network).PrivateKey);
 			psbtForBob.TrySignAll(bobKey1, bobKey2);
-			expected = PSBT.Parse((string)testcase["psbt5"]);
+			// from here, we are using (slightly modified by us) hex representation of psbt for expected data.
+			// since test vector in bip174 does not follow low-R encoding rule.
+			// and base64 version is hard to tweak.
+			// TODO: check compatibility against updated test vector in the bip when it has been updated.
+			expected = PSBT.Parse((string)testcase["psbt5hex"], true);
 			Assert.Equal(expected, psbtForBob);
 
 			// merge above 2
@@ -284,7 +301,7 @@ namespace NBitcoin.Tests
 			tx.Inputs.Add(new OutPoint(funds[3].GetHash(), 0)); // p2sh-p2wpkh
 			tx.Inputs.Add(new OutPoint(funds[4].GetHash(), 0)); // p2sh-p2wsh
 
-			var dummyOut = new TxOut(Money.Coins(0.1m), keys[0]);
+			var dummyOut = new TxOut(Money.Coins(0.599m), keys[0]);
 			tx.Outputs.Add(dummyOut);
 
 			if (withScript)
