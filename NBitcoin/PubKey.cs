@@ -11,7 +11,7 @@ using NBitcoin.BouncyCastle.Math.EC;
 
 namespace NBitcoin
 {
-	public class PubKey : IBitcoinSerializable, IDestination
+	public class PubKey : IBitcoinSerializable, IDestination, IComparable<PubKey>
 	{
 		/// <summary>
 		/// Create a new Public key from string
@@ -69,6 +69,10 @@ namespace NBitcoin
 				return _ECKey;
 			}
 		}
+
+
+		private Utils.BytesComparer _ByteComparer = new Utils.BytesComparer();
+		public int CompareTo(PubKey other) => _ByteComparer.Compare(this.ToBytes(), other.ToBytes());
 
 		public PubKey Compress()
 		{

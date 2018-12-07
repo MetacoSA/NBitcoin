@@ -1197,5 +1197,47 @@ namespace NBitcoin.Tests
 			var scriptSig2 = PayToScriptHashTemplate.Instance.GenerateScriptSig(sigParams);
 			Assert.Equal(scriptSig2.ToString(), scriptSig);
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void MultisigScriptCanFollowBIP67()
+		{
+			// test vector 1
+			var pk1_1 = new PubKey("02ff12471208c14bd580709cb2358d98975247d8765f92bc25eab3b2763ed605f8");
+			var pk1_2 = new PubKey("02fe6f0a5a297eb38c391581c4413e084773ea23954d93f7753db7dc0adc188b2f");
+			var script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(true, 2, new PubKey[] { pk1_1, pk1_2 });
+			var pksInScript = script.ToOps().Skip(1).Take(2).ToArray();
+			Assert.Equal(pksInScript[0].PushData, pk1_2.ToBytes());
+			Assert.Equal(pksInScript[1].PushData, pk1_1.ToBytes());
+			var expected = Script.FromBytesUnsafe(Encoders.Hex.DecodeData("522102fe6f0a5a297eb38c391581c4413e084773ea23954d93f7753db7dc0adc188b2f2102ff12471208c14bd580709cb2358d98975247d8765f92bc25eab3b2763ed605f852ae"));
+			Assert.Equal(expected, script);
+
+			// test vector 2 (Already sorted)
+			var pk2_1 = new PubKey("02632b12f4ac5b1d1b72b2a3b508c19172de44f6f46bcee50ba33f3f9291e47ed0");
+			var pk2_2 = new PubKey("027735a29bae7780a9755fae7a1c4374c656ac6a69ea9f3697fda61bb99a4f3e77");
+			var pk2_3 = new PubKey("02e2cc6bd5f45edd43bebe7cb9b675f0ce9ed3efe613b177588290ad188d11b404");
+			script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(true, 2, new PubKey[] { pk2_1, pk2_2, pk2_3 });
+			expected = Script.FromBytesUnsafe(Encoders.Hex.DecodeData("522102632b12f4ac5b1d1b72b2a3b508c19172de44f6f46bcee50ba33f3f9291e47ed021027735a29bae7780a9755fae7a1c4374c656ac6a69ea9f3697fda61bb99a4f3e772102e2cc6bd5f45edd43bebe7cb9b675f0ce9ed3efe613b177588290ad188d11b40453ae"));
+			Assert.Equal(expected, script);
+			var scriptWithoutSort = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(false, 2, new PubKey[] { pk2_1, pk2_2, pk2_3 });
+			Assert.Equal(script, scriptWithoutSort);
+
+			// test vector 3
+			var pk3_1 = new PubKey("030000000000000000000000000000000000004141414141414141414141414141");
+			var pk3_2 = new PubKey("020000000000000000000000000000000000004141414141414141414141414141");
+			var pk3_3 = new PubKey("020000000000000000000000000000000000004141414141414141414141414140");
+			var pk3_4 = new PubKey("030000000000000000000000000000000000004141414141414141414141414140");
+			script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(true, 2, new PubKey[] {pk3_1, pk3_2, pk3_3, pk3_4});
+			expected = Script.FromBytesUnsafe(Encoders.Hex.DecodeData("522102000000000000000000000000000000000000414141414141414141414141414021020000000000000000000000000000000000004141414141414141414141414141210300000000000000000000000000000000000041414141414141414141414141402103000000000000000000000000000000000000414141414141414141414141414154ae"));
+			Assert.Equal(expected, script);
+
+			// test vector 4
+			var pk4_1 = new PubKey("022df8750480ad5b26950b25c7ba79d3e37d75f640f8e5d9bcd5b150a0f85014da");
+			var pk4_2 = new PubKey("03e3818b65bcc73a7d64064106a859cc1a5a728c4345ff0b641209fba0d90de6e9");
+			var pk4_3 = new PubKey("021f2f6e1e50cb6a953935c3601284925decd3fd21bc445712576873fb8c6ebc18");
+			script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(true, 2, new PubKey[] { pk4_1, pk4_2, pk4_3 });
+			expected = Script.FromBytesUnsafe(Encoders.Hex.DecodeData("5221021f2f6e1e50cb6a953935c3601284925decd3fd21bc445712576873fb8c6ebc1821022df8750480ad5b26950b25c7ba79d3e37d75f640f8e5d9bcd5b150a0f85014da2103e3818b65bcc73a7d64064106a859cc1a5a728c4345ff0b641209fba0d90de6e953ae"));
+			Assert.Equal(expected, script);
+		}
 	}
 }

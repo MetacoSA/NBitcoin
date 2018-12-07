@@ -126,6 +126,15 @@ namespace NBitcoin
 				return _Instance;
 			}
 		}
+
+		public Script GenerateScriptPubKey(bool SortForBip67, int sigCount, params PubKey[] keys)
+		{
+			if (SortForBip67)
+				keys = keys.OrderBy(k => k).ToArray(); // for bip 67 compatibility
+
+			return GenerateScriptPubKey(sigCount, keys);
+		}
+
 		public Script GenerateScriptPubKey(int sigCount, params PubKey[] keys)
 		{
 			List<Op> ops = new List<Op>();
@@ -136,6 +145,7 @@ namespace NBitcoin
 			var keyCount = Op.GetPushOp(keys.Length);
 			if(!keyCount.IsSmallUInt)
 				throw new ArgumentOutOfRangeException("key count should be less or equal to 16");
+
 			foreach(var key in keys)
 			{
 				ops.Add(Op.GetPushOp(key.ToBytes()));
