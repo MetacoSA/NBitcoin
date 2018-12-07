@@ -71,8 +71,7 @@ namespace NBitcoin
 		}
 
 
-		private Utils.BytesComparer _ByteComparer = new Utils.BytesComparer();
-		public int CompareTo(PubKey other) => _ByteComparer.Compare(this.ToBytes(), other.ToBytes());
+		public int CompareTo(PubKey other) => BytesComparer.Instance.Compare(this.ToBytes(), other.ToBytes());
 
 		public PubKey Compress()
 		{

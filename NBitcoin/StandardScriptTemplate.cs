@@ -127,16 +127,17 @@ namespace NBitcoin
 			}
 		}
 
-		public Script GenerateScriptPubKey(bool SortForBip67, int sigCount, params PubKey[] keys)
-		{
-			if (SortForBip67)
-				keys = keys.OrderBy(k => k).ToArray(); // for bip 67 compatibility
-
-			return GenerateScriptPubKey(sigCount, keys);
-		}
-
 		public Script GenerateScriptPubKey(int sigCount, params PubKey[] keys)
 		{
+			return GenerateScriptPubKey(sigCount, false, keys);
+		}
+
+		public Script GenerateScriptPubKey(int sigCount, bool sort, params PubKey[] keys)
+		{
+			if (keys == null)
+				throw new ArgumentNullException(nameof(keys));
+			if (sort)
+				Array.Sort(keys);
 			List<Op> ops = new List<Op>();
 			var push = Op.GetPushOp(sigCount);
 			if(!push.IsSmallUInt)
