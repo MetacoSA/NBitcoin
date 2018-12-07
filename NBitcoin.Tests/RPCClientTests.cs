@@ -799,10 +799,7 @@ namespace NBitcoin.Tests
 				#region restart nodes to check for proper serialization/deserialization of watch only address
 				//TODO
 				#endregion
-
 			}
-
-
 		}
 
 		[Fact]
@@ -973,6 +970,34 @@ namespace NBitcoin.Tests
 					var peers = rpc.GetPeersInfo();
 					Assert.NotEmpty(peers);
 				}
+			}
+		}
+
+		[Fact]
+		public void CanGetMemPoolEntry()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				var rpc = node.CreateRPCClient();
+				builder.StartAll();
+				node.Generate(101);
+
+				var amount = Money.Coins(50.0m);
+				var fee = Money.Coins(0.0001m);
+				var txs = new List<uint256>();
+				for(var i=0; i < 10; i++)
+				{
+					amount = amount - fee;
+					var address = rpc.GetNewAddress();
+					var txid = rpc.SendToAddress(address, amount, "");
+					txs.Add(txid);
+				}
+				var mempoolEntry = rpc.GetMempoolEntry(txs[3]);
+				Assert.Equal(4, mempoolEntry.AncestorCount);
+				Assert.Equal(7, mempoolEntry.DescendantCount);
+				Assert.Equal(1, mempoolEntry.SpentBy.Length);
+				Assert.Equal(1, mempoolEntry.Depends.Length);
 			}
 		}
 

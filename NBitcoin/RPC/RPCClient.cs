@@ -1325,6 +1325,40 @@ namespace NBitcoin.RPC
 			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
 		}
 
+		public MempoolEntry GetMempoolEntry(uint256 txid)
+		{
+			return GetMempoolEntryAsync(txid).GetAwaiter().GetResult();
+		}
+
+		public async Task<MempoolEntry> GetMempoolEntryAsync(uint256 txid)
+		{
+			var response = await SendCommandAsync(RPCOperations.getmempoolentry, txid).ConfigureAwait(false);
+
+			return new MempoolEntry()
+			{
+				Fees = new MempoolFeeEntry{
+					Base = response.Result["fees"]["base"].Value<decimal>(),
+					Modified   = response.Result["fees"]["modified"].Value<decimal>(),
+					Ancestor   = response.Result["fees"]["ancestor"].Value<decimal>(),
+					Descendant = response.Result["fees"]["descendant"].Value<decimal>()
+				},
+				Size  = response.Result["size"].Value<int>(),
+				Fee   = response.Result["fee"].Value<decimal>(),
+				ModifiedFee = response.Result["modifiedfee"].Value<decimal>(),
+				Time  = Utils.UnixTimeToDateTime(response.Result["time"].Value<long>()),
+				Height = response.Result["height"].Value<int>(),
+				DescendantCount = response.Result["descendantcount"].Value<int>(),
+				DescendantSize  = response.Result["descendantsize"].Value<int>(),
+				DescendantFees  = response.Result["descendantfees"].Value<int>(),
+				AncestorCount   = response.Result["ancestorcount"].Value<int>(),
+				AncestorSize    = response.Result["ancestorsize"].Value<int>(),
+				AncestorFees    = response.Result["ancestorfees"].Value<int>(),
+				Wtxid = uint256.Parse((string)response.Result["wtxid"]),
+				Depends = response.Result["depends"]?.Select(x => uint256.Parse((string)x)).ToArray(),
+				SpentBy = response.Result["spentby"]?.Select(x => uint256.Parse((string)x)).ToArray()
+			};
+		}
+
 		/// <summary>
 		/// Returns details about an unspent transaction output.
 		/// </summary>
@@ -2007,5 +2041,31 @@ namespace NBitcoin.RPC
 		}
 	}
 
+	public class MempoolFeeEntry
+	{
+		public decimal Base { get; set; }
+		public decimal Modified { get; set; }
+		public decimal Ancestor { get; set; }
+		public decimal Descendant { get; set; }
+	}
+
+	public class MempoolEntry
+	{
+		public MempoolFeeEntry Fees { get; set; }
+		public int Size { get; set; }
+		public decimal Fee { get; set; }
+		public decimal ModifiedFee { get; set; }
+		public DateTimeOffset Time { get; set; }
+		public int Height { get; set; }
+		public int DescendantCount { get; set; }
+		public int DescendantSize { get; set; }
+		public int DescendantFees { get; set; }
+		public int AncestorCount { get; set; }
+		public int AncestorSize { get; set; }
+		public int AncestorFees { get; set; }
+		public uint256 Wtxid { get; set; }
+		public uint256[] Depends { get; set; }
+		public uint256[] SpentBy { get; set; }
+	}
 }
 #endif
