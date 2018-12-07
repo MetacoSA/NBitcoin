@@ -371,7 +371,7 @@ namespace NBitcoin
 	public class Utils
 	{
 
-		public class ByteComparer : Comparer<byte[]>
+		public class BytesComparer : Comparer<byte[]>
 		{
 			public override int Compare(byte[] x, byte[] y)
 			{
@@ -432,6 +432,8 @@ namespace NBitcoin
 			}
 			return true;
 		}
+
+
 		internal static String BITCOIN_SIGNED_MESSAGE_HEADER = "Bitcoin Signed Message:\n";
 		internal static byte[] BITCOIN_SIGNED_MESSAGE_HEADER_BYTES = Encoding.UTF8.GetBytes(BITCOIN_SIGNED_MESSAGE_HEADER);
 
@@ -570,6 +572,8 @@ namespace NBitcoin
 			var span = TimeSpan.FromSeconds(timestamp);
 			return unixRef + span;
 		}
+
+
 
 		public static string ExceptionToString(Exception exception)
 		{
