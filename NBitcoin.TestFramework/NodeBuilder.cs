@@ -573,7 +573,7 @@ namespace NBitcoin.Tests
 			{
 				batch.SendRawTransactionAsync(tx);
 			}
-			rpc.SendBatch();
+			batch.SendBatch();
 		}
 
 		object l = new object();

@@ -1325,35 +1325,35 @@ namespace NBitcoin.RPC
 			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
 		}
 
-		public MempoolEntry GetMempoolEntry(uint256 txid)
+		public MempoolEntry GetMempoolEntry(uint256 txid, bool throwIfNotFound = true)
 		{
-			return GetMempoolEntryAsync(txid).GetAwaiter().GetResult();
+			return GetMempoolEntryAsync(txid, throwIfNotFound).GetAwaiter().GetResult();
 		}
 
-		public async Task<MempoolEntry> GetMempoolEntryAsync(uint256 txid)
+		public async Task<MempoolEntry> GetMempoolEntryAsync(uint256 txid, bool throwIfNotFound = true)
 		{
 			var response = await SendCommandAsync(RPCOperations.getmempoolentry, txid).ConfigureAwait(false);
+			if (throwIfNotFound)
+				response.ThrowIfError();
+			if (response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
+				return null;
 
 			return new MempoolEntry()
 			{
-				Fees = new MempoolFeeEntry{
-					Base = response.Result["fees"]["base"].Value<decimal>(),
-					Modified   = response.Result["fees"]["modified"].Value<decimal>(),
-					Ancestor   = response.Result["fees"]["ancestor"].Value<decimal>(),
-					Descendant = response.Result["fees"]["descendant"].Value<decimal>()
-				},
-				Size  = response.Result["size"].Value<int>(),
-				Fee   = response.Result["fee"].Value<decimal>(),
-				ModifiedFee = response.Result["modifiedfee"].Value<decimal>(),
-				Time  = Utils.UnixTimeToDateTime(response.Result["time"].Value<long>()),
+				TransactionId = txid,
+				Size   = response.Result["size"].Value<int>(),
+				Fee    = response.Result["fee"].Value<decimal>(),
+				Time   = Utils.UnixTimeToDateTime(response.Result["time"].Value<long>()),
 				Height = response.Result["height"].Value<int>(),
 				DescendantCount = response.Result["descendantcount"].Value<int>(),
-				DescendantSize  = response.Result["descendantsize"].Value<int>(),
-				DescendantFees  = response.Result["descendantfees"].Value<int>(),
+				DescendantVirtualSizeBytes  = response.Result["descendantsize"].Value<int>(),
 				AncestorCount   = response.Result["ancestorcount"].Value<int>(),
-				AncestorSize    = response.Result["ancestorsize"].Value<int>(),
-				AncestorFees    = response.Result["ancestorfees"].Value<int>(),
-				Wtxid = uint256.Parse((string)response.Result["wtxid"]),
+				AncestorVirtualSizeBytes = response.Result["ancestorsize"].Value<int>(),
+				TransactionIdWithWitness = uint256.Parse((string)response.Result["wtxid"]),
+				BaseFee = new Money(response.Result["fees"]["base"].Value<decimal>(), MoneyUnit.BTC),
+				ModifiedFee   = new Money(response.Result["fees"]["modified"].Value<decimal>(), MoneyUnit.BTC),
+				DescendantFees  = new Money(response.Result["fees"]["descendant"].Value<decimal>(), MoneyUnit.BTC),
+				AncestorFees    = new Money(response.Result["fees"]["ancestor"].Value<decimal>(), MoneyUnit.BTC),
 				Depends = response.Result["depends"]?.Select(x => uint256.Parse((string)x)).ToArray(),
 				SpentBy = response.Result["spentby"]?.Select(x => uint256.Parse((string)x)).ToArray()
 			};
@@ -2041,29 +2041,22 @@ namespace NBitcoin.RPC
 		}
 	}
 
-	public class MempoolFeeEntry
-	{
-		public decimal Base { get; set; }
-		public decimal Modified { get; set; }
-		public decimal Ancestor { get; set; }
-		public decimal Descendant { get; set; }
-	}
-
 	public class MempoolEntry
 	{
-		public MempoolFeeEntry Fees { get; set; }
+		public uint256 TransactionId { get; set; }
+		public Money BaseFee { get; set; }
 		public int Size { get; set; }
 		public decimal Fee { get; set; }
-		public decimal ModifiedFee { get; set; }
+		public Money ModifiedFee { get; set; }
 		public DateTimeOffset Time { get; set; }
 		public int Height { get; set; }
 		public int DescendantCount { get; set; }
-		public int DescendantSize { get; set; }
-		public int DescendantFees { get; set; }
+		public int DescendantVirtualSizeBytes { get; set; }
+		public Money DescendantFees { get; set; }
 		public int AncestorCount { get; set; }
-		public int AncestorSize { get; set; }
-		public int AncestorFees { get; set; }
-		public uint256 Wtxid { get; set; }
+		public int AncestorVirtualSizeBytes { get; set; }
+		public Money AncestorFees { get; set; }
+		public uint256 TransactionIdWithWitness { get; set; }
 		public uint256[] Depends { get; set; }
 		public uint256[] SpentBy { get; set; }
 	}

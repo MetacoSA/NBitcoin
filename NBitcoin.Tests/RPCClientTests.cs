@@ -983,12 +983,12 @@ namespace NBitcoin.Tests
 				builder.StartAll();
 				node.Generate(101);
 
-				var amount = Money.Coins(50.0m);
+				var amount = Money.Coins(40.0m);
 				var fee = Money.Coins(0.0001m);
 				var txs = new List<uint256>();
 				for(var i=0; i < 10; i++)
 				{
-					amount = amount - fee;
+					amount = amount / 2 - fee;
 					var address = rpc.GetNewAddress();
 					var txid = rpc.SendToAddress(address, amount, "");
 					txs.Add(txid);
@@ -996,8 +996,44 @@ namespace NBitcoin.Tests
 				var mempoolEntry = rpc.GetMempoolEntry(txs[3]);
 				Assert.Equal(4, mempoolEntry.AncestorCount);
 				Assert.Equal(7, mempoolEntry.DescendantCount);
-				Assert.Equal(1, mempoolEntry.SpentBy.Length);
-				Assert.Equal(1, mempoolEntry.Depends.Length);
+				Assert.Equal(1, (int)mempoolEntry.SpentBy.Length);
+				Assert.Equal(1, (int)mempoolEntry.Depends.Length);
+
+				// Here we spend the change of the second transaction
+				var funding = rpc.GetRawTransaction(txs[1]);
+				var funding_spent = rpc.GetRawTransaction(txs[2]);
+				var spent_idx = funding_spent.Inputs.First().PrevOut.N;
+				var coins = funding.Outputs.AsCoins().ToList();
+				var coin = spent_idx == 0 ? coins.Skip(1).First() : coins.First();
+
+				var spent = Transaction.Create(builder.Network);
+				spent.Inputs.Add(new TxIn(coin.Outpoint));
+				spent.Outputs.Add(new TxOut(coin.Amount - fee, new Key().PubKey.Hash.ScriptPubKey));
+
+				var signedTx = rpc.SignRawTransactionWithWallet(new SignRawTransactionRequest()
+				{
+					Transaction = spent
+				});
+
+				var txx = rpc.SendRawTransaction(signedTx.SignedTransaction);
+
+				mempoolEntry = rpc.GetMempoolEntry(txs[1]);
+				Assert.Equal(2, mempoolEntry.AncestorCount);
+				Assert.Equal(10, mempoolEntry.DescendantCount);
+				Assert.Equal(2, (int)mempoolEntry.SpentBy.Length);
+				Assert.Equal(1, (int)mempoolEntry.Depends.Length);
+
+				mempoolEntry = rpc.GetMempoolEntry(txx);
+				Assert.Equal(3, mempoolEntry.AncestorCount);
+				Assert.Equal(1, mempoolEntry.DescendantCount);
+				Assert.Equal(0, (int)mempoolEntry.SpentBy.Length);
+				Assert.Equal(1, (int)mempoolEntry.Depends.Length);
+
+				mempoolEntry = rpc.GetMempoolEntry(txs[3]);
+				Assert.Equal(4, mempoolEntry.AncestorCount);
+				Assert.Equal(7, mempoolEntry.DescendantCount);
+				Assert.Equal(1, (int)mempoolEntry.SpentBy.Length);
+				Assert.Equal(1, (int)mempoolEntry.Depends.Length);
 			}
 		}
 
