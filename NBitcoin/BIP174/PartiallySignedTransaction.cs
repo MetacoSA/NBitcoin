@@ -343,6 +343,39 @@ namespace NBitcoin.BIP174
 		internal void MoveOrphansToPartialSigs(Transaction globalTx)
 		{ }
 
+		internal void Combine(PSBTInput other)
+		{
+			if (non_witness_utxo == null && other.non_witness_utxo != null)
+				non_witness_utxo = other.non_witness_utxo;
+
+			if (witness_utxo == null && other.witness_utxo != null)
+				non_witness_utxo = other.non_witness_utxo;
+
+			if (sighash_type == 0 && other.sighash_type > 0)
+				sighash_type = other.sighash_type;
+
+			if (redeem_script == null && other.redeem_script != null)
+				redeem_script = other.redeem_script;
+
+			if (witness_script == null && other.witness_script != null)
+				witness_script = other.witness_script;
+
+			if (final_script_sig == null && other.final_script_sig != null)
+				final_script_sig = other.final_script_sig;
+
+			if (final_script_witness == null && other.final_script_witness != null)
+				final_script_witness = other.final_script_witness;
+
+			foreach (var sig in other.partial_sigs)
+				partial_sigs.TryAdd(sig.Key, sig.Value);
+
+			foreach (var keyPath in other.hd_keypaths)
+				hd_keypaths.TryAdd(keyPath.Key, keyPath.Value);
+
+			foreach (var uk in other.unknown)
+				unknown.TryAdd(uk.Key, uk.Value);
+		}
+
 		private bool IsDefinitelyWitness(TxOut txout) =>
 				PayToWitTemplate.Instance.CheckScriptPubKey(txout.ScriptPubKey) ||
 				(PayToScriptHashTemplate.Instance.CheckScriptPubKey(txout.ScriptPubKey) && redeem_script != null && PayToWitTemplate.Instance.CheckScriptPubKey(redeem_script));
@@ -1034,6 +1067,17 @@ namespace NBitcoin.BIP174
 			hd_keypaths = new HDKeyPathKVMap(new PubKeyComparer());
 			unknown = new UnKnownKVMap(BytesComparer.Instance);
 		}
+		internal void Combine(PSBTOutput other)
+		{
+			if (redeem_script == null && other.redeem_script != null)
+				redeem_script = other.redeem_script;
+
+			if (witness_script == null && other.witness_script != null)
+				witness_script = other.witness_script;
+
+			foreach (var keyPath in hd_keypaths)
+				hd_keypaths.TryAdd(keyPath.Key, keyPath.Value);
+		}
 
 		internal void TryAddScript(Script script, TxOut output)
 		{
@@ -1381,6 +1425,37 @@ namespace NBitcoin.BIP174
 					}
 				}
 			}
+
+			return this;
+		}
+
+
+		/// <summary>
+		/// If an other PSBT has a specific field and this does not have it, then inject that field to this.
+		/// otherwise leave it as it is.
+		/// TODO: Support coinjoin.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <param name="coinjoin"></param>
+		/// <returns></returns>
+		public PSBT Combine(PSBT other, bool coinjoin = false)
+		{
+			if (other == null)
+			{
+				throw new ArgumentNullException(nameof(other));
+			}
+
+			if (!coinjoin && other.tx.GetWitHash() != this.tx.GetWitHash())
+				throw new InvalidDataException("Can not Combine PSBT with different global tx.");
+
+			for (int i = 0; i < inputs.Count; i++)
+				this.inputs[i].Combine(other.inputs[i]);
+
+			for (int i = 0; i < outputs.Count; i++)
+				this.outputs[i].Combine(other.outputs[i]);
+
+			foreach (var uk in other.unknown)
+				this.unknown.Add(uk.Key, uk.Value);
 
 			return this;
 		}
