@@ -1338,12 +1338,11 @@ namespace NBitcoin.RPC
 			if (response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
 				return null;
 
-			return new MempoolEntry()
+			return new MempoolEntry
 			{
 				TransactionId = txid,
-				Size   = response.Result["size"].Value<int>(),
-				Fee    = response.Result["fee"].Value<decimal>(),
-				Time   = Utils.UnixTimeToDateTime(response.Result["time"].Value<long>()),
+				VirtualSizeBytes = response.Result["size"].Value<int>(),
+				Time = Utils.UnixTimeToDateTime(response.Result["time"].Value<long>()),
 				Height = response.Result["height"].Value<int>(),
 				DescendantCount = response.Result["descendantcount"].Value<int>(),
 				DescendantVirtualSizeBytes  = response.Result["descendantsize"].Value<int>(),
@@ -2043,21 +2042,65 @@ namespace NBitcoin.RPC
 
 	public class MempoolEntry
 	{
+		/// <summary>
+		/// The transaction id (must be in mempool.)
+		/// </summary>
 		public uint256 TransactionId { get; set; }
-		public Money BaseFee { get; set; }
-		public int Size { get; set; }
-		public decimal Fee { get; set; }
-		public Money ModifiedFee { get; set; }
+		/// <summary>
+		/// Virtual transaction size as defined in BIP 141. This is different from actual serialized size for witness transactions as witness data is discounted.
+		/// </summary>
+		public int VirtualSizeBytes { get; set; }
+		/// <summary>
+		/// Local time transaction entered pool in seconds since 1 Jan 1970 GMT.
+		/// </summary>
 		public DateTimeOffset Time { get; set; }
+		/// <summary>
+		/// Block height when transaction entered pool.
+		/// </summary>
 		public int Height { get; set; }
+		/// <summary>
+		/// Number of in-mempool descendant transactions (including this one.)
+		/// </summary>
 		public int DescendantCount { get; set; }
+		/// <summary>
+		/// Virtual transaction size of in-mempool descendants (including this one.)
+		/// </summary>
 		public int DescendantVirtualSizeBytes { get; set; }
-		public Money DescendantFees { get; set; }
+		/// <summary>
+		/// Number of in-mempool ancestor transactions (including this one.)
+		/// </summary>
 		public int AncestorCount { get; set; }
+		/// <summary>
+		/// Virtual transaction size of in-mempool ancestors (including this one.)
+		/// </summary>
 		public int AncestorVirtualSizeBytes { get; set; }
-		public Money AncestorFees { get; set; }
+		/// <summary>
+		/// Hash of serialized transaction, including witness data.
+		/// </summary>
 		public uint256 TransactionIdWithWitness { get; set; }
+		/// <summary>
+		/// Transaction fee.
+		/// </summary>
+		public Money BaseFee { get; set; }
+		/// <summary>
+		/// Transaction fee with fee deltas used for mining priority.
+		/// </summary>
+		public Money ModifiedFee { get; set; }
+		/// <summary>
+		/// Modified fees (see above) of in-mempool ancestors (including this one.)
+		/// </summary>
+		public Money AncestorFees { get; set; }
+		/// <summary>
+		/// Modified fees (see above) of in-mempool descendants (including this one.)
+		/// </summary>
+		public Money DescendantFees { get; set; }
+		/// <summary>
+		/// Unconfirmed transactions used as inputs for this transaction.
+		/// </summary>
 		public uint256[] Depends { get; set; }
+		/// <summary>
+		/// Unconfirmed transactions spending outputs from this transaction.
+		/// </summary>
 		public uint256[] SpentBy { get; set; }
 	}
 }
