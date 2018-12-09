@@ -82,9 +82,9 @@ test_script:
 #---------------------------------#     	
  on_success: 	
 - ps: |	
-       	
-        if ($env:APPVEYOR_REPO_TAG) { 	
-            Write-Host "Generating Docs "	
+        if ($env:APPVEYOR_REPO_TAG)
+        { 	
+            Write-Host "Generating Docs"	
             cinst docfx	
             git config --global credential.helper store	
             Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"	
@@ -92,7 +92,9 @@ test_script:
             git config --global user.name $env:github_user
             git config --global core.safecrlf false	
             sh ./docs/release.sh 	
-        } else {	
+        } 
+        else 
+        {	
             Write-Host "Not a tagged build, skipping doc generation"	
         }
 
