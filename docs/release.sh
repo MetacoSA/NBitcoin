@@ -14,7 +14,7 @@ rm -rf $TEMP_REPO_DIR
 mkdir $TEMP_REPO_DIR
 
 echo "Cloning the repo with the gh-pages branch"
-git clone $(git config --get remote.origin.url) --branch gh-pages $TEMP_REPO_DIR
+git clone $(git config --get remote.origin.url) --branch gh-pages $TEMP_REPO_DIR 2> /dev/null
 
 echo "Clear repo directory"
 cd $TEMP_REPO_DIR
@@ -26,4 +26,4 @@ cp -r $SOURCE_DIR/docs/_site/* .
 echo "Push the new docs to the remote branch"
 git add . -A
 git commit -m "Update generated documentation"
-git push origin gh-pages
+git push origin gh-pages 2> /dev/null
