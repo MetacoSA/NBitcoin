@@ -1263,9 +1263,9 @@ namespace NBitcoin.BIP174
 
 			// extract relevant coins from prevTXs
 			var items = from txin in tx.Inputs
-									from prevtx in prevTXs
-									where txin.PrevOut.Hash == prevtx.GetHash()
-									select Tuple.Create(new Coin(txin.PrevOut, prevtx.Outputs[txin.PrevOut.N]), prevtx);
+				from prevtx in prevTXs
+				where txin.PrevOut.Hash == prevtx.GetHash()
+				select Tuple.Create(new Coin(txin.PrevOut, prevtx.Outputs[txin.PrevOut.N]), prevtx);
 			SetUpInputWithCoins(items.Select(i => i.Item1));
 
 			// Set NonWitnessUTXO 
