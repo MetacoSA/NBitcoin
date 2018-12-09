@@ -198,7 +198,7 @@ namespace NBitcoin
 		}
 
 		/// <summary>
-		/// Remove superflous branches
+		/// Remove superfluous branches
 		/// </summary>
 		/// <param name="transaction"></param>
 		/// <returns></returns>

@@ -57,13 +57,13 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
 
         protected override byte[] GetResult()
         {
-            byte[] zeroes = new byte[BlockSize];
+            byte[] zeros = new byte[BlockSize];
             uint[] result = new uint[HashSize / 4];
 
             for (int i = 0; i < HashSize / 4; i++)
             {
                 if (i % 8 == 0)
-                    TransformBlock(zeroes, 0);
+                    TransformBlock(zeros, 0);
 
                 for (int j = 0; j < m_result_blocks; j++)
                     result[i] ^= m_state[(i % 8) + 8 * j];

@@ -1007,10 +1007,10 @@ namespace NBitcoin.BouncyCastle.Math
 				yIndx++;
 			}
 
-			return CompareNoLeadingZeroes(xIndx, x, yIndx, y);
+			return CompareNoLeadingzeros(xIndx, x, yIndx, y);
 		}
 
-		private static int CompareNoLeadingZeroes(
+		private static int CompareNoLeadingzeros(
 			int xIndx,
 			int[] x,
 			int yIndx,
@@ -1043,7 +1043,7 @@ namespace NBitcoin.BouncyCastle.Math
 			return sign < value.sign ? -1
 				: sign > value.sign ? 1
 				: sign == 0 ? 0
-				: sign * CompareNoLeadingZeroes(0, magnitude, 0, value.magnitude);
+				: sign * CompareNoLeadingzeros(0, magnitude, 0, value.magnitude);
 		}
 
 		/**
@@ -1068,7 +1068,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 			Debug.Assert(yStart < y.Length);
 
-			int xyCmp = CompareNoLeadingZeroes(xStart, x, yStart, y);
+			int xyCmp = CompareNoLeadingzeros(xStart, x, yStart, y);
 			int[] count;
 
 			if(xyCmp > 0)
@@ -1106,7 +1106,7 @@ namespace NBitcoin.BouncyCastle.Math
 				for(;;)
 				{
 					if(cBitLength < xBitLength
-						|| CompareNoLeadingZeroes(xStart, x, cStart, c) >= 0)
+						|| CompareNoLeadingzeros(xStart, x, cStart, c) >= 0)
 					{
 						Subtract(xStart, x, cStart, c);
 						AddMagnitudes(count, iCount);
@@ -1125,7 +1125,7 @@ namespace NBitcoin.BouncyCastle.Math
 							if(xBitLength < yBitLength)
 								return count;
 
-							xyCmp = CompareNoLeadingZeroes(xStart, x, yStart, y);
+							xyCmp = CompareNoLeadingzeros(xStart, x, yStart, y);
 
 							if(xyCmp <= 0)
 								break;
@@ -1618,12 +1618,12 @@ namespace NBitcoin.BouncyCastle.Math
 			//				for (;;)
 			//				{
 			//					// While F is even, do F=F/u, C=C*u, k=k+1.
-			//					int zeroes = F.GetLowestSetBit();
-			//					if (zeroes > 0)
+			//					int zeros = F.GetLowestSetBit();
+			//					if (zeros > 0)
 			//					{
-			//						F = F.ShiftRight(zeroes);
-			//						C = C.ShiftLeft(zeroes);
-			//						k += zeroes;
+			//						F = F.ShiftRight(zeros);
+			//						C = C.ShiftLeft(zeros);
+			//						k += zeros;
 			//					}
 			//
 			//					// If F = 1, then return B,k.
@@ -1849,13 +1849,13 @@ namespace NBitcoin.BouncyCastle.Math
 			Debug.Assert(windowList.Length > 0);
 
 			int window = windowList[0];
-			int mult = window & 0xFF, lastZeroes = window >> 8;
+			int mult = window & 0xFF, lastzeros = window >> 8;
 
 			BigInteger y;
 			if(mult == 1)
 			{
 				y = b2;
-				--lastZeroes;
+				--lastzeros;
 			}
 			else
 			{
@@ -1867,7 +1867,7 @@ namespace NBitcoin.BouncyCastle.Math
 			{
 				mult = window & 0xFF;
 
-				int bits = lastZeroes + BitLengthTable[mult];
+				int bits = lastzeros + BitLengthTable[mult];
 				for(int j = 0; j < bits; ++j)
 				{
 					y = ReduceBarrett(y.Square(), m, mr, yu);
@@ -1875,10 +1875,10 @@ namespace NBitcoin.BouncyCastle.Math
 
 				y = ReduceBarrett(y.Multiply(oddPowers[mult >> 1]), m, mr, yu);
 
-				lastZeroes = window >> 8;
+				lastzeros = window >> 8;
 			}
 
-			for(int i = 0; i < lastZeroes; ++i)
+			for(int i = 0; i < lastzeros; ++i)
 			{
 				y = ReduceBarrett(y.Square(), m, mr, yu);
 			}
@@ -1974,13 +1974,13 @@ namespace NBitcoin.BouncyCastle.Math
 			Debug.Assert(windowList.Length > 1);
 
 			int window = windowList[0];
-			int mult = window & 0xFF, lastZeroes = window >> 8;
+			int mult = window & 0xFF, lastzeros = window >> 8;
 
 			int[] yVal;
 			if(mult == 1)
 			{
 				yVal = zSquared;
-				--lastZeroes;
+				--lastzeros;
 			}
 			else
 			{
@@ -1992,7 +1992,7 @@ namespace NBitcoin.BouncyCastle.Math
 			{
 				mult = window & 0xFF;
 
-				int bits = lastZeroes + BitLengthTable[mult];
+				int bits = lastzeros + BitLengthTable[mult];
 				for(int j = 0; j < bits; ++j)
 				{
 					SquareMonty(yAccum, yVal, m.magnitude, mDash, smallMontyModulus);
@@ -2000,10 +2000,10 @@ namespace NBitcoin.BouncyCastle.Math
 
 				MultiplyMonty(yAccum, yVal, oddPowers[mult >> 1], m.magnitude, mDash, smallMontyModulus);
 
-				lastZeroes = window >> 8;
+				lastzeros = window >> 8;
 			}
 
-			for(int i = 0; i < lastZeroes; ++i)
+			for(int i = 0; i < lastzeros; ++i)
 			{
 				SquareMonty(yAccum, yVal, m.magnitude, mDash, smallMontyModulus);
 			}
@@ -2036,7 +2036,7 @@ namespace NBitcoin.BouncyCastle.Math
 			v <<= bitPos;
 
 			int mult = 1, multLimit = 1 << extraBits;
-			int zeroes = 0;
+			int zeros = 0;
 
 			int i = 0;
 			for(;;)
@@ -2049,13 +2049,13 @@ namespace NBitcoin.BouncyCastle.Math
 					}
 					else if(v < 0)
 					{
-						result[resultPos++] = CreateWindowEntry(mult, zeroes);
+						result[resultPos++] = CreateWindowEntry(mult, zeros);
 						mult = 1;
-						zeroes = 0;
+						zeros = 0;
 					}
 					else
 					{
-						++zeroes;
+						++zeros;
 					}
 
 					v <<= 1;
@@ -2063,7 +2063,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 				if(++i == mag.Length)
 				{
-					result[resultPos++] = CreateWindowEntry(mult, zeroes);
+					result[resultPos++] = CreateWindowEntry(mult, zeros);
 					break;
 				}
 
@@ -2075,15 +2075,15 @@ namespace NBitcoin.BouncyCastle.Math
 			return result;
 		}
 
-		private static int CreateWindowEntry(int mult, int zeroes)
+		private static int CreateWindowEntry(int mult, int zeros)
 		{
 			while((mult & 1) == 0)
 			{
 				mult >>= 1;
-				++zeroes;
+				++zeros;
 			}
 
-			return mult | (zeroes << 8);
+			return mult | (zeros << 8);
 		}
 
 		/**
@@ -2606,7 +2606,7 @@ namespace NBitcoin.BouncyCastle.Math
 
 			Debug.Assert(yStart < y.Length);
 
-			int xyCmp = CompareNoLeadingZeroes(xStart, x, yStart, y);
+			int xyCmp = CompareNoLeadingzeros(xStart, x, yStart, y);
 
 			if(xyCmp > 0)
 			{
@@ -2633,7 +2633,7 @@ namespace NBitcoin.BouncyCastle.Math
 				for(;;)
 				{
 					if(cBitLength < xBitLength
-						|| CompareNoLeadingZeroes(xStart, x, cStart, c) >= 0)
+						|| CompareNoLeadingzeros(xStart, x, cStart, c) >= 0)
 					{
 						Subtract(xStart, x, cStart, c);
 
@@ -2651,7 +2651,7 @@ namespace NBitcoin.BouncyCastle.Math
 							if(xBitLength < yBitLength)
 								return x;
 
-							xyCmp = CompareNoLeadingZeroes(xStart, x, yStart, y);
+							xyCmp = CompareNoLeadingzeros(xStart, x, yStart, y);
 
 							if(xyCmp <= 0)
 								break;
@@ -2724,7 +2724,7 @@ namespace NBitcoin.BouncyCastle.Math
 				}
 			}
 
-			if(CompareNoLeadingZeroes(0, magnitude, 0, n.magnitude) < 0)
+			if(CompareNoLeadingzeros(0, magnitude, 0, n.magnitude) < 0)
 				return this;
 
 			int[] result;
@@ -3044,7 +3044,7 @@ namespace NBitcoin.BouncyCastle.Math
 			if(this.sign != n.sign)
 				return Add(n.Negate());
 
-			int compare = CompareNoLeadingZeroes(0, magnitude, 0, n.magnitude);
+			int compare = CompareNoLeadingzeros(0, magnitude, 0, n.magnitude);
 			if(compare == 0)
 				return Zero;
 

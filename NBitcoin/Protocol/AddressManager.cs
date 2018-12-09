@@ -948,7 +948,7 @@ namespace NBitcoin.Protocol
 		private static void assert(bool value)
 		{
 			if(!value)
-				throw new InvalidOperationException("Bug in AddressManager, should never happen, contact NBitcoin developpers if you see this exception");
+				throw new InvalidOperationException("Bug in AddressManager, should never happen, contact NBitcoin developers if you see this exception");
 		}
 		//! Mark an entry as connection attempted to.
 		public void Attempt(NetworkAddress addr)

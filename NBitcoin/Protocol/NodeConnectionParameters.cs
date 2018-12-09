@@ -42,7 +42,7 @@ namespace NBitcoin.Protocol
 			UserAgent = other.UserAgent;
 			AddressFrom = other.AddressFrom;
 			Nonce = other.Nonce;
-			Advertize = other.Advertize;
+			Advertise = other.Advertise;
 			PreferredTransactionOptions = other.PreferredTransactionOptions;
 			foreach(var behavior in other.TemplateBehaviors)
 			{
@@ -51,9 +51,9 @@ namespace NBitcoin.Protocol
 		}
 
 		/// <summary>
-		/// Send addr unsollicited message of the AddressFrom peer when passing to Handshaked state
+		/// Send addr unsolicited message of the AddressFrom peer when passing to Handshaked state
 		/// </summary>
-		public bool Advertize
+		public bool Advertise
 		{
 			get;
 			set;

@@ -306,7 +306,7 @@ namespace NBitcoin.Tests
 				//Nobody knows your redeem script, so you add here the information
 				//This line is actually optional since 4.0.0.38, as the TransactionBuilder is smart enough to figure out
 				//the redeems from the keys added by AddKeys.
-				//However, explicitely having the redeem will make code more easy to update to other payment like 2-2
+				//However, explicitly having the redeem will make code more easy to update to other payment like 2-2
 				//.Select(c => c.ToScriptCoin(k.PubKey.WitHash.ScriptPubKey))
 				.ToArray();
 
@@ -1571,7 +1571,7 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanSubstractFees()
+		public void CanSubtractFees()
 		{
 			var alice = new Key();
 			var bob = new Key();
@@ -1741,7 +1741,7 @@ namespace NBitcoin.Tests
 				.SignTransaction(partiallySigned);
 			Assert.True(txBuilder.Verify(tx));
 
-			//Test if signing separatly
+			//Test if signing separately
 			txBuilder = Network.CreateTransactionBuilder(0);
 			txBuilder.StandardTransactionPolicy = EasyPolicy;
 			tx = txBuilder

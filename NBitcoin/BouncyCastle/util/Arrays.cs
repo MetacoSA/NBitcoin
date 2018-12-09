@@ -494,7 +494,7 @@ namespace NBitcoin.BouncyCastle.Utilities
 		/**
          * Make a copy of a range of bytes from the passed in data array. The range can
          * extend beyond the end of the input array, in which case the return array will
-         * be padded with zeroes.
+         * be padded with zeros.
          *
          * @param data the array from which the data is to be copied.
          * @param from the start index at which the copying should take place.

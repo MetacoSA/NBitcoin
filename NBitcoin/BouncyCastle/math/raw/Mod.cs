@@ -143,11 +143,11 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 			}
 
 			{
-				int zeroes = GetTrailingZeroes(u[0]);
-				if(zeroes > 0)
+				int zeros = GetTrailingzeros(u[0]);
+				if(zeros > 0)
 				{
-					Nat.ShiftDownBits(uLen, u, zeroes, 0);
-					count += zeroes;
+					Nat.ShiftDownBits(uLen, u, zeros, 0);
+					count += zeros;
 				}
 			}
 
@@ -170,7 +170,7 @@ namespace NBitcoin.BouncyCastle.Math.Raw
 			}
 		}
 
-		private static int GetTrailingZeroes(uint x)
+		private static int GetTrailingzeros(uint x)
 		{
 			Debug.Assert(x != 0);
 			int count = 0;

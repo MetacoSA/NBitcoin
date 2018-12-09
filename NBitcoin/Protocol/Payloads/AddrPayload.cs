@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace NBitcoin.Protocol
 {
 	/// <summary>
-	/// An available peer address in the bitcoin network is announce (unsollicited or after a getaddr)
+	/// An available peer address in the bitcoin network is announce (unsolicited or after a getaddr)
 	/// </summary>
 	[Payload("addr")]
 	public class AddrPayload : Payload, IBitcoinSerializable

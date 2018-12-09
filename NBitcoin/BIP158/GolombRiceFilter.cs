@@ -267,7 +267,7 @@ namespace NBitcoin
 		private HashSet<byte[]> _values;
 		
 		/// <summary>
-		/// Helper class for making sure not two ideantical data elements are 
+		/// Helper class for making sure not two identical data elements are 
 		/// included in a filter.
 		/// </summary>
 		class ByteArrayComparer : IEqualityComparer<byte[]> {

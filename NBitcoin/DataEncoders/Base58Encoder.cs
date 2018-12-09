@@ -108,7 +108,7 @@ namespace NBitcoin.DataEncoders
 				builder.Append(pszBase58[c]);
 			}
 
-			// Leading zeroes encoded as base58 zeros
+			// Leading zeros encoded as base58 zeros
 			for(int i = offset; i < offset + count && data[i] == 0; i++)
 				builder.Append(pszBase58[0]);
 

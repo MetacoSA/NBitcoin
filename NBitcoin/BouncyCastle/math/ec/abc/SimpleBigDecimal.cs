@@ -208,14 +208,14 @@ namespace NBitcoin.BouncyCastle.Math.EC.Abc
 			char[] fractCharArr = new char[scale];
 			string fractStr = fract.ToString(2);
 			int fractLen = fractStr.Length;
-			int zeroes = scale - fractLen;
-			for(int i = 0; i < zeroes; i++)
+			int zeros = scale - fractLen;
+			for(int i = 0; i < zeros; i++)
 			{
 				fractCharArr[i] = '0';
 			}
 			for(int j = 0; j < fractLen; j++)
 			{
-				fractCharArr[zeroes + j] = fractStr[j];
+				fractCharArr[zeros + j] = fractStr[j];
 			}
 			string rightOfPoint = new string(fractCharArr);
 

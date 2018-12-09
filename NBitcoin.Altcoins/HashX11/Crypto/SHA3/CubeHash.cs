@@ -44,7 +44,7 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
         {
             int[] hashes = new int[] { 28, 32, 48, 64 };
             uint[][] inits = new uint[65][];
-            byte[] zeroes = new byte[32];
+            byte[] zeros = new byte[32];
 
             foreach (int hashsize in hashes)
             {
@@ -55,7 +55,7 @@ namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3
                 ch.m_state[2] = 16;
 
                 for (int i = 0; i < 10; i++)
-                    ch.TransformBlock(zeroes, 0);
+                    ch.TransformBlock(zeros, 0);
 
                 inits[hashsize] = new uint[32];
                 Array.Copy(ch.m_state, inits[hashsize], 32);

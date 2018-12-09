@@ -12,21 +12,21 @@ namespace NBitcoin.Protocol.Behaviors
 	public enum AddressManagerBehaviorMode
 	{
 		/// <summary>
-		/// Do not advertize nor discover new peers
+		/// Do not advertise or discover new peers
 		/// </summary>
 		None = 0,
 		/// <summary>
-		/// Only advertize known peers
+		/// Only advertise known peers
 		/// </summary>
-		Advertize = 1,
+		Advertise = 1,
 		/// <summary>
 		/// Only discover peers
 		/// </summary>
 		Discover = 2,
 		/// <summary>
-		/// Advertize known peer and discover peer
+		/// Advertise known peer and discover peer
 		/// </summary>
-		AdvertizeDiscover = 3,
+		AdvertiseDiscover = 3,
 	}
 
 	/// <summary>
@@ -105,7 +105,7 @@ namespace NBitcoin.Protocol.Behaviors
 			if(manager == null)
 				throw new ArgumentNullException(nameof(manager));
 			_AddressManager = manager;
-			Mode = AddressManagerBehaviorMode.AdvertizeDiscover;
+			Mode = AddressManagerBehaviorMode.AdvertiseDiscover;
 		}
 
 		public AddressManagerBehaviorMode Mode
@@ -136,7 +136,7 @@ namespace NBitcoin.Protocol.Behaviors
 
 		void AttachedNode_MessageReceived(Node node, IncomingMessage message)
 		{
-			if((Mode & AddressManagerBehaviorMode.Advertize) != 0)
+			if((Mode & AddressManagerBehaviorMode.Advertise) != 0)
 			{
 				var getaddr = message.Message.Payload as GetAddrPayload;
 				if(getaddr != null)

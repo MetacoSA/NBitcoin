@@ -3,8 +3,8 @@ using System;
 namespace NBitcoin.Altcoins.HashX11.Crypto.SHA3.Custom
 {
     // a customized SHAvite implementation to fit the StratisX implementation
-    // only the 512 and 384 hash zizes are supported as only that is used by stratis.
-    // TODO: this codes needs to be tested against the StratisX blockchin data
+    // only the 512 and 384 hash sizes are supported as only that is used by stratis.
+    // TODO: this codes needs to be tested against the StratisX blockchain data
 
     //internal class SHAvite3_224 : SHAvite3_256Base
     //{

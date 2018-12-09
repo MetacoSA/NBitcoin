@@ -71,7 +71,7 @@ namespace NBitcoin.Tests
 				.Build();
 
 			var testKey = key.ToBytes().SafeSubarray(0, 16);
-			// The filter should match all ther values that were added.
+			// The filter should match all the values that were added.
 			foreach (var name in names)
 			{
 				Assert.True(filter.Match(name, testKey));

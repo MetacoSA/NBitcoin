@@ -26,22 +26,22 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 
 			BigInteger diff = _3k.Xor(k);
 
-			int highBit = bits - 1, length = 0, zeroes = 0;
+			int highBit = bits - 1, length = 0, zeros = 0;
 			for(int i = 1; i < highBit; ++i)
 			{
 				if(!diff.TestBit(i))
 				{
-					++zeroes;
+					++zeros;
 					continue;
 				}
 
 				int digit = k.TestBit(i) ? -1 : 1;
-				naf[length++] = (digit << 16) | zeroes;
-				zeroes = 1;
+				naf[length++] = (digit << 16) | zeros;
+				zeros = 1;
 				++i;
 			}
 
-			naf[length++] = (1 << 16) | zeroes;
+			naf[length++] = (1 << 16) | zeros;
 
 			if(naf.Length > length)
 			{
@@ -97,8 +97,8 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 					digit -= pow2;
 				}
 
-				int zeroes = length > 0 ? pos - 1 : pos;
-				wnaf[length++] = (digit << 16) | zeroes;
+				int zeros = length > 0 ? pos - 1 : pos;
+				wnaf[length++] = (digit << 16) | zeros;
 				pos = width;
 			}
 

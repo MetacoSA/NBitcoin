@@ -36,7 +36,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 			if(i > 1)
 			{
 				int wi = wnaf[--i];
-				int digit = wi >> 16, zeroes = wi & 0xFFFF;
+				int digit = wi >> 16, zeros = wi & 0xFFFF;
 
 				int n = System.Math.Abs(digit);
 				ECPoint[] table = digit < 0 ? preCompNeg : preComp;
@@ -54,27 +54,27 @@ namespace NBitcoin.BouncyCastle.Math.EC.Multiplier
 					int i2 = (lowBits << scale) + 1;
 					R = table[i1 >> 1].Add(table[i2 >> 1]);
 
-					zeroes -= scale;
+					zeros -= scale;
 				}
 				else
 				{
 					R = table[n >> 1];
 				}
 
-				R = R.TimesPow2(zeroes);
+				R = R.TimesPow2(zeros);
 			}
 
 			while(i > 0)
 			{
 				int wi = wnaf[--i];
-				int digit = wi >> 16, zeroes = wi & 0xFFFF;
+				int digit = wi >> 16, zeros = wi & 0xFFFF;
 
 				int n = System.Math.Abs(digit);
 				ECPoint[] table = digit < 0 ? preCompNeg : preComp;
 				ECPoint r = table[n >> 1];
 
 				R = R.TwicePlus(r);
-				R = R.TimesPow2(zeroes);
+				R = R.TimesPow2(zeros);
 			}
 
 			return R;

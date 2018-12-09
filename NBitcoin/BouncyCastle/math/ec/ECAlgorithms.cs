@@ -301,7 +301,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			ECPoint infinity = curve.Infinity;
 
 			ECPoint R = infinity;
-			int zeroes = 0;
+			int zeros = 0;
 
 			for(int i = len - 1; i >= 0; --i)
 			{
@@ -310,7 +310,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 				if((wiP | wiQ) == 0)
 				{
-					++zeroes;
+					++zeros;
 					continue;
 				}
 
@@ -328,18 +328,18 @@ namespace NBitcoin.BouncyCastle.Math.EC
 					r = r.Add(tableQ[nQ >> 1]);
 				}
 
-				if(zeroes > 0)
+				if(zeros > 0)
 				{
-					R = R.TimesPow2(zeroes);
-					zeroes = 0;
+					R = R.TimesPow2(zeros);
+					zeros = 0;
 				}
 
 				R = R.TwicePlus(r);
 			}
 
-			if(zeroes > 0)
+			if(zeros > 0)
 			{
-				R = R.TimesPow2(zeroes);
+				R = R.TimesPow2(zeros);
 			}
 
 			return R;
@@ -440,7 +440,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			ECPoint infinity = curve.Infinity;
 
 			ECPoint R = infinity;
-			int zeroes = 0;
+			int zeros = 0;
 
 			for(int i = len - 1; i >= 0; --i)
 			{
@@ -461,22 +461,22 @@ namespace NBitcoin.BouncyCastle.Math.EC
 
 				if(r == infinity)
 				{
-					++zeroes;
+					++zeros;
 					continue;
 				}
 
-				if(zeroes > 0)
+				if(zeros > 0)
 				{
-					R = R.TimesPow2(zeroes);
-					zeroes = 0;
+					R = R.TimesPow2(zeros);
+					zeros = 0;
 				}
 
 				R = R.TwicePlus(r);
 			}
 
-			if(zeroes > 0)
+			if(zeros > 0)
 			{
-				R = R.TimesPow2(zeroes);
+				R = R.TimesPow2(zeros);
 			}
 
 			return R;
