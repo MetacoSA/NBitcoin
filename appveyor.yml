@@ -7,13 +7,6 @@ version: 4.0.0.{build}
 pull_requests:
   do_not_increment_build_number: true
 
-
-# branches to build 
-branches:
-  # whitelist
-  only:
-    - master
-
 #---------------------------------#
 #    environment configuration    #
 #---------------------------------#
