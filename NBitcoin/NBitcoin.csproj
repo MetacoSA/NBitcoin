@@ -12,13 +12,12 @@
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 	<PropertyGroup>
-		<Version Condition=" '$(Version)' == '' ">4.1.1.72</Version>
+		<Version Condition=" '$(Version)' == '' ">4.1.1.73</Version>
 		<LangVersion>7.2</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 	</PropertyGroup>
 	<PropertyGroup>
 		<TargetFrameworks>net461;net452;netstandard1.3;netstandard1.1;netcoreapp2.1;netstandard2.0</TargetFrameworks>
