@@ -29,7 +29,7 @@ namespace NBitcoin.BouncyCastle.Utilities
          *
          * @param length desired length of result array.
          * @param n value to be converted.
-         * @return a byte array of specified length, with leading zeroes as necessary given the size of n.
+         * @return a byte array of specified length, with leading zeros as necessary given the size of n.
          */
 		public static byte[] AsUnsignedByteArray(int length, BigInteger n)
 		{

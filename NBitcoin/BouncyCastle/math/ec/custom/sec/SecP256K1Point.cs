@@ -25,7 +25,7 @@ namespace NBitcoin.BouncyCastle.Math.EC.Custom.Sec
 		}
 
 		/**
-         * Create a point that encodes with or without point compresion.
+         * Create a point that encodes with or without point compression.
          * 
          * @param curve
          *            the curve to use

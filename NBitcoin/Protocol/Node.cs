@@ -279,7 +279,7 @@ namespace NBitcoin.Protocol
 					_ListenerThreadId = Thread.CurrentThread.ManagedThreadId;
 
 					
-					using (Logs.NodeServer.BeginScope("Thead scope {ThreadId}", _ListenerThreadId))
+					using (Logs.NodeServer.BeginScope("Thread scope {ThreadId}", _ListenerThreadId))
 					{
 						Logs.NodeServer.LogInformation("Start Listening");
 						
@@ -743,7 +743,7 @@ namespace NBitcoin.Protocol
 					_RemoteSocketPort = remoteEndpoint.Port;
 					State = NodeState.Connected;
 					ConnectedAt = DateTimeOffset.UtcNow;
-					Logs.NodeServer.LogInformation("Outbound connection successfull");
+					Logs.NodeServer.LogInformation("Outbound connection successful");
 					if(addrman != null)
 						addrman.Attempt(Peer);
 				}
@@ -995,7 +995,7 @@ namespace NBitcoin.Protocol
 		}
 
 		/// <summary>
-		/// Send addr unsollicited message of the AddressFrom peer when passing to Handshaked state
+		/// Send addr unsolicited message of the AddressFrom peer when passing to Handshaked state
 		/// </summary>
 		public bool Advertize
 		{
@@ -1352,7 +1352,7 @@ namespace NBitcoin.Protocol
 				return new ChainedBlock[0];
 			var newTip = headers[headers.Count - 1];
 			if(newTip.Height <= oldTip.Height)
-				throw new ProtocolException("No tip should have been recieved older than the local one");
+				throw new ProtocolException("No tip should have been received older than the local one");
 			chain.SetTip(newTip);
 			return headers;
 		}
@@ -1532,7 +1532,7 @@ namespace NBitcoin.Protocol
 		}
 
 		/// <summary>
-		/// Create a listener that will queue messages until diposed
+		/// Create a listener that will queue messages until disposed
 		/// </summary>
 		/// <returns>The listener</returns>
 		/// <exception cref="System.InvalidOperationException">Thrown if used on the listener's thread, as it would result in a deadlock</exception>

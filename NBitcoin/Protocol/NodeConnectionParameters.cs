@@ -51,7 +51,7 @@ namespace NBitcoin.Protocol
 		}
 
 		/// <summary>
-		/// Send addr unsollicited message of the AddressFrom peer when passing to Handshaked state
+		/// Send addr unsolicited message of the AddressFrom peer when passing to Handshaked state
 		/// </summary>
 		public bool Advertize
 		{

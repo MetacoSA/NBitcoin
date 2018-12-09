@@ -133,7 +133,7 @@ namespace NBitcoin.BouncyCastle.Asn1
 			{
 				char ch = branchID[pos];
 
-				// TODO Leading zeroes?
+				// TODO Leading zeros?
 				if('0' <= ch && ch <= '9')
 				{
 					periodAllowed = true;

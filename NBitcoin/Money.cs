@@ -199,7 +199,7 @@ namespace NBitcoin
 		/// Get the Money corresponding to the input assetId
 		/// </summary>
 		/// <param name="assetId">The asset id, if null, will assume bitcoin amount</param>
-		/// <returns>Never returns null, eithers the AssetMoney or Money if assetId is null</returns>
+		/// <returns>Never returns null, either the AssetMoney or Money if assetId is null</returns>
 		public IMoney GetAmount(AssetId assetId = null)
 		{
 			if(assetId == null)
@@ -666,7 +666,7 @@ namespace NBitcoin
 		/// Returns a culture invariant string representation of Bitcoin amount
 		/// </summary>
 		/// <param name="fplus">True if show + for a positive amount</param>
-		/// <param name="trimExcessZero">True if trim excess zeroes</param>
+		/// <param name="trimExcessZero">True if trim excess zeros</param>
 		/// <returns></returns>
 		public string ToString(bool fplus, bool trimExcessZero = true)
 		{

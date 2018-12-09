@@ -12,11 +12,11 @@ namespace NBitcoin.Protocol.Behaviors
 	public enum AddressManagerBehaviorMode
 	{
 		/// <summary>
-		/// Do not advertize nor discover new peers
+		/// Do not advertise or discover new peers
 		/// </summary>
 		None = 0,
 		/// <summary>
-		/// Only advertize known peers
+		/// Only advertise known peers
 		/// </summary>
 		Advertize = 1,
 		/// <summary>
@@ -24,7 +24,7 @@ namespace NBitcoin.Protocol.Behaviors
 		/// </summary>
 		Discover = 2,
 		/// <summary>
-		/// Advertize known peer and discover peer
+		/// Advertise known peer and discover peer
 		/// </summary>
 		AdvertizeDiscover = 3,
 	}
