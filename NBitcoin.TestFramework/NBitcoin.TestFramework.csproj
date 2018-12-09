@@ -20,6 +20,7 @@
 		<GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
 		<GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
 		<GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <NoWarn>1591;1573;1572;1584;1570;3021</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
