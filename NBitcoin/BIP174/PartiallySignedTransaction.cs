@@ -255,7 +255,8 @@ namespace NBitcoin.BIP174
 				stream.ReadWrite(ref key);
 				uint valueLength = 1;
 				stream.ReadWriteAsVarInt(ref valueLength);
-				stream.ReadWrite(ref sighash_type);
+				var tmp = (byte)sighash_type;
+				stream.ReadWrite(ref tmp);
 			}
 
 			// Write the redeem script
