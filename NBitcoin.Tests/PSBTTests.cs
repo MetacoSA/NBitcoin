@@ -253,9 +253,8 @@ namespace NBitcoin.Tests
 			var bobKeyhex2 = (string)testcase["key10"]["wif"];
 			Assert.Equal(bobKey1, new BitcoinSecret(bobKeyhex1, network).PrivateKey);
 			Assert.Equal(bobKey2, new BitcoinSecret(bobKeyhex2, network).PrivateKey);
+			psbtForBob.UseLowR = false;
 			psbtForBob.TrySignAll(bobKey1, bobKey2);
-			// from here, we are using (slightly modified by us) hex representation of psbt for expected data.
-			// TODO: check compatibility against updated test vector in the bip when it has been updated.
 			expected = PSBT.Parse((string)testcase["psbt5"]);
 			Assert.Equal(expected, psbtForBob);
 
@@ -263,6 +262,14 @@ namespace NBitcoin.Tests
 			var combined = psbt.Combine(psbtForBob);
 			expected = PSBT.Parse((string)testcase["psbtcombined"]);
 			Assert.Equal(expected, combined);
+
+			var finalized = psbt.Finalize();
+			expected = PSBT.Parse((string)testcase["psbtfinalized"]);
+			Assert.Equal(expected, finalized);
+
+			var finalTX = psbt.ExtractTX();
+			var expectedTX = Transaction.Parse((string)testcase["txextracted"], network);
+			Assert.Equal(expectedTX, finalTX);
 		}
 
 		private class PSBTComparer : EqualityComparer<PSBT>

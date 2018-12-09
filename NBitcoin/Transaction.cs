@@ -768,10 +768,10 @@ namespace NBitcoin
 			return VerifyScript(coin, ScriptVerify.Standard, out error);
 		}
 
-		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash)
+		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash, bool UseLowR = true)
 		{
 			var hash = GetSignatureHash(coin, sigHash);
-			return key.Sign(hash, sigHash);
+			return key.Sign(hash, sigHash, UseLowR);
 		}
 
 		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)

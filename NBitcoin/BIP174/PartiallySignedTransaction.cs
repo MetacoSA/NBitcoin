@@ -189,6 +189,7 @@ namespace NBitcoin.BIP174
 			}
 		}
 
+
 		private class PubKeyComparer : IComparer<PubKey>
 		{
 			public int Compare(PubKey x, PubKey y)
@@ -409,13 +410,14 @@ namespace NBitcoin.BIP174
 				(redeem_script != null && redeem_script.GetAllPubKeys().Any(p => p.Equals(pk))) || // more paranoia check
 				(witness_script != null && witness_script.GetAllPubKeys().Any(p => p.Equals(pk)));
 
-		private TransactionSignature SignTx(ref Transaction tx, Key key, ICoin coin, int index)
+
+		private TransactionSignature SignTx(ref Transaction tx, Key key, ICoin coin, int index, bool UseLowR)
 		{
 			var hashType = sighash_type != 0 ? (SigHash)sighash_type : SigHash.All;
 			var txIn = tx.Inputs.AsIndexedInputs().ToArray()[index];
-			return txIn.Sign(key, coin, hashType);
+			return txIn.Sign(key, coin, hashType, UseLowR);
 		}
-		internal bool Sign(int index, Transaction tx, Key[] keys)
+		internal bool Sign(int index, Transaction tx, Key[] keys, bool UseLowR = true)
 		{
 			var txin = tx.Inputs[index];
 			CheckSanityForSigner(txin);
@@ -442,7 +444,7 @@ namespace NBitcoin.BIP174
 				// 1. p2pkh
 				if (PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(nextScript))
 				{
-					generatedSig = SignTx(ref dummyTx, key, coin, index);
+					generatedSig = SignTx(ref dummyTx, key, coin, index, UseLowR);
 					Signed = true;
 				}
 
@@ -452,7 +454,7 @@ namespace NBitcoin.BIP174
 					if (witness_script == null)
 					{
 						var scriptCoin = new ScriptCoin(coin, redeem_script);
-						generatedSig = SignTx(ref dummyTx, key, scriptCoin, index);
+						generatedSig = SignTx(ref dummyTx, key, scriptCoin, index, UseLowR);
 						Signed = true;
 					}
 					nextScript = redeem_script;
@@ -462,13 +464,13 @@ namespace NBitcoin.BIP174
 				if (!Signed && PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(nextScript))
 				{
 					var scriptCoin = new ScriptCoin(coin, witness_script);
-					generatedSig = SignTx(ref dummyTx, key, scriptCoin, index);
+					generatedSig = SignTx(ref dummyTx, key, scriptCoin, index, UseLowR);
 				}
 				// 4. p2wpkh
 				else if (!Signed && PayToWitPubKeyHashTemplate.Instance.CheckScriptPubKey(nextScript))
 				{
 					// var scriptCoin = new ScriptCoin(coin, key.PubKey.WitHash.ScriptPubKey);
-					generatedSig = SignTx(ref dummyTx, key, coin, index);
+					generatedSig = SignTx(ref dummyTx, key, coin, index, UseLowR);
 				}
 
 				if (generatedSig != null)
@@ -481,32 +483,6 @@ namespace NBitcoin.BIP174
 			}
 			return result;
 		}
-
-		/*
-		private ECDSASignature GetRawSigFromTxIn(TxIn txin)
-		{
-			var item1 = txin.ScriptSig
-				.Clone()
-				.ToOps()
-				.Where(op => op.PushData != null)
-				.Select(op => op.PushData);
-
-			foreach (var i in item1)
-			{
-				if (TransactionSignature.IsValid(i))
-					return new TransactionSignature(i).Signature;
-			}
-
-			var item2 = txin.WitScript.Pushes;
-			foreach (var i in item2)
-			{
-				if (TransactionSignature.IsValid(i))
-					return new TransactionSignature(i).Signature;
-			}
-
-			return null;
-		}
-		*/
 
 		public bool IsFinalized() => final_script_sig != null || final_script_witness != null;
 
@@ -1482,6 +1458,14 @@ namespace NBitcoin.BIP174
 			return this;
 		}
 
+		/// <summary>
+		/// Test vector in the bip174 specify to use a signer which follows RFC 6979.
+		/// So we must sign without [LowR value assured way](https://github.com/MetacoSA/NBitcoin/pull/510)
+		/// This should be turned false only in the test.
+		/// ref: https://github.com/bitcoin/bitcoin/pull/13666
+		/// </summary>
+		private bool _UseLowR = true;
+		internal bool UseLowR { get => _UseLowR; set => _UseLowR = value; }
 		public PSBT TrySignAll(params Key[] keys)
 		{
 			CheckSanity();
@@ -1496,7 +1480,7 @@ namespace NBitcoin.BIP174
 
 		public PSBT Sign(int index, Key[] keys, out bool success)
 		{
-			success = this.inputs[index].Sign(index, tx, keys);
+			success = this.inputs[index].Sign(index, tx, keys, UseLowR);
 			return this;
 		}
 
