@@ -269,7 +269,7 @@ namespace NBitcoin.Tests
 
 			var finalTX = psbt.ExtractTX();
 			var expectedTX = Transaction.Parse((string)testcase["txextracted"], network);
-			Assert.Equal(expectedTX, finalTX);
+			AssertEx.CollectionEquals(expectedTX.ToBytes(), finalTX.ToBytes());
 		}
 
 		private class PSBTComparer : EqualityComparer<PSBT>
