@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class ExtKey
    ">
-    <meta name="generator" content="docfx 2.40.0.0">
+    <meta name="generator" content="docfx 2.40.4.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -86,6 +86,7 @@
     <div><a class="xref" href="NBitcoin.IBitcoinSerializable.html">IBitcoinSerializable</a></div>
     <div><a class="xref" href="NBitcoin.IDestination.html">IDestination</a></div>
     <div><a class="xref" href="NBitcoin.ISecret.html">ISecret</a></div>
+    <div><span class="xref">System.IEquatable</span>&lt;<a class="xref" href="NBitcoin.ExtKey.html">ExtKey</a>&gt;</div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -115,7 +116,7 @@
   <h6><strong>Assembly</strong>: NBitcoin.dll</h6>
   <h5 id="NBitcoin_ExtKey_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class ExtKey : IBitcoinSerializable, IDestination, ISecret</code></pre>
+    <pre><code class="lang-csharp hljs">public class ExtKey : IBitcoinSerializable, IDestination, ISecret, IEquatable&lt;ExtKey&gt;</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
@@ -748,6 +749,53 @@ setting the high bit if hardened is specified.</p>
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_Equals_NBitcoin_ExtKey_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.Equals(NBitcoin.ExtKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/BIP32/ExtKey.cs/#L369">View Source</a>
+  </span>
+  <a id="NBitcoin_ExtKey_Equals_" data-uid="NBitcoin.ExtKey.Equals*"></a>
+  <h4 id="NBitcoin_ExtKey_Equals_NBitcoin_ExtKey_" data-uid="NBitcoin.ExtKey.Equals(NBitcoin.ExtKey)">Equals(ExtKey)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool Equals(ExtKey other)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ExtKey.html">ExtKey</a></td>
+        <td><span class="parametername">other</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_ExtKey_GetParentExtKey_NBitcoin_ExtPubKey_.md&amp;value=---%0Auid%3A%20NBitcoin.ExtKey.GetParentExtKey(NBitcoin.ExtPubKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
@@ -1113,9 +1161,18 @@ correct type of item, and then returns the corresponding ExtKey.</p>
   <div>
       <a class="xref" href="NBitcoin.ISecret.html">ISecret</a>
   </div>
+  <div>
+      <span class="xref">System.IEquatable&lt;T&gt;</span>
+  </div>
   <h3 id="extensionmethods">Extension Methods</h3>
   <div>
       <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_IO_Stream_System_Boolean_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Stream, Boolean, Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_IO_Stream_System_Boolean_NBitcoin_Network_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Stream, Boolean, Network, Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_IO_Stream_System_Boolean_NBitcoin_ConsensusFactory_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Stream, Boolean, ConsensusFactory, Nullable&lt;UInt32&gt;)</a>
   </div>
   <div>
       <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_GetSerializedSize_NBitcoin_IBitcoinSerializable_System_Nullable_System_UInt32__NBitcoin_SerializationType_">BitcoinSerializableExtensions.GetSerializedSize(IBitcoinSerializable, Nullable&lt;UInt32&gt;, SerializationType)</a>
@@ -1128,6 +1185,12 @@ correct type of item, and then returns the corresponding ExtKey.</p>
   </div>
   <div>
       <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_Byte___System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Byte[], Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_Byte___NBitcoin_Network_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Byte[], Network, Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_Byte___NBitcoin_ConsensusFactory_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Byte[], ConsensusFactory, Nullable&lt;UInt32&gt;)</a>
   </div>
   <div>
       <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_FromBytes_NBitcoin_IBitcoinSerializable_System_Byte___System_Nullable_System_UInt32__">BitcoinSerializableExtensions.FromBytes(IBitcoinSerializable, Byte[], Nullable&lt;UInt32&gt;)</a>

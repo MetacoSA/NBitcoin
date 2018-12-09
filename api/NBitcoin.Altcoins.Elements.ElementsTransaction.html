@@ -1,0 +1,573 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Class ElementsTransaction
+   </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="Class ElementsTransaction
+   ">
+    <meta name="generator" content="docfx 2.40.4.0">
+    
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="stylesheet" href="../styles/docfx.vendor.css">
+    <link rel="stylesheet" href="../styles/docfx.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <meta property="docfx:navrel" content="../toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="../index.html">
+                <img id="logo" class="svg" src="../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div id="sidetoc"></div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction">
+  
+  
+  <h1 id="NBitcoin_Altcoins_Elements_ElementsTransaction" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction" class="text-break">Class ElementsTransaction
+  </h1>
+  <div class="markdown level0 summary"></div>
+  <div class="markdown level0 conceptual"></div>
+  <div class="inheritance">
+    <h5>Inheritance</h5>
+    <div class="level0"><span class="xref">System.Object</span></div>
+    <div class="level1"><a class="xref" href="NBitcoin.Transaction.html">Transaction</a></div>
+    <div class="level2"><span class="xref">ElementsTransaction</span></div>
+      <div class="level3"><a class="xref" href="NBitcoin.Altcoins.Elements.ElementsTransaction-1.html">ElementsTransaction&lt;TNetwork&gt;</a></div>
+  </div>
+  <div classs="implements">
+    <h5>Implements</h5>
+    <div><a class="xref" href="NBitcoin.IBitcoinSerializable.html">IBitcoinSerializable</a></div>
+  </div>
+  <div class="inheritedMembers">
+    <h5>Inherited Members</h5>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_RBF">Transaction.RBF</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_nVersion">Transaction.nVersion</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Version">Transaction.Version</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_vin">Transaction.vin</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_vout">Transaction.vout</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_nLockTime">Transaction.nLockTime</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Create_NBitcoin_Network_">Transaction.Create(Network)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_TotalOut">Transaction.TotalOut</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_LockTime">Transaction.LockTime</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Inputs">Transaction.Inputs</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Outputs">Transaction.Outputs</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_NoDummyInput">Transaction.NoDummyInput</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetHash">Transaction.GetHash()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_CreateHashStream">Transaction.CreateHashStream()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_CreateSignatureHashStream">Transaction.CreateSignatureHashStream()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_CacheHashes">Transaction.CacheHashes()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_PrecomputeHash_System_Boolean_System_Boolean_">Transaction.PrecomputeHash(Boolean, Boolean)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Clone_System_Boolean_">Transaction.Clone(Boolean)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetWitHash">Transaction.GetWitHash()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetSignatureHash_NBitcoin_ICoin_NBitcoin_SigHash_">Transaction.GetSignatureHash(ICoin, SigHash)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_SignInput_NBitcoin_ISecret_NBitcoin_ICoin_NBitcoin_SigHash_">Transaction.SignInput(ISecret, ICoin, SigHash)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_SignInput_NBitcoin_Key_NBitcoin_ICoin_NBitcoin_SigHash_">Transaction.SignInput(Key, ICoin, SigHash)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_IsCoinBase">Transaction.IsCoinBase</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_CURRENT_VERSION">Transaction.CURRENT_VERSION</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_MAX_STANDARD_TX_SIZE">Transaction.MAX_STANDARD_TX_SIZE</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_AddOutput_NBitcoin_Money_NBitcoin_IDestination_">Transaction.AddOutput(Money, IDestination)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_AddOutput_NBitcoin_Money_NBitcoin_Script_">Transaction.AddOutput(Money, Script)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_CreateOutput_NBitcoin_Money_NBitcoin_Script_">Transaction.CreateOutput(Money, Script)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_AddOutput_NBitcoin_TxOut_">Transaction.AddOutput(TxOut)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_AddInput_NBitcoin_TxIn_">Transaction.AddInput(TxIn)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetVirtualSize">Transaction.GetVirtualSize()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_AddInput_NBitcoin_Transaction_System_Int32_">Transaction.AddInput(Transaction, Int32)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Sign_NBitcoin_ISecret___NBitcoin_ICoin___">Transaction.Sign(ISecret[], ICoin[])</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Sign_NBitcoin_Key___NBitcoin_ICoin___">Transaction.Sign(Key[], ICoin[])</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Sign_NBitcoin_ISecret_NBitcoin_ICoin___">Transaction.Sign(ISecret, ICoin[])</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Sign_NBitcoin_ISecret___NBitcoin_ICoin_">Transaction.Sign(ISecret[], ICoin)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Sign_NBitcoin_ISecret_NBitcoin_ICoin_">Transaction.Sign(ISecret, ICoin)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Sign_NBitcoin_Key_NBitcoin_ICoin___">Transaction.Sign(Key, ICoin[])</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Sign_NBitcoin_Key_NBitcoin_ICoin_">Transaction.Sign(Key, ICoin)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Sign_NBitcoin_Key___NBitcoin_ICoin_">Transaction.Sign(Key[], ICoin)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Sign_NBitcoin_ISecret_System_Boolean_">Transaction.Sign(ISecret, Boolean)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Sign_NBitcoin_Key_System_Boolean_">Transaction.Sign(Key, Boolean)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_CreatePayload">Transaction.CreatePayload()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Parse_System_String_NBitcoin_RawFormat_NBitcoin_Network_">Transaction.Parse(String, RawFormat, Network)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Parse_System_String_NBitcoin_Network_">Transaction.Parse(String, Network)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Parse_System_String_">Transaction.Parse(String)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_ToHex">Transaction.ToHex()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_ToString">Transaction.ToString()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_ToString_NBitcoin_RawFormat_NBitcoin_Network_">Transaction.ToString(RawFormat, Network)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetFeeRate_NBitcoin_ICoin___">Transaction.GetFeeRate(ICoin[])</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_IsFinal_NBitcoin_ChainedBlock_">Transaction.IsFinal(ChainedBlock)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_IsFinal_System_DateTimeOffset_System_Int32_">Transaction.IsFinal(DateTimeOffset, Int32)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_CheckSequenceLocks_System_Int32___NBitcoin_ChainedBlock_NBitcoin_Transaction_LockTimeFlags_">Transaction.CheckSequenceLocks(Int32[], ChainedBlock, Transaction.LockTimeFlags)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_CalculateSequenceLocks_System_Int32___NBitcoin_ChainedBlock_NBitcoin_Transaction_LockTimeFlags_">Transaction.CalculateSequenceLocks(Int32[], ChainedBlock, Transaction.LockTimeFlags)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_WithOptions_NBitcoin_TransactionOptions_">Transaction.WithOptions(TransactionOptions)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Check">Transaction.Check()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_Money_NBitcoin_HashVersion_NBitcoin_PrecomputedTransactionData_">Transaction.GetSignatureHash(Script, Int32, SigHash, Money, HashVersion, PrecomputedTransactionData)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_Money_NBitcoin_HashVersion_">Transaction.GetSignatureHash(Script, Int32, SigHash, Money, HashVersion)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_TxOut_NBitcoin_HashVersion_">Transaction.GetSignatureHash(Script, Int32, SigHash, TxOut, HashVersion)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_CreateHashWriter_NBitcoin_HashVersion_">Transaction.CreateHashWriter(HashVersion)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetConsensusFactory">Transaction.GetConsensusFactory()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Clone">Transaction.Clone()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_FromBytes_System_Byte___">Transaction.FromBytes(Byte[])</a>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.Equals(System.Object, System.Object)</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetHashCode()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.GetType()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.MemberwiseClone()</span>
+    </div>
+    <div>
+      <span class="xref">System.Object.ReferenceEquals(System.Object, System.Object)</span>
+    </div>
+  </div>
+  <h6><strong>Namespace</strong>: <a class="xref" href="NBitcoin.Altcoins.Elements.html">NBitcoin.Altcoins.Elements</a></h6>
+  <h6><strong>Assembly</strong>: NBitcoin.Altcoins.dll</h6>
+  <h5 id="NBitcoin_Altcoins_Elements_ElementsTransaction_syntax">Syntax</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public abstract class ElementsTransaction : Transaction, IBitcoinSerializable</code></pre>
+  </div>
+  <h3 id="properties">Properties
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Altcoins_Elements_ElementsTransaction_Fee.md&amp;value=---%0Auid%3A%20NBitcoin.Altcoins.Elements.ElementsTransaction.Fee%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin.Altcoins/Elements/ElementsTransaction.cs/#L613">View Source</a>
+  </span>
+  <a id="NBitcoin_Altcoins_Elements_ElementsTransaction_Fee_" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction.Fee*"></a>
+  <h4 id="NBitcoin_Altcoins_Elements_ElementsTransaction_Fee" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction.Fee">Fee</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public Money Fee { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Altcoins_Elements_ElementsTransaction_HasWitness.md&amp;value=---%0Auid%3A%20NBitcoin.Altcoins.Elements.ElementsTransaction.HasWitness%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin.Altcoins/Elements/ElementsTransaction.cs/#L626">View Source</a>
+  </span>
+  <a id="NBitcoin_Altcoins_Elements_ElementsTransaction_HasWitness_" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction.HasWitness*"></a>
+  <h4 id="NBitcoin_Altcoins_Elements_ElementsTransaction_HasWitness" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction.HasWitness">HasWitness</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override bool HasWitness { get; }</code></pre>
+  </div>
+  <h5 class="propertyValue">Property Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_HasWitness">Transaction.HasWitness</a></div>
+  <h3 id="methods">Methods
+  </h3>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Altcoins_Elements_ElementsTransaction_GetFee_NBitcoin_ICoin___.md&amp;value=---%0Auid%3A%20NBitcoin.Altcoins.Elements.ElementsTransaction.GetFee(NBitcoin.ICoin%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin.Altcoins/Elements/ElementsTransaction.cs/#L621">View Source</a>
+  </span>
+  <a id="NBitcoin_Altcoins_Elements_ElementsTransaction_GetFee_" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction.GetFee*"></a>
+  <h4 id="NBitcoin_Altcoins_Elements_ElementsTransaction_GetFee_NBitcoin_ICoin___" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction.GetFee(NBitcoin.ICoin[])">GetFee(ICoin[])</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override Money GetFee(ICoin[] spentCoins)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.ICoin.html">ICoin</a>[]</td>
+        <td><span class="parametername">spentCoins</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetFee_NBitcoin_ICoin___">Transaction.GetFee(ICoin[])</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Altcoins_Elements_ElementsTransaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_TxOut_NBitcoin_HashVersion_NBitcoin_PrecomputedTransactionData_.md&amp;value=---%0Auid%3A%20NBitcoin.Altcoins.Elements.ElementsTransaction.GetSignatureHash(NBitcoin.Script%2CSystem.Int32%2CNBitcoin.SigHash%2CNBitcoin.TxOut%2CNBitcoin.HashVersion%2CNBitcoin.PrecomputedTransactionData)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin.Altcoins/Elements/ElementsTransaction.cs/#L747">View Source</a>
+  </span>
+  <a id="NBitcoin_Altcoins_Elements_ElementsTransaction_GetSignatureHash_" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction.GetSignatureHash*"></a>
+  <h4 id="NBitcoin_Altcoins_Elements_ElementsTransaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_TxOut_NBitcoin_HashVersion_NBitcoin_PrecomputedTransactionData_" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction.GetSignatureHash(NBitcoin.Script,System.Int32,NBitcoin.SigHash,NBitcoin.TxOut,NBitcoin.HashVersion,NBitcoin.PrecomputedTransactionData)">GetSignatureHash(Script, Int32, SigHash, TxOut, HashVersion, PrecomputedTransactionData)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.Script.html">Script</a></td>
+        <td><span class="parametername">scriptCode</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">nIn</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.SigHash.html">SigHash</a></td>
+        <td><span class="parametername">nHashType</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.TxOut.html">TxOut</a></td>
+        <td><span class="parametername">spentOutput</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.HashVersion.html">HashVersion</a></td>
+        <td><span class="parametername">sigversion</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a class="xref" href="NBitcoin.PrecomputedTransactionData.html">PrecomputedTransactionData</a></td>
+        <td><span class="parametername">precomputedTransactionData</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.uint256.html">uint256</a></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_TxOut_NBitcoin_HashVersion_NBitcoin_PrecomputedTransactionData_">Transaction.GetSignatureHash(Script, Int32, SigHash, TxOut, HashVersion, PrecomputedTransactionData)</a></div>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Altcoins_Elements_ElementsTransaction_ReadWrite_NBitcoin_BitcoinStream_.md&amp;value=---%0Auid%3A%20NBitcoin.Altcoins.Elements.ElementsTransaction.ReadWrite(NBitcoin.BitcoinStream)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin.Altcoins/Elements/ElementsTransaction.cs/#L644">View Source</a>
+  </span>
+  <a id="NBitcoin_Altcoins_Elements_ElementsTransaction_ReadWrite_" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction.ReadWrite*"></a>
+  <h4 id="NBitcoin_Altcoins_Elements_ElementsTransaction_ReadWrite_NBitcoin_BitcoinStream_" data-uid="NBitcoin.Altcoins.Elements.ElementsTransaction.ReadWrite(NBitcoin.BitcoinStream)">ReadWrite(BitcoinStream)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public override void ReadWrite(BitcoinStream stream)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.BitcoinStream.html">BitcoinStream</a></td>
+        <td><span class="parametername">stream</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="overrides">Overrides</h5>
+  <div><a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_ReadWrite_NBitcoin_BitcoinStream_">Transaction.ReadWrite(BitcoinStream)</a></div>
+  <h3 id="implements">Implements</h3>
+  <div>
+      <a class="xref" href="NBitcoin.IBitcoinSerializable.html">IBitcoinSerializable</a>
+  </div>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Altcoins_Elements_ElementsTransaction.md&amp;value=---%0Auid%3A%20NBitcoin.Altcoins.Elements.ElementsTransaction%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A" class="contribution-link">Improve this Doc</a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin.Altcoins/Elements/ElementsTransaction.cs/#L611" class="contribution-link">View Source</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+              <!-- <p><a class="back-to-top" href="#top">Back to top</a><p> -->
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../styles/docfx.js"></script>
+    <script type="text/javascript" src="../styles/main.js"></script>
+  </body>
+</html>

@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class ForkIdTransaction
    ">
-    <meta name="generator" content="docfx 2.40.0.0">
+    <meta name="generator" content="docfx 2.40.4.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -92,7 +92,19 @@
       <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_RBF">Transaction.RBF</a>
     </div>
     <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_nVersion">Transaction.nVersion</a>
+    </div>
+    <div>
       <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Version">Transaction.Version</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_vin">Transaction.vin</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_vout">Transaction.vout</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_nLockTime">Transaction.nLockTime</a>
     </div>
     <div>
       <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Create_NBitcoin_Network_">Transaction.Create(Network)</a>
@@ -108,6 +120,9 @@
     </div>
     <div>
       <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Outputs">Transaction.Outputs</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_NoDummyInput">Transaction.NoDummyInput</a>
     </div>
     <div>
       <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_ReadWrite_NBitcoin_BitcoinStream_">Transaction.ReadWrite(BitcoinStream)</a>
@@ -251,10 +266,22 @@
       <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Check">Transaction.Check()</a>
     </div>
     <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_Money_NBitcoin_HashVersion_NBitcoin_PrecomputedTransactionData_">Transaction.GetSignatureHash(Script, Int32, SigHash, Money, HashVersion, PrecomputedTransactionData)</a>
+    </div>
+    <div>
       <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_Money_NBitcoin_HashVersion_">Transaction.GetSignatureHash(Script, Int32, SigHash, Money, HashVersion)</a>
     </div>
     <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_TxOut_NBitcoin_HashVersion_">Transaction.GetSignatureHash(Script, Int32, SigHash, TxOut, HashVersion)</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_CreateHashWriter_NBitcoin_HashVersion_">Transaction.CreateHashWriter(HashVersion)</a>
+    </div>
+    <div>
       <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_Clone">Transaction.Clone()</a>
+    </div>
+    <div>
+      <a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_FromBytes_System_Byte___">Transaction.FromBytes(Byte[])</a>
     </div>
     <div>
       <span class="xref">System.Object.Equals(System.Object)</span>
@@ -423,18 +450,18 @@
   <div><a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetConsensusFactory">Transaction.GetConsensusFactory()</a></div>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
-    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Altcoins_ForkIdTransaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_Money_NBitcoin_HashVersion_NBitcoin_PrecomputedTransactionData_.md&amp;value=---%0Auid%3A%20NBitcoin.Altcoins.ForkIdTransaction.GetSignatureHash(NBitcoin.Script%2CSystem.Int32%2CNBitcoin.SigHash%2CNBitcoin.Money%2CNBitcoin.HashVersion%2CNBitcoin.PrecomputedTransactionData)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_Altcoins_ForkIdTransaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_TxOut_NBitcoin_HashVersion_NBitcoin_PrecomputedTransactionData_.md&amp;value=---%0Auid%3A%20NBitcoin.Altcoins.ForkIdTransaction.GetSignatureHash(NBitcoin.Script%2CSystem.Int32%2CNBitcoin.SigHash%2CNBitcoin.TxOut%2CNBitcoin.HashVersion%2CNBitcoin.PrecomputedTransactionData)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
     <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin.Altcoins/ForkIdTransaction.cs/#L44">View Source</a>
   </span>
   <a id="NBitcoin_Altcoins_ForkIdTransaction_GetSignatureHash_" data-uid="NBitcoin.Altcoins.ForkIdTransaction.GetSignatureHash*"></a>
-  <h4 id="NBitcoin_Altcoins_ForkIdTransaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_Money_NBitcoin_HashVersion_NBitcoin_PrecomputedTransactionData_" data-uid="NBitcoin.Altcoins.ForkIdTransaction.GetSignatureHash(NBitcoin.Script,System.Int32,NBitcoin.SigHash,NBitcoin.Money,NBitcoin.HashVersion,NBitcoin.PrecomputedTransactionData)">GetSignatureHash(Script, Int32, SigHash, Money, HashVersion, PrecomputedTransactionData)</h4>
+  <h4 id="NBitcoin_Altcoins_ForkIdTransaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_TxOut_NBitcoin_HashVersion_NBitcoin_PrecomputedTransactionData_" data-uid="NBitcoin.Altcoins.ForkIdTransaction.GetSignatureHash(NBitcoin.Script,System.Int32,NBitcoin.SigHash,NBitcoin.TxOut,NBitcoin.HashVersion,NBitcoin.PrecomputedTransactionData)">GetSignatureHash(Script, Int32, SigHash, TxOut, HashVersion, PrecomputedTransactionData)</h4>
   <div class="markdown level1 summary"></div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, Money amount, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)</code></pre>
+    <pre><code class="lang-csharp hljs">public override uint256 GetSignatureHash(Script scriptCode, int nIn, SigHash nHashType, TxOut spentOutput, HashVersion sigversion, PrecomputedTransactionData precomputedTransactionData)</code></pre>
   </div>
   <h5 class="parameters">Parameters</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -462,8 +489,8 @@
         <td></td>
       </tr>
       <tr>
-        <td><a class="xref" href="NBitcoin.Money.html">Money</a></td>
-        <td><span class="parametername">amount</span></td>
+        <td><a class="xref" href="NBitcoin.TxOut.html">TxOut</a></td>
+        <td><span class="parametername">spentOutput</span></td>
         <td></td>
       </tr>
       <tr>
@@ -494,7 +521,7 @@
     </tbody>
   </table>
   <h5 class="overrides">Overrides</h5>
-  <div><a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_Money_NBitcoin_HashVersion_NBitcoin_PrecomputedTransactionData_">Transaction.GetSignatureHash(Script, Int32, SigHash, Money, HashVersion, PrecomputedTransactionData)</a></div>
+  <div><a class="xref" href="NBitcoin.Transaction.html#NBitcoin_Transaction_GetSignatureHash_NBitcoin_Script_System_Int32_NBitcoin_SigHash_NBitcoin_TxOut_NBitcoin_HashVersion_NBitcoin_PrecomputedTransactionData_">Transaction.GetSignatureHash(Script, Int32, SigHash, TxOut, HashVersion, PrecomputedTransactionData)</a></div>
   <h3 id="implements">Implements</h3>
   <div>
       <a class="xref" href="NBitcoin.IBitcoinSerializable.html">IBitcoinSerializable</a>

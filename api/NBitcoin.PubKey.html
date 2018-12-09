@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class PubKey
    ">
-    <meta name="generator" content="docfx 2.40.0.0">
+    <meta name="generator" content="docfx 2.40.4.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -84,6 +84,7 @@
     <h5>Implements</h5>
     <div><a class="xref" href="NBitcoin.IBitcoinSerializable.html">IBitcoinSerializable</a></div>
     <div><a class="xref" href="NBitcoin.IDestination.html">IDestination</a></div>
+    <div><span class="xref">System.IComparable</span>&lt;<a class="xref" href="NBitcoin.PubKey.html">PubKey</a>&gt;</div>
   </div>
   <div class="inheritedMembers">
     <h5>Inherited Members</h5>
@@ -104,7 +105,7 @@
   <h6><strong>Assembly</strong>: NBitcoin.dll</h6>
   <h5 id="NBitcoin_PubKey_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class PubKey : IBitcoinSerializable, IDestination</code></pre>
+    <pre><code class="lang-csharp hljs">public class PubKey : IBitcoinSerializable, IDestination, IComparable&lt;PubKey&gt;</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
@@ -221,7 +222,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_Hash.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.Hash%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L119">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L122">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_Hash_" data-uid="NBitcoin.PubKey.Hash*"></a>
   <h4 id="NBitcoin_PubKey_Hash" data-uid="NBitcoin.PubKey.Hash">Hash</h4>
@@ -251,7 +252,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_IsCompressed.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.IsCompressed%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L143">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L146">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_IsCompressed_" data-uid="NBitcoin.PubKey.IsCompressed*"></a>
   <h4 id="NBitcoin_PubKey_IsCompressed" data-uid="NBitcoin.PubKey.IsCompressed">IsCompressed</h4>
@@ -281,7 +282,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_ScriptPubKey.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.ScriptPubKey%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L422">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L425">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_ScriptPubKey_" data-uid="NBitcoin.PubKey.ScriptPubKey*"></a>
   <h4 id="NBitcoin_PubKey_ScriptPubKey" data-uid="NBitcoin.PubKey.ScriptPubKey">ScriptPubKey</h4>
@@ -311,7 +312,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_WitHash.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.WitHash%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L131">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L134">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_WitHash_" data-uid="NBitcoin.PubKey.WitHash*"></a>
   <h4 id="NBitcoin_PubKey_WitHash" data-uid="NBitcoin.PubKey.WitHash">WitHash</h4>
@@ -343,7 +344,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_Check_System_Byte___System_Boolean_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.Check(System.Byte%5B%5D%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L92">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L95">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_Check_" data-uid="NBitcoin.PubKey.Check*"></a>
   <h4 id="NBitcoin_PubKey_Check_System_Byte___System_Boolean_" data-uid="NBitcoin.PubKey.Check(System.Byte[],System.Boolean)">Check(Byte[], Boolean)</h4>
@@ -399,7 +400,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_Check_System_Byte___System_Int32_System_Int32_System_Boolean_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.Check(System.Byte%5B%5D%2CSystem.Int32%2CSystem.Int32%2CSystem.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L97">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L100">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_Check_" data-uid="NBitcoin.PubKey.Check*"></a>
   <h4 id="NBitcoin_PubKey_Check_System_Byte___System_Int32_System_Int32_System_Boolean_" data-uid="NBitcoin.PubKey.Check(System.Byte[],System.Int32,System.Int32,System.Boolean)">Check(Byte[], Int32, Int32, Boolean)</h4>
@@ -458,10 +459,57 @@
   </table>
   <span class="small pull-right mobile-hide">
     <span class="divider">|</span>
+    <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_CompareTo_NBitcoin_PubKey_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.CompareTo(NBitcoin.PubKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
+  </span>
+  <span class="small pull-right mobile-hide">
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L74">View Source</a>
+  </span>
+  <a id="NBitcoin_PubKey_CompareTo_" data-uid="NBitcoin.PubKey.CompareTo*"></a>
+  <h4 id="NBitcoin_PubKey_CompareTo_NBitcoin_PubKey_" data-uid="NBitcoin.PubKey.CompareTo(NBitcoin.PubKey)">CompareTo(PubKey)</h4>
+  <div class="markdown level1 summary"></div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public int CompareTo(PubKey other)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a class="xref" href="NBitcoin.PubKey.html">PubKey</a></td>
+        <td><span class="parametername">other</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <h5 class="returns">Returns</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <span class="small pull-right mobile-hide">
+    <span class="divider">|</span>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_Compress.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.Compress%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L73">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L76">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_Compress_" data-uid="NBitcoin.PubKey.Compress*"></a>
   <h4 id="NBitcoin_PubKey_Compress" data-uid="NBitcoin.PubKey.Compress">Compress()</h4>
@@ -491,7 +539,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_Compress_System_Boolean_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.Compress(System.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L399">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L402">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_Compress_" data-uid="NBitcoin.PubKey.Compress*"></a>
   <h4 id="NBitcoin_PubKey_Compress_System_Boolean_" data-uid="NBitcoin.PubKey.Compress(System.Boolean)">Compress(Boolean)</h4>
@@ -538,7 +586,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_CreateStealthAddress_NBitcoin_PubKey_NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.CreateStealthAddress(NBitcoin.PubKey%2CNBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L409">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L412">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_CreateStealthAddress_" data-uid="NBitcoin.PubKey.CreateStealthAddress*"></a>
   <h4 id="NBitcoin_PubKey_CreateStealthAddress_NBitcoin_PubKey_NBitcoin_Network_" data-uid="NBitcoin.PubKey.CreateStealthAddress(NBitcoin.PubKey,NBitcoin.Network)">CreateStealthAddress(PubKey, Network)</h4>
@@ -590,7 +638,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_Decompress.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.Decompress%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L79">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L82">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_Decompress_" data-uid="NBitcoin.PubKey.Decompress*"></a>
   <h4 id="NBitcoin_PubKey_Decompress" data-uid="NBitcoin.PubKey.Decompress">Decompress()</h4>
@@ -620,7 +668,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_Derivate_System_Byte___System_UInt32_System_Byte____.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.Derivate(System.Byte%5B%5D%2CSystem.UInt32%2CSystem.Byte%5B%5D%40)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L312">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L315">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_Derivate_" data-uid="NBitcoin.PubKey.Derivate*"></a>
   <h4 id="NBitcoin_PubKey_Derivate_System_Byte___System_UInt32_System_Byte____" data-uid="NBitcoin.PubKey.Derivate(System.Byte[],System.UInt32,System.Byte[]@)">Derivate(Byte[], UInt32, out Byte[])</h4>
@@ -677,7 +725,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_Equals_System_Object_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.Equals(System.Object)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L346">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L349">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_Equals_" data-uid="NBitcoin.PubKey.Equals*"></a>
   <h4 id="NBitcoin_PubKey_Equals_System_Object_" data-uid="NBitcoin.PubKey.Equals(System.Object)">Equals(Object)</h4>
@@ -726,7 +774,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_GetAddress_NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.GetAddress(NBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L155">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L158">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_GetAddress_" data-uid="NBitcoin.PubKey.GetAddress*"></a>
   <h4 id="NBitcoin_PubKey_GetAddress_NBitcoin_Network_" data-uid="NBitcoin.PubKey.GetAddress(NBitcoin.Network)">GetAddress(Network)</h4>
@@ -773,7 +821,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_GetHashCode.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.GetHashCode%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L367">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L370">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_GetHashCode_" data-uid="NBitcoin.PubKey.GetHashCode*"></a>
   <h4 id="NBitcoin_PubKey_GetHashCode" data-uid="NBitcoin.PubKey.GetHashCode">GetHashCode()</h4>
@@ -805,7 +853,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_GetScriptAddress_NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.GetScriptAddress(NBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L160">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L163">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_GetScriptAddress_" data-uid="NBitcoin.PubKey.GetScriptAddress*"></a>
   <h4 id="NBitcoin_PubKey_GetScriptAddress_NBitcoin_Network_" data-uid="NBitcoin.PubKey.GetScriptAddress(NBitcoin.Network)">GetScriptAddress(Network)</h4>
@@ -852,7 +900,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_GetSegwitAddress_NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.GetSegwitAddress(NBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L464">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L467">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_GetSegwitAddress_" data-uid="NBitcoin.PubKey.GetSegwitAddress*"></a>
   <h4 id="NBitcoin_PubKey_GetSegwitAddress_NBitcoin_Network_" data-uid="NBitcoin.PubKey.GetSegwitAddress(NBitcoin.Network)">GetSegwitAddress(Network)</h4>
@@ -899,7 +947,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_GetSharedPubkey_NBitcoin_Key_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.GetSharedPubkey(NBitcoin.Key)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L450">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L453">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_GetSharedPubkey_" data-uid="NBitcoin.PubKey.GetSharedPubkey*"></a>
   <h4 id="NBitcoin_PubKey_GetSharedPubkey_NBitcoin_Key_" data-uid="NBitcoin.PubKey.GetSharedPubkey(NBitcoin.Key)">GetSharedPubkey(Key)</h4>
@@ -949,7 +997,7 @@
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_GetSharedSecret_NBitcoin_Key_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.GetSharedSecret(NBitcoin.Key)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L439">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L442">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_GetSharedSecret_" data-uid="NBitcoin.PubKey.GetSharedSecret*"></a>
   <h4 id="NBitcoin_PubKey_GetSharedSecret_NBitcoin_Key_" data-uid="NBitcoin.PubKey.GetSharedSecret(NBitcoin.Key)">GetSharedSecret(Key)</h4>
@@ -1000,7 +1048,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_ReadWrite_NBitcoin_BitcoinStream_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.ReadWrite(NBitcoin.BitcoinStream)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L183">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L186">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_ReadWrite_" data-uid="NBitcoin.PubKey.ReadWrite*"></a>
   <h4 id="NBitcoin_PubKey_ReadWrite_NBitcoin_BitcoinStream_" data-uid="NBitcoin.PubKey.ReadWrite(NBitcoin.BitcoinStream)">ReadWrite(BitcoinStream)</h4>
@@ -1032,7 +1080,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_RecoverCompact_NBitcoin_uint256_System_Byte___.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.RecoverCompact(NBitcoin.uint256%2CSystem.Byte%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L283">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L286">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_RecoverCompact_" data-uid="NBitcoin.PubKey.RecoverCompact*"></a>
   <h4 id="NBitcoin_PubKey_RecoverCompact_NBitcoin_uint256_System_Byte___" data-uid="NBitcoin.PubKey.RecoverCompact(NBitcoin.uint256,System.Byte[])">RecoverCompact(uint256, Byte[])</h4>
@@ -1084,7 +1132,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_RecoverFromMessage_System_Byte___System_Byte___.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.RecoverFromMessage(System.Byte%5B%5D%2CSystem.Byte%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L276">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L279">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_RecoverFromMessage_" data-uid="NBitcoin.PubKey.RecoverFromMessage*"></a>
   <h4 id="NBitcoin_PubKey_RecoverFromMessage_System_Byte___System_Byte___" data-uid="NBitcoin.PubKey.RecoverFromMessage(System.Byte[],System.Byte[])">RecoverFromMessage(Byte[], Byte[])</h4>
@@ -1136,7 +1184,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_RecoverFromMessage_System_Byte___System_String_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.RecoverFromMessage(System.Byte%5B%5D%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L268">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L271">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_RecoverFromMessage_" data-uid="NBitcoin.PubKey.RecoverFromMessage*"></a>
   <h4 id="NBitcoin_PubKey_RecoverFromMessage_System_Byte___System_String_" data-uid="NBitcoin.PubKey.RecoverFromMessage(System.Byte[],System.String)">RecoverFromMessage(Byte[], String)</h4>
@@ -1188,7 +1236,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_RecoverFromMessage_System_String_System_String_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.RecoverFromMessage(System.String%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L263">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L266">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_RecoverFromMessage_" data-uid="NBitcoin.PubKey.RecoverFromMessage*"></a>
   <h4 id="NBitcoin_PubKey_RecoverFromMessage_System_String_System_String_" data-uid="NBitcoin.PubKey.RecoverFromMessage(System.String,System.String)">RecoverFromMessage(String, String)</h4>
@@ -1240,7 +1288,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_ToBytes.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.ToBytes%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L192">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L195">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_ToBytes_" data-uid="NBitcoin.PubKey.ToBytes*"></a>
   <h4 id="NBitcoin_PubKey_ToBytes" data-uid="NBitcoin.PubKey.ToBytes">ToBytes()</h4>
@@ -1270,7 +1318,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_ToBytes_System_Boolean_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.ToBytes(System.Boolean)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L196">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L199">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_ToBytes_" data-uid="NBitcoin.PubKey.ToBytes*"></a>
   <h4 id="NBitcoin_PubKey_ToBytes_System_Boolean_" data-uid="NBitcoin.PubKey.ToBytes(System.Boolean)">ToBytes(Boolean)</h4>
@@ -1317,7 +1365,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_ToHex.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.ToHex%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L176">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L179">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_ToHex_" data-uid="NBitcoin.PubKey.ToHex*"></a>
   <h4 id="NBitcoin_PubKey_ToHex" data-uid="NBitcoin.PubKey.ToHex">ToHex()</h4>
@@ -1347,7 +1395,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_ToString.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.ToString%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L203">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L206">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_ToString_" data-uid="NBitcoin.PubKey.ToString*"></a>
   <h4 id="NBitcoin_PubKey_ToString" data-uid="NBitcoin.PubKey.ToString">ToString()</h4>
@@ -1379,7 +1427,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_ToString_NBitcoin_Network_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.ToString(NBitcoin.Network)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L414">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L417">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_ToString_" data-uid="NBitcoin.PubKey.ToString*"></a>
   <h4 id="NBitcoin_PubKey_ToString_NBitcoin_Network_" data-uid="NBitcoin.PubKey.ToString(NBitcoin.Network)">ToString(Network)</h4>
@@ -1426,7 +1474,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_Uncover_NBitcoin_Key_NBitcoin_PubKey_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.Uncover(NBitcoin.Key%2CNBitcoin.PubKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L380">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L383">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_Uncover_" data-uid="NBitcoin.PubKey.Uncover*"></a>
   <h4 id="NBitcoin_PubKey_Uncover_NBitcoin_Key_NBitcoin_PubKey_" data-uid="NBitcoin.PubKey.Uncover(NBitcoin.Key,NBitcoin.PubKey)">Uncover(Key, PubKey)</h4>
@@ -1478,7 +1526,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_UncoverReceiver_NBitcoin_Key_NBitcoin_PubKey_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.UncoverReceiver(NBitcoin.Key%2CNBitcoin.PubKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L376">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L379">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_UncoverReceiver_" data-uid="NBitcoin.PubKey.UncoverReceiver*"></a>
   <h4 id="NBitcoin_PubKey_UncoverReceiver_NBitcoin_Key_NBitcoin_PubKey_" data-uid="NBitcoin.PubKey.UncoverReceiver(NBitcoin.Key,NBitcoin.PubKey)">UncoverReceiver(Key, PubKey)</h4>
@@ -1530,7 +1578,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_UncoverSender_NBitcoin_Key_NBitcoin_PubKey_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.UncoverSender(NBitcoin.Key%2CNBitcoin.PubKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L372">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L375">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_UncoverSender_" data-uid="NBitcoin.PubKey.UncoverSender*"></a>
   <h4 id="NBitcoin_PubKey_UncoverSender_NBitcoin_Key_NBitcoin_PubKey_" data-uid="NBitcoin.PubKey.UncoverSender(NBitcoin.Key,NBitcoin.PubKey)">UncoverSender(Key, PubKey)</h4>
@@ -1582,7 +1630,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_Verify_NBitcoin_uint256_NBitcoin_Crypto_ECDSASignature_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.Verify(NBitcoin.uint256%2CNBitcoin.Crypto.ECDSASignature)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L167">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L170">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_Verify_" data-uid="NBitcoin.PubKey.Verify*"></a>
   <h4 id="NBitcoin_PubKey_Verify_NBitcoin_uint256_NBitcoin_Crypto_ECDSASignature_" data-uid="NBitcoin.PubKey.Verify(NBitcoin.uint256,NBitcoin.Crypto.ECDSASignature)">Verify(uint256, ECDSASignature)</h4>
@@ -1634,7 +1682,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_Verify_NBitcoin_uint256_System_Byte___.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.Verify(NBitcoin.uint256%2CSystem.Byte%5B%5D)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L171">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L174">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_Verify_" data-uid="NBitcoin.PubKey.Verify*"></a>
   <h4 id="NBitcoin_PubKey_Verify_NBitcoin_uint256_System_Byte___" data-uid="NBitcoin.PubKey.Verify(NBitcoin.uint256,System.Byte[])">Verify(uint256, Byte[])</h4>
@@ -1686,7 +1734,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_VerifyMessage_System_Byte___NBitcoin_Crypto_ECDSASignature_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.VerifyMessage(System.Byte%5B%5D%2CNBitcoin.Crypto.ECDSASignature)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L236">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L239">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_VerifyMessage_" data-uid="NBitcoin.PubKey.VerifyMessage*"></a>
   <h4 id="NBitcoin_PubKey_VerifyMessage_System_Byte___NBitcoin_Crypto_ECDSASignature_" data-uid="NBitcoin.PubKey.VerifyMessage(System.Byte[],NBitcoin.Crypto.ECDSASignature)">VerifyMessage(Byte[], ECDSASignature)</h4>
@@ -1742,7 +1790,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_VerifyMessage_System_Byte___System_String_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.VerifyMessage(System.Byte%5B%5D%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L225">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L228">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_VerifyMessage_" data-uid="NBitcoin.PubKey.VerifyMessage*"></a>
   <h4 id="NBitcoin_PubKey_VerifyMessage_System_Byte___System_String_" data-uid="NBitcoin.PubKey.VerifyMessage(System.Byte[],System.String)">VerifyMessage(Byte[], String)</h4>
@@ -1797,7 +1845,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_VerifyMessage_System_String_System_String_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.VerifyMessage(System.String%2CSystem.String)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L214">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L217">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_VerifyMessage_" data-uid="NBitcoin.PubKey.VerifyMessage*"></a>
   <h4 id="NBitcoin_PubKey_VerifyMessage_System_String_System_String_" data-uid="NBitcoin.PubKey.VerifyMessage(System.String,System.String)">VerifyMessage(String, String)</h4>
@@ -1855,7 +1903,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_op_Equality_NBitcoin_PubKey_NBitcoin_PubKey_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.op_Equality(NBitcoin.PubKey%2CNBitcoin.PubKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L353">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L356">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_op_Equality_" data-uid="NBitcoin.PubKey.op_Equality*"></a>
   <h4 id="NBitcoin_PubKey_op_Equality_NBitcoin_PubKey_NBitcoin_PubKey_" data-uid="NBitcoin.PubKey.op_Equality(NBitcoin.PubKey,NBitcoin.PubKey)">Equality(PubKey, PubKey)</h4>
@@ -1907,7 +1955,7 @@ public byte[] GetSharedSecret(Key key)</code></pre>
     <a href="https://github.com/MetacoSA/NBitcoin/new/master/apiSpec/new?filename=NBitcoin_PubKey_op_Inequality_NBitcoin_PubKey_NBitcoin_PubKey_.md&amp;value=---%0Auid%3A%20NBitcoin.PubKey.op_Inequality(NBitcoin.PubKey%2CNBitcoin.PubKey)%0Asummary%3A%20'*You%20can%20override%20summary%20for%20the%20API%20here%20using%20*MARKDOWN*%20syntax'%0A---%0A%0A*Please%20type%20below%20more%20information%20about%20this%20API%3A*%0A%0A">Improve this Doc</a>
   </span>
   <span class="small pull-right mobile-hide">
-    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L362">View Source</a>
+    <a href="https://github.com/MetacoSA/NBitcoin/blob/master/NBitcoin/PubKey.cs/#L365">View Source</a>
   </span>
   <a id="NBitcoin_PubKey_op_Inequality_" data-uid="NBitcoin.PubKey.op_Inequality*"></a>
   <h4 id="NBitcoin_PubKey_op_Inequality_NBitcoin_PubKey_NBitcoin_PubKey_" data-uid="NBitcoin.PubKey.op_Inequality(NBitcoin.PubKey,NBitcoin.PubKey)">Inequality(PubKey, PubKey)</h4>
@@ -1961,9 +2009,18 @@ public byte[] GetSharedSecret(Key key)</code></pre>
   <div>
       <a class="xref" href="NBitcoin.IDestination.html">IDestination</a>
   </div>
+  <div>
+      <span class="xref">System.IComparable&lt;T&gt;</span>
+  </div>
   <h3 id="extensionmethods">Extension Methods</h3>
   <div>
       <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_IO_Stream_System_Boolean_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Stream, Boolean, Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_IO_Stream_System_Boolean_NBitcoin_Network_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Stream, Boolean, Network, Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_IO_Stream_System_Boolean_NBitcoin_ConsensusFactory_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Stream, Boolean, ConsensusFactory, Nullable&lt;UInt32&gt;)</a>
   </div>
   <div>
       <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_GetSerializedSize_NBitcoin_IBitcoinSerializable_System_Nullable_System_UInt32__NBitcoin_SerializationType_">BitcoinSerializableExtensions.GetSerializedSize(IBitcoinSerializable, Nullable&lt;UInt32&gt;, SerializationType)</a>
@@ -1976,6 +2033,12 @@ public byte[] GetSharedSecret(Key key)</code></pre>
   </div>
   <div>
       <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_Byte___System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Byte[], Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_Byte___NBitcoin_Network_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Byte[], Network, Nullable&lt;UInt32&gt;)</a>
+  </div>
+  <div>
+      <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_ReadWrite_NBitcoin_IBitcoinSerializable_System_Byte___NBitcoin_ConsensusFactory_System_Nullable_System_UInt32__">BitcoinSerializableExtensions.ReadWrite(IBitcoinSerializable, Byte[], ConsensusFactory, Nullable&lt;UInt32&gt;)</a>
   </div>
   <div>
       <a class="xref" href="NBitcoin.BitcoinSerializableExtensions.html#NBitcoin_BitcoinSerializableExtensions_FromBytes_NBitcoin_IBitcoinSerializable_System_Byte___System_Nullable_System_UInt32__">BitcoinSerializableExtensions.FromBytes(IBitcoinSerializable, Byte[], Nullable&lt;UInt32&gt;)</a>
