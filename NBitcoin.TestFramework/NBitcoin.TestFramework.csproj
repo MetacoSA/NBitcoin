@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<VersionPrefix>1.6.22</VersionPrefix>
+		<VersionPrefix>1.6.24</VersionPrefix>
 		<TargetFrameworks>netstandard1.6;net452;netstandard2.0</TargetFrameworks>
 		<TargetFrameworks Condition="'$(BuildingInsideVisualStudio)' == 'true'">netstandard2.0</TargetFrameworks>
 		<AssemblyName>NBitcoin.TestFramework</AssemblyName>
@@ -37,5 +37,14 @@
 		<Reference Include="System" />
 		<Reference Include="Microsoft.CSharp" />
 	</ItemGroup>
-
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>portable</DebugType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <Optimize>true</Optimize>
+    <DocumentationFile>bin\Release\NBitcoin.TestFramework.XML</DocumentationFile>
+  </PropertyGroup>
 </Project>
