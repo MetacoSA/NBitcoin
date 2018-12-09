@@ -77,7 +77,25 @@ test_script:
       Write-Host "[$env:configuration] FINISHED dotnet test" -foregroundcolor "magenta"
       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode)  }
 
-     
+#---------------------------------#	
+#      docs configuration         #	
+#---------------------------------#     	
+ on_success: 	
+- ps: |	
+       	
+        if ($env:APPVEYOR_REPO_TAG) { 	
+            Write-Host "Generating Docs "	
+            cinst docfx	
+            git config --global credential.helper store	
+            Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"	
+            git config --global user.email $env:github_email
+            git config --global user.name $env:github_user
+            git config --global core.safecrlf false	
+            sh ./docs/release.sh 	
+        } else {	
+            Write-Host "Not a tagged build, skipping doc generation"	
+        }
+
 #---------------------------------#
       
 #---------------------------------#
