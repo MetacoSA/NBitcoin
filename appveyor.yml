@@ -80,7 +80,7 @@ test_script:
 #---------------------------------#	
 #      docs configuration         #	
 #---------------------------------#     	
- on_success: 	
+on_success:
 - ps: |	
         if ($env:APPVEYOR_REPO_TAG)
         { 	
