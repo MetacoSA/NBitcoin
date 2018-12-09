@@ -1326,6 +1326,39 @@ namespace NBitcoin.RPC
 			return array.Select(o => (string)o).Select(uint256.Parse).ToArray();
 		}
 
+		public MempoolEntry GetMempoolEntry(uint256 txid, bool throwIfNotFound = true)
+		{
+			return GetMempoolEntryAsync(txid, throwIfNotFound).GetAwaiter().GetResult();
+		}
+
+		public async Task<MempoolEntry> GetMempoolEntryAsync(uint256 txid, bool throwIfNotFound = true)
+		{
+			var response = await SendCommandAsync(RPCOperations.getmempoolentry, txid).ConfigureAwait(false);
+			if (throwIfNotFound)
+				response.ThrowIfError();
+			if (response.Error != null && response.Error.Code == RPCErrorCode.RPC_INVALID_ADDRESS_OR_KEY)
+				return null;
+
+			return new MempoolEntry
+			{
+				TransactionId = txid,
+				VirtualSizeBytes = response.Result["size"].Value<int>(),
+				Time = Utils.UnixTimeToDateTime(response.Result["time"].Value<long>()),
+				Height = response.Result["height"].Value<int>(),
+				DescendantCount = response.Result["descendantcount"].Value<int>(),
+				DescendantVirtualSizeBytes  = response.Result["descendantsize"].Value<int>(),
+				AncestorCount   = response.Result["ancestorcount"].Value<int>(),
+				AncestorVirtualSizeBytes = response.Result["ancestorsize"].Value<int>(),
+				TransactionIdWithWitness = uint256.Parse((string)response.Result["wtxid"]),
+				BaseFee = new Money(response.Result["fees"]["base"].Value<decimal>(), MoneyUnit.BTC),
+				ModifiedFee   = new Money(response.Result["fees"]["modified"].Value<decimal>(), MoneyUnit.BTC),
+				DescendantFees  = new Money(response.Result["fees"]["descendant"].Value<decimal>(), MoneyUnit.BTC),
+				AncestorFees    = new Money(response.Result["fees"]["ancestor"].Value<decimal>(), MoneyUnit.BTC),
+				Depends = response.Result["depends"]?.Select(x => uint256.Parse((string)x)).ToArray(),
+				SpentBy = response.Result["spentby"]?.Select(x => uint256.Parse((string)x)).ToArray()
+			};
+		}
+
 		/// <summary>
 		/// Returns details about an unspent transaction output.
 		/// </summary>
@@ -2033,5 +2066,68 @@ namespace NBitcoin.RPC
 		}
 	}
 
+	public class MempoolEntry
+	{
+		/// <summary>
+		/// The transaction id (must be in mempool.)
+		/// </summary>
+		public uint256 TransactionId { get; set; }
+		/// <summary>
+		/// Virtual transaction size as defined in BIP 141. This is different from actual serialized size for witness transactions as witness data is discounted.
+		/// </summary>
+		public int VirtualSizeBytes { get; set; }
+		/// <summary>
+		/// Local time transaction entered pool in seconds since 1 Jan 1970 GMT.
+		/// </summary>
+		public DateTimeOffset Time { get; set; }
+		/// <summary>
+		/// Block height when transaction entered pool.
+		/// </summary>
+		public int Height { get; set; }
+		/// <summary>
+		/// Number of in-mempool descendant transactions (including this one.)
+		/// </summary>
+		public int DescendantCount { get; set; }
+		/// <summary>
+		/// Virtual transaction size of in-mempool descendants (including this one.)
+		/// </summary>
+		public int DescendantVirtualSizeBytes { get; set; }
+		/// <summary>
+		/// Number of in-mempool ancestor transactions (including this one.)
+		/// </summary>
+		public int AncestorCount { get; set; }
+		/// <summary>
+		/// Virtual transaction size of in-mempool ancestors (including this one.)
+		/// </summary>
+		public int AncestorVirtualSizeBytes { get; set; }
+		/// <summary>
+		/// Hash of serialized transaction, including witness data.
+		/// </summary>
+		public uint256 TransactionIdWithWitness { get; set; }
+		/// <summary>
+		/// Transaction fee.
+		/// </summary>
+		public Money BaseFee { get; set; }
+		/// <summary>
+		/// Transaction fee with fee deltas used for mining priority.
+		/// </summary>
+		public Money ModifiedFee { get; set; }
+		/// <summary>
+		/// Modified fees (see above) of in-mempool ancestors (including this one.)
+		/// </summary>
+		public Money AncestorFees { get; set; }
+		/// <summary>
+		/// Modified fees (see above) of in-mempool descendants (including this one.)
+		/// </summary>
+		public Money DescendantFees { get; set; }
+		/// <summary>
+		/// Unconfirmed transactions used as inputs for this transaction.
+		/// </summary>
+		public uint256[] Depends { get; set; }
+		/// <summary>
+		/// Unconfirmed transactions spending outputs from this transaction.
+		/// </summary>
+		public uint256[] SpentBy { get; set; }
+	}
 }
 #endif
