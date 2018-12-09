@@ -1546,6 +1546,8 @@ namespace NBitcoin.BIP174
 
 		public PSBT TryAddScript(params Script[] scripts)
 		{
+			if (scripts == null)
+				return this;
 			foreach (var script in scripts)
 			{
 				for (int i = 0; i < inputs.Count; i++)

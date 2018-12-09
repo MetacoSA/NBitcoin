@@ -170,11 +170,6 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void ShouldPairSignaturesAndPubkeyInOriginalTXWhenCoinsAreAdd()
-		{}
-
-		[Fact]
-		[Trait("UnitTest", "UnitTest")]
 		public void ShouldFailToSignForTestcaseInvalidForSigner()
 		{
 			JArray testcases = (JArray)testdata["invalidForSigners"];

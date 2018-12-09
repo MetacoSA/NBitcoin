@@ -13,6 +13,7 @@ namespace NBitcoin.Tests.PropertyTest
 {
 	public class PSBTTest
 	{
+		private PSBTComparer ComparerInstance { get; }
 
 		public PSBTTest()
 		{
@@ -20,6 +21,8 @@ namespace NBitcoin.Tests.PropertyTest
 			Arb.Register<ChainParamsGenerator>();
 			Arb.Register<CryptoGenerator>();
 			Arb.Register<PrimitiveGenerator>();
+
+			ComparerInstance = new PSBTComparer();
 		}
 
 		[Property]
@@ -66,19 +69,9 @@ namespace NBitcoin.Tests.PropertyTest
 		public void CanCloneAndCombine(PSBT psbt)
 		{
 			var tmp = psbt.Clone();
-			Assert.Equal(psbt, tmp, new PSBTComparer());
-			// var combined = psbt.Combine(tmp);
-			// Assert.Equal(psbt, combined);
-		}
-
-		[Property(MaxTest = 10)]
-		[Trait("UnitTest", "UnitTest")]
-		public void CanSignPSBT(Tuple<List<Key>, PSBT> items)
-		{
-			var (keys, psbt) = items;
-			psbt.TrySignAll(keys.ToArray());
-			foreach (var psbtin in psbt.inputs)
-				Assert.Single(psbtin.PartialSigs);
+			Assert.Equal(psbt, tmp, ComparerInstance);
+			var combined = psbt.Combine(tmp);
+			Assert.Equal(psbt, combined, ComparerInstance);
 		}
 
 		private class PSBTComparer : EqualityComparer<PSBT>
@@ -86,6 +79,5 @@ namespace NBitcoin.Tests.PropertyTest
 			public override bool Equals(PSBT a, PSBT b) => a.Equals(b);
 			public override int GetHashCode(PSBT psbt) => psbt.GetHashCode();
 		}
-
 	}
 }
