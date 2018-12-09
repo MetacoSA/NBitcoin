@@ -6,7 +6,6 @@
 version: 4.0.0.{build}
 pull_requests:
   do_not_increment_build_number: true
-skip_tags: true
 
 
 # branches to build 
@@ -82,7 +81,7 @@ test_script:
 #---------------------------------#     	
 on_success:
 - ps: |	
-        if ($env:APPVEYOR_REPO_TAG)
+        if ($env:APPVEYOR_REPO_TAG -eq "true")
         { 	
             Write-Host "Generating Docs"	
             cinst docfx	

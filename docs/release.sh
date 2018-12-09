@@ -24,6 +24,6 @@ echo "Copy documentation into the repo"
 cp -r $SOURCE_DIR/docs/_site/* .
 
 echo "Push the new docs to the remote branch"
-git add . -A
-git commit -m "Update generated documentation"
+git add . -A 2> /dev/null
+git commit -m "Update generated documentation" 2> /dev/null
 git push origin gh-pages 2> /dev/null
