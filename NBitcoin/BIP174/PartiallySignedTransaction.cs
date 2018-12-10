@@ -78,7 +78,7 @@ namespace NBitcoin.BIP174
 		private UnKnownKVMap unknown;
 		SigHash sighash_type = 0;
 
-		// Signatures which does not know which pubkey corresponds to him.
+		// Signatures which does not know which pubkey corresponds to it.
 		private HashSet<ECDSASignature> OrphanPartialSigs = new HashSet<ECDSASignature>();
 		private HashSet<PubKey> OrphanPubKeys = new HashSet<PubKey>();
 		public Transaction NonWitnessUtxo
@@ -477,8 +477,6 @@ namespace NBitcoin.BIP174
 				{
 					result = true;
 					partial_sigs.Add(key.PubKey.Hash, Tuple.Create(key.PubKey, generatedSig.Signature));
-					dummyTx.Inputs[index].ScriptSig = Script.Empty;
-					dummyTx.Inputs[index].WitScript = WitScript.Empty;
 				}
 			}
 			return result;
