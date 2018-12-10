@@ -7,16 +7,19 @@ using System;
 using NBitcoin.DataEncoders;
 using System.Collections.Generic;
 using System.Linq;
+using static NBitcoin.Tests.Comparer;
 
 namespace NBitcoin.Tests
 {
 	public class PSBTTests
 	{
 		private static JObject testdata { get; }
+		private static PSBTComparer ComparerInstance { get; }
+
 		static PSBTTests()
 		{
-
 			testdata = JObject.Parse(File.ReadAllText("data/psbt.json"));
+			ComparerInstance = new PSBTComparer();
 		}
 
 		[Fact]
@@ -40,7 +43,7 @@ namespace NBitcoin.Tests
 				var psbt = PSBT.Parse(i);
 				var psbtBase64 = Encoders.Base64.EncodeData(psbt.ToBytes());
 				var psbt2 = PSBT.Parse(psbtBase64);
-				Assert.Equal(psbt, psbt2, new PSBTComparer());
+				Assert.Equal(psbt, psbt2, ComparerInstance);
 			}
 		}
 		[Fact]
@@ -203,7 +206,7 @@ namespace NBitcoin.Tests
 			var expected = PSBT.Parse((string)testcase["psbt1"]);
 
 			var psbt = PSBT.FromTransaction(tx);
-			Assert.Equal(expected, psbt, new PSBTComparer());
+			Assert.Equal(expected, psbt, ComparerInstance);
 
 			var prevtx1 = Transaction.Parse((string)testcase["prevtx1"], network);
 			var prevtx2 = Transaction.Parse((string)testcase["prevtx2"], network);
@@ -223,18 +226,18 @@ namespace NBitcoin.Tests
 			}
 
 			expected = PSBT.Parse((string)testcase["psbt2"]);
-			Assert.Equal(expected, psbt, new PSBTComparer());
+			Assert.Equal(expected, psbt, ComparerInstance);
 
 			foreach(var psbtin in psbt.inputs)
 				psbtin.SighashType = SigHash.All;
 			expected = PSBT.Parse((string)testcase["psbt3"]);
-			Assert.Equal(expected, psbt, new PSBTComparer());
+			Assert.Equal(expected, psbt, ComparerInstance);
 
 			psbt.CheckSanity();
 			var psbtForBob = psbt.Clone();
 
 			// path 1 ... alice
-			Assert.Equal(psbt, psbtForBob, new PSBTComparer());
+			Assert.Equal(psbt, psbtForBob, ComparerInstance);
 			var aliceKey1 = master.Derive(new KeyPath((string)testcase["key7"]["path"])).PrivateKey;
 			var aliceKey2 = master.Derive(new KeyPath((string)testcase["key8"]["path"])).PrivateKey;
 			psbt.TrySignAll(aliceKey1, aliceKey2);
@@ -267,12 +270,16 @@ namespace NBitcoin.Tests
 			AssertEx.CollectionEquals(expectedTX.ToBytes(), finalTX.ToBytes());
 		}
 
-		private class PSBTComparer : EqualityComparer<PSBT>
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void CanHandleUnKnown()
 		{
-			public override bool Equals(PSBT a, PSBT b) => a.Equals(b);
-			public override int GetHashCode(PSBT psbt) => psbt.GetHashCode();
+			var data1 = PSBT.Parse((string)testdata["psbtUnknown0"]);
+			var data2 = PSBT.Parse((string)testdata["psbtUnknown1"]);
+			data1.Combine(data2);
+			var expected = PSBT.Parse((string)testdata["psbtUnknown2"]);
+			Assert.Equal(data1, expected, ComparerInstance);
 		}
-
 
 		private ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs, Script redeem, Key key)
 		{

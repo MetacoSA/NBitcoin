@@ -346,6 +346,24 @@ namespace NBitcoin.BIP174
 
 		internal void Combine(PSBTInput other)
 		{
+			if (this.IsFinalized())
+				return;
+
+			foreach (var uk in other.unknown)
+				unknown.TryAdd(uk.Key, uk.Value);
+
+			if (other.IsFinalized())
+			{
+				if (other.final_script_sig != null)
+					final_script_sig = other.final_script_sig;
+
+				if (other.final_script_witness != null)
+					final_script_witness = other.final_script_witness;
+
+				ClearForFinalize();
+				return;
+			}
+
 			if (non_witness_utxo == null && other.non_witness_utxo != null)
 				non_witness_utxo = other.non_witness_utxo;
 
@@ -361,20 +379,12 @@ namespace NBitcoin.BIP174
 			if (witness_script == null && other.witness_script != null)
 				witness_script = other.witness_script;
 
-			if (final_script_sig == null && other.final_script_sig != null)
-				final_script_sig = other.final_script_sig;
-
-			if (final_script_witness == null && other.final_script_witness != null)
-				final_script_witness = other.final_script_witness;
-
 			foreach (var sig in other.partial_sigs)
 				partial_sigs.TryAdd(sig.Key, sig.Value);
 
 			foreach (var keyPath in other.hd_keypaths)
 				hd_keypaths.TryAdd(keyPath.Key, keyPath.Value);
 
-			foreach (var uk in other.unknown)
-				unknown.TryAdd(uk.Key, uk.Value);
 		}
 
 		private bool IsDefinitelyWitness(TxOut txout) =>
@@ -1049,8 +1059,11 @@ namespace NBitcoin.BIP174
 			if (witness_script == null && other.witness_script != null)
 				witness_script = other.witness_script;
 
-			foreach (var keyPath in hd_keypaths)
+			foreach (var keyPath in other.hd_keypaths)
 				hd_keypaths.TryAdd(keyPath.Key, keyPath.Value);
+
+			foreach (var uk in other.Unknown)
+				unknown.TryAdd(uk.Key, uk.Value);
 		}
 
 		internal void TryAddScript(Script script, TxOut output)
@@ -1229,7 +1242,7 @@ namespace NBitcoin.BIP174
 		// Magic bytes
 		static byte[] PSBT_MAGIC_BYTES = Encoders.ASCII.DecodeData("psbt\xff");
 
-		protected Transaction tx;
+		internal Transaction tx;
 		public PSBTInputList inputs;
 		public PSBTOutputList outputs;
 
@@ -1407,19 +1420,17 @@ namespace NBitcoin.BIP174
 		/// <summary>
 		/// If an other PSBT has a specific field and this does not have it, then inject that field to this.
 		/// otherwise leave it as it is.
-		/// TODO: Support coinjoin.
 		/// </summary>
 		/// <param name="other"></param>
-		/// <param name="coinjoin"></param>
 		/// <returns></returns>
-		public PSBT Combine(PSBT other, bool coinjoin = false)
+		public PSBT Combine(PSBT other)
 		{
 			if (other == null)
 			{
 				throw new ArgumentNullException(nameof(other));
 			}
 
-			if (!coinjoin && other.tx.GetWitHash() != this.tx.GetWitHash())
+			if (other.tx.GetWitHash() != this.tx.GetWitHash())
 				throw new InvalidDataException("Can not Combine PSBT with different global tx.");
 
 			for (int i = 0; i < inputs.Count; i++)
@@ -1429,9 +1440,37 @@ namespace NBitcoin.BIP174
 				this.outputs[i].Combine(other.outputs[i]);
 
 			foreach (var uk in other.unknown)
-				this.unknown.Add(uk.Key, uk.Value);
+				this.unknown.TryAdd(uk.Key, uk.Value);
 
 			return this;
+		}
+
+		/// <summary>
+		/// Join to PSBT into one CoinJoin PSBT.
+		/// This is an immutable method.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		public PSBT CoinJoin(PSBT other)
+		{
+			if (other == null)
+				throw new ArgumentNullException(nameof(other));
+
+			other.CheckSanity();
+
+			var result = this.Clone();
+
+			for (int i = 0; i < other.inputs.Count; i++)
+			{
+				result.tx.Inputs.Add(other.tx.Inputs[i]);
+				result.inputs.Add(other.inputs[i]);
+			}
+			for (int i = 0; i < other.outputs.Count; i++)
+			{
+				result.tx.Outputs.Add(other.tx.Outputs[i]);
+				result.outputs.Add(other.outputs[i]);
+			}
+			return result;
 		}
 
 		public PSBT TryFinalize(out bool result)

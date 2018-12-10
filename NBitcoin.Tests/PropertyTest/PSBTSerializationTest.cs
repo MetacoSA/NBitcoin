@@ -8,6 +8,7 @@ using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static NBitcoin.Tests.Comparer;
 
 namespace NBitcoin.Tests.PropertyTest
 {
@@ -74,10 +75,21 @@ namespace NBitcoin.Tests.PropertyTest
 			Assert.Equal(psbt, combined, ComparerInstance);
 		}
 
-		private class PSBTComparer : EqualityComparer<PSBT>
+		[Property(MaxTest = 10)]
+		public void CanCoinJoin(PSBT a, PSBT b)
 		{
-			public override bool Equals(PSBT a, PSBT b) => a.Equals(b);
-			public override int GetHashCode(PSBT psbt) => psbt.GetHashCode();
+			var result = a.CoinJoin(b);
+			Assert.Equal(result.inputs.Count, a.inputs.Count + b.inputs.Count);
+			Assert.Equal(result.outputs.Count, a.outputs.Count + b.outputs.Count);
+			Assert.Equal(result.tx.Inputs.Count, a.tx.Inputs.Count + b.tx.Inputs.Count);
+			Assert.Equal(result.tx.Outputs.Count, a.tx.Outputs.Count + b.tx.Outputs.Count);
+			// These will work in netcoreapp2.1, but not in net461 ... :(
+			// Assert.Subset<PSBTInput>(result.inputs.ToHashSet(), a.inputs.ToHashSet());
+			// Assert.Subset<PSBTInput>(result.inputs.ToHashSet(), b.inputs.ToHashSet());
+			// Assert.Subset<PSBTOutput>(result.outputs.ToHashSet(), a.outputs.ToHashSet());
+			// Assert.Subset<PSBTOutput>(result.outputs.ToHashSet(), b.outputs.ToHashSet());
+			// Assert.Subset<TxIn>(result.tx.Inputs.ToHashSet(), b.tx.Inputs.ToHashSet());
+			// Assert.Subset<TxOut>(result.tx.Outputs.ToHashSet(), b.tx.Outputs.ToHashSet());
 		}
 	}
 }
