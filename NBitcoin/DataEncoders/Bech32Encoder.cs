@@ -405,7 +405,7 @@ namespace NBitcoin.DataEncoders
 			var hrp = Encoders.ASCII.DecodeData(encoded.Substring(0, pos));
 			if(!hrp.SequenceEqual(_Hrp))
 			{
-				throw new FormatException("Mismatching human readeable part");
+				throw new FormatException("Mismatching human readable part");
 			}
 			var data = new byte[encoded.Length - pos - 1];
 			for(int j = 0, i = pos + 1; i < encoded.Length; i++, j++)
@@ -417,7 +417,7 @@ namespace NBitcoin.DataEncoders
 			if(!VerifyChecksum(data, encoded.Length, out error))
 			{
 				if(error.Length == 0)
-					throw new FormatException("Error while veriying Bech32 checksum");
+					throw new FormatException("Error while verifying Bech32 checksum");
 				else
 					throw new Bech32FormatException($"Error in Bech32 string at {String.Join(",", error)}", error);
 			}

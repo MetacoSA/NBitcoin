@@ -1248,7 +1248,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 				}
 				cTotal += cLen;
 			}
-			// NOTE: Provide a safe dump for "high zeroes" since we are adding 'bMax' and not 'bLen'
+			// NOTE: Provide a safe dump for "high zeros" since we are adding 'bMax' and not 'bLen'
 			++cTotal;
 
 			long[] c = new long[cTotal];
@@ -2204,7 +2204,7 @@ namespace NBitcoin.BouncyCastle.Math.EC
 			{
 				string s = Convert.ToString(m_ints[i], 2);
 
-				// Add leading zeroes, except for highest significant word
+				// Add leading zeros, except for highest significant word
 				int len = s.Length;
 				if(len < 64)
 				{

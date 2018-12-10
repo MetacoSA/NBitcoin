@@ -989,7 +989,7 @@ namespace NBitcoin
 		Money _TotalFee = Money.Zero;
 
 		/// <summary>
-		/// Split the estimated fees accross the several groups (separated by Then())
+		/// Split the estimated fees across the several groups (separated by Then())
 		/// </summary>
 		/// <param name="feeRate"></param>
 		/// <returns></returns>

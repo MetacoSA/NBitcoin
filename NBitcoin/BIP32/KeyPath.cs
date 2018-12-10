@@ -160,7 +160,7 @@ namespace NBitcoin
 			get
 			{
 				if(_Indexes.Length == 0)
-					throw new InvalidOperationException("No indice found in this KeyPath");
+					throw new InvalidOperationException("No index found in this KeyPath");
 				return (_Indexes[_Indexes.Length - 1] & 0x80000000u) != 0;
 			}
 		}

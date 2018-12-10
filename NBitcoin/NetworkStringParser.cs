@@ -9,7 +9,7 @@ namespace NBitcoin
 {
 
 	/// <summary>
-	/// This class provide a hook for additionnal string format in altcoin network
+	/// This class provide a hook for additional string format in altcoin network
 	/// </summary>
     public class NetworkStringParser
     {

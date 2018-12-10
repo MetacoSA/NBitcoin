@@ -51,7 +51,7 @@ namespace NBitcoin.Tests.Generators
 			from locktime in PrimitiveGenerator.UInt32()
 			select ComposeTx(Transaction.Create(network), txin, txout, locktime);
 
-		// We need this since Tranaction is mutable.
+		// We need this since Transaction is mutable.
 		public static Transaction ComposeTx(Transaction tx, List<TxIn> inputs, List<TxOut> outputs, uint locktime)
 		{
 			tx.Inputs.AddRange(inputs);

@@ -817,7 +817,7 @@ namespace BCashAddr
 		}
 
 		/// <summary>
-		/// Converts an array of 8-bit integers into an array of 5-bit integers, right-padding with zeroes if necessary
+		/// Converts an array of 8-bit integers into an array of 5-bit integers, right-padding with zeros if necessary
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
@@ -828,7 +828,7 @@ namespace BCashAddr
 
 		/// <summary>
 		/// Converts an array of 5-bit integers back into an array of 8-bit integers
-		/// removing extra zeroes left from padding if necessary.
+		/// removing extra zeros left from padding if necessary.
 		/// Throws a ValidationError if input is not a zero-padded array of 8-bit integers
 		/// </summary>
 		/// <param name="data"></param>
@@ -854,9 +854,9 @@ namespace BCashAddr
 		/// <returns></returns>
 		public static byte[] Convert(byte[] data, int from, int to, bool strictMode = false)
 		{
-			Validation.Validate(from > 0, "Invald 'from' parameter");
-			Validation.Validate(to > 0, "Invald 'to' parameter");
-			Validation.Validate(data.Length > 0, "Invald data");
+			Validation.Validate(from > 0, "Invalid 'from' parameter");
+			Validation.Validate(to > 0, "Invalid 'to' parameter");
+			Validation.Validate(data.Length > 0, "Invalid data");
 			var d = data.Length * from / (double)to;
 			var length = strictMode ? (int)Math.Floor(d) : (int)Math.Ceiling(d);
 			var mask = (1 << to) - 1;

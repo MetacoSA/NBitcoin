@@ -8,7 +8,7 @@ namespace NBitcoin.Altcoins.HashX11
     internal static class ArrayExtensions
     {
         /// <summary>
-        /// Clear array with zeroes.
+        /// Clear array with zeros.
         /// </summary>
         /// <param name="a_array"></param>
         public static void Clear<T>(this T[] a_array, T a_value = default(T))
@@ -18,7 +18,7 @@ namespace NBitcoin.Altcoins.HashX11
         }
 
         /// <summary>
-        /// Clear array with zeroes.
+        /// Clear array with zeros.
         /// </summary>
         /// <param name="a_array"></param>
         public static void Clear<T>(this T[,] a_array, T a_value = default(T))
@@ -33,7 +33,7 @@ namespace NBitcoin.Altcoins.HashX11
         }
 
         /// <summary>
-        /// Return array stated from a_index and with a_count legth.
+        /// Return array stated from a_index and with a_count length.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="a_array"></param>

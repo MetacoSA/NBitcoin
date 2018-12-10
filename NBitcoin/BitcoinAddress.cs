@@ -5,7 +5,7 @@ using System.Linq;
 namespace NBitcoin
 {
 	/// <summary>
-	/// Base58 representaiton of a script hash
+	/// Base58 representation of a script hash
 	/// </summary>
 	public class BitcoinScriptAddress : BitcoinAddress, IBase58Data
 	{

@@ -31,7 +31,7 @@ namespace NBitcoin
 			internal void AssertCoherent()
 			{
 				if(!SerializePrecomputedBlockHash && !SerializeBlockHeader)
-					throw new InvalidOperationException("The ChainSerializationFormat is invalid, SerializePrecomputedBlockHash or SerializeBlockHeader shoudl be true");
+					throw new InvalidOperationException("The ChainSerializationFormat is invalid, SerializePrecomputedBlockHash or SerializeBlockHeader should be true");
 			}
 		}
 		Dictionary<uint256, ChainedBlock> _BlocksById = new Dictionary<uint256, ChainedBlock>();
