@@ -411,11 +411,11 @@ namespace NBitcoin.BIP174
 				(witness_script != null && witness_script.GetAllPubKeys().Any(p => p.Equals(pk)));
 
 
-		private TransactionSignature SignTx(ref Transaction tx, Key key, ICoin coin, int index, bool UseLowR)
+		private TransactionSignature SignTx(ref Transaction tx, Key key, ICoin coin, int index, bool useLowR)
 		{
 			var hashType = sighash_type != 0 ? (SigHash)sighash_type : SigHash.All;
 			var txIn = tx.Inputs.AsIndexedInputs().ToArray()[index];
-			return txIn.Sign(key, coin, hashType, UseLowR);
+			return txIn.Sign(key, coin, hashType, useLowR);
 		}
 		internal bool Sign(int index, Transaction tx, Key[] keys, bool UseLowR = true)
 		{

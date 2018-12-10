@@ -65,10 +65,10 @@ namespace NBitcoin.Crypto
 		}
 
 
-		public ECDSASignature Sign(uint256 hash, bool UseLowR = true)
+		public ECDSASignature Sign(uint256 hash, bool useLowR = true)
 		{
 			AssertPrivateKey();
-			var signer = new DeterministicECDSA(UseLowR);
+			var signer = new DeterministicECDSA(useLowR);
 			signer.setPrivateKey(PrivateKey);
 			var sig = ECDSASignature.FromDER(signer.signHash(hash.ToBytes()));
 			return sig.MakeCanonical();
