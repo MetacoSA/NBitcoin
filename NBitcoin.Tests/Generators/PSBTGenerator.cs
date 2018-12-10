@@ -87,11 +87,11 @@ namespace NBitcoin.Tests.Generators
 		{
 			foreach (var item in keyPaths)
 			{
-				output.HDKeyPaths.Add(item.Key, item.Value);
+				output.HDKeyPaths.TryAdd(item.Key, item.Value);
 			}
 			foreach (var item in unknown)
 			{
-				output.Unknown.Add(item.Key, item.Value);
+				output.Unknown.TryAdd(item.Key, item.Value);
 			}
 
 			return output;
