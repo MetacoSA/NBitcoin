@@ -58,7 +58,7 @@ namespace NBitcoin
 		}
 
 		public byte[] ToBytes() =>
-			Indexes.Select(i => Utils.ToBytes(i, true)).Aggregate((a, b) => a.Concat(b)).ToArray();
+			Indexes.Count() == 0 ? new byte[0] : Indexes.Select(i => Utils.ToBytes(i, true)).Aggregate((a, b) => a.Concat(b)).ToArray();
 
 		private static uint ParseCore(string i)
 		{

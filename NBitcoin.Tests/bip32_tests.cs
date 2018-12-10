@@ -211,6 +211,26 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
+		public void CanInstantiateFromRawBytes()
+		{
+			var data = new byte[] { 0x01, 0x00,  0x00, 0x80 };
+			var keyPath = KeyPath.FromBytes(data);
+			Assert.Equal("1'", keyPath.ToString());
+			AssertEx.CollectionEquals(data, keyPath.ToBytes());
+
+			data = new byte[] { 0x01, 0x00,  0x00, 0x80, 0x02, 0x00, 0x00, 0x00 };
+			keyPath = KeyPath.FromBytes(data);
+			Assert.Equal("1'/2", keyPath.ToString());
+			AssertEx.CollectionEquals(data, keyPath.ToBytes());
+
+			data = new byte[0];
+			keyPath = KeyPath.FromBytes(data);
+			Assert.Equal("", keyPath.ToString());
+			AssertEx.CollectionEquals(data, keyPath.ToBytes());
+		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
 		public void CanRoundTripExtKeyBase58Data()
 		{
 			var key = new ExtKey();
