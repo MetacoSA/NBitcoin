@@ -32,6 +32,38 @@ How to get started ? Check out this article [on CodeProject](http://www.codeproj
 
 Find more information [here](NBitcoin.Altcoins).
 
+# How to debug in NBitcoin source code?
+
+When a new version of `NBitcoin`, `NBitcoin.Altcoins` or `NBitcoin.TestFramework` are released on Nuget, we also upload a separate symbol package (`snupkg`) with SourceLink enabled. This is enabled from version `4.1.1.73`.
+
+This mean that it is possible to debug into NBitcoin code, and the source will be fetched transparently from github.
+
+This work on both, Visual Studio Code and Visual Studio.
+
+## Debug inside source with Visual Studio
+
+You need to run at least Visual Studio 15.9.
+Then, you need to:
+
+* Go in `Tools / Options / Debugging / General` and turn off `Enable Just My Code`.
+* Go in `Tools / Options / Debugging / Symbols` and add `https://symbols.nuget.org/download/symbols` to the `Symbol file (.pdb) locations`, make sure it is checked.
+
+Now you can Debug your project and step inside any call to NBitcoin.
+
+## Debug inside source with Visual Studio Code
+
+Inside your `launch.json`, add the following to `.NET Core Launch (console)` configuration:
+
+```json
+"justMyCode": false,
+"symbolOptions": {
+    "searchPaths": [ "https://symbols.nuget.org/download/symbols" ],
+    "searchMicrosoftSymbolServer": false
+},
+```
+
+Now you can Debug your project and step inside any call to NBitcoin.
+
 # How to use with my own blockchain?
 
  Find more information [here](NBitcoin.Altcoins).
