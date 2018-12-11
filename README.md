@@ -68,18 +68,23 @@ Now you can Debug your project and step inside any call to NBitcoin.
 
  Find more information [here](NBitcoin.Altcoins).
 
-# How to use in Unity 3.5
+# How to use in Unity?
 
-In command prompt:
+You should use at least `Unity 2018.2` using `Script Runtime Version` `.NET 4.x Equivalent` and `Api Compatibility Level` `.NET Standard 2.0`.
+You can see more on [this post](https://blogs.unity3d.com/2018/07/11/scripting-runtime-improvements-in-unity-2018-2/).
+
+Then you need to compile NBitcoin:
 
 ```
 git clone https://github.com/MetacoSA/NBitcoin/
-cd NBitcoin
-git checkout unity35
-build-unity.bat
+cd NBitcoin/NBitcoin
+dotnet publish -c Release -f netstandard2.0
+Remove-Item -Force -Recurse .\bin\Release\netstandard2.0\publish\runtimes\
 ```
 
-Then put the two libraries NBitcoin.dll and System.Threading.Tasks.Net35.dll found in "NBitcoin\NBitcoin\bin\Release" into your asset folder.
+Then put the libraries of `.\bin\Release\netstandard2.0` into your asset folder.
+
+If you need altcoin supports, use the same step but with `cd NBitcoin/NBitcoin.Altcoins` instead.
 
 # How to use in .NET Core
 
