@@ -18,10 +18,10 @@ With NuGet :
 
 Go on the [NuGet website](https://www.nuget.org/packages/NBitcoin/) for more information.
 
-The packages supports:
+The packages support:
 
 * With full features: Windows Desktop applications, Mono Desktop applications and platforms supported by [.NET Standard 1.3](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) (.NET Core, Xamarin IOS, Xamarin Android, UWP and more).
-* With limited features: Platforms supported by [.NET Standard 1.1](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) (Windows Phone, Windows 8.0 apps).
+* With limited features: platforms supported by [.NET Standard 1.1](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) (Windows Phone, Windows 8.0 apps).
 
 To compile it by yourself, you can git clone, open the project and hit the compile button in Visual Studio.
 How to get started ? Check out this article [on CodeProject](http://www.codeproject.com/Articles/768412/NBitcoin-The-most-complete-Bitcoin-port-Part-Crypt) for some basic Bitcoin operations, or [this Introduction to NBitcoin video](https://www.youtube.com/watch?v=X4ZwRWIF49w).
@@ -34,9 +34,9 @@ Find more information [here](NBitcoin.Altcoins).
 
 # How to debug in NBitcoin source code?
 
-When a new version of `NBitcoin`, `NBitcoin.Altcoins` or `NBitcoin.TestFramework` are released on Nuget, we also upload a separate symbol package (`snupkg`) with SourceLink enabled. This is enabled from version `4.1.1.73`.
+When a new version of `NBitcoin`, `NBitcoin.Altcoins` or `NBitcoin.TestFramework` is released on Nuget, we also upload a separate symbol package (`snupkg`) with SourceLink enabled. This is enabled from version `4.1.1.73`.
 
-This mean that it is possible to debug into NBitcoin code, and the source will be fetched transparently from github.
+This means that it is possible to debug into NBitcoin code, and the source will be fetched transparently from github.
 
 This works on both Visual Studio Code and Visual Studio for Windows.
 
@@ -84,7 +84,7 @@ Remove-Item -Force -Recurse .\bin\Release\netstandard2.0\publish\runtimes\
 
 Then put the libraries of `.\bin\Release\netstandard2.0` into your asset folder.
 
-If you need altcoin supports, use the same step but with `cd NBitcoin/NBitcoin.Altcoins` instead.
+If you need altcoins support, use the same step but with `cd NBitcoin/NBitcoin.Altcoins` instead.
 
 # How to use in .NET Core
 
