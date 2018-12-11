@@ -75,7 +75,7 @@ You can see more on [this post](https://blogs.unity3d.com/2018/07/11/scripting-r
 
 Then you need to compile NBitcoin:
 
-```
+```powershell
 git clone https://github.com/MetacoSA/NBitcoin/
 cd NBitcoin/NBitcoin
 dotnet publish -c Release -f netstandard2.0
@@ -128,7 +128,6 @@ NBitcoin notably includes:
 * Full script evaluation and parsing
 * A RPC Client
 * A Rest Client
-* A SPV Wallet implementation [with sample](https://github.com/NicolasDorier/NBitcoin.SPVSample)
 * The parsing of standard scripts and creation of custom ones
 * The serialization of blocks, transactions and scripts
 * The signing and verification with private keys (with support for compact signatures) for proving ownership
@@ -137,10 +136,9 @@ NBitcoin notably includes:
 * Bech32 segwit address implementation with error detection [BIP 173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki)
 * Mnemonic code for generating deterministic keys ([BIP 39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)), credits to [Thasshiznets](https://github.com/Thashiznets/BIP39.NET)
 * Hierarchical Deterministic Wallets ([BIP 32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki))
-* Payment Protocol ([BIP 70](https://github.com/bitcoin/bips/blob/master/bip-0070.mediawiki))
-* Payment URLs ([BIP 21](https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki),[BIP 72](https://github.com/bitcoin/bips/blob/master/bip-0072.mediawiki))
-* Two-Factor keys ([BIP 38](http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part))
-* Stealth Addresses ([Also on codeproject](http://www.codeproject.com/Articles/775226/NBitcoin-Cryptography-Part))
+* Payment URLs ([BIP 21](https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki))
+
+Please read our [ebook](https://programmingblockchain.gitbooks.io/programmingblockchain/content/) to understand the capabilities.
 
 NBitcoin is inspired by Bitcoin Core code but provides a simpler object oriented API (e.g., new Key().PubKey.Address.ToString() to generate a key and get the associated address). It relies on the BouncyCastle cryptography library instead of OpenSSL, yet replicates OpenSSL bugs to guarantee compatibility. NBitcoin also ports the integrality of Bitcoin Core unit tests with their original data in order to validate the compatibility of the two implementations.
 
