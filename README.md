@@ -38,7 +38,7 @@ When a new version of `NBitcoin`, `NBitcoin.Altcoins` or `NBitcoin.TestFramework
 
 This mean that it is possible to debug into NBitcoin code, and the source will be fetched transparently from github.
 
-This work on both, Visual Studio Code and Visual Studio.
+This works on both Visual Studio Code and Visual Studio for Windows.
 
 ## Debug inside source with Visual Studio
 
