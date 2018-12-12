@@ -48,6 +48,8 @@ Then, you need to:
 * Go in `Tools / Options / Debugging / General` and turn off `Enable Just My Code`.
 * Go in `Tools / Options / Debugging / Symbols` and add `https://symbols.nuget.org/download/symbols` to the `Symbol file (.pdb) locations`, make sure it is checked.
 
+You should also check `Microsoft Symbol Server` or your debugging experience in visual studio will be slowed down.
+
 Now you can Debug your project and step inside any call to NBitcoin.
 
 ## Debug inside source with Visual Studio Code
@@ -58,7 +60,7 @@ Inside your `launch.json`, add the following to `.NET Core Launch (console)` con
 "justMyCode": false,
 "symbolOptions": {
     "searchPaths": [ "https://symbols.nuget.org/download/symbols" ],
-    "searchMicrosoftSymbolServer": false
+    "searchMicrosoftSymbolServer": true
 },
 ```
 
