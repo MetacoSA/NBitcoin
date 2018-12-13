@@ -1359,6 +1359,35 @@ namespace NBitcoin.RPC
 			};
 		}
 
+		public MempoolAcceptResult TestMempoolAccept(Transaction transaction, bool allowHighFees=false)
+		{
+			return TestMempoolAcceptAsync(transaction, allowHighFees).GetAwaiter().GetResult();
+		}
+
+		public async Task<MempoolAcceptResult> TestMempoolAcceptAsync(Transaction transaction, bool allowHighFees=false)
+		{
+			var response = await SendCommandAsync("testmempoolaccept", new[]{ transaction.ToHex() }, allowHighFees).ConfigureAwait(false);
+
+			var first = response.Result[0];
+			var allowed = first["allowed"].Value<bool>();
+
+			var rejectedCode = 0;
+			var rejectedReason = string.Empty;
+			if(!allowed)
+			{
+				var rejected = first["reject-reason"].Value<string>();
+				var separatorIdx = rejected.IndexOf(":");
+				rejectedCode = int.Parse(rejected.Substring(0, separatorIdx)); 
+				rejectedReason = rejected.Substring(separatorIdx+2); 
+			}
+			return new MempoolAcceptResult{
+				TxId=         uint256.Parse(first["txid"].Value<string>()),
+				IsAllowed=    allowed,
+				RejectCode=   (RejectCode)rejectedCode,
+				RejectReason= rejectedReason
+			};
+		}
+
 		/// <summary>
 		/// Returns details about an unspent transaction output.
 		/// </summary>
@@ -2129,5 +2158,15 @@ namespace NBitcoin.RPC
 		/// </summary>
 		public uint256[] SpentBy { get; set; }
 	}
+
+	public class MempoolAcceptResult
+	{
+		public uint256 TxId { get; internal set; }
+		public bool IsAllowed { get; internal set; }
+		public RejectCode RejectCode { get; internal set; }
+		public string RejectReason { get; internal set; }
+	}
+
+
 }
 #endif
