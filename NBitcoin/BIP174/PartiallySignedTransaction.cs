@@ -498,6 +498,9 @@ namespace NBitcoin.BIP174
 
 		public void Finalize(Transaction tx, int index)
 		{
+			if (tx == null)
+				throw new ArgumentNullException(nameof(tx));
+
 			if (IsFinalized())
 				return;
 
@@ -1507,6 +1510,9 @@ namespace NBitcoin.BIP174
 		internal bool UseLowR { get => _UseLowR; set => _UseLowR = value; }
 		public PSBT TrySignAll(params Key[] keys)
 		{
+			if (keys == null)
+				throw new ArgumentNullException(nameof(keys));
+
 			CheckSanity();
 			for (var i = 0; i < inputs.Count; i++)
 			{
@@ -1571,6 +1577,11 @@ namespace NBitcoin.BIP174
 
 		public PSBT TryAddKeyPath(PubKey key, Tuple<uint, KeyPath> path)
 		{
+			if (key == null)
+				return this;
+			if (path == null)
+				return this;
+
 			for (int i = 0; i < inputs.Count; i++)
 			{
 				inputs[i].TryAddKeyPath(key, path, tx.Inputs[i]);
