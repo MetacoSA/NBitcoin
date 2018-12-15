@@ -227,12 +227,14 @@ namespace NBitcoin.BIP174
 			SetUp();
 
 			DeconstructTxIn(txin);
+			txin.ScriptSig = Script.Empty;
+			txin.WitScript = WitScript.Empty;
 		}
 
 		private void DeconstructTxIn(TxIn txin)
 		{
-			var ScriptSig = txin.ScriptSig;
-			var witScript = txin.WitScript;
+			var ScriptSig = txin.ScriptSig.Clone();
+			var witScript = txin.WitScript.Clone();
 
 			// p2pkh
 			var P2PKHIngredients = PayToPubkeyHashTemplate.Instance.ExtractScriptSigParameters(ScriptSig);
@@ -1300,7 +1302,7 @@ namespace NBitcoin.BIP174
 		/// <param name="globalTx"></param>
 		public PSBT(Transaction globalTx)
 		{
-			tx = globalTx ?? throw new ArgumentNullException(nameof(globalTx));
+			tx = globalTx.Clone() ?? throw new ArgumentNullException(nameof(globalTx));
 			Initialize();
 			SetUpInput();
 			SetUpOutput();
