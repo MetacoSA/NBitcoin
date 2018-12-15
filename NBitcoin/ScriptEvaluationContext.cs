@@ -1934,9 +1934,9 @@ namespace NBitcoin
 			return CheckSig(signature.ToBytes(), pubKey.ToBytes(), scriptPubKey, checker, (int)hashVersion);
 		}
 
-		public bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn)
+		public bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, Transaction txTo, int nIn, int sigVersion = 0, TxOut spentOutput = null)
 		{
-			return CheckSig(vchSig, vchPubKey, scriptCode, new TransactionChecker(txTo, nIn), 0);
+			return CheckSig(vchSig, vchPubKey, scriptCode, new TransactionChecker(txTo, nIn, spentOutput), sigVersion);
 		}
 		bool CheckSig(byte[] vchSig, byte[] vchPubKey, Script scriptCode, TransactionChecker checker, int sigversion)
 		{

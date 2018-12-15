@@ -343,8 +343,51 @@ namespace NBitcoin.BIP174
 		/// That this PSBTInput has witness_utxo, and thus we can match the sig and pubkey.
 		/// </summary>
 		/// <param name="globalTx"></param>
-		internal void MoveOrphansToPartialSigs(Transaction globalTx)
-		{ }
+		internal void MoveOrphansToPartialSigs(Transaction globalTx, int index)
+		{
+			if (OrphanPartialSigs.Count == 0 || OrphanPubKeys.Count == 0)
+				return;
+
+			var prevOut = GetOutput(globalTx.Inputs[index].PrevOut);
+			if (prevOut == null)
+				return;
+
+			var indexedTxIn = globalTx.Inputs.AsIndexedInputs().ToArray()[index];
+			var scriptToCheck = witness_script ?? redeem_script ?? prevOut.ScriptPubKey;
+			int sigVersion = 0;
+			if (witness_script != null)
+			{
+				sigVersion = 1;
+			}
+			var sighash = this.sighash_type != 0 ? sighash_type : SigHash.All;
+
+			var sigsFound = new HashSet<ECDSASignature>();
+			var pksFound = new HashSet<PubKey>();
+			bool found = false;
+
+			foreach (var sig in OrphanPartialSigs)
+			{
+				foreach (var pk in OrphanPubKeys)
+				{
+					var txSig = new TransactionSignature(sig, sighash);
+					var context = new ScriptEvaluationContext() { ScriptVerify = ScriptVerify.Standard, SigHash = sighash };
+					// Not using `txSig.Check()` here since it does not take care of witness version of sighash.
+					if (context.CheckSig(txSig.ToBytes(), pk.ToBytes(), scriptToCheck, globalTx, index, sigVersion, prevOut))
+					{
+						partial_sigs.Add(pk.Hash, Tuple.Create(pk, sig));
+						sigsFound.Add(sig);
+						pksFound.Add(pk);
+						found = true;
+					}
+				}
+			}
+
+			if (found)
+			{
+				OrphanPartialSigs.RemoveWhere(sig => sigsFound.Any(sigFound => Utils.ArrayEqual(sigFound.ToDER(), sig.ToDER())));
+				OrphanPartialSigs.RemoveWhere(pk => pksFound.Any(pkFound => pkFound.Equals(pk)));
+			}
+		}
 
 		internal void Combine(PSBTInput other)
 		{
@@ -1334,7 +1377,7 @@ namespace NBitcoin.BIP174
 					this.inputs.Add(new PSBTInput(txin));
 					this.inputs[i].AddCoin(coin);
 					this.inputs[i].CheckSanityForSigner(txin);
-					this.inputs[i].MoveOrphansToPartialSigs(tx);
+					this.inputs[i].MoveOrphansToPartialSigs(tx, i);
 					this.inputs[i].TrySlimOutput(txin);
 					this.inputs[i].TryFinalize(tx, i);
 				}
@@ -1388,7 +1431,7 @@ namespace NBitcoin.BIP174
 					this.inputs[i].AddCoin(coin);
 					this.inputs[i].CheckSanityForSigner(txin);
 					this.inputs[i].TrySlimOutput(txin);
-					this.inputs[i].MoveOrphansToPartialSigs(tx);
+					this.inputs[i].MoveOrphansToPartialSigs(tx, i);
 				}
 			}
 
@@ -1402,18 +1445,19 @@ namespace NBitcoin.BIP174
 			for (var i = 0; i < tx.Inputs.Count; i++)
 			{
 				var txin = tx.Inputs[i];
+				var psbtin = inputs[i];
 				var nonWitnessUtxo = txs.FirstOrDefault(t => t.GetHash() == txin.PrevOut.Hash);
 				if (nonWitnessUtxo != null)
 				{
-					this.inputs[i].NonWitnessUtxo = nonWitnessUtxo;
-					this.inputs[i].MoveOrphansToPartialSigs(tx);
+					psbtin.NonWitnessUtxo = nonWitnessUtxo;
 					// Also, check if we can add witness_utxo
 					var coins = nonWitnessUtxo.Outputs.AsCoins();
 					var coin = coins.FirstOrDefault(c => c.Outpoint == txin.PrevOut);
 					if (coin != null)
 					{
-						this.inputs[i].AddCoin(coin);
-						this.inputs[i].TrySlimOutput(txin);
+						psbtin.AddCoin(coin);
+						psbtin.TrySlimOutput(txin);
+						psbtin.MoveOrphansToPartialSigs(tx, i);
 					}
 				}
 			}
@@ -1453,6 +1497,7 @@ namespace NBitcoin.BIP174
 		/// <summary>
 		/// Join to PSBT into one CoinJoin PSBT.
 		/// This is an immutable method.
+		/// TODO: May need assertion for sighash type?
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>

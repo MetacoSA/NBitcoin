@@ -83,7 +83,14 @@ namespace NBitcoin.Tests
 
 			Assert.Empty(psbt.inputs[2].PartialSigs); // But it still can not hold partial_sigs
 			Assert.Empty(psbt.inputs[3].PartialSigs); // Even in p2wsh
+			Assert.Empty(psbt.inputs[5].PartialSigs); // And p2sh-p2wsh
+
+			psbt.AddTransactions(funds); // when we add previous outputs, it will be able to resurrect signatures.
+			Assert.NotEmpty(psbt.inputs[2].PartialSigs);
+			Assert.NotEmpty(psbt.inputs[3].PartialSigs);
+			Assert.NotEmpty(psbt.inputs[5].PartialSigs);
 		}
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanUpdate()
