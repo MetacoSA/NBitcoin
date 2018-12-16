@@ -24,33 +24,28 @@ namespace NBitcoin.Altcoins
 		public static Bitcore Bitcore { get; } = Bitcore.Instance;
 		public static Groestlcoin Groestlcoin { get; } = Groestlcoin.Instance;
 		public static Zclassic Zclassic { get; } = Zclassic.Instance;
-		public static Colossus Colossus { get; } = Colossus.Instance;
-		public static GoByte GoByte { get; } = GoByte.Instance;
-		public static Liquid Liquid { get; } = Liquid.Instance;
+		
 		public static Chaincoin Chaincoin { get; } = Chaincoin.Instance;
 
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
-			yield return Bitcoin;
-			yield return Bitcore;
-			yield return Litecoin;
-			yield return Feathercoin;
-			yield return Viacoin;
-			yield return Dogecoin;
-			yield return Dystem;
-			yield return BCash;
-			yield return BGold;
-			yield return Polis;
-			yield return Monacoin;
-			yield return Dash;
-			yield return Mogwai;
-			yield return Ufo;
-			yield return Groestlcoin;
-			yield return Zclassic;
-			yield return Colossus;
-			yield return GoByte;
-			yield return Liquid;
+			//yield return Bitcoin;
+			//yield return Bitcore;
+			//yield return Litecoin;
+			//yield return Feathercoin;
+			//yield return Viacoin;
+			//yield return Dogecoin;
+			//yield return Dystem;
+			//yield return BCash;
+			//yield return BGold;
+			//yield return Polis;
+			//yield return Monacoin;
+			//yield return Dash;
+			//yield return Mogwai;
+			//yield return Ufo;
+			//yield return Groestlcoin;
+			//yield return Zclassic;
 			yield return Chaincoin;
 
 		}

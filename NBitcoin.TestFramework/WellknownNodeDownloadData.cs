@@ -603,45 +603,7 @@
 				},
 			};
 		}
-		public class ElementsNodeDownloadData
-		{
-			public NodeDownloadData v0_14_1 = new NodeDownloadData()
-			{
-				Version = "0.14.1",
-				Windows = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://aois.blob.core.windows.net/public/ElementsBinaries/elements-{0}-win64.zip",
-					Archive = "elements-{0}-win64.zip",
-					Executable = "elements-{0}/bin/elementsd.exe",
-					Hash = "d0d2e2a26d1fb64979e3050aa6b0e5e619d80f0f40552b39c62d07fdb889df90"
-				},
-				RegtestFolderName = "elementsregtest",
-				AdditionalRegtestConfig = "initialfreecoins=210000000000000"
-			};
-		}
-		public class LiquidNodeDownloadData
-		{
-			public NodeDownloadData v3_14_1_21 = new NodeDownloadData()
-			{
-				Version = "3.14.1.21",
-				Windows = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://aois.blob.core.windows.net/public/LiquidBinaries/liquid-{0}-win64.zip",
-					Archive = "liquid-{0}-win64.zip",
-					Executable = "liquid-{0}/bin/liquidd.exe",
-					Hash = "cedab6e7d3f5b6eac4ce8cf81c480dc49599ac34a2d7ede1d15bb9547f800a8a"
-				},
-				Linux = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/Blockstream/liquid/releases/download/liquid.{0}/liquid-{0}-x86_64-linux-gnu.tar.gz",
-					Archive = "liquid-{0}-x86_64-linux-gnu.tar.gz",
-					Executable = "liquid-{0}/bin/liquidd",
-					Hash = "ea2836aa267b32b29e890acdd5e724b4be225c34891fd26426ce741c12c1e166"
-				},
-				RegtestFolderName = "liquidregtest",
-				AdditionalRegtestConfig = "initialfreecoins=210000000000000\nvalidatepegin=0"
-			};
-		}
+		
 		public class MonoeciNodeDownloadData
 		{
 			public NodeDownloadData v0_12_2_3 = new NodeDownloadData()
@@ -673,66 +635,7 @@
 				}
 			};
 		}
-		public class GoByteNodeDownloadData
-		{
-			public NodeDownloadData v0_12_2_4 = new NodeDownloadData()
-			{
-				Version = "0.12.2.4",
-				Windows = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/gobytecoin/gobyte/releases/download/v{0}/GoByte_{0}_Windows32.zip",
-					Archive = "GoByte_{0}_Windows32.zip",
-					Executable = "GoByte_{0}_Windows32/gobyted.exe",
-					Hash = "333144de13cb5b1a5e1d81890ed8e91dbc9e52bb63eecd10f397c879f5725de1",
-				},
-				Linux = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/gobytecoin/gobyte/releases/download/v{0}/GoByteCore-{0}_Linux64.tar.gz",
-					Archive = "GoByteCore-{0}_Linux64.tar.gz",
-					Executable = "GoByteCore-{0}_Linux64/gobyted",
-					Hash = "d2419274d1234b80c5756247775ace04abc85a8f74b91760c8c25f65212e4e57",
-				},
-				Mac = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/gobytecoin/gobyte/releases/download/v0.12.2.4/GoByte_0.12.2.4_MacOS.dmg",
-					Archive = "GoByte_0.12.2.4_MacOS.dmg",
-					Executable = "gobyted",
-					Hash = "de8fa9bd6aa4dbab2c93627b94185eb58b24cd05d5628ede1086f305362f1b0f",
-				}
-			};
-		}
-		public class ColossusNodeDownloadData
-		{
-			public NodeDownloadData v1_1_1 = new NodeDownloadData()
-			{
-				Version = "1.1.1",
-				Windows = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/ColossusCoinXT/ColossusCoinXT/releases/download/v{0}/colx-v{0}-win32.zip",
-					Archive = "colx-v{0}-win64.zip",
-					Executable = "colx-v{0}/bin/colxd.exe",
-					Hash = "d4ec16815d85a122f57a6a1a1fe9ca19487a1aac3294dc041315bce2e76772bd",
-					CreateFolder = "colx-v{0}",
-				},
-				Linux = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/ColossusCoinXT/ColossusCoinXT/releases/download/v{0}/colx-v{0}-x86_64-linux-gnu.tar.gz",
-					Archive = "colx-v{0}-x86_64-linux-gnu.tar.gz",
-					Executable = "colx-v{0}/bin/colxd",
-					Hash = "4812cd2296467b0524625a13c205832039d03990eddf7e31e180f6cbdb9f8917",
-					CreateFolder = "colx-v{0}",
-				},
-				Mac = new NodeOSDownloadData()
-				{
-					DownloadLink = "https://github.com/ColossusCoinXT/ColossusCoinXT/releases/download/v{0}/colx-{0}-osx64.tar.gz",
-					Archive = "colx-{0}-osx64.tar.gz",
-					Executable = "colx-{0}/bin/colxd",
-					Hash = "6cb3411ea02d2e7dc17824dffece1ba1e61ea9842eb1f14f15ae78b99bb8493a",
-					CreateFolder = "colx-v{0}",
-				}
-			};
-		}
-
+	
 		public class GincoinNodeDownloadData
 		{
 			public NodeDownloadData v1_1_0_0 = new NodeDownloadData()
@@ -772,37 +675,27 @@
 				Version = "0.16.3",
 				Windows = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/chaincoin/chaincoin/releases/download/v{0}/chaincoincore-{0}-win64.zip",
+					DownloadLink = "https://github.com/fellowserf/chaincoin/releases/download/v{0}/chaincoincore-{0}-win64.zip",
 					Archive = "chaincoincore-{0}-win64.zip",
 					Executable = "chaincoincore-0.16.3/bin/chaincoind.exe",
-					Hash = "02e8c8273c0951f2e9d4ef5846052120ed76eb54e5722b3efe97db8f874fdaed"
+					Hash = "26bdd16042a3d68120aa2f6aea7027f37862dbe19c7e218153ecb3f758d60833"
 				},
 				Linux = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/chaincoin/chaincoin/releases/download/v{0}/chaincoincore-{0}.tar.gz",
+					DownloadLink = "https://github.com/fellowserf/chaincoin/releases/download/v{0}/chaincoincore-{0}.tar.gz",
 					Archive = "chaincoincore-{0}.tar.gz",
 					Executable = "chaincoincore-{0}/bin/chaincoind",
 					Hash = ""
 				},
 				Mac = new NodeOSDownloadData()
 				{
-					DownloadLink = "https://github.com/chaincoin/chaincoin/releases/download/v{0}/Chaincoin.Core.dmg",
+					DownloadLink = "https://github.com/fellowserf/chaincoin/releases/download/v{0}/Chaincoin.Core.dmg",
 					Archive = "Chaincoin.Core.dmg",
 					Executable = "chaincoincore-{0}/bin/chaincoind",
 					Hash = ""
 				}
 			};
 		}
-
-		public static GoByteNodeDownloadData GoByte
-		{
-			get; set;
-		} = new GoByteNodeDownloadData();
-
-		public static ColossusNodeDownloadData Colossus
-		{
-			get; set;
-		} = new ColossusNodeDownloadData();
 
 		public static MonoeciNodeDownloadData Monoeci
 		{
@@ -882,16 +775,6 @@
 		{
 			get; set;
 		} = new ZclassicNodeDownloadData();
-
-		public static ElementsNodeDownloadData Elements
-		{
-			get; set;
-		} = new ElementsNodeDownloadData();
-
-		public static LiquidNodeDownloadData Liquid
-		{
-			get; set;
-		} = new LiquidNodeDownloadData();
 
 		public static GincoinNodeDownloadData Gincoin
 		{

@@ -56,6 +56,7 @@ namespace NBitcoin.Tests
 			{
 				var rpc = builder.CreateNode().CreateRPCClient();
 				builder.StartAll();
+
 				var actual = (rpc.GetBlock(0)).GetHash();
 				var calculatedGenesis = builder.Network.GetGenesis().GetHash();
 				Assert.Equal(calculatedGenesis, actual);

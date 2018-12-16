@@ -9,6 +9,7 @@ using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using NBitcoin.Stealth;
 using System.Collections.Concurrent;
+using System.Text;
 
 namespace NBitcoin
 {
