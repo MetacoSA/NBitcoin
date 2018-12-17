@@ -1310,40 +1310,9 @@ namespace NBitcoin.BIP174
 			return ret;
 		}
 
-		public PSBT(Transaction globalTx, IEnumerable<Transaction> prevTXs)
-		{
-			tx = globalTx ?? throw new ArgumentNullException(nameof(globalTx));
-			if (prevTXs == null)
-			{
-				throw new ArgumentNullException(nameof(prevTXs));
-			}
-
-			Initialize();
-
-			// extract relevant coins from prevTXs
-			var items = from txin in tx.Inputs
-				from prevtx in prevTXs
-				where txin.PrevOut.Hash == prevtx.GetHash()
-				select Tuple.Create(new Coin(txin.PrevOut, prevtx.Outputs[txin.PrevOut.N]), prevtx);
-			SetUpInputWithCoins(items.Select(i => i.Item1));
-
-			// Set NonWitnessUTXO 
-			// This is O(n^2) ... but who cares?
-			foreach (var item in items)
-			{
-				for (var i = 0; i < tx.Inputs.Count; i++)
-				{
-					var txin = tx.Inputs[i];
-					if (item.Item1.Outpoint == txin.PrevOut)
-						this.inputs[i].NonWitnessUtxo = item.Item2;
-				}
-			}
-
-			SetUpOutput();
-		}
 		/// <summary>
 		/// NOTE: This won't preserve signatures in case of multisig.
-		/// If you want to, give coins or previous TXs as a second argument.
+		/// If you want to, give coins or previous TXs by `Add[Coins|Transactions]` right after instantiation
 		/// </summary>
 		/// <param name="globalTx"></param>
 		public PSBT(Transaction globalTx)
@@ -1352,40 +1321,6 @@ namespace NBitcoin.BIP174
 			Initialize();
 			SetUpInput();
 			SetUpOutput();
-		}
-
-		public PSBT(Transaction globalTx, IEnumerable<ICoin> coins)
-		{
-			tx = globalTx ?? throw new ArgumentNullException(nameof(globalTx));
-			if (coins == null)
-			{
-				throw new ArgumentNullException(nameof(coins));
-			}
-			Initialize();
-			SetUpInputWithCoins(coins);
-			SetUpOutput();
-		}
-
-		private void SetUpInputWithCoins(IEnumerable<ICoin> coins)
-		{
-			for (var i = 0; i < tx.Inputs.Count; i++)
-			{
-				var txin = tx.Inputs[i];
-				var coin = coins.FirstOrDefault(c => c.Outpoint == txin.PrevOut);
-				if (coin != null)
-				{
-					this.inputs.Add(new PSBTInput(txin));
-					this.inputs[i].AddCoin(coin);
-					this.inputs[i].CheckSanityForSigner(txin);
-					this.inputs[i].MoveOrphansToPartialSigs(tx, i);
-					this.inputs[i].TrySlimOutput(txin);
-					this.inputs[i].TryFinalize(tx, i);
-				}
-				else
-				{
-					this.inputs.Add(new PSBTInput(tx.Inputs[i]));
-				}
-			}
 		}
 
 		private void SetUpInput()
