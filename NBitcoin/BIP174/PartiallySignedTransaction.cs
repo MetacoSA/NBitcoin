@@ -1430,7 +1430,7 @@ namespace NBitcoin.BIP174
 		}
 
 		/// <summary>
-		/// Join to PSBT into one CoinJoin PSBT.
+		/// Join two PSBT into one CoinJoin PSBT.
 		/// This is an immutable method.
 		/// TODO: May need assertion for sighash type?
 		/// </summary>
