@@ -768,10 +768,10 @@ namespace NBitcoin
 			return VerifyScript(coin, ScriptVerify.Standard, out error);
 		}
 
-		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash)
+		public TransactionSignature Sign(Key key, ICoin coin, SigHash sigHash, bool useLowR = true)
 		{
 			var hash = GetSignatureHash(coin, sigHash);
-			return key.Sign(hash, sigHash);
+			return key.Sign(hash, sigHash, useLowR);
 		}
 
 		public uint256 GetSignatureHash(ICoin coin, SigHash sigHash = SigHash.All)
@@ -985,7 +985,7 @@ namespace NBitcoin
 		BlockExplorer,
 	}
 
-	public class WitScript
+	public class WitScript : IEquatable<WitScript>
 	{
 		byte[][] _Pushes;
 		public WitScript(string script)
@@ -1062,6 +1062,7 @@ namespace NBitcoin
 			_Pushes = pushes.ToArray();
 		}
 
+
 		public static WitScript Load(BitcoinStream stream)
 		{
 			WitScript script = new WitScript();
@@ -1118,10 +1119,10 @@ namespace NBitcoin
 			WitScript item = obj as WitScript;
 			if (item == null)
 				return false;
-			return EqualsCore(item);
+			return Equals(item);
 		}
 
-		private bool EqualsCore(WitScript item)
+		public bool Equals(WitScript item)
 		{
 			if (_Pushes.Length != item._Pushes.Length)
 				return false;
@@ -1138,7 +1139,7 @@ namespace NBitcoin
 				return true;
 			if (((object)a == null) || ((object)b == null))
 				return false;
-			return a.EqualsCore(b);
+			return a.Equals(b);
 		}
 
 		public static bool operator !=(WitScript a, WitScript b)
@@ -2325,6 +2326,7 @@ namespace NBitcoin
 		{
 			this.ReadWrite(new BitcoinStream(bytes) { ConsensusFactory = GetConsensusFactory() });
 		}
+
 	}
 
 	public enum TransactionCheckResult

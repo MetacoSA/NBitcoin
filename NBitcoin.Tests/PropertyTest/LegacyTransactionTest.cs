@@ -24,7 +24,7 @@ namespace NBitcoin.Tests.PropertyTest
 			string hex = tx.ToHex();
 			var tx2 = Transaction.Parse(hex, param.Item2);
 
-			return tx.GetHash() == tx.GetHash();
+			return tx.GetHash() == tx2.GetHash();
 		}
 
 		[Property(MaxTest = 100)]

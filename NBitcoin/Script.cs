@@ -357,7 +357,7 @@ namespace NBitcoin
 		}
 	}
 
-	public class Script
+	public class Script : IEquatable<Script>
 	{
 		static readonly Script _Empty = new Script();
 		public static Script Empty
@@ -794,6 +794,9 @@ namespace NBitcoin
 			return result.ToArray();
 		}
 
+		public PubKey[] GetAllPubKeys() =>
+			ToOps().Where(op => op.PushData != null && PubKey.Check(op.PushData, true)).Select(op => new PubKey(op.PushData)).ToArray();
+
 		/// <summary>
 		/// Get script byte array
 		/// </summary>
@@ -1012,8 +1015,10 @@ namespace NBitcoin
 		public override bool Equals(object obj)
 		{
 			Script item = obj as Script;
-			return item != null && Utils.ArrayEqual(item._Script, _Script);
+			return Equals(item);
 		}
+
+		public bool Equals(Script item) => item != null && Utils.ArrayEqual(item._Script, _Script);
 		public static bool operator ==(Script a, Script b)
 		{
 			if(ReferenceEquals(a, b))

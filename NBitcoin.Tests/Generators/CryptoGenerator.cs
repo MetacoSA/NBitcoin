@@ -11,20 +11,17 @@ namespace NBitcoin.Tests.Generators
 	public class CryptoGenerator
 	{
 		#region PrivateKey
-		public static Arbitrary<Key> KeysArb()
-		{
-			return Arb.From(PrivateKey());
-		}
+		public static Arbitrary<Key> KeysArb() =>
+			 Arb.From(PrivateKey());
 
-		public static Arbitrary<ExtKey> ExtKeysArb()
-		{
-			return Arb.From(ExtKey());
-		}
+		public static Arbitrary<ExtKey> ExtKeysArb() =>
+			Arb.From(ExtKey());
 
-		public static Arbitrary<List<Key>> KeysListArb()
-		{
-			return Arb.From(PrivateKeys(15));
-		}
+		public static Arbitrary<List<Key>> KeysListArb() =>
+			Arb.From(PrivateKeys(15));
+
+		public static Arbitrary<KeyPath> ExtPathArb() =>
+			Arb.From(KeyPath());
 
 		public static Gen<Key> PrivateKey() => Gen.Fresh(() => new Key());
 
@@ -39,6 +36,10 @@ namespace NBitcoin.Tests.Generators
 
 		public static Gen<List<PubKey>> PublicKeys() =>
 			from n in Gen.Choose(0, 15)
+			from pks in PublicKeys(n)
+			select pks;
+
+		public static Gen<List<PubKey>> PublicKeys(int n) =>
 			from pks in Gen.ListOf(n, PublicKey())
 			select pks.ToList();
 
@@ -57,6 +58,15 @@ namespace NBitcoin.Tests.Generators
 			from hash in Hash256()
 			from priv in PrivateKey()
 			select priv.Sign(hash);
+
+		public static Gen<List<ECDSASignature>> ECDSAs() =>
+			from n in Gen.Choose(0, 20)
+			from sigs in ECDSAs(n)
+			select sigs.ToList();
+
+		public static Gen<List<ECDSASignature>> ECDSAs(int n) =>
+			from sigs in Gen.ListOf(n, ECDSA())
+			select sigs.ToList();
 		#endregion
 
 		#region TransactionSignature
@@ -77,6 +87,11 @@ namespace NBitcoin.Tests.Generators
 		#endregion
 
 		public static Gen<ExtKey> ExtKey() => Gen.Fresh(() => new ExtKey());
+
+		public static Gen<KeyPath> KeyPath() =>
+			from raw in Gen.NonEmptyListOf(PrimitiveGenerator.RandomBytes(4))
+			let flattenBytes = raw.ToList().Aggregate((a, b) => a.Concat(b))
+			select NBitcoin.KeyPath.FromBytes(flattenBytes);
 
 		public static Gen<ExtPubKey> ExtPubKey() => ExtKey().Select(ek => ek.Neuter());
 	}
