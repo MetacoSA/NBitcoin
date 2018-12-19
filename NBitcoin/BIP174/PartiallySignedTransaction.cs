@@ -6,6 +6,7 @@ using System.Text;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using Newtonsoft.Json;
+using NBitcoin.TypeAlias;
 
 namespace NBitcoin.BIP174
 {
@@ -1294,8 +1295,7 @@ namespace NBitcoin.BIP174
 		public PSBTInputList inputs;
 		public PSBTOutputList outputs;
 
-
-		protected UnKnownKVMap unknown;
+		internal UnKnownKVMap unknown;
 
 		public static PSBT Parse(string base64, bool hex = false)
 		{

@@ -1,4 +1,6 @@
 ﻿#if !NOJSONNET
+using NBitcoin.BIP174;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using Newtonsoft.Json;
@@ -75,6 +77,13 @@ namespace NBitcoin.RPC
 		rawtransactions	signrawtransaction
 		rawtransactions	fundrawtransaction
 
+		------------------ PSBT
+		psbt - decodepsbt
+		psbt - combinepsbt
+		psbt - finalizepsbt
+		psbt - createpsbt
+		psbt - convertopsbt
+
 		------------------ Utility functions
 		util			createmultisig
 		util			validateaddress
@@ -127,6 +136,8 @@ namespace NBitcoin.RPC
 		wallet			 walletlock
 		wallet			 walletpassphrasechange
 		wallet			 walletpassphrase			yes
+		wallet			 walletprocesspsbt
+		wallet			 walletcreatefundedpsbt
 	*/
 	public partial class RPCClient : IBlockRepository
 	{
@@ -1599,6 +1610,53 @@ namespace NBitcoin.RPC
 				Fee = (ulong)o["fee"],
 				Errors = o["errors"].Select(x => (string)x).ToList()
 			};
+		}
+
+		public PSBT DecodePSBT(string base64) => DecodePSBTAsync(base64).GetAwaiter().GetResult();
+		public async Task<PSBT> DecodePSBTAsync(string base64)
+		{
+			var response = await SendCommandAsync(RPCOperations.decodepsbt, base64);
+			var jobj = response.Result as JObject;
+			var tx = ParseTxHex((string)jobj.Property("tx").Value.Value<string>());
+			var unknownKvInString = jobj.Property("unknown").ToObject<Dictionary<string, string>>();
+			var unknown = new SortedDictionary<byte[], byte[]>(unknownKvInString.ToDictionary(kv => Encoders.Hex.DecodeData(kv.Key), kv => Encoders.Hex.DecodeData(kv.Value)));
+			return new PSBT()
+			{
+				tx = tx,
+				unknown = unknown,
+				inputs = ParsePSBTInputs((JArray)jobj.Property("inputs").Value, tx),
+				outputs = ParsePSBTOutputs((JArray)jobj.Property("outputs").Value, tx)
+			};
+		}
+
+		private PSBTInputList ParsePSBTInputs(JArray jArray, Transaction tx)
+		{
+			var result = new PSBTInputList(tx);
+			var consensus = tx.GetConsensusFactory();
+			foreach (JObject jpsbtin in jArray)
+			{
+
+				var psbtin = new PSBTInput()
+				{
+					NonWitnessUtxo = Transaction.Parse(jpsbtin.Value<string>("non_witness_utxo"), Network),
+					WitnessUtxo = TxOut.Parse(jpsbtin.Value<string>("witness_utxo")),
+					SighashType = StringToSigHash(jpsbtin.Value<string>("sighash")),
+				};
+
+				var JPartialSigs = jpsbtin.Property("partial_signatures").ToObject<Dictionary<string, string>>();
+				if (JPartialSigs != null)
+				{
+					foreach (var JSigPair in JPartialSigs)
+					{
+						var pk = new PubKey(JSigPair.Key);
+						var sig = new ECDSASignature(Encoders.Hex.DecodeData(JSigPair.Value));
+						psbtin.PartialSigs.Add(pk.Hash, Tuple.Create(pk, sig));
+					}
+				}
+				result.Add(psbtin);
+			};
+
+			return result;
 		}
 
 #endregion

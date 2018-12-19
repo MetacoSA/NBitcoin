@@ -1,4 +1,5 @@
-﻿using NBitcoin.JsonConverters;
+﻿using NBitcoin.BIP174;
+using NBitcoin.JsonConverters;
 using NBitcoin.OpenAsset;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace NBitcoin.Tests
 {
 	public class JsonConverterTests
 	{
+
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
 		public void CanSerializeInJson()

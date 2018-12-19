@@ -15,6 +15,11 @@ using NBitcoin.Tests.Helpers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using FsCheck.Xunit;
+using NBitcoin.BIP174;
+using FsCheck;
+using NBitcoin.Tests.Generators;
+using static NBitcoin.Tests.Comparer;
 
 namespace NBitcoin.Tests
 {
@@ -25,6 +30,14 @@ namespace NBitcoin.Tests
 	public class RPCClientTests
 	{
 		const string TestAccount = "NBitcoin.RPCClientTests";
+
+		public PSBTComparer PSBTComparerInstance { get; }
+
+		public RPCClientTests()
+		{
+			Arb.Register<PSBTGenerator>();
+			PSBTComparerInstance = new PSBTComparer();
+		}
 		
 		[Fact]
 		public void InvalidCommandSendRPCException()
@@ -1242,6 +1255,19 @@ namespace NBitcoin.Tests
 
 				var heigh = rpc.GetBlockCount();
 				Assert.Equal(3, heigh);
+			}
+		}
+
+		[Property(MaxTest = 5)]
+		public void CanHandlePSBT(PSBT psbt)
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+				var client = node.CreateRPCClient();
+				var result = client.DecodePSBT(psbt.ToBase64());
+				Assert.Equal(psbt, result, PSBTComparerInstance);
 			}
 		}
 
