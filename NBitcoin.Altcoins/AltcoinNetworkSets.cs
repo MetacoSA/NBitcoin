@@ -50,6 +50,7 @@ namespace NBitcoin.Altcoins
 			yield return Colossus;
 			yield return GoByte;
 			yield return Liquid;
+			yield return Koto;
 		}
 	}
 }
