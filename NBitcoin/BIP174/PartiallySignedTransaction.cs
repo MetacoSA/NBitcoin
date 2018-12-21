@@ -5,8 +5,6 @@ using System.Linq;
 using System.Text;
 using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
-using Newtonsoft.Json;
-using NBitcoin.TypeAlias;
 
 namespace NBitcoin.BIP174
 {
@@ -283,7 +281,7 @@ namespace NBitcoin.BIP174
 				{
 					if (redeem_script != null) // p2sh-p2wpkh
 					{
-						final_script_sig = redeem_script.Clone();
+						final_script_sig = new Script(Op.GetPushOp(redeem_script.ToBytes()));
 						redeem_script = null;
 					}
 					final_script_witness = witScript;
@@ -312,7 +310,7 @@ namespace NBitcoin.BIP174
 
 		internal void AddCoin(ICoin coin)
 		{
-			if (coin is ScriptCoin)
+			if (coin is ScriptCoin && !IsFinalized())
 			{
 				var sCoin = (coin as ScriptCoin);
 				if (sCoin.RedeemType == RedeemType.P2SH) // p2sh, p2sh-p2wpkh
@@ -595,7 +593,8 @@ namespace NBitcoin.BIP174
 				if (prevout.ScriptPubKey.IsPayToScriptHash)
 					final_script_sig = new Script(Op.GetPushOp(redeem_script.ToBytes()));
 			}
-			ClearForFinalize();
+			if (IsFinalized())
+				ClearForFinalize();
 		}
 		public bool TryFinalize(Transaction tx, int index)
 		{
@@ -668,30 +667,36 @@ namespace NBitcoin.BIP174
 			var isSane = result.Item1;
 			var reason = result.Item2;
 			if (!isSane)
-				throw new FormatException(reason);
+				throw new FormatException("malformed PSTInput for Signer! " + reason);
 		}
 
-		private Tuple<bool, string> IsSaneForSigner(TxIn txin)
+		/// <summary>
+		/// ref: https://github.com/bitcoin/bips/blob/master/bip-0174.mediawiki#simple-signer-algorithm
+		/// </summary>
+		/// <param name="txin"></param>
+		internal Tuple<bool, string> IsSaneForSigner(TxIn txin)
 		{
+			if (IsFinalized())
+				return Tuple.Create(true, "");
 			// Tests for signer.
 			var prevout = GetOutput(txin.PrevOut);
 			if (prevout != null)
 			{
 				if (
-					PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(prevout.ScriptPubKey) || // p2pkh
-					(PayToScriptHashTemplate.Instance.CheckScriptPubKey(prevout.ScriptPubKey) &&
-						RedeemScript != null && !PayToWitTemplate.Instance.CheckScriptPubKey(RedeemScript)) // bare p2sh
-				)
+						PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(prevout.ScriptPubKey) || // p2pkh
+						(PayToScriptHashTemplate.Instance.CheckScriptPubKey(prevout.ScriptPubKey) &&
+							RedeemScript != null && !PayToWitTemplate.Instance.CheckScriptPubKey(RedeemScript)) // bare p2sh
+					)
 				{
 					if (NonWitnessUtxo == null)
-						return Tuple.Create(false, "malformed PSBTInput for Signer! witness_utxo for non_witness_output");
+						return Tuple.Create(false, "witness_utxo for non_witness_output");
 				}
 
 				var nextScript = prevout.ScriptPubKey;
 				if (redeem_script != null)
 				{
 					if (redeem_script.Hash != PayToScriptHashTemplate.Instance.ExtractScriptPubKeyParameters(prevout.ScriptPubKey))
-						return Tuple.Create(false, "malformed PSBTInput for Signer! redeem_script hash does not match to actual hash scriptPubKey");
+						return Tuple.Create(false, "redeem_script hash does not match to actual hash in scriptPubKey");
 
 					nextScript = redeem_script;
 				}
@@ -700,7 +705,7 @@ namespace NBitcoin.BIP174
 				{
 					var scriptId = PayToWitTemplate.Instance.ExtractScriptPubKeyParameters(nextScript);
 					if (scriptId == null || scriptId != witness_script.WitHash)
-						return Tuple.Create(false, "malformed PSBTInput for Signer! witness_script hash does not match to actual scriptPubKey");
+						return Tuple.Create(false, "witness_script hash does not match to actual scriptPubKey");
 				}
 			}
 
@@ -1399,7 +1404,6 @@ namespace NBitcoin.BIP174
 
 			return this;
 		}
-
 
 		/// <summary>
 		/// If an other PSBT has a specific field and this does not have it, then inject that field to this.

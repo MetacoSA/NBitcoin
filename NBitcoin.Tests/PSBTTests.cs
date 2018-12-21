@@ -148,24 +148,29 @@ namespace NBitcoin.Tests
 			Assert.NotNull(PSBTWithTXs.inputs[4].WitnessUtxo);
 			Assert.NotNull(PSBTWithTXs.inputs[5].WitnessUtxo);
 
-			var SignedPSBTWithTXs = PSBTWithTXs
-				.TrySignAll(keys);
+			var ClonedPSBT = PSBTWithTXs.Clone();
+
+			ClonedPSBT.TrySignAll(keys[0]);
+			PSBTWithTXs.TrySignAll(keys[1], keys[2]);
+
+			var WhollySignedPSBT = ClonedPSBT.Combine(PSBTWithTXs);
 
 			// must sign only once for whole kinds of non-multisig tx.
-			Assert.Single(SignedPSBTWithTXs.inputs[0].PartialSigs);
-			Assert.Single(SignedPSBTWithTXs.inputs[1].PartialSigs);
-			Assert.Single(SignedPSBTWithTXs.inputs[4].PartialSigs);
+			Assert.Single(WhollySignedPSBT.inputs[0].PartialSigs);
+			Assert.Single(WhollySignedPSBT.inputs[1].PartialSigs);
+			Assert.Single(WhollySignedPSBT.inputs[4].PartialSigs);
+
 			// for multisig
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[2].PartialSigs.Count);
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[2].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[3].PartialSigs.Count);
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[3].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[5].PartialSigs.Count);
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[5].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
+			Assert.Equal(3, WhollySignedPSBT.inputs[2].PartialSigs.Count);
+			Assert.Equal(3, WhollySignedPSBT.inputs[2].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
+			Assert.Equal(3, WhollySignedPSBT.inputs[3].PartialSigs.Count);
+			Assert.Equal(3, WhollySignedPSBT.inputs[3].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
+			Assert.Equal(3, WhollySignedPSBT.inputs[5].PartialSigs.Count);
+			Assert.Equal(3, WhollySignedPSBT.inputs[5].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
 
-			Assert.False(SignedPSBTWithTXs.CanExtractTX());
+			Assert.False(WhollySignedPSBT.CanExtractTX());
 
-			var FinalizedPSBT = SignedPSBTWithTXs.Finalize();
+			var FinalizedPSBT = WhollySignedPSBT.Finalize();
 			Assert.True(FinalizedPSBT.CanExtractTX());
 
 			var finalTX = FinalizedPSBT.ExtractTX();
@@ -180,7 +185,7 @@ namespace NBitcoin.Tests
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
-		public void ShouldFailToSignForTestcaseInvalidForSigner()
+		public void ShouldFailToCheckSanityForTestcaseInvalidForSigner()
 		{
 			JArray testcases = (JArray)testdata["invalidForSigners"];
 			foreach (string i in testcases)
@@ -288,7 +293,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(data1, expected, ComparerInstance);
 		}
 
-		private ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs, Script redeem, Key key)
+		static internal ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs, Script redeem, Key key)
 		{
 			var barecoins = txs.SelectMany(tx => tx.Outputs.AsCoins()).ToArray();
 			var coins = new ICoin[barecoins.Length];
@@ -301,7 +306,7 @@ namespace NBitcoin.Tests
 			return coins;
 		}
 
-		private Transaction CreateTxToSpendFunds(
+		static internal Transaction CreateTxToSpendFunds(
 				Transaction[] funds,
 				Key[] keys,
 				Script redeem,
@@ -341,7 +346,7 @@ namespace NBitcoin.Tests
 			return tx;
 		}
 
-		private Transaction[] CreateDummyFunds(Network network, Key[] keyForOutput, Script redeem)
+		static internal Transaction[] CreateDummyFunds(Network network, Key[] keyForOutput, Script redeem)
 		{
 			// 1. p2pkh and p2wpkh
 			var tx1 = network.CreateTransaction();
