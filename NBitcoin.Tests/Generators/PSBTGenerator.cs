@@ -53,16 +53,16 @@ namespace NBitcoin.Tests.Generators
 		{
 			foreach (var item in hdKeyPaths)
 			{
-				psbtin.HDKeyPaths.Add(item.Key, item.Value);
+				psbtin.HDKeyPaths.TryAdd(item.Key, item.Value);
 			}
 
 			foreach (var item in partialSigs)
 			{
-				psbtin.PartialSigs.Add(item.Key, item.Value);
+				psbtin.PartialSigs.TryAdd(item.Key, item.Value);
 			}
 			foreach (var item in unknown)
 			{
-				psbtin.Unknown.Add(item.Key, item.Value);
+				psbtin.Unknown.TryAdd(item.Key, item.Value);
 			}
 			return psbtin;
 		}
