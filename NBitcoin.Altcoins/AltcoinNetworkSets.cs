@@ -27,6 +27,7 @@ namespace NBitcoin.Altcoins
 		public static Colossus Colossus { get; } = Colossus.Instance;
 		public static GoByte GoByte { get; } = GoByte.Instance;
 		public static Liquid Liquid { get; } = Liquid.Instance;
+	        public static Koto Koto { get; } = Koto.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
