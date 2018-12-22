@@ -41,7 +41,7 @@ namespace NBitcoin.Altcoins
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
-        public class Koto : Block
+        public class KotoBlock : Block
         {
             public KotoBlock(KotoBlockHeader header) : base(header)
             {
