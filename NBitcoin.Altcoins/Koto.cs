@@ -111,8 +111,6 @@ namespace NBitcoin.Altcoins
             .SetMaxP2PVersion(170007)
             .SetName("koto-main")
             .AddAlias("koto-mainnet")
-            .AddAlias("Koto-main")
-            .AddAlias("Koto-mainnet")
             .AddDNSSeeds(new[]
             {
 				new DNSSeedData("ko-to.org", "dnsseed.ko-to.org")
@@ -157,8 +155,6 @@ namespace NBitcoin.Altcoins
             .SetMaxP2PVersion(170007)
             .SetName("koto-test")
             .AddAlias("koto-testnet")
-            .AddAlias("Koto-test")
-            .AddAlias("Koto-testnet")
             .AddDNSSeeds(new[]
             {
                 new DNSSeedData("ko-to.org", "testnet.ko-to.org")
@@ -201,8 +197,6 @@ namespace NBitcoin.Altcoins
             .SetMaxP2PVersion(170006)
             .SetName("koto-reg")
             .AddAlias("koto-regtest")
-            .AddAlias("Koto-reg")
-            .AddAlias("Koto-regtest")
             .SetGenesis("04000000000000000000000000000000000000000000000000000000000000000000000072bb817c4c07ab244baca568f5f465db3a87520fa165e9a9e68adaa820eb8de1cfb32c5affff07201c0000000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff2504ffff071f01041d4b6f746f3a4a6170616e6573652063727970746f2d63757272656e6379ffffffff010000000000000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000");
             return builder;
         }
