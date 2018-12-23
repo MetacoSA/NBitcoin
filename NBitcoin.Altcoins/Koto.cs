@@ -53,7 +53,7 @@ namespace NBitcoin.Altcoins
                 return KotoConsensusFactory.Instance;
             }
         }
-        public class KotoBlockHeader : BlockHeader
+	public class KotoBlockHeader : BlockHeader
         {
             public override uint256 GetPoWHash()
             {
