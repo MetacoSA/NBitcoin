@@ -1613,61 +1613,39 @@ namespace NBitcoin.RPC
 		}
 
 		public PSBT DecodePSBT(string base64) => DecodePSBTAsync(base64).GetAwaiter().GetResult();
-		public async Task<PSBT> DecodePSBTAsync(string base64)
+		public Task<PSBT> DecodePSBTAsync(string base64, bool isHex = false)
+			=> Task.FromResult(PSBT.Parse(base64, isHex));
+
+		public PSBT CombinePSBT(params PSBT[] psbts)
+			=> CombinePSBTAsync(psbts).GetAwaiter().GetResult();
+		public Task<PSBT> CombinePSBTAsync(params PSBT[] psbts)
+			=> Task.FromResult(psbts.Aggregate((a, b) => a.Combine(b)));
+
+		public FinalizePSBTResponse FinalizePSBT(PSBT psbt, bool extract = true) => FinalizePSBTAsync(psbt, extract).GetAwaiter().GetResult();
+		public Task<FinalizePSBTResponse> FinalizePSBTAsync(PSBT psbt, bool extract = true)
 		{
-			var response = await SendCommandAsync(RPCOperations.decodepsbt, base64);
-			var jobj = response.Result as JObject;
-			var tx = ParseTxHex((string)jobj.Property("tx").Value.Value<string>());
-			var unknownKvInString = jobj.Property("unknown").ToObject<Dictionary<string, string>>();
-			var unknown = new SortedDictionary<byte[], byte[]>(unknownKvInString.ToDictionary(kv => Encoders.Hex.DecodeData(kv.Key), kv => Encoders.Hex.DecodeData(kv.Value)));
-			return new PSBT()
-			{
-				tx = tx,
-				unknown = unknown,
-				inputs = ParsePSBTInputs((JArray)jobj.Property("inputs").Value, tx),
-				outputs = ParsePSBTOutputs((JArray)jobj.Property("outputs").Value, tx)
-			};
+			psbt.TryFinalize(out bool complete);
+			Transaction tx = null;
+			if (complete && extract)
+				tx = psbt.ExtractTX();
+
+			return Task.FromResult(new FinalizePSBTResponse(psbt, tx, complete));
 		}
 
-		private PSBTInputList ParsePSBTInputs(JArray jArray, Transaction tx)
-		{
-			var result = new PSBTInputList(tx);
-			var consensus = tx.GetConsensusFactory();
-			foreach (JObject jpsbtin in jArray)
-			{
+		public PSBT CreatePSBT(Transaction tx) => CreatePSBTAsync(tx).GetAwaiter().GetResult();
 
-				var psbtin = new PSBTInput()
-				{
-					NonWitnessUtxo = Transaction.Parse(jpsbtin.Value<string>("non_witness_utxo"), Network),
-					WitnessUtxo = TxOut.Parse(jpsbtin.Value<string>("witness_utxo")),
-					SighashType = StringToSigHash(jpsbtin.Value<string>("sighash")),
-				};
+		public Task<PSBT> CreatePSBTAsync(Transaction tx)
+			=> Task.FromResult(PSBT.FromTransaction(tx));
 
-				var JPartialSigs = jpsbtin.Property("partial_signatures").ToObject<Dictionary<string, string>>();
-				if (JPartialSigs != null)
-				{
-					foreach (var JSigPair in JPartialSigs)
-					{
-						var pk = new PubKey(JSigPair.Key);
-						var sig = new ECDSASignature(Encoders.Hex.DecodeData(JSigPair.Value));
-						psbtin.PartialSigs.Add(pk.Hash, Tuple.Create(pk, sig));
-					}
-				}
-				result.Add(psbtin);
-			};
+		#endregion
 
-			return result;
-		}
-
-#endregion
-
-#region Utility functions
+		#region Utility functions
 
 		// Estimates the approximate fee per kilobyte needed for a transaction to begin
 		// confirmation within conf_target blocks if possible and return the number of blocks
 		// for which the estimate is valid.Uses virtual transaction size as defined
 		// in BIP 141 (witness data is discounted).
-#region Fee Estimation
+		#region Fee Estimation
 
 		/// <summary>
 		/// (>= Bitcoin Core v0.14) Get the estimated fee per kb for being confirmed in nblock
