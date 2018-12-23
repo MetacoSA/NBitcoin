@@ -36,6 +36,7 @@ namespace NBitcoin.Tests
 		public RPCClientTests()
 		{
 			Arb.Register<PSBTGenerator>();
+			Arb.Register<SegwitTransactionGenerators>();
 			PSBTComparerInstance = new PSBTComparer();
 		}
 		
@@ -1259,15 +1260,124 @@ namespace NBitcoin.Tests
 		}
 
 		[Property(MaxTest = 5)]
-		public void CanHandlePSBT(PSBT psbt)
+		public void ShouldDecodeAndCombinePSBT(PSBT psbt1)
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
 				var node = builder.CreateNode();
 				node.Start();
 				var client = node.CreateRPCClient();
-				var result = client.DecodePSBT(psbt.ToBase64());
-				Assert.Equal(psbt, result, PSBTComparerInstance);
+
+				var result = client.DecodePSBT(psbt1.ToBase64());
+				Assert.Equal(psbt1, result, PSBTComparerInstance);
+
+				result = client.CombinePSBT(psbt1.Clone(), psbt1.Clone());
+				var expected = psbt1.Combine(psbt1.Clone());
+				Assert.Equal(expected, result, PSBTComparerInstance);
+			}
+		}
+
+		[Property(MaxTest = 5)]
+		public void ShouldCreatePSBT(Transaction tx)
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+
+				var client = node.CreateRPCClient();
+				var result = client.CreatePSBT(tx);
+				Assert.NotNull(result);
+			}
+		}
+
+		[Fact]
+		public void ShouldFinalizePSBT()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+
+				var client = node.CreateRPCClient();
+
+				var keys = new Key[] {new Key(), new Key(), new Key() };
+				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
+				var funds = PSBTTests.CreateDummyFunds(Network.TestNet, keys, redeem);
+				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
+				var psbt = PSBT.FromTransaction(tx)
+					.AddTransactions(funds);
+				var result = client.FinalizePSBT(psbt);
+
+				Assert.True(result.complete);
+				Assert.True(result.psbt.CanExtractTX());
+
+				var result2 = client.FinalizePSBT(psbt, true);
+				Assert.True(result2.psbt.IsAllFinalized());
+
+				AssertEx.CollectionEquals(tx.ToBytes(), result2.hex.ToBytes());
+			}
+		}
+
+		[Fact]
+		public void ShouldWalletProcessPSBTAndExtractMempoolAcceptableTX()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var node = builder.CreateNode();
+				node.Start();
+
+				var client = node.CreateRPCClient();
+
+				// ensure the wallet has whole kinds of coins ... 
+				client.Generate(101);
+				var addr = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Bech32 });
+				client.SendToAddress(addr, Money.Coins(15));
+				addr = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.P2SHSegwit });
+				client.SendToAddress(addr, Money.Coins(15));
+				client.Generate(1);
+
+				// case 1: irrelevant psbt.
+				var keys = new Key[] {new Key(), new Key(), new Key() };
+				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(ki => ki.PubKey).ToArray());
+				var funds = PSBTTests.CreateDummyFunds(Network.TestNet, keys, redeem);
+				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
+				var psbt = PSBT.FromTransaction(tx)
+					.AddTransactions(funds)
+					.TryAddScript(redeem);
+				var case1Result = client.WalletProcessPSBT(psbt);
+				Assert.Equal(psbt, case1Result.psbt, PSBTComparerInstance);
+
+				// case 2: psbt relevant to the wallet.
+				var kOut = new Key();
+				tx = builder.Network.CreateTransaction();
+				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut)); // big enough to the wallet must use every kinds of coin.
+				var fundTxResult = client.FundRawTransaction(tx);
+				Assert.Equal(3, fundTxResult.Transaction.Inputs.Count);
+
+				psbt = PSBT.FromTransaction(fundTxResult.Transaction);
+
+				var Sighashes = new SigHash[] { SigHash.All, SigHash.Single, SigHash.None, SigHash.All | SigHash.AnyoneCanPay, SigHash.Single | SigHash.AnyoneCanPay, SigHash.None | SigHash.AnyoneCanPay };
+				var bip32flag = new bool[] { true, false };
+				foreach (SigHash type in Sighashes)
+				{
+					foreach (var bip32 in bip32flag)
+					{
+						// unsigned
+						var result = client.WalletProcessPSBT(psbt, false, type, bip32);
+						result.psbt.TryFinalize(out bool isFinalized);
+						Assert.False(isFinalized);
+
+						// signed
+						result = client.WalletProcessPSBT(psbt, true, type, bip32);
+						result.psbt.TryFinalize(out bool isFinalized2);
+						Assert.True(isFinalized2);
+
+						var txResult = result.psbt.ExtractTX();
+
+						client.TestMempoolAccept(txResult, true);
+					}
+				}
 			}
 		}
 
