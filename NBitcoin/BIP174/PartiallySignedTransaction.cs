@@ -808,10 +808,8 @@ namespace NBitcoin.BIP174
 				stream.ReadWriteAsVarInt(ref defaultKeyLen);
 				var key = PSBTConstants.PSBT_IN_SIGHASH;
 				stream.ReadWrite(ref key);
-				uint valueLength = 1;
-				stream.ReadWriteAsVarInt(ref valueLength);
-				var tmp = (byte)sighash_type;
-				stream.ReadWrite(ref tmp);
+				var tmp = BitConverter.GetBytes((uint)sighash_type);
+				stream.ReadWriteAsVarString(ref tmp);
 			}
 
 			// Write the redeem script
@@ -945,8 +943,9 @@ namespace NBitcoin.BIP174
 							throw new FormatException("Invalid PSBTInput. Contains illegal value in key for SigHash type");
 						if (sighash_type != 0)
 							throw new FormatException("Invalid PSBTInput. Duplicate key for sighash_type");
-
-						var value = BitConverter.ToUInt32(new byte[] { v[0], 0x00, 0x00, 0x00 }, 0);
+						if (v.Length != 4)
+							throw new FormatException("Invalid PSBTInput. SigHash Type is not 4 byte");
+						var value = BitConverter.ToUInt32(v, 0);
 						if (!Enum.IsDefined(typeof(SigHash), value))
 							throw new FormatException($"Invalid PSBTInput Unknown SigHash Type {value}");
 						sighash_type = (SigHash)value;
