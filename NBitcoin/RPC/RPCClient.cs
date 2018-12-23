@@ -1612,9 +1612,10 @@ namespace NBitcoin.RPC
 			};
 		}
 
-		public PSBT DecodePSBT(string base64) => DecodePSBTAsync(base64).GetAwaiter().GetResult();
+		public PSBT DecodePSBT(string base64, bool isHex = false) => DecodePSBTAsync(base64, isHex).GetAwaiter().GetResult();
 		public Task<PSBT> DecodePSBTAsync(string base64, bool isHex = false)
 			=> Task.FromResult(PSBT.Parse(base64, isHex));
+
 
 		public PSBT CombinePSBT(params PSBT[] psbts)
 			=> CombinePSBTAsync(psbts).GetAwaiter().GetResult();

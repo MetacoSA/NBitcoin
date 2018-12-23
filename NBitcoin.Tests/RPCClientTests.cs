@@ -1346,37 +1346,47 @@ namespace NBitcoin.Tests
 					.AddTransactions(funds)
 					.TryAddScript(redeem);
 				var case1Result = client.WalletProcessPSBT(psbt);
+				// nothing must change for the psbt unrelated to the wallet.
 				Assert.Equal(psbt, case1Result.psbt, PSBTComparerInstance);
 
-				// case 2: psbt relevant to the wallet.
+				// case 2: psbt relevant to the wallet. (but already finalized)
 				var kOut = new Key();
 				tx = builder.Network.CreateTransaction();
-				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut)); // big enough to the wallet must use every kinds of coin.
+				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut)); // This has to be big enough since the wallet must use whole kinds of address.
 				var fundTxResult = client.FundRawTransaction(tx);
 				Assert.Equal(3, fundTxResult.Transaction.Inputs.Count);
+				var psbtFinalized = PSBT.FromTransaction(fundTxResult.Transaction);
+				var result = client.WalletProcessPSBT(psbtFinalized, false);
+				Assert.True(result.psbt.CanExtractTX());
 
-				psbt = PSBT.FromTransaction(fundTxResult.Transaction);
+				// case 3: psbt relevant to the wallet (and not finalized)
+				var spendableCoins = client.ListUnspent().Where(c => c.IsSpendable).Select(c => c.AsCoin());
+				tx = builder.Network.CreateTransaction();
+				foreach (var coin in spendableCoins)
+					tx.Inputs.Add(coin.Outpoint);
+				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut));
+				var psbtUnfinalized = PSBT.FromTransaction(tx);
 
 				var Sighashes = new SigHash[] { SigHash.All, SigHash.Single, SigHash.None, SigHash.All | SigHash.AnyoneCanPay, SigHash.Single | SigHash.AnyoneCanPay, SigHash.None | SigHash.AnyoneCanPay };
-				var bip32flag = new bool[] { true, false };
 				foreach (SigHash type in Sighashes)
 				{
-					foreach (var bip32 in bip32flag)
+					// unsigned
+					result = client.WalletProcessPSBT(psbtFinalized, false, type, bip32derivs: true);
+					Assert.False(result.psbt.CanExtractTX());
+					result.psbt.TryFinalize(out bool isFinalized2);
+					Assert.False(isFinalized2);
+					foreach (var psbtin in result.psbt.inputs)
 					{
-						// unsigned
-						var result = client.WalletProcessPSBT(psbt, false, type, bip32);
-						result.psbt.TryFinalize(out bool isFinalized);
-						Assert.False(isFinalized);
-
-						// signed
-						result = client.WalletProcessPSBT(psbt, true, type, bip32);
-						result.psbt.TryFinalize(out bool isFinalized2);
-						Assert.True(isFinalized2);
-
-						var txResult = result.psbt.ExtractTX();
-
-						client.TestMempoolAccept(txResult, true);
+						Assert.Equal(psbtin.SighashType, type);
+						Assert.NotEmpty(psbtin.HDKeyPaths);
 					}
+
+					// signed
+					result = client.WalletProcessPSBT(psbtFinalized, true, type);
+					result.psbt.TryFinalize(out bool isFinalized3);
+					Assert.True(isFinalized3);
+					var txResult = result.psbt.ExtractTX();
+					client.TestMempoolAccept(txResult, true);
 				}
 			}
 		}
