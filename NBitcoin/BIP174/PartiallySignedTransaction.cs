@@ -1607,7 +1607,7 @@ namespace NBitcoin.BIP174
 			var isSane = result.Item1;
 			var reason = result.Item2;
 			if (!isSane)
-				throw new FormatException(reason);
+				throw new FormatException("malformed PSBT!" + reason);
 		}
 
 		private Tuple<bool, string> IsSane()
@@ -1620,14 +1620,14 @@ namespace NBitcoin.BIP174
 				{
 					var prevOutIndex = txin.PrevOut.N;
 					if (!psbtin.NonWitnessUtxo.Outputs[prevOutIndex].Equals(psbtin.NonWitnessUtxo))
-						return Tuple.Create(false, "malformed PSBT! witness_utxo and non_witness_utxo is different");
+						return Tuple.Create(false, "witness_utxo and non_witness_utxo is different");
 				}
 
 				if (psbtin.NonWitnessUtxo != null)
 				{
 					var prevOutTxId = psbtin.NonWitnessUtxo.GetHash();
 					if (txin.PrevOut.Hash != prevOutTxId)
-						return Tuple.Create(false, "malformed PSBT! wrong non_witness_utxo.");
+						return Tuple.Create(false, "wrong non_witness_utxo.");
 				}
 
 			}
@@ -1731,19 +1731,27 @@ namespace NBitcoin.BIP174
 			if (!txFound)
 				throw new FormatException("Invalid PSBT. No global TX");
 
-			for (var i = 0; i < tx.Inputs.Count(); i++)
+			int i = 0;
+			while (stream.Inner.CanRead && i < tx.Inputs.Count)
 			{
 				var psbtin = new PSBTInput();
 				psbtin.ReadWrite(stream);
 				inputs.Add(psbtin);
+				i++;
 			}
+			if (i != tx.Inputs.Count)
+				throw new FormatException("Invalid PSBT. Number of input does not match to the global tx");
 
-			for (var i = 0; i < tx.Outputs.Count(); i++)
+			i = 0;
+			while (stream.Inner.CanRead && i < tx.Outputs.Count)
 			{
 				var psbtout = new PSBTOutput();
 				psbtout.ReadWrite(stream);
 				outputs.Add(psbtout);
+				i++;
 			}
+			if (i != tx.Outputs.Count)
+				throw new FormatException("Invalid PSBT. Number of outputs does not match to the global tx");
 
 			CheckSanity();
 		}
