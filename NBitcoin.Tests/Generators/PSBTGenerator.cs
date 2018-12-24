@@ -13,59 +13,11 @@ namespace NBitcoin.Tests.Generators
 	using UnknownKVMap = Dictionary<byte[], byte[]>;
 	public class PSBTGenerator
 	{
-		public static Arbitrary<PSBTInput> PSBTInputArb() => Arb.From(PSBTInput());
 		public static Arbitrary<PSBTOutput> PSBTOutputArb() => Arb.From(PSBTOutput());
 		public static Arbitrary<PSBT> PSBTArb() => Arb.From(SanePSBT());
 
 		#region PSBTInput
 
-		public static Gen<PSBTInput> PSBTInput() => Gen.OneOf(PSBTInputFinal(), PSBTInputNonFinal());
-		public static Gen<PSBTInput> PSBTInputNonFinal() =>
-			from nonWitnessUtxo in SegwitTransactionGenerators.TX()
-			from witnessUtxo in LegacyTransactionGenerators.Output()
-			from redeem in ScriptGenerator.RandomScriptSig()
-			from witnessS in ScriptGenerator.RandomScriptSig()
-			from hdKeyPaths in HDKeyPaths()
-			from partialSigs in PartialSigs()
-			from unknown in UnknownKVMap()
-			select ComposePSBTInput(new PSBTInput()
-			{
-				NonWitnessUtxo = nonWitnessUtxo,
-				WitnessUtxo = witnessUtxo,
-				RedeemScript = redeem,
-				WitnessScript = witnessS,
-			}, hdKeyPaths, partialSigs, unknown);
-
-		public static Gen<PSBTInput> PSBTInputFinal() =>
-			from finalScriptSig in ScriptGenerator.RandomScriptSig()
-			from finalScriptWitness in ScriptGenerator.RandomWitScript()
-			select new PSBTInput()
-			{
-				FinalScriptSig = finalScriptSig,
-				FinalScriptWitness = finalScriptWitness,
-			};
-
-		private static PSBTInput ComposePSBTInput(
-						PSBTInput psbtin, HDKeyPathKVMap hdKeyPaths,
-						PartialSigKVMap partialSigs,
-						UnknownKVMap unknown
-						)
-		{
-			foreach (var item in hdKeyPaths)
-			{
-				psbtin.HDKeyPaths.TryAdd(item.Key, item.Value);
-			}
-
-			foreach (var item in partialSigs)
-			{
-				psbtin.PartialSigs.TryAdd(item.Key, item.Value);
-			}
-			foreach (var item in unknown)
-			{
-				psbtin.Unknown.TryAdd(item.Key, item.Value);
-			}
-			return psbtin;
-		}
 		public static Gen<Dictionary<KeyId, Tuple<PubKey, ECDSASignature>>> PartialSigs() =>
 								from itemNum in Gen.Choose(0, 15)
 								from sigs in CryptoGenerator.ECDSAs(itemNum)
@@ -129,10 +81,6 @@ namespace NBitcoin.Tests.Generators
 				.AddCoins(CoinsToAdd.ToArray())
 				.TryAddScript(scriptsToAdd.ToArray())
 			select psbt;
-		public static Gen<PSBT> PSBTGen(Transaction tx) =>
-			from psbtins in Gen.ListOf(tx.Inputs.Count, PSBTInput())
-			from psbtouts in Gen.ListOf(tx.Outputs.Count, PSBTOutput())
-			select new PSBT(tx) { outputs = new PSBTOutputList(psbtouts.ToList()), inputs = new PSBTInputList(psbtins.ToList()) };
 
 		private static Gen<TxOut> OutputFromRedeemOrKey(Script sc, PubKey key) =>
 			sc != null ? OutputFromRedeem(sc) : OutputFromKey(key);
