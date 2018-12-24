@@ -1432,6 +1432,8 @@ namespace NBitcoin.Tests
 				Assert.Equal(3, fundTxResult.Transaction.Inputs.Count);
 				var psbtFinalized = PSBT.FromTransaction(fundTxResult.Transaction);
 				var result = client.WalletProcessPSBT(psbtFinalized, false);
+				Assert.False(result.psbt.CanExtractTX());
+				result = client.WalletProcessPSBT(psbtFinalized, true);
 				Assert.True(result.psbt.CanExtractTX());
 
 				// case 3a: psbt relevant to the wallet (and not finalized)
@@ -1442,27 +1444,25 @@ namespace NBitcoin.Tests
 				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut));
 				var psbtUnFinalized = PSBT.FromTransaction(tx);
 
-				var Sighashes = new SigHash[] { SigHash.All, SigHash.Single, SigHash.None, SigHash.All | SigHash.AnyoneCanPay, SigHash.Single | SigHash.AnyoneCanPay, SigHash.None | SigHash.AnyoneCanPay };
-				foreach (SigHash type in Sighashes)
+				var type = SigHash.All;
+				// unsigned
+				result = client.WalletProcessPSBT(psbtUnFinalized, false, type, bip32derivs: true);
+				Assert.False(result.complete);
+				Assert.False(result.psbt.CanExtractTX());
+				result.psbt.TryFinalize(out bool isFinalized2);
+				Assert.False(isFinalized2);
+				foreach (var psbtin in result.psbt.inputs)
 				{
-					// unsigned
-					result = client.WalletProcessPSBT(psbtUnFinalized, false, type, bip32derivs: true);
-					// Assert.False(result.psbt.CanExtractTX());
-					// result.psbt.TryFinalize(out bool isFinalized2);
-					// Assert.False(isFinalized2);
-					foreach (var psbtin in result.psbt.inputs)
-					{
-						Assert.Equal(psbtin.SighashType, type);
-						Assert.NotEmpty(psbtin.HDKeyPaths);
-					}
-
-					// signed
-					result = client.WalletProcessPSBT(psbtUnFinalized, true, type);
-					result.psbt.TryFinalize(out bool isFinalized3);
-					Assert.True(isFinalized3);
-					var txResult = result.psbt.ExtractTX();
-					client.TestMempoolAccept(txResult, true);
+					Assert.Equal(SigHash.Undefined, psbtin.SighashType);
+					Assert.NotEmpty(psbtin.HDKeyPaths);
 				}
+
+				// signed
+				result = client.WalletProcessPSBT(psbtUnFinalized, true, type);
+				result.psbt.TryFinalize(out bool isFinalized3);
+				Assert.True(isFinalized3);
+				var txResult = result.psbt.ExtractTX();
+				client.TestMempoolAccept(txResult, true);
 			}
 		}
 

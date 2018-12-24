@@ -862,7 +862,7 @@ namespace NBitcoin.RPC
 		}
 
 		public WalletProcessPSBTResponse WalletProcessPSBT(PSBT psbt, bool sign = true, SigHash hashType = SigHash.All, bool bip32derivs = false)
-			 => WalletProcessPSBTAsync(psbt).GetAwaiter().GetResult();
+			 => WalletProcessPSBTAsync(psbt, sign, hashType, bip32derivs).GetAwaiter().GetResult();
 		public async Task<WalletProcessPSBTResponse> WalletProcessPSBTAsync(PSBT psbt, bool sign = true, SigHash sighashType = SigHash.All, bool bip32derivs = false)
 		{
 			if (psbt == null)
