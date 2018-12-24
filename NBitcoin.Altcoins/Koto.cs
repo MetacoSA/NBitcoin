@@ -14,12 +14,14 @@ namespace NBitcoin.Altcoins
 	// Reference: https://github.com/KotoDevelopers/koto/blob/master/src/chainparams.cpp
 	public class Koto : NetworkSetBase
 	{
-	public static Koto Instance { get; } = new Koto();
-	public override string CryptoCode => "KOTO";
-	private Koto()
-	{
+		public static Koto Instance { get; } = new Koto();
 		
-	}
+		public override string CryptoCode => "KOTO";
+		
+		private Koto()
+		{
+		
+		}
 		public class KotoConsensusFactory : ConsensusFactory
 		{
 			private KotoConsensusFactory()
