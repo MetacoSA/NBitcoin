@@ -37,12 +37,12 @@ namespace NBitcoin.Altcoins
 			{
 				return new KotoBlock(new KotoBlockHeader());
 				}
-			}
+	}
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
 		public class KotoBlock : Block
-        {
+		{
 			public KotoBlock(KotoBlockHeader header) : base(header)
 			{
 
