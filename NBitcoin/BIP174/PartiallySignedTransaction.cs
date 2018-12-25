@@ -217,7 +217,7 @@ namespace NBitcoin.BIP174
 			unknown = new SortedDictionary<byte[], byte[]>(BytesComparer.Instance);
 		}
 
-		public PSBTInput(TxIn txin)
+		public PSBTInput(TxIn txin, bool preserveInputProp = true)
 		{
 			if (txin == null)
 			{
@@ -225,7 +225,8 @@ namespace NBitcoin.BIP174
 			}
 			SetUp();
 
-			DeconstructTxIn(txin);
+			if (preserveInputProp)
+				DeconstructTxIn(txin);
 			txin.ScriptSig = Script.Empty;
 			txin.WitScript = WitScript.Empty;
 		}
@@ -520,6 +521,8 @@ namespace NBitcoin.BIP174
 					{
 						redeem_script = key.PubKey.WitHash.ScriptPubKey;
 						coin = new ScriptCoin(coin, redeem_script);
+						// If this is p2sh-p2wpkh, here will be the first place that we can notice that this was actually
+						// a witness input. And for witness input, we must never hold non_witness_utxo, so purge it.
 						TrySlimOutput(txin);
 					}
 					generatedSig = SignTx(ref dummyTx, key, coin, index, UseLowR);
@@ -1338,18 +1341,18 @@ namespace NBitcoin.BIP174
 		/// If you want to, give coins or previous TXs by `Add[Coins|Transactions]` right after instantiation
 		/// </summary>
 		/// <param name="globalTx"></param>
-		public PSBT(Transaction globalTx)
+		public PSBT(Transaction globalTx, bool preserveInputProp = true)
 		{
 			tx = globalTx.Clone() ?? throw new ArgumentNullException(nameof(globalTx));
 			Initialize();
-			SetUpInput();
+			SetUpInput(preserveInputProp);
 			SetUpOutput();
 		}
 
-		private void SetUpInput()
+		private void SetUpInput(bool preserveInputProp = true)
 		{
 			for (var i = 0; i < tx.Inputs.Count; i++)
-				this.inputs.Add(new PSBTInput(tx.Inputs[i]));
+				this.inputs.Add(new PSBTInput(tx.Inputs[i], preserveInputProp));
 		}
 
 		private void SetUpOutput()
@@ -1374,7 +1377,7 @@ namespace NBitcoin.BIP174
 			unknown = new UnKnownKVMap(BytesComparer.Instance);
 		}
 
-		public static PSBT FromTransaction(Transaction tx) => new PSBT(tx);
+		public static PSBT FromTransaction(Transaction tx, bool preserveInputProp = true) => new PSBT(tx, preserveInputProp);
 
 		public PSBT AddCoins(params ICoin[] coins)
 		{

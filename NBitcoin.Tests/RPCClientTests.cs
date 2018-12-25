@@ -1278,7 +1278,7 @@ namespace NBitcoin.Tests
 		}
 
 		[Property(MaxTest = 5)]
-		public void ShouldCreatePSBT(Transaction tx)
+		public void ShouldConvertTxToPSBT(Transaction tx)
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
@@ -1286,7 +1286,7 @@ namespace NBitcoin.Tests
 				node.Start();
 
 				var client = node.CreateRPCClient();
-				var result = client.CreatePSBT(tx);
+				var result = client.ConvertToPSBT(tx);
 				Assert.NotNull(result);
 			}
 		}
@@ -1334,11 +1334,16 @@ namespace NBitcoin.Tests
 				// case1: PSBT from already fully signed tx
 				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
 				// PSBT without previous outputs but with finalized_script_witness will throw an error.
-				var psbt = PSBT.FromTransaction(tx);
+				var psbt = PSBT.FromTransaction(tx.Clone());
 				Assert.Throws<FormatException>(() => psbt.ToBase64());
 
 				// after adding coins, will not throw an error.
 				psbt.AddCoins(funds.SelectMany(f => f.Outputs.AsCoins()).ToArray());
+				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
+
+				// but if we use rpc to convert tx to psbt, it will discard input scriptSig and ScriptWitness.
+				// So it will be acceptable by any other rpc.
+				psbt = client.ConvertToPSBT(tx.Clone());
 				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
 
 				// case2: PSBT from tx with script (but without signatures)
@@ -1474,6 +1479,7 @@ namespace NBitcoin.Tests
 				client.TestMempoolAccept(txResult, true);
 			}
 		}
+
 
 		private void AssertJsonEquals(string json1, string json2)
 		{

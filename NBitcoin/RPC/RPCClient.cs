@@ -1633,10 +1633,10 @@ namespace NBitcoin.RPC
 			return Task.FromResult(new FinalizePSBTResponse(psbt, tx, complete));
 		}
 
-		public PSBT CreatePSBT(Transaction tx) => CreatePSBTAsync(tx).GetAwaiter().GetResult();
+		public PSBT ConvertToPSBT(Transaction tx) => ConvertToPSBTAsync(tx).GetAwaiter().GetResult();
 
-		public Task<PSBT> CreatePSBTAsync(Transaction tx)
-			=> Task.FromResult(PSBT.FromTransaction(tx));
+		public Task<PSBT> ConvertToPSBTAsync(Transaction tx)
+			=> Task.FromResult(PSBT.FromTransaction(tx, false));
 
 		#endregion
 
