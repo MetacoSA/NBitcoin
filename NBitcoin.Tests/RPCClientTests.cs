@@ -1353,20 +1353,27 @@ namespace NBitcoin.Tests
 				// case3: PSBT from tx without script nor signatures.
 				tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, false, false);
 				psbt = PSBT.FromTransaction(tx);
-				// This time, it will not throw an error.
+				// This time, it will not throw an error at the first place.
 				// Since sanity check for witness input will not complain about witness-script-without-witnessUtxo
 				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
+
+				var dummyKey = new Key();
+				var dummyScript = new Script("OP_DUP " + "OP_HASH160 " + Op.GetPushOp(dummyKey.PubKey.Hash.ToBytes()) + " OP_EQUALVERIFY");
 
 				// even after adding coins and scripts ...
 				var psbtWithCoins = psbt.Clone().AddCoins(funds.SelectMany(f => f.Outputs.AsCoins()).ToArray());
 				CheckPSBTIsAcceptableByRealRPC(psbtWithCoins.ToBase64(), client);
 				psbtWithCoins.TryAddScript(redeem);
 				CheckPSBTIsAcceptableByRealRPC(psbtWithCoins.ToBase64(), client);
+				var tmp = psbtWithCoins.Clone().TryAddScript(dummyScript); // should not change with dummyScript
+				Assert.Equal(psbtWithCoins, tmp, PSBTComparerInstance);
 				// or txs and scripts.
 				var psbtWithTXs = psbt.Clone().AddTransactions(funds);
 				CheckPSBTIsAcceptableByRealRPC(psbtWithTXs.ToBase64(), client);
 				psbtWithTXs.TryAddScript(redeem);
 				CheckPSBTIsAcceptableByRealRPC(psbtWithTXs.ToBase64(), client);
+				tmp = psbtWithTXs.Clone().TryAddScript(dummyScript);
+				Assert.Equal(psbtWithTXs, tmp, PSBTComparerInstance);
 
 				// Let's don't forget about hd KeyPath
 				psbtWithTXs.TryAddKeyPath(keys[0].PubKey, Tuple.Create((uint)1234, KeyPath.Parse("m/1'/2/3")));
@@ -1377,6 +1384,8 @@ namespace NBitcoin.Tests
 				// What about after adding some signatures?
 				psbtWithTXs.TrySignAll(keys);
 				CheckPSBTIsAcceptableByRealRPC(psbtWithTXs.ToBase64(), client);
+				tmp = psbtWithTXs.Clone().TrySignAll(dummyKey); // Try signing with unrelated key should not change anything
+				Assert.Equal(psbtWithTXs, tmp, PSBTComparerInstance);
 				// And finalization?
 				psbtWithTXs.Finalize();
 				CheckPSBTIsAcceptableByRealRPC(psbtWithTXs.ToBase64(), client);

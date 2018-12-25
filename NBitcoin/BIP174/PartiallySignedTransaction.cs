@@ -520,6 +520,7 @@ namespace NBitcoin.BIP174
 					{
 						redeem_script = key.PubKey.WitHash.ScriptPubKey;
 						coin = new ScriptCoin(coin, redeem_script);
+						TrySlimOutput(txin);
 					}
 					generatedSig = SignTx(ref dummyTx, key, coin, index, UseLowR);
 				}
@@ -1529,7 +1530,6 @@ namespace NBitcoin.BIP174
 			var psbtin = this.inputs[index];
 			var txin = this.tx.Inputs[index];
 			success = psbtin.Sign(index, tx, keys, UseLowR);
-			psbtin.TrySlimOutput(txin);
 			return this;
 		}
 
