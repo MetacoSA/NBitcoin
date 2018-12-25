@@ -17,6 +17,7 @@ Currently supported altcoins are:
 * UFO
 * Viacoin
 * Zclassic
+* Koto
 
 ## How to use?
 

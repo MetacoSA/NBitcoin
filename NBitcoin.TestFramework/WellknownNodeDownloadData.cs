@@ -764,6 +764,34 @@
 				}
 			};
 		}
+	public class KotoNodeDownloadData
+		{
+			public NodeDownloadData v2_0_0 = new NodeDownloadData()
+			{
+				Version = "2.0.0",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Harumaki-cryptocoin/koto-releases.github.io/releases/download/{0}/koto-{0}-win64.zip",
+					Archive = "koto-{0}-win64.zip",
+					Executable = "koto-{0}-win64/daemon/kotod.exe",
+					Hash = "6bda95dc3f4597d06ecd5c5cbc450d1e0822b126de99d31e8cab1395b8eeac0a"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/Harumaki-cryptocoin/koto-releases.github.io/releases/download/{0}/koto-{0}-linux64.zip",
+					Archive = "koto-{0}-linux64.zip",
+					Executable = "koto-{0}-linux64/bin/kotod",
+					Hash = "77168affc53533833f9f904bba5667629537ec43aedd54845f51096212fe7bcc"
+				},
+				Mac = new NodeOSDownloadData()
+				{
+					DownloadLink = "hhttps://github.com/Harumaki-cryptocoin/koto-releases.github.io/releases/download/{0}/koto-{0}-darwin.dmg",
+					Archive = "koto-{0}-darwin.dmg",
+					Executable = "koto-{0}/bin/kotod",
+					Hash = "6c23e649972b6c9fb828a554c1a170379a7792ad6f1ecc01210d5207d034aaa2"
+				}
+			};
+		}
 
 
 
@@ -870,6 +898,11 @@
 		{
 			get; set;
 		} = new GincoinNodeDownloadData();
+		
+		public static KotoNodeDownloadData Koto
+		{
+			get; set;
+		} = new KotoNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
