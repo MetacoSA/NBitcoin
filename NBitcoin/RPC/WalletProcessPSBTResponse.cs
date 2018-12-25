@@ -6,11 +6,11 @@ namespace NBitcoin.RPC
 	{
 		public WalletProcessPSBTResponse(PSBT psbt, bool complete)
 		{
-			this.psbt = psbt;
-			this.complete = complete;
+			this.Psbt = psbt;
+			this.Complete = complete;
 
 		}
-		public PSBT psbt { get; }
-		public bool complete { get; }
+		public PSBT Psbt { get; }
+		public bool Complete { get; }
 	}
 }

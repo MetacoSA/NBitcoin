@@ -828,7 +828,7 @@ namespace NBitcoin.BIP174
 				stream.ReadWriteAsVarInt(ref defaultKeyLen);
 				var key = PSBTConstants.PSBT_IN_SIGHASH;
 				stream.ReadWrite(ref key);
-				var tmp = BitConverter.GetBytes((uint)sighash_type);
+				var tmp = Utils.ToBytes((uint)sighash_type, true);
 				stream.ReadWriteAsVarString(ref tmp);
 			}
 
@@ -965,7 +965,7 @@ namespace NBitcoin.BIP174
 							throw new FormatException("Invalid PSBTInput. Duplicate key for sighash_type");
 						if (v.Length != 4)
 							throw new FormatException("Invalid PSBTInput. SigHash Type is not 4 byte");
-						var value = BitConverter.ToUInt32(v, 0);
+						var value = Utils.ToUInt32(v, 0, true);
 						if (!Enum.IsDefined(typeof(SigHash), value))
 							throw new FormatException($"Invalid PSBTInput Unknown SigHash Type {value}");
 						sighash_type = (SigHash)value;

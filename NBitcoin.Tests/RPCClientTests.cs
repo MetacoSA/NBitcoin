@@ -1309,13 +1309,13 @@ namespace NBitcoin.Tests
 					.AddTransactions(funds);
 				var result = client.FinalizePSBT(psbt);
 
-				Assert.True(result.complete);
-				Assert.True(result.psbt.CanExtractTX());
+				Assert.True(result.Complete);
+				Assert.True(result.Psbt.CanExtractTX());
 
 				var result2 = client.FinalizePSBT(psbt, true);
-				Assert.True(result2.psbt.IsAllFinalized());
+				Assert.True(result2.Psbt.IsAllFinalized());
 
-				AssertEx.CollectionEquals(tx.ToBytes(), result2.hex.ToBytes());
+				AssertEx.CollectionEquals(tx.ToBytes(), result2.Transaction.ToBytes());
 			}
 		}
 		[Fact]
@@ -1436,7 +1436,7 @@ namespace NBitcoin.Tests
 					.TryAddScript(redeem);
 				var case1Result = client.WalletProcessPSBT(psbt);
 				// nothing must change for the psbt unrelated to the wallet.
-				Assert.Equal(psbt, case1Result.psbt, PSBTComparerInstance);
+				Assert.Equal(psbt, case1Result.Psbt, PSBTComparerInstance);
 
 				// case 2: psbt relevant to the wallet. (but already finalized)
 				var kOut = new Key();
@@ -1446,9 +1446,9 @@ namespace NBitcoin.Tests
 				Assert.Equal(3, fundTxResult.Transaction.Inputs.Count);
 				var psbtFinalized = PSBT.FromTransaction(fundTxResult.Transaction);
 				var result = client.WalletProcessPSBT(psbtFinalized, false);
-				Assert.False(result.psbt.CanExtractTX());
+				Assert.False(result.Psbt.CanExtractTX());
 				result = client.WalletProcessPSBT(psbtFinalized, true);
-				Assert.True(result.psbt.CanExtractTX());
+				Assert.True(result.Psbt.CanExtractTX());
 
 				// case 3a: psbt relevant to the wallet (and not finalized)
 				var spendableCoins = client.ListUnspent().Where(c => c.IsSpendable).Select(c => c.AsCoin());
@@ -1461,11 +1461,11 @@ namespace NBitcoin.Tests
 				var type = SigHash.All;
 				// unsigned
 				result = client.WalletProcessPSBT(psbtUnFinalized, false, type, bip32derivs: true);
-				Assert.False(result.complete);
-				Assert.False(result.psbt.CanExtractTX());
-				result.psbt.TryFinalize(out bool isFinalized2);
+				Assert.False(result.Complete);
+				Assert.False(result.Psbt.CanExtractTX());
+				result.Psbt.TryFinalize(out bool isFinalized2);
 				Assert.False(isFinalized2);
-				foreach (var psbtin in result.psbt.inputs)
+				foreach (var psbtin in result.Psbt.inputs)
 				{
 					Assert.Equal(SigHash.Undefined, psbtin.SighashType);
 					Assert.NotEmpty(psbtin.HDKeyPaths);
@@ -1473,9 +1473,9 @@ namespace NBitcoin.Tests
 
 				// signed
 				result = client.WalletProcessPSBT(psbtUnFinalized, true, type);
-				result.psbt.TryFinalize(out bool isFinalized3);
+				result.Psbt.TryFinalize(out bool isFinalized3);
 				Assert.True(isFinalized3);
-				var txResult = result.psbt.ExtractTX();
+				var txResult = result.Psbt.ExtractTX();
 				client.TestMempoolAccept(txResult, true);
 			}
 		}

@@ -4,15 +4,15 @@ namespace NBitcoin.RPC
 {
 	public class FinalizePSBTResponse
 	{
-		public PSBT psbt { get; }
-		public Transaction hex { get; }
-		public bool complete { get; }
+		public PSBT Psbt { get; }
+		public Transaction Transaction { get; }
+		public bool Complete { get; }
 
-		public FinalizePSBTResponse(PSBT psbt, Transaction hex, bool complete)
+		public FinalizePSBTResponse(PSBT psbt, Transaction tx, bool complete)
 		{
-			this.psbt = psbt;
-			this.hex = hex;
-			this.complete = complete;
+			this.Psbt = psbt;
+			this.Transaction = tx;
+			this.Complete = complete;
 		}
 	}
 }
