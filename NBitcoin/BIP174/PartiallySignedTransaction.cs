@@ -866,7 +866,7 @@ namespace NBitcoin.BIP174
 			{
 				var key = new byte[] { PSBTConstants.PSBT_IN_BIP32_DERIVATION }.Concat(pathPair.Key.ToBytes());
 				stream.ReadWriteAsVarString(ref key);
-				var masterFingerPrint = BitConverter.GetBytes(pathPair.Value.Item1);
+				var masterFingerPrint = Utils.ToBytes(pathPair.Value.Item1, true);
 				var path = pathPair.Value.Item2.ToBytes();
 				var pathInfo = masterFingerPrint.Concat(path);
 				stream.ReadWriteAsVarString(ref pathInfo);
@@ -988,7 +988,7 @@ namespace NBitcoin.BIP174
 						var pubkey2 = new PubKey(k.Skip(1).ToArray());
 						if (hd_keypaths.ContainsKey(pubkey2))
 							throw new FormatException("Invalid PSBTInput. Duplicate key for hd_keypaths");
-						uint masterFingerPrint = BitConverter.ToUInt32(v.Take(4).ToArray(), 0);
+						uint masterFingerPrint = Utils.ToUInt32(v.Take(4).ToArray(), 0, true);
 						KeyPath path = KeyPath.FromBytes(v.Skip(4).ToArray());
 						hd_keypaths.Add(pubkey2, Tuple.Create(masterFingerPrint, path));
 						break;
