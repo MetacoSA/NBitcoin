@@ -1305,7 +1305,7 @@ namespace NBitcoin.Tests
 				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
 				var funds = PSBTTests.CreateDummyFunds(Network.TestNet, keys, redeem);
 				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
-				var psbt = PSBT.FromTransaction(tx)
+				var psbt = PSBT.FromTransaction(tx, true)
 					.AddTransactions(funds);
 				var result = client.FinalizePSBT(psbt);
 
@@ -1334,7 +1334,7 @@ namespace NBitcoin.Tests
 				// case1: PSBT from already fully signed tx
 				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
 				// PSBT without previous outputs but with finalized_script_witness will throw an error.
-				var psbt = PSBT.FromTransaction(tx.Clone());
+				var psbt = PSBT.FromTransaction(tx.Clone(), true);
 				Assert.Throws<FormatException>(() => psbt.ToBase64());
 
 				// after adding coins, will not throw an error.
@@ -1348,7 +1348,7 @@ namespace NBitcoin.Tests
 
 				// case2: PSBT from tx with script (but without signatures)
 				tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, false);
-				psbt = PSBT.FromTransaction(tx);
+				psbt = PSBT.FromTransaction(tx, true);
 				// it has witness_script but has no prevout so it will throw an error.
 				Assert.Throws<FormatException>(() => psbt.ToBase64());
 				// after adding coins, will not throw error.
@@ -1357,7 +1357,7 @@ namespace NBitcoin.Tests
 
 				// case3: PSBT from tx without script nor signatures.
 				tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, false, false);
-				psbt = PSBT.FromTransaction(tx);
+				psbt = PSBT.FromTransaction(tx, true);
 				// This time, it will not throw an error at the first place.
 				// Since sanity check for witness input will not complain about witness-script-without-witnessUtxo
 				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
@@ -1431,7 +1431,7 @@ namespace NBitcoin.Tests
 				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(ki => ki.PubKey).ToArray());
 				var funds = PSBTTests.CreateDummyFunds(Network.TestNet, keys, redeem);
 				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
-				var psbt = PSBT.FromTransaction(tx)
+				var psbt = PSBT.FromTransaction(tx, true)
 					.AddTransactions(funds)
 					.TryAddScript(redeem);
 				var case1Result = client.WalletProcessPSBT(psbt);
@@ -1444,7 +1444,7 @@ namespace NBitcoin.Tests
 				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut)); // This has to be big enough since the wallet must use whole kinds of address.
 				var fundTxResult = client.FundRawTransaction(tx);
 				Assert.Equal(3, fundTxResult.Transaction.Inputs.Count);
-				var psbtFinalized = PSBT.FromTransaction(fundTxResult.Transaction);
+				var psbtFinalized = PSBT.FromTransaction(fundTxResult.Transaction, true);
 				var result = client.WalletProcessPSBT(psbtFinalized, false);
 				Assert.False(result.Psbt.CanExtractTX());
 				result = client.WalletProcessPSBT(psbtFinalized, true);
@@ -1456,7 +1456,7 @@ namespace NBitcoin.Tests
 				foreach (var coin in spendableCoins)
 					tx.Inputs.Add(coin.Outpoint);
 				tx.Outputs.Add(new TxOut(Money.Coins(45), kOut));
-				var psbtUnFinalized = PSBT.FromTransaction(tx);
+				var psbtUnFinalized = PSBT.FromTransaction(tx, true);
 
 				var type = SigHash.All;
 				// unsigned

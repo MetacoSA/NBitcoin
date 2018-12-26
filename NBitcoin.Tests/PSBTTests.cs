@@ -60,7 +60,7 @@ namespace NBitcoin.Tests
 
 			// 2. with (unsigned) scriptSig and witness.
 			tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
-			var psbt = new PSBT(tx);
+			var psbt = new PSBT(tx, true);
 			Assert.Null(psbt.inputs[0].FinalScriptSig); // it is not finalized since it is not signed
 			Assert.Null(psbt.inputs[1].FinalScriptWitness); // This too
 			Assert.NotNull(psbt.inputs[2].RedeemScript); // But it holds redeem script.
@@ -70,7 +70,7 @@ namespace NBitcoin.Tests
 
 			// 3. with finalized scriptSig and witness
 			tx = CreateTxToSpendFunds(funds, keys, redeem, true, true);
-			psbt = new PSBT(tx);
+			psbt = new PSBT(tx, true);
 			Assert.NotNull(psbt.inputs[0].FinalScriptSig); // it should be finalized
 			Assert.NotNull(psbt.inputs[1].FinalScriptWitness); // p2wpkh too
 			Assert.NotNull(psbt.inputs[2].RedeemScript); // But it holds redeem script.
@@ -105,7 +105,7 @@ namespace NBitcoin.Tests
 
 			var tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
 			var coins = DummyFundsToCoins(funds, redeem, alice);
-			var PSBTWithCoins = PSBT.FromTransaction(tx)
+			var PSBTWithCoins = PSBT.FromTransaction(tx, true)
 				.AddCoins(coins);
 
 			Assert.Null(PSBTWithCoins.inputs[0].WitnessUtxo);
@@ -125,6 +125,10 @@ namespace NBitcoin.Tests
 			Assert.NotNull(PSBTWithCoins.inputs[3].WitnessScript); // p2wsh
 			Assert.NotNull(PSBTWithCoins.inputs[5].WitnessScript); // p2sh-p2wsh
 
+			// Operation must be idempotent.
+			var tmp = PSBTWithCoins.Clone().AddCoins(coins);
+			Assert.Equal(tmp, PSBTWithCoins, ComparerInstance);
+
 			var SignedPSBTWithCoins = PSBTWithCoins
 				.TrySignAll(alice);
 			Assert.Empty(SignedPSBTWithCoins.inputs[0].PartialSigs); // can not sign for non segwit input without non-witness UTXO
@@ -137,7 +141,7 @@ namespace NBitcoin.Tests
 			SignedPSBTWithCoins.TryFinalize(out bool HasFinalizationSucceedForPSBTWithoutPrevTX);
 			Assert.False(HasFinalizationSucceedForPSBTWithoutPrevTX);
 
-			var PSBTWithTXs = PSBT.FromTransaction(tx)
+			var PSBTWithTXs = PSBT.FromTransaction(tx, true)
 				.AddTransactions(funds);
 			Assert.Null(PSBTWithTXs.inputs[0].WitnessUtxo);
 			Assert.NotNull(PSBTWithTXs.inputs[0].NonWitnessUtxo);
@@ -147,6 +151,12 @@ namespace NBitcoin.Tests
 			Assert.NotNull(PSBTWithTXs.inputs[3].WitnessUtxo);
 			Assert.NotNull(PSBTWithTXs.inputs[4].WitnessUtxo);
 			Assert.NotNull(PSBTWithTXs.inputs[5].WitnessUtxo);
+
+			// Operation must be idempotent.
+			tmp = PSBTWithTXs.Clone()
+				.AddCoins(coins)
+				.AddTransactions(funds);
+			Assert.Equal(PSBTWithTXs, tmp, ComparerInstance);
 
 			var ClonedPSBT = PSBTWithTXs.Clone();
 

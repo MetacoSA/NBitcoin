@@ -217,7 +217,7 @@ namespace NBitcoin.BIP174
 			unknown = new SortedDictionary<byte[], byte[]>(BytesComparer.Instance);
 		}
 
-		public PSBTInput(TxIn txin, bool preserveInputProp = true)
+		public PSBTInput(TxIn txin, bool preserveInputProp = false)
 		{
 			if (txin == null)
 			{
@@ -1341,7 +1341,7 @@ namespace NBitcoin.BIP174
 		/// If you want to, give coins or previous TXs by `Add[Coins|Transactions]` right after instantiation
 		/// </summary>
 		/// <param name="globalTx"></param>
-		public PSBT(Transaction globalTx, bool preserveInputProp = true)
+		public PSBT(Transaction globalTx, bool preserveInputProp = false)
 		{
 			tx = globalTx.Clone() ?? throw new ArgumentNullException(nameof(globalTx));
 			Initialize();
@@ -1349,7 +1349,7 @@ namespace NBitcoin.BIP174
 			SetUpOutput();
 		}
 
-		private void SetUpInput(bool preserveInputProp = true)
+		private void SetUpInput(bool preserveInputProp = false)
 		{
 			for (var i = 0; i < tx.Inputs.Count; i++)
 				this.inputs.Add(new PSBTInput(tx.Inputs[i], preserveInputProp));
@@ -1377,7 +1377,17 @@ namespace NBitcoin.BIP174
 			unknown = new UnKnownKVMap(BytesComparer.Instance);
 		}
 
-		public static PSBT FromTransaction(Transaction tx, bool preserveInputProp = true) => new PSBT(tx, preserveInputProp);
+		/// <summary>
+		///  Instantiate from Transaction.
+		/// </summary>
+		/// <param name="tx"></param>
+		/// <param name="preserveInputProp">
+		///	It tries to preserve signatures and scripts from ScriptSig (or Witness Script) iff preserveInputProp is true. 
+		///	Due to policy in sanity checking, input with witness script and without witness_utxo can not be serialized.
+		/// So if you specify true, make sure you will run `TryAddTransaction` or `AddCoins` right after this and give witness_utxo to the input.
+		/// </param>
+		/// <returns>PSBT</returns>
+		public static PSBT FromTransaction(Transaction tx, bool preserveInputProp = false) => new PSBT(tx, preserveInputProp);
 
 		public PSBT AddCoins(params ICoin[] coins)
 		{
