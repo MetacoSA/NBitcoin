@@ -1612,31 +1612,6 @@ namespace NBitcoin.RPC
 			};
 		}
 
-		public PSBT DecodePSBT(string base64, bool isHex = false) => DecodePSBTAsync(base64, isHex).GetAwaiter().GetResult();
-		public Task<PSBT> DecodePSBTAsync(string base64, bool isHex = false)
-			=> Task.FromResult(PSBT.Parse(base64, isHex));
-
-
-		public PSBT CombinePSBT(params PSBT[] psbts)
-			=> CombinePSBTAsync(psbts).GetAwaiter().GetResult();
-		public Task<PSBT> CombinePSBTAsync(params PSBT[] psbts)
-			=> Task.FromResult(psbts.Aggregate((a, b) => a.Combine(b)));
-
-		public FinalizePSBTResponse FinalizePSBT(PSBT psbt, bool extract = true) => FinalizePSBTAsync(psbt, extract).GetAwaiter().GetResult();
-		public Task<FinalizePSBTResponse> FinalizePSBTAsync(PSBT psbt, bool extract = true)
-		{
-			psbt.TryFinalize(out bool complete);
-			Transaction tx = null;
-			if (complete && extract)
-				tx = psbt.ExtractTX();
-
-			return Task.FromResult(new FinalizePSBTResponse(psbt, tx, complete));
-		}
-
-		public PSBT ConvertToPSBT(Transaction tx) => ConvertToPSBTAsync(tx).GetAwaiter().GetResult();
-
-		public Task<PSBT> ConvertToPSBTAsync(Transaction tx)
-			=> Task.FromResult(PSBT.FromTransaction(tx, false));
 
 		#endregion
 

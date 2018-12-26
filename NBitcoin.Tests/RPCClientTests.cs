@@ -1259,65 +1259,6 @@ namespace NBitcoin.Tests
 			}
 		}
 
-		[Property(MaxTest = 5)]
-		public void ShouldDecodeAndCombinePSBT(PSBT psbt1)
-		{
-			using (var builder = NodeBuilderEx.Create())
-			{
-				var node = builder.CreateNode();
-				node.Start();
-				var client = node.CreateRPCClient();
-
-				var result = client.DecodePSBT(psbt1.ToBase64());
-				Assert.Equal(psbt1, result, PSBTComparerInstance);
-
-				result = client.CombinePSBT(psbt1.Clone(), psbt1.Clone());
-				var expected = psbt1.Combine(psbt1.Clone());
-				Assert.Equal(expected, result, PSBTComparerInstance);
-			}
-		}
-
-		[Property(MaxTest = 5)]
-		public void ShouldConvertTxToPSBT(Transaction tx)
-		{
-			using (var builder = NodeBuilderEx.Create())
-			{
-				var node = builder.CreateNode();
-				node.Start();
-
-				var client = node.CreateRPCClient();
-				var result = client.ConvertToPSBT(tx);
-				Assert.NotNull(result);
-			}
-		}
-
-		[Fact]
-		public void ShouldFinalizePSBT()
-		{
-			using (var builder = NodeBuilderEx.Create())
-			{
-				var node = builder.CreateNode();
-				node.Start();
-
-				var client = node.CreateRPCClient();
-
-				var keys = new Key[] {new Key(), new Key(), new Key() };
-				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
-				var funds = PSBTTests.CreateDummyFunds(Network.TestNet, keys, redeem);
-				var tx = PSBTTests.CreateTxToSpendFunds(funds, keys, redeem, true, true);
-				var psbt = PSBT.FromTransaction(tx, true)
-					.AddTransactions(funds);
-				var result = client.FinalizePSBT(psbt);
-
-				Assert.True(result.Complete);
-				Assert.True(result.Psbt.CanExtractTX());
-
-				var result2 = client.FinalizePSBT(psbt, true);
-				Assert.True(result2.Psbt.IsAllFinalized());
-
-				AssertEx.CollectionEquals(tx.ToBytes(), result2.Transaction.ToBytes());
-			}
-		}
 		[Fact]
 		public void ShouldCreatePSBTAcceptableByRPCAsExpected()
 		{
@@ -1343,7 +1284,7 @@ namespace NBitcoin.Tests
 
 				// but if we use rpc to convert tx to psbt, it will discard input scriptSig and ScriptWitness.
 				// So it will be acceptable by any other rpc.
-				psbt = client.ConvertToPSBT(tx.Clone());
+				psbt = PSBT.FromTransaction(tx.Clone());
 				CheckPSBTIsAcceptableByRealRPC(psbt.ToBase64(), client);
 
 				// case2: PSBT from tx with script (but without signatures)
