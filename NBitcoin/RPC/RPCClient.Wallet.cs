@@ -869,7 +869,7 @@ namespace NBitcoin.RPC
 				throw new ArgumentNullException(nameof(psbt));
 
 			var response = await SendCommandAsync(RPCOperations.walletprocesspsbt, psbt.ToBase64(), sign, SigHashToString(sighashType), bip32derivs ).ConfigureAwait(false);
-			var result = response.Result as JObject;
+			var result = (JObject)response.Result;
 			var psbt2 = PSBT.Parse(result.Property("psbt").Value.Value<string>());
 			var complete = result.Property("complete").Value.Value<bool>();
 
