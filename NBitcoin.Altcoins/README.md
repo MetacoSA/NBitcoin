@@ -19,6 +19,7 @@ Currently supported altcoins are:
 * Zclassic
 * Koto
 * Bitcoinplus
+* Chaincoin
 
 ## How to use?
 

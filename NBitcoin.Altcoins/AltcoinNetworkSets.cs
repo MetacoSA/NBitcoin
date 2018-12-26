@@ -29,6 +29,7 @@ namespace NBitcoin.Altcoins
 		public static Liquid Liquid { get; } = Liquid.Instance;
 		public static Koto Koto { get; } = Koto.Instance;
 		public static Bitcoinplus Bitcoinplus { get; } = Bitcoinplus.Instance;
+		public static Chaincoin Chaincoin { get; } = Chaincoin.Instance;
 
 		public static IEnumerable<INetworkSet> GetAll()
 		{
@@ -52,7 +53,11 @@ namespace NBitcoin.Altcoins
 			yield return GoByte;
 			yield return Liquid;
 			yield return Koto;
+<<<<<<< HEAD
 			yield return Bitcoinplus;
+=======
+			yield return Chaincoin;
+>>>>>>> rebase
 		}
 	}
 }

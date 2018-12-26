@@ -822,6 +822,28 @@
             };
         }
 
+		public class ChaincoinNodeDownloadData
+		{
+			public NodeDownloadData v0_16_4 = new NodeDownloadData()
+			{
+				Version = "0.16.4",
+				Windows = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/fellowserf/chaincoin/releases/download/v{0}/chaincoincore-{0}-win64.zip",
+					Archive = "chaincoincore-{0}-win64.zip",
+					Executable = "chaincoincore-0.16.4/bin/chaincoind.exe",
+					Hash = "58dc6cc513fadcd9216062d332a5214fcb28a51a80883a32b3b9534093cdda2c"
+				},
+				Linux = new NodeOSDownloadData()
+				{
+					DownloadLink = "https://github.com/chaincoin/chaincoin/releases/download/v{0}/chaincoin-{0}-x86_64-linux-gnu.tar.gz",
+					Archive = "chaincoin-{0}-x86_64-linux-gnu.tar.gz",
+					Executable = "chaincoin-0.16.4/bin/chaincoind",
+					Hash = "b841f9c2098e973217a32a6213fe2a5bfe2987dd7b5c851a38082ce191b65283"
+				}
+			};
+		}
+
 		public static GoByteNodeDownloadData GoByte
 		{
 			get; set;
@@ -935,6 +957,11 @@
 		{
 			get; set;
 		} = new BitcoinplusNodeDownloadData();
+
+		public static ChaincoinNodeDownloadData Chaincoin
+		{
+			get; set;
+		} = new ChaincoinNodeDownloadData();
 
 		public bool UseSectionInConfigFile { get; private set; }
 		public string AdditionalRegtestConfig { get; private set; }
