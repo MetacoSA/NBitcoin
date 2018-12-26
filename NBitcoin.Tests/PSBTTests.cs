@@ -158,12 +158,12 @@ namespace NBitcoin.Tests
 				.AddTransactions(funds);
 			Assert.Equal(psbtWithTXs, tmp, ComparerInstance);
 
-			var ClonedPSBT = psbtWithTXs.Clone();
+			var clonedPSBT = psbtWithTXs.Clone();
 
-			ClonedPSBT.TrySignAll(keys[0]);
+			clonedPSBT.TrySignAll(keys[0]);
 			psbtWithTXs.TrySignAll(keys[1], keys[2]);
 
-			var whollySignedPSBT = ClonedPSBT.Combine(psbtWithTXs);
+			var whollySignedPSBT = clonedPSBT.Combine(psbtWithTXs);
 
 			// must sign only once for whole kinds of non-multisig tx.
 			Assert.Single(whollySignedPSBT.inputs[0].PartialSigs);

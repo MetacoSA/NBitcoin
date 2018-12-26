@@ -897,26 +897,6 @@ namespace NBitcoin.RPC
 			}
 		}
 
-		public SigHash StringToSigHash(string value)
-		{
-			switch (value)
-			{
-				case "ALL":
-					return SigHash.All;
-				case "NONE":
-					return SigHash.None;
-				case "SINGLE":
-					return SigHash.Single;
-				case "ALL|ANYONECANPAY":
-					return SigHash.All | SigHash.AnyoneCanPay;
-				case "NONE|ANYONECANPAY":
-					return SigHash.None | SigHash.AnyoneCanPay;
-				case "SINGLE|ANYONECANPAY":
-					return SigHash.Single | SigHash.AnyoneCanPay;
-				default:
-					throw new NotSupportedException();
-			}
-		}
 	}
 }
 #endif
