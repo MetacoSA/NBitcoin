@@ -1377,7 +1377,7 @@ namespace NBitcoin.Tests
 					.TryAddScript(redeem);
 				var case1Result = client.WalletProcessPSBT(psbt);
 				// nothing must change for the psbt unrelated to the wallet.
-				Assert.Equal(psbt, case1Result.Psbt, PSBTComparerInstance);
+				Assert.Equal(psbt, case1Result.PSBT, PSBTComparerInstance);
 
 				// case 2: psbt relevant to the wallet. (but already finalized)
 				var kOut = new Key();
@@ -1387,9 +1387,9 @@ namespace NBitcoin.Tests
 				Assert.Equal(3, fundTxResult.Transaction.Inputs.Count);
 				var psbtFinalized = PSBT.FromTransaction(fundTxResult.Transaction, true);
 				var result = client.WalletProcessPSBT(psbtFinalized, false);
-				Assert.False(result.Psbt.CanExtractTX());
+				Assert.False(result.PSBT.CanExtractTX());
 				result = client.WalletProcessPSBT(psbtFinalized, true);
-				Assert.True(result.Psbt.CanExtractTX());
+				Assert.True(result.PSBT.CanExtractTX());
 
 				// case 3a: psbt relevant to the wallet (and not finalized)
 				var spendableCoins = client.ListUnspent().Where(c => c.IsSpendable).Select(c => c.AsCoin());
@@ -1403,10 +1403,10 @@ namespace NBitcoin.Tests
 				// unsigned
 				result = client.WalletProcessPSBT(psbtUnFinalized, false, type, bip32derivs: true);
 				Assert.False(result.Complete);
-				Assert.False(result.Psbt.CanExtractTX());
-				result.Psbt.TryFinalize(out bool isFinalized2);
+				Assert.False(result.PSBT.CanExtractTX());
+				result.PSBT.TryFinalize(out bool isFinalized2);
 				Assert.False(isFinalized2);
-				foreach (var psbtin in result.Psbt.inputs)
+				foreach (var psbtin in result.PSBT.inputs)
 				{
 					Assert.Equal(SigHash.Undefined, psbtin.SighashType);
 					Assert.NotEmpty(psbtin.HDKeyPaths);
@@ -1414,9 +1414,9 @@ namespace NBitcoin.Tests
 
 				// signed
 				result = client.WalletProcessPSBT(psbtUnFinalized, true, type);
-				result.Psbt.TryFinalize(out bool isFinalized3);
+				result.PSBT.TryFinalize(out bool isFinalized3);
 				Assert.True(isFinalized3);
-				var txResult = result.Psbt.ExtractTX();
+				var txResult = result.PSBT.ExtractTX();
 				client.TestMempoolAccept(txResult, true);
 			}
 		}
