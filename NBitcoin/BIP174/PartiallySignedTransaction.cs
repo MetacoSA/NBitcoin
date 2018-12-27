@@ -597,7 +597,7 @@ namespace NBitcoin.BIP174
 			if (IsFinalized())
 				ClearForFinalize();
 		}
-		public bool TryFinalize(Transaction tx, int index)
+		internal bool TryFinalize(Transaction tx, int index)
 		{
 			try
 			{
