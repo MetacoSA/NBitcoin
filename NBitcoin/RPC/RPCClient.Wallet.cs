@@ -1,4 +1,5 @@
 ﻿#if !NOJSONNET
+using NBitcoin.BIP174;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using Newtonsoft.Json;
@@ -116,6 +117,8 @@ namespace NBitcoin.RPC
 		wallet			 walletlock
 		wallet			 walletpassphrasechange
 		wallet			 walletpassphrase			yes
+		wallet			 walletprocesspsbt
+		wallet			 walletcreatefundedpsbt
 	*/
 	public partial class RPCClient
 	{
@@ -858,6 +861,21 @@ namespace NBitcoin.RPC
 			return response;
 		}
 
+		public WalletProcessPSBTResponse WalletProcessPSBT(PSBT psbt, bool sign = true, SigHash hashType = SigHash.All, bool bip32derivs = false)
+			 => WalletProcessPSBTAsync(psbt, sign, hashType, bip32derivs).GetAwaiter().GetResult();
+		public async Task<WalletProcessPSBTResponse> WalletProcessPSBTAsync(PSBT psbt, bool sign = true, SigHash sighashType = SigHash.All, bool bip32derivs = false)
+		{
+			if (psbt == null)
+				throw new ArgumentNullException(nameof(psbt));
+
+			var response = await SendCommandAsync(RPCOperations.walletprocesspsbt, psbt.ToBase64(), sign, SigHashToString(sighashType), bip32derivs ).ConfigureAwait(false);
+			var result = (JObject)response.Result;
+			var psbt2 = PSBT.Parse(result.Property("psbt").Value.Value<string>());
+			var complete = result.Property("complete").Value.Value<bool>();
+
+			return new WalletProcessPSBTResponse(psbt2, complete);
+		}
+
 		public string SigHashToString(SigHash value)
 		{
 			switch (value)
@@ -878,6 +896,7 @@ namespace NBitcoin.RPC
 					throw new NotSupportedException();
 			}
 		}
+
 	}
 }
 #endif

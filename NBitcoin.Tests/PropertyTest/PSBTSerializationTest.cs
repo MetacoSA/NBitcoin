@@ -28,10 +28,6 @@ namespace NBitcoin.Tests.PropertyTest
 
 		[Property]
 		[Trait("UnitTest", "UnitTest")]
-		public void CanSerializeInputAsymmetric(PSBTInput psbtin) => SerializeAsymmetric(psbtin);
-
-		[Property]
-		[Trait("UnitTest", "UnitTest")]
 		public void CanSerializeOutputAsymmetric(PSBTOutput psbtout) => SerializeAsymmetric(psbtout);
 
 		private void SerializeAsymmetric<T>(T item) where T : IBitcoinSerializable, new()

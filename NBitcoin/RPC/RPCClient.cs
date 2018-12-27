@@ -1,4 +1,6 @@
 ﻿#if !NOJSONNET
+using NBitcoin.BIP174;
+using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Protocol;
 using Newtonsoft.Json;
@@ -75,6 +77,13 @@ namespace NBitcoin.RPC
 		rawtransactions	signrawtransaction
 		rawtransactions	fundrawtransaction
 
+		------------------ PSBT
+		psbt - decodepsbt
+		psbt - combinepsbt
+		psbt - finalizepsbt
+		psbt - createpsbt
+		psbt - convertopsbt
+
 		------------------ Utility functions
 		util			createmultisig
 		util			validateaddress
@@ -127,6 +136,8 @@ namespace NBitcoin.RPC
 		wallet			 walletlock
 		wallet			 walletpassphrasechange
 		wallet			 walletpassphrase			yes
+		wallet			 walletprocesspsbt
+		wallet			 walletcreatefundedpsbt
 	*/
 	public partial class RPCClient : IBlockRepository
 	{
@@ -1601,15 +1612,16 @@ namespace NBitcoin.RPC
 			};
 		}
 
-#endregion
 
-#region Utility functions
+		#endregion
+
+		#region Utility functions
 
 		// Estimates the approximate fee per kilobyte needed for a transaction to begin
 		// confirmation within conf_target blocks if possible and return the number of blocks
 		// for which the estimate is valid.Uses virtual transaction size as defined
 		// in BIP 141 (witness data is discounted).
-#region Fee Estimation
+		#region Fee Estimation
 
 		/// <summary>
 		/// (>= Bitcoin Core v0.14) Get the estimated fee per kb for being confirmed in nblock

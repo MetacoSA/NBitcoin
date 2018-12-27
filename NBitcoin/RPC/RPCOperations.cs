@@ -26,6 +26,7 @@ namespace NBitcoin.RPC
 		setgenerate,
 		generate,
 		generatetoaddress,
+
 		getnetworkhashps,
 		gethashespersec,
 		getmininginfo,
@@ -85,6 +86,14 @@ namespace NBitcoin.RPC
 		sendrawtransaction,
 		gettxoutproof,
 		verifytxoutproof,
+
+		decodepsbt,
+		combinepsbt,
+		finalizepsbt,
+		createpsbt,
+		convertopsbt,
+		walletprocesspsbt,
+		walletcreatefundedpsbt,
 
 		getblockcount,
 		getbestblockhash,

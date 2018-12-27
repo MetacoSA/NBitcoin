@@ -60,7 +60,7 @@ namespace NBitcoin.Tests
 
 			// 2. with (unsigned) scriptSig and witness.
 			tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
-			var psbt = new PSBT(tx);
+			var psbt = new PSBT(tx, true);
 			Assert.Null(psbt.inputs[0].FinalScriptSig); // it is not finalized since it is not signed
 			Assert.Null(psbt.inputs[1].FinalScriptWitness); // This too
 			Assert.NotNull(psbt.inputs[2].RedeemScript); // But it holds redeem script.
@@ -70,7 +70,7 @@ namespace NBitcoin.Tests
 
 			// 3. with finalized scriptSig and witness
 			tx = CreateTxToSpendFunds(funds, keys, redeem, true, true);
-			psbt = new PSBT(tx);
+			psbt = new PSBT(tx, true);
 			Assert.NotNull(psbt.inputs[0].FinalScriptSig); // it should be finalized
 			Assert.NotNull(psbt.inputs[1].FinalScriptWitness); // p2wpkh too
 			Assert.NotNull(psbt.inputs[2].RedeemScript); // But it holds redeem script.
@@ -105,70 +105,85 @@ namespace NBitcoin.Tests
 
 			var tx = CreateTxToSpendFunds(funds, keys, redeem, true, false);
 			var coins = DummyFundsToCoins(funds, redeem, alice);
-			var PSBTWithCoins = PSBT.FromTransaction(tx)
+			var psbtWithCoins = PSBT.FromTransaction(tx, true)
 				.AddCoins(coins);
 
-			Assert.Null(PSBTWithCoins.inputs[0].WitnessUtxo);
-			Assert.NotNull(PSBTWithCoins.inputs[1].WitnessUtxo);
-			Assert.Null(PSBTWithCoins.inputs[2].WitnessUtxo);
-			Assert.NotNull(PSBTWithCoins.inputs[3].WitnessUtxo);
-			Assert.NotNull(PSBTWithCoins.inputs[4].WitnessUtxo);
-			Assert.NotNull(PSBTWithCoins.inputs[5].WitnessUtxo);
+			Assert.Null(psbtWithCoins.inputs[0].WitnessUtxo);
+			Assert.NotNull(psbtWithCoins.inputs[1].WitnessUtxo);
+			Assert.Null(psbtWithCoins.inputs[2].WitnessUtxo);
+			Assert.NotNull(psbtWithCoins.inputs[3].WitnessUtxo);
+			Assert.NotNull(psbtWithCoins.inputs[4].WitnessUtxo);
+			Assert.NotNull(psbtWithCoins.inputs[5].WitnessUtxo);
 
 			// Check if it holds scripts as expected.
-			Assert.Null(PSBTWithCoins.inputs[0].RedeemScript); // p2pkh
-			Assert.Null(PSBTWithCoins.inputs[0].WitnessScript); // p2pkh
-			Assert.Null(PSBTWithCoins.inputs[1].WitnessScript); // p2wpkh
-			Assert.NotNull(PSBTWithCoins.inputs[2].RedeemScript); // p2sh
-			Assert.NotNull(PSBTWithCoins.inputs[4].RedeemScript); // p2sh-p2wpkh
-			Assert.NotNull(PSBTWithCoins.inputs[5].RedeemScript); // p2sh-p2wsh
-			Assert.NotNull(PSBTWithCoins.inputs[3].WitnessScript); // p2wsh
-			Assert.NotNull(PSBTWithCoins.inputs[5].WitnessScript); // p2sh-p2wsh
+			Assert.Null(psbtWithCoins.inputs[0].RedeemScript); // p2pkh
+			Assert.Null(psbtWithCoins.inputs[0].WitnessScript); // p2pkh
+			Assert.Null(psbtWithCoins.inputs[1].WitnessScript); // p2wpkh
+			Assert.NotNull(psbtWithCoins.inputs[2].RedeemScript); // p2sh
+			Assert.NotNull(psbtWithCoins.inputs[4].RedeemScript); // p2sh-p2wpkh
+			Assert.NotNull(psbtWithCoins.inputs[5].RedeemScript); // p2sh-p2wsh
+			Assert.NotNull(psbtWithCoins.inputs[3].WitnessScript); // p2wsh
+			Assert.NotNull(psbtWithCoins.inputs[5].WitnessScript); // p2sh-p2wsh
 
-			var SignedPSBTWithCoins = PSBTWithCoins
+			// Operation must be idempotent.
+			var tmp = psbtWithCoins.Clone().AddCoins(coins);
+			Assert.Equal(tmp, psbtWithCoins, ComparerInstance);
+
+			var signedPSBTWithCoins = psbtWithCoins
 				.TrySignAll(alice);
-			Assert.Empty(SignedPSBTWithCoins.inputs[0].PartialSigs); // can not sign for non segwit input without non-witness UTXO
-			Assert.Empty(SignedPSBTWithCoins.inputs[2].PartialSigs); // This too.
+			Assert.Empty(signedPSBTWithCoins.inputs[0].PartialSigs); // can not sign for non segwit input without non-witness UTXO
+			Assert.Empty(signedPSBTWithCoins.inputs[2].PartialSigs); // This too.
 			// otherwise, It will increase Partial sigs count.
-			Assert.Single(SignedPSBTWithCoins.inputs[1].PartialSigs);
-			Assert.Single(SignedPSBTWithCoins.inputs[3].PartialSigs);
-			Assert.Single(SignedPSBTWithCoins.inputs[4].PartialSigs);
-			Assert.Single(SignedPSBTWithCoins.inputs[5].PartialSigs);
-			SignedPSBTWithCoins.TryFinalize(out bool HasFinalizationSucceedForPSBTWithoutPrevTX);
+			Assert.Single(signedPSBTWithCoins.inputs[1].PartialSigs);
+			Assert.Single(signedPSBTWithCoins.inputs[3].PartialSigs);
+			Assert.Single(signedPSBTWithCoins.inputs[4].PartialSigs);
+			Assert.Single(signedPSBTWithCoins.inputs[5].PartialSigs);
+			signedPSBTWithCoins.TryFinalize(out bool HasFinalizationSucceedForPSBTWithoutPrevTX);
 			Assert.False(HasFinalizationSucceedForPSBTWithoutPrevTX);
 
-			var PSBTWithTXs = PSBT.FromTransaction(tx)
+			var psbtWithTXs = PSBT.FromTransaction(tx, true)
 				.AddTransactions(funds);
-			Assert.Null(PSBTWithTXs.inputs[0].WitnessUtxo);
-			Assert.NotNull(PSBTWithTXs.inputs[0].NonWitnessUtxo);
-			Assert.NotNull(PSBTWithTXs.inputs[1].WitnessUtxo);
-			Assert.Null(PSBTWithTXs.inputs[2].WitnessUtxo);
-			Assert.NotNull(PSBTWithTXs.inputs[2].NonWitnessUtxo);
-			Assert.NotNull(PSBTWithTXs.inputs[3].WitnessUtxo);
-			Assert.NotNull(PSBTWithTXs.inputs[4].WitnessUtxo);
-			Assert.NotNull(PSBTWithTXs.inputs[5].WitnessUtxo);
+			Assert.Null(psbtWithTXs.inputs[0].WitnessUtxo);
+			Assert.NotNull(psbtWithTXs.inputs[0].NonWitnessUtxo);
+			Assert.NotNull(psbtWithTXs.inputs[1].WitnessUtxo);
+			Assert.Null(psbtWithTXs.inputs[2].WitnessUtxo);
+			Assert.NotNull(psbtWithTXs.inputs[2].NonWitnessUtxo);
+			Assert.NotNull(psbtWithTXs.inputs[3].WitnessUtxo);
+			Assert.NotNull(psbtWithTXs.inputs[4].WitnessUtxo);
+			Assert.NotNull(psbtWithTXs.inputs[5].WitnessUtxo);
 
-			var SignedPSBTWithTXs = PSBTWithTXs
-				.TrySignAll(keys);
+			// Operation must be idempotent.
+			tmp = psbtWithTXs.Clone()
+				.AddCoins(coins)
+				.AddTransactions(funds);
+			Assert.Equal(psbtWithTXs, tmp, ComparerInstance);
+
+			var clonedPSBT = psbtWithTXs.Clone();
+
+			clonedPSBT.TrySignAll(keys[0]);
+			psbtWithTXs.TrySignAll(keys[1], keys[2]);
+
+			var whollySignedPSBT = clonedPSBT.Combine(psbtWithTXs);
 
 			// must sign only once for whole kinds of non-multisig tx.
-			Assert.Single(SignedPSBTWithTXs.inputs[0].PartialSigs);
-			Assert.Single(SignedPSBTWithTXs.inputs[1].PartialSigs);
-			Assert.Single(SignedPSBTWithTXs.inputs[4].PartialSigs);
+			Assert.Single(whollySignedPSBT.inputs[0].PartialSigs);
+			Assert.Single(whollySignedPSBT.inputs[1].PartialSigs);
+			Assert.Single(whollySignedPSBT.inputs[4].PartialSigs);
+
 			// for multisig
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[2].PartialSigs.Count);
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[2].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[3].PartialSigs.Count);
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[3].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[5].PartialSigs.Count);
-			Assert.Equal(3, SignedPSBTWithTXs.inputs[5].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
+			Assert.Equal(3, whollySignedPSBT.inputs[2].PartialSigs.Count);
+			Assert.Equal(3, whollySignedPSBT.inputs[2].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
+			Assert.Equal(3, whollySignedPSBT.inputs[3].PartialSigs.Count);
+			Assert.Equal(3, whollySignedPSBT.inputs[3].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
+			Assert.Equal(3, whollySignedPSBT.inputs[5].PartialSigs.Count);
+			Assert.Equal(3, whollySignedPSBT.inputs[5].PartialSigs.Values.Select(v => v.Item2).Distinct().Count());
 
-			Assert.False(SignedPSBTWithTXs.CanExtractTX());
+			Assert.False(whollySignedPSBT.CanExtractTX());
 
-			var FinalizedPSBT = SignedPSBTWithTXs.Finalize();
-			Assert.True(FinalizedPSBT.CanExtractTX());
+			var finalizedPSBT = whollySignedPSBT.Finalize();
+			Assert.True(finalizedPSBT.CanExtractTX());
 
-			var finalTX = FinalizedPSBT.ExtractTX();
+			var finalTX = finalizedPSBT.ExtractTX();
 			var result = finalTX.Check();
 			Assert.Equal(TransactionCheckResult.Success, result);
 
@@ -288,7 +303,7 @@ namespace NBitcoin.Tests
 			Assert.Equal(data1, expected, ComparerInstance);
 		}
 
-		private ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs, Script redeem, Key key)
+		static internal ICoin[] DummyFundsToCoins(IEnumerable<Transaction> txs, Script redeem, Key key)
 		{
 			var barecoins = txs.SelectMany(tx => tx.Outputs.AsCoins()).ToArray();
 			var coins = new ICoin[barecoins.Length];
@@ -301,7 +316,7 @@ namespace NBitcoin.Tests
 			return coins;
 		}
 
-		private Transaction CreateTxToSpendFunds(
+		static internal Transaction CreateTxToSpendFunds(
 				Transaction[] funds,
 				Key[] keys,
 				Script redeem,
@@ -341,7 +356,7 @@ namespace NBitcoin.Tests
 			return tx;
 		}
 
-		private Transaction[] CreateDummyFunds(Network network, Key[] keyForOutput, Script redeem)
+		static internal Transaction[] CreateDummyFunds(Network network, Key[] keyForOutput, Script redeem)
 		{
 			// 1. p2pkh and p2wpkh
 			var tx1 = network.CreateTransaction();
