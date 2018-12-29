@@ -203,6 +203,24 @@ namespace NBitcoin.RPC
 			RPCResponse response = null;
 			if (options != null)
 			{
+				var jOptions = FundRawTransactionOptionsToJson(options);
+				response = await SendCommandAsync("fundrawtransaction", ToHex(transaction), jOptions).ConfigureAwait(false);
+			}
+			else
+			{
+				response = await SendCommandAsync("fundrawtransaction", ToHex(transaction)).ConfigureAwait(false);
+			}
+			var r = (JObject)response.Result;
+			return new FundRawTransactionResponse()
+			{
+				Transaction = ParseTxHex(r["hex"].Value<string>()),
+				Fee = Money.Coins(r["fee"].Value<decimal>()),
+				ChangePos = r["changepos"].Value<int>()
+			};
+		}
+
+		private JObject FundRawTransactionOptionsToJson(FundRawTransactionOptions options)
+		{
 				var jOptions = new JObject();
 				if (options.ChangeAddress != null)
 					jOptions.Add(new JProperty("changeAddress", options.ChangeAddress.ToString()));
@@ -223,19 +241,7 @@ namespace NBitcoin.RPC
 					}
 					jOptions.Add(new JProperty("subtractFeeFromOutputs", array));
 				}
-				response = await SendCommandAsync("fundrawtransaction", ToHex(transaction), jOptions).ConfigureAwait(false);
-			}
-			else
-			{
-				response = await SendCommandAsync("fundrawtransaction", ToHex(transaction)).ConfigureAwait(false);
-			}
-			var r = (JObject)response.Result;
-			return new FundRawTransactionResponse()
-			{
-				Transaction = ParseTxHex(r["hex"].Value<string>()),
-				Fee = Money.Coins(r["fee"].Value<decimal>()),
-				ChangePos = r["changepos"].Value<int>()
-			};
+			return jOptions;
 		}
 
 		//NBitcoin internally put a bit in the version number to make difference between transaction without input and transaction with witness.
@@ -795,9 +801,9 @@ namespace NBitcoin.RPC
 			response.Complete = result.Result["complete"].Value<bool>();
 			var errors = result.Result["errors"] as JArray;
 			var errorList = new List<SignRawTransactionResponse.ScriptError>();
-			if(errors != null)
+			if (errors != null)
 			{
-				foreach(var error in errors)
+				foreach (var error in errors)
 				{
 					var scriptError = new SignRawTransactionResponse.ScriptError();
 					scriptError.OutPoint = OutPoint.Parse($"{error["txid"].Value<string>()}-{(int)error["vout"].Value<long>()}");
@@ -884,7 +890,7 @@ namespace NBitcoin.RPC
 			if (psbt == null)
 				throw new ArgumentNullException(nameof(psbt));
 
-			var response = await SendCommandAsync(RPCOperations.walletprocesspsbt, psbt.ToBase64(), sign, SigHashToString(sighashType), bip32derivs ).ConfigureAwait(false);
+			var response = await SendCommandAsync(RPCOperations.walletprocesspsbt, psbt.ToBase64(), sign, SigHashToString(sighashType), bip32derivs).ConfigureAwait(false);
 			var result = (JObject)response.Result;
 			var psbt2 = PSBT.Parse(result.Property("psbt").Value.Value<string>());
 			var complete = result.Property("complete").Value.Value<bool>();
