@@ -1,4 +1,5 @@
 
+using System.Security;
 using NBitcoin.BouncyCastle.Asn1.X9;
 using NBitcoin.BouncyCastle.Crypto.Signers;
 using NBitcoin.BouncyCastle.Math;
@@ -92,6 +93,9 @@ namespace NBitcoin.Crypto
 
             public uint256 Sign(uint256 blindedMessage)
             {
+				// blind signature s = r - bs * d
+				if(blindedMessage == uint256.Zero)
+					throw new System.ArgumentException("Invalid blinded message.", nameof(blindedMessage));
                 var r = R._ECKey.PrivateKey.D;
                 var d = Key._ECKey.PrivateKey.D;
                 var cp = new BigInteger(1, blindedMessage.ToBytes());

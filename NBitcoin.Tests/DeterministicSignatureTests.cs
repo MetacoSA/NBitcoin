@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xunit;
 using NBitcoin.BouncyCastle.Asn1;
+using System.Security;
 
 namespace NBitcoin.Tests
 {
@@ -267,7 +268,7 @@ namespace NBitcoin.Tests
 			var unblindedSignature = requester.UnblindSignature(blindSignature);
 
 			Assert.True( SchnorrBlinding.VerifySignature(message, unblindedSignature, key.PubKey) );
-			Assert.False(SchnorrBlinding.VerifySignature(uint256.One, unblindedSignature, key.PubKey) );
+			Assert.False(SchnorrBlinding.VerifySignature(uint256.Zero, unblindedSignature, key.PubKey) );
 			Assert.False(SchnorrBlinding.VerifySignature(uint256.One, unblindedSignature, key.PubKey) );
 			Assert.False(SchnorrBlinding.VerifySignature(
 				message, 
@@ -340,6 +341,10 @@ namespace NBitcoin.Tests
 
 				Assert.True( signer.VerifyUnblindedSignature(unblindedSignature, newMessage) );
 			}
+
+
+			var ex = Assert.Throws<ArgumentException>(()=>signer.Sign(uint256.Zero));
+			Assert.StartsWith("Invalid blinded message.", ex.Message);
 		}
 
 		[Fact]
