@@ -1525,9 +1525,6 @@ namespace NBitcoin.BIP174
 		internal bool UseLowR { get => _UseLowR; set => _UseLowR = value; }
 		public PSBT TrySignAll(params Key[] keys)
 		{
-			if (keys == null)
-				throw new ArgumentNullException(nameof(keys));
-
 			CheckSanity();
 			for (var i = 0; i < inputs.Count; i++)
 			{
@@ -1540,8 +1537,10 @@ namespace NBitcoin.BIP174
 
 		public PSBT Sign(int index, Key[] keys, out bool success)
 		{
+			if (keys == null)
+				throw new ArgumentNullException(nameof(keys));
+
 			var psbtin = this.inputs[index];
-			var txin = this.tx.Inputs[index];
 			success = psbtin.Sign(index, tx, keys, UseLowR);
 			return this;
 		}
