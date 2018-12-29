@@ -1421,6 +1421,107 @@ namespace NBitcoin.Tests
 			}
 		}
 
+		// refs: https://github.com/bitcoin/bitcoin/blob/df73c23f5fac031cc9b2ec06a74275db5ea322e3/doc/psbt.md#workflows
+		// with 2 difference.
+		// 1. one user do not use bitcoin core (only NBitcoin)
+		// 2. 3-of-3 instead of 2-of-3
+		[Fact]
+		public void ShouldPerformMultisigProcessingWithCore()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var nodeAlice = builder.CreateNode();
+				var nodeBob = builder.CreateNode();
+				var nodeCarol = builder.CreateNode();
+				var nodeFunder = builder.CreateNode();
+				builder.StartAll();
+
+				// prepare multisig script and watch with node.
+				var nodes = new CoreNode[]{nodeAlice, nodeBob, nodeCarol};
+				var clients = nodes.Select(n => n.CreateRPCClient()).ToArray();
+				var addresses = clients.Select(c => c.GetNewAddress());
+				var addrInfos = addresses.Select((a, i) => clients[i].GetAddressInfo(a));
+				var pubkeys = addrInfos.Select(i => i.PubKey).ToArray();
+				var script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, pubkeys);
+				var aMultiP2SH = script.Hash.ScriptPubKey;
+				var aMultiP2WSH = script.WitHash.ScriptPubKey;
+				var aMultiP2SH_P2WSH = script.WitHash.ScriptPubKey.Hash.ScriptPubKey;
+				var multiAddresses = new Script[] { aMultiP2SH, aMultiP2WSH, aMultiP2SH_P2WSH };
+				foreach (var c in clients)
+				{
+					var importMultiObject = new ImportMultiAddress[] {
+						new ImportMultiAddress()
+						{
+							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2SH),
+							RedeemScript = script.ToHex(),
+							Internal = false,
+							Label = "p2sh"
+						},
+						new ImportMultiAddress()
+						{
+							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2WSH),
+							WitnessScript = script.ToHex(),
+							Internal = false,
+							Label = "p2wsh"
+						},
+						new ImportMultiAddress()
+						{
+							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2SH_P2WSH),
+							RedeemScript = script.WitHash.ScriptPubKey.ToHex(),
+							WitnessScript = script.ToHex(),
+							Internal = false,
+							Label = "p2sh-p2wsh"
+						}
+					};
+					c.ImportMulti(importMultiObject, false);
+				}
+
+				// pay from funder
+				nodeFunder.Generate(103);
+				var funderClient = nodeFunder.CreateRPCClient();
+				funderClient.SendToAddress(aMultiP2SH, Money.Coins(40));
+				funderClient.SendToAddress(aMultiP2WSH, Money.Coins(40));
+				funderClient.SendToAddress(aMultiP2SH_P2WSH, Money.Coins(40));
+				nodeFunder.Generate(1);
+				foreach (var n in nodes)
+				{
+					nodeFunder.Sync(n, true);
+				}
+
+				// pay from multisig address
+				// first carol creates psbt
+				var carol = clients[2];
+				// check if we have enough balance
+				var info = carol.GetBlockchainInfoAsync().Result;
+				Assert.Equal((ulong)104, info.Blocks);
+				var balance = carol.GetBalance(0, true);
+				Assert.Equal(Money.Coins(120), balance);
+
+				var aSend = new Key().PubKey.GetAddress(nodeAlice.Network);
+				var outputs = new Dictionary<BitcoinAddress, Money>();
+				outputs.Add(aSend, Money.Coins(10));
+				var fundOptions = new FundRawTransactionOptions() { SubtractFeeFromOutputs = new int[] {0}, IncludeWatching = true };
+				PSBT psbt = carol.WalletCreateFundedPSBT(null, outputs, 0, fundOptions).PSBT;
+				psbt = carol.WalletProcessPSBT(psbt).PSBT;
+
+				// second, bob checks and process psbt.
+				var bob = clients[1];
+				Assert.Contains(multiAddresses, a => a == psbt.inputs[0].WitnessUtxo.ScriptPubKey || psbt.inputs[0].NonWitnessUtxo.Outputs.Any(o => a == o.ScriptPubKey));
+				var psbtSignedByBob = bob.WalletProcessPSBT(psbt).PSBT;
+
+				// at the same time, alice may do the same thing in parallel;
+				var alice = clients[0];
+				var psbtSignedByAlice = alice.WalletProcessPSBT(psbt).PSBT;
+
+				// So let's combine.
+				var psbtCombined = psbtSignedByAlice.Combine(psbtSignedByBob);
+
+				// Finally, anyone can finalize and broadcast the psbt.
+				var tx = psbtCombined.Finalize().ExtractTX();
+				alice.TestMempoolAccept(tx);
+			}
+		}
+
 
 		private void AssertJsonEquals(string json1, string json2)
 		{
