@@ -1523,6 +1523,37 @@ namespace NBitcoin.Tests
 		}
 
 
+		[Fact]
+		/// <summary>
+		/// For p2sh, p2wsh, p2sh-p2wsh, we must also test the case for `solvable` to the wallet.
+		/// For that, both script and the address must be imported by `importmulti`.
+		/// but importmulti can not handle witness script(in v0.17).
+		/// TODO: add test for solvable scripts.
+		/// </summary>
+		public void ShouldGetAddressInfo()
+		{
+			using (var builder = NodeBuilderEx.Create())
+			{
+				var client = builder.CreateNode(true).CreateRPCClient();
+				var addrLegacy = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Legacy });
+				var addrBech32 = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Bech32 });
+				var addrP2SHSegwit = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.P2SHSegwit });
+				var pubkeys = new PubKey[] { new Key().PubKey, new Key().PubKey, new Key().PubKey };
+				var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(2, pubkeys);
+				client.ImportAddress(redeem.Hash);
+				client.ImportAddress(redeem.WitHash);
+				client.ImportAddress(redeem.WitHash.ScriptPubKey.Hash);
+
+				Assert.NotNull(client.GetAddressInfo(addrLegacy));
+				Assert.NotNull(client.GetAddressInfo(addrBech32));
+				Assert.NotNull(client.GetAddressInfo(addrP2SHSegwit));
+				Assert.NotNull(client.GetAddressInfo(redeem.Hash));
+				Assert.NotNull(client.GetAddressInfo(redeem.WitHash));
+				Assert.NotNull(client.GetAddressInfo(redeem.WitHash.ScriptPubKey.Hash));
+			}
+		}
+
+
 		private void AssertJsonEquals(string json1, string json2)
 		{
 			foreach (var c in new[] { "\r\n", " ", "\t" })

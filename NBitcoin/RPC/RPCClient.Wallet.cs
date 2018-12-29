@@ -86,6 +86,7 @@ namespace NBitcoin.RPC
 		wallet			 getaccountaddress			Yes
 		wallet			 getaccount
 		wallet			 getaddressesbyaccount		Yes
+		wallet			 getaddressesinfo
 		wallet			 getbalance
 		wallet			 getnewaddress
 		wallet			 getrawchangeaddress
@@ -156,6 +157,21 @@ namespace NBitcoin.RPC
 		public FundRawTransactionResponse FundRawTransaction(Transaction transaction, FundRawTransactionOptions options = null)
 		{
 			return FundRawTransactionAsync(transaction, options).GetAwaiter().GetResult();
+		}
+
+		/// <summary>
+		/// throws an error if an address is not from the wallet.
+		/// </summary>
+		/// <param name="address"></param>
+		/// <returns></returns>
+		public GetAddressInfoResponse GetAddressInfo(IDestination address) => GetAddressInfoAsync(address).GetAwaiter().GetResult();
+
+		public async Task<GetAddressInfoResponse> GetAddressInfoAsync(IDestination address)
+		{
+			var addrString = address.ScriptPubKey.GetDestinationAddress(Network).ToString();
+			var response = await SendCommandAsync(RPCOperations.getaddressinfo, addrString);
+
+			return GetAddressInfoResponse.FromJsonResponse((JObject)response.Result, Network);
 		}
 
 		public Money GetBalance(int minConf, bool includeWatchOnly)
