@@ -566,8 +566,8 @@ namespace NBitcoin.BIP174
 				// bare p2sh
 				if (witness_script == null && !PayToWitTemplate.Instance.CheckScriptPubKey(redeem_script))
 				{
-					var sigPushes = GetSigPushes(redeem_script);
-					var ss = PayToScriptHashTemplate.Instance.GenerateScriptSig(sigPushes, redeem_script);
+					var pushes = GetPushItems(redeem_script);
+					var ss = PayToScriptHashTemplate.Instance.GenerateScriptSig(pushes, redeem_script);
 					final_script_sig = ss;
 				}
 				// Why not create `final_script_sig` here? because if the following code throws an error, it will be left out dirty.
@@ -588,8 +588,8 @@ namespace NBitcoin.BIP174
 			// 4. p2wsh
 			else if (PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(nextScript))
 			{
-				var sigPushes = GetSigPushes(witness_script);
-				final_script_witness = PayToWitScriptHashTemplate.Instance.GenerateWitScript(sigPushes, witness_script);
+				var pushes = GetPushItems(witness_script);
+				final_script_witness = PayToWitScriptHashTemplate.Instance.GenerateWitScript(pushes, witness_script);
 
 				if (prevout.ScriptPubKey.IsPayToScriptHash)
 					final_script_sig = new Script(Op.GetPushOp(redeem_script.ToBytes()));
@@ -616,22 +616,26 @@ namespace NBitcoin.BIP174
 		/// </summary>
 		/// <param name="redeem"></param>
 		/// <returns></returns>
-		private Op[] GetSigPushes(Script redeem)
+		private Op[] GetPushItems(Script redeem)
 		{
-			var sigPushes = new List<Op> { OpcodeType.OP_0 };
-			foreach (var pk in redeem.GetAllPubKeys())
+			if (PayToMultiSigTemplate.Instance.CheckScriptPubKey(redeem))
 			{
-				if (!partial_sigs.TryGetValue(pk.Hash, out var sigPair))
-					continue;
-				var txSig = new TransactionSignature(sigPair.Item2, sighash_type == 0 ? SigHash.All : (SigHash)sighash_type);
-				sigPushes.Add(Op.GetPushOp(txSig.ToBytes()));
+				var sigPushes = new List<Op> { OpcodeType.OP_0 };
+				foreach (var pk in redeem.GetAllPubKeys())
+				{
+					if (!partial_sigs.TryGetValue(pk.Hash, out var sigPair))
+						continue;
+					var txSig = new TransactionSignature(sigPair.Item2, sighash_type == 0 ? SigHash.All : (SigHash)sighash_type);
+					sigPushes.Add(Op.GetPushOp(txSig.ToBytes()));
+				}
+				// check sig is more than m in case of p2multisig.
+				var multiSigParam = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(redeem);
+				var numSigs = sigPushes.Count - 1;
+				if (multiSigParam != null && numSigs < multiSigParam.SignatureCount)
+					throw new InvalidOperationException("Not enough signatures to finalize.");
+				return sigPushes.ToArray();
 			}
-			// check sig is more than m in case of p2multisig.
-			var multiSigParam = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(redeem);
-			var numSigs = sigPushes.Count - 1;
-			if (multiSigParam != null && numSigs < multiSigParam.SignatureCount)
-				throw new InvalidOperationException("Not enough signatures to finalize.");
-			return sigPushes.ToArray();
+			throw new InvalidOperationException("PSBT does not know how to finalize this type of script!");
 		}
 
 		/// <summary>
