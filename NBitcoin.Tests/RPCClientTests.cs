@@ -32,12 +32,14 @@ namespace NBitcoin.Tests
 		const string TestAccount = "NBitcoin.RPCClientTests";
 
 		public PSBTComparer PSBTComparerInstance { get; }
+		public ITestOutputHelper Output { get; }
 
-		public RPCClientTests()
+		public RPCClientTests(ITestOutputHelper output)
 		{
 			Arb.Register<PSBTGenerator>();
 			Arb.Register<SegwitTransactionGenerators>();
 			PSBTComparerInstance = new PSBTComparer();
+			Output = output;
 		}
 		
 		[Fact]
@@ -1417,14 +1419,16 @@ namespace NBitcoin.Tests
 				result.PSBT.TryFinalize(out bool isFinalized3);
 				Assert.True(isFinalized3);
 				var txResult = result.PSBT.ExtractTX();
-				client.TestMempoolAccept(txResult, true);
+				var acceptResult = client.TestMempoolAccept(txResult, true);
+				Assert.True(acceptResult.IsAllowed, acceptResult.RejectReason);
 			}
 		}
 
 		// refs: https://github.com/bitcoin/bitcoin/blob/df73c23f5fac031cc9b2ec06a74275db5ea322e3/doc/psbt.md#workflows
 		// with 2 difference.
-		// 1. one user do not use bitcoin core (only NBitcoin)
-		// 2. 3-of-3 instead of 2-of-3
+		// 1. one user (David) do not use bitcoin core (only NBitcoin)
+		// 2. 4-of-4 instead of 2-of-3
+		// 3. In version 0.17, `importmulti` can not handle witness script so only p2sh are considered here. TODO: fix
 		[Fact]
 		public void ShouldPerformMultisigProcessingWithCore()
 		{
@@ -1434,6 +1438,7 @@ namespace NBitcoin.Tests
 				var nodeBob = builder.CreateNode();
 				var nodeCarol = builder.CreateNode();
 				var nodeFunder = builder.CreateNode();
+				var david = new Key();
 				builder.StartAll();
 
 				// prepare multisig script and watch with node.
@@ -1441,38 +1446,46 @@ namespace NBitcoin.Tests
 				var clients = nodes.Select(n => n.CreateRPCClient()).ToArray();
 				var addresses = clients.Select(c => c.GetNewAddress());
 				var addrInfos = addresses.Select((a, i) => clients[i].GetAddressInfo(a));
-				var pubkeys = addrInfos.Select(i => i.PubKey).ToArray();
-				var script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, pubkeys);
+				var pubkeys = new List<PubKey> { david.PubKey };
+				pubkeys.AddRange(addrInfos.Select(i => i.PubKey).ToArray());
+				var script = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(4, pubkeys.ToArray());
 				var aMultiP2SH = script.Hash.ScriptPubKey;
-				var aMultiP2WSH = script.WitHash.ScriptPubKey;
-				var aMultiP2SH_P2WSH = script.WitHash.ScriptPubKey.Hash.ScriptPubKey;
-				var multiAddresses = new Script[] { aMultiP2SH, aMultiP2WSH, aMultiP2SH_P2WSH };
-				foreach (var c in clients)
-				{
-					var importMultiObject = new ImportMultiAddress[] {
+				// var aMultiP2WSH = script.WitHash.ScriptPubKey;
+				// var aMultiP2SH_P2WSH = script.WitHash.ScriptPubKey.Hash.ScriptPubKey;
+				var multiAddresses = new BitcoinAddress[] { aMultiP2SH.GetDestinationAddress(builder.Network) };
+				var importMultiObject = new ImportMultiAddress[] {
 						new ImportMultiAddress()
 						{
-							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2SH),
+							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(multiAddresses[0]),
 							RedeemScript = script.ToHex(),
-							Internal = false,
-							Label = "p2sh"
+							Internal = true,
 						},
+						/*
 						new ImportMultiAddress()
 						{
 							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2WSH),
-							WitnessScript = script.ToHex(),
-							Internal = false,
-							Label = "p2wsh"
+							RedeemScript = script.ToHex(),
+							Internal = true,
 						},
 						new ImportMultiAddress()
 						{
 							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2SH_P2WSH),
 							RedeemScript = script.WitHash.ScriptPubKey.ToHex(),
-							WitnessScript = script.ToHex(),
-							Internal = false,
-							Label = "p2sh-p2wsh"
+							Internal = true,
+						},
+						new ImportMultiAddress()
+						{
+							ScriptPubKey = new ImportMultiAddress.ScriptPubKeyObject(aMultiP2SH_P2WSH),
+							RedeemScript = script.ToHex(),
+							Internal = true,
 						}
+						*/
 					};
+
+				for (var i = 0; i < clients.Length; i++)
+				{
+					var c = clients[i];
+					Output.WriteLine($"Importing for {i}");
 					c.ImportMulti(importMultiObject, false);
 				}
 
@@ -1480,8 +1493,8 @@ namespace NBitcoin.Tests
 				nodeFunder.Generate(103);
 				var funderClient = nodeFunder.CreateRPCClient();
 				funderClient.SendToAddress(aMultiP2SH, Money.Coins(40));
-				funderClient.SendToAddress(aMultiP2WSH, Money.Coins(40));
-				funderClient.SendToAddress(aMultiP2SH_P2WSH, Money.Coins(40));
+				// funderClient.SendToAddress(aMultiP2WSH, Money.Coins(40));
+				// funderClient.SendToAddress(aMultiP2SH_P2WSH, Money.Coins(40));
 				nodeFunder.Generate(1);
 				foreach (var n in nodes)
 				{
@@ -1495,7 +1508,8 @@ namespace NBitcoin.Tests
 				var info = carol.GetBlockchainInfoAsync().Result;
 				Assert.Equal((ulong)104, info.Blocks);
 				var balance = carol.GetBalance(0, true);
-				Assert.Equal(Money.Coins(120), balance);
+				// Assert.Equal(Money.Coins(120), balance);
+				Assert.Equal(Money.Coins(40), balance);
 
 				var aSend = new Key().PubKey.GetAddress(nodeAlice.Network);
 				var outputs = new Dictionary<BitcoinAddress, Money>();
@@ -1504,21 +1518,28 @@ namespace NBitcoin.Tests
 				PSBT psbt = carol.WalletCreateFundedPSBT(null, outputs, 0, fundOptions).PSBT;
 				psbt = carol.WalletProcessPSBT(psbt).PSBT;
 
-				// second, bob checks and process psbt.
+				// second, Bob checks and process psbt.
 				var bob = clients[1];
-				Assert.Contains(multiAddresses, a => a == psbt.inputs[0].WitnessUtxo.ScriptPubKey || psbt.inputs[0].NonWitnessUtxo.Outputs.Any(o => a == o.ScriptPubKey));
-				var psbtSignedByBob = bob.WalletProcessPSBT(psbt).PSBT;
+				Assert.Contains(multiAddresses, a =>
+					psbt.inputs.Any(psbtin => psbtin.WitnessUtxo?.ScriptPubKey == a.ScriptPubKey) ||
+					psbt.inputs.Any(psbtin => (bool)psbtin.NonWitnessUtxo?.Outputs.Any(o => a.ScriptPubKey == o.ScriptPubKey))
+					);
+				var psbt1 = bob.WalletProcessPSBT(psbt.Clone()).PSBT;
 
-				// at the same time, alice may do the same thing in parallel;
+				// at the same time, David may do the ;
+				psbt.TrySignAll(david);
 				var alice = clients[0];
-				var psbtSignedByAlice = alice.WalletProcessPSBT(psbt).PSBT;
+				var psbt2 = alice.WalletProcessPSBT(psbt).PSBT;
+				psbt2.TryFinalize(out bool success);
+				Assert.False(success); // not enough signature.
 
 				// So let's combine.
-				var psbtCombined = psbtSignedByAlice.Combine(psbtSignedByBob);
+				var psbtCombined = psbt1.Combine(psbt2);
 
 				// Finally, anyone can finalize and broadcast the psbt.
 				var tx = psbtCombined.Finalize().ExtractTX();
-				alice.TestMempoolAccept(tx);
+				var result = alice.TestMempoolAccept(tx);
+				Assert.True(result.IsAllowed, result.RejectReason);
 			}
 		}
 

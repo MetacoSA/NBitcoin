@@ -921,7 +921,7 @@ namespace NBitcoin.RPC
 			if (outputs == null)
 				throw new ArgumentNullException(nameof(outputs));
 
-			var rpcInputs = inputs.Select(i => i.ToRPCInputs());
+			var rpcInputs = inputs.Select(i => i.ToRPCInputs()).ToArray();
 
 			var outputToSend = new JObject {};
 			if (outputs.Item1 != null)

@@ -628,7 +628,8 @@ namespace NBitcoin.BIP174
 			}
 			// check sig is more than m in case of p2multisig.
 			var multiSigParam = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(redeem);
-			if (multiSigParam != null && sigPushes.Count < multiSigParam.SignatureCount)
+			var numSigs = sigPushes.Count - 1;
+			if (multiSigParam != null && numSigs < multiSigParam.SignatureCount)
 				throw new InvalidOperationException("Not enough signatures to finalize.");
 			return sigPushes.ToArray();
 		}
