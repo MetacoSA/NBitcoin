@@ -1,4 +1,5 @@
-﻿using NBitcoin.BouncyCastle.Asn1.X9;
+﻿using System;
+using NBitcoin.BouncyCastle.Asn1.X9;
 using NBitcoin.BouncyCastle.Math;
 using NBitcoin.BouncyCastle.Math.EC;
 
@@ -38,48 +39,106 @@ namespace NBitcoin.Crypto
 			});
 
 		// H is an additional generator point for the group.
+		// It can be calculated as follow:
+		// H = Secp256k1.Curve.DecodePoint(new[] { (byte)0x02 }.Concat(Hashes.SHA256(G.GetEncoded(false))));
 		// This is unrelated to the cofactor 'H' of the secp256k1 curve.
 		private static readonly ECPoint H = Secp256k1.Curve.CreatePoint(H_x, H_y);
 
+		private bool preserveSecrets;
 		// The actual commitment, which is simply a point on the secp256k1 curve.
-		private readonly ECPoint Commitment;
+		private readonly ECPoint commitment;
 
-		public PedersenCommitment(BigInteger x, BigInteger a)
+		public PedersenCommitment(BigInteger blindingFactor, BigInteger value)
 		{
-			this.x = x;
-			this.a = a;
+			if (blindingFactor == null) 
+				throw new ArgumentNullException(nameof(blindingFactor));
+			if (value == null) 
+				throw new ArgumentNullException(nameof(value));
+
+			this.x = blindingFactor;
+			this.a = value;
+			this.preserveSecrets = true;
 
 			// Pedersen commitment C = xG + aH
-			this.Commitment = G.Multiply(x).Add(H.Multiply(a));
+			this.commitment = G.Multiply(x).Add(H.Multiply(a));
 		}
 
 		internal PedersenCommitment(ECPoint commitment)
 		{
+			if (commitment == null) 
+				throw new ArgumentNullException(nameof(commitment));
+
 			// Only the commitment is known, this is how the commitment will be seen by most users.
-			this.Commitment = commitment;
+			this.preserveSecrets = false;
+			this.commitment = commitment;
 		}
 
 		public static PedersenCommitment operator +(PedersenCommitment c1, PedersenCommitment c2)
 		{
+			if (c1 == null) 
+				throw new ArgumentNullException(nameof(c1));
+			if (c2 == null) 
+				throw new ArgumentNullException(nameof(c2));
 			// Pedersen commitments are additively homomorphic.
-			// So C1(x1, a1) + C2(x2, a2) = C3((x1 + x2), (a1 + a2))
+			// So Commit(x1, a1) + Commit(x2, a2) = Commit((x1 + x2), (a1 + a2))
 
 			// Preserve secrets in the result if they are known.
-			if ((c1.x != null) && (c1.a != null) && (c2.x != null) && (c2.a != null))
+			if (c1.preserveSecrets && c2.preserveSecrets)
 				return new PedersenCommitment(c1.x.Add(c2.x), c1.a.Add(c2.a));
 
 			// The secret values were not available, just give back the summed commitment.
-			return new PedersenCommitment(c1.Commitment.Add(c2.Commitment));
+			return new PedersenCommitment(c1.commitment.Add(c2.commitment));
+		}
+
+		public static PedersenCommitment operator +(BigInteger n, PedersenCommitment c1)
+		{
+			if (n == null) 
+				throw new ArgumentNullException(nameof(n));
+			if (c1 == null) 
+				throw new ArgumentNullException(nameof(c1));
+			if (!c1.preserveSecrets)
+				throw new InvalidOperationException("Pedersen commitment's secret is not available");
+
+			// Pedersen commitments are additively homomorphic.
+			// Commit(x,r) + n = Commit(x + n,r)
+
+			// Preserve secrets in the result if they are known.
+				return new PedersenCommitment(c1.x.Add(n), c1.a);
+		}
+
+		public static PedersenCommitment operator -(PedersenCommitment c1, PedersenCommitment c2)
+		{
+			if (c1 == null) 
+				throw new ArgumentNullException(nameof(c1));
+			if (c2 == null) 
+				throw new ArgumentNullException(nameof(c2));
+
+			// Preserve secrets in the result if they are known.
+			if (c1.preserveSecrets && c2.preserveSecrets)
+				return new PedersenCommitment(c1.x.Subtract(c2.x), c1.a.Subtract(c2.a));
+
+			// The secret values were not available, just give back the summed commitment.
+			return new PedersenCommitment(c1.commitment.Add(c2.commitment.Negate()));
+		}
+
+		public bool Verify(BigInteger blindingFactor, BigInteger value)
+		{
+			var commitment = new PedersenCommitment(blindingFactor, value);
+			return this == commitment;
 		}
 
 		public static bool operator ==(PedersenCommitment c1, PedersenCommitment c2)
 		{
-			return c1.Commitment.Equals(c2.Commitment);
+			if(System.Object.ReferenceEquals(c1, c2))
+				return true;
+			if(((object)c1 == null) || ((object)c2 == null))
+				return false;
+			return c1.commitment.Equals(c2.commitment);
 		}
 
 		public static bool operator !=(PedersenCommitment c1, PedersenCommitment c2)
 		{
-			return !c1.Commitment.Equals(c2.Commitment);
+			return !(c1.commitment == c2.commitment);
 		}
 	}
 }
