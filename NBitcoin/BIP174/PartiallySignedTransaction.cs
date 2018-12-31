@@ -551,13 +551,19 @@ namespace NBitcoin.BIP174
 			if (prevout == null)
 				throw new InvalidOperationException("Can not finalize PSBTInput without utxo");
 
+			var dummyTx = tx.Clone(); // Since to run VerifyScript for witness input, we must modify tx.
+			var context = new ScriptEvaluationContext() { SigHash = sighash_type == 0 ? SigHash.All : sighash_type};
 			var nextScript = prevout.ScriptPubKey;
+
 			// 1. p2pkh
 			if (PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(nextScript))
 			{
 				var sigPair = partial_sigs.First();
 				var txSig = new TransactionSignature(sigPair.Value.Item2, sighash_type == 0 ? SigHash.All : (SigHash)sighash_type);
-				final_script_sig = PayToPubkeyHashTemplate.Instance.GenerateScriptSig(txSig, sigPair.Value.Item1);
+				var ss = PayToPubkeyHashTemplate.Instance.GenerateScriptSig(txSig, sigPair.Value.Item1);
+				if (!context.VerifyScript(ss, dummyTx, index, prevout))
+					throw new InvalidOperationException($"Failed to verify script in p2pkh! {context.Error}");
+				final_script_sig = ss;
 			}
 
 			// 2. p2sh
@@ -568,6 +574,8 @@ namespace NBitcoin.BIP174
 				{
 					var pushes = GetPushItems(redeem_script);
 					var ss = PayToScriptHashTemplate.Instance.GenerateScriptSig(pushes, redeem_script);
+					if (!context.VerifyScript(ss, dummyTx, index, prevout))
+						throw new InvalidOperationException($"Failed to verify script in p2sh! {context.Error}");
 					final_script_sig = ss;
 				}
 				// Why not create `final_script_sig` here? because if the following code throws an error, it will be left out dirty.
@@ -579,35 +587,33 @@ namespace NBitcoin.BIP174
 			{
 				var sigPair = partial_sigs.First();
 				var txSig = new TransactionSignature(sigPair.Value.Item2, sighash_type == 0 ? SigHash.All : (SigHash)sighash_type);
-				final_script_witness = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(txSig, sigPair.Value.Item1);
-
+				dummyTx.Inputs[index].WitScript = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(txSig, sigPair.Value.Item1);
+				Script ss = null;
 				if (prevout.ScriptPubKey.IsPayToScriptHash)
-					final_script_sig = new Script(Op.GetPushOp(redeem_script.ToBytes()));
+					ss = new Script(Op.GetPushOp(redeem_script.ToBytes()));
+				if (!context.VerifyScript(ss ?? Script.Empty, dummyTx, index, prevout))
+					throw new InvalidOperationException($"Failed to verify script in p2wpkh! {context.Error}");
+
+				final_script_witness = dummyTx.Inputs[index].WitScript;
+				final_script_sig = ss;
 			}
 
 			// 4. p2wsh
 			else if (PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(nextScript))
 			{
 				var pushes = GetPushItems(witness_script);
-				final_script_witness = PayToWitScriptHashTemplate.Instance.GenerateWitScript(pushes, witness_script);
-
+				dummyTx.Inputs[index].WitScript = PayToWitScriptHashTemplate.Instance.GenerateWitScript(pushes, witness_script);
+				Script ss = null;
 				if (prevout.ScriptPubKey.IsPayToScriptHash)
-					final_script_sig = new Script(Op.GetPushOp(redeem_script.ToBytes()));
+					ss = new Script(Op.GetPushOp(redeem_script.ToBytes()));
+				if (!context.VerifyScript(ss ?? Script.Empty, dummyTx, index, prevout))
+					throw new InvalidOperationException($"Failed to verify script in p2wsh! {context.Error}");
+
+				final_script_witness = dummyTx.Inputs[index].WitScript;
+				final_script_sig = ss;
 			}
 			if (IsFinalized())
 				ClearForFinalize();
-		}
-		internal bool TryFinalize(Transaction tx, int index)
-		{
-			try
-			{
-				Finalize(tx, index);
-			}
-			catch
-			{
-				return false;
-			}
-			return true;
 		}
 
 		/// <summary>
@@ -1498,15 +1504,28 @@ namespace NBitcoin.BIP174
 			return result;
 		}
 
-		public PSBT TryFinalize(out bool result)
+		/// <summary>
+		/// If this method throws an error, that is a bug.
+		/// </summary>
+		/// <param name="errors"></param>
+		/// <returns></returns>
+		public PSBT TryFinalize(out InvalidOperationException[] errors)
 		{
-			result = true;
+			var elist = new List<InvalidOperationException> ();
 			for (var i = 0; i < inputs.Count; i++)
 			{
 				var psbtin = inputs[i];
-				result &= psbtin.TryFinalize(tx, i);
+				try
+				{
+					psbtin.Finalize(tx, i);
+				}
+				catch (InvalidOperationException e)
+				{
+					var exception = new InvalidOperationException($"Failed to finalize in input {i}", e);
+					elist.Add(exception);
+				}
 			}
-
+			errors = elist.ToArray();
 			return this;
 		}
 
