@@ -1531,11 +1531,9 @@ namespace NBitcoin.BIP174
 
 		public PSBT Finalize()
 		{
-			for (var i = 0; i < inputs.Count; i++)
-			{
-				var psbtin = inputs[i];
-				psbtin.Finalize(tx, i);
-			}
+			TryFinalize(out var errors);
+			if (errors.Length != 0)
+				throw new AggregateException(errors);
 			return this;
 		}
 
