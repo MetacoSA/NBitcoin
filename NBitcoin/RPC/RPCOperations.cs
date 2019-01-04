@@ -48,6 +48,7 @@ namespace NBitcoin.RPC
 		verifymessage,
 		getreceivedbyaddress,
 		getreceivedbyaccount,
+		getaddressinfo,
 		getbalance,
 		getunconfirmedbalance,
 		movecmd,
