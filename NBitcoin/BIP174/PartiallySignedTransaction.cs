@@ -551,13 +551,19 @@ namespace NBitcoin.BIP174
 			if (prevout == null)
 				throw new InvalidOperationException("Can not finalize PSBTInput without utxo");
 
+			var dummyTx = tx.Clone(); // Since to run VerifyScript for witness input, we must modify tx.
+			var context = new ScriptEvaluationContext() { SigHash = sighash_type == 0 ? SigHash.All : sighash_type};
 			var nextScript = prevout.ScriptPubKey;
+
 			// 1. p2pkh
 			if (PayToPubkeyHashTemplate.Instance.CheckScriptPubKey(nextScript))
 			{
 				var sigPair = partial_sigs.First();
 				var txSig = new TransactionSignature(sigPair.Value.Item2, sighash_type == 0 ? SigHash.All : (SigHash)sighash_type);
-				final_script_sig = PayToPubkeyHashTemplate.Instance.GenerateScriptSig(txSig, sigPair.Value.Item1);
+				var ss = PayToPubkeyHashTemplate.Instance.GenerateScriptSig(txSig, sigPair.Value.Item1);
+				if (!context.VerifyScript(ss, dummyTx, index, prevout))
+					throw new InvalidOperationException($"Failed to verify script in p2pkh! {context.Error}");
+				final_script_sig = ss;
 			}
 
 			// 2. p2sh
@@ -566,8 +572,10 @@ namespace NBitcoin.BIP174
 				// bare p2sh
 				if (witness_script == null && !PayToWitTemplate.Instance.CheckScriptPubKey(redeem_script))
 				{
-					var sigPushes = GetSigPushes(redeem_script);
-					var ss = PayToScriptHashTemplate.Instance.GenerateScriptSig(sigPushes, redeem_script);
+					var pushes = GetPushItems(redeem_script);
+					var ss = PayToScriptHashTemplate.Instance.GenerateScriptSig(pushes, redeem_script);
+					if (!context.VerifyScript(ss, dummyTx, index, prevout))
+						throw new InvalidOperationException($"Failed to verify script in p2sh! {context.Error}");
 					final_script_sig = ss;
 				}
 				// Why not create `final_script_sig` here? because if the following code throws an error, it will be left out dirty.
@@ -579,35 +587,33 @@ namespace NBitcoin.BIP174
 			{
 				var sigPair = partial_sigs.First();
 				var txSig = new TransactionSignature(sigPair.Value.Item2, sighash_type == 0 ? SigHash.All : (SigHash)sighash_type);
-				final_script_witness = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(txSig, sigPair.Value.Item1);
-
+				dummyTx.Inputs[index].WitScript = PayToWitPubKeyHashTemplate.Instance.GenerateWitScript(txSig, sigPair.Value.Item1);
+				Script ss = null;
 				if (prevout.ScriptPubKey.IsPayToScriptHash)
-					final_script_sig = new Script(Op.GetPushOp(redeem_script.ToBytes()));
+					ss = new Script(Op.GetPushOp(redeem_script.ToBytes()));
+				if (!context.VerifyScript(ss ?? Script.Empty, dummyTx, index, prevout))
+					throw new InvalidOperationException($"Failed to verify script in p2wpkh! {context.Error}");
+
+				final_script_witness = dummyTx.Inputs[index].WitScript;
+				final_script_sig = ss;
 			}
 
 			// 4. p2wsh
 			else if (PayToWitScriptHashTemplate.Instance.CheckScriptPubKey(nextScript))
 			{
-				var sigPushes = GetSigPushes(witness_script);
-				final_script_witness = PayToWitScriptHashTemplate.Instance.GenerateWitScript(sigPushes, witness_script);
-
+				var pushes = GetPushItems(witness_script);
+				dummyTx.Inputs[index].WitScript = PayToWitScriptHashTemplate.Instance.GenerateWitScript(pushes, witness_script);
+				Script ss = null;
 				if (prevout.ScriptPubKey.IsPayToScriptHash)
-					final_script_sig = new Script(Op.GetPushOp(redeem_script.ToBytes()));
+					ss = new Script(Op.GetPushOp(redeem_script.ToBytes()));
+				if (!context.VerifyScript(ss ?? Script.Empty, dummyTx, index, prevout))
+					throw new InvalidOperationException($"Failed to verify script in p2wsh! {context.Error}");
+
+				final_script_witness = dummyTx.Inputs[index].WitScript;
+				final_script_sig = ss;
 			}
 			if (IsFinalized())
 				ClearForFinalize();
-		}
-		internal bool TryFinalize(Transaction tx, int index)
-		{
-			try
-			{
-				Finalize(tx, index);
-			}
-			catch
-			{
-				return false;
-			}
-			return true;
 		}
 
 		/// <summary>
@@ -616,21 +622,26 @@ namespace NBitcoin.BIP174
 		/// </summary>
 		/// <param name="redeem"></param>
 		/// <returns></returns>
-		private Op[] GetSigPushes(Script redeem)
+		private Op[] GetPushItems(Script redeem)
 		{
-			var sigPushes = new List<Op> { OpcodeType.OP_0 };
-			foreach (var pk in redeem.GetAllPubKeys())
+			if (PayToMultiSigTemplate.Instance.CheckScriptPubKey(redeem))
 			{
-				if (!partial_sigs.TryGetValue(pk.Hash, out var sigPair))
-					continue;
-				var txSig = new TransactionSignature(sigPair.Item2, sighash_type == 0 ? SigHash.All : (SigHash)sighash_type);
-				sigPushes.Add(Op.GetPushOp(txSig.ToBytes()));
+				var sigPushes = new List<Op> { OpcodeType.OP_0 };
+				foreach (var pk in redeem.GetAllPubKeys())
+				{
+					if (!partial_sigs.TryGetValue(pk.Hash, out var sigPair))
+						continue;
+					var txSig = new TransactionSignature(sigPair.Item2, sighash_type == 0 ? SigHash.All : (SigHash)sighash_type);
+					sigPushes.Add(Op.GetPushOp(txSig.ToBytes()));
+				}
+				// check sig is more than m in case of p2multisig.
+				var multiSigParam = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(redeem);
+				var numSigs = sigPushes.Count - 1;
+				if (multiSigParam != null && numSigs < multiSigParam.SignatureCount)
+					throw new InvalidOperationException("Not enough signatures to finalize.");
+				return sigPushes.ToArray();
 			}
-			// check sig is more than m in case of p2multisig.
-			var multiSigParam = PayToMultiSigTemplate.Instance.ExtractScriptPubKeyParameters(redeem);
-			if (multiSigParam != null && sigPushes.Count < multiSigParam.SignatureCount)
-				throw new InvalidOperationException("Not enough signatures to finalize.");
-			return sigPushes.ToArray();
+			throw new InvalidOperationException("PSBT does not know how to finalize this type of script!");
 		}
 
 		/// <summary>
@@ -1493,25 +1504,36 @@ namespace NBitcoin.BIP174
 			return result;
 		}
 
-		public PSBT TryFinalize(out bool result)
+		/// <summary>
+		/// If this method throws an error, that is a bug.
+		/// </summary>
+		/// <param name="errors"></param>
+		/// <returns></returns>
+		public PSBT TryFinalize(out InvalidOperationException[] errors)
 		{
-			result = true;
+			var elist = new List<InvalidOperationException> ();
 			for (var i = 0; i < inputs.Count; i++)
 			{
 				var psbtin = inputs[i];
-				result &= psbtin.TryFinalize(tx, i);
+				try
+				{
+					psbtin.Finalize(tx, i);
+				}
+				catch (InvalidOperationException e)
+				{
+					var exception = new InvalidOperationException($"Failed to finalize in input {i}", e);
+					elist.Add(exception);
+				}
 			}
-
+			errors = elist.ToArray();
 			return this;
 		}
 
 		public PSBT Finalize()
 		{
-			for (var i = 0; i < inputs.Count; i++)
-			{
-				var psbtin = inputs[i];
-				psbtin.Finalize(tx, i);
-			}
+			TryFinalize(out var errors);
+			if (errors.Length != 0)
+				throw new AggregateException(errors);
 			return this;
 		}
 
@@ -1525,9 +1547,6 @@ namespace NBitcoin.BIP174
 		internal bool UseLowR { get => _UseLowR; set => _UseLowR = value; }
 		public PSBT TrySignAll(params Key[] keys)
 		{
-			if (keys == null)
-				throw new ArgumentNullException(nameof(keys));
-
 			CheckSanity();
 			for (var i = 0; i < inputs.Count; i++)
 			{
@@ -1540,8 +1559,10 @@ namespace NBitcoin.BIP174
 
 		public PSBT Sign(int index, Key[] keys, out bool success)
 		{
+			if (keys == null)
+				throw new ArgumentNullException(nameof(keys));
+
 			var psbtin = this.inputs[index];
-			var txin = this.tx.Inputs[index];
 			success = psbtin.Sign(index, tx, keys, UseLowR);
 			return this;
 		}
