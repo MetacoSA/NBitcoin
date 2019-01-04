@@ -32,12 +32,14 @@ namespace NBitcoin.Tests
 		const string TestAccount = "NBitcoin.RPCClientTests";
 
 		public PSBTComparer PSBTComparerInstance { get; }
+		public ITestOutputHelper Output { get; }
 
-		public RPCClientTests()
+		public RPCClientTests(ITestOutputHelper output)
 		{
 			Arb.Register<PSBTGenerator>();
 			Arb.Register<SegwitTransactionGenerators>();
 			PSBTComparerInstance = new PSBTComparer();
+			Output = output;
 		}
 		
 		[Fact]
@@ -1404,8 +1406,8 @@ namespace NBitcoin.Tests
 				result = client.WalletProcessPSBT(psbtUnFinalized, false, type, bip32derivs: true);
 				Assert.False(result.Complete);
 				Assert.False(result.PSBT.CanExtractTX());
-				result.PSBT.TryFinalize(out bool isFinalized2);
-				Assert.False(isFinalized2);
+				result.PSBT.TryFinalize(out var errors2);
+				Assert.NotEmpty(errors2);
 				foreach (var psbtin in result.PSBT.inputs)
 				{
 					Assert.Equal(SigHash.Undefined, psbtin.SighashType);
@@ -1414,8 +1416,8 @@ namespace NBitcoin.Tests
 
 				// signed
 				result = client.WalletProcessPSBT(psbtUnFinalized, true, type);
-				result.PSBT.TryFinalize(out bool isFinalized3);
-				Assert.True(isFinalized3);
+				result.PSBT.TryFinalize(out var errors3);
+				Assert.Empty(errors3);
 				var txResult = result.PSBT.ExtractTX();
 				client.TestMempoolAccept(txResult, true);
 			}

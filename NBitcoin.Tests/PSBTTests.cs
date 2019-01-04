@@ -8,11 +8,14 @@ using NBitcoin.DataEncoders;
 using System.Collections.Generic;
 using System.Linq;
 using static NBitcoin.Tests.Comparer;
+using Xunit.Abstractions;
 
 namespace NBitcoin.Tests
 {
 	public class PSBTTests
 	{
+		private readonly ITestOutputHelper Output;
+
 		private static JObject testdata { get; }
 		private static PSBTComparer ComparerInstance { get; }
 
@@ -20,6 +23,10 @@ namespace NBitcoin.Tests
 		{
 			testdata = JObject.Parse(File.ReadAllText("data/psbt.json"));
 			ComparerInstance = new PSBTComparer();
+		}
+		public PSBTTests(ITestOutputHelper output)
+		{
+			Output = output;
 		}
 
 		[Fact]
@@ -138,8 +145,8 @@ namespace NBitcoin.Tests
 			Assert.Single(signedPSBTWithCoins.inputs[3].PartialSigs);
 			Assert.Single(signedPSBTWithCoins.inputs[4].PartialSigs);
 			Assert.Single(signedPSBTWithCoins.inputs[5].PartialSigs);
-			signedPSBTWithCoins.TryFinalize(out bool HasFinalizationSucceedForPSBTWithoutPrevTX);
-			Assert.False(HasFinalizationSucceedForPSBTWithoutPrevTX);
+			signedPSBTWithCoins.TryFinalize(out var finalizationErrors);
+			Assert.Equal(4, finalizationErrors.Length); // Only p2wpkh and p2sh-p2wpkh will succeed.
 
 			var psbtWithTXs = PSBT.FromTransaction(tx, true)
 				.AddTransactions(funds);
@@ -204,6 +211,23 @@ namespace NBitcoin.Tests
 				Assert.Throws<FormatException>(() => psbt.TrySignAll(new Key()));
 			}
 		}
+
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void ShouldCaptureExceptionInFinalization()
+		{
+			var keys = new Key[] { new Key(), new Key(), new Key() };
+			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
+			var network = Network.Main;
+			var funds = CreateDummyFunds(network, keys, redeem);
+
+			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
+			var psbt = PSBT.FromTransaction(tx);
+
+			psbt.TryFinalize(out var errors);
+			Assert.Equal(6, errors.Length);
+		}
+
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
