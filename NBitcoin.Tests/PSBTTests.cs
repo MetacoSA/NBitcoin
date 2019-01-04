@@ -228,6 +228,71 @@ namespace NBitcoin.Tests
 			Assert.Equal(6, errors.Length);
 		}
 
+		[Fact]
+		[Trait("UnitTest", "UnitTest")]
+		public void AddingScriptCoinShouldResultMoreInfoThanAddingSeparatelyInCaseOfP2SH()
+		{
+			var keys = new Key[] { new Key(), new Key(), new Key() };
+			var redeem = PayToMultiSigTemplate.Instance.GenerateScriptPubKey(3, keys.Select(k => k.PubKey).ToArray());
+			var network = Network.Main;
+			var funds = CreateDummyFunds(network, keys, redeem);
+
+			var tx = CreateTxToSpendFunds(funds, keys, redeem, false, false);
+			var psbt = PSBT.FromTransaction(tx);
+
+			// case 1: Check that it will result to more info by adding ScriptCoin in case of p2sh-p2wpkh
+			var coins1 = DummyFundsToCoins(funds, null, null); // without script
+			var scriptCoins2 = DummyFundsToCoins(funds, null, keys[0]); // only with p2sh-p2wpkh redeem.
+			var psbt1 = psbt.Clone().AddCoins(coins1).TryAddScript(redeem);
+			var psbt2 = psbt.Clone().AddCoins(scriptCoins2).TryAddScript(redeem);
+			for (int i = 0; i < 6; i++)
+			{
+				Output.WriteLine($"Testing {i}");
+				var a = psbt1.inputs[i];
+				var e = psbt2.inputs[i];
+				// Since there are no way psbt can know p2sh-p2wpkh is actually a witness input in case we add coins and scripts separately,
+				// coin will not be added to the inputs[4].
+				if (i == 4) // p2sh-p2wpkh
+				{
+					Assert.NotEqual(a.ToBytes(), e.ToBytes());
+					Assert.Null(a.RedeemScript);
+					Assert.Null(a.WitnessUtxo);
+					Assert.NotNull(e.RedeemScript);
+					Assert.NotNull(e.WitnessUtxo);
+				}
+				// but otherwise, it will be the same.
+				else
+				{
+					AssertEx.CollectionEquals(a.ToBytes(), e.ToBytes());
+				}
+			}
+
+			// case 2: bare p2sh and p2sh-pw2sh
+			var scriptCoins3 = DummyFundsToCoins(funds, redeem, keys[0]); // with full scripts.
+			var psbt3 = psbt.Clone().AddCoins(scriptCoins3);
+			for (int i = 0; i < 6; i++)
+			{
+				Output.WriteLine($"Testing {i}");
+				var a = psbt2.inputs[i];
+				var e = psbt3.inputs[i];
+				if (i == 2 || i == 5) // p2sh or p2sh-p2wsh
+				{
+					Assert.NotEqual<byte[]>(a.ToBytes(), e.ToBytes());
+					Assert.Null(a.WitnessUtxo);
+					Assert.Null(a.RedeemScript);
+					Assert.NotNull(e.RedeemScript);
+					if (i == 5) // p2sh-p2wsh
+					{
+						Assert.NotNull(e.WitnessUtxo);
+						Assert.NotNull(e.WitnessScript);
+					}
+				}
+				else
+				{
+					AssertEx.CollectionEquals(a.ToBytes(), e.ToBytes());
+				}
+			}
+		}
 
 		[Fact]
 		[Trait("UnitTest", "UnitTest")]
@@ -333,10 +398,10 @@ namespace NBitcoin.Tests
 			var coins = new ICoin[barecoins.Length];
 			coins[0] = barecoins[0];
 			coins[1] = barecoins[1];
-			coins[2] = new ScriptCoin(barecoins[2], redeem); // p2sh
-			coins[3] = new ScriptCoin(barecoins[3], redeem); // p2wsh
-			coins[4] = new ScriptCoin(barecoins[4], key.PubKey.WitHash.ScriptPubKey); // p2sh-p2wpkh
-			coins[5] = new ScriptCoin(barecoins[5], redeem); // p2sh-p2wsh
+			coins[2] = redeem != null ? new ScriptCoin(barecoins[2], redeem) : barecoins[2]; // p2sh
+			coins[3] = redeem != null ? new ScriptCoin(barecoins[3], redeem) : barecoins[3]; // p2wsh
+			coins[4] = key != null ? new ScriptCoin(barecoins[4], key.PubKey.WitHash.ScriptPubKey) : barecoins[4]; // p2sh-p2wpkh
+			coins[5] = redeem != null ? new ScriptCoin(barecoins[5], redeem) : barecoins[5]; // p2sh-p2wsh
 			return coins;
 		}
 
