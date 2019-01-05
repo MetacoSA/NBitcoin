@@ -1434,6 +1434,8 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				if (!builder.NodeImplementation.Version.Contains("0.17"))
+					throw new Exception("Test must be updated!");
 				var nodeAlice = builder.CreateNode();
 				var nodeBob = builder.CreateNode();
 				var nodeCarol = builder.CreateNode();
@@ -1555,6 +1557,8 @@ namespace NBitcoin.Tests
 		{
 			using (var builder = NodeBuilderEx.Create())
 			{
+				if (!builder.NodeImplementation.Version.Contains("0.17"))
+					throw new Exception("Test must be updated!");
 				var client = builder.CreateNode(true).CreateRPCClient();
 				var addrLegacy = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Legacy });
 				var addrBech32 = client.GetNewAddress(new GetNewAddressRequest() { AddressType = AddressType.Bech32 });
