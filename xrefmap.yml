@@ -6484,6 +6484,22 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BIP174.PSBT.AddCoins
   nameWithType: PSBT.AddCoins
+- uid: NBitcoin.BIP174.PSBT.AddKeyPath(NBitcoin.PubKey,System.Tuple{System.UInt32,NBitcoin.KeyPath})
+  name: AddKeyPath(PubKey, Tuple<UInt32, KeyPath>)
+  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_AddKeyPath_NBitcoin_PubKey_System_Tuple_System_UInt32_NBitcoin_KeyPath__
+  commentId: M:NBitcoin.BIP174.PSBT.AddKeyPath(NBitcoin.PubKey,System.Tuple{System.UInt32,NBitcoin.KeyPath})
+  name.vb: AddKeyPath(PubKey, Tuple(Of UInt32, KeyPath))
+  fullName: NBitcoin.BIP174.PSBT.AddKeyPath(NBitcoin.PubKey, System.Tuple<System.UInt32, NBitcoin.KeyPath>)
+  fullName.vb: NBitcoin.BIP174.PSBT.AddKeyPath(NBitcoin.PubKey, System.Tuple(Of System.UInt32, NBitcoin.KeyPath))
+  nameWithType: PSBT.AddKeyPath(PubKey, Tuple<UInt32, KeyPath>)
+  nameWithType.vb: PSBT.AddKeyPath(PubKey, Tuple(Of UInt32, KeyPath))
+- uid: NBitcoin.BIP174.PSBT.AddKeyPath*
+  name: AddKeyPath
+  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_AddKeyPath_
+  commentId: Overload:NBitcoin.BIP174.PSBT.AddKeyPath
+  isSpec: "True"
+  fullName: NBitcoin.BIP174.PSBT.AddKeyPath
+  nameWithType: PSBT.AddKeyPath
 - uid: NBitcoin.BIP174.PSBT.AddPathTo(System.Int32,NBitcoin.PubKey,System.UInt32,NBitcoin.KeyPath,System.Boolean)
   name: AddPathTo(Int32, PubKey, UInt32, KeyPath, Boolean)
   href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_AddPathTo_System_Int32_NBitcoin_PubKey_System_UInt32_NBitcoin_KeyPath_System_Boolean_
@@ -6497,6 +6513,22 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BIP174.PSBT.AddPathTo
   nameWithType: PSBT.AddPathTo
+- uid: NBitcoin.BIP174.PSBT.AddScript(NBitcoin.Script[])
+  name: AddScript(Script[])
+  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_AddScript_NBitcoin_Script___
+  commentId: M:NBitcoin.BIP174.PSBT.AddScript(NBitcoin.Script[])
+  name.vb: AddScript(Script())
+  fullName: NBitcoin.BIP174.PSBT.AddScript(NBitcoin.Script[])
+  fullName.vb: NBitcoin.BIP174.PSBT.AddScript(NBitcoin.Script())
+  nameWithType: PSBT.AddScript(Script[])
+  nameWithType.vb: PSBT.AddScript(Script())
+- uid: NBitcoin.BIP174.PSBT.AddScript*
+  name: AddScript
+  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_AddScript_
+  commentId: Overload:NBitcoin.BIP174.PSBT.AddScript
+  isSpec: "True"
+  fullName: NBitcoin.BIP174.PSBT.AddScript
+  nameWithType: PSBT.AddScript
 - uid: NBitcoin.BIP174.PSBT.AddTransactions(NBitcoin.Transaction[])
   name: AddTransactions(Transaction[])
   href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_AddTransactions_NBitcoin_Transaction___
@@ -6616,6 +6648,15 @@ references:
   commentId: M:NBitcoin.BIP174.PSBT.Finalize
   fullName: NBitcoin.BIP174.PSBT.Finalize()
   nameWithType: PSBT.Finalize()
+- uid: NBitcoin.BIP174.PSBT.Finalize(System.InvalidOperationException[]@)
+  name: Finalize(out InvalidOperationException[])
+  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_Finalize_System_InvalidOperationException____
+  commentId: M:NBitcoin.BIP174.PSBT.Finalize(System.InvalidOperationException[]@)
+  name.vb: Finalize(ByRef InvalidOperationException())
+  fullName: NBitcoin.BIP174.PSBT.Finalize(out System.InvalidOperationException[])
+  fullName.vb: NBitcoin.BIP174.PSBT.Finalize(ByRef System.InvalidOperationException())
+  nameWithType: PSBT.Finalize(out InvalidOperationException[])
+  nameWithType.vb: PSBT.Finalize(ByRef InvalidOperationException())
 - uid: NBitcoin.BIP174.PSBT.Finalize*
   name: Finalize
   href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_Finalize_
@@ -6764,6 +6805,22 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BIP174.PSBT.Sign
   nameWithType: PSBT.Sign
+- uid: NBitcoin.BIP174.PSBT.SignAll(NBitcoin.Key[])
+  name: SignAll(Key[])
+  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_SignAll_NBitcoin_Key___
+  commentId: M:NBitcoin.BIP174.PSBT.SignAll(NBitcoin.Key[])
+  name.vb: SignAll(Key())
+  fullName: NBitcoin.BIP174.PSBT.SignAll(NBitcoin.Key[])
+  fullName.vb: NBitcoin.BIP174.PSBT.SignAll(NBitcoin.Key())
+  nameWithType: PSBT.SignAll(Key[])
+  nameWithType.vb: PSBT.SignAll(Key())
+- uid: NBitcoin.BIP174.PSBT.SignAll*
+  name: SignAll
+  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_SignAll_
+  commentId: Overload:NBitcoin.BIP174.PSBT.SignAll
+  isSpec: "True"
+  fullName: NBitcoin.BIP174.PSBT.SignAll
+  nameWithType: PSBT.SignAll
 - uid: NBitcoin.BIP174.PSBT.ToBase64
   name: ToBase64()
   href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_ToBase64
@@ -6790,70 +6847,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.BIP174.PSBT.ToString
   nameWithType: PSBT.ToString
-- uid: NBitcoin.BIP174.PSBT.TryAddKeyPath(NBitcoin.PubKey,System.Tuple{System.UInt32,NBitcoin.KeyPath})
-  name: TryAddKeyPath(PubKey, Tuple<UInt32, KeyPath>)
-  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_TryAddKeyPath_NBitcoin_PubKey_System_Tuple_System_UInt32_NBitcoin_KeyPath__
-  commentId: M:NBitcoin.BIP174.PSBT.TryAddKeyPath(NBitcoin.PubKey,System.Tuple{System.UInt32,NBitcoin.KeyPath})
-  name.vb: TryAddKeyPath(PubKey, Tuple(Of UInt32, KeyPath))
-  fullName: NBitcoin.BIP174.PSBT.TryAddKeyPath(NBitcoin.PubKey, System.Tuple<System.UInt32, NBitcoin.KeyPath>)
-  fullName.vb: NBitcoin.BIP174.PSBT.TryAddKeyPath(NBitcoin.PubKey, System.Tuple(Of System.UInt32, NBitcoin.KeyPath))
-  nameWithType: PSBT.TryAddKeyPath(PubKey, Tuple<UInt32, KeyPath>)
-  nameWithType.vb: PSBT.TryAddKeyPath(PubKey, Tuple(Of UInt32, KeyPath))
-- uid: NBitcoin.BIP174.PSBT.TryAddKeyPath*
-  name: TryAddKeyPath
-  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_TryAddKeyPath_
-  commentId: Overload:NBitcoin.BIP174.PSBT.TryAddKeyPath
-  isSpec: "True"
-  fullName: NBitcoin.BIP174.PSBT.TryAddKeyPath
-  nameWithType: PSBT.TryAddKeyPath
-- uid: NBitcoin.BIP174.PSBT.TryAddScript(NBitcoin.Script[])
-  name: TryAddScript(Script[])
-  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_TryAddScript_NBitcoin_Script___
-  commentId: M:NBitcoin.BIP174.PSBT.TryAddScript(NBitcoin.Script[])
-  name.vb: TryAddScript(Script())
-  fullName: NBitcoin.BIP174.PSBT.TryAddScript(NBitcoin.Script[])
-  fullName.vb: NBitcoin.BIP174.PSBT.TryAddScript(NBitcoin.Script())
-  nameWithType: PSBT.TryAddScript(Script[])
-  nameWithType.vb: PSBT.TryAddScript(Script())
-- uid: NBitcoin.BIP174.PSBT.TryAddScript*
-  name: TryAddScript
-  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_TryAddScript_
-  commentId: Overload:NBitcoin.BIP174.PSBT.TryAddScript
-  isSpec: "True"
-  fullName: NBitcoin.BIP174.PSBT.TryAddScript
-  nameWithType: PSBT.TryAddScript
-- uid: NBitcoin.BIP174.PSBT.TryFinalize(System.Boolean@)
-  name: TryFinalize(out Boolean)
-  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_TryFinalize_System_Boolean__
-  commentId: M:NBitcoin.BIP174.PSBT.TryFinalize(System.Boolean@)
-  name.vb: TryFinalize(ByRef Boolean)
-  fullName: NBitcoin.BIP174.PSBT.TryFinalize(out System.Boolean)
-  fullName.vb: NBitcoin.BIP174.PSBT.TryFinalize(ByRef System.Boolean)
-  nameWithType: PSBT.TryFinalize(out Boolean)
-  nameWithType.vb: PSBT.TryFinalize(ByRef Boolean)
-- uid: NBitcoin.BIP174.PSBT.TryFinalize*
-  name: TryFinalize
-  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_TryFinalize_
-  commentId: Overload:NBitcoin.BIP174.PSBT.TryFinalize
-  isSpec: "True"
-  fullName: NBitcoin.BIP174.PSBT.TryFinalize
-  nameWithType: PSBT.TryFinalize
-- uid: NBitcoin.BIP174.PSBT.TrySignAll(NBitcoin.Key[])
-  name: TrySignAll(Key[])
-  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_TrySignAll_NBitcoin_Key___
-  commentId: M:NBitcoin.BIP174.PSBT.TrySignAll(NBitcoin.Key[])
-  name.vb: TrySignAll(Key())
-  fullName: NBitcoin.BIP174.PSBT.TrySignAll(NBitcoin.Key[])
-  fullName.vb: NBitcoin.BIP174.PSBT.TrySignAll(NBitcoin.Key())
-  nameWithType: PSBT.TrySignAll(Key[])
-  nameWithType.vb: PSBT.TrySignAll(Key())
-- uid: NBitcoin.BIP174.PSBT.TrySignAll*
-  name: TrySignAll
-  href: api/NBitcoin.BIP174.PSBT.html#NBitcoin_BIP174_PSBT_TrySignAll_
-  commentId: Overload:NBitcoin.BIP174.PSBT.TrySignAll
-  isSpec: "True"
-  fullName: NBitcoin.BIP174.PSBT.TrySignAll
-  nameWithType: PSBT.TrySignAll
 - uid: NBitcoin.BIP174.PSBTInput
   name: PSBTInput
   href: api/NBitcoin.BIP174.PSBTInput.html
@@ -17757,51 +17750,6 @@ references:
   commentId: N:NBitcoin.Crypto
   fullName: NBitcoin.Crypto
   nameWithType: NBitcoin.Crypto
-- uid: NBitcoin.Crypto.BlindSignature
-  name: BlindSignature
-  href: api/NBitcoin.Crypto.BlindSignature.html
-  commentId: T:NBitcoin.Crypto.BlindSignature
-  fullName: NBitcoin.Crypto.BlindSignature
-  nameWithType: BlindSignature
-- uid: NBitcoin.Crypto.BlindSignature.#ctor(NBitcoin.BouncyCastle.Math.BigInteger,NBitcoin.BouncyCastle.Math.BigInteger)
-  name: BlindSignature(BigInteger, BigInteger)
-  href: api/NBitcoin.Crypto.BlindSignature.html#NBitcoin_Crypto_BlindSignature__ctor_NBitcoin_BouncyCastle_Math_BigInteger_NBitcoin_BouncyCastle_Math_BigInteger_
-  commentId: M:NBitcoin.Crypto.BlindSignature.#ctor(NBitcoin.BouncyCastle.Math.BigInteger,NBitcoin.BouncyCastle.Math.BigInteger)
-  fullName: NBitcoin.Crypto.BlindSignature.BlindSignature(NBitcoin.BouncyCastle.Math.BigInteger, NBitcoin.BouncyCastle.Math.BigInteger)
-  nameWithType: BlindSignature.BlindSignature(BigInteger, BigInteger)
-- uid: NBitcoin.Crypto.BlindSignature.#ctor*
-  name: BlindSignature
-  href: api/NBitcoin.Crypto.BlindSignature.html#NBitcoin_Crypto_BlindSignature__ctor_
-  commentId: Overload:NBitcoin.Crypto.BlindSignature.#ctor
-  isSpec: "True"
-  fullName: NBitcoin.Crypto.BlindSignature.BlindSignature
-  nameWithType: BlindSignature.BlindSignature
-- uid: NBitcoin.Crypto.BlindSignature.C
-  name: C
-  href: api/NBitcoin.Crypto.BlindSignature.html#NBitcoin_Crypto_BlindSignature_C
-  commentId: P:NBitcoin.Crypto.BlindSignature.C
-  fullName: NBitcoin.Crypto.BlindSignature.C
-  nameWithType: BlindSignature.C
-- uid: NBitcoin.Crypto.BlindSignature.C*
-  name: C
-  href: api/NBitcoin.Crypto.BlindSignature.html#NBitcoin_Crypto_BlindSignature_C_
-  commentId: Overload:NBitcoin.Crypto.BlindSignature.C
-  isSpec: "True"
-  fullName: NBitcoin.Crypto.BlindSignature.C
-  nameWithType: BlindSignature.C
-- uid: NBitcoin.Crypto.BlindSignature.S
-  name: S
-  href: api/NBitcoin.Crypto.BlindSignature.html#NBitcoin_Crypto_BlindSignature_S
-  commentId: P:NBitcoin.Crypto.BlindSignature.S
-  fullName: NBitcoin.Crypto.BlindSignature.S
-  nameWithType: BlindSignature.S
-- uid: NBitcoin.Crypto.BlindSignature.S*
-  name: S
-  href: api/NBitcoin.Crypto.BlindSignature.html#NBitcoin_Crypto_BlindSignature_S_
-  commentId: Overload:NBitcoin.Crypto.BlindSignature.S
-  isSpec: "True"
-  fullName: NBitcoin.Crypto.BlindSignature.S
-  nameWithType: BlindSignature.S
 - uid: NBitcoin.Crypto.BufferedHashStream
   name: BufferedHashStream
   href: api/NBitcoin.Crypto.BufferedHashStream.html
@@ -18008,134 +17956,6 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Crypto.BufferedHashStream.WriteByte
   nameWithType: BufferedHashStream.WriteByte
-- uid: NBitcoin.Crypto.ECDSABlinding
-  name: ECDSABlinding
-  href: api/NBitcoin.Crypto.ECDSABlinding.html
-  commentId: T:NBitcoin.Crypto.ECDSABlinding
-  fullName: NBitcoin.Crypto.ECDSABlinding
-  nameWithType: ECDSABlinding
-- uid: NBitcoin.Crypto.ECDSABlinding.Requester
-  name: ECDSABlinding.Requester
-  href: api/NBitcoin.Crypto.ECDSABlinding.Requester.html
-  commentId: T:NBitcoin.Crypto.ECDSABlinding.Requester
-  fullName: NBitcoin.Crypto.ECDSABlinding.Requester
-  nameWithType: ECDSABlinding.Requester
-- uid: NBitcoin.Crypto.ECDSABlinding.Requester.#ctor
-  name: Requester()
-  href: api/NBitcoin.Crypto.ECDSABlinding.Requester.html#NBitcoin_Crypto_ECDSABlinding_Requester__ctor
-  commentId: M:NBitcoin.Crypto.ECDSABlinding.Requester.#ctor
-  fullName: NBitcoin.Crypto.ECDSABlinding.Requester.Requester()
-  nameWithType: ECDSABlinding.Requester.Requester()
-- uid: NBitcoin.Crypto.ECDSABlinding.Requester.#ctor*
-  name: Requester
-  href: api/NBitcoin.Crypto.ECDSABlinding.Requester.html#NBitcoin_Crypto_ECDSABlinding_Requester__ctor_
-  commentId: Overload:NBitcoin.Crypto.ECDSABlinding.Requester.#ctor
-  isSpec: "True"
-  fullName: NBitcoin.Crypto.ECDSABlinding.Requester.Requester
-  nameWithType: ECDSABlinding.Requester.Requester
-- uid: NBitcoin.Crypto.ECDSABlinding.Requester.BlindMessage(NBitcoin.uint256,NBitcoin.PubKey,NBitcoin.PubKey)
-  name: BlindMessage(uint256, PubKey, PubKey)
-  href: api/NBitcoin.Crypto.ECDSABlinding.Requester.html#NBitcoin_Crypto_ECDSABlinding_Requester_BlindMessage_NBitcoin_uint256_NBitcoin_PubKey_NBitcoin_PubKey_
-  commentId: M:NBitcoin.Crypto.ECDSABlinding.Requester.BlindMessage(NBitcoin.uint256,NBitcoin.PubKey,NBitcoin.PubKey)
-  fullName: NBitcoin.Crypto.ECDSABlinding.Requester.BlindMessage(NBitcoin.uint256, NBitcoin.PubKey, NBitcoin.PubKey)
-  nameWithType: ECDSABlinding.Requester.BlindMessage(uint256, PubKey, PubKey)
-- uid: NBitcoin.Crypto.ECDSABlinding.Requester.BlindMessage*
-  name: BlindMessage
-  href: api/NBitcoin.Crypto.ECDSABlinding.Requester.html#NBitcoin_Crypto_ECDSABlinding_Requester_BlindMessage_
-  commentId: Overload:NBitcoin.Crypto.ECDSABlinding.Requester.BlindMessage
-  isSpec: "True"
-  fullName: NBitcoin.Crypto.ECDSABlinding.Requester.BlindMessage
-  nameWithType: ECDSABlinding.Requester.BlindMessage
-- uid: NBitcoin.Crypto.ECDSABlinding.Requester.UnblindSignature(NBitcoin.BouncyCastle.Math.BigInteger)
-  name: UnblindSignature(BigInteger)
-  href: api/NBitcoin.Crypto.ECDSABlinding.Requester.html#NBitcoin_Crypto_ECDSABlinding_Requester_UnblindSignature_NBitcoin_BouncyCastle_Math_BigInteger_
-  commentId: M:NBitcoin.Crypto.ECDSABlinding.Requester.UnblindSignature(NBitcoin.BouncyCastle.Math.BigInteger)
-  fullName: NBitcoin.Crypto.ECDSABlinding.Requester.UnblindSignature(NBitcoin.BouncyCastle.Math.BigInteger)
-  nameWithType: ECDSABlinding.Requester.UnblindSignature(BigInteger)
-- uid: NBitcoin.Crypto.ECDSABlinding.Requester.UnblindSignature*
-  name: UnblindSignature
-  href: api/NBitcoin.Crypto.ECDSABlinding.Requester.html#NBitcoin_Crypto_ECDSABlinding_Requester_UnblindSignature_
-  commentId: Overload:NBitcoin.Crypto.ECDSABlinding.Requester.UnblindSignature
-  isSpec: "True"
-  fullName: NBitcoin.Crypto.ECDSABlinding.Requester.UnblindSignature
-  nameWithType: ECDSABlinding.Requester.UnblindSignature
-- uid: NBitcoin.Crypto.ECDSABlinding.Signer
-  name: ECDSABlinding.Signer
-  href: api/NBitcoin.Crypto.ECDSABlinding.Signer.html
-  commentId: T:NBitcoin.Crypto.ECDSABlinding.Signer
-  fullName: NBitcoin.Crypto.ECDSABlinding.Signer
-  nameWithType: ECDSABlinding.Signer
-- uid: NBitcoin.Crypto.ECDSABlinding.Signer.#ctor(NBitcoin.Key)
-  name: Signer(Key)
-  href: api/NBitcoin.Crypto.ECDSABlinding.Signer.html#NBitcoin_Crypto_ECDSABlinding_Signer__ctor_NBitcoin_Key_
-  commentId: M:NBitcoin.Crypto.ECDSABlinding.Signer.#ctor(NBitcoin.Key)
-  fullName: NBitcoin.Crypto.ECDSABlinding.Signer.Signer(NBitcoin.Key)
-  nameWithType: ECDSABlinding.Signer.Signer(Key)
-- uid: NBitcoin.Crypto.ECDSABlinding.Signer.#ctor(NBitcoin.Key,NBitcoin.Key)
-  name: Signer(Key, Key)
-  href: api/NBitcoin.Crypto.ECDSABlinding.Signer.html#NBitcoin_Crypto_ECDSABlinding_Signer__ctor_NBitcoin_Key_NBitcoin_Key_
-  commentId: M:NBitcoin.Crypto.ECDSABlinding.Signer.#ctor(NBitcoin.Key,NBitcoin.Key)
-  fullName: NBitcoin.Crypto.ECDSABlinding.Signer.Signer(NBitcoin.Key, NBitcoin.Key)
-  nameWithType: ECDSABlinding.Signer.Signer(Key, Key)
-- uid: NBitcoin.Crypto.ECDSABlinding.Signer.#ctor*
-  name: Signer
-  href: api/NBitcoin.Crypto.ECDSABlinding.Signer.html#NBitcoin_Crypto_ECDSABlinding_Signer__ctor_
-  commentId: Overload:NBitcoin.Crypto.ECDSABlinding.Signer.#ctor
-  isSpec: "True"
-  fullName: NBitcoin.Crypto.ECDSABlinding.Signer.Signer
-  nameWithType: ECDSABlinding.Signer.Signer
-- uid: NBitcoin.Crypto.ECDSABlinding.Signer.Key
-  name: Key
-  href: api/NBitcoin.Crypto.ECDSABlinding.Signer.html#NBitcoin_Crypto_ECDSABlinding_Signer_Key
-  commentId: P:NBitcoin.Crypto.ECDSABlinding.Signer.Key
-  fullName: NBitcoin.Crypto.ECDSABlinding.Signer.Key
-  nameWithType: ECDSABlinding.Signer.Key
-- uid: NBitcoin.Crypto.ECDSABlinding.Signer.Key*
-  name: Key
-  href: api/NBitcoin.Crypto.ECDSABlinding.Signer.html#NBitcoin_Crypto_ECDSABlinding_Signer_Key_
-  commentId: Overload:NBitcoin.Crypto.ECDSABlinding.Signer.Key
-  isSpec: "True"
-  fullName: NBitcoin.Crypto.ECDSABlinding.Signer.Key
-  nameWithType: ECDSABlinding.Signer.Key
-- uid: NBitcoin.Crypto.ECDSABlinding.Signer.R
-  name: R
-  href: api/NBitcoin.Crypto.ECDSABlinding.Signer.html#NBitcoin_Crypto_ECDSABlinding_Signer_R
-  commentId: P:NBitcoin.Crypto.ECDSABlinding.Signer.R
-  fullName: NBitcoin.Crypto.ECDSABlinding.Signer.R
-  nameWithType: ECDSABlinding.Signer.R
-- uid: NBitcoin.Crypto.ECDSABlinding.Signer.R*
-  name: R
-  href: api/NBitcoin.Crypto.ECDSABlinding.Signer.html#NBitcoin_Crypto_ECDSABlinding_Signer_R_
-  commentId: Overload:NBitcoin.Crypto.ECDSABlinding.Signer.R
-  isSpec: "True"
-  fullName: NBitcoin.Crypto.ECDSABlinding.Signer.R
-  nameWithType: ECDSABlinding.Signer.R
-- uid: NBitcoin.Crypto.ECDSABlinding.Signer.Sign(NBitcoin.uint256)
-  name: Sign(uint256)
-  href: api/NBitcoin.Crypto.ECDSABlinding.Signer.html#NBitcoin_Crypto_ECDSABlinding_Signer_Sign_NBitcoin_uint256_
-  commentId: M:NBitcoin.Crypto.ECDSABlinding.Signer.Sign(NBitcoin.uint256)
-  fullName: NBitcoin.Crypto.ECDSABlinding.Signer.Sign(NBitcoin.uint256)
-  nameWithType: ECDSABlinding.Signer.Sign(uint256)
-- uid: NBitcoin.Crypto.ECDSABlinding.Signer.Sign*
-  name: Sign
-  href: api/NBitcoin.Crypto.ECDSABlinding.Signer.html#NBitcoin_Crypto_ECDSABlinding_Signer_Sign_
-  commentId: Overload:NBitcoin.Crypto.ECDSABlinding.Signer.Sign
-  isSpec: "True"
-  fullName: NBitcoin.Crypto.ECDSABlinding.Signer.Sign
-  nameWithType: ECDSABlinding.Signer.Sign
-- uid: NBitcoin.Crypto.ECDSABlinding.VerifySignature(NBitcoin.uint256,NBitcoin.Crypto.BlindSignature,NBitcoin.PubKey)
-  name: VerifySignature(uint256, BlindSignature, PubKey)
-  href: api/NBitcoin.Crypto.ECDSABlinding.html#NBitcoin_Crypto_ECDSABlinding_VerifySignature_NBitcoin_uint256_NBitcoin_Crypto_BlindSignature_NBitcoin_PubKey_
-  commentId: M:NBitcoin.Crypto.ECDSABlinding.VerifySignature(NBitcoin.uint256,NBitcoin.Crypto.BlindSignature,NBitcoin.PubKey)
-  fullName: NBitcoin.Crypto.ECDSABlinding.VerifySignature(NBitcoin.uint256, NBitcoin.Crypto.BlindSignature, NBitcoin.PubKey)
-  nameWithType: ECDSABlinding.VerifySignature(uint256, BlindSignature, PubKey)
-- uid: NBitcoin.Crypto.ECDSABlinding.VerifySignature*
-  name: VerifySignature
-  href: api/NBitcoin.Crypto.ECDSABlinding.html#NBitcoin_Crypto_ECDSABlinding_VerifySignature_
-  commentId: Overload:NBitcoin.Crypto.ECDSABlinding.VerifySignature
-  isSpec: "True"
-  fullName: NBitcoin.Crypto.ECDSABlinding.VerifySignature
-  nameWithType: ECDSABlinding.VerifySignature
 - uid: NBitcoin.Crypto.ECDSASignature
   name: ECDSASignature
   href: api/NBitcoin.Crypto.ECDSASignature.html
@@ -18934,6 +18754,165 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Crypto.Salsa20Core.Compute
   nameWithType: Salsa20Core.Compute
+- uid: NBitcoin.Crypto.SchnorrBlinding
+  name: SchnorrBlinding
+  href: api/NBitcoin.Crypto.SchnorrBlinding.html
+  commentId: T:NBitcoin.Crypto.SchnorrBlinding
+  fullName: NBitcoin.Crypto.SchnorrBlinding
+  nameWithType: SchnorrBlinding
+- uid: NBitcoin.Crypto.SchnorrBlinding.Requester
+  name: SchnorrBlinding.Requester
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Requester.html
+  commentId: T:NBitcoin.Crypto.SchnorrBlinding.Requester
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Requester
+  nameWithType: SchnorrBlinding.Requester
+- uid: NBitcoin.Crypto.SchnorrBlinding.Requester.#ctor
+  name: Requester()
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Requester.html#NBitcoin_Crypto_SchnorrBlinding_Requester__ctor
+  commentId: M:NBitcoin.Crypto.SchnorrBlinding.Requester.#ctor
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Requester.Requester()
+  nameWithType: SchnorrBlinding.Requester.Requester()
+- uid: NBitcoin.Crypto.SchnorrBlinding.Requester.#ctor*
+  name: Requester
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Requester.html#NBitcoin_Crypto_SchnorrBlinding_Requester__ctor_
+  commentId: Overload:NBitcoin.Crypto.SchnorrBlinding.Requester.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Requester.Requester
+  nameWithType: SchnorrBlinding.Requester.Requester
+- uid: NBitcoin.Crypto.SchnorrBlinding.Requester.BlindMessage(NBitcoin.uint256,NBitcoin.PubKey,NBitcoin.PubKey)
+  name: BlindMessage(uint256, PubKey, PubKey)
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Requester.html#NBitcoin_Crypto_SchnorrBlinding_Requester_BlindMessage_NBitcoin_uint256_NBitcoin_PubKey_NBitcoin_PubKey_
+  commentId: M:NBitcoin.Crypto.SchnorrBlinding.Requester.BlindMessage(NBitcoin.uint256,NBitcoin.PubKey,NBitcoin.PubKey)
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Requester.BlindMessage(NBitcoin.uint256, NBitcoin.PubKey, NBitcoin.PubKey)
+  nameWithType: SchnorrBlinding.Requester.BlindMessage(uint256, PubKey, PubKey)
+- uid: NBitcoin.Crypto.SchnorrBlinding.Requester.BlindMessage(System.Byte[],NBitcoin.PubKey,NBitcoin.PubKey)
+  name: BlindMessage(Byte[], PubKey, PubKey)
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Requester.html#NBitcoin_Crypto_SchnorrBlinding_Requester_BlindMessage_System_Byte___NBitcoin_PubKey_NBitcoin_PubKey_
+  commentId: M:NBitcoin.Crypto.SchnorrBlinding.Requester.BlindMessage(System.Byte[],NBitcoin.PubKey,NBitcoin.PubKey)
+  name.vb: BlindMessage(Byte(), PubKey, PubKey)
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Requester.BlindMessage(System.Byte[], NBitcoin.PubKey, NBitcoin.PubKey)
+  fullName.vb: NBitcoin.Crypto.SchnorrBlinding.Requester.BlindMessage(System.Byte(), NBitcoin.PubKey, NBitcoin.PubKey)
+  nameWithType: SchnorrBlinding.Requester.BlindMessage(Byte[], PubKey, PubKey)
+  nameWithType.vb: SchnorrBlinding.Requester.BlindMessage(Byte(), PubKey, PubKey)
+- uid: NBitcoin.Crypto.SchnorrBlinding.Requester.BlindMessage*
+  name: BlindMessage
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Requester.html#NBitcoin_Crypto_SchnorrBlinding_Requester_BlindMessage_
+  commentId: Overload:NBitcoin.Crypto.SchnorrBlinding.Requester.BlindMessage
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Requester.BlindMessage
+  nameWithType: SchnorrBlinding.Requester.BlindMessage
+- uid: NBitcoin.Crypto.SchnorrBlinding.Requester.UnblindSignature(NBitcoin.uint256)
+  name: UnblindSignature(uint256)
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Requester.html#NBitcoin_Crypto_SchnorrBlinding_Requester_UnblindSignature_NBitcoin_uint256_
+  commentId: M:NBitcoin.Crypto.SchnorrBlinding.Requester.UnblindSignature(NBitcoin.uint256)
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Requester.UnblindSignature(NBitcoin.uint256)
+  nameWithType: SchnorrBlinding.Requester.UnblindSignature(uint256)
+- uid: NBitcoin.Crypto.SchnorrBlinding.Requester.UnblindSignature*
+  name: UnblindSignature
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Requester.html#NBitcoin_Crypto_SchnorrBlinding_Requester_UnblindSignature_
+  commentId: Overload:NBitcoin.Crypto.SchnorrBlinding.Requester.UnblindSignature
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Requester.UnblindSignature
+  nameWithType: SchnorrBlinding.Requester.UnblindSignature
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer
+  name: SchnorrBlinding.Signer
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html
+  commentId: T:NBitcoin.Crypto.SchnorrBlinding.Signer
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer
+  nameWithType: SchnorrBlinding.Signer
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.#ctor(NBitcoin.Key)
+  name: Signer(Key)
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer__ctor_NBitcoin_Key_
+  commentId: M:NBitcoin.Crypto.SchnorrBlinding.Signer.#ctor(NBitcoin.Key)
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.Signer(NBitcoin.Key)
+  nameWithType: SchnorrBlinding.Signer.Signer(Key)
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.#ctor(NBitcoin.Key,NBitcoin.Key)
+  name: Signer(Key, Key)
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer__ctor_NBitcoin_Key_NBitcoin_Key_
+  commentId: M:NBitcoin.Crypto.SchnorrBlinding.Signer.#ctor(NBitcoin.Key,NBitcoin.Key)
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.Signer(NBitcoin.Key, NBitcoin.Key)
+  nameWithType: SchnorrBlinding.Signer.Signer(Key, Key)
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.#ctor*
+  name: Signer
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer__ctor_
+  commentId: Overload:NBitcoin.Crypto.SchnorrBlinding.Signer.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.Signer
+  nameWithType: SchnorrBlinding.Signer.Signer
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.Key
+  name: Key
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer_Key
+  commentId: P:NBitcoin.Crypto.SchnorrBlinding.Signer.Key
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.Key
+  nameWithType: SchnorrBlinding.Signer.Key
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.Key*
+  name: Key
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer_Key_
+  commentId: Overload:NBitcoin.Crypto.SchnorrBlinding.Signer.Key
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.Key
+  nameWithType: SchnorrBlinding.Signer.Key
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.R
+  name: R
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer_R
+  commentId: P:NBitcoin.Crypto.SchnorrBlinding.Signer.R
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.R
+  nameWithType: SchnorrBlinding.Signer.R
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.R*
+  name: R
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer_R_
+  commentId: Overload:NBitcoin.Crypto.SchnorrBlinding.Signer.R
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.R
+  nameWithType: SchnorrBlinding.Signer.R
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.Sign(NBitcoin.uint256)
+  name: Sign(uint256)
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer_Sign_NBitcoin_uint256_
+  commentId: M:NBitcoin.Crypto.SchnorrBlinding.Signer.Sign(NBitcoin.uint256)
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.Sign(NBitcoin.uint256)
+  nameWithType: SchnorrBlinding.Signer.Sign(uint256)
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.Sign*
+  name: Sign
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer_Sign_
+  commentId: Overload:NBitcoin.Crypto.SchnorrBlinding.Signer.Sign
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.Sign
+  nameWithType: SchnorrBlinding.Signer.Sign
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.VerifyUnblindedSignature(NBitcoin.Crypto.UnblindedSignature,NBitcoin.uint256)
+  name: VerifyUnblindedSignature(UnblindedSignature, uint256)
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer_VerifyUnblindedSignature_NBitcoin_Crypto_UnblindedSignature_NBitcoin_uint256_
+  commentId: M:NBitcoin.Crypto.SchnorrBlinding.Signer.VerifyUnblindedSignature(NBitcoin.Crypto.UnblindedSignature,NBitcoin.uint256)
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.VerifyUnblindedSignature(NBitcoin.Crypto.UnblindedSignature, NBitcoin.uint256)
+  nameWithType: SchnorrBlinding.Signer.VerifyUnblindedSignature(UnblindedSignature, uint256)
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.VerifyUnblindedSignature(NBitcoin.Crypto.UnblindedSignature,System.Byte[])
+  name: VerifyUnblindedSignature(UnblindedSignature, Byte[])
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer_VerifyUnblindedSignature_NBitcoin_Crypto_UnblindedSignature_System_Byte___
+  commentId: M:NBitcoin.Crypto.SchnorrBlinding.Signer.VerifyUnblindedSignature(NBitcoin.Crypto.UnblindedSignature,System.Byte[])
+  name.vb: VerifyUnblindedSignature(UnblindedSignature, Byte())
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.VerifyUnblindedSignature(NBitcoin.Crypto.UnblindedSignature, System.Byte[])
+  fullName.vb: NBitcoin.Crypto.SchnorrBlinding.Signer.VerifyUnblindedSignature(NBitcoin.Crypto.UnblindedSignature, System.Byte())
+  nameWithType: SchnorrBlinding.Signer.VerifyUnblindedSignature(UnblindedSignature, Byte[])
+  nameWithType.vb: SchnorrBlinding.Signer.VerifyUnblindedSignature(UnblindedSignature, Byte())
+- uid: NBitcoin.Crypto.SchnorrBlinding.Signer.VerifyUnblindedSignature*
+  name: VerifyUnblindedSignature
+  href: api/NBitcoin.Crypto.SchnorrBlinding.Signer.html#NBitcoin_Crypto_SchnorrBlinding_Signer_VerifyUnblindedSignature_
+  commentId: Overload:NBitcoin.Crypto.SchnorrBlinding.Signer.VerifyUnblindedSignature
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.SchnorrBlinding.Signer.VerifyUnblindedSignature
+  nameWithType: SchnorrBlinding.Signer.VerifyUnblindedSignature
+- uid: NBitcoin.Crypto.SchnorrBlinding.VerifySignature(NBitcoin.uint256,NBitcoin.Crypto.UnblindedSignature,NBitcoin.PubKey)
+  name: VerifySignature(uint256, UnblindedSignature, PubKey)
+  href: api/NBitcoin.Crypto.SchnorrBlinding.html#NBitcoin_Crypto_SchnorrBlinding_VerifySignature_NBitcoin_uint256_NBitcoin_Crypto_UnblindedSignature_NBitcoin_PubKey_
+  commentId: M:NBitcoin.Crypto.SchnorrBlinding.VerifySignature(NBitcoin.uint256,NBitcoin.Crypto.UnblindedSignature,NBitcoin.PubKey)
+  fullName: NBitcoin.Crypto.SchnorrBlinding.VerifySignature(NBitcoin.uint256, NBitcoin.Crypto.UnblindedSignature, NBitcoin.PubKey)
+  nameWithType: SchnorrBlinding.VerifySignature(uint256, UnblindedSignature, PubKey)
+- uid: NBitcoin.Crypto.SchnorrBlinding.VerifySignature*
+  name: VerifySignature
+  href: api/NBitcoin.Crypto.SchnorrBlinding.html#NBitcoin_Crypto_SchnorrBlinding_VerifySignature_
+  commentId: Overload:NBitcoin.Crypto.SchnorrBlinding.VerifySignature
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.SchnorrBlinding.VerifySignature
+  nameWithType: SchnorrBlinding.VerifySignature
 - uid: NBitcoin.Crypto.SchnorrSignature
   name: SchnorrSignature
   href: api/NBitcoin.Crypto.SchnorrSignature.html
@@ -19147,6 +19126,51 @@ references:
   isSpec: "True"
   fullName: NBitcoin.Crypto.SCrypt.GetEffectivePbkdf2Salt
   nameWithType: SCrypt.GetEffectivePbkdf2Salt
+- uid: NBitcoin.Crypto.UnblindedSignature
+  name: UnblindedSignature
+  href: api/NBitcoin.Crypto.UnblindedSignature.html
+  commentId: T:NBitcoin.Crypto.UnblindedSignature
+  fullName: NBitcoin.Crypto.UnblindedSignature
+  nameWithType: UnblindedSignature
+- uid: NBitcoin.Crypto.UnblindedSignature.#ctor(NBitcoin.BouncyCastle.Math.BigInteger,NBitcoin.BouncyCastle.Math.BigInteger)
+  name: UnblindedSignature(BigInteger, BigInteger)
+  href: api/NBitcoin.Crypto.UnblindedSignature.html#NBitcoin_Crypto_UnblindedSignature__ctor_NBitcoin_BouncyCastle_Math_BigInteger_NBitcoin_BouncyCastle_Math_BigInteger_
+  commentId: M:NBitcoin.Crypto.UnblindedSignature.#ctor(NBitcoin.BouncyCastle.Math.BigInteger,NBitcoin.BouncyCastle.Math.BigInteger)
+  fullName: NBitcoin.Crypto.UnblindedSignature.UnblindedSignature(NBitcoin.BouncyCastle.Math.BigInteger, NBitcoin.BouncyCastle.Math.BigInteger)
+  nameWithType: UnblindedSignature.UnblindedSignature(BigInteger, BigInteger)
+- uid: NBitcoin.Crypto.UnblindedSignature.#ctor*
+  name: UnblindedSignature
+  href: api/NBitcoin.Crypto.UnblindedSignature.html#NBitcoin_Crypto_UnblindedSignature__ctor_
+  commentId: Overload:NBitcoin.Crypto.UnblindedSignature.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.UnblindedSignature.UnblindedSignature
+  nameWithType: UnblindedSignature.UnblindedSignature
+- uid: NBitcoin.Crypto.UnblindedSignature.C
+  name: C
+  href: api/NBitcoin.Crypto.UnblindedSignature.html#NBitcoin_Crypto_UnblindedSignature_C
+  commentId: P:NBitcoin.Crypto.UnblindedSignature.C
+  fullName: NBitcoin.Crypto.UnblindedSignature.C
+  nameWithType: UnblindedSignature.C
+- uid: NBitcoin.Crypto.UnblindedSignature.C*
+  name: C
+  href: api/NBitcoin.Crypto.UnblindedSignature.html#NBitcoin_Crypto_UnblindedSignature_C_
+  commentId: Overload:NBitcoin.Crypto.UnblindedSignature.C
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.UnblindedSignature.C
+  nameWithType: UnblindedSignature.C
+- uid: NBitcoin.Crypto.UnblindedSignature.S
+  name: S
+  href: api/NBitcoin.Crypto.UnblindedSignature.html#NBitcoin_Crypto_UnblindedSignature_S
+  commentId: P:NBitcoin.Crypto.UnblindedSignature.S
+  fullName: NBitcoin.Crypto.UnblindedSignature.S
+  nameWithType: UnblindedSignature.S
+- uid: NBitcoin.Crypto.UnblindedSignature.S*
+  name: S
+  href: api/NBitcoin.Crypto.UnblindedSignature.html#NBitcoin_Crypto_UnblindedSignature_S_
+  commentId: Overload:NBitcoin.Crypto.UnblindedSignature.S
+  isSpec: "True"
+  fullName: NBitcoin.Crypto.UnblindedSignature.S
+  nameWithType: UnblindedSignature.S
 - uid: NBitcoin.DataEncoders
   name: NBitcoin.DataEncoders
   href: api/NBitcoin.DataEncoders.html
@@ -43356,6 +43380,343 @@ references:
   isSpec: "True"
   fullName: NBitcoin.RPC.FundRawTransactionResponse.Transaction
   nameWithType: FundRawTransactionResponse.Transaction
+- uid: NBitcoin.RPC.GetAddressInfoResponse
+  name: GetAddressInfoResponse
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html
+  commentId: T:NBitcoin.RPC.GetAddressInfoResponse
+  fullName: NBitcoin.RPC.GetAddressInfoResponse
+  nameWithType: GetAddressInfoResponse
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Desc
+  name: Desc
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Desc
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.Desc
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Desc
+  nameWithType: GetAddressInfoResponse.Desc
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Desc*
+  name: Desc
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Desc_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.Desc
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Desc
+  nameWithType: GetAddressInfoResponse.Desc
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Embedded
+  name: Embedded
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Embedded
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.Embedded
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Embedded
+  nameWithType: GetAddressInfoResponse.Embedded
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Embedded*
+  name: Embedded
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Embedded_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.Embedded
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Embedded
+  nameWithType: GetAddressInfoResponse.Embedded
+- uid: NBitcoin.RPC.GetAddressInfoResponse.FromJsonResponse(Newtonsoft.Json.Linq.JObject,NBitcoin.Network)
+  name: FromJsonResponse(JObject, Network)
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_FromJsonResponse_Newtonsoft_Json_Linq_JObject_NBitcoin_Network_
+  commentId: M:NBitcoin.RPC.GetAddressInfoResponse.FromJsonResponse(Newtonsoft.Json.Linq.JObject,NBitcoin.Network)
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.FromJsonResponse(Newtonsoft.Json.Linq.JObject, NBitcoin.Network)
+  nameWithType: GetAddressInfoResponse.FromJsonResponse(JObject, Network)
+- uid: NBitcoin.RPC.GetAddressInfoResponse.FromJsonResponse*
+  name: FromJsonResponse
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_FromJsonResponse_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.FromJsonResponse
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.FromJsonResponse
+  nameWithType: GetAddressInfoResponse.FromJsonResponse
+- uid: NBitcoin.RPC.GetAddressInfoResponse.HDKeyPath
+  name: HDKeyPath
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_HDKeyPath
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.HDKeyPath
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.HDKeyPath
+  nameWithType: GetAddressInfoResponse.HDKeyPath
+- uid: NBitcoin.RPC.GetAddressInfoResponse.HDKeyPath*
+  name: HDKeyPath
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_HDKeyPath_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.HDKeyPath
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.HDKeyPath
+  nameWithType: GetAddressInfoResponse.HDKeyPath
+- uid: NBitcoin.RPC.GetAddressInfoResponse.HDMasterKeyID
+  name: HDMasterKeyID
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_HDMasterKeyID
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.HDMasterKeyID
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.HDMasterKeyID
+  nameWithType: GetAddressInfoResponse.HDMasterKeyID
+- uid: NBitcoin.RPC.GetAddressInfoResponse.HDMasterKeyID*
+  name: HDMasterKeyID
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_HDMasterKeyID_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.HDMasterKeyID
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.HDMasterKeyID
+  nameWithType: GetAddressInfoResponse.HDMasterKeyID
+- uid: NBitcoin.RPC.GetAddressInfoResponse.HDSeedID
+  name: HDSeedID
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_HDSeedID
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.HDSeedID
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.HDSeedID
+  nameWithType: GetAddressInfoResponse.HDSeedID
+- uid: NBitcoin.RPC.GetAddressInfoResponse.HDSeedID*
+  name: HDSeedID
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_HDSeedID_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.HDSeedID
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.HDSeedID
+  nameWithType: GetAddressInfoResponse.HDSeedID
+- uid: NBitcoin.RPC.GetAddressInfoResponse.IsChange
+  name: IsChange
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_IsChange
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.IsChange
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.IsChange
+  nameWithType: GetAddressInfoResponse.IsChange
+- uid: NBitcoin.RPC.GetAddressInfoResponse.IsChange*
+  name: IsChange
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_IsChange_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.IsChange
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.IsChange
+  nameWithType: GetAddressInfoResponse.IsChange
+- uid: NBitcoin.RPC.GetAddressInfoResponse.IsCompressed
+  name: IsCompressed
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_IsCompressed
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.IsCompressed
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.IsCompressed
+  nameWithType: GetAddressInfoResponse.IsCompressed
+- uid: NBitcoin.RPC.GetAddressInfoResponse.IsCompressed*
+  name: IsCompressed
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_IsCompressed_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.IsCompressed
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.IsCompressed
+  nameWithType: GetAddressInfoResponse.IsCompressed
+- uid: NBitcoin.RPC.GetAddressInfoResponse.IsMine
+  name: IsMine
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_IsMine
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.IsMine
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.IsMine
+  nameWithType: GetAddressInfoResponse.IsMine
+- uid: NBitcoin.RPC.GetAddressInfoResponse.IsMine*
+  name: IsMine
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_IsMine_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.IsMine
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.IsMine
+  nameWithType: GetAddressInfoResponse.IsMine
+- uid: NBitcoin.RPC.GetAddressInfoResponse.IsWatchOnly
+  name: IsWatchOnly
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_IsWatchOnly
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.IsWatchOnly
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.IsWatchOnly
+  nameWithType: GetAddressInfoResponse.IsWatchOnly
+- uid: NBitcoin.RPC.GetAddressInfoResponse.IsWatchOnly*
+  name: IsWatchOnly
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_IsWatchOnly_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.IsWatchOnly
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.IsWatchOnly
+  nameWithType: GetAddressInfoResponse.IsWatchOnly
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Label
+  name: Label
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Label
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.Label
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Label
+  nameWithType: GetAddressInfoResponse.Label
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Label*
+  name: Label
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Label_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.Label
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Label
+  nameWithType: GetAddressInfoResponse.Label
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Labels
+  name: Labels
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Labels
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.Labels
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Labels
+  nameWithType: GetAddressInfoResponse.Labels
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Labels*
+  name: Labels
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Labels_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.Labels
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Labels
+  nameWithType: GetAddressInfoResponse.Labels
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Solvable
+  name: Solvable
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Solvable
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.Solvable
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Solvable
+  nameWithType: GetAddressInfoResponse.Solvable
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Solvable*
+  name: Solvable
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Solvable_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.Solvable
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Solvable
+  nameWithType: GetAddressInfoResponse.Solvable
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Timestamp
+  name: Timestamp
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Timestamp
+  commentId: P:NBitcoin.RPC.GetAddressInfoResponse.Timestamp
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Timestamp
+  nameWithType: GetAddressInfoResponse.Timestamp
+- uid: NBitcoin.RPC.GetAddressInfoResponse.Timestamp*
+  name: Timestamp
+  href: api/NBitcoin.RPC.GetAddressInfoResponse.html#NBitcoin_RPC_GetAddressInfoResponse_Timestamp_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoResponse.Timestamp
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoResponse.Timestamp
+  nameWithType: GetAddressInfoResponse.Timestamp
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse
+  name: GetAddressInfoScriptInfoResponse
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html
+  commentId: T:NBitcoin.RPC.GetAddressInfoScriptInfoResponse
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse
+  nameWithType: GetAddressInfoScriptInfoResponse
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Address
+  name: Address
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_Address
+  commentId: P:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Address
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Address
+  nameWithType: GetAddressInfoScriptInfoResponse.Address
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Address*
+  name: Address
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_Address_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Address
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Address
+  nameWithType: GetAddressInfoScriptInfoResponse.Address
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Hex
+  name: Hex
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_Hex
+  commentId: P:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Hex
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Hex
+  nameWithType: GetAddressInfoScriptInfoResponse.Hex
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Hex*
+  name: Hex
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_Hex_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Hex
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Hex
+  nameWithType: GetAddressInfoScriptInfoResponse.Hex
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsScript
+  name: IsScript
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_IsScript
+  commentId: P:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsScript
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsScript
+  nameWithType: GetAddressInfoScriptInfoResponse.IsScript
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsScript*
+  name: IsScript
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_IsScript_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsScript
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsScript
+  nameWithType: GetAddressInfoScriptInfoResponse.IsScript
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsWitness
+  name: IsWitness
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_IsWitness
+  commentId: P:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsWitness
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsWitness
+  nameWithType: GetAddressInfoScriptInfoResponse.IsWitness
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsWitness*
+  name: IsWitness
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_IsWitness_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsWitness
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.IsWitness
+  nameWithType: GetAddressInfoScriptInfoResponse.IsWitness
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKey
+  name: PubKey
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_PubKey
+  commentId: P:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKey
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKey
+  nameWithType: GetAddressInfoScriptInfoResponse.PubKey
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKey*
+  name: PubKey
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_PubKey_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKey
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKey
+  nameWithType: GetAddressInfoScriptInfoResponse.PubKey
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKeys
+  name: PubKeys
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_PubKeys
+  commentId: P:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKeys
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKeys
+  nameWithType: GetAddressInfoScriptInfoResponse.PubKeys
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKeys*
+  name: PubKeys
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_PubKeys_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKeys
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.PubKeys
+  nameWithType: GetAddressInfoScriptInfoResponse.PubKeys
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Script
+  name: Script
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_Script
+  commentId: P:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Script
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Script
+  nameWithType: GetAddressInfoScriptInfoResponse.Script
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Script*
+  name: Script
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_Script_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Script
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.Script
+  nameWithType: GetAddressInfoScriptInfoResponse.Script
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.ScriptPubKey
+  name: ScriptPubKey
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_ScriptPubKey
+  commentId: P:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.ScriptPubKey
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.ScriptPubKey
+  nameWithType: GetAddressInfoScriptInfoResponse.ScriptPubKey
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.ScriptPubKey*
+  name: ScriptPubKey
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_ScriptPubKey_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.ScriptPubKey
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.ScriptPubKey
+  nameWithType: GetAddressInfoScriptInfoResponse.ScriptPubKey
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.SigsRequired
+  name: SigsRequired
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_SigsRequired
+  commentId: P:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.SigsRequired
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.SigsRequired
+  nameWithType: GetAddressInfoScriptInfoResponse.SigsRequired
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.SigsRequired*
+  name: SigsRequired
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_SigsRequired_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.SigsRequired
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.SigsRequired
+  nameWithType: GetAddressInfoScriptInfoResponse.SigsRequired
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessProgram
+  name: WitnessProgram
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_WitnessProgram
+  commentId: P:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessProgram
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessProgram
+  nameWithType: GetAddressInfoScriptInfoResponse.WitnessProgram
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessProgram*
+  name: WitnessProgram
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_WitnessProgram_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessProgram
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessProgram
+  nameWithType: GetAddressInfoScriptInfoResponse.WitnessProgram
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessVersion
+  name: WitnessVersion
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_WitnessVersion
+  commentId: P:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessVersion
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessVersion
+  nameWithType: GetAddressInfoScriptInfoResponse.WitnessVersion
+- uid: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessVersion*
+  name: WitnessVersion
+  href: api/NBitcoin.RPC.GetAddressInfoScriptInfoResponse.html#NBitcoin_RPC_GetAddressInfoScriptInfoResponse_WitnessVersion_
+  commentId: Overload:NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessVersion
+  isSpec: "True"
+  fullName: NBitcoin.RPC.GetAddressInfoScriptInfoResponse.WitnessVersion
+  nameWithType: GetAddressInfoScriptInfoResponse.WitnessVersion
 - uid: NBitcoin.RPC.GetNewAddressRequest
   name: GetNewAddressRequest
   href: api/NBitcoin.RPC.GetNewAddressRequest.html
@@ -45308,6 +45669,32 @@ references:
   isSpec: "True"
   fullName: NBitcoin.RPC.RPCClient.GetAddedNodeInfoAync
   nameWithType: RPCClient.GetAddedNodeInfoAync
+- uid: NBitcoin.RPC.RPCClient.GetAddressInfo(NBitcoin.IDestination)
+  name: GetAddressInfo(IDestination)
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_GetAddressInfo_NBitcoin_IDestination_
+  commentId: M:NBitcoin.RPC.RPCClient.GetAddressInfo(NBitcoin.IDestination)
+  fullName: NBitcoin.RPC.RPCClient.GetAddressInfo(NBitcoin.IDestination)
+  nameWithType: RPCClient.GetAddressInfo(IDestination)
+- uid: NBitcoin.RPC.RPCClient.GetAddressInfo*
+  name: GetAddressInfo
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_GetAddressInfo_
+  commentId: Overload:NBitcoin.RPC.RPCClient.GetAddressInfo
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCClient.GetAddressInfo
+  nameWithType: RPCClient.GetAddressInfo
+- uid: NBitcoin.RPC.RPCClient.GetAddressInfoAsync(NBitcoin.IDestination)
+  name: GetAddressInfoAsync(IDestination)
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_GetAddressInfoAsync_NBitcoin_IDestination_
+  commentId: M:NBitcoin.RPC.RPCClient.GetAddressInfoAsync(NBitcoin.IDestination)
+  fullName: NBitcoin.RPC.RPCClient.GetAddressInfoAsync(NBitcoin.IDestination)
+  nameWithType: RPCClient.GetAddressInfoAsync(IDestination)
+- uid: NBitcoin.RPC.RPCClient.GetAddressInfoAsync*
+  name: GetAddressInfoAsync
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_GetAddressInfoAsync_
+  commentId: Overload:NBitcoin.RPC.RPCClient.GetAddressInfoAsync
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCClient.GetAddressInfoAsync
+  nameWithType: RPCClient.GetAddressInfoAsync
 - uid: NBitcoin.RPC.RPCClient.GetBalance
   name: GetBalance()
   href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_GetBalance
@@ -46726,6 +47113,56 @@ references:
   isSpec: "True"
   fullName: NBitcoin.RPC.RPCClient.UnlockUnspentAsync
   nameWithType: RPCClient.UnlockUnspentAsync
+- uid: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn[],System.Collections.Generic.Dictionary{NBitcoin.BitcoinAddress,NBitcoin.Money},NBitcoin.LockTime,NBitcoin.RPC.FundRawTransactionOptions,System.Boolean)
+  name: WalletCreateFundedPSBT(TxIn[], Dictionary<BitcoinAddress, Money>, LockTime, FundRawTransactionOptions, Boolean)
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_WalletCreateFundedPSBT_NBitcoin_TxIn___System_Collections_Generic_Dictionary_NBitcoin_BitcoinAddress_NBitcoin_Money__NBitcoin_LockTime_NBitcoin_RPC_FundRawTransactionOptions_System_Boolean_
+  commentId: M:NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn[],System.Collections.Generic.Dictionary{NBitcoin.BitcoinAddress,NBitcoin.Money},NBitcoin.LockTime,NBitcoin.RPC.FundRawTransactionOptions,System.Boolean)
+  name.vb: WalletCreateFundedPSBT(TxIn(), Dictionary(Of BitcoinAddress, Money), LockTime, FundRawTransactionOptions, Boolean)
+  fullName: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn[], System.Collections.Generic.Dictionary<NBitcoin.BitcoinAddress, NBitcoin.Money>, NBitcoin.LockTime, NBitcoin.RPC.FundRawTransactionOptions, System.Boolean)
+  fullName.vb: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn(), System.Collections.Generic.Dictionary(Of NBitcoin.BitcoinAddress, NBitcoin.Money), NBitcoin.LockTime, NBitcoin.RPC.FundRawTransactionOptions, System.Boolean)
+  nameWithType: RPCClient.WalletCreateFundedPSBT(TxIn[], Dictionary<BitcoinAddress, Money>, LockTime, FundRawTransactionOptions, Boolean)
+  nameWithType.vb: RPCClient.WalletCreateFundedPSBT(TxIn(), Dictionary(Of BitcoinAddress, Money), LockTime, FundRawTransactionOptions, Boolean)
+- uid: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn[],System.Collections.Generic.Dictionary{System.String,System.String},NBitcoin.LockTime,NBitcoin.RPC.FundRawTransactionOptions,System.Boolean)
+  name: WalletCreateFundedPSBT(TxIn[], Dictionary<String, String>, LockTime, FundRawTransactionOptions, Boolean)
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_WalletCreateFundedPSBT_NBitcoin_TxIn___System_Collections_Generic_Dictionary_System_String_System_String__NBitcoin_LockTime_NBitcoin_RPC_FundRawTransactionOptions_System_Boolean_
+  commentId: M:NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn[],System.Collections.Generic.Dictionary{System.String,System.String},NBitcoin.LockTime,NBitcoin.RPC.FundRawTransactionOptions,System.Boolean)
+  name.vb: WalletCreateFundedPSBT(TxIn(), Dictionary(Of String, String), LockTime, FundRawTransactionOptions, Boolean)
+  fullName: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn[], System.Collections.Generic.Dictionary<System.String, System.String>, NBitcoin.LockTime, NBitcoin.RPC.FundRawTransactionOptions, System.Boolean)
+  fullName.vb: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn(), System.Collections.Generic.Dictionary(Of System.String, System.String), NBitcoin.LockTime, NBitcoin.RPC.FundRawTransactionOptions, System.Boolean)
+  nameWithType: RPCClient.WalletCreateFundedPSBT(TxIn[], Dictionary<String, String>, LockTime, FundRawTransactionOptions, Boolean)
+  nameWithType.vb: RPCClient.WalletCreateFundedPSBT(TxIn(), Dictionary(Of String, String), LockTime, FundRawTransactionOptions, Boolean)
+- uid: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn[],System.Tuple{System.Collections.Generic.Dictionary{NBitcoin.BitcoinAddress,NBitcoin.Money},System.Collections.Generic.Dictionary{System.String,System.String}},NBitcoin.LockTime,NBitcoin.RPC.FundRawTransactionOptions,System.Boolean)
+  name: WalletCreateFundedPSBT(TxIn[], Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<String, String>>, LockTime, FundRawTransactionOptions, Boolean)
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_WalletCreateFundedPSBT_NBitcoin_TxIn___System_Tuple_System_Collections_Generic_Dictionary_NBitcoin_BitcoinAddress_NBitcoin_Money__System_Collections_Generic_Dictionary_System_String_System_String___NBitcoin_LockTime_NBitcoin_RPC_FundRawTransactionOptions_System_Boolean_
+  commentId: M:NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn[],System.Tuple{System.Collections.Generic.Dictionary{NBitcoin.BitcoinAddress,NBitcoin.Money},System.Collections.Generic.Dictionary{System.String,System.String}},NBitcoin.LockTime,NBitcoin.RPC.FundRawTransactionOptions,System.Boolean)
+  name.vb: WalletCreateFundedPSBT(TxIn(), Tuple(Of Dictionary(Of BitcoinAddress, Money), Dictionary(Of String, String)), LockTime, FundRawTransactionOptions, Boolean)
+  fullName: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn[], System.Tuple<System.Collections.Generic.Dictionary<NBitcoin.BitcoinAddress, NBitcoin.Money>, System.Collections.Generic.Dictionary<System.String, System.String>>, NBitcoin.LockTime, NBitcoin.RPC.FundRawTransactionOptions, System.Boolean)
+  fullName.vb: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT(NBitcoin.TxIn(), System.Tuple(Of System.Collections.Generic.Dictionary(Of NBitcoin.BitcoinAddress, NBitcoin.Money), System.Collections.Generic.Dictionary(Of System.String, System.String)), NBitcoin.LockTime, NBitcoin.RPC.FundRawTransactionOptions, System.Boolean)
+  nameWithType: RPCClient.WalletCreateFundedPSBT(TxIn[], Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<String, String>>, LockTime, FundRawTransactionOptions, Boolean)
+  nameWithType.vb: RPCClient.WalletCreateFundedPSBT(TxIn(), Tuple(Of Dictionary(Of BitcoinAddress, Money), Dictionary(Of String, String)), LockTime, FundRawTransactionOptions, Boolean)
+- uid: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT*
+  name: WalletCreateFundedPSBT
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_WalletCreateFundedPSBT_
+  commentId: Overload:NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBT
+  nameWithType: RPCClient.WalletCreateFundedPSBT
+- uid: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBTAsync(NBitcoin.TxIn[],System.Tuple{System.Collections.Generic.Dictionary{NBitcoin.BitcoinAddress,NBitcoin.Money},System.Collections.Generic.Dictionary{System.String,System.String}},NBitcoin.LockTime,NBitcoin.RPC.FundRawTransactionOptions,System.Boolean)
+  name: WalletCreateFundedPSBTAsync(TxIn[], Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<String, String>>, LockTime, FundRawTransactionOptions, Boolean)
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_WalletCreateFundedPSBTAsync_NBitcoin_TxIn___System_Tuple_System_Collections_Generic_Dictionary_NBitcoin_BitcoinAddress_NBitcoin_Money__System_Collections_Generic_Dictionary_System_String_System_String___NBitcoin_LockTime_NBitcoin_RPC_FundRawTransactionOptions_System_Boolean_
+  commentId: M:NBitcoin.RPC.RPCClient.WalletCreateFundedPSBTAsync(NBitcoin.TxIn[],System.Tuple{System.Collections.Generic.Dictionary{NBitcoin.BitcoinAddress,NBitcoin.Money},System.Collections.Generic.Dictionary{System.String,System.String}},NBitcoin.LockTime,NBitcoin.RPC.FundRawTransactionOptions,System.Boolean)
+  name.vb: WalletCreateFundedPSBTAsync(TxIn(), Tuple(Of Dictionary(Of BitcoinAddress, Money), Dictionary(Of String, String)), LockTime, FundRawTransactionOptions, Boolean)
+  fullName: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBTAsync(NBitcoin.TxIn[], System.Tuple<System.Collections.Generic.Dictionary<NBitcoin.BitcoinAddress, NBitcoin.Money>, System.Collections.Generic.Dictionary<System.String, System.String>>, NBitcoin.LockTime, NBitcoin.RPC.FundRawTransactionOptions, System.Boolean)
+  fullName.vb: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBTAsync(NBitcoin.TxIn(), System.Tuple(Of System.Collections.Generic.Dictionary(Of NBitcoin.BitcoinAddress, NBitcoin.Money), System.Collections.Generic.Dictionary(Of System.String, System.String)), NBitcoin.LockTime, NBitcoin.RPC.FundRawTransactionOptions, System.Boolean)
+  nameWithType: RPCClient.WalletCreateFundedPSBTAsync(TxIn[], Tuple<Dictionary<BitcoinAddress, Money>, Dictionary<String, String>>, LockTime, FundRawTransactionOptions, Boolean)
+  nameWithType.vb: RPCClient.WalletCreateFundedPSBTAsync(TxIn(), Tuple(Of Dictionary(Of BitcoinAddress, Money), Dictionary(Of String, String)), LockTime, FundRawTransactionOptions, Boolean)
+- uid: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBTAsync*
+  name: WalletCreateFundedPSBTAsync
+  href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_WalletCreateFundedPSBTAsync_
+  commentId: Overload:NBitcoin.RPC.RPCClient.WalletCreateFundedPSBTAsync
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCClient.WalletCreateFundedPSBTAsync
+  nameWithType: RPCClient.WalletCreateFundedPSBTAsync
 - uid: NBitcoin.RPC.RPCClient.WalletPassphrase(System.String,System.Int32)
   name: WalletPassphrase(String, Int32)
   href: api/NBitcoin.RPC.RPCClient.html#NBitcoin_RPC_RPCClient_WalletPassphrase_System_String_System_Int32_
@@ -47377,6 +47814,12 @@ references:
   commentId: F:NBitcoin.RPC.RPCOperations.getaddressesbyaccount
   fullName: NBitcoin.RPC.RPCOperations.getaddressesbyaccount
   nameWithType: RPCOperations.getaddressesbyaccount
+- uid: NBitcoin.RPC.RPCOperations.getaddressinfo
+  name: getaddressinfo
+  href: api/NBitcoin.RPC.RPCOperations.html#NBitcoin_RPC_RPCOperations_getaddressinfo
+  commentId: F:NBitcoin.RPC.RPCOperations.getaddressinfo
+  fullName: NBitcoin.RPC.RPCOperations.getaddressinfo
+  nameWithType: RPCOperations.getaddressinfo
 - uid: NBitcoin.RPC.RPCOperations.getbalance
   name: getbalance
   href: api/NBitcoin.RPC.RPCOperations.html#NBitcoin_RPC_RPCOperations_getbalance
@@ -47989,6 +48432,64 @@ references:
   isSpec: "True"
   fullName: NBitcoin.RPC.RPCResponse.ThrowIfError
   nameWithType: RPCResponse.ThrowIfError
+- uid: NBitcoin.RPC.RPCTransactionInput
+  name: RPCTransactionInput
+  href: api/NBitcoin.RPC.RPCTransactionInput.html
+  commentId: T:NBitcoin.RPC.RPCTransactionInput
+  fullName: NBitcoin.RPC.RPCTransactionInput
+  nameWithType: RPCTransactionInput
+- uid: NBitcoin.RPC.RPCTransactionInput.#ctor(NBitcoin.TxIn)
+  name: RPCTransactionInput(TxIn)
+  href: api/NBitcoin.RPC.RPCTransactionInput.html#NBitcoin_RPC_RPCTransactionInput__ctor_NBitcoin_TxIn_
+  commentId: M:NBitcoin.RPC.RPCTransactionInput.#ctor(NBitcoin.TxIn)
+  fullName: NBitcoin.RPC.RPCTransactionInput.RPCTransactionInput(NBitcoin.TxIn)
+  nameWithType: RPCTransactionInput.RPCTransactionInput(TxIn)
+- uid: NBitcoin.RPC.RPCTransactionInput.#ctor*
+  name: RPCTransactionInput
+  href: api/NBitcoin.RPC.RPCTransactionInput.html#NBitcoin_RPC_RPCTransactionInput__ctor_
+  commentId: Overload:NBitcoin.RPC.RPCTransactionInput.#ctor
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCTransactionInput.RPCTransactionInput
+  nameWithType: RPCTransactionInput.RPCTransactionInput
+- uid: NBitcoin.RPC.RPCTransactionInput.nSequence
+  name: nSequence
+  href: api/NBitcoin.RPC.RPCTransactionInput.html#NBitcoin_RPC_RPCTransactionInput_nSequence
+  commentId: P:NBitcoin.RPC.RPCTransactionInput.nSequence
+  fullName: NBitcoin.RPC.RPCTransactionInput.nSequence
+  nameWithType: RPCTransactionInput.nSequence
+- uid: NBitcoin.RPC.RPCTransactionInput.nSequence*
+  name: nSequence
+  href: api/NBitcoin.RPC.RPCTransactionInput.html#NBitcoin_RPC_RPCTransactionInput_nSequence_
+  commentId: Overload:NBitcoin.RPC.RPCTransactionInput.nSequence
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCTransactionInput.nSequence
+  nameWithType: RPCTransactionInput.nSequence
+- uid: NBitcoin.RPC.RPCTransactionInput.TxId
+  name: TxId
+  href: api/NBitcoin.RPC.RPCTransactionInput.html#NBitcoin_RPC_RPCTransactionInput_TxId
+  commentId: P:NBitcoin.RPC.RPCTransactionInput.TxId
+  fullName: NBitcoin.RPC.RPCTransactionInput.TxId
+  nameWithType: RPCTransactionInput.TxId
+- uid: NBitcoin.RPC.RPCTransactionInput.TxId*
+  name: TxId
+  href: api/NBitcoin.RPC.RPCTransactionInput.html#NBitcoin_RPC_RPCTransactionInput_TxId_
+  commentId: Overload:NBitcoin.RPC.RPCTransactionInput.TxId
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCTransactionInput.TxId
+  nameWithType: RPCTransactionInput.TxId
+- uid: NBitcoin.RPC.RPCTransactionInput.vout
+  name: vout
+  href: api/NBitcoin.RPC.RPCTransactionInput.html#NBitcoin_RPC_RPCTransactionInput_vout
+  commentId: P:NBitcoin.RPC.RPCTransactionInput.vout
+  fullName: NBitcoin.RPC.RPCTransactionInput.vout
+  nameWithType: RPCTransactionInput.vout
+- uid: NBitcoin.RPC.RPCTransactionInput.vout*
+  name: vout
+  href: api/NBitcoin.RPC.RPCTransactionInput.html#NBitcoin_RPC_RPCTransactionInput_vout_
+  commentId: Overload:NBitcoin.RPC.RPCTransactionInput.vout
+  isSpec: "True"
+  fullName: NBitcoin.RPC.RPCTransactionInput.vout
+  nameWithType: RPCTransactionInput.vout
 - uid: NBitcoin.RPC.ScanTxoutDescriptor
   name: ScanTxoutDescriptor
   href: api/NBitcoin.RPC.ScanTxoutDescriptor.html
@@ -48626,6 +49127,25 @@ references:
   isSpec: "True"
   fullName: NBitcoin.RPC.SignRawTransactionWithKeyRequest.PrivateKeys
   nameWithType: SignRawTransactionWithKeyRequest.PrivateKeys
+- uid: NBitcoin.RPC.TxInExtension
+  name: TxInExtension
+  href: api/NBitcoin.RPC.TxInExtension.html
+  commentId: T:NBitcoin.RPC.TxInExtension
+  fullName: NBitcoin.RPC.TxInExtension
+  nameWithType: TxInExtension
+- uid: NBitcoin.RPC.TxInExtension.ToRPCInputs(NBitcoin.TxIn)
+  name: ToRPCInputs(TxIn)
+  href: api/NBitcoin.RPC.TxInExtension.html#NBitcoin_RPC_TxInExtension_ToRPCInputs_NBitcoin_TxIn_
+  commentId: M:NBitcoin.RPC.TxInExtension.ToRPCInputs(NBitcoin.TxIn)
+  fullName: NBitcoin.RPC.TxInExtension.ToRPCInputs(NBitcoin.TxIn)
+  nameWithType: TxInExtension.ToRPCInputs(TxIn)
+- uid: NBitcoin.RPC.TxInExtension.ToRPCInputs*
+  name: ToRPCInputs
+  href: api/NBitcoin.RPC.TxInExtension.html#NBitcoin_RPC_TxInExtension_ToRPCInputs_
+  commentId: Overload:NBitcoin.RPC.TxInExtension.ToRPCInputs
+  isSpec: "True"
+  fullName: NBitcoin.RPC.TxInExtension.ToRPCInputs
+  nameWithType: TxInExtension.ToRPCInputs
 - uid: NBitcoin.RPC.UnspentCoin
   name: UnspentCoin
   href: api/NBitcoin.RPC.UnspentCoin.html
@@ -48749,6 +49269,51 @@ references:
   isSpec: "True"
   fullName: NBitcoin.RPC.UnspentCoin.ScriptPubKey
   nameWithType: UnspentCoin.ScriptPubKey
+- uid: NBitcoin.RPC.WalletCreateFundedPSBTResponse
+  name: WalletCreateFundedPSBTResponse
+  href: api/NBitcoin.RPC.WalletCreateFundedPSBTResponse.html
+  commentId: T:NBitcoin.RPC.WalletCreateFundedPSBTResponse
+  fullName: NBitcoin.RPC.WalletCreateFundedPSBTResponse
+  nameWithType: WalletCreateFundedPSBTResponse
+- uid: NBitcoin.RPC.WalletCreateFundedPSBTResponse.ChangePos
+  name: ChangePos
+  href: api/NBitcoin.RPC.WalletCreateFundedPSBTResponse.html#NBitcoin_RPC_WalletCreateFundedPSBTResponse_ChangePos
+  commentId: P:NBitcoin.RPC.WalletCreateFundedPSBTResponse.ChangePos
+  fullName: NBitcoin.RPC.WalletCreateFundedPSBTResponse.ChangePos
+  nameWithType: WalletCreateFundedPSBTResponse.ChangePos
+- uid: NBitcoin.RPC.WalletCreateFundedPSBTResponse.ChangePos*
+  name: ChangePos
+  href: api/NBitcoin.RPC.WalletCreateFundedPSBTResponse.html#NBitcoin_RPC_WalletCreateFundedPSBTResponse_ChangePos_
+  commentId: Overload:NBitcoin.RPC.WalletCreateFundedPSBTResponse.ChangePos
+  isSpec: "True"
+  fullName: NBitcoin.RPC.WalletCreateFundedPSBTResponse.ChangePos
+  nameWithType: WalletCreateFundedPSBTResponse.ChangePos
+- uid: NBitcoin.RPC.WalletCreateFundedPSBTResponse.Fee
+  name: Fee
+  href: api/NBitcoin.RPC.WalletCreateFundedPSBTResponse.html#NBitcoin_RPC_WalletCreateFundedPSBTResponse_Fee
+  commentId: P:NBitcoin.RPC.WalletCreateFundedPSBTResponse.Fee
+  fullName: NBitcoin.RPC.WalletCreateFundedPSBTResponse.Fee
+  nameWithType: WalletCreateFundedPSBTResponse.Fee
+- uid: NBitcoin.RPC.WalletCreateFundedPSBTResponse.Fee*
+  name: Fee
+  href: api/NBitcoin.RPC.WalletCreateFundedPSBTResponse.html#NBitcoin_RPC_WalletCreateFundedPSBTResponse_Fee_
+  commentId: Overload:NBitcoin.RPC.WalletCreateFundedPSBTResponse.Fee
+  isSpec: "True"
+  fullName: NBitcoin.RPC.WalletCreateFundedPSBTResponse.Fee
+  nameWithType: WalletCreateFundedPSBTResponse.Fee
+- uid: NBitcoin.RPC.WalletCreateFundedPSBTResponse.PSBT
+  name: PSBT
+  href: api/NBitcoin.RPC.WalletCreateFundedPSBTResponse.html#NBitcoin_RPC_WalletCreateFundedPSBTResponse_PSBT
+  commentId: P:NBitcoin.RPC.WalletCreateFundedPSBTResponse.PSBT
+  fullName: NBitcoin.RPC.WalletCreateFundedPSBTResponse.PSBT
+  nameWithType: WalletCreateFundedPSBTResponse.PSBT
+- uid: NBitcoin.RPC.WalletCreateFundedPSBTResponse.PSBT*
+  name: PSBT
+  href: api/NBitcoin.RPC.WalletCreateFundedPSBTResponse.html#NBitcoin_RPC_WalletCreateFundedPSBTResponse_PSBT_
+  commentId: Overload:NBitcoin.RPC.WalletCreateFundedPSBTResponse.PSBT
+  isSpec: "True"
+  fullName: NBitcoin.RPC.WalletCreateFundedPSBTResponse.PSBT
+  nameWithType: WalletCreateFundedPSBTResponse.PSBT
 - uid: NBitcoin.RPC.WalletProcessPSBTResponse
   name: WalletProcessPSBTResponse
   href: api/NBitcoin.RPC.WalletProcessPSBTResponse.html
